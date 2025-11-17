@@ -1,4 +1,45 @@
 # ArifOS AAA Runtime · v33Ω
+## Status
+
+Installation
+
+ArifOS is available on PyPI:
+
+pip install arifos
+
+
+Requires Python 3.8+.
+
+Quick Start
+from arifos_core import Metrics, apex_review
+
+# Define metrics for evaluation
+metrics = Metrics(
+    truth=0.99,
+    delta_S=0.15,
+    peace2=1.05,
+    kappa_r=0.97,
+    omega_0=0.04,
+    amanah=True,
+    tri_witness=1.0,
+    psi=1.03,
+)
+
+# Evaluate the constitutional verdict
+verdict = apex_review(metrics, high_stakes=False)
+print(verdict)  # "SEAL", "PARTIAL", or "VOID"
+
+![Version](https://img.shields.io/badge/version-33%CE%A9-green)
+![State](https://img.shields.io/badge/state-Basecamp--Locked-blue)
+![Python](https://img.shields.io/badge/Python-3.8%2B-yellow)
+![License](https://img.shields.io/badge/license-Apache%202.0-green)
+
+**Current State:** v33Ω Basecamp Lock (2025-11-16)
+
+- ✅ Constitutional spec complete  
+- ✅ Python reference implementation working  
+- ✅ Tests passing (SEAL/PARTIAL/VOID logic)  
+- ⚙️ Framework examples still stubs  
 
 **Constitutional Governance Kernel for AI Agents**  
 ARIF AGI (Δ) · ADAM ASI (Ω) · APEX PRIME (Ψ)
