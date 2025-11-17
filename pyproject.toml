@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "arifos"
+version = "33.0.0"
+description = "ArifOS AAA Runtime — ΔΩΨ-governed constitutional kernel for AI agents"
+authors = [
+    { name = "Muhammad Arif bin Fazil" }
+]
+license = { text = "Apache-2.0" }
+readme = "README.md"
+requires-python = ">=3.8"
+
+[project.urls]
+Homepage = "https://github.com/ariffazil/arifOS"
+Documentation = "https://github.com/ariffazil/arifOS"
+Source = "https://github.com/ariffazil/arifOS"
+
+[tool.setuptools]
+packages = ["arifos_core"]
+
+[tool.setuptools.package-data]
+arifos_core = ["*.py"]
