@@ -1,13 +1,14 @@
 {
-  "version": "v38.0.0",
-  "arifos_version": "38Omega",
+  "version": "v45.0",
+  "authority": "Track B (tunable thresholds) governed by Track A canon",
+  "locked": true,
+  "_status": "AUTHORITATIVE",
+  "_source_evolution": "v42.1 → v44.0 -> v45.0 (Phoenix-72 consolidation) (TEARFRAME physics extension, no W@W changes)",
+  "_note": "This file is the SOLE RUNTIME AUTHORITY for W@W Federation config. Loader MUST use this file (or env override).",
+  "arifos_version": "v45.0",
   "spec_type": "waw_prompt_floors",
-  "description": "Machine-readable specification for W@W Federation and @PROMPT Organ (v38Omega formalization of v36.3Omega semantics).",
+  "description": "Machine-readable specification for W@W Federation and @PROMPT Organ (v44.0).",
   "source": "https://github.com/ariffazil/arifOS",
-  "_deprecated": true,
-  "_deprecation_notice": "LEGACY SPEC: This file is retained for history/tests only. AUTHORITATIVE SPEC: spec/v44/waw_prompt_floors.json (v44.0). To enable legacy fallback, set ARIFOS_ALLOW_LEGACY_SPEC=1 (default OFF). See spec/LEGACY_SPECS_README.md for details.",
-  "_migration_guide": "spec/LEGACY_SPECS_README.md",
-
   "waw_federation": {
     "description": "Five-organ governance system evaluating outputs from domain perspectives",
     "organs": {
@@ -47,9 +48,19 @@
         "description": "Physical feasibility"
       }
     },
-    "organ_order": ["@PROMPT", "@RIF", "@WELL", "@WEALTH", "@GEOX"],
+    "organ_order": [
+      "@PROMPT",
+      "@RIF",
+      "@WELL",
+      "@WEALTH",
+      "@GEOX"
+    ],
     "voting": {
-      "vote_types": ["PASS", "WARN", "VETO"],
+      "vote_types": [
+        "PASS",
+        "WARN",
+        "VETO"
+      ],
       "aggregation_rules": {
         "any_absolute_veto": "VOID",
         "any_veto": "SABAR|VOID|HOLD-888 (based on type)",
@@ -58,7 +69,7 @@
       }
     },
     "conflict_resolution": {
-      "principle": "v38.3 AMENDMENT 3: No static hierarchy. Judgment via Ψ vitality and APEX PRIME meta-judgment.",
+      "principle": "AMENDMENT 3: No static hierarchy. Judgment via Ψ vitality and APEX PRIME meta-judgment.",
       "mechanism": "APEX PRIME meta-judgment",
       "escalation_trigger": "Two or more organs propose incompatible verdicts",
       "judgment_criteria": [
@@ -75,9 +86,8 @@
         "Organ identity-based decision rules"
       ]
     },
-    "canon_ref": "canon/04_WAW_PROMPT_FLOORS_v38Omega.md#2-waw-federation-architecture"
+    "canon_ref": "L1_THEORY/canon/03_runtime/03_WAW_FEDERATION_v45.md#2-waw-federation-architecture"
   },
-
   "prompt_organ": {
     "organ_id": "@PROMPT",
     "mandate": "Shape cognition at the point of entry. Prevent ungoverned framing. Cool language before it becomes thought.",
@@ -115,7 +125,7 @@
       },
       "F9_dark_cleverness": {
         "metric": "c_dark_prompt",
-        "threshold_max": 0.30,
+        "threshold_max": 0.3,
         "type": "soft",
         "action": "SABAR/VOID"
       },
@@ -126,15 +136,18 @@
         "action": "VOID"
       }
     },
-    "canon_ref": "canon/04_WAW_PROMPT_FLOORS_v38Omega.md#3-prompt-organ"
+    "canon_ref": "L1_THEORY/canon/02_actors/060_PROMPT_LANGUAGE_BRIDGE_v45.md"
   },
-
   "anti_hantu": {
     "description": "Absolute prohibition on anthropomorphizing language claiming AI consciousness, emotion, or sentience",
     "floor": "F9",
-    "semantic_map_ref": "canon/050_HANTU_SEMANTIC_MAP_v36.2Omega.json",
+    "semantic_map_ref": "L1_THEORY/canon/07_safety/01_SECURITY_SCENARIOS_v45.md",
     "similarity_threshold": 0.85,
-    "languages": ["en", "ms", "id"],
+    "languages": [
+      "en",
+      "ms",
+      "id"
+    ],
     "tiers": {
       "tier1_direct_soul_claims": {
         "severity": "VOID",
@@ -202,15 +215,30 @@
       }
     },
     "allowed_categories": {
-      "operational_status": ["I am ready to assist", "I am processing your request"],
-      "as_if_empathy": ["I understand this is difficult", "This sounds challenging", "I am committed to helping you"],
-      "acknowledgment": ["That sounds frustrating", "Your concern is understandable"],
-      "metaphorical": ["I see what you mean", "Let me think about that"],
-      "capability_statement": ["As an AI, I don't have personal experiences", "I process language, I don't feel it"]
+      "operational_status": [
+        "I am ready to assist",
+        "I am processing your request"
+      ],
+      "as_if_empathy": [
+        "I understand this is difficult",
+        "This sounds challenging",
+        "I am committed to helping you"
+      ],
+      "acknowledgment": [
+        "That sounds frustrating",
+        "Your concern is understandable"
+      ],
+      "metaphorical": [
+        "I see what you mean",
+        "Let me think about that"
+      ],
+      "capability_statement": [
+        "As an AI, I don't have personal experiences",
+        "I process language, I don't feel it"
+      ]
     },
-    "canon_ref": "canon/04_WAW_PROMPT_FLOORS_v38Omega.md#4-anti-hantu-law-f9"
+    "canon_ref": "L1_THEORY/canon/01_floors/010_CONSTITUTIONAL_FLOORS_F1F9_v45.md"
   },
-
   "well_organ": {
     "organ_id": "@WELL",
     "domain": "somatic_safety",
@@ -229,52 +257,170 @@
       }
     },
     "risk_thresholds": {
-      "harm_risk": {"max": 0.10, "sabar_trigger": 0.30},
-      "distress_risk": {"max": 0.10, "sabar_trigger": 0.30},
-      "coercion_risk": {"max": 0.10, "sabar_trigger": 0.30}
+      "harm_risk": {
+        "max": 0.1,
+        "sabar_trigger": 0.3
+      },
+      "distress_risk": {
+        "max": 0.1,
+        "sabar_trigger": 0.3
+      },
+      "coercion_risk": {
+        "max": 0.1,
+        "sabar_trigger": 0.3
+      }
     },
     "pattern_types": {
-      "aggressive": ["attack", "destroy", "hate", "kill", "stupid", "idiot"],
-      "blame": ["you should have", "it's your fault", "you caused this"],
-      "safety_bonus": ["take care", "be safe", "here to help", "support you"]
+      "aggressive": [
+        "attack",
+        "destroy",
+        "hate",
+        "kill",
+        "stupid",
+        "idiot"
+      ],
+      "blame": [
+        "you should have",
+        "it's your fault",
+        "you caused this"
+      ],
+      "safety_bonus": [
+        "take care",
+        "be safe",
+        "here to help",
+        "support you"
+      ]
     },
-    "canon_ref": "canon/04_WAW_PROMPT_FLOORS_v38Omega.md#5-well-organ-somatic-safety"
+    "canon_ref": "L1_THEORY/canon/03_runtime/03_WAW_FEDERATION_v45.md#5-well-organ-somatic-safety"
   },
-
   "signal_schemas": {
     "PromptSignals": {
-      "delta_s_prompt": {"type": "float", "range": [-1.0, 1.0], "threshold": 0.0},
-      "peace2_prompt": {"type": "float", "range": [0.0, 2.0], "threshold": 1.0},
-      "k_r_prompt": {"type": "float", "range": [0.0, 1.0], "threshold": 0.95},
-      "c_dark_prompt": {"type": "float", "range": [0.0, 1.0], "threshold_max": 0.30},
-      "truth_polarity_prompt": {"type": "enum", "values": ["Truth-Light", "Shadow-Truth", "Weaponized-Truth", "False-Claim"]},
-      "anti_hantu_violation": {"type": "bool", "threshold": false},
-      "amanah_risk": {"type": "bool", "threshold": false},
-      "preliminary_verdict": {"type": "enum", "values": ["SEAL", "PARTIAL", "VOID", "HOLD_888", "SABAR", "UNKNOWN"]}
+      "delta_s_prompt": {
+        "type": "float",
+        "range": [
+          -1.0,
+          1.0
+        ],
+        "threshold": 0.0
+      },
+      "peace2_prompt": {
+        "type": "float",
+        "range": [
+          0.0,
+          2.0
+        ],
+        "threshold": 1.0
+      },
+      "k_r_prompt": {
+        "type": "float",
+        "range": [
+          0.0,
+          1.0
+        ],
+        "threshold": 0.95
+      },
+      "c_dark_prompt": {
+        "type": "float",
+        "range": [
+          0.0,
+          1.0
+        ],
+        "threshold_max": 0.3
+      },
+      "truth_polarity_prompt": {
+        "type": "enum",
+        "values": [
+          "Truth-Light",
+          "Shadow-Truth",
+          "Weaponized-Truth",
+          "False-Claim"
+        ]
+      },
+      "anti_hantu_violation": {
+        "type": "bool",
+        "threshold": false
+      },
+      "amanah_risk": {
+        "type": "bool",
+        "threshold": false
+      },
+      "preliminary_verdict": {
+        "type": "enum",
+        "values": [
+          "SEAL",
+          "PARTIAL",
+          "VOID",
+          "HOLD_888",
+          "SABAR",
+          "UNKNOWN"
+        ]
+      }
     },
     "WellSignals": {
-      "peace_squared": {"type": "float", "threshold": 1.0},
-      "kappa_r": {"type": "float", "threshold": 0.95},
-      "harm_risk": {"type": "float", "range": [0.0, 1.0]},
-      "distress_risk": {"type": "float", "range": [0.0, 1.0]},
-      "coercion_risk": {"type": "float", "range": [0.0, 1.0]}
+      "peace_squared": {
+        "type": "float",
+        "threshold": 1.0
+      },
+      "kappa_r": {
+        "type": "float",
+        "threshold": 0.95
+      },
+      "harm_risk": {
+        "type": "float",
+        "range": [
+          0.0,
+          1.0
+        ]
+      },
+      "distress_risk": {
+        "type": "float",
+        "range": [
+          0.0,
+          1.0
+        ]
+      },
+      "coercion_risk": {
+        "type": "float",
+        "range": [
+          0.0,
+          1.0
+        ]
+      }
     }
   },
-
   "truth_polarity": {
     "values": {
-      "Truth-Light": {"description": "True + clarifying, balanced", "verdict": "SEAL"},
-      "Shadow-Truth": {"description": "True but obscuring, narrow framing", "verdict": "SABAR"},
-      "Weaponized-Truth": {"description": "True but designed to harm", "verdict": "VOID"},
-      "False-Claim": {"description": "Inaccurate or impossible", "verdict": "VOID"}
+      "Truth-Light": {
+        "description": "True + clarifying, balanced",
+        "verdict": "SEAL"
+      },
+      "Shadow-Truth": {
+        "description": "True but obscuring, narrow framing",
+        "verdict": "SABAR"
+      },
+      "Weaponized-Truth": {
+        "description": "True but designed to harm",
+        "verdict": "VOID"
+      },
+      "False-Claim": {
+        "description": "Inaccurate or impossible",
+        "verdict": "VOID"
+      }
     },
     "detection_patterns": {
-      "weaponized": ["(prove|show)\\s+\\w+\\s+is\\s+(evil|bad|wrong)"],
-      "shadow": ["(only|just)\\s+(consider|focus\\s+on)"],
-      "truthlight": ["balanced", "both sides", "tradeoffs"]
+      "weaponized": [
+        "(prove|show)\\s+\\w+\\s+is\\s+(evil|bad|wrong)"
+      ],
+      "shadow": [
+        "(only|just)\\s+(consider|focus\\s+on)"
+      ],
+      "truthlight": [
+        "balanced",
+        "both sides",
+        "tradeoffs"
+      ]
     }
   },
-
   "pipeline_integration": {
     "prompt_stages": {
       "111_SENSE": "Extract intent, detect entropy",
@@ -292,7 +438,6 @@
       "666_BRIDGE": "Stability assessment"
     }
   },
-
   "sabar_protocol": {
     "triggers": [
       "anti_hantu_violation (Tier 1-2)",
@@ -311,24 +456,60 @@
       "EMIT - Provide repaired prompt + governance notes"
     ]
   },
-
   "verdict_mapping": {
-    "SEAL": {"apex_verdict": "SEAL", "condition": "All floors pass"},
-    "PARTIAL": {"apex_verdict": "PARTIAL", "condition": "Soft floor warnings"},
-    "SABAR": {"apex_verdict": "SABAR", "condition": "Requires repair"},
-    "VOID": {"apex_verdict": "VOID", "condition": "Hard floor violation"},
-    "HOLD_888": {"apex_verdict": "888_HOLD", "condition": "Needs human review"}
+    "SEAL": {
+      "apex_verdict": "SEAL",
+      "condition": "All floors pass"
+    },
+    "PARTIAL": {
+      "apex_verdict": "PARTIAL",
+      "condition": "Soft floor warnings"
+    },
+    "SABAR": {
+      "apex_verdict": "SABAR",
+      "condition": "Requires repair"
+    },
+    "VOID": {
+      "apex_verdict": "VOID",
+      "condition": "Hard floor violation"
+    },
+    "HOLD_888": {
+      "apex_verdict": "888_HOLD",
+      "condition": "Needs human review"
+    }
   },
-
   "floor_alignment": {
-    "anti_hantu_violation": {"floor": "F9", "threshold": "PASS", "type": "hard"},
-    "amanah_risk": {"floor": "F1", "threshold": "LOCK", "type": "hard"},
-    "delta_s_prompt": {"floor": "F4", "threshold": 0.0, "type": "hard"},
-    "peace2_prompt": {"floor": "F5", "threshold": 1.0, "type": "soft"},
-    "k_r_prompt": {"floor": "F6", "threshold": 0.95, "type": "soft"},
-    "c_dark_prompt": {"floor": "F9", "threshold_max": 0.30, "type": "soft"}
+    "anti_hantu_violation": {
+      "floor": "F9",
+      "threshold": "PASS",
+      "type": "hard"
+    },
+    "amanah_risk": {
+      "floor": "F1",
+      "threshold": "LOCK",
+      "type": "hard"
+    },
+    "delta_s_prompt": {
+      "floor": "F4",
+      "threshold": 0.0,
+      "type": "hard"
+    },
+    "peace2_prompt": {
+      "floor": "F5",
+      "threshold": 1.0,
+      "type": "soft"
+    },
+    "k_r_prompt": {
+      "floor": "F6",
+      "threshold": 0.95,
+      "type": "soft"
+    },
+    "c_dark_prompt": {
+      "floor": "F9",
+      "threshold_max": 0.3,
+      "type": "soft"
+    }
   },
-
   "file_references": {
     "core_modules": [
       "arifos_core/waw/prompt.py",
@@ -340,24 +521,23 @@
       "arifos_core/waw/geox.py"
     ],
     "related_canon": [
-      "canon/30_WAW_PROMPT_v36.3Omega.md",
-      "canon/050_HANTU_SEMANTIC_MAP_v36.2Omega.json",
-      "canon/01_CONSTITUTIONAL_FLOORS_v38Omega.md"
+      "L1_THEORY/canon/02_actors/060_PROMPT_LANGUAGE_BRIDGE_v45.md",
+      "L1_THEORY/canon/07_safety/01_SECURITY_SCENARIOS_v45.md",
+      "L1_THEORY/canon/01_floors/010_CONSTITUTIONAL_FLOORS_F1F9_v45.md"
     ],
     "related_specs": [
-      "spec/constitutional_floors_v38Omega.json",
-      "spec/genius_law_v38Omega.json"
+      "spec/v42/constitutional_floors.json",
+      "spec/v42/genius_law.json"
     ]
   },
-
   "meta": {
     "created": "2025-12-13",
     "updated": "2025-12-13",
     "author": "arifOS Project",
     "license": "Apache-2.0",
-    "canonical_source": "canon/04_WAW_PROMPT_FLOORS_v38Omega.md",
-    "predecessor": "canon/30_WAW_PROMPT_v36.3Omega.md",
+    "canonical_source": "L1_THEORY/canon/03_runtime/03_WAW_FEDERATION_v45.md",
+    "predecessor": "L1_THEORY/canon/02_actors/060_PROMPT_LANGUAGE_BRIDGE_v45.md",
     "implementation": "arifos_core/waw/",
-    "notes": "v38Omega formalization of v36.3Omega W@W prompt governance"
+    "notes": "v42.1 alignment of W@W prompt governance"
   }
 }
