@@ -2,14 +2,9 @@
 #
 # Build:
 #   docker build -t arifos-api:v47 .
-#   docker build -t arifos-api:v47 --build-arg ARIFOS_VERSION=v47.0.0 .
 #
 # Run:
 #   docker run -p 8000:8000 arifos-api:v47
-#   docker run -p 8000:8000 -e ARIFOS_ENV=development arifos-api:v47
-#
-# With docker-compose:
-#   docker-compose up
 #
 # Health check:
 #   curl http://localhost:8000/health
@@ -47,28 +42,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     make \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy dependency files first for better layer caching
-COPY pyproject.toml README.md ./
+COPY pyproject.toml README.md requirements.txt . ./
 
 # Install dependencies to a specific directory
-RUN pip install --prefix=/install --no-warn-script-location \
-    fastapi>=0.100.0 \
-    uvicorn[standard]>=0.23.0 \
-    pydantic>=2.0.0 \
-    pydantic-settings>=2.0.0 \
-    numpy>=1.20.0 \
-    httpx>=0.24.0 \
-    python-multipart>=0.0.6
+RUN pip install --prefix=/install --no-warn-script-location -r requirements.txt
 
 # Copy application source
 COPY arifos_core/ ./arifos_core/
-COPY arifos_ledger/ ./arifos_ledger/
 COPY L1_THEORY/ ./L1_THEORY/
 COPY L2_PROTOCOLS/ ./L2_PROTOCOLS/
 COPY config/ ./config/
-COPY scripts/trinity.py ./scripts/
+COPY scripts/ ./scripts/
 
 # Install arifOS package
 RUN pip install --prefix=/install --no-warn-script-location -e .
@@ -83,7 +71,7 @@ ARG ARIFOS_VERSION=v47.0.0
 ARG BUILD_DATE
 ARG VCS_REF
 
-# Labels (same as builder for image metadata)
+# Labels
 LABEL org.opencontainers.image.title="arifOS Constitutional API"
 LABEL org.opencontainers.image.description="12-Floor Constitutional Governance System"
 LABEL org.opencontainers.image.version="${ARIFOS_VERSION}"
@@ -104,23 +92,27 @@ ENV PATH=/usr/local/lib/python3.11/site-packages:/usr/local/bin:$PATH
 # Create non-root user for security (F6 Amanah - Safety principle)
 RUN groupadd --gid 1000 arifos && \
     useradd --uid 1000 --gid arifos --shell /bin/bash --create-home arifos && \
-    mkdir -p /app /app/logs /app/ledger /app/sessions && \
+    mkdir -p /app /app/ledger /app/sessions /app/logs && \
     chown -R arifos:arifos /app
 
 # Set work directory
 WORKDIR /app
+
+# Install curl in runtime for health checks
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy installed dependencies from builder
 COPY --from=builder --chown=arifos:arifos /install /usr/local
 
 # Copy application code
 COPY --chown=arifos:arifos arifos_core/ ./arifos_core/
-COPY --chown=arifos:arifos arifos_ledger/ ./arifos_ledger/
 COPY --chown=arifos:arifos L1_THEORY/ ./L1_THEORY/
 COPY --chown=arifos:arifos L2_PROTOCOLS/ ./L2_PROTOCOLS/
 COPY --chown=arifos:arifos config/ ./config/
-COPY --chown=arifos:arifos scripts/trinity.py ./scripts/
-COPY --chown=arifos:arifos pyproject.toml README.md ./
+COPY --chown=arifos:arifos scripts/ ./scripts/
+COPY --chown=arifos:arifos pyproject.toml README.md requirements.txt ./
 
 # Install arifOS in editable mode
 RUN pip install --no-cache-dir -e .
@@ -132,19 +124,9 @@ USER arifos
 EXPOSE 8000
 
 # Health check (F2 Truth - Verify system state)
+# Note: VOLUME directive is removed for Railway compatibility. Use persistent storage mounts.
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()" || exit 1
+    CMD curl -f http://localhost:8000/health || exit 1
 
-# Volume mount points for persistent data
-VOLUME ["/app/ledger", "/app/sessions", "/app/logs"]
-
-# Run the Constitutional API server
-CMD ["uvicorn", "arifos_core.integration.api.app:app", \
-     "--host", "0.0.0.0", \
-     "--port", "8000", \
-     "--log-level", "info", \
-     "--access-log", \
-     "--use-colors"]
-
-# Optional: Development mode override
-# CMD ["uvicorn", "arifos_core.integration.api.app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+# Run the Constitutional SSE server
+CMD ["python", "scripts/arifos_sse_server.py"]
