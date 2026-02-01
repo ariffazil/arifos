@@ -20,17 +20,16 @@
 ## 📖 Table of Contents
 
 - [Description](#-description)
-- [Key Features](#-key-features)
+- [Visual Architecture](#-visual-architecture)
 - [The AAA Architecture](#-the-aaa-architecture)
 - [Constitutional Floors](#-constitutional-floors)
+- [System Prompts](#-system-prompts)
 - [Installation](#-installation)
 - [Quick Start](#-quick-start)
 - [MCP Integration](#-mcp-integration)
 - [Development](#-development)
-- [Testing](#-testing)
 - [Contributing](#-contributing)
 - [License](#-license)
-- [Acknowledgments](#-acknowledgments)
 
 ---
 
@@ -44,24 +43,41 @@ In an era of unchecked AI hallucination and value conflicts, arifOS provides the
 
 | Problem | The arifOS Solution |
 | :--- | :--- |
-| **Unaccountable AI** | 100% immutable Merkle-sealed audit trail (VAULT-999) |
-| **Value Conflicts** | Nash equilibrium solver for 9 fundamental ethical paradoxes |
-| **Prompt Injection** | F12 Hardening with a 92% injection block rate |
+| **Unaccountable AI** | [**Immutable Merkle-sealed Audit Trail**](000_THEORY/011_VAULT_MCP.md) |
+| **Value Conflicts** | [**9-Paradox Equilibrium Solver**](000_THEORY/012_VERDICT_PARADOX.md) |
+| **Prompt Injection** | [**F12 Hardening Defense**](000_THEORY/002_SECURITY.md) |
 
 ---
 
-## ✨ Key Features
+## 🖼 Visual Architecture
 
-- **Tri-Layer Governance**: The **AAA Framework** splits decision-making into Mind (Logic), Heart (Safety), and Soul (Verdict).
-- **13 Enforceable Floors**: Hard constraints on Truth, Safety, Empathy, and Reality that cannot be bypassed.
-- **Paradox Resolution**: Mathematically solves conflicts between competing values (e.g., Truth vs. Kindness).
-- **Immutable Auditing**: Every decision is cryptographically sealed in **VAULT-999**.
-- **Model Agnostic**: Works with Claude, GPT, Gemini, Llama, and more.
-- **MCP Native**: Fully compatible with the **Model Context Protocol** for seamless tool integration.
+The visual forged documentation of arifOS concepts.
+
+| **The Constitutional Forge** | **The Trinity Engine** |
+| :---: | :---: |
+| <img src="docs/forged_page_1.png" width="400" alt="Forged Page 1"> | <img src="docs/forged_page_2.png" width="400" alt="Forged Page 2"> |
+| *The foundational governance layer* | *The Mind, Heart, and Soul interaction* |
+
+| **The Verdict Logic** | **The Safety Floors** |
+| :---: | :---: |
+| <img src="docs/forged_page_3.png" width="400" alt="Forged Page 3"> | <img src="docs/forged_page_4.png" width="400" alt="Forged Page 4"> |
+| *Decision-making matrix* | *The 13 Constitutional constraints* |
+
+<div align="center">
+
+**The Paradox Equilibrium**
+
+<img src="docs/forged_page_5.png" width="600" alt="Forged Page 5">
+
+*Solving the tension between competing ethical values*
+
+</div>
 
 ---
 
 ## 🏗 The AAA Architecture
+
+See full documentation: [**000_ARCHITECTURE.md**](000_THEORY/000_ARCHITECTURE.md)
 
 arifOS uses a biological metaphor for its three core engines:
 
@@ -84,6 +100,8 @@ arifOS uses a biological metaphor for its three core engines:
 
 ## 📜 Constitutional Floors
 
+See full documentation: [**000_LAW.md**](000_THEORY/000_LAW.md)
+
 Every AI output must pass these **13 Floors** before being released:
 
 | Floor | Principle | Description | Failure Action |
@@ -104,18 +122,32 @@ Every AI output must pass these **13 Floors** before being released:
 
 ---
 
+## 🤖 System Prompts
+
+You can govern any LLM using the arifOS Constitutional Framework. Choose the prompt that fits your use case.
+
+### 1. Autonomous Governance (For AI Agents)
+*Use these system prompts to embed arifOS governance into your AI applications.*
+
+*   **[Concise Version](docs/PROMPTS/AUTONOMOUS_CONCISE.md)** - *Low token cost, high enforcement.*
+*   **[Comprehensive Version](docs/PROMPTS/AUTONOMOUS_COMPREHENSIVE.md)** - *Full "CCC" Constitutional Code of Conduct.*
+
+### 2. Human Copy-Paste (For Chatbots)
+*Copy this text directly into Claude, ChatGPT, or Gemini to activate an arifOS session manually.*
+
+*   **[Human Readable Prompt](docs/PROMPTS/HUMAN_READABLE.md)** - *Simple instructions for immediate session governance.*
+
+---
+
 ## 📦 Installation
 
-### Prerequisites
-- Python 3.10 or higher
-- `pip`
+See full guide: [**013_IGNITION.md**](000_THEORY/013_IGNITION.md)
 
-### Install from PyPI
 ```bash
 pip install arifos
 ```
 
-### Install from Source
+Or from source:
 ```bash
 git clone https://github.com/ariffazil/arifOS.git
 cd arifOS
@@ -155,6 +187,8 @@ if __name__ == "__main__":
 
 ## 🔌 MCP Integration
 
+See full documentation: [**055_MCP_ARCHITECTURE.md**](000_THEORY/055_MCP_ARCHITECTURE.md)
+
 arifOS exposes **7 production-ready tools** via the [Model Context Protocol (MCP)](https://modelcontextprotocol.io/):
 
 | Tool | Symbol | Purpose |
@@ -167,26 +201,11 @@ arifOS exposes **7 production-ready tools** via the [Model Context Protocol (MCP
 | `_trinity_` | 🔄 | Full pipeline execution |
 | `_reality_` | 🌍 | External fact-checking |
 
-### Claude Desktop Configuration
-Add this to your `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "arifos": {
-      "command": "python",
-      "args": ["-m", "codebase.mcp"],
-      "env": {
-        "PYTHONPATH": "/path/to/arifOS"
-      }
-    }
-  }
-}
-```
-
 ---
 
 ## 🛠 Development
+
+See full guide: [**003_CONTRIBUTING.md**](000_THEORY/003_CONTRIBUTING.md)
 
 ### Setup Environment
 ```bash
@@ -206,55 +225,23 @@ python -m codebase.mcp
 
 ---
 
-## 🧪 Testing
-
-We maintain a high standard of reliability with >90% test coverage.
-
-```bash
-# Run full test suite
-pytest tests/ -v
-
-# Run only constitutional floor tests
-pytest tests/test_hardened_v53.py
-
-# Run equilibrium solver tests
-pytest tests/test_nine_paradox.py
-```
-
----
-
 ## 🤝 Contributing
 
-We welcome contributions that align with our constitutional values!
+We welcome contributions! Please see [**CONTRIBUTING.md**](CONTRIBUTING.md) and [**003_CONTRIBUTING.md**](000_THEORY/003_CONTRIBUTING.md).
 
 1.  **Fork** the repository.
-2.  **Create** a feature branch (`git checkout -b feature/amazing-feature`).
-3.  **Commit** your changes (`git commit -m 'Add amazing feature'`).
-4.  **Push** to the branch (`git push origin feature/amazing-feature`).
+2.  **Create** a feature branch.
+3.  **Commit** your changes.
+4.  **Push** to the branch.
 5.  **Open** a Pull Request.
-
-Please read our [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and development process.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **AGPL-3.0 License** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **AGPL-3.0 License** - see the [**LICENSE**](LICENSE) file for details.
 
 > *Safety systems must be transparent and inspectable.*
-
----
-
-## 👏 Acknowledgments
-
-**Theoretical Foundations:**
-*   **Isaac Asimov** (Three Laws of Robotics)
-*   **John Rawls** (Theory of Justice)
-*   **Claude Shannon** (Information Theory)
-*   **Rudolf Kalman** (Kalman Filter)
-*   **John Nash** (Game Theory)
-
-**Motto:** *"Ditempa Bukan Diberi"* — Forged, Not Given.
 
 ---
 
