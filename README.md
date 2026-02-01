@@ -112,6 +112,8 @@ The visual forged documentation of arifOS concepts. These figures illustrate the
 
 *Solving the tension between competing ethical values.*
 
+[**View High-Resolution Forge**](https://arifos.arif-fazil.com)
+
 </div>
 
 ---
@@ -201,7 +203,8 @@ arifOS does not view ethics as binary. It views them as tensions to be balanced.
 
 ## 📱 VIII. The 333_APPS Stack (Applications)
 
-*Full Documentation: [333_APPS/README.md](333_APPS/README.md)*
+*Full Documentation: [333_APPS/README.md](333_APPS/README.md)*  
+*Live Atlas: [https://arifos.arif-fazil.com](https://arifos.arif-fazil.com)*
 
 The **333_APPS** directory organizes the practical applications of arifOS into a **7-Layer Stack**. This structure allows users of any technical level to adopt constitutional governance, from a simple copy-paste to running a full AI institution.
 
