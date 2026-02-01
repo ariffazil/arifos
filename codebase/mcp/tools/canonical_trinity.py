@@ -80,7 +80,38 @@ async def mcp_init(
     result["motto"] = "DITEMPA, BUKAN DIBERI \U0001f9e0\U0001f525\U0001f48e"
     result["root_key"] = "TOY_MODE"
 
-    return result
+    # Adapter: Map internal result to ToolRegistry schema
+    # Schema requires: session_id, authority_level, budget_allocated, injection_check_passed, access_level, session_ttl, constitutional_version
+
+    # 1. Map authority -> authority_level
+    auth = result.get("authority", "GUEST").lower()
+    if "judge" in auth or "admin" in auth:
+        auth_level = "admin"
+    elif "authorized" in str(result.get("status", "")).lower() or result.get("authority_verified"):
+        auth_level = "user"
+    else:
+        auth_level = "guest"
+
+    # 2. Map injection_risk -> injection_check_passed
+    risk = result.get("injection_risk", 0.0)
+    passed = risk < 0.15
+
+    # 3. Fill missing schema fields
+    adapted_result = {
+        "session_id": result.get("session_id", session_id or "unknown"),
+        "authority_level": auth_level,
+        "budget_allocated": int(result.get("energy_budget", 1.0) * 100),
+        "injection_check_passed": passed,
+        "access_level": result.get("lane", "SOFT"),
+        "session_ttl": 3600,  # Default TTL
+        "constitutional_version": "v55.2",
+        # Keep original helpful data
+        "original_status": result.get("status"),
+        "reason": result.get("reason"),
+        "motto": result["motto"],
+    }
+
+    return adapted_result
 
 
 # ==============================================================================
@@ -98,7 +129,44 @@ async def mcp_agi(
     session_id = kwargs.pop("session_id", session_id)
 
     kernel = get_kernel_manager().get_agi()
-    return await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
+    raw_result = await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
+
+    # Adapter: Map to ToolRegistry schema
+    # Schema requires: session_id, entropy_delta, vote
+
+    # Convert Dataclass/Pydantic to dict if needed
+    if hasattr(raw_result, "dict"):
+        result = raw_result.dict()
+    elif hasattr(raw_result, "asdict"):
+        result = raw_result.asdict()
+    elif hasattr(raw_result, "__dict__"):
+        result = raw_result.__dict__
+    elif isinstance(raw_result, dict):
+        result = raw_result
+    else:
+        result = {"error": "Unknown result type", "raw": str(raw_result)}
+
+    # Ensure required fields
+    if "entropy_delta" not in result:
+        # Try to calculate or default
+        result["entropy_delta"] = result.get("clarity_score", 0.0) - 0.5  # Approximation
+
+    if "vote" not in result:
+        result["vote"] = result.get("status", "VOID")
+
+    # Ensure schema compliance
+    adapted = {
+        "session_id": result.get("session_id", session_id),
+        "entropy_delta": float(result.get("entropy_delta", 0.0)),
+        "omega_0": float(result.get("omega_0", 0.04)),
+        "precision": result.get("precision", {}),
+        "hierarchical_beliefs": result.get("hierarchical_beliefs", {}),
+        "action_policy": result.get("action_policy", {}),
+        "vote": result.get("vote", "VOID"),
+        "floor_scores": result.get("floor_scores", {}),
+    }
+
+    return adapted
 
 
 # ==============================================================================
@@ -125,10 +193,51 @@ async def mcp_asi(
     if reasoning:
         context["reasoning"] = reasoning
 
-    return await kernel.execute(
+    result = await kernel.execute(
         action,
         {"text": query, "query": query, "session_id": session_id, "context": context, **kwargs},
     )
+
+    # Adapter: Map to ToolRegistry schema
+    # Schema requires: session_id, omega_total, vote
+
+    if hasattr(result, "dict"):
+        data = result.dict()
+    elif hasattr(result, "asdict"):  # Dataclass support
+        from dataclasses import asdict
+
+        data = asdict(result)
+    elif isinstance(result, dict):
+        data = result
+    else:
+        data = result.__dict__ if hasattr(result, "__dict__") else {}
+
+    adapted = {
+        "session_id": data.get("session_id", session_id),
+        "omega_total": float(data.get("omega_total", 0.0)),
+        "vote": data.get("vote", "VOID"),
+        "empathy_kappa_r": float(
+            data.get("empathy", {}).get("kappa_r", 0.0)
+            if isinstance(data.get("empathy"), dict)
+            else 0.0
+        ),
+        "peace_squared": float(
+            data.get("system", {}).get("peace_squared", 0.0)
+            if isinstance(data.get("system"), dict)
+            else 0.0
+        ),
+        "thermodynamic_justice": float(
+            data.get("society", {}).get("thermodynamic_justice", 0.0)
+            if isinstance(data.get("society"), dict)
+            else 0.0
+        ),
+        "stakeholders": data.get("stakeholders", []),
+        "weakest_stakeholder": data.get("weakest_stakeholder", {}),
+        "reversibility_score": float(data.get("floor_scores", {}).get("F1_reversibility", 1.0)),
+        "consent_verified": bool(data.get("floor_scores", {}).get("F11_consent", False)),
+    }
+
+    return adapted
 
 
 # ==============================================================================
@@ -155,9 +264,34 @@ async def mcp_apex(
     kernel = get_kernel_manager().get_apex()
     kwargs["pre_verdict"] = verdict
 
-    return await kernel.execute(
+    raw_result = await kernel.execute(
         action, {"query": query, "response": response, "session_id": session_id, **kwargs}
     )
+
+    # Adapter: Map to ToolRegistry schema
+    # Schema requires: session_id, final_verdict, trinity_score
+
+    # Map 'verdict' -> 'final_verdict'
+    final_verdict = raw_result.get("verdict", raw_result.get("status", "VOID"))
+
+    # Extract trinity_score
+    trinity_score = 0.0
+    if "trinity_score" in raw_result:
+        trinity_score = raw_result["trinity_score"]
+    elif "equilibrium" in raw_result:
+        trinity_score = raw_result["equilibrium"].get("score", 0.0)
+
+    adapted = {
+        "session_id": raw_result.get("session_id", session_id),
+        "final_verdict": final_verdict,
+        "trinity_score": float(trinity_score),
+        "paradox_scores": raw_result.get("paradox_scores", {}),
+        "equilibrium": raw_result.get("equilibrium", {}),
+        "constitutional_alignment": raw_result.get("constitutional_alignment", {}),
+        "proof": raw_result.get("proof", {}),
+    }
+
+    return adapted
 
 
 # ==============================================================================
