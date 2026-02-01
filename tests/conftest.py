@@ -1,9 +1,18 @@
 """Pytest configuration and fixtures for arifOS tests"""
 
 import os
+import warnings
 from pathlib import Path
 
 import pytest
+
+# Silence langsmith/pydantic v1 warning on Python 3.14 (benign in this env)
+warnings.filterwarnings(
+    "ignore",
+    message="Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.",
+    category=UserWarning,
+    module="langsmith.schemas",
+)
 
 # Ensure legacy spec bypass is active during import/collection
 os.environ.setdefault("ARIFOS_ALLOW_LEGACY_SPEC", "1")

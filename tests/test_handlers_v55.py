@@ -59,11 +59,9 @@ class TestHandlerExistence:
         # Test ASI wrappers
         asi_empathize = lambda **kw: mcp_asi(action="empathize", **kw)
         asi_align = lambda **kw: mcp_asi(action="align", **kw)
-        asi_insight = lambda **kw: mcp_asi(action="act", **kw)
         
         assert callable(asi_empathize)
         assert callable(asi_align)
-        assert callable(asi_insight)
         
         # Test APEX wrapper
         apex_verdict = lambda **kw: mcp_apex(action="judge", **kw)

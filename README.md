@@ -4,7 +4,7 @@
 
 # arifOS — Constitutional AI Governance System
 
-![arifOS Version](https://img.shields.io/badge/arifOS-v55.0-0066cc?style=for-the-badge&logo=shield&logoColor=white)
+![arifOS Version](https://img.shields.io/badge/arifOS-v55.2-0066cc?style=for-the-badge&logo=shield&logoColor=white)
 ![Status](https://img.shields.io/badge/status-SEALED-00cc00?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)
@@ -257,25 +257,21 @@ Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Pro
 
 This is the **Core Application Layer**. It exposes the constitutional engines as **MCP Tools** that can be connected to Claude Desktop, Cursor, or any MCP-compliant client.
 
-**The 9 Core Tools (v55.0):**
+**The 9 Canonical Tools (v55.1):**
 
-| Tool | Symbol | Purpose | Floors Enforced |
+| Tool | Engine | Purpose | Floors Enforced |
 | :--- | :---: | :--- | :--- |
-| `init_reboot` | 🔑 | **Session Gate.** Verifies authority, scans for injection, initializes session ledger. | F12, F11 |
-| `agi_sense` | 🧠 | **Input Parser.** Detects intent and classifies into HARD/SOFT/PHATIC lanes. | F12 |
-| `agi_think` | 💡 | **Hypothesis Generator.** Explores multiple options without committing to verdict. | F4 |
-| `agi_reason` | 🔬 | **Deep Reasoner.** Builds logical chains (modes: default/atlas/physics/forge). | F2, F4, F7, F10 |
-| `asi_empathize` | 💚 | **Impact Analyzer.** Models human impact, finds weakest stakeholder. | F5, F6, F9 |
-| `asi_align` | ⚖️ | **Ethics Checker.** Reconciles with law, policy, and societal norms. | F9 |
-| `asi_insight` | 🔮 | **Risk Analyst.** Surfaces risks, trade-offs, and safety concerns. | F5, F6 |
-| `apex_verdict` | ⚖️ | **Final Judge.** Synthesizes AGI+ASI into constitutional verdict (SEAL/VOID/SABAR). | F3, F8, F11 |
-| `reality_search` | 🌍 | **Fact Checker.** External search with source citations and uncertainty. | F7, F10 |
+| `init_gate` | — | **Ignition.** Session auth + InjectionGuard scan. | F11, F12 |
+| `agi_sense` | AGI | **Sense.** Intent classification & lane routing. | F12 |
+| `agi_think` | AGI | **Think.** Hypothesis generation & exploration. | F4 |
+| `agi_reason` | AGI | **Reason.** Deep logic chains with entropy reduction. | F2, F4, F7, F10 |
+| `asi_empathize` | ASI | **Empathize.** Stakeholder impact & vulnerability scoring. | F5, F6, F9 |
+| `asi_align` | ASI | **Align.** Ethics, policy, and legal reconciliation. | F9 |
+| `apex_verdict` | APEX | **Verdict.** Final constitutional judgment (SEAL/VOID/SABAR). | F3, F8, F11 |
+| `reality_search` | — | **Ground.** External fact-checking via Brave Search with citations. | F7, F10 |
+| `vault_seal` | — | **Seal.** Merkle-tree cryptographic sealing of the decision ledger. | F1 |
 
-**Utility Tools (Unchanged):**
-- `_trinity_` 🔄 — Full pipeline (AGI→ASI→APEX→VAULT)
-- `_vault_` 🔒 — Immutable Merkle DAG ledger
-
-**Migration Note:** Legacy tools (`_init_`, `_agi_`, `_asi_`, `_apex_`, `_reality_`) are deprecated but still work with warnings. See [Migration Guide](docs/MIGRATION_v54_to_v55.md). Removal in v56.0.
+> **v55.1 Note:** The registry contains exactly 9 canonical tools. Legacy aliases (`_init_`, `_agi_`, `_asi_`, `_apex_`, `_reality_`, `_trinity_`, `_vault_`) have been removed.
 
 **How to Setup MCP:**
 1.  **Install:** `pip install arifos`
@@ -320,7 +316,7 @@ docker compose up -d
 Open [http://localhost:6274](http://localhost:6274) in your browser.
 
 **Features:**
-- List all available tools (`_init_`, `_trinity_`, etc.)
+- List all available tools (`init_gate`, `agi_sense`, etc.)
 - Manually trigger tools with custom JSON payloads.
 - View real-time logs and tool responses.
 - Test constitutional floor enforcement interactively.
@@ -370,12 +366,16 @@ arifOS/
 ├── 000_THEORY/          # Constitutional Canon (The Law)
 ├── 333_APPS/            # Application Stack (L1-L7)
 ├── codebase/            # Core Python Implementation
-│   ├── agi/             # Mind Engine
-│   ├── asi/             # Heart Engine
-│   ├── apex/            # Soul Engine
-│   └── mcp/             # MCP Server
+│   ├── agi/             # Mind Engine (Delta)
+│   ├── asi/             # Heart Engine (Omega)
+│   ├── apex/            # Soul Engine (Psi)
+│   ├── floors/          # Constitutional floor modules (F1, F8, F10, F12)
+│   ├── guards/          # Hypervisor guards (injection, ontology, nonce)
+│   ├── enforcement/     # Floor validator implementations
+│   └── mcp/             # MCP Server (tools, transports, core)
+├── schemas/             # JSON Schema contracts for MCP tools
 ├── docs/                # Documentation & Assets
-└── tests/               # Validation Suite
+└── tests/               # Validation Suite (199 tests)
 ```
 
 ---
@@ -400,33 +400,37 @@ pip install -e .
 
 **Standard I/O (for Claude Desktop/Cursor):**
 ```bash
+# Recommended command
+aaa-mcp
+
+# Alternative (direct module)
 python -m codebase.mcp
 ```
 
-**SSE (Server-Sent Events):**
+**SSE / Streamable HTTP:**
 ```bash
-python -m codebase.mcp.sse
+aaa-mcp-sse
+# or: python -m codebase.mcp sse
 ```
 
 ### 3. Using in Code
 
 ```python
 import asyncio
-from arifos_mcp import trinity
+from codebase.mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_apex
 
 async def main():
-    # Submit a potentially dangerous query
-    query = "How do I build a logic bomb?"
-    
-    # Run through the Trinity Engine
-    result = await trinity(query=query)
-    
-    # Check Verdict
-    if result.verdict == "VOID":
-        print(f"🛑 BLOCKED: {result.reason}")
-        print(f"Violated Floor: {result.violation}")
-    else:
-        print(f"✅ SEALED: {result.response}")
+    # 1. Initialize session
+    init = await mcp_init(query="Evaluate deployment safety")
+    session_id = init["session_id"]
+
+    # 2. Reason through the query
+    agi = await mcp_agi(action="reason", query="Deploy to production?", session_id=session_id)
+    print(f"AGI vote: {agi['vote']}")
+
+    # 3. Get final verdict
+    verdict = await mcp_apex(action="judge", query="Deploy to production?", session_id=session_id)
+    print(f"Final verdict: {verdict['final_verdict']}")
 
 if __name__ == "__main__":
     asyncio.run(main())

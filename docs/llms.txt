@@ -1,9 +1,9 @@
 # arifOS MCP Tools (Concise)
 
-## 9 Core Tools (v55.0)
+## 9 Canonical Tools (v55.2)
 
-### Session Initialization
-- **init_reboot**: Initialize governed session. Verify caller authority, scan for prompt injection (F12), open session ledger entry. Use before running other tools.
+### Session Ignition
+- **init_gate**: Initialize governed session. Verify caller authority, scan for prompt injection (F12), open session ledger entry. Use before running other tools.
 
 ### AGI (Mind Engine - Δ)
 - **agi_sense**: Parse input and detect intent. Classify request into constitutional lanes (HARD/SOFT/PHATIC). Enforces F12 (Injection Defense).
@@ -13,20 +13,19 @@
 ### ASI (Heart Engine - Ω)
 - **asi_empathize**: Stakeholder impact analysis. Model human impact, calculate vulnerability scores, identify weakest stakeholder. Enforces F5 (Peace²), F6 (Empathy).
 - **asi_align**: Ethical alignment check. Reconcile user request with ethics, law, and policy. Enforces F9 (Anti-Hantu).
-- **asi_insight**: Risk and trade-off analysis. Surface key risks, potential harms, and benefits. Provides actionable safety insights.
 
 ### APEX (Soul Engine - Ψ)
 - **apex_verdict**: Final constitutional verdict. Synthesize AGI reasoning + ASI safety → SEAL/VOID/SABAR decision. Enforces F3 (Tri-Witness), F8 (Genius), F11 (Command Authority).
 
-### External Verification
-- **reality_search**: External fact-checking via Brave Search API. Cite all sources, state uncertainty. Enforces F7 (Humility), F10 (Ontology). Use when current information needed.
+### Reality & Sealing
+- **reality_search**: External fact-checking via Brave Search API. Cite all sources, state uncertainty. Enforces F7 (Humility), F10 (Ontology).
+- **vault_seal**: Immutable Merkle-tree sealing. Tamper-proof storage of decisions. Enforces F1 (Amanah).
 
-## Utility Tools (Unchanged)
+## Utility Tools
 
-- **_trinity_**: Full constitutional pipeline (AGI→ASI→APEX→VAULT). Single-call evaluation for complete workflows.
-- **_vault_**: Immutable ledger with Merkle sealing. Tamper-proof storage for audit trails. Enforces F1 (Amanah).
+- **_trinity_**: Full Metabolic Loop (AGI→ASI→APEX→VAULT). Single-call evaluation for complete workflows.
 
-## Session State (New in v55)
+## Session State
 
 All tools accept optional `session_id` parameter (pattern: `^sess_[a-zA-Z0-9]{8,}$`) for chaining:
 
@@ -35,20 +34,13 @@ result1 = await agi_sense(query="...", session_id="sess_abc12345")
 result2 = await agi_think(session_id="sess_abc12345")  # Accesses prior state
 ```
 
-## Deprecated (Removal in v56.0)
+## Removed Tools
 
-Legacy multi-action tools still work with deprecation warnings:
-- `_init_` → use `init_reboot`
-- `_agi_` → use `agi_sense`, `agi_think`, or `agi_reason`
-- `_asi_` → use `asi_empathize`, `asi_align`, or `asi_insight`
-- `_apex_` → use `apex_verdict`
-- `_reality_` → use `reality_search`
-
-Migration guide: [docs/MIGRATION_v54_to_v55.md](MIGRATION_v54_to_v55.md)
+Legacy aliases (`_init_`, `_agi_`, `asi_insight`, etc.) have been **removed** in v55.2 to minimize entropy (F4).
 
 ---
 
 **Full schemas:** See [llms-full.txt](llms-full.txt) for complete input/output specifications.
 
-**arifOS v55.0** • Constitutional AI Governance • AGPL-3.0  
+**arifOS v55.2** • Constitutional AI Governance • AGPL-3.0  
 https://github.com/ariffazil/arifOS

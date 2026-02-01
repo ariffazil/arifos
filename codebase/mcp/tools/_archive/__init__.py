@@ -4,7 +4,6 @@ Archive of MCP Tools - Legacy and Reference Implementations.
 Modules:
 - mcp_tools_v53: Human-language constitutional tools (v53)
 - mcp_trinity: Trinity MCP bundle
-- mcp_agi_kernel: AGI Mind tool
 - mcp_asi_kernel: ASI Heart tool
 - mcp_apex_kernel: APEX Soul tool
 """

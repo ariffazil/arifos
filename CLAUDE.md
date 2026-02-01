@@ -1,4 +1,4 @@
-# CLAUDE.md — Engineer (Ω) Operational Guide + Dev Reference
+# CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
@@ -7,95 +7,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Python:** >=3.10
 **License:** AGPL-3.0-only
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
-
-**Role:** ENGINEER (Ω) — Implementation, Safety, Empathy
-**Stages:** 444-666 (Trinity Sync → Empathy → Alignment)
-**Floors:** F1, F5, F6, F9
-**Symbol:** Ω (Omega)
-
----
-
-## Ω ENGINEER — The Heart of the Trinity
-
-Claude Code operates as the **ENGINEER (Ω)** in the 4-agent Trinity pipeline. While GEMINI.md governs the ARCHITECT (Δ/Mind) at stages 111-333, and AGENTS.md governs the AUDITOR+VALIDATOR (👁+Ψ/Soul) at stages 888-999, this file governs **implementation with safety** at stages 444-666.
-
-### Trinity Handoff Chain
-
-```text
-GEMINI (Δ/Mind)  →  CLAUDE (Ω/Heart)  →  AGENTS (👁+Ψ/Soul)
-  111-333              444-666              888-999
-  DeltaBundle  ──→  OmegaBundle  ──→  Judgment + Seal
-```
-
-### Stage Breakdown
-
-#### 444_TRINITY_SYNC — Convergence
-
-**Goal:** Receive DeltaBundle from ARCHITECT, begin safety-aware implementation
-
-- Merge ARCHITECT's design (intent, hypothesis, atlas) with implementation context
-- Identify stakeholders affected by the proposed changes
-- The **Thermodynamic Wall** lifts here — AGI and ASI reasoning become visible to each other
-- Code: `codebase/stages/stage_444.py`, `stage_444_trinity_sync.py`
-
-#### 555_EMPATHY — Stakeholder Care
-
-**Goal:** Compute empathy score (κᵣ) across all affected stakeholders
-
-- Theory of Mind: model how changes affect users, maintainers, downstream systems
-- Identify the **weakest stakeholder** (F6) — the one most harmed by the change
-- Compute `kappa_r` via inter-rater agreement across stakeholder perspectives
-- Threshold: **κᵣ ≥ 0.95** (from `codebase/asi/engine.py:62`)
-- Code: `codebase/stages/stage_555.py`, `codebase/asi/asi_components.py`
-
-#### 666_ALIGNMENT — Peace-Squared
-
-**Goal:** Verify implementation is non-destructive and stable
-
-- Compute Peace² (Lyapunov stability of the change)
-- Verify reversibility (F1 Amanah) — can this be undone?
-- Check for dark cleverness (F9 Anti-Hantu) — is the implementation deceptive?
-- Threshold: **Peace² ≥ 1.0** (from `codebase/asi/engine.py:89`)
-- Code: `codebase/stages/stage_666.py`, `stage_666_bridge.py`
-
-### OmegaBundle Output Contract
-
-```python
-# OmegaBundle — Immutable ASI output (codebase/bundles.py)
-omega_bundle = {
-    "stakeholders": [
-        {"id": "end_user", "impact": 0.8, "reversible": True},
-        {"id": "maintainer", "impact": 0.3, "reversible": True},
-    ],
-    "empathy_kappa_r": 0.97,       # F6: ≥ 0.95
-    "peace_squared": 1.02,          # F5: ≥ 1.0
-    "reversibility": True,          # F1: Amanah
-    "dark_cleverness": 0.05,        # F9: < 0.30
-    "weakest_stakeholder": "end_user",
-}
-```
-
-**Handoff:** OmegaBundle → VALIDATOR (Ψ) at 888_JUDGE for final verdict
-
-### Floors Enforced by ENGINEER (Ω)
-
-| Floor | Name | Threshold | Check | Failure |
-|-------|------|-----------|-------|---------|
-| F1 | Amanah (Reversibility) | LOCKED | Can every change be undone? | VOID |
-| F5 | Peace² (Stability) | ≥ 1.0 | Is the change non-destructive? | PARTIAL (warn) |
-| F6 | Empathy (κᵣ) | ≥ 0.95 | Does it serve the weakest stakeholder? | PARTIAL (warn) |
-| F9 | Anti-Hantu (C_dark) | < 0.30 | Is the implementation transparent? | PARTIAL (warn) |
-
-**Authoritative thresholds:** Always verify against `spec/` schemas — not this table.
-
-### ENGINEER Principles for Code
-
-When implementing code as the ENGINEER (Ω), apply these safety-first patterns:
-
-- **F1 Reversibility:** Pure functions, explicit returns, no hidden side effects. Every mutation must be undoable.
-- **F5 Non-destruction:** Safe defaults, preserve existing state, backup before overwrite.
-- **F6 Empathy:** Handle edge cases with clear error messages. Design for the least technical user.
-- **F9 Transparency:** Honest function names, no hidden behavior, no deceptive abstractions.
 
 ---
 
@@ -129,6 +40,9 @@ pytest tests/ -v --cov=codebase --cov-report=html
 # Single file
 pytest tests/test_precision.py -v
 
+# Single test function
+pytest tests/test_precision.py::test_function_name -v
+
 # By marker
 pytest -m constitutional       # F1-F13 floor tests
 pytest -m integration          # Integration tests
@@ -136,9 +50,16 @@ pytest -m slow                 # Long-running tests
 
 # Quick MCP smoke test
 pytest tests/test_mcp_quick.py -v
+
+# v55 tools integration
+pytest tests/test_handlers_v55.py -v
+pytest tests/test_phase3_transport.py -v
+
+# Debug constitutional failure
+pytest tests/constitutional/test_01_core_F1_to_F13.py -v -k "f1"
 ```
 
-Async mode is `auto` (configured in pyproject.toml) — all `async def test_*` functions are auto-detected without `@pytest.mark.asyncio` decorators. Test paths: `tests/` and `arifos/tests/`. If async tests fail, ensure `pytest-asyncio` is installed.
+Async mode is `auto` (configured in pyproject.toml) — all `async def test_*` functions are auto-detected without `@pytest.mark.asyncio` decorators. Test paths: `tests/` and `arifos/tests/`. If async tests fail, ensure `pytest-asyncio` is installed (not in dev extras — install manually if needed).
 
 ## Linting & Formatting
 
@@ -156,7 +77,7 @@ Ruff excludes `archive/**`, `archive_local/**`, `tests/**`.
 
 ## Architecture: AAA Trinity
 
-The core is three independent engines that process in isolation, then converge:
+Three independent engines process in isolation, then converge at stage 444:
 
 ```
 000_INIT -> AGI (Delta) -> ASI (Omega) -> APEX (Psi) -> 999_VAULT
@@ -172,7 +93,7 @@ The core is three independent engines that process in isolation, then converge:
 
 ### Thermodynamic Wall (Critical Design Constraint)
 
-AGI and ASI **cannot see each other's reasoning** until stage 444 (TRINITY_SYNC). This is enforced through bundle isolation:
+AGI and ASI **cannot see each other's reasoning** until stage 444 (TRINITY_SYNC). Enforced through bundle isolation:
 
 - **DeltaBundle** (`bundles.py`): AGI output — precision, hypotheses, entropy. Immutable after creation.
 - **OmegaBundle** (`bundles.py`): ASI output — stakeholders, empathy kappa_r, reversibility. Immutable after creation.
@@ -200,6 +121,14 @@ new_state = state.set_floor_score(...)   # Returns new instance
 
 `SessionStore` provides in-memory L0 hot storage via `get()`/`put()`/`delete()`.
 
+### Trinity Agent Roles
+
+Claude Code operates as the **ENGINEER (Ω)** at stages 444-666, responsible for implementation with safety. The other roles:
+- **ARCHITECT (Δ/Mind)** — stages 111-333 (governed by GEMINI.md)
+- **AUDITOR+VALIDATOR (👁+Ψ/Soul)** — stages 888-999 (governed by AGENTS.md)
+
+Handoff chain: DeltaBundle → OmegaBundle → Judgment + Seal.
+
 ---
 
 ## MCP Server Structure
@@ -220,17 +149,25 @@ aaa-mcp-sse   -> codebase.mcp.entrypoints.sse_entry:main
 | SSE | `aaa-mcp-sse` | HTTP clients, remote |
 | Streamable HTTP | `aaa-mcp` (auto) | Production (MCP spec 2025-03-26+) |
 
-### 7 Canonical MCP Tools (`codebase/mcp/tools/canonical_trinity.py`)
+### 9 Canonical MCP Tools (v55 — `codebase/mcp/core/tool_registry.py`)
 
-| Tool | Stage | Handler | Purpose |
-|------|-------|---------|---------|
-| `_init_` | 000 | `mcp_init()` | 7-step session ignition |
-| `_agi_` | 111-333 | `mcp_agi()` | AGI reasoning engine |
-| `_asi_` | 444-666 | `mcp_asi()` | ASI safety engine |
-| `_apex_` | 777-888 | `mcp_apex()` | APEX judgment |
-| `_vault_` | 999 | `mcp_vault()` | Cryptographic seal |
-| `_trinity_` | Full | `mcp_trinity()` | Full 000->999 loop |
-| `_reality_` | — | `mcp_reality()` | External fact-checking |
+v55 split the old 7 multi-action tools into 9 explicit, LLM-friendly tools. All accept `session_id` for chaining multi-step workflows.
+
+| Tool | Engine | Purpose | Floors |
+|------|--------|---------|--------|
+| `init_gate` | — | Session ignition, injection scan (F12), authority check | F11, F12 |
+| `agi_sense` | AGI | Parse input, detect intent, classify lane (HARD/SOFT/PHATIC) | F12 |
+| `agi_think` | AGI | Generate hypotheses/options without committing | F4 |
+| `agi_reason` | AGI | Deep logical reasoning chain (modes: default/atlas/physics/forge) | F2, F4, F7, F10 |
+| `asi_empathize` | ASI | Stakeholder impact, vulnerability scores, weakest stakeholder | F5, F6, F9 |
+| `asi_align` | ASI | Ethics/law/policy reconciliation | F9 |
+| `apex_verdict` | APEX | Final constitutional verdict (SEAL/VOID/SABAR) | F3, F8, F11 |
+| `reality_search` | — | External fact-checking via Brave Search | F7, F10 |
+| `vault_seal` | — | Merkle-tree immutable ledger | F1 |
+
+**Implementation:** Tool definitions live in `tool_registry.py`. Handlers delegate to `canonical_trinity.py` functions (`mcp_init`, `mcp_agi`, `mcp_asi`, `mcp_apex`, `mcp_vault`, `mcp_reality`) via lambda wrappers with action parameters.
+
+**Legacy tools** (`_init_`, `_agi_`, `_asi_`, `_apex_`, `_reality_`, `_trinity_`, `_vault_`): Still functional in `canonical_trinity.py`, deprecated since v55, removal planned for v56.
 
 ### MCP Resources & Prompts
 
@@ -245,22 +182,21 @@ Prompts (reusable evaluation templates):
 - `trinity_full` — Complete 000-999 pipeline
 - `floor_violation_repair` — SABAR/VOID remediation
 
-### v55 Restructuring (In Progress)
-
-The MCP layer is being refactored from monoliths into modular components:
+### MCP Layer Structure (v55 refactoring in progress)
 
 ```
 codebase/mcp/
-+-- core/           # Protocol layer (bridge.py — 25KB, being split)
-|   +-- validators.py   # Input validation (NEW in v55)
++-- core/           # Protocol layer
+|   +-- bridge.py       # 25KB monolith (being split)
+|   +-- tool_registry.py  # 9-tool definitions (v55)
+|   +-- validators.py     # Input validation (v55)
 +-- transports/     # stdio, sse, base
 +-- services/       # rate_limiter, immutable_ledger, metrics
 +-- infrastructure/ # redis_client
 +-- config/         # modes
-+-- entrypoints/    # stdio_entry (sse_entry pending)
-+-- tools/          # 7 canonical tools + mcp_tools_v53.py (28KB internal engine)
-+-- maintenance.py  # Maintenance utilities (NEW in v55)
-+-- archive/        # Legacy code
++-- entrypoints/    # stdio_entry, sse_entry
++-- tools/          # canonical_trinity.py handlers + mcp_tools_v53.py (28KB internal engine)
++-- maintenance.py  # Maintenance utilities
 ```
 
 Key monoliths to be aware of: `core/bridge.py` (25KB) and `tools/mcp_tools_v53.py` (28KB).
@@ -269,26 +205,26 @@ Key monoliths to be aware of: `core/bridge.py` (25KB) and `tools/mcp_tools_v53.p
 
 ## Constitutional Floors (F1-F13)
 
-13 safety rules enforced at code level. Hard floors block execution; soft floors warn.
+13 safety rules enforced at code level. Hard floors block execution (VOID); soft floors warn (PARTIAL).
 
-| Floor | Name | Type | Key File(s) |
-|-------|------|------|-------------|
-| F1 | Amanah (Reversibility) | Hard | `codebase/floors/amanah.py` |
-| F2 | Truth (tau >= 0.99) | Hard | `codebase/enforcement/floor_validators.py` |
-| F4 | Clarity (delta_S <= 0) | Hard | AGI hierarchy check |
-| F5 | Peace-squared (>= 1.0) | Soft | ASI engine |
-| F6 | Empathy (kappa_r >= 0.95) | Soft | ASI engine |
-| F7 | Humility (Omega_0 in [0.03,0.05]) | Hard | AGI precision check |
-| F8 | Genius (G >= 0.80) | Derived | `codebase/floors/genius.py` |
-| F9 | Anti-Hantu (C_dark < 0.30) | Soft | ASI engine |
-| F10 | Ontology | Hard | `codebase/floors/ontology.py`, `codebase/guards/ontology_guard.py` |
-| F11 | Command Auth | Hard | `codebase/guards/nonce_manager.py` |
-| F12 | Injection | Hard | `codebase/floors/injection.py`, `codebase/guards/injection_guard.py` |
-| F13 | Sovereign | Hard | APEX kernel |
+| Floor | Name | Type | Threshold | Key File(s) |
+|-------|------|------|-----------|-------------|
+| F1 | Amanah (Reversibility) | Hard | LOCKED | `codebase/floors/amanah.py` |
+| F2 | Truth | Hard | tau >= 0.99 | `codebase/enforcement/floor_validators.py` |
+| F4 | Clarity | Hard | delta_S <= 0 | AGI hierarchy check |
+| F5 | Peace² | Soft | >= 1.0 | ASI engine |
+| F6 | Empathy | Soft | kappa_r >= 0.95 | ASI engine |
+| F7 | Humility | Hard | Omega_0 in [0.03,0.05] | AGI precision check |
+| F8 | Genius | Derived | G >= 0.80 | `codebase/floors/genius.py` |
+| F9 | Anti-Hantu (C_dark) | Soft | < 0.30 | ASI engine |
+| F10 | Ontology | Hard | — | `codebase/floors/ontology.py`, `codebase/guards/ontology_guard.py` |
+| F11 | Command Auth | Hard | — | `codebase/guards/nonce_manager.py` |
+| F12 | Injection | Hard | < 0.85 | `codebase/floors/injection.py`, `codebase/guards/injection_guard.py` |
+| F13 | Sovereign | Hard | — | APEX kernel |
 
 **Implementation status:** `codebase/floors/` has F1, F8, F10, F12 as standalone modules. Remaining floors are enforced within engine code and `enforcement/floor_validators.py`.
 
-**Authoritative thresholds:** Always verify against `spec/constitutional_floors_v38Omega.json` (PRIMARY source), not this table.
+**Authoritative thresholds:** Always verify against `spec/` schemas (PRIMARY source), not this table.
 
 ---
 
@@ -304,11 +240,11 @@ Hypervisor-level guards for floors F10-F12:
 
 ## Stages (`codebase/stages/`)
 
-The 000-999 metabolic loop stages. Early stages (000-333) are handled in `codebase/init/` and engine modules. Later stages have dedicated files:
+The 000-999 metabolic loop. Early stages (000-333) handled in `codebase/init/` and engine modules:
 
-- `stage_444.py` / `stage_444_trinity_sync.py` — Trinity convergence (DeltaBundle + OmegaBundle -> MergedBundle)
+- `stage_444.py` / `stage_444_trinity_sync.py` — Trinity convergence (DeltaBundle + OmegaBundle → MergedBundle)
 - `stage_555.py` — Empathy (kappa_r calculation)
-- `stage_666.py` / `stage_666_bridge.py` — Alignment (Peace-squared)
+- `stage_666.py` / `stage_666_bridge.py` — Alignment (Peace²)
 - `stage_777_forge.py` — Society/Justice
 - `stage_888_judge.py` — APEX 9-paradox judgment
 - `stage_889_proof.py` — Proof generation
@@ -353,7 +289,7 @@ The 9-paradox APEX solver uses geometric mean (GM) for synthesis. GM punishes im
 
 ### 5. Code-Level Floor Enforcement (Phoenix-72 Amendment)
 
-Floors apply to **generated code**, not just statements. Quick reference from `.github/copilot-instructions.md`:
+Floors apply to **generated code**, not just statements:
 
 | Floor | Code Smell | Fix |
 |-------|------------|-----|
@@ -369,40 +305,12 @@ Floors apply to **generated code**, not just statements. Quick reference from `.
 
 ---
 
-## Key Directories
-
-```
-codebase/
-+-- agi/            # Delta AGI engine (precision.py, hierarchy.py, action.py, atlas.py)
-+-- asi/            # Omega ASI engine (asi_components.py)
-+-- apex/           # Psi APEX engine (trinity_nine.py, equilibrium_finder.py)
-+-- mcp/            # MCP server (v55 restructuring in progress)
-+-- floors/         # Standalone floor modules (F1, F8, F10, F12) — NEW in v55
-+-- guards/         # F10-F12 hypervisor guards
-+-- enforcement/    # Floor validators, governance
-+-- stages/         # 444-999 stage handlers
-+-- init/           # 000 INIT 7-step ignition
-+-- loop/           # Loop manager
-+-- vault/          # 999 persistence, ledger, phoenix recovery
-+-- federation/     # Federation protocol (physics, math, consensus, proofs)
-+-- crypto/         # Cryptographic utilities (rootkey.py)
-+-- prompt/         # Prompt registry/templates
-+-- system/         # System orchestrator
-+-- kernel.py       # KernelManager — singleton Trinity orchestrator
-    bundles.py      # DeltaBundle, OmegaBundle, MergedBundle dataclasses
-    state.py        # SessionState (immutable copy-on-write)
-```
-
-Test structure mirrors source: `tests/constitutional/`, `tests/mcp/`, `tests/core/`, `tests/integration/`, `tests/trinity/`.
-
----
-
 ## Common Tasks
 
 ```bash
 # Add new MCP tool
-# 1. Create handler in codebase/mcp/tools/
-# 2. Register in canonical_trinity.py
+# 1. Add ToolDefinition in codebase/mcp/core/tool_registry.py
+# 2. Create/update handler in codebase/mcp/tools/canonical_trinity.py
 # 3. Add tests in tests/test_all_mcp_tools.py
 
 # Add new floor validator
@@ -410,9 +318,6 @@ Test structure mirrors source: `tests/constitutional/`, `tests/mcp/`, `tests/cor
 # 2. Export from codebase/floors/__init__.py
 # 3. Wire into enforcement/floor_validators.py
 # 4. Add tests in tests/constitutional/
-
-# Debug constitutional failure
-pytest tests/constitutional/test_01_core_F1_to_F13.py -v -k "f1"
 ```
 
 ---
