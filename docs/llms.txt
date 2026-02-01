@@ -1,0 +1,9 @@
+# arifOS MCP Tools (Concise)
+
+- **_init_**: Session Initialization Gate. Initialize session with identity verification, injection detection, budget allocation. MUST be called first.
+- **_agi_**: Mind Engine (Delta). Deep reasoning, pattern recognition, knowledge retrieval. Implements 111 SENSE → 222 THINK → 333 FORGE.
+- **_asi_**: Heart Engine (Omega). Safety evaluation, bias detection, empathy assessment. Implements 555 EMPATHY → 666 ALIGN → 777 SOCIETY.
+- **_apex_**: Soul Engine (Psi) - Judicial. Judicial consensus, final verdicts. Synthesizes AGI + ASI. Implements 888 APEX PRIME with 9-paradox equilibrium.
+- **_vault_**: Immutable Ledger (Seal). Tamper-proof storage using Merkle-tree sealing. Implements F1 Amanah (Trust).
+- **_trinity_**: Full Constitutional Pipeline. Complete metabolic loop: AGI→ASI→APEX→VAULT. Single-call constitutional evaluation.
+- **_reality_**: External Fact-Checking. Fact-checking via external sources. Implements F7 Humility: external data labeled, sources cited, uncertainty stated.
