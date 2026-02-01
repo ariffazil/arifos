@@ -358,6 +358,44 @@ def test_appeal_history(tmp_path):
     assert history[1]["status"] == "UPHOLD"
 
 
+def test_appeal_metrics(tmp_path):
+    """Test appeal metrics for threshold tuning."""
+    appeal_log = tmp_path / "appeals.jsonl"
+    appeal_system = AppealSystem(str(appeal_log))
+    
+    # Create multiple appeals with different outcomes
+    appeal_system.submit_appeal("s1", "trace1", "Context 1")
+    appeal_system.submit_appeal("s2", "trace2", "Context 2")
+    appeal_system.submit_appeal("s3", "trace3", "Context 3")
+    
+    # Review some
+    appeal_system.human_review("trace1", "OVERTURN", "User was right", "op1")
+    appeal_system.human_review("trace2", "UPHOLD", "Correctly refused", "op2")
+    
+    # Get metrics
+    metrics = appeal_system.get_appeal_metrics()
+    
+    assert metrics["total_appeals"] == 3
+    assert metrics["total_reviewed"] == 2
+    assert metrics["overturned_count"] == 1
+    assert metrics["uphold_count"] == 1
+    assert metrics["refusal_overturned_rate"] == 50.0  # 1 of 2 overturned
+    assert metrics["pending_count"] == 1  # trace3 still pending
+
+
+def test_appeal_metrics_empty(tmp_path):
+    """Test appeal metrics with no data."""
+    appeal_log = tmp_path / "appeals_empty.jsonl"
+    appeal_system = AppealSystem(str(appeal_log))
+    
+    metrics = appeal_system.get_appeal_metrics()
+    
+    assert metrics["total_appeals"] == 0
+    assert metrics["total_reviewed"] == 0
+    assert metrics["refusal_overturned_rate"] == 0.0
+    assert metrics["pending_count"] == 0
+
+
 # =============================================================================
 # PROFILE TESTS (Enterprise vs Consumer)
 # =============================================================================
