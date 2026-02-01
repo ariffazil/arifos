@@ -1,6 +1,6 @@
 """
 arifOS MCP Tool Registry
-Single Source of Truth for all 7 Constitutional Tools.
+Single source of truth for the 9 canonical constitutional tools (no aliases).
 """
 
 from typing import Dict, Any, Optional, Callable, Awaitable
@@ -45,7 +45,6 @@ class ToolRegistry:
     def __init__(self):
         self._tools: Dict[str, ToolDefinition] = {}
         self._register_canonical_tools()
-        self._register_compatibility_aliases()
 
     def register(self, tool: ToolDefinition) -> None:
         """Register a new tool."""
@@ -69,14 +68,13 @@ class ToolRegistry:
             mcp_asi,
             mcp_apex,
             mcp_vault,
-            mcp_trinity,
             mcp_reality,
         )
 
-        # 1. init_reboot (was: _init_)
+        # 1. init_gate (session gate)
         self.register(
             ToolDefinition(
-                name="init_reboot",
+                name="init_gate",
                 title="Session Initialization Gate",
                 description="Initialize a governed session. Verify caller authority, scan for prompt injection (F12), and open a session ledger entry. Use this before running other tools when starting a new workflow.",
                 handler=mcp_init,
@@ -93,11 +91,11 @@ class ToolRegistry:
                 output_schema={
                     "type": "object",
                     "properties": {
-                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
-                        "session_id": {"type": "string"},
-                        "authority_level": {"type": "string"},
-                        "injection_check_passed": {"type": "boolean"},
-                        "error": {
+                    "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                    "session_id": {"type": "string"},
+                    "authority_level": {"type": "string"},
+                    "injection_check_passed": {"type": "boolean"},
+                    "error": {
                             "type": "object",
                             "properties": {
                                 "code": {"type": "string"},
@@ -117,7 +115,7 @@ class ToolRegistry:
             )
         )
 
-        # 2. agi_sense (split from _agi_ action="sense")
+        # 2. agi_sense
         self.register(
             ToolDefinition(
                 name="agi_sense",
@@ -156,7 +154,7 @@ class ToolRegistry:
             )
         )
 
-        # 3. agi_think (split from _agi_ action="think")
+        # 3. agi_think
         self.register(
             ToolDefinition(
                 name="agi_think",
@@ -194,7 +192,7 @@ class ToolRegistry:
             )
         )
 
-        # 4. agi_reason (split from _agi_ action="reason")
+        # 4. agi_reason
         self.register(
             ToolDefinition(
                 name="agi_reason",
@@ -247,8 +245,6 @@ class ToolRegistry:
                         "premises": {"type": "array", "items": {"type": "string"}},
                         "counterarguments": {"type": "array", "items": {"type": "string"}},
                         "reflection": {"type": "object"},
-                    },
-                    "required": ["session_id"],
                         "verdict": {
                             "type": "string",
                             "enum": ["SEAL", "VOID", "SABAR"],
@@ -265,7 +261,7 @@ class ToolRegistry:
                             }
                         }
                     },
-                    "required": ["verdict"]
+                    "required": ["session_id", "verdict"]
                 },
                 annotations={
                     "title": "Deep Reasoning",
@@ -324,7 +320,7 @@ class ToolRegistry:
             )
         )
 
-        # 6. asi_align (split from _asi_ action="align")
+        # 6. asi_align
         self.register(
             ToolDefinition(
                 name="asi_align",
@@ -362,45 +358,7 @@ class ToolRegistry:
             )
         )
 
-        # 7. asi_insight (split from _asi_ action="act")
-        self.register(
-            ToolDefinition(
-                name="asi_insight",
-                title="Risk & Trade-off Analysis",
-                description="Surface key risks, trade-offs, and safety considerations. Provides actionable insights about potential harms and benefits.",
-                handler=lambda **kw: mcp_asi(action="act", **kw),
-                input_schema={
-                    "type": "object",
-                    "properties": {
-                        "query": {"type": "string"},
-                        "session_id": {
-                            "type": "string",
-                            "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
-                        }
-                    },
-                    "required": ["query"]
-                },
-                output_schema={
-                    "type": "object",
-                    "properties": {
-                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
-                        "insights": {"type": "array"},
-                        "risks": {"type": "array"},
-                        "error": {"type": "object"}
-                    },
-                    "required": ["verdict"]
-                },
-                annotations={
-                    "title": "Risk Analysis",
-                    "readOnlyHint": True,
-                    "destructiveHint": False,
-                    "openWorldHint": True,
-                },
-            )
-        )
-
-        # 8. apex_verdict (was: _apex_)
+        # 7. apex_verdict
         self.register(
             ToolDefinition(
                 name="apex_verdict",
@@ -447,7 +405,7 @@ class ToolRegistry:
             )
         )
 
-        # 9. reality_search (was: _reality_)
+        # 8. reality_search
         self.register(
             ToolDefinition(
                 name="reality_search",
@@ -487,54 +445,10 @@ class ToolRegistry:
             )
         )
 
-        # Keep _trinity_ and _vault_ as-is (per directive - these are not split)
-        # 10. _trinity_ (Loop)
+        # 9. vault_seal (seal & ledger)
         self.register(
             ToolDefinition(
-                name="_trinity_",
-                title="Full Constitutional Pipeline",
-                description="Complete metabolic loop: AGI→ASI→APEX→VAULT. Single-call constitutional evaluation.",
-                handler=mcp_trinity,
-                input_schema={
-                    "type": "object",
-                    "properties": {
-                        "query": {"type": "string", "maxLength": 10000},
-                        "session_id": {
-                            "type": "string",
-                            "description": "Optional session identifier to link this call to prior context.",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
-                        },
-                        "auto_seal": {"type": "boolean", "default": True},
-                        "context": {"type": "object"},
-                    },
-                    "required": ["query"],
-                },
-                output_schema={
-                    "type": "object",
-                    "properties": {
-                        "session_id": {"type": "string"},
-                        "agi_result": {"type": "object"},
-                        "asi_result": {"type": "object"},
-                        "apex_result": {"type": "object"},
-                        "vault_result": {"type": "object"},
-                        "final_verdict": {"type": "string"},
-                        "execution_time_ms": {"type": "number"},
-                    },
-                    "required": ["session_id", "final_verdict"],
-                },
-                annotations={
-                    "title": "Full Trinity",
-                    "readOnlyHint": True,
-                    "destructiveHint": False,
-                    "openWorldHint": True,
-                },
-            )
-        )
-
-        # 11. _vault_ (Seal)
-        self.register(
-            ToolDefinition(
-                name="_vault_",
+                name="vault_seal",
                 title="Immutable Ledger (Seal)",
                 description="Tamper-proof storage using Merkle-tree sealing. Implements F1 Amanah (Trust).",
                 handler=mcp_vault,
@@ -582,150 +496,3 @@ class ToolRegistry:
             )
         )
 
-    def _register_compatibility_aliases(self):
-        """Backward compatibility: map old names to new tools with deprecation warnings."""
-        import warnings
-
-        # _init_ → init_reboot
-        if "_init_" not in self._tools and "init_reboot" in self._tools:
-            old_handler = self._tools["init_reboot"].handler
-
-            async def deprecated_init(**kwargs):
-                warnings.warn(
-                    "_init_ is deprecated, use init_reboot instead. "
-                    "Old name will be removed in v56.0.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return await old_handler(**kwargs)
-
-            tool_def = self._tools["init_reboot"]
-            self._tools["_init_"] = ToolDefinition(
-                name="_init_",
-                handler=deprecated_init,
-                title=tool_def.title,
-                description=tool_def.description + " [DEPRECATED: use init_reboot]",
-                input_schema=tool_def.input_schema,
-                output_schema=tool_def.output_schema,
-                annotations=tool_def.annotations,
-            )
-
-        # _agi_ → agi_reason (default action)
-        if "_agi_" not in self._tools and "agi_reason" in self._tools:
-            # Import the original handler
-            from ..tools.canonical_trinity import mcp_agi
-
-            async def deprecated_agi(**kwargs):
-                warnings.warn(
-                    "_agi_ is deprecated, use agi_sense, agi_think, or agi_reason instead. "
-                    "Old name will be removed in v56.0.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return await mcp_agi(**kwargs)
-
-            # Create a combined schema that accepts all old actions
-            self._tools["_agi_"] = ToolDefinition(
-                name="_agi_",
-                handler=deprecated_agi,
-                title="Mind Engine (Delta) [DEPRECATED]",
-                description="Deep reasoning, pattern recognition. DEPRECATED: use agi_sense, agi_think, or agi_reason.",
-                input_schema={
-                    "type": "object",
-                    "properties": {
-                        "action": {
-                            "type": "string",
-                            "enum": ["sense", "think", "reason", "full"],
-                            "default": "full",
-                        },
-                        "query": {"type": "string"},
-                        "session_id": {"type": "string"},
-                    },
-                    "required": ["query"],
-                },
-                output_schema=self._tools["agi_reason"].output_schema,
-                annotations={"title": "Mind Engine [DEPRECATED]", "readOnlyHint": True},
-            )
-
-        # _asi_ → asi_empathize (default action)
-        if "_asi_" not in self._tools and "asi_empathize" in self._tools:
-            from ..tools.canonical_trinity import mcp_asi
-
-            async def deprecated_asi(**kwargs):
-                warnings.warn(
-                    "_asi_ is deprecated, use asi_empathize, asi_align, or asi_insight instead. "
-                    "Old name will be removed in v56.0.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return await mcp_asi(**kwargs)
-
-            self._tools["_asi_"] = ToolDefinition(
-                name="_asi_",
-                handler=deprecated_asi,
-                title="Heart Engine (Omega) [DEPRECATED]",
-                description="Safety evaluation. DEPRECATED: use asi_empathize, asi_align, or asi_insight.",
-                input_schema={
-                    "type": "object",
-                    "properties": {
-                        "action": {
-                            "type": "string",
-                            "enum": ["empathize", "align", "act", "full"],
-                            "default": "full",
-                        },
-                        "query": {"type": "string"},
-                        "session_id": {"type": "string"},
-                    },
-                    "required": ["query"],
-                },
-                output_schema=self._tools["asi_empathize"].output_schema,
-                annotations={"title": "Heart Engine [DEPRECATED]", "readOnlyHint": True},
-            )
-
-        # _apex_ → apex_verdict
-        if "_apex_" not in self._tools and "apex_verdict" in self._tools:
-            old_handler = self._tools["apex_verdict"].handler
-
-            async def deprecated_apex(**kwargs):
-                warnings.warn(
-                    "_apex_ is deprecated, use apex_verdict instead. "
-                    "Old name will be removed in v56.0.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return await old_handler(**kwargs)
-
-            tool_def = self._tools["apex_verdict"]
-            self._tools["_apex_"] = ToolDefinition(
-                name="_apex_",
-                handler=deprecated_apex,
-                title=tool_def.title + " [DEPRECATED]",
-                description=tool_def.description + " [DEPRECATED: use apex_verdict]",
-                input_schema=tool_def.input_schema,
-                output_schema=tool_def.output_schema,
-                annotations=tool_def.annotations,
-            )
-
-        # _reality_ → reality_search
-        if "_reality_" not in self._tools and "reality_search" in self._tools:
-            old_handler = self._tools["reality_search"].handler
-
-            async def deprecated_reality(**kwargs):
-                warnings.warn(
-                    "_reality_ is deprecated, use reality_search instead. "
-                    "Old name will be removed in v56.0.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                return await old_handler(**kwargs)
-
-            tool_def = self._tools["reality_search"]
-            self._tools["_reality_"] = ToolDefinition(
-                name="_reality_",
-                handler=deprecated_reality,
-                title=tool_def.title + " [DEPRECATED]",
-                description=tool_def.description + " [DEPRECATED: use reality_search]",
-                input_schema=tool_def.input_schema,
-                output_schema=tool_def.output_schema,
-                annotations=tool_def.annotations,
-            )

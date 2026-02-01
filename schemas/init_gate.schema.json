@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "init_gate",
+  "description": "Session Initialization Gate - Input Schema",
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "string",
+      "description": "Initial user request"
+    },
+    "user_token": {
+      "type": "string",
+      "description": "Optional Ed25519 signature token"
+    },
+    "lane": {
+      "type": "string",
+      "enum": ["HARD", "SOFT"],
+      "default": "SOFT"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Optional session ID to resume"
+    }
+  },
+  "required": ["query"]
+}

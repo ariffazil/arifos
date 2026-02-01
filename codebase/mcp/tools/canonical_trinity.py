@@ -17,9 +17,12 @@ Scope:
 7. _reality_ (Ground)
 """
 
+import logging
 import uuid
 from typing import Any, Dict, Optional, List
 from codebase.kernel import get_kernel_manager
+
+logger = logging.getLogger(__name__)
 from codebase.mcp.core.bridge import (
     bridge_trinity_loop_router,
     bridge_reality_check_router,
@@ -78,7 +81,7 @@ async def mcp_init(
 
     # Stamp every _init_ response with the arifOS motto
     result["motto"] = "DITEMPA, BUKAN DIBERI \U0001f9e0\U0001f525\U0001f48e"
-    result["root_key"] = "TOY_MODE"
+    # result["root_key"] = "TOY_MODE"  # REMOVED: Security Hardening (P0)
 
     # Adapter: Map internal result to ToolRegistry schema
     # Schema requires: session_id, authority_level, budget_allocated, injection_check_passed, access_level, session_ttl, constitutional_version
@@ -135,14 +138,10 @@ async def mcp_agi(
     session_id = kwargs.pop("session_id", session_id)
 
     kernel = get_kernel_manager().get_agi()
-    raw_result = await kernel.execute(
-        action, {"query": query, "session_id": session_id, **kwargs}
-    )
-    
     try:
         raw_result = await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
     except Exception as e:
-        # Handle errors gracefully
+        logger.error("mcp_agi execute failed: %s", e, exc_info=True)
         return {
             "session_id": session_id or "unknown",
             "entropy_delta": 0.0,
@@ -154,7 +153,7 @@ async def mcp_agi(
             "floor_scores": {},
             "error": {
                 "code": "INTERNAL_ERROR",
-                "message": str(e),
+                "message": "Internal processing error",
                 "suggestion": "Check action parameter or query format"
             }
         }

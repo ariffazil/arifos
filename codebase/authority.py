@@ -62,18 +62,21 @@ class AuthorityVerifier:
                     requires_override=False,
                 )
 
-            # Verify JWT/nonce (simplified for now - always pass in micro version)
-            # In production: verify JWT signature, check nonce, validate permissions
+            # Verify JWT/nonce
+            # CRITICAL SECURITY FIX: Explicit failure for missing signature verification mechanism
+            # in production readiness audit.
 
-            # Example of safe score usage (though constant here)
-            score = safe_float(0.95, min_val=0.0, max_val=1.0)
+            # Since we lack a shared secret/public key config in this local bundle,
+            # we MUST NOT assume authority for external operators.
+
+            logger.warning(f"Rejecting operator_id={operator_id} - No JWT verification configured")
 
             return AuthorityCheck(
-                passed=True,
-                score=score,
+                passed=False,
+                score=0.0,
                 verifier="jwt_token",
-                reason="JWT token verified",
-                requires_override=False,
+                reason="JWT verification not configured - Authority denied",
+                requires_override=True,
             )
         except Exception as e:
             logger.error(f"F11 Authority check failed: {e}", exc_info=True)

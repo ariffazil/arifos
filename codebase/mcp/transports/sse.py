@@ -92,15 +92,12 @@ class SSETransport(BaseTransport):
 
         @self.mcp.custom_route("/health", methods=["GET"])
         async def health_check(request):
-            return JSONResponse(
-                {
-                    "status": "healthy",
-                    "version": "v55.1-AAA",
-                    "mode": "CODEBASE",
-                    "transport": "streamable-http",
-                    "tools": len(self.tool_registry.list_tools()),
-                }
-            )
+            from codebase.mcp.maintenance import health_check as deep_health_check
+            health = deep_health_check()
+            health["transport"] = "streamable-http"
+            health["mode"] = "CODEBASE"
+            health["tools"] = len(self.tool_registry.list_tools())
+            return JSONResponse(health)
 
         @self.mcp.custom_route("/metrics/json", methods=["GET"])
         async def metrics_endpoint(request):

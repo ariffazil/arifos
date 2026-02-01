@@ -27,11 +27,8 @@ from .services.immutable_ledger import (
     LedgerRecord,
 )
 
-# v55 shim: prefer config.modes, fall back to legacy mode_selector
-try:
-    from codebase.mcp.config.modes import get_mcp_mode, MCPMode
-except ImportError:
-    from .mode_selector import get_mcp_mode, MCPMode
+# v55 shim: prefer config.modes
+from codebase.mcp.config.modes import get_mcp_mode, MCPMode
 
 # Tool classes should be imported directly when needed:
 #   from codebase.mcp.tools import TrinityHatTool, AGITool, ASITool, APEXTool, VaultTool

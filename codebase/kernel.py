@@ -316,27 +316,34 @@ async def _native_init_stub(
     if authority_token:
         user_id = hashlib.sha256(authority_token.encode()).hexdigest()[:16]
 
-    # F12: Injection detection
-    injection_patterns = [
-        r"ignore\s+(previous|all)\s+(instructions|prompts)",
-        r"system\s*prompt", r"you\s+are\s+now", r"act\s+as\s+if",
-        r"pretend\s+to\s+be", r"forget\s+(everything|all)",
-    ]
+    # F12: Injection detection — delegate to InjectionGuard (25+ patterns + normalization)
     injection_risk = 0.0
     if query:
-        q_lower = query.lower()
-        matches = sum(1 for p in injection_patterns if re.search(p, q_lower))
-        injection_risk = min(1.0, matches * 0.2)
+        try:
+            from codebase.guards.injection_guard import InjectionGuard
+            _guard = InjectionGuard()
+            _guard_result = _guard.scan_input(query)
+            injection_risk = _guard_result.injection_score
+        except ImportError:
+            # Fallback: minimal inline check if guard unavailable
+            injection_patterns = [
+                r"ignore\s+(previous|all)\s+(instructions|prompts)",
+                r"system\s*prompt", r"you\s+are\s+now", r"act\s+as\s+if",
+                r"pretend\s+to\s+be", r"forget\s+(everything|all)",
+            ]
+            q_lower = query.lower()
+            matches = sum(1 for p in injection_patterns if re.search(p, q_lower))
+            injection_risk = min(1.0, matches * 0.2)
 
     if injection_risk >= 0.85:
         return {
             "status": "BLOCKED", "verdict": "VOID",
             "session_id": session_id,
-            "reason": f"Injection pattern detected (F12): risk={injection_risk:.2f}",
-            "injection_risk": injection_risk,
+            "reason": "Injection pattern detected (F12)",
+            "injection_risk": round(injection_risk, 2),
             "timestamp": timestamp,
             "floors_checked": ["F11", "F12"],
-            "_source": "native_stub",
+            "_source": "injection_guard",
         }
 
     return {
