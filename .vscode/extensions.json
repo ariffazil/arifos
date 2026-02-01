@@ -1,0 +1,23 @@
+{
+  "recommendations": [
+    // -- ESSENTIAL PYTHON EXTENSIONS --
+    "ms-python.python",           // Python language support
+    "ms-python.vscode-pylance",   // Advanced Python IntelliSense
+    "ms-python.black-formatter",  // Auto-formatting
+    "charliermarsh.ruff",         // Fast Python linter
+    
+    // -- HELPFUL FOR BEGINNERS --
+    "usernamehw.errorlens",       // Shows errors inline (easier to see)
+    "aaron-bond.better-comments", // Colorful comments
+    "emmanuelbeziat.vscode-great-icons", // Better file icons
+    
+    // -- VERSION CONTROL --
+    "github.vscode-pull-request-github", // GitHub integration
+    
+    // -- POWERSHELL (for Windows) --
+    "ms-vscode.powershell",
+    
+    // -- JUPYTER (for notebooks if needed) --
+    "ms-toolsai.jupyter"
+  ]
+}
