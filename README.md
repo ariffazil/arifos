@@ -281,6 +281,15 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
     ```
 3.  **Use:** Open Claude Desktop. You will see the tools available. Ask Claude: *"Use arifOS to evaluate this plan."*
 
+#### 🤖 Machine-Readable Documentation (llms.txt)
+
+To help AI agents (like Cursor, Windsurf, or Claude) automatically discover and understand arifOS tools, we provide standard `llms.txt` files:
+
+- [**llms.txt**](docs/llms.txt): A concise summary of all canonical tools.
+- [**llms-full.txt**](docs/llms-full.txt): A comprehensive reference including input/output JSON schemas for every tool.
+
+AI agents can use these files to instantly map their capabilities to the arifOS constitutional framework.
+
 ### L5: Agents (Federation)
 *Autonomous Multi-Agent System (v55.0).*
 
