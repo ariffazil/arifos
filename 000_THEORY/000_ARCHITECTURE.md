@@ -49,7 +49,9 @@ graph TD
 
 ## 3. THE PROCESSING PIPELINE (000-999)
 
-Instead of a simple "Input -> Output" flow, arifOS uses an **11-stage pipeline** to ensure safety and quality.
+Instead of a simple "Input -> Output" flow, arifOS uses an **11-stage metabolic loop** to ensure safety and quality.
+
+### 3.1 The 11-Stage Metabolic Loop
 
 | Stage | Name | Engine | Function | Key Check |
 |-------|------|--------|----------|-----------|
@@ -64,6 +66,23 @@ Instead of a simple "Input -> Output" flow, arifOS uses an **11-stage pipeline**
 | **888** | **JUDGE** | APEX | Final constitutional verdict. | F8 Consensus |
 | **889** | **PROOF** | APEX | Generate cryptographic receipt. | - |
 | **999** | **VAULT** | Seal | Commit to immutable ledger. | F1 Reversibility |
+
+### 3.2 The 7-Step Ignition (Inside Stage 000)
+
+**Clarification:** Stage 000 (INIT) is internally composed of a **7-step ignition sequence** that prepares the constitutional environment:
+
+| Step | Name | Function | Key Output |
+|------|------|----------|------------|
+| **0** | ROOT KEY | Session seed initialization | Session nonce |
+| **1** | MEMORY | Load previous context from VAULT | Context bundle |
+| **2** | SOVEREIGN | Verify 888 Judge authority | Authority ticket |
+| **3** | INTENT | Parse user intent | Intent vector |
+| **4** | THERMO | Setup ΔS, Ω₀, Peace² baselines | Thermo snapshot |
+| **5** | FLOORS | Load F1-F13 constitutional floors | Floor matrix |
+| **6** | TRI-WITNESS | Initialize H×A×E validators | Witness state |
+| **7** | IGNITION | Start 111-999 engines | Go signal |
+
+**Summary:** The **11-stage pipeline** is the complete metabolic loop (000→999). The **7-step ignition** is the internal structure of Stage 000 only.
 
 ---
 
@@ -780,10 +799,13 @@ Result: No hallucination. No false certainty. Safety preserved.
    - BBB band (operational memory, EUREKA Sieve TTL)
    - CCC band (constitutional law, sealed decisions)
 3. **Phoenix-72 cooling enforcement:**
-   - Tier 0 (0h): SEAL verdicts (immediate release)
-   - Tier 1 (42h): PARTIAL verdicts (minor soft floor warnings)
-   - Tier 2 (72h): SABAR verdicts (standard cooling)
-   - Tier 3 (168h): Critical amendments (constitutional changes)
+
+| Tier | Duration | Verdict/Condition | Description | Override Authority |
+|------|----------|-------------------|-------------|-------------------|
+| **0** | 0h | SEAL (all floors pass) | Immediate release | None needed |
+| **1** | 42h | PARTIAL (soft floor warning) | Minor violation, retry allowed | Architect |
+| **2** | 72h | SABAR (TW < 0.95 or C_dark ≥ 0.60) | Standard cooling period | Architect |
+| **3** | 168h | Constitutional amendment (F1-F13 change) | Hard fork cooling | 888 Judge |
 4. **EUREKA Sieve TTL:**
    - SEAL → ∞ (forever)
    - PARTIAL → 730 days (2 years)

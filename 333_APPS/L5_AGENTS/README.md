@@ -1,6 +1,6 @@
 # L5_AGENTS — Autonomous Orchestration
 
-**Level 5 | 90% Coverage | High Complexity**
+**Level 5 | ~90% Coverage (illustrative) | High Complexity | Experimental**
 
 > *"Agents are tools with autonomy — they decide when to act."*
 
@@ -8,16 +8,16 @@
 
 ## 🎯 Purpose
 
-L5_AGENTS wraps the 000-999 metabolic loop in **autonomous entities** that can plan, execute, retry, and self-correct. Each organ becomes an agent with goals, memory, and decision-making capabilities.
+L5_AGENTS wraps the 000-999 metabolic loop in **autonomous entities** that can plan, execute, retry, and self-correct. Each organ becomes an agent with goals, memory, and decision-making capabilities. **Experimental / not production-ready.**
 
 ---
 
 ## 📈 Effectiveness Spectrum
 
 ```
-Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90%
-Cost:      $3-7 per 1K operations
-Setup:     1 day
+Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ ~90% (illustrative)
+Cost:      $3-7 per 1K operations (illustrative)
+Setup:     ~1 day (illustrative)
 Autonomy:  High (agents choose their path)
 ```
 

@@ -38,9 +38,10 @@ from codebase.constants import (
 )
 
 from .types import ApexVerdict, FloorCheckResult, Metrics, Verdict
+from codebase.floors import FloorScores, extract_dials
 
-APEX_VERSION = "v53.0-HARDENED-TRINITY"
-APEX_EPOCH = 53
+APEX_VERSION = "v55.1-EIGEN-TRINITY"
+APEX_EPOCH = 55
 
 
 def normalize_verdict_code(verdict_str: str) -> str:
@@ -49,7 +50,7 @@ def normalize_verdict_code(verdict_str: str) -> str:
         return "VOID"
 
     v_upper = verdict_str.upper().strip()
-    
+
     # Map legacy -> New Trinity
     if v_upper in ("SEAL", "SEALED", "PARTIAL"):
         return "SEAL"
@@ -57,7 +58,7 @@ def normalize_verdict_code(verdict_str: str) -> str:
         return "SABAR"
     if v_upper in ("VOID", "VOIDED", "SUNSET"):
         return "VOID"
-        
+
     return "VOID"  # Default safe fallback
 
 
@@ -98,10 +99,10 @@ def _phoenix_tier_for(verdict: Verdict, genius_index: float) -> Dict[str, Any]:
         if genius_index >= 0.85:
             return {"tier": "L5_ETERNAL", "hold_hours": 0}
         return {"tier": "L4_MONTHLY", "hold_hours": 0}
-        
+
     if verdict == Verdict.SABAR:
         return {"tier": "L3_WEEKLY", "hold_hours": 24 * 7}
-        
+
     # VOID
     return {"tier": "L2_PHOENIX", "hold_hours": 72}
 
@@ -189,7 +190,9 @@ class APEXPrime:
     def _floor_results_from_metrics(self, metrics: Metrics, lane: str) -> List[FloorCheckResult]:
         truth_threshold = get_lane_truth_threshold(lane)
         return [
-            FloorCheckResult("F1", "Amanah", 1.0, 1.0 if metrics.amanah else 0.0, metrics.amanah, is_hard=True),
+            FloorCheckResult(
+                "F1", "Amanah", 1.0, 1.0 if metrics.amanah else 0.0, metrics.amanah, is_hard=True
+            ),
             FloorCheckResult(
                 "F2",
                 "Truth",
@@ -230,7 +233,9 @@ class APEXPrime:
                 float(metrics.delta_s) <= DELTA_S_THRESHOLD,
                 is_hard=True,
             ),
-            FloorCheckResult("F7", "RASA", 1.0, 1.0 if metrics.rasa else 0.0, bool(metrics.rasa), is_hard=True),
+            FloorCheckResult(
+                "F7", "RASA", 1.0, 1.0 if metrics.rasa else 0.0, bool(metrics.rasa), is_hard=True
+            ),
             FloorCheckResult(
                 "F8",
                 "Tri-Witness",
@@ -284,7 +289,7 @@ class APEXPrime:
             warnings.append("F4(empathy)")
 
         all_pass = len(failed) == 0 and len(warnings) == 0
-        
+
         # 3-State Verdict Map
         if failed:
             verdict = "VOID"
@@ -295,9 +300,9 @@ class APEXPrime:
 
         return FloorsVerdict(
             verdict=verdict,
-            passed_floors=["F1"], # Simplified, caller relies on failed list
+            passed_floors=["F1"],  # Simplified, caller relies on failed list
             failed_floors=failed,
-            reason=f"Failed: {failed}, Warnings: {warnings}" if failed or warnings else "All Pass"
+            reason=f"Failed: {failed}, Warnings: {warnings}" if failed or warnings else "All Pass",
         )
 
     def judge(
@@ -313,21 +318,21 @@ class APEXPrime:
     ) -> ApexVerdict:
         """Issue an ApexVerdict (3-State) from Metrics."""
         floors = self.check(metrics, lane=lane)
-        
+
         sub_verdict = None
-        
+
         # 1. Check Blocking Conditions
         if eye_blocking:
             verdict = Verdict.SABAR  # Re-classified as Block from VOID
             sub_verdict = "EYE_BLOCK"
             reason = "SABAR: @EYE blocking issue"
-        
+
         # 2. Check Hard Failures
         elif floors.verdict == "VOID":
             verdict = Verdict.VOID
             sub_verdict = "HARD_FAIL"
             reason = f"VOID: {floors.reason}"
-            
+
         # 3. Check p(truth) -> SABAR if low
         else:
             evidence_ratio = float((context or {}).get("evidence_ratio", 1.0))
@@ -338,7 +343,7 @@ class APEXPrime:
                 evidence_ratio=evidence_ratio,
                 alpha=self.p_truth_alpha,
             )
-            
+
             if p_truth < self.p_truth_min:
                 verdict = Verdict.SABAR
                 sub_verdict = "LOW_CONFIDENCE"
@@ -352,7 +357,14 @@ class APEXPrime:
                     reason = "SEAL: All Pass"
 
         return self._build_verdict(
-            verdict, query, response, user_id, metrics, reason, sub_verdict, sub_verdict == "LOW_CONFIDENCE"
+            verdict,
+            query,
+            response,
+            user_id,
+            metrics,
+            reason,
+            sub_verdict,
+            sub_verdict == "LOW_CONFIDENCE",
         )
 
     def judge_output(
@@ -366,19 +378,19 @@ class APEXPrime:
     ) -> ApexVerdict:
         """Stage 888: 3-State Verdict Logic (SEAL, SABAR, VOID)."""
         ctx: Dict[str, Any] = dict(context or {})
-        
+
         # 1. Metrics & Hard/Soft Checks
         metrics = self._metrics_from_floor_results(agi_results, asi_results)
         floors = self.check(metrics, lane=str(ctx.get("lane", "SOFT")))
-        
+
         # 2. Hypervisor Checks (F10-F13)
         v10 = validate_f10_ontology(f"{query}\n{response}")
         v12 = validate_f12_injection_defense(query)
         v13 = validate_f13_curiosity(query, {"response": response})
-        
+
         hypervisor_block = False
         hypervisor_reasons = []
-        
+
         if not v10["pass"]:
             hypervisor_block = True
             hypervisor_reasons.append("F10(Ontology)")
@@ -390,7 +402,7 @@ class APEXPrime:
         verdict = Verdict.VOID
         sub_verdict = None
         reason = ""
-        
+
         # A. SABAR: Hypervisor Block
         if hypervisor_block:
             verdict = Verdict.SABAR
@@ -419,12 +431,12 @@ class APEXPrime:
                 evidence_ratio=evidence_ratio,
                 alpha=self.p_truth_alpha,
             )
-            
+
             if p_truth < self.p_truth_min:
                 verdict = Verdict.SABAR
                 sub_verdict = "LOW_CONFIDENCE"
                 reason = f"SABAR: p(truth)={p_truth:.3f}<{self.p_truth_min}"
-            
+
             # E. SEAL: Conditional or Clean
             else:
                 verdict = Verdict.SEAL
@@ -438,6 +450,24 @@ class APEXPrime:
             verdict, query, response, user_id, metrics, reason, sub_verdict, False
         )
 
+    def _metrics_to_floors(self, metrics: Metrics) -> FloorScores:
+        """Convert Metrics to FloorScores for eigendecomposition."""
+        return FloorScores(
+            f1_amanah=1.0 if metrics.amanah else 0.0,
+            f2_truth=metrics.truth,
+            f3_tri_witness=metrics.tri_witness,
+            f4_clarity=metrics.delta_s,
+            f5_peace=metrics.peace_squared,
+            f6_empathy=metrics.kappa_r,
+            f7_humility=1.0 - metrics.omega_0,
+            f8_genius=0.80,  # Default for first iteration
+            f9_antihantu=1.0 if metrics.anti_hantu else 0.0,
+            f10_ontology=1.0,  # Assume typed if Metrics used
+            f11_command=1.0,  # Assume verified
+            f12_injection=0.99 if metrics.anti_hantu else 0.5,
+            f13_sovereign=1.0 if metrics.rasa else 0.0,
+        )
+
     def _build_verdict(
         self,
         verdict: Verdict,
@@ -447,16 +477,20 @@ class APEXPrime:
         metrics: Metrics,
         reason: str,
         sub_verdict: Optional[str],
-        is_p_truth_fail: bool
+        is_p_truth_fail: bool,
     ) -> ApexVerdict:
-        """Helper to construct ApexVerdict."""
-        genius_index = float(metrics.truth)
+        """Helper to construct ApexVerdict with proper genius calculation."""
+        # v55.1: Use eigendecomposition to derive genius from 13 floors → 4 dials
+        floors = self._metrics_to_floors(metrics)
+        dials = extract_dials(floors)
+        A, P, X, E = dials["A"], dials["P"], dials["X"], dials["E"]
+        genius_index = A * P * X * (E**2)
         cooling = _phoenix_tier_for(verdict, genius_index)
-        
-        p_truth = 1.0 # default
+
+        p_truth = 1.0  # default
         if is_p_truth_fail:
-             # re-calc or just pass 0 for simplicity in this helper context
-             p_truth = 0.0 
+            # re-calc or just pass 0 for simplicity in this helper context
+            p_truth = 0.0
 
         proof_hash = _sha256_hex(
             json.dumps(
@@ -465,10 +499,10 @@ class APEXPrime:
                     "response": response,
                     "verdict": verdict.value,
                     "sub": sub_verdict,
-                    "v": APEX_VERSION
+                    "v": APEX_VERSION,
                 },
                 default=str,
-                sort_keys=True
+                sort_keys=True,
             ).encode("utf-8")
         )
 
@@ -476,16 +510,29 @@ class APEXPrime:
             verdict=verdict,
             pulse=float(metrics.psi) if metrics.psi else 1.0,
             reason=reason,
-            violated_floors=[], # Populated by caller if needed, omitted for speed here
+            violated_floors=[],  # Populated by caller if needed, omitted for speed here
             compass_alignment={},
-            genius_stats={"truth": float(metrics.truth)},
+            genius_stats={
+                "G": round(genius_index, 4),
+                "truth": float(metrics.truth),
+                "dials": {
+                    "A": round(dials["A"], 3),
+                    "P": round(dials["P"], 3),
+                    "X": round(dials["X"], 3),
+                    "E": round(dials["E"], 3),
+                },
+                "weakest_dial": min(dials, key=dials.get),
+                "derivation": "eigendecomposition",
+            },
             proof_hash=proof_hash,
             cooling_metadata=cooling,
-            sub_verdict=sub_verdict
+            sub_verdict=sub_verdict,
         )
 
 
-def check_floors(metrics: Metrics, *, lane: str = "SOFT", high_stakes: bool = False) -> FloorsVerdict:
+def check_floors(
+    metrics: Metrics, *, lane: str = "SOFT", high_stakes: bool = False
+) -> FloorsVerdict:
     """Standalone floor check (legacy import path)."""
     prime = APEXPrime(high_stakes=high_stakes)
     return prime.check(metrics, lane=lane)
@@ -529,4 +576,3 @@ __all__ = [
     "check_floors",
     "apex_review",
 ]
-

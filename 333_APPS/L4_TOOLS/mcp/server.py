@@ -197,8 +197,8 @@ TOOL_DESCRIPTIONS: Dict[str, Dict[str, Any]] = {
             return [mcp.types.TextContent(type="text", text=formatted_text)]
 
         except Exception as e:
-            logger.error(f"Execution error in {name}: {e}")
-            return [mcp.types.TextContent(type="text", text=f"ERROR: {str(e)}")]
+            logger.error("Execution error in %s: %s", name, e, exc_info=True)
+            return [mcp.types.TextContent(type="text", text="VOID: Internal processing error")]
 
     return server
 

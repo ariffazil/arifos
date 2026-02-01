@@ -1,30 +1,80 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "AAA MCP Configuration for Antigravity IDE (v53.2.7-CODEBASE-AAA7)",
+  "$comment": "AAA MCP Configuration for Antigravity IDE (v54.1 - Complete Set)",
   "mcpServers": {
     "aaa-mcp": {
-      "command": "python",
-      "args": [
-        "-m",
-        "codebase.mcp"
-      ],
-      "cwd": "C:\\Users\\ariff\\arifOS",
+      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "codebase.mcp", "stdio"],
+      "cwd": "C:/Users/User/arifOS",
       "env": {
-        "PYTHONPATH": "C:/Users/ariff/arifOS",
+        "PYTHONPATH": "C:/Users/User/arifOS",
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         "PYTHONIOENCODING": "utf-8",
-        "PYTHONUNBUFFERED": "1"
+        "PYTHONUNBUFFERED": "1",
+        "ARIFOS_VAULT_PATH": "C:/Users/User/arifOS/VAULT999"
       },
-      "description": "AAA MCP (v53.2.7) - 7-Core Constitutional Governance",
-      "alwaysAllow": [
-        "_init_",
-        "_agi_",
-        "_asi_",
-        "_apex_",
-        "_vault_",
-        "_trinity_",
-        "_reality_"
-      ]
+      "description": "AAA MCP (v55.0) - Constitutional Governance with 13 Floors (Canonical 9-Tool Set)",
+      "alwaysAllow": ["init_gate", "agi_sense", "agi_think", "agi_reason", "asi_empathize", "asi_align", "apex_verdict", "reality_search", "vault_seal"]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/Users/User/arifOS"]
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"]
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "C:/Users/User/arifOS"]
+    },
+    "time": {
+      "command": "uvx",
+      "args": ["mcp-server-time"]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest", "--allow-unrestricted-file-access"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github@latest"]
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"]
+    },
+    "fetch": {
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
+    },
+    "python-repl": {
+      "command": "uvx",
+      "args": ["mcp-repl"]
+    },
+    "sqlite": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite"]
+    },
+    "perplexity": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-perplexity@latest"]
+    },
+    "railway": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-railway@latest"]
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-puppeteer"]
     }
   }
 }

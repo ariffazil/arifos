@@ -17,9 +17,12 @@ Scope:
 7. _reality_ (Ground)
 """
 
+import logging
 import uuid
 from typing import Any, Dict, Optional, List
 from codebase.kernel import get_kernel_manager
+
+logger = logging.getLogger(__name__)
 from codebase.mcp.core.bridge import (
     bridge_trinity_loop_router,
     bridge_reality_check_router,
@@ -78,7 +81,7 @@ async def mcp_init(
 
     # Stamp every _init_ response with the arifOS motto
     result["motto"] = "DITEMPA, BUKAN DIBERI \U0001f9e0\U0001f525\U0001f48e"
-    result["root_key"] = "TOY_MODE"
+    # result["root_key"] = "TOY_MODE"  # REMOVED: Security Hardening (P0)
 
     # Adapter: Map internal result to ToolRegistry schema
     # Schema requires: session_id, authority_level, budget_allocated, injection_check_passed, access_level, session_ttl, constitutional_version
@@ -105,6 +108,7 @@ async def mcp_init(
         "access_level": result.get("lane", "SOFT"),
         "session_ttl": 3600,  # Default TTL
         "constitutional_version": "v55.2",
+        "verdict": result.get("verdict", "SEAL"),
         # Keep original helpful data
         "original_status": result.get("status"),
         "reason": result.get("reason"),
@@ -135,9 +139,29 @@ async def mcp_agi(
     session_id = kwargs.pop("session_id", session_id)
 
     kernel = get_kernel_manager().get_agi()
-    raw_result = await kernel.execute(
-        action, {"query": query, "session_id": session_id, **kwargs}
-    )
+    try:
+        raw_result = await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
+    except Exception as e:
+        logger.error("mcp_agi execute failed: %s", e, exc_info=True)
+        return {
+            "session_id": session_id or "unknown",
+            "entropy_delta": 0.0,
+            "omega_0": 0.04,
+            "precision": {},
+            "hierarchical_beliefs": {},
+            "action_policy": {},
+            "vote": "VOID",
+            "verdict": "VOID",
+            "floor_scores": {},
+            "error": {
+                "code": "INTERNAL_ERROR",
+                "message": "Internal processing error",
+                "suggestion": "Check action parameter or query format"
+            }
+        }
+
+    # Adapter: Map to ToolRegistry schema
+    # Schema requires: session_id, entropy_delta, vote
 
     # Convert Dataclass/Pydantic to dict if needed
     if hasattr(raw_result, "dict"):
@@ -154,6 +178,8 @@ async def mcp_agi(
     # Per-stage results are already schema-compliant from AGINeuralCore
     action_upper = action.upper()
     if action_upper in ("SENSE", "THINK"):
+        if "verdict" not in result:
+            result["verdict"] = result.get("vote", "SEAL")
         return result
 
     # Full/reason pipeline: ensure backward-compatible required fields
@@ -171,6 +197,7 @@ async def mcp_agi(
         "hierarchical_beliefs": result.get("hierarchical_beliefs", result.get("hierarchy", {})),
         "action_policy": result.get("action_policy", {}),
         "vote": result.get("vote", "VOID"),
+        "verdict": result.get("vote", "VOID"),
         "floor_scores": result.get("floor_scores", {}),
         # New contentful fields (v55.2)
         "conclusion": result.get("conclusion", ""),
@@ -235,6 +262,7 @@ async def mcp_asi(
         "session_id": data.get("session_id", session_id),
         "omega_total": float(data.get("omega_total", 0.0)),
         "vote": data.get("vote", "VOID"),
+        "verdict": data.get("vote", "VOID"),
         "empathy_kappa_r": float(
             data.get("empathy", {}).get("kappa_r", 0.0)
             if isinstance(data.get("empathy"), dict)
@@ -303,6 +331,7 @@ async def mcp_apex(
     adapted = {
         "session_id": raw_result.get("session_id", session_id),
         "final_verdict": final_verdict,
+        "verdict": final_verdict,
         "trinity_score": float(trinity_score),
         "paradox_scores": raw_result.get("paradox_scores", {}),
         "equilibrium": raw_result.get("equilibrium", {}),
@@ -334,17 +363,53 @@ async def mcp_vault(
     if not session_id:
         session_id = str(uuid.uuid4())
 
-    kernel = get_kernel_manager().get_apex()
-    return await kernel.execute(
-        "seal" if action == "seal" else action,
-        {
-            "session_id": session_id,
-            "verdict": verdict,
-            "data": decision_data,
-            "target_ledger": target,
-            **kwargs,
-        },
-    )
+    # Default fallback values to satisfy schema
+    fallback_result = {
+        "seal_id": session_id,
+        "merkle_root": "0x0000000000000000000000000000000000000000000000000000000000000000",
+        "status": "ERROR",
+        "target": target,
+        "timestamp": "",
+        "integrity_hash": ""
+    }
+
+    try:
+        kernel = get_kernel_manager().get_apex()
+        result = await kernel.execute(
+            "seal" if action == "seal" else action,
+            {
+                "session_id": session_id,
+                "verdict": verdict,
+                "data": decision_data,
+                "target_ledger": target,
+                **kwargs,
+            },
+        )
+        
+        # Ensure result adheres to schema
+        if not isinstance(result, dict):
+             result = {"error": f"Invalid result type: {type(result)}"}
+
+        # If kernel returns error or missing fields, merge with fallback
+        final_result = fallback_result.copy()
+        final_result.update(result)
+        
+        # Ensure status is one of the allowed enums if possible, or at least a string
+        if "status" not in final_result or final_result["status"] not in ["SEALED", "PENDING", "ERROR"]:
+             # Map internal status to schema enum if needed, or default to ERROR if it looks like a failure
+             if "error" in final_result:
+                 final_result["status"] = "ERROR"
+             elif final_result.get("verdict") == "SEAL":
+                 final_result["status"] = "SEALED"
+             else:
+                 final_result["status"] = "PENDING"
+
+        return final_result
+
+    except Exception as e:
+        logger.error(f"[VAULT_999] Error: {e}")
+        fallback_result["error"] = str(e)
+        return fallback_result
 
 
 # ==============================================================================
@@ -384,4 +449,39 @@ async def mcp_reality(
             "source": "none",
         }
 
-    return await bridge_reality_check_router(query=query, session_id=session_id, **kwargs)
+    try:
+        result = await bridge_reality_check_router(query=query, session_id=session_id, **kwargs)
+        
+        # Meta-Atlas Fallback Protocol (v55.2)
+        # If external sensor fails (Circuit Breaker/API Error), guide the Agent to self-correct.
+        if result.get("status") in ["SABAR", "VOID", "ERROR"] or "error" in result:
+            result["fallback_guidance"] = (
+                "⚠️ EXTERNAL SENSOR OFFLINE (Circuit Breaker Active). "
+                "The Agent MUST now initiate internal web search capabilities with **Meta-Atlas Protocol**: "
+                "1. **Humility (F7)**: Explicitly state that arifOS sensors are offline and you are using fallback tools. "
+                "2. **Map Topology**: Search for 'Context of [X]', 'Opposing views to [X]', and 'Source credibility'. "
+                "3. **Triangulate (F2)**: Verify facts across at least 3 distinct domains/sources. "
+                "4. **Recursive Depth**: Drill down into unclear concepts before synthesizing."
+            )
+            # Ensure verdict allows for manual intervention if it was VOID
+            if result.get("verdict") == "VOID":
+                result["verdict"] = "SABAR" # Shift to SABAR to allow agent action
+                
+        return result
+
+    except Exception as e:
+        logger.error(f"[REALITY_CHECK] Error: {e}")
+        return {
+            "status": "ERROR",
+            "verdict": "SABAR", # Allow fallback
+            "error": {
+                "message": str(e),
+                "code": "INTERNAL_ERROR"
+            },
+            "session_id": session_id,
+            "fallback_guidance": (
+                "⚠️ SYSTEM ERROR in Reality Bridge. "
+                "The Agent MUST initiate internal web search capabilities (Meta-Atlas Protocol). "
+                "Triangulate facts and cite sources explicitly (F7)."
+            )
+        }

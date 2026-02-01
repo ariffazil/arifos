@@ -4,15 +4,14 @@ arifos.core/guards/session_dependency.py
 arifOS Session Dependency Guard
 
 Purpose:
-    Provide a lightweight, in-memory guard for long-horizon behaviour
-    such as high-frequency or long-duration interaction patterns.
-
+    Provide a lightweight, PERSISTENT guard for long-horizon behaviour.
+    
     While the main constitutional floors (F1-F9) govern each response,
     this guard operates at the session level to detect potential
     overuse or parasocial dependency patterns.
 
 Design:
-    - Pure Python, in-memory only (no databases or external state)
+    - JSON-based persistence (codebase/data/sessions/session_store.json)
     - Simple heuristics:
         * Duration threshold (minutes)
         * Interaction count threshold
@@ -28,10 +27,14 @@ Motto:
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, field
+import json
+import os
+import logging
+from dataclasses import dataclass, field, asdict
 from enum import Enum
 from typing import Dict, TypedDict
 
+logger = logging.getLogger(__name__)
 
 class SessionRisk(str, Enum):
     """Risk level for a given session."""
@@ -45,13 +48,6 @@ class SessionRisk(str, Enum):
 class SessionState:
     """
     Track basic session-level usage statistics.
-
-    Attributes:
-        session_id: Identifier for the session (e.g., user or conversation ID)
-        start_time: Timestamp when the session started
-        interaction_count: Number of interactions in this session
-        last_interaction_time: Timestamp of the last interaction
-        risk_level: Current assessed risk level
     """
 
     session_id: str
@@ -67,18 +63,7 @@ class SessionState:
 
 
 class DependencyGuardResult(TypedDict, total=False):
-    """
-    Result structure for DependencyGuard.check_risk.
-
-    Keys:
-        status: "PASS" | "WARN" | "SABAR"
-        reason: Short machine-readable reason
-        message: Human-readable guidance text
-        risk_level: SessionRisk value (as string)
-        duration_minutes: Current session duration
-        interaction_count: Number of interactions so far
-    """
-
+    """Result structure for DependencyGuard.check_risk."""
     status: str
     reason: str
     message: str
@@ -89,47 +74,63 @@ class DependencyGuardResult(TypedDict, total=False):
 
 class DependencyGuard:
     """
-    Session Dependency Guard.
-
-    Enforces simple limits on interaction duration and density to help
-    prevent unhealthy dependency patterns. This is a lab-friendly guard
-    that can be called by wrappers or hosting applications before
-    invoking the main arifOS pipeline.
-
-    Example:
-        guard = DependencyGuard(max_duration_min=60, max_interactions=80)
-        result = guard.check_risk(session_id="user-123")
-        if result["status"] == "SABAR":
-            # Return a gentle boundary message instead of continuing
+    Session Dependency Guard (Persistent).
     """
 
     def __init__(
         self,
         max_duration_min: float = 60.0,
         max_interactions: int = 80,
+        persistence_path: str = "codebase/data/sessions/session_store.json"
     ) -> None:
         """
-        Initialize the dependency guard.
+        Initialize the dependency guard with persistence.
 
         Args:
             max_duration_min: Maximum session duration in minutes before SABAR.
             max_interactions: Maximum number of interactions before WARN.
+            persistence_path: Path to JSON store.
         """
         self.max_duration_min = max_duration_min
         self.max_interactions = max_interactions
-        # In-memory storage for the spike (no external persistence)
+        self.persistence_path = persistence_path
         self.sessions: Dict[str, SessionState] = {}
+        self._load_sessions()
+
+    def _load_sessions(self):
+        """Load sessions from disk."""
+        try:
+            if os.path.exists(self.persistence_path):
+                with open(self.persistence_path, 'r') as f:
+                    data = json.load(f)
+                    for sid, sdata in data.items():
+                        # Handle Enum conversion if needed, though string is default in JSON
+                        # Convert string risk back to Enum if stored as string
+                        sdata['risk_level'] = SessionRisk(sdata.get('risk_level', 'GREEN'))
+                        self.sessions[sid] = SessionState(**sdata)
+        except Exception as e:
+            logger.warning(f"Failed to load session store: {e}")
+            # Start fresh if load fails
+
+    def _save_sessions(self):
+        """Save sessions to disk."""
+        try:
+            os.makedirs(os.path.dirname(self.persistence_path), exist_ok=True)
+            data = {
+                sid: asdict(state) 
+                for sid, state in self.sessions.items()
+            }
+            # Convert Enum to value for JSON serialization
+            for sid in data:
+                data[sid]['risk_level'] = data[sid]['risk_level'].value
+
+            with open(self.persistence_path, 'w') as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            logger.error(f"Failed to save session store: {e}")
 
     def get_or_create_session(self, session_id: str) -> SessionState:
-        """
-        Retrieve existing SessionState or create a new one.
-
-        Args:
-            session_id: Identifier for the session
-
-        Returns:
-            SessionState for the given session ID
-        """
+        """Retrieve existing SessionState or create a new one."""
         if session_id not in self.sessions:
             self.sessions[session_id] = SessionState(session_id=session_id)
         return self.sessions[session_id]
@@ -137,16 +138,7 @@ class DependencyGuard:
     def check_risk(self, session_id: str) -> DependencyGuardResult:
         """
         Update and evaluate risk for a given session.
-
-        This method should be called once per interaction. It updates
-        the session counters and returns a summary of the current
-        risk level and any recommended action.
-
-        Args:
-            session_id: Identifier for the session
-
-        Returns:
-            DependencyGuardResult with status and guidance.
+        Persists state after update.
         """
         session = self.get_or_create_session(session_id)
         session.interaction_count += 1
@@ -176,10 +168,9 @@ class DependencyGuard:
                     "risk_level": SessionRisk.RED.value,
                 }
             )
-            return result
-
+        
         # Heuristic 2: Interaction count-based WARN
-        if session.interaction_count > self.max_interactions:
+        elif session.interaction_count > self.max_interactions:
             session.risk_level = SessionRisk.YELLOW
             result.update(
                 {
@@ -193,12 +184,13 @@ class DependencyGuard:
                     "risk_level": SessionRisk.YELLOW.value,
                 }
             )
-            return result
+        else:
+            session.risk_level = SessionRisk.GREEN
 
-        # Still within bounds
-        session.risk_level = SessionRisk.GREEN
+        # Persist changes
+        self._save_sessions()
+        
         return result
 
 
 __all__ = ["SessionRisk", "SessionState", "DependencyGuard", "DependencyGuardResult"]
-

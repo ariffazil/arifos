@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "reality_search",
+  "description": "External Reality Check - Input Schema",
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "string",
+      "description": "Query for external search"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Optional session identifier"
+    },
+    "sources": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Preferred sources"
+    }
+  },
+  "required": ["query"]
+}

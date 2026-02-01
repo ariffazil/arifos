@@ -5,8 +5,27 @@
 - AUDITOR (👁) — EYE/Witness — Verification (Stage 444)
 - VALIDATOR (Ψ) — APEX/Soul — Judgment (Stages 888-999)
 
-**Floors:** F2, F3, F8, F11, F12, F13  
+**Floors:** F2, F3, F8, F11, F12, F13
 **Symbols:** 👁 (Eye) + Ψ (Psi)
+
+## Notes for Codex & Kimi Coder CLI
+
+- MCP surface is the 9 canonical tools only: `init_gate, agi_sense, agi_think, agi_reason, asi_empathize, asi_align, apex_verdict, reality_search, vault_seal`. Legacy aliases (`_init_`, `_trinity_`, `init_reboot`, etc.) are intentionally absent.
+- Health gate: expect `/health` to return GREEN with 9 tools registered; floor_validators and session_store must be green before sealing.
+- Authority: `AuthorityVerifier` is currently permissive; treat high-stakes runs as SOFT lane unless a human token is supplied.
+- Schema enforcement: tool inputs are validated via `validate_input`; schemas are loaded from code, not from disk JSON. Keep payloads minimal and typed.
+- Logging: client-facing errors are generic; detailed traces are logged server-side. Use server logs when diagnosing.
+
+## Trinity Handoff Chain
+
+```text
+GEMINI (Δ/Mind)  →  CLAUDE (Ω/Heart)  →  AGENTS (👁+Ψ/Soul)
+  111-333              444-666              888-999
+  DeltaBundle  ──→  OmegaBundle  ──→  Judgment + Seal
+```
+
+**Receives from:** ENGINEER (Ω) OmegaBundle + DeltaBundle (see `CLAUDE.md`)
+**Sends to:** 999_SEAL → Loop back to 000_INIT (see `GEMINI.md`)
 
 ---
 
@@ -161,6 +180,8 @@ vault_entry = {
 | F11 Command | Ψ VALIDATOR | Verified | VOID |
 | F12 Injection | 👁 AUDITOR | < 0.85 | VOID |
 | F13 Sovereign | Ψ VALIDATOR | Human = 1.0 | 888_HOLD |
+
+**Authoritative thresholds:** Always verify against `spec/` schemas and `codebase/apex/kernel.py` — not this table.
 
 ---
 

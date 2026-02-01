@@ -4,7 +4,21 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arifos"
-version = "53.2.9"
+version = "55.2"
+# v55.2: Constitutional Hardening & Stabilization (2026-02-02)
+#   - Consensus reached: Registry finalized with exactly 9 Canonical Tools.
+#   - Security Hardening: Integrated unified InjectionGuard (F12) into init_gate.
+#   - Deep Health Checks: Component-level probes for system observability.
+#   - Schema Enforcement: Automated validation of tool input/output contracts.
+#   - Entropy Reduction: Purged all legacy aliases and orphaned ghost references.
+#   - Stabilization: Resolved 17 core failures and 202 test passing.
+# v55.0: Explicit Tool Architecture (2026-02-01)
+#   - Split multi-action tools into 9 explicit tools for LLM discoverability
+#   - New tools: init_reboot, agi_sense, agi_think, agi_reason, asi_empathize, asi_align, asi_insight, apex_verdict, reality_search
+#   - Deprecated: _init_, _agi_, _asi_, _apex_, _reality_ (backward compatible, removal in v56.0)
+#   - Added session_id parameter to all tools for multi-step workflows
+#   - Structured error codes mapped to constitutional floors (F1-F13)
+#   - Complete test coverage: 13 handler tests + 15 transport tests
 # v53.2.8-CODEBASE-AAA7: ChatGPT MCP Compatibility Fix
 #   - Unified DeltaBundle/OmegaBundle to canonical dataclass (bundles.py).
 #   - Relaxed SSE transport: text→query aliasing, kwargs pass-through.
@@ -238,6 +252,11 @@ markers = [
     "slow",
     "integration",
 ]
+cache_dir = ".pytest_cache_win"
+filterwarnings = [
+    "ignore:Core Pydantic V1 functionality isn't compatible with Python 3.14 or greater.:UserWarning:langsmith.schemas",
+]
+addopts = "-W \"ignore:Core Pydantic V1 functionality isn.t compatible with Python 3.14 or greater.:UserWarning:langsmith.schemas\""
 
 [tool.black]
 line-length = 100

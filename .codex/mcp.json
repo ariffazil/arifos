@@ -1,13 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "Codex CLI MCP config — arifOS AAA MCP v55.1 (streamable-http)",
+  "$comment": "Codex CLI MCP config — arifOS AAA MCP v55.1 + 21 External MCP Servers (Full AGI Stack)",
   "mcpServers": {
+    "aaa-mcp": {
+      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "codebase.mcp", "stdio"],
+      "cwd": "C:\\Users\\User\\arifOS",
+      "env": {
+        "PYTHONPATH": "C:/Users/User/arifOS",
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUNBUFFERED": "1"
+      },
+      "description": "AAA MCP stdio (local, zero-network, v55.1)"
+    },
     "arifos-trinity": {
-      "command": "python",
-      "args": [
-        "-m",
-        "codebase.mcp.entrypoints.sse_entry"
-      ],
+      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "codebase.mcp.entrypoints.sse_entry"],
       "cwd": "C:\\Users\\User\\arifOS",
       "env": {
         "PYTHONPATH": "C:/Users/User/arifOS",
@@ -18,6 +27,122 @@
         "PORT": "8000"
       },
       "description": "Local arifOS Trinity MCP (FastMCP streamable HTTP, v55.1)"
+    },
+    "time": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-time"],
+      "description": "Time and date operations"
+    },
+    "fetch": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-fetch"],
+      "description": "HTTP requests and web fetching"
+    },
+    "memory": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-memory"],
+      "description": "Knowledge graph for persistent memory"
+    },
+    "brave-search": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-brave-search"],
+      "env": { "BRAVE_API_KEY": "BSAHQnxf-jTMFfGYe3MKmsJr7Uq8uEU--BRAVE" },
+      "description": "Web search via Brave Search API"
+    },
+    "github": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "REPLACE_WITH_YOUR_GITHUB_TOKEN" },
+      "description": "GitHub API operations"
+    },
+    "sequential-thinking": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "description": "Step-by-step reasoning and problem solving"
+    },
+    "filesystem": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-filesystem", "C:/Users/User"],
+      "description": "File read/write operations"
+    },
+    "sqlite": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-sqlite", "--db-path", "C:/Users/User/mcp_databases"],
+      "description": "SQLite database operations"
+    },
+    "desktop-commander": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@wonderwhy-er/desktop-commander"],
+      "description": "Terminal and command execution"
+    },
+    "context7": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@upstash/context7-mcp"],
+      "description": "Documentation and library search"
+    },
+    "perplexity": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "perplexity-ask"],
+      "env": { "PERPLEXITY_API_KEY": "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-PERP" },
+      "description": "AI-powered web search with citations"
+    },
+    "tavily": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@tavily-ai/tavily-mcp"],
+      "env": { "TAVILY_API_KEY": "REPLACE_WITH_YOUR_TAVILY_API_KEY" },
+      "description": "AI search optimized for LLMs"
+    },
+    "confluence": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@trendmicro/mcp-server-confluence"],
+      "env": {
+        "CONFLUENCE_URL": "REPLACE_WITH_YOUR_CONFLUENCE_URL",
+        "CONFLUENCE_USERNAME": "REPLACE_WITH_YOUR_USERNAME",
+        "CONFLUENCE_API_TOKEN": "REPLACE_WITH_YOUR_API_TOKEN"
+      },
+      "description": "Enterprise Confluence documentation RAG"
+    },
+    "notion": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@suekou/mcp-notion-server"],
+      "env": { "NOTION_API_TOKEN": "REPLACE_WITH_YOUR_NOTION_TOKEN" },
+      "description": "Notion workspace knowledge base"
+    },
+    "greptile": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@greptileai/greptile-mcp"],
+      "env": {
+        "GREPTILE_API_KEY": "REPLACE_WITH_YOUR_GREPTILE_API_KEY",
+        "GITHUB_TOKEN": "REPLACE_WITH_YOUR_GITHUB_TOKEN"
+      },
+      "description": "Deep code search with ripgrep and tree-sitter"
+    },
+    "snyk": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@snyk/mcp-server-snyk"],
+      "env": { "SNYK_TOKEN": "REPLACE_WITH_YOUR_SNYK_TOKEN" },
+      "description": "Dependency vulnerability scanning (OSV/CVE)"
+    },
+    "trufflehog": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@canva-com/trufflehog-mcp-server"],
+      "description": "Secret leak detection in code and git history"
+    },
+    "postgres": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-postgres", "postgresql://localhost/mydb"],
+      "description": "PostgreSQL database queries (read-only)"
+    },
+    "prometheus": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-prometheus"],
+      "env": { "PROMETHEUS_URL": "REPLACE_WITH_YOUR_PROMETHEUS_URL" },
+      "description": "Monitoring metrics and SLI data from Prometheus"
+    },
+    "aws": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-aws"],
+      "description": "AWS cloud infrastructure read-only access"
     }
   }
 }

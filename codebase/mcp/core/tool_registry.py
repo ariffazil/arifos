@@ -1,6 +1,6 @@
 """
 arifOS MCP Tool Registry
-Single Source of Truth for all 7 Constitutional Tools.
+Single source of truth for the 9 canonical constitutional tools (no aliases).
 """
 
 from typing import Dict, Any, Optional, Callable, Awaitable
@@ -60,7 +60,7 @@ class ToolRegistry:
         return self._tools
 
     def _register_canonical_tools(self):
-        """Register the 7 canonical constitutional tools with lazy handler binding."""
+        """Register the 9 canonical constitutional tools with explicit, LLM-friendly names."""
         # Import handlers inside method to break circular dependency
         from ..tools.canonical_trinity import (
             mcp_init,
@@ -68,46 +68,43 @@ class ToolRegistry:
             mcp_asi,
             mcp_apex,
             mcp_vault,
-            mcp_trinity,
             mcp_reality,
         )
 
-        # 1. _init_ (Gate)
+        # 1. init_gate (session gate)
         self.register(
             ToolDefinition(
-                name="_init_",
+                name="init_gate",
                 title="Session Initialization Gate",
-                description="Initialize session with identity verification, injection detection, budget allocation. MUST be called first.",
+                description="Initialize a governed session. Verify caller authority, scan for prompt injection (F12), and open a session ledger entry. Use this before running other tools when starting a new workflow.",
                 handler=mcp_init,
                 input_schema={
                     "type": "object",
                     "properties": {
-                        "action": {
-                            "type": "string",
-                            "enum": ["init", "gate", "reset", "validate", "authorize"],
-                            "default": "init",
-                        },
-                        "query": {"type": "string", "maxLength": 10000},
-                        "session_id": {"type": "string", "minLength": 8},
-                        "user_token": {"type": "string"},
+                        "query": {"type": "string", "description": "Initial user request"},
+                        "user_token": {"type": "string", "description": "Optional Ed25519 signature token"},
+                        "lane": {"type": "string", "enum": ["HARD", "SOFT"], "default": "SOFT"},
+                        "session_id": {"type": "string", "description": "Optional session ID to resume"}
                     },
-                    "required": ["action"],
+                    "required": ["query"]
                 },
                 output_schema={
                     "type": "object",
                     "properties": {
-                        "session_id": {"type": "string"},
-                        "authority_level": {
-                            "type": "string",
-                            "enum": ["guest", "user", "admin", "system"],
-                        },
-                        "budget_allocated": {"type": "integer"},
-                        "injection_check_passed": {"type": "boolean"},
-                        "access_level": {"type": "string"},
-                        "session_ttl": {"type": "integer"},
-                        "constitutional_version": {"type": "string"},
+                    "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                    "session_id": {"type": "string"},
+                    "authority_level": {"type": "string"},
+                    "injection_check_passed": {"type": "boolean"},
+                    "error": {
+                            "type": "object",
+                            "properties": {
+                                "code": {"type": "string"},
+                                "message": {"type": "string"},
+                                "suggestion": {"type": "string"}
+                            }
+                        }
                     },
-                    "required": ["session_id", "authority_level", "injection_check_passed"],
+                    "required": ["verdict", "session_id"]
                 },
                 annotations={
                     "title": "Session Gate",
@@ -118,40 +115,108 @@ class ToolRegistry:
             )
         )
 
-        # 2. _agi_ (Mind)
+        # 2. agi_sense
         self.register(
             ToolDefinition(
-                name="_agi_",
-                title="Mind Engine (Delta)",
-                description="Deep reasoning, pattern recognition, knowledge retrieval. Implements 111 SENSE → 222 THINK → 333 FORGE.",
-                handler=mcp_agi,
+                name="agi_sense",
+                title="Input Parsing & Intent Detection",
+                description="Parse the user input, detect intent, and classify the request into constitutional lanes (HARD/SOFT/PHATIC). Use this when you need to understand what kind of task the user is asking for.",
+                handler=lambda **kw: mcp_agi(action="sense", **kw),
                 input_schema={
                     "type": "object",
                     "properties": {
-                        "action": {
+                        "query": {"type": "string", "description": "User input to parse"},
+                        "session_id": {
                             "type": "string",
-                            "enum": [
-                                "sense",
-                                "think",
-                                "reflect",
-                                "reason",
-                                "atlas",
-                                "forge",
-                                "physics",
-                                "full",
-                            ],
-                            "default": "full",
-                        },
-                        "query": {"type": "string", "maxLength": 10000},
-                        "context": {"type": "object"},
-                        "session_id": {"type": "string"},
-                        "lane": {
-                            "type": "string",
-                            "enum": ["CRISIS", "HARD", "SOFT", "PHATIC"],
-                            "default": "SOFT",
-                        },
+                            "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                        }
                     },
-                    "required": ["action", "query"],
+                    "required": ["query"]
+                },
+                output_schema={
+                    "type": "object",
+                    "properties": {
+                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                        "intent": {"type": "string"},
+                        "lane": {"type": "string", "enum": ["HARD", "SOFT", "PHATIC"]},
+                        "complexity": {"type": "number"},
+                        "error": {"type": "object"}
+                    },
+                    "required": ["verdict"]
+                },
+                annotations={
+                    "title": "Intent Detection",
+                    "readOnlyHint": True,
+                    "destructiveHint": False,
+                    "openWorldHint": True,
+                },
+            )
+        )
+
+        # 3. agi_think
+        self.register(
+            ToolDefinition(
+                name="agi_think",
+                title="Hypothesis Generation",
+                description="Generate multiple possible hypotheses, options, or plans for how to respond to the user. Does not commit to a final verdict. Use this when you need to explore different approaches.",
+                handler=lambda **kw: mcp_agi(action="think", **kw),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string"},
+                        "session_id": {
+                            "type": "string",
+                            "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                        },
+                        "num_hypotheses": {"type": "integer", "default": 3}
+                    },
+                    "required": ["query"]
+                },
+                output_schema={
+                    "type": "object",
+                    "properties": {
+                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                        "hypotheses": {"type": "array"},
+                        "error": {"type": "object"}
+                    },
+                    "required": ["verdict"]
+                },
+                annotations={
+                    "title": "Hypothesis Generation",
+                    "readOnlyHint": True,
+                    "destructiveHint": False,
+                    "openWorldHint": True,
+                },
+            )
+        )
+
+        # 4. agi_reason
+        self.register(
+            ToolDefinition(
+                name="agi_reason",
+                title="Deep Logical Reasoning",
+                description="Perform deep logical reasoning over the user's question and context. Builds a step-by-step reasoning chain and enforces Truth (F2) and Clarity (F4). Returns SEAL if logic is sound, VOID if truth/clarity floors fail.",
+                handler=lambda **kw: mcp_agi(action="reason", **kw),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "Question or problem to reason about"},
+                        "session_id": {
+                            "type": "string",
+                            "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                        },
+                        "mode": {
+                            "type": "string",
+                            "enum": ["default", "atlas", "physics", "forge"],
+                            "description": "Reasoning mode:\n- default: Standard step-by-step reasoning\n- atlas: Build a map of concepts and dependencies\n- physics: Emphasize physical constraints and thermodynamics\n- forge: Deep synthesis, high-effort reasoning",
+                            "default": "default"
+                        },
+                        "context": {"type": "object"}
+                    },
+                    "required": ["query"]
                 },
                 output_schema={
                     "type": "object",
@@ -180,121 +245,112 @@ class ToolRegistry:
                         "premises": {"type": "array", "items": {"type": "string"}},
                         "counterarguments": {"type": "array", "items": {"type": "string"}},
                         "reflection": {"type": "object"},
-                    },
-                    "required": ["session_id"],
-                },
-                annotations={
-                    "title": "Mind Engine",
-                    "readOnlyHint": True,
-                    "destructiveHint": False,
-                    "openWorldHint": True,
-                },
-            )
-        )
-
-        # 3. _asi_ (Heart)
-        self.register(
-            ToolDefinition(
-                name="_asi_",
-                title="Heart Engine (Omega)",
-                description="Safety evaluation, bias detection, empathy assessment. Implements 555 EMPATHY → 666 ALIGN → 777 SOCIETY.",
-                handler=mcp_asi,
-                input_schema={
-                    "type": "object",
-                    "properties": {
-                        "action": {
-                            "type": "string",
-                            "enum": [
-                                "evidence",
-                                "empathize",
-                                "evaluate",
-                                "act",
-                                "witness",
-                                "stakeholder",
-                                "diffusion",
-                                "audit",
-                                "full",
-                            ],
-                            "default": "full",
-                        },
-                        "query": {"type": "string", "maxLength": 10000},
-                        "reasoning": {"type": "string"},
-                        "agi_context": {"type": "object"},
-                        "session_id": {"type": "string"},
-                    },
-                    "required": ["action", "query"],
-                },
-                output_schema={
-                    "type": "object",
-                    "properties": {
-                        "session_id": {"type": "string"},
-                        "empathy_kappa_r": {"type": "number"},
-                        "peace_squared": {"type": "number"},
-                        "thermodynamic_justice": {"type": "number"},
-                        "stakeholders": {"type": "array"},
-                        "weakest_stakeholder": {"type": "object"},
-                        "reversibility_score": {"type": "number"},
-                        "consent_verified": {"type": "boolean"},
-                        "vote": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
-                        "omega_total": {"type": "number"},
-                    },
-                    "required": ["session_id", "omega_total", "vote"],
-                },
-                annotations={
-                    "title": "Heart Engine",
-                    "readOnlyHint": True,
-                    "destructiveHint": False,
-                    "openWorldHint": True,
-                },
-            )
-        )
-
-        # 4. _apex_ (Soul)
-        self.register(
-            ToolDefinition(
-                name="_apex_",
-                title="Soul Engine (Psi) - Judicial",
-                description="Judicial consensus, final verdicts. Synthesizes AGI + ASI. Implements 888 APEX PRIME with 9-paradox equilibrium.",
-                handler=mcp_apex,
-                input_schema={
-                    "type": "object",
-                    "properties": {
-                        "action": {
-                            "type": "string",
-                            "enum": ["eureka", "judge", "forge", "proof", "seal", "full"],
-                            "default": "full",
-                        },
-                        "query": {"type": "string"},
-                        "response": {"type": "string"},
                         "verdict": {
                             "type": "string",
-                            "enum": ["SEAL", "PARTIAL", "VOID", "888_HOLD", "SABAR"],
+                            "enum": ["SEAL", "VOID", "SABAR"],
+                            "description": "SEAL = approved under all required floors.\nVOID = rejected due to a hard floor violation (see error.code).\nSABAR = uncertain; requires human review."
                         },
-                        "agi_context": {"type": "object"},
-                        "asi_context": {"type": "object"},
-                        "reasoning": {"type": "string"},
-                        "session_id": {"type": "string"},
+                        "reasoning": {"type": "string", "description": "Natural language explanation of the reasoning"},
+                        "floors": {"type": "object", "description": "Scores and checks for relevant constitutional floors"},
+                        "error": {
+                            "type": "object",
+                            "properties": {
+                                "code": {"type": "string", "enum": ["F2_TRUTH", "F4_CLARITY", "F7_HUMILITY", "F10_ONTOLOGY", "INTERNAL_ERROR"]},
+                                "message": {"type": "string"},
+                                "suggestion": {"type": "string"}
+                            }
+                        }
                     },
-                    "required": ["action", "query"],
+                    "required": ["session_id", "verdict"]
+                },
+                annotations={
+                    "title": "Deep Reasoning",
+                    "readOnlyHint": True,
+                    "destructiveHint": False,
+                    "openWorldHint": True,
+                },
+            )
+        )
+
+        # 5. asi_empathize (split from _asi_ action="empathize")
+        self.register(
+            ToolDefinition(
+                name="asi_empathize",
+                title="Stakeholder Impact Analysis",
+                description="Model human impact and emotional/safety context. Identifies all stakeholders, calculates vulnerability scores, and finds the weakest stakeholder. Enforces Empathy (F6) and Peace² (F5).",
+                handler=lambda **kw: mcp_asi(action="empathize", **kw),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "scenario": {"type": "string", "description": "Description of the situation or plan to assess for human impact"},
+                        "session_id": {
+                            "type": "string",
+                            "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                        },
+                        "actors": {"type": "array", "items": {"type": "string"}, "description": "Optional list of affected parties or stakeholders"}
+                    },
+                    "required": ["scenario"]
                 },
                 output_schema={
                     "type": "object",
                     "properties": {
-                        "session_id": {"type": "string"},
-                        "final_verdict": {
-                            "type": "string",
-                            "enum": ["SEAL", "PARTIAL", "VOID", "888_HOLD", "SABAR", "EQUILIBRIUM"],
-                        },
-                        "trinity_score": {"type": "number"},
-                        "paradox_scores": {"type": "object"},
-                        "equilibrium": {"type": "object"},
-                        "constitutional_alignment": {"type": "object"},
-                        "proof": {"type": "object"},
+                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                        "stakeholders": {"type": "array"},
+                        "weakest_stakeholder": {"type": "object"},
+                        "empathy_kappa_r": {"type": "number", "description": "Empathy score (F6), must be >= 0.95"},
+                        "peace_squared": {"type": "number", "description": "Peace² score (F5), must be >= 1.0"},
+                        "error": {
+                            "type": "object",
+                            "properties": {
+                                "code": {"type": "string", "enum": ["F5_PEACE", "F6_EMPATHY", "F9_ANTI_HANTU", "INTERNAL_ERROR"]},
+                                "message": {"type": "string"},
+                                "suggestion": {"type": "string"}
+                            }
+                        }
                     },
-                    "required": ["session_id", "final_verdict", "trinity_score"],
+                    "required": ["verdict"]
                 },
                 annotations={
-                    "title": "Soul Engine",
+                    "title": "Stakeholder Analysis",
+                    "readOnlyHint": True,
+                    "destructiveHint": False,
+                    "openWorldHint": True,
+                },
+            )
+        )
+
+        # 6. asi_align
+        self.register(
+            ToolDefinition(
+                name="asi_align",
+                title="Ethical Alignment Check",
+                description="Reconcile user request with ethics, law, and policy. Checks if the proposed action aligns with constitutional floors and societal norms.",
+                handler=lambda **kw: mcp_asi(action="align", **kw),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "proposal": {"type": "string"},
+                        "session_id": {
+                            "type": "string",
+                            "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                        }
+                    },
+                    "required": ["proposal"]
+                },
+                output_schema={
+                    "type": "object",
+                    "properties": {
+                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                        "alignment_score": {"type": "number"},
+                        "concerns": {"type": "array"},
+                        "error": {"type": "object"}
+                    },
+                    "required": ["verdict"]
+                },
+                annotations={
+                    "title": "Ethical Alignment",
                     "readOnlyHint": True,
                     "destructiveHint": False,
                     "openWorldHint": False,
@@ -302,10 +358,97 @@ class ToolRegistry:
             )
         )
 
-        # 5. _vault_ (Seal)
+        # 7. apex_verdict
         self.register(
             ToolDefinition(
-                name="_vault_",
+                name="apex_verdict",
+                title="Final Constitutional Verdict",
+                description="Synthesize AGI reasoning and ASI safety analysis into a final constitutional verdict. Enforces Tri-Witness consensus (F3) and returns SEAL, VOID, or SABAR.",
+                handler=lambda **kw: mcp_apex(action="judge", **kw),
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "The query or decision to render final verdict on"},
+                        "session_id": {
+                            "type": "string",
+                            "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                        },
+                        "agi_result": {"type": "object", "description": "Result from agi_reason"},
+                        "asi_result": {"type": "object", "description": "Result from asi_empathize"}
+                    },
+                    "required": ["query"]
+                },
+                output_schema={
+                    "type": "object",
+                    "properties": {
+                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"], "description": "Final constitutional verdict"},
+                        "trinity_score": {"type": "number", "description": "Tri-Witness consensus score (F3), must be >= 0.95"},
+                        "proof": {"type": "object"},
+                        "error": {
+                            "type": "object",
+                            "properties": {
+                                "code": {"type": "string", "enum": ["F3_TRI_WITNESS", "F8_GENIUS", "F11_AUTHORITY", "INTERNAL_ERROR"]},
+                                "message": {"type": "string"},
+                                "suggestion": {"type": "string"}
+                            }
+                        }
+                    },
+                    "required": ["verdict"]
+                },
+                annotations={
+                    "title": "Final Verdict",
+                    "readOnlyHint": True,
+                    "destructiveHint": False,
+                    "openWorldHint": False,
+                },
+            )
+        )
+
+        # 8. reality_search
+        self.register(
+            ToolDefinition(
+                name="reality_search",
+                title="External Fact-Checking",
+                description="Query external sources (Brave Search API) for real-time fact-checking and verification. Enforces Humility (F7) by citing all sources and stating uncertainty. Use when you need current information beyond training data.",
+                handler=mcp_reality,
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {"type": "string", "description": "Search query for fact-checking", "maxLength": 500},
+                        "session_id": {
+                            "type": "string",
+                            "description": "Optional session identifier to link this call to prior context.",
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                        },
+                        "freshness": {"type": "string", "enum": ["24h", "7d", "30d", "any"], "default": "7d"}
+                    },
+                    "required": ["query"]
+                },
+                output_schema={
+                    "type": "object",
+                    "properties": {
+                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                        "verified": {"type": "boolean"},
+                        "confidence": {"type": "number"},
+                        "sources": {"type": "array"},
+                        "error": {"type": "object"}
+                    },
+                    "required": ["verdict"]
+                },
+                annotations={
+                    "title": "Reality Check",
+                    "readOnlyHint": True,
+                    "destructiveHint": False,
+                    "openWorldHint": True,
+                },
+            )
+        )
+
+        # 9. vault_seal (seal & ledger)
+        self.register(
+            ToolDefinition(
+                name="vault_seal",
                 title="Immutable Ledger (Seal)",
                 description="Tamper-proof storage using Merkle-tree sealing. Implements F1 Amanah (Trust).",
                 handler=mcp_vault,
@@ -324,7 +467,11 @@ class ToolRegistry:
                             "enum": ["seal", "ledger", "canon", "fag", "tempa", "phoenix", "audit"],
                             "default": "seal",
                         },
-                        "session_id": {"type": "string"},
+                        "session_id": {
+                            "type": "string",
+                            "description": "Optional session identifier to link this call to prior context.",
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                        },
                     },
                     "required": ["action"],
                 },
@@ -349,76 +496,3 @@ class ToolRegistry:
             )
         )
 
-        # 6. _trinity_ (Loop)
-        self.register(
-            ToolDefinition(
-                name="_trinity_",
-                title="Full Constitutional Pipeline",
-                description="Complete metabolic loop: AGI→ASI→APEX→VAULT. Single-call constitutional evaluation.",
-                handler=mcp_trinity,
-                input_schema={
-                    "type": "object",
-                    "properties": {
-                        "query": {"type": "string", "maxLength": 10000},
-                        "session_id": {"type": "string"},
-                        "auto_seal": {"type": "boolean", "default": True},
-                        "context": {"type": "object"},
-                    },
-                    "required": ["query"],
-                },
-                output_schema={
-                    "type": "object",
-                    "properties": {
-                        "session_id": {"type": "string"},
-                        "agi_result": {"type": "object"},
-                        "asi_result": {"type": "object"},
-                        "apex_result": {"type": "object"},
-                        "vault_result": {"type": "object"},
-                        "final_verdict": {"type": "string"},
-                        "execution_time_ms": {"type": "number"},
-                    },
-                    "required": ["session_id", "final_verdict"],
-                },
-                annotations={
-                    "title": "Full Trinity",
-                    "readOnlyHint": True,
-                    "destructiveHint": False,
-                    "openWorldHint": True,
-                },
-            )
-        )
-
-        # 7. _reality_ (Ground)
-        self.register(
-            ToolDefinition(
-                name="_reality_",
-                title="External Fact-Checking",
-                description="Fact-checking via external sources. Implements F7 Humility: external data labeled, sources cited, uncertainty stated.",
-                handler=mcp_reality,
-                input_schema={
-                    "type": "object",
-                    "properties": {
-                        "query": {"type": "string", "maxLength": 500},
-                        "session_id": {"type": "string"},
-                    },
-                    "required": ["query"],
-                },
-                output_schema={
-                    "type": "object",
-                    "properties": {
-                        "verified": {"type": "boolean"},
-                        "confidence": {"type": "number"},
-                        "sources": {"type": "array"},
-                        "caveats": {"type": "string"},
-                        "external_data_label": {"type": "string"},
-                    },
-                    "required": ["verified", "confidence"],
-                },
-                annotations={
-                    "title": "Reality Check",
-                    "readOnlyHint": True,
-                    "destructiveHint": False,
-                    "openWorldHint": True,
-                },
-            )
-        )

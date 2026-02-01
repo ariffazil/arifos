@@ -27,26 +27,45 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+# Check if mcp module is available
+try:
+    import mcp
+    import mcp.types
+    HAS_MCP = True
+except ImportError:
+    HAS_MCP = False
+
 
 # =============================================================================
 # Phase 1: Tool Registry Tests
 # =============================================================================
 
 class TestToolRegistry:
-    """Test the canonical 7-tool registry."""
+    """Test the tool registry with 9 canonical tools (v55 clean registry)."""
 
-    def test_registry_initializes_with_7_tools(self):
+    def test_registry_initializes_with_9_tools(self):
+        """Registry has exactly 9 canonical tools."""
         from codebase.mcp.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         tools = registry.list_tools()
-        assert len(tools) == 7, f"Expected 7 canonical tools, got {len(tools)}"
+        assert len(tools) == 9, f"Expected 9 canonical tools, got {len(tools)}: {list(tools.keys())}"
 
     def test_canonical_tool_names(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
-        expected = {"_init_", "_agi_", "_asi_", "_apex_", "_vault_", "_trinity_", "_reality_"}
+
+        expected_core = {
+            "init_gate",
+            "agi_sense", "agi_think", "agi_reason",
+            "asi_empathize", "asi_align",
+            "apex_verdict",
+            "reality_search",
+            "vault_seal",
+        }
+
         actual = set(registry.list_tools().keys())
-        assert actual == expected, f"Missing tools: {expected - actual}"
+
+        assert expected_core == actual, f"Tool mismatch.\nExpected: {expected_core}\nActual: {actual}"
 
     def test_all_tools_have_required_fields(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
@@ -81,9 +100,9 @@ class TestToolRegistry:
     def test_tool_get_by_name(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
-        tool = registry.get("_init_")
+        tool = registry.get("init_gate")
         assert tool is not None
-        assert tool.name == "_init_"
+        assert tool.name == "init_gate"
 
     def test_tool_get_unknown_returns_none(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
@@ -93,9 +112,9 @@ class TestToolRegistry:
     def test_tool_to_dict(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
-        tool = registry.get("_init_")
+        tool = registry.get("init_gate")
         d = tool.to_dict()
-        assert d["name"] == "_init_"
+        assert d["name"] == "init_gate"
         assert "inputSchema" in d
         assert "outputSchema" in d
         assert "annotations" in d
@@ -109,6 +128,7 @@ class TestToolRegistry:
             assert schema.get("type") == "object", f"{name}: inputSchema type must be 'object'"
             assert "properties" in schema, f"{name}: inputSchema must have 'properties'"
 
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp module not installed")
     def test_mcp_types_tool_construction(self):
         """Verify tools can be constructed as mcp.types.Tool objects (Phase 1 core)."""
         import mcp.types
@@ -297,6 +317,7 @@ class TestResourceRegistry:
         assert VERDICT_HIERARCHY["888_HOLD"] > VERDICT_HIERARCHY["PARTIAL"]
         assert VERDICT_HIERARCHY["PARTIAL"] > VERDICT_HIERARCHY["SEAL"]
 
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp module not installed")
     def test_mcp_types_resource_construction(self):
         """Verify resources can be constructed as mcp.types.Resource objects."""
         import mcp.types
@@ -390,6 +411,7 @@ class TestPromptRegistry:
         result = registry.render_prompt("custom_test", {"name": "World"})
         assert result == "Hello World!"
 
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp module not installed")
     def test_mcp_types_prompt_construction(self):
         """Verify prompts can be constructed as mcp.types.Prompt objects."""
         import mcp.types
@@ -672,7 +694,7 @@ class TestIntegration:
         resources = ResourceRegistry()
         prompts = PromptRegistry()
 
-        assert len(tools.list_tools()) == 7
+        assert len(tools.list_tools()) == 9
         assert len(resources.list_resources()) == 17
         assert len(prompts.list_prompts()) >= 5
 

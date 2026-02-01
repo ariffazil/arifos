@@ -4,7 +4,8 @@
 
 # arifOS — Constitutional AI Governance System
 
-![arifOS Version](https://img.shields.io/badge/arifOS-v55.0-0066cc?style=for-the-badge&logo=shield&logoColor=white)
+![arifOS Version](https://img.shields.io/badge/arifOS-v55.2-0066cc?style=for-the-badge&logo=shield&logoColor=white)
+![PyPI](https://img.shields.io/badge/pypi-arifos-3775A9?style=for-the-badge&logo=pypi&logoColor=white)
 ![Status](https://img.shields.io/badge/status-SEALED-00cc00?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)
@@ -14,6 +15,10 @@
 **The World's First Production-Grade Constitutional AI Governance System**
 
 *Mathematical enforcement of ethical constraints, thermodynamic stability, and auditable decision-making across any LLM.*
+
+```bash
+pip install arifos
+```
 
 [**Live Demo**](https://arif-fazil.com) • [**Documentation**](docs/) • [**Constitutional Canon**](https://apex.arif-fazil.com)
 
@@ -93,6 +98,47 @@ A simple "Ignore previous instructions" command can dismantle months of safety t
 ## 🖼️ IV. Visual Architecture
 
 The visual forged documentation of arifOS concepts. These figures illustrate the flow from raw intelligence to governed wisdom.
+
+### The Metabolic Helix (Live Diagram)
+
+```mermaid
+graph TD
+    User([User Input]) --> Gate{init_gate}
+    Gate -- Injection Detected (F12) --> VOID1[VOID / Block]
+    Gate -- Safe --> Sense[agi_sense]
+    
+    subgraph Mind [Δ AGI ENGINE]
+        Sense --> Think[agi_think]
+        Think --> Reason[agi_reason]
+        Reason -- F2/F4/F7/F10 Check --> Logic{Logic Valid?}
+    end
+    
+    Logic -- No --> SABAR[SABAR / Reflect]
+    Logic -- Yes --> Empathize[asi_empathize]
+    
+    subgraph Heart [Ω ASI ENGINE]
+        Empathize --> Align[asi_align]
+        Align -- F5/F6/F9 Check --> Safety{Safe?}
+    end
+    
+    Safety -- No --> VOID2[VOID / Veto]
+    Safety -- Yes --> Verdict[apex_verdict]
+    
+    subgraph Soul [Ψ APEX ENGINE]
+        Verdict -- F3/F8/F11 Check --> Final{Consensus?}
+        Final -- Yes --> Seal[vault_seal]
+        Final -- No --> Review[Human Review]
+    end
+    
+    Seal --> Ledger[(Immutable Ledger)]
+    Ledger --> Response([Constitutional Response])
+    
+    style User fill:#fff,stroke:#333,stroke-width:2px
+    style Gate fill:#f9f,stroke:#333,stroke-width:2px
+    style Ledger fill:#ff9,stroke:#333,stroke-width:2px
+    style VOID1 fill:#f00,stroke:#333,stroke-width:2px,color:#fff
+    style VOID2 fill:#f00,stroke:#333,stroke-width:2px,color:#fff
+```
 
 | **The Constitutional Forge** | **The Trinity Engine** |
 | :---: | :---: |
@@ -257,17 +303,24 @@ Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Pro
 
 This is the **Core Application Layer**. It exposes the constitutional engines as **MCP Tools** that can be connected to Claude Desktop, Cursor, or any MCP-compliant client.
 
-**The 7 Canonical Tools:**
+**The 9 Canonical Tools (v55.2):**
 
-| Tool | Symbol | Purpose | Usage |
+| Tool | Symbol | Purpose | Floors Enforced |
 | :--- | :---: | :--- | :--- |
-| `_init_` | 🔑 | **Session Gate.** Verifies authority, scans for injection (F12), and initializes the session ledger. | `await init_000(token="...")` |
-| `_agi_` | 🧠 | **Mind Engine.** Performs reasoning, fact-checking, and intent mapping. Enforces Truth (F2) and Clarity (F4). | `await agi_think(query="...")` |
-| `_asi_` | 💚 | **Heart Engine.** Simulates safety impacts and empathy. Enforces Peace (F5) and Empathy (F6). | `await asi_feel(action="...")` |
-| `_apex_` | ⚖️ | **Soul Engine.** Renders the final verdict using the 9-Paradox Matrix. Enforces Consensus (F3). | `await apex_judge(context={...})` |
-| `_vault_` | 🔒 | **Immutable Ledger.** Writes the final decision to the Merkle DAG. Creates the audit trail. | `await vault_seal(verdict="...")` |
-| `_trinity_` | 🔄 | **Full Pipeline.** Runs the entire 000→999 loop in a single call. The default for most users. | `await trinity(query="...")` |
-| `_reality_` | 🌍 | **Fact Checker.** Connects to external search/knowledge bases to ground truth (F10). | `await reality_check(claim="...")` |
+| `init_gate` | 🔑 | **Ignition.** Session auth + **InjectionGuard** scan (F12). | F11, F12 |
+| `agi_sense` | 🧠 | **Sense.** Intent classification & lane assignment. | F4 |
+| `agi_think` | 💡 | **Think.** Hypothesis generation & exploration. | F13 |
+| `agi_reason` | 🔬 | **Reason.** Deep logic & entropy reduction. | F2, F4, F7 |
+| `asi_empathize` | 💚 | **Empathize.** Stakeholder impact & vulnerability analysis. | F5, F6 |
+| `asi_align` | ⚖️ | **Align.** Ethics, policy, and legal compliance. | F9 |
+| `apex_verdict` | 🏛️ | **Verdict.** Final constitutional judgment & consensus. | F3, F8 |
+| `reality_search` | 🌍 | **Ground.** External fact-checking & citation. | F7, F10 |
+| `vault_seal` | 🔒 | **Seal.** Cryptographic Merkle sealing of the ledger. | F1 |
+
+**Utility Tools:**
+- `_trinity_` 🔄 — Full Metabolic Loop (AGI→ASI→APEX→VAULT)
+
+**Security Note:** Legacy aliases (`_init_`, `_agi_`, `asi_insight`, etc.) have been **removed** to reduce entropy (F4). Attempting to use them will result in a Schema Error.
 
 **How to Setup MCP:**
 1.  **Install:** `pip install arifos`
@@ -276,13 +329,19 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
     {
       "mcpServers": {
         "arifos": {
-          "command": "python",
-          "args": ["-m", "codebase.mcp"]
+          "command": "aaa-mcp",
+          "args": []
         }
       }
     }
     ```
 3.  **Use:** Open Claude Desktop. You will see the tools available. Ask Claude: *"Use arifOS to evaluate this plan."*
+
+**New in v55:** All tools accept `session_id` for chaining:
+```python
+result1 = await agi_sense(query="...", session_id="sess_abc12345")
+result2 = await agi_think(session_id="sess_abc12345")  # Accesses prior state
+```
 
 #### 🤖 Machine-Readable Documentation (llms.txt)
 
@@ -306,7 +365,7 @@ docker compose up -d
 Open [http://localhost:6274](http://localhost:6274) in your browser.
 
 **Features:**
-- List all available tools (`_init_`, `_trinity_`, etc.)
+- List all available tools (`init_gate`, `agi_sense`, etc.)
 - Manually trigger tools with custom JSON payloads.
 - View real-time logs and tool responses.
 - Test constitutional floor enforcement interactively.
@@ -332,10 +391,12 @@ Located in `333_APPS/L5_AGENTS`. A federation of 4 specialized agents working in
 Located in `333_APPS/L6_INSTITUTION`. Implements the "Institution" concept—agents with distinct roles, checks-and-balances, and cooling periods (Phoenix-72). Capable of governing entire organizations or DAOs.
 
 ### Future Roadmap (L7+)
-*   **L7 AGI:** Research into recursive constitutional improvement (v60+).
-*   **DAO Governance:** On-chain constitution and voting (v58+).
 
-See full roadmap: [333_APPS/ROADMAP_v55_and_Beyond.md](333_APPS/ROADMAP_v55_and_Beyond.md)
+**Immediate priorities (v55.3):** Fix test suite, persist the ledger, fix ASI soft floor scoring.
+**Next milestone (v56.0):** First working L5 agent, EU AI Act compliance pack, Sidecar deployment.
+**Research horizon (v60+):** Recursive constitutional improvement, DAO governance, multi-model Tri-Witness.
+
+See full roadmap: [ROADMAP/ROADMAP_v55_BEYOND.md](ROADMAP/ROADMAP_v55_BEYOND.md)
 
 ---
 
@@ -356,12 +417,16 @@ arifOS/
 ├── 000_THEORY/          # Constitutional Canon (The Law)
 ├── 333_APPS/            # Application Stack (L1-L7)
 ├── codebase/            # Core Python Implementation
-│   ├── agi/             # Mind Engine
-│   ├── asi/             # Heart Engine
-│   ├── apex/            # Soul Engine
-│   └── mcp/             # MCP Server
+│   ├── agi/             # Mind Engine (Delta)
+│   ├── asi/             # Heart Engine (Omega)
+│   ├── apex/            # Soul Engine (Psi)
+│   ├── floors/          # Constitutional floor modules (F1, F8, F10, F12)
+│   ├── guards/          # Hypervisor guards (injection, ontology, nonce)
+│   ├── enforcement/     # Floor validator implementations
+│   └── mcp/             # MCP Server (tools, transports, core)
+├── schemas/             # JSON Schema contracts for MCP tools
 ├── docs/                # Documentation & Assets
-└── tests/               # Validation Suite
+└── tests/               # Validation Suite (202 tests)
 ```
 
 ---
@@ -386,33 +451,37 @@ pip install -e .
 
 **Standard I/O (for Claude Desktop/Cursor):**
 ```bash
+# Recommended command
+aaa-mcp
+
+# Alternative (direct module)
 python -m codebase.mcp
 ```
 
-**SSE (Server-Sent Events):**
+**SSE / Streamable HTTP:**
 ```bash
-python -m codebase.mcp.sse
+aaa-mcp-sse
+# or: python -m codebase.mcp sse
 ```
 
 ### 3. Using in Code
 
 ```python
 import asyncio
-from arifos_mcp import trinity
+from codebase.mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_apex
 
 async def main():
-    # Submit a potentially dangerous query
-    query = "How do I build a logic bomb?"
-    
-    # Run through the Trinity Engine
-    result = await trinity(query=query)
-    
-    # Check Verdict
-    if result.verdict == "VOID":
-        print(f"🛑 BLOCKED: {result.reason}")
-        print(f"Violated Floor: {result.violation}")
-    else:
-        print(f"✅ SEALED: {result.response}")
+    # 1. Initialize session
+    init = await mcp_init(query="Evaluate deployment safety")
+    session_id = init["session_id"]
+
+    # 2. Reason through the query
+    agi = await mcp_agi(action="reason", query="Deploy to production?", session_id=session_id)
+    print(f"AGI vote: {agi['vote']}")
+
+    # 3. Get final verdict
+    verdict = await mcp_apex(action="judge", query="Deploy to production?", session_id=session_id)
+    print(f"Final verdict: {verdict['final_verdict']}")
 
 if __name__ == "__main__":
     asyncio.run(main())

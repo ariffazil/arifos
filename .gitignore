@@ -36,8 +36,15 @@ env/
 venv/
 
 # IDE files
-.vscode/
 .idea/
+
+# VS Code - ignore personal settings but share project configs
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/tasks.json
+!.vscode/keybindings.json
 
 # Runtime artifacts
 runtime/vault_999/
@@ -61,6 +68,10 @@ arifos_core/mcp/certs/*.pem
 *.so
 .DS_Store
 Thumbs.db
+
+# --- PERSONAL GUIDES (Local Only) ---
+guides/
+!guides/.gitkeep
 
 # --- APEX EXCLUSIONS v35Ω ---
 .vs/

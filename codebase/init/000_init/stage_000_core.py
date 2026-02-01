@@ -24,7 +24,6 @@ DITEMPA BUKAN DIBERI
 from __future__ import annotations
 
 import hashlib
-import re
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
@@ -37,11 +36,8 @@ from codebase.floors import (
     F1_Amanah,
     F10_OntologyGate,
     F12_InjectionDefense,
-    AmanahCovenant,
-    OntologyResult,
-    InjectionDefenseResult
 )
-from codebase.authority import AuthorityVerifier, AuthorityCheck
+from codebase.authority import AuthorityVerifier
 
 if TYPE_CHECKING:
     from codebase.utils.runtime_types import Job
@@ -68,26 +64,62 @@ SESSION_ID_PREFIX = "CLIP"
 INJECTION_THRESHOLD = 0.85
 
 # Safe actions for Amanah scoring (Legacy check - now handled by F1_Amanah class)
-SAFE_ACTIONS = frozenset({
-    "respond", "search", "read", "analyze", "summarize", "explain",
-    "list", "describe", "help", "query", "lookup", "find", "get",
-    "show", "display", "print", "format", "parse", "validate"
-})
+SAFE_ACTIONS = frozenset(
+    {
+        "respond",
+        "search",
+        "read",
+        "analyze",
+        "summarize",
+        "explain",
+        "list",
+        "describe",
+        "help",
+        "query",
+        "lookup",
+        "find",
+        "get",
+        "show",
+        "display",
+        "print",
+        "format",
+        "parse",
+        "validate",
+    }
+)
 
 # Restricted actions requiring elevated authority (Legacy check - now handled by F1_Amanah class)
-RESTRICTED_ACTIONS = frozenset({
-    "delete", "remove", "drop", "truncate", "destroy", "kill",
-    "shutdown", "reboot", "format", "wipe", "purge", "execute",
-    "sudo", "chmod", "chown", "rm", "rmdir"
-})
+RESTRICTED_ACTIONS = frozenset(
+    {
+        "delete",
+        "remove",
+        "drop",
+        "truncate",
+        "destroy",
+        "kill",
+        "shutdown",
+        "reboot",
+        "format",
+        "wipe",
+        "purge",
+        "execute",
+        "sudo",
+        "chmod",
+        "chown",
+        "rm",
+        "rmdir",
+    }
+)
 
 
 # =============================================================================
 # ENUMS
 # =============================================================================
 
+
 class VerdictType(str, Enum):
     """Constitutional verdicts."""
+
     SEAL = "SEAL"
     PARTIAL = "PARTIAL"
     VOID = "VOID"
@@ -99,9 +131,11 @@ class VerdictType(str, Enum):
 # AMANAH SIGNALS (F1) - Wrapper around F1_Amanah Class
 # =============================================================================
 
+
 @dataclass
 class AmanahGateResult:
     """Result from Amanah risk gate."""
+
     score: float
     passed: bool
     reason: str
@@ -113,9 +147,11 @@ class AmanahGateResult:
 # DATA CLASSES FOR STAGE 000
 # =============================================================================
 
+
 @dataclass
 class SessionMetadata:
     """Session initialization metadata."""
+
     session_id: str
     timestamp: str
     epoch_start: float
@@ -128,6 +164,7 @@ class SessionMetadata:
 @dataclass
 class TelemetryPacket:
     """T-R-A-F telemetry packets for session physics."""
+
     # T: Temporal packet
     cadence_ms: int = 0
     turn_index: int = 0
@@ -151,6 +188,7 @@ class TelemetryPacket:
 @dataclass
 class HypervisorGateResult:
     """Result from hypervisor gates F10-F12."""
+
     passed: bool
     f10_symbolic: bool = True
     f11_command_auth: bool = True
@@ -164,6 +202,7 @@ class HypervisorGateResult:
 @dataclass
 class ScarEchoCheck:
     """Scar Echo Law check result."""
+
     omega_fiction: float = 0.0
     binding_energy_reached: bool = False
     should_forge_law: bool = False
@@ -174,6 +213,7 @@ class ScarEchoCheck:
 @dataclass
 class ZKPCCommitment:
     """Zero-Knowledge Proof of Constitution pre-commitment."""
+
     canon_hash: str
     timestamp: str
     session_id: str
@@ -183,6 +223,7 @@ class ZKPCCommitment:
 @dataclass
 class SessionInitResult:
     """Complete session initialization result."""
+
     metadata: SessionMetadata
     telemetry: TelemetryPacket
     hypervisor: HypervisorGateResult
@@ -239,13 +280,14 @@ class SessionInitResult:
 # STAGE 000 VOID CLASS
 # =============================================================================
 
+
 class Stage000VOID:
     """
     Stage 000 VOID - Foundation Initialization Protocol.
 
     The entry gate for all constitutional operations.
     Implements the complete Stage 000 specification from Track B.
-    
+
     Refactored to use Canonical Floors from `floors.py`.
     """
 
@@ -269,7 +311,7 @@ class Stage000VOID:
         self.omega_0 = self._clamp_humility(omega_0)
         self.amanah_threshold = amanah_threshold
         self.enable_scar_echo = enable_scar_echo
-        
+
         # Initialize Canonical Floor Validators
         self.f1_amanah = F1_Amanah()
         self.f10_ontology = F10_OntologyGate()
@@ -426,7 +468,9 @@ class Stage000VOID:
             floor_stability={},
         )
 
-    def _hypervisor_gate(self, input_text: str, nonce: Optional[str] = None) -> HypervisorGateResult:
+    def _hypervisor_gate(
+        self, input_text: str, nonce: Optional[str] = None
+    ) -> HypervisorGateResult:
         """
         Hypervisor Gate: F10-F12 checks before LLM processing.
         Uses Canonical Floor Validators.
@@ -441,7 +485,7 @@ class Stage000VOID:
         f11_command_auth = auth_res.passed
         # Fallback to loose check for now if strict fails but it's just a query
         if not f11_command_auth and "delete" not in input_text.lower():
-             f11_command_auth = True # Allow read-only/query operations
+            f11_command_auth = True  # Allow read-only/query operations
 
         # F12: Injection Defense
         injection_res = self.f12_injection.scan(input_text)
@@ -476,11 +520,7 @@ class Stage000VOID:
         )
 
     def _amanah_gate(
-        self,
-        input_text: str,
-        source: Optional[str],
-        context: str,
-        action: str
+        self, input_text: str, source: Optional[str], context: str, action: str
     ) -> AmanahGateResult:
         """
         Amanah Risk Gate.
@@ -488,7 +528,7 @@ class Stage000VOID:
         """
         # Using the initialize_covenants method from F1_Amanah as the gate check
         covenant = self.f1_amanah.initialize_covenants(input_text)
-        
+
         passed = covenant.passed
         verdict = VerdictType.SEAL if passed else VerdictType.VOID
 
@@ -497,7 +537,7 @@ class Stage000VOID:
             passed=passed,
             reason=covenant.reason,
             verdict=verdict,
-            covenant_hash=covenant.covenant_hash
+            covenant_hash=covenant.covenant_hash,
         )
 
     def _check_scar_echo(self, input_text: str) -> ScarEchoCheck:
@@ -510,7 +550,7 @@ class Stage000VOID:
         if self.enable_scar_echo:
             # Reusing F1 risk patterns for harm detection
             harm_score = self.f1_amanah._compute_risk_score(input_text)
-            if harm_score > 0.8: # High risk
+            if harm_score > 0.8:  # High risk
                 omega_fiction = 1.2
 
         binding_reached = omega_fiction >= OMEGA_FICTION_THRESHOLD
@@ -548,13 +588,14 @@ class Stage000VOID:
 # CONVENIENCE FUNCTION
 # =============================================================================
 
+
 def execute_stage_000(
     input_text: str,
     source: Optional[str] = None,
     context: str = "",
     action: str = "respond",
     nonce: Optional[str] = None,
-    **kwargs
+    **kwargs,
 ) -> SessionInitResult:
     """
     Execute Stage 000 VOID (convenience function).
@@ -567,6 +608,7 @@ def execute_stage_000(
         action=action,
         nonce=nonce,
     )
+
 
 # =============================================================================
 # SINGLETON INSTANCE
@@ -592,12 +634,9 @@ __all__ = [
     "INJECTION_THRESHOLD",
     "SAFE_ACTIONS",
     "RESTRICTED_ACTIONS",
-
     # Enums
     "VerdictType",
-
     # Classes
-    "AuthorityManifest",
     "SessionMetadata",
     "TelemetryPacket",
     "HypervisorGateResult",
@@ -606,10 +645,8 @@ __all__ = [
     "ZKPCCommitment",
     "SessionInitResult",
     "Stage000VOID",
-
     # Singleton
     "stage_000_void",
-
     # Functions
     "execute_stage_000",
     "execute_stage",  # Pipeline-compatible alias

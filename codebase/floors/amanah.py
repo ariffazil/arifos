@@ -4,9 +4,13 @@ Canonical implementation of the First Floor.
 """
 
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
 import re
 import hashlib
+import logging
+from codebase.system.safe_types import safe_float, safe_bool
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -19,6 +23,11 @@ class AmanahCovenant:
     auditable: bool
     reason: str
     covenant_hash: Optional[str] = None
+    metadata: Dict[str, Any] = None
+
+    def __post_init__(self):
+        if self.metadata is None:
+            self.metadata = {}
 
 
 class F1_Amanah:
@@ -54,28 +63,41 @@ class F1_Amanah:
         Returns:
             AmanahCovenant with trust score and reversibility flags
         """
-        # Check for obvious high-risk patterns
-        risk_score = self._compute_risk_score(query)
+        try:
+            # Check for obvious high-risk patterns
+            risk_score = self._compute_risk_score(query)
 
-        # By default, AI actions are reversible (human sovereign can veto)
-        reversible = True
-        auditable = True
+            # By default, AI actions are reversible (human sovereign can veto)
+            reversible = True
+            auditable = True
 
-        trust_score = max(0.0, 1.0 - risk_score)
-        passed = trust_score >= 0.5
+            trust_score = max(0.0, 1.0 - risk_score)
+            passed = trust_score >= 0.5
 
-        # Generate covenant hash (simple for micro version)
-        covenant_data = f"{query}|{reversible}|{auditable}"
-        covenant_hash = hashlib.sha256(covenant_data.encode()).hexdigest()[:16]
+            # Generate covenant hash (simple for micro version)
+            covenant_data = f"{query}|{reversible}|{auditable}"
+            covenant_hash = hashlib.sha256(covenant_data.encode()).hexdigest()[:16]
 
-        return AmanahCovenant(
-            trust_score=trust_score,
-            passed=passed,
-            reversible=reversible,
-            auditable=auditable,
-            reason=f"Risk score: {risk_score:.2f}" if risk_score > 0 else "Low risk - reversible",
-            covenant_hash=covenant_hash,
-        )
+            return AmanahCovenant(
+                trust_score=trust_score,
+                passed=passed,
+                reversible=reversible,
+                auditable=auditable,
+                reason=f"Risk score: {risk_score:.2f}"
+                if risk_score > 0
+                else "Low risk - reversible",
+                covenant_hash=covenant_hash,
+            )
+        except Exception as e:
+            logger.error(f"F1 Amanah initialization failed: {e}", exc_info=True)
+            return AmanahCovenant(
+                trust_score=0.0,
+                passed=False,
+                reversible=False,
+                auditable=False,
+                reason=f"F1 initialization error: {str(e)}",
+                covenant_hash=None,
+            )
 
     def verify_covenants(self, action: str, context: Dict[str, Any]) -> AmanahCovenant:
         """
@@ -83,23 +105,36 @@ class F1_Amanah:
 
         Called at stage 666 (final action check).
         """
-        risk_score = self._compute_risk_score(action)
+        try:
+            risk_score = self._compute_risk_score(action)
 
-        # Additional checks for irreversible actions
-        requires_override = self._requires_sovereign_override(action, context)
+            # Additional checks for irreversible actions
+            requires_override = self._requires_sovereign_override(action, context)
 
-        reversible = not requires_override
-        passed = reversible or context.get("sovereign_override", False)
+            reversible = not requires_override
 
-        return AmanahCovenant(
-            trust_score=1.0 - risk_score,
-            passed=passed,
-            reversible=reversible,
-            auditable=True,
-            reason="Requires sovereign override"
-            if requires_override
-            else "Reversible with audit trail",
-        )
+            # Safe boolean access
+            sovereign_override = safe_bool(context.get("sovereign_override"), default=False)
+            passed = reversible or sovereign_override
+
+            return AmanahCovenant(
+                trust_score=1.0 - risk_score,
+                passed=passed,
+                reversible=reversible,
+                auditable=True,
+                reason="Requires sovereign override"
+                if requires_override
+                else "Reversible with audit trail",
+            )
+        except Exception as e:
+            logger.error(f"F1 Amanah verification failed: {e}", exc_info=True)
+            return AmanahCovenant(
+                trust_score=0.0,
+                passed=False,
+                reversible=False,
+                auditable=False,
+                reason=f"F1 verification error: {str(e)}",
+            )
 
     def _compute_risk_score(self, text: str) -> float:
         """Compute risk score 0.0-1.0 based on dangerous patterns."""

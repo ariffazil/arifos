@@ -7,6 +7,146 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v55.2] - 2026-02-02 "Constitutional Hardening & Stabilization"
+
+**Status:** SEALED  
+**Authority:** Muhammad Arif bin Fazil (888 Judge)
+
+### 🚀 Major Features
+
+#### Constitutional Security Hardening
+- **Unified Injection Guard:** Integrated `InjectionGuard.scan_input()` into `init_gate` and `validators.py`, replacing inline patterns with a 25+ pattern library + Unicode normalization.
+- **Component-Level Observability:** Enhanced `health_check()` with deep probes for validators, KernelManager, SessionStore, and tool registries.
+
+#### Schema Enforcement & Reliability
+- **Input/Output Validation:** Automated validation of tool calls against ToolRegistry schemas (required fields, types, enums).
+- **Stabilization:** Fixed critical import paths (`AuthorityVerifier`, `SessionStore`) and updated the test suite to pass 202 tests.
+
+### 🧹 Maintenance
+
+- **Ghost Purge:** Removed `asi_insight` and all legacy aliases (`_init_`, `_agi_`, etc.) from the server and documentation to achieve $\Delta S \le 0$ (F4 Clarity).
+- **Test Alignment:** Updated `tests/test_handlers_v55.py` and others to match the clean 9-tool registry.
+
+---
+
+## [v55.0] - 2026-02-01 "Explicit Tool Architecture"
+
+**Status:** SEALED  
+**Authority:** Muhammad Arif bin Fazil (888 Judge)
+
+### 🚀 Major Features
+
+#### 9 Explicit MCP Tools
+Replaced multi-action tools with explicit, LLM-discoverable tool names:
+
+| New Tool (v55) | Old Tool (v54) | Purpose |
+|----------------|----------------|---------|
+| `init_reboot` | `_init_` | Session initialization & injection scan |
+| `agi_sense` | `_agi_(action="sense")` | Input parsing & intent detection |
+| `agi_think` | `_agi_(action="think")` | Hypothesis generation |
+| `agi_reason` | `_agi_(action="reason")` | Deep logical reasoning |
+| `asi_empathize` | `_asi_(action="empathize")` | Stakeholder impact analysis |
+| `asi_align` | `_asi_(action="align")` | Ethical alignment check |
+| `asi_insight` | `_asi_(action="act")` | Risk & trade-off analysis |
+| `apex_verdict` | `_apex_(action="judge")` | Final constitutional verdict |
+| `reality_search` | `_reality_` | External fact-checking |
+
+**Benefits:**
+- ✅ LLMs can discover tool purposes from names alone (no docs needed)
+- ✅ Structured error codes mapped to constitutional floors (`F2_TRUTH`, `F12_HARDENING`, etc.)
+- ✅ Session state propagation via `session_id` parameter for multi-step workflows
+- ✅ Constitutional floors declared in tool schemas (transparency)
+
+### ⚠️ Deprecations
+
+**Legacy tools are deprecated (backward compatible until v56.0):**
+- `_init_` → Use `init_reboot`
+- `_agi_` → Use `agi_sense`, `agi_think`, or `agi_reason`
+- `_asi_` → Use `asi_empathize`, `asi_align`, or `asi_insight`
+- `_apex_` → Use `apex_verdict`
+- `_reality_` → Use `reality_search`
+
+**Deprecation warnings:** All legacy tools emit `DeprecationWarning` with migration hints.  
+**Removal date:** v56.0 (~72 days from v55.0 release, Phoenix-72 protocol)  
+**Migration guide:** [docs/MIGRATION_v54_to_v55.md](docs/MIGRATION_v54_to_v55.md)
+
+### ✨ Added
+
+- **Session State Propagation:** All tools accept `session_id` parameter (pattern: `^sess_[a-zA-Z0-9]{8,}$`)
+  ```python
+  result1 = await agi_sense(query="...", session_id="sess_abc12345")
+  result2 = await agi_think(session_id="sess_abc12345")  # Accesses prior state
+  ```
+
+- **Structured Error Codes:** Errors now include floor codes for precise debugging
+  ```json
+  {
+    "verdict": "VOID",
+    "error": {
+      "code": "F2_TRUTH",
+      "message": "Confidence 0.87 below threshold 0.99",
+      "suggestion": "Add citations or reduce certainty"
+    }
+  }
+  ```
+
+- **Mode Parameter:** `agi_reason` supports reasoning modes: `default`, `atlas`, `physics`, `forge`
+
+- **Test Coverage:** 
+  - 13 handler tests (Phase 2): Handler existence, session state, edge cases, circular imports
+  - 15 transport tests (Phase 3): stdio/SSE transports, integration tests, backward compatibility
+  - Total: 28 comprehensive tests
+
+### 🔧 Fixed
+
+- **Session State Isolation:** Previously session state was implicit. Now explicit via `session_id` parameter.
+- **Error Ambiguity:** Generic error messages replaced with floor-specific codes.
+- **Tool Discovery:** LLMs can now introspect tool capabilities without reading external documentation.
+
+### 📝 Documentation
+
+- **README.md:** Updated L4 section with 9-tool table and session state examples
+- **docs/llms.txt:** Concise 9-tool reference for AI agents
+- **docs/llms-full.txt:** Comprehensive schemas for all 9 tools
+- **docs/MIGRATION_v54_to_v55.md:** Complete migration guide with timeline and FAQ
+
+### 🛡️ Constitutional Compliance
+
+- **F1 (Amanah - Reversibility):** Fully backward compatible. Old code continues working. Migration is non-breaking.
+- **F2 (Truth):** All tool descriptions accurately represent capabilities. No false promises.
+- **F4 (Clarity):** Explicit tool names reduce entropy. Clear intent from name alone.
+- **F7 (Humility):** Deprecation warnings acknowledge migration complexity. 72-day window respects user constraints.
+
+### 🔗 Files Changed
+
+- `codebase/mcp/core/tool_registry.py`: +457/-160 lines (9 tool definitions + compatibility layer)
+- `codebase/mcp/tools/canonical_trinity.py`: Error handling wrapper for kernel failures
+- `tests/test_handlers_v55.py`: NEW (13 Phase 2 tests)
+- `tests/test_phase3_transport.py`: NEW (15 Phase 3 tests)
+- `tests/test_mcp_v55.py`: Updated to expect 16 tools
+- `docs/MIGRATION_v54_to_v55.md`: NEW (migration guide)
+- `docs/llms.txt`, `docs/llms-full.txt`: Updated for v55 tools
+- `README.md`: Updated L4 section with 9-tool table
+
+---
+
+## [v53.2.10] - 2026-02-01 "Pre-Merge Audit & Cleanup"
+
+**Status:** SEALED (Technical Debt Forging)
+**Authority:** Muhammad Arif bin Fazil (000 Gate & 999 Seal)
+
+### 🛡️ Constitutional Compliance
+- **F4 Clarity:** ΔS < 0 - Removed orphaned `=5.0.0` file.
+- **F1 Amanah:** Pre-merge audit confirmed redundant merge (no-op), preserving history.
+- **F7 Humility:** Documented 15 technical debt items rather than hiding them.
+
+### 🧹 Maintenance
+- **Orphan Cleanup:** Removed accidental `=5.0.0` file.
+- **Audit Execution:** Validated `dev-v56` == `main` before merge.
+- **Technical Debt:** Identified 7 Critical, 4 High, 4 Medium priority issues.
+
+---
+
 ## [v53.0.0] - 2026-01-26 "6-Tier Architecture & Live Dashboard"
 
 **Status:** SEALED
