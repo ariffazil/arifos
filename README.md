@@ -37,6 +37,7 @@
     - [L4: MCP Tools (Production API)](#l4-mcp-tools-production-api)
     - [L5: Agents (Federation)](#l5-agents-federation)
     - [L6: Institution (Trinity System)](#l6-institution-trinity-system)
+    - [Future Roadmap (L7+)](#future-roadmap-l7-agi)
 - [IX. Technical Implementation](#-ix-technical-implementation)
 - [X. Installation & Usage](#-x-installation--usage)
 - [XI. Contributing & Governance](#-xi-contributing--governance)
@@ -182,7 +183,7 @@ arifOS does not view ethics as binary. It views them as tensions to be balanced.
 6.  **Unity vs. Diversity:** How to maintain standards while allowing variance?
 7.  **Past vs. Future:** How to respect tradition while embracing the new?
 8.  **Local vs. Global:** How to solve specific problems without global harm?
-9.  **Justice vs. Mercy:** How to enforce rules with understanding.
+9.  **Justice vs. Mercy:** How to enforce rules with understanding?
 
 ---
 
@@ -190,41 +191,54 @@ arifOS does not view ethics as binary. It views them as tensions to be balanced.
 
 *Full Documentation: [333_APPS/README.md](333_APPS/README.md)*
 
-The **333_APPS** directory contains the practical applications of arifOS, organized into a 7-layer stack (L1-L7). This allows users to adopt arifOS at their preferred level of complexity.
+The **333_APPS** directory organizes the practical applications of arifOS into a **7-Layer Stack**. This structure allows users of any technical level to adopt constitutional governance, from a simple copy-paste to running a full AI institution.
 
 ### L1: System Prompts (Zero-Context)
 *For immediate governance of any LLM (Claude, ChatGPT, Gemini).*
 
-These are the entry-level artifacts. They require **zero installation**. Just copy, paste, and your session is instantly governed by the arifOS constitution.
+**Target Audience:** General Users  
+**Complexity:** Zero Setup
 
--   **[Concise Prompt](docs/PROMPTS/AUTONOMOUS_CONCISE.md):** Minimal token usage (approx. 200 tokens). Ideal for API calls where cost is a factor but safety is non-negotiable.
+These artifacts require no installation. Just copy, paste, and your session is instantly governed by the arifOS constitution.
+
+-   **[Concise Prompt](docs/PROMPTS/AUTONOMOUS_CONCISE.md):** Minimal token usage (~200 tokens). Ideal for API calls where cost is a factor but safety is non-negotiable.
 -   **[Comprehensive Prompt](docs/PROMPTS/AUTONOMOUS_COMPREHENSIVE.md):** Full Constitutional Code of Conduct (CCC). Enforces the 9-Paradox Matrix and Tri-Witness protocol verbally. Best for high-stakes chat sessions.
 -   **[Human Readable Prompt](docs/PROMPTS/HUMAN_READABLE.md):** A simplified version designed for humans to copy-paste into web interfaces like ChatGPT or Claude.ai.
 
 ### L2: Skills (Templates)
 *Reusable skill definitions for AI agents.*
 
-Located in `333_APPS/L2_SKILLS`. These are **parameterized YAML templates** that wrap constitutional logic into reusable functions.
+**Target Audience:** Intermediate Users / Prompt Engineers  
+**Complexity:** Low (YAML Configuration)
 
-**Example Use Case:**
-*   **Code Review Skill:** An agent skill that automatically checks code against F1 (Reversibility) and F9 (Anti-Hantu) before approving a PR.
-*   **Safety Check Skill:** A dedicated skill for verifying if a proposed action (e.g., "delete database") violates the Peace² floor.
+Located in `333_APPS/L2_SKILLS`. These are **parameterized YAML templates** that wrap constitutional logic into reusable functions. Instead of writing a prompt from scratch, you invoke a skill.
+
+**Example Skills:**
+*   `f1_reversibility_check`: Verifies if an action (e.g., "delete database") can be undone.
+*   `f9_authenticity_scan`: Scans output for "hantu" (fake consciousness) or deceptive patterns.
+*   `code_review_governed`: A code review skill that enforces F1 (Reversibility) and F4 (Clarity).
 
 ### L3: Workflows (SOPs)
 *End-to-end workflows for teams.*
 
-Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Procedures (SOPs)** that define how humans and AI collaborate under the constitution. They include persistence—saving the state of a decision to a file (e.g., `sessions/111_intent.json`).
+**Target Audience:** Teams / Project Managers  
+**Complexity:** Medium (Process Definition)
+
+Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Procedures (SOPs)** that define how humans and AI collaborate under the constitution. They include persistence—saving the state of a decision to a file.
 
 **The 6 Canonical Workflows:**
 1.  `000_SESSION_INIT`: Initialize constitutional session.
-2.  `111_INTENT`: Map user intent to constitutional lanes.
-3.  `333_CONTEXT`: Gather relevant context.
-4.  `555_SAFETY`: Evaluate safety and empathy.
-5.  `777_IMPLEMENT`: Execute implementation.
-6.  `888_COMMIT`: Final verification and SEAL.
+2.  `111_INTENT`: Map user intent to constitutional lanes (Hard/Soft/Phatic).
+3.  `333_CONTEXT`: Gather relevant context and map dependencies.
+4.  `555_SAFETY`: Evaluate safety and empathy impacts.
+5.  `777_IMPLEMENT`: Execute implementation with safety checks.
+6.  `888_COMMIT`: Final verification and SEAL (Audit logging).
 
 ### L4: MCP Tools (Production API)
 *The heartbeat of the system. Live at [arif-fazil.com/mcp](https://arif-fazil.com/mcp).*
+
+**Target Audience:** Developers / System Integrators  
+**Complexity:** High (API Integration)
 
 This is the **Core Application Layer**. It exposes the constitutional engines as **MCP Tools** that can be connected to Claude Desktop, Cursor, or any MCP-compliant client.
 
@@ -258,21 +272,28 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
 ### L5: Agents (Federation)
 *Autonomous Multi-Agent System (v55.0).*
 
-Located in `333_APPS/L5_AGENTS`. A federation of 4 specialized agents working in concert:
-1.  **Architect (Δ):** Designs the plan.
-2.  **Engineer (Ω):** Builds the solution.
-3.  **Auditor (👁):** Verifies facts and safety.
-4.  **Validator (Ψ):** Signs off on the final verdict.
+**Target Audience:** AI Researchers / Complex Systems Architects  
+**Complexity:** Very High (Distributed Systems)
+
+Located in `333_APPS/L5_AGENTS`. A federation of 4 specialized agents working in concert, mirroring the Trinity architecture but as autonomous entities:
+1.  **Architect (Δ):** Designs the plan and logic.
+2.  **Engineer (Ω):** Builds the solution and ensures safety.
+3.  **Auditor (👁):** Verifies facts and monitors injection attempts.
+4.  **Validator (Ψ):** Signs off on the final verdict and commits to the Vault.
 
 ### L6: Institution (Trinity System)
 *Maximum Autonomy (v56.0).*
 
-Located in `333_APPS/L6_INSTITUTION`. Implements the "Institution" concept—agents with distinct roles and checks-and-balances, capable of governing entire organizations.
+**Target Audience:** Enterprise / Governance Bodies  
+**Complexity:** Maximum (Institutional Design)
 
-### L7: AGI (Research)
-*Self-Improving Systems.*
+Located in `333_APPS/L6_INSTITUTION`. Implements the "Institution" concept—agents with distinct roles, checks-and-balances, and cooling periods (Phoenix-72). Capable of governing entire organizations or DAOs.
 
-Located in `333_APPS/L7_AGI`. Research into recursive constitutional improvement, where the AI helps refine its own constitution under human supervision.
+### Future Roadmap (L7+)
+*   **L7 AGI:** Research into recursive constitutional improvement (v60+).
+*   **DAO Governance:** On-chain constitution and voting (v58+).
+
+See full roadmap: [333_APPS/ROADMAP_v55_and_Beyond.md](333_APPS/ROADMAP_v55_and_Beyond.md)
 
 ---
 
