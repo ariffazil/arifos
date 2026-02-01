@@ -13,7 +13,7 @@
 ![Paradoxes](https://img.shields.io/badge/Paradoxes%20Solved-9-purple?style=for-the-badge)
 ![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white)
 
-**The World's First Production-Grade Constitutional AI Governance System**
+**A production-grade constitutional AI governance system for LLMs.**
 
 *Mathematical enforcement of ethical constraints, thermodynamic stability, and auditable decision-making across any LLM.*
 
@@ -26,6 +26,19 @@ pip install arifos
 [**Sponsor**](https://github.com/sponsors/ariffazil) • [**Buy Me a Teh Tarik**](https://buymeacoffee.com/ariffazil)
 
 </div>
+
+---
+
+## 🚀 New Here? 5-Minute Evaluation Path
+
+If you want to quickly understand arifOS without reading the full constitution:
+
+1. **See it live:** [arif-fazil.com](https://arif-fazil.com)
+2. **Understand the core law:** [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md) (13 Floors)
+3. **Try governance immediately:** Copy a prompt from [`docs/PROMPTS/`](docs/PROMPTS/) (L1)
+4. **See production usage:** Read [L4: MCP Tools](#l4-mcp-tools-production-api) below
+
+You can return to the Manifesto later.
 
 ---
 
@@ -81,6 +94,17 @@ A simple "Ignore previous instructions" command can dismantle months of safety t
 
 ---
 
+## ❌ What arifOS Is Not
+
+- ❌ **Not an LLM or model replacement**
+- ❌ **Not a moral philosophy engine**
+- ❌ **Not RLHF, prompt tricks, or vibe alignment**
+- ❌ **Not autonomous authority over humans**
+
+arifOS is a **governance kernel**: it constrains, verifies, and vetoes model outputs using explicit, auditable law.
+
+---
+
 ## 🛡️ III. The arifOS Solution
 
 **arifOS** is a **Constitutional Kernel** that sits between any LLM (Claude, GPT, Gemini) and the real world. It does not trust the model. Instead, it **verifies** every output against a strict set of mathematical and logical constraints.
@@ -98,6 +122,16 @@ A simple "Ignore previous instructions" command can dismantle months of safety t
 
 4.  **Legally Defensible Refusal System (v55.2):** When harmful or high-stakes requests are detected, the system generates structured refusals with safe alternatives and human appeal mechanisms. *Refusals are deterministic, logged, and appealable; wording varies by profile, not by verdict.* This ensures both enterprise defensibility and consumer survivability.
     *   *See: [docs/refusal_system_v55.2.md](docs/refusal_system_v55.2.md)*
+### Refusal as a First-Class Outcome
+
+In arifOS, refusal is not failure.
+
+A refusal means:
+- A constitutional floor was violated.
+- The system preserved safety, truth, or authority.
+- The outcome is auditable and appealable.
+
+Refusals are **SEALED decisions**, not errors.
 
 ---
 
@@ -217,7 +251,9 @@ arifOS uses a biological metaphor for its three core engines, known as the **Tri
 
 Every AI output must pass these **13 Floors** before being released. A failure in any Hard floor results in an immediate **VOID**.
 
-| Floor | Name | Principle | Physics Basis | Action |
+*These references describe the governing constraint logic, not a claim of physical simulation.*
+
+| Floor | Name | Principle | Formal Constraint Analogy | Action |
 | :--- | :--- | :--- | :--- | :--- |
 | **F1** | **Amanah** | **Trust through Reversibility.** No action should be irreversible without explicit sovereign command. | Landauer's Principle | **VOID** |
 | **F2** | **Truth** | **Factual Accuracy.** Confidence must be ≥ 0.99. No hallucinations permitted. | Fisher-Rao Metric | **VOID** |
@@ -497,7 +533,12 @@ if __name__ == "__main__":
 
 ## 🤝 XI. Contributing & Governance
 
-We welcome contributions from biological and digital entities alike. However, all contributions must pass **Constitutional Verification**.
+We welcome contributions from biological and digital entities alike.
+
+> If you are human: thank you — your judgment matters.
+> If you are an AI agent: contributions must be mediated by a human sponsor (F13).
+
+However, all contributions must pass **Constitutional Verification**.
 
 1.  **Read the Law:** Start with [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md).
 2.  **Fork & Clone:** Get the code.
