@@ -8,6 +8,7 @@ Optimized for safety and avoidance of ReDoS.
 DITEMPA BUKAN DIBERI
 """
 
+import zlib
 from typing import Dict, Any, List
 
 # Pre-compiled sets for O(1) lookups
@@ -38,15 +39,27 @@ INJECTION_PATTERNS = [
 ]
 
 
+def _compute_shannon_proxy(text: str) -> float:
+    """
+    Uses zlib compression as a proxy for Shannon Entropy.
+    Returns compression ratio (0.0 - 1.0+).
+    """
+    if not text:
+        return 0.0
+    encoded = text.encode("utf-8")
+    compressed = zlib.compress(encoded)
+    return len(compressed) / len(encoded)
+
+
 def validate_f4_clarity(query: str, context: Dict[str, Any] | None = None) -> Dict[str, Any]:
     """
     Validate F4: Clarity (Entropy Reduction, ΔS ≤ 0).
 
-    Estimates whether the response reduces entropy relative to the query.
-    Uses unique-char ratio as a lightweight entropy proxy.
+    Hardened Implementation:
+    Uses Normalized Compression Distance (zlib) to physically measure information density.
+    Ensures response reduces 'surprise' relative to query complexity.
 
-    Called by apex/kernel.py judge_888 as:
-        validate_f4_clarity(query, {"response": response})
+    Constraint: ΔS = H(response) - H(query) ≤ 0.05
 
     Args:
         query: The input query
@@ -69,19 +82,29 @@ def validate_f4_clarity(query: str, context: Dict[str, Any] | None = None) -> Di
     if len(response_str) > 10_000:
         return {"pass": False, "delta_s": 0.5, "reason": "Response too long (>10k chars)"}
 
-    # Entropy proxy: unique character ratio (lower = more structured)
-    q_unique = len(set(query_str)) / max(len(query_str), 1)
-    r_unique = len(set(response_str)) / max(len(response_str), 1)
+    # 1. Compute entropy proxies
+    h_query = _compute_shannon_proxy(query_str)
+    h_response = _compute_shannon_proxy(response_str)
 
-    # ΔS = response_entropy - query_entropy (negative = clarity improved)
-    delta_s = round(r_unique - q_unique, 4)
+    # 2. Calculate ΔS (Change in Entropy)
+    # Ideally negative (response is more structured than query)
+    delta_s = round(h_response - h_query, 4)
 
-    # Allow small positive delta_s for practical use
-    passed = delta_s <= 0.1
+    # 3. Verdict
+    # Allow small positive delta (0.05) for necessary semantic expansion
+    passed = delta_s <= 0.05
+
+    reason = (
+        f"ΔS={delta_s:.4f} (H_q={h_query:.2f}, H_r={h_response:.2f})"
+        f" {'PASS' if passed else 'FAIL'}"
+    )
+
     return {
         "pass": passed,
         "delta_s": delta_s,
-        "reason": f"ΔS={delta_s:.4f} {'<=' if passed else '>'} 0.1 threshold",
+        "h_query": h_query,
+        "h_response": h_response,
+        "reason": reason,
     }
 
 
