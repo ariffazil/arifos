@@ -290,6 +290,24 @@ To help AI agents (like Cursor, Windsurf, or Claude) automatically discover and 
 
 AI agents can use these files to instantly map their capabilities to the arifOS constitutional framework.
 
+#### 🔬 MCP Inspector (The Microscope)
+
+The **MCP Inspector** allows developers to visually debug and test tools without writing any client code. It acts as a "Microscope" for the arifOS Mind.
+
+**To Start:**
+```bash
+docker compose up -d
+```
+
+**Access:**
+Open [http://localhost:6274](http://localhost:6274) in your browser.
+
+**Features:**
+- List all available tools (`_init_`, `_trinity_`, etc.)
+- Manually trigger tools with custom JSON payloads.
+- View real-time logs and tool responses.
+- Test constitutional floor enforcement interactively.
+
 ### L5: Agents (Federation)
 *Autonomous Multi-Agent System (v55.0).*
 
