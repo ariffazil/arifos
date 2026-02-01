@@ -14,7 +14,8 @@ This directory consolidates the strategic deep research, roadmaps, and vision do
 
 | Document | What It Is |
 |----------|-----------|
-| [**ROADMAP_v55_BEYOND.md**](./ROADMAP_v55_BEYOND.md) | **The Tactical Roadmap.** What works, what's broken, what to do next. Priority-ordered. Start here. |
+| [**MASTER_TODO.md**](./MASTER_TODO.md) | **The Action List.** Every task scored by criticality, timing, energy, risk/reward, and dependencies. Start here. |
+| [**ROADMAP_v55_BEYOND.md**](./ROADMAP_v55_BEYOND.md) | **The Tactical Roadmap.** What works, what's broken, version targets (v55.3 through v60+). |
 | [**CLAUDE_DEEP_RESEARCH_2026-02-02.md**](./CLAUDE_DEEP_RESEARCH_2026-02-02.md) | **Ground-Truth Gap Analysis.** Codebase audit contrasting all prior research against reality. |
 
 ---
