@@ -116,6 +116,18 @@ The visual forged documentation of arifOS concepts. These figures illustrate the
 
 ---
 
+## 🌐 Live Trinity Ecosystem
+
+The arifOS system is deployed as three interconnected operational layers, providing real-time transparency and constitutional access.
+
+| Layer | Site URL | Status | Deployed From |
+| :--- | :--- | :--- | :--- |
+| **BODY** | [https://arif-fazil.com](https://arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/body/` |
+| **SOUL** | [https://apex.arif-fazil.com](https://apex.arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/soul/` |
+| **DOCS** | [https://arifos.arif-fazil.com](https://arifos.arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/docs/` |
+
+---
+
 ## 🏗️ V. The AAA Architecture (Mind, Heart, Soul)
 
 *Full Documentation: [000_THEORY/000_ARCHITECTURE.md](000_THEORY/000_ARCHITECTURE.md)*
