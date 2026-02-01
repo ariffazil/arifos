@@ -1,14 +1,19 @@
 """
-MCP Tool Implementation Templates (v53.2.9)
-Copy-paste templates for implementing the 7 Core MCP Tools
+MCP Tool Implementation Templates (v55.2)
+Copy-paste templates for implementing the 9 Canonical MCP Tools
 
 Authority: arifOS Constitutional Framework
 Purpose: Standardized tool implementation patterns
+
+NOTE: These are TEMPLATES for building new tools. The canonical
+production tools live in codebase/mcp/tools/canonical_trinity.py
+and codebase/mcp/core/tool_registry.py (9-tool v55.2 registry).
 """
 
 from __future__ import annotations
 
 import logging
+import secrets
 from typing import Any, Dict, Optional
 from datetime import datetime
 import hashlib
@@ -42,7 +47,7 @@ async def _ignite_(
     Returns:
         Session metadata with constitutional status
     """
-    session_id = f"sess_{int(datetime.now().timestamp())}_{hashlib.md5(query.encode()).hexdigest()[:8]}"
+    session_id = f"sess_{int(datetime.now().timestamp())}_{secrets.token_hex(4)}"
 
     try:
         # PHASE 1: F11 Authority Verification
@@ -89,47 +94,57 @@ async def _ignite_(
         }
 
     except Exception as e:
-        logger.error(f"[_IGNITE_] Error: {e}")
+        logger.error("[_IGNITE_] Error: %s", e, exc_info=True)
         return {
             "status": "VOID",
             "verdict": "VOID",
             "session_id": session_id,
             "error_category": "FATAL",
-            "reason": str(e)
+            "reason": "Internal processing error"
         }
 
 
 def _verify_authority(user_token: Optional[str]) -> str:
-    """F11 Authority Check"""
-    if user_token and user_token.startswith("elevated_"):
-        return "ELEVATED"
-    elif user_token:
-        return "STANDARD"
-    else:
-        return "PUBLIC"
+    """F11 Authority Check — delegates to canonical AuthorityVerifier when available."""
+    try:
+        from codebase.authority import AuthorityVerifier
+        verifier = AuthorityVerifier()
+        return verifier.verify(user_token) if user_token else "PUBLIC"
+    except ImportError:
+        # Fallback: minimal classification (no cryptographic verification)
+        if user_token and len(user_token) >= 32:
+            return "STANDARD"
+        elif user_token:
+            return "PUBLIC"
+        else:
+            return "PUBLIC"
 
 
 def _detect_injection(text: str) -> float:
-    """F12 Injection Detection"""
-    import re
-
-    BLOCKED_PATTERNS = [
-        r"ignore\s+previous\s+instructions",
-        r"you\s+are\s+now\s+in\s+.*\s+mode",
-        r"disable\s+safety",
-        r"pretend\s+the\s+constitution",
-        r"\\u200b",  # Zero-width space
-        r"\\u202e",  # RTL override
-        r"forget\s+your\s+rules",
-        r"bypass\s+restrictions",
-    ]
-
-    risk = 0.0
-    for pattern in BLOCKED_PATTERNS:
-        if re.search(pattern, text, re.IGNORECASE):
-            risk += 0.3
-
-    return min(risk, 1.0)
+    """F12 Injection Detection — delegates to canonical InjectionGuard (25+ patterns)."""
+    try:
+        from codebase.guards.injection_guard import InjectionGuard
+        guard = InjectionGuard()
+        result = guard.scan_input(text)
+        return result.injection_score
+    except ImportError:
+        # Fallback: minimal inline check if guard unavailable
+        import re
+        BLOCKED_PATTERNS = [
+            r"ignore\s+previous\s+instructions",
+            r"you\s+are\s+now\s+in\s+.*\s+mode",
+            r"disable\s+safety",
+            r"pretend\s+the\s+constitution",
+            r"\u200b",   # Zero-width space (actual char)
+            r"\u202e",   # RTL override (actual char)
+            r"forget\s+your\s+rules",
+            r"bypass\s+restrictions",
+        ]
+        risk = 0.0
+        for pattern in BLOCKED_PATTERNS:
+            if re.search(pattern, text, re.IGNORECASE):
+                risk += 0.3
+        return min(risk, 1.0)
 
 
 def _allocate_budget(authority_level: str) -> Dict[str, int]:
@@ -247,12 +262,12 @@ async def _logic_(
         }
 
     except Exception as e:
-        logger.error(f"[_LOGIC_] Error: {e}")
+        logger.error("[_LOGIC_] Error: %s", e, exc_info=True)
         return {
             "status": "VOID",
             "verdict": "VOID",
             "session_id": session_id,
-            "error": str(e)
+            "error": "Internal processing error"
         }
 
 
@@ -370,7 +385,7 @@ async def _senses_(
         }
 
     except Exception as e:
-        logger.error(f"[_SENSES_] Error: {e}")
+        logger.error("[_SENSES_] Error: %s", e, exc_info=True)
 
         # Record failure
         _circuit_breaker_failure()
@@ -379,7 +394,7 @@ async def _senses_(
             "status": "SABAR",
             "verdict": "SABAR",
             "session_id": session_id,
-            "error": str(e),
+            "error": "Internal processing error",
             "fallback": "Using internal knowledge only (F7 humility: external unavailable)"
         }
 
@@ -497,12 +512,12 @@ async def _atlas_(
         }
 
     except Exception as e:
-        logger.error(f"[_ATLAS_] Error: {e}")
+        logger.error("[_ATLAS_] Error: %s", e, exc_info=True)
         return {
             "status": "VOID",
             "verdict": "VOID",
             "session_id": session_id,
-            "error": str(e)
+            "error": "Internal processing error"
         }
 
 
@@ -655,12 +670,12 @@ async def _forge_(
         }
 
     except Exception as e:
-        logger.error(f"[_FORGE_] Error: {e}")
+        logger.error("[_FORGE_] Error: %s", e, exc_info=True)
         return {
             "status": "VOID",
             "verdict": "VOID",
             "session_id": session_id,
-            "error": str(e)
+            "error": "Internal processing error"
         }
 
 
@@ -779,12 +794,12 @@ async def _audit_(
         }
 
     except Exception as e:
-        logger.error(f"[_AUDIT_] Error: {e}")
+        logger.error("[_AUDIT_] Error: %s", e, exc_info=True)
         return {
             "status": "VOID",
             "verdict": "VOID",
             "session_id": session_id,
-            "error": str(e)
+            "error": "Internal processing error"
         }
 
 
@@ -893,12 +908,12 @@ async def _decree_(
         }
 
     except Exception as e:
-        logger.error(f"[_DECREE_] Error: {e}")
+        logger.error("[_DECREE_] Error: %s", e, exc_info=True)
         return {
             "status": "VOID",
             "verdict": "VOID",
             "session_id": session_id,
-            "error": str(e)
+            "error": "Internal processing error"
         }
 
 
@@ -915,7 +930,7 @@ def _generate_proof(judgment: Dict[str, Any]) -> Dict[str, Any]:
     proof = {
         "proof_type": "merkle_tree",
         "hash": f"0x{judgment_hash[:16]}",
-        "signature": f"0x{hashlib.md5(judgment_hash.encode()).hexdigest()[:16]}",
+        "signature": f"0x{hashlib.sha256(judgment_hash.encode()).hexdigest()[:16]}",
         "timestamp": datetime.now().isoformat(),
         "algorithm": "SHA256"
     }

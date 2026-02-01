@@ -8,6 +8,14 @@
 **Floors:** F2, F3, F8, F11, F12, F13
 **Symbols:** 👁 (Eye) + Ψ (Psi)
 
+## Notes for Codex & Kimi Coder CLI
+
+- MCP surface is the 9 canonical tools only: `init_gate, agi_sense, agi_think, agi_reason, asi_empathize, asi_align, apex_verdict, reality_search, vault_seal`. Legacy aliases (`_init_`, `_trinity_`, `init_reboot`, etc.) are intentionally absent.
+- Health gate: expect `/health` to return GREEN with 9 tools registered; floor_validators and session_store must be green before sealing.
+- Authority: `AuthorityVerifier` is currently permissive; treat high-stakes runs as SOFT lane unless a human token is supplied.
+- Schema enforcement: tool inputs are validated via `validate_input`; schemas are loaded from code, not from disk JSON. Keep payloads minimal and typed.
+- Logging: client-facing errors are generic; detailed traces are logged server-side. Use server logs when diagnosing.
+
 ## Trinity Handoff Chain
 
 ```text

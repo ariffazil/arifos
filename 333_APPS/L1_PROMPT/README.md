@@ -48,7 +48,7 @@ Autonomy:  None (AI chooses whether to follow)
 | `000_IGNITE.md` | Minimal gate initialization | ✅ Complete |
 | `SYSTEM_PROMPT_CCC.md` | Full constitutional prompt | ✅ Complete |
 | `system_instructions.md` | Concise system prompt | ✅ Complete |
-| `MCP_7_CORE_TOOLS.md` | Tool spec for MCP-enabled agents | ✅ Complete |
+| `MCP_7_CORE_TOOLS.md` | Tool spec for MCP-enabled agents (9-tool v55.2 content; filename is legacy) | ✅ Complete |
 | `examples/ambiguous_request.md` | Example: Handling ambiguity | ✅ Complete |
 | `examples/safety_check.md` | Example: Safety evaluation | ✅ Complete |
 | `examples/simple_chat.md` | Example: Basic interaction | ✅ Complete |

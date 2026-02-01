@@ -411,7 +411,56 @@ def get_bridge_router():
 
 async def bridge_reality_check_router(**kwargs) -> dict:
     """Gateway for reality_check tool."""
-    return await get_bridge_router().route_reality_check(**kwargs)
+    try:
+        query = kwargs.get("query", "")
+        session_id = kwargs.get("session_id")
+        
+        # Try to use the router, but fallback to a structured response if it fails
+        # or if the Brave API key is missing/invalid.
+        
+        try:
+            result = await get_bridge_router().route_reality_check(**kwargs)
+            # Ensure the result is a dict and has minimal fields
+            if isinstance(result, dict):
+                # If bridge error, it's already dict.
+                # If success, BraveSearchClient returns a result object which _serialize handles
+                # but let's double check it fits the schema.
+                if "error_category" in result:
+                     return {
+                        "status": "VOID",
+                        "verdict": "VOID",
+                        "reason": result.get("reason", "External gateway error"),
+                        "source": "brave_search_error",
+                        "query": query,
+                        "session_id": session_id
+                    }
+                return result
+            # Should be serialized already
+            return result
+            
+        except Exception as inner_e:
+            logger.warning(f"Brave Search Router failed: {inner_e}")
+            # Fallback for reality_search if external API fails
+            return {
+                "status": "SABAR",
+                "verdict": "SABAR",
+                "reason": f"External reality check failed: {str(inner_e)}. Proceeding with internal knowledge.",
+                "source": "internal_fallback",
+                "query": query,
+                "session_id": session_id,
+                "content": "External search unavailable. Relying on internal knowledge base.",
+                "citations": []
+            }
+
+    except Exception as e:
+        logger.error(f"Reality Check Bridge Critical Error: {e}")
+        return {
+            "status": "VOID",
+            "verdict": "VOID",
+            "reason": f"Critical bridge failure: {str(e)}",
+            "source": "bridge_failure",
+            "error": str(e)
+        }
 
 
 async def bridge_trinity_loop_router(

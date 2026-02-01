@@ -99,6 +99,47 @@ A simple "Ignore previous instructions" command can dismantle months of safety t
 
 The visual forged documentation of arifOS concepts. These figures illustrate the flow from raw intelligence to governed wisdom.
 
+### The Metabolic Helix (Live Diagram)
+
+```mermaid
+graph TD
+    User([User Input]) --> Gate{init_gate}
+    Gate -- Injection Detected (F12) --> VOID1[VOID / Block]
+    Gate -- Safe --> Sense[agi_sense]
+    
+    subgraph Mind [Δ AGI ENGINE]
+        Sense --> Think[agi_think]
+        Think --> Reason[agi_reason]
+        Reason -- F2/F4/F7/F10 Check --> Logic{Logic Valid?}
+    end
+    
+    Logic -- No --> SABAR[SABAR / Reflect]
+    Logic -- Yes --> Empathize[asi_empathize]
+    
+    subgraph Heart [Ω ASI ENGINE]
+        Empathize --> Align[asi_align]
+        Align -- F5/F6/F9 Check --> Safety{Safe?}
+    end
+    
+    Safety -- No --> VOID2[VOID / Veto]
+    Safety -- Yes --> Verdict[apex_verdict]
+    
+    subgraph Soul [Ψ APEX ENGINE]
+        Verdict -- F3/F8/F11 Check --> Final{Consensus?}
+        Final -- Yes --> Seal[vault_seal]
+        Final -- No --> Review[Human Review]
+    end
+    
+    Seal --> Ledger[(Immutable Ledger)]
+    Ledger --> Response([Constitutional Response])
+    
+    style User fill:#fff,stroke:#333,stroke-width:2px
+    style Gate fill:#f9f,stroke:#333,stroke-width:2px
+    style Ledger fill:#ff9,stroke:#333,stroke-width:2px
+    style VOID1 fill:#f00,stroke:#333,stroke-width:2px,color:#fff
+    style VOID2 fill:#f00,stroke:#333,stroke-width:2px,color:#fff
+```
+
 | **The Constitutional Forge** | **The Trinity Engine** |
 | :---: | :---: |
 | <img src="docs/forged_page_1.png" width="400" alt="Forged Page 1"> | <img src="docs/forged_page_2.png" width="400" alt="Forged Page 2"> |

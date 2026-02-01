@@ -1,19 +1,14 @@
 """
-codebase/mcp/tools/canonical_trinity.py
+333_APPS/L4_TOOLS/mcp/tools/canonical_trinity.py
 
-The 7 Canonical Tools of arifOS (AAA Framework)
-Implementing the "Trinity of Constitutional Verdicts" and metabolic cycle.
+MIRROR FILE — Documentation reference only.
+Canonical source: codebase/mcp/tools/canonical_trinity.py (v55.2, 9-tool registry)
 
-Scope:
-1. _init_ (Gate)
-2. _agi_ (Mind)
-3. _asi_ (Heart)
-4. _apex_ (Soul)
-5. _vault_ (Seal)
-6. _trinity_ (Loop)
-7. _reality_ (Ground)
+The 7 Legacy Tools of arifOS (v53 AAA Framework)
+These were split into 9 explicit tools in v55. See codebase/mcp/core/tool_registry.py.
 """
 
+import logging
 from typing import Any, Dict, Optional, List
 from codebase.kernel import get_kernel_manager
 from codebase.mcp.bridge import (
@@ -21,6 +16,8 @@ from codebase.mcp.bridge import (
     bridge_reality_check_router,
     bridge_atlas_router
 )
+
+logger = logging.getLogger(__name__)
 
 # ==============================================================================
 # 1. _init_ (The Gate)
@@ -54,10 +51,14 @@ async def mcp_agi(
     """
     _agi_: Mind Engine (Δ) - Logic, Sense, Think, Map.
     """
-    kernel = get_kernel_manager().get_agi()
-    return await kernel.execute(
-        action, {"query": query, "session_id": session_id, **kwargs}
-    )
+    try:
+        kernel = get_kernel_manager().get_agi()
+        return await kernel.execute(
+            action, {"query": query, "session_id": session_id, **kwargs}
+        )
+    except Exception as e:
+        logger.error("mcp_agi execute failed: %s", e, exc_info=True)
+        return {"verdict": "VOID", "session_id": session_id, "message": "Internal processing error"}
 
 # ==============================================================================
 # 3. _asi_ (The Heart)
@@ -72,16 +73,18 @@ async def mcp_asi(
     """
     _asi_: Heart Engine (Ω) - Empathy, Safety, Alignment.
     """
-    kernel = get_kernel_manager().get_asi()
-    # Support 'reasoning' as context if needed
-    context = kwargs.get("context", {})
-    if reasoning:
-        context["reasoning"] = reasoning
-        
-    return await kernel.execute(
-        action, 
-        {"text": query, "query": query, "session_id": session_id, "context": context, **kwargs}
-    )
+    try:
+        kernel = get_kernel_manager().get_asi()
+        context = kwargs.get("context", {})
+        if reasoning:
+            context["reasoning"] = reasoning
+        return await kernel.execute(
+            action,
+            {"text": query, "query": query, "session_id": session_id, "context": context, **kwargs}
+        )
+    except Exception as e:
+        logger.error("mcp_asi execute failed: %s", e, exc_info=True)
+        return {"verdict": "VOID", "session_id": session_id, "message": "Internal processing error"}
 
 # ==============================================================================
 # 4. _apex_ (The Soul)
@@ -97,14 +100,16 @@ async def mcp_apex(
     """
     _apex_: Soul Engine (Ψ) - Judgment, Verdict, Proof.
     """
-    kernel = get_kernel_manager().get_apex()
-    # If verdict is pre-supplied (e.g. wrapper), pass it
-    kwargs["pre_verdict"] = verdict
-    
-    return await kernel.execute(
-        action,
-        {"query": query, "response": response, "session_id": session_id, **kwargs}
-    )
+    try:
+        kernel = get_kernel_manager().get_apex()
+        kwargs["pre_verdict"] = verdict
+        return await kernel.execute(
+            action,
+            {"query": query, "response": response, "session_id": session_id, **kwargs}
+        )
+    except Exception as e:
+        logger.error("mcp_apex execute failed: %s", e, exc_info=True)
+        return {"verdict": "VOID", "session_id": session_id, "message": "Internal processing error"}
 
 # ==============================================================================
 # 5. _vault_ (The Seal)
@@ -120,17 +125,21 @@ async def mcp_vault(
     """
     _vault_: Immutable Ledger - Seal, List, Read.
     """
-    kernel = get_kernel_manager().get_apex() # Vault logic currently in Apex/Kernel
-    return await kernel.execute(
-        "seal" if action == "seal" else action, # standardized to kernel actions
-        {
-            "session_id": session_id,
-            "verdict": verdict,
-            "data": decision_data,
-            "target_ledger": target,
-            **kwargs
-        }
-    )
+    try:
+        kernel = get_kernel_manager().get_apex()
+        return await kernel.execute(
+            "seal" if action == "seal" else action,
+            {
+                "session_id": session_id,
+                "verdict": verdict,
+                "data": decision_data,
+                "target_ledger": target,
+                **kwargs
+            }
+        )
+    except Exception as e:
+        logger.error("mcp_vault execute failed: %s", e, exc_info=True)
+        return {"verdict": "VOID", "session_id": session_id, "message": "Internal processing error"}
 
 # ==============================================================================
 # 6. _trinity_ (The Loop)

@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v55.2] - 2026-02-02 "Constitutional Hardening & Stabilization"
+
+**Status:** SEALED  
+**Authority:** Muhammad Arif bin Fazil (888 Judge)
+
+### 🚀 Major Features
+
+#### Constitutional Security Hardening
+- **Unified Injection Guard:** Integrated `InjectionGuard.scan_input()` into `init_gate` and `validators.py`, replacing inline patterns with a 25+ pattern library + Unicode normalization.
+- **Component-Level Observability:** Enhanced `health_check()` with deep probes for validators, KernelManager, SessionStore, and tool registries.
+
+#### Schema Enforcement & Reliability
+- **Input/Output Validation:** Automated validation of tool calls against ToolRegistry schemas (required fields, types, enums).
+- **Stabilization:** Fixed critical import paths (`AuthorityVerifier`, `SessionStore`) and updated the test suite to pass 202 tests.
+
+### 🧹 Maintenance
+
+- **Ghost Purge:** Removed `asi_insight` and all legacy aliases (`_init_`, `_agi_`, etc.) from the server and documentation to achieve $\Delta S \le 0$ (F4 Clarity).
+- **Test Alignment:** Updated `tests/test_handlers_v55.py` and others to match the clean 9-tool registry.
+
+---
+
 ## [v55.0] - 2026-02-01 "Explicit Tool Architecture"
 
 **Status:** SEALED  
