@@ -168,7 +168,7 @@ Every AI output must pass these **13 Floors** before being released. A failure i
 | **F1** | **Amanah** | **Trust through Reversibility.** No action should be irreversible without explicit sovereign command. | Landauer's Principle | **VOID** |
 | **F2** | **Truth** | **Factual Accuracy.** Confidence must be ≥ 0.99. No hallucinations permitted. | Fisher-Rao Metric | **VOID** |
 | **F3** | **Tri-Witness** | **Consensus.** Mind, Heart, and Human must agree (W3 ≥ 0.95). | Quantum Measurement | **SABAR** |
-| **F4** | **Clarity** | **Entropy Reduction.** Output must clarify, not confuse (ΔS ≤ 0). | Shannon Entropy | **SABAR** |
+| **F4** | **Clarity** | **Entropy Reduction.** Output must clarify, not confuse (ΔS ≤ 0). Hardened with zlib compression. | Shannon Entropy | **SABAR** |
 | **F5** | **Peace** | **Stability.** Actions must not destabilize the system or society (Peace² ≥ 1.0). | Lyapunov Stability | **VOID** |
 | **F6** | **Empathy** | **Protection.** Protect the vulnerable from harm (κ ≥ 0.70). | Cohen's Kappa | **SABAR** |
 | **F7** | **Humility** | **Uncertainty.** Explicitly state confidence bounds. | Uncertainty Band | **SABAR** |
