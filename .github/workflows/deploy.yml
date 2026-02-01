@@ -1,4 +1,4 @@
-name: Deploy Trinity Ecosystem
+name: Deploy MIND Backend
 
 on:
   push:
@@ -7,62 +7,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  # --- Step 1: Build and Deploy Static Frontend Layers to Cloudflare Pages ---
-  deploy-frontend:
-    name: Deploy Frontend (Cloudflare Pages)
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: 'npm'
-
-      # Build and Deploy BODY (arif-fazil.com) - Identity & Dashboard
-      - name: Build BODY (arif-fazil.com)
-        run: |
-          cd ariffazil.com/body
-          npm ci
-          npm run build
-          # Copy all image assets to dist
-          cp public/*.jpg dist/ 2>/dev/null || true
-          cp public/*.png dist/ 2>/dev/null || true
-          ls -la dist/
-
-      - name: Deploy BODY to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: arif-fazil
-          directory: ariffazil.com/body/dist
-
-      # Build and Deploy SOUL (apex.arif-fazil.com) - Constitutional Canon
-      - name: Build SOUL (apex.arif-fazil.com)
-        run: |
-          cd ariffazil.com/soul
-          npm ci
-          npm run build
-          # Copy all image assets to dist
-          cp public/*.jpg dist/ 2>/dev/null || true
-          cp public/*.png dist/ 2>/dev/null || true
-          ls -la dist/
-
-      - name: Deploy SOUL to Cloudflare Pages
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: apex-dpf
-          directory: ariffazil.com/soul/dist
-
-  # --- Step 2: Deploy MIND (Backend) to Railway ---
+  # --- Deploy MIND (Backend) to Railway ---
   deploy-backend:
     name: Deploy Backend (Railway)
-    needs: deploy-frontend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
@@ -86,42 +33,26 @@ jobs:
           sleep 10
           curl -sf https://aaamcp.arif-fazil.com/health || echo "Health check will be available after DNS propagation"
 
-  # --- Step 3: Verify Trinity Alignment ---
+  # --- Verify MIND is Online ---
   verify:
-    name: Verify Ecosystem Alignment
-    needs: [deploy-frontend, deploy-backend]
+    name: Verify MIND Backend
+    needs: deploy-backend
     runs-on: ubuntu-latest
     steps:
-      - name: Check BODY (arif-fazil.com)
-        run: |
-          echo "Checking BODY layer..."
-          curl -sf https://arif-fazil.com > /dev/null && echo "✅ BODY is ONLINE" || echo "⚠️ BODY check failed"
-
-      - name: Check SOUL (apex.arif-fazil.com)
-        run: |
-          echo "Checking SOUL layer..."
-          curl -sf https://apex.arif-fazil.com > /dev/null && echo "✅ SOUL is ONLINE" || echo "⚠️ SOUL check failed"
-
-      - name: Check DOCS (arifos.arif-fazil.com)
-        run: |
-          echo "Checking DOCS layer..."
-          curl -sf https://arifos.arif-fazil.com > /dev/null && echo "✅ DOCS is ONLINE" || echo "⚠️ DOCS check failed"
-
       - name: Check MIND (aaamcp.arif-fazil.com)
         run: |
           echo "Checking MIND layer..."
-          curl -sf https://aaamcp.arif-fazil.com/health > /dev/null && echo "✅ MIND is ONLINE" || echo "⚠️ MIND check failed"
+          curl -sf https://aaamcp.arif-fazil.com/health > /dev/null && echo "MIND is ONLINE" || echo "MIND check failed"
 
-      - name: Trinity Alignment Report
+      - name: Deployment Report
         run: |
           echo "========================================"
-          echo "  TRINITY ECOSYSTEM ALIGNMENT REPORT"
-          echo "     v55.2 — Metabolic Separation"
+          echo "  arifOS MIND — DEPLOYMENT REPORT"
           echo "========================================"
-          echo "  BODY:  https://arif-fazil.com         (Cloudflare Pages)"
-          echo "  SOUL:  https://apex.arif-fazil.com    (Cloudflare Pages)"
-          echo "  DOCS:  https://arifos.arif-fazil.com  (Cloudflare Pages)"
-          echo "  MIND:  https://aaamcp.arif-fazil.com  (Railway API)"
+          echo "  MIND:  https://aaamcp.arif-fazil.com  (Railway)"
+          echo "========================================"
+          echo "  Frontend sites deployed separately via:"
+          echo "  https://github.com/ariffazil/arif-fazil-sites"
           echo "========================================"
           echo "  DITEMPA BUKAN DIBERI"
           echo "========================================"

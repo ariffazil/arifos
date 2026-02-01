@@ -1,9 +1,8 @@
 # Build context exclusions for Railway
 # Keeps build fast by excluding non-runtime files
 
-# Node modules (frontend apps)
+# Node modules
 **/node_modules/
-ariffazil.com/
 
 # Archive & legacy
 archive/
