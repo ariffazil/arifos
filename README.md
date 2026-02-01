@@ -391,10 +391,12 @@ Located in `333_APPS/L5_AGENTS`. A federation of 4 specialized agents working in
 Located in `333_APPS/L6_INSTITUTION`. Implements the "Institution" concept—agents with distinct roles, checks-and-balances, and cooling periods (Phoenix-72). Capable of governing entire organizations or DAOs.
 
 ### Future Roadmap (L7+)
-*   **L7 AGI:** Research into recursive constitutional improvement (v60+).
-*   **DAO Governance:** On-chain constitution and voting (v58+).
 
-See full roadmap: [333_APPS/ROADMAP_v55_and_Beyond.md](333_APPS/ROADMAP_v55_and_Beyond.md)
+**Immediate priorities (v55.3):** Fix test suite, persist the ledger, fix ASI soft floor scoring.
+**Next milestone (v56.0):** First working L5 agent, EU AI Act compliance pack, Sidecar deployment.
+**Research horizon (v60+):** Recursive constitutional improvement, DAO governance, multi-model Tri-Witness.
+
+See full roadmap: [ROADMAP/ROADMAP_v55_BEYOND.md](ROADMAP/ROADMAP_v55_BEYOND.md)
 
 ---
 
