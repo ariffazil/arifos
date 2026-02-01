@@ -10,7 +10,7 @@ DITEMPA BUKAN DIBERI — Forged, not given.
 """
 
 from datetime import datetime, timezone
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Any
 from dataclasses import dataclass, asdict
 import json
 from pathlib import Path
@@ -150,18 +150,24 @@ class AppealSystem:
         
         # Track which appeals have been reviewed
         reviewed_ids = set()
+        pending_by_id = {}
         
         with open(self.appeal_log_path) as f:
             for line in f:
                 data = json.loads(line)
                 
-                # Track reviewed appeals
+                # Track reviewed appeals (they have "action" field)
                 if data.get("action") == "human_review":
                     reviewed_ids.add(data["trace_id"])
                 
-                # Collect pending appeals (not reviewed yet)
-                elif data.get("status") == "PENDING" and data["trace_id"] not in reviewed_ids:
-                    appeals.append(Appeal(**data))
+                # Collect pending appeals
+                elif data.get("status") == "PENDING":
+                    pending_by_id[data["trace_id"]] = Appeal(**data)
+        
+        # Return only appeals that haven't been reviewed
+        for trace_id, appeal in pending_by_id.items():
+            if trace_id not in reviewed_ids:
+                appeals.append(appeal)
         
         return appeals
     
