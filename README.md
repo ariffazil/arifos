@@ -31,12 +31,12 @@
 - [VI. Constitutional Law (The 13 Floors)](#-vi-constitutional-law-the-13-floors)
 - [VII. The 9-Paradox Equilibrium](#-vii-the-9-paradox-equilibrium)
 - [VIII. The 333_APPS Stack (Applications)](#-viii-the-333_apps-stack-applications)
-    - [L1: System Prompts](#l1-system-prompts-zero-context)
-    - [L2: Skills](#l2-skills-templates)
-    - [L3: Workflows](#l3-workflows-sops)
-    - [L4: MCP Tools](#l4-mcp-tools-production-api)
-    - [L5: Agents](#l5-agents-federation)
-    - [L6: Institution](#l6-institution-trinity-system)
+    - [L1: System Prompts (Zero-Context)](#l1-system-prompts-zero-context)
+    - [L2: Skills (Templates)](#l2-skills-templates)
+    - [L3: Workflows (SOPs)](#l3-workflows-sops)
+    - [L4: MCP Tools (Production API)](#l4-mcp-tools-production-api)
+    - [L5: Agents (Federation)](#l5-agents-federation)
+    - [L6: Institution (Trinity System)](#l6-institution-trinity-system)
 - [IX. Technical Implementation](#-ix-technical-implementation)
 - [X. Installation & Usage](#-x-installation--usage)
 - [XI. Contributing & Governance](#-xi-contributing--governance)
@@ -182,7 +182,7 @@ arifOS does not view ethics as binary. It views them as tensions to be balanced.
 6.  **Unity vs. Diversity:** How to maintain standards while allowing variance?
 7.  **Past vs. Future:** How to respect tradition while embracing the new?
 8.  **Local vs. Global:** How to solve specific problems without global harm?
-9.  **Justice vs. Mercy:** How to enforce rules with understanding?
+9.  **Justice vs. Mercy:** How to enforce rules with understanding.
 
 ---
 
@@ -193,47 +193,86 @@ arifOS does not view ethics as binary. It views them as tensions to be balanced.
 The **333_APPS** directory contains the practical applications of arifOS, organized into a 7-layer stack (L1-L7). This allows users to adopt arifOS at their preferred level of complexity.
 
 ### L1: System Prompts (Zero-Context)
-*For immediate governance of any LLM.*
-- **Concise Prompt:** [docs/PROMPTS/AUTONOMOUS_CONCISE.md](docs/PROMPTS/AUTONOMOUS_CONCISE.md) - Minimal token usage.
-- **Comprehensive Prompt:** [docs/PROMPTS/AUTONOMOUS_COMPREHENSIVE.md](docs/PROMPTS/AUTONOMOUS_COMPREHENSIVE.md) - Full constitutional enforcement.
-- **Human Readable:** [docs/PROMPTS/HUMAN_READABLE.md](docs/PROMPTS/HUMAN_READABLE.md) - Copy-paste for chatbots.
+*For immediate governance of any LLM (Claude, ChatGPT, Gemini).*
+
+These are the entry-level artifacts. They require **zero installation**. Just copy, paste, and your session is instantly governed by the arifOS constitution.
+
+-   **[Concise Prompt](docs/PROMPTS/AUTONOMOUS_CONCISE.md):** Minimal token usage (approx. 200 tokens). Ideal for API calls where cost is a factor but safety is non-negotiable.
+-   **[Comprehensive Prompt](docs/PROMPTS/AUTONOMOUS_COMPREHENSIVE.md):** Full Constitutional Code of Conduct (CCC). Enforces the 9-Paradox Matrix and Tri-Witness protocol verbally. Best for high-stakes chat sessions.
+-   **[Human Readable Prompt](docs/PROMPTS/HUMAN_READABLE.md):** A simplified version designed for humans to copy-paste into web interfaces like ChatGPT or Claude.ai.
 
 ### L2: Skills (Templates)
 *Reusable skill definitions for AI agents.*
-- Located in `333_APPS/L2_SKILLS`.
-- Includes standard operating procedures for Code Review, Security Audit, and Architecture Design governed by arifOS.
+
+Located in `333_APPS/L2_SKILLS`. These are **parameterized YAML templates** that wrap constitutional logic into reusable functions.
+
+**Example Use Case:**
+*   **Code Review Skill:** An agent skill that automatically checks code against F1 (Reversibility) and F9 (Anti-Hantu) before approving a PR.
+*   **Safety Check Skill:** A dedicated skill for verifying if a proposed action (e.g., "delete database") violates the Peace² floor.
 
 ### L3: Workflows (SOPs)
 *End-to-end workflows for teams.*
-- Located in `333_APPS/L3_WORKFLOW`.
-- Defines how humans and AI collaborate under the constitution.
+
+Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Procedures (SOPs)** that define how humans and AI collaborate under the constitution. They include persistence—saving the state of a decision to a file (e.g., `sessions/111_intent.json`).
+
+**The 6 Canonical Workflows:**
+1.  `000_SESSION_INIT`: Initialize constitutional session.
+2.  `111_INTENT`: Map user intent to constitutional lanes.
+3.  `333_CONTEXT`: Gather relevant context.
+4.  `555_SAFETY`: Evaluate safety and empathy.
+5.  `777_IMPLEMENT`: Execute implementation.
+6.  `888_COMMIT`: Final verification and SEAL.
 
 ### L4: MCP Tools (Production API)
-*The heartbeat of the system. Live at [arif-fazil.com](https://arif-fazil.com/mcp).*
-- Located in `333_APPS/L4_TOOLS`.
-- Exposes the 7 Canonical Tools:
-    - `_init_`: Session gate.
-    - `_agi_`: Reasoning engine.
-    - `_asi_`: Safety engine.
-    - `_apex_`: Verdict engine.
-    - `_vault_`: Audit ledger.
-    - `_trinity_`: Full pipeline.
-    - `_reality_`: Fact checking.
+*The heartbeat of the system. Live at [arif-fazil.com/mcp](https://arif-fazil.com/mcp).*
+
+This is the **Core Application Layer**. It exposes the constitutional engines as **MCP Tools** that can be connected to Claude Desktop, Cursor, or any MCP-compliant client.
+
+**The 7 Canonical Tools:**
+
+| Tool | Symbol | Purpose | Usage |
+| :--- | :---: | :--- | :--- |
+| `_init_` | 🔑 | **Session Gate.** Verifies authority, scans for injection (F12), and initializes the session ledger. | `await init_000(token="...")` |
+| `_agi_` | 🧠 | **Mind Engine.** Performs reasoning, fact-checking, and intent mapping. Enforces Truth (F2) and Clarity (F4). | `await agi_think(query="...")` |
+| `_asi_` | 💚 | **Heart Engine.** Simulates safety impacts and empathy. Enforces Peace (F5) and Empathy (F6). | `await asi_feel(action="...")` |
+| `_apex_` | ⚖️ | **Soul Engine.** Renders the final verdict using the 9-Paradox Matrix. Enforces Consensus (F3). | `await apex_judge(context={...})` |
+| `_vault_` | 🔒 | **Immutable Ledger.** Writes the final decision to the Merkle DAG. Creates the audit trail. | `await vault_seal(verdict="...")` |
+| `_trinity_` | 🔄 | **Full Pipeline.** Runs the entire 000→999 loop in a single call. The default for most users. | `await trinity(query="...")` |
+| `_reality_` | 🌍 | **Fact Checker.** Connects to external search/knowledge bases to ground truth (F10). | `await reality_check(claim="...")` |
+
+**How to Setup MCP:**
+1.  **Install:** `pip install arifos`
+2.  **Configure:** Add to your `claude_desktop_config.json`:
+    ```json
+    {
+      "mcpServers": {
+        "arifos": {
+          "command": "python",
+          "args": ["-m", "codebase.mcp"]
+        }
+      }
+    }
+    ```
+3.  **Use:** Open Claude Desktop. You will see the tools available. Ask Claude: *"Use arifOS to evaluate this plan."*
 
 ### L5: Agents (Federation)
 *Autonomous Multi-Agent System (v55.0).*
-- Located in `333_APPS/L5_AGENTS`.
-- A federation of 4 specialized agents (Architect, Engineer, Auditor, Validator) working in concert.
+
+Located in `333_APPS/L5_AGENTS`. A federation of 4 specialized agents working in concert:
+1.  **Architect (Δ):** Designs the plan.
+2.  **Engineer (Ω):** Builds the solution.
+3.  **Auditor (👁):** Verifies facts and safety.
+4.  **Validator (Ψ):** Signs off on the final verdict.
 
 ### L6: Institution (Trinity System)
 *Maximum Autonomy (v56.0).*
-- Located in `333_APPS/L6_INSTITUTION`.
-- Implements the "Institution" concept—agents with distinct roles and checks-and-balances.
+
+Located in `333_APPS/L6_INSTITUTION`. Implements the "Institution" concept—agents with distinct roles and checks-and-balances, capable of governing entire organizations.
 
 ### L7: AGI (Research)
 *Self-Improving Systems.*
-- Located in `333_APPS/L7_AGI`.
-- Research into recursive constitutional improvement.
+
+Located in `333_APPS/L7_AGI`. Research into recursive constitutional improvement, where the AI helps refine its own constitution under human supervision.
 
 ---
 
