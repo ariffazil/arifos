@@ -7,17 +7,6 @@ from typing import Dict, Any, Optional, Callable, Awaitable
 from dataclasses import dataclass
 import logging
 
-# Import handlers from the canonical implementation
-from ..tools.canonical_trinity import (
-    mcp_init,
-    mcp_agi,
-    mcp_asi,
-    mcp_apex,
-    mcp_vault,
-    mcp_trinity,
-    mcp_reality,
-)
-
 logger = logging.getLogger(__name__)
 
 
@@ -29,7 +18,7 @@ class ToolDefinition:
     title: str
     description: str
     input_schema: Dict[str, Any]
-    handler: Callable[..., Awaitable[Dict[str, Any]]]
+    handler: Optional[Callable[..., Awaitable[Dict[str, Any]]]] = None
     output_schema: Optional[Dict[str, Any]] = None
     annotations: Optional[Dict[str, Any]] = None
 
@@ -71,7 +60,17 @@ class ToolRegistry:
         return self._tools
 
     def _register_canonical_tools(self):
-        """Register the 7 canonical constitutional tools."""
+        """Register the 7 canonical constitutional tools with lazy handler binding."""
+        # Import handlers inside method to break circular dependency
+        from ..tools.canonical_trinity import (
+            mcp_init,
+            mcp_agi,
+            mcp_asi,
+            mcp_apex,
+            mcp_vault,
+            mcp_trinity,
+            mcp_reality,
+        )
 
         # 1. _init_ (Gate)
         self.register(
