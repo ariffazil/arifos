@@ -4,7 +4,7 @@ codebase/mcp/tools/canonical_trinity.py
 The 7 Canonical Tools of arifOS (AAA Framework)
 Implementing the "Trinity of Constitutional Verdicts" and metabolic cycle.
 
-LLM-Agnostic: Works with Claude, ChatGPT, Gemini, Cursor, Codex, any MCP client.
+LLM-Agnostic: Works with any MCP-compatible client (Claude, GPT, Gemini, Cursor, Codex, etc.)
 All handlers normalize input to handle diverse calling conventions (args wrapping, etc.)
 
 Scope:
@@ -30,10 +30,10 @@ from codebase.mcp.core.bridge import (
 def _normalize_kwargs(kwargs: dict) -> dict:
     """
     LLM-agnostic input normalizer.
-    Some MCP clients (ChatGPT) wrap tool parameters under 'args' or 'kwargs'.
+    Some MCP clients wrap tool parameters under 'args' or 'kwargs'.
     This unwraps them so handlers receive flat keyword arguments.
     """
-    # ChatGPT wraps params under 'args' dict
+    # Some clients (e.g. GPT Actions) wrap params under 'args' dict
     if "args" in kwargs and isinstance(kwargs["args"], dict):
         unwrapped = kwargs.pop("args")
         unwrapped.update(kwargs)
@@ -121,7 +121,13 @@ async def mcp_agi(
     action: str = "full", query: str = "", session_id: Optional[str] = None, **kwargs
 ) -> Dict[str, Any]:
     """
-    _agi_: Mind Engine (Δ) - Logic, Sense, Think, Map.
+    _agi_: Mind Engine (Δ) - Logic, Sense, Think, Reason.
+
+    Supported actions:
+        action="sense"  → Stage 111 only (intent classification, risk flags)
+        action="think"  → Stage 111+222 (hypotheses with pros/cons)
+        action="reason" → Full pipeline with reflection
+        action="full"   → Same as "reason" (backward compat)
     """
     kwargs = _normalize_kwargs(kwargs)
     action = kwargs.pop("action", action) or "full"
@@ -129,6 +135,9 @@ async def mcp_agi(
     session_id = kwargs.pop("session_id", session_id)
 
     kernel = get_kernel_manager().get_agi()
+    raw_result = await kernel.execute(
+        action, {"query": query, "session_id": session_id, **kwargs}
+    )
     
     try:
         raw_result = await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
@@ -165,25 +174,39 @@ async def mcp_agi(
     else:
         result = {"error": "Unknown result type", "raw": str(raw_result)}
 
-    # Ensure required fields
+    # Per-stage results are already schema-compliant from AGINeuralCore
+    action_upper = action.upper()
+    if action_upper in ("SENSE", "THINK"):
+        return result
+
+    # Full/reason pipeline: ensure backward-compatible required fields
     if "entropy_delta" not in result:
-        # Try to calculate or default
-        result["entropy_delta"] = result.get("clarity_score", 0.0) - 0.5  # Approximation
+        result["entropy_delta"] = result.get("clarity_score", 0.0) - 0.5
 
     if "vote" not in result:
         result["vote"] = result.get("status", "VOID")
 
-    # Ensure schema compliance
     adapted = {
         "session_id": result.get("session_id", session_id),
         "entropy_delta": float(result.get("entropy_delta", 0.0)),
         "omega_0": float(result.get("omega_0", 0.04)),
         "precision": result.get("precision", {}),
-        "hierarchical_beliefs": result.get("hierarchical_beliefs", {}),
+        "hierarchical_beliefs": result.get("hierarchical_beliefs", result.get("hierarchy", {})),
         "action_policy": result.get("action_policy", {}),
         "vote": result.get("vote", "VOID"),
         "floor_scores": result.get("floor_scores", {}),
+        # New contentful fields (v55.2)
+        "conclusion": result.get("conclusion", ""),
+        "confidence": result.get("confidence", 0.0),
+        "premises": result.get("premises", []),
+        "counterarguments": result.get("counterarguments", []),
+        "failure_conditions": result.get("failure_conditions", []),
+        "free_energy": result.get("free_energy", 0.0),
     }
+
+    # Include reflection if present
+    if "reflection" in result:
+        adapted["reflection"] = result["reflection"]
 
     return adapted
 

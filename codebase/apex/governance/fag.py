@@ -5,7 +5,7 @@ Constitutional filesystem wrapper enforcing 9 floors on file I/O.
 
 DUAL IDENTITY:
     Internal: FAG (File Access Governance) - Python class for governed file I/O
-    External: vTEMPA - MCP tools for external AI agents (ChatGPT, Claude, Codex)
+    External: vTEMPA - MCP tools for external AI agents (any MCP-compatible LLM)
 
 Key Features:
 - Root-jailed access (F1 Amanah)
