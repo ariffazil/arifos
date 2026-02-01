@@ -136,10 +136,10 @@ arifOS is a **governance kernel**: it constrains, verifies, and vetoes model out
 ### The 3 Pillars of Defense
 
 1.  **Immutable Auditing (VAULT-999):** Every decision, every thought, every verdict is cryptographically sealed in a Merkle DAG. We can prove exactly what the AI thought and why it acted.
-    *   *See: [000_THEORY/011_VAULT_MCP.md](000_THEORY/011_VAULT_MCP.md)*
+    *   *See: [codebase/mcp/tools/VAULT_SPEC.md](codebase/mcp/tools/VAULT_SPEC.md)*
 
 2.  **Paradox Equilibrium:** We assume values conflict. We use a **9-Paradox Matrix** to find the Nash Equilibrium between competing ethics (e.g., Truth vs. Empathy), ensuring balanced wisdom rather than extreme optimization.
-    *   *See: [000_THEORY/012_VERDICT_PARADOX.md](000_THEORY/012_VERDICT_PARADOX.md)*
+    *   *See: [000_THEORY/888_SOUL_VERDICT.md](000_THEORY/888_SOUL_VERDICT.md)*
 
 3.  **Hardened Floors (F1-F13):** These are not guidelines; they are strict logic gates. If an output violates a floor (e.g., Truth < 0.99), it is **VOIDed** immediately. It physically cannot be emitted.
     *   *See: [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md)*

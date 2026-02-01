@@ -8,16 +8,16 @@
 ## 5-Tool Trinity
 
 ```
-"Init the Genius, Act with Heart, Judge at Apex, seal in Vault."
+"Init the Gate, Reason with Mind, Empathize with Heart, Verdict at Apex, Seal in Vault."
 ```
 
 | Tool | Role | Symbol |
 |------|------|--------|
-| `000_init` | Gate | 🚪 |
-| `agi_genius` | Mind | Δ |
-| `asi_act` | Heart | Ω |
-| `apex_judge` | Soul | Ψ |
-| `999_vault` | Seal | 🔒 |
+| `init_gate` | Gate | 🚪 |
+| `agi_reason` | Mind | Δ |
+| `asi_empathize` | Heart | Ω |
+| `apex_verdict` | Soul | Ψ |
+| `vault_seal` | Seal | 🔒 |
 
 ---
 
@@ -34,11 +34,11 @@
 ## Quick Start
 
 ```bash
-/000    # Initialize session
-/agi    # Reason
-/asi    # Execute
-/apex   # Judge
-/999    # Seal
+/init       # Initialize session
+/agi        # Reason
+/asi        # Empathize
+/apex       # Verdict
+/seal       # Crystallize
 ```
 
 ---

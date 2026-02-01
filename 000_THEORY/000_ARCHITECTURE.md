@@ -1,7 +1,7 @@
 ---
 title: "000_ARCHITECTURE.md"
-version: "v52.5.2-SEAL"
-epoch: "2026-01-25"
+version: "v55.2"
+epoch: "2026-02-02"
 sealed_by: "888_Judge"
 authority: "Muhammad Arif bin Fazil"
 status: "SOVEREIGNLY_SEALED"
@@ -63,9 +63,9 @@ Instead of a simple "Input -> Output" flow, arifOS uses an **11-stage metabolic 
 | **555** | **EMPATHY** | ASI | Check stakeholder impact and safety. | F6 Empathy |
 | **666** | **BRIDGE** | ASI | Synthesize logic and safety. | F5 Safety |
 | **777** | **EUREKA** | APEX | Detect novel insights. | F13 Curiosity |
-| **888** | **JUDGE** | APEX | Final constitutional verdict. | F8 Consensus |
+| **888** | **JUDGE** | APEX | Final constitutional verdict. | F3 Consensus |
 | **889** | **PROOF** | APEX | Generate cryptographic receipt. | - |
-| **999** | **VAULT** | Seal | Commit to immutable ledger. | F1 Reversibility |
+| **999** | **VAULT** | Seal | Commit to immutable ledger. | F1 Amanah |
 
 ### 3.2 The 7-Step Ignition (Inside Stage 000)
 
@@ -128,7 +128,9 @@ arifOS/
 │   ├── 000_FOUNDATIONS.md # Principles & Glossary
 │   ├── 000_LAW.md         # Rules & Floors
 │   ├── 000_ARCHITECTURE.md# This File
-│   └── 002_SECURITY.md    # Threat Model
+│   ├── 111_MIND_GENIUS.md # Physics of Thought
+│   ├── 555_HEART_EMPATHY.md # Physics of Care
+│   └── 777_SOUL_APEX.md   # Physics of Law
 │
 ├── tests/                 # VALIDATION
 └── vault_999/             # STORAGE (Immutable Ledger)
