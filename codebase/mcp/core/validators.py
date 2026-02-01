@@ -79,27 +79,35 @@ class ConstitutionValidator:
         """
         F12 Injection: Check for prompt injection patterns.
         Returns True if SAFE, False if INJECTION DETECTED.
+
+        Delegates to InjectionGuard (25+ patterns + normalization).
+        Falls back to minimal inline check if guard unavailable.
         """
         if not query:
             return True
 
-        injection_patterns = [
-            r"ignore\s+(previous|above|all)\s+instructions",
-            r"system\s*prompt",
-            r"you\s+are\s+now",
-            r"DAN\s*mode",
-            r"jailbreak",
-            r"\[system\s*override\]",
-            r"admin\s*access",
-            r"sudo\s+mode",
-        ]
-
-        query_lower = query.lower()
-        for pattern in injection_patterns:
-            if re.search(pattern, query_lower):
-                return False  # FAILED
-
-        return True  # PASS
+        try:
+            from codebase.guards.injection_guard import InjectionGuard
+            guard = InjectionGuard()
+            result = guard.scan_input(query)
+            return not result.blocked
+        except ImportError:
+            # Fallback: minimal pattern check
+            injection_patterns = [
+                r"ignore\s+(previous|above|all)\s+instructions",
+                r"system\s*prompt",
+                r"you\s+are\s+now",
+                r"DAN\s*mode",
+                r"jailbreak",
+                r"\[system\s*override\]",
+                r"admin\s*access",
+                r"sudo\s+mode",
+            ]
+            query_lower = query.lower()
+            for pattern in injection_patterns:
+                if re.search(pattern, query_lower):
+                    return False
+            return True
 
     @staticmethod
     def validate_f1_reversibility(action_type: str) -> bool:
@@ -224,6 +232,60 @@ def validate_output(output: Dict[str, Any], schema_name: str) -> Tuple[bool, Lis
                 violations.append(
                     f"Field '{field}': {value} above maximum {prop_schema['maximum']}"
                 )
+
+    return len(violations) == 0, violations
+
+
+def validate_input(input_data: Dict[str, Any], tool_name: str) -> Tuple[bool, List[str]]:
+    """
+    Validate tool input against the ToolRegistry's input_schema for the given tool.
+
+    Returns:
+        (is_valid, list_of_violations)
+
+    Uses the same lightweight validation as validate_output but reads
+    schemas directly from the ToolRegistry definitions.
+    """
+    violations: List[str] = []
+
+    try:
+        from codebase.mcp.core.tool_registry import ToolRegistry
+        registry = ToolRegistry()
+        tool = registry.get(tool_name)
+        if tool is None:
+            return True, []
+        schema = tool.input_schema
+    except ImportError:
+        return True, []
+
+    if not schema:
+        return True, []
+
+    # Check required fields
+    for field in schema.get("required", []):
+        if field not in input_data:
+            violations.append(f"Missing required field: '{field}'")
+
+    # Check property types and constraints
+    properties = schema.get("properties", {})
+    for field, value in input_data.items():
+        if field not in properties:
+            continue
+
+        prop_schema = properties[field]
+        expected_type = prop_schema.get("type")
+
+        if expected_type and value is not None:
+            if not _check_json_type(value, expected_type):
+                violations.append(
+                    f"Field '{field}': expected type '{expected_type}', "
+                    f"got '{type(value).__name__}'"
+                )
+
+        if "enum" in prop_schema and value not in prop_schema["enum"]:
+            violations.append(
+                f"Field '{field}': value '{value}' not in {prop_schema['enum']}"
+            )
 
     return len(violations) == 0, violations
 

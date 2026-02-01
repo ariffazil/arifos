@@ -41,38 +41,31 @@ except ImportError:
 # =============================================================================
 
 class TestToolRegistry:
-    """Test the tool registry with 9 core tools + 5 legacy aliases + 2 utility tools."""
+    """Test the tool registry with 9 canonical tools (v55 clean registry)."""
 
-    def test_registry_initializes_with_7_tools(self):
-        """Registry now has 16 tools (9 core + 5 aliases + 2 utility)."""
+    def test_registry_initializes_with_9_tools(self):
+        """Registry has exactly 9 canonical tools."""
         from codebase.mcp.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         tools = registry.list_tools()
-        assert len(tools) == 16, f"Expected 16 tools (9 core + 5 aliases + 2 utility), got {len(tools)}"
+        assert len(tools) == 9, f"Expected 9 canonical tools, got {len(tools)}: {list(tools.keys())}"
 
     def test_canonical_tool_names(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
-        
-        # Core tools (9)
+
         expected_core = {
-            "init_reboot",
+            "init_gate",
             "agi_sense", "agi_think", "agi_reason",
-            "asi_empathize", "asi_align", "asi_insight",
+            "asi_empathize", "asi_align",
             "apex_verdict",
-            "reality_search"
+            "reality_search",
+            "vault_seal",
         }
-        
-        # Legacy aliases (5) + utility tools (2)
-        expected_legacy = {"_init_", "_agi_", "_asi_", "_apex_", "_reality_", "_trinity_", "_vault_"}
-        
+
         actual = set(registry.list_tools().keys())
-        
-        # All core tools should exist
-        assert expected_core.issubset(actual), f"Missing core tools: {expected_core - actual}"
-        
-        # Legacy aliases should also exist for backward compatibility
-        assert expected_legacy.issubset(actual), f"Missing legacy/utility tools: {expected_legacy - actual}"
+
+        assert expected_core == actual, f"Tool mismatch.\nExpected: {expected_core}\nActual: {actual}"
 
     def test_all_tools_have_required_fields(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
@@ -107,9 +100,9 @@ class TestToolRegistry:
     def test_tool_get_by_name(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
-        tool = registry.get("_init_")
+        tool = registry.get("init_gate")
         assert tool is not None
-        assert tool.name == "_init_"
+        assert tool.name == "init_gate"
 
     def test_tool_get_unknown_returns_none(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
@@ -119,9 +112,9 @@ class TestToolRegistry:
     def test_tool_to_dict(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
-        tool = registry.get("_init_")
+        tool = registry.get("init_gate")
         d = tool.to_dict()
-        assert d["name"] == "_init_"
+        assert d["name"] == "init_gate"
         assert "inputSchema" in d
         assert "outputSchema" in d
         assert "annotations" in d
@@ -701,7 +694,7 @@ class TestIntegration:
         resources = ResourceRegistry()
         prompts = PromptRegistry()
 
-        assert len(tools.list_tools()) == 7
+        assert len(tools.list_tools()) == 9
         assert len(resources.list_resources()) == 17
         assert len(prompts.list_prompts()) >= 5
 

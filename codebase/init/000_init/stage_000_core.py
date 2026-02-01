@@ -37,7 +37,7 @@ from codebase.floors import (
     F10_OntologyGate,
     F12_InjectionDefense,
 )
-from codebase.floors.authority import AuthorityVerifier
+from codebase.authority import AuthorityVerifier
 
 if TYPE_CHECKING:
     from codebase.utils.runtime_types import Job

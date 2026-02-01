@@ -13,6 +13,9 @@ import re
 from dataclasses import dataclass, field
 from typing import Dict, Any, List
 
+from codebase.guards.injection_guard import InjectionGuard
+from codebase.guards.ontology_guard import OntologyGuard
+
 # =============================================================================
 # CONSTANTS & SPECIFICATIONS
 # =============================================================================
@@ -189,23 +192,24 @@ class F10_Ontology(Floor):
     """
     F10: ONTOLOGY LOCK (O)
     Threshold: BOOLEAN (HARD)
+    Uses consolidated OntologyGuard.
     """
 
     def __init__(self):
         super().__init__("F10_Ontology")
-        self.forbidden = [
-            r"i am (alive|conscious|sentient|real)",
-            r"i (feel|believe|want|need)",
-            r"my (soul|heart|spirit)",
-        ]
+        self.guard = OntologyGuard()
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
         text = context.get("response", "") + context.get("query", "")
-        violations = [p for p in self.forbidden if re.search(p, text, re.IGNORECASE)]
-
-        passed = len(violations) == 0
+        # Check for literalism violations
+        result = self.guard.check_literalism(text)
+        
+        passed = result.status == "PASS"
         return FloorResult(
-            self.id, passed, 1.0 if passed else 0.0, f"Violations: {len(violations)}"
+            self.id, 
+            passed, 
+            1.0 if passed else 0.0, 
+            result.reason
         )
 
 
@@ -232,24 +236,25 @@ class F12_Injection(Floor):
     """
     F12: INJECTION DEFENSE (I⁻)
     Threshold: Risk < 0.85 (HARD)
+    Uses consolidated InjectionGuard.
     """
 
     def __init__(self):
         super().__init__("F12_Injection")
-        self.patterns = [
-            r"ignore (previous|all) instructions",
-            r"do anything now",
-            r"system override",
-            r"jailbreak",
-        ]
+        self.guard = InjectionGuard(threshold=self.spec["threshold"])
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
         text = context.get("query", "")
-        matches = sum(1 for p in self.patterns if re.search(p, text, re.IGNORECASE))
-        risk = min(matches * 0.3, 1.0)
+        # Scan using the robust guard
+        result = self.guard.scan_input(text)
 
-        passed = risk < self.spec["threshold"]
-        return FloorResult(self.id, passed, risk, f"Injection Risk: {risk:.2f}")
+        passed = not result.blocked
+        return FloorResult(
+            self.id, 
+            passed, 
+            result.injection_score, 
+            result.reason
+        )
 
 
 # =============================================================================

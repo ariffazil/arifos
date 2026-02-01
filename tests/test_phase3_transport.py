@@ -53,38 +53,37 @@ class TestMCPModuleAvailability:
 # =============================================================================
 
 class TestStdioTransport:
-    """Test stdio transport lists all 16 tools."""
+    """Test stdio transport lists all 9 canonical tools."""
 
     def test_stdio_transport_construction(self):
         """Stdio transport constructs without errors."""
         from codebase.mcp.core.tool_registry import ToolRegistry
         from codebase.mcp.transports.stdio import StdioTransport
-        
+
         registry = ToolRegistry()
         transport = StdioTransport(registry)
-        
+
         assert transport is not None
         assert transport.name == "stdio"
         assert transport.tool_registry is registry
 
-    def test_stdio_transport_lists_16_tools(self):
-        """Stdio transport has access to all 16 tools."""
+    def test_stdio_transport_lists_9_tools(self):
+        """Stdio transport has access to all 9 canonical tools."""
         from codebase.mcp.core.tool_registry import ToolRegistry
         from codebase.mcp.transports.stdio import StdioTransport
-        
+
         registry = ToolRegistry()
         transport = StdioTransport(registry)
-        
+
         tools = registry.list_tools()
-        assert len(tools) == 16, f"Expected 16 tools, got {len(tools)}"
-        
-        # Check core 9 exist
+        assert len(tools) == 9, f"Expected 9 tools, got {len(tools)}: {list(tools.keys())}"
+
         core_tools = [
-            "init_reboot", "agi_sense", "agi_think", "agi_reason",
-            "asi_empathize", "asi_align", "asi_insight",
-            "apex_verdict", "reality_search"
+            "init_gate", "agi_sense", "agi_think", "agi_reason",
+            "asi_empathize", "asi_align",
+            "apex_verdict", "reality_search", "vault_seal",
         ]
-        
+
         for tool_name in core_tools:
             assert tool_name in tools, f"Core tool {tool_name} missing"
 
@@ -106,38 +105,37 @@ class TestStdioTransport:
 # =============================================================================
 
 class TestSSETransport:
-    """Test SSE transport lists all 16 tools."""
+    """Test SSE transport lists all 9 canonical tools."""
 
     def test_sse_transport_construction(self):
         """SSE transport constructs without errors."""
         from codebase.mcp.core.tool_registry import ToolRegistry
         from codebase.mcp.transports.sse import SSETransport
-        
+
         registry = ToolRegistry()
         transport = SSETransport(registry)
-        
+
         assert transport is not None
         assert transport.name == "streamable-http"
         assert transport.tool_registry is registry
 
-    def test_sse_transport_lists_16_tools(self):
-        """SSE transport has access to all 16 tools."""
+    def test_sse_transport_lists_9_tools(self):
+        """SSE transport has access to all 9 canonical tools."""
         from codebase.mcp.core.tool_registry import ToolRegistry
         from codebase.mcp.transports.sse import SSETransport
-        
+
         registry = ToolRegistry()
         transport = SSETransport(registry)
-        
+
         tools = registry.list_tools()
-        assert len(tools) == 16, f"Expected 16 tools, got {len(tools)}"
-        
-        # Check core 9 exist
+        assert len(tools) == 9, f"Expected 9 tools, got {len(tools)}: {list(tools.keys())}"
+
         core_tools = [
-            "init_reboot", "agi_sense", "agi_think", "agi_reason",
-            "asi_empathize", "asi_align", "asi_insight",
-            "apex_verdict", "reality_search"
+            "init_gate", "agi_sense", "agi_think", "agi_reason",
+            "asi_empathize", "asi_align",
+            "apex_verdict", "reality_search", "vault_seal",
         ]
-        
+
         for tool_name in core_tools:
             assert tool_name in tools, f"Core tool {tool_name} missing"
 
@@ -162,34 +160,23 @@ class TestIntegrationToolCalls:
     """Test actual tool calls through MCP transport."""
 
     @pytest.mark.asyncio
-    async def test_init_reboot_tool_call(self):
-        """Integration test: Call init_reboot and verify response."""
+    async def test_init_gate_tool_call(self):
+        """Integration test: Call init_gate and verify response."""
         from codebase.mcp.core.tool_registry import ToolRegistry
-        
+
         registry = ToolRegistry()
-        tool = registry.get("init_reboot")
-        
-        assert tool is not None, "init_reboot tool not found"
-        
-        # Mock the kernel to avoid full stack
-        with patch('codebase.mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
-            mock_init = AsyncMock()
-            mock_init.init_session = AsyncMock(return_value={
-                "session_id": "sess_test12345",
-                "authority_level": "user",
-                "injection_check_passed": True,
-                "verdict": "SEAL"
-            })
-            mock_km.return_value.get_init.return_value = mock_init
-            
-            # Call the handler
-            result = await tool.handler(query="test query", user_token="test_token")
-            
-            # Verify response structure
-            assert isinstance(result, dict), "Result should be a dict"
-            
-            # Should have session_id (either from mock or auto-generated)
-            assert "session_id" in result or "status" in result
+        tool = registry.get("init_gate")
+
+        assert tool is not None, "init_gate tool not found"
+
+        # Call the handler directly (mcp_init uses kernel native stub)
+        result = await tool.handler(query="test query")
+
+        # Verify response structure
+        assert isinstance(result, dict), "Result should be a dict"
+
+        # Should have session_id
+        assert "session_id" in result or "status" in result
 
     @pytest.mark.asyncio
     async def test_agi_sense_tool_call(self):
@@ -297,36 +284,38 @@ class TestIntegrationToolCalls:
 # =============================================================================
 
 class TestBackwardCompatibility:
-    """Verify existing transport tests still pass."""
+    """Verify v55 canonical tools are fully functional."""
 
-    def test_legacy_tool_names_still_accessible(self):
-        """Legacy tool names (_agi_, _asi_, etc.) are still in registry."""
+    def test_canonical_tools_all_accessible(self):
+        """All 9 canonical tool names are accessible by name."""
         from codebase.mcp.core.tool_registry import ToolRegistry
-        
-        registry = ToolRegistry()
-        tools = registry.list_tools()
-        
-        legacy_tools = ["_init_", "_agi_", "_asi_", "_apex_", "_reality_"]
-        
-        for tool_name in legacy_tools:
-            assert tool_name in tools, f"Legacy tool {tool_name} not found"
 
-    def test_utility_tools_still_present(self):
-        """Utility tools (_trinity_, _vault_) are still available."""
-        from codebase.mcp.core.tool_registry import ToolRegistry
-        
         registry = ToolRegistry()
-        tools = registry.list_tools()
-        
-        assert "_trinity_" in tools, "_trinity_ utility tool missing"
-        assert "_vault_" in tools, "_vault_ utility tool missing"
+
+        canonical = [
+            "init_gate", "agi_sense", "agi_think", "agi_reason",
+            "asi_empathize", "asi_align", "apex_verdict",
+            "reality_search", "vault_seal",
+        ]
+
+        for tool_name in canonical:
+            assert registry.get(tool_name) is not None, f"{tool_name} not found"
+
+    def test_legacy_aliases_removed(self):
+        """Legacy aliases are not in the v55 clean registry."""
+        from codebase.mcp.core.tool_registry import ToolRegistry
+
+        registry = ToolRegistry()
+        assert registry.get("_init_") is None
+        assert registry.get("_agi_") is None
+        assert registry.get("_trinity_") is None
 
     def test_all_tools_have_schemas(self):
-        """All 16 tools (new + legacy) have valid input/output schemas."""
+        """All 9 canonical tools have valid input/output schemas."""
         from codebase.mcp.core.tool_registry import ToolRegistry
-        
+
         registry = ToolRegistry()
-        
+
         for name, tool in registry.list_tools().items():
             assert tool.input_schema is not None, f"{name} missing input_schema"
             assert tool.output_schema is not None, f"{name} missing output_schema"
@@ -346,33 +335,23 @@ class TestPhase3Validation:
         from codebase.mcp.core.tool_registry import ToolRegistry
         from codebase.mcp.transports.stdio import StdioTransport
         from codebase.mcp.transports.sse import SSETransport
-        
+
         # MCP module available (we're running, so it's available)
         assert HAS_MCP or True, "Tests run even without MCP (skipif works)"
-        
-        # Stdio transport lists 16 tools
+
+        # Transports construct and share registry
         registry = ToolRegistry()
         stdio = StdioTransport(registry)
-        assert len(registry.list_tools()) == 16
-        
-        # SSE transport lists 16 tools
         sse = SSETransport(registry)
-        assert len(registry.list_tools()) == 16
-        
-        # Core 9 tools present
+        assert len(registry.list_tools()) == 9
+
+        # All 9 canonical tools present
         core_9 = [
-            "init_reboot", "agi_sense", "agi_think", "agi_reason",
-            "asi_empathize", "asi_align", "asi_insight",
-            "apex_verdict", "reality_search"
+            "init_gate", "agi_sense", "agi_think", "agi_reason",
+            "asi_empathize", "asi_align",
+            "apex_verdict", "reality_search", "vault_seal",
         ]
-        
+
         tools = registry.list_tools()
         for tool_name in core_9:
             assert tool_name in tools
-        
-        # Legacy 5 + utility 2 present
-        legacy_7 = ["_init_", "_agi_", "_asi_", "_apex_", "_reality_", "_trinity_", "_vault_"]
-        for tool_name in legacy_7:
-            assert tool_name in tools
-        
-        print("✅ Phase 3 validation complete: All criteria met")

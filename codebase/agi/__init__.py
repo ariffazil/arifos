@@ -31,20 +31,10 @@ from .trinity_sync import TrinitySync, ConvergenceResult, trinity_sync, PARADOXE
 from .trinity_sync_hardened import TrinitySyncHardened, synthesize_paradox, compute_trinity_score
 
 # Legacy engine + kernel (safe import — may depend on archived modules)
-try:
-    from .engine import AGIEngine, AGIResult, execute_agi, get_agi_engine, cleanup_expired_sessions
-except ImportError as _e:
-    _agi_init_logger.warning(f"Legacy AGIEngine unavailable (archived deps): {_e}")
-    AGIEngine = AGIResult = execute_agi = get_agi_engine = cleanup_expired_sessions = None
-
-try:
-    from .kernel import AGINeuralCore as _LegacyAGINeuralCore, get_agi_core
-except ImportError as _e:
-    _agi_init_logger.warning(f"Legacy AGINeuralCore unavailable: {_e}")
-    _LegacyAGINeuralCore = get_agi_core = None
+# [REMOVED] Legacy imports archived in v55.0
 
 # Backward compat alias
-AGIKernel = _LegacyAGINeuralCore
+AGIKernel = None
 
 __version__ = "v53.5.0-WIRED"
 
@@ -65,8 +55,5 @@ __all__ = [
     # Trinity Sync
     "TrinitySync", "ConvergenceResult", "trinity_sync", "PARADOXES",
     "TrinitySyncHardened", "synthesize_paradox", "compute_trinity_score",
-    # Legacy (may be None)
-    "AGIEngine", "AGIResult", "execute_agi", "get_agi_engine",
-    "cleanup_expired_sessions", "AGIKernel", "get_agi_core",
     "__version__",
 ]
