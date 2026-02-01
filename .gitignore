@@ -69,6 +69,10 @@ arifos_core/mcp/certs/*.pem
 .DS_Store
 Thumbs.db
 
+# --- PERSONAL GUIDES (Local Only) ---
+guides/
+!guides/.gitkeep
+
 # --- APEX EXCLUSIONS v35Ω ---
 .vs/
 .claude/
