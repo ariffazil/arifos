@@ -138,6 +138,29 @@ async def mcp_agi(
     raw_result = await kernel.execute(
         action, {"query": query, "session_id": session_id, **kwargs}
     )
+    
+    try:
+        raw_result = await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
+    except Exception as e:
+        # Handle errors gracefully
+        return {
+            "session_id": session_id or "unknown",
+            "entropy_delta": 0.0,
+            "omega_0": 0.04,
+            "precision": {},
+            "hierarchical_beliefs": {},
+            "action_policy": {},
+            "vote": "VOID",
+            "floor_scores": {},
+            "error": {
+                "code": "INTERNAL_ERROR",
+                "message": str(e),
+                "suggestion": "Check action parameter or query format"
+            }
+        }
+
+    # Adapter: Map to ToolRegistry schema
+    # Schema requires: session_id, entropy_delta, vote
 
     # Convert Dataclass/Pydantic to dict if needed
     if hasattr(raw_result, "dict"):
