@@ -11,6 +11,7 @@
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)
 ![Floors](https://img.shields.io/badge/Constitutional%20Floors-13-orange?style=for-the-badge)
 ![Paradoxes](https://img.shields.io/badge/Paradoxes%20Solved-9-purple?style=for-the-badge)
+![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white)
 
 **The World's First Production-Grade Constitutional AI Governance System**
 
@@ -21,6 +22,8 @@ pip install arifos
 ```
 
 [**Live Demo**](https://arif-fazil.com) • [**Documentation**](docs/) • [**Constitutional Canon**](https://apex.arif-fazil.com)
+
+[**Sponsor**](https://github.com/sponsors/ariffazil) • [**Buy Me a Teh Tarik**](https://buymeacoffee.com/ariffazil)
 
 </div>
 
@@ -519,6 +522,17 @@ This project is licensed under the **AGPL-3.0 License** - see the [LICENSE](LICE
 *   **John Nash** (Game Theory)
 
 **Motto:** *"Ditempa Bukan Diberi"* — Forged, Not Given.
+
+---
+
+## ☕ Support
+
+If arifOS helps your AI safety work, consider supporting development:
+
+- [**GitHub Sponsors**](https://github.com/sponsors/ariffazil) — recurring support
+- [**Buy Me a Teh Tarik**](https://buymeacoffee.com/ariffazil) — one-time contribution
+
+Every contribution helps keep constitutional AI governance open-source and accessible.
 
 ---
 
