@@ -49,6 +49,16 @@ services:
     networks:
       - arifos-network
 
+  inspector:
+    image: ghcr.io/modelcontextprotocol/inspector:latest
+    container_name: arifos-inspector
+    ports:
+      - "6274:6274"
+      - "6277:6277"
+    restart: unless-stopped
+    networks:
+      - arifos-network
+
 volumes:
   caddy_data:
   caddy_config:
