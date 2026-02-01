@@ -44,24 +44,48 @@ You can return to the Manifesto later.
 
 ## 📖 Table of Contents
 
-- [I. Manifesto: Forged, Not Given](#-i-manifesto-forged-not-given)
-- [II. The Core Problem](#-ii-the-core-problem)
-- [III. The arifOS Solution](#-iii-the-arifos-solution)
-- [IV. Visual Architecture](#-iv-visual-architecture)
-- [V. The AAA Architecture (Mind, Heart, Soul)](#-v-the-aaa-architecture-mind-heart-soul)
-- [VI. Constitutional Law (The 13 Floors)](#-vi-constitutional-law-the-13-floors)
-- [VII. The 9-Paradox Equilibrium](#-vii-the-9-paradox-equilibrium)
-- [VIII. The 333_APPS Stack (Applications)](#-viii-the-333_apps-stack-applications)
+- [arifOS — Constitutional AI Governance System](#arifos--constitutional-ai-governance-system)
+  - [🚀 New Here? 5-Minute Evaluation Path](#-new-here-5-minute-evaluation-path)
+  - [📖 Table of Contents](#-table-of-contents)
+  - [🔥 I. Manifesto: Forged, Not Given](#-i-manifesto-forged-not-given)
+  - [⚠️ II. The Core Problem](#️-ii-the-core-problem)
+    - [1. The Accountability Vacuum](#1-the-accountability-vacuum)
+    - [2. The Value Alignment Paradox](#2-the-value-alignment-paradox)
+    - [3. The Injection Fragility](#3-the-injection-fragility)
+  - [❌ What arifOS Is Not](#-what-arifos-is-not)
+  - [🛡️ III. The arifOS Solution](#️-iii-the-arifos-solution)
+    - [The 3 Pillars of Defense](#the-3-pillars-of-defense)
+    - [Refusal as a First-Class Outcome](#refusal-as-a-first-class-outcome)
+  - [🖼️ IV. Visual Architecture](#️-iv-visual-architecture)
+    - [The Metabolic Helix (Live Diagram)](#the-metabolic-helix-live-diagram)
+  - [🌐 Live Trinity Ecosystem](#-live-trinity-ecosystem)
+  - [🏗️ V. The AAA Architecture (Mind, Heart, Soul)](#️-v-the-aaa-architecture-mind-heart-soul)
+    - [1. Δ MIND (AGI) — The Architect](#1-δ-mind-agi--the-architect)
+    - [2. Ω HEART (ASI) — The Guardian](#2-ω-heart-asi--the-guardian)
+    - [3. Ψ SOUL (APEX) — The Sovereign](#3-ψ-soul-apex--the-sovereign)
+  - [📜 VI. Constitutional Law (The 13 Floors)](#-vi-constitutional-law-the-13-floors)
+  - [⚖️ VII. The 9-Paradox Equilibrium](#️-vii-the-9-paradox-equilibrium)
+  - [📱 VIII. The 333\_APPS Stack (Applications)](#-viii-the-333_apps-stack-applications)
     - [L1: System Prompts (Zero-Context)](#l1-system-prompts-zero-context)
     - [L2: Skills (Templates)](#l2-skills-templates)
     - [L3: Workflows (SOPs)](#l3-workflows-sops)
     - [L4: MCP Tools (Production API)](#l4-mcp-tools-production-api)
+      - [🤖 Machine-Readable Documentation (llms.txt)](#-machine-readable-documentation-llmstxt)
+      - [🔬 MCP Inspector (The Microscope)](#-mcp-inspector-the-microscope)
     - [L5: Agents (Federation)](#l5-agents-federation)
     - [L6: Institution (Trinity System)](#l6-institution-trinity-system)
-    - [Future Roadmap (L7+)](#future-roadmap-l7-agi)
-- [IX. Technical Implementation](#-ix-technical-implementation)
-- [X. Installation & Usage](#-x-installation--usage)
-- [XI. Contributing & Governance](#-xi-contributing--governance)
+    - [Future Roadmap (L7+)](#future-roadmap-l7)
+  - [⚙️ IX. Technical Implementation](#️-ix-technical-implementation)
+    - [Key Technologies](#key-technologies)
+    - [Directory Structure](#directory-structure)
+  - [📦 X. Installation \& Usage](#-x-installation--usage)
+    - [1. Installation](#1-installation)
+    - [2. Running the MCP Server](#2-running-the-mcp-server)
+    - [3. Using in Code](#3-using-in-code)
+  - [🤝 XI. Contributing \& Governance](#-xi-contributing--governance)
+  - [📄 License](#-license)
+  - [👏 Acknowledgments](#-acknowledgments)
+  - [☕ Support](#-support)
 
 ---
 
@@ -130,6 +154,8 @@ A refusal means:
 - The outcome is auditable and appealable.
 
 Refusals are **SEALED decisions**, not errors.
+
+> *Refusals are deterministic, logged, and appealable; wording varies by profile, not by verdict.*
 
 ---
 
@@ -212,6 +238,27 @@ The arifOS system is deployed as three interconnected operational layers, provid
 | **SOUL** | [https://apex.arif-fazil.com](https://apex.arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/soul/` |
 | **DOCS** | [https://arifos.arif-fazil.com](https://arifos.arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/docs/` |
 
+### 🤖 AI Machine-to-Machine (M2M) Endpoints
+
+For AI agents and automated systems accessing arifOS programmatically:
+
+| Endpoint | URL | Purpose |
+|----------|-----|---------|
+| **Constitutional Canon** | [`https://apex.arif-fazil.com/llms.txt`](https://apex.arif-fazil.com/llms.txt) | LLM governance constraints (text format) |
+| **Floors API** | [`https://apex.arif-fazil.com/api/v1/floors.json`](https://apex.arif-fazil.com/api/v1/floors.json) | 13 Floors JSON schema & thresholds |
+| **MCP Server** | `https://aaamcp.arif-fazil.com/mcp` | Model Context Protocol endpoint |
+
+**Usage for AI Agents:**
+```python
+# Fetch constitutional constraints
+import requests
+llms_txt = requests.get("https://apex.arif-fazil.com/llms.txt").text
+floors = requests.get("https://apex.arif-fazil.com/api/v1/floors.json").json()
+
+# Use in your system prompt
+system_prompt = f"You are governed by arifOS. Follow these constraints:\n{llms_txt}"
+```
+
 ---
 
 ## 🏗️ V. The AAA Architecture (Mind, Heart, Soul)
@@ -290,9 +337,24 @@ arifOS does not view ethics as binary. It views them as tensions to be balanced.
 ## 📱 VIII. The 333_APPS Stack (Applications)
 
 *Full Documentation: [333_APPS/README.md](333_APPS/README.md)*  
-*Live Atlas: [https://arifos.arif-fazil.com](https://arifos.arif-fazil.com)*
+*Live Atlas: [https://arifos.arif-fazil.com](https://arifos.arif-fazil.com)*  
+*Ground Truth Status: [333_APPS/STATUS.md](333_APPS/STATUS.md)*
 
 The **333_APPS** directory organizes the practical applications of arifOS into a **7-Layer Stack**. This structure allows users of any technical level to adopt constitutional governance, from a simple copy-paste to running a full AI institution.
+
+### ⚠️ Production Readiness at a Glance
+
+| Layer | Status | Ready? | Use Case |
+|-------|--------|--------|----------|
+| **L1** System Prompts | ✅ Complete | **Production** | Copy-paste into any LLM |
+| **L2** Skills | ✅ Complete | **Production** | YAML templates |
+| **L3** Workflows | ✅ Complete | **Production** | Team SOPs |
+| **L4** MCP Tools | ✅ Complete | **Production** | API integration |
+| **L5** Agents | 🔴 Stubs Only | **NOT READY** | Wait for v55.3+ |
+| **L6** Institution | ❌ Design Only | **NOT READY** | Wait for v56.0+ |
+| **L7** AGI | 📋 Research | **NOT READY** | Wait for v60+ |
+
+> **Bottom Line:** Use L1-L4 now. L5-L7 are aspirational — see [333_APPS/STATUS.md](333_APPS/STATUS.md) for detailed gap analysis.
 
 ### L1: System Prompts (Zero-Context)
 *For immediate governance of any LLM (Claude, ChatGPT, Gemini).*
@@ -362,7 +424,7 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
 
 **Security Note:** Legacy aliases (`_init_`, `_agi_`, `asi_insight`, etc.) have been **removed** to reduce entropy (F4). Attempting to use them will result in a Schema Error.
 
-**How to Setup MCP:**
+**How to Setup MCP (Local):**
 1.  **Install:** `pip install arifos`
 2.  **Configure:** Add to your `claude_desktop_config.json`:
     ```json
@@ -377,6 +439,11 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
     ```
 3.  **Use:** Open Claude Desktop. You will see the tools available. Ask Claude: *"Use arifOS to evaluate this plan."*
 
+**Live MCP Endpoints (for AI M2M):**
+- **Local:** `http://localhost:6274` (MCP Inspector)
+- **Production:** `https://aaamcp.arif-fazil.com/mcp` (Model Context Protocol)
+- **Health:** `https://arif-fazil.com/health` (System status)
+
 **New in v55:** All tools accept `session_id` for chaining:
 ```python
 result1 = await agi_sense(query="...", session_id="sess_abc12345")
@@ -387,8 +454,13 @@ result2 = await agi_think(session_id="sess_abc12345")  # Accesses prior state
 
 To help AI agents (like Cursor, Windsurf, or Claude) automatically discover and understand arifOS tools, we provide standard `llms.txt` files:
 
+**Local (Repository):**
 - [**llms.txt**](docs/llms.txt): A concise summary of all canonical tools.
 - [**llms-full.txt**](docs/llms-full.txt): A comprehensive reference including input/output JSON schemas for every tool.
+
+**Live (API Endpoints):**
+- [**https://apex.arif-fazil.com/llms.txt**](https://apex.arif-fazil.com/llms.txt): Constitutional canon for LLM governance
+- [**https://apex.arif-fazil.com/api/v1/floors.json**](https://apex.arif-fazil.com/api/v1/floors.json): 13 Floors JSON schema with thresholds
 
 AI agents can use these files to instantly map their capabilities to the arifOS constitutional framework.
 
@@ -410,11 +482,12 @@ Open [http://localhost:6274](http://localhost:6274) in your browser.
 - View real-time logs and tool responses.
 - Test constitutional floor enforcement interactively.
 
-### L5: Agents (Federation)
-*Autonomous Multi-Agent System (v55.0).*
+### L5: Agents (Federation) 🔴
+*Autonomous Multi-Agent System — **STUBS ONLY, NOT PRODUCTION READY**.*
 
 **Target Audience:** AI Researchers / Complex Systems Architects  
-**Complexity:** Very High (Distributed Systems)
+**Complexity:** Very High (Distributed Systems)  
+**Status:** 🔴 **0% Functional** — All methods are `pass` (see [333_APPS/STATUS.md](333_APPS/STATUS.md))
 
 Located in `333_APPS/L5_AGENTS`. A federation of 4 specialized agents working in concert, mirroring the Trinity architecture but as autonomous entities:
 1.  **Architect (Δ):** Designs the plan and logic.
@@ -422,21 +495,31 @@ Located in `333_APPS/L5_AGENTS`. A federation of 4 specialized agents working in
 3.  **Auditor (👁):** Verifies facts and monitors injection attempts.
 4.  **Validator (Ψ):** Signs off on the final verdict and commits to the Vault.
 
-### L6: Institution (Trinity System)
-*Maximum Autonomy (v56.0).*
+> ⚠️ **Reality Check:** 6 Python files, ~392 LOC, **0% functional**. Architecture is defined but no implementation exists yet. See [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) T3.1 for implementation plan.
+
+### L6: Institution (Trinity System) ❌
+*Maximum Autonomy — **DESIGN ONLY, NO IMPLEMENTATION**.*
 
 **Target Audience:** Enterprise / Governance Bodies  
-**Complexity:** Maximum (Institutional Design)
+**Complexity:** Maximum (Institutional Design)  
+**Status:** ❌ **Not Started** — Documentation only (see [333_APPS/STATUS.md](333_APPS/STATUS.md))
 
 Located in `333_APPS/L6_INSTITUTION`. Implements the "Institution" concept—agents with distinct roles, checks-and-balances, and cooling periods (Phoenix-72). Capable of governing entire organizations or DAOs.
 
-### Future Roadmap (L7+)
+> ⚠️ **Reality Check:** Only README exists. No Python implementation. Target: v56.0 (Q2 2026).
 
-**Immediate priorities (v55.3):** Fix test suite, persist the ledger, fix ASI soft floor scoring.
-**Next milestone (v56.0):** First working L5 agent, EU AI Act compliance pack, Sidecar deployment.
-**Research horizon (v60+):** Recursive constitutional improvement, DAO governance, multi-model Tri-Witness.
+### Future Roadmap (L7+) 📋
 
-See full roadmap: [ROADMAP/ROADMAP_v55_BEYOND.md](ROADMAP/ROADMAP_v55_BEYOND.md)
+| Milestone | Target | Focus | Status |
+|-----------|--------|-------|--------|
+| **v55.3** | Q1 2026 | Foundation hardening: fix test suite, persist ledger, fix ASI scoring | In Progress |
+| **v56.0** | Q2 2026 | First working L5 agent, EU AI Act compliance, Sidecar deployment | Planned |
+| **v57.0** | Q3 2026 | L6 Institution implementation, enterprise features | Planned |
+| **v60+** | 2027+ | L7 AGI research, recursive improvement, DAO governance | 📋 Research |
+
+**Current Priority (P0):** Fix the foundation before building higher layers. See [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) for scored tasks.
+
+> **Note:** L5-L7 are aspirational. L1-L4 are production-ready. See [333_APPS/STATUS.md](333_APPS/STATUS.md) for ground truth.
 
 ---
 

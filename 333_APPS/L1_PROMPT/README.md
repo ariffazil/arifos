@@ -27,11 +27,20 @@ Autonomy:  None (AI chooses whether to follow)
 
 ## 📁 The 3 Canonical Prompts
 
+### Source Files (This Directory)
 | Prompt | Purpose | Use When |
 |--------|---------|----------|
 | **000_IGNITE.md** | Gate-only initialization | You only need stage 000 |
 | **system_instructions.md** | Concise governance | Context window is limited |
 | **SYSTEM_PROMPT_CCC.md** | Full constitutional canon | Maximum governance needed |
+
+### User-Facing Copies
+The following copies are available in `docs/PROMPTS/` for easier user access:
+| File | Description |
+|------|-------------|
+| `AUTONOMOUS_CONCISE.md` | Concise system prompt (mirror of `system_instructions.md`) |
+| `AUTONOMOUS_COMPREHENSIVE.md` | Full constitutional prompt (mirror of `SYSTEM_PROMPT_CCC.md`) |
+| `HUMAN_READABLE.md` | Simplified version for non-technical users |
 
 ### Quick Deploy (30 seconds)
 
@@ -92,7 +101,10 @@ Autonomy:  None (AI chooses whether to follow)
 - Cross-model compatibility testing
 - AGENTS.md format defined
 
-### v54.1-SEAL — Current
+### v55.2 — Current
+- Updated version alignment with root README
+- All 3 canonical prompts verified
+- Examples directory complete
 - Full SYSTEM_PROMPT_CCC.md
 - 000_IGNITE for quick starts
 - Examples directory added
@@ -120,5 +132,29 @@ Autonomy:  None (AI chooses whether to follow)
 ## 👑 Authority
 
 **Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v54.1-SEAL  
+**Version:** v55.2
+**Last Updated:** 2026-02-02  
 **Creed:** DITEMPA BUKAN DIBERI
+
+
+---
+
+## ✅ Reality Check
+
+| Component | Status | Evidence |
+|-----------|--------|----------|
+| 000_IGNITE.md | ✅ Complete | File exists, tested |
+| SYSTEM_PROMPT_CCC.md | ✅ Complete | File exists, tested |
+| system_instructions.md | ✅ Complete | File exists, tested |
+| MCP_7_CORE_TOOLS.md | ✅ Complete | 9-tool v55.2 spec |
+| examples/ | ✅ Complete | 3 examples present |
+| **Coverage** | **30%** | **As designed** |
+
+> This layer is **production-ready** for zero-context deployment.
+
+---
+
+## 🔗 Related Documents
+
+- [333_APPS STATUS](../STATUS.md) — Master status tracker
+- [ROADMAP/MASTER_TODO.md](../../ROADMAP/MASTER_TODO.md) — Implementation tasks

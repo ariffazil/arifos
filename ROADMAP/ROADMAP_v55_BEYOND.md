@@ -37,7 +37,7 @@
 |-----------|--------|-----|---------|
 | **L5 Agents** | Stubs | 392 | All methods are `pass` |
 | **L6 Institution** | Stubs | ~250 | Thin wrappers, no orchestration |
-| **L1 System Prompts** | Empty | 0 | Directory exists, no content |
+| **L1 System Prompts** | Active | ~25kb | `SYSTEM_PROMPT_CCC.md` exists |
 | **L3 Workflows** | Empty | 0 | Directory exists, no content |
 | **Persistent Ledger** | Missing | 0 | In-memory JSON only |
 | **Metrics Dashboard** | Missing | 0 | No HTTP endpoints |
@@ -205,6 +205,7 @@ Goal: Self-amending constitutions and decentralized governance.
 | **DEEP_RESEARCH_SYNTHESIS_v55.md** | Internal | Post-v55 strategic pivot summary | Reference |
 | **ARIFOS_VISION_2030.md** | Gemini (Architect) | Grand strategy, Sidecar pattern, L5-L7 | Reference |
 | **TRINITY_ROADMAP.md** | Internal | Trinity-to-FAG/W@W/AAA integration | Archived (v43 era) |
+| **ROADMAP_v55_DETAILED.md** | 888_Judge | Granular weekly implementation checklists | **Active** |
 | **kimi_ai_deep_research_2026-01-12.md** | Kimi/External | MoE architecture, competitive intel | Archived |
 | **legacy_roadmap_v50.md** | Internal | Historical context v50-v54 | Archived |
 | **legacy_future_path.md** | Internal | Historical context v38-v42 | Archived |

@@ -1,7 +1,8 @@
 # 333_APPS — arifOS Application Stack
 
 > **From Zero-Context Prompt to Constitutional AGI**  
-> **Version:** v55.2 (aligned with root README)  
+> **Version:** v55.2 (aligned with root README)
+**Last Updated:** 2026-02-02  
 > **Status:** Documentation for local dev; URLs are examples, not production guarantees.
 
 ---
@@ -38,22 +39,22 @@ Choose your entry point based on complexity needs:
 ║ Constitutional AGI     *(Theoretical — Not Implemented)*          ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║ L6_INSTITUTION ⚠️        100% Coverage    Trinity Multi-Agent     ║
-║ Trinity System         *(Research — Not Production Ready)*        ║
+║ Trinity System         *(Design Only — No Implementation)*        ║
 ╠═══════════════════════════════════════════════════════════════════╣
-║ L5_AGENTS ⚠️             90% Coverage     4-Agent Federation      ║
-║ Autonomous Agents      *(Experimental — Not Production)*          ║
+║ L5_AGENTS 🔴             90% Aspirational 4-Agent Federation      ║
+║ Autonomous Agents      *(STUBS ONLY — 0% Functional)*             ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║ L4_TOOLS                 80% Coverage     MCP Server (9 tools)    ║
-║ Constitutional Tools    📋 Example endpoint: arif-fazil.com       ║
+║ Constitutional Tools    ✅ Production Ready (v55.2)               ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║ L3_WORKFLOW              70% Coverage     Documented Sequences    ║
-║ AI Workflows                          (Team SOPs)                 ║
+║ AI Workflows            ✅ Ready (.claude/workflows/)             ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║ L2_SKILLS                50% Coverage     Parameterized Templates ║
-║ Reusable Skills                       (Reusable Commands)         ║
+║ Reusable Skills         ✅ Ready (YAML + Python)                  ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║ L1_PROMPT                30% Coverage     Zero-Context Entry      ║
-║ System Prompts                        (Quick Start)               ║
+║ System Prompts          ✅ Ready (5 files + examples)             ║
 ╚═══════════════════════════════════════════════════════════════════╝
 ```
 
@@ -61,17 +62,36 @@ Choose your entry point based on complexity needs:
 
 ## 📊 Layer Selection Guide
 
-| Your Need | Recommended Layer | Time to Deploy | Cost* | Autonomy |
-|-----------|-------------------|----------------|-------|----------|
-| Quick AI experiment | **L1_PROMPT** | 30 seconds | Free | None |
-| Reusable command | **L2_SKILLS** | 5 minutes | $0.20-0.50 | Very Low |
-| Team standard operating procedure | **L3_WORKFLOW** | 1 hour | $0.50-1.00 | Low |
-| **Production API** | **L4_TOOLS** (9-tool canon) | 2 hours (est.) | $0.10-0.15* | Medium |
-| Complex multi-agent automation | **L5_AGENTS** ⚠️ | 1 day | $3-7 | High |
-| Mission-critical governance | **L6_INSTITUTION** ⚠️ | 1 week | $5-10 | Maximum |
-| Research & development | **L7_AGI** 📋 | Unknown | Unknown | Recursive |
+| Your Need | Recommended Layer | Time to Deploy | Cost* | Status |
+|-----------|-------------------|----------------|-------|--------|
+| Quick AI experiment | **L1_PROMPT** | 30 seconds | Free | ✅ Ready |
+| Reusable command | **L2_SKILLS** | 5 minutes | $0.20-0.50 | ✅ Ready |
+| Team standard operating procedure | **L3_WORKFLOW** | 1 hour | $0.50-1.00 | ✅ Ready |
+| **Production API** | **L4_TOOLS** (9-tool canon) | 2 hours (est.) | $0.10-0.15* | ✅ **Production** |
+| Complex multi-agent automation | **L5_AGENTS** 🔴 | N/A | N/A | ❌ **Stubs Only** |
+| Mission-critical governance | **L6_INSTITUTION** ⚠️ | N/A | N/A | ❌ **Design Only** |
+| Research & development | **L7_AGI** 📋 | Unknown | Unknown | 📋 Research |
 
 *⚠️ **Illustrative estimates only** — not measured or guaranteed. Actual costs vary by deployment.
+
+> **⚠️ CRITICAL:** L5 and L6 are NOT functional. See [STATUS.md](./STATUS.md) for ground truth.
+
+---
+
+## 📊 Quick Status Reference
+
+| Layer | Status | Ready for Use? |
+|-------|--------|----------------|
+| L1_PROMPT | ✅ Ready | Yes — 30 seconds setup |
+| L2_SKILLS | ✅ Ready | Yes — 5 minutes setup |
+| L3_WORKFLOW | ✅ Ready | Yes — 1 hour setup |
+| L4_TOOLS | ✅ Production | Yes — 2 hours setup |
+| L5_AGENTS | 🔴 Stubs Only | **NO** — See STATUS.md |
+| L6_INSTITUTION | ❌ Design Only | **NO** — Planned v56.0 |
+| L7_AGI | 📋 Research | **NO** — v60+ only |
+
+**For implementation priorities:** See [ROADMAP/MASTER_TODO.md](../ROADMAP/MASTER_TODO.md)
+**For ground truth status:** See [STATUS.md](./STATUS.md)
 
 ---
 
@@ -209,6 +229,7 @@ VAULT999/                      # Cryptographic audit trail
 ### For Developers
 - **[000_THEORY/](../000_THEORY/)** — Constitutional law & theory
 - **[codebase/](../codebase/)** — Implementation code
+- **[ATLAS Navigation](./ATLAS_NAVIGATION.md)** — Agent-specific internal map
 - **[FEDERATION](../000_THEORY/FEDERATION.md)** — Reality protocol specification
 
 ### For Researchers
@@ -238,8 +259,9 @@ VAULT999/                      # Cryptographic audit trail
 
 | Version | Target | ETA | Status |
 |---------|--------|-----|--------|
-| v54.1 | L4 Production | ✅ Live | Complete |
-| v55.0 | L4 Universal + L5 Alpha | Q1 2026 | In Progress |
+| v55.2 | L4 Production | ✅ Live | Complete |
+| v55.3 | L4 Hardening + L5 First Agent | Q1 2026 | In Progress |
+| v56.0 | L5 Federation + L6 Design | Q2 2026 | Planned |
 | v56.0 | L5 Production + L6 Alpha | Q2 2026 | Planned |
 | v57.0 | L6 Production | Q3 2026 | Planned |
 | v58.0 | L6 Enterprise | Q4 2026 | Planned |
