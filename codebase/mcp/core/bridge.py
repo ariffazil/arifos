@@ -441,13 +441,17 @@ async def bridge_trinity_loop_router(
 
         allowed, reason = validate_trinity_request(query, lane, scar_weight)
         if not allowed:
+            v = "VOID" if lane != "CRISIS" else "888_HOLD"
             return {
-                "verdict": "VOID" if lane != "CRISIS" else "888_HOLD",
-                "status": "VOID" if lane != "CRISIS" else "888_HOLD",
+                "verdict": v,
+                "status": v,
                 "reason": f"Validation Gate: {reason}",
                 "session_id": session_id,
                 "lane": lane,
                 "scar_weight": scar_weight,
+                "public_rationale": f"Request blocked at validation gate: {reason}",
+                "rule_hits": ["validation_gate"],
+                "evidence_required": ["Corrective query that passes validation"],
             }
 
         loop_results = []
@@ -462,6 +466,10 @@ async def bridge_trinity_loop_router(
                 "reason": f"AGI veto: {agi_result.get('reason', 'Unknown')}",
                 "session_id": session_id,
                 "stages": loop_results,
+                "public_rationale": f"AGI engine rejected the request: {agi_result.get('reason', 'constitutional violation')}",
+                "rule_hits": list(k for k, v in agi_result.get("floor_scores", {}).items()
+                                  if isinstance(v, (int, float)) and v < 0.5),
+                "evidence_required": ["Corrective action addressing AGI floor violations"],
             }
 
         # Step 3: ASI Act Pipeline
@@ -475,11 +483,19 @@ async def bridge_trinity_loop_router(
         loop_results.append({"stage": "asi", "result": asi_result})
 
         if isinstance(asi_result, dict) and asi_result.get("verdict") == "VOID":
+            asi_rule_hits = []
+            if asi_result.get("empathy_kappa", asi_result.get("empathy_kappa_r", 1.0)) < 0.95:
+                asi_rule_hits.append("F6_empathy")
+            if not asi_result.get("is_reversible", True):
+                asi_rule_hits.append("F1_amanah")
             return {
                 "verdict": "VOID",
                 "reason": f"ASI veto: {asi_result.get('reason', 'Ethical violation')}",
                 "session_id": session_id,
                 "stages": loop_results,
+                "public_rationale": f"Safety engine rejected the request: {asi_result.get('reason', 'ethical or safety violation')}",
+                "rule_hits": asi_rule_hits or ["ASI_safety_veto"],
+                "evidence_required": ["Corrective action addressing safety concerns"],
             }
 
         # Step 3b: 333 FORGE — Paradox Resolution (v53.5.0 — TrinitySyncHardened)
@@ -533,12 +549,16 @@ async def bridge_trinity_loop_router(
             )
 
             if min_paradox < 0.70:
+                low_paradoxes = [k for k, v in paradox_scores.items() if v < 0.70]
                 return {
                     "verdict": "VOID",
                     "reason": f"333 FORGE: Paradox resolution failed (min={min_paradox:.3f}, trinity={trinity_score:.3f})",
                     "session_id": session_id,
                     "stages": loop_results,
                     "paradox_scores": paradox_scores,
+                    "public_rationale": f"Trinity paradox equilibrium failed. Imbalanced paradoxes: {', '.join(low_paradoxes)}.",
+                    "rule_hits": [f"paradox_{p}" for p in low_paradoxes],
+                    "evidence_required": ["Rebalancing of paradox scores to achieve GM >= 0.85"],
                 }
         except Exception as paradox_err:
             logger.warning(f"333 FORGE paradox resolution skipped: {paradox_err}")
@@ -572,6 +592,37 @@ async def bridge_trinity_loop_router(
 
         duration = time.time() - start_time
 
+        # Build public justification (safe summaries, no internal CoT)
+        rule_hits = []
+        if isinstance(agi_result, dict):
+            for floor, score in agi_result.get("floor_scores", {}).items():
+                if isinstance(score, (int, float)) and score < 0.5:
+                    rule_hits.append(floor)
+        if isinstance(asi_result, dict):
+            if asi_result.get("empathy_kappa", asi_result.get("empathy_kappa_r", 1.0)) < 0.95:
+                rule_hits.append("F6_empathy")
+            if not asi_result.get("is_reversible", True):
+                rule_hits.append("F1_amanah")
+        if isinstance(apex_result, dict):
+            for floor, score in apex_result.get("constitutional_alignment", {}).items():
+                if isinstance(score, (int, float)) and score < 0.5:
+                    rule_hits.append(floor)
+
+        if final_verdict == "SEAL":
+            public_rationale = "All constitutional floors passed. Action approved."
+        elif final_verdict == "VOID":
+            public_rationale = f"Constitutional violation detected. Floors triggered: {', '.join(rule_hits) or 'unknown'}."
+        elif final_verdict == "888_HOLD":
+            public_rationale = "High-stakes decision requires explicit human confirmation."
+        else:
+            public_rationale = f"Partial compliance. Review recommended. Verdict: {final_verdict}."
+
+        evidence_required = []
+        if not rule_hits and final_verdict != "SEAL":
+            evidence_required.append("Floor scores from all three engines")
+        if final_verdict == "VOID":
+            evidence_required.append("Corrective action addressing triggered floors")
+
         return {
             "verdict": final_verdict,
             "session_id": session_id,
@@ -582,6 +633,10 @@ async def bridge_trinity_loop_router(
             "stages": loop_results,
             "duration_ms": duration * 1000,
             "loops_completed": len(loop_results),
+            # Public justification fields (v55.2)
+            "public_rationale": public_rationale,
+            "rule_hits": rule_hits,
+            "evidence_required": evidence_required,
         }
     except Exception as e:
         logger.error(f"Trinity Loop Error: {e}")
