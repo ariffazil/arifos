@@ -305,8 +305,23 @@ mcp/
 ├── services/              # Rate limiting, metrics, ledger
 ├── external_gateways/     # External integrations (Brave Search)
 ├── config/                # Configuration management
+├── config/                # Configuration management
 └── README.md             # This file
 ```
+
+### Key Architectural Patterns
+
+1. **TRANSPORT ABSTRACTION**
+   All transports implement `BaseTransport`. Transports (stdio, SSE, HTTP) are PLUGGABLE and HOT-SWAPPABLE.
+
+2. **MODEL ADAPTER PATTERN**
+   Adapters (`BaseModelAdapter`) handle model-specific quirks (Claude vs GPT vs Gemini) WITHOUT changing core logic.
+
+3. **CLIENT ADAPTER PATTERN**
+   Clients (`BaseClientAdapter`) are AUTO-DETECTED at startup to configure capabilities (Claude Desktop vs Cursor).
+
+4. **PLUGGABLE SESSION BACKENDS**
+   Session storage is backend-agnostic (Memory, File, Redis, SQLite).
 
 ### Key Design Principles
 

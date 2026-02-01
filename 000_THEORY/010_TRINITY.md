@@ -1,17 +1,16 @@
-# The Trinity Framework — AGI, ASI, APEX
-
-**arifOS v53.2.1-CODEBASE Canonical Reference**
-
 ---
-
-```yaml
-version: "v53.2.1"
-status: CANONICAL
+title: "010_TRINITY.md"
+version: "v55.2"
+epoch: "2026-02-02"
+sealed_by: "888_Judge"
 authority: "Muhammad Arif bin Fazil"
-doctrine: "DITEMPA BUKAN DIBERI"
-```
-
+status: "SOVEREIGNLY_SEALED"
 ---
+
+# 010 TRINITY — THE THREE ENGINES (ΔΩΨ)
+
+**Motto:** *Ditempa Bukan Diberi*
+**Scope:** The specialized engines that drive the 11-stage metabolic loop.
 
 ## I. THE TRINITY ARCHITECTURE (v53 Fusion)
 
@@ -55,6 +54,11 @@ doctrine: "DITEMPA BUKAN DIBERI"
 | **ASI** | Ω | Heart | `DEFEND` | 555 |
 | **APEX** | Ψ | Soul | `DECREE` | 888 |
 | **VAULT** | Κ | Seal | `CRYSTALLIZE` | 000, 999 |
+
+> **Note on Metabolic Integration:**
+> While the **Trinity** describes the *Engines* (Who does the work), the **Metabolic Loop** (000-999) describes the *Pipeline* (When the work happens).
+> AGI spans stages 111-333 via multi-threaded cognition.
+> FUSION (777) is the high-energy state where Mind and Soul overlap to forge new reality.
 
 ---
 
@@ -208,14 +212,13 @@ def decree(safety: EmpathyResult) -> JudgeResult:
 
 ## VI. THE 5-TOOL INTERFACE (v53)
 
-| Tool | Engine | Symbol | Outcome |
+| Tool | Engine | Symbol | Function |
 |------|--------|--------|---------|
-| `init_000` | IGNITE | 🚪 | `SessionToken` |
-| `agi_genius` | PERCEIVE | Δ | `CognitionResult` |
-| `trinity_fuse`| FORGE | ΔΨ | `FuseResult` |
-| `asi_act` | DEFEND | Ω | `EmpathyResult` |
-| `apex_judge` | DECREE | Ψ | `JudgeResult` |
-| `999_vault` | CRYSTALLIZE | 🔒 | `AuditHash` |
+| `init_gate` | IGNITE | 🚪 | Session Ignition & Auth |
+| `agi_reason` | PERCEIVE | Δ | Deep Reasoning & Logic |
+| `asi_empathize`| DEFEND | Ω | Stakeholder Impact Analysis |
+| `apex_verdict` | DECREE | Ψ | Final Constitutional Judgment |
+| `vault_seal` | CRYSTALLIZE | 🔒 | Immutable Ledger Entry |
 
 ---
 

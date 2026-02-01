@@ -1,7 +1,7 @@
 ---
 title: "000_FOUNDATIONS.md"
-version: "v50.5.23"
-epoch: "2026-01-21"
+version: "v55.2"
+epoch: "2026-02-02"
 sealed_by: "888_Judge"
 authority: "Muhammad Arif bin Fazil"
 status: "SOVEREIGNLY_SEALED"
