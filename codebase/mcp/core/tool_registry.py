@@ -157,15 +157,31 @@ class ToolRegistry:
                     "type": "object",
                     "properties": {
                         "session_id": {"type": "string"},
+                        "stage": {"type": "string"},
+                        # sense output
+                        "intent_lane": {"type": "string", "enum": ["HARD", "SOFT", "PHATIC", "UNKNOWN"]},
+                        "task_type": {"type": "string"},
+                        "risk_flags": {"type": "array", "items": {"type": "string"}},
+                        "ambiguities": {"type": "array", "items": {"type": "string"}},
+                        # think output
+                        "options": {"type": "array"},
+                        "assumptions": {"type": "array", "items": {"type": "string"}},
+                        "unknowns": {"type": "array", "items": {"type": "string"}},
+                        # reason/full output
                         "entropy_delta": {"type": "number"},
                         "omega_0": {"type": "number"},
                         "precision": {"type": "object"},
                         "hierarchical_beliefs": {"type": "object"},
                         "action_policy": {"type": "object"},
-                        "vote": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                        "vote": {"type": "string", "enum": ["SEAL", "VOID", "SABAR", "UNCERTAIN"]},
                         "floor_scores": {"type": "object"},
+                        "conclusion": {"type": "string"},
+                        "confidence": {"type": "number"},
+                        "premises": {"type": "array", "items": {"type": "string"}},
+                        "counterarguments": {"type": "array", "items": {"type": "string"}},
+                        "reflection": {"type": "object"},
                     },
-                    "required": ["session_id", "entropy_delta", "vote"],
+                    "required": ["session_id"],
                 },
                 annotations={
                     "title": "Mind Engine",

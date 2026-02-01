@@ -9,11 +9,20 @@ Floors Enforced:
 - F4 Clarity: Entropy reduction (ΔS)
 - F12 Injection: Security constraints
 - Trinity Consensus: Geometric mean of scores
+
+Schema Enforcement:
+- Runtime JSON Schema validation for MCP tool outputs
+- Enforces output contracts defined in schemas/*.schema.json
 """
 
+import json
+import logging
 import math
 import re
-from typing import Dict, List, Any, Optional
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 
 class ConstitutionValidator:
@@ -119,3 +128,140 @@ class ConstitutionValidator:
 
         product = mind * heart * soul
         return math.pow(product, 1.0 / 3.0)
+
+
+# ==============================================================================
+# Schema Enforcement (v55.2)
+# ==============================================================================
+
+# Schema cache (loaded once per process)
+_SCHEMA_CACHE: Dict[str, Dict[str, Any]] = {}
+
+
+def _get_schemas_dir() -> Path:
+    """Locate the schemas/ directory relative to project root."""
+    current = Path(__file__).resolve()
+    for parent in current.parents:
+        schemas_dir = parent / "schemas"
+        if schemas_dir.is_dir():
+            return schemas_dir
+    return Path("schemas")
+
+
+def load_schema(schema_name: str) -> Optional[Dict[str, Any]]:
+    """
+    Load a JSON Schema by name (e.g., 'agi_sense').
+    Returns None if schema file not found.
+    """
+    if schema_name in _SCHEMA_CACHE:
+        return _SCHEMA_CACHE[schema_name]
+
+    schemas_dir = _get_schemas_dir()
+    schema_path = schemas_dir / f"{schema_name}.schema.json"
+
+    if not schema_path.exists():
+        logger.warning(f"Schema not found: {schema_path}")
+        return None
+
+    try:
+        with open(schema_path, "r", encoding="utf-8") as f:
+            schema = json.load(f)
+        _SCHEMA_CACHE[schema_name] = schema
+        return schema
+    except (json.JSONDecodeError, OSError) as e:
+        logger.error(f"Failed to load schema {schema_name}: {e}")
+        return None
+
+
+def validate_output(output: Dict[str, Any], schema_name: str) -> Tuple[bool, List[str]]:
+    """
+    Validate a tool output dict against its JSON Schema.
+
+    Returns:
+        (is_valid, list_of_violations)
+
+    Uses lightweight validation (no jsonschema dependency required).
+    Checks: required fields, type constraints, enum values, min/max.
+    """
+    schema = load_schema(schema_name)
+    if schema is None:
+        return True, []
+
+    violations: List[str] = []
+
+    # Check required fields
+    for field in schema.get("required", []):
+        if field not in output:
+            violations.append(f"Missing required field: '{field}'")
+
+    # Check property types and constraints
+    properties = schema.get("properties", {})
+    for field, value in output.items():
+        if field not in properties:
+            continue
+
+        prop_schema = properties[field]
+        expected_type = prop_schema.get("type")
+
+        if expected_type and value is not None:
+            if not _check_json_type(value, expected_type):
+                violations.append(
+                    f"Field '{field}': expected type '{expected_type}', "
+                    f"got '{type(value).__name__}'"
+                )
+
+        if "enum" in prop_schema and value not in prop_schema["enum"]:
+            violations.append(
+                f"Field '{field}': value '{value}' not in {prop_schema['enum']}"
+            )
+
+        if expected_type == "number" and isinstance(value, (int, float)):
+            if "minimum" in prop_schema and value < prop_schema["minimum"]:
+                violations.append(
+                    f"Field '{field}': {value} below minimum {prop_schema['minimum']}"
+                )
+            if "maximum" in prop_schema and value > prop_schema["maximum"]:
+                violations.append(
+                    f"Field '{field}': {value} above maximum {prop_schema['maximum']}"
+                )
+
+    return len(violations) == 0, violations
+
+
+def _check_json_type(value: Any, expected: str) -> bool:
+    """Check if a value matches a JSON Schema type string."""
+    type_map = {
+        "string": str,
+        "number": (int, float),
+        "integer": int,
+        "boolean": bool,
+        "array": list,
+        "object": dict,
+    }
+    expected_types = type_map.get(expected)
+    if expected_types is None:
+        return True
+    return isinstance(value, expected_types)
+
+
+def enforce_schema(output: Dict[str, Any], schema_name: str) -> Dict[str, Any]:
+    """
+    Validate output and return VOID response if schema violated.
+
+    Usage in MCP tool handlers:
+        result = await handler(...)
+        return enforce_schema(result, "agi_sense")
+    """
+    is_valid, violations = validate_output(output, schema_name)
+    if is_valid:
+        return output
+
+    logger.warning(f"Schema violation in {schema_name}: {violations}")
+    return {
+        "session_id": output.get("session_id", "unknown"),
+        "vote": "VOID",
+        "verdict": "VOID",
+        "reason": f"Schema violation: {'; '.join(violations)}",
+        "violations": violations,
+        "schema": schema_name,
+    }
