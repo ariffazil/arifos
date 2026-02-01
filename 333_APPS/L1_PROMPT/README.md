@@ -1,160 +1,39 @@
-# L1_PROMPT — Zero-Context Constitutional Entry
+# L1_PROMPT — Zero-Context Entry
 
-**Level 1 | 30% Coverage | Zero Infrastructure**
-
-> *"The constitution begins with a single prompt."*
-
----
-
-## 🎯 Purpose
-
-L1_PROMPT is the **first deployment surface** for arifOS. It requires **zero infrastructure**, **zero code**, and **zero setup**. Simply paste a prompt into any LLM and the 000→999 metabolic loop activates.
-
-This layer proves that **arifOS is a skills maker** — the same constitutional governance can instantiate in any LLM without code.
+> **Status:** ✅ Ready (Consolidated v55.2)
+> **Goal:** Instant constitutional governance for any AI.
 
 ---
 
-## 📈 Effectiveness Spectrum
+## 🚀 The Single Source of Truth
 
+We have consolidated all system prompts into **one unified file** that references the canonical governance contract.
+
+### [SYSTEM_PROMPT.md](./SYSTEM_PROMPT.md)
+**The Only Prompt You Need.**
+- **Embeds:** `llms.txt` (The Law)
+- **Defines:** Trinity Architecture (The Process)
+- **Enforces:** Verdict Formats (The Output)
+
+---
+
+## 📂 Logical Structure
+
+```bash
+L1_PROMPT/
+├── SYSTEM_PROMPT.md       # 🌟 COPY THIS to your AI
+├── archive/               # Legacy prompts (CCC, Ignite, Instructions)
+└── examples/              # Usage examples
 ```
-Coverage:  ▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░ 30%
-Cost:      $0.00 per 1K operations
-Setup:     30 seconds
-Autonomy:  None (AI chooses whether to follow)
-```
+
+## 🛠️ How to Use
+
+1. Open `SYSTEM_PROMPT.md`.
+2. Copy the **Raw Content**.
+3. Paste into your AI's "System Instructions" or "Custom Instructions".
+4. **Done.** You are now governed.
 
 ---
 
-## 📁 The 3 Canonical Prompts
-
-### Source Files (This Directory)
-| Prompt | Purpose | Use When |
-|--------|---------|----------|
-| **000_IGNITE.md** | Gate-only initialization | You only need stage 000 |
-| **system_instructions.md** | Concise governance | Context window is limited |
-| **SYSTEM_PROMPT_CCC.md** | Full constitutional canon | Maximum governance needed |
-
-### User-Facing Copies
-The following copies are available in `docs/PROMPTS/` for easier user access:
-| File | Description |
-|------|-------------|
-| `AUTONOMOUS_CONCISE.md` | Concise system prompt (mirror of `system_instructions.md`) |
-| `AUTONOMOUS_COMPREHENSIVE.md` | Full constitutional prompt (mirror of `SYSTEM_PROMPT_CCC.md`) |
-| `HUMAN_READABLE.md` | Simplified version for non-technical users |
-
-### Quick Deploy (30 seconds)
-
-1. Pick one of the 3 prompts above
-2. Paste it into the model's system prompt
-3. Start interaction — floors enforced by the prompt itself
-
----
-
-## 📂 Files in This Directory
-
-| File | Description | Status |
-|------|-------------|--------|
-| `000_IGNITE.md` | Minimal gate initialization | ✅ Complete |
-| `SYSTEM_PROMPT_CCC.md` | Full constitutional prompt | ✅ Complete |
-| `system_instructions.md` | Concise system prompt | ✅ Complete |
-| `MCP_7_CORE_TOOLS.md` | Tool spec for MCP-enabled agents (9-tool v55.2 content; filename is legacy) | ✅ Complete |
-| `examples/ambiguous_request.md` | Example: Handling ambiguity | ✅ Complete |
-| `examples/safety_check.md` | Example: Safety evaluation | ✅ Complete |
-| `examples/simple_chat.md` | Example: Basic interaction | ✅ Complete |
-
----
-
-## 🛡️ Constitutional Floors Enforced
-
-| Floor | Enforcement | Mechanism | Status |
-|-------|-------------|-----------|--------|
-| F1 Amanah | ⚠️ Partial | Prompt instruction | Available |
-| F2 Truth | ⚠️ Partial | Prompt instruction | Available |
-| F3 Tri-Witness | ❌ None | Requires multi-agent | N/A |
-| F4 Clarity | ⚠️ Partial | Prompt instruction | Available |
-| F5 Peace² | ⚠️ Partial | Prompt instruction | Available |
-| F6 Empathy | ⚠️ Partial | Prompt instruction | Available |
-| F7 Humility | ⚠️ Partial | Prompt instruction | Available |
-| F8 Genius | ❌ None | Requires computation | N/A |
-| F9 Anti-Hantu | ⚠️ Partial | Prompt instruction | Available |
-| F10 Ontology | ⚠️ Partial | Prompt instruction | Available |
-| F11 Command Auth | ⚠️ Partial | Prompt instruction | Available |
-| F12 Injection | ⚠️ Partial | Prompt instruction | Available |
-| F13 Sovereign | ✅ Full | Human in the loop | **Active** |
-
----
-
-## 🚀 Deployment History
-
-### v50.0 — Genesis (Archived)
-- Initial constitutional prompt experiments
-- Basic F1-F13 descriptions
-- Single-session only
-
-### v51.0 — Hardening (Archived)
-- Added 9 paradoxes framework
-- Refined prompt structure
-- Multi-session memory (manual)
-
-### v52.0 — Standardization (Archived)
-- Canonical 3-prompt system established
-- Cross-model compatibility testing
-- AGENTS.md format defined
-
-### v55.2 — Current
-- Updated version alignment with root README
-- All 3 canonical prompts verified
-- Examples directory complete
-- Full SYSTEM_PROMPT_CCC.md
-- 000_IGNITE for quick starts
-- Examples directory added
-
----
-
-## 📊 Use Cases
-
-| Scenario | Recommended Prompt | Why |
-|----------|-------------------|-----|
-| Quick safety check | `000_IGNITE.md` | Fastest boot |
-| Sensitive discussion | `SYSTEM_PROMPT_CCC.md` | Full F13 sovereign |
-| Limited context | `system_instructions.md` | Concise but complete |
-| Teaching constitution | `SYSTEM_PROMPT_CCC.md` | Comprehensive |
-
----
-
-## 🔗 Next Steps
-
-- **L2_SKILLS/** — Parameterized, invocable templates
-- **L4_TOOLS/** — Production MCP tools with programmatic enforcement
-
----
-
-## 👑 Authority
-
-**Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v55.2
-**Last Updated:** 2026-02-02  
-**Creed:** DITEMPA BUKAN DIBERI
-
-
----
-
-## ✅ Reality Check
-
-| Component | Status | Evidence |
-|-----------|--------|----------|
-| 000_IGNITE.md | ✅ Complete | File exists, tested |
-| SYSTEM_PROMPT_CCC.md | ✅ Complete | File exists, tested |
-| system_instructions.md | ✅ Complete | File exists, tested |
-| MCP_7_CORE_TOOLS.md | ✅ Complete | 9-tool v55.2 spec |
-| examples/ | ✅ Complete | 3 examples present |
-| **Coverage** | **30%** | **As designed** |
-
-> This layer is **production-ready** for zero-context deployment.
-
----
-
-## 🔗 Related Documents
-
-- [333_APPS STATUS](../STATUS.md) — Master status tracker
-- [ROADMAP/MASTER_TODO.md](../../ROADMAP/MASTER_TODO.md) — Implementation tasks
+**Why the change?**
+By making `llms.txt` the mandatory context, we ensure that the *Law* (Constitution) and the *Procedure* (Prompt) are decoupled but synchronized. This prevents "prompt drift" where the system instructions contradict the core rules.

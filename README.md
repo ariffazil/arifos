@@ -34,8 +34,8 @@ pip install arifos
 If you want to quickly understand arifOS without reading the full constitution:
 
 1. **See it live:** [arif-fazil.com](https://arif-fazil.com)
-2. **Understand the core law:** [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md) (13 Floors)
-3. **Try governance immediately:** Copy a prompt from [`docs/PROMPTS/`](docs/PROMPTS/) (L1)
+2. **Understand the law:** [`llms.txt`](llms.txt) (Advisory Contract)
+3. **Try governance:** Copy the [Unified System Prompt](333_APPS/L1_PROMPT/SYSTEM_PROMPT.md)
 4. **See production usage:** Read [L4: MCP Tools](#l4-mcp-tools-production-api) below
 
 You can return to the Manifesto later.
@@ -450,19 +450,16 @@ result1 = await agi_sense(query="...", session_id="sess_abc12345")
 result2 = await agi_think(session_id="sess_abc12345")  # Accesses prior state
 ```
 
-#### 🤖 Machine-Readable Documentation (llms.txt)
+#### 🤖 Governance Artifacts (The Trinity)
+We provide standard entry points for different consumers:
 
-To help AI agents (like Cursor, Windsurf, or Claude) automatically discover and understand arifOS tools, we provide standard `llms.txt` files:
+| Artifact | Role | Audience |
+| :--- | :--- | :--- |
+| **[`llms.txt`](llms.txt)** | **The Law** (Advisory) | Humans, Crawlers, Documentation |
+| **[`floors.json`](codebase/apex/governance/floors.json)** | **The API** (Schema) | Linters, Agents, Dashboards |
+| **[`SYSTEM_PROMPT.md`](333_APPS/L1_PROMPT/SYSTEM_PROMPT.md)** | **The Behavior** (Instruction) | LLMs, Chatbots |
 
-**Local (Repository):**
-- [**llms.txt**](docs/llms.txt): A concise summary of all canonical tools.
-- [**llms-full.txt**](docs/llms-full.txt): A comprehensive reference including input/output JSON schemas for every tool.
-
-**Live (API Endpoints):**
-- [**https://apex.arif-fazil.com/llms.txt**](https://apex.arif-fazil.com/llms.txt): Constitutional canon for LLM governance
-- [**https://apex.arif-fazil.com/api/v1/floors.json**](https://apex.arif-fazil.com/api/v1/floors.json): 13 Floors JSON schema with thresholds
-
-AI agents can use these files to instantly map their capabilities to the arifOS constitutional framework.
+> **Clarification:** `llms.txt` defines *what* the laws are. `floors.json` defines *how* to measure them. `SYSTEM_PROMPT.md` tells the AI *to* follow them.
 
 #### 🔬 MCP Inspector (The Microscope)
 
