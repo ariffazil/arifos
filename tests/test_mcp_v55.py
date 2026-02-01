@@ -27,6 +27,14 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+# Check if mcp module is available
+try:
+    import mcp
+    import mcp.types
+    HAS_MCP = True
+except ImportError:
+    HAS_MCP = False
+
 
 # =============================================================================
 # Phase 1: Tool Registry Tests
@@ -127,6 +135,7 @@ class TestToolRegistry:
             assert schema.get("type") == "object", f"{name}: inputSchema type must be 'object'"
             assert "properties" in schema, f"{name}: inputSchema must have 'properties'"
 
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp module not installed")
     def test_mcp_types_tool_construction(self):
         """Verify tools can be constructed as mcp.types.Tool objects (Phase 1 core)."""
         import mcp.types
@@ -315,6 +324,7 @@ class TestResourceRegistry:
         assert VERDICT_HIERARCHY["888_HOLD"] > VERDICT_HIERARCHY["PARTIAL"]
         assert VERDICT_HIERARCHY["PARTIAL"] > VERDICT_HIERARCHY["SEAL"]
 
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp module not installed")
     def test_mcp_types_resource_construction(self):
         """Verify resources can be constructed as mcp.types.Resource objects."""
         import mcp.types
@@ -408,6 +418,7 @@ class TestPromptRegistry:
         result = registry.render_prompt("custom_test", {"name": "World"})
         assert result == "Hello World!"
 
+    @pytest.mark.skipif(not HAS_MCP, reason="mcp module not installed")
     def test_mcp_types_prompt_construction(self):
         """Verify prompts can be constructed as mcp.types.Prompt objects."""
         import mcp.types
