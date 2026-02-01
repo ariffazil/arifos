@@ -1,6 +1,6 @@
 # L6_INSTITUTION — Trinity Multi-Agent System
 
-**Level 6 | 100% Coverage | Maximum Complexity**
+**Level 6 | 100% Coverage (aspirational) | Maximum Complexity | Experimental**
 
 > *"Institutions are agents with roles — the Trinity governs."*
 
@@ -8,16 +8,16 @@
 
 ## 🎯 Purpose
 
-L6_INSTITUTION implements the full **Trinity architecture** (Mind+Heart+Soul) with specialized multi-agent roles, constitutional orchestration, and **Tri-Witness consensus**. This is the **gold standard** for constitutional AI governance.
+L6_INSTITUTION implements the full **Trinity architecture** (Mind+Heart+Soul) with specialized multi-agent roles, constitutional orchestration, and **Tri-Witness consensus**. **Experimental / not production-ready; treat coverage and costs as illustrative.**
 
 ---
 
 ## 📈 Effectiveness Spectrum
 
 ```
-Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100%
-Cost:      $5-10 per 1K operations
-Setup:     1 week
+Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 100% (aspirational)
+Cost:      $5-10 per 1K operations (illustrative)
+Setup:     ~1 week (illustrative)
 Autonomy:  Maximum (full constitutional governance)
 ```
 

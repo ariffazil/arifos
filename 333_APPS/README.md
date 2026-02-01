@@ -1,8 +1,8 @@
 # 333_APPS — arifOS Application Stack
 
 > **From Zero-Context Prompt to Constitutional AGI**  
-> **Version:** v55.0-FEDERATION  
-> **Live:** https://arif-fazil.com
+> **Version:** v55.2 (aligned with root README)  
+> **Status:** Documentation for local dev; URLs are examples, not production guarantees.
 
 ---
 
@@ -22,7 +22,8 @@ Unlike standard AI systems that optimize only for speed, arifOS enforces **13 co
 ```
 Physics:  Thermodynamics → Quantum Mechanics → Relativity
 Math:     Information Geometry → Category Theory → Measure Theory
-Code:     PBFT Consensus → zk-SNARKs → Merkle DAG CRDTs
+Code:     PBFT Consensus → zk-SNARKs* → Merkle DAG CRDTs
+(*zk-SNARKs currently conceptual; see codebase/federation/ for implemented pieces.)
 ```
 
 ---
@@ -33,17 +34,17 @@ Choose your entry point based on complexity needs:
 
 ```
 ╔═══════════════════════════════════════════════════════════════════╗
-║ L7_AGI                    ∞ Coverage      Research Phase          ║
-║ Constitutional AGI                      (Self-Improving AI)       ║
+║ L7_AGI 📋                 ∞ Coverage      Research Phase          ║
+║ Constitutional AGI     *(Theoretical — Not Implemented)*          ║
 ╠═══════════════════════════════════════════════════════════════════╣
-║ L6_INSTITUTION           100% Coverage    Trinity Multi-Agent     ║
-║ Trinity System                          (Maximum Autonomy)        ║
+║ L6_INSTITUTION ⚠️        100% Coverage    Trinity Multi-Agent     ║
+║ Trinity System         *(Research — Not Production Ready)*        ║
 ╠═══════════════════════════════════════════════════════════════════╣
-║ L5_AGENTS                90% Coverage     4-Agent Federation      ║
-║ Autonomous Agents                       (High Autonomy)           ║
+║ L5_AGENTS ⚠️             90% Coverage     4-Agent Federation      ║
+║ Autonomous Agents      *(Experimental — Not Production)*          ║
 ╠═══════════════════════════════════════════════════════════════════╣
-║ L4_TOOLS                 80% Coverage     Production MCP Server   ║
-║ Constitutional Tools    🟢 LIVE at arif-fazil.com                 ║
+║ L4_TOOLS                 80% Coverage     MCP Server (9 tools)    ║
+║ Constitutional Tools    📋 Example endpoint: arif-fazil.com       ║
 ╠═══════════════════════════════════════════════════════════════════╣
 ║ L3_WORKFLOW              70% Coverage     Documented Sequences    ║
 ║ AI Workflows                          (Team SOPs)                 ║
@@ -65,12 +66,12 @@ Choose your entry point based on complexity needs:
 | Quick AI experiment | **L1_PROMPT** | 30 seconds | Free | None |
 | Reusable command | **L2_SKILLS** | 5 minutes | $0.20-0.50 | Very Low |
 | Team standard operating procedure | **L3_WORKFLOW** | 1 hour | $0.50-1.00 | Low |
-| **Production API** | **L4_TOOLS** 🟢 | 2 hours | $0.10-0.15 | Medium |
-| Complex multi-agent automation | **L5_AGENTS** | 1 day | $3-7 | High |
-| Mission-critical governance | **L6_INSTITUTION** | 1 week | $5-10 | Maximum |
-| Research & development | **L7_AGI** | Unknown | Unknown | Recursive |
+| **Production API** | **L4_TOOLS** (9-tool canon) | 2 hours (est.) | $0.10-0.15* | Medium |
+| Complex multi-agent automation | **L5_AGENTS** ⚠️ | 1 day | $3-7 | High |
+| Mission-critical governance | **L6_INSTITUTION** ⚠️ | 1 week | $5-10 | Maximum |
+| Research & development | **L7_AGI** 📋 | Unknown | Unknown | Recursive |
 
-*Cost estimates per 1K requests
+*⚠️ **Illustrative estimates only** — not measured or guaranteed. Actual costs vary by deployment.
 
 ---
 
@@ -83,18 +84,18 @@ Choose your entry point based on complexity needs:
 cat L1_PROMPT/SYSTEM_PROMPT_CCC.md | pbcopy
 ```
 
-### Option 2: Production API (L4) — 2 hours
+### Option 2: Production API (L4) — 2 hours (est.)
 ```bash
-# Live MCP server with 7 canonical tools
-# Constitutional verification on every request
+# MCP server with 9 canonical tools (init_gate, agi_sense, agi_think, agi_reason, asi_empathize, asi_align, apex_verdict, reality_search, vault_seal)
+# Constitutional verification on every request (see codebase/mcp)
 
 # Install
-pip install aaa-mcp
+pip install arifos
 
 # Run
-aaa-mcp-sse  # HTTP/SSE transport
+aaa-mcp      # Standard I/O (Claude Desktop/Cursor)
 # OR
-aaa-mcp-stdio  # For Claude Desktop, Cursor
+aaa-mcp-sse  # HTTP/SSE transport (Remote)
 
 # Access
 https://arif-fazil.com/mcp
@@ -159,7 +160,7 @@ Reality instantiates when:
 ├── L1_PROMPT/                 # Zero-context entry (✅ Ready)
 ├── L2_SKILLS/                 # Parameterized templates (✅ Ready)
 ├── L3_WORKFLOW/               # Documented sequences (✅ Ready)
-├── L4_TOOLS/                  # Production MCP (🟢 LIVE)
+├── L4_TOOLS/                  # MCP docs (example endpoints; 9-tool canon)
 ├── L5_AGENTS/                 # 4-Agent Federation (⚠️ v55.0)
 ├── L6_INSTITUTION/            # Trinity System (⚠️ v56.0)
 └── L7_AGI/                    # Constitutional AGI (📋 Research)
@@ -176,7 +177,8 @@ codebase/                      # Implementation Code
 ├── agi/                       # AGI/Mind (Stages 111-333)
 ├── asi/                       # ASI/Heart (Stages 555-666)
 ├── apex/                      # APEX/Soul (Stages 888-999)
-├── mcp/                       # MCP Server (L4 — LIVE)
+├── mcp/                       # MCP Server (L4 — example)
+│   └── tools/                 # 9 Canonical Tools (v55.0)
 ├── federation/                # Physics/Math/Code (NEW v55)
 └── vault/                     # 999_SEAL implementation
 
@@ -186,13 +188,13 @@ VAULT999/                      # Cryptographic audit trail
 
 ---
 
-## 🌐 Live Services
+## 🌐 Services (examples; verify before use)
 
 | Service | URL | Status | Layer |
 |---------|-----|--------|-------|
-| MCP Endpoint | https://arif-fazil.com/mcp | 🟢 Live | L4 |
-| Health Check | https://arif-fazil.com/health | 🟢 Live | L4 |
-| API Docs | https://arif-fazil.com/docs | 🟢 Live | L4 |
+| MCP Endpoint | https://arif-fazil.com/mcp | 📋 Example | L4 |
+| Health Check | https://arif-fazil.com/health | 📋 Example | L4 |
+| API Docs | https://arif-fazil.com/docs | 📋 Example | L4 |
 
 ---
 
