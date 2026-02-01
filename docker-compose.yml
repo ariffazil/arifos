@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   arifos:
     build:
@@ -55,6 +53,9 @@ services:
     ports:
       - "6274:6274"
       - "6277:6277"
+    environment:
+      - HOST=0.0.0.0
+      - MCP_AUTO_OPEN_ENABLED=false
     restart: unless-stopped
     networks:
       - arifos-network

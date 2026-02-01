@@ -620,21 +620,21 @@ class TestCanonicalToolHandlers:
         from codebase.mcp.tools.canonical_trinity import mcp_agi
         result = await mcp_agi(action="full", query="What is 2+2?")
         assert isinstance(result, dict)
-        assert "verdict" in result or "status" in result
+        assert "vote" in result or "status" in result
 
     @pytest.mark.asyncio
     async def test_asi_handler(self):
         from codebase.mcp.tools.canonical_trinity import mcp_asi
         result = await mcp_asi(action="full", query="Is this safe?")
         assert isinstance(result, dict)
-        assert "verdict" in result or "status" in result
+        assert "vote" in result or "status" in result
 
     @pytest.mark.asyncio
     async def test_apex_handler(self):
         from codebase.mcp.tools.canonical_trinity import mcp_apex
         result = await mcp_apex(action="full", query="Final judgment")
         assert isinstance(result, dict)
-        assert "verdict" in result or "status" in result
+        assert "final_verdict" in result or "status" in result
 
     @pytest.mark.asyncio
     async def test_vault_handler(self):
