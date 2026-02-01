@@ -28,7 +28,7 @@
 | Directory | Purpose |
 |:---|:---|
 | `adapters/` | **Agent-specific codex files** (GEMINI.md, CLAUDE.md, CODEX.md, KIMI.md) |
-| `rules/` | **Constitutional rules** (agent_boundaries.md, arifos_ontology.md, constitutional_floors.md) |
+| `rules/` | **Constitutional rules** (GEMINI.md — consolidated F1-F13 + boundaries + ontology) |
 | `workflows/` | **Step-by-step processes** (9 active workflows) |
 | `environment/` | **Physics layer** (physics.md, hypervisor.md, budget.json) |
 | `brain/` | **Working memory** (drafts, scratchpads, state) |
@@ -87,8 +87,8 @@
 | **Agent Manifest** | `AGENTS.md` | All 5 agents, handoff protocols |
 | **Constitutional Law** | `000_THEORY/000_LAW.md` | 13 Floors (F1-F13) |
 | **Architecture** | `000_THEORY/000_ARCHITECTURE.md` | ΔΩΨ Trinity |
-| **Floor Reference** | `rules/constitutional_floors.md` | Quick F1-F13 reference |
-| **Agent Boundaries** | `rules/agent_boundaries.md` | CAN/CANNOT by role |
+| **Floor Reference** | `rules/GEMINI.md` | Consolidated F1-F13 + boundaries + ontology |
+| **Governance** | `rules/GEMINI.md` | Agent boundaries, ontology, floors |
 
 ---
 
