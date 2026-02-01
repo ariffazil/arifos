@@ -33,20 +33,38 @@ if str(REPO_ROOT) not in sys.path:
 # =============================================================================
 
 class TestToolRegistry:
-    """Test the canonical 7-tool registry."""
+    """Test the tool registry with 9 core tools + 5 legacy aliases + 2 utility tools."""
 
     def test_registry_initializes_with_7_tools(self):
+        """Registry now has 16 tools (9 core + 5 aliases + 2 utility)."""
         from codebase.mcp.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         tools = registry.list_tools()
-        assert len(tools) == 7, f"Expected 7 canonical tools, got {len(tools)}"
+        assert len(tools) == 16, f"Expected 16 tools (9 core + 5 aliases + 2 utility), got {len(tools)}"
 
     def test_canonical_tool_names(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
-        expected = {"_init_", "_agi_", "_asi_", "_apex_", "_vault_", "_trinity_", "_reality_"}
+        
+        # Core tools (9)
+        expected_core = {
+            "init_reboot",
+            "agi_sense", "agi_think", "agi_reason",
+            "asi_empathize", "asi_align", "asi_insight",
+            "apex_verdict",
+            "reality_search"
+        }
+        
+        # Legacy aliases (5) + utility tools (2)
+        expected_legacy = {"_init_", "_agi_", "_asi_", "_apex_", "_reality_", "_trinity_", "_vault_"}
+        
         actual = set(registry.list_tools().keys())
-        assert actual == expected, f"Missing tools: {expected - actual}"
+        
+        # All core tools should exist
+        assert expected_core.issubset(actual), f"Missing core tools: {expected_core - actual}"
+        
+        # Legacy aliases should also exist for backward compatibility
+        assert expected_legacy.issubset(actual), f"Missing legacy/utility tools: {expected_legacy - actual}"
 
     def test_all_tools_have_required_fields(self):
         from codebase.mcp.core.tool_registry import ToolRegistry
