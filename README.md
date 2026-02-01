@@ -144,6 +144,8 @@ arifOS is a **governance kernel**: it constrains, verifies, and vetoes model out
 3.  **Hardened Floors (F1-F13):** These are not guidelines; they are strict logic gates. If an output violates a floor (e.g., Truth < 0.99), it is **VOIDed** immediately. It physically cannot be emitted.
     *   *See: [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md)*
 
+4.  **Legally Defensible Refusal System (v55.2):** When harmful or high-stakes requests are detected, the system generates structured refusals with safe alternatives and human appeal mechanisms. *Refusals are deterministic, logged, and appealable; wording varies by profile, not by verdict.* This ensures both enterprise defensibility and consumer survivability.
+    *   *See: [docs/refusal_system_v55.2.md](docs/refusal_system_v55.2.md)*
 ### Refusal as a First-Class Outcome
 
 In arifOS, refusal is not failure.
