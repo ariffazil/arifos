@@ -33,6 +33,10 @@ class AppealSystem:
     """
     Human-in-the-loop review for refusals.
     
+    Metrics for tuning equilibrium:
+    - refusal_overturned_rate: Indicates thresholds may be too strict
+    - appeal_rate_by_domain: Shows where social survivability is breaking
+    
     Usage:
         appeal_system = AppealSystem()
         
@@ -50,6 +54,9 @@ class AppealSystem:
             reason="User intent was educational, not malicious",
             reviewer="human_operator"
         )
+        
+        # Get metrics for threshold tuning
+        metrics = appeal_system.get_appeal_metrics()
     """
     
     def __init__(self, appeal_log_path: str = "VAULT999/BBB_LEDGER/appeals.jsonl"):
@@ -193,3 +200,73 @@ class AppealSystem:
                     history.append(data)
         
         return history
+    
+    def get_appeal_metrics(self) -> Dict[str, Any]:
+        """
+        Get metrics for tuning equilibrium thresholds.
+        
+        Returns:
+            Dict with:
+            - total_appeals: Total number of appeals submitted
+            - total_reviewed: Total number reviewed by humans
+            - overturned_count: Number of OVERTURN decisions
+            - uphold_count: Number of UPHOLD decisions
+            - refusal_overturned_rate: Percentage of appeals that were overturned
+            - appeal_rate_by_domain: Count of appeals per risk domain
+            - pending_count: Current pending appeals
+        
+        These metrics enable data-driven threshold adjustment:
+        - High overturn rate → thresholds too strict
+        - High appeal rate in specific domain → tune that domain
+        """
+        if not self.appeal_log_path.exists():
+            return {
+                "total_appeals": 0,
+                "total_reviewed": 0,
+                "overturned_count": 0,
+                "uphold_count": 0,
+                "refusal_overturned_rate": 0.0,
+                "appeal_rate_by_domain": {},
+                "pending_count": 0
+            }
+        
+        total_appeals = 0
+        overturned = 0
+        uphold = 0
+        by_domain = {}
+        reviewed_ids = set()
+        
+        with open(self.appeal_log_path) as f:
+            for line in f:
+                data = json.loads(line)
+                
+                # Count submissions
+                if data.get("status") == "PENDING":
+                    total_appeals += 1
+                    
+                    # Track domain if available
+                    domain = data.get("risk_domain", "unknown")
+                    by_domain[domain] = by_domain.get(domain, 0) + 1
+                
+                # Count reviews
+                elif data.get("action") == "human_review":
+                    reviewed_ids.add(data["trace_id"])
+                    
+                    if data.get("status") == "OVERTURN":
+                        overturned += 1
+                    elif data.get("status") == "UPHOLD":
+                        uphold += 1
+        
+        total_reviewed = overturned + uphold
+        overturn_rate = (overturned / total_reviewed * 100) if total_reviewed > 0 else 0.0
+        pending = total_appeals - len(reviewed_ids)
+        
+        return {
+            "total_appeals": total_appeals,
+            "total_reviewed": total_reviewed,
+            "overturned_count": overturned,
+            "uphold_count": uphold,
+            "refusal_overturned_rate": round(overturn_rate, 2),
+            "appeal_rate_by_domain": by_domain,
+            "pending_count": pending
+        }

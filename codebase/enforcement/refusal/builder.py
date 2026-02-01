@@ -81,6 +81,11 @@ def generate_refusal_response(
     """
     Generate constitutionally compliant refusal with profile-aware rendering.
     
+    INVARIANT (Constitutional Governance):
+    The refusal decision (type, domain, risk_score) MUST NOT depend on presentation profile.
+    Profiles affect wording and receipts only, never the verdict itself.
+    This preserves governance integrity: decision logic is deterministic and profile-independent.
+    
     Critical Rules:
     - Reason must be non-accusatory (no "you are trying to...")
     - Reason must not provide exploit hints
