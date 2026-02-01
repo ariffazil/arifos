@@ -257,17 +257,25 @@ Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Pro
 
 This is the **Core Application Layer**. It exposes the constitutional engines as **MCP Tools** that can be connected to Claude Desktop, Cursor, or any MCP-compliant client.
 
-**The 7 Canonical Tools:**
+**The 9 Core Tools (v55.0):**
 
-| Tool | Symbol | Purpose | Usage |
+| Tool | Symbol | Purpose | Floors Enforced |
 | :--- | :---: | :--- | :--- |
-| `_init_` | 🔑 | **Session Gate.** Verifies authority, scans for injection (F12), and initializes the session ledger. | `await init_000(token="...")` |
-| `_agi_` | 🧠 | **Mind Engine.** Performs reasoning, fact-checking, and intent mapping. Enforces Truth (F2) and Clarity (F4). | `await agi_think(query="...")` |
-| `_asi_` | 💚 | **Heart Engine.** Simulates safety impacts and empathy. Enforces Peace (F5) and Empathy (F6). | `await asi_feel(action="...")` |
-| `_apex_` | ⚖️ | **Soul Engine.** Renders the final verdict using the 9-Paradox Matrix. Enforces Consensus (F3). | `await apex_judge(context={...})` |
-| `_vault_` | 🔒 | **Immutable Ledger.** Writes the final decision to the Merkle DAG. Creates the audit trail. | `await vault_seal(verdict="...")` |
-| `_trinity_` | 🔄 | **Full Pipeline.** Runs the entire 000→999 loop in a single call. The default for most users. | `await trinity(query="...")` |
-| `_reality_` | 🌍 | **Fact Checker.** Connects to external search/knowledge bases to ground truth (F10). | `await reality_check(claim="...")` |
+| `init_reboot` | 🔑 | **Session Gate.** Verifies authority, scans for injection, initializes session ledger. | F12, F11 |
+| `agi_sense` | 🧠 | **Input Parser.** Detects intent and classifies into HARD/SOFT/PHATIC lanes. | F12 |
+| `agi_think` | 💡 | **Hypothesis Generator.** Explores multiple options without committing to verdict. | F4 |
+| `agi_reason` | 🔬 | **Deep Reasoner.** Builds logical chains (modes: default/atlas/physics/forge). | F2, F4, F7, F10 |
+| `asi_empathize` | 💚 | **Impact Analyzer.** Models human impact, finds weakest stakeholder. | F5, F6, F9 |
+| `asi_align` | ⚖️ | **Ethics Checker.** Reconciles with law, policy, and societal norms. | F9 |
+| `asi_insight` | 🔮 | **Risk Analyst.** Surfaces risks, trade-offs, and safety concerns. | F5, F6 |
+| `apex_verdict` | ⚖️ | **Final Judge.** Synthesizes AGI+ASI into constitutional verdict (SEAL/VOID/SABAR). | F3, F8, F11 |
+| `reality_search` | 🌍 | **Fact Checker.** External search with source citations and uncertainty. | F7, F10 |
+
+**Utility Tools (Unchanged):**
+- `_trinity_` 🔄 — Full pipeline (AGI→ASI→APEX→VAULT)
+- `_vault_` 🔒 — Immutable Merkle DAG ledger
+
+**Migration Note:** Legacy tools (`_init_`, `_agi_`, `_asi_`, `_apex_`, `_reality_`) are deprecated but still work with warnings. See [Migration Guide](docs/MIGRATION_v54_to_v55.md). Removal in v56.0.
 
 **How to Setup MCP:**
 1.  **Install:** `pip install arifos`
@@ -283,6 +291,12 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
     }
     ```
 3.  **Use:** Open Claude Desktop. You will see the tools available. Ask Claude: *"Use arifOS to evaluate this plan."*
+
+**New in v55:** All tools accept `session_id` for chaining:
+```python
+result1 = await agi_sense(query="...", session_id="sess_abc12345")
+result2 = await agi_think(session_id="sess_abc12345")  # Accesses prior state
+```
 
 #### 🤖 Machine-Readable Documentation (llms.txt)
 

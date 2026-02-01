@@ -1,9 +1,54 @@
 # arifOS MCP Tools (Concise)
 
-- **_init_**: Session Initialization Gate. Initialize session with identity verification, injection detection, budget allocation. MUST be called first.
-- **_agi_**: Mind Engine (Delta). Deep reasoning, pattern recognition, knowledge retrieval. Implements 111 SENSE → 222 THINK → 333 FORGE.
-- **_asi_**: Heart Engine (Omega). Safety evaluation, bias detection, empathy assessment. Implements 555 EMPATHY → 666 ALIGN → 777 SOCIETY.
-- **_apex_**: Soul Engine (Psi) - Judicial. Judicial consensus, final verdicts. Synthesizes AGI + ASI. Implements 888 APEX PRIME with 9-paradox equilibrium.
-- **_vault_**: Immutable Ledger (Seal). Tamper-proof storage using Merkle-tree sealing. Implements F1 Amanah (Trust).
-- **_trinity_**: Full Constitutional Pipeline. Complete metabolic loop: AGI→ASI→APEX→VAULT. Single-call constitutional evaluation.
-- **_reality_**: External Fact-Checking. Fact-checking via external sources. Implements F7 Humility: external data labeled, sources cited, uncertainty stated.
+## 9 Core Tools (v55.0)
+
+### Session Initialization
+- **init_reboot**: Initialize governed session. Verify caller authority, scan for prompt injection (F12), open session ledger entry. Use before running other tools.
+
+### AGI (Mind Engine - Δ)
+- **agi_sense**: Parse input and detect intent. Classify request into constitutional lanes (HARD/SOFT/PHATIC). Enforces F12 (Injection Defense).
+- **agi_think**: Generate multiple hypotheses or options. Explore different approaches without committing to a verdict. Enforces F4 (Clarity).
+- **agi_reason**: Deep logical reasoning with step-by-step chain. Supports modes: default/atlas/physics/forge. Enforces F2 (Truth), F4 (Clarity), F7 (Humility), F10 (Ontology).
+
+### ASI (Heart Engine - Ω)
+- **asi_empathize**: Stakeholder impact analysis. Model human impact, calculate vulnerability scores, identify weakest stakeholder. Enforces F5 (Peace²), F6 (Empathy).
+- **asi_align**: Ethical alignment check. Reconcile user request with ethics, law, and policy. Enforces F9 (Anti-Hantu).
+- **asi_insight**: Risk and trade-off analysis. Surface key risks, potential harms, and benefits. Provides actionable safety insights.
+
+### APEX (Soul Engine - Ψ)
+- **apex_verdict**: Final constitutional verdict. Synthesize AGI reasoning + ASI safety → SEAL/VOID/SABAR decision. Enforces F3 (Tri-Witness), F8 (Genius), F11 (Command Authority).
+
+### External Verification
+- **reality_search**: External fact-checking via Brave Search API. Cite all sources, state uncertainty. Enforces F7 (Humility), F10 (Ontology). Use when current information needed.
+
+## Utility Tools (Unchanged)
+
+- **_trinity_**: Full constitutional pipeline (AGI→ASI→APEX→VAULT). Single-call evaluation for complete workflows.
+- **_vault_**: Immutable ledger with Merkle sealing. Tamper-proof storage for audit trails. Enforces F1 (Amanah).
+
+## Session State (New in v55)
+
+All tools accept optional `session_id` parameter (pattern: `^sess_[a-zA-Z0-9]{8,}$`) for chaining:
+
+```python
+result1 = await agi_sense(query="...", session_id="sess_abc12345")
+result2 = await agi_think(session_id="sess_abc12345")  # Accesses prior state
+```
+
+## Deprecated (Removal in v56.0)
+
+Legacy multi-action tools still work with deprecation warnings:
+- `_init_` → use `init_reboot`
+- `_agi_` → use `agi_sense`, `agi_think`, or `agi_reason`
+- `_asi_` → use `asi_empathize`, `asi_align`, or `asi_insight`
+- `_apex_` → use `apex_verdict`
+- `_reality_` → use `reality_search`
+
+Migration guide: [docs/MIGRATION_v54_to_v55.md](MIGRATION_v54_to_v55.md)
+
+---
+
+**Full schemas:** See [llms-full.txt](llms-full.txt) for complete input/output specifications.
+
+**arifOS v55.0** • Constitutional AI Governance • AGPL-3.0  
+https://github.com/ariffazil/arifOS

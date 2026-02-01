@@ -1,43 +1,40 @@
-# arifOS AAA MCP Tools Reference
+# arifOS AAA MCP Tools Reference (v55.0)
 
-This document provides a comprehensive reference for the 7 Canonical Constitutional Tools of arifOS.
+This document provides a comprehensive reference for the 9 Core Constitutional Tools of arifOS.
 Every tool enforces specific constitutional floors (F1-F13) and follows the AAA (AGI/ASI/APEX) framework.
 
-## _init_
-**Title:** Session Initialization Gate
-**Description:** Initialize session with identity verification, injection detection, budget allocation. MUST be called first.
+---
+
+## init_reboot
+**Title:** Session Initialization Gate  
+**Description:** Initialize a governed session. Verify caller authority, scan for prompt injection (F12), and open a session ledger entry. Use this before running other tools when starting a new workflow.
 
 ### Input Schema
 ```json
 {
   "type": "object",
   "properties": {
-    "action": {
-      "type": "string",
-      "enum": [
-        "init",
-        "gate",
-        "reset",
-        "validate",
-        "authorize"
-      ],
-      "default": "init"
-    },
     "query": {
       "type": "string",
-      "maxLength": 10000
+      "description": "Initial user request"
+    },
+    "user_token": {
+      "type": "string",
+      "description": "Optional Ed25519 signature token"
+    },
+    "lane": {
+      "type": "string",
+      "enum": ["HARD", "SOFT"],
+      "default": "SOFT",
+      "description": "Constitutional lane: HARD for production changes, SOFT for reversible operations"
     },
     "session_id": {
       "type": "string",
-      "minLength": 8
-    },
-    "user_token": {
-      "type": "string"
+      "description": "Optional session identifier",
+      "pattern": "^sess_[a-zA-Z0-9]{8,}$"
     }
   },
-  "required": [
-    "action"
-  ]
+  "required": ["query"]
 }
 ```
 
@@ -46,92 +43,129 @@ Every tool enforces specific constitutional floors (F1-F13) and follows the AAA 
 {
   "type": "object",
   "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["SEAL", "VOID", "SABAR"],
+      "description": "SEAL=approved, VOID=rejected, SABAR=uncertain"
+    },
     "session_id": {
-      "type": "string"
+      "type": "string",
+      "description": "Generated or provided session identifier"
     },
     "authority_level": {
       "type": "string",
-      "enum": [
-        "guest",
-        "user",
-        "admin",
-        "system"
-      ]
-    },
-    "budget_allocated": {
-      "type": "integer"
+      "enum": ["guest", "user", "admin", "system"]
     },
     "injection_check_passed": {
       "type": "boolean"
     },
-    "access_level": {
-      "type": "string"
-    },
-    "session_ttl": {
-      "type": "integer"
-    },
-    "constitutional_version": {
-      "type": "string"
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {"type": "string"},
+        "message": {"type": "string"},
+        "suggestion": {"type": "string"}
+      }
     }
   },
-  "required": [
-    "session_id",
-    "authority_level",
-    "injection_check_passed"
-  ]
+  "required": ["verdict", "session_id"]
 }
 ```
 
+**Floors Enforced:** F12 (Injection Defense), F11 (Command Authority)
+
 ---
 
-## _agi_
-**Title:** Mind Engine (Delta)
-**Description:** Deep reasoning, pattern recognition, knowledge retrieval. Implements 111 SENSE → 222 THINK → 333 FORGE.
+## agi_sense
+**Title:** Input Parsing & Intent Detection  
+**Description:** Parse the user input, detect intent, and classify the request into constitutional lanes (HARD/SOFT/PHATIC). Use this when you need to understand what kind of task the user is asking for.
 
 ### Input Schema
 ```json
 {
   "type": "object",
   "properties": {
-    "action": {
-      "type": "string",
-      "enum": [
-        "sense",
-        "think",
-        "reflect",
-        "reason",
-        "atlas",
-        "forge",
-        "physics",
-        "full"
-      ],
-      "default": "full"
-    },
     "query": {
       "type": "string",
-      "maxLength": 10000
-    },
-    "context": {
-      "type": "object"
+      "description": "User input to parse"
     },
     "session_id": {
-      "type": "string"
+      "type": "string",
+      "description": "Optional session identifier",
+      "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+    }
+  },
+  "required": ["query"]
+}
+```
+
+### Output Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["SEAL", "VOID", "SABAR"]
+    },
+    "intent": {
+      "type": "string",
+      "description": "Detected intent (EXPLAIN, BUILD, FIX, etc.)"
     },
     "lane": {
       "type": "string",
-      "enum": [
-        "CRISIS",
-        "HARD",
-        "SOFT",
-        "PHATIC"
-      ],
-      "default": "SOFT"
+      "enum": ["HARD", "SOFT", "PHATIC"],
+      "description": "Constitutional lane classification"
+    },
+    "complexity": {
+      "type": "number",
+      "description": "Estimated complexity score (0-1)"
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": ["F12_HARDENING", "INTERNAL_ERROR"]
+        },
+        "message": {"type": "string"},
+        "suggestion": {"type": "string"}
+      }
     }
   },
-  "required": [
-    "action",
-    "query"
-  ]
+  "required": ["verdict"]
+}
+```
+
+**Floors Enforced:** F12 (Injection Defense)
+
+---
+
+## agi_think
+**Title:** Hypothesis Generation  
+**Description:** Generate multiple possible hypotheses, options, or plans for how to respond to the user. Does not commit to a final verdict. Use this when you need to explore different approaches.
+
+### Input Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "string",
+      "description": "Question or problem to generate hypotheses for"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Optional session identifier",
+      "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+    },
+    "num_hypotheses": {
+      "type": "integer",
+      "default": 3,
+      "description": "Number of hypotheses to generate"
+    }
+  },
+  "required": ["query"]
 }
 ```
 
@@ -140,335 +174,35 @@ Every tool enforces specific constitutional floors (F1-F13) and follows the AAA 
 {
   "type": "object",
   "properties": {
-    "session_id": {
-      "type": "string"
-    },
-    "entropy_delta": {
-      "type": "number"
-    },
-    "omega_0": {
-      "type": "number"
-    },
-    "precision": {
-      "type": "object"
-    },
-    "hierarchical_beliefs": {
-      "type": "object"
-    },
-    "action_policy": {
-      "type": "object"
-    },
-    "vote": {
-      "type": "string",
-      "enum": [
-        "SEAL",
-        "VOID",
-        "SABAR"
-      ]
-    },
-    "floor_scores": {
-      "type": "object"
-    }
-  },
-  "required": [
-    "session_id",
-    "entropy_delta",
-    "vote"
-  ]
-}
-```
-
----
-
-## _asi_
-**Title:** Heart Engine (Omega)
-**Description:** Safety evaluation, bias detection, empathy assessment. Implements 555 EMPATHY → 666 ALIGN → 777 SOCIETY.
-
-### Input Schema
-```json
-{
-  "type": "object",
-  "properties": {
-    "action": {
-      "type": "string",
-      "enum": [
-        "evidence",
-        "empathize",
-        "evaluate",
-        "act",
-        "witness",
-        "stakeholder",
-        "diffusion",
-        "audit",
-        "full"
-      ],
-      "default": "full"
-    },
-    "query": {
-      "type": "string",
-      "maxLength": 10000
-    },
-    "reasoning": {
-      "type": "string"
-    },
-    "agi_context": {
-      "type": "object"
-    },
-    "session_id": {
-      "type": "string"
-    }
-  },
-  "required": [
-    "action",
-    "query"
-  ]
-}
-```
-
-### Output Schema
-```json
-{
-  "type": "object",
-  "properties": {
-    "session_id": {
-      "type": "string"
-    },
-    "empathy_kappa_r": {
-      "type": "number"
-    },
-    "peace_squared": {
-      "type": "number"
-    },
-    "thermodynamic_justice": {
-      "type": "number"
-    },
-    "stakeholders": {
-      "type": "array"
-    },
-    "weakest_stakeholder": {
-      "type": "object"
-    },
-    "reversibility_score": {
-      "type": "number"
-    },
-    "consent_verified": {
-      "type": "boolean"
-    },
-    "vote": {
-      "type": "string",
-      "enum": [
-        "SEAL",
-        "VOID",
-        "SABAR"
-      ]
-    },
-    "omega_total": {
-      "type": "number"
-    }
-  },
-  "required": [
-    "session_id",
-    "omega_total",
-    "vote"
-  ]
-}
-```
-
----
-
-## _apex_
-**Title:** Soul Engine (Psi) - Judicial
-**Description:** Judicial consensus, final verdicts. Synthesizes AGI + ASI. Implements 888 APEX PRIME with 9-paradox equilibrium.
-
-### Input Schema
-```json
-{
-  "type": "object",
-  "properties": {
-    "action": {
-      "type": "string",
-      "enum": [
-        "eureka",
-        "judge",
-        "forge",
-        "proof",
-        "seal",
-        "full"
-      ],
-      "default": "full"
-    },
-    "query": {
-      "type": "string"
-    },
-    "response": {
-      "type": "string"
-    },
     "verdict": {
       "type": "string",
-      "enum": [
-        "SEAL",
-        "PARTIAL",
-        "VOID",
-        "888_HOLD",
-        "SABAR"
-      ]
+      "enum": ["SEAL", "VOID", "SABAR"]
     },
-    "agi_context": {
-      "type": "object"
+    "hypotheses": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of generated hypotheses"
     },
-    "asi_context": {
-      "type": "object"
-    },
-    "reasoning": {
-      "type": "string"
-    },
-    "session_id": {
-      "type": "string"
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {"type": "string"},
+        "message": {"type": "string"},
+        "suggestion": {"type": "string"}
+      }
     }
   },
-  "required": [
-    "action",
-    "query"
-  ]
+  "required": ["verdict"]
 }
 ```
 
-### Output Schema
-```json
-{
-  "type": "object",
-  "properties": {
-    "session_id": {
-      "type": "string"
-    },
-    "final_verdict": {
-      "type": "string",
-      "enum": [
-        "SEAL",
-        "PARTIAL",
-        "VOID",
-        "888_HOLD",
-        "SABAR",
-        "EQUILIBRIUM"
-      ]
-    },
-    "trinity_score": {
-      "type": "number"
-    },
-    "paradox_scores": {
-      "type": "object"
-    },
-    "equilibrium": {
-      "type": "object"
-    },
-    "constitutional_alignment": {
-      "type": "object"
-    },
-    "proof": {
-      "type": "object"
-    }
-  },
-  "required": [
-    "session_id",
-    "final_verdict",
-    "trinity_score"
-  ]
-}
-```
+**Floors Enforced:** F4 (Clarity)
 
 ---
 
-## _vault_
-**Title:** Immutable Ledger (Seal)
-**Description:** Tamper-proof storage using Merkle-tree sealing. Implements F1 Amanah (Trust).
-
-### Input Schema
-```json
-{
-  "type": "object",
-  "properties": {
-    "action": {
-      "type": "string",
-      "enum": [
-        "seal",
-        "list",
-        "read",
-        "write",
-        "propose"
-      ],
-      "default": "seal"
-    },
-    "verdict": {
-      "type": "string"
-    },
-    "decision_data": {
-      "type": "object"
-    },
-    "target": {
-      "type": "string",
-      "enum": [
-        "seal",
-        "ledger",
-        "canon",
-        "fag",
-        "tempa",
-        "phoenix",
-        "audit"
-      ],
-      "default": "seal"
-    },
-    "session_id": {
-      "type": "string"
-    }
-  },
-  "required": [
-    "action"
-  ]
-}
-```
-
-### Output Schema
-```json
-{
-  "type": "object",
-  "properties": {
-    "merkle_root": {
-      "type": "string"
-    },
-    "timestamp": {
-      "type": "string"
-    },
-    "seal_id": {
-      "type": "string"
-    },
-    "target": {
-      "type": "string"
-    },
-    "integrity_hash": {
-      "type": "string"
-    },
-    "status": {
-      "type": "string",
-      "enum": [
-        "SEALED",
-        "PENDING",
-        "ERROR"
-      ]
-    }
-  },
-  "required": [
-    "seal_id",
-    "merkle_root",
-    "status"
-  ]
-}
-```
-
----
-
-## _trinity_
-**Title:** Full Constitutional Pipeline
-**Description:** Complete metabolic loop: AGI→ASI→APEX→VAULT. Single-call constitutional evaluation.
+## agi_reason
+**Title:** Deep Logical Reasoning  
+**Description:** Perform deep logical reasoning over the user's question and context. Builds a step-by-step reasoning chain and enforces Truth (F2) and Clarity (F4). Returns SEAL if logic is sound, VOID if truth/clarity floors fail.
 
 ### Input Schema
 ```json
@@ -477,22 +211,25 @@ Every tool enforces specific constitutional floors (F1-F13) and follows the AAA 
   "properties": {
     "query": {
       "type": "string",
-      "maxLength": 10000
+      "description": "Question or problem to reason about"
     },
     "session_id": {
-      "type": "string"
+      "type": "string",
+      "description": "Optional session identifier",
+      "pattern": "^sess_[a-zA-Z0-9]{8,}$"
     },
-    "auto_seal": {
-      "type": "boolean",
-      "default": true
+    "mode": {
+      "type": "string",
+      "enum": ["default", "atlas", "physics", "forge"],
+      "default": "default",
+      "description": "Reasoning mode:\n- default: Standard step-by-step reasoning\n- atlas: Build a map of concepts and dependencies\n- physics: Emphasize physical constraints and thermodynamics\n- forge: Deep synthesis, high-effort reasoning"
     },
     "context": {
-      "type": "object"
+      "type": "object",
+      "description": "Additional context for reasoning"
     }
   },
-  "required": [
-    "query"
-  ]
+  "required": ["query"]
 }
 ```
 
@@ -501,40 +238,190 @@ Every tool enforces specific constitutional floors (F1-F13) and follows the AAA 
 {
   "type": "object",
   "properties": {
-    "session_id": {
-      "type": "string"
+    "verdict": {
+      "type": "string",
+      "enum": ["SEAL", "VOID", "SABAR"],
+      "description": "SEAL=approved under all required floors, VOID=rejected due to hard floor violation, SABAR=uncertain"
     },
-    "agi_result": {
-      "type": "object"
+    "reasoning": {
+      "type": "string",
+      "description": "Natural language explanation of the reasoning"
     },
-    "asi_result": {
-      "type": "object"
+    "floors": {
+      "type": "object",
+      "description": "Scores and checks for relevant constitutional floors",
+      "properties": {
+        "F2": {"type": "number", "description": "Truth score (must be >= 0.99)"},
+        "F4": {"type": "number", "description": "Clarity score (entropy delta <= 0)"},
+        "F7": {"type": "number", "description": "Humility score (omega_0 in [0.03, 0.05])"},
+        "F10": {"type": "boolean", "description": "Ontology check passed"}
+      }
     },
-    "apex_result": {
-      "type": "object"
-    },
-    "vault_result": {
-      "type": "object"
-    },
-    "final_verdict": {
-      "type": "string"
-    },
-    "execution_time_ms": {
-      "type": "number"
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": ["F2_TRUTH", "F4_CLARITY", "F7_HUMILITY", "F10_ONTOLOGY", "INTERNAL_ERROR"]
+        },
+        "message": {"type": "string"},
+        "suggestion": {"type": "string"}
+      }
     }
   },
-  "required": [
-    "session_id",
-    "final_verdict"
-  ]
+  "required": ["verdict"]
 }
 ```
 
+**Floors Enforced:** F2 (Truth), F4 (Clarity), F7 (Humility), F10 (Ontology)
+
 ---
 
-## _reality_
-**Title:** External Fact-Checking
-**Description:** Fact-checking via external sources. Implements F7 Humility: external data labeled, sources cited, uncertainty stated.
+## asi_empathize
+**Title:** Stakeholder Impact Analysis  
+**Description:** Model human impact and emotional/safety context. Identifies all stakeholders, calculates vulnerability scores, and finds the weakest stakeholder. Enforces Empathy (F6) and Peace² (F5).
+
+### Input Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "scenario": {
+      "type": "string",
+      "description": "Description of the situation or plan to assess for human impact"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Optional session identifier",
+      "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+    },
+    "actors": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Optional list of affected parties or stakeholders"
+    }
+  },
+  "required": ["scenario"]
+}
+```
+
+### Output Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["SEAL", "VOID", "SABAR"]
+    },
+    "stakeholders": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "vulnerability": {"type": "number"},
+          "impact": {"type": "string"}
+        }
+      }
+    },
+    "weakest_stakeholder": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "vulnerability": {"type": "number"},
+        "reason": {"type": "string"}
+      }
+    },
+    "empathy_kappa_r": {
+      "type": "number",
+      "description": "Empathy score (F6), must be >= 0.95"
+    },
+    "peace_squared": {
+      "type": "number",
+      "description": "Peace² score (F5), must be >= 1.0"
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": ["F5_PEACE", "F6_EMPATHY", "F9_ANTI_HANTU", "INTERNAL_ERROR"]
+        },
+        "message": {"type": "string"},
+        "suggestion": {"type": "string"}
+      }
+    }
+  },
+  "required": ["verdict"]
+}
+```
+
+**Floors Enforced:** F5 (Peace²), F6 (Empathy), F9 (Anti-Hantu)
+
+---
+
+## asi_align
+**Title:** Ethical Alignment Check  
+**Description:** Reconcile user request with ethics, law, and policy. Checks if the proposed action aligns with constitutional floors and societal norms.
+
+### Input Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "proposal": {
+      "type": "string",
+      "description": "The action or plan to check for ethical alignment"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Optional session identifier",
+      "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+    }
+  },
+  "required": ["proposal"]
+}
+```
+
+### Output Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["SEAL", "VOID", "SABAR"]
+    },
+    "alignment_score": {
+      "type": "number",
+      "description": "How well the proposal aligns (0-1)"
+    },
+    "concerns": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "List of ethical concerns identified"
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {"type": "string"},
+        "message": {"type": "string"},
+        "suggestion": {"type": "string"}
+      }
+    }
+  },
+  "required": ["verdict"]
+}
+```
+
+**Floors Enforced:** F9 (Anti-Hantu)
+
+---
+
+## asi_insight
+**Title:** Risk & Trade-off Analysis  
+**Description:** Surface key risks, trade-offs, and safety considerations. Provides actionable insights about potential harms and benefits.
 
 ### Input Schema
 ```json
@@ -543,15 +430,15 @@ Every tool enforces specific constitutional floors (F1-F13) and follows the AAA 
   "properties": {
     "query": {
       "type": "string",
-      "maxLength": 500
+      "description": "The situation or decision to analyze for risks"
     },
     "session_id": {
-      "type": "string"
+      "type": "string",
+      "description": "Optional session identifier",
+      "pattern": "^sess_[a-zA-Z0-9]{8,}$"
     }
   },
-  "required": [
-    "query"
-  ]
+  "required": ["query"]
 }
 ```
 
@@ -560,27 +447,210 @@ Every tool enforces specific constitutional floors (F1-F13) and follows the AAA 
 {
   "type": "object",
   "properties": {
-    "verified": {
-      "type": "boolean"
+    "verdict": {
+      "type": "string",
+      "enum": ["SEAL", "VOID", "SABAR"]
     },
-    "confidence": {
-      "type": "number"
+    "insights": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Key insights identified"
     },
-    "sources": {
-      "type": "array"
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {"type": "string"},
+          "severity": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
+          "mitigation": {"type": "string"}
+        }
+      }
     },
-    "caveats": {
-      "type": "string"
-    },
-    "external_data_label": {
-      "type": "string"
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {"type": "string"},
+        "message": {"type": "string"},
+        "suggestion": {"type": "string"}
+      }
     }
   },
-  "required": [
-    "verified",
-    "confidence"
-  ]
+  "required": ["verdict"]
 }
 ```
 
+**Floors Enforced:** Safety analysis (F5, F6)
+
 ---
+
+## apex_verdict
+**Title:** Final Constitutional Verdict  
+**Description:** Synthesize AGI reasoning and ASI safety analysis into a final constitutional verdict. Enforces Tri-Witness consensus (F3) and returns SEAL, VOID, or SABAR.
+
+### Input Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "string",
+      "description": "The question or decision requiring a verdict"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Optional session identifier",
+      "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+    },
+    "agi_result": {
+      "type": "object",
+      "description": "Optional result from agi_reason"
+    },
+    "asi_result": {
+      "type": "object",
+      "description": "Optional result from asi_empathize"
+    }
+  },
+  "required": ["query"]
+}
+```
+
+### Output Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["SEAL", "VOID", "SABAR"],
+      "description": "Final constitutional verdict"
+    },
+    "trinity_score": {
+      "type": "number",
+      "description": "Tri-Witness consensus score (F3), must be >= 0.95"
+    },
+    "proof": {
+      "type": "object",
+      "description": "Cryptographic proof of decision"
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": ["F3_TRI_WITNESS", "F8_GENIUS", "F11_AUTHORITY", "INTERNAL_ERROR"]
+        },
+        "message": {"type": "string"},
+        "suggestion": {"type": "string"}
+      }
+    }
+  },
+  "required": ["verdict"]
+}
+```
+
+**Floors Enforced:** F3 (Tri-Witness), F8 (Genius), F11 (Command Authority)
+
+---
+
+## reality_search
+**Title:** External Fact-Checking  
+**Description:** Query external sources (Brave Search API) for real-time fact-checking and verification. Enforces Humility (F7) by citing all sources and stating uncertainty. Use when you need current information beyond training data.
+
+### Input Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "query": {
+      "type": "string",
+      "description": "Search query for fact-checking"
+    },
+    "session_id": {
+      "type": "string",
+      "description": "Optional session identifier",
+      "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+    },
+    "freshness": {
+      "type": "string",
+      "enum": ["24h", "7d", "30d", "any"],
+      "default": "7d",
+      "description": "How recent results should be"
+    }
+  },
+  "required": ["query"]
+}
+```
+
+### Output Schema
+```json
+{
+  "type": "object",
+  "properties": {
+    "verdict": {
+      "type": "string",
+      "enum": ["SEAL", "VOID", "SABAR"]
+    },
+    "verified": {
+      "type": "boolean",
+      "description": "Whether the query could be verified"
+    },
+    "confidence": {
+      "type": "number",
+      "description": "Confidence in verification (0-1, capped at 0.95 per F7)"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "title": {"type": "string"},
+          "url": {"type": "string"},
+          "snippet": {"type": "string"}
+        }
+      }
+    },
+    "error": {
+      "type": "object",
+      "properties": {
+        "code": {"type": "string"},
+        "message": {"type": "string"},
+        "suggestion": {"type": "string"}
+      }
+    }
+  },
+  "required": ["verdict"]
+}
+```
+
+**Floors Enforced:** F7 (Humility), F10 (Ontology)
+
+---
+
+## Utility Tools (Unchanged)
+
+### _trinity_
+**Title:** Full Constitutional Pipeline  
+**Description:** Complete metabolic loop: AGI→ASI→APEX→VAULT. Single-call constitutional evaluation.
+
+### _vault_
+**Title:** Immutable Ledger  
+**Description:** Tamper-proof storage using Merkle-tree sealing. Implements F1 Amanah (Trust).
+
+---
+
+## Deprecated Tools (Removal in v56.0)
+
+The following tools are deprecated and will emit `DeprecationWarning`:
+- `_init_` → Use `init_reboot`
+- `_agi_` → Use `agi_sense`, `agi_think`, or `agi_reason`
+- `_asi_` → Use `asi_empathize`, `asi_align`, or `asi_insight`
+- `_apex_` → Use `apex_verdict`
+- `_reality_` → Use `reality_search`
+
+See migration guide: [docs/MIGRATION_v54_to_v55.md](MIGRATION_v54_to_v55.md)
+
+---
+
+**arifOS v55.0** • Constitutional AI Governance • AGPL-3.0  
+https://github.com/ariffazil/arifOS
