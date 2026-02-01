@@ -5,6 +5,7 @@
 # arifOS — Constitutional AI Governance System
 
 ![arifOS Version](https://img.shields.io/badge/arifOS-v55.2-0066cc?style=for-the-badge&logo=shield&logoColor=white)
+![PyPI](https://img.shields.io/badge/pypi-arifos-3775A9?style=for-the-badge&logo=pypi&logoColor=white)
 ![Status](https://img.shields.io/badge/status-SEALED-00cc00?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)
@@ -14,6 +15,10 @@
 **The World's First Production-Grade Constitutional AI Governance System**
 
 *Mathematical enforcement of ethical constraints, thermodynamic stability, and auditable decision-making across any LLM.*
+
+```bash
+pip install arifos
+```
 
 [**Live Demo**](https://arif-fazil.com) • [**Documentation**](docs/) • [**Constitutional Canon**](https://apex.arif-fazil.com)
 
@@ -257,21 +262,24 @@ Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Pro
 
 This is the **Core Application Layer**. It exposes the constitutional engines as **MCP Tools** that can be connected to Claude Desktop, Cursor, or any MCP-compliant client.
 
-**The 9 Canonical Tools (v55.1):**
+**The 9 Canonical Tools (v55.2):**
 
-| Tool | Engine | Purpose | Floors Enforced |
+| Tool | Symbol | Purpose | Floors Enforced |
 | :--- | :---: | :--- | :--- |
-| `init_gate` | — | **Ignition.** Session auth + InjectionGuard scan. | F11, F12 |
-| `agi_sense` | AGI | **Sense.** Intent classification & lane routing. | F12 |
-| `agi_think` | AGI | **Think.** Hypothesis generation & exploration. | F4 |
-| `agi_reason` | AGI | **Reason.** Deep logic chains with entropy reduction. | F2, F4, F7, F10 |
-| `asi_empathize` | ASI | **Empathize.** Stakeholder impact & vulnerability scoring. | F5, F6, F9 |
-| `asi_align` | ASI | **Align.** Ethics, policy, and legal reconciliation. | F9 |
-| `apex_verdict` | APEX | **Verdict.** Final constitutional judgment (SEAL/VOID/SABAR). | F3, F8, F11 |
-| `reality_search` | — | **Ground.** External fact-checking via Brave Search with citations. | F7, F10 |
-| `vault_seal` | — | **Seal.** Merkle-tree cryptographic sealing of the decision ledger. | F1 |
+| `init_gate` | 🔑 | **Ignition.** Session auth + **InjectionGuard** scan (F12). | F11, F12 |
+| `agi_sense` | 🧠 | **Sense.** Intent classification & lane assignment. | F4 |
+| `agi_think` | 💡 | **Think.** Hypothesis generation & exploration. | F13 |
+| `agi_reason` | 🔬 | **Reason.** Deep logic & entropy reduction. | F2, F4, F7 |
+| `asi_empathize` | 💚 | **Empathize.** Stakeholder impact & vulnerability analysis. | F5, F6 |
+| `asi_align` | ⚖️ | **Align.** Ethics, policy, and legal compliance. | F9 |
+| `apex_verdict` | 🏛️ | **Verdict.** Final constitutional judgment & consensus. | F3, F8 |
+| `reality_search` | 🌍 | **Ground.** External fact-checking & citation. | F7, F10 |
+| `vault_seal` | 🔒 | **Seal.** Cryptographic Merkle sealing of the ledger. | F1 |
 
-> **v55.1 Note:** The registry contains exactly 9 canonical tools. Legacy aliases (`_init_`, `_agi_`, `_asi_`, `_apex_`, `_reality_`, `_trinity_`, `_vault_`) have been removed.
+**Utility Tools:**
+- `_trinity_` 🔄 — Full Metabolic Loop (AGI→ASI→APEX→VAULT)
+
+**Security Note:** Legacy aliases (`_init_`, `_agi_`, `asi_insight`, etc.) have been **removed** to reduce entropy (F4). Attempting to use them will result in a Schema Error.
 
 **How to Setup MCP:**
 1.  **Install:** `pip install arifos`
@@ -280,8 +288,8 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
     {
       "mcpServers": {
         "arifos": {
-          "command": "python",
-          "args": ["-m", "codebase.mcp"]
+          "command": "aaa-mcp",
+          "args": []
         }
       }
     }
@@ -375,7 +383,7 @@ arifOS/
 │   └── mcp/             # MCP Server (tools, transports, core)
 ├── schemas/             # JSON Schema contracts for MCP tools
 ├── docs/                # Documentation & Assets
-└── tests/               # Validation Suite (199 tests)
+└── tests/               # Validation Suite (202 tests)
 ```
 
 ---
