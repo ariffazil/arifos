@@ -1,22 +1,34 @@
 """
 AGENT: ENGINEER (ASI Ω)
 Symbol: Ω
-Stages: 555-777 (Empathy → Align → Forge)
+Stages: 555-777 (Empathy → Align → Act)
 
 The ENGINEER is the Heart of the system.
-It implements with care, ensuring safety and reversibility.
+It builds, protects, and ensures safety.
 
 Responsibilities:
-- 555_EMPATHY: Model stakeholders, assess impact
-- 666_ALIGN: Ethical alignment check
-- 777_FORGE: Safe implementation
+- 555_EMPATHIZE: Identify stakeholders, empathy check
+- 666_ALIGN: Check ethics, policy, safety floors
+- 777_ACT: Execute construction (Simulated)
 
 Constitutional Floors:
 - F1: Amanah (reversibility)
-- F5: Peace² (≥ 1.0)
-- F6: Empathy (κᵣ ≥ 0.70)
-- F9: Anti-Hantu (< 0.30)
+- F5: Peace (stability)
+- F6: Empathy (stakeholder protection)
+- F9: Anti-Hantu (no deception)
 """
+
+import os
+import sys
+
+if os.getcwd() not in sys.path:
+    sys.path.append(os.getcwd())
+
+try:
+    from codebase.mcp.tools.asi_tool import ASITool
+except ImportError:
+    ASITool = None
+
 from . import Agent, AgentResult
 
 
@@ -24,38 +36,53 @@ class ENGINEER(Agent):
     """
     ASI Agent - The Builder.
 
-    Implements the Architect's design with safety constraints.
-    Ensures stakeholder protection throughout.
+    Validates safety and executes the design.
+    Ensures ethical alignment before action.
     """
+
     name = "ENGINEER"
     symbol = "Ω"
 
-    async def empathize(self, action, context):
-        """555_EMPATHY: Stakeholder modeling."""
-        # STUB: Identify stakeholders, calculate κᵣ
-        # From: codebase/asi/empathize.py
-        pass
+    async def empathize(self, query):
+        """555_EMPATHIZE: Stakeholder analysis."""
+        if ASITool:
+            return ASITool.execute("empathize", query)
+        return {"verdict": "VOID", "error": "L4 Core not found"}
 
     async def align(self, empathy_result):
-        """666_ALIGN: Ethical validation."""
-        # STUB: Check F1, F5, F6 compliance
-        # From: codebase/asi/align.py
-        pass
+        """666_ALIGN: Ethical check."""
+        if ASITool:
+            return ASITool.execute("align", str(empathy_result))
+        return {"verdict": "VOID", "error": "L4 Core not found"}
 
-    async def forge(self, design, alignment):
-        """777_FORGE: Safe implementation."""
-        # STUB: Generate code/docs with safety checks
-        # From: codebase/asi/forge.py
-        pass
+    async def act(self, align_result):
+        """777_ACT: Execution."""
+        # STUB: In production, this would call code editing tools
+        # For now, we simulate safe execution based on alignment
+        if align_result.get("verdict") == "SEAL":
+            return {"verdict": "SEAL", "status": "Built safely"}
+        return {"verdict": "VOID", "reason": "Alignment failed"}
 
     async def execute(self, context):
-        """Run full ASI pipeline. Context is a dict with design data."""
-        action = self._safe_get(context, "action", "build")
-        empathy = await self.empathize(action, context)
+        """Run full ASI pipeline."""
+        query = self._safe_get(context, "query", "")
+
+        empathy = await self.empathize(query)
+        if empathy.get("verdict") == "VOID":
+            return AgentResult(
+                verdict="VOID", agent=self.name, data=empathy, error=empathy.get("reason")
+            )
+
         align = await self.align(empathy)
-        forge = await self.forge(context, align)
+        if align.get("verdict") == "VOID":
+            return AgentResult(
+                verdict="VOID", agent=self.name, data=align, error=align.get("reason")
+            )
+
+        act = await self.act(align)
+
         return AgentResult(
-            verdict="SEAL",
+            verdict=act.get("verdict"),
             agent=self.name,
-            data={"empathy": empathy, "align": align, "forge": forge},
+            data={"empathy": empathy, "align": align, "act": act},
         )

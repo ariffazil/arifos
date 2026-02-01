@@ -1,6 +1,6 @@
 # arifOS Governance Contract (llms.txt)
-# Authority: 888_JUDGE | Version: 55.1 | Updated: 2026-02-02
-# Canonical Source: https://git.arif-fazil.com/arifOS
+# Authority: 888_JUDGE | Version: 55.2 | Updated: 2026-02-02
+# Canonical Source: https://github.com/ariffazil/arifOS
 # Not prescriptive for humans. This file is a governance contract for arifOS-integrated systems; non-integrated crawlers may ignore it.
 
 # 1. SYSTEM IDENTITY

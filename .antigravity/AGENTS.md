@@ -69,63 +69,49 @@
 
 ---
 
-## 🛠️ IV. THE 9 CANONICAL TOOLS BY AGENT
+## 🛠️ IV. THE 9 CANONICAL MCP TOOLS
 
-### GEMINI (Δ) — Architect
-| Tool | Stage | Purpose |
-|:---|:---:|:---|
-| `agi_sense` | 111 | Parse intent, set lane |
-| `agi_think` | 222 | Generate hypotheses |
-| `agi_reason` | 333 | Deep reasoning, entropy reduction |
-| `reality_search` | 333 | External fact-checking |
+These are the 9 granular tools that constitute the Machine Interface of arifOS.
 
-### CLAUDE (Ω) — Engineer
-| Tool | Stage | Purpose |
-|:---|:---:|:---|
-| `asi_empathize` | 555 | Stakeholder impact |
-| `asi_align` | 666 | Ethical alignment |
+| # | Tool | Symbol | Engine | Stage | Purpose |
+|:---:|:---|:---:|:---|:---:|:---|
+| 1 | **`init_gate`** | 🚪 | Ignition | 000 | Auth & Injection Guard (F12) |
+| 2 | **`agi_sense`** | 🧠 | Mind (Δ) | 111 | Intent & Lane Analysis |
+| 3 | **`agi_think`** | 💡 | Mind (Δ) | 222 | Hypothesis Generation |
+| 4 | **`agi_reason`** | 🔬 | Mind (Δ) | 333 | Deep Logic & Mapping |
+| 5 | **`asi_empathize`**| 💚 | Heart (Ω) | 555 | Stakeholder Impact Analysis |
+| 6 | **`asi_align`** | ⚖️ | Heart (Ω) | 666 | Policy & Ethics Alignment |
+| 7 | **`apex_verdict`** | 🏛️ | Soul (Ψ) | 888 | Final Constitutional Judgment |
+| 8 | **`reality_search`**| 🌍 | Eye (👁) | 444 | Reality Grounding & Facts |
+| 9 | **`vault_seal`** | 🔒 | Vault (Κ) | 999 | Immutable Sealing |
 
-### CODEX (👁) — Auditor
-| Tool | Stage | Purpose |
-|:---|:---:|:---|
-| `reality_search` | 444 | Cross-check claims |
-| `init_gate` | — | Injection detection |
-
-### APEX (Ψ) — Judge
-| Tool | Stage | Purpose |
-|:---|:---:|:---|
-| `apex_verdict` | 888 | Final judgment |
-| `agi_reason` | 888 | Reasoning validation |
-| `asi_empathize` | 888 | Safety re-check |
-
-### KIMI (Κ) — Validator
-| Tool | Stage | Purpose |
-|:---|:---:|:---|
-| `vault_seal` | 999 | Cryptographic sealing |
+### The Meta-Tool
+* `trinity` 🔄 — Executes the full 000-999 Metabolic Loop in a single call.
 
 ---
 
-## 🛡️ V. CONSTITUTIONAL FLOOR OWNERSHIP
+## 🔬 V. THE 11 METABOLIC STAGES (The Process)
 
-| Floor | Name | Owner | Threshold | Verdict |
-|:---:|:---|:---:|:---|:---:|
-| **F1** | Amanah | Ω / Κ | Reversibility | VOID |
-| **F2** | Truth | Δ / 👁 | ≥ 0.99 | VOID |
-| **F3** | Tri-Witness | Ψ / Κ | ≥ 0.95 | SABAR |
-| **F4** | Clarity | Δ | ΔS ≤ 0 | SABAR |
-| **F5** | Peace² | Ω | ≥ 1.0 | VOID |
-| **F6** | Empathy | Ω | κᵣ ≥ 0.70 | SABAR |
-| **F7** | Humility | Δ | [0.03, 0.05] | VOID |
-| **F8** | Genius | Ψ / Κ | ≥ 0.80 | SABAR |
-| **F9** | Anti-Hantu | Ω | ≤ 0.30 | VOID |
-| **F10** | Ontology | Δ | Category lock | VOID |
-| **F11** | Authority | Ψ | Verified | VOID |
-| **F12** | Injection | 👁 / Δ | < 0.85 | VOID |
-| **F13** | Sovereign | Human | Override | WARNING |
+The "Helix" defines the 11 stages of intelligence metabolism:
+
+| Stage | Name | Role | Question |
+|:---:|:---|:---:|:---|
+| 000 | **Ignition** | 🚪 | Is it Authorized? (F11) |
+| 111 | **Sensing** | Δ | What is intended? (Gate) |
+| 222 | **Thinking** | Δ | What are the paths? (Explore) |
+| 333 | **Mapping** | Δ | What is the structure? (Atlas) |
+| 444 | **Grounding** | 👁 | Is it factually true? (F2) |
+| 555 | **Empathy** | Ω | Who is affected? (F6) |
+| 666 | **Alignment** | Ω | Is it safe/lawful? (F5/F9) |
+| 777 | **Insight** | Ω | What is synthesized? (Forge) |
+| 888 | **Judgment** | Ψ | What is the verdict? (F3/F8) |
+| 999 | **Sealing** | Κ | Is it immutable? (F1) |
+| 000' | **Next** | 🧬 | Seed for the loop. |
 
 ---
 
 ## 📦 VI. BUNDLE SPECIFICATIONS
+*(Handoffs between stages)*
 
 ### DeltaBundle (Δ → 👁)
 ```json

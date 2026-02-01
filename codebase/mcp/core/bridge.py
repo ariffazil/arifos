@@ -10,14 +10,15 @@ and the arifOS cores (AGI/ASI/APEX).
 """
 
 from __future__ import annotations
+
 import logging
 import time
 from typing import Any, Optional
 
-from codebase.mcp.services.constitutional_metrics import store_stage_result, get_stage_result
-from codebase.mcp.tools.trinity_validator import validate_trinity_request
-from codebase.mcp.tools import reality_grounding
 from codebase.mcp.external_gateways.brave_client import BraveSearchClient
+from codebase.mcp.services.constitutional_metrics import get_stage_result, store_stage_result
+from codebase.mcp.tools import reality_tool
+from codebase.mcp.tools.trinity_validator import validate_trinity_request
 
 # Initialize logger
 logger = logging.getLogger(__name__)
@@ -375,7 +376,7 @@ class BridgeRouter:
             intent = init_result.get("intent", "explain")
             scar_weight = init_result.get("scar_weight", 0.0)
 
-            should_check, reason = reality_grounding.should_reality_check(
+            should_check, reason = reality_tool.should_reality_check(
                 query, lane, intent, scar_weight
             )
 
@@ -414,10 +415,10 @@ async def bridge_reality_check_router(**kwargs) -> dict:
     try:
         query = kwargs.get("query", "")
         session_id = kwargs.get("session_id")
-        
+
         # Try to use the router, but fallback to a structured response if it fails
         # or if the Brave API key is missing/invalid.
-        
+
         try:
             result = await get_bridge_router().route_reality_check(**kwargs)
             # Ensure the result is a dict and has minimal fields
@@ -426,18 +427,18 @@ async def bridge_reality_check_router(**kwargs) -> dict:
                 # If success, BraveSearchClient returns a result object which _serialize handles
                 # but let's double check it fits the schema.
                 if "error_category" in result:
-                     return {
+                    return {
                         "status": "VOID",
                         "verdict": "VOID",
                         "reason": result.get("reason", "External gateway error"),
                         "source": "brave_search_error",
                         "query": query,
-                        "session_id": session_id
+                        "session_id": session_id,
                     }
                 return result
             # Should be serialized already
             return result
-            
+
         except Exception as inner_e:
             logger.warning(f"Brave Search Router failed: {inner_e}")
             # Fallback for reality_search if external API fails
@@ -449,7 +450,7 @@ async def bridge_reality_check_router(**kwargs) -> dict:
                 "query": query,
                 "session_id": session_id,
                 "content": "External search unavailable. Relying on internal knowledge base.",
-                "citations": []
+                "citations": [],
             }
 
     except Exception as e:
@@ -459,7 +460,7 @@ async def bridge_reality_check_router(**kwargs) -> dict:
             "verdict": "VOID",
             "reason": f"Critical bridge failure: {str(e)}",
             "source": "bridge_failure",
-            "error": str(e)
+            "error": str(e),
         }
 
 
@@ -516,8 +517,11 @@ async def bridge_trinity_loop_router(
                 "session_id": session_id,
                 "stages": loop_results,
                 "public_rationale": f"AGI engine rejected the request: {agi_result.get('reason', 'constitutional violation')}",
-                "rule_hits": list(k for k, v in agi_result.get("floor_scores", {}).items()
-                                  if isinstance(v, (int, float)) and v < 0.5),
+                "rule_hits": list(
+                    k
+                    for k, v in agi_result.get("floor_scores", {}).items()
+                    if isinstance(v, (int, float)) and v < 0.5
+                ),
                 "evidence_required": ["Corrective action addressing AGI floor violations"],
             }
 
@@ -549,7 +553,7 @@ async def bridge_trinity_loop_router(
 
         # Step 3b: 333 FORGE — Paradox Resolution (v53.5.0 — TrinitySyncHardened)
         try:
-            from codebase.agi.trinity_sync_hardened import synthesize_paradox, compute_trinity_score
+            from codebase.agi.trinity_sync_hardened import compute_trinity_score, synthesize_paradox
 
             agi_confidence = (
                 agi_result.get("truth_score", 0.9) if isinstance(agi_result, dict) else 0.9
@@ -566,9 +570,11 @@ async def bridge_trinity_loop_router(
             paradox_scores = {
                 "truth_care": synthesize_paradox(agi_confidence, asi_empathy),
                 "clarity_peace": synthesize_paradox(
-                    1.0 - abs(agi_result.get("entropy_delta", 0.0))
-                    if isinstance(agi_result, dict)
-                    else 0.9,
+                    (
+                        1.0 - abs(agi_result.get("entropy_delta", 0.0))
+                        if isinstance(agi_result, dict)
+                        else 0.9
+                    ),
                     asi_peace,
                 ),
                 "knowledge_wisdom": synthesize_paradox(agi_confidence, asi_empathy),
@@ -587,11 +593,11 @@ async def bridge_trinity_loop_router(
                         "paradox_scores": paradox_scores,
                         "trinity_score": trinity_score,
                         "min_paradox_score": min_paradox,
-                        "synthesis": "SEAL"
-                        if min_paradox >= 0.85
-                        else "PARTIAL"
-                        if min_paradox >= 0.70
-                        else "VOID",
+                        "synthesis": (
+                            "SEAL"
+                            if min_paradox >= 0.85
+                            else "PARTIAL" if min_paradox >= 0.70 else "VOID"
+                        ),
                         "_source": "TrinitySyncHardened",
                     },
                 }
@@ -676,9 +682,11 @@ async def bridge_trinity_loop_router(
             "verdict": final_verdict,
             "session_id": session_id,
             "query": query,
-            "reasoning": apex_result.get("reasoning", "")
-            if isinstance(apex_result, dict)
-            else str(apex_result),
+            "reasoning": (
+                apex_result.get("reasoning", "")
+                if isinstance(apex_result, dict)
+                else str(apex_result)
+            ),
             "stages": loop_results,
             "duration_ms": duration * 1000,
             "loops_completed": len(loop_results),
@@ -735,7 +743,7 @@ async def bridge_context_docs_router(query: str, **kwargs) -> dict:
 async def bridge_prompt_router(action: str, user_input: str, **kwargs) -> dict:
     """Pure bridge: Route prompt codec tasks via PromptCodec."""
     try:
-        from codebase.prompt.codec import SignalExtractor, ResponseFormatter, EngineRoute
+        from codebase.prompt.codec import EngineRoute, ResponseFormatter, SignalExtractor
 
         if action == "route" or action == "decode":
             extractor = SignalExtractor()
@@ -772,4 +780,5 @@ async def bridge_prompt_router(action: str, user_input: str, **kwargs) -> dict:
         logger.error(f"Prompt Router Error: {e}")
         if isinstance(e, BridgeError):
             return e.to_dict()
+        return BridgeError(str(e), "ENGINE_FAILURE").to_dict()
         return BridgeError(str(e), "ENGINE_FAILURE").to_dict()

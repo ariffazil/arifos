@@ -54,7 +54,7 @@ You can return to the Manifesto later.
     - [3. The Injection Fragility](#3-the-injection-fragility)
   - [❌ What arifOS Is Not](#-what-arifos-is-not)
   - [🛡️ III. The arifOS Solution](#️-iii-the-arifos-solution)
-    - [The 3 Pillars of Defense](#the-3-pillars-of-defense)
+    - [The 4 Pillars of Defense](#the-4-pillars-of-defense)
     - [Refusal as a First-Class Outcome](#refusal-as-a-first-class-outcome)
   - [🖼️ IV. Visual Architecture](#️-iv-visual-architecture)
     - [The Metabolic Helix (Live Diagram)](#the-metabolic-helix-live-diagram)
@@ -133,10 +133,10 @@ arifOS is a **governance kernel**: it constrains, verifies, and vetoes model out
 
 **arifOS** is a **Constitutional Kernel** that sits between any LLM (Claude, GPT, Gemini) and the real world. It does not trust the model. Instead, it **verifies** every output against a strict set of mathematical and logical constraints.
 
-### The 3 Pillars of Defense
+### The 4 Pillars of Defense
 
 1.  **Immutable Auditing (VAULT-999):** Every decision, every thought, every verdict is cryptographically sealed in a Merkle DAG. We can prove exactly what the AI thought and why it acted.
-    *   *See: [codebase/mcp/tools/VAULT_SPEC.md](codebase/mcp/tools/VAULT_SPEC.md)*
+    *   *See: [codebase/vault/seal999.py](codebase/vault/seal999.py)*
 
 2.  **Paradox Equilibrium:** We assume values conflict. We use a **9-Paradox Matrix** to find the Nash Equilibrium between competing ethics (e.g., Truth vs. Empathy), ensuring balanced wisdom rather than extreme optimization.
     *   *See: [000_THEORY/888_SOUL_VERDICT.md](000_THEORY/888_SOUL_VERDICT.md)*
@@ -144,8 +144,8 @@ arifOS is a **governance kernel**: it constrains, verifies, and vetoes model out
 3.  **Hardened Floors (F1-F13):** These are not guidelines; they are strict logic gates. If an output violates a floor (e.g., Truth < 0.99), it is **VOIDed** immediately. It physically cannot be emitted.
     *   *See: [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md)*
 
-4.  **Legally Defensible Refusal System (v55.2):** When harmful or high-stakes requests are detected, the system generates structured refusals with safe alternatives and human appeal mechanisms. *Refusals are deterministic, logged, and appealable; wording varies by profile, not by verdict.* This ensures both enterprise defensibility and consumer survivability.
-    *   *See: [docs/refusal_system_v55.2.md](docs/refusal_system_v55.2.md)*
+4.  **Legally Defensible Refusal System (v55.2):** When harmful or high-stakes requests are detected, the system generates structured refusals with safe alternatives and human appeal mechanisms. Refusals are deterministic, logged, and auditable.
+    *   *See: [codebase/enforcement/refusal/](codebase/enforcement/refusal/)*
 ### Refusal as a First-Class Outcome
 
 In arifOS, refusal is not failure.
@@ -320,7 +320,7 @@ Every AI output must pass these **13 Floors** before being released. A failure i
 
 ## ⚖️ VII. The 9-Paradox Equilibrium
 
-*Full Documentation: [000_THEORY/012_VERDICT_PARADOX.md](000_THEORY/012_VERDICT_PARADOX.md)*
+*Full Documentation: [docs/PARADOX_MATRIX.md](docs/PARADOX_MATRIX.md)*
 
 arifOS does not view ethics as binary. It views them as tensions to be balanced. The system solves for the **Nash Equilibrium** of these 9 paradoxes:
 
@@ -352,7 +352,7 @@ The **333_APPS** directory organizes the practical applications of arifOS into a
 | **L2** Skills | ✅ Complete | **Production** | YAML templates |
 | **L3** Workflows | ✅ Complete | **Production** | Team SOPs |
 | **L4** MCP Tools | ✅ Complete | **Production** | API integration |
-| **L5** Agents | 🔴 Stubs Only | **NOT READY** | Wait for v55.3+ |
+| **L5** Agents | 🔴 STUBS ONLY | **SLEEPING** | Env Alive / Agent logic is STUBBED |
 | **L6** Institution | ❌ Design Only | **NOT READY** | Wait for v56.0+ |
 | **L7** AGI | 📋 Research | **NOT READY** | Wait for v60+ |
 
@@ -399,6 +399,8 @@ Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Pro
 5.  `777_IMPLEMENT`: Execute implementation with safety checks.
 6.  `888_COMMIT`: Final verification and SEAL (Audit logging).
 
+**Agent Workspace:** See `.antigravity/rules/GEMINI.md` for the unified constitutional rules governing all agents.
+
 ### L4: MCP Tools (Production API)
 *The heartbeat of the system. Live at [arif-fazil.com/mcp](https://arif-fazil.com/mcp).*
 
@@ -411,7 +413,7 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
 
 | Tool | Symbol | Purpose | Floors Enforced |
 | :--- | :---: | :--- | :--- |
-| `init_gate` | 🔑 | **Ignition.** Session auth + **InjectionGuard** scan (F12). | F11, F12 |
+| `init_gate` | 🚪 | **Ignition.** Session auth + **InjectionGuard** scan (F12). | F11, F12 |
 | `agi_sense` | 🧠 | **Sense.** Intent classification & lane assignment. | F4 |
 | `agi_think` | 💡 | **Think.** Hypothesis generation & exploration. | F13 |
 | `agi_reason` | 🔬 | **Reason.** Deep logic & entropy reduction. | F2, F4, F7 |
@@ -420,9 +422,7 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
 | `apex_verdict` | 🏛️ | **Verdict.** Final constitutional judgment & consensus. | F3, F8 |
 | `reality_search` | 🌍 | **Ground.** External fact-checking & citation. | F7, F10 |
 | `vault_seal` | 🔒 | **Seal.** Cryptographic Merkle sealing of the ledger. | F1 |
-
-**Utility Tools:**
-- `_trinity_` 🔄 — Full Metabolic Loop (AGI→ASI→APEX→VAULT)
+| `_trinity_` | 🔄 | **Full Loop.** Run complete AGI→ASI→APEX→VAULT cycle. | ALL |
 
 **Security Note:** Legacy aliases (`_init_`, `_agi_`, `asi_insight`, etc.) have been **removed** to reduce entropy (F4). Attempting to use them will result in a Schema Error.
 
@@ -482,19 +482,24 @@ Open [http://localhost:6274](http://localhost:6274) in your browser.
 - Test constitutional floor enforcement interactively.
 
 ### L5: Agents (Federation) 🔴
-*Autonomous Multi-Agent System — **STUBS ONLY, NOT PRODUCTION READY**.*
+*Autonomous Multi-Agent System — **STUBS ONLY**.*
 
 **Target Audience:** AI Researchers / Complex Systems Architects  
 **Complexity:** Very High (Distributed Systems)  
-**Status:** 🔴 **0% Functional** — All methods are `pass` (see [333_APPS/STATUS.md](333_APPS/STATUS.md))
+**Status:** 🔴 **STUBS ONLY** — Environment (physics/hypervisor) functional, 4 agents are empty implementations. See [333_APPS/STATUS.md](333_APPS/STATUS.md).
 
-Located in `333_APPS/L5_AGENTS`. A federation of 4 specialized agents working in concert, mirroring the Trinity architecture but as autonomous entities:
-1.  **Architect (Δ):** Designs the plan and logic.
-2.  **Engineer (Ω):** Builds the solution and ensures safety.
-3.  **Auditor (👁):** Verifies facts and monitors injection attempts.
-4.  **Validator (Ψ):** Signs off on the final verdict and commits to the Vault.
+Located in `333_APPS/L5_AGENTS`. A federation of 4 specialized agents driven by a **Thermodynamic Hypervisor**.
 
-> ⚠️ **Reality Check:** 6 Python files, ~392 LOC, **0% functional**. Architecture is defined but no implementation exists yet. See [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) T3.1 for implementation plan.
+1.  **The Physical Layer (Alive):** `hypervisor.py` drives the metabolic loop, enforcing Token Physics and Time Dilation laws.
+2.  **The Social Layer (Dreaming):** The 4 Agents (Architect, Engineer, Auditor, Validator) use the L4 Production Kernels but are currently wired as Stubs.
+
+### L5 Physics Layer (Environment)
+The L5 environment enforces thermodynamic constraints:  
+- **TokenPhysics**: $1.00 budget per session (Landauer Limit)
+- **TimePhysics**: 30s max latency (Entropy/Time)  
+- **ConstitutionalLaw**: F1-F13 floor enforcement
+
+> ⚠️ **Reality Check:** The "Body" (Environment) is functional and verified via `ignite_test.py`. The "Brain" (Agent Logic) is waiting to be connected to the L4 Tools. See [333_APPS/L5_AGENTS/README.md](333_APPS/L5_AGENTS/README.md).
 
 ### L6: Institution (Trinity System) ❌
 *Maximum Autonomy — **DESIGN ONLY, NO IMPLEMENTATION**.*
@@ -546,6 +551,13 @@ arifOS/
 │   ├── guards/          # Hypervisor guards (injection, ontology, nonce)
 │   ├── enforcement/     # Floor validator implementations
 │   └── mcp/             # MCP Server (tools, transports, core)
+├── .antigravity/        # Agent Workspace (The Operating Environment)
+│   ├── adapters/        # Agent codexes (GEMINI.md, CLAUDE.md, etc.)
+│   ├── environment/     # Physics layer (Token/Time/Law enforcement)
+│   ├── rules/           # Constitutional rules (GEMINI.md — unified)
+│   ├── workflows/       # Step-by-step processes
+│   ├── brain/           # Working memory
+│   └── AGENTS.md        # 5-agent manifest
 ├── schemas/             # JSON Schema contracts for MCP tools
 ├── docs/                # Documentation & Assets
 └── tests/               # Validation Suite (202 tests)

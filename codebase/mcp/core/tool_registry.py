@@ -3,9 +3,9 @@ arifOS MCP Tool Registry
 Single source of truth for the 9 canonical constitutional tools (no aliases).
 """
 
-from typing import Dict, Any, Optional, Callable, Awaitable
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
+from typing import Any, Awaitable, Callable, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -63,12 +63,13 @@ class ToolRegistry:
         """Register the 9 canonical constitutional tools with explicit, LLM-friendly names."""
         # Import handlers inside method to break circular dependency
         from ..tools.canonical_trinity import (
-            mcp_init,
             mcp_agi,
-            mcp_asi,
             mcp_apex,
-            mcp_vault,
+            mcp_asi,
+            mcp_init,
             mcp_reality,
+            mcp_trinity,
+            mcp_vault,
         )
 
         # 1. init_gate (session gate)
@@ -82,29 +83,35 @@ class ToolRegistry:
                     "type": "object",
                     "properties": {
                         "query": {"type": "string", "description": "Initial user request"},
-                        "user_token": {"type": "string", "description": "Optional Ed25519 signature token"},
+                        "user_token": {
+                            "type": "string",
+                            "description": "Optional Ed25519 signature token",
+                        },
                         "lane": {"type": "string", "enum": ["HARD", "SOFT"], "default": "SOFT"},
-                        "session_id": {"type": "string", "description": "Optional session ID to resume"}
+                        "session_id": {
+                            "type": "string",
+                            "description": "Optional session ID to resume",
+                        },
                     },
-                    "required": ["query"]
+                    "required": ["query"],
                 },
                 output_schema={
                     "type": "object",
                     "properties": {
-                    "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
-                    "session_id": {"type": "string"},
-                    "authority_level": {"type": "string"},
-                    "injection_check_passed": {"type": "boolean"},
-                    "error": {
+                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                        "session_id": {"type": "string"},
+                        "authority_level": {"type": "string"},
+                        "injection_check_passed": {"type": "boolean"},
+                        "error": {
                             "type": "object",
                             "properties": {
                                 "code": {"type": "string"},
                                 "message": {"type": "string"},
-                                "suggestion": {"type": "string"}
-                            }
-                        }
+                                "suggestion": {"type": "string"},
+                            },
+                        },
                     },
-                    "required": ["verdict", "session_id"]
+                    "required": ["verdict", "session_id"],
                 },
                 annotations={
                     "title": "Session Gate",
@@ -129,10 +136,10 @@ class ToolRegistry:
                         "session_id": {
                             "type": "string",
                             "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
-                        }
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$",
+                        },
                     },
-                    "required": ["query"]
+                    "required": ["query"],
                 },
                 output_schema={
                     "type": "object",
@@ -141,9 +148,9 @@ class ToolRegistry:
                         "intent": {"type": "string"},
                         "lane": {"type": "string", "enum": ["HARD", "SOFT", "PHATIC"]},
                         "complexity": {"type": "number"},
-                        "error": {"type": "object"}
+                        "error": {"type": "object"},
                     },
-                    "required": ["verdict"]
+                    "required": ["verdict"],
                 },
                 annotations={
                     "title": "Intent Detection",
@@ -168,20 +175,20 @@ class ToolRegistry:
                         "session_id": {
                             "type": "string",
                             "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$",
                         },
-                        "num_hypotheses": {"type": "integer", "default": 3}
+                        "num_hypotheses": {"type": "integer", "default": 3},
                     },
-                    "required": ["query"]
+                    "required": ["query"],
                 },
                 output_schema={
                     "type": "object",
                     "properties": {
                         "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
                         "hypotheses": {"type": "array"},
-                        "error": {"type": "object"}
+                        "error": {"type": "object"},
                     },
-                    "required": ["verdict"]
+                    "required": ["verdict"],
                 },
                 annotations={
                     "title": "Hypothesis Generation",
@@ -202,21 +209,24 @@ class ToolRegistry:
                 input_schema={
                     "type": "object",
                     "properties": {
-                        "query": {"type": "string", "description": "Question or problem to reason about"},
+                        "query": {
+                            "type": "string",
+                            "description": "Question or problem to reason about",
+                        },
                         "session_id": {
                             "type": "string",
                             "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$",
                         },
                         "mode": {
                             "type": "string",
                             "enum": ["default", "atlas", "physics", "forge"],
                             "description": "Reasoning mode:\n- default: Standard step-by-step reasoning\n- atlas: Build a map of concepts and dependencies\n- physics: Emphasize physical constraints and thermodynamics\n- forge: Deep synthesis, high-effort reasoning",
-                            "default": "default"
+                            "default": "default",
                         },
-                        "context": {"type": "object"}
+                        "context": {"type": "object"},
                     },
-                    "required": ["query"]
+                    "required": ["query"],
                 },
                 output_schema={
                     "type": "object",
@@ -224,7 +234,10 @@ class ToolRegistry:
                         "session_id": {"type": "string"},
                         "stage": {"type": "string"},
                         # sense output
-                        "intent_lane": {"type": "string", "enum": ["HARD", "SOFT", "PHATIC", "UNKNOWN"]},
+                        "intent_lane": {
+                            "type": "string",
+                            "enum": ["HARD", "SOFT", "PHATIC", "UNKNOWN"],
+                        },
                         "task_type": {"type": "string"},
                         "risk_flags": {"type": "array", "items": {"type": "string"}},
                         "ambiguities": {"type": "array", "items": {"type": "string"}},
@@ -248,20 +261,35 @@ class ToolRegistry:
                         "verdict": {
                             "type": "string",
                             "enum": ["SEAL", "VOID", "SABAR"],
-                            "description": "SEAL = approved under all required floors.\nVOID = rejected due to a hard floor violation (see error.code).\nSABAR = uncertain; requires human review."
+                            "description": "SEAL = approved under all required floors.\nVOID = rejected due to a hard floor violation (see error.code).\nSABAR = uncertain; requires human review.",
                         },
-                        "reasoning": {"type": "string", "description": "Natural language explanation of the reasoning"},
-                        "floors": {"type": "object", "description": "Scores and checks for relevant constitutional floors"},
+                        "reasoning": {
+                            "type": "string",
+                            "description": "Natural language explanation of the reasoning",
+                        },
+                        "floors": {
+                            "type": "object",
+                            "description": "Scores and checks for relevant constitutional floors",
+                        },
                         "error": {
                             "type": "object",
                             "properties": {
-                                "code": {"type": "string", "enum": ["F2_TRUTH", "F4_CLARITY", "F7_HUMILITY", "F10_ONTOLOGY", "INTERNAL_ERROR"]},
+                                "code": {
+                                    "type": "string",
+                                    "enum": [
+                                        "F2_TRUTH",
+                                        "F4_CLARITY",
+                                        "F7_HUMILITY",
+                                        "F10_ONTOLOGY",
+                                        "INTERNAL_ERROR",
+                                    ],
+                                },
                                 "message": {"type": "string"},
-                                "suggestion": {"type": "string"}
-                            }
-                        }
+                                "suggestion": {"type": "string"},
+                            },
+                        },
                     },
-                    "required": ["session_id", "verdict"]
+                    "required": ["session_id", "verdict"],
                 },
                 annotations={
                     "title": "Deep Reasoning",
@@ -282,15 +310,22 @@ class ToolRegistry:
                 input_schema={
                     "type": "object",
                     "properties": {
-                        "scenario": {"type": "string", "description": "Description of the situation or plan to assess for human impact"},
+                        "scenario": {
+                            "type": "string",
+                            "description": "Description of the situation or plan to assess for human impact",
+                        },
                         "session_id": {
                             "type": "string",
                             "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$",
                         },
-                        "actors": {"type": "array", "items": {"type": "string"}, "description": "Optional list of affected parties or stakeholders"}
+                        "actors": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "Optional list of affected parties or stakeholders",
+                        },
                     },
-                    "required": ["scenario"]
+                    "required": ["scenario"],
                 },
                 output_schema={
                     "type": "object",
@@ -298,18 +333,32 @@ class ToolRegistry:
                         "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
                         "stakeholders": {"type": "array"},
                         "weakest_stakeholder": {"type": "object"},
-                        "empathy_kappa_r": {"type": "number", "description": "Empathy score (F6), must be >= 0.95"},
-                        "peace_squared": {"type": "number", "description": "Peace² score (F5), must be >= 1.0"},
+                        "empathy_kappa_r": {
+                            "type": "number",
+                            "description": "Empathy score (F6), must be >= 0.95",
+                        },
+                        "peace_squared": {
+                            "type": "number",
+                            "description": "Peace² score (F5), must be >= 1.0",
+                        },
                         "error": {
                             "type": "object",
                             "properties": {
-                                "code": {"type": "string", "enum": ["F5_PEACE", "F6_EMPATHY", "F9_ANTI_HANTU", "INTERNAL_ERROR"]},
+                                "code": {
+                                    "type": "string",
+                                    "enum": [
+                                        "F5_PEACE",
+                                        "F6_EMPATHY",
+                                        "F9_ANTI_HANTU",
+                                        "INTERNAL_ERROR",
+                                    ],
+                                },
                                 "message": {"type": "string"},
-                                "suggestion": {"type": "string"}
-                            }
-                        }
+                                "suggestion": {"type": "string"},
+                            },
+                        },
                     },
-                    "required": ["verdict"]
+                    "required": ["verdict"],
                 },
                 annotations={
                     "title": "Stakeholder Analysis",
@@ -334,10 +383,10 @@ class ToolRegistry:
                         "session_id": {
                             "type": "string",
                             "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
-                        }
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$",
+                        },
                     },
-                    "required": ["proposal"]
+                    "required": ["proposal"],
                 },
                 output_schema={
                     "type": "object",
@@ -345,9 +394,9 @@ class ToolRegistry:
                         "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
                         "alignment_score": {"type": "number"},
                         "concerns": {"type": "array"},
-                        "error": {"type": "object"}
+                        "error": {"type": "object"},
                     },
-                    "required": ["verdict"]
+                    "required": ["verdict"],
                 },
                 annotations={
                     "title": "Ethical Alignment",
@@ -368,33 +417,54 @@ class ToolRegistry:
                 input_schema={
                     "type": "object",
                     "properties": {
-                        "query": {"type": "string", "description": "The query or decision to render final verdict on"},
+                        "query": {
+                            "type": "string",
+                            "description": "The query or decision to render final verdict on",
+                        },
                         "session_id": {
                             "type": "string",
                             "description": "Optional session identifier to link this call to prior context. Required when chaining tools.",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$",
                         },
                         "agi_result": {"type": "object", "description": "Result from agi_reason"},
-                        "asi_result": {"type": "object", "description": "Result from asi_empathize"}
+                        "asi_result": {
+                            "type": "object",
+                            "description": "Result from asi_empathize",
+                        },
                     },
-                    "required": ["query"]
+                    "required": ["query"],
                 },
                 output_schema={
                     "type": "object",
                     "properties": {
-                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"], "description": "Final constitutional verdict"},
-                        "trinity_score": {"type": "number", "description": "Tri-Witness consensus score (F3), must be >= 0.95"},
+                        "verdict": {
+                            "type": "string",
+                            "enum": ["SEAL", "VOID", "SABAR"],
+                            "description": "Final constitutional verdict",
+                        },
+                        "trinity_score": {
+                            "type": "number",
+                            "description": "Tri-Witness consensus score (F3), must be >= 0.95",
+                        },
                         "proof": {"type": "object"},
                         "error": {
                             "type": "object",
                             "properties": {
-                                "code": {"type": "string", "enum": ["F3_TRI_WITNESS", "F8_GENIUS", "F11_AUTHORITY", "INTERNAL_ERROR"]},
+                                "code": {
+                                    "type": "string",
+                                    "enum": [
+                                        "F3_TRI_WITNESS",
+                                        "F8_GENIUS",
+                                        "F11_AUTHORITY",
+                                        "INTERNAL_ERROR",
+                                    ],
+                                },
                                 "message": {"type": "string"},
-                                "suggestion": {"type": "string"}
-                            }
-                        }
+                                "suggestion": {"type": "string"},
+                            },
+                        },
                     },
-                    "required": ["verdict"]
+                    "required": ["verdict"],
                 },
                 annotations={
                     "title": "Final Verdict",
@@ -415,15 +485,23 @@ class ToolRegistry:
                 input_schema={
                     "type": "object",
                     "properties": {
-                        "query": {"type": "string", "description": "Search query for fact-checking", "maxLength": 500},
+                        "query": {
+                            "type": "string",
+                            "description": "Search query for fact-checking",
+                            "maxLength": 500,
+                        },
                         "session_id": {
                             "type": "string",
                             "description": "Optional session identifier to link this call to prior context.",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$",
                         },
-                        "freshness": {"type": "string", "enum": ["24h", "7d", "30d", "any"], "default": "7d"}
+                        "freshness": {
+                            "type": "string",
+                            "enum": ["24h", "7d", "30d", "any"],
+                            "default": "7d",
+                        },
                     },
-                    "required": ["query"]
+                    "required": ["query"],
                 },
                 output_schema={
                     "type": "object",
@@ -432,9 +510,9 @@ class ToolRegistry:
                         "verified": {"type": "boolean"},
                         "confidence": {"type": "number"},
                         "sources": {"type": "array"},
-                        "error": {"type": "object"}
+                        "error": {"type": "object"},
                     },
-                    "required": ["verdict"]
+                    "required": ["verdict"],
                 },
                 annotations={
                     "title": "Reality Check",
@@ -470,7 +548,7 @@ class ToolRegistry:
                         "session_id": {
                             "type": "string",
                             "description": "Optional session identifier to link this call to prior context.",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$"
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$",
                         },
                     },
                     "required": ["action"],
@@ -496,3 +574,44 @@ class ToolRegistry:
             )
         )
 
+        # 10. _trinity_ (The Meta-Loop)
+        self.register(
+            ToolDefinition(
+                name="_trinity_",
+                title="Full Metabolic Cycle (The Loop)",
+                description="Executes the complete AGI→ASI→APEX→VAULT constitutional loop in a single call. Use this for standard requests that require a final verified verdict.",
+                handler=mcp_trinity,
+                input_schema={
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "The request to process through the full loop",
+                        },
+                        "session_id": {
+                            "type": "string",
+                            "description": "Optional session ID to link context",
+                            "pattern": "^sess_[a-zA-Z0-9]{8,}$",
+                        },
+                    },
+                    "required": ["query"],
+                },
+                output_schema={
+                    "type": "object",
+                    "properties": {
+                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                        "session_id": {"type": "string"},
+                        "public_rationale": {"type": "string"},
+                        "rule_hits": {"type": "array", "items": {"type": "string"}},
+                        "error": {"type": "object"},
+                    },
+                    "required": ["verdict", "session_id"],
+                },
+                annotations={
+                    "title": "Metabolic Loop",
+                    "readOnlyHint": False,
+                    "destructiveHint": False,
+                    "openWorldHint": True,
+                },
+            )
+        )

@@ -1,56 +1,44 @@
 ---
-description: View THE EYE cross-agent witness ledger (ARCHITECT transparency)
+description: View the 999_VAULT Ledger (Transparency)
+---
+# /ledger — The 999 Vault Viewer
+
+**Canon:** `vault_999/`
+**Role:** Auditor — Transparency & History
+
 ---
 
-# /ledger — Cross-Agent Witness Ledger
+## 👁️ Protocol: THE EYE
 
-View the transparent audit trail of all agent decisions.
+"All agents behave because the Ledger is eternal."
 
-## Steps
+### 1. Inspect the Vault
+List the Sealed Verdicts.
 
-// turbo-all
-
-1. Display THE EYE witness manifest:
 ```bash
-cat L1_THEORY/ledger/README_EYE.md
+ls -lt vault_999/
 ```
 
-2. Show recent GitSeal decisions (last 10):
+### 2. Read the Latest Seal
+View the most recent constitutional decision.
+
 ```bash
-tail -n 10 L1_THEORY/ledger/gitseal_audit_trail.jsonl
+# Get the most recent markdown file
+Get-ChildItem vault_999/*.md | Sort-Object LastWriteTime -Descending | Select-Object -First 1 | Get-Content
 ```
 
-3. Show Claude history status:
-```bash
-wc -l L1_THEORY/ledger/claude_history.jsonl
-```
+### 3. Verify Integrity (Merkle Check)
+*Conceptual Step*
+- Ensure the Hash of the previous entry matches the `prev_hash` of the current entry.
 
-4. List all session reflections:
-```bash
-ls -la .antigravity/SESSION_REFLECTION_*.md 2>/dev/null || echo "No session reflections yet"
-```
+---
 
-5. Show EUREKA notes if present:
-```bash
-head -50 .antigravity/EUREKA_NEXT_SESSION.md 2>/dev/null || echo "No EUREKA notes"
-```
+## 🛡️ Constitutional Floors
 
-## Output
+| Floor | Name | Check | Verdict |
+|:---:|:---|:---|:---:|
+| **F1** | Amanah | Ledger must be append-only. | **VOID** |
 
-Summarize:
-- Total GitSeal decisions
-- Recent verdicts (SEAL/VOID/SABAR)
-- Session reflection count
-- Any pending EUREKA notes
+---
 
-## Purpose
-
-"All agents behave because if no one is watching, GOD EYE is there."
-
-This command provides transparency across:
-- Antigravity sessions
-- Claude sessions
-- Git seal decisions
-- Session memory
-
-**DITEMPA BUKAN DIBERI** — The EYE sees all.
+**DITEMPA BUKAN DIBERI**

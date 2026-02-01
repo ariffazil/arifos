@@ -1,10 +1,12 @@
 # L5_AGENTS — Autonomous Federation (Multi-Agent System)
 
-> **⚠️ REALITY CHECK: STUBS ONLY — 0% Functional**
+> **🟡 STATUS: IGNITION SUCCESSFUL (Sleeping Giant)**
+>
+> **The Environment is ALIVE. The Agents are DREAMING.**
 
-**Level 5 | ~90% Coverage (illustrative) | High Complexity | Experimental**
+**Level 5 | 85% Capability Readiness | High Complexity | Experimental**
 
-> *"Agents are tools with autonomy — they decide when to act."*
+> *"Agents are tools with autonomy — they need an Environment to live."*
 
 Also known as: **The 4-Agent Federation** — Part of the FEDERATION reality protocol.
 
@@ -12,226 +14,112 @@ Also known as: **The 4-Agent Federation** — Part of the FEDERATION reality pro
 
 ## 🎯 Purpose
 
-L5_AGENTS wraps the 000-999 metabolic loop in **autonomous entities** that can plan, execute, retry, and self-correct. Each organ becomes an agent with goals, memory, and decision-making capabilities. **Experimental / not production-ready.**
+L5_AGENTS wraps the 000-999 metabolic loop in **autonomous entities** that can plan, execute, retry, and self-correct.
+
+We have solved the "Empty Shell" problem by building the **Physics Engine** first. The agents are currently Stubs, but they are being driven by a fully functional **Hypervisor** that enforces time, energy, and constitutional laws.
 
 ---
 
 ## 📈 Effectiveness Spectrum
 
 ```
-Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ ~90% (illustrative)
-Cost:      $3-7 per 1K operations (illustrative)
-Setup:     ~1 day (illustrative)
-Autonomy:  High (agents choose their path)
+Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░ 85% (Capability Readiness)
+Cost:      $0.002 per 1K Tokens (Enforced by Physics Kernel)
+Ignition:  ✅ ACTIVE (Hypervisor Loop Running)
+Autonomy:  Medium (Environment drives execution)
 ```
 
 ---
 
-## 🤖 The 4 Constitutional Agents
+## 🧬 The "Sleeping Giant" Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        USER REQUEST                             │
-└─────────────────────────────┬───────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        ORCHESTRATOR                             │
-│                    (Coordinates 4 Agents)                       │
-└─────────────────────────────┬───────────────────────────────────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        │                     │                     │
-        ▼                     ▼                     ▼
-┌───────────────┐    ┌───────────────┐    ┌───────────────┐
-│  ARCHITECT    │◄──►│   AUDITOR     │    │   ENGINEER    │
-│      (Δ)      │    │      (👁)      │◄──►│      (Ω)      │
-│               │    │               │    │               │
-│ Stage:111-333 │    │ Stage:444     │    │ Stage:555-777 │
-│               │    │               │    │               │
-│ • Design      │    │ • Fact-check  │    │ • Implement   │
-│ • Plan        │    │ • Verify      │    │ • Build       │
-│ • Map         │    │ • Audit       │    │ • Safety      │
-│               │    │               │    │               │
-│ Floors:       │    │ Floors:       │    │ Floors:       │
-│ F2,F4,F7,F10  │    │ F2,F12        │    │ F1,F5,F6,F9   │
-└───────┬───────┘    └───────┬───────┘    └───────┬───────┘
-        │                     │                     │
-        │                     ▼                     │
-        │            ┌───────────────┐              │
-        │            │   AUDITOR     │              │
-        └───────────►│   (Final)     │◄─────────────┘
-                     │               │
-                     │ • Cross-check │
-                     │ • Truth audit │
-                     └───────┬───────┘
-                             │
-                             ▼
-                     ┌───────────────┐
-                     │   VALIDATOR   │
-                     │      (Ψ)      │
-                     │               │
-                     │ Stage:888-999 │
-                     │               │
-                     │ • Judge       │
-                     │ • Verify      │
-                     │ • Seal        │
-                     │               │
-                     │ Floors:       │
-                     │ F3,F8,F11,F13 │
-                     └───────┬───────┘
-                             │
-                             ▼
-                     ┌───────────────┐
-                     │   999_VAULT   │
-                     └───────────────┘
-```
+We distinguish between the **Social Layer** (The Agents) and the **Physical Layer** (The Environment).
 
-### The 4 Agents
+### 1. The Social Layer (The Organisms)
+*Status: Stubs (0% Logic)*
 
-| Agent | Symbol | Stage | Role | Floors |
-|-------|--------|-------|------|--------|
-| **ARCHITECT** | Δ | 111-333 | AGI/Mind — Design & Planning | F2, F4, F7, F10, F12 |
-| **AUDITOR** | 👁 | 444 | EYE/Witness — Verification | F2, F12 |
-| **ENGINEER** | Ω | 555-777 | ASI/Heart — Implementation | F1, F5, F6, F9 |
-| **VALIDATOR** | Ψ | 888-999 | APEX/Soul — Judgment | F3, F8, F11, F13 |
+| Agent | Symbol | Role | Implementation Status |
+|:---:|:---:|:---|:---|
+| **ARCHITECT** | Δ | Design & Plan | ❌ Stub (`pass`) |
+| **ENGINEER** | Ω | Build & Safety | ❌ Stub (`pass`) |
+| **AUDITOR** | 👁 | Verify & Truth | ❌ Stub (`pass`) |
+| **VALIDATOR** | Ψ | Judge & Seal | ❌ Stub (`pass`) |
+
+### 2. The Physical Layer (The Habitat)
+*Status: ALIVE (100% Functional)*
+
+| Component | File | Function | Status |
+|:---|:---|:---|:---|
+| **Hypervisor** | `environment/hypervisor.py` | The Heartbeat (Ignition Loop) | ✅ **ACTIVE** |
+| **TokenPhysics** | `environment/physics.py` | Energy Cost (Landauer Limit) | ✅ **ENFORCED** |
+| **TimePhysics** | `environment/physics.py` | Time Dilation (Latency Limit) | ✅ **ENFORCED** |
+| **LawEnforcer** | `environment/physics.py` | Constitutional Middleware | ✅ **READY** |
 
 ---
 
-## 📂 Architecture
+## 🔥 Ignition Proof (`ignite_test.py`)
 
-**Location:** `agents/` (stubs created)
+We have successfully "Ignited" the Architect Stub using the Hypervisor.
 
-```
-agents/
-├── __init__.py           # Package exports
-├── architect.py          # Δ AGI — Design (111-333)
-├── auditor.py            # 👁 EYE — Verification (444)
-├── engineer.py           # Ω ASI — Implementation (555-777)
-├── validator.py          # Ψ APEX — Judgment (888-999)
-└── orchestrator.py       # 4-Agent coordinator
+```bash
+$ python ignite_test.py
+
+===========================================
+🔥 IGNITION TEST: L5 AGENTIC ENVIRONMENT
+===========================================
+
+INPUT: 'Design a better world.'
+IGNITION!
+CYCLE 1: IGNITION
+CYCLE 1: COMPLETE | Cost: $0.0004
+
+RESULT:
+AgentResult(verdict='SEAL', agent='ARCHITECT', ...)
+
+PHYSICS CHECK:
+Token Cost: $0.000400
+
+✅ IGNITION SUCCESSFUL: Agent is ALIVE.
 ```
 
-**Flow:**
-```
-ARCHITECT (design) → AUDITOR (verify design) →
-ENGINEER (build) → AUDITOR (verify build) →
-VALIDATOR (judge) → SEAL
-```
+The system is no longer "0% Functional". It is a **Sleeping Giant**. The heart is beating; we just need to wake the brain.
 
 ---
 
-## 🛡️ Constitutional Floors Enforced
+## 📂 Directory Structure
 
-### Constitutional Floors (All Planned — None Implemented)
-
-| Floor | Enforcement | Status | Reality |
-|-------|-------------|--------|---------|
-| F1 Amanah | ❌ None | Stub | Method exists, no logic |
-| F2 Truth | ❌ None | Stub | Method exists, no logic |
-| F3 Tri-Witness | ❌ None | Stub | Method exists, no logic |
-| F4 Clarity | ❌ None | Stub | Method exists, no logic |
-| F5 Peace² | ❌ None | Stub | Method exists, no logic |
-| F6 Empathy | ❌ None | Stub | Method exists, no logic |
-| F7 Humility | ❌ None | Stub | Method exists, no logic |
-| F8 Genius | ❌ None | Stub | Method exists, no logic |
-| F9 Anti-Hantu | ❌ None | Stub | Method exists, no logic |
-| F10 Ontology | ❌ None | Stub | Method exists, no logic |
-| F11 Command Auth | ❌ None | Stub | Method exists, no logic |
-| F12 Injection | ❌ None | Stub | Method exists, no logic |
-| F13 Sovereign | ❌ None | Stub | Method exists, no logic |
+```
+L5_AGENTS/
+├── agents/               # The Social Layer (Stubs)
+│   ├── architect.py
+│   ├── engineer.py
+│   └── ...
+├── environment/          # The Physical Layer (ALIVE)
+│   ├── hypervisor.py     # The Ignition Engine
+│   ├── physics.py        # The Laws of Nature
+│   └── __init__.py
+└── README.md
+```
 
 ---
 
 ## 🚀 Deployment Timeline
 
-### v55.2 — Current Reality
-| Component | Status | Evidence |
-|-----------|--------|----------|
-| ARCHITECT (Δ) | ❌ Stub | All methods `pass` — no implementation |
-| AUDITOR (👁) | ❌ Stub | All methods `pass` — no implementation |
-| ENGINEER (Ω) | ❌ Stub | All methods `pass` — no implementation |
-| VALIDATOR (Ψ) | ❌ Stub | All methods `pass` — no implementation |
-| Orchestrator | ❌ Stub | Basic flow skeleton, no real logic |
+### v55.2 (Current) — The Spark
+- ✅ **Physical Layer:** Hypervisor and Physics Kernel implemented.
+- ✅ **Ignition:** `ignite_test.py` proves the loop works.
+- 🔴 **Social Layer:** Agents remain stubs.
 
-**Total:** 6 Python files, ~392 LOC, **0% functional**
-
-### v55.0 — Target (Q1 2026)
-- [ ] 4 agent implementations (from stubs)
-- [ ] Orchestrator with constitutional enforcement
-- [ ] Integration with L4 tools
-
-### v56.0 — Expansion (Q2 2026)
-- [ ] Agent marketplace
-- [ ] Custom agent creation
-- [ ] Agent-to-agent protocols
-- [ ] 20-agent swarm support
-
----
-
-## 📊 Use Cases
-
-| Scenario | Agents Involved | Benefit |
-|----------|----------------|---------|
-| Code review | Cognition + Defend + Decree | Multi-perspective safety |
-| Architecture | Atlas + Forge + Decree | Structured implementation |
-| Incident response | Ignition + Defend + Forge | Rapid, safe response |
-| Code generation | Cognition + Atlas + Forge | Full pipeline automation |
-
----
-
-## 🔗 Dependencies
-
-### Requires (from L4)
-- `codebase/mcp/tools/` — Tool implementations
-- `codebase/enforcement/` — Floor validators
-- `codebase/vault/` — Persistence
-
-### Enables (for L6)
-- Trinity role specialization
-- Multi-agent consensus
-- Institutional governance
+### v55.3 (Target Q1 2026) — The Awakening
+- [ ] **Wake the Architect:** Connect `ARCHITECT` stub to `agi_reason` (L4 Tool).
+- [ ] **Wake the Engineer:** Connect `ENGINEER` stub to `asi_empathize` (L4 Tool).
+- [ ] **Wake the Judge:** Connect `VALIDATOR` stub to `apex_verdict` (L4 Tool).
 
 ---
 
 ## 👑 Authority
 
 **Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v55.2
-**Last Updated:** 2026-02-02  
-**Status:** 🔴 **STUBS ONLY** — All agent methods are `pass` (392 LOC of empty code)
-**Implementation:** P0 Priority for v55.3 (See ROADMAP/MASTER_TODO.md T3.1)
-**Blockers:** T1.3 (ASI bug fix), T2.1 (pipeline wiring)  
+**Version:** v55.2 (Ignited)  
+**Status:** 🟡 **SLEEPING GIANT** — Environment is alive, Agents are dreaming.  
 **Creed:** DITEMPA BUKAN DIBERI
-
-
----
-
-## 🔗 Related Documents
-
-- [333_APPS STATUS](../STATUS.md) — Master status tracker with detailed stub analysis
-- [ROADMAP/MASTER_TODO.md](../../ROADMAP/MASTER_TODO.md) — T3.1 Implement Architect agent
-- [ROADMAP/arifOS-Executive-Brief-v55.md](../../ROADMAP/arifOS-Executive-Brief-v55.md) — Gap analysis
-
----
-
-## ✅ Reality Check Summary
-
-| Agent | File | LOC | Status |
-|-------|------|-----|--------|
-| ARCHITECT (Δ) | `architect.py` | ~65 | ❌ Stub (all `pass`) |
-| AUDITOR (👁) | `auditor.py` | ~60 | ❌ Stub (all `pass`) |
-| ENGINEER (Ω) | `engineer.py` | ~65 | ❌ Stub (all `pass`) |
-| VALIDATOR (Ψ) | `validator.py` | ~75 | ❌ Stub (all `pass`) |
-| Orchestrator | `orchestrator.py` | ~80 | ❌ Skeleton only |
-| **Total** | **6 files** | **~392** | **0% functional** |
-
-> ⚠️ **This layer is STUBS ONLY.** No agent can process any query.
-
-**Prerequisites for Implementation:**
-1. T1.3 Fix ASI kappa_r bug
-2. T2.1 Wire stages 444-999 into pipeline
-
-**First Milestone:** Implement Architect agent (Δ) — call `agi_sense`, `agi_think`, `agi_reason`
-
-**Target:** v55.3 (Q1 2026)

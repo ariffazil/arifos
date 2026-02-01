@@ -3,67 +3,56 @@ description: Git Trinity — Entropy + Validate + Seal (3-in-1)
 ---
 # Git Trinity: Forge → QC → Seal
 
-**Canon:** `000_THEORY/001_AGENTS.md`
-**Function:** Complete git governance in one workflow
+**Canon:** `000_THEORY/000_LAW.md`
+**Role:** Utility — Version Control Governance
 
 ---
 
-## Purpose
+## 🔁 Purpose
 
-Git Trinity consolidates the 3-step git governance flow into one workflow:
-1. **Forge** — Analyze entropy
-2. **QC** — Validate floors
-3. **Seal** — Human approval
+Git Trinity consolidates version control into a constitutional act.
+Every commit is a change in entropy. Every push is a publication of truth.
 
 ---
 
-## Steps
+## ⚙️ Protocol
 
-### 1. FORGE — Analyze Entropy
+### 1. FORGE (Entropy Check)
+**Analogy:** "Is the Metal too hot?"
+- **Action:** Check status and diff.
+- **Micro-Metric:** If > 20 files changed, ΔS is too high -> **SABAR**.
+- **Requirement:** Atomic commits (one concept per commit).
 
 ```bash
-git status --short
-git branch --show-current
-git log -10 --name-only --pretty=format:"" | sort | uniq -c | sort -rn | head -10
+git status
+git diff --stat
 ```
 
-**Check:**
-- ΔS < 5.0 → Proceed
-- ΔS ≥ 5.0 → SABAR (cool down)
+### 2. QC (Constitutional Scan)
+**Analogy:** "Are there cracks?"
+- **F1:** Is this reversible? (No force push to main).
+- **F2:** Does the code work? (Tests pass).
+- **F4:** Is the commit message clear? (`type(scope): description`).
+- **F9:** No hantu in the code comments.
 
-### 2. QC — Validate Floors
-
-**Constitutional Check (F1-F13):**
-- F1 (Amanah) — Reversible?
-- F2 (Truth) — Documentation matches code?
-- F6 (Clarity) — Reduces confusion?
-- F9 (Anti-Hantu) — No consciousness claims?
-
-**Verdict:**
-- SEAL → Proceed to step 3
-- SABAR → Fix violations first
-- VOID → Do not proceed
-
-### 3. SEAL — Human Authority
+### 3. SEAL (Human Authority)
+**Analogy:** "Strike the unique seal."
 
 ```bash
-# Only after SEAL verdict
-git add -A
-git commit -m "[SEAL] Description"
-git push origin <branch>
+# Sudo Seal
+git add .
+git commit -m "feat(scope): Description of value added"
+git push origin main
 ```
-
-**Requires:** Human approval (F1 Amanah)
 
 ---
 
-## Triggers
+## 🛡️ Constitutional Floors
 
-| Old Trigger | New Unified |
-|-------------|-------------|
-| `/gitforge` | `/git` or `/trinity` |
-| `/gitQC` | (included) |
-| `/gitseal` | (included) |
+| Floor | Name | Check | Verdict |
+|:---:|:---|:---|:---:|
+| **F1** | Amanah | No destructive force push. | **VOID** |
+| **F4** | Clarity | Clear Commit Message. | **SABAR** |
 
 ---
 

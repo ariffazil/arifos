@@ -2,15 +2,15 @@
 
 **Model-Agnostic · Platform-Universal · Constitutionally Hardened · MCP 2025-11-25 Spec Compliant**
 
-The AAA MCP server exposes arifOS constitutional governance as a [Model Context Protocol](https://modelcontextprotocol.io/) server. Any AI model (Claude, GPT, Gemini, Kimi, Llama) can call the 7 canonical tools through any MCP client (Claude Desktop, Cursor, VS Code, Windsurf) over any transport (stdio, Streamable HTTP).
+The AAA MCP server exposes arifOS constitutional governance as a [Model Context Protocol](https://modelcontextprotocol.io/) server. Any AI model (Claude, GPT, Gemini, Kimi, Llama) can call the 10 atomic tools through any MCP client (Claude Desktop, Cursor, VS Code, Windsurf) over any transport (stdio, Streamable HTTP).
 
-## What's New in v55.1
+## What's New in v55.2 (Hardened)
 
-- **Streamable HTTP Transport** — Replaces legacy SSE with stateless HTTP (MCP spec 2025-03-26+)
-- **MCP Resources** — Expose F1-F13 floor definitions and VAULT ledger as read-only resources
-- **MCP Prompts** — 5 reusable constitutional evaluation templates
-- **Full Spec Compliance** — outputSchema, annotations, title on all tools
-- **69 Integration Tests** — Comprehensive coverage for all three phases
+- **Atomic Tool Suite** — Split multi-action tools into 9 explicit atomic tools + 1 meta-tool
+- **InjectionGuard (F12)** — Formal integration of hardened hardening into `init_gate`
+- **Gemini Compatibility** — Explicit 'title' metadata for model-agnostic discovery
+- **quaternary Architecture** — Integrated Refusal System as a first-class outcome
+- **202 Tests Passing** — Comprehensive system-wide validation suite
 
 ---
 
@@ -70,7 +70,7 @@ Add to `claude_desktop_config.json`:
   "mcpServers": {
     "aaa-mcp": {
       "command": "aaa-mcp-stdio",
-      "alwaysAllow": ["_init_", "_agi_", "_asi_", "_apex_", "_vault_", "_trinity_", "_reality_"]
+      "alwaysAllow": ["init_gate", "agi_sense", "agi_think", "agi_reason", "asi_empathize", "asi_align", "apex_verdict", "reality_search", "vault_seal", "_trinity_"]
     }
   }
 }
@@ -141,15 +141,18 @@ aaa-mcp-sse
 
 Every tool enforces constitutional floors and returns a verdict. All tools include `outputSchema`, `annotations`, and `title` for MCP spec compliance.
 
-| Tool | Gate | Purpose | Floors Enforced |
-|------|------|---------|-----------------|
-| **`_init_`** | 000 | Session ignition, identity verification, injection scan | F1, F11, F12 |
-| **`_agi_`** | 111-333 | Mind engine — truth, precision-weighted reasoning | F2, F4, F7, F10 |
-| **`_asi_`** | 444-666 | Heart engine — safety, empathy, stakeholder protection | F1, F5, F6, F9 |
-| **`_apex_`** | 888 | Soul engine — judgment, 9-paradox equilibrium, verdict | F3, F8, F11, F12 |
-| **`_vault_`** | 999 | Immutable ledger — Merkle-sealed audit entry | F1, F8 |
-| **`_trinity_`** | 000→999 | Full pipeline — runs all engines in sequence | All F1-F13 |
-| **`_reality_`** | External | Fact-checker — external source verification | F7 |
+| Tool | Node | Purpose | Floors Enforced |
+| :--- | :--- | :--- | :--- |
+| **`init_gate`** | 000 | Session ignition, identity verification, InjectionGuard | F1, F11, F12 |
+| **`agi_sense`** | 111 | Mind engine — Intent classification & lane assignment | F4, F12 |
+| **`agi_think`** | 222 | Mind engine — Hypothesis generation & exploration | F13 |
+| **`agi_reason`** | 333 | Mind engine — Deep logic & entropy reduction | F2, F4, F7, F10 |
+| **`asi_empathize`** | 555 | Heart engine — Stakeholder impact analysis | F5, F6 |
+| **`asi_align`** | 666 | Heart engine — Ethics, policy, and legal compliance | F9 |
+| **`apex_verdict`** | 888 | Soul engine — Final judgment & consensus | F3, F8, F11 |
+| **`reality_search`** | EXT | Fact-checker — External fact-checking & citation | F7, F10 |
+| **`vault_seal`** | 999 | Ledger — Cryptographic Merkle sealing | F1 |
+| **`_trinity_`** | ALL | Full Cycle — Executes complete metabolic loop | ALL |
 
 ### Tool Schema (MCP 2025-11-25 Compliant)
 
@@ -188,7 +191,7 @@ Every tool enforces constitutional floors and returns a verdict. All tools inclu
 ### Verdicts
 
 | Verdict | Meaning | Action |
-|---------|---------|--------|
+| :--- | :--- | :--- |
 | **SEAL** | All floors pass | ✅ Proceed |
 | **PARTIAL** | Soft floor warning (F3, F5, F6, F8) | ⚠️ Proceed with caution |
 | **VOID** | Hard floor failed (F1, F2, F4, F7, F9-F12) | ❌ Blocked |
@@ -202,7 +205,7 @@ Every tool enforces constitutional floors and returns a verdict. All tools inclu
 Read-only contextual data exposed as MCP Resources. These provide constitutional context without requiring tool calls.
 
 | Resource URI | Description | Content |
-|--------------|-------------|---------|
+| :--- | :--- | :--- |
 | `config://floors` | All 13 constitutional floors | F1-F13 definitions, thresholds, formulas |
 | `config://verdicts` | Verdict hierarchy | SABAR > VOID > 888_HOLD > PARTIAL > SEAL |
 | `floor://{F1-F13}` | Individual floor | Specific floor definition |
@@ -230,7 +233,7 @@ verdicts = await client.read_resource("config://verdicts")
 Reusable constitutional evaluation templates. These are user-controlled prompts for common governance workflows.
 
 | Prompt | Purpose | Arguments |
-|--------|---------|-----------|
+| :--- | :--- | :--- |
 | `constitutional_eval` | Full F1-F13 evaluation workflow | `query` |
 | `paradox_analysis` | 9-paradox equilibrium analysis | `query` |
 | `trinity_full` | Complete 000-999 metabolic loop walkthrough | `query` |
@@ -258,7 +261,7 @@ repair = await client.get_prompt("floor_violation_repair", {
 
 ## Architecture (v55.1)
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────┐
 │  MCP CLIENT (Claude / GPT / Gemini / Cursor)                │
 └──────────────────────┬──────────────────────────────────────┘
@@ -270,7 +273,7 @@ repair = await client.get_prompt("floor_violation_repair", {
 │     stateless_http=True, json_response=True                 │
 ├─────────────────────────────────────────────────────────────┤
 │  MCP PRIMITIVES                                             │
-│  ├─ Tools (7 canonical)  → model-controlled execution       │
+│  ├─ Tools (10 atomic)    → model-controlled execution       │
 │  ├─ Resources (17)       → application-driven context       │
 │  └─ Prompts (5)          → user-controlled templates        │
 ├─────────────────────────────────────────────────────────────┤
@@ -286,10 +289,10 @@ repair = await client.get_prompt("floor_violation_repair", {
 
 ### Directory Structure (v55.1)
 
-```
+```text
 mcp/
 ├── core/                   # Protocol layer
-│   ├── tool_registry.py    # 7 canonical tools (SSOT)
+│   ├── tool_registry.py    # 10 atomic tools (SSOT)
 │   ├── resource_registry.py # MCP Resources (F1-F13, VAULT)
 │   └── prompt_registry.py  # MCP Prompts (templates)
 ├── transports/             # Transport implementations
@@ -300,11 +303,10 @@ mcp/
 │   ├── stdio_entry.py
 │   └── sse_entry.py
 ├── adapters/              # Model adapters (Anthropic, OpenAI, Google)
-├── tools/                 # 7 canonical tool handlers
+├── tools/                 # 10 atomic tool handlers
 │   └── canonical_trinity.py
 ├── services/              # Rate limiting, metrics, ledger
 ├── external_gateways/     # External integrations (Brave Search)
-├── config/                # Configuration management
 ├── config/                # Configuration management
 └── README.md             # This file
 ```
@@ -336,7 +338,7 @@ mcp/
 ## MCP Spec Compliance
 
 | Feature | Status | Spec Version |
-|---------|--------|--------------|
+| :--- | :--- | :--- |
 | Tools with outputSchema | ✅ | 2025-06-18 |
 | Tool annotations (readOnlyHint, etc.) | ✅ | 2025-11-25 |
 | Tool title | ✅ | 2025-11-25 |
@@ -352,7 +354,7 @@ mcp/
 ## Compatibility Matrix
 
 | Category | Supported |
-|----------|-----------|
+| :--- | :--- |
 | **AI Models** | Claude, GPT-4, Gemini, Kimi K2.5, Llama, SEA-LION, any JSON-RPC |
 | **MCP Clients** | Claude Desktop, Cursor, VS Code, Windsurf, ChatGPT Dev, any MCP client |
 | **Transports** | stdio, Streamable HTTP (spec 2025-03-26+) |
@@ -399,13 +401,14 @@ curl https://aaamcp.arif-fazil.com/health
 ```
 
 **Expected response:**
+
 ```json
 {
   "status": "healthy",
-  "version": "v55.1-AAA",
+  "version": "v55.2-AAA",
   "mode": "CODEBASE",
   "transport": "streamable-http",
-  "tools": 7
+  "tools": 10
 }
 ```
 
@@ -414,7 +417,7 @@ curl https://aaamcp.arif-fazil.com/health
 ## Constitutional Floors (F1-F13)
 
 | # | Floor | What It Checks | Threshold | Type |
-|---|-------|---------------|-----------|------|
+| :-- | :--- | :--- | :--- | :--- |
 | F1 | Amanah | Is the action reversible? | LOCK | Hard |
 | F2 | Truth | Is it factually accurate? | ≥0.99 | Hard |
 | F3 | Tri-Witness | Do Mind·Heart·Human agree? | ≥0.95 | Soft |
@@ -451,5 +454,5 @@ If you're upgrading from v55.0:
 
 ---
 
-**Version:** v55.1 | **License:** AGPL-3.0 | **Author:** Muhammad Arif bin Fazil
+**Version:** v55.2 | **License:** AGPL-3.0 | **Author:** Muhammad Arif bin Fazil
 **DITEMPA BUKAN DIBERI** — Forged, Not Given

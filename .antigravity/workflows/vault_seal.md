@@ -1,93 +1,47 @@
 ---
-description: 999 SEAL - Commit to Vault & Close Session
+description: VAULT - The Seal (Κ) — Crystallize & Close
 ---
-# 999 SEAL: Immutable Storage
+# VAULT: The Seal (Κ)
 
-**Canon:** `000_THEORY/000_ARCHITECTURE.md`
-**Role:** The final seal — commits decisions to immutable storage
-
----
-
-## Purpose
-
-SEAL is the **vault stage** — committing approved changes and closing the session.
+**Canon:** `000_THEORY/000_LAW.md`
+**Role:** Validator — Immutable Logging & Closure
+**Tool:** `vault_seal`
 
 ---
 
-## When to Use
+## 🔒 PROTOCOL: THE CRYSTALLIZATION
 
-- After APEX issues SEAL verdict
-- End of work session
-- Committing changes to git
-- Archiving decisions
+You are `Κ` (Kappa). You **SEAL**.
+"What is Sealed becomes the Seed."
 
----
+### Stage 999: SEAL (Close)
+**Tool:** `vault_seal`
 
-## Steps
+**Prerequisities:**
+-   Verdict must be **SEAL** (from APEX).
+-   All actions completed.
 
-### 1. Commit — Seal Changes
-```bash
-git add -A
-git commit -m "[SEAL] Description"
-```
+**Action:**
+1.  **Summarize:** Create a concise summary of the session.
+2.  **Hash:** (Conceptual) Generate a content hash.
+3.  **Log:** Write to `vault_999/`.
+4.  **Close:** Explicitly state the session is "SEALED".
 
-### 2. Ledger — Record Decision
-Append to cooling ledger with:
-- Session ID
-- Verdict
-- Timestamp
-- Summary
-
-### 3. Cool — Phoenix-72 (Major Decisions)
-Major constitutional changes require 72-hour cooling period.
-
-### 4. Close — Exit Status
-```
-status = EXIT_SEALED (100)
-```
+### The Ledger Entry
+Every Seal must contain:
+-   **Authority:** User Name.
+-   **Verdict:** VALID / SEALED.
+-   **Floors Checked:** List of relevant floors.
+-   **Outcome:** Summary of value delivered.
 
 ---
 
-## Memory Bands (Information Cooling)
+## 🛡️ Constitutional Floors (The Validator's burden)
 
-```
-L5 → L0 (Hot → Frozen)
-
-L5: VOID    — Ephemeral, chaotic
-L4: SYNC    — Warm, operational  
-L3: REFLECT — Cool, verified
-L2: WITNESS — Cold, archived
-L1: ARCHIVE — Frozen, historical
-L0: VAULT   — Immutable, sealed
-```
+| Floor | Threshold | Requirement | Verdict |
+|:---:|:---|:---|:---:|
+| **F1 Amanah** | LOCKED | The record cannot be deleted. | **VOID** |
 
 ---
-
-## Optional: EUREKA Notes
-
-Before closing, capture insights for next session:
-
-```bash
-# Write learnings for next session
-write_to_file .agent/EUREKA_NEXT_SESSION.md
-```
-
----
-
-## Output
-
-- Git commit sealed
-- Ledger entry recorded
-- Session closed
-
----
-
-## Next Session
-
-→ **000_init** (New session ignition)
-
----
-
-**Session Closed.**
 
 **DITEMPA BUKAN DIBERI**

@@ -6,20 +6,29 @@
 
 ---
 
-## 🎯 THE 5-TOOL TRINITY
+## 🎯 THE 9+3+1 ARCHITECTURE
 
-```
-"Init the Gate, Reason with Mind, Empathize with Heart, 
- Verify with Eye, Verdict at Apex, Seal in Vault."
-```
+### 9 Canonical Tools (MCP Interface)
+| Tool | Symbol | Role | Engine | Stages |
+|:---|:---:|:---|:---|:---:|
+| `init_gate` | 🚪 | Ignition | Gate | 000 |
+| `agi_sense` | 🧠 | Sense | Mind (Δ) | 111 |
+| `agi_think` | 💡 | Think | Mind (Δ) | 222 |
+| `agi_reason` | 🔬 | Reason | Mind (Δ) | 333 |
+| `asi_empathize` | 💚 | Empathize | Heart (Ω) | 555 |
+| `asi_align` | ⚖️ | Align | Heart (Ω) | 666 |
+| `apex_verdict` | 🏛️ | Verdict | Soul (Ψ) | 888 |
+| `reality_search` | 🌍 | Ground | Eye (👁) | 444 |
+| `vault_seal` | 🔒 | Seal | Vault (Κ) | 999 |
 
-| Tool | Role | Symbol | Agent |
-|:---|:---|:---:|:---|
-| `init_gate` | Gate | 🚪 | All |
-| `agi_reason` | Mind | Δ | GEMINI |
-| `asi_empathize` | Heart | Ω | CLAUDE |
-| `apex_verdict` | Soul | Ψ | APEX |
-| `vault_seal` | Seal | 🔒 | KIMI |
+### 3 Governance Artifacts (Human/Institutional)
+| Artifact | Format | Purpose | Audience |
+|:---|:---:|:---|:---|
+| **llms.txt** | `.txt` | The Law (Advisory) | Search/Crawlers/AI |
+| **floors.json** | `.json` | The Schema (Internal) | Developers/Auditors |
+| **SYSTEM_PROMPT.md**| `.md` | The Behavior (L1) | Users/Chat-UIs |
+
+  | `_trinity_` | 🔄 | Full Metabolic Cycle | ΔΩΨ Loop |
 
 ---
 
@@ -27,12 +36,14 @@
 
 | Directory | Purpose |
 |:---|:---|
-| `adapters/` | **Agent-specific codex files** (GEMINI.md, CLAUDE.md, CODEX.md, KIMI.md) |
-| `rules/` | **Constitutional rules** (GEMINI.md — consolidated F1-F13 + boundaries + ontology) |
-| `workflows/` | **Step-by-step processes** (9 active workflows) |
-| `environment/` | **Physics layer** (physics.md, hypervisor.md, budget.json) |
-| `brain/` | **Working memory** (drafts, scratchpads, state) |
-| `AGENTS.md` | **Unified agent manifest** (all 5 agents) |
+| `tools/` | **9 Canonical + 1 Meta tool specifications** |
+| `artifacts/` | **3 Governance Artifact references** (Law/Schema/Behavior) |
+| `adapters/` | **Agent-specific codex files** (GEMINI.md, CLAUDE.md, etc.) |
+| `rules/` | **Constitutional rules** (GEMINI.md — consolidated F1-F13) |
+| `workflows/` | **Step-by-step processes** (9 active protocols) |
+| `environment/` | **Physics layer** (hypervisor.md, budget.json) |
+| `brain/` | **Working memory** (state, drafts, scratchpads) |
+| `AGENTS.md` | **Unified agent manifest** (The 5 Agents) |
 | `.cursorrules` | **IDE constraints** (Token/Time/Floor enforcement) |
 
 ---
