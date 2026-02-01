@@ -29,3 +29,14 @@ arif-fazil.com, www.arif-fazil.com {
         format json
     }
 }
+
+# The MIND Layer (Documentation)
+arifos.arif-fazil.com {
+    root * /srv/docs
+    file_server
+    encode gzip zstd
+    
+    header {
+        X-Frame-Options "SAMEORIGIN"
+    }
+}
