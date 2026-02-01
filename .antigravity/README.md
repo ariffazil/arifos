@@ -30,8 +30,10 @@
 | `adapters/` | **Agent-specific codex files** (GEMINI.md, CLAUDE.md, CODEX.md, KIMI.md) |
 | `rules/` | **Constitutional rules** (agent_boundaries.md, arifos_ontology.md, constitutional_floors.md) |
 | `workflows/` | **Step-by-step processes** (9 active workflows) |
+| `environment/` | **Physics layer** (physics.md, hypervisor.md, budget.json) |
 | `brain/` | **Working memory** (drafts, scratchpads, state) |
 | `AGENTS.md` | **Unified agent manifest** (all 5 agents) |
+| `.cursorrules` | **IDE constraints** (Token/Time/Floor enforcement) |
 
 ---
 
@@ -90,23 +92,56 @@
 
 ---
 
+## 🌡️ PHYSICS LAYER (Environment)
+
+The `.antigravity/environment/` directory contains **thermodynamic enforcement** aligned with `333_APPS/L5_AGENTS/`:
+
+| Physics | File | Constraint |
+|:---|:---|:---|
+| **Token** | `environment/physics.md` | $1.00 max budget per session |
+| **Time** | `environment/physics.md` | 30s max latency per operation |
+| **Law** | `environment/physics.md` | F1-F13 floor enforcement |
+| **Ignition** | `environment/hypervisor.md` | 000-999 metabolic cycle |
+| **Budget** | `environment/budget.json` | Configurable thresholds |
+
+### Quick Physics Check
+```python
+from environment import HYPERVISOR, PHYSICS
+
+# Check budget
+if PHYSICS["token"].session_cost > 0.75:
+    warn("Budget 75% — consider sealing")
+
+# Enforce time
+result = await PHYSICS["time"].measure(agent.execute(input))
+
+# Check floor
+if not PHYSICS["law"].check_floor("F1", action):
+    return {"verdict": "VOID"}
+
+# Run cycle
+result = await HYPERVISOR.ignition(AgentClass, query)
+```
+
+---
+
 ## 🛡️ CONSTITUTIONAL FLOORS (Summary)
 
-| Floor | Name | Threshold | Agent |
-|:---:|:---|:---|:---:|
-| F1 | Amanah | Reversibility | Ω / Κ |
-| F2 | Truth | τ ≥ 0.99 | Δ / 👁 |
-| F3 | Tri-Witness | W₃ ≥ 0.95 | Ψ / Κ |
-| F4 | Clarity | ΔS ≤ 0 | Δ |
-| F5 | Peace² | P² ≥ 1.0 | Ω |
-| F6 | Empathy | κᵣ ≥ 0.70 | Ω |
-| F7 | Humility | Ω₀ ∈ [0.03, 0.05] | Δ |
-| F8 | Genius | G ≥ 0.80 | Ψ / Κ |
-| F9 | Anti-Hantu | C_dark ≤ 0.30 | Ω / 👁 |
-| F10 | Ontology | LOCK | Δ |
-| F11 | Authority | Verified | Ψ |
-| F12 | Injection | < 0.85 | 👁 / Δ |
-| F13 | Sovereign | Human | 888 |
+| Floor | Name | Threshold | Agent | Physics |
+|:---:|:---|:---|:---:|:---:|
+| F1 | Amanah | Reversibility | Ω / Κ | ✅ Enforced |
+| F2 | Truth | τ ≥ 0.99 | Δ / 👁 | ✅ Enforced |
+| F3 | Tri-Witness | W₃ ≥ 0.95 | Ψ / Κ | ✅ Enforced |
+| F4 | Clarity | ΔS ≤ 0 | Δ | ✅ Enforced |
+| F5 | Peace² | P² ≥ 1.0 | Ω | ✅ Enforced |
+| F6 | Empathy | κᵣ ≥ 0.70 | Ω | ✅ Enforced |
+| F7 | Humility | Ω₀ ∈ [0.03, 0.05] | Δ | ✅ Enforced |
+| F8 | Genius | G ≥ 0.80 | Ψ / Κ | ✅ Enforced |
+| F9 | Anti-Hantu | C_dark ≤ 0.30 | Ω / 👁 | ✅ Enforced |
+| F10 | Ontology | LOCK | Δ | ✅ Enforced |
+| F11 | Authority | Verified | Ψ | ✅ Enforced |
+| F12 | Injection | < 0.85 | 👁 / Δ | ✅ Enforced |
+| F13 | Sovereign | Human | 888 | ✅ Enforced |
 
 ---
 
