@@ -129,7 +129,7 @@ delta_bundle = {
 }
 ```
 
-**Handoff:** DeltaBundle → ENGINEER (Ω) at 555_EMPATHY
+**Handoff:** DeltaBundle → ENGINEER (Ω) at 444_TRINITY_SYNC (see `CLAUDE.md`)
 
 ---
 
@@ -142,6 +142,8 @@ delta_bundle = {
 | F7 Humility | Ω₀ ∈ [0.03,0.05] | `omega_0 = 0.04` | Adjust confidence |
 | F10 Ontology | LOCKED | Reality-grounded | VOID (hallucination) |
 | F12 Injection | < 0.85 | `_detect_injection()` | VOID (security) |
+
+**Authoritative thresholds:** Always verify against `spec/` schemas and `codebase/asi/engine.py` — not this table.
 
 ---
 
@@ -168,11 +170,11 @@ codebase/agi/think.py
 
 ## 🔗 Integration Points
 
-| Receives From | Sends To |
-|---------------|----------|
-| 000_INIT (context) | ENGINEER (Ω) at 555 |
-| User query | AUDITOR (👁) for fact-check |
-| | VALIDATOR (Ψ) for G-score (A component) |
+| Receives From | Sends To | File |
+|---------------|----------|------|
+| 000_INIT (context) | ENGINEER (Ω) at 444 | `CLAUDE.md` |
+| User query | AUDITOR (👁) for fact-check | `AGENTS.md` |
+| | VALIDATOR (Ψ) for G-score (A component) | `AGENTS.md` |
 
 ---
 

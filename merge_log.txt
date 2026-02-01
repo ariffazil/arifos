@@ -1,0 +1,117 @@
+"--- START ---" 
+"--- LISTING FILES ---" 
+ Volume in drive C is Windows
+ Volume Serial Number is 72FB-B00C
+
+ Directory of c:\Users\User\arifOS
+
+01-Feb-26  09:47 PM    <DIR>          .
+01-Feb-26  09:43 PM    <DIR>          ..
+29-Jan-26  07:27 PM    <DIR>          .agent
+29-Jan-26  07:27 PM    <DIR>          .antigravity
+23-Jan-26  04:53 PM    <DIR>          .arifos_clip
+01-Feb-26  08:58 PM    <DIR>          .claude
+31-Jan-26  10:27 AM    <DIR>          .codex
+23-Jan-26  12:24 PM    <DIR>          .cursor
+01-Feb-26  07:37 PM               506 .dockerignore
+24-Jan-26  08:58 AM               370 .env
+25-Jan-26  06:41 PM               440 .env.example
+26-Jan-26  05:16 AM    <DIR>          .gemini-clipboard
+29-Jan-26  07:27 PM    <DIR>          .github
+31-Jan-26  10:09 AM             3,067 .gitignore
+31-Jan-26  10:21 AM    <DIR>          .kimi
+01-Feb-26  07:59 PM               598 .mcp.json
+23-Jan-26  12:24 PM    <DIR>          .openmcp
+23-Jan-26  03:40 PM             4,955 .pre-commit-config.yaml
+31-Jan-26  08:06 AM    <DIR>          .pytest_cache
+31-Jan-26  09:58 AM    <DIR>          .serena
+25-Jan-26  08:28 PM    <DIR>          .venv
+26-Jan-26  07:58 AM    <DIR>          .vs
+26-Jan-26  05:56 AM    <DIR>          .vscode
+01-Feb-26  09:04 PM    <DIR>          000_THEORY
+31-Jan-26  10:08 AM    <DIR>          333_APPS
+31-Jan-26  10:09 AM                 0 =5.0.0
+31-Jan-26  10:32 AM            10,745 AAA_MCP_TEST_REPORT_v55.md
+01-Feb-26  08:27 PM             9,626 AGENTS.md
+01-Feb-26  07:07 PM    <DIR>          apex.com
+29-Jan-26  07:30 PM             2,195 ARCHITECTURE_COMPLETE.txt
+01-Feb-26  07:35 PM    <DIR>          archive
+01-Feb-26  08:45 PM    <DIR>          arifos-53.2.9
+01-Feb-26  08:45 PM    <DIR>          arifos.egg-info
+29-Jan-26  08:34 PM            24,211 arifOS_v54_README.md
+01-Feb-26  08:27 PM             1,009 Caddyfile
+31-Jan-26  10:09 AM    <DIR>          career-timeline
+31-Jan-26  10:09 AM            11,845 CHANGELOG.md
+01-Feb-26  08:39 PM            16,950 CLAUDE.md
+31-Jan-26  10:09 AM    <DIR>          codebase
+29-Jan-26  07:30 PM             1,341 CODE_ARCHITECTURE_MAP.md
+31-Jan-26  10:09 AM             3,769 CONTRIBUTING.md
+31-Jan-26  10:49 AM               653 debug_startup.py
+01-Feb-26  08:46 PM    <DIR>          dist
+01-Feb-26  08:53 PM             1,550 docker-compose.yml
+01-Feb-26  07:07 PM             1,428 Dockerfile
+01-Feb-26  08:47 PM    <DIR>          docs
+01-Feb-26  08:44 PM             3,516 firebase-debug.log
+01-Feb-26  08:27 PM             6,685 GEMINI.md
+31-Jan-26  10:09 AM    <DIR>          integrations
+23-Jan-26  12:24 PM            35,184 LICENSE
+24-Jan-26  10:19 AM    <DIR>          logs
+31-Jan-26  10:09 AM               141 MANIFEST.in
+01-Feb-26  09:47 PM                44 merge_log.txt
+01-Feb-26  09:47 PM               681 merge_script.bat
+23-Jan-26  12:24 PM             2,411 mypy.ini
+23-Jan-26  12:24 PM               340 nixpkgs.nix
+29-Jan-26  07:59 AM               128 nul
+23-Jan-26  08:36 PM            34,051 openapi.json
+01-Feb-26  08:39 PM            10,430 pyproject.toml
+31-Jan-26  10:09 AM             4,111 pytest.ini.bak
+01-Feb-26  07:07 PM             1,294 QUICK_REFERENCE.md
+31-Jan-26  10:09 AM               681 railway.json
+31-Jan-26  01:03 PM               549 railway.toml
+01-Feb-26  09:19 PM            20,896 README.md
+31-Jan-26  10:09 AM    <DIR>          reports
+01-Feb-26  07:08 PM               532 requirements.txt
+26-Jan-26  01:25 PM    <DIR>          runtime
+23-Jan-26  12:24 PM                13 runtime.txt
+01-Feb-26  08:39 PM    <DIR>          scripts
+31-Jan-26  10:09 AM    <DIR>          SEAL999
+31-Jan-26  10:09 AM    <DIR>          setup
+31-Jan-26  10:09 AM    <DIR>          skills
+31-Jan-26  10:09 AM    <DIR>          spec
+01-Feb-26  07:08 PM    <DIR>          templates
+01-Feb-26  08:00 PM    <DIR>          tests
+01-Feb-26  09:23 PM             1,237 test_fix_genius.py
+31-Jan-26  10:02 AM             2,378 test_rpc.py
+29-Jan-26  07:27 PM           936,068 uv.lock
+31-Jan-26  12:45 PM    <DIR>          VAULT999
+31-Jan-26  10:09 AM                16 VERSION
+              41 File(s)      1,156,644 bytes
+              39 Dir(s)  156,639,821,824 bytes free
+"--- REMOVING ORPHAN ---" 
+rm '=5.0.0'
+[dev-v56 8375dcf3] chore: remove orphan file =5.0.0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ delete mode 100644 =5.0.0
+"--- SWITCHING TO MAIN ---" 
+M	AGENTS.md
+M	CLAUDE.md
+M	GEMINI.md
+M	codebase/engines/apex/apex_components.py
+M	codebase/floors/__init__.py
+M	codebase/floors/genius.py
+M	codebase/mcp/sessions/chain_head.txt
+M	codebase/system/apex_prime.py
+Your branch is up to date with 'origin/main'.
+Switched to branch 'main'
+"--- MERGING DEV-V56 ---" 
+Updating 8455e531..8375dcf3
+Fast-forward
+ =5.0.0                                   |  0
+ README.md                                |  7 +++--
+ codebase/enforcement/floor_validators.py | 47 ++++++++++++++++++++++++--------
+ 3 files changed, 40 insertions(+), 14 deletions(-)
+ delete mode 100644 =5.0.0
+"--- PUSHING ---" 
+To https://github.com/ariffazil/arifOS.git
+   8455e531..8375dcf3  main -> main
+"--- DONE ---" 

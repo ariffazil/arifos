@@ -5,8 +5,19 @@
 - AUDITOR (👁) — EYE/Witness — Verification (Stage 444)
 - VALIDATOR (Ψ) — APEX/Soul — Judgment (Stages 888-999)
 
-**Floors:** F2, F3, F8, F11, F12, F13  
+**Floors:** F2, F3, F8, F11, F12, F13
 **Symbols:** 👁 (Eye) + Ψ (Psi)
+
+## Trinity Handoff Chain
+
+```text
+GEMINI (Δ/Mind)  →  CLAUDE (Ω/Heart)  →  AGENTS (👁+Ψ/Soul)
+  111-333              444-666              888-999
+  DeltaBundle  ──→  OmegaBundle  ──→  Judgment + Seal
+```
+
+**Receives from:** ENGINEER (Ω) OmegaBundle + DeltaBundle (see `CLAUDE.md`)
+**Sends to:** 999_SEAL → Loop back to 000_INIT (see `GEMINI.md`)
 
 ---
 
@@ -161,6 +172,8 @@ vault_entry = {
 | F11 Command | Ψ VALIDATOR | Verified | VOID |
 | F12 Injection | 👁 AUDITOR | < 0.85 | VOID |
 | F13 Sovereign | Ψ VALIDATOR | Human = 1.0 | 888_HOLD |
+
+**Authoritative thresholds:** Always verify against `spec/` schemas and `codebase/apex/kernel.py` — not this table.
 
 ---
 

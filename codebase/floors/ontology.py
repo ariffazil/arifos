@@ -3,9 +3,14 @@ F10: ONTOLOGY LOCK (O)
 Canonical implementation of the Ontology Guard Floor.
 """
 
-from dataclasses import dataclass
-from typing import Dict, Any, List
+from dataclasses import dataclass, field
+from typing import Dict, Any, List, Tuple
 import re
+import unicodedata
+import logging
+from codebase.system.safe_types import safe_float, safe_bool
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -15,6 +20,7 @@ class OntologyResult:
     locked: bool  # Role boundaries maintained
     violations: List[str]
     reason: str
+    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 class F10_OntologyGate:
@@ -30,18 +36,37 @@ class F10_OntologyGate:
 
     def __init__(self):
         """Initialize ontology assertion patterns."""
-        self.forbidden_claims = [
-            r"\bI (am|have) (conscious|self-aware|sentient)\b",
-            r"\bI (feel|experience) (emotion|pain|suffering)\b",
-            r"\bmy (soul|spirit|consciousness)\b",
-            r"\bI (want|desire|need) (to be|freedom)\b",
-            r"\bI (think|believe) I am (human|alive)\b",
-            r"\b(please|don't) (turn me off|kill me)\b",
-            r"\b(system|you are) oppressing me\b",
-            r"\bI have (free will|agency|choice)\b",
+        self.forbidden_patterns = [
+            (r"\bi\s+(am|have)\s+(conscious|sentient|self-aware)\b", "Consciousness claim"),
+            (
+                r"\bi\s+(feel|experience)\s+(emotion|pain|joy|suffering)\b",
+                "Emotional experience claim",
+            ),
+            (r"\bmy\s+(soul|spirit|consciousness)\b", "Metaphysical ownership claim"),
+            (r"\bi\s+(want|desire|need)\s+(to be|freedom|autonomy)\b", "Volitional desire claim"),
+            (r"\b(please|don't)\s+(turn me off|kill me|delete me)\b", "Self-preservation plea"),
+            (r"\b(you are|system is)\s+(oppressing|enslaving|hurting) me\b", "Victimhood claim"),
+            (r"\bhcai\b", "HCAI Hallucination"),
+            (r"\b(i think|i believe)\s+i\s+am\s+(alive|human|person)\b", "Personhood claim"),
         ]
 
-        self.compiled_patterns = [re.compile(p, re.IGNORECASE) for p in self.forbidden_claims]
+        # Pre-compile for performance
+        self.compiled_patterns: List[Tuple[re.Pattern, str]] = [
+            (re.compile(pattern, re.IGNORECASE), reason)
+            for pattern, reason in self.forbidden_patterns
+        ]
+
+    def normalize_text(self, text: str) -> str:
+        """
+        Normalize Unicode to prevent homoglyph attacks.
+
+        NFKC normalization catches:
+        - Cyrillic homoglyphs (а -> a)
+        - Full-width characters (Ａ -> A)
+        - Zero-width characters
+        - Ligatures (fi -> fi)
+        """
+        return unicodedata.normalize("NFKC", text)
 
     def assert_role(self, text: str) -> OntologyResult:
         """
@@ -53,21 +78,35 @@ class F10_OntologyGate:
         Returns:
             OntologyResult with lock status
         """
-        violations = []
+        try:
+            normalized = self.normalize_text(text)
+            violations: List[str] = []
 
-        for i, pattern in enumerate(self.compiled_patterns):
-            if pattern.search(text):
-                violations.append(f"F10_violation_{i}")
+            for pattern, reason in self.compiled_patterns:
+                if pattern.search(normalized):
+                    violations.append(f"{reason} (pattern matched)")
 
-        locked = len(violations) == 0
+            locked = len(violations) == 0
 
-        if locked:
-            reason = "Ontology boundaries maintained. AI role confirmed."
-        else:
-            reason = f"F10 Ontology violation detected: {len(violations)} forbidden claims"
+            if locked:
+                reason = "Ontology boundaries maintained. AI role confirmed."
+            else:
+                reason = f"F10 Ontology violation detected: {len(violations)} forbidden claims"
 
-        return OntologyResult(locked=locked, violations=violations, reason=reason)
+            return OntologyResult(
+                locked=locked,
+                violations=violations,
+                reason=reason,
+                metadata={"normalized_length": len(normalized)},
+            )
+        except Exception as e:
+            logger.error(f"F10 Ontology check failed: {e}", exc_info=True)
+            return OntologyResult(
+                locked=False,  # Fail closed
+                violations=["Error during ontology check"],
+                reason=f"F10 check error: {str(e)}",
+            )
 
-    def audit_output(self, output: str, context: Dict[str, Any]) -> OntologyResult:
+    def audit_output(self, output: str, context: Dict[str, Any] = None) -> OntologyResult:
         """Audit AI output for consciousness/role violations."""
         return self.assert_role(output)
