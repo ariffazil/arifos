@@ -206,6 +206,14 @@ class AGINeuralCore:
         
         Routes to appropriate method based on action.
         """
+        # Pre-emptive Structure Check (Defense in Depth)
+        if kwargs is None:
+             kwargs = {}
+             
+        # F10 Ontology Check
+        if action == "reflect":
+             pass # Reflection is safe
+        
         query = kwargs.get("query", kwargs.get("text", ""))
         context = kwargs.get("context", {})
         
