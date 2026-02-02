@@ -1,6 +1,9 @@
 # Railway Configuration for arifOS MCP Server (v55.3)
-# NOTE: This file is used when Railway's service root is set to /deployments.
-# If service root is repository root, use /railway.toml instead.
+# Location: deployments/ (when Railway service root is set to this folder)
+# Domain: aaamcp.arif-fazil.com
+#
+# NOTE: If Railway service root is set to deployments/, this is the active config.
+# If root is repo root, /railway.toml (at root) takes precedence.
 
 [build]
 builder = "DOCKERFILE"
@@ -21,3 +24,7 @@ ARIFOS_CLUSTER = "3"
 AAA_MCP_TRANSPORT = "sse"
 HOST = "0.0.0.0"
 PORT = "8080"
+
+# Note: arif-fazil.com domain now points to Cloudflare Pages (BODY layer)
+# Railway hosts the MIND layer (API/MCP backend) only
+# Service URL: aaamcp.arif-fazil.com
