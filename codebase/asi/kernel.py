@@ -119,7 +119,7 @@ class ASINeuralCore:
             "status": "complete",
             "session_id": session_id,
             "query": query,
-            "empathy_kappa_r": omega_bundle.empathy_kappa,
+            "empathy_kappa_r": omega_bundle.empathy.kappa_r,
             "is_reversible": omega_bundle.is_reversible,
             "stakeholders": [s.name for s in omega_bundle.stakeholders] if omega_bundle.stakeholders else [],
             "verdict": omega_bundle.vote.value if hasattr(omega_bundle.vote, 'value') else str(omega_bundle.vote)
