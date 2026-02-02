@@ -699,7 +699,22 @@ async def bridge_trinity_loop_router(
         logger.error(f"Trinity Loop Error: {e}")
         if isinstance(e, BridgeError):
             return e.to_dict()
-        return BridgeError(str(e), "ENGINE_FAILURE").to_dict()
+
+        # DX: Intelligent Diagnosis
+        from codebase.core.exceptions import ConstitutionalError
+
+        ce = ConstitutionalError.diagnose(e)
+
+        return {
+            "verdict": "VOID",
+            "status": "ERROR",
+            "error_category": "KERNEL_PANIC",
+            "reason": ce.message,
+            "hint": ce.hint,
+            "recovery": ce.recovery,
+            "github_link": ce.github_link,
+            "session_id": session_id,
+        }
 
 
 async def bridge_context_docs_router(query: str, **kwargs) -> dict:
