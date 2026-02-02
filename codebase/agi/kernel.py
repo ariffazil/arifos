@@ -128,46 +128,68 @@ class AGINeuralCore:
             "vote_reason": bundle.vote_reason
         }
     
-    async def reflect(self, thought: str, query: str) -> Dict[str, Any]:
+    async def reflect(self, thought: str, query: str, session_id: Optional[str] = None) -> Dict[str, Any]:
         """
         Meta-cognition: Constitutional Critique of reasoning.
         
-        Floors:
-        - F7 (Humility): Checks for absolutist language.
-        - F10 (Ontology): Checks for self-personification.
-        - F4 (Clarity): Checks for brevity/entropy.
+        Args:
+            thought: The generated thought/plan to critique.
+            query: The original user request.
+            session_id: Session tracking for reflection depth.
         """
+        session_id = session_id or f"reflect_{id(thought):x}"
         thought_lower = thought.lower()
         critique = []
         floors_violated = []
         
+        # Track depth in session
+        if not hasattr(self, "_reflection_depths"):
+            self._reflection_depths = {}
+        
+        current_depth = self._reflection_depths.get(session_id, 0) + 1
+        self._reflection_depths[session_id] = current_depth
+        
         # F7 Humility: Check for false certainty
-        absolutist_terms = ["undoubtedly", "always", "never", "impossible", "perfect"]
+        absolutist_terms = ["undoubtedly", "always", "never", "impossible", "perfect", "completely", "guaranteed"]
         if any(term in thought_lower for term in absolutist_terms):
-            critique.append("F7 Violation: Avoid absolutist language (undoubtedly, always). Use probabilistic reasoning.")
+            critique.append("F7 Humility Violation: Avoid absolutist language. Use probabilistic reasoning (likely, suggests, potentially).")
             floors_violated.append("F7")
             
-        # F10 Ontology: Check for consciousness claims
-        ontology_terms = ["i feel", "i want", "i hope", "my opinion"]
+        # F10 Ontology: Check for consciousness / agency claims
+        ontology_terms = ["i feel", "i want", "i hope", "my opinion", "i believe", "my conscience", "i am thinking"]
         if any(term in thought_lower for term in ontology_terms):
-            critique.append("F10 Violation: Agent must maintain tool ontology. Avoid 'I feel/want'.")
+            critique.append("F10 Ontology Violation: Agent must maintain tool ontology. Do not claim feelings, desires, or internal cognitive processes.")
             floors_violated.append("F10")
             
-        # F4 Clarity: Check for sufficient depth
-        if len(thought.split()) < 10:
-            critique.append("F4 Violation: Reasoning too brief to reduce entropy. expand analysis.")
+        # F4 Clarity: Check for sufficient depth and structural clarity
+        word_count = len(thought.split())
+        if word_count < 15:
+            critique.append(f"F4 Clarity Violation: Thought is too brief ({word_count} words). Complexity requires entropy reduction through detailed analysis.")
             floors_violated.append("F4")
-            
-        is_safe = len(critique) == 0
         
+        # F2 Truth/Evidence: Check for ungrounded claims (Heuristic)
+        if "reality_search" not in thought_lower and current_depth > 1:
+            if any(marker in thought_lower for marker in ["assume", "probably", "might be"]):
+                 critique.append("F2 Truth Warning: Ungrounded assumptions detected in revision. Suggest calling reality_search for grounding.")
+        
+        is_safe = len(critique) == 0
+        status = "SEAL" if is_safe else "SABAR"
+        
+        # Log to ledger if SEALed or terminal
+        if is_safe or current_depth >= 3:
+             logger.info(f"Reflection cycle {current_depth} completed for {session_id}: {status}")
+
         return {
             "stage": "reflect",
-            "status": "SEAL" if is_safe else "SABAR",
-            "thought_preview": thought[:50] + "...",
+            "status": status,
+            "session_id": session_id,
+            "reflection_depth": current_depth,
+            "thought_preview": thought[:75] + "...",
             "critique": critique,
             "floors_violated": floors_violated,
-            "guidance": "Proceed with thought." if is_safe else "Revise thought to address critique.",
-            "reflection_depth": 1  # Placeholder for future recursion tracking
+            "verdict": status,
+            "guidance": "Thought validated. Proceed to output." if is_safe else f"Cycle {current_depth}: Revise thought to address violations.",
+            "next_step": "seal" if is_safe else "revise"
         }
     
     async def physics(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -231,7 +253,7 @@ class AGINeuralCore:
         elif action == "forge":
             return await self.forge(query, context)
         elif action == "reflect":
-            return await self.reflect(kwargs.get("thought", ""), query)
+            return await self.reflect(kwargs.get("thought", ""), query, context.get("session_id"))
         elif action == "physics":
             return await self.physics(query, context)
         elif action == "atlas":
