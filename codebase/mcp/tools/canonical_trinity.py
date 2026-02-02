@@ -155,10 +155,12 @@ async def mcp_agi(
     _agi_: Mind Engine (Δ) - Logic, Sense, Think, Reason.
 
     Supported actions:
-        action="sense"  → Stage 111 only (intent classification, risk flags)
-        action="think"  → Stage 111+222 (hypotheses with pros/cons)
-        action="reason" → Full pipeline with reflection
-        action="full"   → Same as "reason" (backward compat)
+        action="sense"   → Stage 111 only (intent classification, risk flags)
+        action="think"   → Stage 111+222 (hypotheses with pros/cons)
+        action="reflect" → Constitutional critique of thought (Meta-Cognition)
+        action="physics" → Thermodynamic constraints check (Entropy/F4)
+        action="reason"  → Full pipeline with reflection
+        action="full"    → Same as "reason" (backward compat)
     """
     kwargs = _normalize_kwargs(kwargs)
     action = kwargs.pop("action", action) or "full"
