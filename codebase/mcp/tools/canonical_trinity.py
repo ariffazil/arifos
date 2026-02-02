@@ -261,17 +261,19 @@ async def mcp_asi(
     adapted = {
         "session_id": data.get("session_id", session_id),
         "omega_total": float(data.get("omega_total", 0.0)),
-        "vote": data.get("vote", "VOID"),
-        "verdict": data.get("vote", "VOID"),
+        "vote": data.get("vote") or data.get("verdict", "VOID"),
+        "verdict": data.get("verdict") or data.get("vote", "VOID"),
         "empathy_kappa_r": float(
-            data.get("empathy", {}).get("kappa_r", 0.0)
-            if isinstance(data.get("empathy"), dict)
-            else 0.0
+            data.get("empathy_kappa_r")  # Direct from _execute_full
+            or (data.get("trinity_self") or {}).get("empathy_kappa_r")  # From empathize action
+            or (data.get("empathy") or {}).get("kappa_r")  # From OmegaBundle
+            or 0.0
         ),
         "peace_squared": float(
-            data.get("system", {}).get("peace_squared", 0.0)
-            if isinstance(data.get("system"), dict)
-            else 0.0
+            data.get("peace_squared")  # Direct from _execute_full
+            or (data.get("trinity_system") or {}).get("peace_squared")  # From align action  
+            or (data.get("system") or {}).get("peace_squared")  # From OmegaBundle
+            or 0.0
         ),
         "thermodynamic_justice": float(
             data.get("society", {}).get("thermodynamic_justice", 0.0)
@@ -343,7 +345,7 @@ async def mcp_apex(
 
 
 # ==============================================================================
-# 5. _vault_ (The Seal)
+# 5. _vault_ (The Seal) — HARDENED with EUREKA Sieve
 # ==============================================================================
 async def mcp_vault(
     action: str = "seal",
@@ -351,30 +353,51 @@ async def mcp_vault(
     decision_data: Optional[Dict] = None,
     target: str = "seal",
     session_id: Optional[str] = None,
+    # HARDENED: Full Trinity results for EUREKA evaluation
+    query: str = "",
+    response: str = "",
+    init_result: Optional[Dict] = None,
+    agi_result: Optional[Dict] = None,
+    asi_result: Optional[Dict] = None,
+    apex_result: Optional[Dict] = None,
     **kwargs,
 ) -> Dict[str, Any]:
     """
-    _vault_: Immutable Ledger — PostgreSQL-backed.
-
-    Delegates to VaultTool for all ledger operations.
-    The only logic kept here is APEX kernel integration for seal action
-    and LLM-agnostic parameter normalization.
+    _vault_: HARDENED Immutable Ledger with EUREKA Sieve.
+    
+    Theory of Anomalous Contrast:
+    - Only EUREKA insights (score ≥ 0.75) → Permanent VAULT999
+    - Medium insights (0.50-0.75) → Cooling ledger (SABAR)
+    - Trivial queries (< 0.50) → TRANSIENT (not stored)
 
     Actions:
-        seal    — Append entry with hash chain + Merkle root
+        seal    — EUREKA-filtered append with hash chain + Merkle root
         list    — Paginated listing (cursor/limit)
         read    — Retrieve by session_id or sequence number
         query   — Filter by verdict and time range
         verify  — Verify chain integrity
         proof   — Get Merkle inclusion proof
     """
-    from codebase.mcp.tools.vault_tool import VaultTool, AUTHORITY_NOTICE
+    # HARDENED: Use vault_tool_hardened with EUREKA Sieve
+    from codebase.mcp.tools.vault_tool_hardened import (
+        HardenedVaultTool as VaultTool,
+        AUTHORITY_NOTICE,
+    )
 
     kwargs = _normalize_kwargs(kwargs)
     action = kwargs.pop("action", action) or "seal"
     verdict = kwargs.pop("verdict", verdict) or "SEAL"
     session_id = kwargs.pop("session_id", session_id)
     decision_data = kwargs.pop("decision_data", decision_data) or {}
+    
+    # HARDENED: Extract Trinity results for EUREKA evaluation
+    query = kwargs.pop("query", query) or decision_data.get("query", "")
+    response = kwargs.pop("response", response) or decision_data.get("response", "")
+    init_result = kwargs.pop("init_result", init_result) or decision_data.get("init_result", {})
+    agi_result = kwargs.pop("agi_result", agi_result) or decision_data.get("agi_result", {})
+    asi_result = kwargs.pop("asi_result", asi_result) or decision_data.get("asi_result", {})
+    apex_result = kwargs.pop("apex_result", apex_result) or decision_data.get("apex_result", {})
+    
     if not session_id:
         session_id = str(uuid.uuid4())
 
@@ -382,7 +405,7 @@ async def mcp_vault(
     payload: Dict[str, Any] = dict(decision_data)
 
     if action == "seal":
-        # Run APEX kernel to get proofed verdict struct, then pass to VaultTool
+        # HARDENED: Run APEX kernel for proof, include in seal_data
         try:
             kernel = get_kernel_manager().get_apex()
             kernel_result = await kernel.execute(
@@ -399,10 +422,17 @@ async def mcp_vault(
         except Exception as e:
             logger.warning(f"[VAULT_999] APEX kernel seal failed, sealing without proof: {e}")
             payload["kernel_result"] = {"error": str(e)}
+        
         payload["verdict"] = verdict
         payload["authority"] = (
             decision_data.get("authority") or kwargs.get("authority", "system")
         )
+        
+        # HARDENED: Build Trinity bundle for EUREKA Sieve
+        payload["init_result"] = init_result
+        payload["agi_result"] = agi_result
+        payload["asi_result"] = asi_result
+        payload["apex_result"] = apex_result
 
     elif action == "query":
         # Map query-specific params into payload keys VaultTool expects
@@ -422,11 +452,20 @@ async def mcp_vault(
                 payload.setdefault(key, val)
 
     try:
+        # HARDENED: Pass Trinity results for EUREKA evaluation
         return await VaultTool.execute(
             action=action,
             session_id=session_id,
             target=target,
             payload=payload,
+            query=query,
+            response=response,
+            trinity_bundle={
+                "init": init_result,
+                "agi": agi_result,
+                "asi": asi_result,
+                "apex": apex_result,
+            },
         )
     except Exception as e:
         logger.error(f"[VAULT_999] Error: {e}")
