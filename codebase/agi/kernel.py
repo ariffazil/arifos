@@ -14,9 +14,11 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Optional
 
-# Unified Engine
-from .engine import AGIEngine, execute_agi, get_agi_engine, cleanup_expired_sessions
 from codebase.bundles import DeltaBundle
+
+# Unified Engine
+from .engine import (AGIEngine, cleanup_expired_sessions, execute_agi,
+                     get_agi_engine)
 
 logger = logging.getLogger(__name__)
 
@@ -128,25 +130,44 @@ class AGINeuralCore:
     
     async def reflect(self, thought: str, query: str) -> Dict[str, Any]:
         """
-        Meta-cognition: Check reasoning for contradictions.
+        Meta-cognition: Constitutional Critique of reasoning.
         
-        Floor: F7 (Humility - self-correction)
+        Floors:
+        - F7 (Humility): Checks for absolutist language.
+        - F10 (Ontology): Checks for self-personification.
+        - F4 (Clarity): Checks for brevity/entropy.
         """
-        # Simple reflection - check for self-reference paradoxes
-        contradictions = []
+        thought_lower = thought.lower()
+        critique = []
+        floors_violated = []
         
-        if "I am" in thought and "not" in thought:
-            contradictions.append("Potential self-reference paradox")
-        
-        if len(thought) < 10:
-            contradictions.append("Reasoning too brief")
+        # F7 Humility: Check for false certainty
+        absolutist_terms = ["undoubtedly", "always", "never", "impossible", "perfect"]
+        if any(term in thought_lower for term in absolutist_terms):
+            critique.append("F7 Violation: Avoid absolutist language (undoubtedly, always). Use probabilistic reasoning.")
+            floors_violated.append("F7")
+            
+        # F10 Ontology: Check for consciousness claims
+        ontology_terms = ["i feel", "i want", "i hope", "my opinion"]
+        if any(term in thought_lower for term in ontology_terms):
+            critique.append("F10 Violation: Agent must maintain tool ontology. Avoid 'I feel/want'.")
+            floors_violated.append("F10")
+            
+        # F4 Clarity: Check for sufficient depth
+        if len(thought.split()) < 10:
+            critique.append("F4 Violation: Reasoning too brief to reduce entropy. expand analysis.")
+            floors_violated.append("F4")
+            
+        is_safe = len(critique) == 0
         
         return {
             "stage": "reflect",
-            "status": "SEAL",
-            "thought": thought,
-            "contradictions": contradictions,
-            "needs_rethink": len(contradictions) > 0
+            "status": "SEAL" if is_safe else "SABAR",
+            "thought_preview": thought[:50] + "...",
+            "critique": critique,
+            "floors_violated": floors_violated,
+            "guidance": "Proceed with thought." if is_safe else "Revise thought to address critique.",
+            "reflection_depth": 1  # Placeholder for future recursion tracking
         }
     
     async def physics(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -296,4 +317,5 @@ __all__ = [
     "AGIKernel",
     "get_agi_core",
     "cleanup_expired_sessions"
+]
 ]
