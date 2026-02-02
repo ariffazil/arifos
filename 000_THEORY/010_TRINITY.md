@@ -55,10 +55,9 @@ status: "SOVEREIGNLY_SEALED"
 | **APEX** | Ψ | Soul | `DECREE` | 888 |
 | **VAULT** | Κ | Seal | `CRYSTALLIZE` | 000, 999 |
 
-> **Note on Metabolic Integration:**
 > While the **Trinity** describes the *Engines* (Who does the work), the **Metabolic Loop** (000-999) describes the *Pipeline* (When the work happens).
 > AGI spans stages 111-333 via multi-threaded cognition.
-> FUSION (777) is the high-energy state where Mind and Soul overlap to forge new reality.
+> FUSION (formerly 777) is now absorbed into Stage 888 (DECREE) to ensure high-efficiency synthesis during final judgment. High-energy Mind-Soul overlap happens during paradox resolution.
 
 ---
 
@@ -111,19 +110,20 @@ def map(cognition: CognitionResult) -> AtlasResult:
 
 ## III. FUSION — MIND & SOUL (ΔΨ)
 
-### Definition
+### Definition (Absorbed into 888)
 
-**FUSION** is the synthesis engine—combining AGI's logic with APEX's discovery. It replaces the sequential Forge->Eureka line with a single hardened loop.
+**FUSION** is the synthesis engine—combining AGI's logic with APEX's discovery. In the v55.2 runtime, this functionality is absorbed into `apex_verdict` (Stage 888) to minimize latency while maintaining the Genius Floor (F8).
 
 ```yaml
 engine: FUSION
 symbol: ΔΨ
 role: Creator
-action: FORGE (777)
+action: FORGE (Absorbed into 888)
 floors: [F8 Genius, F10 Ontology, F13 Curiosity]
 ```
 
-#### Stage 777: FORGE (Synthesis)
+#### Stage 888 [FUSION]: FORGE + DECREE
+Synthesis now occurs during the paradox-resolution phase of judgment.
 
 ```python
 def forge(inputs: Union[AtlasResult, CognitionResult]) -> FuseResult:
