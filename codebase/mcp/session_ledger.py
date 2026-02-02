@@ -26,7 +26,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from codebase.vault.ledger import VaultLedger
+from codebase.vault import VaultLedger
 
 # Cross-platform file locking
 if sys.platform == "win32":

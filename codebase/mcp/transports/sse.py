@@ -148,7 +148,7 @@ class SSETransport(BaseTransport):
             - proof: Get Merkle proof for a sequence
             """
             try:
-                from codebase.vault.persistent_ledger import get_vault_ledger
+                from codebase.vault import get_vault_ledger
                 from codebase.vault.migrations.run_migrations import ensure_vault_tables
                 
                 body = await request.json()
@@ -244,7 +244,7 @@ class SSETransport(BaseTransport):
         async def vault_health(request):
             """VAULT999 health check."""
             try:
-                from codebase.vault.persistent_ledger import should_use_postgres, get_vault_dsn
+                from codebase.vault import should_use_postgres, get_vault_dsn
                 from codebase.vault.migrations.run_migrations import ensure_vault_tables
                 
                 if not should_use_postgres():
@@ -254,7 +254,7 @@ class SSETransport(BaseTransport):
                     })
                 
                 # Try to connect and check tables
-                from codebase.vault.persistent_ledger import get_vault_ledger
+                from codebase.vault import get_vault_ledger
                 ledger = get_vault_ledger()
                 await ledger.connect()
                 
