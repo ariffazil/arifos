@@ -14,6 +14,7 @@ import base64
 import hashlib
 import json
 import math
+import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,6 +25,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from codebase.system.apex_prime import APEXPrime
 from codebase.mcp.services.constitutional_metrics import get_stage_result, store_stage_result
 from codebase.mcp.session_ledger import seal_memory
+from codebase.vault.eureka_sieve import should_seal_to_vault
 
 # v53.5.0: PsiKernel (Soul) + TrinityNine (9-Paradox) — NOW WIRED
 import logging as _apex_logging
@@ -557,8 +559,78 @@ class APEXJudicialCore:
         agi_result: Optional[Dict[str, Any]],
         asi_result: Optional[Dict[str, Any]],
     ) -> Dict[str, Any]:
-        """Stage 999: Seal session to ledger (JSON+Markdown) with Phoenix metadata."""
+        """Stage 999: EUREKA-filtered seal to ledger with Phoenix metadata.
+
+        Theory of Anomalous Contrast (888_SOUL_VERDICT.md):
+        - SEAL is EARNED (eureka_score >= 0.75) -> permanent VAULT999
+        - SABAR is DEFAULT (0.50-0.75) -> cooling ledger (72h)
+        - TRANSIENT (<0.50) -> not stored (only telemetry returned)
+        - VOID is EXPENSIVE -> already blocked by judge_888
+        """
+        # Deterministic timestamp for the entire seal operation
+        seal_ts = datetime.now(timezone.utc).isoformat() + "Z"
+
+        # Preserve the original APEX verdict (never overwrite)
+        apex_verdict = str(verdict_struct.get("verdict", "SABAR"))
+
+        # VOID guard: VOID should never be persisted as SEAL
+        # VOIDs are expensive — they were already rejected by judge_888
+        if apex_verdict == "VOID":
+            _apex_logger.info(
+                f"VOID verdict for session {session_id[:8]}: "
+                f"not persisting (VOID is expensive, already rejected)"
+            )
+            proof = self.proof_889(session_id=session_id, verdict_struct=verdict_struct)
+            return {
+                "stage": "999_SEAL",
+                "status": "VOID",
+                "session_id": session_id,
+                "apex_verdict": "VOID",
+                "eureka_verdict": None,
+                "persisted_as": None,
+                "proof": proof,
+                "timestamp": seal_ts,
+                "message": "VOID is expensive: rejected by judge_888, not persisted",
+            }
+
+        # Ensure seal_id exists (idempotency key)
+        seal_id = verdict_struct.get("seal_id") or str(uuid.uuid4())
+        verdict_struct["seal_id"] = seal_id
+
         proof = self.proof_889(session_id=session_id, verdict_struct=verdict_struct)
+
+        # Build trinity bundle for EUREKA evaluation
+        query = str(verdict_struct.get("query") or verdict_struct.get("reason") or "")
+        response = str(verdict_struct.get("draft") or self._summarize(verdict_struct))
+        trinity_bundle = {
+            "agi": agi_result or {},
+            "asi": asi_result or {},
+            "apex": verdict_struct,
+            "init": init_result or {},
+            "reasoning": {
+                "proposed_canon": bool((verdict_struct.get("cooling") or {}).get("tier") == "L3"),
+                "code_modified": bool((init_result or {}).get("code_modified")),
+            },
+        }
+
+        # EUREKA Sieve: Theory of Anomalous Contrast
+        # Degradation: SABAR (doctrine: "SABAR is the default")
+        try:
+            _should_seal, eureka_metadata = await should_seal_to_vault(
+                query=query,
+                response=response,
+                trinity_bundle=trinity_bundle,
+            )
+            eureka_verdict = eureka_metadata.get("verdict", "SABAR")
+            eureka_score = eureka_metadata.get("eureka_score", 0.5)
+        except Exception as e:
+            _apex_logger.warning(f"EUREKA Sieve failed, defaulting to SABAR (doctrine): {e}")
+            eureka_verdict = "SABAR"
+            eureka_score = 0.5
+            eureka_metadata = {
+                "verdict": "SABAR", "eureka_score": 0.5,
+                "error": str(e), "degraded": True,
+            }
 
         telemetry = {
             "verdict": verdict_struct.get("verdict"),
@@ -573,11 +645,70 @@ class APEXJudicialCore:
                 "merkle_root": proof.get("merkle_root"),
                 "public_key": proof.get("public_key_ed25519"),
             },
+            "eureka": eureka_metadata,
         }
 
+        # TRANSIENT: Not meaningful enough for permanent storage
+        if eureka_verdict == "TRANSIENT":
+            _apex_logger.info(
+                f"EUREKA TRANSIENT (score={eureka_score:.2f}): "
+                f"session {session_id[:8]} not stored"
+            )
+            return {
+                "stage": "999_SEAL",
+                "status": "TRANSIENT",
+                "session_id": session_id,
+                "apex_verdict": apex_verdict,
+                "eureka_verdict": eureka_verdict,
+                "persisted_as": None,
+                "eureka": eureka_metadata,
+                "proof": proof,
+                "timestamp": seal_ts,
+                "message": f"EUREKA Score {eureka_score:.2f}: Not meaningful enough to store",
+            }
+
+        # SABAR: Cooling ledger for medium insights (72h hold)
+        if eureka_verdict == "SABAR":
+            _apex_logger.info(
+                f"EUREKA SABAR (score={eureka_score:.2f}): "
+                f"session {session_id[:8]} -> cooling ledger"
+            )
+            seal_result = seal_memory(
+                session_id=session_id,
+                verdict=apex_verdict,  # preserve original APEX verdict
+                init_result=init_result or {},
+                genius_result=agi_result or {},
+                act_result=asi_result or {},
+                judge_result={"verdict_struct": verdict_struct, "proof": proof},
+                telemetry=telemetry,
+                context_summary=self._summarize(verdict_struct),
+                key_insights=list((verdict_struct.get("violated_floors") or [])[:8]),
+                authority=(init_result or {}).get("authority") or (verdict_struct or {}).get("user_id") or "unknown",
+                seal_id=seal_id,
+            )
+            return {
+                "stage": "999_SEAL",
+                "status": "SABAR",
+                "session_id": session_id,
+                "apex_verdict": apex_verdict,
+                "eureka_verdict": eureka_verdict,
+                "persisted_as": "cooling",
+                "eureka": eureka_metadata,
+                "seal": seal_result,
+                "proof": proof,
+                "timestamp": seal_ts,
+                "vault_backend": seal_result.get("vault_backend"),
+                "message": f"EUREKA Score {eureka_score:.2f}: Cooling period (72h)",
+            }
+
+        # SEAL: Permanent vault for EUREKA moments (score >= 0.75)
+        _apex_logger.info(
+            f"EUREKA SEAL (score={eureka_score:.2f}): "
+            f"session {session_id[:8]} -> permanent vault"
+        )
         seal_result = seal_memory(
             session_id=session_id,
-            verdict=str(verdict_struct.get("verdict", "SABAR")),
+            verdict=apex_verdict,  # preserve original APEX verdict
             init_result=init_result or {},
             genius_result=agi_result or {},
             act_result=asi_result or {},
@@ -586,17 +717,20 @@ class APEXJudicialCore:
             context_summary=self._summarize(verdict_struct),
             key_insights=list((verdict_struct.get("violated_floors") or [])[:8]),
             authority=(init_result or {}).get("authority") or (verdict_struct or {}).get("user_id") or "unknown",
-            seal_id=verdict_struct.get("seal_id"),
+            seal_id=seal_id,
         )
 
         return {
             "stage": "999_SEAL",
             "status": "SEALED" if seal_result.get("sealed") else "ERROR",
             "session_id": session_id,
-            "verdict": verdict_struct.get("verdict", "UNKNOWN"),
+            "apex_verdict": apex_verdict,
+            "eureka_verdict": eureka_verdict,
+            "persisted_as": "vault",
+            "eureka": eureka_metadata,
             "seal": seal_result,
             "proof": proof,
-            "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+            "timestamp": seal_ts,
             "vault_backend": seal_result.get("vault_backend"),
             "vault_location": seal_result.get("vault_location"),
             "sequence": seal_result.get("sequence"),
