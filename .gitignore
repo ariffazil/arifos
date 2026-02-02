@@ -146,6 +146,10 @@ logs/
 *.log
 
 # Temporary files
+tmp_*.py
+*_tmp.py
+test_*_debug.py
+sitecustomize.py
 nul
 .DS_Store
 Thumbs.db
@@ -179,3 +183,6 @@ coverage_report.txt
 Dockerfile.bak
 
 gha-creds-*.json
+
+# IDE
+.vs/

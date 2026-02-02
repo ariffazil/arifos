@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "arifOS MCP config aligned across agents (Claude)",
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "codebase.mcp", "stdio"],
+      "cwd": "C:/Users/User/arifOS",
+      "env": {
+        "PYTHONPATH": "C:/Users/User/arifOS",
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUNBUFFERED": "1"
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "init_gate",
+        "agi_sense",
+        "agi_think",
+        "agi_reason",
+        "asi_empathize",
+        "asi_align",
+        "apex_verdict",
+        "reality_search",
+        "vault_seal"
+      ]
+    }
+  }
+}

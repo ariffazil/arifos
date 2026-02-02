@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "arifOS Standard MCP Configuration (Option B) for Claude - TIER 0-2",
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "codebase.mcp", "stdio"],
+      "cwd": "C:/Users/User/arifOS",
+      "env": {
+        "PYTHONPATH": "C:/Users/User/arifOS",
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUNBUFFERED": "1"
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "init_gate",
+        "agi_sense",
+        "agi_think",
+        "agi_reason",
+        "asi_empathize",
+        "asi_align",
+        "apex_verdict",
+        "reality_search",
+        "vault_seal",
+        "_trinity_"
+      ]
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/Users/User/arifOS"],
+      "description": "Secure file operations with configurable access controls"
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "description": "Web content fetching and conversion for efficient LLM usage"
+    },
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git", "--repository", "C:/Users/User/arifOS"],
+      "description": "Tools to read, search, and manipulate Git repositories"
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "description": "Knowledge graph-based persistent memory system"
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "description": "Dynamic and reflective problem-solving through thought sequences"
+    },
+    "time": {
+      "command": "uvx",
+      "args": ["mcp-server-time"],
+      "description": "Time and timezone conversion capabilities"
+    },
+    "sqlite": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sqlite", "C:/Users/User/arifOS/data"],
+      "description": "SQLite database interaction and business intelligence"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp"],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      },
+      "description": "Library documentation search and code examples"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "GitHub repository management and API integration"
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "description": "Web and local search using Brave Search API"
+    }
+  }
+}

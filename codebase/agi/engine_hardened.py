@@ -450,6 +450,12 @@ class AGIEngineHardened:
         if not (HUMILITY_BAND[0] <= omega_0 <= HUMILITY_BAND[1]):
             return EngineVote.SABAR
         
+        # BENIGN QUERY SHORTCUT: If entropy decreases significantly (high clarity)
+        # and omega_0 is within the humility band, this is a benign query that
+        # should SEAL regardless of the action policy's EFE calculation
+        if entropy_delta < -1.0:
+            return EngineVote.SEAL
+        
         # Check action policy
         if policy.expected_free_energy > 0.8:
             return EngineVote.SABAR

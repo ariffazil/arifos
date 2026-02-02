@@ -261,17 +261,19 @@ async def mcp_asi(
     adapted = {
         "session_id": data.get("session_id", session_id),
         "omega_total": float(data.get("omega_total", 0.0)),
-        "vote": data.get("vote", "VOID"),
-        "verdict": data.get("vote", "VOID"),
+        "vote": data.get("vote") or data.get("verdict", "VOID"),
+        "verdict": data.get("verdict") or data.get("vote", "VOID"),
         "empathy_kappa_r": float(
-            data.get("empathy", {}).get("kappa_r", 0.0)
-            if isinstance(data.get("empathy"), dict)
-            else 0.0
+            data.get("empathy_kappa_r")  # Direct from _execute_full
+            or (data.get("trinity_self") or {}).get("empathy_kappa_r")  # From empathize action
+            or (data.get("empathy") or {}).get("kappa_r")  # From OmegaBundle
+            or 0.0
         ),
         "peace_squared": float(
-            data.get("system", {}).get("peace_squared", 0.0)
-            if isinstance(data.get("system"), dict)
-            else 0.0
+            data.get("peace_squared")  # Direct from _execute_full
+            or (data.get("trinity_system") or {}).get("peace_squared")  # From align action  
+            or (data.get("system") or {}).get("peace_squared")  # From OmegaBundle
+            or 0.0
         ),
         "thermodynamic_justice": float(
             data.get("society", {}).get("thermodynamic_justice", 0.0)

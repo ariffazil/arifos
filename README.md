@@ -59,6 +59,7 @@ You can return to the Manifesto later.
   - [🖼️ IV. Visual Architecture](#️-iv-visual-architecture)
     - [The Metabolic Helix (Live Diagram)](#the-metabolic-helix-live-diagram)
   - [🌐 Live Trinity Ecosystem](#-live-trinity-ecosystem)
+    - [🤖 AI Machine-to-Machine (M2M) Endpoints](#-ai-machine-to-machine-m2m-endpoints)
   - [🏗️ V. The AAA Architecture (Mind, Heart, Soul)](#️-v-the-aaa-architecture-mind-heart-soul)
     - [1. Δ MIND (AGI) — The Architect](#1-δ-mind-agi--the-architect)
     - [2. Ω HEART (ASI) — The Guardian](#2-ω-heart-asi--the-guardian)
@@ -66,15 +67,17 @@ You can return to the Manifesto later.
   - [📜 VI. Constitutional Law (The 13 Floors)](#-vi-constitutional-law-the-13-floors)
   - [⚖️ VII. The 9-Paradox Equilibrium](#️-vii-the-9-paradox-equilibrium)
   - [📱 VIII. The 333\_APPS Stack (Applications)](#-viii-the-333_apps-stack-applications)
+    - [⚠️ Production Readiness at a Glance](#️-production-readiness-at-a-glance)
     - [L1: System Prompts (Zero-Context)](#l1-system-prompts-zero-context)
     - [L2: Skills (Templates)](#l2-skills-templates)
     - [L3: Workflows (SOPs)](#l3-workflows-sops)
     - [L4: MCP Tools (Production API)](#l4-mcp-tools-production-api)
-      - [🤖 Machine-Readable Documentation (llms.txt)](#-machine-readable-documentation-llmstxt)
+      - [🤖 Governance Artifacts (The Trinity)](#-governance-artifacts-the-trinity)
       - [🔬 MCP Inspector (The Microscope)](#-mcp-inspector-the-microscope)
-    - [L5: Agents (Federation)](#l5-agents-federation)
-    - [L6: Institution (Trinity System)](#l6-institution-trinity-system)
-    - [Future Roadmap (L7+)](#future-roadmap-l7)
+    - [L5: Agents (Federation) 🔴](#l5-agents-federation-)
+    - [L5 Physics Layer (Environment)](#l5-physics-layer-environment)
+    - [L6: Institution (Trinity System) ❌](#l6-institution-trinity-system-)
+    - [Future Roadmap (L7+) 📋](#future-roadmap-l7-)
   - [⚙️ IX. Technical Implementation](#️-ix-technical-implementation)
     - [Key Technologies](#key-technologies)
     - [Directory Structure](#directory-structure)
@@ -86,6 +89,7 @@ You can return to the Manifesto later.
   - [📄 License](#-license)
   - [👏 Acknowledgments](#-acknowledgments)
   - [☕ Support](#-support)
+  - [✅ VAULT-999 Completion Status (v55.3)](#-vault-999-completion-status-v553)
 
 ---
 
@@ -669,6 +673,27 @@ If arifOS helps your AI safety work, consider supporting development:
 - [**Buy Me a Teh Tarik**](https://buymeacoffee.com/ariffazil) — one-time contribution
 
 Every contribution helps keep constitutional AI governance open-source and accessible.
+
+---
+
+## ✅ VAULT-999 Completion Status (v55.3)
+
+The VAULT-999 (Immutable Ledger) is now fully implemented and verified in production.
+
+- **Storage backend:** PostgreSQL (managed by Railway)
+- **Concurrency:** Advisory transaction locks (no chain forks)
+- **Auditability:** Merkle DAG with sequence-linked hash chains
+- **Verification:** Built-in `verify_chain()` and `get_merkle_proof()` tools
+
+| Component | Status | Verified File |
+|-----------|--------|---------------|
+| **Postgres Schema** | ✅ COMPLETE | `codebase/vault/migrations/` |
+| **Append (Seal)** | ✅ COMPLETE | `codebase/vault/persistent_ledger.py` |
+| **Retrieval API** | ✅ COMPLETE | `codebase/vault/persistent_ledger.py` |
+| **MCP Tool Wiring**| ✅ COMPLETE | `codebase/mcp/tools/vault_tool.py` |
+| **Tests** | ✅ COMPLETE | `tests/test_vault_postgres.py` |
+
+*For full implementation details, see [docs/50_IMPLEMENTATION/SUMMARY.md](docs/50_IMPLEMENTATION/SUMMARY.md).*
 
 ---
 
