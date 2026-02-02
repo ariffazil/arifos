@@ -14,12 +14,12 @@ import uuid
 from datetime import datetime, timezone
 from typing import Any, Dict
 from codebase.bundle_store import get_store
-from codebase.vault.persistent_ledger import (
+from codebase.vault import (
     PersistentVaultLedger,
     should_use_postgres,
     GENESIS_HASH,
+    should_seal_to_vault,
 )
-from codebase.vault.eureka_sieve import should_seal_to_vault
 
 logger = logging.getLogger(__name__)
 

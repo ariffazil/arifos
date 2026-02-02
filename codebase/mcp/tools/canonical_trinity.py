@@ -18,11 +18,31 @@ Scope:
 """
 
 import logging
+import os
 import uuid
 from typing import Any, Dict, Optional, List
 from codebase.kernel import get_kernel_manager
 
 logger = logging.getLogger(__name__)
+
+# Schema validation (v55.3) - optional, non-breaking
+try:
+    from codebase.schemas.validator import (
+        validate_output,
+        validate_asi_output,
+        validate_apex_output,
+        validate_reality_output,
+        validate_vault_output,
+        validate_agi_output,
+    )
+    SCHEMA_VALIDATION_AVAILABLE = True
+except ImportError:
+    SCHEMA_VALIDATION_AVAILABLE = False
+    logger.debug("Schema validation not available")
+
+# Strict mode flag (environment variable)
+SCHEMA_STRICT_MODE = os.environ.get("AAA_SCHEMA_STRICT", "false").lower() == "true"
+
 from codebase.mcp.core.bridge import (
     bridge_trinity_loop_router,
     bridge_reality_check_router,
@@ -212,6 +232,10 @@ async def mcp_agi(
     if "reflection" in result:
         adapted["reflection"] = result["reflection"]
 
+    # F4 Clarity: Schema validation (v55.3)
+    if SCHEMA_VALIDATION_AVAILABLE:
+        validate_agi_output(adapted, strict=SCHEMA_STRICT_MODE)
+
     return adapted
 
 
@@ -286,6 +310,10 @@ async def mcp_asi(
         "consent_verified": bool(data.get("floor_scores", {}).get("F11_consent", False)),
     }
 
+    # F4 Clarity: Schema validation (v55.3)
+    if SCHEMA_VALIDATION_AVAILABLE:
+        validate_asi_output(adapted, strict=SCHEMA_STRICT_MODE)
+
     return adapted
 
 
@@ -341,6 +369,10 @@ async def mcp_apex(
         "proof": raw_result.get("proof", {}),
     }
 
+    # F4 Clarity: Schema validation (v55.3)
+    if SCHEMA_VALIDATION_AVAILABLE:
+        validate_apex_output(adapted, strict=SCHEMA_STRICT_MODE)
+
     return adapted
 
 
@@ -378,9 +410,9 @@ async def mcp_vault(
         verify  — Verify chain integrity
         proof   — Get Merkle inclusion proof
     """
-    # HARDENED: Use vault_tool_hardened with EUREKA Sieve
-    from codebase.mcp.tools.vault_tool_hardened import (
-        HardenedVaultTool as VaultTool,
+    # Use consolidated vault_tool with EUREKA Sieve (v55.3)
+    from codebase.mcp.tools.vault_tool import (
+        VaultTool,
         AUTHORITY_NOTICE,
     )
 
@@ -531,6 +563,10 @@ async def mcp_reality(
             # Ensure verdict allows for manual intervention if it was VOID
             if result.get("verdict") == "VOID":
                 result["verdict"] = "SABAR" # Shift to SABAR to allow agent action
+        
+        # F4 Clarity: Schema validation (v55.3)
+        if SCHEMA_VALIDATION_AVAILABLE:
+            validate_reality_output(result, strict=SCHEMA_STRICT_MODE)
                 
         return result
 

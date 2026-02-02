@@ -108,7 +108,7 @@ tests/safe_chatbot_demo.py
 
 ---
 
-### T1.3 Fix ASI soft floor scoring (kappa_r = 0.0 bug)
+### T1.3 Fix ASI soft floor scoring (kappa_r = 0.0 bug) ✅ COMPLETED
 
 | Dimension | Score | Reason |
 |-----------|-------|--------|
@@ -119,11 +119,17 @@ tests/safe_chatbot_demo.py
 | Resource Dep | 5 | Pure code |
 | **TOTAL** | **18** | |
 
-**What to do:**
-- [ ] In `codebase/asi/engine_hardened.py`: when no stakeholders are harmed, set `kappa_r = 1.0` (not 0.0)
-- [ ] Same for `peace_squared`: no conflict = maximum peace = 1.0
-- [ ] Run `test_pipeline_e2e.py::test_benign_query_should_seal_everywhere` — should pass
-- [ ] Remove `xfail` marker from that test once fixed
+**Fixed:** 2026-02-03
+
+**Changes made:**
+- ✅ In `codebase/asi/engine_hardened.py`:
+  - `_compute_kappa_r`: Changed `return 0.5` to `return 1.0` when no stakeholders (line ~243)
+  - `_compute_peace_squared`: Changed `external = 0.5` to `external = 1.0` when no stakeholders (line ~330)
+  - `_identify_stakeholders`: Removed default stakeholder creation for benign queries (was causing all queries to have at least 1 stakeholder)
+  - `Stakeholder` class: Added `@dataclass` decorator to fix instantiation
+- ✅ Benign query test: "What is 2+2?" now returns `kappa_r=1.0`, `peace_squared=0.9`, `Vote=SEAL`
+
+**Root cause:** The `_identify_stakeholders` method was adding a default stakeholder with vulnerability=0.5 for ALL queries, preventing the "no stakeholders" case from ever triggering. Combined with `_compute_kappa_r` returning 0.5 for empty lists, this caused all queries (even benign ones) to fail F6.
 
 **Files:** `codebase/asi/engine_hardened.py`
 

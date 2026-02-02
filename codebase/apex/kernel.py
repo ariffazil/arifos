@@ -25,7 +25,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from codebase.system.apex_prime import APEXPrime
 from codebase.mcp.services.constitutional_metrics import get_stage_result, store_stage_result
 from codebase.mcp.session_ledger import seal_memory
-from codebase.vault.eureka_sieve import should_seal_to_vault
+from codebase.vault import should_seal_to_vault
 
 # v53.5.0: PsiKernel (Soul) + TrinityNine (9-Paradox) — NOW WIRED
 import logging as _apex_logging

@@ -1,21 +1,36 @@
 """
-codebase.init.000_init — Stage 000 VOID Components
+codebase/init/000_init/__init__.py
 
-System ignition and constitutional gate.
+Note: This directory name starts with a digit (000_init) which is not a valid
+Python identifier. Use importlib to import modules from this package:
 
-Canonical MCP init_000: codebase.init.000_init.init_000.mcp_000_init
-Reference class:        codebase.init.000_init.stage_000_core.Stage000VOID
+    spec = importlib.util.spec_from_file_location("init_000", "codebase/init/000_init/init_000.py")
+    module = importlib.util.module_from_spec(spec)
+
+Or use the parent package:
+
+    from codebase.init import mcp_000_init, InitResult
 """
 
-from .stage_000_core import execute_stage_000, VerdictType, Stage000VOID
-from .ignition import ignite_system
-from .init_000 import mcp_000_init, InitResult
+# Export canonical_bootstrap (valid Python name)
+from .canonical_bootstrap import (
+    CanonicalBootstrap,
+    fetch_canonical_state,
+    CanonicalBootstrapResult,
+    CanonicalSourceResult,
+    CanonicalConfigLoader,
+    CanonicalFetchEngine,
+    get_bootstrap_config,
+    DEFAULT_CANONICAL_CONFIG,
+)
 
 __all__ = [
-    "execute_stage_000",
-    "VerdictType",
-    "Stage000VOID",
-    "ignite_system",
-    "mcp_000_init",
-    "InitResult",
+    "CanonicalBootstrap",
+    "fetch_canonical_state",
+    "CanonicalBootstrapResult",
+    "CanonicalSourceResult",
+    "CanonicalConfigLoader",
+    "CanonicalFetchEngine",
+    "get_bootstrap_config",
+    "DEFAULT_CANONICAL_CONFIG",
 ]

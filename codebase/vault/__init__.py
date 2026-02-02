@@ -38,9 +38,14 @@ from .incremental_merkle import (
     PersistentMerkleState,
 )
 
-# Backwards compatibility: get_vault_ledger returns hardened version
+# Backwards compatibility aliases
 get_vault_ledger = get_hardened_vault_ledger
 PersistentVaultLedger = HardenedPersistentVaultLedger
+should_seal_to_vault = should_seal_to_vault_hardened
+EUREKASieve = HardenedEUREKASieve
+
+# Legacy VaultLedger (filesystem JSONL backend)
+from .legacy.ledger_v0 import VaultLedger
 
 __all__ = [
     # Hardened ledger
@@ -65,4 +70,8 @@ __all__ = [
     # Merkle
     "IncrementalMerkleTree",
     "PersistentMerkleState",
+    # Legacy compat
+    "should_seal_to_vault",
+    "EUREKASieve",
+    "VaultLedger",
 ]
