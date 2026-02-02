@@ -529,13 +529,14 @@ class ToolRegistry:
                 name="vault_seal",
                 title="Immutable Ledger (Seal)",
                 description="Tamper-proof storage using Merkle-tree sealing. Implements F1 Amanah (Trust).",
+                # Vault999 records events regardless of approval; verdict is a field. VOID entries are still recorded for audit truth.
                 handler=mcp_vault,
                 input_schema={
                     "type": "object",
                     "properties": {
                         "action": {
                             "type": "string",
-                            "enum": ["seal", "list", "read", "write", "propose"],
+                            "enum": ["seal", "list", "read", "query", "verify", "proof", "propose"],
                             "default": "seal",
                         },
                         "verdict": {"type": "string"},

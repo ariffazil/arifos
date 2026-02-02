@@ -2,7 +2,7 @@
 
 **Project:** arifOS — Constitutional AI Governance System  
 **Package:** `arifos` (PyPI)  
-**Version:** v55.2  
+**Version:** v55.2 (as of 2026-02-02)  
 **Python:** >=3.10  
 **License:** AGPL-3.0-only  
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
@@ -36,7 +36,6 @@ arifOS is a **production-grade constitutional AI governance system** that sits b
 | **Data Validation** | Pydantic v2 |
 | **MCP Protocol** | `mcp>=1.0.0`, `fastmcp>=0.1.0` |
 | **Web Server** | Uvicorn |
-| **Cryptography** | Merkle DAG, hashlib |
 | **Numerical** | NumPy |
 | **Formatting** | Black (100 char line length) |
 | **Linting** | Ruff |
@@ -57,15 +56,15 @@ arifOS/
 │   ├── L2_SKILLS/       # Reusable YAML skill templates
 │   ├── L3_WORKFLOW/     # Standard Operating Procedures (SOPs)
 │   ├── L4_TOOLS/        # MCP tool implementations
-│   ├── L5_AGENTS/       # Multi-agent federation (stubs)
-│   └── L6_INSTITUTION/  # Institutional governance (stubs)
+│   ├── L5_AGENTS/       # Multi-agent federation (environment alive, agent stubs)
+│   └── L6_INSTITUTION/  # Institutional governance (design only)
 ├── codebase/            # Core Python implementation
 │   ├── agi/             # Mind Engine (Δ) — F2, F4, F7, F10
 │   ├── asi/             # Heart Engine (Ω) — F1, F5, F6, F9
 │   ├── apex/            # Soul Engine (Ψ) — F3, F8, F11-F13
 │   ├── mcp/             # MCP server implementation
 │   │   ├── core/        # Tool registry, bridge, validators
-│   │   ├── transports/  # stdio, SSE, HTTP transports
+│   │   ├── transports/  # stdio, SSE transports
 │   │   ├── tools/       # 9 canonical tool handlers
 │   │   └── entrypoints/ # CLI entry points
 │   ├── floors/          # Floor validator modules (F1, F8, F10, F12)
@@ -73,16 +72,21 @@ arifOS/
 │   ├── enforcement/     # Floor validator implementations
 │   ├── stages/          # 000-999 metabolic loop stages
 │   ├── vault/           # Cryptographic sealing (VAULT999)
-│   └── federation/      # Physics/math foundations
-├── tests/               # Test suite (202+ tests)
+│   ├── federation/      # Physics/math foundations
+│   └── tests/           # Internal test suite
+├── tests/               # Main test suite (100+ tests)
 │   ├── constitutional/  # F1-F13 floor tests
-│   ├── mcp/             # MCP tool tests
-│   └── core/            # Core engine tests
+│   ├── mcp/             # MCP tool and transport tests
+│   ├── integration/     # End-to-end tests
+│   ├── enforcement/     # Floor enforcement tests
+│   ├── memory/          # Ledger and memory tests
+│   └── conftest.py      # Shared fixtures
 ├── spec/                # JSON schema definitions
 ├── docs/                # Documentation and assets
 ├── pyproject.toml       # Package configuration
 ├── docker-compose.yml   # Docker orchestration
-└── Dockerfile           # Container build
+├── Dockerfile           # Container build
+└── mypy.ini             # Type checking configuration
 ```
 
 ---
@@ -105,7 +109,7 @@ pip install -e ".[dev]"
 
 ```bash
 # Standard I/O (for Claude Desktop, Cursor IDE)
-aaa-mcp-stdio
+aaa-mcp
 # OR: python -m codebase.mcp
 
 # SSE transport (HTTP clients)
@@ -164,7 +168,7 @@ pytest tests/test_mcp_quick.py -v
 ### Test Configuration
 
 - **Async mode:** `auto` (configured in `pyproject.toml`)
-- **Test paths:** `tests/`, `arifos/tests/`
+- **Test paths:** `tests/`, `codebase/tests/`
 - **Fixtures:** Located in `tests/conftest.py`
 - **Physics disabled by default:** Tests run with `ARIFOS_PHYSICS_DISABLED=1` for performance
 - **Legacy spec bypass:** Tests use `ARIFOS_ALLOW_LEGACY_SPEC=1` to skip cryptographic manifest validation
@@ -174,10 +178,19 @@ pytest tests/test_mcp_quick.py -v
 ```
 tests/
 ├── constitutional/      # Floor-specific tests (F1-F13)
+│   ├── test_01_core_F1_to_F13.py
+│   ├── test_anti_hantu_f9.py
+│   └── test_pipeline_000_to_999_comprehensive.py
 ├── mcp/                 # MCP tool and transport tests
-├── core/                # Engine and kernel tests
+│   ├── test_mcp_connection.py
+│   ├── test_schema_validation.py
+│   └── test_session_ledger.py
 ├── integration/         # End-to-end integration tests
-└── conftest.py          # Shared fixtures and configuration
+│   ├── test_mcp_roundtrip.py
+│   └── test_complete_mcp_constitutional.py
+├── enforcement/         # Floor enforcement tests
+├── memory/              # Ledger and memory tests
+└── conftest.py          # Shared fixtures
 ```
 
 ---
@@ -204,7 +217,7 @@ mypy codebase/ --ignore-missing-imports
 |------|-----------------|--------------|
 | Black | `pyproject.toml` | line-length = 100, target Python 3.10+ |
 | Ruff | `pyproject.toml` | line-length = 100, exclude `archive/**`, `tests/**` |
-| MyPy | `pyproject.toml` | Strict mode for governance modules |
+| MyPy | `mypy.ini` | Strict mode for governance modules, relaxed for tests |
 
 ### Pre-commit Hooks
 
@@ -283,7 +296,7 @@ All tools accept `session_id` for chaining multi-step workflows.
 
 - **Registry:** `codebase/mcp/core/tool_registry.py`
 - **Handlers:** `codebase/mcp/tools/canonical_trinity.py`
-- **Legacy:** `mcp_tools_v53.py` (28KB internal engine, being refactored)
+- **Entry Points:** `codebase/mcp/entrypoints/stdio_entry.py`, `sse_entry.py`
 
 ---
 
@@ -371,7 +384,99 @@ SEAL > SABAR > VOID > 888_HOLD > PARTIAL
 
 - Merkle-tree tamper-evident ledger
 - Hash chain linking all decisions
-- Location: `codebase/vault/seal999.py`
+- Location: `codebase/vault/ledger_native.py`
+
+---
+
+## VAULT999 Doctrine (v1.0)
+
+**Status:** Working understanding, not yet operationally sealed  
+**Last Updated:** 2026-02-02
+
+### Critical Clarification (Read This First)
+
+> **VAULT999 is NOT ChatGPT's memory.**  
+> **VAULT999 IS forensic, institutional memory.**
+
+This distinction is constitutionally important. Getting it wrong leads to misplaced trust and architectural confusion.
+
+---
+
+### What VAULT999 IS
+
+- **Forensic memory** — records what actually happened, not what an AI recalls
+- **Institutional memory** — survives any AI replacement (ChatGPT, Claude, Gemini, or human)
+- **Append-only** — entries are never deleted or modified
+- **Hash-chained** — each entry cryptographically linked to previous
+- **Tamper-evident** — any modification breaks verifiable hashes
+- **Independent authority** — truth lives in the vault, not in any AI's context window
+
+### What VAULT999 IS NOT
+
+- **NOT ChatGPT memory** — does not remember conversations for the AI
+- **NOT a conversation log** — does not store chat history
+- **NOT AI attachment** — does not make an AI "know" you
+- **NOT symbolic ritual** — seals are cryptographic, not theatrical
+- **NOT mutable** — entries cannot be edited or "forgotten"
+
+### The Correct Mental Model
+
+Think of VAULT999 as:
+
+- A **court ledger** — records judgments and decisions
+- A **flight recorder** — captures events for later investigation
+- A **blockchain** — append-only, verifiable, independent
+- An **audit trail** — proves what happened, when, by whom
+
+**NOT** as:
+
+- A **brain** — it doesn't think or recall
+- A **diary** — it doesn't maintain personal context
+- A **cache** — it doesn't make access faster
+
+### Success Criteria Checklist
+
+VAULT999 is operationally real when all of these are true:
+
+| Criterion | Test | Required |
+|-----------|------|----------|
+| Survives container restart | Stop/start Railway container, query vault | ✅ Yes |
+| Survives AI replacement | Query from ChatGPT, then Claude, same data | ✅ Yes |
+| Independently verifiable | Human queries Postgres directly, sees entries | ✅ Yes |
+| Tamper-evident | Edit DB row, `verify_chain()` fails | ✅ Yes |
+| Append-only | No DELETE or UPDATE operations exposed | ✅ Yes |
+
+### Authority Notice (For All MCP Responses)
+
+All `vault_seal` and retrieval responses include:
+
+```json
+{
+  "authority_notice": "This seal is generated by arifOS infrastructure. ChatGPT/LLM is only the caller, not the authority."
+}
+```
+
+This is **documentation clarity**, not security theater. The AI does not seal things. The infrastructure seals things. The AI merely requests.
+
+### Design Note (For Contributors)
+
+```python
+# Near vault_seal implementation:
+# Vault999 records events regardless of approval. 
+# Verdict is a field. VOID entries are still recorded for audit truth.
+```
+
+A VOID verdict means "this was rejected" — but the rejection itself is recorded. Nothing is forgotten. Nothing is hidden.
+
+### The Final Test
+
+If ChatGPT disappeared tomorrow, could you still:
+
+1. Query the vault? → **YES** = It's real
+2. Verify the chain? → **YES** = It's real
+3. Prove what happened? → **YES** = It's real
+
+If yes to all three: VAULT999 is sovereign infrastructure, not AI ornamentation.
 
 ---
 
@@ -462,6 +567,28 @@ A floor was violated but may be repairable. Stop and reflect before proceeding.
 
 ### VOID
 A hard floor failed. The decision is rejected and cannot proceed.
+
+---
+
+## VAULT999 Doctrine (v1.0)
+Status: Working understanding — not operationally sealed.
+
+What VAULT999 **is**:
+- Forensic, institutional memory
+- Survives any AI replacement
+- Append-only, hash-chained, tamper-evident
+
+What VAULT999 is **not**:
+- ChatGPT memory
+- Conversation log
+- AI attachment
+- Symbolic ritual
+
+Success criteria checklist:
+- Survives container restart
+- Survives AI replacement
+- Independently verifiable
+- Tamper-evident
 
 ---
 

@@ -1,7 +1,21 @@
 """
 codebase.vault — Immutable Storage & Governance (999)
+
+Primary backend: Postgres (PersistentVaultLedger)
 """
 
-from .ledger_native import CoolingLedgerNative
+from .persistent_ledger import (
+    PersistentVaultLedger,
+    should_use_postgres,
+    get_vault_dsn,
+    get_vault_ledger,
+    GENESIS_HASH,
+)
 
-__all__ = ["CoolingLedgerNative"]
+__all__ = [
+    "PersistentVaultLedger",
+    "should_use_postgres",
+    "get_vault_dsn",
+    "get_vault_ledger",
+    "GENESIS_HASH",
+]

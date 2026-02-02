@@ -570,6 +570,8 @@ class APEXJudicialCore:
             telemetry=telemetry,
             context_summary=self._summarize(verdict_struct),
             key_insights=list((verdict_struct.get("violated_floors") or [])[:8]),
+            authority=(init_result or {}).get("authority") or (verdict_struct or {}).get("user_id") or "unknown",
+            seal_id=verdict_struct.get("seal_id"),
         )
 
         return {
@@ -580,6 +582,9 @@ class APEXJudicialCore:
             "seal": seal_result,
             "proof": proof,
             "timestamp": datetime.now(timezone.utc).isoformat() + "Z",
+            "vault_backend": seal_result.get("vault_backend"),
+            "vault_location": seal_result.get("vault_location"),
+            "sequence": seal_result.get("sequence"),
         }
 
     # -------------------------------------------------------------------------

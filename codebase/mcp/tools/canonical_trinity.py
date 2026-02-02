@@ -29,7 +29,6 @@ from codebase.mcp.core.bridge import (
     bridge_atlas_router,
 )
 
-
 def _normalize_kwargs(kwargs: dict) -> dict:
     """
     LLM-agnostic input normalizer.
@@ -47,6 +46,7 @@ def _normalize_kwargs(kwargs: dict) -> dict:
         unwrapped.update(kwargs)
         return unwrapped
     return kwargs
+
 
 
 # ==============================================================================
@@ -354,62 +354,88 @@ async def mcp_vault(
     **kwargs,
 ) -> Dict[str, Any]:
     """
-    _vault_: Immutable Ledger - Seal, List, Read.
+    _vault_: Immutable Ledger — PostgreSQL-backed.
+
+    Delegates to VaultTool for all ledger operations.
+    The only logic kept here is APEX kernel integration for seal action
+    and LLM-agnostic parameter normalization.
+
+    Actions:
+        seal    — Append entry with hash chain + Merkle root
+        list    — Paginated listing (cursor/limit)
+        read    — Retrieve by session_id or sequence number
+        query   — Filter by verdict and time range
+        verify  — Verify chain integrity
+        proof   — Get Merkle inclusion proof
     """
+    from codebase.mcp.tools.vault_tool import VaultTool, AUTHORITY_NOTICE
+
     kwargs = _normalize_kwargs(kwargs)
     action = kwargs.pop("action", action) or "seal"
     verdict = kwargs.pop("verdict", verdict) or "SEAL"
     session_id = kwargs.pop("session_id", session_id)
+    decision_data = kwargs.pop("decision_data", decision_data) or {}
     if not session_id:
         session_id = str(uuid.uuid4())
 
-    # Default fallback values to satisfy schema
-    fallback_result = {
-        "seal_id": session_id,
-        "merkle_root": "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "status": "ERROR",
-        "target": target,
-        "timestamp": "",
-        "integrity_hash": ""
-    }
+    # Build payload from decision_data + kwargs for VaultTool
+    payload: Dict[str, Any] = dict(decision_data)
+
+    if action == "seal":
+        # Run APEX kernel to get proofed verdict struct, then pass to VaultTool
+        try:
+            kernel = get_kernel_manager().get_apex()
+            kernel_result = await kernel.execute(
+                "seal",
+                {
+                    "session_id": session_id,
+                    "verdict": verdict,
+                    "data": decision_data,
+                    "target_ledger": target,
+                    **kwargs,
+                },
+            )
+            payload["kernel_result"] = kernel_result if isinstance(kernel_result, dict) else {}
+        except Exception as e:
+            logger.warning(f"[VAULT_999] APEX kernel seal failed, sealing without proof: {e}")
+            payload["kernel_result"] = {"error": str(e)}
+        payload["verdict"] = verdict
+        payload["authority"] = (
+            decision_data.get("authority") or kwargs.get("authority", "system")
+        )
+
+    elif action == "query":
+        # Map query-specific params into payload keys VaultTool expects
+        payload.setdefault(
+            "verdict", decision_data.get("verdict") or kwargs.get("query_verdict") or "SEAL"
+        )
+        for key in ("start_time", "end_time"):
+            val = decision_data.get(key) or kwargs.get(key)
+            if val is not None:
+                payload.setdefault(key, val)
+
+    else:
+        # list / read / proof: forward limit, cursor, sequence from kwargs
+        for key in ("limit", "cursor", "sequence"):
+            val = kwargs.get(key) or decision_data.get(key)
+            if val is not None:
+                payload.setdefault(key, val)
 
     try:
-        kernel = get_kernel_manager().get_apex()
-        result = await kernel.execute(
-            "seal" if action == "seal" else action,
-            {
-                "session_id": session_id,
-                "verdict": verdict,
-                "data": decision_data,
-                "target_ledger": target,
-                **kwargs,
-            },
+        return await VaultTool.execute(
+            action=action,
+            session_id=session_id,
+            target=target,
+            payload=payload,
         )
-        
-        # Ensure result adheres to schema
-        if not isinstance(result, dict):
-             result = {"error": f"Invalid result type: {type(result)}"}
-
-        # If kernel returns error or missing fields, merge with fallback
-        final_result = fallback_result.copy()
-        final_result.update(result)
-        
-        # Ensure status is one of the allowed enums if possible, or at least a string
-        if "status" not in final_result or final_result["status"] not in ["SEALED", "PENDING", "ERROR"]:
-             # Map internal status to schema enum if needed, or default to ERROR if it looks like a failure
-             if "error" in final_result:
-                 final_result["status"] = "ERROR"
-             elif final_result.get("verdict") == "SEAL":
-                 final_result["status"] = "SEALED"
-             else:
-                 final_result["status"] = "PENDING"
-
-        return final_result
-
     except Exception as e:
         logger.error(f"[VAULT_999] Error: {e}")
-        fallback_result["error"] = str(e)
-        return fallback_result
+        return {
+            "operation": "error",
+            "verdict": "VOID",
+            "error": str(e),
+            "authority_notice": AUTHORITY_NOTICE,
+        }
 
 
 # ==============================================================================

@@ -1,1 +1,52 @@
-"""\ncanonical_core/vault/ledger.py — Immutable Ledger\n\nHandles JSONL appending and hash chaining.\n"""\n\nimport os\nimport json\nimport hashlib\nfrom typing import Dict, Any\n\nclass VaultLedger:\n    """Immutable Append-Only Ledger."""\n    \n    def __init__(self, storage_path: str):\n        self.ledger_path = os.path.join(storage_path, "vault.jsonl")\n        os.makedirs(storage_path, exist_ok=True)\n        \n    def append_entry(self, entry: Dict[str, Any]) -> str:\n        """\n        Append entry to ledger.\n        Computes current_hash = SHA256(entry + previous_hash)\n        """\n        prev_hash = self.get_last_hash()\n        entry["previous_hash"] = prev_hash\n        \n        # Serialize deterministically\n        serialized = json.dumps(entry, sort_keys=True)\n        current_hash = hashlib.sha256(serialized.encode()).hexdigest()\n        entry["current_hash"] = current_hash\n        \n        with open(self.ledger_path, "a") as f:\n            f.write(json.dumps(entry) + "\n")\n            \n        return current_hash\n\n    def get_last_hash(self) -> str:\n        """Read the last hash from the file."""\n        if not os.path.exists(self.ledger_path):\n            return "0" * 64 # Genesis hash\n            \n        try:\n            # Efficiently read last line (simple implementation)\n            with open(self.ledger_path, "r") as f:\n                lines = f.readlines()\n                if not lines: return "0" * 64\n                last = json.loads(lines[-1])\n                return last.get("current_hash", "0" * 64)\n        except Exception:\n            return "0" * 64\n"
+"""
+canonical_core/vault/ledger.py — Immutable Ledger
+
+Append-only JSONL ledger with hash chaining.
+"""
+
+import os
+import json
+import hashlib
+from typing import Dict, Any
+
+
+class VaultLedger:
+    """Immutable Append-Only Ledger."""
+
+    def __init__(self, storage_path: str):
+        self.ledger_path = os.path.join(storage_path, "vault.jsonl")
+        os.makedirs(storage_path, exist_ok=True)
+
+    def append_entry(self, entry: Dict[str, Any]) -> str:
+        """
+        Append entry to ledger.
+        Computes current_hash = SHA256(entry + previous_hash)
+        """
+        prev_hash = self.get_last_hash()
+        entry["previous_hash"] = prev_hash
+
+        # Serialize deterministically
+        serialized = json.dumps(entry, sort_keys=True)
+        current_hash = hashlib.sha256(serialized.encode()).hexdigest()
+        entry["current_hash"] = current_hash
+
+        with open(self.ledger_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+
+        return current_hash
+
+    def get_last_hash(self) -> str:
+        """Read the last hash from the file."""
+        if not os.path.exists(self.ledger_path):
+            return "0" * 64  # Genesis hash
+
+        try:
+            with open(self.ledger_path, "r", encoding="utf-8") as f:
+                lines = f.readlines()
+                if not lines:
+                    return "0" * 64
+                last = json.loads(lines[-1])
+                return last.get("current_hash", "0" * 64)
+        except Exception:
+            return "0" * 64
+

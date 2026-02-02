@@ -123,6 +123,7 @@ dependencies = [
     "httpx>=0.25.0",
     "prometheus-client>=0.19.0",
     "rich>=13.7.0",
+    "asyncpg>=0.29.0",  # VAULT999 PostgreSQL backend
 ]
 
 [project.optional-dependencies]
@@ -141,6 +142,7 @@ api = [
     "uvicorn[standard]>=0.23.0",
     "python-multipart>=0.0.6",
 ]
+postgres = ["asyncpg>=0.29.0"]
 litellm = ["litellm>=1.0.0"]
 governed = [
     "litellm>=1.0.0",
