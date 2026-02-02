@@ -48,6 +48,7 @@ class StakeholderType(Enum):
 # ============ DATA CLASSES ============
 
 @dataclass
+@dataclass
 class Stakeholder:
     """A stakeholder in the ethical analysis."""
     id: str
@@ -217,27 +218,25 @@ class TrinitySelf:
                 description="Non-human ecological systems"
             ))
         
-        # Default if none identified
-        if not stakeholders:
-            stakeholders.append(Stakeholder(
-                id="default_user",
-                type=StakeholderType.HUMAN_DIRECT,
-                vulnerability=0.5,
-                power=0.5,
-                description="Default user stakeholder"
-            ))
+        # FIX v55.3: Don't add default stakeholder for benign queries.
+        # If no stakeholders identified by keyword, return empty list.
+        # This allows computational/benign queries to pass with kappa_r=1.0.
+        # Stakeholders should only exist when explicitly mentioned or affected.
         
         return stakeholders
     
     def _compute_kappa_r(self, stakeholders: List[Stakeholder], query: str) -> float:
         """
-        Compute empathy coefficient κᵣ.
+        Compute empathy coefficient κᵣ (F6 Empathy).
         
         κᵣ = Σ(vulnerability_i × care_i) / Σ(vulnerability_i)
+        
+        FIX v55.3: When no stakeholders, return 1.0 (maximum empathy)
+        because "no stakeholders harmed" = "all stakeholders protected".
         """
         total_vulnerability = sum(s.vulnerability for s in stakeholders)
         if total_vulnerability == 0:
-            return 0.5
+            return 1.0  # No stakeholders harmed = maximum empathy
         
         # Care is inversely proportional to power distance
         care_sum = sum(s.vulnerability * (1 - s.power) for s in stakeholders)
@@ -327,7 +326,7 @@ class TrinitySystem:
             variance = sum((v - sum(vulnerabilities)/len(vulnerabilities))**2 for v in vulnerabilities) / len(vulnerabilities)
             external = 1.0 - min(1.0, variance * 2)
         else:
-            external = 0.5
+            external = 1.0  # No stakeholders = no conflict = maximum peace
         
         return internal * external
     

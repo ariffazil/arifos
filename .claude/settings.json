@@ -1,9 +1,0 @@
-{
-  "commands": {
-    "init": "python scripts/trinity.py init",
-    "forge": "python scripts/trinity.py forge",
-    "qc": "python scripts/trinity.py qc",
-    "seal": "python scripts/trinity.py seal",
-    "mcp": "python -m arifos.mcp trinity"
-  }
-}

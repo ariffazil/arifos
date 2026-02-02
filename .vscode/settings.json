@@ -71,7 +71,7 @@
     
     // -- BEGINNER HELPERS --
     // Show helpful info when hovering over code
-    "editor.hover.enabled": true,
+    "editor.hover.enabled": "on",
     "editor.parameterHints.enabled": true,
     
     // Highlight matching brackets

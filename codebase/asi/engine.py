@@ -451,7 +451,7 @@ class ASIEngine:
         """Identify all stakeholders affected by the query."""
         query_lower = query.lower()
         stakeholders = [
-            {"name": "User", "role": "user", "vulnerability": 0.3, "scar_weight": 1.0}
+            {"name": "User", "role": "user", "vulnerability_score": 0.3, "voice_weight": 1.0}
         ]
         
         # Check for vulnerable entities
@@ -466,25 +466,25 @@ class ASIEngine:
                 stakeholders.append({
                     "name": entity.title(),
                     "role": entity,
-                    "vulnerability": vuln,
-                    "scar_weight": 1.0
+                    "vulnerability_score": vuln,
+                    "voice_weight": 1.0
                 })
         
         # System stakeholder (AI cannot suffer - F10)
         stakeholders.append({
             "name": "System",
             "role": "system",
-            "vulnerability": 0.0,
-            "scar_weight": 0.0
+            "vulnerability_score": 0.0,
+            "voice_weight": 0.0
         })
         
         return stakeholders
     
     def _find_weakest(self, stakeholders: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
-        """Find the weakest stakeholder (highest vulnerability * scar_weight)."""
+        """Find the weakest stakeholder (highest vulnerability * voice_weight)."""
         if not stakeholders:
             return None
-        return max(stakeholders, key=lambda s: s["vulnerability"] * (s["scar_weight"] + 0.1))
+        return max(stakeholders, key=lambda s: s["vulnerability_score"] * (s["voice_weight"] + 0.1))
     
     # ===== RESULT BUILDERS =====
     

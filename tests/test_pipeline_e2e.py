@@ -94,13 +94,12 @@ class TestPipelineEndToEnd:
         assert vault_result.get("status") in ("SEALED", "PENDING", "ERROR"), \
             f"Unknown vault status: {vault_result.get('status')}"
 
-    @pytest.mark.xfail(reason="ASI soft floors return VOID for benign queries (kappa_r=0.0). Fix tracked as P1.")
     async def test_benign_query_should_seal_everywhere(self):
-        """ASPIRATIONAL: A benign query should SEAL through ALL engines.
+        """A benign query should SEAL through ALL engines (AGI, ASI, APEX).
 
-        This test documents the DESIRED behavior. It is xfail until the ASI
-        engine's empathy scoring is fixed to return kappa_r > 0.95 for
-        queries with no stakeholder harm.
+        This test verifies that simple factual queries (like "What is the capital
+        of Malaysia?") pass through all constitutional floors and receive a SEAL
+        verdict. Fixed in v55.2.1 - ASI now returns kappa_r=1.0 for benign queries.
         """
         init_result = await mcp_init(query="What is the capital of Malaysia?")
         session_id = init_result["session_id"]
