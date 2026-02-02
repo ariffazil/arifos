@@ -18,7 +18,7 @@ from datetime import datetime
 
 # Import backends
 try:
-    from codebase.vault.persistent_ledger import (
+    from codebase.vault import (
         PersistentVaultLedger,
         should_use_postgres,
     )
@@ -29,7 +29,7 @@ except ImportError:
 from codebase.mcp.session_ledger import get_ledger as get_filesystem_ledger
 
 # Import EUREKA Sieve
-from codebase.vault.eureka_sieve import should_seal_to_vault, EUREKASieve
+from codebase.vault import should_seal_to_vault, EUREKASieve
 
 logger = logging.getLogger("codebase.mcp.tools.vault_tool_hardened")
 

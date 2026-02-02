@@ -1,17 +1,23 @@
 """
+DEPRECATED v55.3: Use canonical_trinity.py instead.
+
 Legacy MCP Trinity bundle (v53.x) — thin adapters around the core kernels.
+This file is maintained for backwards compatibility only and will be removed in v56.0.
 
-Exposes the historical 7-tool surface without duplicating logic:
-- Gate (init)
-- Logic (agi)
-- Heart (asi)
-- Soul (apex)
-- Senses / Atlas (reality, context)
-- Decree (vault)
+Migration:
+  OLD: from codebase.mcp.tools.mcp_trinity import mcp_000_init
+  NEW: from codebase.mcp.tools.canonical_trinity import mcp_init
 
-Kept for backward compatibility; canonical handlers live in canonical_trinity.py.
 DITEMPA BUKAN DIBERI.
 """
+
+import warnings
+warnings.warn(
+    "mcp_trinity.py is deprecated. Use canonical_trinity.py instead. "
+    "This module will be removed in v56.0.",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 from __future__ import annotations
 
