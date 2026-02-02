@@ -25,7 +25,8 @@ from dataclasses import dataclass
 logger = logging.getLogger(__name__)
 
 # Security configuration
-API_KEY = os.environ.get("API_KEY")
+# Strip quotes from API_KEY in case Railway includes them
+API_KEY = os.environ.get("API_KEY", "").strip().strip('"').strip("'") or None
 ALLOW_RAW_VAULT_READ = os.environ.get("ALLOW_RAW_VAULT_READ", "false").lower() == "true"
 ALLOW_INTERNAL_TOOLS = os.environ.get("ALLOW_INTERNAL_TOOLS", "false").lower() == "true"
 MAX_BODY_SIZE = 256 * 1024  # 256KB
