@@ -1,0 +1,15 @@
+# Nixpacks fallback configuration for Railway (if Docker fails)
+# Primary: Docker (deployments/Dockerfile)
+# Fallback: Nixpacks
+
+[phases.build]
+cmds = [
+    "pip install -r requirements.txt",
+    "pip install -e ."
+]
+
+[phases.setup]
+nixPkgs = ["python312", "curl"]
+
+[start]
+cmd = "codebase-mcp-sse"

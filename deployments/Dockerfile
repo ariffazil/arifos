@@ -1,4 +1,4 @@
-# Dockerfile for arifOS Constitutional MCP Server (v55.1-CODEBASE-AAA)
+# Dockerfile for arifOS Constitutional MCP Server (v55.3-AAA-MCP)
 # Streamable HTTP transport + health/metrics endpoints
 # Railway-compatible: uses codebase-mcp-sse entry point (FastMCP)
 
@@ -33,6 +33,7 @@ ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV ARIFOS_MODE=production
 ENV ARIFOS_MCP_MODE=sse
+ENV ARIFOS_VERSION=v55.3-AAA-MCP
 ENV HOST=0.0.0.0
 ENV PORT=8080
 

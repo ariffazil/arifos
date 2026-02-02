@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arifos"
-version = "55.2"
+version = "55.3"
 # v55.2: Constitutional Hardening & Stabilization (2026-02-02)
 #   - Consensus reached: Registry finalized with exactly 9 Canonical Tools.
 #   - Security Hardening: Integrated unified InjectionGuard (F12) into init_gate.
