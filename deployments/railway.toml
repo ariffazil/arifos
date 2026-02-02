@@ -1,7 +1,23 @@
-# DEPRECATED: This file has been moved to the PROJECT ROOT.
-# Please use /railway.toml instead.
-# 
-# Railway requires railway.toml to be at the repository root, not in a subdirectory.
-# The root railway.toml now contains the canonical configuration.
-#
-# Last updated: v55.3
+# Railway Configuration for arifOS MCP Server (v55.3)
+# NOTE: This file is used when Railway's service root is set to /deployments.
+# If service root is repository root, use /railway.toml instead.
+
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
+
+[deploy]
+startCommand = "codebase-mcp-sse"
+healthcheckPath = "/health"
+healthcheckTimeout = 120
+restartPolicyType = "ON_FAILURE"
+numReplicas = 1
+
+[deploy.env]
+ARIFOS_ENV = "production"
+ARIFOS_VERSION = "v55.3-AAA-MCP"
+ARIFOS_LOG_LEVEL = "INFO"
+ARIFOS_CLUSTER = "3"
+AAA_MCP_TRANSPORT = "sse"
+HOST = "0.0.0.0"
+PORT = "8080"
