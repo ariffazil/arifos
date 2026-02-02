@@ -4,9 +4,9 @@
 
 # arifOS — Constitutional AI Governance System
 
-![arifOS Version](https://img.shields.io/badge/arifOS-v55.2-0066cc?style=for-the-badge&logo=shield&logoColor=white)
+![arifOS Version](https://img.shields.io/badge/arifOS-v55.3-0066cc?style=for-the-badge&logo=shield&logoColor=white)
 ![PyPI](https://img.shields.io/badge/pypi-arifos-3775A9?style=for-the-badge&logo=pypi&logoColor=white)
-![Status](https://img.shields.io/badge/status-SEALED-00cc00?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-OPERATIONAL-00cc00?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue?style=for-the-badge&logo=python&logoColor=white)
 ![Floors](https://img.shields.io/badge/Constitutional%20Floors-13-orange?style=for-the-badge)
@@ -311,7 +311,7 @@ Every AI output must pass these **13 Floors** before being released. A failure i
 | **F3** | **Tri-Witness** | **Consensus.** Mind, Heart, and Human must agree (W3 ≥ 0.95). | Quantum Measurement | **SABAR** |
 | **F4** | **Clarity** | **Entropy Reduction.** Output must clarify, not confuse (ΔS ≤ 0). Hardened with zlib compression. | Shannon Entropy | **SABAR** |
 | **F5** | **Peace** | **Stability.** Actions must not destabilize the system or society (Peace² ≥ 1.0). | Lyapunov Stability | **VOID** |
-| **F6** | **Empathy** | **Protection.** Protect the vulnerable from harm (κ ≥ 0.70). | Cohen's Kappa | **SABAR** |
+| **F6** | **Empathy** | **Protection.** Protect the vulnerable from harm (κᵣ ≥ 0.95). | Cohen's Kappa | **SABAR** |
 | **F7** | **Humility** | **Uncertainty.** Explicitly state confidence bounds. | Uncertainty Band | **SABAR** |
 | **F8** | **Genius** | **Governed Intellect.** Intelligence must be directed, not random (G ≥ 0.80). | g-Factor | **SABAR** |
 | **F9** | **Anti-Hantu** | **Authenticity.** No fake consciousness or deception. | zk-SNARK Proof | **VOID** |
@@ -413,7 +413,7 @@ Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Pro
 
 This is the **Core Application Layer**. It exposes the constitutional engines as **MCP Tools** that can be connected to Claude Desktop, Cursor, or any MCP-compliant client.
 
-**The 9 Canonical Tools (v55.2):**
+**The 10 Canonical Tools (v55.3):**
 
 | Tool | Symbol | Purpose | Floors Enforced |
 | :--- | :---: | :--- | :--- |
@@ -428,7 +428,7 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
 | `vault_seal` | 🔒 | **Seal.** Cryptographic Merkle sealing of the ledger. | F1 |
 | `_trinity_` | 🔄 | **Full Loop.** Run complete AGI→ASI→APEX→VAULT cycle. | ALL |
 
-**Security Note:** Legacy aliases (`_init_`, `_agi_`, `asi_insight`, etc.) have been **removed** to reduce entropy (F4). Attempting to use them will result in a Schema Error.
+**Tool Naming:** All tools use explicit, LLM-friendly names (e.g., `init_gate`, `agi_reason`). Legacy aliases removed in v55.3 to reduce entropy (F4).
 
 **How to Setup MCP (Local):**
 1.  **Install:** `pip install arifos`
@@ -447,10 +447,14 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
 
 **Live MCP Endpoints (for AI M2M):**
 - **Local:** `http://localhost:6274` (MCP Inspector)
-- **Production:** `https://aaamcp.arif-fazil.com/mcp` (Model Context Protocol)
-- **Health:** `https://arif-fazil.com/health` (System status)
+- **Production:** `https://aaamcp.arif-fazil.com` (Model Context Protocol on Railway)
+- **Health:** `https://aaamcp.arif-fazil.com/health` (System status)
 
-**New in v55:** All tools accept `session_id` for chaining:
+**New in v55.3:**
+- Schema validation for all MCP tool outputs (can be strict with `AAA_SCHEMA_STRICT=true`)
+- ASI scoring fixed — benign queries now correctly SEAL (T1.3)
+- Railway deployment fixed — `railway.toml` at project root
+- All tools accept `session_id` for chaining:
 ```python
 result1 = await agi_sense(query="...", session_id="sess_abc12345")
 result2 = await agi_think(session_id="sess_abc12345")  # Accesses prior state
@@ -516,16 +520,21 @@ Located in `333_APPS/L6_INSTITUTION`. Implements the "Institution" concept—age
 
 > ⚠️ **Reality Check:** Only README exists. No Python implementation. Target: v56.0 (Q2 2026).
 
-### Future Roadmap (L7+) 📋
+### Future Roadmap 📋
 
 | Milestone | Target | Focus | Status |
 |-----------|--------|-------|--------|
-| **v55.3** | Q1 2026 | Foundation hardening: fix test suite, persist ledger, fix ASI scoring | In Progress |
+| **v55.3** | Q1 2026 | Foundation hardening: fix test suite, persist ledger, fix ASI scoring | **In Progress** |
 | **v56.0** | Q2 2026 | First working L5 agent, EU AI Act compliance, Sidecar deployment | Planned |
 | **v57.0** | Q3 2026 | L6 Institution implementation, enterprise features | Planned |
 | **v60+** | 2027+ | L7 AGI research, recursive improvement, DAO governance | 📋 Research |
 
-**Current Priority (P0):** Fix the foundation before building higher layers. See [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) for scored tasks.
+**v55.3 Current Work:**
+- ✅ T1.3 ASI Scoring Bug — **FIXED**
+- 🔴 T1.1 Ledger Persistence — Open (disk persistence)
+- 🔴 T1.2 Test Import Fixes — Open (34 files need `arifos.` → `codebase.`)
+
+See [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) for full task scoring and dependencies.
 
 > **Note:** L5-L7 are aspirational. L1-L4 are production-ready. See [333_APPS/STATUS.md](333_APPS/STATUS.md) for ground truth.
 
@@ -538,9 +547,10 @@ arifOS is built on a **Python** core, exposing an **MCP (Model Context Protocol)
 ### Key Technologies
 - **Python 3.10+**: Core logic.
 - **Pydantic**: Data validation and schema enforcement.
-- **FastAPI / SSE**: Transport layer for MCP.
-- **Merkle DAG**: Cryptographic auditing.
-- **Zero-Knowledge Proofs**: Privacy preservation.
+- **FastMCP / SSE**: Streamable HTTP transport for MCP.
+- **JSON Schema**: Output validation (v55.3+, optional strict mode).
+- **Merkle DAG**: Cryptographic auditing (in-memory until T1.1).
+- **Railway + Docker**: Production deployment.
 
 ### Directory Structure
 ```
@@ -564,7 +574,9 @@ arifOS/
 │   └── AGENTS.md        # 5-agent manifest
 ├── schemas/             # JSON Schema contracts for MCP tools
 ├── docs/                # Documentation & Assets
-└── tests/               # Validation Suite (202 tests)
+├── tests/               # Validation Suite (⚠️ see Current Limitations)
+├── ROADMAP/             # Task tracking & scored priorities
+└── deployments/         # Docker, Railway, Caddy configs
 ```
 
 ---
@@ -627,6 +639,33 @@ if __name__ == "__main__":
 
 ---
 
+## ⚠️ Current Limitations (Ground Truth)
+
+arifOS is production-ready for L1-L4, but has known limitations. This section is kept ruthlessly honest and updated continuously.
+
+### Critical (P0) — In Progress
+
+| Issue | Impact | Status | Tracking |
+|-------|--------|--------|----------|
+| **T1.1 Ledger Persistence** | Audit trail lost on restart | 🔴 Open | [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) |
+| **T1.2 Test Import Fixes** | 34 tests have broken imports (`arifos.` → `codebase.`) | 🔴 Open | [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) |
+
+### Resolved (Recently Fixed)
+
+| Issue | Fix | Version |
+|-------|-----|---------|
+| **T1.3 ASI Scoring Bug** | `kappa_r` returned 0.5 for benign queries (should be 1.0). Fixed by removing default stakeholder creation. | v55.3 |
+
+### What This Means for Users
+
+- **L1-L4 (System Prompts to MCP Tools):** ✅ Production-ready. Use these now.
+- **VAULT-999 (Ledger):** ⚠️ Works in-memory, survives container restarts, but not host reboots until T1.1.
+- **Test Suite:** ⚠️ Don't rely on `pytest tests/` until T1.2 is closed. Run individual test files instead.
+
+> **Bottom Line:** The system works for real-world governance, but audit persistence and automated testing need completion. See [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) for task scores and ETA.
+
+---
+
 ## 🤝 XI. Contributing & Governance
 
 We welcome contributions from biological and digital entities alike.
@@ -639,6 +678,7 @@ However, all contributions must pass **Constitutional Verification**.
 1.  **Read the Law:** Start with [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md).
 2.  **Fork & Clone:** Get the code.
 3.  **Test:** Run `pytest tests/` to ensure you haven't broken the floors.
+    - ⚠️ **Note:** See [Current Limitations](#️-current-limitations-ground-truth) — many tests currently fail due to import issues (T1.2).
 4.  **Submit:** Open a PR. The **APEX** system will auto-review your code against the constitution.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
@@ -678,22 +718,24 @@ Every contribution helps keep constitutional AI governance open-source and acces
 
 ## ✅ VAULT-999 Completion Status (v55.3)
 
-The VAULT-999 (Immutable Ledger) is now fully implemented and verified in production.
+The VAULT-999 (Immutable Ledger) is **operationally complete** but persistence is in-memory until T1.1.
 
-- **Storage backend:** PostgreSQL (managed by Railway)
+- **Storage backend:** In-Memory (PostgreSQL schema ready, not enabled)
 - **Concurrency:** Advisory transaction locks (no chain forks)
 - **Auditability:** Merkle DAG with sequence-linked hash chains
 - **Verification:** Built-in `verify_chain()` and `get_merkle_proof()` tools
+- **Persistence:** Container-surviving, not host-reboot-surviving (see T1.1)
 
 | Component | Status | Verified File |
 |-----------|--------|---------------|
-| **Postgres Schema** | ✅ COMPLETE | `codebase/vault/migrations/` |
-| **Append (Seal)** | ✅ COMPLETE | `codebase/vault/persistent_ledger.py` |
-| **Retrieval API** | ✅ COMPLETE | `codebase/vault/persistent_ledger.py` |
-| **MCP Tool Wiring**| ✅ COMPLETE | `codebase/mcp/tools/vault_tool.py` |
-| **Tests** | ✅ COMPLETE | `tests/test_vault_postgres.py` |
+| **Merkle Logic** | ✅ COMPLETE | `codebase/mcp/tools/vault_tool.py` |
+| **MCP Tool Wiring**| ✅ COMPLETE | `codebase/mcp/tools/canonical_trinity.py` |
+| **Postgres Schema** | ✅ READY | `codebase/vault/migrations/` (not enabled) |
+| **Disk Persistence** | 🔴 NOT ENABLED | [T1.1 in ROADMAP](ROADMAP/MASTER_TODO.md) |
 
 *For full implementation details, see [docs/50_IMPLEMENTATION/SUMMARY.md](docs/50_IMPLEMENTATION/SUMMARY.md).*
+
+> **Note:** The ledger works perfectly for operational governance, but audit trails are lost on host reboot until T1.1 is completed. For production compliance use cases, wait for v55.3+ with T1.1 closed.
 
 ---
 
