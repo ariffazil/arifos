@@ -13,15 +13,13 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Dict, Any, Optional
 from datetime import datetime
+from typing import Any, Dict, Optional
 
 # Import backends
 try:
-    from codebase.vault import (
-        PersistentVaultLedger,
-        should_use_postgres,
-    )
+    from codebase.vault import PersistentVaultLedger, should_use_postgres
+
     POSTGRES_AVAILABLE = True
 except ImportError:
     POSTGRES_AVAILABLE = False
@@ -29,7 +27,7 @@ except ImportError:
 from codebase.mcp.session_ledger import get_ledger as get_filesystem_ledger
 
 # Import EUREKA Sieve
-from codebase.vault import should_seal_to_vault, EUREKASieve
+from codebase.vault import EUREKASieve, should_seal_to_vault
 
 logger = logging.getLogger("codebase.mcp.tools.vault_tool")
 
@@ -48,7 +46,7 @@ _DEFAULT_LIMIT = 20
 async def _get_backend():
     """
     Get the best available backend.
-    
+
     Priority:
     1. PostgreSQL (if available and configured)
     2. Filesystem (always available)
@@ -60,7 +58,7 @@ async def _get_backend():
             return "postgres", ledger
         except Exception as e:
             logger.warning(f"PostgreSQL unavailable, falling back to filesystem: {e}")
-    
+
     # Fallback to filesystem
     return "filesystem", get_filesystem_ledger()
 
@@ -105,7 +103,7 @@ def _sabar(reason: str, eureka_metadata: Dict, **extra: Any) -> Dict[str, Any]:
 class VaultTool:
     """
     HARDENED VAULT-999: EUREKA-filtered, dual-backend ledger.
-    
+
     Implements Theory of Anomalous Contrast:
     - VOID: Expensive (requires justification)
     - SABAR: Default (cooling period)
@@ -127,15 +125,17 @@ class VaultTool:
     ) -> Dict[str, Any]:
         """
         Execute vault action with EUREKA filtering.
-        
+
         For seal action:
         1. Run EUREKA Sieve (Anomalous Contrast evaluation)
         2. Only EUREKA (≥0.75) goes to permanent vault
         3. SABAR (0.50-0.75) goes to cooling ledger
         4. TRANSIENT (<0.50) not stored
         """
+        from codebase.mcp.core.session_context import get_current_session_id
+
         payload = payload or {}
-        
+        session_id = session_id or get_current_session_id()
         if action == "seal":
             return await VaultTool._seal_with_eureka(
                 session_id=session_id,
@@ -171,41 +171,41 @@ class VaultTool:
     ) -> Dict[str, Any]:
         """
         Seal with EUREKA Sieve filter.
-        
+
         Implements Theory of Anomalous Contrast:
         - Evaluates novelty, entropy reduction, ontological shift, decision weight
         - Only EUREKA moments (≥0.75) get permanent storage
         """
         if not session_id:
             return _void("session_id required")
-        
+
         # Default query/response from payload if not provided
         query = query or payload.get("query", "")
         response = response or payload.get("response", "")
         trinity_bundle = trinity_bundle or payload.get("trinity_bundle", {})
-        
+
         # EUREKA Sieve: Theory of Anomalous Contrast
         should_seal, eureka_metadata = await should_seal_to_vault(
             query=query,
             response=response,
             trinity_bundle=trinity_bundle,
         )
-        
+
         eureka_score = eureka_metadata.get("eureka_score", 0.0)
         eureka_verdict = eureka_metadata.get("verdict", "TRANSIENT")
-        
+
         logger.info(
             f"EUREKA Sieve: score={eureka_score:.2f}, verdict={eureka_verdict}, "
             f"query='{query[:50]}...'"
         )
-        
+
         # TRANSIENT: Don't store trivial queries
         if eureka_verdict == "TRANSIENT":
             return _transient(
                 f"EUREKA Score {eureka_score:.2f} < 0.50: Not meaningful enough",
                 eureka_metadata,
             )
-        
+
         # SABAR: Cooling ledger for medium insights
         if eureka_verdict == "SABAR":
             return await VaultTool._seal_to_cooling(
@@ -213,7 +213,7 @@ class VaultTool:
                 payload=payload,
                 eureka_metadata=eureka_metadata,
             )
-        
+
         # SEAL: Permanent vault for EUREKA moments
         return await VaultTool._seal_to_vault(
             session_id=session_id,
@@ -231,16 +231,16 @@ class VaultTool:
     ) -> Dict[str, Any]:
         """Seal to permanent VAULT999 (PostgreSQL or filesystem)."""
         backend_type, ledger = await _get_backend()
-        
+
         try:
             verdict = payload.get("verdict", "SEAL")
             authority = payload.get("authority", "system")
-            
+
             # Build enriched seal_data with EUREKA metadata
             seal_data = dict(payload)
             seal_data["target"] = target
             seal_data["eureka"] = eureka_metadata  # Include EUREKA evaluation
-            
+
             if backend_type == "postgres":
                 receipt = await ledger.append(
                     session_id=session_id,
@@ -269,7 +269,7 @@ class VaultTool:
                     "merkle_root": receipt.merkle_root,
                     "sequence": receipt.sequence,
                 }
-            
+
             return {
                 "operation": "sealed",
                 "verdict": verdict,
@@ -290,14 +290,14 @@ class VaultTool:
         eureka_metadata: Dict[str, Any],
     ) -> Dict[str, Any]:
         """Seal to cooling ledger (SABAR - needs refinement)."""
-        from pathlib import Path
         import json
-        
+        from pathlib import Path
+
         # Cooling ledger path
         vault_root = Path(os.getenv("VAULT_PATH", "VAULT999"))
         cooling_path = vault_root / "BBB_LEDGER" / "cooling_ledger.jsonl"
         cooling_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         cooling_entry = {
             "timestamp": datetime.now().isoformat(),
             "session_id": session_id,
@@ -307,11 +307,11 @@ class VaultTool:
             "cooling_hours": 72,
             "review_after": (datetime.now().timestamp() + 72 * 3600),
         }
-        
+
         # Append to cooling ledger
         with open(cooling_path, "a") as f:
             f.write(json.dumps(cooling_entry) + "\n")
-        
+
         return _sabar(
             f"EUREKA Score {eureka_metadata['eureka_score']:.2f}: Cooling period (72h)",
             eureka_metadata,
@@ -325,7 +325,7 @@ class VaultTool:
         try:
             limit = max(1, min(int(payload.get("limit", _DEFAULT_LIMIT)), _MAX_LIMIT))
             cursor = payload.get("cursor")
-            
+
             if backend_type == "postgres":
                 if cursor is not None:
                     cursor = int(cursor)
@@ -337,14 +337,16 @@ class VaultTool:
                 chain = ledger._walk_chain()
                 entries = []
                 for entry in chain[-limit:]:
-                    entries.append({
-                        "session_id": entry.session_id,
-                        "verdict": entry.verdict,
-                        "timestamp": entry.timestamp,
-                        "entry_hash": entry.entry_hash,
-                    })
+                    entries.append(
+                        {
+                            "session_id": entry.session_id,
+                            "verdict": entry.verdict,
+                            "timestamp": entry.timestamp,
+                            "entry_hash": entry.entry_hash,
+                        }
+                    )
                 listing = {"entries": entries, "count": len(entries)}
-            
+
             return {
                 "operation": "list",
                 "verdict": "SEAL",
@@ -359,13 +361,11 @@ class VaultTool:
     # ------------------------------------------------------------------ read
 
     @staticmethod
-    async def _read(
-        session_id: Optional[str], payload: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    async def _read(session_id: Optional[str], payload: Dict[str, Any]) -> Dict[str, Any]:
         backend_type, ledger = await _get_backend()
         try:
             seq = payload.get("sequence")
-            
+
             if backend_type == "postgres":
                 if seq:
                     entry = await ledger.get_entry_by_sequence(int(seq))
@@ -379,10 +379,10 @@ class VaultTool:
                     entry = ledger.get_session(session_id)
                 else:
                     return _void("session_id required for filesystem backend")
-            
+
             if not entry:
                 return _void("Entry not found")
-            
+
             return {
                 "operation": "read",
                 "verdict": "SEAL",
@@ -418,9 +418,7 @@ class VaultTool:
         backend_type, ledger = await _get_backend()
         try:
             if backend_type == "postgres":
-                entries = await ledger.query_by_verdict(
-                    verdict_filter, parsed_start, parsed_end
-                )
+                entries = await ledger.query_by_verdict(verdict_filter, parsed_start, parsed_end)
             else:
                 # Filesystem query (simple filter)
                 chain = ledger._walk_chain()
@@ -433,7 +431,7 @@ class VaultTool:
                     for e in chain
                     if e.verdict == verdict_filter
                 ]
-            
+
             return {
                 "operation": "query",
                 "verdict": "SEAL",
@@ -457,7 +455,7 @@ class VaultTool:
                 # Filesystem verification
                 valid, merkle_root = ledger.verify_chain()
                 result = {"valid": valid, "merkle_root": merkle_root}
-            
+
             return {
                 "operation": "verify",
                 "verdict": "SEAL" if result.get("valid") else "VOID",
@@ -476,7 +474,7 @@ class VaultTool:
         seq = payload.get("sequence")
         if not seq:
             return _void("sequence required")
-        
+
         backend_type, ledger = await _get_backend()
         try:
             if backend_type == "postgres":
@@ -493,10 +491,10 @@ class VaultTool:
                     }
                 else:
                     proof = None
-            
+
             if not proof:
                 return _void("proof not found")
-            
+
             return {
                 "operation": "proof",
                 "verdict": "SEAL",

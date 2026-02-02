@@ -7,18 +7,21 @@ v55.1: Streamable HTTP (spec 2025-03-26+), stateless mode,
        Fixed resource/prompt registration to use FastMCP types.
 """
 
-import os
 import logging
+import os
+
 import uvicorn
 from mcp.server.fastmcp import FastMCP
-from mcp.server.fastmcp.resources import FunctionResource
 from mcp.server.fastmcp.prompts import Prompt as FastMCPPrompt
+from mcp.server.fastmcp.resources import FunctionResource
+from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import JSONResponse
 
-from .base import BaseTransport
+from ..core.session_context import get_current_session_id, set_current_session_id
 from ..core.tool_registry import ToolRegistry
-from ..services.rate_limiter import rate_limited
 from ..services.constitutional_metrics import get_full_metrics
+from ..services.rate_limiter import rate_limited
+from .base import BaseTransport
 from .rest_api import RESTAPIRouter
 
 logger = logging.getLogger(__name__)
@@ -53,7 +56,31 @@ class SSETransport(BaseTransport):
         # Register tools dynamically
         for tool_name, tool_def in self.tool_registry.list_tools().items():
             # Apply constitutionally mandated rate limiting
-            handler = rate_limited(tool_name)(tool_def.handler)
+            base_handler = tool_def.handler
+
+            # Wrap handler for implicit session binding
+            async def session_wrapped_handler(*args, **kwargs):
+                # 1. Capture session from header if available (via starlette request if FastMCP exposes it)
+                # Note: FastMCP tool handlers can optionally take a 'request' arg
+
+                # 2. Check explicit session_id in kwargs
+                session_id = kwargs.get("session_id") or get_current_session_id()
+                if session_id:
+                    set_current_session_id(session_id)
+                    if "session_id" not in kwargs:
+                        kwargs["session_id"] = session_id
+
+                # 3. Execute
+                result = await base_handler(*args, **kwargs)
+
+                # 4. Update implicit context if result contains a new session_id
+                new_session_id = result.get("session_id")
+                if new_session_id:
+                    set_current_session_id(new_session_id)
+
+                return result
+
+            handler = rate_limited(tool_name)(session_wrapped_handler)
 
             # FastMCP tool registration with annotations
             tool_kwargs = {
@@ -73,6 +100,15 @@ class SSETransport(BaseTransport):
 
         # Run using uvicorn programmatically
         asgi_app = self.mcp.streamable_http_app()
+
+        # Add implicit session binding middleware
+        @asgi_app.middleware("http")
+        async def session_binding_middleware(request, call_next):
+            session_id = request.headers.get("X-arifOS-Session")
+            if session_id:
+                set_current_session_id(session_id)
+            return await call_next(request)
+
         config = uvicorn.Config(
             asgi_app,
             host=_DEFAULT_HOST,
@@ -96,6 +132,7 @@ class SSETransport(BaseTransport):
         @self.mcp.custom_route("/health", methods=["GET"])
         async def health_check(request):
             from codebase.mcp.maintenance import health_check as deep_health_check
+
             health = deep_health_check()
             health["transport"] = "streamable-http"
             health["mode"] = "CODEBASE"
@@ -139,7 +176,7 @@ class SSETransport(BaseTransport):
         async def vault_endpoint(request: Request):
             """
             VAULT999 REST API - Direct vault access.
-            
+
             Actions:
             - seal: Create a new seal
             - read: Read a specific seal by sequence
@@ -150,92 +187,90 @@ class SSETransport(BaseTransport):
             try:
                 from codebase.vault import get_vault_ledger
                 from codebase.vault.migrations.run_migrations import ensure_vault_tables
-                
+
                 body = await request.json()
                 action = body.get("action", "list")
-                
+
                 # Ensure tables exist
                 await ensure_vault_tables()
-                
+
                 ledger = get_vault_ledger()
                 await ledger.connect()
-                
+
                 try:
                     if action == "seal":
                         session_id = body.get("session_id", "rest-api")
                         verdict = body.get("verdict", "SEAL")
                         authority = body.get("authority", "api")
                         payload = body.get("payload", {})
-                        
+
                         receipt = await ledger.append(
                             session_id=session_id,
                             verdict=verdict,
                             seal_data=payload,
-                            authority=authority
+                            authority=authority,
                         )
-                        return JSONResponse({
-                            "operation": "sealed",
-                            "verdict": verdict,
-                            "sealed": receipt,
-                            "vault_backend": "postgres",
-                            "authority_notice": "This seal is generated by arifOS infrastructure. ChatGPT/LLM is only the caller, not the authority."
-                        })
-                    
+                        return JSONResponse(
+                            {
+                                "operation": "sealed",
+                                "verdict": verdict,
+                                "sealed": receipt,
+                                "vault_backend": "postgres",
+                                "authority_notice": "This seal is generated by arifOS infrastructure. ChatGPT/LLM is only the caller, not the authority.",
+                            }
+                        )
+
                     elif action == "read":
                         sequence = body.get("sequence")
                         if sequence is None:
                             return JSONResponse({"error": "sequence required"}, status_code=400)
-                        
+
                         entry = await ledger.get_entry_by_sequence(sequence)
                         if entry:
-                            return JSONResponse({
-                                "operation": "read",
-                                "entry": entry,
-                                "vault_backend": "postgres"
-                            })
+                            return JSONResponse(
+                                {"operation": "read", "entry": entry, "vault_backend": "postgres"}
+                            )
                         return JSONResponse({"error": "Seal not found"}, status_code=404)
-                    
+
                     elif action == "list":
                         cursor = body.get("cursor")
                         limit = body.get("limit", 50)
-                        
+
                         result = await ledger.list_entries(cursor=cursor, limit=limit)
-                        return JSONResponse({
-                            "operation": "list",
-                            "entries": result["entries"],
-                            "next_cursor": result.get("next_cursor"),
-                            "has_more": result.get("has_more"),
-                            "vault_backend": "postgres"
-                        })
-                    
+                        return JSONResponse(
+                            {
+                                "operation": "list",
+                                "entries": result["entries"],
+                                "next_cursor": result.get("next_cursor"),
+                                "has_more": result.get("has_more"),
+                                "vault_backend": "postgres",
+                            }
+                        )
+
                     elif action == "verify":
                         result = await ledger.verify_chain()
-                        return JSONResponse({
-                            "operation": "verify",
-                            "result": result,
-                            "vault_backend": "postgres"
-                        })
-                    
+                        return JSONResponse(
+                            {"operation": "verify", "result": result, "vault_backend": "postgres"}
+                        )
+
                     elif action == "proof":
                         sequence = body.get("sequence")
                         if sequence is None:
                             return JSONResponse({"error": "sequence required"}, status_code=400)
-                        
+
                         proof = await ledger.get_merkle_proof(sequence)
                         if proof:
-                            return JSONResponse({
-                                "operation": "proof",
-                                "proof": proof,
-                                "vault_backend": "postgres"
-                            })
+                            return JSONResponse(
+                                {"operation": "proof", "proof": proof, "vault_backend": "postgres"}
+                            )
                         return JSONResponse({"error": "Proof not found"}, status_code=404)
-                    
+
                     else:
                         return JSONResponse({"error": f"Unknown action: {action}"}, status_code=400)
-                
+
                 finally:
                     await ledger.close()
-                    
+
             except Exception as e:
                 logger.error(f"Vault endpoint error: {e}")
                 return JSONResponse({"error": str(e)}, status_code=500)
@@ -244,38 +279,40 @@ class SSETransport(BaseTransport):
         async def vault_health(request):
             """VAULT999 health check."""
             try:
-                from codebase.vault import should_use_postgres, get_vault_dsn
+                from codebase.vault import get_vault_dsn, should_use_postgres
                 from codebase.vault.migrations.run_migrations import ensure_vault_tables
-                
+
                 if not should_use_postgres():
-                    return JSONResponse({
-                        "status": "filesystem",
-                        "message": "Using filesystem backend (not PostgreSQL)"
-                    })
-                
+                    return JSONResponse(
+                        {
+                            "status": "filesystem",
+                            "message": "Using filesystem backend (not PostgreSQL)",
+                        }
+                    )
+
                 # Try to connect and check tables
                 from codebase.vault import get_vault_ledger
+
                 ledger = get_vault_ledger()
                 await ledger.connect()
-                
+
                 try:
                     await ensure_vault_tables()
                     entries = await ledger.list_entries(limit=1)
-                    
-                    return JSONResponse({
-                        "status": "healthy",
-                        "backend": "postgres",
-                        "entries": len(entries["entries"]),
-                        "has_more": entries.get("has_more", False)
-                    })
+
+                    return JSONResponse(
+                        {
+                            "status": "healthy",
+                            "backend": "postgres",
+                            "entries": len(entries["entries"]),
+                            "has_more": entries.get("has_more", False),
+                        }
+                    )
                 finally:
                     await ledger.close()
-                    
+
             except Exception as e:
-                return JSONResponse({
-                    "status": "error",
-                    "error": str(e)
-                }, status_code=503)
+                return JSONResponse({"status": "error", "error": str(e)}, status_code=503)
 
     def _register_resources(self):
         """Register MCP Resources using FastMCP FunctionResource."""
@@ -305,4 +342,5 @@ class SSETransport(BaseTransport):
                 ),
             )
             self.mcp.add_prompt(prompt)
+            logger.info(f"Registered prompt: {pname}")
             logger.info(f"Registered prompt: {pname}")

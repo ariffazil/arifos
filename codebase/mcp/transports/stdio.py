@@ -11,17 +11,19 @@ import json as _json
 import logging
 import sys
 import time
+from typing import Any
+
 import mcp.types
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
-from typing import Any
 
-from .base import BaseTransport
-from ..core.tool_registry import ToolRegistry
 from ...enforcement.metrics import record_stage_metrics, record_verdict_metrics
 from ...system.orchestrator.presenter import AAAMetabolizer
-from ..services.constitutional_metrics import record_verdict
 from ..config.modes import get_mcp_mode
+from ..core.session_context import get_current_session_id, set_current_session_id
+from ..core.tool_registry import ToolRegistry
+from ..services.constitutional_metrics import record_verdict
+from .base import BaseTransport
 
 logger = logging.getLogger(__name__)
 
@@ -103,6 +105,13 @@ class StdioTransport(BaseTransport):
             if not tool_def:
                 raise ValueError(f"Tool not found: {name}")
 
+            # Implicit Session Binding: Extract or inject session_id
+            session_id = arguments.get("session_id") or get_current_session_id()
+            if session_id:
+                set_current_session_id(session_id)
+                if "session_id" not in arguments:
+                    arguments["session_id"] = session_id
+
             try:
                 result = await tool_def.handler(**arguments)
 
@@ -115,6 +124,11 @@ class StdioTransport(BaseTransport):
                 record_verdict(tool=name, verdict=verdict, duration=duration, mode=mode.value)
                 record_stage_metrics(name, duration_ms)
                 record_verdict_metrics(verdict)
+
+                # Update implicit context if result contains a new session_id
+                new_session_id = result.get("session_id")
+                if new_session_id:
+                    set_current_session_id(new_session_id)
 
                 # Return human-readable presentation + machine-readable JSON
                 formatted_text = self.presenter.process(result)
@@ -180,7 +194,9 @@ class StdioTransport(BaseTransport):
             return prompts
 
         @self.server.get_prompt()
-        async def handle_get_prompt(name: str, arguments: dict | None = None) -> mcp.types.GetPromptResult:
+        async def handle_get_prompt(
+            name: str, arguments: dict | None = None
+        ) -> mcp.types.GetPromptResult:
             try:
                 text = self.prompt_registry.render_prompt(name, arguments)
                 return mcp.types.GetPromptResult(
