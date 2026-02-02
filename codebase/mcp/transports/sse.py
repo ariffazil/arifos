@@ -19,6 +19,7 @@ from .base import BaseTransport
 from ..core.tool_registry import ToolRegistry
 from ..services.rate_limiter import rate_limited
 from ..services.constitutional_metrics import get_full_metrics
+from .rest_api import RESTAPIRouter
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,9 @@ class SSETransport(BaseTransport):
             stateless_http=True,
             json_response=True,
         )
+        self.rest_router = RESTAPIRouter(tool_registry, self.mcp)
         self._register_routes()
+        self.rest_router.register_all_routes()
 
     @property
     def name(self) -> str:
@@ -117,7 +120,10 @@ class SSETransport(BaseTransport):
                         "health": "/health",
                         "metrics": "/metrics/json",
                         "mcp": "/mcp",
-                        "vault": "/vault",
+                        "routes": "/routes",
+                        "api_tools": "/api/tools",
+                        "api_vault": "/api/vault",
+                        "vault_legacy": "/vault",
                     },
                 }
             )
