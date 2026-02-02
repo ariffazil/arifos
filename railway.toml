@@ -1,13 +1,10 @@
 # Railway Configuration for arifOS MCP Server (v55.3)
-# Location: deployments/ (when Railway service root is set to this folder)
+# Location: PROJECT ROOT (railway.toml must be at repo root)
 # Domain: aaamcp.arif-fazil.com
-#
-# NOTE: If Railway service root is set to deployments/, this is the active config.
-# If root is repo root, /railway.toml (at root) takes precedence.
 
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
+dockerfilePath = "deployments/Dockerfile"
 
 [deploy]
 startCommand = "codebase-mcp-sse"

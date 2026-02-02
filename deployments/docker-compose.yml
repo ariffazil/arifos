@@ -1,8 +1,8 @@
 services:
   arifos:
     build:
-      context: .
-      dockerfile: Dockerfile
+      context: ..
+      dockerfile: deployments/Dockerfile
     container_name: arifos-mcp
     ports:
       - "8080:8080"
@@ -11,12 +11,12 @@ services:
       - PORT=8080
       - GOVERNANCE_MODE=HARD
       - ARIFOS_ENV=production
-      - ARIFOS_VERSION=v55.1-CODEBASE-AAA
+      - ARIFOS_VERSION=v55.3-AAA-MCP
       - ARIFOS_LOG_LEVEL=INFO
       - VAULT_PATH=/data/VAULT999
     volumes:
-      - ./VAULT999:/data/VAULT999
-      - ./logs:/var/log/arifos
+      - ../VAULT999:/data/VAULT999
+      - ../logs:/var/log/arifos
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
@@ -36,10 +36,10 @@ services:
       - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - ./docs:/srv/docs
+      - ../docs:/srv/docs
       - caddy_data:/data
       - caddy_config:/config
-      - ./logs:/var/log/caddy
+      - ../logs:/var/log/caddy
     depends_on:
       arifos:
         condition: service_healthy
