@@ -163,15 +163,16 @@ all = [
 ]
 
 [project.scripts]
-# AAA MCP Server Commands (Primary v53) - using codebase
-aaa-mcp = "codebase.mcp.__main__:main"
-aaa-mcp-sse = "codebase.mcp.entrypoints.sse_entry:main"
-aaa-mcp-stdio = "codebase.mcp.entrypoints.stdio_entry:main"
+# AAA MCP Server Commands (Primary v55.3) - Glocal Consolidation
+# Auto-detects transport: stdio (local) vs sse (production)
+aaa-mcp = "codebase.mcp.transports.__main__:main_auto"
+aaa-mcp-sse = "codebase.mcp.transports.__main__:main_sse"
+aaa-mcp-stdio = "codebase.mcp.transports.__main__:main_stdio"
 
 # Codebase MCP Server Commands (Alternative naming)
-codebase-mcp = "codebase.mcp.__main__:main"
-codebase-mcp-stdio = "codebase.mcp.entrypoints.stdio_entry:main"
-codebase-mcp-sse = "codebase.mcp.entrypoints.sse_entry:main"
+codebase-mcp = "codebase.mcp.transports.__main__:main_auto"
+codebase-mcp-stdio = "codebase.mcp.transports.__main__:main_stdio"
+codebase-mcp-sse = "codebase.mcp.transports.__main__:main_sse"
 
 # Legacy arifos commands (DEPRECATED - will be removed in v54)
 # arifos-mcp = "arifos.mcp.__main__:main"

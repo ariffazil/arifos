@@ -248,28 +248,25 @@ class ASIActionCore:
 
     def _get_engine(self):
         if self._engine is None:
-            from codebase.asi.engine_hardened import ASIEngineHardened
-            self._engine = ASIEngineHardened()
+            from codebase.asi.kernel import ASINeuralCore
+            self._engine = ASINeuralCore()
         return self._engine
 
     async def execute(self, action: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
         """Bridge interface: execute(action, kwargs) → dict."""
         engine = self._get_engine()
         query = str(kwargs.get("query", kwargs.get("text", "")))
-        context = kwargs.get("context") or kwargs.get("agi_context")
+        context = kwargs.get("context") or kwargs.get("agi_context") or {}
         session_id = kwargs.get("session_id")
         if session_id:
-            engine.session_id = str(session_id)
+            context["session_id"] = str(session_id)
         try:
-            bundle = await engine.execute(query, context=context)
-            result = bundle.to_dict() if hasattr(bundle, "to_dict") else {}
-            result["verdict"] = result.get("vote", "SEAL")
-            result["empathy_kappa"] = result.get("empathy_kappa_r", 0.9)
-            result["kappa_r"] = result.get("empathy_kappa_r", 0.9)
-            result["omega_0"] = 0.04
-            result["evidence_ratio"] = 1.0
-            result["stage"] = f"ASI_{action.upper()}"
-            result["session_id"] = engine.session_id
+            result = await engine.execute(action, {"query": query, "context": context, **kwargs})
+            # Ensure result has expected fields
+            if isinstance(result, dict):
+                result.setdefault("verdict", result.get("vote", "SEAL"))
+                result.setdefault("empathy_kappa_r", result.get("trinity_self", {}).get("empathy_kappa_r", 0.9))
+                result.setdefault("peace_squared", result.get("trinity_system", {}).get("peace_squared", 0.9))
             return result
         except Exception as e:
             return {"verdict": "VOID", "reason": f"ASI engine error: {e}",

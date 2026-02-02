@@ -1,29 +1,45 @@
 """
-MCP Tools - Constitutional AI Governance (v52.6.0)
+MCP Tools - Constitutional AI Governance (v55.3)
 Location: codebase/mcp/tools/
 
-This module provides MCP tool definitions that expose the upgraded AGI capabilities.
+Glocal Consolidation: This module exports the canonical MCP tools.
 
-Tools:
-- trinity_hat_loop: 3-Loop Chaos → Canon Compressor
-- agi_genius: Mind Engine with metrics/evidence/parallel actions
-- asi_act: Heart Engine with empathy and ethics
-- apex_judge: Soul Engine with judgment and sealing
-- vault_999: Immutable governance ledger
+Tools (from canonical_trinity.py):
+- init_gate: Constitutional initialization (000)
+- agi_genius: Mind Engine with metrics/evidence (111-333)
+- asi_act: Heart Engine with empathy and ethics (444-666)
+- apex_judge: Soul Engine with judgment (777-888)
+- vault_999: Immutable governance ledger (999)
 
-All tools enforce constitutional floors (F1-F13) and integrate with codebase upgrades.
+Stub tools (agi_tool, asi_tool, apex_tool, trinity_hat) archived in v55.3.
+Use canonical_trinity functions instead.
+
+DITEMPA BUKAN DIBERI
 """
 
-from .trinity_hat import TrinityHatTool
-from .agi_tool import AGITool
-from .asi_tool import ASITool
-from .apex_tool import APEXTool
+# Canonical implementations (real kernels)
+from .canonical_trinity import (
+    mcp_init,
+    mcp_agi,
+    mcp_asi,
+    mcp_apex,
+    mcp_vault,
+    mcp_trinity,
+    mcp_reality,
+)
+
+# Vault tool (direct access)
 from .vault_tool import VaultTool
 
 __all__ = [
-    "TrinityHatTool",
-    "AGITool", 
-    "ASITool",
-    "APEXTool",
-    "VaultTool"
+    # Canonical MCP tools
+    "mcp_init",
+    "mcp_agi",
+    "mcp_asi",
+    "mcp_apex",
+    "mcp_vault",
+    "mcp_trinity",
+    "mcp_reality",
+    # Direct vault access
+    "VaultTool",
 ]

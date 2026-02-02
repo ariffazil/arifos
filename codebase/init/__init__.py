@@ -1,29 +1,39 @@
 """
-codebase.init — Initialization Package
+codebase/init/__init__.py — Init stage package
 
-Stage 000 VOID: System Ignition and Constitutional Gate
-
-Canonical MCP init: codebase.init.mcp_000_init
+Provides canonical bootstrap functionality.
+Note: 000_init modules should be imported via canonical_trinity or importlib
+due to the digit-starting module name.
 """
 
-import importlib as _importlib
+import importlib.util
+import sys
+from pathlib import Path
 
-# Python can't do `from .000_init import ...` because 000 is parsed as a
-# decimal literal. Use importlib to work around the numeric directory name.
-_stage = _importlib.import_module("codebase.init.000_init")
-
-execute_stage_000 = _stage.execute_stage_000
-VerdictType = _stage.VerdictType
-Stage000VOID = _stage.Stage000VOID
-ignite_system = _stage.ignite_system
-mcp_000_init = _stage.mcp_000_init
-InitResult = _stage.InitResult
+# Load canonical_bootstrap using importlib (valid Python filename)
+_cb_path = Path(__file__).parent / "000_init" / "canonical_bootstrap.py"
+if _cb_path.exists():
+    spec = importlib.util.spec_from_file_location("codebase.init.canonical_bootstrap", _cb_path)
+    _cb = importlib.util.module_from_spec(spec)
+    # Register module BEFORE exec_module (required for dataclass resolution)
+    sys.modules["codebase.init.canonical_bootstrap"] = _cb
+    spec.loader.exec_module(_cb)
+    
+    # Export canonical bootstrap components
+    CanonicalBootstrap = _cb.CanonicalBootstrap
+    fetch_canonical_state = _cb.fetch_canonical_state
+    CanonicalBootstrapResult = _cb.CanonicalBootstrapResult
+    CanonicalSourceResult = _cb.CanonicalSourceResult
+    CanonicalConfigLoader = _cb.CanonicalConfigLoader
+    get_bootstrap_config = _cb.get_bootstrap_config
+    DEFAULT_CANONICAL_CONFIG = _cb.DEFAULT_CANONICAL_CONFIG
 
 __all__ = [
-    "execute_stage_000",
-    "VerdictType",
-    "Stage000VOID",
-    "ignite_system",
-    "mcp_000_init",
-    "InitResult",
+    "CanonicalBootstrap",
+    "fetch_canonical_state",
+    "CanonicalBootstrapResult",
+    "CanonicalSourceResult",
+    "CanonicalConfigLoader",
+    "get_bootstrap_config",
+    "DEFAULT_CANONICAL_CONFIG",
 ]

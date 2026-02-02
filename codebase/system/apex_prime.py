@@ -382,7 +382,6 @@ class APEXPrime:
         # 1. Metrics & Hard/Soft Checks
         metrics = self._metrics_from_floor_results(agi_results, asi_results)
         floors = self.check(metrics, lane=str(ctx.get("lane", "SOFT")))
-
         # 2. Hypervisor Checks (F10-F13)
         v10 = validate_f10_ontology(f"{query}\n{response}")
         v12 = validate_f12_injection_defense(query)
