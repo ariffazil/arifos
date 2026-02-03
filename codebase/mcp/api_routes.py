@@ -114,7 +114,17 @@ def register_api_v1_routes(rest_router):
         
         # Import and call canonical init_gate
         try:
-            from codebase.init.mcp_000_init import mcp_000_init
+            # Use importlib to load module with digit-starting name
+            import importlib.util
+            import sys
+            from pathlib import Path
+            
+            _bridge_path = Path(__file__).parent.parent / "init" / "000_init" / "mcp_bridge.py"
+            spec = importlib.util.spec_from_file_location("codebase.init.mcp_bridge", _bridge_path)
+            _bridge = importlib.util.module_from_spec(spec)
+            sys.modules["codebase.init.mcp_bridge"] = _bridge
+            spec.loader.exec_module(_bridge)
+            mcp_000_init = _bridge.mcp_000_init
             
             result = await mcp_000_init(
                 action="init",
