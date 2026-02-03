@@ -14,8 +14,10 @@ from typing import Any, Dict, Optional
 
 from codebase.bundles import OmegaBundle
 
-from .engine import (ASIEngine, cleanup_expired_sessions, execute_asi,
-                     get_asi_engine)
+from .engine_hardened import (HardenedASIEngine as ASIEngine, 
+                               cleanup_expired_sessions, 
+                               execute_asi,
+                               get_asi_engine)
 
 logger = logging.getLogger(__name__)
 
@@ -170,5 +172,4 @@ __all__ = [
     "ASIActionCore",
     "get_asi_core",
     "cleanup_expired_sessions"
-]
 ]

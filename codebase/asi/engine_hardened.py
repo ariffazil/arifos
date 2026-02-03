@@ -571,8 +571,26 @@ async def execute_asi_hardened(query: str, session_id: Optional[str] = None) -> 
     return await engine.execute(query)
 
 
+# Backward compatibility aliases for kernel.py
+ASIEngine = ASIEngineHardened
+execute_asi = execute_asi_hardened
+
+_asi_engines: Dict[str, ASIEngineHardened] = {}
+
+def get_asi_engine(session_id: str) -> ASIEngineHardened:
+    """Get or create ASI engine for session (backward compat)."""
+    if session_id not in _asi_engines:
+        _asi_engines[session_id] = ASIEngineHardened(session_id)
+    return _asi_engines[session_id]
+
+def cleanup_expired_sessions(max_age_seconds: float = 3600) -> int:
+    """Cleanup expired sessions (backward compat - no-op for now)."""
+    return 0
+
+
 __all__ = [
     "ASIEngineHardened",
+    "ASIEngine",  # backward compat
     "OmegaBundle",
     "EmpathyFlow",
     "SystemIntegrity",
@@ -581,5 +599,8 @@ __all__ = [
     "TrinitySelf",
     "TrinitySystem",
     "TrinitySociety",
-    "execute_asi_hardened"
+    "execute_asi_hardened",
+    "execute_asi",  # backward compat
+    "get_asi_engine",
+    "cleanup_expired_sessions",
 ]
