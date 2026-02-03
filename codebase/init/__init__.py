@@ -28,6 +28,17 @@ if _cb_path.exists():
     get_bootstrap_config = _cb.get_bootstrap_config
     DEFAULT_CANONICAL_CONFIG = _cb.DEFAULT_CANONICAL_CONFIG
 
+# Load mcp_000_init from mcp_bridge.py (the actual 7-step ignition)
+_mcp_bridge_path = Path(__file__).parent / "000_init" / "mcp_bridge.py"
+if _mcp_bridge_path.exists():
+    spec = importlib.util.spec_from_file_location("codebase.init.mcp_bridge", _mcp_bridge_path)
+    _mcp_bridge = importlib.util.module_from_spec(spec)
+    sys.modules["codebase.init.mcp_bridge"] = _mcp_bridge
+    spec.loader.exec_module(_mcp_bridge)
+    
+    # Export mcp_000_init for kernel import
+    mcp_000_init = _mcp_bridge.mcp_000_init
+
 __all__ = [
     "CanonicalBootstrap",
     "fetch_canonical_state",
@@ -36,4 +47,5 @@ __all__ = [
     "CanonicalConfigLoader",
     "get_bootstrap_config",
     "DEFAULT_CANONICAL_CONFIG",
+    "mcp_000_init",  # Export the 7-step ignition function
 ]
