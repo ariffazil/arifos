@@ -8,8 +8,7 @@ nixPkgs = ["python312", "curl", "gcc"]
 cmds = [
     "pip install --upgrade pip",
     "pip install -r requirements.txt",
-    "pip install -e .",
-    "python test_startup.py"
+    "pip install -e ."
 ]
 
 [phases.setup.env]

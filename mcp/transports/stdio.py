@@ -13,7 +13,11 @@ import sys
 import time
 from typing import Any
 
-import mcp.types
+try:
+    import mcp.types as mcp_types
+except ImportError:
+    # mcp >= 1.3.0 changed the package structure
+    from mcp.server import types as mcp_types
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
@@ -68,13 +72,13 @@ class StdioTransport(BaseTransport):
 
         # --- TOOLS ---
         @self.server.list_tools()
-        async def handle_list_tools() -> list[mcp.types.Tool]:
+        async def handle_list_tools() -> list[mcp_types.Tool]:
             tools = []
             for name, tool_def in self.tool_registry.list_tools().items():
                 # Build ToolAnnotations from registry dict
                 annotations = None
                 if tool_def.annotations:
-                    annotations = mcp.types.ToolAnnotations(
+                    annotations = mcp_types.ToolAnnotations(
                         title=tool_def.annotations.get("title"),
                         readOnlyHint=tool_def.annotations.get("readOnlyHint"),
                         destructiveHint=tool_def.annotations.get("destructiveHint"),
@@ -83,7 +87,7 @@ class StdioTransport(BaseTransport):
                     )
 
                 tools.append(
-                    mcp.types.Tool(
+                    mcp_types.Tool(
                         name=tool_def.name,
                         title=tool_def.title,
                         description=tool_def.description,
@@ -97,7 +101,7 @@ class StdioTransport(BaseTransport):
         @self.server.call_tool()
         async def handle_call_tool(
             name: str, arguments: dict | None
-        ) -> list[mcp.types.TextContent | mcp.types.ImageContent | mcp.types.EmbeddedResource]:
+        ) -> list[mcp_types.TextContent | mcp_types.ImageContent | mcp_types.EmbeddedResource]:
             start_time = time.time()
             arguments = arguments or {}
             tool_def = self.tool_registry.get(name)
@@ -133,21 +137,21 @@ class StdioTransport(BaseTransport):
                 # Return human-readable presentation + machine-readable JSON
                 formatted_text = self.presenter.process(result)
                 return [
-                    mcp.types.TextContent(type="text", text=formatted_text),
-                    mcp.types.TextContent(type="text", text=_json.dumps(result, default=str)),
+                    mcp_types.TextContent(type="text", text=formatted_text),
+                    mcp_types.TextContent(type="text", text=_json.dumps(result, default=str)),
                 ]
 
             except Exception as e:
                 logger.error(f"Error executing tool {name}: {e}")
-                return [mcp.types.TextContent(type="text", text=f"ERROR: {str(e)}")]
+                return [mcp_types.TextContent(type="text", text=f"ERROR: {str(e)}")]
 
         # --- RESOURCES ---
         @self.server.list_resources()
-        async def handle_list_resources() -> list[mcp.types.Resource]:
+        async def handle_list_resources() -> list[mcp_types.Resource]:
             resources = []
             for res_def in self.resource_registry.list_resources():
                 resources.append(
-                    mcp.types.Resource(
+                    mcp_types.Resource(
                         uri=res_def.uri,
                         name=res_def.name,
                         description=res_def.description,
@@ -171,13 +175,13 @@ class StdioTransport(BaseTransport):
 
         # --- PROMPTS ---
         @self.server.list_prompts()
-        async def handle_list_prompts() -> list[mcp.types.Prompt]:
+        async def handle_list_prompts() -> list[mcp_types.Prompt]:
             prompts = []
             for prompt_def in self.prompt_registry.list_prompts():
                 args = None
                 if prompt_def.arguments:
                     args = [
-                        mcp.types.PromptArgument(
+                        mcp_types.PromptArgument(
                             name=arg["name"],
                             description=arg.get("description", ""),
                             required=arg.get("required", "false") == "true",
@@ -185,7 +189,7 @@ class StdioTransport(BaseTransport):
                         for arg in prompt_def.arguments
                     ]
                 prompts.append(
-                    mcp.types.Prompt(
+                    mcp_types.Prompt(
                         name=prompt_def.name,
                         description=prompt_def.description,
                         arguments=args,
@@ -196,26 +200,26 @@ class StdioTransport(BaseTransport):
         @self.server.get_prompt()
         async def handle_get_prompt(
             name: str, arguments: dict | None = None
-        ) -> mcp.types.GetPromptResult:
+        ) -> mcp_types.GetPromptResult:
             try:
                 text = self.prompt_registry.render_prompt(name, arguments)
-                return mcp.types.GetPromptResult(
+                return mcp_types.GetPromptResult(
                     description=f"Constitutional prompt: {name}",
                     messages=[
-                        mcp.types.PromptMessage(
+                        mcp_types.PromptMessage(
                             role="user",
-                            content=mcp.types.TextContent(type="text", text=text),
+                            content=mcp_types.TextContent(type="text", text=text),
                         )
                     ],
                 )
             except ValueError as e:
                 logger.warning(f"Prompt not found: {name}")
-                return mcp.types.GetPromptResult(
+                return mcp_types.GetPromptResult(
                     description=f"Error: {str(e)}",
                     messages=[
-                        mcp.types.PromptMessage(
+                        mcp_types.PromptMessage(
                             role="user",
-                            content=mcp.types.TextContent(type="text", text=str(e)),
+                            content=mcp_types.TextContent(type="text", text=str(e)),
                         )
                     ],
                 )
