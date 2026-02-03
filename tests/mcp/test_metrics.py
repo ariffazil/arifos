@@ -15,7 +15,7 @@ DITEMPA BUKAN DIBERI
 import pytest
 import time
 import threading
-from arifos.mcp.metrics import (
+from codebase.mcp.metrics import (
     get_metrics,
     ArifOSMetrics,
     Counter,

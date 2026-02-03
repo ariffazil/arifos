@@ -26,7 +26,7 @@ Usage:
 """
 
 import pytest
-from arifos.core.enforcement.response_validator_extensions import validate_response_full
+from codebase.core.enforcement.response_validator_extensions import validate_response_full
 
 
 # =============================================================================

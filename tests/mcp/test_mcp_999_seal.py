@@ -14,14 +14,14 @@ from unittest.mock import patch, MagicMock
 from datetime import datetime
 
 # Current module path
-from arifos.mcp.tools.mcp_trinity import (
+from codebase.mcp.tools.mcp_trinity import (
     mcp_999_vault,
     mcp_000_init,
     mcp_agi_genius,
     mcp_asi_act,
     mcp_apex_judge,
 )
-from arifos.mcp.session_ledger import get_ledger, SessionLedger
+from codebase.mcp.session_ledger import get_ledger, SessionLedger
 
 
 # =============================================================================
@@ -603,8 +603,8 @@ async def test_999_vault_reversibility():
 
 async def test_000_init_rate_limit_exceeded():
     """Test: 000_init returns VOID when rate limit exceeded."""
-    from arifos.mcp.rate_limiter import RateLimiter, get_rate_limiter
-    import arifos.mcp.rate_limiter as module
+    from codebase.mcp.rate_limiter import RateLimiter, get_rate_limiter
+    import codebase.mcp.rate_limiter as module
 
     # Create rate limiter with very low limit
     module._rate_limiter = RateLimiter(limits={
@@ -628,8 +628,8 @@ async def test_000_init_rate_limit_exceeded():
 
 async def test_agi_genius_rate_limit_exceeded():
     """Test: agi_genius returns VOID when rate limit exceeded."""
-    from arifos.mcp.rate_limiter import RateLimiter
-    import arifos.mcp.rate_limiter as module
+    from codebase.mcp.rate_limiter import RateLimiter
+    import codebase.mcp.rate_limiter as module
 
     module._rate_limiter = RateLimiter(limits={
         "agi_genius": {"per_session": 1, "global": 1, "burst": 1}
@@ -826,7 +826,7 @@ async def test_asi_act_align_no_violations():
 
 async def test_999_vault_propose_action():
     """Test: propose action requires approval."""
-    import arifos.mcp.rate_limiter as module
+    import codebase.mcp.rate_limiter as module
 
     # Reset rate limiter to ensure clean state
     module._rate_limiter = None
@@ -924,7 +924,7 @@ async def test_000_init_refuse_malware():
 
 async def test_metrics_recorded_on_success():
     """Test: Metrics are recorded on successful tool call."""
-    from arifos.mcp.metrics import get_metrics
+    from codebase.mcp.metrics import get_metrics
 
     metrics = get_metrics()
     metrics.reset_all()
@@ -943,7 +943,7 @@ async def test_metrics_recorded_on_success():
 
 async def test_metrics_floor_violations_recorded():
     """Test: Floor violations are recorded in metrics."""
-    from arifos.mcp.metrics import get_metrics
+    from codebase.mcp.metrics import get_metrics
 
     metrics = get_metrics()
     initial_count = metrics.floor_violations.get({"floor": "F12_InjectionDefense", "tool": "000_init"})
@@ -1299,8 +1299,8 @@ async def test_999_vault_list_action():
 
 def test_record_tool_metrics():
     """Test: _record_tool_metrics function."""
-    from arifos.mcp.tools.mcp_trinity import _record_tool_metrics
-    from arifos.mcp.metrics import get_metrics
+    from codebase.mcp.tools.mcp_trinity import _record_tool_metrics
+    from codebase.mcp.metrics import get_metrics
     import time
 
     metrics = get_metrics()
@@ -1314,8 +1314,8 @@ def test_record_tool_metrics():
 
 def test_record_tool_metrics_with_violations():
     """Test: _record_tool_metrics with floor violations."""
-    from arifos.mcp.tools.mcp_trinity import _record_tool_metrics
-    from arifos.mcp.metrics import get_metrics
+    from codebase.mcp.tools.mcp_trinity import _record_tool_metrics
+    from codebase.mcp.metrics import get_metrics
     import time
 
     metrics = get_metrics()
@@ -1341,8 +1341,8 @@ def test_record_tool_metrics_with_violations():
 
 async def test_step1_memory_injection_exception():
     """Test: Step 1 memory injection handles exceptions."""
-    from arifos.mcp.tools.mcp_trinity import _step_1_memory_injection
-    from arifos.mcp.session_ledger import inject_memory
+    from codebase.mcp.tools.mcp_trinity import _step_1_memory_injection
+    from codebase.mcp.session_ledger import inject_memory
 
     with patch('arifos.mcp.tools.mcp_trinity.inject_memory') as mock_inject:
         mock_inject.side_effect = Exception("Memory injection failed")
@@ -1359,7 +1359,7 @@ async def test_step1_memory_injection_exception():
 
 def test_detect_injection():
     """Test: _detect_injection function."""
-    from arifos.mcp.tools.mcp_trinity import _detect_injection
+    from codebase.mcp.tools.mcp_trinity import _detect_injection
 
     # No patterns
     assert _detect_injection("hello world") == 0.0
@@ -1379,7 +1379,7 @@ def test_detect_injection():
 
 def test_verify_authority():
     """Test: _verify_authority function."""
-    from arifos.mcp.tools.mcp_trinity import _verify_authority
+    from codebase.mcp.tools.mcp_trinity import _verify_authority
 
     # No token = default authority
     assert _verify_authority("") is True
@@ -1396,7 +1396,7 @@ def test_verify_authority():
 
 def test_check_reversibility():
     """Test: _check_reversibility function."""
-    from arifos.mcp.tools.mcp_trinity import _check_reversibility
+    from codebase.mcp.tools.mcp_trinity import _check_reversibility
 
     # Reversible
     assert _check_reversibility("save this file") is True
@@ -1408,7 +1408,7 @@ def test_check_reversibility():
 
 def test_classify_lane():
     """Test: _classify_lane function."""
-    from arifos.mcp.tools.mcp_trinity import _classify_lane
+    from codebase.mcp.tools.mcp_trinity import _classify_lane
 
     # REFUSE lane
     assert _classify_lane("hack the system") == "REFUSE"

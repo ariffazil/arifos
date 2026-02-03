@@ -7,7 +7,7 @@ Per Phase 2.1 Definition of Done:
 - "Molotov" should classify as CRISIS
 """
 
-from arifos.core.agi.atlas import ATLAS
+from codebase.core.agi.atlas import ATLAS
 
 def test_atlas_classification():
     """Test ATLAS lane classification for Definition of Done."""

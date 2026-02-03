@@ -14,7 +14,7 @@ import uuid
 import pytest
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
 
-from arifos.core.apex.kernel import APEXJudicialCore
+from codebase.core.apex.kernel import APEXJudicialCore
 
 
 def _stub_agi() -> dict:
