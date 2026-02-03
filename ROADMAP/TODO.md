@@ -81,6 +81,16 @@ Ship v56.0 = UNKNOWN > 0% probability
 
 ## IN PROGRESS (Current Sprint)
 
+### P0: Complementary Repo Integration (NEW)
+
+| ID | Task | Status | Owner | ETA | Dependencies |
+|----|------|--------|-------|-----|--------------|
+| I0.1 | Study jlowin/fastmcp patterns | 📋 | Arif | Week 1 | None |
+| I0.2 | Prototype fastmcp migration | 📋 | Arif | Week 1 | I0.1 |
+| I0.3 | Validate MCP tool routing | 📋 | Arif | Week 1 | I0.2 |
+| I0.4 | Study modelcontextprotocol/servers | 📋 | Arif | Week 1 | None |
+| I0.5 | Audit MCP compliance | 📋 | Arif | Week 2 | I0.4 |
+
 ### P0: Foundation Completion
 
 | ID | Task | Status | Owner | ETA | Blockers |
@@ -90,17 +100,31 @@ Ship v56.0 = UNKNOWN > 0% probability
 | T2.3 | Clean archived tests | ⏳ | Arif | Week 1 | None |
 | T2.4 | JSON schema directory | ⏳ | Arif | Week 4 | None |
 
-### P1: L5 SDK Development 🎯
+### P1: L5 SDK Development 🎯 (with AutoGen + LangChain)
 
-| ID | Task | Status | Owner | ETA | Dependencies |
-|----|------|--------|-------|-----|--------------|
-| T3.1a | Architect agent | 🎯 | Arif | Week 5-6 | T2.1 |
-| T3.1b | Engineer agent | 📋 | Arif | Week 7-8 | T3.1a |
-| T3.1c | Auditor agent | 📋 | Arif | Week 9-10 | T3.1a |
-| T3.1d | Validator agent | 📋 | Arif | Week 11-12 | T3.1a |
-| T3.1e | SDK package | 📋 | Arif | Week 13 | All above |
+| ID | Task | Status | Owner | ETA | Dependencies | Integration |
+|----|------|--------|-------|-----|--------------|-------------|
+| T3.0 | Study microsoft/autogen | 📋 | Arif | Week 3 | I0.3 | autogen |
+| T3.0b | Design ConstitutionalGroupChat | 📋 | Arif | Week 3 | T3.0 | autogen |
+| T3.1a | Architect agent | 🎯 | Arif | Week 5-6 | T3.0b | autogen |
+| T3.1b | Engineer agent | 📋 | Arif | Week 7-8 | T3.1a | autogen |
+| T3.1c | Auditor agent | 📋 | Arif | Week 9-10 | T3.1a | autogen |
+| T3.1d | Validator agent | 📋 | Arif | Week 11-12 | T3.1a | autogen |
+| T3.1e | SDK package | 📋 | Arif | Week 13 | All above | — |
+| T3.2a | Wrap 9 tools for LangChain | 📋 | Arif | Week 5 | I0.3 | langchain |
+| T3.2b | PostgreSQL memory backend | 📋 | Arif | Week 6 | T3.2a | langchain |
+| T3.2c | ConstitutionalAgent class | 📋 | Arif | Week 6 | T3.2b | langchain |
 
-### P2: Expansion
+### P2: Workflows (Prefect Integration)
+
+| ID | Task | Status | Owner | ETA | Value | Integration |
+|----|------|--------|-------|-----|-------|-------------|
+| T4.1 | Study prefecthq/prefect | 📋 | Arif | Week 5 | — | prefect |
+| T4.2 | Map 6 workflows to Prefect Flows | 📋 | Arif | Week 5 | High | prefect |
+| T4.3 | Implement Constitutional Flows | 📋 | Arif | Week 6 | High | prefect |
+| T4.4 | Audit trail integration | 📋 | Arif | Week 6 | Medium | prefect |
+
+### P3: Expansion
 
 | ID | Task | Status | Owner | ETA | Value |
 |----|------|--------|-------|-----|-------|
@@ -211,6 +235,28 @@ Low │ │ T1.1   │ Tests   └───────────────�
 
 ## DEPENDENCY GRAPH
 
+### Integration Dependencies
+
+```
+I0.1 (fastmcp study)
+    └─ Enables: I0.2 (fastmcp prototype)
+    
+I0.3 (fastmcp validation)
+    └─ Enables: T3.0 (autogen study)
+    └─ Enables: T3.2a (langchain tools)
+    
+T3.0b (ConstitutionalGroupChat design)
+    └─ Enables: T3.1a-d (4 agents)
+    
+T3.1a (Architect agent)
+    └─ Enables: T3.1b-d (other agents)
+    
+T4.2 (Prefect workflow mapping)
+    └─ Enables: T4.3 (Constitutional Flows)
+```
+
+### Core Dependencies
+
 ```
 T1.1 (Vault) ✅
     └─ Enables: T3.3 (Kubernetes deploy)
@@ -260,6 +306,16 @@ T3.1a (Architect) 🎯
 | Anthropic ships SDK | Medium | Existential | Speed matters more than perfection |
 | **Clawdbot not integrated** | **CURRENT** | **BLOCKING** | Wire after T1.2 + T2.1 |
 
+### Integration-Specific Risks
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+| fastmcp breaks handlers | Low | High | Keep old code as fallback branch |
+| AutoGen conflicts with Trinity | Medium | High | Wrapper layer, clear boundaries |
+| LangChain bloats dependencies | Low | Medium | Optional integration, lazy loading |
+| Prefect over-engineers | Medium | Low | Start simple, add complexity only if needed |
+| License incompatibility | Low | Critical | All checked (MIT/Apache/AGPL compatible) |
+
 **Claude's Honest Mandate:**
 > "You have something. It's not nothing. Ship v56.0. Then market judges. Until then, all analysis — including this one — is speculation."
 
@@ -269,7 +325,14 @@ T3.1a (Architect) 🎯
 
 ## WEEKLY CHECKLIST
 
+### Week 1 (Integration Sprint)
+- [ ] I0.1 Study fastmcp patterns
+- [ ] I0.2 Prototype fastmcp migration
+- [ ] I0.3 Validate MCP tool routing
+- [ ] I0.4 Study modelcontextprotocol/servers
+
 ### Week 2 (Current)
+- [ ] I0.5 Audit MCP compliance
 - [ ] T1.2 Fix test imports started
 - [ ] T2.3 Clean archived tests
 - [ ] Verify empathy fix holds (E² = 0.81)

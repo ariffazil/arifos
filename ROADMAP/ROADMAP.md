@@ -70,13 +70,16 @@ Constitutional Value = Adoption × Trust × Time
 ├─────────────────────────────────────────────────────────┤
 │ L5_AGENTS 🔴           90% Aspirational 4-Agent Federation│
 │ Autonomous Agents    (STUBS → Real in v56.0)            │
+│ Integration: microsoft/autogen + langchain-ai/langchain │
 ├─────────────────────────────────────────────────────────┤
 │ L4_TOOLS               80% Coverage    MCP Server ✅ LIVE│
 │ Constitutional Tools (9 tools production)               │
 │ Status: aaamcp.arif-fazil.com                         │
+│ Integration: jlowin/fastmcp (closure bug fix)           │
 ├─────────────────────────────────────────────────────────┤
 │ L3_WORKFLOW            70% Coverage    Documented SOPs ✅│
 │ AI Workflows         (.claude/workflows/)               │
+│ Integration: prefecthq/prefect (orchestration)          │
 ├─────────────────────────────────────────────────────────┤
 │ L2_SKILLS              50% Coverage    Templates ✅      │
 │ Reusable Skills      (YAML + Python)                    │
@@ -85,6 +88,8 @@ Constitutional Value = Adoption × Trust × Time
 │ System Prompts       (5 files + examples)               │
 └─────────────────────────────────────────────────────────┘
 ```
+
+**Integration Strategy:** See [INTEGRATION_MASTERPLAN.md](./INTEGRATION_MASTERPLAN.md) for detailed complementary repository integration plan.
 
 ---
 
@@ -130,13 +135,17 @@ Constitutional Value = Adoption × Trust × Time
 **Date:** 2026-03 (6 weeks)  
 **Theme:** Developer adoption
 
-| Deliverable | Status | Value |
-|-------------|--------|-------|
-| Architect agent | 🔴 In Progress | Planning engine |
-| Engineer agent | 🔴 Stub | Implementation |
-| Auditor agent | 🔴 Stub | Compliance checking |
-| Validator agent | 🔴 Stub | Final consensus |
-| SDK package | 🔴 Planned | pip install arifOS-L5 |
+| Deliverable | Status | Value | Integration |
+|-------------|--------|-------|-------------|
+| fastmcp migration | 📋 Planned | Fixes closure bug | jlowin/fastmcp |
+| Architect agent | 🔴 In Progress | Planning engine | microsoft/autogen |
+| Engineer agent | 📋 Planned | Implementation | microsoft/autogen |
+| Auditor agent | 📋 Planned | Compliance checking | microsoft/autogen |
+| Validator agent | 📋 Planned | Final consensus | microsoft/autogen |
+| LangChain tools | 📋 Planned | Tool ecosystem | langchain-ai/langchain |
+| SDK package | 📋 Planned | pip install arifOS-L5 | — |
+
+**Key Integration:** Using AutoGen for multi-agent federation (4 agents + human-in-loop) and LangChain for tool ecosystem integration. See [INTEGRATION_MASTERPLAN.md](./INTEGRATION_MASTERPLAN.md).
 
 **Target Value:** First developers adopt. Proof of concept validated.
 
@@ -430,6 +439,36 @@ Strategy is sound. Execution determines outcome.
 | 3 | 50 licenses @ $50K + cloud API | $2.8M-3.2M |
 
 **Rule:** Bootstrap until $1M. No VC before sovereignty (F13).
+
+---
+
+## Complementary Repository Integration
+
+### Integration Philosophy
+> "We don't build from scratch what the community has already hardened. We constitutionalize what works."
+
+### The 7 Complementary Repositories
+
+| Tier | Repository | Purpose | Timeline | Impact |
+|------|-----------|---------|----------|--------|
+| **0** | jlowin/fastmcp | MCP transport (fixes closure bug) | Week 1 | Critical |
+| **0** | modelcontextprotocol/servers | Reference validation | Week 1 | High |
+| **1** | microsoft/autogen | L5 agent federation | Weeks 3-4 | Critical |
+| **1** | langchain-ai/langchain | Tool ecosystem | Weeks 3-4 | High |
+| **2** | prefecthq/prefect | L3 workflow orchestration | Weeks 5-6 | Medium |
+| **3** | zama-ai/concrete-ml | FHE proofs (v57.0) | Future | Research |
+| **3** | postgres-ai/database-lab-engine | DB reversibility (v57.0) | Future | Research |
+
+### Integration Value
+- **Time Savings:** 6 months of development → 6 weeks of integration
+- **Quality:** Battle-tested code vs. custom implementations
+- **Focus:** Constitutional logic vs. infrastructure
+- **Risk Reduction:** Community maintenance, proven patterns
+
+### License Compliance
+All dependencies are permissive (MIT/Apache) compatible with arifOS AGPL.
+
+**Detailed Plan:** See [INTEGRATION_MASTERPLAN.md](./INTEGRATION_MASTERPLAN.md)
 
 ---
 
