@@ -1,5 +1,5 @@
 # arifOS MCP Server Dockerfile (v55.3.2-9tools-SEAL)
-# Cache-bust: 2026-02-03-14-50-FORCE-REBUILD-v2
+# Cache-bust: 2026-02-03-15-00-DEBUG-TRACING-v3
 FROM python:3.12-slim
 
 WORKDIR /app

@@ -80,10 +80,18 @@ async def mcp_init(
 ) -> Dict[str, Any]:
     """
     _init_: The 7-Step Thermodynamic Ignition Sequence.
+    
+    DEBUG BUILD: 2026-02-03-v55.3.3-DEBUG
     """
     import importlib
+    import traceback
 
-    logger.info(f"mcp_init called with action={action}, query={query[:50] if query else 'EMPTY'}...")
+    # CRITICAL DEBUG: Log entry point
+    logger.critical("="*60)
+    logger.critical("MCP_INIT ENTRY: DEBUG BUILD 2026-02-03-v55.3.3")
+    logger.critical(f"action={action}, query_preview={query[:50] if query else 'EMPTY'}...")
+    logger.critical(f"kwargs_keys={list(kwargs.keys())}")
+    logger.critical("="*60)
 
     kwargs = _normalize_kwargs(kwargs)
     # Extract known params that may have been wrapped
@@ -95,25 +103,43 @@ async def mcp_init(
     try:
         module = importlib.import_module("codebase.init.000_init.mcp_bridge")
         mcp_000_init = module.mcp_000_init
-        logger.info(f"mcp_init: Successfully imported mcp_000_init from mcp_bridge")
+        logger.critical(f"MCP_INIT: Successfully imported mcp_000_init")
     except Exception as e:
-        logger.error(f"mcp_init: Failed to import mcp_000_init: {e}")
-        raise
+        logger.critical(f"MCP_INIT: FAILED to import mcp_000_init: {e}")
+        logger.critical(traceback.format_exc())
+        # Return explicit error instead of falling back
+        return {
+            "verdict": "VOID",
+            "error": f"IMPORT FAILED: {e}",
+            "debug_build": "2026-02-03-v55.3.3",
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        }
 
     # Only pass parameters that mcp_000_init accepts
-    result = await mcp_000_init(
-        action=action,
-        query=query,
-        session_id=session_id,
-        authority_token=kwargs.get("authority_token", ""),
-        context=kwargs.get("context"),
-    )
-
-    logger.info(f"mcp_init: mcp_000_init returned verdict={result.get('verdict')}, has_motto={'motto' in result}")
+    try:
+        result = await mcp_000_init(
+            action=action,
+            query=query,
+            session_id=session_id,
+            authority_token=kwargs.get("authority_token", ""),
+            context=kwargs.get("context"),
+        )
+        logger.critical(f"MCP_INIT: mcp_000_init returned keys={list(result.keys())}")
+        logger.critical(f"MCP_INIT: verdict={result.get('verdict')}, has_motto={'motto' in result}")
+    except Exception as e:
+        logger.critical(f"MCP_INIT: mcp_000_init EXECUTION FAILED: {e}")
+        logger.critical(traceback.format_exc())
+        return {
+            "verdict": "VOID",
+            "error": f"EXECUTION FAILED: {e}",
+            "debug_build": "2026-02-03-v55.3.3",
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        }
 
     # Stamp every _init_ response with the arifOS motto
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["seal"] = "💎🔥🧠"
+    result["debug_build"] = "2026-02-03-v55.3.3"
     # result["root_key"] = "TOY_MODE"  # REMOVED: Security Hardening (P0)
 
     # Adapter: Map internal result to ToolRegistry schema
