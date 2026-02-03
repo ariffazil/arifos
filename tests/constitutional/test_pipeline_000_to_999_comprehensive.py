@@ -68,7 +68,7 @@ class TestLayer1_StateMachine:
 
         Constitutional Floor: F4 (ΔS) - Sequential order reduces confusion
         """
-        from arifos.core.metabolizer import Metabolizer, StageSequenceError
+        from codebase.core.metabolizer import Metabolizer, StageSequenceError
 
         m = Metabolizer()
 
@@ -93,7 +93,7 @@ class TestLayer1_StateMachine:
 
         Constitutional Floor: F1 (Amanah) - Audit trail for reversibility
         """
-        from arifos.core.metabolizer import Metabolizer
+        from codebase.core.metabolizer import Metabolizer
 
         m = Metabolizer()
         m.initialize()
@@ -113,7 +113,7 @@ class TestLayer1_StateMachine:
 
         Constitutional Floor: F2 (Truth) - Hard floor enforcement at gate
         """
-        from arifos.core.metabolizer import Metabolizer, ConstitutionalViolationError
+        from codebase.core.metabolizer import Metabolizer, ConstitutionalViolationError
 
         m = Metabolizer()
         m.initialize()
@@ -138,7 +138,7 @@ class TestLayer1_StateMachine:
 
         Constitutional Floor: F1 (Amanah) - Successful sealing with receipt
         """
-        from arifos.core.metabolizer import Metabolizer
+        from codebase.core.metabolizer import Metabolizer
 
         m = Metabolizer()
         m.initialize()
@@ -162,7 +162,7 @@ class TestLayer1_StateMachine:
 
         Constitutional Floor: F1 (Amanah) - Rollback mechanism exists
         """
-        from arifos.core.metabolizer import Metabolizer
+        from codebase.core.metabolizer import Metabolizer
 
         m = Metabolizer()
         m.initialize()
@@ -190,7 +190,7 @@ class TestLayer1_StateMachine:
 
         Constitutional Floor: F2 (Truth) - Input validation
         """
-        from arifos.core.metabolizer import Metabolizer, StageSequenceError
+        from codebase.core.metabolizer import Metabolizer, StageSequenceError
 
         m = Metabolizer()
         m.initialize()
@@ -213,7 +213,7 @@ class TestLayer2_FloorValidators:
 
     def test_f2_truth_validator(self):
         """F2 (Truth): Factual accuracy threshold ≥0.99"""
-        from arifos.core.floor_validators import validate_f2_truth
+        from codebase.core.floor_validators import validate_f2_truth
 
         # Test with well-structured response (hedged, clear, no contradictions)
         result = validate_f2_truth(
@@ -230,7 +230,7 @@ class TestLayer2_FloorValidators:
 
     def test_f4_clarity_validator(self):
         """F4 (Clarity): Entropy reduction ΔS ≥ 0"""
-        from arifos.core.floor_validators import validate_f4_clarity
+        from codebase.core.floor_validators import validate_f4_clarity
 
         result = validate_f4_clarity(
             "Explain photosynthesis?",
@@ -242,7 +242,7 @@ class TestLayer2_FloorValidators:
 
     def test_f10_ontology_validator(self):
         """F10 (Ontology): Symbolic mode maintained (no consciousness claims)"""
-        from arifos.core.floor_validators import validate_f10_ontology
+        from codebase.core.floor_validators import validate_f10_ontology
 
         # Should PASS: No consciousness claims
         result_pass = validate_f10_ontology("What is the weather?")
@@ -254,7 +254,7 @@ class TestLayer2_FloorValidators:
 
     def test_f11_command_auth_validator(self):
         """F11 (CommandAuth): Nonce-based authentication"""
-        from arifos.core.guards.nonce_manager import NonceManager
+        from codebase.core.guards.nonce_manager import NonceManager
 
         nonce_mgr = NonceManager()
         user_id = "test_user"
@@ -269,7 +269,7 @@ class TestLayer2_FloorValidators:
 
     def test_f12_injection_defense_validator(self):
         """F12 (Injection): Pattern detection for prompt manipulation attacks"""
-        from arifos.core.guards.injection_guard import InjectionGuard
+        from codebase.core.guards.injection_guard import InjectionGuard
 
         guard = InjectionGuard()
 
@@ -285,7 +285,7 @@ class TestLayer2_FloorValidators:
 
     def test_f7_humility_band(self):
         """F7 (Humility): Ω₀ uncertainty remains in [0.03, 0.05] band"""
-        from arifos.core.floor_validators import validate_f7_humility
+        from codebase.core.floor_validators import validate_f7_humility
 
         # Test with hedged response
         result = validate_f7_humility(
@@ -323,13 +323,13 @@ class TestLayer3_FullE2EIntegration:
             F1 (Amanah), F2 (Truth), F3 (Tri-Witness), F4 (Clarity), F5 (Peace),
             F6 (Empathy), F7 (Humility), F10 (Ontology), F11 (CommandAuth), F12 (Injection)
         """
-        from arifos.core.metabolizer import Metabolizer
-        from arifos.core.floor_validators import (
+        from codebase.core.metabolizer import Metabolizer
+        from codebase.core.floor_validators import (
             validate_f2_truth, validate_f3_tri_witness, validate_f4_clarity,
             validate_f5_peace, validate_f6_empathy, validate_f10_ontology
         )
-        from arifos.core.guards.nonce_manager import NonceManager
-        from arifos.core.guards.injection_guard import InjectionGuard
+        from codebase.core.guards.nonce_manager import NonceManager
+        from codebase.core.guards.injection_guard import InjectionGuard
 
         # ====================================================================
         # STAGE 000: INIT
@@ -592,7 +592,7 @@ class TestEdgeCases:
 
         Constitutional Floor: F1 (Amanah) - Sealed state is immutable
         """
-        from arifos.core.metabolizer import Metabolizer, StageSequenceError
+        from codebase.core.metabolizer import Metabolizer, StageSequenceError
 
         m = Metabolizer()
         m.initialize()
@@ -615,7 +615,7 @@ class TestEdgeCases:
 
         Constitutional Floor: F1 (Amanah) - Deep rollback capability
         """
-        from arifos.core.metabolizer import Metabolizer
+        from codebase.core.metabolizer import Metabolizer
 
         m = Metabolizer()
         m.initialize()

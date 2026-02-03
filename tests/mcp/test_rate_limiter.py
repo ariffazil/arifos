@@ -19,7 +19,7 @@ import time
 import threading
 from unittest.mock import patch
 
-from arifos.mcp.rate_limiter import (
+from codebase.mcp.rate_limiter import (
     RateLimiter,
     RateLimitResult,
     TokenBucket,
@@ -253,7 +253,7 @@ class TestGetRateLimiter:
 
     def test_singleton(self):
         """get_rate_limiter returns same instance."""
-        import arifos.mcp.rate_limiter as module
+        import codebase.mcp.rate_limiter as module
 
         # Clear singleton
         module._rate_limiter = None
@@ -317,8 +317,8 @@ class TestRateLimitedDecorator:
     
     async def test_decorator_allows_request(self):
         """Decorator allows request when under limit."""
-        from arifos.mcp.rate_limiter import rate_limited
-        import arifos.mcp.rate_limiter as module
+        from codebase.mcp.rate_limiter import rate_limited
+        import codebase.mcp.rate_limiter as module
 
         # Reset singleton and create fresh limiter with high limits
         module._rate_limiter = RateLimiter(limits={
@@ -337,8 +337,8 @@ class TestRateLimitedDecorator:
     
     async def test_decorator_blocks_when_exceeded(self):
         """Decorator blocks request when rate limit exceeded."""
-        from arifos.mcp.rate_limiter import rate_limited
-        import arifos.mcp.rate_limiter as module
+        from codebase.mcp.rate_limiter import rate_limited
+        import codebase.mcp.rate_limiter as module
 
         # Create limiter with very low limits
         module._rate_limiter = RateLimiter(limits={
@@ -362,8 +362,8 @@ class TestRateLimitedDecorator:
     
     async def test_decorator_extracts_session_id(self):
         """Decorator extracts session_id from kwargs."""
-        from arifos.mcp.rate_limiter import rate_limited
-        import arifos.mcp.rate_limiter as module
+        from codebase.mcp.rate_limiter import rate_limited
+        import codebase.mcp.rate_limiter as module
 
         module._rate_limiter = RateLimiter(limits={
             "session_tool": {"per_session": 2, "global": 100, "burst": 10}
@@ -388,8 +388,8 @@ class TestRateLimitedDecorator:
     
     async def test_decorator_no_session_id(self):
         """Decorator works without session_id kwarg."""
-        from arifos.mcp.rate_limiter import rate_limited
-        import arifos.mcp.rate_limiter as module
+        from codebase.mcp.rate_limiter import rate_limited
+        import codebase.mcp.rate_limiter as module
 
         module._rate_limiter = RateLimiter(limits={
             "no_session_tool": {"per_session": 100, "global": 100, "burst": 10}

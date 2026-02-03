@@ -65,7 +65,7 @@ class TestOpenSessionTracking:
 
     def test_open_session_creates_entry(self, temp_session_dir):
         """Open session should create entry in open_sessions.json"""
-        from arifos.mcp.session_ledger import open_session, _load_open_sessions
+        from codebase.mcp.session_ledger import open_session, _load_open_sessions
 
         open_session(
             session_id="test-123",
@@ -80,7 +80,7 @@ class TestOpenSessionTracking:
 
     def test_close_session_removes_entry(self, temp_session_dir):
         """Close session should remove entry from open_sessions.json"""
-        from arifos.mcp.session_ledger import open_session, close_session, _load_open_sessions
+        from codebase.mcp.session_ledger import open_session, close_session, _load_open_sessions
 
         open_session("test-456", "token-def", os.getpid())
         assert "test-456" in _load_open_sessions()
@@ -91,14 +91,14 @@ class TestOpenSessionTracking:
 
     def test_close_nonexistent_session_returns_false(self, temp_session_dir):
         """Closing nonexistent session should return False"""
-        from arifos.mcp.session_ledger import close_session
+        from codebase.mcp.session_ledger import close_session
 
         result = close_session("nonexistent-session")
         assert result is False
 
     def test_get_orphaned_sessions_by_timeout(self, temp_session_dir):
         """Sessions older than timeout should be detected as orphaned"""
-        from arifos.mcp.session_ledger import get_orphaned_sessions, _save_open_sessions
+        from codebase.mcp.session_ledger import get_orphaned_sessions, _save_open_sessions
 
         # Create a session that started 60 minutes ago
         old_time = (datetime.utcnow() - timedelta(minutes=60)).isoformat() + "Z"
@@ -119,7 +119,7 @@ class TestOpenSessionTracking:
 
     def test_get_orphaned_sessions_by_dead_pid(self, temp_session_dir):
         """Sessions with dead PIDs should be detected as orphaned"""
-        from arifos.mcp.session_ledger import get_orphaned_sessions, _save_open_sessions
+        from codebase.mcp.session_ledger import get_orphaned_sessions, _save_open_sessions
 
         # Create a session with a very high (likely dead) PID
         sessions = {
@@ -139,7 +139,7 @@ class TestOpenSessionTracking:
 
     def test_active_session_not_orphaned(self, temp_session_dir):
         """Recent sessions with active PIDs should not be orphaned"""
-        from arifos.mcp.session_ledger import open_session, get_orphaned_sessions
+        from codebase.mcp.session_ledger import open_session, get_orphaned_sessions
 
         # Open a session with current PID
         open_session("active-session", "active-token", os.getpid())
@@ -157,7 +157,7 @@ class TestCrashRecovery:
 
     def test_recover_orphaned_session(self, temp_session_dir, temp_vault_dir):
         """Orphaned sessions should be auto-sealed with SABAR verdict"""
-        from arifos.mcp.session_ledger import (
+        from codebase.mcp.session_ledger import (
             open_session,
             get_orphaned_sessions,
             recover_orphaned_session,
@@ -189,7 +189,7 @@ class TestCrashRecovery:
 
     def test_multiple_orphan_recovery(self, temp_session_dir, temp_vault_dir):
         """Multiple orphaned sessions should all be recovered"""
-        from arifos.mcp.session_ledger import (
+        from codebase.mcp.session_ledger import (
             _save_open_sessions,
             get_orphaned_sessions,
             recover_orphaned_session,
@@ -232,7 +232,7 @@ class TestAXISLoopBootstrap:
     
     async def test_axis_000_init_recovers_orphans(self, temp_session_dir, temp_vault_dir, monkeypatch):
         """AXIS 000_init should recover orphaned sessions before starting new one"""
-        from arifos.mcp.session_ledger import _save_open_sessions, _load_open_sessions
+        from codebase.mcp.session_ledger import _save_open_sessions, _load_open_sessions
 
         # Create an orphaned session
         sessions = {
@@ -259,7 +259,7 @@ class TestAXISLoopBootstrap:
         )
 
         # Import after mocking
-        from arifos.mcp.servers.axis import axis_000_init
+        from codebase.mcp.servers.axis import axis_000_init
 
         # Call axis_000_init (should recover orphan first)
         result = await axis_000_init(
@@ -282,7 +282,7 @@ class TestAXISLoopBootstrap:
     
     async def test_axis_999_vault_closes_session(self, temp_session_dir, monkeypatch):
         """AXIS 999_vault should close session tracking after seal"""
-        from arifos.mcp.session_ledger import open_session, _load_open_sessions
+        from codebase.mcp.session_ledger import open_session, _load_open_sessions
 
         # Create an open session
         open_session("session-to-close", "close-token", os.getpid())
@@ -302,7 +302,7 @@ class TestAXISLoopBootstrap:
         )
 
         # Import after mocking
-        from arifos.mcp.servers.axis import axis_999_vault
+        from codebase.mcp.servers.axis import axis_999_vault
 
         # Call axis_999_vault
         result = await axis_999_vault(

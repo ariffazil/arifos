@@ -13,14 +13,14 @@ Version: v38.3 Phase 1
 """
 
 import pytest
-from arifos.core.memory.eureka.eureka_types import (
+from codebase.core.memory.eureka.eureka_types import (
     ActorRole,
     MemoryBand,
     Verdict,
     MemoryWriteRequest,
 )
-from arifos.core.memory.eureka.eureka_router import route_write
-from arifos.core.memory.eureka.eureka_store import InMemoryStore
+from codebase.core.memory.eureka.eureka_router import route_write
+from codebase.core.memory.eureka.eureka_store import InMemoryStore
 
 
 class TestPhase1Routing:

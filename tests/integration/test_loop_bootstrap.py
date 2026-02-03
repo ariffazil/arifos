@@ -50,7 +50,7 @@ class TestLoopBootstrap:
 
     def test_open_session_creates_tracking_file(self, mock_session_path):
         """Verify open_session() creates tracking entry."""
-        from arifos.mcp.session_ledger import open_session, _load_open_sessions
+        from codebase.mcp.session_ledger import open_session, _load_open_sessions
 
         # Create a session
         open_session(
@@ -68,7 +68,7 @@ class TestLoopBootstrap:
 
     def test_close_session_removes_tracking(self, mock_session_path):
         """Verify close_session() removes entry."""
-        from arifos.mcp.session_ledger import (
+        from codebase.mcp.session_ledger import (
             open_session, close_session, _load_open_sessions
         )
 
@@ -82,7 +82,7 @@ class TestLoopBootstrap:
 
     def test_orphan_detection_by_dead_pid(self, mock_session_path):
         """Detect orphan when PID no longer exists."""
-        from arifos.mcp.session_ledger import (
+        from codebase.mcp.session_ledger import (
             open_session, get_orphaned_sessions, _save_open_sessions
         )
 
@@ -112,7 +112,7 @@ class TestLoopBootstrap:
 
     def test_orphan_detection_by_timeout(self, mock_session_path):
         """Detect orphan when session exceeds timeout."""
-        from arifos.mcp.session_ledger import get_orphaned_sessions
+        from codebase.mcp.session_ledger import get_orphaned_sessions
 
         # Create session with old timestamp
         old_time = (datetime.utcnow() - timedelta(hours=2)).isoformat() + "Z"
@@ -139,7 +139,7 @@ class TestLoopBootstrap:
 
     def test_recover_orphaned_session_seals_with_sabar(self, mock_session_path):
         """Verify recovery seals with SABAR verdict."""
-        from arifos.mcp.session_ledger import (
+        from codebase.mcp.session_ledger import (
             recover_orphaned_session, _load_open_sessions
         )
 
@@ -170,7 +170,7 @@ class TestLoopBootstrap:
 
     def test_full_crash_recovery_flow(self, mock_session_path):
         """End-to-end: init → crash → init → verify recovery."""
-        from arifos.mcp.session_ledger import (
+        from codebase.mcp.session_ledger import (
             open_session, get_orphaned_sessions, recover_orphaned_session,
             _load_open_sessions
         )
@@ -246,7 +246,7 @@ class TestAxisServerRecovery:
         sessions_file.write_text(json.dumps(session_data))
 
         # Import and run recovery
-        from arifos.mcp.session_ledger import (
+        from codebase.mcp.session_ledger import (
             get_orphaned_sessions, recover_orphaned_session, _load_open_sessions
         )
 

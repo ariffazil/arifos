@@ -106,7 +106,7 @@ async def test_mcp_integration():
     print("=" * 70)
     
     try:
-        from arifos.mcp.bridge import bridge_agi_action_router
+        from codebase.mcp.bridge import bridge_agi_action_router
         
         # Test 1: Execute AGI first
         print("\n[Test 1] Execute AGI to generate metrics")
