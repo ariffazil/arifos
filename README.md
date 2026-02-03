@@ -248,22 +248,38 @@ The arifOS system is deployed as three interconnected operational layers — **H
 
 For AI agents and automated systems accessing arifOS programmatically:
 
-| Endpoint | URL | Purpose |
-|----------|-----|---------|
-| **Constitutional Canon** | [`https://apex.arif-fazil.com/llms.txt`](https://apex.arif-fazil.com/llms.txt) | LLM governance constraints (text format) |
-| **Floors API** | [`https://apex.arif-fazil.com/api/v1/floors.json`](https://apex.arif-fazil.com/api/v1/floors.json) | 13 Floors JSON schema & thresholds |
-| **MCP Server** | `https://aaamcp.arif-fazil.com/mcp` | Model Context Protocol endpoint |
+| Endpoint | URL | Purpose | Protocol |
+|----------|-----|---------|----------|
+| **Constitutional Canon** | [`https://apex.arif-fazil.com/llms.txt`](https://apex.arif-fazil.com/llms.txt) | LLM governance constraints (text format) | HTTP GET |
+| **13 Floors (JSON)** | [`https://aaamcp.arif-fazil.com/api/v1/floors.json`](https://aaamcp.arif-fazil.com/api/v1/floors.json) | Constitutional floor thresholds | HTTP GET |
+| **Init Gate (REST)** | [`https://aaamcp.arif-fazil.com/api/v1/init_gate`](https://aaamcp.arif-fazil.com/api/v1/init_gate) | Session initialization via REST | HTTP POST |
+| **MCP Server** | `https://aaamcp.arif-fazil.com/mcp` | Model Context Protocol (primary) | MCP |
+| **Health Check** | [`https://aaamcp.arif-fazil.com/health`](https://aaamcp.arif-fazil.com/health) | System status | HTTP GET |
 
 **Usage for AI Agents:**
 ```python
-# Fetch constitutional constraints
 import requests
-llms_txt = requests.get("https://apex.arif-fazil.com/llms.txt").text
-floors = requests.get("https://apex.arif-fazil.com/api/v1/floors.json").json()
 
-# Use in your system prompt
-system_prompt = f"You are governed by arifOS. Follow these constraints:\n{llms_txt}"
+# 1. Fetch constitutional constraints
+llms_txt = requests.get("https://apex.arif-fazil.com/llms.txt").text
+floors = requests.get("https://aaamcp.arif-fazil.com/api/v1/floors.json").json()
+
+# 2. Initialize session via REST
+init = requests.post(
+    "https://aaamcp.arif-fazil.com/api/v1/init_gate",
+    json={"query": "Initialize AGI session"}
+).json()
+
+# 3. Use in system prompt
+system_prompt = f"""You are governed by arifOS.
+Motto: {init['motto']}
+Seal: {init['seal']}
+
+Constraints:
+{llms_txt}"""
 ```
+
+**Hybrid Architecture:** MCP for AI-native tools, REST for debugging and external integrations.
 
 ---
 
