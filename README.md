@@ -356,16 +356,83 @@ arifOS/
 
 **Navigate:** [Full project structure](docs/ARCHITECTURE.md#directory-structure)
 
+### Database (VAULT-999 Persistence)
+
+**Current:** PostgreSQL with InMemory fallback ✅
+
+```bash
+# Local development with PostgreSQL
+docker-compose -f docker-compose.vault.yml up -d
+
+# Environment variable
+export AAA_DATABASE_URL="postgresql://arifos:arifos@localhost:5432/vault999"
+
+# Run with persistence
+python -m codebase.mcp.fastmcp_clean
+```
+
+**Migration status:** See [ROADMAP/INTEGRATION_MASTERPLAN.md](ROADMAP/INTEGRATION_MASTERPLAN.md)
+
+### Environment Variables
+
+| Variable | Purpose | Default | Required? |
+|----------|---------|---------|-----------|
+| `AAA_MCP_TRANSPORT` | Transport mode (`stdio` or `sse`) | `stdio` | No |
+| `AAA_MCP_PORT` | SSE server port | `6274` | No (SSE only) |
+| `AAA_DATABASE_URL` | PostgreSQL connection string | `in-memory` | No |
+| `AAA_LOG_LEVEL` | Logging verbosity | `INFO` | No |
+
+**Full deployment guide:** [docs/DEPLOYMENT_CONFIG.md](docs/DEPLOYMENT_CONFIG.md)
+
+---
+
 ### Running Tests
 
 ```bash
+# All tests
+pytest tests/ -v
+
+# Specific layer
+pytest tests/unit/test_floors/ -v
+pytest tests/integration/test_mcp_tools.py -v
+
+# E2E tests (Day 1 Integration)
 pytest tests/day1_e2e_test.py -v
-# 7/7 tests passing
+# 7/7 tests passing ✅
 ```
+
+**Current status:**
+- ✅ Core tests passing
+- ✅ E2E tests 7/7 passing
+
+**Test documentation:** [tests/README.md](tests/README.md)
+
+---
 
 ### Contributing
 
-See [CONTRIBUTING.md](docs/CONTRIBUTING.md)
+We welcome contributions! Please read:
+
+1. [CONTRIBUTING.md](docs/CONTRIBUTING.md) — Guidelines
+2. [ROADMAP/INTEGRATION_MASTERPLAN.md](ROADMAP/INTEGRATION_MASTERPLAN.md) — Current priorities
+3. [GitHub Issues](https://github.com/ariffazil/arifOS/issues) — Open tasks
+
+**Active sprints:**
+- **Sprint 1:** FastMCP Migration ([#164](https://github.com/ariffazil/arifOS/issues/164), [#165](https://github.com/ariffazil/arifOS/issues/165), [#166](https://github.com/ariffazil/arifOS/issues/166))
+- **Sprint 2:** L5 Agents ([#171](https://github.com/ariffazil/arifOS/issues/171), [#172](https://github.com/ariffazil/arifOS/issues/172), [#173](https://github.com/ariffazil/arifOS/issues/173))
+- **Sprint 3:** Workflows ([#174](https://github.com/ariffazil/arifOS/issues/174))
+
+**Code standards:**
+```bash
+# Linting
+ruff check codebase/ --fix
+
+# Type checking
+mypy codebase/ --strict
+
+# Formatting
+black codebase/
+```
 
 ---
 
