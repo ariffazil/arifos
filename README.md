@@ -4,7 +4,7 @@
 
 # arifOS — Constitutional AI Governance System
 
-![arifOS Version](https://img.shields.io/badge/arifOS-v55.3-0066cc?style=for-the-badge&logo=shield&logoColor=white)
+![arifOS Version](https://img.shields.io/badge/arifOS-v55.2--SEAL-0066cc?style=for-the-badge&logo=shield&logoColor=white)
 ![PyPI](https://img.shields.io/badge/pypi-arifos-3775A9?style=for-the-badge&logo=pypi&logoColor=white)
 ![Status](https://img.shields.io/badge/status-OPERATIONAL-00cc00?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)
@@ -234,36 +234,52 @@ graph TD
 
 ---
 
-## 🌐 Live Trinity Ecosystem
+## 🌐 Live Trinity Ecosystem (HTA)
 
-The arifOS system is deployed as three interconnected operational layers, providing real-time transparency and constitutional access.
+The arifOS system is deployed as three interconnected operational layers — **HUMAN, THEORY, APPS** — providing real-time transparency and constitutional access.
 
-| Layer | Site URL | Status | Deployed From |
-| :--- | :--- | :--- | :--- |
-| **BODY** | [https://arif-fazil.com](https://arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/body/` |
-| **SOUL** | [https://apex.arif-fazil.com](https://apex.arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/soul/` |
-| **DOCS** | [https://arifos.arif-fazil.com](https://arifos.arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/docs/` |
+| Layer | Symbol | Site URL | Status | Function |
+| :--- | :---: | :--- | :--- | :--- |
+| **HUMAN** | **Δ** | [https://arif-fazil.com](https://arif-fazil.com) | ✅ ONLINE | The Body — Personal portfolio, Trinity entry point, sovereign identity |
+| **THEORY** | **Ψ** | [https://apex.arif-fazil.com](https://apex.arif-fazil.com) | ✅ ONLINE | The Soul — Constitutional canon, 13 floors, scientific grounding |
+| **APPS** | **Ω** | [https://arifos.arif-fazil.com](https://arifos.arif-fazil.com) | ✅ ONLINE | The Mind — Documentation, MCP tools, API reference |
 
 ### 🤖 AI Machine-to-Machine (M2M) Endpoints
 
 For AI agents and automated systems accessing arifOS programmatically:
 
-| Endpoint | URL | Purpose |
-|----------|-----|---------|
-| **Constitutional Canon** | [`https://apex.arif-fazil.com/llms.txt`](https://apex.arif-fazil.com/llms.txt) | LLM governance constraints (text format) |
-| **Floors API** | [`https://apex.arif-fazil.com/api/v1/floors.json`](https://apex.arif-fazil.com/api/v1/floors.json) | 13 Floors JSON schema & thresholds |
-| **MCP Server** | `https://aaamcp.arif-fazil.com/mcp` | Model Context Protocol endpoint |
+| Endpoint | URL | Purpose | Protocol |
+|----------|-----|---------|----------|
+| **Constitutional Canon** | [`https://apex.arif-fazil.com/llms.txt`](https://apex.arif-fazil.com/llms.txt) | LLM governance constraints (text format) | HTTP GET |
+| **13 Floors (JSON)** | [`https://aaamcp.arif-fazil.com/api/v1/floors.json`](https://aaamcp.arif-fazil.com/api/v1/floors.json) | Constitutional floor thresholds | HTTP GET |
+| **Init Gate (REST)** | [`https://aaamcp.arif-fazil.com/api/v1/init_gate`](https://aaamcp.arif-fazil.com/api/v1/init_gate) | Session initialization via REST | HTTP POST |
+| **MCP Server** | `https://aaamcp.arif-fazil.com/mcp` | Model Context Protocol (primary) | MCP |
+| **Health Check** | [`https://aaamcp.arif-fazil.com/health`](https://aaamcp.arif-fazil.com/health) | System status | HTTP GET |
 
 **Usage for AI Agents:**
 ```python
-# Fetch constitutional constraints
 import requests
-llms_txt = requests.get("https://apex.arif-fazil.com/llms.txt").text
-floors = requests.get("https://apex.arif-fazil.com/api/v1/floors.json").json()
 
-# Use in your system prompt
-system_prompt = f"You are governed by arifOS. Follow these constraints:\n{llms_txt}"
+# 1. Fetch constitutional constraints
+llms_txt = requests.get("https://apex.arif-fazil.com/llms.txt").text
+floors = requests.get("https://aaamcp.arif-fazil.com/api/v1/floors.json").json()
+
+# 2. Initialize session via REST
+init = requests.post(
+    "https://aaamcp.arif-fazil.com/api/v1/init_gate",
+    json={"query": "Initialize AGI session"}
+).json()
+
+# 3. Use in system prompt
+system_prompt = f"""You are governed by arifOS.
+Motto: {init['motto']}
+Seal: {init['seal']}
+
+Constraints:
+{llms_txt}"""
 ```
+
+**Hybrid Architecture:** MCP for AI-native tools, REST for debugging and external integrations.
 
 ---
 
@@ -413,11 +429,11 @@ Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Pro
 
 This is the **Core Application Layer**. It exposes the constitutional engines as **MCP Tools** that can be connected to Claude Desktop, Cursor, or any MCP-compliant client.
 
-**The 10 Canonical Tools (v55.3):**
+**The 9 Canonical Tools (v55.2-SEAL):**
 
 | Tool | Symbol | Purpose | Floors Enforced |
 | :--- | :---: | :--- | :--- |
-| `init_gate` | 🚪 | **Ignition.** Session auth + **InjectionGuard** scan (F12). | F11, F12 |
+| `init_gate` | 🚪 | **Ignition.** Session auth + **InjectionGuard** scan (F12). Injects 13 constitutional floors, collapses to APEX Genius score (G = A × P × X × E²). Returns motto 'DITEMPA BUKAN DIBERI 💎🔥🧠' and full APEX summary. Use this first. | F11, F12 |
 | `agi_sense` | 🧠 | **Sense.** Intent classification & lane assignment. | F4 |
 | `agi_think` | 💡 | **Think.** Hypothesis generation & exploration. | F13 |
 | `agi_reason` | 🔬 | **Reason.** Deep logic & entropy reduction. | F2, F4, F7 |
@@ -426,9 +442,7 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
 | `apex_verdict` | 🏛️ | **Verdict.** Final constitutional judgment & consensus. | F3, F8 |
 | `reality_search` | 🌍 | **Ground.** External fact-checking & citation. | F7, F10 |
 | `vault_seal` | 🔒 | **Seal.** Cryptographic Merkle sealing of the ledger. | F1 |
-| `_trinity_` | 🔄 | **Full Loop.** Run complete AGI→ASI→APEX→VAULT cycle. | ALL |
-
-**Tool Naming:** All tools use explicit, LLM-friendly names (e.g., `init_gate`, `agi_reason`). Legacy aliases removed in v55.3 to reduce entropy (F4).
+**Tool Naming:** All tools use explicit, LLM-friendly names (e.g., `init_gate`, `agi_reason`). Legacy aliases removed in v55.2 to reduce entropy (F4).
 
 **How to Setup MCP (Local):**
 1.  **Install:** `pip install arifos`

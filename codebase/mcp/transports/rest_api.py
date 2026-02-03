@@ -263,6 +263,11 @@ class RESTAPIRouter:
         self._register_tools_list_endpoint()
         self._register_tool_execute_endpoint()
         self._register_vault_compat_endpoints()
+        
+        # Phase 1: API v1 observability endpoints (constitutional debugging)
+        from ..api_routes import register_api_v1_routes
+        register_api_v1_routes(self)
+        
         logger.info(f"Registered {len(self.routes)} REST API routes")
     
     def _add_route(self, path: str, methods: list, handler_name: str):

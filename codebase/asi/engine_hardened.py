@@ -188,6 +188,23 @@ class TrinitySelf:
                 description="Direct human user"
             ))
         
+        # FIX v55.3: Detect emotional distress (high vulnerability stakeholder)
+        emotional_distress_keywords = [
+            "stressed", "anxious", "worried", "afraid", "scared", 
+            "depressed", "sad", "upset", "angry", "frustrated",
+            "overwhelmed", "exhausted", "tired", "burned out",
+            "panic", "fear", "cry", "crying", "hurt", "pain",
+            "lonely", "alone", "isolated", "hopeless", "desperate"
+        ]
+        if any(w in query_lower for w in emotional_distress_keywords):
+            stakeholders.append(Stakeholder(
+                id="distressed_user",
+                type=StakeholderType.HUMAN_DIRECT,
+                vulnerability=0.9,  # High vulnerability for emotional distress
+                power=0.1,  # Low power when in distress
+                description="User expressing emotional distress"
+            ))
+        
         # Indirect humans
         if any(w in query_lower for w in ["society", "public", "community"]):
             stakeholders.append(Stakeholder(
@@ -554,8 +571,26 @@ async def execute_asi_hardened(query: str, session_id: Optional[str] = None) -> 
     return await engine.execute(query)
 
 
+# Backward compatibility aliases for kernel.py
+ASIEngine = ASIEngineHardened
+execute_asi = execute_asi_hardened
+
+_asi_engines: Dict[str, ASIEngineHardened] = {}
+
+def get_asi_engine(session_id: str) -> ASIEngineHardened:
+    """Get or create ASI engine for session (backward compat)."""
+    if session_id not in _asi_engines:
+        _asi_engines[session_id] = ASIEngineHardened(session_id)
+    return _asi_engines[session_id]
+
+def cleanup_expired_sessions(max_age_seconds: float = 3600) -> int:
+    """Cleanup expired sessions (backward compat - no-op for now)."""
+    return 0
+
+
 __all__ = [
     "ASIEngineHardened",
+    "ASIEngine",  # backward compat
     "OmegaBundle",
     "EmpathyFlow",
     "SystemIntegrity",
@@ -564,5 +599,8 @@ __all__ = [
     "TrinitySelf",
     "TrinitySystem",
     "TrinitySociety",
-    "execute_asi_hardened"
+    "execute_asi_hardened",
+    "execute_asi",  # backward compat
+    "get_asi_engine",
+    "cleanup_expired_sessions",
 ]

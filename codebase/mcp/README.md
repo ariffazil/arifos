@@ -149,7 +149,7 @@ Every tool enforces constitutional floors and returns a verdict. All tools inclu
 | **`agi_reason`** | 333 | Mind engine — Deep logic & entropy reduction | F2, F4, F7, F10 |
 | **`asi_empathize`** | 555 | Heart engine — Stakeholder impact analysis | F5, F6 |
 | **`asi_align`** | 666 | Heart engine — Ethics, policy, and legal compliance | F9 |
-| **`apex_verdict`** | 888 | Soul engine — Final judgment & consensus | F3, F8, F11 |
+| **`apex_verdict`** | 888 | Soul engine — Final judgment, consensus, and Stage 777 synthesis | F3, F8, F11 |
 | **`reality_search`** | EXT | Fact-checker — External fact-checking & citation | F7, F10 |
 | **`vault_seal`** | 999 | Ledger — Cryptographic Merkle sealing | F1 |
 | **`_trinity_`** | ALL | Full Cycle — Executes complete metabolic loop | ALL |

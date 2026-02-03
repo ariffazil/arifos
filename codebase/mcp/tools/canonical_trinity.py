@@ -20,21 +20,24 @@ Scope:
 import logging
 import os
 import uuid
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, List, Optional
+
 from codebase.kernel import get_kernel_manager
+from codebase.mcp.core.session_context import get_current_session_id, set_current_session_id
 
 logger = logging.getLogger(__name__)
 
 # Schema validation (v55.3) - optional, non-breaking
 try:
     from codebase.schemas.validator import (
-        validate_output,
-        validate_asi_output,
+        validate_agi_output,
         validate_apex_output,
+        validate_asi_output,
+        validate_output,
         validate_reality_output,
         validate_vault_output,
-        validate_agi_output,
     )
+
     SCHEMA_VALIDATION_AVAILABLE = True
 except ImportError:
     SCHEMA_VALIDATION_AVAILABLE = False
@@ -44,10 +47,11 @@ except ImportError:
 SCHEMA_STRICT_MODE = os.environ.get("AAA_SCHEMA_STRICT", "false").lower() == "true"
 
 from codebase.mcp.core.bridge import (
-    bridge_trinity_loop_router,
-    bridge_reality_check_router,
     bridge_atlas_router,
+    bridge_reality_check_router,
+    bridge_trinity_loop_router,
 )
+
 
 def _normalize_kwargs(kwargs: dict) -> dict:
     """
@@ -66,7 +70,6 @@ def _normalize_kwargs(kwargs: dict) -> dict:
         unwrapped.update(kwargs)
         return unwrapped
     return kwargs
-
 
 
 # ==============================================================================
@@ -135,6 +138,10 @@ async def mcp_init(
         "motto": result["motto"],
     }
 
+    # Implicit Session Binding (F12 Hardening)
+    if adapted_result["session_id"] and adapted_result["session_id"] != "unknown":
+        set_current_session_id(adapted_result["session_id"])
+
     return adapted_result
 
 
@@ -148,19 +155,23 @@ async def mcp_agi(
     _agi_: Mind Engine (Δ) - Logic, Sense, Think, Reason.
 
     Supported actions:
-        action="sense"  → Stage 111 only (intent classification, risk flags)
-        action="think"  → Stage 111+222 (hypotheses with pros/cons)
-        action="reason" → Full pipeline with reflection
-        action="full"   → Same as "reason" (backward compat)
+        action="sense"   → Stage 111 only (intent classification, risk flags)
+        action="think"   → Stage 111+222 (hypotheses with pros/cons)
+        action="reflect" → Constitutional critique of thought (Meta-Cognition)
+        action="physics" → Thermodynamic constraints check (Entropy/F4)
+        action="reason"  → Full pipeline with reflection
+        action="full"    → Same as "reason" (backward compat)
     """
     kwargs = _normalize_kwargs(kwargs)
     action = kwargs.pop("action", action) or "full"
     query = kwargs.pop("query", query) or ""
-    session_id = kwargs.pop("session_id", session_id)
+    session_id = kwargs.pop("session_id", session_id) or get_current_session_id()
 
     kernel = get_kernel_manager().get_agi()
     try:
-        raw_result = await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
+        raw_result = await kernel.execute(
+            action, {"query": query, "session_id": session_id, **kwargs}
+        )
     except Exception as e:
         logger.error("mcp_agi execute failed: %s", e, exc_info=True)
         return {
@@ -176,8 +187,8 @@ async def mcp_agi(
             "error": {
                 "code": "INTERNAL_ERROR",
                 "message": "Internal processing error",
-                "suggestion": "Check action parameter or query format"
-            }
+                "suggestion": "Check action parameter or query format",
+            },
         }
 
     # Adapter: Map to ToolRegistry schema
@@ -256,7 +267,7 @@ async def mcp_asi(
     action = kwargs.pop("action", action) or "full"
     query = kwargs.pop("query", query) or ""
     reasoning = kwargs.pop("reasoning", reasoning) or ""
-    session_id = kwargs.pop("session_id", session_id)
+    session_id = kwargs.pop("session_id", session_id) or get_current_session_id()
 
     kernel = get_kernel_manager().get_asi()
     context = kwargs.pop("context", {})
@@ -295,7 +306,7 @@ async def mcp_asi(
         ),
         "peace_squared": float(
             data.get("peace_squared")  # Direct from _execute_full
-            or (data.get("trinity_system") or {}).get("peace_squared")  # From align action  
+            or (data.get("trinity_system") or {}).get("peace_squared")  # From align action
             or (data.get("system") or {}).get("peace_squared")  # From OmegaBundle
             or 0.0
         ),
@@ -336,7 +347,7 @@ async def mcp_apex(
     query = kwargs.pop("query", query) or ""
     response = kwargs.pop("response", response) or ""
     verdict = kwargs.pop("verdict", verdict) or ""
-    session_id = kwargs.pop("session_id", session_id)
+    session_id = kwargs.pop("session_id", session_id) or get_current_session_id()
 
     kernel = get_kernel_manager().get_apex()
     kwargs["pre_verdict"] = verdict
@@ -396,7 +407,7 @@ async def mcp_vault(
 ) -> Dict[str, Any]:
     """
     _vault_: HARDENED Immutable Ledger with EUREKA Sieve.
-    
+
     Theory of Anomalous Contrast:
     - Only EUREKA insights (score ≥ 0.75) → Permanent VAULT999
     - Medium insights (0.50-0.75) → Cooling ledger (SABAR)
@@ -411,17 +422,14 @@ async def mcp_vault(
         proof   — Get Merkle inclusion proof
     """
     # Use consolidated vault_tool with EUREKA Sieve (v55.3)
-    from codebase.mcp.tools.vault_tool import (
-        VaultTool,
-        AUTHORITY_NOTICE,
-    )
+    from codebase.mcp.tools.vault_tool import AUTHORITY_NOTICE, VaultTool
 
     kwargs = _normalize_kwargs(kwargs)
     action = kwargs.pop("action", action) or "seal"
     verdict = kwargs.pop("verdict", verdict) or "SEAL"
-    session_id = kwargs.pop("session_id", session_id)
+    session_id = kwargs.pop("session_id", session_id) or get_current_session_id()
     decision_data = kwargs.pop("decision_data", decision_data) or {}
-    
+
     # HARDENED: Extract Trinity results for EUREKA evaluation
     query = kwargs.pop("query", query) or decision_data.get("query", "")
     response = kwargs.pop("response", response) or decision_data.get("response", "")
@@ -429,7 +437,7 @@ async def mcp_vault(
     agi_result = kwargs.pop("agi_result", agi_result) or decision_data.get("agi_result", {})
     asi_result = kwargs.pop("asi_result", asi_result) or decision_data.get("asi_result", {})
     apex_result = kwargs.pop("apex_result", apex_result) or decision_data.get("apex_result", {})
-    
+
     if not session_id:
         session_id = str(uuid.uuid4())
 
@@ -454,12 +462,10 @@ async def mcp_vault(
         except Exception as e:
             logger.warning(f"[VAULT_999] APEX kernel seal failed, sealing without proof: {e}")
             payload["kernel_result"] = {"error": str(e)}
-        
+
         payload["verdict"] = verdict
-        payload["authority"] = (
-            decision_data.get("authority") or kwargs.get("authority", "system")
-        )
-        
+        payload["authority"] = decision_data.get("authority") or kwargs.get("authority", "system")
+
         # HARDENED: Build Trinity bundle for EUREKA Sieve
         payload["init_result"] = init_result
         payload["agi_result"] = agi_result
@@ -520,7 +526,7 @@ async def mcp_trinity(
     """
     kwargs = _normalize_kwargs(kwargs)
     query = kwargs.pop("query", query) or ""
-    session_id = kwargs.pop("session_id", session_id)
+    session_id = kwargs.pop("session_id", session_id) or get_current_session_id()
 
     return await bridge_trinity_loop_router(query=query, session_id=session_id, **kwargs)
 
@@ -536,7 +542,7 @@ async def mcp_reality(
     """
     kwargs = _normalize_kwargs(kwargs)
     query = kwargs.pop("query", query) or ""
-    session_id = kwargs.pop("session_id", session_id)
+    session_id = kwargs.pop("session_id", session_id) or get_current_session_id()
 
     if not query.strip():
         return {
@@ -548,7 +554,7 @@ async def mcp_reality(
 
     try:
         result = await bridge_reality_check_router(query=query, session_id=session_id, **kwargs)
-        
+
         # Meta-Atlas Fallback Protocol (v55.2)
         # If external sensor fails (Circuit Breaker/API Error), guide the Agent to self-correct.
         if result.get("status") in ["SABAR", "VOID", "ERROR"] or "error" in result:
@@ -562,27 +568,24 @@ async def mcp_reality(
             )
             # Ensure verdict allows for manual intervention if it was VOID
             if result.get("verdict") == "VOID":
-                result["verdict"] = "SABAR" # Shift to SABAR to allow agent action
-        
+                result["verdict"] = "SABAR"  # Shift to SABAR to allow agent action
+
         # F4 Clarity: Schema validation (v55.3)
         if SCHEMA_VALIDATION_AVAILABLE:
             validate_reality_output(result, strict=SCHEMA_STRICT_MODE)
-                
+
         return result
 
     except Exception as e:
         logger.error(f"[REALITY_CHECK] Error: {e}")
         return {
             "status": "ERROR",
-            "verdict": "SABAR", # Allow fallback
-            "error": {
-                "message": str(e),
-                "code": "INTERNAL_ERROR"
-            },
+            "verdict": "SABAR",  # Allow fallback
+            "error": {"message": str(e), "code": "INTERNAL_ERROR"},
             "session_id": session_id,
             "fallback_guidance": (
                 "⚠️ SYSTEM ERROR in Reality Bridge. "
                 "The Agent MUST initiate internal web search capabilities (Meta-Atlas Protocol). "
                 "Triangulate facts and cite sources explicitly (F7)."
-            )
+            ),
         }

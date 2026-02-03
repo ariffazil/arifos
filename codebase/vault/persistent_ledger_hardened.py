@@ -18,6 +18,7 @@ import asyncio
 import hashlib
 import json
 import os
+import ssl
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -232,7 +233,22 @@ class HardenedPersistentVaultLedger:
                 "asyncpg is not installed. Install with: pip install asyncpg"
             )
         if self._pool is None:
-            self._pool = await asyncpg.create_pool(self.dsn, min_size=1, max_size=5)
+            # Railway TCP proxy requires SSL
+            import ssl
+            ssl_mode = os.environ.get("VAULT_SSL_MODE", "require")
+            
+            pool_kwargs = {"min_size": 1, "max_size": 5}
+            
+            if ssl_mode == "require":
+                # Create SSL context that accepts Railway's cert
+                ssl_context = ssl.create_default_context()
+                ssl_context.check_hostname = False
+                ssl_context.verify_mode = ssl.CERT_NONE
+                pool_kwargs["ssl"] = ssl_context
+            elif ssl_mode == "disable":
+                pool_kwargs["ssl"] = False
+            
+            self._pool = await asyncpg.create_pool(self.dsn, **pool_kwargs)
             # Load or initialize Merkle state
             if INCREMENTAL_MERKLE_AVAILABLE:
                 self._merkle_state = await self._load_merkle_state()

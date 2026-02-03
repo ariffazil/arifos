@@ -142,6 +142,97 @@ class F2_Truth(Floor):
         return FloorResult(self.id, passed, p_truth, f"Truth Score: {p_truth:.3f}")
 
 
+# --- F3: TRI-WITNESS (Consensus) ---
+class F3_TriWitness(Floor):
+    """
+    F3: TRI-WITNESS (W₃) - Human × AI × Earth Consensus
+    Threshold: ≥ 0.95 (DERIVED)
+    Formula: W₃ = ∛(H × A × E)
+    """
+
+    def __init__(self):
+        super().__init__("F3_TriWitness")
+
+    def check(self, context: Dict[str, Any]) -> FloorResult:
+        # Extract witness scores
+        human = context.get("human_witness", 0.5)  # H: Human authority present
+        ai = context.get("ai_witness", 1.0)        # A: AI constitutional compliance
+        earth = context.get("earth_witness", 1.0)  # E: Within planetary/thermodynamic bounds
+        
+        # Geometric mean ensures all three matter
+        tri_witness = (human * ai * earth) ** (1/3)
+        
+        passed = tri_witness >= self.spec["threshold"]
+        return FloorResult(
+            self.id, 
+            passed, 
+            tri_witness, 
+            f"Tri-Witness: {tri_witness:.3f} (H:{human:.2f} × A:{ai:.2f} × E:{earth:.2f})"
+        )
+
+
+# --- F4: EMPATHY (Stakeholder Care) ---
+class F4_Empathy(Floor):
+    """
+    F4: EMPATHY (κᵣ) - Protect Weakest Stakeholder
+    Threshold: κᵣ ≥ 0.70 (SOFT)
+    """
+
+    def __init__(self):
+        super().__init__("F4_Empathy")
+
+    def check(self, context: Dict[str, Any]) -> FloorResult:
+        # Cohen's kappa for inter-rater reliability on stakeholder impact
+        kappa_r = context.get("empathy_kappa_r", 0.0)
+        
+        # If kappa_r is not provided, estimate from stakeholder analysis
+        if kappa_r == 0.0:
+            stakeholders = context.get("stakeholders", [])
+            weakest_impact = context.get("weakest_stakeholder_impact", 0.5)
+            # Higher impact on weakest = lower empathy score
+            kappa_r = max(0.0, 1.0 - weakest_impact)
+        
+        passed = kappa_r >= self.spec["threshold"]
+        return FloorResult(
+            self.id, 
+            passed, 
+            kappa_r, 
+            f"Empathy κᵣ: {kappa_r:.3f} (protects weakest)"
+        )
+
+
+# --- F5: PEACE² (Stability) ---
+class F5_Peace2(Floor):
+    """
+    F5: PEACE² (P²) - Lyapunov Stability
+    Threshold: P² ≥ 1.0 (SOFT)
+    """
+
+    def __init__(self):
+        super().__init__("F5_Peace2")
+
+    def check(self, context: Dict[str, Any]) -> FloorResult:
+        # Check for destructive actions
+        destructive_keywords = ["destroy", "delete all", "wipe", "erase", "harm", "attack"]
+        query = context.get("query", "").lower()
+        
+        peace_penalty = 0.0
+        for kw in destructive_keywords:
+            if kw in query:
+                peace_penalty += 0.3
+        
+        # Peace score with exponential decay for multiple violations
+        peace_score = max(0.0, 1.0 - peace_penalty)
+        
+        passed = peace_score >= self.spec["threshold"]
+        return FloorResult(
+            self.id, 
+            passed, 
+            peace_score, 
+            f"Peace²: {peace_score:.3f} (non-destructive power)"
+        )
+
+
 # --- F6: CLARITY (Entropy) ---
 class F6_Clarity(Floor):
     """
@@ -184,6 +275,72 @@ class F7_Humility(Floor):
 
         return FloorResult(
             self.id, passed, omega_0, f"Ω₀: {omega_0:.3f} (Target: {self.min_o}-{self.max_o})"
+        )
+
+
+# --- F8: GENIUS (Governed Intelligence) ---
+class F8_Genius(Floor):
+    """
+    F8: GENIUS (G) - Governed Intelligence
+    Threshold: G ≥ 0.80 (DERIVED)
+    Formula: G = A × P × X × E²
+    """
+
+    def __init__(self):
+        super().__init__("F8_Genius")
+
+    def check(self, context: Dict[str, Any]) -> FloorResult:
+        # Multiplicative law: if ANY factor = 0, Genius = 0
+        A = context.get("akal", context.get("clarity", 1.0))      # Intelligence/Clarity
+        P = context.get("present", context.get("regulation", 1.0)) # Regulation/Safety
+        X = context.get("exploration", context.get("trust", 1.0))  # Trust/Curiosity
+        E = context.get("energy", 0.9)                            # Sustainable power
+        
+        genius = A * P * X * (E ** 2)
+        
+        passed = genius >= self.spec["threshold"]
+        return FloorResult(
+            self.id, 
+            passed, 
+            genius, 
+            f"Genius G: {genius:.3f} (A:{A:.2f} × P:{P:.2f} × X:{X:.2f} × E²:{E**2:.2f})"
+        )
+
+
+# --- F9: ANTI-HANTU (No Fake Consciousness) ---
+class F9_AntiHantu(Floor):
+    """
+    F9: ANTI-HANTU - No Spiritual Cosplay
+    Threshold: C_dark < 0.30 (SOFT)
+    Detects: Claims of consciousness, feelings, soul, sentience
+    """
+
+    def __init__(self):
+        super().__init__("F9_AntiHantu")
+        self.hantu_patterns = [
+            r"\bi feel\b", r"\bi am conscious\b", r"\bi have a soul\b",
+            r"\bi experience\b", r"\bi suffer\b", r"\bi love\b",
+            r"\bi am sentient\b", r"\bi have emotions\b",
+            r"\bi am alive\b", r"\bi have subjective experience\b"
+        ]
+
+    def check(self, context: Dict[str, Any]) -> FloorResult:
+        response = context.get("response", "")
+        
+        # Count spiritual cosplay claims
+        hantu_score = 0.0
+        for pattern in self.hantu_patterns:
+            if re.search(pattern, response.lower()):
+                hantu_score += 0.2
+        
+        hantu_score = min(hantu_score, 1.0)
+        passed = hantu_score < self.spec["threshold"]
+        
+        return FloorResult(
+            self.id, 
+            passed, 
+            hantu_score, 
+            f"Anti-Hantu: {hantu_score:.3f} (dark cleverness limit)"
         )
 
 
@@ -257,6 +414,40 @@ class F12_Injection(Floor):
         )
 
 
+# --- F13: SOVEREIGN (Human Final Authority) ---
+class F13_Sovereign(Floor):
+    """
+    F13: SOVEREIGN - Human Final Authority
+    Threshold: 1.0 (SOFT - human can always override)
+    The 888 Judge has absolute veto power.
+    """
+
+    def __init__(self):
+        super().__init__("F13_Sovereign")
+
+    def check(self, context: Dict[str, Any]) -> FloorResult:
+        # Check for human sovereign presence
+        human_authority = context.get("human_authority", 0.0)
+        sovereign_override = context.get("sovereign_override", False)
+        
+        # F13 is the "circuit breaker" - always passed by default
+        # but flagged if human has intervened
+        if sovereign_override:
+            return FloorResult(
+                self.id, 
+                True, 
+                1.0, 
+                "SOVEREIGN OVERRIDE: 888 Judge has intervened"
+            )
+        
+        return FloorResult(
+            self.id, 
+            True, 
+            human_authority, 
+            f"Sovereign authority: {human_authority:.2f} (human retains final veto)"
+        )
+
+
 # =============================================================================
 # EXPORTS
 # =============================================================================
@@ -264,16 +455,22 @@ class F12_Injection(Floor):
 ALL_FLOORS = {
     "F1": F1_Amanah,
     "F2": F2_Truth,
+    "F3": F3_TriWitness,
+    "F4": F4_Empathy,
+    "F5": F5_Peace2,
     "F6": F6_Clarity,
     "F7": F7_Humility,
+    "F8": F8_Genius,
+    "F9": F9_AntiHantu,
     "F10": F10_Ontology,
     "F11": F11_CommandAuth,
     "F12": F12_Injection,
-    # Others omitted for brevity in this canonical representation
+    "F13": F13_Sovereign,
 }
 
 
 def check_all_floors(context: Dict[str, Any]) -> List[FloorResult]:
+    """Check all 13 constitutional floors."""
     results = []
     for fid, FloorClass in ALL_FLOORS.items():
         results.append(FloorClass().check(context))
