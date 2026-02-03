@@ -14,9 +14,9 @@ from typing import Any, Dict, Optional
 
 from codebase.bundles import OmegaBundle
 
-from .engine_hardened import (HardenedASIEngine as ASIEngine, 
+from .engine_hardened import (ASIEngineHardened as ASIEngine, 
                                cleanup_expired_sessions, 
-                               execute_asi,
+                               execute_asi_hardened as execute_asi,
                                get_asi_engine)
 
 logger = logging.getLogger(__name__)
