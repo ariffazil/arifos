@@ -27,7 +27,7 @@ def health_check() -> Dict[str, Any]:
     status = {
         "status": overall_status,
         "timestamp": timestamp,
-        "version": "v55.3.4-SEAL",
+        "version": "v55.4-SIMPLE-HTTP",
         "system": {
             "platform": platform.system(),
             "python": sys.version.split()[0],
