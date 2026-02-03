@@ -23,8 +23,12 @@ from ..services.constitutional_metrics import get_full_metrics
 from ..services.rate_limiter import rate_limited
 from .base import BaseTransport
 from .rest_api import RESTAPIRouter
+from .simple_http import SimpleHTTPTransport
 
 logger = logging.getLogger(__name__)
+
+# Version info for root endpoint
+_TRANSPORT_VERSION = "v55.4"
 
 # Security: bind to localhost for local dev, 0.0.0.0 only when HOST env is set
 _DEFAULT_HOST = os.getenv("HOST", "127.0.0.1")
@@ -127,7 +131,12 @@ class SSETransport(BaseTransport):
         pass  # Handled internally
 
     def _register_routes(self):
-        """Register custom routes (Health, Metrics, Dashboard)."""
+        """Register custom routes (Health, Metrics, Dashboard, Simple HTTP)."""
+        
+        # Register Simple HTTP Transport for limited AI platforms (Qwen, etc.)
+        simple_transport = SimpleHTTPTransport(self.tool_registry)
+        simple_transport.register_routes(self.mcp)
+        logger.info("Registered Simple HTTP Transport for limited AI platforms")
 
         @self.mcp.custom_route("/health", methods=["GET"])
         async def health_check(request):
@@ -151,7 +160,7 @@ class SSETransport(BaseTransport):
                     "layer": "MIND",
                     "engine": "arifOS Metabolic Kernel",
                     "status": "ONLINE",
-                    "version": "v55.2-AAA",
+                    "version": _TRANSPORT_VERSION,
                     "message": "DITEMPA BUKAN DIBERI",
                     "endpoints": {
                         "health": "/health",
@@ -161,6 +170,13 @@ class SSETransport(BaseTransport):
                         "api_tools": "/api/tools",
                         "api_vault": "/api/vault",
                         "vault_legacy": "/vault",
+                        "simple": "/simple",
+                    },
+                    "transports": {
+                        "mcp_sse": "Server-Sent Events (Claude Desktop, Cursor)",
+                        "rest_api": "POST + auth (scripts, integrations)",
+                        "simple_http": "GET + query params (limited AI platforms)",
+                        "metadata": "GET /health, /metrics (read-only)",
                     },
                 }
             )
