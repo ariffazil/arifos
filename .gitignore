@@ -190,3 +190,19 @@ gha-creds-*.json
 
 # IDE
 .vs/
+
+# Archive tarballs (keep compressed versions only)
+*.tar.gz
+
+# Additional Python cache
+.mypy_cache/
+.dmypy.json
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Local environment overrides
+.env.local
+.env.*.local
