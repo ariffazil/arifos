@@ -1,5 +1,5 @@
 # arifOS MCP Server Dockerfile (v55.3.2-9tools-SEAL)
-# Cache-bust: 2026-02-03-14-40-FORCE-REBUILD
+# Cache-bust: 2026-02-03-14-45-INIT-FIX
 FROM python:3.12-slim
 
 WORKDIR /app
