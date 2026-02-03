@@ -234,15 +234,15 @@ graph TD
 
 ---
 
-## 🌐 Live Trinity Ecosystem
+## 🌐 Live Trinity Ecosystem (HTA)
 
-The arifOS system is deployed as three interconnected operational layers, providing real-time transparency and constitutional access.
+The arifOS system is deployed as three interconnected operational layers — **HUMAN, THEORY, APPS** — providing real-time transparency and constitutional access.
 
-| Layer | Site URL | Status | Deployed From |
-| :--- | :--- | :--- | :--- |
-| **BODY** | [https://arif-fazil.com](https://arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/body/` |
-| **SOUL** | [https://apex.arif-fazil.com](https://apex.arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/soul/` |
-| **DOCS** | [https://arifos.arif-fazil.com](https://arifos.arif-fazil.com) | ✅ ONLINE | `arif-fazil-sites/docs/` |
+| Layer | Symbol | Site URL | Status | Function |
+| :--- | :---: | :--- | :--- | :--- |
+| **HUMAN** | **Δ** | [https://arif-fazil.com](https://arif-fazil.com) | ✅ ONLINE | The Body — Personal portfolio, Trinity entry point, sovereign identity |
+| **THEORY** | **Ψ** | [https://apex.arif-fazil.com](https://apex.arif-fazil.com) | ✅ ONLINE | The Soul — Constitutional canon, 13 floors, scientific grounding |
+| **APPS** | **Ω** | [https://arifos.arif-fazil.com](https://arifos.arif-fazil.com) | ✅ ONLINE | The Mind — Documentation, MCP tools, API reference |
 
 ### 🤖 AI Machine-to-Machine (M2M) Endpoints
 
