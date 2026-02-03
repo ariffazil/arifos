@@ -2,10 +2,10 @@
 arifOS REST API Transport Layer
 Exposes MCP tools as REST endpoints alongside MCP transport.
 
-Policy-based exposure:
+Policy-based exposure (9 tools):
 - OPEN: agi_sense, agi_think, agi_reason, asi_empathize, asi_align
-- GUARDED: apex_verdict, reality_search, vault_seal, _trinity_
-- MCP_ONLY: init_gate (and any other sensitive tools)
+- GUARDED: apex_verdict, reality_search, vault_seal
+- MCP_ONLY: init_gate
 
 Routes:
 - GET  /routes              -> List all registered routes
@@ -32,7 +32,7 @@ ALLOW_INTERNAL_TOOLS = os.environ.get("ALLOW_INTERNAL_TOOLS", "false").lower() =
 MAX_BODY_SIZE = 256 * 1024  # 256KB
 MAX_RESPONSE_SIZE = 256 * 1024  # 256KB
 
-# Tool exposure policy
+# Tool exposure policy (9 tools only — _trinity_ removed)
 TOOL_EXPOSURE = {
     # OPEN: Safe to expose
     "agi_sense": "OPEN",
@@ -40,13 +40,12 @@ TOOL_EXPOSURE = {
     "agi_reason": "OPEN",
     "asi_empathize": "OPEN",
     "asi_align": "OPEN",
-    
+
     # GUARDED: Exposed with restrictions
     "apex_verdict": "GUARDED",
     "reality_search": "GUARDED",
     "vault_seal": "GUARDED",
-    "_trinity_": "GUARDED",
-    
+
     # MCP_ONLY: Not exposed via REST
     "init_gate": "MCP_ONLY",
 }
@@ -460,7 +459,7 @@ class RESTAPIRouter:
             if exposure == "GUARDED":
                 if not confirm or authority != "human":
                     # Force SABAR verdict instead of SEAL
-                    if tool_name in ["apex_verdict", "_trinity_"]:
+                    if tool_name == "apex_verdict":
                         return create_json_response({
                             "ok": True,
                             "tool": tool_name,

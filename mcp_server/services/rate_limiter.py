@@ -34,15 +34,17 @@ logger = logging.getLogger(__name__)
 # Environment-based configuration
 RATE_LIMIT_ENABLED = os.environ.get("ARIFOS_RATE_LIMIT_ENABLED", "true").lower() == "true"
 
-# Default limits (per minute) — keys MUST match TOOL_DESCRIPTIONS in server.py
+# Default limits (per minute) — 9 canonical tools
 DEFAULT_LIMITS = {
-    "_init_": {"per_session": 30, "global": 300, "burst": 5},
-    "_agi_": {"per_session": 60, "global": 600, "burst": 10},
-    "_asi_": {"per_session": 60, "global": 600, "burst": 10},
-    "_apex_": {"per_session": 60, "global": 600, "burst": 10},
-    "_vault_": {"per_session": 30, "global": 300, "burst": 5},
-    "_trinity_": {"per_session": 20, "global": 200, "burst": 3},
-    "_reality_": {"per_session": 30, "global": 300, "burst": 5},
+    "init_gate": {"per_session": 30, "global": 300, "burst": 5},
+    "agi_sense": {"per_session": 60, "global": 600, "burst": 10},
+    "agi_think": {"per_session": 60, "global": 600, "burst": 10},
+    "agi_reason": {"per_session": 60, "global": 600, "burst": 10},
+    "asi_empathize": {"per_session": 60, "global": 600, "burst": 10},
+    "asi_align": {"per_session": 60, "global": 600, "burst": 10},
+    "apex_verdict": {"per_session": 60, "global": 600, "burst": 10},
+    "vault_seal": {"per_session": 30, "global": 300, "burst": 5},
+    "reality_search": {"per_session": 30, "global": 300, "burst": 5},
 }
 
 # Global fallback
