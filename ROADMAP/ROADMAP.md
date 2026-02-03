@@ -356,6 +356,35 @@ Strategy is sound. Execution determines outcome.
 
 ---
 
+## Go-to-Market Strategy
+
+### Phase 1: LAUNCH (Month 1) — Awareness
+
+| Week | Action | Target |
+|------|--------|--------|
+| 1 | Show HN, r/MachineLearning, Twitter, LinkedIn | 10K+ impressions |
+| 2-4 | Technical blog (physics foundation), ICML submission | Developer mindshare |
+
+### Phase 2: ADOPTION (Months 2-6) — Traction
+
+| Month | Action | Target |
+|-------|--------|--------|
+| 2-3 | Bug fixes, examples, Discord community | 100+ active users |
+| 4-6 | Enterprise outreach, government pitch (MY/ASEAN) | 1 paying customer |
+
+**Month 6 Goal:** 1,000 downloads + 1 paying customer (validation)
+
+### Phase 3: REVENUE (Year 2-3) — Scale
+
+| Year | Revenue Model | Target |
+|------|---------------|--------|
+| 2 | 10 licenses @ $25K + consulting | $300-350K |
+| 3 | 50 licenses @ $50K + cloud API | $2.8M-3.2M |
+
+**Rule:** Bootstrap until $1M. No VC before sovereignty (F13).
+
+---
+
 ## Success Metrics
 
 ### Current (v55.3)
