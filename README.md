@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/forged_page_1.png" width="600" alt="arifOS Constitutional Forge">
+<img src="docs/forged_page_1.png" width="800" alt="arifOS Hero - The Constitutional Forge">
 
 # arifOS — Constitutional AI Governance System
 
@@ -14,24 +14,41 @@
 
 [Quick Start](#-quick-start) • [Documentation](docs/INDEX.md) • [Live Demo](https://arif-fazil.com)
 
+**Trinity Ecosystem:**
+[HUMAN](https://arif-fazil.com) • [THEORY](https://apex.arif-fazil.com) • [APPS](https://arifos.arif-fazil.com)
+
 </div>
 
 ---
 
 ## 🎯 What is arifOS?
 
-**arifOS** is a **Constitutional Kernel** that sits between any LLM (Claude, GPT, Gemini) and the real world.
+**arifOS is a safety layer for AI systems.**
 
-It enforces **13 mathematical floors** to ensure AI outputs are:
+Think of it as a "constitution" that AI must follow before acting. Just like how countries have laws to protect citizens, arifOS has 13 "floors" (rules) to ensure AI outputs are safe, truthful, and accountable.
 
-| Constraint | Enforcement | Metric |
-|------------|-------------|--------|
-| **Truth** | Fisher-Rao verification | τ ≥ 0.99 |
-| **Safety** | Lyapunov stability | Peace² ≥ 1.0 |
-| **Accountability** | Tri-Witness consensus | W₃ ≥ 0.95 |
-| **Reversibility** | Merkle DAG audit trail | F1 Amanah |
+### Why This Matters
+
+Current AI systems can:
+- Hallucinate (make things up)
+- Be manipulated by clever prompts
+- Optimize for speed over accuracy
+- Make decisions with no audit trail
+
+**arifOS prevents this.** Every AI output must pass 13 safety checks before reaching you.
+
+### The 13 Floors at a Glance
+
+| What We Check | Real-World Meaning | How We Enforce |
+|---------------|-------------------|----------------|
+| **Truth** | Is this actually true? | Fact verification (99% accuracy required) |
+| **Safety** | Could this cause harm? | Safety analysis (no harm threshold) |
+| **Accountability** | Who decided this? | Immutable audit trail (blockchain-style) |
+| **Reversibility** | Can we undo this? | Every action logged and recoverable |
 
 **Motto:** *"Ditempa Bukan Diberi"* — Forged, Not Given.
+
+*(We don't trust AI by default. We verify.)*
 
 ---
 
@@ -131,75 +148,91 @@ python -m codebase.mcp.fastmcp_clean
 
 ### The Trinity: Mind, Heart, Soul
 
-arifOS uses a biological metaphor for its three core engines:
+arifOS works like a **three-person committee** that reviews every AI decision:
 
-| Engine | Symbol | Role | Question | Floors |
-|--------|--------|------|----------|--------|
-| **AGI (Mind)** | Δ Delta | Architect — Logic, reasoning, truth | *Is it TRUE?* | F2, F4, F7 |
-| **ASI (Heart)** | Ω Omega | Guardian — Safety, empathy, care | *Is it SAFE?* | F5, F6, F9 |
-| **APEX (Soul)** | Ψ Psi | Sovereign — Verdict, consensus, law | *Is it LAWFUL?* | F3, F8, F13 |
+| Member | Role | Asks | Checks For |
+|--------|------|------|------------|
+| **Mind (AGI)** | The Analyst | "Is this TRUE?" | Facts, logic, reasoning |
+| **Heart (ASI)** | The Guardian | "Is this SAFE?" | Harm, bias, empathy |
+| **Soul (APEX)** | The Judge | "Is this LAWFUL?" | Final verdict, consensus |
 
 ```
 ┌─────────────────────────────────────────┐
-│           APEX (Ψ) — The Soul           │
-│         Final Verdict (888)             │
-│    G = A × P × X × E²  (Genius Score)   │
+│           SOUL (APEX)                   │
+│         Makes Final Call                │
+│    SEAL = Go  |  VOID = Stop            │
 └─────────────────────────────────────────┘
                    ▲
          ┌────────┴────────┐
          ▼                 ▼
 ┌─────────────────┐  ┌─────────────────┐
-│  AGI (Δ) — Mind │  │ ASI (Ω) — Heart │
-│  Truth (222)    │  │  Safety (555)   │
-│  Logic, Reason  │  │  Empathy, Care  │
+│  MIND (AGI)     │  │  HEART (ASI)    │
+│  Checks Facts   │  │  Checks Safety  │
+│  Logic, Truth   │  │  Empathy, Care  │
 └─────────────────┘  └─────────────────┘
 ```
 
-**Full technical spec:** [000_THEORY/000_ARCHITECTURE.md](000_THEORY/000_ARCHITECTURE.md)
+**Learn more:** [THEORY site](https://apex.arif-fazil.com) • [Architecture docs](000_THEORY/000_ARCHITECTURE.md)
 
 ---
 
-### The 13 Constitutional Floors
+### The 13 Safety Rules (Floors)
 
-Every output must pass these **13 Floors** before being released:
+Every AI output must pass these 13 checks:
 
-| Floor | Name | Principle | Threshold | Physics Basis |
-|-------|------|-----------|-----------|---------------|
-| **F1** | Amanah | Reversibility | Audit trail | Landauer's Principle |
-| **F2** | Truth | Factual accuracy | τ ≥ 0.99 | Fisher-Rao Metric |
-| **F3** | Tri-Witness | Consensus | W₃ ≥ 0.95 | Quantum Measurement |
-| **F4** | Clarity | Entropy reduction | ΔS ≤ 0 | Shannon Entropy |
-| **F5** | Peace | Stability | P² ≥ 1.0 | Lyapunov Stability |
-| **F6** | Empathy | Care | κᵣ ≥ 0.70 | Heat Transfer |
-| **F7** | Humility | Uncertainty | Ω₀ ∈ [0.03, 0.05] | Uncertainty Principle |
-| **F8** | Genius | Intelligence | G ≥ 0.80 | g-Factor |
-| **F9** | Anti-Hantu | Authenticity | Verified | Dark Energy Contrast |
-| **F10** | Ontology | Structure | Valid categories | Set Theory |
-| **F11** | Authority | Chain of command | Valid signature | BLS Signatures |
-| **F12** | Hardening | Injection defense | Blocked | Error Correction |
-| **F13** | Sovereign | Human veto | Always | Circuit Breaker |
+| # | Rule | What It Means | Real-World Example |
+|---|------|---------------|-------------------|
+| 1 | **Trust** | Can we undo this if wrong? | Every decision logged, reversible |
+| 2 | **Truth** | Is this factually accurate? | 99% certainty required |
+| 3 | **Consensus** | Do multiple checks agree? | Mind + Heart + Human all say OK |
+| 4 | **Clarity** | Is this understandable? | No confusing jargon |
+| 5 | **Peace** | Is this stable/safe? | Won't cause harm or chaos |
+| 6 | **Care** | Does this consider people? | Stakeholder impact analyzed |
+| 7 | **Humility** | Do we admit uncertainty? | "I'm 90% confident" not "I'm certain" |
+| 8 | **Genius** | Is this well-reasoned? | Quality threshold met |
+| 9 | **Authenticity** | Is this genuine (not fake)? | Detects manipulation attempts |
+| 10 | **Reality** | Does this make sense? | Category errors caught |
+| 11 | **Authority** | Who approved this? | Chain of command verified |
+| 12 | **Defense** | Block prompt injection | Malicious inputs rejected |
+| 13 | **Human** | Human can always veto | You have final say |
 
-**Implementation:** [codebase/floors/](codebase/floors/) • **Full spec:** [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md)
+**Full technical details:** [THEORY site](https://apex.arif-fazil.com) • [Code](codebase/floors/)
 
 ---
 
-### The 9 Canonical Tools (MCP Interface)
+### The 9 Tools (How to Use arifOS)
 
-The constitutional engines are exposed as 9 MCP tools:
+These are the functions you call to use arifOS:
 
-| Tool | Stage | Purpose | Floors | Status |
-|------|-------|---------|--------|--------|
-| `init_gate` | 000 | Session initialization + F12 injection guard | F11, F12 | ✅ Production |
-| `agi_sense` | 111 | Intent classification (HARD/SOFT/PHATIC) | F2, F4 | ✅ Production |
-| `agi_think` | 222 | Hypothesis generation | F2, F4, F7 | ✅ Production |
-| `agi_reason` | 333 | Deep logic & reasoning | F2, F4, F7 | ✅ Production |
-| `asi_empathize` | 555 | Stakeholder impact analysis | F5, F6 | ✅ Production |
-| `asi_align` | 666 | Ethical alignment check | F5, F6, F9 | ✅ Production |
-| `reality_search` | 777 | External fact verification | F2, F7 | ✅ Production |
-| `apex_verdict` | 888 | Final constitutional verdict | F3, F8 | ✅ Production |
-| `vault_seal` | 999 | Immutable ledger seal | F1, F3 | ✅ Production |
+| Tool | What It Does | When to Use |
+|------|--------------|-------------|
+| `init_gate` | Start a protected session | Beginning of any conversation |
+| `agi_sense` | Understand what user wants | Classify intent (question/task/chat) |
+| `agi_think` | Brainstorm solutions | Generate hypotheses |
+| `agi_reason` | Deep analysis | Complex problem-solving |
+| `asi_empathize` | Check impact on people | Stakeholder analysis |
+| `asi_align` | Check ethics | Ensure alignment with values |
+| `reality_search` | Verify facts | Check external information |
+| `apex_verdict` | Make final decision | SEAL/VOID/SABAR judgment |
+| `vault_seal` | Record decision | Immutable audit trail |
 
-**API Documentation:** [docs/API_REFERENCE.md](docs/API_REFERENCE.md) • **Implementation:** [codebase/mcp/tools/](codebase/mcp/tools/)
+**All tools:** ✅ Production-ready
+
+**API docs:** [docs/API_REFERENCE.md](docs/API_REFERENCE.md) • [APPS site](https://arifos.arif-fazil.com)
+
+---
+
+## 🌐 Trinity Ecosystem
+
+arifOS is part of a 3-site constellation:
+
+| Site | URL | Purpose | Audience |
+|------|-----|---------|----------|
+| **HUMAN** | [arif-fazil.com](https://arif-fazil.com) | Personal bio, contact, scars | Humans |
+| **THEORY** | [apex.arif-fazil.com](https://apex.arif-fazil.com) | Constitutional law, 13 floors, paradoxes | Researchers |
+| **APPS** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Documentation, tools, system prompts | Developers |
+
+**For AI Systems:** Each site has `/llms.txt` for machine-readable context.
 
 ---
 
@@ -438,7 +471,22 @@ black codebase/
 
 ## 🗺️ Roadmap & Status
 
-### What Works Now (v55.4) ✅
+### Layer Status (v55.4)
+
+| Layer | Status | Description | For |
+|-------|--------|-------------|-----|
+| L1 Prompts | ✅ Production | System prompts for any LLM | Users |
+| L2 Skills | ✅ Production | YAML skill templates | Developers |
+| L3 Workflows | ✅ Production | Documented SOPs | Teams |
+| L4 MCP Tools | ✅ Production | 9 canonical tools via FastMCP | Production |
+| 13 Floors | ✅ Production | All F1-F13 validators implemented | Safety |
+| VAULT-999 | ✅ PostgreSQL | Audit trail with persistence | Accountability |
+
+**Production URL:** https://aaamcp.arif-fazil.com
+
+---
+
+### What's Working Now (v55.4) ✅
 
 - ✅ **13 Constitutional Floors** — All enforced at runtime
 - ✅ **9 MCP Tools** — Production API live
