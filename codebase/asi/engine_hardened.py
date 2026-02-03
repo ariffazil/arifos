@@ -565,10 +565,10 @@ class ASIEngineHardened:
 
 # ============ CONVENIENCE ============
 
-async def execute_asi_hardened(query: str, session_id: Optional[str] = None) -> OmegaBundle:
+async def execute_asi_hardened(query: str, session_id: Optional[str] = None, context: Optional[Dict] = None) -> OmegaBundle:
     """Convenience function to execute hardened ASI."""
     engine = ASIEngineHardened(session_id)
-    return await engine.execute(query)
+    return await engine.execute(query, context)
 
 
 # Backward compatibility aliases for kernel.py
