@@ -130,7 +130,7 @@ pip install -e ".[dev]"
 pytest tests/ -v
 
 # Start local MCP server
-python -m codebase.mcp.fastmcp_clean
+python -m mcp
 ```
 
 📖 [Development guide](#-development-guide) • [Contributing](docs/CONTRIBUTING.md)
@@ -371,6 +371,8 @@ arifOS/
 │   ├── L6_INSTITUTION/     🏛️  Trinity system
 │   └── L7_AGI/             🔮 Recursive research
 │
+├── mcp/                    🔌 MCP Server (FastMCP, 9 tools)
+│
 ├── codebase/               💻 Core Python Implementation
 │   ├── floors/             ⚖️  F1-F13 validators
 │   ├── guards/             🛡️  Hypervisor (F10, F11, F12)
@@ -378,8 +380,7 @@ arifOS/
 │   ├── asi/                💚 Heart engine (Ω)
 │   ├── apex/               🏛️  Soul engine (Ψ)
 │   ├── vault/              🔒 Immutable ledger (VAULT-999)
-│   ├── agents/             🤖 Multi-agent federation (L5)
-│   └── mcp/                🔌 MCP server & 9 tools
+│   └── agents/             🤖 Multi-agent federation (L5)
 │
 ├── tests/                  🧪 Test suite
 ├── docs/                   📚 Documentation
@@ -401,7 +402,7 @@ docker-compose -f docker-compose.vault.yml up -d
 export AAA_DATABASE_URL="postgresql://arifos:arifos@localhost:5432/vault999"
 
 # Run with persistence
-python -m codebase.mcp.fastmcp_clean
+python -m mcp
 ```
 
 **Migration status:** See [ROADMAP/INTEGRATION_MASTERPLAN.md](ROADMAP/INTEGRATION_MASTERPLAN.md)
