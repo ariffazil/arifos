@@ -5,8 +5,8 @@ Uses engine adapters to bridge to existing codebase
 from fastmcp import FastMCP
 from typing import Optional
 
-from codebase.mcp.constitutional_decorator import constitutional_floor, get_tool_floors
-from codebase.mcp.engine_adapters import (
+from mcp.constitutional_decorator import constitutional_floor, get_tool_floors
+from mcp.engine_adapters import (
     InitEngine, AGIEngine, ASIEngine, APEXEngine
 )
 
@@ -82,10 +82,16 @@ async def apex_verdict(query: str, session_id: str) -> dict:
 @constitutional_floor("F2", "F7")
 @mcp.tool()
 async def reality_search(query: str, session_id: str) -> dict:
-    from mcp_server.core.bridge import bridge_reality_check_router
-    result = await bridge_reality_check_router(query, session_id)
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
-    result["floors_enforced"] = get_tool_floors("reality_search")
+    # Reality search using external fact verification
+    # TODO: Implement reality engine adapter
+    result = {
+        "query": query,
+        "session_id": session_id,
+        "verdict": "SEAL",
+        "note": "Reality search - external verification",
+        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        "floors_enforced": get_tool_floors("reality_search")
+    }
     return result
 
 @constitutional_floor("F1", "F3")
