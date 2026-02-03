@@ -18,7 +18,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from codebase.mcp.tools.mcp_trinity import (
+from mcp.tools.mcp_trinity import (
     mcp_agi_genius,
     mcp_asi_act,
     mcp_apex_judge,
@@ -26,7 +26,7 @@ from codebase.mcp.tools.mcp_trinity import (
     mcp_context_docs,
 )
 from codebase.kernel import mcp_000_init
-from codebase.mcp.services.constitutional_metrics import store_stage_result
+from mcp.services.constitutional_metrics import store_stage_result
 
 
 def print_result(tool_name: str, result: Dict[str, Any]):

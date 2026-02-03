@@ -25,7 +25,7 @@ class TestHandlerExistence:
 
     def test_handler_imports(self):
         """All handlers can be imported without errors."""
-        from codebase.mcp.tools.canonical_trinity import (
+        from mcp.tools.canonical_trinity import (
             mcp_init,
             mcp_agi,
             mcp_asi,
@@ -45,7 +45,7 @@ class TestHandlerExistence:
 
     def test_lambda_wrappers_callable(self):
         """Lambda wrappers for split tools are callable."""
-        from codebase.mcp.tools.canonical_trinity import mcp_agi, mcp_asi, mcp_apex
+        from mcp.tools.canonical_trinity import mcp_agi, mcp_asi, mcp_apex
         
         # Test AGI wrappers
         agi_sense = lambda **kw: mcp_agi(action="sense", **kw)
@@ -69,7 +69,7 @@ class TestHandlerExistence:
 
     def test_all_9_handlers_registered(self):
         """Tool registry contains all 9 core handlers."""
-        from codebase.mcp.core.tool_registry import ToolRegistry
+        from mcp.core.tool_registry import ToolRegistry
         
         registry = ToolRegistry()
         tools = registry.list_tools()
@@ -103,10 +103,10 @@ class TestSessionStateBasics:
     @pytest.mark.asyncio
     async def test_session_id_accepted(self):
         """Handlers accept session_id parameter."""
-        from codebase.mcp.tools.canonical_trinity import mcp_agi, mcp_asi
+        from mcp.tools.canonical_trinity import mcp_agi, mcp_asi
         
         # Mock the kernel to avoid dependencies
-        with patch('codebase.mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
+        with patch('mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
             mock_agi = AsyncMock()
             mock_agi.execute = AsyncMock(return_value={
                 "session_id": "sess_test123",
@@ -126,9 +126,9 @@ class TestSessionStateBasics:
     @pytest.mark.asyncio
     async def test_session_id_returned(self):
         """Handlers return session_id in response."""
-        from codebase.mcp.tools.canonical_trinity import mcp_agi
+        from mcp.tools.canonical_trinity import mcp_agi
         
-        with patch('codebase.mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
+        with patch('mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
             mock_agi = AsyncMock()
             mock_agi.execute = AsyncMock(return_value={
                 "session_id": "sess_test123",
@@ -145,7 +145,7 @@ class TestSessionStateBasics:
     def test_session_id_pattern_valid(self):
         """Session IDs match expected pattern."""
         import re
-        from codebase.mcp.core.tool_registry import ToolRegistry
+        from mcp.core.tool_registry import ToolRegistry
         
         registry = ToolRegistry()
         tool = registry.get("agi_sense")
@@ -216,7 +216,7 @@ class TestCircularDependencies:
 
     def test_handlers_call_kernel_only(self):
         """Handlers use kernel interface, not direct handler calls."""
-        from codebase.mcp.tools import canonical_trinity
+        from mcp.tools import canonical_trinity
         import inspect
         
         # Get source of mcp_agi
@@ -241,9 +241,9 @@ class TestEdgeCases:
     @pytest.mark.asyncio
     async def test_legacy_router_unknown_action(self):
         """Legacy _agi_ router fails gracefully on unknown action."""
-        from codebase.mcp.tools.canonical_trinity import mcp_agi
+        from mcp.tools.canonical_trinity import mcp_agi
         
-        with patch('codebase.mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
+        with patch('mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
             mock_agi = AsyncMock()
             # Simulate unknown action error
             mock_agi.execute = AsyncMock(side_effect=ValueError("Unknown action"))
@@ -260,9 +260,9 @@ class TestEdgeCases:
     @pytest.mark.asyncio
     async def test_handler_without_session_id(self):
         """Handlers work without session_id (creates one automatically)."""
-        from codebase.mcp.tools.canonical_trinity import mcp_agi
+        from mcp.tools.canonical_trinity import mcp_agi
         
-        with patch('codebase.mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
+        with patch('mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
             mock_agi = AsyncMock()
             mock_agi.execute = AsyncMock(return_value={
                 "session_id": "auto_generated_123",
@@ -280,7 +280,7 @@ class TestEdgeCases:
 
     def test_legacy_aliases_not_registered(self):
         """v55 registry does not register legacy aliases (clean registry)."""
-        from codebase.mcp.core.tool_registry import ToolRegistry
+        from mcp.core.tool_registry import ToolRegistry
 
         registry = ToolRegistry()
 
@@ -298,7 +298,7 @@ class TestPhase2Validation:
 
     def test_all_validation_criteria_met(self):
         """Phase 2 validation checklist items."""
-        from codebase.mcp.core.tool_registry import ToolRegistry
+        from mcp.core.tool_registry import ToolRegistry
         
         registry = ToolRegistry()
         tools = registry.list_tools()
@@ -324,7 +324,7 @@ class TestPhase2Validation:
 
     def test_no_breaking_changes(self):
         """v55 canonical tool names are all present."""
-        from codebase.mcp.core.tool_registry import ToolRegistry
+        from mcp.core.tool_registry import ToolRegistry
 
         registry = ToolRegistry()
 

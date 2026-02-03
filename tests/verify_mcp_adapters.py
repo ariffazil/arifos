@@ -10,7 +10,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 # Mock codebase.kernel.get_kernel_manager
 sys.modules["codebase.kernel"] = MagicMock()
 sys.modules["codebase.init.000_init.mcp_bridge"] = MagicMock()
-sys.modules["codebase.mcp.core.bridge"] = MagicMock()
+sys.modules["mcp.core.bridge"] = MagicMock()
 
 # Mock definitions
 async def mock_init_execute(*args, **kwargs):
@@ -70,7 +70,7 @@ sys.modules["codebase.init.000_init.mcp_bridge"].mcp_000_init = mock_init_execut
 
 try:
     with patch("codebase.kernel.get_kernel_manager", return_value=mock_km):
-        from codebase.mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_asi, mcp_apex
+        from mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_asi, mcp_apex
 except Exception as e:
     import traceback
     print(f"IMPORT ERROR: {e}")

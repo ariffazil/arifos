@@ -22,9 +22,9 @@ aaa-mcp-sse                # SSE transport (HTTP clients)
 aaa-mcp                    # auto-detect mode (dispatches based on arg: stdio/http/sse)
 
 # Alternative entry
-python -m codebase.mcp
-python -m codebase.mcp http --port 8080
-python -m codebase.mcp sse --port 3000
+python -m mcp
+python -m mcp http --port 8080
+python -m mcp sse --port 3000
 
 # Docker
 docker build -t arifos:latest .
@@ -136,9 +136,9 @@ Handoff chain: DeltaBundle → OmegaBundle → Judgment + Seal.
 ### Entry Points (pyproject.toml scripts)
 
 ```
-aaa-mcp       -> codebase.mcp.__main__:main        # Auto-detect dispatcher
-aaa-mcp-stdio -> codebase.mcp.entrypoints.stdio_entry:main
-aaa-mcp-sse   -> codebase.mcp.entrypoints.sse_entry:main
+aaa-mcp       -> mcp.__main__:main        # Auto-detect dispatcher
+aaa-mcp-stdio -> mcp.entrypoints.stdio_entry:main
+aaa-mcp-sse   -> mcp.entrypoints.sse_entry:main
 ```
 
 ### Transports

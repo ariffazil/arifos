@@ -286,7 +286,7 @@ class AGIEngine:
 **Description:**
 ```python
 try:
-    from codebase.mcp.config.modes import get_mcp_mode, MCPMode
+    from mcp.config.modes import get_mcp_mode, MCPMode
 except ImportError:
     from .mode_selector import get_mcp_mode, MCPMode  # Legacy fallback
 ```
@@ -296,7 +296,7 @@ The file `mode_selector.py` does NOT exist - fallback will always fail.
 **Recommended Action:**
 ```python
 # Replace with direct import:
-from codebase.mcp.config.modes import get_mcp_mode, MCPMode
+from mcp.config.modes import get_mcp_mode, MCPMode
 ```
 
 ---

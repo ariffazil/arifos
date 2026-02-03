@@ -205,7 +205,7 @@ Errors now include floor codes:
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "codebase.mcp"]
+      "args": ["-m", "mcp"]
     }
   }
 }
@@ -242,7 +242,7 @@ Claude will see 16 tools (9 new + 5 deprecated + 2 utility). Old names still wor
 ```bash
 # List all tools
 python -c "
-from codebase.mcp.core.tool_registry import ToolRegistry
+from mcp.core.tool_registry import ToolRegistry
 reg = ToolRegistry()
 tools = reg.list_tools()
 print(f'Total tools: {len(tools)}')
@@ -338,7 +338,7 @@ print("✅ New tool interface verified")
 
 ```python
 import warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning, module="codebase.mcp")
+warnings.filterwarnings("ignore", category=DeprecationWarning, module="mcp")
 ```
 
 **Note:** Not recommended for production. Warnings help track migration progress.

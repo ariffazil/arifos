@@ -346,7 +346,7 @@ Expected: File list from filesystem tool
 
 **Check 3:** Verify Python environment
 ```bash
-C:\Users\ariff\arifOS\.venv\Scripts\python.exe -m codebase.mcp
+C:\Users\ariff\arifOS\.venv\Scripts\python.exe -m mcp
 ```
 
 ### API Key Not Working

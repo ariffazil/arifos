@@ -43,7 +43,7 @@ The codebase is production-ready for immediate deployment with documented minor 
 
 ```python
 from codebase.kernel import KernelManager
-from codebase.mcp import bridge
+from mcp import bridge
 
 # Result: SUCCESS
 # - Bridge module loaded: ENGINES_AVAILABLE = True
@@ -405,13 +405,13 @@ Init Result: 9a815446-f11b-491e-b248-320f21d63802
 **Commands Ready:**
 ```bash
 # Railway/Production (SSE)
-python -m codebase.mcp trinity-sse
+python -m mcp trinity-sse
 
 # Claude Desktop (stdio)
-python -m codebase.mcp
+python -m mcp
 
 # Local Development (FastAPI)
-uvicorn codebase.mcp.trinity_server:app --reload --port 8000
+uvicorn mcp.trinity_server:app --reload --port 8000
 ```
 
 **Live Endpoints:**

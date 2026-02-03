@@ -1,12 +1,12 @@
 """
-codebase.mcp MCP CLI Entry Point
+mcp MCP CLI Entry Point
 
 Usage:
-    python -m codebase.mcp              # stdio transport (default)
-    python -m codebase.mcp stdio        # stdio transport (Claude Code, Claude Desktop, Kimi, Gemini CLI)
-    python -m codebase.mcp http         # Streamable HTTP transport (ChatGPT Dev Mode, Codex, Railway)
-    python -m codebase.mcp sse          # Alias for http (backward compat)
-    python -m codebase.mcp sse-simple   # Minimal HTTP fallback
+    python -m mcp              # stdio transport (default)
+    python -m mcp stdio        # stdio transport (Claude Code, Claude Desktop, Kimi, Gemini CLI)
+    python -m mcp http         # Streamable HTTP transport (ChatGPT Dev Mode, Codex, Railway)
+    python -m mcp sse          # Alias for http (backward compat)
+    python -m mcp sse-simple   # Minimal HTTP fallback
 """
 
 import sys
@@ -18,21 +18,21 @@ if __name__ == "__main__":
         # Streamable HTTP transport (Railway/Cloud/ChatGPT/Codex)
         # "sse" is kept as alias for backward compatibility
         try:
-            from codebase.mcp.sse import main
+            from mcp.sse import main
             main()
         except Exception as e:
             print(f"[ERROR] HTTP server failed: {e}")
             print("[FALLBACK] Trying minimal server...")
-            from codebase.mcp.sse_simple import main as main_simple
+            from mcp.sse_simple import main as main_simple
             main_simple()
 
     elif mode == "sse-simple":
         # Minimal HTTP transport — reliable fallback
-        from codebase.mcp.sse_simple import main
+        from mcp.sse_simple import main
         print("[BOOT] Starting codebase MCP server (minimal fallback)...")
         main()
 
     else:
         # stdio transport (Claude Code, Claude Desktop, Kimi, Gemini CLI)
-        from codebase.mcp.server import main
+        from mcp.server import main
         main()
