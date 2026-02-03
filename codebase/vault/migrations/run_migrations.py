@@ -25,7 +25,13 @@ async def ensure_vault_tables():
     if not dsn:
         return  # Will fail later with proper error
     
-    conn = await asyncpg.connect(dsn)
+    # Railway TCP proxy requires SSL
+    import ssl
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    
+    conn = await asyncpg.connect(dsn, ssl=ssl_context)
     try:
         # Create vault_ledger table
         await conn.execute("""
