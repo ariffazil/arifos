@@ -207,66 +207,154 @@ The constitutional engines are exposed as 9 MCP tools:
 
 ### MCP Server (L4 Tools)
 
-**Live Endpoint:** `https://aaamcp.arif-fazil.com`
+**Current Status:** ✅ **Production-ready** (v55.4)
 
-**Transports:**
-- **MCP Protocol:** `/mcp` (SSE + JSON-RPC)
-- **REST API:** `/api/v1/*` (POST + auth)
-- **Simple HTTP:** `/simple/*` (GET + query params)
+The arifOS MCP server provides 9 constitutional tools via **Model Context Protocol**.
 
-### Integration Guides
+#### Installation
 
-**Claude Desktop:**
+```bash
+# Via PyPI (runtime only)
+pip install arifos
+
+# Via source (full development stack)
+git clone https://github.com/ariffazil/arifOS.git
+cd arifOS
+pip install -e ".[dev]"
+```
+
+#### Run Locally
+
+```bash
+# For Claude Desktop / Cursor (stdio transport)
+aaa-mcp
+
+# For remote clients (SSE/HTTP transport)
+aaa-mcp-sse --port 6274
+```
+
+#### Live Endpoints (Production)
+
+| Endpoint | URL | Purpose | Status |
+|----------|-----|---------|--------|
+| **MCP Server** | `https://aaamcp.arif-fazil.com/mcp` | Model Context Protocol | ✅ Live |
+| **REST API** | `https://aaamcp.arif-fazil.com/api/v1/` | HTTP/JSON interface | ✅ Live |
+| **Simple HTTP** | `https://aaamcp.arif-fazil.com/simple/` | GET query interface | ✅ Live |
+| **Health Check** | `https://aaamcp.arif-fazil.com/health` | System status | ✅ Live |
+| **Constitutional Canon** | `https://apex.arif-fazil.com/llms.txt` | LLM constraints | ✅ Live |
+| **Floor Schema** | `https://aaamcp.arif-fazil.com/api/v1/floors.json` | F1-F13 thresholds | ✅ Live |
+
+**Deployment:** Railway (auto-deploy from `main` branch)
+
+---
+
+### Integration Guide
+
+#### Claude Desktop / Cursor
+
+Add to `claude_desktop_config.json`:
+
 ```json
 {
   "mcpServers": {
     "arifos": {
-      "command": "python",
-      "args": ["-m", "arifos.mcp"],
-      "transport": "sse"
+      "command": "aaa-mcp",
+      "args": []
     }
   }
 }
 ```
 
-**Cursor:**
-Add to `.cursor/mcp.json` with same config.
+Restart Claude Desktop. Tools will appear automatically.
 
-**Direct API:**
+#### Python API
+
+```python
+import asyncio
+from arifos.mcp.tools import (
+    init_gate, agi_sense, agi_reason,
+    apex_verdict, vault_seal
+)
+
+async def main():
+    # 1. Initialize session
+    init = await init_gate(query="Evaluate deployment safety")
+    session_id = init["session_id"]
+    
+    # 2. Sense intent
+    sense = await agi_sense(
+        query="Evaluate deployment safety",
+        session_id=session_id
+    )
+    
+    # 3. Reason through problem
+    reason = await agi_reason(
+        query="Is deployment safe?",
+        session_id=session_id
+    )
+    
+    # 4. Get final verdict
+    verdict = await apex_verdict(
+        query="Deploy to production?",
+        session_id=session_id
+    )
+    
+    # 5. Seal decision
+    if verdict["verdict"] == "SEAL":
+        seal = await vault_seal(session_id=session_id)
+        print(f"✅ Decision sealed: {seal['seal']}")
+    else:
+        print(f"⚠️ Verdict: {verdict['verdict']}")
+
+asyncio.run(main())
+```
+
+#### REST API
+
 ```bash
-curl -X POST https://aaamcp.arif-fazil.com/simple/init_gate \
-  -d "q=Should I implement neural voting?"
+# Initialize session
+curl -X POST https://aaamcp.arif-fazil.com/api/v1/init_gate \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Evaluate deployment"}'
+
+# Simple HTTP (for limited AI platforms)
+curl "https://aaamcp.arif-fazil.com/simple/init_gate?q=Should+I+deploy"
 ```
 
 ---
 
 ## 🔬 Development Guide
 
-### Project Structure
+### Repository Map
 
 ```
 arifOS/
-├── mcp/                    ← MCP Server (FastMCP)
-│   ├── server.py           ← Entry point
-│   ├── tools/              ← 9 canonical tools
-│   └── constitutional_decorator.py
+├── 333_APPS/               🚀 7-Layer Application Stack (L1-L7)
+│   ├── L1_PROMPT/          📝 System prompts
+│   ├── L2_SKILLS/          🛠️  Skill templates
+│   ├── L3_WORKFLOW/        ⚙️  Workflows
+│   ├── L4_TOOLS/           🔌 MCP tools & specs
+│   ├── L5_AGENTS/          🤖 Agent stubs (v56.0)
+│   ├── L6_INSTITUTION/     🏛️  Trinity system
+│   └── L7_AGI/             🔮 Recursive research
 │
-├── codebase/               ← Core Engines
-│   ├── agi/                ← AGI Mind (Δ)
-│   ├── asi/                ← ASI Heart (Ω)
-│   ├── apex/               ← APEX Soul (Ψ)
-│   ├── floors/             ← F1-F13 validators
-│   └── vault/              ← VAULT-999 ledger
+├── codebase/               💻 Core Python Implementation
+│   ├── floors/             ⚖️  F1-F13 validators
+│   ├── guards/             🛡️  Hypervisor (F10, F11, F12)
+│   ├── agi/                🧠 Mind engine (Δ)
+│   ├── asi/                💚 Heart engine (Ω)
+│   ├── apex/               🏛️  Soul engine (Ψ)
+│   ├── vault/              🔒 Immutable ledger (VAULT-999)
+│   ├── agents/             🤖 Multi-agent federation (L5)
+│   └── mcp/                🔌 MCP server & 9 tools
 │
-├── 333_APPS/               ← Application Layers
-│   ├── L1_PROMPT/          ← System prompts
-│   ├── L4_TOOLS/           ← MCP specs
-│   └── L5_AGENTS/          ← Agent stubs (v56.0)
-│
-├── docs/                   ← Documentation
-├── tests/                  ← Test suite
-└── archive/                ← Compressed history
+├── tests/                  🧪 Test suite
+├── docs/                   📚 Documentation
+├── ROADMAP/                🗺️  Integration plans & tasks
+└── archive/                📦 Historical versions (compressed)
 ```
+
+**Navigate:** [Full project structure](docs/ARCHITECTURE.md#directory-structure)
 
 ### Running Tests
 
