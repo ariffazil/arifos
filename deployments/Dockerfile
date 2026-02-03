@@ -44,5 +44,8 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD curl -sf http://localhost:8080/health || exit 1
 
-# Run Codebase MCP Streamable HTTP server
-CMD ["codebase-mcp-sse"]
+# Copy startup wrapper
+COPY start_server.py .
+
+# Run with error logging wrapper
+CMD ["python", "start_server.py"]
