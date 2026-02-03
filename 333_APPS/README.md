@@ -78,6 +78,24 @@ Choose your entry point based on complexity needs:
 
 ---
 
+## 📦 Installation Methods
+
+| Method | Command | Best For | 333_APPS Access |
+|--------|---------|----------|-----------------|
+| **PyPI** | `pip install arifos` | Production runtime only | L4 Tools only |
+| **Source** | `git clone https://github.com/ariffazil/arifOS.git` | Development, full stack | L1-L7 complete |
+
+> **Note:** The PyPI package provides the runtime libraries and L4 MCP Tools. To access L1-L3 (Prompts, Skills, Workflows) or develop L5-L7 (Agents, Institution), you need the **source installation**.
+>
+> ```bash
+> # For full 333_APPS stack
+> git clone https://github.com/ariffazil/arifOS.git
+> cd arifOS
+> pip install -e .
+> ```
+
+---
+
 ## 📊 Quick Status Reference
 
 | Layer | Status | Ready for Use? |

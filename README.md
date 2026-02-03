@@ -599,17 +599,31 @@ arifOS/
 
 ### 1. Installation
 
-**From PyPI:**
+**From PyPI (Latest Release):**
 ```bash
 pip install arifos
 ```
 
-**From Source:**
+> **⚠️ Note:** The PyPI package (`pip install arifos`) installs the **runtime libraries** (v55.3.1). For full development access to the **333_APPS stack** (L1-L7), clone from source.
+>
+> | Installation Method | Best For | 333_APPS Access |
+> |---------------------|----------|-----------------|
+> | `pip install arifos` | Production runtime, API usage | L4 Tools only |
+> | `git clone` | Development, full stack, L5-L7 | L1-L7 complete |
+
+**From Source (Development & Full 333_APPS Stack):**
 ```bash
 git clone https://github.com/ariffazil/arifOS.git
 cd arifOS
 pip install -e .
 ```
+
+> **333_APPS Note:** The 7-layer application stack (L1-L7) is located in the `333_APPS/` directory. After cloning:
+> - **L1 (Prompts):** Copy from `333_APPS/L1_PROMPT/`
+> - **L2-L4 (Skills/Tools):** Import from `codebase/`
+> - **L5-L7 (Agents/Institution):** See `333_APPS/STATUS.md` for current implementation status
+>
+> PyPI package includes L4 Tools only. For L5 Agent Federation and beyond, use source installation.
 
 ### 2. Running the MCP Server
 
