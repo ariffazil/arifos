@@ -1,4 +1,5 @@
-# Emergency minimal Dockerfile for debugging
+# arifOS MCP Server Dockerfile (v55.3-9tools)
+# Cache-bust: 2026-02-03-14-10
 FROM python:3.12-slim
 
 WORKDIR /app
