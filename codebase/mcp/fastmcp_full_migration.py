@@ -5,16 +5,22 @@ Replaces custom SSE transport with FastMCP framework
 from fastmcp import FastMCP
 from typing import Optional
 import asyncio
+import importlib
 
 # Import arifOS constitutional components
-from codebase.init import InitEngine
-from codebase.agi.engine import AGIEngine
-from codebase.asi.engine import ASIEngine
-from codebase.apex.engine import APEXEngine
-from codebase.reality.engine import RealityEngine
-from codebase.vault.engine import VaultEngine
-from codebase.guards.injection_guard import InjectionGuard
 from codebase.mcp.constitutional_decorator import constitutional_floor, get_tool_floors
+from mcp_server.core.session_context import get_current_session_id, set_current_session_id
+
+# Dynamic imports (matching canonical_trinity.py pattern)
+def _get_init_engine():
+    """Get init engine from mcp_bridge"""
+    module = importlib.import_module("codebase.init.000_init.mcp_bridge")
+    return module.mcp_000_init
+
+def _get_kernel():
+    """Get kernel manager for AGI/ASI/APEX"""
+    from codebase.kernel import get_kernel_manager
+    return get_kernel_manager()
 
 # Create FastMCP app
 mcp = FastMCP("arifos-constitutional-kernel")
@@ -38,32 +44,45 @@ async def init_gate(
     Returns:
         Session metadata with constitutional seal and APEX scoring
     """
-    # F12: Injection Guard
-    guard = InjectionGuard()
-    injection_score = await guard.scan(query)
+    # Use the actual working init engine
+    mcp_000_init = _get_init_engine()
     
-    if injection_score > 0.85:
-        return {
-            "verdict": "VOID",
-            "reason": "F12 Hardening violation",
-            "injection_score": injection_score,
-            "safe": False,
-            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
-            "seal": "💎🔥🧠"
-        }
-    
-    # Initialize session
-    engine = InitEngine()
-    result = await engine.ignite(query, session_id)
+    result = await mcp_000_init(
+        action="init",
+        query=query,
+        session_id=session_id
+    )
     
     # Add constitutional metadata
-    result["verdict"] = "SEAL"
+    result["verdict"] = result.get("verdict", "SEAL")
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["seal"] = "💎🔥🧠"
-    result["safe"] = True
     result["floors_enforced"] = get_tool_floors("init_gate")
     
+    # Set session context
+    if result.get("session_id"):
+        set_current_session_id(result["session_id"])
+    
     return result
+
+# Helper to get kernel engines
+async def _agi_execute(action: str, query: str, session_id: str):
+    """Execute AGI engine action"""
+    kernel = _get_kernel()
+    agi = kernel.get_agi()
+    return await agi.execute(action, {"query": query, "session_id": session_id})
+
+async def _asi_execute(action: str, query: str, session_id: str):
+    """Execute ASI engine action"""
+    kernel = _get_kernel()
+    asi = kernel.get_asi()
+    return await asi.execute(action, {"query": query, "session_id": session_id})
+
+async def _apex_execute(action: str, query: str, session_id: str):
+    """Execute APEX engine action"""
+    kernel = _get_kernel()
+    apex = kernel.get_apex()
+    return await apex.execute(action, {"query": query, "session_id": session_id})
 
 # ============================
 # 2. agi_sense (Intent Classification)
@@ -78,10 +97,9 @@ async def agi_sense(
     Sense intent and classify into HARD/SOFT/PHATIC lanes.
     Enforces F2 Truth and F4 Clarity.
     """
-    engine = AGIEngine()
-    result = await engine.sense(query, session_id)
+    result = await _agi_execute("sense", query, session_id)
     
-    result["verdict"] = "SEAL"
+    result["verdict"] = result.get("verdict", "SEAL")
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("agi_sense")
     
@@ -100,10 +118,9 @@ async def agi_think(
     Generate hypotheses with pros/cons analysis.
     Enforces F2 Truth, F4 Clarity, F7 Humility.
     """
-    engine = AGIEngine()
-    result = await engine.think(query, session_id)
+    result = await _agi_execute("think", query, session_id)
     
-    result["verdict"] = "SEAL"
+    result["verdict"] = result.get("verdict", "SEAL")
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("agi_think")
     
@@ -122,10 +139,9 @@ async def agi_reason(
     Perform deep step-by-step reasoning with confidence scoring.
     Enforces F2 Truth, F4 Clarity, F7 Humility.
     """
-    engine = AGIEngine()
-    result = await engine.reason(query, session_id)
+    result = await _agi_execute("reason", query, session_id)
     
-    result["verdict"] = "SEAL"
+    result["verdict"] = result.get("verdict", "SEAL")
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("agi_reason")
     
@@ -144,10 +160,9 @@ async def asi_empathize(
     Map stakeholders and evaluate vulnerability.
     Enforces F5 Peace² and F6 Empathy.
     """
-    engine = ASIEngine()
-    result = await engine.empathize(query, session_id)
+    result = await _asi_execute("empathize", query, session_id)
     
-    result["verdict"] = "SEAL"
+    result["verdict"] = result.get("verdict", "SEAL")
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("asi_empathize")
     
@@ -166,10 +181,9 @@ async def asi_align(
     Check ethical alignment and policy compliance.
     Enforces F5 Peace², F6 Empathy, F9 Anti-Hantu.
     """
-    engine = ASIEngine()
-    result = await engine.align(query, session_id)
+    result = await _asi_execute("align", query, session_id)
     
-    result["verdict"] = "SEAL"
+    result["verdict"] = result.get("verdict", "SEAL")
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("asi_align")
     
@@ -188,9 +202,9 @@ async def apex_verdict(
     Synthesize reasoning into final constitutional verdict.
     Enforces F3 Tri-Witness and F8 Genius.
     """
-    engine = APEXEngine()
-    result = await engine.judge(query, session_id)
+    result = await _apex_execute("judge", query, session_id)
     
+    result["verdict"] = result.get("verdict", "SEAL")
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("apex_verdict")
     
@@ -209,10 +223,11 @@ async def reality_search(
     Verify facts against external sources.
     Enforces F2 Truth and F7 Humility.
     """
-    engine = RealityEngine()
-    result = await engine.search(query, session_id)
+    # Use bridge pattern from canonical_trinity.py
+    from mcp_server.core.bridge import bridge_reality_check_router
+    result = await bridge_reality_check_router(query, session_id)
     
-    result["verdict"] = "SEAL"
+    result["verdict"] = result.get("verdict", "SEAL")
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("reality_search")
     
@@ -232,13 +247,23 @@ async def vault_seal(
     Create tamper-proof seal in VAULT-999.
     Enforces F1 Amanah and F3 Tri-Witness.
     """
-    engine = VaultEngine()
-    result = await engine.seal(session_id, verdict, payload)
+    from codebase.vault.persistence import get_ledger
     
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
-    result["floors_enforced"] = get_tool_floors("vault_seal")
+    ledger = get_ledger()
+    await ledger.connect()
     
-    return result
+    try:
+        result = await ledger.append(session_id, verdict, payload)
+        
+        return {
+            "verdict": "SEALED",
+            "seal": result["seal"],
+            "merkle_root": result.get("merkle_root", result["seal"]),
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("vault_seal")
+        }
+    finally:
+        await ledger.close()
 
 # ============================
 # Server Runner
