@@ -71,6 +71,15 @@ async def ensure_vault_tables():
             )
         """)
         
+        # Create vault_merkle_state table
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS vault_merkle_state (
+                id SMALLINT PRIMARY KEY DEFAULT 1,
+                merkle_state JSONB,
+                updated_at TIMESTAMPTZ DEFAULT now()
+            )
+        """)
+        
     finally:
         await conn.close()
 
