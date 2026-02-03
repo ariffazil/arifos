@@ -77,7 +77,7 @@ class ToolRegistry:
             ToolDefinition(
                 name="init_gate",
                 title="Session Initialization Gate",
-                description="Initialize a governed session. Verify caller authority, scan for prompt injection (F12), and open a session ledger entry. Use this before running other tools when starting a new workflow.",
+                description="Initialize a governed session with arifOS constitutional framework. Verifies caller authority (F11), scans for prompt injection (F12), injects 13 constitutional floors, and collapses to APEX Genius score (G = A × P × X × E²). Returns motto 'DITEMPA BUKAN DIBERI 💎🔥🧠' and full APEX summary. Use this first before any other constitutional tools.",
                 handler=mcp_init,
                 input_schema={
                     "type": "object",
@@ -98,10 +98,36 @@ class ToolRegistry:
                 output_schema={
                     "type": "object",
                     "properties": {
-                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
+                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR", "888_HOLD"]},
                         "session_id": {"type": "string"},
-                        "authority_level": {"type": "string"},
+                        "authority_level": {"type": "string", "enum": ["guest", "user", "admin", "sovereign"]},
+                        "authority_verified": {"type": "boolean"},
                         "injection_check_passed": {"type": "boolean"},
+                        "injection_risk": {"type": "number"},
+                        "lane": {"type": "string", "enum": ["HARD", "SOFT", "PHATIC"]},
+                        "intent": {"type": "string"},
+                        "motto": {"type": "string", "description": "DITEMPA BUKAN DIBERI 💎🔥🧠"},
+                        "seal": {"type": "string", "enum": ["SEAL", "VOID", "SABAR", "888_HOLD"]},
+                        "apex_summary": {
+                            "type": "object",
+                            "properties": {
+                                "G": {"type": "number", "description": "Genius score (G = A × P × X × E²)"},
+                                "verdict": {"type": "string"},
+                                "A": {"type": "number", "description": "Akal/Clarity (AGI Mind)"},
+                                "P": {"type": "number", "description": "Present/Regulation (APEX Soul)"},
+                                "X": {"type": "number", "description": "Exploration/Trust (ASI Heart)"},
+                                "E2": {"type": "number", "description": "Energy² (Earth)"},
+                                "13_floors_injected": {"type": "boolean"},
+                                "collapsed_to": {"type": "string"}
+                            }
+                        },
+                        "floors_checked": {"type": "array", "items": {"type": "string"}},
+                        "tri_witness": {"type": "object"},
+                        "TW": {"type": "number", "description": "Tri-Witness score (F3)"},
+                        "entropy_input": {"type": "number"},
+                        "entropy_target": {"type": "number"},
+                        "energy_budget": {"type": "number"},
+                        "reason": {"type": "string"},
                         "error": {
                             "type": "object",
                             "properties": {
@@ -111,7 +137,7 @@ class ToolRegistry:
                             },
                         },
                     },
-                    "required": ["verdict", "session_id"],
+                    "required": ["verdict", "session_id", "motto", "seal"],
                 },
                 annotations={
                     "title": "Session Gate",
