@@ -179,34 +179,27 @@ Every output must pass these **13 Floors** before being released:
 | **F12** | Hardening | Injection defense | Blocked | Error Correction |
 | **F13** | Sovereign | Human veto | Always | Circuit Breaker |
 
-**Implementation:** [codebase/floors/canonical.py](codebase/floors/canonical.py)
-| F3 | Tri-Witness | Quantum Measurement | W₃ ≥ 0.95 |
-| F4 | Clarity | Shannon Entropy | ΔS ≤ 0 |
-| F5 | Peace | Lyapunov Stability | Peace² ≥ 1.0 |
-| F6 | Empathy | Heat Transfer | κᵣ ≥ 0.70 |
-| F7 | Humility | Uncertainty Principle | Ω₀ ∈ [0.03, 0.05] |
-| F8 | Genius | g-Factor | G ≥ 0.80 |
-| F9 | Anti-Hantu | Dark Energy Contrast | Authenticity check |
-| F10 | Ontology | Set Theory | Category verification |
-| F11 | Authority | BLS Signatures | Command chain |
-| F12 | Hardening | Error Correction | Injection defense |
-| F13 | Sovereign | Circuit Breaker | Human veto |
+**Implementation:** [codebase/floors/](codebase/floors/) • **Full spec:** [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md)
 
-[Full floors →](codebase/floors/canonical.py)
+---
 
-### The 9 MCP Tools
+### The 9 Canonical Tools (MCP Interface)
 
-| Tool | Stage | Floors | Purpose |
-|------|-------|--------|---------|
-| `init_gate` | 000 | F11, F12 | Initialize constitutional session |
-| `agi_sense` | 111 | F2, F4 | Intent classification |
-| `agi_think` | 222 | F2, F4, F7 | Hypothesis generation |
-| `agi_reason` | 333 | F2, F4, F7 | Deep reasoning |
-| `asi_empathize` | 555 | F5, F6 | Stakeholder analysis |
-| `asi_align` | 666 | F5, F6, F9 | Ethical alignment |
-| `apex_verdict` | 888 | F3, F8 | Final judgment |
-| `reality_search` | 777 | F2, F7 | Fact verification |
-| `vault_seal` | 999 | F1, F3 | Immutable audit trail |
+The constitutional engines are exposed as 9 MCP tools:
+
+| Tool | Stage | Purpose | Floors | Status |
+|------|-------|---------|--------|--------|
+| `init_gate` | 000 | Session initialization + F12 injection guard | F11, F12 | ✅ Production |
+| `agi_sense` | 111 | Intent classification (HARD/SOFT/PHATIC) | F2, F4 | ✅ Production |
+| `agi_think` | 222 | Hypothesis generation | F2, F4, F7 | ✅ Production |
+| `agi_reason` | 333 | Deep logic & reasoning | F2, F4, F7 | ✅ Production |
+| `asi_empathize` | 555 | Stakeholder impact analysis | F5, F6 | ✅ Production |
+| `asi_align` | 666 | Ethical alignment check | F5, F6, F9 | ✅ Production |
+| `reality_search` | 777 | External fact verification | F2, F7 | ✅ Production |
+| `apex_verdict` | 888 | Final constitutional verdict | F3, F8 | ✅ Production |
+| `vault_seal` | 999 | Immutable ledger seal | F1, F3 | ✅ Production |
+
+**API Documentation:** [docs/API_REFERENCE.md](docs/API_REFERENCE.md) • **Implementation:** [codebase/mcp/tools/](codebase/mcp/tools/)
 
 ---
 
