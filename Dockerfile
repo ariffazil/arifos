@@ -1,5 +1,5 @@
 # arifOS MCP Server Dockerfile (v55.3-9tools)
-# Cache-bust: 2026-02-03-14-10
+# Cache-bust: 2026-02-03-14-20-fresh
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -16,6 +16,9 @@ COPY pyproject.toml .
 COPY codebase/ codebase/
 COPY mcp_server/ mcp_server/
 COPY start_server.py .
+
+# Verify mcp_server exists (debug)
+RUN ls -la mcp_server/ && ls -la mcp_server/core/
 
 # Install package
 RUN pip install -e .
