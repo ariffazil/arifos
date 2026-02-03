@@ -249,7 +249,7 @@ TOOL_ROUTERS = {
 ```bash
 # In VS Code terminal:
 cd c:/Users/ariff/arifOS
-python -m codebase.mcp
+python -m mcp
 # Expected: [BOOT] Codebase MCP v53.1.0 starting in auto mode
 #           [PHYSICS] Constitutional Engines Loaded: AGI, ASI, APEX
 ```

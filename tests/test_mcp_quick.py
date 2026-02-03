@@ -4,7 +4,7 @@ import asyncio
 import sys
 sys.path.insert(0, "c:/Users/ariff/arifOS")
 
-from codebase.mcp.tools.mcp_trinity import mcp_agi_genius, mcp_asi_act, mcp_apex_judge
+from mcp.tools.mcp_trinity import mcp_agi_genius, mcp_asi_act, mcp_apex_judge
 from codebase.kernel import mcp_000_init
 
 async def test():

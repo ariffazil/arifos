@@ -73,7 +73,9 @@ class AGINeuralCore:
             "confidence": result.stage_111.confidence if result.stage_111 else 0.0,
             "f12_injection_risk": result.hardening.hantu_score if result.hardening else 0.0,
             "risk_level": result.risk_level.value if result.hardening else "unknown",
-            "verdict": "SEAL" if result.success else "VOID"
+            "verdict": "SEAL" if result.success else "VOID",
+            "vote": "SEAL" if result.success else "VOID",
+            "lane": result.delta_bundle.intent_lane if hasattr(result.delta_bundle, 'intent_lane') else "SOFT"
         }
     
     async def think(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -98,7 +100,9 @@ class AGINeuralCore:
             "confidence": bundle.confidence_high,
             "delta_s": bundle.entropy_delta,
             "hypotheses": bundle.hypotheses if hasattr(bundle, 'hypotheses') else [],
-            "verdict": bundle.vote.value if hasattr(bundle.vote, 'value') else str(bundle.vote)
+            "verdict": bundle.vote.value if hasattr(bundle.vote, "value") else str(bundle.vote),
+            "vote": bundle.vote.value if hasattr(bundle.vote, "value") else str(bundle.vote),
+            "lane": bundle.intent_lane if hasattr(bundle, "intent_lane") else "SOFT"
         }
     
     async def forge(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:

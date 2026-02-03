@@ -17,9 +17,9 @@ print(f"PYTHONPATH: {sys.path[0]}", flush=True)
 # This prevents ImportErrors from missing dependencies
 sys.modules["codebase.kernel"] = MagicMock()
 sys.modules["codebase.init.000_init.mcp_bridge"] = MagicMock()
-sys.modules["codebase.mcp.core.bridge"] = MagicMock()
-sys.modules["codebase.mcp.core.tool_registry"] = MagicMock()
-sys.modules["codebase.mcp.transports.sse"] = MagicMock()
+sys.modules["mcp.core.bridge"] = MagicMock()
+sys.modules["mcp.core.tool_registry"] = MagicMock()
+sys.modules["mcp.transports.sse"] = MagicMock()
 
 # Setup Mock Returns
 async def mock_init_execute(*args, **kwargs):
@@ -45,7 +45,7 @@ print("MOCKS INSTALLED. IMPORTING TRINITY...", flush=True)
 try:
     with patch("codebase.kernel.get_kernel_manager", return_value=mock_km):
         # Local import to simulate running the tool
-        from codebase.mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_asi, mcp_apex
+        from mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_asi, mcp_apex
         
     print("IMPORT SUCCESS.", flush=True)
 

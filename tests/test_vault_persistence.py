@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from codebase.mcp.session_ledger import SessionLedger
+from mcp.session_ledger import SessionLedger
 
 
 def _dummy_payload(idx: int):

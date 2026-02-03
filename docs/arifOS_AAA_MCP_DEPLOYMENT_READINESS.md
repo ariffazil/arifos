@@ -10,7 +10,7 @@ REPOSITORY: https://github.com/ariffazil/arifOS/tree/main/codebase
 VERSION: v55.x (main branch)
 
 Operational Updates (2026-02-01)
-- Deep health checks now return per-component status (validators, kernel manager, session store, floor validators, tool registry, bridge) with overall GREEN/YELLOW/RED roll-up. Sample output shows status=RED because session_store dependency `codebase.mcp.sessions.session_dependency` is missing and floor_validators cannot import `FloorRegistry`; bridge and kernel manager report GREEN.
+- Deep health checks now return per-component status (validators, kernel manager, session store, floor validators, tool registry, bridge) with overall GREEN/YELLOW/RED roll-up. Sample output shows status=RED because session_store dependency `mcp.sessions.session_dependency` is missing and floor_validators cannot import `FloorRegistry`; bridge and kernel manager report GREEN.
 - Tool registry now ships 9 canonical tools (no legacy aliases): init_gate, agi_sense, agi_think, agi_reason, asi_empathize, asi_align, apex_verdict, reality_search, vault_seal. Legacy names `_init_`, `_agi_`, `_asi_`, `_apex_`, `_trinity_`, `_vault_`, `_reality_` were removed from the registry.
 
 ═══════════════════════════════════════════════════════════════════════════════════════════

@@ -110,11 +110,11 @@ pip install -e ".[dev]"
 ```bash
 # Standard I/O (for Claude Desktop, Cursor IDE)
 aaa-mcp
-# OR: python -m codebase.mcp
+# OR: python -m mcp
 
 # SSE transport (HTTP clients)
 aaa-mcp-sse
-# OR: python -m codebase.mcp sse --port 8080
+# OR: python -m mcp sse --port 8080
 
 # Auto-detect mode
 aaa-mcp [stdio|http|sse]
@@ -538,7 +538,7 @@ Configure in `claude_desktop_config.json`:
 
 ```python
 import asyncio
-from codebase.mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_apex
+from mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_apex
 
 async def main():
     # Initialize session

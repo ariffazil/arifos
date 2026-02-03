@@ -345,7 +345,7 @@ async def test_eureka_sieve():
 
 ```python
 async def test_full_pipeline():
-    from codebase.mcp.tools.canonical_trinity import (
+    from mcp.tools.canonical_trinity import (
         mcp_init, mcp_agi, mcp_asi, mcp_apex, mcp_vault
     )
     
@@ -399,12 +399,12 @@ Not given. Not stored lightly. **Forged.**
 
 **Old:**
 ```python
-from codebase.mcp.tools.vault_tool import VaultTool
+from mcp.tools.vault_tool import VaultTool
 ```
 
 **New:**
 ```python
-from codebase.mcp.tools.vault_unified import VaultTool
+from mcp.tools.vault_unified import VaultTool
 # Same interface, fully hardened
 ```
 

@@ -18,7 +18,7 @@ import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import MCP tools
-from codebase.mcp.tools.mcp_tools_v53 import (
+from mcp.tools.mcp_tools_v53 import (
     authorize, reason, evaluate, decide, seal,
     init_000, agi_genius, asi_act, apex_judge, vault_999,
     AuthorizeResult, ReasonResult, EvaluateResult, DecideResult, SealResult,
@@ -27,13 +27,13 @@ from codebase.mcp.tools.mcp_tools_v53 import (
 
 # Import native MCP tools if available
 try:
-    from codebase.mcp.tools.reality_grounding import reality_check
+    from mcp.tools.reality_grounding import reality_check
     REALITY_AVAILABLE = True
 except ImportError:
     REALITY_AVAILABLE = False
 
 try:
-    from codebase.mcp.tools.trinity_validator import trinity_validate
+    from mcp.tools.trinity_validator import trinity_validate
     TRINITY_AVAILABLE = True
 except ImportError:
     TRINITY_AVAILABLE = False

@@ -14,10 +14,10 @@ import logging
 import time
 from typing import Any, Optional
 
-from codebase.mcp.constitutional_metrics import store_stage_result, get_stage_result
-from codebase.mcp.tools.trinity_validator import validate_trinity_request
-from codebase.mcp.tools import reality_grounding
-from codebase.mcp.external_gateways.brave_client import BraveSearchClient
+from mcp.constitutional_metrics import store_stage_result, get_stage_result
+from mcp.tools.trinity_validator import validate_trinity_request
+from mcp.tools import reality_grounding
+from mcp.external_gateways.brave_client import BraveSearchClient
 
 # Initialize logger
 logger = logging.getLogger(__name__)

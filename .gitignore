@@ -177,6 +177,10 @@ vault_999_obsidian/**/.obsidian/plugins/
 # v50.5 Runtime Chaos Reduction
 arifos/mcp/sessions/*
 !arifos/mcp/sessions/.gitkeep
+mcp/sessions/*
+!mcp/sessions/.gitkeep
+VAULT999/sessions/*
+!VAULT999/sessions/.gitkeep
 VAULT999/BBB_LEDGER/entries/*
 cov_report.txt
 coverage_report.txt

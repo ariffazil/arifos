@@ -1,16 +1,16 @@
 import pytest
 import asyncio
 from unittest.mock import MagicMock, patch
-from codebase.mcp.bridge import bridge_init_router, BridgeError
+from mcp.bridge import bridge_init_router, BridgeError
 try:
-    from codebase.mcp.maintenance import session_maintenance_loop
+    from mcp.maintenance import session_maintenance_loop
 except (ImportError, SyntaxError):
     session_maintenance_loop = None  # maintenance module archived
 
 
 async def test_error_categorization():
     """Test that errors are correctly categorized in the bridge."""
-    with patch("codebase.mcp.core.bridge.get_kernel_manager") as mock_manager:
+    with patch("mcp.core.bridge.get_kernel_manager") as mock_manager:
         # Simulate a kernel failure
         mock_manager.side_effect = Exception("Kernel Crash")
         
@@ -25,8 +25,8 @@ async def test_error_categorization():
 @pytest.mark.skipif(session_maintenance_loop is None, reason="maintenance module archived")
 async def test_maintenance_loop_picks_up_orphans():
     """Test that the maintenance loop picks up orphans and calls recover."""
-    with patch("codebase.mcp.maintenance.get_orphaned_sessions") as mock_get_orphans, \
-         patch("codebase.mcp.maintenance.recover_orphaned_session") as mock_recover, \
+    with patch("mcp.maintenance.get_orphaned_sessions") as mock_get_orphans, \
+         patch("mcp.maintenance.recover_orphaned_session") as mock_recover, \
          patch("asyncio.sleep", side_effect=[None, asyncio.CancelledError]): # Run once then stop
         
         mock_get_orphans.return_value = [{"session_id": "orphan-123", "started_at": "2026-01-29T00:00:00Z"}]
@@ -44,7 +44,7 @@ async def test_maintenance_loop_picks_up_orphans():
 
 async def test_bridge_serialization():
     """Test that bridge serialization handles basic types and dicts."""
-    from codebase.mcp.bridge import _serialize
+    from mcp.bridge import _serialize
     
     data = {"a": 1, "b": "str", "c": [1, 2], "d": {"inner": True}}
     assert _serialize(data) == data
