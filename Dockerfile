@@ -1,6 +1,7 @@
 # Dockerfile for arifOS Constitutional MCP Server (v55.3-AAA-MCP)
 # Streamable HTTP transport + health/metrics endpoints
-# Railway-compatible: uses codebase-mcp-sse entry point (FastMCP)
+# Railway-compatible
+# Location: PROJECT ROOT (build context must be repo root)
 
 FROM python:3.12-slim
 
@@ -22,11 +23,14 @@ RUN uv pip install --system --no-cache -r requirements.txt
 COPY pyproject.toml .
 COPY codebase/ codebase/
 
-# Layer 3: Install package (registers entry points like codebase-mcp-sse)
+# Layer 3: Install package (registers entry points)
 RUN uv pip install --system --no-deps -e .
 
 # Layer 4: Copy constitutional data (changes less often than code)
 COPY 000_THEORY/ 000_THEORY/
+
+# Copy startup wrapper
+COPY start_server.py .
 
 # Set environment variables
 ENV PYTHONPATH=/app
@@ -35,17 +39,14 @@ ENV ARIFOS_MODE=production
 ENV ARIFOS_MCP_MODE=sse
 ENV ARIFOS_VERSION=v55.3-AAA-MCP
 ENV HOST=0.0.0.0
-ENV PORT=8080
+# PORT is set by Railway dynamically
 
 # Expose port
 EXPOSE 8080
 
 # Health check (matches railway.toml healthcheckPath)
-HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
-    CMD curl -sf http://localhost:8080/health || exit 1
-
-# Copy startup wrapper
-COPY start_server.py .
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=5 \
+    CMD curl -sf http://localhost:${PORT:-8080}/health || exit 1
 
 # Run with error logging wrapper
 CMD ["python", "start_server.py"]

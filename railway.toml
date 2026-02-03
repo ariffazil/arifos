@@ -4,7 +4,7 @@
 
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "deployments/Dockerfile"
+# Dockerfile is at project root (./Dockerfile)
 
 [deploy]
 startCommand = "python start_server.py"
