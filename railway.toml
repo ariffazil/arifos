@@ -1,0 +1,20 @@
+# Railway Configuration for arifOS MCP Server (v55.3)
+# Using Nixpacks builder for faster, more reliable Python deployments
+
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "python -m mcp.transports sse"
+healthcheckPath = "/health"
+healthcheckTimeout = 300
+restartPolicyType = "ON_FAILURE"
+numReplicas = 1
+
+[deploy.env]
+ARIFOS_ENV = "production"
+ARIFOS_VERSION = "v55.3-AAA-MCP"
+ARIFOS_LOG_LEVEL = "INFO"
+AAA_MCP_TRANSPORT = "sse"
+HOST = "0.0.0.0"
+# PORT is set dynamically by Railway - do not hardcode

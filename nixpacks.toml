@@ -1,20 +1,19 @@
 # Nixpacks configuration for arifOS MCP Server (v55.3)
-# Simplified configuration for Railway deployment
+# Optimized for Railway deployment
 
 [phases.setup]
-nixPkgs = ["python312", "curl"]
+nixPkgs = ["python312", "curl", "gcc"]
 
 [phases.build]
 cmds = [
+    "pip install --upgrade pip",
     "pip install -r requirements.txt",
     "pip install -e .",
-    "python test_startup.py"  # Verify startup works
+    "python test_startup.py"
 ]
+
+[phases.setup.env]
+PYTHON_VERSION = "3.12"
 
 [start]
 cmd = "python -m mcp.transports sse"
-
-[deploy]
-healthcheckPath = "/health"
-healthcheckTimeout = 180
-restartPolicyType = "on_failure"
