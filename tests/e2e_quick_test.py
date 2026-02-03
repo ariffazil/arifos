@@ -84,7 +84,7 @@ async def test():
     # Test 5: mcp_init (via canonical_trinity)
     print("\n--- Test 5: mcp_init (via canonical_trinity) ---")
     try:
-        from codebase.mcp.tools.canonical_trinity import mcp_init
+        from mcp.tools.canonical_trinity import mcp_init
         
         # Validate action
         result = await mcp_init(action="validate", query="", session_id="test_validate")

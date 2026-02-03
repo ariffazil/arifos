@@ -22,7 +22,7 @@ if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
 
 try:
-    from codebase.mcp.tools.reality_tool import RealityTool
+    from mcp.tools.reality_tool import RealityTool
 except ImportError:
     RealityTool = None
 

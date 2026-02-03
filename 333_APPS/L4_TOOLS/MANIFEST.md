@@ -52,9 +52,9 @@ L4_TOOLS/
 ### Option 1: Direct from codebase/ (Recommended)
 ```bash
 # Production deployment uses canonical source
-python -m codebase.mcp
+python -m mcp
 # or
-python -m codebase.mcp --transport sse
+python -m mcp --transport sse
 ```
 
 ### Option 2: From 333_APPS/L4_TOOLS/ (Mirror)
@@ -83,7 +83,7 @@ python -m 333_APPS.L4_TOOLS.mcp
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "codebase.mcp", "--transport", "stdio"],
+      "args": ["-m", "mcp", "--transport", "stdio"],
       "env": {
         "ARIFOS_HOME": "~/.arifos",
         "ARIFOS_MODE": "PROD"
@@ -99,7 +99,7 @@ python -m 333_APPS.L4_TOOLS.mcp
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "codebase.mcp"],
+      "args": ["-m", "mcp"],
       "env": {
         "ARIFOS_MODE": "PROD"
       }

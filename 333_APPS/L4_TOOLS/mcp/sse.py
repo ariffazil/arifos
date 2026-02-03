@@ -1,5 +1,5 @@
 """
-codebase.mcp.sse (v53.2.7-CODEBASE-AAA7)
+mcp.sse (v53.2.7-CODEBASE-AAA7)
 The HTTP Transport for the Codebase MCP Server.
 Deployable on Railway, Render, Fly.io, or any Docker host.
 
@@ -15,7 +15,7 @@ Compatible with:
   - Any MCP HTTP client
 
 Note: stdio clients (Claude Code, Claude Desktop, Kimi, Gemini CLI)
-use codebase.mcp.server instead.
+use mcp.server instead.
 
 Host: 0.0.0.0
 Port: $PORT (default 8000)
@@ -34,7 +34,7 @@ from starlette.responses import JSONResponse
 
 # Import Codebase Routers (Bridge) — v53.2.7 AAA 7-Core Architecture
 # INIT, AGI, ASI, APEX, VAULT, TRINITY, REALITY
-from codebase.mcp.bridge import (
+from mcp.bridge import (
     bridge_init_router,
     bridge_agi_router,
     bridge_asi_router,
@@ -43,9 +43,9 @@ from codebase.mcp.bridge import (
     bridge_trinity_loop_router,
     bridge_reality_check_router,
 )
-from codebase.mcp.constitutional_metrics import get_full_metrics
-from codebase.mcp.rate_limiter import rate_limited
-from codebase.mcp.maintenance import session_maintenance_loop
+from mcp.constitutional_metrics import get_full_metrics
+from mcp.rate_limiter import rate_limited
+from mcp.maintenance import session_maintenance_loop
 
 logger = logging.getLogger(__name__)
 
@@ -908,7 +908,7 @@ def main():
     Main entry point for codebase-mcp-sse command.
 
     Used by:
-      - pyproject.toml: codebase-mcp-sse = "codebase.mcp.sse:main"
+      - pyproject.toml: codebase-mcp-sse = "mcp.sse:main"
       - railway.toml: startCommand = "codebase-mcp-sse"
       - Dockerfile: CMD ["codebase-mcp-sse"]
     """

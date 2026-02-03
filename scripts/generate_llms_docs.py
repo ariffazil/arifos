@@ -7,7 +7,7 @@ project_root = os.getcwd()
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-from codebase.mcp.core.tool_registry import ToolRegistry
+from mcp.core.tool_registry import ToolRegistry
 
 def generate_llms_txt():
     registry = ToolRegistry()

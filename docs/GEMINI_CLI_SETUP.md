@@ -17,7 +17,7 @@ Location: `~/.gemini/settings.json`
   "mcpServers": {
     "arifos-trinity": {
       "command": "C:\\Users\\ariff\\arifOS\\.venv\\Scripts\\python.exe",
-      "args": ["-m", "codebase.mcp"],
+      "args": ["-m", "mcp"],
       "cwd": "C:\\Users\\ariff\\arifOS",
       "env": {
         "PYTHONPATH": "C:\\Users\\ariff\\arifOS",
@@ -133,7 +133,7 @@ When connected, Gemini CLI has access to:
 **Check 1:** Verify Python environment
 ```powershell
 cd C:\Users\ariff\arifOS
-.venv\Scripts\python.exe -m codebase.mcp
+.venv\Scripts\python.exe -m mcp
 ```
 
 **Check 2:** Verify settings.json path

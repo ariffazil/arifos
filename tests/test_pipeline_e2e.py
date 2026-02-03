@@ -9,7 +9,7 @@ Uses the v55 canonical tool handlers directly (not old v53 aliases).
 """
 
 import pytest
-from codebase.mcp.tools.canonical_trinity import (
+from mcp.tools.canonical_trinity import (
     mcp_init,
     mcp_agi,
     mcp_asi,

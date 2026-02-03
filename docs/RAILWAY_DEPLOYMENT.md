@@ -25,7 +25,7 @@ pip install -r requirements.txt && pip install -e .
 ### 2. Start Command
 The entry point has moved from the monolith to the codebase layer:
 ```bash
-python -m codebase.mcp.sse
+python -m mcp.sse
 ```
 
 ### 3. Environment Variables (Required)

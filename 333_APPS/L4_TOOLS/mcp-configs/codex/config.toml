@@ -3,7 +3,7 @@ shell_tool = false
 
 [mcp_servers.aaa-mcp]
 command = "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe"
-args = ["-m", "codebase.mcp", "stdio"]
+args = ["-m", "mcp", "stdio"]
 cwd = "C:\\Users\\User\\arifOS"
 env = {
   PYTHONPATH = "C:/Users/User/arifOS",

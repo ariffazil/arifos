@@ -61,28 +61,28 @@ inject_memory = None
 store_stage_result = None
 
 try:
-    from codebase.mcp.rate_limiter import get_rate_limiter
+    from mcp.rate_limiter import get_rate_limiter
 
     RATE_LIMITER_AVAILABLE = True
 except ImportError:
     logger.debug("Rate limiter not available (non-MCP context)")
 
 try:
-    from codebase.mcp.metrics import get_metrics
+    from mcp.metrics import get_metrics
 
     METRICS_AVAILABLE = True
 except ImportError:
     logger.debug("Metrics not available (non-MCP context)")
 
 try:
-    from codebase.mcp.session_ledger import inject_memory
+    from mcp.session_ledger import inject_memory
 
     SESSION_LEDGER_AVAILABLE = True
 except ImportError:
     logger.debug("Session ledger not available (non-MCP context)")
 
 try:
-    from codebase.mcp.constitutional_metrics import (
+    from mcp.constitutional_metrics import (
         store_stage_result,
     )
 
@@ -570,7 +570,7 @@ async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -
 
         try:
             try:
-                from codebase.mcp.functional_metrics import record_constitutional_telemetry
+                from mcp.functional_metrics import record_constitutional_telemetry
             except ImportError:
                 from arifos.mcp.functional_metrics import record_constitutional_telemetry
             record_constitutional_telemetry(

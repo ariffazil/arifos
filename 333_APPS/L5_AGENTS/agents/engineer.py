@@ -25,7 +25,7 @@ if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
 
 try:
-    from codebase.mcp.tools.asi_tool import ASITool
+    from mcp.tools.asi_tool import ASITool
 except ImportError:
     ASITool = None
 

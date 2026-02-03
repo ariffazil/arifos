@@ -5,7 +5,7 @@ import os
 repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 sys.path.append(repo_root)
 
-from codebase.mcp.core.validators import ConstitutionValidator
+from mcp.core.validators import ConstitutionValidator
 
 
 def test_validators():

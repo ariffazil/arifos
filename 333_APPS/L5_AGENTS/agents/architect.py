@@ -27,7 +27,7 @@ if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
 
 try:
-    from codebase.mcp.tools.agi_tool import AGITool
+    from mcp.tools.agi_tool import AGITool
 except ImportError:
     # Fallback for testing environments where codebase isn't in path
     AGITool = None

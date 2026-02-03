@@ -15,7 +15,7 @@ import logging
 LOOP_MANAGER_AVAILABLE = False
 _loop_manager = None
 
-logger = logging.getLogger("codebase.mcp.tools.vault_tool")
+logger = logging.getLogger("mcp.tools.vault_tool")
 
 try:
     from codebase.loop import LoopManager, LoopState

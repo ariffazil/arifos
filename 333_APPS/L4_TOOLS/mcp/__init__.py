@@ -32,8 +32,8 @@ from .mode_selector import (
 )
 
 # Tool classes should be imported directly when needed:
-#   from codebase.mcp.tools import TrinityHatTool, AGITool, ASITool, APEXTool, VaultTool
-#   from codebase.mcp.bridge import bridge_agi_router, bridge_asi_router, bridge_apex_router
+#   from mcp.tools import TrinityHatTool, AGITool, ASITool, APEXTool, VaultTool
+#   from mcp.bridge import bridge_agi_router, bridge_asi_router, bridge_apex_router
 
 __all__ = [
     "__version__",

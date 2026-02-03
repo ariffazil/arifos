@@ -4,7 +4,7 @@
       "command": "python",
       "args": [
         "-m",
-        "codebase.mcp.entrypoints.sse_entry"
+        "mcp.entrypoints.sse_entry"
       ],
       "env": {
         "ARIFOS_MODE": "production",

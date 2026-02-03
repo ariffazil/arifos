@@ -22,7 +22,7 @@ import mcp.types
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
-from codebase.mcp.tools.canonical_trinity import (
+from mcp.tools.canonical_trinity import (
     mcp_init,
     mcp_agi,
     mcp_asi,
@@ -31,9 +31,9 @@ from codebase.mcp.tools.canonical_trinity import (
     mcp_trinity,
     mcp_reality,
 )
-from codebase.mcp.rate_limiter import get_rate_limiter
-from codebase.mcp.mode_selector import get_mcp_mode, MCPMode
-from codebase.mcp.constitutional_metrics import record_verdict
+from mcp.rate_limiter import get_rate_limiter
+from mcp.mode_selector import get_mcp_mode, MCPMode
+from mcp.constitutional_metrics import record_verdict
 from codebase.enforcement.metrics import record_stage_metrics, record_verdict_metrics
 from codebase.system.orchestrator.presenter import AAAMetabolizer
 

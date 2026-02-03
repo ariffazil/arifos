@@ -30,9 +30,9 @@ async def run_full_integration_test():
     print("[ TEST 1/7 ] Module Imports...")
     try:
         from codebase.kernel import KernelManager, get_kernel_manager
-        from codebase.mcp import bridge
+        from mcp import bridge
         # Note: Skip mcp_trinity import if it has missing router dependencies
-        # from codebase.mcp.tools import mcp_trinity
+        # from mcp.tools import mcp_trinity
         from codebase.constitutional_floors import THRESHOLDS
 
         print(f"  [OK] KernelManager imported")

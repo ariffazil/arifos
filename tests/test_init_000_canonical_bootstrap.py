@@ -191,7 +191,7 @@ async def test_canonical_bootstrap_local_only_mode():
 async def test_init_000_imports():
     """Test that init_000 can be imported via canonical_trinity."""
     # init_000 is wrapped by mcp_init in canonical_trinity
-    from codebase.mcp.tools.canonical_trinity import mcp_init
+    from mcp.tools.canonical_trinity import mcp_init
     
     assert callable(mcp_init)
     print("[OK] init_000 (via mcp_init) imports successfully")
@@ -200,7 +200,7 @@ async def test_init_000_imports():
 @pytest.mark.asyncio
 async def test_init_000_guest_ignition():
     """Test full init_000 flow for guest user."""
-    from codebase.mcp.tools.canonical_trinity import mcp_init
+    from mcp.tools.canonical_trinity import mcp_init
     
     result = await mcp_init(
         action="init",
@@ -224,7 +224,7 @@ async def test_init_000_guest_ignition():
 @pytest.mark.asyncio
 async def test_init_000_sovereign_ignition():
     """Test full init_000 flow for sovereign user (Arif)."""
-    from codebase.mcp.tools.canonical_trinity import mcp_init
+    from mcp.tools.canonical_trinity import mcp_init
     
     result = await mcp_init(
         action="init",
@@ -247,7 +247,7 @@ async def test_init_000_sovereign_ignition():
 @pytest.mark.asyncio
 async def test_init_000_validate_action():
     """Test init_000 validate action (lightweight)."""
-    from codebase.mcp.tools.canonical_trinity import mcp_init
+    from mcp.tools.canonical_trinity import mcp_init
     
     result = await mcp_init(
         action="validate",
@@ -263,7 +263,7 @@ async def test_init_000_validate_action():
 @pytest.mark.asyncio
 async def test_init_000_reset_action():
     """Test init_000 reset action."""
-    from codebase.mcp.tools.canonical_trinity import mcp_init
+    from mcp.tools.canonical_trinity import mcp_init
     
     result = await mcp_init(
         action="reset",
@@ -306,7 +306,7 @@ async def test_tri_witness_consensus_calculation():
 @pytest.mark.asyncio
 async def test_init_000_invalid_action():
     """Test init_000 with invalid action returns VOID."""
-    from codebase.mcp.tools.canonical_trinity import mcp_init
+    from mcp.tools.canonical_trinity import mcp_init
     
     result = await mcp_init(
         action="invalid_action",
@@ -321,7 +321,7 @@ async def test_init_000_invalid_action():
 @pytest.mark.asyncio
 async def test_init_000_empty_query():
     """Test init_000 with empty query (phatic/greeting)."""
-    from codebase.mcp.tools.canonical_trinity import mcp_init
+    from mcp.tools.canonical_trinity import mcp_init
     
     result = await mcp_init(
         action="init",

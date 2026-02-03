@@ -619,20 +619,20 @@ pip install -e .
 aaa-mcp
 
 # Alternative (direct module)
-python -m codebase.mcp
+python -m mcp
 ```
 
 **SSE / Streamable HTTP:**
 ```bash
 aaa-mcp-sse
-# or: python -m codebase.mcp sse
+# or: python -m mcp sse
 ```
 
 ### 3. Using in Code
 
 ```python
 import asyncio
-from codebase.mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_apex
+from mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_apex
 
 async def main():
     # 1. Initialize session

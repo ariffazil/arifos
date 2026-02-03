@@ -6,7 +6,7 @@ Purpose: Verify and Seal the 7-Core AAA MCP System.
 
 Steps:
 1. Verify VERSION matches pyproject.toml
-2. Verify 7 Core Tools presence in codebase.mcp.server
+2. Verify 7 Core Tools presence in mcp.server
 3. Generate Cryptographic Seal (Simulation)
 """
 
@@ -51,7 +51,7 @@ def verify_version():
 def verify_tools():
     print("🔍 [2/3] Verifying 7-Core Tool Suite...")
     try:
-        from codebase.mcp.server import TOOL_DESCRIPTIONS
+        from mcp.server import TOOL_DESCRIPTIONS
         
         expected_tools = [
             "_init_",

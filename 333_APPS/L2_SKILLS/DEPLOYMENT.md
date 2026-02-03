@@ -329,7 +329,7 @@ python -m L2_SKILLS.diagnose
 ### Issue: MCP integration not working
 ```bash
 # Check MCP server status
-python -m codebase.mcp --status
+python -m mcp --status
 
 # Verify client config
 cat ~/.cursor/mcp.json

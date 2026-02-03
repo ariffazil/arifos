@@ -20,7 +20,7 @@ Codex uses **TOML format**, not JSON. Manual conversion required.
   "mcpServers": {
     "aaa-mcp": {
       "command": "python.exe",
-      "args": ["-m", "codebase.mcp"],
+      "args": ["-m", "mcp"],
       "env": { "KEY": "value" }
     }
   }
@@ -34,7 +34,7 @@ shell_tool = false
 
 [mcp_servers.aaa-mcp]
 command = "python.exe"
-args = ["-m", "codebase.mcp"]
+args = ["-m", "mcp"]
 env = { KEY = "value" }
 ```
 
