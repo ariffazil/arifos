@@ -1,68 +1,49 @@
-# arifOS Research Roadmap & Strategic Vision
+# arifOS Roadmap
 
-**Authority:** Trinity Governance (ΔΩΨ)
-**Status:** LIVING DOCUMENT
-**Last Updated:** 2026-02-02
+**Authority:** Muhammad Arif bin Fazil (888 Judge)  
+**Status:** LIVING DOCUMENT  
+**Last Updated:** 2026-02-03
 
----
-
-## Overview
-
-This directory consolidates the strategic deep research, roadmaps, and vision documents for arifOS. It covers the current kernel state (v55.2), the gap between claims and reality, and the path forward.
-
-### Master Documents
-
-| Document | What It Is |
-|----------|-----------|
-| [**MASTER_TODO.md**](./MASTER_TODO.md) | **The Action List.** Every task scored by criticality, timing, energy, risk/reward, and dependencies. Start here. |
-| [**ROADMAP_v55_BEYOND.md**](./ROADMAP_v55_BEYOND.md) | **The Tactical Roadmap.** What works, what's broken, version targets (v55.3 through v60+). |
-| [**CLAUDE_DEEP_RESEARCH_2026-02-02.md**](./CLAUDE_DEEP_RESEARCH_2026-02-02.md) | **Ground-Truth Gap Analysis.** Codebase audit contrasting all prior research against reality. |
+**Motto:** DITEMPA BUKAN DIBERI 💎🔥🧠
 
 ---
 
-## Research Artifacts
+## Unified Roadmap Structure
 
-| Document | Author | Purpose | Status |
-|----------|--------|---------|--------|
-| **`ROADMAP_v55_BEYOND.md`** | Claude + Internal | Honest tactical roadmap with priority ladder (P0/P1/P2) | **Active** |
-| **`CLAUDE_DEEP_RESEARCH_2026-02-02.md`** | Claude Opus 4.5 | Gap analysis: what 8 prior docs got wrong vs. codebase reality | **Active** |
-| **`DEEP_RESEARCH_SYNTHESIS_v55.md`** | Internal | Post-v55 strategic pivot ("Kernel to Institution") | Reference |
-| **`ARIFOS_VISION_2030.md`** | Gemini (Architect) | Grand strategy: Sidecar pattern, L5-L7, "Adult in the Room" | Reference |
-| **`kimi_ai_deep_research_2026-01-12.md`** | Kimi/External | MoE architecture analysis, competitive intelligence | Archived |
-| **`TRINITY_ROADMAP.md`** | Internal | Trinity-to-FAG/W@W/AAA integration proposals (v43 era) | Archived |
-| **`legacy_roadmap_v50.md`** | Internal | Historical context v50-v54 | Archived |
-| **`legacy_future_path.md`** | Internal | Historical context v38-v42 | Archived |
+This directory contains the consolidated strategic direction for arifOS. All legacy research documents have been archived.
 
----
+### Active Documents (2 Files Only)
 
-## Current State (Quick Reference)
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| [**ROADMAP.md**](./ROADMAP.md) | Strategic vision, value progression, version timeline | Architects, Investors, Leadership |
+| [**TODO.md**](./TODO.md) | Actionable tasks, priorities, execution tracking | Developers, Engineers, You |
 
-**What works:** 9 MCP tools, 3 reasoning engines (AGI/ASI/APEX), hard floors (F1,F4,F7,F10,F12), injection defense, schema validation, E2E pipeline test (6/7 pass).
+### Archive
 
-**What's broken:** Soft floors VOID benign queries (kappa_r=0.0 bug), ~60% of tests fail on legacy imports, ledger doesn't persist to disk, L5 agents are `pass` stubs.
-
-**What to do first:** Fix test imports, persist the ledger, fix ASI scoring. Then build agents. See [ROADMAP_v55_BEYOND.md](./ROADMAP_v55_BEYOND.md) for the full priority ladder.
+Historical research documents, deep dives, and legacy roadmaps are preserved in [`./archive/`](./archive/).
 
 ---
 
-## Strategic Thesis
+## Quick Status
 
-The AI industry is transitioning from the **Era of Capability** to the **Era of Governance**. arifOS is constitutional infrastructure for this transition — model-agnostic, runtime-enforced, auditable.
+| Layer | Status | Completion |
+|-------|--------|------------|
+| L1-L4 (Tools) | ✅ Production | 100% |
+| L5 (Agents) | 🔴 In Progress | 25% |
+| L6 (Institution) | ⚠️ Design | 0% |
+| L7 (AGI) | 📋 Research | 0% |
 
-> "We are not building a better LLM. We are building the seatbelt for the LLM revolution."
-
-See [ARIFOS_VISION_2030.md](./ARIFOS_VISION_2030.md) for the full market analysis and deployment strategy.
+**Current Focus:** Complete L5 SDK (6 weeks)
 
 ---
 
-## Quick Links
+## Navigation
 
-- **Technical Spec:** [../CLAUDE.md](../CLAUDE.md)
-- **Agent Guide:** [../AGENTS.md](../AGENTS.md)
-- **Codebase:** [../codebase/](../codebase/)
-- **E2E Test:** [../tests/test_pipeline_e2e.py](../tests/test_pipeline_e2e.py)
+- **What to build next?** → [TODO.md](./TODO.md)
+- **Why build it?** → [ROADMAP.md](./ROADMAP.md)
+- **Historical context?** → [archive/](./archive/)
 
 ---
 
 **DITEMPA BUKAN DIBERI.**
-*Forged in research, sealed in reality.*
