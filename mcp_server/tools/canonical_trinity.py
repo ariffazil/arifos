@@ -166,12 +166,15 @@ async def mcp_init(
         "injection_check_passed": passed,
         "access_level": result.get("lane", "SOFT"),
         "session_ttl": 3600,  # Default TTL
-        "constitutional_version": "v55.2",
+        "constitutional_version": "v55.3",
         "verdict": result.get("verdict", "SEAL"),
+        # APEX Summary (G = A × P × X × E²)
+        "apex_summary": result.get("apex_summary", {}),
         # Keep original helpful data
         "original_status": result.get("status"),
         "reason": result.get("reason"),
         "motto": result["motto"],
+        "seal": result["seal"],
     }
 
     # Implicit Session Binding (F12 Hardening)
