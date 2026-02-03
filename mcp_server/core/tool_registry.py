@@ -68,7 +68,6 @@ class ToolRegistry:
             mcp_asi,
             mcp_init,
             mcp_reality,
-            mcp_trinity,
             mcp_vault,
         )
 
@@ -601,44 +600,7 @@ class ToolRegistry:
             )
         )
 
-        # 10. _trinity_ (The Meta-Loop)
-        self.register(
-            ToolDefinition(
-                name="_trinity_",
-                title="Full Metabolic Cycle (The Loop)",
-                description="Executes the complete AGI→ASI→APEX→VAULT constitutional loop in a single call. Use this for standard requests that require a final verified verdict.",
-                handler=mcp_trinity,
-                input_schema={
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "The request to process through the full loop",
-                        },
-                        "session_id": {
-                            "type": "string",
-                            "description": "Optional session ID to link context",
-                            "pattern": "^sess_[a-zA-Z0-9]{8,}$",
-                        },
-                    },
-                    "required": ["query"],
-                },
-                output_schema={
-                    "type": "object",
-                    "properties": {
-                        "verdict": {"type": "string", "enum": ["SEAL", "VOID", "SABAR"]},
-                        "session_id": {"type": "string"},
-                        "public_rationale": {"type": "string"},
-                        "rule_hits": {"type": "array", "items": {"type": "string"}},
-                        "error": {"type": "object"},
-                    },
-                    "required": ["verdict", "session_id"],
-                },
-                annotations={
-                    "title": "Metabolic Loop",
-                    "readOnlyHint": False,
-                    "destructiveHint": False,
-                    "openWorldHint": True,
-                },
-            )
-        )
+        # NOTE: _trinity_ orchestrator removed (v55.3)
+        # Client chains tools explicitly instead of server-side "magic" loop
+        # This aligns with F4 Clarity — explicit over implicit
+        # 9 tools remain: init_gate, agi_*, asi_*, apex_*, reality_*, vault_*
