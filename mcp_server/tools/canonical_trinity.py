@@ -83,6 +83,8 @@ async def mcp_init(
     """
     import importlib
 
+    logger.info(f"mcp_init called with action={action}, query={query[:50] if query else 'EMPTY'}...")
+
     kwargs = _normalize_kwargs(kwargs)
     # Extract known params that may have been wrapped
     action = kwargs.pop("action", action) or "init"
@@ -90,8 +92,13 @@ async def mcp_init(
     session_id = kwargs.pop("session_id", session_id)
 
     # Dynamic import to handle '000_init' directory name (invalid Python identifier)
-    module = importlib.import_module("codebase.init.000_init.mcp_bridge")
-    mcp_000_init = module.mcp_000_init
+    try:
+        module = importlib.import_module("codebase.init.000_init.mcp_bridge")
+        mcp_000_init = module.mcp_000_init
+        logger.info(f"mcp_init: Successfully imported mcp_000_init from mcp_bridge")
+    except Exception as e:
+        logger.error(f"mcp_init: Failed to import mcp_000_init: {e}")
+        raise
 
     # Only pass parameters that mcp_000_init accepts
     result = await mcp_000_init(
@@ -102,8 +109,11 @@ async def mcp_init(
         context=kwargs.get("context"),
     )
 
+    logger.info(f"mcp_init: mcp_000_init returned verdict={result.get('verdict')}, has_motto={'motto' in result}")
+
     # Stamp every _init_ response with the arifOS motto
-    result["motto"] = "DITEMPA, BUKAN DIBERI \U0001f9e0\U0001f525\U0001f48e"
+    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+    result["seal"] = "💎🔥🧠"
     # result["root_key"] = "TOY_MODE"  # REMOVED: Security Hardening (P0)
 
     # Adapter: Map internal result to ToolRegistry schema
