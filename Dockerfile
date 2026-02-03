@@ -1,5 +1,5 @@
 # arifOS MCP Server Dockerfile (v55.3.2-9tools-SEAL)
-# Cache-bust: 2026-02-03-15-10-SIMPLE-HTTP-v55.4
+# Cache-bust: 2026-02-03-15-35-CLOSURE-FIX-v55.4.1
 FROM python:3.12-slim
 
 WORKDIR /app

@@ -63,7 +63,8 @@ class SSETransport(BaseTransport):
             base_handler = tool_def.handler
 
             # Wrap handler for implicit session binding
-            async def session_wrapped_handler(*args, **kwargs):
+            # CRITICAL FIX: Capture base_handler by value using default arg to avoid closure bug
+            async def session_wrapped_handler(*args, _handler=base_handler, **kwargs):
                 # 1. Capture session from header if available (via starlette request if FastMCP exposes it)
                 # Note: FastMCP tool handlers can optionally take a 'request' arg
 
@@ -74,8 +75,8 @@ class SSETransport(BaseTransport):
                     if "session_id" not in kwargs:
                         kwargs["session_id"] = session_id
 
-                # 3. Execute
-                result = await base_handler(*args, **kwargs)
+                # 3. Execute (using captured _handler to avoid late-binding bug)
+                result = await _handler(*args, **kwargs)
 
                 # 4. Update implicit context if result contains a new session_id
                 new_session_id = result.get("session_id")
