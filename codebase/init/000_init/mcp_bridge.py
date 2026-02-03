@@ -747,8 +747,34 @@ async def mcp_000_init(
         # Collapsing 13 floors into 4 factors
         A = 1.0  # AKAL - Clarity/Intelligence (F2, F4, F6, F7)
         P = 1.0 if thermo["peace_squared"] >= 1.0 else thermo["peace_squared"]  # PRESENT - Regulation/Safety (F3, F10, F11, F12)
-        X = 1.0  # EXPLORATION - Trust/Curiosity (F1, F5, F9)  
-        E = thermo["energy_budget"]  # ENERGY - Sustainable power
+        
+        # FIX v55.3: Call ASI engine for real empathy detection
+        X = 1.0  # EXPLORATION - Base trust
+        E = thermo["energy_budget"]  # ENERGY - Base sustainable power
+        
+        # Query ASI for emotional empathy (detects distress)
+        try:
+            from codebase.kernel import get_kernel_manager
+            asi = get_kernel_manager().get_asi()
+            asi_result = await asi.execute("full", {"query": query, "session_id": session})
+            
+            # Extract empathy coefficient κᵣ from ASI
+            kappa_r = asi_result.get("empathy_kappa_r", 0.7)
+            
+            # Override X with empathy-based exploration
+            # High empathy = high exploration capability (F6)
+            X = min(1.0, max(0.3, kappa_r))
+            
+            # Override E with empathy-adjusted energy
+            # Stressed users need more energy budget
+            E = min(1.0, max(0.5, kappa_r))
+            
+            logger.info(f"000_init: ASI empathy κᵣ={kappa_r:.2f}, adjusted E={E:.2f}")
+        except Exception as e:
+            logger.warning(f"000_init: ASI empathy failed, using defaults: {e}")
+            # Fallback to lane-based energy
+            pass
+        
         G = A * P * X * (E ** 2)
 
         return InitResult(
