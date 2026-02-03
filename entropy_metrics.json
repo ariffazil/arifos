@@ -1,0 +1,27 @@
+{
+  "counts": {
+    "other": 648,
+    "config": 209,
+    "scripts": 95,
+    "docs": 461,
+    "tests": 105,
+    "archive": 1256,
+    "production_code": 145
+  },
+  "sizes": {
+    "other": 340226603,
+    "config": 367270,
+    "scripts": 489643,
+    "docs": 4691273,
+    "tests": 801321,
+    "archive": 30132174,
+    "production_code": 1142263
+  },
+  "metrics": {
+    "total_files": 2919,
+    "total_size_mb": 360.34636211395264,
+    "archive_ratio": "43.0%",
+    "test_coverage_ratio": "72.4%",
+    "entropy_score": 45
+  }
+}

@@ -21,7 +21,7 @@ from pathlib import Path
 from datetime import datetime
 from unittest.mock import patch
 
-from arifos.mcp.session_ledger import (
+from codebase.mcp.session_ledger import (
     SessionLedger,
     SessionEntry,
     get_ledger,
@@ -259,7 +259,7 @@ class TestHelperFunctions:
 
     def test_get_ledger_singleton(self):
         """get_ledger returns singleton instance."""
-        import arifos.mcp.session_ledger as module
+        import codebase.mcp.session_ledger as module
 
         # Clear singleton
         module._session_ledger = None
