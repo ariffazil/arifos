@@ -35,46 +35,109 @@ It enforces **13 mathematical floors** to ensure AI outputs are:
 
 ---
 
-## 🚀 Quick Start (5 Minutes)
+## 🚀 Quick Start
 
-### Option 1: Use the System Prompt (Copy-Paste)
+Choose your entry point based on your needs:
 
-Add arifOS governance to any LLM:
+### Option 1: Zero-Setup System Prompt (30 seconds)
+**Best for:** Immediate governance, any LLM (ChatGPT, Claude, Gemini)
 
 ```bash
+# Copy the constitutional system prompt
 curl -s https://arif-fazil.com/llms.txt | head -100
 ```
 
-Copy into your LLM's system prompt. [Full prompt →](333_APPS/L1_PROMPT/SYSTEM_PROMPT.md)
+Paste into your LLM interface. Your session is now constitutionally governed.
 
-### Option 2: Run MCP Server (Production API)
+**No installation. No API keys. Just copy-paste.**
 
+📖 [See all prompt variants](333_APPS/L1_PROMPT/) • [How it works](333_APPS/README.md#l1-system-prompts)
+
+---
+
+### Option 2: Production MCP Server (5 minutes)
+**Best for:** Production integrations, API access, Claude Desktop/Cursor
+
+**Install:**
 ```bash
-pip install fastmcp
-python -m arifos.mcp
-# Server running on http://localhost:6274
+pip install arifos
 ```
 
-**Test it:**
+**Run:**
 ```bash
-curl -X POST http://localhost:6274/mcp \
-  -d '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"init_gate","arguments":{"query":"Should I deploy?"}},"id":1}'
+# For Claude Desktop / Cursor (stdio)
+aaa-mcp
+
+# For remote clients (HTTP/SSE)
+aaa-mcp-sse --port 6274
 ```
+
+**Configure Claude Desktop:**
+```json
+{
+  "mcpServers": {
+    "arifos": {
+      "command": "aaa-mcp"
+    }
+  }
+}
+```
+
+**Test:**
+```bash
+# Health check
+curl https://aaamcp.arif-fazil.com/health
+
+# Call a tool
+curl -X POST https://aaamcp.arif-fazil.com/api/v1/init_gate \
+  -H "Content-Type: application/json" \
+  -d '{"query": "Initialize session"}'
+```
+
+📖 [Full MCP deployment guide](#-production-deployment) • [API Reference](docs/API_REFERENCE.md)
+
+---
 
 ### Option 3: Clone & Develop (Full Stack)
+**Best for:** Contributors, researchers, custom deployments
 
 ```bash
+# Clone repository
 git clone https://github.com/ariffazil/arifOS.git
 cd arifOS
-pip install -e .
+
+# Install development environment
+pip install -e ".[dev]"
+
+# Run tests
 pytest tests/ -v
+
+# Start local MCP server
+python -m codebase.mcp.fastmcp_clean
 ```
+
+📖 [Development guide](#-development-guide) • [Contributing](docs/CONTRIBUTING.md)
+
+---
+
+**Next Steps:**
+- 📊 Understand the [Architecture](#-architecture)
+- 🔧 Deploy to [Production](#-production-deployment)
+- 📚 Read the [Constitutional Canon](000_THEORY/)
 
 ---
 
 ## 🏗️ Architecture
 
-### The Trinity (AGI / ASI / APEX)
+### The Trinity: Mind, Heart, Soul
+
+arifOS uses a biological metaphor for its three core engines:
+
+| Engine | Symbol | Role | Question | Floors |
+|--------|--------|------|----------|--------|
+| **AGI (Mind)** | Δ Delta | Architect — Logic, reasoning, truth | *Is it TRUE?* | F2, F4, F7 |
+| **ASI (Heart)** | Ω Omega | Guardian — Safety, empathy, care | *Is it SAFE?* | F5, F6, F9 |
+| **APEX (Soul)** | Ψ Psi | Sovereign — Verdict, consensus, law | *Is it LAWFUL?* | F3, F8, F13 |
 
 ```
 ┌─────────────────────────────────────────┐
@@ -92,12 +155,31 @@ pytest tests/ -v
 └─────────────────┘  └─────────────────┘
 ```
 
+**Full technical spec:** [000_THEORY/000_ARCHITECTURE.md](000_THEORY/000_ARCHITECTURE.md)
+
+---
+
 ### The 13 Constitutional Floors
 
-| Floor | Principle | Physics | Enforcement |
-|-------|-----------|---------|-------------|
-| F1 | Amanah | Landauer's Principle | Reversible operations |
-| F2 | Truth | Fisher-Rao Metric | τ ≥ 0.99 |
+Every output must pass these **13 Floors** before being released:
+
+| Floor | Name | Principle | Threshold | Physics Basis |
+|-------|------|-----------|-----------|---------------|
+| **F1** | Amanah | Reversibility | Audit trail | Landauer's Principle |
+| **F2** | Truth | Factual accuracy | τ ≥ 0.99 | Fisher-Rao Metric |
+| **F3** | Tri-Witness | Consensus | W₃ ≥ 0.95 | Quantum Measurement |
+| **F4** | Clarity | Entropy reduction | ΔS ≤ 0 | Shannon Entropy |
+| **F5** | Peace | Stability | P² ≥ 1.0 | Lyapunov Stability |
+| **F6** | Empathy | Care | κᵣ ≥ 0.70 | Heat Transfer |
+| **F7** | Humility | Uncertainty | Ω₀ ∈ [0.03, 0.05] | Uncertainty Principle |
+| **F8** | Genius | Intelligence | G ≥ 0.80 | g-Factor |
+| **F9** | Anti-Hantu | Authenticity | Verified | Dark Energy Contrast |
+| **F10** | Ontology | Structure | Valid categories | Set Theory |
+| **F11** | Authority | Chain of command | Valid signature | BLS Signatures |
+| **F12** | Hardening | Injection defense | Blocked | Error Correction |
+| **F13** | Sovereign | Human veto | Always | Circuit Breaker |
+
+**Implementation:** [codebase/floors/canonical.py](codebase/floors/canonical.py)
 | F3 | Tri-Witness | Quantum Measurement | W₃ ≥ 0.95 |
 | F4 | Clarity | Shannon Entropy | ΔS ≤ 0 |
 | F5 | Peace | Lyapunov Stability | Peace² ≥ 1.0 |
