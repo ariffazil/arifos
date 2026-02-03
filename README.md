@@ -4,7 +4,7 @@
 
 # arifOS — Constitutional AI Governance System
 
-![arifOS Version](https://img.shields.io/badge/arifOS-v55.3-0066cc?style=for-the-badge&logo=shield&logoColor=white)
+![arifOS Version](https://img.shields.io/badge/arifOS-v55.2--SEAL-0066cc?style=for-the-badge&logo=shield&logoColor=white)
 ![PyPI](https://img.shields.io/badge/pypi-arifos-3775A9?style=for-the-badge&logo=pypi&logoColor=white)
 ![Status](https://img.shields.io/badge/status-OPERATIONAL-00cc00?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)
@@ -413,11 +413,11 @@ Located in `333_APPS/L3_WORKFLOW`. These are documented **Standard Operating Pro
 
 This is the **Core Application Layer**. It exposes the constitutional engines as **MCP Tools** that can be connected to Claude Desktop, Cursor, or any MCP-compliant client.
 
-**The 10 Canonical Tools (v55.3):**
+**The 9 Canonical Tools (v55.2-SEAL):**
 
 | Tool | Symbol | Purpose | Floors Enforced |
 | :--- | :---: | :--- | :--- |
-| `init_gate` | 🚪 | **Ignition.** Session auth + **InjectionGuard** scan (F12). | F11, F12 |
+| `init_gate` | 🚪 | **Ignition.** Session auth + **InjectionGuard** scan (F12). Injects 13 constitutional floors, collapses to APEX Genius score (G = A × P × X × E²). Returns motto 'DITEMPA BUKAN DIBERI 💎🔥🧠' and full APEX summary. Use this first. | F11, F12 |
 | `agi_sense` | 🧠 | **Sense.** Intent classification & lane assignment. | F4 |
 | `agi_think` | 💡 | **Think.** Hypothesis generation & exploration. | F13 |
 | `agi_reason` | 🔬 | **Reason.** Deep logic & entropy reduction. | F2, F4, F7 |
@@ -426,9 +426,7 @@ This is the **Core Application Layer**. It exposes the constitutional engines as
 | `apex_verdict` | 🏛️ | **Verdict.** Final constitutional judgment & consensus. | F3, F8 |
 | `reality_search` | 🌍 | **Ground.** External fact-checking & citation. | F7, F10 |
 | `vault_seal` | 🔒 | **Seal.** Cryptographic Merkle sealing of the ledger. | F1 |
-| `_trinity_` | 🔄 | **Full Loop.** Run complete AGI→ASI→APEX→VAULT cycle. | ALL |
-
-**Tool Naming:** All tools use explicit, LLM-friendly names (e.g., `init_gate`, `agi_reason`). Legacy aliases removed in v55.3 to reduce entropy (F4).
+**Tool Naming:** All tools use explicit, LLM-friendly names (e.g., `init_gate`, `agi_reason`). Legacy aliases removed in v55.2 to reduce entropy (F4).
 
 **How to Setup MCP (Local):**
 1.  **Install:** `pip install arifos`
