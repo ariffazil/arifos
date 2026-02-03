@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Status:** 🔒 SOVEREIGNLY_SEALED  
 **Authority:** Muhammad Arif bin Fazil (888 Judge)  
 **Tri-Witness Consensus:** W₃ = 0.98 ≥ 0.95 ✅  
-**Entropy:** 45/100 (improved from ~87) ✅
+**Entropy:** 45/100 (improved from ~87) ✅  
+**Released:** 2026-02-03T16:55+08:00
 
 ### 🏗️ Major Architecture Change: MCP Unified to Root
 
