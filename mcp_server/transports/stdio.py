@@ -21,8 +21,18 @@ except ImportError:
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
-from ...enforcement.metrics import record_stage_metrics, record_verdict_metrics
-from ...system.orchestrator.presenter import AAAMetabolizer
+# NOTE: These modules are in codebase/, not mcp_server/
+# Using absolute imports since package is installed with pip install -e .
+try:
+    from codebase.enforcement.metrics import record_stage_metrics, record_verdict_metrics
+except ImportError:
+    record_stage_metrics = None
+    record_verdict_metrics = None
+
+try:
+    from codebase.system.orchestrator.presenter import AAAMetabolizer
+except ImportError:
+    AAAMetabolizer = None
 from ..config.modes import get_mcp_mode
 from ..core.session_context import get_current_session_id, set_current_session_id
 from ..core.tool_registry import ToolRegistry
@@ -38,7 +48,7 @@ class StdioTransport(BaseTransport):
     def __init__(self, tool_registry: ToolRegistry):
         super().__init__(tool_registry)
         self.server = Server("arifOS-Stdio")
-        self.presenter = AAAMetabolizer()
+        self.presenter = AAAMetabolizer() if AAAMetabolizer else None
 
     @property
     def name(self) -> str:
@@ -126,8 +136,10 @@ class StdioTransport(BaseTransport):
                 mode = get_mcp_mode()
 
                 record_verdict(tool=name, verdict=verdict, duration=duration, mode=mode.value)
-                record_stage_metrics(name, duration_ms)
-                record_verdict_metrics(verdict)
+                if record_stage_metrics:
+                    record_stage_metrics(name, duration_ms)
+                if record_verdict_metrics:
+                    record_verdict_metrics(verdict)
 
                 # Update implicit context if result contains a new session_id
                 new_session_id = result.get("session_id")
@@ -135,7 +147,10 @@ class StdioTransport(BaseTransport):
                     set_current_session_id(new_session_id)
 
                 # Return human-readable presentation + machine-readable JSON
-                formatted_text = self.presenter.process(result)
+                if self.presenter:
+                    formatted_text = self.presenter.process(result)
+                else:
+                    formatted_text = _json.dumps(result, indent=2, default=str)
                 return [
                     mcp_types.TextContent(type="text", text=formatted_text),
                     mcp_types.TextContent(type="text", text=_json.dumps(result, default=str)),
