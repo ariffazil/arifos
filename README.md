@@ -661,22 +661,29 @@ arifOS is production-ready for L1-L4, but has known limitations. This section is
 
 | Issue | Impact | Status | Tracking |
 |-------|--------|--------|----------|
-| **T1.1 Ledger Persistence** | Audit trail lost on restart | 🔴 Open | [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) |
 | **T1.2 Test Import Fixes** | 34 tests have broken imports (`arifos.` → `codebase.`) | 🔴 Open | [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) |
+| **T2.1 Wire Stages 444-999** | Stages exist but need MCP pipeline integration | 🟡 In Progress | [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) |
 
-### Resolved (Recently Fixed)
+### Resolved (Recently Fixed) ✅
 
 | Issue | Fix | Version |
 |-------|-----|---------|
-| **T1.3 ASI Scoring Bug** | `kappa_r` returned 0.5 for benign queries (should be 1.0). Fixed by removing default stakeholder creation. | v55.3 |
+| **T1.1 Ledger Persistence** | Migrated to PostgreSQL with Railway. Vault survives restarts. | v55.2 |
+| **T1.3 ASI Empathy Bug** | Fixed `kappa_r=0.49` bug. Added emotional distress detection (stressed→E²=0.81+) | v55.2 |
+| **Hybrid API** | Deployed REST endpoints (`/api/v1/*`) alongside MCP | v55.2 |
+| **13 Floors** | All F1-F13 validators implemented and active | v55.2 |
 
 ### What This Means for Users
 
 - **L1-L4 (System Prompts to MCP Tools):** ✅ Production-ready. Use these now.
-- **VAULT-999 (Ledger):** ⚠️ Works in-memory, survives container restarts, but not host reboots until T1.1.
+- **VAULT-999 (Ledger):** ✅ **PostgreSQL persistence active**. Audit trail survives restarts.
+- **13 Floors:** ✅ All constitutional validators (F1-F13) enforced.
+- **Hybrid API:** ✅ MCP for AI agents, REST for humans (`/api/v1/*`).
+- **ASI Empathy:** ✅ Detects emotional distress, adjusts energy budget (E²).
 - **Test Suite:** ⚠️ Don't rely on `pytest tests/` until T1.2 is closed. Run individual test files instead.
 
-> **Bottom Line:** The system works for real-world governance, but audit persistence and automated testing need completion. See [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) for task scores and ETA.
+> **Bottom Line:** Core governance is LIVE. Vault persists. Empathy works. 13 floors enforced. Test suite cleanup remaining.
+> See [ROADMAP/MASTER_TODO.md](ROADMAP/MASTER_TODO.md) for detailed task tracking.
 
 ---
 
