@@ -111,7 +111,7 @@ class RealityTool:
 
         # Handle actual search if bridge is available
         try:
-            from mcp.core.bridge import get_bridge_router
+            from mcp_server.core.bridge import get_bridge_router
 
             router = get_bridge_router()
             result = await router.route_reality_check(query, session_id, **kwargs)

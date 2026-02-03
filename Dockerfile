@@ -13,7 +13,7 @@ RUN pip install -r requirements.txt
 # Copy source
 COPY pyproject.toml .
 COPY codebase/ codebase/
-COPY mcp/ mcp/
+COPY mcp_server/ mcp_server/
 COPY start_server.py .
 
 # Install package

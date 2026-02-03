@@ -32,8 +32,8 @@ def main():
     try:
         # Test imports
         logger.info("Testing imports...")
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.sse import SSETransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.sse import SSETransport
         logger.info("✓ Imports successful")
         
         # Initialize registry

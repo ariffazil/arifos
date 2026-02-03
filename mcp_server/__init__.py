@@ -28,11 +28,11 @@ from .services.immutable_ledger import (
 )
 
 # v55 shim: prefer config.modes
-from mcp.config.modes import get_mcp_mode, MCPMode
+from mcp_server.config.modes import get_mcp_mode, MCPMode
 
 # Tool classes should be imported directly when needed:
-#   from mcp.tools import TrinityHatTool, AGITool, ASITool, APEXTool, VaultTool
-#   from mcp.bridge import bridge_agi_router, bridge_asi_router, bridge_apex_router
+#   from mcp_server.tools import TrinityHatTool, AGITool, ASITool, APEXTool, VaultTool
+#   from mcp_server.bridge import bridge_agi_router, bridge_asi_router, bridge_apex_router
 
 __all__ = [
     "__version__",

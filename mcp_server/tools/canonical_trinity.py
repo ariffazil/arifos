@@ -23,7 +23,7 @@ import uuid
 from typing import Any, Dict, List, Optional
 
 from codebase.kernel import get_kernel_manager
-from mcp.core.session_context import get_current_session_id, set_current_session_id
+from mcp_server.core.session_context import get_current_session_id, set_current_session_id
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ except ImportError:
 # Strict mode flag (environment variable)
 SCHEMA_STRICT_MODE = os.environ.get("AAA_SCHEMA_STRICT", "false").lower() == "true"
 
-from mcp.core.bridge import (
+from mcp_server.core.bridge import (
     bridge_atlas_router,
     bridge_reality_check_router,
     bridge_trinity_loop_router,
@@ -429,7 +429,7 @@ async def mcp_vault(
         proof   — Get Merkle inclusion proof
     """
     # Use consolidated vault_tool with EUREKA Sieve (v55.3)
-    from mcp.tools.vault_tool import AUTHORITY_NOTICE, VaultTool
+    from mcp_server.tools.vault_tool import AUTHORITY_NOTICE, VaultTool
 
     kwargs = _normalize_kwargs(kwargs)
     action = kwargs.pop("action", action) or "seal"

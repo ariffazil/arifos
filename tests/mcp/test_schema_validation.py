@@ -14,8 +14,8 @@ Tests input/output schema validation for all 9 canonical tools:
 """
 
 import pytest
-from mcp.core.tool_registry import ToolRegistry
-from mcp.core.validators import validate_input, validate_output, enforce_schema
+from mcp_server.core.tool_registry import ToolRegistry
+from mcp_server.core.validators import validate_input, validate_output, enforce_schema
 
 
 class TestToolSchemas:

@@ -15,9 +15,9 @@ import time
 from typing import Any, Optional
 
 from mcp.constitutional_metrics import store_stage_result, get_stage_result
-from mcp.tools.trinity_validator import validate_trinity_request
+from mcp_server.tools.trinity_validator import validate_trinity_request
 from mcp.tools import reality_grounding
-from mcp.external_gateways.brave_client import BraveSearchClient
+from mcp_server.external_gateways.brave_client import BraveSearchClient
 
 # Initialize logger
 logger = logging.getLogger(__name__)

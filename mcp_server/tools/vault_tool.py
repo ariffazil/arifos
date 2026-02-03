@@ -24,7 +24,7 @@ try:
 except ImportError:
     POSTGRES_AVAILABLE = False
 
-from mcp.session_ledger import get_ledger as get_filesystem_ledger
+from mcp_server.session_ledger import get_ledger as get_filesystem_ledger
 
 # Import EUREKA Sieve
 from codebase.vault import EUREKASieve, should_seal_to_vault
@@ -132,7 +132,7 @@ class VaultTool:
         3. SABAR (0.50-0.75) goes to cooling ledger
         4. TRANSIENT (<0.50) not stored
         """
-        from mcp.core.session_context import get_current_session_id
+        from mcp_server.core.session_context import get_current_session_id
 
         payload = payload or {}
         session_id = session_id or get_current_session_id()

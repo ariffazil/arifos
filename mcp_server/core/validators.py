@@ -249,7 +249,7 @@ def validate_input(input_data: Dict[str, Any], tool_name: str) -> Tuple[bool, Li
     violations: List[str] = []
 
     try:
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         tool = registry.get(tool_name)
         if tool is None:

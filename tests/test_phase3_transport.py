@@ -57,8 +57,8 @@ class TestStdioTransport:
 
     def test_stdio_transport_construction(self):
         """Stdio transport constructs without errors."""
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.stdio import StdioTransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.stdio import StdioTransport
 
         registry = ToolRegistry()
         transport = StdioTransport(registry)
@@ -69,8 +69,8 @@ class TestStdioTransport:
 
     def test_stdio_transport_lists_9_tools(self):
         """Stdio transport has access to all 9 canonical tools."""
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.stdio import StdioTransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.stdio import StdioTransport
 
         registry = ToolRegistry()
         transport = StdioTransport(registry)
@@ -89,8 +89,8 @@ class TestStdioTransport:
 
     def test_stdio_transport_has_handlers(self):
         """All tools in stdio transport have valid handlers."""
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.stdio import StdioTransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.stdio import StdioTransport
         
         registry = ToolRegistry()
         transport = StdioTransport(registry)
@@ -109,8 +109,8 @@ class TestSSETransport:
 
     def test_sse_transport_construction(self):
         """SSE transport constructs without errors."""
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.sse import SSETransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.sse import SSETransport
 
         registry = ToolRegistry()
         transport = SSETransport(registry)
@@ -121,8 +121,8 @@ class TestSSETransport:
 
     def test_sse_transport_lists_9_tools(self):
         """SSE transport has access to all 9 canonical tools."""
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.sse import SSETransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.sse import SSETransport
 
         registry = ToolRegistry()
         transport = SSETransport(registry)
@@ -141,8 +141,8 @@ class TestSSETransport:
 
     def test_sse_transport_has_handlers(self):
         """All tools in SSE transport have valid handlers."""
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.sse import SSETransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.sse import SSETransport
         
         registry = ToolRegistry()
         transport = SSETransport(registry)
@@ -162,7 +162,7 @@ class TestIntegrationToolCalls:
     @pytest.mark.asyncio
     async def test_init_gate_tool_call(self):
         """Integration test: Call init_gate and verify response."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
 
         registry = ToolRegistry()
         tool = registry.get("init_gate")
@@ -181,7 +181,7 @@ class TestIntegrationToolCalls:
     @pytest.mark.asyncio
     async def test_agi_sense_tool_call(self):
         """Integration test: Call agi_sense and verify response."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         
         registry = ToolRegistry()
         tool = registry.get("agi_sense")
@@ -211,7 +211,7 @@ class TestIntegrationToolCalls:
     @pytest.mark.asyncio
     async def test_agi_reason_tool_call(self):
         """Integration test: Call agi_reason with mode parameter."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         
         registry = ToolRegistry()
         tool = registry.get("agi_reason")
@@ -244,7 +244,7 @@ class TestIntegrationToolCalls:
     @pytest.mark.asyncio
     async def test_session_state_propagation_across_tools(self):
         """Integration test: Verify session state flows between tools."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         
         registry = ToolRegistry()
         agi_sense = registry.get("agi_sense")
@@ -288,7 +288,7 @@ class TestBackwardCompatibility:
 
     def test_canonical_tools_all_accessible(self):
         """All 9 canonical tool names are accessible by name."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
 
         registry = ToolRegistry()
 
@@ -303,7 +303,7 @@ class TestBackwardCompatibility:
 
     def test_legacy_aliases_removed(self):
         """Legacy aliases are not in the v55 clean registry."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
 
         registry = ToolRegistry()
         assert registry.get("_init_") is None
@@ -312,7 +312,7 @@ class TestBackwardCompatibility:
 
     def test_all_tools_have_schemas(self):
         """All 9 canonical tools have valid input/output schemas."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
 
         registry = ToolRegistry()
 
@@ -332,9 +332,9 @@ class TestPhase3Validation:
 
     def test_phase3_validation_checklist(self):
         """Verify all Phase 3 validation criteria met."""
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.stdio import StdioTransport
-        from mcp.transports.sse import SSETransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.stdio import StdioTransport
+        from mcp_server.transports.sse import SSETransport
 
         # MCP module available (we're running, so it's available)
         assert HAS_MCP or True, "Tests run even without MCP (skipif works)"

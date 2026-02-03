@@ -23,7 +23,7 @@ if os.getcwd() not in sys.path:
     sys.path.append(os.getcwd())
 
 try:
-    from mcp.tools.apex_tool import APEXTool
+    from mcp_server.tools.apex_tool import APEXTool
 except ImportError:
     APEXTool = None
 

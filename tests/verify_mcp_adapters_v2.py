@@ -45,7 +45,7 @@ print("MOCKS INSTALLED. IMPORTING TRINITY...", flush=True)
 try:
     with patch("codebase.kernel.get_kernel_manager", return_value=mock_km):
         # Local import to simulate running the tool
-        from mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_asi, mcp_apex
+        from mcp_server.tools.canonical_trinity import mcp_init, mcp_agi, mcp_asi, mcp_apex
         
     print("IMPORT SUCCESS.", flush=True)
 

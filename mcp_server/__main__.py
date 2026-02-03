@@ -10,17 +10,17 @@ def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "stdio"
 
     if mode in ("http", "sse"):
-        from mcp.entrypoints.sse_entry import main as sse_main
+        from mcp_server.entrypoints.sse_entry import main as sse_main
 
         sse_main()
     elif mode == "sse-simple":
         # Deprecated but kept for fallback if needed, or redirect to sse
         print("[WARN] sse-simple is deprecated, using sse transport.")
-        from mcp.entrypoints.sse_entry import main as sse_main
+        from mcp_server.entrypoints.sse_entry import main as sse_main
 
         sse_main()
     else:
-        from mcp.entrypoints.stdio_entry import main as stdio_main
+        from mcp_server.entrypoints.stdio_entry import main as stdio_main
 
         stdio_main()
 

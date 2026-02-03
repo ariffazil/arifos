@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 
-from mcp.tools.canonical_trinity import (
+from mcp_server.tools.canonical_trinity import (
     mcp_agi,
     mcp_apex,
     mcp_asi,

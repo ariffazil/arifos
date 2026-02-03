@@ -70,7 +70,7 @@ sys.modules["codebase.init.000_init.mcp_bridge"].mcp_000_init = mock_init_execut
 
 try:
     with patch("codebase.kernel.get_kernel_manager", return_value=mock_km):
-        from mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_asi, mcp_apex
+        from mcp_server.tools.canonical_trinity import mcp_init, mcp_agi, mcp_asi, mcp_apex
 except Exception as e:
     import traceback
     print(f"IMPORT ERROR: {e}")

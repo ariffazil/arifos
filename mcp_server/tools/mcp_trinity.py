@@ -5,8 +5,8 @@ Legacy MCP Trinity bundle (v53.x) — thin adapters around the core kernels.
 This file is maintained for backwards compatibility only and will be removed in v56.0.
 
 Migration:
-  OLD: from mcp.tools.mcp_trinity import mcp_000_init
-  NEW: from mcp.tools.canonical_trinity import mcp_init
+  OLD: from mcp_server.tools.mcp_trinity import mcp_000_init
+  NEW: from mcp_server.tools.canonical_trinity import mcp_init
 
 DITEMPA BUKAN DIBERI.
 """
@@ -25,10 +25,10 @@ import logging
 from typing import Any, Dict, Optional
 
 from codebase.kernel import mcp_000_init, get_kernel_manager
-from mcp.services.rate_limiter import get_rate_limiter
-from mcp.services.metrics import get_metrics
-from mcp.session_ledger import inject_memory, seal_memory
-from mcp.core.bridge import (
+from mcp_server.services.rate_limiter import get_rate_limiter
+from mcp_server.services.metrics import get_metrics
+from mcp_server.session_ledger import inject_memory, seal_memory
+from mcp_server.core.bridge import (
     bridge_trinity_loop_router,
     bridge_context_docs_router,
     bridge_reality_check_router,

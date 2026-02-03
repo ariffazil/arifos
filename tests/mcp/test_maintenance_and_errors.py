@@ -1,7 +1,7 @@
 import pytest
 import asyncio
 from unittest.mock import MagicMock, patch
-from mcp.bridge import bridge_init_router, BridgeError
+from mcp_server.bridge import bridge_init_router, BridgeError
 try:
     from mcp.maintenance import session_maintenance_loop
 except (ImportError, SyntaxError):
@@ -44,7 +44,7 @@ async def test_maintenance_loop_picks_up_orphans():
 
 async def test_bridge_serialization():
     """Test that bridge serialization handles basic types and dicts."""
-    from mcp.bridge import _serialize
+    from mcp_server.bridge import _serialize
     
     data = {"a": 1, "b": "str", "c": [1, 2], "d": {"inner": True}}
     assert _serialize(data) == data

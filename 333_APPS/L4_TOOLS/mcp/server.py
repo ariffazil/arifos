@@ -22,7 +22,7 @@ import mcp.types
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 
-from mcp.tools.canonical_trinity import (
+from mcp_server.tools.canonical_trinity import (
     mcp_init,
     mcp_agi,
     mcp_asi,

@@ -75,7 +75,7 @@ except ImportError:
     logger.debug("Metrics not available (non-MCP context)")
 
 try:
-    from mcp.session_ledger import inject_memory
+    from mcp_server.session_ledger import inject_memory
 
     SESSION_LEDGER_AVAILABLE = True
 except ImportError:

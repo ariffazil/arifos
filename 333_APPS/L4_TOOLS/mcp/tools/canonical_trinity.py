@@ -11,7 +11,7 @@ These were split into 9 explicit tools in v55. See codebase/mcp/core/tool_regist
 import logging
 from typing import Any, Dict, Optional, List
 from codebase.kernel import get_kernel_manager
-from mcp.bridge import (
+from mcp_server.bridge import (
     bridge_trinity_loop_router,
     bridge_reality_check_router,
     bridge_atlas_router

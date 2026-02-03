@@ -38,7 +38,7 @@ def health_check() -> Dict[str, Any]:
 
     # 2. Validators Check
     try:
-        from mcp.core.validators import ConstitutionValidator
+        from mcp_server.core.validators import ConstitutionValidator
         components["validators"] = {"status": "green", "detail": "active"}
     except ImportError as e:
         components["validators"] = {"status": "red", "detail": f"failed: {e}"}
@@ -109,7 +109,7 @@ def health_check() -> Dict[str, Any]:
 
     # 6. Tool Registry Check
     try:
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         tool_count = len(registry.list_tools())
         components["tool_registry"] = {
@@ -122,7 +122,7 @@ def health_check() -> Dict[str, Any]:
 
     # 7. Bridge Check
     try:
-        from mcp.bridge import BridgeRouter
+        from mcp_server.bridge import BridgeRouter
         components["bridge"] = {"status": "green", "detail": "functional"}
     except ImportError as e:
         components["bridge"] = {"status": "yellow", "detail": f"warning: {e}"}
@@ -138,7 +138,7 @@ def bridge_check() -> bool:
     Verify the bridge shim is functional.
     """
     try:
-        from mcp.bridge import BridgeRouter
+        from mcp_server.bridge import BridgeRouter
         return True
     except ImportError:
         return False

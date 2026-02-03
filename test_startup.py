@@ -21,8 +21,8 @@ print("  ✓ Environment OK")
 # Test 2: Core imports
 print("\n[2/4] Testing core imports...")
 try:
-    from mcp.core.tool_registry import ToolRegistry
-    from mcp.transports.sse import SSETransport
+    from mcp_server.core.tool_registry import ToolRegistry
+    from mcp_server.transports.sse import SSETransport
     print("  ✓ Core imports OK")
 except Exception as e:
     print(f"  ✗ Import failed: {e}")

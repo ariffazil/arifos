@@ -131,7 +131,7 @@ class SSETransport(BaseTransport):
 
         @self.mcp.custom_route("/health", methods=["GET"])
         async def health_check(request):
-            from mcp.maintenance import health_check as deep_health_check
+            from mcp_server.maintenance import health_check as deep_health_check
 
             health = deep_health_check()
             health["transport"] = "streamable-http"

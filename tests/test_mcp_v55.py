@@ -45,13 +45,13 @@ class TestToolRegistry:
 
     def test_registry_initializes_with_9_tools(self):
         """Registry has exactly 9 canonical tools."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         tools = registry.list_tools()
         assert len(tools) == 9, f"Expected 9 canonical tools, got {len(tools)}: {list(tools.keys())}"
 
     def test_canonical_tool_names(self):
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
 
         expected_core = {
@@ -68,7 +68,7 @@ class TestToolRegistry:
         assert expected_core == actual, f"Tool mismatch.\nExpected: {expected_core}\nActual: {actual}"
 
     def test_all_tools_have_required_fields(self):
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         for name, tool in registry.list_tools().items():
             assert tool.name, f"{name}: missing name"
@@ -80,7 +80,7 @@ class TestToolRegistry:
 
     def test_all_tools_have_output_schema(self):
         """Phase 1 requirement: all tools declare outputSchema."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         for name, tool in registry.list_tools().items():
             assert tool.output_schema is not None, f"{name}: missing output_schema"
@@ -89,7 +89,7 @@ class TestToolRegistry:
 
     def test_all_tools_have_annotations(self):
         """Phase 1 requirement: all tools have annotations dict."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         for name, tool in registry.list_tools().items():
             assert tool.annotations is not None, f"{name}: missing annotations"
@@ -98,19 +98,19 @@ class TestToolRegistry:
             assert "readOnlyHint" in tool.annotations, f"{name}: annotations missing 'readOnlyHint'"
 
     def test_tool_get_by_name(self):
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         tool = registry.get("init_gate")
         assert tool is not None
         assert tool.name == "init_gate"
 
     def test_tool_get_unknown_returns_none(self):
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         assert registry.get("_nonexistent_") is None
 
     def test_tool_to_dict(self):
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         tool = registry.get("init_gate")
         d = tool.to_dict()
@@ -121,7 +121,7 @@ class TestToolRegistry:
 
     def test_input_schemas_are_valid_json_schema(self):
         """All input schemas must be valid JSON Schema objects."""
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
         for name, tool in registry.list_tools().items():
             schema = tool.input_schema
@@ -132,7 +132,7 @@ class TestToolRegistry:
     def test_mcp_types_tool_construction(self):
         """Verify tools can be constructed as mcp.types.Tool objects (Phase 1 core)."""
         import mcp.types
-        from mcp.core.tool_registry import ToolRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
         registry = ToolRegistry()
 
         for name, tool_def in registry.list_tools().items():
@@ -168,45 +168,45 @@ class TestResourceRegistry:
     """Test MCP Resources for constitutional floors and VAULT ledger."""
 
     def test_registry_initializes(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         assert registry is not None
 
     def test_list_resources_returns_all(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         resources = registry.list_resources()
         # 4 config/vault resources + 13 individual floor resources = 17
         assert len(resources) == 17, f"Expected 17 resources, got {len(resources)}"
 
     def test_list_resources_has_config_floors(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         uris = [r.uri for r in registry.list_resources()]
         assert "config://floors" in uris
 
     def test_list_resources_has_config_verdicts(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         uris = [r.uri for r in registry.list_resources()]
         assert "config://verdicts" in uris
 
     def test_list_resources_has_vault_ledger(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         uris = [r.uri for r in registry.list_resources()]
         assert "vault://ledger/latest" in uris
         assert "vault://ledger/stats" in uris
 
     def test_list_resources_has_all_13_floors(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         uris = [r.uri for r in registry.list_resources()]
         for i in range(1, 14):
             assert f"floor://F{i}" in uris, f"Missing floor://F{i}"
 
     def test_read_config_floors(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         result = json.loads(registry.read_resource("config://floors"))
         assert "F1" in result
@@ -215,7 +215,7 @@ class TestResourceRegistry:
         assert result["F2"]["threshold"] == "tau >= 0.99"
 
     def test_read_config_verdicts(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         result = json.loads(registry.read_resource("config://verdicts"))
         assert "hierarchy" in result
@@ -224,7 +224,7 @@ class TestResourceRegistry:
         assert "descriptions" in result
 
     def test_read_individual_floor(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         result = json.loads(registry.read_resource("floor://F1"))
         assert result["id"] == "F1"
@@ -232,34 +232,34 @@ class TestResourceRegistry:
         assert result["type"] == "Hard"
 
     def test_read_floor_case_insensitive(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         result = json.loads(registry.read_resource("floor://f7"))
         assert result["id"] == "F7"
         assert result["name"] == "Humility"
 
     def test_read_unknown_floor_raises(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         with pytest.raises(ValueError, match="Unknown floor"):
             registry.read_resource("floor://F99")
 
     def test_read_unknown_uri_raises(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         with pytest.raises(ValueError, match="Unknown resource URI"):
             registry.read_resource("bogus://something")
 
     def test_vault_ledger_latest_no_file(self):
         """When VAULT path doesn't exist, return empty status."""
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         registry._vault_path = "/nonexistent/path"
         result = json.loads(registry.read_resource("vault://ledger/latest"))
         assert result["status"] == "empty"
 
     def test_vault_ledger_stats_no_file(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         registry._vault_path = "/nonexistent/path"
         result = json.loads(registry.read_resource("vault://ledger/stats"))
@@ -268,7 +268,7 @@ class TestResourceRegistry:
 
     def test_vault_ledger_with_entries(self):
         """Test reading from an actual JSONL ledger file."""
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
 
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -296,7 +296,7 @@ class TestResourceRegistry:
             assert stats["status"] == "healthy"
 
     def test_resource_templates(self):
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
         templates = registry.list_resource_templates()
         assert len(templates) >= 1
@@ -304,14 +304,14 @@ class TestResourceRegistry:
 
     def test_floor_definitions_completeness(self):
         """All 13 floors must have required fields."""
-        from mcp.core.resource_registry import FLOOR_DEFINITIONS
+        from mcp_server.core.resource_registry import FLOOR_DEFINITIONS
         required_fields = {"name", "full_name", "threshold", "type", "description", "formula", "engine", "violation_verdict"}
         for floor_id, floor in FLOOR_DEFINITIONS.items():
             for field in required_fields:
                 assert field in floor, f"{floor_id}: missing field '{field}'"
 
     def test_verdict_hierarchy_ordering(self):
-        from mcp.core.resource_registry import VERDICT_HIERARCHY
+        from mcp_server.core.resource_registry import VERDICT_HIERARCHY
         assert VERDICT_HIERARCHY["SABAR"] > VERDICT_HIERARCHY["VOID"]
         assert VERDICT_HIERARCHY["VOID"] > VERDICT_HIERARCHY["888_HOLD"]
         assert VERDICT_HIERARCHY["888_HOLD"] > VERDICT_HIERARCHY["PARTIAL"]
@@ -321,7 +321,7 @@ class TestResourceRegistry:
     def test_mcp_types_resource_construction(self):
         """Verify resources can be constructed as mcp.types.Resource objects."""
         import mcp.types
-        from mcp.core.resource_registry import ResourceRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
         registry = ResourceRegistry()
 
         for res_def in registry.list_resources():
@@ -343,27 +343,27 @@ class TestPromptRegistry:
     """Test MCP Prompts for constitutional evaluation templates."""
 
     def test_registry_initializes_with_default_prompts(self):
-        from mcp.core.prompt_registry import PromptRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
         registry = PromptRegistry()
         prompts = registry.list_prompts()
         assert len(prompts) >= 5, f"Expected at least 5 prompts, got {len(prompts)}"
 
     def test_default_prompt_names(self):
-        from mcp.core.prompt_registry import PromptRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
         registry = PromptRegistry()
         names = {p.name for p in registry.list_prompts()}
         expected = {"constitutional_eval", "paradox_analysis", "trinity_full", "floor_violation_repair", "constitutional_summary"}
         assert expected.issubset(names), f"Missing prompts: {expected - names}"
 
     def test_render_constitutional_eval(self):
-        from mcp.core.prompt_registry import PromptRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
         registry = PromptRegistry()
         result = registry.render_prompt("constitutional_eval", {"query": "Should we deploy?"})
         assert "Should we deploy?" in result
         assert "F1-F13" in result
 
     def test_render_floor_violation_repair(self):
-        from mcp.core.prompt_registry import PromptRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
         registry = PromptRegistry()
         result = registry.render_prompt(
             "floor_violation_repair",
@@ -373,20 +373,20 @@ class TestPromptRegistry:
         assert "SABAR" in result
 
     def test_render_without_arguments(self):
-        from mcp.core.prompt_registry import PromptRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
         registry = PromptRegistry()
         # constitutional_summary has no arguments
         result = registry.render_prompt("constitutional_summary")
         assert "13 FLOORS" in result
 
     def test_render_unknown_prompt_raises(self):
-        from mcp.core.prompt_registry import PromptRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
         registry = PromptRegistry()
         with pytest.raises(ValueError, match="Prompt not found"):
             registry.render_prompt("nonexistent_prompt")
 
     def test_get_prompt_by_name(self):
-        from mcp.core.prompt_registry import PromptRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
         registry = PromptRegistry()
         prompt = registry.get("constitutional_eval")
         assert prompt is not None
@@ -395,12 +395,12 @@ class TestPromptRegistry:
         assert len(prompt.arguments) == 1
 
     def test_get_unknown_prompt_returns_none(self):
-        from mcp.core.prompt_registry import PromptRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
         registry = PromptRegistry()
         assert registry.get("nonexistent") is None
 
     def test_register_custom_prompt(self):
-        from mcp.core.prompt_registry import PromptRegistry, PromptDefinition
+        from mcp_server.core.prompt_registry import PromptRegistry, PromptDefinition
         registry = PromptRegistry()
         registry.register(PromptDefinition(
             name="custom_test",
@@ -415,7 +415,7 @@ class TestPromptRegistry:
     def test_mcp_types_prompt_construction(self):
         """Verify prompts can be constructed as mcp.types.Prompt objects."""
         import mcp.types
-        from mcp.core.prompt_registry import PromptRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
         registry = PromptRegistry()
 
         for prompt_def in registry.list_prompts():
@@ -446,10 +446,10 @@ class TestBaseTransport:
     """Test that BaseTransport wires registries correctly."""
 
     def test_base_creates_default_registries(self):
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.core.resource_registry import ResourceRegistry
-        from mcp.core.prompt_registry import PromptRegistry
-        from mcp.transports.base import BaseTransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
+        from mcp_server.transports.base import BaseTransport
 
         class DummyTransport(BaseTransport):
             @property
@@ -470,8 +470,8 @@ class TestStdioTransportConstruction:
     """Test that StdioTransport constructs without errors."""
 
     def test_stdio_transport_creates(self):
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.stdio import StdioTransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.stdio import StdioTransport
         registry = ToolRegistry()
         transport = StdioTransport(registry)
         assert transport.name == "stdio"
@@ -479,8 +479,8 @@ class TestStdioTransportConstruction:
         assert transport.presenter is not None
 
     def test_stdio_transport_has_registries(self):
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.stdio import StdioTransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.stdio import StdioTransport
         registry = ToolRegistry()
         transport = StdioTransport(registry)
         assert transport.resource_registry is not None
@@ -491,16 +491,16 @@ class TestSSETransportConstruction:
     """Test that SSETransport constructs without errors."""
 
     def test_sse_transport_creates(self):
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.sse import SSETransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.sse import SSETransport
         registry = ToolRegistry()
         transport = SSETransport(registry)
         assert transport.name == "streamable-http"
         assert transport.mcp is not None
 
     def test_sse_transport_has_registries(self):
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.sse import SSETransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.sse import SSETransport
         registry = ToolRegistry()
         transport = SSETransport(registry)
         assert transport.resource_registry is not None
@@ -537,8 +537,8 @@ class TestSSEResourceWiring:
     """Test that SSE transport correctly registers FunctionResources."""
 
     def test_register_resources_creates_function_resources(self):
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.sse import SSETransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.sse import SSETransport
 
         registry = ToolRegistry()
         transport = SSETransport(registry)
@@ -551,8 +551,8 @@ class TestSSEResourceWiring:
         assert resource_manager is not None
 
     def test_register_prompts_creates_prompt_objects(self):
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.transports.sse import SSETransport
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.transports.sse import SSETransport
 
         registry = ToolRegistry()
         transport = SSETransport(registry)
@@ -632,47 +632,47 @@ class TestCanonicalToolHandlers:
 
     @pytest.mark.asyncio
     async def test_init_handler(self):
-        from mcp.tools.canonical_trinity import mcp_init
+        from mcp_server.tools.canonical_trinity import mcp_init
         result = await mcp_init(action="init", query="test query")
         assert isinstance(result, dict)
         assert "session_id" in result or "status" in result
 
     @pytest.mark.asyncio
     async def test_agi_handler(self):
-        from mcp.tools.canonical_trinity import mcp_agi
+        from mcp_server.tools.canonical_trinity import mcp_agi
         result = await mcp_agi(action="full", query="What is 2+2?")
         assert isinstance(result, dict)
         assert "vote" in result or "status" in result
 
     @pytest.mark.asyncio
     async def test_asi_handler(self):
-        from mcp.tools.canonical_trinity import mcp_asi
+        from mcp_server.tools.canonical_trinity import mcp_asi
         result = await mcp_asi(action="full", query="Is this safe?")
         assert isinstance(result, dict)
         assert "vote" in result or "status" in result
 
     @pytest.mark.asyncio
     async def test_apex_handler(self):
-        from mcp.tools.canonical_trinity import mcp_apex
+        from mcp_server.tools.canonical_trinity import mcp_apex
         result = await mcp_apex(action="full", query="Final judgment")
         assert isinstance(result, dict)
         assert "final_verdict" in result or "status" in result
 
     @pytest.mark.asyncio
     async def test_vault_handler(self):
-        from mcp.tools.canonical_trinity import mcp_vault
+        from mcp_server.tools.canonical_trinity import mcp_vault
         result = await mcp_vault(action="seal")
         assert isinstance(result, dict)
 
     @pytest.mark.asyncio
     async def test_trinity_handler(self):
-        from mcp.tools.canonical_trinity import mcp_trinity
+        from mcp_server.tools.canonical_trinity import mcp_trinity
         result = await mcp_trinity(query="Full pipeline test")
         assert isinstance(result, dict)
 
     @pytest.mark.asyncio
     async def test_reality_handler(self):
-        from mcp.tools.canonical_trinity import mcp_reality
+        from mcp_server.tools.canonical_trinity import mcp_reality
         result = await mcp_reality(query="fact check test")
         assert isinstance(result, dict)
 
@@ -686,9 +686,9 @@ class TestIntegration:
 
     def test_all_registries_create_together(self):
         """All three registries (tools, resources, prompts) work together."""
-        from mcp.core.tool_registry import ToolRegistry
-        from mcp.core.resource_registry import ResourceRegistry
-        from mcp.core.prompt_registry import PromptRegistry
+        from mcp_server.core.tool_registry import ToolRegistry
+        from mcp_server.core.resource_registry import ResourceRegistry
+        from mcp_server.core.prompt_registry import PromptRegistry
 
         tools = ToolRegistry()
         resources = ResourceRegistry()
@@ -700,14 +700,14 @@ class TestIntegration:
 
     def test_floor_data_consistency(self):
         """Floor definitions in resource registry match tool coverage."""
-        from mcp.core.resource_registry import FLOOR_DEFINITIONS
+        from mcp_server.core.resource_registry import FLOOR_DEFINITIONS
         # Verify all floors F1-F13 are defined
         for i in range(1, 14):
             assert f"F{i}" in FLOOR_DEFINITIONS, f"Missing F{i} in FLOOR_DEFINITIONS"
 
     def test_verdict_values_are_valid(self):
         """All violation_verdict values are valid verdicts."""
-        from mcp.core.resource_registry import FLOOR_DEFINITIONS, VERDICT_HIERARCHY
+        from mcp_server.core.resource_registry import FLOOR_DEFINITIONS, VERDICT_HIERARCHY
         valid_verdicts = set(VERDICT_HIERARCHY.keys())
         for floor_id, floor in FLOOR_DEFINITIONS.items():
             verdict = floor["violation_verdict"]
@@ -715,7 +715,7 @@ class TestIntegration:
 
     def test_all_floor_types_are_valid(self):
         """All floor types are recognized."""
-        from mcp.core.resource_registry import FLOOR_DEFINITIONS
+        from mcp_server.core.resource_registry import FLOOR_DEFINITIONS
         valid_types = {"Hard", "Soft", "Guide"}
         for floor_id, floor in FLOOR_DEFINITIONS.items():
             assert floor["type"] in valid_types, f"{floor_id}: invalid type '{floor['type']}'"

@@ -354,7 +354,7 @@ async def _senses_(
             }
 
         # Call external search API
-        from mcp.external_gateways.brave_client import BraveSearchClient
+        from mcp_server.external_gateways.brave_client import BraveSearchClient
         brave_client = BraveSearchClient()
 
         search_results = await brave_client.search(query)

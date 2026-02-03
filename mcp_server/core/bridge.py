@@ -15,10 +15,10 @@ import logging
 import time
 from typing import Any, Optional
 
-from mcp.external_gateways.brave_client import BraveSearchClient
-from mcp.services.constitutional_metrics import get_stage_result, store_stage_result
-from mcp.tools import reality_tool
-from mcp.tools.trinity_validator import validate_trinity_request
+from mcp_server.external_gateways.brave_client import BraveSearchClient
+from mcp_server.services.constitutional_metrics import get_stage_result, store_stage_result
+from mcp_server.tools import reality_tool
+from mcp_server.tools.trinity_validator import validate_trinity_request
 
 # Initialize logger
 logger = logging.getLogger(__name__)

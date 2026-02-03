@@ -1,14 +1,14 @@
 """
 arifOS MCP Bridge Shim
 
-This module re-exports from mcp.core.bridge for backward compatibility.
-New code should import directly from mcp.core.bridge.
+This module re-exports from mcp_server.core.bridge for backward compatibility.
+New code should import directly from mcp_server.core.bridge.
 
 DITEMPA BUKAN DIBERI
 """
 
 # Re-export all public symbols from core.bridge
-from mcp.core.bridge import (
+from mcp_server.core.bridge import (
     BridgeError,
     BridgeRouter,
     CircuitBreaker,
@@ -29,7 +29,7 @@ from mcp.core.bridge import (
     bridge_prompt_router,
     get_bridge_router,
 )
-from mcp.core.validators import ConstitutionValidator
+from mcp_server.core.validators import ConstitutionValidator
 
 
 __all__ = [

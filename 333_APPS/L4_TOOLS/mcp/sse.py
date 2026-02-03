@@ -34,7 +34,7 @@ from starlette.responses import JSONResponse
 
 # Import Codebase Routers (Bridge) — v53.2.7 AAA 7-Core Architecture
 # INIT, AGI, ASI, APEX, VAULT, TRINITY, REALITY
-from mcp.bridge import (
+from mcp_server.bridge import (
     bridge_init_router,
     bridge_agi_router,
     bridge_asi_router,
