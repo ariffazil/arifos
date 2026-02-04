@@ -26,7 +26,7 @@
 |:------------:|:-------------:|:-----------:|
 | [arif-fazil.com](https://arif-fazil.com) | [apex.arif-fazil.com](https://apex.arif-fazil.com) | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
 | *The Architect* | *The Canon* | *The Forge* |
-| Personal · Bio · Contact | 13 Floors · Paradoxes · Law | Docs · Tools · Code |
+| Personal · Bio · Contact | 13 Floors · Paradoxes · Law | Actions · Skills · Code |
 
 </div>
 
@@ -332,15 +332,29 @@ railway up
 
 ---
 
-## 🗺️ Roadmap
+## 🗺️ Applications Structure
+
+<div align="center">
+
+| Category | Contents | Purpose |
+|:--------:|:--------:|:--------:|
+| ACTIONS | 9 Atomic Actions | Foundation layer (anchor, align, reason, integrate, validate, respond, audit, forge, seal) |
+| SKILLS | Extended Tools | Application layer (templates, deployment tools, utilities) |
+
+</div>
+
+**Structure:** Simplified two-level design (ACTIONS + SKILLS)  
+**Status:** Production ready with constitutional governance
+
+## 🚀 Layers
 
 <div align="center">
 
 | Layer | Status | For |
 |:-----:|:------:|:---:|
 | L1 Prompts | ✅ Production | Users |
-| L2 Skills | ✅ Production | Developers |
-| L3 Workflows | ✅ Production | Teams |
+| L2 Skills | ✅ Simplified | Developers |
+| L3 Workflows | ✅ Consolidated | Teams |
 | L4 MCP Tools | ✅ Production | Production |
 | L5 Agents | 📋 v56.0 | Advanced |
 | L6 Institution | 📋 v56.0 | Enterprise |
@@ -348,8 +362,25 @@ railway up
 
 </div>
 
-**Current:** v55.4 (Production)  
-**Next:** v56.0 (L5 Agents, LangChain Memory, Prefect Workflows)
+## 🧩 9 Canonical Atomic Actions
+
+<div align="center">
+
+| Action | Stage | Function | Floors |
+|:------:|:-----:|:--------:|:------:|
+| anchor | 000_INTAKE | Ground reality, reduce entropy | F4, F7, F8 |
+| align | 444_CONSULT | Emotional frequency matching | F5, F6, F9 |
+| reason | 222_PROCESS | Logical inference, causal trace | F2, F4, F7 |
+| integrate | 333_DELIBERATE | Cross-domain synthesis | F2, F7, F8 |
+| validate | 555_SYNTHESIZE | Acknowledge experience, dignity | F1, F5, F6 |
+| respond | 666_AUDIT | Compassionate, harm-aware output | F4, F5, F6 |
+| audit | 777_VERIFY | Constitutional floor verification | ALL FLOORS |
+| forge | 888_HOLD | Entropy reduction, refine output | F4, F7, F8 |
+| seal | 999_EMIT | Final commitment, precedent logging | F1, F3, F11 |
+
+</div>
+
+**Metabolic Loop:** 000 → 222 → 333 → 444 → 555 → 666 → 777 → 888 → 999 → 000
 
 ---
 
