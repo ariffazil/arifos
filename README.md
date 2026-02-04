@@ -23,6 +23,7 @@
 - 13-floor conceptual framework
 - Trinity architecture concepts (AGI·ASI·APEX)
 - Documentation and theoretical foundation
+- Simplified two-level structure (ACTIONS and SKILLS) for clarity
 
 **What's Coming (v56.0+):**
 - Runtime enforcement of constitutional floors
@@ -30,6 +31,12 @@
 - Computed Ω₀ values instead of declared values
 - Full 9 Atomic Actions runtime pipeline
 - Actual tri-witness consensus computation
+
+**Technical Reality:**
+- Current implementation is primarily vocabulary/conceptual
+- Runtime enforcement systems require additional development
+- Integration with actual LLM execution pipelines pending
+- True constitutional governance requires runtime implementation
 
 ---
 
