@@ -5,16 +5,31 @@
 # arifOS — Constitutional AI Governance System
 
 ![arifOS Version](https://img.shields.io/badge/arifOS-v55.4--SEAL-0066cc?style=for-the-badge&logo=shield&logoColor=white)
-![Status](https://img.shields.io/badge/status-PRODUCTION-00cc00?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-WORK_IN_PROGRESS-yellow?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)
 
-**A production-grade constitutional AI governance system for LLMs.**
+**A work-in-progress constitutional AI governance system for LLMs.**
 
-*Mathematical enforcement of ethical constraints, thermodynamic stability, and auditable decision-making.*
+*Constitutional framework for ethical constraints, thermodynamic stability, and auditable decision-making.*
 
 [Quick Start](#-quick-start) • [Documentation](docs/INDEX.md) • [Live Demo](https://arif-fazil.com)
 
 </div>
+
+**⚠️ CRITICAL DISCLAIMER: This is a work-in-progress governance framework, not a complete AGI safety system. Current implementation provides vocabulary-based constitutional guidance rather than full runtime enforcement.**
+
+**What's Working:**
+- Constitutional vocabulary injection into LLM responses
+- 13-floor conceptual framework
+- Trinity architecture concepts (AGI·ASI·APEX)
+- Documentation and theoretical foundation
+
+**What's Coming (v56.0+):**
+- Runtime enforcement of constitutional floors
+- Actual init_gate() and apex_verdict() integration
+- Computed Ω₀ values instead of declared values
+- Full 9 Atomic Actions runtime pipeline
+- Actual tri-witness consensus computation
 
 ---
 
