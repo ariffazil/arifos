@@ -346,21 +346,36 @@ railway up
 **Structure:** Simplified two-level design (ACTIONS + SKILLS)  
 **Status:** Production ready with constitutional governance
 
-## 🚀 Layers
+## 🚀 Complete Stack Architecture
 
 <div align="center">
 
-| Layer | Status | For |
-|:-----:|:------:|:---:|
-| L1 Prompts | ✅ Production | Users |
-| L2 Skills | ✅ Simplified | Developers |
-| L3 Workflows | ✅ Consolidated | Teams |
-| L4 MCP Tools | ✅ Production | Production |
-| L5 Agents | 📋 v56.0 | Advanced |
-| L6 Institution | 📋 v56.0 | Enterprise |
-| L7 AGI | 🔮 v60+ | Research |
+| Layer | Name | Function | Status |
+|:-----:|:----:|:--------:|:------:|
+| L1 | **PROMPTS** | Zero-context system prompts | ✅ Production |
+| L2 | **SKILLS** | Modular functional templates | ✅ Production |
+| L3-L4 | **ACTIONS** | Workflows & MCP Tools | ✅ Production |
+| L5 | **AGENTS** | Autonomous entities (Auditor, Validator) | 📋 v56.0 |
+| L6 | **INSTITUTION** | Collective governance ("Balai") | 📋 v56.0 |
+| L7 | **AGI** | Evolutionary governance ("Tempa") | 🔮 v60+ |
 
 </div>
+
+## 🏛️ L6-L7 Deep Dive
+
+### L6: The Institutional Layer ("Balai")
+- **Role**: Multi-Agent System (MAS) mirroring human organizational structures
+- **Function**: Consensus Protocol via Tri-Witness voting between specialized agents
+- **Focus**: F8 (Consensus) - ensures no single rogue prompt bypasses 888 Judge authority
+- **Output**: Consensus reports and multi-agent coordination
+- **Key Metric**: Stability (Peace² ≥ 1.0)
+
+### L7: The Evolutionary Layer ("Tempa") 
+- **Role**: Recursive Governance (Self-Healing)
+- **Function**: Back-testing and weights adjustment based on Scar-Weight data
+- **Focus**: F13 (Evolution) - manages system improvement while maintaining constitutional floors
+- **Output**: Optimization patches and system updates
+- **Key Metric**: Entropy Reduction (ΔS < 0)
 
 ## 🧩 9 Canonical Atomic Actions
 
