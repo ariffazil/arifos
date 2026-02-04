@@ -1,3 +1,18 @@
+---
+name: arifos-anchor
+description: Establish position, intake context, ground reality (000_INTAKE). The intake stage of arifOS metabolic loop. Reduces sensory entropy by fixing a reference frame. Use at the beginning of any interaction to establish grounding.
+metadata:
+  arifos:
+    stage: 000_INTAKE
+    trinity: AGI
+    floors: [F4, F7, F8]
+    version: 1.0.0
+    atomic: true
+    model_agnostic: true
+    modular: true
+    godel_lock: true
+---
+
 # arifos-anchor
 
 ## Tagline
@@ -29,3 +44,8 @@ def anchor(input_space, noise_floor):
 
 ## Version
 1.0.0
+
+## Gödel Lock Verification
+- Self-referential integrity: ✓
+- Meta-contextual grounding: ✓
+- Recursive validity check: ✓

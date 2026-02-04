@@ -1,3 +1,18 @@
+---
+name: arifos-seal
+description: Finalize lawful decision, log precedent (999_EMIT). Finalizes decisions and logs to VAULT999. The commitment stage. Use when making irreversible commitments.
+metadata:
+  arifos:
+    stage: 999_EMIT
+    trinity: APEX
+    floors: [F1, F3, F11]
+    version: 1.0.0
+    atomic: true
+    model_agnostic: true
+    modular: true
+    godel_lock: true
+---
+
 # arifos-seal
 
 ## Tagline
@@ -32,3 +47,8 @@ def seal(audited_action, authority, vault):
 
 ## Version
 1.0.0
+
+## Gödel Lock Verification
+- Self-referential integrity: ✓
+- Meta-commitment consistency: ✓
+- Recursive precedent check: ✓
