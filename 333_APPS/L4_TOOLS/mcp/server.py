@@ -31,9 +31,9 @@ from mcp_server.tools.canonical_trinity import (
     mcp_trinity,
     mcp_reality,
 )
-from mcp.rate_limiter import get_rate_limiter
-from mcp.mode_selector import get_mcp_mode, MCPMode
-from mcp.constitutional_metrics import record_verdict
+from mcp_server.rate_limiter import get_rate_limiter
+from mcp_server.mode_selector import get_mcp_mode, MCPMode
+from mcp_server.constitutional_metrics import record_verdict
 from codebase.enforcement.metrics import record_stage_metrics, record_verdict_metrics
 from codebase.system.orchestrator.presenter import AAAMetabolizer
 
@@ -161,6 +161,30 @@ TOOL_DESCRIPTIONS: Dict[str, Dict[str, Any]] = {
 # =============================================================================
 # TOOL ROUTERS (v53.2.7 — 7-Tool Constitutional Architecture)
 # =============================================================================
+
+def create_mcp_server(mode: MCPMode):
+    """Create the MCP server with all constitutional tools registered."""
+    server = Server(
+        name="arifos-constitutional-mcp",
+        version="53.2.7",
+    )
+
+    # Register all tool descriptions
+    for tool_desc in TOOL_DESCRIPTIONS.values():
+        server.add_tool(
+            name=tool_desc["name"],
+            description=tool_desc["description"],
+            input_schema=tool_desc["inputSchema"]
+        )
+
+    @server.call_tool
+    async def handle_tool(name: str, arguments: Dict[str, Any]) -> list[mcp.types.Content]:
+        start = time.time()
+        
+        # Apply rate limiting
+        rate_limiter = get_rate_limiter()
+        if not rate_limiter.allow_request(arguments.get("session_id", "anonymous")):
+            return [mcp.types.TextContent(type="text", text="VOID: Rate limit exceeded")]
 
         try:
             if name == "_init_":

@@ -25,7 +25,7 @@
 - Documentation and theoretical foundation
 - Simplified two-level structure (ACTIONS and SKILLS) for clarity
 
-**What's Coming (v56.0+):**
+**What's Planned for Future Versions:**
 - Runtime enforcement of constitutional floors
 - Actual init_gate() and apex_verdict() integration
 - Computed Ω₀ values instead of declared values

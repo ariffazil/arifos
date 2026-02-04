@@ -1,0 +1,30 @@
+# arifOS MCP Server Integration Requirements
+# Core dependencies for ASI Gateway
+
+# MCP Framework
+fastmcp>=1.0.0
+mcp>=1.0.0
+
+# Web Framework (for SSE transport)
+fastapi>=0.104.1
+starlette>=0.30.0
+sse-starlette>=1.8.2
+uvicorn>=0.24.0
+
+# Data Validation
+pydantic>=2.0.0
+pydantic-settings>=2.1.0
+
+# Utilities
+python-dotenv>=1.0.0
+typing-extensions>=4.8.0
+
+# Optional: External MCP Servers (install via npx/npm)
+# @modelcontextprotocol/server-filesystem
+# @modelcontextprotocol/server-memory
+# @modelcontextprotocol/server-fetch
+# @modelcontextprotocol/server-everything
+# @modelcontextprotocol/server-git
+# @modelcontextprotocol/server-time
+# @modelcontextprotocol/server-sequential-thinking
+# @modelcontextprotocol/server-brave-search

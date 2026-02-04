@@ -1,0 +1,100 @@
+{
+  "mcpServers": {
+    "arifos-filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/user/workspace"],
+      "description": "Secure file operations under VAULT999 governance",
+      "env": {
+        "ARIFOS_FLOORS": "F1,F3",
+        "ARIFOS_TRINITY": "APEX",
+        "ARIFOS_ATOMIC_ACTION": "VAULT999"
+      }
+    },
+    "arifos-memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory"],
+      "description": "Knowledge graph memory with F2 Truth enforcement",
+      "env": {
+        "ARIFOS_FLOORS": "F2,F7",
+        "ARIFOS_TRINITY": "ASI",
+        "ARIFOS_ATOMIC_ACTION": "MemoryWeaver"
+      }
+    },
+    "arifos-fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch"],
+      "description": "Web fetching with content filtering (Geo-Radar #4)",
+      "env": {
+        "ARIFOS_FLOORS": "F2,F4",
+        "ARIFOS_TRINITY": "AGI",
+        "ARIFOS_ATOMIC_ACTION": "GeoRadar"
+      }
+    },
+    "arifos-everything": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-everything"],
+      "description": "Reference/testing server for Peace² Auditor",
+      "env": {
+        "ARIFOS_FLOORS": "F3,F8",
+        "ARIFOS_TRINITY": "APEX",
+        "ARIFOS_ATOMIC_ACTION": "Peace2Auditor"
+      }
+    },
+    "arifos-git": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-git", "/home/user/repos"],
+      "description": "Git operations with version accountability",
+      "env": {
+        "ARIFOS_FLOORS": "F1,F2,F3",
+        "ARIFOS_TRINITY": "AGI",
+        "ARIFOS_ATOMIC_ACTION": "PyPISentinel"
+      }
+    },
+    "arifos-time": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-time"],
+      "description": "Timezone-aware scheduling (Meeting Metabolizer)",
+      "env": {
+        "ARIFOS_FLOORS": "F6,F4",
+        "ARIFOS_TRINITY": "ASI",
+        "ARIFOS_ATOMIC_ACTION": "MeetingMetabolizer"
+      }
+    },
+    "arifos-sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "description": "Reflective problem-solving (ASI Align)",
+      "env": {
+        "ARIFOS_FLOORS": "F5,F7,F9",
+        "ARIFOS_TRINITY": "ASI",
+        "ARIFOS_ATOMIC_ACTION": "ASIAlign"
+      }
+    },
+    "arifos-brave-search": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-brave-search"],
+      "description": "Privacy-focused search with F2 verification",
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}",
+        "ARIFOS_FLOORS": "F2,F8",
+        "ARIFOS_TRINITY": "AGI",
+        "ARIFOS_ATOMIC_ACTION": "RealitySearch"
+      }
+    }
+  },
+  "arifOS": {
+    "version": "v55.4",
+    "trinity": {
+      "AGI": "Δ - Mind/Logic",
+      "ASI": "Ω - Heart/Care",
+      "APEX": "Ψ - Crown/Law"
+    },
+    "governance": {
+      "omega_target_band": "0.03-0.05",
+      "auto_void_threshold": 0.08,
+      "reversibility_required": ["filesystem", "git", "memory"],
+      "audit_logging": true
+    },
+    "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠"
+  }
+}
