@@ -4,8 +4,12 @@ Startup verification for arifOS MCP server.
 Tests critical imports and initialization before deployment.
 """
 
-import sys
 import os
+import sys
+
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
 
 print("=" * 60)
 print("arifOS MCP Server Startup Verification")
@@ -21,8 +25,9 @@ print("  ✓ Environment OK")
 # Test 2: Core imports
 print("\n[2/4] Testing core imports...")
 try:
-    from mcp.core.tool_registry import ToolRegistry
-    from mcp.transports.sse import SSETransport
+    from aaa_mcp.core.tool_registry import ToolRegistry
+    from aaa_mcp.transports.sse import SSETransport
+
     print("  ✓ Core imports OK")
 except Exception as e:
     print(f"  ✗ Import failed: {e}")

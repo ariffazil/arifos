@@ -163,16 +163,9 @@ all = [
 ]
 
 [project.scripts]
-# AAA MCP Server Commands (Primary v55.3) - Glocal Consolidation
-# Auto-detects transport: stdio (local) vs sse (production)
-aaa-mcp = "mcp.transports.__main__:main_auto"
-aaa-mcp-sse = "mcp.transports.__main__:main_sse"
-aaa-mcp-stdio = "mcp.transports.__main__:main_stdio"
-
-# Codebase MCP Server Commands (Alternative naming)
-codebase-mcp = "mcp.transports.__main__:main_auto"
-codebase-mcp-stdio = "mcp.transports.__main__:main_stdio"
-codebase-mcp-sse = "mcp.transports.__main__:main_sse"
+# AAA MCP Server Commands (v55.4) - Fixed namespace (aaa_mcp)
+# Usage: aaa-mcp [stdio|sse|http]  (default: stdio)
+aaa-mcp = "aaa_mcp.__main__:main"
 
 # Legacy arifos commands (DEPRECATED - will be removed in v54)
 # arifos-mcp = "arifos.mcp.__main__:main"
@@ -226,7 +219,7 @@ Changelog = "https://github.com/ariffazil/arifOS/blob/main/CHANGELOG.md"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["arifos*", "scripts*", "codebase*", "mcp*"]
+include = ["arifos*", "scripts*", "codebase*", "aaa_mcp*", "mcp_server*"]
 exclude = [
     "arifos.tests*",
     "arifos.tests",

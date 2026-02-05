@@ -216,7 +216,7 @@ class TestCircularDependencies:
 
     def test_handlers_call_kernel_only(self):
         """Handlers use kernel interface, not direct handler calls."""
-        from mcp.tools import canonical_trinity
+        from aaa_mcp.tools import canonical_trinity
         import inspect
         
         # Get source of mcp_agi

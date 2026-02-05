@@ -3,7 +3,7 @@ import asyncio
 from unittest.mock import MagicMock, patch
 from mcp_server.bridge import bridge_init_router, BridgeError
 try:
-    from mcp.maintenance import session_maintenance_loop
+    from aaa_mcp.maintenance import session_maintenance_loop
 except (ImportError, SyntaxError):
     session_maintenance_loop = None  # maintenance module archived
 

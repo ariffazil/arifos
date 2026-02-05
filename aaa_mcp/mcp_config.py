@@ -91,7 +91,7 @@ MCP_SERVERS = {
         package_name="@modelcontextprotocol/server-time"
     ),
     
-    "sequential_thinking": MCPServerConfig(
+    "sequential-thinking": MCPServerConfig(
         name="MCP Sequential Thinking Server",
         description="Dynamic reflective problem-solving",
         trinity=TrinityComponent.ASI,
@@ -101,8 +101,8 @@ MCP_SERVERS = {
         reversible=True,
         package_name="@modelcontextprotocol/server-sequential-thinking"
     ),
-    
-    "brave_search": MCPServerConfig(
+
+    "brave-search": MCPServerConfig(
         name="MCP Brave Search Server",
         description="Privacy-focused web search",
         trinity=TrinityComponent.AGI,
@@ -111,16 +111,6 @@ MCP_SERVERS = {
         omega_threshold=0.06,
         reversible=False,
         package_name="@modelcontextprotocol/server-brave-search"
-    ),
-    
-    "memory_enhanced": MCPServerConfig(
-        name="MCP Knowledge Graph Server",
-        description="Enhanced memory with relationship mapping",
-        trinity=TrinityComponent.ASI,
-        floors=["F6", "F9"],
-        atomic_action="ASI Empathize",
-        omega_threshold=0.05,
-        reversible=True,
     ),
 }
 

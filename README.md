@@ -373,19 +373,33 @@ arifOS/
 ├── 📄 000_LAW.md                 # 13 Floors & verdict system
 ├── 📄 777_SOUL_APEX.md           # ΔΩΨ engine architecture
 ├── 📄 llms.txt                   # System prompt for LLMs
+├── 📂 aaa_mcp/                   # AAA MCP Server (FastMCP)
+│   ├── __init__.py               # Package init (v55.4.0)
+│   ├── __main__.py               # CLI: python -m aaa_mcp [stdio|sse|http]
+│   ├── server.py                 # 9 canonical tools (FastMCP)
+│   ├── engine_adapters.py        # AGI/ASI/APEX engine bridges
+│   ├── constitutional_decorator.py  # @constitutional_floor() enforcement
+│   ├── mcp_config.py             # Server registry & Ω₀ thresholds
+│   └── mcp_integration.py        # Integration layer & audit trail
+├── 📂 codebase/                  # Core engines (AGI/ASI/APEX/VAULT)
+│   ├── agi/                      # AGI engine (Δ — Mind)
+│   ├── asi/                      # ASI engine (Ω — Heart)
+│   ├── apex/                     # APEX kernel (Ψ — Soul)
+│   ├── init/                     # 000_init bootstrap
+│   └── vault/                    # VAULT-999 immutable ledger
 ├── 📂 333_APPS/                  # Production implementations
 │   ├── L0_DNA/                   # Constitutional kernel
 │   ├── L1_Foundation/            # Core abstractions
 │   ├── L2_Tools/                 # Utility layer
 │   ├── L3_Data/                  # Storage & retrieval
-│   ├── L4_MCP/                   # Model Context Protocol
+│   ├── L4_TOOLS/                 # Tooling & MCP configs
 │   ├── L5_Runtime/               # Execution environment
 │   ├── L6_Integration/           # External connections
 │   └── L7_Deployment/            # Infrastructure
-├── 📂 mcp_server/                # FastMCP implementation
-│   └── server.py                 # 9 AAA tools
 ├── 📂 docs/                      # Full documentation
 │   └── forged_page_1.png         # Visual identity
+├── 📄 .mcp.json                  # MCP server config (Claude Code)
+├── 📄 pyproject.toml             # Package config & entry points
 └── 📄 README.md                  # You are here
 ```
 
@@ -393,23 +407,49 @@ arifOS/
 
 ## 🚀 Quick Start
 
-### 1. Clone the Repository
+### 1. Install from PyPI
+
+```bash
+pip install arifos
+```
+
+Or clone for development:
 
 ```bash
 git clone https://github.com/ariffazil/arifOS.git
 cd arifOS
+pip install -e ".[all]"
 ```
 
-### 2. Install Dependencies
+### 2. Run the AAA MCP Server
 
 ```bash
-pip install -r requirements.txt
+# stdio mode (Claude Code, Claude Desktop)
+python -m aaa_mcp stdio
+
+# SSE mode (Railway, cloud deployment)
+python -m aaa_mcp sse
+
+# Streamable HTTP mode (ChatGPT, OpenAI Codex)
+python -m aaa_mcp http
 ```
 
-### 3. Run the MCP Server
+### 3. Connect to Claude Code
 
-```bash
-python mcp_server/server.py
+Add to your `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp", "stdio"],
+      "env": {
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA"
+      }
+    }
+  }
+}
 ```
 
 ### 4. Deploy to Railway (Optional)
@@ -418,6 +458,216 @@ python mcp_server/server.py
 railway login
 railway link
 railway up
+```
+
+---
+
+## 🔧 AAA MCP Server — Constitutional AI Gateway
+
+The **AAA MCP Server** (`aaa_mcp`) is arifOS's Model Context Protocol implementation. It exposes 9 canonical tools that enforce the 13 Constitutional Floors on every AI operation — making arifOS usable from **any MCP-compatible platform**.
+
+> **MCP (Model Context Protocol)** is an open standard by Anthropic that lets AI assistants connect to external tools and data sources. Think of it as "USB for AI" — one protocol, any platform.
+
+### What MCP Means for You
+
+| Without MCP | With arifOS AAA MCP |
+|-------------|---------------------|
+| AI runs ungoverned — no safety floor | Every call passes through 13 Constitutional Floors |
+| No audit trail | VAULT-999 immutable ledger records everything |
+| Platform lock-in | Works on Claude, ChatGPT, Cursor, any MCP client |
+| Hope-based safety | Thermodynamic enforcement — violations cost compute |
+
+### 🧰 The 9 Canonical Tools
+
+Every tool returns a **verdict** (`SEAL` / `SABAR` / `VOID` / `888_HOLD`) and is wrapped with `@constitutional_floor()` enforcement:
+
+| # | Tool | Engine | Floors | Function |
+|---|------|--------|--------|----------|
+| 1 | `init_gate` | INIT | F11, F12 | Initialize constitutional session. Auth + injection defense. |
+| 2 | `agi_sense` | AGI (Δ) | F2, F4 | Perception — gather and verify information. |
+| 3 | `agi_think` | AGI (Δ) | F2, F4, F7 | Cognition — structured reasoning with humility. |
+| 4 | `agi_reason` | AGI (Δ) | F2, F4, F7 | Logic — deep analysis with uncertainty tracking. |
+| 5 | `asi_empathize` | ASI (Ω) | F5, F6 | Care — stakeholder impact assessment. |
+| 6 | `asi_align` | ASI (Ω) | F5, F6, F9 | Alignment — value alignment with Anti-Hantu guard. |
+| 7 | `apex_verdict` | APEX (Ψ) | F3, F8 | Judgment — Tri-Witness final ruling. |
+| 8 | `reality_search` | AGI (Δ) | F2, F7 | External fact-checking and verification. |
+| 9 | `vault_seal` | VAULT | F1, F3 | Seal to immutable ledger (Amanah + Tri-Witness). |
+
+**Tool Flow (000→999 Metabolic Loop):**
+```
+init_gate → agi_sense → agi_think → agi_reason
+    ↓                                      ↓
+asi_empathize → asi_align → apex_verdict → vault_seal
+                                ↑
+                         reality_search
+                      (external verification)
+```
+
+### 🌐 Transport Modes
+
+AAA MCP supports three transport protocols for different deployment scenarios:
+
+| Transport | Command | Use Case | Clients |
+|-----------|---------|----------|---------|
+| **stdio** | `python -m aaa_mcp stdio` | Local development | Claude Code, Claude Desktop, Cursor IDE |
+| **SSE** | `python -m aaa_mcp sse` | Cloud deployment | Railway, Fly.io, any SSE client |
+| **Streamable HTTP** | `python -m aaa_mcp http` | REST-style remote | ChatGPT, OpenAI Codex, web apps |
+
+### 🔌 Integration Configs
+
+<details>
+<summary><b>Claude Code / Claude Desktop</b> (stdio — local)</summary>
+
+Add to `.mcp.json` in your project root:
+
+```json
+{
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp", "stdio"],
+      "env": {
+        "PYTHONPATH": ".",
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}
+```
+
+After adding, restart Claude Code (`/exit` and re-enter) for the server to connect.
+</details>
+
+<details>
+<summary><b>ChatGPT / OpenAI Codex</b> (Streamable HTTP — remote)</summary>
+
+Deploy to Railway/Fly.io, then point ChatGPT to:
+
+```
+https://aaamcp.arif-fazil.com/mcp
+```
+
+Or self-host:
+```bash
+python -m aaa_mcp http
+# Serves on http://localhost:8000/mcp
+```
+</details>
+
+<details>
+<summary><b>Cursor IDE</b> (stdio — local)</summary>
+
+Add to `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp", "stdio"]
+    }
+  }
+}
+```
+</details>
+
+<details>
+<summary><b>Railway / Cloud Deployment</b> (SSE — remote)</summary>
+
+```bash
+# Procfile
+web: python -m aaa_mcp sse
+
+# Or with explicit port
+PORT=8080 python -m aaa_mcp sse
+```
+
+Health check: `GET /health`
+MCP endpoint: `POST /mcp`
+</details>
+
+### 📡 API Reference
+
+Every tool accepts JSON parameters and returns a constitutional response:
+
+```python
+# Example: Initialize a constitutional session
+{
+  "tool": "init_gate",
+  "arguments": {
+    "query": "Analyze this financial report",
+    "session_id": "optional-session-id"
+  }
+}
+
+# Response:
+{
+  "status": "SEAL",
+  "session_id": "a3f7b2c1-d4e5-...",
+  "verdict": "SEAL",
+  "motto": "DITEMPA BUKAN DIBERI",
+  "seal": "...",
+  "floors_enforced": ["F11", "F12"],
+  "_constitutional_enforcement": {
+    "floors_checked": ["F11", "F12"],
+    "framework": "arifOS",
+    "version": "v55.4"
+  }
+}
+```
+
+**Constitutional Decorator Pattern:**
+```python
+from aaa_mcp import constitutional_floor, mcp
+
+@constitutional_floor("F2", "F4", "F7")
+@mcp.tool()
+async def my_custom_tool(query: str, session_id: str) -> dict:
+    # Your logic here — floors enforced automatically
+    return {"verdict": "SEAL", "result": "..."}
+```
+
+---
+
+## 🔗 Links & Resources
+
+### Official arifOS
+
+| Resource | URL |
+|----------|-----|
+| **GitHub Repository** | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) |
+| **PyPI Package** | [pypi.org/project/arifos](https://pypi.org/project/arifos/) |
+| **Live Server** | [arif-fazil.com](https://arif-fazil.com/) |
+| **MCP Endpoint** | [aaamcp.arif-fazil.com/mcp](https://aaamcp.arif-fazil.com/mcp) |
+| **Health Check** | [aaamcp.arif-fazil.com/health](https://aaamcp.arif-fazil.com/health) |
+| **Constitutional Canon** | [apex.arif-fazil.com/llms.txt](https://apex.arif-fazil.com/llms.txt) |
+
+### MCP Protocol & SDK
+
+| Resource | URL |
+|----------|-----|
+| **MCP Specification** | [spec.modelcontextprotocol.io](https://spec.modelcontextprotocol.io/) |
+| **MCP Python SDK** | [github.com/modelcontextprotocol/python-sdk](https://github.com/modelcontextprotocol/python-sdk) |
+| **FastMCP Framework** | [github.com/jlowin/fastmcp](https://github.com/jlowin/fastmcp) |
+| **MCP Server Registry** | [github.com/modelcontextprotocol/servers](https://github.com/modelcontextprotocol/servers) |
+| **Anthropic MCP Docs** | [docs.anthropic.com/en/docs/agents-and-tools/mcp](https://docs.anthropic.com/en/docs/agents-and-tools/mcp) |
+
+### Install & Use
+
+```bash
+# Install from PyPI
+pip install arifos
+
+# Install with all extras
+pip install arifos[all]
+
+# Development install (from source)
+git clone https://github.com/ariffazil/arifOS.git
+cd arifOS && pip install -e ".[dev]"
+
+# Verify installation
+python -c "import aaa_mcp; print(f'AAA MCP v{aaa_mcp.__version__} loaded')"
 ```
 
 ---

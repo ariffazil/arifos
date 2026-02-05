@@ -515,17 +515,17 @@ class TestEntryPoints:
     """Test that entry points are importable and have main()."""
 
     def test_stdio_entry_importable(self):
-        from mcp.entrypoints.stdio_entry import main
+        from aaa_mcp.entrypoints.stdio_entry import main
         assert callable(main)
 
     def test_sse_entry_importable(self):
-        from mcp.entrypoints.sse_entry import main
+        from aaa_mcp.entrypoints.sse_entry import main
         assert callable(main)
 
     def test_main_module_importable(self):
         """__main__.py uses conditional imports; verify it's importable as a module."""
         import importlib
-        mod = importlib.import_module("mcp.__main__")
+        mod = importlib.import_module("aaa_mcp.__main__")
         assert mod is not None
 
 

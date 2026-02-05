@@ -179,12 +179,15 @@ arifos/mcp/sessions/*
 !arifos/mcp/sessions/.gitkeep
 mcp/sessions/*
 !mcp/sessions/.gitkeep
+aaa_mcp/sessions/*
+!aaa_mcp/sessions/.gitkeep
 VAULT999/sessions/*
 !VAULT999/sessions/.gitkeep
 VAULT999/BBB_LEDGER/entries/*
 cov_report.txt
 coverage_report.txt
 Dockerfile.bak
+output_log.txt
 
 gha-creds-*.json
 

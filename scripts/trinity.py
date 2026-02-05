@@ -51,7 +51,7 @@ def verify_version():
 def verify_tools():
     print("🔍 [2/3] Verifying 7-Core Tool Suite...")
     try:
-        from mcp.server import TOOL_DESCRIPTIONS
+        from aaa_mcp.server import TOOL_DESCRIPTIONS
         
         expected_tools = [
             "_init_",
