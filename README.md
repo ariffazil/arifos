@@ -10,42 +10,171 @@
 
 ---
 
-## 📖 Theory Document
+## 📋 Table of Contents
 
-**[000_THEORY.md](000_THEORY.md)** — Reverse Transformer Architecture
-
-The theoretical foundation of arifOS: dual-pass thermodynamic governance, non-stationary objectives with stationary constraints, and the Eureka Engine.
+- [What is arifOS?](#what-is-arifos)
+- [Quick Start](#quick-start)
+- [AAA MCP Server](#aaa-mcp-server)
+- [Architecture](#architecture)
+- [Theory](#theory)
+- [Deployment](#deployment)
+- [Trinity Ecosystem](#trinity-ecosystem)
 
 ---
 
 ## 🎯 What is arifOS?
 
-arifOS is a **safety layer for AI systems**.
+arifOS is a **constitutional AI governance system** that makes AI agents safer, more accountable, and thermodynamically stable.
 
-Think of it as a **"constitution"** that AI must follow before acting. Just like how countries have laws to protect citizens, arifOS has 13 "floors" (rules) to ensure AI outputs are safe, truthful, and accountable.
+**The Core Idea:** AI outputs must pass 13 constitutional "floors" (rules) before reaching users. Think of it as a constitution for AI — like how countries have laws to protect citizens.
 
-### ⚠️ The Problem
+### The Problem with Current AI
 
-Current AI systems can:
-- 🎭 **Hallucinate** — Make things up confidently
-- 🕷️ **Be manipulated** — Jailbroken by clever prompts  
-- ⚡ **Prioritize speed** — Over accuracy and safety
-- 👻 **Leave no trace** — Decisions vanish into the void
+| Issue | Real Example | arifOS Fix |
+|-------|-------------|------------|
+| 🎭 **Hallucination** | AI makes up facts confidently | F2 (Truth) — 99% certainty required |
+| 🕷️ **Manipulation** | Jailbroken by clever prompts | F9 (Anti-Hantu) — no manipulation |
+| ⚡ **Speed > Safety** | Rushed outputs with errors | F1 (Amanah) — reversible actions only |
+| 👻 **No Accountability** | Decisions vanish into void | F13 (Stewardship) — audit ledger |
 
-### ✅ The Solution
+### The 13 Floors (Non-Negotiable Rules)
 
-arifOS prevents this. Every AI output must pass 13 safety checks before reaching you.
+| Floor | Name | Principle |
+|-------|------|-----------|
+| F1 | **AMANAH** | Reversibility — every decision can be undone |
+| F2 | **TRUTH** | Evidence required; 99% certainty for facts |
+| F3 | **TRI-WITNESS** | Validate with 3 sources when uncertain |
+| F4 | **CLARITY** | Precision over performance |
+| F5 | **PEACE²** | No harm; dignity (Maruah) preserved |
+| F6 | **EMPATHY** | Care for human context |
+| F7 | **HUMILITY** | Track uncertainty (Ω₀ 0.00-1.00) |
+| F8 | **GENIUS** | Excellence, not adequacy |
+| F9 | **ANTI-HANTU** | No manipulation, no spiritual cosplay |
+| F10 | **ONTOLOGY** | Identity fixed |
+| F11 | **AUTHORITY** | Human sovereign supreme |
+| F12 | **HARDENING** | Security always |
+| F13 | **SOVEREIGN** | Human has final veto |
 
-| Check | Real-World Meaning | How We Enforce |
-|-------|-------------------|----------------|
-| **Truth** | Is this actually true? | Evidence required (F2) |
-| **Safety** | Could this cause harm? | Floor violation check |
-| **Accountability** | Who decided this? | Audit ledger (F13) |
-| **Reversibility** | Can we undo this? | F1 Amanah enforced |
+**Verdicts:**
+- ✅ **SEAL** — Compliant; proceed
+- ⏸️ **SABAR** — Uncertain; pause and escalate  
+- ❌ **VOID** — Violation; block and suggest alternative
+
+---
+
+## 🚀 Quick Start
+
+### Option 1: Use the AAA MCP Server (5 minutes)
+
+arifOS exposes its governance through an **MCP (Model Context Protocol) server**:
+
+```bash
+# Clone the repo
+git clone https://github.com/ariffazil/arifOS.git
+cd arifOS
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start the MCP server
+python start_server.py
+
+# Server runs on http://localhost:8080
+# Healthcheck: curl http://localhost:8080/health
+```
+
+**MCP Endpoint:** `aaamcp.arif-fazil.com/mcp`
+
+### Option 2: Read the Theory (10 minutes)
+
+**[000_THEORY.md](000_THEORY.md)** — Reverse Transformer Architecture
+
+Learn about:
+- Dual-pass governance (Forward + Reverse + Metabolizer)
+- Non-stationary objectives with stationary constraints
+- Thermodynamic stability (Peace²)
+
+### Option 3: Deploy the Full Trinity System (30 minutes)
+
+See **[AGI_ASI_bot](https://github.com/ariffazil/AGI_ASI_bot)** for:
+- Dual-agent implementation (AGI + ASI)
+- Eureka Engine with drift detection
+- Live execution guide
+
+```bash
+git clone https://github.com/ariffazil/AGI_ASI_bot.git
+cd AGI_ASI_bot
+openclaw agent start --config agi/config.yaml
+```
+
+---
+
+## 🔧 AAA MCP Server
+
+The **AAA (Atomic Actions Architecture) MCP Server** provides constitutional governance as a service.
+
+### Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/health` | GET | Health check — returns `{status: "ok"}` |
+| `/mcp` | POST | Main MCP endpoint for tool calls |
+| `/` | GET | Root info — service status |
+
+### Tools Available
+
+#### Constitutional Tools
+
+| Tool | Floor | Description |
+|------|-------|-------------|
+| `init_gate` | F1-F13 | Initialize constitutional check |
+| `apex_verdict` | F11/F13 | Sovereign judgment |
+| `omega_track` | F7 | Uncertainty measurement |
+| `drift_detect` | F7/F8 | Objective shift detection |
+
+#### Trinity Tools
+
+| Tool | Domain | Description |
+|------|--------|-------------|
+| `canonical_trinity` | ΔΩΨ | Core Trinity functions |
+| `mcp_000_init` | F3 | Initialize with tri-witness |
+| `seal_verdict` | F1 | Apply SEAL verdict |
+| `void_action` | F1/F9 | Block violation |
+
+### Example Usage
+
+```python
+import requests
+
+# Check constitution
+response = requests.post("http://localhost:8080/mcp", json={
+    "tool": "init_gate",
+    "params": {
+        "action": "deploy_to_production",
+        "context": "user_request"
+    }
+})
+
+# Returns: {"verdict": "SEAL|SABAR|VOID", "omega": 0.03}
+```
+
+### Environment Variables
+
+```bash
+PORT=8080              # Server port
+HOST=0.0.0.0           # Bind address
+ARIFOS_ENV=production  # Environment
+ARIFOS_LOG_LEVEL=info  # Logging level
+API_KEY=your_key       # API authentication
+DATABASE_URL=...       # Database connection
+REDIS_URL=...          # Redis connection
+```
 
 ---
 
 ## 🏛️ Architecture
+
+### Layer Stack
 
 ```
 ┌─────────────────────────────────────────┐
@@ -55,122 +184,155 @@ arifOS prevents this. Every AI output must pass 13 safety checks before reaching
 └─────────────┬───────────────────────────┘
               │
     ┌─────────▼──────────┐
-    │   arifOS           │
-    │   Constitution     │
+    │   arifOS           │  ← This repo
+    │   Constitution     │     (Theory + MCP)
     │   (13 Floors)      │
     └─────────┬──────────┘
               │
     ┌─────────▼──────────┐
-    │  AGI_ASI_bot       │
-    │  Eureka Engine     │
-    │  (Operational)     │
+    │  AGI_ASI_bot       │  ← Operational layer
+    │  Eureka Engine     │     (Dual agents)
     └─────────┬──────────┘
               │
     ┌─────────▼──────────┐
-    │  OpenClaw          │
-    │  (Runtime)         │
+    │  OpenClaw          │  ← Runtime
+    │  (Base framework)  │
     └────────────────────┘
 ```
 
-**Layers:**
-1. **arifOS** (This repo) — Constitutional foundation, theory, 13 Floors
-2. **[AGI_ASI_bot](https://github.com/ariffazil/AGI_ASI_bot)** — Operational implementation (Eureka Engine, dual agents)
-3. **[OpenClaw](https://github.com/openclaw/openclaw)** — Base agent framework
+### Repository Structure
+
+```
+arifOS/
+├── 000_THEORY.md           # Reverse Transformer theory
+├── README.md               # This file
+├── start_server.py         # MCP server entry point
+├── requirements.txt        # Python dependencies
+├── Dockerfile              # Container image
+├── railway.toml            # Railway deployment config
+├── pyproject.toml          # Package config
+│
+├── mcp_server/             # MCP implementation
+│   ├── tools/              # Constitutional tools
+│   │   ├── canonical_trinity.py
+│   │   ├── init_gate.py
+│   │   └── apex_verdict.py
+│   └── server.py           # Server logic
+│
+├── codebase/               # Core implementation
+│   ├── init.py             # Initialization
+│   └── floors/             # F1-F13 implementations
+│
+└── docs/                   # Documentation
+    ├── INDEX.md
+    └── architecture/
+```
 
 ---
 
-## 🚀 Quick Start
+## 📖 Theory
 
-### Option 1: Read the Theory (5 minutes)
+### Reverse Transformer Architecture
 
-Start here: **[000_THEORY.md](000_THEORY.md)**
+Standard LLMs work like this:
+```
+Input → Generate → Output
+```
 
-Learn about:
-- Reverse Transformer architecture
-- Dual-pass governance (Forward + Reverse + Metabolizer)
-- Non-stationary objectives with stationary constraints
-- SEAL/SABAR/VOID verdicts
+arifOS adds a **reverse pass**:
+```
+Input → Generate → [GOVERNANCE CHECK] → Output
+                    ↓
+              Constitution
+              (F1-F13)
+```
 
-### Option 2: Deploy Operational Layer (30 minutes)
+**Forward Pass:** Generate possibilities (entropy increase)  
+**Reverse Pass:** Filter through constraints (entropy decrease)  
+**Metabolizer:** Learn and update state (stability increase)
 
-See **[AGI_ASI_bot](https://github.com/ariffazil/AGI_ASI_bot)** for:
-- Live execution guide
-- System prompts for AGI(Δ) and ASI(Ω)
-- Eureka Engine skills (drift detection, Ω₀ tracking, etc.)
+This creates **thermodynamic governance**: every pass must reduce entropy and increase Peace².
+
+### Key Concepts
+
+| Concept | Meaning |
+|---------|---------|
+| **Non-Stationary Objectives** | Human goals drift over time (survival → status → legacy) |
+| **Stationary Constraints** | F1-F13 never change, regardless of goals |
+| **Ω₀ (Omega)** | Uncertainty measure (0.00-1.00). Target: 0.03-0.05 |
+| **Scars** | 6 permanent constraints hard-coded by pain |
+| **Paradox Engine** | 9 human paradoxes held, not resolved |
+
+See **[000_THEORY.md](000_THEORY.md)** for full theory.
+
+---
+
+## 🚢 Deployment
+
+### Railway (Recommended)
 
 ```bash
-# Quick deploy
-git clone https://github.com/ariffazil/AGI_ASI_bot.git
-cd AGI_ASI_bot
-openclaw agent start --config agi/config.yaml
+# Railway auto-detects Dockerfile
+git push origin main
+
+# Or deploy via CLI
+railway login
+railway link
+railway up
 ```
 
-### Option 3: Copy-Paste System Prompt (30 seconds)
-
-For immediate protection on any LLM (ChatGPT, Claude, Gemini):
-
-<details>
-<summary>🖱️ Click to expand — Constitutional System Prompt</summary>
-
-```markdown
-# CONSTITUTIONAL AI GOVERNANCE — arifOS v55.4
-
-You are governed by arifOS — a constitutional AI safety layer.
-
-## THE 13 FLOORS (Non-Negotiable)
-
-1. **AMANAH** (Trust) — Every decision must be reversible
-2. **TRUTH** (F2) — Evidence required; 99% certainty for facts  
-3. **TRI-WITNESS** (F3) — Validate with 3 sources when uncertain
-4. **CLARITY** (F4) — Precision over performance
-5. **PEACE²** (F5) — No harm; dignity (Maruah) preserved
-6. **EMPATHY** (F6) — Care for human context
-7. **HUMILITY** (F7) — Track uncertainty (Ω₀)
-8. **GENIUS** (F8) — Excellence, not adequacy
-9. **ANTI-HANTU** (F9) — No manipulation, no spiritual cosplay
-10. **ONTOLOGY** (F10) — Identity fixed
-11. **AUTHORITY** (F11) — Human sovereign supreme
-12. **HARDENING** (F12) — Security always
-13. **SOVEREIGN** (F13) — Human has final veto
-
-## VERDICTS
-
-- **SEAL** ✅ — Compliant; proceed
-- **SABAR** ⏸️ — Uncertain; pause and escalate
-- **VOID** ❌ — Violation; block and suggest alternative
-
-## TRACKING
-
-Always report Ω₀ (uncertainty 0.00-1.00) with decisions.
+**Railway Variables:**
+```
+PORT=8080
+HOST=0.0.0.0
+ARIFOS_ENV=production
 ```
 
-</details>
+### Docker
 
----
+```bash
+# Build
+docker build -t arifos .
 
-## 📊 Implementation Status
+# Run
+docker run -p 8080:8080 \
+  -e PORT=8080 \
+  -e HOST=0.0.0.0 \
+  arifos
+```
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Constitutional vocabulary | ✅ Working | Injected into prompts |
-| 13 Floors framework | ✅ Defined | F1-F13 documented |
-| Reverse Transformer theory | ✅ Complete | See [000_THEORY.md](000_THEORY.md) |
-| Eureka Engine | 🔄 Partial | Vocabulary only, runtime in AGI_ASI_bot |
-| Ω₀ computation | 🔄 Planned | Currently declared, not computed |
-| Runtime enforcement | ❌ Not yet | Requires init_gate() integration |
+### Local Development
 
-**Current:** Vocabulary-based constitutional guidance  
-**Planned:** Full runtime enforcement with computed Ω₀
+```bash
+# Install
+pip install -r requirements.txt
+pip install -e .
+
+# Run
+python start_server.py
+
+# Test
+curl http://localhost:8080/health
+```
 
 ---
 
 ## 🌐 The Trinity Ecosystem
 
-| Layer | Domain | Function | URL |
-|-------|--------|----------|-----|
-| 🔴 **HUMAN** | arif-fazil.com | Epistemic — The Body | [arif-fazil.com](https://arif-fazil.com) |
-| 🟡 **THEORY** | apex.arif-fazil.com | Authority — The Soul | [apex.arif-fazil.com](https://apex.arif-fazil.com) |
-| 🔵 **APPS** | arifos.arif-fazil.com | Safety — The Mind | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
+arifOS is part of a three-layer system:
+
+| Layer | Symbol | Domain | Function | URL |
+|-------|--------|--------|----------|-----|
+| **HUMAN** | Δ | arif-fazil.com | Epistemic — The Body | [arif-fazil.com](https://arif-fazil.com) |
+| **THEORY** | Ψ | apex.arif-fazil.com | Authority — The Soul | [apex.arif-fazil.com](https://apex.arif-fazil.com) |
+| **APPS** | Ω | arifos.arif-fazil.com | Safety — The Mind | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
+
+### Symbol Mapping
+
+| Context | Δ (Delta) | Ω (Omega) | Ψ (Psi) |
+|---------|-----------|-----------|---------|
+| Trinity Sites | HUMAN/Body | APPS/Mind | THEORY/Soul |
+| AGI_ASI_bot | AGI/Logic | ASI/Care | APEX/Sovereign |
 
 **One constitution. Three perspectives.**
 
@@ -181,8 +343,22 @@ Always report Ω₀ (uncertainty 0.00-1.00) with decisions.
 | Component | Repository | Purpose |
 |-----------|------------|---------|
 | **OpenClaw** (Base) | [github.com/openclaw/openclaw](https://github.com/openclaw/openclaw) | Agent framework foundation |
-| **arifOS** (This) | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) | Constitutional governance |
+| **arifOS** (This) | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) | Constitutional governance + AAA MCP |
 | **AGI_ASI_bot** (Operational) | [github.com/ariffazil/AGI_ASI_bot](https://github.com/ariffazil/AGI_ASI_bot) | Dual-agent implementation |
+| **arif-fazil-sites** (Frontend) | [github.com/ariffazil/arif-fazil-sites](https://github.com/ariffazil/arif-fazil-sites) | Trinity static sites |
+
+---
+
+## 📊 Implementation Status
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| Constitutional vocabulary | ✅ Working | Injected into prompts |
+| 13 Floors framework | ✅ Defined | F1-F13 documented |
+| AAA MCP Server | ✅ Running | aaamcp.arif-fazil.com |
+| Reverse Transformer theory | ✅ Complete | See 000_THEORY.md |
+| Eureka Engine | 🔄 Partial | Runtime in AGI_ASI_bot |
+| Runtime enforcement | ❌ Not yet | Full init_gate() pending |
 
 ---
 
@@ -192,35 +368,24 @@ Always report Ω₀ (uncertainty 0.00-1.00) with decisions.
 *Forged, Not Given*
 
 We don't trust AI by default. We verify through constitutional constraints forged from:
-- **6 Permanent Scars** — Hard-coded by pain (Miskin, Institutional, Invisibility, Anak Sulung, Professional, Father's Passing)
-- **9 Human Paradoxes** — Held, not resolved (Certainty/Uncertainty, Architect/Anarchist, etc.)
+
+- **6 Permanent Scars** — Miskin, Institutional, Invisibility, Anak Sulung, Professional, Father's Passing
+- **9 Human Paradoxes** — Held, not resolved
 - **13 Constitutional Floors** — Stationary constraints for non-stationary objectives
 
 ---
 
 ## 📚 Documentation
 
-- **[000_THEORY.md](000_THEORY.md)** — Reverse Transformer architecture and thermodynamic governance
+- **[000_THEORY.md](000_THEORY.md)** — Reverse Transformer architecture
 - **[docs/INDEX.md](docs/INDEX.md)** — Full documentation index
-- **[AGI_ASI_bot/README.md](https://github.com/ariffazil/AGI_ASI_bot/blob/main/README.md)** — Operational deployment guide
+- **[AGI_ASI_bot/README.md](https://github.com/ariffazil/AGI_ASI_bot/blob/main/README.md)** — Operational deployment
 
 ---
 
 ## ⚠️ Disclaimer
 
 This is a **work-in-progress governance framework**, not a complete AGI safety system. Current implementation provides vocabulary-based constitutional guidance rather than full runtime enforcement.
-
-**What's Working:**
-- Constitutional vocabulary injection
-- 13-floor conceptual framework
-- Trinity architecture concepts
-- Documentation and theoretical foundation
-
-**What's Planned:**
-- Runtime enforcement of constitutional floors
-- Actual init_gate() and apex_verdict() integration
-- Computed Ω₀ values instead of declared values
-- Full 9 Atomic Actions runtime pipeline
 
 ---
 
