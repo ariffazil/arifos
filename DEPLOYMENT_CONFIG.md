@@ -67,9 +67,23 @@ Before pushing to GitHub:
 - [ ] `start_server.py` uses `mcp_server.*` imports
 - [ ] Cache-bust comment updated in Dockerfile (if build changes)
 
+### Pre-Deployment Verification Commands
+
+```bash
+# 1. One config file only
+rm railway.json nixpacks.toml 2>/dev/null
+
+# 2. No bad relative imports
+grep -r "from \.\.\." --include="*.py" mcp_server/
+
+# 3. Test imports locally
+docker run --rm -v $(pwd):/app -w /app python:3.12-slim \
+  sh -c "pip install -e . && python -c 'from mcp_server.core.tool_registry import ToolRegistry'"
+```
+
 ---
 
-## 🐛 Common Errors (See DEPLOYMENT_TIPS.md)
+## 🐛 Common Errors
 
 | Error | Cause | Fix |
 |-------|-------|-----|
@@ -82,7 +96,6 @@ Before pushing to GitHub:
 
 ## 📚 Documentation
 
-- `DEPLOYMENT_TIPS.md` — Quick reference for common errors
 - `docs/DEPLOYMENT_WISDOM.md` — Full post-mortem of v55.3 deployment crisis
 
 ---

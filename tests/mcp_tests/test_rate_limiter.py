@@ -14,19 +14,20 @@ Constitutional Floor: F11 (Command Auth) - rate limiting is an auth check
 DITEMPA BUKAN DIBERI
 """
 
-import pytest
-import time
 import threading
+import time
 from unittest.mock import patch
 
-from codebase.mcp.rate_limiter import (
+import pytest
+
+from aaa_mcp.rate_limiter import (
+    DEFAULT_LIMITS,
+    FALLBACK_LIMIT,
+    RATE_LIMIT_ENABLED,
     RateLimiter,
     RateLimitResult,
     TokenBucket,
     get_rate_limiter,
-    RATE_LIMIT_ENABLED,
-    DEFAULT_LIMITS,
-    FALLBACK_LIMIT,
 )
 
 
@@ -95,7 +96,7 @@ class TestRateLimitResult:
             reason="Rate limit exceeded",
             remaining=0,
             reset_in_seconds=60.0,
-            limit_type="global"
+            limit_type="global",
         )
         assert result.allowed is False
         assert result.reason == "Rate limit exceeded"
@@ -138,9 +139,7 @@ class TestRateLimiter:
     def test_limiter_global_limit_exceeded(self):
         """RateLimiter denies when global limit exceeded."""
         # Create limiter with very low global limit
-        limiter = RateLimiter(limits={
-            "test_tool": {"per_session": 100, "global": 2, "burst": 1}
-        })
+        limiter = RateLimiter(limits={"test_tool": {"per_session": 100, "global": 2, "burst": 1}})
 
         # First two should pass
         result1 = limiter.check("test_tool")
@@ -156,9 +155,7 @@ class TestRateLimiter:
     def test_limiter_session_limit_exceeded(self):
         """RateLimiter denies when session limit exceeded."""
         # Create limiter with very low session limit
-        limiter = RateLimiter(limits={
-            "test_tool": {"per_session": 2, "global": 100, "burst": 1}
-        })
+        limiter = RateLimiter(limits={"test_tool": {"per_session": 2, "global": 100, "burst": 1}})
 
         session_id = "limited_session"
 
@@ -225,9 +222,9 @@ class TestRateLimiterThreadSafety:
 
     def test_concurrent_checks(self):
         """RateLimiter handles concurrent checks safely."""
-        limiter = RateLimiter(limits={
-            "concurrent_tool": {"per_session": 1000, "global": 10000, "burst": 100}
-        })
+        limiter = RateLimiter(
+            limits={"concurrent_tool": {"per_session": 1000, "global": 10000, "burst": 100}}
+        )
 
         results = []
 
@@ -295,9 +292,7 @@ class TestRateLimiterIntegration:
 
     def test_rate_limit_response_format(self):
         """Rate limit exceeded response has correct format."""
-        limiter = RateLimiter(limits={
-            "test_tool": {"per_session": 1, "global": 1, "burst": 1}
-        })
+        limiter = RateLimiter(limits={"test_tool": {"per_session": 1, "global": 1, "burst": 1}})
 
         # Exhaust limit
         limiter.check("test_tool")
@@ -314,16 +309,15 @@ class TestRateLimiterIntegration:
 class TestRateLimitedDecorator:
     """Tests for @rate_limited decorator."""
 
-    
     async def test_decorator_allows_request(self):
         """Decorator allows request when under limit."""
-        from codebase.mcp.rate_limiter import rate_limited
         import codebase.mcp.rate_limiter as module
+        from codebase.mcp.rate_limiter import rate_limited
 
         # Reset singleton and create fresh limiter with high limits
-        module._rate_limiter = RateLimiter(limits={
-            "decorated_tool": {"per_session": 100, "global": 1000, "burst": 10}
-        })
+        module._rate_limiter = RateLimiter(
+            limits={"decorated_tool": {"per_session": 100, "global": 1000, "burst": 10}}
+        )
 
         @rate_limited("decorated_tool")
         async def test_tool(value: str, session_id: str = ""):
@@ -334,16 +328,15 @@ class TestRateLimitedDecorator:
         assert result["status"] == "SEAL"
         assert result["value"] == "test_value"
 
-    
     async def test_decorator_blocks_when_exceeded(self):
         """Decorator blocks request when rate limit exceeded."""
-        from codebase.mcp.rate_limiter import rate_limited
         import codebase.mcp.rate_limiter as module
+        from codebase.mcp.rate_limiter import rate_limited
 
         # Create limiter with very low limits
-        module._rate_limiter = RateLimiter(limits={
-            "limited_tool": {"per_session": 1, "global": 1, "burst": 1}
-        })
+        module._rate_limiter = RateLimiter(
+            limits={"limited_tool": {"per_session": 1, "global": 1, "burst": 1}}
+        )
 
         @rate_limited("limited_tool")
         async def test_tool(session_id: str = ""):
@@ -359,15 +352,14 @@ class TestRateLimitedDecorator:
         assert "rate_limit" in result2
         assert result2["rate_limit"]["exceeded"] is True
 
-    
     async def test_decorator_extracts_session_id(self):
         """Decorator extracts session_id from kwargs."""
-        from codebase.mcp.rate_limiter import rate_limited
         import codebase.mcp.rate_limiter as module
+        from codebase.mcp.rate_limiter import rate_limited
 
-        module._rate_limiter = RateLimiter(limits={
-            "session_tool": {"per_session": 2, "global": 100, "burst": 10}
-        })
+        module._rate_limiter = RateLimiter(
+            limits={"session_tool": {"per_session": 2, "global": 100, "burst": 10}}
+        )
 
         @rate_limited("session_tool")
         async def test_tool(session_id: str = ""):
@@ -385,15 +377,14 @@ class TestRateLimitedDecorator:
         result = await test_tool(session_id="session_b")
         assert result["status"] == "SEAL"
 
-    
     async def test_decorator_no_session_id(self):
         """Decorator works without session_id kwarg."""
-        from codebase.mcp.rate_limiter import rate_limited
         import codebase.mcp.rate_limiter as module
+        from codebase.mcp.rate_limiter import rate_limited
 
-        module._rate_limiter = RateLimiter(limits={
-            "no_session_tool": {"per_session": 100, "global": 100, "burst": 10}
-        })
+        module._rate_limiter = RateLimiter(
+            limits={"no_session_tool": {"per_session": 100, "global": 100, "burst": 10}}
+        )
 
         @rate_limited("no_session_tool")
         async def test_tool():

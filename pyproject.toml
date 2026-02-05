@@ -278,8 +278,17 @@ warn_return_any = true
 warn_unused_configs = true
 warn_unused_ignores = true
 disallow_untyped_defs = false
-# Strict checking for core governance path (v36.3Omega)
-# Files: metrics, genius_metrics, APEX_PRIME, pipeline, waw/*
+no_implicit_optional = true
+strict_optional = true
+strict_equality = true
+# Display settings (merged from mypy.ini)
+show_error_codes = true
+show_column_numbers = true
+show_error_context = true
+pretty = true
+color_output = true
+error_summary = true
+namespace_packages = true
 
 [[tool.mypy.overrides]]
 # Core governance modules - stricter type enforcement
@@ -295,6 +304,12 @@ disallow_incomplete_defs = true
 check_untyped_defs = true
 warn_return_any = true
 no_implicit_optional = true
+
+[[tool.mypy.overrides]]
+# Relax rules for tests
+module = ["tests.*"]
+disallow_untyped_defs = false
+disallow_incomplete_defs = false
 
 [[tool.mypy.overrides]]
 # Ignore missing stubs for third-party libraries
@@ -315,6 +330,26 @@ module = [
     "fastapi.*",
     "uvicorn.*",
     "starlette.*",
+    # MCP & AI SDKs (merged from mypy.ini)
+    "litellm.*",
+    "fastmcp.*",
+    "openai.*",
+    "anthropic.*",
+    "langchain.*",
+    # Data & ML libraries
+    "chromadb.*",
+    "qdrant_client.*",
+    "sentence_transformers.*",
+    "transformers.*",
+    "mem0.*",
+    # Infrastructure
+    "redis.*",
+    "sqlalchemy.*",
+    "asyncpg.*",
+    # Agent frameworks
+    "pyautogen.*",
+    "pydocket.*",
+    "llamaindex.*",
 ]
 ignore_missing_imports = true
 

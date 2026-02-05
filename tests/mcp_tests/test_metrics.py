@@ -12,16 +12,12 @@ Constitutional Floor: F8 (Tri-Witness) - metrics provide evidence
 DITEMPA BUKAN DIBERI
 """
 
-import pytest
-import time
 import threading
-from codebase.mcp.metrics import (
-    get_metrics,
-    ArifOSMetrics,
-    Counter,
-    Histogram,
-    Gauge,
-)
+import time
+
+import pytest
+
+from aaa_mcp.metrics import ArifOSMetrics, Counter, Gauge, Histogram, get_metrics
 
 
 class TestCounter:
@@ -82,14 +78,10 @@ class TestHistogram:
 
     def test_histogram_buckets(self):
         """Histogram populates buckets correctly."""
-        hist = Histogram(
-            name="test",
-            help="Test histogram",
-            buckets=[0.1, 0.5, 1.0]
-        )
+        hist = Histogram(name="test", help="Test histogram", buckets=[0.1, 0.5, 1.0])
         hist.observe(0.05, {"tool": "test"})  # <= 0.1
-        hist.observe(0.3, {"tool": "test"})   # <= 0.5
-        hist.observe(0.8, {"tool": "test"})   # <= 1.0
+        hist.observe(0.3, {"tool": "test"})  # <= 0.5
+        hist.observe(0.8, {"tool": "test"})  # <= 1.0
 
         data = hist._counts[(("tool", "test"),)]
         assert data["le_0.1"] == 1  # 0.05
@@ -98,20 +90,16 @@ class TestHistogram:
 
     def test_histogram_get_percentile(self):
         """Histogram calculates percentiles correctly."""
-        hist = Histogram(
-            name="test",
-            help="Test histogram",
-            buckets=[0.1, 0.5, 1.0, 2.0, 5.0]
-        )
+        hist = Histogram(name="test", help="Test histogram", buckets=[0.1, 0.5, 1.0, 2.0, 5.0])
         # Add several observations
         for _ in range(10):
             hist.observe(0.05, {"tool": "test"})  # <= 0.1
         for _ in range(30):
-            hist.observe(0.3, {"tool": "test"})   # <= 0.5
+            hist.observe(0.3, {"tool": "test"})  # <= 0.5
         for _ in range(40):
-            hist.observe(0.8, {"tool": "test"})   # <= 1.0
+            hist.observe(0.8, {"tool": "test"})  # <= 1.0
         for _ in range(20):
-            hist.observe(1.5, {"tool": "test"})   # <= 2.0
+            hist.observe(1.5, {"tool": "test"})  # <= 2.0
 
         # p50 should be between buckets based on distribution
         p50 = hist.get_percentile(0.50, {"tool": "test"})
@@ -129,11 +117,7 @@ class TestHistogram:
 
     def test_histogram_percentile_exceeds_buckets(self):
         """Histogram handles values at the upper boundary."""
-        hist = Histogram(
-            name="test",
-            help="Test histogram",
-            buckets=[0.1, 0.5, 1.0]
-        )
+        hist = Histogram(name="test", help="Test histogram", buckets=[0.1, 0.5, 1.0])
         # All values in highest bucket
         for _ in range(100):
             hist.observe(0.9, {"tool": "test"})
@@ -247,7 +231,7 @@ class TestArifOSMetrics:
 
         assert "# HELP arifos_verdicts_total" in output
         assert "# TYPE arifos_verdicts_total counter" in output
-        assert 'arifos_verdicts_total{' in output
+        assert "arifos_verdicts_total{" in output
 
     def test_prometheus_output_all_metric_types(self):
         """Prometheus output includes all metric types."""

@@ -2,8 +2,9 @@
 Engine Adapters for AAA MCP Server
 Bridges FastMCP tools to existing codebase engines with fail-safe fallbacks.
 """
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 import logging
+from dataclasses import asdict, is_dataclass
 
 logger = logging.getLogger(__name__)
 
@@ -23,11 +24,23 @@ except ImportError as e:
     logger.warning(f"ASI engine not available: {e}")
 
 try:
-    from codebase.apex.kernel import APEXKernel
+    from codebase.apex.kernel import APEXJudicialCore
     APEX_AVAILABLE = True
 except ImportError as e:
     APEX_AVAILABLE = False
     logger.warning(f"APEX engine not available: {e}")
+
+
+def _normalize_obj(obj: Any) -> Any:
+    if obj is None:
+        return None
+    if hasattr(obj, "to_dict"):
+        return obj.to_dict()
+    if is_dataclass(obj):
+        return asdict(obj)
+    if isinstance(obj, dict):
+        return obj
+    return {"value": obj}
 
 
 class InitEngine:
@@ -54,12 +67,30 @@ class AGIEngine:
     def __init__(self):
         self._engine = RealAGIEngine() if AGI_AVAILABLE else None
 
-    async def _execute_or_fallback(self, action: str, query: str, session_id: str) -> Dict[str, Any]:
+    async def _execute_or_fallback(
+        self,
+        query: str,
+        session_id: str,
+        *,
+        context: Optional[Dict[str, Any]] = None,
+        lane: Optional[str] = None,
+    ) -> Dict[str, Any]:
         if self._engine:
-            return await self._engine.execute(action, {"query": query, "session_id": session_id})
+            result = await self._engine.execute(query, context=context, lane=lane)
+            delta = getattr(result, "delta_bundle", None)
+            stage_111 = getattr(result, "stage_111", None)
+            return {
+                "verdict": getattr(getattr(delta, "vote", None), "value", None) or "SEAL",
+                "query": query,
+                "session_id": session_id,
+                "engine_mode": "real",
+                "trinity_component": "AGI",
+                "delta_bundle": _normalize_obj(delta),
+                "stage_111": _normalize_obj(stage_111),
+                "execution_time_ms": getattr(result, "execution_time_ms", None),
+            }
         return {
             "verdict": "SEAL",
-            "action": action,
             "query": query,
             "session_id": session_id,
             "engine_mode": "fallback",
@@ -67,13 +98,13 @@ class AGIEngine:
         }
 
     async def sense(self, query: str, session_id: str) -> Dict[str, Any]:
-        return await self._execute_or_fallback("sense", query, session_id)
+        return await self._execute_or_fallback(query, session_id)
 
     async def think(self, query: str, session_id: str) -> Dict[str, Any]:
-        return await self._execute_or_fallback("think", query, session_id)
+        return await self._execute_or_fallback(query, session_id)
 
     async def reason(self, query: str, session_id: str) -> Dict[str, Any]:
-        return await self._execute_or_fallback("reason", query, session_id)
+        return await self._execute_or_fallback(query, session_id)
 
 
 class ASIEngine:
@@ -81,12 +112,27 @@ class ASIEngine:
     def __init__(self):
         self._engine = RealASIEngine() if ASI_AVAILABLE else None
 
-    async def _execute_or_fallback(self, action: str, query: str, session_id: str) -> Dict[str, Any]:
+    async def _execute_or_fallback(
+        self,
+        query: str,
+        session_id: str,
+        *,
+        context: Optional[Dict[str, Any]] = None,
+    ) -> Dict[str, Any]:
         if self._engine:
-            return await self._engine.execute(action, {"query": query, "session_id": session_id})
+            result = await self._engine.execute(query, context=context)
+            omega = getattr(result, "omega_bundle", None)
+            return {
+                "verdict": getattr(getattr(omega, "vote", None), "value", None) or "SEAL",
+                "query": query,
+                "session_id": session_id,
+                "engine_mode": "real",
+                "trinity_component": "ASI",
+                "omega_bundle": _normalize_obj(omega),
+                "execution_time_ms": getattr(result, "execution_time_ms", None),
+            }
         return {
             "verdict": "SEAL",
-            "action": action,
             "query": query,
             "session_id": session_id,
             "engine_mode": "fallback",
@@ -94,16 +140,16 @@ class ASIEngine:
         }
 
     async def empathize(self, query: str, session_id: str) -> Dict[str, Any]:
-        return await self._execute_or_fallback("empathize", query, session_id)
+        return await self._execute_or_fallback(query, session_id)
 
     async def align(self, query: str, session_id: str) -> Dict[str, Any]:
-        return await self._execute_or_fallback("align", query, session_id)
+        return await self._execute_or_fallback(query, session_id)
 
 
 class APEXEngine:
     """Adapter for APEX — uses APEXKernel or fallback."""
     def __init__(self):
-        self._kernel = APEXKernel() if APEX_AVAILABLE else None
+        self._kernel = APEXJudicialCore() if APEX_AVAILABLE else None
 
     async def judge(self, query: str, session_id: str) -> Dict[str, Any]:
         if self._kernel:

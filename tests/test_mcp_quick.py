@@ -2,21 +2,23 @@
 """Quick 7-Tool Test - arifOS v53.2.9"""
 import asyncio
 import sys
+
 sys.path.insert(0, "c:/Users/ariff/arifOS")
 
-from mcp_server.tools.mcp_trinity import mcp_agi_genius, mcp_asi_act, mcp_apex_judge
+from aaa_mcp.tools.mcp_trinity import mcp_agi_genius, mcp_apex_judge, mcp_asi_act
 from codebase.kernel import mcp_000_init
 
+
 async def test():
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("arifOS v53.2.9 - 7-Tool Quick Test")
-    print("="*60 + "\n")
+    print("=" * 60 + "\n")
 
     # Tool 1: _ignite_
     print("[1/7] _ignite_ (Gate)")
     r1 = await mcp_000_init(action="init", query="Test session")
     print(f"  Status: {r1.get('status')}, Session: {r1.get('session_id', 'N/A')[:8]}")
-    sid = r1.get('session_id')
+    sid = r1.get("session_id")
 
     # Tool 2: _logic_
     print("\n[2/7] _logic_ (Mind)")
@@ -48,13 +50,14 @@ async def test():
     r7 = await mcp_apex_judge(action="full", query="Complete", session_id=sid)
     print(f"  Verdict: {r7.get('verdict')}, Status: {r7.get('status')}")
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("SUMMARY:")
     results = [r1, r2, r3, r4, r5, r6, r7]
-    seals = sum(1 for r in results if r.get('verdict') == 'SEAL')
+    seals = sum(1 for r in results if r.get("verdict") == "SEAL")
     print(f"  SEAL count: {seals}/7")
     print(f"  Session: {sid}")
-    print("="*60 + "\n")
+    print("=" * 60 + "\n")
+
 
 if __name__ == "__main__":
     asyncio.run(test())

@@ -9,6 +9,8 @@ from fastmcp import FastMCP
 
 from aaa_mcp.constitutional_decorator import constitutional_floor, get_tool_floors
 from aaa_mcp.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitEngine
+from aaa_mcp.services.constitutional_metrics import store_stage_result
+from aaa_mcp.tools.reality_grounding import reality_check
 
 mcp = FastMCP("aaa-mcp")
 
@@ -20,10 +22,12 @@ async def init_gate(query: str, session_id: Optional[str] = None) -> dict:
     """Initialize constitutional session"""
     engine = InitEngine()
     result = await engine.ignite(query, session_id)
+    store_stage_result(result.get("session_id", session_id or "unknown"), "init", result)
     result["verdict"] = result.get("verdict", "SEAL")
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["seal"] = result.get("seal", "💎🔥🧠")
     result["floors_enforced"] = get_tool_floors("init_gate")
+    result["pass"] = "forward"
     return result
 
 
@@ -32,8 +36,10 @@ async def init_gate(query: str, session_id: Optional[str] = None) -> dict:
 async def agi_sense(query: str, session_id: str) -> dict:
     engine = AGIEngine()
     result = await engine.sense(query, session_id)
+    store_stage_result(session_id, "agi", result)
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("agi_sense")
+    result["pass"] = "forward"
     return result
 
 
@@ -42,8 +48,10 @@ async def agi_sense(query: str, session_id: str) -> dict:
 async def agi_think(query: str, session_id: str) -> dict:
     engine = AGIEngine()
     result = await engine.think(query, session_id)
+    store_stage_result(session_id, "agi", result)
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("agi_think")
+    result["pass"] = "forward"
     return result
 
 
@@ -52,8 +60,10 @@ async def agi_think(query: str, session_id: str) -> dict:
 async def agi_reason(query: str, session_id: str) -> dict:
     engine = AGIEngine()
     result = await engine.reason(query, session_id)
+    store_stage_result(session_id, "agi", result)
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("agi_reason")
+    result["pass"] = "forward"
     return result
 
 
@@ -62,8 +72,10 @@ async def agi_reason(query: str, session_id: str) -> dict:
 async def asi_empathize(query: str, session_id: str) -> dict:
     engine = ASIEngine()
     result = await engine.empathize(query, session_id)
+    store_stage_result(session_id, "asi", result)
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("asi_empathize")
+    result["pass"] = "forward"
     return result
 
 
@@ -72,8 +84,10 @@ async def asi_empathize(query: str, session_id: str) -> dict:
 async def asi_align(query: str, session_id: str) -> dict:
     engine = ASIEngine()
     result = await engine.align(query, session_id)
+    store_stage_result(session_id, "asi", result)
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("asi_align")
+    result["pass"] = "forward"
     return result
 
 
@@ -82,8 +96,10 @@ async def asi_align(query: str, session_id: str) -> dict:
 async def apex_verdict(query: str, session_id: str) -> dict:
     engine = APEXEngine()
     result = await engine.judge(query, session_id)
+    store_stage_result(session_id, "apex", result)
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("apex_verdict")
+    result["pass"] = "reverse"
     return result
 
 
@@ -91,15 +107,11 @@ async def apex_verdict(query: str, session_id: str) -> dict:
 @mcp.tool()
 async def reality_search(query: str, session_id: str) -> dict:
     # Reality search using external fact verification
-    # TODO: Implement reality engine adapter
-    result = {
-        "query": query,
-        "session_id": session_id,
-        "verdict": "SEAL",
-        "note": "Reality search - external verification",
-        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
-        "floors_enforced": get_tool_floors("reality_search"),
-    }
+    result = await reality_check(query)
+    result["session_id"] = session_id
+    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+    result["floors_enforced"] = get_tool_floors("reality_search")
+    result["pass"] = "reverse"
     return result
 
 
@@ -117,6 +129,7 @@ async def vault_seal(session_id: str, verdict: str, payload: dict) -> dict:
             "seal": result["seal"],
             "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
             "floors_enforced": get_tool_floors("vault_seal"),
+            "pass": "reverse",
         }
     finally:
         await ledger.close()

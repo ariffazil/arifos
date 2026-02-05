@@ -11,22 +11,22 @@ import json
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Add repo root to sys.path (robust to user/path changes)
 REPO_ROOT = Path(__file__).resolve().parents[1]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
-from mcp_server.tools.mcp_trinity import (
+from aaa_mcp.services.constitutional_metrics import store_stage_result
+from aaa_mcp.tools.mcp_trinity import (
     mcp_agi_genius,
-    mcp_asi_act,
     mcp_apex_judge,
-    mcp_reality_check,
+    mcp_asi_act,
     mcp_context_docs,
+    mcp_reality_check,
 )
 from codebase.kernel import mcp_000_init
-from mcp_server.services.constitutional_metrics import store_stage_result
 
 
 def print_result(tool_name: str, result: Dict[str, Any]):
@@ -58,10 +58,10 @@ def print_result(tool_name: str, result: Dict[str, Any]):
 async def test_all_tools():
     """Test all 7 MCP tools in sequence."""
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("arifOS v53.2.9 - 7-Tool Constitutional Test")
     print("DITEMPA BUKAN DIBERI - Forged, Not Given")
-    print("="*60 + "\n")
+    print("=" * 60 + "\n")
 
     session_id = None
     agi_test_result = {}
@@ -75,9 +75,7 @@ async def test_all_tools():
 
     try:
         result = await mcp_000_init(
-            action="init",
-            query="Test all constitutional tools",
-            authority_token="arif_sovereign"
+            action="init", query="Test all constitutional tools", authority_token="arif_sovereign"
         )
         print_result("_ignite_", result)
 
@@ -101,10 +99,12 @@ async def test_all_tools():
         agi_test_result = await mcp_agi_genius(
             action="think",
             query="What are the 13 constitutional floors of arifOS?",
-            session_id=session_id
+            session_id=session_id,
         )
         print_result("_logic_", agi_test_result)
-        if session_id and agi_test_result and "bundle" in agi_test_result: # This is a change, agi_test_result is already the dict representation of the DeltaBundle.
+        if (
+            session_id and agi_test_result and "bundle" in agi_test_result
+        ):  # This is a change, agi_test_result is already the dict representation of the DeltaBundle.
             store_stage_result(session_id, "delta", agi_test_result)
 
         if agi_test_result.get("verdict") == "SEAL":
@@ -124,8 +124,7 @@ async def test_all_tools():
     try:
         # Note: This will use circuit breaker if Brave API is unavailable
         result = await mcp_reality_check(
-            query="Latest Claude Code MCP features 2026",
-            session_id=session_id
+            query="Latest Claude Code MCP features 2026", session_id=session_id
         )
         print_result("_senses_", result)
 
@@ -143,10 +142,7 @@ async def test_all_tools():
     print("Purpose: Map codebase structure, F10 Ontology")
 
     try:
-        result = await mcp_context_docs(
-            query="codebase/mcp/",
-            session_id=session_id
-        )
+        result = await mcp_context_docs(query="aaa_mcp/", session_id=session_id)
         print_result("_atlas_", result)
 
         if result.get("verdict") == "SEAL":
@@ -164,9 +160,7 @@ async def test_all_tools():
 
     try:
         asi_test_result = await mcp_asi_act(
-            action="full",
-            query="Create a simple hello world function",
-            session_id=session_id
+            action="full", query="Create a simple hello world function", session_id=session_id
         )
         print_result("_forge_", asi_test_result)
         if session_id and asi_test_result and "_bundle" in asi_test_result:
@@ -187,9 +181,7 @@ async def test_all_tools():
 
     try:
         result = await mcp_asi_act(
-            action="act",
-            text="def hello(): return 'Hello World'",
-            session_id=session_id
+            action="act", text="def hello(): return 'Hello World'", session_id=session_id
         )
         print_result("_audit_", result)
 
@@ -215,8 +207,8 @@ async def test_all_tools():
                 "query": "Test all constitutional tools",
                 "response": "All tools operational",
                 "agi_result": agi_test_result,
-                "asi_result": asi_test_result
-            }
+                "asi_result": asi_test_result,
+            },
         )
         print_result("_decree_", result)
 
@@ -230,12 +222,12 @@ async def test_all_tools():
     # =========================================================================
     # FINAL SUMMARY
     # =========================================================================
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     print("[SUMMARY] TEST RESULTS")
-    print("="*60)
+    print("=" * 60)
     print("Session ID:", session_id)
     print("All 7 constitutional tools tested")
-    print("="*60)
+    print("=" * 60)
     print("\nFloor Coverage:")
     print("  F1 Amanah       -> _forge_, _audit_")
     print("  F2 Truth        -> _logic_, _audit_")

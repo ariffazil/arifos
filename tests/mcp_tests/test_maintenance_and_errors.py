@@ -1,7 +1,10 @@
-import pytest
 import asyncio
 from unittest.mock import MagicMock, patch
-from mcp_server.bridge import bridge_init_router, BridgeError
+
+import pytest
+
+from aaa_mcp.bridge import BridgeError, bridge_init_router
+
 try:
     from aaa_mcp.maintenance import session_maintenance_loop
 except (ImportError, SyntaxError):
@@ -13,9 +16,9 @@ async def test_error_categorization():
     with patch("mcp.core.bridge.get_kernel_manager") as mock_manager:
         # Simulate a kernel failure
         mock_manager.side_effect = Exception("Kernel Crash")
-        
+
         result = await bridge_init_router(action="init")
-        
+
         assert result["status"] == "VOID"
         assert result["verdict"] == "VOID"
         assert result["error_category"] == "ENGINE_FAILURE"
@@ -25,17 +28,21 @@ async def test_error_categorization():
 @pytest.mark.skipif(session_maintenance_loop is None, reason="maintenance module archived")
 async def test_maintenance_loop_picks_up_orphans():
     """Test that the maintenance loop picks up orphans and calls recover."""
-    with patch("mcp.maintenance.get_orphaned_sessions") as mock_get_orphans, \
-         patch("mcp.maintenance.recover_orphaned_session") as mock_recover, \
-         patch("asyncio.sleep", side_effect=[None, asyncio.CancelledError]): # Run once then stop
-        
-        mock_get_orphans.return_value = [{"session_id": "orphan-123", "started_at": "2026-01-29T00:00:00Z"}]
-        
+    with (
+        patch("mcp.maintenance.get_orphaned_sessions") as mock_get_orphans,
+        patch("mcp.maintenance.recover_orphaned_session") as mock_recover,
+        patch("asyncio.sleep", side_effect=[None, asyncio.CancelledError]),
+    ):  # Run once then stop
+
+        mock_get_orphans.return_value = [
+            {"session_id": "orphan-123", "started_at": "2026-01-29T00:00:00Z"}
+        ]
+
         try:
             await session_maintenance_loop(interval_seconds=1)
         except asyncio.CancelledError:
             pass
-            
+
         mock_get_orphans.assert_called_once()
         mock_recover.assert_called_once()
         args, _ = mock_recover.call_args
@@ -44,17 +51,17 @@ async def test_maintenance_loop_picks_up_orphans():
 
 async def test_bridge_serialization():
     """Test that bridge serialization handles basic types and dicts."""
-    from mcp_server.bridge import _serialize
-    
+    from aaa_mcp.bridge import _serialize
+
     data = {"a": 1, "b": "str", "c": [1, 2], "d": {"inner": True}}
     assert _serialize(data) == data
-    
+
     # Test object with __dict__
     class MockObj:
         def __init__(self):
             self.foo = "bar"
             self._secret = "hidden"
-    
+
     serialized = _serialize(MockObj())
     assert serialized == {"foo": "bar"}
     assert "_secret" not in serialized
