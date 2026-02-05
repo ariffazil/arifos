@@ -1,4 +1,4 @@
-# arifOS
+# <img src="docs/forged_page_1.png" width="100%" alt="arifOS - Ditempa Bukan Diberi">
 
 <p align="center">
   <img src="https://img.shields.io/badge/arifOS-v55.4--SEAL-blue?style=for-the-badge" alt="Version">
@@ -131,3 +131,24 @@ arifOS/
 ## 📜 License
 
 MIT — **Ditempa Bukan Diberi**
+
+---
+
+<p align="center">
+
+```
+╔═══════════════════════════════════════════════════════╗
+║                                                       ║
+║     ⚡  arifOS v55.4-SEAL  ⚡                        ║
+║                                                       ║
+║     Thermodynamic Constitution                       ║
+║     Forged in Constraint                             ║
+║     Ω₀ = 0.04 — SEALed                               ║
+║                                                       ║
+║     DITEMPA BUKAN DIBERI                            ║
+║     — Forged, Not Given —                           ║
+║                                                       ║
+╚═══════════════════════════════════════════════════════╝
+```
+
+</p>
