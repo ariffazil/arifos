@@ -10,5 +10,5 @@ restartPolicyType = "on_failure"
 restartPolicyMaxRetries = 3
 
 [variables]
-PORT = "3000"
+PORT = "8080"
 HOST = "0.0.0.0"
