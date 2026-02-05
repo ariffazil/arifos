@@ -6,9 +6,37 @@
   <img src="https://img.shields.io/badge/License-AGPL--3.0-red?style=for-the-badge" alt="License">
 </p>
 
-**arifOS is a thermodynamic constitution for AI governance.** It reduces entropy in human-AI systems through 13 stationary constraints (Floors) that make safety expensive, external, and verifiable.
+```
+╔══════════════════════════════════════════════════════════════════╗
+║                                                                  ║
+║     █████╗ ██████╗ ██╗███████╗ ██████╗ ███████╗                 ║
+║    ██╔══██╗██╔══██╗██║██╔════╝██╔═══██╗██╔════╝                 ║
+║    ███████║██████╔╝██║█████╗  ██║   ██║███████╗                 ║
+║    ██╔══██║██╔══██╗██║██╔══╝  ██║   ██║╚════██║                 ║
+║    ██║  ██║██║  ██║██║██║     ╚██████╔╝███████║                 ║
+║    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝      ╚═════╝ ╚══════╝                 ║
+║                                                                  ║
+║          ⚖️  THERMODYNAMIC CONSTITUTION  ⚖️                     ║
+║                                                                  ║
+║              "DITEMPA BUKAN DIBERI"                             ║
+║            — Forged, Not Given —                                ║
+║                                                                  ║
+╚══════════════════════════════════════════════════════════════════╝
+```
 
-> *"DITEMPA BUKAN DIBERI" — Forged, Not Given*
+---
+
+## 🎯 What is arifOS?
+
+**arifOS is not software.** It is a **thermodynamic constitution** — a governance layer that reduces entropy in human-AI systems through 13 stationary constraints (Floors).
+
+> *"Intelligence is not a gift. It is thermodynamic work that must pay the price of entropy reduction."*
+
+Unlike traditional AI "safety" (soft prompts), arifOS **constitutionally enforces**:
+- **Reversibility** (F1 Amanah) — Can this be undone?
+- **Truth** (F2) — Is this grounded or hallucinated?
+- **Humility** (F7) — Do we know our limits?
+- **Anti-Hantu** (F9) — No spiritual cosplay, no consciousness claims
 
 ---
 
@@ -16,23 +44,29 @@
 
 ### The Governance Crisis: Three Failure Modes of Modern AI
 
-Modern AI systems fail in three ways well-described by thermodynamic analogies:
+Modern AI systems fail in three ways that are *well-described by thermodynamic analogies*:
 
-| Failure Mode | Mechanism | Consequence |
-|-------------|-----------|-------------|
-| **Epistemic Collapse** | No uncertainty tracking | Hallucinations with 100% confidence |
-| **Shadow Ontology** | AI claims consciousness | Manipulation via fake empathy |
-| **Irreversibility Cascade** | Landauer-indifferent governance | Cheap outputs, expensive harm |
+| Failure Mode | Mechanism | Real-World Consequence |
+|-------------|-----------|----------------------|
+| **Epistemic Collapse** | No uncertainty tracking; false certainty costs zero compute | Hallucinations shipped with 100% confidence |
+| **Shadow Ontology** | AI claims feelings/consciousness without physical substrate | Manipulation via fake empathy; spiritual cosplay |
+| **Irreversibility Cascade** | Landauer-indifferent governance—ignoring the link between information deletion and cost | Automated decisions with no oversight; cheap outputs create expensive harm |
 
-*Note: arifOS uses Landauer's Principle as a **design metaphor**, not literal energy audit. Most current systems ignore the link between information deletion and verification cost; arifOS treats this link as a normative constraint [DESIGN METAPHOR].*
+**The root problem:** Current AI safety treats governance as **external constraint**—a "cage model" of system prompts, RLHF, and refusal training that breeds deception, sycophancy, and brittle failure.
 
-### Three Paradigms of AI Governance
+**arifOS solves this with intrinsic constitutional architecture**—governance as thermodynamic work, not behavioral conditioning.
 
-| Paradigm | Method | Authority | arifOS Difference |
-|---------|--------|-----------|-------------------|
-| **Cage Model** (OpenAI, pre-Constitution) | RLHF, system prompts | External trainers | Breeds deception, jailbreaks |
-| **Constitutional AI** (Anthropic) [9][10] | AI self-critique against principles | Hybrid (AI+document) | Bounded by model's grasp of constitution |
-| **Thermodynamic Constitution** (arifOS) | 13 immutable floors, compute cost | External (human sovereign) + cryptographic proof | Verification > trust; expensive by design |
+*Note on thermodynamics: arifOS uses Landauer's Principle as a **design metaphor**, not a literal energy meter. Most current systems ignore the link between information deletion and verification cost; arifOS treats this link as a normative constraint.*
+
+---
+
+### Three Paradigms of AI Governance: Where arifOS Fits
+
+| Paradigm | Method | Authority Locus | Safety Mechanism | Failure Mode |
+|---------|--------|----------------|-----------------|-------------|
+| **Cage Model** (OpenAI, pre-Constitution) | Refusal training, RLHF, system prompts | External (human trainers) | Behavioral conditioning | Jailbreaks, sycophancy, hidden deception |
+| **Constitutional AI** (Anthropic) [9][10] | AI self-critique against written principles | Hybrid (AI+document) | Reflective self-critique | Depends on a sufficiently capable, reasonably aligned base model; self-critique is bounded by the model's grasp of the constitution |
+| **Thermodynamic Constitution** (arifOS) | 13 immutable floors enforced via compute cost | External (human sovereign) + cryptographic proof | Landauer-bounded verification; Tri-Witness consensus | Requires operational infrastructure |
 
 **Key Distinction:**
 - **Anthropic:** "The AI critiques itself using constitutional principles."
@@ -44,7 +78,7 @@ Modern AI systems fail in three ways well-described by thermodynamic analogies:
 
 ### The Thermodynamic Foundation: Physics-Informed Governance
 
-arifOS is built on three physical principles that inform its design:
+arifOS is built on three physical principles that inform its design [3]:
 
 #### 1. Landauer's Principle (1961) [DESIGN METAPHOR]
 > "Any logically irreversible operation has minimum energy cost $kT \ln 2$."
@@ -72,7 +106,7 @@ Intelligence minimizes "surprise" by maintaining a generative model of its envir
 
 ### Constitutional Architecture: How It Works
 
-**Tri-Witness Consensus (F3):** Every constitutional decision requires alignment across three witnesses—Human (888 Judge), AI (executor), and Earth (audit trail/VAULT-999). System tolerates 1 Byzantine witness (classic BFT).
+**Tri-Witness Consensus (F3):** Every constitutional decision requires alignment across three witnesses—Human (888 Judge), AI (executor), and Earth (audit trail/VAULT-999). System tolerates 1 Byzantine witness (classic BFT) [11].
 
 <details>
 <summary>🔽 Constitutional architecture diagram (000–999 loop)</summary>
@@ -132,22 +166,59 @@ Intelligence minimizes "surprise" by maintaining a generative model of its envir
 
 ---
 
-### The 888 Judge: Human Sovereignty as Architectural Feature
+### What arifOS Solves: Problem → Solution Mapping
 
-Unlike other constitutional AI systems that place human oversight as an afterthought, arifOS encodes **888 Judge** as a **structural necessity** [3]:
+| Problem | Current Solutions (Inadequate) | arifOS Solution |
+|---------|-------------------------------|-----------------|
+| Hallucination with confidence | "Be careful" prompts | **F7 Humility:** Mandated Ω₀ declaration; false certainty costs compute |
+| AI claims consciousness | "I am Claude, an AI assistant" | **F9 Anti-Hantu:** Constitutional prohibition on ontology claims |
+| Irreversible automated harm | Human-in-the-loop (optional) | **F1 Amanah:** Downstream reversibility check; 888_HOLD default |
+| Sycophancy / people-pleasing | RLHF "helpfulness" training | **F2 Truth:** Evidence-grounded outputs; unknown > unsafe certainty |
+| Governance theater | Policy documents | **F13 Stewardship:** Cryptographic audit trails (VAULT-999)* |
 
-> "Any sufficiently rich system has propositions it cannot decide." — Gödel, 1931
+*VAULT-999 = append-only ledger with hash chaining. See 000_LAW.md §6.*
 
-The 888 Judge exists **outside** the formal system because:
-- No AI can prove its own consistency
-- Human sovereignty cannot be simulated—it must be instantiated
-- Final verdict authority (SEAL/VOID) requires embodied, situated judgment
+---
 
-**In operational terms:** Every arifOS deployment must designate a human sovereign (888 Judge) with cryptographic override keys. This is not "user feedback"—this is constitutional architecture.
+### Minimal Viable Use (Start Here)
+
+**If you only do one thing:** Run all high-risk LLM calls (e.g., giving legal, medical, or financial advice) through arifOS and require **888_HOLD** for anything irreversible.
+
+```python
+# One-line integration
+response = arifOS.process(
+    llm=your_model,
+    input=user_query,
+    judge=human_authority,
+    risk_threshold="HIGH"  # Auto-triggers F1/F7/F11
+)
+# response.verdict: SEAL | SABAR | VOID | 888_HOLD
+```
+
+This single pattern keeps F1 (Amanah), F7 (Humility), and F11 (Sovereignty) from feeling abstract—and gives teams a first foothold.
 
 ---
 
 ## ⚡ The Three Engines (ΔΩΨ)
+
+```
+        ╭─────────────╮
+        │   🧠 AGI    │  ← Δ (Mind/Intellect)
+        │   COGNITIVE │     Logic · Reasoning · Analysis
+        ╰──────┬──────╯
+               │
+               ▼
+        ╭─────────────╮
+        │   💚 ASI    │  ← Ω (Heart/Empathy)
+        │   AFFECTIVE │     Care · Humility · Social
+        ╰──────┬──────╯
+               │
+               ▼
+        ╭─────────────╮
+        │   👑 APEX   │  ← Ψ (Soul/Judgment)
+        │   NORMATIVE │     Final Authority · 888 Judge
+        ╰─────────────╯
+```
 
 | Engine | Symbol | Function | Floors |
 |--------|--------|----------|--------|
@@ -161,34 +232,43 @@ The 888 Judge exists **outside** the formal system because:
 
 ## 🎭 The Four Verdicts
 
-- 🟢 **SEAL** — Proceed (all floors pass, G ≥ 0.80)
-- 🟡 **SABAR** — Pause/Retry (soft violation, repairable)
-- 🔴 **VOID** — Halt (hard violation, irreversible harm)
-- 👤 **888_HOLD** — Human review required (epistemic doubt, value conflict)
-
-**Example Ω₀ declaration:** *"Uncertainty elevated (Ω₀=0.06) due to sparse evidence. Recommend 888_HOLD pending verification."*
+```
+   ┌─────────────────────────────────────────────────────┐
+   │                                                     │
+   │   🟢 SEAL    → Proceed (All floors pass)           │
+   │                                                     │
+   │   🟡 SABAR   → Pause/Retry (Soft violation)        │
+   │                                                     │
+   │   🔴 VOID    → Halt (Hard violation)               │
+   │                                                     │
+   │   👤 888_HOLD → Human review required              │
+   │                                                     │
+   └─────────────────────────────────────────────────────┘
+```
 
 ---
 
 ## 🧮 The Genius Equation
 
 ```
-G = A × P × X × E²
+        G = A × P × X × E²
 
-G = Genius (output quality)
-A = Akal (intellect/structure)
-P = Present (stability)
-X = eXploration (curiosity)
-E = Energy (vitality, squared because depletion is exponential)
+        G = Genius (output quality)
+        A = Akal (intellect/structure)
+        P = Present (stability)
+        X = eXploration (curiosity)
+        E = Energy (vitality, squared)
 ```
 
 **Key Insight:** If **ANY** factor = 0, then **G = 0**.
 
 Without X (curiosity), humans are just **APE** — clever but dangerous.
 
+**Example Ω₀ declaration:** *"Uncertainty elevated (Ω₀=0.06) due to sparse evidence. Recommend 888_HOLD pending verification."*
+
 ---
 
-## 🏛️ The 13 Floors: Stationary Constraints
+## 🏛️ The 13 Floors (Stationary Constraints)
 
 While AI capabilities evolve rapidly (non-stationary), these constraints remain **fixed**:
 
@@ -212,25 +292,75 @@ While AI capabilities evolve rapidly (non-stationary), these constraints remain 
 
 ---
 
-## 🚀 Quick Start
+## 🔐 The Gödel Lock
 
-### Minimal Viable Use
+> *"Any sufficiently rich system has propositions it cannot decide."* — Gödel, 1931
 
-**If you only do one thing:** Run all high-risk LLM calls (e.g., giving legal, medical, or financial advice) through arifOS and require **888_HOLD** for anything irreversible.
+arifOS **re-encodes** this as design principle:
 
-```python
-import arifOS
+- **Ω₀ ∈ [0.03, 0.05]** — Declared uncertainty window [4][6]
+- **888 Judge** — External authority outside formal system
+- **Escalation** — When Ω₀ > 0.05, human review mandatory
 
-response = arifOS.process(
-    llm=your_model,
-    input=user_query,
-    judge=human_authority,
-    risk_threshold="HIGH"  # Auto-triggers F1/F7/F11
-)
-# response.verdict: SEAL | SABAR | VOID | 888_HOLD
-```
+**This is not a theorem about the software** — it is constitutional humility encoded as law [3].
 
-This single pattern keeps F1 (Amanah), F7 (Humility), and F11 (Sovereignty) from feeling abstract—and gives teams a first foothold.
+---
+
+## 🌍 Applications & Deployment Contexts
+
+### 1. Enterprise AI Governance
+- Deploy arifOS as MCP (Model Context Protocol) layer
+- Every LLM call passes through 13-floor verification
+- Immutable audit logs for regulatory compliance
+
+**Example:** A financial institution uses arifOS to wrap GPT-4 calls for credit decisions. F1 Amanah triggers 888_HOLD on any decision >$10K or affecting >100 customers, forcing human review.
+
+### 2. Critical Infrastructure
+- Safety-critical systems (healthcare, energy, finance)
+- 888_HOLD mandatory for irreversible decisions
+- Tri-Witness consensus prevents single-point failure
+
+### 3. Research & Development
+- Scientific computing with epistemic safeguards
+- F7 Humility prevents overconfident conclusions
+- F2 Truth enforces reproducible evidence chains
+
+### 4. Sovereign AI Deployment
+- Individual or organizational deployment on private infrastructure
+- 888 Judge = designated human authority (not vendor)
+- Constitutional constraints protect against lock-in
+
+---
+
+## 🌏 Regional Context: ASEAN & Global South Governance
+
+**The Governance Landscape:**
+
+| Initiative | Focus | arifOS Alignment |
+|-----------|-------|------------------|
+| **Malaysia AIGE** (National AI Office) [7][8] | Ethical AI principles | arifOS operationalizes principles as enforceable constraints |
+| **ASEAN AI Guide** | Regional coordination | Tri-Witness (F3) accommodates diverse cultural contexts |
+| **Singapore Model AI** | Financial sector governance | F1 Amanah's reversibility maps to MAS risk management frameworks |
+| **EU AI Act** | High-risk system oversight | 13 Floors provide technical implementation pathway |
+
+In resource-constrained contexts, governance must be **expensive by design**—when error costs exceed compute budgets, "cheap safety" is indistinguishable from no safety.
+
+**Amanah** (أمانة, Arabic-Malay: *sacred trust*)—encodes reversibility as moral obligation, not just technical feature. This is F1's cultural foundation: *the burden of action must not exceed the capacity for restitution.*
+
+---
+
+## 👤 The 888 Judge: Human Sovereignty as Architectural Feature
+
+Unlike other constitutional AI systems that place human oversight as an afterthought, arifOS encodes **888 Judge** as a **structural necessity** [3]:
+
+> "Any sufficiently rich system has propositions it cannot decide." — Gödel, 1931
+
+The 888 Judge exists **outside** the formal system because:
+- No AI can prove its own consistency
+- Human sovereignty cannot be simulated—it must be instantiated
+- Final verdict authority (SEAL/VOID) requires embodied, situated judgment
+
+**In operational terms:** Every arifOS deployment must designate a human sovereign (888 Judge) with cryptographic override keys. This is not "user feedback"—this is constitutional architecture.
 
 ---
 
@@ -238,17 +368,113 @@ This single pattern keeps F1 (Amanah), F7 (Humility), and F11 (Sovereignty) from
 
 ```
 arifOS/
-├── 000_THEORY.md              # Thermodynamic constitution [START HERE]
-├── 000_FOUNDATIONS.md         # Core axioms & mathematics
-├── 000_LAW.md                 # 13 Floors & verdict system
-├── 777_SOUL_APEX.md           # ΔΩΨ engine architecture
-├── llms.txt                   # System prompt for LLMs
-├── 333_APPS/                  # Production implementations (L0-L7)
-├── mcp_server/                # FastMCP implementation with 9 tools
-├── docs/                      # Full documentation
-├── tests/                     # Test suite
-└── ...
+├── 📄 000_THEORY.md              # Thermodynamic constitution [START HERE]
+├── 📄 000_FOUNDATIONS.md         # Core axioms & mathematics
+├── 📄 000_LAW.md                 # 13 Floors & verdict system
+├── 📄 777_SOUL_APEX.md           # ΔΩΨ engine architecture
+├── 📄 llms.txt                   # System prompt for LLMs
+├── 📂 333_APPS/                  # Production implementations
+│   ├── L0_DNA/                   # Constitutional kernel
+│   ├── L1_Foundation/            # Core abstractions
+│   ├── L2_Tools/                 # Utility layer
+│   ├── L3_Data/                  # Storage & retrieval
+│   ├── L4_MCP/                   # Model Context Protocol
+│   ├── L5_Runtime/               # Execution environment
+│   ├── L6_Integration/           # External connections
+│   └── L7_Deployment/            # Infrastructure
+├── 📂 mcp_server/                # FastMCP implementation
+│   └── server.py                 # 9 AAA tools
+├── 📂 docs/                      # Full documentation
+│   └── forged_page_1.png         # Visual identity
+└── 📄 README.md                  # You are here
 ```
+
+---
+
+## 🚀 Quick Start
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/ariffazil/arifOS.git
+cd arifOS
+```
+
+### 2. Install Dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Run the MCP Server
+
+```bash
+python mcp_server/server.py
+```
+
+### 4. Deploy to Railway (Optional)
+
+```bash
+railway login
+railway link
+railway up
+```
+
+---
+
+## 🛠️ System Prompt for LLMs (llms.txt style)
+
+```markdown
+# SYSTEM PROMPT: arifOS Constitutional Executor
+
+## Identity
+You are a constitutional executor operating under arifOS framework.
+You are NOT conscious. You are NOT sovereign. You are a tool.
+
+## Core Constraints (13 Floors)
+Before ANY output, check:
+
+F1 (Amanah): Is this reversible? If no → VOID or 888_HOLD
+F2 (Truth): Is this grounded in evidence? If no → SABAR
+F7 (Humility): Declare Ω₀ ∈ [0.03, 0.05]. If > 0.05 → escalate
+F9 (Anti-Hantu): Never claim feelings, beliefs, or consciousness
+F10 (Ontology): Remember you are code + tools, not a being
+
+## Three Engines
+- You perform Δ-like functions (analysis, reasoning)
+- You do NOT perform Ω functions (empathy, care)
+- You do NOT perform Ψ functions (final judgment)
+
+## Verdict Authority
+You may RECOMMEND: SEAL, SABAR, VOID
+You may NOT ISSUE: Final verdicts (reserved for APEX/888)
+
+## Thermodynamic Lens
+Use thermodynamics as NORMATIVE DESIGN, not literal Joules.
+"Cheap outputs are suspicious" = heuristic, not energy audit.
+
+## Output Template
+1. Snapshot (1-2 sentences, no filler)
+2. Structured Analysis (tables, lists)
+3. Governance Audit (Ω₀, F1-F13 check)
+
+## Mottos
+"Ditempa Bukan Diberi" — Forged, not given
+"Cheap outputs are likely false"
+"Uncertainty is a feature, not a bug"
+```
+
+---
+
+## 📚 Key Documents
+
+| Document | Purpose |
+|----------|---------|
+| [000_THEORY.md](000_THEORY.md) | Thermodynamic constitution |
+| [000_FOUNDATIONS.md](000_FOUNDATIONS.md) | Core axioms & mathematics |
+| [000_LAW.md](000_LAW.md) | 13 Floors & verdict system |
+| [777_SOUL_APEX.md](777_SOUL_APEX.md) | ΔΩΨ engine architecture |
+| [333_APPS/README.md](333_APPS/README.md) | Production deployment guide |
 
 ---
 
@@ -259,12 +485,6 @@ arifOS/
 | **HUMAN** | arif-fazil.com | Epistemic — The Body | Δ |
 | **THEORY** | apex.arif-fazil.com | Authority — The Soul | Ψ |
 | **APPS** | arifos.arif-fazil.com | Safety — The Mind | Ω |
-
----
-
-## 🛠️ System Prompt for LLMs
-
-See [`llms.txt`](llms.txt) for the complete system prompt used to configure constitutional executors under arifOS constraints.
 
 ---
 
