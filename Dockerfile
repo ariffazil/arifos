@@ -32,8 +32,8 @@ RUN pip install -e .
 # Expose port
 EXPOSE 8080
 
-# Simple health check
-HEALTHCHECK --interval=10s --timeout=5s --start-period=5s --retries=3 \
+# Health check — hits /health on the MCP server (not Flask)
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
     CMD curl -sf http://localhost:${PORT:-8080}/health || exit 1
 
 # Run with unbuffered output for logs

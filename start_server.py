@@ -1,29 +1,21 @@
-from flask import Flask, jsonify
+"""
+arifOS MCP Server — Railway Production Entry Point
+
+Starts the constitutional MCP server with all 9 tools on SSE transport.
+Health endpoint at /health for Railway healthchecks.
+Tool list at / for service discovery.
+
+DITEMPA BUKAN DIBERI
+"""
+
 import os
 
-app = Flask(__name__)
+# Railway provides PORT and HOST via environment
+port = int(os.environ.get("PORT", 8080))
+host = os.environ.get("HOST", "0.0.0.0")
 
-@app.route('/health')
-def health():
-    """Railway healthcheck endpoint"""
-    return jsonify({
-        'status': 'ok',
-        'service': 'arifOS',
-        'version': 'v55.4-SEAL'
-    }), 200
+from aaa_mcp.server import mcp  # noqa: E402 — env must be set before import
 
-@app.route('/')
-def root():
-    """Root endpoint"""
-    return jsonify({
-        'service': 'arifOS',
-        'status': 'running',
-        'constitution': '13 Floors',
-        'theory': 'Reverse Transformer'
-    })
-
-if __name__ == '__main__':
-    # Railway provides PORT env var, default to 3000
-    port = int(os.environ.get('PORT', 3000))
-    # MUST bind to 0.0.0.0 for Railway
-    app.run(host='0.0.0.0', port=port, debug=False)
+# SSE transport for remote MCP clients
+# Serves: /sse (events), /messages (POST), /health (GET), / (GET)
+mcp.run(transport="sse", host=host, port=port)

@@ -15,6 +15,42 @@ from aaa_mcp.tools.reality_grounding import reality_check
 mcp = FastMCP("aaa-mcp")
 
 
+# Health endpoint for Railway / production healthchecks
+@mcp.custom_route("/health", methods=["GET"])
+async def health(request):
+    from starlette.responses import JSONResponse
+
+    tools = await mcp.get_tools()
+    return JSONResponse(
+        {
+            "status": "ok",
+            "service": "arifOS",
+            "version": "v55.4-SEAL",
+            "tools": len(tools),
+            "constitution": "13 Floors",
+            "motto": "DITEMPA BUKAN DIBERI",
+        }
+    )
+
+
+@mcp.custom_route("/", methods=["GET"])
+async def root(request):
+    from starlette.responses import JSONResponse
+
+    tools = await mcp.get_tools()
+    tool_names = [t if isinstance(t, str) else t.name for t in tools]
+    return JSONResponse(
+        {
+            "service": "arifOS AAA MCP Server",
+            "version": "v55.4-SEAL",
+            "transport": "sse",
+            "tools": tool_names,
+            "constitution": "13 Floors | Trinity Architecture",
+            "motto": "DITEMPA BUKAN DIBERI",
+        }
+    )
+
+
 # Tool implementations using adapters
 @constitutional_floor("F11", "F12")
 @mcp.tool()
