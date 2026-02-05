@@ -17,4 +17,3 @@ class ToolRegistry:
 
     def get_tool(self, name: str) -> Callable:
         return self._tools.get(name)
-        return self._tools.get(name)

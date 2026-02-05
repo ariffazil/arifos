@@ -123,5 +123,3 @@ async def bridge_trinity_loop_router(
 
 async def bridge_reality_check_router(**kwargs) -> dict:
     return await reality_grounding.reality_check(kwargs.get("query", ""))
-
-    return await reality_grounding.reality_check(kwargs.get("query", ""))

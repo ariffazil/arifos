@@ -74,7 +74,7 @@ class SessionLedger:
     """
 
     def __init__(self):
-        self.root_path = Path("vault_999")
+        self.root_path = Path("VAULT999")
         self.session_path = self.root_path / "sessions"
         self.bbb_path = self.root_path / "bbb"
 
