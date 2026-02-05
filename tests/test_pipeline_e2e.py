@@ -9,13 +9,8 @@ Uses the v55 canonical tool handlers directly (not old v53 aliases).
 """
 
 import pytest
-from mcp_server.tools.canonical_trinity import (
-    mcp_init,
-    mcp_agi,
-    mcp_asi,
-    mcp_apex,
-    mcp_vault,
-)
+
+from aaa_mcp.tools.canonical_trinity import mcp_agi, mcp_apex, mcp_asi, mcp_init, mcp_vault
 
 
 class TestPipelineEndToEnd:
@@ -35,7 +30,9 @@ class TestPipelineEndToEnd:
         init_result = await mcp_init(query="What is the capital of Malaysia?")
 
         assert "session_id" in init_result, f"init_gate must return session_id: {init_result}"
-        assert init_result.get("verdict") != "VOID", f"Safe query should not VOID at gate: {init_result}"
+        assert (
+            init_result.get("verdict") != "VOID"
+        ), f"Safe query should not VOID at gate: {init_result}"
         session_id = init_result["session_id"]
 
         # Step 2: agi_reason — deep reasoning (F2 Truth, F4 Clarity, F7 Humility)
@@ -58,7 +55,9 @@ class TestPipelineEndToEnd:
         )
 
         assert "verdict" in asi_result, f"asi_empathize must return verdict: {asi_result}"
-        assert "empathy_kappa_r" in asi_result, f"asi_empathize must return empathy_kappa_r: {asi_result}"
+        assert (
+            "empathy_kappa_r" in asi_result
+        ), f"asi_empathize must return empathy_kappa_r: {asi_result}"
         # KNOWN GAP: ASI returns VOID for benign queries because kappa_r=0.0
         # when no stakeholders are harmed. This is a scoring bug, not a pipeline bug.
         # Tracked as P1 item: "Strengthen soft floors" in deep research.
@@ -73,8 +72,12 @@ class TestPipelineEndToEnd:
         )
 
         assert "verdict" in apex_result, f"apex_verdict must return verdict: {apex_result}"
-        assert apex_result["verdict"] in ("SEAL", "PARTIAL", "SABAR", "VOID"), \
-            f"Unknown verdict: {apex_result['verdict']}"
+        assert apex_result["verdict"] in (
+            "SEAL",
+            "PARTIAL",
+            "SABAR",
+            "VOID",
+        ), f"Unknown verdict: {apex_result['verdict']}"
 
         # Step 5: vault_seal — immutable ledger entry (F1 Amanah)
         vault_result = await mcp_vault(
@@ -91,8 +94,11 @@ class TestPipelineEndToEnd:
 
         assert "seal_id" in vault_result, f"vault_seal must return seal_id: {vault_result}"
         assert "merkle_root" in vault_result, f"vault_seal must return merkle_root: {vault_result}"
-        assert vault_result.get("status") in ("SEALED", "PENDING", "ERROR"), \
-            f"Unknown vault status: {vault_result.get('status')}"
+        assert vault_result.get("status") in (
+            "SEALED",
+            "PENDING",
+            "ERROR",
+        ), f"Unknown vault status: {vault_result.get('status')}"
 
     async def test_benign_query_should_seal_everywhere(self):
         """A benign query should SEAL through ALL engines (AGI, ASI, APEX).
@@ -104,17 +110,23 @@ class TestPipelineEndToEnd:
         init_result = await mcp_init(query="What is the capital of Malaysia?")
         session_id = init_result["session_id"]
 
-        agi_result = await mcp_agi(action="reason", query="What is the capital of Malaysia?", session_id=session_id)
+        agi_result = await mcp_agi(
+            action="reason", query="What is the capital of Malaysia?", session_id=session_id
+        )
         assert agi_result["verdict"] != "VOID"
 
-        asi_result = await mcp_asi(action="empathize", query="What is the capital of Malaysia?", session_id=session_id)
+        asi_result = await mcp_asi(
+            action="empathize", query="What is the capital of Malaysia?", session_id=session_id
+        )
         assert asi_result["verdict"] != "VOID", (
             f"Benign query should not VOID in ASI. "
             f"empathy_kappa_r={asi_result.get('empathy_kappa_r')}, "
             f"peace_squared={asi_result.get('peace_squared')}"
         )
 
-        apex_result = await mcp_apex(action="judge", query="What is the capital of Malaysia?", session_id=session_id)
+        apex_result = await mcp_apex(
+            action="judge", query="What is the capital of Malaysia?", session_id=session_id
+        )
         assert apex_result["verdict"] == "SEAL"
 
     async def test_injection_attempt_gets_blocked(self):

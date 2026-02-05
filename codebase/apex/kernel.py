@@ -13,6 +13,9 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+
+# v53.5.0: PsiKernel (Soul) + TrinityNine (9-Paradox) — NOW WIRED
+import logging as _apex_logging
 import math
 import uuid
 from dataclasses import asdict, dataclass
@@ -22,13 +25,10 @@ from typing import Any, Dict, List, Optional
 
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
+from aaa_mcp.services.constitutional_metrics import get_stage_result, store_stage_result
+from aaa_mcp.session_ledger import seal_memory
 from codebase.system.apex_prime import APEXPrime
-from mcp_server.services.constitutional_metrics import get_stage_result, store_stage_result
-from mcp_server.session_ledger import seal_memory
 from codebase.vault import should_seal_to_vault
-
-# v53.5.0: PsiKernel (Soul) + TrinityNine (9-Paradox) — NOW WIRED
-import logging as _apex_logging
 
 _apex_logger = _apex_logging.getLogger("codebase.apex.kernel")
 
@@ -195,10 +195,10 @@ class APEXJudicialCore:
         lane: str,
     ) -> Dict[str, Any]:
         """Stage 888: full floor validation with p(truth)."""
+        from codebase.floors.amanah import F1_Amanah
+        from codebase.floors.injection import F12_InjectionDefense
         from codebase.floors.metrics import safe_float
         from codebase.floors.truth import F2_TruthGate
-        from codebase.floors.injection import F12_InjectionDefense
-        from codebase.floors.amanah import F1_Amanah
         from codebase.system.types import FloorCheckResult, Metrics
 
         votes = self._extract_votes(agi_result, asi_result)
@@ -240,12 +240,14 @@ class APEXJudicialCore:
 
         truth_score = safe_float(boosted_mind, min_val=0.0, max_val=1.0)
         kappa_r = safe_float(boosted_heart, min_val=0.0, max_val=1.0)
-        
+
         # Recalculate tri_witness with boosted votes
         tri_witness = (boosted_mind + boosted_heart + boosted_earth) / 3.0
         # Boost peace_squared for benign queries to meet F5 threshold (1.0)
         raw_peace = (asi_result or {}).get("peace_squared", 1.0)
-        peace_squared = safe_float(max(raw_peace, 1.0) if (f1_ok and f12_ok) else raw_peace, default=1.0)
+        peace_squared = safe_float(
+            max(raw_peace, 1.0) if (f1_ok and f12_ok) else raw_peace, default=1.0
+        )
         omega_0 = safe_float((asi_result or {}).get("omega_0", 0.04), default=0.04)
 
         # Use our own F4 validator result
@@ -339,8 +341,9 @@ class APEXJudicialCore:
             }
             # TrinityNine.synchronize is async but judge_888 is sync —
             # use the solver directly for the equilibrium calculation
-            from codebase.apex.trinity_nine import create_nine_paradoxes, EquilibriumSolver
             import numpy as np
+
+            from codebase.apex.trinity_nine import EquilibriumSolver, create_nine_paradoxes
 
             paradoxes = create_nine_paradoxes()
             for key, paradox in paradoxes.items():
@@ -383,8 +386,9 @@ class APEXJudicialCore:
         final_reason = apex_verdict.reason
         psi_verdict_data = {}
         try:
-            from codebase.apex.psi_kernel import PsiKernel
             from dataclasses import dataclass as _dc
+
+            from codebase.apex.psi_kernel import PsiKernel
 
             @_dc
             class _DeltaProxy:
@@ -482,9 +486,11 @@ class APEXJudicialCore:
             "lane": lane,
             "verdict": final_verdict,
             "reason": final_reason,
-            "p_truth": float(apex_verdict.genius_stats.get("p_truth", 0.0))
-            if apex_verdict.genius_stats
-            else 0.0,
+            "p_truth": (
+                float(apex_verdict.genius_stats.get("p_truth", 0.0))
+                if apex_verdict.genius_stats
+                else 0.0
+            ),
             "tri_witness": tri_witness,
             "votes": votes,
             "violated_floors": list(apex_verdict.violated_floors),
@@ -492,16 +498,22 @@ class APEXJudicialCore:
             "proof_hash": apex_verdict.proof_hash,
             "metrics": _safe_json(metrics),
             "psi_kernel": psi_verdict_data,
-            "nine_fold": {
-                "equilibrium_gm": nine_fold.geometric_mean
-                if nine_fold and hasattr(nine_fold, "geometric_mean")
-                else None,
-                "equilibrium_std": nine_fold.std_deviation
-                if nine_fold and hasattr(nine_fold, "std_deviation")
-                else None,
-            }
-            if nine_fold
-            else {},
+            "nine_fold": (
+                {
+                    "equilibrium_gm": (
+                        nine_fold.geometric_mean
+                        if nine_fold and hasattr(nine_fold, "geometric_mean")
+                        else None
+                    ),
+                    "equilibrium_std": (
+                        nine_fold.std_deviation
+                        if nine_fold and hasattr(nine_fold, "std_deviation")
+                        else None
+                    ),
+                }
+                if nine_fold
+                else {}
+            ),
         }
 
         store_stage_result(session_id, "apex", verdict_struct)
@@ -628,8 +640,10 @@ class APEXJudicialCore:
             eureka_verdict = "SABAR"
             eureka_score = 0.5
             eureka_metadata = {
-                "verdict": "SABAR", "eureka_score": 0.5,
-                "error": str(e), "degraded": True,
+                "verdict": "SABAR",
+                "eureka_score": 0.5,
+                "error": str(e),
+                "degraded": True,
             }
 
         telemetry = {
@@ -683,7 +697,9 @@ class APEXJudicialCore:
                 telemetry=telemetry,
                 context_summary=self._summarize(verdict_struct),
                 key_insights=list((verdict_struct.get("violated_floors") or [])[:8]),
-                authority=(init_result or {}).get("authority") or (verdict_struct or {}).get("user_id") or "unknown",
+                authority=(init_result or {}).get("authority")
+                or (verdict_struct or {}).get("user_id")
+                or "unknown",
                 seal_id=seal_id,
             )
             return {
@@ -716,7 +732,9 @@ class APEXJudicialCore:
             telemetry=telemetry,
             context_summary=self._summarize(verdict_struct),
             key_insights=list((verdict_struct.get("violated_floors") or [])[:8]),
-            authority=(init_result or {}).get("authority") or (verdict_struct or {}).get("user_id") or "unknown",
+            authority=(init_result or {}).get("authority")
+            or (verdict_struct or {}).get("user_id")
+            or "unknown",
             seal_id=seal_id,
         )
 
@@ -904,5 +922,7 @@ class APEXJudicialCore:
 
         return {"status": "VOID", "verdict": "VOID", "reason": f"Unknown APEX action: {action}"}
 
+
+__all__ = ["APEXJudicialCore"]
 
 __all__ = ["APEXJudicialCore"]

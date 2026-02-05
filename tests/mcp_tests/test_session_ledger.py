@@ -13,17 +13,18 @@ Constitutional Floor: F1 (Amanah) - Trustworthy session persistence
 DITEMPA BUKAN DIBERI
 """
 
-import pytest
 import json
 import tempfile
 import threading
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 from unittest.mock import patch
 
-from codebase.mcp.session_ledger import (
-    SessionLedger,
+import pytest
+
+from aaa_mcp.session_ledger import (
     SessionEntry,
+    SessionLedger,
     get_ledger,
     inject_memory,
     seal_memory,
@@ -36,9 +37,7 @@ class TestSessionEntry:
     def test_entry_creation(self):
         """SessionEntry creates correctly with required fields."""
         entry = SessionEntry(
-            session_id="test-123",
-            timestamp=datetime.now().isoformat(),
-            verdict="SEAL"
+            session_id="test-123", timestamp=datetime.now().isoformat(), verdict="SEAL"
         )
         assert entry.session_id == "test-123"
         assert entry.verdict == "SEAL"
@@ -54,7 +53,7 @@ class TestSessionEntry:
             init_result={"status": "SEAL", "session_id": "test-456"},
             genius_result={"action": "think", "status": "SEAL"},
             act_result={"action": "act", "status": "SEAL"},
-            judge_result={"verdict": "SEAL"}
+            judge_result={"verdict": "SEAL"},
         )
         assert entry.init_result["status"] == "SEAL"
         assert entry.genius_result["action"] == "think"
@@ -62,9 +61,7 @@ class TestSessionEntry:
     def test_entry_compute_hash(self):
         """SessionEntry computes consistent hash."""
         entry = SessionEntry(
-            session_id="hash-test",
-            timestamp="2026-01-23T12:00:00",
-            verdict="SEAL"
+            session_id="hash-test", timestamp="2026-01-23T12:00:00", verdict="SEAL"
         )
         hash1 = entry.compute_hash()
         hash2 = entry.compute_hash()
@@ -74,16 +71,8 @@ class TestSessionEntry:
 
     def test_entry_different_content_different_hash(self):
         """Different content produces different hash."""
-        entry1 = SessionEntry(
-            session_id="hash-1",
-            timestamp="2026-01-23T12:00:00",
-            verdict="SEAL"
-        )
-        entry2 = SessionEntry(
-            session_id="hash-2",
-            timestamp="2026-01-23T12:00:00",
-            verdict="SEAL"
-        )
+        entry1 = SessionEntry(session_id="hash-1", timestamp="2026-01-23T12:00:00", verdict="SEAL")
+        entry2 = SessionEntry(session_id="hash-2", timestamp="2026-01-23T12:00:00", verdict="SEAL")
 
         assert entry1.compute_hash() != entry2.compute_hash()
 
@@ -94,7 +83,7 @@ class TestSessionLedger:
     @pytest.fixture
     def temp_ledger(self, tmp_path):
         """Create a ledger with temporary paths."""
-        with patch.object(SessionLedger, '__init__', lambda self: None):
+        with patch.object(SessionLedger, "__init__", lambda self: None):
             ledger = SessionLedger()
             ledger.session_path = tmp_path / "sessions"
             ledger.bbb_path = tmp_path / "bbb"
@@ -125,7 +114,7 @@ class TestSessionLedger:
             judge_result={"verdict": "SEAL"},
             telemetry={"duration_ms": 100},
             context_summary="Test session completed",
-            key_insights=["insight 1", "insight 2"]
+            key_insights=["insight 1", "insight 2"],
         )
 
         assert entry.session_id == "seal-test"
@@ -143,7 +132,7 @@ class TestSessionLedger:
             genius_result={},
             act_result={},
             judge_result={},
-            telemetry={}
+            telemetry={},
         )
 
         # Seal second session
@@ -154,7 +143,7 @@ class TestSessionLedger:
             genius_result={},
             act_result={},
             judge_result={},
-            telemetry={}
+            telemetry={},
         )
 
         # Second entry should reference first
@@ -172,7 +161,7 @@ class TestSessionLedger:
             act_result={},
             judge_result={},
             telemetry={},
-            context_summary="Last session"
+            context_summary="Last session",
         )
 
         # Get it back
@@ -194,7 +183,7 @@ class TestSessionLedger:
             judge_result={},
             telemetry={},
             context_summary="Previous work on feature X",
-            key_insights=["Use pattern Y", "Avoid Z"]
+            key_insights=["Use pattern Y", "Avoid Z"],
         )
 
         # Get context for next init
@@ -213,7 +202,7 @@ class TestSessionLedgerThreadSafety:
     @pytest.fixture
     def temp_ledger(self, tmp_path):
         """Create a ledger with temporary paths."""
-        with patch.object(SessionLedger, '__init__', lambda self: None):
+        with patch.object(SessionLedger, "__init__", lambda self: None):
             ledger = SessionLedger()
             ledger.session_path = tmp_path / "sessions"
             ledger.bbb_path = tmp_path / "bbb"
@@ -237,7 +226,7 @@ class TestSessionLedgerThreadSafety:
                 genius_result={},
                 act_result={},
                 judge_result={},
-                telemetry={}
+                telemetry={},
             )
             results.append(entry.session_id)
 
@@ -259,7 +248,7 @@ class TestHelperFunctions:
 
     def test_get_ledger_singleton(self):
         """get_ledger returns singleton instance."""
-        import codebase.mcp.session_ledger as module
+        import aaa_mcp.session_ledger as module
 
         # Clear singleton
         module._session_ledger = None
@@ -287,7 +276,7 @@ class TestHelperFunctions:
             genius_result={},
             act_result={},
             judge_result={},
-            telemetry={}
+            telemetry={},
         )
 
         # seal_memory returns a dict with entry hash
@@ -302,7 +291,7 @@ class TestEdgeCases:
     @pytest.fixture
     def temp_ledger(self, tmp_path):
         """Create a ledger with temporary paths."""
-        with patch.object(SessionLedger, '__init__', lambda self: None):
+        with patch.object(SessionLedger, "__init__", lambda self: None):
             ledger = SessionLedger()
             ledger.session_path = tmp_path / "sessions"
             ledger.bbb_path = tmp_path / "bbb"
@@ -330,6 +319,7 @@ class TestEdgeCases:
         assert len(result) == 64  # SHA256 hex length
         # Should be hash of "EMPTY"
         import hashlib
+
         expected = hashlib.sha256(b"EMPTY").hexdigest()
         assert result == expected
 
@@ -367,7 +357,7 @@ class TestEdgeCases:
             genius_result={},
             act_result={},
             judge_result={},
-            telemetry={}
+            telemetry={},
         )
         assert len(entry.entry_hash) == 64  # SHA256 hex
 
@@ -378,7 +368,7 @@ class TestVerdictHandling:
     @pytest.fixture
     def temp_ledger(self, tmp_path):
         """Create a ledger with temporary paths."""
-        with patch.object(SessionLedger, '__init__', lambda self: None):
+        with patch.object(SessionLedger, "__init__", lambda self: None):
             ledger = SessionLedger()
             ledger.session_path = tmp_path / "sessions"
             ledger.bbb_path = tmp_path / "bbb"
@@ -399,7 +389,7 @@ class TestVerdictHandling:
             genius_result={},
             act_result={},
             judge_result={},
-            telemetry={}
+            telemetry={},
         )
 
         # Should be stored
@@ -416,7 +406,7 @@ class TestVerdictHandling:
             genius_result={},
             act_result={},
             judge_result={},
-            telemetry={}
+            telemetry={},
         )
 
         assert entry.verdict == "SABAR"
@@ -431,7 +421,7 @@ class TestVerdictHandling:
             genius_result={},
             act_result={},
             judge_result={},
-            telemetry={}
+            telemetry={},
         )
 
         assert entry.verdict == "VOID"

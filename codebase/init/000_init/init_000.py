@@ -42,7 +42,7 @@ _loop_manager = None
 _loop_bridge = None
 
 try:
-    from codebase.loop import LoopManager, LoopBridge
+    from codebase.loop import LoopBridge, LoopManager
 
     LOOP_MANAGER_AVAILABLE = True
     _loop_manager = LoopManager()
@@ -75,16 +75,14 @@ except ImportError:
     logger.debug("Metrics not available (non-MCP context)")
 
 try:
-    from mcp_server.session_ledger import inject_memory
+    from aaa_mcp.session_ledger import inject_memory
 
     SESSION_LEDGER_AVAILABLE = True
 except ImportError:
     logger.debug("Session ledger not available (non-MCP context)")
 
 try:
-    from aaa_mcp.constitutional_metrics import (
-        store_stage_result,
-    )
+    from aaa_mcp.constitutional_metrics import store_stage_result
 
     BUNDLE_STORE_AVAILABLE = True
 except ImportError:
@@ -92,12 +90,10 @@ except ImportError:
 
 # Track B Authority: Import constitutional thresholds
 try:
-    from codebase.enforcement.metrics import (
-        TRUTH_THRESHOLD,  # 0.99 - F2 floor
-        PEACE_SQUARED_THRESHOLD,  # 1.0  - F5 floor
-        OMEGA_0_MIN,  # 0.03 - F7 humility min
-        OMEGA_0_MAX,  # 0.05 - F7 humility max
-    )
+    from codebase.enforcement.metrics import OMEGA_0_MAX  # 0.05 - F7 humility max
+    from codebase.enforcement.metrics import OMEGA_0_MIN  # 0.03 - F7 humility min
+    from codebase.enforcement.metrics import PEACE_SQUARED_THRESHOLD  # 1.0  - F5 floor
+    from codebase.enforcement.metrics import TRUTH_THRESHOLD  # 0.99 - F2 floor
 except ImportError:
     TRUTH_THRESHOLD = 0.99
     PEACE_SQUARED_THRESHOLD = 1.0
@@ -113,7 +109,7 @@ except Exception:
     logger.debug("ATLAS-333 not available, falling back to keyword matching")
 
 try:
-    from codebase.prompt.codec import SignalExtractor, PromptSignal
+    from codebase.prompt.codec import PromptSignal, SignalExtractor
 
     PROMPT_AVAILABLE = True
     _signal_extractor = SignalExtractor()
@@ -129,13 +125,15 @@ try:
     # Use relative import since 000_init starts with digit
     import sys
     from pathlib import Path
+
     _cb_path = Path(__file__).parent / "canonical_bootstrap.py"
     if _cb_path.exists():
         import importlib.util
+
         spec = importlib.util.spec_from_file_location("_canonical_bootstrap", _cb_path)
         _cb = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(_cb)
-        
+
         fetch_canonical_state = _cb.fetch_canonical_state
         CANONICAL_BOOTSTRAP_AVAILABLE = True
         logger.info("v55.3 Canonical Bootstrap initialized (Web-based Trinity)")
@@ -201,7 +199,7 @@ class InitResult:
     # Security
     injection_risk: float = 0.0
     reason: str = ""
-    
+
     # v55.3: Canonical Bootstrap Results
     canonical_bootstrap: Dict[str, Any] = field(default_factory=dict)
     tri_witness_sync: bool = False
@@ -446,7 +444,7 @@ def _check_rate_limit(tool_name: str, session_id: str = "") -> Optional[Dict]:
 async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -> Dict[str, Any]:
     """
     Step 0: ROOT KEY IGNITION - Establish cryptographic foundation.
-    
+
     v55.3: Added Canonical Bootstrap (Web-based AAA/BBB/CCC Trinity)
     Progressive loading: CCC (canon) → BBB (ledger) → AAA (sovereign only)
 
@@ -458,8 +456,8 @@ async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -
     try:
         try:
             from codebase.memory.root_key_accessor import (
-                get_root_key_info,
                 derive_session_key,
+                get_root_key_info,
                 get_root_key_status,
                 verify_genesis_block,
             )
@@ -485,8 +483,7 @@ async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -
             try:
                 logger.info("000_init Step 0: Fetching canonical bootstrap (CCC→BBB→AAA)...")
                 canonical = await fetch_canonical_state(
-                    scar_weight=scar_weight,
-                    session_id=session_id
+                    scar_weight=scar_weight, session_id=session_id
                 )
                 result["canonical_bootstrap"] = {
                     "status": canonical.status,
@@ -494,10 +491,12 @@ async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -
                     "tri_witness_sync": canonical.tri_witness_sync,
                     "sources_fetched": canonical.sources_fetched,
                     "ccc_available": canonical.ccc_canon.success if canonical.ccc_canon else False,
-                    "bbb_available": canonical.bbb_ledger.success if canonical.bbb_ledger else False,
+                    "bbb_available": (
+                        canonical.bbb_ledger.success if canonical.bbb_ledger else False
+                    ),
                     "aaa_available": canonical.aaa_human.success if canonical.aaa_human else False,
                 }
-                
+
                 if canonical.status == "SEAL":
                     logger.info(
                         f"000_init Step 0: Canonical bootstrap SEALED "
@@ -508,11 +507,15 @@ async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -
                     result["canonical_implementation"] = canonical.implementation_state
                     result["canonical_authority"] = canonical.sovereign_authority
                 elif canonical.local_fallback_used:
-                    logger.warning("000_init Step 0: Canonical bootstrap failed, using local fallback (SABAR)")
+                    logger.warning(
+                        "000_init Step 0: Canonical bootstrap failed, using local fallback (SABAR)"
+                    )
                     result["constitutional_status"] = "SABAR_LOCAL_FALLBACK"
                 else:
-                    logger.warning(f"000_init Step 0: Canonical bootstrap {canonical.status} - {canonical.reason}")
-                    
+                    logger.warning(
+                        f"000_init Step 0: Canonical bootstrap {canonical.status} - {canonical.reason}"
+                    )
+
             except Exception as e:
                 logger.warning(f"000_init Step 0: Canonical bootstrap error: {e}")
                 result["canonical_bootstrap"] = {"status": "ERROR", "error": str(e)}
@@ -593,8 +596,7 @@ async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -
 
 
 def _step_1_memory_injection(
-    scar_weight: float = 0.0,
-    canonical_context: Optional[Dict[str, Any]] = None
+    scar_weight: float = 0.0, canonical_context: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """Step 1: Read from VAULT999 - inject previous session context.
 
@@ -651,13 +653,13 @@ def _step_1_memory_injection(
             logger.info(
                 f"000_init Step 1: Memory injected from {prev_id[:8] if prev_id else 'FIRST_SESSION'} (scar_weight={scar_weight})"
             )
-        
+
         # v55.3: Merge canonical context into previous_context
         if canonical_context:
             previous_context["canonical_bootstrap"] = {
                 "floors": canonical_context,
                 "source": "web_trinity",
-                "scar_weight_at_fetch": scar_weight
+                "scar_weight_at_fetch": scar_weight,
             }
 
         # F11: Filter memory access by authority level
@@ -1093,10 +1095,12 @@ async def mcp_000_init(
         # We need scar_weight BEFORE fetching canonical sources (AAA requires sovereign)
         sovereign = _step_2_sovereign_recognition(query, authority_token)
         floors_checked.append("F11_CommandAuth")
-        
+
         # STEP 0: ROOT IGNITION + F10 ONTOLOGY + v55.3 CANONICAL BOOTSTRAP
         # Now we pass scar_weight to fetch AAA only if sovereign
-        step0_result = await _step_0_root_key_ignition(session, scar_weight=sovereign["scar_weight"])
+        step0_result = await _step_0_root_key_ignition(
+            session, scar_weight=sovereign["scar_weight"]
+        )
         global_skills_ok = _verify_global_skills_integrity()
 
         floors_checked.append("F1_Amanah")
@@ -1109,7 +1113,7 @@ async def mcp_000_init(
         # v55.3: Also includes canonical context from Step 0
         previous_context = _step_1_memory_injection(
             scar_weight=sovereign["scar_weight"],
-            canonical_context=step0_result.get("canonical_floors")
+            canonical_context=step0_result.get("canonical_floors"),
         )
 
         # STEP 3: INTENT MAPPING
@@ -1217,7 +1221,7 @@ async def mcp_000_init(
         # v55.3: Extract canonical bootstrap info from Step 0 result
         canonical_bootstrap_info = step0_result.get("canonical_bootstrap", {})
         tri_witness_sync = (canonical_bootstrap_info or {}).get("tri_witness_sync", False)
-        
+
         result = InitResult(
             status="SEAL",
             session_id=session,
