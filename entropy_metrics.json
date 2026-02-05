@@ -1,27 +1,23 @@
 {
   "counts": {
-    "other": 648,
-    "config": 209,
-    "scripts": 95,
-    "docs": 461,
-    "tests": 105,
-    "archive": 1256,
-    "production_code": 145
+    "other": 5119,
+    "config": 1389,
+    "docs": 1498,
+    "scripts": 8755,
+    "tests": 523
   },
   "sizes": {
-    "other": 340226603,
-    "config": 367270,
-    "scripts": 489643,
-    "docs": 4691273,
-    "tests": 801321,
-    "archive": 30132174,
-    "production_code": 1142263
+    "other": 557253951,
+    "config": 6970291,
+    "docs": 13349912,
+    "scripts": 87063535,
+    "tests": 8796900
   },
   "metrics": {
-    "total_files": 2919,
-    "total_size_mb": 360.34636211395264,
-    "archive_ratio": "43.0%",
-    "test_coverage_ratio": "72.4%",
-    "entropy_score": 45
+    "total_files": 17284,
+    "total_size_mb": 642.2372713088989,
+    "archive_ratio": "0.0%",
+    "test_coverage_ratio": "52300.0%",
+    "entropy_score": 100
   }
 }
