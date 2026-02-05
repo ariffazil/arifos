@@ -1,5 +1,13 @@
 {
   "mcpServers": {
+    "arifos-kernel": {
+      "command": "uv",
+      "args": ["run", "python", "-m", "aaa_mcp", "stdio"],
+      "env": {
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA"
+      },
+      "description": "arifOS Constitutional Kernel (AGI/ASI/APEX Gateway)"
+    },
     "arifos-filesystem": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-filesystem", "/home/user/workspace"],

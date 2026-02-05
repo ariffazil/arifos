@@ -309,8 +309,8 @@ arifOS **re-encodes** this as design principle:
 ## 🌍 Applications & Deployment Contexts
 
 ### 1. Enterprise AI Governance
-- Deploy arifOS as MCP (Model Context Protocol) layer
-- Every LLM call passes through 13-floor verification
+- Deploy arifOS as [MCP (Model Context Protocol) layer](https://github.com/ariffazil/arifOS/tree/main/aaa_mcp)
+- Every LLM call passes through [13-floor verification](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/constitutional_decorator.py)
 - Immutable audit logs for regulatory compliance
 
 **Example:** A financial institution uses arifOS to wrap GPT-4 calls for credit decisions. F1 Amanah triggers 888_HOLD on any decision >$10K or affecting >100 customers, forcing human review.
@@ -403,6 +403,20 @@ arifOS/
 └── 📄 README.md                  # You are here
 ```
 
+**Key MCP Source Files** (click to view on GitHub):
+
+| File | Purpose |
+|------|---------|
+| [`aaa_mcp/server.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/server.py) | 9 canonical tools — the actual tool definitions |
+| [`aaa_mcp/__main__.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/__main__.py) | CLI entry point — stdio/SSE/HTTP transport |
+| [`aaa_mcp/__init__.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/__init__.py) | Package exports & version |
+| [`aaa_mcp/engine_adapters.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/engine_adapters.py) | AGI/ASI/APEX engine bridges with fallbacks |
+| [`aaa_mcp/constitutional_decorator.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/constitutional_decorator.py) | `@constitutional_floor()` decorator |
+| [`aaa_mcp/mcp_config.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/mcp_config.py) | Server registry, Trinity mapping & Omega thresholds |
+| [`aaa_mcp/mcp_integration.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/mcp_integration.py) | Integration layer & audit trail |
+| [`.mcp.json`](https://github.com/ariffazil/arifOS/blob/main/.mcp.json) | Claude Code MCP server config |
+| [`pyproject.toml`](https://github.com/ariffazil/arifOS/blob/main/pyproject.toml) | Package metadata & entry points |
+
 ---
 
 ## 🚀 Quick Start
@@ -464,6 +478,8 @@ railway up
 
 ## 🔧 AAA MCP Server — Constitutional AI Gateway
 
+> **Source:** [`aaa_mcp/`](https://github.com/ariffazil/arifOS/tree/main/aaa_mcp) | **Tools:** [`server.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/server.py) | **Config:** [`.mcp.json`](https://github.com/ariffazil/arifOS/blob/main/.mcp.json)
+
 The **AAA MCP Server** (`aaa_mcp`) is arifOS's Model Context Protocol implementation. It exposes 9 canonical tools that enforce the 13 Constitutional Floors on every AI operation — making arifOS usable from **any MCP-compatible platform**.
 
 > **MCP (Model Context Protocol)** is an open standard by Anthropic that lets AI assistants connect to external tools and data sources. Think of it as "USB for AI" — one protocol, any platform.
@@ -479,7 +495,9 @@ The **AAA MCP Server** (`aaa_mcp`) is arifOS's Model Context Protocol implementa
 
 ### 🧰 The 9 Canonical Tools
 
-Every tool returns a **verdict** (`SEAL` / `SABAR` / `VOID` / `888_HOLD`) and is wrapped with `@constitutional_floor()` enforcement:
+> Defined in [`aaa_mcp/server.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/server.py) | Floors via [`constitutional_decorator.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/constitutional_decorator.py) | Engines via [`engine_adapters.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/engine_adapters.py)
+
+Every tool returns a **verdict** (`SEAL` / `SABAR` / `VOID` / `888_HOLD`) and is wrapped with [`@constitutional_floor()`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/constitutional_decorator.py) enforcement:
 
 | # | Tool | Engine | Floors | Function |
 |---|------|--------|--------|----------|
@@ -505,6 +523,8 @@ asi_empathize → asi_align → apex_verdict → vault_seal
 
 ### 🌐 Transport Modes
 
+> Defined in [`aaa_mcp/__main__.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/__main__.py)
+
 AAA MCP supports three transport protocols for different deployment scenarios:
 
 | Transport | Command | Use Case | Clients |
@@ -514,6 +534,8 @@ AAA MCP supports three transport protocols for different deployment scenarios:
 | **Streamable HTTP** | `python -m aaa_mcp http` | REST-style remote | ChatGPT, OpenAI Codex, web apps |
 
 ### 🔌 Integration Configs
+
+> Live config: [`.mcp.json`](https://github.com/ariffazil/arifOS/blob/main/.mcp.json) | Server registry: [`mcp_config.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/mcp_config.py)
 
 <details>
 <summary><b>Claude Code / Claude Desktop</b> (stdio — local)</summary>
@@ -588,6 +610,8 @@ MCP endpoint: `POST /mcp`
 </details>
 
 ### 📡 API Reference
+
+> Tool signatures: [`server.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/server.py) | Integration layer: [`mcp_integration.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/mcp_integration.py)
 
 Every tool accepts JSON parameters and returns a constitutional response:
 
@@ -725,6 +749,11 @@ Use thermodynamics as NORMATIVE DESIGN, not literal Joules.
 | [000_LAW.md](000_LAW.md) | 13 Floors & verdict system |
 | [777_SOUL_APEX.md](777_SOUL_APEX.md) | ΔΩΨ engine architecture |
 | [333_APPS/README.md](333_APPS/README.md) | Production deployment guide |
+| [aaa_mcp/server.py](aaa_mcp/server.py) | AAA MCP — 9 canonical tools |
+| [aaa_mcp/constitutional_decorator.py](aaa_mcp/constitutional_decorator.py) | `@constitutional_floor()` enforcement |
+| [aaa_mcp/engine_adapters.py](aaa_mcp/engine_adapters.py) | AGI/ASI/APEX engine bridges |
+| [aaa_mcp/mcp_config.py](aaa_mcp/mcp_config.py) | Server registry & Omega thresholds |
+| [.mcp.json](.mcp.json) | Claude Code MCP server config |
 
 ---
 
