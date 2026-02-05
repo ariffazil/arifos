@@ -89,9 +89,9 @@ def _compute_merkle_root(items: List[str]) -> str:
 
 
 def _runtime_vault_dir() -> Path:
-    # .../arifos/core/apex/kernel.py -> repo root is 3 levels up from `arifos/`
-    repo_root = Path(__file__).resolve().parents[3]
-    vault = repo_root / "runtime" / "vault_999"
+    # .../codebase/apex/kernel.py -> repo root is 2 levels up
+    repo_root = Path(__file__).resolve().parents[2]
+    vault = repo_root / "VAULT999"
     vault.mkdir(parents=True, exist_ok=True)
     return vault
 
