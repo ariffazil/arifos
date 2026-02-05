@@ -1,0 +1,38 @@
+{
+  "policy_version": "v1.0-2026",
+  "default_model": "google/gemini-3-pro-preview",
+  "routes": [
+    {
+      "task_type": "constitutional_audit",
+      "primary": "anthropic/claude-opus-4-5",
+      "witness": "google/gemini-3-pro-preview",
+      "keywords": ["audit", "check", "verify", "f1", "f2", "floors", "governance", "seal", "void"],
+      "reason": "Requires F2/F9 deep reasoning. Witness provides evidence check."
+    },
+    {
+      "task_type": "coding_complex",
+      "primary": "github-copilot/gpt-5.1",
+      "fallback": "qwen/coder-model",
+      "keywords": ["code", "fix", "script", "refactor", "function", "api", "bug", "implement"],
+      "reason": "Copilot optimized for IDE/Repo context."
+    },
+    {
+      "task_type": "log_forensics",
+      "primary": "minimax-portal/minimax-m2.1",
+      "keywords": ["log", "error", "trace", "history", "scan", "forensic", "dump"],
+      "reason": "High context window (1M+), cost-effective for massive text."
+    },
+    {
+      "task_type": "visual_analysis",
+      "primary": "google/gemini-3-pro-preview",
+      "keywords": ["image", "screenshot", "pdf", "scan", "visual", "chart", "diagram"],
+      "reason": "Native multimodal capability."
+    },
+    {
+      "task_type": "quick_chat",
+      "primary": "minimax-portal/minimax-m2.1-lightning",
+      "keywords": ["summary", "quick", "chat", "draft", "email"],
+      "reason": "Low latency, cost-effective for routing/drafts."
+    }
+  ]
+}
