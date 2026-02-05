@@ -15,10 +15,13 @@
 - [What is arifOS?](#what-is-arifos)
 - [Quick Start](#quick-start)
 - [AAA MCP Server](#aaa-mcp-server)
+- [333_APPS](#333_apps)
+- [Repository Structure](#repository-structure)
 - [Architecture](#architecture)
 - [Theory](#theory)
 - [Deployment](#deployment)
 - [Trinity Ecosystem](#trinity-ecosystem)
+- [Documentation](#documentation)
 
 ---
 
@@ -135,6 +138,8 @@ The **AAA (Atomic Actions Architecture) MCP Server** provides constitutional gov
 | 8 | `reality_search` | F2, F7 | External fact verification |
 | 9 | `vault_seal` | F1, F3 | Immutable ledger seal |
 
+**Source:** [`mcp_server/server.py`](mcp_server/server.py)
+
 ### Example Usage
 
 ```python
@@ -192,6 +197,86 @@ DATABASE_URL=...       # Database connection
 REDIS_URL=...          # Redis connection
 ```
 
+**Source:** [`.env.example`](.env.example)
+
+---
+
+## 📱 333_APPS
+
+The **333_APPS** directory contains the application layer of arifOS — production-ready implementations and integrations.
+
+```
+333_APPS/
+├── L0_DNA/           # Core genetic code (immutable)
+├── L1_FOUNDATION/    # Foundation layer (kernel, constitution)
+├── L2_TOOLS/         # Tool implementations
+├── L3_DATA/          # Data layer
+├── L4_MCP/           # MCP server implementations
+├── L5_RUNTIME/       # Runtime environments
+├── L6_INTEGRATION/   # Third-party integrations
+└── L7_DEPLOYMENT/    # Deployment configurations
+```
+
+**Purpose:** While `mcp_server/` contains the reference MCP implementation, `333_APPS/` contains the **production-hardened** versions with:
+- Enterprise security (F12 Hardening)
+- Multi-environment configs
+- Integration tests
+- Performance optimizations
+
+**See:** [`333_APPS/`](333_APPS/) directory
+
+---
+
+## 📁 Repository Structure
+
+```
+arifOS/
+├── 000_THEORY.md              # ← Reverse Transformer theory [START HERE]
+├── 000_THEORY/                # ← Extended theory documents
+├── AGENTS.md                  # ← Agent configuration guide
+├── CHANGELOG.md               # ← Version history
+├── CONTRIBUTING.md            # ← Contribution guidelines
+├── DEPLOYMENT_CONFIG.md       # ← Deployment configuration
+├── DEPLOYMENT_TIPS.md         # ← Deployment troubleshooting
+├── HANDOFF_000_INIT_LOOP.md   # ← Initialization handoff guide
+├── LICENSE                    # ← AGPL-3.0 License
+├── README.md                  # ← This file
+├── RELEASE_v55.3.md           # ← v55.3 release notes
+├── SECURITY.md                # ← Security policy
+├── llms.txt                   # ← LLM context file
+│
+├── 333_APPS/                  # ← Application layer (L0-L7)
+├── VAULT999/                  # ← Secure storage
+├── codebase/                  # ← Core implementation
+│   ├── init.py               # ← Initialization exports
+│   └── ...
+├── docs/                      # ← Documentation
+│   ├── API_REFERENCE.md      # ← API documentation
+│   ├── APPLICATIONS.md       # ← Application guides
+│   ├── ARCHITECTURE_AND_NAMING_v45.md
+│   ├── COMPARISON.md         # ← Framework comparisons
+│   └── ... (50+ docs)
+├── examples/                  # ← Usage examples
+├── integrations/              # ← Third-party integrations
+├── mcp_server/                # ← MCP server implementation
+│   ├── server.py             # ← FastMCP server
+│   └── tools/                # ← Tool implementations
+│       └── canonical_trinity.py
+├── reports/                   # ← Analysis reports
+├── scripts/                   # ← Utility scripts
+├── setup/                     # ← Setup configurations
+├── skills/                    # ← Skill definitions
+├── templates/                 # ← Templates
+├── tests/                     # ← Test suite
+│
+├── Dockerfile                 # ← Container image
+├── railway.toml              # ← Railway deployment config
+├── pyproject.toml            # ← Python package config
+├── requirements.txt          # ← Python dependencies
+├── start_server.py           # ← Server entry point
+└── test_import.py            # ← Import tests
+```
+
 ---
 
 ## 🏛️ Architecture
@@ -222,33 +307,16 @@ REDIS_URL=...          # Redis connection
     └────────────────────┘
 ```
 
-### Repository Structure
+### Key Components
 
-```
-arifOS/
-├── 000_THEORY.md           # Reverse Transformer theory
-├── README.md               # This file
-├── start_server.py         # MCP server entry point
-├── requirements.txt        # Python dependencies
-├── Dockerfile              # Container image
-├── railway.toml            # Railway deployment config
-├── pyproject.toml          # Package config
-│
-├── mcp_server/             # MCP implementation
-│   ├── tools/              # Constitutional tools
-│   │   ├── canonical_trinity.py
-│   │   ├── init_gate.py
-│   │   └── apex_verdict.py
-│   └── server.py           # Server logic
-│
-├── codebase/               # Core implementation
-│   ├── init.py             # Initialization
-│   └── floors/             # F1-F13 implementations
-│
-└── docs/                   # Documentation
-    ├── INDEX.md
-    └── architecture/
-```
+| Component | Path | Purpose |
+|-----------|------|---------|
+| **Theory** | [`000_THEORY.md`](000_THEORY.md) | Constitutional framework |
+| **MCP Server** | [`mcp_server/server.py`](mcp_server/server.py) | FastMCP implementation |
+| **Tools** | [`mcp_server/tools/`](mcp_server/tools/) | 9 AAA tools |
+| **Apps** | [`333_APPS/`](333_APPS/) | Production layer |
+| **Docs** | [`docs/`](docs/) | Full documentation |
+| **Examples** | [`examples/`](examples/) | Usage examples |
 
 ---
 
@@ -285,7 +353,7 @@ This creates **thermodynamic governance**: every pass must reduce entropy and in
 | **Scars** | 6 permanent constraints hard-coded by pain |
 | **Paradox Engine** | 9 human paradoxes held, not resolved |
 
-See **[000_THEORY.md](000_THEORY.md)** for full theory.
+**Full theory:** [`000_THEORY.md`](000_THEORY.md)
 
 ---
 
@@ -302,6 +370,8 @@ railway login
 railway link
 railway up
 ```
+
+**Configuration:** [`railway.toml`](railway.toml)
 
 **Railway Variables:**
 ```
@@ -323,6 +393,8 @@ docker run -p 8080:8080 \
   arifos
 ```
 
+**Dockerfile:** [`Dockerfile`](Dockerfile)
+
 ### Local Development
 
 ```bash
@@ -337,6 +409,9 @@ python start_server.py
 curl http://localhost:8080/health
 ```
 
+**Requirements:** [`requirements.txt`](requirements.txt)  
+**Package:** [`pyproject.toml`](pyproject.toml)
+
 ---
 
 ## 🌐 The Trinity Ecosystem
@@ -349,6 +424,14 @@ arifOS is part of a three-layer system:
 | **THEORY** | Ψ | apex.arif-fazil.com | Authority — The Soul | [apex.arif-fazil.com](https://apex.arif-fazil.com) |
 | **APPS** | Ω | arifos.arif-fazil.com | Safety — The Mind | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
 
+### Three Repositories
+
+| Repository | Purpose | Link |
+|------------|---------|------|
+| **arifOS** | Constitutional governance + AAA MCP | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) |
+| **AGI_ASI_bot** | Dual-agent operational layer | [github.com/ariffazil/AGI_ASI_bot](https://github.com/ariffazil/AGI_ASI_bot) |
+| **arif-fazil-sites** | Trinity static sites (HUMAN·THEORY·APPS) | [github.com/ariffazil/arif-fazil-sites](https://github.com/ariffazil/arif-fazil-sites) |
+
 ### Symbol Mapping
 
 | Context | Δ (Delta) | Ω (Omega) | Ψ (Psi) |
@@ -360,14 +443,27 @@ arifOS is part of a three-layer system:
 
 ---
 
-## 🔗 Related Projects
+## 📚 Documentation
 
-| Component | Repository | Purpose |
-|-----------|------------|---------|
-| **OpenClaw** (Base) | [github.com/openclaw/openclaw](https://github.com/openclaw/openclaw) | Agent framework foundation |
-| **arifOS** (This) | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) | Constitutional governance + AAA MCP |
-| **AGI_ASI_bot** (Operational) | [github.com/ariffazil/AGI_ASI_bot](https://github.com/ariffazil/AGI_ASI_bot) | Dual-agent implementation |
-| **arif-fazil-sites** (Frontend) | [github.com/ariffazil/arif-fazil-sites](https://github.com/ariffazil/arif-fazil-sites) | Trinity static sites |
+### Essential Reading
+
+| Document | Purpose |
+|----------|---------|
+| [`000_THEORY.md`](000_THEORY.md) | Reverse Transformer architecture |
+| [`AGENTS.md`](AGENTS.md) | Agent configuration |
+| [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md) | API documentation |
+| [`docs/APPLICATIONS.md`](docs/APPLICATIONS.md) | Application guides |
+| [`docs/ARCHITECTURE_AND_NAMING_v45.md`](docs/ARCHITECTURE_AND_NAMING_v45.md) | Architecture details |
+| [`docs/COMPARISON.md`](docs/COMPARISON.md) | Framework comparisons |
+| [`CHANGELOG.md`](CHANGELOG.md) | Version history |
+| [`CONTRIBUTING.md`](CONTRIBUTING.md) | How to contribute |
+
+### For AI Agents
+
+- [`AGENTS.md`](AGENTS.md) — Canonical instructions
+- [`llms.txt`](llms.txt) — LLM context
+- [`docs/AGI_BUILDER_BLUEPRINT.md`](docs/AGI_BUILDER_BLUEPRINT.md) — Blueprint
+- [`docs/AAA_TRINITY_MAPPING.md`](docs/AAA_TRINITY_MAPPING.md) — Trinity mapping
 
 ---
 
@@ -397,17 +493,22 @@ We don't trust AI by default. We verify through constitutional constraints forge
 
 ---
 
-## 📚 Documentation
-
-- **[000_THEORY.md](000_THEORY.md)** — Reverse Transformer architecture
-- **[docs/INDEX.md](docs/INDEX.md)** — Full documentation index
-- **[AGI_ASI_bot/README.md](https://github.com/ariffazil/AGI_ASI_bot/blob/main/README.md)** — Operational deployment
-
----
-
 ## ⚠️ Disclaimer
 
 This is a **work-in-progress governance framework**, not a complete AGI safety system. Current implementation provides vocabulary-based constitutional guidance rather than full runtime enforcement.
+
+**What's Working:**
+- Constitutional vocabulary injection
+- 13-floor conceptual framework
+- Trinity architecture concepts
+- AAA MCP Server
+- Documentation and theoretical foundation
+
+**What's Planned:**
+- Runtime enforcement of constitutional floors
+- Actual init_gate() and apex_verdict() integration
+- Computed Ω₀ values instead of declared values
+- Full 9 Atomic Actions runtime pipeline
 
 ---
 
