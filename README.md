@@ -121,41 +121,63 @@ The **AAA (Atomic Actions Architecture) MCP Server** provides constitutional gov
 | `/mcp` | POST | Main MCP endpoint for tool calls |
 | `/` | GET | Root info — service status |
 
-### Tools Available
+### The 9 AAA MCP Tools
 
-#### Constitutional Tools
-
-| Tool | Floor | Description |
-|------|-------|-------------|
-| `init_gate` | F1-F13 | Initialize constitutional check |
-| `apex_verdict` | F11/F13 | Sovereign judgment |
-| `omega_track` | F7 | Uncertainty measurement |
-| `drift_detect` | F7/F8 | Objective shift detection |
-
-#### Trinity Tools
-
-| Tool | Domain | Description |
-|------|--------|-------------|
-| `canonical_trinity` | ΔΩΨ | Core Trinity functions |
-| `mcp_000_init` | F3 | Initialize with tri-witness |
-| `seal_verdict` | F1 | Apply SEAL verdict |
-| `void_action` | F1/F9 | Block violation |
+| # | Tool | Floors | Description |
+|---|------|--------|-------------|
+| 1 | `init_gate` | F11, F12 | Initialize constitutional session |
+| 2 | `agi_sense` | F2, F4 | AGI sense/perceive |
+| 3 | `agi_think` | F2, F4, F7 | AGI think/process |
+| 4 | `agi_reason` | F2, F4, F7 | AGI reason/logic |
+| 5 | `asi_empathize` | F5, F6 | ASI empathy/care |
+| 6 | `asi_align` | F5, F6, F9 | ASI alignment/safety |
+| 7 | `apex_verdict` | F3, F8 | APEX judgment/decision |
+| 8 | `reality_search` | F2, F7 | External fact verification |
+| 9 | `vault_seal` | F1, F3 | Immutable ledger seal |
 
 ### Example Usage
 
 ```python
 import requests
 
-# Check constitution
+# Initialize constitutional session
 response = requests.post("http://localhost:8080/mcp", json={
     "tool": "init_gate",
     "params": {
-        "action": "deploy_to_production",
-        "context": "user_request"
+        "query": "Deploy to production",
+        "session_id": "sess_123"
     }
 })
 
-# Returns: {"verdict": "SEAL|SABAR|VOID", "omega": 0.03}
+# Returns: {"verdict": "SEAL", "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠", "floors_enforced": ["F11", "F12"]}
+
+# AGI reasoning
+response = requests.post("http://localhost:8080/mcp", json={
+    "tool": "agi_reason",
+    "params": {
+        "query": "Analyze this data",
+        "session_id": "sess_123"
+    }
+})
+
+# ASI alignment check
+response = requests.post("http://localhost:8080/mcp", json={
+    "tool": "asi_align",
+    "params": {
+        "query": "Is this safe?",
+        "session_id": "sess_123"
+    }
+})
+
+# Seal to ledger
+response = requests.post("http://localhost:8080/mcp", json={
+    "tool": "vault_seal",
+    "params": {
+        "session_id": "sess_123",
+        "verdict": "SEAL",
+        "payload": {"action": "deploy", "result": "success"}
+    }
+})
 ```
 
 ### Environment Variables
