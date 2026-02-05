@@ -8,6 +8,10 @@
 [![Status](https://img.shields.io/badge/status-WORK_IN_PROGRESS-yellow?style=for-the-badge)]()
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)]()
 
+![arifOS Forged](docs/forged_page_1.png)
+
+*Ditempa Bukan Diberi — Forged, Not Given*
+
 ---
 
 ## 📋 Table of Contents
