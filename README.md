@@ -1,7 +1,7 @@
 # <img src="docs/forged_page_1.png" width="100%" alt="arifOS - Ditempa Bukan Diberi">
 
 <p align="center">
-  <img src="https://img.shields.io/badge/arifOS-v55.4--SEAL-blue?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/arifOS-v55.4--SEAL-0066cc?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/%CE%A9%E2%82%80-0.04-green?style=for-the-badge" alt="Omega">
   <img src="https://img.shields.io/badge/License-AGPL--3.0-red?style=for-the-badge" alt="License">
 </p>
