@@ -91,7 +91,7 @@
     }
   },
   "arifOS": {
-    "version": "v55.5-EIGEN",
+    "version": "v55.5-HARDENED",
     "trinity": {
       "AGI": "Δ - Mind/Logic",
       "ASI": "Ω - Heart/Care",

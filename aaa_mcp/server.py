@@ -1,5 +1,5 @@
 """
-arifOS AAA MCP Server — Constitutional AI Governance (v55.5-EIGEN)
+arifOS AAA MCP Server — Constitutional AI Governance (v55.5-HARDENED)
 
 9 canonical tools organized as a Trinity pipeline:
   000_INIT → AGI(Mind) → ASI(Heart) → APEX(Soul) → 999_VAULT
@@ -31,7 +31,7 @@ async def health(request):
         {
             "status": "ok",
             "service": "arifOS",
-            "version": "v55.5-EIGEN",
+            "version": "v55.5-HARDENED",
             "tools": len(tools),
             "constitution": "13 Floors",
             "motto": "DITEMPA BUKAN DIBERI",
@@ -48,7 +48,7 @@ async def root(request):
     return JSONResponse(
         {
             "service": "arifOS AAA MCP Server",
-            "version": "v55.5-EIGEN",
+            "version": "v55.5-HARDENED",
             "transport": "sse",
             "tools": tool_names,
             "constitution": "13 Floors | Trinity Architecture",

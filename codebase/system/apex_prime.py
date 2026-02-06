@@ -40,7 +40,7 @@ from codebase.constants import (
 from .types import ApexVerdict, FloorCheckResult, Metrics, Verdict
 from codebase.floors import FloorScores, extract_dials
 
-APEX_VERSION = "v55.5-EIGEN"
+APEX_VERSION = "v55.5-HARDENED"
 APEX_EPOCH = 55
 
 
