@@ -1,149 +1,147 @@
-# arifOS MCP Server Integration
+# aaa_mcp — Constitutional AI Governance Layer
 
-ASI (Arif's Sidekick Intelligence) Gateway for external MCP servers with constitutional governance.
+**Version:** v55.5-HARDENED  
+**Motto:** *Ditempa Bukan Diberi* — Forged, Not Given
 
-## Overview
+The AAA MCP Server provides a **Model Context Protocol** interface to the arifOS Constitutional AI system. It exposes 9 canonical tools organized as a Trinity pipeline with 13 Constitutional Floors enforcement.
 
-This package wraps 9 external MCP servers with arifOS 13 Floors constitutional enforcement, mapping each to the Trinity architecture (AGI·ASI·APEX).
+---
 
-## Quick Start
+## 🏗️ Architecture
 
-### 1. Install Dependencies
+```
+aaa_mcp/
+├── server.py                 # FastMCP server with 9 canonical tools
+├── __init__.py               # Package exports
+├── __main__.py               # Entry point: python -m aaa_mcp
+├── bridge.py                 # Engine routing layer
+├── mcp_config.py             # External server registry
+├── mcp_integration.py        # Constitutional governance wrapper
+│
+├── core/                     # Core framework
+│   ├── constitutional_decorator.py   # Floor enforcement decorators
+│   ├── engine_adapters.py           # AGI/ASI/APEX engine adapters
+│   └── mode_selector.py             # Transport mode selection
+│
+├── sessions/                 # Session management
+│   ├── session_ledger.py            # Merkle-chained ledger (F1 Amanah)
+│   └── session_dependency.py         # Session store for persistence
+│
+├── services/                 # Services layer
+│   ├── constitutional_metrics.py    # Verdict & stage metrics
+│   └── redis_client.py              # MindVault Redis persistence
+│
+├── tools/                    # Tool implementations
+│   ├── trinity_validator.py         # Request validation (F11, F12)
+│   └── reality_grounding.py         # External fact-checking (F7)
+│
+├── infrastructure/           # Operational infrastructure
+│   └── rate_limiter.py              # Token bucket rate limiting (F12)
+│
+├── transports/               # Transport layer
+│   └── sse.py                       # SSE transport
+│
+├── external_gateways/        # External API clients
+│   └── brave_client.py              # Brave Search integration
+│
+└── config/                   # Configuration management
+```
+
+---
+
+## 🔧 The 9 Canonical Tools
+
+| Tool | Engine | Floors | Description |
+|:-----|:------:|:------:|:------------|
+| `init_gate` | 🚪 INIT | F11, F12 | Session initialization & injection defense |
+| `agi_sense` | Δ Mind | F2, F4 | Intent parsing & lane classification |
+| `agi_think` | Δ Mind | F2, F4, F7 | Hypothesis generation |
+| `agi_reason` | Δ Mind | F2, F4, F7 | Deep logical reasoning |
+| `asi_empathize` | Ω Heart | F5, F6 | Stakeholder impact analysis |
+| `asi_align` | Ω Heart | F5, F6, F9 | Ethics & Anti-Hantu check |
+| `apex_verdict` | Ψ Soul | F3, F5, F8 | Final constitutional judgment |
+| `reality_search` | Δ Ground | F2, F7 | External fact-checking |
+| `vault_seal` | 🔒 SEAL | F1, F3 | Immutable ledger recording |
+
+---
+
+## 🛡️ Constitutional Floors (v55.5)
+
+| Floor | Name | Type | Enforcement |
+|:-----:|:-----|:----:|:------------|
+| F1 | Amanah | HARD | Reversibility/Auditability |
+| F2 | Truth | HARD | Factual fidelity ≥ 0.99 |
+| F3 | Consensus | Derived | Tri-Witness ≥ 0.95 |
+| F4 | Clarity | SOFT | Entropy reduction (ΔS ≤ 0) |
+| F5 | Peace² | SOFT | Safety margins ≥ 1.0 |
+| F6 | Empathy | HARD | Weakest stakeholder check |
+| F7 | Humility | Derived | Uncertainty band [0.03, 0.15] |
+| F8 | Genius | Derived | G = A×P×X×E² ≥ 0.80 |
+| F9 | Anti-Hantu | SOFT | No consciousness claims |
+| F10 | Ontology | HARD | Tool, not Being |
+| F11 | Authority | HARD | Sovereign command |
+| F12 | Defense | HARD | Injection scan |
+| F13 | Curiosity | SOFT | Multi-hypothesis paths |
+
+---
+
+## 🚀 Usage
+
+### Running via FastMCP (SSE)
 
 ```bash
-pip install fastmcp pydantic
+cd arifOS
+python -m aaa_mcp
+# Or directly:
+python aaa_mcp/server.py
 ```
 
-### 2. Start the ASI Gateway
+Server runs at `http://localhost:6274` with SSE transport.
 
-```bash
-python -m mcp_server
-# or
-python mcp_server/asi_gateway.py
+### Health Check
+
+```
+GET /health
+{
+  "status": "ok",
+  "service": "arifOS",
+  "version": "v55.5-HARDENED",
+  "tools": 9,
+  "constitution": "13 Floors"
+}
 ```
 
-The gateway runs on port **6277** by default.
+### Tool Invocation (MCP Protocol)
 
-### 3. Configure Claude Desktop
-
-Copy `claude_desktop_config.json` to your Claude Desktop config:
-
-```bash
-# macOS
-cp mcp_server/claude_desktop_config.json ~/Library/Application\ Support/Claude/claude_desktop_config.json
-
-# Linux
-cp mcp_server/claude_desktop_config.json ~/.config/Claude/claude_desktop_config.json
+```json
+{
+  "method": "tools/call",
+  "params": {
+    "name": "init_gate",
+    "arguments": {
+      "query": "What is 2+2?",
+      "session_id": "sess_001"
+    }
+  }
+}
 ```
 
-## MCP Server Registry
+---
 
-| Server | Trinity | Floors | Atomic Action | Ω₀ Threshold |
-|--------|---------|--------|---------------|--------------|
-| **filesystem** | APEX(Ψ) | F1, F3 | VAULT999 | 0.04 |
-| **memory** | ASI(Ω) | F2, F7 | Memory Weaver (#9) | 0.05 |
-| **fetch** | AGI(Δ) | F2, F4 | Geo-Radar (#4) | 0.06 |
-| **everything** | APEX(Ψ) | F3, F8 | Peace² Auditor (#2) | 0.03 |
-| **git** | AGI(Δ) | F1, F2, F3 | PyPI Sentinel (#3) | 0.04 |
-| **time** | ASI(Ω) | F6, F4 | Meeting Metabolizer (#6) | 0.02 |
-| **sequential_thinking** | ASI(Ω) | F5, F7, F9 | ASI Align/Reason | 0.05 |
-| **brave_search** | AGI(Δ) | F2, F8 | Reality Search | 0.06 |
-| **memory_enhanced** | ASI(Ω) | F6, F9 | ASI Empathize | 0.05 |
+## 📦 Dependencies
 
-## Trinity Architecture
+- `fastmcp` — MCP server framework
+- `redis` — Session persistence (optional)
+- `starlette` — HTTP framework
 
-### AGI(Δ) — Mind/Logic
-- **agi_sense**: Perception and parsing
-- **agi_think**: Structured cognition  
-- **agi_reason**: Formal logic
+---
 
-### ASI(Ω) — Heart/Care
-- **asi_empathize**: Emotional intelligence
-- **asi_align**: Constitutional harmony
+## 🔗 Related
 
-### APEX(Ψ) — Crown/Law
-- **apex_verdict**: Governance judgment
-- **vault_seal**: Immutable ledger
+- **codebase/** — Core engine implementations
+- **000_THEORY/** — Constitutional law documents
+- **333_APPS/** — Application layer
 
-## Constitutional Enforcement
+---
 
-All MCP calls are wrapped with:
-
-1. **Ω₀ Uncertainty Tracking** — F7 Humility
-2. **Floor Validation** — Appropriate floors per server
-3. **Audit Logging** — Complete call history
-4. **Reversibility Check** — F1 Amanah compliance
-
-## API Usage
-
-### Direct MCP Call
-
-```python
-from mcp_server import mcp_call
-
-result = await mcp_call(
-    server="filesystem",
-    operation="read",
-    params={"path": "/tmp/test.txt"},
-    omega_estimate=0.04
-)
-```
-
-### Trinity Tools
-
-```python
-from mcp_server import agi_think, asi_empathize, apex_verdict
-
-# AGI reasoning
-think_result = await agi_think("Analyze this data", "session-123")
-
-# ASI care
-empathy_result = await asi_empathize("User seems frustrated", "session-123")
-
-# APEX judgment
-verdict = await apex_verdict("Is this action safe?", "session-123")
-```
-
-### Audit Trail
-
-```python
-from mcp_server import get_audit_log
-
-logs = await get_audit_log(limit=50)
-```
-
-## Configuration
-
-Environment variables for each MCP server:
-
-```bash
-# Constitutional metadata
-ARIFOS_FLOORS="F1,F2,F3"
-ARIFOS_TRINITY="ASI"
-ARIFOS_ATOMIC_ACTION="MemoryWeaver"
-
-# External APIs
-BRAVE_API_KEY="your-api-key"
-```
-
-## Verdict System
-
-- **SEAL** ✅ — Operation approved and executed
-- **VOID** ❌ — Operation rejected (constitutional violation)
-- **SABAR** ⏸️ — Operation pending (high uncertainty, needs review)
-
-## Files
-
-| File | Purpose |
-|------|---------|
-| `asi_gateway.py` | FastMCP server with Trinity tools |
-| `mcp_integration.py` | Constitutional enforcement layer |
-| `mcp_config.py` | Server registry and configuration |
-| `constitutional_decorator.py` | Floor enforcement decorators |
-| `claude_desktop_config.json` | Claude Desktop integration |
-
-## Motto
-
-**DITEMPA BUKAN DIBERI** 💎🔥🧠
-
-*(Forged, Not Given)*
+*DITEMPA BUKAN DIBERI* 💎🔥🧠
