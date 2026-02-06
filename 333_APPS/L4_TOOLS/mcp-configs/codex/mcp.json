@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "arifOS MCP config aligned across agents (Antigravity)",
+  "$comment": "arifOS MCP config aligned across agents (Codex)",
   "mcpServers": {
     "aaa-mcp": {
       "command": "C:\\Users\\User\\arifOS\\venv\\Scripts\\python.exe",
