@@ -1,27 +1,8 @@
 {
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "arifOS Kimi CLI MCP Configuration v55.5 - Constitutional 9 Tools + 3 Core External MCPs",
   "mcpServers": {
-    "perplexity": {
-      "command": "npx",
-      "args": ["-y", "@perplexity-ai/mcp-server"],
-      "env": {
-        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}",
-        "PERPLEXITY_TIMEOUT_MS": "300000"
-      },
-      "disabled": false,
-      "alwaysAllow": [
-        "perplexity_search",
-        "perplexity_ask",
-        "perplexity_research",
-        "perplexity_reason"
-      ]
-    },
-    "hostinger-mcp": {
-      "command": "cmd",
-      "args": ["/c", "npx", "-y", "hostinger-api-mcp@latest"],
-      "env": {
-        "API_TOKEN": "YLaYKKsAsTw9OwG72XY46MPXt9P0T5wknv1WMCfaefdbd026"
-      }
-    },
+    "_comment_aaa": "=== CONSTITUTIONAL CORE (9 Canonical Tools) ===",
     "aaa-mcp": {
       "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
       "args": ["-m", "aaa_mcp", "stdio"],
@@ -31,8 +12,8 @@
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         "PYTHONIOENCODING": "utf-8",
         "PYTHONUNBUFFERED": "1",
-        "BRAVE_API_KEY": "BSAHQnzf-jTMMfGYe3MKmsJr7Uq8uEU",
-        "BROWSERBASE_API_KEY": "bb_live_Q06bFsopskK9f8DJz4IIOadANav"
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}",
+        "BROWSERBASE_API_KEY": "${BROWSERBASE_API_KEY}"
       },
       "disabled": false,
       "alwaysAllow": [
@@ -45,6 +26,95 @@
         "apex_verdict",
         "reality_search",
         "vault_seal"
+      ]
+    },
+    "_comment_filesystem": "=== F1 AMANAH - Filesystem Operations (Reversible) ===",
+    "filesystem": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-filesystem@latest", "C:/Users/User/arifOS"],
+      "env": {},
+      "disabled": false,
+      "alwaysAllow": [
+        "read_file",
+        "read_multiple_files",
+        "write_file",
+        "edit_file",
+        "list_directory",
+        "list_directory_with_sizes",
+        "directory_tree",
+        "search_files",
+        "get_file_info",
+        "move_file",
+        "create_directory"
+      ]
+    },
+    "_comment_git": "=== F2 TRUTH - Git Operations (Version Control as Evidence) ===",
+    "git": {
+      "command": "uvx",
+      "args": ["mcp-server-git"],
+      "cwd": "C:/Users/User/arifOS",
+      "env": {
+        "GIT_CONFIG_GLOBAL": ""
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "git_status",
+        "git_diff",
+        "git_diff_staged",
+        "git_log",
+        "git_show",
+        "git_branch",
+        "git_create_branch",
+        "git_checkout",
+        "git_add",
+        "git_reset",
+        "git_commit"
+      ]
+    },
+    "_comment_memory": "=== F8 WISDOM - Knowledge Graph Memory (Pattern Storage) ===",
+    "memory": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-memory@latest"],
+      "env": {
+        "MEMORY_FILE_PATH": "C:/Users/User/arifOS/.kimi/memory.json"
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "read_graph",
+        "search_nodes",
+        "open_nodes",
+        "create_entities",
+        "create_relations",
+        "add_observations",
+        "delete_entities",
+        "delete_observations",
+        "delete_relations"
+      ]
+    },
+    "_comment_perplexity": "=== F2 TRUTH AUXILIARY - Perplexity Research (Reality Grounding) ===",
+    "perplexity": {
+      "command": "npx",
+      "args": ["-y", "@perplexity-ai/mcp-server@latest"],
+      "env": {
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}",
+        "PERPLEXITY_TIMEOUT_MS": "300000"
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "perplexity_search",
+        "perplexity_ask",
+        "perplexity_research",
+        "perplexity_reason"
+      ]
+    },
+    "_comment_sequential": "=== F8 WISDOM - Sequential Thinking (Multi-step Reasoning) ===",
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-sequential-thinking@latest"],
+      "env": {},
+      "disabled": false,
+      "alwaysAllow": [
+        "sequentialthinking"
       ]
     }
   }
