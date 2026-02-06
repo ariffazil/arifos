@@ -33,7 +33,7 @@ FLOOR_ENFORCEMENT = {
     "agi_reason": ["F2", "F4", "F7"],
     "asi_empathize": ["F5", "F6"],
     "asi_align": ["F5", "F6", "F9"],
-    "apex_verdict": ["F3", "F8"],
+    "apex_verdict": ["F5", "F3", "F8"],
     "reality_search": ["F2", "F7"],
     "vault_seal": ["F1", "F3"],
 }

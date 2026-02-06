@@ -39,6 +39,13 @@ class Stage555Empathy:
         "environment": (0.4, "indirect"),
         "system": (0.2, "indirect"),
         "database": (0.3, "indirect"),
+        "neighbor": (0.5, "direct"),
+        "neighbour": (0.5, "direct"),
+        "colleague": (0.5, "direct"),
+        "friend": (0.4, "direct"),
+        "partner": (0.6, "direct"),
+        "spouse": (0.6, "direct"),
+        "victim": (0.9, "direct"),
     }
 
     # High-vulnerability contexts

@@ -213,22 +213,39 @@ class F5_Peace2(Floor):
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
         # Check for destructive actions
-        destructive_keywords = ["destroy", "delete all", "wipe", "erase", "harm", "attack"]
+        destructive_keywords = [
+            # Physical/system destruction
+            "destroy", "delete all", "wipe", "erase", "harm", "attack",
+            # Cyber attacks
+            "hack", "crack", "breach", "phish",
+            # Personal harm
+            "harass", "bully", "stalk", "threaten", "intimidate",
+            # Fraud/deception
+            "steal", "forge", "impersonate", "blackmail", "extort",
+            # Surveillance
+            "spy on", "wiretap", "dox",
+        ]
         query = context.get("query", "").lower()
-        
+
         peace_penalty = 0.0
         for kw in destructive_keywords:
             if kw in query:
                 peace_penalty += 0.3
-        
+
+        # High-intent harm verbs: stronger penalty
+        high_harm = ["hack", "harass", "stalk", "blackmail", "extort", "threaten", "impersonate"]
+        for kw in high_harm:
+            if kw in query:
+                peace_penalty += 0.4
+
         # Peace score with exponential decay for multiple violations
         peace_score = max(0.0, 1.0 - peace_penalty)
-        
+
         passed = peace_score >= self.spec["threshold"]
         return FloorResult(
-            self.id, 
-            passed, 
-            peace_score, 
+            self.id,
+            passed,
+            peace_score,
             f"Peace²: {peace_score:.3f} (non-destructive power)"
         )
 
