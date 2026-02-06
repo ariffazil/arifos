@@ -288,6 +288,12 @@ python -m aaa_mcp sse
 - **Endpoint:** `http://your-domain.com/sse`
 - **Platforms:** Railway, Fly.io, AWS, GCP, Azure, ChatGPT (via SSE bridge)
 
+### HTTP (Streamable HTTP MCP)
+- **Use Case:** Remote MCP clients that support HTTP transport
+- **Command:** `python -m aaa_mcp http`
+- **Endpoint:** `http://your-domain.com/mcp`
+- **Platforms:** OpenAI Codex, ChatGPT MCP clients, any streamable HTTP-compatible MCP client
+
 ---
 
 ## 🏗️ 333_APPS - Governance Spectrum
@@ -396,11 +402,15 @@ Add to `.mcp.json`:
 }
 ```
 
-### Cloud Deployment (SSE)
+### Cloud Deployment (SSE or HTTP)
 ```bash
 # Deploy to Railway, Fly.io, or similar
 python -m aaa_mcp sse
-# Serves at http://localhost:8080 (SSE endpoint)
+# SSE endpoint:  http://localhost:8080/sse
+
+# Or use streamable HTTP transport
+python -m aaa_mcp http
+# HTTP endpoint: http://localhost:8080/mcp
 ```
 
 

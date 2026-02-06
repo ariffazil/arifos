@@ -104,8 +104,17 @@ Run via Server-Sent Events for remote connections (Railway, Network).
 python -m aaa_mcp sse
 ```
 
-Server runs at `http://0.0.0.0:8080/sse` (default port).
-You can override the port using the `PORT` environment variable (e.g., `PORT=8000 python -m aaa_mcp sse`).
+SSE endpoint: `http://0.0.0.0:8080/sse` (default port).
+
+**3. Remote Server Mode (HTTP / Streamable HTTP)**
+Run via HTTP MCP transport (path: `/mcp`) for clients that support streamable HTTP.
+
+```bash
+python -m aaa_mcp http
+```
+
+HTTP endpoint: `http://0.0.0.0:8080/mcp` (default port).
+You can override the port using the `PORT` environment variable (e.g., `PORT=8000 python -m aaa_mcp http`).
 
 ### Health Check & Inspection
 

@@ -6,9 +6,14 @@
 
 ---
 
-## ⚠️ Limited MCP Support
+## Transport Reality
 
-As of 2026-02-02, Gemini has **limited MCP support**. The config exists but may not be fully functional.
+arifOS server supports all three MCP transports:
+- `stdio` (local)
+- `sse` (remote)
+- `http` / streamable HTTP (remote)
+
+Gemini client behavior can vary by version, but the server itself is not SSE-only.
 
 ---
 
@@ -39,22 +44,20 @@ Copy-Item .agents/mcp.json .gemini/mcp.json
 
 | Feature | Status |
 |---------|--------|
-| MCP stdio | ⚠️ Experimental |
-| MCP HTTP | ❌ Not supported |
-| Tool calls | ⚠️ Limited |
-| arifOS integration | ⚠️ Untested |
+| MCP stdio | ✅ Supported (recommended) |
+| MCP SSE | ✅ Supported via remote endpoint |
+| MCP HTTP | ✅ Supported by server (client support may vary) |
+| Tool calls | ⚠️ Depends on Gemini client build |
+| arifOS integration | ⚠️ Validate with local smoke test |
 
 ---
 
 ## Recommendation
 
-For now, use Gemini for:
-- Clipboard/image sharing (`.gemini/clipboard/`)
-- Reference only
-
-Use **Claude, Kimi, or Codex** for full MCP integration.
+Use Gemini with local `stdio` first via `.gemini/mcp.json`.
+If you need remote transport, use `/sse` or `/mcp` depending on Gemini's current MCP transport support.
 
 ---
 
-**Last Updated:** 2026-02-02  
-**Status:** Monitor for Gemini MCP updates
+**Last Updated:** 2026-02-06  
+**Status:** Server supports stdio + SSE + HTTP; verify client build capabilities

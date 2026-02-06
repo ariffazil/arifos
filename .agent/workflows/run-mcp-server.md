@@ -4,7 +4,7 @@ description: How to set up and run the arifOS AAA MCP Server (FastMCP) locally
 
 # arifOS Local MCP Startup Workflow
 
-Run the arifOS Constitutional Kernel via the `aaa_mcp` package. Supports two transports: stdio (Local Agents) and SSE (Remote/Railway).
+Run the arifOS Constitutional Kernel via the `aaa_mcp` package. Supports three transports: stdio (local), SSE (remote), and streamable HTTP (remote).
 
 ## Prerequisites
 - Python 3.10+
@@ -65,4 +65,4 @@ pytest tests/test_mcp_all_tools.py -v
 - **ModuleNotFoundError: aaa_mcp** — Venv is not activated, or editable install is missing. Run `pip install -e ".[dev]"`.
 - **ModuleNotFoundError: mcp** — The MCP SDK (`mcp` package) is not installed. It is pulled in automatically by `pip install -e ".[dev]"`.
 - **ImportError: cannot import from 'mcp'** — A local `mcp/` directory is shadowing the SDK. Ensure no directory named `mcp/` exists at the project root (it was renamed to `aaa_mcp/`).
-- **Port conflict (SSE)** — SSE transport binds a network port (default 8000). Ensure no other process is using it. Stdio has no port requirement.
+- **Port conflict (SSE/HTTP)** — Network transports bind a port (default 8000). Ensure no other process is using it. Stdio has no port requirement.

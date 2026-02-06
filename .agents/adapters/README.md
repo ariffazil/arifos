@@ -12,7 +12,7 @@
 | `CLAUDE.md` | Claude Desktop/Code | JSON config, stdio transport |
 | `CODEX.md` | OpenAI Codex CLI | TOML config, global location |
 | `KIMI.md` | Moonshot Kimi CLI | JSON config, project location |
-| `GEMINI.md` | Google Gemini | Limited MCP support |
+| `GEMINI.md` | Google Gemini | Use stdio by default; remote support depends on Gemini client version |
 
 ---
 
