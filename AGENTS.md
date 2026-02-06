@@ -23,6 +23,12 @@ Transform AI from "hope it behaves" to "verify before shipping" — making harmf
 - **VAULT999 Ledger:** Immutable Merkle-chained audit trail for all decisions
 - **Verdict System:** SEAL (approved) | VOID (blocked) | PARTIAL (warning) | SABAR (repair needed) | 888_HOLD (human review)
 
+### Metabolic Pipeline (000→999 Loop)
+```
+000_INIT → AGI(Δ) → ASI(Ω) → APEX(Ψ) → 999_VAULT
+             111-333   444-666    777-888
+```
+
 ---
 
 ## 2. Technology Stack
@@ -133,29 +139,38 @@ arifOS/
 │   ├── L1_PROMPT/              # Zero-context entry prompts
 │   ├── L2_SKILLS/              # Parameterized templates
 │   ├── L3_WORKFLOW/            # Multi-step recipes
+│   ├── L4_TOOLS/               # Production MCP tools reference
 │   ├── L5_AGENTS/              # Autonomous agents (runtime ready)
 │   │   └── SPEC/                        # Agent spec files
 │   │       ├── IDENTITY.md
 │   │       ├── SOUL.md
 │   │       ├── USER.md
 │   │       └── MEMORY.md
-│   └── L6_INSTITUTION/         # Trinity consensus framework
+│   ├── L6_INSTITUTION/         # Trinity consensus framework
+│   └── L7_AGI/                 # Recursive intelligence (research)
 │
 ├── tests/                      # Test suite
 │   ├── conftest.py             # Pytest configuration (auto-async, physics disabled)
-│   ├── constitutional/         # Floor enforcement tests
-│   ├── mcp_tests/              # MCP integration tests
-│   ├── integration/            # Integration tests
-│   ├── core/                   # Core engine tests
-│   └── archive/                # Legacy tests (ignored by conftest.py)
+│   ├── test_mcp_all_tools.py   # MCP tool integration tests
+│   ├── test_e2e_all_tools.py   # E2E tool tests
+│   ├── test_pipeline_e2e.py    # Pipeline E2E tests
+│   ├── test_aaa_mcp_constitutional.py  # Constitutional tests
+│   ├── test_vault_persistence.py       # Vault persistence tests
+│   ├── test_refusal_system.py          # Refusal system tests
+│   ├── archive/                # Legacy tests (ignored by conftest.py)
+│   └── utils.py                # Test utilities
 │
 ├── scripts/                    # Utility scripts
 │   └── start_server.py         # Production server startup
 ├── docs/                       # Documentation
-├── spec/                       # PRIMARY: Constitutional JSON schemas
-├── canon/                      # PRIMARY: Sealed canonical law
+├── spec/                       # Constitutional JSON schemas (if present)
+├── canon/                      # Sealed canonical law (if present)
 ├── 000_THEORY/                 # Constitutional theory documents
-└── VAULT999/                   # Immutable ledger storage
+├── VAULT999/                   # Immutable ledger storage
+├── pyproject.toml              # Package configuration
+├── Dockerfile                  # Container build
+├── railway.toml                # Railway deployment config
+└── .pre-commit-config.yaml     # Pre-commit hooks
 ```
 
 ---
@@ -200,6 +215,13 @@ docker run -p 8080:8080 arifos
 curl http://localhost:8080/health
 ```
 
+### Railway Deployment
+The project includes `railway.toml` for Railway.app deployment:
+```bash
+# Deploy to Railway (uses Dockerfile)
+railway up
+```
+
 ---
 
 ## 5. Testing Instructions
@@ -222,8 +244,11 @@ pytest --cov=aaa_mcp tests/ -v
 # MCP tool integration tests
 pytest tests/test_mcp_all_tools.py -v
 
-# Session ledger tests
-pytest tests/mcp_tests/test_session_ledger.py -v
+# E2E pipeline tests
+pytest tests/test_pipeline_e2e.py -v
+
+# Vault persistence tests
+pytest tests/test_vault_persistence.py -v
 
 # Constitutional floor tests
 pytest -m constitutional
@@ -372,6 +397,12 @@ except ImportError:
 | 8 | `reality_search` | AGI (Δ) | External fact-checking | F2, F7 | Auxiliary |
 | 9 | `vault_seal` | VAULT | Immutable recording | F1, F3 | 999_VAULT |
 
+### Additional Utility Tools
+| Tool | Function | Floors |
+|------|----------|--------|
+| `web_search` | DuckDuckGo search without API key | F2, F6 |
+| `open_web` | Fetch web page content | F2, F6, F1 |
+
 ### Typical Pipeline Flow
 ```
 init_gate → agi_sense → agi_think → agi_reason → asi_empathize → asi_align → apex_verdict → vault_seal
@@ -516,6 +547,8 @@ Before making constitutional claims, verify against:
 | `tests/conftest.py` | Test configuration (auto-async, physics disabled) |
 | `pyproject.toml` | Package config, tool settings |
 | `.pre-commit-config.yaml` | Pre-commit hooks |
+| `Dockerfile` | Container build instructions |
+| `railway.toml` | Railway deployment config |
 
 ---
 
@@ -524,7 +557,8 @@ Before making constitutional claims, verify against:
 **AGPL-3.0-only** — *Ditempa Bukan Diberi* (Forged, Not Given)
 
 **Sovereign:** Muhammad Arif bin Fazil  
-**Repository:** https://github.com/ariffazil/arifOS
+**Repository:** https://github.com/ariffazil/arifOS  
+**Live Server:** https://arifos.arif-fazil.com/
 
 ---
 
