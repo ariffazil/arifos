@@ -13,7 +13,7 @@ RUN pip install -r requirements.txt
 
 # Copy source - CRITICAL: Copy in order of least to most likely to change
 COPY pyproject.toml .
-COPY start_server.py .
+COPY scripts/start_server.py scripts/start_server.py
 COPY codebase/ codebase/
 COPY aaa_mcp/ aaa_mcp/
 
@@ -38,4 +38,4 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
 
 # Run with unbuffered output for logs
 ENV PYTHONUNBUFFERED=1
-CMD ["python", "-u", "start_server.py"]
+CMD ["python", "-u", "scripts/start_server.py"]
