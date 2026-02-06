@@ -1,0 +1,94 @@
+<!--
+  Trinity Aligned Footer Component
+  arifOS v55.5-SEAL
+  
+  Usage:
+  1. Include unified-tokens.css
+  2. Set data-theme="human|theory|apps" on <html> or <body>
+  3. Replace {{FOOTER_TEXT}} with site-specific footer
+  
+  Site Values:
+  - HUMAN: "arifOS v55.5-SEAL • Muhammad Arif bin Fazil (888 Judge)"
+  - THEORY: "arifOS v55.5-SEAL • Muhammad Arif bin Fazil (888 Judge)"
+  - APPS: "arifOS v55.5-SEAL • MCP endpoint: aaamcp.arif-fazil.com/mcp"
+-->
+
+<footer class="trinity-footer">
+  <p class="trinity-footer-text">{{FOOTER_TEXT}}</p>
+  <nav class="trinity-footer-nav" aria-label="Trinity Sites">
+    <a href="/human" class="trinity-link trinity-link--human" aria-label="HUMAN Site">🔴</a>
+    <span class="trinity-footer-divider" aria-hidden="true">•</span>
+    <a href="/theory" class="trinity-link trinity-link--theory" aria-label="THEORY Site">🟡</a>
+    <span class="trinity-footer-divider" aria-hidden="true">•</span>
+    <a href="/apps" class="trinity-link trinity-link--apps" aria-label="APPS Site">🔵</a>
+  </nav>
+</footer>
+
+<style>
+  /* Footer Styles */
+  .trinity-footer {
+    text-align: center;
+    margin-top: var(--footer-margin, 4rem);
+    padding: var(--space-4, 1rem) 0;
+  }
+  
+  .trinity-footer-text {
+    color: var(--trinity-gray-400, #94a3b8);
+    font-size: var(--text-sm, 0.875rem);
+    margin: 0 0 var(--space-4, 1rem) 0;
+  }
+  
+  .trinity-footer-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--space-3, 0.75rem);
+  }
+  
+  .trinity-link {
+    font-size: var(--text-lg, 1.125rem);
+    text-decoration: none;
+    transition: transform var(--duration-fast, 150ms) var(--ease-out, ease-out),
+                filter var(--duration-fast, 150ms) var(--ease-out, ease-out);
+    display: inline-block;
+  }
+  
+  .trinity-link:hover {
+    transform: scale(1.2);
+  }
+  
+  .trinity-link:focus {
+    outline: var(--focus-ring-width, 2px) solid var(--trinity-primary, #06B6D4);
+    outline-offset: var(--focus-ring-offset, 2px);
+    border-radius: var(--radius-sm, 2px);
+  }
+  
+  .trinity-link--human:hover {
+    filter: drop-shadow(0 0 6px var(--crimson, #FF2D2D));
+  }
+  
+  .trinity-link--theory:hover {
+    filter: drop-shadow(0 0 6px var(--gold, #FFD700));
+  }
+  
+  .trinity-link--apps:hover {
+    filter: drop-shadow(0 0 6px var(--cyan, #06B6D4));
+  }
+  
+  .trinity-footer-divider {
+    color: var(--trinity-gray-400, #94a3b8);
+    font-size: var(--text-xs, 0.75rem);
+    user-select: none;
+  }
+  
+  /* Responsive */
+  @media (max-width: 640px) {
+    .trinity-footer {
+      margin-top: var(--space-12, 3rem);
+    }
+    
+    .trinity-footer-text {
+      font-size: var(--text-xs, 0.75rem);
+    }
+  }
+</style>

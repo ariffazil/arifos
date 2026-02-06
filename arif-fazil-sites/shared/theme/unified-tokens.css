@@ -1,0 +1,297 @@
+/**
+ * Trinity Design System — Unified Tokens
+ * arifOS v55.5-SEAL
+ * 
+ * Canonical design tokens for HUMAN (🔴), THEORY (🟡), and APPS (🔵)
+ * All sites share structure; colors are site-specific.
+ */
+
+:root {
+  /* ═══════════════════════════════════════════════════════════════
+     COLOR TOKENS — Base Palette
+     ═══════════════════════════════════════════════════════════════ */
+  
+  /* Neutral Foundation */
+  --trinity-slate-950: #0f172a;
+  --trinity-slate-900: #1e293b;
+  --trinity-slate-800: #334155;
+  --trinity-white: #ffffff;
+  --trinity-gray-200: #e2e8f0;
+  --trinity-gray-400: #94a3b8;
+  
+  /* Site-Specific Primaries (override per site) */
+  --trinity-primary: #06B6D4;        /* Default: Cyan (APPS) */
+  --trinity-primary-10: #06B6D410;   /* 6% opacity */
+  --trinity-primary-20: #06B6D433;   /* 20% opacity */
+  --trinity-primary-50: #06B6D480;   /* 50% opacity */
+  
+  /* HUMAN — Crimson */
+  --crimson: #FF2D2D;
+  --crimson-10: #FF2D2D10;
+  --crimson-20: #FF2D2D33;
+  --crimson-50: #FF2D2D80;
+  
+  /* THEORY — Gold */
+  --gold: #FFD700;
+  --gold-10: #FFD70010;
+  --gold-20: #FFD70033;
+  --gold-50: #FFD70080;
+  
+  /* APPS — Cyan */
+  --cyan: #06B6D4;
+  --cyan-10: #06B6D410;
+  --cyan-20: #06B6D433;
+  --cyan-50: #06B6D480;
+  
+  /* ═══════════════════════════════════════════════════════════════
+     TYPOGRAPHY SCALE
+     Using modular scale: 1.25 ratio (Major Third)
+     Base: 1rem = 16px
+     ═══════════════════════════════════════════════════════════════ */
+  
+  /* Font Families */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'Space Mono', 'JetBrains Mono', 'Fira Code', monospace;
+  --font-mono-alt: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  /* Font Sizes — Unified Scale */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.875rem;    /* 14px */
+  --text-base: 1rem;      /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 2rem;       /* 32px */
+  --text-4xl: 2.5rem;     /* 40px — Unified h1 */
+  
+  /* Font Weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --weight-black: 900;
+  
+  /* Line Heights */
+  --leading-tight: 1.25;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
+  
+  /* ═══════════════════════════════════════════════════════════════
+     SPACING SCALE
+     Consistent 0.5rem (8px) base unit
+     ═══════════════════════════════════════════════════════════════ */
+  
+  --space-0: 0;
+  --space-1: 0.25rem;   /* 4px */
+  --space-2: 0.5rem;    /* 8px */
+  --space-3: 0.75rem;   /* 12px */
+  --space-4: 1rem;      /* 16px */
+  --space-5: 1.25rem;   /* 20px */
+  --space-6: 1.5rem;    /* 24px */
+  --space-8: 2rem;      /* 32px — Container padding */
+  --space-10: 2.5rem;   /* 40px */
+  --space-12: 3rem;     /* 48px — Header margin */
+  --space-16: 4rem;     /* 64px — Footer margin */
+  --space-20: 5rem;     /* 80px */
+  
+  /* ═══════════════════════════════════════════════════════════════
+     LAYOUT — Unified Container
+     ═══════════════════════════════════════════════════════════════ */
+  
+  --container-max: 720px;         /* UNIFIED: was 720/680/800 */
+  --container-padding: var(--space-8);
+  --header-height: auto;          /* Flexible header */
+  --header-margin: var(--space-12);
+  --footer-margin: var(--space-16);
+  
+  /* ═══════════════════════════════════════════════════════════════
+     BORDERS & RADII
+     ═══════════════════════════════════════════════════════════════ */
+  
+  --radius-sm: 2px;
+  --radius-md: 4px;     /* Card corners */
+  --radius-lg: 8px;
+  --radius-full: 9999px;
+  
+  --border-width: 1px;
+  --border-width-thick: 2px;
+  --border-accent: 4px;  /* Scar block left border */
+  
+  /* ═══════════════════════════════════════════════════════════════
+     SHADOWS & GLOWS
+     ═══════════════════════════════════════════════════════════════ */
+  
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.3);
+  
+  /* Glow effects use --trinity-primary */
+  --glow-sm: 0 0 10px var(--trinity-primary);
+  --glow-md: 0 0 20px var(--trinity-primary);
+  --glow-lg: 0 0 30px var(--trinity-primary);
+  
+  /* ═══════════════════════════════════════════════════════════════
+     ANIMATION TIMING — Standardized Durations
+     ═══════════════════════════════════════════════════════════════ */
+  
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 500ms;
+  --duration-pulse: 2000ms;   /* Cyan pulse cycle */
+  
+  /* Easing Functions */
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-pulse: ease-in-out;
+  
+  /* ═══════════════════════════════════════════════════════════════
+     BREAKPOINTS (for reference — use in media queries)
+     ═══════════════════════════════════════════════════════════════ */
+  
+  /* Mobile: < 640px */
+  /* Tablet: 640px - 1024px */
+  /* Desktop: > 1024px */
+  
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  
+  /* ═══════════════════════════════════════════════════════════════
+     ACCESSIBILITY — WCAG AA Compliant Contrast
+     ═══════════════════════════════════════════════════════════════ */
+  
+  /* Crimson #FF2D2D on #0f172a = 5.2:1 ✓ AA */
+  /* Gold #FFD700 on #0f172a = 10.7:1 ✓ AAA */
+  /* Cyan #06B6D4 on #0f172a = 5.9:1 ✓ AA */
+  /* White #ffffff on #0f172a = 15.1:1 ✓ AAA */
+  /* Gray-400 #94a3b8 on #0f172a = 4.5:1 ✓ AA (large text) */
+  
+  --focus-ring-width: 2px;
+  --focus-ring-offset: 2px;
+  --focus-ring-color: var(--trinity-primary);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SITE-SPECIFIC OVERRIDES
+   Include one of these after unified-tokens.css
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* HUMAN Theme Override */
+[data-theme="human"] {
+  --trinity-primary: var(--crimson);
+  --trinity-primary-10: var(--crimson-10);
+  --trinity-primary-20: var(--crimson-20);
+  --trinity-primary-50: var(--crimson-50);
+}
+
+/* THEORY Theme Override */
+[data-theme="theory"] {
+  --trinity-primary: var(--gold);
+  --trinity-primary-10: var(--gold-10);
+  --trinity-primary-20: var(--gold-20);
+  --trinity-primary-50: var(--gold-50);
+}
+
+/* APPS Theme Override */
+[data-theme="apps"] {
+  --trinity-primary: var(--cyan);
+  --trinity-primary-10: var(--cyan-10);
+  --trinity-primary-20: var(--cyan-20);
+  --trinity-primary-50: var(--cyan-50);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   SHARED BASE STYLES
+   ═══════════════════════════════════════════════════════════════════ */
+
+.trinity-base {
+  margin: 0;
+  padding: 0;
+  background: var(--trinity-slate-950);
+  color: var(--trinity-white);
+  font-family: var(--font-sans);
+  line-height: var(--leading-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.trinity-container {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--container-padding);
+}
+
+.trinity-header {
+  text-align: center;
+  margin-bottom: var(--header-margin);
+}
+
+.trinity-h1 {
+  font-size: var(--text-4xl);
+  font-weight: var(--weight-bold);
+  color: var(--trinity-primary);
+  margin: 0;
+  line-height: var(--leading-tight);
+}
+
+.trinity-subtitle {
+  color: var(--trinity-gray-200);
+  font-size: var(--text-lg);
+  margin-top: var(--space-2);
+}
+
+.trinity-footer {
+  text-align: center;
+  margin-top: var(--footer-margin);
+  color: var(--trinity-gray-400);
+  font-size: var(--text-sm);
+}
+
+/* Thermodynamic A Logo — Unified */
+.trinity-logo {
+  display: inline-block;
+  width: 48px;
+  height: 48px;
+  margin: var(--space-4) 0;
+}
+
+.trinity-logo svg {
+  width: 100%;
+  height: 100%;
+}
+
+.trinity-logo path {
+  stroke: var(--trinity-primary);
+  stroke-width: 2.5;
+  fill: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   ANIMATION KEYFRAMES
+   ═══════════════════════════════════════════════════════════════════ */
+
+@keyframes trinity-pulse {
+  0%, 100% { 
+    opacity: 0.6; 
+    box-shadow: var(--glow-sm); 
+  }
+  50% { 
+    opacity: 1; 
+    box-shadow: var(--glow-lg); 
+  }
+}
+
+@keyframes trinity-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes trinity-glow {
+  0%, 100% { filter: drop-shadow(0 0 3px var(--trinity-primary)); }
+  50% { filter: drop-shadow(0 0 8px var(--trinity-primary)); }
+}

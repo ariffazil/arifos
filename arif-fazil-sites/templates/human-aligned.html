@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="human">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔴 HUMAN — arifOS v55.5</title>
+  <meta name="description" content="HUMAN - The Scar-Weight of arifOS. Forged, not given.">
+  
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  
+  <!-- Unified Trinity Tokens -->
+  <link rel="stylesheet" href="../shared/theme/unified-tokens.css">
+  
+  <style>
+    /* HUMAN Theme Activation */
+    :root {
+      --trinity-primary: var(--crimson);
+      --trinity-primary-10: var(--crimson-10);
+      --trinity-primary-20: var(--crimson-20);
+      --trinity-primary-50: var(--crimson-50);
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--trinity-slate-950);
+      color: var(--trinity-white);
+      font-family: var(--font-sans);
+      line-height: var(--leading-normal);
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Container — Unified 720px */
+    .container {
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: var(--container-padding);
+      position: relative;
+    }
+    
+    /* Header — Aligned */
+    header {
+      text-align: center;
+      margin-bottom: var(--header-margin);
+    }
+    
+    h1 {
+      font-size: var(--text-4xl);
+      font-weight: var(--weight-bold);
+      color: var(--trinity-primary);
+      margin: 0;
+      line-height: var(--leading-tight);
+    }
+    
+    .subtitle {
+      color: var(--trinity-gray-200);
+      font-size: var(--text-lg);
+      margin-top: var(--space-2);
+    }
+    
+    /* Seismic Background — HUMAN Specific */
+    .seismic-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.08;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    /* Scar Block — HUMAN Specific Component */
+    .scar-block {
+      background: var(--trinity-primary-10);
+      border-left: var(--border-accent) solid var(--trinity-primary);
+      padding: var(--space-6);
+      margin: var(--space-8) 0;
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+    }
+    
+    .scar-title {
+      color: var(--trinity-primary);
+      font-weight: var(--weight-bold);
+      font-size: var(--text-lg);
+      margin: 0 0 var(--space-2) 0;
+    }
+    
+    .scar-block p {
+      margin: 0;
+      color: var(--trinity-gray-200);
+    }
+    
+    .scar-block strong {
+      color: var(--trinity-primary);
+    }
+    
+    /* Thermodynamic A Logo — Unified */
+    .thermodynamic-a {
+      display: inline-block;
+      width: 48px;
+      height: 48px;
+      margin: var(--space-4) 0;
+    }
+    
+    .thermodynamic-a svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .thermodynamic-a path {
+      stroke: var(--trinity-primary);
+      stroke-width: 2.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    
+    /* Footer — Aligned */
+    footer {
+      text-align: center;
+      margin-top: var(--footer-margin);
+      color: var(--trinity-gray-400);
+      font-size: var(--text-sm);
+    }
+    
+    .footer-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+    
+    .footer-nav a {
+      font-size: var(--text-lg);
+      text-decoration: none;
+      transition: transform var(--duration-fast) var(--ease-out),
+                  filter var(--duration-fast) var(--ease-out);
+    }
+    
+    .footer-nav a:hover {
+      transform: scale(1.2);
+    }
+    
+    .footer-nav a:first-child:hover { filter: drop-shadow(0 0 6px var(--crimson)); }
+    .footer-nav a:nth-child(3):hover { filter: drop-shadow(0 0 6px var(--gold)); }
+    .footer-nav a:last-child:hover { filter: drop-shadow(0 0 6px var(--cyan)); }
+    
+    .footer-divider {
+      color: var(--trinity-gray-400);
+      font-size: var(--text-xs);
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+      h1 { font-size: var(--text-3xl); }
+      .subtitle { font-size: var(--text-base); }
+      .thermodynamic-a { width: 40px; height: 40px; }
+      .scar-block { padding: var(--space-4); margin: var(--space-6) 0; }
+    }
+  </style>
+</head>
+<body>
+  <div class="seismic-bg" aria-hidden="true">
+    <!-- Subtle seismic strata lines -->
+    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+      <line x1="10%" y1="20%" x2="90%" y2="20%" stroke="#FF2D2D" stroke-opacity="0.1" />
+      <line x1="10%" y1="30%" x2="90%" y2="30%" stroke="#FF2D2D" stroke-opacity="0.1" />
+      <line x1="10%" y1="40%" x2="90%" y2="40%" stroke="#FF2D2D" stroke-opacity="0.1" />
+      <line x1="10%" y1="50%" x2="90%" y2="50%" stroke="#FF2D2D" stroke-opacity="0.1" />
+      <line x1="10%" y1="60%" x2="90%" y2="60%" stroke="#FF2D2D" stroke-opacity="0.1" />
+      <line x1="10%" y1="70%" x2="90%" y2="70%" stroke="#FF2D2D" stroke-opacity="0.1" />
+      <line x1="10%" y1="80%" x2="90%" y2="80%" stroke="#FF2D2D" stroke-opacity="0.1" />
+    </svg>
+  </div>
+
+  <div class="container">
+    <header>
+      <div class="thermodynamic-a" role="img" aria-label="Thermodynamic A Logo">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 40 L24 12 L36 40" />
+          <path d="M24 12 L24 8" />
+        </svg>
+      </div>
+      <h1>🔴 HUMAN</h1>
+      <p class="subtitle">The Scar-Weight — Forged, Not Given</p>
+    </header>
+
+    <main>
+      <article class="scar-block" role="region" aria-labelledby="scar3">
+        <h2 class="scar-title" id="scar3">SCAR #3: Bekantan-1</h2>
+        <p>Shallowest flowing oil in Malay Basin history.<br>
+        Zero dry wells under technical lead.<br>
+        → <strong>Ditempa bukan diberi</strong></p>
+      </article>
+
+      <article class="scar-block" role="region" aria-labelledby="scar1">
+        <h2 class="scar-title" id="scar1">SCAR #1: Anak Sulung Duty</h2>
+        <p>Keeper of family maruah. Burden-carrier. Firewall.<br>
+        Scars are stationary priors — W_scar = 1.0.</p>
+      </article>
+    </main>
+
+    <footer>
+      <p>arifOS v55.5-SEAL • Muhammad Arif bin Fazil (888 Judge)</p>
+      <nav class="footer-nav" aria-label="Trinity Sites">
+        <a href="/human" aria-label="HUMAN Site (current)" aria-current="page">🔴</a>
+        <span class="footer-divider" aria-hidden="true">•</span>
+        <a href="/theory" aria-label="THEORY Site">🟡</a>
+        <span class="footer-divider" aria-hidden="true">•</span>
+        <a href="/apps" aria-label="APPS Site">🔵</a>
+      </nav>
+    </footer>
+  </div>
+</body>
+</html>

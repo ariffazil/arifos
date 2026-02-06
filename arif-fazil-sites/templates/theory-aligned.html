@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="theory">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🟡 THEORY — arifOS v55.5</title>
+  <meta name="description" content="THEORY - The Constitutional Canon of arifOS. Immutable Law.">
+  
+  <!-- Preconnect to Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <!-- Unified Trinity Tokens -->
+  <link rel="stylesheet" href="../shared/theme/unified-tokens.css">
+  
+  <style>
+    /* THEORY Theme Activation */
+    :root {
+      --trinity-primary: var(--gold);
+      --trinity-primary-10: var(--gold-10);
+      --trinity-primary-20: var(--gold-20);
+      --trinity-primary-50: var(--gold-50);
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      background: var(--trinity-slate-950);
+      color: var(--trinity-white);
+      font-family: var(--font-mono);
+      line-height: var(--leading-normal);
+      -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Container — Unified 720px (was 680px) */
+    .container {
+      max-width: var(--container-max);
+      margin: 0 auto;
+      padding: var(--container-padding);
+    }
+    
+    /* Header — Aligned */
+    header {
+      text-align: center;
+      margin-bottom: var(--header-margin);
+    }
+    
+    h1 {
+      font-size: var(--text-4xl);
+      font-weight: var(--weight-bold);
+      color: var(--trinity-primary);
+      margin: 0;
+      line-height: var(--leading-tight);
+    }
+    
+    .subtitle {
+      color: var(--trinity-gray-200);
+      font-size: var(--text-lg);
+      margin-top: var(--space-2);
+    }
+    
+    /* VOID Guard — THEORY Specific (Static, No Interaction) */
+    .void-guard {
+      background: var(--trinity-primary-10);
+      border: var(--border-width-thick) solid var(--trinity-primary);
+      padding: var(--space-6);
+      margin: var(--space-8) 0;
+      text-align: center;
+      user-select: none;
+      pointer-events: none;
+    }
+    
+    .void-title {
+      color: var(--trinity-primary);
+      font-weight: var(--weight-bold);
+      font-size: var(--text-2xl);
+      margin: 0 0 var(--space-2) 0;
+      letter-spacing: 0.1em;
+    }
+    
+    .void-guard p {
+      margin: 0;
+      color: var(--trinity-gray-200);
+      font-size: var(--text-sm);
+    }
+    
+    /* Floor Pyramid — THEORY Specific */
+    .floor-pyramid {
+      margin: var(--space-12) 0;
+      padding: var(--space-4);
+    }
+    
+    .floor-row {
+      display: flex;
+      align-items: center;
+      margin: var(--space-1) 0;
+    }
+    
+    .floor-label {
+      color: var(--trinity-primary);
+      width: 60px;
+      font-weight: var(--weight-bold);
+      font-size: var(--text-sm);
+    }
+    
+    .floor-bar {
+      height: 4px;
+      background: var(--trinity-primary);
+      margin-left: var(--space-4);
+      opacity: 0.5;
+      border-radius: var(--radius-sm);
+    }
+    
+    /* Thermodynamic A Logo — Unified */
+    .thermodynamic-a {
+      display: inline-block;
+      width: 48px;
+      height: 48px;
+      margin: var(--space-4) 0;
+    }
+    
+    .thermodynamic-a svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .thermodynamic-a path {
+      stroke: var(--trinity-primary);
+      stroke-width: 2.5;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    
+    /* Motto */
+    .motto {
+      color: var(--trinity-primary);
+      font-style: italic;
+      margin-top: var(--space-8);
+      text-align: center;
+      font-size: var(--text-lg);
+    }
+    
+    /* Footer — Aligned */
+    footer {
+      text-align: center;
+      margin-top: var(--footer-margin);
+      color: var(--trinity-gray-400);
+      font-size: var(--text-sm);
+    }
+    
+    .footer-nav {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: var(--space-3);
+      margin-top: var(--space-4);
+    }
+    
+    .footer-nav a {
+      font-size: var(--text-lg);
+      text-decoration: none;
+      transition: transform var(--duration-fast) var(--ease-out),
+                  filter var(--duration-fast) var(--ease-out);
+    }
+    
+    .footer-nav a:hover {
+      transform: scale(1.2);
+    }
+    
+    .footer-nav a:first-child:hover { filter: drop-shadow(0 0 6px var(--crimson)); }
+    .footer-nav a:nth-child(3):hover { filter: drop-shadow(0 0 6px var(--gold)); }
+    .footer-nav a:last-child:hover { filter: drop-shadow(0 0 6px var(--cyan)); }
+    
+    .footer-divider {
+      color: var(--trinity-gray-400);
+      font-size: var(--text-xs);
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+      h1 { font-size: var(--text-3xl); }
+      .subtitle { font-size: var(--text-base); }
+      .thermodynamic-a { width: 40px; height: 40px; }
+      .void-guard { padding: var(--space-4); }
+      .floor-label { width: 50px; font-size: var(--text-xs); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="thermodynamic-a" role="img" aria-label="Thermodynamic A Logo">
+        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <path d="M12 40 L24 12 L36 40" />
+          <path d="M24 12 L24 8" />
+        </svg>
+      </div>
+      <h1>🟡 THEORY</h1>
+      <p class="subtitle">The Constitutional Canon — Immutable Law</p>
+    </header>
+
+    <main>
+      <!-- VOID Guard: Static, Non-Interactive per Constraint -->
+      <section class="void-guard" role="region" aria-label="VOID Declaration" aria-readonly="true">
+        <h2 class="void-title">VOID</h2>
+        <p>This is a canonical manifesto.<br>
+        No interaction. No mutation. Only reading.</p>
+      </section>
+
+      <!-- Floor Pyramid: 13 Floors of the Constitutional Stack -->
+      <section class="floor-pyramid" role="region" aria-label="Constitutional Floor Hierarchy">
+        <div class="floor-row"><span class="floor-label">F13</span><div class="floor-bar" style="width: 100%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F12</span><div class="floor-bar" style="width: 95%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F11</span><div class="floor-bar" style="width: 90%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F10</span><div class="floor-bar" style="width: 85%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F9</span><div class="floor-bar" style="width: 80%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F8</span><div class="floor-bar" style="width: 75%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F7</span><div class="floor-bar" style="width: 70%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F6</span><div class="floor-bar" style="width: 65%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F5</span><div class="floor-bar" style="width: 60%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F4</span><div class="floor-bar" style="width: 55%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F3</span><div class="floor-bar" style="width: 50%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F2</span><div class="floor-bar" style="width: 45%" role="presentation"></div></div>
+        <div class="floor-row"><span class="floor-label">F1</span><div class="floor-bar" style="width: 40%" role="presentation"></div></div>
+      </section>
+
+      <p class="motto">"Ditempa bukan diberi" — Forged, Not Given</p>
+    </main>
+
+    <footer>
+      <p>arifOS v55.5-SEAL • Muhammad Arif bin Fazil (888 Judge)</p>
+      <nav class="footer-nav" aria-label="Trinity Sites">
+        <a href="/human" aria-label="HUMAN Site">🔴</a>
+        <span class="footer-divider" aria-hidden="true">•</span>
+        <a href="/theory" aria-label="THEORY Site (current)" aria-current="page">🟡</a>
+        <span class="footer-divider" aria-hidden="true">•</span>
+        <a href="/apps" aria-label="APPS Site">🔵</a>
+      </nav>
+    </footer>
+  </div>
+</body>
+</html>
