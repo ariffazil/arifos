@@ -174,15 +174,15 @@ scripts/
 
 ## 📄 Essential Root Files
 
-### Agent Codices (Managed in L5 SPEC)
+### Agent Codices (PROTECTED)
 
-Agent codices and system specifications are located in `333_APPS/L5_AGENTS/SPEC/` to maintain functional cohesion with the agent orchestration layer.
+The Trinity Codices are the primary operational guides for the system agents. Note: `SOUL.md` has been moved to L5-Agents SPEC for deeper functional integration.
 
 | File | Agent | Purpose |
 |:---:|:---:|:---|
 | `GEMINI.md` | **Δ** | Architect's Operational Codex |
 | `CLAUDE.md` | **Ω** | Engineer's Operational Codex |
-| `SOUL.md` | **Ψ** | Auditor's Operational Codex |
+| `SOUL.md` | **Ψ** | Auditor's Operational Codex (Managed in L5-Agents) |
 
 ### Standard OSS Files (Required)
 

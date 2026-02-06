@@ -50,8 +50,8 @@ These items are constitutionally protected and MUST remain at root:
 ### Files
 - [x] `README.md` — Entry Point
 - [x] `LICENSE` — Legal
-- [ ] `GEMINI.md` — Δ Codex (Planned Move to SPEC)
-- [ ] `CLAUDE.md` — Ω Engineer Codex (Planned Move to SPEC)
+- [x] `GEMINI.md` — Δ Codex
+- [x] `CLAUDE.md` — Ω Engineer Codex
 - [x] `SOUL.md` — Ψ Auditor Codex (MOVED to 333_APPS/L5_AGENTS/SPEC/)
 - [x] `AGENTS.md` — Agent Discovery (MOVED to 333_APPS/L5_AGENTS/SPEC/)
 - [x] `IDENTITY.md` — System Identity (MOVED to 333_APPS/L5_AGENTS/SPEC/)
@@ -159,10 +159,6 @@ Move-Item -Path "DEPLOYMENT_CONFIG.md" -Destination "docs/deployment/" -Force
 Move-Item -Path "HANDOFF_000_INIT_LOOP.md" -Destination "docs/development/" -Force
 Move-Item -Path "HEARTBEAT.md" -Destination "docs/" -Force
 Move-Item -Path "chatgpt_integration_config.md" -Destination "docs/integrations/" -Force
-
-# Move Trinity Codices to L5 SPEC
-Move-Item -Path "GEMINI.md" -Destination "333_APPS/L5_AGENTS/SPEC/" -Force
-Move-Item -Path "CLAUDE.md" -Destination "333_APPS/L5_AGENTS/SPEC/" -Force
 ```
 
 | File | Destination | Reason |
