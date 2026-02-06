@@ -35,6 +35,8 @@ FLOOR_ENFORCEMENT = {
     "asi_align": ["F5", "F6", "F9"],
     "apex_verdict": ["F5", "F3", "F8"],
     "reality_search": ["F2", "F7"],
+    "web_search": ["F2", "F6"],
+    "open_web": ["F2", "F6", "F1"],
     "vault_seal": ["F1", "F3"],
 }
 

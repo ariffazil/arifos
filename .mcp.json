@@ -1,5 +1,20 @@
 {
   "mcpServers": {
+    "perplexity": {
+      "command": "npx",
+      "args": ["-y", "@perplexity-ai/mcp-server"],
+      "env": {
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}",
+        "PERPLEXITY_TIMEOUT_MS": "300000"
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "perplexity_search",
+        "perplexity_ask",
+        "perplexity_research",
+        "perplexity_reason"
+      ]
+    },
     "hostinger-mcp": {
       "command": "cmd",
       "args": ["/c", "npx", "-y", "hostinger-api-mcp@latest"],

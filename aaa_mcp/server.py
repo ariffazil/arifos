@@ -16,7 +16,7 @@ from fastmcp import FastMCP
 from aaa_mcp.core.constitutional_decorator import constitutional_floor, get_tool_floors
 from aaa_mcp.core.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitEngine
 from aaa_mcp.services.constitutional_metrics import store_stage_result
-from aaa_mcp.tools.reality_grounding import reality_check
+from aaa_mcp.tools.reality_grounding import reality_check, open_web_page
 
 mcp = FastMCP("aaa-mcp")
 
@@ -188,6 +188,9 @@ async def reality_search(query: str, session_id: str) -> dict:
     up-to-date information or when truth confidence is low. Can be called
     at any point in the pipeline to ground reasoning in reality.
 
+    Uses Brave API if BRAVE_API_KEY is set, otherwise falls back to 
+    DuckDuckGo (no API key required).
+
     Pipeline position: Auxiliary (can be called from any stage)
     Floors enforced: F2 (Truth >= 0.99), F7 (Humility)
     """
@@ -195,6 +198,56 @@ async def reality_search(query: str, session_id: str) -> dict:
     result["session_id"] = session_id
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("reality_search")
+    result["pass"] = "reverse"
+    return result
+
+
+@mcp.tool()
+@constitutional_floor("F2", "F6")
+async def web_search(query: str, session_id: str, max_results: int = 10) -> dict:
+    """Search the web without requiring an API key.
+
+    Uses DuckDuckGo search engine which doesn't require API registration.
+    Good for finding information, news, and sources.
+
+    Args:
+        query: Search query
+        session_id: Session identifier
+        max_results: Maximum number of results (default: 10)
+
+    Floors enforced: F2 (Truth), F6 (Clarity)
+    """
+    from aaa_mcp.tools.reality_grounding import get_reality_grounding
+    
+    grounding = get_reality_grounding()
+    result = await grounding.search(query, max_results=max_results)
+    
+    result["session_id"] = session_id
+    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+    result["floors_enforced"] = get_tool_floors("web_search")
+    result["pass"] = "reverse"
+    return result
+
+
+@mcp.tool()
+@constitutional_floor("F2", "F6", "F1")
+async def open_web(url: str, session_id: str, javascript: bool = False) -> dict:
+    """Open a web page and extract its content.
+
+    Fetches the webpage content using HTTP or browser automation.
+    Use this to read articles, documentation, or any web content.
+
+    Args:
+        url: URL to open
+        session_id: Session identifier
+        javascript: Whether to execute JavaScript (slower but handles dynamic sites)
+
+    Floors enforced: F2 (Truth), F6 (Clarity), F1 (Amanah - reversible)
+    """
+    result = await open_web_page(url)
+    result["session_id"] = session_id
+    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+    result["floors_enforced"] = get_tool_floors("open_web")
     result["pass"] = "reverse"
     return result
 
