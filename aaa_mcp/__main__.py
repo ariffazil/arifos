@@ -17,7 +17,10 @@ def main():
     from .server import mcp
 
     if mode == "sse":
-        mcp.run(transport="sse")
+        import os
+
+        port = int(os.getenv("PORT", 8080))
+        mcp.run(transport="sse", port=port)
     else:
         # Default to stdio for local agents
         mcp.run(transport="stdio")

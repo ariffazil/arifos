@@ -1,8 +1,8 @@
-# L4_TOOLS — MCP Production Deployment Manifest
+# L4_TOOLS — MCP Deployment Manifest (v55.5-HARDENED)
 
-**Location:** `333_APPS/L4_TOOLS/`  
-**Canonical Source:** `codebase/mcp/`  
-**Status:** 🟢 LIVE at https://arif-fazil.com
+**Location:** `333_APPS/L4_TOOLS/`
+**Canonical Source:** `aaa_mcp/`
+**Status:** 🟢 LIVE (Production)
 
 ---
 
@@ -12,80 +12,63 @@
 L4_TOOLS/
 ├── README.md                    # Layer documentation
 ├── MANIFEST.md                  # This file — deployment guide
-└── mcp/                         # MCP server implementation
-    ├── __init__.py              # Package initialization
-    ├── __main__.py              # CLI entry point
-    ├── server.py                # Main MCP server (stdio)
-    ├── sse.py                   # SSE transport server
-    ├── models.py                # Pydantic models/schemas
-    ├── bridge.py                # Constitutional bridge
-    ├── mcp_config.json          # Tool schemas & config
-    ├── HUMAN_GUIDE.md           # Human usage guide
-    └── tools/                   # 7 Canonical Tools
-        ├── __init__.py
-        ├── canonical_trinity.py # Core 7 tools (_init_, _agi_, etc.)
-        ├── agi_tool.py          # AGI (Mind) tool implementation
-        ├── asi_tool.py          # ASI (Heart) tool implementation
-        ├── apex_tool.py         # APEX (Soul) tool implementation
-        ├── vault_tool.py        # VAULT (Seal) tool implementation
-        └── mcp_tools_v53.py     # Legacy tool implementations
+│
+└── mcp-configs/                 # Platform-specific configurations
+    ├── antigravity/             # Gemini/Antigravity
+    ├── claude/                  # Claude Desktop
+    ├── codex/                   # OpenAI Codex
+    └── kimi/                    # Kimi AI
 ```
+
+> **Note:** The actual code implementation lives in `aaa_mcp/` at the project root. This directory contains only documentation and configuration.
 
 ---
 
-## 🔧 The 7 Canonical Tools
+## 🔧 The 9 Canonical Tools (v55.5)
 
-| Tool | File | Stage | Floors Enforced | Status |
-|------|------|-------|-----------------|--------|
-| `_init_` | `canonical_trinity.py` | 000 | F11, F12 | ✅ Production |
-| `_agi_` | `agi_tool.py` | 111-333 | F2, F4, F7 | ✅ Production |
-| `_asi_` | `asi_tool.py` | 444-666 | F1, F5, F6 | ✅ Production |
-| `_apex_` | `apex_tool.py` | 777-888 | F3, F8, F9 | ✅ Production |
-| `_vault_` | `vault_tool.py` | 999 | F1 | ✅ Production |
-| `_trinity_` | `canonical_trinity.py` | Full cycle | All | ✅ Production |
-| `_reality_` | `canonical_trinity.py` | External | F7 | ✅ Production |
-
----
-
-## 🚀 Deployment Options
-
-### Option 1: Direct from codebase/ (Recommended)
-```bash
-# Production deployment uses canonical source
-python -m mcp
-# or
-python -m mcp --transport sse
-```
-
-### Option 2: From 333_APPS/L4_TOOLS/ (Mirror)
-```bash
-# This directory is a mirror for documentation completeness
-python -m 333_APPS.L4_TOOLS.mcp
-```
+| Tool | Stage | Role | Floors Enforced | Status |
+|------|-------|------|-----------------|--------|
+| `init_gate` | 000 | Gate | F11, F12 | ✅ Production |
+| `agi_sense` | 111 | Mind | F12 | ✅ Production |
+| `agi_think` | 222 | Mind | F4 | ✅ Production |
+| `agi_reason` | 333 | Mind | F2, F4, F7, F10 | ✅ Production |
+| `asi_empathize` | 555 | Heart | F5, F6, F9 | ✅ Production |
+| `asi_align` | 666 | Heart | F9 | ✅ Production |
+| `apex_verdict` | 888 | Soul | F3, F8, F11 | ✅ Production |
+| `reality_search`| — | Ground | F7, F10 | ✅ Production |
+| `vault_seal` | 999 | Seal | F1 | ✅ Production |
 
 ---
 
-## 🔗 Live Deployment
+### Deployment Options
 
-| Endpoint | URL | Status |
-|----------|-----|--------|
-| Health Check | `https://arif-fazil.com/health` | 🟢 Online |
-| MCP SSE | `https://arif-fazil.com/mcp` | 🟢 Online |
-| Dashboard | `https://arif-fazil.com/dashboard` | 🟢 Online |
+### Option 1: Standard Production (Recommended)
+```powershell
+# Updates dependencies and runs server
+pip install -e ".[dev]"
+python -m aaa_mcp
+```
+
+### Option 2: SSE Transport (Remote/Railway)
+```powershell
+# Runs server on port 8000 (default)
+python -m aaa_mcp sse
+```
 
 ---
 
 ## 📋 Client Configuration
 
-### Claude Desktop (`claude_desktop_config.json`)
+### Claude Desktop
+**File:** `%APPDATA%\Claude\claude_desktop_config.json`
 ```json
 {
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "mcp", "--transport", "stdio"],
+      "args": ["-m", "aaa_mcp"],
       "env": {
-        "ARIFOS_HOME": "~/.arifos",
+        "ARIFOS_HOME": "C:\\Users\\User\\arifOS",
         "ARIFOS_MODE": "PROD"
       }
     }
@@ -93,16 +76,14 @@ python -m 333_APPS.L4_TOOLS.mcp
 }
 ```
 
-### Cursor (`.cursor/mcp.json`)
+### Cursor
+**File:** `.cursor/mcp.json`
 ```json
 {
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "mcp"],
-      "env": {
-        "ARIFOS_MODE": "PROD"
-      }
+      "args": ["-m", "aaa_mcp"]
     }
   }
 }
@@ -112,46 +93,15 @@ python -m 333_APPS.L4_TOOLS.mcp
 
 ## 🛡️ Constitutional Enforcement
 
-All tools enforce the 13 Constitutional Floors:
+All tools bind to the Core Kernels (`codebase.agi`, `codebase.asi`, `codebase.apex`) which implement the **13 Constitutional Floors**.
 
-```python
-# From canonical_trinity.py
-FLOORS_ENFORCED = {
-    "_init_": ["F11", "F12"],           # Auth + Injection
-    "_agi_": ["F2", "F4", "F7"],        # Truth + Clarity + Humility
-    "_asi_": ["F1", "F5", "F6"],        # Amanah + Peace + Empathy
-    "_apex_": ["F3", "F8", "F9"],       # Tri-Witness + Genius + Anti-Hantu
-    "_vault_": ["F1"],                   # Amanah (audit trail)
-    "_trinity_": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13"]
-}
-```
-
----
-
-## 📊 Version History
-
-| Version | Date | Changes |
-|---------|------|---------|
-| v53.0 | 2024-Q4 | Initial MCP implementation |
-| v53.5 | 2024-Q4 | Added SSE transport |
-| v54.0 | 2025-Q1 | Hardened enforcement |
-| v54.1 | 2025-Q1 | Production deployment |
-| v55.5 | 2026-Q1 | Universal MCP (planned) |
-
----
-
-## 🔗 Related Documentation
-
-- [L4_TOOLS README](./README.md) — Layer overview
-- [codebase/mcp/](../../codebase/mcp/) — Canonical source
-- [000_THEORY/](../../000_THEORY/) — Constitutional theory
-- [HUMAN_GUIDE.md](./mcp/HUMAN_GUIDE.md) — User guide
+- **Hard Floors (VOID):** F1, F2, F10, F11, F12
+- **Soft Floors (SABAR):** F3, F4, F5, F6, F7, F8, F9, F13
 
 ---
 
 ## 👑 Authority
 
-**Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v54.1-SEAL  
-**Live:** [arif-fazil.com](https://arif-fazil.com)  
+**Sovereign:** Muhammad Arif bin Fazil
+**Version:** v55.5-HARDENED
 **Creed:** DITEMPA BUKAN DIBERI

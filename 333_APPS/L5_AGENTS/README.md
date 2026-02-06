@@ -1,14 +1,8 @@
 # L5_AGENTS — Autonomous Federation (Multi-Agent System)
 
-> **🟡 STATUS: IGNITION SUCCESSFUL (Sleeping Giant)**
->
-> **The Environment is ALIVE. The Agents are DREAMING.**
-
-**Level 5 | 85% Capability Readiness | High Complexity | Experimental**
+**Level 5 | 85% Readiness | High Complexity | Experimental**
 
 > *"Agents are tools with autonomy — they need an Environment to live."*
-
-Also known as: **The 4-Agent Federation** — Part of the FEDERATION reality protocol.
 
 ---
 
@@ -16,7 +10,7 @@ Also known as: **The 4-Agent Federation** — Part of the FEDERATION reality pro
 
 L5_AGENTS wraps the 000-999 metabolic loop in **autonomous entities** that can plan, execute, retry, and self-correct.
 
-We have solved the "Empty Shell" problem by building the **Physics Engine** first. The agents are currently Stubs, but they are being driven by a fully functional **Hypervisor** that enforces time, energy, and constitutional laws.
+**Status:** The **Environment (Physical Layer)** is ALIVE. The **Agents (Social Layer)** are currently STUBS awaiting full wiring to L4 Tools (`aaa_mcp`).
 
 ---
 
@@ -36,14 +30,14 @@ Autonomy:  Medium (Environment drives execution)
 We distinguish between the **Social Layer** (The Agents) and the **Physical Layer** (The Environment).
 
 ### 1. The Social Layer (The Organisms)
-*Status: Stubs (0% Logic)*
+*Status: Stubs (Logic needs wiring to `aaa_mcp`)*
 
-| Agent | Symbol | Role | Implementation Status |
+| Agent | Symbol | Role | Maps to L4 Tool |
 |:---:|:---:|:---|:---|
-| **ARCHITECT** | Δ | Design & Plan | ❌ Stub (`pass`) |
-| **ENGINEER** | Ω | Build & Safety | ❌ Stub (`pass`) |
-| **AUDITOR** | 👁 | Verify & Truth | ❌ Stub (`pass`) |
-| **VALIDATOR** | Ψ | Judge & Seal | ❌ Stub (`pass`) |
+| **ARCHITECT** | Δ | Design & Plan | `agi_sense` / `agi_reason` |
+| **ENGINEER** | Ω | Build & Safety | `asi_empathize` / `asi_align` |
+| **AUDITOR** | 👁 | Verify & Truth | `reality_search` |
+| **VALIDATOR** | Ψ | Judge & Seal | `apex_verdict` / `vault_seal` |
 
 ### 2. The Physical Layer (The Habitat)
 *Status: ALIVE (100% Functional)*
@@ -57,48 +51,29 @@ We distinguish between the **Social Layer** (The Agents) and the **Physical Laye
 
 ---
 
-## 🔥 Ignition Proof (`ignite_test.py`)
-
-We have successfully "Ignited" the Architect Stub using the Hypervisor.
-
-```bash
-$ python ignite_test.py
-
-===========================================
-🔥 IGNITION TEST: L5 AGENTIC ENVIRONMENT
-===========================================
-
-INPUT: 'Design a better world.'
-IGNITION!
-CYCLE 1: IGNITION
-CYCLE 1: COMPLETE | Cost: $0.0004
-
-RESULT:
-AgentResult(verdict='SEAL', agent='ARCHITECT', ...)
-
-PHYSICS CHECK:
-Token Cost: $0.000400
-
-✅ IGNITION SUCCESSFUL: Agent is ALIVE.
-```
-
-The system is no longer "0% Functional". It is a **Sleeping Giant**. The heart is beating; we just need to wake the brain.
-
----
-
-## 📂 Directory Structure
+## 📂 Directory Structure (v55.5-HARDENED)
 
 ```
 L5_AGENTS/
+├── README.md             # This file
+├── SPEC/                 # ✅ NEW - Constitutional Spec & Identity
+│   ├── IDENTITY.md       # Who Am I?
+│   ├── SOUL.md           # Constitutional Executor Identity
+│   ├── USER.md           # Human Sovereign Identity (888 Judge)
+│   ├── MEMORY.md         # Epistemic Grounding
+│   ├── AGENTS.md         # Agent Guidelines
+│   └── TOOLS.md          # Local Environment Notes
 ├── agents/               # The Social Layer (Stubs)
-│   ├── architect.py
-│   ├── engineer.py
-│   └── ...
-├── environment/          # The Physical Layer (ALIVE)
-│   ├── hypervisor.py     # The Ignition Engine
-│   ├── physics.py        # The Laws of Nature
-│   └── __init__.py
-└── README.md
+│   ├── architect.py      # Δ Mind Agent
+│   ├── engineer.py       # Ω Heart Agent
+│   ├── auditor.py        # 👁 Witness Agent
+│   ├── validator.py      # Ψ Soul Agent
+│   └── orchestrator.py   # Federation Router
+│
+└── environment/          # The Physical Layer (ALIVE)
+    ├── hypervisor.py     # The Ignition Engine
+    ├── physics.py        # The Laws of Nature
+    └── __init__.py
 ```
 
 ---
@@ -107,19 +82,22 @@ L5_AGENTS/
 
 ### v55.5 (Current) — The Spark
 - ✅ **Physical Layer:** Hypervisor and Physics Kernel implemented.
-- ✅ **Ignition:** `ignite_test.py` proves the loop works.
-- 🔴 **Social Layer:** Agents remain stubs.
+- ✅ **Ignition:** Loop proven working.
+- ✅ **Context:** Moved `IDENTITY`, `SOUL`, `USER`, `MEMORY`, `AGENTS`, `TOOLS` to `SPEC/`.
+- 🟡 **Social Layer:** Agents reference legacy `mcp_server`. Needs update to `aaa_mcp`.
 
-### v55.5 (Target Q1 2026) — The Awakening
-- [ ] **Wake the Architect:** Connect `ARCHITECT` stub to `agi_reason` (L4 Tool).
-- [ ] **Wake the Engineer:** Connect `ENGINEER` stub to `asi_empathize` (L4 Tool).
-- [ ] **Wake the Judge:** Connect `VALIDATOR` stub to `apex_verdict` (L4 Tool).
+### v56.0 (Future) — The Awakening
+- [ ] Connect `ARCHITECT` to `aaa_mcp.tools.agi`
+- [ ] Connect `ENGINEER` to `aaa_mcp.tools.asi`
+- [ ] Connect `VALIDATOR` to `aaa_mcp.tools.apex`
+- [ ] Wire Agents to load `SPEC/` context on session init.
+- [ ] Enable full autonomous cycles.
 
 ---
 
 ## 👑 Authority
 
-**Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v55.5 (Ignited)  
-**Status:** 🟡 **SLEEPING GIANT** — Environment is alive, Agents are dreaming.  
+**Sovereign:** Muhammad Arif bin Fazil
+**Version:** v55.5-HARDENED
+**Status:** 🟡 **SLEEPING GIANT**
 **Creed:** DITEMPA BUKAN DIBERI

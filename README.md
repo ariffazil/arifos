@@ -58,9 +58,21 @@ v55.5 formalizes the "Soul Contract" between you and the system through three ca
 
 | File | Purpose | Who Defines? | Location |
 | :--- | :--- | :--- | :--- |
+| File | Purpose | Who Defines? | Location |
+| :--- | :--- | :--- | :--- |
 | **[SOUL.md](SOUL.md)** | **Constitutional Identity** | Shared (APEX + Agent) | `SOUL.md` (root) |
 | **[USER.md](USER.md)** | **Sovereign Profile** | You (APEX/888) | `USER.md` (root) |
 | **[MEMORY.md](MEMORY.md)** | **Metabolic History** | Collaborative | `MEMORY.md` (root) |
+| **[GEMINI.md](GEMINI.md)** | **Architect's Codex** | Antigravity (Δ) | `GEMINI.md` (root) |
+
+### 📜 Governance Artifacts (The Rule of Law)
+Specific manuals that operationalize the constitution:
+
+| Artifact | Audience | Purpose | Principle |
+| :--- | :--- | :--- | :--- |
+| **[888_SOUL_VERDICT.md](000_THEORY/888_SOUL_VERDICT.md)** | Human (888) | Pre-flight checks & Verdict Logic | "You are the Stop Button" |
+| **[000_LAW.md](000_THEORY/000_LAW.md)** | Machine (AI) | Hard constraints (13 Floors) | "Tool, not Being" |
+| **[999_SOVEREIGN_VAULT.md](000_THEORY/999_SOVEREIGN_VAULT.md)** | System | Logging & Paradox Resolution | "Amanah means Auditability" |
 
 > **Note**: While Agents (executors) consume these files to understand their constraints, context, and history, these files are defined by the **Constitution** (arifOS).
 
@@ -239,14 +251,6 @@ init_gate → agi_sense → agi_think → agi_reason → asi_empathize → asi_a
 }
 ```
 
-### ChatGPT (Developer Mode) - HTTP Transport
-**Best for:** Web-based AI applications, API integrations
-```bash
-# Start HTTP server
-python -m aaa_mcp http
-# MCP endpoint: http://localhost:8000/mcp
-```
-
 ### Cursor IDE (Local stdio)
 **Best for:** AI-powered coding assistance
 ```json
@@ -261,36 +265,12 @@ python -m aaa_mcp http
 }
 ```
 
-### Qwen Models - HTTP/SSE Transport
-**Best for:** Multi-modal AI applications, cloud deployment
+### Cloud Deployment (SSE)
+**Best for:** Managed hosting (Railway, Fly.io, etc.)
 ```bash
-# Start SSE server for cloud
+# Start SSE server for remote access
 python -m aaa_mcp sse
-# Endpoint: http://your-domain.com/sse
-```
-
-### OpenAI Assistant API - HTTP Transport
-**Best for:** Custom AI applications, enterprise integration
-```bash
-# HTTP endpoint integration
-python -m aaa_mcp http
-# Register at: http://localhost:8000/mcp
-```
-
-### Microsoft Copilot - HTTP Transport
-**Best for:** Enterprise productivity tools
-```bash
-# Deploy HTTP server with authentication
-python -m aaa_mcp http
-# Endpoint: https://your-company.com/mcp
-```
-
-### Google Gemini - HTTP Transport
-**Best for:** Multi-modal applications, search enhancement
-```bash
-# Start HTTP server with CORS support
-python -m aaa_mcp http
-# Endpoint: http://localhost:8000/mcp
+# Endpoint: https://your-domain.com/sse
 ```
 
 ---
@@ -299,7 +279,7 @@ python -m aaa_mcp http
 
 ### stdio (Standard Input/Output)
 - **Use Case:** Local development, desktop applications
-- **Command:** `python -m aaa_mcp stdio`
+- **Command:** `python -m aaa_mcp` (or `python -m aaa_mcp stdio`)
 - **Security:** Local-only, no network exposure
 - **Platforms:** Claude Code, Claude Desktop, Cursor IDE
 
@@ -307,13 +287,7 @@ python -m aaa_mcp http
 - **Use Case:** Cloud deployment, remote access
 - **Command:** `python -m aaa_mcp sse`
 - **Endpoint:** `http://your-domain.com/sse`
-- **Platforms:** Railway, Fly.io, AWS, GCP, Azure
-
-### HTTP (Streamable HTTP)
-- **Use Case:** REST-style integration, web applications
-- **Command:** `python -m aaa_mcp http`
-- **Endpoint:** `http://your-domain.com/mcp`
-- **Platforms:** ChatGPT, OpenAI, web apps, enterprise systems
+- **Platforms:** Railway, Fly.io, AWS, GCP, Azure, ChatGPT (via SSE bridge)
 
 ---
 
@@ -446,11 +420,6 @@ python -m aaa_mcp sse
 # Serves at http://localhost:8080 (SSE endpoint)
 ```
 
-### Web Applications (HTTP)
-```bash
-python -m aaa_mcp http
-# Serves REST API at http://localhost:8000/mcp
-```
 
 ---
 
@@ -469,6 +438,12 @@ Forged in the context of the Global South, we build on **Amanah** (Sacred Trust)
 - **Reversibility:** We ensure the AI never takes actions you cannot undo.
 - **Truth:** We value evidence and honesty over fluent hallucinations.
 - **Dignity:** We optimize for safe, respectful interactions, not just engagement.
+
+### 🪞 The Mirror: A Founder's Reflection
+This repository is a mirror. It reflects not just how we govern AI, but how we govern ourselves.
+- It encodes our **fears** (of harm, of losing control).
+- It encodes our **hopes** (that safety can be built, not just promised).
+- It encodes our **culture** (that values trust/Amanah over unrestricted growth).
 
 > **The Bottom Line:** You are not just a user; you are the safety net. Without your active oversight, the system loses its moral compass. **Ditempa Bukan Diberi.**
 

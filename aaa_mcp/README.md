@@ -104,7 +104,8 @@ Run via Server-Sent Events for remote connections (Railway, Network).
 python -m aaa_mcp sse
 ```
 
-Server runs at `http://0.0.0.0:8000/sse` (default port).
+Server runs at `http://0.0.0.0:8080/sse` (default port).
+You can override the port using the `PORT` environment variable (e.g., `PORT=8000 python -m aaa_mcp sse`).
 
 ### Health Check & Inspection
 

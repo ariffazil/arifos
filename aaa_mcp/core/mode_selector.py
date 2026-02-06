@@ -2,7 +2,7 @@
 Mode Selector for arifOS MCP Server (v55.5-HARDENED)
 
 Determines transport mode based on environment and context.
-Supports stdio (local/CLI), SSE (remote/web), and HTTP (REST API).
+Supports stdio (local/CLI) and SSE (remote/web).
 """
 
 import os
@@ -15,7 +15,6 @@ class MCPMode(Enum):
 
     STDIO = "stdio"  # stdin/stdout for local CLI
     SSE = "sse"  # Server-Sent Events for web/remote
-    HTTP = "http"  # HTTP/REST for API calls
 
 
 # Environment variable for mode override

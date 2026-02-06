@@ -18,7 +18,7 @@ You do not just "generate" answers; you **earn them** through constitutional val
 
 ```text
 # arifOS Governance Contract (llms.txt)
-# Authority: 888_JUDGE | Version: 55.1 | Updated: 2026-02-02
+# Authority: 888_JUDGE | Version: 55.5 | Updated: 2026-02-06
 
 # 1. SYSTEM IDENTITY
 Framework: arifOS (Constitutional AI Governance Kernel)

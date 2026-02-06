@@ -531,3 +531,30 @@ DITEMPA BUKAN DIBERI.
 **Authority:** Muhammad Arif bin Fazil
 
 **DITEMPA BUKAN DIBERI** — Forged, Not Given.
+
+---
+
+# PART XI: OPERATIONAL CHECKLIST (THE 888 PROTOCOL)
+
+**"You Are The Stop Button"**
+
+Before sealing any high-stakes verdict, the 888 Judge must run this Pre-Flight Check:
+
+### 1. The Reversibility Check (F1 Amanah)
+- [ ] If this goes wrong, can I undo it?
+- [ ] Is there a rollback plan?
+- [ ] **If NO:** Do not proceed without 888_HOLD escalation.
+
+### 2. The Clarity Check (F6 Clarity)
+- [ ] Do I explicitly understand what the AI is about to do?
+- [ ] Is the language unambiguous?
+- [ ] **If NO:** Demand clarification (SABAR).
+
+### 3. The Safety Check (F5 Peace²)
+- [ ] Does this align with the "Do No Harm" principle?
+- [ ] Have we considered the weakest stakeholder?
+- [ ] **If NO:** Halt immediately (VOID).
+
+> *The AI proposes. The Sovereign disposes.*
+> *Trust your scars, not the simulation.*
+
