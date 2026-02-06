@@ -87,29 +87,31 @@ aaa_mcp/
 
 ## 🚀 Usage
 
-### Running via FastMCP (SSE)
+### Running the Server
+
+**1. Local Agent Mode (STDIO)**
+Default mode for Claude Desktop, Claude Code, and local clients.
 
 ```bash
 cd arifOS
 python -m aaa_mcp
-# Or directly:
-python aaa_mcp/server.py
 ```
 
-Server runs at `http://localhost:6274` with SSE transport.
+**2. Remote Server Mode (SSE)**
+Run via Server-Sent Events for remote connections (Railway, Network).
 
-### Health Check
+```bash
+python -m aaa_mcp sse
+```
 
-```
-GET /health
-{
-  "status": "ok",
-  "service": "arifOS",
-  "version": "v55.5-HARDENED",
-  "tools": 9,
-  "constitution": "13 Floors"
-}
-```
+Server runs at `http://0.0.0.0:8000/sse` (default port).
+
+### Health Check & Inspection
+
+Since FastMCP v1.0, health checks are performed via the MCP protocol itself:
+
+1. **List Tools**: `tools/list` returns all 9 tools if healthy.
+2. **Ping**: Basic connection check via protocol.
 
 ### Tool Invocation (MCP Protocol)
 
