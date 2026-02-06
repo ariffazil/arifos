@@ -31,7 +31,7 @@ from typing import Any, Dict, List, Optional
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from aaa_mcp.services.constitutional_metrics import get_stage_result, store_stage_result
-from aaa_mcp.session_ledger import seal_memory
+from aaa_mcp.sessions.session_ledger import seal_memory
 from codebase.system.apex_prime import APEXPrime
 from codebase.vault import should_seal_to_vault
 
@@ -799,7 +799,7 @@ class APEXJudicialCore:
 
     @staticmethod
     def _sessions_dir() -> Path:
-        from mcp_server.session_ledger import SESSION_PATH
+        from aaa_mcp.sessions.session_ledger import SESSION_PATH
 
         return SESSION_PATH
 

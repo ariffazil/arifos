@@ -13,8 +13,8 @@ from typing import Optional
 
 from fastmcp import FastMCP
 
-from aaa_mcp.constitutional_decorator import constitutional_floor, get_tool_floors
-from aaa_mcp.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitEngine
+from aaa_mcp.core.constitutional_decorator import constitutional_floor, get_tool_floors
+from aaa_mcp.core.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitEngine
 from aaa_mcp.services.constitutional_metrics import store_stage_result
 from aaa_mcp.tools.reality_grounding import reality_check
 
