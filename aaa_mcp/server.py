@@ -189,7 +189,7 @@ async def asi_align(query: str, session_id: str) -> dict:
 
 
 @mcp.tool()
-@constitutional_floor("F3", "F8")
+@constitutional_floor("F5", "F3", "F8")
 async def apex_verdict(query: str, session_id: str) -> dict:
     """Final constitutional verdict — the APEX Soul's judgment.
 
@@ -198,7 +198,7 @@ async def apex_verdict(query: str, session_id: str) -> dict:
     PARTIAL (warning), or SABAR (repair needed). This is the decision gate.
 
     Pipeline position: APEX (after ASI stages, before vault_seal)
-    Floors enforced: F3 (Tri-Witness consensus), F8 (Genius G >= 0.80)
+    Floors enforced: F5 (Peace), F3 (Tri-Witness consensus), F8 (Genius G >= 0.80)
     Next step: vault_seal to record the verdict immutably
     """
     engine = APEXEngine()
@@ -254,7 +254,7 @@ async def vault_seal(session_id: str, verdict: str, payload: dict) -> dict:
         result = await ledger.append(session_id, verdict, payload)
         return {
             "verdict": "SEALED",
-            "seal": result["seal"],
+            "seal": result.get("seal", f"inmem-{result.get('sequence', 0)}"),
             "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
             "floors_enforced": get_tool_floors("vault_seal"),
             "pass": "reverse",

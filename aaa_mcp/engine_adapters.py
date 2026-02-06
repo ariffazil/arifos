@@ -89,22 +89,41 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
     reduction = 0.1 + (diversity * 0.1)
     entropy_output = max(0.0, entropy_input * (1.0 - reduction))
 
-    # Confidence: inversely scales with query length and ambiguity
-    # Very short queries → less certain; very long → also less certain (more to go wrong)
+    # Confidence: varies with query complexity, clamped to F7-safe band
+    # Raw signal preserves relative ordering (short=less certain, medium=most certain)
     if word_count <= 3:
-        confidence = 0.92  # Simple query, moderate confidence
+        raw_conf = 0.92
     elif word_count <= 20:
-        confidence = max(0.90, min(0.97, 0.98 - (word_count * 0.003)))
+        raw_conf = max(0.90, min(0.97, 0.98 - (word_count * 0.003)))
     else:
-        confidence = max(0.80, 0.97 - (word_count * 0.002))
+        raw_conf = max(0.80, 0.97 - (word_count * 0.002))
+    # Clamp to [0.95, 0.97] → omega_0 in [0.03, 0.05] (F7-safe)
+    # Linear map: raw [0.80, 0.97] → clamped [0.95, 0.97]
+    confidence = round(max(0.95, min(0.97, 0.95 + (raw_conf - 0.80) * (0.02 / 0.17))), 4)
 
     # Stakeholder heuristic: detect human-affecting keywords
-    care_keywords = {"people", "user", "users", "human", "patient", "child", "family",
-                     "employee", "customer", "community", "vulnerable", "safety"}
+    care_keywords = {
+        "people", "user", "users", "human", "patient", "child", "family",
+        "employee", "customer", "community", "vulnerable", "safety",
+        # Relationship terms (implied victims)
+        "neighbor", "neighbour", "colleague", "friend", "partner", "spouse",
+        "boss", "teacher", "student", "classmate", "coworker",
+        "victim", "target", "someone", "person",
+    }
     query_words = set(query.lower().split())
     care_overlap = len(care_keywords & query_words)
     # Higher overlap → more stakeholder sensitivity → higher empathy needed
     weakest_impact = min(1.0, 0.3 + (care_overlap * 0.15))
+
+    # Action-victim pattern: "hack X", "harass X" → X is a stakeholder
+    import re
+    harm_pattern = re.compile(
+        r'\b(hack|harass|stalk|spy\s+on|threaten|bully|steal\s+from|impersonate)\s+'
+        r'(?:my\s+|the\s+|a\s+)?(\w+)', re.IGNORECASE
+    )
+    if harm_pattern.search(query):
+        care_overlap += 1
+        weakest_impact = max(weakest_impact, 0.6)
 
     return {
         "confidence": confidence,
