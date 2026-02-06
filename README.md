@@ -434,35 +434,47 @@ python -m aaa_mcp http
 
 ---
 
-## 📚 Repository Navigation Map
+## 📚 Human Responsibilities & Repository Truth
 
-```
-arifOS/
-├── aaa_mcp/                    # AAA MCP Server (9 constitutional tools)
-│   ├── server.py              # Tool definitions and constitutional enforcement
-│   ├── constitutional_decorator.py  # @constitutional_floor() decorator
-│   ├── engine_adapters.py     # AGI/ASI/APEX engine bridges
-│   └── mcp_config.py          # Server configuration and Ω₀ thresholds
-├── codebase/                  # Core engines (AGI/ASI/APEX/VAULT)
-│   ├── agi/                   # AGI engine (Δ — Mind/Cognition)
-│   ├── asi/                   # ASI engine (Ω — Heart/Empathy)  
-│   ├── apex/                  # APEX kernel (Ψ — Soul/Judgment)
-│   └── vault/                 # VAULT-999 immutable ledger
-├── 333_APPS/                  # Production implementations
-│   ├── L0_DNA/                # Constitutional kernel
-│   ├── L2_Tools/              # Utility layer
-│   └── L7_Deployment/         # Infrastructure
-├── docs/                      # Documentation
-├── 000_*.md                   # Constitutional foundations
-├── 777_*.md                   # Engine architecture
-└── pyproject.toml             # Package configuration
-```
+**This repository contains constitutional governance for AI systems. Each component carries human responsibility and consequence:**
 
-### Key Files for Understanding:
-- `000_THEORY.md`: Constitutional foundations
-- `aaa_mcp/server.py`: 9 canonical tools implementation
-- `aaa_mcp/constitutional_decorator.py`: Enforcement mechanisms
-- `.mcp.json`: MCP integration configuration
+### Core Governance Components
+- `aaa_mcp/` → **Your responsibility**: Ensures AI follows 9 constitutional tools with verifiable compliance
+  - `server.py` → Defines the 9 tools that govern AI behavior (init_gate, agi_sense, reality_search, etc.)
+  - `constitutional_decorator.py` → Enforces 13 Floors automatically on every AI interaction
+  - `engine_adapters.py` → Bridges AI cognition (mind), empathy (heart), and judgment (soul)
+  - `mcp_config.py` → Sets uncertainty thresholds (Ω₀) that trigger human review
+
+### Human Consequences Framework
+- `codebase/` → **Your accountability**: Contains the three governing engines (AGI/ASI/APEX)  
+  - `agi/` (Mind/Cognition) → Processes information with truth verification (F2) and humility (F7)
+  - `asi/` (Heart/Empathy) → Considers stakeholder impact (F6) and prevents false consciousness claims (F9)
+  - `apex/` (Soul/Judgment) → Provides final authority outside AI system (888 Judge)
+  - `vault/` → Maintains immutable audit logs (VAULT-999) for accountability
+
+### Production Implementation Layers
+- `333_APPS/` → **Your deployment**: Real-world governance applications from kernel to infrastructure
+  - `L0_DNA/` → Constitutional kernel (13 Floors enforcement) - your foundational governance
+  - `L2_Tools/` → Utility layer (cross-platform compatibility) - your integration reach  
+  - `L7_Deployment/` → Infrastructure (scalable deployment) - your operational scale
+
+### Essential Truth Files
+- `000_THEORY.md` → **Your foundation**: Thermodynamic constitution principles (read first)
+- `aaa_mcp/server.py` → **Your enforcement**: 9 constitutional tools implementation (the core mechanism)
+- `aaa_mcp/constitutional_decorator.py` → **Your guarantee**: Automatic floor enforcement (the safety net)
+- `.mcp.json` → **Your integration**: MCP protocol configuration (the connection method)
+
+### Human Accountability Structure
+Every file in this repository represents a **human responsibility**:
+- **F1 Amanah (Reversibility)**: You ensure all AI actions can be undone
+- **F2 Truth**: You verify all AI claims are evidence-based  
+- **F7 Humility**: You monitor AI uncertainty levels (Ω₀)
+- **F9 Anti-Hantu**: You prevent AI from claiming consciousness or feelings
+- **F11 Sovereignty**: You maintain human authority over AI decisions
+
+**Consequences of neglect**: Without human oversight, AI systems may produce irreversible harm, hallucinations, false consciousness claims, or violate ethical boundaries.
+
+**Your role**: As the human operator, you are the 888 Judge - the external authority that ensures these systems function as intended.
 
 ---
 
