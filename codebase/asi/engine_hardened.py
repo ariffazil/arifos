@@ -397,7 +397,7 @@ class TrinitySelf:
         to prevent double-counting (e.g., "employee" and "employees"
         don't create two separate stakeholders).
 
-        v55.6: Upgraded from 5 types / ~30 keywords to 9 layers / ~150 keywords.
+        v55.5: Upgraded from 5 types / ~30 keywords to 9 layers / ~150 keywords.
         """
         stakeholders = []
         query_lower = query.lower()
@@ -495,7 +495,7 @@ class TrinitySelf:
         F1: Check if action is reversible.
         Returns reversibility score (0-1).
 
-        v55.6: Expanded from 10 keywords to ~45. Checks multi-word phrases
+        v55.5: Expanded from 10 keywords to ~45. Checks multi-word phrases
         first (e.g., "dry run", "remove forever"), then single words.
         """
         query_lower = query.lower()

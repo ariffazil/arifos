@@ -31,7 +31,7 @@ The renamed document clarifies:
 - **Judgment** (Ψ APEX) — Authority to constrain
 - **Security** emerges from their intersection
 
-This aligns with arifOS v55.2:
+This aligns with arifOS v55.5:
 - F1 Amanah (Trust through Reversibility)
 - F5 Peace² (Stability)
 - F11 Authority (Command Chain)

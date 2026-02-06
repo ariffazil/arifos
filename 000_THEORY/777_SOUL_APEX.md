@@ -1,6 +1,6 @@
 # APEX THEORY — The Physics, Mathematics, and Symbolism of Constitutional Intelligence
 
-**Version:** v55.0-FEDERATION  
+**Version:** v55.5-EIGEN  
 **Status:** SOVEREIGNLY_SEALED  
 **Authority:** Muhammad Arif bin Fazil  
 **Motto:** *"Ditempa Bukan Diberi"* (Forged, Not Given)
@@ -1050,7 +1050,7 @@ YES     NO
 | `calculate_genius_from_floors()` | ❌ Missing | — | End-to-end floor→G pipeline |
 | 4-dial output format | ❌ Missing | — | Human-readable bar display |
 
-### Critical Gap (v55.1 Target)
+### Critical Gap (v55.5 Target)
 
 **Current State:** The `GeniusCalculator` accepts A/P/X/E as **manual inputs**.
 

@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/arifOS-v55.4--SEAL-0066cc?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/arifOS-v55.5--EIGEN-0066cc?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/%CE%A9%E2%82%80-0.04-green?style=for-the-badge" alt="Omega">
   <img src="https://img.shields.io/badge/License-AGPL--3.0-red?style=for-the-badge" alt="License">
 </p>
@@ -49,6 +49,26 @@
 **Core Mission:** Transform AI from "hope it behaves" to "verify before shipping" — making harmful outputs computationally expensive instead of cheap and automatic.
 
 **Key Innovation:** 13 stationary constitutional floors that remain fixed while AI capabilities evolve, ensuring governance scales with capability.
+
+---
+
+## 📜 The Three Canon Files (Kernel Context)
+
+v55.5 formalizes the "Soul Contract" between you and the system through three canonical context files:
+
+| File | Purpose | Who Defines? | Location |
+| :--- | :--- | :--- | :--- |
+| **[SOUL.md](SOUL.md)** | **Constitutional Identity** | Shared (APEX + Agent) | `SOUL.md` (root) |
+| **[USER.md](USER.md)** | **Sovereign Profile** | You (APEX/888) | `USER.md` (root) |
+| **[MEMORY.md](MEMORY.md)** | **Metabolic History** | Collaborative | `MEMORY.md` (root) |
+
+> **Note**: While Agents (executors) consume these files to understand their constraints, context, and history, these files are defined by the **Constitution** (arifOS).
+
+### Constitution vs. Executors
+**arifOS (The Constitution)** is model-agnostic governance (Law).
+**Agents (The Executors)** are officials bound by the law (Action).
+- You can swap **Kimi** (Mind/Δ) for **Claude** (Heart/Ω) instantly.
+- The **13 Floors** remain stationary regardless of which intelligence executes them.
 
 ---
 
@@ -399,7 +419,7 @@ pip install arifos
 python -m aaa_mcp sse
 
 # Verify: Visit http://localhost:8080/health
-# Expected: {"status":"ok","service":"arifOS","version":"v55.4-SEAL",...}
+# Expected: {"status":"ok","service":"arifOS","version":"v55.5-EIGEN",...}
 ```
 
 ---
@@ -520,5 +540,5 @@ arifOS addresses governance challenges specific to resource-constrained environm
 ---
 
 <p align="center">
-<sub><em>arifOS v55.4-SEAL — Thermodynamic Constitution • Forged in Constraint • Ω₀ = 0.04</em></sub>
+<sub><em>arifOS v55.5-EIGEN — Thermodynamic Constitution • Forged in Constraint • Ω₀ = 0.04</em></sub>
 </p>

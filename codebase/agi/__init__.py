@@ -31,7 +31,7 @@ from .trinity_sync import TrinitySync, ConvergenceResult, trinity_sync, PARADOXE
 from .trinity_sync_hardened import TrinitySyncHardened, synthesize_paradox, compute_trinity_score
 
 # Legacy engine + kernel (safe import — may depend on archived modules)
-# [REMOVED] Legacy imports archived in v55.0
+# [REMOVED] Legacy imports archived in v55.5
 
 # Backward compat alias
 AGIKernel = None

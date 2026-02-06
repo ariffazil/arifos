@@ -1,8 +1,8 @@
 """
-arifOS RootKey v55.0 - Centralized Cryptographic Foundation
+arifOS RootKey v55.5 - Centralized Cryptographic Foundation
 Solves: Storage fragmentation, derivation inconsistency, access control gaps
 
-Reference: 000_THEORY/ROOTKEY_SPEC.md (updated to v55.0)
+Reference: 000_THEORY/ROOTKEY_SPEC.md (updated to v55.5)
 """
 
 from __future__ import annotations
@@ -262,7 +262,7 @@ class RootKey:
             "generated_by": self.generated_by,
             "entropy_sources": self.entropy_sources,
             "band": self.band.value,
-            "version": "v55.0",
+            "version": "v55.5",
         }
 
         # Write with restricted permissions
@@ -409,4 +409,4 @@ if __name__ == "__main__":
     # Verify
     assert rootkey.verify(message, signature)
 
-    print("RootKey v55.0 operational")
+    print("RootKey v55.5 operational")

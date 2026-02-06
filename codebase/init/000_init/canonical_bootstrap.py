@@ -13,7 +13,7 @@ Tri-Witness Consensus:
   - CCC failure → fallback to local cached floors (SABAR mode)
   - Hash verification ensures canonical integrity
 
-Version: v55.3
+Version: v55.5
 Author: Muhammad Arif bin Fazil
 """
 

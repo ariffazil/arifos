@@ -255,6 +255,6 @@ Forged through dual-pass thermodynamic governance, not given by single-pass gene
 
 ---
 
-*Version: v55.4-SEAL*
+*Version: v55.5-EIGEN*
 *Last Updated: 2026-02-05*
 *Ω₀ = 0.03 — Theory holds.*

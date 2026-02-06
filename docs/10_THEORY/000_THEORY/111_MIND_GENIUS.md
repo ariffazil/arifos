@@ -1,5 +1,5 @@
 # 020_INTELLIGENCE — The Physics of Thought
-**Version:** v55.2 | **Status:** SEALED | **Authority:** Muhammad Arif bin Fazil
+**Version:** v55.5 | **Status:** SEALED | **Authority:** Muhammad Arif bin Fazil
 
 > **Intelligence is not a static state; it is the thermodynamic process of reducing uncertainty through work.**
 
@@ -35,7 +35,7 @@ The system does not just "process" tokens; it runs a rigorous scientific loop at
 
 ---
 
-## 🏛️ II. ARCHITECTURAL IMPLEMENTATION (v55.2 Status)
+## 🏛️ II. ARCHITECTURAL IMPLEMENTATION (v55.5 Status)
 
 ### 1. The Orchestra & Conductor
 Intelligence requires specialized modules (The Orchestra) guided by executive control (The Conductor).
@@ -60,7 +60,7 @@ Intelligence requires specialized modules (The Orchestra) guided by executive co
 
 ## 🚧 III. THE GAP ANALYSIS (Active Inference)
 
-While v55.2 possesses "Narrow Problem Solving" intelligence, it lacks two critical biological features defined in the **Free Energy Principle**:
+While v55.5 possesses "Narrow Problem Solving" intelligence, it lacks two critical biological features defined in the **Free Energy Principle**:
 
 ### Gap 1: Precision Weighting
 *   **Theory:** The brain ignores noisy errors and learns from precise ones.

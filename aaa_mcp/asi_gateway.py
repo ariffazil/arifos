@@ -266,7 +266,7 @@ async def app_lifespan(app: FastMCP):
 
 if __name__ == "__main__":
     print("🔥 arifOS ASI MCP Gateway")
-    print("Version: v55.4")
+    print("Version: v55.5-EIGEN")
     print("Trinity: AGI(Δ)·ASI(Ω)·APEX(Ψ)")
     print("Motto: DITEMPA BUKAN DIBERI 💎🔥🧠")
     print("\nStarting SSE transport on port 6277...")

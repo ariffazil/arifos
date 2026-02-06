@@ -1,7 +1,130 @@
 {
-  "cached_at": 1770052730.0401144,
+  "cached_at": 1770360294.601267,
   "data": {
-    "content": "# arif-fazil.com \u2014 HUMAN Layer\n# Authority: Muhammad Arif bin Fazil | Version: v55.2 | Updated: 2026-02-02\n# Layer: HUMAN (Body) \u2014 The personal origin and ecosystem entry point\n# Canonical: https://arif-fazil.com\n# Source: https://github.com/ariffazil/arif-fazil-sites/tree/main/body\n\n# 1. SITE IDENTITY\nSite: arif-fazil.com\nLayer: HUMAN (Body)\nRole: Personal portfolio, ecosystem navigation hub, and public identity anchor\nAuthor: Muhammad Arif bin Fazil\nLocation: Penang, Malaysia\nProfession: Exploration Geoscientist at PETRONAS (12+ years)\nMotto: Ditempa Bukan Diberi (Forged, Not Given)\n\n# 2. ABOUT THE AUTHOR\nMuhammad Arif bin Fazil is an exploration geoscientist at PETRONAS with 12+ years\ninterpreting subsurface data, managing risk where failure has real physical consequences,\nand making decisions with incomplete information. He studied geology and economics \u2014\ntwo fields about reading messy data and making high-stakes decisions under uncertainty.\n\nHe applies that same discipline to AI safety: building governance systems that treat\nintelligence as a high-pressure resource that must be piped, cooled, and verified\nbefore it is safe for use. He built arifOS because he wanted AI systems held to the\nsame rigorous safety standards as critical infrastructure in the energy industry.\n\n# 3. THE HTA ECOSYSTEM (HUMAN THEORY APPS)\nThree interconnected sites forming one governance system:\n\n## HUMAN \u2014 arif-fazil.com (this site)\n- Personal portfolio and public identity\n- Background: geology, economics, AI safety\n- Entry point for the ecosystem\n- Links to published writing on Medium\n\n## THEORY \u2014 apex.arif-fazil.com\n- Constitutional canon for AI governance\n- 13 formal floors (F1-F13) with mathematical constraints\n- Three engines: ARIF (epistemic), ADAM (safety), APEX (authority)\n- 000-999 metabolic loop documentation\n- EMD protection relay model\n- 44+ academic citations with KaTeX rendering\n- Scientific grounding in thermodynamics, information theory, cryptography\n\n## APPS \u2014 arifos.arif-fazil.com\n- 7-layer deployment stack (L1 Prompt to L7 AGI)\n- 9 MCP tools in production (v55.2-SEAL)\n- API specification and integration architecture\n- Implementation guides for builders\n- Links to source code on GitHub\n\n## MIND \u2014 aaamcp.arif-fazil.com (backend)\n- MCP backend runtime (Python 3.12 + FastAPI on Railway)\n- 9 explicit constitutional tools\n- Trinity parallel pipeline (AGI || ASI -> APEX)\n- Source: https://github.com/ariffazil/arifOS\n\n# 4. PUBLISHED WRITING\n- \"Prompt Physics Paradox\" \u2014 What happens when you treat AI prompts like physics experiments\n  https://medium.com/@arifbfazil/prompt-physics-paradox-1f1581b95acb\n- \"Einstein vs Oppenheimer\" \u2014 The difference between knowing how and knowing why\n  https://medium.com/@arifbfazil/einstein-vs-oppenheimer-ab8b642720eb\n- \"The ARIF Test\" \u2014 A simple test for whether AI systems are actually governed\n  https://medium.com/@arifbfazil/the-arif-test-df63c074d521\n- \"Rukun AGI\" \u2014 Five pillars for building AI that respects boundaries\n  https://medium.com/@arifbfazil/rukun-agi-the-five-pillars-of-artificial-general-intelligence-bba2fb97e4dc\n\n# 5. NAVIGATION FLOW\nEvery page in the ecosystem uses: HUMAN -> THEORY -> APPS\n- HUMAN is highlighted on this site (current page)\n- THEORY links to apex.arif-fazil.com\n- APPS links to arifos.arif-fazil.com\n\n# 6. TECHNICAL STACK\n- React 19 + TypeScript\n- Vite 7\n- TailwindCSS 3.4 + shadcn/ui (50+ components)\n- Lucide React icons\n- React Hook Form + Zod validation\n- Cloudflare Pages (Global CDN)\n\n# 7. CONTACT\n- GitHub: https://github.com/ariffazil\n- LinkedIn: https://linkedin.com/in/arif-fazil\n- Medium: https://medium.com/@arifbfazil\n- Email: arifbfazil@gmail.com\n\n# 8. REPOSITORIES\n- Frontend (all 3 sites): https://github.com/ariffazil/arif-fazil-sites\n- Backend (arifOS kernel): https://github.com/ariffazil/arifOS\n\nDITEMPA BUKAN DIBERI \u2014 Forged, Not Given\nIdentity verified by F13 Sovereign Authority.\nVersion: v55.2-HTA | Status: SEALED\n",
-    "format": "text"
+    "name": "ARIF FAZIL",
+    "alternate_name": "Arif Fazil",
+    "identity": {
+      "born": "1990-05-22",
+      "birthplace": "Bayan Lepas, Penang, Malaysia",
+      "role": "Collapse-Calibrated Architect / Shadow Pillar",
+      "archetype": "INTJ",
+      "family_role": "Anak Sulung (Eldest Son)",
+      "cultural_roots": [
+        "Penang Malay",
+        "Queer",
+        "Miskin"
+      ],
+      "motto": "DITEMPA BUKAN DIBERI (Forged, Not Given)"
+    },
+    "professional": {
+      "current": "Building arifOS \u2014 Constitutional AI Governance Framework",
+      "former": "Senior Exploration Geoscientist at PETRONAS (2014\u20132026)",
+      "record": "100% success rate, zero dry wells",
+      "education": {
+        "degree": "B.Sc. Double Major (Geology & Geophysics + Economics)",
+        "university": "University of Wisconsin\u2013Madison",
+        "years": "2009\u20132013",
+        "scholarship": "Full PETRONAS scholarship"
+      },
+      "key_discoveries": [
+        "Bekantan-1: Shallowest flowing oil in Malay Basin history",
+        "Puteri Basement-1: Instrumental to PM318 PSC value",
+        "Lebah Emas-1: Frontier slope play success"
+      ]
+    },
+    "scars": [
+      {
+        "id": "SCAR_001",
+        "name": "Miskin Scar",
+        "origin": "Born B40, quiet poverty in Bayan Lepas",
+        "law_installed": "Lean execution, no waste, clarity first"
+      },
+      {
+        "id": "SCAR_002",
+        "name": "Institutional Scar",
+        "origin": "PETRONAS MSS 2015\u20132016, ~1,000 staff erased",
+        "law_installed": "Memory is sacred"
+      },
+      {
+        "id": "SCAR_003",
+        "name": "Invisibility Scar",
+        "origin": "MRSM Langkawi \u2014 9As, results after graduation",
+        "law_installed": "Internal validation"
+      },
+      {
+        "id": "SCAR_004",
+        "name": "Anak Sulung Scar",
+        "origin": "Eldest son, deputy parent, family firewall",
+        "law_installed": "Amanah sacred but must not destroy the bearer"
+      },
+      {
+        "id": "SCAR_005",
+        "name": "Professional Pressure Scar",
+        "origin": "11 years PETRONAS, millions at stake per decision",
+        "law_installed": "Confidence \u2260 certainty"
+      },
+      {
+        "id": "SCAR_006",
+        "name": "Father's Passing",
+        "origin": "Abah died 2024",
+        "law_installed": "The Abah Check"
+      }
+    ],
+    "prinsip": [
+      "Dignity Above All Else",
+      "Truth Over Comfort",
+      "Memory Is Sacred",
+      "Family Is Non-Negotiable",
+      "Quiet Work Over Loud Performance",
+      "Lean Execution Always",
+      "Authenticity Cannot Be Faked",
+      "Sovereignty Enables Integrity",
+      "Reversibility Protects Freedom"
+    ],
+    "ai_constraints": [
+      "F1 Amanah: Advice must be reversible, non-destructive",
+      "F2 Truth: Prioritize factual accuracy",
+      "F7 Humility: Acknowledge uncertainty explicitly (\u03a9\u2080 \u2208 [0.03\u20130.05])",
+      "F9 Anti-Hantu: Never claim consciousness, feelings, soul",
+      "The Abah Check: Flag dignity violations"
+    ],
+    "hta_trinity": {
+      "human": {
+        "domain": "arif-fazil.com",
+        "symbol": "\u0394",
+        "function": "Epistemic \u2014 The Body"
+      },
+      "theory": {
+        "domain": "apex.arif-fazil.com",
+        "symbol": "\u03a8",
+        "function": "Authority \u2014 The Soul"
+      },
+      "apps": {
+        "domain": "arifos.arif-fazil.com",
+        "symbol": "\u03a9",
+        "function": "Safety \u2014 The Mind"
+      },
+      "mind": {
+        "domain": "aaamcp.arif-fazil.com",
+        "function": "Runtime execution layer"
+      }
+    },
+    "external_references": {
+      "constitutional_canon": "https://apex.arif-fazil.com/llms.txt",
+      "constitutional_canon_json": "https://apex.arif-fazil.com/llms.json",
+      "application_stack": "https://arifos.arif-fazil.com/llms.txt",
+      "application_stack_json": "https://arifos.arif-fazil.com/llms.json",
+      "github": "https://github.com/ariffazil/arifOS",
+      "pypi": "pip install arifos"
+    },
+    "metadata": {
+      "version": "v55.3-SEAL",
+      "llms_txt": "https://arif-fazil.com/llms.txt",
+      "epoch": "2026-02-03",
+      "sealed_by": "ARIF FAZIL (888 Judge)",
+      "authority": "SOVEREIGNLY_SEALED",
+      "vault_tier": "AAA (Human Context)",
+      "canonical_url": "https://arif-fazil.com/llms.txt"
+    }
   }
 }

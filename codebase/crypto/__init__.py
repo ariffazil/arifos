@@ -1,6 +1,6 @@
 """
 arifOS Cryptography Module
-v55.0 - RootKey & Band Enforcement
+v55.5 - RootKey & Band Enforcement
 """
 
 from .rootkey import (

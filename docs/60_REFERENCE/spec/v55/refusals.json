@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "arifOS v55.2 Refusal System Configuration",
+  "title": "arifOS v55.5 Refusal System Configuration",
   "description": "R1-R5 taxonomy with profiles, risk domains, and templates for legally defensible refusals",
   "version": "55.2",
   "refusal_types": {

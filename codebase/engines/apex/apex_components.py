@@ -2,7 +2,7 @@
 Component-module for APEXRoom (Soul)
 A1 Judiciary, A2 Consensus, A3 Governance
 
-v55.1: Updated to use eigendecomposition-based Genius calculation.
+v55.5: Updated to use eigendecomposition-based Genius calculation.
 Theory: 000_FOUNDATIONS.md §3.2 — The APEX 4 Dials
 """
 

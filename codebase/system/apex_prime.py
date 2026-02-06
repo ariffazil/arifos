@@ -40,7 +40,7 @@ from codebase.constants import (
 from .types import ApexVerdict, FloorCheckResult, Metrics, Verdict
 from codebase.floors import FloorScores, extract_dials
 
-APEX_VERSION = "v55.1-EIGEN-TRINITY"
+APEX_VERSION = "v55.5-EIGEN"
 APEX_EPOCH = 55
 
 
@@ -479,7 +479,7 @@ class APEXPrime:
         is_p_truth_fail: bool,
     ) -> ApexVerdict:
         """Helper to construct ApexVerdict with proper genius calculation."""
-        # v55.1: Use eigendecomposition to derive genius from 13 floors → 4 dials
+        # v55.5: Use eigendecomposition to derive genius from 13 floors → 4 dials
         floors = self._metrics_to_floors(metrics)
         dials = extract_dials(floors)
         A, P, X, E = dials["A"], dials["P"], dials["X"], dials["E"]

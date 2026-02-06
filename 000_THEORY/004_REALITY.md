@@ -1,6 +1,6 @@
 ---
 title: "Constitutional Reality — F1-F13 Physics/Math/Code Mapping"
-version: "v55.0-REALITY"
+version: "v55.5-EIGEN"
 epoch: "2026-01-31"
 authority: "Muhammad Arif bin Fazil"
 status: "SOVEREIGNLY_SEALED"
@@ -310,7 +310,7 @@ Instantiation requires:
 ---
 
 **File:** `000_THEORY/060_CONSTITUTIONAL_REALITY.md`  
-**Version:** v55.0-REALITY  
+**Version:** v55.5-REALITY  
 **Status:** SOVEREIGNLY_SEALED  
 **Authority:** Muhammad Arif bin Fazil  
 **Motto:** *DITEMPA BUKAN DIBERI* — *Constitutional floors forged from reality's own mathematics, not from convenience.*

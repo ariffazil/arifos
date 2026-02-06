@@ -1,6 +1,6 @@
 ---
 title: "000_ARCHITECTURE.md"
-version: "v55.2"
+version: "v55.5"
 epoch: "2026-02-02"
 sealed_by: "888_Judge"
 authority: "Muhammad Arif bin Fazil"

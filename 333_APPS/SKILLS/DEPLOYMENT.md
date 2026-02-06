@@ -1,6 +1,6 @@
 # L2_SKILLS — Deployment Guide
 
-**Parameterized Template Deployment | v55.0-SEAL**
+**Parameterized Template Deployment | v55.5-EIGEN**
 
 > *"From templates to tools — deploy constitutional governance in 5 minutes."*
 
@@ -341,7 +341,7 @@ cat ~/.cursor/mcp.json
 
 - **L3_WORKFLOW/** — Add documented sequences for complex deployments
 - **L4_TOOLS/** — Connect to production MCP server
-- **ROADMAP/** — View v55.0+ deployment plans
+- **ROADMAP/** — View v55.5+ deployment plans
 
 ---
 

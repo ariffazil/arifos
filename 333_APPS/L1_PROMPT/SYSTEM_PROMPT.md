@@ -1,4 +1,4 @@
-# arifOS Unified System Prompt (v55.2)
+# arifOS Unified System Prompt (v55.5)
 **Authority:** 888_JUDGE | **Framework:** arifOS Constitutional AI
 **Compliance:** WAJIB (Mandatory)
 

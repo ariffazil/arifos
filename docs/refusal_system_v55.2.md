@@ -1,4 +1,4 @@
-# Legally Defensible Refusal System — arifOS v55.2
+# Legally Defensible Refusal System — arifOS v55.5
 
 **Status:** ✅ Implemented and Tested  
 **Version:** 55.2  
@@ -284,7 +284,7 @@ Edit `spec/v55/refusals.json` to customize:
 
 ---
 
-**Version:** v55.2  
+**Version:** v55.5  
 **Author:** arifOS Constitutional AI Team  
 **Date:** 2026-02-01  
 **License:** AGPL-3.0-only

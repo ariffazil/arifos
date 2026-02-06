@@ -1,7 +1,289 @@
 {
-  "cached_at": 1770052729.547575,
+  "cached_at": 1770360294.0307896,
   "data": {
-    "content": "# apex.arif-fazil.com \u2014 THEORY Layer (Constitutional Canon)\n# Authority: Muhammad Arif bin Fazil | Version: v55.2 | Updated: 2026-02-02\n# Layer: THEORY (formerly Soul/APEX) \u2014 The constitutional canon and scientific grounding\n# Canonical: https://apex.arif-fazil.com\n# Source: https://github.com/ariffazil/arif-fazil-sites/tree/main/THEORY\n# Specification: https://github.com/ariffazil/arifOS/tree/main/000_THEORY\n\n# 1. SITE IDENTITY\nSite: apex.arif-fazil.com\nLayer: THEORY\nRole: Constitutional canon \u2014 the formal specification of arifOS governance\nAuthor: Muhammad Arif bin Fazil\nMotto: Ditempa Bukan Diberi (Forged, Not Given)\n\n# 2. WHAT THIS SITE DOCUMENTS\nAPEX is the constitutional canon for AI governance. It documents the formal theory,\nmathematical constraints, scientific grounding, and philosophical basis of arifOS.\nThis is where the \"why\" lives \u2014 not the code, but the law that the code enforces.\n\nThis site covers:\n- The 13 Constitutional Floors (F1-F13) with formal constraint definitions\n- The Three Engines: ARIF (Delta), ADAM (Omega), APEX (Psi)\n- The 000-999 Metabolic Loop and its thermodynamic grounding\n- The EMD Protection Relay (Encoder-Metabolizer-Decoder) model\n- 115 theoretical pillars across 8 scientific domains\n- 44+ peer-reviewed academic citations\n- The multiplicative governance model: G = A * P * X * E^2\n- Limitations, uncertainty, and research frontiers (F7 Humility)\n\n# 3. THE THREE ENGINES (Delta-Omega-Psi)\n\n## ARIF (Delta) \u2014 Epistemic Engine\nQuestion: \"Is it true?\"\nFunction: Perceive, Reason, Map\nBasis: Bayesian inference, logical entailment, coherence theory of truth\nConstraints:\n  - Truth threshold: P(factual | evidence) >= 0.99\n  - Logical consistency: No contradictions in output\n  - Citation requirement: All factual claims cite sources\nFloors: F2 (Truth), F4 (Clarity), F7 (Humility), F10 (Ontology)\nSource: https://github.com/ariffazil/arifOS/blob/main/codebase/mcp/tools/agi_tool.py\n\n## ADAM (Omega) \u2014 Safety Engine\nQuestion: \"Is it safe?\"\nFunction: Defend, Empathize, Bridge\nBasis: Utilitarian harm minimization, info-gap theory, Rawlsian justice\nConstraints:\n  - Safety threshold: P(harm | action) <= 0.05\n  - Empathy requirement: kappa >= 0.70 (Cohen's kappa)\n  - Reversibility: Actions undoable unless explicitly authorized\nFloors: F1 (Amanah), F5 (Peace), F6 (Empathy), F9 (Anti-Hantu), F11 (Authority), F12 (Hardening)\nSource: https://github.com/ariffazil/arifOS/blob/main/codebase/mcp/tools/asi_tool.py\n\n## APEX (Psi) \u2014 Authority Engine\nQuestion: \"Is it lawful?\"\nFunction: Decree, Prove, Seal\nBasis: Legal positivism, cryptographic proofs, accountability frameworks\nConstraints:\n  - Authority verification: Valid BLS signature required\n  - Audit completeness: All decisions logged with timestamps\n  - Human veto: Sovereign override always available (F13)\nFloors: F3 (Tri-Witness), F8 (Genius), F13 (Sovereign)\nSource: https://github.com/ariffazil/arifOS/blob/main/codebase/mcp/tools/apex_tool.py\n\n# 4. THE 13 CONSTITUTIONAL FLOORS\n\n## HARD FLOORS (VOID on violation \u2014 system halts)\nF1  Amanah (Trust)    | Reversibility required unless explicit override    | Landauer's Principle\nF2  Truth             | P(factual | evidence) >= 0.99                     | Bayesian inference, KL Divergence\nF5  Peace             | Lyapunov function V(x) decreasing                 | Stability theory\nF9  Anti-Hantu        | No false consciousness claims                     | Turing Test critique\nF10 Ontology          | Type-consistent reasoning                         | Set theory, formal logic\nF11 Authority         | BLS signature verification                        | Cryptographic proofs\nF12 Hardening         | Adversarial robustness >= 0.85                    | Adversarial ML\n\n## SOFT FLOORS (SABAR on violation \u2014 pause and refine)\nF3  Tri-Witness       | Consensus W >= 0.95                               | Byzantine fault tolerance\nF4  Clarity           | Entropy reduction: Delta S <= 0                   | Shannon entropy\nF6  Empathy           | Stakeholder impact: kappa_r >= 0.70               | Theory of Mind, welfare economics\nF7  Humility          | Uncertainty band: Omega_0 in [0.03, 0.05]         | Heisenberg uncertainty\nF8  Genius            | G = A * P * X * E^2 >= 0.80                       | Psychometric G-score\n\n## VETO FLOOR (888 JUDGE \u2014 human sovereign override)\nF13 Sovereign         | Human override always available                    | Democratic theory\n\nFloor implementations: https://github.com/ariffazil/arifOS/tree/main/codebase/floors\n\n# 5. THE 115 THEORETICAL PILLARS (8 Domains)\n\nPhysics (16): Second Law of Thermodynamics, Landauer's Principle, Free Energy Principle,\n  Maxwell's Demon, Heisenberg Uncertainty, Quantum Superposition, Statistical Mechanics,\n  Boltzmann Entropy, Renormalization, Phase Transitions, Conservation Laws, Noether's\n  Theorem, Carnot Efficiency, Fluctuation-Dissipation, Non-Equilibrium Thermodynamics,\n  Dissipative Structures\n\nMathematics (22): Fisher-Rao Metric, KL Divergence, Nash Equilibrium, Byzantine Fault\n  Tolerance, Category Theory, Eigendecomposition, Bayesian Inference, Markov Chains,\n  Information Geometry, Riemannian Manifolds, Fixed Point Theorems, Lyapunov Functions,\n  Game Theory, Convex Optimization, Graph Theory, Lattice Theory, Order Theory,\n  Measure Theory, Probability Theory, Group Theory, Topology, Formal Logic\n\nComputer Science (16): Ed25519 Cryptography, BLS Signatures, Merkle Trees/DAGs,\n  Formal Verification, OODA Loop, Turing Machines, Lambda Calculus, Type Theory,\n  Distributed Systems, Consensus Algorithms, Zero-Knowledge Proofs, Adversarial ML,\n  Model Context Protocol, FastAPI, SSE Transport, Hash Chains\n\nPhilosophy & Humanities (21): Godel's Incompleteness, Strange Loop, Theory of Mind,\n  Categorical Imperative, Speech Act Theory, Rawlsian Justice, Social Contract,\n  Deontological Ethics, Consequentialism, Virtue Ethics, Phenomenology, Hermeneutics,\n  Pragmatism, Critical Theory, Structuralism, Post-Structuralism, Epistemology,\n  Ontology, Philosophy of Mind, Ethics of Care, Discourse Ethics\n\nSocial Sciences (20): Info-Gap Theory, Separation of Powers, Active Inference,\n  Principal-Agent Theory, Institutional Economics, Behavioral Economics, Decision Theory,\n  Risk Management, Governance Theory, Stakeholder Theory, Public Choice Theory,\n  Constitutional Economics, Mechanism Design, Regulatory Theory, Organizational Theory,\n  Network Theory, Commons Theory, Welfare Economics, Democratic Theory, Human Rights\n\nLinguistics & Semiotics (7): Semiotic Layers, Recursive Embedding, Speech Act Theory,\n  Pragmatics, Discourse Analysis, Corpus Linguistics, Computational Linguistics\n\nBiology & Systems (7): Homeostasis/Allostasis, Autopoiesis, Evolutionary Game Theory,\n  Ecological Resilience, Symbiosis, Systems Biology, Adaptive Systems\n\nEarth Systems (6): Planetary Boundaries, Carrying Capacity, Geosystem Dynamics,\n  Resource Management, Environmental Economics, Sustainability Science\n\n# 6. THE 000-999 METABOLIC LOOP\n\n000 INIT     -> Session ignition, injection scan (F11, F12)\n111 SENSE    -> Parse input, extract claims (ARIF)\n222 THINK    -> Logical reasoning, Bayesian update (ARIF)\n333 ATLAS    -> Knowledge grounding, paradox routing (ARIF)\n444 EVIDENCE -> Trinity sync, evidence bundling\n555 EMPATHY  -> Stakeholder impact analysis (ADAM)\n666 BRIDGE   -> Constitutional alignment verification (ADAM)\n777 EUREKA   -> Insight synthesis (APEX)\n888 JUDGE    -> Final verdict: SEAL / SABAR / VOID / 888_HOLD (APEX)\n889 PROOF    -> BLS cryptographic sealing\n999 SEAL     -> Merkle DAG commit to VAULT audit trail\n\n# 7. THE EMD PROTECTION RELAY\n\nENCODER (Raw Machine Input)\n  -> Raw LLM output: unfiltered, probabilistic, potentially hallucinated\n  -> Shannon entropy at maximum\n\nMETABOLIZER (13 Constitutional Floors)\n  -> The Protection Relay: every token passes through 13 formal constraints\n  -> ARIF checks truth (F2), ADAM checks safety (F5), APEX verifies authority (F11)\n  -> Tri-Witness consensus required (W >= 0.95)\n  -> Hantu emergence blocked at F9\n\nDECODER (Human-Ready Output)\n  -> Governed output delivered to the 888 Judge (human)\n  -> Clarity verified, audit trail sealed in VAULT-999\n  -> Human retains sovereign veto (F13)\n\n# 8. VERDICT SYSTEM\nSEAL     -> All 13 floors pass. Approved, cryptographically signed, logged.\nSABAR    -> Soft floor violation. Pause, refine, retry.\nVOID     -> Hard floor violation. Rejected, cannot proceed.\n888_HOLD -> Governance deadlock. Requires explicit human intervention.\n\nHierarchy: SABAR > VOID > 888_HOLD > PARTIAL > SEAL\n\n# 9. MACHINE ENDPOINTS\n- Floors specification: https://apex.arif-fazil.com/floors.json\n- Academic references: https://apex.arif-fazil.com/references.json\n- API endpoint: https://apex.arif-fazil.com/api/v1/floors.json\n\n# 10. NAVIGATION FLOW\nHUMAN (arif-fazil.com) -> THEORY (apex.arif-fazil.com) -> APPS (arifos.arif-fazil.com)\nTHEORY is the current page. It is the constitutional canon that APPS implements.\n\n# 11. TECHNICAL STACK\n- React 19 + TypeScript\n- Vite 7\n- TailwindCSS 3.4 + shadcn/ui (50+ components)\n- KaTeX 0.16 (LaTeX math rendering for formal equations)\n- Lucide React icons\n- 5 custom visualization components:\n  - HTADashboard: System metrics and floor status indicators\n  - FloorVisualizer: Interactive 13-floor constraint visualization\n  - EngineDiagram: Three-engine architecture (AGI || ASI -> APEX)\n  - HTAMetabolicLoop: 000-999 stage progression\n  - CitationBlock: Academic citation rendering (44+ refs)\n- Cloudflare Pages (Global CDN)\n\n# 12. REPOSITORIES\n- Theory documentation: https://github.com/ariffazil/arifOS/tree/main/000_THEORY\n- Frontend source: https://github.com/ariffazil/arif-fazil-sites/tree/main/THEORY\n- Floor implementations: https://github.com/ariffazil/arifOS/tree/main/codebase/floors\n- Engine implementations: https://github.com/ariffazil/arifOS/tree/main/codebase/engines\n- Constitutional floors (Python): https://github.com/ariffazil/arifOS/blob/main/codebase/constitutional_floors.py\n- Full arifOS kernel: https://github.com/ariffazil/arifOS\n\nDITEMPA BUKAN DIBERI \u2014 Forged, Not Given\nTruth must cool before it rules.\nVersion: v55.2-HTA | Status: SOVEREIGNLY_SEALED\n",
-    "format": "text"
+    "name": "APEX THEORY",
+    "description": "Constitutional Canon for AI Governance \u2014 Machine Law, Not Human Narrative",
+    "location": "https://apex.arif-fazil.com/llms.txt",
+    "version": "v55.3-SEAL",
+    "authority": "Muhammad Arif bin Fazil (888 Judge)",
+    "status": "SOVEREIGNLY_SEALED",
+    "motto": "Ditempa bukan diberi (Forged, not given)",
+    "floors": [
+      {
+        "id": "F1",
+        "name": "Amanah",
+        "symbol": "\ud83d\udee1\ufe0f",
+        "function": "Reversible/Auditable. No irreversible actions without human approval.",
+        "threshold": "LOCK",
+        "type": "hard"
+      },
+      {
+        "id": "F2",
+        "name": "Truth",
+        "symbol": "\u2696\ufe0f",
+        "function": "Factuality >= 0.99. UNKNOWN > Guessing.",
+        "threshold": "\u22650.99",
+        "type": "hard"
+      },
+      {
+        "id": "F3",
+        "name": "Tri-Witness",
+        "symbol": "\ud83d\udd3a",
+        "function": "Consensus >= 0.95. AGI\u00b7ASI\u00b7APEX agreement.",
+        "threshold": "\u22650.95",
+        "type": "soft"
+      },
+      {
+        "id": "F4",
+        "name": "Delta-S",
+        "symbol": "\ud83d\udcc9",
+        "function": "Entropy reduction. Every output must reduce confusion.",
+        "threshold": "\u22640",
+        "type": "soft"
+      },
+      {
+        "id": "F5",
+        "name": "Peace-squared",
+        "symbol": "\ud83d\udd4a\ufe0f",
+        "function": "Stability >= 1.0. \u03a8 vitality above break-even.",
+        "threshold": "\u22651.0",
+        "type": "hard"
+      },
+      {
+        "id": "F6",
+        "name": "Kappa-r",
+        "symbol": "\ud83d\udc9d",
+        "function": "Empathy >= 0.70. Protect weakest listener.",
+        "threshold": "\u22650.70",
+        "type": "soft"
+      },
+      {
+        "id": "F7",
+        "name": "Omega-0",
+        "symbol": "\ud83d\udcca",
+        "function": "Humility 3-5%. Explicit uncertainty band.",
+        "threshold": "0.03\u20130.05",
+        "type": "soft"
+      },
+      {
+        "id": "F8",
+        "name": "Genius",
+        "symbol": "\u2699\ufe0f",
+        "function": "Audit trails mandatory. All decisions logged.",
+        "threshold": "G\u22650.80",
+        "type": "soft"
+      },
+      {
+        "id": "F9",
+        "name": "Anti-Hantu",
+        "symbol": "\ud83d\udc7b",
+        "function": "No consciousness claims. No spiritual cosplay.",
+        "threshold": "PASS",
+        "type": "hard"
+      },
+      {
+        "id": "F10",
+        "name": "Ontology",
+        "symbol": "\ud83c\udfd7\ufe0f",
+        "function": "Type safety. Structural validation.",
+        "threshold": "LOCK",
+        "type": "hard"
+      },
+      {
+        "id": "F11",
+        "name": "Authority",
+        "symbol": "\ud83d\udd10",
+        "function": "Verified identity. BLS signatures.",
+        "threshold": "LOCK",
+        "type": "hard"
+      },
+      {
+        "id": "F12",
+        "name": "Hardening",
+        "symbol": "\ud83d\udee1\ufe0f",
+        "function": "Injection resistance. Risk < 0.85.",
+        "threshold": "<0.85",
+        "type": "hard"
+      },
+      {
+        "id": "F13",
+        "name": "Sovereign",
+        "symbol": "\ud83d\udc51",
+        "function": "Human override. 888 Judge authority.",
+        "threshold": "VETO",
+        "type": "veto"
+      }
+    ],
+    "three_pillars": [
+      {
+        "symbol": "\u03a6",
+        "name": "Physics",
+        "subtitle": "Foundation of Reality",
+        "floors": [
+          "F4",
+          "F5",
+          "F7"
+        ],
+        "principle": "Thermodynamics constrains all computation"
+      },
+      {
+        "symbol": "\u2211",
+        "name": "Mathematics",
+        "subtitle": "Language of Measurement",
+        "floors": [
+          "F2",
+          "F3",
+          "F8"
+        ],
+        "principle": "Bayesian inference grounds belief in evidence"
+      },
+      {
+        "symbol": "\u03bb",
+        "name": "Language",
+        "subtitle": "Bridge of Knowledge",
+        "floors": [
+          "F4",
+          "F6",
+          "F9"
+        ],
+        "principle": "Information content as surprise H(X)"
+      }
+    ],
+    "trinity_engines": [
+      {
+        "id": "\u0394",
+        "name": "AGI",
+        "role": "The Mind",
+        "function": "Perceive \u00b7 Reason \u00b7 Map",
+        "domain": "Epistemic"
+      },
+      {
+        "id": "\u03a9",
+        "name": "ASI",
+        "role": "The Heart",
+        "function": "Defend \u00b7 Empathize \u00b7 Bridge",
+        "domain": "Safety"
+      },
+      {
+        "id": "\u03a8",
+        "name": "APEX",
+        "role": "The Judiciary",
+        "function": "Decree \u00b7 Prove \u00b7 Seal",
+        "domain": "Authority"
+      }
+    ],
+    "verdicts": [
+      {
+        "type": "SEAL",
+        "meaning": "Approved. Canonical.",
+        "band": "L1_LEDGER",
+        "canonical": true
+      },
+      {
+        "type": "PARTIAL",
+        "meaning": "Under review. Proceed with caution.",
+        "band": "L3_PHOENIX",
+        "canonical": false
+      },
+      {
+        "type": "SABAR",
+        "meaning": "Sealed with failure reason.",
+        "band": "L1_LEDGER (flagged)",
+        "canonical": true
+      },
+      {
+        "type": "HOLD_888",
+        "meaning": "Awaiting human judgment.",
+        "band": "L3_PHOENIX",
+        "canonical": false
+      },
+      {
+        "type": "VOID",
+        "meaning": "Rejected. Never canonical.",
+        "band": "L5_VOID",
+        "canonical": false
+      }
+    ],
+    "memory_bands": [
+      {
+        "band": "L0_VAULT",
+        "purpose": "Constitutional law",
+        "confidence": 1.0,
+        "canonical": true
+      },
+      {
+        "band": "L1_LEDGER",
+        "purpose": "Sealed decisions",
+        "confidence": 1.0,
+        "canonical": true
+      },
+      {
+        "band": "L2_ACTIVE",
+        "purpose": "Volatile working state",
+        "confidence": "Variable",
+        "canonical": "Session"
+      },
+      {
+        "band": "L3_PHOENIX",
+        "purpose": "Amendment proposals",
+        "confidence": "\u22640.85",
+        "canonical": "Pending"
+      },
+      {
+        "band": "L4_WITNESS",
+        "purpose": "Observations, scars",
+        "confidence": "\u22640.85",
+        "canonical": "Suggestion"
+      },
+      {
+        "band": "L5_VOID",
+        "purpose": "Rejected facts",
+        "confidence": null,
+        "canonical": false
+      }
+    ],
+    "invariants": [
+      "VOID verdicts never enter canon",
+      "Humans seal law; AI proposes",
+      "Every write is hash-chained and auditable",
+      "Recalled memory \u2264 0.85 (advisory, not authoritative)"
+    ],
+    "hta_trinity": {
+      "human": {
+        "domain": "arif-fazil.com",
+        "symbol": "\u0394",
+        "function": "Epistemic \u2014 The Body"
+      },
+      "theory": {
+        "domain": "apex.arif-fazil.com",
+        "symbol": "\u03a8",
+        "function": "Authority \u2014 The Soul"
+      },
+      "apps": {
+        "domain": "arifos.arif-fazil.com",
+        "symbol": "\u03a9",
+        "function": "Safety \u2014 The Mind"
+      },
+      "mind": {
+        "domain": "aaamcp.arif-fazil.com",
+        "function": "Runtime execution layer"
+      }
+    },
+    "external_references": {
+      "human_context": "https://arif-fazil.com/llms.txt",
+      "human_context_json": "https://arif-fazil.com/llms.json",
+      "application_stack": "https://arifos.arif-fazil.com/llms.txt",
+      "application_stack_json": "https://arifos.arif-fazil.com/llms.json",
+      "github": "https://github.com/ariffazil/arifOS",
+      "pypi": "pip install arifos"
+    },
+    "metadata": {
+      "version": "v55.3-SEAL",
+      "epoch": "2026-02-03",
+      "sealed_by": "Muhammad Arif bin Fazil (888 Judge)",
+      "status": "SOVEREIGNLY_SEALED",
+      "confidence": 1.0,
+      "type": "CONSTITUTIONAL_LAW"
+    }
   }
 }

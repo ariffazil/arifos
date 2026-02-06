@@ -1,4 +1,4 @@
-# arifOS v55.1 – Railway Deployment Playbook
+# arifOS v55.5 – Railway Deployment Playbook
 
 This is the minimal, reproducible path to deploy the modernized MCP (Streamable HTTP) server on Railway and front it with Caddy/Cloudflare.
 
@@ -19,7 +19,7 @@ healthcheckTimeout = 120
 [deploy.env]
 HOST = "0.0.0.0"
 ARIFOS_ENV = "production"
-ARIFOS_VERSION = "v55.1-CODEBASE-AAA"
+ARIFOS_VERSION = "v55.5-CODEBASE-AAA"
 ARIFOS_LOG_LEVEL = "INFO"
 ARIFOS_CLUSTER = "3"
 REDIS_URL = "${{Redis.REDIS_URL}}"

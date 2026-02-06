@@ -1,7 +1,7 @@
 # HTA Website Alignment Quickstart
 
 **Task:** Align https://arif-fazil.com, https://apex.arif-fazil.com, and https://arifos.arif-fazil.com  
-**Target Version:** v55.2-SEAL  
+**Target Version:** v55.5-EIGEN  
 **Time Required:** ~30 minutes  
 
 ---
@@ -14,7 +14,7 @@
 
 **Changes:**
 ```diff
-+ Add version badge: "v55.2-SEAL" in header
++ Add version badge: "v55.5-SEAL" in header
 + Add tagline: "Ditempa Bukan Diberi — Forged, Not Given" below name
 + Update footer to include:
     - Δ Ω Ψ symbols
@@ -32,7 +32,7 @@
 
 **Changes:**
 ```diff
-- Change: "v55.1" → "v55.2-SEAL"
+- Change: "v55.5" → "v55.5-SEAL"
 - Change navigation: "BODY | MIND | SOUL" → "HUMAN | THEORY | APPS"
   (or add subtitle mapping: BODY=HUMAN, MIND=APPS, SOUL=THEORY)
 + Add to footer: "Muhammad Arif bin Fazil · F13 Sovereign · Penang, Malaysia"
@@ -47,7 +47,7 @@
 
 **Changes:**
 ```diff
-- Change: "v55.1-SEAL" → "v55.2-SEAL"
+- Change: "v55.1-SEAL" → "v55.5-SEAL"
 + Add footer with:
     - Δ Ω Ψ symbols
     - "DITEMPA BUKAN DIBERI — Forged, Not Given"
@@ -67,7 +67,7 @@
 // VersionBadge.tsx
 export const VersionBadge = () => (
   <div className="version-badge">
-    <span className="version">v55.2</span>
+    <span className="version">v55.5</span>
     <span className="separator">-</span>
     <span className="status">SEAL</span>
   </div>
@@ -203,7 +203,7 @@ npm run deploy  # or push to trigger CI/CD
 cd arif-fazil-sites/apex.com
 
 # Edit src/components/Header.tsx
-# - Update version from "v55.1" to "v55.2-SEAL"
+# - Update version from "v55.1" to "v55.5-SEAL"
 # - Update navigation labels
 
 # Edit src/components/Footer.tsx
@@ -219,7 +219,7 @@ npm run deploy
 cd arif-fazil-sites/docs  # or arifos
 
 # Edit src/components/Header.tsx
-# - Update version from "v55.1-SEAL" to "v55.2-SEAL"
+# - Update version from "v55.1-SEAL" to "v55.5-SEAL"
 
 # Edit src/components/Footer.tsx
 # - Replace with TrinityFooter component
@@ -235,21 +235,21 @@ npm run deploy
 Visit each site and verify:
 
 ### arif-fazil.com
-- [ ] Version badge shows "v55.2-SEAL"
+- [ ] Version badge shows "v55.5-SEAL"
 - [ ] "Ditempa Bukan Diberi — Forged, Not Given" is visible
 - [ ] Footer has Δ Ω Ψ symbols
 - [ ] Footer shows "Muhammad Arif bin Fazil · Penang, Malaysia · 2026"
 - [ ] Navigation links work: THEORY → apex, APPS → arifos
 
 ### apex.arif-fazil.com
-- [ ] Version badge shows "v55.2-SEAL"
+- [ ] Version badge shows "v55.5-SEAL"
 - [ ] Navigation shows "HUMAN | THEORY | APPS" (or equivalent mapping)
 - [ ] Footer shows "Muhammad Arif bin Fazil · F13 Sovereign · Penang, Malaysia"
 - [ ] "Ditempa Bukan Diberi" is prominent
 - [ ] Navigation links work: HUMAN → arif-fazil.com, APPS → arifos
 
 ### arifos.arif-fazil.com
-- [ ] Version badge shows "v55.2-SEAL"
+- [ ] Version badge shows "v55.5-SEAL"
 - [ ] Navigation shows "HUMAN | THEORY | APPS"
 - [ ] Footer has Δ Ω Ψ symbols
 - [ ] Footer shows "Ditempa Bukan Diberi — Forged, Not Given"
@@ -278,7 +278,7 @@ Visit each site and verify:
 
 ## 📚 References
 
-- Full specification: `docs/WEBSITE_ALIGNMENT_v55.2.md`
+- Full specification: `docs/WEBSITE_ALIGNMENT_v55.5.md`
 - AGENTS.md protocol: `AGENTS.md` (in arif-fazil-sites root)
 - Design system: Serena aesthetic (Dark/Gold/Premium)
 

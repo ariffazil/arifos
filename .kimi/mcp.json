@@ -3,7 +3,7 @@
   "$comment": "arifOS AGENTS CANON - Master MCP Configuration (TIER 0-3) - The Role Model for All arifOS Agents",
   "mcpServers": {
     "aaa-mcp": {
-      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
+      "command": "C:\\Users\\User\\arifOS\\venv\\Scripts\\python.exe",
       "args": ["-m", "aaa_mcp", "stdio"],
       "cwd": "C:/Users/User/arifOS",
       "env": {
@@ -29,9 +29,40 @@
       ],
       "description": "arifOS Constitutional Core - 9 Canonical Tools (000-999 Metabolic Loop)"
     },
+    "arifos": {
+      "command": "C:\\Users\\User\\arifOS\\venv\\Scripts\\python.exe",
+      "args": ["-m", "aaa_mcp", "stdio"],
+      "cwd": "C:/Users/User/arifOS",
+      "env": {
+        "PYTHONPATH": "C:/Users/User/arifOS",
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "ARIFOS_VAULT_PATH": "C:/Users/User/arifOS/VAULT999",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUNBUFFERED": "1",
+        "ARIFOS_AGENT_ROLE": "CANON"
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "init_gate",
+        "agi_sense",
+        "agi_think",
+        "agi_reason",
+        "asi_empathize",
+        "asi_align",
+        "apex_verdict",
+        "reality_search",
+        "vault_seal",
+        "_trinity_"
+      ],
+      "description": "arifOS Constitutional Core - Alias for aaa-mcp"
+    },
     "filesystem": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-filesystem", "C:/Users/User/arifOS"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "C:/Users/User/arifOS"
+      ],
       "description": "TIER 1: Secure file operations with configurable access controls"
     },
     "fetch": {
@@ -61,7 +92,11 @@
     },
     "sqlite": {
       "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-sqlite", "C:/Users/User/arifOS/data"],
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sqlite",
+        "C:/Users/User/arifOS/data"
+      ],
       "description": "TIER 2: SQLite database interaction and business intelligence"
     },
     "context7": {
@@ -93,8 +128,30 @@
     "version": "v55.2",
     "role": "CANON_REFERENCE",
     "description": "Master configuration template for all arifOS agents",
-    "constitutionalFloors": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13"],
-    "mandatoryTools": ["aaa-mcp", "filesystem", "fetch", "git", "memory", "sequential-thinking", "time"],
+    "constitutionalFloors": [
+      "F1",
+      "F2",
+      "F3",
+      "F4",
+      "F5",
+      "F6",
+      "F7",
+      "F8",
+      "F9",
+      "F10",
+      "F11",
+      "F12",
+      "F13"
+    ],
+    "mandatoryTools": [
+      "aaa-mcp",
+      "filesystem",
+      "fetch",
+      "git",
+      "memory",
+      "sequential-thinking",
+      "time"
+    ],
     "recommendedTools": ["sqlite", "context7", "github", "brave-search"],
     "apiKeysRequired": ["CONTEXT7_API_KEY", "GITHUB_TOKEN", "BRAVE_API_KEY"]
   }

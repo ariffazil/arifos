@@ -1,7 +1,7 @@
 # Migration Guide: v54 → v55
 
 **Date:** 2026-02-01  
-**Target Audience:** Existing arifOS users upgrading from v54.x to v55.0  
+**Target Audience:** Existing arifOS users upgrading from v54.x to v55.5  
 **Breaking Changes:** None (backward compatible via deprecation aliases)  
 **Migration Window:** 72 days (Phoenix-72 cooling period) until v56.0
 
@@ -9,11 +9,11 @@
 
 ## TL;DR
 
-**v55.0 splits multi-action tools into 9 explicit tools for better LLM discoverability.**
+**v55.5 splits multi-action tools into 9 explicit tools for better LLM discoverability.**
 
 - ✅ **Your code still works** - Legacy tool names (`_agi_`, `_asi_`, etc.) maintained as aliases
 - ⚠️ **You'll see deprecation warnings** - Update tool names at your convenience
-- 🗓️ **Legacy tools removed in v56.0** - Expected release: ~72 days from v55.0
+- 🗓️ **Legacy tools removed in v56.0** - Expected release: ~72 days from v55.5
 
 ---
 
@@ -70,7 +70,7 @@ await agi_reason(query="Build argument")
 ### Option 1: Keep Using Old Names (Easiest)
 
 ```python
-# This still works in v55.0
+# This still works in v55.5
 result = await _agi_(action="sense", query="...")
 ```
 
@@ -306,7 +306,7 @@ print("✅ New tool interface verified")
 
 | Date | Version | Status | Action |
 |------|---------|--------|--------|
-| **2026-02-01** | v55.0 | ✅ Released | Both old and new tools available |
+| **2026-02-01** | v55.5 | ✅ Released | Both old and new tools available |
 | **Now → +72 days** | v55.x | ⚠️ Migration Period | Update code at your convenience |
 | **~2026-04-14** | v56.0 | ❌ Legacy Removed | Old tool names (_agi_, _asi_, etc.) no longer work |
 
@@ -318,7 +318,7 @@ print("✅ New tool interface verified")
 
 ### Q: Do I have to migrate now?
 
-**A:** No. You have 72 days to migrate at your convenience. Old names work in v55.0.
+**A:** No. You have 72 days to migrate at your convenience. Old names work in v55.5.
 
 ---
 
@@ -330,7 +330,7 @@ print("✅ New tool interface verified")
 
 ### Q: Can I use both old and new names in the same codebase?
 
-**A:** Yes. They coexist in v55.0. This allows gradual migration.
+**A:** Yes. They coexist in v55.5. This allows gradual migration.
 
 ---
 
@@ -359,7 +359,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="mcp")
 
 ### Q: What if I use `_trinity_` or `_vault_`?
 
-**A:** No change needed. These tools are unchanged in v55.0.
+**A:** No change needed. These tools are unchanged in v55.5.
 
 ---
 
@@ -373,7 +373,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="mcp")
 
 **Governance Audit:**
 - **F1 (Amanah):** Fully reversible - old code continues working
-- **F2 (Truth):** All claims verified against v55.0 implementation
+- **F2 (Truth):** All claims verified against v55.5 implementation
 - **F4 (Clarity):** Step-by-step migration guide with examples
 - **F7 (Humility):** 72-day timeline acknowledges migration complexity
 

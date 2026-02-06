@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **Project:** arifOS — Constitutional AI governance system (AAA MCP Server)
-**Package:** `arifos` v55.3.2 (editable install)
+**Package:** `arifos` v55.5.0 (editable install)
 **Python:** >=3.10 | **License:** AGPL-3.0-only
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
 

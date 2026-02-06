@@ -1,6 +1,6 @@
 # Security Policy
 
-**Status:** Governed by arifOS Constitution (v55.2)
+**Status:** Governed by arifOS Constitution (v55.5)
 
 > ⚠️ **Note:** In this system, "Security" is an emergent property of **Constitutional Governance**.
 > Please read **[000_THEORY/002_GOVERNANCE_EMERGENCE.md](000_THEORY/002_GOVERNANCE_EMERGENCE.md)** to understand why we prioritize Intelligence & Judgment over prescriptive safety rules.

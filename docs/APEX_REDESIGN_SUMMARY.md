@@ -7,7 +7,7 @@
 
 | File | Purpose | Size |
 |------|---------|------|
-| `APEX_COMPLETE_REDESIGN_v55.2.md` | Full design spec | 600+ lines |
+| `APEX_COMPLETE_REDESIGN_v55.5.md` | Full design spec | 600+ lines |
 | `APEX_IMPLEMENTATION_GUIDE.md` | Code instructions | 400+ lines |
 | `THE_115_THEORIES.json` | All theories data | 115 entries |
 | `APEX_REDESIGN_SUMMARY.md` | This overview | — |
@@ -103,7 +103,7 @@ Every scientific claim linked to canonical source.
 ## 🚀 DEPLOYMENT TARGET
 
 **URL**: https://apex.arif-fazil.com  
-**Version**: v55.2-SEAL  
+**Version**: v55.5-EIGEN  
 **Authority**: Muhammad Arif bin Fazil (F13 Sovereign)  
 
 ---

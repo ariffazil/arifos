@@ -1,6 +1,6 @@
 # arifOS MCP Tools (Concise)
 
-## 9 Canonical Tools (v55.2)
+## 9 Canonical Tools (v55.5)
 
 ### Session Ignition
 - **init_gate**: Initialize governed session. Verify caller authority, scan for prompt injection (F12), open session ledger entry. Use before running other tools.
@@ -36,11 +36,11 @@ result2 = await agi_think(session_id="sess_abc12345")  # Accesses prior state
 
 ## Removed Tools
 
-Legacy aliases (`_init_`, `_agi_`, `asi_insight`, etc.) have been **removed** in v55.2 to minimize entropy (F4).
+Legacy aliases (`_init_`, `_agi_`, `asi_insight`, etc.) have been **removed** in v55.5 to minimize entropy (F4).
 
 ---
 
 **Full schemas:** See [llms-full.txt](llms-full.txt) for complete input/output specifications.
 
-**arifOS v55.2** • Constitutional AI Governance • AGPL-3.0  
+**arifOS v55.5** • Constitutional AI Governance • AGPL-3.0  
 https://github.com/ariffazil/arifOS

@@ -9,7 +9,7 @@
       "env": {
         "ARIFOS_MODE": "production",
         "ARIFOS_MCP_MODE": "sse",
-        "ARIFOS_VERSION": "v55.1-CODEBASE-AAA"
+        "ARIFOS_VERSION": "v55.5-EIGEN"
       }
     }
   }

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-Deployment Verification Script for arifOS MCP Server (v55.3)
+Deployment Verification Script for arifOS MCP Server (v55.5)
 Checks all deployment files before pushing to Railway.
 """
 
@@ -18,7 +18,7 @@ def check_file_exists(path, required=True):
 def verify_deployment():
     """Verify all deployment files are correctly configured."""
     print("=" * 70)
-    print("arifOS MCP Deployment Verification (v55.3)")
+    print("arifOS MCP Deployment Verification (v55.5)")
     print("=" * 70)
     
     all_ok = True

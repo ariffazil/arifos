@@ -213,6 +213,6 @@ All sites auto-deploy on push to main via GitHub Actions → Cloudflare Pages.
 
 *DITEMPA BUKAN DIBERI — Forged, Not Given*
 
-**v55.4-SEAL** · Trinity Architecture · ΔΩΨ · llms.txt Standard Extension
+**v55.5-EIGEN** · Trinity Architecture · ΔΩΨ · llms.txt Standard Extension
 
 Status: All 3 sites LIVE

@@ -29,7 +29,7 @@ Autonomy:  Medium (AI decides when to call)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
-│                    AAA MCP SERVER v55.2                             │
+│                    AAA MCP SERVER v55.5                             │
 │                    codebase/mcp/sse.py                              │
 ├─────────────────────────────────────────────────────────────────────┤
 │                                                                     │
@@ -129,7 +129,7 @@ Autonomy:  Medium (AI decides when to call)
 - Constitutional enforcement hardened
 - Rate limiting added
 
-### v55.2 — Current Reality
+### v55.5 — Current Reality
 
 **What Works (Verified):**
 | Component | Status | Evidence |
@@ -143,12 +143,12 @@ Autonomy:  Medium (AI decides when to call)
 **Known Gaps (from ROADMAP v55):**
 | Gap | Impact | Severity | Target |
 |-----|--------|----------|--------|
-| **Soft Floors (F5,F6,F9)** | Heuristic only, not trained models | Medium | v55.3 |
-| **ASI kappa_r Bug** | Benign queries get VOID (scores 0.0) | **Critical** | v55.3 (P0) |
-| **Session Persistence** | Ledger in-memory only (lost on restart) | **Critical** | v55.3 (P0) |
-| **Full 000-999 Loop** | Stages exist but not wired end-to-end | Medium | v55.3 |
-| **Test Suite** | ~60% fail on legacy imports | **Critical** | v55.3 (P0) |
-| **Observability** | No `/health` endpoint | Medium | v55.3 |
+| **Soft Floors (F5,F6,F9)** | Heuristic only, not trained models | Medium | v55.5 |
+| **ASI kappa_r Bug** | Benign queries get VOID (scores 0.0) | **Critical** | v55.5 (P0) |
+| **Session Persistence** | Ledger in-memory only (lost on restart) | **Critical** | v55.5 (P0) |
+| **Full 000-999 Loop** | Stages exist but not wired end-to-end | Medium | v55.5 |
+| **Test Suite** | ~60% fail on legacy imports | **Critical** | v55.5 (P0) |
+| **Observability** | No `/health` endpoint | Medium | v55.5 |
 
 > **Source:** ROADMAP/arifOS-Executive-Brief-v55.md, ROADMAP/MASTER_TODO.md
 
@@ -195,7 +195,7 @@ The 9 tools are **production-ready individually** but the full metabolic loop (0
 
 ## 🔗 Next Steps
 
-### Immediate (v55.1)
+### Immediate (v55.5)
 - [ ] Universal transport layer (stdio/sse/http/websocket)
 - [ ] Hardening of F11/F12 stubs
 
@@ -209,7 +209,7 @@ The 9 tools are **production-ready individually** but the full metabolic loop (0
 ## 👑 Authority
 
 **Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v55.2
+**Version:** v55.5
 **Last Updated:** 2026-02-02  
 **Live:** [arif-fazil.com](https://arif-fazil.com) *(example endpoint — verify)*  
 **Creed:** DITEMPA BUKAN DIBERI
@@ -232,11 +232,11 @@ The 9 tools are **production-ready individually** but the full metabolic loop (0
 
 | Gap | Severity | Target |
 |-----|----------|--------|
-| ASI kappa_r = 0.0 bug | 🔴 P0 Critical | v55.3 |
-| Ledger in-memory only | 🔴 P0 Critical | v55.3 |
-| Test suite ~60% broken | 🔴 P0 Critical | v55.3 |
-| Soft Floors heuristic | 🟡 P1 Medium | v55.3 |
-| No /health endpoint | 🟡 P1 Medium | v55.3 |
+| ASI kappa_r = 0.0 bug | 🔴 P0 Critical | v55.5 |
+| Ledger in-memory only | 🔴 P0 Critical | v55.5 |
+| Test suite ~60% broken | 🔴 P0 Critical | v55.5 |
+| Soft Floors heuristic | 🟡 P1 Medium | v55.5 |
+| No /health endpoint | 🟡 P1 Medium | v55.5 |
 
 > This layer is **production-ready with caveats**. See STATUS.md for details.
 

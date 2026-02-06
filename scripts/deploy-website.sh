@@ -4,7 +4,7 @@
 
 set -e
 
-echo "🚀 Deploying arifOS v55.1 Website..."
+echo "🚀 Deploying arifOS v55.5 Website..."
 
 # Colors
 RED='\033[0;31m'

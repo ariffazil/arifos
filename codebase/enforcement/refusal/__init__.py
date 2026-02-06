@@ -1,5 +1,5 @@
 """
-Legally Defensible Refusal System for arifOS v55.2
+Legally Defensible Refusal System for arifOS v55.5
 
 R1-R5 taxonomy with 4-layer refusal messages, appeal system, and audit trail.
 

@@ -2,7 +2,7 @@
 333_APPS/L4_TOOLS/mcp/tools/canonical_trinity.py
 
 MIRROR FILE — Documentation reference only.
-Canonical source: codebase/mcp/tools/canonical_trinity.py (v55.2, 9-tool registry)
+Canonical source: codebase/mcp/tools/canonical_trinity.py (v55.5, 9-tool registry)
 
 The 7 Legacy Tools of arifOS (v53 AAA Framework)
 These were split into 9 explicit tools in v55. See codebase/mcp/core/tool_registry.py.

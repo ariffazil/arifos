@@ -1,6 +1,6 @@
 # AAA MCP Architecture Overview
 
-**Version:** v55.2 | **Date:** 2026-02-02 | **Status:** SEALED
+**Version:** v55.5 | **Date:** 2026-02-02 | **Status:** SEALED
 
 ---
 
