@@ -3,7 +3,7 @@
   "$comment": "arifOS MCP config aligned across agents (Claude)",
   "mcpServers": {
     "aaa-mcp": {
-      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
+      "command": "C:\\Users\\User\\arifOS\\venv\\Scripts\\python.exe",
       "args": ["-m", "aaa_mcp", "stdio"],
       "cwd": "C:/Users/User/arifOS",
       "env": {
