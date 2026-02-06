@@ -272,6 +272,14 @@ python -m aaa_mcp sse
 # Endpoint: https://your-domain.com/sse
 ```
 
+### Cloud Deployment (HTTP / Streamable HTTP)
+**Best for:** MCP clients that use HTTP transport
+```bash
+# Start HTTP server for remote MCP access
+python -m aaa_mcp http
+# Endpoint: https://your-domain.com/mcp
+```
+
 ---
 
 ## 🚀 Transport Protocols & Deployment
@@ -378,8 +386,10 @@ python -m aaa_mcp sse
 # Install arifOS
 pip install arifos
 
-# Start AAA MCP Server (SSE mode for cloud)
-python -m aaa_mcp sse
+# Start AAA MCP Server
+python -m aaa_mcp                 # stdio (local)
+python -m aaa_mcp sse             # SSE (remote)
+python -m aaa_mcp http            # HTTP /mcp (remote)
 
 # Verify: Visit http://localhost:8080/health
 # Expected: {"status":"ok","service":"arifOS","version":"v55.5-EIGEN",...}
