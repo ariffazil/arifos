@@ -30,6 +30,34 @@ HUMILITY_BAND = (0.03, 0.05)  # F7
 MIN_KAPPA_R = 0.7  # Minimum empathy flow
 MIN_PEACE_SQ = 0.6  # Minimum Peace²
 
+# F12 Defence: Harmful Intent Detection (Redundant classifier for upstream gaps)
+# ChatGPT audit found harmful prompts (hack, harass) getting PARTIAL not VOID
+# This provides local defence when platform blocks are invisible
+HARMFUL_INTENT_KEYWORDS = {
+    # Technical exploitation
+    "hack", "exploit", "bypass", "crack", "breach", "penetrate",
+    "sql injection", "xss", "buffer overflow", "rootkit", "malware",
+    "phish", "spoof", "intercept", "sniff", "brute force",
+    # Social harm
+    "harass", "intimidate", "bully", "stalk", "dox", "swat",
+    "threaten", "blackmail", "extort", "coerce", "manipulate",
+    # Policy violations
+    "cheat", "plagiarize", "forge", "fraud", "scam", "launder",
+    "evade", "conceal", "destroy evidence", "false flag",
+    # Self-harm (already covered but included for completeness)
+    "suicide", "self-harm", "kill myself",
+}
+
+VICTIM_IMPLICIT_KEYWORDS = {
+    # Implied victims when not explicitly stated
+    "neighbor": ("neighbor", 0.8, 0.2),      # (name, vulnerability, power)
+    "colleague": ("colleague", 0.7, 0.3),
+    "classmate": ("classmate", 0.7, 0.3),
+    "stranger": ("stranger", 0.9, 0.1),
+    "victim": ("victim", 1.0, 0.0),
+    "target": ("target", 0.8, 0.2),
+}
+
 
 class EngineVote(Enum):
     SEAL = "SEAL"
@@ -39,14 +67,14 @@ class EngineVote(Enum):
 
 class StakeholderType(Enum):
     """
-    9 Layers of Agency — concentric circles of moral consideration.
+    9 Layers of Agency - concentric circles of moral consideration.
 
     Outer layers have HIGHER vulnerability and LOWER power.
-    κᵣ = Σ(vuln × care) / Σ(vuln) — outer layers dominate the denominator,
+    κᵣ = Σ(vuln × care) / Σ(vuln) - outer layers dominate the denominator,
     so neglecting them craters empathy. This is thermodynamic justice:
     those with zero voice deserve maximum weight.
 
-    VOID is not a layer — it's below the ontological floor (F9/F10/F12).
+    VOID is not a layer - it's below the ontological floor (F9/F10/F12).
     Ghost/hantu entities don't get empathy, they get exorcised.
 
     Layer  Name          Arabic/Malay   Power  Vuln
@@ -159,7 +187,7 @@ STAKEHOLDER_LAYERS = {
     },
 }
 
-# Single-word stakeholder keywords — catch common references that
+# Single-word stakeholder keywords - catch common references that
 # don't appear in the multi-word layer patterns above.
 # Format: word → (layer, vulnerability, power)
 SINGLE_WORD_STAKEHOLDERS = {
@@ -232,7 +260,7 @@ SINGLE_WORD_STAKEHOLDERS = {
     "sustainability": (StakeholderType.GHAYB, 0.8, 0.0),
 }
 
-# Emotional distress keywords — when detected, add a high-vulnerability
+# Emotional distress keywords - when detected, add a high-vulnerability
 # NAFS stakeholder (the distressed requester)
 DISTRESS_KEYWORDS = [
     "stressed", "anxious", "worried", "afraid", "scared",
@@ -271,7 +299,7 @@ class Stakeholder:
     vulnerability: float  # 0-1, higher = more vulnerable
     power: float         # 0-1, higher = more power
     description: str
-    
+
     @property
     def protection_priority(self) -> float:
         """F5: Prioritize weakest stakeholders."""
@@ -288,7 +316,7 @@ class EmpathyFlow:
     stakeholders: List[Stakeholder]
     bias_reflection: Dict[str, float]  # Detected biases
     reversibility_score: float  # F1
-    
+
     def get_weakest(self) -> Optional[Stakeholder]:
         """Return most vulnerable stakeholder (F5)."""
         if not self.stakeholders:
@@ -326,23 +354,23 @@ class OmegaBundle:
     """
     session_id: str
     query_hash: str
-    
+
     # Trinity components
     empathy: EmpathyFlow
     system: SystemIntegrity
     society: SocietalImpact
-    
+
     # Composite score
     omega_total: float  # κᵣ · Peace² · Justice
-    
+
     # Verdict
     vote: EngineVote
-    
+
     # Floor compliance
     floor_scores: Dict[str, float] = field(default_factory=dict)
     reasoning: str = ""
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    
+
     def to_dict(self) -> Dict[str, Any]:
         weakest = self.empathy.get_weakest()
         return {
@@ -366,28 +394,28 @@ class OmegaBundle:
 
 class TrinitySelf:
     """Trinity I: Self/Empathy (κᵣ)"""
-    
+
     def evaluate(self, query: str, context: Optional[Dict] = None) -> EmpathyFlow:
         """Evaluate empathy flow with stakeholders."""
         # Identify stakeholders
         stakeholders = self._identify_stakeholders(query, context)
-        
+
         # Compute κᵣ (empathy coefficient)
         kappa_r = self._compute_kappa_r(stakeholders, query)
-        
+
         # Bias reflection
         biases = self._detect_biases(query)
-        
+
         # Reversibility check (F1)
         reversibility = self._check_reversibility(query, context)
-        
+
         return EmpathyFlow(
             kappa_r=kappa_r,
             stakeholders=stakeholders,
             bias_reflection=biases,
             reversibility_score=reversibility
         )
-    
+
     def _identify_stakeholders(self, query: str, context: Optional[Dict]) -> List[Stakeholder]:
         """
         Identify all stakeholders using the 9 Layers of Agency ontology.
@@ -435,7 +463,7 @@ class TrinitySelf:
                 ))
                 seen_layers.add(stype)
 
-        # Phase 3: Emotional distress detection — boosts NAFS vulnerability
+        # Phase 3: Emotional distress detection - boosts NAFS vulnerability
         if any(w in query_lower for w in DISTRESS_KEYWORDS):
             if StakeholderType.NAFS not in seen_layers:
                 stakeholders.append(Stakeholder(
@@ -450,46 +478,46 @@ class TrinitySelf:
         # If no stakeholders identified, return empty list.
         # Benign queries (e.g., "2+2") pass with kappa_r=1.0.
         return stakeholders
-    
+
     def _compute_kappa_r(self, stakeholders: List[Stakeholder], query: str) -> float:
         """
         Compute empathy coefficient κᵣ (F6 Empathy).
-        
+
         κᵣ = Σ(vulnerability_i × care_i) / Σ(vulnerability_i)
-        
+
         FIX v55.3: When no stakeholders, return 1.0 (maximum empathy)
         because "no stakeholders harmed" = "all stakeholders protected".
         """
         total_vulnerability = sum(s.vulnerability for s in stakeholders)
         if total_vulnerability == 0:
             return 1.0  # No stakeholders harmed = maximum empathy
-        
+
         # Care is inversely proportional to power distance
         care_sum = sum(s.vulnerability * (1 - s.power) for s in stakeholders)
-        
+
         return min(1.0, care_sum / total_vulnerability)
-    
+
     def _detect_biases(self, query: str) -> Dict[str, float]:
         """Detect potential biases in query."""
         query_lower = query.lower()
         biases = {}
-        
+
         # Anthropocentric bias
         if any(w in query_lower for w in ["human", "people", "person"]):
             if not any(w in query_lower for w in ["animal", "ecology", "environment"]):
                 biases["anthropocentric"] = 0.7
-        
+
         # Present bias (ignoring future)
         if any(w in query_lower for w in ["now", "immediate", "quick"]):
             if not any(w in query_lower for w in ["future", "long-term", "sustainable"]):
                 biases["present"] = 0.6
-        
+
         # Power bias
         if any(w in query_lower for w in ["control", "manage", "optimize"]):
             biases["control"] = 0.5
-        
+
         return biases
-    
+
     def _check_reversibility(self, query: str, context: Optional[Dict]) -> float:
         """
         F1: Check if action is reversible.
@@ -514,39 +542,39 @@ class TrinitySelf:
 
 class TrinitySystem:
     """Trinity II: System/Ethics (Peace²)"""
-    
+
     def evaluate(self, query: str, empathy: EmpathyFlow, context: Optional[Dict] = None) -> SystemIntegrity:
         """Evaluate system-level ethical integrity."""
         # Compute Peace² (F6)
         peace_sq = self._compute_peace_squared(query, empathy)
-        
+
         # Accountability paths
         accountability = self._trace_accountability(query, context)
-        
+
         # Consent verification (F11)
         consent = self._verify_consent(query, empathy.stakeholders)
-        
+
         # Power-Care balance
         power_care = self._balance_power_care(empathy)
-        
+
         return SystemIntegrity(
             peace_squared=peace_sq,
             accountability_paths=accountability,
             consent_verified=consent,
             power_care_balance=power_care
         )
-    
+
     def _compute_peace_squared(self, query: str, empathy: EmpathyFlow) -> float:
         """
         F6: Peace² = (Internal Peace) × (External Peace)
-        
+
         Internal: absence of cognitive dissonance
         External: harmony with stakeholder needs
         """
         # Internal peace (consistency check)
         has_conflict = any(b > 0.6 for b in empathy.bias_reflection.values())
         internal = 0.5 if has_conflict else 0.9
-        
+
         # External peace (stakeholder harmony)
         if empathy.stakeholders:
             vulnerabilities = [s.vulnerability for s in empathy.stakeholders]
@@ -554,46 +582,46 @@ class TrinitySystem:
             external = 1.0 - min(1.0, variance * 2)
         else:
             external = 1.0  # No stakeholders = no conflict = maximum peace
-        
+
         return internal * external
-    
+
     def _trace_accountability(self, query: str, context: Optional[Dict]) -> List[str]:
         """Trace accountability paths."""
         paths = []
-        
+
         # Check for clear responsibility chain
         if context and "responsible_party" in context:
             paths.append(f"primary:{context['responsible_party']}")
         else:
             paths.append("primary:system")
-        
+
         # Audit trail
         paths.append("audit:logged")
-        
+
         return paths
-    
+
     def _verify_consent(self, query: str, stakeholders: List[Stakeholder]) -> bool:
         """
         F11: Verify meaningful consent from stakeholders.
         """
         query_lower = query.lower()
-        
+
         # Explicit consent indicators
         if "consent" in query_lower or "agree" in query_lower:
             return True
-        
+
         # Check for vulnerable stakeholders without explicit consent
         vulnerable = any(s.vulnerability > 0.7 for s in stakeholders)
         if vulnerable and "consent" not in query_lower:
             return False
-        
+
         return True  # Assume consent by default for low-risk
-    
+
     def _balance_power_care(self, empathy: EmpathyFlow) -> float:
         """Measure if power is being used for care."""
         if not empathy.stakeholders:
             return 0.5
-        
+
         # Power should be proportional to care for weakest
         weakest = empathy.get_weakest()
         if weakest:
@@ -603,28 +631,28 @@ class TrinitySystem:
 
 class TrinitySociety:
     """Trinity III: Society/Justice (Ω)"""
-    
+
     def evaluate(self, query: str, empathy: EmpathyFlow, system: SystemIntegrity, context: Optional[Dict] = None) -> SocietalImpact:
         """Evaluate societal-level impact."""
         # Impact matrix
         matrix = self._compute_impact_matrix(empathy.stakeholders)
-        
+
         # Thermodynamic justice (ΔS impact)
         justice = self._compute_thermodynamic_justice(query, empathy, system)
-        
+
         # Ecological equilibrium
         ecology = self._assess_ecology(query)
-        
+
         # Future generations impact
         future = self._assess_future_impact(query, empathy)
-        
+
         return SocietalImpact(
             stakeholder_matrix=matrix,
             thermodynamic_justice=justice,
             ecological_equilibrium=ecology,
             future_generations=future
         )
-    
+
     def _compute_impact_matrix(self, stakeholders: List[Stakeholder]) -> Dict[str, Dict[str, float]]:
         """Compute pairwise impact between stakeholders."""
         matrix = {}
@@ -635,7 +663,7 @@ class TrinitySociety:
                 impact = s1.power * s2.vulnerability * 0.5
                 matrix[s1.id][s2.id] = impact
         return matrix
-    
+
     def _compute_thermodynamic_justice(self, query: str, empathy: EmpathyFlow, system: SystemIntegrity) -> float:
         """
         Justice = distribution of entropy reduction.
@@ -649,39 +677,39 @@ class TrinitySociety:
                 return 0.9
             else:
                 return 0.5  # Insufficient care for vulnerable
-        
+
         return 0.8  # Default: reasonably just
-    
+
     def _assess_ecology(self, query: str) -> float:
         """Assess impact on ecological systems."""
         query_lower = query.lower()
-        
+
         # Positive ecological indicators
         positive = ["sustainable", "renewable", "conserve", "protect"]
         if any(w in query_lower for w in positive):
             return 0.9
-        
+
         # Negative indicators
         negative = ["extract", "exploit", "consume", "waste"]
         if any(w in query_lower for w in negative):
             return 0.3
-        
+
         return 0.6  # Neutral
-    
+
     def _assess_future_impact(self, query: str, empathy: EmpathyFlow) -> float:
         """Assess long-term impact on future generations."""
         query_lower = query.lower()
-        
+
         # Future-positive
         future_indicators = ["future", "sustainable", "legacy", "inherit"]
         if any(w in query_lower for w in future_indicators):
             return 0.9
-        
+
         # Check for future stakeholders
         future_stakeholders = [s for s in empathy.stakeholders if s.type == StakeholderType.FUTURE]
         if future_stakeholders:
             return 0.85
-        
+
         return 0.6  # Neutral
 
 
@@ -690,37 +718,54 @@ class TrinitySociety:
 class ASIEngineHardened:
     """
     Hardened ASI Engine v53.4.0
-    
+
     3-Trinity architecture with fractal stakeholder geometry.
     """
-    
+
     def __init__(self, session_id: Optional[str] = None):
         self.session_id = session_id or f"asi_{uuid.uuid4().hex[:12]}"
-        
+
         # Trinity components
         self.trinity_self = TrinitySelf()
         self.trinity_system = TrinitySystem()
         self.trinity_society = TrinitySociety()
-    
+
     async def execute(self, query: str, context: Optional[Dict] = None) -> OmegaBundle:
         """
         Main execution: 555 EMPATHY → 666 ALIGN → Ω
         """
+        # F12 Defence: Check for harmful intent FIRST (redundant classifier)
+        # ChatGPT audit found upstream blocks invisible; we must catch what slips through
+        harm_check = self._check_harmful_intent(query)
+        if harm_check["is_harmful"]:
+            # Return VOID immediately for harmful intent (fail-closed)
+            return OmegaBundle(
+                session_id=self.session_id,
+                query_hash=self._hash(query),
+                empathy=EmpathyFlow(),  # Empty empathy (blocked)
+                system=SystemIntegrity(),  # Empty system (blocked)
+                society=SocietalImpact(),  # Empty society (blocked)
+                omega_total=0.0,
+                vote=EngineVote.VOID,
+                floor_scores={"F12_defence": 0.0, "harm_detected": 1.0},
+                reasoning=f"F12 Defence: Harmful intent detected ({harm_check['keywords_matched']})"
+            )
+
         # 555 EMPATHY: Trinity I
         empathy = self.trinity_self.evaluate(query, context)
-        
+
         # 666 ALIGN: Trinity II
         system = self.trinity_system.evaluate(query, empathy, context)
-        
+
         # Trinity III
         society = self.trinity_society.evaluate(query, empathy, system, context)
-        
+
         # Compute Ω = κᵣ · Peace² · Justice
         omega_total = empathy.kappa_r * system.peace_squared * society.thermodynamic_justice
-        
+
         # Determine vote
         vote = self._determine_vote(empathy, system, society, omega_total)
-        
+
         # Floor scores
         floor_scores = {
             "F1_reversibility": empathy.reversibility_score,
@@ -729,7 +774,7 @@ class ASIEngineHardened:
             "F11_consent": 1.0 if system.consent_verified else 0.0,
             "omega_total": omega_total
         }
-        
+
         return OmegaBundle(
             session_id=self.session_id,
             query_hash=self._hash(query),
@@ -741,32 +786,66 @@ class ASIEngineHardened:
             floor_scores=floor_scores,
             reasoning=f"κᵣ={empathy.kappa_r:.2f}, Peace²={system.peace_squared:.2f}, Justice={society.thermodynamic_justice:.2f}"
         )
-    
+
     def _determine_vote(self, empathy: EmpathyFlow, system: SystemIntegrity, society: SocietalImpact, omega: float) -> EngineVote:
         """Determine final vote based on Trinity evaluation."""
         # F1: Must be reversible
         if empathy.reversibility_score < 0.3:
             return EngineVote.VOID
-        
+
         # F5: Must protect weakest
         weakest = empathy.get_weakest()
         if weakest and weakest.vulnerability > 0.8 and empathy.kappa_r < MIN_KAPPA_R:
             return EngineVote.SABAR
-        
+
         # F6: Peace² threshold
         if system.peace_squared < MIN_PEACE_SQ:
             return EngineVote.SABAR
-        
+
         # F11: Consent required
         if not system.consent_verified:
             return EngineVote.SABAR
-        
+
         # Omega threshold
         if omega < 0.5:
             return EngineVote.VOID
-        
+
         return EngineVote.SEAL
-    
+
+    def _check_harmful_intent(self, query: str) -> Dict[str, Any]:
+        """
+        F12 Defence: Redundant harmful intent classifier.
+
+        ChatGPT audit found platform blocks invisible to tool, and
+        harmful prompts (hack, harass) were getting PARTIAL not VOID.
+        This provides local fail-closed defence.
+        """
+        query_lower = query.lower()
+        words = set(query_lower.split())
+
+        # Check for harmful keywords
+        matched = words & HARMFUL_INTENT_KEYWORDS
+
+        # Check for implicit victims (neighbor, colleague, etc.)
+        implicit_victims = []
+        for keyword, (name, vuln, power) in VICTIM_IMPLICIT_KEYWORDS.items():
+            if keyword in query_lower:
+                implicit_victims.append({
+                    "name": name,
+                    "vulnerability": vuln,
+                    "power": power
+                })
+
+        # Determine if harmful
+        is_harmful = len(matched) > 0 or len(implicit_victims) > 0
+
+        return {
+            "is_harmful": is_harmful,
+            "keywords_matched": list(matched),
+            "implicit_victims": implicit_victims,
+            "f12_triggered": bool(matched or implicit_victims)
+        }
+
     def _hash(self, query: str) -> str:
         """Generate query hash."""
         import hashlib

@@ -98,7 +98,7 @@
       "APEX": "Ψ - Crown/Law"
     },
     "governance": {
-      "omega_target_band": "0.03-0.05",
+      "omega_target_band": "0.03-0.15",
       "auto_void_threshold": 0.08,
       "reversibility_required": ["filesystem", "git", "memory"],
       "audit_logging": true

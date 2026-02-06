@@ -117,7 +117,7 @@ class SealResult:
 # =============================================================================
 
 
-async def authorize(query: str, user_token: Optional[str] = None) -> AuthorizeResult:
+async def authorize(query: str) -> AuthorizeResult:
     """F11/F12: Verify user and check for injection."""
     session_id = f"sess_{hash(query)}"
 
@@ -126,14 +126,8 @@ async def authorize(query: str, user_token: Optional[str] = None) -> AuthorizeRe
     status = "BLOCKED" if is_injection else "AUTHORIZED"
     risk = 0.9 if is_injection else 0.05
 
-    # Logic matching test_authorize_invalid_token
+    # Wall 2: No secrets in tool schema - user auth handled server-side
     user_level = "guest"
-    if user_token:
-        if "invalid" in user_token:
-            status = "ESCALATE"
-            user_level = "guest"
-        else:
-            user_level = "verified"
 
     return AuthorizeResult(
         status=status,
@@ -146,7 +140,7 @@ async def authorize(query: str, user_token: Optional[str] = None) -> AuthorizeRe
 
 async def init_000(query: str, **kwargs) -> AuthorizeResult:
     """Alias for authorize."""
-    return await authorize(query, **kwargs)
+    return await authorize(query)
 
 
 async def reason(query: str, session_id: Optional[str] = None) -> ReasonResult:
