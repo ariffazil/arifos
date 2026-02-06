@@ -1,5 +1,5 @@
-# arifOS MCP Server Dockerfile (v55.4-SEAL)
-# Cache-bust: 2026-02-06-entropy-fix
+# arifOS MCP Server Dockerfile (v55.5-HARDENED)
+# Cache-bust: 2026-02-06-api-keys
 FROM python:3.12-slim
 
 WORKDIR /app
