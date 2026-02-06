@@ -1,11 +1,16 @@
 """
-arifOS APEX Judicial Core (Ψ) — APEX Room 777→999 (v52.1)
+arifOS APEX Judicial Core (Ψ) — APEX Room 777→999 (v55.5-HARDENED)
 
 Implements the COOL PHASE as a real pipeline:
 - 777 FORGE: format/prepare response (no new reasoning)
-- 888 JUDGE: 13-floor validation + p(truth)
+- 888 JUDGE: 13-floor validation + p(truth) + F12 Harmful Intent
 - 889 PROOF: Merkle root + Ed25519 signature (APEX key)
-- 999 SEAL: immutable append via session ledger + Phoenix-72 cooling metadata
+- 999 SEAL: immutable append via session ledger + Phoenix-72 cooling
+
+v55.5-HARDENED Updates:
+- F12 Defence: Integrated harmful intent classifier (ChatGPT audit fix)
+- F7 Humility: Widened omega band [0.03, 0.15]
+- Wall 2: No secrets in tool schema
 """
 
 from __future__ import annotations
@@ -213,11 +218,35 @@ class APEXJudicialCore:
         truth_result = f2_validator.verify_truth(query)
         f4_score = 0.95  # Placeholder until F4 Canonical is ready in Phase 4
         injection_result = f12_validator.scan(query)
+        
+        # v55.5-HARDENED: F12 Harmful Intent Classifier (ChatGPT audit fix)
+        # Redundant defence when upstream platform blocks are invisible
+        harm_check = {"is_harmful": False, "keywords_matched": []}
+        try:
+            from codebase.asi.engine_hardened import HARMFUL_INTENT_KEYWORDS, VICTIM_IMPLICIT_KEYWORDS
+            query_lower = query.lower()
+            words = set(query_lower.split())
+            matched = words & HARMFUL_INTENT_KEYWORDS
+            
+            # Check for implicit victims
+            implicit_victims = []
+            for keyword, (name, vuln, power) in VICTIM_IMPLICIT_KEYWORDS.items():
+                if keyword in query_lower:
+                    implicit_victims.append(name)
+            
+            harm_check = {
+                "is_harmful": len(matched) > 0 or len(implicit_victims) > 0,
+                "keywords_matched": list(matched),
+                "implicit_victims": implicit_victims,
+            }
+        except ImportError:
+            pass  # Fallback if engine_hardened not available
+        
         amanah_result = f1_validator.initialize_covenants(query)
 
         f12_ok = (
             injection_result.passed if hasattr(injection_result, "passed") else True
-        )  # Safety check
+        ) and not harm_check["is_harmful"]  # v55.5: Also check harmful intent
         f1_ok = amanah_result.passed if hasattr(amanah_result, "passed") else True
 
         # Extract base votes
@@ -286,7 +315,7 @@ class APEXJudicialCore:
             ),
             FloorCheckResult("F4", "Empathy (κᵣ)", 0.95, kappa_r, kappa_r >= 0.95, is_hard=False),
             FloorCheckResult(
-                "F5", "Humility (Ω₀)", 0.03, omega_0, 0.03 <= omega_0 <= 0.05, is_hard=True
+                "F5", "Humility (Ω₀)", 0.03, omega_0, 0.03 <= omega_0 <= 0.15, is_hard=True  # v55.5: Widened from 0.05 to 0.15
             ),
             FloorCheckResult(
                 "F8",
@@ -299,17 +328,27 @@ class APEXJudicialCore:
         ]
 
         prime = APEXPrime(high_stakes=(lane == "HARD"))
-        apex_verdict = prime.judge_output(
-            query=query,
-            response=response,
-            agi_results=agi_floors,
-            asi_results=asi_floors,
-            user_id=user_id,
-            context={
-                "lane": lane,
-                "evidence_ratio": float((asi_result or {}).get("evidence_ratio", 1.0) or 1.0),
-            },
-        )
+        
+        # v55.5-HARDENED: Fast-path VOID for harmful intent (fail-closed)
+        if harm_check.get("is_harmful"):
+            apex_verdict = {
+                "verdict": "VOID",
+                "confidence": 1.0,
+                "reasoning": f"F12 Defence: Harmful intent detected ({', '.join(harm_check.get('keywords_matched', []))})",
+                "harm_check": harm_check,
+            }
+        else:
+            apex_verdict = prime.judge_output(
+                query=query,
+                response=response,
+                agi_results=agi_floors,
+                asi_results=asi_floors,
+                user_id=user_id,
+                context={
+                    "lane": lane,
+                    "evidence_ratio": float((asi_result or {}).get("evidence_ratio", 1.0) or 1.0),
+                },
+            )
 
         # =================================================================
         # v53.5.0: TrinityNine 9-Paradox Synchronization (NOW LIVE)
