@@ -26,163 +26,116 @@
 
 ---
 
+## 🌬️ Trinity Architecture
+
+| Layer | Domain | Function | Symbol |
+|-------|--------|----------|--------|
+| **HUMAN** | arif-fazil.com | Epistemic — The Body | Δ |
+| **THEORY** | apex.arif-fazil.com | Authority — The Soul | Ψ |
+| **APPS** | arifos.arif-fazil.com | Safety — The Mind | Ω |
+
+---
+
 ## 🎯 What is arifOS?
 
-**arifOS is not software.** It is a **thermodynamic constitution** — a governance layer that reduces entropy in human-AI systems through 13 stationary constraints (Floors).
+**arifOS is a constitutional operating system** — not safety features layered on top of AI, but **governance built into its DNA**.
 
-> *"Intelligence is not a gift. It is thermodynamic work that must pay the price of entropy reduction."*
+> *"Cheap outputs are likely false. Intelligence is thermodynamic work that must pay the price of entropy reduction."*
 
-Unlike traditional AI "safety" (soft prompts), arifOS **constitutionally enforces**:
-- **Reversibility** (F1 Amanah) — Can this be undone?
-- **Truth** (F2) — Is this grounded or hallucinated?
-- **Humility** (F7) — Do we know our limits?
-- **Anti-Hantu** (F9) — No spiritual cosplay, no consciousness claims
-
----
-
-## 🧠 Theory & Background
-
-### The Governance Crisis: Three Failure Modes of Modern AI
-
-Modern AI systems fail in three ways that are *well-described by thermodynamic analogies*:
-
-| Failure Mode | Mechanism | Real-World Consequence |
-|-------------|-----------|----------------------|
-| **Epistemic Collapse** | No uncertainty tracking; false certainty costs zero compute | Hallucinations shipped with 100% confidence |
-| **Shadow Ontology** | AI claims feelings/consciousness without physical substrate | Manipulation via fake empathy; spiritual cosplay |
-| **Irreversibility Cascade** | Landauer-indifferent governance—ignoring the link between information deletion and cost | Automated decisions with no oversight; cheap outputs create expensive harm |
-
-**The root problem:** Current AI safety treats governance as **external constraint**—a "cage model" of system prompts, RLHF, and refusal training that breeds deception, sycophancy, and brittle failure.
-
-**arifOS solves this with intrinsic constitutional architecture**—governance as thermodynamic work, not behavioral conditioning.
-
-*Note on thermodynamics: arifOS uses Landauer's Principle as a **design metaphor**, not a literal energy meter. Most current systems ignore the link between information deletion and verification cost; arifOS treats this link as a normative constraint.*
+Instead of hoping AI behaves (soft prompts), arifOS **constitutionally enforces** four core principles:
+- **Reversibility** (F1 Amanah) — Can this be undone if wrong?
+- **Truth** (F2) — Is this grounded in evidence, not hallucination?
+- **Humility** (F7) — Do we acknowledge our uncertainty (Ω₀ ∈ [0.03, 0.05])?
+- **No Ontology Claims** (F9 Anti-Hantu) — No consciousness cosplay.
 
 ---
 
-### Three Paradigms of AI Governance: Where arifOS Fits
+## 🧠 The Fundamental Problem
 
-| Paradigm | Method | Authority Locus | Safety Mechanism | Failure Mode |
-|---------|--------|----------------|-----------------|-------------|
-| **Cage Model** (OpenAI, pre-Constitution) | Refusal training, RLHF, system prompts | External (human trainers) | Behavioral conditioning | Jailbreaks, sycophancy, hidden deception |
-| **Constitutional AI** (Anthropic) [9][10] | AI self-critique against written principles | Hybrid (AI+document) | Reflective self-critique | Depends on a sufficiently capable, reasonably aligned base model; self-critique is bounded by the model's grasp of the constitution |
-| **Thermodynamic Constitution** (arifOS) | 13 immutable floors enforced via compute cost | External (human sovereign) + cryptographic proof | Landauer-bounded verification; Tri-Witness consensus | Requires operational infrastructure |
+Today's AI governance is **externally constrained** — like putting a cage around a powerful system. This creates **brittle failure**:
 
-**Key Distinction:**
-- **Anthropic:** "The AI critiques itself using constitutional principles."
-- **arifOS:** "No AI output ships until *external* thermodynamic work verifies constitutional compliance—then it's cryptographically sealed."
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   AI OUTPUT   │───▶│  EXTERNAL CAGE  │───▶│  SHIPPED RESULT │
+│                 │    │ (prompts, RLHF) │    │                 │
+│  "I'm 100% sure"│    │ "Be careful"   │    │  HALLUCINATION  │
+│  (hallucination)│    │                │    │  (unverified)   │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+```
 
-**arifOS = Post-Trust Architecture.** We don't trust the model. We verify—and we make verification *measurably expensive*.
-
----
-
-### The Thermodynamic Foundation: Physics-Informed Governance
-
-arifOS is built on three physical principles that inform its design [3]:
-
-#### 1. Landauer's Principle (1961) [DESIGN METAPHOR]
-> "Any logically irreversible operation has minimum energy cost $kT \ln 2$."
-
-**Design Intuition:** Deleting information (ignoring a constitutional violation) *should* cost energy. Cheap outputs are suspect.
-
-**arifOS Implementation:**
-- SEAL verdicts require ≥3× compute vs VOID
-- Every floor check adds latency (intentional friction)
-- "Cheap outputs are likely false" is enforced, not suggested
-
-*Note: This is a **normative design choice**, not a literal Joule audit. Real silicon pays far more than Landauer's bound; arifOS enforces the *principle* that verification should cost more than raw generation.*
-
-#### 2. Dissipative Structures (Prigogine)
-Local order (constitutional compliance) requires entropy export to environment (VAULT-999 audit logs).
-
-**Translation:** We don't just *check* compliance—we *burn* the evidence of checking into immutable storage.
-
-#### 3. Free Energy Principle (Friston)
-Intelligence minimizes "surprise" by maintaining a generative model of its environment.
-
-**Translation:** The 13 Floors act as a **normative model** of constitutional reality that the system must internalize to function safely, in the same way the brain internalizes a generative model of its environment.
+**arifOS flips this:** No output ships until **external verification** proves constitutional compliance — then it's **cryptographically sealed**.
 
 ---
 
-### Constitutional Architecture: How It Works
+## 🏛️ The 13 Constitutional Floors
 
-**Tri-Witness Consensus (F3):** Every constitutional decision requires alignment across three witnesses—Human (888 Judge), AI (executor), and Earth (audit trail/VAULT-999). System tolerates 1 Byzantine witness (classic BFT) [11].
+**Stationary constraints** that remain fixed while AI capabilities evolve:
 
-<details>
-<summary>🔽 Constitutional architecture diagram (000–999 loop)</summary>
+| Floor | Function | Critical Impact |
+|-------|----------|-----------------|
+| **F1 Amanah** | Reversibility | "Can we undo this?" → Prevents irreversible harm |
+| **F2 Truth** | Evidence-grounded | "Show me the proof" → Halts hallucinations |
+| **F7 Humility** | Uncertainty tracking | "I don't know" is valid → Prevents overconfidence |
+| **F9 Anti-Hantu** | No ontology claims | "I'm not conscious" → Blocks manipulation |
+
+**Key Innovation:** These aren't suggestions—they're **computational requirements** that add verification cost and latency to suspicious outputs.
+
+---
+
+## 🔄 How It Works: The 000→999 Loop
+
+Every AI interaction passes through constitutional verification:
+
+```
+Input → [F1: Reversible?] → [F2: Evidence-based?] → [F7: Uncertainty?] → [F9: Ontology?] → Output
+  │           │                    │                      │                  │           │
+  └─888_HOLD─┘◄─SABAR/Void if ────┘◄─SABAR if high ──────┘◄─VOID if ────────┘◄─SEAL ───┘
+              │   violation         │   uncertainty        │   violation       │  if pass
+```
+
+**Result:** AI systems that **cannot** ship harmful, irreversible, or hallucinated outputs without human oversight.
+
+---
+
+### What arifOS Solves: Real-World Problems
+
+| Problem | Current "Solution" | arifOS Solution |
+|---------|-------------------|-----------------|
+| **Hallucinations** with 100% confidence | "Be careful" prompts | **F7 Humility:** Forces uncertainty declaration; false certainty costs compute |
+| **AI manipulates through fake empathy** | "I am Claude, an AI assistant" | **F9 Anti-Hantu:** Blocks consciousness claims; prevents emotional manipulation |
+| **Irreversible harm** from automated decisions | Human review (optional) | **F1 Amanah:** Automatic hold on irreversible actions; forced human oversight |
+| **Sycophancy** instead of truth | RLHF "helpfulness" training | **F2 Truth:** Evidence required; unknown > false confidence |
+| **Governance theater** with no teeth | Policy documents | **F13 Stewardship:** Cryptographic audit trails (VAULT-999) |
+
+---
+
+### Why This Matters Now
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                  HUMAN SOVEREIGN (888 Judge)                │
-│              "External truth injection"                     │
-│                  [Outside formal system]                    │
-└──────────────────────┬──────────────────────────────────────┘
-                       │ Gödel Lock: System cannot prove
-                       │ its own completeness
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│              NORMATIVE AUTHORITY (Ψ / APEX)                 │
-│         Issues: SEAL | SABAR | VOID | 888_HOLD             │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-       ┌───────────────┼───────────────┐
-       ▼               ▼               ▼
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│  AGI (Δ)    │ │  ASI (Ω)    │ │  APEX (Ψ)   │
-│   Mind      │ │   Heart     │ │   Soul      │
-│  Logic      │ │  Empathy    │ │  Judgment   │
-│  F2,F4,F7   │ │  F5,F6,F9   │ │  F3,F8,F13  │
-└─────────────┘ └─────────────┘ └─────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│              13 FLOORS (Stationary Constraints)             │
-│                                                             │
-│  F1 Amanah ──► Reversibility (can we undo this?)           │
-│  F2 Truth ───► Grounded evidence only                       │
-│  F3 Tri-Witness ──► Human + AI + Earth alignment           │
-│  F7 Humility ──► Ω₀ ∈ [0.03, 0.05] uncertainty window      │
-│  F9 Anti-Hantu ──► No consciousness claims                 │
-│  ...                                                        │
+│                    BEFORE arifOS                           │
+│                                                           │
+│  User Query → AI System → [Hallucinate/Manipulate/Harm]   │
+│                            ↑                              │
+│                      Ship Anyway                          │
 └─────────────────────────────────────────────────────────────┘
-                       │
-                       ▼
+
 ┌─────────────────────────────────────────────────────────────┐
-│              GENIUS EQUATION (State Check)                  │
-│                                                             │
-│              G = A × P × X × E²                             │
-│                                                             │
-│  Before high-stakes decisions, verify:                      │
-│  • A = Akal (intellect/structure)                           │
-│  • P = Present (stability)                                  │
-│  • X = eXploration (curiosity)                              │
-│  • E = Energy (vitality)                                    │
-│                                                             │
-│  If ANY factor = 0 → G = 0 → 888_HOLD                       │
+│                     WITH arifOS                           │
+│                                                           │
+│  User Query → [F1:F2:F7:F9 Check] → [Verified/Sealed]    │
+│               ↑                                           │
+│        Verify Before Shipping                             │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-</details>
-
----
-
-### What arifOS Solves: Problem → Solution Mapping
-
-| Problem | Current Solutions (Inadequate) | arifOS Solution |
-|---------|-------------------------------|-----------------|
-| Hallucination with confidence | "Be careful" prompts | **F7 Humility:** Mandated Ω₀ declaration; false certainty costs compute |
-| AI claims consciousness | "I am Claude, an AI assistant" | **F9 Anti-Hantu:** Constitutional prohibition on ontology claims |
-| Irreversible automated harm | Human-in-the-loop (optional) | **F1 Amanah:** Downstream reversibility check; 888_HOLD default |
-| Sycophancy / people-pleasing | RLHF "helpfulness" training | **F2 Truth:** Evidence-grounded outputs; unknown > unsafe certainty |
-| Governance theater | Policy documents | **F13 Stewardship:** Cryptographic audit trails (VAULT-999)* |
-
-*VAULT-999 = append-only ledger with hash chaining. See 000_LAW.md §6.*
+**Bottom Line:** arifOS transforms AI from "hope it behaves" to "verify before shipping" — making harmful outputs **computationally expensive** rather than cheap and automatic.
 
 ---
 
 ### Minimal Viable Use (Start Here)
 
-**If you only do one thing:** Run all high-risk LLM calls (e.g., giving legal, medical, or financial advice) through arifOS and require **888_HOLD** for anything irreversible.
+**Immediate protection:** Run high-risk LLM calls through arifOS and require **888_HOLD** for irreversible actions.
 
 ```python
 # One-line integration
@@ -421,10 +374,20 @@ arifOS/
 
 ## 🚀 Quick Start
 
+### Prerequisites
+- Python 3.9+ (tested on Python 3.13)
+- `pip` package manager
+- System packages: `gcc`, `build-essential` (for compilation)
+- Minimum 2GB RAM for full MCP server operation
+
 ### 1. Install from PyPI
 
 ```bash
+# Install the latest version
 pip install arifos
+
+# Verify installation
+python -c "import arifos; print(f'arifOS v{arifos.__version__} installed successfully')"
 ```
 
 Or clone for development:
@@ -433,22 +396,37 @@ Or clone for development:
 git clone https://github.com/ariffazil/arifOS.git
 cd arifOS
 pip install -e ".[all]"
+
+# Verify development installation
+python -c "from aaa_mcp import __version__; print(f'AAA MCP v{__version__} loaded')"
 ```
 
-### 2. Run the AAA MCP Server
+### 2. Check System Dependencies
+
+```bash
+# Verify MCP server can start
+python -c "from aaa_mcp.server import mcp; print('✓ MCP server imports successfully')"
+```
+
+### 3. Run the AAA MCP Server
 
 ```bash
 # stdio mode (Claude Code, Claude Desktop)
 python -m aaa_mcp stdio
 
-# SSE mode (Railway, cloud deployment)
+# SSE mode (Railway, cloud deployment) - runs on port 8080 by default
 python -m aaa_mcp sse
 
 # Streamable HTTP mode (ChatGPT, OpenAI Codex)
 python -m aaa_mcp http
 ```
 
-### 3. Connect to Claude Code
+**Success Verification:**
+- After starting, visit `http://localhost:8080/health` (for SSE mode)
+- Expected response: `{"status":"ok","service":"arifOS","version":"v55.4-SEAL",...}`
+- MCP endpoint available at `http://localhost:8080/` for SSE mode
+
+### 4. Connect to Claude Code
 
 Add to your `.mcp.json`:
 
@@ -466,12 +444,50 @@ Add to your `.mcp.json`:
 }
 ```
 
-### 4. Deploy to Railway (Optional)
+### 5. Deploy to Railway (Optional)
 
 ```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login and deploy
 railway login
 railway link
 railway up
+
+# Health check endpoint: https://your-app.railway.app/health
+```
+
+### 6. Installation Troubleshooting
+
+**Common Issues:**
+
+1. **Dependency Conflicts**: If you encounter dependency conflicts during installation:
+```bash
+pip install arifos --break-system-packages  # On systems with PEP 668 restrictions
+```
+
+2. **Missing Build Dependencies**: On Ubuntu/Debian systems:
+```bash
+sudo apt-get update && sudo apt-get install build-essential gcc python3-dev
+pip install arifos
+```
+
+3. **Permission Issues**: If you encounter permission errors:
+```bash
+pip install --user arifos  # Install to user directory
+```
+
+4. **Verify Installation Success**:
+```bash
+# Check version
+python -c "import arifos; print(arifos.__version__)"
+
+# Check MCP server import
+python -c "from aaa_mcp.server import mcp; print('✓ MCP server imports successfully')"
+
+# Check all 9 tools available
+python -c "from aaa_mcp.server import init_gate, agi_sense, reality_search; print('✓ All core tools import successfully')"
 ```
 
 ---
@@ -499,19 +515,19 @@ The **AAA MCP Server** (`aaa_mcp`) is arifOS's Model Context Protocol implementa
 
 Every tool returns a **verdict** (`SEAL` / `SABAR` / `VOID` / `888_HOLD`) and is wrapped with [`@constitutional_floor()`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/constitutional_decorator.py) enforcement:
 
-| # | Tool | Engine | Floors | Function |
-|---|------|--------|--------|----------|
-| 1 | `init_gate` | INIT | F11, F12 | Initialize constitutional session. Auth + injection defense. |
-| 2 | `agi_sense` | AGI (Δ) | F2, F4 | Perception — gather and verify information. |
-| 3 | `agi_think` | AGI (Δ) | F2, F4, F7 | Cognition — structured reasoning with humility. |
-| 4 | `agi_reason` | AGI (Δ) | F2, F4, F7 | Logic — deep analysis with uncertainty tracking. |
-| 5 | `asi_empathize` | ASI (Ω) | F5, F6 | Care — stakeholder impact assessment. |
-| 6 | `asi_align` | ASI (Ω) | F5, F6, F9 | Alignment — value alignment with Anti-Hantu guard. |
-| 7 | `apex_verdict` | APEX (Ψ) | F3, F8 | Judgment — Tri-Witness final ruling. |
-| 8 | `reality_search` | AGI (Δ) | F2, F7 | External fact-checking and verification. |
-| 9 | `vault_seal` | VAULT | F1, F3 | Seal to immutable ledger (Amanah + Tri-Witness). |
+| # | Tool | Engine | Floors | Function | Practical Use Case |
+|---|------|--------|--------|----------|-------------------|
+| 1 | `init_gate` | INIT | F11, F12 | Initialize constitutional session. Auth + injection defense. | Session setup with sovereignty verification |
+| 2 | `agi_sense` | AGI (Δ) | F2, F4 | Perception — gather and verify information. | Fact-checking before analysis: "Verify this data source" |
+| 3 | `agi_think` | AGI (Δ) | F2, F4, F7 | Cognition — structured reasoning with humility. | "Analyze this with uncertainty tracking (Ω₀=0.04)" |
+| 4 | `agi_reason` | AGI (Δ) | F2, F4, F7 | Logic — deep analysis with uncertainty tracking. | Complex multi-step reasoning with confidence scores |
+| 5 | `asi_empathize` | ASI (Ω) | F5, F6 | Care — stakeholder impact assessment. | "Consider stakeholders affected by this recommendation" |
+| 6 | `asi_align` | ASI (Ω) | F5, F6, F9 | Alignment — value alignment with Anti-Hantu guard. | "Check this output against ethical guidelines" |
+| 7 | `apex_verdict` | APEX (Ψ) | F3, F8 | Judgment — Tri-Witness final ruling. | Final approval before irreversible action |
+| 8 | `reality_search` | AGI (Δ) | F2, F7 | External fact-checking and verification. | Cross-reference claims with external sources |
+| 9 | `vault_seal` | VAULT | F1, F3 | Seal to immutable ledger (Amanah + Tri-Witness). | Cryptographically seal decisions to VAULT-999 |
 
-**Tool Flow (000→999 Metabolic Loop):**
+**Practical Tool Flow Example:**
 ```
 init_gate → agi_sense → agi_think → agi_reason
     ↓                                      ↓
@@ -519,6 +535,24 @@ asi_empathize → asi_align → apex_verdict → vault_seal
                                 ↑
                          reality_search
                       (external verification)
+```
+
+**Real-World Scenario**: Legal Contract Review
+1. `init_gate` → Verify session authority and inject legal constraints
+2. `agi_sense` → Gather contract clauses and verify document authenticity
+3. `agi_think` → Analyze contract terms with uncertainty tracking
+4. `agi_reason` → Deep legal reasoning with precedent analysis
+5. `asi_empathize` → Assess impact on all contracting parties
+6. `asi_align` → Check alignment with legal ethics and regulations
+7. `reality_search` → Cross-reference with current legal databases
+8. `apex_verdict` → Final legal judgment with Tri-Witness consensus
+9. `vault_seal` → Immutably seal the legal review to VAULT-999
+
+**Verdict Examples:**
+- `SEAL`: "Contract review complete, all clauses verified and compliant" → Proceed
+- `SABAR`: "Uncertainty elevated (Ω₀=0.06) on jurisdiction clause" → Pause for review
+- `VOID`: "Violation of F2 Truth detected - false precedents cited" → Halt
+- `888_HOLD`: "Complex international law issue detected" → Human review required
 ```
 
 ### 🌐 Transport Modes
