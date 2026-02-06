@@ -15,7 +15,7 @@ try:
     # However, aaa_mcp.__main__ handles the CLI.
     # Let's import aaa_mcp.asi_gateway and run it.
 
-    from aaa_mcp.asi_gateway import mcp
+    from aaa_mcp.server import mcp
 
     # Check arguments
     if len(sys.argv) > 1 and sys.argv[1] == "sse":
