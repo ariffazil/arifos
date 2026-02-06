@@ -2,7 +2,7 @@
 
 **Project:** arifOS — Constitutional AI Governance System  
 **Package:** `arifos` (PyPI)  
-**Version:** v55.2 (as of 2026-02-02)  
+**Version:** v55.5 (as of 2026-02-02)  
 **Python:** >=3.10  
 **License:** AGPL-3.0-only  
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*

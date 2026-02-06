@@ -146,7 +146,7 @@ def generate_refusal_response(
         "trace_id": trace_id,
         "query_hash": hashlib.sha256(prompt.encode()).hexdigest()[:16],
         "timestamp": datetime.now(timezone.utc).isoformat(),
-        "model_version": "v55.2",
+        "model_version": "v55.5",
         "profile": profile,
         "redacted_excerpt": (
             _redact_prompt(prompt) 

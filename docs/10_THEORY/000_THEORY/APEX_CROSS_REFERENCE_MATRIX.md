@@ -1,7 +1,7 @@
 # APEX CROSS-REFERENCE MATRIX
 ## Theory-to-Constitution Mapping
 
-**Version:** v55.2-REF  
+**Version:** v55.5-REF  
 **Date:** 2026-02-02
 
 ---

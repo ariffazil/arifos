@@ -30,7 +30,7 @@
 | Document | Purpose |
 |----------|---------|
 | [Constitutional Theory](../000_THEORY/README.md) | 13 floors, paradoxes, thermodynamics |
-| [Roadmap](../ROADMAP/ROADMAP.md) | v55.3 → v60.0 timeline |
+| [Roadmap](../ROADMAP/ROADMAP.md) | v55.5 → v60.0 timeline |
 | [MCP Architecture](../docs/MCP_ARCHITECTURE_ANALYSIS.md) | Why ChatGPT vs Qwen behave differently |
 
 ---

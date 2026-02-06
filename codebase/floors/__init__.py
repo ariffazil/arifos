@@ -1,10 +1,10 @@
 """
 codebase/floors/__init__.py
 Constitutional Floor Modules (F1-F13)
-v55.1: Exports Canonical Floors, Metrics, and Eigendecomposition
+v55.5: Exports Canonical Floors, Metrics, and Eigendecomposition
 """
 
-# Genius Calculator with Eigendecomposition (v55.1)
+# Genius Calculator with Eigendecomposition (v55.5)
 from codebase.floors.genius import (
     GeniusCalculator,
     GeniusMetrics,

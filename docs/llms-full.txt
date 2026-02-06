@@ -1,4 +1,4 @@
-# arifOS AAA MCP Tools Reference (v55.2)
+# arifOS AAA MCP Tools Reference (v55.5)
 
 This document provides a comprehensive reference for the 9 Canonical Constitutional Tools of arifOS.
 Every tool enforces specific constitutional floors (F1-F13) and follows the AAA (AGI/ASI/APEX) framework.
@@ -609,12 +609,12 @@ Every tool enforces specific constitutional floors (F1-F13) and follows the AAA 
 
 ## Removed Tools
 
-Legacy aliases (`_init_`, `_agi_`, `asi_insight`, etc.) have been **removed** in v55.2.
+Legacy aliases (`_init_`, `_agi_`, `asi_insight`, etc.) have been **removed** in v55.5.
 Attempting to use them will result in a Schema Error.
 
 See migration guide: [docs/MIGRATION_v54_to_v55.md](MIGRATION_v54_to_v55.md)
 
 ---
 
-**arifOS v55.2** • Constitutional AI Governance • AGPL-3.0  
+**arifOS v55.5** • Constitutional AI Governance • AGPL-3.0  
 https://github.com/ariffazil/arifOS

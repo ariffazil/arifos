@@ -136,7 +136,7 @@ FLOORS_ENFORCED = {
 | v53.5 | 2024-Q4 | Added SSE transport |
 | v54.0 | 2025-Q1 | Hardened enforcement |
 | v54.1 | 2025-Q1 | Production deployment |
-| v55.0 | 2026-Q1 | Universal MCP (planned) |
+| v55.5 | 2026-Q1 | Universal MCP (planned) |
 
 ---
 

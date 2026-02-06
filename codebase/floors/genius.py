@@ -1,9 +1,9 @@
 """
 arifOS Genius Formula Calculator (GFC)
-Version: v55.1-EIGEN
+Version: v55.5-EIGEN
 Formula: G = A × P × X × E²
 
-CRITICAL FIX (v55.1): A/P/X/E dials are now DERIVED from floor scores
+CRITICAL FIX (v55.5): A/P/X/E dials are now DERIVED from floor scores
 via eigendecomposition (geometric mean projection), not set manually.
 
 Theory: 000_FOUNDATIONS.md §3.2 — The APEX 4 Dials

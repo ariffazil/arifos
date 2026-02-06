@@ -1,6 +1,6 @@
 ---
 title: "010_TRINITY.md"
-version: "v55.2"
+version: "v55.5"
 epoch: "2026-02-02"
 sealed_by: "888_Judge"
 authority: "Muhammad Arif bin Fazil"
@@ -112,7 +112,7 @@ def map(cognition: CognitionResult) -> AtlasResult:
 
 ### Definition (Absorbed into 888)
 
-**FUSION** is the synthesis engine—combining AGI's logic with APEX's discovery. In the v55.2 runtime, this functionality is absorbed into `apex_verdict` (Stage 888) to minimize latency while maintaining the Genius Floor (F8).
+**FUSION** is the synthesis engine—combining AGI's logic with APEX's discovery. In the v55.5 runtime, this functionality is absorbed into `apex_verdict` (Stage 888) to minimize latency while maintaining the Genius Floor (F8).
 
 ```yaml
 engine: FUSION

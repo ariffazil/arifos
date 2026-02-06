@@ -7,7 +7,7 @@ Redirects to the canonical aaa_mcp package.
 import runpy
 import sys
 
-print("Redirecting to aaa_mcp (v55.2)...")
+print("Redirecting to aaa_mcp (v55.5)...")
 # Execute the aaa_mcp module as a script
 try:
     # This is equivalent to `python -m aaa_mcp stdio` if arguments were passed

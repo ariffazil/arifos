@@ -1,6 +1,6 @@
 # arifOS MCP Server — Deployment Configuration
 
-**Last Updated:** 2026-02-03 (v55.3 deployment)  
+**Last Updated:** 2026-02-03 (v55.5 deployment)  
 **Status:** ✅ PRODUCTION LIVE at https://aaamcp.arif-fazil.com
 
 ---
@@ -29,7 +29,7 @@ These are the ONLY files that matter for deployment:
 
 ### Why These Are Dangerous
 
-During v55.3 deployment, we learned that **having multiple config files causes Railway to pick the wrong one**. This led to 4+ hours of debugging.
+During v55.5 deployment, we learned that **having multiple config files causes Railway to pick the wrong one**. This led to 4+ hours of debugging.
 
 ### Files That Must Be Ignored
 
@@ -37,7 +37,7 @@ During v55.3 deployment, we learned that **having multiple config files causes R
 |-------------|-------------------|---------------------|
 | `archive/deployment-backup/railway.json` | Uses Nixpacks with WRONG start command | Old Railway config (pre-Dockerfile) |
 | `archive/deployment-backup/railway.toml` | Outdated paths | Old Railway config |
-| `archive/deployment-backup/Dockerfile.old` | Old build steps | Pre-v55.3 Dockerfile |
+| `archive/deployment-backup/Dockerfile.old` | Old build steps | Pre-v55.5 Dockerfile |
 | `archive/legacy-dashboards/railway.json` | Static site config, NOT MCP server | Portfolio website config |
 | `archive/legacy-dashboards/Dockerfile` | nginx static server | Portfolio website build |
 | `333_APPS/L4_TOOLS/mcp/` | Documentation snapshot | Old code reference, not runnable |
@@ -96,7 +96,7 @@ docker run --rm -v $(pwd):/app -w /app python:3.12-slim \
 
 ## 📚 Documentation
 
-- `docs/DEPLOYMENT_WISDOM.md` — Full post-mortem of v55.3 deployment crisis
+- `docs/DEPLOYMENT_WISDOM.md` — Full post-mortem of v55.5 deployment crisis
 
 ---
 

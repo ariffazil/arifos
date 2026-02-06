@@ -122,7 +122,7 @@ If domain doesn't work:
 
 1. Go to: https://apex.arif-fazil.com
 2. Should show your APEX site
-3. Check version shows: v55.2-SEAL
+3. Check version shows: v55.5-EIGEN
 4. Check navigation works
 
 ---

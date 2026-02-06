@@ -85,7 +85,7 @@ Includes:
 - Credibility metrics prominently displayed
 
 ### HTA Alignment
-- **v55.2-SEAL** version badge
+- **v55.5-EIGEN** version badge
 - **"Ditempa Bukan Diberi"** tagline
 - **F13 Sovereign** identity in footer
 - **Δ Ω Ψ** Trinity symbols

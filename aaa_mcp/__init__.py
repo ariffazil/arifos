@@ -21,7 +21,7 @@ from .constitutional_decorator import constitutional_floor, get_tool_floors
 from .mcp_config import MCP_SERVERS, TrinityComponent, get_server_config
 from .mcp_integration import MCPIntegrationLayer, get_mcp_layer
 
-__version__ = "55.4.0"
+__version__ = "55.5.0"
 __all__ = [
     # FastMCP server instance
     "mcp",

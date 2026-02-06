@@ -91,6 +91,7 @@ class TestSessionLedger:
             ledger.bbb_path.mkdir(parents=True)
             ledger._current_session = None
             ledger._chain_head = None
+            ledger._last_entry = None
             ledger._lock = threading.Lock()
             ledger._lock_file_path = ledger.session_path / ".ledger.lock"
             return ledger
@@ -210,6 +211,7 @@ class TestSessionLedgerThreadSafety:
             ledger.bbb_path.mkdir(parents=True)
             ledger._current_session = None
             ledger._chain_head = None
+            ledger._last_entry = None
             ledger._lock = threading.Lock()
             ledger._lock_file_path = ledger.session_path / ".ledger.lock"
             return ledger
@@ -299,6 +301,7 @@ class TestEdgeCases:
             ledger.bbb_path.mkdir(parents=True)
             ledger._current_session = None
             ledger._chain_head = None
+            ledger._last_entry = None
             ledger._lock = threading.Lock()
             ledger._lock_file_path = ledger.session_path / ".ledger.lock"
             return ledger
@@ -376,6 +379,7 @@ class TestVerdictHandling:
             ledger.bbb_path.mkdir(parents=True)
             ledger._current_session = None
             ledger._chain_head = None
+            ledger._last_entry = None
             ledger._lock = threading.Lock()
             ledger._lock_file_path = ledger.session_path / ".ledger.lock"
             return ledger

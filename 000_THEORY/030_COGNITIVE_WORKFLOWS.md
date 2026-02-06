@@ -1,6 +1,6 @@
 ---
 title: "030_THEORY_COGNITIVE_WORKFLOWS"
-version: "v55.3"
+version: "v55.5"
 epoch: "2026-02-03"
 status: "DRAFT"
 ---
@@ -30,7 +30,7 @@ Instead of a continuous stream of thought, we introduce **Constitutional Breakpo
 [Revision] —> [Thought N+1]
 ```
 
-## III. IMPLEMENTATION PLAN (v55.3)
+## III. IMPLEMENTATION PLAN (v55.5)
 
 ### 1. New Tool: `agi_reflect`
 A specialized AGI primitive focused solely on querying the generated thought against critical floors.

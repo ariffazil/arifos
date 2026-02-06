@@ -62,7 +62,7 @@ class ConstitutionalError(Exception):
                 return ConstitutionalError(
                     message=f"ASI Kernel Structure Mismatch: {msg}",
                     hint="You are likely accessing a flat attribute (empathy_kappa) on a nested object, or vice versa.",
-                    recovery="Check codebase/asi/kernel.py. Ensure you are using 'empathy.kappa_r' (v55.2) vs 'empathy_kappa_r' (v55.1). Redeploy if recently fixed.",
+                    recovery="Check codebase/asi/kernel.py. Ensure you are using 'empathy.kappa_r' (v55.5) vs 'empathy_kappa_r' (v55.1). Redeploy if recently fixed.",
                     github_link="https://github.com/ariffazil/arifOS/blob/main/codebase/asi/kernel.py",
                 )
 

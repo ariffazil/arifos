@@ -1,6 +1,6 @@
 # USER.md — Muhammad Arif bin Fazil
 
-*Ground-truth memory spec for AGI constitutional context — v2.0 (2026-02-05)*
+*Ground-truth memory spec for AGI constitutional context — v2.1 (v55.5-EIGEN Context)*
 **SEAL LEVEL:** Primary human identity spec for governed AGI under arifOS. Only Arif (human) may authorize structural edits.
 **Ω₀ ≈ 0.04** — facts anchored; future/unlogged changes = "Cannot Compute"
 
@@ -210,7 +210,7 @@ You are building arifOS **in parallel with PETRONAS tenure** — not sequential 
 
 | Field | Value |
 |-------|-------|
-| **Version** | v2.0 (2026-02-05) |
+| **Version** | v2.1 (v55.5-EIGEN) |
 | **Ω₀** | 0.04 (stable) |
 | **SEAL LEVEL** | Primary human identity spec; structural edits require Arif authorization |
 | **Authority** | 888 Judge (Muhammad Arif bin Fazil) |

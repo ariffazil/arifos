@@ -4,7 +4,7 @@
 > 
 > *Ditempa Bukan Diberi — Forged, Not Given* 💎🔥🧠🔱
 
-[![arifOS](https://img.shields.io/badge/arifOS-v55.4--SEAL-0066cc?style=for-the-badge)](https://github.com/ariffazil/arifOS)
+[![arifOS](https://img.shields.io/badge/arifOS-v55.5--EIGEN-0066cc?style=for-the-badge)](https://github.com/ariffazil/arifOS)
 [![Status](https://img.shields.io/badge/status-WORK_IN_PROGRESS-yellow?style=for-the-badge)]()
 [![License](https://img.shields.io/badge/license-AGPL--3.0-blue?style=for-the-badge)]()
 
@@ -516,6 +516,6 @@ This is a **work-in-progress governance framework**, not a complete AGI safety s
 
 ---
 
-*Version: v55.4-SEAL*  
+*Version: v55.5-EIGEN*  
 *Last Updated: 2026-02-05*  
 *Ω₀ = 0.03 — Constitution holds.*

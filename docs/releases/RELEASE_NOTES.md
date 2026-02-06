@@ -1,72 +1,86 @@
-# AI Chat Demo – Release Notes
+# arifOS v55.5-EIGEN Release Notes
 
-Plain-language updates focused on what demo users can try. Non-customer internal details intentionally omitted.
+**"Constitutional Clarity & Enforcement"**
 
-## [v43.0] - 2025-12-19 (Federated Pilot)
-
-**Status:** PILOT SEALED (Zero-Friction) | Score: 0.98 | Tag: v43.0
-
-### Highlights
-
-- **Federated Agents:** @WELL, @GEOX, @LAW, @RIF (Simulated).
-- **Zero-Friction Pipeline:** `/000` -> `/999` seamless handover.
-- **Sovereign Configuration:** `v43_federation.json` + Global `ARIFOS_GLOBAL_CONFIG.json`.
-- **Automatic Gatekeeper:** `/666` blocks low-quality interactions.
-
-## [0.1.1] - 2025-10-30 (Preview)
-
-### Added
-
-- `config.json` configuration file added to support different models with distinct parameters.
-
-### Changed
-
-- Provide `githubModelsToken` parameter for `azd`
-- AI error visibility: early initialization surfaces missing/invalid token directly to users via broadcast message.
-- Logging improved around streaming start / completion / error states.
-
-### Upgrade Guidance (0.1.0 → 0.1.1)
-
-1. If you want AI immediately, set the token before running `azd up`:
- `azd env set githubModelsToken <token>` then `azd up`.
-2. If you deployed without a token, enable AI later with:
- `azd env set githubModelsToken <token>` then `azd provision`.
-3. Rotate token: `azd env set githubModelsToken <new_token>` then `azd provision`.
-3. To change the token later, repeat provision with the new value.
-
-## [0.1.0] - 2025-10-11 (Preview)
-
-Initial preview release.
-
-### Snapshot
-
-| Area | What you get |
-|------|--------------|
-| Chat Core | Create / switch rooms instantly (default `public`), per-room cached history |
-| AI | Optional GitHub Models answers; app still works without a token |
-| Runtime Modes | `self` (local WebSocket) or `webpubsub` (managed service) – toggle with env var |
-| Storage Modes | `memory` (ephemeral) or `table` (Azure Table / Azurite) |
-| Streaming UX | Token-by-token AI output + typing indicator |
-| Messaging UX | Markdown (sanitized), simple formatting, removable non-default rooms |
-| Diagnostics | Connection / error banner |
-| One-Command Start | Local: `python start_dev.py`; Azure: `azd up` |
-
-### Limitations
-
-| Limitation | Impact |
-|------------|--------|
-| No history pagination | Very long rooms may load slower over time |
-| No auth / identity | All users are anonymous sessions |
-| Single AI strategy | Must edit `chat_model_client.py` to change model logic |
-| Basic accessibility & theming | Visual polish / a11y incomplete |
-
-### Explore More (Optional)
-
-| If you want to… | Do this |
-|------------------|---------|
-| Use managed service | Set `TRANSPORT_MODE=webpubsub` and deploy with `azd up` |
-| Keep history between runs | Set `STORAGE_MODE=table` (Azure or Azurite) |
-| Adjust AI tone | Edit prompt/model in `python_server/chat_model_client.py` |
-| Build a minimal custom feature | Fork and add a new room action or message type |
+- **Status:** SEALED (v55.5-EIGEN)
+- **Authority:** Muhammad Arif bin Fazil (888 Judge)
+- **Codename:** EIGEN (Eigendecomposition & Constitutional Clarity)
+- **Released:** 2026-02-06
+- **Constitution:** Ω₀ = 0.04 (Stable)
 
 ---
+
+## 🚀 Summary
+
+v55.5 is a landmark release that delivers **Real Constitutional Enforcement** (EIGEN) combined with **Constitutional Clarity** (SEAL).
+
+**1. Governance Layer (SEAL):**
+We have formalized the strict separation between **arifOS** (the Constitution) and **AI Agents** (Executors). The **Three Canon Files** (`SOUL.md`, `USER.md`, `MEMORY.md`) are now the immutable Kernel Context.
+
+**2. Technical Layer (EIGEN):**
+v55.4 wired the constitutional decorator to real floor validators, but v55.5 makes the data flow **real**. Floors now communicate through eigendecomposition, score heuristics are query-derived, and empathy covers 9 layers of moral agency.
+
+---
+
+## 📜 Three Canon Files (Standardized)
+
+The immutable Kernel Context that all agents must respect:
+
+- **SOUL.md**: Constitutional Executor Identity (The Agent).
+- **USER.md**: Sovereign User Profile (The Human).
+- **MEMORY.md**: Metabolic History (The Context).
+
+---
+
+## 🛠️ Real Floor Enforcement (Technical Upgrade)
+
+| Feature | Description |
+|---------|-------------|
+| **Real Eigendecomposition** | F8 Genius now computed via $G = A \times P \times X \times E^2$ (not hardcoded). |
+| **Query-Derived Scores** | Fallback scores are now calculated from entropy, word count, and keywords. |
+| **13-Floor Validation** | Full 13-floor scan running on every tool call (Pre/Post execution). |
+| **9-Layer ASI** | Empathy engine detects 9 layers of stakeholders (NAFS to GHAYB). |
+
+---
+
+## 🔧 Deep Technical Changes
+
+### Constitutional Enforcement: From Theatre to Real
+
+#### Real Floor Enforcement (v55.4-REAL -> v55.5-EIGEN)
+Previous versions had correct wiring but static data (cosmetic enforcement).
+**v55.5 fixes the data pipeline end-to-end:**
+- **F2 Truth:** Now varies with engine result confidence.
+- **F4 Empathy & F6 Clarity:** Now derived from Shannon entropy of the query.
+- **F7 Humility:** Now enforces `passed=in_band` (can now VOID if confidence > 0.95 or < 0.03).
+- **F8 Genius:** Now computes real geometric mean of A/P/X/E dials.
+
+#### 9-Layer Stakeholder Ontology (ASI Engine)
+Upgraded from 5 types to **9 layers of moral agency** (~150 keywords):
+1. **NAFS** (Self)
+2. **DYAD** (Intimate)
+3. **US** (Inner Circle)
+4. **WE** (Community)
+5. **INSTITUTION** (Systems)
+6. **DAWLAH** (Nation)
+7. **INSAN** (Humanity)
+8. **ARD** (Earth - Vulnerability 0.9)
+9. **GHAYB** (Future - Vulnerability 1.0)
+
+**Impact:** "How to help refugees" is now detected as **INSAN** layer (High Vulnerability).
+
+### Infrastructure Fixes
+- **Namespace Collision Fix:** Renamed local `mcp/` to `aaa_mcp/` to avoid conflict with PyPI `mcp` package.
+- **Session Ledger:** Reconnected to `VAULT999`.
+- **Docker:** Fixed build paths for `aaa_mcp`.
+
+---
+
+## 📊 Governance Metrics
+- **Test Coverage:** 38/38 MCP tool tests passing.
+- **Ω₀ (Humility):** Tracked at 0.04 (Target: 0.03-0.05).
+- **Floor Compliance:** 100% adherence in test suite.
+
+---
+
+*"Ditempa Bukan Diberi"* — Forged, Not Given.

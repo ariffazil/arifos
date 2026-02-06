@@ -1,5 +1,5 @@
 """
-MCP Tool Implementation Templates (v55.2)
+MCP Tool Implementation Templates (v55.5)
 Copy-paste templates for implementing the 9 Canonical MCP Tools
 
 Authority: arifOS Constitutional Framework
@@ -7,7 +7,7 @@ Purpose: Standardized tool implementation patterns
 
 NOTE: These are TEMPLATES for building new tools. The canonical
 production tools live in codebase/mcp/tools/canonical_trinity.py
-and codebase/mcp/core/tool_registry.py (9-tool v55.2 registry).
+and codebase/mcp/core/tool_registry.py (9-tool v55.5 registry).
 """
 
 from __future__ import annotations

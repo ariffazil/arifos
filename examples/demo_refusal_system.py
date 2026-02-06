@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Demo: Legally Defensible Refusal System for arifOS v55.2
+Demo: Legally Defensible Refusal System for arifOS v55.5
 
 DITEMPA BUKAN DIBERI — Forged, not given.
 """

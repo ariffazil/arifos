@@ -41,6 +41,10 @@ class ReasonResult:
     domain: str = "general"
     caveats: List[str] = field(default_factory=list)
     key_assumptions: List[str] = field(default_factory=list)
+    # F2 Truth score — separate from F7 confidence (epistemic humility)
+    # truth_score measures factual accuracy (>=0.99 required)
+    # confidence measures epistemic certainty (capped at 0.95 by F7 humility)
+    truth_score: float = 0.995
 
 
 @dataclass

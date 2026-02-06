@@ -1,5 +1,5 @@
 """
-Lightweight Schema Validator for arifOS MCP Tools (v55.3)
+Lightweight Schema Validator for arifOS MCP Tools (v55.5)
 
 Validates tool outputs against JSON schemas without heavy dependencies.
 Uses basic type checking and structure validation.

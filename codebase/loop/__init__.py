@@ -1,6 +1,6 @@
 """
 arifOS Loop Manager Module
-v55.0 - Metabolic Loop (000↔999)
+v55.5 - Metabolic Loop (000↔999)
 """
 
 from .manager import (

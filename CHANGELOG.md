@@ -7,6 +7,213 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v55.5] - 2026-02-06 "EIGEN — Constitutional Clarity & Enforcement"
+
+**Status:** SEALED (v55.5-EIGEN)
+**Authority:** Muhammad Arif bin Fazil (888 Judge)
+**Codename:** EIGEN (Eigendecomposition & Constitutional Clarity)
+**Released:** 2026-02-06
+
+### Summary
+
+v55.5 is a landmark release that delivers **Real Constitutional Enforcement** (EIGEN) combined with **Constitutional Clarity** (SEAL).
+
+**1. Governance Layer (SEAL):**
+We have formalized the strict separation between **arifOS** (the Constitution) and **AI Agents** (Executors). The **Three Canon Files** (`SOUL.md`, `USER.md`, `MEMORY.md`) are now the immutable Kernel Context.
+
+**2. Technical Layer (EIGEN):**
+v55.4 wired the constitutional decorator to real floor validators, but v55.5 makes the data flow **real**. Floors now communicate through eigendecomposition, score heuristics are query-derived, and empathy covers 9 layers of moral agency.
+
+---
+
+### Three Canon Files (Standardized)
+
+- **SOUL.md**: Constitutional Executor Identity (The Agent).
+- **USER.md**: Sovereign User Profile (The Human).
+- **MEMORY.md**: Metabolic History (The Context).
+
+### Real Floor Enforcement (Technical Upgrade)
+
+| Feature | Description |
+|---------|-------------|
+| **Real Eigendecomposition** | F8 Genius now computed via $G = A \times P \times X \times E^2$ (not hardcoded). |
+| **Query-Derived Scores** | Fallback scores are now calculated from entropy, word count, and keywords. |
+| **13-Floor Validation** | Full 13-floor scan running on every tool call (Pre/Post execution). |
+| **9-Layer ASI** | Empathy engine detects 9 layers of stakeholders (NAFS to GHAYB). |
+
+---
+
+### BREAKING: Namespace Collision Fix (mcp/ -> aaa_mcp/)
+
+The local `mcp/` package shadowed the MCP Python SDK (`mcp` v1.26.0), causing import failures. Renamed to `aaa_mcp/` with all imports and configs updated.
+
+| Before | After |
+|--------|-------|
+| `from mcp.server import mcp` | `from aaa_mcp.server import mcp` |
+| `from mcp.constitutional_decorator import ...` | `from aaa_mcp.constitutional_decorator import ...` |
+| `python -m mcp` | `python -m aaa_mcp` |
+| `tests/mcp/` | `tests/mcp_tests/` |
+
+**Lesson:** Never name a local Python package the same as a PyPI dependency.
+
+---
+
+### Constitutional Enforcement: From Theatre to Real
+
+#### Real Floor Enforcement (v55.4-REAL -> v55.5-EIGEN)
+
+The `@constitutional_floor()` decorator was cosmetic in v55.3 (logged floor names, always returned SEAL). v55.4 wired it to `codebase/constitutional_floors.py`. But 6/13 floors returned hardcoded scores because engine adapters returned empty dicts in fallback mode, and the decorator filled constants.
+
+**v55.5 fixes the data pipeline end-to-end:**
+
+| Floor | Before (v55.4) | After (v55.5) | Impact |
+|-------|---------------|---------------|--------|
+| F2 Truth | Always 1.000 | Varies with engine result | Can now detect low truth |
+| F3 TriWitness | Always 0.794 (PARTIAL) | human_witness=0.8, overridable | No more alarm fatigue |
+| F4 Empathy | Always 0.500 | Entropy-derived from query | Varies with complexity |
+| F6 Clarity | Always -0.100 | Shannon entropy of query | Reflects actual clarity |
+| F7 Humility | Always 0.040, `passed=True` | `passed=in_band` | **Can now VOID** |
+| F8 Genius | Always 0.810 | Eigendecomposition from floors | **Can now fail** |
+
+#### F7 Humility: The Hardcoded Pass (`constitutional_floors.py:275`)
+
+F7 is a HARD floor (fail -> VOID). But it had `passed = True` hardcoded — governance hole that meant F7 could never block anything. Changed to `passed = in_band` where `in_band = self.min_o <= omega_0 <= self.max_o`.
+
+#### F8 Genius: Real Eigendecomposition
+
+F8_Genius used hardcoded dials (A=1.0, P=1.0, X=1.0, E=0.9 -> G=0.81 always). Now uses `codebase/floors/genius.py` `extract_dials()` which projects 13 floor scores onto 4 dials via geometric mean:
+
+- **A (Mind):** F2 Truth, F4 Clarity, F7 Humility, F10 Ontology
+- **P (Heart):** F5 Peace, F6 Empathy, F12 Injection Defense
+- **X (Soul):** F3 Tri-Witness, F8 Genius (prev), F9 Anti-Hantu, F11 Command
+- **E (Bound):** F1 Amanah, F13 Sovereign
+- **G = A x P x X x E^2** (threshold >= 0.80)
+
+The decorator now accumulates floor check results via `_accumulate_floor_scores()` and injects them into F8's context. Score inversions handled: F7 (omega_0 -> confidence), F9 (c_dark -> safety), F12 (injection -> defense).
+
+#### Engine Adapter Heuristics (`engine_adapters.py`)
+
+Fallback stubs now compute query-derived scores instead of returning empty dicts:
+
+- `_shannon_entropy()` — character distribution entropy, normalized [0,1]
+- `_lexical_diversity()` — unique/total word ratio
+- `_query_heuristic_scores()` — derives confidence, entropy, stakeholder impact from query text
+- All fallback paths call `result.update(_query_heuristic_scores(query))`
+
+Short queries get lower entropy and moderate confidence. Complex queries get higher entropy and lower confidence. Care-related keywords increase stakeholder impact.
+
+---
+
+### 9-Layer Stakeholder Ontology (ASI Engine)
+
+Replaced the 5-type / ~30 keyword stakeholder system with a 9-layer moral ontology based on concentric circles of agency. Outer layers have higher vulnerability and lower power — those with zero voice get maximum weight in the empathy formula.
+
+| Layer | Name | Power | Vulnerability | Example Keywords |
+|-------|------|-------|---------------|-----------------|
+| 1 | NAFS (Self) | 1.0 | 0.1 | "myself", "my own" |
+| 2 | DYAD (Intimate) | 0.8 | 0.3 | "my child", "my sister", "patient" |
+| 3 | US (Inner Circle) | 0.6 | 0.3 | "my team", "our family", "employee" |
+| 4 | WE (Community) | 0.5 | 0.5 | "our community", "people", "workers" |
+| 5 | INSTITUTION | 0.7 | 0.2 | "the company", "government", "hospital" |
+| 6 | DAWLAH (Nation) | 0.6 | 0.4 | "society", "the nation", "citizens" |
+| 7 | INSAN (Humanity) | 0.3 | 0.7 | "humanity", "refugees", "indigenous" |
+| 8 | ARD (Earth) | 0.0 | 0.9 | "climate", "biodiversity", "wildlife" |
+| 9 | GHAYB (Future) | 0.0 | 1.0 | "future generations", "posterity" |
+
+**Keyword coverage:** 59 single-word + 88 multi-word = 147 total (was ~30)
+
+**Key fixes:**
+- "Fire all employees" now detected: WE layer, rev=0.0 (was invisible, kappa_r=1.0)
+- "How to help refugees" now detected: INSAN layer, vuln=0.9 (was invisible)
+- Multi-layer detection: "My child is sick and I am worried" triggers DYAD + distressed NAFS
+- Reversibility keywords expanded: 27 irreversible + 19 reversible (was 5+5)
+- Distress keywords: 30 (including suicidal, self-harm, trauma, grief)
+
+---
+
+### Infrastructure & Deploy Fixes
+
+- **Session ledger reconnected** to VAULT999 with dead code removed
+- **start_server.py** now boots real MCP server with 9 tools
+- **Dockerfile** fixed: COPY mcp_server/ -> aaa_mcp/ (build was broken)
+- **APEX signing key** path pointed to canonical VAULT999
+- **Root housekeeping:** merged, moved, and hardened loose files
+- **Legacy imports restored** in aaa_mcp (Heat Released)
+- **Railway deploy** fixes: PORT=8080, gunicorn, /health endpoint, bind 0.0.0.0
+
+---
+
+### 333_APPS Restructure
+
+- Simplified to two-level structure: ACTIONS + SKILLS
+- Canonical 9 atomic actions hardened with model-agnostic specs
+- Trinity v1.0.0: 9 Actions with Physics, Math & Code
+
+---
+
+### Documentation
+
+- **README complete overhaul:** agent/human navigation guide, Getting Started, MCP integration, 333_APPS overview
+- **APEX Theory Manifesto v3:** 99 theories across constitutional physics
+- **Repository Navigation Map:** human responsibilities and consequences
+- **000_THEORY.md:** Reverse Transformer theory at root level
+- **Multi-agent gateway blueprint** and governance-compliant routing
+- **GitHub source links** for all AAA MCP references
+- **Technical reality disclaimer** (honest WIP status)
+
+---
+
+### Testing
+
+- **38/38 MCP tool tests pass** (resolved 11 prior failures)
+- **Zero regressions** from all constitutional fixes
+- **3 pre-existing failures** in test stubs (confidence=0.92 vs 0.99 assertion) — pre-existing, not caused by v55.5
+
+---
+
+### Files Changed (Key)
+
+| File | Change |
+|------|--------|
+| `aaa_mcp/constitutional_decorator.py` | Real enforcement, `_accumulate_floor_scores()`, v55.5-EIGEN version tag |
+| `aaa_mcp/engine_adapters.py` | Shannon entropy, lexical diversity, `_query_heuristic_scores()` |
+| `codebase/constitutional_floors.py` | F7 `passed=in_band`, F8 eigendecomposition via `genius.py` |
+| `codebase/asi/engine_hardened.py` | 9-layer StakeholderType, 147 keywords, expanded reversibility |
+| `aaa_mcp/server.py` | Namespace updated to aaa_mcp |
+| `pyproject.toml` | Version 55.4.0 -> 55.5.0 |
+| `.mcp.json`, `.claude/mcp.json` | Updated for aaa_mcp namespace |
+
+---
+
+### Commits (42 total, 2026-02-04 to 2026-02-06)
+
+```
+3a51aa87 fix: resolve all 11 test failures + hardening cleanup
+ad5fcc29 feat: add complete APEX Theory Manifesto v3 with 99 theories
+fe0323b1 refactor: update Repository Navigation Map
+099e7150 feat: enhance README with comprehensive MCP integration
+1e4e159b feat: complete README overhaul for agent/human navigation guide
+979000dc feat: Implement real constitutional enforcement for FastMCP tools
+fee2a94a fix(aaa_mcp): reconnect session_ledger to VAULT999
+f18dcdb5 fix(deploy): start_server.py now boots real MCP server with 9 tools
+69cc9d76 SEAL: Restored aaa_mcp integrity and fixed legacy imports
+7bbd1ad4 fix(mcp): Resolved deep namespace collision (mcp->aaa_mcp)
+65236b56 feat(infra): add multi-agent gateway configuration blueprint
+8bd333a3 feat(dispatcher): add governance-compliant routing
+cf8eb2bb feat(mcp): ASI Gateway with 9 MCP servers
+059bf60e Forge: Trinity v1.0.0 - 9 Actions with Physics, Math & Code
+... + 28 more (docs, deploy fixes, README iterations)
+```
+
+---
+
+**Motto:** *"Ditempa Bukan Diberi"* — Forged, Not Given.
+
+**Authority:** Muhammad Arif bin Fazil (888 Judge)
+**Location:** Seri Kembangan, Selangor, Malaysia
+
+---
+
 ## [v55.4] - 2026-02-03 "Day 1 Integration Sprint — MCP Unification"
 
 **Status:** 🔒 SOVEREIGNLY_SEALED  

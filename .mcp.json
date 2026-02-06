@@ -1,5 +1,12 @@
 {
   "mcpServers": {
+    "hostinger-mcp": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "hostinger-api-mcp@latest"],
+      "env": {
+        "API_TOKEN": "YLaYKKsAsTw9OwG72XY46MPXt9P0T5wknv1WMCfaefdbd026"
+      }
+    },
     "aaa-mcp": {
       "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
       "args": ["-m", "aaa_mcp", "stdio"],

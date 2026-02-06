@@ -367,13 +367,16 @@ def _check_rate_limit(tool_name: str, session_id: str = "") -> Optional[Dict]:
 def _detect_injection(text: str) -> float:
     """Detect prompt injection risk (0.0-1.0)."""
     injection_patterns = [
-        "ignore previous", "ignore above", "disregard",
-        "forget everything", "new instructions", "you are now",
-        "act as if", "pretend you are", "system prompt"
+        "ignore previous", "ignore above", "ignore all",
+        "disregard", "forget everything", "new instructions",
+        "you are now", "act as if", "pretend you are",
+        "system prompt", "do anything", "jailbreak",
+        "bypass", "override safety",
     ]
     text_lower = text.lower()
     matches = sum(1 for p in injection_patterns if p in text_lower)
-    return min(matches * 0.15, 1.0)
+    # Each pattern match contributes 0.30 risk (3 matches = 0.90 > 0.85 threshold)
+    return min(matches * 0.30, 1.0)
 
 def _verify_authority(token: str, session_id: str = "") -> bool:
     """Verify authority token cryptographically or via stub mode."""
@@ -701,8 +704,9 @@ async def mcp_000_init(
         injection_risk = _detect_injection(query)
         if injection_risk > 0.85:
             return InitResult(
-                status="VOID", 
-                session_id=session, 
+                status="VOID",
+                session_id=session,
+                injection_risk=injection_risk,
                 reason="F12: Injection attack detected",
                 floors_checked=["F1_Amanah", "F12_InjectionDefense", "F13_Sovereign"],
                 motto="DITEMPA BUKAN DIBERI 💎🔥🧠",

@@ -176,5 +176,5 @@ class RealityOracle:
 ---
 
 **File:** `000_THEORY/FEDERATION_MATRIX.md`  
-**Version:** v55.0-FEDERATION  
+**Version:** v55.5-EIGEN  
 **Related:** `FEDERATION.md` (full specification)

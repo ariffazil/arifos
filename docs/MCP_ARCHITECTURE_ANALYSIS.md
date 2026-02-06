@@ -160,7 +160,7 @@ class MultiPlatformTransport:
 
 ## What You Should Do Now
 
-### Immediate (v55.3.x):
+### Immediate (v55.5.x):
 1. ✅ **Keep MCP endpoint** for Claude/Cursor users
 2. ✅ **Document the limitation** - add to DEPLOYMENT_TIPS.md
 3. 🔧 **Add simple GET endpoint** for Qwen-like platforms
@@ -226,5 +226,5 @@ This is what "platform-agnostic" actually means - meeting clients where they are
 
 ---
 
-*Analysis based on v55.3.4 deployment experience*
+*Analysis based on v55.5.4 deployment experience*
 *Authority: 888_JUDGE*

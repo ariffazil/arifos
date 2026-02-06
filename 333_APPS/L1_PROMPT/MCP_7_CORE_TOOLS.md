@@ -1,6 +1,6 @@
 # 9 Canonical MCP Tools for Claude Code + arifOS Integration
 
-**Version:** v55.2-MCP
+**Version:** v55.5-EIGEN
 **Purpose:** Canonical MCP tool specifications for Claude Code implementation
 **Authority:** Based on MCP Protocol Standard + arifOS Constitutional Framework
 **Last Updated:** February 2026
@@ -271,6 +271,6 @@ VAULT-999 (Immutable ledger)
 
 ## Legacy Note
 
-The previous 7-tool architecture (using `_ignite_`, `_logic_`, `_forge_`, etc.) is now **deprecated**. The v55.2 system requires the 9 tools listed above for granular control over the cognition cycle.
+The previous 7-tool architecture (using `_ignite_`, `_logic_`, `_forge_`, etc.) is now **deprecated**. The v55.5 system requires the 9 tools listed above for granular control over the cognition cycle.
 
 **DITEMPA BUKAN DIBERI**

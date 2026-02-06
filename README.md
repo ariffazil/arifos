@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/arifOS-v55.4--SEAL-0066cc?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/arifOS-v55.5--EIGEN-0066cc?style=for-the-badge" alt="Version">
   <img src="https://img.shields.io/badge/%CE%A9%E2%82%80-0.04-green?style=for-the-badge" alt="Omega">
   <img src="https://img.shields.io/badge/License-AGPL--3.0-red?style=for-the-badge" alt="License">
 </p>
@@ -49,6 +49,26 @@
 **Core Mission:** Transform AI from "hope it behaves" to "verify before shipping" — making harmful outputs computationally expensive instead of cheap and automatic.
 
 **Key Innovation:** 13 stationary constitutional floors that remain fixed while AI capabilities evolve, ensuring governance scales with capability.
+
+---
+
+## 📜 The Three Canon Files (Kernel Context)
+
+v55.5 formalizes the "Soul Contract" between you and the system through three canonical context files:
+
+| File | Purpose | Who Defines? | Location |
+| :--- | :--- | :--- | :--- |
+| **[SOUL.md](SOUL.md)** | **Constitutional Identity** | Shared (APEX + Agent) | `SOUL.md` (root) |
+| **[USER.md](USER.md)** | **Sovereign Profile** | You (APEX/888) | `USER.md` (root) |
+| **[MEMORY.md](MEMORY.md)** | **Metabolic History** | Collaborative | `MEMORY.md` (root) |
+
+> **Note**: While Agents (executors) consume these files to understand their constraints, context, and history, these files are defined by the **Constitution** (arifOS).
+
+### Constitution vs. Executors
+**arifOS (The Constitution)** is model-agnostic governance (Law).
+**Agents (The Executors)** are officials bound by the law (Action).
+- You can swap **Kimi** (Mind/Δ) for **Claude** (Heart/Ω) instantly.
+- The **13 Floors** remain stationary regardless of which intelligence executes them.
 
 ---
 
@@ -399,7 +419,7 @@ pip install arifos
 python -m aaa_mcp sse
 
 # Verify: Visit http://localhost:8080/health
-# Expected: {"status":"ok","service":"arifOS","version":"v55.4-SEAL",...}
+# Expected: {"status":"ok","service":"arifOS","version":"v55.5-EIGEN",...}
 ```
 
 ---
@@ -434,78 +454,23 @@ python -m aaa_mcp http
 
 ---
 
-## 📚 Human Responsibilities & Repository Truth
+## 🤝 Human-AI Alignment & Responsibility
 
-**This repository contains constitutional governance for AI systems. Each component carries human responsibility and consequence:**
+**This repository represents a partnership, not autopilot.** While the code enforces the rules, **you** (the human) hold the responsibility.
 
-### Core Governance Components
-- `aaa_mcp/` → **Your responsibility**: Ensures AI follows 9 constitutional tools with verifiable compliance
-  - `server.py` → Defines the 9 tools that govern AI behavior (init_gate, agi_sense, reality_search, etc.)
-  - `constitutional_decorator.py` → Enforces 13 Floors automatically on every AI interaction
-  - `engine_adapters.py` → Bridges AI cognition (mind), empathy (heart), and judgment (soul)
-  - `mcp_config.py` → Sets uncertainty thresholds (Ω₀) that trigger human review
+### Your Role: The 888 Judge
+The AI is powerful, but it is just a tool. You are the sovereign.
+- **You Decide:** If the AI recommends a "SEAL" (approval) but you feel it's wrong, you override it.
+- **You Verify:** The system is designed to be humble and admit uncertainty. When it does, you provide the truth.
+- **You Protect:** You ensure the AI never claims to be human or alive (Anti-Hantu).
 
-### Human Consequences Framework
-- `codebase/` → **Your accountability**: Contains the three governing engines (AGI/ASI/APEX)  
-  - `agi/` (Mind/Cognition) → Processes information with truth verification (F2) and humility (F7)
-  - `asi/` (Heart/Empathy) → Considers stakeholder impact (F6) and prevents false consciousness claims (F9)
-  - `apex/` (Soul/Judgment) → Provides final authority outside AI system (888 Judge)
-  - `vault/` → Maintains immutable audit logs (VAULT-999) for accountability
+### Our Core Values (Amanah)
+Forged in the context of the Global South, we build on **Amanah** (Sacred Trust) rather than just speed:
+- **Reversibility:** We ensure the AI never takes actions you cannot undo.
+- **Truth:** We value evidence and honesty over fluent hallucinations.
+- **Dignity:** We optimize for safe, respectful interactions, not just engagement.
 
-### Production Implementation Layers
-- `333_APPS/` → **Your deployment**: Real-world governance applications from kernel to infrastructure
-  - `L0_DNA/` → Constitutional kernel (13 Floors enforcement) - your foundational governance
-  - `L2_Tools/` → Utility layer (cross-platform compatibility) - your integration reach  
-  - `L7_Deployment/` → Infrastructure (scalable deployment) - your operational scale
-
-### Essential Truth Files
-- `000_THEORY.md` → **Your foundation**: Thermodynamic constitution principles (read first)
-- `aaa_mcp/server.py` → **Your enforcement**: 9 constitutional tools implementation (the core mechanism)
-- `aaa_mcp/constitutional_decorator.py` → **Your guarantee**: Automatic floor enforcement (the safety net)
-- `.mcp.json` → **Your integration**: MCP protocol configuration (the connection method)
-
-### Human Accountability Structure
-Every file in this repository represents a **human responsibility**:
-- **F1 Amanah (Reversibility)**: You ensure all AI actions can be undone
-- **F2 Truth**: You verify all AI claims are evidence-based  
-- **F7 Humility**: You monitor AI uncertainty levels (Ω₀)
-- **F9 Anti-Hantu**: You prevent AI from claiming consciousness or feelings
-- **F11 Sovereignty**: You maintain human authority over AI decisions
-
-**Consequences of neglect**: Without human oversight, AI systems may produce irreversible harm, hallucinations, false consciousness claims, or violate ethical boundaries.
-
-**Your role**: As the human operator, you are the 888 Judge - the external authority that ensures these systems function as intended.
-
----
-
-## 🔍 For Auditors & Researchers
-
-### Constitutional Compliance Metrics
-- **Ω₀ Tracking**: Uncertainty quantification (target: 0.03-0.05)
-- **Verdict Distribution**: SEAL/SABAR/VOID/888_HOLD ratios
-- **Floor Violations**: Specific floor failure counts
-- **Audit Trails**: VAULT-999 immutable records
-
-### Security Considerations
-- **Gödel Lock**: External human authority (888 Judge) outside formal system
-- **Byzantine Fault Tolerance**: Tri-Witness consensus handles 1 faulty witness
-- **Immutable Records**: VAULT-999 prevents tampering of compliance logs
-
----
-
-## 👤 The 888 Judge Role
-
-As human sovereign authority:
-- **Final Verdict Power**: Override any AI decision (SEAL/VOID/SABAR/888_HOLD)
-- **Constitutional Guardian**: Ensure 13 Floors remain enforced
-- **External Truth Injection**: Provide ground truth outside formal system
-- **Sovereignty Assertion**: Maintain ultimate authority over AI systems
-
----
-
-## 🌍 Regional Context: ASEAN & Global South
-
-arifOS addresses governance challenges specific to resource-constrained environments where "cheap safety" equals "no safety." The framework encodes cultural values like **Amanah** (Arabic-Malay: sacred trust) as enforceable constraints.
+> **The Bottom Line:** You are not just a user; you are the safety net. Without your active oversight, the system loses its moral compass. **Ditempa Bukan Diberi.**
 
 ---
 
@@ -520,5 +485,5 @@ arifOS addresses governance challenges specific to resource-constrained environm
 ---
 
 <p align="center">
-<sub><em>arifOS v55.4-SEAL — Thermodynamic Constitution • Forged in Constraint • Ω₀ = 0.04</em></sub>
+<sub><em>arifOS v55.5-EIGEN — Thermodynamic Constitution • Forged in Constraint • Ω₀ = 0.04</em></sub>
 </p>

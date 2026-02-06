@@ -1,5 +1,5 @@
 """
-arifOS Loop Manager v55.0
+arifOS Loop Manager v55.5
 Manages the metabolic loop: 000_INIT → 111-888 → 999_SEAL → 000_INIT
 
 The loop is a STRANGE LOOP - the end becomes the beginning.
@@ -289,7 +289,7 @@ class LoopBridge:
     def __init__(self, loop_manager: LoopManager):
         self.loop = loop_manager
         self._last_sealed_context: Optional[LoopContext] = None
-        self._pending_next_init: Optional[Dict] = None  # v55.0: Store params for next init
+        self._pending_next_init: Optional[Dict] = None  # v55.5: Store params for next init
 
         # Register callbacks
         self.loop.register_callback(LoopState.SEAL_999, self._on_seal)
@@ -301,7 +301,7 @@ class LoopBridge:
 
     def on_seal_complete(self, seal_data: Dict):
         """
-        v55.0 Adapter: Called by vault_tool when SEAL_999 completes.
+        v55.5 Adapter: Called by vault_tool when SEAL_999 completes.
 
         This method bridges external seal signals to the loop manager.
         Stores seal context for retrieval by next 000_INIT.
@@ -338,7 +338,7 @@ class LoopBridge:
 
         Returns context from last SEAL_999 or None if fresh start.
         """
-        # v55.0: Return pending params and clear
+        # v55.5: Return pending params and clear
         if self._pending_next_init:
             params = self._pending_next_init.copy()
             logger.info(

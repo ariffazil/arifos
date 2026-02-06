@@ -1,4 +1,4 @@
-# arifOS v55.3-SEAL — Constitutional Hardening & Empathy Forge
+# arifOS v55.5-EIGEN — Constitutional Hardening & Empathy Forge
 
 **Release Date:** 2026-02-03  
 **Authority:** Muhammad Arif bin Fazil (888 Judge)  
@@ -117,7 +117,7 @@ All floors now have working validators:
 - **MCP Endpoint:** https://aaamcp.arif-fazil.com/mcp
 - **Health Check:** https://aaamcp.arif-fazil.com/health
 - **REST API:** https://aaamcp.arif-fazil.com/api/v1/
-- **Version:** v55.2-SEAL (live)
+- **Version:** v55.5-EIGEN (live)
 
 ### Database
 - **Backend:** PostgreSQL (Railway)
@@ -142,7 +142,7 @@ All floors now have working validators:
 ## 🛠️ Installation
 
 ```bash
-# Latest (v55.3 with empathy fix + PostgreSQL vault)
+# Latest (v55.5 with empathy fix + PostgreSQL vault)
 pip install git+https://github.com/ariffazil/arifOS.git
 
 # Or from PyPI (when published)

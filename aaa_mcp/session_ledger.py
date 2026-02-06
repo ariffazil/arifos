@@ -252,11 +252,24 @@ def inject_memory() -> Dict[str, Any]:
 def seal_memory(**kwargs) -> Dict[str, Any]:
     """Helper to seal memory into the ledger."""
     ledger = get_ledger()
-    # Separate kwargs that match the seal_session signature
+    # Filter kwargs to only include what seal_session accepts
+    valid_keys = {
+        "session_id", "verdict", "init_result", "genius_result",
+        "act_result", "judge_result", "telemetry", "context_summary",
+        "key_insights", "metadata",
+    }
+    # Store extras in metadata so nothing is lost
+    extras = {k: v for k, v in kwargs.items() if k not in valid_keys}
+    filtered = {k: v for k, v in kwargs.items() if k in valid_keys}
+    if extras:
+        meta = filtered.get("metadata") or {}
+        meta.update(extras)
+        filtered["metadata"] = meta
     try:
-        entry = ledger.seal_session(**kwargs)
+        entry = ledger.seal_session(**filtered)
         return {
             "status": "SEALED",
+            "seal_id": entry.entry_hash,
             "entry_hash": entry.entry_hash,
             "session_id": entry.session_id,
             "reversible": True,

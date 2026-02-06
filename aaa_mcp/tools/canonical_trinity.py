@@ -2,7 +2,7 @@
 333_APPS/L4_TOOLS/mcp/tools/canonical_trinity.py
 
 MIRROR FILE — Documentation reference only.
-Canonical source: codebase/mcp/tools/canonical_trinity.py (v55.2, 9-tool registry)
+Canonical source: codebase/mcp/tools/canonical_trinity.py (v55.5, 9-tool registry)
 
 The 7 Legacy Tools of arifOS (v53 AAA Framework)
 These were split into 9 explicit tools in v55. See codebase/mcp/core/tool_registry.py.
@@ -46,7 +46,11 @@ async def mcp_agi(
     """
     try:
         kernel = get_kernel_manager().get_agi()
-        return await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
+        result = await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
+        # Ensure verdict is always present (kernel may not set it for sense/think)
+        if "verdict" not in result:
+            result["verdict"] = "SEAL"
+        return result
     except Exception as e:
         logger.error("mcp_agi execute failed: %s", e, exc_info=True)
         return {"verdict": "VOID", "session_id": session_id, "message": "Internal processing error"}
