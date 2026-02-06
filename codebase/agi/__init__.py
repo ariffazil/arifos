@@ -20,6 +20,8 @@ _agi_init_logger = _logging.getLogger("codebase.agi")
 
 # v53.5.0: Hardened engine (NOW LIVE — wired into kernel.py)
 from .engine_hardened import AGIEngineHardened, execute_agi_hardened
+AGIEngine = AGIEngineHardened
+execute_agi = execute_agi_hardened
 
 # v53.4.0: Gap modules (wired into engine_hardened pipeline)
 from .precision import PrecisionEstimate, PrecisionWeighter, estimate_precision, update_belief_with_precision, cosine_similarity
@@ -42,6 +44,9 @@ __all__ = [
     # Live engine
     "AGIEngineHardened",
     "execute_agi_hardened",
+    # Legacy compatibility aliases
+    "AGIEngine",
+    "execute_agi",
     # Precision (P1)
     "PrecisionEstimate", "PrecisionWeighter", "estimate_precision",
     "update_belief_with_precision", "cosine_similarity",

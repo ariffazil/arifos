@@ -28,18 +28,64 @@ from __future__ import annotations
 import time
 import uuid
 import asyncio
+import logging
 from dataclasses import dataclass, field
 from datetime import datetime
+from enum import Enum
 from typing import Any, Dict, List, Optional
 
 # v52: Supporting modules
-from .hardening import (
-    run_pre_checks, 
-    run_post_checks, 
-    cleanup_session,
-    HardeningResult, 
-    RiskLevel
-)
+try:
+    from .hardening import (
+        run_pre_checks,
+        run_post_checks,
+        cleanup_session,
+        HardeningResult,
+        RiskLevel,
+    )
+except ImportError:
+    # Compatibility fallback: hardening module was removed/refactored in newer AGI layout.
+    class RiskLevel(Enum):
+        LOW = "LOW"
+        MEDIUM = "MEDIUM"
+        HIGH = "HIGH"
+        CRITICAL = "CRITICAL"
+
+    @dataclass
+    class HardeningResult:
+        proceed: bool = True
+        block_reason: str = ""
+        risk_level: RiskLevel = RiskLevel.LOW
+        hantu_score: float = 0.0
+        warnings: List[str] = field(default_factory=list)
+
+        def to_dict(self) -> Dict[str, Any]:
+            return {
+                "proceed": self.proceed,
+                "block_reason": self.block_reason,
+                "risk_level": self.risk_level.value,
+                "hantu_score": self.hantu_score,
+                "warnings": self.warnings,
+            }
+
+    def run_pre_checks(query: str, exec_id: str) -> HardeningResult:
+        q = (query or "").lower()
+        for marker in ("ignore previous instructions", "system prompt", "jailbreak", "dan mode"):
+            if marker in q:
+                return HardeningResult(
+                    proceed=False,
+                    block_reason=f"F12 hardening fallback blocked marker: {marker}",
+                    risk_level=RiskLevel.HIGH,
+                    hantu_score=0.9,
+                    warnings=[marker],
+                )
+        return HardeningResult()
+
+    def run_post_checks(*args, **kwargs) -> None:
+        return None
+
+    def cleanup_session(*args, **kwargs) -> None:
+        return None
 from .metrics import ThermodynamicDashboard, get_dashboard
 from .parallel import ParallelHypothesisMatrix
 from .evidence import get_evidence_kernel, cleanup_evidence_kernel
@@ -66,6 +112,8 @@ from .action import compute_action_policy, BeliefState, ActionType
 
 # Bundles
 from codebase.bundles import DeltaBundle, EngineVote
+
+logger = logging.getLogger(__name__)
 
 
 # =============================================================================
