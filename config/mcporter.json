@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "arifos": {
+      "baseUrl": "https://aaamcp.arif-fazil.com/mcp"
+    }
+  },
+  "imports": []
+}
