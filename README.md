@@ -133,22 +133,36 @@ Input → [F1: Reversible?] → [F2: Evidence-based?] → [F7: Uncertainty?] →
 
 ---
 
-### Minimal Viable Use (Start Here)
+### Getting Started: Immediate Protection
 
-**Immediate protection:** Run high-risk LLM calls through arifOS and require **888_HOLD** for irreversible actions.
+**Start here:** Protect your first high-risk AI interaction by routing it through arifOS constitutional verification.
 
-```python
-# One-line integration
-response = arifOS.process(
-    llm=your_model,
-    input=user_query,
-    judge=human_authority,
-    risk_threshold="HIGH"  # Auto-triggers F1/F7/F11
-)
-# response.verdict: SEAL | SABAR | VOID | 888_HOLD
+**The Pattern:** Instead of letting AI respond freely, require verification for any irreversible or high-stakes decision:
+
+```
+AI Interaction Flow:
+Without arifOS: User → AI → Response (potentially harmful)
+With arifOS:    User → [Constitutional Check] → AI → Response (verified safe)
 ```
 
-This single pattern keeps F1 (Amanah), F7 (Humility), and F11 (Sovereignty) from feeling abstract—and gives teams a first foothold.
+**Implementation:**
+```python
+# Single integration point
+result = arifos.verify(
+    query=user_input,
+    model=your_llm,
+    context="high-risk"  # financial/legal/medical advice, irreversible actions
+)
+# Returns: SEAL (approved), SABAR (pause), VOID (reject), or 888_HOLD (human review)
+```
+
+**What This Does:**
+- **F1 Amanah**: Checks if the action is reversible before execution
+- **F2 Truth**: Verifies claims are evidence-based, not hallucinated  
+- **F7 Humility**: Tracks uncertainty (Ω₀) to prevent false confidence
+- **F9 Anti-Hantu**: Blocks inappropriate ontology claims by AI
+
+**Immediate Value:** This single integration prevents your AI from shipping hallucinated, irreversible, or manipulative outputs—without changing your existing AI stack.
 
 ---
 
