@@ -706,7 +706,7 @@ class TrinitySociety:
             return 0.9
 
         # Check for future stakeholders
-        future_stakeholders = [s for s in empathy.stakeholders if s.type == StakeholderType.FUTURE]
+        future_stakeholders = [s for s in empathy.stakeholders if s.type == StakeholderType.GHAYB]
         if future_stakeholders:
             return 0.85
 
@@ -742,9 +742,24 @@ class ASIEngineHardened:
             return OmegaBundle(
                 session_id=self.session_id,
                 query_hash=self._hash(query),
-                empathy=EmpathyFlow(),  # Empty empathy (blocked)
-                system=SystemIntegrity(),  # Empty system (blocked)
-                society=SocietalImpact(),  # Empty society (blocked)
+                empathy=EmpathyFlow(
+                    kappa_r=0.0,
+                    stakeholders=[],
+                    bias_reflection={},
+                    reversibility_score=1.0,
+                ),
+                system=SystemIntegrity(
+                    peace_squared=0.0,
+                    accountability_paths=["f12:defence"],
+                    consent_verified=False,
+                    power_care_balance=0.0,
+                ),
+                society=SocietalImpact(
+                    stakeholder_matrix={},
+                    thermodynamic_justice=0.0,
+                    ecological_equilibrium=0.0,
+                    future_generations=0.0,
+                ),
                 omega_total=0.0,
                 vote=EngineVote.VOID,
                 floor_scores={"F12_defence": 0.0, "harm_detected": 1.0},

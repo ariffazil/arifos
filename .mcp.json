@@ -15,7 +15,9 @@
         "PYTHONPATH": "C:/Users/User/arifOS",
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         "PYTHONIOENCODING": "utf-8",
-        "PYTHONUNBUFFERED": "1"
+        "PYTHONUNBUFFERED": "1",
+        "BRAVE_API_KEY": "BSAHQnzf-jTMMfGYe3MKmsJr7Uq8uEU",
+        "BROWSERBASE_API_KEY": "bb_live_Q06bFsopskK9f8DJz4IIOadANav"
       },
       "disabled": false,
       "alwaysAllow": [

@@ -24,7 +24,7 @@ except ImportError as e:
     logger.warning(f"AGI engine not available: {e}")
 
 try:
-    from codebase.asi.engine import ASIEngine as RealASIEngine
+    from codebase.asi import ASIEngine as RealASIEngine
 
     ASI_AVAILABLE = True
 except ImportError as e:
@@ -50,6 +50,31 @@ def _normalize_obj(obj: Any) -> Any:
     if isinstance(obj, dict):
         return obj
     return {"value": obj}
+
+
+def _extract_bundle(result: Any, bundle_attr: str) -> Any:
+    """Support both legacy wrapper results and direct bundle returns."""
+    if result is None:
+        return None
+
+    wrapped = getattr(result, bundle_attr, None)
+    if wrapped is not None:
+        return wrapped
+
+    # Hardened engines return the bundle object directly.
+    if hasattr(result, "vote") or hasattr(result, "to_dict") or is_dataclass(result):
+        return result
+
+    return None
+
+
+def _extract_verdict(bundle: Any) -> str:
+    if bundle is None:
+        return "SEAL"
+    vote = getattr(bundle, "vote", None)
+    if vote is None:
+        return "SEAL"
+    return getattr(vote, "value", None) or str(vote)
 
 
 # ─── Heuristic Score Estimators (for fallback mode) ────────────────────────
@@ -201,10 +226,10 @@ class AGIEngine:
     ) -> Dict[str, Any]:
         if self._engine:
             result = await self._engine.execute(query, context=context, lane=lane)
-            delta = getattr(result, "delta_bundle", None)
+            delta = _extract_bundle(result, "delta_bundle")
             stage_111 = getattr(result, "stage_111", None)
             return {
-                "verdict": getattr(getattr(delta, "vote", None), "value", None) or "SEAL",
+                "verdict": _extract_verdict(delta),
                 "query": query,
                 "session_id": session_id,
                 "engine_mode": "real",
@@ -248,9 +273,9 @@ class ASIEngine:
     ) -> Dict[str, Any]:
         if self._engine:
             result = await self._engine.execute(query, context=context)
-            omega = getattr(result, "omega_bundle", None)
+            omega = _extract_bundle(result, "omega_bundle")
             return {
-                "verdict": getattr(getattr(omega, "vote", None), "value", None) or "SEAL",
+                "verdict": _extract_verdict(omega),
                 "query": query,
                 "session_id": session_id,
                 "engine_mode": "real",

@@ -20,6 +20,7 @@ DITEMPA BUKAN DIBERI
 
 from .engine_hardened import (
     ASIEngineHardened,
+    ASIEngine,
     OmegaBundle,
     EmpathyFlow,
     SystemIntegrity,
@@ -30,12 +31,14 @@ from .engine_hardened import (
     TrinitySociety,
     EngineVote,
     StakeholderType,
-    execute_asi_hardened
+    execute_asi_hardened,
+    execute_asi,
 )
 
 __version__ = "v53.4.0-HARDENED"
 __all__ = [
     "ASIEngineHardened",
+    "ASIEngine",
     "OmegaBundle",
     "EmpathyFlow",
     "SystemIntegrity",
@@ -47,4 +50,5 @@ __all__ = [
     "EngineVote",
     "StakeholderType",
     "execute_asi_hardened",
+    "execute_asi",
 ]
