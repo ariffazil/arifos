@@ -1,10 +1,10 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "arifOS Kimi CLI MCP Configuration v55.5 - Constitutional 9 Tools + 3 Core External MCPs",
+  "$comment": "arifOS Kimi CLI MCP Configuration v55.5-EIGEN - 9 Canonical Tools + 6 External MCPs",
   "mcpServers": {
     "_comment_aaa": "=== CONSTITUTIONAL CORE (9 Canonical Tools) ===",
     "aaa-mcp": {
-      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
+      "command": "python",
       "args": ["-m", "aaa_mcp", "stdio"],
       "cwd": "C:/Users/User/arifOS",
       "env": {
@@ -28,6 +28,7 @@
         "vault_seal"
       ]
     },
+
     "_comment_filesystem": "=== F1 AMANAH - Filesystem Operations (Reversible) ===",
     "filesystem": {
       "command": "npx",
@@ -48,6 +49,7 @@
         "create_directory"
       ]
     },
+
     "_comment_git": "=== F2 TRUTH - Git Operations (Version Control as Evidence) ===",
     "git": {
       "command": "uvx",
@@ -71,6 +73,7 @@
         "git_commit"
       ]
     },
+
     "_comment_memory": "=== F8 WISDOM - Knowledge Graph Memory (Pattern Storage) ===",
     "memory": {
       "command": "npx",
@@ -91,22 +94,7 @@
         "delete_relations"
       ]
     },
-    "_comment_perplexity": "=== F2 TRUTH AUXILIARY - Perplexity Research (Reality Grounding) ===",
-    "perplexity": {
-      "command": "npx",
-      "args": ["-y", "@perplexity-ai/mcp-server@latest"],
-      "env": {
-        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}",
-        "PERPLEXITY_TIMEOUT_MS": "300000"
-      },
-      "disabled": false,
-      "alwaysAllow": [
-        "perplexity_search",
-        "perplexity_ask",
-        "perplexity_research",
-        "perplexity_reason"
-      ]
-    },
+
     "_comment_sequential": "=== F8 WISDOM - Sequential Thinking (Multi-step Reasoning) ===",
     "sequential-thinking": {
       "command": "npx",
@@ -115,6 +103,29 @@
       "disabled": false,
       "alwaysAllow": [
         "sequentialthinking"
+      ]
+    },
+
+    "_comment_fetch": "=== F2 TRUTH AUXILIARY - Fetch (Web Content Retrieval) ===",
+    "fetch": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-fetch@latest"],
+      "env": {},
+      "disabled": false,
+      "alwaysAllow": [
+        "fetch"
+      ]
+    },
+
+    "_comment_time": "=== F6 CLARITY - Time (Temporal Precision) ===",
+    "time": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-time@latest"],
+      "env": {},
+      "disabled": false,
+      "alwaysAllow": [
+        "get_current_time",
+        "convert_time"
       ]
     }
   }
