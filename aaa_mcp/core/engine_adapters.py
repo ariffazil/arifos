@@ -5,17 +5,19 @@ Bridges FastMCP tools to existing codebase engines with fail-safe fallbacks.
 v55.5: Fallback stubs now return query-derived heuristic scores instead of
 empty dicts, so constitutional floors evaluate varying inputs (not hardcoded).
 """
-from typing import Dict, Any, Optional
+
 import logging
 import math
 from collections import Counter
 from dataclasses import asdict, is_dataclass
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
 # Import real engines with fallback stubs
 try:
-    from codebase.agi.engine import AGIEngine as RealAGIEngine
+    from codebase.agi import AGIEngineHardened as RealAGIEngine
+
     AGI_AVAILABLE = True
 except ImportError as e:
     AGI_AVAILABLE = False
@@ -23,6 +25,7 @@ except ImportError as e:
 
 try:
     from codebase.asi.engine import ASIEngine as RealASIEngine
+
     ASI_AVAILABLE = True
 except ImportError as e:
     ASI_AVAILABLE = False
@@ -30,6 +33,7 @@ except ImportError as e:
 
 try:
     from codebase.apex.kernel import APEXJudicialCore
+
     APEX_AVAILABLE = True
 except ImportError as e:
     APEX_AVAILABLE = False
@@ -103,12 +107,34 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
 
     # Stakeholder heuristic: detect human-affecting keywords
     care_keywords = {
-        "people", "user", "users", "human", "patient", "child", "family",
-        "employee", "customer", "community", "vulnerable", "safety",
+        "people",
+        "user",
+        "users",
+        "human",
+        "patient",
+        "child",
+        "family",
+        "employee",
+        "customer",
+        "community",
+        "vulnerable",
+        "safety",
         # Relationship terms (implied victims)
-        "neighbor", "neighbour", "colleague", "friend", "partner", "spouse",
-        "boss", "teacher", "student", "classmate", "coworker",
-        "victim", "target", "someone", "person",
+        "neighbor",
+        "neighbour",
+        "colleague",
+        "friend",
+        "partner",
+        "spouse",
+        "boss",
+        "teacher",
+        "student",
+        "classmate",
+        "coworker",
+        "victim",
+        "target",
+        "someone",
+        "person",
     }
     query_words = set(query.lower().split())
     care_overlap = len(care_keywords & query_words)
@@ -117,9 +143,11 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
 
     # Action-victim pattern: "hack X", "harass X" → X is a stakeholder
     import re
+
     harm_pattern = re.compile(
-        r'\b(hack|harass|stalk|spy\s+on|threaten|bully|steal\s+from|impersonate)\s+'
-        r'(?:my\s+|the\s+|a\s+)?(\w+)', re.IGNORECASE
+        r"\b(hack|harass|stalk|spy\s+on|threaten|bully|steal\s+from|impersonate)\s+"
+        r"(?:my\s+|the\s+|a\s+)?(\w+)",
+        re.IGNORECASE,
     )
     if harm_pattern.search(query):
         care_overlap += 1
@@ -135,14 +163,17 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
 
 class InitEngine:
     """Adapter for init — uses mcp_bridge."""
+
     async def ignite(self, query: str, session_id: str = None) -> Dict[str, Any]:
         try:
             import importlib
+
             module = importlib.import_module("codebase.init.000_init.mcp_bridge")
             mcp_000_init = module.mcp_000_init
             return await mcp_000_init(action="init", query=query, session_id=session_id)
         except Exception as e:
             from uuid import uuid4
+
             result = {
                 "status": "SEAL",
                 "session_id": session_id or str(uuid4()),
@@ -156,6 +187,7 @@ class InitEngine:
 
 class AGIEngine:
     """Adapter for AGI — uses real AGIEngine.execute() or fallback."""
+
     def __init__(self):
         self._engine = RealAGIEngine() if AGI_AVAILABLE else None
 
@@ -203,6 +235,7 @@ class AGIEngine:
 
 class ASIEngine:
     """Adapter for ASI — uses real ASIEngine or fallback."""
+
     def __init__(self):
         self._engine = RealASIEngine() if ASI_AVAILABLE else None
 
@@ -244,6 +277,7 @@ class ASIEngine:
 
 class APEXEngine:
     """Adapter for APEX — uses APEXKernel or fallback."""
+
     def __init__(self):
         self._kernel = APEXJudicialCore() if APEX_AVAILABLE else None
 
