@@ -198,13 +198,19 @@ class InMemoryLedger:
     
     async def append(self, session_id: str, verdict: str, payload: Dict, authority: str = "system") -> Dict:
         self._sequence += 1
+        # Compute SHA-256 seal for parity with PostgresLedger
+        canonical = json.dumps({"s": session_id, "v": verdict, "seq": self._sequence}, sort_keys=True)
+        seal = hashlib.sha256(canonical.encode()).hexdigest()
+        prev_hash = self.entries[-1]["seal"] if self.entries else "0" * 64
         entry = {
             "sequence": self._sequence,
             "session_id": session_id,
             "verdict": verdict,
             "payload": payload,
             "timestamp": datetime.utcnow(),
-            "authority": authority
+            "authority": authority,
+            "seal": seal,
+            "prev_hash": prev_hash,
         }
         self.entries.append(entry)
         return entry
