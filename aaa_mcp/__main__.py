@@ -2,10 +2,8 @@
 aaa_mcp CLI Entry Point — Triple Transport Support
 
 Usage:
-    python -m aaa_mcp                # stdio (default — Claude Code, Claude Desktop)
-    python -m aaa_mcp stdio          # stdio (explicit)
-    python -m aaa_mcp sse            # SSE (legacy remote — Railway, cloud)
-    python -m aaa_mcp http           # Streamable HTTP (ChatGPT, OpenAI Codex, modern remote)
+    python -m aaa_mcp                # stdio (default — Local Agents)
+    python -m aaa_mcp sse            # sse (Remote — Railway/Network)
 
 DITEMPA BUKAN DIBERI
 """
@@ -18,11 +16,10 @@ def main():
 
     from .server import mcp
 
-    if mode == "http":
-        mcp.run(transport="streamable-http")
-    elif mode == "sse":
+    if mode == "sse":
         mcp.run(transport="sse")
     else:
+        # Default to stdio for local agents
         mcp.run(transport="stdio")
 
 
