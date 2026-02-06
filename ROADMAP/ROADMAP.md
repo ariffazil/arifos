@@ -130,6 +130,7 @@ Constitutional Value = Adoption × Trust × Time
 | 13 floors | ✅ | All enforced at runtime |
 | Real Eigendecomposition | ✅ | F8 Genius = A x P x X x E² |
 | 9-Layer ASI | ✅ | NAFS to GHAYB ontology |
+| Transport Optimization | ✅ | SSE/STDIO only, Port 8080 (Railway) |
 
 **Value Created:** Foundation for all future work. Without v55.5, no SDK possible.
 
