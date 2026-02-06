@@ -54,16 +54,15 @@
 
 ## 📜 The Three Canon Files (Kernel Context)
 
-v55.5 formalizes the "Soul Contract" between you and the system through three canonical context files:
+v55.5 formalizes the "Soul Contract" between you and the system through six canonical spec files:
 
 | File | Purpose | Who Defines? | Location |
 | :--- | :--- | :--- | :--- |
-| File | Purpose | Who Defines? | Location |
-| :--- | :--- | :--- | :--- |
-| **[SOUL.md](SOUL.md)** | **Constitutional Identity** | Shared (APEX + Agent) | `SOUL.md` (root) |
-| **[USER.md](USER.md)** | **Sovereign Profile** | You (APEX/888) | `USER.md` (root) |
-| **[MEMORY.md](MEMORY.md)** | **Metabolic History** | Collaborative | `MEMORY.md` (root) |
-| **[GEMINI.md](GEMINI.md)** | **Architect's Codex** | Antigravity (Δ) | `GEMINI.md` (root) |
+| **[IDENTITY.md](333_APPS/L5_AGENTS/SPEC/IDENTITY.md)** | **Agent Identity** | Shared (888 + Agent) | `L5_AGENTS/SPEC/` |
+| **[SOUL.md](333_APPS/L5_AGENTS/SPEC/SOUL.md)** | **Constitutional Identity** | Shared (APEX + Agent) | `L5_AGENTS/SPEC/` |
+| **[USER.md](333_APPS/L5_AGENTS/SPEC/USER.md)** | **Sovereign Profile** | Human (888) | `L5_AGENTS/SPEC/` |
+| **[MEMORY.md](333_APPS/L5_AGENTS/SPEC/MEMORY.md)** | **Metabolic History** | Collaborative | `L5_AGENTS/SPEC/` |
+| **[GEMINI.md](GEMINI.md)** | **Architect's Codex** | Antigravity (Δ) | Root |
 
 ### 📜 Governance Artifacts (The Rule of Law)
 Specific manuals that operationalize the constitution:
@@ -200,7 +199,7 @@ Every AI interaction follows this constitutional verification process:
 
 **Verdict System:**
 - **🟢 SEAL**: Passes all constitutional checks → Proceed
-- **🟡 SABAR**: Soft violation → Pause and retry  
+- **🟡 SABAR**: Soft violation → Pause and retry
 - **🔴 VOID**: Hard violation → Halt immediately
 - **👤 888_HOLD**: Human review required → Escalate to 888 Judge
 
@@ -291,60 +290,44 @@ python -m aaa_mcp sse
 
 ---
 
-## 🏗️ 333_APPS - Spectrum of Deployments
+## 🏗️ 333_APPS - Governance Spectrum
 
-### L0_DNA: Constitutional Kernel
-- **Function:** Core 13 Floors enforcement
-- **Status:** ✅ Production Ready
-- **Components:** `aaa_mcp/constitutional_decorator.py`, `@constitutional_floor()` system
-- **Metrics:** 100% floor compliance, Ω₀ tracking at 0.04
+### [L1_PROMPT — Zero-Context Entry](333_APPS/L1_PROMPT/)
+- **Function:** Instant constitutional governance prompts.
+- **Status:** ✅ **HARDENED**
+- **Sovereign Principle:** Governance at the first token.
 
-### L1_Foundation: Core Abstractions
-- **Function:** AGI/ASI/APEX engine abstraction
-- **Status:** ✅ Production Ready  
-- **Components:** `codebase/agi/`, `codebase/asi/`, `codebase/apex/` engines
-- **Metrics:** 9 canonical tools operational, MCP protocol compliant
+### [L2_SKILLS — Parameterized Templates](333_APPS/L2_SKILLS/)
+- **Function:** Atomic Actions (primitive) and Utilities.
+- **Status:** ✅ **HARDENED**
+- **Sovereign Principle:** Explicit functions over implicit magic.
 
-### L2_Tools: Utility Layer
-- **Function:** MCP tool implementations
-- **Status:** ✅ Production Ready
-- **Components:** `aaa_mcp/server.py`, 9 constitutional tools
-- **Metrics:** Cross-platform compatibility, model agnostic
+### [L3_WORKFLOW — Documented Sequences](333_APPS/L3_WORKFLOW/)
+- **Function:** Multi-step constitutional recipes (WORKFLOWS/).
+- **Status:** ✅ **HARDENED**
+- **Sovereign Principle:** Composability of safe actions.
 
-### L3_Data: Storage & Retrieval
-- **Function:** VAULT-999 immutable ledger
-- **Status:** ✅ Production Ready
-- **Components:** `codebase/vault/`, audit trail system
-- **Metrics:** Immutable audit logs, cryptographic sealing
+### [L4_TOOLS — Production MCP](aaa_mcp/)
+- **Function:** Core implementation of the 9 Canonical Tools.
+- **Status:** ✅ **HARDENED**
+- **Sovereign Principle:** Validated tool-chain for any AI platform.
 
-### L4_TOOLS: Tooling & MCP Configs
-- **Function:** MCP server configuration and management
-- **Status:** ✅ Production Ready
-- **Components:** `.mcp.json`, `aaa_mcp/mcp_config.py`
-- **Metrics:** Multi-platform deployment, transport agnostic
+### [L5_AGENTS — Autonomous Federation](333_APPS/L5_AGENTS/)
+- **Function:** Multi-agent runtime and environment physics.
+- **Status:** 🟡 **SLEEPING GIANT** (Runtime ready / Agents stubbed)
+- **Sovereign Principle:** Autonomy within a physics of law.
 
-### L5_Runtime: Execution Environment
-- **Function:** Runtime governance enforcement
-- **Status:** ✅ Production Ready
-- **Components:** `aaa_mcp/engine_adapters.py`, runtime verification
-- **Metrics:** Real-time floor compliance, Ω₀ monitoring
+### [L6_INSTITUTION — Trinity System](333_APPS/L6_INSTITUTION/)
+- **Function:** Role-based consensus (Mind+Heart+Soul).
+- **Status:** 🔴 **FRAMEWORK ONLY**
+- **Sovereign Principle:** Tri-Witness consensus.
 
-### L6_Integration: External Connections
-- **Function:** Third-party platform integration
-- **Status:** ✅ Production Ready
-- **Components:** MCP protocol adapters, transport handlers
-- **Metrics:** Platform coverage, reliability 99.9%
+### [L7_AGI — Recursive Intelligence](333_APPS/L7_AGI/)
+- **Function:** Self-improving constitutional AGI.
+- **Status:** 📋 **RESEARCH ONLY**
+- **Sovereign Principle:** Theoretical safety limits (F10, F13).
 
-### L7_Deployment: Infrastructure
-- **Function:** Cloud and on-premise deployment
-- **Status:** ✅ Production Ready
-- **Components:** Docker configurations, cloud deployment scripts
-- **Metrics:** Scalable deployment, monitoring integration
-
-### Future Roadmap:
-- **L8_Scalability:** Horizontal scaling, distributed governance
-- **L9_Ecosystem:** Partner integrations, marketplace
-- **L10_Advanced:** Predictive governance, adaptive floors
+---
 
 ---
 

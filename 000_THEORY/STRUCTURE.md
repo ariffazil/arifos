@@ -174,10 +174,12 @@ scripts/
 
 ## 📄 Essential Root Files
 
-### Agent Codices (PROTECTED)
+### Agent Codices (Managed in L5 SPEC)
+
+Agent codices and system specifications are located in `333_APPS/L5_AGENTS/SPEC/` to maintain functional cohesion with the agent orchestration layer.
 
 | File | Agent | Purpose |
-|:---|:---:|:---|
+|:---:|:---:|:---|
 | `GEMINI.md` | **Δ** | Architect's Operational Codex |
 | `CLAUDE.md` | **Ω** | Engineer's Operational Codex |
 | `SOUL.md` | **Ψ** | Auditor's Operational Codex |
@@ -192,14 +194,12 @@ scripts/
 | `CONTRIBUTING.md` | Contributor guide |
 | `SECURITY.md` | Security policy (F12 Defense) |
 
-### System Identity Files
-
-| File | Purpose |
-|:---|:---|
-| `AGENTS.md` | Agent discovery (industry standard) |
-| `IDENTITY.md` | System identity declaration |
-| `USER.md` | User profile |
-| `llms.txt` | AI discovery protocol |
+197: ### Discovery Protocols
+198: 
+199: | File | Purpose |
+200: |:---:|:---|
+201: | `llms.txt` | AI discovery protocol |
+202: 
 
 ### Build & Deployment Files
 

@@ -50,12 +50,12 @@ These items are constitutionally protected and MUST remain at root:
 ### Files
 - [x] `README.md` — Entry Point
 - [x] `LICENSE` — Legal
-- [x] `GEMINI.md` — Δ Codex
-- [x] `CLAUDE.md` — Ω Codex
-- [x] `SOUL.md` — Ψ Codex
-- [x] `AGENTS.md` — Agent Discovery
-- [x] `IDENTITY.md` — System Identity
-- [x] `USER.md` — User Profile
+- [ ] `GEMINI.md` — Δ Codex (Planned Move to SPEC)
+- [ ] `CLAUDE.md` — Ω Engineer Codex (Planned Move to SPEC)
+- [x] `SOUL.md` — Ψ Auditor Codex (MOVED to 333_APPS/L5_AGENTS/SPEC/)
+- [x] `AGENTS.md` — Agent Discovery (MOVED to 333_APPS/L5_AGENTS/SPEC/)
+- [x] `IDENTITY.md` — System Identity (MOVED to 333_APPS/L5_AGENTS/SPEC/)
+- [x] `USER.md` — User Profile (MOVED to 333_APPS/L5_AGENTS/SPEC/)
 - [x] `CHANGELOG.md` — History
 - [x] `CONTRIBUTING.md` — Community
 - [x] `SECURITY.md` — Security
@@ -141,7 +141,9 @@ New-Item -ItemType Directory -Force -Path "docs/deployment"
 New-Item -ItemType Directory -Force -Path "docs/development"
 New-Item -ItemType Directory -Force -Path "docs/mcp"
 New-Item -ItemType Directory -Force -Path "docs/integrations"
-New-Item -ItemType Directory -Force -Path "docs/overview"
+
+# Create L5 SPEC directory (if not exists)
+New-Item -ItemType Directory -Force -Path "333_APPS/L5_AGENTS/SPEC"
 
 # Move PDF manifestos
 Move-Item -Path "apex_theory_manifesto.pdf" -Destination "docs/manifesto/" -Force
@@ -152,15 +154,15 @@ Move-Item -Path "apex_theory_manifesto_v3.pdf" -Destination "docs/manifesto/" -F
 Move-Item -Path "2026-02-06-trinity-v55.5-visual-spec.png" -Destination "docs/assets/" -Force
 
 # Move documentation files
-Move-Item -Path "000_THEORY.md" -Destination "docs/overview/" -Force
 Move-Item -Path "BOOTSTRAP.md" -Destination "docs/setup/" -Force
 Move-Item -Path "DEPLOYMENT_CONFIG.md" -Destination "docs/deployment/" -Force
 Move-Item -Path "HANDOFF_000_INIT_LOOP.md" -Destination "docs/development/" -Force
 Move-Item -Path "HEARTBEAT.md" -Destination "docs/" -Force
-Move-Item -Path "MCP_INTEGRATION_GUIDE.md" -Destination "docs/mcp/" -Force
-Move-Item -Path "MEMORY.md" -Destination "docs/" -Force
-Move-Item -Path "TOOLS.md" -Destination "docs/" -Force
 Move-Item -Path "chatgpt_integration_config.md" -Destination "docs/integrations/" -Force
+
+# Move Trinity Codices to L5 SPEC
+Move-Item -Path "GEMINI.md" -Destination "333_APPS/L5_AGENTS/SPEC/" -Force
+Move-Item -Path "CLAUDE.md" -Destination "333_APPS/L5_AGENTS/SPEC/" -Force
 ```
 
 | File | Destination | Reason |
