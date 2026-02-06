@@ -96,7 +96,7 @@ async def test_all_tools():
     print("\n--- 🎁 BONUS: Testing _trinity_ (Metabolic Loop) ---")
     res_trinity = await mcp_trinity(query=query)
     print(
-        f"Result: {res_trinity.get('verdict')} | Rationale: {res_trinity.get('public_rationale')[:100]}..."
+        f"Result: {res_trinity.get('verdict')} | Rationale: {(res_trinity.get('public_rationale') or '')[:100]}..."
     )
     results["_trinity_"] = res_trinity
 

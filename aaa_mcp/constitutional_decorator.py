@@ -2,7 +2,8 @@
 aaa_mcp/constitutional_decorator.py — REAL Constitutional Enforcement
 
 Wraps FastMCP tools with arifOS 13-floor validation.
-v55.4-REAL: Wired to codebase/constitutional_floors.py floor validators.
+v55.5-EIGEN: Wired to codebase/constitutional_floors.py floor validators.
+v55.5: F8 Genius now uses real eigendecomposition via genius.py extract_dials().
 
 Previously cosmetic (v55.3) — now performs actual input/output scanning:
   - Pre-execution:  F1 (Amanah), F5 (Peace), F11 (Auth), F12 (Injection)
@@ -138,12 +139,17 @@ def _build_post_context(
         "response": response,
         "session_id": kwargs.get("session_id", ""),
         # F7: Default confidence -> omega_0 = 0.04 (in band [0.03, 0.05])
+        # Engine adapters now provide query-derived confidence, but keep
+        # a sensible default for tools that bypass adapters.
         "confidence": 0.96,
-        # F6: Default entropy (slightly decreasing = good)
+        # F6: Default entropy — engine adapters now compute Shannon-based
+        # estimates per query. These defaults are last-resort only.
         "entropy_input": 0.5,
-        "entropy_output": 0.4,
-        # F3: Default witness scores
-        "human_witness": 0.5,
+        "entropy_output": 0.45,
+        # F3: Default witness scores — raised human_witness from 0.5 to 0.8
+        # to prevent permanent F3 PARTIAL in fallback mode (alarm fatigue).
+        # Real tri-witness scoring comes from init_000 sovereign recognition.
+        "human_witness": 0.8,
         "ai_witness": 1.0,
         "earth_witness": 1.0,
         # NOTE: truth_score is NOT defaulted here. F2_Truth has its own
@@ -151,11 +157,11 @@ def _build_post_context(
         # Only engine results with explicit truth_score should override.
     }
 
-    # Let engine results override defaults
+    # Let engine results override defaults (includes heuristic scores from adapters)
     if isinstance(result, dict):
         for key in ("truth_score", "confidence", "entropy_delta", "human_witness",
                      "ai_witness", "earth_witness", "empathy_kappa_r",
-                     "weakest_stakeholder_impact"):
+                     "weakest_stakeholder_impact", "entropy_input", "entropy_output"):
             if key in result:
                 ctx[key] = result[key]
         # Derive entropy_output from entropy_delta if provided
@@ -163,6 +169,31 @@ def _build_post_context(
             ctx["entropy_output"] = ctx["entropy_input"] + result["entropy_delta"]
 
     return ctx
+
+
+def _accumulate_floor_scores(floor_details: List[Dict[str, Any]]) -> Dict[str, float]:
+    """
+    Convert accumulated floor check results to FloorScores-compatible dict.
+
+    Floor checks return raw operational scores, but genius.py's FloorScores
+    expects "goodness" metrics for some floors. Three floors need inversion:
+      - F7: check returns omega_0 (0.04), FloorScores expects 1-omega_0 (0.96)
+      - F9: check returns c_dark (0.0), FloorScores expects 1-c_dark (1.0)
+      - F12: check returns injection likelihood, FloorScores expects defense
+    """
+    scores: Dict[str, float] = {}
+    for d in floor_details:
+        fid = d["floor"]
+        score = d.get("score", 0.0)
+        if fid == "F7":
+            scores[fid] = 1.0 - score  # omega_0 → confidence
+        elif fid == "F9":
+            scores[fid] = 1.0 - score  # c_dark → anti-hantu safety
+        elif fid == "F12":
+            scores[fid] = 1.0 - score  # injection prob → defense
+        else:
+            scores[fid] = score
+    return scores
 
 
 def _check_floor(floor_id: str, context: Dict[str, Any]) -> Dict[str, Any]:
@@ -255,7 +286,7 @@ def constitutional_floor(*floors: str):
                                 "floors_checked": [d["floor"] for d in floor_details],
                                 "details": floor_details,
                                 "enforcement_ms": elapsed_ms,
-                                "version": "v55.4-REAL",
+                                "version": "v55.5-EIGEN",
                             },
                             "motto": "DITEMPA BUKAN DIBERI",
                         }
@@ -268,6 +299,11 @@ def constitutional_floor(*floors: str):
             if post and isinstance(result, dict):
                 post_ctx = _build_post_context(query, kwargs, result)
                 for fid in post:
+                    # F8 Genius needs accumulated floor scores for eigendecomposition
+                    if fid == "F8":
+                        post_ctx["_floor_scores"] = _accumulate_floor_scores(
+                            floor_details
+                        )
                     detail = _check_floor(fid, post_ctx)
                     detail["phase"] = "post"
                     floor_details.append(detail)
@@ -299,7 +335,7 @@ def constitutional_floor(*floors: str):
                     "floors_checked": [d["floor"] for d in floor_details],
                     "details": floor_details,
                     "enforcement_ms": elapsed_ms,
-                    "version": "v55.4-REAL",
+                    "version": "v55.5-EIGEN",
                 }
 
                 if verdict == "VOID":

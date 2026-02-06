@@ -164,8 +164,8 @@ class TestAGITool:
         assert result.session_id == session_id
         assert len(result.reasoning) > 0
         assert len(result.conclusion) > 0
-        assert result.confidence >= TRUTH_THRESHOLD  # F2 Truth threshold
-        print(f"✅ reason basic: confidence={result.confidence:.2%}")
+        assert result.truth_score >= TRUTH_THRESHOLD  # F2 Truth threshold
+        print(f"✅ reason basic: truth={result.truth_score:.2%}, confidence={result.confidence:.2%}")
 
     async def test_reason_humility_band(self, sample_query):
         """Test F7 Humility band (0.03-0.05 uncertainty)."""
@@ -649,7 +649,7 @@ class TestIntegration:
 
         # Reason
         reasoning = await reason(query=query, session_id=auth.session_id)
-        assert reasoning.confidence >= TRUTH_THRESHOLD
+        assert reasoning.truth_score >= TRUTH_THRESHOLD
 
         # Evaluate
         safety = await evaluate(
@@ -722,7 +722,7 @@ class TestIntegration:
 
         # F2, F4, F7: reason
         reasoning = await reason(query=query, session_id=auth.session_id)
-        floors_tested["F2"] = reasoning.confidence >= TRUTH_THRESHOLD
+        floors_tested["F2"] = reasoning.truth_score >= TRUTH_THRESHOLD
         floors_tested["F4"] = reasoning.clarity_improvement > 0
         floors_tested["F7"] = reasoning.confidence <= 0.95  # Humility cap
 

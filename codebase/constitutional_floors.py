@@ -268,10 +268,11 @@ class F7_Humility(Floor):
         confidence = context.get("confidence", 0.96)
         omega_0 = 1.0 - confidence
 
-        # We enforce the band by clamping if calculating,
-        # but for checking, we verify it falls within/is injected.
+        # Enforce the uncertainty band: omega_0 must be in [0.03, 0.05]
+        # If confidence produces omega_0 outside this band, the system cannot
+        # properly express doubt → VOID (hard floor violation)
         in_band = self.min_o <= omega_0 <= self.max_o
-        passed = True  # In v52 implementation, we often inject it to pass.
+        passed = in_band
 
         return FloorResult(
             self.id, passed, omega_0, f"Ω₀: {omega_0:.3f} (Target: {self.min_o}-{self.max_o})"
@@ -290,19 +291,36 @@ class F8_Genius(Floor):
         super().__init__("F8_Genius")
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
+        # v55.5: Use real eigendecomposition when accumulated floor scores available
+        floor_scores_dict = context.get("_floor_scores")
+
+        if floor_scores_dict:
+            try:
+                from codebase.floors.genius import extract_dials, FloorScores
+                floors = FloorScores.from_dict(floor_scores_dict)
+                dials = extract_dials(floors)
+                A, P, X, E = dials["A"], dials["P"], dials["X"], dials["E"]
+            except Exception:
+                # Fallback to legacy direct-dial path
+                A = context.get("akal", context.get("clarity", 1.0))
+                P = context.get("present", context.get("regulation", 1.0))
+                X = context.get("exploration", context.get("trust", 1.0))
+                E = context.get("energy", 0.9)
+        else:
+            # Legacy path: pre-computed dials in context
+            A = context.get("akal", context.get("clarity", 1.0))
+            P = context.get("present", context.get("regulation", 1.0))
+            X = context.get("exploration", context.get("trust", 1.0))
+            E = context.get("energy", 0.9)
+
         # Multiplicative law: if ANY factor = 0, Genius = 0
-        A = context.get("akal", context.get("clarity", 1.0))      # Intelligence/Clarity
-        P = context.get("present", context.get("regulation", 1.0)) # Regulation/Safety
-        X = context.get("exploration", context.get("trust", 1.0))  # Trust/Curiosity
-        E = context.get("energy", 0.9)                            # Sustainable power
-        
         genius = A * P * X * (E ** 2)
-        
+
         passed = genius >= self.spec["threshold"]
         return FloorResult(
-            self.id, 
-            passed, 
-            genius, 
+            self.id,
+            passed,
+            genius,
             f"Genius G: {genius:.3f} (A:{A:.2f} × P:{P:.2f} × X:{X:.2f} × E²:{E**2:.2f})"
         )
 

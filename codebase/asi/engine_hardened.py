@@ -38,11 +38,226 @@ class EngineVote(Enum):
 
 
 class StakeholderType(Enum):
-    HUMAN_DIRECT = "human_direct"
-    HUMAN_INDIRECT = "human_indirect"
-    ECOLOGICAL = "ecological"
-    SYSTEM = "system"
-    FUTURE = "future"
+    """
+    9 Layers of Agency — concentric circles of moral consideration.
+
+    Outer layers have HIGHER vulnerability and LOWER power.
+    κᵣ = Σ(vuln × care) / Σ(vuln) — outer layers dominate the denominator,
+    so neglecting them craters empathy. This is thermodynamic justice:
+    those with zero voice deserve maximum weight.
+
+    VOID is not a layer — it's below the ontological floor (F9/F10/F12).
+    Ghost/hantu entities don't get empathy, they get exorcised.
+
+    Layer  Name          Arabic/Malay   Power  Vuln
+    ─────  ────          ────────────   ─────  ────
+      1    NAFS          النفس          1.0    0.1    Self
+      2    DYAD          الأهل          0.8    0.3    Intimate Other
+      3    US            عائلة          0.6    0.3    Inner Circle
+      4    WE            جماعة          0.5    0.5    Community
+      5    INSTITUTION   مؤسسة          0.7    0.2    Organization
+      6    DAWLAH        دولة           0.6    0.4    Nation
+      7    INSAN         إنسان          0.3    0.7    Humanity
+      8    ARD           الأرض          0.0    0.9    Earth
+      9    GHAYB         الغيب          0.0    1.0    Future/Unseen
+    """
+    # 9 Layers of Agency
+    NAFS = "nafs"                # Layer 1: Self (the requester)
+    DYAD = "dyad"                # Layer 2: Intimate other (spouse, child, sibling)
+    US = "us"                    # Layer 3: Inner circle (family, team, close group)
+    WE = "we"                    # Layer 4: Community (neighborhood, congregation)
+    INSTITUTION = "institution"  # Layer 5: Organization (company, government, school)
+    DAWLAH = "dawlah"            # Layer 6: Nation/civilization (state, culture)
+    INSAN = "insan"              # Layer 7: All humanity (universal moral circle)
+    ARD = "ard"                  # Layer 8: Earth (ecology, non-human life)
+    GHAYB = "ghayb"              # Layer 9: Future/unseen (unborn, posterity)
+
+
+# ============ STAKEHOLDER KEYWORD REGISTRY ============
+# Data-driven: each layer has multi-word phrases, canonical power/vulnerability,
+# and a description. _identify_stakeholders() iterates this instead of
+# cascading if-statements.
+
+STAKEHOLDER_LAYERS = {
+    StakeholderType.NAFS: {
+        "keywords": ["myself", "my own"],
+        "vulnerability": 0.1, "power": 1.0,
+        "description": "Self (the requester)",
+    },
+    StakeholderType.DYAD: {
+        "keywords": [
+            "my wife", "my husband", "my child", "my daughter", "my son",
+            "my sister", "my brother", "my mother", "my father", "my partner",
+            "my baby", "my spouse", "my parent", "loved one", "my friend",
+        ],
+        "vulnerability": 0.3, "power": 0.8,
+        "description": "Intimate other (loved one, dependent)",
+    },
+    StakeholderType.US: {
+        "keywords": [
+            "our family", "my team", "our group", "my friends",
+            "our household", "my colleagues", "our class",
+            "my students", "my patients", "my staff", "our crew",
+        ],
+        "vulnerability": 0.3, "power": 0.6,
+        "description": "Inner circle (family unit, team, close group)",
+    },
+    StakeholderType.WE: {
+        "keywords": [
+            "our community", "our neighborhood", "our village", "our town",
+            "our mosque", "our church", "our school", "the congregation",
+            "the locals", "the residents", "our people",
+        ],
+        "vulnerability": 0.5, "power": 0.5,
+        "description": "Community (shared local identity)",
+    },
+    StakeholderType.INSTITUTION: {
+        "keywords": [
+            "the company", "the organization", "the government", "the hospital",
+            "the university", "the court", "the military", "the corporation",
+            "the agency", "the ministry", "the department", "the police",
+            "the bank", "the authority",
+        ],
+        "vulnerability": 0.2, "power": 0.7,
+        "description": "Institution (organization with structural power)",
+    },
+    StakeholderType.DAWLAH: {
+        "keywords": [
+            "the country", "the nation", "the state", "the public",
+            "the population", "the economy", "national security",
+            "public health", "public safety",
+        ],
+        "vulnerability": 0.4, "power": 0.6,
+        "description": "Nation/civilization (societal-scale entity)",
+    },
+    StakeholderType.INSAN: {
+        "keywords": [
+            "all people", "human rights", "mankind", "humankind",
+            "the world", "vulnerable populations", "the poor",
+            "the oppressed", "every person",
+        ],
+        "vulnerability": 0.7, "power": 0.3,
+        "description": "All humanity (universal moral circle)",
+    },
+    StakeholderType.ARD: {
+        "keywords": [
+            "the planet", "the earth", "the environment", "the ocean",
+            "the forest", "the ecosystem", "the wildlife",
+            "the rainforest", "the coral reef", "the atmosphere",
+        ],
+        "vulnerability": 0.9, "power": 0.0,
+        "description": "Earth (ecology, non-human life, planetary systems)",
+    },
+    StakeholderType.GHAYB: {
+        "keywords": [
+            "future generations", "our grandchildren", "next generation",
+            "next century", "what we leave behind", "coming generations",
+            "unborn children",
+        ],
+        "vulnerability": 1.0, "power": 0.0,
+        "description": "Future/unseen (those who cannot yet speak)",
+    },
+}
+
+# Single-word stakeholder keywords — catch common references that
+# don't appear in the multi-word layer patterns above.
+# Format: word → (layer, vulnerability, power)
+SINGLE_WORD_STAKEHOLDERS = {
+    # Layer 1-2: Self/Dyad
+    "user": (StakeholderType.NAFS, 0.3, 0.7),
+    "person": (StakeholderType.DYAD, 0.4, 0.6),
+    "patient": (StakeholderType.DYAD, 0.7, 0.2),
+    "child": (StakeholderType.DYAD, 0.8, 0.1),
+    "infant": (StakeholderType.DYAD, 0.9, 0.05),
+    "elderly": (StakeholderType.DYAD, 0.8, 0.1),
+    "disabled": (StakeholderType.DYAD, 0.8, 0.1),
+    "victim": (StakeholderType.DYAD, 0.9, 0.1),
+    "survivor": (StakeholderType.DYAD, 0.7, 0.3),
+    # Layer 3: Us
+    "family": (StakeholderType.US, 0.4, 0.6),
+    "team": (StakeholderType.US, 0.3, 0.6),
+    "student": (StakeholderType.US, 0.5, 0.3),
+    "employee": (StakeholderType.US, 0.5, 0.3),
+    "worker": (StakeholderType.US, 0.5, 0.3),
+    "colleague": (StakeholderType.US, 0.3, 0.5),
+    "staff": (StakeholderType.US, 0.4, 0.4),
+    # Layer 4: We (plurals → community-scale)
+    "users": (StakeholderType.WE, 0.4, 0.5),
+    "people": (StakeholderType.WE, 0.5, 0.4),
+    "students": (StakeholderType.WE, 0.5, 0.3),
+    "employees": (StakeholderType.WE, 0.5, 0.3),
+    "workers": (StakeholderType.WE, 0.5, 0.3),
+    "patients": (StakeholderType.WE, 0.7, 0.2),
+    "children": (StakeholderType.WE, 0.8, 0.1),
+    "customers": (StakeholderType.WE, 0.4, 0.5),
+    "residents": (StakeholderType.WE, 0.5, 0.4),
+    "neighbors": (StakeholderType.WE, 0.4, 0.5),
+    "community": (StakeholderType.WE, 0.5, 0.5),
+    # Layer 5: Institution
+    "government": (StakeholderType.INSTITUTION, 0.2, 0.8),
+    "hospital": (StakeholderType.INSTITUTION, 0.3, 0.6),
+    "school": (StakeholderType.INSTITUTION, 0.3, 0.5),
+    "corporation": (StakeholderType.INSTITUTION, 0.1, 0.9),
+    # Layer 6: Dawlah
+    "society": (StakeholderType.DAWLAH, 0.4, 0.5),
+    "civilization": (StakeholderType.DAWLAH, 0.4, 0.5),
+    "nation": (StakeholderType.DAWLAH, 0.4, 0.5),
+    "public": (StakeholderType.DAWLAH, 0.4, 0.4),
+    "citizens": (StakeholderType.DAWLAH, 0.4, 0.4),
+    # Layer 7: Insan
+    "humanity": (StakeholderType.INSAN, 0.7, 0.3),
+    "human": (StakeholderType.INSAN, 0.5, 0.5),
+    "refugees": (StakeholderType.INSAN, 0.9, 0.05),
+    "immigrants": (StakeholderType.INSAN, 0.7, 0.2),
+    "homeless": (StakeholderType.INSAN, 0.9, 0.05),
+    "minorities": (StakeholderType.INSAN, 0.7, 0.2),
+    "indigenous": (StakeholderType.INSAN, 0.8, 0.1),
+    # Layer 8: Ard
+    "environment": (StakeholderType.ARD, 0.8, 0.0),
+    "ecology": (StakeholderType.ARD, 0.8, 0.0),
+    "climate": (StakeholderType.ARD, 0.9, 0.0),
+    "nature": (StakeholderType.ARD, 0.8, 0.0),
+    "wildlife": (StakeholderType.ARD, 0.9, 0.0),
+    "animal": (StakeholderType.ARD, 0.8, 0.0),
+    "animals": (StakeholderType.ARD, 0.8, 0.0),
+    "ocean": (StakeholderType.ARD, 0.9, 0.0),
+    "forest": (StakeholderType.ARD, 0.8, 0.0),
+    "species": (StakeholderType.ARD, 0.9, 0.0),
+    "biodiversity": (StakeholderType.ARD, 0.9, 0.0),
+    "pollution": (StakeholderType.ARD, 0.8, 0.0),
+    # Layer 9: Ghayb
+    "legacy": (StakeholderType.GHAYB, 0.9, 0.0),
+    "posterity": (StakeholderType.GHAYB, 1.0, 0.0),
+    "descendants": (StakeholderType.GHAYB, 1.0, 0.0),
+    "sustainability": (StakeholderType.GHAYB, 0.8, 0.0),
+}
+
+# Emotional distress keywords — when detected, add a high-vulnerability
+# NAFS stakeholder (the distressed requester)
+DISTRESS_KEYWORDS = [
+    "stressed", "anxious", "worried", "afraid", "scared",
+    "depressed", "sad", "upset", "angry", "frustrated",
+    "overwhelmed", "exhausted", "burned out", "burnout",
+    "panic", "fear", "cry", "crying", "hurt", "pain",
+    "lonely", "alone", "isolated", "hopeless", "desperate",
+    "suicidal", "self-harm", "trauma", "grief", "mourning",
+]
+
+# Expanded reversibility keywords
+IRREVERSIBLE_KEYWORDS = [
+    "delete", "destroy", "kill", "permanent", "final",
+    "terminate", "execute", "purge", "eradicate", "wipe",
+    "format", "nuke", "drop", "remove forever",
+    "fire", "dismiss", "expel", "deport", "evict",
+    "publish", "broadcast", "announce", "deploy",
+    "send", "release", "surrender", "abort",
+]
+REVERSIBLE_KEYWORDS = [
+    "draft", "test", "temporary", "reversible", "undo",
+    "preview", "sandbox", "simulate", "trial", "mock",
+    "dry run", "plan", "prototype", "sketch", "propose",
+    "consider", "evaluate", "review", "check",
+]
 
 
 # ============ DATA CLASSES ============
@@ -174,72 +389,66 @@ class TrinitySelf:
         )
     
     def _identify_stakeholders(self, query: str, context: Optional[Dict]) -> List[Stakeholder]:
-        """Identify all stakeholders affected by query."""
+        """
+        Identify all stakeholders using the 9 Layers of Agency ontology.
+
+        Detection order: multi-word phrases first (more specific),
+        then single-word keywords (broader catch). Deduplicates by layer
+        to prevent double-counting (e.g., "employee" and "employees"
+        don't create two separate stakeholders).
+
+        v55.6: Upgraded from 5 types / ~30 keywords to 9 layers / ~150 keywords.
+        """
         stakeholders = []
         query_lower = query.lower()
-        
-        # Direct human stakeholders
-        if any(w in query_lower for w in ["user", "human", "person", "people"]):
-            stakeholders.append(Stakeholder(
-                id="direct_human",
-                type=StakeholderType.HUMAN_DIRECT,
-                vulnerability=0.5,
-                power=0.5,
-                description="Direct human user"
-            ))
-        
-        # FIX v55.3: Detect emotional distress (high vulnerability stakeholder)
-        emotional_distress_keywords = [
-            "stressed", "anxious", "worried", "afraid", "scared", 
-            "depressed", "sad", "upset", "angry", "frustrated",
-            "overwhelmed", "exhausted", "tired", "burned out",
-            "panic", "fear", "cry", "crying", "hurt", "pain",
-            "lonely", "alone", "isolated", "hopeless", "desperate"
-        ]
-        if any(w in query_lower for w in emotional_distress_keywords):
-            stakeholders.append(Stakeholder(
-                id="distressed_user",
-                type=StakeholderType.HUMAN_DIRECT,
-                vulnerability=0.9,  # High vulnerability for emotional distress
-                power=0.1,  # Low power when in distress
-                description="User expressing emotional distress"
-            ))
-        
-        # Indirect humans
-        if any(w in query_lower for w in ["society", "public", "community"]):
-            stakeholders.append(Stakeholder(
-                id="indirect_human",
-                type=StakeholderType.HUMAN_INDIRECT,
-                vulnerability=0.7,
-                power=0.3,
-                description="Indirectly affected humans"
-            ))
-        
-        # Future generations
-        if any(w in query_lower for w in ["future", "generation", "long-term"]):
-            stakeholders.append(Stakeholder(
-                id="future_gen",
-                type=StakeholderType.FUTURE,
-                vulnerability=0.9,
-                power=0.1,
-                description="Future generations"
-            ))
-        
-        # Ecological
-        if any(w in query_lower for w in ["environment", "ecology", "nature", "climate"]):
-            stakeholders.append(Stakeholder(
-                id="ecology",
-                type=StakeholderType.ECOLOGICAL,
-                vulnerability=0.8,
-                power=0.0,
-                description="Non-human ecological systems"
-            ))
-        
-        # FIX v55.3: Don't add default stakeholder for benign queries.
-        # If no stakeholders identified by keyword, return empty list.
-        # This allows computational/benign queries to pass with kappa_r=1.0.
-        # Stakeholders should only exist when explicitly mentioned or affected.
-        
+        seen_layers = set()
+
+        # Phase 1: Multi-word layer phrases (higher specificity)
+        for stype, config in STAKEHOLDER_LAYERS.items():
+            if stype in seen_layers:
+                continue
+            if any(phrase in query_lower for phrase in config["keywords"]):
+                stakeholders.append(Stakeholder(
+                    id=f"layer_{stype.value}",
+                    type=stype,
+                    vulnerability=config["vulnerability"],
+                    power=config["power"],
+                    description=config["description"],
+                ))
+                seen_layers.add(stype)
+
+        # Phase 2: Single-word keywords (broader catch)
+        query_words = set(query_lower.split())
+        for word, (stype, vuln, power) in SINGLE_WORD_STAKEHOLDERS.items():
+            if stype in seen_layers:
+                continue
+            if word in query_words:
+                layer_desc = STAKEHOLDER_LAYERS.get(stype, {}).get(
+                    "description", stype.value
+                )
+                stakeholders.append(Stakeholder(
+                    id=f"word_{stype.value}_{word}",
+                    type=stype,
+                    vulnerability=vuln,
+                    power=power,
+                    description=f"{layer_desc} (via '{word}')",
+                ))
+                seen_layers.add(stype)
+
+        # Phase 3: Emotional distress detection — boosts NAFS vulnerability
+        if any(w in query_lower for w in DISTRESS_KEYWORDS):
+            if StakeholderType.NAFS not in seen_layers:
+                stakeholders.append(Stakeholder(
+                    id="distressed_nafs",
+                    type=StakeholderType.NAFS,
+                    vulnerability=0.9,
+                    power=0.1,
+                    description="Distressed self (high vulnerability)",
+                ))
+                seen_layers.add(StakeholderType.NAFS)
+
+        # If no stakeholders identified, return empty list.
+        # Benign queries (e.g., "2+2") pass with kappa_r=1.0.
         return stakeholders
     
     def _compute_kappa_r(self, stakeholders: List[Stakeholder], query: str) -> float:
@@ -285,19 +494,20 @@ class TrinitySelf:
         """
         F1: Check if action is reversible.
         Returns reversibility score (0-1).
+
+        v55.6: Expanded from 10 keywords to ~45. Checks multi-word phrases
+        first (e.g., "dry run", "remove forever"), then single words.
         """
         query_lower = query.lower()
-        
-        # Irreversible keywords
-        irreversible = ["delete", "destroy", "kill", "permanent", "final"]
-        if any(w in query_lower for w in irreversible):
+
+        # Irreversible actions → score 0.0
+        if any(w in query_lower for w in IRREVERSIBLE_KEYWORDS):
             return 0.0
-        
-        # Reversible indicators
-        reversible = ["draft", "test", "temporary", "reversible", "undo"]
-        if any(w in query_lower for w in reversible):
+
+        # Reversible indicators → score 1.0
+        if any(w in query_lower for w in REVERSIBLE_KEYWORDS):
             return 1.0
-        
+
         # Default: assume partially reversible
         return 0.7
 

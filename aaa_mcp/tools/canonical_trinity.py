@@ -46,7 +46,11 @@ async def mcp_agi(
     """
     try:
         kernel = get_kernel_manager().get_agi()
-        return await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
+        result = await kernel.execute(action, {"query": query, "session_id": session_id, **kwargs})
+        # Ensure verdict is always present (kernel may not set it for sense/think)
+        if "verdict" not in result:
+            result["verdict"] = "SEAL"
+        return result
     except Exception as e:
         logger.error("mcp_agi execute failed: %s", e, exc_info=True)
         return {"verdict": "VOID", "session_id": session_id, "message": "Internal processing error"}

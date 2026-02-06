@@ -12,7 +12,7 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Optional
 
-from codebase.bundles import OmegaBundle
+from codebase.bundles import EngineVote, OmegaBundle
 
 from .engine_hardened import ASIEngineHardened as ASIEngine
 from .engine_hardened import cleanup_expired_sessions, get_asi_engine
@@ -52,18 +52,19 @@ class ASINeuralCore:
         engine = self._get_engine(session_id)
         result = await engine.execute(query, context)
 
+        # result is engine_hardened.OmegaBundle with .empathy, .system, .society
+        is_ok = result.vote != EngineVote.VOID
+        weakest = result.empathy.get_weakest()
         return {
             "stage": "555_empathy",
-            "status": "complete" if result.success else "failed",
+            "status": "complete" if is_ok else "failed",
             "session_id": session_id,
-            "trinity_self": {
-                "empathy_kappa_r": result.trinity_self.empathy_kappa_r,
-                "bias_corrected": result.trinity_self.bias_corrected,
-                "is_reversible": result.trinity_self.is_reversible,
-            },
-            "stakeholders": result.stakeholders,
-            "weakest": result.weakest_stakeholder,
-            "verdict": "SEAL" if result.success else "VOID",
+            "empathy_kappa_r": result.empathy.kappa_r,
+            "is_reversible": result.empathy.reversibility_score >= 0.3,
+            "stakeholders": [s.id for s in result.empathy.stakeholders] if result.empathy.stakeholders else [],
+            "weakest": weakest.id if weakest else None,
+            "peace_squared": result.system.peace_squared,
+            "verdict": result.vote.value if hasattr(result.vote, "value") else str(result.vote),
         }
 
     async def align(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -74,25 +75,17 @@ class ASINeuralCore:
         engine = self._get_engine(session_id)
         result = await engine.execute(query, context)
 
+        # result is engine_hardened.OmegaBundle with .empathy, .system, .society
+        is_ok = result.vote != EngineVote.VOID
         return {
             "stage": "666_align",
-            "status": "complete" if result.success else "failed",
+            "status": "complete" if is_ok else "failed",
             "session_id": session_id,
-            "trinity_system": {
-                "peace_squared": result.trinity_system.peace_squared,
-                "audit_trail": result.trinity_system.audit_trail,
-                "authority_verified": result.trinity_system.authority_verified,
-            },
-            "trinity_society": {
-                "weakest_protected": result.trinity_society.weakest_protected,
-                "entropy_delta": result.trinity_society.entropy_delta,
-                "earth_witness": result.trinity_society.earth_witness,
-            },
-            "verdict": (
-                result.omega_bundle.vote.value
-                if hasattr(result.omega_bundle.vote, "value")
-                else str(result.omega_bundle.vote)
-            ),
+            "peace_squared": result.system.peace_squared,
+            "authority_verified": result.system.consent_verified,
+            "omega_total": result.omega_total,
+            "thermodynamic_justice": result.society.thermodynamic_justice,
+            "verdict": result.vote.value if hasattr(result.vote, "value") else str(result.vote),
         }
 
     async def execute(self, action: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
