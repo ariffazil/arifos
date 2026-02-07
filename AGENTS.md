@@ -97,6 +97,16 @@ OpenClaw Trinity
 
 ---
 
+## Ring Strategy (Model Routing)
+
+| Ring | Role | Primary Model | Constitutional Goal |
+|:---|:---|:---|:---|
+| **Inner** | Deep Research / Audits | **Gemini 3 Pro** | **F2 Truth:** 1M-token multimodal retrieval |
+| **Middle** | MCP Routing / Triage | **Gemini 3 Flash** | **F1 Amanah:** Fast, context-cached pre-flights |
+| **Outer** | Synthesis / Verdicts | **Claude Opus** | **APEX Ψ:** ASL-3 compliant final SEAL |
+
+---
+
 ## Mode Switching Protocol
 
 ### Option 1: Directive-Based (Explicit)
