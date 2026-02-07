@@ -1,7 +1,8 @@
 {
   "mcpServers": {
     "arifos": {
-      "baseUrl": "https://aaamcp.arif-fazil.com/mcp"
+      "baseUrl": "https://aaamcp.arif-fazil.com/sse",
+      "keepAlive": true
     }
   },
   "imports": []
