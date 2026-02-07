@@ -1,7 +1,7 @@
 """
 arifOS MCP Server — Railway Production Entry Point
 
-Starts the constitutional MCP server with all 9 tools on network transports.
+Starts the constitutional MCP server with all 10 tools on network transports.
 Health endpoint at /health for Railway healthchecks.
 Tool list at / for service discovery.
 
@@ -41,6 +41,11 @@ else:
         sse_path="/sse",
         routes=[Route("/health", endpoint=health, methods=["GET"])],
     )
+
+# Disable redirect_slashes to prevent 307 redirects on POST /messages
+# This fixes the SSE transport issue where clients POST to /messages?session_id=xxx
+# but Starlette redirects to /messages/?session_id=xxx with 307
+app.router.redirect_slashes = False
 
 if __name__ == "__main__":
     uvicorn.run(app, host=host, port=port)
