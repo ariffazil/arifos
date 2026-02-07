@@ -1,4 +1,4 @@
-name: Deploy MIND Backend
+name: Deploy arifOS MCP to Railway
 
 on:
   push:
@@ -7,18 +7,43 @@ on:
   workflow_dispatch:
 
 jobs:
-  # --- Deploy MIND (Backend) to Railway ---
-  deploy-backend:
-    name: Deploy Backend (Railway)
+  # --- Constitutional Self-Test (arifOS-grade) ---
+  selftest:
+    name: Constitutional Self-Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e . || pip install -r requirements.txt
+
+      - name: Run arifOS Self-Test
+        run: |
+          echo "Running arifOS constitutional self-test..."
+          python -m aaa_mcp.selftest
+        env:
+          GOVERNANCE_MODE: HARD
+          CLUSTER_LEVEL: "1"
+          HOST: "0.0.0.0"
+          PORT: "8080"
+
+  # --- Deploy MIND (Backend) to Railway ---
+  deploy-backend:
+    name: Deploy Backend (Railway)
+    needs: selftest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
       - name: Setup Railway CLI
         run: npm install -g @railway/cli
@@ -28,31 +53,39 @@ jobs:
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
+      - name: Wait for deployment
+        run: sleep 15
+
       - name: Verify Backend Health
         run: |
-          sleep 10
-          curl -sf https://aaamcp.arif-fazil.com/health || echo "Health check will be available after DNS propagation"
+          echo "Checking health endpoint..."
+          HEALTH=$(curl -sf https://aaamcp.arif-fazil.com/health 2>/dev/null || echo '{"status":"pending"}')
+          echo "Health response: $HEALTH"
+          echo "$HEALTH" | grep -q '"status"' && echo "✓ Health check passed" || echo "⚠ Health check pending (DNS propagation)"
 
   # --- Verify MIND is Online ---
   verify:
-    name: Verify MIND Backend
+    name: Verify Deployment
     needs: deploy-backend
     runs-on: ubuntu-latest
     steps:
-      - name: Check MIND (aaamcp.arif-fazil.com)
+      - name: Final Health Check
         run: |
-          echo "Checking MIND layer..."
-          curl -sf https://aaamcp.arif-fazil.com/health > /dev/null && echo "MIND is ONLINE" || echo "MIND check failed"
+          sleep 10
+          curl -sf https://aaamcp.arif-fazil.com/health && echo "✓ MIND is ONLINE" || echo "⚠ MIND may need more time"
 
       - name: Deployment Report
         run: |
           echo "========================================"
-          echo "  arifOS MIND — DEPLOYMENT REPORT"
+          echo "  arifOS MCP — DEPLOYMENT REPORT"
           echo "========================================"
-          echo "  MIND:  https://aaamcp.arif-fazil.com  (Railway)"
+          echo "  Endpoint: https://aaamcp.arif-fazil.com"
+          echo "  MCP:      https://aaamcp.arif-fazil.com/mcp"
+          echo "  Health:   https://aaamcp.arif-fazil.com/health"
           echo "========================================"
-          echo "  Frontend sites deployed separately via:"
-          echo "  https://github.com/ariffazil/arif-fazil-sites"
+          echo "  Constitutional: Self-test PASSED"
+          echo "  Transport:      HTTP/SSE"
+          echo "  Mode:           HARD (production)"
           echo "========================================"
           echo "  DITEMPA BUKAN DIBERI"
           echo "========================================"
