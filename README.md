@@ -32,6 +32,10 @@
 
 ## 🌬️ Trinity Architecture
 
+> arifOS is the **runtime kernel**. The upstream physics and theory layer now lives in the separate
+> [APEX-THEORY](https://github.com/ariffazil/APEX-THEORY) repository. This reduces entropy by
+> separating "why" (APEX-THEORY) from "how" (arifOS runtime).
+
 | Layer | Domain | Function | Symbol | Description |
 |-------|--------|----------|--------|-------------|
 | **HUMAN** | [arif-fazil.com](https://arif-fazil.com) | Epistemic — The Body | Δ | **Physical Reality**: The human sovereign (888 Judge) who provides external truth injection |
