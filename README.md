@@ -151,7 +151,7 @@ This repository contains constitutional enforcement mechanisms. Your role is gov
 arifOS provides constitutional governance for AI systems. You are the **888 Judge** — external authority outside the formal system.
 
 ### For System Integrators
-The AAA MCP Server exposes 9 canonical tools through Model Context Protocol (MCP) for seamless integration.
+The AAA MCP Server exposes **10 canonical tools** through Model Context Protocol (MCP) for seamless integration.
 
 ---
 
@@ -364,8 +364,8 @@ python -m aaa_mcp http
 
 ### [L5_AGENTS — Autonomous Federation](333_APPS/L5_AGENTS/)
 - **Function:** Multi-agent runtime and environment physics.
-- **Status:** 🟡 **SLEEPING GIANT** (Runtime ready / Agents stubbed)
-- **Sovereign Principle:** Autonomy within a physics of law.
+- **Status:** 🟡 **GOVERNED PILOTS LIVE** (Runtime active via OpenClaw / agents constrained)
+- **Sovereign Principle:** Autonomy within physics of law, bootstrapped via 000_INIT-governed sessions + VAULT999 logging
 
 ### [L6_INSTITUTION — Trinity System](333_APPS/L6_INSTITUTION/)
 - **Function:** Role-based consensus (Mind+Heart+Soul).
@@ -432,19 +432,20 @@ OpenClaw: "000_INIT_ACK — Session active, apex_verdict gating enabled"
 
 ### Quick Setup
 ```bash
-# Install arifOS (for latest, use git install)
-pip install arifos
-
+# Install arifOS
+pip install arifos                # PyPI (stable releases)
 # Or install from source
 git clone https://github.com/ariffazil/arifOS.git
-cd arifOS && pip install -e .
+cd arifOS && pip install -e .     # Git (bleeding-edge, aligned with VAULT999 v3 / 10 tools)
 
 # Start AAA MCP Server
 python -m aaa_mcp                 # stdio (local)
 python -m aaa_mcp sse             # SSE (remote)
 python -m aaa_mcp http            # HTTP /mcp (remote)
 
-# Live endpoint: https://aaamcp.arif-fazil.com/health
+# Live Endpoints:
+#   SSE:    https://aaamcp.arif-fazil.com/sse
+#   Health: https://aaamcp.arif-fazil.com/health
 ```
 
 ---
@@ -513,7 +514,8 @@ This repository is a mirror. It reflects not just how we govern AI, but how we g
 | 000_INIT Protocol | [docs/000_INIT_PROTOCOL.md](docs/000_INIT_PROTOCOL.md) |
 | OpenClaw Integration | [docs/OPENCLAW_AAA_MCP_GUIDE.md](docs/OPENCLAW_AAA_MCP_GUIDE.md) |
 | AGI Tool Stack | [docs/AGI_TOOL_STACK.md](docs/AGI_TOOL_STACK.md) |
-| Constitutional Theory | [APEX-THEORY repo](https://github.com/ariffazil/APEX-THEORY) |
+| Constitutional Theory | [APEX-THEORY](https://github.com/ariffazil/APEX-THEORY) |
+| Runtime Docs | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
 
 ---
 

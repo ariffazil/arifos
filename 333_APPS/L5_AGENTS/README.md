@@ -99,5 +99,5 @@ L5_AGENTS/
 
 **Sovereign:** Muhammad Arif bin Fazil
 **Version:** v55.5-HARDENED
-**Status:** 🟡 **SLEEPING GIANT**
+**Status:** 🟡 **GOVERNED PILOTS LIVE** (Runtime active via OpenClaw / agents constrained)
 **Creed:** DITEMPA BUKAN DIBERI
