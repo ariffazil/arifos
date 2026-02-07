@@ -16,7 +16,7 @@
 | **L2_SKILLS** | 50% Coverage | ✅ **HARDENED** (9 actions, 3 utilities) | **Ready** |
 | **L3_WORKFLOW** | 70% Coverage | ✅ **HARDENED** (Unified to `WORKFLOWS/`) | **Ready** |
 | **L4_TOOLS** | 80% Coverage | ✅ **HARDENED** (Points to `aaa_mcp` canonical) | **Production** |
-| **L5_AGENTS** | 85% Coverage | 🟡 **SLEEPING GIANT** (Env alive, agents distinct) | **Experimental** |
+| **L5_AGENTS** | 85% Coverage | 🟡 **GOVERNED PILOTS LIVE** (OpenClaw integration active) | **Experimental** |
 | **L6_INSTITUTION** | 5% Coverage | 🔴 **STUBS** (Architecture defined, no logic) | **Not Started** |
 | **L7_AGI** | ∞ Coverage | 📋 **RESEARCH** (Theoretical only) | **Theoretical** |
 
