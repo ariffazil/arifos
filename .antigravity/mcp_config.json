@@ -35,9 +35,9 @@
       "description": "TIER 1: Secure file operations with configurable access controls"
     },
     "fetch": {
-      "command": "npx",
-      "args": ["-y", "@modelcontextprotocol/server-fetch"],
-      "description": "TIER 1: Web content fetching and conversion for efficient LLM usage"
+      "command": "uvx",
+      "args": ["mcp-server-fetch"],
+      "description": "TIER 1: Web content fetching (Python package — use uvx, NOT npx)"
     },
     "git": {
       "command": "uvx",

@@ -8,7 +8,7 @@
 
 ## 📋 Overview
 
-This guide documents the **6 MCP servers** configured for Kimi CLI in arifOS, with special focus on the **3 Core External MCPs** that complement the **9 Canonical aaa_mcp Tools**.
+This guide documents the MCP server architecture for both **Kimi CLI** and **Claude Code** in arifOS, using a **Global + Project split** to eliminate duplication. Generic MCPs live in global config; project-specific MCPs (aaa-mcp, filesystem, git, memory) live in project config.
 
 ---
 
@@ -58,7 +58,7 @@ This guide documents the **6 MCP servers** configured for Kimi CLI in arifOS, wi
 │                                                                             │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                             │
-│  LAYER 3: AUXILIARY (2 Support MCPs)                                        │
+│  LAYER 3: AUXILIARY (4 Support MCPs)                                        │
 │  ═══════════════════════════════════                                        │
 │                                                                             │
 │  ┌─────────────────┐  ┌─────────────────┐                                   │
@@ -70,6 +70,15 @@ This guide documents the **6 MCP servers** configured for Kimi CLI in arifOS, wi
 │  │   (Reality +)   │  │   F8 Wisdom     │                                   │
 │  └─────────────────┘  │   (Reasoning +) │                                   │
 │                       └─────────────────┘                                   │
+│                                                                             │
+│  ┌─────────────────┐  ┌─────────────────┐                                   │
+│  │     fetch       │  │      time       │                                   │
+│  │  (uvx mcp-     │  │  (uvx mcp-      │                                   │
+│  │   server-fetch) │  │   server-time)  │                                   │
+│  ├─────────────────┤  ├─────────────────┤                                   │
+│  │   F2 Truth      │  │   F2 Truth      │                                   │
+│  │   (Web content) │  │   (Temporal)    │                                   │
+│  └─────────────────┘  └─────────────────┘                                   │
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -195,20 +204,30 @@ AUXILIARY (Reality Grounding):
 
 ---
 
-## 📁 Configuration Files
+## 📁 Configuration Files (Global + Project Split)
 
-### Primary Config: `.mcp.json` (Project Root)
-```bash
-# Used by: Claude Code, Cursor, general MCP clients
-# Location: C:\Users\User\arifOS\.mcp.json
+### Architecture
+```
+GLOBAL (generic MCPs for all projects):
+  ~/.mcp.json          — Claude Code / Cursor
+  ~/.kimi/mcp.json     — Kimi CLI
+
+PROJECT (project-specific MCPs only):
+  arifOS/.mcp.json     — Claude Code / Cursor (aaa-mcp, filesystem, git, memory)
+  arifOS/.kimi/mcp.json — Kimi CLI (aaa-mcp, filesystem, git, memory)
 ```
 
-### Kimi-Specific: `.kimi/mcp.json`
-```bash
-# Used by: Kimi CLI
-# Location: C:\Users\User\arifOS\.kimi\mcp.json
-# Load with: kimi --mcp-config-file .kimi\mcp.json
-```
+### What goes where?
+| MCP | Where | Why |
+|-----|-------|-----|
+| aaa-mcp | **Project** | Needs arifOS cwd + venv |
+| filesystem | **Project** | Scoped to arifOS path |
+| git | **Project** | Needs arifOS cwd |
+| memory | **Project** | Custom MEMORY_FILE_PATH |
+| fetch, time | **Global** | Python (uvx), generic |
+| brave-search, github, context7 | **Global** | Generic, no project deps |
+| perplexity, sequential-thinking | **Global** | Generic, no project deps |
+| puppeteer, playwright | **Global** | Generic browser tools |
 
 ---
 
@@ -216,10 +235,11 @@ AUXILIARY (Reality Grounding):
 
 ### Prerequisites
 ```bash
-# Ensure Node.js is installed (for npx-based MCPs)
+# Ensure Node.js is installed (for npx-based MCPs: filesystem, memory, sequential-thinking, perplexity)
 node --version  # >= 18.0.0
 
-# Ensure uv is installed (for uvx-based MCPs)
+# Ensure uv is installed (for uvx-based MCPs: git, fetch, time)
+# IMPORTANT: fetch and time are Python packages — do NOT use npx for them
 uv --version
 ```
 
@@ -242,6 +262,14 @@ kimi mcp add --transport stdio git -- uvx mcp-server-git
 # Register memory (F8 Wisdom)
 kimi mcp add --transport stdio memory -- \
   npx -y @modelcontextprotocol/server-memory
+
+# Register fetch (F2 Truth - Web Content)
+# NOTE: Python package, use uvx NOT npx
+kimi mcp add --transport stdio fetch -- uvx mcp-server-fetch
+
+# Register time (F2 Truth - Temporal)
+# NOTE: Python package, use uvx NOT npx
+kimi mcp add --transport stdio time -- uvx mcp-server-time
 
 # Verify all servers
 kimi mcp list
@@ -274,12 +302,24 @@ MEMORY_FILE_PATH=C:/Users/User/arifOS/.kimi/memory.json
 
 ## ✅ Verification Checklist
 
+### Project MCPs (arifOS/.mcp.json + arifOS/.kimi/mcp.json)
 - [ ] `aaa-mcp` responds to all 9 canonical tools
 - [ ] `filesystem` can read/write files in arifOS directory
 - [ ] `git` can execute git commands in arifOS repo
-- [ ] `memory` can create/search knowledge graph entities
-- [ ] `perplexity` can perform web searches (if API key set)
-- [ ] `sequential-thinking` can perform multi-step reasoning
+- [ ] `memory` can create/search knowledge graph with custom path
+
+### Global MCPs (~/.mcp.json + ~/.kimi/mcp.json)
+- [ ] `fetch` works (uvx mcp-server-fetch — Python, NOT npx)
+- [ ] `time` works (uvx mcp-server-time — Python, NOT npx)
+- [ ] `brave-search` can search web (needs BRAVE_API_KEY)
+- [ ] `github` can access repos (needs GITHUB_TOKEN)
+- [ ] `context7` can query docs (needs CONTEXT7_API_KEY)
+- [ ] `perplexity` can search (needs PERPLEXITY_API_KEY)
+- [ ] `sequential-thinking` can reason
+- [ ] `puppeteer` can automate browser
+- [ ] `playwright` can automate browser
+
+### Governance
 - [ ] All MCPs follow F1 Amanah (reversible operations)
 - [ ] All MCPs respect F11 Sovereignty (user approval for sensitive ops)
 

@@ -208,3 +208,8 @@ gha-creds-*.json
 # Local environment overrides
 .env.local
 .env.*.local
+
+# Runtime MCP configs (secrets risk — keep at user-level ~/.mcp.json only)
+# .agents/mcp.json stays tracked as canonical reference template (uses ${VAR} refs)
+.mcp.json
+.kimi/mcp.json
