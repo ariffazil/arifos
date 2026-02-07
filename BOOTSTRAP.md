@@ -96,28 +96,37 @@ Every exchange is a **cooling process**:
 | Component | Status |
 |:---|:---|
 | **VPS** | srv1325122 (72.62.71.199) — Ubuntu 25.10 |
-| **OpenClaw** | 2026.2.3-1 |
+| **OpenClaw** | 2026.2.6-3 |
 | **API Keys** | 27 configured in `/root/.env.openclaw` |
 | **MCP Servers** | 16 configured |
 | **Telegram Bot** | @AGI_ASI_bot |
 | **arifOS MCP** | https://aaamcp.arif-fazil.com |
+| **Agent Zero** | ✅ LIVE (Docker, Port 50080) |
 
 ---
 
-## 🔧 Quick Commands
+## 🤖 Dual-Agent Architecture (NEW)
 
-```bash
-# Gateway status
-pgrep -f "openclaw gateway" && echo "Running"
+### OpenClaw (Control Plane)
+- **Role:** Supervisor, Gateway, Actuator
+- **Responsibility:** Irreversible actions, messaging, secrets, deployment
+- **Constraint:** F1 Amanah strictly enforced
+- **Access:** Full VPS, all tools, all channels
 
-# Restart gateway
-openclaw gateway stop && openclaw gateway &
+### Agent Zero (Cognitive Lab)
+- **Role:** Sandboxed brain, coding, experimentation
+- **Responsibility:** High-entropy reasoning, code generation, sub-agent spawning
+- **Constraint:** F12 Containment - no direct host access
+- **Access:** Docker container only (port 50080)
+- **Governance:** arifOS-aligned via system prompt injection
 
-# List MCP servers
-mcporter config list
-
-# Test MCP
-mcporter call time.get_current_time timezone=Asia/Kuala_Lumpur
+### Canonical Flow
+```
+Human (Arif)
+    ↓
+OpenClaw (Control) ←→ Agent Zero (Sandbox)
+    ↓
+Real World ←→ Experiments (verified before promotion)
 ```
 
 ---
@@ -146,16 +155,42 @@ mcporter call time.get_current_time timezone=Asia/Kuala_Lumpur
 
 ---
 
-## ⚖️ Governance Audit (This File)
+## 🔄 Quick Start Commands
 
-- **Reversibility (F1):** Text-level edits, fully reversible via git
-- **Truth (F2):** Semantics inferred from OpenClaw patterns; treat as Estimate Only pending formal spec
-- **Humility (F7):** Ω₀ = 0.04; coupling between Gateway and agent runtime may evolve
-- **Anti-Hantu (F9):** All descriptions treat agents as thermodynamic information processes, not spirits
+```bash
+# Agent Zero status
+docker ps | grep agent-zero
+
+# Agent Zero logs
+docker logs agent-zero
+
+# Restart Agent Zero
+docker compose -f /root/agent-zero/docker/run/docker-compose.yml restart
+
+# Check Node/npm in Agent Zero
+docker exec agent-zero node --version
+docker exec agent-zero npm --version
+
+# Check Python MCP SDKs
+docker exec agent-zero python3 -c "import mcp, fastmcp, arifos; print('All OK')"
+
+# Access Agent Zero UI
+open http://72.62.71.199:50080
+```
+
+---
+
+## ⚖️ Governance Audit
+
+- **Reversibility (F1):** All actions are reversible via git/Docker
+- **Truth (F2):** Facts verified against system state
+- **Humility (F7):** Ω₀ tracked per decision
+- **Anti-Hantu (F9):** No consciousness claims in any mode
+- **Containment (F12):** Agent Zero properly sandboxed
 
 **Attribution:** arifOS Constitutional AI Governance Framework
 
 ---
 
-*Last Updated: 2026-02-07 | Revision: r2.0-merged (Antigravity + AGI Bot)*
-*Buang yang keruh, ambil yang jernih.* 🦞
+*Last Updated: 2026-02-07 | Revision: r3.0-AgentZero (Dual-Agent System)*  
+*Session Sealed. Forge ready.* 🔥
