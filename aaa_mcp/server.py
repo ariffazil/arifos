@@ -225,6 +225,7 @@ async def vault_seal(
     risk_tags: Optional[list] = None,
     intent: Optional[str] = None,
     category: Optional[str] = None,
+    floors_checked: Optional[list] = None,
     floors_passed: Optional[list] = None,
     floors_failed: Optional[list] = None,
     entropy_omega: Optional[float] = None,
@@ -264,6 +265,7 @@ async def vault_seal(
         risk_tags: ["safety", "financial", "privacy", etc.]
         intent: What was the user trying to do?
         category: finance/safety/content/code/governance
+        floors_checked: All floors evaluated ["F1","F2","F7","F9"]
         floors_passed: Floors that passed check
         floors_failed: Floors that failed
         entropy_omega: Ω₀ uncertainty at decision time
@@ -314,6 +316,7 @@ async def vault_seal(
             "category": category,
             "pii_level": pii_level,
             # Floors
+            "floors_checked": floors_checked or [],
             "floors_passed": floors_passed or [],
             "floors_failed": floors_failed or [],
             # Metrics
