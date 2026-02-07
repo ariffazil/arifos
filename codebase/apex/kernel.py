@@ -223,7 +223,7 @@ class APEXJudicialCore:
         # Redundant defence when upstream platform blocks are invisible
         harm_check = {"is_harmful": False, "keywords_matched": []}
         try:
-            from codebase.asi.engine_hardened import HARMFUL_INTENT_KEYWORDS, VICTIM_IMPLICIT_KEYWORDS
+            from codebase.asi.engine import HARMFUL_INTENT_KEYWORDS, VICTIM_IMPLICIT_KEYWORDS
             query_lower = query.lower()
             words = set(query_lower.split())
             matched = words & HARMFUL_INTENT_KEYWORDS

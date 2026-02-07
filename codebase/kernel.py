@@ -30,7 +30,7 @@ class AGINeuralCore:
 
     def _get_engine(self):
         if self._engine is None:
-            from codebase.agi.engine_hardened import AGIEngineHardened
+            from codebase.agi import AGIEngineHardened
             self._engine = AGIEngineHardened()
         return self._engine
 
@@ -73,7 +73,7 @@ class AGINeuralCore:
 
     async def _execute_sense(self, engine, query: str) -> Dict[str, Any]:
         """Stage 111 SENSE: intent classification, risk flags, ambiguity detection."""
-        from codebase.agi.engine_hardened import run_pre_checks
+        from codebase.agi import run_pre_checks
         from codebase.agi.hierarchy import HierarchyLevel
 
         exec_id = f"{engine.session_id}_{engine.execution_count}"

@@ -1,0 +1,67 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "numReplicas": 1,
+    "startCommand": "python scripts/start_server.py",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 30,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 3
+  },
+  "services": [
+    {
+      "name": "arifos-mcp-server",
+      "icon": "🧠",
+      "plugins": ["postgresql", "redis"]
+    }
+  ],
+  "env": {
+    "PORT": {
+      "description": "Server port for SSE/HTTP transport",
+      "default": "8080",
+      "required": true
+    },
+    "HOST": {
+      "description": "Server host binding",
+      "default": "0.0.0.0",
+      "required": true
+    },
+    "ARIFOS_ENV": {
+      "description": "Runtime environment",
+      "default": "production",
+      "required": true
+    },
+    "VAULT_BACKEND": {
+      "description": "VAULT999 persistence backend",
+      "default": "postgres",
+      "required": true
+    },
+    "AAA_MCP_TRANSPORT": {
+      "description": "MCP transport mode (sse, http, stdio)",
+      "default": "sse",
+      "required": false
+    },
+    "BRAVE_API_KEY": {
+      "description": "Brave Search API key for reality_search tool (optional)",
+      "required": false
+    },
+    "BROWSERBASE_API_KEY": {
+      "description": "Browserbase API key for browser automation (optional)",
+      "required": false
+    },
+    "DATABASE_URL": {
+      "description": "PostgreSQL connection string (auto-set by Railway Postgres plugin)",
+      "generator": "POSTGRES_URL",
+      "required": true
+    },
+    "REDIS_URL": {
+      "description": "Redis connection string (auto-set by Railway Redis plugin)",
+      "generator": "REDIS_URL",
+      "required": true
+    }
+  }
+}

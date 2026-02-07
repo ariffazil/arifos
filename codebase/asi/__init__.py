@@ -18,7 +18,8 @@ Exports:
 DITEMPA BUKAN DIBERI
 """
 
-from .engine_hardened import (
+# v55.5: Consolidated - all hardened exports now from engine.py
+from .engine import (
     ASIEngineHardened,
     ASIEngine,
     OmegaBundle,
@@ -33,6 +34,8 @@ from .engine_hardened import (
     StakeholderType,
     execute_asi_hardened,
     execute_asi,
+    cleanup_expired_sessions,
+    get_asi_engine,
 )
 
 __version__ = "v53.4.0-HARDENED"

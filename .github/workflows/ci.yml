@@ -2,9 +2,9 @@ name: arifOS CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   build-and-test:
@@ -14,16 +14,14 @@ jobs:
       contents: read
 
     steps:
-      # FIX: Changed v6 (hallucination) to v4 (Stable)
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
-      # FIX: Changed v6 (hallucination) to v5 (Stable)
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: 'pip'
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -49,7 +47,7 @@ jobs:
       - name: Type check (mypy)
         run: |
           if python -m pip show mypy >/dev/null 2>&1; then
-            mypy arifos_core tests || true
+            mypy aaa_mcp tests || true
           else
             echo "mypy not installed; skipping."
           fi

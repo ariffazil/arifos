@@ -30,14 +30,12 @@ def verify_deployment():
     
     # Check Docker configuration
     print("\n[2] Docker Configuration")
-    all_ok &= check_file_exists("deployments/Dockerfile", required=True)
-    all_ok &= check_file_exists("deployments/docker-compose.yml", required=True)
+    all_ok &= check_file_exists("Dockerfile", required=True)
+    all_ok &= check_file_exists(".dockerignore", required=True)
     
     # Check supporting files
     print("\n[3] Supporting Files")
-    check_file_exists("deployments/Caddyfile", required=False)
-    check_file_exists("deployments/railway.json", required=False)
-    check_file_exists("nixpacks.toml", required=False)  # Fallback
+    check_file_exists("railway.toml", required=False)
     
     # Check Python project files
     print("\n[4] Python Project Files")
@@ -51,8 +49,8 @@ def verify_deployment():
             content = f.read()
             checks = [
                 ("builder = \"DOCKERFILE\"", "Builder type"),
-                ("dockerfilePath = \"deployments/Dockerfile\"", "Dockerfile path"),
-                ("startCommand = \"codebase-mcp-sse\"", "Start command"),
+                ("dockerfilePath = \"Dockerfile\"", "Dockerfile path"),
+                ("startCommand = \"python scripts/start_server.py\"", "Start command"),
                 ("healthcheckPath = \"/health\"", "Health check"),
             ]
             for check, desc in checks:
@@ -67,7 +65,7 @@ def verify_deployment():
     if all_ok:
         print("ALL CHECKS PASSED - Ready for Railway deployment!")
         print("\nNext steps:")
-        print("  1. git add railway.toml deployments/ nixpacks.toml")
+        print("  1. git add railway.toml Dockerfile .dockerignore")
         print("  2. git commit -m 'Fix Railway deployment config'")
         print("  3. git push")
         print("  4. railway up")

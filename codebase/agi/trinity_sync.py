@@ -30,7 +30,7 @@ def _get_execute_agi():
         from codebase.agi.engine import execute_agi
         return execute_agi
     except ImportError:
-        from codebase.agi.engine_hardened import execute_agi_hardened
+        from codebase.agi import execute_agi_hardened
         return execute_agi_hardened
 
 def _get_execute_asi():
@@ -38,7 +38,7 @@ def _get_execute_asi():
         from codebase.asi.engine import execute_asi
         return execute_asi
     except ImportError:
-        from codebase.asi.engine_hardened import execute_asi_hardened
+        from codebase.asi import execute_asi_hardened
         return execute_asi_hardened
 
 

@@ -16,9 +16,11 @@ from typing import Any, Dict, Optional
 
 from codebase.bundles import DeltaBundle
 
-# Unified Engine
-from .engine import (AGIEngine, cleanup_expired_sessions, execute_agi,
-                     get_agi_engine)
+# Unified Engine (v55.5: consolidated into engine.py)
+from . import (
+    AGIEngine,
+    execute_agi,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -351,5 +353,4 @@ __all__ = [
     "AGIKernel",
     "get_agi_core",
     "cleanup_expired_sessions"
-]
 ]

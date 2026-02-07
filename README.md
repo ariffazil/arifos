@@ -10,6 +10,16 @@
   <img src="https://img.shields.io/badge/License-AGPL--3.0-red?style=for-the-badge" alt="License">
 </p>
 
+<p align="center">
+  <a href="https://railway.app/template/your-template-id?referralCode=arifos">
+    <img src="https://railway.app/button.svg" alt="Deploy on Railway">
+  </a>
+</p>
+
+<p align="center">
+  <strong>One-click deploy your own constitutional AI safety gateway</strong>
+</p>
+
 ```
 ╔══════════════════════════════════════════════════════════════════╗
 ║                                                                  ║

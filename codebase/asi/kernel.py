@@ -14,9 +14,13 @@ from typing import Any, Dict, Optional
 
 from codebase.bundles import EngineVote, OmegaBundle
 
-from .engine_hardened import ASIEngineHardened as ASIEngine
-from .engine_hardened import cleanup_expired_sessions, get_asi_engine
-from .engine_hardened import execute_asi_hardened as execute_asi
+# v55.5: Consolidated - imports from engine.py
+from . import (
+    ASIEngine,
+    cleanup_expired_sessions,
+    get_asi_engine,
+    execute_asi,
+)
 
 logger = logging.getLogger(__name__)
 

@@ -1,0 +1,72 @@
+{
+  "$schema": "https://railway.app/railway.schema.json",
+  "name": "arifOS MCP Server",
+  "description": "Constitutional AI safety gateway with 13 enforceable floors (F1-F13), TEACH principles, and live thermodynamic governance. MCP-compatible server for Claude, Cursor, and other AI platforms.",
+  "icon": "https://raw.githubusercontent.com/ariffazil/arifOS/main/docs/forged_page_1.png",
+  "readme": "README.md",
+  "author": "Muhammad Arif bin Fazil",
+  "version": "55.5.0",
+  "categories": ["AI", "MCP", "API", "Safety", "Governance"],
+  "keywords": ["mcp", "ai-safety", "constitutional-ai", "claude", "cursor", "trinity-architecture"],
+  "website": "https://arifos.arif-fazil.com",
+  "repository": "https://github.com/ariffazil/arifOS",
+  "license": "AGPL-3.0-only",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "Dockerfile"
+  },
+  "deploy": {
+    "startCommand": "python scripts/start_server.py",
+    "healthcheckPath": "/health",
+    "healthcheckTimeout": 30,
+    "restartPolicyType": "on_failure",
+    "restartPolicyMaxRetries": 3
+  },
+  "variables": {
+    "PORT": {
+      "description": "Port for the MCP server",
+      "default": "8080",
+      "required": true
+    },
+    "HOST": {
+      "description": "Host binding for the server",
+      "default": "0.0.0.0",
+      "required": true
+    },
+    "AAA_MCP_TRANSPORT": {
+      "description": "Transport mode: sse, http, or stdio",
+      "default": "sse",
+      "required": false
+    },
+    "GOVERNANCE_MODE": {
+      "description": "Constitutional governance mode: HARD or SOFT",
+      "default": "HARD",
+      "required": false
+    },
+    "LOG_LEVEL": {
+      "description": "Logging level",
+      "default": "info",
+      "required": false
+    },
+    "BRAVE_API_KEY": {
+      "description": "Brave Search API key for reality_search tool (optional)",
+      "default": "",
+      "required": false
+    },
+    "BROWSERBASE_API_KEY": {
+      "description": "Browserbase API key for web browsing (optional)",
+      "default": "",
+      "required": false
+    }
+  },
+  "plugins": [
+    {
+      "name": "PostgreSQL",
+      "description": "VAULT999 ledger persistence"
+    },
+    {
+      "name": "Redis",
+      "description": "Session state with 24h TTL"
+    }
+  ]
+}
