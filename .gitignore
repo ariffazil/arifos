@@ -178,8 +178,9 @@ arifos/mcp/sessions/*
 !arifos/mcp/sessions/.gitkeep
 mcp/sessions/*
 !mcp/sessions/.gitkeep
-aaa_mcp/sessions/*
-!aaa_mcp/sessions/.gitkeep
+# Keep session module code, ignore only archives
+aaa_mcp/sessions/archive/*
+!aaa_mcp/sessions/archive/.gitkeep
 VAULT999/sessions/*
 !VAULT999/sessions/.gitkeep
 VAULT999/BBB_LEDGER/entries/*
