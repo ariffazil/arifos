@@ -287,3 +287,27 @@ async def get_ledger() -> SessionLedger:
         _ledger = SessionLedger()
         await _ledger.initialize()
     return _ledger
+
+
+async def seal_memory(
+    session_id: str,
+    verdict: str,
+    payload: Dict[str, Any],
+    **kwargs
+) -> Dict[str, Any]:
+    """
+    Legacy compatibility function for APEX engine.
+    Uses the new SessionLedger under the hood.
+    """
+    ledger = await get_ledger()
+    entry = await ledger.seal(
+        session_id=session_id,
+        verdict_type=verdict,
+        payload=payload,
+        **kwargs
+    )
+    return {
+        "verdict": entry.verdict_type,
+        "seal_id": entry.entry_id,
+        "entry_hash": entry.entry_hash
+    }
