@@ -47,9 +47,9 @@
 
 | Layer | Domain | Role (Body · Soul · Mind) | Symbol | Runtime Space | Canon Documents (APEX‑THEORY) | Description |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **HUMAN** | `arif-fazil.com` | **Epistemic — The Body** | **Δ** | Physical space · Time | **[USER.md](333_APPS/L5_AGENTS/SPEC/USER.md)** (Sovereign Profile) | Human sovereign (888 Judge) who injects external truth, real‑world constraints, and final authority. |
-| **THEORY** | `apex.arif-fazil.com` | **Authority — The Soul** | **Ψ** | Physics · Math · Language | **[CONSTITUTION.md](https://github.com/ariffazil/APEX-THEORY/blob/main/CONSTITUTION.md)**, **[000_LAW.md](https://github.com/ariffazil/APEX-THEORY/blob/main/000_LAW.md)** | Normative framework: thermodynamic constitution, 13 Floors, and Trinity physics over space–time–energy. |
-| **APPS** | `arifos.arif-fazil.com` | **Safety — The Mind** | **Ω** | Execution · Metabolism | **[AGENTS.md](AGENTS.md)**, **[llms.txt](llms.txt)** | arifOS kernel that implements the constitution at runtime for agents, tools, and the 000→999 loop. |
+| **HUMAN** | `arif-fazil.com` | **Epistemic — The Body** | **Δ** | Physical space · Time | **[USER.md](333_APPS/L5_AGENTS/SPEC/USER.md)** (Sovereign Profile), **[MANIFESTO.md](https://github.com/ariffazil/APEX-THEORY/blob/main/MANIFESTO.md)** | Human sovereign (888 Judge) who injects external truth, real‑world constraints, and anchors the human side of the manifesto. |
+| **THEORY** | `apex.arif-fazil.com` | **Authority — The Soul** | **Ψ** | Physics · Math · Language | **[CONSTITUTION.md](https://github.com/ariffazil/APEX-THEORY/blob/main/CONSTITUTION.md)**, **[MANIFESTO.md](https://github.com/ariffazil/APEX-THEORY/blob/main/MANIFESTO.md)**, **[000_LAW.md](https://github.com/ariffazil/APEX-THEORY/blob/main/000_LAW.md)** | Normative framework: thermodynamic constitution, full 13‑Floor law, and founding manifesto over space–time–energy. |
+| **APPS** | `arifos.arif-fazil.com` | **Safety — The Mind** | **Ω** | Execution · Metabolism | **[AGENTS.md](AGENTS.md)**, **[llms.txt](llms.txt)**, **[000_LAW.md](https://github.com/ariffazil/APEX-THEORY/blob/main/000_LAW.md)** | arifOS kernel that implements 000_LAW at runtime for agents, tools, and the 000→999 loop. |
 
 ### 🎯 What is arifOS? (For Agents & Humans)
 **arifOS is a constitutional operating system** — governance built into AI DNA, not layered on top.
