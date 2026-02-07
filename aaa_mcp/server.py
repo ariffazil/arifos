@@ -235,6 +235,15 @@ async def vault_seal(
     override_reason: Optional[str] = None,
     model_used: Optional[str] = None,
     tags: Optional[list] = None,
+    # v2.1 additions (external audit feedback)
+    tool_chain: Optional[list] = None,
+    model_info: Optional[dict] = None,
+    environment: str = "prod",
+    prompt_excerpt: Optional[str] = None,
+    response_excerpt: Optional[str] = None,
+    pii_level: str = "none",
+    actor_type: Optional[str] = None,
+    actor_id: Optional[str] = None,
 ) -> dict:
     """Seal the session verdict into the immutable VAULT999 ledger.
 
@@ -265,37 +274,71 @@ async def vault_seal(
         override_reason: Why override granted
         model_used: Which LLM made the decision
         tags: Arbitrary searchable tags
+        
+        # v2.1 additions (external audit feedback):
+        tool_chain: List of tools used ["init_gate","reality_search","apex_verdict"]
+        model_info: {"provider":"Anthropic","model":"claude-opus","version":"2026-02-01"}
+        environment: test/staging/prod
+        prompt_excerpt: First ~200 chars of prompt (redacted)
+        response_excerpt: First ~200 chars of response (redacted)
+        pii_level: none/low/medium/high
+        actor_type: user/system/override
+        actor_id: arif-fazil, openclaw-core, etc.
     """
     import hashlib
     from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
 
     # Compute hashes for integrity (without storing full content)
     query_hash = None
+    response_hash = None
     if query_summary:
         query_hash = hashlib.sha256(query_summary.encode()).hexdigest()[:32]
+    if response_excerpt:
+        response_hash = hashlib.sha256(response_excerpt.encode()).hexdigest()[:32]
 
-    # Enrich payload with v2 structured fields
+    # Enrich payload with v2.1 structured fields
     enriched_payload = {
         **payload,
         "_v2_metadata": {
-            "schema_version": "2.0",
+            "schema_version": "2.1",
+            # Context
             "query_summary": query_summary[:200] if query_summary else None,
             "query_hash": query_hash,
+            "prompt_excerpt": prompt_excerpt[:200] if prompt_excerpt else None,
+            "response_excerpt": response_excerpt[:200] if response_excerpt else None,
+            "response_hash": response_hash,
+            # Risk & Classification
             "risk_level": risk_level or "low",
             "risk_tags": risk_tags or [],
             "intent": intent,
             "category": category,
+            "pii_level": pii_level,
+            # Floors
             "floors_passed": floors_passed or [],
             "floors_failed": floors_failed or [],
+            # Metrics
             "metrics": {
                 "entropy_omega": entropy_omega,
                 "tri_witness_score": tri_witness_score,
                 "peace_squared": peace_squared,
                 "genius_g": genius_g,
             },
+            # Human oversight
             "human_override": human_override,
-            "override_reason": override_reason,
+            "override_info": {
+                "overridden": human_override,
+                "by": actor_id if human_override else None,
+                "reason": override_reason,
+            } if human_override else None,
+            # Model & Pipeline
             "model_used": model_used,
+            "model_info": model_info,
+            "tool_chain": tool_chain or [],
+            # Environment & Actor
+            "environment": environment,
+            "actor_type": actor_type,
+            "actor_id": actor_id,
+            # Tags
             "tags": tags or [],
         }
     }
@@ -307,13 +350,15 @@ async def vault_seal(
             session_id=session_id, 
             verdict=verdict, 
             seal_data=enriched_payload, 
-            authority="mcp_server"
+            authority=actor_id or "mcp_server"
         )
         return {
             "verdict": "SEALED",
             "seal": result.get("entry_hash", f"hash-{result.get('sequence_number', 0)}"),
-            "schema_version": "2.0",
+            "schema_version": "2.1",
             "risk_level": risk_level or "low",
+            "environment": environment,
+            "tool_chain": tool_chain or [],
             "floors_failed": floors_failed or [],
             "human_override": human_override,
             "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
@@ -336,6 +381,9 @@ async def vault_query(
     category: Optional[str] = None,
     human_override_only: bool = False,
     tag: Optional[str] = None,
+    environment: Optional[str] = None,
+    actor_id: Optional[str] = None,
+    tool_used: Optional[str] = None,
     limit: int = 10,
 ) -> dict:
     """Query past vault_seal entries for institutional memory retrieval.
@@ -435,6 +483,16 @@ async def vault_query(
         
         if tag:
             entries = [e for e in entries if tag in get_v2_meta(e).get("tags", [])]
+        
+        # v2.1 filters
+        if environment:
+            entries = [e for e in entries if get_v2_meta(e).get("environment") == environment]
+        
+        if actor_id:
+            entries = [e for e in entries if get_v2_meta(e).get("actor_id") == actor_id]
+        
+        if tool_used:
+            entries = [e for e in entries if tool_used in get_v2_meta(e).get("tool_chain", [])]
 
         # Limit results
         entries = entries[:limit]
@@ -485,6 +543,13 @@ async def vault_query(
                 entry_out["floors_failed"] = v2.get("floors_failed", [])
                 entry_out["human_override"] = v2.get("human_override", False)
                 entry_out["tags"] = v2.get("tags", [])
+                # v2.1 fields
+                entry_out["environment"] = v2.get("environment")
+                entry_out["actor_type"] = v2.get("actor_type")
+                entry_out["actor_id"] = v2.get("actor_id")
+                entry_out["tool_chain"] = v2.get("tool_chain", [])
+                entry_out["model_used"] = v2.get("model_used")
+                entry_out["pii_level"] = v2.get("pii_level")
                 metrics = v2.get("metrics", {})
                 if metrics.get("entropy_omega"):
                     entry_out["entropy_omega"] = metrics["entropy_omega"]
@@ -494,7 +559,7 @@ async def vault_query(
 
         return {
             "count": len(simplified),
-            "schema_version": "2.0",
+            "schema_version": "2.1",
             "query": {
                 "session_pattern": session_pattern,
                 "verdict": verdict,
@@ -504,6 +569,9 @@ async def vault_query(
                 "category": category,
                 "human_override_only": human_override_only,
                 "tag": tag,
+                "environment": environment,
+                "actor_id": actor_id,
+                "tool_used": tool_used,
             },
             "entries": simplified,
             "patterns": patterns,
