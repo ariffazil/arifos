@@ -290,7 +290,8 @@ async def vault_seal(
     import hashlib
     from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
 
-    # Compute hashes for integrity (without storing full content)
+    # Enrich payload with v3 Hybrid structure (9 JSONB categories)
+    # Compute hashes for integrity
     query_hash = None
     response_hash = None
     if query_summary:
@@ -298,52 +299,89 @@ async def vault_seal(
     if response_excerpt:
         response_hash = hashlib.sha256(response_excerpt.encode()).hexdigest()[:32]
 
-    # Enrich payload with v2.1 structured fields
+    # Build 9 APEX-aligned categories
+    v3_identity = {
+        "session": session_id,
+        "actor_type": actor_type,
+        "actor_id": actor_id,
+    }
+    
+    v3_context = {
+        "summary": query_summary[:200] if query_summary else None,
+        "q_hash": query_hash,
+        "r_hash": response_hash,
+        "intent": intent,
+    }
+    
+    v3_risk = {
+        "level": risk_level or "low",
+        "tags": risk_tags or [],
+        "category": category,
+        "pii": pii_level,
+    }
+    
+    v3_floors = {
+        "checked": floors_checked or [],
+        "failed": floors_failed or [],
+        # passed = computed: checked - failed
+    }
+    
+    v3_metrics = {
+        "omega": entropy_omega,
+        "tw": tri_witness_score,
+        "peace2": peace_squared,
+        "genius": genius_g,
+    }
+    
+    v3_oversight = {
+        "override": human_override,
+        "reason": override_reason if human_override else None,
+        "by": actor_id if human_override else None,
+    }
+    
+    v3_provenance = {
+        "model": model_used,
+        "model_info": model_info,
+        "tools": tool_chain or [],
+        "env": environment,
+    }
+
+    # Enriched payload with both v2.1 compat and v3 structure
     enriched_payload = {
         **payload,
+        "_schema_version": "3.0",
+        # v3 categories (APEX-aligned)
+        "identity": v3_identity,
+        "context": v3_context,
+        "risk": v3_risk,
+        "floors": v3_floors,
+        "metrics": v3_metrics,
+        "oversight": v3_oversight,
+        "provenance": v3_provenance,
+        # Backwards compat: keep _v2_metadata for existing queries
         "_v2_metadata": {
-            "schema_version": "2.1",
-            # Context
+            "schema_version": "3.0",
             "query_summary": query_summary[:200] if query_summary else None,
             "query_hash": query_hash,
-            "prompt_excerpt": prompt_excerpt[:200] if prompt_excerpt else None,
-            "response_excerpt": response_excerpt[:200] if response_excerpt else None,
             "response_hash": response_hash,
-            # Risk & Classification
             "risk_level": risk_level or "low",
             "risk_tags": risk_tags or [],
             "intent": intent,
             "category": category,
             "pii_level": pii_level,
-            # Floors
             "floors_checked": floors_checked or [],
-            "floors_passed": floors_passed or [],
             "floors_failed": floors_failed or [],
-            # Metrics
-            "metrics": {
-                "entropy_omega": entropy_omega,
-                "tri_witness_score": tri_witness_score,
-                "peace_squared": peace_squared,
-                "genius_g": genius_g,
-            },
-            # Human oversight
+            "metrics": v3_metrics,
             "human_override": human_override,
-            "override_info": {
-                "overridden": human_override,
-                "by": actor_id if human_override else None,
-                "reason": override_reason,
-            } if human_override else None,
-            # Model & Pipeline
+            "override_reason": override_reason,
             "model_used": model_used,
             "model_info": model_info,
             "tool_chain": tool_chain or [],
-            # Environment & Actor
             "environment": environment,
             "actor_type": actor_type,
             "actor_id": actor_id,
-            # Tags
             "tags": tags or [],
-        }
+        },
     }
 
     ledger = get_hardened_vault_ledger()
@@ -358,12 +396,19 @@ async def vault_seal(
         return {
             "verdict": "SEALED",
             "seal": result.get("entry_hash", f"hash-{result.get('sequence_number', 0)}"),
-            "schema_version": "2.1",
+            "schema_version": "3.0",
+            # Fast-query columns (the 4 governance axes)
+            "session_id": session_id,
+            "verdict_type": verdict,
             "risk_level": risk_level or "low",
             "environment": environment,
-            "tool_chain": tool_chain or [],
-            "floors_failed": floors_failed or [],
-            "human_override": human_override,
+            # Summary of v3 categories
+            "categories": {
+                "identity": v3_identity,
+                "floors": v3_floors,
+                "oversight": v3_oversight,
+                "provenance": {"tools": tool_chain or [], "env": environment},
+            },
             "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
             "floors_enforced": get_tool_floors("vault_seal"),
             "pass": "reverse",
@@ -464,8 +509,8 @@ async def vault_query(
             import fnmatch
             entries = [e for e in entries if fnmatch.fnmatch(e.get("session_id", ""), session_pattern)]
 
-        # Filter by v2 metadata if present
-        def get_v2_meta(entry):
+        # Helper to extract metadata (v2 or v3 format)
+        def get_meta(entry):
             seal_data = entry.get("seal_data", {})
             if isinstance(seal_data, str):
                 try:
@@ -473,29 +518,56 @@ async def vault_query(
                     seal_data = json.loads(seal_data)
                 except:
                     seal_data = {}
+            
+            # Check for v3 format first
+            if seal_data.get("_schema_version") == "3.0":
+                # Convert v3 to v2-compatible for filtering
+                return {
+                    "schema_version": "3.0",
+                    "query_summary": seal_data.get("context", {}).get("summary"),
+                    "risk_level": seal_data.get("risk", {}).get("level"),
+                    "category": seal_data.get("risk", {}).get("category"),
+                    "intent": seal_data.get("context", {}).get("intent"),
+                    "floors_checked": seal_data.get("floors", {}).get("checked", []),
+                    "floors_failed": seal_data.get("floors", {}).get("failed", []),
+                    "human_override": seal_data.get("oversight", {}).get("override", False),
+                    "tags": seal_data.get("_v2_metadata", {}).get("tags", []),
+                    "environment": seal_data.get("provenance", {}).get("env"),
+                    "actor_id": seal_data.get("identity", {}).get("actor_id"),
+                    "actor_type": seal_data.get("identity", {}).get("actor_type"),
+                    "tool_chain": seal_data.get("provenance", {}).get("tools", []),
+                    "model_used": seal_data.get("provenance", {}).get("model"),
+                    "pii_level": seal_data.get("risk", {}).get("pii"),
+                    "metrics": {
+                        "omega": seal_data.get("metrics", {}).get("omega"),
+                        "tw": seal_data.get("metrics", {}).get("tw"),
+                    },
+                }
+            
+            # Fall back to v2 format
             return seal_data.get("_v2_metadata", {})
 
         if risk_level:
-            entries = [e for e in entries if get_v2_meta(e).get("risk_level") == risk_level]
+            entries = [e for e in entries if get_meta(e).get("risk_level") == risk_level]
         
         if category:
-            entries = [e for e in entries if get_v2_meta(e).get("category") == category]
+            entries = [e for e in entries if get_meta(e).get("category") == category]
         
         if human_override_only:
-            entries = [e for e in entries if get_v2_meta(e).get("human_override") == True]
+            entries = [e for e in entries if get_meta(e).get("human_override") == True]
         
         if tag:
-            entries = [e for e in entries if tag in get_v2_meta(e).get("tags", [])]
+            entries = [e for e in entries if tag in get_meta(e).get("tags", [])]
         
         # v2.1 filters
         if environment:
-            entries = [e for e in entries if get_v2_meta(e).get("environment") == environment]
+            entries = [e for e in entries if get_meta(e).get("environment") == environment]
         
         if actor_id:
-            entries = [e for e in entries if get_v2_meta(e).get("actor_id") == actor_id]
+            entries = [e for e in entries if get_meta(e).get("actor_id") == actor_id]
         
         if tool_used:
-            entries = [e for e in entries if tool_used in get_v2_meta(e).get("tool_chain", [])]
+            entries = [e for e in entries if tool_used in get_meta(e).get("tool_chain", [])]
 
         # Limit results
         entries = entries[:limit]
@@ -512,24 +584,24 @@ async def vault_query(
             }
             
             # v2 pattern detection
-            v2_entries = [e for e in entries if get_v2_meta(e)]
+            v2_entries = [e for e in entries if get_meta(e)]
             if v2_entries:
                 risk_counts = {}
                 for e in v2_entries:
-                    rl = get_v2_meta(e).get("risk_level", "unknown")
+                    rl = get_meta(e).get("risk_level", "unknown")
                     risk_counts[rl] = risk_counts.get(rl, 0) + 1
                 patterns["risk_distribution"] = risk_counts
                 
                 # Average metrics
-                omegas = [get_v2_meta(e).get("metrics", {}).get("entropy_omega") for e in v2_entries]
+                omegas = [get_meta(e).get("metrics", {}).get("entropy_omega") for e in v2_entries]
                 omegas = [o for o in omegas if o is not None]
                 if omegas:
                     patterns["avg_entropy_omega"] = round(sum(omegas) / len(omegas), 4)
 
-        # Simplify entries for response (include v2 fields when available)
+        # Simplify entries for response (include v2/v3 fields when available)
         simplified = []
         for e in entries:
-            v2 = get_v2_meta(e)
+            meta = get_meta(e)
             entry_out = {
                 "session_id": e.get("session_id"),
                 "timestamp": e.get("timestamp"),
@@ -537,32 +609,36 @@ async def vault_query(
                 "authority": e.get("authority"),
                 "entry_hash": e.get("entry_hash", "")[:16] + "...",
             }
-            # Add v2 fields if present
-            if v2:
-                entry_out["query_summary"] = v2.get("query_summary")
-                entry_out["risk_level"] = v2.get("risk_level")
-                entry_out["category"] = v2.get("category")
-                entry_out["intent"] = v2.get("intent")
-                entry_out["floors_failed"] = v2.get("floors_failed", [])
-                entry_out["human_override"] = v2.get("human_override", False)
-                entry_out["tags"] = v2.get("tags", [])
-                # v2.1 fields
-                entry_out["environment"] = v2.get("environment")
-                entry_out["actor_type"] = v2.get("actor_type")
-                entry_out["actor_id"] = v2.get("actor_id")
-                entry_out["tool_chain"] = v2.get("tool_chain", [])
-                entry_out["model_used"] = v2.get("model_used")
-                entry_out["pii_level"] = v2.get("pii_level")
-                metrics = v2.get("metrics", {})
-                if metrics.get("entropy_omega"):
+            # Add metadata fields if present (v2 or v3)
+            if meta:
+                entry_out["query_summary"] = meta.get("query_summary")
+                entry_out["risk_level"] = meta.get("risk_level")
+                entry_out["category"] = meta.get("category")
+                entry_out["intent"] = meta.get("intent")
+                entry_out["floors_failed"] = meta.get("floors_failed", [])
+                entry_out["human_override"] = meta.get("human_override", False)
+                entry_out["tags"] = meta.get("tags", [])
+                entry_out["environment"] = meta.get("environment")
+                entry_out["actor_type"] = meta.get("actor_type")
+                entry_out["actor_id"] = meta.get("actor_id")
+                entry_out["tool_chain"] = meta.get("tool_chain", [])
+                entry_out["model_used"] = meta.get("model_used")
+                entry_out["pii_level"] = meta.get("pii_level")
+                entry_out["schema_version"] = meta.get("schema_version", "2.1")
+                metrics = meta.get("metrics", {})
+                if metrics.get("omega"):
+                    entry_out["entropy_omega"] = metrics["omega"]
+                elif metrics.get("entropy_omega"):
                     entry_out["entropy_omega"] = metrics["entropy_omega"]
-                if metrics.get("tri_witness_score"):
+                if metrics.get("tw"):
+                    entry_out["tri_witness_score"] = metrics["tw"]
+                elif metrics.get("tri_witness_score"):
                     entry_out["tri_witness_score"] = metrics["tri_witness_score"]
             simplified.append(entry_out)
 
         return {
             "count": len(simplified),
-            "schema_version": "2.1",
+            "schema_version": "3.0",
             "query": {
                 "session_pattern": session_pattern,
                 "verdict": verdict,
