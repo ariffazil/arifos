@@ -37,7 +37,7 @@ if transport in {"http", "streamable-http", "mcp"}:
 else:
     app = create_sse_app(
         mcp,
-        message_path="/messages",
+        message_path="/messages/",
         sse_path="/sse",
         routes=[Route("/health", endpoint=health, methods=["GET"])],
     )
