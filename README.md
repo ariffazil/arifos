@@ -41,22 +41,17 @@
 
 ---
 
-## 🌬️ Trinity Architecture
+## 1. Trinity Architecture & Constitutional Canon
 
-> arifOS is the **runtime kernel**. The upstream physics and theory layer now lives in the separate
-> [APEX-THEORY](https://github.com/ariffazil/APEX-THEORY) repository. This reduces entropy by
-> separating "why" (APEX-THEORY) from "how" (arifOS runtime).
+**arifOS is the runtime kernel (Ω).** The upstream physics, math, and theory now live in **[APEX-THEORY](https://github.com/ariffazil/APEX-THEORY)** (Δ, Ψ), reducing entropy by separating *why* (Theory) from *how* (Runtime).
 
-| Layer | Domain | Function | Symbol | Description |
-|-------|--------|----------|--------|-------------|
-| **HUMAN** | [arif-fazil.com](https://arif-fazil.com) | Epistemic — The Body | Δ | **Physical Reality**: The human sovereign (888 Judge) who provides external truth injection |
-| **THEORY** | [apex.arif-fazil.com](https://apex.arif-fazil.com) | Authority — The Soul | Ψ | **Normative Framework**: Constitutional laws and 13 Floors that govern all AI behavior |
-| **APPS** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Safety — The Mind | Ω | **Execution Layer**: Runtime implementation of constitutional governance |
+| Layer | Domain | Role (Body · Soul · Mind) | Symbol | Runtime Space | Canon Documents (APEX‑THEORY) | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **HUMAN** | `arif-fazil.com` | **Epistemic — The Body** | **Δ** | Physical space · Time | **[USER.md](333_APPS/L5_AGENTS/SPEC/USER.md)** (Sovereign Profile) | Human sovereign (888 Judge) who injects external truth, real‑world constraints, and final authority. |
+| **THEORY** | `apex.arif-fazil.com` | **Authority — The Soul** | **Ψ** | Physics · Math · Language | **[CONSTITUTION.md](https://github.com/ariffazil/APEX-THEORY/blob/main/CONSTITUTION.md)**, **[000_LAW.md](https://github.com/ariffazil/APEX-THEORY/blob/main/000_LAW.md)** | Normative framework: thermodynamic constitution, 13 Floors, and Trinity physics over space–time–energy. |
+| **APPS** | `arifos.arif-fazil.com` | **Safety — The Mind** | **Ω** | Execution · Metabolism | **[AGENTS.md](AGENTS.md)**, **[llms.txt](llms.txt)** | arifOS kernel that implements the constitution at runtime for agents, tools, and the 000→999 loop. |
 
----
-
-## 🎯 What is arifOS? (For Agents & Humans)
-
+### 🎯 What is arifOS? (For Agents & Humans)
 **arifOS is a constitutional operating system** — governance built into AI DNA, not layered on top.
 
 > *"Intelligence is thermodynamic work that must pay the price of entropy reduction."*
@@ -64,39 +59,6 @@
 **Core Mission:** Transform AI from "hope it behaves" to "verify before shipping" — making harmful outputs computationally expensive instead of cheap and automatic.
 
 **Key Innovation:** 13 stationary constitutional floors that remain fixed while AI capabilities evolve, ensuring governance scales with capability.
-
----
-
-## 📜 Constitutional Canon (From APEX-THEORY)
-
-The constitutional framework lives in [**APEX-THEORY**](https://github.com/ariffazil/APEX-THEORY) — the normative "why" that governs arifOS runtime behavior.
-
-### Core Constitutional Documents
-
-| Document | Purpose | Authority |
-| :--- | :--- | :--- |
-| **[CONSTITUTION.md](https://github.com/ariffazil/APEX-THEORY/blob/main/CONSTITUTION.md)** | The 13 Floors + Trinity Architecture | Sovereign (888) |
-| **[MANIFESTO.md](https://github.com/ariffazil/APEX-THEORY/blob/main/MANIFESTO.md)** | Founding principles + Thermodynamic Law | Sovereign (888) |
-| **[000_LAW.md](https://github.com/ariffazil/APEX-THEORY/blob/main/000_LAW.md)** | Hard constraints for machines | Constitution |
-
-### Agent Spec Files (Runtime Context)
-
-These files are consumed by agents at runtime for identity and context:
-
-| File | Purpose | Location |
-| :--- | :--- | :--- |
-| **IDENTITY.md** | Agent Identity | Agent workspace |
-| **SOUL.md** | Constitutional Identity | Agent workspace |
-| **USER.md** | Sovereign Profile | Agent workspace |
-| **MEMORY.md** | Metabolic History | Agent workspace |
-
-> **Separation of Concerns:** APEX-THEORY defines the law. arifOS enforces the law. Agents execute under the law.
-
-### Constitution vs. Executors
-**arifOS (The Constitution)** is model-agnostic governance (Law).
-**Agents (The Executors)** are officials bound by the law (Action).
-- You can swap **Kimi** (Mind/Δ) for **Claude** (Heart/Ω) instantly.
-- The **13 Floors** remain stationary regardless of which intelligence executes them.
 
 ---
 
