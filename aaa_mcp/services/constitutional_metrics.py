@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any, Dict, Optional
-from datetime import datetime
 
 # In-memory storage for lightweight runtime tracking
 _STAGE_RESULTS: Dict[str, Dict[str, Any]] = {}
@@ -19,7 +19,7 @@ def record_verdict(tool: str, verdict: str, duration: float, mode: str):
             "verdict": verdict,
             "duration_ms": duration,
             "mode": mode,
-            "timestamp": datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
     )
 
@@ -37,13 +37,17 @@ def update_metabolic_state(
         confidence = delta_bundle.get("confidence") or {}
         state["omega_0"] = confidence.get("omega_0", state.get("omega_0", 0.04))
         state["entropy_delta"] = delta_bundle.get("entropy_delta", state.get("entropy_delta", 0.0))
-        state["tri_witness"] = delta_bundle.get("floor_scores", {}).get("F8", state.get("tri_witness", 0.95))
+        state["tri_witness"] = delta_bundle.get("floor_scores", {}).get(
+            "F8", state.get("tri_witness", 0.95)
+        )
     if omega_bundle:
-        state["peace_squared"] = omega_bundle.get("floor_scores", {}).get("F5", state.get("peace_squared", 1.0))
+        state["peace_squared"] = omega_bundle.get("floor_scores", {}).get(
+            "F5", state.get("peace_squared", 1.0)
+        )
         state["kappa_r"] = omega_bundle.get("empathy_kappa_r", state.get("kappa_r", 1.0))
     if verdict:
         state["verdict"] = verdict
-    state["updated_at"] = datetime.utcnow().isoformat()
+    state["updated_at"] = datetime.now(timezone.utc).isoformat()
     _METABOLIC_STATE[session_id] = state
     return state
 

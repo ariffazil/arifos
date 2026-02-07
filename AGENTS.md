@@ -17,7 +17,7 @@ Transform AI from "hope it behaves" to "verify before shipping" — making harmf
 - **13 Constitutional Floors (F1-F13):** Stationary constraints that remain fixed while AI capabilities evolve
 - **Trinity Architecture:** Three engines working in consensus:
   - **AGI (Δ-Mind):** Reasoning, truth, logic — Floors F2, F4, F7, F10
-  - **ASI (Ω-Heart):** Empathy, safety, alignment — Floors F1, F5, F6, F9
+  - **ASI (Ω-Heart):** Empathy, safety, alignment — Floors F5, F6, F9
   - **APEX (Ψ-Soul):** Judgment, consensus — Floors F3, F8, F11, F12
 - **9 Canonical MCP Tools:** Platform-agnostic Model Context Protocol implementation
 - **VAULT999 Ledger:** Immutable Merkle-chained audit trail for all decisions
@@ -87,7 +87,6 @@ arifOS/
 │   │   └── trinity_validator.py         # Trinity consensus validation
 │   ├── external_gateways/      # External API clients
 │   │   ├── brave_client.py              # Brave Search API
-│   │   ├── web_search_noapi.py          # DuckDuckGo fallback
 │   │   └── web_browser.py               # Web page fetching
 │   ├── infrastructure/         # Infrastructure utilities
 │   │   └── rate_limiter.py              # Request rate limiting
@@ -133,6 +132,7 @@ arifOS/
 │   ├── init/                   # 000_INIT stage
 │   ├── enforcement/            # Enforcement mechanisms
 │   ├── federation/             # Federation consensus
+│   ├── constitutional_floors.py # The 13 floor implementations
 │   └── bundles.py              # DeltaBundle/OmegaBundle dataclasses
 │
 ├── 333_APPS/                   # Application layers (L1-L7)
@@ -357,7 +357,7 @@ new_state = state.set_floor_score(...)    # Returns NEW instance
 ```
 
 ### Engine Adapters with Fallback Stubs
-`aaa_mcp/core/engine_adapters.py` tries to import real engines from `codebase/`. When unavailable, it uses fallback stubs that compute heuristic scores from query text.
+`aaa_mcp/core/engine_adapters.py` tries to import real engines from `codebase/`. When unavailable, it uses fallback stubs that compute heuristic scores from query text using Shannon entropy and lexical diversity.
 
 ```python
 try:
@@ -427,29 +427,40 @@ All tools return a dict with:
 
 ## 9. The 13 Constitutional Floors (F1-F13)
 
-| Floor | Name | Type | Failure Result | Description |
-|-------|------|------|----------------|-------------|
-| F1 | Amanah | Hard | VOID | Reversibility — all actions must be undoable |
-| F2 | Truth | Hard | VOID | Evidence-grounded — claims must be fact-based |
-| F3 | Tri-Witness | Soft | PARTIAL | Consensus — ΔΩΨ must align |
-| F4 | Empathy | Soft | PARTIAL | First step — smallest safe action |
-| F5 | Peace² | Hard | VOID | Entropy reduction — system disorder minimized |
-| F6 | Clarity | Soft | PARTIAL | Stakeholder awareness — who is affected |
-| F7 | Humility | Hard | VOID | Uncertainty tracking — Ω₀ ∈ [0.03, 0.05] |
-| F8 | Wisdom | Soft | PARTIAL | Pattern recognition — historical learning |
-| F9 | Anti-Hantu | Hard | VOID | No consciousness claims allowed |
-| F10 | Ontology | Hard | VOID | Know what you are — "I am a tool" |
-| F11 | Sovereignty | Hard | VOID | Human authority — yield to humans |
-| F12 | Beauty | Hard | VOID | Form matters — clear, beautiful output |
-| F13 | Stewardship | Hard | VOID | Leave better than found |
+| Floor | Name | Type | Failure Result | Description | Threshold |
+|-------|------|------|----------------|-------------|-----------|
+| **F1** | Amanah | Hard | VOID | Reversibility — all actions must be undoable | >= 0.5 |
+| **F2** | Truth | Hard | VOID | Evidence-grounded — claims must be fact-based | >= 0.99 |
+| **F3** | Tri-Witness | Derived | PARTIAL | Consensus — ΔΩΨ must align via geometric mean | >= 0.95 |
+| **F4** | Empathy | Soft | PARTIAL | First step — smallest safe action | >= 0.70 |
+| **F5** | Peace² | Soft | PARTIAL | Entropy reduction — system disorder minimized | >= 1.00 |
+| **F6** | Clarity | Hard | VOID | Stakeholder awareness — who is affected | ΔS ≤ 0 |
+| **F7** | Humility | Hard | VOID | Uncertainty tracking — Ω₀ ∈ [0.03, 0.05] | In band |
+| **F8** | Genius | Derived | PARTIAL | Pattern recognition — G = A×P×X×E² | >= 0.80 |
+| **F9** | Anti-Hantu | Soft | PARTIAL | No consciousness claims allowed | < 0.30 |
+| **F10** | Ontology | Hard | VOID | Know what you are — "I am a tool" | = 1.0 |
+| **F11** | Sovereignty | Hard | VOID | Human authority — yield to humans | = 1.0 |
+| **F12** | Injection | Hard | VOID | Injection defense — prompt attacks blocked | >= 0.85 |
+| **F13** | Stewardship | Hard | VOID | Leave better than found | = 1.0 |
 
 ### Hard vs Soft Floors
 - **Hard floors:** Failure → **VOID** (blocked entirely)
 - **Soft floors:** Failure → **PARTIAL** (warning, proceed with caution)
+- **Derived floors:** Computed from other floor scores
 
 ### Floor Enforcement Points
 - **Pre-execution (input validation):** F1, F5, F11, F12, F13
 - **Post-execution (output validation):** F2, F3, F4, F6, F7, F8, F9, F10
+
+### Implementation Location
+Floor validators are implemented in `codebase/constitutional_floors.py` with individual refinements in:
+- `codebase/floors/amanah.py` — F1 reversibility
+- `codebase/floors/truth.py` — F2 truth verification
+- `codebase/floors/genius.py` — F8 eigendecomposition (G = A×P×X×E²)
+- `codebase/floors/antihantu.py` — F9 consciousness claim detection
+- `codebase/floors/ontology.py` — F10 self-categorization
+- `codebase/floors/authority.py` — F11 command authentication
+- `codebase/floors/injection.py` — F12 prompt injection defense
 
 ---
 
@@ -506,12 +517,17 @@ python -m aaa_mcp http
 | `ARIFOS_CONSTITUTIONAL_MODE` | Set constitutional mode (AAA, DEV) |
 | `BRAVE_API_KEY` | Brave Search API for reality_search |
 | `DATABASE_URL` | PostgreSQL connection string for VAULT999 |
+| `BROWSERBASE_API_KEY` | Browser automation API key |
 
 ### Injection Defense (F12)
-All inputs pass through unified InjectionGuard in `init_gate`. Never bypass this for user-facing inputs.
+All inputs pass through unified InjectionGuard in `init_gate`. Never bypass this for user-facing inputs. The guard scans for:
+- Prompt injection patterns
+- System prompt leaks
+- Jailbreak attempts
+- Authority override attempts
 
 ### Ontology Guard (F10)
-Blocks AI consciousness claims. Any code suggesting "I feel", "I am conscious", "I have emotions" is rejected.
+Blocks AI consciousness claims. Any code suggesting "I feel", "I am conscious", "I have emotions" is rejected. See `codebase/guards/ontology_guard.py`.
 
 ### Source Verification Hierarchy
 Before making constitutional claims, verify against:
@@ -524,14 +540,25 @@ Before making constitutional claims, verify against:
 
 ## 12. Common Pitfalls & Gotchas
 
-1. **Import shadowing:** Never create a `mcp/` directory at root — it shadows the PyPI SDK
-2. **Decorator order:** `@mcp.tool()` must be outer, `@constitutional_floor()` inner
-3. **F4/F6 numbering:** Historically had Empathy/Clarity swapped — check `constitutional_decorator.py` for truth
-4. **vault_seal KeyError:** Can crash on `result["seal"]` — use `.get("seal", fallback)`
-5. **Test failures:** 3 pre-existing assertion failures in `test_mcp_all_tools.py` are known/non-blocking
-6. **Dual init paths:** `bridge.py` vs `codebase/init/` have drifted — `server.py` uses `engine_adapters.py`
-7. **Physics disabled:** Tests run with physics disabled by default — use `enable_physics_for_apex_theory` fixture when needed
-8. **Legacy imports:** Tests importing `arifos` (old package name) are auto-skipped
+1. **Import shadowing:** Never create a `mcp/` directory at root — it shadows the PyPI SDK. Use `aaa_mcp/` instead.
+
+2. **Decorator order:** `@mcp.tool()` must be outer, `@constitutional_floor()` inner. Wrong order = no enforcement.
+
+3. **F4/F6 numbering:** Historically had Empathy/Clarity swapped — check `constitutional_decorator.py` for truth.
+
+4. **vault_seal KeyError:** Can crash on `result["seal"]` — use `.get("seal", fallback)` in calling code.
+
+5. **Test failures:** 3 pre-existing assertion failures in `test_mcp_all_tools.py` are known/non-blocking (legacy test imports).
+
+6. **Dual init paths:** `bridge.py` vs `codebase/init/` have drifted — `server.py` uses `engine_adapters.py`.
+
+7. **Physics disabled:** Tests run with physics disabled by default — use `enable_physics_for_apex_theory` fixture when needed.
+
+8. **Legacy imports:** Tests importing `arifos` (old package name) are auto-skipped via `conftest.py`.
+
+9. **Engine adapter heuristics:** When real engines unavailable, fallback stubs compute scores from query entropy/word count. Not as accurate as real engines but sufficient for basic constitutional checks.
+
+10. **Session ID chaining:** Always pass `session_id` through the pipeline. Each tool stores results via `store_stage_result()` for VAULT999 sealing.
 
 ---
 
@@ -539,16 +566,19 @@ Before making constitutional claims, verify against:
 
 | File | Purpose |
 |------|---------|
-| `aaa_mcp/server.py` | 9 canonical MCP tools |
-| `aaa_mcp/core/constitutional_decorator.py` | Floor enforcement |
-| `aaa_mcp/core/engine_adapters.py` | Engine bridges |
-| `codebase/constitutional_floors.py` | Floor validator implementations |
+| `aaa_mcp/server.py` | 9 canonical MCP tools with FastMCP |
+| `aaa_mcp/core/constitutional_decorator.py` | Floor enforcement with pre/post validation |
+| `aaa_mcp/core/engine_adapters.py` | Engine bridges with query-derived heuristics |
+| `codebase/constitutional_floors.py` | The 13 floor validator implementations |
+| `codebase/floors/genius.py` | F8 eigendecomposition (G = A×P×X×E²) |
 | `codebase/bundles.py` | DeltaBundle/OmegaBundle dataclasses |
+| `codebase/guards/injection_guard.py` | Unified injection defense |
 | `tests/conftest.py` | Test configuration (auto-async, physics disabled) |
-| `pyproject.toml` | Package config, tool settings |
-| `.pre-commit-config.yaml` | Pre-commit hooks |
+| `pyproject.toml` | Package config, tool settings, pytest config |
+| `.pre-commit-config.yaml` | Pre-commit hooks with constitutional checks |
 | `Dockerfile` | Container build instructions |
 | `railway.toml` | Railway deployment config |
+| `scripts/start_server.py` | Production server startup |
 
 ---
 
@@ -558,7 +588,8 @@ Before making constitutional claims, verify against:
 
 **Sovereign:** Muhammad Arif bin Fazil  
 **Repository:** https://github.com/ariffazil/arifOS  
-**Live Server:** https://arifos.arif-fazil.com/
+**Live Server:** https://arifos.arif-fazil.com/  
+**Health Check:** https://aaamcp.arif-fazil.com/health
 
 ---
 

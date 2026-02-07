@@ -181,8 +181,9 @@ async def apex_verdict(query: str, session_id: str) -> dict:
 
 @mcp.tool()
 @constitutional_floor("F2", "F7")
-async def reality_search(query: str, session_id: str, region: str = "wt-wt",
-                         timelimit: Optional[str] = None) -> dict:
+async def reality_search(
+    query: str, session_id: str, region: str = "wt-wt", timelimit: Optional[str] = None
+) -> dict:
     """External fact-checking and reality grounding via web search.
 
     Verifies claims against external sources using constitutional cascade:
@@ -190,7 +191,7 @@ async def reality_search(query: str, session_id: str, region: str = "wt-wt",
     2. Playwright DDG HTML - Fallback
     3. Playwright Google - Last resort
 
-    Use when a query requires up-to-date information or when truth 
+    Use when a query requires up-to-date information or when truth
     confidence is low. Can be called at any point in the pipeline.
 
     Args:
@@ -228,21 +229,24 @@ async def vault_seal(session_id: str, verdict: str, payload: dict) -> dict:
         verdict: SEAL, VOID, PARTIAL, or SABAR
         payload: Dict containing the full session results to record
     """
-    from codebase.vault.persistence import get_ledger
+    from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
 
-    ledger = get_ledger()
+    ledger = get_hardened_vault_ledger()
     await ledger.connect()
     try:
-        result = await ledger.append(session_id, verdict, payload)
+        result = await ledger.append(
+            session_id=session_id, verdict=verdict, seal_data=payload, authority="mcp_server"
+        )
         return {
             "verdict": "SEALED",
-            "seal": result.get("seal", f"inmem-{result.get('sequence', 0)}"),
+            "seal": result.get("entry_hash", f"hash-{result.get('sequence_number', 0)}"),
             "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
             "floors_enforced": get_tool_floors("vault_seal"),
             "pass": "reverse",
         }
     finally:
-        await ledger.close()
+        # Singleton - don't close
+        pass
 
 
 if __name__ == "__main__":
