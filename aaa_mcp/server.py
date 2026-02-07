@@ -249,6 +249,135 @@ async def vault_seal(session_id: str, verdict: str, payload: dict) -> dict:
         pass
 
 
+@mcp.tool()
+@constitutional_floor("F1", "F2")
+async def vault_query(
+    session_pattern: Optional[str] = None,
+    verdict: Optional[str] = None,
+    date_from: Optional[str] = None,
+    date_to: Optional[str] = None,
+    limit: int = 10,
+) -> dict:
+    """Query past vault_seal entries for institutional memory retrieval.
+
+    Search the constitutional ledger for past decisions, violations, and patterns.
+    Use this to learn from history and maintain institutional continuity (F13).
+
+    Pipeline position: Auxiliary (can be called anytime)
+    Floors enforced: F1 (Amanah), F2 (Truth)
+
+    Args:
+        session_pattern: Glob pattern for session_id (e.g., "test_*")
+        verdict: Filter by verdict type (SEAL, VOID, PARTIAL, SABAR)
+        date_from: ISO date string for range start (e.g., "2026-02-01")
+        date_to: ISO date string for range end
+        limit: Maximum entries to return (default 10, max 100)
+
+    Returns:
+        Dict with count, entries list, and detected patterns
+    """
+    from datetime import datetime, timezone
+    from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
+
+    ledger = get_hardened_vault_ledger()
+    await ledger.connect()
+
+    # Parse dates
+    start_time = None
+    end_time = None
+    if date_from:
+        try:
+            start_time = datetime.fromisoformat(date_from.replace("Z", "+00:00"))
+            if start_time.tzinfo is None:
+                start_time = start_time.replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+    if date_to:
+        try:
+            end_time = datetime.fromisoformat(date_to.replace("Z", "+00:00"))
+            if end_time.tzinfo is None:
+                end_time = end_time.replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+
+    # Clamp limit
+    limit = max(1, min(limit, 100))
+
+    try:
+        if verdict:
+            # Use existing query_by_verdict
+            result = await ledger.query_by_verdict(
+                verdict=verdict,
+                start_time=start_time,
+                end_time=end_time,
+                limit=limit
+            )
+            entries = result.get("entries", [])
+        else:
+            # Use list_entries and filter
+            result = await ledger.list_entries(limit=limit * 2)  # Get more to filter
+            entries = result.get("entries", [])
+
+            # Filter by date range
+            if start_time:
+                entries = [e for e in entries if datetime.fromisoformat(e["timestamp"].replace("Z", "+00:00")) >= start_time]
+            if end_time:
+                entries = [e for e in entries if datetime.fromisoformat(e["timestamp"].replace("Z", "+00:00")) <= end_time]
+
+        # Filter by session pattern (simple glob)
+        if session_pattern:
+            import fnmatch
+            entries = [e for e in entries if fnmatch.fnmatch(e.get("session_id", ""), session_pattern)]
+
+        # Limit results
+        entries = entries[:limit]
+
+        # Compute patterns if enough data
+        patterns = {}
+        if len(entries) >= 3:
+            verdicts = [e.get("verdict") for e in entries]
+            void_count = sum(1 for v in verdicts if v == "VOID")
+            patterns["void_rate"] = round(void_count / len(verdicts), 3) if verdicts else 0
+            patterns["total_queried"] = len(entries)
+            patterns["verdict_distribution"] = {
+                v: sum(1 for x in verdicts if x == v) for v in set(verdicts)
+            }
+
+        # Simplify entries for response (remove heavy payload)
+        simplified = []
+        for e in entries:
+            simplified.append({
+                "session_id": e.get("session_id"),
+                "timestamp": e.get("timestamp"),
+                "verdict": e.get("verdict"),
+                "authority": e.get("authority"),
+                "entry_hash": e.get("entry_hash", "")[:16] + "...",
+            })
+
+        return {
+            "count": len(simplified),
+            "query": {
+                "session_pattern": session_pattern,
+                "verdict": verdict,
+                "date_from": date_from,
+                "date_to": date_to,
+            },
+            "entries": simplified,
+            "patterns": patterns,
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("vault_query"),
+        }
+    except Exception as e:
+        return {
+            "count": 0,
+            "error": str(e),
+            "entries": [],
+            "patterns": {},
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("vault_query"),
+        }
+
+
 if __name__ == "__main__":
     print("🔥 arifOS Constitutional Kernel — FastMCP Mode")
     mcp.run(transport="sse", port=6274)
