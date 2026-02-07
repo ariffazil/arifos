@@ -67,28 +67,30 @@
 
 ---
 
-## 📜 The Three Canon Files (Kernel Context)
+## 📜 Constitutional Canon (From APEX-THEORY)
 
-v55.5 formalizes the "Soul Contract" between you and the system through six canonical spec files:
+The constitutional framework lives in [**APEX-THEORY**](https://github.com/ariffazil/APEX-THEORY) — the normative "why" that governs arifOS runtime behavior.
 
-| File | Purpose | Who Defines? | Location |
-| :--- | :--- | :--- | :--- |
-| **[IDENTITY.md](333_APPS/L5_AGENTS/SPEC/IDENTITY.md)** | **Agent Identity** | Shared (888 + Agent) | `L5_AGENTS/SPEC/` |
-| **[SOUL.md](333_APPS/L5_AGENTS/SPEC/SOUL.md)** | **Constitutional Identity** | Shared (APEX + Agent) | `L5_AGENTS/SPEC/` |
-| **[USER.md](333_APPS/L5_AGENTS/SPEC/USER.md)** | **Sovereign Profile** | Human (888) | `L5_AGENTS/SPEC/` |
-| **[MEMORY.md](333_APPS/L5_AGENTS/SPEC/MEMORY.md)** | **Metabolic History** | Collaborative | `L5_AGENTS/SPEC/` |
-| **[GEMINI.md](GEMINI.md)** | **Architect's Codex** | Antigravity (Δ) | Root |
+### Core Constitutional Documents
 
-### 📜 Governance Artifacts (The Rule of Law)
-Specific manuals that operationalize the constitution:
+| Document | Purpose | Authority |
+| :--- | :--- | :--- |
+| **[CONSTITUTION.md](https://github.com/ariffazil/APEX-THEORY/blob/main/CONSTITUTION.md)** | The 13 Floors + Trinity Architecture | Sovereign (888) |
+| **[MANIFESTO.md](https://github.com/ariffazil/APEX-THEORY/blob/main/MANIFESTO.md)** | Founding principles + Thermodynamic Law | Sovereign (888) |
+| **[000_LAW.md](https://github.com/ariffazil/APEX-THEORY/blob/main/000_LAW.md)** | Hard constraints for machines | Constitution |
 
-| Artifact | Audience | Purpose | Principle |
-| :--- | :--- | :--- | :--- |
-| **[888_SOUL_VERDICT.md](000_THEORY/888_SOUL_VERDICT.md)** | Human (888) | Pre-flight checks & Verdict Logic | "You are the Stop Button" |
-| **[000_LAW.md](000_THEORY/000_LAW.md)** | Machine (AI) | Hard constraints (13 Floors) | "Tool, not Being" |
-| **[999_SOVEREIGN_VAULT.md](000_THEORY/999_SOVEREIGN_VAULT.md)** | System | Logging & Paradox Resolution | "Amanah means Auditability" |
+### Agent Spec Files (Runtime Context)
 
-> **Note**: While Agents (executors) consume these files to understand their constraints, context, and history, these files are defined by the **Constitution** (arifOS).
+These files are consumed by agents at runtime for identity and context:
+
+| File | Purpose | Location |
+| :--- | :--- | :--- |
+| **IDENTITY.md** | Agent Identity | Agent workspace |
+| **SOUL.md** | Constitutional Identity | Agent workspace |
+| **USER.md** | Sovereign Profile | Agent workspace |
+| **MEMORY.md** | Metabolic History | Agent workspace |
+
+> **Separation of Concerns:** APEX-THEORY defines the law. arifOS enforces the law. Agents execute under the law.
 
 ### Constitution vs. Executors
 **arifOS (The Constitution)** is model-agnostic governance (Law).
