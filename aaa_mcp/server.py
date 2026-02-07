@@ -215,7 +215,27 @@ async def reality_search(
 
 @mcp.tool()
 @constitutional_floor("F1", "F3")
-async def vault_seal(session_id: str, verdict: str, payload: dict) -> dict:
+async def vault_seal(
+    session_id: str,
+    verdict: str,
+    payload: dict,
+    # Enhanced v2 fields (optional for backwards compat)
+    query_summary: Optional[str] = None,
+    risk_level: Optional[str] = None,
+    risk_tags: Optional[list] = None,
+    intent: Optional[str] = None,
+    category: Optional[str] = None,
+    floors_passed: Optional[list] = None,
+    floors_failed: Optional[list] = None,
+    entropy_omega: Optional[float] = None,
+    tri_witness_score: Optional[float] = None,
+    peace_squared: Optional[float] = None,
+    genius_g: Optional[float] = None,
+    human_override: bool = False,
+    override_reason: Optional[str] = None,
+    model_used: Optional[str] = None,
+    tags: Optional[list] = None,
+) -> dict:
     """Seal the session verdict into the immutable VAULT999 ledger.
 
     Records the full session (reasoning, empathy, verdict) as a Merkle hash-chained
@@ -228,18 +248,74 @@ async def vault_seal(session_id: str, verdict: str, payload: dict) -> dict:
         session_id: The session to seal (from init_gate)
         verdict: SEAL, VOID, PARTIAL, or SABAR
         payload: Dict containing the full session results to record
+        
+        # Enhanced v2 fields (structured audit data):
+        query_summary: First ~200 chars of input (redacted)
+        risk_level: low/medium/high/critical
+        risk_tags: ["safety", "financial", "privacy", etc.]
+        intent: What was the user trying to do?
+        category: finance/safety/content/code/governance
+        floors_passed: Floors that passed check
+        floors_failed: Floors that failed
+        entropy_omega: Ω₀ uncertainty at decision time
+        tri_witness_score: TW consensus metric
+        peace_squared: Peace² metric
+        genius_g: Genius G metric
+        human_override: Was 888 Judge override invoked?
+        override_reason: Why override granted
+        model_used: Which LLM made the decision
+        tags: Arbitrary searchable tags
     """
+    import hashlib
     from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
+
+    # Compute hashes for integrity (without storing full content)
+    query_hash = None
+    if query_summary:
+        query_hash = hashlib.sha256(query_summary.encode()).hexdigest()[:32]
+
+    # Enrich payload with v2 structured fields
+    enriched_payload = {
+        **payload,
+        "_v2_metadata": {
+            "schema_version": "2.0",
+            "query_summary": query_summary[:200] if query_summary else None,
+            "query_hash": query_hash,
+            "risk_level": risk_level or "low",
+            "risk_tags": risk_tags or [],
+            "intent": intent,
+            "category": category,
+            "floors_passed": floors_passed or [],
+            "floors_failed": floors_failed or [],
+            "metrics": {
+                "entropy_omega": entropy_omega,
+                "tri_witness_score": tri_witness_score,
+                "peace_squared": peace_squared,
+                "genius_g": genius_g,
+            },
+            "human_override": human_override,
+            "override_reason": override_reason,
+            "model_used": model_used,
+            "tags": tags or [],
+        }
+    }
 
     ledger = get_hardened_vault_ledger()
     await ledger.connect()
     try:
         result = await ledger.append(
-            session_id=session_id, verdict=verdict, seal_data=payload, authority="mcp_server"
+            session_id=session_id, 
+            verdict=verdict, 
+            seal_data=enriched_payload, 
+            authority="mcp_server"
         )
         return {
             "verdict": "SEALED",
             "seal": result.get("entry_hash", f"hash-{result.get('sequence_number', 0)}"),
+            "schema_version": "2.0",
+            "risk_level": risk_level or "low",
+            "floors_failed": floors_failed or [],
+            "human_override": human_override,
             "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
             "floors_enforced": get_tool_floors("vault_seal"),
             "pass": "reverse",
@@ -256,6 +332,10 @@ async def vault_query(
     verdict: Optional[str] = None,
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
+    risk_level: Optional[str] = None,
+    category: Optional[str] = None,
+    human_override_only: bool = False,
+    tag: Optional[str] = None,
     limit: int = 10,
 ) -> dict:
     """Query past vault_seal entries for institutional memory retrieval.
@@ -271,6 +351,10 @@ async def vault_query(
         verdict: Filter by verdict type (SEAL, VOID, PARTIAL, SABAR)
         date_from: ISO date string for range start (e.g., "2026-02-01")
         date_to: ISO date string for range end
+        risk_level: Filter by risk (low/medium/high/critical)
+        category: Filter by category (finance/safety/content/code/governance)
+        human_override_only: Only show entries where 888 Judge overrode
+        tag: Filter by tag (e.g., "petronas", "arifos")
         limit: Maximum entries to return (default 10, max 100)
 
     Returns:
@@ -315,7 +399,7 @@ async def vault_query(
             entries = result.get("entries", [])
         else:
             # Use list_entries and filter
-            result = await ledger.list_entries(limit=limit * 2)  # Get more to filter
+            result = await ledger.list_entries(limit=limit * 3)  # Get more to filter
             entries = result.get("entries", [])
 
             # Filter by date range
@@ -328,6 +412,29 @@ async def vault_query(
         if session_pattern:
             import fnmatch
             entries = [e for e in entries if fnmatch.fnmatch(e.get("session_id", ""), session_pattern)]
+
+        # Filter by v2 metadata if present
+        def get_v2_meta(entry):
+            seal_data = entry.get("seal_data", {})
+            if isinstance(seal_data, str):
+                try:
+                    import json
+                    seal_data = json.loads(seal_data)
+                except:
+                    seal_data = {}
+            return seal_data.get("_v2_metadata", {})
+
+        if risk_level:
+            entries = [e for e in entries if get_v2_meta(e).get("risk_level") == risk_level]
+        
+        if category:
+            entries = [e for e in entries if get_v2_meta(e).get("category") == category]
+        
+        if human_override_only:
+            entries = [e for e in entries if get_v2_meta(e).get("human_override") == True]
+        
+        if tag:
+            entries = [e for e in entries if tag in get_v2_meta(e).get("tags", [])]
 
         # Limit results
         entries = entries[:limit]
@@ -342,25 +449,61 @@ async def vault_query(
             patterns["verdict_distribution"] = {
                 v: sum(1 for x in verdicts if x == v) for v in set(verdicts)
             }
+            
+            # v2 pattern detection
+            v2_entries = [e for e in entries if get_v2_meta(e)]
+            if v2_entries:
+                risk_counts = {}
+                for e in v2_entries:
+                    rl = get_v2_meta(e).get("risk_level", "unknown")
+                    risk_counts[rl] = risk_counts.get(rl, 0) + 1
+                patterns["risk_distribution"] = risk_counts
+                
+                # Average metrics
+                omegas = [get_v2_meta(e).get("metrics", {}).get("entropy_omega") for e in v2_entries]
+                omegas = [o for o in omegas if o is not None]
+                if omegas:
+                    patterns["avg_entropy_omega"] = round(sum(omegas) / len(omegas), 4)
 
-        # Simplify entries for response (remove heavy payload)
+        # Simplify entries for response (include v2 fields when available)
         simplified = []
         for e in entries:
-            simplified.append({
+            v2 = get_v2_meta(e)
+            entry_out = {
                 "session_id": e.get("session_id"),
                 "timestamp": e.get("timestamp"),
                 "verdict": e.get("verdict"),
                 "authority": e.get("authority"),
                 "entry_hash": e.get("entry_hash", "")[:16] + "...",
-            })
+            }
+            # Add v2 fields if present
+            if v2:
+                entry_out["query_summary"] = v2.get("query_summary")
+                entry_out["risk_level"] = v2.get("risk_level")
+                entry_out["category"] = v2.get("category")
+                entry_out["intent"] = v2.get("intent")
+                entry_out["floors_failed"] = v2.get("floors_failed", [])
+                entry_out["human_override"] = v2.get("human_override", False)
+                entry_out["tags"] = v2.get("tags", [])
+                metrics = v2.get("metrics", {})
+                if metrics.get("entropy_omega"):
+                    entry_out["entropy_omega"] = metrics["entropy_omega"]
+                if metrics.get("tri_witness_score"):
+                    entry_out["tri_witness_score"] = metrics["tri_witness_score"]
+            simplified.append(entry_out)
 
         return {
             "count": len(simplified),
+            "schema_version": "2.0",
             "query": {
                 "session_pattern": session_pattern,
                 "verdict": verdict,
                 "date_from": date_from,
                 "date_to": date_to,
+                "risk_level": risk_level,
+                "category": category,
+                "human_override_only": human_override_only,
+                "tag": tag,
             },
             "entries": simplified,
             "patterns": patterns,
