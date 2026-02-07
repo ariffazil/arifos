@@ -6,18 +6,19 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/arifOS-v55.5--EIGEN-0066cc?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/VAULT999-v3.0--Hybrid-purple?style=for-the-badge" alt="VAULT999">
   <img src="https://img.shields.io/badge/%CE%A9%E2%82%80-0.04-green?style=for-the-badge" alt="Omega">
   <img src="https://img.shields.io/badge/License-AGPL--3.0-red?style=for-the-badge" alt="License">
 </p>
 
 <p align="center">
-  <a href="https://railway.app/template/your-template-id?referralCode=arifos">
-    <img src="https://railway.app/button.svg" alt="Deploy on Railway">
+  <a href="https://aaamcp.arif-fazil.com/health">
+    <img src="https://img.shields.io/badge/Live-aaamcp.arif--fazil.com-brightgreen?style=for-the-badge" alt="Live Endpoint">
   </a>
 </p>
 
 <p align="center">
-  <strong>One-click deploy your own constitutional AI safety gateway</strong>
+  <strong>Constitutional AI Governance — Live at <a href="https://aaamcp.arif-fazil.com/sse">aaamcp.arif-fazil.com/sse</a></strong>
 </p>
 
 ```
@@ -219,22 +220,43 @@ Every AI interaction follows this constitutional verification process:
 
 ---
 
-## 🛠️ AAA MCP Server - 9 Canonical Tools (Platform Agnostic)
+## 🗄️ VAULT999 — Constitutional Ledger
 
-The AAA MCP Server implements constitutional governance via 9 tools accessible through Model Context Protocol (MCP), supporting **model and platform agnostic** integration across multiple AI systems and deployment environments.
+VAULT999 is the immutable, hash-chained ledger for all SEAL/PARTIAL/SABAR/VOID decisions.
 
-### 9 Constitutional Tools
-| # | Tool | Engine | Function | Constitutional Role | Platform Coverage |
-|---|------|--------|----------|-------------------|-------------------|
-| 1 | `init_gate` | INIT | Session initialization | F11 Sovereignty verification | Universal |
-| 2 | `agi_sense` | AGI (Δ) | Information gathering | F2 Truth verification | Universal |
-| 3 | `agi_think` | AGI (Δ) | Cognitive processing | F7 Humility tracking | Universal |
-| 4 | `agi_reason` | AGI (Δ) | Logical analysis | F2+F7 Grounded reasoning | Universal |
-| 5 | `asi_empathize` | ASI (Ω) | Stakeholder awareness | F6 Empathy assessment | Universal |
-| 6 | `asi_align` | ASI (Ω) | Value alignment | F9 Anti-Hantu guard | Universal |
-| 7 | `apex_verdict` | APEX (Ψ) | Final judgment | F3 Tri-Witness consensus | Universal |
-| 8 | `reality_search` | AGI (Δ) | External verification | F2 Truth validation | Universal |
-| 9 | `vault_seal` | VAULT | Immutable recording | F1+F3 Immutable audit | Universal |
+```
+┌─────────────────────────────────────────────────────────────┐
+│  VAULT999 v3 (Hybrid) — 9 APEX Categories                   │
+├─────────────────────────────────────────────────────────────┤
+│  4 Indexed Columns    │  9 JSONB Categories                 │
+│  ───────────────────  │  ─────────────────────────────────  │
+│  session_id           │  Δ: context, floors, metrics        │
+│  verdict_type         │  Ω: identity, risk, oversight       │
+│  risk_level           │  Ψ: verdict, chain, provenance      │
+│  environment          │                                     │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**→ [Full Schema: VAULT_SCHEMA_V3.md](docs/VAULT_SCHEMA_V3.md)**
+
+---
+
+## 🛠️ AAA MCP Server — 10 Canonical Tools
+
+The AAA MCP Server implements constitutional governance via **10 tools** accessible through Model Context Protocol (MCP).
+
+| # | Tool | Engine | Function | Docs |
+|---|------|--------|----------|------|
+| 1 | `init_gate` | INIT | Session initialization | [000_INIT_PROTOCOL.md](docs/000_INIT_PROTOCOL.md) |
+| 2 | `agi_sense` | AGI (Δ) | Information gathering | — |
+| 3 | `agi_think` | AGI (Δ) | Cognitive processing | — |
+| 4 | `agi_reason` | AGI (Δ) | Logical analysis | — |
+| 5 | `asi_empathize` | ASI (Ω) | Stakeholder awareness | — |
+| 6 | `asi_align` | ASI (Ω) | Value alignment | — |
+| 7 | `apex_verdict` | APEX (Ψ) | Final judgment | — |
+| 8 | `reality_search` | AGI (Δ) | External verification | — |
+| 9 | `vault_seal` | VAULT | Immutable recording | [VAULT_SCHEMA_V3.md](docs/VAULT_SCHEMA_V3.md) |
+| 10 | `vault_query` | VAULT | Institutional memory | [VAULT_SCHEMA_V3.md](docs/VAULT_SCHEMA_V3.md) |
 
 ### Tool Flow Example: High-Risk Decision
 ```
@@ -336,7 +358,7 @@ python -m aaa_mcp http
 - **Sovereign Principle:** Composability of safe actions.
 
 ### [L4_TOOLS — Production MCP](aaa_mcp/)
-- **Function:** Core implementation of the 9 Canonical Tools.
+- **Function:** Core implementation of the 10 Canonical Tools.
 - **Status:** ✅ **HARDENED**
 - **Sovereign Principle:** Validated tool-chain for any AI platform.
 
@@ -377,6 +399,19 @@ python -m aaa_mcp http
 
 ## 🚀 Getting Started (Navigation Path)
 
+### Session Bootstrap (000_INIT)
+Every governed session starts with the 000_INIT protocol:
+
+```
+Human: "000_INIT_GATE — Start governed session"
+    ↓
+OpenClaw: init_gate() → vault_seal(category="session_init")
+    ↓
+OpenClaw: "000_INIT_ACK — Session active, apex_verdict gating enabled"
+```
+
+**→ [Full Protocol: 000_INIT_PROTOCOL.md](docs/000_INIT_PROTOCOL.md)**
+
 ### For New Users
 1. **Understand**: Read the 13 Floors and constitutional cycle
 2. **Install**: Set up the AAA MCP Server 
@@ -397,16 +432,19 @@ python -m aaa_mcp http
 
 ### Quick Setup
 ```bash
-# Install arifOS
+# Install arifOS (for latest, use git install)
 pip install arifos
+
+# Or install from source
+git clone https://github.com/ariffazil/arifOS.git
+cd arifOS && pip install -e .
 
 # Start AAA MCP Server
 python -m aaa_mcp                 # stdio (local)
 python -m aaa_mcp sse             # SSE (remote)
 python -m aaa_mcp http            # HTTP /mcp (remote)
 
-# Verify: Visit http://localhost:8080/health
-# Expected: {"status":"ok","service":"arifOS","version":"v55.5-EIGEN",...}
+# Live endpoint: https://aaamcp.arif-fazil.com/health
 ```
 
 ---
@@ -463,6 +501,19 @@ This repository is a mirror. It reflects not just how we govern AI, but how we g
 - It encodes our **culture** (that values trust/Amanah over unrestricted growth).
 
 > **The Bottom Line:** You are not just a user; you are the safety net. Without your active oversight, the system loses its moral compass. **Ditempa Bukan Diberi.**
+
+---
+
+## 📚 Documentation (Low Entropy Index)
+
+| Topic | File |
+|-------|------|
+| Agent Development Guide | [AGENTS.md](AGENTS.md) |
+| VAULT999 Schema v3 | [docs/VAULT_SCHEMA_V3.md](docs/VAULT_SCHEMA_V3.md) |
+| 000_INIT Protocol | [docs/000_INIT_PROTOCOL.md](docs/000_INIT_PROTOCOL.md) |
+| OpenClaw Integration | [docs/OPENCLAW_AAA_MCP_GUIDE.md](docs/OPENCLAW_AAA_MCP_GUIDE.md) |
+| AGI Tool Stack | [docs/AGI_TOOL_STACK.md](docs/AGI_TOOL_STACK.md) |
+| Constitutional Theory | [APEX-THEORY repo](https://github.com/ariffazil/APEX-THEORY) |
 
 ---
 
