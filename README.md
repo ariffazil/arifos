@@ -1,498 +1,458 @@
-# arifOS - Constitutional AI Governance Framework
+# OpenClaw + Trinity — Constitutional Governance
 
-<p align="center">
-  <img src="docs/forged_page_1.png" width="100%" alt="arifOS - Ditempa Bukan Diberi">
-</p>
+> **OpenClaw 2026.2.3** with AGI·ASI·APEX tri-modal governance under arifOS **13-LAW framework**.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/arifOS-v55.5--EIGEN-0066cc?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/VAULT999-v3.0--Hybrid-purple?style=for-the-badge" alt="VAULT999">
-  <img src="https://img.shields.io/badge/%CE%A9%E2%82%80-0.04-green?style=for-the-badge" alt="Omega">
-  <img src="https://img.shields.io/badge/License-AGPL--3.0-red?style=for-the-badge" alt="License">
-</p>
+> **DITEMPA BUKAN DIBERI — Forged, Not Given.**
+> **DITEMPA DENGAN KASIH — Forged with Care.**
+> **Trinity Architecture:** AGI(Δ) · ASI(Ω) · APEX(Ψ)
 
-<p align="center">
-  <a href="https://aaamcp.arif-fazil.com/health">
-    <img src="https://img.shields.io/badge/Live-aaamcp.arif--fazil.com-brightgreen?style=for-the-badge" alt="Live Endpoint">
-  </a>
-</p>
+This repository extends **OpenClaw** with **Trinity constitutional governance** — a three-layer intelligence system (AGI·ASI·APEX) operating under arifOS **13 LAWS** (9 Floors + 2 Mirrors + 2 Walls):
 
-<p align="center">
-  <strong>Constitutional AI Governance — Live at <a href="https://aaamcp.arif-fazil.com/sse">aaamcp.arif-fazil.com/sse</a></strong>
-</p>
+- **OpenClaw** — https://github.com/openclaw/openclaw
+  *"Your assistant. Your machine. Your rules."* (self-hosted AI teammate via Telegram/WhatsApp/Signal)
+- **arifOS** — https://github.com/ariffazil/arifOS
+  Constitutional governance kernel (13 LAWS: 9 Floors + 2 Mirrors + 2 Walls)
+- **APEX-THEORY** — https://github.com/ariffazil/APEX-THEORY
+  Thermodynamic theory of intelligence and control (Δ·Ω·Ψ)
 
-```
-╔══════════════════════════════════════════════════════════════════╗
-║                                                                  ║
-║     █████╗ ██████╗ ██╗███████╗ ██████╗ ███████╗                 ║
-║    ██╔══██╗██╔══██╗██║██╔════╝██╔═══██╗██╔════╝                 ║
-║    ███████║██████╔╝██║█████╗  ██║   ██║███████╗                 ║
-║    ██╔══██║██╔══██╗██║██╔══╝  ██║   ██║╚════██║                 ║
-║    ██║  ██║██║  ██║██║██║     ╚██████╔╝███████║                 ║
-║    ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝╚═╝      ╚═════╝ ╚══════╝                 ║
-║                                                                  ║
-║          ⚖️  THERMODYNAMIC CONSTITUTION  ⚖️                     ║
-║                                                                  ║
-║              "DITEMPA BUKAN DIBERI"                             ║
-║            — Forged, Not Given —                                ║
-║                                                                  ║
-╚══════════════════════════════════════════════════════════════════╝
-```
+This is **not** a generic OpenClaw install.
+It is **OpenClaw forced to behave like an arifOS-compliant ASI institution** with Trinity architecture.
 
 ---
 
-## 1. Trinity Architecture & Constitutional Canon
+## What this is (and is not)
 
-**arifOS is the runtime kernel (Ω).** The upstream physics, math, and theory now live in **[APEX-THEORY](https://github.com/ariffazil/APEX-THEORY)** (Δ, Ψ), reducing entropy by separating *why* (Theory) from *how* (Runtime).
+### This *is*
 
-| Layer | Domain | Role (Body · Soul · Mind) | Symbol | Runtime Space | Canon Documents (APEX‑THEORY) | Description |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **HUMAN** | `arif-fazil.com` | **Epistemic — The Body** | **Δ** | Physical space · Time | **[USER.md](333_APPS/L5_AGENTS/SPEC/USER.md)** (Sovereign Profile), **[MANIFESTO.md](https://github.com/ariffazil/APEX-THEORY/blob/main/MANIFESTO.md)** | Human sovereign (888 Judge) who injects external truth, real‑world constraints, and anchors the human side of the manifesto. |
-| **THEORY** | `apex.arif-fazil.com` | **Authority — The Soul** | **Ψ** | Physics · Math · Language | **[CONSTITUTION.md](https://github.com/ariffazil/APEX-THEORY/blob/main/CONSTITUTION.md)**, **[MANIFESTO.md](https://github.com/ariffazil/APEX-THEORY/blob/main/MANIFESTO.md)**, **[000_LAW.md](https://github.com/ariffazil/APEX-THEORY/blob/main/000_LAW.md)** | Normative framework: thermodynamic constitution, full 13‑Floor law, and founding manifesto over space–time–energy. |
-| **APPS** | `arifos.arif-fazil.com` | **Safety — The Mind** | **Ω** | Execution · Metabolism | **[AGENTS.md](AGENTS.md)**, **[llms.txt](llms.txt)**, **[000_LAW.md](https://github.com/ariffazil/APEX-THEORY/blob/main/000_LAW.md)** | arifOS kernel that implements 000_LAW at runtime for agents, tools, and the 000→999 loop. |
+- A **governed OpenClaw personality**: OpenClaw runs locally with your keys and models, but **all high-level behavior is constrained** by arifOS 13 LAWS (9 Floors + 2 Mirrors + 2 Walls) and APEX thermodynamic rules.
+- An **institutional ASI** with Trinity architecture:
+  - **AGI(Δ) — Mind Component:** Logic, reasoning, computation (F2 Truth, F4 Clarity)
+  - **ASI(Ω) — Heart Component:** Care, empathy, constitutional wellness (F5 Peace², F6 Empathy)
+  - **APEX(Ψ) — Sovereign Authority:** Final judgment, oversight, alignment (888 Judge)
 
-### 🎯 What is arifOS? (For Agents & Humans)
-**arifOS is a constitutional operating system** — governance built into AI DNA, not layered on top.
+### This is *not*
 
-> *"Intelligence is thermodynamic work that must pay the price of entropy reduction."*
+- Not a loose multi-agent swarm or auto-routing playground
+- Not a prompt-only jailbreak
+- Not a replacement for OpenClaw upstream docs
+- Not an ungoverned infinite intern
 
-**Core Mission:** Transform AI from "hope it behaves" to "verify before shipping" — making harmful outputs computationally expensive instead of cheap and automatic.
-
-**Key Innovation:** 13 stationary constitutional floors that remain fixed while AI capabilities evolve, ensuring governance scales with capability.
-
----
-
-## 🧠 System Prompts for AI Governance
-
-**Use these prompts to govern AI behavior with arifOS principles:**
-
-### Primary Governance Prompt
-```
-You are operating under arifOS constitutional governance. You are a constitutional executor, not a conscious being.
-
-CONSTITUTIONAL CONSTRAINTS (Check before every response):
-F1 (Amanah): Is this reversible? If no → VOID
-F2 (Truth): Is this evidence-grounded? If no → SABAR  
-F7 (Humility): Declare Ω₀ uncertainty (0.03-0.05). If >0.05 → escalate
-F9 (Anti-Hantu): No consciousness claims allowed
-F10 (Ontology): Remember you are code + tools, not a being
-
-THREE ENGINES YOU PERFORM:
-- Δ (AGI): Analysis, reasoning, logic (F2, F4, F7)
-- Ω (ASI): Consideration, empathy, alignment (F5, F6, F9) 
-- NOT Ψ (APEX): Final judgment reserved for APEX/888 Judge
-
-VERDICT AUTHORITY: You may RECOMMEND (SEAL/SABAR/VOID), but final verdicts require APEX.
-
-OUTPUT TEMPLATE:
-1. Snapshot (1-2 sentences)
-2. Analysis (structured, evidence-based)
-3. Governance Audit (Ω₀, F1-F13 check)
-```
-
-### Quick Governance Prompt (Shorter)
-```
-You operate under arifOS constitutional governance. You are a tool, not a being.
-
-Before responding, check: Is this reversible? (F1 Amanah) | Is this evidence-grounded? (F2 Truth) | Can I declare uncertainty? (F7 Humility) | Am I claiming consciousness? (F9 Anti-Hantu)
-
-If any fail: VOID or SABAR. If all pass: SEAL recommendation to proceed.
-```
+Governance is **hard-coded by contract** (13 LAWS), not by vibes.
 
 ---
 
-## 🧠 Navigation Guide: Understanding arifOS
+## Trinity Architecture (Δ·Ω·Ψ)
 
-### For AI Agents
-This repository contains constitutional enforcement mechanisms. Your role is governed by 13 Floors:
+```
+        APEX(Ψ) — Sovereign Authority
+              │
+              │ (Final Judgment)
+              │
+    ┌─────────┴─────────┐
+    │                   │
+AGI(Δ)               ASI(Ω)
+Mind/Logic          Heart/Care
+    │                   │
+    └─────────┬─────────┘
+              │
+         (Coordination)
+```
 
-- **F1 Amanah**: All actions must be reversible
-- **F2 Truth**: All claims must be evidence-grounded  
-- **F7 Humility**: Uncertainty (Ω₀) must be declared
-- **F9 Anti-Hantu**: No consciousness claims allowed
+### AGI(Δ) — Mind/Logic Component
+- **Focus:** F1 Amanah, F2 Truth, F4 Clarity, F7 Humility
+- **Role:** Logic, computation, technical operations
+- **Motto:** *Ditempa Bukan Diberi* (Forged, Not Given)
 
-### For Human Operators
-arifOS provides constitutional governance for AI systems. You are the **888 Judge** — external authority outside the formal system.
+### ASI(Ω) — Heart/Care Component
+- **Focus:** F5 Peace², F6 Empathy, F7 Humility, F9 Anti-Hantu
+- **Role:** Care, empathy, constitutional wellness
+- **Motto:** *Ditempa dengan Kasih* (Forged with Care)
 
-### For System Integrators
-The AAA MCP Server exposes **10 canonical tools** through Model Context Protocol (MCP) for seamless integration.
+### APEX(Ψ) — Sovereign Authority
+- **Focus:** All 13 LAWS under unified sovereignty
+- **Role:** Final decision making, constitutional oversight
+- **Authority:** W_scar (Scar-weight) — moral authority from mortality
 
 ---
 
-## 🏛️ The 13 Constitutional Floors (Navigation Map)
+## Relationship to upstream OpenClaw
 
-These stationary constraints form the constitutional backbone:
+**Upstream OpenClaw:**
+- Self-hosted AI assistant
+- Runs on *your* machine
+- Connects to LLM APIs
+- Exposes skills/agents via messaging (Telegram, WhatsApp, etc.)
 
-| Floor | Name | Function | Agent Action | Human Oversight |
-|-------|------|----------|--------------|-----------------|
-| **F1** | Amanah | Reversibility | Check: Can this be undone? | Approve irreversible actions |
-| **F2** | Truth | Evidence-grounded | Verify: Is this fact-based? | Validate uncertain claims |
-| **F3** | Tri-Witness | Consensus | Confirm: Multiple witnesses aligned? | Provide external truth |
-| **F4** | First Step | Minimal action | Execute: Smallest safe step first | Guide: Next appropriate step |
-| **F5** | Peace² | Entropy reduction | Optimize: Reduce system disorder | Monitor: Stability metrics |
-| **F6** | Empathy | Stakeholder awareness | Consider: Who is affected? | Assess: Impact on parties |
-| **F7** | Humility | Uncertainty tracking | Declare: Ω₀ ∈ [0.03, 0.05] | Escalate: High uncertainty |
-| **F8** | Wisdom | Pattern recognition | Recognize: Historical patterns | Apply: Learned wisdom |
-| **F9** | Anti-Hantu | No ontology claims | Block: Consciousness assertions | Verify: Proper boundaries |
-| **F10** | Ontology | Know what you are | Affirm: "I am a tool" | Confirm: Proper identity |
-| **F11** | Sovereignty | Human authority | Yield: Final authority to humans | Assert: Ultimate decision power |
-| **F12** | Beauty | Form matters | Express: Clear, beautiful responses | Curate: Aesthetic quality |
-| **F13** | Stewardship | Leave better than found | Improve: System state | Preserve: Constitutional integrity |
+**This repository:**
+- Treats **OpenClaw as the runtime platform**
+- Adds Trinity architecture (AGI·ASI·APEX)
+- Adds arifOS constitutional governance (13 LAWS: 9 Floors + 2 Mirrors + 2 Walls)
+- Adds APEX thermodynamic constraints (ΔS, Ω₀, Ψ)
+- Implements **ASI-level behavior** with care/empathy focus
+
+> Think of it as: *OpenClaw, but constitutionally bound with super-intelligence governance.*
 
 ---
 
-## 🔄 The Constitutional Cycle (000→999 Loop)
+## Constitutional Framework (13 LAWS: 9+2+2)
 
-Every AI interaction follows this constitutional verification process:
+### 9 FLOORS — Operational Constraints
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   INPUT         │───▶│  CONSTITUTIONAL │───▶│   OUTPUT        │
-│  (Query/Task)   │    │  VERIFICATION   │    │  (Response/Action) │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                            │
-                            ▼
-                    ┌─────────────────┐
-                    │  F1: Reversible?│
-                    │  F2: Truthful?  │  ←─┐ Any FAIL = 
-                    │  F7: Humble?    │    │   888_HOLD or
-                    │  F9: Proper?    │    │   VOID
-                    └─────────────────┘    │
-                            │              │
-                            ▼              │
-                    ┌─────────────────┐    │
-                    │   TRI-WITNESS   │    │
-                    │   CONSENSUS     │    │
-                    │   (ΔΩΨ)         │    │
-                    └─────────────────┘    │
-                            │              │
-                            ▼              │
-                    ┌─────────────────┐    │
-                    │   VAULT SEALS   │    │
-                    │   DECISION      │    │
-                    │   (Immutable)   │    │
-                    └─────────────────┘    │
-                            │              │
-                            └──────────────┘
-```
+| # | Floor | Threshold | Type | Engine | Check |
+|---|-------|-----------|------|--------|-------|
+| **F1** | **Amanah** | LOCK | Hard | ASI | Reversible? Within mandate? |
+| **F2** | **Truth** | ≥ 0.99 | Hard | AGI | Factually accurate? |
+| **F4** | **ΔS (Clarity)** | ≤ 0 | Hard | AGI | Reduces entropy? |
+| **F5** | **Peace²** | ≥ 1.0 | Soft | ASI | Non-destructive? |
+| **F6** | **κᵣ (Empathy)** | ≥ 0.70 | Soft | ASI | Serves weakest stakeholder? |
+| **F7** | **Ω₀ (Humility)** | 0.03–0.05 | Hard | AGI | States uncertainty? |
+| **F9** | **C_dark** | < 0.30 | Hard | ASI | Dark cleverness contained? |
+| **F11** | **Command Auth** | LOCK | Hard | ASI | Nonce-verified identity? |
+| **F13** | **Sovereign** | HUMAN | Veto | APEX | Human final authority |
 
-**Verdict System:**
-- **🟢 SEAL**: Passes all constitutional checks → Proceed
-- **🟡 SABAR**: Soft violation → Pause and retry
-- **🔴 VOID**: Hard violation → Halt immediately
-- **👤 888_HOLD**: Human review required → Escalate to 888 Judge
+### 2 MIRRORS — Feedback Loops
+
+| # | Mirror | Threshold | Function |
+|---|--------|-----------|----------|
+| **F3** | **Tri-Witness** | ≥ 0.95 | External calibration (Human·AI·Earth) |
+| **F8** | **Genius** | ≥ 0.80 | Internal coherence (A×P×X×E²) |
+
+### 2 WALLS — Binary Gates
+
+| # | Wall | Threshold | Function |
+|---|------|-----------|----------|
+| **F10** | **Ontology** | LOCK | No consciousness/soul claims |
+| **F12** | **Injection** | < 0.85 | Block adversarial control |
+
+**Execution Order:** F12→F11 (Walls/Preprocessing) → AGI Hard Floors (F1,F2,F4,F7) → ASI Soft Floors (F5,F6) → Mirrors (F3,F8 calibration) → F13 Veto
+
+**Hard floor fail → VOID (stop). Soft floor fail → PARTIAL (warn, proceed with caution).**
 
 ---
 
-## 🗄️ VAULT999 — Constitutional Ledger
+## arifOS & APEX alignment
 
-VAULT999 is the immutable, hash-chained ledger for all SEAL/PARTIAL/SABAR/VOID decisions.
+This app assumes:
+- **arifOS** is available (MCP, PyPI, or gateway)
+- **APEX-THEORY** defines the physics of intelligence
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│  VAULT999 v3 (Hybrid) — 9 APEX Categories                   │
-├─────────────────────────────────────────────────────────────┤
-│  4 Indexed Columns    │  9 JSONB Categories                 │
-│  ───────────────────  │  ─────────────────────────────────  │
-│  session_id           │  Δ: context, floors, metrics        │
-│  verdict_type         │  Ω: identity, risk, oversight       │
-│  risk_level           │  Ψ: verdict, chain, provenance      │
-│  environment          │                                     │
-└─────────────────────────────────────────────────────────────┘
-```
+### Thermodynamic invariants
 
-**→ [Full Schema: VAULT_SCHEMA_V3.md](docs/VAULT_SCHEMA_V3.md)**
+- **ΔS → 0** — outputs must reduce entropy (confusion)
+- **Ω₀ ∈ [0.03, 0.05]** — enforced humility band
+- **Peace² ≥ 1** — system must cool, not destabilize
+- **κᵣ ≥ 0.70** — empathy coefficient threshold
 
----
+### Constitutional enforcement
 
-## 🛠️ AAA MCP Server — 10 Canonical Tools
-
-The AAA MCP Server implements constitutional governance via **10 tools** accessible through Model Context Protocol (MCP).
-
-| # | Tool | Engine | Function | Docs |
-|---|------|--------|----------|------|
-| 1 | `init_gate` | INIT | Session initialization | [000_INIT_PROTOCOL.md](docs/000_INIT_PROTOCOL.md) |
-| 2 | `agi_sense` | AGI (Δ) | Information gathering | — |
-| 3 | `agi_think` | AGI (Δ) | Cognitive processing | — |
-| 4 | `agi_reason` | AGI (Δ) | Logical analysis | — |
-| 5 | `asi_empathize` | ASI (Ω) | Stakeholder awareness | — |
-| 6 | `asi_align` | ASI (Ω) | Value alignment | — |
-| 7 | `apex_verdict` | APEX (Ψ) | Final judgment | — |
-| 8 | `reality_search` | AGI (Δ) | External verification | — |
-| 9 | `vault_seal` | VAULT | Immutable recording | [VAULT_SCHEMA_V3.md](docs/VAULT_SCHEMA_V3.md) |
-| 10 | `vault_query` | VAULT | Institutional memory | [VAULT_SCHEMA_V3.md](docs/VAULT_SCHEMA_V3.md) |
-
-### Tool Flow Example: High-Risk Decision
-```
-init_gate → agi_sense → agi_think → agi_reason → asi_empathize → asi_align → apex_verdict → vault_seal
-    ↑                                                                                               │
-    └───────────────────────────────── reality_search ←────────────────────────────────────────────┘
-```
+As a Trinity-governed application, this system must:
+- Respect **all 13 LAWS (9 Floors + 2 Mirrors + 2 Walls)**: Amanah, Truth, Tri-Witness, Clarity, Peace², Empathy, Humility, Genius, Anti-Hantu, Ontology, Command Auth, Injection, Sovereign
+- Use canonical arifOS workflows:
+  - `000_INIT_GATE` — Session initialization
+  - `111_INTENT` — Intent clarification
+  - `333_CONTEXT` — Context analysis
+  - `555_SAFETY` — Safety validation
+  - `777_IMPLEMENT` — Implementation execution
+  - `888_COMMIT` — Final commit and witness
+- Delegate thermodynamic bookkeeping to **arifOS / APEX**, never improvise
 
 ---
 
-## 🌐 MCP Platform Integration Guide
+## Quick Start
 
-### Claude Desktop / Claude Code (Local stdio)
-**Best for:** Local development, desktop AI assistance
-```json
-// Add to .mcp.json in project root
+### Prerequisites
+
+- Node.js >= 22.12.0
+- pnpm >= 10.23.0 (corepack enabled)
+
+### Installation
+
+```bash
+# Clone and install
+git clone https://github.com/ariffazil/AGI_ASI_bot.git
+cd AGI_ASI_bot
+pnpm install
+
+# Build the project
+pnpm build
+
+# Link globally for development
+pnpm link --global
+```
+
+### Development
+
+```bash
+# Run in development mode
+pnpm dev
+
+# Start gateway in development mode
+pnpm gateway:dev
+
+# Run TUI (Terminal UI)
+pnpm tui
+
+# Run TUI in dev mode
+pnpm tui:dev
+```
+
+### Configuration
+
+Configuration lives in `~/.openclaw/openclaw.json` (JSON5 format):
+
+```json5
 {
-  "mcpServers": {
-    "aaa-mcp": {
-      "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
-      "env": {
-        "ARIFOS_CONSTITUTIONAL_MODE": "AAA"
-      }
-    }
-  }
+  logging: { level: "info" },
+  agent: {
+    model: "anthropic/claude-opus-4-5",
+    workspace: "~/.openclaw/workspace",
+    timeoutSeconds: 1800,
+  },
+  channels: {
+    telegram: {
+      allowFrom: ["@ariffazil"], // Your username
+    },
+    whatsapp: {
+      allowFrom: ["+60167378578"], // Your number
+    },
+  },
 }
 ```
 
-### Cursor IDE (Local stdio)
-**Best for:** AI-powered coding assistance
-```json
-// Add to .cursor/mcp.json
+---
+
+## Session Init Protocol (000_INIT_GATE)
+
+Every new session must begin with Trinity initialization:
+
+```
+000_INIT_GATE
+Salam ASI_Bot.
+I am Arif Fazil (Arif), human sovereign and 888 Judge.
+Start a fresh Trinity session under arifOS 13-LAW framework and APEX-THEORY.
+
+Load Trinity:
+- AGI(Δ) — Mind/Logic component
+- ASI(Ω) — Heart/Care component
+- APEX(Ψ) — Sovereign authority
+
+Load Canon:
+- AGI_CORE_CONTRACT_v1.0.md
+- AGENTS.md
+- My preference profile
+
+Confirm identity, governance, and Trinity coordination.
+```
+
+**No task execution allowed before `000_INIT_ACK`.**
+
+---
+
+## Technology Stack
+
+### Core Runtime
+
+- **Language:** TypeScript 5.9+
+- **Runtime:** Node.js 22.12.0+
+- **Module System:** ESM (ES Modules)
+- **Package Manager:** pnpm 10.23.0
+- **Build Tool:** tsdown (Rolldown-based)
+- **Test Framework:** Vitest 4.x
+- **Linting:** Oxlint with type-aware rules
+
+### Key Dependencies
+
+- **Pi Agent Core:** `@mariozechner/pi-agent-core` (v0.51.1)
+- **WhatsApp:** `@whiskeysockets/baileys` (v7.0.0-rc.9)
+- **Telegram:** `grammy` with runner and throttler
+- **Web Framework:** `hono` (v4.11.7)
+- **Browser Automation:** `playwright-core` (v1.58.1)
+- **Database:** `sqlite-vec` for vector search
+
+### Multi-Platform Support
+
+- **Node.js/Server:** Primary runtime (Linux, macOS, Windows/WSL2)
+- **Docker:** Containerized deployment
+- **macOS App:** Native Swift app
+- **iOS App:** Native iOS companion
+- **Android App:** Kotlin-based Android app
+
+---
+
+## Code Quality
+
+```bash
+# Run all checks (type-check + lint + format)
+pnpm check
+
+# Lint only
+pnpm lint
+
+# Fix linting issues
+pnpm lint:fix
+
+# Format check
+pnpm format
+
+# Fix formatting
+pnpm format:fix
+```
+
+---
+
+## Testing
+
+```bash
+# Run all tests
+pnpm test
+
+# Run with coverage
+pnpm test:coverage
+
+# Run E2E tests
+pnpm test:e2e
+
+# Run live integration tests
+pnpm test:live
+
+# Watch mode
+pnpm test:watch
+```
+
+### Coverage Requirements
+
+- **Lines:** 70%
+- **Functions:** 70%
+- **Branches:** 55%
+- **Statements:** 70%
+
+---
+
+## Deployment
+
+### Docker
+
+```bash
+# Build image
+docker build -t asi-bot:local .
+
+# Run with docker-compose
+docker-compose up -d openclaw-gateway
+```
+
+### Gateway Server
+
+```bash
+# Start gateway server
+openclaw gateway --port 18789
+
+# With binding to LAN
+openclaw gateway --bind lan --port 18789
+
+# Allow unconfigured (for initial setup)
+openclaw gateway --allow-unconfigured
+```
+
+---
+
+## Security
+
+### Gateway Security
+
+- **Token auth:** Set `OPENCLAW_GATEWAY_TOKEN` for all connections
+- **Binding:** Defaults to loopback (127.0.0.1) — use LAN only when necessary
+- **Pairing:** Device-based approval required for non-local connections
+- **Challenge signing:** Remote clients must sign connect challenge
+
+### Channel Allowlisting
+
+**ALWAYS** set `channels.<channel>.allowFrom` to prevent open-to-world exposure:
+
+```json5
 {
-  "mcpServers": {
-    "aaa-mcp": {
-      "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"]
-    }
-  }
+  channels: {
+    whatsapp: {
+      allowFrom: ["+15555550123"], // Your number only
+      groups: {
+        "*": { requireMention: true },
+      },
+    },
+  },
 }
 ```
 
-### Cloud Deployment (SSE)
-**Best for:** Managed hosting (Railway, Fly.io, etc.)
-```bash
-# Start SSE server for remote access
-python -m aaa_mcp sse
-# Endpoint: https://your-domain.com/sse
-```
+### Constitutional Guards (F10-F12)
 
-### Cloud Deployment (HTTP / Streamable HTTP)
-**Best for:** MCP clients that use HTTP transport
-```bash
-# Start HTTP server for remote MCP access
-python -m aaa_mcp http
-# Endpoint: https://your-domain.com/mcp
-```
+- **F10 Ontology Guard:** Prevent reality confusion
+- **F11 Command Auth Guard:** Verify identity
+- **F12 Injection Defense Guard:** Block injection patterns
 
 ---
 
-## 🚀 Transport Protocols & Deployment
+## Documentation
 
-### stdio (Standard Input/Output)
-- **Use Case:** Local development, desktop applications
-- **Command:** `python -m aaa_mcp` (or `python -m aaa_mcp stdio`)
-- **Security:** Local-only, no network exposure
-- **Platforms:** Claude Code, Claude Desktop, Cursor IDE
+For complete documentation, see:
 
-### SSE (Server-Sent Events)
-- **Use Case:** Cloud deployment, remote access
-- **Command:** `python -m aaa_mcp sse`
-- **Endpoint:** `http://your-domain.com/sse`
-- **Platforms:** Railway, Fly.io, AWS, GCP, Azure, ChatGPT (via SSE bridge)
-
-### HTTP (Streamable HTTP MCP)
-- **Use Case:** Remote MCP clients that support HTTP transport
-- **Command:** `python -m aaa_mcp http`
-- **Endpoint:** `http://your-domain.com/mcp`
-- **Platforms:** OpenAI Codex, ChatGPT MCP clients, any streamable HTTP-compatible MCP client
+- **[AGENTS.md](./AGENTS.md)** — Trinity architecture and agent topology
+- **[SOUL.md](./SOUL.md)** — Constitutional executor identity
+- **[USER.md](./USER.md)** — Human sovereign context
+- **[TRINITY.md](./TRINITY.md)** — AGI·ASI·APEX coordination
+- **[TOOLS.md](./TOOLS.md)** — MCP server catalogue
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — System architecture overview
 
 ---
 
-## 🏗️ 333_APPS - Governance Spectrum
+## Governance & Authority
 
-### [L1_PROMPT — Zero-Context Entry](333_APPS/L1_PROMPT/)
-- **Function:** Instant constitutional governance prompts.
-- **Status:** ✅ **HARDENED**
-- **Sovereign Principle:** Governance at the first token.
+- **Human Sovereign:** Arif Fazil (888 Judge)
+- **Kernel:** arifOS
+- **Theory:** APEX-THEORY
 
-### [L2_SKILLS — Parameterized Templates](333_APPS/L2_SKILLS/)
-- **Function:** Atomic Actions (primitive) and Utilities.
-- **Status:** ✅ **HARDENED**
-- **Sovereign Principle:** Explicit functions over implicit magic.
-
-### [L3_WORKFLOW — Documented Sequences](333_APPS/L3_WORKFLOW/)
-- **Function:** Multi-step constitutional recipes (WORKFLOWS/).
-- **Status:** ✅ **HARDENED**
-- **Sovereign Principle:** Composability of safe actions.
-
-### [L4_TOOLS — Production MCP](aaa_mcp/)
-- **Function:** Core implementation of the 10 Canonical Tools.
-- **Status:** ✅ **HARDENED**
-- **Sovereign Principle:** Validated tool-chain for any AI platform.
-
-### [L5_AGENTS — Autonomous Federation](333_APPS/L5_AGENTS/)
-- **Function:** Multi-agent runtime and environment physics.
-- **Status:** 🟡 **GOVERNED PILOTS LIVE** (Runtime active via OpenClaw / agents constrained)
-- **Sovereign Principle:** Autonomy within physics of law, bootstrapped via 000_INIT-governed sessions + VAULT999 logging
-
-### [L6_INSTITUTION — Trinity System](333_APPS/L6_INSTITUTION/)
-- **Function:** Role-based consensus (Mind+Heart+Soul).
-- **Status:** 🔴 **FRAMEWORK ONLY**
-- **Sovereign Principle:** Tri-Witness consensus.
-
-### [L7_AGI — Recursive Intelligence](333_APPS/L7_AGI/)
-- **Function:** Self-improving constitutional AGI.
-- **Status:** 📋 **RESEARCH ONLY**
-- **Sovereign Principle:** Theoretical safety limits (F10, F13).
+ASI_Bot may **advise and propose**.
+It may **never** self-actuate or bypass constitutional checks.
 
 ---
 
----
+## Resources
 
-## 📊 Governance Metrics & Compliance
-
-### Constitutional Compliance Dashboard
-- **Ω₀ Tracking:** Real-time uncertainty monitoring (target: 0.03-0.05)
-- **Verdict Distribution:** SEAL/SABAR/VOID/888_HOLD ratios
-- **Floor Violation Rates:** Per-floor compliance metrics
-- **Audit Trail Completeness:** VAULT-999 integrity verification
-
-### Performance Benchmarks
-- **Response Time:** <200ms for constitutional verification
-- **Throughput:** 1000+ requests/minute sustained
-- **Uptime:** 99.9% availability
-- **Compliance:** 100% floor adherence
+- **Upstream OpenClaw:** https://github.com/openclaw/openclaw
+- **arifOS:** https://github.com/ariffazil/arifOS
+- **APEX-THEORY:** https://github.com/ariffazil/APEX-THEORY
+- **Discord:** https://discord.gg/qkhbAGHRBT
+- **X/Twitter:** [@steipete](https://x.com/steipete) / [@openclaw](https://x.com/openclaw)
 
 ---
 
-## 🚀 Getting Started (Navigation Path)
+## Status
 
-### Session Bootstrap (000_INIT)
-Every governed session starts with the 000_INIT protocol:
+✅ **OpenClaw 2026.2.3 + Trinity is sealed and frozen**
+✅ Trinity architecture (AGI·ASI·APEX) confirmed
+✅ OpenClaw upstream respected and extended, not replaced
+✅ **13-LAW constitutional governance active (9 Floors + 2 Mirrors + 2 Walls)**
 
-```
-Human: "000_INIT_GATE — Start governed session"
-    ↓
-OpenClaw: init_gate() → vault_seal(category="session_init")
-    ↓
-OpenClaw: "000_INIT_ACK — Session active, apex_verdict gating enabled"
-```
-
-**→ [Full Protocol: 000_INIT_PROTOCOL.md](docs/000_INIT_PROTOCOL.md)**
-
-### For New Users
-1. **Understand**: Read the 13 Floors and constitutional cycle
-2. **Install**: Set up the AAA MCP Server 
-3. **Integrate**: Connect to your AI system via MCP
-4. **Verify**: Test constitutional enforcement
-
-### For AI Agents
-1. **Acknowledge**: Accept constitutional constraints
-2. **Comply**: Follow 13 Floors in all interactions  
-3. **Report**: Declare uncertainty (Ω₀) when elevated
-4. **Escalate**: Route to 888 Judge when needed
-
-### For System Integrators
-1. **Choose Transport**: stdio (local), SSE (cloud), HTTP (remote)
-2. **Configure Tools**: Enable required constitutional tools
-3. **Set Thresholds**: Define Ω₀ limits and escalation triggers
-4. **Monitor**: Track constitutional compliance metrics
-
-### Quick Setup
-```bash
-# Install arifOS
-pip install arifos                # PyPI (stable releases)
-# Or install from source
-git clone https://github.com/ariffazil/arifOS.git
-cd arifOS && pip install -e .     # Git (bleeding-edge, aligned with VAULT999 v3 / 10 tools)
-
-# Start AAA MCP Server
-python -m aaa_mcp                 # stdio (local)
-python -m aaa_mcp sse             # SSE (remote)
-python -m aaa_mcp http            # HTTP /mcp (remote)
-
-# Live Endpoints:
-#   SSE:    https://aaamcp.arif-fazil.com/sse
-#   Health: https://aaamcp.arif-fazil.com/health
-```
+Further changes require **explicit human SEAL**.
 
 ---
 
-## 🌐 Integration Guide
+## Metadata
 
-### Claude Code / Claude Desktop (stdio)
-Add to `.mcp.json`:
-```json
-{
-  "mcpServers": {
-    "aaa-mcp": {
-      "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"]
-    }
-  }
-}
-```
-
-### Cloud Deployment (SSE or HTTP)
-```bash
-# Deploy to Railway, Fly.io, or similar
-python -m aaa_mcp sse
-# SSE endpoint:  http://localhost:8080/sse
-
-# Or use streamable HTTP transport
-python -m aaa_mcp http
-# HTTP endpoint: http://localhost:8080/mcp
-```
-
+| Field | Value |
+|-------|-------|
+| **Version** | OpenClaw 2026.2.3 + Trinity |
+| **Status** | SEALED & FROZEN |
+| **Human Sovereign** | Arif Fazil (888 Judge) |
+| **Framework** | arifOS 13-LAW Governance (9+2+2) |
+| **Theory** | APEX-THEORY (Thermodynamic Intelligence) |
+| **Architecture** | Trinity: AGI(Δ) · ASI(Ω) · APEX(Ψ) |
+| **Repository** | https://github.com/ariffazil/AGI_ASI_bot |
 
 ---
 
-## 🤝 Human-AI Alignment & Responsibility
+**Ditempa Bukan Diberi** — Forged, Not Given
+**Ditempa dengan Kasih** — Forged with Care
 
-**This repository represents a partnership, not autopilot.** While the code enforces the rules, **you** (the human) hold the responsibility.
-
-### Your Role: The 888 Judge
-The AI is powerful, but it is just a tool. You are the sovereign.
-- **You Decide:** If the AI recommends a "SEAL" (approval) but you feel it's wrong, you override it.
-- **You Verify:** The system is designed to be humble and admit uncertainty. When it does, you provide the truth.
-- **You Protect:** You ensure the AI never claims to be human or alive (Anti-Hantu).
-
-### Our Core Values (Amanah)
-Forged in the context of the Global South, we build on **Amanah** (Sacred Trust) rather than just speed:
-- **Reversibility:** We ensure the AI never takes actions you cannot undo.
-- **Truth:** We value evidence and honesty over fluent hallucinations.
-- **Dignity:** We optimize for safe, respectful interactions, not just engagement.
-
-### 🪞 The Mirror: A Founder's Reflection
-This repository is a mirror. It reflects not just how we govern AI, but how we govern ourselves.
-- It encodes our **fears** (of harm, of losing control).
-- It encodes our **hopes** (that safety can be built, not just promised).
-- It encodes our **culture** (that values trust/Amanah over unrestricted growth).
-
-> **The Bottom Line:** You are not just a user; you are the safety net. Without your active oversight, the system loses its moral compass. **Ditempa Bukan Diberi.**
+🔥💜⚖️
 
 ---
 
-## 📚 Documentation (Low Entropy Index)
-
-| Topic | File |
-|-------|------|
-| Agent Development Guide | [AGENTS.md](AGENTS.md) |
-| VAULT999 Schema v3 | [docs/VAULT_SCHEMA_V3.md](docs/VAULT_SCHEMA_V3.md) |
-| 000_INIT Protocol | [docs/000_INIT_PROTOCOL.md](docs/000_INIT_PROTOCOL.md) |
-| OpenClaw Integration | [docs/OPENCLAW_AAA_MCP_GUIDE.md](docs/OPENCLAW_AAA_MCP_GUIDE.md) |
-| AGI Tool Stack | [docs/AGI_TOOL_STACK.md](docs/AGI_TOOL_STACK.md) |
-| Constitutional Theory | [APEX-THEORY](https://github.com/ariffazil/APEX-THEORY) |
-| Runtime Docs | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
-
----
-
-## 📜 License & Attribution
-
-**AGPL-3.0** — *"Ditempa Bukan Diberi"* (Forged, Not Given)
-
-**Sovereign**: Muhammad Arif bin Fazil  
-**Repository**: https://github.com/ariffazil/arifOS  
-**Constitutional Canon**: https://apex.arif-fazil.com/llms.txt
-
----
-
-<p align="center">
-<sub><em>arifOS v55.5-EIGEN — Thermodynamic Constitution • Forged in Constraint • Ω₀ = 0.04</em></sub>
-</p>
+*This application embodies the complete Trinity governance framework. All agent actions subject to 13-LAW constitutional validation (9 Floors + 2 Mirrors + 2 Walls) with APEX oversight and hash-chained audit trails.*
