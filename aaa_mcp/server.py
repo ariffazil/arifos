@@ -288,7 +288,16 @@ async def vault_seal(
         actor_id: arif-fazil, openclaw-core, etc.
     """
     import hashlib
-    from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
+    import os
+    
+    # Check DATABASE_URL availability
+    db_url = os.environ.get("DATABASE_URL") or os.environ.get("VAULT_POSTGRES_DSN")
+    
+    try:
+        from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
+        use_postgres = bool(db_url)
+    except ImportError:
+        use_postgres = False
 
     # Enrich payload with v3 Hybrid structure (9 JSONB categories)
     # Compute hashes for integrity
@@ -384,38 +393,72 @@ async def vault_seal(
         },
     }
 
-    ledger = get_hardened_vault_ledger()
-    await ledger.connect()
-    try:
-        result = await ledger.append(
-            session_id=session_id, 
-            verdict=verdict, 
-            seal_data=enriched_payload, 
-            authority=actor_id or "mcp_server"
-        )
-        return {
-            "verdict": "SEALED",
-            "seal": result.get("entry_hash", f"hash-{result.get('sequence_number', 0)}"),
-            "schema_version": "3.0",
-            # Fast-query columns (the 4 governance axes)
-            "session_id": session_id,
-            "verdict_type": verdict,
-            "risk_level": risk_level or "low",
-            "environment": environment,
-            # Summary of v3 categories
-            "categories": {
-                "identity": v3_identity,
-                "floors": v3_floors,
-                "oversight": v3_oversight,
-                "provenance": {"tools": tool_chain or [], "env": environment},
-            },
-            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
-            "floors_enforced": get_tool_floors("vault_seal"),
-            "pass": "reverse",
-        }
-    finally:
-        # Singleton - don't close
-        pass
+    # Try Postgres ledger first, fall back to session ledger
+    seal_id = None
+    seal_hash = f"hash-0"
+    postgres_used = False
+    
+    if use_postgres:
+        try:
+            ledger = get_hardened_vault_ledger()
+            await ledger.connect()
+            result = await ledger.append(
+                session_id=session_id, 
+                verdict=verdict, 
+                seal_data=enriched_payload, 
+                authority=actor_id or "mcp_server"
+            )
+            seal_id = str(result.get("seal_id", ""))
+            seal_hash = result.get("entry_hash", f"hash-{result.get('sequence_number', 0)}")
+            postgres_used = True
+        except Exception as e:
+            print(f"[vault_seal] Postgres failed: {e}, using fallback")
+            postgres_used = False
+    
+    # Fallback to session ledger if Postgres unavailable
+    if not postgres_used:
+        try:
+            from aaa_mcp.sessions.session_ledger import get_ledger
+            ledger = await get_ledger()
+            entry = await ledger.seal(
+                session_id=session_id,
+                verdict_type=verdict,
+                payload=enriched_payload,
+                query_summary=query_summary or "",
+                risk_level=risk_level or "LOW",
+                category=category or "general",
+                environment=environment,
+                floors_checked=floors_checked,
+                floors_failed=floors_failed,
+            )
+            seal_id = entry.entry_id
+            seal_hash = entry.entry_hash
+        except Exception as e:
+            print(f"[vault_seal] Session ledger failed: {e}")
+            seal_hash = f"fallback-{session_id[:8]}"
+    
+    return {
+        "verdict": "SEALED" if seal_id else "PARTIAL",
+        "seal_id": seal_id,
+        "seal": seal_hash,
+        "schema_version": "3.0",
+        "postgres_used": postgres_used,
+        # Fast-query columns (the 4 governance axes)
+        "session_id": session_id,
+        "verdict_type": verdict,
+        "risk_level": risk_level or "low",
+        "environment": environment,
+        # Summary of v3 categories
+        "categories": {
+            "identity": v3_identity,
+            "floors": v3_floors,
+            "oversight": v3_oversight,
+            "provenance": {"tools": tool_chain or [], "env": environment},
+        },
+        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        "floors_enforced": get_tool_floors("vault_seal"),
+        "pass": "reverse",
+    }
 
 
 @mcp.tool()
