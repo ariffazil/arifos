@@ -27,19 +27,40 @@ async def health(_request):
     return JSONResponse({"status": "ok"})
 
 
+async def root(_request):
+    return JSONResponse({
+        "service": "arifOS MCP Server",
+        "version": "55.5.0",
+        "status": "operational",
+        "endpoints": {
+            "health": "/health",
+            "sse": "/sse",
+            "messages": "/messages"
+        },
+        "repository": "https://github.com/ariffazil/arifOS",
+        "documentation": "https://arifos.arif-fazil.com",
+        "motto": "DITEMPA BUKAN DIBERI"
+    })
+
+
+routes = [
+    Route("/", endpoint=root, methods=["GET"]),
+    Route("/health", endpoint=health, methods=["GET"]),
+]
+
 # Build the transport app and add an explicit /health endpoint for Railway.
 if transport in {"http", "streamable-http", "mcp"}:
     app = create_streamable_http_app(
         mcp,
         streamable_http_path="/mcp",
-        routes=[Route("/health", endpoint=health, methods=["GET"])],
+        routes=routes,
     )
 else:
     app = create_sse_app(
         mcp,
         message_path="/messages/",
         sse_path="/sse",
-        routes=[Route("/health", endpoint=health, methods=["GET"])],
+        routes=routes,
     )
 
 # Disable redirect_slashes to prevent 307 redirects on POST /messages

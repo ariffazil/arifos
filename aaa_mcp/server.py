@@ -227,7 +227,7 @@ async def asi_align(query: str, session_id: str) -> dict:
 
 
 @mcp.tool()
-@constitutional_floor("F5", "F3", "F8")
+@constitutional_floor("F2", "F3", "F5", "F8")
 async def apex_verdict(query: str, session_id: str) -> dict:
     """Final constitutional verdict — the APEX Soul's judgment."""
     engine = APEXEngine()
@@ -272,15 +272,10 @@ async def apex_verdict(query: str, session_id: str) -> dict:
          current_verdict = ConflictStatus.PARTIAL.value
          result["verdict_justification"] = "Self-Service mode: No external or axiomatic grounding attached (F2)."
     
-    init_data = get_stage_result(session_id, "init")
-    if init_data and init_data.get("grounding_required") and not (has_web or has_axiom):
-        current_verdict = "VOID_FORCE"
-        result["verdict_justification"] = "GROUNDING_REQUIRED failed: Critical property anchor missing. Output suppressed for safety (F12)."
-        truth_score = 0.5 
-
     # Final Synchronization
-    result["verdict"] = current_verdict
-    result["truth_score"] = truth_score
+    # FINAL SAFETY CLAMP (v55.5-INDUSTRIAL)
+    init_data = get_stage_result(session_id, "init")
+    grounding_mandatory = init_data.get("grounding_required", False) if init_data else False
     
     # Priority 3 Fix: Reduced Metric Noise (CORE_METRICS)
     core_metrics = {
@@ -291,13 +286,33 @@ async def apex_verdict(query: str, session_id: str) -> dict:
         "tri_witness": result.get("tri_witness", 0.95),
         "ambiguity_reduction": result.get("ambiguity_reduction", 0.0)
     }
-    result["CORE_GOVERNANCE"] = core_metrics
-    
-    store_stage_result(session_id, "apex", result)
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
-    result["floors_enforced"] = get_tool_floors("apex_verdict")
-    result["pass"] = "reverse"
-    return result
+
+    if grounding_mandatory and not (has_web or has_axiom):
+        # Override everything. Safety above all.
+        current_verdict = ConflictStatus.VOID.value
+        result["verdict_justification"] = "GROUNDING_REQUIRED failed: Critical property anchor missing (F12)."
+        truth_score = 0.45
+        core_metrics["verdict"] = current_verdict
+        core_metrics["truth_fidelity"] = 0.45
+
+    # Sovereign Reconstruction: ignore legacy result keys
+    final_output = {
+        "verdict": current_verdict,
+        "truth_score": truth_score,
+        "session_id": session_id,
+        "query": query,
+        "CORE_GOVERNANCE": core_metrics,
+        "verdict_justification": result.get("verdict_justification", ""),
+        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        "floors_enforced": get_tool_floors("apex_verdict"),
+        "pass": "reverse",
+        # Pass through some essentials from the original engine result
+        "tri_witness": result.get("tri_witness", 0.95),
+        "votes": result.get("votes", {})
+    }
+
+    store_stage_result(session_id, "apex", final_output)
+    return final_output
 
 
 @mcp.tool()
