@@ -46,10 +46,10 @@ PRE_FLOORS = {"F1", "F5", "F11", "F12", "F13"}
 POST_FLOORS = {"F2", "F3", "F4", "F6", "F7", "F8", "F9", "F10"}
 
 # Hard floors: failure -> VOID (block)
-HARD_FLOORS = {"F1", "F2", "F6", "F7", "F10", "F11", "F12", "F13"}
+HARD_FLOORS = {"F1", "F2", "F4", "F7", "F10", "F11", "F12", "F13"}
 
 # Soft/Derived floors: failure -> PARTIAL (warn)
-SOFT_FLOORS = {"F3", "F4", "F5", "F8", "F9"}
+SOFT_FLOORS = {"F3", "F5", "F6", "F8", "F9"}
 
 # ─── Lazy Floor Loading ─────────────────────────────────────────────────────
 _floor_cache: Dict[str, Any] = {}

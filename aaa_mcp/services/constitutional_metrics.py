@@ -68,7 +68,21 @@ AXIOM_DATABASE = {
     "physics_constants": {
         "speed_of_light": {"value": 299792458, "unit": "m/s"},
         "planck_constant": {"value": 6.626e-34, "unit": "J*s"}
-    }
+    },
+    "photosynthesis": {
+        "value": "6CO2 + 6H2O + light -> C6H12O6 + 6O2",
+        "units": "chemical_equation",
+        "uncertainty": 0.0,
+        "source": "AXIOM_BIOPHYSICS_STD",
+        "trust_level": 1.0,
+    },
+    "thermodynamics_2nd_law": {
+        "value": "dS >= 0",
+        "units": "entropy_inequality",
+        "uncertainty": 0.0,
+        "source": "AXIOM_PHYSICS_STD",
+        "trust_level": 1.0,
+    },
 }
 
 

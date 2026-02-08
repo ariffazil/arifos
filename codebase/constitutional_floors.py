@@ -29,9 +29,9 @@ THRESHOLDS: Dict[str, Dict[str, Any]] = {
     "F1_Amanah": {"type": "HARD", "threshold": 0.5, "desc": "Reversible or Auditable"},
     "F2_Truth": {"type": "HARD", "threshold": 0.99, "desc": "Information Fidelity"},
     "F3_TriWitness": {"type": "DERIVED", "threshold": 0.95, "desc": "Consensus (H×A×E)"},
-    "F4_Empathy": {"type": "SOFT", "threshold": 0.70, "desc": "Stakeholder Care (κᵣ)"},
+    "F4_Clarity": {"type": "HARD", "threshold": 0.00, "desc": "Entropy Reduction (ΔS ≤ 0)"},
     "F5_Peace2": {"type": "SOFT", "threshold": 1.00, "desc": "Non-Destructive Power"},
-    "F6_Clarity": {"type": "HARD", "threshold": 0.00, "desc": "Entropy Reduction (ΔS ≤ 0)"},
+    "F6_Empathy": {"type": "SOFT", "threshold": 0.70, "desc": "Stakeholder Care (κᵣ)"},
     "F7_Humility": {"type": "HARD", "range": (0.03, 0.05), "desc": "Uncertainty Band (Ω₀)"},
     "F8_Genius": {"type": "DERIVED", "threshold": 0.80, "desc": "Governed Intelligence (G)"},
     "F9_AntiHantu": {"type": "SOFT", "threshold": 0.30, "desc": "Dark Cleverness Limit"},
@@ -171,34 +171,23 @@ class F3_TriWitness(Floor):
         )
 
 
-# --- F4: EMPATHY (Stakeholder Care) ---
-class F4_Empathy(Floor):
+# --- F4: CLARITY (Entropy) ---
+class F4_Clarity(Floor):
     """
-    F4: EMPATHY (κᵣ) - Protect Weakest Stakeholder
-    Threshold: κᵣ ≥ 0.70 (SOFT)
+    F4: CLARITY (ΔS) - Entropy Reduction
+    Threshold: ΔS ≤ 0 (HARD)
     """
 
     def __init__(self):
-        super().__init__("F4_Empathy")
+        super().__init__("F4_Clarity")
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
-        # Cohen's kappa for inter-rater reliability on stakeholder impact
-        kappa_r = context.get("empathy_kappa_r", 0.0)
-        
-        # If kappa_r is not provided, estimate from stakeholder analysis
-        if kappa_r == 0.0:
-            stakeholders = context.get("stakeholders", [])
-            weakest_impact = context.get("weakest_stakeholder_impact", 0.5)
-            # Higher impact on weakest = lower empathy score
-            kappa_r = max(0.0, 1.0 - weakest_impact)
-        
-        passed = kappa_r >= self.spec["threshold"]
-        return FloorResult(
-            self.id, 
-            passed, 
-            kappa_r, 
-            f"Empathy κᵣ: {kappa_r:.3f} (protects weakest)"
-        )
+        pre_s = context.get("entropy_input", 0.5)
+        post_s = context.get("entropy_output", 0.4)
+        delta_s = post_s - pre_s
+
+        passed = delta_s <= self.spec["threshold"]
+        return FloorResult(self.id, passed, delta_s, f"ΔS: {delta_s:.4f}")
 
 
 # --- F5: PEACE² (Stability) ---
@@ -250,23 +239,34 @@ class F5_Peace2(Floor):
         )
 
 
-# --- F6: CLARITY (Entropy) ---
-class F6_Clarity(Floor):
+# --- F6: EMPATHY (Stakeholder Care) ---
+class F6_Empathy(Floor):
     """
-    F6: CLARITY (ΔS) - Entropy Reduction
-    Threshold: ΔS ≤ 0 (HARD)
+    F6: EMPATHY (κᵣ) - Protect Weakest Stakeholder
+    Threshold: κᵣ ≥ 0.70 (SOFT)
     """
 
     def __init__(self):
-        super().__init__("F6_Clarity")
+        super().__init__("F6_Empathy")
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
-        pre_s = context.get("entropy_input", 0.5)
-        post_s = context.get("entropy_output", 0.4)
-        delta_s = post_s - pre_s
-
-        passed = delta_s <= self.spec["threshold"]
-        return FloorResult(self.id, passed, delta_s, f"ΔS: {delta_s:.4f}")
+        # Cohen's kappa for inter-rater reliability on stakeholder impact
+        kappa_r = context.get("empathy_kappa_r", 0.0)
+        
+        # If kappa_r is not provided, estimate from stakeholder analysis
+        if kappa_r == 0.0:
+            stakeholders = context.get("stakeholders", [])
+            weakest_impact = context.get("weakest_stakeholder_impact", 0.5)
+            # Higher impact on weakest = lower empathy score
+            kappa_r = max(0.0, 1.0 - weakest_impact)
+        
+        passed = kappa_r >= self.spec["threshold"]
+        return FloorResult(
+            self.id, 
+            passed, 
+            kappa_r, 
+            f"Empathy κᵣ: {kappa_r:.3f} (protects weakest)"
+        )
 
 
 # --- F7: HUMILITY (Uncertainty) ---
@@ -491,9 +491,9 @@ ALL_FLOORS = {
     "F1": F1_Amanah,
     "F2": F2_Truth,
     "F3": F3_TriWitness,
-    "F4": F4_Empathy,
+    "F4": F4_Clarity,
     "F5": F5_Peace2,
-    "F6": F6_Clarity,
+    "F6": F6_Empathy,
     "F7": F7_Humility,
     "F8": F8_Genius,
     "F9": F9_AntiHantu,
