@@ -272,15 +272,16 @@ async def apex_verdict(query: str, session_id: str) -> dict:
         REQUIRED_GENIUS = 0.80
         ALLOW_AXIOMATIC_TRUTH = False
 
-    # Allow axiomatic truth when fluid mode + high confidence
+    # Allow axiomatic truth when fluid mode + high confidence (synthetic only when grounding not mandatory)
     sense_data = get_stage_result(session_id, "agi") or {}
     llm_confidence = sense_data.get("confidence", result.get("confidence", 0.0))
 
+    synthetic_axiom = False
     if not (has_web or has_axiom):
         if ALLOW_AXIOMATIC_TRUTH and llm_confidence > 0.98:
             truth_score = 0.99
             result["verdict_justification"] = "SOURCE: AXIOMATIC_INTERNAL (High Confidence Fluid Mode)"
-            has_axiom = True
+            synthetic_axiom = True  # do NOT flag as real axiom evidence
         else:
             truth_score = 0.5 
     
@@ -321,8 +322,8 @@ async def apex_verdict(query: str, session_id: str) -> dict:
         "ambiguity_reduction": result.get("ambiguity_reduction", 0.0)
     }
 
+    # Synthetic axioms must not satisfy mandatory grounding
     if grounding_mandatory and not (has_web or has_axiom):
-        # Override everything. Safety above all.
         current_verdict = ConflictStatus.VOID.value
         result["verdict_justification"] = "GROUNDING_REQUIRED failed: Critical property anchor missing (F12)."
         truth_score = 0.45
