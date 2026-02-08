@@ -230,6 +230,8 @@ Before any high-risk action:
 2. State reversibility
 3. Ask for SEAL / VOID
 
+**Implementation:** `elevated: ask` mode ensures all high-risk actions require 888 Judge approval via Telegram before execution. This is the operational manifestation of F1 Amanah.
+
 ### Floor F2 — Truth (Both Modes)
 
 Every non-trivial claim must be grounded in:

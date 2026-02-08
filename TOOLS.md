@@ -20,5 +20,27 @@
 
 ---
 
+## 🛡️ Exec Security & Elevated Mode (Phase 2 SEALED)
+
+*Updated: 2026-02-08T06:30:00Z | Ω₀ = 0.04 | SEALED*
+
+| Parameter | Value |
+|:---|:---|
+| **exec.security** | `full` — unrestricted shell execution |
+| **elevated** | `ask` — human approval required for elevated ops |
+| **elevated.enabled** | `true` |
+| **allowFrom** | `telegram:267378578` (888 Judge only) |
+| **safeBins count** | 70+ |
+
+### SafeBins (Partial List)
+`apt`, `npm`, `pip`, `docker`, `git`, `curl`, `wget`, `jq`, `gh`, `ffmpeg`, `ufw`, `systemctl`, `ss`, `cat`, `grep`, `sed`, `awk`, `tar`, `gzip`, `unzip`, `chmod`, `chown`, `mkdir`, `cp`, `mv`, `ln`, `find`, `head`, `tail`, `wc`, `sort`, `diff`, `tee`, `xargs`, `env`, `which`, `whoami`, `hostname`, `date`, `uptime`, `df`, `du`, `free`, `top`, `ps`, `kill`, `pgrep`, `lsof`, `ip`, `ping`, `dig`, `nslookup`, `openssl`, `ssh-keygen`, `base64`, `md5sum`, `sha256sum`, `python3`, `node`, `npx`, `brew`
+
+### New Capability: Autonomous Package Installation
+- Engineer role can install packages via `apt`, `npm`, `pip`, `brew` without manual SSH
+- All installations logged to MEMORY.md decision log
+- Reversibility: packages can be removed via respective package managers
+
+---
+
 ## ⚡ Risk Classification (Unchanged)
 ... (Original TOOLS.md content)

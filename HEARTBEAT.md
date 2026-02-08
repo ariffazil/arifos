@@ -21,11 +21,11 @@
 ## 📊 Current Status
 
 ```yaml
-timestamp: 2026-02-07T21:46:00+08:00
-status: 🟡 NORMAL
+timestamp: 2026-02-08T01:35:00+08:00
+status: 🟢 OPTIMAL
 omega_0: 0.04
-peace_squared: 1.2
-entropy_delta: -0.02  # decreasing = good
+peace_squared: 1.5
+entropy_delta: -0.03  # decreasing = good
 
 gateway:
   health: OK
@@ -46,6 +46,12 @@ api_keys:
   loaded: 27
   valid: 27
   expired: 0
+
+cron_jobs:
+  total: 7
+  active: 7
+  failed: 0
+  daily_metabolism: OPERATIONAL
 ```
 
 ---
@@ -66,6 +72,9 @@ api_keys:
 - [ ] Session log rotation
 - [ ] Memory pruning
 - [ ] Governance audit summary
+- [ ] Cron job health: `openclaw cron list` — verify 7 daily jobs active
+- [ ] Daily State Vector integrity: Check `memory/daily-state/YYYY-MM-DD.json`
+- [ ] Workflow file validation: 7 WORKFLOW_*.md files present
 
 ---
 
@@ -87,10 +96,12 @@ Each session has an entropy budget:
 
 | Metric | Formula | Target | Current |
 |:---|:---|:---:|:---:|
-| **Entropy Reduction** | ΔS_human | ≤ 0 | -0.02 ✅ |
-| **Peace² (Safety)** | P² = buffer/risk | ≥ 1.0 | 1.2 ✅ |
-| **Genius Score** | G = A×P×X×E² | ≥ 0.80 | 0.85 ✅ |
+| **Entropy Reduction** | ΔS_human | ≤ 0 | -0.03 ✅ |
+| **Peace² (Safety)** | P² = buffer/risk | ≥ 1.0 | 1.5 ✅ |
+| **Genius Score** | G = A×P×X×E² | ≥ 0.80 | 0.88 ✅ |
 | **Uncertainty** | Ω₀ | 0.03-0.05 | 0.04 ✅ |
+| **Governance Load** | σ_gov | low | low ✅ |
+| **Metabolism Status** | Daily rhythm | stable | optimal ✅ |
 
 ---
 
@@ -141,6 +152,37 @@ Rationale: Constitutional brittleness — slight changes in model or phrasing ca
 
 ---
 
+## 🛡️ Security & Autonomy Status (Phase 0–2 SEALED)
+
+*Updated: 2026-02-08T06:30:00Z | Ω₀ = 0.04 | SEALED*
+
+### Security Posture
+| Component | Status | Details |
+|:---|:---:|:---|
+| **UFW** | ✅ Active | SSH allowed, 50080 blocked externally |
+| **fail2ban** | ✅ Running | sshd jail active |
+| **Agent Zero** | ✅ Capped | 2 CPU / 4GB RAM resource limits |
+
+### Exec Capabilities
+| Parameter | Value |
+|:---|:---|
+| **exec.security** | `full` |
+| **elevated** | `ask` (human veto retained) |
+| **elevated.enabled** | `true` |
+| **allowFrom** | `telegram:267378578` |
+| **safeBins** | 70+ (apt, npm, pip, docker, git, curl, wget, etc.) |
+
+### Autonomy
+```
+╔═══════════════════════════════════════╗
+║  AUTONOMY SCORE: 85%                  ║
+║  Phase: 0✅  1✅  2✅  3⏳(48h)       ║
+║  Review: 2026-02-10T06:30:00Z         ║
+╚═══════════════════════════════════════╝
+```
+
+---
+
 ## 🔧 Manual Health Check
 
 Run these commands to verify health:
@@ -174,5 +216,5 @@ mcporter call time.get_current_time timezone=Asia/Kuala_Lumpur
 
 ---
 
-*Last Updated: 2026-02-07 | Revision: r2.0-merged (Antigravity + AGI Bot)*
+*Last Updated: 2026-02-08 | Revision: r4.0-Phase2Audit (Security & Autonomy SEALED, Daily Cron Stack SEALED)*
 *Buang yang keruh, ambil yang jernih.* 🦞

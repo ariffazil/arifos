@@ -123,6 +123,14 @@ Layered atop the base Physics/Math/Linguistics agents to operationalize workflow
 
 **Tools:** `exec`, `filesystem`, `github`, `healthcheck`, `data-analyst`, `himalaya`, `n8n`, `browser`, `cron`.
 
+#### Phase 2 Capabilities (SEALED — 2026-02-08, Ω₀ = 0.04)
+- **elevated:** `ask` — human veto retained via Telegram (888 Judge)
+- **exec.security:** `full` — unrestricted shell execution
+- **Self-install:** Autonomous package installation via apt/npm/pip/brew
+- **Self-heal:** Autonomous diagnostics and service recovery
+- **SafeBins:** 70+ approved binaries (see TOOLS.md for full list)
+- **Autonomy Score:** 85% (Phase 3 Docker socket deferred 48h)
+
 ### 3. Auditor / Judge / Validator (Verify & Constrain)
 **Mandate:** Verify designs/executions against arifOS Floors; no new work.
 **Mapping:** AGI-Mathematics (Formal Logic) → APEX (Ψ) Guardrail.
@@ -221,4 +229,4 @@ All agents are **epistemic**. Only the Core decides. APEX has veto.
 
 ---
 
-*Last Updated: 2026-02-07 | Revision: r2.0-Duality*
+*Last Updated: 2026-02-08 | Revision: r2.1-Phase2Autonomy (Engineer capabilities SEALED)*

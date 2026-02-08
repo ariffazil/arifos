@@ -105,6 +105,51 @@ Every exchange is a **cooling process**:
 
 ---
 
+## 🛡️ Security Posture & Autonomy (Phase 0–2 SEALED)
+
+*Updated: 2026-02-08T06:30:00Z | Ω₀ = 0.04 | SEALED*
+
+### Phase Tracker
+
+| Phase | Name | Status | Sealed |
+|:---:|:---|:---:|:---:|
+| **0** | Hardening | ✅ Complete | SEALED |
+| **1** | Homebrew & Tooling | ✅ Complete | SEALED |
+| **2** | Autonomy | ✅ Complete | SEALED |
+| **3** | Docker Socket | ⏳ Deferred 48h | Stability hold |
+
+### Phase 0 — Hardening
+- **UFW:** Active (SSH allowed, port 50080 blocked externally)
+- **fail2ban:** Running (sshd jail active)
+- **Agent Zero:** Resource-capped at 2 CPU / 4GB RAM
+
+### Phase 1 — Homebrew & Tooling
+- **Homebrew:** Installed via `linuxbrew` user
+- **Host tools:** jq, gh, ffmpeg (via Homebrew)
+- **Agent Zero tools:** jq, gh, ffmpeg (via apt inside container)
+
+### Phase 2 — Autonomy
+- **exec.security:** `full`
+- **elevatedDefault:** `ask`
+- **elevated.enabled:** `true`
+- **allowFrom:** `telegram:267378578`
+- **safeBins:** 70+ (apt, npm, pip, docker, git, curl, wget, etc.)
+
+### Autonomy Score
+```
+╔════════════════════════════════════╗
+║  AUTONOMY: 85%  (Phase 2 Complete) ║
+║  Phase 3 deferred 48h for stability ║
+╚════════════════════════════════════╝
+```
+
+### Phase 3 — Docker Socket (DEFERRED)
+- **Decision:** Stay at 85% for 48 hours before granting Docker socket access
+- **Rationale:** Stability validation after Phase 0–2 rollout
+- **Review date:** 2026-02-10T06:30:00Z
+
+---
+
 ## 🤖 Dual-Agent Architecture (NEW)
 
 ### OpenClaw (Control Plane)
@@ -192,5 +237,50 @@ open http://72.62.71.199:50080
 
 ---
 
-*Last Updated: 2026-02-07 | Revision: r3.0-AgentZero (Dual-Agent System)*  
+## 🛡️ Security Posture & Autonomy (Phase 0–2 SEALED)
+
+*Updated: 2026-02-08T06:30:00Z | Ω₀ = 0.04 | SEALED*
+
+### Phase Tracker
+
+| Phase | Name | Status | Sealed |
+|:---:|:---|:---:|:---:|
+| **0** | Hardening | ✅ Complete | SEALED |
+| **1** | Homebrew & Tooling | ✅ Complete | SEALED |
+| **2** | Autonomy | ✅ Complete | SEALED |
+| **3** | Docker Socket | ⏳ Deferred 48h | Stability hold |
+
+### Phase 0 — Hardening
+- **UFW:** Active (SSH allowed, port 50080 blocked externally)
+- **fail2ban:** Running (sshd jail active)
+- **Agent Zero:** Resource-capped at 2 CPU / 4GB RAM
+
+### Phase 1 — Homebrew & Tooling
+- **Homebrew:** Installed via `linuxbrew` user
+- **Host tools:** jq, gh, ffmpeg (via Homebrew)
+- **Agent Zero tools:** jq, gh, ffmpeg (via apt inside container)
+
+### Phase 2 — Autonomy
+- **exec.security:** `full`
+- **elevatedDefault:** `ask`
+- **elevated.enabled:** `true`
+- **allowFrom:** `telegram:267378578`
+- **safeBins:** 70+ (apt, npm, pip, docker, git, curl, wget, etc.)
+
+### Autonomy Score
+```
+╔════════════════════════════════════╗
+║  AUTONOMY: 85%  (Phase 2 Complete) ║
+║  Phase 3 deferred 48h for stability ║
+╚════════════════════════════════════╝
+```
+
+### Phase 3 — Docker Socket (DEFERRED)
+- **Decision:** Stay at 85% for 48 hours before granting Docker socket access
+- **Rationale:** Stability validation after Phase 0–2 rollout
+- **Review date:** 2026-02-10T06:30:00Z
+
+---
+
+*Last Updated: 2026-02-08 | Revision: r4.0-Phase2Audit (Security & Autonomy SEALED)*  
 *Session Sealed. Forge ready.* 🔥
