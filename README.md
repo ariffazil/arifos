@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="docs/forged_page_1.png" alt="arifOS: The Constitutional Kernel for AI" width="100%">
-</p>
-
 <h1 align="center">arifOS — Constitutional AI Governance System</h1>
 
 <p align="center">
