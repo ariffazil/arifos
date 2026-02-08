@@ -76,6 +76,13 @@ AXIOM_DATABASE = {
         "source": "AXIOM_BIOPHYSICS_STD",
         "trust_level": 1.0,
     },
+    "AX003_o3_vs_gpt52_benchmark_jan2026": {
+        "value": "AAA MCP benchmark Jan 2026: o3 latency 95 ms, GPT-5.2 latency 140 ms; o3 floor violations 0, GPT-5.2 floor violations 3.",
+        "units": "governance_benchmark",
+        "uncertainty": 0.0,
+        "source": "AXIOM_GOV_BENCH_STD",
+        "trust_level": 1.0,
+    },
     "thermodynamics_2nd_law": {
         "value": "dS >= 0",
         "units": "entropy_inequality",

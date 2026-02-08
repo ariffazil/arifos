@@ -146,10 +146,13 @@ async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = Non
     # Optional structured grounding/evidence (not synthetic confidence)
     if grounding:
         evidence = result.get("evidence", [])
+        # Heuristic: classify evidence type
+        grounding_str = json.dumps(grounding)
+        ev_type = EvidenceType.AXIOM.value if "axiom" in grounding_str.lower() or "axiom_id" in grounding else EvidenceType.WEB.value
         evidence.append({
             "evidence_id": f"E-GROUND-{session_id[:4]}",
-            "content": {"text": json.dumps(grounding)[:500], "hash": generate_content_hash(json.dumps(grounding)), "language": "json"},
-            "source_meta": {"uri": "client://grounding", "type": EvidenceType.AXIOM.value, "author": "CLIENT", "timestamp": "now"},
+            "content": {"text": grounding_str[:2000], "hash": generate_content_hash(grounding_str), "language": "json"},
+            "source_meta": {"uri": "client://grounding", "type": ev_type, "author": "CLIENT", "timestamp": "now"},
             "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
             "lifecycle": {"status": "active", "retrieved_by": "client_grounding"}
         })
