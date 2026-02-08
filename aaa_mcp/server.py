@@ -44,7 +44,7 @@ mcp = FastMCP("aaa-mcp")
 async def init_gate(
     query: str,
     session_id: Optional[str] = None,
-    grounding_required: bool = False,
+    grounding_required: bool = True,
     mode: str = "fluid",
 ) -> dict:
     """Initialize a constitutional session. CALL THIS FIRST.
