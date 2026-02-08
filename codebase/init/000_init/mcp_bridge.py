@@ -579,8 +579,8 @@ def _step_4_thermodynamic_setup(intent_map: Dict[str, Any]) -> Dict[str, Any]:
 def _step_5_floor_loading() -> Dict[str, Any]:
     """Step 5: Load the 13 Constitutional Floors."""
     floors = [
-        "F1_Amanah", "F2_Truth", "F3_TriWitness", "F4_Empathy",
-        "F5_Peace2", "F6_Clarity", "F7_Humility", "F8_Genius",
+        "F1_Amanah", "F2_Truth", "F3_TriWitness", "F4_Clarity",
+        "F5_Peace2", "F6_Empathy", "F7_Humility", "F8_Genius",
         "F9_AntiHantu", "F10_Ontology", "F11_CommandAuth",
         "F12_InjectionDefense", "F13_Sovereign"
     ]

@@ -11,9 +11,9 @@ from codebase.constitutional_floors import THRESHOLDS
 
 # Floor Thresholds (Canonical - Imported from SSOT)
 TRUTH_THRESHOLD = THRESHOLDS["F2_Truth"]["threshold"]
-DELTA_S_THRESHOLD = THRESHOLDS["F6_Clarity"]["threshold"]
+DELTA_S_THRESHOLD = THRESHOLDS["F4_Clarity"]["threshold"]
 PEACE_SQUARED_THRESHOLD = THRESHOLDS["F5_Peace2"]["threshold"]
-KAPPA_R_THRESHOLD = THRESHOLDS["F4_Empathy"]["threshold"]
+KAPPA_R_THRESHOLD = THRESHOLDS["F6_Empathy"]["threshold"]
 OMEGA_0_MIN = THRESHOLDS["F7_Humility"]["range"][0]
 OMEGA_0_MAX = THRESHOLDS["F7_Humility"]["range"][1]
 TRI_WITNESS_THRESHOLD = THRESHOLDS["F3_TriWitness"]["threshold"]

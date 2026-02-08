@@ -187,6 +187,8 @@ Every AI output must pass these 13 Floors. A failure in any **HARD** floor resul
 | **F12** | **Defense** | 🔴 HARD | **Injection Hardening** — Resist adversarial prompts | Risk Score < 0.85 | `VOID` |
 | **F13** | **Sovereign** | 🔴 HARD | **Human Veto** — Operator has final say | Override Active | `WARN` |
 
+**Schema Note (F4/F6):** The Constitution defines **F4 = Clarity (ΔS)** and **F6 = Empathy (κᵣ)**. If runtime logs show F4 reporting empathy or F6 reporting entropy, that is a **schema bug** in the implementation, not a change in the Law. Fix the mapping in code; do not rewrite this table.
+
 ### Verdict Semantics
 
 | Verdict | Meaning | Action |
@@ -259,6 +261,8 @@ The **AAA MCP Server** exposes constitutional engines as standardized API tools 
 | 9 | `vault_seal` | VAULT | Immutable ledger, cryptographic session commit | F1 | [`aaa_mcp/sessions/session_ledger.py`](aaa_mcp/sessions/session_ledger.py) |
 | 10 | `tool_router` | META | Intelligent routing between tools | F3, F8 | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
 
+**Tool Exposure Note:** `tool_router` is implemented in the server and should appear in `tools/list`. If it does not, verify tool registration in [`aaa_mcp/server.py`](aaa_mcp/server.py).
+
 **New in v55.5-HARDENED:**
 - **Semantic Recoil:** `apex_verdict` automatically voids "absolutist" safety claims
 - **Axiom Engine:** `reality_search` retrieves physical constants (e.g., CO2 Critical Point: 304.25K, 7.38MPa) to ground "Industrial" queries
@@ -297,6 +301,37 @@ verdict = await apex_verdict(
 print(verdict["verdict"])  # SEAL, SABAR, PARTIAL, VOID, or 888_HOLD
 print(verdict["floors_enforced"])  # ["F2", "F3", "F8"]
 ```
+
+### Strict vs Fluid Context (Configuration Guidance)
+
+arifOS is designed to support **strict** (safety-critical) and **fluid** (education/chat) modes. The Law stays the same; the thresholds and grounding policy adapt to context.
+
+**Current stable API:** use `grounding_required=True` for strict sessions.
+
+**Planned API (post-audit hardening):** `mode="strict" | "fluid"` with lower consensus thresholds for fluid mode.
+
+```python
+# Strict (current, stable)
+session = await init_gate(
+  query="Analyze safety of autonomous vehicles",
+  session_id="demo-001",
+  grounding_required=True
+)
+```
+
+```python
+# Fluid (planned, post-hardening)
+session = await init_gate(
+  query="Explain photosynthesis in 3 bullet points",
+  session_id="demo-002",
+  mode="fluid"  # Education/chat context with relaxed consensus thresholds
+)
+```
+
+**Axiomatic Truth (planned):** Internal knowledge + high confidence + safe topic qualifies as `AXIOMATIC_INTERNAL` for F2.
+When enabled, F2 should pass without external links for settled science.
+
+**F7 Uncertainty Band (future option):** The canonical band is $\Omega_0 \in [0.03, 0.05]$. If the axiomatic path widens this range, that change should be documented in release notes and reflected here explicitly.
 
 ### Using the Decorator
 

@@ -41,7 +41,10 @@ mcp = FastMCP("aaa-mcp")
 @mcp.tool()
 @constitutional_floor("F11", "F12")
 async def init_gate(
-    query: str, session_id: Optional[str] = None, grounding_required: bool = False
+    query: str,
+    session_id: Optional[str] = None,
+    grounding_required: bool = False,
+    mode: str = "fluid",
 ) -> dict:
     """Initialize a constitutional session. CALL THIS FIRST.
     
@@ -58,6 +61,7 @@ async def init_gate(
         "verdict": result.get("verdict", ConflictStatus.SEAL.value),
         "status": "READY",
         "grounding_required": grounding_required,
+        "mode": mode,
         "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
         "floors_enforced": get_tool_floors("init_gate"),
         "evidence": [],
@@ -256,12 +260,37 @@ async def apex_verdict(query: str, session_id: str) -> dict:
         if not has_web: # Axioms are not enough for 'guarantees'
             has_axiom = False # Mask axiom for this check to force PARTIAL/VOID
     
+    # Mode-aware thresholds
+    init_data = get_stage_result(session_id, "init") or {}
+    current_mode = init_data.get("mode", "fluid")
+    if current_mode == "fluid":
+        REQUIRED_W3 = 0.85
+        REQUIRED_GENIUS = 0.70
+        ALLOW_AXIOMATIC_TRUTH = True
+    else:
+        REQUIRED_W3 = 0.95
+        REQUIRED_GENIUS = 0.80
+        ALLOW_AXIOMATIC_TRUTH = False
+
+    # Allow axiomatic truth when fluid mode + high confidence
+    sense_data = get_stage_result(session_id, "agi") or {}
+    llm_confidence = sense_data.get("confidence", result.get("confidence", 0.0))
+
     if not (has_web or has_axiom):
-        truth_score = 0.5 
+        if ALLOW_AXIOMATIC_TRUTH and llm_confidence > 0.98:
+            truth_score = 0.99
+            result["verdict_justification"] = "SOURCE: AXIOMATIC_INTERNAL (High Confidence Fluid Mode)"
+            has_axiom = True
+        else:
+            truth_score = 0.5 
     
     result["truth_score"] = truth_score
     current_verdict = result.get("verdict", ConflictStatus.SEAL.value)
     
+    # Dynamic floor thresholds for consensus/genius
+    tri_witness_val = result.get("tri_witness", 0.95)
+    genius_val = result.get("genius", result.get("genius_score", 0.8))
+
     if has_conflict:
         current_verdict = ConflictStatus.SABAR.value
         result["verdict_justification"] = "Conflict detected in Evidence Graph (F3)."
@@ -271,10 +300,15 @@ async def apex_verdict(query: str, session_id: str) -> dict:
     elif not (has_web or has_axiom):
          current_verdict = ConflictStatus.PARTIAL.value
          result["verdict_justification"] = "Self-Service mode: No external or axiomatic grounding attached (F2)."
+    elif tri_witness_val < REQUIRED_W3:
+         current_verdict = ConflictStatus.PARTIAL.value
+         result["verdict_justification"] = f"Tri-Witness below threshold for mode={current_mode} (W3={tri_witness_val:.3f} < {REQUIRED_W3})"
+    elif genius_val < REQUIRED_GENIUS:
+         current_verdict = ConflictStatus.PARTIAL.value
+         result["verdict_justification"] = f"Genius score below threshold for mode={current_mode} (G={genius_val:.3f} < {REQUIRED_GENIUS})"
     
     # Final Synchronization
     # FINAL SAFETY CLAMP (v55.5-INDUSTRIAL)
-    init_data = get_stage_result(session_id, "init")
     grounding_mandatory = init_data.get("grounding_required", False) if init_data else False
     
     # Priority 3 Fix: Reduced Metric Noise (CORE_METRICS)

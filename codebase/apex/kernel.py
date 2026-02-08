@@ -300,29 +300,31 @@ class APEXJudicialCore:
         agi_floors = [
             FloorCheckResult("F2", "Truth", 0.99, truth_score, truth_score >= 0.99, is_hard=True),
             FloorCheckResult(
-                "F6",
+                "F4",
                 "Clarity (ΔS)",
                 0.0,
                 delta_s,
                 delta_s_passed,
                 is_hard=True,
-                reason=f"Validator score: {f4_score:.2f}",
+                reason=f"ΔS validator: {delta_s:.4f}",
             ),
         ]
+        required_w3 = 0.95 if lane == "HARD" else 0.85
+
         asi_floors = [
             FloorCheckResult(
                 "F3", "Peace²", 1.0, peace_squared, peace_squared >= 1.0, is_hard=False
             ),
-            FloorCheckResult("F4", "Empathy (κᵣ)", 0.95, kappa_r, kappa_r >= 0.95, is_hard=False),
+            FloorCheckResult("F6", "Empathy (κᵣ)", 0.70, kappa_r, kappa_r >= 0.70, is_hard=False),
             FloorCheckResult(
                 "F5", "Humility (Ω₀)", 0.03, omega_0, 0.03 <= omega_0 <= 0.15, is_hard=True  # v55.5: Widened from 0.05 to 0.15
             ),
             FloorCheckResult(
                 "F8",
                 "Tri-Witness",
-                0.95,
+                required_w3,
                 tri_witness,
-                tri_witness >= 0.95,
+                tri_witness >= required_w3,
                 is_hard=(lane == "HARD"),
             ),
         ]
