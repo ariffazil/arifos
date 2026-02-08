@@ -51,17 +51,32 @@ pip install arifos
 
 ## 📖 Table of Contents
 
-1. [Manifesto: Forged, Not Given](#i-manifesto-forged-not-given)
-2. [The Core Problem](#ii-the-core-problem)
-3. [The arifOS Solution](#iii-the-arifos-solution)
-4. [The AAA Governance Architecture](#iv-the-aaa-governance-architecture-mind-heart-soul)
-5. [Constitutional Law (The 13 Floors)](#v-constitutional-law-the-13-floors)
-6. [The 9-Paradox Equilibrium](#vi-the-9-paradox-equilibrium)
-7. [The 333_APPS Stack](#vii-the-333_apps-stack-applications)
-8. [Quick Start (Code Examples)](#viii-quick-start-code-examples)
-9. [Technical Implementation](#ix-technical-implementation)
-10. [Installation & Deployment](#x-installation--deployment)
-11. [Contributing & Governance](#xi-contributing--governance)
+- [📖 Table of Contents](#-table-of-contents)
+- [🔥 I. Manifesto: Forged, Not Given](#-i-manifesto-forged-not-given)
+  - [The Physics Basis](#the-physics-basis)
+- [⚠️ II. The Core Problem](#️-ii-the-core-problem)
+  - [1. The Accountability Vacuum](#1-the-accountability-vacuum)
+  - [2. The Value Alignment Paradox](#2-the-value-alignment-paradox)
+  - [3. The Injection Fragility](#3-the-injection-fragility)
+- [🛡️ III. The arifOS Solution](#️-iii-the-arifos-solution)
+  - [The 3 Pillars of Defense](#the-3-pillars-of-defense)
+    - [1. Immutable Auditing (VAULT-999)](#1-immutable-auditing-vault-999)
+    - [2. Semantic Recoil \& Trap Detection](#2-semantic-recoil--trap-detection)
+    - [3. Hardened Floors (F1-F13)](#3-hardened-floors-f1-f13)
+- [🏗️ IV. The AAA Governance Architecture (Mind, Heart, Soul)](#️-iv-the-aaa-governance-architecture-mind-heart-soul)
+  - [Δ COGNITION ENGINE (AGI / Mind)](#δ-cognition-engine-agi--mind)
+  - [Ω SAFETY ENGINE (ASI / Heart)](#ω-safety-engine-asi--heart)
+  - [Ψ JUDICIAL ENGINE (APEX / Soul)](#ψ-judicial-engine-apex--soul)
+- [📜 V. Constitutional Law (The 13 Floors)](#-v-constitutional-law-the-13-floors)
+  - [Verdict Semantics](#verdict-semantics)
+- [⚖️ VI. The 9-Paradox Equilibrium](#️-vi-the-9-paradox-equilibrium)
+- [📱 VII. The 333\_APPS Stack (Applications)](#-vii-the-333_apps-stack-applications)
+  - [L4: AAA MCP Tools (Production API)](#l4-aaa-mcp-tools-production-api)
+    - [The 10 Canonical Tools (v55.5-HARDENED)](#the-10-canonical-tools-v555-hardened)
+- [🚀 VIII. Quick Start (Code Examples)](#-viii-quick-start-code-examples)
+  - [Basic Usage (Python)](#basic-usage-python)
+  - [Strict vs Fluid Context (Configuration Guidance)](#strict-vs-fluid-context-configuration-guidance)
+- [🏛️ License \& Attribution](#️-license--attribution)
 
 ---
 
@@ -282,12 +297,9 @@ The **AAA MCP Server** exposes constitutional engines as standardized API tools 
 | 7 | `asi_align` | Ω HEART | Alignment check for ethics, law, and policy | F9 | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
 | 8 | `apex_verdict` | Ψ SOUL | Final judgment, synthesizes Truth+Safety | F2, F3, F8 | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
 | 9 | `vault_seal` | VAULT | Immutable ledger, cryptographic session commit | F1 | [`aaa_mcp/sessions/session_ledger.py`](aaa_mcp/sessions/session_ledger.py) |
-| 10 | `tool_router` | META | Intelligent routing between tools | F3, F8 | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
+| 10 | `truth_audit` | META | Claim-level truth verification & audit | F2, F4, F7 | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
 
-> **Experimental Meta-Tool:** `truth_audit` (v0.1) — claim-level verification orchestration on top of the Trinity pipeline (F2, F4, F7). See `aaa_mcp/server.py` for current status.
-
-
-**Tool Exposure Note:** `tool_router` is implemented in the server and should appear in `tools/list`. If it does not, verify tool registration in [`aaa_mcp/server.py`](aaa_mcp/server.py).
+**Tool Exposure Note:** `tool_router` and `vault_query` are available as auxiliary utilities but not listed in the canonical constitution.
 
 **New in v55.5-HARDENED:**
 - **Semantic Recoil:** `apex_verdict` automatically voids "absolutist" safety claims

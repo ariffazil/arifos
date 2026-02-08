@@ -214,3 +214,6 @@ gha-creds-*.json
 # .agents/mcp.json stays tracked as canonical reference template (uses ${VAR} refs)
 .mcp.json
 .kimi/mcp.json
+
+# Archived Roadmap Artifacts
+ROADMAP/archive/
