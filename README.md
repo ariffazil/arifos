@@ -306,7 +306,7 @@ print(verdict["floors_enforced"])  # ["F2", "F3", "F8"]
 
 arifOS is designed to support **strict** (safety-critical) and **fluid** (education/chat) modes. The Law stays the same; the thresholds and grounding policy adapt to context.
 
-**Current stable API:** use `grounding_required=True` for strict sessions.
+**Current stable API:** use `grounding_required=True` for strict sessions. Synthetic model confidence does **not** satisfy grounding; provide real web or axiom evidence (or pass structured `grounding` to AGI tools).
 
 **Planned API (post-audit hardening):** `mode="strict" | "fluid"` with lower consensus thresholds for fluid mode.
 

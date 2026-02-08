@@ -9,7 +9,8 @@ Verdicts: SEAL (approved) | VOID (blocked) | PARTIAL (warning) | SABAR (repair)
 Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-from typing import Optional
+from typing import Optional, Any
+import json
 
 from fastmcp import FastMCP
 
@@ -127,7 +128,7 @@ async def agi_think(query: str, session_id: str) -> dict:
 
 @mcp.tool()
 @constitutional_floor("F2", "F4", "F7")
-async def agi_reason(query: str, session_id: str) -> dict:
+async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = None) -> dict:
     """Deep logical reasoning chain — the AGI Mind's core analysis tool.
 
     Produces structured reasoning with conclusion, confidence, clarity improvement,
@@ -141,6 +142,18 @@ async def agi_reason(query: str, session_id: str) -> dict:
 
     engine = AGIEngine()
     result = await engine.reason(query, session_id)
+
+    # Optional structured grounding/evidence (not synthetic confidence)
+    if grounding:
+        evidence = result.get("evidence", [])
+        evidence.append({
+            "evidence_id": f"E-GROUND-{session_id[:4]}",
+            "content": {"text": json.dumps(grounding)[:500], "hash": generate_content_hash(json.dumps(grounding)), "language": "json"},
+            "source_meta": {"uri": "client://grounding", "type": EvidenceType.AXIOM.value, "author": "CLIENT", "timestamp": "now"},
+            "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
+            "lifecycle": {"status": "active", "retrieved_by": "client_grounding"}
+        })
+        result["evidence"] = evidence
     store_stage_result(session_id, "agi", result)
 
     # Clean Output (Industrial v55.5)
