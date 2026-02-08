@@ -1,4 +1,4 @@
-<h1 align="center">arifOS — Constitutional AI Governance System</h1>
+<h1 align="center">arifOS</h1>
 
 <p align="center">
 <p align="center">
