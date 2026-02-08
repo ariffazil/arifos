@@ -49,16 +49,43 @@ def check_floors() -> Tuple[bool, List[str]]:
     return len([i for i in issues if i.startswith("FAIL")]) == 0, issues
 
 
-def check_tools() -> Tuple[bool, List[str]]:
+async def check_tools() -> Tuple[bool, List[str]]:
     """Verify MCP tools are properly wired."""
     issues = []
     
     try:
         from aaa_mcp.server import mcp
-        tools = getattr(mcp, '_tools', None) or getattr(mcp, 'tools', {})
+        import asyncio
         
-        if hasattr(mcp, 'list_tools'):
-            print("✓ MCP server has list_tools capability")
+        # Introspect internal tool registry directly to avoid async complexity in simple check
+        # FastMCP stores tools in _tools dictionary
+        tool_names = []
+        if hasattr(mcp, '_tools'):
+            tool_names = list(mcp._tools.keys())
+        elif hasattr(mcp, 'list_tools'):
+             # Fallback: try to call list_tools if possible (async context required)
+             try:
+                 tools = await mcp.list_tools()
+                 tool_names = [t.name for t in tools]
+             except:
+                 pass
+
+        if not tool_names:
+             issues.append("WARN: Could not inspect tools list")
+        
+        # Verify 10 canonical tools
+        required_tools = [
+            "init_gate", "agi_sense", "agi_think", "agi_reason",
+            "asi_empathize", "asi_align", "apex_verdict",
+            "reality_search", "truth_audit", "vault_seal"
+        ]
+        
+        missing = [t for t in required_tools if t not in tool_names]
+        if missing:
+             issues.append(f"FAIL: Missing canonical tools: {missing}")
+        else:
+             print(f"✓ All {len(required_tools)} canonical tools present (including truth_audit)")
+
         
         # Check for read-only vs write tools
         print("✓ MCP server module loaded successfully")
@@ -170,6 +197,8 @@ def check_environment() -> Tuple[bool, List[str]]:
 
 def run_selftest(strict: bool = False) -> bool:
     """Run all self-tests."""
+    import asyncio
+    
     print("=" * 60)
     print("  arifOS MCP Self-Test (v55.5-HARDENED)")
     print("=" * 60)
@@ -186,15 +215,34 @@ def run_selftest(strict: bool = False) -> bool:
         ("Health Contract", check_health_contract),
     ]
     
-    for name, check_fn in checks:
-        print(f"\n[{name}]")
-        try:
-            passed, issues = check_fn()
-            all_issues.extend(issues)
-            if not passed:
-                all_passed = False
-        except Exception as e:
-            all_issues.append(f"FAIL: {name} check crashed: {e}")
+    async def execute_checks():
+        # Inner async loop to handle async checks
+        results = []
+        for name, check_fn in checks:
+            print(f"\n[{name}]")
+            try:
+                if asyncio.iscoroutinefunction(check_fn):
+                    passed, issues = await check_fn()
+                else:
+                    passed, issues = check_fn()
+                    
+                results.append((passed, issues))
+            except Exception as e:
+                print(f"FAIL: {name} check crashed: {e}")
+                results.append((False, [f"FAIL: {name} check crashed: {e}"]))
+        return results
+
+    # Run checks in event loop
+    try:
+        check_results = asyncio.run(execute_checks())
+    except Exception as e:
+        print(f"CRITICAL: Async runner failed: {e}")
+        return False
+
+    # Process results
+    for passed, issues in check_results:
+        all_issues.extend(issues)
+        if not passed:
             all_passed = False
     
     # Summary
