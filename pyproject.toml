@@ -5,20 +5,18 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "arifos"
 version = "55.5.0"
-# v55.5: EIGEN — Real Constitutional Enforcement & Stabilization (2026-02-02)
-#   - Consensus reached: Registry finalized with exactly 9 Canonical Tools.
-#   - Security Hardening: Integrated unified InjectionGuard (F12) into init_gate.
-#   - Deep Health Checks: Component-level probes for system observability.
-#   - Schema Enforcement: Automated validation of tool input/output contracts.
-#   - Entropy Reduction: Purged all legacy aliases and orphaned ghost references.
-#   - Stabilization: Resolved 17 core failures and 202 test passing.
-# v55.5: Query-derived heuristic scores, eigendecomposition (2026-02-01)
-#   - Split multi-action tools into 9 explicit tools for LLM discoverability
-#   - New tools: init_reboot, agi_sense, agi_think, agi_reason, asi_empathize, asi_align, asi_insight, apex_verdict, reality_search
-#   - Deprecated: _init_, _agi_, _asi_, _apex_, _reality_ (backward compatible, removal in v56.0)
-#   - Added session_id parameter to all tools for multi-step workflows
-#   - Structured error codes mapped to constitutional floors (F1-F13)
-#   - Complete test coverage: 13 handler tests + 15 transport tests
+# v55.5-HARDENED: Thermodynamic Constitution with Axiom Engine (2026-02-08)
+#   - Axiom Engine: Physics/CCS ground truth injection for reality_search
+#   - Evidence v2: Cryptographic hash-based integrity across all tools
+#   - Plan Objects: Formal tool routing with structured execution plans
+#   - Enhanced init_gate: grounding_required parameter for physics-bound sessions
+#   - APEX Verdict Semantics: SABAR/PARTIAL/VOID/SEAL with grounding quality
+#   - 10 Canonical Tools: Including new tool_router
+#   - Constitutional Decorator: Hardened enforcement with pre/post validation
+#   - VAULT999: Reality Weight Protocol with immutable Merkle DAG
+#   - Trinity Architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul consensus
+#   - Entropy: ΔS ≤ 0 — Chaos eliminated, repository aligned
+#   - Status: SEAL — Production ready with 888_JUDGE authority
 # v53.2.8-CODEBASE-AAA7: ChatGPT MCP Compatibility Fix
 #   - Unified DeltaBundle/OmegaBundle to canonical dataclass (bundles.py).
 #   - Relaxed SSE transport: text→query aliasing, kwargs pass-through.
@@ -45,7 +43,7 @@ version = "55.5.0"
 # v51.0.0: AAA MCP SERVER - Bridge to Core Engines + Rebrand (2026-01-24)
 # v50.0.0: Constitutional Housekeeping - Consolidated core (2026-01-20)
 # v49.0.0: Constitutional Forge - 13 Floors, Trinity Engines, 25 MCP Servers (2026-01-18)
-description = "AAA MCP - The constitutional AI safety gateway. Prevents lies with 13 enforceable floors (F1-F13), TEACH principles, and live thermodynamic governance. Built on the Trinity architecture (AGI/ASI/APEX) with immutable VAULT999 ledger. MCP-compatible. Live metrics dashboard. AGPL-3.0. Available at https://arifos.arif-fazil.com/"
+description = "arifOS - The World's First Production-Grade Constitutional AI Governance System. Mathematical enforcement of ethical constraints with 13 stationary floors (F1-F13), Axiom Engine for physics-grounded truth, and immutable VAULT999 ledger. Trinity architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul. MCP-compatible. Install: pip install arifos. https://arifos.arif-fazil.com/"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "AGPL-3.0-only"
