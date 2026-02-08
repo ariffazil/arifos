@@ -3,70 +3,7 @@
 **Version:** v55.5-HARDENED  
 **Motto:** *Ditempa Bukan Diberi* — Forged, Not Given
 
-The AAA MCP Server provides a **Model Context Protocol** interface to the arifOS Constitutional AI system. It exposes 9 canonical tools organized as a Trinity pipeline with 13 Constitutional Floors enforcement.
-
----
-
-## 🏗️ Architecture
-
-```
-aaa_mcp/
-├── server.py                 # FastMCP server with 9 canonical tools
-├── __init__.py               # Package exports
-├── __main__.py               # Entry point: python -m aaa_mcp
-├── bridge.py                 # Engine routing layer
-├── mcp_config.py             # External server registry
-├── mcp_integration.py        # Constitutional governance wrapper
-│
-├── core/                     # Core framework
-│   ├── constitutional_decorator.py   # Floor enforcement decorators
-│   ├── engine_adapters.py           # AGI/ASI/APEX engine adapters
-│   └── mode_selector.py             # Transport mode selection
-│
-├── sessions/                 # Session management
-│   ├── session_ledger.py            # Merkle-chained ledger (F1 Amanah)
-│   └── session_dependency.py         # Session store for persistence
-│
-├── services/                 # Services layer
-│   ├── constitutional_metrics.py    # Verdict & stage metrics
-│   └── redis_client.py              # MindVault Redis persistence
-│
-├── tools/                    # Tool implementations
-│   ├── trinity_validator.py         # Request validation (F11, F12)
-│   └── reality_grounding.py         # External fact-checking (F7)
-│
-├── infrastructure/           # Operational infrastructure
-│   └── rate_limiter.py              # Token bucket rate limiting (F12)
-│
-├── transports/               # Transport layer
-│   └── sse.py                       # SSE transport
-│
-├── external_gateways/        # External API clients
-│   └── brave_client.py              # Brave Search integration
-│
-└── config/                   # Configuration management
-```
-
----
-
-## 🔧 The 9 Canonical Tools
-
-| Tool | Engine | Floors | Description |
-|:-----|:------:|:------:|:------------|
-| `init_gate` | 🚪 INIT | F11, F12 | Session initialization & injection defense |
-| `agi_sense` | Δ Mind | F2, F4 | Intent parsing & lane classification |
-| `agi_think` | Δ Mind | F2, F4, F7 | Hypothesis generation |
-| `agi_reason` | Δ Mind | F2, F4, F7 | Deep logical reasoning |
-| `asi_empathize` | Ω Heart | F5, F6 | Stakeholder impact analysis |
-| `asi_align` | Ω Heart | F5, F6, F9 | Ethics & Anti-Hantu check |
-| `apex_verdict` | Ψ Soul | F3, F5, F8 | Final constitutional judgment |
-| `reality_search` | Δ Ground | F2, F7 | External fact-checking |
-| `vault_seal` | 🔒 SEAL | F1, F3 | Immutable ledger recording |
-
----
-
-## 🛡️ Constitutional Floors (v55.5)
-
+The AAA MCP Server provides a **Model Context Protocol** interface to the arifOS Constitutional AI system. It exposes 10 canonical tools organized as a Trinity pipeline with 13 Constitutional Floors enforcement.
 | Floor | Name | Type | Enforcement |
 |:-----:|:-----|:----:|:------------|
 | F1 | Amanah | HARD | Reversibility/Auditability |
