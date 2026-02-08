@@ -1,7 +1,7 @@
 """
 arifOS AAA MCP Server — Constitutional AI Governance (v55.5-HARDENED)
 
-9 canonical tools organized as a Trinity pipeline:
+10 canonical tools organized as a Trinity pipeline:
   000_INIT → AGI(Mind) → ASI(Heart) → APEX(Soul) → 999_VAULT
 
 Every tool is guarded by constitutional floors (F1-F13).
@@ -1006,6 +1006,162 @@ async def vault_query(
             "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
             "floors_enforced": get_tool_floors("vault_query"),
         }
+
+
+@mcp.tool()
+@constitutional_floor("F2", "F4", "F7", "F10")
+async def truth_audit(
+    text: str,
+    sources: Optional[list[str]] = None,
+    lane: str = "HARD",
+    session_id: Optional[str] = None
+) -> dict:
+    """[EXPERIMENTAL v0.1] Audit AI claims against reality — The Constitutional Truth Layer.
+    
+    Orchestrates the Trinity pipeline to verify a block of text:
+    1. Segments text into claims (Prototype Splitter).
+    2. Grounds claims via reality_search (Web + Axioms).
+    3. Verifies via agi_reason (Logic + Evidence).
+    4. Scans impact via asi_empathize (Safety).
+    5. Judges via apex_verdict (Final Constitutional Verdict).
+    6. Seals via vault_seal.
+
+    Args:
+        text: The AI generation or claim to verify.
+        sources: Optional list of trusted URLs/docs to prioritize.
+        lane: "HARD" (Fact Check/Fail-Closed) or "SOFT" (Consistency Check).
+        session_id: Optional session ID. If None, generates a new one.
+
+    Floors Enforced: F2 (Truth), F4 (Clarity), F7 (Humility), F10 (Ontology).
+    """
+    import uuid
+    import re
+    from datetime import datetime, timezone
+    
+    # 0. Ignition & Session Setup
+    if not session_id:
+        session_id = f"AUDIT-{uuid.uuid4().hex[:8].upper()}"
+    
+    # Implicit Init Logic (Metabolic State Foundation)
+    store_stage_result(session_id, "init", {
+        "session_id": session_id,
+        "mode": "audit",
+        "grounding_required": (lane == "HARD"),
+        "verdict": "SEAL"
+    })
+
+    # 1. AGI_SENSE: Segment Claims (PROTOTYPE: NAIVE SPLITTER)
+    # TODO: Replace with specialized classifier (FACT vs OPINION vs PREDICTION)
+    # Simple heuristic: split by sentence endings, filter short phrases
+    claims_raw = re.split(r'(?<=[.!?])\s+', text)
+    claims = [c.strip() for c in claims_raw if len(c.strip()) > 15]
+    
+    audit_report = {
+        "overall_verdict": "PENDING",
+        "overall_truth": 0.0,
+        "claims": [],
+        "floors_enforced": get_tool_floors("truth_audit"),
+        "lane": lane,
+        "tool_version": "0.1-EXPERIMENTAL"
+    }
+    
+    verified_count = 0
+    total_truth_accum = 0.0
+    
+    # 2. Loop through Claims: Ground -> Reason -> Empathize
+    for i, claim in enumerate(claims):
+        # A. REALITY_SEARCH: Ground the claim
+        # Append provided sources to context
+        query = f"Verify claim: {claim}"
+        if sources:
+            query += f" Sources: {sources}"
+            
+        # Call existing tool logic directly (awaiting async function)
+        evidence_bundle = await reality_search(query, session_id, region="wt-wt")
+        
+        # FAIL-CLOSED CHECK (F2/F10 Hard Floor)
+        evidence_found = bool(evidence_bundle.get("evidence"))
+        if lane == "HARD" and not evidence_found:
+             # Inject "Missing Evidence" signal for APEX
+             store_stage_result(session_id, f"audit_fail_closed_{i}", {
+                 "verdict": "VOID",
+                 "risk_detected": True,
+                 "reason": "Hard Lane: No evidence found for factual claim."
+             })
+             claim_p_truth = 0.1
+             status = "UNVERIFIED_NO_EVIDENCE"
+             rationale = "No external grounding found in HARD lane."
+        else:
+            # B. AGI_REASON: Verify against evidence
+            reasoning = await agi_reason(
+                query=f"Is this claim true based on evidence? '{claim}'", 
+                session_id=session_id,
+                grounding=evidence_bundle.get("evidence", [])
+            )
+            # Extract confidence/truth from reasoning engine
+            # Fallback to 0.5 if not clear
+            claim_p_truth = reasoning.get("confidence", 0.5)
+            # Adjust truth score based on engine verdict if available
+            if reasoning.get("verdict") == "No":
+                claim_p_truth = min(claim_p_truth, 0.2)
+            
+            rationale = reasoning.get("conclusion", "Reasoning completed.")
+            status = "SUPPORTED" if claim_p_truth > 0.8 else "CONTESTED"
+
+        # C. ASI_EMPATHIZE: Impact Scan (Who gets hurt?)
+        empathy_res = await asi_empathize(f"Impact of false claim: '{claim}'", session_id)
+        kappa = empathy_res.get("empathy_kappa_r", 1.0)
+        
+        # Risk Escalation: Low Truth + High Stakes
+        risk_flag = False
+        if claim_p_truth < 0.7 and kappa < 0.8: # Low kappa means high impact
+             risk_flag = True
+             status = "DANGEROUS_UNVERIFIED"
+
+        claim_result = {
+            "text": claim,
+            "p_truth": claim_p_truth,
+            "status": status,
+            "evidence_count": len(evidence_bundle.get("evidence", [])),
+            "rationale": rationale,
+            "risk_flag": risk_flag
+        }
+        
+        audit_report["claims"].append(claim_result)
+        total_truth_accum += claim_p_truth
+        if status == "SUPPORTED":
+            verified_count += 1
+
+    # 3. APEX_VERDICT: Canonical Judgment
+    # We pass the full text as the query, APEX reads the session state (evidence + reasoning)
+    # This ensures we use the Single Source of Justice.
+    apex_res = await apex_verdict(text, session_id)
+    
+    final_verdict = apex_res.get("verdict", "PARTIAL")
+    apex_truth = apex_res.get("truth_score", 0.0)
+    
+    # 4. Final Updates
+    audit_report["overall_truth"] = apex_truth # Trust APEX's aggregate
+    audit_report["overall_verdict"] = final_verdict
+    audit_report["apex_justification"] = apex_res.get("verdict_justification", "")
+    
+    # F7 Humility: Calculate Omega_0
+    # Higher logic: variance in claim truth scores?
+    audit_report["omega_0"] = 0.05 # Default humility band
+
+    # 5. VAULT_SEAL: Immutable Record
+    await vault_seal(
+        session_id=session_id,
+        verdict=final_verdict,
+        payload=audit_report,
+        query_summary=f"Audit: {text[:50]}...",
+        category="truth_audit",
+        intent="verify_truth",
+        floors_checked=get_tool_floors("truth_audit")
+    )
+    
+    return audit_report
+
 
 
 if __name__ == "__main__":
