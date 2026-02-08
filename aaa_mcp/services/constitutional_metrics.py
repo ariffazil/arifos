@@ -49,20 +49,25 @@ class PlanObject(TypedDict):
     entropy_score: float
 
 
-# --- Offline Axiom Engine Database ---
+# --- Offline Axiom Engine Database (Property-Aware) ---
 AXIOM_DATABASE = {
-    "physics": {
-        "c": {"value": 299792458, "unit": "m/s", "name": "Speed of Light"},
-        "G": {"value": 6.67430e-11, "unit": "m^3/kg/s^2", "name": "Gravitational Constant"},
-        "h": {"value": 6.62607015e-34, "unit": "J*s", "name": "Planck Constant"},
-        "kb": {"value": 1.380649e-23, "unit": "J/K", "name": "Boltzmann Constant"},
-        "R": {"value": 8.314462618, "unit": "J/mol/K", "name": "Ideal Gas Constant"},
+    "co2": {
+        "critical_point": {
+            "temperature": {"value": 31.1, "unit": "C", "name": "CO2 Critical Temperature"},
+            "pressure": {"value": 73.8, "unit": "bar", "name": "CO2 Critical Pressure"},
+        },
+        "triple_point": {
+            "temperature": {"value": -56.6, "unit": "C", "name": "CO2 Triple Point Temperature"},
+            "pressure": {"value": 5.18, "unit": "bar", "name": "CO2 Triple Point Pressure"},
+        },
+        "general": {
+            "molar_mass": {"value": 44.01, "unit": "g/mol"},
+            "ideal_gas_constant": {"value": 8.314, "unit": "J/mol/K"}
+        }
     },
-    "ccs": {
-        "co2_critical_temp": {"value": 31.1, "unit": "C", "name": "CO2 Critical Temperature"},
-        "co2_critical_press": {"value": 73.8, "unit": "bar", "name": "CO2 Critical Pressure"},
-        "co2_triple_temp": {"value": -56.6, "unit": "C"},
-        "co2_triple_press": {"value": 5.18, "unit": "bar"},
+    "physics_constants": {
+        "speed_of_light": {"value": 299792458, "unit": "m/s"},
+        "planck_constant": {"value": 6.626e-34, "unit": "J*s"}
     }
 }
 
@@ -105,7 +110,7 @@ def update_metabolic_state(
     if delta_bundle:
         confidence = delta_bundle.get("confidence") or {}
         state["omega_0"] = confidence.get("omega_0", state.get("omega_0", 0.04))
-        state["entropy_delta"] = delta_bundle.get("entropy_delta", state.get("entropy_delta", 0.0))
+        state["ambiguity_reduction"] = delta_bundle.get("ambiguity_reduction", state.get("ambiguity_reduction", 0.0))
         state["tri_witness"] = delta_bundle.get("floor_scores", {}).get(
             "F8", state.get("tri_witness", 0.95)
         )
@@ -135,7 +140,7 @@ def store_stage_result(session_id: str, stage: str, result: Dict[str, Any]):
         "stage": stage,
         "verdict": result.get("verdict", "UNKNOWN"),
         "transition": f"Completed {stage}",
-        "entropy_delta": result.get("entropy_delta", 0.0)
+        "ambiguity_reduction": result.get("ambiguity_reduction", 0.0)
     })
 
     # Universal Evidence Tracking (v2 awareness)

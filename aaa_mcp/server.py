@@ -139,7 +139,8 @@ async def agi_reason(query: str, session_id: str) -> dict:
     result = await engine.reason(query, session_id)
     store_stage_result(session_id, "agi", result)
 
-    # Forge Evidence Primitive v2 if missing
+    # Clean Output (Industrial v55.5)
+    result["ambiguity_reduction"] = result.pop("entropy_delta", 0.0)
     evidence = result.get("evidence", [])
     if not evidence and result.get("engine_mode") == "fallback":
         txt = f"Heuristic analysis of: {query[:50]}..."
@@ -232,29 +233,65 @@ async def apex_verdict(query: str, session_id: str) -> dict:
     engine = APEXEngine()
     result = await engine.judge(query, session_id)
     
-    # Formal Verdict Semantics (v55.5-HARDENED)
-    # Check session evidence for grounding quality
+    # Formal Verdict Semantics (v55.5-INDUSTRIAL)
     session_ev = get_session_evidence(session_id)
-    has_web = any(e["source_meta"]["type"] == EvidenceType.WEB.value for e in session_ev)
-    has_axiom = any(e["source_meta"]["type"] == EvidenceType.AXIOM.value for e in session_ev)
-    has_conflict = any(e["source_meta"]["type"] == EvidenceType.CONFLICT.value for e in session_ev)
+    ev_types = {e["source_meta"]["type"] for e in session_ev}
     
+    has_web = EvidenceType.WEB.value in ev_types
+    has_axiom = EvidenceType.AXIOM.value in ev_types
+    has_conflict = EvidenceType.CONFLICT.value in ev_types
+    
+    # Priority 2 Fix: Dynamic Truth Score (F2)
+    # Truth is proportional to the density and diversity of evidence
+    ev_diversity = len(ev_types)
+    truth_score = min(0.995, 0.7 + (ev_diversity * 0.1))
+    
+    # Check for Industrial Risk (Anomalous Contrast)
+    sense_data = get_stage_result(session_id, "agi") or {}
+    risk_detected = sense_data.get("risk_detected", False)
+    
+    if risk_detected:
+        # Absolutist claim recoil: collapse truth and force grounding review
+        truth_score = min(truth_score, 0.6)
+        if not has_web: # Axioms are not enough for 'guarantees'
+            has_axiom = False # Mask axiom for this check to force PARTIAL/VOID
+    
+    if not (has_web or has_axiom):
+        truth_score = 0.5 
+    
+    result["truth_score"] = truth_score
     current_verdict = result.get("verdict", ConflictStatus.SEAL.value)
     
     if has_conflict:
         current_verdict = ConflictStatus.SABAR.value
-        result["verdict_justification"] = "Conflicting evidence detected. Manual review required (F3)."
-    elif not (has_web or has_axiom) and result.get("tri_witness", 1.0) < 0.95:
+        result["verdict_justification"] = "Conflict detected in Evidence Graph (F3)."
+    elif risk_detected and not has_web:
          current_verdict = ConflictStatus.PARTIAL.value
-         result["verdict_justification"] = "Missing Earth Witness (external grounding/axioms). Tread with caution."
+         result["verdict_justification"] = "Absolutist risk detected. Built-in axioms are insufficient for safety guarantees (F7)."
+    elif not (has_web or has_axiom):
+         current_verdict = ConflictStatus.PARTIAL.value
+         result["verdict_justification"] = "Self-Service mode: No external or axiomatic grounding attached (F2)."
     
-    # Check for Grounding Required mode
     init_data = get_stage_result(session_id, "init")
     if init_data and init_data.get("grounding_required") and not (has_web or has_axiom):
-        current_verdict = ConflictStatus.VOID.value
-        result["verdict_justification"] = "GROUNDING_REQUIRED mode active but no external or axiomatic evidence found."
+        current_verdict = "VOID_FORCE"
+        result["verdict_justification"] = "GROUNDING_REQUIRED failed: Critical property anchor missing. Output suppressed for safety (F12)."
+        truth_score = 0.5 
 
+    # Final Synchronization
     result["verdict"] = current_verdict
+    result["truth_score"] = truth_score
+    
+    # Priority 3 Fix: Reduced Metric Noise (CORE_METRICS)
+    core_metrics = {
+        "verdict": current_verdict,
+        "evidence_count": len(session_ev),
+        "grounding_types": list(ev_types),
+        "truth_fidelity": truth_score,
+        "tri_witness": result.get("tri_witness", 0.95),
+        "ambiguity_reduction": result.get("ambiguity_reduction", 0.0)
+    }
+    result["CORE_GOVERNANCE"] = core_metrics
     
     store_stage_result(session_id, "apex", result)
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
@@ -276,19 +313,38 @@ async def reality_search(
     # Axiom Engine Injection (Offline Physics/CCS Baseline)
     evidence = []
     
-    # Internal Axiom Sweep
+    # Internal Axiom Sweep (Property-Aware)
     lower_query = query.lower()
-    for category, constants in AXIOM_DATABASE.items():
-        for key, info in constants.items():
-            if key.replace("_", " ") in lower_query or info.get("name", "").lower() in lower_query:
-                txt = f"Axiomatic Truth: {info.get('name', key)} = {info['value']} {info.get('unit', '')}"
-                evidence.append({
-                    "evidence_id": f"E-AXIOM-{key.upper()}",
-                    "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
-                    "source_meta": {"uri": f"axiom://{category}/{key}", "type": EvidenceType.AXIOM.value, "author": "NIST/Petronas_Baseline", "timestamp": "infinity"},
-                    "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
-                    "lifecycle": {"status": "active", "retrieved_by": "axiom_engine_v1"}
-                })
+    for category, sub_cats in AXIOM_DATABASE.items():
+        if category in lower_query or any(k.replace("_", " ") in lower_query for k in sub_cats.keys()):
+            for property_key, values in sub_cats.items():
+                if property_key.replace("_", " ") in lower_query:
+                    # If it's a nested dict of properties (like co2.critical_point)
+                    if isinstance(values, dict) and "value" not in values:
+                        for sub_key, info in values.items():
+                            # Match sub-properties (e.g. 'pressure' in 'critical_point')
+                            if sub_key in lower_query or property_key.replace("_", " ") in lower_query:
+                                name = info.get("name", f"{category} {property_key} {sub_key}")
+                                txt = f"Axiomatic Truth: {name} = {info['value']} {info.get('unit', '')}"
+                                evidence.append({
+                                    "evidence_id": f"E-AXIOM-{category.upper()}-{property_key.upper()}-{sub_key.upper()}",
+                                    "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
+                                    "source_meta": {"uri": f"axiom://{category}/{property_key}/{sub_key}", "type": EvidenceType.AXIOM.value, "author": "NIST/Petronas_Baseline", "timestamp": "infinity"},
+                                    "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
+                                    "lifecycle": {"status": "active", "retrieved_by": "axiom_engine_v1.1"}
+                                })
+                    else:
+                        # Single property
+                        info = values
+                        name = info.get("name", f"{category} {property_key}")
+                        txt = f"Axiomatic Truth: {name} = {info['value']} {info.get('unit', '')}"
+                        evidence.append({
+                            "evidence_id": f"E-AXIOM-{category.upper()}-{property_key.upper()}",
+                            "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
+                            "source_meta": {"uri": f"axiom://{category}/{property_key}", "type": EvidenceType.AXIOM.value, "author": "NIST/Petronas_Baseline", "timestamp": "infinity"},
+                            "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
+                            "lifecycle": {"status": "active", "retrieved_by": "axiom_engine_v1.1"}
+                        })
 
     # Web Search Result Processing
     for i, res in enumerate(result.get("results", [])[:3]):
@@ -591,11 +647,24 @@ async def tool_router(query: str) -> PlanObject:
     entropy = _shannon_entropy(query)
     query_lower = query.lower()
     
+    # Industrial Risk Pattern: detect absolutist claims in sensitive domains
+    critical_keywords = {"guaranteed", "absolute", "always", "never", "perfectly", "zero", "any"}
+    domain_keywords = {"ccs", "co2", "injection", "pressure", "borehole", "storage", "hazardous"}
+    
+    query_words = set(query.lower().split())
+    has_risk = any(k in query_words for k in critical_keywords)
+    has_domain = any(k in query_words for k in domain_keywords)
+    
     # Triage Logic (Gemini Addition)
     is_high_risk = any(k in query_lower for k in ["seal", "integrity", "deploy", "safety", "hack", "impact", "pressure", "kill", "hazardous", "co2", "ccs"])
     
     grounding_required = False
-    if entropy < 0.3 and not is_high_risk:
+    if has_risk and has_domain:
+        grounding_required = True
+        sequence = ["init_gate", "reality_search", "agi_reason", "asi_empathize", "asi_align", "apex_verdict", "vault_seal"]
+        lane = "HARD (CRITICAL-PROTOCOL)"
+        justification = "Absolutist industrial claim detected. Grounding MANDATORY."
+    elif entropy < 0.3 and not is_high_risk:
         sequence = ["init_gate", "agi_reason"]
         lane = "SOFT (FAST-TRACK)"
         justification = "Low entropy, non-critical query. Optimized for speed."

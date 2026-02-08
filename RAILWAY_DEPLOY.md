@@ -1,6 +1,8 @@
 # Deploy arifOS to Railway
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/your-template-id)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.com/deploy/9cskSj?referralCode=_F5zGa)
+
+> **Template ID:** `9cskSj` | **Referral Code:** `_F5zGa`
 
 ## One-Click Deploy
 
@@ -15,27 +17,41 @@ Click the button above to deploy your own instance of arifOS MCP Server on Railw
 | **Redis** | Session state persistence (24h TTL) |
 | **Health Endpoint** | `/health` for monitoring |
 
-## Environment Variables
+## ⚡ 3-Step Quick Deploy
 
-The following variables are automatically configured:
+### 1. Add Environment Variables
+```bash
+ARIFOS_ENV=production
+VAULT_BACKEND=postgres
+```
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | 8080 | Server port |
-| `HOST` | 0.0.0.0 | Bind address |
-| `DATABASE_URL` | Auto | PostgreSQL connection (Railway plugin) |
-| `REDIS_URL` | Auto | Redis connection (Railway plugin) |
-| `AAA_MCP_TRANSPORT` | sse | MCP transport: sse, http, or stdio |
-| `GOVERNANCE_MODE` | HARD | Constitutional mode: HARD or SOFT |
+### 2. Deploy
+- Click purple "Deploy" button above
+- Wait for build (~2-3 minutes)
+- Railway auto-creates URL
 
-## Optional API Keys
+### 3. Test
+```bash
+curl https://your-app.railway.app/health
+# Response: {"status": "ok"}
+```
 
-Add these in Railway dashboard for enhanced functionality:
+---
 
-| Variable | Purpose |
-|----------|---------|
-| `BRAVE_API_KEY` | Brave Search for `reality_search` tool |
-| `BROWSERBASE_API_KEY` | Web browsing capabilities |
+## Environment Variables Reference
+
+| Variable | Default | Required | Description |
+|----------|---------|----------|-------------|
+| `PORT` | 8080 | ✅ Auto | Server port |
+| `HOST` | 0.0.0.0 | ✅ Auto | Bind address |
+| `DATABASE_URL` | `${{Postgres.DATABASE_URL}}` | ✅ Auto | PostgreSQL connection (Railway plugin) |
+| `REDIS_URL` | `${{Redis.REDIS_URL}}` | ✅ Auto | Redis connection (Railway plugin) |
+| `ARIFOS_ENV` | production | ✅ Manual | Runtime environment |
+| `VAULT_BACKEND` | postgres | ✅ Manual | VAULT999 backend type |
+| `AAA_MCP_TRANSPORT` | sse | ⚠️ Optional | MCP transport: sse, http, or stdio |
+| `GOVERNANCE_MODE` | HARD | ⚠️ Optional | Constitutional mode: HARD or SOFT |
+| `BRAVE_API_KEY` | (your key) | ⚠️ Optional | Brave Search for `reality_search` tool |
+| `BROWSERBASE_API_KEY` | (your key) | ⚠️ Optional | Web browsing capabilities |
 
 ## Post-Deployment
 
