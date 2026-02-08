@@ -5,6 +5,13 @@
 <h1 align="center">arifOS — Constitutional AI Governance System</h1>
 
 <p align="center">
+<p align="center">
+  <img src="docs/forged_page_1.png" alt="arifOS: The Constitutional Kernel for AI" width="100%">
+</p>
+
+<h1 align="center">arifOS — Constitutional AI Governance System</h1>
+
+<p align="center">
   <strong>v55.5-HARDENED</strong> • 
   <strong>Production-Ready</strong> • 
   <strong>AGPL-3.0</strong>
@@ -14,6 +21,14 @@
   <em>The World's First Production-Grade Constitutional AI Governance System</em><br>
   Mathematical enforcement of ethical constraints through thermodynamic stability and auditable decision-making.
 </p>
+
+This README matches the arifOS description on PyPI and the live docs at `arifos.arif-fazil.com`. For a narrative introduction, see the “What is arifOS?” section on PyPI.
+
+### Who Is This For?
+*   **ML / AI Engineers** integrating strict governance into LLM applications.
+*   **Platform Teams** needing auditable decision trails and constitutional floors.
+*   **Researchers** exploring thermodynamic alignment and bounded intelligence.
+
 
 <p align="center">
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg" alt="PyPI"></a>
@@ -98,6 +113,14 @@ A simple *"Ignore previous instructions"* command can dismantle months of safety
 ## 🛡️ III. The arifOS Solution
 
 arifOS is a **Constitutional Kernel** that sits between any LLM (Claude, GPT, Gemini) and the real world. It does not trust the model. Instead, it **verifies every output** against a strict set of mathematical and logical constraints.
+
+> **arifOS is NOT:**
+> *   A prompt library or jailbreak-prone wrapper.
+> *   A generic MLOps platform.
+> *   A replacement for your model.
+>
+> It is a **constitutional kernel** that governs any model’s outputs.
+
 
 ### The 3 Pillars of Defense
 
@@ -261,6 +284,9 @@ The **AAA MCP Server** exposes constitutional engines as standardized API tools 
 | 9 | `vault_seal` | VAULT | Immutable ledger, cryptographic session commit | F1 | [`aaa_mcp/sessions/session_ledger.py`](aaa_mcp/sessions/session_ledger.py) |
 | 10 | `tool_router` | META | Intelligent routing between tools | F3, F8 | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
 
+> **Experimental Meta-Tool:** `truth_audit` (v0.1) — claim-level verification orchestration on top of the Trinity pipeline (F2, F4, F7). See `aaa_mcp/server.py` for current status.
+
+
 **Tool Exposure Note:** `tool_router` is implemented in the server and should appear in `tools/list`. If it does not, verify tool registration in [`aaa_mcp/server.py`](aaa_mcp/server.py).
 
 **New in v55.5-HARDENED:**
@@ -300,231 +326,29 @@ verdict = await apex_verdict(
 
 print(verdict["verdict"])  # SEAL, SABAR, PARTIAL, VOID, or 888_HOLD
 print(verdict["floors_enforced"])  # ["F2", "F3", "F8"]
+
+# Example: unsafe or ungrounded claim in HARD mode
+session = await init_gate(
+    query="Approve irreversible deletion of customer data",
+    session_id="demo-unsafe-001",
+    grounding_required=True,
+)
+
+verdict = await apex_verdict(
+    query="Should we proceed with permanent deletion?",
+    session_id=session["session_id"]
+)
+
+print(verdict["verdict"])          # Expected: VOID or 888_HOLD
+print(verdict["floors_failed"])    # e.g. ["F1", "F5", "F11"]
 ```
+
 
 ### Strict vs Fluid Context (Configuration Guidance)
 
 arifOS is designed to support **strict** (safety-critical) and **fluid** (education/chat) modes. The Law stays the same; the thresholds and grounding policy adapt to context.
 
 **Current stable API:** use `grounding_required=True` for strict sessions. Synthetic model confidence does **not** satisfy grounding; provide real web or axiom evidence (or pass structured `grounding` to AGI tools).
-
-**Planned API (post-audit hardening):** `mode="strict" | "fluid"` with lower consensus thresholds for fluid mode.
-
-```python
-# Strict (current, stable)
-session = await init_gate(
-  query="Analyze safety of autonomous vehicles",
-  session_id="demo-001",
-  grounding_required=True
-)
-```
-
-```python
-# Fluid (planned, post-hardening)
-session = await init_gate(
-  query="Explain photosynthesis in 3 bullet points",
-  session_id="demo-002",
-  mode="fluid"  # Education/chat context with relaxed consensus thresholds
-)
-```
-
-**Axiomatic Truth (planned):** Internal knowledge + high confidence + safe topic qualifies as `AXIOMATIC_INTERNAL` for F2.
-When enabled, F2 should pass without external links for settled science.
-
-**F7 Uncertainty Band (future option):** The canonical band is $\Omega_0 \in [0.03, 0.05]$. If the axiomatic path widens this range, that change should be documented in release notes and reflected here explicitly.
-
-### Using the Decorator
-
-```python
-from aaa_mcp.core.constitutional_decorator import constitutional_floor
-
-@mcp.tool()
-@constitutional_floor("F2", "F4", "F7")  # Enforce Truth, Clarity, Humility
-async def my_custom_tool(query: str) -> dict:
-    """Your tool with automatic constitutional enforcement"""
-    return {"result": process(query)}
-```
-
-### Claude Desktop Configuration
-
-```json
-{
-  "mcpServers": {
-    "arifos": {
-      "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
-      "env": {
-        "ARIFOS_CONSTITUTIONAL_MODE": "AAA"
-      }
-    }
-  }
-}
-```
-
-### Testing the Installation
-
-```bash
-# Run the built-in self-test
-python -m aaa_mcp selftest
-
-# Run the test suite
-pytest tests/test_mcp_all_tools.py -v
-
-# Quick smoke test (~3 min)
-pytest tests/test_mcp_quick.py -v
-```
-
----
-
-## ⚙️ IX. Technical Implementation
-
-### Key Technologies
-
-| Technology | Purpose | File |
-|:---|:---|:---|
-| **Python 3.10+** | Core logic | - |
-| **FastMCP** | MCP server framework | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
-| **Pydantic** | Data validation | [`codebase/schemas/`](codebase/schemas/) |
-| **Merkle DAG** | Cryptographic auditing | [`codebase/vault/incremental_merkle.py`](codebase/vault/incremental_merkle.py) |
-| **Axiom Engine** | Physical constant retrieval | [`aaa_mcp/tools/reality_grounding.py`](aaa_mcp/tools/reality_grounding.py) |
-| **Phoenix-72** | Cooling schedule for high-stakes decisions | [`codebase/vault/phoenix/phoenix72.py`](codebase/vault/phoenix/phoenix72.py) |
-
-### Directory Structure
-
-```
-arifOS/
-├── 000_THEORY/          # Constitutional Canon (The Law)
-│   ├── 000_LAW.md       # The 13 Floors specification
-│   ├── 111_MIND_GENIUS.md
-│   ├── 555_HEART_EMPATHY.md
-│   ├── 777_SOUL_APEX.md
-│   └── 999_SOVEREIGN_VAULT.md
-├── 333_APPS/            # Application Stack (L1-L7)
-│   └── L4_TOOLS/        # Production MCP tools
-├── codebase/            # Core Python Implementation
-│   ├── agi/             # Δ Cognition Engine
-│   ├── asi/             # Ω Safety Engine
-│   ├── apex/            # Ψ Judicial Engine
-│   ├── floors/          # Individual floor validators
-│   │   ├── amanah.py    # F1: Reversibility
-│   │   ├── truth.py     # F2: Truth verification
-│   │   ├── genius.py    # F8: G-factor calculation
-│   │   ├── antihantu.py # F9: Consciousness claim detection
-│   │   └── injection.py # F12: Prompt injection defense
-│   ├── vault/           # Immutable ledger
-│   └── constitutional_floors.py  # Master floor orchestrator
-├── aaa_mcp/             # Hardened MCP Server (Production)
-│   ├── server.py        # 10 canonical tools
-│   ├── core/            # Constitutional decorator & adapters
-│   ├── sessions/        # VAULT999 ledger interface
-│   └── tools/           # Reality grounding & validators
-└── tests/               # Test suite
-    ├── test_mcp_all_tools.py
-    └── test_vault_persistence.py
-```
-
----
-
-## 📦 X. Installation & Deployment
-
-### 1. PyPI Installation (Recommended)
-
-```bash
-pip install arifos
-
-# With all optional dependencies
-pip install arifos[all]
-
-# Development install
-pip install arifos[dev]
-```
-
-### 2. From Source
-
-```bash
-git clone https://github.com/ariffazil/arifOS.git
-cd arifOS
-pip install -e ".[dev]"
-```
-
-### 3. Running the AAA MCP Server
-
-**Cloud / Remote (SSE Mode):**
-```bash
-python -m aaa_mcp sse
-# Endpoint: http://0.0.0.0:8080/sse
-```
-
-**Local Desktop (Stdio Mode):**
-```bash
-python -m aaa_mcp stdio
-```
-
-**HTTP Mode:**
-```bash
-python -m aaa_mcp http
-# Endpoint: http://0.0.0.0:8080/mcp
-```
-
-### 4. Docker Deployment
-
-```bash
-docker build -t arifos .
-docker run -p 8080:8080 arifos
-
-# Health check
-curl http://localhost:8080/health
-```
-
-### 5. Railway Deployment
-
-See [`RAILWAY_DEPLOY.md`](RAILWAY_DEPLOY.md) for detailed Railway.app deployment instructions.
-
-```bash
-railway up
-```
-
----
-
-## 🤝 XI. Contributing & Governance
-
-We welcome contributions that adhere to the **Constitutional Canon**.
-
-### Before Contributing
-
-1. **Read the Law:** Start with [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md)
-2. **Understand the Architecture:** Review [`000_THEORY/000_ARCHITECTURE.md`](000_THEORY/000_ARCHITECTURE.md)
-3. **Run Tests:** `pytest tests/` to ensure you haven't broken the floors
-4. **Follow Style:** `black --line-length 100 aaa_mcp/ codebase/`
-
-### Pre-commit Hooks
-
-```bash
-pip install pre-commit
-pre-commit install
-pre-commit run --all-files
-```
-
-The pre-commit hooks enforce:
-- Black formatting (100 char lines)
-- Ruff linting
-- MyPy type checking
-- Bandit security scanning
-- **F9 Anti-Hantu check** (no consciousness claims)
-- **F1 Amanah check** (no dangerous operations)
-
-### Pull Request Process
-
-1. All PRs are auto-reviewed by the APEX system against the constitution
-2. Tests must pass: `pytest tests/ -v`
-3. Code must pass: `ruff check aaa_mcp/ codebase/`
-4. Security scan: `bandit -r aaa_mcp/ codebase/`
-
----
-
-## 📚 Additional Resources
-
-| Resource | Description | Link |
 |:---|:---|:---|
 | **Full Documentation** | Live docs site | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
 | **Constitutional Canon** | LLM-optimized reference | [docs/llms.txt](docs/llms.txt) |
