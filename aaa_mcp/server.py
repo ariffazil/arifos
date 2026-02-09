@@ -61,37 +61,7 @@ from aaa_mcp.core.stage_adapter import (
 )
 from core.pipeline import forge as core_forge
 
-mcp = FastMCP(
-    "aaa-mcp",
-    version="60.0.0",
-    # MCP 2025-11-25 capabilities
-    capabilities={
-        "tools": {"listChanged": True},
-        "resources": {},
-        "prompts": {},
-        "logging": {},
-    },
-    instructions="""arifOS AAA MCP Server - Constitutional AI Governance
-
-13 tools enforcing 13 constitutional floors (F1-F13):
-- F1 Amanah: Reversible actions
-- F2 Truth: τ ≥ 0.99
-- F3 Consensus: W₃ ≥ 0.95
-- F4 Clarity: ΔS ≤ 0
-- F5 Peace²: Stability ≥ 1.0
-- F6 Empathy: κᵣ ≥ 0.70
-- F7 Humility: Ω₀ ∈ [0.03,0.05]
-- F8 Genius: G ≥ 0.80
-- F9 Anti-Hantu: C_dark < 0.30
-- F10 Ontology: Grounded
-- F11 Authority: Valid auth
-- F12 Defense: Clean scan
-- F13 Sovereign: Human override
-
-Verdicts: SEAL | VOID | PARTIAL | SABAR | 888_HOLD
-Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
-"""
-)
+mcp = FastMCP("aaa-mcp")
 
 
 # Note: custom_route endpoints require FastMCP 2.0+
@@ -100,7 +70,7 @@ Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
 
 
 # Tool implementations using adapters
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["init_gate"])
 @constitutional_floor("F11", "F12")
 async def init_gate(
     query: str,
@@ -133,7 +103,7 @@ async def init_gate(
     return hardened_result
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["forge_pipeline"])
 @constitutional_floor("F11", "F12")
 async def forge_pipeline(
     query: str,
@@ -169,7 +139,7 @@ async def forge_pipeline(
     return output
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["agi_sense"])
 @constitutional_floor("F2", "F4")
 async def agi_sense(query: str, session_id: str) -> dict:
     """Parse intent and classify lane (HARD/SOFT/META)."""
@@ -203,7 +173,7 @@ async def agi_sense(query: str, session_id: str) -> dict:
     return result
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["agi_think"])
 @constitutional_floor("F2", "F4", "F7")
 async def agi_think(query: str, session_id: str) -> dict:
     """Generate hypotheses and explore reasoning paths."""
@@ -237,7 +207,7 @@ async def agi_think(query: str, session_id: str) -> dict:
     return result
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["agi_reason"])
 @constitutional_floor("F2", "F4", "F7")
 async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = None) -> dict:
     """Deep logical reasoning chain — the AGI Mind's core analysis tool.
@@ -312,7 +282,7 @@ async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = Non
     return result
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["asi_empathize"])
 @constitutional_floor("F5", "F6")
 async def asi_empathize(query: str, session_id: str) -> dict:
     """Assess stakeholder impact — the ASI Heart's empathy engine."""
@@ -350,7 +320,7 @@ async def asi_empathize(query: str, session_id: str) -> dict:
     return result
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["asi_align"])
 @constitutional_floor("F5", "F6", "F9")
 async def asi_align(query: str, session_id: str) -> dict:
     """Reconcile ethics, law, and policy — the ASI Heart's alignment engine."""
@@ -388,7 +358,7 @@ async def asi_align(query: str, session_id: str) -> dict:
     return result
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["apex_verdict"])
 @constitutional_floor("F2", "F3", "F5", "F8")
 async def apex_verdict(query: str, session_id: str) -> dict:
     """Final constitutional verdict — the APEX Soul's judgment."""
@@ -556,7 +526,7 @@ async def apex_verdict(query: str, session_id: str) -> dict:
     return final_output
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["reality_search"])
 @constitutional_floor("F2", "F7")
 async def reality_search(
     query: str, session_id: str, region: str = "wt-wt", timelimit: Optional[str] = None
@@ -672,7 +642,7 @@ async def reality_search(
     return hardened_output
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["vault_seal"])
 @constitutional_floor("F1", "F3")
 async def vault_seal(
     session_id: str,
@@ -940,7 +910,7 @@ async def vault_seal(
     }
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["tool_router"])
 async def tool_router(query: str) -> PlanObject:
     """Universal Tool Router Specification v2 (Triage Nurse)."""
     from aaa_mcp.core.engine_adapters import _shannon_entropy
@@ -992,7 +962,7 @@ async def tool_router(query: str) -> PlanObject:
     }
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["vault_query"])
 @constitutional_floor("F1", "F3")
 async def vault_query(
     session_pattern: Optional[str] = None,
@@ -1253,7 +1223,7 @@ async def vault_query(
         }
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS["truth_audit"])
 @constitutional_floor("F2", "F4", "F7", "F10")
 async def truth_audit(
     text: str,
