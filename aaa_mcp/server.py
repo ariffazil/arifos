@@ -61,17 +61,34 @@ from aaa_mcp.core.stage_adapter import (
 )
 from core.pipeline import forge as core_forge
 
-mcp = FastMCP("aaa-mcp")
+"""
+arifOS AAA MCP Server — Constitutional AI Governance (v60.0-FORGE)
 
-# Note: FastMCP 1.x doesn't support capabilities in constructor.
-# Capabilities are declared via decorator registrations:
-# - @mcp.tool() for tools
-# - @mcp.resource() for resources  
-# - @mcp.prompt() for prompts
-# 
-# v60.0-FORGE: All 13 tools, 4 resources, 5 prompts registered.
-# Constitutional governance via 5-organ kernel in core/.
-# DITEMPA BUKAN DIBERI — Forged, Not Given
+FastMCP 2.0+ with full MCP 2025-11-25 spec compliance:
+- 13 canonical tools with annotations
+- 4 constitutional resources  
+- 5 templated prompts
+
+DITEMPA BUKAN DIBERI — Forged, Not Given
+"""
+
+# FastMCP 2.0+ initialization with capabilities
+mcp = FastMCP(
+    "aaa-mcp",
+    instructions="""arifOS AAA MCP Server - Constitutional AI Governance
+
+13 tools enforcing 13 constitutional floors (F1-F13):
+F1 Amanah, F2 Truth, F3 Consensus, F4 Clarity, F5 Peace², 
+F6 Empathy, F7 Humility, F8 Genius, F9 Anti-Hantu, F10 Ontology,
+F11 Authority, F12 Defense, F13 Sovereign
+
+Resources: constitutional://floors/{F1-F13}, constitutional://trinity/{agi,asi,apex,vault}
+Prompts: constitutional_analysis, tri_witness_report, entropy_audit, safety_check, seal_request
+
+Verdicts: SEAL | VOID | PARTIAL | SABAR | 888_HOLD
+Motto: DITEMPA BUKAN DIBERI
+"""
+)
 
 
 # Note: custom_route endpoints require FastMCP 2.0+

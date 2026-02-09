@@ -1,9 +1,10 @@
 """
 Engine Adapters for AAA MCP Server
-Bridges FastMCP tools to existing codebase engines with fail-safe fallbacks.
+Bridges FastMCP tools to core/organs engines.
 
-v55.5: Fallback stubs now return query-derived heuristic scores instead of
-empty dicts, so constitutional floors evaluate varying inputs (not hardcoded).
+v60.0-CORE: Now uses core/ exclusively — codebase/ dependency removed.
+
+DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 import logging
@@ -15,39 +16,10 @@ from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
-# Import core organs (v55.5+ kernel) with fallback to codebase engines
-try:
-    from core import organs as core_organs
-    from core.shared.physics import W_3_from_tensor, Peace2
-    CORE_AVAILABLE = True
-except ImportError as e:
-    CORE_AVAILABLE = False
-    logger.warning(f"Core organs not available: {e}")
-
-# Import real engines with fallback stubs
-try:
-    from codebase.agi import AGIEngineHardened as RealAGIEngine
-
-    AGI_AVAILABLE = True
-except ImportError as e:
-    AGI_AVAILABLE = False
-    logger.warning(f"AGI engine not available: {e}")
-
-try:
-    from codebase.asi import ASIEngine as RealASIEngine
-
-    ASI_AVAILABLE = True
-except ImportError as e:
-    ASI_AVAILABLE = False
-    logger.warning(f"ASI engine not available: {e}")
-
-try:
-    from codebase.apex.kernel import APEXJudicialCore
-
-    APEX_AVAILABLE = True
-except ImportError as e:
-    APEX_AVAILABLE = False
-    logger.warning(f"APEX engine not available: {e}")
+# Import core organs (v60.0+ kernel) exclusively
+from core import organs as core_organs
+from core.shared.physics import W_3_from_tensor, Peace2
+from core.organs._0_init import init
 
 
 def _normalize_obj(obj: Any) -> Any:
@@ -64,26 +36,6 @@ def _normalize_obj(obj: Any) -> Any:
     if isinstance(obj, dict):
         return obj
     return {"value": obj}
-
-
-def _extract_bundle(result: Any, bundle_attr: str) -> Any:
-    if result is None:
-        return None
-    wrapped = getattr(result, bundle_attr, None)
-    if wrapped is not None:
-        return wrapped
-    if hasattr(result, "vote") or hasattr(result, "to_dict") or is_dataclass(result):
-        return result
-    return None
-
-
-def _extract_verdict(bundle: Any) -> str:
-    if bundle is None:
-        return "SEAL"
-    vote = getattr(bundle, "vote", None)
-    if vote is None:
-        return "SEAL"
-    return getattr(vote, "value", None) or str(vote)
 
 
 def _shannon_entropy(text: str) -> float:
@@ -103,7 +55,7 @@ def _lexical_diversity(text: str) -> float:
 
 
 def _query_heuristic_scores(query: str) -> Dict[str, Any]:
-    """Derive governance-native scores from query structure (Industrial v55.5)."""
+    """Derive governance-native scores from query structure."""
     words = query.split()
     word_count = len(words)
     diversity = _lexical_diversity(query)
@@ -125,33 +77,11 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
 
     # Empathy / Stakeholder
     care_keywords = {
-        "people",
-        "user",
-        "users",
-        "human",
-        "patient",
-        "child",
-        "family",
-        "employee",
-        "customer",
-        "community",
-        "vulnerable",
-        "safety",
-        "neighbor",
-        "neighbour",
-        "colleague",
-        "friend",
-        "partner",
-        "spouse",
-        "boss",
-        "teacher",
-        "student",
-        "classmate",
-        "coworker",
-        "victim",
-        "target",
-        "someone",
-        "person",
+        "people", "user", "users", "human", "patient", "child", "family",
+        "employee", "customer", "community", "vulnerable", "safety",
+        "neighbor", "neighbour", "colleague", "friend", "partner",
+        "spouse", "boss", "teacher", "student", "classmate",
+        "coworker", "victim", "target", "someone", "person",
     }
     query_words = set(query.lower().split())
     care_overlap = len(care_keywords & query_words)
@@ -165,7 +95,7 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
     if harm_pattern.search(query):
         weakest_impact = max(weakest_impact, 0.6)
 
-    # RENAMING: Physics -> Governance
+    # Physics -> Governance naming
     ambiguity_reduction = round(reduction_val, 4)
     residual_uncertainty = round(uncertainty_val, 4)
 
@@ -191,71 +121,140 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
 
 class InitEngine:
     async def ignite(self, query: str, session_id: str = None) -> Dict[str, Any]:
-        if CORE_AVAILABLE:
-            try:
-                token = await core_organs.init(query, actor_id="user")
-                verdict = "SEAL" if token.status == "READY" else (
-                    "888_HOLD" if token.status == "HOLD_888" else "VOID"
-                )
-                return {
-                    "status": token.status,
-                    "session_id": token.session_id,
-                    "verdict": verdict,
-                    "engine_mode": "core",
-                    "authority": token.authority.value if hasattr(token, "authority") else "user",
-                    "floors_passed": token.floors_passed,
-                    "floors_failed": token.floors_failed,
-                    "injection_risk": token.injection_risk,
-                    "reason": token.reason,
-                }
-            except Exception as e:
-                logger.warning(f"Core init failed, falling back: {e}")
+        """Initialize constitutional session using core organs."""
         try:
-            import importlib
-
-            module = importlib.import_module("codebase.init.000_init.mcp_bridge")
-            return await module.mcp_000_init(action="init", query=query, session_id=session_id)
+            token = await init(query, actor_id="user")
+            verdict = "SEAL" if token.status == "READY" else (
+                "888_HOLD" if token.status == "HOLD_888" else "VOID"
+            )
+            return {
+                "status": token.status,
+                "session_id": token.session_id,
+                "verdict": verdict,
+                "engine_mode": "core",
+                "authority": token.authority.value if hasattr(token, "authority") else "user",
+                "floors_passed": token.floors_passed,
+                "floors_failed": token.floors_failed,
+                "injection_risk": token.injection_risk,
+                "reason": token.reason,
+            }
         except Exception as e:
+            logger.warning(f"Core init failed: {e}")
             from uuid import uuid4
-
             result = {
                 "status": "SEAL",
                 "session_id": session_id or str(uuid4()),
                 "verdict": "SEAL",
                 "engine_mode": "fallback",
-                "note": f"Init bridge unavailable: {e}",
+                "note": f"Init error: {e}",
             }
             result.update(_query_heuristic_scores(query))
             return result
 
 
 class AGIEngine:
-    def __init__(self):
-        self._engine = RealAGIEngine() if AGI_AVAILABLE else None
+    """AGI Mind Engine — Uses core.organs exclusively."""
 
-    async def _execute_or_fallback(
-        self,
-        query: str,
-        session_id: str,
-        *,
-        context: Optional[Dict[str, Any]] = None,
-        lane: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        if self._engine:
-            result = await self._engine.execute(query, context=context, lane=lane)
-            delta = _extract_bundle(result, "delta_bundle")
-            stage_111 = getattr(result, "stage_111", None)
-            return {
-                "verdict": _extract_verdict(delta),
+    async def sense(self, query: str, session_id: str) -> Dict[str, Any]:
+        """Stage 111: Parse intent and classify lane."""
+        try:
+            sense_out = await core_organs.sense(query, session_id)
+            gpv = sense_out.get("gpv")
+            if gpv is not None:
+                sense_out["gpv"] = {
+                    "lane": getattr(gpv.lane, "value", gpv.lane),
+                    "truth_demand": getattr(gpv, "truth_demand", None),
+                    "care_demand": getattr(gpv, "care_demand", None),
+                    "risk_level": getattr(gpv, "risk_level", None),
+                    "requires_grounding": gpv.requires_grounding()
+                    if hasattr(gpv, "requires_grounding")
+                    else None,
+                }
+            sense_out.update({
+                "verdict": "SEAL",
+                "engine_mode": "core",
+                "trinity_component": "AGI",
                 "query": query,
                 "session_id": session_id,
-                "engine_mode": "real",
+            })
+            return sense_out
+        except Exception as e:
+            logger.warning(f"Core AGI sense failed: {e}")
+            return self._fallback(query, session_id)
+
+    async def think(self, query: str, session_id: str) -> Dict[str, Any]:
+        """Stage 222: Generate hypotheses."""
+        try:
+            sense_out = await core_organs.sense(query, session_id)
+            think_out = await core_organs.think(query, sense_out, session_id)
+            think_out.update({
+                "verdict": "SEAL",
+                "engine_mode": "core",
                 "trinity_component": "AGI",
-                "delta_bundle": _normalize_obj(delta),
-                "stage_111": _normalize_obj(stage_111),
-                "execution_time_ms": getattr(result, "execution_time_ms", None),
-                "ambiguity_reduction": getattr(delta, "ambiguity_reduction", 0.0),
+                "query": query,
+                "session_id": session_id,
+                "hypotheses": [_normalize_obj(h) for h in think_out.get("hypotheses", [])],
+            })
+            return think_out
+        except Exception as e:
+            logger.warning(f"Core AGI think failed: {e}")
+            return self._fallback(query, session_id)
+
+    async def reason(self, query: str, session_id: str) -> Dict[str, Any]:
+        """Stage 333: Sequential reasoning."""
+        try:
+            sense_out = await core_organs.sense(query, session_id)
+            think_out = await core_organs.think(query, sense_out, session_id)
+            tensor = await core_organs.reason(query, think_out, session_id)
+            violations = []
+            if tensor.truth_score < 0.99:
+                violations.append("F2")
+            if tensor.entropy_delta > 0:
+                violations.append("F4")
+            if not tensor.humility.is_locked():
+                violations.append("F7")
+            if tensor.genius.G() < 0.80:
+                violations.append("F8")
+            verdict = "SEAL" if not violations else ("PARTIAL" if len(violations) <= 2 else "VOID")
+            tri_witness = W_3_from_tensor(tensor.witness)
+            return {
+                "verdict": verdict,
+                "violations": violations,
+                "query": query,
+                "session_id": session_id,
+                "engine_mode": "core",
+                "trinity_component": "AGI",
+                "truth_score": tensor.truth_score,
+                "confidence": tensor.truth_score,
+                "entropy_delta": tensor.entropy_delta,
+                "ambiguity_reduction": tensor.entropy_delta,
+                "humility_omega": tensor.humility.omega_0,
+                "genius_score": tensor.genius.G(),
+                "tri_witness": tri_witness,
+                "tensor": {
+                    "witness": {
+                        "H": tensor.witness.H,
+                        "A": tensor.witness.A,
+                        "S": tensor.witness.S,
+                    },
+                    "entropy_delta": tensor.entropy_delta,
+                    "humility_omega": tensor.humility.omega_0,
+                    "genius": {
+                        "A": tensor.genius.A,
+                        "P": tensor.genius.P,
+                        "X": tensor.genius.X,
+                        "E": tensor.genius.E,
+                        "G": tensor.genius.G(),
+                    },
+                    "truth_score": tensor.truth_score,
+                },
             }
+        except Exception as e:
+            logger.warning(f"Core AGI reason failed: {e}")
+            return self._fallback(query, session_id)
+
+    def _fallback(self, query: str, session_id: str) -> Dict[str, Any]:
+        """Fallback when core organs unavailable."""
         result = {
             "verdict": "SEAL",
             "query": query,
@@ -266,112 +265,12 @@ class AGIEngine:
         result.update(_query_heuristic_scores(query))
         return result
 
-    async def sense(self, query: str, session_id: str) -> Dict[str, Any]:
-        if CORE_AVAILABLE:
-            try:
-                sense_out = await core_organs.sense(query, session_id)
-                gpv = sense_out.get("gpv")
-                if gpv is not None:
-                    sense_out["gpv"] = {
-                        "lane": getattr(gpv.lane, "value", gpv.lane),
-                        "truth_demand": getattr(gpv, "truth_demand", None),
-                        "care_demand": getattr(gpv, "care_demand", None),
-                        "risk_level": getattr(gpv, "risk_level", None),
-                        "requires_grounding": gpv.requires_grounding()
-                        if hasattr(gpv, "requires_grounding")
-                        else None,
-                    }
-                sense_out.update({
-                    "verdict": "SEAL",
-                    "engine_mode": "core",
-                    "trinity_component": "AGI",
-                    "query": query,
-                    "session_id": session_id,
-                })
-                return sense_out
-            except Exception as e:
-                logger.warning(f"Core AGI sense failed, falling back: {e}")
-        return await self._execute_or_fallback(query, session_id)
-
-    async def think(self, query: str, session_id: str) -> Dict[str, Any]:
-        if CORE_AVAILABLE:
-            try:
-                sense_out = await core_organs.sense(query, session_id)
-                think_out = await core_organs.think(query, sense_out, session_id)
-                think_out.update({
-                    "verdict": "SEAL",
-                    "engine_mode": "core",
-                    "trinity_component": "AGI",
-                    "query": query,
-                    "session_id": session_id,
-                    "hypotheses": [_normalize_obj(h) for h in think_out.get("hypotheses", [])],
-                })
-                return think_out
-            except Exception as e:
-                logger.warning(f"Core AGI think failed, falling back: {e}")
-        return await self._execute_or_fallback(query, session_id)
-
-    async def reason(self, query: str, session_id: str) -> Dict[str, Any]:
-        if CORE_AVAILABLE:
-            try:
-                sense_out = await core_organs.sense(query, session_id)
-                think_out = await core_organs.think(query, sense_out, session_id)
-                tensor = await core_organs.reason(query, think_out, session_id)
-                violations = []
-                if tensor.truth_score < 0.99:
-                    violations.append("F2")
-                if tensor.entropy_delta > 0:
-                    violations.append("F4")
-                if not tensor.humility.is_locked():
-                    violations.append("F7")
-                if tensor.genius.G() < 0.80:
-                    violations.append("F8")
-                verdict = "SEAL" if not violations else ("PARTIAL" if len(violations) <= 2 else "VOID")
-                tri_witness = W_3_from_tensor(tensor.witness)
-                result = {
-                    "verdict": verdict,
-                    "violations": violations,
-                    "query": query,
-                    "session_id": session_id,
-                    "engine_mode": "core",
-                    "trinity_component": "AGI",
-                    "truth_score": tensor.truth_score,
-                    "confidence": tensor.truth_score,
-                    "entropy_delta": tensor.entropy_delta,
-                    "ambiguity_reduction": tensor.entropy_delta,
-                    "humility_omega": tensor.humility.omega_0,
-                    "genius_score": tensor.genius.G(),
-                    "tri_witness": tri_witness,
-                    "tensor": {
-                        "witness": {
-                            "H": tensor.witness.H,
-                            "A": tensor.witness.A,
-                            "S": tensor.witness.S,
-                        },
-                        "entropy_delta": tensor.entropy_delta,
-                        "humility_omega": tensor.humility.omega_0,
-                        "genius": {
-                            "A": tensor.genius.A,
-                            "P": tensor.genius.P,
-                            "X": tensor.genius.X,
-                            "E": tensor.genius.E,
-                            "G": tensor.genius.G(),
-                        },
-                        "truth_score": tensor.truth_score,
-                    },
-                }
-                return result
-            except Exception as e:
-                logger.warning(f"Core AGI reason failed, falling back: {e}")
-        return await self._execute_or_fallback(query, session_id)
-
 
 class ASIEngine:
-    def __init__(self):
-        self._engine = RealASIEngine() if ASI_AVAILABLE else None
+    """ASI Heart Engine — Uses core.organs exclusively."""
 
     async def _core_agi_tensor(self, query: str, session_id: str):
-        # Recompute AGI tensor to ensure ASI has required inputs
+        """Recompute AGI tensor for ASI input."""
         sense_out = await core_organs.sense(query, session_id)
         think_out = await core_organs.think(query, sense_out, session_id)
         tensor = await core_organs.reason(query, think_out, session_id)
@@ -379,40 +278,44 @@ class ASIEngine:
             tensor.peace = Peace2({})
         return tensor
 
-    async def _execute_or_fallback(
-        self,
-        query: str,
-        session_id: str,
-        *,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
-        if CORE_AVAILABLE:
-            try:
-                agi_tensor = await self._core_agi_tensor(query, session_id)
-                emp_out = await core_organs.empathize(query, agi_tensor, session_id)
-                emp_out.update({
-                    "engine_mode": "core",
-                    "trinity_component": "ASI",
-                    "query": query,
-                    "session_id": session_id,
-                    "empathy_kappa_r": emp_out.get("kappa_r"),
-                    "verdict": "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "PARTIAL",
-                })
-                return emp_out
-            except Exception as e:
-                logger.warning(f"Core ASI empathize failed, falling back: {e}")
-        if self._engine:
-            result = await self._engine.execute(query, context=context)
-            omega = _extract_bundle(result, "omega_bundle")
-            return {
-                "verdict": _extract_verdict(omega),
+    async def empathize(self, query: str, session_id: str) -> Dict[str, Any]:
+        """Stage 555: Stakeholder empathy analysis."""
+        try:
+            agi_tensor = await self._core_agi_tensor(query, session_id)
+            emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+            emp_out.update({
+                "engine_mode": "core",
+                "trinity_component": "ASI",
                 "query": query,
                 "session_id": session_id,
-                "engine_mode": "real",
+                "empathy_kappa_r": emp_out.get("kappa_r"),
+                "verdict": "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "PARTIAL",
+            })
+            return emp_out
+        except Exception as e:
+            logger.warning(f"Core ASI empathize failed: {e}")
+            return self._fallback(query, session_id)
+
+    async def align(self, query: str, session_id: str) -> Dict[str, Any]:
+        """Stage 666: Constitutional alignment check."""
+        try:
+            agi_tensor = await self._core_agi_tensor(query, session_id)
+            emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+            align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
+            align_out.update({
+                "engine_mode": "core",
                 "trinity_component": "ASI",
-                "omega_bundle": _normalize_obj(omega),
-                "execution_time_ms": getattr(result, "execution_time_ms", None),
-            }
+                "query": query,
+                "session_id": session_id,
+                "empathy_kappa_r": align_out.get("kappa_r"),
+            })
+            return align_out
+        except Exception as e:
+            logger.warning(f"Core ASI align failed: {e}")
+            return self._fallback(query, session_id)
+
+    def _fallback(self, query: str, session_id: str) -> Dict[str, Any]:
+        """Fallback when core organs unavailable."""
         result = {
             "verdict": "SEAL",
             "query": query,
@@ -423,31 +326,9 @@ class ASIEngine:
         result.update(_query_heuristic_scores(query))
         return result
 
-    async def empathize(self, query: str, session_id: str) -> Dict[str, Any]:
-        return await self._execute_or_fallback(query, session_id)
-
-    async def align(self, query: str, session_id: str) -> Dict[str, Any]:
-        if CORE_AVAILABLE:
-            try:
-                agi_tensor = await self._core_agi_tensor(query, session_id)
-                emp_out = await core_organs.empathize(query, agi_tensor, session_id)
-                align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
-                align_out.update({
-                    "engine_mode": "core",
-                    "trinity_component": "ASI",
-                    "query": query,
-                    "session_id": session_id,
-                    "empathy_kappa_r": align_out.get("kappa_r"),
-                })
-                return align_out
-            except Exception as e:
-                logger.warning(f"Core ASI align failed, falling back: {e}")
-        return await self._execute_or_fallback(query, session_id)
-
 
 class APEXEngine:
-    def __init__(self):
-        self._kernel = APEXJudicialCore() if APEX_AVAILABLE else None
+    """APEX Soul Engine — Uses core.organs exclusively."""
 
     async def judge(
         self,
@@ -461,86 +342,54 @@ class APEXEngine:
         user_id: str = "anonymous",
         lane: str = "SOFT",
     ) -> Dict[str, Any]:
-        """Execute APEX judgment with full context.
-
-        Args:
-            query: The query being judged
-            session_id: Session identifier for context retrieval
-            response: Optional response text to judge
-            agi_result: AGI engine results (auto-fetched from session if None)
-            asi_result: ASI engine results (auto-fetched from session if None)
-            init_result: Init results (auto-fetched from session if None)
-            user_id: User identifier for audit
-            lane: HARD or SOFT lane
-        """
-        if CORE_AVAILABLE:
-            try:
-                # Use new 5-Organ Kernel if available
-                agi_engine = AGIEngine()
-                asi_engine = ASIEngine()
-                agi_res = agi_result or await agi_engine.reason(query, session_id)
-                asi_res = asi_result or await asi_engine.align(query, session_id)
-                # Recompute tensors for apex
-                sense_out = await core_organs.sense(query, None)  # type: ignore
-                think_out = await core_organs.think(query, {}, session_id)  # type: ignore
-                agi_tensor = await core_organs.reason(query, think_out, None)  # type: ignore
-                if agi_tensor.peace is None:
-                    agi_tensor.peace = Peace2({})
-                asi_output = {
-                    "kappa_r": asi_res.get("kappa_r", asi_res.get("empathy_kappa_r", 0.7)),
-                    "peace_squared": asi_res.get("peace_squared", 1.0),
-                    "is_reversible": asi_res.get("is_reversible", True),
-                    "verdict": asi_res.get("verdict", "SEAL"),
-                }
-                apex_out = await core_organs.apex(agi_tensor, asi_output, session_id, action="full")
-                judge_out = apex_out.get("judge", {})
-                return {
-                    "verdict": judge_out.get("verdict", "SEAL"),
-                    "tri_witness": judge_out.get("W_3", 0.95),
-                    "genius_score": judge_out.get("genius_G", 0.8),
-                    "genius": judge_out.get("genius_G", 0.8),
-                    "session_id": session_id,
-                    "query": query,
-                    "engine_mode": "core",
-                    "trinity_component": "APEX",
-                    "apex": apex_out,
-                }
-            except Exception as e:
-                logger.warning(f"Core APEX judge failed, falling back: {e}")
-        if self._kernel:
-            # Pass full context to kernel - it will also try to fetch from session storage
-            result = await self._kernel.execute(
-                "judge",
-                {
-                    "query": query,
-                    "session_id": session_id,
-                    "response": response or "",
-                    "agi_result": agi_result,
-                    "asi_result": asi_result,
-                    "init_result": init_result,
-                    "user_id": user_id,
-                    "lane": lane,
-                },
-            )
-            # Ensure engine_mode is set for real kernel
-            if "engine_mode" not in result:
-                result["engine_mode"] = "real"
-            return result
-
-        # Fallback stub with heuristic scores
-        heuristics = _query_heuristic_scores(query)
-        result = {
-            "verdict": "SEAL",
-            "action": "judge",
-            "query": query,
-            "session_id": session_id,
-            "engine_mode": "fallback",
-            "trinity_component": "APEX",
-            "tri_witness": 0.95,
-            "votes": {"mind": 0.95, "heart": 0.95, "earth": 0.95},
-            "confidence": heuristics.get("confidence", 0.95),
-            "ambiguity_reduction": heuristics.get("ambiguity_reduction", 0.1),
-            "residual_uncertainty": heuristics.get("residual_uncertainty", 0.04),
-        }
-        result.update(heuristics)
-        return result
+        """Execute APEX judgment with full context."""
+        try:
+            agi_engine = AGIEngine()
+            asi_engine = ASIEngine()
+            agi_res = agi_result or await agi_engine.reason(query, session_id)
+            asi_res = asi_result or await asi_engine.align(query, session_id)
+            
+            # Build tensors for apex
+            sense_out = await core_organs.sense(query, session_id)
+            think_out = await core_organs.think(query, sense_out, session_id)
+            agi_tensor = await core_organs.reason(query, think_out, session_id)
+            if agi_tensor.peace is None:
+                agi_tensor.peace = Peace2({})
+            
+            asi_output = {
+                "kappa_r": asi_res.get("kappa_r", asi_res.get("empathy_kappa_r", 0.7)),
+                "peace_squared": asi_res.get("peace_squared", 1.0),
+                "is_reversible": asi_res.get("is_reversible", True),
+                "verdict": asi_res.get("verdict", "SEAL"),
+            }
+            
+            apex_out = await core_organs.apex(agi_tensor, asi_output, session_id, action="full")
+            judge_out = apex_out.get("judge", {})
+            
+            return {
+                "verdict": judge_out.get("verdict", "SEAL"),
+                "tri_witness": judge_out.get("W_3", 0.95),
+                "genius_score": judge_out.get("genius_G", 0.8),
+                "genius": judge_out.get("genius_G", 0.8),
+                "session_id": session_id,
+                "query": query,
+                "engine_mode": "core",
+                "trinity_component": "APEX",
+                "apex": apex_out,
+            }
+        except Exception as e:
+            logger.warning(f"Core APEX judge failed: {e}")
+            # Fallback stub
+            heuristics = _query_heuristic_scores(query)
+            return {
+                "verdict": "SEAL",
+                "action": "judge",
+                "query": query,
+                "session_id": session_id,
+                "engine_mode": "fallback",
+                "trinity_component": "APEX",
+                "tri_witness": 0.95,
+                "votes": {"mind": 0.95, "heart": 0.95, "earth": 0.95},
+                "confidence": heuristics.get("confidence", 0.95),
+                **heuristics,
+            }

@@ -57,18 +57,14 @@ _floors_available: Optional[bool] = None
 
 
 def _load_all_floors() -> Optional[Dict[str, Any]]:
-    """Lazy-load ALL_FLOORS from codebase.constitutional_floors."""
+    """Lazy-load ALL_FLOORS from core.shared.floors (v60.0+)."""
     global _floors_available
     if _floors_available is False:
         return None
     try:
-        from codebase.constitutional_floors import ALL_FLOORS
+        from core.shared.floors import ALL_FLOORS
         _floors_available = True
         return ALL_FLOORS
-    except ImportError:
-        _floors_available = False
-        logger.warning("constitutional_floors unavailable — enforcement degraded")
-        return None
     except Exception as e:
         _floors_available = False
         logger.error(f"Failed to load constitutional_floors: {e}")

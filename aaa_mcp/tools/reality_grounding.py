@@ -58,7 +58,11 @@ try:
 except ImportError:
     BS4_AVAILABLE = False
 
-from codebase.enforcement.routing.prompt_router import route_refuse
+# Routing: prefer core.shared, fallback to legacy codebase
+try:
+    from core.shared.routing import route_refuse
+except ImportError:
+    from codebase.enforcement.routing.prompt_router import route_refuse
 
 # Configuration
 DEFAULT_THROTTLE_SECONDS = 2.0
