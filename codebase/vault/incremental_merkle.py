@@ -26,7 +26,7 @@ def sha256_hash(left: str, right: str) -> str:
 
 @dataclass
 class IncrementalMerkleTree:
-    """
+    r"""
     Incremental Merkle tree with O(log N) append.
     
     Maintains a frontier (list) where frontier[i] is the hash at level i
@@ -112,7 +112,6 @@ class IncrementalMerkleTree:
         
         proof = []
         current_idx = leaf_index
-        current_hash = leaf_hash
         
         for level in range(len(self.frontier)):
             sibling_idx = current_idx ^ 1  # Flip last bit

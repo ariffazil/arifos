@@ -346,14 +346,31 @@ ALL_MOTTOS: Dict[StageCode, ConstitutionalMotto] = {
     StageCode.SEAL: MOTTO_999_SEAL,
 }
 
+# Floor-to-motto mapping for failure responses (The 9 Anthem)
+ERROR_MOTTOS: Dict[str, str] = {
+    "F1": "DIJAGA, BUKAN DIABAIKAN",      # Amanah: Safeguarded, not neglected
+    "F2": "DIKAJI, BUKAN DISUAPI",       # Truth: Examined, not spoon-fed
+    "F4": "DIJELASKAN, BUKAN DIKABURKAN", # Clarity: Clarified, not obscured
+    "F5": "DIDAMAIKAN, BUKAN DIPANASKAN", # Peace: Calmed, not inflamed
+    "F6": "DIJAGA, BUKAN DIABAIKAN",     # Empathy: Protected, not neglected
+    "F7": "DISEDARKAN, BUKAN DIYAKINKAN", # Humility: Made aware, not over-assured
+    "F8": "DIUSAHAKAN, BUKAN DIHARAPI",  # Genius: Worked for, not hoped
+    "F9": "DIJAGA, BUKAN DIABAIKAN",     # Anti-Hantu: Protected, not neglected
+    "F10": "DIKAJI, BUKAN DISUAPI",      # Ontology: Examined, not spoon-fed
+    "EXPLORE": "DIJELAJAH, BUKAN DISEKATI",  # Exploration: Explored, not restricted
+    "ENERGY": "DIUSAHAKAN, BUKAN DIHARAPI",  # Energy: Worked for, not hoped
+    "FOUNDATION": "DITEMPA, BUKAN DIBERI",   # Foundation: Forged, not given
+}
+
+# Constitutional motto objects by floor
 MOTTOS_BY_FLOOR: Dict[str, ConstitutionalMotto] = {
-    "F1": MOTTO_000_INIT,
-    "F2": MOTTO_111_SENSE,
-    "F4": MOTTO_333_REASON,
-    "F5": MOTTO_555_EMPATHY,
-    "F6": MOTTO_666_ALIGN,
-    "F7": MOTTO_888_JUDGE,
-    "F8": MOTTO_777_FORGE,
+    "F1": MOTTO_666_ALIGN,   # DIJAGA, BUKAN DIABAIKAN
+    "F2": MOTTO_111_SENSE,   # DIKAJI, BUKAN DISUAPI
+    "F4": MOTTO_333_REASON,  # DIJELASKAN, BUKAN DIKABURKAN
+    "F5": MOTTO_555_EMPATHY, # DIDAMAIKAN, BUKAN DIPANASKAN
+    "F6": MOTTO_666_ALIGN,   # DIJAGA, BUKAN DIABAIKAN
+    "F7": MOTTO_888_JUDGE,   # DISEDARKAN, BUKAN DIYAKINKAN
+    "F8": MOTTO_777_FORGE,   # DIUSAHAKAN, BUKAN DIHARAPI
 }
 
 STAGE_MOTTO_MAP: Dict[str, StageMotto] = {
@@ -660,6 +677,49 @@ def get_matrix_cell(row: MatrixAxis, col: MatrixAxis) -> Optional[MatrixCell]:
     return PARADOX_MATRIX.get((row, col))
 
 
+def get_failure_anthem() -> str:
+    """
+    Get the complete 9-motto failure response anthem.
+    
+    This is the cultural error-handling language that maps
+    each floor failure to a rhyming Nusantara motto.
+    """
+    return """
+╔══════════════════════════════════════════════════════════════════╗
+║           THE AAA MCP FAILURE RESPONSE ANTHEM                    ║
+╠══════════════════════════════════════════════════════════════════╣
+║  DITEMPA, BUKAN DIBERI        — Forged, not given (Foundation)   ║
+║  DIKAJI, BUKAN DISUAPI        — Examined, not spoon-fed (Truth)  ║
+║  DIJELAJAH, BUKAN DISEKATI    — Explored, not restricted         ║
+║  DIJELASKAN, BUKAN DIKABURKAN — Clarified, not obscured (Clarity)║
+║  DIHADAPI, BUKAN DITANGGUHI   — Faced, not postponed             ║
+║  DIUSAHAKAN, BUKAN DIHARAPI   — Worked for, not hoped (Energy)   ║
+║  DIJAGA, BUKAN DIABAIKAN      — Safeguarded, not neglected       ║
+║  DIDAMAIKAN, BUKAN DIPANASKAN — Calmed, not inflamed (Peace)     ║
+║  DISEDARKAN, BUKAN DIYAKINKAN — Made aware, not over-assured     ║
+╚══════════════════════════════════════════════════════════════════╝
+    """.strip()
+
+
+def format_failure_response(floor: str, reason: str, use_motto: bool = True) -> str:
+    """
+    Format a floor failure with Nusantara cultural response.
+    
+    Example:
+        [!] F7 Humility Breach
+            Confidence too high for available evidence.
+            DISEDARKAN, BUKAN DIYAKINKAN.
+    """
+    motto_text = ERROR_MOTTOS.get(floor, "DITEMPA, BUKAN DIBERI")
+    
+    if use_motto:
+        return f"""[!] {floor} Floor Breach
+    Reason: {reason}
+    {motto_text}"""
+    else:
+        return f"[!] {floor} Floor Breach: {reason}"
+
+
 def render_full_pipeline_output(stages_data: List[Tuple[str, str, str]] = None) -> str:
     """
     Render the complete 000-999 pipeline with all mottos.
@@ -808,6 +868,7 @@ __all__ = [
     # Registries
     "ALL_MOTTOS",
     "MOTTOS_BY_FLOOR",
+    "ERROR_MOTTOS",  # Quick floor-to-motto mapping
     "STAGE_MOTTO_MAP",
     "STAGE_MOTTO_ORDER",
     "TRINITY_MOTTOS",
@@ -823,6 +884,8 @@ __all__ = [
     "format_all_stage_mottos",
     "format_stage_output",
     "format_floor_violation",
+    "format_failure_response",  # New: cultural failure format
+    "get_failure_anthem",       # New: complete 9-motto anthem
     "format_stage_header",
     "format_stage_message",
     "get_full_pipeline_chant",

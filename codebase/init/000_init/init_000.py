@@ -126,7 +126,6 @@ fetch_canonical_state = None
 
 try:
     # Use relative import since 000_init starts with digit
-    import sys
     from pathlib import Path
 
     _cb_path = Path(__file__).parent / "canonical_bootstrap.py"
