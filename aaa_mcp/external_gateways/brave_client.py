@@ -1,18 +1,43 @@
 """
 aaa_mcp/external_gateways/brave_client.py — Brave Search Client
+
+Constitutional Compliance:
+- F1 Amanah: API key loaded securely from environment
+- F2 Truth: Returns clear status when key missing
+- F7 Humility: Graceful degradation with NO_API_KEY status
 """
 
 from __future__ import annotations
 
 import json
+import os
 import urllib.parse
 import urllib.request
-from typing import Dict, Any
+from typing import Optional
+
+
+# Environment variable name for API key
+BRAVE_API_KEY_ENV = "BRAVE_API_KEY"
 
 
 class BraveSearchClient:
-    def __init__(self, api_key: str = None):
-        self.api_key = api_key
+    """Brave Search API client with automatic environment key loading.
+
+    Usage:
+        # Auto-load from BRAVE_API_KEY env var
+        client = BraveSearchClient()
+
+        # Or explicit key
+        client = BraveSearchClient(api_key="your-key")
+    """
+
+    def __init__(self, api_key: Optional[str] = None):
+        """Initialize client with API key from param or environment.
+
+        Args:
+            api_key: Explicit API key. If None, reads from BRAVE_API_KEY env var.
+        """
+        self.api_key = api_key or os.environ.get(BRAVE_API_KEY_ENV)
 
     async def search(self, query: str, intent: str = "general", scar_weight: float = 0.0) -> dict:
         if not self.api_key:

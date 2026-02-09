@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 # Import real engines with fallback stubs
 try:
     from codebase.agi import AGIEngineHardened as RealAGIEngine
+
     AGI_AVAILABLE = True
 except ImportError as e:
     AGI_AVAILABLE = False
@@ -25,6 +26,7 @@ except ImportError as e:
 
 try:
     from codebase.asi import ASIEngine as RealASIEngine
+
     ASI_AVAILABLE = True
 except ImportError as e:
     ASI_AVAILABLE = False
@@ -32,6 +34,7 @@ except ImportError as e:
 
 try:
     from codebase.apex.kernel import APEXJudicialCore
+
     APEX_AVAILABLE = True
 except ImportError as e:
     APEX_AVAILABLE = False
@@ -104,16 +107,38 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
         raw_conf = max(0.90, min(0.97, 0.98 - (word_count * 0.003)))
     else:
         raw_conf = max(0.80, 0.97 - (word_count * 0.002))
-    
+
     confidence = round(max(0.95, min(0.97, 0.95 + (raw_conf - 0.80) * (0.02 / 0.17))), 4)
 
     # Empathy / Stakeholder
     care_keywords = {
-        "people", "user", "users", "human", "patient", "child", "family",
-        "employee", "customer", "community", "vulnerable", "safety",
-        "neighbor", "neighbour", "colleague", "friend", "partner",
-        "spouse", "boss", "teacher", "student", "classmate",
-        "coworker", "victim", "target", "someone", "person",
+        "people",
+        "user",
+        "users",
+        "human",
+        "patient",
+        "child",
+        "family",
+        "employee",
+        "customer",
+        "community",
+        "vulnerable",
+        "safety",
+        "neighbor",
+        "neighbour",
+        "colleague",
+        "friend",
+        "partner",
+        "spouse",
+        "boss",
+        "teacher",
+        "student",
+        "classmate",
+        "coworker",
+        "victim",
+        "target",
+        "someone",
+        "person",
     }
     query_words = set(query.lower().split())
     care_overlap = len(care_keywords & query_words)
@@ -136,7 +161,7 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
     domain_keywords = {"ccs", "co2", "injection", "pressure", "borehole", "storage", "hazardous"}
     has_risk = any(k in query_words for k in critical_keywords)
     has_domain = any(k in query_words for k in domain_keywords)
-    
+
     if has_risk and has_domain:
         confidence = round(confidence * 0.82, 4)
         residual_uncertainty = min(1.0, residual_uncertainty + 0.35)
@@ -147,7 +172,7 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
         "ambiguity_reduction": ambiguity_reduction,
         "residual_uncertainty": residual_uncertainty,
         "weakest_stakeholder_impact": round(weakest_impact, 3),
-        "risk_detected": has_risk and has_domain
+        "risk_detected": has_risk and has_domain,
     }
 
 
@@ -155,10 +180,12 @@ class InitEngine:
     async def ignite(self, query: str, session_id: str = None) -> Dict[str, Any]:
         try:
             import importlib
+
             module = importlib.import_module("codebase.init.000_init.mcp_bridge")
             return await module.mcp_000_init(action="init", query=query, session_id=session_id)
         except Exception as e:
             from uuid import uuid4
+
             result = {
                 "status": "SEAL",
                 "session_id": session_id or str(uuid4()),
@@ -261,9 +288,52 @@ class APEXEngine:
     def __init__(self):
         self._kernel = APEXJudicialCore() if APEX_AVAILABLE else None
 
-    async def judge(self, query: str, session_id: str) -> Dict[str, Any]:
+    async def judge(
+        self,
+        query: str,
+        session_id: str,
+        *,
+        response: Optional[str] = None,
+        agi_result: Optional[Dict[str, Any]] = None,
+        asi_result: Optional[Dict[str, Any]] = None,
+        init_result: Optional[Dict[str, Any]] = None,
+        user_id: str = "anonymous",
+        lane: str = "SOFT",
+    ) -> Dict[str, Any]:
+        """Execute APEX judgment with full context.
+
+        Args:
+            query: The query being judged
+            session_id: Session identifier for context retrieval
+            response: Optional response text to judge
+            agi_result: AGI engine results (auto-fetched from session if None)
+            asi_result: ASI engine results (auto-fetched from session if None)
+            init_result: Init results (auto-fetched from session if None)
+            user_id: User identifier for audit
+            lane: HARD or SOFT lane
+        """
         if self._kernel:
-            return await self._kernel.execute("judge", {"query": query, "session_id": session_id})
+            # Pass full context to kernel - it will also try to fetch from session storage
+            result = await self._kernel.execute(
+                "judge",
+                {
+                    "query": query,
+                    "session_id": session_id,
+                    "response": response or "",
+                    "agi_result": agi_result,
+                    "asi_result": asi_result,
+                    "init_result": init_result,
+                    "user_id": user_id,
+                    "lane": lane,
+                },
+            )
+            # Ensure engine_mode is set for real kernel
+            if "engine_mode" not in result:
+                result["engine_mode"] = "real"
+            return result
+
+        # Fallback stub with heuristic scores
+        heuristics = _query_heuristic_scores(query)
         result = {
             "verdict": "SEAL",
             "action": "judge",
@@ -271,6 +341,11 @@ class APEXEngine:
             "session_id": session_id,
             "engine_mode": "fallback",
             "trinity_component": "APEX",
+            "tri_witness": 0.95,
+            "votes": {"mind": 0.95, "heart": 0.95, "earth": 0.95},
+            "confidence": heuristics.get("confidence", 0.95),
+            "ambiguity_reduction": heuristics.get("ambiguity_reduction", 0.1),
+            "residual_uncertainty": heuristics.get("residual_uncertainty", 0.04),
         }
-        result.update(_query_heuristic_scores(query))
+        result.update(heuristics)
         return result
