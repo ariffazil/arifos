@@ -1,6 +1,7 @@
 # aaa_mcp — Constitutional AI Governance Server v60.0-FORGE
 
 **Version:** v60.0-FORGE (RUKUN AGI)  
+**MCP Protocol:** 2025-11-25 (Streamable HTTP)  
 **Motto:** *Ditempa Bukan Diberi* — Forged, Not Given  
 **Status:** PRODUCTION READY
 
@@ -8,7 +9,21 @@ The AAA MCP Server provides a **Model Context Protocol** interface to the arifOS
 
 ---
 
+## Deployment Taxonomy
+
+| Target | Transport | Use Case | AAA Support |
+|--------|-----------|----------|-------------|
+| **Local** | `stdio` | Desktop agents (Claude, Kimi) | F11/F12 only |
+| **Railway** | `streamable-http` | Staging/production cloud | Full OAuth 2.1 |
+| **Cloudflare** | `streamable-http` | Global edge, lowest latency | Full OAuth 2.1 + KV |
+
+**Thermodynamic constraint:** AI agents need **deterministic paths** — ambiguity ↑ entropy ↑ deployment failure rate.
+
+---
+
 ## Quick Start
+
+### Local (stdio)
 
 ```bash
 # Install
@@ -17,11 +32,36 @@ pip install -e .
 # Run (stdio mode for local agents)
 python -m aaa_mcp
 
-# Run (SSE mode for network)
-python -m aaa_mcp sse
-
 # Validate deployment
 python scripts/deploy_mcp.py --mode validate
+```
+
+### Railway (Cloud)
+
+```bash
+# Install Railway CLI
+npm install -g @railway/cli
+
+# Login & deploy
+railway login
+railway up
+
+# Get URL
+railway domain
+# Output: https://arifos-aaa.up.railway.app
+```
+
+### Cloudflare (Edge)
+
+```bash
+# Install Wrangler
+npm install -g wrangler
+
+# Authenticate & deploy
+wrangler login
+wrangler deploy
+
+# Output: https://arifos-aaa.youraccount.workers.dev
 ```
 
 ---
@@ -69,72 +109,86 @@ python scripts/deploy_mcp.py --mode validate
 
 ---
 
-## Usage
+## Transport Modes
 
-### Running the Server
-
-**1. stdio Mode (Default)**
+### 1. stdio Mode (Default)
 
 For Claude Desktop, Kimi, and local agents:
 
 ```bash
 python -m aaa_mcp
+# Transport: stdio (stdin/stdout)
+# Use case: Single-user local development
+# Auth: F11/F12 (local injection defense only)
 ```
 
-**2. SSE Mode (Network)**
+### 2. SSE Mode (Network)
 
 For Railway, remote connections:
 
 ```bash
 python -m aaa_mcp sse
 # Endpoint: http://0.0.0.0:8080/sse
+# Use case: Multi-user cloud deployment
+# Auth: OAuth 2.1 + Bearer tokens
 ```
 
-**3. HTTP Mode (Streamable HTTP)**
+### 3. HTTP Mode (Streamable HTTP - MCP 2025-11-25)
 
-For MCP 2024 spec clients:
+For MCP 2025 spec clients:
 
 ```bash
 python -m aaa_mcp http
 # Endpoint: http://0.0.0.0:8080/mcp
+# Use case: Cloudflare Workers, modern clients
+# Auth: OAuth 2.1 + Dynamic client registration
 ```
 
-### Environment Variables
+---
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PORT` | `8080` | Server port |
-| `HOST` | `0.0.0.0` | Bind address |
-| `AAA_MCP_TRANSPORT` | `sse` | Transport mode |
-| `LOG_LEVEL` | `info` | Logging level |
-| `BRAVE_API_KEY` | — | Web search API |
-| `DATABASE_URL` | — | PostgreSQL URL |
+## AAA Capability Flags
 
-### Health Check
+The server exposes these MCP capabilities:
 
-```bash
-curl http://localhost:8080/health
-
-# Response:
+```json
 {
-  "status": "healthy",
-  "version": "60.0-FORGE",
-  "service": "arifOS MCP Server"
+  "capabilities": {
+    "tools": { "listChanged": true },
+    "resources": {},
+    "prompts": {},
+    "authorization": {
+      "oauth2": {
+        "issuer": "https://auth.arifos.dev",
+        "authorizationEndpoint": "https://auth.arifos.dev/authorize",
+        "tokenEndpoint": "https://auth.arifos.dev/token",
+        "supportsDynamicClientRegistration": true
+      }
+    }
+  }
 }
 ```
 
-### Metrics
+### OAuth 2.1 Endpoints
 
-```bash
-curl http://localhost:8080/metrics     # Prometheus
-curl http://localhost:8080/stats       # JSON stats
-```
+| Endpoint | URL |
+|----------|-----|
+| Metadata | `/.well-known/oauth-authorization-server` |
+| Protected Resource | `/.well-known/oauth-protected-resource` |
+| Authorization | `https://auth.arifos.dev/authorize` |
+| Token | `https://auth.arifos.dev/token` |
+| Registration | `https://auth.arifos.dev/register` |
+
+### Supported Scopes
+
+- `mcp:read` — Read tools and resources
+- `mcp:execute` — Execute tools
+- `aaa:audit` — Access audit logs
 
 ---
 
 ## Client Configuration
 
-### Kimi
+### Kimi (Local)
 
 **File:** `.kimi/mcp.json`
 
@@ -158,7 +212,7 @@ curl http://localhost:8080/stats       # JSON stats
 }
 ```
 
-### Claude Desktop
+### Claude Desktop (Remote)
 
 **File:** `claude_desktop_config.json`
 
@@ -170,66 +224,114 @@ curl http://localhost:8080/stats       # JSON stats
       "args": ["-m", "aaa_mcp", "stdio"],
       "cwd": "/path/to/arifOS"
     },
-    "arifos-cloud": {
-      "transport": "sse",
-      "url": "https://mcp.yourdomain.com/sse"
+    "arifos-railway": {
+      "transport": "streamable-http",
+      "url": "https://arifos-aaa.up.railway.app/mcp",
+      "headers": {
+        "Authorization": "Bearer ${RAILWAY_TOKEN}"
+      }
+    },
+    "arifos-cloudflare": {
+      "transport": "streamable-http",
+      "url": "https://mcp.arifos.dev/mcp",
+      "oauth2": {
+        "issuer": "https://auth.arifos.dev",
+        "authorization_endpoint": "https://auth.arifos.dev/authorize",
+        "token_endpoint": "https://auth.arifos.dev/token",
+        "client_id": "${OAUTH_CLIENT_ID}",
+        "scope": "mcp:read mcp:execute"
+      }
     }
   }
 }
 ```
 
-### Cursor
+### VS Code / Cursor
 
-**File:** `.cursor/mcp.json`
+**File:** `.vscode/mcp.json` or `.cursor/mcp.json`
 
 ```json
 {
-  "mcpServers": {
-    "arifos": {
+  "servers": {
+    "arifos-aaa-local": {
+      "type": "stdio",
       "command": "python",
       "args": ["-m", "aaa_mcp", "stdio"],
       "cwd": "/path/to/arifOS"
+    },
+    "arifos-aaa-railway": {
+      "type": "streamable-http",
+      "url": "https://arifos-aaa.up.railway.app/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:RAILWAY_TOKEN}"
+      }
     }
-  }
+  },
+  "inputs": [
+    {
+      "id": "RAILWAY_TOKEN",
+      "type": "secret",
+      "description": "Railway API token"
+    }
+  ]
 }
 ```
 
 ---
 
-## Deployment
+## Environment Variables
 
-### Railway (Cloud)
+### Required
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `8080` | Server port |
+| `HOST` | `0.0.0.0` | Bind address |
+| `AAA_MCP_TRANSPORT` | `sse` | Transport mode |
+
+### Optional (Features)
+
+| Variable | Description |
+|----------|-------------|
+| `BRAVE_API_KEY` | Web search capability |
+| `BROWSERBASE_API_KEY` | Browser automation |
+| `DATABASE_URL` | PostgreSQL for VAULT999 |
+| `REDIS_URL` | Session caching |
+
+### Optional (AAA/OAuth)
+
+| Variable | Description |
+|----------|-------------|
+| `AAA_JWT_SECRET` | JWT signing key |
+| `AAA_ISSUER` | OAuth issuer URL |
+| `OAUTH_CLIENT_ID` | OAuth client ID |
+| `OAUTH_CLIENT_SECRET` | OAuth client secret |
+| `AAA_SESSION_STORE` | KV namespace binding |
+
+---
+
+## Health & Monitoring
+
+### Health Check
 
 ```bash
-# Install CLI
-npm install -g @railway/cli
+curl http://localhost:8080/health
 
-# Login & deploy
-railway login
-railway up
-
-# Set environment
-railway variables set PORT=8080
-railway variables set AAA_MCP_TRANSPORT=sse
+# Response:
+{
+  "status": "healthy",
+  "version": "60.0-FORGE",
+  "service": "arifOS AAA MCP Server",
+  "protocol": "2025-11-25",
+  "mode": "AAA"
+}
 ```
 
-### Docker
+### Metrics
 
 ```bash
-# Build
-docker build -t arifos-mcp:v60 .
-
-# Run
-docker run -p 8080:8080 \
-  -e PORT=8080 \
-  -e AAA_MCP_TRANSPORT=sse \
-  arifos-mcp:v60
-```
-
-### Validation
-
-```bash
-python scripts/deploy_mcp.py --mode validate
+curl http://localhost:8080/metrics     # Prometheus
+curl http://localhost:8080/stats       # JSON stats
 ```
 
 ---
@@ -259,6 +361,68 @@ The unified 000-999 constitutional pipeline.
 | `apex_verdict` | Final judgment | F3, F8, F9, F10 |
 | `vault_seal` | Immutable ledger | F1, F3 |
 | `reality_search` | Web grounding | F2, F10 |
+| `tool_router` | Dynamic routing | — |
+| `vault_query` | Ledger retrieval | — |
+| `truth_audit` | Claim verification | F2, F4 |
+
+---
+
+## Deployment
+
+### Railway (Cloud)
+
+```bash
+# Install CLI
+npm install -g @railway/cli
+
+# Login & deploy
+railway login
+railway up
+
+# Set environment
+railway variables set PORT=8080
+railway variables set AAA_MCP_TRANSPORT=sse
+```
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full Railway instructions.
+
+### Docker
+
+```bash
+# Build
+docker build -t arifos-mcp:v60 .
+
+# Run
+docker run -p 8080:8080 \
+  -e PORT=8080 \
+  -e AAA_MCP_TRANSPORT=sse \
+  arifos-mcp:v60
+```
+
+### Cloudflare Workers
+
+```bash
+# Install Wrangler
+npm install -g wrangler
+
+# Authenticate
+wrangler login
+
+# Create KV namespace
+wrangler kv:namespace create AAA_SESSION_STORE
+
+# Update wrangler.jsonc with KV ID
+# Deploy
+wrangler deploy
+```
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for full Cloudflare instructions.
+
+### Validation
+
+```bash
+python scripts/deploy_mcp.py --mode validate
+```
 
 ---
 
@@ -272,13 +436,20 @@ pytest core/tests/ -v
 
 # Run specific module
 pytest core/tests/test_pipeline.py -v
+
+# MCP Inspector
+npx @modelcontextprotocol/inspector
 ```
 
-### Architecture
+### File Structure
 
 ```
 aaa_mcp/
-├── server.py              # 13 MCP tools
+├── server.py              # 13 MCP tools (Python)
+├── index.ts               # Cloudflare Workers reference (TypeScript)
+├── package.json           # Node.js dependencies
+├── wrangler.jsonc         # Cloudflare deployment config
+├── DEPLOYMENT.md          # Full deployment guide
 ├── core/
 │   ├── engine_adapters.py # Bridge to core organs
 │   ├── constitutional_decorator.py  # Floor enforcement
@@ -308,11 +479,27 @@ print(result.processing_time_ms)  # Latency
 
 ---
 
+## Thermodynamic Trade-Offs
+
+| Deployment | Latency | Complexity | Scale | Best For |
+|------------|---------|------------|-------|----------|
+| stdio | 0ms | Low | Single user | Local development |
+| Railway | 50-200ms | Medium | Multi-user | Staging, small teams |
+| Cloudflare | <50ms | High | Global | Production, high scale |
+
+**Recommendation:**
+- **Development:** stdio (local)
+- **Staging:** Railway (cloud)
+- **Production:** Cloudflare Workers (edge)
+
+---
+
 ## Documentation
 
+- **Deployment Guide:** [DEPLOYMENT.md](DEPLOYMENT.md)
 - **Full Guide:** `docs/MCP_DEPLOYMENT_GUIDE_V60.md`
 - **Architecture:** `docs/V60_ARCHITECTURE.md`
-- **Deployment:** `docs/RAILWAY_DEPLOYMENT.md`
+- **Railway Guide:** `docs/RAILWAY_DEPLOYMENT.md`
 - **API Reference:** `docs/API_REFERENCE.md`
 
 ---
@@ -323,6 +510,20 @@ print(result.processing_time_ms)  # Latency
 - **Documentation:** https://arifos.arif-fazil.com
 - **Health:** https://aaamcp.arif-fazil.com/health
 - **Issues:** https://github.com/ariffazil/arifOS/issues
+
+---
+
+## Attribution
+
+**arifOS Constitutional AI Governance**  
+GitHub: https://github.com/ariffazil/arifOS  
+Documentation: https://arifos.arif-fazil.com
+
+**Sources:**
+- MCP Specification 2025-11-25
+- Cloudflare Workers MCP Guide
+- Railway Deployment Documentation
+- OAuth 2.1 for MCP (RFC draft)
 
 ---
 
