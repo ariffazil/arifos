@@ -360,7 +360,6 @@ class APEXEngine:
     ) -> Dict[str, Any]:
         """Execute APEX judgment with full context."""
         try:
-            agi_engine = AGIEngine()
             asi_engine = ASIEngine()
             asi_res = asi_result or await asi_engine.align(query, session_id)
             
