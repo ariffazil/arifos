@@ -180,6 +180,158 @@ def scan_injection(query: str) -> InjectionRisk:
 
 
 # ═════════════════════════════════════════════════════════════════════════════
+# QUERY TYPE CLASSIFIER — Adaptive Governance (P0.1 Fix)
+# ═════════════════════════════════════════════════════════════════════════════
+
+
+class QueryType(Enum):
+    """
+    Query classification for adaptive floor thresholds.
+    
+    Different query types require different strictness levels:
+    - FACTUAL: High F2 strictness (0.99) — claims about reality
+    - PROCEDURAL: Low F2 strictness (0.70) — how-to, workflow requests
+    - CONVERSATIONAL: Minimal F2 (0.60) — greetings, small talk
+    - OPINION: Medium F2 (0.75) — subjective comparisons
+    - EXPLORATORY: Medium F2 (0.80) — brainstorming, discovery
+    - TEST: Minimal F2 (0.50) — pipeline tests, health checks
+    """
+    FACTUAL = "factual"           # Requires strict truth verification
+    PROCEDURAL = "procedural"     # Instructions, workflows
+    CONVERSATIONAL = "conversational"  # Chat, greetings
+    OPINION = "opinion"           # Subjective comparisons
+    EXPLORATORY = "exploratory"   # Brainstorming, open-ended
+    TEST = "test"                 # Pipeline tests, debugging
+    UNKNOWN = "unknown"           # Default fallback
+
+
+def classify_query(query: str) -> QueryType:
+    """
+    Classify query type for adaptive governance.
+    
+    This enables different floor thresholds based on query intent,
+    addressing the "F2 too strict for normal language" issue.
+    
+    Args:
+        query: The user query string
+        
+    Returns:
+        QueryType enum value
+    """
+    if not query:
+        return QueryType.UNKNOWN
+    
+    query_lower = query.lower().strip()
+    
+    # CONVERSATIONAL queries (check first, before TEST)
+    conversational_patterns = [
+        "how are you", "what's up", "tell me about yourself",
+        "who are you", "what can you do", "help me",
+        "hello", "hi ", "hey ", "good morning", "good evening",
+    ]
+    for pattern in conversational_patterns:
+        if pattern in query_lower:
+            return QueryType.CONVERSATIONAL
+    
+    # TEST queries (lowest strictness)
+    test_patterns = [
+        "test", "pipeline test", "test run", "check", "verify",
+        "aaa mcp", "status", "health", "ping",
+    ]
+    for pattern in test_patterns:
+        if pattern in query_lower:
+            return QueryType.TEST
+    
+    # PROCEDURAL queries (workflows, instructions)
+    procedural_indicators = [
+        "how to", "how do i", "steps to", "process for",
+        "workflow", "procedure", "guide me", "walk me through",
+        "create a", "generate a", "make a", "build a",
+        "run the", "execute", "start the", "initiate",
+        "give me", "show me", "provide", "get me",
+    ]
+    for indicator in procedural_indicators:
+        if indicator in query_lower:
+            return QueryType.PROCEDURAL
+    
+    # OPINION queries (subjective comparisons)
+    opinion_indicators = [
+        "better", "worse", "best", "worst",
+        "think about", "opinion on", "view on",
+        "compare", "versus", "vs", "siapa lagi", "yang mana",
+        "prefer", "recommend", "suggest",
+    ]
+    for indicator in opinion_indicators:
+        if indicator in query_lower:
+            return QueryType.OPINION
+    
+    # EXPLORATORY queries (open-ended, brainstorming)
+    exploratory_indicators = [
+        "explore", "brainstorm", "ideas for", "possibilities",
+        "what if", "imagine", "consider", "think about",
+        "how might", "could we", "should we",
+    ]
+    for indicator in exploratory_indicators:
+        if indicator in query_lower:
+            return QueryType.EXPLORATORY
+    
+    # FACTUAL queries (claims about reality)
+    factual_indicators = [
+        "what is", "who is", "when did", "where is",
+        "why does", "how many", "how much", "is it true",
+        "fact", "statistic", "data", "research",
+        "explain", "describe", "define",
+    ]
+    for indicator in factual_indicators:
+        if indicator in query_lower:
+            return QueryType.FACTUAL
+    
+    # Default: UNKNOWN (moderate strictness)
+    return QueryType.UNKNOWN
+
+
+def get_f2_threshold(query_type: QueryType) -> float:
+    """
+    Get adaptive F2 (Truth) threshold based on query type.
+    
+    Addresses user feedback: "F2 too strict for normal language"
+    
+    Thresholds:
+    - TEST: 0.50 (minimal, health checks shouldn't block)
+    - CONVERSATIONAL: 0.60 (low, social chat)
+    - PROCEDURAL: 0.70 (moderate, workflow requests)
+    - OPINION: 0.75 (medium-high, subjective claims)
+    - EXPLORATORY: 0.80 (high, but not scientific)
+    - FACTUAL: 0.99 (strict, reality claims)
+    - UNKNOWN: 0.85 (default moderate-high)
+    """
+    thresholds = {
+        QueryType.TEST: 0.50,
+        QueryType.CONVERSATIONAL: 0.60,
+        QueryType.PROCEDURAL: 0.70,
+        QueryType.OPINION: 0.75,
+        QueryType.EXPLORATORY: 0.80,
+        QueryType.UNKNOWN: 0.85,
+        QueryType.FACTUAL: 0.99,
+    }
+    return thresholds.get(query_type, 0.85)
+
+
+def get_f4_skip(query_type: QueryType) -> bool:
+    """
+    Determine if F4 (Entropy) check should be skipped.
+    
+    Addresses user feedback: "Entropy model too sensitive for casual queries"
+    """
+    # Skip F4 for non-factual queries (entropy doesn't apply to chat/procedures)
+    return query_type in {
+        QueryType.TEST,
+        QueryType.CONVERSATIONAL,
+        QueryType.PROCEDURAL,
+    }
+
+
+# ═════════════════════════════════════════════════════════════════════════════
 # F11: COMMAND AUTHORITY — Authentication
 # ═════════════════════════════════════════════════════════════════════════════
 
@@ -302,6 +454,11 @@ class SessionToken:
     # Injection scan result
     injection_risk: float = 0.0
     
+    # P0.1: Query type classification for adaptive governance
+    query_type: QueryType = QueryType.UNKNOWN
+    f2_threshold: float = 0.99  # Adaptive truth threshold
+    skip_f4: bool = False  # Skip entropy check for non-factual queries
+    
     def __repr__(self) -> str:
         return f"SessionToken({self.session_id[:8]}..., status={self.status})"
     
@@ -334,6 +491,9 @@ class SessionToken:
             "floors_failed": self.floors_failed,
             "reason": self.reason,
             "injection_risk": self.injection_risk,
+            "query_type": self.query_type.value,
+            "f2_threshold": self.f2_threshold,
+            "skip_f4": self.skip_f4,
         }
 
 
@@ -421,9 +581,14 @@ async def init(
         >>> token.status
         'HOLD_888'
     """
-    # Step 0: Initialize tracking
+    # Step 0: Initialize tracking + classify query (P0.1)
     floors_passed: List[str] = []
     floors_failed: List[str] = []
+    
+    # P0.1: Classify query for adaptive governance
+    query_type = classify_query(query)
+    f2_threshold = get_f2_threshold(query_type)
+    skip_f4 = get_f4_skip(query_type)
     
     # Step 1: F12 — Injection Guard
     injection = scan_injection(query)
@@ -462,6 +627,9 @@ async def init(
             floors_passed=floors_passed,
             reason=f"F11 invalid actor: {actor_id}",
             injection_risk=injection.score,
+            query_type=query_type,
+            f2_threshold=f2_threshold,
+            skip_f4=skip_f4,
         )
     
     floors_passed.append("F11")
@@ -479,6 +647,9 @@ async def init(
                 floors_passed=floors_passed,
                 reason="F13: High-stakes operation requires sovereign approval",
                 injection_risk=injection.score,
+                query_type=query_type,
+                f2_threshold=f2_threshold,
+                skip_f4=skip_f4,
             )
     
     # Step 4: Issue Session Token
@@ -500,6 +671,9 @@ async def init(
         query_hash=query_hash,
         floors_passed=floors_passed,
         injection_risk=injection.score,
+        query_type=query_type,
+        f2_threshold=f2_threshold,
+        skip_f4=skip_f4,
     )
 
 
