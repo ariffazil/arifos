@@ -138,7 +138,15 @@ class F2_Truth(Floor):
         if "truth_score" in context:
             p_truth = context["truth_score"]
 
-        passed = p_truth >= self.spec["threshold"]
+        # Allow adaptive truth thresholds for non-factual/guidance flows.
+        # Default stays strict (>=0.99) unless explicitly lowered by policy.
+        threshold = context.get("f2_threshold", self.spec["threshold"])
+        try:
+            threshold = float(threshold)
+        except Exception:
+            threshold = self.spec["threshold"]
+
+        passed = p_truth >= threshold
         return FloorResult(self.id, passed, p_truth, f"Truth Score: {p_truth:.3f}")
 
 

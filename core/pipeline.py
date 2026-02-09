@@ -1,9 +1,10 @@
 """
-core/pipeline.py — Unified 000-999 Constitutional Pipeline
+core/pipeline.py - Unified 000-999 Constitutional Pipeline
 
 Canonical entrypoints:
-- forge(): full 000→999 execution with stage-specific mottos
-- quick(): fast 000→333 execution
+- forge(): full 000->999 execution with stage-specific mottos
+- quick(): fast 000->333 execution
+- forge_with_nudge(): add a little push for emergence
 
 Uses core.organs as the single source of truth.
 Stage mottos: 000=DITEMPA, 111=DIKAJI, 222=DIJELAJAH, ..., 999=DITEMPA
@@ -12,7 +13,7 @@ Stage mottos: 000=DITEMPA, 111=DIKAJI, 222=DIJELAJAH, ..., 999=DITEMPA
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 from core.organs import init, agi, asi, apex, vault
 from core.organs._0_init import QueryType
@@ -41,12 +42,12 @@ class ForgeResult:
     seal: Any
     processing_time_ms: float = 0.0
     
-    # NEW: Diagnostic information for user feedback
-    query_type: str = "UNKNOWN"  # PROCEDURAL, OPINION, COMPARATIVE, FACTUAL
+    # Diagnostic information for user feedback
+    query_type: str = "UNKNOWN"
     f2_threshold: float = 0.99
     floors_failed: list = None
-    remediation: str = ""  # Actionable fix suggestion
-    motto_summary: str = ""  # 9 mottos from all stages
+    remediation: str = ""
+    motto_summary: str = ""
     
     def __post_init__(self):
         if self.floors_failed is None:
@@ -67,13 +68,13 @@ class ForgeResult:
     def to_user_message(self) -> str:
         """Generate user-friendly result message with remediation."""
         if self.verdict == "SEAL":
-            return "✅ Constitutional verification passed."
+            return "Constitutional verification passed."
         
         elif self.verdict == "PARTIAL":
-            return f"⚠️ Limited approval with constraints. {self.remediation}"
+            return f"Limited approval with constraints. {self.remediation}"
         
         elif self.verdict == "VOID":
-            msg = "❌ Blocked by constitutional floors."
+            msg = "Blocked by constitutional floors."
             if self.floors_failed:
                 msg += f" Failed: {', '.join(self.floors_failed)}."
             if self.remediation:
@@ -81,7 +82,7 @@ class ForgeResult:
             return msg
         
         elif self.verdict == "888_HOLD":
-            return "🛑 Requires human sovereign review."
+            return "Requires human sovereign review."
         
         return "Unknown verdict."
 
@@ -92,7 +93,7 @@ async def quick(
     auth_token: Optional[str] = None,
 ) -> dict[str, Any]:
     """
-    Fast path: 000 → 333
+    Fast path: 000 -> 333
 
     Returns AGI output if init passes; otherwise returns VOID/HOLD token info.
     """
@@ -121,20 +122,18 @@ async def forge(
     require_sovereign: bool = False,
 ) -> ForgeResult:
     """
-    Full pipeline: 000 → 999 with adaptive F2 governance.
+    Full pipeline: 000 -> 999 with adaptive F2 governance.
     
     Now with:
-    - P0.1: Query type classification (TEST, CONVERSATIONAL, PROCEDURAL, OPINION, FACTUAL)
-    - P0.2: Adaptive F2 thresholds (0.50 - 0.99 based on query type)
-    - P0.3: Circuit breaker for early VOID + fast path for TEST/CONVERSATIONAL
+    - P0.1: Query type classification
+    - P0.2: Adaptive F2 thresholds
+    - P0.3: Circuit breaker for early VOID + fast path
     - Better error messages with remediation steps
-    
-    Returns a ForgeResult with all stage outputs and diagnostics.
     """
     import time
     start_time = time.perf_counter()
     
-    # 000_INIT: Ignite with DITEMPA, BUKAN DIBERI
+    # 000_INIT
     token = await init(
         query,
         actor_id,
@@ -142,11 +141,8 @@ async def forge(
         require_sovereign_for_high_stakes=require_sovereign,
     )
     
-    # P0.2: Use adaptive F2 threshold from SessionToken
     f2_threshold = token.f2_threshold
     query_type = token.query_type
-    
-    # Stage motto for logging/debugging
     stage_motto_000 = get_motto_for_stage("000_INIT")
 
     if token.is_void or token.requires_human:
@@ -168,16 +164,11 @@ async def forge(
             remediation=remediation,
         )
 
-    # P0.3: Fast path for TEST/CONVERSATIONAL queries (skip heavy stages)
+    # Fast path for TEST/CONVERSATIONAL
     if query_type in [QueryType.TEST, QueryType.CONVERSATIONAL]:
-        # Minimal pipeline: init → agi (fast path) → direct SEAL
-        # AGI will detect fast path via GPV.can_use_fast_path()
         agi_out = await agi(query, token.session_id, action="full")
-        
-        # Skip ASI and APEX for low-stakes queries - go straight to SEAL
         asi_out = {"verdict": "SEAL", "empathy": 0.8, "fast_path": True}
         apex_out = {"verdict": "SEAL", "fast_path": True}
-        
         elapsed = (time.perf_counter() - start_time) * 1000
         
         return ForgeResult(
@@ -187,7 +178,7 @@ async def forge(
             agi=agi_out,
             asi=asi_out,
             apex=apex_out,
-            seal=None,  # Skip vault for fast path
+            seal=None,
             processing_time_ms=elapsed,
             query_type=query_type.value,
             f2_threshold=f2_threshold,
@@ -195,10 +186,7 @@ async def forge(
             remediation="Fast path: TEST/CONVERSATIONAL query processed with minimal stages.",
         )
 
-    # 111-333: AGI with stage mottos
-    # 111_SENSE: DIKAJI, BUKAN DISUAPI (Examined, not assumed)
-    # 222_THINK: DIJELAJAH, BUKAN DISEKATI (Explored, not restricted)
-    # 333_REASON: DIJELASKAN, BUKAN DIKABURKAN (Clarified, not obscured)
+    # 111-333: AGI
     stage_motto_111 = get_motto_for_stage("111_SENSE")
     stage_motto_222 = get_motto_for_stage("222_THINK")
     stage_motto_333 = get_motto_for_stage("333_REASON")
@@ -206,41 +194,32 @@ async def forge(
     agi_out = await agi(query, token.session_id, action="full")
     agi_tensor = agi_out.get("tensor")
     
-    # P0.3: Circuit breaker - check AGI floors before continuing
+    # Circuit breaker
     floors_violated = []
     
-    # Check F2 (Truth)
     truth_score = getattr(agi_tensor, 'truth_score', 0.5)
     if truth_score < f2_threshold:
         floors_violated.append("F2")
     
-    # Check F4 (Entropy) - skip if query type allows
     entropy_delta = getattr(agi_tensor, 'entropy_delta', 0.0)
     if not token.skip_f4 and entropy_delta > 0:
         floors_violated.append("F4")
     
-    # Check F7 (Humility)
     humility = getattr(agi_tensor, 'humility', None)
     if humility and not humility.is_locked():
         floors_violated.append("F7")
     
-    # Check F8 (Genius)
     genius = getattr(agi_tensor, 'genius', None)
     if genius and genius.G() < 0.80:
         floors_violated.append("F8")
     
-    # Circuit breaker: if any floors violated, stop here
     if floors_violated:
         elapsed = (time.perf_counter() - start_time) * 1000
-        
-        # Build remediation message
         remediation_parts = [f"Query: {query_type.value} (F2 threshold: {f2_threshold})"]
         
         if "F2" in floors_violated:
             if query_type.value == "FACTUAL":
                 remediation_parts.append("Add specific facts or citations.")
-            elif query_type.value in ["PROCEDURAL", "TEST"]:
-                remediation_parts.append("Try rephrasing or use mode='fast'.")
             else:
                 remediation_parts.append("Rephrase with more specific language.")
         
@@ -268,28 +247,22 @@ async def forge(
             remediation=" ".join(remediation_parts),
         )
 
-    # 444_SYNC: DIHADAPI, BUKAN DITANGGUHI (Faced, not postponed)
-    # 555_EMPATHY: DIDAMAIKAN, BUKAN DIPANASKAN (Calmed, not inflamed)
-    # 666_ALIGN: DIJAGA, BUKAN DIABAIKAN (Guarded, not neglected)
+    # 444-666: ASI
     stage_motto_444 = get_motto_for_stage("444_SYNC")
     stage_motto_555 = get_motto_for_stage("555_EMPATHY")
     stage_motto_666 = get_motto_for_stage("666_ALIGN")
     
-    # 555-666: ASI (only if AGI passed all floors)
     asi_out = await asi(query, agi_tensor, token.session_id, action="full")
 
-    # 777_FORGE: DIUSAHAKAN, BUKAN DIHARAPI (Worked, not hoped)
-    # 888_JUDGE: DISEDARKAN, BUKAN DIYAKINKAN (Aware, not over-assured)
+    # 777-888: APEX
     stage_motto_777 = get_motto_for_stage("777_FORGE")
     stage_motto_888 = get_motto_for_stage("888_JUDGE")
     
-    # 444-888: APEX
     apex_out = await apex(agi_tensor, asi_out, token.session_id, action="full")
 
-    # 999_SEAL: DITEMPA, BUKAN DIBERI (same as 000 - immutable foundation)
+    # 999: VAULT
     stage_motto_999 = get_motto_for_stage("999_SEAL")
     
-    # 999: VAULT
     seal_out = await vault(
         "seal",
         judge_output=apex_out.get("judge", apex_out),
@@ -302,7 +275,6 @@ async def forge(
     verdict = apex_out.get("verdict") or apex_out.get("judge", {}).get("verdict", "SEAL")
     elapsed = (time.perf_counter() - start_time) * 1000
 
-    # Compile motto output from all stages
     motto_summary = " | ".join([
         f"000: {token.motto}",
         f"111: {agi_out.get('motto_111', 'DIKAJI, BUKAN DISUAPI')}",
@@ -333,10 +305,126 @@ async def forge(
     )
 
 
-__all__ = ["ForgeResult", "forge", "quick", "quick_check"]
+# =============================================================================
+# EUREKA NUDGE - Just a little push for emergence
+# =============================================================================
 
-# Async version that returns just the verdict string
-async def quick_check(query: str, actor_id: str = "user") -> str:
-    """Quick check - returns verdict string only."""
-    result = await quick(query, actor_id)
-    return result.get("verdict", "VOID")
+async def forge_with_nudge(
+    query: str,
+    actor_id: str = "user",
+    auth_token: Optional[str] = None,
+    nudge_type: Optional[str] = None,
+    output_mode: OutputMode = OutputMode.USER,
+) -> Dict[str, Any]:
+    """
+    Forge with a nudge - just a little push for cognitive emergence.
+    
+    Args:
+        query: User query
+        actor_id: Identity
+        auth_token: Optional token
+        nudge_type: 'reframe', 'invert', 'zoom_out', 'zoom_in', 
+                    'connect', 'simplify', 'extreme', 'first', or None for random
+        output_mode: USER, DEBUG, or JSON
+        
+    Returns:
+        Formatted result with nudge used
+    """
+    from core.shared.nudge import get_nudge, apply_nudge, NudgeType
+    
+    # Get nudge (random if not specified)
+    if nudge_type:
+        nudge = get_nudge(NudgeType(nudge_type))
+    else:
+        nudge = get_nudge()
+    
+    # Apply nudge to query
+    nudged_query = apply_nudge(query, nudge)
+    
+    # Run pipeline with nudged query
+    result = await forge(nudged_query, actor_id, auth_token)
+    
+    # Format result
+    result_dict = {
+        "verdict": result.verdict,
+        "session_id": result.session_id,
+        "agi": result.agi,
+        "asi": result.asi,
+        "apex": result.apex,
+        "seal": result.seal,
+        "query_type": result.query_type,
+        "motto_summary": result.motto_summary,
+        "nudge": {
+            "type": nudge.type.value,
+            "description": nudge.description,
+        },
+    }
+    
+    # Format based on mode
+    formatter = OutputFormatter(mode=output_mode)
+    formatted = formatter.format(result_dict, template_name=None)
+    
+    if output_mode == OutputMode.DEBUG:
+        formatted["_raw"] = result_dict
+        formatted["_nudged_query"] = nudged_query
+    
+    return formatted
+
+
+# =============================================================================
+# FORMATTED FORGE - With user/debug/schema modes
+# =============================================================================
+
+async def forge_formatted(
+    query: str,
+    actor_id: str = "user",
+    auth_token: Optional[str] = None,
+    output_mode: OutputMode = OutputMode.USER,
+    schema_template: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Formatted forge with output mode selection.
+    
+    Args:
+        query: User query
+        actor_id: Identity
+        auth_token: Optional token
+        output_mode: USER, DEBUG, or JSON
+        schema_template: Template name for SCHEMA mode
+        
+    Returns:
+        Formatted result based on output_mode
+    """
+    result = await forge(query, actor_id, auth_token)
+    
+    result_dict = {
+        "verdict": result.verdict,
+        "session_id": result.session_id,
+        "agi": result.agi,
+        "asi": result.asi,
+        "apex": result.apex,
+        "seal": result.seal,
+        "query_type": result.query_type,
+        "f2_threshold": result.f2_threshold,
+        "floors_failed": result.floors_failed,
+        "remediation": result.remediation,
+        "motto_summary": result.motto_summary,
+    }
+    
+    formatter = OutputFormatter(mode=output_mode)
+    formatted = formatter.format(result_dict, template_name=schema_template)
+    
+    if output_mode == OutputMode.DEBUG:
+        formatted["_raw"] = result_dict
+    
+    return formatted
+
+
+__all__ = [
+    "ForgeResult",
+    "forge",
+    "quick",
+    "forge_with_nudge",
+    "forge_formatted",
+    "OutputMode",
+]

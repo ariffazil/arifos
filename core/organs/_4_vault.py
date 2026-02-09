@@ -54,6 +54,7 @@ async def seal(
     session_id: str,
     query: str = "",
     authority: str = "system",
+    eureka_data: Optional[Dict[str, Any]] = None,
 ) -> SealReceipt:
     """
     Stage 999: SEAL — The final commitment
@@ -109,7 +110,19 @@ async def seal(
         "floors_failed": judge_output.get("floors_failed", []),
         "query": query[:200],  # Truncate for privacy
         "authority": authority,
+        "motto": motto.positive + ", " + motto.negative,
     }
+    
+    # Store Eureka discovery data if provided
+    if eureka_data:
+        entry["eureka_discovery"] = {
+            "best_variant": eureka_data.get("best_variant"),
+            "best_score": eureka_data.get("best_score"),
+            "all_variants": eureka_data.get("all_variants", []),
+            "rationale": f"Selected variant {eureka_data.get('best_variant')} "
+                        f"with score {eureka_data.get('best_score', 0):.3f} "
+                        f"based on W3 + Genius + Coherence",
+        }
     
     # Compute hash
     entry_json = str(sorted(entry.items()))
@@ -244,6 +257,7 @@ async def vault(
     query: str = "",
     seal_id: str = "",
     authority: str = "system",
+    eureka_data: Optional[Dict[str, Any]] = None,
 ) -> Any:
     """
     Unified VAULT interface — The Memory in action.
@@ -257,6 +271,7 @@ async def vault(
         query: Original query (for seal)
         seal_id: For query/verify
         authority: Who authorized
+        eureka_data: Discovery data from Eureka loop (for seal)
     
     Returns:
         SealReceipt, query result, or verify boolean
@@ -271,7 +286,7 @@ async def vault(
             raise ValueError("seal requires judge_output, agi_tensor, asi_output")
         return await seal(
             judge_output, agi_tensor, asi_output,
-            session_id, query, authority
+            session_id, query, authority, eureka_data
         )
     
     elif action == "query":

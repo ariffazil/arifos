@@ -62,19 +62,28 @@ from aaa_mcp.core.stage_adapter import (
 from core.pipeline import forge as core_forge
 
 # ═════════════════════════════════════════════════════════════════════════════
-# FORMAL PROTOCOL LAYER (v1.0.0-LOW_ENTROPY)
-# Machine-executable governance schemas and operators
+# HARDENED PROTOCOL LAYER (v2.0-HARDENED)
+# Unified response envelope + structured inputs + standardized errors
 # ═════════════════════════════════════════════════════════════════════════════
 from aaa_mcp.protocol import (
-    PrincipleOperator,
-    OPERATOR_REGISTRY,
-    SchemaMottoMapper,
-    get_schema_for_stage,
+    # Response builders
+    build_init_response,
+    build_sense_response,
+    build_think_response,
+    build_reason_response,
+    build_empathize_response,
+    build_align_response,
+    build_verdict_response,
+    build_seal_response,
+    build_error_response,
+    # Validation & rendering
+    validate_input,
+    render_user_answer,
+    get_next_step_template,
+    # Schema access
     TOOL_SCHEMAS,
     STAGE_OPERATORS,
-    OUTPUT_CONTRACTS,
 )
-from aaa_mcp.protocol.operators import get_operator, build_system_prompt
 
 
 """
@@ -120,31 +129,65 @@ async def init_gate(
     session_id: Optional[str] = None,
     grounding_required: bool = True,
     mode: str = "fluid",
-    envelope: Optional[dict] = None,
-    output_mode: str = "user",
+    debug: bool = False,
+    # Structured input fields (NEW - v2 hardened)
+    intent_hint: Optional[str] = None,
+    urgency: Optional[str] = None,
+    user_context: Optional[dict] = None,
 ) -> dict:
     """Initialize a constitutional session. CALL THIS FIRST.
 
     Pipeline: 000_INIT
     Floors: F11, F12
-    Metadata: Sets 'grounding_required' mode.
+    
+    Args:
+        query: Primary user query
+        session_id: Optional existing session
+        grounding_required: Whether external facts are mandatory
+        mode: "fluid" (adaptive) or "strict" (enforced)
+        debug: Include debug data in response
+        intent_hint: Optional intent hint (question/command/analysis)
+        urgency: Optional urgency (low/medium/high/critical)
+        user_context: Optional user metadata
+    
+    Returns:
+        Unified response with status, session_id, next_tool
     """
+    # Hardened input validation
+    validation = validate_input({"query": query}, ["query"])
+    if validation:
+        return validation.to_dict(debug=debug)
+    
     engine = InitEngine()
     result = await engine.ignite(query, session_id)
-
-    # Schematized Output (v55.5-CRYSTALLIZED)
-    hardened_result = {
-        "session_id": result.get("session_id", session_id or "unknown"),
-        "verdict": result.get("verdict", ConflictStatus.SEAL.value),
-        "status": "READY",
+    
+    # Build unified hardened response
+    verdict = result.get("verdict", "SEAL")
+    response = build_init_response(
+        session_id=result.get("session_id", session_id or "unknown"),
+        verdict=verdict,
+        mode=mode,
+        debug_data={
+            "intent_hint": intent_hint,
+            "urgency": urgency,
+            "user_context": user_context,
+            "engine_result": result
+        } if debug else None,
+        debug=debug
+    )
+    
+    # Store session state
+    store_stage_result(response.session_id, "init", {
+        "query": query,
+        "intent_hint": intent_hint,
+        "urgency": urgency,
+        "user_context": user_context,
         "grounding_required": grounding_required,
         "mode": mode,
-        "stage": "000",
-    }
-    if envelope:
-        hardened_result["envelope"] = envelope
-    store_stage_result(hardened_result["session_id"], "init", hardened_result)
-    return hardened_result
+        **result
+    })
+    
+    return response.to_dict(debug=debug)
 
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["forge_pipeline"])
@@ -186,8 +229,17 @@ async def forge_pipeline(
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["agi_sense"])
 @constitutional_floor("F2", "F4")
-async def agi_sense(query: str, session_id: str) -> dict:
-    """Parse intent and classify lane (HARD/SOFT/META)."""
+async def agi_sense(
+    query: str,
+    session_id: str,
+    debug: bool = False,
+) -> dict:
+    """Parse intent and classify lane (Stage 111)."""
+    # Hardened input validation
+    validation = validate_input({"query": query, "session_id": session_id}, ["query", "session_id"])
+    if validation:
+        return validation.to_dict(debug=debug)
+    
     engine = AGIEngine()
     result = await engine.sense(query, session_id)
 
@@ -212,8 +264,22 @@ async def agi_sense(query: str, session_id: str) -> dict:
     result["evidence"] = evidence
 
     store_stage_result(session_id, "agi_sense", result)
-    result["stage"] = "111"
-    return result
+    
+    # Build unified hardened response
+    lane = result.get("lane", "FACTUAL")
+    requires_grounding = result.get("requires_grounding", True)
+    
+    response = build_sense_response(
+        session_id=session_id,
+        intent=result.get("intent", "question"),
+        lane=lane.value if hasattr(lane, 'value') else str(lane),
+        requires_grounding=requires_grounding,
+        verdict="SEAL",
+        debug_data=result if debug else None,
+        debug=debug
+    )
+    
+    return response.to_dict(debug=debug)
 
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["agi_think"])
