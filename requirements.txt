@@ -1,5 +1,5 @@
 # Railway pre-install (main deps come from pip install -e . in Dockerfile)
-fastmcp>=0.1.0
+fastmcp>=2.0
 uvicorn[standard]>=0.24.0
 mcp>=1.0.0
 starlette>=0.30.0
