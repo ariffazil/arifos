@@ -21,6 +21,12 @@ from core.shared.mottos import (
     format_stage_output,
     get_full_pipeline_chant,
 )
+from core.shared.formatter import (
+    OutputMode,
+    OutputFormatter,
+    format_for_user,
+    format_for_debug,
+)
 
 
 @dataclass
