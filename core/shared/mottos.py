@@ -683,6 +683,53 @@ def get_matrix_cell(row: MatrixAxis, col: MatrixAxis) -> Optional[MatrixCell]:
     return PARADOX_MATRIX.get((row, col))
 
 
+def get_init_gate_header() -> str:
+    """
+    Get the INIT gate header with fire emoji and DITEMPA motto.
+    
+    The beginning of the constitutional journey - transformation starts here.
+    """
+    return """
+================================================================================
+  🔥 IGNITE — DITEMPA, BUKAN DIBERI 💎
+  [000_INIT] Forged, Not Given
+  
+  The fire is lit. Nothing enters without passing through flame.
+  All work must be forged. Nothing is given freely.
+================================================================================
+    """.strip()
+
+
+def get_seal_gate_header() -> str:
+    """
+    Get the SEAL gate header with diamond/brain emojis and DITEMPA motto.
+    
+    The end of the constitutional journey - the hardened result.
+    """
+    return """
+================================================================================
+  💎🧠 SEAL — DITEMPA, BUKAN DIBERI 🔒
+  [999_SEAL] Forged, Not Given
+  
+  The diamond is cut. Intelligence forged through constitutional fire.
+  The seal is earned. Nothing leaves without proof of work.
+================================================================================
+    """.strip()
+
+
+def get_ditempa_bookends() -> tuple[str, str]:
+    """
+    Get the DITEMPA bookend headers for INIT and SEAL.
+    
+    Returns:
+        (init_header, seal_header) with emojis
+    """
+    return (
+        "🔥 IGNITE — DITEMPA, BUKAN DIBERI 💎",
+        "💎🧠 SEAL — DITEMPA, BUKAN DIBERI 🔒"
+    )
+
+
 def get_failure_anthem() -> str:
     """
     Get the complete 9-motto failure response anthem.
@@ -691,9 +738,9 @@ def get_failure_anthem() -> str:
     each floor failure to a rhyming Nusantara motto.
     """
     return """
-==================================================================
+================================================================================
            THE AAA MCP FAILURE RESPONSE ANTHEM                    
-==================================================================
+================================================================================
   DITEMPA, BUKAN DIBERI        -- Forged, not given (Foundation)   
   DIKAJI, BUKAN DISUAPI        -- Examined, not spoon-fed (Truth)  
   DIJELAJAH, BUKAN DISEKATI    -- Explored, not restricted         
@@ -703,7 +750,7 @@ def get_failure_anthem() -> str:
   DIJAGA, BUKAN DIABAIKAN      -- Safeguarded, not neglected       
   DIDAMAIKAN, BUKAN DIPANASKAN -- Calmed, not inflamed (Peace)     
   DISEDARKAN, BUKAN DIYAKINKAN -- Made aware, not over-assured     
-==================================================================
+================================================================================
     """.strip()
 
 
@@ -860,7 +907,7 @@ __all__ = [
     "StageMotto",
     "MatrixCell",
     "PromptManifold",
-    # Constants
+    # Constants - 9 Mottos
     "MOTTO_000_INIT",
     "MOTTO_111_SENSE",
     "MOTTO_222_THINK",
@@ -871,10 +918,15 @@ __all__ = [
     "MOTTO_777_FORGE",
     "MOTTO_888_JUDGE",
     "MOTTO_999_SEAL",
+    # Constants - Emoji signatures
+    "MOTTO_000_INIT_EMOJI",
+    "MOTTO_000_INIT_HEADER",
+    "MOTTO_999_SEAL_EMOJI",
+    "MOTTO_999_SEAL_HEADER",
     # Registries
     "ALL_MOTTOS",
     "MOTTOS_BY_FLOOR",
-    "ERROR_MOTTOS",  # Quick floor-to-motto mapping
+    "ERROR_MOTTOS",
     "STAGE_MOTTO_MAP",
     "STAGE_MOTTO_ORDER",
     "TRINITY_MOTTOS",
@@ -890,8 +942,11 @@ __all__ = [
     "format_all_stage_mottos",
     "format_stage_output",
     "format_floor_violation",
-    "format_failure_response",  # New: cultural failure format
-    "get_failure_anthem",       # New: complete 9-motto anthem
+    "format_failure_response",
+    "get_failure_anthem",
+    "get_init_gate_header",      # NEW: Fire emoji INIT
+    "get_seal_gate_header",      # NEW: Diamond/Brain SEAL
+    "get_ditempa_bookends",      # NEW: Both headers
     "format_stage_header",
     "format_stage_message",
     "get_full_pipeline_chant",
