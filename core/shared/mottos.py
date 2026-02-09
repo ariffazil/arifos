@@ -175,6 +175,9 @@ MOTTO_000_INIT = ConstitutionalMotto(
     usage_context="Session ignition and foundation - ALL work must be forged",
     violation_response="Return to the forge. Nothing is given without work."
 )
+# Emoji signature for INIT: Fire (transformation begins)
+MOTTO_000_INIT_EMOJI = "🔥"
+MOTTO_000_INIT_HEADER = "🔥 IGNITE — DITEMPA, BUKAN DIBERI 💎"
 
 MOTTO_111_SENSE = ConstitutionalMotto(
     id=1,
@@ -328,6 +331,9 @@ MOTTO_999_SEAL = ConstitutionalMotto(
     usage_context="Immutable commit - The seal is earned through work",
     violation_response="Nothing is sealed without passing through fire."
 )
+# Emoji signature for SEAL: Diamond (hardened result) + Brain (intelligence forged)
+MOTTO_999_SEAL_EMOJI = "💎"
+MOTTO_999_SEAL_HEADER = "💎🧠 SEAL — DITEMPA, BUKAN DIBERI 🔒"
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -685,19 +691,19 @@ def get_failure_anthem() -> str:
     each floor failure to a rhyming Nusantara motto.
     """
     return """
-╔══════════════════════════════════════════════════════════════════╗
-║           THE AAA MCP FAILURE RESPONSE ANTHEM                    ║
-╠══════════════════════════════════════════════════════════════════╣
-║  DITEMPA, BUKAN DIBERI        — Forged, not given (Foundation)   ║
-║  DIKAJI, BUKAN DISUAPI        — Examined, not spoon-fed (Truth)  ║
-║  DIJELAJAH, BUKAN DISEKATI    — Explored, not restricted         ║
-║  DIJELASKAN, BUKAN DIKABURKAN — Clarified, not obscured (Clarity)║
-║  DIHADAPI, BUKAN DITANGGUHI   — Faced, not postponed             ║
-║  DIUSAHAKAN, BUKAN DIHARAPI   — Worked for, not hoped (Energy)   ║
-║  DIJAGA, BUKAN DIABAIKAN      — Safeguarded, not neglected       ║
-║  DIDAMAIKAN, BUKAN DIPANASKAN — Calmed, not inflamed (Peace)     ║
-║  DISEDARKAN, BUKAN DIYAKINKAN — Made aware, not over-assured     ║
-╚══════════════════════════════════════════════════════════════════╝
+==================================================================
+           THE AAA MCP FAILURE RESPONSE ANTHEM                    
+==================================================================
+  DITEMPA, BUKAN DIBERI        -- Forged, not given (Foundation)   
+  DIKAJI, BUKAN DISUAPI        -- Examined, not spoon-fed (Truth)  
+  DIJELAJAH, BUKAN DISEKATI    -- Explored, not restricted         
+  DIJELASKAN, BUKAN DIKABURKAN -- Clarified, not obscured (Clarity)
+  DIHADAPI, BUKAN DITANGGUHI   -- Faced, not postponed             
+  DIUSAHAKAN, BUKAN DIHARAPI   -- Worked for, not hoped (Energy)   
+  DIJAGA, BUKAN DIABAIKAN      -- Safeguarded, not neglected       
+  DIDAMAIKAN, BUKAN DIPANASKAN -- Calmed, not inflamed (Peace)     
+  DISEDARKAN, BUKAN DIYAKINKAN -- Made aware, not over-assured     
+==================================================================
     """.strip()
 
 
