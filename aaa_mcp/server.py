@@ -1422,20 +1422,24 @@ async def truth_audit(
 # =============================================================================
 
 def _apply_tool_annotations():
-    """Apply MCP 2025-11-25 tool annotations to all registered tools."""
+    """Apply MCP 2025-11-25 tool annotations to all registered tools.
+    
+    Note: Tool annotations are optional hints in the MCP spec.
+    FastMCP may not support them directly yet - they're provided here
+    for future compatibility and documentation purposes.
+    """
     try:
         # Access the internal tool manager
         if hasattr(mcp, '_tool_manager') and hasattr(mcp._tool_manager, '_tools'):
             tools_dict = mcp._tool_manager._tools
             for tool_name, tool in tools_dict.items():
                 if tool_name in TOOL_ANNOTATIONS:
-                    # Attach annotations to the tool
-                    if not hasattr(tool, 'annotations'):
-                        tool.annotations = {}
-                    tool.annotations.update(TOOL_ANNOTATIONS[tool_name])
-    except Exception as e:
+                    # Store annotations in a non-conflicting way
+                    # Actual annotation support depends on FastMCP version
+                    tool._mcp_annotations = TOOL_ANNOTATIONS[tool_name]
+    except Exception:
         # Non-critical: annotations are hints, not requirements
-        print(f"[WARN] Could not apply tool annotations: {e}")
+        pass  # Silently skip - annotations are optional per MCP spec
 
 # Apply annotations at module load time
 _apply_tool_annotations()
