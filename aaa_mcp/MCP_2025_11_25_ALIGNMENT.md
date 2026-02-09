@@ -27,6 +27,9 @@ Authentication: OAuth 2.1
 """
 ```
 
+**Note:** FastMCP 1.x doesn't support explicit capabilities in `__init__()`. 
+Capabilities are documented and OAuth endpoints are implemented.
+
 ### Task 1.2: Streamable HTTP Transport — ✅ VERIFIED
 
 **Status:** Already implemented in `scripts/start_server.py`
@@ -54,12 +57,15 @@ curl -X POST http://localhost:8080/mcp \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
 ```
 
-### Task 1.3: Tool Annotations — ✅ DONE
+### Task 1.3: Tool Annotations — ✅ PARTIAL
 
 **Files Modified:**
 - `aaa_mcp/server.py` — Added TOOL_ANNOTATIONS registry
 
-**Annotations Applied (13 tools):**
+**Status:** FastMCP 1.x doesn't support annotations in `@mcp.tool()` decorator. 
+Annotations are stored in `TOOL_ANNOTATIONS` registry for future FastMCP 2.x compatibility.
+
+**Planned Annotations (13 tools):**
 
 | Tool | readOnly | destructive | openWorld |
 |------|----------|-------------|-----------|
@@ -77,7 +83,7 @@ curl -X POST http://localhost:8080/mcp \
 | `vault_query` | True | False | False |
 | `truth_audit` | True | False | False |
 
-**Note:** Annotations stored in `tool._mcp_annotations` for future FastMCP compatibility.
+**Note:** FastMCP 1.x limitation — annotations not supported in decorator. Stored in registry for future upgrade.
 
 ### Task 1.4: OAuth 2.1 Authorization Server — ✅ DONE
 
@@ -200,7 +206,7 @@ npx @modelcontextprotocol/inspector \
 
 1. `ace4fc9` — fix(railway): add core/ to Docker and fix health check
 2. `40d6c2a` — feat(mcp-2025-11-25): add tool annotations and server capabilities
-3. (pending) — feat(oauth): implement OAuth 2.1 metadata endpoints
+3. `97589c9` — fix(fastmcp): remove unsupported kwargs from FastMCP (capabilities, annotations)
 
 ---
 

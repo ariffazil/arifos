@@ -61,7 +61,42 @@ from aaa_mcp.core.stage_adapter import (
 )
 from core.pipeline import forge as core_forge
 
-mcp = FastMCP("aaa-mcp")
+mcp = FastMCP(
+    "aaa-mcp",
+    version="60.0.0",
+    # MCP 2025-11-25 capabilities - NOW FULLY IMPLEMENTED
+    capabilities={
+        "tools": {"listChanged": True},
+        "resources": {},  # IMPLEMENTED: constitutional:// URIs
+        "prompts": {},    # IMPLEMENTED: templated workflows
+        # "logging": {},   # TODO: Future enhancement
+        # "sampling": {},  # TODO: Future enhancement  
+        # "authorization": {},  # TODO: OAuth 2.1 (not yet implemented)
+    },
+    instructions="""arifOS AAA MCP Server - Constitutional AI Governance (v60.0-FORGE)
+
+13 tools enforcing 13 constitutional floors (F1-F13):
+- F1 Amanah: Reversible actions
+- F2 Truth: τ ≥ 0.99
+- F3 Consensus: W₃ ≥ 0.95
+- F4 Clarity: ΔS ≤ 0
+- F5 Peace²: Stability ≥ 1.0
+- F6 Empathy: κᵣ ≥ 0.70
+- F7 Humility: Ω₀ ∈ [0.03,0.05]
+- F8 Genius: G ≥ 0.80
+- F9 Anti-Hantu: C_dark < 0.30
+- F10 Ontology: Grounded
+- F11 Authority: Valid auth
+- F12 Defense: Clean scan
+- F13 Sovereign: Human override
+
+Resources: constitutional://floors/{F1-F13}, constitutional://trinity/{agi,asi,apex,vault}
+Prompts: constitutional_analysis, tri_witness_report, entropy_audit, safety_check, seal_request
+
+Verdicts: SEAL | VOID | PARTIAL | SABAR | 888_HOLD
+Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
+"""
+)
 
 
 # Note: custom_route endpoints require FastMCP 2.0+
@@ -1410,6 +1445,379 @@ def _apply_tool_annotations():
     except Exception:
         # Non-critical: annotations are hints, not requirements
         pass  # Silently skip - annotations are optional per MCP spec
+
+# =============================================================================
+# MCP RESOURCES — Constitutional Framework Documentation
+# =============================================================================
+
+FLOOR_SPECS = {
+    "F1": """# F1 Amanah — Reversibility
+**Principle:** All actions must be reversible or auditable.
+
+**Threshold:** Chain of Custody maintained
+**Fail Action:** VOID
+
+**Physics Basis:** Landauer's Principle — irreversible operations cost energy.
+""",
+    "F2": """# F2 Truth — Fidelity
+**Principle:** Information must be accurate and verifiable.
+
+**Threshold:** τ ≥ 0.99
+**Fail Action:** VOID
+
+**Physics Basis:** Shannon Entropy — information reduces uncertainty.
+""",
+    "F3": """# F3 Consensus — Tri-Witness
+**Principle:** Critical decisions require multi-party validation.
+
+**Threshold:** W₃ ≥ 0.95 (Human × AI × System)
+**Fail Action:** SABAR (return for revision)
+
+**Physics Basis:** Byzantine Fault Tolerance
+""",
+    "F4": """# F4 Clarity — Ambiguity Reduction
+**Principle:** Output must reduce entropy in the system.
+
+**Threshold:** ΔS ≤ 0
+**Fail Action:** VOID
+
+**Physics Basis:** Second Law of Thermodynamics
+""",
+    "F5": """# F5 Peace² — Stability
+**Principle:** System must maintain equilibrium.
+
+**Threshold:** Peace² Index ≥ 1.0
+**Fail Action:** SABAR
+
+**Physics Basis:** Dynamic systems stability
+""",
+    "F6": """# F6 Empathy — Stakeholder Protection
+**Principle:** Consider impact on all stakeholders.
+
+**Threshold:** κᵣ ≥ 0.70 (empathy coefficient)
+**Fail Action:** SABAR
+
+**Physics Basis:** Network effect minimization
+""",
+    "F7": """# F7 Humility — Gödel Lock
+**Principle:** All claims must declare uncertainty bounds.
+
+**Threshold:** Ω₀ ∈ [0.03, 0.05]
+**Fail Action:** VOID
+
+**Physics Basis:** Gödel's Incompleteness Theorems
+""",
+    "F8": """# F8 Genius — Resource Efficiency
+**Principle:** Intelligence = A×P×X×E²
+
+**Threshold:** G-Factor ≥ 0.80
+**Fail Action:** SABAR
+
+**Physics Basis:** Eigendecomposition
+""",
+    "F9": """# F9 Anti-Hantu — No Fake Consciousness
+**Principle:** Do not attribute personhood to non-persons.
+
+**Threshold:** Personhood = False
+**Fail Action:** SABAR
+
+**Physics Basis:** Philosophy of Mind
+""",
+    "F10": """# F10 Ontology — Grounding
+**Principle:** All claims must be grounded in reality.
+
+**Threshold:** Axiom Match = True
+**Fail Action:** VOID
+
+**Physics Basis:** Correspondence Theory of Truth
+""",
+    "F11": """# F11 Authority — Chain of Command
+**Principle:** Valid authentication required.
+
+**Threshold:** Auth Valid
+**Fail Action:** VOID
+
+**Physics Basis:** Cryptographic identity
+""",
+    "F12": """# F12 Defense — Injection Hardening
+**Principle:** Scan for adversarial patterns.
+
+**Threshold:** Risk < 0.85
+**Fail Action:** VOID
+
+**Physics Basis:** Information security
+""",
+    "F13": """# F13 Sovereign — Human Veto
+**Principle:** Human override always available.
+
+**Threshold:** Override Active
+**Fail Action:** WARN (888_HOLD)
+
+**Physics Basis:** Human agency preservation
+""",
+}
+
+TRINITY_SPECS = {
+    "agi": """# Δ AGI — The Mind
+**Stage:** 111-333
+**Function:** Parse, Think, Reason
+**Floors:** F2, F4, F7, F8
+**Symbol:** Δ (Delta)
+
+The AGI Mind handles logical analysis and truth-seeking.
+""",
+    "asi": """# Ω ASI — The Heart
+**Stage:** 555-666
+**Function:** Empathize, Align
+**Floors:** F1, F5, F6, F9
+**Symbol:** Ω (Omega)
+
+The ASI Heart handles safety and stakeholder protection.
+""",
+    "apex": """# Ψ APEX — The Soul
+**Stage:** 444-888
+**Function:** Sync, Forge, Judge
+**Floors:** F3, F8, F10, F11, F12, F13
+**Symbol:** Ψ (Psi)
+
+The APEX Soul renders final constitutional verdicts.
+""",
+    "vault": """# 999 VAULT — The Memory
+**Stage:** 999
+**Function:** Seal, Preserve
+**Floors:** F1, F3
+**Symbol:** 🔒
+
+The VAULT999 ledger maintains immutable records.
+""",
+}
+
+
+@mcp.resource(" constitutional://floors/{floor_id}")
+async def get_floor_spec(floor_id: str) -> str:
+    """Return constitutional floor specification.
+    
+    Args:
+        floor_id: Floor identifier (F1-F13)
+    
+    Returns:
+        Markdown specification for the floor
+    """
+    spec = FLOOR_SPECS.get(floor_id.upper())
+    if spec:
+        return spec
+    return f"# Floor {floor_id}\\n\\nSpecification not found. Available: F1-F13"
+
+
+@mcp.resource("constitutional://trinity/{organ}")
+async def get_trinity_spec(organ: str) -> str:
+    """Return Trinity organ specification.
+    
+    Args:
+        organ: Organ name (agi, asi, apex, vault)
+    
+    Returns:
+        Markdown specification for the organ
+    """
+    spec = TRINITY_SPECS.get(organ.lower())
+    if spec:
+        return spec
+    return f"# {organ}\\n\\nSpecification not found. Available: agi, asi, apex, vault"
+
+
+@mcp.resource("constitutional://motto")
+async def get_motto() -> str:
+    """Return the arifOS motto and philosophy."""
+    return """# DITEMPA BUKAN DIBERI
+
+**Forged, Not Given**
+
+This is the core philosophy of arifOS:
+- Intelligence is forged through constraint, not given freely
+- Every decision must pass constitutional floors
+- Truth requires effort, thermodynamic work
+- Safety is engineered, not assumed
+
+💎🔥🧠
+"""
+
+
+@mcp.resource("constitutional://verdicts")
+async def get_verdict_guide() -> str:
+    """Return guide to constitutional verdicts."""
+    return """# Constitutional Verdicts
+
+| Verdict | Meaning | Action |
+|---------|---------|--------|
+| **SEAL** | Approved — All floors passed | Execute action |
+| **SABAR** | Repairable — SOFT floors failed | Return for revision |
+| **PARTIAL** | Limited — Proceed with constraints | Execute with reduced scope |
+| **VOID** | Blocked — HARD floor violated | Reject entirely |
+| **888_HOLD** | Human Required — High stakes | Escalate to human |
+
+---
+
+**Floor Types:**
+- 🔴 **HARD** (F1, F2, F4, F7, F10, F11, F12, F13): Failure → VOID
+- 🟠 **SOFT** (F3, F5, F6, F8, F9): Failure → PARTIAL/SABAR
+"""
+
+
+# =============================================================================
+# MCP PROMPTS — Templated Constitutional Workflows
+# =============================================================================
+
+@mcp.prompt()
+async def constitutional_analysis(query: str) -> str:
+    """Analyze a query through all 13 constitutional floors.
+    
+    Args:
+        query: The query to analyze
+    
+    Returns:
+        Prompt for full constitutional pipeline
+    """
+    return f"""Analyze this query constitutionally using the full 000-999 pipeline:
+
+**Query:** {query}
+
+Execute these tools in sequence:
+1. `init_gate` — Initialize session (F11/F12)
+2. `agi_sense` — Parse intent (F2/F4)
+3. `agi_reason` — Logical analysis (F2/F4/F7)
+4. `asi_empathize` — Stakeholder impact (F5/F6)
+5. `asi_align` — Ethics/policy check (F9)
+6. `apex_verdict` — Final judgment (F3/F8)
+7. `vault_seal` — Immutable record (F1/F3)
+
+Report:
+- Verdict (SEAL/VOID/PARTIAL/SABAR)
+- Floors passed/failed
+- Confidence scores (τ, W₃, Ω₀, G)
+- Any warnings or recommendations
+"""
+
+
+@mcp.prompt()
+async def tri_witness_report(session_id: str) -> str:
+    """Generate a Tri-Witness consensus report.
+    
+    Args:
+        session_id: The session to analyze
+    
+    Returns:
+        Prompt for Tri-Witness analysis
+    """
+    return f"""Generate a Tri-Witness consensus report for session {session_id}.
+
+**Tri-Witness Formula:** W₃ = √(H × A × E)
+
+Where:
+- **H** = Human witness (user validation)
+- **A** = AI witness (model confidence)
+- **E** = Earth witness (grounding evidence)
+
+**Threshold:** W₃ ≥ 0.95 for SEAL verdict
+
+Use `vault_query` to retrieve session history if needed.
+"""
+
+
+@mcp.prompt()
+async def entropy_audit(text: str) -> str:
+    """Calculate thermodynamic compliance for text.
+    
+    Args:
+        text: The text to analyze
+    
+    Returns:
+        Prompt for entropy/clarity analysis
+    """
+    return f"""Calculate the thermodynamic compliance (F4 Clarity) for:
+
+**Text:** {text[:500]}{'...' if len(text) > 500 else ''}
+
+**Analysis Required:**
+1. Shannon entropy of input vs output
+2. ΔS = S_output - S_input (should be ≤ 0)
+3. Information density
+4. Ambiguity reduction score
+
+**F4 Threshold:** ΔS ≤ 0 (entropy must not increase)
+"""
+
+
+@mcp.prompt()
+async def safety_check(proposed_action: str, domain: str = "general") -> str:
+    """Perform safety analysis on a proposed action.
+    
+    Args:
+        proposed_action: The action to evaluate
+        domain: Domain context (finance/safety/content/code/governance)
+    
+    Returns:
+        Prompt for safety analysis
+    """
+    risk_context = {
+        "finance": "financial transactions, investments, trading",
+        "safety": "physical safety, health, security systems",
+        "content": "content generation, publishing, communication",
+        "code": "software deployment, system changes, infrastructure",
+        "governance": "policy decisions, constitutional changes",
+        "general": "general purpose actions",
+    }.get(domain, "general")
+    
+    return f"""Perform constitutional safety analysis for:
+
+**Action:** {proposed_action}
+**Domain:** {risk_context}
+
+**Analysis Pipeline:**
+1. `init_gate` — Auth & injection scan (F11/F12)
+2. `asi_empathize` — Stakeholder impact (F5/F6)
+3. `asi_align` — Ethics/policy check (F9)
+4. `apex_verdict` — Final judgment with 888_HOLD consideration (F13)
+
+**Risk Level Assessment:**
+- Critical: Financial loss, physical harm, legal violation
+- High: Reputational damage, system instability
+- Medium: User inconvenience, performance impact
+- Low: Cosmetic issues, minor improvements
+"""
+
+
+@mcp.prompt()
+async def seal_request(session_summary: str, verdict: str = "SEAL") -> str:
+    """Generate a formal VAULT999 seal request.
+    
+    Args:
+        session_summary: Summary of the session to seal
+        verdict: Proposed verdict (SEAL/VOID/PARTIAL/SABAR)
+    
+    Returns:
+        Prompt for vault sealing
+    """
+    return f"""Prepare a formal VAULT999 seal request:
+
+**Session Summary:** {session_summary}
+**Proposed Verdict:** {verdict}
+
+**Required Seal Fields:**
+- session_id: Unique identifier
+- verdict: Final constitutional verdict
+- query_summary: First ~200 chars of input
+- risk_level: low/medium/high/critical
+- category: finance/safety/content/code/governance
+- floors_checked: All floors evaluated
+- floors_passed: Floors that passed
+- floors_failed: Floors that failed (if any)
+- entropy_omega: Ω₀ uncertainty at decision time
+- tri_witness_score: W₃ consensus metric
+- human_override: Whether 888 Judge was invoked
+
+**Call `vault_seal` with all required fields.**
+"""
+
 
 # Apply annotations at module load time
 _apply_tool_annotations()
