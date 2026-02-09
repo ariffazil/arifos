@@ -157,7 +157,8 @@ def _build_post_context(
     if isinstance(result, dict):
         for key in ("truth_score", "confidence", "entropy_delta", "human_witness",
                      "ai_witness", "earth_witness", "empathy_kappa_r",
-                     "weakest_stakeholder_impact", "entropy_input", "entropy_output"):
+                     "weakest_stakeholder_impact", "entropy_input", "entropy_output",
+                     "humility_omega", "f2_threshold"):
             if key in result:
                 ctx[key] = result[key]
         # Derive entropy_output from entropy_delta if provided

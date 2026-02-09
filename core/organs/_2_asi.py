@@ -26,7 +26,6 @@ from core.shared.physics import (
     DISTRESS_SIGNALS,
 )
 from core.shared.atlas import GPV
-from core.shared.mottos import get_motto_for_stage, get_all_stage_mottos, format_all_stage_mottos
 
 
 # =============================================================================
@@ -77,11 +76,7 @@ async def empathize(
     stakeholder_harms = {s.name: 0.0 for s in stakeholders}
     peace = Peace2(stakeholder_harms)
     
-    # Get 555_EMPATHY motto: DIDAMAIKAN, BUKAN DIPANASKAN
-    motto = get_motto_for_stage("555_EMPATHY")
-    all_mottos = get_all_stage_mottos()
-    mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
-    mottos_output = format_all_stage_mottos()
+    # Motto is schema-level; keep stage output low-verbosity.
     
     return {
         "stage": 555,
@@ -97,10 +92,6 @@ async def empathize(
         "peace_squared": peace.P2(),
         "is_peaceful": peace.is_peaceful(),
         "session_id": session_id,
-        "motto": str(motto),
-        "motto_output": f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
-        "mottos": mottos,
-        "mottos_output": mottos_output,
     }
 
 
@@ -186,11 +177,7 @@ async def align(
         is_reversible, peace, kappa
     )
     
-    # Get 666_ALIGN motto: DIJAGA, BUKAN DIABAIKAN
-    motto = get_motto_for_stage("666_ALIGN")
-    all_mottos = get_all_stage_mottos()
-    mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
-    mottos_output = format_all_stage_mottos()
+    # Motto is schema-level; keep stage output low-verbosity.
     
     return {
         "stage": 666,
@@ -206,10 +193,6 @@ async def align(
         "verdict": verdict,
         "violations": violations,
         "session_id": session_id,
-        "motto": str(motto),
-        "motto_output": f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
-        "mottos": mottos,
-        "mottos_output": mottos_output,
     }
 
 
@@ -324,12 +307,7 @@ async def asi(
         return await align(query, emp_out, agi_tensor, session_id)
     
     elif action == "full":
-        # Get ASI mottos
-        motto_555 = get_motto_for_stage("555_EMPATHY")
-        motto_666 = get_motto_for_stage("666_ALIGN")
-        all_mottos = get_all_stage_mottos()
-        mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
-        mottos_output = format_all_stage_mottos()
+        # Motto is schema-level; keep stage output low-verbosity.
         
         # Complete ASI pipeline
         emp_out = await empathize(query, agi_tensor, session_id)
@@ -348,11 +326,6 @@ async def asi(
             "verdict": align_out["verdict"],
             "violations": align_out["violations"],
             "session_id": session_id,
-            "motto_555": str(motto_555),
-            "motto_666": str(motto_666),
-            "motto_output": f"ASI: [{motto_555.stage}] {motto_555.positive} -> [{motto_666.stage}] {motto_666.positive}",
-            "mottos": mottos,
-            "mottos_output": mottos_output,
         }
     
     else:

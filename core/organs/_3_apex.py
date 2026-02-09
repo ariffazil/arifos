@@ -27,7 +27,6 @@ from core.shared.physics import (
     ConstitutionalTensor, PeaceSquared, UncertaintyBand, GeniusDial,
 )
 from core.shared.types import Verdict
-from core.shared.mottos import get_motto_for_stage, get_all_stage_mottos, format_all_stage_mottos
 
 
 # =============================================================================
@@ -92,11 +91,7 @@ async def sync(
         "f8_genius": agi_tensor.genius.G(),
     }
     
-    # Get 444_SYNC motto: DIHADAPI, BUKAN DITANGGUHI
-    motto = get_motto_for_stage("444_SYNC")
-    all_mottos = get_all_stage_mottos()
-    mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
-    mottos_output = format_all_stage_mottos()
+    # Motto is schema-level; keep stage output low-verbosity.
     
     return {
         "stage": 444,
@@ -107,10 +102,6 @@ async def sync(
         "pre_verdict": pre_verdict,
         "is_synced": w3_score >= 0.95,
         "session_id": session_id,
-        "motto": str(motto),
-        "motto_output": f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
-        "mottos": mottos,
-        "mottos_output": mottos_output,
     }
 
 
@@ -161,11 +152,7 @@ async def forge(
     # Generate solution draft
     solution = _generate_solution(agi_tensor, sync_output)
     
-    # Get 777_FORGE motto: DIUSAHAKAN, BUKAN DIHARAPI
-    motto = get_motto_for_stage("777_FORGE")
-    all_mottos = get_all_stage_mottos()
-    mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
-    mottos_output = format_all_stage_mottos()
+    # Motto is schema-level; keep stage output low-verbosity.
     
     return {
         "stage": 777,
@@ -178,8 +165,6 @@ async def forge(
         "solution_draft": solution,
         "gamma_synchrony": coherence * genius_score,
         "session_id": session_id,
-        "motto": str(motto),
-        "motto_output": f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
     }
 
 
@@ -393,11 +378,7 @@ async def judge(
     g_level = get_g_level_label(g_score)
     apex_output_label = format_apex_output(g_score, verdict)
     
-    # Get 888_JUDGE motto: DISEDARKAN, BUKAN DIYAKINKAN
-    motto = get_motto_for_stage("888_JUDGE")
-    all_mottos = get_all_stage_mottos()
-    mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
-    mottos_output = format_all_stage_mottos()
+    # Motto is schema-level; keep stage output low-verbosity.
     
     return {
         "stage": 888,
@@ -416,10 +397,6 @@ async def judge(
         "justification": justification,
         "requires_sovereign": require_sovereign,
         "session_id": session_id,
-        "motto": str(motto),
-        "motto_output": f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
-        "mottos": mottos,
-        "mottos_output": mottos_output,
         # 5-Fold Forge mottos for AAA MCP labeling
         "_5_fold_forge": {
             "foundation": "DITEMPA, BUKAN DIBERI",
@@ -476,13 +453,7 @@ async def apex(
         return await judge(forge_out, sync_out, asi_output, session_id, require_sovereign)
     
     elif action == "full":
-        # Get APEX mottos
-        motto_444 = get_motto_for_stage("444_SYNC")
-        motto_777 = get_motto_for_stage("777_FORGE")
-        motto_888 = get_motto_for_stage("888_JUDGE")
-        all_mottos = get_all_stage_mottos()
-        mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
-        mottos_output = format_all_stage_mottos()
+        # Motto is schema-level; keep stage output low-verbosity.
         
         # Complete APEX pipeline
         sync_out = await sync(agi_tensor, asi_output, session_id)
@@ -501,12 +472,6 @@ async def apex(
             "floors_failed": judge_out["floors_failed"],
             "justification": judge_out["justification"],
             "session_id": session_id,
-            "motto_444": str(motto_444),
-            "motto_777": str(motto_777),
-            "motto_888": str(motto_888),
-            "motto_output": f"APEX: [{motto_444.stage}] {motto_444.positive} -> [{motto_777.stage}] {motto_777.positive} -> [{motto_888.stage}] {motto_888.positive}",
-            "mottos": mottos,
-            "mottos_output": mottos_output,
         }
     
     else:

@@ -138,8 +138,11 @@ class F2_Truth(Floor):
         if "truth_score" in context:
             p_truth = context["truth_score"]
 
-        passed = p_truth >= self.spec["threshold"]
-        return FloorResult(self.id, passed, p_truth, f"Truth Score: {p_truth:.3f}")
+        # Use adaptive F2 threshold if provided (from GPV), else default to 0.99
+        threshold = context.get("f2_threshold", self.spec["threshold"])
+
+        passed = p_truth >= threshold
+        return FloorResult(self.id, passed, p_truth, f"Truth Score: {p_truth:.3f} (threshold: {threshold:.2f})")
 
 
 # --- F3: TRI-WITNESS (Consensus) ---
@@ -281,13 +284,16 @@ class F7_Humility(Floor):
         self.min_o, self.max_o = self.spec["range"]
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
-        # Confidence should never be exactly 1.0 or 0.0
-        confidence = context.get("confidence", 0.96)
-        omega_0 = 1.0 - confidence
+        # Use explicit humility_omega if provided (from engine), else compute from confidence
+        if "humility_omega" in context:
+            omega_0 = context["humility_omega"]
+        else:
+            # Fallback: compute from confidence
+            confidence = context.get("confidence", 0.96)
+            omega_0 = 1.0 - confidence
 
         # Enforce the uncertainty band: omega_0 must be in [0.03, 0.05]
-        # If confidence produces omega_0 outside this band, the system cannot
-        # properly express doubt → VOID (hard floor violation)
+        # If omega_0 outside this band, the system cannot properly express doubt
         in_band = self.min_o <= omega_0 <= self.max_o
         passed = in_band
 

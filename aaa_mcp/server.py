@@ -60,10 +60,7 @@ from aaa_mcp.core.stage_adapter import (
     run_stage_999_seal,
 )
 from core.pipeline import forge as core_forge
-from core.shared.mottos import (
-    get_motto_for_stage,
-    format_stage_output,
-)
+
 
 """
 arifOS AAA MCP Server — Constitutional AI Governance (v60.0-FORGE)
@@ -119,23 +116,13 @@ async def init_gate(
     result = await engine.ignite(query, session_id)
 
     # Schematized Output (v55.5-CRYSTALLIZED)
-    # 000_INIT motto: DITEMPA, BUKAN DIBERI (Forged, not given)
-    motto = get_motto_for_stage("000_INIT")
-    
     hardened_result = {
         "session_id": result.get("session_id", session_id or "unknown"),
         "verdict": result.get("verdict", ConflictStatus.SEAL.value),
         "status": "READY",
         "grounding_required": grounding_required,
         "mode": mode,
-        "stage": "000_INIT",
-        "motto": str(motto),
-        "motto_positive": motto.positive,
-        "motto_negative": motto.negative,
-        "meaning": motto.meaning,
-        "floors_enforced": get_tool_floors("init_gate"),
-        "evidence": [],
-        "pass": "forward",
+        "stage": "000",
     }
     store_stage_result(hardened_result["session_id"], "init", hardened_result)
     return hardened_result
@@ -161,10 +148,6 @@ async def forge_pipeline(
         require_sovereign=require_sovereign_for_high_stakes,
     )
 
-    # Full pipeline uses 000 motto (foundation) + 999 motto (seal)
-    motto_000 = get_motto_for_stage("000_INIT")
-    motto_999 = get_motto_for_stage("999_SEAL")
-    
     output = {
         "verdict": result.verdict,
         "session_id": result.session_id,
@@ -173,11 +156,6 @@ async def forge_pipeline(
         "asi": result.asi,
         "apex": result.apex,
         "seal": result.seal,
-        "motto_init": str(motto_000),
-        "motto_seal": str(motto_999),
-        "meaning": "Forged through 000-999 pipeline, not given",
-        "floors_enforced": get_tool_floors("forge_pipeline"),
-        "pass": "forward",
     }
     store_stage_result(result.session_id, "forge_pipeline", output)
     return output
@@ -211,16 +189,7 @@ async def agi_sense(query: str, session_id: str) -> dict:
     result["evidence"] = evidence
 
     store_stage_result(session_id, "agi_sense", result)
-    
-    # 111_SENSE motto: DIKAJI, BUKAN DISUAPI (Examined, not assumed)
-    motto = get_motto_for_stage("111_SENSE")
-    result["stage"] = "111_SENSE"
-    result["motto"] = str(motto)
-    result["motto_positive"] = motto.positive
-    result["motto_negative"] = motto.negative
-    result["meaning"] = motto.meaning
-    result["floors_enforced"] = get_tool_floors("agi_sense")
-    result["pass"] = "forward"
+    result["stage"] = "111"
     return result
 
 
@@ -252,16 +221,7 @@ async def agi_think(query: str, session_id: str) -> dict:
     result["evidence"] = evidence
 
     store_stage_result(session_id, "agi_think", result)
-    
-    # 222_THINK motto: DIJELAJAH, BUKAN DISEKATI (Explored, not restricted)
-    motto = get_motto_for_stage("222_THINK")
-    result["stage"] = "222_THINK"
-    result["motto"] = str(motto)
-    result["motto_positive"] = motto.positive
-    result["motto_negative"] = motto.negative
-    result["meaning"] = motto.meaning
-    result["floors_enforced"] = get_tool_floors("agi_think")
-    result["pass"] = "forward"
+    result["stage"] = "222"
     return result
 
 
@@ -334,15 +294,7 @@ async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = Non
         )
         result["evidence"] = evidence  # Ensure evidence is added to result
 
-    # 333_REASON motto: DIJELASKAN, BUKAN DIKABURKAN (Clarified, not obscured)
-    motto = get_motto_for_stage("333_REASON")
-    result["stage"] = "333_REASON"
-    result["motto"] = str(motto)
-    result["motto_positive"] = motto.positive
-    result["motto_negative"] = motto.negative
-    result["meaning"] = motto.meaning
-    result["floors_enforced"] = get_tool_floors("agi_reason")
-    result["pass"] = "forward"
+    result["stage"] = "333"
     return result
 
 
@@ -378,15 +330,7 @@ async def asi_empathize(query: str, session_id: str) -> dict:
     stage_555_result = await run_stage_555_empathy(session_id, query)
     result["stage_555"] = stage_555_result
     
-    # 555_EMPATHY motto: DIDAMAIKAN, BUKAN DIPANASKAN (Calmed, not inflamed)
-    motto = get_motto_for_stage("555_EMPATHY")
-    result["stage"] = "555_EMPATHY"
-    result["motto"] = str(motto)
-    result["motto_positive"] = motto.positive
-    result["motto_negative"] = motto.negative
-    result["meaning"] = motto.meaning
-    result["floors_enforced"] = get_tool_floors("asi_empathize")
-    result["pass"] = "forward"
+    result["stage"] = "555"
     return result
 
 
@@ -422,15 +366,7 @@ async def asi_align(query: str, session_id: str) -> dict:
     stage_666_result = await run_stage_666_align(session_id, query)
     result["stage_666"] = stage_666_result
     
-    # 666_ALIGN motto: DIJAGA, BUKAN DIABAIKAN (Guarded, not neglected)
-    motto = get_motto_for_stage("666_ALIGN")
-    result["stage"] = "666_ALIGN"
-    result["motto"] = str(motto)
-    result["motto_positive"] = motto.positive
-    result["motto_negative"] = motto.negative
-    result["meaning"] = motto.meaning
-    result["floors_enforced"] = get_tool_floors("asi_align")
-    result["pass"] = "forward"
+    result["stage"] = "666"
     return result
 
 
@@ -578,30 +514,28 @@ async def apex_verdict(query: str, session_id: str) -> dict:
         core_metrics["verdict"] = current_verdict
         result["verdict_justification"] = f"Stage 888 Judge override: {stage_888_result.get('judge_result', {}).get('reason', 'Constitutional veto')}"
     
-    # Sovereign Reconstruction: ignore legacy result keys
+    # Sovereign Reconstruction: minimal output
     final_output = {
         "verdict": current_verdict,
         "truth_score": truth_score,
         "session_id": session_id,
         "query": query,
-        "CORE_GOVERNANCE": core_metrics,
-        "verdict_justification": result.get("verdict_justification", ""),
-        # 888_JUDGE motto: DISEDARKAN, BUKAN DIYAKINKAN (Aware, not over-assured)
-        "stage": "888_JUDGE",
-        "motto": str(get_motto_for_stage("888_JUDGE")),
-        "motto_positive": get_motto_for_stage("888_JUDGE").positive,
-        "motto_negative": get_motto_for_stage("888_JUDGE").negative,
-        "meaning": get_motto_for_stage("888_JUDGE").meaning,
-        "floors_enforced": get_tool_floors("apex_verdict"),
-        "pass": "reverse",
-        # Metabolic stages results
-        "stage_444": stage_444_result,
-        "stage_777": stage_777_result,
-        "stage_888": stage_888_result,
-        # Pass through some essentials from the original engine result
+        "stage": "888",
         "tri_witness": result.get("tri_witness", 0.95),
         "votes": result.get("votes", {}),
     }
+    
+    # Include verdict justification only for non-SEAL verdicts
+    if current_verdict != "SEAL":
+        final_output["justification"] = result.get("verdict_justification", "")
+    
+    # Include metabolic stages results only if they differ from final verdict
+    if stage_888_result.get("verdict") != current_verdict:
+        final_output["stages"] = {
+            "444": stage_444_result.get("pre_verdict", "SEAL"),
+            "777": stage_777_result.get("forge_result", {}).get("status", "completed"),
+            "888": stage_888_result.get("verdict", "SEAL"),
+        }
 
     store_stage_result(session_id, "apex", final_output)
     return final_output
@@ -716,12 +650,7 @@ async def reality_search(
         "session_id": session_id,
         "evidence": evidence,
         "verdict": ConflictStatus.SEAL.value if evidence else ConflictStatus.INSUFFICIENT.value,
-        # Reality search uses 222_THINK motto (exploration phase)
         "stage": "REALITY_SEARCH",
-        "motto": str(get_motto_for_stage("222_THINK")),
-        "motto_positive": get_motto_for_stage("222_THINK").positive,
-        "motto_negative": get_motto_for_stage("222_THINK").negative,
-        "meaning": "Explored through reality, not restricted to axioms",
     }
 
     store_stage_result(session_id, "reality", hardened_output)
@@ -973,35 +902,19 @@ async def vault_seal(
             print(f"[vault_seal] Session ledger failed: {e}")
             seal_hash = f"fallback-{session_id[:8]}"
 
-    return {
+    output = {
         "verdict": "SEALED" if seal_id else "PARTIAL",
         "seal_id": seal_id,
         "seal": seal_hash,
-        "schema_version": "3.0",
-        "postgres_used": postgres_used,
-        # Fast-query columns (the 4 governance axes)
         "session_id": session_id,
-        "verdict_type": verdict,
-        "risk_level": risk_level or "low",
-        "environment": environment,
-        # Summary of v3 categories
-        "categories": {
-            "identity": v3_identity,
-            "floors": v3_floors,
-            "oversight": v3_oversight,
-            "provenance": {"tools": tool_chain or [], "env": environment},
-        },
-        # Metabolic stage 999 result
-        "stage_999": stage_999_result,
-        # 999_SEAL motto: DITEMPA, BUKAN DIBERI (same as 000)
-        "stage": "999_SEAL",
-        "motto": str(get_motto_for_stage("999_SEAL")),
-        "motto_positive": get_motto_for_stage("999_SEAL").positive,
-        "motto_negative": get_motto_for_stage("999_SEAL").negative,
-        "meaning": get_motto_for_stage("999_SEAL").meaning,
-        "floors_enforced": get_tool_floors("vault_seal"),
-        "pass": "reverse",
+        "stage": "999",
     }
+    
+    # Include risk_level only if not low (default)
+    if risk_level and risk_level != "low":
+        output["risk_level"] = risk_level
+    
+    return output
 
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["tool_router"])
@@ -1052,12 +965,7 @@ async def tool_router(query: str) -> PlanObject:
         "grounding_required": grounding_required,
         "justification": justification,
         "instruction": f"Follow the sequence: {' -> '.join(sequence)}",
-        # Router uses 444_SYNC motto (facing the routing decision)
         "stage": "ROUTER",
-        "motto": str(get_motto_for_stage("444_SYNC")),
-        "motto_positive": get_motto_for_stage("444_SYNC").positive,
-        "motto_negative": get_motto_for_stage("444_SYNC").negative,
-        "meaning": "Routing decision faced, not postponed",
     }
 
 
@@ -1125,14 +1033,6 @@ async def vault_query(
             },
             "entries": [],
             "patterns": {},
-            # Vault query uses 666_ALIGN motto (guarding institutional memory)
-            "stage": "VAULT_QUERY",
-            "motto": str(get_motto_for_stage("666_ALIGN")),
-            "motto_positive": get_motto_for_stage("666_ALIGN").positive,
-            "motto_negative": get_motto_for_stage("666_ALIGN").negative,
-            "meaning": "Institutional memory guarded, not neglected",
-            "floors_enforced": get_tool_floors("vault_query"),
-            "note": "Query interface migrating to core.organs — use session ledger for now",
         }
 
     # Parse dates
@@ -1338,13 +1238,6 @@ async def vault_query(
             },
             "entries": simplified,
             "patterns": patterns,
-            # Vault query uses 666_ALIGN motto
-            "stage": "VAULT_QUERY",
-            "motto": str(get_motto_for_stage("666_ALIGN")),
-            "motto_positive": get_motto_for_stage("666_ALIGN").positive,
-            "motto_negative": get_motto_for_stage("666_ALIGN").negative,
-            "meaning": "Institutional memory guarded, not neglected",
-            "floors_enforced": get_tool_floors("vault_query"),
         }
     except Exception as e:
         return {
@@ -1352,12 +1245,6 @@ async def vault_query(
             "error": str(e),
             "entries": [],
             "patterns": {},
-            "stage": "VAULT_QUERY",
-            "motto": str(get_motto_for_stage("666_ALIGN")),
-            "motto_positive": get_motto_for_stage("666_ALIGN").positive,
-            "motto_negative": get_motto_for_stage("666_ALIGN").negative,
-            "meaning": "Institutional memory guarded, not neglected",
-            "floors_enforced": get_tool_floors("vault_query"),
         }
 
 
@@ -1417,9 +1304,7 @@ async def truth_audit(
         "overall_verdict": "PENDING",
         "overall_truth": 0.0,
         "claims": [],
-        "floors_enforced": get_tool_floors("truth_audit"),
         "lane": lane,
-        "tool_version": "0.1-EXPERIMENTAL",
     }
 
     verified_count = 0
@@ -1511,12 +1396,7 @@ async def truth_audit(
     audit_report["omega_0"] = 0.05  # Default humility band
     
     # Add stage motto — Truth Audit uses 333_REASON (clarification)
-    motto = get_motto_for_stage("333_REASON")
     audit_report["stage"] = "TRUTH_AUDIT"
-    audit_report["motto"] = str(motto)
-    audit_report["motto_positive"] = motto.positive
-    audit_report["motto_negative"] = motto.negative
-    audit_report["meaning"] = motto.meaning
 
     # 5. VAULT_SEAL: Immutable Record
     await vault_seal(

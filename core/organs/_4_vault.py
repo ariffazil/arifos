@@ -23,11 +23,10 @@ from __future__ import annotations
 import hashlib
 import secrets
 from datetime import datetime, timezone
-from typing import Dict, Any, Optional, List
-from dataclasses import dataclass, field
+from typing import Dict, Any, Optional
+from dataclasses import dataclass
 
 from core.shared.physics import ConstitutionalTensor, TrinityTensor
-from core.shared.mottos import get_motto_for_stage, get_all_stage_mottos, format_all_stage_mottos
 
 
 # =============================================================================
@@ -46,10 +45,6 @@ class SealReceipt:
     timestamp: str = ""
     eureka_score: float = 0.0
     vault_backend: str = "memory"  # memory, postgres, filesystem
-    motto: str = "DITEMPA, BUKAN DIBERI"  # 999_SEAL motto
-    motto_output: str = "[999] DITEMPA, BUKAN DIBERI | Forged, Not Given"
-    mottos: List[str] = field(default_factory=list)  # all 9 mottos
-    mottos_output: str = ""  # formatted all-mottos output
 
 
 async def seal(
@@ -91,17 +86,6 @@ async def seal(
     # Compute EUREKA score
     eureka = _compute_eureka_score(judge_output, agi_tensor, asi_output)
     
-    # Get 999_SEAL motto: DITEMPA, BUKAN DIBERI
-    motto = get_motto_for_stage("999_SEAL")
-    
-    # All mottos for receipt/output
-    all_mottos = get_all_stage_mottos()
-    mottos = [
-        f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}"
-        for m in all_mottos
-    ]
-    mottos_output = format_all_stage_mottos()
-    
     # Determine storage tier
     if eureka < 0.50:
     
@@ -112,10 +96,6 @@ async def seal(
             entry_hash="",
             timestamp=datetime.now(timezone.utc).isoformat(),
             eureka_score=eureka,
-            motto=str(motto),
-            motto_output=f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
-            mottos=mottos,
-            mottos_output=mottos_output,
         )
     
     # Build entry data
@@ -148,10 +128,6 @@ async def seal(
             timestamp=entry["timestamp"],
             eureka_score=eureka,
             vault_backend="cooling",
-            motto=str(motto),
-            motto_output=f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
-            mottos=mottos,
-            mottos_output=mottos_output,
         )
     
     # SEAL: Permanent vault
@@ -168,10 +144,6 @@ async def seal(
         timestamp=entry["timestamp"],
         eureka_score=eureka,
         vault_backend="memory",  # Would be "postgres" in prod
-        motto=str(motto),
-        motto_output=f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
-        mottos=mottos,
-        mottos_output=mottos_output,
     )
 
 
