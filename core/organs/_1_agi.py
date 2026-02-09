@@ -27,7 +27,7 @@ from core.shared.physics import (
     TrinityTensor, UncertaintyBand, GeniusDial,
     ConstitutionalTensor,
 )
-from core.shared.atlas import Phi, Lane, GPV
+from core.shared.atlas import Phi, Lane, GPV, QueryType
 from core.shared.types import ThoughtNode, ThoughtChain, Verdict
 
 
@@ -204,6 +204,7 @@ async def reason(
     think_output: Dict[str, Any],
     session_id: str,
     max_thoughts: int = 5,
+    gpv: Optional[GPV] = None,
 ) -> ConstitutionalTensor:
     """
     Stage 333: REASON — Deep sequential thinking loop
@@ -211,13 +212,20 @@ async def reason(
     The Mind iteratively refines understanding until:
     - Convergence achieved (ΔS < threshold)
     - Max thoughts reached
-    - Confidence sufficient (truth_score ≥ 0.99)
+    - Confidence sufficient (truth_score ≥ f2_threshold)
+    
+    F2 Threshold is now ADAPTIVE based on query type:
+    - PROCEDURAL: 0.70 (relaxed for commands)
+    - OPINION: 0.60 (minimal for subjective)
+    - COMPARATIVE: 0.85 (medium for comparisons)
+    - FACTUAL: 0.99 (strict for facts)
     
     Args:
         query: Original query
         think_output: Output from think() action
         session_id: Constitutional session token
         max_thoughts: Maximum reasoning steps (default: 5)
+        gpv: Optional GPV for adaptive thresholds (auto-computed if None)
     
     Returns:
         ConstitutionalTensor with all floor metrics:
@@ -225,12 +233,20 @@ async def reason(
         - entropy_delta: ΔS (must be ≤ 0)
         - humility: Ω₀ band
         - genius: G score
-        - truth_score: F2 truth ≥ 0.99
+        - truth_score: F2 truth (adaptive threshold)
+        - f2_threshold: The threshold used for this query
     
     Action Chain:
         sense → think → reason (completes AGI phase)
         reason → apex.sync (hands off to Soul)
     """
+    # Get or compute GPV for adaptive F2
+    if gpv is None:
+        gpv = Phi(query)
+    
+    # Get adaptive F2 threshold based on query type
+    f2_threshold = gpv.f2_threshold()
+    
     hypotheses = think_output["hypotheses"]
     
     # Build reasoning chain
@@ -255,7 +271,7 @@ async def reason(
     entropy_delta = delta_S(query_text, chain_text)
     truth_score = thoughts[-1].confidence if thoughts else 0.5
     
-    # Build ConstitutionalTensor
+    # Build ConstitutionalTensor with adaptive F2 threshold info
     tensor = ConstitutionalTensor(
         witness=TrinityTensor(
             H=truth_score,  # Human-equivalent
@@ -274,6 +290,10 @@ async def reason(
         empathy=0.0,  # ASI computes this
         truth_score=truth_score,
     )
+    
+    # Store adaptive threshold info (monkey-patch for now)
+    tensor.f2_threshold = f2_threshold
+    tensor.query_type = gpv.query_type
     
     return tensor
 
@@ -316,24 +336,38 @@ async def agi(
     session_id: str,
     action: str = "full",
     grounding: Optional[Dict[str, Any]] = None,
+    gpv: Optional[GPV] = None,
 ) -> Dict[str, Any]:
     """
     Unified AGI interface — The Mind in action.
+    
+    Now with ADAPTIVE F2 based on query type:
+    - PROCEDURAL: F2 ≥ 0.70 (relaxed for commands)
+    - OPINION: F2 ≥ 0.60 (minimal for subjective)
+    - COMPARATIVE: F2 ≥ 0.85 (medium for comparisons)
+    - FACTUAL: F2 ≥ 0.99 (strict for facts)
     
     Args:
         query: User query
         session_id: Constitutional session token
         action: Which action to run ("sense", "think", "reason", or "full")
         grounding: Optional reality grounding
+        gpv: Optional pre-computed GPV for adaptive thresholds
     
     Returns:
-        Action-specific output, or full ConstitutionalTensor if action="full"
+        Action-specific output, or full result with tensor and f2_threshold
     
     Example:
-        >>> tensor = await agi("What is truth?", session, action="full")
-        >>> tensor.truth_score
-        0.95
+        >>> result = await agi("Run test pipeline", session, action="full")
+        >>> result["tensor"].truth_score
+        0.85
+        >>> result["f2_threshold"]
+        0.70  # PROCEDURAL gets relaxed threshold
     """
+    # Compute GPV once for adaptive behavior
+    if gpv is None:
+        gpv = Phi(query)
+    
     if action == "sense":
         return await sense(query, session_id, grounding)
     
@@ -344,37 +378,41 @@ async def agi(
     elif action == "reason":
         sense_out = await sense(query, session_id, grounding)
         think_out = await think(query, sense_out, session_id)
-        return await reason(query, think_out, session_id)
+        return await reason(query, think_out, session_id, gpv=gpv)
     
     elif action == "full":
-        # Complete AGI pipeline
-        sense_out = await sense(query, session_id, grounding)
-        
-        # Fast path for social queries
-        if sense_out["lane"] == Lane.SOCIAL:
+        # FAST PATH: Skip heavy reasoning for low-risk procedural/opinion queries
+        if gpv.can_use_fast_path():
             return {
                 "stage": 333,
                 "action": "reason",
                 "fast_path": True,
-                "lane": Lane.SOCIAL,
+                "lane": gpv.lane,
+                "query_type": gpv.query_type,
+                "f2_threshold": gpv.f2_threshold(),
                 "tensor": ConstitutionalTensor(
-                    witness=TrinityTensor(H=0.9, A=0.9, S=0.9),
-                    entropy_delta=-0.1,
-                    humility=Omega_0(0.9),
-                    genius=GeniusDial(A=0.9, P=0.9, X=0.5, E=0.9),
+                    witness=TrinityTensor(H=0.85, A=0.85, S=0.85),
+                    entropy_delta=-0.05,
+                    humility=Omega_0(0.85),
+                    genius=GeniusDial(A=0.85, P=0.9, X=0.5, E=0.85),
                     peace=None,
                     empathy=0.0,
-                    truth_score=0.9,
+                    truth_score=0.85,
                 ),
                 "session_id": session_id,
             }
         
+        # Standard path for factual/comparative/risky queries
+        sense_out = await sense(query, session_id, grounding)
         think_out = await think(query, sense_out, session_id)
-        tensor = await reason(query, think_out, session_id)
+        tensor = await reason(query, think_out, session_id, gpv=gpv)
         
         return {
             "stage": 333,
             "action": "reason",
+            "lane": gpv.lane,
+            "query_type": gpv.query_type,
+            "f2_threshold": gpv.f2_threshold(),
             "tensor": tensor,
             "session_id": session_id,
         }
