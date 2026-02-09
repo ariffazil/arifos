@@ -10,11 +10,10 @@ from typing import Dict, Any, Optional
 import logging
 
 from core import organs as core_organs
-from core.shared.physics import W_3_from_tensor, Peace2
+from core.shared.physics import Peace2
 from aaa_mcp.services.constitutional_metrics import (
     store_stage_result,
     get_stage_result,
-    get_session_evidence,
 )
 
 logger = logging.getLogger("STAGE_ADAPTER")
