@@ -28,10 +28,9 @@
         "truth_audit",
         "vault_seal",
         "tool_router",
-        "vault_query",
-        "_trinity_"
+        "vault_query"
       ],
-      "description": "arifOS Constitutional Core - 9 Canonical Tools (000-999 Metabolic Loop)"
+      "description": "arifOS Constitutional Core - 13 Canonical Tools (000-999 Metabolic Loop)"
     },
     "filesystem": {
       "command": "npx",
