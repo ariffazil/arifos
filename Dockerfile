@@ -1,5 +1,5 @@
-# arifOS MCP Server Dockerfile (v55.5-HARDENED)
-# Cache-bust: 2026-02-06-api-keys
+# arifOS MCP Server Dockerfile (v60.0-FORGE)
+# Cache-bust: 2026-02-09-core-added
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -14,6 +14,7 @@ RUN pip install -r requirements.txt
 # Copy source - CRITICAL: Copy in order of least to most likely to change
 COPY pyproject.toml .
 COPY scripts/start_server.py scripts/start_server.py
+COPY core/ core/
 COPY codebase/ codebase/
 COPY aaa_mcp/ aaa_mcp/
 
