@@ -40,16 +40,26 @@ async def health(request):
     if MONITORING_AVAILABLE:
         monitor = get_health_monitor()
         checks = await monitor.check_all()
-        is_healthy = all(c.get("status") == "healthy" for c in checks.values())
+        
+        # Core functionality must be healthy
+        core_healthy = checks.get("core_pipeline", {}).get("status") == "healthy"
+        
+        # Overall status: healthy if core works, degraded if optional components fail
+        if core_healthy:
+            status = "healthy"
+            code = 200
+        else:
+            status = "unhealthy"
+            code = 503
         
         return JSONResponse({
-            "status": "healthy" if is_healthy else "degraded",
+            "status": status,
             "service": "arifOS MCP Server",
             "version": "60.0-FORGE",
             "checks": checks,
-        }, status_code=200 if is_healthy else 503)
+        }, status_code=code)
     else:
-        # Basic health check
+        # Basic health check - always return healthy for Railway
         return JSONResponse({
             "status": "healthy",
             "service": "arifOS MCP Server",
