@@ -12,7 +12,7 @@ License: AGPL-3.0-only
 DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Literal, List, Optional, Dict, Any
 from enum import Enum
 from datetime import datetime
@@ -49,11 +49,11 @@ class ThoughtNode(BaseModel):
     thought_number: int = Field(ge=1)
     confidence: float = Field(ge=0.0, le=1.0, default=0.5)
     next_thought_needed: bool = True
-    stage: Literal["sense", "ground", "think", "sync", "judge", "seal"] = "think"
+    stage: Literal["sense", "ground", "think", "reason", "sync", "judge", "seal"] = "think"
     sources: List[str] = Field(default_factory=list)
+    path_type: Optional[str] = None
 
-    class Config:
-        frozen = False  # Allow mutations during reasoning loop
+    model_config = ConfigDict(frozen=False)
 
 
 class ThoughtChain(BaseModel):
@@ -240,8 +240,7 @@ class GPV(BaseModel):
     kappa: float = Field(ge=0.0, le=1.0, alias="κ")  # Care demand
     rho: float = Field(ge=0.0, le=1.0, alias="ρ")  # Risk level
 
-    class Config:
-        allow_population_by_field_name = True
+    model_config = ConfigDict(validate_by_name=True)
 
 
 # ============================================================================

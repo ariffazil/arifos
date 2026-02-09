@@ -17,6 +17,7 @@
       "disabled": false,
       "alwaysAllow": [
         "init_gate",
+        "forge_pipeline",
         "agi_sense",
         "agi_think",
         "agi_reason",
@@ -24,7 +25,10 @@
         "asi_align",
         "apex_verdict",
         "reality_search",
+        "truth_audit",
         "vault_seal",
+        "tool_router",
+        "vault_query",
         "_trinity_"
       ],
       "description": "arifOS Constitutional Core - 9 Canonical Tools (000-999 Metabolic Loop)"

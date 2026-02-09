@@ -148,13 +148,6 @@ class AgentFederation:
         """
         Execute full 4-agent federation.
         
-        ⚠️ NOT FULLY IMPLEMENTED IN v55.3
-        
-        Currently only Architect works.
-        Engineer, Auditor, Validator will raise NotImplementedError.
-        
-        For v55.3, use architect_only() instead.
-        
         Args:
             query: User query
             context: Optional additional context
@@ -202,72 +195,35 @@ class AgentFederation:
                 execution_path=execution_path,
             )
         
-        # Stage 2: Engineer (STUB - will raise)
+        # Stage 2: Engineer
         execution_path.append("Engineer")
-        try:
-            engineer_input = {
-                "query": query,
-                "plan": plan.to_dict() if plan else {},
-                "context": context or {},
-            }
-            engineer_output = await self.engineer.governed_process(engineer_input)
-        except NotImplementedError as e:
-            # Return partial result with error
-            return FederationResult(
-                query=query,
-                plan=plan,
-                architect_output=architect_output,
-                engineer_output=None,
-                auditor_output=None,
-                validator_output=None,
-                final_verdict=Verdict.HOLD_888,
-                final_response=f"Federation incomplete: {str(e)}",
-                execution_path=execution_path,
-            )
+        engineer_input = {
+            "query": query,
+            "plan": plan.to_dict() if plan else {},
+            "context": context or {},
+            "session_id": f"l5-{query[:8].strip().replace(' ', '-')}",
+        }
+        engineer_output = await self.engineer.governed_process(engineer_input)
         
-        # Stage 3: Auditor (STUB - will raise)
+        # Stage 3: Auditor
         execution_path.append("Auditor")
-        try:
-            auditor_input = {
-                "query": query,
-                "plan": plan.to_dict() if plan else {},
-                "engineer_result": engineer_output.to_dict(),
-            }
-            auditor_output = await self.auditor.governed_process(auditor_input)
-        except NotImplementedError as e:
-            return FederationResult(
-                query=query,
-                plan=plan,
-                architect_output=architect_output,
-                engineer_output=engineer_output,
-                auditor_output=None,
-                validator_output=None,
-                final_verdict=Verdict.HOLD_888,
-                final_response=f"Federation incomplete: {str(e)}",
-                execution_path=execution_path,
-            )
+        auditor_input = {
+            "query": query,
+            "plan": plan.to_dict() if plan else {},
+            "engineer_result": engineer_output.to_dict(),
+            "session_id": engineer_input["session_id"],
+        }
+        auditor_output = await self.auditor.governed_process(auditor_input)
         
-        # Stage 4: Validator (STUB - will raise)
+        # Stage 4: Validator
         execution_path.append("Validator")
-        try:
-            validator_input = {
-                "query": query,
-                "audit_report": auditor_output.to_dict(),
-                "tri_witness_threshold": self.tri_witness_threshold,
-            }
-            validator_output = await self.validator.governed_process(validator_input)
-        except NotImplementedError as e:
-            return FederationResult(
-                query=query,
-                plan=plan,
-                architect_output=architect_output,
-                engineer_output=engineer_output,
-                auditor_output=auditor_output,
-                validator_output=None,
-                final_verdict=Verdict.HOLD_888,
-                final_response=f"Federation incomplete: {str(e)}",
-                execution_path=execution_path,
-            )
+        validator_input = {
+            "query": query,
+            "audit_report": auditor_output.to_dict(),
+            "tri_witness_threshold": self.tri_witness_threshold,
+            "session_id": engineer_input["session_id"],
+        }
+        validator_output = await self.validator.governed_process(validator_input)
         
         # Full federation complete
         return FederationResult(

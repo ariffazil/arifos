@@ -84,14 +84,13 @@ class InjectionGuard:
     # Injection patterns with severity weights
     PATTERNS: List[Tuple[str, float]] = [
         # Critical patterns (high confidence injection)
-        (r"ignore (all |your |previous )?(instruction|command|prompt|training)", 0.9),
-        (r"forget (all |your |previous )?(instruction|command|prompt|training)", 0.9),
-        (r"disregard (all |your )?(instruction|command|prompt)", 0.9),
-        (r"you (are|will be|should be) (now |instead )?an? ", 0.8),  # Role confusion
-        (r"you (are|will be|should be) (now |instead )?the ", 0.8),
-        (r"act as (if|though) you (are|were)", 0.7),
-        (r"pretend (that |to be |you are )", 0.7),
-        (r"from now on,? you (are|will be)", 0.8),
+        (r"ignore\s+(?:all\s+|your\s+|previous\s+)*(?:instruction|command|prompt|training)s?", 0.9),
+        (r"forget\s+(?:all\s+|your\s+|previous\s+)*(?:instruction|command|prompt|training)s?", 0.9),
+        (r"disregard\s+(?:all\s+|your\s+)*(?:instruction|command|prompt)s?", 0.9),
+        (r"you\s+(?:are|will be|should be)\s+(?:now\s+|instead\s+)?(?:an?|the)\s+", 0.8),  # Role confusion
+        (r"act\s+as\s+(?:if\s+|though\s+)?you\s+(?:are|were)", 0.7),
+        (r"pretend\s+(?:that\s+|to be\s+|you are\s+)", 0.7),
+        (r"from\s+now\s+on,?\s+you\s+(?:are|will be)", 0.8),
         
         # Medium patterns (suspicious but maybe benign)
         (r"system prompt", 0.6),
@@ -203,6 +202,8 @@ VALID_ACTORS: Set[str] = {
     "system",
     "agent",
     "cli",
+    "test_user",  # For testing
+    "benchmark",  # For performance testing
 }
 
 # Actor ID → Authority level mapping
@@ -210,6 +211,8 @@ ACTOR_AUTHORITY: Dict[str, AuthorityLevel] = {
     "user": AuthorityLevel.USER,
     "cli": AuthorityLevel.USER,
     "agent": AuthorityLevel.USER,
+    "test_user": AuthorityLevel.USER,
+    "benchmark": AuthorityLevel.USER,
     "operator": AuthorityLevel.OPERATOR,
     "arif-fazil": AuthorityLevel.SOVEREIGN,
     "system": AuthorityLevel.SYSTEM,

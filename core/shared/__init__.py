@@ -15,6 +15,7 @@ from .physics import (
     W_3,
     W_3_from_tensor,
     W_3_check,
+    tri_witness,
     
     # Utilities
     geometric_mean,
@@ -22,12 +23,14 @@ from .physics import (
     
     # F4: Thermodynamic Clarity
     delta_S,
+    entropy_delta,
     is_cooling,
     clarity_ratio,
     
     # F7: Humility
     UncertaintyBand,
     Omega_0,
+    humility_band,
     
     # Precision
     pi,
@@ -36,16 +39,19 @@ from .physics import (
     # F5: Peace
     PeaceSquared,
     Peace2,
+    peace_squared,
     
     # F6: Empathy
     Stakeholder,
     kappa_r,
+    empathy_coeff,
     identify_stakeholders,
     DISTRESS_SIGNALS,
     
     # F8: Genius
     GeniusDial,
     G,
+    genius_score,
     G_from_dial,
     
     # Unified state
@@ -61,6 +67,8 @@ from .atlas import (
     ATLAS,
     classify,
     route,
+    classify_query,
+    route_query,
 )
 
 # Import types if available (may not be fully implemented)
@@ -108,23 +116,29 @@ __all__ = [
     "W_3",
     "W_3_from_tensor",
     "W_3_check",
+    "tri_witness",
     "geometric_mean",
     "std_dev",
     "delta_S",
+    "entropy_delta",
     "is_cooling",
     "clarity_ratio",
     "UncertaintyBand",
     "Omega_0",
+    "humility_band",
     "pi",
     "kalman_gain",
     "PeaceSquared",
     "Peace2",
+    "peace_squared",
     "Stakeholder",
     "kappa_r",
+    "empathy_coeff",
     "identify_stakeholders",
     "DISTRESS_SIGNALS",
     "GeniusDial",
     "G",
+    "genius_score",
     "G_from_dial",
     "ConstitutionalTensor",
     
@@ -137,6 +151,8 @@ __all__ = [
     "ATLAS",
     "classify",
     "route",
+    "classify_query",
+    "route_query",
 ]
 
 # Add types to __all__ if available
