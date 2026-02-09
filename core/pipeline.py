@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from core.organs import init, agi, asi, apex, vault
+from core.organs._0_init import QueryType
 
 
 @dataclass
@@ -110,9 +111,9 @@ async def forge(
     Full pipeline: 000 → 999 with adaptive F2 governance.
     
     Now with:
-    - Query type classification (PROCEDURAL, OPINION, COMPARATIVE, FACTUAL)
-    - Adaptive F2 thresholds (0.60 - 0.99 based on query type)
-    - Fast path for low-risk procedural/opinion queries
+    - P0.1: Query type classification (TEST, CONVERSATIONAL, PROCEDURAL, OPINION, FACTUAL)
+    - P0.2: Adaptive F2 thresholds (0.50 - 0.99 based on query type)
+    - P0.3: Circuit breaker for early VOID + fast path for TEST/CONVERSATIONAL
     - Better error messages with remediation steps
     
     Returns a ForgeResult with all stage outputs and diagnostics.
@@ -151,24 +152,83 @@ async def forge(
             remediation=remediation,
         )
 
+    # P0.3: Fast path for TEST/CONVERSATIONAL queries (skip heavy stages)
+    if query_type in [QueryType.TEST, QueryType.CONVERSATIONAL]:
+        # Minimal pipeline: init → agi (fast path) → direct SEAL
+        # AGI will detect fast path via GPV.can_use_fast_path()
+        agi_out = await agi(query, token.session_id, action="full")
+        
+        # Skip ASI and APEX for low-stakes queries - go straight to SEAL
+        asi_out = {"verdict": "SEAL", "empathy": 0.8, "fast_path": True}
+        apex_out = {"verdict": "SEAL", "fast_path": True}
+        
+        elapsed = (time.perf_counter() - start_time) * 1000
+        
+        return ForgeResult(
+            verdict="SEAL",
+            session_id=token.session_id,
+            token_status=token.status,
+            agi=agi_out,
+            asi=asi_out,
+            apex=apex_out,
+            seal=None,  # Skip vault for fast path
+            processing_time_ms=elapsed,
+            query_type=query_type.value,
+            f2_threshold=f2_threshold,
+            floors_failed=[],
+            remediation="Fast path: TEST/CONVERSATIONAL query processed with minimal stages.",
+        )
+
     # 111-333: AGI (with adaptive F2 from SessionToken)
     agi_out = await agi(query, token.session_id, action="full")
     agi_tensor = agi_out.get("tensor")
     
-    # Check if AGI passed adaptive F2
+    # P0.3: Circuit breaker - check AGI floors before continuing
+    floors_violated = []
+    
+    # Check F2 (Truth)
     truth_score = getattr(agi_tensor, 'truth_score', 0.5)
     if truth_score < f2_threshold:
-        # F2 failure with remediation
+        floors_violated.append("F2")
+    
+    # Check F4 (Entropy) - skip if query type allows
+    entropy_delta = getattr(agi_tensor, 'entropy_delta', 0.0)
+    if not token.skip_f4 and entropy_delta > 0:
+        floors_violated.append("F4")
+    
+    # Check F7 (Humility)
+    humility = getattr(agi_tensor, 'humility', None)
+    if humility and not humility.is_locked():
+        floors_violated.append("F7")
+    
+    # Check F8 (Genius)
+    genius = getattr(agi_tensor, 'genius', None)
+    if genius and genius.G() < 0.80:
+        floors_violated.append("F8")
+    
+    # Circuit breaker: if any floors violated, stop here
+    if floors_violated:
         elapsed = (time.perf_counter() - start_time) * 1000
-        remediation = (
-            f"Query classified as {query_type.value} (F2 threshold: {f2_threshold}). "
-        )
-        if query_type.value == "FACTUAL":
-            remediation += "Add specific facts or citations to increase truth score."
-        elif query_type.value in ["PROCEDURAL", "TEST"]:
-            remediation += "This command was blocked unexpectedly—try rephrasing or use mode='fast'."
-        else:
-            remediation += "Rephrase with more specific language."
+        
+        # Build remediation message
+        remediation_parts = [f"Query: {query_type.value} (F2 threshold: {f2_threshold})"]
+        
+        if "F2" in floors_violated:
+            if query_type.value == "FACTUAL":
+                remediation_parts.append("Add specific facts or citations.")
+            elif query_type.value in ["PROCEDURAL", "TEST"]:
+                remediation_parts.append("Try rephrasing or use mode='fast'.")
+            else:
+                remediation_parts.append("Rephrase with more specific language.")
+        
+        if "F4" in floors_violated:
+            remediation_parts.append("F4 Clarity: Query increases uncertainty. Be more specific.")
+        
+        if "F7" in floors_violated:
+            remediation_parts.append("F7 Humility: Add uncertainty ('I think', 'perhaps').")
+        
+        if "F8" in floors_violated:
+            remediation_parts.append("F8 Genius: Simplify or add more context.")
         
         return ForgeResult(
             verdict="VOID",
@@ -181,11 +241,11 @@ async def forge(
             processing_time_ms=elapsed,
             query_type=query_type.value,
             f2_threshold=f2_threshold,
-            floors_failed=["F2"],
-            remediation=remediation,
+            floors_failed=floors_violated,
+            remediation=" ".join(remediation_parts),
         )
 
-    # 555-666: ASI
+    # 555-666: ASI (only if AGI passed all floors)
     asi_out = await asi(query, agi_tensor, token.session_id, action="full")
 
     # 444-888: APEX
