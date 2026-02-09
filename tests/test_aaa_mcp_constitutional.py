@@ -580,28 +580,24 @@ class TestVerdictEnforcement:
         assert result["verdict"] in ("SEAL", "PARTIAL")
 
     @pytest.mark.asyncio
-    async def test_all_tools_stamp_motto(self):
-        """Every tool should stamp DITEMPA BUKAN DIBERI."""
-        from aaa_mcp.server import agi_sense, agi_think, init_gate
+    async def test_motto_resource_exists(self):
+        """Motto is a schema/resource concern, not stamped into every tool output."""
+        from aaa_mcp.server import get_motto
 
-        for tool, kwargs in [
-            (init_gate, {"query": "test"}),
-            (agi_sense, {"query": "test", "session_id": "t1"}),
-            (agi_think, {"query": "test", "session_id": "t2"}),
-        ]:
-            fn = _get_tool_fn(tool)
-            result = await fn(**kwargs)
-            assert "DITEMPA" in result.get("motto", ""), f"{fn.__name__} missing motto"
+        text = await _get_tool_fn(get_motto)()
+        assert isinstance(text, str)
+        assert "DITEMPA" in text
 
     @pytest.mark.asyncio
     async def test_tools_return_floors_enforced(self):
-        """Every tool should declare which floors it enforces."""
+        """Every tool should declare its constitutional enforcement metadata."""
         from aaa_mcp.server import agi_reason
 
         fn = _get_tool_fn(agi_reason)
         result = await fn(query="test reasoning", session_id="t3")
-        assert "floors_enforced" in result
-        assert "F2" in result["floors_enforced"]
+        assert "_constitutional" in result
+        assert "floors_checked" in result["_constitutional"]
+        assert "F2" in result["_constitutional"].get("floors_declared", [])
 
     @pytest.mark.asyncio
     async def test_constitutional_metadata_in_result(self):

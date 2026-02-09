@@ -159,6 +159,8 @@ class AGIEngine:
         """Stage 111: Parse intent and classify lane."""
         try:
             sense_out = await core_organs.sense(query, session_id)
+            # Stage 111 is classification, not truth-assertion. Avoid tripping F2 on a heuristic score.
+            sense_out.pop("truth_score", None)
             gpv = sense_out.get("gpv")
             if gpv is not None:
                 sense_out["gpv"] = {

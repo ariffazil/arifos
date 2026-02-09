@@ -61,6 +61,21 @@ from aaa_mcp.core.stage_adapter import (
 )
 from core.pipeline import forge as core_forge
 
+# ═════════════════════════════════════════════════════════════════════════════
+# FORMAL PROTOCOL LAYER (v1.0.0-LOW_ENTROPY)
+# Machine-executable governance schemas and operators
+# ═════════════════════════════════════════════════════════════════════════════
+from aaa_mcp.protocol import (
+    PrincipleOperator,
+    OPERATOR_REGISTRY,
+    SchemaMottoMapper,
+    get_schema_for_stage,
+    TOOL_SCHEMAS,
+    STAGE_OPERATORS,
+    OUTPUT_CONTRACTS,
+)
+from aaa_mcp.protocol.operators import get_operator, build_system_prompt
+
 
 """
 arifOS AAA MCP Server — Constitutional AI Governance (v60.0-FORGE)
@@ -549,6 +564,7 @@ async def reality_search(
     """External fact-checking and reality grounding via web search & Axiom Engine."""
     from datetime import datetime, timezone
 
+    query = str(query or "")
     result = await reality_check(query, region=region, timelimit=timelimit)
 
     # Axiom Engine Injection (Offline Physics/CCS Baseline)
@@ -620,9 +636,25 @@ async def reality_search(
                             }
                         )
 
-    # Web Search Result Processing
-    for i, res in enumerate(result.get("results", [])[:3]):
-        snippet = res.get("snippet", "")
+    # Web Search Result Processing (normalize url/link fields)
+    results = result.get("results") or []
+    if not isinstance(results, list):
+        results = []
+
+    def _pick_uri(item: dict) -> str:
+        for key in ("url", "link", "href", "uri"):
+            value = item.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+        return ""
+
+    for i, res in enumerate(results[:3]):
+        if not isinstance(res, dict):
+            continue
+        snippet = res.get("snippet") or res.get("description") or ""
+        if not isinstance(snippet, str):
+            snippet = str(snippet)
+        uri = _pick_uri(res)
         evidence.append(
             {
                 "evidence_id": f"E-WEB-{i}",
@@ -632,13 +664,13 @@ async def reality_search(
                     "language": "en",
                 },
                 "source_meta": {
-                    "uri": res.get("link", "Unknown"),
+                    "uri": uri,
                     "type": EvidenceType.WEB.value,
                     "author": "WebScout",
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                 },
                 "metrics": {
-                    "trust_weight": 0.90 if res.get("link") else 0.50,
+                    "trust_weight": 0.90 if uri else 0.50,
                     "relevance_score": 0.8,
                 },
                 "lifecycle": {"status": "active", "retrieved_by": "reality_search_v2"},
