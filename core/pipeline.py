@@ -14,11 +14,12 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from core.organs import init, agi, asi, apex, vault
+from core.shared.atlas import Phi
 
 
 @dataclass
 class ForgeResult:
-    """Result of full constitutional pipeline."""
+    """Result of full constitutional pipeline with diagnostics."""
     verdict: str
     session_id: str
     token_status: str
@@ -27,6 +28,16 @@ class ForgeResult:
     apex: dict[str, Any]
     seal: Any
     processing_time_ms: float = 0.0
+    
+    # NEW: Diagnostic information for user feedback
+    query_type: str = "UNKNOWN"  # PROCEDURAL, OPINION, COMPARATIVE, FACTUAL
+    f2_threshold: float = 0.99
+    floors_failed: list = None
+    remediation: str = ""  # Actionable fix suggestion
+    
+    def __post_init__(self):
+        if self.floors_failed is None:
+            self.floors_failed = []
     
     def is_success(self) -> bool:
         """Check if result was successful (SEAL or PARTIAL)."""
@@ -39,6 +50,27 @@ class ForgeResult:
     def needs_human(self) -> bool:
         """Check if result needs human review (888_HOLD)."""
         return self.verdict == "888_HOLD"
+    
+    def to_user_message(self) -> str:
+        """Generate user-friendly result message with remediation."""
+        if self.verdict == "SEAL":
+            return "✅ Constitutional verification passed."
+        
+        elif self.verdict == "PARTIAL":
+            return f"⚠️ Limited approval with constraints. {self.remediation}"
+        
+        elif self.verdict == "VOID":
+            msg = "❌ Blocked by constitutional floors."
+            if self.floors_failed:
+                msg += f" Failed: {', '.join(self.floors_failed)}."
+            if self.remediation:
+                msg += f" {self.remediation}"
+            return msg
+        
+        elif self.verdict == "888_HOLD":
+            return "🛑 Requires human sovereign review."
+        
+        return "Unknown verdict."
 
 
 async def quick(

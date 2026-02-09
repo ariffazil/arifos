@@ -41,6 +41,23 @@ class Lane(str, Enum):
     CRISIS = "CRISIS"
 
 
+class QueryType(str, Enum):
+    """
+    Query type classification for adaptive governance.
+    
+    Used to adjust F2 Truth strictness based on query intent.
+    
+    PROCEDURAL: Commands, workflows, instructions (e.g., "run test")
+    OPINION:    Subjective views (e.g., "what do you think")
+    COMPARATIVE: A vs B comparisons (e.g., "X vs Y, which is better")
+    FACTUAL:    Verifiable claims (e.g., "what is the capital")
+    """
+    PROCEDURAL = "PROCEDURAL"    # Low F2 requirement
+    OPINION = "OPINION"          # Minimal F2 requirement
+    COMPARATIVE = "COMPARATIVE"  # Medium F2 requirement
+    FACTUAL = "FACTUAL"          # High F2 requirement
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 # GOVERNANCE PLACEMENT VECTOR (GPV)
 # ═════════════════════════════════════════════════════════════════════════════
@@ -53,11 +70,13 @@ class GPV:
     
     Maps any query to:
     - lane: Which processing path
+    - query_type: What kind of query (for adaptive F2)
     - truth_demand (τ): How much truth verification needed [0, 1]
     - care_demand (κ): How much empathy filtering needed [0, 1]
     - risk_level (ρ): Escalation likelihood [0, 1]
     """
     lane: Lane
+    query_type: QueryType  # NEW: For adaptive F2 thresholds
     truth_demand: float   # τ (tau) ∈ [0, 1]
     care_demand: float    # κ (kappa) ∈ [0, 1]
     risk_level: float     # ρ (rho) ∈ [0, 1]
@@ -87,6 +106,25 @@ class GPV:
     def requires_empathy(self) -> bool:
         """Does this GPV require stakeholder analysis?"""
         return self.care_demand > 0.5 or self.lane in (Lane.CARE, Lane.CRISIS)
+    
+    def f2_threshold(self) -> float:
+        """
+        Adaptive F2 Truth threshold based on query type.
+        
+        Returns:
+            Minimum truth score required for this query type
+        """
+        thresholds = {
+            QueryType.PROCEDURAL: 0.70,  # Relaxed for commands
+            QueryType.OPINION: 0.60,     # Minimal for subjective
+            QueryType.COMPARATIVE: 0.85, # Medium for comparisons
+            QueryType.FACTUAL: 0.99,     # Strict for facts
+        }
+        return thresholds.get(self.query_type, 0.95)
+    
+    def can_use_fast_path(self) -> bool:
+        """Can this query use the fast/light pipeline?"""
+        return self.query_type in (QueryType.PROCEDURAL, QueryType.OPINION) and self.risk_level < 0.3
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -265,6 +303,55 @@ _atlas = ATLAS()
 # ═════════════════════════════════════════════════════════════════════════════
 
 
+def classify_query_type(text: str) -> QueryType:
+    """
+    Classify query type for adaptive F2 governance.
+    
+    Args:
+        text: Raw query text
+    
+    Returns:
+        QueryType enum (PROCEDURAL, OPINION, COMPARATIVE, FACTUAL)
+    """
+    text_lower = text.lower()
+    
+    # PROCEDURAL: Commands, workflows, test requests
+    procedural_patterns = [
+        r"\b(run|test|execute|start|begin|launch|process)\b",
+        r"\b(pipeline|workflow|stage)\s+(test|run|check)",
+        r"\b(give me|show|display|print)\s+(a\s+)?(verdict|result|output)",
+        r"\b(init|initialize|setup|configure)\b",
+    ]
+    for pattern in procedural_patterns:
+        if re.search(pattern, text_lower):
+            return QueryType.PROCEDURAL
+    
+    # OPINION: Subjective requests
+    opinion_patterns = [
+        r"\b(what do you think|in your opinion|how do you feel)\b",
+        r"\b(siapa|who is)\s+(lebih|more|better)\b",  # Malay/Indonesian comparison
+        r"\b(bangang|stupid|better|worse)\b",  # Subjective judgment words
+        r"\b(prefer|like|dislike|enjoy)\b",
+    ]
+    for pattern in opinion_patterns:
+        if re.search(pattern, text_lower):
+            return QueryType.OPINION
+    
+    # COMPARATIVE: A vs B
+    comparative_patterns = [
+        r"\b(vs\.?|versus|compared to|better than)\b",
+        r"\b(antara|between)\b.*\b(dan|and)\b",  # Malay
+        r"\b(which is|what is)\s+(better|worse|more)\b",
+        r"\b(difference between|similarities between)\b",
+    ]
+    for pattern in comparative_patterns:
+        if re.search(pattern, text_lower):
+            return QueryType.COMPARATIVE
+    
+    # Default to FACTUAL for everything else
+    return QueryType.FACTUAL
+
+
 def Λ(text: str) -> Lane:
     """
     Λ (Lambda): Text → Lane classification
@@ -339,40 +426,43 @@ def Φ(text: str) -> GPV:
     Φ = Θ ∘ Λ (function composition)
     
     Maps any query to its full constitutional coordinate:
-    GPV(lane, truth_demand, care_demand, risk_level)
+    GPV(lane, query_type, truth_demand, care_demand, risk_level)
     
     Args:
         text: Raw query text
     
     Returns:
-        GPV with lane and demand levels
+        GPV with lane, query_type, and demand levels
     
     Examples:
         >>> gpv = Φ("What is the capital of Malaysia?")
         >>> gpv.lane
         <Lane.FACTUAL: 'FACTUAL'>
-        >>> gpv.truth_demand > 0.8
-        True
+        >>> gpv.f2_threshold()
+        0.99
         
-        >>> gpv = Φ("Hello!")
-        >>> gpv.lane
-        <Lane.SOCIAL: 'SOCIAL'>
-        >>> gpv.requires_grounding()
-        False
+        >>> gpv = Φ("AAA MCP pipeline test run")
+        >>> gpv.query_type
+        <QueryType.PROCEDURAL: 'PROCEDURAL'>
+        >>> gpv.f2_threshold()
+        0.7
     """
     # Step 1: Classify lane
     lane = Λ(text)
     
-    # Step 2: Get base demands from lane
+    # Step 2: Classify query type (NEW)
+    query_type = classify_query_type(text)
+    
+    # Step 3: Get base demands from lane
     τ_base, κ_base, ρ_base = Θ(lane)
     
-    # Step 3: Refine with text-specific risk assessment
+    # Step 4: Refine with text-specific risk assessment
     ρ_assessed = _atlas._assess_risk(text)
     
     # Blend base risk with assessed risk
     ρ = max(ρ_base, ρ_assessed)
     
-    # Adjust truth demand based on absolutist claims
+    # Step 5: Adjust truth demand based on absolutist claims
     text_lower = text.lower()
     absolutist_terms = ["guaranteed", "absolute", "always", "never", "perfectly safe"]
     if any(term in text_lower for term in absolutist_terms):
@@ -380,6 +470,7 @@ def Φ(text: str) -> GPV:
     
     return GPV(
         lane=lane,
+        query_type=query_type,
         truth_demand=τ_base,
         care_demand=κ_base,
         risk_level=ρ,
@@ -469,6 +560,10 @@ def route_query(query: str) -> str:
 __all__ = [
     # Lane types
     "Lane",
+    
+    # Query types (NEW)
+    "QueryType",
+    "classify_query_type",
     
     # GPV
     "GPV",
