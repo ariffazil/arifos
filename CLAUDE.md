@@ -7,6 +7,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Python:** >=3.10 | **License:** AGPL-3.0-only
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
 
+**Foundation:** RUKUN AGI (The Five Pillars) — 555 is sacred
+**Architecture:** `core/` is the **single source of truth** for constitutional modules
+
 ---
 
 ## Build & Dev Commands
@@ -68,23 +71,50 @@ mypy aaa_mcp/ --ignore-missing-imports
 
 ---
 
-## Critical: aaa_mcp vs mcp Import Distinction
+## Critical: Import Paths
 
-The local MCP server package was renamed from `mcp/` → `aaa_mcp/` to avoid shadowing the MCP Python SDK (`mcp` v1.26.0 on PyPI). This distinction is the single most important thing to get right.
+### 1. Constitutional Foundation (NEW v55.5 — RUKUN AGI)
+
+**Use `core.*` as single source of truth:**
 
 ```python
-# Local arifOS code — use aaa_mcp (with subdirectory paths)
+# CORRECT — v55.5 forward (The Five Pillars)
+from core.shared.physics import W_3, delta_S, G, geometric_mean
+from core.shared.atlas import Lane, Lambda, Phi
+from core.shared.types import Verdict, VaultOutput, FloorScores
+from core.shared.crypto import generate_session_id, sha256_hash, merkle_root
+from core.organs._0_init import init, scan_injection
+
+# LEGACY — still works but avoid in new code
+from codebase.floors.truth import F2_Truth
+from codebase.agi.atlas import ATLAS
+```
+
+**The Five Pillars (RUKUN AGI - 555):**
+1. `core/shared/physics.py` — Thermodynamic primitives (W_3, delta_S, Peace2, etc.)
+2. `core/shared/atlas.py` — Governance routing (Lambda, Theta, Phi)
+3. `core/shared/types.py` — Constitutional contracts (Verdict, Pydantic models)
+4. `core/shared/crypto.py` — Trust primitives (Ed25519, Merkle, SHA-256)
+5. `core/organs/` — Active enforcement (Airlock implemented, AGI/ASI/APEX/Vault pending)
+
+### 2. MCP Server vs SDK
+
+The local MCP server package was renamed from `mcp/` → `aaa_mcp/` to avoid shadowing the MCP Python SDK (`mcp` v1.26.0 on PyPI).
+
+```python
+# Local arifOS code — use aaa_mcp
 from aaa_mcp.server import mcp
 from aaa_mcp.core.constitutional_decorator import constitutional_floor
-from aaa_mcp.core.engine_adapters import AGIEngine, ASIEngine, APEXEngine
-from aaa_mcp.services.constitutional_metrics import store_stage_result
-from aaa_mcp.sessions.session_ledger import SessionLedger
 
 # MCP SDK from PyPI — use mcp
 from mcp import Client, StdioClientTransport
 ```
 
-**`pyproject.toml` packages.find must NOT include `mcp*`** — that would re-shadow the SDK.
+**`pyproject.toml` packages.find:**
+```toml
+include = ["arifos*", "core*", "aaa_mcp*", "codebase*"]
+exclude = ["core.archive*"]  # Legacy code preserved but excluded
+```
 
 ---
 
@@ -135,41 +165,47 @@ SABAR > VOID > 888_HOLD > PARTIAL > SEAL
 - **PARTIAL**: Soft floor warning — proceed with caution
 - **SABAR**: Floor violated — stop and repair first
 
-### aaa_mcp/ Package Structure (Post-Cooling Refactor)
+### core/ Package Structure (v55.5 RUKUN AGI Foundation)
+
+```
+core/
+├── __init__.py              # Package root
+├── shared/                  # The Five Pillars (Source of Truth)
+│   ├── __init__.py
+│   ├── physics.py           # Pillar 1: Thermodynamic primitives
+│   ├── atlas.py             # Pillar 2: Governance routing
+│   ├── types.py             # Pillar 3: Constitutional contracts
+│   ├── crypto.py            # Pillar 4: Trust primitives
+│   └── guards.py            # Floor guards (F10, F11, F12)
+├── organs/                  # Pillar 5: Active enforcement
+│   ├── __init__.py
+│   └── _0_init.py           # Airlock (F11 Auth, F12 Injection)
+│   # TODO: 1_agi.py, 2_asi.py, 3_apex.py, 4_vault.py
+└── archive/                 # F1 Amanah: Legacy preservation
+    ├── agi/                 # Old AGI engine
+    ├── asi/                 # Old ASI engine
+    ├── apex/                # Old APEX engine
+    └── v60_legacy/          # Refactored core_*.py files
+```
+
+### aaa_mcp/ Package Structure (MCP Server)
 
 ```
 aaa_mcp/
-├── __init__.py              # Package exports (9 tools, decorators, config)
-├── __main__.py              # CLI entry: python -m aaa_mcp [stdio|sse]
-├── server.py                # 9 tool definitions with @mcp.tool() + @constitutional_floor()
-├── mcp_config.py            # External MCP server registry, TrinityComponent config
-├── mcp_integration.py       # MCPIntegrationLayer for external server management
-├── bridge.py                # Legacy bridge module (Ed25519, Shannon entropy)
-├── asi_gateway.py           # ASI gateway layer
-├── core/                    # Constitutional enforcement & engine wiring
-│   ├── constitutional_decorator.py  # Floor enforcement decorator (the real one)
-│   ├── engine_adapters.py           # Bridges tools to codebase engines + fallback stubs
-│   ├── mode_selector.py             # MCPMode enum (stdio/sse)
-│   └── tool_registry.py             # Tool registration management
-├── services/                # Runtime services
-│   ├── constitutional_metrics.py    # In-memory stage result storage, verdict logging
-│   └── redis_client.py              # Redis session persistence (optional)
-├── sessions/                # Session persistence & audit
-│   ├── session_ledger.py            # VAULT999 Merkle hash-chained ledger
-│   ├── session_dependency.py        # Session dependency management
-│   └── archive/                     # 900+ sealed session JSON files
-├── tools/                   # Tool implementation helpers
-│   ├── canonical_trinity.py         # Trinity architecture validator
-│   ├── reality_grounding.py         # Fact-checking (reality_search backend)
-│   ├── trinity_validator.py         # Trinity pipeline validator
-│   └── mcp_tools_v53.py            # v53 tool specs
-├── infrastructure/          # System services
-│   └── rate_limiter.py              # Rate limiting
-├── external_gateways/       # External API clients
-│   └── brave_client.py              # Brave Search API
-└── transports/              # Transport implementations
-    └── sse.py                       # SSE transport (Railway, legacy remote)
+├── server.py                # 9 MCP tools (should migrate to use core.*)
+├── core/
+│   ├── constitutional_decorator.py  # Floor enforcement
+│   ├── engine_adapters.py           # Bridge to codebase engines (migrate to core.*)
+│   └── ...
+├── services/
+│   ├── constitutional_metrics.py
+│   └── ...
+└── sessions/
+    ├── session_ledger.py            # VAULT999 ledger
+    └── ...
 ```
+
+**Migration Path:** Update `aaa_mcp/` to import from `core.shared.*` and `core.organs.*` instead of scattered `codebase/` imports.
 
 ### Key Module Map (Rest of Repository)
 

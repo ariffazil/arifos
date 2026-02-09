@@ -1,53 +1,93 @@
 """
-organs/ — The 5-Organ Constitutional Kernel
+core/organs/__init__.py — Organ Exports
 
-    _0_init.py   — Stage 000: Airlock (F11/F12)
-    _1_agi.py    — Stage 111-333: The Mind (F2/F4/F7/F8) — FUTURE
-    _2_asi.py    — Stage 555-666: The Heart (F1/F5/F6) — FUTURE
-    _3_apex.py   — Stage 444-888: The Soul (F3/F9/F10/F13) — FUTURE
-    _4_vault.py  — Stage 999: Memory (F13) — FUTURE
+RUKUN AGI 5-Organ Kernel:
+    _0_init  → The Airlock (Stages 000-111)
+    _1_agi   → The Mind (Stages 111-333)
+    _2_asi   → The Heart (Stages 555-666)
+    _3_apex  → The Soul (Stages 444-777-888)
+    _4_vault → The Memory (Stage 999)
 
-Current Status:
-    [OK] _0_init.py — IMPLEMENTED
-    [PENDING] _1_agi.py — FUTURE
-    [PENDING] _2_asi.py — FUTURE
-    [PENDING] _3_apex.py — FUTURE
-    [PENDING] _4_vault.py — FUTURE
+Usage:
+    from core.organs import init, agi, asi, apex, vault
+    
+    # Or granular imports
+    from core.organs import sense, empathize, sync, seal
+
+DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-from ._0_init import (
-    InjectionRisk,
-    InjectionGuard,
-    scan_injection,
-    AuthorityLevel,
-    verify_auth,
-    requires_sovereign,
-    SessionToken,
+# Import all organs
+from core.organs import _0_init
+from core.organs import _1_agi
+from core.organs import _2_asi
+from core.organs import _3_apex
+from core.organs import _4_vault
+
+# Re-export main functions (unified interfaces)
+from core.organs._0_init import init
+from core.organs._1_agi import agi
+from core.organs._2_asi import asi
+from core.organs._3_apex import apex
+from core.organs._4_vault import vault
+
+# Re-export actions for direct use
+from core.organs._0_init import (
     init,
-    init_sync,
-    validate_token,
-    get_authority_name,
+    scan_injection,
+    verify_auth,
+)
+
+from core.organs._1_agi import (
+    sense,
+    think,
+    reason,
+)
+
+from core.organs._2_asi import (
+    empathize,
+    align,
+)
+
+from core.organs._3_apex import (
+    sync,
+    forge,
+    judge,
+)
+
+from core.organs._4_vault import (
+    seal,
+    query,
+    verify,
 )
 
 __all__ = [
-    # F12: Injection Guard
-    "InjectionRisk",
-    "InjectionGuard",
-    "scan_injection",
+    # Organ modules
+    "_0_init",
+    "_1_agi",
+    "_2_asi",
+    "_3_apex",
+    "_4_vault",
     
-    # F11: Command Authority
-    "AuthorityLevel",
-    "verify_auth",
-    "requires_sovereign",
-    
-    # Session Token
-    "SessionToken",
-    
-    # Stage 000: Init
+    # Unified interfaces
     "init",
-    "init_sync",
+    "agi",
+    "asi",
+    "apex",
+    "vault",
     
-    # Utilities
-    "validate_token",
-    "get_authority_name",
+    # Actions
+    "scan_injection",  # F12
+    "verify_auth",     # F11
+    "sense",           # Stage 111
+    "think",           # Stage 222
+    "reason",          # Stage 333
+    "empathize",       # Stage 555
+    "align",           # Stage 666
+    "sync",            # Stage 444
+    "forge",           # Stage 777
+    "judge",           # Stage 888
+    "seal",            # Stage 999
+    "query",           # Vault read
+    "verify",          # Vault verify
 ]
