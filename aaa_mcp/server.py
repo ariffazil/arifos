@@ -29,6 +29,14 @@ from aaa_mcp.services.constitutional_metrics import (
     store_stage_result,
 )
 from aaa_mcp.tools.reality_grounding import reality_check
+from aaa_mcp.core.stage_adapter import (
+    run_stage_444_trinity_sync,
+    run_stage_555_empathy,
+    run_stage_666_align,
+    run_stage_777_forge,
+    run_stage_888_judge,
+    run_stage_999_seal,
+)
 
 mcp = FastMCP("aaa-mcp")
 
@@ -214,6 +222,11 @@ async def asi_empathize(query: str, session_id: str) -> dict:
     result["evidence"] = evidence
 
     store_stage_result(session_id, "asi_empathize", result)
+    
+    # Wire Stage 555: ASI Empathy
+    stage_555_result = await run_stage_555_empathy(session_id, query)
+    result["stage_555"] = stage_555_result
+    
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("asi_empathize")
     result["pass"] = "forward"
@@ -240,6 +253,11 @@ async def asi_align(query: str, session_id: str) -> dict:
     result["evidence"] = evidence
 
     store_stage_result(session_id, "asi_align", result)
+    
+    # Wire Stage 666: ASI Align
+    stage_666_result = await run_stage_666_align(session_id, query)
+    result["stage_666"] = stage_666_result
+    
     result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
     result["floors_enforced"] = get_tool_floors("asi_align")
     result["pass"] = "forward"
@@ -346,6 +364,23 @@ async def apex_verdict(query: str, session_id: str) -> dict:
         core_metrics["verdict"] = current_verdict
         core_metrics["truth_fidelity"] = 0.45
 
+    # Wire Metabolic Stages 444-888
+    # Stage 444: Trinity Sync (merge AGI/ASI bundles)
+    stage_444_result = await run_stage_444_trinity_sync(session_id)
+    
+    # Stage 777: Forge (phase transition)
+    stage_777_result = await run_stage_777_forge(session_id, {"query": query})
+    
+    # Stage 888: Judge (final verdict with veto power)
+    stage_888_result = await run_stage_888_judge(session_id, {"query": query})
+    
+    # Override with stage 888 verdict if it's more restrictive
+    stage_888_verdict = stage_888_result.get("verdict")
+    if stage_888_verdict and stage_888_verdict != "SEAL":
+        current_verdict = stage_888_verdict
+        core_metrics["verdict"] = current_verdict
+        result["verdict_justification"] = f"Stage 888 Judge override: {stage_888_result.get('judge_result', {}).get('reason', 'Constitutional veto')}"
+    
     # Sovereign Reconstruction: ignore legacy result keys
     final_output = {
         "verdict": current_verdict,
@@ -357,6 +392,10 @@ async def apex_verdict(query: str, session_id: str) -> dict:
         "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
         "floors_enforced": get_tool_floors("apex_verdict"),
         "pass": "reverse",
+        # Metabolic stages results
+        "stage_444": stage_444_result,
+        "stage_777": stage_777_result,
+        "stage_888": stage_888_result,
         # Pass through some essentials from the original engine result
         "tri_witness": result.get("tri_witness", 0.95),
         "votes": result.get("votes", {})
@@ -658,8 +697,16 @@ async def vault_seal(
             print(f"[vault_seal] Postgres failed: {e}, using fallback")
             postgres_used = False
     
-    # Fallback to session ledger if Postgres unavailable
-    if not postgres_used:
+    # Wire Stage 999: EUREKA-filtered Seal
+    stage_999_result = await run_stage_999_seal(session_id)
+    
+    # Use stage 999 results if available
+    if stage_999_result.get("status") in ["SEALED", "SABAR"]:
+        seal_id = stage_999_result.get("seal_id", seal_id)
+        seal_hash = stage_999_result.get("hash", seal_hash)
+    
+    # Fallback to session ledger if Postgres unavailable and stage 999 didn't seal
+    if not postgres_used and not seal_id:
         try:
             from aaa_mcp.sessions.session_ledger import get_ledger
             ledger = await get_ledger()
@@ -698,6 +745,8 @@ async def vault_seal(
             "oversight": v3_oversight,
             "provenance": {"tools": tool_chain or [], "env": environment},
         },
+        # Metabolic stage 999 result
+        "stage_999": stage_999_result,
         "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
         "floors_enforced": get_tool_floors("vault_seal"),
         "pass": "reverse",

@@ -5,13 +5,16 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-ROUTE_SCRIPT = REPO_ROOT / "skills" / "route-tasks-by-policy" / "scripts" / "route_task.py"
-ROUTING_JSON = REPO_ROOT / "routing.json"
+ROUTE_SCRIPT = (
+    REPO_ROOT / "333_APPS" / "L2_SKILLS" / "UTILITIES" / "route-tasks" / "scripts" / "route_task.py"
+)
+ROUTING_JSON = REPO_ROOT / "archive" / "cleanup_root_20260208" / "config" / "routing.json"
 
 
 def run_route(prompt: str) -> str:
+    cmd = [sys.executable, str(ROUTE_SCRIPT), "--prompt", prompt, "--config", str(ROUTING_JSON)]
     result = subprocess.check_output(
-        [sys.executable, str(ROUTE_SCRIPT), "--prompt", prompt],
+        cmd,
         text=True,
     )
     return result.strip()

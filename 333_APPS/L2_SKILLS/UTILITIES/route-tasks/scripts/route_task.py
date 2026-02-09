@@ -12,7 +12,7 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+REPO_ROOT = Path(__file__).resolve().parents[5]
 ROUTING_PATH = REPO_ROOT / "routing.json"
 LEDGER_PATH = REPO_ROOT / "routing_ledger.md"
 
@@ -54,9 +54,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Route a task prompt using routing.json")
     parser.add_argument("--prompt", required=True, help="Task prompt to classify")
     parser.add_argument("--log", action="store_true", help="Append decision to routing_ledger.md")
+    parser.add_argument("--config", help="Path to routing.json", default=None)
     args = parser.parse_args()
 
-    policy = load_policy(ROUTING_PATH)
+    config_path = Path(args.config) if args.config else ROUTING_PATH
+    policy = load_policy(config_path)
     selection = select_route(policy, args.prompt)
 
     entry = format_log_entry(selection["task_type"], selection["model"], selection["reason"])

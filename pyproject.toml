@@ -217,7 +217,7 @@ Changelog = "https://github.com/ariffazil/arifOS/blob/main/CHANGELOG.md"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["arifos*", "scripts*", "codebase*", "aaa_mcp*", "mcp_server*"]
+include = ["arifos*", "scripts*", "codebase*", "aaa_mcp*", "mcp_server*", "core*"]
 exclude = [
     "arifos.tests*",
     "arifos.tests",
@@ -225,6 +225,7 @@ exclude = [
     "*.tests.*",
     "tests.*",
     "tests",
+    "core.archive*",  # Exclude archived legacy code
 ]
 
 [tool.setuptools.package-data]

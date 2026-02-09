@@ -22,7 +22,7 @@ from unittest.mock import patch
 
 import pytest
 
-from aaa_mcp.session_ledger import (
+from aaa_mcp.sessions.session_ledger import (
     SessionEntry,
     SessionLedger,
     get_ledger,
@@ -250,7 +250,7 @@ class TestHelperFunctions:
 
     def test_get_ledger_singleton(self):
         """get_ledger returns singleton instance."""
-        import aaa_mcp.session_ledger as module
+        import aaa_mcp.sessions.session_ledger as module
 
         # Clear singleton
         module._session_ledger = None

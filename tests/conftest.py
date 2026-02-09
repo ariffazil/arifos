@@ -1,8 +1,12 @@
 """Pytest configuration and fixtures for arifOS tests"""
 
 import os
+import sys
 import warnings
 from pathlib import Path
+
+# Add project root to sys.path to resolve 'aaa_mcp'
+sys.path.insert(0, str(Path(__file__).parents[1]))
 
 import pytest
 

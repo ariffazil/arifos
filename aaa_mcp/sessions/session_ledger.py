@@ -48,6 +48,10 @@ class VaultEntry:
             self.floors_failed = []
 
 
+# Compatibility alias for legacy code
+SessionEntry = VaultEntry
+
+
 class SessionLedger:
     """
     VAULT999 Ledger — Immutable Merkle-chained audit trail.
@@ -311,3 +315,13 @@ async def seal_memory(
         "seal_id": entry.entry_id,
         "entry_hash": entry.entry_hash
     }
+
+
+async def inject_memory(session_id: str, context: Dict[str, Any]) -> bool:
+    """
+    Legacy compatibility function for memory injection.
+    In VAULT999 v3, context is stored as part of the ledger entry payload.
+    """
+    # In the new architecture, memory injection is handled during seal
+    # This function returns True for API compatibility
+    return True
