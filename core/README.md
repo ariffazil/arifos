@@ -18,11 +18,11 @@ core/
 │   └── crypto.py    # 4️⃣ Cryptographic Trust
 │
 └── organs/          # 5️⃣ Active Enforcement
-    ├── _0_init.py   # ✅ Airlock (F11/F12)
-    ├── 1_agi.py     # 🔴 Mind (F2/F4/F7/F8) - TODO
-    ├── 2_asi.py     # 🔴 Heart (F1/F5/F6) - TODO
-    ├── 3_apex.py    # 🔴 Soul (F3/F9/F10/F13) - TODO
-    └── 4_vault.py   # 🔴 Memory (999) - TODO
+    ├── _0_init.py   # ✅ Init / Airlock (F11/F12)
+    ├── _1_agi.py    # ✅ Mind (F2/F4/F7/F8)
+    ├── _2_asi.py    # ✅ Heart (F1/F5/F6)
+    ├── _3_apex.py   # ✅ Soul (F3/F9/F10/F13)
+    └── _4_vault.py  # ✅ Memory (999)
 ```
 
 **Learn More:** https://medium.com/@arifbfazil/rukun-agi-the-five-pillars-of-artificial-general-intelligence-bba2fb97e4dc
@@ -68,10 +68,19 @@ from core.shared.crypto import (
 )
 
 # Organs — Active enforcement
-from core.organs._0_init import (
+from core.organs import (
     init,              # Initialize constitutional session
     scan_injection,    # F12: Prompt injection detection
 )
+```
+
+### Unified Pipeline (000→999)
+
+```python
+from core.pipeline import forge
+
+result = await forge("What is the capital of Malaysia?", actor_id="user")
+print(result.verdict)
 ```
 
 ### Example: Constitutional Check
@@ -79,7 +88,7 @@ from core.organs._0_init import (
 ```python
 from core.shared.physics import W_3, delta_S
 from core.shared.types import Verdict
-from core.organs._0_init import init
+from core.organs import init
 
 # 1. Initialize session (F11 Auth + F12 Injection)
 session = await init(
@@ -250,7 +259,7 @@ entry = {
 
 ## IV. THE FIVE ORGANS (Constitutional Enforcement)
 
-### 0️⃣ Airlock (`_0_init.py`) — ✅ IMPLEMENTED
+### 0️⃣ Init (`_0_init.py`) — ✅ IMPLEMENTED
 
 **Purpose:** Constitutional gateway (F11 Auth, F12 Injection)
 
@@ -260,7 +269,7 @@ entry = {
 
 **Example:**
 ```python
-from core.organs._0_init import init
+from core.organs import init
 
 token = await init(
     query="What is the capital of France?",
@@ -273,80 +282,68 @@ else:
     print(f"Rejected: {token.reason}")
 ```
 
-### 1️⃣ AGI Mind (`1_agi.py`) — 🔴 TODO
+### 1️⃣ AGI Mind (`_1_agi.py`) — ✅ IMPLEMENTED
 
 **Purpose:** Sequential reasoning (F2 Truth, F4 Clarity, F7 Humility, F8 Genius)
 
-**Planned API:**
+**API:**
 ```python
-from core.organs._1_agi import agi_reason
+from core.organs import agi
 
-result = await agi_reason(
+result = await agi(
     query="Explain quantum entanglement",
-    session=token,
-    grounding=None  # Optional external facts
+    session_id=token.session_id,
+    action="full",
 )
-
-# Returns: ConstitutionalTensor with
-# - truth_score (F2): ≥ 0.99
-# - entropy_change (F4): ≤ 0
-# - humility (F7): Ω₀ ∈ [0.03, 0.05]
-# - genius (F8): G ≥ 0.80
 ```
 
-### 2️⃣ ASI Heart (`2_asi.py`) — 🔴 TODO
+### 2️⃣ ASI Heart (`_2_asi.py`) — ✅ IMPLEMENTED
 
 **Purpose:** Empathy & safety (F1 Amanah, F5 Peace², F6 κᵣ)
 
-**Planned API:**
+**API:**
 ```python
-from core.organs._2_asi import asi_empathize
+from core.organs import asi
 
-result = await asi_empathize(
+result = await asi(
     query="Should I delete this user's data?",
-    agi_output=agi_result,
-    session=token
+    agi_tensor=agi_result["tensor"],
+    session_id=token.session_id,
+    action="full",
 )
-
-# Returns: ConstitutionalTensor with
-# - amanah (F1): Reversible?
-# - peace (F5): Peace² ≥ 1.0
-# - empathy (F6): κᵣ ≥ 0.70
 ```
 
-### 3️⃣ APEX Soul (`3_apex.py`) — 🔴 TODO
+### 3️⃣ APEX Soul (`_3_apex.py`) — ✅ IMPLEMENTED
 
 **Purpose:** Final judgment (F3 Tri-Witness, F9 Anti-Hantu, F10 Ontology, F13 Sovereign)
 
-**Planned API:**
+**API:**
 ```python
-from core.organs._3_apex import apex_verdict
+from core.organs import apex
 
-result = await apex_verdict(
-    agi_output=agi_result,
+result = await apex(
+    agi_tensor=agi_result["tensor"],
     asi_output=asi_result,
-    session=token
+    session_id=token.session_id,
+    action="full",
 )
-
-# Returns: ConstitutionalTensor with
-# - verdict: SEAL | VOID | PARTIAL | SABAR | 888_HOLD
-# - consensus (F3): W₃ ≥ 0.95
-# - ghost_check (F9): No false empathy
-# - ontology (F10): No consciousness claims
-# - sovereign (F13): Human final authority
 ```
 
-### 4️⃣ Vault Memory (`4_vault.py`) — 🔴 TODO
+### 4️⃣ Vault Memory (`_4_vault.py`) — ✅ IMPLEMENTED
 
 **Purpose:** Immutable ledger (999 Seal, Merkle chains)
 
-**Planned API:**
+**API:**
 ```python
-from core.organs._4_vault import vault_seal
+from core.organs import vault
 
-receipt = await vault_seal(
-    verdict=apex_result,
-    session=token
+receipt = await vault(
+    action="seal",
+    judge_output=apex_result.get("judge", apex_result),
+    agi_tensor=agi_result["tensor"],
+    asi_output=asi_result,
+    session_id=token.session_id,
+    query="...",
 )
 
 # Returns: SealReceipt with
@@ -443,7 +440,7 @@ from core.shared.physics import W_3, delta_S, G
 from core.shared.atlas import Lambda, Lane
 from core.shared.types import Verdict
 from core.shared.crypto import generate_session_id
-from core.organs._0_init import init
+from core.organs.init import init
 print('✅ RUKUN AGI Foundation OK')
 "
 ```

@@ -106,6 +106,12 @@ def W_3_from_tensor(tensor: TrinityTensor) -> float:
     return W_3(tensor.H, tensor.A, tensor.S)
 
 
+# Clear API aliases
+def tri_witness(H: float, A: float, S: float) -> float:
+    """Clear alias for W_3()."""
+    return W_3(H, A, S)
+
+
 def W_3_check(H: float, A: float, S: float, threshold: float = 0.95) -> bool:
     """
     F3 enforcement check: W_3 >= threshold?
@@ -161,6 +167,11 @@ def delta_S(before: str | List[str], after: str | List[str]) -> float:
         return entropy
     
     return _entropy(after) - _entropy(before)
+
+
+def entropy_delta(before: str | List[str], after: str | List[str]) -> float:
+    """Clear alias for delta_S()."""
+    return delta_S(before, after)
 
 
 def is_cooling(before: str | List[str], after: str | List[str]) -> bool:
@@ -243,6 +254,11 @@ def Omega_0(confidence: float) -> UncertaintyBand:
     omega = max(0.03, min(0.05, omega))
     
     return UncertaintyBand(omega)
+
+
+def humility_band(confidence: float) -> UncertaintyBand:
+    """Clear alias for Omega_0()."""
+    return Omega_0(confidence)
 
 
 # =============================================================================
@@ -333,6 +349,11 @@ def Peace2(stakeholder_harms: Dict[str, float]) -> PeaceSquared:
     return PeaceSquared(stakeholder_harms)
 
 
+def peace_squared(stakeholder_harms: Dict[str, float]) -> float:
+    """Compute Peace² directly from harm vector."""
+    return Peace2(stakeholder_harms).P2()
+
+
 # =============================================================================
 # F6: EMPATHY QUOTIENT — kappa_r
 # =============================================================================
@@ -385,6 +406,11 @@ def kappa_r(query: str, stakeholders: List[Stakeholder]) -> float:
     # kappa_r = 1.0 - (max_vulnerability * 0.5)
     # Range: [0.5, 1.0]
     return min(1.0, 1.0 - (max_vuln * 0.5))
+
+
+def empathy_coeff(query: str, stakeholders: List[Stakeholder]) -> float:
+    """Clear alias for kappa_r()."""
+    return kappa_r(query, stakeholders)
 
 
 def identify_stakeholders(query: str) -> List[Stakeholder]:
@@ -481,6 +507,11 @@ def G(A: float, P: float, X: float, E: float) -> float:
         G in [0, 1] genius score
     """
     return GeniusDial(A, P, X, E).G()
+
+
+def genius_score(A: float, P: float, X: float, E: float) -> float:
+    """Clear alias for G()."""
+    return G(A, P, X, E)
 
 
 def G_from_dial(dial: GeniusDial) -> float:
@@ -598,6 +629,7 @@ __all__ = [
     "W_3",
     "W_3_from_tensor",
     "W_3_check",
+    "tri_witness",
     
     # Utilities
     "geometric_mean",
@@ -605,12 +637,14 @@ __all__ = [
     
     # F4: Thermodynamic Clarity
     "delta_S",
+    "entropy_delta",
     "is_cooling",
     "clarity_ratio",
     
     # F7: Humility
     "UncertaintyBand",
     "Omega_0",
+    "humility_band",
     
     # Precision
     "pi",
@@ -619,16 +653,19 @@ __all__ = [
     # F5: Peace
     "PeaceSquared",
     "Peace2",
+    "peace_squared",
     
     # F6: Empathy
     "Stakeholder",
     "kappa_r",
+    "empathy_coeff",
     "identify_stakeholders",
     "DISTRESS_SIGNALS",
     
     # F8: Genius
     "GeniusDial",
     "G",
+    "genius_score",
     "G_from_dial",
     
     # Unified state

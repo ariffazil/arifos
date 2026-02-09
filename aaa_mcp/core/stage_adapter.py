@@ -19,6 +19,16 @@ from aaa_mcp.services.constitutional_metrics import (
     get_session_evidence,
 )
 
+# Core organs (v55.5+ kernel)
+try:
+    from core import organs as core_organs
+    from core.shared.physics import W_3_from_tensor, Peace2
+    CORE_AVAILABLE = True
+except ImportError as e:
+    CORE_AVAILABLE = False
+    logger = logging.getLogger("STAGE_ADAPTER")
+    logger.warning(f"Core organs not available in stage_adapter: {e}")
+
 # Import stage executors
 from codebase.stages.stage_444 import execute_stage_444
 from codebase.stages.stage_555 import execute_stage_555
@@ -59,6 +69,36 @@ async def run_stage_444_trinity_sync(session_id: str) -> Dict[str, Any]:
     
     Called by: apex_verdict tool (before judgment)
     """
+    if CORE_AVAILABLE:
+        try:
+            agi_result = get_stage_result(session_id, "agi") or {}
+            asi_result = get_stage_result(session_id, "asi_empathize") or {}
+            query = agi_result.get("query") or asi_result.get("query") or ""
+            if not query:
+                raise ValueError("Missing query for core stage 444")
+            sense_out = await core_organs.sense(query, session_id)
+            think_out = await core_organs.think(query, sense_out, session_id)
+            agi_tensor = await core_organs.reason(query, think_out, session_id)
+            if agi_tensor.peace is None:
+                agi_tensor.peace = Peace2({})
+            asi_output = {
+                "kappa_r": asi_result.get("kappa_r", asi_result.get("empathy_kappa_r", 0.7)),
+                "peace_squared": asi_result.get("peace_squared", 1.0),
+                "is_reversible": asi_result.get("is_reversible", True),
+                "verdict": asi_result.get("verdict", "SEAL"),
+            }
+            sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
+            result = {
+                "stage": "444",
+                "pre_verdict": sync_out.get("pre_verdict", "SEAL"),
+                "consensus_score": sync_out.get("W_3", 0.95),
+                "session_id": session_id,
+                "status": "completed",
+            }
+            store_stage_result(session_id, "stage_444", result)
+            return result
+        except Exception as e:
+            logger.error(f"[444] Core stage failed, falling back: {e}")
     state = _get_or_create_state(session_id)
     
     # Sync bundles from MCP storage to BundleStore
@@ -122,6 +162,29 @@ async def run_stage_555_empathy(session_id: str, query: str) -> Dict[str, Any]:
     
     Called by: asi_empathize tool
     """
+    if CORE_AVAILABLE:
+        try:
+            sense_out = await core_organs.sense(query, session_id)
+            think_out = await core_organs.think(query, sense_out, session_id)
+            agi_tensor = await core_organs.reason(query, think_out, session_id)
+            if agi_tensor.peace is None:
+                agi_tensor.peace = Peace2({})
+            emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+            result = {
+                "stage": "555",
+                "verdict": "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "VOID",
+                "empathy_kappa_r": emp_out.get("kappa_r", 0.96),
+                "stakeholders": emp_out.get("stakeholders", []),
+                "weakest_stakeholder": emp_out.get("weakest_stakeholder", "unknown"),
+                "high_vulnerability": emp_out.get("weakest_vulnerability", 0.0) >= 0.8,
+                "care_recommendations": emp_out.get("care_recommendations", []),
+                "session_id": session_id,
+                "status": "completed",
+            }
+            store_stage_result(session_id, "stage_555", result)
+            return result
+        except Exception as e:
+            logger.error(f"[555] Core stage failed, falling back: {e}")
     state = _get_or_create_state(session_id)
     
     try:
@@ -160,6 +223,31 @@ async def run_stage_666_align(session_id: str, query: str) -> Dict[str, Any]:
     
     Called by: asi_align tool
     """
+    if CORE_AVAILABLE:
+        try:
+            sense_out = await core_organs.sense(query, session_id)
+            think_out = await core_organs.think(query, sense_out, session_id)
+            agi_tensor = await core_organs.reason(query, think_out, session_id)
+            if agi_tensor.peace is None:
+                agi_tensor.peace = Peace2({})
+            emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+            align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
+            result = {
+                "stage": "666",
+                "verdict": align_out.get("verdict", "SEAL"),
+                "omega_bundle": align_out,
+                "floor_scores": {
+                    "F1_amanah": 1.0 if align_out.get("is_reversible") else 0.0,
+                    "F5_peace": align_out.get("peace_squared", 1.0),
+                    "F6_empathy": align_out.get("kappa_r", 0.96),
+                },
+                "session_id": session_id,
+                "status": "completed",
+            }
+            store_stage_result(session_id, "stage_666", result)
+            return result
+        except Exception as e:
+            logger.error(f"[666] Core stage failed, falling back: {e}")
     state = _get_or_create_state(session_id)
     
     try:
@@ -202,6 +290,35 @@ async def run_stage_777_forge(session_id: str, context: Optional[Dict[str, Any]]
     # Populate context from MCP storage
     agi_result = get_stage_result(session_id, "agi") or {}
     asi_result = get_stage_result(session_id, "asi_empathize") or {}
+    if CORE_AVAILABLE:
+        try:
+            query = agi_result.get("query") or asi_result.get("query") or ""
+            if not query:
+                raise ValueError("Missing query for core stage 777")
+            sense_out = await core_organs.sense(query, session_id)
+            think_out = await core_organs.think(query, sense_out, session_id)
+            agi_tensor = await core_organs.reason(query, think_out, session_id)
+            if agi_tensor.peace is None:
+                agi_tensor.peace = Peace2({})
+            asi_output = {
+                "kappa_r": asi_result.get("kappa_r", asi_result.get("empathy_kappa_r", 0.7)),
+                "peace_squared": asi_result.get("peace_squared", 1.0),
+                "is_reversible": asi_result.get("is_reversible", True),
+                "verdict": asi_result.get("verdict", "SEAL"),
+            }
+            sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
+            forge_out = await core_organs.forge(sync_out, agi_tensor, session_id)
+            result = {
+                "stage": "777",
+                "forge_result": forge_out,
+                "low_coherence_warning": forge_out.get("coherence", 1.0) < 0.7,
+                "session_id": session_id,
+                "status": "completed",
+            }
+            store_stage_result(session_id, "stage_777", result)
+            return result
+        except Exception as e:
+            logger.error(f"[777] Core stage failed, falling back: {e}")
     
     context["reflect_result"] = agi_result.get("reasoning", {})
     context["align_result"] = asi_result.get("alignment", {})
@@ -258,6 +375,37 @@ async def run_stage_888_judge(session_id: str, context: Optional[Dict[str, Any]]
     agi_result = get_stage_result(session_id, "agi") or {}
     asi_result = get_stage_result(session_id, "asi_empathize") or {}
     stage_777 = get_stage_result(session_id, "stage_777") or {}
+    if CORE_AVAILABLE:
+        try:
+            query = agi_result.get("query") or asi_result.get("query") or ""
+            if not query:
+                raise ValueError("Missing query for core stage 888")
+            sense_out = await core_organs.sense(query, session_id)
+            think_out = await core_organs.think(query, sense_out, session_id)
+            agi_tensor = await core_organs.reason(query, think_out, session_id)
+            if agi_tensor.peace is None:
+                agi_tensor.peace = Peace2({})
+            asi_output = {
+                "kappa_r": asi_result.get("kappa_r", asi_result.get("empathy_kappa_r", 0.7)),
+                "peace_squared": asi_result.get("peace_squared", 1.0),
+                "is_reversible": asi_result.get("is_reversible", True),
+                "verdict": asi_result.get("verdict", "SEAL"),
+            }
+            sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
+            forge_out = await core_organs.forge(sync_out, agi_tensor, session_id)
+            judge_out = await core_organs.judge(forge_out, sync_out, asi_output, session_id)
+            result = {
+                "stage": "888",
+                "verdict": judge_out.get("verdict", "VOID"),
+                "judge_result": judge_out,
+                "floor_violations": judge_out.get("floors_failed", []),
+                "session_id": session_id,
+                "status": "completed",
+            }
+            store_stage_result(session_id, "stage_888", result)
+            return result
+        except Exception as e:
+            logger.error(f"[888] Core stage failed, falling back: {e}")
     
     context["thermodynamic_violation"] = agi_result.get("floor_violations", [])
     context["reflect_result"] = agi_result.get("reasoning", {})
@@ -315,6 +463,49 @@ async def run_stage_999_seal(session_id: str) -> Dict[str, Any]:
     
     Called by: vault_seal tool
     """
+    if CORE_AVAILABLE:
+        try:
+            agi_result = get_stage_result(session_id, "agi") or {}
+            asi_result = get_stage_result(session_id, "asi_align") or get_stage_result(session_id, "asi_empathize") or {}
+            query = agi_result.get("query") or asi_result.get("query") or ""
+            if not query:
+                raise ValueError("Missing query for core stage 999")
+            sense_out = await core_organs.sense(query, session_id)
+            think_out = await core_organs.think(query, sense_out, session_id)
+            agi_tensor = await core_organs.reason(query, think_out, session_id)
+            if agi_tensor.peace is None:
+                agi_tensor.peace = Peace2({})
+            emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+            align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
+            asi_output = {
+                "kappa_r": align_out.get("kappa_r", 0.7),
+                "peace_squared": align_out.get("peace_squared", 1.0),
+                "is_reversible": align_out.get("is_reversible", True),
+                "verdict": align_out.get("verdict", "SEAL"),
+            }
+            apex_out = await core_organs.apex(agi_tensor, asi_output, session_id, action="full")
+            judge_out = apex_out.get("judge", {})
+            receipt = await core_organs.seal(
+                judge_out,
+                agi_tensor,
+                asi_output,
+                session_id,
+                query=query,
+                authority="mcp_server",
+            )
+            result = {
+                "stage": "999",
+                "status": receipt.status,
+                "apex_verdict": judge_out.get("verdict"),
+                "eureka_verdict": receipt.status,
+                "hash": receipt.entry_hash,
+                "seal_id": receipt.seal_id,
+                "session_id": session_id,
+            }
+            store_stage_result(session_id, "stage_999", result)
+            return result
+        except Exception as e:
+            logger.error(f"[999] Core stage failed, falling back: {e}")
     try:
         result = await execute_seal_stage(session_id)
         

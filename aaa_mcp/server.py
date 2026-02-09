@@ -37,6 +37,7 @@ from aaa_mcp.core.stage_adapter import (
     run_stage_888_judge,
     run_stage_999_seal,
 )
+from core.pipeline import forge as core_forge
 
 mcp = FastMCP("aaa-mcp")
 
@@ -78,6 +79,42 @@ async def init_gate(
     }
     store_stage_result(hardened_result["session_id"], "init", hardened_result)
     return hardened_result
+
+
+@mcp.tool()
+@constitutional_floor("F11", "F12")
+async def forge_pipeline(
+    query: str,
+    actor_id: str = "user",
+    auth_token: Optional[str] = None,
+    require_sovereign_for_high_stakes: bool = True,
+) -> dict:
+    """
+    Unified 000→999 pipeline (core entrypoint).
+
+    This is the single entrypoint for full constitutional execution.
+    """
+    result = await core_forge(
+        query,
+        actor_id=actor_id,
+        auth_token=auth_token,
+        require_sovereign=require_sovereign_for_high_stakes,
+    )
+
+    output = {
+        "verdict": result.verdict,
+        "session_id": result.session_id,
+        "token_status": result.token_status,
+        "agi": result.agi,
+        "asi": result.asi,
+        "apex": result.apex,
+        "seal": result.seal,
+        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        "floors_enforced": get_tool_floors("forge_pipeline"),
+        "pass": "forward",
+    }
+    store_stage_result(result.session_id, "forge_pipeline", output)
+    return output
 
 
 @mcp.tool()
@@ -887,42 +924,9 @@ async def tool_router(query: str) -> PlanObject:
     )
 
     grounding_required = False
-    if has_risk and has_domain:
-        grounding_required = True
-        sequence = [
-            "init_gate",
-            "reality_search",
-            "agi_reason",
-            "asi_empathize",
-            "asi_align",
-            "apex_verdict",
-            "vault_seal",
-        ]
-        lane = "HARD (CRITICAL-PROTOCOL)"
-        justification = "Absolutist industrial claim detected. Grounding MANDATORY."
-    elif entropy < 0.3 and not is_high_risk:
-        sequence = ["init_gate", "agi_reason"]
-        lane = "SOFT (FAST-TRACK)"
-        justification = "Low entropy, non-critical query. Optimized for speed."
-    elif is_high_risk or entropy > 0.7:
-        sequence = [
-            "init_gate",
-            "reality_search",
-            "agi_reason",
-            "asi_empathize",
-            "asi_align",
-            "apex_verdict",
-            "vault_seal",
-        ]
-        lane = "HARD (CRITICAL-PROTOCOL)"
-        justification = (
-            "High entropy or safety-critical intent detected. Mandatory Earth Witness activation."
-        )
-        grounding_required = True
-    else:
-        sequence = ["init_gate", "agi_reason", "apex_verdict", "vault_seal"]
-        lane = "SOFT (STANDARD)"
-        justification = "Standard reasoning loop recommended."
+    sequence = ["forge_pipeline"]
+    lane = "CORE (SINGLE-ENTRYPOINT)"
+    justification = "Unified core pipeline recommended for all queries."
 
     return {
         "plan_id": f"PLAN-{uuid.uuid4().hex[:8].upper()}",

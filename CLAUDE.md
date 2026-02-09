@@ -83,7 +83,7 @@ from core.shared.physics import W_3, delta_S, G, geometric_mean
 from core.shared.atlas import Lane, Lambda, Phi
 from core.shared.types import Verdict, VaultOutput, FloorScores
 from core.shared.crypto import generate_session_id, sha256_hash, merkle_root
-from core.organs._0_init import init, scan_injection
+from core.organs.init import init, scan_injection
 
 # LEGACY — still works but avoid in new code
 from codebase.floors.truth import F2_Truth

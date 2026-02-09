@@ -451,6 +451,17 @@ def route(query: str) -> str:
     return " → ".join(organs)
 
 
+# Clear API aliases
+def classify_query(query: str) -> Dict[str, any]:
+    """Clear alias for classify()."""
+    return classify(query)
+
+
+def route_query(query: str) -> str:
+    """Clear alias for route()."""
+    return route(query)
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 # EXPORTS
 # ═════════════════════════════════════════════════════════════════════════════
@@ -478,4 +489,6 @@ __all__ = [
     # Convenience
     "classify",
     "route",
+    "classify_query",
+    "route_query",
 ]

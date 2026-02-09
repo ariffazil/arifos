@@ -51,17 +51,13 @@ import json
 import uuid
 
 
-# Import L5 agents
+# Import L5 agents (local SDK package)
 try:
-    from L5_AGENTS import (
-        AgentFederation,
-        FederationResult,
-        Architect,
-        Verdict,
-        FloorScores,
-    )
+    from .federation import AgentFederation, FederationResult
+    from .architect import Architect
+    from .base_agent import Verdict, FloorScores
     L5_AVAILABLE = True
-except ImportError:
+except Exception:
     L5_AVAILABLE = False
     # Fallback types for when L5 isn't installed
     class Verdict(Enum):
@@ -333,10 +329,11 @@ class ArifOS:
         
         # Run through L5 federation
         try:
-            # For v55.3, use architect_only (full federation in v55.4)
-            result = await self._federation.architect_only(
+            # Run full federation
+            result = await self._federation.execute(
                 query=query,
                 context=context or {},
+                human_override=human_override,
             )
             
             # Extract answer from plan
@@ -345,14 +342,18 @@ class ArifOS:
             
             if result.plan:
                 plan_dict = result.plan.to_dict()
-                # For now, the "answer" is the plan summary
-                # In v55.4, Engineer will generate actual response
+
+            # Prefer Validator output; fall back to Engineer draft or plan summary
+            if result.validator_output and result.validator_output.response:
+                answer = str(result.validator_output.response)
+            elif result.engineer_output and result.engineer_output.response:
+                answer = str(result.engineer_output.response)
+            elif result.plan:
                 answer = (
                     f"Plan generated with {len(result.plan.steps)} steps.\n"
                     f"Approach: {result.plan.approach}\n"
                     f"Complexity: {result.plan.estimated_total_complexity}"
                 )
-                
                 if result.plan.requires_human_review:
                     answer += "\n⚠️ Human review required before execution."
             
@@ -370,7 +371,14 @@ class ArifOS:
             floor_scores = {}
             violations = []
             
-            if result.architect_output:
+            # Prefer validator scores, then auditor, then architect
+            if result.validator_output:
+                floor_scores = result.validator_output.floor_scores.to_dict()
+                violations = result.validator_output.violations
+            elif result.auditor_output:
+                floor_scores = result.auditor_output.floor_scores.to_dict()
+                violations = result.auditor_output.violations
+            elif result.architect_output:
                 floor_scores = result.architect_output.floor_scores.to_dict()
                 violations = result.architect_output.violations
             

@@ -1,84 +1,79 @@
 """
-core/organs/__init__.py — Organ Exports
+core/organs/__init__.py — Organ Exports (Unified)
 
 RUKUN AGI 5-Organ Kernel:
-    _0_init  → The Airlock (Stages 000-111)
-    _1_agi   → The Mind (Stages 111-333)
-    _2_asi   → The Heart (Stages 555-666)
-    _3_apex  → The Soul (Stages 444-777-888)
-    _4_vault → The Memory (Stage 999)
+    init    → Stage 000 (Gate)
+    mind    → The Mind (Stages 111-333)
+    heart   → The Heart (Stages 555-666)
+    soul    → The Soul (Stages 444-777-888)
+    memory  → The Memory (Stage 999)
 
 Usage:
-    from core.organs import init, agi, asi, apex, vault
-    
-    # Or granular imports
-    from core.organs import sense, empathize, sync, seal
+    from core.organs import init, mind, heart, soul, memory
+    from core.organs import init, sense, think, reason, empathize, align, sync, forge, judge, seal
+
+Humanized aliases:
+    anchor (init), feel (empathize)
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-# Import all organs
-from core.organs import _0_init
-from core.organs import _1_agi
-from core.organs import _2_asi
-from core.organs import _3_apex
-from core.organs import _4_vault
+# Canonical modules (no legacy underscore names in public surface)
+from . import _0_init as init_module
+from . import _1_agi as mind
+from . import _2_asi as heart
+from . import _3_apex as soul
+from . import _4_vault as memory
 
-# Re-export main functions (unified interfaces)
-from core.organs._0_init import init
-from core.organs._1_agi import agi
-from core.organs._2_asi import asi
-from core.organs._3_apex import apex
-from core.organs._4_vault import vault
+# Unified interfaces
+from ._0_init import init
+from ._1_agi import agi
+from ._2_asi import asi
+from ._3_apex import apex
+from ._4_vault import vault
 
-# Re-export actions for direct use
-from core.organs._0_init import (
+# Actions for direct use
+from ._0_init import (
     init,
     scan_injection,
     verify_auth,
+    requires_sovereign,
+    SessionToken,
+    AuthorityLevel,
+    validate_token,
+    get_authority_name,
 )
+from ._1_agi import sense, think, reason
+from ._2_asi import empathize, align
+from ._3_apex import sync, forge, judge
+from ._4_vault import seal, query, verify, SealReceipt
 
-from core.organs._1_agi import (
-    sense,
-    think,
-    reason,
-)
-
-from core.organs._2_asi import (
-    empathize,
-    align,
-)
-
-from core.organs._3_apex import (
-    sync,
-    forge,
-    judge,
-)
-
-from core.organs._4_vault import (
-    seal,
-    query,
-    verify,
-)
+# Humanized aliases
+anchor = init
+feel = empathize
 
 __all__ = [
     # Organ modules
-    "_0_init",
-    "_1_agi",
-    "_2_asi",
-    "_3_apex",
-    "_4_vault",
-    
+    "mind",
+    "heart",
+    "soul",
+    "memory",
+
     # Unified interfaces
     "init",
     "agi",
     "asi",
     "apex",
     "vault",
-    
+
+    # Humanized aliases
+    "anchor",
+    "feel",
+
     # Actions
     "scan_injection",  # F12
     "verify_auth",     # F11
+    "requires_sovereign",
     "sense",           # Stage 111
     "think",           # Stage 222
     "reason",          # Stage 333
@@ -90,4 +85,11 @@ __all__ = [
     "seal",            # Stage 999
     "query",           # Vault read
     "verify",          # Vault verify
+
+    # Types
+    "SessionToken",
+    "AuthorityLevel",
+    "SealReceipt",
+    "validate_token",
+    "get_authority_name",
 ]
