@@ -1,5 +1,5 @@
 # arifOS MCP Server Dockerfile (v60.0-FORGE)
-# Cache-bust: 2026-02-09-core-added
+# Cache-bust: 2026-02-09-health-fix
 FROM python:3.12-slim
 
 WORKDIR /app
