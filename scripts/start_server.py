@@ -106,12 +106,82 @@ async def stats(request):
         return JSONResponse({"error": "Monitoring not available"})
 
 
+# =============================================================================
+# OAuth 2.1 Endpoints (MCP 2025-11-25 Authorization)
+# https://modelcontextprotocol.io/specification/2025-11-25/server/authorization
+# =============================================================================
+
+OAUTH_ISSUER = os.environ.get("AAA_ISSUER", "https://aaamcp.arif-fazil.com")
+OAUTH_AUTH_ENDPOINT = os.environ.get("OAUTH_AUTHORIZATION_ENDPOINT", f"{OAUTH_ISSUER}/oauth/authorize")
+OAUTH_TOKEN_ENDPOINT = os.environ.get("OAUTH_TOKEN_ENDPOINT", f"{OAUTH_ISSUER}/oauth/token")
+
+
+async def oauth_authorization_server(request):
+    """OAuth 2.1 Authorization Server Metadata (RFC 8414)."""
+    return JSONResponse({
+        "issuer": OAUTH_ISSUER,
+        "authorization_endpoint": OAUTH_AUTH_ENDPOINT,
+        "token_endpoint": OAUTH_TOKEN_ENDPOINT,
+        "registration_endpoint": f"{OAUTH_ISSUER}/oauth/register",
+        "scopes_supported": ["mcp:read", "mcp:execute", "aaa:audit"],
+        "response_types_supported": ["code"],
+        "grant_types_supported": ["authorization_code", "refresh_token", "client_credentials"],
+        "code_challenge_methods_supported": ["S256"],
+        "token_endpoint_auth_methods_supported": ["client_secret_basic", "client_secret_post"],
+        "revocation_endpoint": f"{OAUTH_ISSUER}/oauth/revoke",
+        "introspection_endpoint": f"{OAUTH_ISSUER}/oauth/introspect",
+    })
+
+
+async def oauth_protected_resource(request):
+    """OAuth 2.1 Protected Resource Metadata."""
+    return JSONResponse({
+        "resource": OAUTH_ISSUER,
+        "authorization_servers": [OAUTH_ISSUER],
+        "scopes_supported": ["mcp:read", "mcp:execute", "aaa:audit"],
+        "bearer_methods_supported": ["header"],
+    })
+
+
+async def oauth_authorize(request):
+    """OAuth 2.1 Authorization Endpoint (stub - requires full OAuth implementation)."""
+    # This is a placeholder - full OAuth 2.1 implementation requires:
+    # - User authentication/ consent
+    # - Authorization code generation
+    # - PKCE validation
+    # - Client validation
+    return JSONResponse({
+        "error": "not_implemented",
+        "error_description": "OAuth 2.1 authorization endpoint requires external IdP integration",
+        "hint": "Configure AAA_ISSUER to point to your OAuth provider (e.g., Auth0, Keycloak)",
+    }, status_code=501)
+
+
+async def oauth_token(request):
+    """OAuth 2.1 Token Endpoint (stub - requires full OAuth implementation)."""
+    # This is a placeholder - full OAuth 2.1 implementation requires:
+    # - Authorization code exchange
+    # - Client authentication
+    # - Token generation (JWT)
+    # - Refresh token handling
+    return JSONResponse({
+        "error": "not_implemented",
+        "error_description": "OAuth 2.1 token endpoint requires external IdP integration",
+        "hint": "Configure AAA_ISSUER to point to your OAuth provider (e.g., Auth0, Keycloak)",
+    }, status_code=501)
+
+
 # Setup routes
 routes = [
     Route("/", endpoint=root, methods=["GET"]),
     Route("/health", endpoint=health, methods=["GET"]),
     Route("/metrics", endpoint=metrics, methods=["GET"]),
     Route("/stats", endpoint=stats, methods=["GET"]),
+    # OAuth 2.1 endpoints (MCP 2025-11-25)
+    Route("/.well-known/oauth-authorization-server", endpoint=oauth_authorization_server, methods=["GET"]),
+    Route("/.well-known/oauth-protected-resource", endpoint=oauth_protected_resource, methods=["GET"]),
+    Route("/oauth/authorize", endpoint=oauth_authorize, methods=["GET", "POST"]),
+    Route("/oauth/token", endpoint=oauth_token, methods=["POST"]),
 ]
 
 # Build the transport app based on FastMCP version
@@ -153,6 +223,11 @@ except ImportError:
         Route("/health", endpoint=health, methods=["GET"]),
         Route("/metrics", endpoint=metrics, methods=["GET"]),
         Route("/stats", endpoint=stats, methods=["GET"]),
+        # OAuth 2.1 endpoints (MCP 2025-11-25)
+        Route("/.well-known/oauth-authorization-server", endpoint=oauth_authorization_server, methods=["GET"]),
+        Route("/.well-known/oauth-protected-resource", endpoint=oauth_protected_resource, methods=["GET"]),
+        Route("/oauth/authorize", endpoint=oauth_authorize, methods=["GET", "POST"]),
+        Route("/oauth/token", endpoint=oauth_token, methods=["POST"]),
         Route("/sse", endpoint=sse_endpoint),
     ]
     
