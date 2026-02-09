@@ -21,6 +21,8 @@ warnings.filterwarnings(
 # Ensure legacy spec bypass is active during import/collection
 os.environ.setdefault("ARIFOS_ALLOW_LEGACY_SPEC", "1")
 os.environ.setdefault("ARIFOS_PHYSICS_DISABLED", "1")
+# Default to debug output in tests to preserve rich contracts for assertions.
+os.environ.setdefault("AAA_MCP_OUTPUT_MODE", "debug")
 
 
 @pytest.fixture(scope="session", autouse=True)

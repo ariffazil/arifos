@@ -252,9 +252,12 @@ def constitutional_floor(*floors: str):
             start = time.time()
             tool_name = func.__name__
             floor_details: List[Dict[str, Any]] = []
+            # Lazy import to avoid circular dependencies during server import.
+            from aaa_mcp.presentation.formatter import format_tool_output, resolve_output_mode
 
             # Extract query from arguments
             query = _extract_query(args, kwargs)
+            output_mode = resolve_output_mode(kwargs)
 
             # ── PHASE 1: PRE-EXECUTION CHECKS ──────────────────────
             pre = [f for f in floors if f in PRE_FLOORS]
@@ -272,7 +275,7 @@ def constitutional_floor(*floors: str):
                             f"VOID [{tool_name}]: {fid} blocked "
                             f"(score={detail['score']:.3f})"
                         )
-                        return {
+                        payload = {
                             "verdict": "VOID",
                             "status": "BLOCKED",
                             "blocked_by": fid,
@@ -285,8 +288,9 @@ def constitutional_floor(*floors: str):
                                 "enforcement_ms": elapsed_ms,
                                 "version": "v55.5-EIGEN",
                             },
-                            "motto": "DITEMPA BUKAN DIBERI",
                         }
+                        # Presentation formatting (user vs debug/audit)
+                        return format_tool_output(tool_name, payload, output_mode)
 
             # ── PHASE 2: EXECUTE TOOL ──────────────────────────────
             result = await func(*args, **kwargs)
@@ -352,7 +356,7 @@ def constitutional_floor(*floors: str):
                         f"{[d['floor'] for d in soft_fails]}"
                     )
 
-            return result
+            return format_tool_output(tool_name, result, output_mode)
 
         # Attach floor metadata for introspection
         wrapper._constitutional_floors = floors

@@ -120,6 +120,8 @@ async def init_gate(
     session_id: Optional[str] = None,
     grounding_required: bool = True,
     mode: str = "fluid",
+    envelope: Optional[dict] = None,
+    output_mode: str = "user",
 ) -> dict:
     """Initialize a constitutional session. CALL THIS FIRST.
 
@@ -139,6 +141,8 @@ async def init_gate(
         "mode": mode,
         "stage": "000",
     }
+    if envelope:
+        hardened_result["envelope"] = envelope
     store_stage_result(hardened_result["session_id"], "init", hardened_result)
     return hardened_result
 
@@ -150,6 +154,8 @@ async def forge_pipeline(
     actor_id: str = "user",
     auth_token: Optional[str] = None,
     require_sovereign_for_high_stakes: bool = True,
+    envelope: Optional[dict] = None,
+    output_mode: str = "user",
 ) -> dict:
     """
     Unified 000→999 pipeline (core entrypoint).
@@ -172,6 +178,8 @@ async def forge_pipeline(
         "apex": result.apex,
         "seal": result.seal,
     }
+    if envelope:
+        output["envelope"] = envelope
     store_stage_result(result.session_id, "forge_pipeline", output)
     return output
 
