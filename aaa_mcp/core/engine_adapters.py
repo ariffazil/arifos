@@ -208,8 +208,19 @@ class AGIEngine:
             sense_out = await core_organs.sense(query, session_id)
             think_out = await core_organs.think(query, sense_out, session_id)
             tensor = await core_organs.reason(query, think_out, session_id)
+            gpv = sense_out.get("gpv")
+            f2_threshold = 0.99
+            query_type = None
+            lane = None
+            try:
+                if gpv is not None and hasattr(gpv, "f2_threshold"):
+                    f2_threshold = float(gpv.f2_threshold())
+                    query_type = getattr(getattr(gpv, "query_type", None), "value", None)
+                    lane = getattr(getattr(gpv, "lane", None), "value", None)
+            except Exception:
+                f2_threshold = 0.99
             violations = []
-            if tensor.truth_score < 0.99:
+            if tensor.truth_score < f2_threshold:
                 violations.append("F2")
             if tensor.entropy_delta > 0:
                 violations.append("F4")
@@ -226,6 +237,9 @@ class AGIEngine:
                 "session_id": session_id,
                 "engine_mode": "core",
                 "trinity_component": "AGI",
+                "lane": lane,
+                "query_type": query_type,
+                "f2_threshold": f2_threshold,
                 "truth_score": tensor.truth_score,
                 "confidence": tensor.truth_score,
                 "entropy_delta": tensor.entropy_delta,
