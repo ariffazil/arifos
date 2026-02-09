@@ -14,12 +14,12 @@ from collections import Counter
 from dataclasses import asdict, is_dataclass
 from typing import Any, Dict, Optional
 
-logger = logging.getLogger(__name__)
-
 # Import core organs (v60.0+ kernel) exclusively
 from core import organs as core_organs
 from core.shared.physics import W_3_from_tensor, Peace2
 from core.organs._0_init import init
+
+logger = logging.getLogger(__name__)
 
 
 def _normalize_obj(obj: Any) -> Any:
@@ -362,7 +362,6 @@ class APEXEngine:
         try:
             agi_engine = AGIEngine()
             asi_engine = ASIEngine()
-            agi_res = agi_result or await agi_engine.reason(query, session_id)
             asi_res = asi_result or await asi_engine.align(query, session_id)
             
             # Build tensors for apex

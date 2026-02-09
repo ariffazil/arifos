@@ -40,7 +40,7 @@ def test_verdict_simplification():
     m_witness = Metrics(truth=1.0, delta_s=0.0, tri_witness=0.5) # Fail threshold 0.95
     v_witness = judge.judge(m_witness, query="Big Decision", response="Maybe")
     print(f"[5] Witness Hold: {v_witness.verdict} ({v_witness.sub_verdict})")
-    assert v_witness.verdict == Verdict.SABAR (High Stakes default is True for this test)
+    assert v_witness.verdict == Verdict.SABAR  # High Stakes default is True for this test
     # Note: Logic inside judge() for Tri-Witness might need check
     
     print("\n>>> ALL TESTS PASSED")
