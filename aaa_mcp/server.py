@@ -1,18 +1,40 @@
 """
-arifOS AAA MCP Server — Constitutional AI Governance (v55.5-HARDENED)
+arifOS AAA MCP Server — Constitutional AI Governance (v60.0-FORGE)
 
-10 canonical tools organized as a Trinity pipeline:
+13 canonical tools organized as a 5-Organ Trinity pipeline:
   000_INIT → AGI(Mind) → ASI(Heart) → APEX(Soul) → 999_VAULT
 
 Every tool is guarded by constitutional floors (F1-F13).
 Verdicts: SEAL (approved) | VOID (blocked) | PARTIAL (warning) | SABAR (repair)
 Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
+
+MCP Protocol: 2025-11-25 (Streamable HTTP)
+Capabilities: tools, resources, prompts, sampling, logging
+Authentication: OAuth 2.1
 """
 
 from typing import Optional, Any
 import json
 
 from fastmcp import FastMCP
+
+# Tool annotations registry for MCP 2025-11-25 compliance
+# https://modelcontextprotocol.io/specification/2025-11-25/server/tools#tool-annotations
+TOOL_ANNOTATIONS = {
+    "init_gate": {"title": "000_INIT Gate", "readOnlyHint": False, "destructiveHint": False, "openWorldHint": False},
+    "forge_pipeline": {"title": "000-999 Forge Pipeline", "readOnlyHint": False, "destructiveHint": True, "openWorldHint": True},
+    "agi_sense": {"title": "111_AGI Sense", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+    "agi_think": {"title": "222_AGI Think", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": True},
+    "agi_reason": {"title": "333_AGI Reason", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+    "asi_empathize": {"title": "555_ASI Empathize", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+    "asi_align": {"title": "666_ASI Align", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+    "apex_verdict": {"title": "888_APEX Verdict", "readOnlyHint": False, "destructiveHint": True, "openWorldHint": False},
+    "reality_search": {"title": "Reality Search", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": True},
+    "vault_seal": {"title": "999_VAULT Seal", "readOnlyHint": False, "destructiveHint": True, "openWorldHint": False},
+    "tool_router": {"title": "Tool Router", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+    "vault_query": {"title": "VAULT Query", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+    "truth_audit": {"title": "Truth Audit", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+}
 
 from aaa_mcp.core.constitutional_decorator import constitutional_floor, get_tool_floors
 from aaa_mcp.core.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitEngine
@@ -39,7 +61,37 @@ from aaa_mcp.core.stage_adapter import (
 )
 from core.pipeline import forge as core_forge
 
-mcp = FastMCP("aaa-mcp")
+mcp = FastMCP(
+    "aaa-mcp",
+    version="60.0.0",
+    # MCP 2025-11-25 capabilities
+    capabilities={
+        "tools": {"listChanged": True},
+        "resources": {},
+        "prompts": {},
+        "logging": {},
+    },
+    instructions="""arifOS AAA MCP Server - Constitutional AI Governance
+
+13 tools enforcing 13 constitutional floors (F1-F13):
+- F1 Amanah: Reversible actions
+- F2 Truth: τ ≥ 0.99
+- F3 Consensus: W₃ ≥ 0.95
+- F4 Clarity: ΔS ≤ 0
+- F5 Peace²: Stability ≥ 1.0
+- F6 Empathy: κᵣ ≥ 0.70
+- F7 Humility: Ω₀ ∈ [0.03,0.05]
+- F8 Genius: G ≥ 0.80
+- F9 Anti-Hantu: C_dark < 0.30
+- F10 Ontology: Grounded
+- F11 Authority: Valid auth
+- F12 Defense: Clean scan
+- F13 Sovereign: Human override
+
+Verdicts: SEAL | VOID | PARTIAL | SABAR | 888_HOLD
+Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
+"""
+)
 
 
 # Note: custom_route endpoints require FastMCP 2.0+
@@ -1362,6 +1414,31 @@ async def truth_audit(
     )
 
     return audit_report
+
+
+# =============================================================================
+# MCP 2025-11-25 TOOL ANNOTATIONS
+# Apply annotations to all registered tools for spec compliance
+# =============================================================================
+
+def _apply_tool_annotations():
+    """Apply MCP 2025-11-25 tool annotations to all registered tools."""
+    try:
+        # Access the internal tool manager
+        if hasattr(mcp, '_tool_manager') and hasattr(mcp._tool_manager, '_tools'):
+            tools_dict = mcp._tool_manager._tools
+            for tool_name, tool in tools_dict.items():
+                if tool_name in TOOL_ANNOTATIONS:
+                    # Attach annotations to the tool
+                    if not hasattr(tool, 'annotations'):
+                        tool.annotations = {}
+                    tool.annotations.update(TOOL_ANNOTATIONS[tool_name])
+    except Exception as e:
+        # Non-critical: annotations are hints, not requirements
+        print(f"[WARN] Could not apply tool annotations: {e}")
+
+# Apply annotations at module load time
+_apply_tool_annotations()
 
 
 if __name__ == "__main__":
