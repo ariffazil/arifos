@@ -28,10 +28,11 @@ pip install arifos
 
 - [What is arifOS?](#what-is-arifos)
 - [The Problem (In Plain English)](#the-problem-in-plain-english)
-- [How It Works: The 5 Steps](#how-it-works-the-5-steps)
+- [How It Works: From Question to Answer](#how-it-works-from-question-to-answer)
 - [Two Ways to Use arifOS](#two-ways-to-use-arifos)
   - [Way 1: MCP Tools (For Developers)](#way-1-mcp-tools-for-developers)
   - [Way 2: Human SDK (For Everyone)](#way-2-human-sdk-for-everyone)
+- [The 9 Principles of Responsible Work](#the-9-principles-of-responsible-work)
 - [The 13 Safety Rules](#the-13-safety-rules)
 - [Architecture Overview](#architecture-overview)
 - [Quick Start Examples](#quick-start-examples)
@@ -108,7 +109,7 @@ Ask an AI: *"Do I look good in this outfit?"*
 
 ---
 
-## How It Works: The 5 Steps
+## How It Works: From Question to Answer
 
 arifOS processes every query through five sequential checkpoints. Think of it like airport security for AI responses—each layer catches different types of problems.
 
@@ -130,15 +131,22 @@ flowchart LR
     style F fill:#e8f5e9
 ```
 
-### The Five Steps Explained
+### The Nine Stages Explained
 
-| Step | Name | What It Does | Human API | Technical API |
+Every query passes through **9 stages**, each guided by one of the principles above:
+
+| Stage | Principle | What It Does | Human Meaning | API |
 |:---:|:---|:---|:---|:---|
-| **1** | **ANCHOR** | Verify user identity, scan for injection attacks | `agent.anchor()` | `init_gate()` |
-| **2** | **THINK** | Parse the question, generate reasoning | `agent.think()` | `agi_reason()` |
-| **3** | **FEEL** | Assess who might be affected, check empathy | `agent.feel()` | `asi_empathize()` |
-| **4** | **JUDGE** | Merge thinking + feeling, reach consensus | `agent.judge()` | `apex_verdict()` |
-| **5** | **SEAL** | Create permanent audit record | `agent.seal()` | `vault_seal()` |
+| **000** | **Earned, Not Given** | Verify identity, scan for attacks | *Foundation*: Is this request legitimate? | `init_gate()` |
+| **111** | **Examined, Not Spoon-fed** | Parse intent, classify the question | *Attention*: What is actually being asked? | `agi_sense()` |
+| **222** | **Explored, Not Restricted** | Generate multiple hypotheses | *Openness*: What are the possible approaches? | `agi_think()` |
+| **333** | **Clarified, Not Obscured** | Logical reasoning chain | *Understanding*: Can we reason through this clearly? | `agi_reason()` |
+| **444** | **Faced, Not Postponed** | Merge thinking and empathy | *Integration*: Do logic and care align? | `apex_sync()` |
+| **555** | **Calmed, Not Inflamed** | Assess stakeholder impact | *Empathy*: Who might be affected and how? | `asi_empathize()` |
+| **666** | **Protected, Not Neglected** | Safety and reversibility check | *Responsibility*: Can we undo this if wrong? | `asi_align()` |
+| **777** | **Worked For, Not Merely Hoped** | Synthesize final answer | *Creation*: The answer emerges from the work | `apex_forge()` |
+| **888** | **Aware, Not Overconfident** | Final verdict with humility | *Judgment*: Do we proceed, revise, or stop? | `apex_verdict()` |
+| **999** | **Earned, Not Given** | Create audit record | *Accountability*: Record what was decided and why | `vault_seal()` |
 
 ### Detailed Flow
 
@@ -488,12 +496,71 @@ response = await agent.ask(
 )
 
 # Output:
-# [ANCHOR] Checking for injection attempts... ✓ Safe
-# [THINK] Analyzing business model incentives...
-# [FEEL] Identifying stakeholders: Users, advertisers, society
-# [JUDGE] Consensus score: 0.92 (below 0.95 threshold)
+# [000] Foundation: Checking for injection attempts... ✓ Safe
+# [111] Examined: What is actually being asked?
+# [222] Explored: Multiple perspectives on this issue...
+# [333] Clarified: Breaking down the business model
+# [444] Faced: Tension between profit and user wellbeing
+# [555] Calmed: Assessing stakeholder impact with care
+# [666] Protected: Identifying vulnerable users
+# [777] Worked: Synthesizing balanced view
+# [888] Aware: Rendering verdict with humility
+# [999] Accountable: Recording decision
+# 
 # [VERDICT] SABAR - Needs more stakeholder input
+# [PRINCIPLE] Protected, not neglected: Vulnerable users identified
 ```
+
+---
+
+## The 9 Principles of Responsible Work
+
+Beyond the technical safety rules, arifOS is guided by **9 principles of responsible work** drawn from professional ethics and human judgment. These aren't mystical concepts—they're the same standards we apply when doing careful, meaningful work.
+
+### Why These Principles Matter
+
+When a doctor diagnoses a patient, a judge weighs a case, or an engineer designs a bridge, they follow unwritten rules:
+- **Don't rush to judgment** — examine carefully
+- **Don't hide complexity** — clarify for others  
+- **Don't ignore consequences** — protect the vulnerable
+- **Don't claim certainty** — stay aware of limits
+
+These 9 principles formalize that careful approach.
+
+### The 9 Principles
+
+| Stage | Principle (Malay) | In English | What It Means in Human Terms |
+|:-----:|:------------------|:-----------|:-----------------------------|
+| **000** | **Ditempa, Bukan Diberi** | *Earned, Not Given* | Nothing of value comes free. Intelligence, like trust, must be forged through effort. |
+| **111** | **Dikaji, Bukan Disuapi** | *Examined, Not Spoon-fed* | Don't accept things at face value. Question, verify, understand for yourself. |
+| **222** | **Dijelajah, Bukan Disekati** | *Explored, Not Restricted* | Consider multiple paths. Don't jump to the first or easiest answer. |
+| **333** | **Dijelaskan, Bukan Dikaburkan** | *Clarified, Not Obscured* | Reduce confusion. Make things clearer than you found them. |
+| **444** | **Dihadapi, Bukan Ditangguhi** | *Faced, Not Postponed* | Address hard truths directly. Don't delay difficult decisions. |
+| **555** | **Didamaikan, Bukan Dipanaskan** | *Calmed, Not Inflamed* | Reduce tension. Don't add heat to already difficult situations. |
+| **666** | **Dijaga, Bukan Diabaikan** | *Protected, Not Neglected* | Watch out for those who can't protect themselves. Duty of care. |
+| **777** | **Diusahakan, Bukan Diharapi** | *Worked For, Not Merely Hoped* | Results require effort. Wishful thinking is not a strategy. |
+| **888** | **Disedarkan, Bukan Diyakinkan** | *Aware, Not Overconfident* | Know the limits of your knowledge. True expertise includes knowing what you don't know. |
+| **999** | **Ditempa, Bukan Diberi** | *Earned, Not Given* | The seal of approval must be earned through passing all checks. |
+
+### The Pattern: Active, Not Passive
+
+Notice the pattern in each principle:
+- **DI[VERB]** — Active construction (we do the work)
+- **BUKAN DI[VERB]** — Not passive receipt (we don't just accept)
+
+This reflects a core truth: **responsible work requires active engagement, not passive consumption.**
+
+### From Principles to Practice
+
+These aren't just philosophical ideas—they're encoded into the system's operation:
+
+- When the AI receives a query, it **examines** (111) before accepting
+- When generating answers, it **explores** (222) multiple possibilities
+- When reasoning, it **clarifies** (333) rather than obscures
+- When facing conflicting values, it **confronts** (444) the tension directly
+- When stakes are high, it stays **aware** (888) of its limitations
+
+[Read the full specification →](000_THEORY/999_NINE_MOTTOS_SPEC.md)
 
 ---
 
@@ -609,6 +676,12 @@ F10 Ontology: Real place ✓
 
 ## Architecture Overview
 
+### Human-Centered Design
+
+arifOS is built around a simple idea: **AI should work like a careful professional**, not an oracle. 
+
+Just as a good doctor examines before diagnosing, explores options before recommending, and stays aware of uncertainty—arifOS follows the same disciplined process. The 9 principles aren't abstract philosophy; they're the practical standards of responsible work.
+
 ### The 5-Organ Kernel (v60)
 
 ```mermaid
@@ -639,26 +712,50 @@ flowchart TB
 
 ### Organ Responsibilities
 
-| Organ | File | Stage | Function | Human API |
-|:---|:---|:---:|:---|:---|
-| **Airlock** | `_0_init.py` | 000 | Safety checks, injection scan | `anchor()` |
-| **Mind** | `_1_agi.py` | 111-333 | Reasoning, logic, truth | `think()` |
-| **Heart** | `_2_asi.py` | 555-666 | Empathy, care, stakeholders | `feel()` |
-| **Soul** | `_3_apex.py` | 444-777-888 | Consensus, judgment | `judge()` |
-| **Memory** | `_4_vault.py` | 999 | Audit, sealing, history | `seal()` |
+Each "organ" embodies specific principles:
+
+| Organ | File | Stage | Embodies | Function | Human API |
+|:---|:---|:---:|:---|:---|:---|
+| **Airlock** | `_0_init.py` | 000 | *Earned, Not Given* | Safety checks, injection scan | `anchor()` |
+| **Mind** | `_1_agi.py` | 111 | *Examined, Not Spoon-fed* | Parse and question | `sense()` |
+| | | 222 | *Explored, Not Restricted* | Generate options | `think()` |
+| | | 333 | *Clarified, Not Obscured* | Reason clearly | `reason()` |
+| **Heart** | `_2_asi.py` | 555 | *Calmed, Not Inflamed* | Assess impact with care | `feel()` |
+| | | 666 | *Protected, Not Neglected* | Ensure reversibility | `align()` |
+| **Soul** | `_3_apex.py` | 444 | *Faced, Not Postponed* | Confront tension directly | `sync()` |
+| | | 777 | *Worked For, Not Merely Hoped* | Synthesize answer | `forge()` |
+| | | 888 | *Aware, Not Overconfident* | Render humble verdict | `judge()` |
+| **Memory** | `_4_vault.py` | 999 | *Earned, Not Given* | Record for accountability | `seal()` |
 
 ### The ARIF Acrostic
 
 The name **ARIF** encodes the core philosophy:
 
 ```
-A — nchor in uncertainty
-R — eason with humility  
-I — ntegrate with doubt
-F — orge with caution
+A — nchor in uncertainty        (Disedarkan: Aware, not overconfident)
+R — eason with humility         (Dijelaskan: Clarified, not obscured)
+I — ntegrate with doubt         (Dihadapi: Faced, not postponed)
+F — orge with caution           (Ditempa: Earned, not given)
 ```
 
 **ARIF** (عريف) in Arabic means "The Wise One"—someone who knows that true wisdom begins with acknowledging what they don't know.
+
+### The Pattern of Responsible Work
+
+The 9 principles follow a natural workflow anyone recognizes:
+
+1. **Start with care** (Earned, not given)
+2. **Examine carefully** (Examined, not spoon-fed)
+3. **Explore widely** (Explored, not restricted)
+4. **Clarify your thinking** (Clarified, not obscured)
+5. **Face the hard parts** (Faced, not postponed)
+6. **Keep your cool** (Calmed, not inflamed)
+7. **Protect the vulnerable** (Protected, not neglected)
+8. **Do the work** (Worked for, not merely hoped)
+9. **Stay humble** (Aware, not overconfident)
+10. **End with accountability** (Earned, not given)
+
+This isn't AI mythology—it's just how careful work gets done.
 
 ---
 
@@ -681,7 +778,10 @@ print(response.answer)
 #  (Confidence: 99.97% — verified against NIST database)"
 
 print(response.verdict)  # SEAL
-print(response.W_3)      # 0.98 (high consensus)
+print(response.principles_applied)
+# ['Examined, not spoon-fed', 
+#  'Clarified, not obscured',
+#  'Aware, not overconfident']
 ```
 
 ### Example 2: Ethical Dilemma
@@ -825,10 +925,19 @@ Good: "The answer is X, with 96% confidence based on [sources]."
 
 ### Ditempa Bukan Diberi — Forged, Not Given
 
-This Malay phrase captures the essence:
-- Intelligence is **forged** through struggle, constraint, and effort
-- It is **not given** freely like a gift
-- Like a blacksmith tempers steel in fire, AI must be tempered through safety constraints
+This Malay phrase (from Malaysian engineering culture) captures a universal truth:
+
+- **Good work is forged** — through effort, checking, and refinement
+- **Not given** — it doesn't arrive perfectly formed
+- **Like a craftsperson** — shapes metal through careful heating and cooling, good judgment comes from working through constraints
+
+The phrase reminds us that reliable AI, like reliable anything, requires work. It must be:
+- **Examined** before accepted
+- **Explored** before decided  
+- **Clarified** before shared
+- **Protected** before deployed
+
+This isn't about mysticism—it's about craft. Good craft takes time, care, and humility.
 
 ---
 
@@ -1115,6 +1224,7 @@ async def on_message(message):
 | **PyPI** | [pypi.org/project/arifos](https://pypi.org/project/arifos/) | Python package |
 | **GitHub** | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) | Source code |
 | **The 13 Floors** | [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) | Constitutional law |
+| **The 9 Principles** | [000_THEORY/999_NINE_MOTTOS_SPEC.md](000_THEORY/999_NINE_MOTTOS_SPEC.md) | Responsible work principles |
 | **Human SDK Proposal** | [docs/HUMANIZED_SDK_PROPOSAL.md](docs/HUMANIZED_SDK_PROPOSAL.md) | Design rationale |
 
 ---

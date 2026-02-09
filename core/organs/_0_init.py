@@ -26,6 +26,9 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, List, Optional, Set, Tuple, Any
 
+# Import motto for 000_INIT
+from core.shared.mottos import get_motto_for_stage, get_all_stage_mottos, format_all_stage_mottos, StageMotto
+
 # ═════════════════════════════════════════════════════════════════════════════
 # F12: INJECTION GUARD — Prompt Injection Detection
 # ═════════════════════════════════════════════════════════════════════════════
@@ -459,6 +462,12 @@ class SessionToken:
     f2_threshold: float = 0.99  # Adaptive truth threshold
     skip_f4: bool = False  # Skip entropy check for non-factual queries
     
+    # 000_INIT motto: DITEMPA, BUKAN DIBERI
+    motto: str = "DITEMPA, BUKAN DIBERI"
+    motto_output: str = "[000] DITEMPA, BUKAN DIBERI | Forged, Not Given"
+    mottos: List[str] = field(default_factory=list)
+    mottos_output: str = ""
+    
     def __repr__(self) -> str:
         return f"SessionToken({self.session_id[:8]}..., status={self.status})"
     
@@ -494,6 +503,10 @@ class SessionToken:
             "query_type": self.query_type.value,
             "f2_threshold": self.f2_threshold,
             "skip_f4": self.skip_f4,
+            "motto": self.motto,
+            "motto_output": self.motto_output,
+            "mottos": self.mottos,
+            "mottos_output": self.mottos_output,
         }
 
 
@@ -590,6 +603,11 @@ async def init(
     f2_threshold = get_f2_threshold(query_type)
     skip_f4 = get_f4_skip(query_type)
     
+    # All mottos for receipt/output
+    all_mottos = get_all_stage_mottos()
+    mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
+    mottos_output = format_all_stage_mottos()
+    
     # Step 1: F12 — Injection Guard
     injection = scan_injection(query)
     
@@ -605,6 +623,8 @@ async def init(
             floors_failed=["F12"],
             reason=f"F12 injection detected: {injection.pattern}",
             injection_risk=injection.score,
+            mottos=mottos,
+            mottos_output=mottos_output,
         )
     elif injection.level >= InjectionRisk.MEDIUM:
         # Suspicious but not critical — flag for monitoring
@@ -630,6 +650,8 @@ async def init(
             query_type=query_type,
             f2_threshold=f2_threshold,
             skip_f4=skip_f4,
+            mottos=mottos,
+            mottos_output=mottos_output,
         )
     
     floors_passed.append("F11")
@@ -650,6 +672,8 @@ async def init(
                 query_type=query_type,
                 f2_threshold=f2_threshold,
                 skip_f4=skip_f4,
+                mottos=mottos,
+                mottos_output=mottos_output,
             )
     
     # Step 4: Issue Session Token
@@ -660,6 +684,12 @@ async def init(
     # Create token data
     token_data = f"{session_id}:{actor_id}:{timestamp}:{query_hash}"
     token_signature = _sign_token(token_data)
+    
+    # Get 000_INIT motto: DITEMPA, BUKAN DIBERI
+    motto = get_motto_for_stage("000_INIT")
+    
+    # Log motto output for diagnostics
+    print(f"[000_INIT] {motto}")
     
     return SessionToken(
         session_id=session_id,
@@ -674,6 +704,10 @@ async def init(
         query_type=query_type,
         f2_threshold=f2_threshold,
         skip_f4=skip_f4,
+        motto=str(motto),  # DITEMPA, BUKAN DIBERI
+        motto_output=f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
+        mottos=mottos,
+        mottos_output=mottos_output,
     )
 
 

@@ -319,6 +319,8 @@ async def run_stage_999_seal(session_id: str) -> Dict[str, Any]:
             "hash": receipt.entry_hash,
             "seal_id": receipt.seal_id,
             "session_id": session_id,
+            "mottos": receipt.mottos,
+            "mottos_output": receipt.mottos_output,
         }
         store_stage_result(session_id, "stage_999", result)
         return result

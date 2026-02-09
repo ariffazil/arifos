@@ -27,6 +27,7 @@ from core.shared.physics import (
     ConstitutionalTensor, PeaceSquared, UncertaintyBand, GeniusDial,
 )
 from core.shared.types import Verdict
+from core.shared.mottos import get_motto_for_stage, get_all_stage_mottos, format_all_stage_mottos
 
 
 # =============================================================================
@@ -91,6 +92,12 @@ async def sync(
         "f8_genius": agi_tensor.genius.G(),
     }
     
+    # Get 444_SYNC motto: DIHADAPI, BUKAN DITANGGUHI
+    motto = get_motto_for_stage("444_SYNC")
+    all_mottos = get_all_stage_mottos()
+    mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
+    mottos_output = format_all_stage_mottos()
+    
     return {
         "stage": 444,
         "action": "sync",
@@ -100,6 +107,10 @@ async def sync(
         "pre_verdict": pre_verdict,
         "is_synced": w3_score >= 0.95,
         "session_id": session_id,
+        "motto": str(motto),
+        "motto_output": f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
+        "mottos": mottos,
+        "mottos_output": mottos_output,
     }
 
 
@@ -150,6 +161,12 @@ async def forge(
     # Generate solution draft
     solution = _generate_solution(agi_tensor, sync_output)
     
+    # Get 777_FORGE motto: DIUSAHAKAN, BUKAN DIHARAPI
+    motto = get_motto_for_stage("777_FORGE")
+    all_mottos = get_all_stage_mottos()
+    mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
+    mottos_output = format_all_stage_mottos()
+    
     return {
         "stage": 777,
         "action": "forge",
@@ -161,6 +178,8 @@ async def forge(
         "solution_draft": solution,
         "gamma_synchrony": coherence * genius_score,
         "session_id": session_id,
+        "motto": str(motto),
+        "motto_output": f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
     }
 
 
@@ -193,6 +212,102 @@ def _generate_solution(
         return "Solution: Proceed with caution (partial confidence)."
     else:
         return "Solution: Insufficient confidence for synthesis."
+
+
+# =============================================================================
+# 5-FOLD FORGE MOTTOS — G-Level Labeling System
+# =============================================================================
+
+THE_5_MOTTOS = {
+    "foundation": ("DITEMPA", "BUKAN DIBERI"),
+    "akal":       ("DIKAJI", "BUKAN DISUAPI"),
+    "present":    ("DIHADAPI", "BUKAN DITANGGUHI"),
+    "explore":    ("DIJELAJAH", "BUKAN DISEKATI"),
+    "energy":     ("DIUSAHAKAN", "BUKAN DIHARAPI"),
+}
+
+def get_g_level_label(g_score: float) -> dict:
+    """
+    Convert G score to labeled genius level with 5-Fold Forge mottos.
+    
+    Returns dict with:
+    - level: Numeric G-Level (0-5)
+    - label: Human-readable label
+    - motto: The 5-fold forge chant
+    - chant: Rhythmic declaration
+    """
+    if g_score >= 0.95:
+        return {
+            "level": 5,
+            "label": "PEAK GENIUS",
+            "motto": "All 5 mottos honored",
+            "chant": "DITEMPA, DIKAJI, DIHADAPI, DIJELAJAH, DIUSAHAKAN — SEAL",
+            "negation": "BUKAN DIBERI, BUKAN DISUAPI, BUKAN DITANGGUHI, BUKAN DISEKATI, BUKAN DIHARAPI",
+        }
+    elif g_score >= 0.90:
+        return {
+            "level": 4,
+            "label": "MASTER GENIUS",
+            "motto": "5-Fold Forge Complete",
+            "chant": "DITEMPA, DIKAJI, DIHADAPI, DIJELAJAH, DIUSAHAKAN",
+            "negation": "BUKAN DIBERI, BUKAN DISUAPI, BUKAN DITANGGUHI, BUKAN DISEKATI, BUKAN DIHARAPI",
+        }
+    elif g_score >= 0.80:
+        return {
+            "level": 3,
+            "label": "CERTIFIED GENIUS",
+            "motto": "Genius Forged",
+            "chant": "DITEMPA, DIKAJI, DIHADAPI, DIJELAJAH, DIUSAHAKAN",
+            "negation": "BUKAN DIBERI, BUKAN DISUAPI...",
+        }
+    elif g_score >= 0.70:
+        return {
+            "level": 2,
+            "label": "EMERGING GENIUS",
+            "motto": "Partial Forge — Some Dials Need Work",
+            "chant": "DITEMPA... [Partial]",
+            "negation": "Some BUKAN still present",
+        }
+    elif g_score >= 0.50:
+        return {
+            "level": 1,
+            "label": "INITIAL FORGE",
+            "motto": "Foundation Laid — Continue Forging",
+            "chant": "DITEMPA...",
+            "negation": "Multiple BUKAN detected",
+        }
+    else:
+        return {
+            "level": 0,
+            "label": "UNFORGED",
+            "motto": "No Genius Without Work",
+            "chant": "BUKAN DIBERI, BUKAN DISUAPI, BUKAN DITANGGUHI, BUKAN DISEKATI, BUKAN DIHARAPI",
+            "negation": "All negations active — VOID",
+        }
+
+
+def format_apex_output(g_score: float, verdict: str) -> str:
+    """
+    Format APEX output with 5-Fold Forge labeling.
+    
+    Example output:
+    [G-LEVEL 4: MASTER GENIUS | 0.92]
+    DITEMPA, DIKAJI, DIHADAPI, DIJELAJAH, DIUSAHAKAN
+    BUKAN DIBERI, BUKAN DISUAPI, BUKAN DITANGGUHI, BUKAN DISEKATI, BUKAN DIHARAPI
+    """
+    g_info = get_g_level_label(g_score)
+    
+    lines = [
+        f"[G-LEVEL {g_info['level']}: {g_info['label']} | {g_score:.2f}]",
+        g_info['chant'],
+    ]
+    
+    if g_info['level'] >= 3:
+        lines.append(g_info['negation'])
+    
+    lines.append(f"Verdict: {verdict}")
+    
+    return "\n".join(lines)
 
 
 # =============================================================================
@@ -274,17 +389,47 @@ async def judge(
         verdict = "VOID"
         justification = "Multiple floor violations: " + "; ".join(justifications)
     
+    # Generate 5-Fold Forge labeling
+    g_level = get_g_level_label(g_score)
+    apex_output_label = format_apex_output(g_score, verdict)
+    
+    # Get 888_JUDGE motto: DISEDARKAN, BUKAN DIYAKINKAN
+    motto = get_motto_for_stage("888_JUDGE")
+    all_mottos = get_all_stage_mottos()
+    mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
+    mottos_output = format_all_stage_mottos()
+    
     return {
         "stage": 888,
         "action": "judge",
         "verdict": verdict,
         "W_3": w3,
         "genius_G": g_score,
+        "g_level": g_level["level"],
+        "g_label": g_level["label"],
+        "g_motto": g_level["motto"],
+        "g_chant": g_level["chant"],
+        "g_negation": g_level["negation"],
+        "apex_output": apex_output_label,  # Full formatted output with mottos
         "floors_passed": ["F3", "F8", "F9", "F10"] if not violations else [],
         "floors_failed": violations,
         "justification": justification,
         "requires_sovereign": require_sovereign,
         "session_id": session_id,
+        "motto": str(motto),
+        "motto_output": f"[{motto.stage}] {motto.positive}, {motto.negative} | {motto.meaning}",
+        "mottos": mottos,
+        "mottos_output": mottos_output,
+        # 5-Fold Forge mottos for AAA MCP labeling
+        "_5_fold_forge": {
+            "foundation": "DITEMPA, BUKAN DIBERI",
+            "akal": "DIKAJI, BUKAN DISUAPI",
+            "present": "DIHADAPI, BUKAN DITANGGUHI",
+            "explore": "DIJELAJAH, BUKAN DISEKATI",
+            "energy": "DIUSAHAKAN, BUKAN DIHARAPI",
+            "rhythmic_declaration": "DITEMPA, DIKAJI, DIHADAPI, DIJELAJAH, DIUSAHAKAN",
+            "negation_chant": "BUKAN DIBERI, BUKAN DISUAPI, BUKAN DITANGGUHI, BUKAN DISEKATI, BUKAN DIHARAPI",
+        },
     }
 
 
@@ -331,6 +476,14 @@ async def apex(
         return await judge(forge_out, sync_out, asi_output, session_id, require_sovereign)
     
     elif action == "full":
+        # Get APEX mottos
+        motto_444 = get_motto_for_stage("444_SYNC")
+        motto_777 = get_motto_for_stage("777_FORGE")
+        motto_888 = get_motto_for_stage("888_JUDGE")
+        all_mottos = get_all_stage_mottos()
+        mottos = [f"[{m.stage}] {m.positive}, {m.negative} | {m.meaning}" for m in all_mottos]
+        mottos_output = format_all_stage_mottos()
+        
         # Complete APEX pipeline
         sync_out = await sync(agi_tensor, asi_output, session_id)
         forge_out = await forge(sync_out, agi_tensor, session_id)
@@ -348,6 +501,12 @@ async def apex(
             "floors_failed": judge_out["floors_failed"],
             "justification": judge_out["justification"],
             "session_id": session_id,
+            "motto_444": str(motto_444),
+            "motto_777": str(motto_777),
+            "motto_888": str(motto_888),
+            "motto_output": f"APEX: [{motto_444.stage}] {motto_444.positive} -> [{motto_777.stage}] {motto_777.positive} -> [{motto_888.stage}] {motto_888.positive}",
+            "mottos": mottos,
+            "mottos_output": mottos_output,
         }
     
     else:

@@ -60,6 +60,10 @@ from aaa_mcp.core.stage_adapter import (
     run_stage_999_seal,
 )
 from core.pipeline import forge as core_forge
+from core.shared.mottos import (
+    get_motto_for_stage,
+    format_stage_output,
+)
 
 """
 arifOS AAA MCP Server — Constitutional AI Governance (v60.0-FORGE)
@@ -115,13 +119,20 @@ async def init_gate(
     result = await engine.ignite(query, session_id)
 
     # Schematized Output (v55.5-CRYSTALLIZED)
+    # 000_INIT motto: DITEMPA, BUKAN DIBERI (Forged, not given)
+    motto = get_motto_for_stage("000_INIT")
+    
     hardened_result = {
         "session_id": result.get("session_id", session_id or "unknown"),
         "verdict": result.get("verdict", ConflictStatus.SEAL.value),
         "status": "READY",
         "grounding_required": grounding_required,
         "mode": mode,
-        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        "stage": "000_INIT",
+        "motto": str(motto),
+        "motto_positive": motto.positive,
+        "motto_negative": motto.negative,
+        "meaning": motto.meaning,
         "floors_enforced": get_tool_floors("init_gate"),
         "evidence": [],
         "pass": "forward",
@@ -150,6 +161,10 @@ async def forge_pipeline(
         require_sovereign=require_sovereign_for_high_stakes,
     )
 
+    # Full pipeline uses 000 motto (foundation) + 999 motto (seal)
+    motto_000 = get_motto_for_stage("000_INIT")
+    motto_999 = get_motto_for_stage("999_SEAL")
+    
     output = {
         "verdict": result.verdict,
         "session_id": result.session_id,
@@ -158,7 +173,9 @@ async def forge_pipeline(
         "asi": result.asi,
         "apex": result.apex,
         "seal": result.seal,
-        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        "motto_init": str(motto_000),
+        "motto_seal": str(motto_999),
+        "meaning": "Forged through 000-999 pipeline, not given",
         "floors_enforced": get_tool_floors("forge_pipeline"),
         "pass": "forward",
     }
@@ -194,7 +211,14 @@ async def agi_sense(query: str, session_id: str) -> dict:
     result["evidence"] = evidence
 
     store_stage_result(session_id, "agi_sense", result)
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+    
+    # 111_SENSE motto: DIKAJI, BUKAN DISUAPI (Examined, not assumed)
+    motto = get_motto_for_stage("111_SENSE")
+    result["stage"] = "111_SENSE"
+    result["motto"] = str(motto)
+    result["motto_positive"] = motto.positive
+    result["motto_negative"] = motto.negative
+    result["meaning"] = motto.meaning
     result["floors_enforced"] = get_tool_floors("agi_sense")
     result["pass"] = "forward"
     return result
@@ -228,7 +252,14 @@ async def agi_think(query: str, session_id: str) -> dict:
     result["evidence"] = evidence
 
     store_stage_result(session_id, "agi_think", result)
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+    
+    # 222_THINK motto: DIJELAJAH, BUKAN DISEKATI (Explored, not restricted)
+    motto = get_motto_for_stage("222_THINK")
+    result["stage"] = "222_THINK"
+    result["motto"] = str(motto)
+    result["motto_positive"] = motto.positive
+    result["motto_negative"] = motto.negative
+    result["meaning"] = motto.meaning
     result["floors_enforced"] = get_tool_floors("agi_think")
     result["pass"] = "forward"
     return result
@@ -303,7 +334,13 @@ async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = Non
         )
         result["evidence"] = evidence  # Ensure evidence is added to result
 
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+    # 333_REASON motto: DIJELASKAN, BUKAN DIKABURKAN (Clarified, not obscured)
+    motto = get_motto_for_stage("333_REASON")
+    result["stage"] = "333_REASON"
+    result["motto"] = str(motto)
+    result["motto_positive"] = motto.positive
+    result["motto_negative"] = motto.negative
+    result["meaning"] = motto.meaning
     result["floors_enforced"] = get_tool_floors("agi_reason")
     result["pass"] = "forward"
     return result
@@ -341,7 +378,13 @@ async def asi_empathize(query: str, session_id: str) -> dict:
     stage_555_result = await run_stage_555_empathy(session_id, query)
     result["stage_555"] = stage_555_result
     
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+    # 555_EMPATHY motto: DIDAMAIKAN, BUKAN DIPANASKAN (Calmed, not inflamed)
+    motto = get_motto_for_stage("555_EMPATHY")
+    result["stage"] = "555_EMPATHY"
+    result["motto"] = str(motto)
+    result["motto_positive"] = motto.positive
+    result["motto_negative"] = motto.negative
+    result["meaning"] = motto.meaning
     result["floors_enforced"] = get_tool_floors("asi_empathize")
     result["pass"] = "forward"
     return result
@@ -379,7 +422,13 @@ async def asi_align(query: str, session_id: str) -> dict:
     stage_666_result = await run_stage_666_align(session_id, query)
     result["stage_666"] = stage_666_result
     
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+    # 666_ALIGN motto: DIJAGA, BUKAN DIABAIKAN (Guarded, not neglected)
+    motto = get_motto_for_stage("666_ALIGN")
+    result["stage"] = "666_ALIGN"
+    result["motto"] = str(motto)
+    result["motto_positive"] = motto.positive
+    result["motto_negative"] = motto.negative
+    result["meaning"] = motto.meaning
     result["floors_enforced"] = get_tool_floors("asi_align")
     result["pass"] = "forward"
     return result
@@ -537,7 +586,12 @@ async def apex_verdict(query: str, session_id: str) -> dict:
         "query": query,
         "CORE_GOVERNANCE": core_metrics,
         "verdict_justification": result.get("verdict_justification", ""),
-        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        # 888_JUDGE motto: DISEDARKAN, BUKAN DIYAKINKAN (Aware, not over-assured)
+        "stage": "888_JUDGE",
+        "motto": str(get_motto_for_stage("888_JUDGE")),
+        "motto_positive": get_motto_for_stage("888_JUDGE").positive,
+        "motto_negative": get_motto_for_stage("888_JUDGE").negative,
+        "meaning": get_motto_for_stage("888_JUDGE").meaning,
         "floors_enforced": get_tool_floors("apex_verdict"),
         "pass": "reverse",
         # Metabolic stages results
@@ -662,7 +716,12 @@ async def reality_search(
         "session_id": session_id,
         "evidence": evidence,
         "verdict": ConflictStatus.SEAL.value if evidence else ConflictStatus.INSUFFICIENT.value,
-        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        # Reality search uses 222_THINK motto (exploration phase)
+        "stage": "REALITY_SEARCH",
+        "motto": str(get_motto_for_stage("222_THINK")),
+        "motto_positive": get_motto_for_stage("222_THINK").positive,
+        "motto_negative": get_motto_for_stage("222_THINK").negative,
+        "meaning": "Explored through reality, not restricted to axioms",
     }
 
     store_stage_result(session_id, "reality", hardened_output)
@@ -934,7 +993,12 @@ async def vault_seal(
         },
         # Metabolic stage 999 result
         "stage_999": stage_999_result,
-        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        # 999_SEAL motto: DITEMPA, BUKAN DIBERI (same as 000)
+        "stage": "999_SEAL",
+        "motto": str(get_motto_for_stage("999_SEAL")),
+        "motto_positive": get_motto_for_stage("999_SEAL").positive,
+        "motto_negative": get_motto_for_stage("999_SEAL").negative,
+        "meaning": get_motto_for_stage("999_SEAL").meaning,
         "floors_enforced": get_tool_floors("vault_seal"),
         "pass": "reverse",
     }
@@ -988,7 +1052,12 @@ async def tool_router(query: str) -> PlanObject:
         "grounding_required": grounding_required,
         "justification": justification,
         "instruction": f"Follow the sequence: {' -> '.join(sequence)}",
-        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        # Router uses 444_SYNC motto (facing the routing decision)
+        "stage": "ROUTER",
+        "motto": str(get_motto_for_stage("444_SYNC")),
+        "motto_positive": get_motto_for_stage("444_SYNC").positive,
+        "motto_negative": get_motto_for_stage("444_SYNC").negative,
+        "meaning": "Routing decision faced, not postponed",
     }
 
 
@@ -1056,7 +1125,12 @@ async def vault_query(
             },
             "entries": [],
             "patterns": {},
-            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            # Vault query uses 666_ALIGN motto (guarding institutional memory)
+            "stage": "VAULT_QUERY",
+            "motto": str(get_motto_for_stage("666_ALIGN")),
+            "motto_positive": get_motto_for_stage("666_ALIGN").positive,
+            "motto_negative": get_motto_for_stage("666_ALIGN").negative,
+            "meaning": "Institutional memory guarded, not neglected",
             "floors_enforced": get_tool_floors("vault_query"),
             "note": "Query interface migrating to core.organs — use session ledger for now",
         }
@@ -1264,7 +1338,12 @@ async def vault_query(
             },
             "entries": simplified,
             "patterns": patterns,
-            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            # Vault query uses 666_ALIGN motto
+            "stage": "VAULT_QUERY",
+            "motto": str(get_motto_for_stage("666_ALIGN")),
+            "motto_positive": get_motto_for_stage("666_ALIGN").positive,
+            "motto_negative": get_motto_for_stage("666_ALIGN").negative,
+            "meaning": "Institutional memory guarded, not neglected",
             "floors_enforced": get_tool_floors("vault_query"),
         }
     except Exception as e:
@@ -1273,7 +1352,11 @@ async def vault_query(
             "error": str(e),
             "entries": [],
             "patterns": {},
-            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "stage": "VAULT_QUERY",
+            "motto": str(get_motto_for_stage("666_ALIGN")),
+            "motto_positive": get_motto_for_stage("666_ALIGN").positive,
+            "motto_negative": get_motto_for_stage("666_ALIGN").negative,
+            "meaning": "Institutional memory guarded, not neglected",
             "floors_enforced": get_tool_floors("vault_query"),
         }
 
@@ -1426,6 +1509,14 @@ async def truth_audit(
     # F7 Humility: Calculate Omega_0
     # Higher logic: variance in claim truth scores?
     audit_report["omega_0"] = 0.05  # Default humility band
+    
+    # Add stage motto — Truth Audit uses 333_REASON (clarification)
+    motto = get_motto_for_stage("333_REASON")
+    audit_report["stage"] = "TRUTH_AUDIT"
+    audit_report["motto"] = str(motto)
+    audit_report["motto_positive"] = motto.positive
+    audit_report["motto_negative"] = motto.negative
+    audit_report["meaning"] = motto.meaning
 
     # 5. VAULT_SEAL: Immutable Record
     await vault_seal(
