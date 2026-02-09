@@ -14,7 +14,6 @@ from dataclasses import dataclass
 from typing import Any, Optional
 
 from core.organs import init, agi, asi, apex, vault
-from core.shared.atlas import Phi
 
 
 @dataclass
@@ -108,24 +107,35 @@ async def forge(
     require_sovereign: bool = False,
 ) -> ForgeResult:
     """
-    Full pipeline: 000 → 999
-
-    Returns a ForgeResult with all stage outputs and vault receipt.
+    Full pipeline: 000 → 999 with adaptive F2 governance.
+    
+    Now with:
+    - Query type classification (PROCEDURAL, OPINION, COMPARATIVE, FACTUAL)
+    - Adaptive F2 thresholds (0.60 - 0.99 based on query type)
+    - Fast path for low-risk procedural/opinion queries
+    - Better error messages with remediation steps
+    
+    Returns a ForgeResult with all stage outputs and diagnostics.
     """
     import time
     start_time = time.perf_counter()
     
-    # 000: Init
+    # 000: Init (includes P0.1 query classification)
     token = await init(
         query,
         actor_id,
         auth_token,
         require_sovereign_for_high_stakes=require_sovereign,
     )
+    
+    # P0.2: Use adaptive F2 threshold from SessionToken
+    f2_threshold = token.f2_threshold
+    query_type = token.query_type
 
     if token.is_void or token.requires_human:
         verdict = "VOID" if token.is_void else "888_HOLD"
         elapsed = (time.perf_counter() - start_time) * 1000
+        remediation = "Check authentication (F11) or injection patterns (F12)."
         return ForgeResult(
             verdict=verdict,
             session_id=token.session_id,
@@ -135,11 +145,45 @@ async def forge(
             apex={},
             seal=None,
             processing_time_ms=elapsed,
+            query_type=query_type.value,
+            f2_threshold=f2_threshold,
+            floors_failed=token.floors_failed if hasattr(token, 'floors_failed') else [],
+            remediation=remediation,
         )
 
-    # 111-333: AGI
+    # 111-333: AGI (with adaptive F2 from SessionToken)
     agi_out = await agi(query, token.session_id, action="full")
     agi_tensor = agi_out.get("tensor")
+    
+    # Check if AGI passed adaptive F2
+    truth_score = getattr(agi_tensor, 'truth_score', 0.5)
+    if truth_score < f2_threshold:
+        # F2 failure with remediation
+        elapsed = (time.perf_counter() - start_time) * 1000
+        remediation = (
+            f"Query classified as {query_type.value} (F2 threshold: {f2_threshold}). "
+        )
+        if query_type.value == "FACTUAL":
+            remediation += "Add specific facts or citations to increase truth score."
+        elif query_type.value in ["PROCEDURAL", "TEST"]:
+            remediation += "This command was blocked unexpectedly—try rephrasing or use mode='fast'."
+        else:
+            remediation += "Rephrase with more specific language."
+        
+        return ForgeResult(
+            verdict="VOID",
+            session_id=token.session_id,
+            token_status=token.status,
+            agi=agi_out,
+            asi={},
+            apex={},
+            seal=None,
+            processing_time_ms=elapsed,
+            query_type=query_type.value,
+            f2_threshold=f2_threshold,
+            floors_failed=["F2"],
+            remediation=remediation,
+        )
 
     # 555-666: ASI
     asi_out = await asi(query, agi_tensor, token.session_id, action="full")
@@ -169,6 +213,10 @@ async def forge(
         apex=apex_out,
         seal=seal_out,
         processing_time_ms=elapsed,
+        query_type=query_type.value,
+        f2_threshold=f2_threshold,
+        floors_failed=apex_out.get("floors_failed", []),
+        remediation="" if verdict == "SEAL" else "Review floor violations above.",
     )
 
 
