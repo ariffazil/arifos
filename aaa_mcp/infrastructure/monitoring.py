@@ -204,12 +204,41 @@ async def init_monitoring():
             return False
     
     async def check_mcp_tools():
+        """Test MCP tools are registered and report any issues."""
+        from aaa_mcp.server import mcp
+        
         try:
-            from aaa_mcp.server import mcp
             tools = await mcp.get_tools()
-            return len(tools) >= 10
+            tool_count = len(tools)
+            
+            # Get tool names for verification
+            tool_names = set()
+            for t in tools:
+                name = getattr(t, 'name', None) or str(t)
+                tool_names.add(name)
+            
+            # Check critical tools
+            critical_tools = [
+                "init_gate", "agi_sense", "agi_think", "agi_reason",
+                "asi_empathize", "asi_align", "apex_verdict", 
+                "vault_seal", "vault_query", "truth_audit"
+            ]
+            missing = [t for t in critical_tools if t not in tool_names]
+            
+            if missing:
+                print(f"[health] mcp_tools: UNHEALTHY - missing: {', '.join(missing)}")
+                return False
+            
+            if tool_count < 10:
+                print(f"[health] mcp_tools: UNHEALTHY - only {tool_count} tools (need 10+)")
+                return False
+            
+            print(f"[health] mcp_tools: HEALTHY - {tool_count} tools registered")
+            return True
+            
         except Exception as e:
-            print(f"[health] mcp_tools check failed: {e}")
+            err_type = type(e).__name__
+            print(f"[health] mcp_tools: ERROR - {err_type}: {e}")
             return False
     
     def check_memory():
