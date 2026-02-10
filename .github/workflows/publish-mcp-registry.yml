@@ -66,23 +66,18 @@ jobs:
           INPUT_VERSION: ${{ github.event.inputs.version }}
           GITHUB_REF_NAME: ${{ github.ref_name }}
 
-      # 🔧 Install mcp-publisher binary directly (faster than Homebrew)
+      # 🔧 Install mcp-publisher binary (Dynamic Latest)
       - name: Install mcp-publisher
         run: |
-          curl -L -o mcp-publisher.tar.gz "https://github.com/modelcontextprotocol/registry/releases/download/v1.4.0/mcp-publisher_linux_amd64.tar.gz"
-          tar -xzf mcp-publisher.tar.gz
+          curl -L "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_$(uname -s | tr '[:upper:]' '[:lower:]')_$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/').tar.gz" | tar xz mcp-publisher
           chmod +x mcp-publisher
           ./mcp-publisher --version
 
       # 🔴 CRITICAL: GitHub authentication for mcp-publisher
-      # Uses GITHUB_TOKEN which works with OIDC in GitHub Actions
-      - name: Authenticate with GitHub
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # For CI environments, mcp-publisher uses the GITHUB_TOKEN automatically
-          # No explicit login needed when running in GitHub Actions with id-token: write
-          echo "✅ GitHub Actions authentication ready"
+      - name: Authenticate to MCP Registry
+        permissions:
+          id-token: write
+        run: ./mcp-publisher login github-oidc
 
       # ✅ PUBLISH PHASE
       - name: Publish to MCP Registry
