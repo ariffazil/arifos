@@ -18,9 +18,26 @@
 </p>
 
 <p align="center">
-  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg" alt="PyPI"></a>
-  <a href="https://arifos.arif-fazil.com"><img src="https://img.shields.io/badge/Live-Demo-blue" alt="Live Demo"></a>
-  <a href="https://github.com/ariffazil/arifOS/releases"><img src="https://img.shields.io/github/v/release/ariffazil/arifos" alt="Releases"></a>
+  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg?style=for-the-badge&color=blue" alt="PyPI"></a>
+  <a href="https://arifos.arif-fazil.com"><img src="https://img.shields.io/badge/Live-Demo-success?style=for-the-badge" alt="Live Demo"></a>
+  <a href="https://github.com/ariffazil/arifOS/releases"><img src="https://img.shields.io/github/v/release/ariffazil/arifos?style=for-the-badge&color=brightgreen" alt="Releases"></a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python 3.10+">
+  <img src="https://img.shields.io/badge/License-AGPL--3.0-orange?style=flat-square" alt="License: AGPL-3.0">
+  <img src="https://img.shields.io/badge/13_Constitutional_Floors-Enforced-critical?style=flat-square&color=9cf" alt="13 Floors">
+  <img src="https://img.shields.io/badge/MCP_Protocol-2025--11--25-purple?style=flat-square" alt="MCP Protocol">
+  <a href="https://aaamcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/Health-Online-brightgreen?style=flat-square" alt="Health"></a>
+  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker Ready">
+  <img src="https://img.shields.io/badge/Railway-Deploy-0B0D0E?style=flat-square&logo=railway&logoColor=white" alt="Railway Deploy">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/🔥_Thermodynamic-Constraint_Engine-red?style=flat-square" alt="Thermodynamic">
+  <img src="https://img.shields.io/badge/⚡_Runtime-Enforcement-yellow?style=flat-square" alt="Runtime">
+  <img src="https://img.shields.io/badge/🔐_Cryptographic-Audit_Trails-green?style=flat-square" alt="Cryptographic">
+  <img src="https://img.shields.io/badge/🧠_Trinity-ΔΩΨ_Architecture-blueviolet?style=flat-square" alt="Trinity">
 </p>
 
 ---
