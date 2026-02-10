@@ -77,6 +77,43 @@ This is what we call the **Gödel Lock**—inspired by mathematician Kurt Gödel
 
 ---
 
+## What is AAA MCP?
+
+**AAA MCP (Amanah-Aligned AI Constitutional Meta-Protocol) is a thermodynamic constraint engine for AI reasoning.**
+
+It is not a Theory of Mind. It does not create consciousness. It does not simulate ethics.
+
+**AAA MCP forges reliable reasoning through constitutional constraint.**
+
+### The Thermodynamic Principle
+
+Just as heat and pressure forge steel, AAA MCP uses **13 Constitutional Floors (F1-F13)** and a **9-stage metabolic pipeline (000-999)** to forge intelligence:
+
+| Element | Purpose |
+|---------|---------|
+| **Floors (F1-F13)** | Pressure — Irreversible constraints that must be satisfied |
+| **Stages (000-999)** | Work — Sequential processing through 5 organs: INIT → AGI(Mind) → ASI(Heart) → APEX(Soul) → VAULT(Memory) |
+| **Evidence** | Energy — Required grounding for truth claims (F2 ≥ 0.99) |
+| **Verdicts** | Output — SEAL, PARTIAL, SABAR, VOID, 888_HOLD |
+
+### What AAA MCP Actually Does
+
+- **F2 Truth**: Requires 99% certainty before certifying claims
+- **F7 Humility**: Forces uncertainty admission (Ω₀ ∈ [0.03, 0.05])
+- **F3 Consensus**: Tri-Witness validation (Human × AI × System ≥ 0.95)
+- **F9 Anti-Hantu**: Prevents AI from claiming consciousness/feelings
+- **VAULT999**: Immutable Merkle-chain audit trail for every decision
+
+### The Honest Claim
+
+> *"AAA MCP increases reliability, not consciousness. It constrains hallucination. It enforces humility. That is enterprise gold."*
+
+**AAA MCP produces accountable reasoning artifacts—not minds.**
+
+The product is **measurable governance**: every decision carries floor scores, evidence hashes, and cryptographic seals. Not because we claim the AI has "soul," but because we demand it leave proof of work.
+
+---
+
 ## The Problem (In Plain English)
 
 ### Problem 1: When AI Makes Mistakes, Nobody Knows Why
