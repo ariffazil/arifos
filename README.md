@@ -179,9 +179,11 @@ This is what we call the **Gödel Lock**—inspired by mathematician Kurt Gödel
 
 ---
 
-## AAA MCP Server — Enterprise Constitutional AI Governance
+## Way 1: AAA MCP Server (MCP Interface)
 
-**AAA MCP (Amanah-Aligned AI Constitutional Meta-Protocol)** is a production-grade MCP server that enforces constitutional constraints on any LLM. Deploy it in your infrastructure to transform ungoverned AI into auditable, compliant, safety-critical systems.
+**AAA MCP (Amanah-Aligned AI Constitutional Meta-Protocol)** is the reference MCP server built on arifOS, exposing the constitutional kernel as callable tools. It transforms ungoverned AI into auditable, compliant, safety-critical systems via the Model Context Protocol.
+
+> **Architecture Note:** These are the same arifOS stages (Mind, Heart, Soul, Vault) exposed via MCP; other interfaces ([Way 2](#way-2-human-sdk-for-everyone), [Way 3](#way-3-system-prompts-skills--workflows-for-builders)) call the same [`core/pipeline.py`](core/pipeline.py) through different APIs.
 
 ```bash
 pip install arifos
@@ -201,7 +203,7 @@ Unlike prompt-based safety guardrails that can be bypassed, **AAA MCP enforces c
 | Audit trail | None | VAULT999 cryptographic Merkle chains |
 | Stakeholder harm | Ignored | Blocked by F5/F6 Empathy checks |
 
-**Every tool call is governed by the 000-999 constitutional pipeline.** MCP provides the wires. AAA MCP provides the circuit breakers.
+**Every tool call is governed by the 000-999 constitutional pipeline.** MCP provides the wires. arifOS (via AAA MCP) provides the circuit breakers.
 
 ### Try It Now (30 Seconds)
 
@@ -220,9 +222,11 @@ python -m aaa_mcp
 
 ---
 
-### Deployment Guide
+### Deployment Guide (AAA MCP Interface)
 
-**Quick deploy to your preferred platform:**
+This guide covers deploying **AAA MCP**, the MCP interface for arifOS. For other interfaces ([Human SDK](#way-2-human-sdk-for-everyone), [Prompts & Skills](#way-3-system-prompts-skills--workflows-for-builders)), see their respective sections.
+
+**Quick deploy AAA MCP to your preferred platform:**
 
 | Platform | Method | Difficulty |
 |----------|--------|------------|
@@ -264,7 +268,9 @@ Each query passes through 13 enforced constraints:
 
 ---
 
-### The 10 Canonical MCP Tools
+### The 10 Constitutional Tools (MCP Interface)
+
+These tools are the arifOS constitutional stages exposed via MCP; other interfaces call the same stages through different APIs.
 
 | Tool | Stage | Trinity | Floors | Purpose |
 |------|-------|---------|--------|---------|
@@ -833,9 +839,9 @@ arifOS provides **three interfaces** for different use cases:
 
 ---
 
-## Way 1: MCP Tools (For Developers)
+## Way 1: MCP Tools (For Developers) → [AAA MCP Server](#way-1-aaa-mcp-server-mcp-interface)
 
-The **MCP (Model Context Protocol) Tools** interface exposes each constitutional stage as callable functions. See the **[AAA MCP Server](#aaa-mcp-server--enterprise-constitutional-ai-governance)** section above for deployment options and the [10 canonical tools reference](#the-10-canonical-mcp-tools).
+The **MCP (Model Context Protocol) Tools** interface exposes each constitutional stage as callable functions. See the **[AAA MCP Server](#way-1-aaa-mcp-server-mcp-interface)** section below for deployment options and the [10 Constitutional Tools reference](#the-10-constitutional-tools-mcp-interface).
 
 ### When to Use This
 
@@ -887,7 +893,7 @@ asyncio.run(main())
 ```
 
 > [!TIP]
-> For complete deployment instructions (Claude Desktop, Cursor, Docker, Railway, HTTP API), see the **[Deployment Guide](#deployment-guide)** above.
+> For complete deployment instructions (Claude Desktop, Cursor, Docker, Railway, HTTP API), see the **[Deployment Guide](#deployment-guide)** in the AAA MCP section above.
 
 ---
 
