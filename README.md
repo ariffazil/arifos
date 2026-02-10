@@ -22,6 +22,7 @@
   <a href="https://arifos.arif-fazil.com"><img src="https://img.shields.io/badge/Live-Demo-success?style=for-the-badge" alt="Live Demo"></a>
   <a href="https://github.com/ariffazil/arifOS/releases"><img src="https://img.shields.io/github/v/release/ariffazil/arifos?style=for-the-badge&color=brightgreen" alt="Releases"></a>
   <a href="https://registry.modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP_Registry-io.github.ariffazil%2Faaa--mcp-blue?style=for-the-badge" alt="MCP Registry"></a>
+  <!-- mcp-name: io.github.ariffazil/aaa-mcp -->
 </p>
 
 <p align="center">
@@ -444,7 +445,7 @@ railway up
 **Health Check:**
 ```bash
 curl https://your-app.up.railway.app/health
-# {"status": "healthy", "version": "v55.5", "timestamp": "..."}
+# {"status": "healthy", "version": "v60.0", "timestamp": "..."}
 ```
 
 ---
@@ -708,7 +709,7 @@ Before any thinking happens, we verify two things:
 1. **Who is asking?** — Verify the user's authority level
 2. **Is this a trick?** — Scan for prompt injection attempts
 
-**v55.5-HARDENED Hardening:**
+**v60.0-RUKUN Hardening:**
 - **Graded Injection Defense**: Multi-pattern scan (regex) with context-aware responses (VOID for attacks, SABAR for educational contexts).
 - **Input Size Limits**: Hard-blocked at 10,000 characters to prevent DoS.
 - **Deterministic `request_hash`**: Full 64-char SHA-256 hash for audit integrity.

@@ -1,7 +1,7 @@
-# arifOS Roadmap (v55.5.0)
+# arifOS Roadmap (v60.0.0)
 
 > **Authority:** 888_JUDGE  
-> **Current:** v55.5.0-HARDENED (SEALED)  
+> **Current:** v60.0.0-RUKUN (SEALED)  
 > **Motto:** DITEMPA BUKAN DIBERI 💎🔥🧠
 
 ---
@@ -10,7 +10,7 @@
 
 | Metric | Status |
 |--------|--------|
-| **Version** | v55.5.0 (Production) |
+| **Version** | v60.0.0 (Production) |
 | **PyPI** | ✅ Live (pip install arifos) |
 | **Deployment** | ✅ Railway (aaamcp.arif-fazil.com) |
 | **MCP Protocol** | ✅ 2025-11-25 Compliant |
@@ -35,11 +35,12 @@
 
 ## Phase History
 
-### ✅ Phase 1: Foundation (v55.5.0) — COMPLETE
-- 5-Organ Kernel operational
+### ✅ Phase 1: Foundation (v60.0.0) — COMPLETE
+- 5-Organ Kernel operational (RUKUN AGI)
 - 13 canonical MCP tools with annotations
 - Constitutional decorator with F1-F13 enforcement
-- PyPI publication (arifos==55.5.0)
+- PyPI publication (arifos==60.0.0)
+- MCP Registry (io.github.ariffazil/aaa-mcp)
 - Railway production deployment
 - Health/monitoring endpoints
 
@@ -85,6 +86,6 @@
 
 ---
 
-**Version:** v55.5.0  
+**Version:** v60.0.0  
 **State:** SEALED  
 **Creed:** DITEMPA BUKAN DIBERI
