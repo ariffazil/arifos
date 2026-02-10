@@ -39,15 +39,22 @@ jobs:
           print(f'✅ Namespace validated: {server[\"name\"]}')
           "
 
-      - name: Install mcp-publisher via Homebrew
+      - name: Authenticate Homebrew with GitHub token
         run: |
-          # Install Homebrew
+          echo "HOMEBREW_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
+          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
+
+      - name: Install Homebrew
+        run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          # Add to PATH
           echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
-          # Install mcp-publisher
-          /home/linuxbrew/.linuxbrew/bin/brew install modelcontextprotocol/tap/mcp-publisher
-          # Verify
+
+      - name: Install mcp-publisher via Homebrew
+        env:
+          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          /home/linuxbrew/.linuxbrew/bin/brew tap modelcontextprotocol/tap
+          /home/linuxbrew/.linuxbrew/bin/brew install mcp-publisher
           /home/linuxbrew/.linuxbrew/bin/mcp-publisher --version
 
       - name: Publish to MCP Registry
