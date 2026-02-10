@@ -691,8 +691,15 @@ async def apex_verdict(query: str, session_id: str) -> dict:
     result = await engine.judge(query, session_id)
 
     # Formal Verdict Semantics (v55.5-INDUSTRIAL)
-    session_ev = get_session_evidence(session_id)
-    ev_types = {e["source_meta"]["type"] for e in session_ev}
+    session_ev = get_session_evidence(session_id) or []
+    
+    # Defensive: Handle malformed evidence gracefully
+    ev_types = set()
+    for e in session_ev:
+        if isinstance(e, dict) and isinstance(e.get("source_meta"), dict):
+            ev_type = e["source_meta"].get("type")
+            if ev_type:
+                ev_types.add(ev_type)
 
     has_web = EvidenceType.WEB.value in ev_types
     has_axiom = EvidenceType.AXIOM.value in ev_types
