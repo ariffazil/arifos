@@ -1278,7 +1278,7 @@ async def tool_router(query: str) -> PlanObject:
     else:
         # Default to quick decision for simple queries
         sequence = WORKFLOW_SEQUENCES["quick_decision"]
-        justification = "Standard query — unified forge pipeline sufficient"
+        justification = "Standard query — unified trinity_forge pipeline sufficient"
     
     # ─── Build Response ─────────────────────────────────────────────────────
     plan_id = f"PLAN-{uuid.uuid4().hex[:8].upper()}"

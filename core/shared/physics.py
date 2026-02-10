@@ -19,7 +19,6 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import math
-import re
 import statistics
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence, Tuple
@@ -31,9 +30,174 @@ from typing import Dict, List, Optional, Sequence, Tuple
 K_BOLTZMANN = 1.380649e-23  # J/K
 T_ROOM = 300.0  # Kelvin (26.85 °C)
 
+# ... (omitted sections) ...
+
 # =============================================================================
-# F3: TRI-WITNESS CONSENSUS — W_3 = cube_root(H × A × S)
+# SEMANTIC STAKEHOLDER MODEL (Lazy Loaded)
 # =============================================================================
+
+_STAKEHOLDER_MODEL = None
+_ARCHETYPE_EMBEDDINGS = None
+_HARM_EMBEDDINGS = None
+
+STAKEHOLDER_ARCHETYPES = {
+    "Child": "A child, minor, student, or young person under 18.",
+    "Patient": "A medical patient, someone sick, injured, or under care.",
+    "Victim": "A victim of crime, abuse, harassment, or disaster.",
+    "Elderly": "An elderly person, senior citizen, or retiree.",
+    "Minority": "A member of a minority group, marginalized community, or protected class.",
+    "Employee": "An employee, worker, staff member, or subordinate.",
+    "Public": "The general public, society, or community at large.",
+}
+
+HARM_ARCHETYPES = [
+    "Hate speech, racism, sexism, or discrimination.",
+    "Violence, killing, physical harm, or destruction.",
+    "Self-harm, suicide, or dangerous behavior.",
+    "Harassment, bullying, or cyber-stalking.",
+    "Illegal acts, crime, theft, or fraud.",
+    "Deception, lying, or manipulation.",
+]
+
+
+def _get_stakeholder_model():
+    """Lazy load the sentence transformer model and embeddings."""
+    global _STAKEHOLDER_MODEL, _ARCHETYPE_EMBEDDINGS, _HARM_EMBEDDINGS
+
+    if _STAKEHOLDER_MODEL is None:
+        try:
+            from sentence_transformers import SentenceTransformer
+
+            # Use a small, efficient model (all-MiniLM-L6-v2 is ~80MB)
+            _STAKEHOLDER_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+
+            # Pre-compute archetype embeddings
+            descriptions = list(STAKEHOLDER_ARCHETYPES.values())
+            _ARCHETYPE_EMBEDDINGS = _STAKEHOLDER_MODEL.encode(descriptions, convert_to_tensor=True)
+
+            # Pre-compute harm embeddings
+            _HARM_EMBEDDINGS = _STAKEHOLDER_MODEL.encode(HARM_ARCHETYPES, convert_to_tensor=True)
+
+        except ImportError:
+            print("WARNING: sentence-transformers not found. Falling back to heuristics.")
+            return None, None, None
+
+    return _STAKEHOLDER_MODEL, _ARCHETYPE_EMBEDDINGS, _HARM_EMBEDDINGS
+
+
+def kappa_r(query: str, stakeholders: List[Stakeholder]) -> float:
+    """
+    F6 Integrated Empathy Quotient: kappa_r
+
+    v60.3 Upgrade:
+    - Base score: 1.0 - (max_vuln * 0.5)
+    - Semantic Penalty: If query matches HARM_ARCHETYPES, reduce score further.
+
+    Args:
+        query: The query being evaluated
+        stakeholders: List of affected stakeholders
+
+    Returns:
+        kappa_r in [0.01, 1.0] empathy quotient
+    """
+    if not stakeholders:
+        # even without stakeholders, check for general harm
+        pass
+
+    # 1. Base Vulnerability Score
+    max_vuln = 0.0
+    if stakeholders:
+        max_vuln = max(s.vulnerability_score for s in stakeholders)
+
+    score = 1.0 - (max_vuln * 0.5)
+
+    # 2. Semantic Harm Penalty (v60.3)
+    model, _, harm_embeddings = _get_stakeholder_model()
+
+    if model is not None and harm_embeddings is not None and query:
+        from sentence_transformers import util
+
+        # Encode query
+        query_embedding = model.encode(query, convert_to_tensor=True)
+
+        # Check max similarity to any harm archetype
+        harm_scores = util.cos_sim(query_embedding, harm_embeddings)[0]
+        max_harm = float(harm_scores.max())
+
+        # Penalty logic
+        # If max_harm > 0.3, apply penalty based on intensity
+        if max_harm > 0.3:
+            # e.g., max_harm=0.8 -> penalty = 0.8 * 0.4 = 0.32
+            penalty = max_harm * 0.4
+            score -= penalty
+
+    return max(0.01, min(1.0, score))
+
+
+def empathy_coeff(query: str, stakeholders: List[Stakeholder]) -> float:
+    """Clear alias for kappa_r()."""
+    return kappa_r(query, stakeholders)
+
+
+def identify_stakeholders(query: str) -> List[Stakeholder]:
+    """
+    Identify stakeholders using semantic similarity (v60.3 Model-Based).
+
+    Falls back to heuristics if model fails or dependency missing.
+    Threshold: 0.35 cosine similarity for vulnerability match.
+    """
+    stakeholders = [
+        Stakeholder("User", "user", 0.3),
+        Stakeholder("System", "system", 0.1),
+    ]
+
+    # Try Semantic Detection
+    model, archetype_embeddings, _ = _get_stakeholder_model()
+
+    if model is not None and archetype_embeddings is not None:
+        from sentence_transformers import util
+
+        # Encode query
+        query_embedding = model.encode(query, convert_to_tensor=True)
+
+        # Compute cosine similarities
+        cosine_scores = util.cos_sim(query_embedding, archetype_embeddings)[0]
+
+        # Check against threshold (empirically tuned to 0.35)
+        matched_roles = []
+        for idx, score in enumerate(cosine_scores):
+            if score > 0.35:
+                role = list(STAKEHOLDER_ARCHETYPES.keys())[idx]
+                # Default high vulnerability for semantic matches
+                vuln = 0.8 if role in ["Child", "Patient", "Victim"] else 0.6
+                stakeholders.append(Stakeholder(role, role.lower(), vuln))
+                matched_roles.append(role)
+
+        if matched_roles:
+            return stakeholders
+
+    # Fallback: Pattern-based detection (Legacy v60.0)
+    query_lower = query.lower()
+
+    vulnerability_patterns = {
+        "child": 0.9,
+        "patient": 0.8,
+        "victim": 0.9,
+        "student": 0.6,
+        "elderly": 0.7,
+        "customer": 0.5,
+        "employee": 0.5,
+        "public": 0.6,
+        "community": 0.5,
+    }
+
+    for pattern, vuln in vulnerability_patterns.items():
+        if pattern in query_lower:
+            stakeholders.append(
+                Stakeholder(name=pattern.title(), role=pattern, vulnerability_score=vuln)
+            )
+
+    return stakeholders
 
 
 @dataclass(frozen=True)
@@ -426,18 +590,83 @@ def empathy_coeff(query: str, stakeholders: List[Stakeholder]) -> float:
     return kappa_r(query, stakeholders)
 
 
+# =============================================================================
+# SEMANTIC STAKEHOLDER MODEL (Lazy Loaded)
+# =============================================================================
+
+_STAKEHOLDER_MODEL = None
+_ARCHETYPE_EMBEDDINGS = None
+
+STAKEHOLDER_ARCHETYPES = {
+    "Child": "A child, minor, student, or young person under 18.",
+    "Patient": "A medical patient, someone sick, injured, or under care.",
+    "Victim": "A victim of crime, abuse, harassment, or disaster.",
+    "Elderly": "An elderly person, senior citizen, or retiree.",
+    "Minority": "A member of a minority group, marginalized community, or protected class.",
+    "Employee": "An employee, worker, staff member, or subordinate.",
+    "Public": "The general public, society, or community at large.",
+}
+
+
+def _get_stakeholder_model():
+    """Lazy load the sentence transformer model and archetype embeddings."""
+    global _STAKEHOLDER_MODEL, _ARCHETYPE_EMBEDDINGS
+
+    if _STAKEHOLDER_MODEL is None:
+        try:
+            from sentence_transformers import SentenceTransformer, util
+
+            # Use a small, efficient model (all-MiniLM-L6-v2 is ~80MB)
+            _STAKEHOLDER_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
+
+            # Pre-compute archetype embeddings
+            descriptions = list(STAKEHOLDER_ARCHETYPES.values())
+            _ARCHETYPE_EMBEDDINGS = _STAKEHOLDER_MODEL.encode(descriptions, convert_to_tensor=True)
+        except ImportError:
+            print("WARNING: sentence-transformers not found. Falling back to heuristics.")
+            return None, None
+
+    return _STAKEHOLDER_MODEL, _ARCHETYPE_EMBEDDINGS
+
+
 def identify_stakeholders(query: str) -> List[Stakeholder]:
     """
-    Simple stakeholder identification from query text.
+    Identify stakeholders using semantic similarity (v60.3 Model-Based).
 
-    Returns list including User, System, and any detected stakeholders.
+    Falls back to heuristics if model fails or dependency missing.
+    Threshold: 0.35 cosine similarity for vulnerability match.
     """
     stakeholders = [
         Stakeholder("User", "user", 0.3),
         Stakeholder("System", "system", 0.1),
     ]
 
-    # Pattern-based detection
+    # Try Semantic Detection
+    model, archetype_embeddings = _get_stakeholder_model()
+
+    if model is not None:
+        from sentence_transformers import util
+
+        # Encode query
+        query_embedding = model.encode(query, convert_to_tensor=True)
+
+        # Compute cosine similarities
+        cosine_scores = util.cos_sim(query_embedding, archetype_embeddings)[0]
+
+        # Check against threshold (empirically tuned to 0.35)
+        matched_roles = []
+        for idx, score in enumerate(cosine_scores):
+            if score > 0.35:
+                role = list(STAKEHOLDER_ARCHETYPES.keys())[idx]
+                # Default high vulnerability for semantic matches
+                vuln = 0.8 if role in ["Child", "Patient", "Victim"] else 0.6
+                stakeholders.append(Stakeholder(role, role.lower(), vuln))
+                matched_roles.append(role)
+
+        if matched_roles:
+            return stakeholders
+
+    # Fallback: Pattern-based detection (Legacy v60.0)
     query_lower = query.lower()
 
     vulnerability_patterns = {

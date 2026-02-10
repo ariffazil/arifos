@@ -95,14 +95,23 @@ def build_init_response(
     
     # Phase A: Only APEX has verdict authority
     # Non-APEX stages return ARTIFACT_READY status
+    # 🔥 INIT Gate — Fire emoji for ignition/start
     return UnifiedResponse(
         status="ARTIFACT_READY",
         session_id=session_id,
         stage="000",
-        message=f"Session initialized ({mode} mode)" if verdict == "SEAL" else "Session blocked",
+        message=f"🔥 DITEMPA, BUKAN DIBERI — Session initialized ({mode} mode)" if verdict == "SEAL" else "🔥 DITEMPA, BUKAN DIBERI — Session blocked",
         policy_verdict="SEAL",  # Internal use only, not exposed as "verdict"
         next_tool=next_tool,
-        data={"mode": mode, "grounding_required": True, "legacy_verdict": verdict},
+        data={
+            "mode": mode, 
+            "grounding_required": True, 
+            "legacy_verdict": verdict,
+            "motto": "DITEMPA, BUKAN DIBERI",
+            "motto_english": "Forged, Not Given",
+            "motto_emojis": "🔥",  # Fire for ignition
+            "bookend": "INIT"
+        },
         _debug=debug_data if debug else None
     )
 
@@ -294,16 +303,24 @@ def build_seal_response(
     """Build response for vault_seal (stage 999)."""
     status: StatusType = "OK" if verdict == "SEALED" else "PENDING"
     
+    # 💎🧠 SEAL Gate — Diamond/Brain emoji for crystallized intelligence
+    # 🔒 Lock emoji for immutable seal
+    message = f"💎🧠 DITEMPA, BUKAN DIBERI 🔒 — Session sealed with ID {seal_id[:8]}..." if seal_id else "💎🧠 DITEMPA, BUKAN DIBERI 🔒 — Partial seal (no persistence)"
+    
     return UnifiedResponse(
         status=status,
         session_id=session_id,
         stage="999",
-        message=f"Session sealed with ID {seal_id[:8]}..." if seal_id else "Partial seal (no persistence)",
+        message=message,
         policy_verdict="SEAL" if verdict == "SEALED" else "PARTIAL",
         next_tool=None,  # Pipeline complete
         data={
             "seal_id": seal_id,
-            "seal_hash": seal_hash[:16] + "..."
+            "seal_hash": seal_hash[:16] + "...",
+            "motto": "DITEMPA, BUKAN DIBERI",
+            "motto_english": "Forged, Not Given",
+            "motto_emojis": "💎🧠🔒",  # Diamond/Brain/Lock for crystallized seal
+            "bookend": "SEAL"
         },
         _debug=debug_data if debug else None
     )
