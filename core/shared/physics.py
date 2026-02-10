@@ -580,8 +580,8 @@ class ConstitutionalTensor:
         if not self.genius.is_genius():
             violations.append("F8")
         
-        # F5: Peace
-        if not self.peace.is_peaceful():
+        # F5: Peace (defensive: handle None peace)
+        if self.peace is None or not self.peace.is_peaceful():
             violations.append("F5")
         
         # F6: Empathy

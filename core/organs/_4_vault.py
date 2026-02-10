@@ -27,6 +27,7 @@ from typing import Dict, Any, Optional
 from dataclasses import dataclass
 
 from core.shared.physics import ConstitutionalTensor, TrinityTensor
+from core.shared.mottos import STAGE_MOTTOS_000_999 as motto
 
 
 # =============================================================================

@@ -1,0 +1,4 @@
+fix(p0): Handle None peace and missing motto import
+
+- constitutional_check: Defensive check for None peace field
+- _4_vault: Import motto module to fix name error in seal function
