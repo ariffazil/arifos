@@ -75,8 +75,6 @@ jobs:
 
       # 🔴 CRITICAL: GitHub authentication for mcp-publisher
       - name: Authenticate to MCP Registry
-        permissions:
-          id-token: write
         run: ./mcp-publisher login github-oidc
 
       # ✅ PUBLISH PHASE
