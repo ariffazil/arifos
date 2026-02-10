@@ -7,8 +7,6 @@ on:
     workflows: ["Publish to PyPI"]
     types:
       - completed
-  release:
-    types: [published]
   # push:
   #   branches: [main]
   workflow_dispatch:
@@ -33,7 +31,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       # ✅ VALIDATION PHASE
       - name: Validate server.json schema
