@@ -258,7 +258,7 @@ class AGIEngine:
         try:
             sense_out = await core_organs.sense(query, session_id)
             think_out = await core_organs.think(query, sense_out, session_id)
-            agi_out = await core_organs.reason(think_out, query, session_id)
+            agi_out = await core_organs.reason(query, think_out, session_id)
 
             metrics = agi_out.metrics
 
@@ -316,7 +316,7 @@ class ASIEngine:
         """Recompute AGI tensor for ASI input."""
         sense_out = await core_organs.sense(query, session_id)
         think_out = await core_organs.think(query, sense_out, session_id)
-        agi_out = await core_organs.reason(think_out, query, session_id)
+        agi_out = await core_organs.reason(query, think_out, session_id)
         return _agi_output_to_tensor(agi_out)
 
     async def empathize(self, query: str, session_id: str) -> Dict[str, Any]:
@@ -395,7 +395,7 @@ class APEXEngine:
             # Build tensors for apex
             sense_out = await core_organs.sense(query, session_id)
             think_out = await core_organs.think(query, sense_out, session_id)
-            agi_out = await core_organs.reason(think_out, query, session_id)
+            agi_out = await core_organs.reason(query, think_out, session_id)
             agi_tensor = _agi_output_to_tensor(agi_out)
 
             asi_output = {
