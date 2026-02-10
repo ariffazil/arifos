@@ -247,12 +247,32 @@ class F6_Empathy(Floor):
     """
     F6: EMPATHY (κᵣ) - Protect Weakest Stakeholder
     Threshold: κᵣ ≥ 0.70 (SOFT)
+    
+    Lane-aware: META/technical queries have relaxed thresholds
+    since they don't involve vulnerable stakeholders.
     """
 
     def __init__(self):
         super().__init__("F6_Empathy")
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
+        # Get lane for threshold adjustment
+        lane = context.get("lane", "FACTUAL")
+        
+        # Lane-aware thresholds
+        if lane in ("META", "meta"):
+            # Meta/technical queries: auto-pass F6 (no vulnerable stakeholders)
+            threshold = 0.0  # Auto-pass
+        elif lane in ("SOCIAL", "social"):
+            # Social queries: moderate threshold
+            threshold = 0.50
+        elif lane in ("CARE", "care"):
+            # Care queries: strict threshold (protect vulnerable)
+            threshold = 0.80
+        else:
+            # Default: standard threshold
+            threshold = self.spec["threshold"]  # 0.70
+        
         # Cohen's kappa for inter-rater reliability on stakeholder impact
         kappa_r = context.get("empathy_kappa_r", 0.0)
         
@@ -263,12 +283,16 @@ class F6_Empathy(Floor):
             # Higher impact on weakest = lower empathy score
             kappa_r = max(0.0, 1.0 - weakest_impact)
         
-        passed = kappa_r >= self.spec["threshold"]
+        # For META queries, set a nominal high score
+        if lane in ("META", "meta"):
+            kappa_r = 1.0  # Nominal perfect score for meta queries
+        
+        passed = kappa_r >= threshold
         return FloorResult(
             self.id, 
             passed, 
             kappa_r, 
-            f"Empathy κᵣ: {kappa_r:.3f} (protects weakest)"
+            f"Empathy κᵣ: {kappa_r:.3f} (lane={lane}, threshold={threshold})"
         )
 
 

@@ -199,10 +199,11 @@ class InitEngine:
             logger.warning(f"Core init failed: {e}")
             from uuid import uuid4
 
+            # Phase A: Only APEX has verdict authority
             result = {
-                "status": "SEAL",
+                "status": "ARTIFACT_READY",
                 "session_id": session_id or str(uuid4()),
-                "verdict": "SEAL",
+                "legacy_verdict": "SEAL",  # Deprecated: only APEX emits verdict
                 "engine_mode": "fallback",
                 "note": f"Init error: {e}",
             }
@@ -230,9 +231,11 @@ class AGIEngine:
                         gpv.requires_grounding() if hasattr(gpv, "requires_grounding") else None
                     ),
                 }
+            # Phase A: Only APEX has verdict authority
             sense_out.update(
                 {
-                    "verdict": "SEAL",
+                    "status": "ARTIFACT_READY",
+                    "legacy_verdict": "SEAL",  # Deprecated: only APEX emits verdict
                     "engine_mode": "core",
                     "trinity_component": "AGI",
                     "query": query,
@@ -249,9 +252,11 @@ class AGIEngine:
         try:
             sense_out = await core_organs.sense(query, session_id)
             think_out = await core_organs.think(query, sense_out, session_id)
+            # Phase A: Only APEX has verdict authority
             think_out.update(
                 {
-                    "verdict": "SEAL",
+                    "status": "ARTIFACT_READY",
+                    "legacy_verdict": "SEAL",  # Deprecated: only APEX emits verdict
                     "engine_mode": "core",
                     "trinity_component": "AGI",
                     "query": query,
@@ -309,8 +314,10 @@ class AGIEngine:
 
     def _fallback(self, query: str, session_id: str) -> Dict[str, Any]:
         """Fallback when core organs unavailable."""
+        # Phase A: Only APEX has verdict authority
         result = {
-            "verdict": "SEAL",
+            "status": "ARTIFACT_READY",
+            "legacy_verdict": "SEAL",  # Deprecated: only APEX emits verdict
             "query": query,
             "session_id": session_id,
             "engine_mode": "fallback",
@@ -335,6 +342,7 @@ class ASIEngine:
         try:
             agi_tensor = await self._core_agi_tensor(query, session_id)
             emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+            # Phase A: Only APEX has verdict authority
             emp_out.update(
                 {
                     "engine_mode": "core",
@@ -342,7 +350,8 @@ class ASIEngine:
                     "query": query,
                     "session_id": session_id,
                     "empathy_kappa_r": emp_out.get("kappa_r"),
-                    "verdict": "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "PARTIAL",
+                    "status": "ARTIFACT_READY",
+                    "legacy_verdict": "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "PARTIAL",  # Deprecated
                 }
             )
             return emp_out
@@ -372,8 +381,10 @@ class ASIEngine:
 
     def _fallback(self, query: str, session_id: str) -> Dict[str, Any]:
         """Fallback when core organs unavailable."""
+        # Phase A: Only APEX has verdict authority
         result = {
-            "verdict": "SEAL",
+            "status": "ARTIFACT_READY",
+            "legacy_verdict": "SEAL",  # Deprecated: only APEX emits verdict
             "query": query,
             "session_id": session_id,
             "engine_mode": "fallback",
