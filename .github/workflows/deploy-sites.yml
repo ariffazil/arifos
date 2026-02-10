@@ -45,7 +45,10 @@ jobs:
         working-directory: arif-fazil-sites/APPS
         run: |
           npm ci
-          npm run build
+          echo "=== DEBUG: Listing src/lib ==="
+          ls -la src/lib/
+          echo "=== DEBUG: Running Vite build ==="
+          npx vite build
 
       - name: Copy Static Assets
         working-directory: arif-fazil-sites
