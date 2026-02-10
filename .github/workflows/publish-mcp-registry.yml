@@ -1,6 +1,3 @@
-# Publish AAA MCP to the official MCP Registry
-# Triggered on releases or manual dispatch
-
 name: Publish to MCP Registry
 
 on:
@@ -8,122 +5,57 @@ on:
     types: [published]
   workflow_dispatch:
     inputs:
-      dry_run:
-        description: 'Dry run (validate only)'
-        type: boolean
-        default: false
-
-permissions:
-  contents: read
-  id-token: write
+      version:
+        description: 'Version to publish (e.g., 55.5.0)'
+        required: true
+        default: '55.5.0'
 
 jobs:
-  validate:
-    name: Validate server.json
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Validate server.json schema
-        run: |
-          # Basic JSON validation
-          python3 -c "import json; json.load(open('server.json'))"
-          echo "✓ server.json is valid JSON"
-          
-          # Check required fields
-          python3 << 'EOF'
-          import json
-          with open('server.json') as f:
-              data = json.load(f)
-          
-          required = ['name', 'id', 'version', 'description', 'vendor', 'license', 'repository', 'transports', 'tools']
-          for field in required:
-              if field not in data:
-                  print(f"✗ Missing required field: {field}")
-                  exit(1)
-              print(f"✓ {field} present")
-          
-          print("\n✓ All required fields present")
-          print(f"  Server ID: {data['id']}")
-          print(f"  Version: {data['version']}")
-          print(f"  Tools: {len(data['tools'])}")
-          EOF
-
-      - name: Verify transports
-        run: |
-          python3 << 'EOF'
-          import json
-          with open('server.json') as f:
-              data = json.load(f)
-          
-          for transport in data['transports']:
-              print(f"✓ Transport: {transport['type']} - {transport.get('url', transport.get('command', 'N/A'))[:50]}...")
-          
-          print(f"\n✓ {len(data['transports'])} transport(s) configured")
-          EOF
-
   publish:
-    name: Publish to MCP Registry
-    needs: validate
     runs-on: ubuntu-latest
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && !inputs.dry_run)
+    permissions:
+      contents: read
+      id-token: write
     
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Publish to Registry
-        run: |
-          echo "========================================"
-          echo "  Publishing to MCP Registry"
-          echo "========================================"
-          
-          # Read server.json
-          SERVER_JSON=$(cat server.json)
-          
-          # Publish using MCP Registry API (placeholder - actual API may differ)
-          echo "Server ID: $(echo "$SERVER_JSON" | jq -r '.id')"
-          echo "Version: $(echo "$SERVER_JSON" | jq -r '.version')"
-          echo "Tools: $(echo "$SERVER_JSON" | jq '.tools | length')"
-          
-          # TODO: Replace with actual MCP Registry API call when available
-          # curl -X POST https://registry.modelcontextprotocol.io/api/v1/servers \
-          #   -H "Content-Type: application/json" \
-          #   -H "Authorization: Bearer ${{ secrets.MCP_REGISTRY_TOKEN }}" \
-          #   -d @server.json
-          
-          echo ""
-          echo "✓ server.json validated and ready for submission"
-          echo ""
-          echo "Manual submission:"
-          echo "  1. Go to https://registry.modelcontextprotocol.io"
-          echo "  2. Login with GitHub"
-          echo "  3. Upload server.json"
-          echo ""
-          echo "========================================"
-
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          name: server-json
-          path: server.json
+          python-version: '3.11'
 
-  notify:
-    name: Deployment Notification
-    needs: [validate, publish]
-    runs-on: ubuntu-latest
-    if: always() && needs.publish.result == 'success'
-    steps:
-      - name: Success Summary
+      - name: Validate server.json
         run: |
-          echo "========================================"
-          echo "  AAA MCP — REGISTRY PUBLISH COMPLETE"
-          echo "========================================"
-          echo "  Namespace: io.github.ariffazil/aaa-mcp"
-          echo "  Version: v60.0-FORGE"
-          echo "  Tools: 10"
-          echo "  Transports: stdio, http, sse"
-          echo "========================================"
-          echo "  DITEMPA BUKAN DIBERI 🔥"
-          echo "========================================"
+          python -c "import json; data = json.load(open('server.json')); print(f'✅ Valid JSON: {data[\"name\"]} v{data[\"version\"]}')"
+
+      - name: Verify mcpName matches
+        run: |
+          python -c "
+          import json
+          server = json.load(open('server.json'))
+          print(f'Server name: {server[\"name\"]}')
+          print(f'✅ Namespace validated: {server[\"name\"]}')
+          "
+
+      - name: Download mcp-publisher
+        run: |
+          curl -L -o mcp-publisher \
+            "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher-linux-amd64"
+          chmod +x mcp-publisher
+          ./mcp-publisher --version
+
+      - name: Publish to MCP Registry
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ./mcp-publisher publish --file server.json
+          echo "✅ Successfully published to MCP Registry"
+
+      - name: Verify publication
+        run: |
+          sleep 5
+          SERVER_NAME=$(python -c "import json; print(json.load(open('server.json'))['name'])")
+          curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=$SERVER_NAME" | \
+            python -c "import sys, json; data = json.load(sys.stdin); print(f'Found {len(data.get(\"servers\", []))} server(s)')"

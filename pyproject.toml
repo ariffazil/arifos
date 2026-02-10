@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "arifos"
-version = "55.5.0"
+version = "60.0.0"
 # v55.5-HARDENED: Thermodynamic Constitution with Axiom Engine (2026-02-08)
 #   - Axiom Engine: Physics/CCS ground truth injection for reality_search
 #   - Evidence v2: Cryptographic hash-based integrity across all tools
@@ -47,6 +47,7 @@ description = "arifOS - The World's First Production-Grade Constitutional AI Gov
 readme = "README.md"
 requires-python = ">=3.10"
 license = "AGPL-3.0-only"
+license-files = ["LICENSE"]
 keywords = [
     # Core Concepts
     "ai-governance",
@@ -92,6 +93,7 @@ maintainers = [
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: GNU Affero General Public License v3 (AGPLv3)",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Information Technology",

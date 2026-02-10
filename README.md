@@ -71,6 +71,53 @@ pip install arifos
 
 ---
 
+## 📁 Repository Structure
+
+This is a **monorepo** containing the complete arifOS constitutional AI framework:
+
+```
+arifOS/
+├── 📦 aaa_mcp/              ← 🎯 START HERE for MCP integration
+│   ├── README.md            # MCP-focused quick start
+│   ├── server.py            # FastMCP 2.0+ server
+│   └── core/                # Constitutional decorators
+│
+├── 🧠 core/                 ← 🧠 5-Organ Kernel (F1-F13 enforcement)
+│   ├── organs/              # INIT, AGI, ASI, APEX, VAULT
+│   │   ├── _0_init.py       # 000_INIT: Airlock (F11, F12)
+│   │   ├── _1_agi.py        # 111-333: Mind/Reasoning (F2, F4, F7)
+│   │   ├── _2_asi.py        # 555-666: Heart/Empathy (F5, F6, F9)
+│   │   ├── _3_apex.py       # 888: Soul/Judgment (F3, F8)
+│   │   └── _4_vault.py      # 999: Memory/Seal (F1, F3)
+│   ├── shared/
+│   │   ├── floors.py        # F1-F13 enforcement registry
+│   │   ├── pipeline.py      # 000-999 stage orchestration
+│   │   └── types.py         # Verdicts, FloorScores
+│   └── pipeline.py          # Main constitutional pipeline
+│
+├── 🌐 arif-fazil-sites/     # Website (arifos.arif-fazil.com)
+│   └── ...
+│
+├── 🛠️ 333_APPS/             # Skills, tools, workflows
+│   ├── L1_PROMPT/           # System prompts
+│   ├── L2_SKILLS/           # Reusable skills
+│   ├── L3_WORKFLOW/         # Multi-step recipes
+│   └── L4_TOOLS/            # MCP configs (Claude, Cursor, Kimi)
+│
+├── 📚 docs/                 # Documentation
+├── 🧪 tests/                # Test suite
+└── 📄 server.json           # MCP Registry manifest
+```
+
+| Path | Purpose | Audience |
+|------|---------|----------|
+| **[`aaa_mcp/`](aaa_mcp/)** | **MCP Server** — FastMCP entry point | Developers integrating with Claude/Cursor |
+| **[`core/`](core/)** | **5-Organ Kernel** — F1-F13 enforcement | Core contributors, researchers |
+| **[`arif-fazil-sites/`](arif-fazil-sites/)** | **Website** — Documentation & demos | End users |
+| **[`333_APPS/`](333_APPS/)** | **Skills & Tools** — L1-L7 application layers | Prompt engineers, builders |
+
+---
+
 ## 📖 Table of Contents
 
 - [What is arifOS?](#what-is-arifos)
@@ -1134,6 +1181,8 @@ F10 Ontology: Real place ✓
 ---
 
 ## Architecture Overview
+
+📊 **[View Visual Architecture Diagram →](docs/ARCHITECTURE.md)** — See how all components connect in ASCII diagrams.
 
 ### Human-Centered Design
 
