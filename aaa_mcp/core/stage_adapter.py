@@ -50,10 +50,19 @@ async def run_stage_444_trinity_sync(session_id: str) -> Dict[str, Any]:
         
         sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
         
+        # Handle Pydantic model output
+        if hasattr(sync_out, "verdict"):
+            pre_verdict = sync_out.verdict.value if hasattr(sync_out.verdict, "value") else str(sync_out.verdict)
+            w3_score = sync_out.floor_scores.f3_tri_witness if hasattr(sync_out, "floor_scores") else 0.95
+        else:
+            sync_data = sync_out.model_dump() if hasattr(sync_out, "model_dump") else sync_out
+            pre_verdict = sync_data.get("verdict", "SEAL")
+            w3_score = sync_data.get("floor_scores", {}).get("f3_tri_witness", 0.95)
+        
         result = {
             "stage": "444",
-            "pre_verdict": sync_out.get("pre_verdict", "SEAL"),
-            "consensus_score": sync_out.get("W_3", 0.95),
+            "pre_verdict": pre_verdict,
+            "consensus_score": w3_score,
             "session_id": session_id,
             "status": "completed",
         }
@@ -87,14 +96,24 @@ async def run_stage_555_empathy(session_id: str, query: str) -> Dict[str, Any]:
         
         emp_out = await core_organs.empathize(query, agi_tensor, session_id)
         
+        # Handle Pydantic model output
+        if hasattr(emp_out, "model_dump"):
+            emp_data = emp_out.model_dump()
+        elif hasattr(emp_out, "dict"):
+            emp_data = emp_out.dict()
+        else:
+            emp_data = emp_out
+        
+        kappa_r = emp_data.get("kappa_r", 0.96)
+        
         result = {
             "stage": "555",
-            "verdict": "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "VOID",
-            "empathy_kappa_r": emp_out.get("kappa_r", 0.96),
-            "stakeholders": emp_out.get("stakeholders", []),
-            "weakest_stakeholder": emp_out.get("weakest_stakeholder", "unknown"),
-            "high_vulnerability": emp_out.get("weakest_vulnerability", 0.0) >= 0.8,
-            "care_recommendations": emp_out.get("care_recommendations", []),
+            "verdict": "SEAL" if kappa_r >= 0.70 else "VOID",
+            "empathy_kappa_r": kappa_r,
+            "stakeholders": emp_data.get("stakeholders", []),
+            "weakest_stakeholder": emp_data.get("weakest_stakeholder", "unknown"),
+            "high_vulnerability": emp_data.get("weakest_vulnerability", 0.0) >= 0.8,
+            "care_recommendations": emp_data.get("care_recommendations", []),
             "session_id": session_id,
             "status": "completed",
         }
@@ -129,14 +148,22 @@ async def run_stage_666_align(session_id: str, query: str) -> Dict[str, Any]:
         emp_out = await core_organs.empathize(query, agi_tensor, session_id)
         align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
         
+        # Handle Pydantic model output
+        if hasattr(align_out, "model_dump"):
+            align_data = align_out.model_dump()
+        elif hasattr(align_out, "dict"):
+            align_data = align_out.dict()
+        else:
+            align_data = align_out
+        
         result = {
             "stage": "666",
-            "verdict": align_out.get("verdict", "SEAL"),
-            "omega_bundle": align_out,
+            "verdict": align_data.get("verdict", "SEAL"),
+            "omega_bundle": align_data,
             "floor_scores": {
-                "F1_amanah": 1.0 if align_out.get("is_reversible") else 0.0,
-                "F5_peace": align_out.get("peace_squared", 1.0),
-                "F6_empathy": align_out.get("kappa_r", 0.96),
+                "F1_amanah": 1.0 if align_data.get("is_reversible") else 0.0,
+                "F5_peace": align_data.get("peace_squared", 1.0),
+                "F6_empathy": align_data.get("kappa_r", 0.96),
             },
             "session_id": session_id,
             "status": "completed",
@@ -189,10 +216,15 @@ async def run_stage_777_forge(session_id: str, context: Optional[Dict[str, Any]]
         sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
         forge_out = await core_organs.forge(sync_out, agi_tensor, session_id)
         
+        # Handle dict output from forge
+        forge_data = forge_out if isinstance(forge_out, dict) else (
+            forge_out.model_dump() if hasattr(forge_out, "model_dump") else forge_out
+        )
+        
         result = {
             "stage": "777",
-            "forge_result": forge_out,
-            "low_coherence_warning": forge_out.get("coherence", 1.0) < 0.7,
+            "forge_result": forge_data,
+            "low_coherence_warning": forge_data.get("coherence", 1.0) < 0.7,
             "session_id": session_id,
             "status": "completed",
         }
@@ -244,11 +276,27 @@ async def run_stage_888_judge(session_id: str, context: Optional[Dict[str, Any]]
         forge_out = await core_organs.forge(sync_out, agi_tensor, session_id)
         judge_out = await core_organs.judge(forge_out, sync_out, asi_output, session_id)
         
+        # Handle both Pydantic model and dict outputs
+        if hasattr(judge_out, "model_dump"):
+            judge_data = judge_out.model_dump()
+        elif hasattr(judge_out, "dict"):
+            judge_data = judge_out.dict()
+        else:
+            judge_data = judge_out
+        
+        # Get verdict - handle both object attribute and dict access
+        if hasattr(judge_out, "verdict"):
+            verdict_val = judge_out.verdict.value if hasattr(judge_out.verdict, "value") else str(judge_out.verdict)
+            floors_failed = getattr(judge_out, "violations", [])
+        else:
+            verdict_val = judge_data.get("verdict", "VOID")
+            floors_failed = judge_data.get("violations", [])
+        
         result = {
             "stage": "888",
-            "verdict": judge_out.get("verdict", "VOID"),
-            "judge_result": judge_out,
-            "floor_violations": judge_out.get("floors_failed", []),
+            "verdict": verdict_val,
+            "judge_result": judge_data,
+            "floor_violations": floors_failed,
             "session_id": session_id,
             "status": "completed",
         }
@@ -291,15 +339,32 @@ async def run_stage_999_seal(session_id: str) -> Dict[str, Any]:
         emp_out = await core_organs.empathize(query, agi_tensor, session_id)
         align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
         
+        # Handle Pydantic model output from align
+        if hasattr(align_out, "model_dump"):
+            align_data = align_out.model_dump()
+        elif hasattr(align_out, "dict"):
+            align_data = align_out.dict()
+        else:
+            align_data = align_out
+        
         asi_output = {
-            "kappa_r": align_out.get("kappa_r", 0.7),
-            "peace_squared": align_out.get("peace_squared", 1.0),
-            "is_reversible": align_out.get("is_reversible", True),
-            "verdict": align_out.get("verdict", "SEAL"),
+            "kappa_r": align_data.get("kappa_r", 0.7),
+            "peace_squared": align_data.get("peace_squared", 1.0),
+            "is_reversible": align_data.get("is_reversible", True),
+            "verdict": align_data.get("verdict", "SEAL"),
         }
         
         apex_out = await core_organs.apex(agi_tensor, asi_output, session_id, action="full")
-        judge_out = apex_out.get("judge", {})
+        
+        # Handle Pydantic model output from apex
+        if hasattr(apex_out, "model_dump"):
+            apex_data = apex_out.model_dump()
+        elif hasattr(apex_out, "dict"):
+            apex_data = apex_out.dict()
+        else:
+            apex_data = apex_out
+        
+        judge_out = apex_data.get("judge", {})
         
         receipt = await core_organs.seal(
             judge_out,

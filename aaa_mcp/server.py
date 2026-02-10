@@ -388,8 +388,9 @@ async def trinity_forge(
     )
 
     # Build standard output
+    # Phase A: Only APEX has verdict authority
     output = {
-        "verdict": result.verdict,
+        "status": result.verdict,  # Status from InitOutput (READY/VOID/HOLD_888)
         "session_id": result.session_id,
         "token_status": result.token_status,
         "agi": result.agi,
@@ -1030,7 +1031,8 @@ async def reality_search(
         "query": query,
         "session_id": session_id,
         "evidence": evidence,
-        "verdict": ConflictStatus.SEAL.value if evidence else ConflictStatus.INSUFFICIENT.value,
+        "status": "EVIDENCE_FOUND" if evidence else "NO_EVIDENCE",
+        "evidence_count": len(evidence),
         "stage": "REALITY_SEARCH",
     }
 

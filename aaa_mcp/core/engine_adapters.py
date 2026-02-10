@@ -193,16 +193,17 @@ class InitEngine:
         """Initialize constitutional session using core organs."""
         try:
             token = await init(query, actor_id="user")
-            # v60 compliance: use token.verdict instead of token.status for outcome
-            verdict = token.verdict.value if hasattr(token.verdict, "value") else str(token.verdict)
+            # InitOutput is a Pydantic model inheriting from BaseOrganOutput
+            # Fields: session_id, verdict, status, violations, error_message, metrics
+            # Phase A: Only APEX has verdict authority
+            # InitOutput provides status (READY/VOID/HOLD_888), not verdict
             return {
                 "status": token.status,
                 "session_id": token.session_id,
-                "verdict": verdict,
                 "engine_mode": "core",
                 "authority": token.metrics.get("authority", "user") if token.metrics else "user",
-                "floors_passed": getattr(token, "floors_passed", ["F11", "F12"]),
-                "violations": token.violations,
+                "floors_passed": ["F11", "F12"] if not token.floors_failed else ["F11", "F12"] + [f"!{f}" for f in token.floors_failed],
+                "violations": token.violations or token.floors_failed,
                 "injection_risk": getattr(token, "injection_score", 0.0),
                 "reason": token.error_message or "",
             }
@@ -214,7 +215,6 @@ class InitEngine:
             result = {
                 "status": "ARTIFACT_READY",
                 "session_id": session_id or str(uuid4()),
-                "legacy_verdict": "SEAL",  # Deprecated: only APEX emits verdict
                 "engine_mode": "fallback",
                 "note": f"Init error: {e}",
             }
@@ -246,7 +246,6 @@ class AGIEngine:
             sense_out.update(
                 {
                     "status": "ARTIFACT_READY",
-                    "legacy_verdict": "SEAL",  # Deprecated: only APEX emits verdict
                     "engine_mode": "core",
                     "trinity_component": "AGI",
                     "query": query,
@@ -267,7 +266,6 @@ class AGIEngine:
             think_out.update(
                 {
                     "status": "ARTIFACT_READY",
-                    "legacy_verdict": "SEAL",  # Deprecated: only APEX emits verdict
                     "engine_mode": "core",
                     "trinity_component": "AGI",
                     "query": query,
@@ -301,8 +299,7 @@ class AGIEngine:
 
             return {
                 "status": "ARTIFACT_READY",
-                "legacy_verdict": verdict,
-                "violations": violations,
+                "violations": violations,  # Floor violations for APEX review, NOT a verdict
                 "query": query,
                 "session_id": session_id,
                 "engine_mode": "core",
@@ -335,7 +332,6 @@ class AGIEngine:
         # Phase A: Only APEX has verdict authority
         result = {
             "status": "ARTIFACT_READY",
-            "legacy_verdict": "SEAL",  # Deprecated: only APEX emits verdict
             "query": query,
             "session_id": session_id,
             "engine_mode": "fallback",
@@ -370,7 +366,6 @@ class ASIEngine:
                 "session_id": session_id,
                 "empathy_kappa_r": kappa_r,
                 "status": "ARTIFACT_READY",
-                "legacy_verdict": "SEAL" if kappa_r >= 0.70 else "PARTIAL",  # Deprecated
                 "stakeholder_impact": (
                     emp_out.stakeholder_impact if hasattr(emp_out, "stakeholder_impact") else {}
                 ),
@@ -394,8 +389,7 @@ class ASIEngine:
                 "query": query,
                 "session_id": session_id,
                 "empathy_kappa_r": kappa_r,
-                "verdict": align_out.verdict.value,
-                "violations": align_out.violations,
+                "violations": align_out.violations,  # For APEX review, NOT a verdict
                 "peace_squared": align_out.floor_scores.f5_peace,
             }
         except Exception as e:
@@ -407,7 +401,6 @@ class ASIEngine:
         # Phase A: Only APEX has verdict authority
         result = {
             "status": "ARTIFACT_READY",
-            "legacy_verdict": "SEAL",  # Deprecated: only APEX emits verdict
             "query": query,
             "session_id": session_id,
             "engine_mode": "fallback",
