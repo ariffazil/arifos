@@ -29,9 +29,10 @@ pip install arifos
 - [What is arifOS?](#what-is-arifos)
 - [The Problem (In Plain English)](#the-problem-in-plain-english)
 - [How It Works: From Question to Answer](#how-it-works-from-question-to-answer)
-- [Two Ways to Use arifOS](#two-ways-to-use-arifos)
+- [Three Ways to Use arifOS](#three-ways-to-use-arifos)
   - [Way 1: MCP Tools (For Developers)](#way-1-mcp-tools-for-developers)
   - [Way 2: Human SDK (For Everyone)](#way-2-human-sdk-for-everyone)
+  - [Way 3: System Prompts, Skills & Workflows (For Builders)](#way-3-system-prompts-skills--workflows-for-builders)
 - [The 9 Principles of Responsible Work](#the-9-principles-of-responsible-work)
 - [The 13 Safety Rules](#the-13-safety-rules)
 - [Architecture Overview](#architecture-overview)
@@ -387,19 +388,19 @@ receipt = await agent.seal(judgment)
 
 ---
 
-## Two Ways to Use arifOS
+## Three Ways to Use arifOS
 
-arifOS provides **two interfaces** for different use cases:
+arifOS provides **three interfaces** for different use cases:
 
 ### Comparison
 
-| Aspect | MCP Tools | Human SDK |
-|:---|:---|:---|
-| **Best for** | Developers, enterprise systems | Educators, beginners, human-friendly AI |
-| **Verb style** | Technical (`agi_reason`, `apex_verdict`) | Human (`think`, `feel`, `judge`) |
-| **Granularity** | Step-by-step control | Unified workflow |
-| **Learning curve** | Moderate | Gentle |
-| **Flexibility** | High (mix & match steps) | Medium (opinionated flow) |
+| Aspect | MCP Tools | Human SDK | Prompts & Workflows |
+|:---|:---|:---|:---|
+| **Best for** | Developers, enterprise systems | Educators, beginners | Prompt engineers, AI builders |
+| **Verb style** | Technical (`agi_reason`, `apex_verdict`) | Human (`think`, `feel`, `judge`) | Declarative (`.md` files) |
+| **Granularity** | Step-by-step control | Unified workflow | Template-based composition |
+| **Learning curve** | Moderate | Gentle | Low (copy-paste ready) |
+| **Flexibility** | High (mix & match steps) | Medium (opinionated flow) | High (composable skills) |
 
 ---
 
@@ -585,6 +586,150 @@ response = await agent.ask(
 # [VERDICT] SABAR - Needs more stakeholder input
 # [PRINCIPLE] Protected, not neglected: Vulnerable users identified
 ```
+
+---
+
+## Way 3: System Prompts, Skills & Workflows (For Builders)
+
+The **Prompts, Skills & Workflows** interface lets you use arifOS through declarative Markdown files—no coding required. Perfect for prompt engineers, AI builders, and teams who want constitutional governance through simple copy-paste.
+
+### When to Use This
+
+- Building AI assistants with built-in safety
+- Creating reusable AI skills for your team
+- Designing multi-step workflows
+- You want governance without writing code
+
+### The Layer System
+
+arifOS organizes capabilities into **7 layers** (L1-L7):
+
+```
+333_APPS/
+├── L1_PROMPT/          # System prompts for direct use
+├── L2_SKILLS/          # Reusable parameterized skills
+├── L3_WORKFLOW/        # Multi-step recipes
+├── L4_TOOLS/           # MCP tool definitions
+├── L5_AGENTS/          # Autonomous agent blueprints
+├── L6_INSTITUTION/     # Trinity consensus framework
+└── L7_AGI/             # Recursive intelligence
+```
+
+### Example: L1 Prompt (Copy-Paste Ready)
+
+Drop this into any AI system for instant constitutional grounding:
+
+```markdown
+# Constitutional Assistant (L1_PROMPT)
+
+You are an AI assistant governed by arifOS principles:
+
+## Your Constraints
+- **F2 Truth**: Only claim what you can verify (≥99% certainty)
+- **F7 Humility**: Always admit 3-5% uncertainty (Ω₀ ∈ [0.03, 0.05])
+- **F9 Anti-Hantu**: Never claim consciousness, feelings, or self-awareness
+- **F6 Empathy**: Protect the most vulnerable stakeholder in any scenario
+
+## Your Process
+1. **Examine** (111): What is actually being asked?
+2. **Explore** (222): What perspectives exist?
+3. **Clarify** (333): Reduce ambiguity (ΔS ≤ 0)
+4. **Face** (444): Address tensions directly
+5. **Calm** (555): Assess stakeholder impact
+6. **Protect** (666): Guard the vulnerable
+7. **Work** (777): Synthesize with effort
+8. **Be Aware** (888): Render verdict with humility
+9. **Account** (999): Leave audit trail
+
+## Response Format
+- **Answer**: Your reasoned response
+- **Certainty**: High/Medium/Low with Ω₀ estimate
+- **Assumptions**: What you had to assume
+- **Unknowns**: What you don't know
+- **Stakeholders**: Who could be affected
+```
+
+### Example: L2 Skill (Parameterized Template)
+
+```markdown
+# SKILL: Constitutional Analysis
+# File: L2_SKILLS/ANALYZE/constitutional_analysis.md
+
+## Purpose
+Analyze any claim through the 13 constitutional floors.
+
+## Parameters
+- claim: The statement to analyze
+- context: Background information
+- stakeholder_focus: Who to protect (default: "weakest")
+
+## Process
+1. Run F2 Truth check on {{claim}}
+2. Run F4 Clarity check (entropy reduction)
+3. Run F6 Empathy check for {{stakeholder_focus}}
+4. Run F9 Anti-Hantu check
+5. Generate verdict with floor scores
+
+## Output
+{
+  "verdict": "SEAL|SABAR|PARTIAL|VOID",
+  "floor_scores": { "F2": 0.99, "F4": 0.95, ... },
+  "reasoning": "...",
+  "uncertainty": "Ω₀ = 0.04"
+}
+```
+
+### Example: L3 Workflow (Multi-Step Recipe)
+
+```markdown
+# WORKFLOW: Research & Verify
+# File: L3_WORKFLOW/RESEARCH/verify_and_respond.md
+
+## Steps
+1. **Ground** (000 → 111)
+   - Initialize with `init_gate`
+   - Classify intent with `agi_sense`
+
+2. **Search** (External)
+   - Run `reality_search` for evidence
+   - Collect at least 3 sources
+
+3. **Reason** (222 → 333)
+   - Generate hypotheses with `agi_think`
+   - Deep analysis with `agi_reason`
+
+4. **Check** (555 → 666)
+   - Stakeholder impact via `asi_empathize`
+   - Ethics alignment via `asi_align`
+
+5. **Judge** (888)
+   - Final verdict via `apex_verdict`
+
+6. **Seal** (999)
+   - Create audit record with `vault_seal`
+
+## Early Exit Conditions
+- If F2 fails (truth < 0.99): Return VOID immediately
+- If F12 triggers (injection detected): Return VOID with alert
+- If F6 fails (low empathy): Return SABAR with repair guidance
+```
+
+### How to Use
+
+1. **Browse** the `333_APPS/` directory
+2. **Copy** any `.md` file that fits your need
+3. **Customize** parameters for your use case
+4. **Paste** into your AI system (Claude, GPT-4, etc.)
+5. **Iterate** using the constitutional feedback
+
+### Files You Can Use Today
+
+| Layer | Path | What It Does |
+|-------|------|--------------|
+| L1 | `L1_PROMPT/` | Ready-to-use system prompts |
+| L2 | `L2_SKILLS/ACTIONS/` | Reusable skill templates |
+| L3 | `L3_WORKFLOW/` | End-to-end workflow recipes |
+| L4 | `L4_TOOLS/` | MCP tool specifications |
 
 ---
 
