@@ -5,11 +5,11 @@
 <h1 align="center">arifOS</h1>
 
 <p align="center">
-  <strong>Intelligence That Knows It Doesn't Always Know</strong>
+  <strong>Constitutional AI Governance</strong>
 </p>
 
 <p align="center">
-  <em>AI Safety Through Self-Doubt. Every Answer Carries Its Uncertainty.</em>
+  <em>The First Open-Source Governance Engine for Enforcing Immutable Constitutional Checks on AI Outputs</em>
 </p>
 
 <p align="center">
@@ -17,6 +17,31 @@
   <a href="https://arifos.arif-fazil.com"><img src="https://img.shields.io/badge/Live-Demo-blue" alt="Live Demo"></a>
   <a href="https://github.com/ariffazil/arifOS/releases"><img src="https://img.shields.io/github/v/release/ariffazil/arifos" alt="Releases"></a>
 </p>
+
+---
+
+## Executive Summary
+
+**arifOS is the first AI governance kernel that enforces constitutional-level safety, ethical, and truth constraints on any language model output.** It transforms arbitrary models into auditable, compliant, and safe systems by enforcing thermodynamic governance floors that prevent hallucination, harm, and unverified assertions.
+
+### Why This Matters to Enterprise
+
+| Capability | Business Value |
+|:-----------|:---------------|
+| 🔐 **Auditability** | Compliance-ready decision logs for regulated industries (finance, healthcare, legal) |
+| 📉 **Hallucination Prevention** | F2 Truth enforcement (≥99% certainty) prevents costly misinformation |
+| 📊 **Transparent Governance** | Every decision carries floor scores, evidence hashes, and cryptographic seals |
+| 🛡️ **Structural Safety** | 13 constitutional floors (F1-F13) enforce safety before response generation |
+| ⚖️ **Liability Protection** | Immutable VAULT999 audit trails prove due diligence |
+
+### The arifOS Difference
+
+Unlike prompt-based safety guardrails that can be bypassed, **arifOS embeds governance at the architectural level**:
+
+- **Thermodynamic Constraint Engine**: Uses entropy, energy, and information theory to enforce reasoning quality
+- **Constitutional Pipeline**: 000-999 metabolic stages with mandatory floor checks
+- **Cryptographic Accountability**: Merkle-chain sealed decisions with tamper-evident audit trails
+- **APEX-Only Authority**: Only the judgment organ can render verdicts—no subsystem can self-certify
 
 ```bash
 pip install arifos
