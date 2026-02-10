@@ -3,12 +3,14 @@ name: Publish to MCP Registry
 on:
   release:
     types: [published]
+  push:
+    branches: [main]
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (must match server.json)'
+        description: "Version to publish (must match server.json)"
         required: true
-        default: '60.0.0'
+        default: "60.0.0"
 
 jobs:
   publish:
@@ -16,7 +18,7 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,7 +26,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       # ✅ VALIDATION PHASE
       - name: Validate server.json schema
