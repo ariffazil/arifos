@@ -1,5 +1,5 @@
 # Deploy arifOS APPS site to GitHub Pages
-# GitHub Pages handles hosting, Cloudflare handles DNS
+# Uses pre-built dist folder (build locally due to CI path issues)
 
 name: Deploy arifOS to GitHub Pages
 
@@ -7,7 +7,7 @@ on:
   push:
     branches: [main, master]
     paths:
-      - 'arif-fazil-sites/APPS/**'
+      - 'arif-fazil-sites/APPS/dist/**'
       - '.github/workflows/deploy-sites.yml'
   workflow_dispatch:
 
@@ -29,50 +29,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Generate Build Info
-        working-directory: arif-fazil-sites
-        run: |
-          BUILD_INFO="{\"commit\":\"$(git rev-parse --short HEAD)\",\"branch\":\"$(git rev-parse --abbrev-ref HEAD)\",\"built\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\",\"version\":\"v60.0\"}"
-          echo "$BUILD_INFO" > APPS/public/build-info.json
-
-      - name: Install & Build
-        working-directory: arif-fazil-sites/APPS
-        run: |
-          echo "=== DEBUG: Current directory ==="
-          pwd
-          ls -la
-          echo "=== DEBUG: Checking src/lib/utils.ts ==="
-          ls -la src/lib/ || echo "Directory not found"
-          cat src/lib/utils.ts || echo "File not found"
-          echo "=== DEBUG: Installing dependencies ==="
-          npm ci
-          echo "=== DEBUG: Running Vite build ==="
-          npx vite build --debug 2>&1 || echo "Build failed with exit code $?"
-
-      - name: Copy Static Assets
-        working-directory: arif-fazil-sites
-        run: |
-          # Copy all public assets to dist
-          cp APPS/public/_headers APPS/dist/ 2>/dev/null || true
-          cp APPS/public/_redirects APPS/dist/ 2>/dev/null || true
-          cp APPS/public/robots.txt APPS/dist/ 2>/dev/null || true
-          cp APPS/public/sitemap.xml APPS/dist/ 2>/dev/null || true
-          cp APPS/public/llms.txt APPS/dist/ 2>/dev/null || true
-          cp APPS/public/llms.json APPS/dist/ 2>/dev/null || true
-          cp APPS/public/build-info.json APPS/dist/ 2>/dev/null || true
-
-      - name: Setup SPA Routing (404.html)
-        working-directory: arif-fazil-sites/APPS
-        run: |
-          # Copy index.html to 404.html for SPA routing
-          # This allows React Router to handle client-side routes
-          cp dist/index.html dist/404.html
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
