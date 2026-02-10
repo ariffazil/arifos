@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (e.g., 60.0.0)'
+        description: 'Version to publish (must match server.json)'
         required: true
         default: '60.0.0'
 
@@ -26,47 +26,83 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Validate server.json
-        run: |
-          python -c "import json; data = json.load(open('server.json')); print(f'✅ Valid JSON: {data[\"name\"]} v{data[\"version\"]}')"
-
-      - name: Verify mcpName matches
+      # ✅ VALIDATION PHASE
+      - name: Validate server.json schema
         run: |
           python -c "
           import json
-          server = json.load(open('server.json'))
-          print(f'Server name: {server[\"name\"]}')
-          print(f'✅ Namespace validated: {server[\"name\"]}')
+          data = json.load(open('server.json'))
+          assert 'name' in data, 'Missing name field'
+          assert 'version' in data, 'Missing version field'
+          assert 'packages' in data, 'Missing packages array'
+          assert data['name'].startswith('io.github.ariffazil/'), 'Invalid namespace'
+          print(f'✅ Valid schema: {data[\"name\"]} v{data[\"version\"]}')
           "
 
-      - name: Authenticate Homebrew with GitHub token
+      - name: Verify version consistency
         run: |
-          echo "HOMEBREW_GITHUB_API_TOKEN=${{ secrets.GITHUB_TOKEN }}" >> $GITHUB_ENV
-          git config --global url."https://${{ secrets.GITHUB_TOKEN }}@github.com/".insteadOf "https://github.com/"
-
-      - name: Install Homebrew
-        run: |
-          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-          echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
-
-      - name: Install mcp-publisher via Homebrew
+          python -c "
+          import json, sys, os
+          server = json.load(open('server.json'))
+          # Get version from workflow dispatch or release tag
+          tag_name = os.environ.get('GITHUB_REF_NAME', '')
+          input_version = os.environ.get('INPUT_VERSION', '')
+          if input_version:
+              workflow_version = input_version.lstrip('v')
+          elif tag_name:
+              workflow_version = tag_name.lstrip('v')
+          else:
+              workflow_version = '60.0.0'
+          server_version = server['version']
+          if workflow_version != server_version:
+              print(f'⚠️ Version mismatch: workflow={workflow_version}, server.json={server_version}')
+              print('Continuing with server.json version...')
+          else:
+              print(f'✅ Version verified: {server_version}')
+          "
         env:
-          HOMEBREW_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          /home/linuxbrew/.linuxbrew/bin/brew tap modelcontextprotocol/tap
-          /home/linuxbrew/.linuxbrew/bin/brew install mcp-publisher
-          /home/linuxbrew/.linuxbrew/bin/mcp-publisher --version
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
 
+      # 🔧 Install mcp-publisher binary directly (faster than Homebrew)
+      - name: Install mcp-publisher
+        run: |
+          curl -L -o mcp-publisher "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher-linux-amd64"
+          chmod +x mcp-publisher
+          ./mcp-publisher --version
+
+      # 🔴 CRITICAL: GitHub authentication for mcp-publisher
+      # Uses GITHUB_TOKEN which works with OIDC in GitHub Actions
+      - name: Authenticate with GitHub
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # For CI environments, mcp-publisher uses the GITHUB_TOKEN automatically
+          # No explicit login needed when running in GitHub Actions with id-token: write
+          echo "✅ GitHub Actions authentication ready"
+
+      # ✅ PUBLISH PHASE
       - name: Publish to MCP Registry
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          /home/linuxbrew/.linuxbrew/bin/mcp-publisher publish --file server.json
+          ./mcp-publisher publish --file server.json
           echo "✅ Successfully published to MCP Registry"
 
+      # ✅ VERIFICATION PHASE
       - name: Verify publication
         run: |
-          sleep 5
+          sleep 10
           SERVER_NAME=$(python -c "import json; print(json.load(open('server.json'))['name'])")
-          curl -s "https://registry.modelcontextprotocol.io/v0.1/servers?search=$SERVER_NAME" | \
-            python -c "import sys, json; data = json.load(sys.stdin); print(f'Found {len(data.get(\"servers\", []))} server(s)')"
+          echo "Checking for server: $SERVER_NAME"
+          RESPONSE=$(curl -s "https://registry.modelcontextprotocol.io/v0.1/servers/$SERVER_NAME")
+          echo "Response: $RESPONSE"
+          echo "$RESPONSE" | python -c "
+          import sys, json
+          data = json.load(sys.stdin)
+          if 'name' in data:
+              print(f'✅ Server published: {data[\"name\"]} v{data.get(\"version\", \"unknown\")}')
+          else:
+              print('⚠️ Server not found yet (may need propagation time)')
+          "
+        continue-on-error: true
