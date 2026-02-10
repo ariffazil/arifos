@@ -12,6 +12,7 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # Copy source - CRITICAL: Copy in order of least to most likely to change
+COPY README.md .
 COPY pyproject.toml .
 COPY scripts/start_server.py scripts/start_server.py
 COPY core/ core/
