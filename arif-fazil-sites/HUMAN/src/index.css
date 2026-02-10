@@ -1,0 +1,492 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 2%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 4%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 4%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 100% 50%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 0 100% 50%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 50% 15%;
+    --input: 0 50% 15%;
+    --ring: 0 100% 50%;
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  code, pre, .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+  }
+}
+
+/* Custom scrollbar - Red theme */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #050505;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #660000;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #990000;
+}
+
+/* Selection - Red glow */
+::selection {
+  background: rgba(255, 0, 0, 0.3);
+  color: white;
+}
+
+/* === TRIANGLE PATTERN BACKGROUNDS === */
+
+/* Sierpinski-style triangular grid */
+.triangle-bg {
+  background-color: #050505;
+  background-image: 
+    linear-gradient(30deg, rgba(139, 0, 0, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(139, 0, 0, 0.1) 87.5%, rgba(139, 0, 0, 0.1)),
+    linear-gradient(150deg, rgba(139, 0, 0, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(139, 0, 0, 0.1) 87.5%, rgba(139, 0, 0, 0.1)),
+    linear-gradient(30deg, rgba(139, 0, 0, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(139, 0, 0, 0.1) 87.5%, rgba(139, 0, 0, 0.1)),
+    linear-gradient(150deg, rgba(139, 0, 0, 0.1) 12%, transparent 12.5%, transparent 87%, rgba(139, 0, 0, 0.1) 87.5%, rgba(139, 0, 0, 0.1));
+  background-size: 80px 140px;
+  background-position: 0 0, 0 0, 40px 70px, 40px 70px;
+}
+
+/* Fractal noise overlay */
+.fractal-overlay {
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* === EARTH ELEMENT - Geological Strata === */
+.strata-lines {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(139, 69, 19, 0.1) 20%,
+    transparent 40%,
+    rgba(160, 82, 45, 0.08) 60%,
+    transparent 80%
+  );
+}
+
+/* Seismic wave pattern */
+.seismic-pattern {
+  background-image: repeating-radial-gradient(
+    circle at 50% 50%,
+    transparent 0,
+    transparent 20px,
+    rgba(139, 0, 0, 0.05) 20px,
+    rgba(139, 0, 0, 0.05) 21px
+  );
+}
+
+/* === ECONOMICS ELEMENT - Market Geometry === */
+.market-grid {
+  background-image: 
+    linear-gradient(90deg, rgba(255, 0, 0, 0.03) 1px, transparent 1px),
+    linear-gradient(rgba(255, 0, 0, 0.03) 1px, transparent 1px);
+  background-size: 50px 30px;
+}
+
+/* Candlestick-inspired vertical lines */
+.candlestick-pattern {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 10px,
+    rgba(220, 20, 60, 0.1) 10px,
+    rgba(220, 20, 60, 0.1) 12px,
+    transparent 12px,
+    transparent 30px
+  );
+}
+
+/* === AI ELEMENT - Neural/Circuit Patterns === */
+.neural-mesh {
+  background-image: 
+    linear-gradient(45deg, rgba(255, 0, 0, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(255, 0, 0, 0.05) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(255, 0, 0, 0.05) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(255, 0, 0, 0.05) 75%);
+  background-size: 40px 40px;
+  background-position: 0 0, 0 20px, 20px -20px, -20px 0px;
+}
+
+/* Circuit board traces */
+.circuit-traces {
+  background-image: 
+    linear-gradient(90deg, rgba(178, 34, 34, 0.2) 1px, transparent 1px),
+    linear-gradient(rgba(178, 34, 34, 0.2) 1px, transparent 1px);
+  background-size: 100px 100px;
+  position: relative;
+}
+
+.circuit-traces::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255, 0, 0, 0.3) 2px, transparent 2px);
+  background-size: 100px 100px;
+  background-position: 50px 50px;
+}
+
+/* === COMBINED hta BACKGROUND === */
+.hta-void {
+  background-color: #050505;
+  background-image: 
+    /* Triangle layer */
+    linear-gradient(30deg, rgba(139, 0, 0, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(139, 0, 0, 0.08) 87.5%, rgba(139, 0, 0, 0.08)),
+    /* Strata layer */
+    linear-gradient(180deg, transparent 0%, rgba(139, 69, 19, 0.05) 50%, transparent 100%),
+    /* Circuit layer */
+    linear-gradient(90deg, rgba(178, 34, 34, 0.1) 1px, transparent 1px);
+  background-size: 80px 140px, 100% 100%, 100px 100px;
+}
+
+/* === ANIMATIONS === */
+
+@keyframes pulse-red {
+  0%, 100% { 
+    box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+    border-color: rgba(255, 0, 0, 0.5);
+  }
+  50% { 
+    box-shadow: 0 0 40px rgba(255, 0, 0, 0.5);
+    border-color: rgba(255, 0, 0, 0.8);
+  }
+}
+
+.pulse-red {
+  animation: pulse-red 3s ease-in-out infinite;
+}
+
+@keyframes fractal-shift {
+  0% { background-position: 0 0, 0 0, 0 0; }
+  50% { background-position: 40px 70px, 0 0, 50px 50px; }
+  100% { background-position: 0 0, 0 0, 0 0; }
+}
+
+.fractal-animate {
+  animation: fractal-shift 20s ease-in-out infinite;
+}
+
+/* Triangle rotation - Sacred geometry */
+@keyframes triangle-rotate {
+  0% { transform: rotate(0deg) scale(1); }
+  33% { transform: rotate(120deg) scale(1.1); }
+  66% { transform: rotate(240deg) scale(0.9); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+
+.triangle-rotate {
+  animation: triangle-rotate 12s ease-in-out infinite;
+}
+
+/* === TYPOGRAPHY & EFFECTS === */
+
+/* Gradient text - Blood red to crimson */
+.gradient-text-red {
+  background: linear-gradient(135deg, #8B0000 0%, #DC143C 50%, #FF0000 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Forge glow effect */
+.forge-glow {
+  box-shadow: 
+    0 0 20px rgba(139, 0, 0, 0.4),
+    0 0 40px rgba(139, 0, 0, 0.2),
+    0 0 60px rgba(139, 0, 0, 0.1);
+}
+
+/* Glass effect - Dark red tint */
+.glass-forge {
+  background: rgba(5, 5, 5, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 0, 0, 0.3);
+}
+
+/* Strata card - Earth element */
+.strata-card {
+  background: linear-gradient(
+    135deg,
+    rgba(20, 10, 5, 0.95) 0%,
+    rgba(40, 20, 10, 0.9) 50%,
+    rgba(20, 10, 5, 0.95) 100%
+  );
+  border: 1px solid rgba(139, 69, 19, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.strata-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 10px,
+    rgba(139, 69, 19, 0.05) 10px,
+    rgba(139, 69, 19, 0.05) 11px
+  );
+  pointer-events: none;
+}
+
+/* Market data card - Economics element */
+.market-card {
+  background: rgba(10, 5, 5, 0.95);
+  border: 1px solid rgba(220, 20, 60, 0.3);
+  position: relative;
+}
+
+.market-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #8B0000, #DC143C, #8B0000);
+}
+
+/* Neural card - AI element */
+.neural-card {
+  background: rgba(5, 5, 10, 0.95);
+  border: 1px solid rgba(178, 34, 34, 0.3);
+  position: relative;
+}
+
+.neural-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(45deg, rgba(178, 34, 34, 0.05) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(178, 34, 34, 0.05) 25%, transparent 25%);
+  background-size: 20px 20px;
+  pointer-events: none;
+}
+
+/* === DECORATIVE ELEMENTS === */
+
+/* Triangular divider */
+.triangle-divider {
+  height: 60px;
+  background: linear-gradient(135deg, transparent 50%, rgba(139, 0, 0, 0.2) 50%),
+              linear-gradient(-135deg, transparent 50%, rgba(139, 0, 0, 0.2) 50%);
+  background-size: 60px 60px;
+  background-repeat: repeat-x;
+}
+
+/* Sierpinski triangle SVG decoration */
+.sierpinski-decoration {
+  width: 200px;
+  height: 173px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 173'%3E%3Cpath d='M100 0 L200 173 L0 173 Z' fill='none' stroke='%238B0000' stroke-width='1' opacity='0.3'/%3E%3Cpath d='M50 86.5 L150 86.5 L100 173 Z' fill='none' stroke='%238B0000' stroke-width='1' opacity='0.3'/%3E%3Cpath d='M75 43 L125 43 L100 86.5 Z' fill='none' stroke='%238B0000' stroke-width='1' opacity='0.3'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+/* Code blocks - Forge styling */
+.code-forge {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  background: #0a0505;
+  border: 1px solid #4a0000;
+  border-left: 3px solid #8B0000;
+  padding: 1rem;
+}
+
+/* Link hover - Blood drip effect */
+.link-forge {
+  position: relative;
+  color: #ff4444;
+  transition: color 0.3s;
+}
+
+.link-forge:hover {
+  color: #ff6666;
+}
+
+.link-forge::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #8B0000, #DC143C);
+  transition: width 0.3s ease;
+}
+
+.link-forge:hover::after {
+  width: 100%;
+}
+
+/* === UTILITY CLASSES === */
+
+.text-blood { color: #8B0000; }
+.text-crimson { color: #DC143C; }
+.text-forge { color: #ff4444; }
+
+.bg-void { background-color: #050505; }
+.bg-forge { background-color: #0a0505; }
+.bg-strata { background-color: #1a0f0a; }
+
+.border-blood { border-color: #8B0000; }
+
+/* === FORGE EMBERS ANIMATION === */
+@keyframes ember-float {
+  0%, 100% { 
+    transform: translateY(0) translateX(0) scale(0); 
+    opacity: 0; 
+  }
+  10% {
+    opacity: 0.8;
+  }
+  50% { 
+    transform: translateY(-50vh) translateX(20px) scale(1.5); 
+    opacity: 0.6; 
+  }
+  90% {
+    opacity: 0.2;
+  }
+  100% { 
+    transform: translateY(-100vh) translateX(-10px) scale(0.5); 
+    opacity: 0; 
+  }
+}
+
+.forge-embers {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.ember {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: radial-gradient(circle, #FF4500 0%, #FF0000 40%, transparent 70%);
+  border-radius: 50%;
+  animation: ember-float 12s ease-out infinite;
+  box-shadow: 0 0 6px #FF4500;
+}
+
+.ember:nth-child(1) { left: 5%; animation-delay: 0s; animation-duration: 10s; }
+.ember:nth-child(2) { left: 15%; animation-delay: 2s; animation-duration: 14s; }
+.ember:nth-child(3) { left: 25%; animation-delay: 4s; animation-duration: 11s; }
+.ember:nth-child(4) { left: 35%; animation-delay: 1s; animation-duration: 13s; }
+.ember:nth-child(5) { left: 45%; animation-delay: 3s; animation-duration: 10s; }
+.ember:nth-child(6) { left: 55%; animation-delay: 5s; animation-duration: 12s; }
+.ember:nth-child(7) { left: 65%; animation-delay: 0.5s; animation-duration: 15s; }
+.ember:nth-child(8) { left: 75%; animation-delay: 2.5s; animation-duration: 11s; }
+.ember:nth-child(9) { left: 85%; animation-delay: 4.5s; animation-duration: 13s; }
+.ember:nth-child(10) { left: 95%; animation-delay: 1.5s; animation-duration: 10s; }
+
+/* Floor badge hover effects */
+.floor-badge {
+  transition: all 0.3s ease;
+}
+
+.floor-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 0, 0, 0.3);
+}
+
+/* Active page indicator */
+.nav-active {
+  position: relative;
+}
+
+.nav-active::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 4px;
+  height: 4px;
+  background: #FF0000;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #FF0000;
+}
+.border-crimson { border-color: #DC143C; }
+
+/* === TRICOLOR LOGO STYLES === */
+/* Tricolor logo with vibrant primer colors */
+.tricolor-logo {
+  background: linear-gradient(135deg, 
+    rgba(0, 212, 255, 0.15) 0%, 
+    rgba(255, 184, 0, 0.15) 50%, 
+    rgba(255, 45, 45, 0.15) 100%
+  );
+  box-shadow: 
+    0 0 15px rgba(255, 184, 0, 0.3),
+    0 0 30px rgba(0, 212, 255, 0.2),
+    0 0 45px rgba(255, 45, 45, 0.15);
+  transition: all 0.3s ease;
+}
+
+.tricolor-logo:hover {
+  box-shadow: 
+    0 0 20px rgba(255, 184, 0, 0.5),
+    0 0 40px rgba(0, 212, 255, 0.3),
+    0 0 60px rgba(255, 45, 45, 0.2);
+}
+
+/* Tricolor text accents */
+.text-tricolor {
+  background: linear-gradient(90deg, #00D4FF 0%, #FFB800 50%, #FF2D2D 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Tricolor glow for hero elements */
+.tricolor-glow {
+  box-shadow: 
+    0 0 20px rgba(255, 184, 0, 0.2),
+    0 0 40px rgba(0, 212, 255, 0.15),
+    0 0 60px rgba(255, 45, 45, 0.1);
+}

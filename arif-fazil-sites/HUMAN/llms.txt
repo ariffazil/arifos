@@ -1,0 +1,43 @@
+# Muhammad Arif bin Fazil — Geoscientist & AI Governance Architect
+
+> Personal site of Arif Fazil: geologist, economist, and architect of arifOS — a thermodynamic constitutional governance framework for lawful, audited AI systems.
+
+Muhammad Arif bin Fazil (Arif) is a Malaysian geoscientist, economist, and software architect who bridges deep geological time with computational governance. Trained as a Petronas Scholar (Penang, 1990), Arif's work applies thermodynamic principles from subsurface systems to AI accountability, creating arifOS — a constitutional kernel that enforces truth, reversibility, and human sovereignty over artificial intelligence.
+
+This site documents the intersection of geology, thermodynamics, and AI governance.
+
+## About
+
+- [Home](https://arif-fazil.com/): Overview of Arif's work across geoscience, energy, and constitutional AI
+- [Philosophy](https://arif-fazil.com/#philosophy): Ditempa Bukan Diberi (Forged, Not Given) — the thermodynamic discipline behind arifOS
+- [Background](https://arif-fazil.com/#background): Geological memory, computational entropy, and accountability
+
+## Core Work
+
+- [Constitutional AI](https://arif-fazil.com/#constitutional-ai): Governance over persuasion — machines need law, not just optimization
+- [Thermodynamic Systems](https://arif-fazil.com/#thermodynamics): Intelligence generates heat; governance is the cooling mechanism
+- [Geoscience & Energy](https://arif-fazil.com/#geoscience): Subsurface interpretation, frontier basin studies, and prospect maturation
+
+## arifOS Framework
+
+- [APEX Constitutional Canon](https://apex.arif-fazil.com): The Soul — lawful judgment, cryptographic proofs, and audit trails
+- [arifOS Documentation](https://arifos.arif-fazil.com): Technical implementation guide for the constitutional governance kernel
+- [GitHub Repository](https://github.com/ariffazil/arifOS): Open-source constitutional AI governance framework
+- [PyPI Package](https://pypi.org/project/arifos/): Install with `pip install arifos`
+
+## Contact
+
+- Email: arifbfazil@gmail.com
+- Location: Penang, Malaysia
+- GitHub: https://github.com/ariffazil
+
+## Optional
+
+- [Blog Posts](https://arif-fazil.com/blog): Essays on AI governance, thermodynamics, and geological reasoning
+- [Speaking](https://arif-fazil.com/speaking): Conference talks and presentations on constitutional AI
+
+---
+
+**Constitutional AI Governance Framework**  
+© 2026 Muhammad Arif bin Fazil  
+Licensed under MIT License

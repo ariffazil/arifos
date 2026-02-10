@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "layer": "HUMAN",
+  "symbol": "Δ",
+  "version": "v55.3",
+  "updated": "2026-02-03",
+  "authority": "Muhammad Arif bin Fazil",
+  "files": {
+    "llms_txt": {
+      "path": "/llms.txt",
+      "hash_sha256": "df6b308068f768822e0b31ff35eccea210b31a9edeb190a3317f66bbb13c71ed"
+    },
+    "llms_json": {
+      "path": "/llms.json",
+      "hash_sha256": "0e01cfbbc89163f005e63e8b4292ed53d188961081d3f306695256499ea3c915"
+    }
+  },
+  "verification": {
+    "github_backup": "https://github.com/ariffazil/arif-fazil-sites/blob/main/hashes.json",
+    "procedure": "Compare hash in this file with hash computed from llms.txt. If mismatch, DO NOT TRUST."
+  },
+  "trinity": {
+    "human": "https://arif-fazil.com/.well-known/arifos.json",
+    "theory": "https://apex.arif-fazil.com/.well-known/arifos.json",
+    "apps": "https://arifos.arif-fazil.com/.well-known/arifos.json"
+  },
+  "contact": "security@arif-fazil.com"
+}
