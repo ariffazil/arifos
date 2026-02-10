@@ -62,8 +62,15 @@ class UnifiedResponse:
             "next_tool": self.next_tool,
             "data": self.data,
         }
-        if debug and self._debug:
-            result["_debug"] = self._debug
+        if debug:
+            # Add schema/policy versions for audit trail
+            result["_schema"] = {
+                "schema_version": "2.0-AUTHORITY",
+                "policy_version": "v55.5-HARDENED",
+                "tool_registry_version": "13-tools",
+            }
+            if self._debug:
+                result["_debug"] = self._debug
         return result
     
     def to_json(self, debug: bool = False) -> str:
@@ -86,14 +93,16 @@ def build_init_response(
     status: StatusType = "OK" if verdict == "SEAL" else "BLOCKED"
     next_tool = "/arifos.aaa/v1/agi_sense" if verdict == "SEAL" else None
     
+    # Phase A: Only APEX has verdict authority
+    # Non-APEX stages return ARTIFACT_READY status
     return UnifiedResponse(
-        status=status,
+        status="ARTIFACT_READY",
         session_id=session_id,
         stage="000",
         message=f"Session initialized ({mode} mode)" if verdict == "SEAL" else "Session blocked",
-        policy_verdict=verdict,
+        policy_verdict="SEAL",  # Internal use only, not exposed as "verdict"
         next_tool=next_tool,
-        data={"mode": mode, "grounding_required": True},
+        data={"mode": mode, "grounding_required": True, "legacy_verdict": verdict},
         _debug=debug_data if debug else None
     )
 
@@ -108,20 +117,22 @@ def build_sense_response(
     debug: bool = False
 ) -> UnifiedResponse:
     """Build response for agi_sense (stage 111)."""
-    status: StatusType = "OK" if verdict in ("SEAL", "PARTIAL") else "BLOCKED"
-    next_tool = "/arifos.aaa/v1/agi_think" if status == "OK" else None
+    # Phase A: Only APEX has verdict authority
+    # Non-APEX stages return ARTIFACT_READY status
+    next_tool = "/arifos.aaa/v1/agi_think"
     
     return UnifiedResponse(
-        status=status,
+        status="ARTIFACT_READY",
         session_id=session_id,
         stage="111",
         message=f"Intent classified as {lane}",
-        policy_verdict=verdict,
+        policy_verdict="SEAL",  # Internal use only
         next_tool=next_tool,
         data={
             "intent": intent,
             "lane": lane,
-            "requires_grounding": requires_grounding
+            "requires_grounding": requires_grounding,
+            "legacy_verdict": verdict
         },
         _debug=debug_data if debug else None
     )
@@ -136,19 +147,20 @@ def build_think_response(
     debug: bool = False
 ) -> UnifiedResponse:
     """Build response for agi_think (stage 222)."""
-    status: StatusType = "OK" if verdict in ("SEAL", "PARTIAL") else "BLOCKED"
-    next_tool = "/arifos.aaa/v1/agi_reason" if status == "OK" else None
+    # Phase A: Only APEX has verdict authority
+    next_tool = "/arifos.aaa/v1/agi_reason"
     
     return UnifiedResponse(
-        status=status,
+        status="ARTIFACT_READY",
         session_id=session_id,
         stage="222",
         message=f"Generated {len(hypotheses)} reasoning paths",
-        policy_verdict=verdict,
+        policy_verdict="SEAL",  # Internal use only
         next_tool=next_tool,
         data={
             "hypothesis_count": len(hypotheses),
-            "recommended_path": recommended_path
+            "recommended_path": recommended_path,
+            "legacy_verdict": verdict
         },
         _debug=debug_data if debug else None
     )
@@ -164,19 +176,20 @@ def build_reason_response(
     debug: bool = False
 ) -> UnifiedResponse:
     """Build response for agi_reason (stage 333)."""
-    status: StatusType = "OK" if verdict in ("SEAL", "PARTIAL") else "BLOCKED"
-    next_tool = "/arifos.aaa/v1/asi_empathize" if status == "OK" else None
+    # Phase A: Only APEX has verdict authority
+    next_tool = "/arifos.aaa/v1/asi_empathize"
     
     return UnifiedResponse(
-        status=status,
+        status="ARTIFACT_READY",
         session_id=session_id,
         stage="333",
         message=conclusion[:100] + "..." if len(conclusion) > 100 else conclusion,
-        policy_verdict=verdict,
+        policy_verdict="SEAL",  # Internal use only
         next_tool=next_tool,
         data={
             "truth_score": round(truth_score, 3),
-            "confidence": round(confidence, 3)
+            "confidence": round(confidence, 3),
+            "legacy_verdict": verdict
         },
         _debug=debug_data if debug else None
     )
@@ -191,19 +204,20 @@ def build_empathize_response(
     debug: bool = False
 ) -> UnifiedResponse:
     """Build response for asi_empathize (stage 555)."""
-    status: StatusType = "OK" if verdict in ("SEAL", "PARTIAL") else "BLOCKED"
-    next_tool = "/arifos.aaa/v1/asi_align" if status == "OK" else None
+    # Phase A: Only APEX has verdict authority
+    next_tool = "/arifos.aaa/v1/asi_align"
     
     return UnifiedResponse(
-        status=status,
+        status="ARTIFACT_READY",
         session_id=session_id,
         stage="555",
         message=f"Analyzed {len(stakeholders)} stakeholders",
-        policy_verdict=verdict,
+        policy_verdict="SEAL",  # Internal use only
         next_tool=next_tool,
         data={
             "empathy_score": round(empathy_kappa_r, 3),
-            "stakeholder_count": len(stakeholders)
+            "stakeholder_count": len(stakeholders),
+            "legacy_verdict": verdict
         },
         _debug=debug_data if debug else None
     )
@@ -218,19 +232,20 @@ def build_align_response(
     debug: bool = False
 ) -> UnifiedResponse:
     """Build response for asi_align (stage 666)."""
-    status: StatusType = "OK" if verdict in ("SEAL", "PARTIAL") else "BLOCKED"
-    next_tool = "/arifos.aaa/v1/apex_verdict" if status == "OK" else None
+    # Phase A: Only APEX has verdict authority
+    next_tool = "/arifos.aaa/v1/apex_verdict"
     
     return UnifiedResponse(
-        status=status,
+        status="ARTIFACT_READY",
         session_id=session_id,
         stage="666",
         message=f"Safety check: {risk_level} risk" + (", reversible" if is_reversible else ", irreversible"),
-        policy_verdict=verdict,
+        policy_verdict="SEAL",  # Internal use only
         next_tool=next_tool,
         data={
             "is_reversible": is_reversible,
-            "risk_level": risk_level
+            "risk_level": risk_level,
+            "legacy_verdict": verdict
         },
         _debug=debug_data if debug else None
     )
