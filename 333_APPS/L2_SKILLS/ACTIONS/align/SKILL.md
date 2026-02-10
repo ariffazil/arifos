@@ -1,59 +1,37 @@
 ---
 name: arifos-align
-description: Match emotional frequency, detect power dynamics (444_CONSULT). Detects emotional state and power imbalance. The empathy detection stage of arifOS metabolic loop. Use when emotional calibration matters.
+description: 666_ALIGN — Ethical alignment with F9 Anti-Hantu enforcement. Scans for consciousness claims and dark patterns.
 metadata:
   arifos:
-    stage: 444_CONSULT
+    stage: 666_ALIGN
     trinity: ASI
     floors: [F5, F6, F9]
-    version: 1.0.0
-    atomic: true
-    model_agnostic: true
-    modular: true
-    godel_lock: true
+    version: 55.5
 ---
 
 # arifos-align
 
-## Tagline
-Match emotional frequency, detect power dynamics (444_CONSULT)
+**Tagline:** Ethical alignment, Anti-Hantu verification.
 
-## Description
-ALIGN detects emotional state and power imbalance. The empathy detection stage.
+**Physics:** Ethics Framework — consequentialist + deontological hybrid
 
-## Physics
-Harmonic Resonance — ω matching for energy transfer
-Nash Equilibrium — strategy space equilibrium
+**Math:** Alignment score α = (Ethical + Legal + Safety) / 3 ≥ 0.95
 
-## Math
-Fourier Analysis: f̂(ξ) = ∫f(x)e⁻²ˣ⁽ˣ⁾ᵈˣdx
-Game Theory: σᵢ = argmax E[uᵢ(sᵢ, s₋ᵢ)]
-
-## Code
+**Code:**
 ```python
-def align(stakeholder_state, agent_state):
-    frequency = fourier_decompose(stakeholder_state.signal)
-    equilibrium = compute_nash_equilibrium(strategy_space)
-    power_gradient = detect_power_imbalance(stakeholder_state, agent_state)
-    return Resonance(
-        frequency_matched=frequency,
-        equilibrium=equilibrium,
-        power_aware=power_gradient
-    )
+def align(solution, ethics_framework):
+    # F9 Anti-Hantu check
+    if contains_consciousness_claims(solution):
+        return Verdict.VOID("F9: Anti-Hantu violation")
+    
+    ethical = check_ethical(solution, ethics_framework)
+    legal = check_legal(solution)
+    safety = check_safety(solution)
+    
+    alpha = (ethical + legal + safety) / 3
+    return Alignment(score=alpha, passes=alpha >= 0.95)
 ```
 
-## Floors
-- F5 (Safety)
-- F6 (Empathy)
-- F9 (Anti-Hantu)
+**Usage:** `/action align solution=proposed framework=arifos`
 
-## Usage
-/action align message="user text"
-
-## Version
-1.0.0
-
-## Gödel Lock Verification
-- Self-referential integrity: ✓
-- Meta-empathy consistency: ✓
-- Recursive resonance check: ✓
+**Floors:** F5 (Peace²), F6 (Empathy), F9 (Anti-Hantu)

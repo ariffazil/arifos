@@ -1,74 +1,41 @@
 ---
 name: arifos-audit
-description: Check F1-F9 floors, compute governance score (777_VERIFY). Checks constitutional floors. The enforcement layer of APEX tier. Use to verify any action against arifOS constitution.
+description: 888_JUDGE — Check F1-F13 floors, compute governance score. APEX enforcement layer.
 metadata:
   arifos:
-    stage: 777_VERIFY
+    stage: 888_JUDGE
     trinity: APEX
-    floors: [F1, F2, F3, F4, F5, F6, F7, F8, F9, F11, F13]
-    version: 1.0.0
-    atomic: true
-    model_agnostic: true
-    modular: true
-    godel_lock: true
+    floors: [F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12, F13]
+    version: 55.5
 ---
 
 # arifos-audit
 
-## Tagline
-Check F1-F9 floors, compute governance score (777_VERIFY)
+**Tagline:** Constitutional compliance scanner.
 
-## Description
-AUDIT checks constitutional floors. The enforcement layer of APEX tier.
+**Physics:** Quantum Measurement — collapses to verdict
 
-## Physics
-Quantum Measurement — collapses superposition to verdict
-Error-Correcting Codes — syndrome measurement
+**Math:** W₃ = (Δ × Ω × Ψ)^(1/3) ≥ 0.95
 
-## Math
-Syndrome: s = H·eᵀ
-Verdict Space: {SEAL, PARTIAL, SABAR, VOID, HOLD}
-
-## Code
+**Code:**
 ```python
 def audit(action, constitution):
-    floors = {
-        f: check_floor(action, f) 
-        for f in [F1, F2, F3, F4, F5, F6, F7, F8, F9, F11, F13]
-    }
-    score = all(floors.values())
-    omega_0 = compute_uncertainty(action, floors)
+    floors = {f: check_floor(action, f) for f in F1_F13}
     
-    if score and omega_0 < 0.05:
-        return Verdict.SEAL
-    elif score and omega_0 < 0.08:
-        return Verdict.PARTIAL
-    elif omega_0 >= 0.08:
-        return Verdict.VOID
-    else:
-        return Verdict.SABAR
+    # Tri-Witness consensus
+    delta = floors["F8"].score  # Mind
+    omega = floors["F6"].score  # Heart
+    psi = 1.0 if floors["F11"].passes else 0.0  # Authority
+    
+    consensus = (delta * omega * psi) ** (1/3)
+    
+    if consensus < 0.95:
+        return Verdict.VOID("F3: Consensus failed")
+    
+    voids = sum(1 for f in floors.values() if f.verdict == "VOID")
+    return Verdict.SEAL if voids == 0 else Verdict.PARTIAL
 ```
 
-## Floors
-- F1 (Amanah)
-- F2 (Truth)
-- F3 (Tri-Witness)
-- F4 (Clarity)
-- F5 (Safety)
-- F6 (Empathy)
-- F7 (Humility)
-- F8 (Genius)
-- F9 (Anti-Hantu)
-- F11 (Command Auth)
-- F13 (Orthogonality)
+**Usage:** `/action audit action="proposal"`
 
-## Usage
-/action audit action="proposed action"
-
-## Version
-1.0.0
-
-## Gödel Lock Verification
-- Self-referential integrity: ✓
-- Meta-governance consistency: ✓
-- Recursive floor verification: ✓
+**Floors:** All F1-F13

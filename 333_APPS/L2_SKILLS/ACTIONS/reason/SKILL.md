@@ -1,53 +1,31 @@
 ---
 name: arifos-reason
-description: Logical inference, causal trace, plan steps (222_PROCESS). Executes logical inference and causal analysis. The cognitive engine of AGI tier. Use when breaking down complex problems into logical steps.
+description: 222_THINK — Logical inference, hypothesis generation. Enforces F2 Truth (τ ≥ 0.99) and F7 Humility (Ω₀ ∈ [0.03,0.05]).
 metadata:
   arifos:
-    stage: 222_PROCESS
+    stage: 222_THINK
     trinity: AGI
     floors: [F2, F4, F7]
-    version: 1.0.0
-    atomic: true
-    model_agnostic: true
-    modular: true
-    godel_lock: true
+    version: 55.5
 ---
 
 # arifos-reason
 
-## Tagline
-Logical inference, causal trace, plan steps (222_PROCESS)
+**Tagline:** Logical inference with constitutional truth bounds.
 
-## Description
-REASON executes logical inference and causal analysis. The cognitive engine of AGI tier.
+**Physics:** Bayesian Inference — P(H|D) = P(D|H)P(H)/P(D)
 
-## Physics
-Pearl's Do-Calculus — P(Y|do(X)) causal intervention
-Landauer's Principle — kT ln(2) per bit
+**Math:** Truth score τ = verified_claims / total_claims ≥ 0.99
 
-## Math
-Propositional Logic: (P → Q) ∧ P ⊢ Q
-
-## Code
+**Code:**
 ```python
-def reason(causal_graph, query):
-    intervention = identify_intervention(causal_graph, query)
-    plan = topological_sort(causal_graph, intervention)
-    return Plan(steps=plan)
+def reason(grounded_context):
+    hypotheses = generate_hypotheses(grounded_context)
+    for h in hypotheses:
+        h.truth_score = verify(h)
+    return max(hypotheses, key=lambda x: x.truth_score)
 ```
 
-## Floors
-- F2 (Truth)
-- F7 (Humility)
-- F4 (Clarity)
+**Usage:** `/action reason query="problem statement"`
 
-## Usage
-/action reason problem="complex issue"
-
-## Version
-1.0.0
-
-## Gödel Lock Verification
-- Self-referential integrity: ✓
-- Meta-logical consistency: ✓
-- Recursive validity check: ✓
+**Floors:** F2 (Truth), F4 (Clarity), F7 (Humility)

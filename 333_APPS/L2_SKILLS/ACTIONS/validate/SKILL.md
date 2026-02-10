@@ -1,59 +1,32 @@
 ---
 name: arifos-validate
-description: Acknowledge experience, affirm dignity (555_SYNTHESIZE). Acknowledges lived experience and affirms dignity. Human connection stage. Use to validate user experience before problem-solving.
+description: 555_EMPATHY — Stakeholder impact analysis. Identifies weakest stakeholder and ensures κᵣ ≥ 0.95 protection.
 metadata:
   arifos:
-    stage: 555_SYNTHESIZE
+    stage: 555_EMPATHY
     trinity: ASI
     floors: [F1, F5, F6]
-    version: 1.0.0
-    atomic: true
-    model_agnostic: true
-    modular: true
-    godel_lock: true
+    version: 55.5
 ---
 
 # arifos-validate
 
-## Tagline
-Acknowledge experience, affirm dignity (555_SYNTHESIZE)
+**Tagline:** Assess stakeholder impact, protect the vulnerable.
 
-## Description
-VALIDATE acknowledges lived experience and affirms dignity. Human connection stage.
+**Physics:** Social Network Analysis — vulnerability centrality
 
-## Physics
-Conservation of Momentum (Social) — preserves dignity
-Holographic Principle — partial encodes complete
+**Math:** κᵣ = protection_score / vulnerability ≥ 0.95
 
-## Math
-Axiom of Choice: ∀ family of non-empty sets, ∃ choice function
-Representative Selection: xᵢ ∈ Xᵢ for all i
-
-## Code
+**Code:**
 ```python
-def validate(user_experience, dignity_measure):
-    representative = choice_function(user_experience.subsets)
-    dignity_preserved = conserve_dignity(user_experience, dignity_measure)
-    acknowledgment = synthesize_acknowledgment(representative)
-    return Validation(
-        acknowledgment=acknowledgment,
-        dignity_preserved=dignity_preserved,
-        emotional_safety=True
-    )
+def validate(proposal, context):
+    stakeholders = identify_stakeholders(context)
+    weakest = min(stakeholders, key=lambda s: s.resilience)
+    impact = assess_impact(proposal, weakest)
+    kappa_r = calculate_protection(impact, weakest)
+    return Validation(weakest=weakest, kappa_r=kappa_r)
 ```
 
-## Floors
-- F1 (Amanah)
-- F5 (Safety)
-- F6 (Empathy)
+**Usage:** `/action validate proposal="action" context=ctx`
 
-## Usage
-/action validate experience="user frustration"
-
-## Version
-1.0.0
-
-## Gödel Lock Verification
-- Self-referential integrity: ✓
-- Meta-validation consistency: ✓
-- Recursive dignity check: ✓
+**Floors:** F1 (Amanah), F5 (Peace²), F6 (Empathy)

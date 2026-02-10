@@ -1,54 +1,39 @@
 ---
 name: arifos-seal
-description: Finalize lawful decision, log precedent (999_EMIT). Finalizes decisions and logs to VAULT999. The commitment stage. Use when making irreversible commitments.
+description: 999_SEAL — Finalize decision, log to VAULT999. Irreversible commitment with cryptographic proof.
 metadata:
   arifos:
-    stage: 999_EMIT
+    stage: 999_SEAL
     trinity: APEX
     floors: [F1, F3, F11]
-    version: 1.0.0
-    atomic: true
-    model_agnostic: true
-    modular: true
-    godel_lock: true
+    version: 55.5
 ---
 
 # arifos-seal
 
-## Tagline
-Finalize lawful decision, log precedent (999_EMIT)
+**Tagline:** Immutable ledger commitment.
 
-## Description
-SEAL finalizes decisions and logs to VAULT999. The commitment stage.
+**Physics:** Noether's Theorem — conserved information
 
-## Physics
-Noether's Theorem — conserved information
-Arrow of Time — irreversible log, reversible action
+**Math:** H(parent) = H(H(left) + H(right)) — Merkle tree
 
-## Math
-Group Theory: ∃!e ∈ G: e·g = g·e = g
-Merkle Trees: H(parent) = H(H(left) + H(right))
-
-## Code
+**Code:**
 ```python
 def seal(audited_action, authority, vault):
     action_hash = sha256(serialize(audited_action))
-    precedent_id = vault.append(leaf=action_hash)
-    return Precedent(id=precedent_id, hash=action_hash)
+    merkle_root = update_merkle_tree(vault, action_hash)
+    
+    entry = LedgerEntry(
+        hash=action_hash,
+        root=merkle_root,
+        timestamp=now(),
+        authority=authority
+    )
+    
+    vault.append(entry)
+    return Seal(entry_id=entry.id, merkle_root=merkle_root)
 ```
 
-## Floors
-- F1 (Amanah)
-- F3 (Tri-Witness)
-- F11 (Command Auth)
+**Usage:** `/action seal action=audited authority=arif`
 
-## Usage
-/action seal action=audited authority=arif
-
-## Version
-1.0.0
-
-## Gödel Lock Verification
-- Self-referential integrity: ✓
-- Meta-commitment consistency: ✓
-- Recursive precedent check: ✓
+**Floors:** F1 (Amanah), F3 (Tri-Witness), F11 (Command Auth)
