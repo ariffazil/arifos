@@ -960,29 +960,30 @@ async def reality_search(
                     else:
                         # Single property
                         info = values
-                        name = info.get("name", f"{category} {property_key}")
-                        txt = f"Axiomatic Truth: {name} = {info['value']} {info.get('unit', '')}"
-                        evidence.append(
-                            {
-                                "evidence_id": f"E-AXIOM-{category.upper()}-{property_key.upper()}",
-                                "content": {
-                                    "text": txt,
-                                    "hash": generate_content_hash(txt),
-                                    "language": "en",
-                                },
-                                "source_meta": {
-                                    "uri": f"axiom://{category}/{property_key}",
-                                    "type": EvidenceType.AXIOM.value,
-                                    "author": "NIST/Petronas_Baseline",
-                                    "timestamp": "infinity",
-                                },
-                                "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
-                                "lifecycle": {
-                                    "status": "active",
-                                    "retrieved_by": "axiom_engine_v1.1",
-                                },
-                            }
-                        )
+                        if isinstance(info, dict) and "value" in info:
+                            name = info.get("name", f"{category} {property_key}")
+                            txt = f"Axiomatic Truth: {name} = {info['value']} {info.get('unit', '')}"
+                            evidence.append(
+                                {
+                                    "evidence_id": f"E-AXIOM-{category.upper()}-{property_key.upper()}",
+                                    "content": {
+                                        "text": txt,
+                                        "hash": generate_content_hash(txt),
+                                        "language": "en",
+                                    },
+                                    "source_meta": {
+                                        "uri": f"axiom://{category}/{property_key}",
+                                        "type": EvidenceType.AXIOM.value,
+                                        "author": "NIST/Petronas_Baseline",
+                                        "timestamp": "infinity",
+                                    },
+                                    "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
+                                    "lifecycle": {
+                                        "status": "active",
+                                        "retrieved_by": "axiom_engine_v1.1",
+                                    },
+                                }
+                            )
 
     # Web Search Result Processing (normalize url/link fields)
     results = result.get("results") or []
