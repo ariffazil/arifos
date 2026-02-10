@@ -1,6 +1,6 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.ariffazil/arifOS",
+  "$schema": "https://registry.modelcontextprotocol.io/v0.1/schema/2025-12-11/server.schema.json",
+  "name": "io.github.ariffazil/arifos",
   "version": "60.0.0",
   "description": "Constitutional AI Governance with 13 enforced floors (F1-F13) and tri-witness consensus for LLMs.",
   "vendor": {
@@ -9,9 +9,10 @@
   },
   "license": "AGPL-3.0-only",
   "repository": {
-    "url": "https://github.com/ariffazil/arifOS",
-    "source": "github"
+    "type": "git",
+    "url": "https://github.com/ariffazil/arifOS"
   },
+
   "packages": [
     {
       "registryType": "pypi",
@@ -22,7 +23,15 @@
         "command": "python -m aaa_mcp"
       }
     },
-
+    {
+      "registryType": "dockerhub",
+      "identifier": "ariffazil/arifos",
+      "version": "v60.0",
+      "transport": {
+        "type": "http",
+        "url": "https://aaamcp.arif-fazil.com/mcp"
+      }
+    },
     {
       "registryType": "dockerhub",
       "identifier": "ariffazil/arifos",
