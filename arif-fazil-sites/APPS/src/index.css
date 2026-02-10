@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -243,7 +245,143 @@ code {
   }
 }
 
-/* ─── Clickability Improvements ─── */
+/* ─── Typography Refinement: Law vs Code ─── */
+
+/* Serif for "The Law" — Constitutional text, mottos, principles */
+.font-law {
+  font-family: 'Source Serif 4', 'Noto Serif', Georgia, 'Times New Roman', serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+/* Monospace for "The Code" — Tools, API, technical */
+.font-code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+  font-feature-settings: 'liga' 1, 'calt' 1;
+}
+
+/* UI font — Clean sans for navigation and general UI */
+.font-ui {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+/* Constitutional headings — Authority through serif */
+h1.font-law,
+h2.font-law,
+h3.font-law {
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* ─── Tactile Button Effects ─── */
+
+/* Base button with tactile feedback */
+.btn-tactile {
+  position: relative;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-style: preserve-3d;
+}
+
+/* Embossed / Raised effect */
+.btn-tactile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.15) 0%,
+    transparent 50%,
+    rgba(0, 0, 0, 0.2) 100%
+  );
+  pointer-events: none;
+}
+
+/* Shadow layers for depth */
+.btn-tactile {
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+/* Hover — Lift up + glow */
+.btn-tactile:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 20px -5px rgba(6, 182, 212, 0.3),
+    0 4px 6px -2px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+    0 0 20px rgba(6, 182, 212, 0.2);
+}
+
+/* Active / Press — Press down */
+.btn-tactile:active {
+  transform: translateY(1px);
+  box-shadow:
+    0 2px 4px -1px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(0, 0, 0, 0.2) inset;
+}
+
+/* Glowing border effect */
+.btn-tactile-glow {
+  position: relative;
+}
+
+.btn-tactile-glow::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: calc(inherit + 2px);
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.5), rgba(14, 165, 233, 0.3));
+  filter: blur(12px);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1;
+}
+
+.btn-tactile-glow:hover::after {
+  opacity: 0.6;
+}
+
+.btn-tactile-glow:active::after {
+  opacity: 0.3;
+}
+
+/* CTA Primary — High emphasis */
+.btn-cta-primary {
+  background: linear-gradient(135deg, #0891b2 0%, #06b6d4 50%, #22d3ee 100%);
+  border: 1px solid rgba(6, 182, 212, 0.5);
+  box-shadow:
+    0 0 0 1px rgba(6, 182, 212, 0.3) inset,
+    0 4px 6px -1px rgba(0, 0, 0, 0.3),
+    0 2px 4px -1px rgba(0, 0, 0, 0.2);
+}
+
+.btn-cta-primary:hover {
+  box-shadow:
+    0 0 0 1px rgba(6, 182, 212, 0.5) inset,
+    0 10px 25px -5px rgba(6, 182, 212, 0.4),
+    0 0 30px rgba(6, 182, 212, 0.3);
+}
+
+/* Secondary button — Subtle tactile */
+.btn-cta-secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.05) inset,
+    0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.btn-cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(6, 182, 212, 0.4);
+  box-shadow:
+    0 0 0 1px rgba(6, 182, 212, 0.2) inset,
+    0 8px 20px -5px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(6, 182, 212, 0.15);
+}
 
 /* All external links get a subtle underline + brightness boost on hover */
 a[target="_blank"] {

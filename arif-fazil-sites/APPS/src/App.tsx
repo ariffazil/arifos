@@ -655,7 +655,7 @@ function App() {
           {/* Quick Install */}
           <div className="mt-12 max-w-lg mx-auto">
             <div className="bg-black/50 rounded-lg p-4 border border-gray-800 flex items-center justify-between">
-              <code className="text-sm text-cyan-400 font-mono">pip install arifos</code>
+              <code className="text-sm text-cyan-400 font-code">pip install arifos</code>
               <button
                 onClick={() => copyToClipboard(INSTALL_CODE, 'install')}
                 className="p-2 hover:bg-gray-800 rounded transition-colors"
@@ -717,7 +717,7 @@ function App() {
                         </div>
                       ))}
                     </div>
-                    <Button className={`w-full mt-6 ${colors.bg} hover:${colors.bg.replace('5', '4')} border ${colors.border}`}>
+                    <Button className={`btn-tactile w-full mt-6 ${colors.bg} hover:${colors.bg.replace('5', '4')} border ${colors.border}`}>
                       Learn More
                     </Button>
                   </CardContent>
@@ -938,7 +938,7 @@ function App() {
                 <Card key={tool.name} className={`bg-gray-900/30 border-gray-800 hover:${colors.border} transition-all group`}>
                   <CardHeader>
                     <div className="flex items-center justify-between mb-2">
-                      <code className={`text-lg font-mono ${colors.text}`}>{tool.name}</code>
+                      <code className={`text-lg font-code ${colors.text}`}>{tool.name}</code>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs">{tool.stage}</Badge>
                         <Badge className={`text-xs ${
@@ -978,7 +978,7 @@ function App() {
                         <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Parameters</p>
                         <div className="flex flex-wrap gap-1">
                           {tool.params.map(param => (
-                            <code key={param} className="text-xs bg-black/50 px-2 py-1 rounded text-gray-300">
+                            <code key={param} className="text-xs font-code bg-black/50 px-2 py-1 rounded text-gray-300">
                               {param}
                             </code>
                           ))}
@@ -988,7 +988,7 @@ function App() {
                         <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Actions</p>
                         <div className="flex flex-wrap gap-1">
                           {tool.actions.map(action => (
-                            <code key={action} className={`text-xs px-2 py-0.5 rounded ${colors.bg} ${colors.text}`}>
+                            <code key={action} className={`text-xs font-code px-2 py-0.5 rounded ${colors.bg} ${colors.text}`}>
                               {action}
                             </code>
                           ))}
@@ -1100,15 +1100,15 @@ function App() {
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-400">Version</span>
-                    <span className="text-sm font-mono text-cyan-400">v60.0.0</span>
+                    <span className="text-sm font-code text-cyan-400">v60.0.0</span>
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-400">PyPI Package</span>
-                    <span className="text-sm font-mono text-cyan-400">arifos==60.0.0</span>
+                    <span className="text-sm font-code text-cyan-400">arifos==60.0.0</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-400">Protocol</span>
-                    <span className="text-sm font-mono text-gray-300">MCP 2025-11-25</span>
+                    <span className="text-sm font-code text-gray-300">MCP 2025-11-25</span>
                   </div>
                 </div>
 
@@ -1231,7 +1231,7 @@ python -m aaa_mcp sse`}
                   <Badge variant="outline" className="text-xs text-gray-400">{endpoint.method}</Badge>
                   <ExternalLink className="w-3 h-3 text-gray-600 group-hover:text-cyan-400" />
                 </div>
-                <code className="text-sm text-cyan-400 font-mono">{endpoint.path}</code>
+                <code className="text-sm text-cyan-400 font-code">{endpoint.path}</code>
                 <p className="text-xs text-gray-500 mt-1">{endpoint.desc}</p>
               </a>
             ))}
@@ -1335,7 +1335,7 @@ python -m aaa_mcp sse`}
                     {copiedCode === 'usage' ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-gray-400" />}
                   </button>
                 </div>
-                <pre className="p-4 text-sm text-gray-300 overflow-x-auto">
+                <pre className="p-4 text-sm font-code text-gray-300 overflow-x-auto">
                   <code>{USAGE_CODE}</code>
                 </pre>
               </div>
@@ -1488,7 +1488,7 @@ python -m aaa_mcp sse`}
             <p className="text-xs text-gray-600">
               &copy; {new Date().getFullYear()} Muhammad Arif bin Fazil &middot; Penang, Malaysia
             </p>
-            <p className="text-xs tracking-[0.3em] text-gray-700 uppercase">
+            <p className="font-law text-xs tracking-[0.3em] text-gray-700 uppercase">
               Ditempa Bukan Diberi — Forged, Not Given
             </p>
           </div>
