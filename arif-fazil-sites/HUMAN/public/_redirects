@@ -1,0 +1,8 @@
+# Cloudflare Pages Redirects Configuration
+# Ensure llms.json and llms.txt are served directly
+
+/llms.txt    /llms.txt    200
+/llms.json   /llms.json   200
+
+# SPA fallback for React Router
+/*    /index.html   200

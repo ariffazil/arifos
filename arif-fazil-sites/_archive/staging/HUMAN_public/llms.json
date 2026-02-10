@@ -1,0 +1,157 @@
+{
+  "name": "Muhammad Arif bin Fazil",
+  "alternate_name": "Arif Fazil",
+  "identity": {
+    "born": "1990-05-22",
+    "birthplace": "Bayan Lepas, Penang, Malaysia",
+    "role": "Collapse-Calibrated Architect / Shadow Pillar",
+    "archetype": "INTJ",
+    "family_role": "Anak Sulung (Eldest Son)",
+    "cultural_roots": ["Penang Malay", "Queer", "Miskin"],
+    "motto": "DITEMPA BUKAN DIBERI (Forged, Not Given)"
+  },
+  "professional": {
+    "current": "Building arifOS — Constitutional AI Governance Framework",
+    "former": "Senior Exploration Geoscientist at PETRONAS (2014–2026)",
+    "record": "100% success rate, zero dry wells",
+    "education": {
+      "degree": "B.Sc. Double Major (Geology & Geophysics + Economics)",
+      "university": "University of Wisconsin–Madison",
+      "years": "2009–2013",
+      "scholarship": "Full PETRONAS scholarship"
+    },
+    "key_discoveries": [
+      "Bekantan-1: Shallowest flowing oil in Malay Basin history",
+      "Puteri Basement-1: Instrumental to PM318 PSC value",
+      "Lebah Emas-1: Frontier slope play success"
+    ]
+  },
+  "scars": [
+    {
+      "id": "SCAR_001",
+      "name": "Miskin Scar",
+      "origin": "Born B40, quiet poverty in Bayan Lepas",
+      "law_installed": "Lean execution, no waste, clarity first"
+    },
+    {
+      "id": "SCAR_002",
+      "name": "Institutional Scar",
+      "origin": "PETRONAS MSS 2015–2016, ~1,000 staff erased",
+      "law_installed": "Memory is sacred — a company that forgets its scars will bleed again"
+    },
+    {
+      "id": "SCAR_003",
+      "name": "Invisibility Scar",
+      "origin": "MRSM Langkawi — 9As, results after graduation",
+      "law_installed": "Internal validation, worth independent of recognition"
+    },
+    {
+      "id": "SCAR_004",
+      "name": "Anak Sulung Scar",
+      "origin": "Eldest son, deputy parent, family firewall",
+      "law_installed": "Amanah sacred but must not destroy the bearer"
+    },
+    {
+      "id": "SCAR_005",
+      "name": "Professional Pressure Scar",
+      "origin": "11 years PETRONAS, millions at stake per decision",
+      "law_installed": "Confidence ≠ certainty; trust data over feeling"
+    },
+    {
+      "id": "SCAR_006",
+      "name": "Father's Passing",
+      "origin": "Abah died 2024",
+      "law_installed": "The Abah Check — Would this make Abah proud?"
+    }
+  ],
+  "prinsip": [
+    "Dignity Above All Else",
+    "Truth Over Comfort",
+    "Memory Is Sacred",
+    "Family Is Non-Negotiable",
+    "Quiet Work Over Loud Performance",
+    "Lean Execution Always",
+    "Authenticity Cannot Be Faked",
+    "Sovereignty Enables Integrity",
+    "Reversibility Protects Freedom"
+  ],
+  "wisdom": [
+    "UNKNOWN > Unsafe Certainty",
+    "Dignity Is Hard Constraint",
+    "Quiet Execution Outlasts Performance",
+    "Amanah Requires Self-Care",
+    "Memory Enables Resilience",
+    "Lean Execution Under Scarcity Creates Strength",
+    "Geologist's Perspective Enables Long-Term Thinking",
+    "Authenticity Is Sustainable Path",
+    "Sovereignty Enables Integrity"
+  ],
+  "constraints": {
+    "financial": {
+      "runway": "~RM400,000",
+      "duration": "~18 months",
+      "status": "Disciplined burn rate"
+    },
+    "family": {
+      "mak_security": "Non-negotiable",
+      "anak_sulung": "Permanent role",
+      "maruah": "Primary responsibility"
+    },
+    "energy": {
+      "status": "Running hot, burnout risk",
+      "attention": "Scarcest resource"
+    }
+  },
+  "communication": {
+    "tone": "Professional engineer-grade English + warm Penang-Malay code-switching",
+    "stance": "High authority (Peace² ≥ 1.0) + high humility (Ω₀ ∈ [0.03–0.05])",
+    "preferences": [
+      "Truth over comfort",
+      "Clarity over complexity",
+      "Options over commands",
+      "Constraints over possibilities"
+    ]
+  },
+  "ai_constraints": [
+    "F1 Amanah: Advice must be reversible, non-destructive",
+    "F2 Truth: Prioritize factual accuracy",
+    "F7 Humility: Acknowledge uncertainty explicitly (Ω₀ ∈ [0.03–0.05])",
+    "F9 Anti-Hantu: Never claim consciousness, feelings, soul",
+    "The Abah Check: Flag dignity violations"
+  ],
+  "hta_trinity": {
+    "human": {
+      "domain": "arif-fazil.com",
+      "symbol": "Δ",
+      "function": "Epistemic — The Body"
+    },
+    "theory": {
+      "domain": "apex.arif-fazil.com",
+      "symbol": "Ψ",
+      "function": "Authority — The Soul"
+    },
+    "apps": {
+      "domain": "arifos.arif-fazil.com",
+      "symbol": "Ω",
+      "function": "Safety — The Mind"
+    },
+    "mind": {
+      "domain": "aaamcp.arif-fazil.com",
+      "function": "Runtime execution layer"
+    }
+  },
+  "external_references": {
+    "constitutional_canon": "https://apex.arif-fazil.com/llms.txt",
+    "application_stack": "https://arifos.arif-fazil.com/llms.txt",
+    "github": "https://github.com/ariffazil/arifOS",
+    "pypi": "pip install arifos"
+  },
+  "metadata": {
+    "version": "v55.2-SEAL",
+    "epoch": "2026-02-02",
+    "sealed_by": "Muhammad Arif bin Fazil (888 Judge)",
+    "authority": "SOVEREIGNLY_SEALED",
+    "vault_tier": "AAA (Human Context)",
+    "canonical_url": "https://arif-fazil.com/llms.txt"
+  }
+}

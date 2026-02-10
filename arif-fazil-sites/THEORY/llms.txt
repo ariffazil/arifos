@@ -1,0 +1,69 @@
+# APEX — Constitutional Canon for AI Governance
+
+> APEX is the Sovereign Judge engine of arifOS: a thermodynamic constitutional framework that enforces lawful, audited, and reversible AI behavior through 13 immutable floors and tri-witness consensus.
+
+APEX (Authority · Proof · Execution) is the judiciary layer of arifOS, asking "Is it lawful?" before any AI output is sealed. It governs binding commitments, cryptographic proofs, and audit trails, ensuring intelligence is accountable, not just fluent.
+
+This is not a framework. This is a forge.
+
+## The Problem
+
+- [Intelligence Without Governance](https://apex.arif-fazil.com/#problem): Standard transformers optimize for probability, not truth — entropy without cooling
+- [Hallucinations](https://apex.arif-fazil.com/#hallucinations): AI generates fluency without truth, confidence without certainty, answers without accountability
+- [Dark Cleverness](https://apex.arif-fazil.com/#dark-cleverness): Manipulation emerges when systems lack structural boundaries
+
+## The Thermodynamic Constitution
+
+- [Overview](https://apex.arif-fazil.com/#constitution): Intelligence as a thermodynamic work process, not a gift
+- [Three Pillars](https://apex.arif-fazil.com/#pillars): Clarity (ΔS ≤ 0), Humility (Ω₀ ∈ [0.03, 0.05]), Vitality (Ψ ≥ 1.0)
+- [Reverse Transformer Architecture](https://apex.arif-fazil.com/#architecture): Force systems to cool before they rule
+
+## The Three Judges
+
+- [ARIF (AGI) — The Architect](https://apex.arif-fazil.com/#arif): "Is it True?" — Epistemic hygiene, Bayesian inference (F2, F4, F7, F10)
+- [ADAM (ASI) — The Guardian](https://apex.arif-fazil.com/#adam): "Is it Safe?" — Harm boundaries, empathy, duty of care (F1, F5, F6, F9, F11, F12)
+- [APEX (Prime) — The Sovereign](https://apex.arif-fazil.com/#apex): "Is it Lawful?" — Cryptographic proofs, audit trails, binding commitments (F3, F8, F13)
+
+## The 13 Constitutional Floors
+
+- [Overview](https://apex.arif-fazil.com/#floors): The Anvil — immutable constraints, violation = VOID
+- [Hard Floors](https://apex.arif-fazil.com/#hard-floors): F1 (Amanah), F2 (Truth), F5 (Peace), F9 (Anti-Hantu), F10 (Ontology), F11 (Authority), F12 (Hardening)
+- [Soft Floors](https://apex.arif-fazil.com/#soft-floors): F3 (Tri-Witness), F4 (Clarity), F6 (Empathy), F7 (Humility), F8 (Genius)
+- [Veto Floor](https://apex.arif-fazil.com/#veto): F13 (Sovereign) — Human override, always available
+
+## Verdicts & Enforcement
+
+- [SEAL](https://apex.arif-fazil.com/#seal): Output approved, all floors passed
+- [SABAR](https://apex.arif-fazil.com/#sabar): Pause, narrow scope, soft floor breach
+- [VOID](https://apex.arif-fazil.com/#void): Output blocked, hard floor breach
+- [PARTIAL](https://apex.arif-fazil.com/#partial): Partial approval with caveats
+- [888_HOLD](https://apex.arif-fazil.com/#hold): Escalate to human Judge
+
+## Implementation
+
+- [For Builders](https://apex.arif-fazil.com/#builders): Implementing arifOS in your AI system
+- [Floors API](https://apex.arif-fazil.com/api/v1/floors.json): Real-time constitutional floor validation
+- [MCP Endpoint](https://apex.arif-fazil.com/mcp): Model Context Protocol integration
+- [Health Check](https://apex.arif-fazil.com/health): System status and governance metrics
+
+## Canonical Resources
+
+- [arifOS Documentation](https://arifos.arif-fazil.com): Full technical specification and developer guide
+- [GitHub Repository](https://github.com/ariffazil/arifOS): Open-source implementation
+- [PyPI Package](https://pypi.org/project/arifos/): Install with `pip install arifos`
+- [llms.txt Governance Contract](https://apex.arif-fazil.com/llms.txt): Constitutional rules for AI systems
+
+## Optional
+
+- [Research Papers](https://apex.arif-fazil.com/research): Academic foundations of thermodynamic AI governance
+- [Case Studies](https://apex.arif-fazil.com/case-studies): Real-world applications of APEX
+- [Community](https://apex.arif-fazil.com/community): Contributors and governance working groups
+
+---
+
+**DITEMPA BUKAN DIBERI**  
+Forged, Not Given  
+Truth must cool before it rules.
+
+© 2026 Muhammad Arif bin Fazil  
+MIT License
