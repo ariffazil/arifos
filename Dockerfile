@@ -3,7 +3,7 @@
 FROM python:3.12-slim
 
 # MCP Registry required labels
-LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifOS"
+LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/aaa-mcp"
 LABEL io.modelcontextprotocol.server.version="60.0.0"
 LABEL org.opencontainers.image.source="https://github.com/ariffazil/arifOS"
 LABEL org.opencontainers.image.description="AAA Constitutional AI Governance (arifOS) - MCP Server"
