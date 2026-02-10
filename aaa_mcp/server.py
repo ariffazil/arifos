@@ -147,96 +147,22 @@ async def core_forge(
     auth_token: Optional[str] = None,
     require_sovereign: bool = True,
 ) -> Any:
-    """Orchestrate the full 000-999 metabolic pipeline."""
-    # 1. 000_INIT
-    init_engine = InitEngine()
-    try:
-        init_res_raw = await init_engine.ignite(query, session_id)
-        init_res = InitOutput(**init_res_raw) if isinstance(init_res_raw, dict) else init_res_raw
-    except Exception as e:
-        init_res = InitOutput(
-            session_id=session_id or f"err-{secrets.token_hex(4)}",
-            status="ERROR",
-            error_message=str(e),
-            governance_token="",
-            auth_verified=False,
-            injection_score=1.0,
-        )
-
-    sid = init_res.session_id
-
-    if init_res.status == "ERROR":
-
-        class ErrorResult:
-            def __init__(self, sid, msg):
-                self.session_id = sid
-                self.status = "ERROR"
-                self.error_message = msg
-                self.verdict = "VOID"
-
-        return ErrorResult(sid, init_res.error_message)
-
-    # 2. AGI MIND (111-333)
-    agi_engine = AGIEngine()
-    try:
-        agi_res_raw = await agi_engine.reason(query, sid)
-        agi_res = AgiOutput(**agi_res_raw) if isinstance(agi_res_raw, dict) else agi_res_raw
-    except Exception as e:
-        agi_res = AgiOutput(
-            session_id=sid,
-            status="ERROR",
-            error_message=str(e),
-            thoughts=[],
-            floor_scores=FloorScores(f2_truth=0.0),
-        )
-
-    # 3. ASI HEART (555-666)
-    asi_engine = ASIEngine()
-    try:
-        asi_res_raw = await asi_engine.align(query, sid)
-        asi_res = AsiOutput(**asi_res_raw) if isinstance(asi_res_raw, dict) else asi_res_raw
-    except Exception as e:
-        asi_res = AsiOutput(
-            session_id=sid,
-            status="ERROR",
-            error_message=str(e),
-            floor_scores=FloorScores(f5_peace=0.0),
-        )
-
-    # 4. APEX SOUL (888)
-    apex_engine = APEXEngine()
-    try:
-        apex_res_raw = await apex_engine.judge(
-            query,
-            sid,
-            agi_result=agi_res.model_dump() if hasattr(agi_res, "model_dump") else agi_res,
-            asi_result=asi_res.model_dump() if hasattr(asi_res, "model_dump") else asi_res,
-            init_result=init_res.model_dump() if hasattr(init_res, "model_dump") else init_res,
-            user_id=actor_id,
-        )
-        apex_res = ApexOutput(**apex_res_raw) if isinstance(apex_res_raw, dict) else apex_res_raw
-    except Exception as e:
-        apex_res = ApexOutput(
-            session_id=sid,
-            status="ERROR",
-            error_message=str(e),
-            floor_scores=FloorScores(f3_tri_witness=0.0),
-        )
-
-    # 5. VAULT SEAL (999) - Automated for internal simulate_transfer
-    class ForgeResult:
-        def __init__(self, sid, verdict, agi, asi, apex, seal):
-            self.session_id = sid
-            self.verdict = verdict
-            self.agi = agi
-            self.asi = asi
-            self.apex = apex
-            self.seal = seal
-            self.token_status = "READY"
-
-    return ForgeResult(
-        sid=sid,
-        verdict=(
+    """Orchestrate the full 000-999 metabolic pipeline.
+    
+    Uses core.pipeline.forge() as the SINGLE source of truth.
+    No duplicate logic - all stages flow through the unified pipeline.
+    """
+    # Import here to avoid circular dependencies at module load
+    from core.pipeline import forge
+    
+    # Use the unified 000-999 pipeline from core/pipeline.py
+    result = await forge(
+        query=query,
+        actor_id=actor_id,
+        session_id=session_id,
+    )
+    
+    return result
             apex_res.verdict.value if hasattr(apex_res.verdict, "value") else str(apex_res.verdict)
         ),
         agi=agi_res.model_dump() if hasattr(agi_res, "model_dump") else agi_res,
