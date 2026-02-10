@@ -212,9 +212,13 @@ async def init_monitoring():
             return False
     
     def check_memory():
-        import psutil
-        mem = psutil.virtual_memory()
-        return mem.percent < 90
+        try:
+            import psutil
+            mem = psutil.virtual_memory()
+            return mem.percent < 90
+        except ImportError:
+            # psutil not installed, skip memory check
+            return True
     
     monitor.register("core_pipeline", check_core_pipeline)
     monitor.register("mcp_tools", check_mcp_tools)

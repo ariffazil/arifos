@@ -47,6 +47,9 @@ def _normalize_obj(obj: Any) -> Any:
 def _shannon_entropy(text: str) -> float:
     if not text:
         return 0.0
+    # Defensive: handle dict input (extract query field or convert to string)
+    if isinstance(text, dict):
+        text = text.get("query") or text.get("text") or str(text)
     freq = Counter(text.lower())
     total = len(text)
     entropy = -sum((c / total) * math.log2(c / total) for c in freq.values() if c > 0)
@@ -56,6 +59,9 @@ def _shannon_entropy(text: str) -> float:
 def _lexical_diversity(text: str) -> float:
     if not text:
         return 0.0
+    # Defensive: handle dict input (extract query field or convert to string)
+    if isinstance(text, dict):
+        text = text.get("query") or text.get("text") or str(text)
     words = text.lower().split()
     if not words:
         return 0.0
@@ -78,6 +84,11 @@ def _agi_output_to_tensor(agi_out: Any) -> ConstitutionalTensor:
 
 def _query_heuristic_scores(query: str) -> Dict[str, Any]:
     """Derive governance-native scores from query structure."""
+    # Defensive: handle dict input (extract query field or convert to string)
+    if isinstance(query, dict):
+        query = query.get("query") or query.get("text") or str(query)
+    if not isinstance(query, str):
+        query = str(query)
     words = query.split()
     word_count = len(words)
     diversity = _lexical_diversity(query)
