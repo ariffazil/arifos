@@ -1,7 +1,7 @@
 """
 arifOS MCP Server — Railway Production Entry Point
 
-Starts the constitutional MCP server with all 10 tools on network transports.
+Starts the constitutional MCP server with all 13 tools on network transports.
 Health endpoint at /health for Railway healthchecks.
 Tool list at / for service discovery.
 Monitoring at /metrics for Prometheus.

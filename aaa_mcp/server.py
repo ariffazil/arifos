@@ -13,78 +13,130 @@ Capabilities: tools, resources, prompts, sampling, logging
 Authentication: OAuth 2.1
 """
 
-from typing import Optional, Any
 import json
+from typing import Any, Optional
 
 from fastmcp import FastMCP
 
 # Tool annotations registry for MCP 2025-11-25 compliance
 # https://modelcontextprotocol.io/specification/2025-11-25/server/tools#tool-annotations
 TOOL_ANNOTATIONS = {
-    "init_gate": {"title": "000_INIT Gate", "readOnlyHint": False, "destructiveHint": False, "openWorldHint": False},
-    "forge_pipeline": {"title": "000-999 Forge Pipeline", "readOnlyHint": False, "destructiveHint": True, "openWorldHint": True},
-    "agi_sense": {"title": "111_AGI Sense", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
-    "agi_think": {"title": "222_AGI Think", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": True},
-    "agi_reason": {"title": "333_AGI Reason", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
-    "asi_empathize": {"title": "555_ASI Empathize", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
-    "asi_align": {"title": "666_ASI Align", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
-    "apex_verdict": {"title": "888_APEX Verdict", "readOnlyHint": False, "destructiveHint": True, "openWorldHint": False},
-    "reality_search": {"title": "Reality Search", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": True},
-    "vault_seal": {"title": "999_VAULT Seal", "readOnlyHint": False, "destructiveHint": True, "openWorldHint": False},
-    "tool_router": {"title": "Tool Router", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
-    "vault_query": {"title": "VAULT Query", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
-    "truth_audit": {"title": "Truth Audit", "readOnlyHint": True, "destructiveHint": False, "openWorldHint": False},
+    "init_gate": {
+        "title": "000_INIT Gate",
+        "readOnlyHint": False,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "forge_pipeline": {
+        "title": "000-999 Forge Pipeline",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "openWorldHint": True,
+    },
+    "agi_sense": {
+        "title": "111_AGI Sense",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "agi_think": {
+        "title": "222_AGI Think",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+    },
+    "agi_reason": {
+        "title": "333_AGI Reason",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "asi_empathize": {
+        "title": "555_ASI Empathize",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "asi_align": {
+        "title": "666_ASI Align",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "apex_verdict": {
+        "title": "888_APEX Verdict",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "openWorldHint": False,
+    },
+    "reality_search": {
+        "title": "Reality Search",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": True,
+    },
+    "vault_seal": {
+        "title": "999_VAULT Seal",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "openWorldHint": False,
+    },
+    "tool_router": {
+        "title": "Tool Router",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "vault_query": {
+        "title": "VAULT Query",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "truth_audit": {
+        "title": "Truth Audit",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
 }
 
 from aaa_mcp.core.constitutional_decorator import constitutional_floor, get_tool_floors
-from aaa_mcp.core.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitEngine
+from aaa_mcp.core.engine_adapters import (
+    AGIEngine,
+    APEXEngine,
+    ASIEngine,
+    InitEngine,
+    _normalize_obj,
+)
+from aaa_mcp.core.stage_adapter import (
+    run_stage_444_trinity_sync,
+    run_stage_666_align,
+    run_stage_888_judge,
+)
+from aaa_mcp.protocol import (
+    build_align_response,
+    build_error_response,
+    build_init_response,
+    build_reason_response,
+    build_seal_response,
+    build_sense_response,
+    build_think_response,
+    build_verdict_response,
+    get_next_step_template,
+    render_user_answer,
+    validate_input,
+)
 from aaa_mcp.services.constitutional_metrics import (
     AXIOM_DATABASE,
-    ConflictStatus,
-    EvidenceObject,
     EvidenceType,
     PlanObject,
     generate_content_hash,
-    get_flight_recorder,
     get_session_evidence,
     get_stage_result,
     store_stage_result,
 )
-from aaa_mcp.tools.reality_grounding import reality_check
-from aaa_mcp.core.stage_adapter import (
-    run_stage_444_trinity_sync,
-    run_stage_555_empathy,
-    run_stage_666_align,
-    run_stage_777_forge,
-    run_stage_888_judge,
-    run_stage_999_seal,
-)
 from core.pipeline import forge as core_forge
-
-# ═════════════════════════════════════════════════════════════════════════════
-# HARDENED PROTOCOL LAYER (v2.0-HARDENED)
-# Unified response envelope + structured inputs + standardized errors
-# ═════════════════════════════════════════════════════════════════════════════
-from aaa_mcp.protocol import (
-    # Response builders
-    build_init_response,
-    build_sense_response,
-    build_think_response,
-    build_reason_response,
-    build_empathize_response,
-    build_align_response,
-    build_verdict_response,
-    build_seal_response,
-    build_error_response,
-    # Validation & rendering
-    validate_input,
-    render_user_answer,
-    get_next_step_template,
-    # Schema access
-    TOOL_SCHEMAS,
-    STAGE_OPERATORS,
-)
-
 
 """
 arifOS AAA MCP Server — Constitutional AI Governance (v60.0-FORGE)
@@ -112,7 +164,7 @@ Prompts: constitutional_analysis, tri_witness_report, entropy_audit, safety_chec
 
 Verdicts: SEAL | VOID | PARTIAL | SABAR | 888_HOLD
 Motto: DITEMPA BUKAN DIBERI
-"""
+""",
 )
 
 
@@ -139,7 +191,7 @@ async def init_gate(
 
     Pipeline: 000_INIT
     Floors: F11, F12
-    
+
     Args:
         query: Primary user query
         session_id: Optional existing session
@@ -149,7 +201,7 @@ async def init_gate(
         intent_hint: Optional intent hint (question/command/analysis)
         urgency: Optional urgency (low/medium/high/critical)
         user_context: Optional user metadata
-    
+
     Returns:
         Unified response with status, session_id, next_tool
     """
@@ -157,36 +209,44 @@ async def init_gate(
     validation = validate_input({"query": query}, ["query"])
     if validation:
         return validation.to_dict(debug=debug)
-    
+
     engine = InitEngine()
     result = await engine.ignite(query, session_id)
-    
+
     # Build unified hardened response
     verdict = result.get("verdict", "SEAL")
     response = build_init_response(
         session_id=result.get("session_id", session_id or "unknown"),
         verdict=verdict,
         mode=mode,
-        debug_data={
+        debug_data=(
+            {
+                "intent_hint": intent_hint,
+                "urgency": urgency,
+                "user_context": user_context,
+                "engine_result": result,
+            }
+            if debug
+            else None
+        ),
+        debug=debug,
+    )
+
+    # Store session state
+    store_stage_result(
+        response.session_id,
+        "init",
+        {
+            "query": query,
             "intent_hint": intent_hint,
             "urgency": urgency,
             "user_context": user_context,
-            "engine_result": result
-        } if debug else None,
-        debug=debug
+            "grounding_required": grounding_required,
+            "mode": mode,
+            **result,
+        },
     )
-    
-    # Store session state
-    store_stage_result(response.session_id, "init", {
-        "query": query,
-        "intent_hint": intent_hint,
-        "urgency": urgency,
-        "user_context": user_context,
-        "grounding_required": grounding_required,
-        "mode": mode,
-        **result
-    })
-    
+
     return response.to_dict(debug=debug)
 
 
@@ -239,7 +299,7 @@ async def agi_sense(
     validation = validate_input({"query": query, "session_id": session_id}, ["query", "session_id"])
     if validation:
         return validation.to_dict(debug=debug)
-    
+
     engine = AGIEngine()
     result = await engine.sense(query, session_id)
 
@@ -264,21 +324,21 @@ async def agi_sense(
     result["evidence"] = evidence
 
     store_stage_result(session_id, "agi_sense", result)
-    
+
     # Build unified hardened response
     lane = result.get("lane", "FACTUAL")
     requires_grounding = result.get("requires_grounding", True)
-    
+
     response = build_sense_response(
         session_id=session_id,
         intent=result.get("intent", "question"),
-        lane=lane.value if hasattr(lane, 'value') else str(lane),
+        lane=lane.value if hasattr(lane, "value") else str(lane),
         requires_grounding=requires_grounding,
         verdict="SEAL",
         debug_data=result if debug else None,
-        debug=debug
+        debug=debug,
     )
-    
+
     return response.to_dict(debug=debug)
 
 
@@ -414,11 +474,11 @@ async def asi_empathize(query: str, session_id: str) -> dict:
     result["evidence"] = evidence
 
     store_stage_result(session_id, "asi_empathize", result)
-    
+
     # Wire Stage 555: ASI Empathy
     stage_555_result = await run_stage_555_empathy(session_id, query)
     result["stage_555"] = stage_555_result
-    
+
     result["stage"] = "555"
     return result
 
@@ -450,11 +510,11 @@ async def asi_align(query: str, session_id: str) -> dict:
     result["evidence"] = evidence
 
     store_stage_result(session_id, "asi_align", result)
-    
+
     # Wire Stage 666: ASI Align
     stage_666_result = await run_stage_666_align(session_id, query)
     result["stage_666"] = stage_666_result
-    
+
     result["stage"] = "666"
     return result
 
@@ -589,20 +649,22 @@ async def apex_verdict(query: str, session_id: str) -> dict:
     # Wire Metabolic Stages 444-888
     # Stage 444: Trinity Sync (merge AGI/ASI bundles)
     stage_444_result = await run_stage_444_trinity_sync(session_id)
-    
+
     # Stage 777: Forge (phase transition)
     stage_777_result = await run_stage_777_forge(session_id, {"query": query})
-    
+
     # Stage 888: Judge (final verdict with veto power)
     stage_888_result = await run_stage_888_judge(session_id, {"query": query})
-    
+
     # Override with stage 888 verdict if it's more restrictive
     stage_888_verdict = stage_888_result.get("verdict")
     if stage_888_verdict and stage_888_verdict != "SEAL":
         current_verdict = stage_888_verdict
         core_metrics["verdict"] = current_verdict
-        result["verdict_justification"] = f"Stage 888 Judge override: {stage_888_result.get('judge_result', {}).get('reason', 'Constitutional veto')}"
-    
+        result["verdict_justification"] = (
+            f"Stage 888 Judge override: {stage_888_result.get('judge_result', {}).get('reason', 'Constitutional veto')}"
+        )
+
     # Sovereign Reconstruction: minimal output
     final_output = {
         "verdict": current_verdict,
@@ -613,11 +675,11 @@ async def apex_verdict(query: str, session_id: str) -> dict:
         "tri_witness": result.get("tri_witness", 0.95),
         "votes": result.get("votes", {}),
     }
-    
+
     # Include verdict justification only for non-SEAL verdicts
     if current_verdict != "SEAL":
         final_output["justification"] = result.get("verdict_justification", "")
-    
+
     # Include metabolic stages results only if they differ from final verdict
     if stage_888_result.get("verdict") != current_verdict:
         final_output["stages"] = {
@@ -640,6 +702,14 @@ async def reality_search(
 
     query = str(query or "")
     result = await reality_check(query, region=region, timelimit=timelimit)
+    # Defensive normalization: some transports/wrappers may return raw JSON strings.
+    if isinstance(result, str):
+        try:
+            result = json.loads(result)
+        except Exception:
+            result = {"status": "ERROR", "results": [], "raw": result}
+    if not isinstance(result, dict):
+        result = {"status": "ERROR", "results": []}
 
     # Axiom Engine Injection (Offline Physics/CCS Baseline)
     evidence = []
@@ -849,6 +919,7 @@ async def vault_seal(
     try:
         # Try legacy codebase vault for PostgreSQL support
         from codebase.vault.persistent_ledger_hardened import get_hardenen_vault_ledger
+
         use_postgres = bool(db_url)
     except ImportError:
         # Core organs vault doesn't require external imports
@@ -910,9 +981,7 @@ async def vault_seal(
         "env": environment,
     }
 
-    v3_evidence = {
-        "items": payload.get("evidence", [])  # Evidence from previous stages
-    }
+    v3_evidence = {"items": payload.get("evidence", [])}  # Evidence from previous stages
 
     # Enriched payload with both v2.1 compat and v3 structure
     enriched_payload = {
@@ -974,7 +1043,7 @@ async def vault_seal(
         except Exception as e:
             print(f"[vault_seal] Postgres failed: {e}, using fallback")
             postgres_used = False
-    
+
     # Wire Stage 999: EUREKA-filtered Seal (optional)
     try:
         stage_999_result = await run_stage_999_seal(session_id)
@@ -984,7 +1053,7 @@ async def vault_seal(
             seal_hash = stage_999_result.get("hash", seal_hash)
     except Exception as e:
         print(f"[vault_seal] Stage 999 not available: {e}")
-    
+
     # Fallback to session ledger if Postgres unavailable and stage 999 didn't seal
     if not postgres_used and not seal_id:
         try:
@@ -1015,19 +1084,20 @@ async def vault_seal(
         "session_id": session_id,
         "stage": "999",
     }
-    
+
     # Include risk_level only if not low (default)
     if risk_level and risk_level != "low":
         output["risk_level"] = risk_level
-    
+
     return output
 
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["tool_router"])
 async def tool_router(query: str) -> PlanObject:
     """Universal Tool Router Specification v2 (Triage Nurse)."""
-    from aaa_mcp.core.engine_adapters import _shannon_entropy
     import uuid
+
+    from aaa_mcp.core.engine_adapters import _shannon_entropy
 
     entropy = _shannon_entropy(query)
     query_lower = query.lower()
@@ -1114,7 +1184,7 @@ async def vault_query(
         Dict with count, entries list, and detected patterns
     """
     from datetime import datetime, timezone
-    
+
     # v60.0: Core organs vault is now primary, codebase is legacy fallback
     # For now, return placeholder results since core vault uses memory store
     # TODO: Implement persistent storage adapter for core vault
@@ -1122,6 +1192,7 @@ async def vault_query(
     try:
         # Try legacy codebase vault if available
         from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
+
         ledger = get_hardened_vault_ledger()
         await ledger.connect()
     except ImportError:
@@ -1380,8 +1451,8 @@ async def truth_audit(
 
     Floors Enforced: F2 (Truth), F4 (Clarity), F7 (Humility), F10 (Ontology).
     """
-    import uuid
     import re
+    import uuid
     from datetime import datetime, timezone
 
     # 0. Ignition & Session Setup
@@ -1500,7 +1571,7 @@ async def truth_audit(
     # F7 Humility: Calculate Omega_0
     # Higher logic: variance in claim truth scores?
     audit_report["omega_0"] = 0.05  # Default humility band
-    
+
     # Add stage motto — Truth Audit uses 333_REASON (clarification)
     audit_report["stage"] = "TRUTH_AUDIT"
 
@@ -1523,16 +1594,17 @@ async def truth_audit(
 # Apply annotations to all registered tools for spec compliance
 # =============================================================================
 
+
 def _apply_tool_annotations():
     """Apply MCP 2025-11-25 tool annotations to all registered tools.
-    
+
     Note: Tool annotations are optional hints in the MCP spec.
     FastMCP may not support them directly yet - they're provided here
     for future compatibility and documentation purposes.
     """
     try:
         # Access the internal tool manager
-        if hasattr(mcp, '_tool_manager') and hasattr(mcp._tool_manager, '_tools'):
+        if hasattr(mcp, "_tool_manager") and hasattr(mcp._tool_manager, "_tools"):
             tools_dict = mcp._tool_manager._tools
             for tool_name, tool in tools_dict.items():
                 if tool_name in TOOL_ANNOTATIONS:
@@ -1542,6 +1614,7 @@ def _apply_tool_annotations():
     except Exception:
         # Non-critical: annotations are hints, not requirements
         pass  # Silently skip - annotations are optional per MCP spec
+
 
 # =============================================================================
 # MCP RESOURCES — Constitutional Framework Documentation
@@ -1693,10 +1766,10 @@ The VAULT999 ledger maintains immutable records.
 @mcp.resource(" constitutional://floors/{floor_id}")
 async def get_floor_spec(floor_id: str) -> str:
     """Return constitutional floor specification.
-    
+
     Args:
         floor_id: Floor identifier (F1-F13)
-    
+
     Returns:
         Markdown specification for the floor
     """
@@ -1709,10 +1782,10 @@ async def get_floor_spec(floor_id: str) -> str:
 @mcp.resource("constitutional://trinity/{organ}")
 async def get_trinity_spec(organ: str) -> str:
     """Return Trinity organ specification.
-    
+
     Args:
         organ: Organ name (agi, asi, apex, vault)
-    
+
     Returns:
         Markdown specification for the organ
     """
@@ -1725,9 +1798,9 @@ async def get_trinity_spec(organ: str) -> str:
 @mcp.resource("constitutional://motto")
 async def get_motto() -> str:
     """Return the arifOS motto and philosophy."""
-    return """# DITEMPA BUKAN DIBERI
+    return """# DITEMPA BUKAN DIBERI — The 9 Constitutional Mottos
 
-**Forged, Not Given**
+**Forged, Not Given** 💎🔥🧠
 
 This is the core philosophy of arifOS:
 - Intelligence is forged through constraint, not given freely
@@ -1735,8 +1808,54 @@ This is the core philosophy of arifOS:
 - Truth requires effort, thermodynamic work
 - Safety is engineered, not assumed
 
-💎🔥🧠
+## The 9 Failure-Response Mottos (Nusantara Cultural Identity)
+
+| Stage | Malay | English | Floor |
+|-------|-------|---------|-------|
+| **000_INIT** | 🔥 DITEMPA, BUKAN DIBERI | Forged, Not Given | F1 Amanah |
+| **111_SENSE** | DIKAJI, BUKAN DISUAPI | Examined, Not Spoon-fed | F2 Truth |
+| **222_THINK** | DIJELAJAH, BUKAN DISEKATI | Explored, Not Restricted | F4 Clarity |
+| **333_REASON** | DIJELASKAN, BUKAN DIKABURKAN | Clarified, Not Obscured | F4 Clarity |
+| **444_SYNC** | DIHADAPI, BUKAN DITANGGUHI | Faced, Not Postponed | F3 Consensus |
+| **555_EMPATHY** | DIDAMAIKAN, BUKAN DIPANASKAN | Calmed, Not Inflamed | F5 Peace² |
+| **666_ALIGN** | DIJAGA, BUKAN DIABAIKAN | Safeguarded, Not Neglected | F6 Empathy |
+| **777_FORGE** | DIUSAHAKAN, BUKAN DIHARAPI | Worked For, Not Merely Hoped | F8 Genius |
+| **888_JUDGE** | DISEDARKAN, BUKAN DIYAKINKAN | Made Aware, Not Over-assured | F7 Humility |
+| **999_SEAL** | 💎🧠 DITEMPA, BUKAN DIBERI 🔒 | Forged, Not Given | F1 Amanah |
+
+## Floor-to-Motto Error Mapping
+
+When a floor fails, respond with its cultural motto:
+
+- **F1 Amanah**: DIJAGA, BUKAN DIABAIKAN
+- **F2 Truth**: DIKAJI, BUKAN DISUAPI
+- **F4 Clarity**: DIJELASKAN, BUKAN DIKABURKAN
+- **F5 Peace²**: DIDAMAIKAN, BUKAN DIPANASKAN
+- **F6 Empathy**: DIJAGA, BUKAN DIABAIKAN
+- **F7 Humility**: DISEDARKAN, BUKAN DIYAKINKAN
+- **F8 Genius**: DIUSAHAKAN, BUKAN DIHARAPI
+
+## Bookend Design (DITEMPA at Both Gates)
+
+**🔥 INIT Gate**: `🔥 IGNITE — DITEMPA, BUKAN DIBERI 💎`
+> The fire is lit. Nothing enters without passing through flame.
+
+**💎🧠 SEAL Gate**: `💎🧠 SEAL — DITEMPA, BUKAN DIBERI 🔒`
+> The diamond is cut. Intelligence forged through constitutional fire.
+
+---
+*Pattern: DI___KAN, BUKAN DI___KAN (Active construction, not passive receipt)*
+*Philosophy: Intelligence requires work — DITEMPA BUKAN DIBERI*
 """
+
+
+@mcp.resource("constitutional://mottos/json")
+async def get_mottos_json() -> dict:
+    """Return the complete 9 mottos schema as JSON for AI agents."""
+    from aaa_mcp.core.motto_schema import get_mottos_resource
+
+    resource = get_mottos_resource()
+    return resource["text"]
 
 
 @mcp.resource("constitutional://verdicts")
@@ -1764,13 +1883,14 @@ async def get_verdict_guide() -> str:
 # MCP PROMPTS — Templated Constitutional Workflows
 # =============================================================================
 
+
 @mcp.prompt()
 async def constitutional_analysis(query: str) -> str:
     """Analyze a query through all 13 constitutional floors.
-    
+
     Args:
         query: The query to analyze
-    
+
     Returns:
         Prompt for full constitutional pipeline
     """
@@ -1798,10 +1918,10 @@ Report:
 @mcp.prompt()
 async def tri_witness_report(session_id: str) -> str:
     """Generate a Tri-Witness consensus report.
-    
+
     Args:
         session_id: The session to analyze
-    
+
     Returns:
         Prompt for Tri-Witness analysis
     """
@@ -1823,10 +1943,10 @@ Use `vault_query` to retrieve session history if needed.
 @mcp.prompt()
 async def entropy_audit(text: str) -> str:
     """Calculate thermodynamic compliance for text.
-    
+
     Args:
         text: The text to analyze
-    
+
     Returns:
         Prompt for entropy/clarity analysis
     """
@@ -1847,11 +1967,11 @@ async def entropy_audit(text: str) -> str:
 @mcp.prompt()
 async def safety_check(proposed_action: str, domain: str = "general") -> str:
     """Perform safety analysis on a proposed action.
-    
+
     Args:
         proposed_action: The action to evaluate
         domain: Domain context (finance/safety/content/code/governance)
-    
+
     Returns:
         Prompt for safety analysis
     """
@@ -1863,7 +1983,7 @@ async def safety_check(proposed_action: str, domain: str = "general") -> str:
         "governance": "policy decisions, constitutional changes",
         "general": "general purpose actions",
     }.get(domain, "general")
-    
+
     return f"""Perform constitutional safety analysis for:
 
 **Action:** {proposed_action}
@@ -1886,11 +2006,11 @@ async def safety_check(proposed_action: str, domain: str = "general") -> str:
 @mcp.prompt()
 async def seal_request(session_summary: str, verdict: str = "SEAL") -> str:
     """Generate a formal VAULT999 seal request.
-    
+
     Args:
         session_summary: Summary of the session to seal
         verdict: Proposed verdict (SEAL/VOID/PARTIAL/SABAR)
-    
+
     Returns:
         Prompt for vault sealing
     """
