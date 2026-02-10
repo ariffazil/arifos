@@ -74,6 +74,12 @@ pip install arifos
 ## 📖 Table of Contents
 
 - [What is arifOS?](#what-is-arifos)
+- [AAA MCP Server](#aaa-mcp-server--enterprise-constitutional-ai-governance)
+  - [The 13 Constitutional Floors](#the-13-constitutional-floors-f1-f13)
+  - [The 10 Canonical MCP Tools](#the-10-canonical-mcp-tools)
+  - [Deployment Guide](#deployment-guide)
+  - [Enterprise Applications](#enterprise-applications)
+  - [Configuration Reference](#configuration-reference)
 - [The Problem (In Plain English)](#the-problem-in-plain-english)
 - [How It Works: From Question to Answer](#how-it-works-from-question-to-answer)
 - [Three Ways to Use arifOS](#three-ways-to-use-arifos)
@@ -125,81 +131,353 @@ This is what we call the **Gödel Lock**—inspired by mathematician Kurt Gödel
 
 ---
 
-## What is AAA MCP?
+## AAA MCP Server — Enterprise Constitutional AI Governance
 
-**AAA MCP (Amanah-Aligned AI Constitutional Meta-Protocol) is a thermodynamic constraint engine for AI reasoning.**
+**AAA MCP (Amanah-Aligned AI Constitutional Meta-Protocol)** is a production-grade MCP server that enforces constitutional constraints on any LLM. Deploy it in your infrastructure to transform ungoverned AI into auditable, compliant, safety-critical systems.
 
-It is not a Theory of Mind. It does not create consciousness. It does not simulate ethics.
+```bash
+pip install arifos
+python -m aaa_mcp
+```
 
-**AAA MCP forges reliable reasoning through constitutional constraint.**
+### What Makes AAA MCP Different
 
-### The Thermodynamic Principle
+Unlike prompt-based safety guardrails that can be bypassed, **AAA MCP enforces constraints at the architectural level**:
 
-Just as heat and pressure forge steel, AAA MCP uses **13 Constitutional Floors (F1-F13)** and a **9-stage metabolic pipeline (000-999)** to forge intelligence:
+| Feature | Standard MCP | AAA MCP |
+|---------|--------------|---------|
+| Tool calls | Execute functions | Functions + F1-F13 floor checks |
+| Hallucination | Uncontrolled | Blocked by F2 Truth (τ ≥ 0.99) |
+| Overconfidence | Common | Blocked by F7 Humility (Ω₀ ∈ [0.03,0.05]) |
+| Injection attacks | Vulnerable | Blocked by F12 Defense |
+| Audit trail | None | VAULT999 cryptographic Merkle chains |
+| Stakeholder harm | Ignored | Blocked by F5/F6 Empathy checks |
 
-| Element | Purpose |
-|---------|---------|
-| **Floors (F1-F13)** | Pressure — Irreversible constraints that must be satisfied |
-| **Stages (000-999)** | Work — Sequential processing through 5 organs: INIT → AGI(Mind) → ASI(Heart) → APEX(Soul) → VAULT(Memory) |
-| **Evidence** | Energy — Required grounding for truth claims (F2 ≥ 0.99) |
-| **Verdicts** | Output — SEAL, PARTIAL, SABAR, VOID, 888_HOLD |
-
-### What AAA MCP Actually Does
-
-- **F2 Truth**: Requires 99% certainty before certifying claims
-- **F7 Humility**: Forces uncertainty admission (Ω₀ ∈ [0.03, 0.05])
-- **F3 Consensus**: Tri-Witness validation (Human × AI × System ≥ 0.95)
-- **F9 Anti-Hantu**: Prevents AI from claiming consciousness/feelings
-- **VAULT999**: Immutable Merkle-chain audit trail for every decision
-
-### The Honest Claim
-
-> *"AAA MCP increases reliability, not consciousness. It constrains hallucination. It enforces humility. That is enterprise gold."*
-
-**AAA MCP produces accountable reasoning artifacts—not minds.**
-
-The product is **measurable governance**: every decision carries floor scores, evidence hashes, and cryptographic seals. Not because we claim the AI has "soul," but because we demand it leave proof of work.
+**Every tool call is governed by the 000-999 constitutional pipeline.** MCP provides the wires. AAA MCP provides the circuit breakers.
 
 ---
 
-## What is the Model Context Protocol (MCP)?
+### The 13 Constitutional Floors (F1-F13)
 
-**MCP is an open protocol by Anthropic that standardizes how AI systems connect to external tools and data sources.**
+Each query passes through 13 enforced constraints:
 
-Think of it like USB for AI—instead of every AI system needing custom integrations for every tool, MCP provides a universal interface. Any MCP-compatible client can talk to any MCP-compatible server.
+| Floor | Principle | Enforcement | Fail Action |
+|-------|-----------|-------------|-------------|
+| **F1** | Amanah (Reversibility) | All actions reversible | VOID |
+| **F2** | Truth (≥99% certainty) | Evidence required | VOID |
+| **F3** | Consensus (W₃ ≥ 0.95) | Tri-witness validation | SABAR |
+| **F4** | Clarity (ΔS ≤ 0) | Reduces entropy | SABAR |
+| **F5** | Peace² (≥1.0) | No destabilization | VOID |
+| **F6** | Empathy (κᵣ ≥ 0.95) | Protect vulnerable | SABAR |
+| **F7** | Humility (Ω₀ ∈ [0.03,0.05]) | Uncertainty required | VOID |
+| **F8** | Genius (G ≥ 0.80) | Efficiency metric | SABAR |
+| **F9** | Anti-Hantu (<0.30) | No consciousness claims | VOID |
+| **F10** | Ontology | Grounded symbols | VOID |
+| **F11** | Authority | Identity verified | VOID |
+| **F12** | Defense (Risk < 0.85) | Injection blocked | VOID |
+| **F13** | Sovereign | Human override | WARN |
 
-### The Official MCP Standard
+**Verdicts:** `SEAL` (approved) | `VOID` (blocked) | `PARTIAL` (constrained) | `SABAR` (repair) | `888_HOLD` (human required)
 
-MCP (Model Context Protocol) defines:
-- **Tools**: Functions AI can call to perform actions
-- **Resources**: Data the AI can read (files, APIs, databases)
-- **Prompts**: Reusable templates for common tasks
-- **Sampling**: How AI requests additional context
+---
 
-**Spec Compliance**: `2025-11-25` with full Streamable HTTP support
+### The 10 Canonical MCP Tools
 
-### AAA MCP = MCP + Constitutional Governance
+| Tool | Stage | Trinity | Floors | Purpose |
+|------|-------|---------|--------|---------|
+| `init_gate` | 000 | Gate | F11, F12 | Session ignition, injection scan |
+| `forge_pipeline` | 000-999 | All | F1-F13 | Unified pipeline entry |
+| `agi_sense` | 111 | Δ Mind | F4 | Intent classification |
+| `agi_think` | 222 | Δ Mind | F2, F4, F7 | Hypothesis generation |
+| `agi_reason` | 333 | Δ Mind | F2, F4, F7, F10 | Logic & deduction |
+| `asi_empathize` | 555 | Ω Heart | F5, F6 | Stakeholder impact |
+| `asi_align` | 666 | Ω Heart | F5, F6, F9 | Ethics alignment |
+| `apex_verdict` | 888 | Ψ Soul | F3, F8, F11 | Final judgment |
+| `reality_search` | — | External | F2, F7, F10 | Web grounding |
+| `vault_seal` | 999 | VAULT | F1, F3 | Immutable audit |
 
-arifOS implements MCP **with constitutional enforcement**:
+**Protocol:** MCP 2025-11-25 | **Transports:** stdio, SSE, HTTP | **Auth:** OAuth 2.1
 
-| Standard MCP | AAA MCP (arifOS) |
-|--------------|------------------|
-| Tool calls | Tool calls with F1-F13 floor checks |
-| Resources | Resources with audit trails |
-| Prompts | Prompts with humility constraints |
-| Sampling | Sampling with truth verification |
+---
 
-**Every MCP tool in arifOS carries constitutional baggage:**
-- `init_gate` → F11 Authority + F12 Defense
-- `agi_reason` → F2 Truth + F4 Clarity + F7 Humility
-- `apex_verdict` → F3 Consensus + F8 Genius
-- `vault_seal` → F1 Amanah + cryptographic Merkle chains
+## Deployment Guide
 
-### Why This Matters
+### Option 1: Claude Desktop (Local)
 
-You can use arifOS as a **drop-in MCP server** with any MCP-compatible client (Claude Desktop, Cursor, etc.), but every tool call is governed by the 000-999 constitutional pipeline.
+**Step 1:** Install arifOS
+```bash
+pip install arifos
+```
 
-**MCP provides the wires. AAA MCP provides the circuit breakers.**
+**Step 2:** Configure Claude Desktop  
+Edit `%APPDATA%\Claude\claude_desktop_config.json` (Windows) or `~/Library/Application Support/Claude/claude_desktop_config.json` (Mac):
+
+```json
+{
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp"],
+      "env": {
+        "ARIFOS_MODE": "PROD",
+        "ARIFOS_HOME": "/path/to/arifOS"
+      }
+    }
+  }
+}
+```
+
+**Step 3:** Restart Claude Desktop  
+The constitutional tools appear automatically in Claude's tool palette.
+
+---
+
+### Option 2: Cursor (Local)
+
+**Step 1:** Create `.cursor/mcp.json` in your project:
+
+```json
+{
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp"],
+      "env": {
+        "ARIFOS_MODE": "PROD"
+      }
+    }
+  }
+}
+```
+
+**Step 2:** Reload Cursor window  
+Cmd/Ctrl+Shift+P → "Developer: Reload Window"
+
+---
+
+### Option 3: Python API (Programmatic)
+
+```python
+from aaa_mcp.server import init_gate, agi_reason, apex_verdict
+import asyncio
+
+async def main():
+    # Initialize with constitutional check
+    session = await init_gate(
+        query="Should we approve this loan?",
+        actor_id="analyst_001"
+    )
+    
+    if session["verdict"] == "VOID":
+        print(f"Blocked: {session['reason']}")
+        return
+    
+    # Reason with truth enforcement
+    result = await agi_reason(
+        query="Analyze credit risk",
+        session_id=session["session_id"]
+    )
+    
+    print(f"Verdict: {result['verdict']}")
+    print(f"Floors: {result['floors_enforced']}")
+    print(f"Ω₀: {result['humility']}")  # Uncertainty metric
+
+asyncio.run(main())
+```
+
+---
+
+### Option 4: Docker (Containerized)
+
+```bash
+# Build
+docker build -t arifos-mcp .
+
+# Run stdio (for local agents)
+docker run -i --rm arifos-mcp
+
+# Run SSE (for remote clients)
+docker run -p 8080:8080 \
+  -e DATABASE_URL=postgresql://... \
+  -e BRAVE_API_KEY=... \
+  arifos-mcp python -m aaa_mcp sse
+```
+
+**Dockerfile:**
+```dockerfile
+FROM python:3.11-slim
+
+WORKDIR /app
+COPY . /app
+RUN pip install -e ".[dev]"
+
+EXPOSE 8080
+CMD ["python", "-m", "aaa_mcp"]
+```
+
+---
+
+### Option 5: Railway (Cloud)
+
+**One-Click Deploy:**
+```bash
+# 1. Fork arifOS repository
+# 2. Connect to Railway
+railway login
+railway init
+
+# 3. Add environment variables in Railway dashboard:
+#    - DATABASE_URL (PostgreSQL)
+#    - BRAVE_API_KEY (optional, for search)
+#    - GOVERNANCE_MODE=HARD
+
+# 4. Deploy
+railway up
+```
+
+**Health Check:**
+```bash
+curl https://your-app.up.railway.app/health
+# {"status": "healthy", "version": "v55.5", "timestamp": "..."}
+```
+
+---
+
+### Option 6: HTTP API (Direct)
+
+For custom integrations, use the HTTP transport:
+
+```bash
+# Start HTTP server
+python -m aaa_mcp http
+
+# Call tools via POST
+curl -X POST http://localhost:8080/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "init_gate",
+      "arguments": {"query": "test", "actor_id": "api_user"}
+    },
+    "id": 1
+  }'
+```
+
+---
+
+## Enterprise Applications
+
+### 1. Financial Services (Compliance)
+```python
+# Loan approval with F2 Truth + F13 Sovereign
+verdict = await apex_verdict(
+    query="Approve $500K loan to Acme Corp",
+    require_sovereign=True  # Forces human sign-off
+)
+# Audit trail: VAULT999 proves due diligence to regulators
+```
+
+### 2. Healthcare (Safety-Critical)
+```python
+# Medical advice with F7 Humility + F12 Injection Guard
+result = await agi_reason(
+    query="Side effects of warfarin with aspirin",
+    grounding_required=True  # Requires external verification
+)
+# Forces Ω₀ ∈ [0.03,0.05] — no overconfident medical claims
+```
+
+### 3. Legal (Liability Protection)
+```python
+# Contract analysis with F1 Amanah + F3 Consensus
+session = await init_gate(
+    query="Review merger agreement for risks",
+    actor_id="lawyer_001",
+    grounding_required=True
+)
+# Immutable audit trail proves review occurred
+```
+
+### 4. Content Moderation (Scale)
+```python
+# User content with F5 Peace² + F6 Empathy
+result = await asi_empathize(
+    query="Moderate reported post about suicide",
+    stakeholder_focus="vulnerable_users"
+)
+# κᵣ ≥ 0.95 ensures vulnerable users protected
+```
+
+### 5. Code Generation (Security)
+```python
+# Code review with F12 Defense + F9 Anti-Hantu
+review = await agi_reason(
+    query="Review this authentication code",
+    lane="SECURITY"
+)
+# Injection patterns blocked, dark patterns flagged
+```
+
+---
+
+## Configuration Reference
+
+### Environment Variables
+
+```bash
+# Required
+DATABASE_URL=postgresql://user:pass@host:5432/arifos
+
+# Optional
+BRAVE_API_KEY=              # Web search grounding
+PORT=8080                   # Server port
+HOST=0.0.0.0                # Bind address
+LOG_LEVEL=info              # debug/info/warning/error
+
+# Governance
+GOVERNANCE_MODE=HARD        # HARD (strict) or SOFT (advisory)
+DEFAULT_LANE=FACTUAL        # FACTUAL/OPINION/PROCEDURAL/CONVERSATIONAL
+REQUIRE_SOVEREIGN=false     # Force F13 human override
+
+# Security
+INJECTION_THRESHOLD=0.85    # F12 sensitivity
+MAX_QUERY_LENGTH=10000      # DoS protection
+```
+
+### Tool Annotations (MCP 2025-11-25)
+
+| Tool | readOnlyHint | destructiveHint | openWorldHint |
+|------|--------------|-----------------|---------------|
+| `init_gate` | ❌ | ❌ | ❌ |
+| `forge_pipeline` | ❌ | ✅ | ✅ |
+| `agi_*` | ✅ | ❌ | varies |
+| `asi_*` | ✅ | ❌ | ❌ |
+| `apex_verdict` | ❌ | ✅ | ❌ |
+| `vault_seal` | ❌ | ✅ | ❌ |
+| `reality_search` | ✅ | ❌ | ✅ |
+
+---
+
+## Pricing & Support
+
+**Open Source (AGPL-3.0):** Self-host for free  
+**Enterprise License:** Contact for SLAs, support, custom floors  
+**Managed Cloud:** Coming Q2 2025
+
+---
+
+## Next Steps
+
+- **[Quick Start Guide](docs/QUICKSTART.md)** — 5-minute setup
+- **[API Reference](docs/API.md)** — Complete tool documentation
+- **[Enterprise Deployment](docs/ENTERPRISE.md)** — Production checklist
+- **[Custom Floors](docs/CUSTOM_FLOORS.md)** — Build your own constraints
+
+---
+
+*DITEMPA BUKAN DIBERI — Forged, Not Given*
 
 ---
 
@@ -453,90 +731,59 @@ arifOS provides **three interfaces** for different use cases:
 
 ## Way 1: MCP Tools (For Developers)
 
-The **MCP (Model Context Protocol) Tools** interface exposes each step as a separate function. This gives you fine-grained control over the pipeline.
+The **MCP (Model Context Protocol) Tools** interface exposes each constitutional stage as callable functions. See the **[AAA MCP Server](#aaa-mcp-server--enterprise-constitutional-ai-governance)** section above for deployment options and the [10 canonical tools reference](#the-10-canonical-mcp-tools).
 
 ### When to Use This
 
-- Building enterprise applications
-- Need to customize individual steps
-- Integrating with existing MCP clients (Claude Desktop, Cursor, etc.)
+- Building enterprise applications requiring fine-grained governance
 - Debugging specific pipeline stages
+- Custom integrations beyond standard MCP clients
 
-### Installation
+### Implementation Sources
+
+| Component | Location | Description |
+|-----------|----------|-------------|
+| **MCP Server** | [`aaa_mcp/server.py`](aaa_mcp/server.py) | FastMCP 2.0+ server with 13 tools |
+| **Tool Handlers** | [`aaa_mcp/core/`](aaa_mcp/core/) | Constitutional decorators, engine adapters |
+| **5-Organs** | [`core/organs/`](core/organs/) | INIT, AGI, ASI, APEX, VAULT implementations |
+| **Floor Registry** | [`core/shared/floors.py`](core/shared/floors.py) | F1-F13 enforcement logic |
+| **Pipeline** | [`core/pipeline.py`](core/pipeline.py) | 000-999 stage orchestration |
+
+### Quick Start
 
 ```bash
 pip install arifos
+python -m aaa_mcp  # Starts stdio server
 ```
 
-### Basic Example
+### Programmatic Usage
 
 ```python
-from aaa_mcp.server import init_gate, agi_reason, asi_empathize, apex_verdict, vault_seal
+from aaa_mcp.server import init_gate, agi_reason, apex_verdict
+import asyncio
 
-# Step 1: ANCHOR - Initialize session with safety checks
-session = await init_gate(
-    query="Analyze the environmental impact of fracking",
-    session_id="demo-001",
-    actor_id="researcher_42",
-    grounding_required=True
-)
-
-# Check gate status (000_INIT)
-if session["gate_status"] == "VOID":
-    print("Query blocked at intake:", session["reason"])
-    return
-
-# Step 2: THINK - Generate reasoning
-reasoned = await agi_reason(
-    query="What are the failure modes of fracking?",
-    session_id=session["session_id"],
-    context=session["context"]
-)
-
-# Step 3: FEEL - Assess stakeholder impact
-empathy = await asi_empathize(
-    query="What communities are affected by fracking?",
-    session_id=session["session_id"],
-    delta_bundle=reasoned
-)
-
-# Step 4: JUDGE - Reach consensus verdict
-verdict = await apex_verdict(
-    query="Should fracking be banned in residential areas?",
-    session_id=session["session_id"],
-    delta_bundle=reasoned,
-    omega_bundle=empathy
-)
-
-print(verdict["verdict"])  # SEAL, SABAR, PARTIAL, VOID, or 888_HOLD
-print(verdict["floors_enforced"])  # ["F2", "F3", "F8"]
-
-# Step 5: SEAL - Create audit record (if approved)
-if verdict["verdict"] == "SEAL":
-    receipt = await vault_seal(
-        verdict=verdict,
+async def main():
+    # Start constitutional session
+    session = await init_gate(query="Analyze risks", actor_id="user_001")
+    
+    if session["verdict"] == "VOID":
+        print(f"Blocked at intake: {session['reason']}")
+        return
+    
+    # Execute reasoning with F2, F4, F7 enforcement
+    result = await agi_reason(
+        query="Should we proceed?",
         session_id=session["session_id"]
     )
-    print("Sealed with ID:", receipt["seal_id"])
+    
+    print(f"Verdict: {result['verdict']}")
+    print(f"Floors passed: {result['floors_enforced']}")
+
+asyncio.run(main())
 ```
 
-### The 10 Canonical MCP Tools
-
-| # | Tool | Function | Floors Enforced |
-|:---:|:---|:---|:---|
-| 1 | `init_gate` | Session ignition, auth & injection scan | F11, F12 |
-| 2 | `forge_pipeline` | Unified 000-999 pipeline entrypoint | F11, F12 |
-| 3 | `agi_sense` | Intent classification | F2, F4 |
-| 4 | `agi_think` | Hypothesis generation | F2, F4, F7 |
-| 5 | `agi_reason` | Logic & deduction | F2, F4, F7 |
-| 6 | `reality_search` | Grounding via web/axiom search | F2, F7 |
-| 7 | `asi_empathize` | Stakeholder impact analysis | F5, F6 |
-| 8 | `asi_align` | Ethics & policy alignment | F5, F6, F9 |
-| 9 | `apex_verdict` | Final judgment | F2, F3, F5, F8 |
-| 10 | `vault_seal` | Immutable ledger commit | F1, F3 |
-
 > [!TIP]
-> Tool-to-floor mappings are versioned; see `000_THEORY/000_LAW.md` for the authoritative mapping.
+> For complete deployment instructions (Claude Desktop, Cursor, Docker, Railway, HTTP API), see the **[Deployment Guide](#deployment-guide)** above.
 
 ---
 
@@ -544,16 +791,15 @@ if verdict["verdict"] == "SEAL":
 
 > **Status**: Human SDK is planned for v60.0+ (Future Release)
 > 
-> Current (v55.5): Use MCP Tools directly. The SDK will wrap MCP tools into an opinionated workflow using human verbs (`think`, `feel`, `judge`).
+> Current (v55.5): Use [MCP Tools](#way-1-mcp-tools-for-developers) directly.
 
-The **Human SDK** will provide a simplified, intuitive interface using human verbs. It will wrap the MCP tools into an opinionated workflow that's easier to learn and teach.
+The **Human SDK** will wrap MCP tools into an opinionated workflow using human verbs (`think`, `feel`, `judge`).
 
 ### When to Use This (Future)
 
 - Teaching AI safety concepts to students
 - Building user-facing applications
-- Rapid prototyping
-- When you want AI that "thinks like a person"
+- Rapid prototyping with simplified API
 
 ### Planned Installation (v60.0+)
 
@@ -561,95 +807,40 @@ The **Human SDK** will provide a simplified, intuitive interface using human ver
 pip install arifos[sdk]
 ```
 
-### Planned Basic Example (v60.0+)
+### Planned API (v60.0+)
 
 ```python
 from arifos.sdk import ConstitutionalAgent
 
-# Create an agent instance
-agent = ConstitutionalAgent(
-    actor="user_123",
-    grounding_mode="strict"  # or "fluid" for education
-)
-
-# Step 1: ANCHOR - Safety check
-session = await agent.anchor(
-    "What are the side effects of this new medication?"
-)
-
-# Step 2: THINK - Generate reasoning
-thought = await agent.think(
-    "What are the side effects of this new medication?"
-)
-
-# Step 3: FEEL - Assess impact
-feeling = await agent.feel(
-    "Who might be harmed by this information?"
-)
-
-# Step 4: JUDGE - Reach verdict
-judgment = await agent.judge(
-    thought=thought,
-    feeling=feeling
-)
-
-print(f"Verdict: {judgment.verdict}")
-print(f"Confidence: {judgment.confidence}")
-
-# Step 5: SEAL - Create record (if approved)
-if judgment.verdict == "SEAL":
-    receipt = await agent.seal(judgment)
-    print(f"Sealed: {receipt.seal_id}")
-```
-
-### Educational Example (Planned v60.0+)
-
-Perfect for teaching AI ethics to students:
-
-```python
-from arifos.sdk import ConstitutionalAgent
-
-# Students can follow the "thinking process"
 agent = ConstitutionalAgent(verbose=True)
 
-# The agent explains each step as it goes
-response = await agent.ask(
-    "Should social media companies use algorithms to maximize engagement?",
-    explain=True  # Shows reasoning at each step
-)
+# Human-verbed workflow
+session = await agent.anchor("Query")
+thought = await agent.think("Query")
+feeling = await agent.feel("Query")
+judgment = await agent.judge(thought, feeling)
 
-# Output:
-# [000] Foundation: Checking for injection attempts... ✓ Safe
-# [111] Examined: What is actually being asked?
-# [222] Explored: Multiple perspectives on this issue...
-# [333] Clarified: Breaking down the business model
-# [444] Faced: Tension between profit and user wellbeing
-# [555] Calmed: Assessing stakeholder impact with care
-# [666] Protected: Identifying vulnerable users
-# [777] Worked: Synthesizing balanced view
-# [888] Aware: Rendering verdict with humility
-# [999] Accountable: Recording decision
-# 
-# [VERDICT] SABAR - Needs more stakeholder input
-# [PRINCIPLE] Protected, not neglected: Vulnerable users identified
+if judgment.verdict == "SEAL":
+    receipt = await agent.seal(judgment)
 ```
+
+See [`docs/HUMANIZED_SDK_PROPOSAL.md`](docs/HUMANIZED_SDK_PROPOSAL.md) for design details.
 
 ---
 
 ## Way 3: System Prompts, Skills & Workflows (For Builders)
 
-The **Prompts, Skills & Workflows** interface lets you use arifOS through declarative Markdown files—no coding required. Perfect for prompt engineers, AI builders, and teams who want constitutional governance through simple copy-paste.
+The **Prompts, Skills & Workflows** interface lets you use arifOS through declarative Markdown files—no coding required. Perfect for prompt engineers and AI builders.
 
 ### When to Use This
 
 - Building AI assistants with built-in safety
-- Creating reusable AI skills for your team
-- Designing multi-step workflows
-- You want governance without writing code
+- Creating reusable skills for your team
+- Governance without writing code
 
 ### The Layer System
 
-arifOS organizes capabilities into **7 layers** (L1-L7):
+arifOS organizes capabilities into **7 layers** in [`333_APPS/`](333_APPS/):
 
 ```
 333_APPS/
@@ -662,167 +853,56 @@ arifOS organizes capabilities into **7 layers** (L1-L7):
 └── L7_AGI/             # Recursive intelligence
 ```
 
-### Example: L1 Prompt (Copy-Paste Ready)
+### Available Resources
 
-Drop this into any AI system for instant constitutional grounding:
+| Layer | Path | Description |
+|-------|------|-------------|
+| **L1** | [`L1_PROMPT/`](333_APPS/L1_PROMPT/) | System prompts with constitutional constraints |
+| **L2** | [`L2_SKILLS/ACTIONS/`](333_APPS/L2_SKILLS/ACTIONS/) | 9 canonical atomic actions (anchor, reason, validate, etc.) |
+| **L2** | [`L2_SKILLS/UTILITIES/`](333_APPS/L2_SKILLS/UTILITIES/) | Helper skills (visual-law, route-tasks) |
+| **L3** | [`L3_WORKFLOW/`](333_APPS/L3_WORKFLOW/) | Multi-step constitutional workflows |
+| **L4** | [`L4_TOOLS/`](333_APPS/L4_TOOLS/) | MCP configurations for Claude, Cursor, Kimi, Codex |
 
-```markdown
-# Constitutional Assistant (L1_PROMPT)
+### Quick Start
 
-You are an AI assistant governed by arifOS principles:
-
-## Your Constraints
-- **F2 Truth**: Only claim what you can verify (≥99% certainty)
-- **F7 Humility**: Always admit 3-5% uncertainty (Ω₀ ∈ [0.03, 0.05])
-- **F9 Anti-Hantu**: Never claim consciousness, feelings, or self-awareness
-- **F6 Empathy**: Protect the most vulnerable stakeholder in any scenario
-
-## Your Process
-1. **Examine** (111): What is actually being asked?
-2. **Explore** (222): What perspectives exist?
-3. **Clarify** (333): Reduce ambiguity (ΔS ≤ 0)
-4. **Face** (444): Address tensions directly
-5. **Calm** (555): Assess stakeholder impact
-6. **Protect** (666): Guard the vulnerable
-7. **Work** (777): Synthesize with effort
-8. **Be Aware** (888): Render verdict with humility
-9. **Account** (999): Leave audit trail
-
-## Response Format
-- **Answer**: Your reasoned response
-- **Certainty**: High/Medium/Low with Ω₀ estimate
-- **Assumptions**: What you had to assume
-- **Unknowns**: What you don't know
-- **Stakeholders**: Who could be affected
-```
-
-### Example: L2 Skill (Parameterized Template)
-
-```markdown
-# SKILL: Constitutional Analysis
-# File: L2_SKILLS/ANALYZE/constitutional_analysis.md
-
-## Purpose
-Analyze any claim through the 13 constitutional floors.
-
-## Parameters
-- claim: The statement to analyze
-- context: Background information
-- stakeholder_focus: Who to protect (default: "weakest")
-
-## Process
-1. Run F2 Truth check on {{claim}}
-2. Run F4 Clarity check (entropy reduction)
-3. Run F6 Empathy check for {{stakeholder_focus}}
-4. Run F9 Anti-Hantu check
-5. Generate verdict with floor scores
-
-## Output
-{
-  "verdict": "SEAL|SABAR|PARTIAL|VOID",
-  "floor_scores": { "F2": 0.99, "F4": 0.95, ... },
-  "reasoning": "...",
-  "uncertainty": "Ω₀ = 0.04"
-}
-```
-
-### Example: L3 Workflow (Multi-Step Recipe)
-
-```markdown
-# WORKFLOW: Research & Verify
-# File: L3_WORKFLOW/RESEARCH/verify_and_respond.md
-
-## Steps
-1. **Ground** (000 → 111)
-   - Initialize with `init_gate`
-   - Classify intent with `agi_sense`
-
-2. **Search** (External)
-   - Run `reality_search` for evidence
-   - Collect at least 3 sources
-
-3. **Reason** (222 → 333)
-   - Generate hypotheses with `agi_think`
-   - Deep analysis with `agi_reason`
-
-4. **Check** (555 → 666)
-   - Stakeholder impact via `asi_empathize`
-   - Ethics alignment via `asi_align`
-
-5. **Judge** (888)
-   - Final verdict via `apex_verdict`
-
-6. **Seal** (999)
-   - Create audit record with `vault_seal`
-
-## Early Exit Conditions
-- If F2 fails (truth < 0.99): Return VOID immediately
-- If F12 triggers (injection detected): Return VOID with alert
-- If F6 fails (low empathy): Return SABAR with repair guidance
-```
-
-### How to Use
-
-1. **Browse** the `333_APPS/` directory
+1. **Browse** the [`333_APPS/`](333_APPS/) directory
 2. **Copy** any `.md` file that fits your need
 3. **Customize** parameters for your use case
-4. **Paste** into your AI system (Claude, GPT-4, etc.)
-5. **Iterate** using the constitutional feedback
+4. **Paste** into your AI system
 
-### Files You Can Use Today
+### Example: L1 Prompt
 
-| Layer | Path | What It Does |
-|-------|------|--------------|
-| L1 | `L1_PROMPT/` | Ready-to-use system prompts |
-| L2 | `L2_SKILLS/ACTIONS/` | Reusable skill templates |
-| L3 | `L3_WORKFLOW/` | End-to-end workflow recipes |
-| L4 | `L4_TOOLS/` | MCP tool specifications |
+See [`L1_PROMPT/constitutional_assistant.md`](333_APPS/L1_PROMPT/) — Drop-in system prompt with F2-F9 constraints.
 
+### Example: L2 Skill
+
+See [`L2_SKILLS/ACTIONS/anchor/SKILL.md`](333_APPS/L2_SKILLS/ACTIONS/anchor/SKILL.md) — 000_INIT grounding skill:
+
+```markdown
+---
+name: arifos-anchor
+description: 000_INTAKE — Ground reality, parse intent
 ---
 
-## 🚀 Quick Deploy (Production)
+# arifos-anchor
 
-### Railway (One-Click Deploy)
+**Tagline:** Establish position, intake context, ground reality
 
-```bash
-# 1. Fork this repo
-# 2. Connect to Railway
-# 3. Add environment variables
-# 4. Deploy
+**Floors:** F4 (Clarity), F7 (Humility), F8 (Contextual Sense)
+
+**Usage:** `/action anchor input="user query"`
 ```
 
-### Environment Variables
+### Example: L3 Workflow
 
-```bash
-# Required
-DATABASE_URL=postgresql://user:pass@host:5432/arifos  # VAULT999 persistence
+See [`L3_WORKFLOW/`](333_APPS/L3_WORKFLOW/) — Multi-step recipes combining tools.
 
-# Optional but Recommended
-BRAVE_API_KEY=your_brave_search_key  # For web search grounding
-PORT=8080                            # Server port (default: 8080)
-HOST=0.0.0.0                         # Bind address
+### Example: L4 MCP Config
 
-# Governance
-GOVERNANCE_MODE=HARD                 # HARD or SOFT
-DEFAULT_LANE=HARD                    # HARD, SOFT, or META
-```
-
-### Docker
-
-```bash
-docker build -t arifos-mcp .
-docker run -p 8080:8080 \
-  -e DATABASE_URL=postgresql://... \
-  -e BRAVE_API_KEY=... \
-  arifos-mcp
-```
-
-### Health Check
-
-```bash
-curl https://your-deployment.com/health
-# {"status": "healthy", "version": "v55.5", "timestamp": "..."}
-```
+See [`L4_TOOLS/mcp-configs/`](333_APPS/L4_TOOLS/mcp-configs/) — Ready-to-use configs:
+- [`claude/mcp.json`](333_APPS/L4_TOOLS/mcp-configs/claude/mcp.json)
+- [`cursor/mcp.json`](333_APPS/L4_TOOLS/mcp-configs/cursor/mcp.json)
+- [`kimi/mcp.json`](333_APPS/L4_TOOLS/mcp-configs/kimi/mcp.json)
 
 ---
 

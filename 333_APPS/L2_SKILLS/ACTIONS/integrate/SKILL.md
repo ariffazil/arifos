@@ -1,60 +1,31 @@
 ---
 name: arifos-integrate
-description: Combine knowledge, cross-domain synthesis (333_DELIBERATE). Combines knowledge across domains and forges creative connections. Use when connecting disparate domains or synthesizing insights.
+description: 333_ATLAS — Cross-domain synthesis, context mapping. Maps knowledge boundaries with F10 Ontology enforcement.
 metadata:
   arifos:
-    stage: 333_DELIBERATE
+    stage: 333_ATLAS
     trinity: AGI
-    floors: [F2, F7, F8]
-    version: 1.0.0
-    atomic: true
-    model_agnostic: true
-    modular: true
-    godel_lock: true
+    floors: [F7, F8, F10]
+    version: 55.5
 ---
 
 # arifos-integrate
 
-## Tagline
-Combine knowledge, cross-domain synthesis (333_DELIBERATE)
+**Tagline:** Map context, establish boundaries, extract vocabulary.
 
-## Description
-INTEGRATE combines knowledge across domains and forges creative connections.
+**Physics:** Network Topology — graph connectivity metrics
 
-## Physics
-Gibbs Ensemble — Z = Σᵢ e^(-Eᵢ/kT)
-Category Theory — structure-preserving maps between domains
+**Math:** Ω₀ = (|Unknown| + 0.5×|Unstable|) / |Total| ∈ [0.03, 0.05]
 
-## Math
-Ensemble Average: ⟨A⟩ = Tr(ρÂ)
-Functor: F: C → D, preserving morphisms
-
-## Code
+**Code:**
 ```python
-def integrate(domain_ensemble):
-    ensemble = create_gibbs_ensemble(domain_ensemble)
-    functors = identify_structure_preserving_maps(domain_ensemble)
-    analogies = extract_analogies(functors)
-    predictions = transfer_insights(functors)
-    return CrossDomainInsight(
-        concept=functors,
-        analogies=analogies,
-        predictions=predictions
-    )
+def integrate(parsed_intent, workspace):
+    files = discover_files(workspace, parsed_intent.targets)
+    deps = extract_dependencies(files)
+    omega_0 = calculate_uncertainty(files, deps)
+    return ContextMap(files=files, deps=deps, omega_0=omega_0)
 ```
 
-## Floors
-- F2 (Truth)
-- F7 (Humility)
-- F8 (Genius)
+**Usage:** `/action integrate targets=["file1", "file2"]`
 
-## Usage
-/action integrate domains=["economics", "thermodynamics"]
-
-## Version
-1.0.0
-
-## Gödel Lock Verification
-- Self-referential integrity: ✓
-- Meta-synthesis consistency: ✓
-- Recursive domain mapping: ✓
+**Floors:** F7 (Humility), F8 (Genius), F10 (Ontology)

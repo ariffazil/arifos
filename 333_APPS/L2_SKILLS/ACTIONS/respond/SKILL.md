@@ -1,59 +1,30 @@
 ---
 name: arifos-respond
-description: Generate compassionate, harm-aware output (666_AUDIT). Generates compassionate output. Transforms correct answers into healing conversations. Use when crafting final responses to users.
+description: 444_EVIDENCE — Evidence-based response generation. Balances truth (F2) with care (F6).
 metadata:
   arifos:
-    stage: 666_AUDIT
+    stage: 444_EVIDENCE
     trinity: ASI
     floors: [F4, F5, F6]
-    version: 1.0.0
-    atomic: true
-    model_agnostic: true
-    modular: true
-    godel_lock: true
+    version: 55.5
 ---
 
 # arifos-respond
 
-## Tagline
-Generate compassionate, harm-aware output (666_AUDIT)
+**Tagline:** Compassionate output with evidentiary basis.
 
-## Description
-RESPOND generates compassionate output. Transforms correct answers into healing conversations.
+**Physics:** Communication Theory — signal clarity with empathy encoding
 
-## Physics
-Wave-Particle Duality — communication as wave + particle
-Optimal Control — min J = ∫(error² + effort)dt
+**Math:** Response quality Q = (Clarity × Empathy) / HarmPotential
 
-## Math
-Lagrangian: L = T - V
-Euler-Lagrange: d/dt(∂L/∂q̇) - ∂L/∂q = 0
-
-## Code
+**Code:**
 ```python
-def respond(validated_state, solution_space, tone="balanced"):
-    cost = lambda r: harmonic_cost(r) + information_cost(r) + empathy_cost(r)
-    response = optimize(cost, solution_space, constraints=[harm_threshold])
-    safety_check = verify_no_harm(response, validated_state)
-    return Response(
-        content=response,
-        tone=tone,
-        harm_potential=safety_check.score
-    )
+def respond(reasoning_result, empathy_data):
+    evidence = extract_evidence(reasoning_result)
+    tone = calibrate_tone(empathy_data.weakest_stakeholder)
+    return Response(content=evidence, tone=tone)
 ```
 
-## Floors
-- F4 (Clarity)
-- F5 (Safety)
-- F6 (Empathy)
+**Usage:** `/action respond reasoning=reasoned empathy=validated`
 
-## Usage
-/action respond state=validated solution=technical_fix
-
-## Version
-1.0.0
-
-## Gödel Lock Verification
-- Self-referential integrity: ✓
-- Meta-response consistency: ✓
-- Recursive compassion check: ✓
+**Floors:** F4 (Clarity), F5 (Peace²), F6 (Empathy)

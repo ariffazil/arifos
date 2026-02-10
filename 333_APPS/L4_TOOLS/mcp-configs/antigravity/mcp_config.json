@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "arifOS MCP config aligned across agents (Antigravity)",
+  "$comment": "arifOS AAA MCP v55.5-HARDENED — Antigravity Config",
   "mcpServers": {
     "aaa-mcp": {
       "command": "C:\\Users\\User\\arifOS\\venv\\Scripts\\python.exe",
@@ -8,13 +8,14 @@
       "cwd": "C:/Users/User/arifOS",
       "env": {
         "PYTHONPATH": "C:/Users/User/arifOS",
-        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "ARIFOS_MODE": "PROD",
         "PYTHONIOENCODING": "utf-8",
         "PYTHONUNBUFFERED": "1"
       },
       "disabled": false,
       "alwaysAllow": [
         "init_gate",
+        "forge_pipeline",
         "agi_sense",
         "agi_think",
         "agi_reason",
@@ -22,7 +23,10 @@
         "asi_align",
         "apex_verdict",
         "reality_search",
-        "vault_seal"
+        "vault_seal",
+        "vault_query",
+        "tool_router",
+        "truth_audit"
       ]
     }
   }
