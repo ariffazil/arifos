@@ -1,19 +1,17 @@
 {
-  "$schema": "https://registry.modelcontextprotocol.io/schema/2025-12-11/server.schema.json",
-  "name": "io.github.ariffazil/aaa-mcp",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ariffazil/arifOS",
   "version": "60.0.0",
-  "description": "Constitutional AI Governance System with 13 enforced floors (F1-F13). Runtime safety constraints, audit trails, and tri-witness consensus for LLMs.",
+  "description": "Constitutional AI Governance with 13 enforced floors (F1-F13) and tri-witness consensus for LLMs.",
   "vendor": {
     "name": "arifOS",
     "url": "https://arifos.arif-fazil.com"
   },
   "license": "AGPL-3.0-only",
   "repository": {
-    "type": "git",
-    "url": "https://github.com/ariffazil/arifOS"
+    "url": "https://github.com/ariffazil/arifOS",
+    "source": "github"
   },
-  "homepage": "https://arifos.arif-fazil.com",
-  "documentation": "https://arifos.arif-fazil.com",
   "packages": [
     {
       "registryType": "pypi",
