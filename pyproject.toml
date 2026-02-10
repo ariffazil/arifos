@@ -47,6 +47,12 @@ description = "arifOS - The World's First Production-Grade Constitutional AI Gov
 readme = "README.md"
 requires-python = ">=3.10"
 license = "AGPL-3.0-only"
+
+# MCP Registry Verification
+# Required for official MCP Registry submission
+# See: https://modelcontextprotocol.io/registry/quickstart
+mcpName = "io.github.ariffazil/aaa-mcp"
+
 keywords = [
     # Core Concepts
     "ai-governance",

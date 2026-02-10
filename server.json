@@ -1,8 +1,7 @@
 {
-  "$schema": "https://registry.modelcontextprotocol.io/schema/server.json",
-  "name": "AAA MCP",
-  "id": "io.github.ariffazil/aaa-mcp",
-  "version": "v60.0-FORGE",
+  "$schema": "https://registry.modelcontextprotocol.io/schema/2025-12-11/server.schema.json",
+  "name": "io.github.ariffazil/aaa-mcp",
+  "version": "60.0.0",
   "description": "Constitutional AI Governance System with 13 enforced floors (F1-F13). Runtime safety constraints, audit trails, and tri-witness consensus for LLMs.",
   "vendor": {
     "name": "arifOS",
@@ -15,32 +14,32 @@
   },
   "homepage": "https://arifos.arif-fazil.com",
   "documentation": "https://arifos.arif-fazil.com",
-  "transports": [
+  "packages": [
     {
-      "type": "stdio",
-      "command": "python -m aaa_mcp",
-      "package": {
-        "registry": "pypi",
-        "name": "arifos",
-        "version": "v60.0"
+      "registryType": "pypi",
+      "identifier": "arifos",
+      "version": "60.0.0",
+      "transport": {
+        "type": "stdio",
+        "command": "python -m aaa_mcp"
       }
     },
     {
-      "type": "http",
-      "url": "https://aaamcp.arif-fazil.com/mcp",
-      "package": {
-        "registry": "dockerhub",
-        "name": "ariffazil/arifos",
-        "version": "v60.0"
+      "registryType": "dockerhub",
+      "identifier": "ariffazil/arifos",
+      "version": "v60.0",
+      "transport": {
+        "type": "http",
+        "url": "https://aaamcp.arif-fazil.com/mcp"
       }
     },
     {
-      "type": "sse",
-      "url": "https://aaamcp.arif-fazil.com/sse",
-      "package": {
-        "registry": "dockerhub",
-        "name": "ariffazil/arifos",
-        "version": "v60.0"
+      "registryType": "dockerhub",
+      "identifier": "ariffazil/arifos",
+      "version": "v60.0",
+      "transport": {
+        "type": "sse",
+        "url": "https://aaamcp.arif-fazil.com/sse"
       }
     }
   ],
@@ -102,13 +101,6 @@
     "authorization": {
       "type": "oauth2",
       "required": false
-    }
-  },
-  "constraints": {
-    "constitutional": {
-      "floors": 13,
-      "enforcement": "HARD",
-      "motto": "DITEMPA BUKAN DIBERI"
     }
   }
 }
