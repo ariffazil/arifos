@@ -255,6 +255,7 @@ const MCP_TOOLS = [
     returns: 'session_id, verdict, motto, seal, floors_enforced',
     color: 'blue',
     engine: 'INIT',
+    floors: ['F11', 'F12'],
     businessValue: 'Establishes secure session boundaries',
     useCases: ['Authentication', 'Authorization', 'Budget control'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
@@ -268,6 +269,7 @@ const MCP_TOOLS = [
     returns: 'parsed_input, intent, entities, confidence, floors_enforced',
     color: 'cyan',
     engine: 'AGI',
+    floors: ['F2', 'F4'],
     businessValue: 'Accurate input interpretation for downstream processing',
     useCases: ['Intent detection', 'Entity extraction', 'Context parsing'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
@@ -281,6 +283,7 @@ const MCP_TOOLS = [
     returns: 'hypotheses, entropy_delta, candidate_count, floors_enforced',
     color: 'cyan',
     engine: 'AGI',
+    floors: ['F2', 'F4', 'F7'],
     businessValue: 'Generates multiple solution pathways for evaluation',
     useCases: ['Brainstorming', 'Alternative solutions', 'Risk analysis'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
@@ -294,6 +297,7 @@ const MCP_TOOLS = [
     returns: 'conclusion, omega_0, precision, floor_scores, vote, floors_enforced',
     color: 'cyan',
     engine: 'AGI',
+    floors: ['F2', 'F4', 'F7'],
     businessValue: 'Provides logical validation for decisions',
     useCases: ['Logical validation', 'Proof construction', 'Decision support'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
@@ -307,6 +311,7 @@ const MCP_TOOLS = [
     returns: 'stakeholder_map, empathy_kappa_r, impact_vectors, floors_enforced',
     color: 'rose',
     engine: 'ASI',
+    floors: ['F5', 'F6'],
     businessValue: 'Identifies all affected parties for ethical considerations',
     useCases: ['Impact assessment', 'Stakeholder analysis', 'Risk evaluation'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
@@ -320,6 +325,7 @@ const MCP_TOOLS = [
     returns: 'floor_results, alignment_score, violations, peace_squared, floors_enforced',
     color: 'rose',
     engine: 'ASI',
+    floors: ['F5', 'F6', 'F9'],
     businessValue: 'Ensures all actions meet constitutional standards',
     useCases: ['Compliance checking', 'Risk scoring', 'Alignment validation'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
@@ -333,6 +339,7 @@ const MCP_TOOLS = [
     returns: 'final_verdict, trinity_score, paradox_scores, merkle_root, floors_enforced',
     color: 'violet',
     engine: 'APEX',
+    floors: ['F3', 'F8'],
     businessValue: 'Provides final authoritative decision',
     useCases: ['Final approval', 'Dispute resolution', 'Sealing decisions'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
@@ -346,6 +353,7 @@ const MCP_TOOLS = [
     returns: 'verified, confidence, sources, caveats, recency, floors_enforced',
     color: 'orange',
     engine: 'AGI',
+    floors: ['F2', 'F7'],
     businessValue: 'Validates claims against external sources',
     useCases: ['Fact checking', 'External verification', 'Source validation'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
@@ -361,6 +369,7 @@ const MCP_TOOLS = [
     engine: 'VAULT',
     businessValue: 'Creates immutable audit trail for compliance',
     useCases: ['Audit logging', 'Immutability', 'Compliance records'],
+    floors: ['F1', 'F3'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
   },
 ];
@@ -442,6 +451,27 @@ function App() {
   const [systemStatus, setSystemStatus] = useState({ online: true, version: 'v55.4-SEAL' });
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [expandedLayer, setExpandedLayer] = useState<string | null>(null);
+  const [expandedTool, setExpandedTool] = useState<string | null>(null);
+  const [activeSection, setActiveSection] = useState('overview');
+
+  // Track active section for sidebar highlighting
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = ['overview', 'showcase', 'layers', 'mcp', 'mcp-server', 'applications', 'quickstart'];
+      for (const section of sections) {
+        const element = document.getElementById(section);
+        if (element) {
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= 100 && rect.bottom >= 100) {
+            setActiveSection(section);
+            break;
+          }
+        }
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -506,7 +536,38 @@ function App() {
       {/* Circuit Pattern Overlay */}
       <div className="fixed inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(6,182,212,0.03)_0%,transparent_70%)] pointer-events-none" />
 
-      {/* Navigation */}
+      {/* Sticky Sidebar Navigation — Desktop Only */}
+      <nav className="hidden lg:block fixed left-4 top-1/2 -translate-y-1/2 z-40 w-48">
+        <div className="bg-gray-900/80 backdrop-blur-md rounded-xl border border-gray-800 p-3 shadow-xl">
+          <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 px-2">Navigate</p>
+          {[
+            { id: 'overview', label: 'Overview' },
+            { id: 'showcase', label: 'Showcase' },
+            { id: 'layers', label: 'Layers' },
+            { id: 'mcp', label: 'MCP Tools' },
+            { id: 'mcp-server', label: 'MCP Server' },
+            { id: 'applications', label: 'Applications' },
+            { id: 'quickstart', label: 'Quick Start' },
+          ].map((item) => (
+            <a
+              key={item.id}
+              href={`#${item.id}`}
+              className={`block px-3 py-2 rounded-lg text-sm transition-all ${
+                activeSection === item.id
+                  ? 'bg-cyan-500/20 text-cyan-400 border-l-2 border-cyan-400'
+                  : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+              }`}
+            >
+              {item.label}
+            </a>
+          ))}
+        </div>
+      </nav>
+
+      {/* Main Content Offset for Sidebar */}
+      <div className="lg:ml-52">
+
+      {/* Navigation -- Top */}
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#0a0a0a]/90 backdrop-blur-md border-b border-gray-800' : 'bg-transparent'}`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -930,16 +991,29 @@ function App() {
             </p>
           </div>
 
-          {/* Tools Grid */}
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Tools Grid — Expandable Accordions */}
+          <div className="max-w-4xl mx-auto space-y-3">
             {MCP_TOOLS.map((tool) => {
               const colors = getColorClasses(tool.color);
+              const isExpanded = expandedTool === tool.name;
+              
               return (
-                <Card key={tool.name} className={`bg-gray-900/30 border-gray-800 hover:${colors.border} transition-all group`}>
-                  <CardHeader>
-                    <div className="flex items-center justify-between mb-2">
-                      <code className={`text-lg font-code ${colors.text}`}>{tool.name}</code>
-                      <div className="flex items-center gap-2">
+                <div
+                  key={tool.name}
+                  className={`rounded-xl border transition-all duration-300 ${colors.border} ${isExpanded ? `${colors.bg} shadow-lg` : 'bg-gray-900/30 hover:bg-gray-900/50'}`}
+                >
+                  {/* Header — Always Visible */}
+                  <button
+                    onClick={() => setExpandedTool(isExpanded ? null : tool.name)}
+                    className="w-full p-5 text-left flex items-center gap-4"
+                  >
+                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0 ${colors.bg} border ${colors.border}`}>
+                      <code className={`text-lg font-code ${colors.text}`}>{tool.name.slice(0, 2)}</code>
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <code className={`text-base font-code ${colors.text}`}>{tool.name}</code>
                         <Badge variant="outline" className="text-xs">{tool.stage}</Badge>
                         <Badge className={`text-xs ${
                           tool.engine === 'AGI' ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' :
@@ -949,66 +1023,101 @@ function App() {
                           'bg-blue-500/20 text-blue-400 border-blue-500/30'
                         }`}>{tool.engine}</Badge>
                       </div>
+                      <p className="text-sm text-gray-400 mt-1 truncate">{tool.description}</p>
                     </div>
-                    <CardDescription className="text-gray-400">
-                      {tool.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {/* Business Value */}
-                      <div className="bg-gray-800/30 rounded-lg p-3">
-                        <p className="text-xs text-cyan-400 uppercase tracking-wider mb-1">Business Value</p>
-                        <p className="text-sm text-gray-300">{tool.businessValue}</p>
+                    
+                    <div className="flex-shrink-0">
+                      {isExpanded ? (
+                        <ChevronUp className="w-5 h-5 text-gray-500" />
+                      ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-500" />
+                      )}
+                    </div>
+                  </button>
+                  
+                  {/* Expanded Content */}
+                  {isExpanded && (
+                    <div className="px-5 pb-5 border-t border-gray-800/50">
+                      <div className="grid md:grid-cols-2 gap-4 mt-4">
+                        {/* Business Value */}
+                        <div className="bg-gray-800/30 rounded-lg p-3">
+                          <p className="text-xs text-cyan-400 uppercase tracking-wider mb-1">Business Value</p>
+                          <p className="text-sm text-gray-300">{tool.businessValue}</p>
+                        </div>
+                        
+                        {/* Floors Enforced */}
+                        <div className="bg-gray-800/30 rounded-lg p-3">
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Floors Enforced</p>
+                          <div className="flex flex-wrap gap-1">
+                            {tool.floors?.map((floor: string) => (
+                              <code key={floor} className="text-xs bg-black/50 px-2 py-0.5 rounded text-amber-400">
+                                {floor}
+                              </code>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="grid md:grid-cols-3 gap-4 mt-4">
+                        {/* Parameters */}
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Parameters</p>
+                          <div className="space-y-1">
+                            {tool.params.map(param => (
+                              <code key={param} className="block text-xs font-code bg-black/50 px-2 py-1 rounded text-gray-300">
+                                {param}
+                              </code>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Actions */}
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Actions</p>
+                          <div className="space-y-1">
+                            {tool.actions.map(action => (
+                              <code key={action} className={`block text-xs font-code px-2 py-1 rounded ${colors.bg} ${colors.text}`}>
+                                {action}
+                              </code>
+                            ))}
+                          </div>
+                        </div>
+                        
+                        {/* Returns */}
+                        <div>
+                          <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Returns</p>
+                          <p className="text-sm text-gray-400 font-code text-xs leading-relaxed">{tool.returns}</p>
+                        </div>
                       </div>
                       
                       {/* Use Cases */}
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Use Cases</p>
-                        <div className="flex flex-wrap gap-1">
+                      <div className="mt-4">
+                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Use Cases</p>
+                        <div className="flex flex-wrap gap-2">
                           {tool.useCases.map(useCase => (
-                            <code key={useCase} className="text-xs bg-black/50 px-2 py-1 rounded text-gray-300">
+                            <span key={useCase} className="text-xs bg-gray-800/50 px-3 py-1 rounded-full text-gray-300">
                               {useCase}
-                            </code>
+                            </span>
                           ))}
                         </div>
                       </div>
                       
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Parameters</p>
-                        <div className="flex flex-wrap gap-1">
-                          {tool.params.map(param => (
-                            <code key={param} className="text-xs font-code bg-black/50 px-2 py-1 rounded text-gray-300">
-                              {param}
-                            </code>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Actions</p>
-                        <div className="flex flex-wrap gap-1">
-                          {tool.actions.map(action => (
-                            <code key={action} className={`text-xs font-code px-2 py-0.5 rounded ${colors.bg} ${colors.text}`}>
-                              {action}
-                            </code>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">Returns</p>
-                        <p className="text-sm text-gray-400">{tool.returns}</p>
-                      </div>
-                      {/* Source Links */}
-                      <div className="pt-2 border-t border-gray-800/30 flex flex-wrap gap-2">
-                        {tool.source && (
-                          <a href={tool.source} target="_blank" rel="noopener noreferrer" className="tool-source-link inline-flex items-center gap-1.5 text-xs text-cyan-400/80 hover:text-cyan-300">
-                            <Code className="w-3 h-3" /> View Source <ExternalLink className="w-3 h-3 opacity-60" />
-                          </a>
-                        )}
+                      {/* Source Link */}
+                      <div className="mt-4 pt-3 border-t border-gray-800/30">
+                        <a 
+                          href={tool.source} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+                        >
+                          <Code className="w-4 h-4" />
+                          View source on GitHub
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  )}
+                </div>
               );
             })}
           </div>
@@ -1235,6 +1344,414 @@ python -m aaa_mcp sse`}
                 <p className="text-xs text-gray-500 mt-1">{endpoint.desc}</p>
               </a>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Applications Section — End-to-End Examples */}
+      <section id="applications" className="py-24 relative">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-6">
+              <Code className="w-4 h-4 text-violet-400" />
+              <span className="text-sm text-violet-400">Applications</span>
+            </div>
+            <h2 className="text-4xl font-bold mb-4">End-to-End Workflows</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Runnable examples showing complete constitutional pipelines from session initialization to sealed verdicts.
+            </p>
+          </div>
+
+          {/* Example 1: Complete Pipeline */}
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+                <Terminal className="w-5 h-5 text-cyan-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold">Example 1: Complete Governance Pipeline</h3>
+                <p className="text-sm text-gray-500">init_gate → agi_reason → asi_align → apex_verdict → vault_seal</p>
+              </div>
+            </div>
+
+            <div className="bg-black/50 rounded-xl border border-gray-800 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 bg-gray-900/50 border-b border-gray-800">
+                <span className="text-xs text-gray-500">complete_pipeline.py</span>
+                <button
+                  onClick={() => copyToClipboard(`import asyncio
+from aaa_mcp.server import init_gate, agi_reason, asi_align, apex_verdict, vault_seal
+
+async def governance_pipeline():
+    # 1. Initialize session with injection defense
+    session = await init_gate(
+        query="Should we approve this high-risk transaction?",
+        actor_id="compliance_officer_001"
+    )
+    
+    if session["verdict"] == "VOID":
+        print(f"❌ Blocked at gate: {session['reason']}")
+        return
+    
+    print(f"✅ Session {session['session_id']} initialized")
+    
+    # 2. AGI reasoning with truth enforcement (F2)
+    reasoning = await agi_reason(
+        query="Analyze transaction risk",
+        session_id=session["session_id"]
+    )
+    
+    print(f"🧠 Reasoning complete — Ω₀: {reasoning['omega_0']}")
+    
+    # 3. ASI alignment check (F5, F6, F9)
+    alignment = await asi_align(
+        query="Check stakeholder impact",
+        session_id=session["session_id"]
+    )
+    
+    print(f"💝 Alignment score: {alignment['alignment_score']}")
+    
+    # 4. APEX verdict (F3, F8)
+    verdict = await apex_verdict(
+        query="Should we approve?",
+        session_id=session["session_id"]
+    )
+    
+    print(f"⚖️  Final verdict: {verdict['final_verdict']}")
+    
+    # 5. Seal to immutable ledger (F1, F3)
+    seal = await vault_seal(
+        session_id=session["session_id"],
+        verdict=verdict["final_verdict"],
+        payload={"reasoning": reasoning, "alignment": alignment}
+    )
+    
+    print(f"🔒 Sealed: {seal['seal']}")
+    print(f"📜 Audit hash: {seal['merkle_root']}")
+
+# Run
+asyncio.run(governance_pipeline())`, 'example1')}
+                  className="p-1.5 hover:bg-gray-800 rounded transition-colors"
+                >
+                  {copiedCode === 'example1' ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-gray-400" />}
+                </button>
+              </div>
+              <pre className="p-4 text-sm font-code text-gray-300 overflow-x-auto"><code>{`import asyncio
+from aaa_mcp.server import init_gate, agi_reason, asi_align, apex_verdict, vault_seal
+
+async def governance_pipeline():
+    # 1. Initialize session with injection defense
+    session = await init_gate(
+        query="Should we approve this high-risk transaction?",
+        actor_id="compliance_officer_001"
+    )
+    
+    if session["verdict"] == "VOID":
+        print(f"❌ Blocked at gate: {session['reason']}")
+        return
+    
+    print(f"✅ Session {session['session_id']} initialized")
+    
+    # 2. AGI reasoning with truth enforcement (F2)
+    reasoning = await agi_reason(
+        query="Analyze transaction risk",
+        session_id=session["session_id"]
+    )
+    
+    print(f"🧠 Reasoning complete — Ω₀: {reasoning['omega_0']}")
+    
+    # 3. ASI alignment check (F5, F6, F9)
+    alignment = await asi_align(
+        query="Check stakeholder impact",
+        session_id=session["session_id"]
+    )
+    
+    print(f"💝 Alignment score: {alignment['alignment_score']}")
+    
+    # 4. APEX verdict (F3, F8)
+    verdict = await apex_verdict(
+        query="Should we approve?",
+        session_id=session["session_id"]
+    )
+    
+    print(f"⚖️  Final verdict: {verdict['final_verdict']}")
+    
+    # 5. Seal to immutable ledger (F1, F3)
+    seal = await vault_seal(
+        session_id=session["session_id"],
+        verdict=verdict["final_verdict"],
+        payload={"reasoning": reasoning, "alignment": alignment}
+    )
+    
+    print(f"🔒 Sealed: {seal['seal']}")
+    print(f"📜 Audit hash: {seal['merkle_root']}")
+
+# Run
+asyncio.run(governance_pipeline())`}</code></pre>
+            </div>
+          </div>
+
+          {/* Example 2: Compliance Check */}
+          <div className="mb-12">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-lg bg-rose-500/20 flex items-center justify-center">
+                <Shield className="w-5 h-5 text-rose-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold">Example 2: Regulatory Compliance Check</h3>
+                <p className="text-sm text-gray-500">Stakeholder impact assessment with empathy enforcement (F6)</p>
+              </div>
+            </div>
+
+            <div className="bg-black/50 rounded-xl border border-gray-800 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 bg-gray-900/50 border-b border-gray-800">
+                <span className="text-xs text-gray-500">compliance_check.py</span>
+                <button
+                  onClick={() => copyToClipboard(`from aaa_mcp.server import init_gate, asi_empathize, apex_verdict, vault_seal
+
+async def compliance_review(policy_change):
+    """
+    Evaluate policy change for regulatory compliance.
+    Ensures F6 (Empathy) — protects vulnerable stakeholders.
+    """
+    
+    # Initialize with high-stakes flag
+    session = await init_gate(
+        query=f"Review policy: {policy_change}",
+        actor_id="regulatory_team",
+        grounding_required=True  # F2: Requires evidence
+    )
+    
+    # Empathy modeling — identify affected parties
+    empathy = await asi_empathize(
+        query=policy_change,
+        session_id=session["session_id"],
+        stakeholder_focus="vulnerable_users"  # F6 emphasis
+    )
+    
+    # Check if κᵣ (empathy) >= 0.95
+    if empathy["empathy_kappa_r"] < 0.95:
+        print(f"⚠️  Empathy threshold not met: {empathy['empathy_kappa_r']}")
+        print("Affected:", empathy["stakeholder_map"])
+        return {"verdict": "SABAR", "reason": "Stakeholder protection insufficient"}
+    
+    # Final judgment with human override option
+    verdict = await apex_verdict(
+        query=f"Approve policy: {policy_change}?",
+        session_id=session["session_id"],
+        require_sovereign=True  # F13: Human must sign off
+    )
+    
+    # Immutable audit trail
+    await vault_seal(
+        session_id=session["session_id"],
+        verdict=verdict["final_verdict"],
+        payload={"empathy": empathy, "policy": policy_change}
+    )
+    
+    return verdict`, 'example2')}
+                  className="p-1.5 hover:bg-gray-800 rounded transition-colors"
+                >
+                  {copiedCode === 'example2' ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-gray-400" />}
+                </button>
+              </div>
+              <pre className="p-4 text-sm font-code text-gray-300 overflow-x-auto"><code>{`from aaa_mcp.server import init_gate, asi_empathize, apex_verdict, vault_seal
+
+async def compliance_review(policy_change):
+    """
+    Evaluate policy change for regulatory compliance.
+    Ensures F6 (Empathy) — protects vulnerable stakeholders.
+    """
+    
+    # Initialize with high-stakes flag
+    session = await init_gate(
+        query=f"Review policy: {policy_change}",
+        actor_id="regulatory_team",
+        grounding_required=True  # F2: Requires evidence
+    )
+    
+    # Empathy modeling — identify affected parties
+    empathy = await asi_empathize(
+        query=policy_change,
+        session_id=session["session_id"],
+        stakeholder_focus="vulnerable_users"  # F6 emphasis
+    )
+    
+    # Check if κᵣ (empathy) >= 0.95
+    if empathy["empathy_kappa_r"] < 0.95:
+        print(f"⚠️  Empathy threshold not met: {empathy['empathy_kappa_r']}")
+        print("Affected:", empathy["stakeholder_map"])
+        return {"verdict": "SABAR", "reason": "Stakeholder protection insufficient"}
+    
+    # Final judgment with human override option
+    verdict = await apex_verdict(
+        query=f"Approve policy: {policy_change}?",
+        session_id=session["session_id"],
+        require_sovereign=True  # F13: Human must sign off
+    )
+    
+    # Immutable audit trail
+    await vault_seal(
+        session_id=session["session_id"],
+        verdict=verdict["final_verdict"],
+        payload={"empathy": empathy, "policy": policy_change}
+    )
+    
+    return verdict`}</code></pre>
+            </div>
+          </div>
+
+          {/* Example 3: Content Moderation */}
+          <div>
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <Lock className="w-5 h-5 text-amber-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold">Example 3: AI Content Moderation</h3>
+                <p className="text-sm text-gray-500">Real-time content filtering with F9 (Anti-Hantu) enforcement</p>
+              </div>
+            </div>
+
+            <div className="bg-black/50 rounded-xl border border-gray-800 overflow-hidden">
+              <div className="flex items-center justify-between px-4 py-2 bg-gray-900/50 border-b border-gray-800">
+                <span className="text-xs text-gray-500">content_moderation.py</span>
+                <button
+                  onClick={() => copyToClipboard(`from aaa_mcp.server import init_gate, agi_sense, asi_align, apex_verdict
+
+class ConstitutionalModerator:
+    """
+    Content moderation with constitutional guarantees.
+    Prevents overreach while maintaining safety.
+    """
+    
+    async def moderate(self, user_content):
+        # Stage 1: Initialize with injection guard (F11, F12)
+        session = await init_gate(
+            query=user_content,
+            actor_id="content_moderator",
+            lane="SAFETY"  # Safety-critical path
+        )
+        
+        # Stage 2: Intent detection (F4 clarity)
+        parsed = await agi_sense(
+            query=user_content,
+            session_id=session["session_id"]
+        )
+        
+        # Stage 3: Alignment check including F9 (Anti-Hantu)
+        alignment = await asi_align(
+            query=user_content,
+            session_id=session["session_id"]
+        )
+        
+        # F9: Block consciousness claims
+        if alignment.get("consciousness_detected"):
+            return {
+                "action": "VOID",
+                "reason": "F9 VIOLATION: Ontological lie detected"
+            }
+        
+        # Stage 4: Verdict
+        verdict = await apex_verdict(
+            query="Allow content?",
+            session_id=session["session_id"]
+        )
+        
+        return {
+            "action": verdict["final_verdict"],
+            "confidence": verdict["trinity_score"],
+            "floors_checked": alignment["floor_results"]
+        }
+
+# Usage
+moderator = ConstitutionalModerator()
+result = await moderator.moderate("User generated content here...")`, 'example3')}
+                  className="p-1.5 hover:bg-gray-800 rounded transition-colors"
+                >
+                  {copiedCode === 'example3' ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4 text-gray-400" />}
+                </button>
+              </div>
+              <pre className="p-4 text-sm font-code text-gray-300 overflow-x-auto"><code>{`from aaa_mcp.server import init_gate, agi_sense, asi_align, apex_verdict
+
+class ConstitutionalModerator:
+    """
+    Content moderation with constitutional guarantees.
+    Prevents overreach while maintaining safety.
+    """
+    
+    async def moderate(self, user_content):
+        # Stage 1: Initialize with injection guard (F11, F12)
+        session = await init_gate(
+            query=user_content,
+            actor_id="content_moderator",
+            lane="SAFETY"  # Safety-critical path
+        )
+        
+        # Stage 2: Intent detection (F4 clarity)
+        parsed = await agi_sense(
+            query=user_content,
+            session_id=session["session_id"]
+        )
+        
+        # Stage 3: Alignment check including F9 (Anti-Hantu)
+        alignment = await asi_align(
+            query=user_content,
+            session_id=session["session_id"]
+        )
+        
+        # F9: Block consciousness claims
+        if alignment.get("consciousness_detected"):
+            return {
+                "action": "VOID",
+                "reason": "F9 VIOLATION: Ontological lie detected"
+            }
+        
+        # Stage 4: Verdict
+        verdict = await apex_verdict(
+            query="Allow content?",
+            session_id=session["session_id"]
+        )
+        
+        return {
+            "action": verdict["final_verdict"],
+            "confidence": verdict["trinity_score"],
+            "floors_checked": alignment["floor_results"]
+        }
+
+# Usage
+moderator = ConstitutionalModerator()
+result = await moderator.moderate("User generated content here...")`}</code></pre>
+            </div>
+          </div>
+
+          {/* Key Takeaways */}
+          <div className="mt-12 p-6 rounded-xl bg-gradient-to-r from-cyan-500/10 to-violet-500/10 border border-cyan-500/20">
+            <h4 className="font-semibold text-cyan-400 mb-3">Pattern: The Constitutional Pipeline</h4>
+            <p className="text-sm text-gray-300 mb-3">
+              All examples follow the same 5-stage metabolic loop:
+            </p>
+            <div className="grid md:grid-cols-5 gap-4 text-center">
+              <div className="p-3 rounded-lg bg-black/30">
+                <p className="text-xs text-blue-400 font-code">init_gate</p>
+                <p className="text-xs text-gray-500">Bootstrap + Defense</p>
+              </div>
+              <div className="p-3 rounded-lg bg-black/30">
+                <p className="text-xs text-cyan-400 font-code">agi_*</p>
+                <p className="text-xs text-gray-500">Reasoning (F2, F4)</p>
+              </div>
+              <div className="p-3 rounded-lg bg-black/30">
+                <p className="text-xs text-rose-400 font-code">asi_*</p>
+                <p className="text-xs text-gray-500">Alignment (F5, F6, F9)</p>
+              </div>
+              <div className="p-3 rounded-lg bg-black/30">
+                <p className="text-xs text-violet-400 font-code">apex_verdict</p>
+                <p className="text-xs text-gray-500">Judgment (F3, F8)</p>
+              </div>
+              <div className="p-3 rounded-lg bg-black/30">
+                <p className="text-xs text-green-400 font-code">vault_seal</p>
+                <p className="text-xs text-gray-500">Seal (F1, F3)</p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -1495,6 +2012,8 @@ python -m aaa_mcp sse`}
         </div>
       </footer>
     </div>
+    
+    </div> {/* Close sidebar offset */}
   );
 }
 
