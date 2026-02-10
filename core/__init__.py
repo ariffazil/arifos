@@ -46,6 +46,17 @@ from .organs import (
 )
 from .pipeline import ForgeResult, quick
 from .pipeline import forge as forge_pipeline
+
+__all__ = [
+    "organs",
+    "shared",
+    "init",
+    "sense",
+    "think",
+    "reason",
+    "sync",
+    "empathize",
+    "align",
     "forge",
     "judge",
     "seal",
