@@ -19,7 +19,7 @@
 
 <p align="center">
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg?style=for-the-badge&color=blue" alt="PyPI"></a>
-  <a href="https://arifos.arif-fazil.com"><img src="https://img.shields.io/badge/Live-Demo-success?style=for-the-badge" alt="Live Demo"></a>
+  <a href="https://arifos.arif-fazil.com"><img src="https://img.shields.io/badge/📖_Docs-arifos.arif--fazil.com-success?style=for-the-badge" alt="Documentation Site"></a>
   <a href="https://github.com/ariffazil/arifOS/releases"><img src="https://img.shields.io/github/v/release/ariffazil/arifos?style=for-the-badge&color=brightgreen" alt="Releases"></a>
   <a href="https://registry.modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP_Registry-io.github.ariffazil%2Faaa--mcp-blue?style=for-the-badge" alt="MCP Registry"></a>
   <!-- mcp-name: io.github.ariffazil/aaa-mcp -->
@@ -41,6 +41,19 @@
   <img src="https://img.shields.io/badge/🔐_Cryptographic-Audit_Trails-green?style=flat-square" alt="Cryptographic">
   <img src="https://img.shields.io/badge/🧠_Trinity-ΔΩΨ_Architecture-blueviolet?style=flat-square" alt="Trinity">
 </p>
+
+---
+
+## 🌐 Live Resources
+
+| Resource | URL | Status |
+|:---------|:----|:------:|
+| **📖 Documentation Site** | **[arifos.arif-fazil.com](https://arifos.arif-fazil.com)** | [![Live](https://img.shields.io/badge/Live-success?style=flat-square)](https://arifos.arif-fazil.com) |
+| **🏥 MCP Health Check** | [aaamcp.arif-fazil.com/health](https://aaamcp.arif-fazil.com/health) | [![Health](https://img.shields.io/badge/Online-brightgreen?style=flat-square)](https://aaamcp.arif-fazil.com/health) |
+| **📦 PyPI Package** | [pypi.org/project/arifos](https://pypi.org/project/arifos/) | [![PyPI](https://img.shields.io/pypi/v/arifos.svg?style=flat-square&color=blue)](https://pypi.org/project/arifos/) |
+| **🔗 MCP Registry** | [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io) | `io.github.ariffazil/aaa-mcp` |
+
+> **🚀 Quick Start:** Visit **[arifos.arif-fazil.com](https://arifos.arif-fazil.com)** for interactive documentation, implementation guides, and live demos.
 
 ---
 
@@ -99,8 +112,8 @@ arifOS/
 │   │   └── types.py         # Verdicts, FloorScores
 │   └── pipeline.py          # Main constitutional pipeline
 │
-├── 🌐 arif-fazil-sites/     # Website (arifos.arif-fazil.com)
-│   └── ...
+├── 🌐 arif-fazil-sites/     # 📖 Documentation site: arifos.arif-fazil.com
+│   └── APPS/                # React + Vite documentation app
 │
 ├── 🛠️ 333_APPS/             # Skills, tools, workflows
 │   ├── L1_PROMPT/           # System prompts
@@ -124,6 +137,7 @@ arifOS/
 
 ## 📖 Table of Contents
 
+- [🌐 Live Resources](#-live-resources)
 - [What is arifOS?](#what-is-arifos)
 - [The Problem (In Plain English)](#the-problem-in-plain-english)
 - [How It Works: From Question to Answer](#how-it-works-from-question-to-answer)
@@ -1873,7 +1887,7 @@ def verify_chain(entries):
 
 | Resource | Link | Description |
 |:---|:---|:---|
-| **Live Demo** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Try it online |
+| **📖 Documentation Site** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Interactive docs & demos |
 | **Documentation** | [docs/](docs/) | Full documentation |
 | **PyPI** | [pypi.org/project/arifos](https://pypi.org/project/arifos/) | Python package |
 | **GitHub** | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) | Source code |
