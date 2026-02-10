@@ -236,25 +236,6 @@ except ImportError:
 # Disable redirect_slashes to prevent 307 redirects
 app.router.redirect_slashes = False
 
-# Add CORS middleware for cross-origin requests from arifos.arif-fazil.com
-try:
-    from starlette.middleware.cors import CORSMiddleware
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[
-            "https://arifos.arif-fazil.com",
-            "https://apex.arif-fazil.com",
-            "https://arif-fazil.com",
-            "http://localhost:3000",
-            "http://localhost:5173",
-        ],
-        allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["*"],
-    )
-except Exception as e:
-    print(f"[WARN] Could not add CORS middleware: {e}")
-
 
 async def startup():
     """Startup tasks."""
