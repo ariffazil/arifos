@@ -26,7 +26,7 @@ python -m aaa_mcp http
 | # | Tool | Stage | Trinity | Floors | Annotations |
 |---|------|-------|---------|--------|-------------|
 | 1 | `init_gate` | 000 | Gate | F11, F12 | readOnly:❌ destructive:❌ openWorld:❌ |
-| 2 | `forge_pipeline` | 000-999 | All | F1-F13 | readOnly:❌ destructive:✅ openWorld:✅ |
+| 2 | `trinity_forge` | 000-999 | All | F1-F13 | readOnly:❌ destructive:✅ openWorld:✅ |
 | 3 | `agi_sense` | 111 | Δ Mind | F4 | readOnly:✅ destructive:❌ openWorld:❌ |
 | 4 | `agi_think` | 222 | Δ Mind | F2, F4, F7 | readOnly:✅ destructive:❌ openWorld:✅ |
 | 5 | `agi_reason` | 333 | Δ Mind | F2, F4, F7, F10 | readOnly:✅ destructive:❌ openWorld:❌ |

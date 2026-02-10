@@ -10,69 +10,84 @@ Uses core.organs as the single source of truth.
 Stage mottos: 000=DITEMPA, 111=DIKAJI, 222=DIJELAJAH, ..., 999=DITEMPA
 """
 
-from __future__ import annotations
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-from dataclasses import dataclass
-from typing import Any, Optional, Dict
+from pydantic import BaseModel, Field
 
-from core.organs import init, agi, asi, apex, vault
+from core.organs import agi, apex, asi, init, vault
 from core.organs._0_init import QueryType
-from core.shared.mottos import (
-    get_motto_for_stage,
-    format_stage_output,
-    get_full_pipeline_chant,
-)
-from core.shared.formatter import (
-    OutputMode,
-    OutputFormatter,
-    format_for_user,
-    format_for_debug,
-)
+from core.shared.formatter import OutputFormatter, OutputMode, format_for_debug, format_for_user
+from core.shared.mottos import format_stage_output, get_full_pipeline_chant, get_motto_for_stage
 
 
-@dataclass
-class ForgeResult:
-    """Result of full constitutional pipeline with diagnostics."""
+class ForgeResult(BaseModel):
+    """
+    Final result of the 000-999 forge.
+    Standardized as a Pydantic model for metabolic auditability.
+    """
+
     verdict: str
     session_id: str
-    token_status: str
-    agi: dict[str, Any]
-    asi: dict[str, Any]
-    apex: dict[str, Any]
-    seal: Any
-    processing_time_ms: float = 0.0
-    
+
+    # Metabolic state
+    emd: Optional[Dict[str, Any]] = None
+    landauer_risk: float = 0.0
+    mode: str = "conscience"
+
     # Diagnostic information for user feedback
     query_type: str = "UNKNOWN"
     f2_threshold: float = 0.99
-    floors_failed: list = None
+    floors_failed: List[str] = Field(default_factory=list)
     remediation: str = ""
     motto_summary: str = ""
-    
+
+    # Organ outputs (for debugging/audit)
+    agi: Dict[str, Any] = Field(default_factory=dict)
+    asi: Dict[str, Any] = Field(default_factory=dict)
+    apex: Dict[str, Any] = Field(default_factory=dict)
+    seal: Any = None
+    processing_time_ms: float = 0.0
+    """Result of full constitutional pipeline with diagnostics."""
+
+    verdict: str
+    session_id: str
+    # Metabolic state
+    emd: Optional[Dict[str, Any]] = None
+    landauer_risk: float = 0.0
+    mode: str = "conscience"
+
+    # Diagnostic information for user feedback
+    query_type: str = "UNKNOWN"
+    f2_threshold: float = 0.99
+    floors_failed: List[str] = Field(default_factory=list)
+    remediation: str = ""
+    motto_summary: str = ""
+
     def __post_init__(self):
         if self.floors_failed is None:
             self.floors_failed = []
-    
+
     def is_success(self) -> bool:
         """Check if result was successful (SEAL or PARTIAL)."""
         return self.verdict in ("SEAL", "PARTIAL")
-    
+
     def is_blocked(self) -> bool:
         """Check if result was blocked (VOID)."""
         return self.verdict == "VOID"
-    
+
     def needs_human(self) -> bool:
         """Check if result needs human review (888_HOLD)."""
         return self.verdict == "888_HOLD"
-    
+
     def to_user_message(self) -> str:
         """Generate user-friendly result message with remediation."""
         if self.verdict == "SEAL":
             return "Constitutional verification passed."
-        
+
         elif self.verdict == "PARTIAL":
             return f"Limited approval with constraints. {self.remediation}"
-        
+
         elif self.verdict == "VOID":
             msg = "Blocked by constitutional floors."
             if self.floors_failed:
@@ -80,10 +95,10 @@ class ForgeResult:
             if self.remediation:
                 msg += f" {self.remediation}"
             return msg
-        
+
         elif self.verdict == "888_HOLD":
             return "Requires human sovereign review."
-        
+
         return "Unknown verdict."
 
 
@@ -120,19 +135,28 @@ async def forge(
     actor_id: str = "user",
     auth_token: Optional[str] = None,
     require_sovereign: bool = False,
+    mode: str = "conscience",  # "ghost" (log only) or "conscience" (enforce)
 ) -> ForgeResult:
     """
-    Full pipeline: 000 -> 999 with adaptive F2 governance.
-    
+    Full pipeline: 000 -> 999 with adaptive F2 governance and EMD threading.
+
     Now with:
     - P0.1: Query type classification
-    - P0.2: Adaptive F2 thresholds
+    - P0.2: Adaptive F2 thresholds & Landauer Bound checks
     - P0.3: Circuit breaker for early VOID + fast path
-    - Better error messages with remediation steps
+    - EMD: Energy-Metabolism-Decision persistent state threading
     """
     import time
+
+    from core.shared.physics import eigen_governance, landauer_risk
+    from core.shared.types import EMD, HeartBundle, MindBundle, SoulBundle
+
     start_time = time.perf_counter()
-    
+
+    # Initialize EMD Stack
+    emd = EMD()
+    emd.energy.e_eff = 1.0  # Default initial energy
+
     # 000_INIT
     token = await init(
         query,
@@ -140,7 +164,7 @@ async def forge(
         auth_token,
         require_sovereign_for_high_stakes=require_sovereign,
     )
-    
+
     f2_threshold = token.f2_threshold
     query_type = token.query_type
     stage_motto_000 = get_motto_for_stage("000_INIT")
@@ -158,10 +182,13 @@ async def forge(
             apex={},
             seal=None,
             processing_time_ms=elapsed,
-            query_type=query_type.value,
+            query_type=str(query_type),
             f2_threshold=f2_threshold,
-            floors_failed=token.floors_failed if hasattr(token, 'floors_failed') else [],
+            floors_failed=token.floors_failed if hasattr(token, "floors_failed") else [],
             remediation=remediation,
+            emd=emd.model_dump() if emd else None,
+            landauer_risk=0.0,
+            mode=mode,
         )
 
     # Fast path for TEST/CONVERSATIONAL
@@ -170,7 +197,12 @@ async def forge(
         asi_out = {"verdict": "SEAL", "empathy": 0.8, "fast_path": True}
         apex_out = {"verdict": "SEAL", "fast_path": True}
         elapsed = (time.perf_counter() - start_time) * 1000
-        
+
+        # Update EMD for fast path
+        emd.metabolism.delta_s = 0.0
+        emd.decision.confidence = 0.5
+        emd.decision.verdict_kind = "SEAL"
+
         return ForgeResult(
             verdict="SEAL",
             session_id=token.session_id,
@@ -184,54 +216,61 @@ async def forge(
             f2_threshold=f2_threshold,
             floors_failed=[],
             remediation="Fast path: TEST/CONVERSATIONAL query processed with minimal stages.",
+            emd=emd.model_dump(),
+            landauer_risk=0.0,
+            mode=mode,
         )
 
-    # 111-333: AGI
+    # 111-333: AGI (MindBundle)
     stage_motto_111 = get_motto_for_stage("111_SENSE")
     stage_motto_222 = get_motto_for_stage("222_THINK")
     stage_motto_333 = get_motto_for_stage("333_REASON")
-    
+
     agi_out = await agi(query, token.session_id, action="full")
-    agi_tensor = agi_out.get("tensor")
-    
-    # Circuit breaker
+    agi_tensor = agi_out.tensor
+
+    # Update EMD from Δ MIND
+    emd.metabolism.delta_s = agi_tensor.entropy_delta if agi_tensor else 0.0
+    emd.decision.confidence = agi_tensor.truth_score if agi_tensor else 0.5
+
+    # Landauer check - F2/F4 enforcement
+    # bits_erased proxy: -delta_S * factor
+    bits_erased = max(0.0, -emd.metabolism.delta_s * 1000)
+    l_risk = landauer_risk(emd.energy.e_eff, bits_erased)
+
     floors_violated = []
-    
-    truth_score = getattr(agi_tensor, 'truth_score', 0.5)
-    if truth_score < f2_threshold:
-        floors_violated.append("F2")
-    
-    entropy_delta = getattr(agi_tensor, 'entropy_delta', 0.0)
+
+    # Truth check with Landauer factor
+    truth_score = emd.decision.confidence
+    if truth_score < f2_threshold or l_risk > 0.8:
+        if mode == "conscience":
+            floors_violated.append("F2")
+
+    entropy_delta = emd.metabolism.delta_s
     if not token.skip_f4 and entropy_delta > 0:
-        floors_violated.append("F4")
-    
-    humility = getattr(agi_tensor, 'humility', None)
+        if mode == "conscience":
+            floors_violated.append("F4")
+
+    humility = getattr(agi_tensor, "humility", None)
     if humility and not humility.is_locked():
-        floors_violated.append("F7")
-    
-    genius = getattr(agi_tensor, 'genius', None)
+        if mode == "conscience":
+            floors_violated.append("F7")
+
+    genius = getattr(agi_tensor, "genius", None)
     if genius and genius.G() < 0.80:
-        floors_violated.append("F8")
-    
-    if floors_violated:
+        if mode == "conscience":
+            floors_violated.append("F8")
+
+    if floors_violated and mode == "conscience":
         elapsed = (time.perf_counter() - start_time) * 1000
         remediation_parts = [f"Query: {query_type.value} (F2 threshold: {f2_threshold})"]
-        
+
         if "F2" in floors_violated:
-            if query_type.value == "FACTUAL":
-                remediation_parts.append("Add specific facts or citations.")
-            else:
-                remediation_parts.append("Rephrase with more specific language.")
-        
+            remediation_parts.append(f"F2 Truth/Landauer failure (Risk: {l_risk:.2f}).")
+
         if "F4" in floors_violated:
-            remediation_parts.append("F4 Clarity: Query increases uncertainty. Be more specific.")
-        
-        if "F7" in floors_violated:
-            remediation_parts.append("F7 Humility: Add uncertainty ('I think', 'perhaps').")
-        
-        if "F8" in floors_violated:
-            remediation_parts.append("F8 Genius: Simplify or add more context.")
-        
+            remediation_parts.append("F4 Clarity failure: Heat gain detected.")
+
         return ForgeResult(
             verdict="VOID",
             session_id=token.session_id,
@@ -245,24 +284,39 @@ async def forge(
             f2_threshold=f2_threshold,
             floors_failed=floors_violated,
             remediation=" ".join(remediation_parts),
+            emd=emd.model_dump() if emd else None,
+            landauer_risk=l_risk,
+            mode=mode,
         )
 
-    # 444-666: ASI
+    # 444-666: ASI (HeartBundle)
     stage_motto_444 = get_motto_for_stage("444_SYNC")
     stage_motto_555 = get_motto_for_stage("555_EMPATHY")
     stage_motto_666 = get_motto_for_stage("666_ALIGN")
-    
+
     asi_out = await asi(query, agi_tensor, token.session_id, action="full")
 
-    # 777-888: APEX
+    # Update EMD from Ω HEART
+    if hasattr(asi_out, "floor_scores"):
+        emd.metabolism.kappa_r = asi_out.floor_scores.f6_empathy
+        emd.metabolism.peace2 = asi_out.floor_scores.f5_peace
+
+    # 777-888: APEX (SoulBundle)
     stage_motto_777 = get_motto_for_stage("777_FORGE")
     stage_motto_888 = get_motto_for_stage("888_JUDGE")
-    
+
+    # Eigen-Governance: Collapse 13 floors to G index
+    floor_statuses = {
+        f"F{i}": "VOID" if f"F{i}" in floors_violated else "SEAL" for i in range(1, 14)
+    }
+    genius_dials = eigen_governance(floor_statuses)
+    emd.metabolism.genius_index = genius_dials.G()
+
     apex_out = await apex(agi_tensor, asi_out, token.session_id, action="full")
 
     # 999: VAULT
     stage_motto_999 = get_motto_for_stage("999_SEAL")
-    
+
     seal_out = await vault(
         "seal",
         judge_output=apex_out.get("judge", apex_out),
@@ -275,19 +329,21 @@ async def forge(
     verdict = apex_out.get("verdict") or apex_out.get("judge", {}).get("verdict", "SEAL")
     elapsed = (time.perf_counter() - start_time) * 1000
 
-    motto_summary = " | ".join([
-        f"000: {token.motto}",
-        f"111: {agi_out.get('motto_111', 'DIKAJI, BUKAN DISUAPI')}",
-        f"222: {agi_out.get('motto_222', 'DIJELAJAH, BUKAN DISEKATI')}",
-        f"333: {agi_out.get('motto_333', 'DIJELASKAN, BUKAN DIKABURKAN')}",
-        f"444: {apex_out.get('motto_444', 'DIHADAPI, BUKAN DITANGGUHI')}",
-        f"555: {asi_out.get('motto_555', 'DIDAMAIKAN, BUKAN DIPANASKAN')}",
-        f"666: {asi_out.get('motto_666', 'DIJAGA, BUKAN DIABAIKAN')}",
-        f"777: {apex_out.get('motto_777', 'DIUSAHAKAN, BUKAN DIHARAPI')}",
-        f"888: {apex_out.get('motto_888', 'DISEDARKAN, BUKAN DIYAKINKAN')}",
-        f"999: {seal_out.motto if seal_out else 'DITEMPA, BUKAN DIBERI'}",
-    ])
-    
+    motto_summary = " | ".join(
+        [
+            f"000: {token.motto}",
+            f"111: {agi_out.get('motto_111', 'DIKAJI, BUKAN DISUAPI')}",
+            f"222: {agi_out.get('motto_222', 'DIJELAJAH, BUKAN DISEKATI')}",
+            f"333: {agi_out.get('motto_333', 'DIJELASKAN, BUKAN DIKABURKAN')}",
+            f"444: {apex_out.get('motto_444', 'DIHADAPI, BUKAN DITANGGUHI')}",
+            f"555: {asi_out.get('motto_555', 'DIDAMAIKAN, BUKAN DIPANASKAN')}",
+            f"666: {asi_out.get('motto_666', 'DIJAGA, BUKAN DIABAIKAN')}",
+            f"777: {apex_out.get('motto_777', 'DIUSAHAKAN, BUKAN DIHARAPI')}",
+            f"888: {apex_out.get('motto_888', 'DISEDARKAN, BUKAN DIYAKINKAN')}",
+            f"999: {seal_out.motto if seal_out else 'DITEMPA, BUKAN DIBERI'}",
+        ]
+    )
+
     return ForgeResult(
         verdict=verdict,
         session_id=token.session_id,
@@ -302,12 +358,16 @@ async def forge(
         floors_failed=apex_out.get("floors_failed", []),
         remediation="" if verdict == "SEAL" else "Review floor violations above.",
         motto_summary=motto_summary,
+        emd=emd.model_dump() if emd else None,
+        landauer_risk=l_risk,
+        mode=mode,
     )
 
 
 # =============================================================================
 # EUREKA NUDGE - Just a little push for emergence
 # =============================================================================
+
 
 async def forge_with_nudge(
     query: str,
@@ -318,32 +378,32 @@ async def forge_with_nudge(
 ) -> Dict[str, Any]:
     """
     Forge with a nudge - just a little push for cognitive emergence.
-    
+
     Args:
         query: User query
         actor_id: Identity
         auth_token: Optional token
-        nudge_type: 'reframe', 'invert', 'zoom_out', 'zoom_in', 
+        nudge_type: 'reframe', 'invert', 'zoom_out', 'zoom_in',
                     'connect', 'simplify', 'extreme', 'first', or None for random
         output_mode: USER, DEBUG, or JSON
-        
+
     Returns:
         Formatted result with nudge used
     """
-    from core.shared.nudge import get_nudge, apply_nudge, NudgeType
-    
+    from core.shared.nudge import NudgeType, apply_nudge, get_nudge
+
     # Get nudge (random if not specified)
     if nudge_type:
         nudge = get_nudge(NudgeType(nudge_type))
     else:
         nudge = get_nudge()
-    
+
     # Apply nudge to query
     nudged_query = apply_nudge(query, nudge)
-    
+
     # Run pipeline with nudged query
     result = await forge(nudged_query, actor_id, auth_token)
-    
+
     # Format result
     result_dict = {
         "verdict": result.verdict,
@@ -359,15 +419,15 @@ async def forge_with_nudge(
             "description": nudge.description,
         },
     }
-    
+
     # Format based on mode
     formatter = OutputFormatter(mode=output_mode)
     formatted = formatter.format(result_dict, template_name=None)
-    
+
     if output_mode == OutputMode.DEBUG:
         formatted["_raw"] = result_dict
         formatted["_nudged_query"] = nudged_query
-    
+
     return formatted
 
 
@@ -375,48 +435,74 @@ async def forge_with_nudge(
 # FORMATTED FORGE - With user/debug/schema modes
 # =============================================================================
 
+
 async def forge_formatted(
     query: str,
     actor_id: str = "user",
     auth_token: Optional[str] = None,
     output_mode: OutputMode = OutputMode.USER,
     schema_template: Optional[str] = None,
+    mode: str = "conscience",
 ) -> Dict[str, Any]:
     """
     Formatted forge with output mode selection.
-    
+
     Args:
         query: User query
         actor_id: Identity
         auth_token: Optional token
         output_mode: USER, DEBUG, or JSON
         schema_template: Template name for SCHEMA mode
-        
+        mode: "ghost" (log only) or "conscience" (enforce)
+
     Returns:
         Formatted result based on output_mode
     """
-    result = await forge(query, actor_id, auth_token)
-    
+    result = await forge(query, actor_id, auth_token, mode=mode)
+
+    # Standard response (all modes)
     result_dict = {
+        "response": result.agi.get("output", "") if result.agi else "",
         "verdict": result.verdict,
-        "session_id": result.session_id,
-        "agi": result.agi,
-        "asi": result.asi,
-        "apex": result.apex,
-        "seal": result.seal,
-        "query_type": result.query_type,
-        "f2_threshold": result.f2_threshold,
-        "floors_failed": result.floors_failed,
-        "remediation": result.remediation,
-        "motto_summary": result.motto_summary,
+        "reason": (
+            result.remediation
+            if result.verdict != "SEAL"
+            else "Constitutional verification passed."
+        ),
     }
-    
+
+    # Developer/Audit mode: Include full constitutional tensor
+    if output_mode in (OutputMode.DEBUG, OutputMode.JSON):
+        result_dict["_constitutional"] = {
+            "delta_s": result.emd.get("metabolism", {}).get("delta_s", 0.0) if result.emd else 0.0,
+            "omega_0": result.emd.get("decision", {}).get("omega0", 0.04) if result.emd else 0.04,
+            "kappa_r": result.emd.get("metabolism", {}).get("kappa_r", 1.0) if result.emd else 1.0,
+            "genius_g": (
+                result.emd.get("metabolism", {}).get("genius_index", 0.0) if result.emd else 0.0
+            ),
+            "peace2": result.emd.get("metabolism", {}).get("peace2", 1.0) if result.emd else 1.0,
+            "landauer_risk": result.landauer_risk,
+            "e_eff": result.emd.get("energy", {}).get("e_eff", 0.0) if result.emd else 0.0,
+            "mode": result.mode,
+            "floors": {
+                f: {"status": "FAIL" if f in result.floors_failed else "PASS"}
+                for f in ["F1", "F2", "F4", "F6", "F7", "F8", "F9", "F10", "F12"]
+            },
+        }
+
     formatter = OutputFormatter(mode=output_mode)
     formatted = formatter.format(result_dict, template_name=schema_template)
-    
+
     if output_mode == OutputMode.DEBUG:
-        formatted["_raw"] = result_dict
-    
+        formatted["_raw"] = {
+            "session_id": result.session_id,
+            "query_type": result.query_type,
+            "f2_threshold": result.f2_threshold,
+            "floors_failed": result.floors_failed,
+            "motto_summary": result.motto_summary,
+            "emd": result.emd,
+        }
+
     return formatted
 
 

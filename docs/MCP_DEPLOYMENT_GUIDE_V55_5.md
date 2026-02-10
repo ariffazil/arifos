@@ -364,7 +364,7 @@ nano .env
       "disabled": false,
       "alwaysAllow": [
         "init_gate",
-        "forge_pipeline",
+        "trinity_forge",
         "agi_sense",
         "agi_think",
         "agi_reason",
@@ -559,7 +559,7 @@ python scripts/deploy_mcp.py --mode validate --verbose
 | Tool | Organ | Floors | Purpose |
 |------|-------|--------|---------|
 | `init_gate` | Airlock | F11, F12 | Session initialization |
-| `forge_pipeline` | All | F1-F13 | Unified 000-999 pipeline |
+| `trinity_forge` | All | F1-F13 | Unified 000-999 pipeline |
 | `agi_sense` | Mind | F4, F7 | Intent classification |
 | `agi_think` | Mind | F2, F4 | Hypothesis generation |
 | `agi_reason` | Mind | F2, F4, F7 | Logical reasoning |

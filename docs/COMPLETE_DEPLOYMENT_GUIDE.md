@@ -932,7 +932,7 @@ Create `.kimi/mcp.json`:
       },
       "alwaysAllow": [
         "init_gate",
-        "forge_pipeline",
+        "trinity_forge",
         "agi_sense",
         "agi_reason",
         "asi_empathize",

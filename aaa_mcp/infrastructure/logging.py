@@ -249,3 +249,31 @@ def log_tool_call(logger: logging.Logger):
 mcp_logger = get_logger("aaa_mcp")
 tool_logger = get_logger("aaa_mcp.tools")
 floor_logger = get_logger("aaa_mcp.floors")
+audit_logger = get_logger("aaa_mcp.audit")
+
+
+def log_constitutional_event(
+    event_type: str,
+    session_id: str,
+    query: str,
+    emd: Optional[Dict[str, Any]] = None,
+    mode: str = "conscience",
+    **kwargs
+) -> None:
+    """
+    Log constitutional events to audit trail.
+    
+    Used for HOLD_888, VOID, and other governance events that require
+    cryptographic accountability.
+    """
+    audit_logger.info(
+        f"Constitutional Event: {event_type}",
+        extra={
+            "event_type": event_type,
+            "session_id": session_id,
+            "query": query,
+            "emd": emd,
+            "mode": mode,
+            **kwargs
+        }
+    )

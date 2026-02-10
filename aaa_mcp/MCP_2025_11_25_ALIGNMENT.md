@@ -70,7 +70,7 @@ Annotations are stored in `TOOL_ANNOTATIONS` registry for future FastMCP 2.x com
 | Tool | readOnly | destructive | openWorld |
 |------|----------|-------------|-----------|
 | `init_gate` | False | False | False |
-| `forge_pipeline` | False | True | True |
+| `trinity_forge` | False | True | True |
 | `agi_sense` | True | False | False |
 | `agi_think` | True | False | True |
 | `agi_reason` | True | False | False |

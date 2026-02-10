@@ -66,13 +66,15 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "required": ["query"]
     },
     
-    "forge_pipeline": {
+    "trinity_forge": {
         "type": "object",
         "properties": {
             "query": {"type": "string", "minLength": 1},
             "actor_id": {"type": "string", "default": "user"},
             "auth_token": {"type": ["string", "null"]},
             "require_sovereign_for_high_stakes": {"type": "boolean", "default": True},
+            "mode": {"type": "string", "enum": ["ghost", "conscience"], "default": "conscience", "description": "Governance mode: ghost (log only) or conscience (enforce)"},
+            "output_mode": {"type": "string", "enum": ["user", "developer", "audit"], "default": "user", "description": "Output detail level"},
         },
         "required": ["query"]
     },
@@ -206,7 +208,7 @@ TOOL_OUTPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "required": ["session_id", "verdict", "status", "stage"]
     },
     
-    "forge_pipeline": {
+    "trinity_forge": {
         "type": "object",
         "properties": {
             "verdict": VERDICT_ENUM,
@@ -216,6 +218,24 @@ TOOL_OUTPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
             "asi": {"type": "object"},
             "apex": {"type": "object"},
             "seal": {"type": "object"},
+            "emd": {"type": "object", "description": "Energy-Metabolism-Decision tensor (audit mode only)"},
+            "landauer_risk": {"type": "number", "description": "Hallucination risk score"},
+            "mode": {"type": "string", "enum": ["ghost", "conscience"]},
+            "_constitutional": {
+                "type": "object",
+                "description": "Full constitutional metrics (developer/audit mode)",
+                "properties": {
+                    "delta_s": {"type": "number"},
+                    "omega_0": {"type": "number"},
+                    "kappa_r": {"type": "number"},
+                    "genius_g": {"type": "number"},
+                    "peace2": {"type": "number"},
+                    "landauer_risk": {"type": "number"},
+                    "e_eff": {"type": "number"},
+                    "mode": {"type": "string"},
+                    "floors": {"type": "object"},
+                }
+            },
         },
         "required": ["verdict", "session_id"]
     },

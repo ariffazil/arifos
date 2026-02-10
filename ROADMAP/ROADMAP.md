@@ -29,7 +29,7 @@
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
 ```
 
-**13 Canonical Tools:** `init_gate`, `forge_pipeline`, `agi_sense`, `agi_think`, `agi_reason`, `asi_empathize`, `asi_align`, `apex_verdict`, `reality_search`, `vault_seal`, `vault_query`, `tool_router`, `truth_audit`
+**13 Canonical Tools:** `init_gate`, `trinity_forge`, `agi_sense`, `agi_think`, `agi_reason`, `asi_empathize`, `asi_align`, `apex_verdict`, `reality_search`, `vault_seal`, `vault_query`, `tool_router`, `truth_audit`
 
 ---
 
