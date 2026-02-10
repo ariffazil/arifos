@@ -9,7 +9,7 @@
 ## Executive Summary
 
 | Metric | Status |
-|--------|--------|
+| :--- | :--- |
 | **Version** | v60.0.0 (Production) |
 | **PyPI** | ✅ Live (pip install arifos) |
 | **Deployment** | ✅ Railway (aaamcp.arif-fazil.com) |
@@ -35,7 +35,9 @@
 
 ## Phase History
 
+
 ### ✅ Phase 1: Foundation (v60.0.0) — COMPLETE
+
 - 5-Organ Kernel operational (RUKUN AGI)
 - 13 canonical MCP tools with annotations
 - Constitutional decorator with F1-F13 enforcement
@@ -54,25 +56,26 @@
 
 ## Future Phases (v56.0+)
 
-### Phase 3: L5 Agent SDK (v56.0)
-**Theme:** Autonomous Agents on Constitutional Kernel
+### Phase 3: L5 Agent SDK & Interoperability (v56.0)
+**Theme:** Autonomous Agents & Ecosystem Integration
 
 | Deliverable | Description | Status |
-|-------------|-------------|--------|
+| :--- | :--- | :--- |
 | Architect Agent | Design agent with Trinity oversight | 📋 |
-| Engineer Agent | Build agent with floor enforcement | 📋 |
-| Auditor Agent | Review agent with truth audit | 📋 |
+| LangChain/Graph | Prototype integration suite | 📋 |
+| Benchmarking Suite | Latency & Efficacy metrics (F2-Audit) | 📋 |
 | ConstitutionalGroupChat | AutoGen integration | 📋 |
 
-### Phase 4: Enterprise Expansion (v57.0)
-**Theme:** Enterprise Adoption
+### Phase 4: Enterprise & Compliance (v57.0)
+**Theme:** Global Standards Adoption
 
 | Deliverable | Description | Status |
-|-------------|-------------|--------|
+| :--- | :--- | :--- |
+| ISO 42001 Mapping | Annex A & B control alignment | 📋 |
+| Insurance Tie-ins | Audit-grade logs for premium reduction | 📋 |
 | EU AI Act Compliance | Risk taxonomy + audit export | 📋 |
 | Kubernetes Operator | Helm charts, sidecar pattern | 📋 |
 | Enterprise Dashboard | Multi-session observability | 📋 |
-| SSO Integration | OAuth 2.1, SAML | 📋 |
 
 ---
 

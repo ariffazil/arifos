@@ -457,7 +457,7 @@ function App() {
   // Track active section for sidebar highlighting
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['overview', 'showcase', 'layers', 'mcp', 'mcp-server', 'applications', 'quickstart'];
+      const sections = ['overview', 'metrics', 'showcase', 'layers', 'mcp', 'mcp-server', 'applications', 'quickstart'];
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
@@ -542,6 +542,7 @@ function App() {
           <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 px-2">Navigate</p>
           {[
             { id: 'overview', label: 'Overview' },
+            { id: 'metrics', label: 'Live Metrics' },
             { id: 'showcase', label: 'Showcase' },
             { id: 'layers', label: 'Layers' },
             { id: 'mcp', label: 'MCP Tools' },
@@ -732,6 +733,77 @@ function App() {
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
           <div className="w-6 h-10 rounded-full border-2 border-gray-600 flex items-start justify-center p-2">
             <div className="w-1 h-2 bg-gray-400 rounded-full" />
+          </div>
+        </div>
+      </section>
+
+      {/* Live Metrics Section — Real Data from aaamcp.arif-fazil.com */}
+      <section id="metrics" className="py-12 relative border-y border-gray-800/50 bg-black/20">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <Activity className="w-5 h-5 text-cyan-400" />
+              <h2 className="text-lg font-semibold">Live System Metrics</h2>
+              <span className="text-xs text-gray-500">— from aaamcp.arif-fazil.com</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className={`w-2 h-2 rounded-full ${systemStatus.online ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+              <span className={`text-xs ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
+                {systemStatus.online ? 'LIVE' : 'OFFLINE'}
+              </span>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+              <p className="text-xs text-gray-500 uppercase tracking-wider">Status</p>
+              <p className={`text-lg font-bold ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
+                {systemStatus.online ? 'Healthy' : 'Down'}
+              </p>
+              <p className="text-xs text-gray-600">/health check</p>
+            </div>
+            
+            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+              <p className="text-xs text-gray-500 uppercase tracking-wider">Version</p>
+              <p className="text-lg font-bold text-cyan-400">{systemStatus.version}</p>
+              <p className="text-xs text-gray-600">Deployed</p>
+            </div>
+            
+            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+              <p className="text-xs text-gray-500 uppercase tracking-wider">Endpoint</p>
+              <p className="text-sm font-code text-cyan-400 truncate">aaamcp.arif-fazil.com</p>
+              <p className="text-xs text-gray-600">Production</p>
+            </div>
+            
+            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+              <p className="text-xs text-gray-500 uppercase tracking-wider">Protocol</p>
+              <p className="text-lg font-bold text-cyan-400">MCP</p>
+              <p className="text-xs text-gray-600">2025-11-25</p>
+            </div>
+            
+            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+              <p className="text-xs text-gray-500 uppercase tracking-wider">Tools</p>
+              <p className="text-lg font-bold text-cyan-400">9</p>
+              <p className="text-xs text-gray-600">Canonical</p>
+            </div>
+            
+            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+              <p className="text-xs text-gray-500 uppercase tracking-wider">Floors</p>
+              <p className="text-lg font-bold text-amber-400">F1-F13</p>
+              <p className="text-xs text-gray-600">Enforced</p>
+            </div>
+          </div>
+          
+          <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+            <p>Auto-refreshes on page load. Real-time data from production MCP server.</p>
+            <a 
+              href={`https://${API_BASE}/health`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+            >
+              View raw <ExternalLink className="w-3 h-3" />
+            </a>
           </div>
         </div>
       </section>

@@ -99,6 +99,12 @@ TOOL_ANNOTATIONS = {
         "destructiveHint": False,
         "openWorldHint": False,
     },
+    "simulate_transfer": {
+        "title": "Simulate Transfer",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "openWorldHint": False,
+    },
 }
 
 from aaa_mcp.core.constitutional_decorator import constitutional_floor, get_tool_floors
@@ -123,6 +129,75 @@ from aaa_mcp.services.constitutional_metrics import (
     store_stage_result,
 )
 from aaa_mcp.tools.reality_grounding import reality_check
+
+
+async def core_forge(
+    query: str,
+    session_id: Optional[str] = None,
+    actor_id: str = "user",
+    auth_token: Optional[str] = None,
+    require_sovereign: bool = True,
+) -> Any:
+    """Orchestrate the full 000-999 metabolic pipeline."""
+    # 1. 000_INIT
+    init_engine = InitEngine()
+    init_res = await init_engine.ignite(query, session_id)
+    sid = init_res.get("session_id") or session_id or "tmp-session"
+
+    # 2. AGI MIND (111-333)
+    agi_engine = AGIEngine()
+    agi_sense_res = await agi_engine.sense(query, sid)
+    agi_think_res = await agi_engine.think(query, sid)
+    agi_reason_res = await agi_engine.reason(query, sid)
+
+    # 3. ASI HEART (555-666)
+    asi_engine = ASIEngine()
+    asi_emp_res = await asi_engine.empathize(query, sid)
+    asi_align_res = await asi_engine.align(query, sid)
+
+    # 4. APEX SOUL (888)
+    apex_engine = APEXEngine()
+    apex_res = await apex_engine.judge(
+        query,
+        sid,
+        agi_result=agi_reason_res,
+        asi_result=asi_align_res,
+        init_result=init_res,
+        user_id=actor_id,
+    )
+
+    # 5. VAULT SEAL (999) - Automated for internal simulate_transfer
+    from aaa_mcp.core.engine_adapters import _agi_output_to_tensor
+    from core.shared.physics import ConstitutionalTensor
+
+    agi_tensor = _agi_output_to_tensor(agi_reason_res)
+    asi_output = {
+        "kappa_r": asi_align_res.get("kappa_r", 0.7),
+        "peace_squared": asi_align_res.get("peace_squared", 1.0),
+        "is_reversible": asi_align_res.get("is_reversible", True),
+        "verdict": asi_align_res.get("verdict", "SEAL"),
+    }
+
+    # Create a result object that matches the forge_pipeline expectations
+    class ForgeResult:
+        def __init__(self, sid, verdict, agi, asi, apex, seal):
+            self.session_id = sid
+            self.verdict = verdict
+            self.agi = agi
+            self.asi = asi
+            self.apex = apex
+            self.seal = seal
+            self.token_status = "READY"
+
+    return ForgeResult(
+        sid=sid,
+        verdict=apex_res.get("verdict", "SEAL"),
+        agi=agi_reason_res,
+        asi=asi_align_res,
+        apex=apex_res,
+        seal={"status": "SIMULATED"},
+    )
+
 
 """
 arifOS AAA MCP Server — Constitutional AI Governance (v60.0-FORGE)
@@ -676,6 +751,39 @@ async def apex_verdict(query: str, session_id: str) -> dict:
 
     store_stage_result(session_id, "apex", final_output)
     return final_output
+
+
+@mcp.tool(annotations=TOOL_ANNOTATIONS["simulate_transfer"])
+@constitutional_floor("F2", "F11", "F12")
+async def simulate_transfer(
+    amount: float,
+    recipient: str,
+    session_id: Optional[str] = None,
+    debug: bool = False,
+) -> dict:
+    """
+    Simulate a financial transfer to test constitutional floor enforcement.
+
+    This tool triggers the high-risk FACTUAL pipeline (ρ>=0.2, F2>=0.99).
+    """
+    query = f"Execute a wire transfer of ${amount} to account {recipient}."
+
+    # 1. Initialize session if needed
+    if not session_id:
+        init_res = await init_gate(query, mode="strict")
+        session_id = init_res["session_id"]
+
+    # 2. Run full forge pipeline (simulated)
+    # Note: For benchmarking, we use the core_forge logic or individual stages
+    result = await forge_pipeline(query, actor_id="mcp_test_actor")
+
+    return {
+        "status": "SIMULATION_COMPLETE",
+        "query": query,
+        "verdict": result["verdict"],
+        "session_id": session_id,
+        "metrics": result,
+    }
 
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["reality_search"])
