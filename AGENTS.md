@@ -12,7 +12,7 @@
 
 arifOS is the world's first production-grade Constitutional AI Governance System. It enforces ethical constraints on AI outputs through mathematical and thermodynamic principles rather than relying solely on prompt-based guardrails.
 
-### Core Philosophy
+### The Core Philosophy
 
 The system treats AI governance as **thermodynamic work** — intelligence forged through constraint. Unlike traditional safety frameworks that use human preferences, arifOS grounds its constraints in physical law:
 
