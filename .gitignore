@@ -217,3 +217,14 @@ gha-creds-*.json
 
 # Archived Roadmap Artifacts
 ROADMAP/archive/
+
+# Agent workspaces (ephemeral runtime data)
+.agents/
+.antigravity/
+.cache/
+.clawhub/
+.kimi/
+.openmcp/
+
+# Ruff cache
+.ruff_cache/
