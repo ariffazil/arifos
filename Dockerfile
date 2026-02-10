@@ -40,7 +40,9 @@ RUN pip install -e .
 EXPOSE 8080
 
 # Health check — hits /health on the MCP server (not Flask)
-HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+# CRITICAL: 60s start-period allows PyTorch + SBERT model loading (~30-60s)
+# Interval 30s, timeout 10s, retries 5 = ~2.5min total before marking unhealthy
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=5 \
     CMD curl -sf http://localhost:${PORT:-8080}/health || exit 1
 
 # Run with unbuffered output for logs
