@@ -529,6 +529,7 @@ function App() {
               <a href="#showcase" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Showcase</a>
               <a href="#layers" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Implementations</a>
               <a href="#mcp" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Tools</a>
+              <a href="#mcp-server" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">MCP Server</a>
               <a href="#quickstart" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Get Started</a>
               <div className="flex items-center gap-2 ml-4">
                 <a href="https://arif-fazil.com" className="px-3 py-1.5 rounded text-red-400 text-xs font-medium hover:bg-red-900/20 transition-colors">HUMAN</a>
@@ -554,6 +555,7 @@ function App() {
             <a href="#showcase" className="block text-gray-400 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Showcase</a>
             <a href="#layers" className="block text-gray-400 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Implementations</a>
             <a href="#mcp" className="block text-gray-400 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Tools</a>
+            <a href="#mcp-server" className="block text-gray-400 hover:text-white" onClick={() => setMobileMenuOpen(false)}>MCP Server</a>
             <a href="#quickstart" className="block text-gray-400 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Get Started</a>
             <div className="flex gap-2 pt-2">
               <a href="https://arif-fazil.com" className="px-3 py-1.5 rounded text-red-400 text-xs hover:bg-red-900/20">HUMAN</a>
@@ -1058,6 +1060,182 @@ function App() {
             </p>
           </div>
 
+        </div>
+      </section>
+
+      {/* AAA MCP Server Section - MCP Interface */}
+      <section id="mcp-server" className="py-24 relative bg-gradient-to-b from-[#0a0a0a] via-gray-900/20 to-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
+              <Server className="w-4 h-4 text-blue-400" />
+              <span className="text-sm text-blue-400">MCP Server</span>
+            </div>
+            <h2 className="text-4xl font-bold mb-4">AAA MCP Server</h2>
+            <p className="text-xl text-gray-300 mb-4">MCP Interface of arifOS</p>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              AAA MCP is the L4 TOOLS implementation of arifOS, exposed as an MCP server. 
+              This is what MCP clients (Claude, Cursor, ChatGPT, etc.) connect to for constitutional governance.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-12">
+            {/* MCP Manifest & Version */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                  <Package className="w-5 h-5 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">Server Manifest</h3>
+                  <p className="text-sm text-gray-500">MCP Registry entry</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-400">MCP Registry ID</span>
+                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs">io.github.ariffazil/aaa-mcp</Badge>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-400">Version</span>
+                    <span className="text-sm font-mono text-cyan-400">v60.0.0</span>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-400">PyPI Package</span>
+                    <span className="text-sm font-mono text-cyan-400">arifos==60.0.0</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-400">Protocol</span>
+                    <span className="text-sm font-mono text-gray-300">MCP 2025-11-25</span>
+                  </div>
+                </div>
+
+                <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+                  <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Server Manifest (server.json)</p>
+                  <a 
+                    href={`${GITHUB_BASE}/blob/main/server.json`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+                  >
+                    <Code className="w-4 h-4" />
+                    View server.json on GitHub
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                  <p className="text-xs text-gray-500 mt-2">
+                    The canonical MCP manifest defining all 9 tools, their schemas, and annotations.
+                  </p>
+                </div>
+
+                <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                  <p className="text-xs text-blue-400 uppercase tracking-wider mb-2">Version Note</p>
+                  <p className="text-sm text-gray-300">
+                    MCP manifest version: <strong>v60.0.0</strong> (aligns with PyPI <code className="text-cyan-400">arifos==60.0.0</code>). 
+                    Site shows v55.4 as internal kernel release tag. 
+                    See <a href={`${GITHUB_BASE}/releases`} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">GitHub Releases</a> for full history.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* MCP Client Quickstart */}
+            <div>
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center">
+                  <Bot className="w-5 h-5 text-green-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold">MCP Client Quickstart</h3>
+                  <p className="text-sm text-gray-500">Tested client configurations</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                {/* Claude Desktop */}
+                <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-purple-500/20 text-purple-400 border-purple-500/30">Claude Desktop</Badge>
+                    <span className="text-xs text-gray-500">stdio transport</span>
+                  </div>
+                  <pre className="text-xs text-gray-300 overflow-x-auto bg-black/30 p-2 rounded">
+{`{
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp", "stdio"],
+      "env": { "ARIFOS_MODE": "PROD" }
+    }
+  }
+}`}
+                  </pre>
+                </div>
+
+                {/* Cursor */}
+                <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Cursor</Badge>
+                    <span className="text-xs text-gray-500">stdio transport</span>
+                  </div>
+                  <pre className="text-xs text-gray-300 overflow-x-auto bg-black/30 p-2 rounded">
+{`// .cursor/mcp.json
+{
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp", "stdio"]
+    }
+  }
+}`}
+                  </pre>
+                </div>
+
+                {/* ChatGPT Developer Mode */}
+                <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Badge className="bg-green-500/20 text-green-400 border-green-500/30">ChatGPT Dev Mode</Badge>
+                    <span className="text-xs text-gray-500">SSE transport</span>
+                  </div>
+                  <pre className="text-xs text-gray-300 overflow-x-auto bg-black/30 p-2 rounded">
+{`// Connect to live SSE endpoint
+https://aaamcp.arif-fazil.com/sse
+
+// Or run locally:
+python -m aaa_mcp sse`}
+                  </pre>
+                </div>
+
+                {/* Auth Note */}
+                <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                  <p className="text-xs text-amber-400">
+                    <strong>Auth:</strong> No authentication required for local stdio. 
+                    Remote SSE endpoints support optional OAuth2 as per <code className="text-cyan-400">features.authorization</code> in server.json.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Live Endpoints */}
+          <div className="mt-12 grid md:grid-cols-4 gap-4">
+            {ENDPOINTS.map((endpoint) => (
+              <a
+                key={endpoint.path}
+                href={`https://${API_BASE}${endpoint.path}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-4 rounded-lg bg-gray-900/50 border border-gray-800 hover:border-cyan-500/30 transition-all group"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <Badge variant="outline" className="text-xs text-gray-400">{endpoint.method}</Badge>
+                  <ExternalLink className="w-3 h-3 text-gray-600 group-hover:text-cyan-400" />
+                </div>
+                <code className="text-sm text-cyan-400 font-mono">{endpoint.path}</code>
+                <p className="text-xs text-gray-500 mt-1">{endpoint.desc}</p>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
 
