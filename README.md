@@ -21,6 +21,7 @@
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg?style=for-the-badge&color=blue" alt="PyPI"></a>
   <a href="https://arifos.arif-fazil.com"><img src="https://img.shields.io/badge/Live-Demo-success?style=for-the-badge" alt="Live Demo"></a>
   <a href="https://github.com/ariffazil/arifOS/releases"><img src="https://img.shields.io/github/v/release/ariffazil/arifos?style=for-the-badge&color=brightgreen" alt="Releases"></a>
+  <a href="https://registry.modelcontextprotocol.io"><img src="https://img.shields.io/badge/MCP_Registry-io.github.ariffazil%2Faaa--mcp-blue?style=for-the-badge" alt="MCP Registry"></a>
 </p>
 
 <p align="center">
@@ -45,6 +46,8 @@
 ## Executive Summary
 
 **arifOS is the first AI governance kernel that enforces constitutional-level safety, ethical, and truth constraints on any language model output.** It transforms arbitrary models into auditable, compliant, and safe systems by enforcing thermodynamic governance floors that prevent hallucination, harm, and unverified assertions.
+
+**First production-grade MCP server enforcing F1–F13 constitutional floors via ΔΩΨ Trinity architecture, published to the [Official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.ariffazil/aaa-mcp`.**
 
 ### Why This Matters to Enterprise
 
@@ -201,6 +204,21 @@ Unlike prompt-based safety guardrails that can be bypassed, **AAA MCP enforces c
 | Stakeholder harm | Ignored | Blocked by F5/F6 Empathy checks |
 
 **Every tool call is governed by the 000-999 constitutional pipeline.** MCP provides the wires. AAA MCP provides the circuit breakers.
+
+### Try It Now (30 Seconds)
+
+**Test the constitutional pipeline without installation:**
+
+```bash
+# Python (with uv)
+uvx --from arifos python -m aaa_mcp --help
+
+# Or install and run
+pip install arifos
+python -m aaa_mcp
+```
+
+**Expected output**: MCP server starts with 10 canonical tools, ready to enforce F1–F13 floors.
 
 ---
 
@@ -1379,6 +1397,13 @@ print(summary["one_pager_markdown"])  # Board-ready report
 ---
 
 ## Who Is This For?
+
+| Audience | Entry Point | Why |
+|----------|-------------|-----|
+| **Developers** | [`aaa_mcp/`](aaa_mcp/) | Integrate constitutional AI into Claude/Cursor/Kimi via `io.github.ariffazil/aaa-mcp` |
+| **Researchers** | [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md) | Study first physics-based governance (Landauer, Shannon, Gödel) |
+| **Compliance Officers** | [VAULT999 Audit](#vault999-tamper-evident-audit-chain) | Immutable SHA-256 chains for regulated industries |
+| **Prompt Engineers** | [`333_APPS/`](333_APPS/) | Zero-code governance via L1–L7 templates |
 
 ### For Developers
 - **AI Engineers**: Add safety layers to LLM applications
