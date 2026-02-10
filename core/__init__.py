@@ -17,54 +17,35 @@ License: AGPL-3.0-only
 DITEMPA BUKAN DIBERI
 """
 
-__version__ = "55.5.0-RUKUN"
+__version__ = "60.0.0-RUKUN"
 
-from . import shared
-from . import organs
+from . import organs, shared
 
 # Convenience exports (public surface)
 from .organs import (
-    mind,
-    heart,
-    soul,
-    memory,
-    init,
     agi,
-    asi,
-    apex,
-    vault,
-    sense,
-    think,
-    reason,
-    empathize,
     align,
-    sync,
-    forge,
-    judge,
-    seal,
     anchor,
+    apex,
+    asi,
+    empathize,
     feel,
+    forge,
+    heart,
+    init,
+    judge,
+    memory,
+    mind,
+    reason,
+    seal,
+    sense,
+    soul,
+    sync,
+    think,
+    vault,
 )
-from .pipeline import forge as forge_pipeline, quick, ForgeResult
-
-__all__ = [
-    "shared",
-    "organs",
-    "mind",
-    "heart",
-    "soul",
-    "memory",
-    "init",
-    "agi",
-    "asi",
-    "apex",
-    "vault",
-    "sense",
-    "think",
-    "reason",
-    "empathize",
-    "align",
-    "sync",
+from .pipeline import ForgeResult, quick
+from .pipeline import forge as forge_pipeline
     "forge",
     "judge",
     "seal",
