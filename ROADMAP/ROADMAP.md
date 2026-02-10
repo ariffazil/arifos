@@ -42,6 +42,11 @@
 
 ---
 
+## Three-Tier Architecture (New)
+
+For the simplified **Human-AI-Machine** view of the roadmap, see:
+- **[HUMAN_AI_MACHINE_TIERS.md](./HUMAN_AI_MACHINE_TIERS.md)** — AAA (Sovereign), BBB (Agent), CCC (Machine) tiers
+
 ## The Four Horizons
 
 ### 🌅 H1: FOUNDATION — "Temper What Is Forged" (v60.1 – v60.3)
@@ -156,6 +161,74 @@ await gateway_route_tool(
 
 ---
 
+### 🛠️ H1.5: GATEWAY TEMPERING — "Identity, Policy, Observability" (v60.2)
+
+**Theme:** *The gateway is forged — now add identity, policy separation, and observability.*
+
+**Status:** 🔨 **Active Tempering**
+
+| Component | Status | Description |
+|-----------|--------|-------------|
+| **Identity Model** | ✅ | Actor (human/service/agent) → accountable human mapping |
+| **Policy Config** | ✅ | YAML-based thresholds (F1/F6/F10 tunable) |
+| **Observability** | ✅ | Post-deploy F4 Clarity checks (health → SEAL) |
+| **VAULT Integration** | 🔄 | Chain-of-custody logging for identity |
+
+**H1.5.1: Identity Model (F11 Authority)**
+```python
+from aaa_mcp.gateway import create_human_actor, identity_registry
+
+actor = create_human_actor(
+    user_id="arif-123",
+    email="arif@arif-fazil.com",
+    groups=["platform-engineers"],
+)
+
+identity_registry.register(
+    session_id="sess-001",
+    actor=actor,
+    tool_name="k8s_apply",
+    tool_class="infra_write",
+)
+
+# VAULT999 can always answer: "Which human is accountable?"
+accountable_human = identity_registry.get("sess-001").get_accountable_human()
+```
+
+**H1.5.2: Policy Configuration**
+```yaml
+# aaa_mcp/policies/gateway_config.yaml
+thresholds:
+  f2_truth:
+    default: 0.90
+    production: 0.95
+  f6_empathy:
+    default: 0.70
+    critical: 0.95
+
+hold_triggers:
+  always_require_override:
+    - namespace: prod
+      operation: delete
+```
+
+**H1.5.3: Post-Deploy Observability (F4 Clarity)**
+```python
+from aaa_mcp.gateway import post_deploy_monitor
+
+# SEAL isn't complete until health checks pass
+await post_deploy_monitor.start_monitoring(
+    session_id="sess-001",
+    deployment_name="api-server",
+    namespace="prod",
+)
+
+result = await post_deploy_monitor.finalize_seal("sess-001")
+# Returns: SEAL (healthy) or SABAR (entropy increased)
+```
+
+---
+
 ### 🌊 H2: AGENTIC — "From Tools to Living Institution" (v61.0 – v61.2)
 
 **Theme:** *Start narrow — one real use case, not generic AGI.*
@@ -168,26 +241,79 @@ await gateway_route_tool(
 | **H2.2** | L5 Agent Quartet | Architect (Δ), Engineer (Ω), Auditor (👁), Validator (✓) |
 | **H2.3** | Juror Democracy | 3-5 agent jurors vote on same case, APEX aggregates |
 
-**H2.1: Flagship Use Case — Constitutional Code Review**
-arifOS governs its own deployments:
-1. **Architect Agent** proposes infrastructure changes
-2. **Engineer Agent** implements changes  
-3. **Auditor Agent** checks floors, risk, κᵣ/Peace²
-4. **Validator Agent** decides SEAL/SABAR/VOID, hands to APEX
-5. Only SEAL triggers actual deployment
+**H2.1: Human-AI Interface SDK — "The HumanLayer for Constitutional AI"**
 
-**H2.2: L5 Agent Quartet**
-| Agent | Organ | Role |
-|-------|-------|------|
-| Architect | Δ Mind | Design with Trinity oversight |
-| Engineer | Ω Heart | Build with floor enforcement |
-| Auditor | 👁 Watch | Review with truth audit |
-| Validator | ✓ Check | Final SEAL/VOID authority |
+**Goal:** SDK yang membolehkan manusia interact dengan arifOS control plane dengan tenang — sama seperti HumanLayer/HITL SDK tapi berteraskan 13 Floors.
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    arifOS Human-AI Interface SDK                         │
+│  ┌───────────────────────────────────────────────────────────────────┐ │
+│  │  Python SDK          │  UI Components         │  Integrations      │ │
+│  │  ─────────────────   │  ──────────────────    │  ───────────────   │ │
+│  │  Session()           │  ApprovalQueue         │  Slack             │ │
+│  │  check_action()      │  BlastRadiusCard       │  Email             │ │
+│  │  await_approval()    │  FloorBreakdown        │  PagerDuty         │ │
+│  │  @requires_f13       │  DecisionButtons       │  Webhooks          │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+**Core Primitives:**
+```python
+import arifos_sdk as arifos
+
+# 1. Session with identity
+session = arifos.Session(
+    actor_id="arif@arif-fazil.com",
+    actor_type="human",
+    groups=["platform-engineers"],
+)
+
+# 2. Check action constitutionally
+result = await session.check_action(
+    tool="k8s_apply",
+    payload={"manifest": "...", "namespace": "prod"},
+)
+
+# 3. Handle 888_HOLD
+if result.verdict == "888_HOLD":
+    # Notify and wait for human
+    approval = await session.request_approval(result, notify=["slack", "email"])
+    final = await session.await_approval(approval.hold_id, timeout=3600)
+    
+    if final.is_approved:
+        # Deploy
+        pass
+```
+
+**UI Components (React/Vue):**
+| Component | Purpose |
+|-----------|---------|
+| `<ApprovalQueue />` | Dashboard for pending 888_HOLDs |
+| `<BlastRadiusCard />` | Visual blast radius display |
+| `<FloorBreakdown />` | Constitutional floor results |
+| `<DecisionButtons />` | SEAL/SABAR/VOID controls |
+
+**Integration Points:**
+- **Slack**: `/arifos approve HOLD-2025-001`
+- **Email**: Rich HTML approval requests
+- **PagerDuty**: Critical 888_HOLD escalations
+- **Webhook**: Custom notification pipelines
+
+**H2.2: L5 Agent Quartet (Using SDK)**
+| Agent | Organ | Role | Uses SDK |
+|-------|-------|------|----------|
+| Architect | Δ Mind | Design with Trinity oversight | `session.check_action()` |
+| Engineer | Ω Heart | Build with floor enforcement | `session.apply_manifest()` |
+| Auditor | 👁 Watch | Review with truth audit | `session.analyze_manifest()` |
+| Validator | ✓ Check | Final SEAL/VOID authority | `session.await_approval()` |
 
 **H2.3: Juror Democracy**
-- N agents (3-5) vote SEAL/SABAR/VOID on same case
+- N agents (3-5) vote SEAL/SABAR/VOID on same case via SDK
 - APEX aggregates under Floors + G + Peace²
 - Tri-Witness W₃ as final gate
+- Human has veto via 888_HOLD at any stage
 
 ---
 

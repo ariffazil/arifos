@@ -1,65 +1,38 @@
 # arifOS — AI Coding Agent Guide
 
 **Project:** arifOS — Constitutional AI Governance System  
-**Version:** 60.0-FORGE  
+**Version:** 60.0.0-FORGE  
 **License:** AGPL-3.0-only  
 **Python:** >=3.10  
 **Motto:** *DITEMPA BUKAN DIBERI* — Forged, Not Given
 
 ---
 
-## 🎉 MCP REGISTRY PUBLICATION ANNOUNCEMENT
-
-**OFFICIAL STATUS:** AAA MCP (`io.github.ariffazil/aaa-mcp`) is now **LIVE** in the [MCP Registry](https://registry.modelcontextprotocol.io)!
-
-| Registry Entry | Details |
-|:---------------|:--------|
-| **Namespace** | `io.github.ariffazil/aaa-mcp` |
-| **Version** | `60.0.0` |
-| **Status** | 🟢 **ACTIVE** |
-| **Published** | 2026-02-10T12:40:27Z |
-| **PyPI** | `arifos==60.0.0` |
-| **Docker** | `ariffazil/arifos:60.0.0` |
-| **SSE Endpoint** | `https://aaamcp.arif-fazil.com/sse` |
-
-**First Constitutional AI Governance system in the MCP Registry** — bringing F1-F13 thermodynamic enforcement to the Model Context Protocol ecosystem.
-
-### For Agents Working on This Codebase
-
-When updating documentation or code:
-- **MCP Registry** is the primary discovery mechanism for new users
-- **PyPI** (`pip install arifos`) is the recommended local install
-- **Docker** is for containerized/SSE deployments
-- **Railway** hosts the public SSE endpoint
-
-**Ω₀ ≈ 0.04** — The ecosystem is evolving; registry APIs may change.
-
----
-
 ## 1. Project Overview
 
-arifOS is the world's first production-grade Constitutional AI Governance System. It enforces ethical constraints on AI outputs through mathematical and thermodynamic principles rather than relying solely on prompt-based guardrails.
+arifOS is the world's first production-grade **Constitutional AI Governance System**. It enforces ethical constraints on AI outputs through 13 constitutional floors (F1-F13) grounded in mathematical and thermodynamic principles—not human preferences.
 
 ### The Core Philosophy
 
-The system treats AI governance as **thermodynamic work** — intelligence forged through constraint. Unlike traditional safety frameworks that use human preferences, arifOS grounds its constraints in physical law:
+The system treats AI governance as **thermodynamic work**: intelligence forged through rigorous constraint. Unlike traditional safety frameworks that use human preferences, arifOS grounds its constraints in physical law:
 
 | Floor | Physics Principle | Enforcement |
 |:---:|:---|:---|
-| F1 | Landauer's Principle | Irreversible operations cost energy → All actions must be reversible |
-| F2 | Shannon Entropy | Information must reduce uncertainty (Truth ≥ 0.99) |
-| F4 | Second Law of Thermodynamics | System entropy must not increase (ΔS ≤ 0) |
-| F7 | Gödel's Incompleteness | All claims must declare uncertainty bounds (Ω₀ ∈ [0.03, 0.05]) |
-| F8 | Eigendecomposition | Intelligence = A×P×X×E² (Akal × Present × Exploration × Energy²) |
+| F1 Amanah | Landauer's Principle | Irreversible operations cost energy → All actions must be reversible |
+| F2 Truth | Shannon Entropy | Information must reduce uncertainty (τ ≥ 0.99) |
+| F4 Clarity | Second Law of Thermodynamics | System entropy must not increase (ΔS ≤ 0) |
+| F6 Empathy | Network Protection | Stakeholder care reliability (κᵣ ≥ 0.95) |
+| F7 Humility | Gödel's Incompleteness | All claims must declare uncertainty bounds (Ω₀ ∈ [0.03, 0.05]) |
+| F8 Genius | Eigendecomposition | Intelligence = A×P×X×E² (Akal × Present × Exploration × Energy²) |
 
-### The 5-Organ Kernel (v60 Architecture)
+### The 5-Organ Trinity Architecture
 
 Every query flows through 5 organs in sequence:
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │   0_INIT    │ →  │   1_AGI     │ →  │   2_ASI     │ →  │   3_APEX    │ →  │   4_VAULT   │
-│  Airlock    │    │   Mind      │    │   Heart     │    │   Soul      │    │  Memory     │
+│  Airlock    │    │   Mind (Δ)  │    │  Heart (Ω)  │    │  Soul (Ψ)   │    │  Memory     │
 │  F11, F12   │    │  F2, F4, F7 │    │  F5, F6, F9 │    │  F3, F8     │    │   F1, F3    │
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
    Auth &              Reasoning          Empathy            Judgment           Seal
@@ -69,7 +42,7 @@ Every query flows through 5 organs in sequence:
 
 ### The 000-999 Metabolic Pipeline
 
-The complete constitutional pipeline flows through 10 stages, each with its own motto:
+The complete constitutional pipeline flows through 10 stages:
 
 | Stage | Name | Organ | Motto (Malay) | Meaning |
 |:---:|:---|:---:|:---|:---|
@@ -80,8 +53,8 @@ The complete constitutional pipeline flows through 10 stages, each with its own 
 | 444 | SYNC | Trinity | DIHADAPI, BUKAN DITANGGUHI | Faced, not postponed |
 | 555 | EMPATHY | ASI Heart | DIDAMAIKAN, BUKAN DIPANASKAN | Calmed, not inflamed |
 | 666 | ALIGN | ASI Heart | DIJAGA, BUKAN DIABAIKAN | Guarded, not neglected |
-| 777 | FORGE | Trinity | DIUSAHAKAN, BUKAN DIHARAPI | Worked, not hoped |
-| 888 | JUDGE | APEX Soul | DISEDARKAN, BUKAN DIYAKINKAN | Aware, not over-assured |
+| 777 | FORGE | Trinity | DIUSAHAKAN, BUKAN DIHARAPI | Worked for, not merely hoped |
+| 888 | JUDGE | APEX Soul | DISEDARKAN, BUKAN DIYAKINKAN | Made aware, not over-assured |
 | 999 | SEAL | VAULT | DITEMPA, BUKAN DIBERI | Forged, not given |
 
 ---
@@ -89,33 +62,35 @@ The complete constitutional pipeline flows through 10 stages, each with its own 
 ## 2. Technology Stack
 
 ### Core Dependencies
-```
-fastmcp>=2.0            # MCP server framework (FastMCP 2.0+)
-pydantic>=2.0.0         # Data validation
-fastapi>=0.104.1        # HTTP API
-uvicorn[standard]       # ASGI server
-sse-starlette>=1.8.2    # SSE transport
-mcp>=1.0.0              # MCP SDK (2025-11-25 spec)
-numpy>=1.20.0           # Numerical computation
-asyncpg>=0.29.0         # PostgreSQL async driver (VAULT999)
-rich>=13.7.0            # Terminal formatting
-prometheus-client       # Metrics
-httpx>=0.25.0           # HTTP client
-starlette>=0.30.0       # ASGI toolkit
-anyio>=4.0.0            # Async compatibility
-```
 
-### Development Tools
-```
-pytest>=7.0.0           # Testing framework
-pytest-cov>=4.0.0       # Coverage
-black>=23.0.0           # Code formatting (100 char line length)
-ruff>=0.1.0             # Linting
-mypy>=1.0.0             # Type checking
-pre-commit>=3.0.0       # Git hooks
-bandit                  # Security linter
-detect-secrets          # Secret detection
-```
+| Package | Purpose | Version |
+|:---|:---|:---|
+| `fastmcp` | MCP server framework | >=0.1.0 |
+| `pydantic` | Data validation | >=2.0.0 |
+| `fastapi` | HTTP API | >=0.104.1 |
+| `uvicorn[standard]` | ASGI server | >=0.24.0 |
+| `sse-starlette` | SSE transport | >=1.8.2 |
+| `mcp` | MCP SDK | >=1.0.0 |
+| `numpy` | Numerical computation | >=1.20.0 |
+| `asyncpg` | PostgreSQL async driver | >=0.29.0 |
+| `rich` | Terminal formatting | >=13.7.0 |
+| `prometheus-client` | Metrics | >=0.19.0 |
+| `httpx` | HTTP client | >=0.25.0 |
+| `starlette` | ASGI toolkit | >=0.30.0 |
+| `anyio` | Async compatibility | >=4.0.0 |
+
+### Development Dependencies
+
+| Package | Purpose | Version |
+|:---|:---|:---|
+| `pytest` | Testing framework | >=7.0.0 |
+| `pytest-cov` | Coverage | >=4.0.0 |
+| `black` | Code formatting (100 char lines) | >=23.0.0 |
+| `ruff` | Linting | >=0.1.0 |
+| `mypy` | Type checking | >=1.0.0 |
+| `pre-commit` | Git hooks | >=3.0.0 |
+| `bandit` | Security linter | — |
+| `detect-secrets` | Secret detection | — |
 
 ---
 
@@ -124,33 +99,44 @@ detect-secrets          # Secret detection
 ```
 arifOS/
 ├── aaa_mcp/                    # MCP Server Package (Primary Entry Point)
-│   ├── server.py               # 14 canonical MCP tool definitions
+│   ├── server.py               # 14+ canonical MCP tool definitions
 │   ├── __main__.py             # CLI entry: python -m aaa_mcp [stdio|sse|http]
-│   ├── protocol/               # Hardened protocol layer
-│   │   ├── __init__.py         # Response builders & validation
-│   │   └── schemas.py          # Tool schemas & stage operators
-│   ├── core/
+│   ├── config/                 # Configuration management
+│   ├── core/                   # Core adapters and decorators
 │   │   ├── constitutional_decorator.py   # Floor enforcement decorator
 │   │   ├── engine_adapters.py            # Bridge to core organs
 │   │   ├── stage_adapter.py              # 000-999 stage runners
 │   │   └── mode_selector.py              # Fluid/strict mode selection
-│   ├── services/
+│   ├── external_gateways/      # External API clients
+│   │   └── brave_client.py     # Brave Search client
+│   ├── gateway/                # Gateway components
+│   │   ├── identity.py         # Identity management
+│   │   └── observability.py    # Monitoring and observability
+│   ├── infrastructure/         # Infrastructure concerns
+│   │   ├── logging.py          # Structured logging
+│   │   ├── monitoring.py       # Prometheus metrics
+│   │   └── rate_limiter.py     # Rate limiting
+│   ├── protocol/               # Hardened protocol layer
+│   │   ├── schemas.py          # Tool schemas & stage operators
+│   │   ├── response.py         # Response builders
+│   │   ├── capabilities.py     # MCP capabilities
+│   │   └── operators.py        # Protocol operators
+│   ├── services/               # Business services
 │   │   ├── constitutional_metrics.py     # Evidence & metrics
-│   │   └── redis_client.py               # Session persistence
-│   ├── sessions/
-│   │   └── session_ledger.py             # VAULT999 ledger interface
-│   ├── tools/
+│   │   └── redis_client.py     # Session persistence
+│   ├── sessions/               # Session management
+│   │   └── session_ledger.py   # VAULT999 ledger interface
+│   ├── tools/                  # Tool implementations
 │   │   ├── reality_grounding.py          # Fact-checking / web search
 │   │   ├── trinity_validator.py          # Tri-Witness consensus
-│   │   └── manifold_adapter.py           # Manifold integration
-│   ├── external_gateways/
-│   │   └── brave_client.py               # Brave Search client
-│   ├── infrastructure/
-│   │   ├── logging.py                    # Structured logging
-│   │   ├── monitoring.py                 # Prometheus metrics
-│   │   └── rate_limiter.py               # Rate limiting
-│   └── transports/
-│       └── sse.py                        # SSE transport
+│   │   ├── manifold_adapter.py           # Manifold integration
+│   │   ├── mcp_gateway.py                # MCP gateway tools
+│   │   └── local/local_exec_guard.py     # Local execution guard
+│   ├── transports/             # Transport implementations
+│   │   └── sse.py              # SSE transport
+│   └── wrappers/               # Infrastructure wrappers
+│       ├── k8s_wrapper.py      # Kubernetes operations
+│       └── opa_policy.py       # OPA policy validation
 │
 ├── core/                       # 5-Organ Kernel (v60 Architecture)
 │   ├── organs/                 # The 5 constitutional organs
@@ -167,43 +153,32 @@ arifOS/
 │   │   ├── crypto.py           # Cryptographic utilities
 │   │   ├── routing.py          # Query routing logic
 │   │   ├── mottos.py           # Stage mottos
+│   │   ├── formatter.py        # Output formatting
+│   │   ├── nudge.py            # Cognitive nudges
 │   │   └── guards/             # Hypervisor guards
 │   │       ├── injection_guard.py
 │   │       └── ontology_guard.py
 │   ├── pipeline.py             # 000-999 forge pipeline
 │   └── tests/                  # Core unit tests
 │
-├── 333_APPS/                   # Application Layers (L1-L7)
-│   ├── L1_PROMPT/              # Zero-context entry prompts
-│   ├── L2_SKILLS/              # Parameterized templates
-│   ├── L3_WORKFLOW/            # Multi-step recipes
-│   ├── L4_TOOLS/               # Production MCP tools
-│   ├── L5_AGENTS/              # Autonomous agents
-│   ├── L6_INSTITUTION/         # Trinity consensus framework
-│   └── L7_AGI/                 # Recursive intelligence
-│
 ├── tests/                      # Test Suite
 │   ├── conftest.py             # Pytest configuration (global fixtures)
-│   ├── test_aaa_mcp_constitutional.py    # Constitutional tests
-│   ├── test_e2e_all_tools.py             # E2E tool tests
-│   ├── test_pipeline_e2e.py              # Pipeline tests
 │   ├── constitutional/         # Floor enforcement tests (F1-F13)
 │   ├── integration/            # Integration tests
 │   ├── mcp_tests/              # MCP-specific tests
+│   ├── core/                   # Core organ tests
+│   ├── runtime/                # Runtime tests
+│   ├── memory/                 # Memory/VAULT tests
+│   ├── trinity/                # Trinity framework tests
 │   ├── archive/                # Legacy tests (auto-skipped)
 │   └── utils.py                # Test utilities
 │
 ├── scripts/                    # Utility Scripts
-│   ├── start_server.py         # Production server startup (Railway/Render)
+│   ├── start_server.py         # Production server startup
 │   ├── verify_deployment.py    # Deployment verification
-│   ├── entropy_audit.py        # Constitutional entropy audit
-│   └── *.ps1, *.bat            # Windows/PowerShell helpers
+│   └── entropy_audit.py        # Constitutional entropy audit
 │
-├── 000_THEORY/                 # Constitutional Documentation
-│   ├── 000_LAW.md              # The 13 Floors specification
-│   └── 999_SOVEREIGN_VAULT.md  # VAULT999 specification
-│
-├── docs/                       # User Documentation
+├── docs/                       # Documentation
 │   └── llms.txt                # LLM-optimized constitutional reference
 │
 ├── pyproject.toml              # Package configuration
@@ -264,11 +239,11 @@ python scripts/start_server.py
 ### Testing
 
 ```bash
-# Full test suite
-pytest tests/ -v
-
 # Quick smoke test (~3 min)
 pytest tests/test_startup.py -v
+
+# E2E tests
+pytest tests/test_e2e_core_to_aaa_mcp.py -v
 
 # All MCP tool integration tests
 pytest tests/test_e2e_all_tools.py -v
@@ -323,35 +298,28 @@ pre-commit run --all-files
 
 ---
 
-## 5. Architecture
-
-### Trinity Framework (Three Engines + VAULT)
-
-| Engine | Symbol | Organ | Role | Floors | Location |
-|--------|:------:|:-----:|------|--------|----------|
-| **INIT** | — | 0 | Airlock — Auth & injection scan | F11, F12 | `core/organs/_0_init.py` |
-| **AGI** | Δ | 1 | Mind — reasoning, precision, truth | F2, F4, F7 | `core/organs/_1_agi.py` |
-| **ASI** | Ω | 2 | Heart — empathy, safety, alignment | F5, **F6** (HARD), F9 | `core/organs/_2_asi.py` |
-| **APEX** | Ψ | 3 | Soul — judgment, equilibrium | F3, F8 | `core/organs/_3_apex.py` |
-| **VAULT** | — | 4 | Memory — audit & seal | F1, F3 | `core/organs/_4_vault.py` |
+## 5. Architecture Details
 
 ### The 13 Constitutional Floors
 
 | Floor | Label | Type | Principle | Threshold | Fail Action |
 |:---:|:---|:---:|:---|:---:|:---:|
 | F1 | Amanah | HARD | Reversibility | Chain of Custody | VOID |
-| F2 | Truth | HARD | Fidelity ≥ 0.99 | Score ≥ 0.99 | VOID |
-| F3 | Consensus | DERIVED | Tri-Witness W₃ ≥ 0.95 | W₃ ≥ 0.95 | SABAR |
+| F2 | Truth | HARD | Fidelity | τ ≥ 0.99 | VOID |
+| F3 | Consensus | SOFT | Tri-Witness | W₃ ≥ 0.95 | SABAR |
 | F4 | Clarity | HARD | Ambiguity Reduction (ΔS ≤ 0) | Entropy ↓ | SABAR |
 | F5 | Peace² | SOFT | Stability | Index ≥ 1.0 | SABAR |
-| F6 | Empathy | HARD | Stakeholder Protection | κᵣ ≥ 0.95 | VOID |
+| F6 | Empathy | **HARD** | Stakeholder Protection | κᵣ ≥ 0.95 | VOID |
 | F7 | Humility | HARD | Uncertainty Declaration | Ω₀ ∈ [0.03, 0.05] | VOID |
-| F8 | Genius | DERIVED | Resource Efficiency | G-Factor ≥ 0.80 | SABAR |
+| F8 | Genius | SOFT | Resource Efficiency | G-Factor ≥ 0.80 | SABAR |
 | F9 | Anti-Hantu | SOFT | No Fake Consciousness | Personhood = False | SABAR |
 | F10 | Ontology | HARD | Grounding | Axiom Match = True | VOID |
 | F11 | Authority | HARD | Chain of Command | Auth Valid | VOID |
 | F12 | Defense | HARD | Injection Hardening | Risk < 0.85 | VOID |
 | F13 | Sovereign | HARD | Human Veto | Override Active | WARN |
+
+**HARD Floors**: Failure → **VOID** (blocked)  
+**SOFT Floors**: Failure → **SABAR** (repair) or **PARTIAL** (constrained)
 
 ### Verdict Semantics
 
@@ -363,7 +331,7 @@ pre-commit run --all-files
 | **VOID** | ❌ Blocked — HARD floor violated | Reject entirely |
 | **888_HOLD** | 🛑 Human Required — High stakes | Escalate to human |
 
-### The 14 Canonical MCP Tools (Core Pipeline)
+### The 14+ Canonical MCP Tools
 
 | # | Tool | Engine | Function | Floors Enforced |
 |:---:|:---|:---:|:---|:---|
@@ -382,7 +350,7 @@ pre-commit run --all-files
 | 13 | `tool_router` | APEX | Smart tool routing | F3, F8 |
 | 14 | `simulate_transfer` | ASI | Safe financial simulation | F1, F6 |
 
-### Agent Quick-Start: Using AAA-MCP Tools
+### Using AAA-MCP Tools
 
 **Rule of Thumb: Start with `trinity_forge`**
 
@@ -419,7 +387,7 @@ result = await trinity_forge(
 }
 ```
 
-**Handling HOLD_888 (Human Review Required)**
+**Handling 888_HOLD (Human Review Required)**
 
 When `verdict == "888_HOLD"`, the response includes:
 
@@ -432,52 +400,7 @@ When `verdict == "888_HOLD"`, the response includes:
 }
 ```
 
-**Route to human review queue. Do not proceed without sovereign authorization.**
-
-**Mode Selection Guide**
-
-| Mode | Use When | Behavior |
-|:-----|:---------|:---------|
-| `conscience` (default) | Production, safety-critical | HARD floors → VOID, SOFT floors → PARTIAL |
-| `ghost` | Debugging, testing | Log violations but don't block |
-
-**Output Mode Guide**
-
-| Mode | Use When | Includes |
-|:-----|:---------|:---------|
-| `user` (default) | End-user responses | verdict, session_id, minimal data |
-| `developer` | Debugging | + `_constitutional` tensor |
-| `audit` | Compliance logging | + full EMD stack |
-
-**Multi-Stage Workflow (Advanced)**
-
-Only use individual stage tools (`agi_sense`, `asi_empathize`, etc.) when you need granular control:
-
-```python
-# 000_INIT
-session = await init_gate(query, mode="conscience")
-
-# 111_AGI: Intent classification  
-sense = await agi_sense(query, session["session_id"])
-
-# If FACTUAL lane: ground to reality
-if sense["lane"] == "FACTUAL":
-    evidence = await reality_search(query, session["session_id"])
-
-# 333_AGI: Reasoning
-reasoning = await agi_reason(query, session["session_id"])
-
-# 555-666_ASI: Empathy & alignment
-empathy = await asi_empathize(query, session["session_id"])
-alignment = await asi_align(query, session["session_id"])
-
-# 888_APEX: Final judgment
-verdict = await apex_verdict(query, session["session_id"])
-
-# 999_VAULT: Seal the record
-if verdict["verdict"] == "SEAL":
-    await vault_seal(session["session_id"], verdict["payload"])
-```
+Route to human review queue. Do not proceed without sovereign authorization.
 
 ---
 
@@ -552,6 +475,7 @@ Never crash on import for optional dependencies.
 | `tests/constitutional/` | Floor enforcement tests (F1-F13) |
 | `tests/integration/` | Integration tests |
 | `tests/mcp_tests/` | MCP-specific tests |
+| `tests/core/` | Core organ unit tests |
 | `tests/archive/` | Legacy tests (auto-skipped) |
 | `core/tests/` | Core organ unit tests |
 
@@ -603,31 +527,17 @@ async def test_heavy_computation():
 
 ### Environment Variables
 
-```bash
-# Server Configuration
-HOST=0.0.0.0
-PORT=8080
-LOG_LEVEL=info
-
-# Governance
-GOVERNANCE_MODE=HARD  # or SOFT
-
-# Database (PostgreSQL for VAULT999)
-DATABASE_URL=postgresql://user:password@localhost:5432/arifos
-
-# Redis (for session state)
-REDIS_URL=redis://localhost:6379
-
-# MCP Transport Mode
-AAA_MCP_TRANSPORT=sse  # sse, http, or stdio
-
-# API Keys (optional)
-BRAVE_API_KEY=          # For reality_search tool
-BROWSERBASE_API_KEY=    # For web browsing
-
-# OAuth 2.1 (MCP 2025-11-25)
-AAA_ISSUER=https://aaamcp.arif-fazil.com
-```
+| Variable | Purpose | Example |
+|:---|:---|:---|
+| `HOST` | Server host binding | `0.0.0.0` |
+| `PORT` | Server port | `8080` |
+| `DATABASE_URL` | PostgreSQL connection | `postgresql://user:pass@host/db` |
+| `REDIS_URL` | Redis connection | `redis://default:pass@host:6379` |
+| `GOVERNANCE_MODE` | Strictness | `HARD` (default) or `SOFT` |
+| `AAA_MCP_TRANSPORT` | Protocol | `sse`, `http`, or `stdio` |
+| `BRAVE_API_KEY` | Web search | `BSxx...` |
+| `ARIFOS_ENV` | Runtime environment | `production` |
+| `VAULT_BACKEND` | VAULT999 persistence | `postgres` |
 
 ### Docker Deployment
 
@@ -641,7 +551,7 @@ docker run -p 8080:8080 -e PORT=8080 arifos-mcp
 
 ### Railway Deployment
 
-The project includes `railway.json` for Railway.app deployment:
+The project includes `railway.json` for Railway.app deployment. Railway auto-provisions PostgreSQL and Redis via plugins.
 
 ```json
 {
@@ -653,20 +563,16 @@ The project includes `railway.json` for Railway.app deployment:
   "deploy": {
     "startCommand": "python scripts/start_server.py",
     "healthcheckPath": "/health",
-    "healthcheckTimeout": 30
+    "healthcheckTimeout": 300
   }
 }
 ```
-
-Railway auto-provisions PostgreSQL and Redis via plugins.
 
 ### Health Endpoints
 
 - `GET /health` — Service health check
 - `GET /metrics` — Prometheus metrics
 - `GET /stats` — JSON statistics
-- `GET /.well-known/oauth-authorization-server` — OAuth 2.1 metadata
-- `GET /.well-known/oauth-protected-resource` — OAuth 2.1 protected resource metadata
 
 ---
 
@@ -692,14 +598,6 @@ The "thermodynamic wall" between MindBundle (AGI) and HeartBundle (ASI) ensures:
 - Cryptographic hash chaining
 - PostgreSQL backend for persistence
 - Every decision is auditable with cryptographic proof
-
-### OAuth 2.1 (MCP 2025-11-25)
-
-The server implements OAuth 2.1 authorization endpoints:
-- `/.well-known/oauth-authorization-server`
-- `/.well-known/oauth-protected-resource`
-- `/oauth/authorize` (requires external IdP)
-- `/oauth/token` (requires external IdP)
 
 ### Pre-commit Security Hooks
 
@@ -732,10 +630,9 @@ The `.pre-commit-config.yaml` enforces:
 ### New Floor Validator
 
 1. Create module in `core/shared/floors.py` (add to ALL_FLOORS)
-2. Or create in `codebase/floors/fX_name.py` (legacy)
-3. Inherit from `Floor` base class
-4. Implement `check()` method returning `FloorResult`
-5. Add tests in `tests/constitutional/`
+2. Inherit from `Floor` base class
+3. Implement `check()` method returning `FloorResult`
+4. Add tests in `tests/constitutional/`
 
 ---
 

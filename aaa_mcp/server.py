@@ -105,6 +105,79 @@ TOOL_ANNOTATIONS = {
         "destructiveHint": True,
         "openWorldHint": False,
     },
+    # --- MCP Gateway Tools (Vibe Infrastructure) ---
+    "gateway_route_tool": {
+        "title": "Gateway Router",
+        "readOnlyHint": False,
+        "destructiveHint": True,  # Can be destructive depending on payload
+        "openWorldHint": False,
+        "description": "Primary entry point for ALL infrastructure operations. Handles constitutional checks.",
+    },
+    "gateway_list_tools": {
+        "title": "List Gateway Tools",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "gateway_get_decisions": {
+        "title": "Audit Gateway Decisions",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "k8s_apply_guarded": {
+        "title": "K8s Apply (Guarded)",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "openWorldHint": False,
+        "description": "Production-safe kubectl apply. Enforces backup (F1) and human review (F13).",
+    },
+    "k8s_delete_guarded": {
+        "title": "K8s Delete (Guarded)",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "openWorldHint": False,
+        "description": "Production-safe kubectl delete. Requires strict F6 impact analysis.",
+    },
+    "k8s_constitutional_apply": {
+        "title": "Constitutional Apply Check",
+        "readOnlyHint": True,  # It evaluates, doesn't execute if dry_run=True (default/typical use for checking)
+        "destructiveHint": False,
+        "openWorldHint": False,
+        "description": "Evaluate a manifest against constitutional floors without applying it.",
+    },
+    "k8s_constitutional_delete": {
+        "title": "Constitutional Delete Check",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "k8s_analyze_manifest": {
+        "title": "Analyze Manifest",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "opa_validate_manifest": {
+        "title": "OPA Policy Check",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    "opa_list_policies": {
+        "title": "List OPA Policies",
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "openWorldHint": False,
+    },
+    # --- Phase 13: Local Guards ---
+    "local_exec_guard": {
+        "title": "Local Shell Execution (Guarded)",
+        "readOnlyHint": False,
+        "destructiveHint": True,
+        "openWorldHint": False,
+        "description": "Execute local shell commands with constitutional floors. Enforces F6 Blast Radius and F11 Authority.",
+    },
 }
 
 from aaa_mcp.core.constitutional_decorator import constitutional_floor, get_tool_floors
@@ -128,20 +201,20 @@ from aaa_mcp.services.constitutional_metrics import (
     get_stage_result,
     store_stage_result,
 )
-from aaa_mcp.tools.reality_grounding import reality_check
 from aaa_mcp.tools.mcp_gateway import (
-    gateway_route_tool,
-    gateway_list_tools,
     gateway_get_decisions,
+    gateway_list_tools,
+    gateway_route_tool,
     k8s_apply_guarded,
     k8s_delete_guarded,
 )
+from aaa_mcp.tools.reality_grounding import reality_check
 from aaa_mcp.wrappers.k8s_wrapper import (
+    k8s_analyze_manifest,
     k8s_constitutional_apply,
     k8s_constitutional_delete,
-    k8s_analyze_manifest,
 )
-from aaa_mcp.wrappers.opa_policy import opa_validate_manifest, opa_list_policies
+from aaa_mcp.wrappers.opa_policy import opa_list_policies, opa_validate_manifest
 from core.shared.types import (
     AgiOutput,
     ApexOutput,
@@ -162,16 +235,16 @@ async def core_forge(
     mode: str = "conscience",
 ) -> Any:
     """Orchestrate the full 000-999 metabolic pipeline.
-    
+
     Uses core.pipeline.forge() as the SINGLE source of truth.
     No duplicate logic - all stages flow through the unified pipeline.
-    
+
     Args:
         mode: "conscience" (enforce floors, default) or "ghost" (log only)
     """
     # Import here to avoid circular dependencies at module load
     from core.pipeline import forge
-    
+
     # Use the unified 000-999 pipeline from core/pipeline.py
     result = await forge(
         query=query,
@@ -180,7 +253,7 @@ async def core_forge(
         require_sovereign=require_sovereign,
         mode=mode,
     )
-    
+
     return result
 
 
@@ -301,7 +374,7 @@ async def trinity_forge(
 
     This is the single entrypoint for full constitutional execution across
     the Trinity engines: AGI Mind (Δ), ASI Heart (Ω), and APEX Soul (Ψ).
-    
+
     Args:
         mode: "conscience" (enforce floors, default) or "ghost" (log only)
         output_mode: "user" (minimal), "developer" (metrics), "audit" (full tensor)
@@ -325,32 +398,35 @@ async def trinity_forge(
         "seal": result.seal,
         "mode": mode,
     }
-    
+
     # Include constitutional tensor for developer/audit modes
     if output_mode in ("developer", "audit"):
         output["_constitutional"] = {
             "delta_s": result.emd.get("metabolism", {}).get("delta_s", 0.0) if result.emd else 0.0,
             "omega_0": result.emd.get("decision", {}).get("omega0", 0.04) if result.emd else 0.04,
             "kappa_r": result.emd.get("metabolism", {}).get("kappa_r", 1.0) if result.emd else 1.0,
-            "genius_g": result.emd.get("metabolism", {}).get("genius_index", 0.0) if result.emd else 0.0,
+            "genius_g": (
+                result.emd.get("metabolism", {}).get("genius_index", 0.0) if result.emd else 0.0
+            ),
             "peace2": result.emd.get("metabolism", {}).get("peace2", 1.0) if result.emd else 1.0,
-            "landauer_risk": result.landauer_risk if hasattr(result, 'landauer_risk') else 0.0,
+            "landauer_risk": result.landauer_risk if hasattr(result, "landauer_risk") else 0.0,
             "e_eff": result.emd.get("energy", {}).get("e_eff", 0.0) if result.emd else 0.0,
-            "floors_failed": result.floors_failed if hasattr(result, 'floors_failed') else [],
+            "floors_failed": result.floors_failed if hasattr(result, "floors_failed") else [],
         }
-    
+
     # Include EMD full tensor for audit mode
     if output_mode == "audit" and result.emd:
         output["emd"] = result.emd
-    
+
     # Handle HOLD_888: Route to human review queue
     if result.verdict == "888_HOLD":
         output["hold_status"] = "PENDING_REVIEW"
         output["phoenix_72_expiry"] = "72h from now"
         output["review_url"] = f"/human-review/{result.session_id}"
-        
+
         # Log to audit trail
         from aaa_mcp.infrastructure.logging import log_constitutional_event
+
         log_constitutional_event(
             event_type="HOLD_888_TRIGGERED",
             session_id=result.session_id,
@@ -358,16 +434,20 @@ async def trinity_forge(
             emd=output.get("_constitutional"),
             mode=mode,
         )
-    
+
     if envelope:
         output["envelope"] = envelope
-    
+
     # Store to session ledger with constitutional data
-    store_stage_result(result.session_id, "trinity_forge", {
-        **output,
-        "_constitutional": output.get("_constitutional"),
-    })
-    
+    store_stage_result(
+        result.session_id,
+        "trinity_forge",
+        {
+            **output,
+            "_constitutional": output.get("_constitutional"),
+        },
+    )
+
     return output
 
 
@@ -1211,15 +1291,15 @@ async def vault_seal(
 @mcp.tool(annotations=TOOL_ANNOTATIONS["tool_router"])
 async def tool_router(query: str) -> PlanObject:
     """Universal Tool Router Specification v3 — Intelligent Constitutional Routing.
-    
+
     Uses the tool relationship graph to recommend optimal sequences based on
     query intent, risk patterns, and lane classification.
     """
     import uuid
 
     from aaa_mcp.core.engine_adapters import _shannon_entropy
-    from aaa_mcp.protocol.tool_graph import suggest_sequence, WORKFLOW_SEQUENCES
     from aaa_mcp.protocol.capabilities import RiskLevel
+    from aaa_mcp.protocol.tool_graph import WORKFLOW_SEQUENCES, suggest_sequence
 
     entropy = _shannon_entropy(query)
     query_lower = query.lower()
@@ -1227,11 +1307,19 @@ async def tool_router(query: str) -> PlanObject:
 
     # ─── Risk Pattern Detection ─────────────────────────────────────────────
     critical_keywords = {"guaranteed", "absolute", "always", "never", "perfectly", "zero", "any"}
-    safety_keywords = {"safety", "harm", "risk", "dangerous", "protect", "stakeholder", "vulnerable"}
+    safety_keywords = {
+        "safety",
+        "harm",
+        "risk",
+        "dangerous",
+        "protect",
+        "stakeholder",
+        "vulnerable",
+    }
     fact_keywords = {"fact", "true", "false", "verify", "check", "real", "actual"}
     financial_keywords = {"transfer", "payment", "money", "financial", "transaction", "fund"}
     audit_keywords = {"audit", "verify claims", "check text", "ai generated", "generated text"}
-    
+
     domain_keywords = {"ccs", "co2", "injection", "pressure", "borehole", "storage", "hazardous"}
 
     has_risk = any(k in query_words for k in critical_keywords)
@@ -1245,7 +1333,7 @@ async def tool_router(query: str) -> PlanObject:
     intent = "general"
     lane = "FACTUAL"
     risk_level = RiskLevel.LOW
-    
+
     if has_financial:
         intent = "financial"
         lane = "CRISIS"
@@ -1266,10 +1354,10 @@ async def tool_router(query: str) -> PlanObject:
         intent = "technical_analysis"
         lane = "FACTUAL"
         risk_level = RiskLevel.HIGH if has_risk else RiskLevel.MEDIUM
-    
+
     # ─── Sequence Selection ─────────────────────────────────────────────────
     grounding_required = lane in ["FACTUAL", "CRISIS"] or has_fact
-    
+
     # Use the constitutional graph for intelligent routing
     if intent == "fact_check":
         sequence = WORKFLOW_SEQUENCES["fact_check"]
@@ -1292,10 +1380,10 @@ async def tool_router(query: str) -> PlanObject:
         # Default to quick decision for simple queries
         sequence = WORKFLOW_SEQUENCES["quick_decision"]
         justification = "Standard query — unified trinity_forge pipeline sufficient"
-    
+
     # ─── Build Response ─────────────────────────────────────────────────────
     plan_id = f"PLAN-{uuid.uuid4().hex[:8].upper()}"
-    
+
     return {
         "plan_id": plan_id,
         "recommended_pipeline": sequence,
@@ -1369,7 +1457,6 @@ async def vault_query(
     ledger = None
     try:
         # Try legacy codebase vault if available
-        from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
         from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
 
         ledger = get_hardened_vault_ledger()
@@ -2218,6 +2305,7 @@ async def seal_request(session_summary: str, verdict: str = "SEAL") -> str:
 # UPGRADE v60.1: WORKFLOW PROMPTS (P0/P1 Implementation)
 # =============================================================================
 
+
 @mcp.prompt()
 async def fact_check_workflow(claim: str) -> str:
     """Constitutional fact-checking workflow.
@@ -2425,84 +2513,54 @@ async def institutional_memory_workflow(query_pattern: str = "*", verdict_filter
 # UPGRADE v60.1: TOOL GUIDE RESOURCES (P0 Implementation)
 # =============================================================================
 
+
 @mcp.resource("aaa://tool-guide/{use_case}")
 async def get_tool_guide(use_case: str) -> str:
     """Get step-by-step tool sequence for specific use cases.
-    
+
     Args:
         use_case: fact_check | safety_check | quick_decision | full_analysis | claim_verification | institutional_memory
-    
+
     Returns:
         Markdown guide with exact tool sequence
     """
-    from aaa_mcp.protocol.tool_graph import (
-        WORKFLOW_SEQUENCES, 
-        WORKFLOW_DESCRIPTIONS,
-        TOOL_GRAPH
-    )
-    
-    if use_case not in WORKFLOW_SEQUENCES:
-        available = ", ".join(WORKFLOW_SEQUENCES.keys())
-        return f"""# Unknown Use Case: {use_case}
 
-**Available workflows:** {available}
+    from aaa_mcp.protocol.tool_graph import TOOL_GRAPH, WORKFLOW_DESCRIPTIONS, WORKFLOW_SEQUENCES
 
-**Quick Reference:**
-| Workflow | Use When |
-|----------|----------|
-| `fact_check` | Verifying factual claims |
-| `safety_check` | Assessing stakeholder impact |
-| `quick_decision` | Fast decisions (uses trinity_forge) |
-| `full_analysis` | Complete pipeline with all stages |
-| `claim_verification` | Auditing AI-generated text |
-| `institutional_memory` | Querying past decisions |
-"""
-    
     sequence = WORKFLOW_SEQUENCES[use_case]
     description = WORKFLOW_DESCRIPTIONS[use_case]
-    
+
     # Build detailed guide
-    guide = f"""# Workflow: {use_case}
+    guide = f"# Workflow: {use_case}\n\n"
+    guide += f"**Description:** {description}\n\n"
+    guide += "## Tool Sequence\n\n```\n"
+    guide += " -> ".join(sequence)
+    guide += "\n```\n\n## Step-by-Step\n\n"
 
-**Description:** {description}
-
-## Tool Sequence
-
-```
-{" → ".join(sequence)}
-```
-
-## Step-by-Step
-
-"""
-    
     for i, tool_name in enumerate(sequence, 1):
         node = TOOL_GRAPH.get(tool_name)
         if not node:
             continue
-            
-        floors_str = ", ".join(node.floors_enforced) if node.floors_enforced else "None"
-        
-        guide += f"""### {i}. `{tool_name}`
-- **Position:** {node.position.value}
-- **Floors:** {floors_str}
-- **Parallel Safe:** {"✅ Yes" if node.parallel_safe else "❌ No"}
-- **Idempotent:** {"✅ Yes" if node.idempotent else "❌ No"}
 
-"""
+        floors_str = ", ".join(node.floors_enforced) if node.floors_enforced else "None"
+
+        guide += f"### {i}. `{tool_name}`\n"
+        guide += f"- **Position:** {node.position.value}\n"
+        guide += f"- **Floors:** {floors_str}\n"
+        guide += f"- **Parallel Safe:** {'✅ Yes' if node.parallel_safe else '❌ No'}\n"
+        guide += f"- **Idempotent:** {'✅ Yes' if node.idempotent else '❌ No'}\n\n"
+
         if node.produces:
             guide += f"- **Produces:** {', '.join(node.produces)}\n"
         if node.feeds_into:
             guide += f"- **Feeds Into:** {', '.join(node.feeds_into)}\n"
         guide += "\n"
-    
-    # Add validation note
-    guide += """## Validation
 
-This sequence has been validated against the constitutional tool graph.
-All dependencies are satisfied and the sequence terminates correctly.
-"""
-    
+    # Add validation note
+    guide += "## Validation\n\n"
+    guide += "This sequence has been validated against the constitutional tool graph.\n"
+    guide += "All dependencies are satisfied and the sequence terminates correctly.\n"
+
     return guide
 
 
@@ -2510,7 +2568,7 @@ All dependencies are satisfied and the sequence terminates correctly.
 async def list_tool_guides() -> str:
     """List all available tool guides."""
     from aaa_mcp.protocol.tool_graph import WORKFLOW_DESCRIPTIONS
-    
+
     guide = """# Available Constitutional Workflows
 
 ## Quick Selection Guide
@@ -2518,7 +2576,7 @@ async def list_tool_guides() -> str:
 | Workflow | Description | Best For |
 |----------|-------------|----------|
 """
-    
+
     workflow_use_cases = {
         "fact_check": "Verifying claims with external evidence",
         "safety_check": "Assessing stakeholder impact",
@@ -2527,11 +2585,11 @@ async def list_tool_guides() -> str:
         "claim_verification": "Auditing AI-generated content",
         "institutional_memory": "Learning from past decisions",
     }
-    
+
     for name, description in WORKFLOW_DESCRIPTIONS.items():
         use_case = workflow_use_cases.get(name, "General purpose")
         guide += f"| `{name}` | {description} | {use_case} |\n"
-    
+
     guide += """
 ## Usage
 
@@ -2549,16 +2607,16 @@ Examples:
 
 ```
 START
-  │
-  ├─► Need facts verified? ──► fact_check
-  │
-  ├─► Safety/stakeholders? ──► safety_check
-  │
-  ├─► Audit AI content? ─────► claim_verification
-  │
-  ├─► Query history? ────────► institutional_memory
-  │
-  └─► Quick decision? ───────► quick_decision (or full_analysis)
+  |
+  |-- Need facts verified? --> fact_check
+  |
+  |-- Safety/stakeholders? --> safety_check
+  |
+  |-- Audit AI content? ----> claim_verification
+  |
+  |-- Query history? -------> institutional_memory
+  |
+  |-- Quick decision? ------> quick_decision (or full_analysis)
 ```
 """
     return guide
@@ -2567,15 +2625,15 @@ START
 @mcp.resource("aaa://tool-graph/{tool_name}")
 async def get_tool_graph_info(tool_name: str) -> str:
     """Get dependency graph information for a specific tool.
-    
+
     Args:
         tool_name: Name of the tool (e.g., "agi_reason", "apex_verdict")
-    
+
     Returns:
         Tool node details from constitutional graph
     """
     from aaa_mcp.protocol.tool_graph import TOOL_GRAPH
-    
+
     node = TOOL_GRAPH.get(tool_name)
     if not node:
         available = ", ".join(sorted(TOOL_GRAPH.keys()))
@@ -2583,9 +2641,9 @@ async def get_tool_graph_info(tool_name: str) -> str:
 
 **Available tools:** {available}
 """
-    
+
     floors_str = ", ".join(node.floors_enforced) if node.floors_enforced else "None"
-    
+
     info = f"""# Tool: `{tool_name}`
 
 ## Description
@@ -2626,19 +2684,22 @@ async def get_tool_graph_info(tool_name: str) -> str:
 @mcp.resource("aaa://capabilities/{tool_name}")
 async def get_tool_capabilities(tool_name: str) -> dict:
     """Get machine-readable capability description for a tool.
-    
+
     Args:
         tool_name: Name of the tool
-    
+
     Returns:
         JSON capability description
     """
     from aaa_mcp.protocol.capabilities import get_capability_dict
-    
+
     cap = get_capability_dict(tool_name)
     if not cap:
-        return {"error": f"Tool not found: {tool_name}", "available": list(get_capability_dict("").keys()) if False else []}
-    
+        return {
+            "error": f"Tool not found: {tool_name}",
+            "available": list(get_capability_dict("").keys()) if False else [],
+        }
+
     return cap
 
 
@@ -2646,17 +2707,18 @@ async def get_tool_capabilities(tool_name: str) -> dict:
 async def list_all_capabilities() -> dict:
     """List capabilities for all tools."""
     from aaa_mcp.protocol.capabilities import get_all_capabilities_dict
-    
+
     return {
         "tools": get_all_capabilities_dict(),
         "count": len(get_all_capabilities_dict()),
-        "version": "1.0.0-SEAL"
+        "version": "1.0.0-SEAL",
     }
 
 
 # =============================================================================
 # GATEWAY TOOLS — Constitutional Control Plane for Infrastructure (v60.1)
 # =============================================================================
+
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS.get("gateway_route_tool", {}))
 async def _gateway_route_tool_wrapper(
@@ -2676,13 +2738,13 @@ async def _gateway_route_tool_wrapper(
     )
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS.get("gateway_list_tools", {}))
 async def _gateway_list_tools_wrapper() -> dict:
     """List all tools available through the constitutional gateway."""
     return await gateway_list_tools()
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS.get("gateway_get_decisions", {}))
 async def _gateway_get_decisions_wrapper(
     session_id: Optional[str] = None,
     limit: int = 100,
@@ -2691,7 +2753,7 @@ async def _gateway_get_decisions_wrapper(
     return await gateway_get_decisions(session_id=session_id, limit=limit)
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS.get("k8s_apply_guarded", {}))
 async def _k8s_apply_guarded_wrapper(
     manifest: str,
     namespace: str,
@@ -2711,7 +2773,7 @@ async def _k8s_apply_guarded_wrapper(
     )
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS.get("k8s_delete_guarded", {}))
 async def _k8s_delete_guarded_wrapper(
     resource: str,
     name: str,
@@ -2733,7 +2795,7 @@ async def _k8s_delete_guarded_wrapper(
     )
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS.get("k8s_constitutional_apply", {}))
 async def _k8s_constitutional_apply_wrapper(
     manifest: str,
     namespace: str = "default",
@@ -2751,7 +2813,7 @@ async def _k8s_constitutional_apply_wrapper(
     )
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS.get("k8s_constitutional_delete", {}))
 async def _k8s_constitutional_delete_wrapper(
     resource: str,
     name: str,
@@ -2769,13 +2831,13 @@ async def _k8s_constitutional_delete_wrapper(
     )
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS.get("k8s_analyze_manifest", {}))
 async def _k8s_analyze_manifest_wrapper(manifest: str) -> dict:
     """Analyze a K8s manifest without constitutional enforcement."""
     return await k8s_analyze_manifest(manifest=manifest)
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS.get("opa_validate_manifest", {}))
 async def _opa_validate_manifest_wrapper(
     manifest: str,
     namespace: str = "k8s",
@@ -2789,10 +2851,12 @@ async def _opa_validate_manifest_wrapper(
     )
 
 
-@mcp.tool()
+@mcp.tool(annotations=TOOL_ANNOTATIONS.get("opa_list_policies", {}))
 async def _opa_list_policies_wrapper() -> dict:
     """List available OPA/Conftest policies."""
     return await opa_list_policies()
+
+
 
 
 # Apply annotations at module load time
@@ -2800,5 +2864,5 @@ _apply_tool_annotations()
 
 
 if __name__ == "__main__":
-    print("arifOS Constitutional Kernel — FastMCP Mode")
+    print("arifOS Constitutional Kernel - FastMCP Mode")
     mcp.run(transport="sse", port=6274)

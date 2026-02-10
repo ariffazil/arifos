@@ -179,6 +179,20 @@ User Query
 User Response + Verdict
 ```
 
+### MCP Trinity Architecture
+
+arifOS is organized as **three MCP servers** serving different domains:
+
+| MCP | Domain | Analogy | User | Tools | Status |
+|-----|--------|---------|------|-------|--------|
+| **AAA-MCP** | Cloud/Infrastructure | ☁️ The Factory | DevOps, Platform | 10 | ✅ Deployed |
+| **BBB-MCP** | Local Agent | 💻 The Butler | Personal Users | 7 | 📝 Planned |
+| **CCC-MCP** | Human Interface | 👤 The Telephone | Humans (all) | 3 | 🔄 In Progress |
+
+**Remember:** Above (Cloud) → Below (Local) → Connect (Human)
+
+See [docs/MCP_TRINITY_SUMMARY.md](./docs/MCP_TRINITY_SUMMARY.md) for details.
+
 ### Infrastructure
 
 | Component | Technology | Status | Environment |
@@ -211,6 +225,48 @@ User Response + Verdict
 | `simulate_transfer` | Financial simulation | — | F2, F11, F12 |
 
 **Machine-Discoverable**: Access `aaa://capabilities/` for full tool specifications.
+
+---
+
+## 🎙️ Vibe Infrastructure — AI as the UI
+
+arifOS enables **intent-based infrastructure management**: human describes intent, AI handles complexity, constitution guards actions.
+
+### Traditional vs Vibe Infrastructure
+
+| Traditional | Vibe Infrastructure |
+|-------------|---------------------|
+| Human learns Kubernetes YAML | Human says "deploy my app" |
+| Human clicks 20 buttons | AI asks "Approve prod deploy?" |
+| Human reads CVE reports | AI says "3 vulnerabilities, continue?" |
+| Human finds menu that moved | AI remembers context |
+
+### Example Conversation
+
+```
+Human: Deploy payment service to production
+
+AI: 🚨 CONSTITUTIONAL CHECK TRIGGERED
+   
+   Action: Deploy to production namespace
+   Risk Level: HIGH | Blast Radius: 15 pods
+   
+   Floors Checked:
+   ✅ F1 Amanah: Backup exists
+   ⚠️  F6 Empathy: Production impact (κᵣ = 0.85)
+   ⏳ F13 Sovereign: Awaiting your approval
+   
+   Approve? [Yes] [No] [Show details]
+
+Human: Yes
+
+AI: ✅ SEAL granted. Deploying with canary strategy...
+   Health checks passed. Deployment complete.
+```
+
+**No buttons. No menus. Just conversation and constitution.**
+
+See [docs/VIBE_INFRASTRUCTURE.md](./docs/VIBE_INFRASTRUCTURE.md) for full specification.
 
 ---
 
@@ -253,24 +309,27 @@ docker run -p 8080:8080 -e PORT=8080 arifos
 
 ## 🗺️ Roadmap: The Four Horizons
 
-### 🔥 H1: Foundation Tempering (Now — v60.1-v60.9)
-**Status**: Infrastructure operational, hardening in progress
+### 🔥 H1: Foundation Tempering (v60.1-v60.9)
+**Status**: Infrastructure forged, tempering in progress
 
 - ✅ PostgreSQL VAULT999 ledger
 - ✅ Redis session cache
 - ✅ 13 floors enforced
-- ✅ ASI floor scoring fixed
-- 🔄 `/health` endpoint with governance metrics
+- ✅ MCP Gateway (Docker/K8s constitutional governance)
+- ✅ Identity model + policy-as-code
+- ✅ Post-deploy observability (F4 Clarity)
 - 🔄 SBERT classifier for F5/F6/F9
 - 🔄 Test suite recovery (80%+ pass)
 
-### 🟠 H2: Agentic Federation (v61.0-v61.9)
-**Theme**: Constitutional Code Review
+### 🟠 H2: Human-AI Interface SDK (v61.0-v61.9)
+**Theme**: Vibe Infrastructure — AI as the UI
 
-- 4 H2 Agents (Architect, Engineer, Auditor, Validator)
-- Juror democracy (5 agents, 4/5 consensus)
-- Constitutional API v1.0
-- Python SDK (`arifos.Client`)
+- 🔄 Python SDK (`arifos-sdk`) with HITL patterns
+- 🔄 888_HOLD approval UI (React components)
+- 🔄 Slack/Email/PagerDuty integrations
+- 4 H2 Agents using SDK (Architect, Engineer, Auditor, Validator)
+- Juror democracy with human veto
+- LangGraph/Agents SDK integration
 
 ### 🟡 H3: Platform Everywhere (v62.0-v62.9)
 **Theme**: Industry constitutions + multi-modal
