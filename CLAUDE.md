@@ -10,6 +10,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Foundation:** RUKUN AGI (The Five Pillars) — 555 is sacred
 **Architecture:** `core/` is the **single source of truth** for constitutional modules
 
+**🎉 MCP REGISTRY:** `io.github.ariffazil/aaa-mcp` v60.0.0 — [ACTIVE](https://registry.modelcontextprotocol.io)
+
+---
+
+## 📋 MCP Registry Quick Reference
+
+AAA MCP is officially published in the MCP Registry:
+
+```
+Registry Name: io.github.ariffazil/aaa-mcp
+Version:       60.0.0
+Status:        ACTIVE (Published 2026-02-10)
+Registry URL:  https://registry.modelcontextprotocol.io
+```
+
+**Installation Methods:**
+- **PyPI:** `pip install arifos==60.0.0`
+- **Docker:** `docker pull ariffazil/arifos:60.0.0`
+- **Remote SSE:** `https://aaamcp.arif-fazil.com/sse`
+
+**First Constitutional AI Governance system in the MCP Registry.**
+
 ---
 
 ## Build & Dev Commands

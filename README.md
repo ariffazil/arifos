@@ -51,7 +51,35 @@
 | **📖 Documentation Site** | **[arifos.arif-fazil.com](https://arifos.arif-fazil.com)** | [![Live](https://img.shields.io/badge/Live-success?style=flat-square)](https://arifos.arif-fazil.com) |
 | **🏥 MCP Health Check** | [aaamcp.arif-fazil.com/health](https://aaamcp.arif-fazil.com/health) | [![Health](https://img.shields.io/badge/Online-brightgreen?style=flat-square)](https://aaamcp.arif-fazil.com/health) |
 | **📦 PyPI Package** | [pypi.org/project/arifos](https://pypi.org/project/arifos/) | [![PyPI](https://img.shields.io/pypi/v/arifos.svg?style=flat-square&color=blue)](https://pypi.org/project/arifos/) |
-| **🔗 MCP Registry** | [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io) | `io.github.ariffazil/aaa-mcp` |
+| **🌐 MCP Registry** | **[registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io)** | [![MCP](https://img.shields.io/badge/MCP_Registry-Active-success?style=flat-square)](https://registry.modelcontextprotocol.io) |
+
+---
+
+## 🎉 OFFICIAL MCP REGISTRY PUBLICATION
+
+**AAA MCP is now live in the Official MCP Registry!**
+
+```
+📋 Registry Name: io.github.ariffazil/aaa-mcp
+📦 Version: 60.0.0
+📅 Published: 2026-02-10
+🟢 Status: ACTIVE
+```
+
+**First Constitutional AI Governance system in the MCP Registry** — enforcing 13 thermodynamic floors (F1-F13) with tri-witness consensus for LLMs.
+
+### Installation Options
+
+| Method | Command | Registry |
+|:-------|:--------|:---------|
+| **PyPI (stdio)** | `pip install arifos==60.0.0` | [pypi.org](https://pypi.org/project/arifos/60.0.0/) |
+| **Docker (SSE)** | `docker pull ariffazil/arifos:60.0.0` | [Docker Hub](https://hub.docker.com/r/ariffazil/arifos) |
+| **Remote SSE** | `https://aaamcp.arif-fazil.com/sse` | Railway |
+| **MCP Registry** | Search: `io.github.ariffazil/aaa-mcp` | [MCP Registry](https://registry.modelcontextprotocol.io) |
+
+> **🏆 arifOS is the world's first production-grade Constitutional AI Governance System in the MCP Registry — DITEMPA BUKAN DIBERI 🔥**
+
+---
 
 > **🚀 Quick Start:** Visit **[arifos.arif-fazil.com](https://arifos.arif-fazil.com)** for interactive documentation, implementation guides, and live demos.
 

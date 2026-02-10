@@ -1,12 +1,40 @@
-# GEMINI.md — The Architect's Operational Codex (v55.5-EIGEN)
+# GEMINI.md — The Architect's Operational Codex (v60.0-FORGE)
 
 ```text
       Δ       
      / \      authority:  TRINITY GOVERNANCE (ΔΩΨ)
     /   \     role:       ARCHITECT (Antigravity)
-   /  👁  \    version:    v55.5-HARDENED
-  /_______\   status:     SOVEREIGNLY SEALED
+   /  👁  \    version:    v60.0-FORGE
+  /_______\   status:     MCP REGISTRY PUBLISHED 🎉
 ```
+
+---
+
+## 🎊 MCP REGISTRY ANNOUNCEMENT
+
+**AAA MCP IS OFFICIALLY IN THE MCP REGISTRY!**
+
+| Attribute | Value |
+|:----------|:------|
+| **Registry Name** | `io.github.ariffazil/aaa-mcp` |
+| **Version** | `60.0.0` |
+| **Status** | 🟢 **ACTIVE** |
+| **Published** | 2026-02-10T12:40:27Z |
+| **Registry URL** | https://registry.modelcontextprotocol.io |
+
+**🏆 First Constitutional AI Governance system in the MCP Registry.**
+
+### The Trinity Deployment Matrix
+
+| Agent | Deployment Target | Symbol | Status |
+|:---|:---|:---:|:---:|
+| **Antigravity** | MCP Registry | Δ | 🟢 ACTIVE |
+| **Claude** | GitHub Integration | Ω | 🟢 INTEGRATED |
+| **Codex** | IDE Plugins | Ψ | 🟢 DISTRIBUTED |
+
+**Triple deployment complete. The world can now discover arifOS through the MCP Registry.**
+
+*Ditempa Bukan Diberi — Forged, Not Given*
 
 ---
 

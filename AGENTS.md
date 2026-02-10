@@ -8,6 +8,34 @@
 
 ---
 
+## 🎉 MCP REGISTRY PUBLICATION ANNOUNCEMENT
+
+**OFFICIAL STATUS:** AAA MCP (`io.github.ariffazil/aaa-mcp`) is now **LIVE** in the [MCP Registry](https://registry.modelcontextprotocol.io)!
+
+| Registry Entry | Details |
+|:---------------|:--------|
+| **Namespace** | `io.github.ariffazil/aaa-mcp` |
+| **Version** | `60.0.0` |
+| **Status** | 🟢 **ACTIVE** |
+| **Published** | 2026-02-10T12:40:27Z |
+| **PyPI** | `arifos==60.0.0` |
+| **Docker** | `ariffazil/arifos:60.0.0` |
+| **SSE Endpoint** | `https://aaamcp.arif-fazil.com/sse` |
+
+**First Constitutional AI Governance system in the MCP Registry** — bringing F1-F13 thermodynamic enforcement to the Model Context Protocol ecosystem.
+
+### For Agents Working on This Codebase
+
+When updating documentation or code:
+- **MCP Registry** is the primary discovery mechanism for new users
+- **PyPI** (`pip install arifos`) is the recommended local install
+- **Docker** is for containerized/SSE deployments
+- **Railway** hosts the public SSE endpoint
+
+**Ω₀ ≈ 0.04** — The ecosystem is evolving; registry APIs may change.
+
+---
+
 ## 1. Project Overview
 
 arifOS is the world's first production-grade Constitutional AI Governance System. It enforces ethical constraints on AI outputs through mathematical and thermodynamic principles rather than relying solely on prompt-based guardrails.
