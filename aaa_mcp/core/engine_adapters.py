@@ -70,16 +70,30 @@ def _lexical_diversity(text: str) -> float:
 
 def _agi_output_to_tensor(agi_out: Any) -> ConstitutionalTensor:
     """Bridges AgiOutput (Pydantic) to ConstitutionalTensor (Physics)."""
-    metrics = agi_out.metrics
-    return ConstitutionalTensor(
-        witness=TrinityTensor(H=0.95, A=0.95, S=0.95),
-        entropy_delta=metrics.delta_s,
-        humility=UncertaintyBand(omega_0=metrics.omega_0),
-        genius=GeniusDial(A=0.9, P=0.9, X=0.9, E=1.0),  # Placeholder AGI genius
-        peace=Peace2({}),
-        empathy=0.95,
-        truth_score=metrics.truth_score,
-    )
+    # Handle both old-style (with .metrics) and new-style (ConstitutionalTensor directly)
+    if hasattr(agi_out, "metrics"):
+        # Old style: AgiOutput with nested metrics
+        metrics = agi_out.metrics
+        return ConstitutionalTensor(
+            witness=TrinityTensor(H=0.95, A=0.95, S=0.95),
+            entropy_delta=getattr(metrics, "delta_s", 0.0),
+            humility=UncertaintyBand(omega_0=getattr(metrics, "omega_0", 0.04)),
+            genius=GeniusDial(A=0.9, P=0.9, X=0.9, E=1.0),
+            peace=Peace2({}),
+            empathy=0.95,
+            truth_score=getattr(metrics, "truth_score", 0.95),
+        )
+    else:
+        # New style: Already a ConstitutionalTensor or similar
+        return ConstitutionalTensor(
+            witness=getattr(agi_out, "witness", TrinityTensor(H=0.95, A=0.95, S=0.95)),
+            entropy_delta=getattr(agi_out, "entropy_delta", 0.0),
+            humility=getattr(agi_out, "humility", UncertaintyBand(omega_0=0.04)),
+            genius=getattr(agi_out, "genius", GeniusDial(A=0.9, P=0.9, X=0.9, E=1.0)),
+            peace=getattr(agi_out, "peace", Peace2({})),
+            empathy=getattr(agi_out, "empathy", 0.95),
+            truth_score=getattr(agi_out, "truth_score", 0.95),
+        )
 
 
 def _query_heuristic_scores(query: str) -> Dict[str, Any]:
@@ -276,33 +290,40 @@ class AGIEngine:
             think_out = await core_organs.think(query, sense_out, session_id)
             agi_out = await core_organs.reason(query, think_out, session_id)
 
-            metrics = agi_out.metrics
+            # ConstitutionalTensor fields are direct, not nested under .metrics
+            truth_score = getattr(agi_out, "truth_score", 0.95)
+            entropy_delta = getattr(agi_out, "entropy_delta", 0.0)
+            humility = getattr(agi_out, "humility", None)
+            omega_0 = humility.omega_0 if humility else 0.04
+            genius = getattr(agi_out, "genius", None)
+            genius_score = genius.G() if genius else 0.85
+            empathy = getattr(agi_out, "empathy", 0.95)
 
-            violations = agi_out.violations
-            verdict = agi_out.verdict.value
+            # Get verdict and violations from constitutional_check
+            verdict, violations = agi_out.constitutional_check()
 
             return {
-                "verdict": verdict,
+                "status": "ARTIFACT_READY",
+                "legacy_verdict": verdict,
                 "violations": violations,
                 "query": query,
                 "session_id": session_id,
                 "engine_mode": "core",
                 "trinity_component": "AGI",
-                "truth_score": metrics.truth_score,
-                "confidence": metrics.truth_score,
-                "entropy_delta": metrics.delta_s,
-                "ambiguity_reduction": metrics.delta_s,
-                "humility_omega": metrics.omega_0,
-                "genius_score": metrics.free_energy,  # Genius score placeholder if not in AgiMetrics
-                "guidance": getattr(agi_out, "guidance", {}),
-                "evidence": agi_out.evidence,
-                "thoughts": [_normalize_obj(t) for t in agi_out.thoughts],
+                "truth_score": truth_score,
+                "confidence": truth_score,
+                "entropy_delta": entropy_delta,
+                "ambiguity_reduction": entropy_delta,
+                "humility_omega": omega_0,
+                "genius_score": genius_score,
+                "evidence": getattr(agi_out, "evidence", []),
                 "tensor": {
                     "witness": {"H": 0.95, "A": 0.95, "S": 0.95},
-                    "entropy_delta": metrics.delta_s,
-                    "humility_omega": metrics.omega_0,
-                    "genius_score": metrics.free_energy,
-                    "truth_score": metrics.truth_score,
+                    "entropy_delta": entropy_delta,
+                    "humility_omega": omega_0,
+                    "genius_score": genius_score,
+                    "truth_score": truth_score,
+                    "empathy": empathy,
                 },
             }
         except Exception as e:
