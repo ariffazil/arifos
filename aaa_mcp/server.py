@@ -129,6 +129,19 @@ from aaa_mcp.services.constitutional_metrics import (
     store_stage_result,
 )
 from aaa_mcp.tools.reality_grounding import reality_check
+from aaa_mcp.tools.mcp_gateway import (
+    gateway_route_tool,
+    gateway_list_tools,
+    gateway_get_decisions,
+    k8s_apply_guarded,
+    k8s_delete_guarded,
+)
+from aaa_mcp.wrappers.k8s_wrapper import (
+    k8s_constitutional_apply,
+    k8s_constitutional_delete,
+    k8s_analyze_manifest,
+)
+from aaa_mcp.wrappers.opa_policy import opa_validate_manifest, opa_list_policies
 from core.shared.types import (
     AgiOutput,
     ApexOutput,
@@ -2641,10 +2654,151 @@ async def list_all_capabilities() -> dict:
     }
 
 
+# =============================================================================
+# GATEWAY TOOLS — Constitutional Control Plane for Infrastructure (v60.1)
+# =============================================================================
+
+@mcp.tool(annotations=TOOL_ANNOTATIONS.get("gateway_route_tool", {}))
+async def _gateway_route_tool_wrapper(
+    tool_name: str,
+    payload: dict,
+    session_id: str,
+    actor_id: str = "agent",
+    require_human_override: bool = False,
+) -> dict:
+    """Route any MCP tool call through arifOS constitutional gateway."""
+    return await gateway_route_tool(
+        tool_name=tool_name,
+        payload=payload,
+        session_id=session_id,
+        actor_id=actor_id,
+        require_human_override=require_human_override,
+    )
+
+
+@mcp.tool()
+async def _gateway_list_tools_wrapper() -> dict:
+    """List all tools available through the constitutional gateway."""
+    return await gateway_list_tools()
+
+
+@mcp.tool()
+async def _gateway_get_decisions_wrapper(
+    session_id: Optional[str] = None,
+    limit: int = 100,
+) -> dict:
+    """Query gateway decisions (audit trail)."""
+    return await gateway_get_decisions(session_id=session_id, limit=limit)
+
+
+@mcp.tool()
+async def _k8s_apply_guarded_wrapper(
+    manifest: str,
+    namespace: str,
+    session_id: str,
+    strategy: str = "rolling",
+    backup_made: bool = False,
+    human_override: bool = False,
+) -> dict:
+    """Constitutionally-governed kubectl apply."""
+    return await k8s_apply_guarded(
+        manifest=manifest,
+        namespace=namespace,
+        session_id=session_id,
+        strategy=strategy,
+        backup_made=backup_made,
+        human_override=human_override,
+    )
+
+
+@mcp.tool()
+async def _k8s_delete_guarded_wrapper(
+    resource: str,
+    name: str,
+    namespace: str,
+    session_id: str,
+    backup_made: bool = False,
+    human_override: bool = False,
+    cascade: bool = True,
+) -> dict:
+    """Constitutionally-governed kubectl delete."""
+    return await k8s_delete_guarded(
+        resource=resource,
+        name=name,
+        namespace=namespace,
+        session_id=session_id,
+        backup_made=backup_made,
+        human_override=human_override,
+        cascade=cascade,
+    )
+
+
+@mcp.tool()
+async def _k8s_constitutional_apply_wrapper(
+    manifest: str,
+    namespace: str = "default",
+    strategy: str = "rolling",
+    session_id: str = "",
+    dry_run: bool = False,
+) -> dict:
+    """Evaluate K8s apply through constitutional floors."""
+    return await k8s_constitutional_apply(
+        manifest=manifest,
+        namespace=namespace,
+        strategy=strategy,
+        session_id=session_id,
+        dry_run=dry_run,
+    )
+
+
+@mcp.tool()
+async def _k8s_constitutional_delete_wrapper(
+    resource: str,
+    name: str,
+    namespace: str = "default",
+    backup_made: bool = False,
+    session_id: str = "",
+) -> dict:
+    """Evaluate K8s delete through constitutional floors."""
+    return await k8s_constitutional_delete(
+        resource=resource,
+        name=name,
+        namespace=namespace,
+        backup_made=backup_made,
+        session_id=session_id,
+    )
+
+
+@mcp.tool()
+async def _k8s_analyze_manifest_wrapper(manifest: str) -> dict:
+    """Analyze a K8s manifest without constitutional enforcement."""
+    return await k8s_analyze_manifest(manifest=manifest)
+
+
+@mcp.tool()
+async def _opa_validate_manifest_wrapper(
+    manifest: str,
+    namespace: str = "k8s",
+    session_id: str = "",
+) -> dict:
+    """Validate K8s manifest against OPA policies (F10 Ontology)."""
+    return await opa_validate_manifest(
+        manifest=manifest,
+        namespace=namespace,
+        session_id=session_id,
+    )
+
+
+@mcp.tool()
+async def _opa_list_policies_wrapper() -> dict:
+    """List available OPA/Conftest policies."""
+    return await opa_list_policies()
+
+
 # Apply annotations at module load time
 _apply_tool_annotations()
 
 
 if __name__ == "__main__":
-    print("🔥 arifOS Constitutional Kernel — FastMCP Mode")
+    print("arifOS Constitutional Kernel — FastMCP Mode")
     mcp.run(transport="sse", port=6274)

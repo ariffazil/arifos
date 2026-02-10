@@ -123,7 +123,7 @@ dependencies = [
     "prometheus-client>=0.19.0",
     "rich>=13.7.0",
     "asyncpg>=0.29.0",  # VAULT999 PostgreSQL backend
-    "sentence-transformers>=2.2.0",  # ASI v60.3: Semantic Stakeholder Detection
+    # "sentence-transformers>=2.2.0",  # ASI v60.3: Semantic Stakeholder Detection
 ]
 
 [project.optional-dependencies]

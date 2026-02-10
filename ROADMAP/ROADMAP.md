@@ -55,6 +55,7 @@
 | **H1.1** | Production Observability | `/health` shows governance metrics (postgres_connected, redis_connected, VOID/SABAR/SEAL rates, avg G, avg E_eff) | 🔴 Active |
 | **H1.2** | ASI Hardening | Replace F5/F6/F9 keyword heuristics with embedding + classifier (SBERT + logistic) | 🔴 Active |
 | **H1.3** | Test Suite Recovery | Fix legacy imports, 80%+ pass rate, 3 golden scenario tests | 🔴 Active |
+| **H1.4** | MCP Gateway | Constitutional wrapper for Docker/K8s MCP servers | ✅ **FORGED** |
 
 **H1.1: Production Observability**
 - `/health` endpoint reflects **governance metrics**:
@@ -77,6 +78,81 @@
   1. High-stakes financial → HOLD_888 + Phoenix-72
   2. Medical query without grounding → SABAR/VOID
   3. Benign Q&A → SEAL with Ω₀ in [0.03,0.05] and G ≥ 0.8
+
+**H1.4: MCP Gateway — Constitutional Control Plane** ✅ **FORGED**
+
+Single entry point for all Docker/K8s infrastructure operations with 13-floor governance:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    arifOS MCP Gateway                        │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │  Tool Classification → Floor Requirements → Verdict   │ │
+│  │                                                         │ │
+│  │  read_only      → F11, F12              → SEAL       │ │
+│  │  infra_write    → F1,F2,F6,F10,F11,F12  → SEAL/VOID  │ │
+│  │  destructive    → F1-F13 (except F7)    → 888_HOLD   │ │
+│  │  prod_write     → Full F1-F13           → 888_HOLD   │ │
+│  └───────────────────────────────────────────────────────┘ │
+└─────────────────────────┬───────────────────────────────────┘
+                          │ SEAL / VOID / 888_HOLD
+    ┌─────────────────────┼──────────────────────────────────┐
+    │                     │                                  │
+┌───▼────┐         ┌──────▼──────┐          ┌───────────────▼───┐
+│  K8s   │         │   Docker    │          │  OPA Policy       │
+│  MCP   │         │    MCP      │          │  Validator        │
+└────────┘         └─────────────┘          └───────────────────┘
+```
+
+**Implementation:**
+| Component | Location | Floors Enforced |
+|-----------|----------|-----------------|
+| `gateway_route_tool` | `aaa_mcp/tools/mcp_gateway.py` | All (dynamic based on tool class) |
+| `k8s_constitutional_apply` | `aaa_mcp/wrappers/k8s_wrapper.py` | F1, F2, F5, F6, F10, F13 |
+| `k8s_constitutional_delete` | `aaa_mcp/wrappers/k8s_wrapper.py` | F1, F6, F13 |
+| `opa_validate_manifest` | `aaa_mcp/wrappers/opa_policy.py` | F10 (Ontology) |
+
+**Key Features:**
+- **Blast Radius Calculation** (F6 Empathy): Calculates affected pods/deployments for infra ops
+- **Image Provenance Check** (F2 Truth): Requires digest-based images for production
+- **Rollback Strategy** (F1 Amanah): Enforces canary/blue-green for prod deployments
+- **888_HOLD Gate**: Production destructive ops require human override (F13 Sovereign)
+- **Built-in + OPA/Conftest**: F10 validation with fallback to built-in Rego-like rules
+
+**Usage:**
+```python
+# Read-only (light floors)
+await gateway_route_tool(
+    tool_name="k8s_get",
+    payload={"resource": "pods", "namespace": "default"},
+    session_id="sess-001"
+)
+
+# Production apply (full floors)
+await gateway_route_tool(
+    tool_name="k8s_apply",
+    payload={
+        "manifest": "...",
+        "namespace": "prod",
+        "strategy": "canary",  # F1: Reversibility
+        "backup_made": True,
+    },
+    session_id="sess-002"
+)
+
+# Production delete (888_HOLD)
+await gateway_route_tool(
+    tool_name="k8s_delete",
+    payload={
+        "resource": "deployment",
+        "name": "api-server",
+        "namespace": "prod",
+        "backup_made": True,
+        "human_override": True  # Required for prod destructive
+    },
+    session_id="sess-003"
+)
+```
 
 ---
 
