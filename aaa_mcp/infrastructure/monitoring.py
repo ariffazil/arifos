@@ -206,9 +206,10 @@ async def init_monitoring():
     async def check_mcp_tools():
         try:
             from aaa_mcp.server import mcp
-            tools = await mcp.list_tools()
+            tools = await mcp.get_tools()
             return len(tools) >= 10
-        except Exception:
+        except Exception as e:
+            print(f"[health] mcp_tools check failed: {e}")
             return False
     
     def check_memory():
