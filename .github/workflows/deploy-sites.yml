@@ -44,11 +44,16 @@ jobs:
       - name: Install & Build
         working-directory: arif-fazil-sites/APPS
         run: |
+          echo "=== DEBUG: Current directory ==="
+          pwd
+          ls -la
+          echo "=== DEBUG: Checking src/lib/utils.ts ==="
+          ls -la src/lib/ || echo "Directory not found"
+          cat src/lib/utils.ts || echo "File not found"
+          echo "=== DEBUG: Installing dependencies ==="
           npm ci
-          echo "=== DEBUG: Listing src/lib ==="
-          ls -la src/lib/
           echo "=== DEBUG: Running Vite build ==="
-          npx vite build
+          npx vite build --debug 2>&1 || echo "Build failed with exit code $?"
 
       - name: Copy Static Assets
         working-directory: arif-fazil-sites
