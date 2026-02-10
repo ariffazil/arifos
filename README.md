@@ -315,6 +315,18 @@ arifOS grounds AI safety in physical law, not human opinion:
 - **F7 Humility**: Gödel's Incompleteness — all claims need uncertainty bounds
 - **F8 Genius**: Eigendecomposition — intelligence = A×P×X×E²
 
+### 4. Constitutional MCP Gateway (H1.4 FORGED)
+*The Control Plane for Docker & Kubernetes.*
+
+| Feature | Constitution | Function |
+|:---|:---:|:---|
+| **Blast Radius** | **F6 (Empathy)** | Calculates impact score (κᵣ) for all infra ops. |
+| **888_HOLD** | **F13 (Sovereign)** | Production changes require human override. |
+| **OPA Guard** | **F10 (Ontology)** | Validates manifests against Rego policies. |
+| **Trust Chain** | **F2 (Truth)** | Enforces immutable image digests (@sha256). |
+
+> **"Ditempa Bukan Diberi"**: The Gateway is not a firewall; it is a **Constitutional Airlock**. It does not block; it **judges**.
+
 ### The Cultural Foundation
 
 The 9 mottos are in **Nusantara Malay-Indonesian**, reflecting:
