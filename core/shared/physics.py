@@ -637,7 +637,7 @@ def identify_stakeholders(query: str) -> List[Stakeholder]:
     Threshold: 0.35 cosine similarity for vulnerability match.
     """
     stakeholders = [
-        Stakeholder("User", "user", 0.3),
+        Stakeholder("User", "user", 0.1),
         Stakeholder("System", "system", 0.1),
     ]
 

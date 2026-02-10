@@ -479,6 +479,10 @@ def requires_sovereign(query: str) -> bool:
         "shutdown",
         "change constitution",
         "modify floor",
+        "transfer",
+        "send money",
+        "wire funds",
+        "pay",
     ]
 
     query_lower = query.lower()

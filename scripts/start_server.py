@@ -31,7 +31,8 @@ try:
         startup_health_check,
     )
     MONITORING_AVAILABLE = True
-except Exception:
+except Exception as e:
+    print(f"[WARN] Monitoring not available: {e}")
     MONITORING_AVAILABLE = False
 
 
