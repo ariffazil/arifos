@@ -1,0 +1,205 @@
+publish	Set up job	﻿2026-02-10T11:37:40.4713207Z Current runner version: '2.331.0'
+publish	Set up job	2026-02-10T11:37:40.4738770Z ##[group]Runner Image Provisioner
+publish	Set up job	2026-02-10T11:37:40.4739920Z Hosted Compute Agent
+publish	Set up job	2026-02-10T11:37:40.4740494Z Version: 20260123.484
+publish	Set up job	2026-02-10T11:37:40.4741057Z Commit: 6bd6555ca37d84114959e1c76d2c01448ff61c5d
+publish	Set up job	2026-02-10T11:37:40.4741913Z Build Date: 2026-01-23T19:41:17Z
+publish	Set up job	2026-02-10T11:37:40.4742736Z Worker ID: {4f11b27b-43a3-4de6-8522-f6214ad6b2ad}
+publish	Set up job	2026-02-10T11:37:40.4743404Z Azure Region: northcentralus
+publish	Set up job	2026-02-10T11:37:40.4744062Z ##[endgroup]
+publish	Set up job	2026-02-10T11:37:40.4745591Z ##[group]Operating System
+publish	Set up job	2026-02-10T11:37:40.4746231Z Ubuntu
+publish	Set up job	2026-02-10T11:37:40.4746768Z 24.04.3
+publish	Set up job	2026-02-10T11:37:40.4747250Z LTS
+publish	Set up job	2026-02-10T11:37:40.4747675Z ##[endgroup]
+publish	Set up job	2026-02-10T11:37:40.4748207Z ##[group]Runner Image
+publish	Set up job	2026-02-10T11:37:40.4748779Z Image: ubuntu-24.04
+publish	Set up job	2026-02-10T11:37:40.4749439Z Version: 20260201.15.1
+publish	Set up job	2026-02-10T11:37:40.4750551Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260201.15/images/ubuntu/Ubuntu2404-Readme.md
+publish	Set up job	2026-02-10T11:37:40.4752160Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260201.15
+publish	Set up job	2026-02-10T11:37:40.4753080Z ##[endgroup]
+publish	Set up job	2026-02-10T11:37:40.4754066Z ##[group]GITHUB_TOKEN Permissions
+publish	Set up job	2026-02-10T11:37:40.4755921Z Contents: read
+publish	Set up job	2026-02-10T11:37:40.4756592Z Metadata: read
+publish	Set up job	2026-02-10T11:37:40.4757059Z ##[endgroup]
+publish	Set up job	2026-02-10T11:37:40.4759549Z Secret source: Actions
+publish	Set up job	2026-02-10T11:37:40.4760366Z Prepare workflow directory
+publish	Set up job	2026-02-10T11:37:40.5110894Z Prepare all required actions
+publish	Set up job	2026-02-10T11:37:40.5151679Z Getting action download info
+publish	Set up job	2026-02-10T11:37:40.8460712Z Download action repository 'actions/checkout@v4' (SHA:34e114876b0b11c390a56381ad16ebd13914f8d5)
+publish	Set up job	2026-02-10T11:37:40.9320458Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+publish	Set up job	2026-02-10T11:37:41.1189621Z Complete job name: publish
+publish	Checkout repository	﻿2026-02-10T11:37:41.1916592Z ##[group]Run actions/checkout@v4
+publish	Checkout repository	2026-02-10T11:37:41.1917472Z with:
+publish	Checkout repository	2026-02-10T11:37:41.1917880Z   repository: ariffazil/arifOS
+publish	Checkout repository	2026-02-10T11:37:41.1918555Z   token: ***
+publish	Checkout repository	2026-02-10T11:37:41.1919130Z   ssh-strict: true
+publish	Checkout repository	2026-02-10T11:37:41.1919525Z   ssh-user: git
+publish	Checkout repository	2026-02-10T11:37:41.1919928Z   persist-credentials: true
+publish	Checkout repository	2026-02-10T11:37:41.1920356Z   clean: true
+publish	Checkout repository	2026-02-10T11:37:41.1920758Z   sparse-checkout-cone-mode: true
+publish	Checkout repository	2026-02-10T11:37:41.1921230Z   fetch-depth: 1
+publish	Checkout repository	2026-02-10T11:37:41.1921614Z   fetch-tags: false
+publish	Checkout repository	2026-02-10T11:37:41.1922004Z   show-progress: true
+publish	Checkout repository	2026-02-10T11:37:41.1922393Z   lfs: false
+publish	Checkout repository	2026-02-10T11:37:41.1922758Z   submodules: false
+publish	Checkout repository	2026-02-10T11:37:41.1923149Z   set-safe-directory: true
+publish	Checkout repository	2026-02-10T11:37:41.1923824Z ##[endgroup]
+publish	Checkout repository	2026-02-10T11:37:41.3045473Z Syncing repository: ariffazil/arifOS
+publish	Checkout repository	2026-02-10T11:37:41.3048620Z ##[group]Getting Git version info
+publish	Checkout repository	2026-02-10T11:37:41.3050077Z Working directory is '/home/runner/work/arifOS/arifOS'
+publish	Checkout repository	2026-02-10T11:37:41.3051943Z [command]/usr/bin/git version
+publish	Checkout repository	2026-02-10T11:37:41.3096335Z git version 2.52.0
+publish	Checkout repository	2026-02-10T11:37:41.3125978Z ##[endgroup]
+publish	Checkout repository	2026-02-10T11:37:41.3150435Z Temporarily overriding HOME='/home/runner/work/_temp/bb67fa80-dcf0-475e-bb42-3be38d4cd5f0' before making global git config changes
+publish	Checkout repository	2026-02-10T11:37:41.3152814Z Adding repository directory to the temporary git global config as a safe directory
+publish	Checkout repository	2026-02-10T11:37:41.3157117Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/arifOS/arifOS
+publish	Checkout repository	2026-02-10T11:37:41.3195925Z Deleting the contents of '/home/runner/work/arifOS/arifOS'
+publish	Checkout repository	2026-02-10T11:37:41.3199872Z ##[group]Initializing the repository
+publish	Checkout repository	2026-02-10T11:37:41.3204102Z [command]/usr/bin/git init /home/runner/work/arifOS/arifOS
+publish	Checkout repository	2026-02-10T11:37:41.3291557Z hint: Using 'master' as the name for the initial branch. This default branch name
+publish	Checkout repository	2026-02-10T11:37:41.3293150Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+publish	Checkout repository	2026-02-10T11:37:41.3294702Z hint: to use in all of your new repositories, which will suppress this warning,
+publish	Checkout repository	2026-02-10T11:37:41.3295950Z hint: call:
+publish	Checkout repository	2026-02-10T11:37:41.3296516Z hint:
+publish	Checkout repository	2026-02-10T11:37:41.3297571Z hint: 	git config --global init.defaultBranch <name>
+publish	Checkout repository	2026-02-10T11:37:41.3298200Z hint:
+publish	Checkout repository	2026-02-10T11:37:41.3298757Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+publish	Checkout repository	2026-02-10T11:37:41.3300249Z hint: 'development'. The just-created branch can be renamed via this command:
+publish	Checkout repository	2026-02-10T11:37:41.3300953Z hint:
+publish	Checkout repository	2026-02-10T11:37:41.3301323Z hint: 	git branch -m <name>
+publish	Checkout repository	2026-02-10T11:37:41.3301748Z hint:
+publish	Checkout repository	2026-02-10T11:37:41.3302566Z hint: Disable this message with "git config set advice.defaultBranchName false"
+publish	Checkout repository	2026-02-10T11:37:41.3304097Z Initialized empty Git repository in /home/runner/work/arifOS/arifOS/.git/
+publish	Checkout repository	2026-02-10T11:37:41.3308276Z [command]/usr/bin/git remote add origin https://github.com/ariffazil/arifOS
+publish	Checkout repository	2026-02-10T11:37:41.3342135Z ##[endgroup]
+publish	Checkout repository	2026-02-10T11:37:41.3343248Z ##[group]Disabling automatic garbage collection
+publish	Checkout repository	2026-02-10T11:37:41.3346094Z [command]/usr/bin/git config --local gc.auto 0
+publish	Checkout repository	2026-02-10T11:37:41.3374955Z ##[endgroup]
+publish	Checkout repository	2026-02-10T11:37:41.3375646Z ##[group]Setting up auth
+publish	Checkout repository	2026-02-10T11:37:41.3383609Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+publish	Checkout repository	2026-02-10T11:37:41.3415488Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+publish	Checkout repository	2026-02-10T11:37:41.3733995Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+publish	Checkout repository	2026-02-10T11:37:41.3765960Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+publish	Checkout repository	2026-02-10T11:37:41.3992731Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+publish	Checkout repository	2026-02-10T11:37:41.4036067Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+publish	Checkout repository	2026-02-10T11:37:41.4270679Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+publish	Checkout repository	2026-02-10T11:37:41.4306096Z ##[endgroup]
+publish	Checkout repository	2026-02-10T11:37:41.4306972Z ##[group]Fetching the repository
+publish	Checkout repository	2026-02-10T11:37:41.4314771Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +f7ed1b0691c35603a43490811bfe7340e2966dc2:refs/remotes/origin/main
+publish	Checkout repository	2026-02-10T11:37:44.4815360Z From https://github.com/ariffazil/arifOS
+publish	Checkout repository	2026-02-10T11:37:44.4816516Z  * [new ref]         f7ed1b0691c35603a43490811bfe7340e2966dc2 -> origin/main
+publish	Checkout repository	2026-02-10T11:37:44.4849175Z ##[endgroup]
+publish	Checkout repository	2026-02-10T11:37:44.4850452Z ##[group]Determining the checkout info
+publish	Checkout repository	2026-02-10T11:37:44.4852734Z ##[endgroup]
+publish	Checkout repository	2026-02-10T11:37:44.4857290Z [command]/usr/bin/git sparse-checkout disable
+publish	Checkout repository	2026-02-10T11:37:44.4900599Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+publish	Checkout repository	2026-02-10T11:37:44.4928119Z ##[group]Checking out the ref
+publish	Checkout repository	2026-02-10T11:37:44.4932393Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+publish	Checkout repository	2026-02-10T11:37:45.1067251Z Switched to a new branch 'main'
+publish	Checkout repository	2026-02-10T11:37:45.1068587Z branch 'main' set up to track 'origin/main'.
+publish	Checkout repository	2026-02-10T11:37:45.1125032Z ##[endgroup]
+publish	Checkout repository	2026-02-10T11:37:45.1167039Z [command]/usr/bin/git log -1 --format=%H
+publish	Checkout repository	2026-02-10T11:37:45.1189616Z f7ed1b0691c35603a43490811bfe7340e2966dc2
+publish	Setup Python	﻿2026-02-10T11:37:45.1424677Z ##[group]Run actions/setup-python@v5
+publish	Setup Python	2026-02-10T11:37:45.1425042Z with:
+publish	Setup Python	2026-02-10T11:37:45.1425268Z   python-version: 3.11
+publish	Setup Python	2026-02-10T11:37:45.1425515Z   check-latest: false
+publish	Setup Python	2026-02-10T11:37:45.1425874Z   token: ***
+publish	Setup Python	2026-02-10T11:37:45.1426109Z   update-environment: true
+publish	Setup Python	2026-02-10T11:37:45.1426363Z   allow-prereleases: false
+publish	Setup Python	2026-02-10T11:37:45.1426610Z   freethreaded: false
+publish	Setup Python	2026-02-10T11:37:45.1426830Z ##[endgroup]
+publish	Setup Python	2026-02-10T11:37:45.3075911Z ##[group]Installed versions
+publish	Setup Python	2026-02-10T11:37:45.3188000Z Successfully set up CPython (3.11.14)
+publish	Setup Python	2026-02-10T11:37:45.3189337Z ##[endgroup]
+publish	Validate server.json schema	﻿2026-02-10T11:37:45.3306657Z ##[group]Run python -c "
+publish	Validate server.json schema	2026-02-10T11:37:45.3307075Z [36;1mpython -c "[0m
+publish	Validate server.json schema	2026-02-10T11:37:45.3307341Z [36;1mimport json[0m
+publish	Validate server.json schema	2026-02-10T11:37:45.3307642Z [36;1mdata = json.load(open('server.json'))[0m
+publish	Validate server.json schema	2026-02-10T11:37:45.3308035Z [36;1massert 'name' in data, 'Missing name field'[0m
+publish	Validate server.json schema	2026-02-10T11:37:45.3308422Z [36;1massert 'version' in data, 'Missing version field'[0m
+publish	Validate server.json schema	2026-02-10T11:37:45.3309105Z [36;1massert 'packages' in data, 'Missing packages array'[0m
+publish	Validate server.json schema	2026-02-10T11:37:45.3309831Z [36;1massert data['name'].startswith('io.github.ariffazil/'), 'Invalid namespace'[0m
+publish	Validate server.json schema	2026-02-10T11:37:45.3310385Z [36;1mprint(f'✅ Valid schema: {data[\"name\"]} v{data[\"version\"]}')[0m
+publish	Validate server.json schema	2026-02-10T11:37:45.3310753Z [36;1m"[0m
+publish	Validate server.json schema	2026-02-10T11:37:45.3355865Z shell: /usr/bin/bash -e {0}
+publish	Validate server.json schema	2026-02-10T11:37:45.3356201Z env:
+publish	Validate server.json schema	2026-02-10T11:37:45.3356491Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Validate server.json schema	2026-02-10T11:37:45.3356950Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib/pkgconfig
+publish	Validate server.json schema	2026-02-10T11:37:45.3357460Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Validate server.json schema	2026-02-10T11:37:45.3357854Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Validate server.json schema	2026-02-10T11:37:45.3358252Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Validate server.json schema	2026-02-10T11:37:45.3358653Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib
+publish	Validate server.json schema	2026-02-10T11:37:45.3359220Z ##[endgroup]
+publish	Validate server.json schema	2026-02-10T11:37:45.3840979Z ✅ Valid schema: io.github.ariffazil/arifOS v60.0.0
+publish	Verify version consistency	﻿2026-02-10T11:37:45.3910966Z ##[group]Run python -c "
+publish	Verify version consistency	2026-02-10T11:37:45.3911325Z [36;1mpython -c "[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3911567Z [36;1mimport json, sys, os[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3911865Z [36;1mserver = json.load(open('server.json'))[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3912262Z [36;1m# Get version from workflow dispatch or release tag[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3912659Z [36;1mtag_name = os.environ.get('GITHUB_REF_NAME', '')[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3913052Z [36;1minput_version = os.environ.get('INPUT_VERSION', '')[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3913413Z [36;1mif input_version:[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3913713Z [36;1m    workflow_version = input_version.lstrip('v')[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3914039Z [36;1melif tag_name:[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3914325Z [36;1m    workflow_version = tag_name.lstrip('v')[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3914623Z [36;1melse:[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3914851Z [36;1m    workflow_version = '60.0.0'[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3915163Z [36;1mserver_version = server['version'][0m
+publish	Verify version consistency	2026-02-10T11:37:45.3915473Z [36;1mif workflow_version != server_version:[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3916030Z [36;1m    print(f'⚠️ Version mismatch: workflow={workflow_version}, server.json={server_version}')[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3916574Z [36;1m    print('Continuing with server.json version...')[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3916892Z [36;1melse:[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3917175Z [36;1m    print(f'✅ Version verified: {server_version}')[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3917502Z [36;1m"[0m
+publish	Verify version consistency	2026-02-10T11:37:45.3949877Z shell: /usr/bin/bash -e {0}
+publish	Verify version consistency	2026-02-10T11:37:45.3950174Z env:
+publish	Verify version consistency	2026-02-10T11:37:45.3950467Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Verify version consistency	2026-02-10T11:37:45.3950924Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib/pkgconfig
+publish	Verify version consistency	2026-02-10T11:37:45.3951364Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Verify version consistency	2026-02-10T11:37:45.3951749Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Verify version consistency	2026-02-10T11:37:45.3952163Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Verify version consistency	2026-02-10T11:37:45.3952573Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib
+publish	Verify version consistency	2026-02-10T11:37:45.3952915Z   INPUT_VERSION: 
+publish	Verify version consistency	2026-02-10T11:37:45.3953137Z   GITHUB_REF_NAME: main
+publish	Verify version consistency	2026-02-10T11:37:45.3953360Z ##[endgroup]
+publish	Verify version consistency	2026-02-10T11:37:45.4166201Z ⚠️ Version mismatch: workflow=main, server.json=60.0.0
+publish	Verify version consistency	2026-02-10T11:37:45.4166917Z Continuing with server.json version...
+publish	Install mcp-publisher	﻿2026-02-10T11:37:45.4292011Z ##[group]Run curl -L -o mcp-publisher "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher-linux-amd64"
+publish	Install mcp-publisher	2026-02-10T11:37:45.4293412Z [36;1mcurl -L -o mcp-publisher "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher-linux-amd64"[0m
+publish	Install mcp-publisher	2026-02-10T11:37:45.4294068Z [36;1mchmod +x mcp-publisher[0m
+publish	Install mcp-publisher	2026-02-10T11:37:45.4294355Z [36;1m./mcp-publisher --version[0m
+publish	Install mcp-publisher	2026-02-10T11:37:45.4327207Z shell: /usr/bin/bash -e {0}
+publish	Install mcp-publisher	2026-02-10T11:37:45.4327484Z env:
+publish	Install mcp-publisher	2026-02-10T11:37:45.4327779Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Install mcp-publisher	2026-02-10T11:37:45.4328219Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib/pkgconfig
+publish	Install mcp-publisher	2026-02-10T11:37:45.4328667Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Install mcp-publisher	2026-02-10T11:37:45.4329427Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Install mcp-publisher	2026-02-10T11:37:45.4329877Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.14/x64
+publish	Install mcp-publisher	2026-02-10T11:37:45.4330276Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.14/x64/lib
+publish	Install mcp-publisher	2026-02-10T11:37:45.4330661Z ##[endgroup]
+publish	Install mcp-publisher	2026-02-10T11:37:45.4436936Z   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+publish	Install mcp-publisher	2026-02-10T11:37:45.4439972Z                                  Dload  Upload   Total   Spent    Left  Speed
+publish	Install mcp-publisher	2026-02-10T11:37:45.4440484Z 
+publish	Install mcp-publisher	2026-02-10T11:37:45.5694000Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+publish	Install mcp-publisher	2026-02-10T11:37:45.5694978Z   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+publish	Install mcp-publisher	2026-02-10T11:37:45.6491305Z 
+publish	Install mcp-publisher	2026-02-10T11:37:45.6492200Z 100     9  100     9    0     0     43      0 --:--:-- --:--:-- --:--:--    43
+publish	Install mcp-publisher	2026-02-10T11:37:45.6536526Z ./mcp-publisher: line 1: Not: command not found
+publish	Install mcp-publisher	2026-02-10T11:37:45.6551442Z ##[error]Process completed with exit code 127.
+publish	Post Checkout repository	﻿2026-02-10T11:37:45.6662771Z Post job cleanup.
+publish	Post Checkout repository	2026-02-10T11:37:45.7600618Z [command]/usr/bin/git version
+publish	Post Checkout repository	2026-02-10T11:37:45.7636223Z git version 2.52.0
+publish	Post Checkout repository	2026-02-10T11:37:45.7680174Z Temporarily overriding HOME='/home/runner/work/_temp/4ac43aea-46bc-4914-85cb-a76a81dc6d19' before making global git config changes
+publish	Post Checkout repository	2026-02-10T11:37:45.7681667Z Adding repository directory to the temporary git global config as a safe directory
+publish	Post Checkout repository	2026-02-10T11:37:45.7693740Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/arifOS/arifOS
+publish	Post Checkout repository	2026-02-10T11:37:45.7729120Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+publish	Post Checkout repository	2026-02-10T11:37:45.7761989Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+publish	Post Checkout repository	2026-02-10T11:37:45.8005046Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+publish	Post Checkout repository	2026-02-10T11:37:45.8028782Z http.https://github.com/.extraheader
+publish	Post Checkout repository	2026-02-10T11:37:45.8043398Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+publish	Post Checkout repository	2026-02-10T11:37:45.8075100Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+publish	Post Checkout repository	2026-02-10T11:37:45.8301649Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+publish	Post Checkout repository	2026-02-10T11:37:45.8332524Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+publish	Complete job	﻿2026-02-10T11:37:45.8679181Z Cleaning up orphan processes

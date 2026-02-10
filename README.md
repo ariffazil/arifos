@@ -47,7 +47,7 @@
 
 **arifOS is the first AI governance kernel that enforces constitutional-level safety, ethical, and truth constraints on any language model output.** It transforms arbitrary models into auditable, compliant, and safe systems by enforcing thermodynamic governance floors that prevent hallucination, harm, and unverified assertions.
 
-**First production-grade MCP server enforcing F1–F13 constitutional floors via ΔΩΨ Trinity architecture, published to the [Official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.ariffazil/aaa-mcp`.**
+> **Architecture Note:** arifOS is the governance kernel. AAA MCP (the MCP interface) is one of three ways to access it, published to the [Official MCP Registry](https://registry.modelcontextprotocol.io) as `io.github.ariffazil/aaa-mcp`.
 
 ### Why This Matters to Enterprise
 
@@ -124,21 +124,19 @@ arifOS/
 ## 📖 Table of Contents
 
 - [What is arifOS?](#what-is-arifos)
-- [AAA MCP Server](#aaa-mcp-server--enterprise-constitutional-ai-governance)
-  - [The 13 Constitutional Floors](#the-13-constitutional-floors-f1-f13)
-  - [The 10 Canonical MCP Tools](#the-10-canonical-mcp-tools)
-  - [Deployment Guide](#deployment-guide)
-  - [Enterprise Applications](#enterprise-applications)
-  - [Configuration Reference](#configuration-reference)
 - [The Problem (In Plain English)](#the-problem-in-plain-english)
 - [How It Works: From Question to Answer](#how-it-works-from-question-to-answer)
+- [The 13 Constitutional Floors](#the-13-constitutional-floors-f1-f13)
+- [Architecture Overview](#architecture-overview)
 - [Three Ways to Use arifOS](#three-ways-to-use-arifos)
-  - [Way 1: MCP Tools (For Developers)](#way-1-mcp-tools-for-developers)
+  - [Way 1: AAA MCP Server (MCP Interface)](#way-1-aaa-mcp-server-mcp-interface)
+    - [The 10 Constitutional Tools (MCP Interface)](#the-10-constitutional-tools-mcp-interface)
+    - [Deployment Guide](#deployment-guide)
   - [Way 2: Human SDK (For Everyone)](#way-2-human-sdk-for-everyone)
   - [Way 3: System Prompts, Skills & Workflows (For Builders)](#way-3-system-prompts-skills--workflows-for-builders)
+- [Enterprise Applications](#enterprise-applications)
+- [Configuration Reference](#configuration-reference)
 - [The 9 Principles of Responsible Work](#the-9-principles-of-responsible-work)
-- [The 13 Safety Rules](#the-13-safety-rules)
-- [Architecture Overview](#architecture-overview)
 - [Quick Start Examples](#quick-start-examples)
 - [Who Is This For?](#who-is-this-for)
 - [The ARIF Philosophy](#the-arif-philosophy)
