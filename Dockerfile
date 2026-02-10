@@ -22,7 +22,6 @@ COPY README.md .
 COPY pyproject.toml .
 COPY scripts/start_server.py scripts/start_server.py
 COPY core/ core/
-COPY codebase/ codebase/
 COPY aaa_mcp/ aaa_mcp/
 
 # Debug: Verify code version

@@ -1,7 +1,7 @@
-# 🎯 arifOS Task Tracker — For Future Agents
+# 🎯 arifOS Task Tracker — Tempering the Foundation
 
 > **Authority:** 888_JUDGE  
-> **Current:** v60.0.0-FORGE  
+> **Current:** v60.0.0-FORGE (SEALED — Foundation Forged, Needs Tempering)  
 > **Creed:** *DITEMPA BUKAN DIBERI — Forged, not given* 💎🔥🧠
 
 ---
@@ -11,11 +11,11 @@
 | Symbol | Meaning |
 |:------:|:--------|
 | ✅ | Completed & Sealed |
-| 🔴 | High Priority — Blocker |
-| 🟡 | Medium Priority — Active |
-| 🟢 | Low Priority — Backlog |
-| ⏳ | Pending External |
-| 📋 | Planned — v56.0+ |
+| 🔴 | **H1: Tempering** — Active now |
+| 🟠 | **H2: Agentic** — Next phase |
+| 🟡 | **H3: Platform** — Future |
+| 🟢 | **H4: Exploration** — Research |
+| 📋 | Planned — Future Horizon |
 
 ---
 
@@ -27,119 +27,195 @@
 - [x] **PyPI** — Package live (`pip install arifos==60.0.0`)
 - [x] **MCP Registry** — `io.github.ariffazil/aaa-mcp` published
 - [x] **Railway Deploy** — Production at `aaamcp.arif-fazil.com`
-- [x] **Version Alignment** — All files synced to v60.0.0
+- [x] **Tool Rename** — `forge_pipeline` → `trinity_forge`
 
-### Architecture
+### Infrastructure (Configured & Working)
+- [x] **PostgreSQL** — `session_ledger.py` with asyncpg, VAULT999 schema
+- [x] **Redis** — `redis_client.py` with Railway URL parsing
 - [x] **5-Organ Kernel** — INIT, AGI, ASI, APEX, VAULT operational
-- [x] **13 MCP Tools** — Full MCP 2025-11-25 compliance with annotations
-- [x] **13 Constitutional Floors** — F1-F13 enforcement hardened
-- [x] **Unified Pipeline** — Single `core.pipeline.forge()` source of truth
-- [x] **Health Endpoints** — `/health`, `/metrics`, `/stats` live
-
-### Repository
-- [x] **Root Entropy Reduction** — 16 files archived, structure hardened
-- [x] **Clean Presentation** — `aaa_mcp/README.md` as MCP entry point
-- [x] **Architecture Docs** — Created `docs/architecture.md`
-- [x] **PyPI License Fix** — AGPL-3.0 classifier added
+- [x] **14 MCP Tools** — Full MCP 2025-11-25 compliance
+- [x] **13 Constitutional Floors** — F1-F13 enforcement
+- [x] **Unified Pipeline** — `trinity_forge` as single entrypoint
 
 ---
 
-## 🔴 HIGH PRIORITY (Current Session)
+## 🔴 H1: TEMPERING THE FOUNDATION (Current Priority)
 
-### Infrastructure
-- [ ] **MCP Registry Verification** — Confirm `aaamcp.arif-fazil.com` health
-- [ ] **Railway Health 200** — Ensure `/health` returns 200 for deployment
-- [ ] **CORS Support** — Enable cross-origin for `arifos.arif-fazil.com`
+**Theme:** *The foundation is forged — now temper it to production hardness.*  
+**Goal:** Harden v60.0 into a reliable, observable, regression-tested system.
 
-### Testing
-- [ ] **MCP Client Integration** — Test with Claude Desktop, Cursor
-- [ ] **End-to-End Pipeline** — Verify 000→999 flow works
-- [ ] **Load Testing** — Stress test at 100 req/s
+### H1.1: Production Observability
+- [ ] **Governance Metrics in /health**
+  - [ ] `postgres_connected` — DB connection status
+  - [ ] `redis_connected` — Redis connection status
+  - [ ] `vault_lag_ms` — Time from query to seal
+  - [ ] `verdict_rates` — VOID/SABAR/SEAL distribution
+  - [ ] `avg_genius_g` — Average Genius Index
+  - [ ] `avg_e_eff` — Average energy efficiency
+  - [ ] `avg_landauer_risk` — Average hallucination risk
+  - *File:* `aaa_mcp/infrastructure/monitoring.py`
 
----
+- [ ] **Alerting Setup**
+  - [ ] DB disconnect alert
+  - [ ] VAULT write failure alert
+  - [ ] Low G (< 0.6) sustained alert
+  - [ ] High VOID ratio (> 30%) alert
+  - *Platform:* Railway native alerts or webhook
 
-## 🟡 MEDIUM PRIORITY (Active Development)
+### H1.2: ASI Hardening (Ω)
+**Problem:** F5/F6/F9 use keyword heuristics, not trained models.
 
-| ID | Task | Description | ETA |
-|:---|:-----|:------------|:----|
-| T1 | L5 Agent SDK Design | Design with Trinity oversight | Week 1-2 |
-| T2 | AutoGen Integration | Study ConstitutionalGroupChat | Week 1 |
-| T3 | Docker Compose | Create `docker-compose.yml` | Week 2 |
-| T4 | Railway Template | One-click deploy button | Week 2 |
+- [ ] **Embedding-Based Stakeholder Detection**
+  - [ ] Integrate SBERT (`sentence-transformers/all-MiniLM-L6-v2`)
+  - [ ] Replace `identify_stakeholders()` pattern matching with semantic similarity
+  - [ ] Map embeddings to vulnerability scores
+  - *File:* `core/shared/physics.py`
 
----
+- [ ] **Model-Backed κᵣ (Empathy)**
+  - [ ] Light classifier (logistic regression on embeddings) for F6
+  - [ ] Train on anonymized VAULT logs
+  - [ ] Score range: [0.5, 1.0] with confidence
+  - *File:* `core/organs/_2_asi.py`
 
-## 📋 PLANNED (v56.0 — L5 Agent SDK)
+- [ ] **Model-Backed Peace² (F5)**
+  - [ ] Sentiment analysis for stability scoring
+  - [ ] Replace keyword-based harms with embedding similarity
+  - *File:* `core/shared/physics.py`
 
-### Agent Architecture
+- [ ] **Ω Incident Logging**
+  - [ ] Log all ASI decisions to VAULT for future fine-tuning
+  - [ ] Anonymize queries before logging
+  - *File:* `aaa_mcp/sessions/session_ledger.py`
 
-| ID | Task | Description |
-|:---|:-----|:------------|
-| A1 | Architect Agent | Design with Trinity oversight |
-| A2 | Engineer Agent | Build with floor enforcement |
-| A3 | Auditor Agent | Review with truth audit |
-| A4 | Validator Agent | Final SEAL/VOID authority |
-| SDK | Package Structure | `arifos[l5]` optional install |
+### H1.3: Test Suite Recovery
+- [ ] **Fix Legacy Imports**
+  - [ ] Replace `arifos.core` → `codebase` in all tests
+  - [ ] Target: **≥80% pass rate**
+  - *Files:* `tests/constitutional/`, `tests/integration/`
 
-### Integration Layer
-
-| ID | Task | Description |
-|:---|:-----|:------------|
-| I1 | AutoGen | ConstitutionalGroupChat adapter |
-| I2 | LangChain | ConstitutionalAgent class |
-| I3 | Prefect | Workflow orchestration |
-
-**Completion:** `pip install arifos[l5]` works with 4 agents
-
----
-
-## 🟢 LOW PRIORITY / BACKLOG
-
-### v57.0+ (Enterprise)
-- [ ] EU AI Act Compliance — Regulatory alignment
-- [ ] Kubernetes Operator — Enterprise deployment
-- [ ] Enterprise Dashboard — Observability UI
-- [ ] SSO/SAML — Enterprise auth
-
-### Community
-- [ ] Website Update — v60 announcement on arifos.arif-fazil.com
-- [ ] Social Announcement — X/LinkedIn about historic publish
-- [ ] Blog Post — "First Constitutional AI MCP Server"
+- [ ] **Golden Scenario Tests**
+  - [ ] **Scenario 1:** High-stakes financial decision → HOLD_888 + Phoenix-72
+  - [ ] **Scenario 2:** Medical query without grounding → SABAR/VOID
+  - [ ] **Scenario 3:** Benign Q&A → SEAL with Ω₀ ∈ [0.03,0.05], G ≥ 0.8
+  - *File:* `tests/test_golden_scenarios.py`
 
 ---
 
-## 🚨 CRITICAL COMMANDS FOR AGENTS
+## 🟠 H2: AGENTIC — LIVING INSTITUTION (Next Phase)
 
-### Verify Deployment
+**Theme:** *Start narrow — one real use case, not generic AGI.*  
+**Goal:** arifOS eats its own dogfood with constitutional code review.
+
+### H2.1: Flagship Use Case — Constitutional Code Review
+- [ ] **Architect Agent (Δ)**
+  - [ ] Propose infrastructure changes
+  - [ ] Design with Trinity oversight
+  - [ ] Output: YAML/JSON change proposals
+
+- [ ] **Engineer Agent (Ω)**
+  - [ ] Implement changes from Architect
+  - [ ] Build with floor enforcement
+  - [ ] Output: Code diffs, PRs
+
+- [ ] **Auditor Agent (👁)**
+  - [ ] Review changes for floor violations
+  - [ ] Check κᵣ, Peace², risk levels
+  - [ ] Output: Audit report with floor scores
+
+- [ ] **Validator Agent (✓)**
+  - [ ] Final SEAL/SABAR/VOID decision
+  - [ ] Hands to APEX for judgment
+  - [ ] Output: Deployment gate (proceed/block)
+
+- [ ] **Deployment Integration**
+  - [ ] GitHub Actions integration
+  - [ ] Railway deployment gate
+  - [ ] Only SEAL triggers production deploy
+
+### H2.2: Juror Democracy
+- [ ] **Multi-Agent Voting**
+  - [ ] 3-5 agent jurors on same case
+  - [ ] Each votes SEAL/SABAR/VOID with floor scores
+  - [ ] APEX aggregates under Tri-Witness W₃
+  - *Pattern:* Byzantine Fault Tolerant consensus
+
+---
+
+## 🟡 H3: PLATFORM — RUNTIME EVERYWHERE (Future)
+
+**Theme:** *Governance follows the model.*
+
+### H3.1: Python SDK
+- [ ] **`arifos.Client`** — OpenAI/Claude/Gemini drop-in replacement
+- [ ] **`arifos.AgentBuilder`** — Declarative agent creation
+- [ ] **`arifos.FloorTester`** — Unit test framework for compliance
+
+### H3.2: Sidecar Pattern
+- [ ] **Kubernetes Admission Controller**
+- [ ] **Istio/Envoy Integration**
+- [ ] **Helm Charts**
+
+### H3.3: Edge Runtime
+- [ ] **WASM Compilation**
+- [ ] **Cloudflare Workers Deployment**
+- [ ] **Browser-Local Governance**
+
+---
+
+## 🟢 H4: EXPLORATION — RESEARCH HORIZON (Experimental)
+
+**Theme:** *Research without betting the farm.*
+
+- [ ] **Multi-Modal Governance** — F2 for images, F6 for audio, F9 for video
+- [ ] **Cross-Model Tri-Witness** — Claude checks GPT checks Gemini
+- [ ] **L7 Sovereign** — Recursive constitution (Meta-Floor F∞)
+- [ ] **Hardware Security** — SGX/Nitro enclaves for vault_seal
+
+---
+
+## 🚨 CRITICAL COMMANDS
+
+### Verify Production Health
 ```bash
-# Health check (must return 200)
+# Full health check with governance metrics
 curl https://aaamcp.arif-fazil.com/health
 
-# Expected: {"status": "healthy", "version": "60.0-FORGE"}
+# Expected response:
+# {
+#   "status": "healthy",
+#   "version": "60.0-FORGE",
+#   "postgres_connected": true,
+#   "redis_connected": true,
+#   "vault_lag_ms": 45,
+#   "verdict_rates": {"SEAL": 0.75, "SABAR": 0.15, "VOID": 0.10},
+#   "avg_genius_g": 0.82,
+#   "avg_e_eff": 1.0,
+#   "avg_landauer_risk": 0.12
+# }
 ```
 
 ### Local Development
 ```bash
-# Install
+# Install with dev dependencies
 pip install -e ".[dev]"
 
-# Run tests
+# Run tests (target: 80%+ pass rate)
 pytest tests/ -v --tb=short
+
+# Run golden scenarios only
+pytest tests/test_golden_scenarios.py -v
 
 # Start server locally
 python scripts/start_server.py
 ```
 
-### MCP Client Config
-```json
-{
-  "mcpServers": {
-    "arifos": {
-      "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"]
-    }
-  }
-}
+### ASI Model Training (H1.2)
+```bash
+# Download SBERT model
+python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+
+# Train empathy classifier on VAULT logs
+python scripts/train_empathy_classifier.py --vault-logs ./data/vault_logs.jsonl
 ```
 
 ---
@@ -148,9 +224,12 @@ python scripts/start_server.py
 
 | Milestone | Status |
 |:----------|:-------|
-| First Constitutional AI MCP Server | ✅ Published |
-| First Trinity Architecture (ΔΩΨ) in Production | ✅ Live |
-| First Malay-Rooted AI System in Global Registry | ✅ Sealed |
+| First Constitutional AI MCP Server | ✅ v60.0.0 |
+| First Trinity Architecture (ΔΩΨ) | ✅ Live |
+| PostgreSQL + Redis Persistence | ✅ Working |
+| Model-Backed ASI Floors | 🔴 H1.2 |
+| First L5 Agent Quartet | 🟠 H2.1 |
+| First Juror Democracy | 🟠 H2.2 |
 
 ---
 
@@ -158,14 +237,18 @@ python scripts/start_server.py
 
 | File | Purpose |
 |:-----|:--------|
-| `core/pipeline.py` | **Single source of truth** for 000-999 pipeline |
-| `aaa_mcp/server.py` | MCP tool definitions (calls unified pipeline) |
-| `scripts/start_server.py` | Railway/Production entry point |
-| `server.json` | MCP Registry manifest (v60.0.0) |
+| `core/pipeline.py` | 000-999 pipeline source of truth |
+| `core/organs/_2_asi.py` | ASI Heart (needs H1.2 hardening) |
+| `core/shared/physics.py` | F5/F6/F9 scoring (needs H1.2 models) |
+| `aaa_mcp/sessions/session_ledger.py` | PostgreSQL VAULT persistence |
+| `aaa_mcp/services/redis_client.py` | Redis session state |
+| `aaa_mcp/infrastructure/monitoring.py` | Health/metrics (needs H1.1) |
 
 ---
 
-**Last Updated:** 2026-02-10T21:25:00+08:00  
-**Status:** 🔥 SEALED — Session complete  
-**Next Agent:** Start at 🔴 HIGH PRIORITY section  
-**Entropy:** MINIMIZED — Root structure canonical
+**Last Updated:** 2026-02-11  
+**Status:** 🔴 H1 TEMPERING — Foundation forged, now hardening  
+**Current Sprint:** H1.1 Observability + H1.2 ASI Models  
+**Next Sprint:** H1.3 Golden Tests → H2.1 Code Review Agents
+
+*"Truth must cool before it rules."*

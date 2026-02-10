@@ -65,7 +65,7 @@ async def sense(
 
     # Motto is schema-level; keep stage output low-verbosity.
 
-    return AgiOutput(
+    output = AgiOutput(
         session_id=session_id,
         thoughts=[],  # Sense doesn't generate reasoning thoughts yet
         floor_scores=FloorScores(f2_truth=truth_score, f4_clarity=0.0),  # Initial clarity
@@ -79,6 +79,9 @@ async def sense(
         verdict=Verdict.SEAL,
         metrics={"stage": 111, "action": "sense", "gpv": gpv},
     )
+    
+    # Return as dict to match type annotation
+    return output.model_dump() if hasattr(output, "model_dump") else output.__dict__
 
 
 def _extract_intent(query: str) -> str:

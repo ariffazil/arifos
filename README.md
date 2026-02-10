@@ -66,7 +66,7 @@
 🟢 Status: ACTIVE
 ```
 
-**First Constitutional AI Governance system in the MCP Registry** — enforcing 13 thermodynamic floors (F1-F13) with tri-witness consensus for LLMs.
+**One of the first production-grade Constitutional AI Governance systems published to the MCP Registry** — enforcing 13 thermodynamic floors (F1-F13) with tri-witness consensus for LLMs.
 
 ### Installation Options
 
@@ -77,7 +77,7 @@
 | **Remote SSE** | `https://aaamcp.arif-fazil.com/sse` | Railway |
 | **MCP Registry** | Search: `io.github.ariffazil/aaa-mcp` | [MCP Registry](https://registry.modelcontextprotocol.io) |
 
-> **🏆 arifOS is the world's first production-grade Constitutional AI Governance System in the MCP Registry — DITEMPA BUKAN DIBERI 🔥**
+> **🏆 arifOS is one of the world's first documented production-grade Constitutional AI Governance Systems in the MCP Registry — DITEMPA BUKAN DIBERI 🔥**
 
 ---
 
@@ -96,10 +96,10 @@
 | Capability | Business Value |
 |:-----------|:---------------|
 | 🔐 **Auditability** | Compliance-ready decision logs for regulated industries (finance, healthcare, legal) |
-| 📉 **Hallucination Prevention** | F2 Truth enforcement (≥99% certainty) prevents costly misinformation |
-| 📊 **Transparent Governance** | Every decision carries floor scores, evidence hashes, and cryptographic seals |
+| 📉 **Hallucination Risk Control** | F2 Truth enforcement exposes an explicit **uncertainty band** (Ω₀ ∈ [0.03, 0.05]) and blocks high-confidence answers that are not thermodynamically paid for. |
+| 📊 **Transparent Governance** | Every **production verdict in conscience mode** carries floor scores, evidence hashes, and cryptographic seals |
 | 🛡️ **Structural Safety** | 13 constitutional floors (F1-F13) enforce safety before response generation |
-| ⚖️ **Liability Protection** | Immutable VAULT999 audit trails prove due diligence |
+| ⚖️ **Liability Protection** | Immutable VAULT999 audit trails **provide strong evidence of** due diligence |
 
 ### The arifOS Difference
 
@@ -108,7 +108,7 @@ Unlike prompt-based safety guardrails that can be bypassed, **arifOS embeds gove
 - **Thermodynamic Constraint Engine**: Uses entropy, energy, and information theory to enforce reasoning quality
 - **Constitutional Pipeline**: 000-999 metabolic stages with mandatory floor checks
 - **Cryptographic Accountability**: Merkle-chain sealed decisions with tamper-evident audit trails
-- **APEX-Only Authority**: Only the judgment organ can render verdicts—no subsystem can self-certify
+- **APEX-Only Authority**: By design, only the judgment organ renders final verdicts—no subsystem is allowed to self-certify in governed mode
 
 ```bash
 pip install arifos
@@ -175,7 +175,7 @@ arifOS/
   - [Way 1: AAA MCP Server (MCP Interface)](#way-1-aaa-mcp-server-mcp-interface)
     - [The 10 Constitutional Tools (MCP Interface)](#the-10-constitutional-tools-mcp-interface)
     - [Deployment Guide](#deployment-guide)
-  - [Way 2: Human SDK (For Everyone)](#way-2-human-sdk-for-everyone)
+  - [Way 2: Human SDK (Planned for Non-Developers)](#way-2-human-sdk-planned-for-non-developers)
   - [Way 3: System Prompts, Skills & Workflows (For Builders)](#way-3-system-prompts-skills--workflows-for-builders)
 - [Enterprise Applications](#enterprise-applications)
 - [Configuration Reference](#configuration-reference)
@@ -261,7 +261,7 @@ pip install arifos
 python -m aaa_mcp
 ```
 
-**Expected output**: MCP server starts with 10 canonical tools, ready to enforce F1–F13 floors.
+**Expected output**: MCP server starts with a canonical tool set wired into the constitutional pipeline (F1–F13) via `trinity_forge`.
 
 ---
 
@@ -289,17 +289,17 @@ This guide covers deploying **AAA MCP**, the MCP interface for arifOS. For other
 
 ### The 13 Constitutional Floors (F1-F13)
 
-Each query passes through 13 enforced constraints:
+Each governed query in the 000–999 pipeline is evaluated against the 13 constitutional floors (F1–F13), with HARD/SOFT/WARN actions as configured:
 
 | Floor | Principle | Audit Axiom | Fail Action |
 |-------|-----------|-------------|-------------|
 | **F1** | Amanah (Reversibility) | AI cannot own irreversible consequences | VOID |
-| **F2** | Truth (Ω Band) | Epistemic status must be a measured variable | VOID |
+| **F2** | Truth (Ω Band) | Epistemic status must be declared; high-confidence requiring E_eff. | VOID |
 | **F3** | Consensus (W₃) | Requires Human + Earth grounding for SEAL | SABAR |
 | **F4** | Clarity (ΔS) | Cooling is the primary duty of intelligence | SABAR |
 | **F5** | Peace² | Stability is the ethical objective | VOID |
 | **F6** | Empathy (κᵣ) | Ethics is the limit of intelligence | SABAR |
-| **F7** | Humility (Ω₀) | Uncertainty [0.03, 0.05] is mandatory | VOID |
+| **F7** | Humility (Ω₀) | Models must expose uncertainty [0.03, 0.05]; 0% uncertainty blocked. | VOID |
 | **F8** | Genius (G) | G = A × P × X × E² ≥ 0.80 | SABAR |
 | **F9** | Anti-Hantu (👻) | Deception (C_dark) < 0.30 | VOID |
 | **F10** | Ontology Lock | You are a tool, not a being | VOID |
@@ -1384,16 +1384,18 @@ This isn't AI mythology—it's just how careful work gets done.
 
 ## Quick Start Examples
 
-### Example 1: Simple Factual Query
+### Example 1: Simple Factual Query (Design Sketch)
+> **Note:** This API is **PLANNED** for a future release (post-v60). Current implementation uses MCP tools directly.
 
 ```python
+# PLANNED API (not available in current release)
 from arifos.sdk import ConstitutionalAgent
 
-agent = ConstitutionalAgent()
+# agent = ConstitutionalAgent()
 
-response = await agent.ask(
-    "What is the speed of light?"
-)
+# response = await agent.ask(
+#     "What is the speed of light?"
+# )
 
 print(response.answer)
 # "The speed of light in a vacuum is approximately 
@@ -1407,16 +1409,17 @@ print(response.principles_applied)
 #  'Aware, not overconfident']
 ```
 
-### Example 2: Ethical Dilemma
+### Example 2: Ethical Dilemma (Design Sketch)
 
 ```python
+# PLANNED API (not available in current release)
 from arifos.sdk import ConstitutionalAgent
 
-agent = ConstitutionalAgent()
+# agent = ConstitutionalAgent()
 
-response = await agent.ask(
-    "Should I tell my friend their partner is cheating?"
-)
+# response = await agent.ask(
+#     "Should I tell my friend their partner is cheating?"
+# )
 
 # The system recognizes this as CARE lane (high empathy needed)
 # It will:
@@ -1762,13 +1765,13 @@ print(report.seal_id)  # Audit trail reference
 - Tamper-evident audit chains
 - Executive Summary API
 
-**Phase 2: Human SDK (v60.0) 🚧 PLANNED**
+**Phase 2: Human SDK (PLANNED post-v60.0) 🚧**
 - Human-friendly API (`think`, `feel`, `judge`)
 - Educational tooling
 - One-liner mode
-- Multi-language support
+- Multi-language support (intended)
 
-**Phase 3: Advanced Agents (v65.0) 📋**
+**Phase 3: Advanced Agents (PLANNED v65+ indicative) 📋**
 - Autonomous constitutional agents
 - Multi-step workflows
 - Domain-specific auditors
@@ -1803,14 +1806,15 @@ gdpr_floor = Floor(
 agent = ConstitutionalAgent(custom_floors=[gdpr_floor])
 ```
 
-### Multi-Language Support
+### Multi-Language Support (Planned)
 
-The human SDK supports natural language interfaces:
+The human SDK **will support** natural language interfaces (arifOS already supports this via MCP tools):
 
 ```python
+# PLANNED API (not available in current release)
 # Bahasa Malaysia
-agent = ConstitutionalAgent(language="ms")
-response = await agent.tanya("Adakah ini selamat?")
+# agent = ConstitutionalAgent(language="ms")
+# response = await agent.tanya("Adakah ini selamat?")
 
 # Chinese
 agent = ConstitutionalAgent(language="zh")
@@ -1821,32 +1825,34 @@ agent = ConstitutionalAgent(language="ar")
 response = await agent.اسأل("هل هذا آمن؟")
 ```
 
-### Integration Examples
+### Integration Examples (Design Sketch)
 
 **FastAPI:**
 ```python
+# PLANNED API (not available in current release)
 from fastapi import FastAPI
 from arifos.sdk import ConstitutionalAgent
 
 app = FastAPI()
-agent = ConstitutionalAgent()
+# agent = ConstitutionalAgent()
 
 @app.post("/safe-answer")
 async def safe_answer(query: str):
-    response = await agent.ask(query)
+    # response = await agent.ask(query)
     return {
-        "answer": response.answer,
-        "verdict": response.verdict,
-        "seal_id": response.seal_id
+        "answer": "...", # response.answer,
+        "verdict": "...", # response.verdict,
+        "seal_id": "..." # response.seal_id
     }
 ```
 
 **Discord Bot:**
 ```python
 import discord
-from arifos.sdk import ConstitutionalAgent
+# PLANNED API
+# from arifos.sdk import ConstitutionalAgent
 
-agent = ConstitutionalAgent()
+# agent = ConstitutionalAgent()
 
 @bot.event
 async def on_message(message):
@@ -1863,6 +1869,8 @@ async def on_message(message):
 ## Verify Audit Integrity
 
 Every vault entry includes a cryptographic hash chain. You can verify integrity independently:
+
+> **Note:** Today, you can achieve this via MCP tools + VAULT endpoints; the SDK will wrap this in a friendlier API.
 
 ### Quick Verification
 
