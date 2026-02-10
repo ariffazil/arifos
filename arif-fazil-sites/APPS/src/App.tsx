@@ -448,7 +448,11 @@ const PRODUCT_SHOWCASE = [
 function App() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [systemStatus, setSystemStatus] = useState({ online: true, version: 'v55.4-SEAL' });
+  const [systemStatus, setSystemStatus] = useState<{ online: boolean | null; version: string; loading: boolean }>({ 
+    online: null, 
+    version: 'v60.0.0', 
+    loading: true 
+  });
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [expandedLayer, setExpandedLayer] = useState<string | null>(null);
   const [expandedTool, setExpandedTool] = useState<string | null>(null);
@@ -483,9 +487,23 @@ function App() {
 
   // Check actual system status
   useEffect(() => {
-    fetch(`https://${API_BASE}/health`)
-      .then(res => res.ok ? setSystemStatus({ online: true, version: 'v55.4-SEAL' }) : setSystemStatus({ online: false, version: 'v55.4-SEAL' }))
-      .catch(() => setSystemStatus({ online: false, version: 'v55.4-SEAL' }));
+    fetch(`https://${API_BASE}/health`, { 
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    })
+      .then(async res => {
+        if (res.ok) {
+          const data = await res.json().catch(() => ({}));
+          setSystemStatus({ 
+            online: true, 
+            version: data.version || 'v60.0.0',
+            loading: false
+          });
+        } else {
+          setSystemStatus({ online: false, version: 'v60.0.0', loading: false });
+        }
+      })
+      .catch(() => setSystemStatus({ online: false, version: 'v60.0.0', loading: false }));
   }, []);
 
   const copyToClipboard = (code: string, id: string) => {
@@ -678,10 +696,19 @@ function App() {
 
           {/* Status Badge */}
           <div className="flex items-center justify-center gap-4 mb-10 flex-wrap">
-            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${systemStatus.online ? 'border-green-500/30 bg-green-500/10' : 'border-red-500/30 bg-red-500/10'}`}>
-              <Activity className={`w-4 h-4 ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`} />
-              <span className={`text-sm font-medium ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
-                {systemStatus.online ? 'ONLINE' : 'OFFLINE'}
+            <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border ${
+              systemStatus.loading ? 'border-amber-500/30 bg-amber-500/10' :
+              systemStatus.online ? 'border-green-500/30 bg-green-500/10' : 'border-red-500/30 bg-red-500/10'
+            }`}>
+              <Activity className={`w-4 h-4 ${
+                systemStatus.loading ? 'text-amber-400' :
+                systemStatus.online ? 'text-green-400' : 'text-red-400'
+              }`} />
+              <span className={`text-sm font-medium ${
+                systemStatus.loading ? 'text-amber-400' :
+                systemStatus.online ? 'text-green-400' : 'text-red-400'
+              }`}>
+                {systemStatus.loading ? 'CHECKING...' : systemStatus.online ? 'ONLINE' : 'OFFLINE'}
               </span>
               <span className="text-sm text-gray-500">{systemStatus.version}</span>
             </div>
@@ -747,19 +774,32 @@ function App() {
               <span className="text-xs text-gray-500">— from aaamcp.arif-fazil.com</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`w-2 h-2 rounded-full ${systemStatus.online ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
-              <span className={`text-xs ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
-                {systemStatus.online ? 'LIVE' : 'OFFLINE'}
-              </span>
+              {systemStatus.loading ? (
+                <>
+                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                  <span className="text-xs text-amber-400">CHECKING...</span>
+                </>
+              ) : (
+                <>
+                  <span className={`w-2 h-2 rounded-full ${systemStatus.online ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
+                  <span className={`text-xs ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
+                    {systemStatus.online ? 'LIVE' : 'OFFLINE'}
+                  </span>
+                </>
+              )}
             </div>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
             <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
               <p className="text-xs text-gray-500 uppercase tracking-wider">Status</p>
-              <p className={`text-lg font-bold ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
-                {systemStatus.online ? 'Healthy' : 'Down'}
-              </p>
+              {systemStatus.loading ? (
+                <p className="text-lg font-bold text-amber-400">...</p>
+              ) : (
+                <p className={`text-lg font-bold ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
+                  {systemStatus.online ? 'Healthy' : 'Unreachable'}
+                </p>
+              )}
               <p className="text-xs text-gray-600">/health check</p>
             </div>
             
@@ -795,7 +835,13 @@ function App() {
           </div>
           
           <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-            <p>Auto-refreshes on page load. Real-time data from production MCP server.</p>
+            <p>
+              {systemStatus.loading 
+                ? 'Connecting to production MCP server...' 
+                : systemStatus.online === false 
+                  ? 'Could not reach server. Displaying cached version info.' 
+                  : 'Connected to production MCP server.'}
+            </p>
             <a 
               href={`https://${API_BASE}/health`} 
               target="_blank" 

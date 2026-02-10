@@ -129,6 +129,15 @@ from aaa_mcp.services.constitutional_metrics import (
     store_stage_result,
 )
 from aaa_mcp.tools.reality_grounding import reality_check
+from core.shared.types import (
+    AgiOutput,
+    ApexOutput,
+    AsiOutput,
+    FloorScores,
+    InitOutput,
+    VaultOutput,
+    Verdict,
+)
 
 
 async def core_forge(
@@ -141,44 +150,80 @@ async def core_forge(
     """Orchestrate the full 000-999 metabolic pipeline."""
     # 1. 000_INIT
     init_engine = InitEngine()
-    init_res = await init_engine.ignite(query, session_id)
-    sid = init_res.get("session_id") or session_id or "tmp-session"
+    try:
+        init_res_raw = await init_engine.ignite(query, session_id)
+        init_res = InitOutput(**init_res_raw) if isinstance(init_res_raw, dict) else init_res_raw
+    except Exception as e:
+        init_res = InitOutput(
+            session_id=session_id or f"err-{secrets.token_hex(4)}",
+            status="ERROR",
+            error_message=str(e),
+            governance_token="",
+            auth_verified=False,
+            injection_score=1.0,
+        )
+
+    sid = init_res.session_id
+
+    if init_res.status == "ERROR":
+
+        class ErrorResult:
+            def __init__(self, sid, msg):
+                self.session_id = sid
+                self.status = "ERROR"
+                self.error_message = msg
+                self.verdict = "VOID"
+
+        return ErrorResult(sid, init_res.error_message)
 
     # 2. AGI MIND (111-333)
     agi_engine = AGIEngine()
-    agi_sense_res = await agi_engine.sense(query, sid)
-    agi_think_res = await agi_engine.think(query, sid)
-    agi_reason_res = await agi_engine.reason(query, sid)
+    try:
+        agi_res_raw = await agi_engine.reason(query, sid)
+        agi_res = AgiOutput(**agi_res_raw) if isinstance(agi_res_raw, dict) else agi_res_raw
+    except Exception as e:
+        agi_res = AgiOutput(
+            session_id=sid,
+            status="ERROR",
+            error_message=str(e),
+            thoughts=[],
+            floor_scores=FloorScores(f2_truth=0.0),
+        )
 
     # 3. ASI HEART (555-666)
     asi_engine = ASIEngine()
-    asi_emp_res = await asi_engine.empathize(query, sid)
-    asi_align_res = await asi_engine.align(query, sid)
+    try:
+        asi_res_raw = await asi_engine.align(query, sid)
+        asi_res = AsiOutput(**asi_res_raw) if isinstance(asi_res_raw, dict) else asi_res_raw
+    except Exception as e:
+        asi_res = AsiOutput(
+            session_id=sid,
+            status="ERROR",
+            error_message=str(e),
+            floor_scores=FloorScores(f5_peace=0.0),
+        )
 
     # 4. APEX SOUL (888)
     apex_engine = APEXEngine()
-    apex_res = await apex_engine.judge(
-        query,
-        sid,
-        agi_result=agi_reason_res,
-        asi_result=asi_align_res,
-        init_result=init_res,
-        user_id=actor_id,
-    )
+    try:
+        apex_res_raw = await apex_engine.judge(
+            query,
+            sid,
+            agi_result=agi_res.model_dump() if hasattr(agi_res, "model_dump") else agi_res,
+            asi_result=asi_res.model_dump() if hasattr(asi_res, "model_dump") else asi_res,
+            init_result=init_res.model_dump() if hasattr(init_res, "model_dump") else init_res,
+            user_id=actor_id,
+        )
+        apex_res = ApexOutput(**apex_res_raw) if isinstance(apex_res_raw, dict) else apex_res_raw
+    except Exception as e:
+        apex_res = ApexOutput(
+            session_id=sid,
+            status="ERROR",
+            error_message=str(e),
+            floor_scores=FloorScores(f3_tri_witness=0.0),
+        )
 
     # 5. VAULT SEAL (999) - Automated for internal simulate_transfer
-    from aaa_mcp.core.engine_adapters import _agi_output_to_tensor
-    from core.shared.physics import ConstitutionalTensor
-
-    agi_tensor = _agi_output_to_tensor(agi_reason_res)
-    asi_output = {
-        "kappa_r": asi_align_res.get("kappa_r", 0.7),
-        "peace_squared": asi_align_res.get("peace_squared", 1.0),
-        "is_reversible": asi_align_res.get("is_reversible", True),
-        "verdict": asi_align_res.get("verdict", "SEAL"),
-    }
-
-    # Create a result object that matches the forge_pipeline expectations
     class ForgeResult:
         def __init__(self, sid, verdict, agi, asi, apex, seal):
             self.session_id = sid
@@ -191,10 +236,12 @@ async def core_forge(
 
     return ForgeResult(
         sid=sid,
-        verdict=apex_res.get("verdict", "SEAL"),
-        agi=agi_reason_res,
-        asi=asi_align_res,
-        apex=apex_res,
+        verdict=(
+            apex_res.verdict.value if hasattr(apex_res.verdict, "value") else str(apex_res.verdict)
+        ),
+        agi=agi_res.model_dump() if hasattr(agi_res, "model_dump") else agi_res,
+        asi=asi_res.model_dump() if hasattr(asi_res, "model_dump") else asi_res,
+        apex=apex_res.model_dump() if hasattr(apex_res, "model_dump") else apex_res,
         seal={"status": "SIMULATED"},
     )
 
@@ -232,6 +279,41 @@ Motto: DITEMPA BUKAN DIBERI
 # Note: custom_route endpoints require FastMCP 2.0+
 # For health checks, use the MCP tools/list endpoint
 # or upgrade FastMCP: pip install fastmcp>=2.0
+
+# CORS and Health endpoint setup for SSE/HTTP transports
+try:
+    from starlette.middleware.cors import CORSMiddleware
+    from starlette.responses import JSONResponse
+    
+    # Add CORS middleware to allow arifos.arif-fazil.com
+    mcp.app.add_middleware(
+        CORSMiddleware,
+        allow_origins=[
+            "https://arifos.arif-fazil.com",
+            "https://apex.arif-fazil.com", 
+            "https://arif-fazil.com",
+            "http://localhost:3000",
+            "http://localhost:5173",
+        ],
+        allow_credentials=True,
+        allow_methods=["GET", "POST", "OPTIONS"],
+        allow_headers=["*"],
+    )
+    
+    # Add health endpoint
+    async def health_endpoint(request):
+        return JSONResponse({
+            "status": "healthy",
+            "version": "v60.0.0",
+            "service": "aaa-mcp",
+            "protocol": "MCP 2025-11-25"
+        })
+    
+    mcp.app.add_route("/health", health_endpoint, methods=["GET"])
+    
+except Exception as e:
+    # If CORS setup fails (e.g., stdio mode), silently continue
+    pass
 
 
 # Tool implementations using adapters
@@ -1284,6 +1366,7 @@ async def vault_query(
     ledger = None
     try:
         # Try legacy codebase vault if available
+        from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
         from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
 
         ledger = get_hardened_vault_ledger()

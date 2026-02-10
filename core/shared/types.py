@@ -12,15 +12,16 @@ License: AGPL-3.0-only
 DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
-from pydantic import BaseModel, Field, ConfigDict
-from typing import Literal, List, Optional, Dict, Any
-from enum import Enum
 from datetime import datetime
+from enum import Enum
+from typing import Any, Dict, List, Literal, Optional
 
+from pydantic import BaseModel, ConfigDict, Field
 
 # ============================================================================
 # VERDICT ENUM — Constitutional Outcomes
 # ============================================================================
+
 
 class Verdict(str, Enum):
     """
@@ -28,16 +29,18 @@ class Verdict(str, Enum):
 
     Hierarchy: SABAR > VOID > HOLD_888 > PARTIAL > SEAL
     """
-    SEAL = "SEAL"           # All floors pass ✅
-    PARTIAL = "PARTIAL"     # Soft floor warning ⚠️
-    VOID = "VOID"           # Hard floor violation 🛑
-    SABAR = "SABAR"         # Safety circuit triggered 🔴
-    HOLD_888 = "888_HOLD"   # Human review required 👤
+
+    SEAL = "SEAL"  # All floors pass ✅
+    PARTIAL = "PARTIAL"  # Soft floor warning ⚠️
+    VOID = "VOID"  # Hard floor violation 🛑
+    SABAR = "SABAR"  # Safety circuit triggered 🔴
+    HOLD_888 = "888_HOLD"  # Human review required 👤
 
 
 # ============================================================================
 # THOUGHT STRUCTURES — Sequential Reasoning
 # ============================================================================
+
 
 class ThoughtNode(BaseModel):
     """
@@ -45,6 +48,7 @@ class ThoughtNode(BaseModel):
 
     Represents one thought in the 333_REASON loop.
     """
+
     thought: str
     thought_number: int = Field(ge=1)
     confidence: float = Field(ge=0.0, le=1.0, default=0.5)
@@ -58,6 +62,7 @@ class ThoughtNode(BaseModel):
 
 class ThoughtChain(BaseModel):
     """Complete chain of sequential thoughts."""
+
     thoughts: List[ThoughtNode]
     total_steps: int
     convergence_achieved: bool = False
@@ -67,6 +72,7 @@ class ThoughtChain(BaseModel):
 # ============================================================================
 # FLOOR SCORES — The 13 Constitutional Floors
 # ============================================================================
+
 
 class FloorScores(BaseModel):
     """
@@ -78,6 +84,7 @@ class FloorScores(BaseModel):
     Soft Floors (PARTIAL if violated):
     - F3, F5, F6, F8
     """
+
     # Hard Floors
     f1_amanah: float = Field(ge=0.0, le=1.0, default=1.0)
     f2_truth: float = Field(ge=0.0, le=1.0, default=0.99)
@@ -118,12 +125,14 @@ class FloorScores(BaseModel):
 # AGI METRICS — Mind Engine Outputs
 # ============================================================================
 
+
 class AgiMetrics(BaseModel):
     """
     AGI Mind Engine output metrics.
 
     Enforces: F2 (Truth), F4 (Clarity), F7 (Humility), F8 (Genius partial)
     """
+
     truth_score: float = Field(ge=0.0, le=1.0, description="F2: τ ≥ 0.99")
     delta_s: float = Field(le=0.0, description="F4: ΔS ≤ 0 (entropy reduction)")
     omega_0: float = Field(ge=0.03, le=0.05, description="F7: Ω₀ ∈ [0.03, 0.05]")
@@ -137,6 +146,7 @@ class AsiMetrics(BaseModel):
 
     Enforces: F5 (Peace²), F6 (Empathy), F9 (Anti-Hantu)
     """
+
     peace_squared: float = Field(ge=0.0, le=1.0, description="F5: Peace² ≥ 1.0")
     kappa_r: float = Field(ge=0.0, le=1.0, description="F6: κᵣ ≥ 0.70")
     c_dark: float = Field(ge=0.0, le=1.0, description="F9: C_dark < 0.30")
@@ -148,60 +158,73 @@ class ApexMetrics(BaseModel):
 
     Enforces: F3 (Tri-Witness), F8 (Genius), F10 (Ontology)
     """
+
     tri_witness: float = Field(ge=0.0, le=1.0, description="F3: W₃ ≥ 0.95")
     genius_g: float = Field(ge=0.0, le=1.0, description="F8: G ≥ 0.80")
     ontology_valid: bool = Field(description="F10: Category lock")
 
 
 # ============================================================================
+# BASE ORGAN OUTPUT — The Modular Contract
+# ============================================================================
+
+
+class BaseOrganOutput(BaseModel):
+    """
+    Standard schema for all metabolic engine outputs.
+    Ensures interoperability across init/agi/asi/apex/vault.
+    """
+
+    session_id: str
+    verdict: Verdict = Verdict.SEAL
+    status: Literal["SUCCESS", "ERROR", "SABAR"] = "SUCCESS"
+    violations: List[str] = Field(default_factory=list)
+    error_message: Optional[str] = None
+    timestamp: datetime = Field(default_factory=datetime.now)
+    metrics: Optional[Dict[str, Any]] = None
+
+    model_config = ConfigDict(extra="allow", populate_by_name=True)
+
+
+# ============================================================================
 # ORGAN OUTPUTS — Return Types for Each Organ
 # ============================================================================
 
-class InitOutput(BaseModel):
+
+class InitOutput(BaseOrganOutput):
     """Output from core_init (Session Authentication)."""
-    session_id: str
+
     governance_token: str
     injection_score: float = Field(ge=0.0, le=1.0)
     auth_verified: bool
-    verdict: Verdict
-    violations: List[str] = Field(default_factory=list)
-    timestamp: datetime = Field(default_factory=datetime.now)
 
 
-class AgiOutput(BaseModel):
+class AgiOutput(BaseOrganOutput):
     """Output from core_agi (Evidence Engine)."""
+
     thoughts: List[ThoughtNode]
-    metrics: AgiMetrics
     evidence: Dict[str, Any] = Field(default_factory=dict)
     floor_scores: FloorScores
-    verdict: Verdict
-    violations: List[str] = Field(default_factory=list)
     lane: Literal["CRISIS", "FACTUAL", "SOCIAL", "CARE"] = "CARE"
-    session_id: str
 
 
-class AsiOutput(BaseModel):
+class AsiOutput(BaseOrganOutput):
     """Output from core_asi (Alignment Engine)."""
-    metrics: AsiMetrics
+
     floor_scores: FloorScores
-    verdict: Verdict
-    violations: List[str] = Field(default_factory=list)
     stakeholder_impact: Dict[str, float] = Field(default_factory=dict)
-    session_id: str
 
 
-class ApexOutput(BaseModel):
+class ApexOutput(BaseOrganOutput):
     """Output from core_apex (Verdict Engine)."""
-    verdict: Verdict
-    metrics: ApexMetrics
+
     floor_scores: FloorScores
-    violations: List[str] = Field(default_factory=list)
     proof: Optional[str] = None  # If audit mode
-    session_id: str
 
 
 class VaultEntry(BaseModel):
     """Single entry in constitutional memory."""
+
     session_id: str
     query: str
     verdict: str
@@ -211,19 +234,19 @@ class VaultEntry(BaseModel):
     merkle_root: str
 
 
-class VaultOutput(BaseModel):
+class VaultOutput(BaseOrganOutput):
     """Output from core_memory (Memory Engine)."""
+
     action: Literal["write", "read", "query"]
     entries: List[VaultEntry] = Field(default_factory=list)
     seal_hash: Optional[str] = None
     merkle_root: Optional[str] = None
-    status: Literal["SUCCESS", "ERROR"] = "SUCCESS"
-    error_message: Optional[str] = None
 
 
 # ============================================================================
 # GOVERNANCE PLACEMENT VECTOR — ATLAS Types
 # ============================================================================
+
 
 class GPV(BaseModel):
     """
@@ -235,6 +258,7 @@ class GPV(BaseModel):
     - κ (kappa): Care demand
     - ρ (rho): Risk level
     """
+
     lane: Literal["CRISIS", "FACTUAL", "SOCIAL", "CARE"]
     tau: float = Field(ge=0.0, le=1.0, alias="τ")  # Truth demand
     kappa: float = Field(ge=0.0, le=1.0, alias="κ")  # Care demand
@@ -250,27 +274,23 @@ class GPV(BaseModel):
 __all__ = [
     # Enums
     "Verdict",
-
     # Thought Structures
     "ThoughtNode",
     "ThoughtChain",
-
     # Floor Scores
     "FloorScores",
-
     # Metrics
     "AgiMetrics",
     "AsiMetrics",
     "ApexMetrics",
-
     # Organ Outputs
+    "BaseOrganOutput",
     "InitOutput",
     "AgiOutput",
     "AsiOutput",
     "ApexOutput",
     "VaultOutput",
     "VaultEntry",
-
     # ATLAS
     "GPV",
 ]

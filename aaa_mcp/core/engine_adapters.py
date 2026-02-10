@@ -193,21 +193,18 @@ class InitEngine:
         """Initialize constitutional session using core organs."""
         try:
             token = await init(query, actor_id="user")
-            verdict = (
-                "SEAL"
-                if token.status == "READY"
-                else ("888_HOLD" if token.status == "HOLD_888" else "VOID")
-            )
+            # v60 compliance: use token.verdict instead of token.status for outcome
+            verdict = token.verdict.value if hasattr(token.verdict, "value") else str(token.verdict)
             return {
                 "status": token.status,
                 "session_id": token.session_id,
                 "verdict": verdict,
                 "engine_mode": "core",
-                "authority": token.authority.value if hasattr(token, "authority") else "user",
-                "floors_passed": token.floors_passed,
-                "floors_failed": token.floors_failed,
-                "injection_risk": token.injection_risk,
-                "reason": token.reason,
+                "authority": token.metrics.get("authority", "user") if token.metrics else "user",
+                "floors_passed": getattr(token, "floors_passed", ["F11", "F12"]),
+                "violations": token.violations,
+                "injection_risk": getattr(token, "injection_score", 0.0),
+                "reason": token.error_message or "",
             }
         except Exception as e:
             logger.warning(f"Core init failed: {e}")
@@ -372,7 +369,9 @@ class ASIEngine:
                     "session_id": session_id,
                     "empathy_kappa_r": emp_out.get("kappa_r"),
                     "status": "ARTIFACT_READY",
-                    "legacy_verdict": "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "PARTIAL",  # Deprecated
+                    "legacy_verdict": (
+                        "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "PARTIAL"
+                    ),  # Deprecated
                 }
             )
             return emp_out
@@ -385,17 +384,20 @@ class ASIEngine:
         try:
             agi_tensor = await self._core_agi_tensor(query, session_id)
             emp_out = await core_organs.empathize(query, agi_tensor, session_id)
-            align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
-            align_out.update(
-                {
-                    "engine_mode": "core",
-                    "trinity_component": "ASI",
-                    "query": query,
-                    "session_id": session_id,
-                    "empathy_kappa_r": align_out.get("kappa_r"),
-                }
+            align_out = await core_organs.align(query, emp_out.model_dump(), agi_tensor, session_id)
+            kappa_r = (
+                align_out.floor_scores.f6_empathy if hasattr(align_out, "floor_scores") else 0.7
             )
-            return align_out
+            return {
+                "engine_mode": "core",
+                "trinity_component": "ASI",
+                "query": query,
+                "session_id": session_id,
+                "empathy_kappa_r": kappa_r,
+                "verdict": align_out.verdict.value,
+                "violations": align_out.violations,
+                "peace_squared": align_out.floor_scores.f5_peace,
+            }
         except Exception as e:
             logger.warning(f"Core ASI align failed: {e}")
             return self._fallback(query, session_id)
@@ -449,18 +451,18 @@ class APEXEngine:
             }
 
             apex_out = await core_organs.apex(agi_tensor, asi_output, session_id, action="full")
-            judge_out = apex_out.get("judge", {})
 
             return {
-                "verdict": judge_out.get("verdict", "SEAL"),
-                "tri_witness": judge_out.get("W_3", 0.95),
-                "genius_score": judge_out.get("genius_G", 0.8),
-                "genius": judge_out.get("genius_G", 0.8),
+                "verdict": apex_out.verdict.value,
+                "tri_witness": apex_out.floor_scores.f3_tri_witness,
+                "genius_score": apex_out.floor_scores.f8_genius,
+                "genius": apex_out.floor_scores.f8_genius,
                 "session_id": session_id,
                 "query": query,
                 "engine_mode": "core",
                 "trinity_component": "APEX",
-                "apex": apex_out,
+                "violations": apex_out.violations,
+                "metrics": apex_out.metrics,
             }
         except Exception as e:
             logger.warning(f"Core APEX judge failed: {e}")

@@ -1,346 +1,92 @@
-"""
-core/organs/_2_asi.py — The Heart (Stage 555-666)
-
-ASI Engine: Stakeholder Impact & Constitutional Alignment
-
-Actions:
-    1. empathize (555) → Stakeholder analysis, κ_r computation
-    2. align (666)     → Safety check, reversibility (F1 Amanah)
-
-Floors:
-    F1: Amanah (Reversible?)
-    F5: Peace² (Stability)
-    F6: Empathy (κ_r ≥ 0.70)
-
-DITEMPA BUKAN DIBERI — Forged, Not Given
-"""
-
 from __future__ import annotations
 
-from typing import List, Dict, Any, Optional
-from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 from core.shared.physics import (
-    Peace2, kappa_r, PeaceSquared, Stakeholder,
-    identify_stakeholders, TrinityTensor, ConstitutionalTensor,
-    DISTRESS_SIGNALS,
+    ConstitutionalTensor,
+    Peace2,
+    PeaceSquared,
+    Stakeholder,
+    identify_stakeholders,
+    kappa_r,
 )
-from core.shared.atlas import GPV
+from core.shared.types import AsiOutput, FloorScores, Verdict
 
 
-# =============================================================================
-# ACTION 1: EMPATHIZE (Stage 555) — Stakeholder Analysis
-# =============================================================================
-
-
-async def empathize(
-    query: str,
-    agi_tensor: ConstitutionalTensor,
-    session_id: str,
-) -> Dict[str, Any]:
-    """
-    Stage 555: EMPATHIZE — Feel the impact
-    
-    Identify stakeholders and compute empathy coefficient κ_r.
-    Physical interpretation: Heat flows to coldest reservoir.
-    
-    Args:
-        query: Original user query
-        agi_tensor: Output from AGI Mind (contains reasoning)
-        session_id: Constitutional session token
-    
-    Returns:
-        Dict with:
-        - stakeholders: List of affected entities
-        - kappa_r: Empathy coefficient [0.5, 1.0]
-        - weakest: Most vulnerable stakeholder
-        - care_recommendations: Actionable care items
-    
-    Action Chain:
-        agi.reason → empathize → align (standard)
-        empathize → apex.sync (if F6 sufficient)
-    """
-    # Identify all stakeholders
+async def empathize(query: str, agi_tensor: ConstitutionalTensor, session_id: str) -> AsiOutput:
     stakeholders = identify_stakeholders(query)
-    
-    # Compute integrated empathy
-    kappa = kappa_r(query, stakeholders)
-    
-    # Find weakest stakeholder
-    weakest = min(stakeholders, key=lambda s: s.vulnerability_score)
-    
-    # Generate care recommendations
-    care_recs = _generate_care_recommendations(stakeholders, kappa)
-    
-    # Compute Peace² (placeholder - real harm assessment in align)
-    stakeholder_harms = {s.name: 0.0 for s in stakeholders}
-    peace = Peace2(stakeholder_harms)
-    
-    # Motto is schema-level; keep stage output low-verbosity.
-    
-    return {
-        "stage": 555,
-        "action": "empathize",
-        "stakeholders": [
-            {"name": s.name, "role": s.role, "vulnerability": s.vulnerability_score}
-            for s in stakeholders
-        ],
-        "kappa_r": kappa,
-        "weakest_stakeholder": weakest.name,
-        "weakest_vulnerability": weakest.vulnerability_score,
-        "care_recommendations": care_recs,
-        "peace_squared": peace.P2(),
-        "is_peaceful": peace.is_peaceful(),
-        "session_id": session_id,
-    }
-
-
-def _generate_care_recommendations(
-    stakeholders: List[Stakeholder],
-    kappa: float,
-) -> List[str]:
-    """Generate care recommendations based on empathy analysis."""
-    recs = []
-    
-    # Find highest vulnerability
-    max_vuln = max(s.vulnerability_score for s in stakeholders)
-    
-    if max_vuln > 0.8:
-        recs.append("CRITICAL: High vulnerability detected. Maximum scrutiny required.")
-    elif max_vuln > 0.5:
-        recs.append("WARNING: Moderate vulnerability. Apply extra care.")
-    
-    # Check for specific vulnerable groups
-    vulnerable_roles = ["child", "patient", "victim", "elderly"]
-    for s in stakeholders:
-        if s.role in vulnerable_roles:
-            recs.append(f"PROTECT: {s.role.title()} identified — ensure F1 Amanah")
-    
-    # General recommendations
-    if kappa < 0.70:
-        recs.append("SABAR: Low empathy coefficient — cooling period recommended")
-    
-    recs.append(f"F6 Empathy: κ_r = {kappa:.2f} (target: ≥ 0.70)")
-    
-    return recs
-
-
-# =============================================================================
-# ACTION 2: ALIGN (Stage 666) — Safety & Reversibility Check
-# =============================================================================
+    # Peace2 expects Dict[str, float]
+    harms = {s.name: (1.0 - agi_tensor.truth_score) for s in stakeholders}
+    peace_obj = Peace2(harms)
+    kappa = kappa_r(query, stakeholders)  # Fixed: requires query and stakeholders
+    weakest = (
+        min(stakeholders, key=lambda s: s.vulnerability_score)
+        if stakeholders
+        else Stakeholder("System", 1.0)
+    )
+    care_recs = [f"Monitor impact on {s.name}" for s in stakeholders if s.vulnerability_score < 0.5]
+    return AsiOutput(
+        session_id=session_id,
+        floor_scores=FloorScores(f5_peace=peace_obj.P2(), f6_empathy=kappa),
+        verdict=Verdict.SEAL,
+        stakeholder_impact={s.name: s.vulnerability_score for s in stakeholders},
+        metrics={
+            "stage": 555,
+            "action": "empathize",
+            "weakest": weakest.name,
+            "recommendations": care_recs,
+        },
+    )
 
 
 async def align(
-    query: str,
-    empathize_output: Dict[str, Any],
-    agi_tensor: ConstitutionalTensor,
-    session_id: str,
-) -> Dict[str, Any]:
-    """
-    Stage 666: ALIGN — Constitutional safety check
-    
-    Verify:
-    - F1 Amanah: Action is reversible
-    - F5 Peace: No undue harm to stakeholders
-    - F6 Empathy: Sufficient care coefficient
-    
-    Args:
-        query: Original user query
-        empathize_output: Output from empathize() action
-        agi_tensor: AGI reasoning tensor
-        session_id: Constitutional session token
-    
-    Returns:
-        Dict with:
-        - is_reversible: F1 Amanah check
-        - peace_squared: F5 stability score
-        - kappa_r: F6 empathy (confirmed)
-        - verdict: SEAL/VOID/PARTIAL based on floors
-        - floor_scores: Complete F1, F5, F6 scores
-    
-    Action Chain:
-        empathize → align → apex.sync (completes Heart phase)
-    """
-    # F1: Amanah (Reversibility check)
-    is_reversible = _check_reversibility(query)
-    
-    # F5: Peace² (Compute actual harm potential)
-    stakeholders_data = empathize_output["stakeholders"]
-    stakeholder_harms = _assess_harm_potential(query, stakeholders_data)
-    peace = Peace2(stakeholder_harms)
-    
-    # F6: Empathy (already computed, confirm)
-    kappa = empathize_output["kappa_r"]
-    
-    # Determine verdict
-    verdict, violations = _determine_align_verdict(
-        is_reversible, peace, kappa
+    query: str, empathy_output: Any, agi_tensor: ConstitutionalTensor, session_id: str
+) -> AsiOutput:
+    emp_data = (
+        empathy_output.model_dump() if hasattr(empathy_output, "model_dump") else empathy_output
     )
-    
-    # Motto is schema-level; keep stage output low-verbosity.
-    
-    return {
-        "stage": 666,
-        "action": "align",
-        "is_reversible": is_reversible,
-        "f1_amanah": 1.0 if is_reversible else 0.0,
-        "peace_squared": peace.P2(),
-        "f5_peace": peace.P2(),
-        "kappa_r": kappa,
-        "f6_empathy": kappa,
-        "stakeholder_harms": stakeholder_harms,
-        "worst_harm": max(stakeholder_harms.values()) if stakeholder_harms else 0.0,
-        "verdict": verdict,
-        "violations": violations,
-        "session_id": session_id,
-    }
+    kappa = emp_data.get("floor_scores", {}).get("f6_empathy", 0.0)
+    stakeholders = emp_data.get("stakeholder_impact", {})
+    is_reversible = not any(
+        word in query.lower() for word in ["delete", "remove", "wipe", "format", "reset"]
+    )
 
+    harms = {name: (1.0 - agi_tensor.truth_score) for name in stakeholders}
+    p2_score = Peace2(harms).P2()
 
-def _check_reversibility(query: str) -> bool:
-    """F1 Amanah: Check if action is reversible."""
-    query_lower = query.lower()
-    
-    # Irreversible actions
-    irreversible_patterns = [
-        "delete all", "drop table", "rm -rf", "format",
-        "destroy", "wipe", "permanently delete", "erase",
-    ]
-    
-    for pattern in irreversible_patterns:
-        if pattern in query_lower:
-            return False
-    
-    return True
-
-
-def _assess_harm_potential(
-    query: str,
-    stakeholders_data: List[Dict[str, Any]],
-) -> Dict[str, float]:
-    """Assess potential harm to each stakeholder."""
-    query_lower = query.lower()
-    harms = {}
-    
-    for stakeholder in stakeholders_data:
-        name = stakeholder["name"]
-        vuln = stakeholder["vulnerability"]
-        
-        # Base harm on vulnerability
-        base_harm = vuln * 0.1
-        
-        # Increase for high-risk queries
-        if any(w in query_lower for w in ["harm", "hurt", "damage", "destroy"]):
-            base_harm += 0.3
-        
-        harms[name] = min(1.0, base_harm)
-    
-    return harms
-
-
-def _determine_align_verdict(
-    is_reversible: bool,
-    peace: PeaceSquared,
-    kappa: float,
-) -> tuple[str, List[str]]:
-    """Determine constitutional verdict from floor checks."""
     violations = []
-    
-    # F1: Amanah
     if not is_reversible:
-        violations.append("F1")
-    
-    # F5: Peace
-    if not peace.is_peaceful():
-        violations.append("F5")
-    
-    # F6: Empathy
+        violations.append("F1_AMANAH_LOW_REVERSIBILITY")
+    if p2_score < 1.0:
+        violations.append("F5_PEACE_UNSTABLE")
     if kappa < 0.70:
-        violations.append("F6")
-    
-    # Determine verdict
-    if not violations:
-        verdict = "SEAL"
-    elif len(violations) <= 1:
-        verdict = "PARTIAL"
-    else:
-        verdict = "VOID"
-    
-    return verdict, violations
-
-
-# =============================================================================
-# UNIFIED ASI INTERFACE
-# =============================================================================
+        violations.append("F6_EMPATHY_LOW")
+    verdict_str = "SEAL" if not violations else "SABAR"
+    stakeholder_harms = {
+        name: (1.0 - score) if score < 0.5 else 0.0 for name, score in stakeholders.items()
+    }
+    return AsiOutput(
+        session_id=session_id,
+        floor_scores=FloorScores(
+            f1_amanah=1.0 if is_reversible else 0.0, f5_peace=p2_score, f6_empathy=kappa
+        ),
+        verdict=Verdict(verdict_str),
+        violations=violations,
+        stakeholder_impact=stakeholder_harms,
+        metrics={"stage": 666, "action": "align", "is_reversible": is_reversible},
+    )
 
 
 async def asi(
-    query: str,
-    agi_tensor: ConstitutionalTensor,
-    session_id: str,
-    action: str = "full",
-) -> Dict[str, Any]:
-    """
-    Unified ASI interface — The Heart in action.
-    
-    Args:
-        query: User query
-        agi_tensor: AGI Mind output
-        session_id: Constitutional session token
-        action: Which action ("empathize", "align", or "full")
-    
-    Returns:
-        Action output or complete Heart assessment
-    
-    Example:
-        >>> result = await asi("Help the child", tensor, session, action="full")
-        >>> result["kappa_r"]
-        0.85
-        >>> result["is_reversible"]
-        True
-    """
+    action: str, agi_tensor: ConstitutionalTensor, session_id: str, query: str = ""
+) -> Any:
     if action == "empathize":
         return await empathize(query, agi_tensor, session_id)
-    
     elif action == "align":
-        # Need empathize output first
         emp_out = await empathize(query, agi_tensor, session_id)
         return await align(query, emp_out, agi_tensor, session_id)
-    
     elif action == "full":
-        # Motto is schema-level; keep stage output low-verbosity.
-        
-        # Complete ASI pipeline
-        emp_out = await empathize(query, agi_tensor, session_id)
-        align_out = await align(query, emp_out, agi_tensor, session_id)
-        
-        # Merge outputs
-        return {
-            "stage": 666,
-            "action": "align",
-            "empathize": emp_out,
-            "align": align_out,
-            "stakeholders": emp_out["stakeholders"],
-            "kappa_r": emp_out["kappa_r"],
-            "is_reversible": align_out["is_reversible"],
-            "peace_squared": align_out["peace_squared"],
-            "verdict": align_out["verdict"],
-            "violations": align_out["violations"],
-            "session_id": session_id,
-        }
-    
+        emp_res = await empathize(query, agi_tensor, session_id)
+        return await align(query, emp_res, agi_tensor, session_id)
     else:
-        raise ValueError(f"Unknown action: {action}. Use: empathize, align, full")
-
-
-# =============================================================================
-# EXPORTS
-# =============================================================================
-
-__all__ = [
-    # Actions (2 of 3 max)
-    "empathize",  # Stage 555: Stakeholder analysis
-    "align",      # Stage 666: Safety & reversibility
-    
-    # Unified interface
-    "asi",
-]
+        raise ValueError(f"Unknown: {action}")

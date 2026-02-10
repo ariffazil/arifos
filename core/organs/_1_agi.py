@@ -19,18 +19,12 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 
-from core.shared.physics import (
-    delta_S, Omega_0, TrinityTensor, GeniusDial,
-    ConstitutionalTensor,
-)
-from core.shared.atlas import Phi, Lane, GPV, QueryType
-from core.shared.types import ThoughtNode
+from core.shared.atlas import GPV, Lane, Phi, QueryType
+from core.shared.physics import ConstitutionalTensor, GeniusDial, Omega_0, TrinityTensor, delta_S
+from core.shared.types import AgiOutput, FloorScores, ThoughtNode, Verdict
 
-
-# =============================================================================
-# ACTION 1: SENSE (Stage 111) — Parse Intent, Classify Lane
 # =============================================================================
 
 
@@ -41,53 +35,56 @@ async def sense(
 ) -> Dict[str, Any]:
     """
     Stage 111: SENSE — The first touch of the Mind
-    
+
     Parse raw query into structured intent using ATLAS routing.
-    
+
     Args:
         query: Raw user query
         session_id: Constitutional session token
         grounding: Optional reality grounding data
-    
+
     Returns:
         Dict with:
         - lane: Classified lane (SOCIAL, CARE, FACTUAL, CRISIS)
         - gpv: Governance Placement Vector
         - intent: Parsed intent string
         - floor_scores: Initial F2, F4 estimates
-    
+
     Action Chain:
         sense → think → reason (standard flow)
         sense → judge (fast path for social)
     """
     # Classify via ATLAS
     gpv = Phi(query)
-    
+
     # Initial truth assessment
     truth_score = 0.95 if gpv.lane == Lane.FACTUAL else 0.85
-    
+
     # Compute initial entropy
     entropy_before = len(query) * 4.0  # Bits (approx)
-    
+
     # Motto is schema-level; keep stage output low-verbosity.
-    
-    return {
-        "stage": 111,
-        "action": "sense",
-        "lane": gpv.lane,
-        "gpv": gpv,
-        "intent": _extract_intent(query),
-        "truth_score": truth_score,
-        "entropy_before": entropy_before,
-        "requires_grounding": gpv.requires_grounding(),
-        "session_id": session_id,
-    }
+
+    return AgiOutput(
+        session_id=session_id,
+        thoughts=[],  # Sense doesn't generate reasoning thoughts yet
+        floor_scores=FloorScores(f2_truth=truth_score, f4_clarity=0.0),  # Initial clarity
+        lane=gpv.lane,
+        evidence={
+            "intent": _extract_intent(query),
+            "requires_grounding": gpv.requires_grounding(),
+            "entropy_before": entropy_before,
+            "gpv": gpv.model_dump() if hasattr(gpv, "model_dump") else gpv,
+        },
+        verdict=Verdict.SEAL,
+        metrics={"stage": 111, "action": "sense", "gpv": gpv},
+    )
 
 
 def _extract_intent(query: str) -> str:
     """Extract core intent from query."""
     query_lower = query.lower()
-    
+
     # Simple intent classification
     if any(w in query_lower for w in ["what", "who", "when", "where", "why", "how"]):
         return "question"
@@ -113,40 +110,42 @@ async def think(
 ) -> Dict[str, Any]:
     """
     Stage 222: THINK — Generate three reasoning paths
-    
+
     The Mind explores three hypotheses:
     1. Conservative (safe, proven)
     2. Exploratory (creative, novel)
     3. Adversarial (devil's advocate)
-    
+
     Args:
         query: Original query
         sense_output: Output from sense() action
         session_id: Constitutional session token
-    
+
     Returns:
         Dict with:
         - hypotheses: List of 3 ThoughtNode objects
         - confidence_range: (min, max) confidence across paths
         - recommended_path: Which path to pursue
-    
+
     Action Chain:
         sense → think → reason (standard)
         think → reason (if sense was cached)
     """
-    gpv = sense_output["gpv"]
-    
+    gpv = sense_output.get("metrics", {}).get("gpv") or sense_output.get("evidence", {}).get("gpv")
+    if not gpv:
+        raise KeyError(f"gpv not found in sense_output: {sense_output.keys()}")
+
     # Generate three hypotheses based on lane
     hypotheses = _generate_hypotheses(query, gpv)
-    
+
     # Compute confidence range
     confidences = [h.confidence for h in hypotheses]
-    
+
     # Select recommended path (middle confidence usually best)
     recommended = sorted(hypotheses, key=lambda h: h.confidence)[1]
-    
+
     # Motto is schema-level; keep stage output low-verbosity.
-    
+
     return {
         "stage": 222,
         "action": "think",
@@ -159,7 +158,7 @@ async def think(
 
 def _generate_hypotheses(query: str, gpv: GPV) -> List[ThoughtNode]:
     """Generate three reasoning paths."""
-    
+
     # Conservative path (safe, standard answer)
     conservative = ThoughtNode(
         thought=f"Conservative approach: Provide standard, well-established answer to '{query[:50]}...'",
@@ -170,7 +169,7 @@ def _generate_hypotheses(query: str, gpv: GPV) -> List[ThoughtNode]:
         sources=["established_knowledge"],
     )
     conservative.path_type = "conservative"  # Monkey-patch for our use
-    
+
     # Exploratory path (creative, nuanced)
     exploratory = ThoughtNode(
         thought=f"Exploratory approach: Consider edge cases and novel perspectives on '{query[:50]}...'",
@@ -181,7 +180,7 @@ def _generate_hypotheses(query: str, gpv: GPV) -> List[ThoughtNode]:
         sources=["creative_inference"],
     )
     exploratory.path_type = "exploratory"
-    
+
     # Adversarial path (challenge assumptions)
     adversarial = ThoughtNode(
         thought=f"Adversarial approach: Challenge assumptions, verify facts in '{query[:50]}...'",
@@ -192,7 +191,7 @@ def _generate_hypotheses(query: str, gpv: GPV) -> List[ThoughtNode]:
         sources=["fact_verification"],
     )
     adversarial.path_type = "adversarial"
-    
+
     return [conservative, exploratory, adversarial]
 
 
@@ -210,25 +209,25 @@ async def reason(
 ) -> ConstitutionalTensor:
     """
     Stage 333: REASON — Deep sequential thinking loop
-    
+
     The Mind iteratively refines understanding until:
     - Convergence achieved (ΔS < threshold)
     - Max thoughts reached
     - Confidence sufficient (truth_score ≥ f2_threshold)
-    
+
     F2 Threshold is now ADAPTIVE based on query type:
     - PROCEDURAL: 0.70 (relaxed for commands)
     - OPINION: 0.60 (minimal for subjective)
     - COMPARATIVE: 0.85 (medium for comparisons)
     - FACTUAL: 0.99 (strict for facts)
-    
+
     Args:
         query: Original query
         think_output: Output from think() action
         session_id: Constitutional session token
         max_thoughts: Maximum reasoning steps (default: 5)
         gpv: Optional GPV for adaptive thresholds (auto-computed if None)
-    
+
     Returns:
         ConstitutionalTensor with all floor metrics:
         - witness: W_3 components
@@ -237,7 +236,7 @@ async def reason(
         - genius: G score
         - truth_score: F2 truth (adaptive threshold)
         - f2_threshold: The threshold used for this query
-    
+
     Action Chain:
         sense → think → reason (completes AGI phase)
         reason → apex.sync (hands off to Soul)
@@ -245,40 +244,40 @@ async def reason(
     # Get or compute GPV for adaptive F2
     if gpv is None:
         gpv = Phi(query)
-    
+
     # Get adaptive F2 threshold based on query type
     f2_threshold = gpv.f2_threshold()
-    
+
     hypotheses = think_output["hypotheses"]
-    
+
     # Build reasoning chain
     thoughts: List[ThoughtNode] = []
     prev_confidence = 0.5
-    
+
     for i in range(max_thoughts):
         # Generate next thought
         thought = _generate_thought(query, hypotheses, thoughts, i)
         thoughts.append(thought)
-        
+
         # Check convergence (confidence stability)
         delta_conf = abs(thought.confidence - prev_confidence)
         if delta_conf < 0.05 and thought.confidence > 0.90:
             break
         prev_confidence = thought.confidence
-    
+
     # Compute constitutional metrics
     chain_text = " ".join([t.thought for t in thoughts])
     query_text = query
-    
+
     entropy_delta = delta_S(query_text, chain_text)
     truth_score = thoughts[-1].confidence if thoughts else 0.5
-    
+
     # Boost truth_score for simple factual queries without risk signals
     # This ensures benign queries pass F2 while maintaining strictness for risky ones
     if gpv.query_type == QueryType.FACTUAL and gpv.risk_level < 0.3 and truth_score < f2_threshold:
         # Boost to meet threshold for simple, low-risk factual queries
         truth_score = max(truth_score, min(0.99, f2_threshold))
-    
+
     # Build ConstitutionalTensor with adaptive F2 threshold info
     tensor = ConstitutionalTensor(
         witness=TrinityTensor(
@@ -298,13 +297,13 @@ async def reason(
         empathy=0.0,  # ASI computes this
         truth_score=truth_score,
     )
-    
+
     # Store adaptive threshold info (monkey-patch for now)
     tensor.f2_threshold = f2_threshold
     tensor.query_type = gpv.query_type
-    
+
     # Motto is schema-level; keep stage output low-verbosity.
-    
+
     return tensor
 
 
@@ -315,7 +314,7 @@ def _generate_thought(
     step: int,
 ) -> ThoughtNode:
     """Generate a single thought in the chain."""
-    
+
     # Build on previous thoughts or hypotheses
     if step == 0:
         # Start with recommended hypothesis
@@ -325,7 +324,7 @@ def _generate_thought(
         # Build on previous
         content = f"Step {step + 1}: Refining understanding of '{query[:40]}...'"
         confidence = min(0.99, 0.7 + (step * 0.05))
-    
+
     return ThoughtNode(
         thought=content,
         thought_number=step + 1,
@@ -350,23 +349,23 @@ async def agi(
 ) -> Dict[str, Any]:
     """
     Unified AGI interface — The Mind in action.
-    
+
     Now with ADAPTIVE F2 based on query type:
     - PROCEDURAL: F2 ≥ 0.70 (relaxed for commands)
     - OPINION: F2 ≥ 0.60 (minimal for subjective)
     - COMPARATIVE: F2 ≥ 0.85 (medium for comparisons)
     - FACTUAL: F2 ≥ 0.99 (strict for facts)
-    
+
     Args:
         query: User query
         session_id: Constitutional session token
         action: Which action to run ("sense", "think", "reason", or "full")
         grounding: Optional reality grounding
         gpv: Optional pre-computed GPV for adaptive thresholds
-    
+
     Returns:
         Action-specific output, or full result with tensor and f2_threshold
-    
+
     Example:
         >>> result = await agi("Run test pipeline", session, action="full")
         >>> result["tensor"].truth_score
@@ -377,58 +376,56 @@ async def agi(
     # Compute GPV once for adaptive behavior
     if gpv is None:
         gpv = Phi(query)
-    
+
     if action == "sense":
         return await sense(query, session_id, grounding)
-    
+
     elif action == "think":
         sense_out = await sense(query, session_id, grounding)
         return await think(query, sense_out, session_id)
-    
+
     elif action == "reason":
         sense_out = await sense(query, session_id, grounding)
         think_out = await think(query, sense_out, session_id)
         return await reason(query, think_out, session_id, gpv=gpv)
-    
+
     elif action == "full":
         # Motto is schema-level; keep stage output low-verbosity.
-        
+
         # FAST PATH: Skip heavy reasoning for low-risk procedural/opinion queries
         if gpv.can_use_fast_path():
-            return {
-                "stage": 333,
-                "action": "reason",
-                "fast_path": True,
-                "lane": gpv.lane,
-                "query_type": gpv.query_type,
-                "f2_threshold": gpv.f2_threshold(),
-                "tensor": ConstitutionalTensor(
-                    witness=TrinityTensor(H=0.85, A=0.85, S=0.85),
-                    entropy_delta=-0.05,
-                    humility=Omega_0(0.85),
-                    genius=GeniusDial(A=0.85, P=0.9, X=0.5, E=0.85),
-                    peace=None,
-                    empathy=0.0,
-                    truth_score=0.85,
-                ),
-                "session_id": session_id,
-            }
-        
-        # Standard path for factual/comparative/risky queries
-        sense_out = await sense(query, session_id, grounding)
-        think_out = await think(query, sense_out, session_id)
-        tensor = await reason(query, think_out, session_id, gpv=gpv)
-        
-        return {
-            "stage": 333,
-            "action": "reason",
-            "lane": gpv.lane,
-            "query_type": gpv.query_type,
-            "f2_threshold": gpv.f2_threshold(),
-            "tensor": tensor,
-            "session_id": session_id,
-        }
-    
+            return AgiOutput(
+                session_id=session_id,
+                thoughts=[],
+                floor_scores=FloorScores(f2_truth=0.85),
+                lane=gpv.lane,
+                evidence={"fast_path": True, "query_type": gpv.query_type},
+                verdict=Verdict.SEAL,
+                metrics={"stage": 333, "action": "reason", "f2_threshold": gpv.f2_threshold()},
+            )
+
+        # Standard path
+        sense_res = await sense(query, session_id, grounding)
+        sense_data = sense_res.model_dump()
+        think_res = await think(query, sense_data, session_id)
+
+        # Reason requires GPV
+        actual_gpv = sense_res.metrics.get("gpv") if sense_res.metrics else gpv
+        tensor = await reason(query, think_res, session_id, gpv=actual_gpv)
+
+        # Retrieve thoughts safely
+        thoughts_data = think_res.get("hypotheses", [])
+
+        return AgiOutput(
+            session_id=session_id,
+            thoughts=thoughts_data,
+            floor_scores=FloorScores(f2_truth=tensor.truth_score),
+            lane=actual_gpv.lane,
+            evidence={"query_type": actual_gpv.query_type},
+            verdict=Verdict.SEAL,
+            metrics={"stage": 333, "action": "reason", "f2_threshold": actual_gpv.f2_threshold()},
+        )
+
     else:
         raise ValueError(f"Unknown action: {action}. Use: sense, think, reason, full")
 
@@ -439,10 +436,9 @@ async def agi(
 
 __all__ = [
     # Actions (3 max)
-    "sense",    # Stage 111: Parse intent
-    "think",    # Stage 222: Generate hypotheses
-    "reason",   # Stage 333: Sequential reasoning
-    
+    "sense",  # Stage 111: Parse intent
+    "think",  # Stage 222: Generate hypotheses
+    "reason",  # Stage 333: Sequential reasoning
     # Unified interface
     "agi",
 ]
