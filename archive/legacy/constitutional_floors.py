@@ -31,7 +31,7 @@ THRESHOLDS: Dict[str, Dict[str, Any]] = {
     "F3_TriWitness": {"type": "DERIVED", "threshold": 0.95, "desc": "Consensus (H×A×E)"},
     "F4_Clarity": {"type": "HARD", "threshold": 0.00, "desc": "Entropy Reduction (ΔS ≤ 0)"},
     "F5_Peace2": {"type": "SOFT", "threshold": 1.00, "desc": "Non-Destructive Power"},
-    "F6_Empathy": {"type": "SOFT", "threshold": 0.70, "desc": "Stakeholder Care (κᵣ)"},
+    "F6_Empathy": {"type": "HARD", "threshold": 0.95, "desc": "Stakeholder Care (κᵣ)"},
     "F7_Humility": {"type": "HARD", "range": (0.03, 0.05), "desc": "Uncertainty Band (Ω₀)"},
     "F8_Genius": {"type": "DERIVED", "threshold": 0.80, "desc": "Governed Intelligence (G)"},
     "F9_AntiHantu": {"type": "SOFT", "threshold": 0.30, "desc": "Dark Cleverness Limit"},
@@ -251,7 +251,11 @@ class F5_Peace2(Floor):
 class F6_Empathy(Floor):
     """
     F6: EMPATHY (κᵣ) - Protect Weakest Stakeholder
-    Threshold: κᵣ ≥ 0.70 (SOFT)
+    Threshold: κᵣ ≥ 0.95 (HARD)
+    
+    HARD floor: Stakeholder harm is an immediate VOID offense.
+    No retry allowed. The weakest stakeholder must be protected
+    with ≥95% care reliability (Cohen's κᵣ).
     """
 
     def __init__(self):
@@ -268,12 +272,20 @@ class F6_Empathy(Floor):
             # Higher impact on weakest = lower empathy score
             kappa_r = max(0.0, 1.0 - weakest_impact)
         
-        passed = kappa_r >= self.spec["threshold"]
+        threshold = self.spec["threshold"]  # 0.95
+        passed = kappa_r >= threshold
+        
+        # HARD floor: Log VOID violations explicitly
+        if not passed:
+            reason = f"VOID: Empathy κᵣ={kappa_r:.3f} < {threshold} (weakest stakeholder at risk)"
+        else:
+            reason = f"SEAL: Empathy κᵣ={kappa_r:.3f} ≥ {threshold} (weakest protected)"
+        
         return FloorResult(
             self.id, 
             passed, 
             kappa_r, 
-            f"Empathy κᵣ: {kappa_r:.3f} (protects weakest)"
+            reason
         )
 
 

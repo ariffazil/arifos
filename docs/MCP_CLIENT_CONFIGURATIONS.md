@@ -41,7 +41,7 @@
       "disabled": false,
       "alwaysAllow": [
         "init_gate",
-        "forge_pipeline",
+        "trinity_forge",
         "agi_sense",
         "agi_think",
         "agi_reason",
@@ -73,7 +73,7 @@
       },
       "alwaysAllow": [
         "init_gate",
-        "forge_pipeline",
+        "trinity_forge",
         "agi_sense",
         "agi_reason",
         "asi_empathize",
@@ -314,7 +314,7 @@ asyncio.run(test())
 
 **Kimi:**
 ```
-Use forge_pipeline to analyze "What is constitutional AI?"
+Use trinity_forge to analyze "What is constitutional AI?"
 ```
 
 **Claude:**

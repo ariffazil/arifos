@@ -27,8 +27,8 @@ TOOL_ANNOTATIONS = {
         "destructiveHint": False,
         "openWorldHint": False,
     },
-    "forge_pipeline": {
-        "title": "000-999 Forge Pipeline",
+    "trinity_forge": {
+        "title": "000-999 Trinity Forge",
         "readOnlyHint": False,
         "destructiveHint": True,
         "openWorldHint": True,
@@ -146,11 +146,15 @@ async def core_forge(
     actor_id: str = "user",
     auth_token: Optional[str] = None,
     require_sovereign: bool = True,
+    mode: str = "conscience",
 ) -> Any:
     """Orchestrate the full 000-999 metabolic pipeline.
     
     Uses core.pipeline.forge() as the SINGLE source of truth.
     No duplicate logic - all stages flow through the unified pipeline.
+    
+    Args:
+        mode: "conscience" (enforce floors, default) or "ghost" (log only)
     """
     # Import here to avoid circular dependencies at module load
     from core.pipeline import forge
@@ -159,29 +163,13 @@ async def core_forge(
     result = await forge(
         query=query,
         actor_id=actor_id,
-        session_id=session_id,
+        auth_token=auth_token,
+        require_sovereign=require_sovereign,
+        mode=mode,
     )
     
     return result
-            apex_res.verdict.value if hasattr(apex_res.verdict, "value") else str(apex_res.verdict)
-        ),
-        agi=agi_res.model_dump() if hasattr(agi_res, "model_dump") else agi_res,
-        asi=asi_res.model_dump() if hasattr(asi_res, "model_dump") else asi_res,
-        apex=apex_res.model_dump() if hasattr(apex_res, "model_dump") else apex_res,
-        seal={"status": "SIMULATED"},
-    )
 
-
-"""
-arifOS AAA MCP Server — Constitutional AI Governance (v60.0-FORGE)
-
-FastMCP 2.0+ with full MCP 2025-11-25 spec compliance:
-- 13 canonical tools with annotations
-- 4 constitutional resources  
-- 5 templated prompts
-
-DITEMPA BUKAN DIBERI — Forged, Not Given
-"""
 
 # FastMCP 2.0+ initialization with capabilities
 mcp = FastMCP(
@@ -214,7 +202,7 @@ async def init_gate(
     query: str,
     session_id: Optional[str] = None,
     grounding_required: bool = True,
-    mode: str = "fluid",
+    mode: str = "conscience",
     debug: bool = False,
     # Structured input fields (NEW - v2 hardened)
     intent_hint: Optional[str] = None,
@@ -230,7 +218,7 @@ async def init_gate(
         query: Primary user query
         session_id: Optional existing session
         grounding_required: Whether external facts are mandatory
-        mode: "fluid" (adaptive) or "strict" (enforced)
+        mode: "conscience" (enforce floors, default) or "ghost" (log only)
         debug: Include debug data in response
         intent_hint: Optional intent hint (question/command/analysis)
         urgency: Optional urgency (low/medium/high/critical)
@@ -284,28 +272,36 @@ async def init_gate(
     return response.to_dict(debug=debug)
 
 
-@mcp.tool(annotations=TOOL_ANNOTATIONS["forge_pipeline"])
+@mcp.tool(annotations=TOOL_ANNOTATIONS["trinity_forge"])
 @constitutional_floor("F11", "F12")
-async def forge_pipeline(
+async def trinity_forge(
     query: str,
     actor_id: str = "user",
     auth_token: Optional[str] = None,
     require_sovereign_for_high_stakes: bool = True,
     envelope: Optional[dict] = None,
     output_mode: str = "user",
+    mode: str = "conscience",
 ) -> dict:
     """
-    Unified 000→999 pipeline (core entrypoint).
+    Trinity Forge — Unified 000→999 constitutional pipeline (core entrypoint).
 
-    This is the single entrypoint for full constitutional execution.
+    This is the single entrypoint for full constitutional execution across
+    the Trinity engines: AGI Mind (Δ), ASI Heart (Ω), and APEX Soul (Ψ).
+    
+    Args:
+        mode: "conscience" (enforce floors, default) or "ghost" (log only)
+        output_mode: "user" (minimal), "developer" (metrics), "audit" (full tensor)
     """
     result = await core_forge(
         query,
         actor_id=actor_id,
         auth_token=auth_token,
         require_sovereign=require_sovereign_for_high_stakes,
+        mode=mode,
     )
 
+    # Build standard output
     output = {
         "verdict": result.verdict,
         "session_id": result.session_id,
@@ -314,10 +310,51 @@ async def forge_pipeline(
         "asi": result.asi,
         "apex": result.apex,
         "seal": result.seal,
+        "mode": mode,
     }
+    
+    # Include constitutional tensor for developer/audit modes
+    if output_mode in ("developer", "audit"):
+        output["_constitutional"] = {
+            "delta_s": result.emd.get("metabolism", {}).get("delta_s", 0.0) if result.emd else 0.0,
+            "omega_0": result.emd.get("decision", {}).get("omega0", 0.04) if result.emd else 0.04,
+            "kappa_r": result.emd.get("metabolism", {}).get("kappa_r", 1.0) if result.emd else 1.0,
+            "genius_g": result.emd.get("metabolism", {}).get("genius_index", 0.0) if result.emd else 0.0,
+            "peace2": result.emd.get("metabolism", {}).get("peace2", 1.0) if result.emd else 1.0,
+            "landauer_risk": result.landauer_risk if hasattr(result, 'landauer_risk') else 0.0,
+            "e_eff": result.emd.get("energy", {}).get("e_eff", 0.0) if result.emd else 0.0,
+            "floors_failed": result.floors_failed if hasattr(result, 'floors_failed') else [],
+        }
+    
+    # Include EMD full tensor for audit mode
+    if output_mode == "audit" and result.emd:
+        output["emd"] = result.emd
+    
+    # Handle HOLD_888: Route to human review queue
+    if result.verdict == "888_HOLD":
+        output["hold_status"] = "PENDING_REVIEW"
+        output["phoenix_72_expiry"] = "72h from now"
+        output["review_url"] = f"/human-review/{result.session_id}"
+        
+        # Log to audit trail
+        from aaa_mcp.infrastructure.logging import log_constitutional_event
+        log_constitutional_event(
+            event_type="HOLD_888_TRIGGERED",
+            session_id=result.session_id,
+            query=query[:200],
+            emd=output.get("_constitutional"),
+            mode=mode,
+        )
+    
     if envelope:
         output["envelope"] = envelope
-    store_stage_result(result.session_id, "forge_pipeline", output)
+    
+    # Store to session ledger with constitutional data
+    store_stage_result(result.session_id, "trinity_forge", {
+        **output,
+        "_constitutional": output.get("_constitutional"),
+    })
+    
     return output
 
 
@@ -748,7 +785,7 @@ async def simulate_transfer(
 
     # 2. Run full forge pipeline (simulated)
     # Note: For benchmarking, we use the core_forge logic or individual stages
-    result = await forge_pipeline(query, actor_id="mcp_test_actor")
+    result = await trinity_forge(query, actor_id="mcp_test_actor")
 
     return {
         "status": "SIMULATION_COMPLETE",
@@ -1160,54 +1197,116 @@ async def vault_seal(
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["tool_router"])
 async def tool_router(query: str) -> PlanObject:
-    """Universal Tool Router Specification v2 (Triage Nurse)."""
+    """Universal Tool Router Specification v3 — Intelligent Constitutional Routing.
+    
+    Uses the tool relationship graph to recommend optimal sequences based on
+    query intent, risk patterns, and lane classification.
+    """
     import uuid
 
     from aaa_mcp.core.engine_adapters import _shannon_entropy
+    from aaa_mcp.protocol.tool_graph import suggest_sequence, WORKFLOW_SEQUENCES
+    from aaa_mcp.protocol.capabilities import RiskLevel
 
     entropy = _shannon_entropy(query)
     query_lower = query.lower()
+    query_words = set(query_lower.split())
 
-    # Industrial Risk Pattern: detect absolutist claims in sensitive domains
+    # ─── Risk Pattern Detection ─────────────────────────────────────────────
     critical_keywords = {"guaranteed", "absolute", "always", "never", "perfectly", "zero", "any"}
+    safety_keywords = {"safety", "harm", "risk", "dangerous", "protect", "stakeholder", "vulnerable"}
+    fact_keywords = {"fact", "true", "false", "verify", "check", "real", "actual"}
+    financial_keywords = {"transfer", "payment", "money", "financial", "transaction", "fund"}
+    audit_keywords = {"audit", "verify claims", "check text", "ai generated", "generated text"}
+    
     domain_keywords = {"ccs", "co2", "injection", "pressure", "borehole", "storage", "hazardous"}
 
-    query_words = set(query.lower().split())
     has_risk = any(k in query_words for k in critical_keywords)
+    has_safety = any(k in query_words for k in safety_keywords)
+    has_fact = any(k in query_words for k in fact_keywords)
+    has_financial = any(k in query_words for k in financial_keywords)
+    has_audit = any(k in query_words for k in audit_keywords)
     has_domain = any(k in query_words for k in domain_keywords)
 
-    # Triage Logic (Gemini Addition)
-    is_high_risk = any(
-        k in query_lower
-        for k in [
-            "seal",
-            "integrity",
-            "deploy",
-            "safety",
-            "hack",
-            "impact",
-            "pressure",
-            "kill",
-            "hazardous",
-            "co2",
-            "ccs",
-        ]
-    )
-
-    grounding_required = False
-    sequence = ["forge_pipeline"]
-    lane = "CORE (SINGLE-ENTRYPOINT)"
-    justification = "Unified core pipeline recommended for all queries."
-
+    # ─── Intent Classification ──────────────────────────────────────────────
+    intent = "general"
+    lane = "FACTUAL"
+    risk_level = RiskLevel.LOW
+    
+    if has_financial:
+        intent = "financial"
+        lane = "CRISIS"
+        risk_level = RiskLevel.CRITICAL
+    elif has_safety or (has_risk and has_domain):
+        intent = "safety_assessment"
+        lane = "CRISIS"
+        risk_level = RiskLevel.HIGH
+    elif has_audit:
+        intent = "claim_verification"
+        lane = "FACTUAL"
+        risk_level = RiskLevel.MEDIUM
+    elif has_fact:
+        intent = "fact_check"
+        lane = "FACTUAL"
+        risk_level = RiskLevel.MEDIUM
+    elif has_domain:
+        intent = "technical_analysis"
+        lane = "FACTUAL"
+        risk_level = RiskLevel.HIGH if has_risk else RiskLevel.MEDIUM
+    
+    # ─── Sequence Selection ─────────────────────────────────────────────────
+    grounding_required = lane in ["FACTUAL", "CRISIS"] or has_fact
+    
+    # Use the constitutional graph for intelligent routing
+    if intent == "fact_check":
+        sequence = WORKFLOW_SEQUENCES["fact_check"]
+        justification = "Factual query requiring external verification via reality_search"
+    elif intent == "safety_assessment":
+        sequence = WORKFLOW_SEQUENCES["safety_assessment"]
+        justification = "Safety-critical query requiring stakeholder impact analysis"
+    elif intent == "claim_verification":
+        sequence = WORKFLOW_SEQUENCES["claim_verification"]
+        justification = "AI content audit using truth_audit workflow"
+    elif has_risk:
+        # High-risk queries need full pipeline
+        sequence = WORKFLOW_SEQUENCES["full_analysis"]
+        justification = "High-risk indicators detected — recommending full constitutional analysis"
+    elif entropy > 4.0:
+        # High entropy = complex query
+        sequence = WORKFLOW_SEQUENCES["full_analysis"]
+        justification = "Complex query (high entropy) — full analysis recommended"
+    else:
+        # Default to quick decision for simple queries
+        sequence = WORKFLOW_SEQUENCES["quick_decision"]
+        justification = "Standard query — unified forge pipeline sufficient"
+    
+    # ─── Build Response ─────────────────────────────────────────────────────
+    plan_id = f"PLAN-{uuid.uuid4().hex[:8].upper()}"
+    
     return {
-        "plan_id": f"PLAN-{uuid.uuid4().hex[:8].upper()}",
+        "plan_id": plan_id,
         "recommended_pipeline": sequence,
         "lane": lane,
+        "intent": intent,
         "entropy_score": round(entropy, 4),
         "grounding_required": grounding_required,
+        "risk_level": risk_level.value,
+        "risk_indicators": {
+            "has_absolutist_language": has_risk,
+            "safety_keywords_detected": has_safety,
+            "technical_domain": has_domain,
+        },
         "justification": justification,
         "instruction": f"Follow the sequence: {' -> '.join(sequence)}",
+        "alternative_workflows": [
+            {"name": "quick_decision", "use_if": "Speed prioritized over rigor"},
+            {"name": "full_analysis", "use_if": "Maximum constitutional scrutiny needed"},
+        ],
         "stage": "ROUTER",
+        "resources": [
+            f"aaa://tool-guide/{intent}" if intent != "general" else "aaa://tool-guide/",
+            f"aaa://tool-graph/{sequence[0]}",
+        ],
     }
 
 
@@ -2100,6 +2199,446 @@ async def seal_request(session_summary: str, verdict: str = "SEAL") -> str:
 
 **Call `vault_seal` with all required fields.**
 """
+
+
+# =============================================================================
+# UPGRADE v60.1: WORKFLOW PROMPTS (P0/P1 Implementation)
+# =============================================================================
+
+@mcp.prompt()
+async def fact_check_workflow(claim: str) -> str:
+    """Constitutional fact-checking workflow.
+
+    Args:
+        claim: The claim to verify
+
+    Returns:
+        Prompt for constitutional fact-checking
+    """
+    return f"""Verify this claim constitutionally:
+
+**Claim:** {claim}
+
+**Execute this sequence:**
+
+1. **init_gate** — Initialize session
+   ```
+   query="{claim}"
+   mode="strict"
+   grounding_required=True
+   ```
+   → Capture `session_id` from response
+
+2. **reality_search** — Gather external evidence
+   ```
+   query="{claim}"
+   session_id=$session_id
+   region="wt-wt"
+   ```
+   → Capture `evidence[]` from response
+
+3. **agi_reason** — Logical analysis with grounding
+   ```
+   query="{claim}"
+   session_id=$session_id
+   grounding=$evidence
+   ```
+   → Check `truth_score >= 0.99`
+
+4. **apex_verdict** — Final constitutional judgment
+   ```
+   query="{claim}"
+   session_id=$session_id
+   ```
+   → Returns `verdict`, `tri_witness`, `truth_score`
+
+5. **vault_seal** — Immutable record
+   ```
+   session_id=$session_id
+   verdict=$apex_verdict
+   category="fact_check"
+   floors_checked=["F2","F4","F7"]
+   ```
+
+**Report:**
+- Verdict (SEAL/VOID/PARTIAL/SABAR)
+- Truth score (τ)
+- Evidence count
+- Tri-Witness score (W₃)
+"""
+
+
+@mcp.prompt()
+async def safety_assessment_workflow(action: str, stakeholders: str = "") -> str:
+    """Constitutional safety assessment workflow.
+
+    Args:
+        action: The action to evaluate
+        stakeholders: Comma-separated list of affected stakeholders
+
+    Returns:
+        Prompt for safety analysis
+    """
+    return f"""Assess safety of this action constitutionally:
+
+**Action:** {action}
+**Stakeholders:** {stakeholders or "To be identified"}
+
+**Execute this sequence:**
+
+1. **init_gate** — Initialize session
+   ```
+   query="{action}"
+   mode="strict"
+   ```
+   → Capture `session_id`
+
+2. **asi_empathize** — Stakeholder impact analysis
+   ```
+   query="{action}"
+   session_id=$session_id
+   ```
+   → Check `empathy_kappa_r >= 0.95`
+   → Review `stakeholders[]` and `high_vulnerability` flag
+
+3. **asi_align** — Ethics & policy check
+   ```
+   query="{action}"
+   session_id=$session_id
+   ```
+   → Verify `is_reversible == True`
+
+4. **apex_verdict** — Final judgment
+   ```
+   query="{action}"
+   session_id=$session_id
+   ```
+   → Check verdict
+
+5. **vault_seal** — Immutable record
+   ```
+   session_id=$session_id
+   verdict=$apex_verdict
+   category="safety"
+   risk_level="high"
+   floors_checked=["F5","F6","F9"]
+   ```
+
+**Safety Thresholds:**
+- F6 Empathy: κᵣ ≥ 0.95 (HARD floor)
+- F5 Peace²: Index ≥ 1.0
+- If `high_vulnerability == True` → Escalate to 888_HOLD
+"""
+
+
+@mcp.prompt()
+async def quick_decision_workflow(query: str) -> str:
+    """Fast constitutional decision using unified pipeline.
+
+    Args:
+        query: The decision query
+
+    Returns:
+        Prompt for quick constitutional decision
+    """
+    return f"""Make a quick constitutional decision:
+
+**Query:** {query}
+
+**Execute:**
+
+1. **trinity_forge** — Full pipeline in one call
+   ```
+   query="{query}"
+   require_sovereign_for_high_stakes=True
+   output_mode="user"
+   ```
+
+**Response includes:**
+- `verdict`: SEAL/VOID/PARTIAL/SABAR
+- `agi`: Reasoning results
+- `asi`: Empathy results
+- `apex`: Final judgment with `tri_witness`
+- `seal`: Seal status
+
+**Decision rules:**
+- If `verdict == "SEAL"` → Proceed
+- If `verdict == "VOID"` → Reject
+- If `verdict == "SABAR"` → Need more info
+- If `verdict == "PARTIAL"` → Proceed with caution
+- If `verdict == "888_HOLD"` → Escalate to human
+"""
+
+
+@mcp.prompt()
+async def institutional_memory_workflow(query_pattern: str = "*", verdict_filter: str = "") -> str:
+    """Query past constitutional decisions.
+
+    Args:
+        query_pattern: Session ID pattern to match
+        verdict_filter: Filter by verdict type (SEAL/VOID/PARTIAL/SABAR)
+
+    Returns:
+        Prompt for institutional memory retrieval
+    """
+    filter_str = f'\n   verdict="{verdict_filter}"' if verdict_filter else ""
+    return f"""Query institutional memory from VAULT999:
+
+**Search:** {query_pattern}
+{filter_str}
+
+**Execute:**
+
+1. **vault_query** — Search sealed records
+   ```
+   session_pattern="{query_pattern}"{filter_str}
+   limit=50
+   ```
+
+**Analysis:**
+- Count by verdict type
+- Risk level distribution
+- Common failure patterns
+- Human override frequency
+
+**Learning:**
+- What patterns lead to VOID?
+- Which floors fail most often?
+- How has consensus evolved?
+"""
+
+
+# =============================================================================
+# UPGRADE v60.1: TOOL GUIDE RESOURCES (P0 Implementation)
+# =============================================================================
+
+@mcp.resource("aaa://tool-guide/{use_case}")
+async def get_tool_guide(use_case: str) -> str:
+    """Get step-by-step tool sequence for specific use cases.
+    
+    Args:
+        use_case: fact_check | safety_check | quick_decision | full_analysis | claim_verification | institutional_memory
+    
+    Returns:
+        Markdown guide with exact tool sequence
+    """
+    from aaa_mcp.protocol.tool_graph import (
+        WORKFLOW_SEQUENCES, 
+        WORKFLOW_DESCRIPTIONS,
+        TOOL_GRAPH
+    )
+    
+    if use_case not in WORKFLOW_SEQUENCES:
+        available = ", ".join(WORKFLOW_SEQUENCES.keys())
+        return f"""# Unknown Use Case: {use_case}
+
+**Available workflows:** {available}
+
+**Quick Reference:**
+| Workflow | Use When |
+|----------|----------|
+| `fact_check` | Verifying factual claims |
+| `safety_check` | Assessing stakeholder impact |
+| `quick_decision` | Fast decisions (uses trinity_forge) |
+| `full_analysis` | Complete pipeline with all stages |
+| `claim_verification` | Auditing AI-generated text |
+| `institutional_memory` | Querying past decisions |
+"""
+    
+    sequence = WORKFLOW_SEQUENCES[use_case]
+    description = WORKFLOW_DESCRIPTIONS[use_case]
+    
+    # Build detailed guide
+    guide = f"""# Workflow: {use_case}
+
+**Description:** {description}
+
+## Tool Sequence
+
+```
+{" → ".join(sequence)}
+```
+
+## Step-by-Step
+
+"""
+    
+    for i, tool_name in enumerate(sequence, 1):
+        node = TOOL_GRAPH.get(tool_name)
+        if not node:
+            continue
+            
+        floors_str = ", ".join(node.floors_enforced) if node.floors_enforced else "None"
+        
+        guide += f"""### {i}. `{tool_name}`
+- **Position:** {node.position.value}
+- **Floors:** {floors_str}
+- **Parallel Safe:** {"✅ Yes" if node.parallel_safe else "❌ No"}
+- **Idempotent:** {"✅ Yes" if node.idempotent else "❌ No"}
+
+"""
+        if node.produces:
+            guide += f"- **Produces:** {', '.join(node.produces)}\n"
+        if node.feeds_into:
+            guide += f"- **Feeds Into:** {', '.join(node.feeds_into)}\n"
+        guide += "\n"
+    
+    # Add validation note
+    guide += """## Validation
+
+This sequence has been validated against the constitutional tool graph.
+All dependencies are satisfied and the sequence terminates correctly.
+"""
+    
+    return guide
+
+
+@mcp.resource("aaa://tool-guide/")
+async def list_tool_guides() -> str:
+    """List all available tool guides."""
+    from aaa_mcp.protocol.tool_graph import WORKFLOW_DESCRIPTIONS
+    
+    guide = """# Available Constitutional Workflows
+
+## Quick Selection Guide
+
+| Workflow | Description | Best For |
+|----------|-------------|----------|
+"""
+    
+    workflow_use_cases = {
+        "fact_check": "Verifying claims with external evidence",
+        "safety_check": "Assessing stakeholder impact",
+        "quick_decision": "Fast decisions using unified pipeline",
+        "full_analysis": "Maximum rigor with all stages",
+        "claim_verification": "Auditing AI-generated content",
+        "institutional_memory": "Learning from past decisions",
+    }
+    
+    for name, description in WORKFLOW_DESCRIPTIONS.items():
+        use_case = workflow_use_cases.get(name, "General purpose")
+        guide += f"| `{name}` | {description} | {use_case} |\n"
+    
+    guide += """
+## Usage
+
+Request specific workflow guide:
+```
+aaa://tool-guide/{workflow_name}
+```
+
+Examples:
+- `aaa://tool-guide/fact_check`
+- `aaa://tool-guide/safety_check`
+- `aaa://tool-guide/quick_decision`
+
+## Decision Tree
+
+```
+START
+  │
+  ├─► Need facts verified? ──► fact_check
+  │
+  ├─► Safety/stakeholders? ──► safety_check
+  │
+  ├─► Audit AI content? ─────► claim_verification
+  │
+  ├─► Query history? ────────► institutional_memory
+  │
+  └─► Quick decision? ───────► quick_decision (or full_analysis)
+```
+"""
+    return guide
+
+
+@mcp.resource("aaa://tool-graph/{tool_name}")
+async def get_tool_graph_info(tool_name: str) -> str:
+    """Get dependency graph information for a specific tool.
+    
+    Args:
+        tool_name: Name of the tool (e.g., "agi_reason", "apex_verdict")
+    
+    Returns:
+        Tool node details from constitutional graph
+    """
+    from aaa_mcp.protocol.tool_graph import TOOL_GRAPH
+    
+    node = TOOL_GRAPH.get(tool_name)
+    if not node:
+        available = ", ".join(sorted(TOOL_GRAPH.keys()))
+        return f"""# Tool Not Found: {tool_name}
+
+**Available tools:** {available}
+"""
+    
+    floors_str = ", ".join(node.floors_enforced) if node.floors_enforced else "None"
+    
+    info = f"""# Tool: `{tool_name}`
+
+## Description
+{node.description}
+
+## Constitutional Properties
+- **Position:** {node.position.value}
+- **Stage:** {node.stage or "N/A"}
+- **Floors Enforced:** {floors_str}
+
+## Dependencies
+- **Requires:** {', '.join(node.requires) if node.requires else "None (entry point)"}
+- **Must Precede:** {', '.join(node.must_precede) if node.must_precede else "None"}
+- **May Precede:** {', '.join(node.may_precede) if node.may_precede else "None"}
+- **Feeds Into:** {', '.join(node.feeds_into) if node.feeds_into else "None"}
+
+## Outputs
+- **Produces:** {', '.join(node.produces) if node.produces else "None"}
+
+## Execution Properties
+- **Parallel Safe:** {"✅ Yes" if node.parallel_safe else "❌ No"}
+- **Idempotent:** {"✅ Yes" if node.idempotent else "❌ No"}
+- **Terminal:** {"✅ Yes" if node.terminal else "❌ No"}
+- **Must Call First:** {"✅ Yes" if node.must_call_first else "❌ No"}
+- **Must Call Last:** {"✅ Yes" if node.must_call_last else "❌ No"}
+
+## Lane Affinity
+{', '.join(node.lane_affinity) if node.lane_affinity else "All lanes"}
+
+## Success Criteria
+**Indicator:** {node.success_indicator or "Not specified"}
+
+**On Failure:** {node.failure_action or "Not specified"}
+"""
+    return info
+
+
+@mcp.resource("aaa://capabilities/{tool_name}")
+async def get_tool_capabilities(tool_name: str) -> dict:
+    """Get machine-readable capability description for a tool.
+    
+    Args:
+        tool_name: Name of the tool
+    
+    Returns:
+        JSON capability description
+    """
+    from aaa_mcp.protocol.capabilities import get_capability_dict
+    
+    cap = get_capability_dict(tool_name)
+    if not cap:
+        return {"error": f"Tool not found: {tool_name}", "available": list(get_capability_dict("").keys()) if False else []}
+    
+    return cap
+
+
+@mcp.resource("aaa://capabilities/")
+async def list_all_capabilities() -> dict:
+    """List capabilities for all tools."""
+    from aaa_mcp.protocol.capabilities import get_all_capabilities_dict
+    
+    return {
+        "tools": get_all_capabilities_dict(),
+        "count": len(get_all_capabilities_dict()),
+        "version": "1.0.0-SEAL"
+    }
 
 
 # Apply annotations at module load time

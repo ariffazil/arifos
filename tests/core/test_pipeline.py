@@ -13,7 +13,7 @@ async def test_quick_pipeline_smoke():
 
 
 @pytest.mark.asyncio
-async def test_forge_pipeline_smoke():
+async def test_trinity_forge_smoke():
     result = await forge("Hello world", actor_id="user")
     assert result.session_id
     assert result.verdict in {"SEAL", "PARTIAL", "SABAR", "VOID", "888_HOLD"}

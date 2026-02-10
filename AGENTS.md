@@ -124,7 +124,7 @@ detect-secrets          # Secret detection
 ```
 arifOS/
 ├── aaa_mcp/                    # MCP Server Package (Primary Entry Point)
-│   ├── server.py               # 13 canonical MCP tool definitions
+│   ├── server.py               # 14 canonical MCP tool definitions
 │   ├── __main__.py             # CLI entry: python -m aaa_mcp [stdio|sse|http]
 │   ├── protocol/               # Hardened protocol layer
 │   │   ├── __init__.py         # Response builders & validation
@@ -173,16 +173,7 @@ arifOS/
 │   ├── pipeline.py             # 000-999 forge pipeline
 │   └── tests/                  # Core unit tests
 │
-├── codebase/                   # Legacy Core Engines (migrating to core/)
-│   ├── constitutional_floors.py          # F1-F13 floor definitions
-│   ├── bundles.py                        # Delta/Omega/Merged bundles
-│   ├── agi/, asi/, apex/                 # Engine implementations
-│   ├── floors/                           # Individual floor validators
-│   ├── guards/                           # Hypervisor guards (F10-F12)
-│   ├── vault/                            # Persistent ledger
-│   └── ...
-│
-├── 333_APPS/                   # Application Layers
+├── 333_APPS/                   # Application Layers (L1-L7)
 │   ├── L1_PROMPT/              # Zero-context entry prompts
 │   ├── L2_SKILLS/              # Parameterized templates
 │   ├── L3_WORKFLOW/            # Multi-step recipes
@@ -196,7 +187,7 @@ arifOS/
 │   ├── test_aaa_mcp_constitutional.py    # Constitutional tests
 │   ├── test_e2e_all_tools.py             # E2E tool tests
 │   ├── test_pipeline_e2e.py              # Pipeline tests
-│   ├── constitutional/         # Floor enforcement tests
+│   ├── constitutional/         # Floor enforcement tests (F1-F13)
 │   ├── integration/            # Integration tests
 │   ├── mcp_tests/              # MCP-specific tests
 │   ├── archive/                # Legacy tests (auto-skipped)
@@ -227,6 +218,7 @@ arifOS/
 ## 4. Build and Development Commands
 
 ### Installation
+
 ```bash
 # Editable install with dev dependencies
 pip install -e ".[dev]"
@@ -270,6 +262,7 @@ python scripts/start_server.py
 ```
 
 ### Testing
+
 ```bash
 # Full test suite
 pytest tests/ -v
@@ -304,6 +297,7 @@ pytest --cov=aaa_mcp --cov=core tests/ -v
 - Tests importing legacy `arifos` package are auto-skipped via `pytest_ignore_collect`
 
 ### Linting and Formatting
+
 ```bash
 # Format code (100 character line length)
 black --line-length 100 aaa_mcp/ core/
@@ -317,6 +311,7 @@ mypy aaa_mcp/ core/ --ignore-missing-imports
 ```
 
 ### Pre-commit Hooks
+
 ```bash
 # Install pre-commit hooks
 pip install pre-commit
@@ -336,7 +331,7 @@ pre-commit run --all-files
 |--------|:------:|:-----:|------|--------|----------|
 | **INIT** | — | 0 | Airlock — Auth & injection scan | F11, F12 | `core/organs/_0_init.py` |
 | **AGI** | Δ | 1 | Mind — reasoning, precision, truth | F2, F4, F7 | `core/organs/_1_agi.py` |
-| **ASI** | Ω | 2 | Heart — empathy, safety, alignment | F5, F6, F9 | `core/organs/_2_asi.py` |
+| **ASI** | Ω | 2 | Heart — empathy, safety, alignment | F5, **F6** (HARD), F9 | `core/organs/_2_asi.py` |
 | **APEX** | Ψ | 3 | Soul — judgment, equilibrium | F3, F8 | `core/organs/_3_apex.py` |
 | **VAULT** | — | 4 | Memory — audit & seal | F1, F3 | `core/organs/_4_vault.py` |
 
@@ -347,9 +342,9 @@ pre-commit run --all-files
 | F1 | Amanah | HARD | Reversibility | Chain of Custody | VOID |
 | F2 | Truth | HARD | Fidelity ≥ 0.99 | Score ≥ 0.99 | VOID |
 | F3 | Consensus | DERIVED | Tri-Witness W₃ ≥ 0.95 | W₃ ≥ 0.95 | SABAR |
-| F4 | Clarity | SOFT | Ambiguity Reduction (ΔS ≤ 0) | Entropy ↓ | SABAR |
+| F4 | Clarity | HARD | Ambiguity Reduction (ΔS ≤ 0) | Entropy ↓ | SABAR |
 | F5 | Peace² | SOFT | Stability | Index ≥ 1.0 | SABAR |
-| F6 | Empathy | SOFT | Stakeholder Protection | Impact ≤ 0.1 | SABAR |
+| F6 | Empathy | HARD | Stakeholder Protection | κᵣ ≥ 0.95 | VOID |
 | F7 | Humility | HARD | Uncertainty Declaration | Ω₀ ∈ [0.03, 0.05] | VOID |
 | F8 | Genius | DERIVED | Resource Efficiency | G-Factor ≥ 0.80 | SABAR |
 | F9 | Anti-Hantu | SOFT | No Fake Consciousness | Personhood = False | SABAR |
@@ -368,12 +363,12 @@ pre-commit run --all-files
 | **VOID** | ❌ Blocked — HARD floor violated | Reject entirely |
 | **888_HOLD** | 🛑 Human Required — High stakes | Escalate to human |
 
-### The 10 Canonical MCP Tools (Core Pipeline)
+### The 14 Canonical MCP Tools (Core Pipeline)
 
 | # | Tool | Engine | Function | Floors Enforced |
 |:---:|:---|:---:|:---|:---|
 | 1 | `init_gate` | INIT | Session ignition, auth & injection pre-scan | F11, F12 |
-| 2 | `forge_pipeline` | ALL | Unified 000→999 pipeline (core entrypoint) | ALL |
+| 2 | `trinity_forge` | ALL | Unified 000→999 pipeline (core entrypoint) | ALL |
 | 3 | `agi_sense` | Δ MIND | Intent classification, assigns lanes | F2, F4 |
 | 4 | `agi_think` | Δ MIND | Hypothesis generation | F2, F4, F7 |
 | 5 | `agi_reason` | Δ MIND | Logic & deduction | F2, F4, F7 |
@@ -382,12 +377,107 @@ pre-commit run --all-files
 | 8 | `asi_align` | Ω HEART | Ethics & policy alignment | F5, F6, F9 |
 | 9 | `apex_verdict` | Ψ SOUL | Final judgment | F3, F8 |
 | 10 | `vault_seal` | VAULT | Immutable ledger commit | F1, F3 |
+| 11 | `vault_query` | VAULT | Query sealed records | F1, F3 |
+| 12 | `truth_audit` | AGI | Claim verification | F2, F4 |
+| 13 | `tool_router` | APEX | Smart tool routing | F3, F8 |
+| 14 | `simulate_transfer` | ASI | Safe financial simulation | F1, F6 |
 
-**Auxiliary Tools** (not part of core 10):
-- `vault_query` — Query sealed records
-- `truth_audit` — Claim verification  
-- `tool_router` — Smart tool routing
-- `executive_summary` — Board-ready reporting
+### Agent Quick-Start: Using AAA-MCP Tools
+
+**Rule of Thumb: Start with `trinity_forge`**
+
+For 90% of use cases, use `trinity_forge` as your single entrypoint:
+
+```python
+# Basic usage (conscience mode, user output)
+result = await trinity_forge(
+    query="Your query here",
+    actor_id="user",
+    mode="conscience",           # "conscience" = enforce floors (default), "ghost" = log only
+    output_mode="user",          # "user" | "developer" | "audit"
+)
+
+# Response structure
+{
+    "verdict": "SEAL" | "VOID" | "PARTIAL" | "888_HOLD",
+    "session_id": "uuid",
+    "agi": {...},                # Mind stage output
+    "asi": {...},                # Heart stage output  
+    "apex": {...},               # Soul stage output
+    "mode": "conscience",
+    # Only in developer/audit mode:
+    "_constitutional": {
+        "delta_s": 0.0,          # Entropy change (F4)
+        "omega_0": 0.04,         # Humility bound (F7)
+        "kappa_r": 0.95,         # Empathy score (F6)
+        "genius_g": 0.85,        # Genius Index (F8)
+        "peace2": 1.0,           # Stability (F5)
+        "landauer_risk": 0.1,    # Hallucination risk
+        "e_eff": 1.0,            # Energy efficiency
+        "floors_failed": [],
+    }
+}
+```
+
+**Handling HOLD_888 (Human Review Required)**
+
+When `verdict == "888_HOLD"`, the response includes:
+
+```python
+{
+    "verdict": "888_HOLD",
+    "hold_status": "PENDING_REVIEW",
+    "phoenix_72_expiry": "72h from now",
+    "review_url": "/human-review/{session_id}",
+}
+```
+
+**Route to human review queue. Do not proceed without sovereign authorization.**
+
+**Mode Selection Guide**
+
+| Mode | Use When | Behavior |
+|:-----|:---------|:---------|
+| `conscience` (default) | Production, safety-critical | HARD floors → VOID, SOFT floors → PARTIAL |
+| `ghost` | Debugging, testing | Log violations but don't block |
+
+**Output Mode Guide**
+
+| Mode | Use When | Includes |
+|:-----|:---------|:---------|
+| `user` (default) | End-user responses | verdict, session_id, minimal data |
+| `developer` | Debugging | + `_constitutional` tensor |
+| `audit` | Compliance logging | + full EMD stack |
+
+**Multi-Stage Workflow (Advanced)**
+
+Only use individual stage tools (`agi_sense`, `asi_empathize`, etc.) when you need granular control:
+
+```python
+# 000_INIT
+session = await init_gate(query, mode="conscience")
+
+# 111_AGI: Intent classification  
+sense = await agi_sense(query, session["session_id"])
+
+# If FACTUAL lane: ground to reality
+if sense["lane"] == "FACTUAL":
+    evidence = await reality_search(query, session["session_id"])
+
+# 333_AGI: Reasoning
+reasoning = await agi_reason(query, session["session_id"])
+
+# 555-666_ASI: Empathy & alignment
+empathy = await asi_empathize(query, session["session_id"])
+alignment = await asi_align(query, session["session_id"])
+
+# 888_APEX: Final judgment
+verdict = await apex_verdict(query, session["session_id"])
+
+# 999_VAULT: Seal the record
+if verdict["verdict"] == "SEAL":
+    await vault_seal(session["session_id"], verdict["payload"])
+```
 
 ---
 
@@ -427,10 +517,10 @@ async def my_new_tool(query: str, session_id: str = "") -> dict:
 
 ### Floor Types and Enforcement
 
-- **Hard floors** (F1, F2, F4, F7, F10, F11, F12, F13): Failure → **VOID** (blocked)
-- **Soft floors** (F3, F5, F6, F8, F9): Failure → **PARTIAL** (warn, proceed with caution)
-- **Pre-execution floors** (F1, F5, F11, F12, F13): Validate INPUT before tool runs
-- **Post-execution floors** (F2, F3, F4, F6, F7, F8, F9, F10): Validate OUTPUT after tool runs
+- **Hard floors** (F1, F2, F4, F6, F7, F10, F11, F12, F13): Failure → **VOID** (blocked)
+- **Soft floors** (F3, F5, F8, F9): Failure → **PARTIAL** (warn, proceed with caution)
+- **Pre-execution floors** (F1, F5, F6, F11, F12, F13): Validate INPUT before tool runs
+- **Post-execution floors** (F2, F3, F4, F7, F8, F9, F10): Validate OUTPUT after tool runs
 
 ### Type Hints
 
@@ -576,6 +666,7 @@ Railway auto-provisions PostgreSQL and Redis via plugins.
 - `GET /metrics` — Prometheus metrics
 - `GET /stats` — JSON statistics
 - `GET /.well-known/oauth-authorization-server` — OAuth 2.1 metadata
+- `GET /.well-known/oauth-protected-resource` — OAuth 2.1 protected resource metadata
 
 ---
 
@@ -590,7 +681,7 @@ All tool outputs are validated against constitutional floors:
 
 ### Bundle Isolation
 
-The "thermodynamic wall" between DeltaBundle (AGI) and OmegaBundle (ASI) ensures:
+The "thermodynamic wall" between MindBundle (AGI) and HeartBundle (ASI) ensures:
 - AGI and ASI cannot see each other's reasoning until 444 TRINITY_SYNC
 - Prevents information leakage between cognitive stages
 - Enforces honest Tri-Witness consensus (F3)

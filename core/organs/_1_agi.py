@@ -424,6 +424,7 @@ async def agi(
             evidence={"query_type": actual_gpv.query_type},
             verdict=Verdict.SEAL,
             metrics={"stage": 333, "action": "reason", "f2_threshold": actual_gpv.f2_threshold()},
+            tensor=tensor,
         )
 
     else:

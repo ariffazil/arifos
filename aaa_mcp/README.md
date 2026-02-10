@@ -1,8 +1,8 @@
 # AAA MCP Server
 
-**Constitutional AI Governance for the Model Context Protocol**
+**The Missing Constitutional Layer for the Model Context Protocol**
 
-Production-grade MCP server enforcing 13 constitutional floors (F1-F13) on any LLM.
+Production-grade **Governance Engine** enforcing 13 constitutional floors (F1-F13) and v60 metabolic principles on any LLM.
 
 [![MCP](https://img.shields.io/badge/MCP-2025--11--25-purple)](https://modelcontextprotocol.io)
 [![PyPI](https://img.shields.io/pypi/v/arifos.svg)](https://pypi.org/project/arifos/)
@@ -30,7 +30,11 @@ python -m aaa_mcp http
 
 ## What Makes It Different
 
-Unlike prompt-based guardrails that can be bypassed, **AAA MCP enforces constraints at the architectural level**:
+Unlike prompt-based guardrails that can be bypassed, **AAA MCP enforces constraints at the metabolic level** using a **Composite Architecture**:
+
+1.  **Constitutional, Not Just Guardrailed:** Uses hard thermodynamic evaluation rather than just text filtering.
+2.  **Creativity/Governance Separation:** The Architect (Δ) explores hypotheses while the Judge (Ψ) enforces limits.
+3.  **Governance vs. Guardrails:** AAA MCP is a structural system for meaning co-creation, not a simple "no-go" filter.
 
 | Floor | Principle | Enforcement |
 |-------|-----------|-------------|
@@ -39,7 +43,7 @@ Unlike prompt-based guardrails that can be bypassed, **AAA MCP enforces constrai
 | **F12** | Defense | Injection attacks automatically blocked |
 | **F1** | Amanah | All decisions cryptographically auditable |
 
-**Every tool call** passes through the 000-999 constitutional pipeline.
+**The Metabolic Loop (000-999)** ensures that exploration is always balanced by discipline.
 
 ---
 
@@ -48,7 +52,7 @@ Unlike prompt-based guardrails that can be bypassed, **AAA MCP enforces constrai
 | Tool | Stage | Trinity | Floors | Purpose |
 |------|-------|---------|--------|---------|
 | `init_gate` | 000_INIT | Gate | F11, F12 | Session ignition, injection scan |
-| `forge_pipeline` | 000-999 | All | F1-F13 | Unified pipeline entry |
+| `trinity_forge` | 000-999 | All | F1-F13 | Unified pipeline entry |
 | `agi_sense` | 111_SENSE | Δ Mind | F4 | Intent classification |
 | `agi_think` | 222_THINK | Δ Mind | F2, F4, F7 | Hypothesis generation |
 | `agi_reason` | 333_REASON | Δ Mind | F2, F4, F7, F10 | Logic & deduction |
@@ -124,24 +128,24 @@ print(f"Ω₀: {result['humility']}")  # Uncertainty metric
 
 ## Architecture
 
-This MCP server is part of **[arifOS](https://arifos.arif-fazil.com)**, a constitutional AI framework.
+AAA MCP implements a **Composite Architecture** where human sovereignty is the final arbiter. It serves as the bridge between the fluid application layer and the rigid constitutional kernel.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    AAA MCP Server                           │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
 │  │  init_gate  │───→│   agi_*     │───→│ apex_verdict│     │
-│  │  (F11,F12)  │    │ (F2,F4,F7)  │    │(F3,F8,F11)  │     │
+│  │  (F11,F12)  │    │  Reasoning  │    │ Constitutional│     │
 │  └─────────────┘    └─────────────┘    └──────┬──────┘     │
 │                                                │            │
 │  ┌─────────────────────────────────────────────┘            │
 │  │                                                           │
 │  ▼                                                           │
 │  ┌─────────────────────────────────────────────────────┐    │
-│  │                  5-Organ Kernel                      │    │
+│  │               ΔΩΨ Trinity Engine                    │    │
 │  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐ │    │
-│  │  │INIT(000)│→ │AGI(Δ)   │→ │ASI(Ω)   │→ │APEX(Ψ)  │ │    │
-│  │  │Airlock  │  │Mind     │  │Heart    │  │Soul     │ │    │
+│  │  │INIT(000)│→ │Mind (Δ) │→ │Heart (Ω)│→ │Soul (Ψ) │ │    │
+│  │  │Airlock  │  │Explorer │  │Guardian │  │Judge    │ │    │
 │  │  └─────────┘  └─────────┘  └─────────┘  └────┬────┘ │    │
 │  │                                               │      │    │
 │  │  ┌────────────────────────────────────────────┘      │    │
@@ -152,18 +156,18 @@ This MCP server is part of **[arifOS](https://arifos.arif-fazil.com)**, a consti
 │  │  │  (F1,F3)    │───→│  Ledger     │                   │    │
 │  │  └─────────────┘    └─────────────┘                   │    │
 │  └─────────────────────────────────────────────────────┘    │
-│                          [core/]                             │
+│                     The Metabolic Loop                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
 | **MCP Server** | [`server.py`](server.py) | FastMCP 2.0+ entry point |
-| **Tool Handlers** | [`core/`](../core/) | 5-Organ Kernel, F1-F13 enforcement |
+| **Governance Core** | [`core/`](../core/) | Trinity Engines, v60 Postulate enforcement |
 | **Pipeline** | [`core/pipeline.py`](../core/pipeline.py) | 000-999 stage orchestration |
 | **Floors** | [`core/shared/floors.py`](../core/shared/floors.py) | Constitutional validation |
 
-See [`core/`](../core/) for the 5-Organ Kernel implementation.
+See [`core/`](../core/) for the Trinity Engine and Metabolic Loop implementation.
 
 ---
 

@@ -14,9 +14,91 @@ DITEMPA BUKAN DIBERI 💎🔥🧠
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Literal, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
+
+if TYPE_CHECKING:
+    from core.shared.physics import ConstitutionalTensor
+
+# ============================================================================
+# EMD STACK — Energy-Metabolism-Decision Layer
+# ============================================================================
+
+
+class EnergyState(BaseModel):
+    """E in EMD - Energy layer (Thermodynamic work)"""
+
+    e_eff: float = Field(default=0.0, description="Effective energy available (Joules)")
+    work_log: Dict[str, Any] = Field(default_factory=dict)
+
+
+class MetabolismState(BaseModel):
+    """M in EMD - Metabolism layer (Processing metrics)"""
+
+    delta_s: float = Field(default=0.0, description="ΔS entropy change")
+    peace2: float = Field(default=1.0, description="Peace² stability")
+    kappa_r: float = Field(default=1.0, description="κᵣ empathy quotient")
+    genius_index: float = Field(default=0.0, description="G Genius score")
+
+
+class DecisionState(BaseModel):
+    """D in EMD - Decision layer (Outcome)"""
+
+    raw_output: str = ""
+    confidence: float = 0.5
+    omega0: float = 0.04  # Default to locked humidity
+    verdict_kind: Optional["Verdict"] = None
+
+
+class EMD(BaseModel):
+    """Energy-Metabolism-Decision stack: The Executable Glossary Container."""
+
+    energy: EnergyState = Field(default_factory=EnergyState)
+    metabolism: MetabolismState = Field(default_factory=MetabolismState)
+    decision: DecisionState = Field(default_factory=DecisionState)
+
+
+# ============================================================================
+# METABOLIC BUNDLES — Stage-Walled Communication
+# ============================================================================
+
+
+class MindBundle(BaseModel):
+    """Δ MIND output (Stage 111-333)"""
+
+    draft: str = ""
+    analysis: Dict[str, Any] = Field(default_factory=dict)
+    delta_s: float = 0.0
+    confidence: float = 0.0
+    genius_g: float = 0.0
+
+
+class HeartBundle(BaseModel):
+    """Ω HEART output (Stage 444-666)"""
+
+    kappa_r: float = 0.0
+    peace2: float = 0.0
+    risk_score: float = 0.0
+    notes: str = ""
+
+
+class SoulBundle(BaseModel):
+    """Ψ SOUL output (Stage 777-888)"""
+
+    verdict: "Verdict" = Field(default="VOID")
+    vault_id: Optional[str] = None
+    scar_weight: Optional[Dict[str, Any]] = None
+
+
+class ScarWeight(BaseModel):
+    """Cryptographic accountability anchored to human sovereign."""
+
+    sovereign_id: str  # e.g., "github:ariffazil" or "eth:0x..."
+    signature: str  # Cryptographic signature
+    issued_at: str  # ISO timestamp
+    authority_level: str = "STANDARD"  # "STANDARD" | "SUPREME"
+
 
 # ============================================================================
 # VERDICT ENUM — Constitutional Outcomes
@@ -78,19 +160,20 @@ class FloorScores(BaseModel):
     """
     All 13 constitutional floor scores.
 
-    Hard Floors (VOID if violated):
-    - F1, F2, F4, F7, F9, F10, F11, F12, F13
+    Hard Floors (VOID if violated - immediate termination):
+    - F1, F2, F6, F7, F10, F11, F12, F13
 
-    Soft Floors (PARTIAL if violated):
-    - F3, F5, F6, F8
+    Note: F6 Empathy is HARD - stakeholder harm is VOID offense
+
+    Soft Floors (PARTIAL if violated - warning/retry):
+    - F3, F5, F8, F9
     """
 
     # Hard Floors
     f1_amanah: float = Field(ge=0.0, le=1.0, default=1.0)
     f2_truth: float = Field(ge=0.0, le=1.0, default=0.99)
-    f4_clarity: float = Field(le=0.0, default=0.0)  # ΔS must be ≤ 0
+    f6_empathy: float = Field(ge=0.0, le=1.0, default=0.95)  # HARD: κᵣ ≥ 0.95
     f7_humility: float = Field(ge=0.0, le=1.0, default=0.04)
-    f9_anti_hantu: float = Field(ge=0.0, le=1.0, default=0.0)
     f10_ontology: bool = True
     f11_command_auth: bool = True
     f12_injection: float = Field(ge=0.0, le=1.0, default=0.0)
@@ -99,8 +182,8 @@ class FloorScores(BaseModel):
     # Soft Floors
     f3_tri_witness: float = Field(ge=0.0, le=1.0, default=0.95)
     f5_peace: float = Field(ge=0.0, le=1.0, default=1.0)
-    f6_empathy: float = Field(ge=0.0, le=1.0, default=0.70)
     f8_genius: float = Field(ge=0.0, le=1.0, default=0.80)
+    f9_anti_hantu: float = Field(ge=0.0, le=1.0, default=0.0)
 
     def to_dict(self) -> Dict[str, Any]:
         """Export as dictionary."""
@@ -144,11 +227,11 @@ class AsiMetrics(BaseModel):
     """
     ASI Heart Engine output metrics.
 
-    Enforces: F5 (Peace²), F6 (Empathy), F9 (Anti-Hantu)
+    Enforces: F5 (Peace²), F6 (Empathy - HARD), F9 (Anti-Hantu)
     """
 
     peace_squared: float = Field(ge=0.0, le=1.0, description="F5: Peace² ≥ 1.0")
-    kappa_r: float = Field(ge=0.0, le=1.0, description="F6: κᵣ ≥ 0.70")
+    kappa_r: float = Field(ge=0.0, le=1.0, description="F6: κᵣ ≥ 0.95 (HARD)")
     c_dark: float = Field(ge=0.0, le=1.0, description="F9: C_dark < 0.30")
 
 
@@ -197,6 +280,18 @@ class InitOutput(BaseOrganOutput):
     governance_token: str
     injection_score: float = Field(ge=0.0, le=1.0)
     auth_verified: bool
+    query_type: str = "CARE"  # Changed to str to avoid Enums in types if possible, or use Enum
+    f2_threshold: float = 0.99
+    status: str = "ACTIVE"
+    floors_failed: List[str] = Field(default_factory=list)
+
+    @property
+    def is_void(self) -> bool:
+        return self.verdict == Verdict.VOID
+
+    @property
+    def requires_human(self) -> bool:
+        return self.verdict == Verdict.HOLD_888
 
 
 class AgiOutput(BaseOrganOutput):
@@ -206,6 +301,7 @@ class AgiOutput(BaseOrganOutput):
     evidence: Dict[str, Any] = Field(default_factory=dict)
     floor_scores: FloorScores
     lane: Literal["CRISIS", "FACTUAL", "SOCIAL", "CARE"] = "CARE"
+    tensor: Optional[Any] = None  # Forward ref: ConstitutionalTensor
 
 
 class AsiOutput(BaseOrganOutput):
@@ -293,4 +389,14 @@ __all__ = [
     "VaultEntry",
     # ATLAS
     "GPV",
+    # Metabolic state
+    "EnergyState",
+    "MetabolismState",
+    "DecisionState",
+    "EMD",
+    "ScarWeight",
+    # Bundles
+    "MindBundle",
+    "HeartBundle",
+    "SoulBundle",
 ]

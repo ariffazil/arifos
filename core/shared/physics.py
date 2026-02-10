@@ -25,6 +25,13 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional, Sequence, Tuple
 
 # =============================================================================
+# CONSTANTS — Thermodynamic Environment
+# =============================================================================
+
+K_BOLTZMANN = 1.380649e-23  # J/K
+T_ROOM = 300.0  # Kelvin (26.85 °C)
+
+# =============================================================================
 # F3: TRI-WITNESS CONSENSUS — W_3 = cube_root(H × A × S)
 # =============================================================================
 
@@ -626,6 +633,73 @@ class ConstitutionalTensor:
 
 
 # =============================================================================
+# LANDAUER PHYSICS — The Cost of Truth
+# =============================================================================
+
+
+def landauer_min_energy(bits_erased: float, temperature: float = T_ROOM) -> float:
+    """
+    Landauer's principle: minimum energy required to erase one bit of information.
+    E_min = k_B * T * ln(2) * n_bits
+    """
+    if bits_erased <= 0:
+        return 0.0
+    return K_BOLTZMANN * temperature * math.log(2) * bits_erased
+
+
+def landauer_risk(e_eff: float, delta_s_bits: float) -> float:
+    """
+    Risk of hallucination (Sovereign Dial).
+    Measures the ratio of energy paid (e_eff) vs the Landauer limit.
+    Returns [0.0 (safe) to 1.0 (certain hallucination)].
+    """
+    e_min = landauer_min_energy(delta_s_bits)
+    if e_min <= 0:
+        return 0.0
+    ratio = e_eff / e_min
+
+    # Threshold: ratio < 1.0 means physics violation (hallucination required)
+    # Threshold: ratio > 5.0 means 'Paid Truth' (high fidelity)
+    return max(0.0, min(1.0, (5.0 - ratio) / 4.0))
+
+
+# =============================================================================
+# EIGEN-GOVERNANCE — Multi-Floor Folding
+# =============================================================================
+
+# Weighting matrix to collapse 13 floors into 4 Genius dials (A, P, X, E)
+FLOOR_TO_DIAL_WEIGHTS = {
+    "F1": {"P": 0.4, "A": 0.2, "E": 0.4},  # Amanah (Audit) -> Reliability+Energy
+    "F2": {"A": 0.5, "E": 0.5},  # Truth -> Intellect+Energy
+    "F4": {"A": 0.5, "P": 0.5},  # Clarity -> Intellect+Mindfulness
+    "F6": {"P": 0.6, "X": 0.4},  # Empathy (HARD) -> Mindfulness+Exploration
+    "F7": {"A": 0.3, "P": 0.4, "X": 0.3},  # Humility -> All dials
+    "F9": {"P": 0.5, "A": 0.5},  # Anti-Hantu -> Mindfulness+Intellect
+    "F10": {"A": 0.7, "P": 0.3},  # Ontology -> Structural Intellect
+    "F12": {"P": 0.6, "E": 0.4},  # Defense -> Protection+Resilience
+}
+
+
+def eigen_governance(floor_results: Dict[str, str]) -> GeniusDial:
+    """
+    Map 13 floor statuses to the 4 dimensional Genius dial (Akal, Present, Exploration, Energy).
+
+    HARD_FAIL results reduce dials exponentially.
+    """
+    dials = {"A": 1.0, "P": 1.0, "X": 1.0, "E": 1.0}
+
+    for floor_id, status in floor_results.items():
+        weights = FLOOR_TO_DIAL_WEIGHTS.get(floor_id, {})
+        for dial, weight in weights.items():
+            if status == "HARD_FAIL" or status == "VOID":
+                dials[dial] *= 1.0 - (0.5 * weight)  # Major degradation
+            elif status == "WARN" or status == "PARTIAL":
+                dials[dial] *= 1.0 - (0.1 * weight)  # Minor friction
+
+    return GeniusDial(A=dials["A"], P=dials["P"], X=dials["X"], E=dials["E"])
+
+
+# =============================================================================
 # EXPORTS
 # =============================================================================
 
@@ -668,4 +742,10 @@ __all__ = [
     "G_from_dial",
     # Unified state
     "ConstitutionalTensor",
+    # Physics 2.0
+    "landauer_min_energy",
+    "landauer_risk",
+    "eigen_governance",
+    "K_BOLTZMANN",
+    "T_ROOM",
 ]

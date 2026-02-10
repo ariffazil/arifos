@@ -31,7 +31,7 @@ Visual guide to how the monorepo components connect.
 │  │         └─────────────────┴─────────────────┴─────────────────┘       │  │
 │  │                                    │                                    │  │
 │  │                           ┌────────┴────────┐                          │  │
-│  │                           │  forge_pipeline │                          │  │
+│  │                           │  trinity_forge │                          │  │
 │  │                           │   (000-999)     │                          │  │
 │  │                           │   All Floors    │                          │  │
 │  │                           └────────┬────────┘                          │  │

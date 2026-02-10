@@ -45,7 +45,7 @@ from .organs import (
     vault,
 )
 from .pipeline import ForgeResult, quick
-from .pipeline import forge as forge_pipeline
+from .pipeline import forge as trinity_forge
 
 __all__ = [
     "organs",
@@ -62,7 +62,7 @@ __all__ = [
     "seal",
     "anchor",
     "feel",
-    "forge_pipeline",
+    "trinity_forge",
     "quick",
     "ForgeResult",
 ]

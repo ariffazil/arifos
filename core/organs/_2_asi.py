@@ -59,16 +59,25 @@ async def align(
         violations.append("F1_AMANAH_LOW_REVERSIBILITY")
     if p2_score < 1.0:
         violations.append("F5_PEACE_UNSTABLE")
-    if kappa < 0.70:
+    # F6 is HARD floor: κᵣ ≥ 0.95, failure = VOID
+    if kappa < 0.95:
         violations.append("F6_EMPATHY_LOW")
-    verdict_str = "SEAL" if not violations else "SABAR"
+    
+    # HARD floor violations = VOID, not SABAR
+    hard_violations = [v for v in violations if v.startswith(("F1_", "F6_", "F10_", "F11_", "F12_"))]
+    if hard_violations:
+        verdict_str = "VOID"
+    elif violations:
+        verdict_str = "SABAR"
+    else:
+        verdict_str = "SEAL"
     stakeholder_harms = {
         name: (1.0 - score) if score < 0.5 else 0.0 for name, score in stakeholders.items()
     }
     return AsiOutput(
         session_id=session_id,
         floor_scores=FloorScores(
-            f1_amanah=1.0 if is_reversible else 0.0, f5_peace=p2_score, f6_empathy=kappa
+            f1_amanah=1.0 if is_reversible else 0.0, f5_peace=p2_score, f6_empathy=kappa, f9_anti_hantu=0.0
         ),
         verdict=Verdict(verdict_str),
         violations=violations,

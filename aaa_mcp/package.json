@@ -63,7 +63,7 @@
     },
     "tools": [
       "init_gate",
-      "forge_pipeline",
+      "trinity_forge",
       "agi_sense",
       "agi_think",
       "agi_reason",

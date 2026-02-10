@@ -289,7 +289,7 @@ function createMCPServer(env: Env): Server {
           }
         },
         {
-          name: "forge_pipeline",
+          name: "trinity_forge",
           description: "Full 000-999 constitutional pipeline",
           inputSchema: {
             type: "object",
@@ -349,7 +349,7 @@ function createMCPServer(env: Env): Server {
     switch (name) {
       case "init_gate":
         return handleInitGate(args as any, env);
-      case "forge_pipeline":
+      case "trinity_forge":
         return handleForgePipeline(args as any, env);
       case "agi_reason":
         return handleAGIReason(args as any, env);
@@ -383,7 +383,7 @@ async function handleMCPRequest(
       result: {
         tools: [
           { name: "init_gate", description: "Initialize constitutional session" },
-          { name: "forge_pipeline", description: "Full 000-999 pipeline" },
+          { name: "trinity_forge", description: "Full 000-999 pipeline" },
           { name: "agi_reason", description: "Logical reasoning" },
           { name: "apex_verdict", description: "Constitutional judgment" },
           { name: "vault_seal", description: "Immutable ledger" }
@@ -425,7 +425,7 @@ async function callTool(name: string, args: any, session?: Session): Promise<any
         }]
       };
       
-    case "forge_pipeline":
+    case "trinity_forge":
       return {
         content: [{
           type: "text",

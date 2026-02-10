@@ -130,7 +130,7 @@ python scripts/deploy_mcp.py --mode validate
       "args": ["-m", "aaa_mcp", "stdio"],
       "cwd": "/path/to/arifOS",
       "env": {"ARIFOS_CONSTITUTIONAL_MODE": "AAA"},
-      "alwaysAllow": ["init_gate", "forge_pipeline", "agi_reason", "apex_verdict"]
+      "alwaysAllow": ["init_gate", "trinity_forge", "agi_reason", "apex_verdict"]
     }
   }
 }
@@ -165,7 +165,7 @@ python scripts/deploy_mcp.py --mode validate
 | Tool | Organ | Floors | Purpose |
 |------|-------|--------|---------|
 | `init_gate` | Airlock | F11, F12 | Session initialization |
-| `forge_pipeline` | All | F1-F13 | Unified 000-999 pipeline |
+| `trinity_forge` | All | F1-F13 | Unified 000-999 pipeline |
 | `agi_sense` | Mind | F4, F7 | Intent classification |
 | `agi_think` | Mind | F2, F4 | Hypothesis generation |
 | `agi_reason` | Mind | F2, F4, F7 | Logical reasoning |
@@ -225,7 +225,7 @@ Before declaring deployment complete:
 - [ ] `curl http://localhost:8080/health` returns healthy
 - [ ] MCP client can list tools
 - [ ] MCP client can call `init_gate`
-- [ ] MCP client can call `forge_pipeline`
+- [ ] MCP client can call `trinity_forge`
 
 ---
 

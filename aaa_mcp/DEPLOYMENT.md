@@ -356,7 +356,7 @@ curl -X POST https://auth.arifos.dev/register \
       },
       "alwaysAllow": [
         "init_gate",
-        "forge_pipeline",
+        "trinity_forge",
         "agi_sense",
         "agi_reason",
         "asi_empathize",

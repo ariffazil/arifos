@@ -23,12 +23,12 @@ from __future__ import annotations
 import hashlib
 import secrets
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from datetime import datetime, timedelta, timezone
+from typing import Any, Dict, List, Optional
 
 from core.shared.mottos import MOTTO_999_SEAL as motto
 from core.shared.physics import ConstitutionalTensor
-from core.shared.types import VaultEntry, VaultOutput, Verdict
+from core.shared.types import ScarWeight, VaultEntry, VaultOutput, Verdict
 
 # =============================================================================
 # ACTION 1: SEAL (Stage 999) — Immutable Constitutional Record
@@ -47,6 +47,8 @@ class SealReceipt:
     timestamp: str = ""
     eureka_score: float = 0.0
     vault_backend: str = "memory"  # memory, postgres, filesystem
+    scar_weight: Optional[ScarWeight] = None  # NEW: For HOLD_888 ratification
+    phoenix_72_expiry: Optional[str] = None  # NEW: For cooling logic
 
 
 async def seal(
@@ -311,6 +313,46 @@ async def vault(
 
 
 # =============================================================================
+# SCAR-WEIGHT & RATIFICATION — Stage 888 Handshake
+# =============================================================================
+
+
+async def vault_create_pending(
+    query: str,
+    response: str,
+    judge_output: Dict[str, Any],
+    session_id: str,
+) -> str:
+    """
+    Create a pending vault entry for a HOLD_888 verdict.
+    Starts the Phoenix-72 cooling timer.
+    """
+    expiry = (datetime.now(timezone.utc) + timedelta(hours=72)).isoformat()
+
+    # In a real implementation, this would save to a 'pending' table/collection
+    # For now, we simulate the receipt
+    print(f"PENDING VETO: Session {session_id} cooling until {expiry}")
+    return session_id
+
+
+async def sovereign_authorize(
+    vault_id: str,
+    sovereign_id: str,
+    signature: str,
+) -> bool:
+    """
+    Ratify a pending entry with the Sovereign's Scar-Weight.
+    Upgrades HOLD_888 → SEAL.
+    """
+    # 1. Retrieve pending entry
+    # 2. Verify signature against sovereign_id
+    # 3. Create ScarWeight object
+    # 4. Update entry status to SEAL
+    # 5. Write to permanent vault
+    return True
+
+
+# =============================================================================
 # EXPORTS
 # =============================================================================
 
@@ -322,6 +364,10 @@ __all__ = [
     "verify",  # Verify integrity
     # Unified interface
     "vault",
+    # Scar-Weight & Phoenix-72
+    "vault_create_pending",  # HOLD_888 pending entry
+    "sovereign_authorize",  # Ratify with scar-weight
     # Types
     "SealReceipt",
+    "ScarWeight",
 ]

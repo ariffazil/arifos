@@ -53,7 +53,7 @@ Every query now flows through the hardened constitutional pipeline:
 | Tool | Stage | Floors | Purpose |
 |------|-------|--------|---------|
 | `init_gate` | 000_INIT | F11, F12 | Session ignition & injection defense |
-| `forge_pipeline` | 000-999 | ALL | Unified constitutional pipeline |
+| `trinity_forge` | 000-999 | ALL | Unified constitutional pipeline |
 | `agi_sense` | 111_SENSE | F4 | Intent classification & lane routing |
 | `agi_think` | 222_THINK | F2, F4, F7 | Hypothesis generation |
 | `agi_reason` | 333_REASON | F2, F4, F7 | Logic & deduction |
