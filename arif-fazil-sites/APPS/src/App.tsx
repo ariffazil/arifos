@@ -2013,7 +2013,7 @@ result = await moderator.moderate("User generated content here...")`}</code></pr
       </footer>
     </div>
     
-    </div> {/* Close sidebar offset */}
+    </div>
   );
 }
 
