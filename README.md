@@ -222,6 +222,26 @@ python -m aaa_mcp
 
 ---
 
+### Deployment Guide
+
+**Quick deploy to your preferred platform:**
+
+| Platform | Method | Difficulty |
+|----------|--------|------------|
+| **Claude Desktop** | `pip install arifos` → Add to `claude_desktop_config.json` | 🟢 Easy |
+| **ChatGPT Developer Mode** | Deploy to Railway → Connect via SSE | 🟡 Medium |
+| **Cursor** | Add to Cursor MCP settings | 🟢 Easy |
+| **Docker** | `docker run -p 8080:8080 ariffazil/arifos:latest` | 🟢 Easy |
+| **Railway/Render** | `railway up` or `render deploy` | 🟢 Easy |
+
+**📖 Full deployment guide:** [`docs/COMPLETE_DEPLOYMENT_GUIDE.md`](docs/COMPLETE_DEPLOYMENT_GUIDE.md) — Covers 15+ platforms (Claude, ChatGPT, Cursor, Copilot, Gemini, DeepSeek, Windsurf, Cline, Continue.dev, Docker, Railway, etc.)
+
+**Live endpoints:**
+- Health: `https://aaamcp.arif-fazil.com/health`
+- MCP: `https://aaamcp.arif-fazil.com/sse`
+
+---
+
 ### The 13 Constitutional Floors (F1-F13)
 
 Each query passes through 13 enforced constraints:
@@ -266,6 +286,23 @@ Each query passes through 13 enforced constraints:
 ---
 
 ## Deployment Guide
+
+📖 **Complete Deployment Guide:** See [`docs/COMPLETE_DEPLOYMENT_GUIDE.md`](docs/COMPLETE_DEPLOYMENT_GUIDE.md) for comprehensive instructions covering **15 platforms** including:
+
+| Platform | Transport | Users | Difficulty |
+|:---|:---:|:---:|:---:|
+| **ChatGPT Developer Mode** | SSE/HTTP | 5.6B visits | 🟡 Medium |
+| **Claude Desktop** | stdio | 500M+ | 🟢 Easy |
+| **GitHub Copilot** | stdio/SSE | 1.3M paid | 🟡 Medium |
+| **Gemini** | stdio/HTTP | 400M+ | 🟡 Medium |
+| **Cursor** | stdio | 300K+ | 🟢 Easy |
+| **Windsurf IDE** | stdio/SSE | 200K+ | 🟢 Easy |
+| **DeepSeek** | stdio | 100M+ | 🟢 Easy |
+| **Perplexity** | stdio | 100M+ | 🟡 Medium |
+| **Continue.dev** | stdio/SSE | 50K+ | 🟢 Easy |
+| **Cline/Roo Code** | stdio | 30K+ | 🟢 Easy |
+
+### Quick Start Options
 
 ### Option 1: Claude Desktop (Local)
 
@@ -429,6 +466,10 @@ curl -X POST http://localhost:8080/mcp \
     "id": 1
   }'
 ```
+
+---
+
+📖 **For 9 additional platforms** (ChatGPT Developer Mode, GitHub Copilot, Gemini, Windsurf, DeepSeek, Perplexity, Continue.dev, Cline/Roo Code, Qwen-Agent, and developer tools), see the [**Complete Deployment Guide**](docs/COMPLETE_DEPLOYMENT_GUIDE.md).
 
 ---
 
