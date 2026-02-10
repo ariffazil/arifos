@@ -360,21 +360,21 @@ class ASIEngine:
         try:
             agi_tensor = await self._core_agi_tensor(query, session_id)
             emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+            # v60 compliance: use floor_scores for metrics
+            kappa_r = emp_out.floor_scores.f6_empathy if hasattr(emp_out, "floor_scores") else 0.7
             # Phase A: Only APEX has verdict authority
-            emp_out.update(
-                {
-                    "engine_mode": "core",
-                    "trinity_component": "ASI",
-                    "query": query,
-                    "session_id": session_id,
-                    "empathy_kappa_r": emp_out.get("kappa_r"),
-                    "status": "ARTIFACT_READY",
-                    "legacy_verdict": (
-                        "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "PARTIAL"
-                    ),  # Deprecated
-                }
-            )
-            return emp_out
+            return {
+                "engine_mode": "core",
+                "trinity_component": "ASI",
+                "query": query,
+                "session_id": session_id,
+                "empathy_kappa_r": kappa_r,
+                "status": "ARTIFACT_READY",
+                "legacy_verdict": "SEAL" if kappa_r >= 0.70 else "PARTIAL",  # Deprecated
+                "stakeholder_impact": (
+                    emp_out.stakeholder_impact if hasattr(emp_out, "stakeholder_impact") else {}
+                ),
+            }
         except Exception as e:
             logger.warning(f"Core ASI empathize failed: {e}")
             return self._fallback(query, session_id)

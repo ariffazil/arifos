@@ -280,41 +280,6 @@ Motto: DITEMPA BUKAN DIBERI
 # For health checks, use the MCP tools/list endpoint
 # or upgrade FastMCP: pip install fastmcp>=2.0
 
-# CORS and Health endpoint setup for SSE/HTTP transports
-try:
-    from starlette.middleware.cors import CORSMiddleware
-    from starlette.responses import JSONResponse
-    
-    # Add CORS middleware to allow arifos.arif-fazil.com
-    mcp.app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[
-            "https://arifos.arif-fazil.com",
-            "https://apex.arif-fazil.com", 
-            "https://arif-fazil.com",
-            "http://localhost:3000",
-            "http://localhost:5173",
-        ],
-        allow_credentials=True,
-        allow_methods=["GET", "POST", "OPTIONS"],
-        allow_headers=["*"],
-    )
-    
-    # Add health endpoint
-    async def health_endpoint(request):
-        return JSONResponse({
-            "status": "healthy",
-            "version": "v60.0.0",
-            "service": "aaa-mcp",
-            "protocol": "MCP 2025-11-25"
-        })
-    
-    mcp.app.add_route("/health", health_endpoint, methods=["GET"])
-    
-except Exception as e:
-    # If CORS setup fails (e.g., stdio mode), silently continue
-    pass
-
 
 # Tool implementations using adapters
 @mcp.tool(annotations=TOOL_ANNOTATIONS["init_gate"])
