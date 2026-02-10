@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to publish (e.g., 55.5.0)'
+        description: 'Version to publish (e.g., 60.0.0)'
         required: true
-        default: '55.5.0'
+        default: '60.0.0'
 
 jobs:
   publish:
@@ -39,18 +39,22 @@ jobs:
           print(f'✅ Namespace validated: {server[\"name\"]}')
           "
 
-      - name: Download mcp-publisher
+      - name: Install mcp-publisher via Homebrew
         run: |
-          curl -L -o mcp-publisher \
-            "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher-linux-amd64"
-          chmod +x mcp-publisher
-          ./mcp-publisher --version
+          # Install Homebrew
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          # Add to PATH
+          echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
+          # Install mcp-publisher
+          /home/linuxbrew/.linuxbrew/bin/brew install modelcontextprotocol/tap/mcp-publisher
+          # Verify
+          /home/linuxbrew/.linuxbrew/bin/mcp-publisher --version
 
       - name: Publish to MCP Registry
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ./mcp-publisher publish --file server.json
+          /home/linuxbrew/.linuxbrew/bin/mcp-publisher publish --file server.json
           echo "✅ Successfully published to MCP Registry"
 
       - name: Verify publication
