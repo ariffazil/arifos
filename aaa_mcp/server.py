@@ -102,24 +102,19 @@ TOOL_ANNOTATIONS = {
 }
 
 from aaa_mcp.core.constitutional_decorator import constitutional_floor, get_tool_floors
-from aaa_mcp.core.engine_adapters import (
-    AGIEngine,
-    APEXEngine,
-    ASIEngine,
-    InitEngine,
-)
+from aaa_mcp.core.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitEngine
 from aaa_mcp.core.stage_adapter import (
     run_stage_444_trinity_sync,
+    run_stage_555_empathy,
     run_stage_666_align,
+    run_stage_777_forge,
     run_stage_888_judge,
+    run_stage_999_seal,
 )
-from aaa_mcp.protocol import (
-    build_init_response,
-    build_sense_response,
-    validate_input,
-)
+from aaa_mcp.protocol import build_init_response, build_sense_response, validate_input
 from aaa_mcp.services.constitutional_metrics import (
     AXIOM_DATABASE,
+    ConflictStatus,
     EvidenceType,
     PlanObject,
     generate_content_hash,
@@ -127,7 +122,7 @@ from aaa_mcp.services.constitutional_metrics import (
     get_stage_result,
     store_stage_result,
 )
-from core.pipeline import forge as core_forge
+from aaa_mcp.tools.reality_grounding import reality_check
 
 """
 arifOS AAA MCP Server — Constitutional AI Governance (v60.0-FORGE)
