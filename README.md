@@ -5,11 +5,16 @@
 <h1 align="center">arifOS</h1>
 
 <p align="center">
-  <strong>Constitutional AI Governance</strong>
+  <strong>The First Production-Grade Thermodynamic Constraint Engine for AI</strong>
 </p>
 
 <p align="center">
-  <em>The First Open-Source Governance Engine for Enforcing Immutable Constitutional Checks on AI Outputs</em>
+  <em>Runtime Constitutional Enforcement • Physics-Based Governance • Immutable Audit Trails</em>
+</p>
+
+<p align="center">
+  <em>Unlike training-time constitutional approaches, arifOS enforces constraints at inference.<br>
+  Unlike research frameworks, it is production-deployed with cryptographic sealing.</em>
 </p>
 
 <p align="center">
@@ -1093,9 +1098,9 @@ Each "organ" embodies specific principles:
 | | | 888 | *Aware, Not Overconfident* | Render humble verdict | `judge()` |
 | **Memory** | `_4_vault.py` | 999 | *Earned, Not Given* | Record for accountability | `seal()` |
 
-### The ARIF Acrostic
+### The Four Pillars
 
-The name **ARIF** encodes the core philosophy:
+The **ARIF** framework encodes four pillars of responsible intelligence:
 
 ```
 A — nchor in uncertainty        (Disedarkan: Aware, not overconfident)
@@ -1104,7 +1109,7 @@ I — ntegrate with doubt         (Dihadapi: Faced, not postponed)
 F — orge with caution           (Ditempa: Earned, not given)
 ```
 
-**ARIF** (عريف) in Arabic means "The Wise One"—someone who knows that true wisdom begins with acknowledging what they don't know.
+These pillars embody the principle that **true intelligence begins with acknowledging its limits**.
 
 ### The Pattern of Responsible Work
 
