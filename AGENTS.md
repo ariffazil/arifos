@@ -84,6 +84,9 @@ pytest-cov>=4.0.0       # Coverage
 black>=23.0.0           # Code formatting (100 char line length)
 ruff>=0.1.0             # Linting
 mypy>=1.0.0             # Type checking
+pre-commit>=3.0.0       # Git hooks
+bandit                  # Security linter
+detect-secrets          # Secret detection
 ```
 
 ---
@@ -95,6 +98,9 @@ arifOS/
 ├── aaa_mcp/                    # MCP Server Package (Primary Entry Point)
 │   ├── server.py               # 13 canonical MCP tool definitions
 │   ├── __main__.py             # CLI entry: python -m aaa_mcp [stdio|sse|http]
+│   ├── protocol/               # Hardened protocol layer
+│   │   ├── __init__.py         # Response builders & validation
+│   │   └── schemas.py          # Tool schemas & stage operators
 │   ├── core/
 │   │   ├── constitutional_decorator.py   # Floor enforcement decorator
 │   │   ├── engine_adapters.py            # Bridge to core organs
@@ -170,6 +176,8 @@ arifOS/
 │
 ├── scripts/                    # Utility Scripts
 │   ├── start_server.py         # Production server startup (Railway/Render)
+│   ├── verify_deployment.py    # Deployment verification
+│   ├── entropy_audit.py        # Constitutional entropy audit
 │   └── *.ps1, *.bat            # Windows/PowerShell helpers
 │
 ├── 000_THEORY/                 # Constitutional Documentation
@@ -182,6 +190,7 @@ arifOS/
 ├── pyproject.toml              # Package configuration
 ├── Dockerfile                  # Container build
 ├── railway.json                # Railway.app deployment config
+├── .pre-commit-config.yaml     # Pre-commit hooks
 └── requirements.txt            # Production dependencies
 ```
 
@@ -264,7 +273,7 @@ pytest --cov=aaa_mcp --cov=core tests/ -v
 - Physics is disabled globally via `ARIFOS_PHYSICS_DISABLED=1` (performance optimization)
 - Legacy spec bypass via `ARIFOS_ALLOW_LEGACY_SPEC=1` (test-only)
 - Use `enable_physics_for_apex_theory` fixture to opt-in for specific tests
-- Tests importing legacy `arifos` package are auto-skipped
+- Tests importing legacy `arifos` package are auto-skipped via `pytest_ignore_collect`
 
 ### Linting and Formatting
 ```bash
@@ -277,6 +286,16 @@ ruff check aaa_mcp/ core/ --fix
 
 # Type checking
 mypy aaa_mcp/ core/ --ignore-missing-imports
+```
+
+### Pre-commit Hooks
+```bash
+# Install pre-commit hooks
+pip install pre-commit
+pre-commit install
+
+# Run on all files
+pre-commit run --all-files
 ```
 
 ---
@@ -321,7 +340,7 @@ mypy aaa_mcp/ core/ --ignore-missing-imports
 | **VOID** | ❌ Blocked — HARD floor violated | Reject entirely |
 | **888_HOLD** | 🛑 Human Required — High stakes | Escalate to human |
 
-### The 13 Canonical MCP Tools
+### The 10 Canonical MCP Tools (Core Pipeline)
 
 | # | Tool | Engine | Function | Floors Enforced |
 |:---:|:---|:---:|:---|:---|
@@ -332,12 +351,15 @@ mypy aaa_mcp/ core/ --ignore-missing-imports
 | 5 | `agi_reason` | Δ MIND | Logic & deduction | F2, F4, F7 |
 | 6 | `reality_search` | Δ MIND | Grounding via web/axiom search | F2, F10 |
 | 7 | `asi_empathize` | Ω HEART | Impact analysis, stakeholders | F5, F6 |
-| 8 | `asi_align` | Ω HEART | Ethics & policy alignment | F9 |
+| 8 | `asi_align` | Ω HEART | Ethics & policy alignment | F5, F6, F9 |
 | 9 | `apex_verdict` | Ψ SOUL | Final judgment | F3, F8 |
 | 10 | `vault_seal` | VAULT | Immutable ledger commit | F1, F3 |
-| 11 | `vault_query` | VAULT | Query sealed records | — |
-| 12 | `truth_audit` | META | Claim verification | F2, F4, F7 |
-| 13 | `tool_router` | META | Smart tool routing | — |
+
+**Auxiliary Tools** (not part of core 10):
+- `vault_query` — Query sealed records
+- `truth_audit` — Claim verification  
+- `tool_router` — Smart tool routing
+- `executive_summary` — Board-ready reporting
 
 ---
 
@@ -387,6 +409,7 @@ async def my_new_tool(query: str, session_id: str = "") -> dict:
 - Use Python 3.10+ syntax: `dict`, `list`, `|` for unions
 - Use `from __future__ import annotations` for forward references
 - Pydantic models for complex data structures
+- Line length: 100 characters (configured in pyproject.toml)
 
 ### Lazy Imports for Optional Dependencies
 
@@ -559,6 +582,14 @@ The server implements OAuth 2.1 authorization endpoints:
 - `/oauth/authorize` (requires external IdP)
 - `/oauth/token` (requires external IdP)
 
+### Pre-commit Security Hooks
+
+The `.pre-commit-config.yaml` enforces:
+- **Bandit**: Security vulnerability scanning
+- **detect-secrets**: Hardcoded secret detection
+- **F9 Anti-Hantu**: No consciousness claims in code
+- **F1 Amanah**: No irreversible operations without approval
+
 ---
 
 ## 10. Adding New Components
@@ -615,6 +646,10 @@ The server implements OAuth 2.1 authorization endpoints:
    - OPINION: 0.85
    - CONVERSATIONAL: 0.50 (lenient)
    - TEST: 0.50 (fast path)
+
+9. **Test Legacy Skipping**: Tests that import from `arifos` (the old package name) are automatically skipped via `pytest_ignore_collect` in `conftest.py`. Use `codebase` instead for legacy imports.
+
+10. **Physics Disabled in Tests**: By default, `ARIFOS_PHYSICS_DISABLED=1` is set in tests for performance. Use the `enable_physics_for_apex_theory` fixture if your test needs physics computation.
 
 ---
 

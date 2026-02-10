@@ -1,7 +1,7 @@
-# v60 Constitutional Kernel Architecture
+# v55.5 Constitutional Kernel Architecture
 
 > **Authority:** Muhammad Arif bin Fazil (888 Judge)  
-> **Version:** v60.0-FORGE  
+> **Version:** v55.5-HARDENED  
 > **Entropy:** ΔS = -87% (169 files → 9 modules)  
 > **Creed:** DITEMPA BUKAN DIBERI 💎🔥🧠
 
@@ -10,7 +10,7 @@
 ## I. THE 9-MODULE SYSTEM
 
 ```
-arifOS v60/
+arifOS v55.5/
 ├── organs/                    # 5 Constitutional Organs (The Kernel)
 │   ├── __init__.py           # Unified kernel exports
 │   ├── 0_init.py             # 🔐 Airlock (F11/F12 Auth)
@@ -598,14 +598,14 @@ $ arifos verify --seal-id <uuid>
 
 - [ ] Create `shared/` directory with 4 modules
 - [ ] Create `organs/` directory with 5 modules
-- [ ] Copy `REFACTOR_V60.md` physics to `shared/physics.py`
+- [ ] Copy `REFACTOR_V55_5.md` physics to `shared/physics.py`
 - [ ] Copy `ATLAS` 3-function to `shared/atlas.py`
 - [ ] Build `interfaces/mcp.py` (FastMCP wrapper)
 - [ ] Build `interfaces/sdk.py` (L5 Agent wrapper)
 - [ ] Freeze `codebase/` → `archive/v55/`
 - [ ] Update tests to import from new structure
-- [ ] Benchmark: v55 vs v60 performance
-- [ ] SEAL v60.0.0
+- [ ] Benchmark: Legacy vs v55.5 performance
+- [ ] SEAL v55.5.0
 
 ---
 

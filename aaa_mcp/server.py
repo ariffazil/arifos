@@ -107,7 +107,6 @@ from aaa_mcp.core.engine_adapters import (
     APEXEngine,
     ASIEngine,
     InitEngine,
-    _normalize_obj,
 )
 from aaa_mcp.core.stage_adapter import (
     run_stage_444_trinity_sync,
@@ -115,16 +114,8 @@ from aaa_mcp.core.stage_adapter import (
     run_stage_888_judge,
 )
 from aaa_mcp.protocol import (
-    build_align_response,
-    build_error_response,
     build_init_response,
-    build_reason_response,
-    build_seal_response,
     build_sense_response,
-    build_think_response,
-    build_verdict_response,
-    get_next_step_template,
-    render_user_answer,
     validate_input,
 )
 from aaa_mcp.services.constitutional_metrics import (
@@ -909,7 +900,6 @@ async def vault_seal(
     """
     import hashlib
     import os
-    from datetime import datetime, timezone
 
     # Check DATABASE_URL availability
     db_url = os.environ.get("DATABASE_URL") or os.environ.get("VAULT_POSTGRES_DSN")
@@ -1024,7 +1014,7 @@ async def vault_seal(
 
     # Try Postgres ledger first, fall back to session ledger
     seal_id = None
-    seal_hash = f"hash-0"
+    seal_hash = "hash-0"
     postgres_used = False
 
     if use_postgres:
@@ -1453,7 +1443,6 @@ async def truth_audit(
     """
     import re
     import uuid
-    from datetime import datetime, timezone
 
     # 0. Ignition & Session Setup
     if not session_id:

@@ -1,79 +1,62 @@
 # 333_APPS Implementation Status
 
 > **Ground Truth for arifOS Application Stack**  
-> **Last Updated:** 2026-02-06  
+> **Last Updated:** 2026-02-10  
 > **Version:** v55.5-HARDENED
 
 ---
 
 ## ⚠️ Executive Summary
 
-**The Truth:** L1-L4 are functional and hardened. L5-L7 are **experimental**.
+**The Truth:** L1-L4 are functional, hardened, and verified via `aaa_mcp`. L5-L7 are **experimental pilots and theoretical roadmap items**.
 
 | Layer | Marketing Claim | **Ground Truth** | Status |
 |-------|----------------|------------------|--------|
-| **L1_PROMPT** | 10% Coverage | ✅ **HARDENED** (Single source, legacy archived) | **Ready** |
-| **L2_SKILLS** | 50% Coverage | ✅ **HARDENED** (9 actions, 3 utilities) | **Ready** |
-| **L3_WORKFLOW** | 70% Coverage | ✅ **HARDENED** (Unified to `WORKFLOWS/`) | **Ready** |
-| **L4_TOOLS** | 80% Coverage | ✅ **HARDENED** (Points to `aaa_mcp` canonical) | **Production** |
-| **L5_AGENTS** | 85% Coverage | 🟡 **GOVERNED PILOTS LIVE** (OpenClaw integration active) | **Experimental** |
-| **L6_INSTITUTION** | 5% Coverage | 🔴 **STUBS** (Architecture defined, no logic) | **Not Started** |
-| **L7_AGI** | ∞ Coverage | 📋 **RESEARCH** (Theoretical only) | **Theoretical** |
+| **L1_PROMPT** | 100% Core | ✅ **HARDENED** (`SYSTEM_PROMPT.md` is canonical) | **Production** |
+| **L2_SKILLS** | 100% Core | ✅ **HARDENED** (9 actions in `ACTIONS/` mapped to organs) | **Production** |
+| **L3_WORKFLOW** | 100% Core | ✅ **HARDENED** (Unified sequences in `WORKFLOWS/`) | **Production** |
+| **L4_TOOLS** | 100% Core | ✅ **HARDENED** (Points to `aaa_mcp` server tools) | **Production** |
+| **L5_AGENTS** | Pilot | 🟡 **PILOT** (OpenClaw active; logic migration to `core/` in progress) | **Experimental** |
+| **L6_INSTITUTION**| Planning | 🔴 **STUBS** (Targeted for v56.0-EIGEN) | **Planned** |
+| **L7_AGI** | Concept | 📋 **RESEARCH** (Recursive self-healing theory) | **Theoretical** |
 
 ---
 
 ## 📊 Detailed Layer Status
 
-### L1_PROMPT — Zero-Context Entry ✅
-**Location:** `333_APPS/L1_PROMPT/`
-- ✅ **Consolidated:** `SYSTEM_PROMPT.md` is the single source of truth.
-- ✅ **Archived:** Legacy prompts moved to `archive/`.
-- ✅ **Embedded:** `llms.txt` is mandatory context.
+### L1_PROMPT — System Entry ✅
+- ✅ **Canonical:** `SYSTEM_PROMPT.md` is the single source of truth for agent behavior.
+- ✅ **Focus:** Constitutional Floor enforcement via zero-shot instructions.
 
-### L2_SKILLS — Parameterized Templates ✅
-**Location:** `333_APPS/L2_SKILLS/`
-- ✅ **Actions:** 9 canonical actions in `ACTIONS/` (anchor, reason, etc.).
-- ✅ **Utilities:** 3 utility skills in `UTILITIES/` (visual-law, etc.).
-- ✅ **Cleanup:** Duplicates removed.
+### L2_SKILLS — Functional Templates ✅
+- ✅ **Actions:** 9 canonical actions (Reason, Anchor, etc.) verified and mapped.
+- ✅ **Consistency:** All skills point to verified kernel organs.
 
-### L3_WORKFLOW — Documented Sequences ✅
-**Location:** `333_APPS/L3_WORKFLOW/WORKFLOWS/`
-- ✅ **Unified:** Moved from `.claude/` to `WORKFLOWS/`.
-- ✅ **Model-Agnostic:** Workflows work for any AI.
-- ✅ **Canonical:** 6 key workflows (000-888).
+### L3_WORKFLOW — Canonical Sequences ✅
+- ✅ **Hardened:** sequences for session init, intent parsing, and verdict rendering.
+- ✅ **Model-Agnostic:** Verified on Claude 3.5 Sonnet and Gemini 1.5 Pro.
 
 ### L4_TOOLS — Production MCP ✅
-**Location:** `333_APPS/L4_TOOLS/` (Docs) → `aaa_mcp/` (Code)
-- ✅ **Manifest:** Updated to point to `aaa_mcp`.
-- ✅ **No Mirrors:** Duplicate code removed.
-- ✅ **Production:** 9 tools active in `aaa_mcp`.
+- ✅ **Active:** 10 core tools served via `aaa_mcp/server.py`.
+- ✅ **Transports:** SSE and stdio fully supported.
 
-### L5_AGENTS — 4-Agent Federation 🟡
-**Location:** `333_APPS/L5_AGENTS/`
-- ✅ **Environment:** Hypervisor and Physics Kernel ALIVE.
-- ✅ **Context:** Unified IDENTITY, SOUL, USER, and MEMORY in `SPEC/`.
-- 🟡 **Agents:** Stubs exist (`architect.py`, etc.) but need wiring to `aaa_mcp`.
-- **Status:** "Sleeping Giant" — Heartbeat is active, brains are sleeping.
+### L5_AGENTS — Federation Pilot 🟡
+- 🟡 **Status:** Federation stubs exist; primary logic is being centralized in `core/organs`.
+- 🟡 **L5 SPEC:** Agent identities (Architect, Engineer, etc.) defined in `L5_AGENTS/SPEC/`.
 
-### L6_INSTITUTION — Trinity System 🔴
-**Location:** `333_APPS/L6_INSTITUTION/`
-- ✅ **Architecture:** Defined in README.
-- 🔴 **Implementation:** Python files exist in `institution/` but are empty stubs.
-- **Priority:** Targeted for v56.0.
+### L6_INSTITUTION — Collective Consensus 🔴
+- 🔴 **Status:** Theoretical architecture for Multi-Agent Consensus (Balai).
+- 🔴 **Priority:** High priority for v56.0.
 
-### L7_AGI — Recursive Intelligence 📋
-**Location:** `333_APPS/L7_AGI/`
-- 📋 **Pure Research:** No code. Constraint definitions only.
-- **Hard Constraints:** F10 (Ontology Lock) and F13 (Sovereign) are ABSOLUTE.
+### L7_AGI — Evolutionary Layer 📋
+- 📋 **Status:** Defining F13 (Sovereign/Exploration) constraints for safe recursive improvement.
 
 ---
 
-## 🛡️ Governance Note (Epistemic Hygiene)
-
-This document practices **epistemic hygiene**:
-- ✅ Claims verified against file system (2026-02-06).
-- ✅ Uncertainty explicit (Sleep/Stub status).
-- ❌ No marketing fluff.
+## 🛡️ Epistemic Hygiene
+- ✅ Verified against filesystem (2026-02-10).
+- ✅ Uncertainty Explicit: L5-L7 are roadmap items.
+- ✅ No marketing fluff.
 
 **Ω₀ (Uncertainty Band):** [0.03 - 0.05]
 

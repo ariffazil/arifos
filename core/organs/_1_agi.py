@@ -20,15 +20,13 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 from typing import List, Optional, Dict, Any
-from dataclasses import dataclass, field
 
 from core.shared.physics import (
-    W_3, delta_S, Omega_0, G,
-    TrinityTensor, UncertaintyBand, GeniusDial,
+    delta_S, Omega_0, TrinityTensor, GeniusDial,
     ConstitutionalTensor,
 )
 from core.shared.atlas import Phi, Lane, GPV, QueryType
-from core.shared.types import ThoughtNode, ThoughtChain, Verdict
+from core.shared.types import ThoughtNode
 
 
 # =============================================================================

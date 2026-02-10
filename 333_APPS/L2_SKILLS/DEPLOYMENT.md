@@ -1,6 +1,6 @@
 # L2_SKILLS — Deployment Guide
 
-**Parameterized Template Deployment | v55.5-EIGEN**
+**Parameterized Template Deployment | v55.5-HARDENED**
 
 > *"From templates to tools — deploy constitutional governance in 5 minutes."*
 
@@ -348,5 +348,5 @@ cat ~/.cursor/mcp.json
 ## 👑 Authority
 
 **Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v54.1-SEAL  
+**Version:** v55.5-HARDENED  
 **Creed:** DITEMPA BUKAN DIBERI

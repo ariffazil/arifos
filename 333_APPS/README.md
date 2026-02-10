@@ -1,99 +1,55 @@
 # 333_APPS - arifOS Application Layer
 
 ## Overview
-This layer contains the core applications and capabilities of the arifOS system, organized into two primary categories for maximum clarity and operational efficiency. The structure implements the full arifOS stack from L1-L7 with constitutional governance throughout.
+This layer contains the core applications and capabilities of the arifOS system. For the **v55.5-HARDENED** release, the focus is on the **L1-L4 Foundational Layers**, ensuring production-ready prompts, skills, workflows, and tools.
 
-## Complete Stack Architecture
+## 4-Layer Hierarchy (v55.5 Production)
 
-### L1: PROMPTS (System Prompts)
-Zero-context instructions for direct LLM integration. Three variants:
-
-- **Concise Prompt**: ~200 tokens, API-efficient while maintaining safety floors
-- **Comprehensive Prompt**: Full Constitutional Code of Conduct (CCC) with 9-Paradox Matrix and Tri-Witness protocol
-- **Human-Readable Prompt**: Simplified language for manual copy-pasting with human sovereignty acknowledgment
+### L1: PROMPTS (System Entry)
+Zero-context instructions for direct agent alignment. 
+- **Location:** `L1_PROMPT/`
+- **Canonical:** `SYSTEM_PROMPT.md` (The Code of Conduct).
 
 ### L2: SKILLS (Templates)
-Modular functional templates enforcing specific constitutional floors:
+Modular functional templates builds on atomic kernel organs.
+- **Location:** `L2_SKILLS/`
+- **Canonical:** `ACTIONS/` (9 core skills like Reason, Anchor, etc.).
 
-- **f1_reversibility_check**: Verifies actions can be undone before proceeding
-- **f9_authenticity_scan**: Scans for "Hantu" patterns, ensuring authentic responses
-- **code_review_governed**: Audits code against Floor 4 (Clarity) and Floor 1 (Reversibility)
+### L3: WORKFLOW (Sequences)
+Model-agnostic sequences defining the 000→999 loop.
+- **Location:** `L3_WORKFLOW/WORKFLOWS/`
+- **Canonical:** `000_SESSION_INIT`, `888_COMMIT`, etc.
 
-### L3-L4: ACTIONS (Workflows & MCP Tools)
-Execution layer with Model Context Protocol (MCP) integration:
+### L4: TOOLS (MCP Ecosystem)
+Production-ready MCP tools powered by the `aaa_mcp` server.
+- **Location:** `L4_TOOLS/` (Interface docs)
+- **Execution:** `aaa_mcp/` (Core logic).
 
-- **_init_ (🔑)**: Session Gate - injection scan (F12) and session ledger initialization
-- **_agi_ (🧠)**: Mind/Logic - executes logic and fact-checking
-- **_asi_ (💚)**: Heart/Care - simulates ethical impact and empathy  
-- **_apex_ (⚖️)**: Soul/Law - renders verdict based on 9-Paradox Matrix
-- **_vault_ (🔒)**: Immutable ledger (Merkle DAG) for audit trails
-- **_trinity_ (🔄)**: Full 000→999 pipeline (Sense → Think → Map → Judge → Seal)
+---
 
-### L5: AGENTS (Autonomous Entities)
-Specialized autonomous agents performing specific roles:
+## Experimental & Future Layers (Roadmap)
 
-- **Auditor Agent**: Monitors compliance and constitutional adherence
-- **Validator Agent**: Verifies outputs and decision quality
-- **Guardian Agent**: Ensures safety and harm prevention
+### L5: AGENTS (Autonomous Entities) 🚧
+Multi-agent federation (Architect, Engineer, Auditor, Validator).
+- **Status:** PILOT. Logic being migrated to `core/organs`.
+- **Location:** `L5_AGENTS/`
 
-### L6: INSTITUTION (Collective Governance)
-The Institutional Layer ("Balai") - governance of the collective.
+### L6: INSTITUTION (Consensus) 🚧
+Collective governance and Tri-Witness organizational structures.
+- **Status:** STUB. Targeted for v56.0.
+- **Location:** `L6_INSTITUTION/`
 
-- **Role**: Multi-Agent System (MAS) mirroring human organizational structures
-- **Function**: Consensus Protocol via Tri-Witness voting between specialized agents
-- **Focus**: F8 (Consensus) - ensures no single rogue prompt bypasses 888 Judge authority
-- **Analogy**: If L5 is an employee, L6 is the Board of Directors/Department managing handoffs
+### L7: AGI (Recursive) 🚧
+Self-healing and evolutionary governance.
+- **Status:** THEORETICAL. Pure research focus.
+- **Location:** `L7_AGI/`
 
-### L7: AGI (Evolutionary Governance) 
-The Evolutionary Layer ("Tempa") - recursive governance and self-optimization.
-
-- **Role**: Recursive Governance (Self-Healing)
-- **Function**: Back-testing and weights adjustment based on Scar-Weight data
-- **Focus**: F13 (Evolution) - manages system improvement while maintaining constitutional floors
-- **Analogy**: R&D/Black Box Audit layer ensuring continuous alignment improvement
-
-## Structure
-
-### ACTIONS
-The `ACTIONS` directory contains the 9 canonical atomic actions that form the foundational metabolic loop of arifOS. These are hardened, model-agnostic operations that implement the constitutional framework.
-
-### SKILLS  
-The `SKILLS` directory contains extended capabilities and tools built upon the atomic action foundation.
+---
 
 ## Design Philosophy
 
-This simplified two-category structure implements:
-- **Maximum Clarity**: Clear distinction between atomic operations and extended capabilities
-- **Minimum Complexity**: Two primary categories instead of layered hierarchies  
-- **Operational Efficiency**: Direct access to core functions
-- **Constitutional Compliance**: All operations aligned with arifOS floors
+- **Foundational Integrity**: Only harden what is verified (L1-L4).
+- **Organ Mapping**: Applications map directly to the 5-Organ Kernel logic.
+- **Constitutional Compliance**: Every layer enforces the 13 Floors.
 
-## L6-L7 Integration
-
-### Institutional Layer (L6) Governance
-- Multi-agent consensus protocols
-- Collective decision-making frameworks
-- Handoff management between specialized agents
-- Stability maintenance (Peace² ≥ 1.0)
-
-### Evolutionary Layer (L7) Governance
-- Recursive self-improvement mechanisms
-- Scar-weight analysis and learning
-- Constitutional floor preservation during evolution
-- Entropy reduction (ΔS < 0) optimization
-
-## Navigation
-
-- `ACTIONS/` - Core atomic operations (9 canonical actions)
-- `SKILLS/` - Extended capabilities and tools
-
-## Governance
-
-All applications in this layer adhere to arifOS constitutional principles:
-- Model-agnostic design
-- Modular architecture
-- Gödel lock verification
-- Constitutional floor compliance
-- Self-referential integrity
-- Multi-agent consensus (L6)
-- Recursive evolution (L7)
+**DITEMPA BUKAN DIBERI**

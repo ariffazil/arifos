@@ -1,4 +1,4 @@
-# arifOS v60 Refactoring Plan: The Great Compression
+# arifOS v55.5 Refactoring Plan: The Great Compression
 
 **Authority**: Muhammad Arif bin Fazil (888 Judge)
 **Date**: 2026-02-09
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-**Goal**: Compress `codebase/` from 169 files (47 dirs) → **5 Core Organs** (+ 4 shared modules).
+**Goal**: Compress `codebase/` from 169 files (47 dirs) → **5 Core Organs** (+ 4 shared modules). (v55.5-HARDENED Implementation)
 
 **Why**:
 - SDK can't map cleanly to scattered tools
@@ -554,7 +554,7 @@ await core_vault("write", session.id, payload=apex_out.to_dict())
 
 ## Testing Strategy
 
-### Unit Tests (per organ)
+### The v55.5 Thesis (per organ)
 - `test_core_init.py`: Test F11/F12 enforcement, session generation
 - `test_core_agi.py`: Test sense/think/reason modes, ATLAS mapping, ΔS calculation
 - `test_core_asi.py`: Test Peace², κᵣ, C_dark detection

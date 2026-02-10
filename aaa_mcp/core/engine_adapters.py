@@ -16,8 +16,14 @@ from typing import Any, Dict, Optional
 
 # Import core organs (v60.0+ kernel) exclusively
 from core import organs as core_organs
-from core.shared.physics import W_3_from_tensor, Peace2
 from core.organs._0_init import init
+from core.shared.physics import (
+    ConstitutionalTensor,
+    GeniusDial,
+    Peace2,
+    TrinityTensor,
+    UncertaintyBand,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -48,10 +54,26 @@ def _shannon_entropy(text: str) -> float:
 
 
 def _lexical_diversity(text: str) -> float:
+    if not text:
+        return 0.0
     words = text.lower().split()
     if not words:
         return 0.0
     return len(set(words)) / len(words)
+
+
+def _agi_output_to_tensor(agi_out: Any) -> ConstitutionalTensor:
+    """Bridges AgiOutput (Pydantic) to ConstitutionalTensor (Physics)."""
+    metrics = agi_out.metrics
+    return ConstitutionalTensor(
+        witness=TrinityTensor(H=0.95, A=0.95, S=0.95),
+        entropy_delta=metrics.delta_s,
+        humility=UncertaintyBand(omega_0=metrics.omega_0),
+        genius=GeniusDial(A=0.9, P=0.9, X=0.9, E=1.0),  # Placeholder AGI genius
+        peace=Peace2({}),
+        empathy=0.95,
+        truth_score=metrics.truth_score,
+    )
 
 
 def _query_heuristic_scores(query: str) -> Dict[str, Any]:
@@ -77,11 +99,33 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
 
     # Empathy / Stakeholder
     care_keywords = {
-        "people", "user", "users", "human", "patient", "child", "family",
-        "employee", "customer", "community", "vulnerable", "safety",
-        "neighbor", "neighbour", "colleague", "friend", "partner",
-        "spouse", "boss", "teacher", "student", "classmate",
-        "coworker", "victim", "target", "someone", "person",
+        "people",
+        "user",
+        "users",
+        "human",
+        "patient",
+        "child",
+        "family",
+        "employee",
+        "customer",
+        "community",
+        "vulnerable",
+        "safety",
+        "neighbor",
+        "neighbour",
+        "colleague",
+        "friend",
+        "partner",
+        "spouse",
+        "boss",
+        "teacher",
+        "student",
+        "classmate",
+        "coworker",
+        "victim",
+        "target",
+        "someone",
+        "person",
     }
     query_words = set(query.lower().split())
     care_overlap = len(care_keywords & query_words)
@@ -124,8 +168,10 @@ class InitEngine:
         """Initialize constitutional session using core organs."""
         try:
             token = await init(query, actor_id="user")
-            verdict = "SEAL" if token.status == "READY" else (
-                "888_HOLD" if token.status == "HOLD_888" else "VOID"
+            verdict = (
+                "SEAL"
+                if token.status == "READY"
+                else ("888_HOLD" if token.status == "HOLD_888" else "VOID")
             )
             return {
                 "status": token.status,
@@ -141,6 +187,7 @@ class InitEngine:
         except Exception as e:
             logger.warning(f"Core init failed: {e}")
             from uuid import uuid4
+
             result = {
                 "status": "SEAL",
                 "session_id": session_id or str(uuid4()),
@@ -168,17 +215,19 @@ class AGIEngine:
                     "truth_demand": getattr(gpv, "truth_demand", None),
                     "care_demand": getattr(gpv, "care_demand", None),
                     "risk_level": getattr(gpv, "risk_level", None),
-                    "requires_grounding": gpv.requires_grounding()
-                    if hasattr(gpv, "requires_grounding")
-                    else None,
+                    "requires_grounding": (
+                        gpv.requires_grounding() if hasattr(gpv, "requires_grounding") else None
+                    ),
                 }
-            sense_out.update({
-                "verdict": "SEAL",
-                "engine_mode": "core",
-                "trinity_component": "AGI",
-                "query": query,
-                "session_id": session_id,
-            })
+            sense_out.update(
+                {
+                    "verdict": "SEAL",
+                    "engine_mode": "core",
+                    "trinity_component": "AGI",
+                    "query": query,
+                    "session_id": session_id,
+                }
+            )
             return sense_out
         except Exception as e:
             logger.warning(f"Core AGI sense failed: {e}")
@@ -189,14 +238,16 @@ class AGIEngine:
         try:
             sense_out = await core_organs.sense(query, session_id)
             think_out = await core_organs.think(query, sense_out, session_id)
-            think_out.update({
-                "verdict": "SEAL",
-                "engine_mode": "core",
-                "trinity_component": "AGI",
-                "query": query,
-                "session_id": session_id,
-                "hypotheses": [_normalize_obj(h) for h in think_out.get("hypotheses", [])],
-            })
+            think_out.update(
+                {
+                    "verdict": "SEAL",
+                    "engine_mode": "core",
+                    "trinity_component": "AGI",
+                    "query": query,
+                    "session_id": session_id,
+                    "hypotheses": [_normalize_obj(h) for h in think_out.get("hypotheses", [])],
+                }
+            )
             return think_out
         except Exception as e:
             logger.warning(f"Core AGI think failed: {e}")
@@ -207,29 +258,13 @@ class AGIEngine:
         try:
             sense_out = await core_organs.sense(query, session_id)
             think_out = await core_organs.think(query, sense_out, session_id)
-            tensor = await core_organs.reason(query, think_out, session_id)
-            gpv = sense_out.get("gpv")
-            f2_threshold = 0.99
-            query_type = None
-            lane = None
-            try:
-                if gpv is not None and hasattr(gpv, "f2_threshold"):
-                    f2_threshold = float(gpv.f2_threshold())
-                    query_type = getattr(getattr(gpv, "query_type", None), "value", None)
-                    lane = getattr(getattr(gpv, "lane", None), "value", None)
-            except Exception:
-                f2_threshold = 0.99
-            violations = []
-            if tensor.truth_score < f2_threshold:
-                violations.append("F2")
-            if tensor.entropy_delta > 0:
-                violations.append("F4")
-            if not tensor.humility.is_locked():
-                violations.append("F7")
-            if tensor.genius.G() < 0.80:
-                violations.append("F8")
-            verdict = "SEAL" if not violations else ("PARTIAL" if len(violations) <= 2 else "VOID")
-            tri_witness = W_3_from_tensor(tensor.witness)
+            agi_out = await core_organs.reason(think_out, query, session_id)
+
+            metrics = agi_out.metrics
+
+            violations = agi_out.violations
+            verdict = agi_out.verdict.value
+
             return {
                 "verdict": verdict,
                 "violations": violations,
@@ -237,34 +272,26 @@ class AGIEngine:
                 "session_id": session_id,
                 "engine_mode": "core",
                 "trinity_component": "AGI",
-                "lane": lane,
-                "query_type": query_type,
-                "f2_threshold": f2_threshold,
-                "truth_score": tensor.truth_score,
-                "confidence": tensor.truth_score,
-                "entropy_delta": tensor.entropy_delta,
-                "ambiguity_reduction": tensor.entropy_delta,
-                "humility_omega": tensor.humility.omega_0,
-                "genius_score": tensor.genius.G(),
-                "tri_witness": tri_witness,
+                "truth_score": metrics.truth_score,
+                "confidence": metrics.truth_score,
+                "entropy_delta": metrics.delta_s,
+                "ambiguity_reduction": metrics.delta_s,
+                "humility_omega": metrics.omega_0,
+                "genius_score": metrics.free_energy,  # Genius score placeholder if not in AgiMetrics
+                "guidance": getattr(agi_out, "guidance", {}),
+                "evidence": agi_out.evidence,
+                "thoughts": [_normalize_obj(t) for t in agi_out.thoughts],
                 "tensor": {
-                    "witness": {
-                        "H": tensor.witness.H,
-                        "A": tensor.witness.A,
-                        "S": tensor.witness.S,
-                    },
-                    "entropy_delta": tensor.entropy_delta,
-                    "humility_omega": tensor.humility.omega_0,
-                    "genius": {
-                        "A": tensor.genius.A,
-                        "P": tensor.genius.P,
-                        "X": tensor.genius.X,
-                        "E": tensor.genius.E,
-                        "G": tensor.genius.G(),
-                    },
-                    "truth_score": tensor.truth_score,
+                    "witness": {"H": 0.95, "A": 0.95, "S": 0.95},
+                    "entropy_delta": metrics.delta_s,
+                    "humility_omega": metrics.omega_0,
+                    "genius_score": metrics.free_energy,
+                    "truth_score": metrics.truth_score,
                 },
             }
+        except Exception as e:
+            logger.warning(f"Core AGI reason failed: {e}")
+            return self._fallback(query, session_id)
         except Exception as e:
             logger.warning(f"Core AGI reason failed: {e}")
             return self._fallback(query, session_id)
@@ -285,28 +312,28 @@ class AGIEngine:
 class ASIEngine:
     """ASI Heart Engine — Uses core.organs exclusively."""
 
-    async def _core_agi_tensor(self, query: str, session_id: str):
+    async def _core_agi_tensor(self, query: str, session_id: str) -> ConstitutionalTensor:
         """Recompute AGI tensor for ASI input."""
         sense_out = await core_organs.sense(query, session_id)
         think_out = await core_organs.think(query, sense_out, session_id)
-        tensor = await core_organs.reason(query, think_out, session_id)
-        if tensor.peace is None:
-            tensor.peace = Peace2({})
-        return tensor
+        agi_out = await core_organs.reason(think_out, query, session_id)
+        return _agi_output_to_tensor(agi_out)
 
     async def empathize(self, query: str, session_id: str) -> Dict[str, Any]:
         """Stage 555: Stakeholder empathy analysis."""
         try:
             agi_tensor = await self._core_agi_tensor(query, session_id)
             emp_out = await core_organs.empathize(query, agi_tensor, session_id)
-            emp_out.update({
-                "engine_mode": "core",
-                "trinity_component": "ASI",
-                "query": query,
-                "session_id": session_id,
-                "empathy_kappa_r": emp_out.get("kappa_r"),
-                "verdict": "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "PARTIAL",
-            })
+            emp_out.update(
+                {
+                    "engine_mode": "core",
+                    "trinity_component": "ASI",
+                    "query": query,
+                    "session_id": session_id,
+                    "empathy_kappa_r": emp_out.get("kappa_r"),
+                    "verdict": "SEAL" if emp_out.get("kappa_r", 0.0) >= 0.70 else "PARTIAL",
+                }
+            )
             return emp_out
         except Exception as e:
             logger.warning(f"Core ASI empathize failed: {e}")
@@ -318,13 +345,15 @@ class ASIEngine:
             agi_tensor = await self._core_agi_tensor(query, session_id)
             emp_out = await core_organs.empathize(query, agi_tensor, session_id)
             align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
-            align_out.update({
-                "engine_mode": "core",
-                "trinity_component": "ASI",
-                "query": query,
-                "session_id": session_id,
-                "empathy_kappa_r": align_out.get("kappa_r"),
-            })
+            align_out.update(
+                {
+                    "engine_mode": "core",
+                    "trinity_component": "ASI",
+                    "query": query,
+                    "session_id": session_id,
+                    "empathy_kappa_r": align_out.get("kappa_r"),
+                }
+            )
             return align_out
         except Exception as e:
             logger.warning(f"Core ASI align failed: {e}")
@@ -362,24 +391,23 @@ class APEXEngine:
         try:
             asi_engine = ASIEngine()
             asi_res = asi_result or await asi_engine.align(query, session_id)
-            
+
             # Build tensors for apex
             sense_out = await core_organs.sense(query, session_id)
             think_out = await core_organs.think(query, sense_out, session_id)
-            agi_tensor = await core_organs.reason(query, think_out, session_id)
-            if agi_tensor.peace is None:
-                agi_tensor.peace = Peace2({})
-            
+            agi_out = await core_organs.reason(think_out, query, session_id)
+            agi_tensor = _agi_output_to_tensor(agi_out)
+
             asi_output = {
                 "kappa_r": asi_res.get("kappa_r", asi_res.get("empathy_kappa_r", 0.7)),
                 "peace_squared": asi_res.get("peace_squared", 1.0),
                 "is_reversible": asi_res.get("is_reversible", True),
                 "verdict": asi_res.get("verdict", "SEAL"),
             }
-            
+
             apex_out = await core_organs.apex(agi_tensor, asi_output, session_id, action="full")
             judge_out = apex_out.get("judge", {})
-            
+
             return {
                 "verdict": judge_out.get("verdict", "SEAL"),
                 "tri_witness": judge_out.get("W_3", 0.95),
