@@ -114,6 +114,47 @@ The product is **measurable governance**: every decision carries floor scores, e
 
 ---
 
+## What is the Model Context Protocol (MCP)?
+
+**MCP is an open protocol by Anthropic that standardizes how AI systems connect to external tools and data sources.**
+
+Think of it like USB for AI—instead of every AI system needing custom integrations for every tool, MCP provides a universal interface. Any MCP-compatible client can talk to any MCP-compatible server.
+
+### The Official MCP Standard
+
+MCP (Model Context Protocol) defines:
+- **Tools**: Functions AI can call to perform actions
+- **Resources**: Data the AI can read (files, APIs, databases)
+- **Prompts**: Reusable templates for common tasks
+- **Sampling**: How AI requests additional context
+
+**Spec Compliance**: `2025-11-25` with full Streamable HTTP support
+
+### AAA MCP = MCP + Constitutional Governance
+
+arifOS implements MCP **with constitutional enforcement**:
+
+| Standard MCP | AAA MCP (arifOS) |
+|--------------|------------------|
+| Tool calls | Tool calls with F1-F13 floor checks |
+| Resources | Resources with audit trails |
+| Prompts | Prompts with humility constraints |
+| Sampling | Sampling with truth verification |
+
+**Every MCP tool in arifOS carries constitutional baggage:**
+- `init_gate` → F11 Authority + F12 Defense
+- `agi_reason` → F2 Truth + F4 Clarity + F7 Humility
+- `apex_verdict` → F3 Consensus + F8 Genius
+- `vault_seal` → F1 Amanah + cryptographic Merkle chains
+
+### Why This Matters
+
+You can use arifOS as a **drop-in MCP server** with any MCP-compatible client (Claude Desktop, Cursor, etc.), but every tool call is governed by the 000-999 constitutional pipeline.
+
+**MCP provides the wires. AAA MCP provides the circuit breakers.**
+
+---
+
 ## The Problem (In Plain English)
 
 ### Problem 1: When AI Makes Mistakes, Nobody Knows Why
