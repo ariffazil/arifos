@@ -355,6 +355,7 @@ async def init_gate(
         },
     )
 
+    # Return unified response (constitutional decorator will format for MCP)
     return response.to_dict(debug=debug)
 
 
