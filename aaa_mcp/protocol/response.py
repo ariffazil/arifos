@@ -162,15 +162,15 @@ class UnifiedResponse:
                 return f"{stage_name} complete. Verdict: SEAL. You may proceed to next stage."
         else:
             return f"{stage_name} blocked. Verdict: {self.policy_verdict}. Review constitutional details."
+    
+    def to_json(self, debug: bool = False) -> str:
+        """Convert to JSON string."""
+        return json.dumps(self.to_dict(debug=debug), indent=2)
 
 
 # Mottos for bookends
 INIT_MOTTO = "🔨⚒️🛠️ DITEMPA, BUKAN DIBERI"
 SEAL_MOTTO = "💎🧠🔒 DITEMPA, BUKAN DIBERI"
-    
-    def to_json(self, debug: bool = False) -> str:
-        """Convert to JSON string."""
-        return json.dumps(self.to_dict(debug=debug), indent=2)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
