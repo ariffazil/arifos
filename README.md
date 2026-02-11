@@ -28,12 +28,12 @@ This README matches the arifOS description on PyPI and the live docs at `arifos.
 
 <p align="center">
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg" alt="PyPI"></a>
-  <a href="https://arifos.arif-fazil.com"><img src="https://img.shields.io/badge/Live-Demo-blue" alt="Live Demo"></a>
+  <a href="https://arifos.arif-fazil.com"><img src="https://img.shields.io/badge/Live-Production-blue" alt="Live Production"></a>
   <a href="https://github.com/ariffazil/arifOS/releases"><img src="https://img.shields.io/github/v/release/ariffazil/arifos" alt="Releases"></a>
 </p>
 
 <p align="center">
-  <a href="https://arif-fazil.com">Live Demo</a> • 
+  <a href="https://arif-fazil.com">Live Server</a> • 
   <a href="https://arifos.arif-fazil.com">Documentation</a> • 
   <a href="docs/llms.txt">Constitutional Canon</a> •
   <a href="000_THEORY/000_LAW.md">The 13 Floors</a>
