@@ -65,6 +65,7 @@ def _load_all_floors() -> Optional[Dict[str, Any]]:
         return None
     try:
         from core.shared.floors import ALL_FLOORS
+
         _floors_available = True
         return ALL_FLOORS
     except Exception as e:
@@ -115,9 +116,7 @@ def _build_pre_context(query: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _build_post_context(
-    query: str, kwargs: Dict[str, Any], result: Any
-) -> Dict[str, Any]:
+def _build_post_context(query: str, kwargs: Dict[str, Any], result: Any) -> Dict[str, Any]:
     """Build context dict for post-execution floor checks (output validation)."""
     # Extract response text from result for F9/F10 scanning
     response = ""
@@ -157,10 +156,20 @@ def _build_post_context(
 
     # Let engine results override defaults (includes heuristic scores from adapters)
     if isinstance(result, dict):
-        for key in ("truth_score", "confidence", "entropy_delta", "human_witness",
-                     "ai_witness", "earth_witness", "empathy_kappa_r",
-                     "weakest_stakeholder_impact", "entropy_input", "entropy_output",
-                     "humility_omega", "f2_threshold"):
+        for key in (
+            "truth_score",
+            "confidence",
+            "entropy_delta",
+            "human_witness",
+            "ai_witness",
+            "earth_witness",
+            "empathy_kappa_r",
+            "weakest_stakeholder_impact",
+            "entropy_input",
+            "entropy_output",
+            "humility_omega",
+            "f2_threshold",
+        ):
             if key in result:
                 ctx[key] = result[key]
         # Derive entropy_output from entropy_delta if provided
@@ -229,6 +238,7 @@ def _check_floor(floor_id: str, context: Dict[str, Any]) -> Dict[str, Any]:
 
 # ─── Main Decorator ─────────────────────────────────────────────────────────
 
+
 def constitutional_floor(*floors: str):
     """
     Decorator to enforce constitutional floors on MCP tools.
@@ -248,6 +258,7 @@ def constitutional_floor(*floors: str):
         async def agi_reason(query: str) -> dict:
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         async def wrapper(*args, **kwargs) -> Any:
@@ -274,23 +285,44 @@ def constitutional_floor(*floors: str):
                     if not detail["passed"] and fid in HARD_FLOORS:
                         elapsed_ms = round((time.time() - start) * 1000, 1)
                         logger.warning(
-                            f"VOID [{tool_name}]: {fid} blocked "
-                            f"(score={detail['score']:.3f})"
+                            f"VOID [{tool_name}]: {fid} blocked " f"(score={detail['score']:.3f})"
                         )
-                        payload = {
-                            "verdict": "VOID",
-                            "status": "BLOCKED",
-                            "blocked_by": fid,
-                            "reason": detail["reason"],
-                            "score": detail["score"],
-                            "_constitutional": {
-                                "floors_declared": list(floors),
-                                "floors_checked": [d["floor"] for d in floor_details],
-                                "details": floor_details,
-                                "enforcement_ms": elapsed_ms,
-                                "version": "v55.5-EIGEN",
-                            },
-                        }
+                        
+                        # Use standardized hard floor block envelope (v60)
+                        from aaa_mcp.protocol.tool_registry import build_hard_floor_block
+                        
+                        # Get threshold for this floor
+                        threshold = 0.95  # Default for most hard floors
+                        if fid == "F2":
+                            threshold = 0.99
+                        elif fid == "F7":
+                            threshold = 0.03  # Lower bound (humility band)
+                        elif fid == "F12":
+                            threshold = 0.85
+                        
+                        session_id = kwargs.get("session_id", "unknown")
+                        
+                        payload = build_hard_floor_block(
+                            floor=fid,
+                            score=detail["score"],
+                            threshold=threshold,
+                            reason=detail["reason"],
+                            session_id=session_id,
+                            remediation={
+                                "action": "HUMAN_REVIEW",
+                                "message": f"Constitutional floor {fid} not satisfied at {tool_name}.",
+                                "required": f"{fid} score must meet threshold",
+                                "current": detail["score"],
+                                "tool": tool_name,
+                                "elapsed_ms": elapsed_ms,
+                            }
+                        )
+                        # Update with additional context
+                        payload["_constitutional"]["floors_enforced_now"] = list(floors)
+                        payload["_constitutional"]["floors_checked"] = [d["floor"] for d in floor_details]
+                        payload["_constitutional"]["details"] = floor_details
+                        payload["_constitutional"]["enforcement_ms"] = elapsed_ms
+                        
                         # Presentation formatting (user vs debug/audit)
                         return format_tool_output(tool_name, payload, output_mode)
 
@@ -304,22 +336,14 @@ def constitutional_floor(*floors: str):
                 for fid in post:
                     # F8 Genius needs accumulated floor scores for eigendecomposition
                     if fid == "F8":
-                        post_ctx["_floor_scores"] = _accumulate_floor_scores(
-                            floor_details
-                        )
+                        post_ctx["_floor_scores"] = _accumulate_floor_scores(floor_details)
                     detail = _check_floor(fid, post_ctx)
                     detail["phase"] = "post"
                     floor_details.append(detail)
 
             # ── PHASE 4: COMPUTE VERDICT ───────────────────────────
-            hard_fails = [
-                d for d in floor_details
-                if not d["passed"] and d["floor"] in HARD_FLOORS
-            ]
-            soft_fails = [
-                d for d in floor_details
-                if not d["passed"] and d["floor"] in SOFT_FLOORS
-            ]
+            hard_fails = [d for d in floor_details if not d["passed"] and d["floor"] in HARD_FLOORS]
+            soft_fails = [d for d in floor_details if not d["passed"] and d["floor"] in SOFT_FLOORS]
 
             if hard_fails:
                 verdict = "VOID"
@@ -339,6 +363,7 @@ def constitutional_floor(*floors: str):
                     "details": floor_details,
                     "enforcement_ms": elapsed_ms,
                     "version": "v55.5-EIGEN",
+                    "floors_enforced": list(floors),  # v60 Rename: Clearer for users
                 }
 
                 if verdict == "VOID":
@@ -350,8 +375,7 @@ def constitutional_floor(*floors: str):
                     )
                 elif verdict == "PARTIAL":
                     result["warnings"] = [
-                        {"floor": d["floor"], "reason": d["reason"]}
-                        for d in soft_fails
+                        {"floor": d["floor"], "reason": d["reason"]} for d in soft_fails
                     ]
                     logger.info(
                         f"PARTIAL [{tool_name}]: soft warnings "
@@ -363,6 +387,7 @@ def constitutional_floor(*floors: str):
         # Attach floor metadata for introspection
         wrapper._constitutional_floors = floors
         return wrapper
+
     return decorator
 
 

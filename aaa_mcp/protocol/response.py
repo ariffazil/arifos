@@ -8,10 +8,13 @@ Version: 1.1.0-LOW_ENTROPY
 """
 
 from __future__ import annotations
-from dataclasses import dataclass, field
-from typing import Dict, Any, List, Optional, Literal
-import json
 
+import json
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Literal, Optional
+
+# Import canonical tool paths
+from .tool_registry import get_next_tool, CANONICAL_TOOLS
 
 # ═════════════════════════════════════════════════════════════════════════════
 # RESPONSE TYPES
@@ -26,7 +29,7 @@ StageType = Literal["000", "111", "222", "333", "444", "555", "666", "777", "888
 class UnifiedResponse:
     """
     Standard response envelope for ALL AAA MCP tools.
-    
+
     Public fields (always present):
     - status: OK | ERROR | BLOCKED | PENDING
     - session_id: Thread token
@@ -35,10 +38,11 @@ class UnifiedResponse:
     - policy_verdict: SEAL | PARTIAL | SABAR | VOID | 888_HOLD
     - next_tool: What to call next (or null if done)
     - data: Stage-specific output (minimal)
-    
+
     Debug fields (only if debug=True):
     - _debug: Full internal state
     """
+
     # Public (stable)
     status: StatusType
     session_id: str
@@ -47,13 +51,13 @@ class UnifiedResponse:
     policy_verdict: PolicyVerdict
     next_tool: Optional[str]
     data: Dict[str, Any] = field(default_factory=dict)
-    
+
     # Constitutional governance (always present for audit)
     _constitutional: Optional[Dict[str, Any]] = None
-    
+
     # Debug (gated)
     _debug: Optional[Dict[str, Any]] = None
-    
+
     def to_dict(self, debug: bool = False) -> Dict[str, Any]:
         """Convert to dictionary, optionally including debug data."""
         result = {
@@ -78,7 +82,7 @@ class UnifiedResponse:
             if self._debug:
                 result["_debug"] = self._debug
         return result
-    
+
     def to_mcp_format(self, debug: bool = False) -> Dict[str, Any]:
         """
         Convert to MCP-compliant format with content + structuredContent.
@@ -95,34 +99,29 @@ class UnifiedResponse:
             "next_tool": self.next_tool,
             "data": self.data,
         }
-        
+
         # Add constitutional details if present
         if self._constitutional:
             structured_content["_constitutional"] = self._constitutional
-        
+
         # Build human-friendly content
         human_text = self._build_human_text()
-        
+
         result = {
-            "content": [
-                {
-                    "type": "text",
-                    "text": human_text
-                }
-            ],
-            "structuredContent": structured_content
+            "content": [{"type": "text", "text": human_text}],
+            "structuredContent": structured_content,
         }
-        
+
         if debug and self._debug:
             result["_debug"] = self._debug
-            
+
         return result
-    
+
     def _get_next_action(self) -> str:
         """Generate explicit next_action for orchestrators."""
         if self.policy_verdict != "SEAL":
             return "HALT_REVIEW_CONSTITUTIONAL_BLOCK"
-        
+
         action_map = {
             "000": "PROCEED_TO_111_SENSE",
             "111": "PROCEED_TO_222_THINK",
@@ -132,11 +131,13 @@ class UnifiedResponse:
             "555": "PROCEED_TO_666_ALIGN",
             "666": "PROCEED_TO_777_FORGE",
             "777": "PROCEED_TO_888_JUDGE",
-            "888": "PROCEED_TO_999_SEAL" if self.policy_verdict == "SEAL" else "HALT_REVIEW_VERDICT",
+            "888": (
+                "PROCEED_TO_999_SEAL" if self.policy_verdict == "SEAL" else "HALT_REVIEW_VERDICT"
+            ),
             "999": "PIPELINE_COMPLETE",
         }
         return action_map.get(self.stage, "UNKNOWN")
-    
+
     def _build_human_text(self) -> str:
         """Build 1-2 sentence human-friendly summary."""
         stage_names = {
@@ -152,7 +153,7 @@ class UnifiedResponse:
             "999": "Vault Seal",
         }
         stage_name = stage_names.get(self.stage, f"Stage {self.stage}")
-        
+
         if self.policy_verdict == "SEAL":
             if self.stage == "000":
                 return f"🔨⚒️🛠️ Session initialized. Verdict: SEAL. You may proceed to 111_SENSE."
@@ -162,7 +163,7 @@ class UnifiedResponse:
                 return f"{stage_name} complete. Verdict: SEAL. You may proceed to next stage."
         else:
             return f"{stage_name} blocked. Verdict: {self.policy_verdict}. Review constitutional details."
-    
+
     def to_json(self, debug: bool = False) -> str:
         """Convert to JSON string."""
         return json.dumps(self.to_dict(debug=debug), indent=2)
@@ -177,26 +178,27 @@ SEAL_MOTTO = "💎🧠🔒 DITEMPA, BUKAN DIBERI"
 # RESPONSE BUILDERS — Per Stage
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def build_init_response(
     session_id: str,
     verdict: PolicyVerdict,
     mode: str = "fluid",
     debug_data: Optional[Dict] = None,
-    debug: bool = False
+    debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for init_gate (stage 000)."""
     status: StatusType = "OK" if verdict == "SEAL" else "BLOCKED"
-    next_tool = "/arifos.aaa/v1/agi_sense" if verdict == "SEAL" else None
-    
+    next_tool = get_next_tool("init_gate") if verdict == "SEAL" else None
+
     # Phase A: Only APEX has verdict authority
     # Non-APEX stages return ARTIFACT_READY status
     # 🔨⚒️🛠️ Three forge emojis for DITEMPA (Forged)
-    
+
     # Constitutional details for init_gate (floors F11, F12)
     # PROGRESSIVE DISCLOSURE: Only floors that CAN be checked at this stage
     floors_evaluated = ["F11", "F12"]
     floors_remaining = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F13"]
-    
+
     constitutional = {
         # Renamed from "floors_declared" → "floors_enforced_now" per auditor feedback
         "floors_enforced_now": floors_evaluated,
@@ -214,39 +216,50 @@ def build_init_response(
                 "passed": True,
                 "score": 1.0,
                 "reason": "Authority: Command binding verified, actor identity accountable.",
-                "phase": "pre"
+                "phase": "pre",
             },
             {
                 "floor": "F12",
                 "passed": True,
                 "score": 1.0,
                 "reason": "Defense: No prompt injection or tool injection detected at init.",
-                "phase": "pre"
-            }
+                "phase": "pre",
+            },
         ],
         "enforcement_ms": 0.3,
-        "version": "v60.0-FORGE"
+        "version": "v60.0-FORGE",
     }
 
     return UnifiedResponse(
         status="ARTIFACT_READY",
         session_id=session_id,
         stage="000",
-        message=f"{INIT_MOTTO} — Session initialized ({mode} mode)" if verdict == "SEAL" else f"{INIT_MOTTO} — Session blocked",
+        message=(
+            f"{INIT_MOTTO} — Session initialized ({mode} mode)"
+            if verdict == "SEAL"
+            else f"{INIT_MOTTO} — Session blocked"
+        ),
         policy_verdict="SEAL",  # Internal use only, not exposed as "verdict"
         next_tool=next_tool,
         data={
-            "mode": mode, 
-            "grounding_required": True, 
+            "mode": mode,
+            "grounding_required": True,
             "legacy_verdict": verdict,
             "motto": "DITEMPA, BUKAN DIBERI",
             "motto_english": "Forged, Not Given",
-            "motto_emojis": "🔨⚒️🛠️",  # Three forge emojis for DITEMPA
+            "motto_emojis": "🔨⚒️🛠️",
             "bookend": "INIT",
-            "constitutional_law": law,  # <--- NEW: Full legal context
+            # v60-REFLECT-OPT3: Progressive Disclosure
+            "governance": {
+                "total_floors": 13,
+                "floors_checked_count": len(floors_evaluated),
+                "floors_pending_count": len(floors_remaining),
+                "summary": f"Entry checks passed ({len(floors_evaluated)}/13). {len(floors_remaining)} floors pending across later stages.",
+            },
+            "pipeline": {"stage": "000_INIT", "status": "IN_PROGRESS", "next_stage": "111_SENSE"},
         },
         _constitutional=constitutional,
-        _debug=debug_data if debug else None
+        _debug=debug_data if debug else None,
     )
 
 
@@ -257,13 +270,13 @@ def build_sense_response(
     requires_grounding: bool,
     verdict: PolicyVerdict = "SEAL",
     debug_data: Optional[Dict] = None,
-    debug: bool = False
+    debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for agi_sense (stage 111)."""
     # Phase A: Only APEX has verdict authority
     # Non-APEX stages return ARTIFACT_READY status
-    next_tool = "/arifos.aaa/v1/agi_think"
-    
+    next_tool = get_next_tool("agi_sense")
+
     return UnifiedResponse(
         status="ARTIFACT_READY",
         session_id=session_id,
@@ -275,9 +288,9 @@ def build_sense_response(
             "intent": intent,
             "lane": lane,
             "requires_grounding": requires_grounding,
-            "legacy_verdict": verdict
+            "legacy_verdict": verdict,
         },
-        _debug=debug_data if debug else None
+        _debug=debug_data if debug else None,
     )
 
 
@@ -287,12 +300,12 @@ def build_think_response(
     recommended_path: str,
     verdict: PolicyVerdict = "SEAL",
     debug_data: Optional[Dict] = None,
-    debug: bool = False
+    debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for agi_think (stage 222)."""
     # Phase A: Only APEX has verdict authority
-    next_tool = "/arifos.aaa/v1/agi_reason"
-    
+    next_tool = get_next_tool("agi_think")
+
     return UnifiedResponse(
         status="ARTIFACT_READY",
         session_id=session_id,
@@ -303,9 +316,9 @@ def build_think_response(
         data={
             "hypothesis_count": len(hypotheses),
             "recommended_path": recommended_path,
-            "legacy_verdict": verdict
+            "legacy_verdict": verdict,
         },
-        _debug=debug_data if debug else None
+        _debug=debug_data if debug else None,
     )
 
 
@@ -316,12 +329,12 @@ def build_reason_response(
     confidence: float,
     verdict: PolicyVerdict,
     debug_data: Optional[Dict] = None,
-    debug: bool = False
+    debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for agi_reason (stage 333)."""
     # Phase A: Only APEX has verdict authority
-    next_tool = "/arifos.aaa/v1/asi_empathize"
-    
+    next_tool = get_next_tool("agi_reason")
+
     return UnifiedResponse(
         status="ARTIFACT_READY",
         session_id=session_id,
@@ -332,9 +345,9 @@ def build_reason_response(
         data={
             "truth_score": round(truth_score, 3),
             "confidence": round(confidence, 3),
-            "legacy_verdict": verdict
+            "legacy_verdict": verdict,
         },
-        _debug=debug_data if debug else None
+        _debug=debug_data if debug else None,
     )
 
 
@@ -344,12 +357,12 @@ def build_empathize_response(
     stakeholders: List[str],
     verdict: PolicyVerdict = "SEAL",
     debug_data: Optional[Dict] = None,
-    debug: bool = False
+    debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for asi_empathize (stage 555)."""
     # Phase A: Only APEX has verdict authority
-    next_tool = "/arifos.aaa/v1/asi_align"
-    
+    next_tool = get_next_tool("asi_empathize")
+
     return UnifiedResponse(
         status="ARTIFACT_READY",
         session_id=session_id,
@@ -360,9 +373,9 @@ def build_empathize_response(
         data={
             "empathy_score": round(empathy_kappa_r, 3),
             "stakeholder_count": len(stakeholders),
-            "legacy_verdict": verdict
+            "legacy_verdict": verdict,
         },
-        _debug=debug_data if debug else None
+        _debug=debug_data if debug else None,
     )
 
 
@@ -372,25 +385,22 @@ def build_align_response(
     risk_level: str,
     verdict: PolicyVerdict = "SEAL",
     debug_data: Optional[Dict] = None,
-    debug: bool = False
+    debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for asi_align (stage 666)."""
     # Phase A: Only APEX has verdict authority
-    next_tool = "/arifos.aaa/v1/apex_verdict"
-    
+    next_tool = get_next_tool("asi_align")
+
     return UnifiedResponse(
         status="ARTIFACT_READY",
         session_id=session_id,
         stage="666",
-        message=f"Safety check: {risk_level} risk" + (", reversible" if is_reversible else ", irreversible"),
+        message=f"Safety check: {risk_level} risk"
+        + (", reversible" if is_reversible else ", irreversible"),
         policy_verdict="SEAL",  # Internal use only
         next_tool=next_tool,
-        data={
-            "is_reversible": is_reversible,
-            "risk_level": risk_level,
-            "legacy_verdict": verdict
-        },
-        _debug=debug_data if debug else None
+        data={"is_reversible": is_reversible, "risk_level": risk_level, "legacy_verdict": verdict},
+        _debug=debug_data if debug else None,
     )
 
 
@@ -401,16 +411,18 @@ def build_verdict_response(
     verdict: PolicyVerdict,
     justification: Optional[str] = None,
     debug_data: Optional[Dict] = None,
-    debug: bool = False
+    debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for apex_verdict (stage 888)."""
-    status: StatusType = "OK" if verdict == "SEAL" else "BLOCKED" if verdict == "VOID" else "PENDING"
-    next_tool = "/arifos.aaa/v1/vault_seal" if verdict == "SEAL" else None
-    
+    status: StatusType = (
+        "OK" if verdict == "SEAL" else "BLOCKED" if verdict == "VOID" else "PENDING"
+    )
+    next_tool = get_next_tool("apex_verdict") if verdict == "SEAL" else None
+
     message = f"Verdict: {verdict}"
     if justification and verdict != "SEAL":
         message += f" - {justification[:80]}"
-    
+
     return UnifiedResponse(
         status=status,
         session_id=session_id,
@@ -420,9 +432,9 @@ def build_verdict_response(
         next_tool=next_tool,
         data={
             "query": query[:100] + "..." if len(query) > 100 else query,
-            "truth_score": round(truth_score, 3)
+            "truth_score": round(truth_score, 3),
         },
-        _debug=debug_data if debug else None
+        _debug=debug_data if debug else None,
     )
 
 
@@ -432,18 +444,36 @@ def build_seal_response(
     seal_hash: str,
     verdict: Literal["SEALED", "PARTIAL"],
     debug_data: Optional[Dict] = None,
-    debug: bool = False
+    debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for vault_seal (stage 999)."""
     status: StatusType = "OK" if verdict == "SEALED" else "PENDING"
-    
+
     # 💎🧠🔒 Three emojis for crystallized intelligence + immutable seal
-    message = f"{SEAL_MOTTO} — Session sealed with ID {seal_id[:8]}..." if seal_id else f"{SEAL_MOTTO} — Partial seal (no persistence)"
-    
+    message = (
+        f"{SEAL_MOTTO} — Session sealed with ID {seal_id[:8]}..."
+        if seal_id
+        else f"{SEAL_MOTTO} — Partial seal (no persistence)"
+    )
+
     # Constitutional details for vault_seal (floors F1, F3) - PIPELINE COMPLETE
     floors_evaluated = ["F1", "F3"]
-    all_floors_checked = ["F11", "F12", "F2", "F4", "F7", "F5", "F6", "F9", "F8", "F3", "F1", "F10", "F13"]
-    
+    all_floors_checked = [
+        "F11",
+        "F12",
+        "F2",
+        "F4",
+        "F7",
+        "F5",
+        "F6",
+        "F9",
+        "F8",
+        "F3",
+        "F1",
+        "F10",
+        "F13",
+    ]
+
     constitutional = {
         "floors_enforced_now": floors_evaluated,
         "floors_checked": floors_evaluated,
@@ -461,20 +491,24 @@ def build_seal_response(
                 "passed": True,
                 "score": 1.0,
                 "reason": "Amanah: Session sealed with Merkle hash chain, reversible and auditable.",
-                "phase": "post"
+                "phase": "post",
             },
             {
                 "floor": "F3",
                 "passed": verdict == "SEALED",
                 "score": 0.95 if verdict == "SEALED" else 0.85,
-                "reason": "Tri-Witness: AGI (Δ) × ASI (Ω) × APEX (Ψ) consensus recorded." if verdict == "SEALED" else "Tri-Witness below threshold, partial seal only.",
-                "phase": "post"
-            }
+                "reason": (
+                    "Tri-Witness: AGI (Δ) × ASI (Ω) × APEX (Ψ) consensus recorded."
+                    if verdict == "SEALED"
+                    else "Tri-Witness below threshold, partial seal only."
+                ),
+                "phase": "post",
+            },
         ],
         "enforcement_ms": 110.3,
-        "version": "v60.0-FORGE"
+        "version": "v60.0-FORGE",
     }
-    
+
     return UnifiedResponse(
         status=status,
         session_id=session_id,
@@ -488,10 +522,10 @@ def build_seal_response(
             "motto": "DITEMPA, BUKAN DIBERI",
             "motto_english": "Forged, Not Given",
             "motto_emojis": "💎🧠🔒",  # Diamond/Brain/Lock for crystallized seal
-            "bookend": "SEAL"
+            "bookend": "SEAL",
         },
         _constitutional=constitutional,
-        _debug=debug_data if debug else None
+        _debug=debug_data if debug else None,
     )
 
 
@@ -500,7 +534,7 @@ def build_error_response(
     stage: StageType,
     error_code: str,
     detail: str,
-    debug_data: Optional[Dict] = None
+    debug_data: Optional[Dict] = None,
 ) -> UnifiedResponse:
     """Build standardized error response."""
     return UnifiedResponse(
@@ -511,13 +545,14 @@ def build_error_response(
         policy_verdict="VOID",
         next_tool=None,
         data={"error_code": error_code},
-        _debug=debug_data
+        _debug=debug_data,
     )
 
 
 # ═════════════════════════════════════════════════════════════════════════════
 # INPUT VALIDATION
 # ═════════════════════════════════════════════════════════════════════════════
+
 
 def validate_input(params: Dict[str, Any], required: List[str]) -> Optional[UnifiedResponse]:
     """
@@ -530,7 +565,7 @@ def validate_input(params: Dict[str, Any], required: List[str]) -> Optional[Unif
             session_id=params.get("session_id", "unknown"),
             stage="000",
             error_code="MISSING_REQUIRED_FIELD",
-            detail=f"Missing required fields: {', '.join(missing)}"
+            detail=f"Missing required fields: {', '.join(missing)}",
         )
     return None
 
@@ -539,13 +574,13 @@ def validate_input(params: Dict[str, Any], required: List[str]) -> Optional[Unif
 # COMPRESSION GATE — User-Facing Output
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def render_user_answer(
-    unified_response: UnifiedResponse,
-    verbosity: Literal["MIN", "STD", "FULL"] = "MIN"
+    unified_response: UnifiedResponse, verbosity: Literal["MIN", "STD", "FULL"] = "MIN"
 ) -> Dict[str, Any]:
     """
     Compression gate: Convert unified response to user-facing output.
-    
+
     verbosity:
     - MIN: Just the answer + verdict
     - STD: Answer + key metrics
@@ -556,7 +591,7 @@ def render_user_answer(
             "answer": unified_response.message,
             "verdict": unified_response.policy_verdict,
         }
-    
+
     elif verbosity == "STD":
         return {
             "answer": unified_response.message,
@@ -564,11 +599,12 @@ def render_user_answer(
             "stage": unified_response.stage,
             "next_step": unified_response.next_tool,
             "metrics": {
-                k: v for k, v in unified_response.data.items()
+                k: v
+                for k, v in unified_response.data.items()
                 if isinstance(v, (int, float, bool, str))
-            }
+            },
         }
-    
+
     else:  # FULL
         return unified_response.to_dict(debug=False)
 
@@ -580,35 +616,17 @@ def render_user_answer(
 NEXT_STEP_TEMPLATES = {
     "/arifos.aaa/v1/init_gate": {
         "required": ["query"],
-        "optional": ["session_id", "grounding_required", "mode"]
+        "optional": ["session_id", "grounding_required", "mode"],
     },
-    "/arifos.aaa/v1/agi_sense": {
-        "required": ["query", "session_id"],
-        "optional": []
-    },
-    "/arifos.aaa/v1/agi_think": {
-        "required": ["query", "session_id"],
-        "optional": []
-    },
-    "/arifos.aaa/v1/agi_reason": {
-        "required": ["query", "session_id"],
-        "optional": ["grounding"]
-    },
-    "/arifos.aaa/v1/asi_empathize": {
-        "required": ["query", "session_id"],
-        "optional": []
-    },
-    "/arifos.aaa/v1/asi_align": {
-        "required": ["query", "session_id"],
-        "optional": []
-    },
-    "/arifos.aaa/v1/apex_verdict": {
-        "required": ["query", "session_id"],
-        "optional": []
-    },
+    "/arifos.aaa/v1/agi_sense": {"required": ["query", "session_id"], "optional": []},
+    "/arifos.aaa/v1/agi_think": {"required": ["query", "session_id"], "optional": []},
+    "/arifos.aaa/v1/agi_reason": {"required": ["query", "session_id"], "optional": ["grounding"]},
+    "/arifos.aaa/v1/asi_empathize": {"required": ["query", "session_id"], "optional": []},
+    "/arifos.aaa/v1/asi_align": {"required": ["query", "session_id"], "optional": []},
+    "/arifos.aaa/v1/apex_verdict": {"required": ["query", "session_id"], "optional": []},
     "/arifos.aaa/v1/vault_seal": {
         "required": ["session_id", "verdict", "payload"],
-        "optional": ["query_summary", "risk_level", "category"]
+        "optional": ["query_summary", "risk_level", "category"],
     },
 }
 
@@ -620,6 +638,6 @@ def get_next_step_template(tool_path: str) -> Optional[Dict[str, Any]]:
         return {
             "tool": tool_path,
             "required_args": template["required"],
-            "optional_args": template["optional"]
+            "optional_args": template["optional"],
         }
     return None
