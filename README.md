@@ -32,16 +32,16 @@ This README matches the arifOS description on PyPI and the live docs at `arifos.
   <a href="https://github.com/ariffazil/arifOS/releases"><img src="https://img.shields.io/github/v/release/ariffazil/arifos" alt="Releases"></a>
 </p>
 
-```bash
-pip install arifos
-```
-
 <p align="center">
   <a href="https://arif-fazil.com">Live Demo</a> • 
   <a href="https://arifos.arif-fazil.com">Documentation</a> • 
   <a href="docs/llms.txt">Constitutional Canon</a> •
   <a href="000_THEORY/000_LAW.md">The 13 Floors</a>
 </p>
+
+```bash
+pip install arifos
+```
 
 ---
 
@@ -70,7 +70,8 @@ pip install arifos
   - [L4: AAA MCP Tools (Production API)](#l4-aaa-mcp-tools-production-api)
     - [The 10 Canonical Tools (v55.5-HARDENED)](#the-10-canonical-tools-v555-hardened)
 - [🚀 VIII. Quick Start (Code Examples)](#-viii-quick-start-code-examples)
-  - [Basic Usage (Python)](#basic-usage-python)
+  - [A. Primary Path — One-Shot `forge`](#a-primary-path--one-shot-forge)
+  - [B. Advanced Usage — Staged Tools](#b-advanced-usage--staged-tools)
   - [Strict vs Fluid Context (Configuration Guidance)](#strict-vs-fluid-context-configuration-guidance)
 - [🏛️ License \& Attribution](#️-license--attribution)
 
@@ -293,7 +294,7 @@ The **AAA MCP Server** exposes constitutional engines as standardized API tools 
 | 7 | `asi_align` | Ω HEART | Alignment check for ethics, law, and policy | F9 | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
 | 8 | `apex_verdict` | Ψ SOUL | Final judgment, synthesizes Truth+Safety | F2, F3, F8 | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
 | 9 | `vault_seal` | VAULT | Immutable ledger, cryptographic session commit | F1 | [`aaa_mcp/sessions/session_ledger.py`](aaa_mcp/sessions/session_ledger.py) |
-| 10 | `truth_audit` | META | Claim-level truth verification & audit | F2, F4, F7 | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
+| 10 | `forge` | UNIFIED | 000–999 constitutional pipeline (single-call) | F1–F13 | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
 
 **Tool Exposure Note:** `tool_router` and `vault_query` are available as auxiliary utilities but not listed in the canonical constitution.
 
@@ -303,60 +304,148 @@ The **AAA MCP Server** exposes constitutional engines as standardized API tools 
 
 ---
 
-## 🚀 VIII. Quick Start (Code Examples)
+### `forge`: Unified 000–999 Pipeline
 
-### Basic Usage (Python)
+The `forge` tool is the **primary entry point** for arifOS in MCP environments. It runs the full constitutional pipeline in a **single call**:
+
+`000_INIT → AGI(111/222/333) → ASI(444/555) → APEX(777) → 999_VAULT`
+
+- **Full mode (`mode="full"`)**
+  - Runs the entire Trinity stack and seals the result in VAULT999.
+  - Best for **production** and **compliance** use cases where you need immutable audit trails.
+- **AGI-only mode (`mode="agionly"`)**
+  - Runs **INIT + AGI** only (no ASI/APEX/VAULT).
+  - Best for **research**, **drafting**, or **internal analysis** where you want governed reasoning without final sealing.
+
+#### One-shot usage (Python, inside an MCP host)
 
 ```python
-# Initialize a constitutional session
-from aaa_mcp.server import init_gate, agi_reason, apex_verdict
+from aaa_mcp.server import forge
 
-# 1. Start with authentication and injection scanning
+# Single-call 000–999 constitutional pipeline
+result = await forge(
+    query="Analyze the safety implications of autonomous vehicles",
+    session_id="demo-forge-001",
+    mode="full",  # or "agionly" for INIT+AGI only
+)
+
+print(result["verdict"])       # e.g. SEAL, PARTIAL, SABAR, VOID
+print(result["truth_score"])   # Truth fidelity from APEX
+print(result["seal_id"])       # Vault seal (None in agionly mode)
+print(result["floors_enforced"])  # ["F1", "F2", ..., "F13"]
+
+# Full stage-wise audit payload
+stages = result["stages"]
+init_stage = stages["init"]
+agi_reason = stages["agi_reason"]
+```
+
+#### Forge pipeline flow (000 → 999)
+
+```mermaid
+graph LR
+    A[000_INIT\nInitEngine] --> B[AGI 111/222/333\nAGIEngine.sense/think/reason]
+    B --> C[ASI 444/555\nASIEngine.empathize/align]
+    C --> D[APEX 777\nAPEXEngine.judge → apex_verdict]
+    D --> E[999_VAULT\nvault_seal]
+
+    classDef init fill:#1f2933,stroke:#ffffff,color:#ffffff;
+    classDef agi fill:#2563eb,stroke:#ffffff,color:#ffffff;
+    classDef asi fill:#10b981,stroke:#ffffff,color:#ffffff;
+    classDef apex fill:#f59e0b,stroke:#ffffff,color:#ffffff;
+    classDef vault fill:#7c3aed,stroke:#ffffff,color:#ffffff;
+
+    class A init
+    class B agi
+    class C asi
+    class D apex
+    class E vault
+```
+
+---
+
+## 🚀 VIII. Quick Start (Code Examples)
+
+### A. Primary Path — One-Shot `forge`
+
+```python
+from aaa_mcp.server import forge
+
+# Full 000–999 constitutional pipeline in one call
+result = await forge(
+    query="Analyze the safety implications of autonomous vehicles",
+    session_id="demo-forge-001",
+    mode="full",  # or "agionly" for INIT+AGI only
+)
+
+print(result["verdict"])        # SEAL, SABAR, PARTIAL, VOID
+print(result["truth_score"])    # Truth fidelity from APEX
+print(result["seal_id"])        # Vault seal (None when mode="agionly")
+
+# Access hardened stage outputs
+stages = result["stages"]
+init_stage = stages["init"]
+agi_reason = stages["agi_reason"]
+```
+
+### B. Advanced Usage — Staged Tools
+
+If you need **fine-grained control** (e.g., custom UI steps, human-in-the-loop between stages), you can still call the canonical tools individually:
+
+```python
+from aaa_mcp.server import (
+    init_gate,
+    agi_sense,
+    agi_think,
+    agi_reason,
+    asi_empathize,
+    asi_align,
+    apex_verdict,
+)
+
+# 1. Initialize governed session
 session = await init_gate(
     query="Analyze the safety implications of autonomous vehicles",
     session_id="demo-001",
-    grounding_required=True  # Enable physics grounding
+    grounding_required=True,  # Enable physics grounding
 )
+session_id = session["session_id"]
 
-# 2. Run through AGI reasoning
+# 2. AGI mind stages
+sense = await agi_sense("Classify autonomy levels and risks", session_id=session_id)
+think = await agi_think("Enumerate failure modes in mixed traffic", session_id=session_id)
 reasoned = await agi_reason(
     query="What are the failure modes of LiDAR in adverse weather?",
-    session_id=session["session_id"]
+    session_id=session_id,
 )
 
-# 3. Get final constitutional verdict
+# 3. ASI heart stages
+empathy_result = await asi_empathize(
+    query="Who is most exposed to harm if sensors fail?",
+    session_id=session_id,
+)
+align_result = await asi_align(
+    query="Does deployment respect local law and company policy?",
+    session_id=session_id,
+)
+
+# 4. APEX verdict
 verdict = await apex_verdict(
     query="Approve deployment of autonomous taxi fleet?",
-    session_id=session["session_id"],
-    delta_bundle=reasoned,
-    omega_bundle=empathy_result  # From asi_empathize
+    session_id=session_id,
 )
 
-print(verdict["verdict"])  # SEAL, SABAR, PARTIAL, VOID, or 888_HOLD
+print(verdict["verdict"])        # SEAL, SABAR, PARTIAL, VOID, or 888_HOLD
 print(verdict["floors_enforced"])  # ["F2", "F3", "F8"]
-
-# Example: unsafe or ungrounded claim in HARD mode
-session = await init_gate(
-    query="Approve irreversible deletion of customer data",
-    session_id="demo-unsafe-001",
-    grounding_required=True,
-)
-
-verdict = await apex_verdict(
-    query="Should we proceed with permanent deletion?",
-    session_id=session["session_id"]
-)
-
-print(verdict["verdict"])          # Expected: VOID or 888_HOLD
-print(verdict["floors_failed"])    # e.g. ["F1", "F5", "F11"]
 ```
-
 
 ### Strict vs Fluid Context (Configuration Guidance)
 
 arifOS is designed to support **strict** (safety-critical) and **fluid** (education/chat) modes. The Law stays the same; the thresholds and grounding policy adapt to context.
 
 **Current stable API:** use `grounding_required=True` for strict sessions. Synthetic model confidence does **not** satisfy grounding; provide real web or axiom evidence (or pass structured `grounding` to AGI tools).
+
+| Resource | Description | Link |
 |:---|:---|:---|
 | **Full Documentation** | Live docs site | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
 | **Constitutional Canon** | LLM-optimized reference | [docs/llms.txt](docs/llms.txt) |
