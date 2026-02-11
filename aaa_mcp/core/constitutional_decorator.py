@@ -36,6 +36,22 @@ FLOOR_ENFORCEMENT = {
     "apex_verdict": ["F5", "F3", "F8"],
     "reality_search": ["F2", "F7"],
     "vault_seal": ["F1", "F3"],
+    # Unified 000-999 pipeline (forge) enforces ALL floors F1-F13
+    "forge": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9",
+        "F10",
+        "F11",
+        "F12",
+        "F13",
+    ],
 }
 
 # ─── Floor Classification ───────────────────────────────────────────────────

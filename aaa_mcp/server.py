@@ -14,6 +14,8 @@ import json
 
 from fastmcp import FastMCP
 
+from aaa_mcp.integrations.mcp_container_tools import register_container_tools
+
 from aaa_mcp.core.constitutional_decorator import constitutional_floor, get_tool_floors
 from aaa_mcp.core.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitEngine
 from aaa_mcp.services.constitutional_metrics import (
@@ -31,6 +33,11 @@ from aaa_mcp.services.constitutional_metrics import (
 from aaa_mcp.tools.reality_grounding import reality_check
 
 mcp = FastMCP("aaa-mcp")
+
+# NOTE: Container management tools are now handled via sovereign_stack.
+# To maintain the 10-tool canon, we no longer register container_* tools
+# on the AAA MCP manifest.
+# register_container_tools(mcp)
 
 
 # Note: custom_route endpoints require FastMCP 2.0+
@@ -545,6 +552,207 @@ async def reality_search(
 
 
 @mcp.tool()
+@constitutional_floor(
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11",
+    "F12",
+    "F13",
+)
+async def forge(
+    query: str,
+    session_id: Optional[str] = None,
+    mode: str = "full",
+) -> dict:
+    """Unified 000-999 constitutional pipeline.
+
+    Orchestrates the full Trinity stack in a single call:
+      000_INIT → AGI(111/222/333) → ASI(444/555) → APEX(777) → 999_VAULT
+
+    Args:
+        query: The natural language request to process.
+        session_id: Optional session identifier. If not provided, forge
+            will call InitEngine to create one.
+        mode: "full" to run the complete 000–999 pipeline, or
+            "agionly" to run only INIT + AGI stages (no ASI/APEX/VAULT).
+
+    Returns:
+        A hardened dict with:
+          - verdict: Final APEX verdict (or AGI verdict for agionly).
+          - response: Primary response content (AGI reasoning bundle).
+          - floors_enforced: All F1–F13 floors claimed for this tool.
+          - seal_id: Vault seal identifier (full mode only, if successful).
+          - stages: Per-stage outputs for audit (init/agi/asi/apex/vault).
+    """
+    from datetime import datetime, timezone
+
+    # ── 000: INIT GATE ─────────────────────────────────────────────
+    init_engine = InitEngine()
+    init_result = await init_engine.ignite(query, session_id)
+    effective_session_id = init_result.get("session_id", session_id or "unknown")
+
+    # Normalize/init stage record
+    init_stage = {
+        **init_result,
+        "session_id": effective_session_id,
+        "mode": mode,
+        "grounding_required": init_result.get("grounding_required", False),
+        "floors_enforced": get_tool_floors("init_gate"),
+    }
+    store_stage_result(effective_session_id, "init", init_stage)
+
+    # ── 111/222/333: AGI MIND ──────────────────────────────────────
+    agi_engine = AGIEngine()
+
+    agi_sense_result = await agi_engine.sense(query, effective_session_id)
+    agi_sense_result["floors_enforced"] = get_tool_floors("agi_sense")
+    store_stage_result(effective_session_id, "agi_sense", agi_sense_result)
+
+    agi_think_result = await agi_engine.think(query, effective_session_id)
+    agi_think_result["floors_enforced"] = get_tool_floors("agi_think")
+    store_stage_result(effective_session_id, "agi_think", agi_think_result)
+
+    agi_reason_result = await agi_engine.reason(query, effective_session_id)
+    agi_reason_result["floors_enforced"] = get_tool_floors("agi_reason")
+    store_stage_result(effective_session_id, "agi", agi_reason_result)
+
+    # Primary response content comes from AGI reasoning delta bundle when available
+    response_payload = agi_reason_result.get("delta_bundle") or agi_reason_result
+
+    # Early exit for AGI-only mode
+    if mode.lower() == "agionly":
+        unified = {
+            "session_id": effective_session_id,
+            "mode": mode,
+            "verdict": agi_reason_result.get("verdict", ConflictStatus.SEAL.value),
+            "response": response_payload,
+            "stages": {
+                "init": init_stage,
+                "agi_sense": agi_sense_result,
+                "agi_think": agi_think_result,
+                "agi_reason": agi_reason_result,
+            },
+            "seal_id": None,
+            "sealed": False,
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("forge"),
+        }
+        return unified
+
+    # ── 444/555: ASI HEART ─────────────────────────────────────────
+    asi_engine = ASIEngine()
+
+    asi_empathize_result = await asi_engine.empathize(query, effective_session_id)
+    asi_empathize_result["floors_enforced"] = get_tool_floors("asi_empathize")
+    store_stage_result(effective_session_id, "asi_empathize", asi_empathize_result)
+
+    asi_align_result = await asi_engine.align(query, effective_session_id)
+    asi_align_result["floors_enforced"] = get_tool_floors("asi_align")
+    store_stage_result(effective_session_id, "asi_align", asi_align_result)
+
+    # ── 777: APEX SOUL ─────────────────────────────────────────────
+    apex_engine = APEXEngine()
+    apex_raw = await apex_engine.judge(
+        query=query,
+        session_id=effective_session_id,
+        response=json.dumps(response_payload)[:4000],
+        agi_result=agi_reason_result,
+        asi_result={
+            "empathize": asi_empathize_result,
+            "align": asi_align_result,
+        },
+        init_result=init_stage,
+    )
+
+    # Reuse apex_verdict post-processing to maintain a single verdict path
+    apex_processed = await apex_verdict(query, effective_session_id)
+
+    # ── 999: VAULT SEAL ────────────────────────────────────────────
+    floors_checked = get_tool_floors("forge")
+    final_verdict = apex_processed.get("verdict", ConflictStatus.PARTIAL.value)
+
+    vault_payload = {
+        "query": query,
+        "response": response_payload,
+        "apex": apex_processed,
+        "agi": {
+            "sense": agi_sense_result,
+            "think": agi_think_result,
+            "reason": agi_reason_result,
+        },
+        "asi": {
+            "empathize": asi_empathize_result,
+            "align": asi_align_result,
+        },
+        "floors_enforced": floors_checked,
+        "engine_mode": {
+            "init": init_stage.get("engine_mode", "real"),
+            "agi": agi_reason_result.get("engine_mode", "real"),
+            "asi": asi_empathize_result.get("engine_mode", "real"),
+            "apex": apex_processed.get("engine_mode", "real"),
+        },
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+    seal_result = await vault_seal(
+        session_id=effective_session_id,
+        verdict=final_verdict,
+        payload=vault_payload,
+        query_summary=query[:200],
+        category="forge",
+        intent="unified_pipeline",
+        floors_checked=floors_checked,
+        tri_witness_score=apex_processed.get("tri_witness"),
+        genius_g=apex_processed.get("CORE_GOVERNANCE", {}).get("truth_fidelity"),
+        tool_chain=[
+            "init_gate",
+            "agi_sense",
+            "agi_think",
+            "agi_reason",
+            "asi_empathize",
+            "asi_align",
+            "apex_verdict",
+            "vault_seal",
+            "forge",
+        ],
+        environment="prod",
+        response_excerpt=json.dumps(response_payload)[:200],
+    )
+
+    unified = {
+        "session_id": effective_session_id,
+        "mode": mode,
+        "verdict": final_verdict,
+        "truth_score": apex_processed.get("truth_score"),
+        "response": response_payload,
+        "seal_id": seal_result.get("seal_id"),
+        "sealed": seal_result.get("verdict") == "SEALED",
+        "apex": apex_processed,
+        "stages": {
+            "init": init_stage,
+            "agi_sense": agi_sense_result,
+            "agi_think": agi_think_result,
+            "agi_reason": agi_reason_result,
+            "asi_empathize": asi_empathize_result,
+            "asi_align": asi_align_result,
+            "vault_seal": seal_result,
+        },
+        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        "floors_enforced": get_tool_floors("forge"),
+    }
+
+    return unified
+
+
+@mcp.tool()
 @constitutional_floor("F1", "F3")
 async def vault_seal(
     session_id: str,
@@ -800,7 +1008,8 @@ async def vault_seal(
     }
 
 
-@mcp.tool()
+# Deprecated: tool_router is superseded by the unified forge pipeline
+# and is no longer exposed as an MCP tool.
 async def tool_router(query: str) -> PlanObject:
     """Universal Tool Router Specification v2 (Triage Nurse)."""
     from aaa_mcp.core.engine_adapters import _shannon_entropy
@@ -885,7 +1094,8 @@ async def tool_router(query: str) -> PlanObject:
     }
 
 
-@mcp.tool()
+# Deprecated: vault_query is superseded by reality_search + forge and
+# is no longer exposed as an MCP tool.
 @constitutional_floor("F1", "F3")
 async def vault_query(
     session_pattern: Optional[str] = None,
@@ -1146,7 +1356,8 @@ async def vault_query(
         }
 
 
-@mcp.tool()
+# Deprecated: truth_audit functionality is consolidated into forge and
+# is no longer exposed as an MCP tool.
 @constitutional_floor("F2", "F4", "F7", "F10")
 async def truth_audit(
     text: str,
