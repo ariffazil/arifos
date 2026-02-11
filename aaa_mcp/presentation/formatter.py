@@ -67,7 +67,9 @@ def format_tool_output(tool_name: str, payload: Any, mode: str) -> Any:
 
     - debug: return full payload (developer ergonomics)
     - audit: include constitutional metadata + evidence summaries
-    - user: slim, stable envelope (answer/risk/need + error)
+    - user: MCP-compliant format with content + structuredContent
+    
+    Per auditor feedback v60: Always include _constitutional for governance audit trail.
     """
     if mode == "debug":
         return payload
@@ -77,32 +79,82 @@ def format_tool_output(tool_name: str, payload: Any, mode: str) -> Any:
         return payload
 
     verdict = payload.get("verdict") or payload.get("status")
-    out: Dict[str, Any] = {}
-
-    # Stable envelope keys
-    for k in ("verdict", "status", "session_id", "stage", "seal_id", "hash", "error"):
-        if k in payload:
-            out[k] = payload.get(k)
-
-    # Common failure/repair info
+    stage = payload.get("stage", "000")
+    session_id = payload.get("session_id", "unknown")
+    
+    # Build human-friendly message
+    message = payload.get("message", "")
+    if not message:
+        # Default message based on stage/verdict
+        stage_names = {
+            "000": "Init Gate", "111": "AGI Sense", "222": "AGI Think",
+            "333": "AGI Reason", "444": "Trinity Sync", "555": "ASI Empathize",
+            "666": "ASI Align", "777": "Forge", "888": "Apex Verdict", "999": "Vault Seal",
+        }
+        stage_name = stage_names.get(stage, f"Stage {stage}")
+        if str(verdict).upper() == "SEAL":
+            message = f"{stage_name} complete. Verdict: SEAL."
+        else:
+            message = f"{stage_name} blocked. Verdict: {verdict}."
+    
+    # Determine next_action for orchestrators
+    next_action_map = {
+        "000": "PROCEED_TO_111_SENSE",
+        "111": "PROCEED_TO_222_THINK",
+        "222": "PROCEED_TO_333_REASON",
+        "333": "PROCEED_TO_444_EMPATHY",
+        "444": "PROCEED_TO_555_ALIGN",
+        "555": "PROCEED_TO_666_ALIGN",
+        "666": "PROCEED_TO_777_FORGE",
+        "777": "PROCEED_TO_888_JUDGE",
+        "888": "PROCEED_TO_999_SEAL" if str(verdict).upper() == "SEAL" else "HALT_REVIEW_VERDICT",
+        "999": "PIPELINE_COMPLETE",
+    }
+    next_action = next_action_map.get(stage, "UNKNOWN")
+    if str(verdict).upper() != "SEAL":
+        next_action = "HALT_REVIEW_CONSTITUTIONAL_BLOCK"
+    
+    # Build structured content (machine/governance layer)
+    structured_content: Dict[str, Any] = {
+        "tool": tool_name,
+        "stage": stage,
+        "session_id": session_id,
+        "status": payload.get("status", "OK"),
+        "verdict": verdict,
+        "next_action": next_action,
+    }
+    
+    # Add constitutional details (ALWAYS for audit trail)
+    if "_constitutional" in payload:
+        structured_content["_constitutional"] = payload.get("_constitutional")
+    
+    # Add data fields
+    data_fields = ["data", "intent", "lane", "requires_grounding", "truth_score", 
+                   "confidence", "empathy_score", "stakeholder_count", "is_reversible",
+                   "risk_level", "seal_id", "seal_hash", "mode", "grounding_required"]
+    for field in data_fields:
+        if field in payload:
+            structured_content[field] = payload.get(field)
+    
+    # Add failure/repair info
     for k in ("reason", "justification", "blocked_by", "warnings"):
         if k in payload and payload.get(k) not in (None, "", [], {}):
-            out[k] = payload.get(k)
-
-    # Prefer a single human-facing answer field if present
-    answer = _pick_first(payload, ("answer", "response", "result", "solution", "solution_draft"))
-    if isinstance(answer, str) and answer.strip():
-        out["answer"] = answer
-
-    # Keep minimal evidence in audit mode, or when not SEALED/SEAL
-    include_constitutional = mode == "audit" or str(verdict).upper() not in {"SEAL", "SEALED"}
-    if include_constitutional and "_constitutional" in payload:
-        out["_constitutional"] = payload.get("_constitutional")
-
+            structured_content[k] = payload.get(k)
+    
+    # Add motto/bookend for INIT (000) and SEAL (999)
+    if stage == "000":
+        structured_content["motto"] = "🔨⚒️🛠️ DITEMPA, BUKAN DIBERI"
+        structured_content["motto_english"] = "Forged, Not Given"
+        structured_content["bookend"] = "INIT"
+    elif stage == "999":
+        structured_content["motto"] = "💎🧠🔒 DITEMPA, BUKAN DIBERI"
+        structured_content["motto_english"] = "Forged, Not Given"
+        structured_content["bookend"] = "SEAL"
+    
+    # Add slim evidence in audit mode
     if mode == "audit" or tool_name == "reality_search":
         if "evidence" in payload:
-            out["evidence"] = _slim_evidence(payload.get("evidence"))
-        # Reality grounding: keep a small slice of results if present
+            structured_content["evidence"] = _slim_evidence(payload.get("evidence"))
         results = payload.get("results")
         if isinstance(results, list) and results:
             slim_results = []
@@ -117,8 +169,21 @@ def format_tool_output(tool_name: str, payload: Any, mode: str) -> Any:
                         "rank": r.get("rank"),
                     }
                 )
-            out["results"] = slim_results
-
-    out["meta"] = {"output_mode": mode, "tool": tool_name}
+            structured_content["results"] = slim_results
+    
+    # Build MCP-compliant output with content + structuredContent
+    # AUDIT_MARKER_v60: New format per external auditor feedback
+    out: Dict[str, Any] = {
+        "_format_version": "v60-MCP-AUDIT",
+        "content": [
+            {
+                "type": "text",
+                "text": message
+            }
+        ],
+        "structuredContent": structured_content,
+        "meta": {"output_mode": mode, "tool": tool_name}
+    }
+    
     return out
 
