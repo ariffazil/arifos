@@ -8,7 +8,7 @@
 <h1 align="center">arifOS — Constitutional AI Governance System</h1>
 
 <p align="center">
-  <strong>v55.5-HARDENED</strong> • 
+  <strong>v60.0-FORGE</strong> • 
   <strong>Production-Ready</strong> • 
   <strong>AGPL-3.0</strong>
 </p>
@@ -68,7 +68,7 @@ pip install arifos
 - [⚖️ VI. The 9-Paradox Equilibrium](#️-vi-the-9-paradox-equilibrium)
 - [📱 VII. The 333\_APPS Stack (Applications)](#-vii-the-333_apps-stack-applications)
   - [L4: AAA MCP Tools (Production API)](#l4-aaa-mcp-tools-production-api)
-    - [The 10 Canonical Tools (v55.5-HARDENED)](#the-10-canonical-tools-v555-hardened)
+    - [The 10 Canonical Tools (v60.0-FORGE)](#the-10-canonical-tools-v555-hardened)
 - [🚀 VIII. Quick Start (Code Examples)](#-viii-quick-start-code-examples)
   - [A. Primary Path — One-Shot `forge`](#a-primary-path--one-shot-forge)
   - [B. Advanced Usage — Staged Tools](#b-advanced-usage--staged-tools)
@@ -281,7 +281,7 @@ The 333_APPS directory contains the complete application stack, from zero-contex
 
 The **AAA MCP Server** exposes constitutional engines as standardized API tools compatible with Claude Desktop, Cursor, and any MCP client.
 
-#### The 10 Canonical Tools (v55.5-HARDENED)
+#### The 10 Canonical Tools (v60.0-FORGE)
 
 | # | Tool | Engine | Function | Floors Enforced | Implementation |
 |:---:|:---|:---:|:---|:---|:---|
@@ -298,7 +298,7 @@ The **AAA MCP Server** exposes constitutional engines as standardized API tools 
 
 **Tool Exposure Note:** `tool_router` and `vault_query` are available as auxiliary utilities but not listed in the canonical constitution.
 
-**New in v55.5-HARDENED:**
+**New in v60.0-FORGE:**
 - **Semantic Recoil:** `apex_verdict` automatically voids "absolutist" safety claims
 - **Axiom Engine:** `reality_search` retrieves physical constants (e.g., CO2 Critical Point: 304.25K, 7.38MPa) to ground "Industrial" queries
 
