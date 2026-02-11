@@ -73,18 +73,18 @@ async def check_tools() -> Tuple[bool, List[str]]:
         if not tool_names:
              issues.append("WARN: Could not inspect tools list")
         
-        # Verify 10 canonical tools
+        # Verify 10 canonical tools (v55.5-FORGE)
         required_tools = [
             "init_gate", "agi_sense", "agi_think", "agi_reason",
             "asi_empathize", "asi_align", "apex_verdict",
-            "reality_search", "truth_audit", "vault_seal"
+            "reality_search", "vault_seal", "forge"
         ]
         
         missing = [t for t in required_tools if t not in tool_names]
         if missing:
              issues.append(f"FAIL: Missing canonical tools: {missing}")
         else:
-             print(f"✓ All {len(required_tools)} canonical tools present (including truth_audit)")
+             print(f"✓ All {len(required_tools)} canonical tools present (including forge)")
 
         
         # Check for read-only vs write tools
