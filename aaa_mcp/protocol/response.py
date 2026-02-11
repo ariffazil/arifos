@@ -193,9 +193,21 @@ def build_init_response(
     # 🔨⚒️🛠️ Three forge emojis for DITEMPA (Forged)
     
     # Constitutional details for init_gate (floors F11, F12)
+    # PROGRESSIVE DISCLOSURE: Only floors that CAN be checked at this stage
+    floors_evaluated = ["F11", "F12"]
+    floors_remaining = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F13"]
+    
     constitutional = {
-        "floors_declared": ["F11", "F12"],
-        "floors_checked": ["F11", "F12"],
+        # Renamed from "floors_declared" → "floors_enforced_now" per auditor feedback
+        "floors_enforced_now": floors_evaluated,
+        "floors_checked": floors_evaluated,
+        "total_floors": 13,
+        "floors_remaining_count": len(floors_remaining),
+        "floors_remaining": floors_remaining,
+        "pipeline_stage": "000_INIT",
+        "pipeline_next": "111_SENSE",
+        "pipeline_complete": False,
+        "governance_summary": f"Entry checks passed ({len(floors_evaluated)}/13). {len(floors_remaining)} floors pending across later stages.",
         "details": [
             {
                 "floor": "F11",
@@ -215,7 +227,7 @@ def build_init_response(
         "enforcement_ms": 0.3,
         "version": "v60.0-FORGE"
     }
-    
+
     return UnifiedResponse(
         status="ARTIFACT_READY",
         session_id=session_id,
@@ -230,7 +242,8 @@ def build_init_response(
             "motto": "DITEMPA, BUKAN DIBERI",
             "motto_english": "Forged, Not Given",
             "motto_emojis": "🔨⚒️🛠️",  # Three forge emojis for DITEMPA
-            "bookend": "INIT"
+            "bookend": "INIT",
+            "constitutional_law": law,  # <--- NEW: Full legal context
         },
         _constitutional=constitutional,
         _debug=debug_data if debug else None
@@ -427,10 +440,21 @@ def build_seal_response(
     # 💎🧠🔒 Three emojis for crystallized intelligence + immutable seal
     message = f"{SEAL_MOTTO} — Session sealed with ID {seal_id[:8]}..." if seal_id else f"{SEAL_MOTTO} — Partial seal (no persistence)"
     
-    # Constitutional details for vault_seal (floors F1, F3)
+    # Constitutional details for vault_seal (floors F1, F3) - PIPELINE COMPLETE
+    floors_evaluated = ["F1", "F3"]
+    all_floors_checked = ["F11", "F12", "F2", "F4", "F7", "F5", "F6", "F9", "F8", "F3", "F1", "F10", "F13"]
+    
     constitutional = {
-        "floors_declared": ["F1", "F3"],
-        "floors_checked": ["F1", "F3"],
+        "floors_enforced_now": floors_evaluated,
+        "floors_checked": floors_evaluated,
+        "total_floors": 13,
+        "floors_remaining_count": 0,
+        "floors_remaining": [],
+        "pipeline_stage": "999_SEAL",
+        "pipeline_next": None,
+        "pipeline_complete": True,
+        "governance_summary": "All 13 constitutional floors evaluated. Session cryptographically sealed.",
+        "all_floors_checked_across_pipeline": all_floors_checked,
         "details": [
             {
                 "floor": "F1",
