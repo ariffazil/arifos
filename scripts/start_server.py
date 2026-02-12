@@ -1,36 +1,39 @@
 """
-arifOS MCP Server — Railway Production Entry Point
+arifOS MCP Server — Railway Production Entry Point (v60.0-FORGE)
 
-Starts the constitutional MCP server with all 10 tools on network transports.
+Starts the constitutional MCP server with SSE transport.
 Health endpoint at /health for Railway healthchecks.
-Tool list at / for service discovery.
 
 DITEMPA BUKAN DIBERI
 """
 
 import os
-
-import uvicorn
+from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
+from mcp.server.sse import SseServerTransport
+from mcp.server import Server
+import uvicorn
 
-from fastmcp.server.http import create_sse_app, create_streamable_http_app
-
-# Railway provides PORT and HOST via environment
+# Environment
 port = int(os.environ.get("PORT", 8080))
 host = os.environ.get("HOST", "0.0.0.0")
-transport = os.environ.get("AAA_MCP_TRANSPORT", "sse").strip().lower()
 
-from aaa_mcp.server import mcp  # noqa: E402 — env must be set before import
+# Import the MCP server instance
+from aaa_mcp.server import mcp as mcp_server
 
-async def health(_request):
-    return JSONResponse({"status": "ok"})
+# Health and root endpoints
+async def health(request):
+    return JSONResponse({
+        "status": "ok",
+        "version": "60.0.0-FORGE",
+        "mcp_tools": 10
+    })
 
-
-async def root(_request):
+async def root(request):
     return JSONResponse({
         "service": "arifOS MCP Server",
-        "version": "60.0.0",
+        "version": "60.0.0-FORGE",
         "status": "operational",
         "endpoints": {
             "health": "/health",
@@ -42,31 +45,32 @@ async def root(_request):
         "motto": "DITEMPA BUKAN DIBERI"
     })
 
+# Create SSE transport
+sse = SseServerTransport("/messages")
 
-routes = [
-    Route("/", endpoint=root, methods=["GET"]),
-    Route("/health", endpoint=health, methods=["GET"]),
-]
+# Handler for SSE connections
+async def sse_endpoint(request):
+    async with sse.connect_session(
+        request.scope, request.receive, request.send
+    ) as streams:
+        await mcp_server._mcp_server.run(
+            streams[0], streams[1], mcp_server._mcp_server.create_initialization_options()
+        )
 
-# Build the transport app and add an explicit /health endpoint for Railway.
-if transport in {"http", "streamable-http", "mcp"}:
-    app = create_streamable_http_app(
-        mcp,
-        streamable_http_path="/mcp",
-        routes=routes,
-    )
-else:
-    app = create_sse_app(
-        mcp,
-        message_path="/messages/",
-        sse_path="/sse",
-        routes=routes,
-    )
+# Handler for POST messages
+async def messages_endpoint(request):
+    return await sse.handle_post_message(request.scope, request.receive, request.send)
 
-# Disable redirect_slashes to prevent 307 redirects on POST /messages
-# This fixes the SSE transport issue where clients POST to /messages?session_id=xxx
-# but Starlette redirects to /messages/?session_id=xxx with 307
-app.router.redirect_slashes = False
+# Create Starlette app with routes
+app = Starlette(
+    routes=[
+        Route("/", root, methods=["GET"]),
+        Route("/health", health, methods=["GET"]),
+        Route("/sse", sse_endpoint, methods=["GET"]),
+        Route("/messages", messages_endpoint, methods=["POST"]),
+    ],
+    debug=False
+)
 
 if __name__ == "__main__":
     uvicorn.run(app, host=host, port=port)

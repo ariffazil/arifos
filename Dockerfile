@@ -1,6 +1,6 @@
 # arifOS MCP Server Dockerfile (v60.0-FORGE)
-# Cache-bust: 2026-02-12-v60-hotfix2
-# FIX: Use official aaa-mcp entry point instead of start_server.py
+# Cache-bust: 2026-02-12-v60-hotfix3
+# Uses official MCP SSE transport with custom health endpoints
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -18,11 +18,6 @@ COPY scripts/start_server.py scripts/start_server.py
 COPY codebase/ codebase/
 COPY aaa_mcp/ aaa_mcp/
 
-# Debug: Verify code version
-RUN echo "=== Build Time ===" && date -u +"%Y-%m-%dT%H:%M:%SZ"
-RUN echo "=== aaa_mcp contents ===" && ls -la aaa_mcp/
-RUN echo "=== aaa_mcp server ===" && python3 -c "from aaa_mcp.server import mcp; print('MCP server OK')"
-
 # Clear Python cache to ensure fresh imports
 RUN find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 RUN find . -name "*.pyc" -delete 2>/dev/null || true
@@ -36,13 +31,10 @@ RUN python3 -c "import aaa_mcp; from aaa_mcp.server import mcp; print(f'Package 
 # Expose port
 EXPOSE 8080
 
-# Ensure Python can find the package at runtime
-ENV PYTHONPATH=/app:$PYTHONPATH
-
-# Health check - hits /health on the MCP server (not Flask)
+# Health check - hits /health on the MCP server
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
     CMD curl -sf http://localhost:${PORT:-8080}/health || exit 1
 
 # Run with unbuffered output for logs
 ENV PYTHONUNBUFFERED=1
-CMD ["aaa-mcp", "sse"]
+CMD ["python", "-u", "scripts/start_server.py"]
