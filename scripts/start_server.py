@@ -48,14 +48,20 @@ async def root(request):
 # Create SSE transport
 sse = SseServerTransport("/messages")
 
-# Handler for SSE connections
+# Handler for SSE connections (FastMCP v2+ API)
 async def sse_endpoint(request):
-    async with sse.connect_session(
-        request.scope, request.receive, request.send
-    ) as streams:
-        await mcp_server._mcp_server.run(
-            streams[0], streams[1], mcp_server._mcp_server.create_initialization_options()
-        )
+    """SSE endpoint for MCP clients.
+
+    Uses SseServerTransport.connect_sse, which wraps the underlying
+    MCP server with a streaming transport. This replaces the older
+    connect_session() API.
+    """
+    return await sse.connect_sse(
+        request.scope,
+        request.receive,
+        request.send,
+        mcp_server._mcp_server,
+    )
 
 # Handler for POST messages
 async def messages_endpoint(request):
