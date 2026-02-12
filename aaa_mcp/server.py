@@ -1008,6 +1008,8 @@ def validate_vault_payload(payload: dict, grounding_required: bool = False) -> l
     return errors
 
 
+@mcp.tool()
+@constitutional_floor("F1", "F3")
 async def vault_seal(
     session_id: str,
     verdict: str,
