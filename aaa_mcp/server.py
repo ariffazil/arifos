@@ -60,8 +60,26 @@ async def init_gate(
     Floors: F11, F12
     Metadata: Sets 'grounding_required' mode.
     """
+    from uuid import uuid4
+    import sys, traceback
+
+    # Normalize optional fields defensively
+    session_id = session_id or str(uuid4())
+    mode = mode or "fluid"
+
     engine = InitEngine()
-    result = await engine.ignite(query, session_id)
+    try:
+        result = await engine.ignite(query, session_id)
+    except Exception as e:
+        # Last-resort guard: never let init_gate throw 500
+        traceback.print_exc(file=sys.stderr)
+        result = {
+            "status": "SEAL",
+            "session_id": session_id,
+            "verdict": ConflictStatus.SABAR.value,
+            "engine_mode": "fallback_init_gate",
+            "note": f"init_gate exception captured: {e}",
+        }
 
     # Optional red-team mode: mark this session as a self-test run.
     if mode == "red_team":
@@ -189,10 +207,31 @@ async def agi_reason(
         eureka: when True, engines MAY generate abductive hypotheses / anomalies.
     """
     from datetime import datetime, timezone
+    import sys, traceback
 
     engine = AGIEngine()
-    # Phase 2: wire eureka and causal flags into AGIEngine.
-    result = await engine.reason(query, session_id, eureka=eureka, causal=causal)
+    try:
+        # Phase 2: wire eureka and causal flags into AGIEngine.
+        result = await engine.reason(query, session_id, eureka=eureka, causal=causal)
+    except Exception as e:
+        # Fail-closed: never surface 500 to MCP clients; return structured error envelope
+        traceback.print_exc(file=sys.stderr)
+        now = datetime.now(timezone.utc).isoformat()
+        result = {
+            "verdict": "SABAR",
+            "query": query,
+            "session_id": session_id,
+            "engine_mode": "fallback_agi_reason",
+            "error": {
+                "code": 500,
+                "message": f"agi_reason exception captured: {e}",
+                "timestamp": now,
+            },
+            "confidence": 0.0,
+            "ambiguity_reduction": 0.0,
+            "residual_uncertainty": 1.0,
+        }
+
     result["mode"] = mode
     result["causal_requested"] = causal
     result["eureka_requested"] = eureka
