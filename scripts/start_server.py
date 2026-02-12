@@ -30,7 +30,7 @@ async def health(_request):
 async def root(_request):
     return JSONResponse({
         "service": "arifOS MCP Server",
-        "version": "55.5.0",
+        "version": "60.0.0",
         "status": "operational",
         "endpoints": {
             "health": "/health",

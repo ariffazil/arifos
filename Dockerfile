@@ -1,5 +1,5 @@
-# arifOS MCP Server Dockerfile (v55.5-HARDENED)
-# Cache-bust: 2026-02-06-api-keys
+# arifOS MCP Server Dockerfile (v60.0-FORGE)
+# Cache-bust: 2026-02-12-v60
 FROM python:3.12-slim
 
 WORKDIR /app
