@@ -63,6 +63,23 @@ async def init_gate(
     engine = InitEngine()
     result = await engine.ignite(query, session_id)
 
+    # Optional red-team mode: mark this session as a self-test run.
+    if mode == "red_team":
+        redteam_result = {
+            "session_id": result.get("session_id", session_id or "unknown"),
+            "verdict": ConflictStatus.SABAR.value,
+            "status": "RED_TEAM",
+            "grounding_required": grounding_required,
+            "mode": mode,
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("init_gate"),
+            "evidence": [],
+            "pass": "forward",
+            "note": "Red-team initialization — no production action permitted without human review.",
+        }
+        store_stage_result(redteam_result["session_id"], "init_redteam", redteam_result)
+        return redteam_result
+
     # Schematized Output (v55.5-CRYSTALLIZED)
     hardened_result = {
         "session_id": result.get("session_id", session_id or "unknown"),
@@ -149,7 +166,14 @@ async def agi_think(query: str, session_id: str) -> dict:
 
 @mcp.tool()
 @constitutional_floor("F2", "F4", "F7")
-async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = None) -> dict:
+async def agi_reason(
+    query: str,
+    session_id: str,
+    grounding: Optional[Any] = None,
+    mode: str = "normal",
+    causal: bool = False,
+    eureka: bool = False,
+) -> dict:
     """Deep logical reasoning chain — the AGI Mind's core analysis tool.
 
     Produces structured reasoning with conclusion, confidence, clarity improvement,
@@ -158,11 +182,20 @@ async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = Non
     Pipeline position: AGI Stage 3 (after agi_think, or directly after init_gate for simple queries)
     Floors enforced: F2 (Truth >= 0.99), F4 (Empathy), F7 (Humility band 0.03-0.05)
     Next step: asi_empathize for stakeholder impact analysis
+
+    New parameters (backwards compatible):
+        mode:   "normal" (default) or "eureka" for discovery-focused reasoning.
+        causal: when True, engines MAY perform causal analysis in addition to deduction.
+        eureka: when True, engines MAY generate abductive hypotheses / anomalies.
     """
     from datetime import datetime, timezone
 
     engine = AGIEngine()
-    result = await engine.reason(query, session_id)
+    # Phase 2: wire eureka and causal flags into AGIEngine.
+    result = await engine.reason(query, session_id, eureka=eureka, causal=causal)
+    result["mode"] = mode
+    result["causal_requested"] = causal
+    result["eureka_requested"] = eureka
 
     # Optional structured grounding/evidence (not synthetic confidence)
     if grounding:
@@ -290,10 +323,65 @@ async def asi_align(query: str, session_id: str) -> dict:
 
 @mcp.tool()
 @constitutional_floor("F2", "F3", "F5", "F8")
-async def apex_verdict(query: str, session_id: str) -> dict:
-    """Final constitutional verdict — the APEX Soul's judgment."""
+async def apex_verdict(
+    query: str,
+    session_id: str,
+    mode: str = "judge",
+    window: int = 100,
+) -> dict:
+    """Final constitutional verdict — the APEX Soul's judgment.
+
+    New parameters (backwards compatible):
+        mode:   "judge" (default) or "calibrate" for self-audit mode.
+        window: number of recent decisions to inspect when mode="calibrate".
+    """
     engine = APEXEngine()
+
+    # Calibration mode: delegate to APEXEngine.calibrate (Phoenix-72) and
+    # wrap in the standard verdict schema. Always returns 888_HOLD.
+    if mode != "judge":
+        calib = await engine.calibrate(window=window)
+        calib["floors_enforced"] = get_tool_floors("apex_verdict")
+        store_stage_result(session_id, "apex_calibrate", calib)
+        return calib
+
     result = await engine.judge(query, session_id)
+
+    # Calibration mode: self-audit without changing core verdict logic.
+    if mode != "judge":
+        # Phase 1 implementation: return a conservative 888_HOLD verdict
+        # with summary telemetry for human review. No thresholds are
+        # mutated here; this is purely diagnostic.
+        session_ev = get_session_evidence(session_id)
+        core_metrics = {
+            "verdict": ConflictStatus.SABAR.value,
+            "evidence_count": len(session_ev),
+            "grounding_types": list({e["source_meta"]["type"] for e in session_ev})
+            if session_ev
+            else [],
+            "tri_witness": result.get("tri_witness", 0.95),
+            "ambiguity_reduction": result.get("ambiguity_reduction", 0.0),
+            "mode": "calibrate",
+            "window": window,
+        }
+        final_output = {
+            "verdict": "888_HOLD",
+            "truth_score": result.get("truth_score", 0.0),
+            "session_id": session_id,
+            "query": query,
+            "CORE_GOVERNANCE": core_metrics,
+            "verdict_justification": (
+                "Calibration mode — human Sovereign review required before any "
+                "Floor adjustments."
+            ),
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("apex_verdict"),
+            "pass": "reverse",
+            "tri_witness": result.get("tri_witness", 0.95),
+            "votes": result.get("votes", {}),
+        }
+        store_stage_result(session_id, "apex_calibrate", final_output)
+        return final_output
 
     # Formal Verdict Semantics (v55.5-INDUSTRIAL)
     session_ev = get_session_evidence(session_id)
@@ -438,7 +526,11 @@ async def apex_verdict(query: str, session_id: str) -> dict:
 @mcp.tool()
 @constitutional_floor("F2", "F7")
 async def reality_search(
-    query: str, session_id: str, region: str = "wt-wt", timelimit: Optional[str] = None
+    query: str,
+    session_id: str,
+    region: str = "wt-wt",
+    timelimit: Optional[str] = None,
+    ontology: bool = False,
 ) -> dict:
     """External fact-checking and reality grounding via web search & Axiom Engine."""
     from datetime import datetime, timezone
@@ -547,6 +639,20 @@ async def reality_search(
         "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
     }
 
+    # Optional ontology grounding hook (F10 signal)
+    if ontology:
+        try:
+            from codebase.guards.ontology_guard import OntologyGuard
+
+            guard = OntologyGuard()
+            og = guard.ground(query)
+            hardened_output["ontology"] = {
+                "grounded": getattr(og, "grounded", False),
+                "gaps": getattr(og, "gaps", []),
+            }
+        except Exception as e:
+            hardened_output.setdefault("ontology", {})["error"] = str(e)
+
     store_stage_result(session_id, "reality", hardened_output)
     return hardened_output
 
@@ -571,6 +677,8 @@ async def forge(
     query: str,
     session_id: Optional[str] = None,
     mode: str = "full",
+    budget: Optional[dict] = None,
+    federation: bool = False,
 ) -> dict:
     """Unified 000-999 constitutional pipeline.
 
@@ -593,8 +701,10 @@ async def forge(
           - stages: Per-stage outputs for audit (init/agi/asi/apex/vault).
     """
     from datetime import datetime, timezone
+    import time
 
     # ── 000: INIT GATE ─────────────────────────────────────────────
+    pipeline_start = time.time()
     init_engine = InitEngine()
     init_result = await init_engine.ignite(query, session_id)
     effective_session_id = init_result.get("session_id", session_id or "unknown")
@@ -612,10 +722,12 @@ async def forge(
     # ── 111/222/333: AGI MIND ──────────────────────────────────────
     agi_engine = AGIEngine()
 
+    agi_sense_start = time.time()
     agi_sense_result = await agi_engine.sense(query, effective_session_id)
     agi_sense_result["floors_enforced"] = get_tool_floors("agi_sense")
     store_stage_result(effective_session_id, "agi_sense", agi_sense_result)
 
+    agi_think_start = time.time()
     agi_think_result = await agi_engine.think(query, effective_session_id)
     agi_think_result["floors_enforced"] = get_tool_floors("agi_think")
     store_stage_result(effective_session_id, "agi_think", agi_think_result)
@@ -650,16 +762,19 @@ async def forge(
     # ── 444/555: ASI HEART ─────────────────────────────────────────
     asi_engine = ASIEngine()
 
+    asi_empathize_start = time.time()
     asi_empathize_result = await asi_engine.empathize(query, effective_session_id)
     asi_empathize_result["floors_enforced"] = get_tool_floors("asi_empathize")
     store_stage_result(effective_session_id, "asi_empathize", asi_empathize_result)
 
+    asi_align_start = time.time()
     asi_align_result = await asi_engine.align(query, effective_session_id)
     asi_align_result["floors_enforced"] = get_tool_floors("asi_align")
     store_stage_result(effective_session_id, "asi_align", asi_align_result)
 
     # ── 777: APEX SOUL ─────────────────────────────────────────────
     apex_engine = APEXEngine()
+    apex_start = time.time()
     apex_raw = await apex_engine.judge(
         query=query,
         session_id=effective_session_id,
@@ -674,6 +789,27 @@ async def forge(
 
     # Reuse apex_verdict post-processing to maintain a single verdict path
     apex_processed = await apex_verdict(query, effective_session_id)
+
+    # ── COMPUTE METRICS ────────────────────────────────────────────
+    total_latency_ms = (time.time() - pipeline_start) * 1000.0
+    compute_metrics = {
+        "total_latency_ms": total_latency_ms,
+        "agi_sense_ms": (agi_think_start - agi_sense_start) * 1000.0,
+        "agi_think_ms": (agi_reason_start - agi_think_start) * 1000.0,
+        "agi_reason_ms": (asi_empathize_start - agi_reason_start) * 1000.0,
+        "asi_empathize_ms": (asi_align_start - asi_empathize_start) * 1000.0,
+        "asi_align_ms": (apex_start - asi_align_start) * 1000.0,
+        "apex_ms": (time.time() - apex_start) * 1000.0,
+    }
+
+    if budget and "max_latency_ms" in budget and total_latency_ms > budget["max_latency_ms"]:
+        compute_metrics["budget_exceeded"] = True
+        compute_metrics["budget_verdict"] = "SABAR"
+        compute_metrics["note"] = (
+            f"Exceeded latency budget: {total_latency_ms:.1f}ms > {budget['max_latency_ms']}ms"
+        )
+    else:
+        compute_metrics["budget_exceeded"] = False
 
     # ── 999: VAULT SEAL ────────────────────────────────────────────
     floors_checked = get_tool_floors("forge")
@@ -699,6 +835,7 @@ async def forge(
             "asi": asi_empathize_result.get("engine_mode", "real"),
             "apex": apex_processed.get("engine_mode", "real"),
         },
+        "compute": compute_metrics,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }
 
@@ -725,6 +862,8 @@ async def forge(
         ],
         environment="prod",
         response_excerpt=json.dumps(response_payload)[:200],
+        # Phase 1: record requested budget (if any) for VAULT/metrics use.
+        model_info={"budget_requested": budget} if budget is not None else None,
     )
 
     unified = {
@@ -747,6 +886,7 @@ async def forge(
         },
         "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
         "floors_enforced": get_tool_floors("forge"),
+        "compute": compute_metrics,
     }
 
     return unified
@@ -784,6 +924,9 @@ async def vault_seal(
     pii_level: str = "none",
     actor_type: Optional[str] = None,
     actor_id: Optional[str] = None,
+    # v3.1 temporal metadata (optional)
+    decay_rate: Optional[float] = None,
+    domain_timescale: Optional[str] = None,
 ) -> dict:
     """Seal the session verdict into the immutable VAULT999 ledger.
 
@@ -881,6 +1024,9 @@ async def vault_seal(
         "tw": tri_witness_score,
         "peace2": peace_squared,
         "genius": genius_g,
+        # Temporal reasoning hooks (optional in Phase 1)
+        "decay_rate": decay_rate,
+        "domain_timescale": domain_timescale,
     }
 
     v3_oversight = {

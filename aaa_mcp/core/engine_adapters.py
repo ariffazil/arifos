@@ -197,9 +197,14 @@ class InitEngine:
             return result
 
 
+from codebase.vault.eureka_sieve_hardened import HardenedAnomalousContrastEngine
+
+
 class AGIEngine:
     def __init__(self):
         self._engine = RealAGIEngine() if AGI_AVAILABLE else None
+        # EUREKA engine for anomalous contrast detection (Phase 1 wiring)
+        self._eureka = HardenedAnomalousContrastEngine()
 
     async def _execute_or_fallback(
         self,
@@ -240,8 +245,48 @@ class AGIEngine:
     async def think(self, query: str, session_id: str) -> Dict[str, Any]:
         return await self._execute_or_fallback(query, session_id)
 
-    async def reason(self, query: str, session_id: str) -> Dict[str, Any]:
-        return await self._execute_or_fallback(query, session_id)
+    async def reason(self, query: str, session_id: str, *, eureka: bool = False) -> Dict[str, Any]:
+        """Core AGI reasoning. When eureka=True, attach anomalous contrast analysis.
+
+        Phase 1: Uses HardenedAnomalousContrastEngine on the query + AGI response
+        to compute a EUREKA score and verdict. Does not change the main verdict;
+        it only annotates the result with discovery metadata.
+        """
+        base = await self._execute_or_fallback(query, session_id)
+
+        if not eureka:
+            return base
+
+        try:
+            # Use delta_bundle text when available; fall back to query-only.
+            bundle = base.get("delta_bundle") or {}
+            response_text = ""
+            if isinstance(bundle, dict):
+                response_text = json.dumps(bundle)[:4000]
+            else:
+                response_text = str(bundle)[:4000]
+
+            score = await self._eureka.evaluate(
+                query=query,
+                response=response_text,
+                trinity_bundle=base,
+            )
+            base["eureka"] = {
+                "novelty": score.novelty,
+                "entropy_reduction": score.entropy_reduction,
+                "ontological_shift": score.ontological_shift,
+                "decision_weight": score.decision_weight,
+                "eureka_score": score.eureka_score,
+                "verdict": score.verdict,
+                "reasoning": score.reasoning,
+                "fingerprint": score.fingerprint,
+                "jaccard_sim": score.jaccard_sim,
+            }
+        except Exception as e:
+            # EUREKA is advisory only; never break the main AGI path.
+            base.setdefault("eureka", {})["error"] = str(e)
+
+        return base
 
 
 class ASIEngine:
