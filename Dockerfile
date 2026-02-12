@@ -1,5 +1,5 @@
 # arifOS MCP Server Dockerfile (v60.0-FORGE)
-# Cache-bust: 2026-02-12-v60
+# Cache-bust: 2026-02-12-v60-hotfix1
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -29,8 +29,14 @@ RUN find . -name "*.pyc" -delete 2>/dev/null || true
 # Install package
 RUN pip install -e .
 
+# Verify package is importable after install
+RUN python3 -c "import aaa_mcp; from aaa_mcp.server import mcp; print(f'Package installed: {aaa_mcp.__file__}')"
+
 # Expose port
 EXPOSE 8080
+
+# Ensure Python can find the package at runtime
+ENV PYTHONPATH=/app:$PYTHONPATH
 
 # Health check — hits /health on the MCP server (not Flask)
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
