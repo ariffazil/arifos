@@ -119,68 +119,98 @@ async def init_gate(
 @constitutional_floor("F2", "F4")
 async def agi_sense(query: str, session_id: str) -> dict:
     """Parse intent and classify lane (HARD/SOFT/META)."""
-    engine = AGIEngine()
-    result = await engine.sense(query, session_id)
+    import sys, traceback
+    try:
+        engine = AGIEngine()
+        result = await engine.sense(query, session_id)
 
-    # Evidence v2 Enforced
-    evidence = result.get("evidence", [])
-    if not evidence:
-        txt = f"Linguistic structure analysis: {query[:50]}"
-        evidence.append(
-            {
-                "evidence_id": f"E-SENSE-{session_id[:4]}",
-                "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
-                "source_meta": {
-                    "uri": "internal://agi/sense",
-                    "type": EvidenceType.EMPIRICAL.value,
-                    "author": "AGI_MIND",
-                    "timestamp": "now",
-                },
-                "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
-                "lifecycle": {"status": "active", "retrieved_by": "agi_sense_v2"},
-            }
-        )
-    result["evidence"] = evidence
+        # Evidence v2 Enforced (now using normalized schema)
+        evidence = result.get("evidence", [])
+        if not evidence:
+            txt = f"Linguistic structure analysis: {query[:50]}"
+            evidence.append(
+                build_evidence_dict(
+                    evidence_id=f"E-SENSE-{session_id[:4]}",
+                    evidence_type=EvidenceType.EMPIRICAL,
+                    text=txt,
+                    uri="internal://agi/sense",
+                    author="AGI_MIND",
+                    trust_weight=1.0,
+                    relevance_score=1.0,
+                    retrieved_by="agi_sense_v2",
+                )
+            )
+        result["evidence"] = evidence
 
-    store_stage_result(session_id, "agi_sense", result)
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
-    result["floors_enforced"] = get_tool_floors("agi_sense")
-    result["pass"] = "forward"
-    return result
+        store_stage_result(session_id, "agi_sense", result)
+        result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+        result["floors_enforced"] = get_tool_floors("agi_sense")
+        result["pass"] = "forward"
+        return result
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "verdict": ConflictStatus.SABAR.value,
+            "query": query,
+            "session_id": session_id,
+            "engine_mode": "fallback_agi_sense",
+            "error": {
+                "code": 500,
+                "message": f"agi_sense exception captured: {e}",
+            },
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("agi_sense"),
+            "pass": "forward",
+        }
 
 
 @mcp.tool()
 @constitutional_floor("F2", "F4", "F7")
 async def agi_think(query: str, session_id: str) -> dict:
     """Generate hypotheses and explore reasoning paths."""
-    engine = AGIEngine()
-    result = await engine.think(query, session_id)
+    import sys, traceback
+    try:
+        engine = AGIEngine()
+        result = await engine.think(query, session_id)
 
-    # Evidence v2 Enforced
-    evidence = result.get("evidence", [])
-    if not evidence:
-        txt = f"Hypothesis matrix for session {session_id[:8]}"
-        evidence.append(
-            {
-                "evidence_id": f"E-THINK-{session_id[:4]}",
-                "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
-                "source_meta": {
-                    "uri": "internal://agi/think",
-                    "type": EvidenceType.EMPIRICAL.value,
-                    "author": "AGI_MIND",
-                    "timestamp": "now",
-                },
-                "metrics": {"trust_weight": 0.85, "relevance_score": 1.0},
-                "lifecycle": {"status": "active", "retrieved_by": "agi_think_v2"},
-            }
-        )
-    result["evidence"] = evidence
+        # Evidence v2 Enforced (now using normalized schema)
+        evidence = result.get("evidence", [])
+        if not evidence:
+            txt = f"Hypothesis matrix for session {session_id[:8]}"
+            evidence.append(
+                build_evidence_dict(
+                    evidence_id=f"E-THINK-{session_id[:4]}",
+                    evidence_type=EvidenceType.EMPIRICAL,
+                    text=txt,
+                    uri="internal://agi/think",
+                    author="AGI_MIND",
+                    trust_weight=0.85,
+                    relevance_score=1.0,
+                    retrieved_by="agi_think_v2",
+                )
+            )
+        result["evidence"] = evidence
 
-    store_stage_result(session_id, "agi_think", result)
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
-    result["floors_enforced"] = get_tool_floors("agi_think")
-    result["pass"] = "forward"
-    return result
+        store_stage_result(session_id, "agi_think", result)
+        result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+        result["floors_enforced"] = get_tool_floors("agi_think")
+        result["pass"] = "forward"
+        return result
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "verdict": ConflictStatus.SABAR.value,
+            "query": query,
+            "session_id": session_id,
+            "engine_mode": "fallback_agi_think",
+            "error": {
+                "code": 500,
+                "message": f"agi_think exception captured: {e}",
+            },
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("agi_think"),
+            "pass": "forward",
+        }
 
 
 @mcp.tool()
@@ -294,62 +324,96 @@ async def agi_reason(
 @constitutional_floor("F5", "F6")
 async def asi_empathize(query: str, session_id: str) -> dict:
     """Assess stakeholder impact — the ASI Heart's empathy engine."""
-    engine = ASIEngine()
-    result = await engine.empathize(query, session_id)
+    import sys, traceback
+    try:
+        engine = ASIEngine()
+        result = await engine.empathize(query, session_id)
 
-    # Evidence v2 Enforced
-    evidence = result.get("evidence", [])
-    txt = f"Stakeholder impact valuation: kappa_r={result.get('empathy_kappa_r', 1.0)}"
-    evidence.append(
-        build_evidence_dict(
-            evidence_id=f"E-EMP-{session_id[:4]}",
-            evidence_type=EvidenceType.EMPIRICAL,
-            text=txt,
-            uri="internal://asi/empathize",
-            author="ASI_HEART",
-            trust_weight=0.95,
-            relevance_score=0.9,
-            retrieved_by="asi_empathize_v2",
+        # Evidence v2 Enforced
+        evidence = result.get("evidence", [])
+        txt = f"Stakeholder impact valuation: kappa_r={result.get('empathy_kappa_r', 1.0)}"
+        evidence.append(
+            build_evidence_dict(
+                evidence_id=f"E-EMP-{session_id[:4]}",
+                evidence_type=EvidenceType.EMPIRICAL,
+                text=txt,
+                uri="internal://asi/empathize",
+                author="ASI_HEART",
+                trust_weight=0.95,
+                relevance_score=0.9,
+                retrieved_by="asi_empathize_v2",
+            )
         )
-    )
-    result["evidence"] = evidence
+        result["evidence"] = evidence
 
-    store_stage_result(session_id, "asi_empathize", result)
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
-    result["floors_enforced"] = get_tool_floors("asi_empathize")
-    result["pass"] = "forward"
-    return result
+        store_stage_result(session_id, "asi_empathize", result)
+        result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+        result["floors_enforced"] = get_tool_floors("asi_empathize")
+        result["pass"] = "forward"
+        return result
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "verdict": ConflictStatus.SABAR.value,
+            "query": query,
+            "session_id": session_id,
+            "engine_mode": "fallback_asi_empathize",
+            "error": {
+                "code": 500,
+                "message": f"asi_empathize exception captured: {e}",
+            },
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("asi_empathize"),
+            "pass": "forward",
+        }
 
 
 @mcp.tool()
 @constitutional_floor("F5", "F6", "F9")
 async def asi_align(query: str, session_id: str) -> dict:
     """Reconcile ethics, law, and policy — the ASI Heart's alignment engine."""
-    engine = ASIEngine()
-    result = await engine.align(query, session_id)
+    import sys, traceback
+    try:
+        engine = ASIEngine()
+        result = await engine.align(query, session_id)
 
-    # Evidence v2 Enforced
-    evidence = result.get("evidence", [])
-    txt = f"Ethics/Policy alignment check for {session_id[:8]}"
-    evidence.append(
-        build_evidence_dict(
-            evidence_id=f"E-ALIGN-{session_id[:4]}",
-            evidence_type=EvidenceType.EMPIRICAL,
-            text=txt,
-            uri="internal://asi/align",
-            author="ASI_HEART",
-            trust_weight=0.98,
-            relevance_score=0.95,
-            retrieved_by="asi_align_v2",
+        # Evidence v2 Enforced
+        evidence = result.get("evidence", [])
+        txt = f"Ethics/Policy alignment check for {session_id[:8]}"
+        evidence.append(
+            build_evidence_dict(
+                evidence_id=f"E-ALIGN-{session_id[:4]}",
+                evidence_type=EvidenceType.EMPIRICAL,
+                text=txt,
+                uri="internal://asi/align",
+                author="ASI_HEART",
+                trust_weight=0.98,
+                relevance_score=0.95,
+                retrieved_by="asi_align_v2",
+            )
         )
-    )
-    result["evidence"] = evidence
+        result["evidence"] = evidence
 
-    store_stage_result(session_id, "asi_align", result)
-    result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
-    result["floors_enforced"] = get_tool_floors("asi_align")
-    result["pass"] = "forward"
-    return result
+        store_stage_result(session_id, "asi_align", result)
+        result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+        result["floors_enforced"] = get_tool_floors("asi_align")
+        result["pass"] = "forward"
+        return result
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "verdict": ConflictStatus.SABAR.value,
+            "query": query,
+            "session_id": session_id,
+            "engine_mode": "fallback_asi_align",
+            "error": {
+                "code": 500,
+                "message": f"asi_align exception captured: {e}",
+            },
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("asi_align"),
+            "pass": "forward",
+        }
 
 
 @mcp.tool()
@@ -969,7 +1033,24 @@ async def forge_pipeline(
 
     For backwards compatibility only. Prefer calling `forge` directly.
     """
-    return await forge(query=query, session_id=session_id, mode=mode)
+    import sys, traceback
+    try:
+        return await forge(query=query, session_id=session_id, mode=mode)
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "session_id": session_id or "unknown",
+            "mode": mode,
+            "verdict": ConflictStatus.SABAR.value,
+            "response": {
+                "error": f"forge_pipeline exception captured: {e}",
+            },
+            "stages": {},
+            "seal_id": None,
+            "sealed": False,
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("forge"),
+        }
 
 
 # Internal helper (not exposed as an MCP tool)
@@ -1285,7 +1366,7 @@ async def get_tools_manifest() -> dict:
     (including deprecated aliases) directly from the server instead of
     relying on out-of-date marketplace manifests.
     """
-    import inspect
+    import sys, traceback
 
     tools_manifest = []
     # FastMCP v2 get_tools API returns a dict[name -> FunctionTool]
@@ -1302,9 +1383,17 @@ async def get_tools_manifest() -> dict:
                         "deprecated": deprecated,
                     }
                 )
-    except Exception:
-        # In worst case, return empty manifest instead of failing the MCP call
-        tools_manifest = []
+    except Exception as e:
+        # Fail-closed: never crash clients on manifest retrieval
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "kernel_version": "0.2.0",
+            "tools": [],
+            "error": {
+                "code": 500,
+                "message": f"get_tools_manifest exception captured: {e}",
+            },
+        }
 
     return {
         "kernel_version": "0.2.0",
