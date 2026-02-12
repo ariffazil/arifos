@@ -932,6 +932,34 @@ async def forge(
 
 
 @mcp.tool()
+@constitutional_floor(
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11",
+    "F12",
+    "F13",
+)
+async def forge_pipeline(
+    query: str,
+    session_id: Optional[str] = None,
+    mode: str = "full",
+) -> dict:
+    """Deprecated alias for `forge`.
+
+    For backwards compatibility only. Prefer calling `forge` directly.
+    """
+    return await forge(query=query, session_id=session_id, mode=mode)
+
+
+@mcp.tool()
 @constitutional_floor("F1", "F3")
 async def vault_seal(
     session_id: str,
@@ -1190,6 +1218,41 @@ async def vault_seal(
         "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
         "floors_enforced": get_tool_floors("vault_seal"),
         "pass": "reverse",
+    }
+
+
+@mcp.tool()
+async def get_tools_manifest() -> dict:
+    """Return canonical tool metadata for MCP clients.
+
+    This allows external clients to discover the current tool surface
+    (including deprecated aliases) directly from the server instead of
+    relying on out-of-date marketplace manifests.
+    """
+    import inspect
+
+    tools_manifest = []
+    # FastMCP v2 get_tools API returns a dict[name -> FunctionTool]
+    try:
+        tools = await mcp.get_tools()  # type: ignore[func-returns-value]
+        if isinstance(tools, dict):
+            for name, tool in tools.items():
+                # detect deprecation via simple name-based rule for now
+                deprecated = name in {"forge_pipeline", "tool_router", "vault_query"}
+                tools_manifest.append(
+                    {
+                        "name": name,
+                        "description": getattr(tool, "description", ""),
+                        "deprecated": deprecated,
+                    }
+                )
+    except Exception:
+        # In worst case, return empty manifest instead of failing the MCP call
+        tools_manifest = []
+
+    return {
+        "kernel_version": "0.2.0",
+        "tools": tools_manifest,
     }
 
 
