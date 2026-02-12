@@ -1,5 +1,6 @@
 # arifOS MCP Server Dockerfile (v60.0-FORGE)
-# Cache-bust: 2026-02-12-v60-hotfix1
+# Cache-bust: 2026-02-12-v60-hotfix2
+# FIX: Use official aaa-mcp entry point instead of start_server.py
 FROM python:3.12-slim
 
 WORKDIR /app
@@ -38,10 +39,10 @@ EXPOSE 8080
 # Ensure Python can find the package at runtime
 ENV PYTHONPATH=/app:$PYTHONPATH
 
-# Health check — hits /health on the MCP server (not Flask)
+# Health check - hits /health on the MCP server (not Flask)
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
     CMD curl -sf http://localhost:${PORT:-8080}/health || exit 1
 
 # Run with unbuffered output for logs
 ENV PYTHONUNBUFFERED=1
-CMD ["python", "-u", "scripts/start_server.py"]
+CMD ["aaa-mcp", "sse"]
