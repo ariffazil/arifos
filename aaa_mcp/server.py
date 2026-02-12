@@ -24,6 +24,7 @@ from aaa_mcp.services.constitutional_metrics import (
     EvidenceObject,
     EvidenceType,
     PlanObject,
+    build_evidence_dict,
     generate_content_hash,
     get_flight_recorder,
     get_session_evidence,
@@ -598,25 +599,16 @@ async def reality_search(
                                 name = info.get("name", f"{category} {property_key} {sub_key}")
                                 txt = f"Axiomatic Truth: {name} = {info['value']} {info.get('unit', '')}"
                                 evidence.append(
-                                    {
-                                        "evidence_id": f"E-AXIOM-{category.upper()}-{property_key.upper()}-{sub_key.upper()}",
-                                        "content": {
-                                            "text": txt,
-                                            "hash": generate_content_hash(txt),
-                                            "language": "en",
-                                        },
-                                        "source_meta": {
-                                            "uri": f"axiom://{category}/{property_key}/{sub_key}",
-                                            "type": EvidenceType.AXIOM.value,
-                                            "author": "NIST/Petronas_Baseline",
-                                            "timestamp": "infinity",
-                                        },
-                                        "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
-                                        "lifecycle": {
-                                            "status": "active",
-                                            "retrieved_by": "axiom_engine_v1.1",
-                                        },
-                                    }
+                                    build_evidence_dict(
+                                        evidence_id=f"E-AXIOM-{category.upper()}-{property_key.upper()}-{sub_key.upper()}",
+                                        evidence_type=EvidenceType.AXIOM,
+                                        text=txt,
+                                        uri=f"axiom://{category}/{property_key}/{sub_key}",
+                                        author="NIST/Petronas_Baseline",
+                                        trust_weight=1.0,
+                                        relevance_score=1.0,
+                                        retrieved_by="axiom_engine_v1.1",
+                                    )
                                 )
                     else:
                         # Single property
@@ -624,50 +616,32 @@ async def reality_search(
                         name = info.get("name", f"{category} {property_key}")
                         txt = f"Axiomatic Truth: {name} = {info['value']} {info.get('unit', '')}"
                         evidence.append(
-                            {
-                                "evidence_id": f"E-AXIOM-{category.upper()}-{property_key.upper()}",
-                                "content": {
-                                    "text": txt,
-                                    "hash": generate_content_hash(txt),
-                                    "language": "en",
-                                },
-                                "source_meta": {
-                                    "uri": f"axiom://{category}/{property_key}",
-                                    "type": EvidenceType.AXIOM.value,
-                                    "author": "NIST/Petronas_Baseline",
-                                    "timestamp": "infinity",
-                                },
-                                "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
-                                "lifecycle": {
-                                    "status": "active",
-                                    "retrieved_by": "axiom_engine_v1.1",
-                                },
-                            }
+                            build_evidence_dict(
+                                evidence_id=f"E-AXIOM-{category.upper()}-{property_key.upper()}",
+                                evidence_type=EvidenceType.AXIOM,
+                                text=txt,
+                                uri=f"axiom://{category}/{property_key}",
+                                author="NIST/Petronas_Baseline",
+                                trust_weight=1.0,
+                                relevance_score=1.0,
+                                retrieved_by="axiom_engine_v1.1",
+                            )
                         )
 
     # Web Search Result Processing
     for i, res in enumerate(result.get("results", [])[:3]):
         snippet = res.get("snippet", "")
         evidence.append(
-            {
-                "evidence_id": f"E-WEB-{i}",
-                "content": {
-                    "text": snippet,
-                    "hash": generate_content_hash(snippet),
-                    "language": "en",
-                },
-                "source_meta": {
-                    "uri": res.get("link", "Unknown"),
-                    "type": EvidenceType.WEB.value,
-                    "author": "WebScout",
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                },
-                "metrics": {
-                    "trust_weight": 0.90 if res.get("link") else 0.50,
-                    "relevance_score": 0.8,
-                },
-                "lifecycle": {"status": "active", "retrieved_by": "reality_search_v2"},
-            }
+            build_evidence_dict(
+                evidence_id=f"E-WEB-{i}",
+                evidence_type=EvidenceType.WEB,
+                text=snippet,
+                uri=res.get("link", "Unknown"),
+                author="WebScout",
+                trust_weight=0.90 if res.get("link") else 0.50,
+                relevance_score=0.8,
+                retrieved_by="reality_search_v2",
+            )
         )
 
     hardened_output = {
