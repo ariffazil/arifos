@@ -243,27 +243,22 @@ async def agi_reason(
         # Heuristic: classify evidence type
         grounding_str = json.dumps(grounding)
         ev_type = (
-            EvidenceType.AXIOM.value
+            EvidenceType.AXIOM
             if "axiom" in grounding_str.lower() or "axiom_id" in grounding
-            else EvidenceType.WEB.value
+            else EvidenceType.WEB
         )
         evidence.append(
-            {
-                "evidence_id": f"E-GROUND-{session_id[:4]}",
-                "content": {
-                    "text": grounding_str[:2000],
-                    "hash": generate_content_hash(grounding_str),
-                    "language": "json",
-                },
-                "source_meta": {
-                    "uri": "client://grounding",
-                    "type": ev_type,
-                    "author": "CLIENT",
-                    "timestamp": "now",
-                },
-                "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
-                "lifecycle": {"status": "active", "retrieved_by": "client_grounding"},
-            }
+            build_evidence_dict(
+                evidence_id=f"E-GROUND-{session_id[:4]}",
+                evidence_type=ev_type,
+                text=grounding_str[:2000],
+                uri="client://grounding",
+                author="CLIENT",
+                language="json",
+                trust_weight=1.0,
+                relevance_score=1.0,
+                retrieved_by="client_grounding",
+            )
         )
         result["evidence"] = evidence
     store_stage_result(session_id, "agi", result)
@@ -306,18 +301,16 @@ async def asi_empathize(query: str, session_id: str) -> dict:
     evidence = result.get("evidence", [])
     txt = f"Stakeholder impact valuation: kappa_r={result.get('empathy_kappa_r', 1.0)}"
     evidence.append(
-        {
-            "evidence_id": f"E-EMP-{session_id[:4]}",
-            "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
-            "source_meta": {
-                "uri": "internal://asi/empathize",
-                "type": EvidenceType.EMPIRICAL.value,
-                "author": "ASI_HEART",
-                "timestamp": "now",
-            },
-            "metrics": {"trust_weight": 0.95, "relevance_score": 0.9},
-            "lifecycle": {"status": "active", "retrieved_by": "asi_empathize_v2"},
-        }
+        build_evidence_dict(
+            evidence_id=f"E-EMP-{session_id[:4]}",
+            evidence_type=EvidenceType.EMPIRICAL,
+            text=txt,
+            uri="internal://asi/empathize",
+            author="ASI_HEART",
+            trust_weight=0.95,
+            relevance_score=0.9,
+            retrieved_by="asi_empathize_v2",
+        )
     )
     result["evidence"] = evidence
 
@@ -339,18 +332,16 @@ async def asi_align(query: str, session_id: str) -> dict:
     evidence = result.get("evidence", [])
     txt = f"Ethics/Policy alignment check for {session_id[:8]}"
     evidence.append(
-        {
-            "evidence_id": f"E-ALIGN-{session_id[:4]}",
-            "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
-            "source_meta": {
-                "uri": "internal://asi/align",
-                "type": EvidenceType.EMPIRICAL.value,
-                "author": "ASI_HEART",
-                "timestamp": "now",
-            },
-            "metrics": {"trust_weight": 0.98, "relevance_score": 0.95},
-            "lifecycle": {"status": "active", "retrieved_by": "asi_align_v2"},
-        }
+        build_evidence_dict(
+            evidence_id=f"E-ALIGN-{session_id[:4]}",
+            evidence_type=EvidenceType.EMPIRICAL,
+            text=txt,
+            uri="internal://asi/align",
+            author="ASI_HEART",
+            trust_weight=0.98,
+            relevance_score=0.95,
+            retrieved_by="asi_align_v2",
+        )
     )
     result["evidence"] = evidence
 
@@ -375,6 +366,8 @@ async def apex_verdict(
         mode:   "judge" (default) or "calibrate" for self-audit mode.
         window: number of recent decisions to inspect when mode="calibrate".
     """
+    import sys, traceback
+
     engine = APEXEngine()
 
     # Calibration mode: delegate to APEXEngine.calibrate (Phoenix-72) and
@@ -385,7 +378,19 @@ async def apex_verdict(
         store_stage_result(session_id, "apex_calibrate", calib)
         return calib
 
-    result = await engine.judge(query, session_id)
+    try:
+        result = await engine.judge(query, session_id)
+    except Exception as e:
+        # Fail-closed: structured fallback instead of raw 500
+        traceback.print_exc(file=sys.stderr)
+        result = {
+            "verdict": ConflictStatus.SABAR.value,
+            "truth_score": 0.0,
+            "tri_witness": 0.0,
+            "ambiguity_reduction": 0.0,
+            "verdict_justification": f"apex_verdict exception captured: {e}",
+            "engine_mode": "fallback_apex_verdict",
+        }
 
     # Calibration mode: self-audit without changing core verdict logic.
     if mode != "judge":
@@ -574,8 +579,24 @@ async def reality_search(
 ) -> dict:
     """External fact-checking and reality grounding via web search & Axiom Engine."""
     from datetime import datetime, timezone
+    import sys, traceback
 
-    result = await reality_check(query, region=region, timelimit=timelimit)
+    try:
+        result = await reality_check(query, region=region, timelimit=timelimit)
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        # Structured fallback envelope
+        return {
+            "query": query,
+            "session_id": session_id,
+            "evidence": [],
+            "verdict": ConflictStatus.SABAR.value,
+            "error": {
+                "code": 500,
+                "message": f"reality_search exception captured: {e}",
+            },
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        }
 
     # Axiom Engine Injection (Offline Physics/CCS Baseline)
     evidence = []
@@ -714,12 +735,30 @@ async def forge(
           - stages: Per-stage outputs for audit (init/agi/asi/apex/vault).
     """
     from datetime import datetime, timezone
+    import sys, traceback
     import time
 
     # ── 000: INIT GATE ─────────────────────────────────────────────
     pipeline_start = time.time()
     init_engine = InitEngine()
-    init_result = await init_engine.ignite(query, session_id)
+    try:
+        init_result = await init_engine.ignite(query, session_id)
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        # Fail-closed forge wrapper
+        return {
+            "session_id": session_id or "unknown",
+            "mode": mode,
+            "verdict": ConflictStatus.SABAR.value,
+            "response": {
+                "error": f"forge/init exception captured: {e}",
+            },
+            "stages": {},
+            "seal_id": None,
+            "sealed": False,
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("forge"),
+        }
     effective_session_id = init_result.get("session_id", session_id or "unknown")
 
     # Normalize/init stage record
@@ -933,8 +972,42 @@ async def forge_pipeline(
     return await forge(query=query, session_id=session_id, mode=mode)
 
 
-@mcp.tool()
-@constitutional_floor("F1", "F3")
+# Internal helper (not exposed as an MCP tool)
+def validate_vault_payload(payload: dict, grounding_required: bool = False) -> list[str]:
+    """Lightweight VAULT pre-seal validator.
+
+    Ensures core invariants before a SEAL is recorded. Returns a list
+    of validation error strings (empty list means 'pass').
+    """
+    errors: list[str] = []
+    apex = payload.get("apex") or {}
+    truth_score = apex.get("truth_score")
+    try:
+        float(truth_score)
+    except Exception:
+        errors.append("invalid_or_missing: apex.truth_score")
+
+    if payload.get("compute") is None:
+        errors.append("missing: compute")
+
+    if not isinstance(payload.get("agi"), dict):
+        errors.append("missing: agi stage trace")
+
+    if not isinstance(payload.get("asi"), dict):
+        errors.append("missing: asi stage trace")
+
+    evidence = payload.get("evidence") or []
+    if not isinstance(evidence, list) or len(evidence) == 0:
+        errors.append("missing: evidence[]")
+
+    if grounding_required:
+        has_grounding = any((e or {}).get("type") in ("web", "axiom") for e in evidence)
+        if not has_grounding:
+            errors.append("grounding_required: need WEB or AXIOM evidence")
+
+    return errors
+
+
 async def vault_seal(
     session_id: str,
     verdict: str,
@@ -1088,6 +1161,8 @@ async def vault_seal(
     }
 
     # Enriched payload with both v2.1 compat and v3 structure
+    validation_errors = validate_vault_payload(payload, grounding_required=payload.get("grounding_required", False))
+
     enriched_payload = {
         **payload,
         "_schema_version": "3.0",
@@ -1100,6 +1175,7 @@ async def vault_seal(
         "oversight": v3_oversight,
         "provenance": v3_provenance,
         "evidence": v3_evidence,
+        "validation_errors": validation_errors,
         # Backwards compat: keep _v2_metadata for existing queries
         "_v2_metadata": {
             "schema_version": "3.0",
@@ -1130,6 +1206,10 @@ async def vault_seal(
     seal_id = None
     seal_hash = f"hash-0"
     postgres_used = False
+
+    # If validation errors exist, downgrade verdict type for fast-query columns
+    if validation_errors and verdict.upper() == ConflictStatus.SEAL.value:
+        verdict = ConflictStatus.PARTIAL.value
 
     if use_postgres:
         try:
