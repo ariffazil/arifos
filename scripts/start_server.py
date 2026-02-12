@@ -55,11 +55,16 @@ async def sse_endpoint(request):
     Uses SseServerTransport.connect_sse, which wraps the underlying
     MCP server with a streaming transport. This replaces the older
     connect_session() API.
+
+    Note: Starlette's Request object does not expose a public ``send``
+    attribute; the underlying ASGI send callable is stored on the
+    private ``_send`` attribute. We pass that through here so the
+    transport can write SSE frames without causing AttributeError.
     """
     return await sse.connect_sse(
         request.scope,
         request.receive,
-        request.send,
+        request._send,  # type: ignore[attr-defined]
         mcp_server._mcp_server,
     )
 
