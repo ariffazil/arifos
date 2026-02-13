@@ -175,6 +175,7 @@ try:
                 request.scope, request.receive, request._send
             )
             print("[messages] Handled successfully", file=sys.stderr, flush=True)
+            return Response(status_code=202)  # ✅ F4 COMPLIANT
         except Exception as e:
             print(f"[messages] ERROR: {e}", file=sys.stderr, flush=True)
             import traceback
