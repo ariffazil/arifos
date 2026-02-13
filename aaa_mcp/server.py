@@ -298,22 +298,30 @@ async def agi_cognition(
 
     # Use real evidence if available, otherwise fallback to grounding param
     evidence_sources = real_evidence if real_evidence else (grounding or [])
+    
+    # Calculate relevance-based grounding (not just count)
+    if evidence_sources:
+        avg_relevance = sum(e.get("relevance", 0) for e in evidence_sources) / len(evidence_sources)
+        # grounding = relevance * credibility (already in relevance score)
+        grounding_score = min(1.0, avg_relevance)
+    else:
+        grounding_score = 0.0
+    
     evidence_count = len(evidence_sources)
     
-    # Recalculate SystemState with real evidence
+    # Recalculate SystemState with real grounding
     system_state = compute_system_state(
         query=query,
         loop_count=0,
-        evidence_count=evidence_count
+        evidence_count=evidence_count if grounding_score >= 0.5 else 0  # Only count if relevant
     )
 
     # AGI Pipeline: Sense → Think → Reason
-    # F2: Truth - calculate confidence (v62 Step 2: real evidence)
-    # Use uncertainty from system_state AND evidence quality
+    # F2: Truth - calculate confidence (v62 Step 2: real evidence + relevance)
     truth_score = 0.85 - (system_state.uncertainty * 0.3)
-    if evidence_count > 0:
-        # Boost truth_score based on real evidence
-        truth_score = min(0.99, 0.75 + (evidence_count * 0.05))
+    if grounding_score >= 0.5:
+        # Boost truth_score based on relevance, not just count
+        truth_score = min(0.99, 0.75 + (grounding_score * 0.25))
 
     # F4: Clarity - entropy reduction
     clarity_delta = -0.1  # Entropy reduced
@@ -324,8 +332,8 @@ async def agi_cognition(
     # F8: Genius - coherence
     genius_score = 0.88
 
-    # F10: Ontology - grounding (real evidence = true grounding)
-    grounded = evidence_count >= 2  # Require 2+ sources for grounded=true
+    # F10: Ontology - grounding (relevance >= 0.7 required for grounded=true)
+    grounded = grounding_score >= 0.7 and evidence_count >= 2  # High relevance + multiple sources
 
     # Calculate overall floor scores
     floor_scores = {

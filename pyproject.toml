@@ -1,6 +1,6 @@
 [project]
 name = "arifos"
-version = "62.2.0"
+version = "62.3.0"
 # v62.0-STATE: SystemState Exposure for Cognitive Runtime (2026-02-13)
 #   - SystemState dataclass: uncertainty, risk, grounding, loop_count, profile
 #   - Heuristics module: Cheap, reversible signals (not fake metrics)
