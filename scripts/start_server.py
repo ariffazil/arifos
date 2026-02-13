@@ -25,7 +25,7 @@ try:
     import uvicorn
     from starlette.applications import Starlette
     from starlette.responses import JSONResponse
-    from starlette.routing import Route
+    from starlette.routing import Route, Mount
     from mcp.server.sse import SseServerTransport
     print("[startup] Dependencies imported successfully", file=sys.stderr, flush=True)
 except Exception as e:
@@ -79,27 +79,37 @@ sse = SseServerTransport("/messages")
 
 
 async def sse_endpoint(request):
-    """SSE endpoint for MCP clients."""
+    """SSE endpoint for MCP clients using FastMCP's native SSE support."""
     print("[sse] Connection initiated", file=sys.stderr, flush=True)
     try:
+        # Use FastMCP's built-in SSE handling
+        # The correct pattern for FastMCP v2+ is to use the sse_response context manager
         async with sse.connect_sse(
             request.scope,
             request.receive,
             request._send,
-        ) as streams:
-            print("[sse] Streams connected", file=sys.stderr, flush=True)
+        ) as (read_stream, write_stream):
+            print("[sse] Streams connected, starting MCP server", file=sys.stderr, flush=True)
             
-            # Access the underlying MCP server
-            server = getattr(mcp_server, '_mcp_server', mcp_server)
+            # Get the underlying MCP server and run it with the streams
+            # FastMCP stores the server in _mcp_server attribute
+            if hasattr(mcp_server, '_mcp_server') and mcp_server._mcp_server is not None:
+                server = mcp_server._mcp_server
+                # Run the server with the streams
+                await server.run(
+                    read_stream,
+                    write_stream,
+                    server.create_initialization_options(),
+                )
+            else:
+                # Fallback: use FastMCP's run method directly if available
+                print("[sse] Using FastMCP direct run", file=sys.stderr, flush=True)
+                await mcp_server.run(
+                    read_stream,
+                    write_stream,
+                    mcp_server.create_initialization_options(),
+                )
             
-            print(f"[sse] Server type: {type(server)}", file=sys.stderr, flush=True)
-            
-            # Run the server with the streams
-            await server.run(
-                streams[0],
-                streams[1],
-                server.create_initialization_options(),
-            )
             print("[sse] Server run completed", file=sys.stderr, flush=True)
     except Exception as e:
         print(f"[sse] ERROR: {e}", file=sys.stderr, flush=True)

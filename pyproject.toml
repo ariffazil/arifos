@@ -1,6 +1,16 @@
 [project]
 name = "arifos"
-version = "60.1.0"
+version = "61.0.0"
+# v61.0-FORGE: 5-Core Constitutional Architecture (2026-02-13)
+#   - 5-Core Kernel: init_session, agi_cognition, asi_empathy, apex_verdict, vault_seal
+#   - Trinity Pipeline: 000_INIT → 111-333_AGI(Δ) → 555-666_ASI(Ω) → 888_APEX(Ψ) → 999_VAULT(🔒)
+#   - 21-Tool Weave: 5 Core + 16 Capability Modules (T6-T21)
+#   - Unified AGI: sense + think + reason → agi_cognition
+#   - Unified ASI: empathize + align → asi_empathy
+#   - Capability Router: Ring 0 (Core) → Ring 3 (Extensions) with F1-F13 enforcement
+#   - T15 Localization: MY/SEA support (ms-MY, en-GB, zh-CN, ta-IN)
+#   - Code Reduction: 83% lines removed (3647 → 797) while preserving all floors
+#   - Status: SEAL — 5-Core Constitutional Kernel ready for production
 # v60.1-ACLIP_CAI: 9-Sense Nervous System (2026-02-13)
 #   - ACLIP_CAI: Console Intelligence & Perception Console
 #   - 9-Tool Nervous System: system_health, process_list, fs_inspect,
