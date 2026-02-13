@@ -343,7 +343,7 @@ async def forge(
             f"666: {asi_dict.get('motto_666', 'DIJAGA, BUKAN DIABAIKAN')}",
             f"777: {apex_dict.get('motto_777', 'DIUSAHAKAN, BUKAN DIHARAPI')}",
             f"888: {apex_dict.get('motto_888', 'DISEDARKAN, BUKAN DIYAKINKAN')}",
-            f"999: {seal_out.motto if seal_out else 'DITEMPA, BUKAN DIBERI'}",
+            f"999: {getattr(seal_out, 'motto', 'DITEMPA, BUKAN DIBERI') if seal_out else 'DITEMPA, BUKAN DIBERI'}",
         ]
     )
 
