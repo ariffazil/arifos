@@ -22,6 +22,10 @@ from typing import Any, Optional
 
 from fastmcp import FastMCP
 
+# v62: SystemState exposure for cognitive runtime
+from aaa_mcp.core.heuristics import calculate_system_state
+from aaa_mcp.core.state import SystemState, Profile
+
 # Tool annotations for MCP 2025-11-25 compliance
 TOOL_ANNOTATIONS = {
     "init_session": {
@@ -198,6 +202,9 @@ async def init_session(
     return output
 
 
+from aaa_mcp.core.heuristics import calculate_system_state
+from aaa_mcp.core.state import SystemState, Profile
+
 @mcp.tool(annotations=TOOL_ANNOTATIONS["agi_cognition"])
 @constitutional_floor("F2", "F4", "F7", "F8", "F10")
 async def agi_cognition(
@@ -234,17 +241,27 @@ async def agi_cognition(
             "error": "F11_FAILURE: No session_id provided",
         }
 
+    # Calculate SystemState (v62 Step 1)
+    system_state = calculate_system_state(
+        query=query,
+        session_id=session_id,
+        loop_count=0,
+        stakeholders=None,
+        evidence=grounding
+    )
+
     # AGI Pipeline: Sense → Think → Reason
-    # F2: Truth - calculate confidence
-    truth_score = 0.85  # Placeholder - would use actual reasoning engine
+    # F2: Truth - calculate confidence (heuristic for v62)
+    # Use uncertainty from system_state to inform truth_score
+    truth_score = 0.85 - (system_state.uncertainty * 0.3)  # Higher uncertainty = lower truth
     if grounding:
         truth_score = min(0.99, 0.7 + (len(grounding) * 0.05))
 
     # F4: Clarity - entropy reduction
     clarity_delta = -0.1  # Entropy reduced
 
-    # F7: Humility - uncertainty
-    omega_0 = 0.04
+    # F7: Humility - uncertainty from system_state
+    omega_0 = system_state.uncertainty
 
     # F8: Genius - coherence
     genius_score = 0.88
@@ -273,16 +290,17 @@ async def agi_cognition(
         "verdict": "SEAL" if truth_score >= 0.75 else "SABAR",
         "stage": "AGI",
         "session_id": session_id,
-        "truth_score": truth_score,
+        "system_state": system_state.to_dict(),  # v62: Exposed state
+        "truth_score": round(truth_score, 2),
         "clarity_delta": clarity_delta,
-        "omega_0": omega_0,
+        "omega_0": round(omega_0, 2),
         "genius_score": genius_score,
         "grounded": grounded,
         "floor_scores": floor_scores,
         "cognition": {
             "sense": {"intent": "analyze", "entities": []},
             "think": {"hypotheses": []},
-            "reason": {"conclusion": "Analysis complete", "confidence": truth_score},
+            "reason": {"conclusion": "Analysis complete", "confidence": round(truth_score, 2)},
         },
         "motto": "🔥 DIKAJI, BUKAN DISUAPI — Examined, Not Spoon-fed",
     }
