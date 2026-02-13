@@ -275,7 +275,12 @@ async def forge(
     stage_motto_555 = get_motto_for_stage("555_EMPATHY")
     stage_motto_666 = get_motto_for_stage("666_ALIGN")
 
-    asi_out = await asi(query, agi_tensor, token.session_id, action="full")
+    asi_out = await asi(
+        action="full",
+        agi_tensor=agi_tensor,
+        session_id=token.session_id,
+        query=query,
+    )
 
     # Update EMD from Ω HEART
     if hasattr(asi_out, "floor_scores"):

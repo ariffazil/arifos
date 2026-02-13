@@ -1794,6 +1794,8 @@ async def vault_seal(
     if risk_level and risk_level != "low":
         output["risk_level"] = risk_level
 
+    return output
+
 
 @mcp.tool()
 async def get_tools_manifest() -> dict:
