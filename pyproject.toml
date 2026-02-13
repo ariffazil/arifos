@@ -1,6 +1,13 @@
 [project]
 name = "arifos"
-version = "62.3.0"
+version = "64.1.0"
+# v64.1-GAGI: Governed AGI Infrastructure (2026-02-13)
+#   - Uncertainty Engine: 5-dimensional vector with harmonic/geometric mean
+#   - Governance Kernel: Unified GovernanceState with conditional AWAITING_888
+#   - Telemetry: 30-day locked adaptation with drift tracking
+#   - F4 Fixes: /sse and /messages endpoints return proper Response objects
+#   - Module path fix: sys.path.insert(0, os.getcwd()) prevents site-packages shadowing
+#   - Status: GAGI RUNTIME OPERATIONAL
 # v62.0-STATE: SystemState Exposure for Cognitive Runtime (2026-02-13)
 #   - SystemState dataclass: uncertainty, risk, grounding, loop_count, profile
 #   - Heuristics module: Cheap, reversible signals (not fake metrics)
