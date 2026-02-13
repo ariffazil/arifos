@@ -1825,6 +1825,7 @@ async def get_tools_manifest() -> dict:
     import traceback
 
     # FastMCP v2 get_tools API returns a dict[name -> FunctionTool]
+    tools_manifest: list[dict] = []
     try:
         tools = await mcp.get_tools()  # type: ignore[func-returns-value]
         if isinstance(tools, dict):
