@@ -65,9 +65,21 @@ async def health(request):
         tool_count = 0
         tool_names = []
     
+    # v64.1: Runtime identity stamp for deployment verification
+    import subprocess
+    try:
+        git_sha = subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True, text=True, timeout=5
+        ).stdout.strip()
+    except:
+        git_sha = "unknown"
+    
     return JSONResponse({
         "status": "ok",
         "version": __version__,
+        "git_sha": git_sha,
+        "runtime_id": os.environ.get("RAILWAY_REPLICA_ID", "local"),
         "mcp_tools": tool_count,
         "tool_names": tool_names,
     })
