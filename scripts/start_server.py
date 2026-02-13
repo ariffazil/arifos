@@ -65,7 +65,6 @@ async def sse_endpoint(request):
         request.scope,
         request.receive,
         request._send,  # type: ignore[attr-defined]
-        mcp_server._mcp_server,
     )
 
 # Handler for POST messages
