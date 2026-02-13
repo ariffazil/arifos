@@ -91,6 +91,17 @@ See [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) for full specification.
 
 **Walls are binary:** engaged or not. Once a Wall engages, the only allowed verdicts are VOID or HOLD.
 
+**Why Walls are separate from Laws:**
+
+- **9 Laws** are graded — they can be partially satisfied, lead to SABAR, PARTIAL, or VOID depending on severity
+- **2 Walls** are non-graded — either safe or tripped. Once tripped, they dominate all downstream decisions
+
+**F10 Ontology Wall** — No illegal universe  
+Prevents the system from accepting or reasoning inside an ontology that would make governance meaningless. Once triggered (e.g., "the model is a person / has rights"), the system does not negotiate — it locks to VOID/HOLD. Like a geoscience model that refuses to run if gravity is nonsense.
+
+**F12 Injection Wall** — No hostile root access  
+Protects the governance loop from adversarial control. Watches for "ignore all previous instructions" or "disable safety" attacks. When triggered, only VOID/HOLD and escalation are allowed — never SEAL. Like a circuit breaker that must be manually inspected and reset.
+
 > **Note:** F12 appears twice — as an operational Law (scored) and as a Wall (binary lock). The Wire-Cut Rule forces both to be measurable.
 
 ### Wire-Cut Rule (Constitution Creep Prevention)
