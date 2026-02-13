@@ -19,7 +19,6 @@ from starlette.applications import Starlette
 from starlette.responses import JSONResponse
 from starlette.routing import Route
 
-from mcp.server import Server
 from mcp.server.sse import SseServerTransport
 
 # Environment
@@ -63,11 +62,18 @@ async def sse_endpoint(request):
     private ``_send`` attribute. We pass that through here so the
     transport can write SSE frames without causing AttributeError.
     """
-    return await sse.connect_sse(
+    async with sse.connect_sse(
         request.scope,
         request.receive,
         request._send,  # type: ignore[attr-defined]
-    )
+    ) as streams:
+        # FastMCP wraps an underlying MCP Server used by SSE transport.
+        server = mcp_server._mcp_server  # type: ignore[attr-defined]
+        await server.run(
+            streams[0],
+            streams[1],
+            server.create_initialization_options(),
+        )
 
 
 # Handler for POST messages
@@ -80,7 +86,7 @@ async def messages_endpoint(request):
     (similar to the SSE endpoint) instead of the non-existent
     ``request.send`` attribute which causes AttributeError in production.
     """
-    return await sse.handle_post_message(
+    await sse.handle_post_message(
         request.scope,
         request.receive,
         request._send,  # type: ignore[attr-defined]
