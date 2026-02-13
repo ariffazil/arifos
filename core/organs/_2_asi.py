@@ -13,8 +13,10 @@ from core.shared.physics import (
 from core.shared.types import AsiOutput, FloorScores, Verdict
 
 
-async def empathize(query: str, agi_tensor: ConstitutionalTensor, session_id: str) -> AsiOutput:
-    stakeholders = identify_stakeholders(query)
+async def empathize(
+    query: str, agi_tensor: ConstitutionalTensor, session_id: str, context: Optional[str] = None
+) -> AsiOutput:
+    stakeholders = identify_stakeholders(query, context=context)
     # Peace2 expects Dict[str, float]
     harms = {s.name: (1.0 - agi_tensor.truth_score) for s in stakeholders}
     peace_obj = Peace2(harms)
@@ -62,9 +64,11 @@ async def align(
     # F6 is HARD floor: κᵣ ≥ 0.95, failure = VOID
     if kappa < 0.95:
         violations.append("F6_EMPATHY_LOW")
-    
+
     # HARD floor violations = VOID, not SABAR
-    hard_violations = [v for v in violations if v.startswith(("F1_", "F6_", "F10_", "F11_", "F12_"))]
+    hard_violations = [
+        v for v in violations if v.startswith(("F1_", "F6_", "F10_", "F11_", "F12_"))
+    ]
     if hard_violations:
         verdict_str = "VOID"
     elif violations:
@@ -77,7 +81,10 @@ async def align(
     return AsiOutput(
         session_id=session_id,
         floor_scores=FloorScores(
-            f1_amanah=1.0 if is_reversible else 0.0, f5_peace=p2_score, f6_empathy=kappa, f9_anti_hantu=0.0
+            f1_amanah=1.0 if is_reversible else 0.0,
+            f5_peace=p2_score,
+            f6_empathy=kappa,
+            f9_anti_hantu=0.0,
         ),
         verdict=Verdict(verdict_str),
         violations=violations,

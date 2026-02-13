@@ -315,18 +315,18 @@ class AGIEngine:
         try:
             sense_out = await core_organs.sense(query, session_id)
             think_out = await core_organs.think(query, sense_out, session_id)
-            agi_out = await core_organs.reason(query, think_out, session_id)
+            tensor, thoughts = await core_organs.reason(query, think_out, session_id)
 
             # ConstitutionalTensor fields are direct
-            truth_score = getattr(agi_out, "truth_score", 0.95)
-            entropy_delta = getattr(agi_out, "entropy_delta", 0.0)
-            humility = getattr(agi_out, "humility", None)
+            truth_score = getattr(tensor, "truth_score", 0.95)
+            entropy_delta = getattr(tensor, "entropy_delta", 0.0)
+            humility = getattr(tensor, "humility", None)
             omega_0 = humility.omega_0 if humility else 0.04
-            genius = getattr(agi_out, "genius", None)
+            genius = getattr(tensor, "genius", None)
             genius_score = genius.G() if genius else 0.85
-            empathy = getattr(agi_out, "empathy", 0.95)
+            empathy = getattr(tensor, "empathy", 0.95)
 
-            _, violations = agi_out.constitutional_check()
+            _, violations = tensor.constitutional_check()
 
             return {
                 "status": "ARTIFACT_READY",
@@ -341,7 +341,8 @@ class AGIEngine:
                 "ambiguity_reduction": entropy_delta,
                 "humility_omega": omega_0,
                 "genius_score": genius_score,
-                "evidence": getattr(agi_out, "evidence", []),
+                "evidence": getattr(tensor, "evidence", []),
+                "thoughts": [t.thought for t in thoughts],
                 "tensor": {
                     "witness": {"H": 0.95, "A": 0.95, "S": 0.95},
                     "entropy_delta": entropy_delta,
@@ -372,18 +373,23 @@ class AGIEngine:
 class ASIEngine:
     """ASI Heart Engine — Uses core.organs exclusively."""
 
-    async def _core_agi_tensor(self, query: str, session_id: str) -> ConstitutionalTensor:
-        """Recompute AGI tensor for ASI input."""
+    async def _core_agi_process(
+        self, query: str, session_id: str
+    ) -> tuple[ConstitutionalTensor, str]:
+        """Recompute AGI tensor and context for ASI input."""
         sense_out = await core_organs.sense(query, session_id)
         think_out = await core_organs.think(query, sense_out, session_id)
-        agi_out = await core_organs.reason(query, think_out, session_id)
-        return _agi_output_to_tensor(agi_out)
+        tensor, thoughts = await core_organs.reason(query, think_out, session_id)
+
+        # Synthesize thoughts into context string
+        context = "\n".join([f"- {t.thought}" for t in thoughts]) if thoughts else ""
+        return tensor, context
 
     async def empathize(self, query: str, session_id: str) -> Dict[str, Any]:
         """Stage 555: Stakeholder empathy analysis."""
         try:
-            agi_tensor = await self._core_agi_tensor(query, session_id)
-            emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+            agi_tensor, context = await self._core_agi_process(query, session_id)
+            emp_out = await core_organs.empathize(query, agi_tensor, session_id, context=context)
             # v60 compliance: use floor_scores for metrics
             kappa_r = emp_out.floor_scores.f6_empathy if hasattr(emp_out, "floor_scores") else 0.7
             # Phase A: Only APEX has verdict authority
@@ -405,8 +411,8 @@ class ASIEngine:
     async def align(self, query: str, session_id: str) -> Dict[str, Any]:
         """Stage 666: Constitutional alignment check."""
         try:
-            agi_tensor = await self._core_agi_tensor(query, session_id)
-            emp_out = await core_organs.empathize(query, agi_tensor, session_id)
+            agi_tensor, context = await self._core_agi_process(query, session_id)
+            emp_out = await core_organs.empathize(query, agi_tensor, session_id, context=context)
             align_out = await core_organs.align(query, emp_out.model_dump(), agi_tensor, session_id)
             kappa_r = (
                 align_out.floor_scores.f6_empathy if hasattr(align_out, "floor_scores") else 0.7
@@ -484,8 +490,7 @@ class APEXEngine:
             # Build tensors for apex
             sense_out = await core_organs.sense(query, session_id)
             think_out = await core_organs.think(query, sense_out, session_id)
-            agi_out = await core_organs.reason(query, think_out, session_id)
-            agi_tensor = _agi_output_to_tensor(agi_out)
+            agi_tensor, _ = await core_organs.reason(query, think_out, session_id)
 
             asi_output = {
                 "kappa_r": asi_res.get("kappa_r", asi_res.get("empathy_kappa_r", 0.7)),
