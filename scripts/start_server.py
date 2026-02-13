@@ -137,6 +137,7 @@ try:
     
     async def sse_endpoint(request):
         """SSE endpoint for MCP clients."""
+        from starlette.responses import Response
         print("[sse] Connection initiated", file=sys.stderr, flush=True)
         try:
             async with sse.connect_sse(
@@ -156,6 +157,10 @@ try:
                     server.create_initialization_options(),
                 )
                 print("[sse] Server run completed", file=sys.stderr, flush=True)
+            
+            # Return empty response - SSE handled by transport
+            return Response(status_code=200)
+            
         except Exception as e:
             print(f"[sse] ERROR: {e}", file=sys.stderr, flush=True)
             import traceback
