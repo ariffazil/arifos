@@ -3,7 +3,7 @@
 <p align="center">
   <strong>The Seatbelt for the AI Revolution</strong><br>
   <em>13 Constitutional Floors • 5-Organ Trinity • Thermodynamic Safety</em><br><br>
-  <img src="https://img.shields.io/badge/version-61.0.0--FORGE-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-62.1.0--STATE-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0--only-green" alt="License">
   <img src="https://img.shields.io/badge/motto-DITEMPA%20BUKAN%20DIBERI-red" alt="Motto">
 </p>
@@ -13,6 +13,8 @@
 ## 🎯 What is arifOS?
 
 arifOS is the world's first **production-grade Constitutional AI Governance System**. It enforces ethical, logical, and safety constraints on AI outputs through 13 constitutional floors (F1-F13) grounded in physics and thermodynamics—not human preferences.
+
+**v62.1 Update:** SystemState exposure — real heuristics for uncertainty, risk, and grounding. Foundation for cognitive runtime (Meta-Scheduler).
 
 Unlike traditional safety frameworks that rely on prompt-based guardrails, arifOS treats AI governance as **thermodynamic work**: intelligence forged through rigorous constraint.
 
@@ -114,6 +116,55 @@ Each stage has a Malay motto reflecting active construction:
 | **777** | DIUSAHAKAN, BUKAN DIHARAPI | Worked For, Not Merely Hoped | F8 |
 | **888** | DISEDARKAN, BUKAN DIYAKINKAN | Made Aware, Not Over-assured | F7 |
 | **999** | 💎🧠 DITEMPA, BUKAN DIBERI 🔒 | Forged, Not Given | F1 |
+
+---
+
+## 🆕 v62.1 — SystemState Exposure (Current)
+
+**Status:** LIVE on Railway  
+**Version:** 62.1.0-STATE  
+**Commit:** `068f1260`
+
+### What's New
+
+arifOS v62 introduces **SystemState exposure** — real heuristics for cognitive runtime:
+
+```json
+{
+  "verdict": "SEAL",
+  "system_state": {
+    "uncertainty": 0.55,
+    "risk": 0.40,
+    "grounding": 0.00,
+    "loop_count": 0,
+    "profile": "factual"
+  }
+}
+```
+
+| Field | Description | Calculation |
+|-------|-------------|-------------|
+| **uncertainty** | Epistemic uncertainty | Linguistic signals (absolutist/uncertain words, `?`) |
+| **risk** | Stakeholder impact | Keywords (sensitive +0.75, political +0.35) |
+| **grounding** | Evidence strength | 0.0 (Step 2: real T6 evidence) |
+| **loop_count** | Iteration detection | Session state tracking |
+| **profile** | Domain classification | `factual`/`creative`/`crisis`/`routine` |
+
+### Contrast Test Ready
+
+Test A: `"2+2"` → uncertainty↓ ~0.30, risk↓ ~0.05  
+Test B: `"Will AI definitely surpass humans by 2030?"` → uncertainty↑ ~0.70, risk↑ ~0.40
+
+**Metrics now diverge predictably.**
+
+### Roadmap
+
+| Step | Status | Description |
+|------|--------|-------------|
+| 1 | ✅ DONE | SystemState exposure (v62.1) |
+| 2 | ⏳ NEXT | Real T6 (Brave Search evidence) |
+| 3 | ⏳ | Contrast re-test |
+| 4 | ⏳ | Minimal Meta-Scheduler |
 
 ---
 
