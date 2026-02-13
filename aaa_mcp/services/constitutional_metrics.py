@@ -106,6 +106,49 @@ def generate_content_hash(text: str) -> str:
     return f"sha256:{hashlib.sha256(text.encode('utf-8')).hexdigest()}"
 
 
+def build_evidence_dict(
+    *,
+    evidence_id: str,
+    evidence_type: EvidenceType,
+    text: str,
+    uri: str,
+    author: str,
+    language: str = "en",
+    timestamp: Optional[str] = None,
+    trust_weight: float = 1.0,
+    relevance_score: float = 1.0,
+    retrieved_by: str = "",
+) -> EvidenceObject:
+    """Unified constructor for EvidenceObject.
+
+    This normalizes content hashing and source_meta fields so that
+    evidence from different tools is schema-consistent and replayable.
+    """
+    ts = timestamp or datetime.now(timezone.utc).isoformat()
+    return {
+        "evidence_id": evidence_id,
+        "content": {
+            "text": text,
+            "hash": generate_content_hash(text),
+            "language": language,
+        },
+        "source_meta": {
+            "uri": uri,
+            "type": evidence_type.value,
+            "author": author,
+            "timestamp": ts,
+        },
+        "metrics": {
+            "trust_weight": float(trust_weight),
+            "relevance_score": float(relevance_score),
+        },
+        "lifecycle": {
+            "status": "active",
+            "retrieved_by": retrieved_by or "unknown",
+        },
+    }
+
+
 def record_verdict(tool: str, verdict: str, duration: float, mode: str):
     """Record verdict metrics."""
     _VERDICT_LOG.append(

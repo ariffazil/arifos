@@ -30,7 +30,8 @@ def check_floors() -> Tuple[bool, List[str]]:
     
     # Check for floor configuration
     try:
-        from aaa_mcp.core.constitutional_floors import CONSTITUTIONAL_FLOORS
+        # Primary canonical source (v55+): codebase constitutional floors
+        from codebase.constitutional_floors import THRESHOLDS as CONSTITUTIONAL_FLOORS  # type: ignore
         if not CONSTITUTIONAL_FLOORS:
             issues.append("WARN: No constitutional floors defined")
         else:
@@ -39,12 +40,23 @@ def check_floors() -> Tuple[bool, List[str]]:
                 issues.append(f"WARN: Only {floor_count}/13 floors defined")
             print(f"✓ Constitutional floors loaded: {floor_count}")
     except ImportError:
-        # Try alternate location
+        # Backwards compat: older layout inside aaa_mcp
         try:
-            from aaa_mcp.config.floors import FLOORS
-            print(f"✓ Constitutional floors loaded from config")
+            from aaa_mcp.core.constitutional_floors import CONSTITUTIONAL_FLOORS  # type: ignore
+            if not CONSTITUTIONAL_FLOORS:
+                issues.append("WARN: No constitutional floors defined (legacy module)")
+            else:
+                floor_count = len(CONSTITUTIONAL_FLOORS)
+                if floor_count < 13:
+                    issues.append(f"WARN: Only {floor_count}/13 floors defined (legacy)")
+                print(f"✓ Constitutional floors loaded from legacy module: {floor_count}")
         except ImportError:
-            issues.append("WARN: Constitutional floors module not found (non-blocking)")
+            try:
+                from aaa_mcp.config.floors import FLOORS  # type: ignore
+                floor_count = len(FLOORS)
+                print(f"✓ Constitutional floors loaded from config: {floor_count}")
+            except ImportError:
+                issues.append("WARN: Constitutional floors module not found (non-blocking)")
     
     return len([i for i in issues if i.startswith("FAIL")]) == 0, issues
 
@@ -57,36 +69,47 @@ async def check_tools() -> Tuple[bool, List[str]]:
         from aaa_mcp.server import mcp
         import asyncio
         
-        # Introspect internal tool registry directly to avoid async complexity in simple check
-        # FastMCP stores tools in _tools dictionary
+        # Introspect tool registry using FastMCP public API (v2+)
         tool_names = []
-        if hasattr(mcp, '_tools'):
-            tool_names = list(mcp._tools.keys())
-        elif hasattr(mcp, 'list_tools'):
-             # Fallback: try to call list_tools if possible (async context required)
-             try:
-                 tools = await mcp.list_tools()
-                 tool_names = [t.name for t in tools]
-             except:
-                 pass
+        try:
+            # get_tools() is async and returns a dict[name -> FunctionTool]
+            if hasattr(mcp, "get_tools"):
+                tools = await mcp.get_tools()  # type: ignore
+                if isinstance(tools, dict):
+                    tool_names = list(tools.keys())
+                else:
+                    # Fallback if a list-like is ever returned
+                    try:
+                        tool_names = [t.name for t in tools]
+                    except Exception:
+                        pass
+        except Exception:
+            tool_names = []
+        
+        # Fallback: older/list_tools async API
+        if not tool_names and hasattr(mcp, "list_tools"):
+            try:
+                tools = await mcp.list_tools()  # type: ignore
+                tool_names = [t.name for t in tools]
+            except Exception:
+                pass
 
         if not tool_names:
-             issues.append("WARN: Could not inspect tools list")
+            issues.append("WARN: Could not inspect tools list")
         
-        # Verify 10 canonical tools
+        # Verify 10 canonical tools (v55.5-FORGE)
         required_tools = [
             "init_gate", "agi_sense", "agi_think", "agi_reason",
             "asi_empathize", "asi_align", "apex_verdict",
-            "reality_search", "truth_audit", "vault_seal"
+            "reality_search", "vault_seal", "forge"
         ]
         
         missing = [t for t in required_tools if t not in tool_names]
         if missing:
-             issues.append(f"FAIL: Missing canonical tools: {missing}")
+            issues.append(f"FAIL: Missing canonical tools: {missing}")
         else:
-             print(f"✓ All {len(required_tools)} canonical tools present (including truth_audit)")
+            print(f"✓ All {len(required_tools)} canonical tools present (including forge)")
 
-        
         # Check for read-only vs write tools
         print("✓ MCP server module loaded successfully")
         

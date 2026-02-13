@@ -93,6 +93,13 @@ Each stage has a Malay motto reflecting active construction:
 
 ### Installation
 
+<p align="center">
+  <a href="https://arif-fazil.com">Live Server</a> • 
+  <a href="https://arifos.arif-fazil.com">Documentation</a> • 
+  <a href="docs/llms.txt">Constitutional Canon</a> •
+  <a href="000_THEORY/000_LAW.md">The 13 Floors</a>
+</p>
+
 ```bash
 pip install arifos
 ```

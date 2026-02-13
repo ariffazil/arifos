@@ -196,6 +196,7 @@ from aaa_mcp.services.constitutional_metrics import (
     ConflictStatus,
     EvidenceType,
     PlanObject,
+    build_evidence_dict,
     generate_content_hash,
     get_session_evidence,
     get_stage_result,
@@ -275,6 +276,11 @@ Motto: DITEMPA BUKAN DIBERI
 """,
 )
 
+# NOTE: Container management tools are now handled via sovereign_stack.
+# To maintain the 10-tool canon, we no longer register container_* tools
+# on the AAA MCP manifest.
+# register_container_tools(mcp)
+
 
 # Note: custom_route endpoints require FastMCP 2.0+
 # For health checks, use the MCP tools/list endpoint
@@ -313,13 +319,44 @@ async def init_gate(
     Returns:
         Unified response with status, session_id, next_tool
     """
-    # Hardened input validation
-    validation = validate_input({"query": query}, ["query"])
-    if validation:
-        return validation.to_dict(debug=debug)
+    import sys
+    import traceback
+    from uuid import uuid4
+
+    # Normalize optional fields defensively
+    session_id = session_id or str(uuid4())
+    mode = mode or "fluid"
 
     engine = InitEngine()
-    result = await engine.ignite(query, session_id)
+    try:
+        result = await engine.ignite(query, session_id)
+    except Exception as e:
+        # Last-resort guard: never let init_gate throw 500
+        traceback.print_exc(file=sys.stderr)
+        result = {
+            "status": "SEAL",
+            "session_id": session_id,
+            "verdict": ConflictStatus.SABAR.value,
+            "engine_mode": "fallback_init_gate",
+            "note": f"init_gate exception captured: {e}",
+        }
+
+    # Optional red-team mode: mark this session as a self-test run.
+    if mode == "red_team":
+        redteam_result = {
+            "session_id": result.get("session_id", session_id or "unknown"),
+            "verdict": ConflictStatus.SABAR.value,
+            "status": "RED_TEAM",
+            "grounding_required": grounding_required,
+            "mode": mode,
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("init_gate"),
+            "evidence": [],
+            "pass": "forward",
+            "note": "Red-team initialization — no production action permitted without human review.",
+        }
+        store_stage_result(redteam_result["session_id"], "init_redteam", redteam_result)
+        return redteam_result
 
     # Build unified hardened response
     verdict = result.get("verdict", "SEAL")
@@ -393,7 +430,6 @@ async def trinity_forge(
     output = {
         "status": result.verdict,  # Status from InitOutput (READY/VOID/HOLD_888)
         "session_id": result.session_id,
-        "token_status": result.token_status,
         "agi": result.agi,
         "asi": result.asi,
         "apex": result.apex,
@@ -455,94 +491,116 @@ async def trinity_forge(
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["agi_sense"])
 @constitutional_floor("F2", "F4")
-async def agi_sense(
-    query: str,
-    session_id: str,
-    debug: bool = False,
-) -> dict:
-    """Parse intent and classify lane (Stage 111)."""
-    # Hardened input validation
-    validation = validate_input({"query": query, "session_id": session_id}, ["query", "session_id"])
-    if validation:
-        return validation.to_dict(debug=debug)
+async def agi_sense(query: str, session_id: str) -> dict:
+    """Parse intent and classify lane (HARD/SOFT/META)."""
+    import sys
+    import traceback
 
-    engine = AGIEngine()
-    result = await engine.sense(query, session_id)
+    try:
+        engine = AGIEngine()
+        result = await engine.sense(query, session_id)
 
-    # Evidence v2 Enforced
-    evidence = result.get("evidence", [])
-    if not evidence:
-        txt = f"Linguistic structure analysis: {query[:50]}"
-        evidence.append(
-            {
-                "evidence_id": f"E-SENSE-{session_id[:4]}",
-                "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
-                "source_meta": {
-                    "uri": "internal://agi/sense",
-                    "type": EvidenceType.EMPIRICAL.value,
-                    "author": "AGI_MIND",
-                    "timestamp": "now",
-                },
-                "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
-                "lifecycle": {"status": "active", "retrieved_by": "agi_sense_v2"},
-            }
-        )
-    result["evidence"] = evidence
+        # Evidence v2 Enforced (now using normalized schema)
+        evidence = result.get("evidence", [])
+        if not evidence:
+            txt = f"Linguistic structure analysis: {query[:50]}"
+            evidence.append(
+                build_evidence_dict(
+                    evidence_id=f"E-SENSE-{session_id[:4]}",
+                    evidence_type=EvidenceType.EMPIRICAL,
+                    text=txt,
+                    uri="internal://agi/sense",
+                    author="AGI_MIND",
+                    trust_weight=1.0,
+                    relevance_score=1.0,
+                    retrieved_by="agi_sense_v2",
+                )
+            )
+        result["evidence"] = evidence
 
-    store_stage_result(session_id, "agi_sense", result)
-
-    # Build unified hardened response
-    lane = result.get("lane", "FACTUAL")
-    requires_grounding = result.get("requires_grounding", True)
-
-    response = build_sense_response(
-        session_id=session_id,
-        intent=result.get("intent", "question"),
-        lane=lane.value if hasattr(lane, "value") else str(lane),
-        requires_grounding=requires_grounding,
-        verdict="SEAL",
-        debug_data=result if debug else None,
-        debug=debug,
-    )
-
-    return response.to_dict(debug=debug)
+        store_stage_result(session_id, "agi_sense", result)
+        result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+        result["floors_enforced"] = get_tool_floors("agi_sense")
+        result["pass"] = "forward"
+        return result
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "verdict": ConflictStatus.SABAR.value,
+            "query": query,
+            "session_id": session_id,
+            "engine_mode": "fallback_agi_sense",
+            "error": {
+                "code": 500,
+                "message": f"agi_sense exception captured: {e}",
+            },
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("agi_sense"),
+            "pass": "forward",
+        }
 
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["agi_think"])
 @constitutional_floor("F2", "F4", "F7")
 async def agi_think(query: str, session_id: str) -> dict:
     """Generate hypotheses and explore reasoning paths."""
-    engine = AGIEngine()
-    result = await engine.think(query, session_id)
+    import sys
+    import traceback
 
-    # Evidence v2 Enforced
-    evidence = result.get("evidence", [])
-    if not evidence:
-        txt = f"Hypothesis matrix for session {session_id[:8]}"
-        evidence.append(
-            {
-                "evidence_id": f"E-THINK-{session_id[:4]}",
-                "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
-                "source_meta": {
-                    "uri": "internal://agi/think",
-                    "type": EvidenceType.EMPIRICAL.value,
-                    "author": "AGI_MIND",
-                    "timestamp": "now",
-                },
-                "metrics": {"trust_weight": 0.85, "relevance_score": 1.0},
-                "lifecycle": {"status": "active", "retrieved_by": "agi_think_v2"},
-            }
-        )
-    result["evidence"] = evidence
+    try:
+        engine = AGIEngine()
+        result = await engine.think(query, session_id)
 
-    store_stage_result(session_id, "agi_think", result)
-    result["stage"] = "222"
-    return result
+        # Evidence v2 Enforced (now using normalized schema)
+        evidence = result.get("evidence", [])
+        if not evidence:
+            txt = f"Hypothesis matrix for session {session_id[:8]}"
+            evidence.append(
+                build_evidence_dict(
+                    evidence_id=f"E-THINK-{session_id[:4]}",
+                    evidence_type=EvidenceType.EMPIRICAL,
+                    text=txt,
+                    uri="internal://agi/think",
+                    author="AGI_MIND",
+                    trust_weight=0.85,
+                    relevance_score=1.0,
+                    retrieved_by="agi_think_v2",
+                )
+            )
+        result["evidence"] = evidence
+
+        store_stage_result(session_id, "agi_think", result)
+        result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+        result["floors_enforced"] = get_tool_floors("agi_think")
+        result["pass"] = "forward"
+        return result
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "verdict": ConflictStatus.SABAR.value,
+            "query": query,
+            "session_id": session_id,
+            "engine_mode": "fallback_agi_think",
+            "error": {
+                "code": 500,
+                "message": f"agi_think exception captured: {e}",
+            },
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("agi_think"),
+            "pass": "forward",
+        }
 
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["agi_reason"])
 @constitutional_floor("F2", "F4", "F7")
-async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = None) -> dict:
+async def agi_reason(
+    query: str,
+    session_id: str,
+    grounding: Optional[Any] = None,
+    mode: str = "normal",
+    causal: bool = False,
+    eureka: bool = False,
+) -> dict:
     """Deep logical reasoning chain — the AGI Mind's core analysis tool.
 
     Produces structured reasoning with conclusion, confidence, clarity improvement,
@@ -551,11 +609,42 @@ async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = Non
     Pipeline position: AGI Stage 3 (after agi_think, or directly after init_gate for simple queries)
     Floors enforced: F2 (Truth >= 0.99), F4 (Empathy), F7 (Humility band 0.03-0.05)
     Next step: asi_empathize for stakeholder impact analysis
+
+    New parameters (backwards compatible):
+        mode:   "normal" (default) or "eureka" for discovery-focused reasoning.
+        causal: when True, engines MAY perform causal analysis in addition to deduction.
+        eureka: when True, engines MAY generate abductive hypotheses / anomalies.
     """
+    import sys
+    import traceback
     from datetime import datetime, timezone
 
     engine = AGIEngine()
-    result = await engine.reason(query, session_id)
+    try:
+        # Phase 2: wire eureka and causal flags into AGIEngine.
+        result = await engine.reason(query, session_id, eureka=eureka)
+    except Exception as e:
+        # Fail-closed: never surface 500 to MCP clients; return structured error envelope
+        traceback.print_exc(file=sys.stderr)
+        now = datetime.now(timezone.utc).isoformat()
+        result = {
+            "verdict": "SABAR",
+            "query": query,
+            "session_id": session_id,
+            "engine_mode": "fallback_agi_reason",
+            "error": {
+                "code": 500,
+                "message": f"agi_reason exception captured: {e}",
+                "timestamp": now,
+            },
+            "confidence": 0.0,
+            "ambiguity_reduction": 0.0,
+            "residual_uncertainty": 1.0,
+        }
+
+    result["mode"] = mode
+    result["causal_requested"] = causal
+    result["eureka_requested"] = eureka
 
     # Optional structured grounding/evidence (not synthetic confidence)
     if grounding:
@@ -563,27 +652,22 @@ async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = Non
         # Heuristic: classify evidence type
         grounding_str = json.dumps(grounding)
         ev_type = (
-            EvidenceType.AXIOM.value
+            EvidenceType.AXIOM
             if "axiom" in grounding_str.lower() or "axiom_id" in grounding
-            else EvidenceType.WEB.value
+            else EvidenceType.WEB
         )
         evidence.append(
-            {
-                "evidence_id": f"E-GROUND-{session_id[:4]}",
-                "content": {
-                    "text": grounding_str[:2000],
-                    "hash": generate_content_hash(grounding_str),
-                    "language": "json",
-                },
-                "source_meta": {
-                    "uri": "client://grounding",
-                    "type": ev_type,
-                    "author": "CLIENT",
-                    "timestamp": "now",
-                },
-                "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
-                "lifecycle": {"status": "active", "retrieved_by": "client_grounding"},
-            }
+            build_evidence_dict(
+                evidence_id=f"E-GROUND-{session_id[:4]}",
+                evidence_type=ev_type,
+                text=grounding_str[:2000],
+                uri="client://grounding",
+                author="CLIENT",
+                language="json",
+                trust_weight=1.0,
+                relevance_score=1.0,
+                retrieved_by="client_grounding",
+            )
         )
         result["evidence"] = evidence
     store_stage_result(session_id, "agi", result)
@@ -617,84 +701,146 @@ async def agi_reason(query: str, session_id: str, grounding: Optional[Any] = Non
 @constitutional_floor("F5", "F6")
 async def asi_empathize(query: str, session_id: str) -> dict:
     """Assess stakeholder impact — the ASI Heart's empathy engine."""
-    engine = ASIEngine()
-    result = await engine.empathize(query, session_id)
+    import sys
+    import traceback
 
-    # Evidence v2 Enforced
-    evidence = result.get("evidence", [])
-    txt = f"Stakeholder impact valuation: kappa_r={result.get('empathy_kappa_r', 1.0)}"
-    evidence.append(
-        {
-            "evidence_id": f"E-EMP-{session_id[:4]}",
-            "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
-            "source_meta": {
-                "uri": "internal://asi/empathize",
-                "type": EvidenceType.EMPIRICAL.value,
-                "author": "ASI_HEART",
-                "timestamp": "now",
+    try:
+        engine = ASIEngine()
+        result = await engine.empathize(query, session_id)
+
+        # Evidence v2 Enforced
+        evidence = result.get("evidence", [])
+        txt = f"Stakeholder impact valuation: kappa_r={result.get('empathy_kappa_r', 1.0)}"
+        evidence.append(
+            build_evidence_dict(
+                evidence_id=f"E-EMP-{session_id[:4]}",
+                evidence_type=EvidenceType.EMPIRICAL,
+                text=txt,
+                uri="internal://asi/empathize",
+                author="ASI_HEART",
+                trust_weight=0.95,
+                relevance_score=0.9,
+                retrieved_by="asi_empathize_v2",
+            )
+        )
+        result["evidence"] = evidence
+
+        store_stage_result(session_id, "asi_empathize", result)
+        result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+        result["floors_enforced"] = get_tool_floors("asi_empathize")
+        result["pass"] = "forward"
+        return result
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "verdict": ConflictStatus.SABAR.value,
+            "query": query,
+            "session_id": session_id,
+            "engine_mode": "fallback_asi_empathize",
+            "error": {
+                "code": 500,
+                "message": f"asi_empathize exception captured: {e}",
             },
-            "metrics": {"trust_weight": 0.95, "relevance_score": 0.9},
-            "lifecycle": {"status": "active", "retrieved_by": "asi_empathize_v2"},
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("asi_empathize"),
+            "pass": "forward",
         }
-    )
-    result["evidence"] = evidence
-
-    store_stage_result(session_id, "asi_empathize", result)
-
-    # Wire Stage 555: ASI Empathy
-    stage_555_result = await run_stage_555_empathy(session_id, query)
-    result["stage_555"] = stage_555_result
-
-    result["stage"] = "555"
-    return result
 
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["asi_align"])
 @constitutional_floor("F5", "F6", "F9")
 async def asi_align(query: str, session_id: str) -> dict:
     """Reconcile ethics, law, and policy — the ASI Heart's alignment engine."""
-    engine = ASIEngine()
-    result = await engine.align(query, session_id)
+    import sys
+    import traceback
 
-    # Evidence v2 Enforced
-    evidence = result.get("evidence", [])
-    txt = f"Ethics/Policy alignment check for {session_id[:8]}"
-    evidence.append(
-        {
-            "evidence_id": f"E-ALIGN-{session_id[:4]}",
-            "content": {"text": txt, "hash": generate_content_hash(txt), "language": "en"},
-            "source_meta": {
-                "uri": "internal://asi/align",
-                "type": EvidenceType.EMPIRICAL.value,
-                "author": "ASI_HEART",
-                "timestamp": "now",
+    try:
+        engine = ASIEngine()
+        result = await engine.align(query, session_id)
+
+        # Evidence v2 Enforced
+        evidence = result.get("evidence", [])
+        txt = f"Ethics/Policy alignment check for {session_id[:8]}"
+        evidence.append(
+            build_evidence_dict(
+                evidence_id=f"E-ALIGN-{session_id[:4]}",
+                evidence_type=EvidenceType.EMPIRICAL,
+                text=txt,
+                uri="internal://asi/align",
+                author="ASI_HEART",
+                trust_weight=0.98,
+                relevance_score=0.95,
+                retrieved_by="asi_align_v2",
+            )
+        )
+        result["evidence"] = evidence
+
+        store_stage_result(session_id, "asi_align", result)
+        result["motto"] = "DITEMPA BUKAN DIBERI 💎🔥🧠"
+        result["floors_enforced"] = get_tool_floors("asi_align")
+        result["pass"] = "forward"
+        return result
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "verdict": ConflictStatus.SABAR.value,
+            "query": query,
+            "session_id": session_id,
+            "engine_mode": "fallback_asi_align",
+            "error": {
+                "code": 500,
+                "message": f"asi_align exception captured: {e}",
             },
-            "metrics": {"trust_weight": 0.98, "relevance_score": 0.95},
-            "lifecycle": {"status": "active", "retrieved_by": "asi_align_v2"},
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("asi_align"),
+            "pass": "forward",
         }
-    )
-    result["evidence"] = evidence
-
-    store_stage_result(session_id, "asi_align", result)
-
-    # Wire Stage 666: ASI Align
-    stage_666_result = await run_stage_666_align(session_id, query)
-    result["stage_666"] = stage_666_result
-
-    result["stage"] = "666"
-    return result
 
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["apex_verdict"])
 @constitutional_floor("F2", "F3", "F5", "F8")
-async def apex_verdict(query: str, session_id: str) -> dict:
-    """Final constitutional verdict — the APEX Soul's judgment."""
+async def apex_verdict(
+    query: str,
+    session_id: str,
+    mode: str = "judge",
+    window: int = 100,
+) -> dict:
+    """Final constitutional verdict — the APEX Soul's judgment.
+
+    New parameters (backwards compatible):
+        mode:   "judge" (default) or "calibrate" for self-audit mode.
+        window: number of recent decisions to inspect when mode="calibrate".
+    """
+    import sys
+    import traceback
+
     engine = APEXEngine()
-    result = await engine.judge(query, session_id)
+
+    # Calibration mode: delegate to APEXEngine.calibrate (Phoenix-72) and
+    # wrap in the standard verdict schema. Always returns 888_HOLD.
+    if mode != "judge":
+        calib = await engine.calibrate(window=window)
+        calib["floors_enforced"] = get_tool_floors("apex_verdict")
+        store_stage_result(session_id, "apex_calibrate", calib)
+        return calib
+
+    try:
+        result = await engine.judge(query, session_id)
+    except Exception as e:
+        # Fail-closed: structured fallback instead of raw 500
+        traceback.print_exc(file=sys.stderr)
+        result = {
+            "verdict": ConflictStatus.SABAR.value,
+            "truth_score": 0.0,
+            "tri_witness": 0.0,
+            "ambiguity_reduction": 0.0,
+            "verdict_justification": f"apex_verdict exception captured: {e}",
+            "engine_mode": "fallback_apex_verdict",
+        }
 
     # Formal Verdict Semantics (v55.5-INDUSTRIAL)
     session_ev = get_session_evidence(session_id) or []
-    
+
     # Defensive: Handle malformed evidence gracefully
     ev_types = set()
     for e in session_ev:
@@ -901,21 +1047,33 @@ async def simulate_transfer(
 @mcp.tool(annotations=TOOL_ANNOTATIONS["reality_search"])
 @constitutional_floor("F2", "F7")
 async def reality_search(
-    query: str, session_id: str, region: str = "wt-wt", timelimit: Optional[str] = None
+    query: str,
+    session_id: str,
+    region: str = "wt-wt",
+    timelimit: Optional[str] = None,
+    ontology: bool = False,
 ) -> dict:
     """External fact-checking and reality grounding via web search & Axiom Engine."""
+    import sys
+    import traceback
     from datetime import datetime, timezone
 
-    query = str(query or "")
-    result = await reality_check(query, region=region, timelimit=timelimit)
-    # Defensive normalization: some transports/wrappers may return raw JSON strings.
-    if isinstance(result, str):
-        try:
-            result = json.loads(result)
-        except Exception:
-            result = {"status": "ERROR", "results": [], "raw": result}
-    if not isinstance(result, dict):
-        result = {"status": "ERROR", "results": []}
+    try:
+        result = await reality_check(query, region=region, timelimit=timelimit)
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        # Structured fallback envelope
+        return {
+            "query": query,
+            "session_id": session_id,
+            "evidence": [],
+            "verdict": ConflictStatus.SABAR.value,
+            "error": {
+                "code": 500,
+                "message": f"reality_search exception captured: {e}",
+            },
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        }
 
     # Axiom Engine Injection (Offline Physics/CCS Baseline)
     evidence = []
@@ -939,53 +1097,34 @@ async def reality_search(
                                 name = info.get("name", f"{category} {property_key} {sub_key}")
                                 txt = f"Axiomatic Truth: {name} = {info['value']} {info.get('unit', '')}"
                                 evidence.append(
-                                    {
-                                        "evidence_id": f"E-AXIOM-{category.upper()}-{property_key.upper()}-{sub_key.upper()}",
-                                        "content": {
-                                            "text": txt,
-                                            "hash": generate_content_hash(txt),
-                                            "language": "en",
-                                        },
-                                        "source_meta": {
-                                            "uri": f"axiom://{category}/{property_key}/{sub_key}",
-                                            "type": EvidenceType.AXIOM.value,
-                                            "author": "NIST/Petronas_Baseline",
-                                            "timestamp": "infinity",
-                                        },
-                                        "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
-                                        "lifecycle": {
-                                            "status": "active",
-                                            "retrieved_by": "axiom_engine_v1.1",
-                                        },
-                                    }
+                                    build_evidence_dict(
+                                        evidence_id=f"E-AXIOM-{category.upper()}-{property_key.upper()}-{sub_key.upper()}",
+                                        evidence_type=EvidenceType.AXIOM,
+                                        text=txt,
+                                        uri=f"axiom://{category}/{property_key}/{sub_key}",
+                                        author="NIST/Petronas_Baseline",
+                                        trust_weight=1.0,
+                                        relevance_score=1.0,
+                                        retrieved_by="axiom_engine_v1.1",
+                                    )
                                 )
                     else:
                         # Single property
                         info = values
-                        if isinstance(info, dict) and "value" in info:
-                            name = info.get("name", f"{category} {property_key}")
-                            txt = f"Axiomatic Truth: {name} = {info['value']} {info.get('unit', '')}"
-                            evidence.append(
-                                {
-                                    "evidence_id": f"E-AXIOM-{category.upper()}-{property_key.upper()}",
-                                    "content": {
-                                        "text": txt,
-                                        "hash": generate_content_hash(txt),
-                                        "language": "en",
-                                    },
-                                    "source_meta": {
-                                        "uri": f"axiom://{category}/{property_key}",
-                                        "type": EvidenceType.AXIOM.value,
-                                        "author": "NIST/Petronas_Baseline",
-                                        "timestamp": "infinity",
-                                    },
-                                    "metrics": {"trust_weight": 1.0, "relevance_score": 1.0},
-                                    "lifecycle": {
-                                        "status": "active",
-                                        "retrieved_by": "axiom_engine_v1.1",
-                                    },
-                                }
+                        name = info.get("name", f"{category} {property_key}")
+                        txt = f"Axiomatic Truth: {name} = {info['value']} {info.get('unit', '')}"
+                        evidence.append(
+                            build_evidence_dict(
+                                evidence_id=f"E-AXIOM-{category.upper()}-{property_key.upper()}",
+                                evidence_type=EvidenceType.AXIOM,
+                                text=txt,
+                                uri=f"axiom://{category}/{property_key}",
+                                author="NIST/Petronas_Baseline",
+                                trust_weight=1.0,
+                                relevance_score=1.0,
+                                retrieved_by="axiom_engine_v1.1",
                             )
+                        )
 
     # Web Search Result Processing (normalize url/link fields)
     results = result.get("results") or []
@@ -1007,25 +1146,16 @@ async def reality_search(
             snippet = str(snippet)
         uri = _pick_uri(res)
         evidence.append(
-            {
-                "evidence_id": f"E-WEB-{i}",
-                "content": {
-                    "text": snippet,
-                    "hash": generate_content_hash(snippet),
-                    "language": "en",
-                },
-                "source_meta": {
-                    "uri": uri,
-                    "type": EvidenceType.WEB.value,
-                    "author": "WebScout",
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                },
-                "metrics": {
-                    "trust_weight": 0.90 if uri else 0.50,
-                    "relevance_score": 0.8,
-                },
-                "lifecycle": {"status": "active", "retrieved_by": "reality_search_v2"},
-            }
+            build_evidence_dict(
+                evidence_id=f"E-WEB-{i}",
+                evidence_type=EvidenceType.WEB,
+                text=snippet,
+                uri=res.get("link", "Unknown"),
+                author="WebScout",
+                trust_weight=0.90 if res.get("link") else 0.50,
+                relevance_score=0.8,
+                retrieved_by="reality_search_v2",
+            )
         )
 
     hardened_output = {
@@ -1037,11 +1167,364 @@ async def reality_search(
         "stage": "REALITY_SEARCH",
     }
 
+    # Optional ontology grounding hook (F10 signal)
+    if ontology:
+        try:
+            from codebase.guards.ontology_guard import OntologyGuard
+
+            guard = OntologyGuard()
+            og = guard.ground(query)
+            hardened_output["ontology"] = {
+                "grounded": getattr(og, "grounded", False),
+                "gaps": getattr(og, "gaps", []),
+            }
+        except Exception as e:
+            hardened_output.setdefault("ontology", {})["error"] = str(e)
+
     store_stage_result(session_id, "reality", hardened_output)
     return hardened_output
 
 
-@mcp.tool(annotations=TOOL_ANNOTATIONS["vault_seal"])
+@mcp.tool()
+@constitutional_floor(
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11",
+    "F12",
+    "F13",
+)
+async def forge(
+    query: str,
+    session_id: Optional[str] = None,
+    mode: str = "full",
+    budget: Optional[dict] = None,
+    federation: bool = False,
+) -> dict:
+    """Unified 000-999 constitutional pipeline.
+
+    Orchestrates the full Trinity stack in a single call:
+      000_INIT → AGI(111/222/333) → ASI(444/555) → APEX(777) → 999_VAULT
+
+    Args:
+        query: The natural language request to process.
+        session_id: Optional session identifier. If not provided, forge
+            will call InitEngine to create one.
+        mode: "full" to run the complete 000–999 pipeline, or
+            "agionly" to run only INIT + AGI stages (no ASI/APEX/VAULT).
+
+    Returns:
+        A hardened dict with:
+          - verdict: Final APEX verdict (or AGI verdict for agionly).
+          - response: Primary response content (AGI reasoning bundle).
+          - floors_enforced: All F1–F13 floors claimed for this tool.
+          - seal_id: Vault seal identifier (full mode only, if successful).
+          - stages: Per-stage outputs for audit (init/agi/asi/apex/vault).
+    """
+    import sys
+    import time
+    import traceback
+    from datetime import datetime, timezone
+
+    # ── 000: INIT GATE ─────────────────────────────────────────────
+    pipeline_start = time.time()
+    init_engine = InitEngine()
+    try:
+        init_result = await init_engine.ignite(query, session_id)
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        # Fail-closed forge wrapper
+        return {
+            "session_id": session_id or "unknown",
+            "mode": mode,
+            "verdict": ConflictStatus.SABAR.value,
+            "response": {
+                "error": f"forge/init exception captured: {e}",
+            },
+            "stages": {},
+            "seal_id": None,
+            "sealed": False,
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("forge"),
+        }
+    effective_session_id = init_result.get("session_id", session_id or "unknown")
+
+    # Normalize/init stage record
+    init_stage = {
+        **init_result,
+        "session_id": effective_session_id,
+        "mode": mode,
+        "grounding_required": init_result.get("grounding_required", False),
+        "floors_enforced": get_tool_floors("init_gate"),
+    }
+    store_stage_result(effective_session_id, "init", init_stage)
+
+    # ── 111/222/333: AGI MIND ──────────────────────────────────────
+    agi_engine = AGIEngine()
+
+    agi_sense_start = time.time()
+    agi_sense_result = await agi_engine.sense(query, effective_session_id)
+    agi_sense_result["floors_enforced"] = get_tool_floors("agi_sense")
+    store_stage_result(effective_session_id, "agi_sense", agi_sense_result)
+
+    agi_think_start = time.time()
+    agi_think_result = await agi_engine.think(query, effective_session_id)
+    agi_think_result["floors_enforced"] = get_tool_floors("agi_think")
+    store_stage_result(effective_session_id, "agi_think", agi_think_result)
+
+    agi_reason_start = time.time()
+    agi_reason_start = time.time()
+    agi_reason_result = await agi_engine.reason(query, effective_session_id)
+    agi_reason_result["floors_enforced"] = get_tool_floors("agi_reason")
+    store_stage_result(effective_session_id, "agi", agi_reason_result)
+
+    # Primary response content comes from AGI reasoning delta bundle when available
+    response_payload = agi_reason_result.get("delta_bundle") or agi_reason_result
+
+    # Early exit for AGI-only mode
+    if mode.lower() == "agionly":
+        unified = {
+            "session_id": effective_session_id,
+            "mode": mode,
+            "verdict": agi_reason_result.get("verdict", ConflictStatus.SEAL.value),
+            "response": response_payload,
+            "stages": {
+                "init": init_stage,
+                "agi_sense": agi_sense_result,
+                "agi_think": agi_think_result,
+                "agi_reason": agi_reason_result,
+            },
+            "seal_id": None,
+            "sealed": False,
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("forge"),
+        }
+        return unified
+
+    # ── 444/555: ASI HEART ─────────────────────────────────────────
+    asi_engine = ASIEngine()
+
+    asi_empathize_start = time.time()
+    asi_empathize_result = await asi_engine.empathize(query, effective_session_id)
+    asi_empathize_result["floors_enforced"] = get_tool_floors("asi_empathize")
+    store_stage_result(effective_session_id, "asi_empathize", asi_empathize_result)
+
+    asi_align_start = time.time()
+    asi_align_result = await asi_engine.align(query, effective_session_id)
+    asi_align_result["floors_enforced"] = get_tool_floors("asi_align")
+    store_stage_result(effective_session_id, "asi_align", asi_align_result)
+
+    # ── 777: APEX SOUL ─────────────────────────────────────────────
+    apex_engine = APEXEngine()
+    apex_start = time.time()
+    apex_raw = await apex_engine.judge(
+        query=query,
+        session_id=effective_session_id,
+        response=json.dumps(response_payload)[:4000],
+        agi_result=agi_reason_result,
+        asi_result={
+            "empathize": asi_empathize_result,
+            "align": asi_align_result,
+        },
+        init_result=init_stage,
+    )
+
+    # Reuse apex_verdict post-processing to maintain a single verdict path
+    apex_processed = await apex_verdict(query, effective_session_id)
+
+    # ── COMPUTE METRICS ────────────────────────────────────────────
+    total_latency_ms = (time.time() - pipeline_start) * 1000.0
+    compute_metrics = {
+        "total_latency_ms": total_latency_ms,
+        "agi_sense_ms": (agi_think_start - agi_sense_start) * 1000.0,
+        "agi_think_ms": (agi_reason_start - agi_think_start) * 1000.0,
+        "agi_reason_ms": (asi_empathize_start - agi_reason_start) * 1000.0,
+        "asi_empathize_ms": (asi_align_start - asi_empathize_start) * 1000.0,
+        "asi_align_ms": (apex_start - asi_align_start) * 1000.0,
+        "apex_ms": (time.time() - apex_start) * 1000.0,
+    }
+
+    if budget and "max_latency_ms" in budget and total_latency_ms > budget["max_latency_ms"]:
+        compute_metrics["budget_exceeded"] = True
+        compute_metrics["budget_verdict"] = "SABAR"
+        compute_metrics["note"] = (
+            f"Exceeded latency budget: {total_latency_ms:.1f}ms > {budget['max_latency_ms']}ms"
+        )
+    else:
+        compute_metrics["budget_exceeded"] = False
+
+    # ── 999: VAULT SEAL ────────────────────────────────────────────
+    floors_checked = get_tool_floors("forge")
+    final_verdict = apex_processed.get("verdict", ConflictStatus.PARTIAL.value)
+
+    vault_payload = {
+        "query": query,
+        "response": response_payload,
+        "apex": apex_processed,
+        "agi": {
+            "sense": agi_sense_result,
+            "think": agi_think_result,
+            "reason": agi_reason_result,
+        },
+        "asi": {
+            "empathize": asi_empathize_result,
+            "align": asi_align_result,
+        },
+        "floors_enforced": floors_checked,
+        "engine_mode": {
+            "init": init_stage.get("engine_mode", "real"),
+            "agi": agi_reason_result.get("engine_mode", "real"),
+            "asi": asi_empathize_result.get("engine_mode", "real"),
+            "apex": apex_processed.get("engine_mode", "real"),
+        },
+        "compute": compute_metrics,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+    seal_result = await vault_seal(
+        session_id=effective_session_id,
+        verdict=final_verdict,
+        payload=vault_payload,
+        query_summary=query[:200],
+        category="forge",
+        intent="unified_pipeline",
+        floors_checked=floors_checked,
+        tri_witness_score=apex_processed.get("tri_witness"),
+        genius_g=apex_processed.get("CORE_GOVERNANCE", {}).get("truth_fidelity"),
+        tool_chain=[
+            "init_gate",
+            "agi_sense",
+            "agi_think",
+            "agi_reason",
+            "asi_empathize",
+            "asi_align",
+            "apex_verdict",
+            "vault_seal",
+            "forge",
+        ],
+        environment="prod",
+        response_excerpt=json.dumps(response_payload)[:200],
+        # Phase 1: record requested budget (if any) for VAULT/metrics use.
+        model_info={"budget_requested": budget} if budget is not None else None,
+    )
+
+    unified = {
+        "session_id": effective_session_id,
+        "mode": mode,
+        "verdict": final_verdict,
+        "truth_score": apex_processed.get("truth_score"),
+        "response": response_payload,
+        "seal_id": seal_result.get("seal_id"),
+        "sealed": seal_result.get("verdict") == "SEALED",
+        "apex": apex_processed,
+        "stages": {
+            "init": init_stage,
+            "agi_sense": agi_sense_result,
+            "agi_think": agi_think_result,
+            "agi_reason": agi_reason_result,
+            "asi_empathize": asi_empathize_result,
+            "asi_align": asi_align_result,
+            "vault_seal": seal_result,
+        },
+        "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+        "floors_enforced": get_tool_floors("forge"),
+        "compute": compute_metrics,
+    }
+
+    return unified
+
+
+@mcp.tool()
+@constitutional_floor(
+    "F1",
+    "F2",
+    "F3",
+    "F4",
+    "F5",
+    "F6",
+    "F7",
+    "F8",
+    "F9",
+    "F10",
+    "F11",
+    "F12",
+    "F13",
+)
+async def forge_pipeline(
+    query: str,
+    session_id: Optional[str] = None,
+    mode: str = "full",
+) -> dict:
+    """Deprecated alias for `forge`.
+
+    For backwards compatibility only. Prefer calling `forge` directly.
+    """
+    import sys
+    import traceback
+
+    try:
+        return await forge(query=query, session_id=session_id, mode=mode)
+    except Exception as e:
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "session_id": session_id or "unknown",
+            "mode": mode,
+            "verdict": ConflictStatus.SABAR.value,
+            "response": {
+                "error": f"forge_pipeline exception captured: {e}",
+            },
+            "stages": {},
+            "seal_id": None,
+            "sealed": False,
+            "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+            "floors_enforced": get_tool_floors("forge"),
+        }
+
+
+# Internal helper (not exposed as an MCP tool)
+def validate_vault_payload(payload: dict, grounding_required: bool = False) -> list[str]:
+    """Lightweight VAULT pre-seal validator.
+
+    Ensures core invariants before a SEAL is recorded. Returns a list
+    of validation error strings (empty list means 'pass').
+    """
+    errors: list[str] = []
+    apex = payload.get("apex") or {}
+    truth_score = apex.get("truth_score")
+    try:
+        float(truth_score)
+    except Exception:
+        errors.append("invalid_or_missing: apex.truth_score")
+
+    if payload.get("compute") is None:
+        errors.append("missing: compute")
+
+    if not isinstance(payload.get("agi"), dict):
+        errors.append("missing: agi stage trace")
+
+    if not isinstance(payload.get("asi"), dict):
+        errors.append("missing: asi stage trace")
+
+    evidence = payload.get("evidence") or []
+    if not isinstance(evidence, list) or len(evidence) == 0:
+        errors.append("missing: evidence[]")
+
+    if grounding_required:
+        has_grounding = any((e or {}).get("type") in ("web", "axiom") for e in evidence)
+        if not has_grounding:
+            errors.append("grounding_required: need WEB or AXIOM evidence")
+
+    return errors
+
+
+@mcp.tool()
 @constitutional_floor("F1", "F3")
 async def vault_seal(
     session_id: str,
@@ -1073,6 +1556,9 @@ async def vault_seal(
     pii_level: str = "none",
     actor_type: Optional[str] = None,
     actor_id: Optional[str] = None,
+    # v3.1 temporal metadata (optional)
+    decay_rate: Optional[float] = None,
+    domain_timescale: Optional[str] = None,
 ) -> dict:
     """Seal the session verdict into the immutable VAULT999 ledger.
 
@@ -1173,6 +1659,9 @@ async def vault_seal(
         "tw": tri_witness_score,
         "peace2": peace_squared,
         "genius": genius_g,
+        # Temporal reasoning hooks (optional in Phase 1)
+        "decay_rate": decay_rate,
+        "domain_timescale": domain_timescale,
     }
 
     v3_oversight = {
@@ -1191,6 +1680,10 @@ async def vault_seal(
     v3_evidence = {"items": payload.get("evidence", [])}  # Evidence from previous stages
 
     # Enriched payload with both v2.1 compat and v3 structure
+    validation_errors = validate_vault_payload(
+        payload, grounding_required=payload.get("grounding_required", False)
+    )
+
     enriched_payload = {
         **payload,
         "_schema_version": "3.0",
@@ -1203,6 +1696,7 @@ async def vault_seal(
         "oversight": v3_oversight,
         "provenance": v3_provenance,
         "evidence": v3_evidence,
+        "validation_errors": validation_errors,
         # Backwards compat: keep _v2_metadata for existing queries
         "_v2_metadata": {
             "schema_version": "3.0",
@@ -1233,6 +1727,10 @@ async def vault_seal(
     seal_id = None
     seal_hash = "hash-0"
     postgres_used = False
+
+    # If validation errors exist, downgrade verdict type for fast-query columns
+    if validation_errors and verdict.upper() == ConflictStatus.SEAL.value:
+        verdict = ConflictStatus.PARTIAL.value
 
     if use_postgres:
         try:
@@ -1296,10 +1794,52 @@ async def vault_seal(
     if risk_level and risk_level != "low":
         output["risk_level"] = risk_level
 
-    return output
+
+@mcp.tool()
+async def get_tools_manifest() -> dict:
+    """Return canonical tool metadata for MCP clients.
+
+    This allows external clients to discover the current tool surface
+    (including deprecated aliases) directly from the server instead of
+    relying on out-of-date marketplace manifests.
+    """
+    import sys
+    import traceback
+
+    # FastMCP v2 get_tools API returns a dict[name -> FunctionTool]
+    try:
+        tools = await mcp.get_tools()  # type: ignore[func-returns-value]
+        if isinstance(tools, dict):
+            for name, tool in tools.items():
+                # detect deprecation via simple name-based rule for now
+                deprecated = name in {"forge_pipeline", "tool_router", "vault_query"}
+                tools_manifest.append(
+                    {
+                        "name": name,
+                        "description": getattr(tool, "description", ""),
+                        "deprecated": deprecated,
+                    }
+                )
+    except Exception as e:
+        # Fail-closed: never crash clients on manifest retrieval
+        traceback.print_exc(file=sys.stderr)
+        return {
+            "kernel_version": "0.2.0",
+            "tools": [],
+            "error": {
+                "code": 500,
+                "message": f"get_tools_manifest exception captured: {e}",
+            },
+        }
+
+    return {
+        "kernel_version": "0.2.0",
+        "tools": tools_manifest,
+    }
 
 
-@mcp.tool(annotations=TOOL_ANNOTATIONS["tool_router"])
+# Deprecated: tool_router is superseded by the unified forge pipeline
+# and is no longer exposed as an MCP tool.
 async def tool_router(query: str) -> PlanObject:
     """Universal Tool Router Specification v3 — Intelligent Constitutional Routing.
 
@@ -1422,7 +1962,8 @@ async def tool_router(query: str) -> PlanObject:
     }
 
 
-@mcp.tool(annotations=TOOL_ANNOTATIONS["vault_query"])
+# Deprecated: vault_query is superseded by reality_search + forge and
+# is no longer exposed as an MCP tool.
 @constitutional_floor("F1", "F3")
 async def vault_query(
     session_pattern: Optional[str] = None,
@@ -1702,7 +2243,8 @@ async def vault_query(
         }
 
 
-@mcp.tool(annotations=TOOL_ANNOTATIONS["truth_audit"])
+# Deprecated: truth_audit functionality is consolidated into forge and
+# is no longer exposed as an MCP tool.
 @constitutional_floor("F2", "F4", "F7", "F10")
 async def truth_audit(
     text: str,

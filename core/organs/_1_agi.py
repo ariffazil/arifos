@@ -409,11 +409,34 @@ async def agi(
 
         # Standard path
         sense_res = await sense(query, session_id, grounding)
-        sense_data = sense_res.model_dump()
+        if hasattr(sense_res, "model_dump"):
+            sense_data = sense_res.model_dump()
+        elif isinstance(sense_res, dict):
+            sense_data = sense_res
+        else:
+            sense_data = {}
         think_res = await think(query, sense_data, session_id)
 
         # Reason requires GPV
-        actual_gpv = sense_res.metrics.get("gpv") if sense_res.metrics else gpv
+        sense_metrics = sense_data.get("metrics", {}) if isinstance(sense_data, dict) else {}
+        sense_evidence = sense_data.get("evidence", {}) if isinstance(sense_data, dict) else {}
+        sense_gpv = sense_metrics.get("gpv") or sense_evidence.get("gpv")
+
+        if isinstance(sense_gpv, GPV):
+            actual_gpv = sense_gpv
+        elif isinstance(sense_gpv, dict):
+            try:
+                actual_gpv = GPV(
+                    lane=Lane(sense_gpv.get("lane", gpv.lane)),
+                    query_type=QueryType(sense_gpv.get("query_type", gpv.query_type)),
+                    truth_demand=float(sense_gpv.get("truth_demand", gpv.truth_demand)),
+                    care_demand=float(sense_gpv.get("care_demand", gpv.care_demand)),
+                    risk_level=float(sense_gpv.get("risk_level", gpv.risk_level)),
+                )
+            except Exception:
+                actual_gpv = gpv
+        else:
+            actual_gpv = gpv
         tensor = await reason(query, think_res, session_id, gpv=actual_gpv)
 
         # Retrieve thoughts safely

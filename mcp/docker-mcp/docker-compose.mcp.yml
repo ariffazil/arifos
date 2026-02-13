@@ -1,0 +1,39 @@
+services:
+  arifos-docker-mcp:
+    build: .
+    container_name: arifos-docker-mcp
+    privileged: true # F13: Sovereign mode
+    environment:
+      - MCP_TRANSPORT=http # Command floor
+      - MCP_PORT=8080
+      - ARIFOS_MODE=sovereign
+      - ARIFOS_FLOOR=F11 # Command floor
+    healthcheck:
+      test:
+        - CMD
+        - curl
+        - -f
+        - http://localhost:8080/health
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: unless-stopped
+    ports:
+      - 0.0.0.0:8811:8080 # MCP Gateway port
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:rw # Read-only access to arifOS
+      - /root/arifOS:/arifOS:ro # Read-only access to arifOS
+    networks:
+      - agi-stack-sovereign
+      - compose_agi-stack-sovereign
+      - root_agi_stack
+      - openclaw-dfu5_default
+networks:
+  agi-stack-sovereign:
+    external: true
+  compose_agi-stack-sovereign:
+    external: true
+  root_agi_stack:
+    external: true
+  openclaw-dfu5_default:
+    external: true

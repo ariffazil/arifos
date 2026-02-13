@@ -36,6 +36,22 @@ FLOOR_ENFORCEMENT = {
     "apex_verdict": ["F5", "F3", "F8"],
     "reality_search": ["F2", "F7"],
     "vault_seal": ["F1", "F3"],
+    # Unified 000-999 pipeline (forge) enforces ALL floors F1-F13
+    "forge": [
+        "F1",
+        "F2",
+        "F3",
+        "F4",
+        "F5",
+        "F6",
+        "F7",
+        "F8",
+        "F9",
+        "F10",
+        "F11",
+        "F12",
+        "F13",
+    ],
 }
 
 # ─── Floor Classification ───────────────────────────────────────────────────
@@ -213,9 +229,9 @@ def _check_floor(floor_id: str, context: Dict[str, Any]) -> Dict[str, Any]:
     if floor is None:
         return {
             "floor": floor_id,
-            "passed": True,
+            "passed": False,
             "score": 0.0,
-            "reason": "Floor unavailable (degraded mode)",
+            "reason": "Floor unavailable (fail-closed)",
         }
 
     try:
@@ -230,9 +246,9 @@ def _check_floor(floor_id: str, context: Dict[str, Any]) -> Dict[str, Any]:
         logger.error(f"Floor {floor_id} check error: {e}")
         return {
             "floor": floor_id,
-            "passed": True,
+            "passed": False,
             "score": 0.0,
-            "reason": f"Floor check error (degraded): {e}",
+            "reason": f"Floor check error (fail-closed): {e}",
         }
 
 
@@ -287,10 +303,10 @@ def constitutional_floor(*floors: str):
                         logger.warning(
                             f"VOID [{tool_name}]: {fid} blocked " f"(score={detail['score']:.3f})"
                         )
-                        
+
                         # Use standardized hard floor block envelope (v60)
                         from aaa_mcp.protocol.tool_registry import build_hard_floor_block
-                        
+
                         # Get threshold for this floor
                         threshold = 0.95  # Default for most hard floors
                         if fid == "F2":
@@ -299,9 +315,9 @@ def constitutional_floor(*floors: str):
                             threshold = 0.03  # Lower bound (humility band)
                         elif fid == "F12":
                             threshold = 0.85
-                        
+
                         session_id = kwargs.get("session_id", "unknown")
-                        
+
                         payload = build_hard_floor_block(
                             floor=fid,
                             score=detail["score"],
@@ -315,14 +331,16 @@ def constitutional_floor(*floors: str):
                                 "current": detail["score"],
                                 "tool": tool_name,
                                 "elapsed_ms": elapsed_ms,
-                            }
+                            },
                         )
                         # Update with additional context
                         payload["_constitutional"]["floors_enforced_now"] = list(floors)
-                        payload["_constitutional"]["floors_checked"] = [d["floor"] for d in floor_details]
+                        payload["_constitutional"]["floors_checked"] = [
+                            d["floor"] for d in floor_details
+                        ]
                         payload["_constitutional"]["details"] = floor_details
                         payload["_constitutional"]["enforcement_ms"] = elapsed_ms
-                        
+
                         # Presentation formatting (user vs debug/audit)
                         return format_tool_output(tool_name, payload, output_mode)
 

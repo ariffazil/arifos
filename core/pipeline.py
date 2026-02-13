@@ -22,13 +22,13 @@ from core.shared.mottos import format_stage_output, get_full_pipeline_chant, get
 
 
 class ForgeResult(BaseModel):
-    """
-    Final result of the 000-999 forge.
-    Standardized as a Pydantic model for metabolic auditability.
-    """
+    """Result of full constitutional pipeline with diagnostics."""
 
     verdict: str
     session_id: str
+
+    # Token status from InitOutput
+    token_status: str = ""
 
     # Metabolic state
     emd: Optional[Dict[str, Any]] = None
@@ -43,30 +43,11 @@ class ForgeResult(BaseModel):
     motto_summary: str = ""
 
     # Organ outputs (for debugging/audit)
-    agi: Dict[str, Any] = Field(default_factory=dict)
-    asi: Dict[str, Any] = Field(default_factory=dict)
-    apex: Dict[str, Any] = Field(default_factory=dict)
+    agi: Any = Field(default_factory=dict)
+    asi: Any = Field(default_factory=dict)
+    apex: Any = Field(default_factory=dict)
     seal: Any = None
     processing_time_ms: float = 0.0
-    """Result of full constitutional pipeline with diagnostics."""
-
-    verdict: str
-    session_id: str
-    # Metabolic state
-    emd: Optional[Dict[str, Any]] = None
-    landauer_risk: float = 0.0
-    mode: str = "conscience"
-
-    # Diagnostic information for user feedback
-    query_type: str = "UNKNOWN"
-    f2_threshold: float = 0.99
-    floors_failed: List[str] = Field(default_factory=list)
-    remediation: str = ""
-    motto_summary: str = ""
-
-    def __post_init__(self):
-        if self.floors_failed is None:
-            self.floors_failed = []
 
     def is_success(self) -> bool:
         """Check if result was successful (SEAL or PARTIAL)."""
@@ -117,15 +98,13 @@ async def quick(
         return {
             "verdict": "VOID" if token.is_void else "888_HOLD",
             "session_id": token.session_id,
-            "token_status": token.status,
-            "reason": token.reason,
+            "reason": getattr(token, "reason", ""),
         }
 
     agi_out = await agi(query, token.session_id, action="full")
     return {
         "verdict": "SEAL",
         "session_id": token.session_id,
-        "token_status": token.status,
         "agi": agi_out,
     }
 
@@ -167,6 +146,7 @@ async def forge(
 
     f2_threshold = token.f2_threshold
     query_type = token.query_type
+    query_type_value = query_type.value if hasattr(query_type, "value") else str(query_type)
     stage_motto_000 = get_motto_for_stage("000_INIT")
 
     if token.is_void or token.requires_human:
@@ -182,9 +162,9 @@ async def forge(
             apex={},
             seal=None,
             processing_time_ms=elapsed,
-            query_type=str(query_type),
+            query_type=query_type_value,
             f2_threshold=f2_threshold,
-            floors_failed=token.floors_failed if hasattr(token, "floors_failed") else [],
+            floors_failed=getattr(token, "floors_failed", []),
             remediation=remediation,
             emd=emd.model_dump() if emd else None,
             landauer_risk=0.0,
@@ -212,7 +192,7 @@ async def forge(
             apex=apex_out,
             seal=None,
             processing_time_ms=elapsed,
-            query_type=query_type.value,
+            query_type=query_type_value,
             f2_threshold=f2_threshold,
             floors_failed=[],
             remediation="Fast path: TEST/CONVERSATIONAL query processed with minimal stages.",
@@ -247,7 +227,8 @@ async def forge(
             floors_violated.append("F2")
 
     entropy_delta = emd.metabolism.delta_s
-    if not token.skip_f4 and entropy_delta > 0:
+    skip_f4 = (token.metrics or {}).get("skip_f4", False)
+    if not skip_f4 and entropy_delta > 0:
         if mode == "conscience":
             floors_violated.append("F4")
 
@@ -263,7 +244,7 @@ async def forge(
 
     if floors_violated and mode == "conscience":
         elapsed = (time.perf_counter() - start_time) * 1000
-        remediation_parts = [f"Query: {query_type.value} (F2 threshold: {f2_threshold})"]
+        remediation_parts = [f"Query: {query_type_value} (F2 threshold: {f2_threshold})"]
 
         if "F2" in floors_violated:
             remediation_parts.append(f"F2 Truth/Landauer failure (Risk: {l_risk:.2f}).")
@@ -280,7 +261,7 @@ async def forge(
             apex={},
             seal=None,
             processing_time_ms=elapsed,
-            query_type=query_type.value,
+            query_type=query_type_value,
             f2_threshold=f2_threshold,
             floors_failed=floors_violated,
             remediation=" ".join(remediation_parts),
@@ -314,32 +295,49 @@ async def forge(
 
     apex_out = await apex(agi_tensor, asi_out, token.session_id, action="full")
 
+    # Convert Pydantic organ outputs to dicts for safe .get() access
+    apex_dict = (
+        apex_out.model_dump()
+        if hasattr(apex_out, "model_dump")
+        else (apex_out if isinstance(apex_out, dict) else {})
+    )
+    asi_dict = (
+        asi_out.model_dump()
+        if hasattr(asi_out, "model_dump")
+        else (asi_out if isinstance(asi_out, dict) else {})
+    )
+    agi_dict = (
+        agi_out
+        if isinstance(agi_out, dict)
+        else (agi_out.model_dump() if hasattr(agi_out, "model_dump") else {})
+    )
+
     # 999: VAULT
     stage_motto_999 = get_motto_for_stage("999_SEAL")
 
     seal_out = await vault(
         "seal",
-        judge_output=apex_out.get("judge", apex_out),
+        judge_output=apex_dict.get("judge", apex_dict),
         agi_tensor=agi_tensor,
         asi_output=asi_out,
         session_id=token.session_id,
         query=query,
     )
 
-    verdict = apex_out.get("verdict") or apex_out.get("judge", {}).get("verdict", "SEAL")
+    verdict = apex_dict.get("verdict") or apex_dict.get("judge", {}).get("verdict", "SEAL")
     elapsed = (time.perf_counter() - start_time) * 1000
 
     motto_summary = " | ".join(
         [
-            f"000: {token.motto}",
-            f"111: {agi_out.get('motto_111', 'DIKAJI, BUKAN DISUAPI')}",
-            f"222: {agi_out.get('motto_222', 'DIJELAJAH, BUKAN DISEKATI')}",
-            f"333: {agi_out.get('motto_333', 'DIJELASKAN, BUKAN DIKABURKAN')}",
-            f"444: {apex_out.get('motto_444', 'DIHADAPI, BUKAN DITANGGUHI')}",
-            f"555: {asi_out.get('motto_555', 'DIDAMAIKAN, BUKAN DIPANASKAN')}",
-            f"666: {asi_out.get('motto_666', 'DIJAGA, BUKAN DIABAIKAN')}",
-            f"777: {apex_out.get('motto_777', 'DIUSAHAKAN, BUKAN DIHARAPI')}",
-            f"888: {apex_out.get('motto_888', 'DISEDARKAN, BUKAN DIYAKINKAN')}",
+            f"000: {getattr(token, 'motto', 'DITEMPA, BUKAN DIBERI')}",
+            f"111: {agi_dict.get('motto_111', 'DIKAJI, BUKAN DISUAPI')}",
+            f"222: {agi_dict.get('motto_222', 'DIJELAJAH, BUKAN DISEKATI')}",
+            f"333: {agi_dict.get('motto_333', 'DIJELASKAN, BUKAN DIKABURKAN')}",
+            f"444: {apex_dict.get('motto_444', 'DIHADAPI, BUKAN DITANGGUHI')}",
+            f"555: {asi_dict.get('motto_555', 'DIDAMAIKAN, BUKAN DIPANASKAN')}",
+            f"666: {asi_dict.get('motto_666', 'DIJAGA, BUKAN DIABAIKAN')}",
+            f"777: {apex_dict.get('motto_777', 'DIUSAHAKAN, BUKAN DIHARAPI')}",
+            f"888: {apex_dict.get('motto_888', 'DISEDARKAN, BUKAN DIYAKINKAN')}",
             f"999: {seal_out.motto if seal_out else 'DITEMPA, BUKAN DIBERI'}",
         ]
     )
@@ -348,14 +346,14 @@ async def forge(
         verdict=verdict,
         session_id=token.session_id,
         token_status=token.status,
-        agi=agi_out,
-        asi=asi_out,
-        apex=apex_out,
+        agi=agi_dict,
+        asi=asi_dict,
+        apex=apex_dict,
         seal=seal_out,
         processing_time_ms=elapsed,
-        query_type=query_type.value,
+        query_type=query_type_value,
         f2_threshold=f2_threshold,
-        floors_failed=apex_out.get("floors_failed", []),
+        floors_failed=apex_dict.get("floors_failed", []),
         remediation="" if verdict == "SEAL" else "Review floor violations above.",
         motto_summary=motto_summary,
         emd=emd.model_dump() if emd else None,

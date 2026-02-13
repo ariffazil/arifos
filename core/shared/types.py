@@ -181,6 +181,7 @@ class FloorScores(BaseModel):
 
     # Soft Floors
     f3_tri_witness: float = Field(ge=0.0, le=1.0, default=0.95)
+    f4_clarity: float = Field(ge=0.0, le=1.0, default=1.0)  # F4: ΔS entropy reduction
     f5_peace: float = Field(ge=0.0, le=1.0, default=1.0)
     f8_genius: float = Field(ge=0.0, le=1.0, default=0.80)
     f9_anti_hantu: float = Field(ge=0.0, le=1.0, default=0.0)

@@ -24,17 +24,15 @@ COPY scripts/start_server.py scripts/start_server.py
 COPY core/ core/
 COPY aaa_mcp/ aaa_mcp/
 
-# Debug: Verify code version
-RUN echo "=== Build Time ===" && date -u +"%Y-%m-%dT%H:%M:%SZ"
-RUN echo "=== aaa_mcp contents ===" && ls -la aaa_mcp/
-RUN echo "=== aaa_mcp server ===" && python3 -c "from aaa_mcp.server import mcp; print('MCP server OK')"
-
 # Clear Python cache to ensure fresh imports
 RUN find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
 RUN find . -name "*.pyc" -delete 2>/dev/null || true
 
 # Install package
 RUN pip install -e .
+
+# Verify package is importable after install
+RUN python3 -c "import aaa_mcp; from aaa_mcp.server import mcp; print(f'Package installed: {aaa_mcp.__file__}')"
 
 # Expose port
 EXPOSE 8080

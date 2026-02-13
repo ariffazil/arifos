@@ -1,11 +1,7 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
 name = "arifos"
 version = "60.0.0"
-# v55.5-HARDENED: Thermodynamic Constitution with Axiom Engine (2026-02-08)
+# v60.0-FORGE: Unified Pipeline + 10-Tool Canon (2026-02-11)
 #   - Axiom Engine: Physics/CCS ground truth injection for reality_search
 #   - Evidence v2: Cryptographic hash-based integrity across all tools
 #   - Plan Objects: Formal tool routing with structured execution plans
@@ -163,7 +159,7 @@ all = [
 ]
 
 [project.scripts]
-# AAA MCP Server Commands (v55.5) - Fixed namespace (aaa_mcp)
+# AAA MCP Server Commands (v60.0-FORGE) - Unified pipeline, 10-tool canon
 # Usage: aaa-mcp [stdio|sse|http]  (default: stdio)
 aaa-mcp = "aaa_mcp.__main__:main"
 
