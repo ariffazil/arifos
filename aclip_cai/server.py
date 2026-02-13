@@ -17,9 +17,9 @@ from fastmcp import FastMCP
 
 mcp = FastMCP(
     "aclip-cai",
-    instructions="""ACLIP — Console for AI on arifOS (9 Senses Forged)
+    instructions="""ACLIP — Console for AI on arifOS (10 Senses Forged - incl. C9 financial_cost)
 
-The complete ops surface for AI agents on this machine.
+The expanded ops surface for AI agents on this machine.
 Agents use this console to see and operate the local environment.
 
 Console tools:
@@ -32,6 +32,7 @@ Console tools:
   C6 chroma_query   - Query persistent vector memory
   C7 cost_estimator - Predict the thermodynamic/resource cost of an action
   C8 forge_guard    - Local safety circuit breaker (OK/SABAR/VOID_LOCAL)
+  C9 financial_cost - Estimate the financial cost of an action (MOCK)
 
 What a CLI is for humans, ACLIP is for the AI.
 Constitutional governance remains in aaa-mcp.
@@ -167,6 +168,28 @@ async def forge_guard(
         check_system_health=check_system_health,
         cost_score_threshold=cost_score_threshold,
         cost_score_to_check=cost_score_to_check,
+    )
+
+
+@mcp.tool()
+async def financial_cost(
+    service: str,
+    action: str,
+    resource_id: str = "",
+    period_days: int = 1,
+) -> dict:
+    """Estimate the financial cost of an action (C9).
+
+    Physical meaning: Monetary cost of operations.
+    Used for: Economic awareness in decision-making.
+    """
+    from aclip_cai.tools.financial_monitor import financial_cost as financial_logic
+
+    return financial_logic(
+        service=service,
+        action=action,
+        resource_id=resource_id,
+        period_days=period_days,
     )
 
 

@@ -5,6 +5,7 @@ import time
 import socket
 import os
 import sys
+import httpx
 
 def find_free_port():
     """Finds a free port on localhost."""
@@ -20,14 +21,14 @@ def mcp_server():
     port = find_free_port()
     base_url = f"http://localhost:{port}"
 
-    # Command to start the server. Assuming it's run as a module.
-    # We will need to verify this and adjust if necessary.
+    env = os.environ.copy()
+    env["PORT"] = str(port)
+    env.setdefault("HOST", "127.0.0.1")
+
+    # Start the same Starlette/SSE entrypoint used on Railway.
     command = [
         sys.executable,
-        "-m",
-        "aaa_mcp.server",
-        "--port",
-        str(port),
+        "scripts/start_server.py",
     ]
 
     # Start the server as a background process
@@ -35,14 +36,26 @@ def mcp_server():
         command,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        env=os.environ.copy(),
+        env=env,
     )
 
-    # Wait for a moment to let the server start
-    time.sleep(3)
+    # Probe health endpoint until ready.
+    health_url = f"{base_url}/health"
+    started = False
+    for _ in range(40):
+        if server_process.poll() is not None:
+            break
+        try:
+            response = httpx.get(health_url, timeout=0.5)
+            if response.status_code == 200:
+                started = True
+                break
+        except Exception:
+            pass
+        time.sleep(0.25)
 
     # Check if the process is still running
-    if server_process.poll() is not None:
+    if server_process.poll() is not None or not started:
         # Process has terminated, something went wrong
         stdout, stderr = server_process.communicate()
         raise RuntimeError(

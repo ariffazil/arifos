@@ -45,7 +45,6 @@ def mock_search_result():
     )
 
 
-describe 'SearchResult Dataclass'
 def test_search_result_to_dict(mock_search_result: SearchResult):
     """
     Given: A SearchResult object.
@@ -63,7 +62,6 @@ def test_search_result_to_dict(mock_search_result: SearchResult):
     assert "timestamp" in result_dict
 
 
-describe 'RealityGroundingResult Dataclass'
 def test_reality_grounding_result_to_dict(mock_search_result: SearchResult):
     """
     Given: A RealityGroundingResult object.
@@ -92,7 +90,6 @@ def test_reality_grounding_result_to_dict(mock_search_result: SearchResult):
     assert result_dict["results"][0]["title"] == "Test Title"
 
 
-describe 'ThrottleGovernor'
 @pytest.mark.asyncio
 async def test_throttle_governor_waits_correctly():
     """
@@ -114,7 +111,6 @@ async def test_throttle_governor_waits_correctly():
     assert (end_time - start_time) >= interval
 
 
-describe 'DDGSEngine'
 @patch("aaa_mcp.tools.reality_grounding.DDGS")
 def test_ddgs_engine_asean_bias_query_build(mock_ddgs):
     """
@@ -135,7 +131,6 @@ def test_ddgs_engine_asean_bias_query_build(mock_ddgs):
     assert f"({query})" in biased_query
 
 
-describe 'should_reality_check function'
 @pytest.mark.parametrize(
     "query, expected_result, reason",
     [
@@ -161,7 +156,6 @@ def test_should_reality_check_scenarios(query, expected_result, reason):
     assert check_reason == reason
 
 
-describe 'RealityGroundingCascade'
 @patch.dict(os.environ, {"BRAVE_API_KEY": "test-key"}, clear=True)
 @patch("aaa_mcp.tools.reality_grounding.BraveSearchEngine")
 @patch("aaa_mcp.tools.reality_grounding.DDGSEngine")
@@ -258,7 +252,6 @@ async def test_cascade_search_stops_after_success():
     assert len(result.results) == 1
     assert result.results[0].source == "engine1"
 
-describe 'reality_check main function'
 @pytest.mark.asyncio
 @patch("aaa_mcp.tools.reality_grounding.get_cascade")
 @patch("aaa_mcp.tools.reality_grounding.get_browser")
