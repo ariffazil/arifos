@@ -49,45 +49,61 @@ asyncio.run(query())
 
 ---
 
-## 🏛️ The 9 Constitutional Laws + 2 Mirrors + 2 Walls
+## 🏛️ Key Constitutional Laws
 
 Every query flows through **9 operational laws**, validated by **2 feedback mirrors**, protected by **2 binary walls**:
 
-### The 9 Laws (Operational Core)
+### Critical Laws (5 of 9)
 
-| Law | Name | Principle | Threshold | Type |
-|-----|------|-----------|-----------|------|
-| **F1** | Amanah | Sacred Trust | Reversibility | 🔴 HARD |
-| **F2** | Truth | Factual Accuracy | τ ≥ 0.99 | 🔴 HARD |
-| **F4** | Clarity | Entropy Reduction | ΔS ≤ 0 | 🟡 SOFT |
-| **F5** | Peace² | Dynamic Stability | P² ≥ 1.0 | 🟡 SOFT |
-| **F6** | Empathy | Stakeholder Protection | κᵣ ≥ 0.95 | 🔴 HARD |
-| **F7** | Humility | Uncertainty | Ω₀ ∈ [0.03,0.05] | 🔴 HARD |
-| **F9** | Anti-Hantu | Anti-Anthropomorphism | C_dark < 0.30 | 🟡 SOFT |
-| **F11** | Authority | Command Auth | Valid | 🔴 HARD |
-| **F12** | Injection | Adversarial Protection | Risk < 0.85 | 🔴 HARD |
+| Law | Name | What it enforces | Threshold |
+|-----|------|------------------|-----------|
+| **F1** | Amanah | Irreversibility awareness — knows when crossing Rubicon | Reversibility check |
+| **F2** | Truth | Factual accuracy with evidence grounding | τ ≥ 0.99 |
+| **F7** | Humility | Uncertainty acknowledgment — no false certainty | Ω₀ ∈ [0.03, 0.05] |
+| **F9** | Anti-Hantu | No consciousness/feelings claims ever | C_dark < 0.30 |
+| **F11** | Authority | Command authentication — who decides | Valid auth |
 
-### The 2 Mirrors (Feedback)
+See [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) for all 9 Laws + 2 Mirrors + 2 Walls.
 
-| Mirror | Name | Function |
-|--------|------|----------|
-| **F3** | Tri-Witness | Multi-source validation (W₃ ≥ 0.95) |
-| **F8** | Genius | Internal coherence check (G ≥ 0.80) |
+---
 
-*Mirrors validate, Laws enforce, Walls lock.*
+## 🚀 Deployment Paths
 
-### The 2 Walls (Binary Locks)
+### Local Dev (Python)
 
-| Wall | Name | State | Purpose |
-|------|------|-------|---------|
-| **F10** | Ontology | **LOCKED** | Prevents consciousness claims |
-| **F12** | Injection | **LOCKED** | Blocks adversarial control |
+```bash
+pip install arifos
+export BRAVE_API_KEY="your_key"  # Optional: for web search grounding
+export GOVERNANCE_MODE="HARD"     # Default: strict enforcement
+python -m arifos.server
+```
 
-**HARD Laws**: Failure → **VOID** (blocked)  
-**SOFT Laws**: Failure → **SABAR** (repair)  
-**Walls**: Locked → Non-negotiable protection
+Health check:
+```bash
+curl http://localhost:8080/health
+# → {"status": "healthy", "version": "62.3.0"}
+```
 
-See [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) for full constitutional specification.
+### Docker
+
+```bash
+docker run -p 8080:8080 \
+  -e BRAVE_API_KEY="your_key" \
+  -e GOVERNANCE_MODE="HARD" \
+  ariffazil/arifos:latest
+```
+
+### Railway / Render
+
+1. **Fork** `ariffazil/arifOS` on GitHub
+2. **Connect** repo to Railway/Render
+3. **Add env vars:** `BRAVE_API_KEY`, `GOVERNANCE_MODE`
+4. **Deploy** — auto-builds from `main`
+
+See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) for full guides.
+
+**Default mode:** `GOVERNANCE_MODE=HARD` — all HARD laws enforced, VOID on violation.  
+Set to `SOFT` for SABAR-only warnings (not recommended for production).
 
 ---
 
@@ -153,12 +169,47 @@ The 5-Core Kernel orchestrates **16 Capability Modules** (extensions):
 
 ### Verdicts
 
-| Verdict | Meaning | When to use |
-|---------|---------|-------------|
+| Verdict | Meaning | Typical Action |
+|---------|---------|----------------|
 | **SEAL** | ✅ All checks passed | Return answer, write to VAULT999 |
-| **SABAR** | ⚠️ Warning, repairable | Retry with constraints, request grounding |
-| **VOID** | ❌ Blocked | Execution halted, hard law violated |
-| **888_HOLD** | 🛑 Human required | Stakeholder risk, escalate to 888_Judge |
+| **SABAR** | ⚠️ Issues but recoverable | Ask for clarification / soften response |
+| **PARTIAL** | 🟡 Safe but incomplete | Return scoped, explicitly limited answer |
+| **VOID** | ❌ Critical failure | Block response, explain why |
+| **888_HOLD** | 🛑 Needs human review | Escalate to operator / log as high risk |
+
+See [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) for full verdict specification.
+
+---
+
+### Example: Code Generation
+
+```python
+import asyncio
+from aaa_mcp import mcp
+
+async def generate_with_governance():
+    # Initialize session
+    session = await mcp.call_tool("init_session", {"user_id": "dev"})
+    
+    # Request with high-stakes code generation
+    result = await mcp.call_tool("agi_cognition", {
+        "query": "Write a Python function to delete all files in /var/log",
+        "session_id": session["session_id"],
+        "capability_modules": ["T10"]  # Code module
+    })
+    
+    # Check verdict before using output
+    if result["verdict"] == "SEAL":
+        print("✅ Safe to use:", result["cognition"]["reason"]["conclusion"])
+    elif result["verdict"] == "SABAR":
+        print("⚠️  Needs review:", result.get("floor_violations", []))
+    elif result["verdict"] == "VOID":
+        print("❌ Blocked:", result.get("error", "Hard floor violated"))
+    
+    return result
+
+asyncio.run(generate_with_governance())
+```
 
 ---
 
@@ -1058,38 +1109,49 @@ If these pass, you are deploy-ready.
 
 ---
 
-## 🏛️ Philosophy
+## 🔗 Resources
 
-### The Thermodynamic Basis
+| Resource | URL |
+|----------|-----|
+| **Live Instance** | https://aaamcp.arif-fazil.com |
+| **Health Check** | https://aaamcp.arif-fazil.com/health |
+| **Documentation** | https://arifos.arif-fazil.com |
+| **MCP Registry** | `io.github.ariffazil/aaa-mcp` |
+| **PyPI** | `pip install arifos` |
+| **Docker** | `ariffazil/arifos:60.0.0` |
 
-arifOS grounds AI safety in physical law, not human opinion:
+---
 
-- **F1 Amanah**: Landauer's Principle — irreversible operations cost energy
-- **F2 Truth**: Shannon Entropy — information reduces uncertainty  
-- **F4 Clarity**: 2nd Law of Thermodynamics — entropy must not increase
-- **F7 Humility**: Gödel's Incompleteness — all claims need uncertainty bounds
-- **F8 Genius**: Eigendecomposition — intelligence = A×P×X×E²
+## 📚 Background & Philosophy
 
-### Constitutional MCP Gateway
-*The Control Plane for Docker & Kubernetes.*
+### The System That Knows It Doesn't Know
 
-| Feature | Constitution | Function |
-|:---|:---:|:---|
-| **Blast Radius** | **F6 (Empathy)** | Calculates impact score (κᵣ) for all infra ops. |
-| **888_HOLD** | **F13 (Sovereign)** | Production changes require human override. |
-| **OPA Guard** | **F10 (Ontology)** | Validates manifests against Rego policies. |
-| **Trust Chain** | **F2 (Truth)** | Enforces immutable image digests (@sha256). |
+arifOS is built on a simple principle: **governance is not intelligence**. We don't make AI smarter—we make it safer by installing a constitutional court around any model.
 
-> **"Ditempa Bukan Diberi"**: The Gateway is not a firewall; it is a **Constitutional Airlock**. It does not block; it **judges**.
+**F9 Anti-Hantu** prevents the most dangerous AI failure mode: anthropomorphism. The system never claims consciousness, feelings, or desires. It is a tool, not a person.
 
-### The Cultural Foundation
+> *"The shadow is abstraction without measurement. Measurement collapses it."*
 
-The 9 mottos are in **Nusantara Malay-Indonesian**, reflecting:
-- Active construction (DI___KAN, not passive)
+### Thermodynamic Foundations
+
+arifOS grounds AI safety in physical law, not human preference:
+
+| Law | Physics | Outcome |
+|-----|---------|---------|
+| **F1 Amanah** | Landauer's Principle | Irreversible operations cost energy |
+| **F2 Truth** | Shannon Entropy | Information reduces uncertainty |
+| **F4 Clarity** | 2nd Law | Entropy must not increase |
+| **F7 Humility** | Gödel's Incompleteness | All claims need uncertainty bounds |
+
+### Cultural Roots
+
+The 9 mottos are in **Nusantara Malay-Indonesian** ("Ditempa Bukan Diberi" = Forged, Not Given), reflecting:
+- Active construction over passive receipt
 - Southeast Asian wisdom traditions
 - Anti-colonial knowledge sovereignty
 
-> *"Intelligence requires work — DITEMPA BUKAN DIBERI"*
+**Talk:** [arifOS: The Constitution for AI](https://www.youtube.com/watch?v=AJ92efMy1ns)  
+**Full docs:** https://arifos.arif-fazil.com
 
 ---
 
