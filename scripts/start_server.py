@@ -13,7 +13,12 @@ v64.1 GAGI Features:
 DITEMPA BUKAN DIBERI
 """
 
+# 🔥 CRITICAL FIX: Force local source priority over site-packages
+# Prevents Docker from loading old installed package instead of fresh source
 import sys
+import os
+sys.path.insert(0, os.getcwd())
+print(f"[startup] sys.path[0] = {sys.path[0]}", file=sys.stderr, flush=True)
 
 print("=== RAILWAY STARTUP: BEGIN ===", file=sys.stderr, flush=True)
 
@@ -32,6 +37,7 @@ try:
     from starlette.applications import Starlette
     from starlette.responses import JSONResponse
     from starlette.routing import Route
+    import inspect  # For module path verification
     print("[startup] Dependencies imported", file=sys.stderr, flush=True)
 except Exception as e:
     print(f"[startup] ERROR: {e}", file=sys.stderr, flush=True)
@@ -80,6 +86,8 @@ async def health(request):
         "version": __version__,
         "git_sha": git_sha,
         "runtime_id": os.environ.get("RAILWAY_REPLICA_ID", "local"),
+        "module_path": inspect.getfile(mcp_module),  # 🔥 Truth probe: which module loaded
+        "sys_path_0": sys.path[0],  # Verify local source priority
         "mcp_tools": tool_count,
         "tool_names": tool_names,
     })
