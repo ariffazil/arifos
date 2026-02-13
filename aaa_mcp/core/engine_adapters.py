@@ -1,8 +1,10 @@
 """
-Engine adapters for AAA MCP Server.
-
+Engine Adapters for AAA MCP Server
 Bridges FastMCP tools to core/organs engines.
-v60.0-CORE: Uses core/ exclusively; codebase/ is optional.
+
+v60.0-CORE: Now uses core/ exclusively — codebase/ dependency removed.
+
+DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 import json
@@ -12,6 +14,12 @@ import re
 from collections import Counter
 from dataclasses import asdict, is_dataclass
 from typing import Any, Dict, Optional
+from uuid import uuid4
+
+try:
+    from codebase.vault.eureka_sieve_hardened import HardenedAnomalousContrastEngine
+except ImportError:
+    HardenedAnomalousContrastEngine = None
 
 # Import core organs (v60.0+ kernel) exclusively
 from core import organs as core_organs
@@ -213,7 +221,6 @@ class InitEngine:
             }
         except Exception as e:
             logger.warning(f"Core init failed: {e}")
-            from uuid import uuid4
 
             # Phase A: Only APEX has verdict authority
             result = {
@@ -224,12 +231,6 @@ class InitEngine:
             }
             result.update(_query_heuristic_scores(query))
             return result
-
-
-try:
-    from codebase.vault.eureka_sieve_hardened import HardenedAnomalousContrastEngine
-except ImportError:  # Optional legacy module; keep AGI path functional without it.
-    HardenedAnomalousContrastEngine = None
 
 
 class AGIEngine:
