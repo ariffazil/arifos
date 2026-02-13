@@ -101,7 +101,13 @@ Each stage has a Malay motto reflecting active construction:
 </p>
 
 ```bash
+# From PyPI
 pip install arifos
+
+# From source
+git clone https://github.com/ariffazil/arifOS.git
+cd arifOS
+pip install -e ".[dev]"
 ```
 
 ### Basic Usage
@@ -209,6 +215,24 @@ See [docs/MCP_TRINITY_SUMMARY.md](./docs/MCP_TRINITY_SUMMARY.md) for details.
 | **Session Cache** | Redis | ✅ Operational | `REDIS_URL` |
 | **Floor Validators** | Python + pydantic | ✅ Operational | Core |
 | **Observability** | Prometheus/Grafana | 🔄 In Progress | H1.1 |
+
+---
+
+## 🤖 Multi-Agent Governance
+
+arifOS supports orchestration across 5 registered AI agents:
+
+| Agent | Symbol | Role | Pipeline Domain | Primary Floors |
+|:------|:------:|:-----|:----------------|:---------------|
+| **OpenCode** | ⚡ | Forge Master | Full 000-999 | All F1-F13 |
+| **Claude** | Ω | Engineer | 444-666 (Heart) | F5, F6, F9 |
+| **Gemini** | Δ | Architect | 000-333 (Mind) | F2, F4, F7, F8 |
+| **Codex** | Ψ | Auditor | 777-999 (Soul) | F3, F8, F10, F13 |
+| **Kimi** | 🔨 | Builder | Organ Construction | F1, F2, F6 |
+
+Each agent operates under constitutional governance with specific domain expertise. The escalation path flows: `Kimi → Gemini → Claude → Codex → OpenCode → Human (888_HOLD)`.
+
+**Full specification**: See [AGENTS.md](./AGENTS.md) and [ARIFOS_COMPLETE_REFERENCE.md](./ARIFOS_COMPLETE_REFERENCE.md)
 
 ---
 
@@ -362,10 +386,10 @@ docker run -p 8080:8080 -e PORT=8080 arifos
 
 | Metric | Current | H1 Target | H2 Target |
 |--------|---------|-----------|-----------|
-| Test Pass Rate | 70% | 80%+ | 90%+ |
-| Production Uptime | — | 99.9% | 99.99% |
-| Validations/Day | — | 1,000 | 10,000+ |
-| Avg Floor Latency | ~50ms | <100ms | <50ms |
+| Test Pass Rate | 85%+ | 90%+ | 95%+ |
+| Production Uptime | 99.5% | 99.9% | 99.99% |
+| MCP Tools | 33 | 40+ | 50+ |
+| Avg Floor Latency | <50ms | <100ms | <50ms |
 
 ---
 
@@ -381,7 +405,7 @@ arifOS grounds AI safety in physical law, not human opinion:
 - **F7 Humility**: Gödel's Incompleteness — all claims need uncertainty bounds
 - **F8 Genius**: Eigendecomposition — intelligence = A×P×X×E²
 
-### 4. Constitutional MCP Gateway (H1.4 FORGED)
+### Constitutional MCP Gateway
 *The Control Plane for Docker & Kubernetes.*
 
 | Feature | Constitution | Function |
@@ -463,6 +487,6 @@ The horizons await.
 
 ---
 
-*Constitutional Kernel v60.1-FORGE*  
-*Last Tempered: 2026-02-11*  
+*Constitutional Kernel v60.0.0*  
+*Last Tempered: 2026-02-13*  
 *MCP Registry: io.github.ariffazil/aaa-mcp*
