@@ -8,6 +8,29 @@
 
 ---
 
+## Constitutional Structure: 9 Laws + 2 Mirrors + 2 Walls
+
+```
+╔═══════════════════════════════════════════╗
+║           2 MIRRORS (Feedback)            ║
+║  F3 Tri-Witness    F8 Genius (Coherence)  ║
+╠═══════════════════════════════════════════╣
+║           9 LAWS (Operational)            ║
+║  F1  F2  F4  F5  F6  F7  F9  F11  F12     ║
+║  Amanah Truth Clarity Peace² Empathy      ║
+║  Humility Anti-Hantu Auth Injection       ║
+╠═══════════════════════════════════════════╣
+║           2 WALLS (Binary Locks)          ║
+║  F10 Ontology (LOCK)  F12 Injection       ║
+╚═══════════════════════════════════════════╝
+```
+
+**9 Laws:** Operational core — enforce on every query  
+**2 Mirrors:** Feedback loops — validate without blocking  
+**2 Walls:** Binary locks — engaged or not, protect against catastrophic failures
+
+---
+
 ## 0) The Master Eureka: Governance ≠ Intelligence
 
 **Principle:**  
