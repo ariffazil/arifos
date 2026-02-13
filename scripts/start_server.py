@@ -1,5 +1,5 @@
 """
-arifOS MCP Server — Railway Production Entry Point (v60.0-FORGE)
+arifOS MCP Server — Railway Production Entry Point (v61.0-FORGE)
 
 Starts the constitutional MCP server with SSE transport.
 Health endpoint at /health for Railway healthchecks.
@@ -14,113 +14,148 @@ print("=== RAILWAY STARTUP: BEGIN ===", file=sys.stderr, flush=True)
 import asyncio
 import os
 
-import uvicorn
-from starlette.applications import Starlette
-from starlette.responses import JSONResponse
-from starlette.routing import Route
-
-from mcp.server.sse import SseServerTransport
-
-# Environment
+# Environment setup first
 port = int(os.environ.get("PORT", 8080))
 host = os.environ.get("HOST", "0.0.0.0")
 
+print(f"[startup] Port: {port}, Host: {host}", file=sys.stderr, flush=True)
+
+# Import dependencies
+try:
+    import uvicorn
+    from starlette.applications import Starlette
+    from starlette.responses import JSONResponse
+    from starlette.routing import Route
+    from mcp.server.sse import SseServerTransport
+    print("[startup] Dependencies imported successfully", file=sys.stderr, flush=True)
+except Exception as e:
+    print(f"[startup] ERROR importing dependencies: {e}", file=sys.stderr, flush=True)
+    sys.exit(1)
+
 # Import the MCP server instance
-from aaa_mcp.server import mcp as mcp_server
+try:
+    from aaa_mcp.server import mcp as mcp_server
+    from aaa_mcp import __version__
+    print(f"[startup] MCP server imported: {__version__}", file=sys.stderr, flush=True)
+except Exception as e:
+    print(f"[startup] ERROR importing MCP server: {e}", file=sys.stderr, flush=True)
+    import traceback
+    traceback.print_exc(file=sys.stderr)
+    sys.exit(1)
 
 
 # Health and root endpoints
 async def health(request):
-    return JSONResponse({"status": "ok", "version": "60.0.0-FORGE", "mcp_tools": 10})
+    """Health check endpoint for Railway."""
+    try:
+        tools = await mcp_server.get_tools()
+        tool_count = len(tools)
+    except Exception as e:
+        print(f"[health] Error counting tools: {e}", file=sys.stderr, flush=True)
+        tool_count = 5  # Fallback
+    
+    return JSONResponse({
+        "status": "ok",
+        "version": __version__,
+        "mcp_tools": tool_count
+    })
 
 
 async def root(request):
-    return JSONResponse(
-        {
-            "service": "arifOS MCP Server",
-            "version": "60.0.0-FORGE",
-            "status": "operational",
-            "endpoints": {"health": "/health", "sse": "/sse", "messages": "/messages"},
-        }
-    )
+    return JSONResponse({
+        "service": "arifOS MCP Server",
+        "version": __version__,
+        "status": "operational",
+        "endpoints": {
+            "health": "/health",
+            "sse": "/sse",
+            "messages": "/messages"
+        },
+    })
 
 
 # Create SSE transport
 sse = SseServerTransport("/messages")
 
 
-# Handler for SSE connections (FastMCP v2+ API)
 async def sse_endpoint(request):
-    """SSE endpoint for MCP clients.
+    """SSE endpoint for MCP clients."""
+    print("[sse] Connection initiated", file=sys.stderr, flush=True)
+    try:
+        async with sse.connect_sse(
+            request.scope,
+            request.receive,
+            request._send,
+        ) as streams:
+            print("[sse] Streams connected", file=sys.stderr, flush=True)
+            
+            # Access the underlying MCP server
+            server = getattr(mcp_server, '_mcp_server', mcp_server)
+            
+            print(f"[sse] Server type: {type(server)}", file=sys.stderr, flush=True)
+            
+            # Run the server with the streams
+            await server.run(
+                streams[0],
+                streams[1],
+                server.create_initialization_options(),
+            )
+            print("[sse] Server run completed", file=sys.stderr, flush=True)
+    except Exception as e:
+        print(f"[sse] ERROR: {e}", file=sys.stderr, flush=True)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+        raise
 
-    Uses SseServerTransport.connect_sse, which wraps the underlying
-    MCP server with a streaming transport. This replaces the older
-    connect_session() API.
 
-    Note: Starlette's Request object does not expose a public ``send``
-    attribute; the underlying ASGI send callable is stored on the
-    private ``_send`` attribute. We pass that through here so the
-    transport can write SSE frames without causing AttributeError.
-    """
-    async with sse.connect_sse(
-        request.scope,
-        request.receive,
-        request._send,  # type: ignore[attr-defined]
-    ) as streams:
-        # FastMCP wraps an underlying MCP Server used by SSE transport.
-        server = mcp_server._mcp_server  # type: ignore[attr-defined]
-        await server.run(
-            streams[0],
-            streams[1],
-            server.create_initialization_options(),
-        )
-
-
-# Handler for POST messages
 async def messages_endpoint(request):
-    """Handle JSON-RPC POST messages for MCP tools.
-
-    Starlette's Request object wraps the underlying ASGI ``send`` callable
-    on a private ``_send`` attribute. The SseServerTransport expects the
-    raw ASGI ``send`` function, so we must pass ``request._send`` here
-    (similar to the SSE endpoint) instead of the non-existent
-    ``request.send`` attribute which causes AttributeError in production.
-    """
-    await sse.handle_post_message(
-        request.scope,
-        request.receive,
-        request._send,  # type: ignore[attr-defined]
-    )
+    """Handle JSON-RPC POST messages for MCP tools."""
+    print("[messages] POST received", file=sys.stderr, flush=True)
+    try:
+        await sse.handle_post_message(
+            request.scope,
+            request.receive,
+            request._send,
+        )
+        print("[messages] Handled successfully", file=sys.stderr, flush=True)
+    except Exception as e:
+        print(f"[messages] ERROR: {e}", file=sys.stderr, flush=True)
+        import traceback
+        traceback.print_exc(file=sys.stderr)
+        raise
 
 
 # Create Starlette app with routes
+routes = [
+    Route("/", root, methods=["GET"]),
+    Route("/health", health, methods=["GET"]),
+    Route("/sse", sse_endpoint, methods=["GET"]),
+    Route("/messages", messages_endpoint, methods=["POST"]),
+]
+
 app = Starlette(
-    routes=[
-        Route("/", root, methods=["GET"]),
-        Route("/health", health, methods=["GET"]),
-        Route("/sse", sse_endpoint, methods=["GET"]),
-        Route("/messages", messages_endpoint, methods=["POST"]),
-    ],
+    routes=routes,
     debug=False,
 )
 
 
 async def startup():
     """Startup tasks."""
-    print("=" * 60)
-    print("arifOS MCP Server Starting")
-    print("=" * 60)
-    print(f"Host: {host}:{port}")
-    print()
-
-    print("DITEMPA BUKAN DIBERI - Forged, Not Given")
-    print("=" * 60)
-    print()
+    print("=" * 60, file=sys.stderr, flush=True)
+    print("arifOS MCP Server Starting", file=sys.stderr, flush=True)
+    print("=" * 60, file=sys.stderr, flush=True)
+    print(f"Version: {__version__}", file=sys.stderr, flush=True)
+    print(f"Host: {host}:{port}", file=sys.stderr, flush=True)
+    print(file=sys.stderr, flush=True)
+    print("DITEMPA BUKAN DIBERI - Forged, Not Given", file=sys.stderr, flush=True)
+    print("=" * 60, file=sys.stderr, flush=True)
+    print(file=sys.stderr, flush=True)
 
 
 if __name__ == "__main__":
     # Run startup check
     asyncio.run(startup())
-
+    
     # Start server
-    uvicorn.run(app, host=host, port=port)
+    print(f"[startup] Starting uvicorn on {host}:{port}", file=sys.stderr, flush=True)
+    uvicorn.run(app, host=host, port=port, log_level="info")
