@@ -23,7 +23,7 @@ from typing import Any, Optional
 from fastmcp import FastMCP
 
 # v62: SystemState exposure for cognitive runtime
-from aaa_mcp.core.heuristics import calculate_system_state
+from aaa_mcp.core.heuristics import compute_system_state
 from aaa_mcp.core.state import SystemState, Profile
 
 # Tool annotations for MCP 2025-11-25 compliance
@@ -242,12 +242,11 @@ async def agi_cognition(
         }
 
     # Calculate SystemState (v62 Step 1)
-    system_state = calculate_system_state(
+    evidence_count = len(grounding) if grounding else 0
+    system_state = compute_system_state(
         query=query,
-        session_id=session_id,
         loop_count=0,
-        stakeholders=None,
-        evidence=grounding
+        evidence_count=evidence_count
     )
 
     # AGI Pipeline: Sense → Think → Reason
