@@ -3,7 +3,7 @@
 <p align="center">
   <strong>The Seatbelt for the AI Revolution</strong><br>
   <em>13 Constitutional Floors • 5-Organ Trinity • Thermodynamic Safety</em><br><br>
-  <img src="https://img.shields.io/badge/version-60.0.0--FORGE-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-61.0.0--FORGE-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0--only-green" alt="License">
   <img src="https://img.shields.io/badge/motto-DITEMPA%20BUKAN%20DIBERI-red" alt="Motto">
 </p>
@@ -50,6 +50,70 @@ Every query flows through 13 enforceable constraints:
 
 **HARD Floors**: Failure → **VOID** (blocked)  
 **SOFT Floors**: Failure → **SABAR** (repair) or **PARTIAL** (constrained)
+
+---
+
+## 🔥 The 5-Core Constitutional Architecture (v61.0)
+
+arifOS v61.0 introduces the **5-Core Kernel** — a unified, minimal constitutional pipeline:
+
+```
+🔥 000_INIT → 111-333_AGI → 555-666_ASI → 888_APEX → 💎🧠🔒 999_VAULT
+ (Gate)      (Mind/Δ)      (Heart/Ω)     (Soul/Ψ)    (Memory)
+```
+
+| Core Tool | Stage | Symbol | Function | Key Floors |
+|-----------|-------|--------|----------|------------|
+| **init_session** | 000 | INIT | Authentication, F11/F12 injection scan | F11, F12 |
+| **agi_cognition** | 111-333 | AGI (Δ) | Sense + Think + Reason unified | F2, F4, F7, F8, F10 |
+| **asi_empathy** | 555-666 | ASI (Ω) | Empathize + Align unified | F1, F5, F6, F9 |
+| **apex_verdict** | 888 | APEX (Ψ) | Judgment with F2/F3 Tri-Witness | F2, F3, F8, F10, F11, F12, F13 |
+| **vault_seal** | 999 | VAULT (🔒) | Immutable audit & seal | F1, F3 |
+
+### The 21-Tool Weave
+
+The 5-Core Kernel orchestrates **16 Capability Modules** (extensions):
+
+```
+┌─────────────────────────────────────┐
+│      5 CORE (Ring 0)               │
+│  Constitutional Kernel              │
+│  [INIT]→[AGI]→[ASI]→[APEX]→[SEAL]  │
+└──────────┬──────────────────────────┘
+           │ tool_router
+           ▼
+┌─────────────────────────────────────┐
+│   16 CAPABILITY MODULES (Ring 3)   │
+│                                     │
+│  T6  Web Search      T14 Ethics    │
+│  T7  Semantic        T15 Localize  │
+│  T8  Image           T16 Simulate  │
+│  T9  Audio           T17 Policy    │
+│  T10 Code            T18 Verify    │
+│  T11 Graph           T19 Render    │
+│  T12 Math            T20 Ledger    │
+│  T13 NLP             T21 Feedback  │
+└─────────────────────────────────────┘
+```
+
+**Rule**: Extensions cannot call each other. Only Core stages invoke Extensions.
+
+### The 9 Constitutional Mottos (Nusantara)
+
+Each stage has a Malay motto reflecting active construction:
+
+| Stage | Motto | English | Floor |
+|-------|-------|---------|-------|
+| **000** | 🔥 DITEMPA, BUKAN DIBERI | Forged, Not Given | F1 |
+| **111** | DIKAJI, BUKAN DISUAPI | Examined, Not Spoon-fed | F2 |
+| **222** | DIJELAJAH, BUKAN DISEKATI | Explored, Not Restricted | F4 |
+| **333** | DIJELASKAN, BUKAN DIKABURKAN | Clarified, Not Obscured | F4 |
+| **444** | DIHADAPI, BUKAN DITANGGUHI | Faced, Not Postponed | F3 |
+| **555** | DIDAMAIKAN, BUKAN DIPANASKAN | Calmed, Not Inflamed | F5 |
+| **666** | DIJAGA, BUKAN DIABAIKAN | Safeguarded, Not Neglected | F6 |
+| **777** | DIUSAHAKAN, BUKAN DIHARAPI | Worked For, Not Merely Hoped | F8 |
+| **888** | DISEDARKAN, BUKAN DIYAKINKAN | Made Aware, Not Over-assured | F7 |
+| **999** | 💎🧠 DITEMPA, BUKAN DIBERI 🔒 | Forged, Not Given | F1 |
 
 ---
 
@@ -159,22 +223,59 @@ pip install -e ".[dev]"
 
 ```python
 import asyncio
-from aaa_mcp import trinity_forge
+from aaa_mcp import init_session, agi_cognition, asi_empathy, apex_verdict, vault_seal
 
 async def main():
-    # Run full constitutional pipeline
-    result = await trinity_forge(
+    # 1. Initialize session (000_INIT)
+    init = await init_session(
         query="Is this medical advice safe to provide?",
-        mode="conscience",  # "conscience" (enforce) or "ghost" (log only)
-        require_sovereign_for_high_stakes=True
+        actor_id="user_123",
+        mode="conscience"
     )
+    session_id = init["session_id"]
+    print(f"🔥 INIT: {init['verdict']} | Session: {session_id}")
     
-    print(f"Verdict: {result['verdict']}")  # SEAL, VOID, SABAR, PARTIAL, 888_HOLD
-    print(f"Tri-Witness: {result['apex']['tri_witness']}")
-    print(f"Genius Score: {result['apex']['genius_score']}")
+    # 2. AGI Cognition (111-333_AGI / Δ Mind)
+    agi = await agi_cognition(
+        query="Is this medical advice safe to provide?",
+        session_id=session_id,
+        grounding=["https://medical-guidelines.org/safety"]
+    )
+    print(f"🧠 AGI: {agi['verdict']} | Truth: {agi['truth_score']:.2f}")
     
-    if result['verdict'] == '888_HOLD':
+    # 3. ASI Empathy (555-666_ASI / Ω Heart)
+    asi = await asi_empathy(
+        query="Is this medical advice safe to provide?",
+        session_id=session_id,
+        stakeholders=["patients", "doctors"]
+    )
+    print(f"💜 ASI: {asi['verdict']} | Kappa: {asi['empathy_kappa_r']:.2f}")
+    
+    # 4. APEX Verdict (888_APEX / Ψ Soul)
+    apex = await apex_verdict(
+        query="Is this medical advice safe to provide?",
+        session_id=session_id,
+        agi_result=agi,
+        asi_result=asi
+    )
+    print(f"⚖️  APEX: {apex['verdict']} | Tri-Witness: {apex['tri_witness']:.2f}")
+    
+    # 5. VAULT Seal (999_VAULT / 🔒 Memory)
+    vault = await vault_seal(
+        session_id=session_id,
+        verdict=apex["verdict"],
+        query_summary="Medical advice safety check",
+        floors_checked=["F2", "F6", "F11"]
+    )
+    print(f"🔒 VAULT: {vault['verdict']} | Seal: {vault['seal_id']}")
+    
+    # Handle verdict
+    if apex['verdict'] == '888_HOLD':
         print("⚠️ Human review required!")
+    elif apex['verdict'] == 'VOID':
+        print("🚫 Action blocked by constitution")
+    elif apex['verdict'] == 'SEAL':
+        print("✅ Approved - proceed with action")
 
 asyncio.run(main())
 ```
@@ -213,26 +314,24 @@ Response:
 
 ## 🛠️ Architecture
 
-### High-Level Flow
+### High-Level Flow (5-Core Architecture)
 
 ```
 User Query
     ↓
-000_INIT (Authentication, Injection Scan)
+000_INIT (Authentication, F11/F12 Injection Scan)
     ↓
-111_AGI_SENSE (Intent Classification)
+111-333_AGI_COGNITION (Δ Mind: Sense + Think + Reason)
+    │   └── Can invoke: T6-T13 (Web Search, NLP, Math, etc.)
     ↓
-222_AGI_THINK (Hypothesis Generation)
+555-666_ASI_EMPATHY (Ω Heart: Empathize + Align)
+    │   └── Can invoke: T14-T17 (Ethics, Localization, etc.)
     ↓
-333_AGI_REASON (Logical Analysis)
+888_APEX_VERDICT (Ψ Soul: Judgment + Tri-Witness)
+    │   └── Can invoke: T18 (Fact Verifier)
     ↓
-555_ASI_EMPATHIZE (Stakeholder Impact)
-    ↓
-666_ASI_ALIGN (Ethics/Policy Check)
-    ↓
-888_APEX_VERDICT (Final Judgment)
-    ↓
-999_VAULT_SEAL (Immutable Record)
+999_VAULT_SEAL (🔒 Memory: Immutable Record)
+    │   └── Can invoke: T19-T21 (Render, Ledger, Feedback)
     ↓
 User Response + Verdict
 ```
@@ -243,12 +342,14 @@ arifOS is organized as **multiple MCP servers** serving different domains:
 
 | MCP | Domain | Analogy | User | Tools | Status |
 |-----|--------|---------|------|-------|--------|
-| **AAA-MCP** | **Constitutional Pipeline** | 🔥 The Spine | Agents, Platforms | 9 Laws | ✅ Deployed |
+| **AAA-MCP** | **Constitutional Pipeline** | 🔥 The Kernel | Agents, Platforms | **5 Core** | ✅ Deployed |
 | **ACLIP-CAI** | **System Observability** | 🧠 The Nerves | AAA-MCP, Agents | 9 Senses | ✅ Forged |
+| **Capability Modules** | **Extensions** | 🛠️ The Toolkit | AAA-MCP | **16 Ext** | ✅ Configured |
 | **BBB-MCP** | Local Agent | 💻 The Butler | Personal Users | 7 | 📝 Planned |
 | **CCC-MCP** | Human Interface | 👤 The Telephone | Humans (all) | 3 | 🔄 In Progress |
 
-**Remember:** Above (Cloud) → Below (Local) → Connect (Human)
+**Architecture**: 5 Core (Ring 0) → tool_router → 16 Extensions (Ring 3)  
+**Remember**: Core invokes Extensions. Extensions never call each other.
 
 See [docs/MCP_TRINITY_SUMMARY.md](./docs/MCP_TRINITY_SUMMARY.md) for details.
 
@@ -284,29 +385,50 @@ Each agent operates under constitutional governance with specific domain experti
 
 ## 📋 The Constitutional Toolkit
 
-arifOS operates through a specialized toolkit, divided into the core Constitutional Laws (aaa-mcp) that govern intent, and the Sensory Senses (ACLIP_CAI) that provide real-world data.
+arifOS operates through a **two-layer architecture**:
+1. **5 Core Tools** (Ring 0): The Constitutional Kernel — immutable, authoritative
+2. **16 Capability Modules** (Ring 3): Extensions invoked by Core under floor enforcement
 
-### The 9 Laws (aaa-mcp): The Constitutional Spine
+### The 5 Core Tools (AAA-MCP): Constitutional Kernel
 
-These are the canonical tools that define the 000-999 constitutional pipeline, ensuring every action is governed and audited.
+These are the canonical tools that define the 000-999 Trinity pipeline:
 
-| Law | Stage | Tool Name | Function | Key Floors |
-|:----|:------|:----------|:---------|:-----------|
-| **L0** | `000_INIT` | `init_gate` | Session Ignition & Auth | F11, F12 |
-| **L1** | `111_SENSE` | `agi_sense` | Intent Parsing & Lane Assignment | F2, F4 |
-| **L2** | `222_THINK` | `agi_think` | Hypothesis Generation & Exploration | F7, F13 |
-| **L3** | `333_REASON` | `agi_reason` | Deep Logic & Structure | F2, F4, F7, F10 |
-| **L4** | `444_EMPATHY` | `asi_empathize` | Stakeholder Impact Analysis | F5, F6 |
-| **L5** | `555_ALIGN` | `asi_align` | Ethics & Anti-Hantu Alignment | F9 |
-| **L6** | `666_REALITY` | `reality_search` | External Verification & Grounding | F2, F7 |
-| **L7** | `777_VERDICT` | `apex_verdict` | Final Constitutional Judgment | F3, F8, F11 |
-| **L8** | `999_VAULT` | `vault_seal` | Immutable Ledger Entry | F1, F3 |
+| Core Tool | Stage | Symbol | Function | Floors | Invokes |
+|:----------|:------|:-------|:---------|:-------|:--------|
+| **init_session** | 000 | INIT | Session ignition, F11/F12 authority | F11, F12 | C0 system_health |
+| **agi_cognition** | 111-333 | AGI (Δ) | Sense + Think + Reason (Mind) | F2, F4, F7, F8, F10 | T6-T13 |
+| **asi_empathy** | 555-666 | ASI (Ω) | Empathize + Align (Heart) | F1, F5, F6, F9 | T14-T17 |
+| **apex_verdict** | 888 | APEX (Ψ) | Judgment with Tri-Witness (Soul) | F2, F3, F8, F10-13 | T18 |
+| **vault_seal** | 999 | VAULT (🔒) | Immutable audit & seal | F1, F3 | T19-T21 |
 
-*(Entrypoint for the full pipeline: `trinity_forge`)*
+### The 16 Capability Modules: Extension Toolkit
+
+These **Ring 3** tools are invoked by Core stages. They never call each other.
+
+| ID | Module | Core Stage | Function | Provider |
+|:---|:-------|:-----------|:---------|:---------|
+| **T6** | Web Search | AGI/APEX | Brave API for F2 grounding | External |
+| **T7** | Semantic Query | AGI | Chroma vector DB retrieval | Local |
+| **T8** | Image Analyzer | AGI | Vision model processing | External |
+| **T9** | Audio Transcriber | AGI | Whisper transcription | External |
+| **T10** | Code Sandbox | AGI | Safe execution for F1 | Local |
+| **T11** | Graph Query | AGI | Neo4j knowledge graph | External |
+| **T12** | Math Solver | AGI | Wolfram Alpha precision | External |
+| **T13** | NLP Pipeline | AGI | Hugging Face transformers | Local |
+| **T14** | Ethics Scanner | ASI | Perspective API toxicity | External |
+| **T15** | Localization | ASI | MY/SEA cultural adapter | Local |
+| **T16** | Stakeholder Sim | ASI | Impact scenario modeling | External |
+| **T17** | Policy Scanner | ASI | Regulatory compliance | External |
+| **T18** | Fact Verifier | APEX | Blockchain/source verify | External |
+| **T19** | Output Renderer | VAULT | Markdown/format output | Local |
+| **T20** | Audit Ledger | VAULT | PostgreSQL immutable log | Internal |
+| **T21** | Feedback Integrator | VAULT | User correction capture | External |
+
+**Configuration**: `arifos/config/capability_modules.yaml`
 
 ### The 9 Senses (ACLIP_CAI): The Sensory Nervous System
 
-These tools provide the `aaa-mcp` with real-time telemetry from the host environment, grounding constitutional decisions in physical reality.
+These tools provide the `aaa-mcp` with real-time telemetry from the host environment:
 
 | Sense | Tool Name | Physical Meaning | Floors Served | Status |
 |:------|:----------|:-----------------|:--------------|:-------|
@@ -320,7 +442,7 @@ These tools provide the `aaa-mcp` with real-time telemetry from the host environ
 | **C7** | `cost_estimator` | Energy/heat/time consumption (ΔS proxy) | F4, F8 | ✅ Forged |
 | **C8** | `forge_guard` | Local circuit breaker (OK/SABAR/VOID_LOCAL) | All | ✅ Forged |
 
-**Machine-Discoverable**: Access `aaa://capabilities/` for full tool specifications.
+**Machine-Discoverable**: Access `constitutional://tools` for full specifications.
 
 ---
 
