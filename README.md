@@ -3,7 +3,7 @@
 <p align="center">
   <strong>The Seatbelt for the AI Revolution</strong><br>
   <em>13 Constitutional Floors • 5-Organ Trinity • Thermodynamic Safety</em><br><br>
-  <img src="https://img.shields.io/badge/version-62.1.0--STATE-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-62.2.0--EVIDENCE-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0--only-green" alt="License">
   <img src="https://img.shields.io/badge/motto-DITEMPA%20BUKAN%20DIBERI-red" alt="Motto">
 </p>
@@ -119,7 +119,73 @@ Each stage has a Malay motto reflecting active construction:
 
 ---
 
-## 🆕 v62.1 — SystemState Exposure (Current)
+## 🆕 v62.2 — Real Evidence Grounding (Current)
+
+**Status:** LIVE on Railway  
+**Version:** 62.2.0-EVIDENCE  
+**Commit:** `11e66435`
+
+### What's New — Step 2 Complete
+
+arifOS v62.2 introduces **real T6 Brave Search integration** — evidence is now grounded in actual web search:
+
+```json
+{
+  "verdict": "SEAL",
+  "system_state": {
+    "uncertainty": 0.35,
+    "risk": 0.20,
+    "grounding": 1.0,
+    "loop_count": 0,
+    "profile": "factual"
+  },
+  "grounded": true,
+  "evidence": [
+    {
+      "source": "https://...",
+      "snippet": "...",
+      "title": "...",
+      "timestamp": "2026-02-13T14:30:00Z",
+      "content_hash": "a1b2c3d4..."
+    }
+  ]
+}
+```
+
+### Evidence Artifacts
+
+Each search result includes:
+| Field | Description |
+|-------|-------------|
+| **source** | URL of evidence |
+| **snippet** | Relevant text excerpt |
+| **title** | Page title |
+| **timestamp** | When evidence was captured |
+| **content_hash** | SHA-256 verification hash |
+
+### Usage
+
+```python
+# Invoke agi_cognition with T6 module
+agi_cognition(
+    query="What is 2+2?",
+    session_id="...",
+    capability_modules=["T6"]  # Enable Brave Search
+)
+```
+
+### Roadmap
+
+| Step | Status | Description |
+|------|--------|-------------|
+| 1 | ✅ DONE | SystemState exposure (v62.1) |
+| 2 | ✅ DONE | Real T6 Brave Search (v62.2) |
+| 3 | ⏳ NEXT | Contrast re-test |
+| 4 | ⏳ | Minimal Meta-Scheduler |
+
+---
+
+## 🆕 v62.1 — SystemState Exposure
 
 **Status:** LIVE on Railway  
 **Version:** 62.1.0-STATE  
