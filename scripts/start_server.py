@@ -61,7 +61,7 @@ except Exception as e:
 
 # Health endpoint
 async def health(request):
-    """Health check endpoint for Railway."""
+    """Health check endpoint for Railway with full truth probe."""
     try:
         tools = await mcp_server.get_tools()
         tool_count = len(tools)
@@ -71,8 +71,20 @@ async def health(request):
         tool_count = 0
         tool_names = []
     
-    # v64.1: Runtime identity stamp for deployment verification
+    # v64.1: TRUTH PROBE — Full version diagnostics
     import subprocess
+    from importlib.metadata import version as pkg_version
+    
+    # 1. Package version (from pyproject.toml metadata)
+    try:
+        arifos_pkg_version = pkg_version("arifos")
+    except:
+        arifos_pkg_version = "unknown"
+    
+    # 2. Runtime version (from aaa_mcp.__version__)
+    runtime_version = __version__
+    
+    # 3. Git SHA
     try:
         git_sha = subprocess.run(
             ["git", "rev-parse", "--short", "HEAD"],
@@ -81,13 +93,26 @@ async def health(request):
     except:
         git_sha = "unknown"
     
+    # 4. Module path (where aaa_mcp is actually loaded from)
+    module_path = inspect.getfile(mcp_module)
+    
+    # 5. sys.path[0] (local source priority verification)
+    sys_path_0 = sys.path[0] if sys.path else "empty"
+    
+    # Version consistency check
+    versions_match = arifos_pkg_version == runtime_version
+    
     return JSONResponse({
-        "status": "ok",
-        "version": __version__,
+        "status": "ok" if versions_match else "version_mismatch",
+        "versions": {
+            "package": arifos_pkg_version,      # From pyproject.toml
+            "runtime": runtime_version,          # From aaa_mcp.__version__
+            "match": versions_match,
+        },
         "git_sha": git_sha,
         "runtime_id": os.environ.get("RAILWAY_REPLICA_ID", "local"),
-        "module_path": inspect.getfile(mcp_module),  # 🔥 Truth probe: which module loaded
-        "sys_path_0": sys.path[0],  # Verify local source priority
+        "module_path": module_path,            # Physical file location
+        "sys_path_0": sys_path_0,              # Python path priority
         "mcp_tools": tool_count,
         "tool_names": tool_names,
     })
