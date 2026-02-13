@@ -1,9 +1,9 @@
 {
-  "name": "arifos",
-  "version": "0.1.0",
+  "name": "io.github.ariffazil/aaa-mcp",
+  "version": "60.0.0",
   "description": "Constitutional governance for LLMs: 13 measurable floors (truth, peace, amanah) + Human·AI·Earth tri-witness consensus. Prevents hallucination, escalation, and dark-pattern behaviour.",
   "homepage_url": "https://github.com/ariffazil/arifOS#readme",
-  "license": "AGPL-3.0",
+  "license": "AGPL-3.0-only",
   "author": "Muhammad Arif bin Fazil",
   "tags": [
     "constitutional-ai",
@@ -19,7 +19,7 @@
       "description": "arifOS AAA MCP server over stdio (FastMCP).",
       "transport": "stdio",
       "command": "python",
-      "args": ["-m", "aaa_mcp.server"]
+      "args": ["-m", "aaa_mcp"]
     }
   ],
   "tools": [
@@ -39,7 +39,7 @@
     },
     {
       "name": "agi_sense",
-      "description": "Parse intent and classify lane (HARD/SOFT/META).",
+      "description": "111_SENSE: Parse intent and classify constitutional lane.",
       "input_schema": {
         "type": "object",
         "properties": {
@@ -100,7 +100,7 @@
     },
     {
       "name": "apex_verdict",
-      "description": "Final constitutional verdict — the APEX Soul's judgment (777).",
+      "description": "888_JUDGE: Final constitutional verdict by APEX Soul.",
       "input_schema": {
         "type": "object",
         "properties": {
@@ -125,7 +125,7 @@
       }
     },
     {
-      "name": "forge",
+      "name": "trinity_forge",
       "description": "Unified 000–999 constitutional pipeline (INIT → AGI → ASI → APEX → VAULT999).",
       "input_schema": {
         "type": "object",
