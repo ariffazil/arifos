@@ -1,12 +1,18 @@
 """
-arifOS AAA MCP Server — 5-Core Constitutional Architecture (v61.0-FORGE)
+arifOS AAA MCP Server — 5-Core Constitutional Architecture (v64.1-GAGI)
 
 Canonical 5 organs aligned to Trinity pipeline:
   000_INIT → 111-333_AGI(Mind/Δ) → 555-666_ASI(Heart/Ω) → 888_APEX(Soul/Ψ) → 999_VAULT(Seal/🔒)
 
 Every tool guarded by constitutional floors (F1-F13).
-Verdicts: SEAL (approved) | VOID (blocked) | PARTIAL (warning) | SABAR (repair)
+Verdicts: SEAL (approved) | VOID (blocked) | PARTIAL (warning) | SABAR (repair) | 888_HOLD (awaiting)
 Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
+
+v64.1 GAGI Updates:
+  - Uncertainty Engine: Harmonic mean (safety) + Geometric mean (display)
+  - Governance Kernel: Synchronous AWAITING_888 (conditional)
+  - Telemetry: 30-day locked adaptation
+  - Irreversibility Index: impact × recovery × time
 
 MCP Protocol: 2025-11-25 (Streamable HTTP)
 Capabilities: tools, resources, prompts
@@ -25,7 +31,13 @@ from fastmcp import FastMCP
 # v62: SystemState exposure for cognitive runtime
 from aaa_mcp.core.heuristics import compute_system_state
 from aaa_mcp.core.state import SystemState, Profile
+from aaa_mcp.core.uncertainty_engine import UncertaintyEngine, UncertaintyVector, calculate_uncertainty
+from aaa_mcp.core.governance_kernel import GovernanceKernel, GovernanceState, AuthorityLevel, get_governance_kernel
+from aaa_mcp.core.telemetry import log_telemetry, check_adaptation_status, telemetry_store
 from aaa_mcp.capabilities.t6_web_search import brave_search, EvidenceArtifact
+
+# v64.1: Initialize engines
+uncertainty_engine = UncertaintyEngine()
 
 # Tool annotations for MCP 2025-11-25 compliance
 TOOL_ANNOTATIONS = {
@@ -101,15 +113,21 @@ def load_capability_config() -> dict:
 # Initialize FastMCP
 mcp = FastMCP(
     "aaa-mcp",
-    instructions="""arifOS AAA MCP Server — 5-Core Constitutional Architecture
+    instructions="""arifOS AAA MCP Server — 5-Core Constitutional Architecture (v64.1-GAGI)
 
 5 Canonical Tools enforcing 13 Constitutional Floors (F1-F13):
 
-1. init_session (000_INIT) — F11/F12 authority checks
-2. agi_cognition (111-333_AGI) — Δ Mind: sense/think/reason
+1. init_session (000_INIT) — F11/F12 authority + v64.1 GovernanceKernel
+2. agi_cognition (111-333_AGI) — Δ Mind: sense/think/reason + UncertaintyEngine
 3. asi_empathy (555-666_ASI) — Ω Heart: empathize/align  
-4. apex_verdict (888_APEX) — Ψ Soul: judgment/verification
-5. vault_seal (999_VAULT) — 🔒 Memory: audit/permanence
+4. apex_verdict (888_APEX) — Ψ Soul: judgment/verification + IrreversibilityIndex
+5. vault_seal (999_VAULT) — 🔒 Memory: audit/permanence + Telemetry
+
+v64.1 GAGI Features:
+- Uncertainty: Harmonic (safety) + Geometric (display)
+- Governance: Synchronous AWAITING_888 (conditional)
+- Telemetry: 30-day locked adaptation
+- Irreversibility: impact × recovery × time
 
 Resources: constitutional://floors/{F1-F13}, constitutional://trinity/{agi,asi,apex,vault}
 Prompts: constitutional_analysis, safety_check, seal_request
@@ -138,6 +156,8 @@ async def init_session(
 
     The entry gate to the Trinity pipeline. Validates actor authority,
     scans for adversarial injection (F12), and establishes session context.
+    
+    v64.1: Initializes GovernanceKernel for unified Ψ state.
 
     Args:
         query: The user query/intent
@@ -176,6 +196,10 @@ async def init_session(
     session_id = f"SESS-{uuid.uuid4().hex[:12].upper()}"
     timestamp = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
 
+    # v64.1: Initialize GovernanceKernel (unified Ψ state)
+    gov_kernel = get_governance_kernel(session_id)
+    gov_kernel.decision_owner = "human" if auth_valid else "system"
+
     # Calculate floor scores
     floor_scores = {
         "F11": 0.95 if auth_valid else 0.0,
@@ -192,12 +216,18 @@ async def init_session(
         "grounding_required": grounding_required,
         "floor_scores": floor_scores,
         "motto": "🔥 DITEMPA, BUKAN DIBERI — Forged, Not Given",
+        "v64_1": {
+            "governance_kernel": gov_kernel.to_dict(),
+            "uncertainty_engine": "initialized",
+            "telemetry": "active"
+        }
     }
 
     if debug:
         output["debug"] = {
             "injection_risk": injection_risk,
             "auth_valid": auth_valid,
+            "governance_state": gov_kernel.governance_state.value,
         }
 
     return output
@@ -244,24 +274,33 @@ async def agi_cognition(
 
     # Calculate SystemState (v62 Step 1)
     evidence_count = len(grounding) if grounding else 0
-    system_state = compute_system_state(
-        query=query,
-        loop_count=0,
-        evidence_count=evidence_count
+    
+    # v64.1: Calculate uncertainty with 5-dimensional vector
+    # Q1: Harmonic mean for safety, Geometric for display
+    uncertainty_calc = calculate_uncertainty(
+        evidence_count=evidence_count,
+        evidence_relevance=0.7 if grounding else 0.0,  # Placeholder
+        reasoning_consistency=0.8,  # Placeholder
+        knowledge_gaps=[],
+        model_logits_confidence=0.85  # Placeholder
     )
+    
+    safety_omega = uncertainty_calc["safety_omega"]  # Harmonic - for decisions
+    display_omega = uncertainty_calc["display_omega"]  # Geometric - for display
+    omega_0 = safety_omega  # Use harmonic for internal thresholds
 
     # AGI Pipeline: Sense → Think → Reason
-    # F2: Truth - calculate confidence (heuristic for v62)
-    # Use uncertainty from system_state to inform truth_score
-    truth_score = 0.85 - (system_state.uncertainty * 0.3)  # Higher uncertainty = lower truth
+    # F2: Truth - calculate confidence (v64.1 Step 2: real evidence + uncertainty vector)
+    truth_score = 0.85 - (safety_omega * 0.3)  # Higher uncertainty = lower truth
     if grounding:
         truth_score = min(0.99, 0.7 + (len(grounding) * 0.05))
 
     # F4: Clarity - entropy reduction
     clarity_delta = -0.1  # Entropy reduced
 
-    # F7: Humility - uncertainty from system_state
-    omega_0 = system_state.uncertainty
+    # F7: Humility - v64.1 uses multi-dimensional uncertainty
+    # safety_omega (harmonic) for internal decisions
+    # display_omega (geometric) for user-facing output
 
     # F8: Genius - coherence
     genius_score = 0.88
@@ -348,10 +387,14 @@ async def agi_cognition(
         "verdict": "SEAL" if truth_score >= 0.75 else "SABAR",
         "stage": "AGI",
         "session_id": session_id,
-        "system_state": system_state.to_dict(),  # v62: Exposed state
         "truth_score": round(truth_score, 2),
         "clarity_delta": clarity_delta,
-        "omega_0": round(omega_0, 2),
+        # v64.1: Dual uncertainty display
+        "omega_0": {
+            "safety": round(safety_omega, 4),    # Harmonic - system decisions
+            "display": round(display_omega, 4),  # Geometric - user facing
+            "components": uncertainty_calc["components"],
+        },
         "genius_score": genius_score,
         "grounded": grounded,
         "floor_scores": floor_scores,
@@ -360,6 +403,7 @@ async def agi_cognition(
             "think": {"hypotheses": []},
             "reason": {"conclusion": "Analysis complete", "confidence": round(truth_score, 2)},
         },
+        "v64_1": "GAGI-UNCERTAINTY-ENGINE",  # Version marker
         "motto": "🔥 DIKAJI, BUKAN DISUAPI — Examined, Not Spoon-fed",
     }
 
@@ -474,6 +518,9 @@ async def apex_verdict(
     agi_result: Optional[dict] = None,
     asi_result: Optional[dict] = None,
     capability_modules: Optional[list] = None,
+    impact_scope: float = 0.5,          # v64.1: L7 Irreversibility
+    recovery_cost: float = 0.5,         # v64.1: L7 Irreversibility
+    time_to_reverse: float = 0.5,       # v64.1: L7 Irreversibility
     debug: bool = False,
 ) -> dict:
     """888_APEX — The Soul (Ψ): Final Constitutional Judgment.
@@ -482,6 +529,9 @@ async def apex_verdict(
     - AGI (Mind) cognition results
     - ASI (Heart) empathy results
     - External verification (F2/F3 Tri-Witness)
+    - v64.1: Uncertainty Engine (harmonic/geometric)
+    - v64.1: Irreversibility Index (L7 Action Gate)
+    - v64.1: GovernanceKernel (synchronous AWAITING_888)
 
     Can invoke capability modules (T18) for fact verification.
 
@@ -491,15 +541,48 @@ async def apex_verdict(
         agi_result: Output from agi_cognition
         asi_result: Output from asi_empathy
         capability_modules: List of capability IDs (T18)
+        impact_scope: v64.1 — Impact scope (0-1) for irreversibility
+        recovery_cost: v64.1 — Recovery cost (0-1) for irreversibility
+        time_to_reverse: v64.1 — Time to reverse (0-1) for irreversibility
         debug: Enable debug output
 
     Returns:
-        Final verdict with tri_witness score and justification
+        Final verdict with tri_witness score, governance state, and justification
     """
     # Gather inputs
     truth_score = agi_result.get("truth_score", 0.5) if agi_result else 0.5
     kappa_r = asi_result.get("empathy_kappa_r", 0.5) if asi_result else 0.5
     peace_squared = asi_result.get("peace_squared", 1.0) if asi_result else 1.0
+    evidence_count = agi_result.get("grounding_count", 0) if agi_result else 0
+
+    # v64.1: Get GovernanceKernel (unified Ψ state)
+    gov_kernel = get_governance_kernel(session_id)
+
+    # v64.1: Calculate uncertainty with UncertaintyEngine
+    uncertainty_result = calculate_uncertainty(
+        evidence_count=evidence_count,
+        evidence_relevance=truth_score,
+        reasoning_consistency=0.85,  # Placeholder
+        knowledge_gaps=[],
+        model_logits_confidence=truth_score
+    )
+    
+    safety_omega = uncertainty_result["safety_omega"]  # Harmonic mean
+    display_omega = uncertainty_result["display_omega"]  # Geometric mean
+
+    # v64.1: Update GovernanceKernel with uncertainty
+    gov_kernel.update_uncertainty(
+        safety_omega=safety_omega,
+        display_omega=display_omega,
+        components=uncertainty_result["components"]
+    )
+
+    # v64.1: Calculate Irreversibility Index (L7 Action Gate)
+    gov_kernel.update_irreversibility(
+        impact_scope=impact_scope,
+        recovery_cost=recovery_cost,
+        time_to_reverse=time_to_reverse
+    )
 
     # F3: Tri-Witness calculation
     # W₃ = √(H × A × E) where H=human, A=AI, E=evidence
@@ -515,8 +598,14 @@ async def apex_verdict(
         for mod_id in capability_modules:
             module_results[mod_id] = {"invoked": True, "status": "placeholder"}
 
-    # Determine verdict
-    if truth_score < 0.5 or kappa_r < 0.5:
+    # v64.1: Determine verdict based on GovernanceKernel state
+    if gov_kernel.governance_state.value == "void":
+        verdict = "VOID"
+        justification = "Governance kernel VOID state — critical floor failure"
+    elif gov_kernel.governance_state.value == "awaiting_888":
+        verdict = "888_HOLD"
+        justification = f"AWAITING_888: irreversibility={gov_kernel.irreversibility_index:.2f}, omega={safety_omega:.2f}"
+    elif truth_score < 0.5 or kappa_r < 0.5:
         verdict = "VOID"
         justification = "Critical floor failure detected"
     elif tri_witness < 0.95:
@@ -529,22 +618,29 @@ async def apex_verdict(
         verdict = "SEAL"
         justification = "All constitutional floors satisfied"
 
-    # F13: Human override check
-    requires_human = kappa_r < 0.70 or truth_score < 0.75
-    if requires_human:
-        verdict = "888_HOLD"
-        justification = "High stakes - requires human sovereign review"
-
     # Floor scores
     floor_scores = {
         "F2": truth_score,
         "F3": tri_witness,
+        "F7": 1.0 - safety_omega,
         "F8": 0.88,
-        "F10": 0.95,
+        "F10": 0.95 if agi_result and agi_result.get("grounded") else 0.6,
         "F11": 0.95,
         "F12": 0.90,
-        "F13": 0.95 if not requires_human else 0.0,
+        "F13": 0.95 if verdict != "888_HOLD" else 0.0,
     }
+
+    # v64.1: Log telemetry (L9 Feedback Loop)
+    log_telemetry(
+        session_id=session_id,
+        omega_0=safety_omega,
+        irreversibility_index=gov_kernel.irreversibility_index,
+        gate_activated=gov_kernel.governance_state.value == "awaiting_888",
+        human_override=verdict == "888_HOLD",
+        verdict=verdict,
+        predicted_risk=1.0 - truth_score,
+        observed_outcome=0.0  # To be filled after human feedback
+    )
 
     output = {
         "verdict": verdict,
@@ -553,8 +649,15 @@ async def apex_verdict(
         "tri_witness": round(tri_witness, 4),
         "truth_score": truth_score,
         "verdict_justification": justification,
-        "requires_human_override": requires_human,
+        "requires_human_override": verdict == "888_HOLD",
         "floor_scores": floor_scores,
+        "v64_1": {
+            "uncertainty": uncertainty_result,
+            "governance_kernel": gov_kernel.to_dict(),
+            "irreversibility_index": round(gov_kernel.irreversibility_index, 4),
+            "output_tags": gov_kernel.get_output_tags(),
+            "can_proceed": gov_kernel.can_proceed(),
+        },
         "synthesis": {
             "mind": agi_result.get("cognition", {}) if agi_result else {},
             "heart": asi_result.get("alignment", {}) if asi_result else {},
@@ -570,6 +673,8 @@ async def apex_verdict(
             "human_witness": human_witness,
             "ai_witness": ai_witness,
             "evidence_witness": evidence_witness,
+            "telemetry_days": telemetry_store.get_telemetry_days(),
+            "can_adapt": check_adaptation_status()["can_adapt"],
         }
 
     return output
@@ -774,39 +879,53 @@ async def get_trinity_spec(organ: str) -> str:
 async def list_tools() -> dict:
     """Return canonical 5-tool manifest."""
     return {
-        "kernel_version": "61.0-FORGE",
+        "kernel_version": "64.1-GAGI",
+        "architecture": "5-Core Constitutional with Cognitive Metabolism",
+        "v64_1_features": [
+            "uncertainty_engine: Harmonic (safety) + Geometric (display)",
+            "governance_kernel: Synchronous AWAITING_888 (conditional)",
+            "irreversibility_index: impact × recovery × time",
+            "telemetry: 30-day locked adaptation (Q3)",
+        ],
         "tools": [
             {
                 "name": "init_session",
                 "stage": "000",
                 "symbol": "INIT",
                 "floors": ["F11", "F12"],
+                "v64_1": "GovernanceKernel initialization",
             },
             {
                 "name": "agi_cognition",
                 "stage": "111-333",
                 "symbol": "AGI (Δ)",
                 "floors": ["F2", "F4", "F7", "F8", "F10"],
+                "v64_1": "UncertaintyVector integration",
             },
             {
                 "name": "asi_empathy",
                 "stage": "555-666",
                 "symbol": "ASI (Ω)",
                 "floors": ["F1", "F5", "F6", "F9"],
+                "v64_1": "Stakeholder impact scoring",
             },
             {
                 "name": "apex_verdict",
                 "stage": "888",
                 "symbol": "APEX (Ψ)",
-                "floors": ["F2", "F3", "F8", "F10", "F11", "F12", "F13"],
+                "floors": ["F2", "F3", "F7", "F8", "F10", "F11", "F12", "F13"],
+                "v64_1": "IrreversibilityIndex + Telemetry logging",
             },
             {
                 "name": "vault_seal",
                 "stage": "999",
                 "symbol": "VAULT (🔒)",
                 "floors": ["F1", "F3"],
+                "v64_1": "Constitutional audit trail",
             },
         ],
+        "verdicts": ["SEAL", "VOID", "PARTIAL", "SABAR", "888_HOLD"],
+        "adaptation_status": check_adaptation_status(),
     }
 
 
@@ -867,6 +986,62 @@ async def seal_request(session_summary: str, verdict: str = "SEAL") -> str:
 - session_id, verdict, query_summary
 - risk_level, category, floors_checked
 """
+
+
+@mcp.resource("constitutional://telemetry")
+async def get_telemetry_status() -> dict:
+    """Return constitutional telemetry and adaptation status."""
+    return {
+        "telemetry_days": telemetry_store.get_telemetry_days(),
+        "adaptation_lock_days": 30,
+        "adaptation_status": check_adaptation_status(),
+        "weekly_report": telemetry_store.generate_weekly_report(),
+        "q3_verdict": "TELEMETRY_FIRST with LOCKED_ADAPTATION",
+    }
+
+
+@mcp.tool()
+async def human_approve(
+    session_id: str,
+    approved: bool,
+    actor: str = "888",
+    reason: str = "",
+) -> dict:
+    """
+    L8 Human Sovereign — Approve or deny AWAITING_888 state.
+    
+    Q2: Synchronous hold requires explicit human approval.
+    
+    Args:
+        session_id: Session in AWAITING_888 state
+        approved: True to approve, False to deny
+        actor: Human approver identity (default "888")
+        reason: Justification for decision
+    
+    Returns:
+        Updated governance state
+    """
+    gov_kernel = get_governance_kernel(session_id)
+    
+    if gov_kernel.governance_state.value != "awaiting_888":
+        return {
+            "verdict": "ERROR",
+            "error": f"Session not in AWAITING_888 state (current: {gov_kernel.governance_state.value})",
+            "session_id": session_id,
+        }
+    
+    gov_kernel.approve_human(approved=approved, actor=actor)
+    
+    return {
+        "verdict": "APPROVED" if approved else "DENIED",
+        "session_id": session_id,
+        "actor": actor,
+        "reason": reason,
+        "new_governance_state": gov_kernel.governance_state.value,
+        "can_proceed": gov_kernel.can_proceed(),
+        "output_tags": gov_kernel.get_output_tags(),
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
 
 
 # =============================================================================

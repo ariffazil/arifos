@@ -1,8 +1,14 @@
 """
-arifOS MCP Server — Railway Production Entry Point (v61.0-FORGE)
+arifOS MCP Server — Railway Production Entry Point (v64.1-GAGI)
 
 Starts the constitutional MCP server with SSE transport.
 Uses FastMCP's native mounting for proper tool registration.
+
+v64.1 GAGI Features:
+- Uncertainty Engine: 5-dim vector with harmonic/geometric mean
+- Governance Kernel: Synchronous AWAITING_888 (conditional)
+- Telemetry: 30-day locked adaptation
+- Irreversibility Index: impact × recovery × time
 
 DITEMPA BUKAN DIBERI
 """

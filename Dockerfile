@@ -1,6 +1,7 @@
-# arifOS MCP Server Dockerfile (v60.0-FORGE)
+# arifOS MCP Server Dockerfile (v64.1-GAGI)
 # Production-ready container for Railway deployment
 # Supports: PostgreSQL (VAULT999), Redis (MindVault), SSE transport
+# v64.1 Features: Uncertainty Engine, Governance Kernel, Telemetry
 #
 # Build: docker build -t arifos-governed-backend .
 # Run:   docker run -p 8080:8080 --env-file .env arifos-governed-backend
