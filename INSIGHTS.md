@@ -10,6 +10,8 @@
 
 ## Constitutional Structure: 9 Laws + 2 Mirrors + 2 Walls
 
+> **The Wire-Cut Rule:** If it's not measurable, it is not a Law. It becomes a design note (Eureka) or a profile rule.
+
 ```
 ╔═══════════════════════════════════════════╗
 ║           2 MIRRORS (Feedback)            ║
@@ -25,9 +27,26 @@
 ╚═══════════════════════════════════════════╝
 ```
 
-**9 Laws:** Operational core — enforce on every query  
-**2 Mirrors:** Feedback loops — validate without blocking  
-**2 Walls:** Binary locks — engaged or not, protect against catastrophic failures
+**9 Laws:** Operational core — enforce on every query. Must be measurable pass/fail.  
+**12 Eureka:** Design principles — guide building, not runtime permission.  
+**2 Mirrors:** Feedback loops — validate without blocking.  
+**2 Walls:** Binary locks — engaged or not, protect against catastrophic failures.
+
+---
+
+## The 9 Laws — Clean Mapping
+
+| Law | Name | Runtime Enforcement | Maps From |
+|-----|------|---------------------|-----------|
+| **L1** | Amanah | Hard stop conditions; Separation of explore vs certify | Governance≠Intelligence, Hard Rules, Two-plane |
+| **L2** | Truth | Contrast testing; Grounding relevance (not count); Analytic vs empirical proof types | Contrast harness, Real grounding, Interface≠Kernel |
+| **L3** | Tri-Witness | Artifact hashing; Traceability; Memory≠authority | Memory≠authority |
+| **L4** | Clarity | Query sanitization; State exposure; Entropy reduction | Query poisoning fix, State exposure, Clarity |
+| **L5** | Peace² | Don't escalate uncertainty to harmful certainty; Tone control; De-escalate/pause | Shadow collapse, Stop conditions |
+| **L6** | Empathy | Theory of Mind + Constraints; ToM can manipulate → constraints required | Ethics needs ToM |
+| **L7** | Humility | No guarantees in uncertain domains; Absolutist language triggers SABAR/VOID | Anti-guarantee, Uncertainty handling |
+| **L8** | Genius | Structured novelty; Meaning from contrast must connect to tests | Meaning from anomalous contrast |
+| **L9** | Anti-Hantu | No personhood claims; No conscious agency; Binary | Anti-anthropomorphism |
 
 ---
 
@@ -298,15 +317,30 @@ Repeated philosophical recursion must trigger: "pause / request grounding / stop
 | # | Feature | Status |
 |---|---------|--------|
 | ✅ | SystemState in every tool return | v62.1 DONE |
-| ✅ | Query Sanitizer before T6 | v62.3 DONE |
-| ✅ | Grounding = relevance × credibility | v62.3 DONE |
-| ✅ | Analytic vs Empirical proof types | v62.3 DONE |
-| ⏳ | Contrast Harness as regression gate | v63 |
-| ⏳ | Meta-Scheduler v1 (risk/grounding/uncertainty) | v63 |
-| ⏳ | Two-Plane architecture (think vs certify) | v64 |
-| ⏳ | ASI = stakeholder ToM simulation | v64 |
-| ⏳ | Stop conditions to prevent rabbit holes | v65 |
-| ⏳ | Product surface = simple painkiller | Commercial |
+| ✅ | Query Sanitizer before T6 | v62.3 DONE (L4 Clarity) |
+| ✅ | Grounding = relevance × credibility | v62.3 DONE (L2 Truth) |
+| ✅ | Analytic vs Empirical proof types | v62.3 DONE (L2 Truth) |
+| ⏳ | Contrast Harness as regression gate | v63 (L2 Truth) |
+| ⏳ | Meta-Scheduler v1 (risk/grounding/uncertainty) | v63 (L5 Peace²) |
+| ⏳ | Two-Plane architecture (think vs certify) | v64 (L1 Amanah) |
+| ⏳ | ASI = stakeholder ToM simulation | v64 (L6 Empathy) |
+| ⏳ | Stop conditions to prevent rabbit holes | v65 (L1/L5) |
+| ⏳ | Product surface = simple painkiller | Commercial (separate doc) |
+
+---
+
+## The Wire-Cut Rule (Constitution Creep Prevention)
+
+> If a new law cannot be expressed as a measurable gate with a clear pass/fail test, it must not become a law. It becomes a design note (Eureka) or a profile rule.
+
+**This prevents:**
+1. Over-regulation → system paralysis
+2. Loophole surface increases → more gaming
+
+**Signal:** Feeling the urge to add a 10th Law? That's a smell. Check if it's:
+- Measurable? → Maybe a Law
+- Design guidance? → Eureka
+- Context-dependent? → Profile rule
 
 ---
 
