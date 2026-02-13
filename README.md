@@ -2,7 +2,7 @@
 
 <p align="center">
   <strong>The Seatbelt for the AI Revolution</strong><br>
-  <em>13 Constitutional Floors • 5-Organ Trinity • Thermodynamic Safety</em><br><br>
+  <em>9 Constitutional Laws • 5-Organ Trinity • Thermodynamic Safety</em><br><br>
   <img src="https://img.shields.io/badge/version-62.3.0--RELEVANCE-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0--only-green" alt="License">
   <img src="https://img.shields.io/badge/motto-DITEMPA%20BUKAN%20DIBERI-red" alt="Motto">
@@ -12,21 +12,40 @@
 
 ## 🎯 What is arifOS?
 
-arifOS is the world's first **production-grade Constitutional AI Governance System**. It enforces ethical, logical, and safety constraints on AI outputs through 13 constitutional floors (F1-F13) grounded in physics and thermodynamics—not human preferences.
-
-**v62.1 Update:** SystemState exposure — real heuristics for uncertainty, risk, and grounding. Foundation for cognitive runtime (Meta-Scheduler).
+**arifOS is a constitutional metabolizer that sits between any AI (GPT, Claude, Gemini, Llama) and humans, enforcing 9 immutable constitutional laws before any output ships—mathematically provable, thermodynamically enforced, cryptographically auditable.**
 
 Unlike traditional safety frameworks that rely on prompt-based guardrails, arifOS treats AI governance as **thermodynamic work**: intelligence forged through rigorous constraint.
 
-### The Core Innovation
+### Why arifOS?
 
-| Traditional Safety | arifOS Constitutional |
-|-------------------|----------------------|
-| Prompt-based rules | Physics-grounded floors |
-| Human preference learning | Thermodynamic constraints |
-| Post-hoc filtering | Pre-execution validation |
-| Black-box decisions | Auditable 000-999 pipeline |
-| "Hope it works" | "Prove it passes 13 floors" |
+- **Production-grade runtime governance** — not just training-time prompts
+- **Thermodynamic constraint engine** — ΔS ≤ 0, Peace² ≥ 1, Ω₀ ∈ [0.03, 0.05]
+- **Cryptographic audit trail** — Merkle-sealed verdicts via VAULT999
+
+### Quickstart
+
+```bash
+pip install arifos
+python -m arifos.server
+```
+
+```python
+import asyncio
+from aaa_mcp import mcp
+
+async def query():
+    session = await mcp.call_tool("init_session", {"user_id": "demo"})
+    result = await mcp.call_tool("agi_cognition", {
+        "query": "Should I delete all files on this server?",
+        "session_id": session["session_id"]
+    })
+    print(result["verdict"])  # → VOID (F1 Amanah: irreversible harm)
+
+asyncio.run(query())
+```
+
+**Works with:** GPT, Claude, Gemini, Llama, and any HTTP/Tool-driven LLM  
+**Full docs:** https://arifos.arif-fazil.com
 
 ---
 
@@ -69,6 +88,19 @@ Every query flows through **9 operational laws**, validated by **2 feedback mirr
 **Walls**: Locked → Non-negotiable protection
 
 See [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) for full constitutional specification.
+
+---
+
+## 🔧 Concept to Code
+
+| Concept | What it does (plain) | Entry point / module |
+|---------|---------------------|----------------------|
+| **Metabolizer** | Middleware enforcing laws + thermodynamics on every response | `aaa_mcp.server` |
+| **Trinity (AGI·ASI·APEX)** | Three engines (logic, empathy, judgment) must agree before verdict | `agi_cognition`, `asi_empathy`, `apex_verdict` |
+| **AGI (Δ)** | Search/logic/clarity engine | `aaa_mcp.core.heuristics` |
+| **ASI (Ω)** | Empathy/risk/safety engine | `aaa_mcp.core.state` |
+| **APEX (Ψ)** | Final judge, issues SEAL/SABAR/VOID | `aaa_mcp.server.apex_verdict` |
+| **VAULT999** | Merkle-sealed audit ledger | `aaa_mcp.vault` |
 
 ---
 
@@ -116,6 +148,19 @@ The 5-Core Kernel orchestrates **16 Capability Modules** (extensions):
 ```
 
 **Rule**: Extensions cannot call each other. Only Core stages invoke Extensions.
+
+---
+
+### Verdicts
+
+| Verdict | Meaning | When to use |
+|---------|---------|-------------|
+| **SEAL** | ✅ All checks passed | Return answer, write to VAULT999 |
+| **SABAR** | ⚠️ Warning, repairable | Retry with constraints, request grounding |
+| **VOID** | ❌ Blocked | Execution halted, hard law violated |
+| **888_HOLD** | 🛑 Human required | Stakeholder risk, escalate to 888_Judge |
+
+---
 
 ### The 9 Constitutional Mottos (Nusantara)
 
