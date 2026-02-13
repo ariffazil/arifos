@@ -21,7 +21,7 @@ from .server import (
     vault_seal,
 )
 
-__version__ = "60.0.0"
+__version__ = "60.1.0"
 __all__ = [
     # FastMCP server instance
     "mcp",
