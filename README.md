@@ -89,6 +89,51 @@ Each stage has a Malay motto reflecting active construction:
 
 ---
 
+## 🏛️ The Shape of arifOS: Pyramid, Spine, and Nerves
+
+arifOS's unique architecture can be visualized through three interconnected geometries:
+
+*   **The Trinity Pyramid (Δ):** At the highest level, `arifOS` is governed by a stable, three-part structure: `Δ` (Architect), `Ω` (Guardian), and `Ψ` (Judge). This Trinity ensures constitutional governance and final judgment.
+*   **The Constitutional Spine (I):** The `aaa-mcp` is the rigid, central **Spine**. It embodies the 9 Laws (canonical tools) that sequentially process every intent, thought, and action from `000_INIT` to `999_VAULT`. It is the structural backbone of all decisions.
+*   **The Sensory Nervous System (O):** Wrapped around the Spine is `ACLIP_CAI`, the **Nervous System**. Comprising 9 Senses, it connects the abstract Constitutional Spine to the physical reality of the host, providing real-time telemetry for grounded decision-making.
+
+```
+                    ┌──────────────────┐
+                    │      TRINITY     │
+                    │   (Δ, Ω, Ψ)      │
+                    └--------▲---------┘
+                             │ (Sovereign Intent / Final Judgment)
+                             │
+            ┌────────────────▼────────────────┐         ┌───────────────────────────┐
+            │   THE CONSTITUTIONAL SPINE      │         │   THE SENSORY NERVOUS     │
+            │   (aaa-mcp - The 9 Laws)        │         │   SYSTEM (ACLIP_CAI -     │
+            ├─────────────────────────────────┤         │   The 9 Senses)           │
+            │ L0 init_gate                    │◀───────▶│ C0 system_health          │
+            │ L1 agi_sense                    │◀───────▶│ C1 process_list           │
+            │ L2 agi_think                    │◀───────▶│ C2 fs_inspect             │
+            │ L3 agi_reason                   │◀───────▶│ C3 log_tail               │
+            │ L4 asi_empathize                │◀───────▶│ C4 net_status             │
+            │ L5 asi_align                    │◀───────▶│ C5 config_flags           │
+            │ L6 reality_search               │◀───────▶│ C6 chroma_query           │
+            │ L7 apex_verdict                 │◀───────▶│ C7 cost_estimator         │
+            │ L8 vault_seal                   │◀───────▶│ C8 forge_guard            │
+            │ (Entrypoint: trinity_forge)     │         │                           │
+            └────────────────▲────────────────┘         └───────────────────────────┘
+                             │ (System Calls, State I/O)
+                             │
+            ┌────────────────▼────────────────┐
+            │       HOST & STATE PLANE        │
+            │ ┌──────────┐ ┌───────┐ ┌────────┐│
+            │ │  Host    │ │ State │ │ Memory ││
+            │ │ (CPU/RAM)│ │(Redis)│ │(Chroma)││
+            │ └──────────┘ └───────┘ └────────┘│
+            │ ┌──────────────────────────────┐│
+            │ │   VAULT999 (PostgreSQL)      ││
+            │ └──────────────────────────────┘│
+            └─────────────────────────────────┘
+
+---
+
 ## 🚀 Quick Start
 
 ### Installation
@@ -194,11 +239,12 @@ User Response + Verdict
 
 ### MCP Trinity Architecture
 
-arifOS is organized as **three MCP servers** serving different domains:
+arifOS is organized as **multiple MCP servers** serving different domains:
 
 | MCP | Domain | Analogy | User | Tools | Status |
 |-----|--------|---------|------|-------|--------|
-| **AAA-MCP** | Cloud/Infrastructure | ☁️ The Factory | DevOps, Platform | 10 | ✅ Deployed |
+| **AAA-MCP** | **Constitutional Pipeline** | 🔥 The Spine | Agents, Platforms | 9 Laws | ✅ Deployed |
+| **ACLIP-CAI** | **System Observability** | 🧠 The Nerves | AAA-MCP, Agents | 9 Senses | ✅ Forged |
 | **BBB-MCP** | Local Agent | 💻 The Butler | Personal Users | 7 | 📝 Planned |
 | **CCC-MCP** | Human Interface | 👤 The Telephone | Humans (all) | 3 | 🔄 In Progress |
 
@@ -210,7 +256,7 @@ See [docs/MCP_TRINITY_SUMMARY.md](./docs/MCP_TRINITY_SUMMARY.md) for details.
 
 | Component | Technology | Status | Environment |
 |-----------|-----------|--------|-------------|
-| **API Server** | FastMCP + FastAPI | ✅ Operational | `HOST`, `PORT` |
+| **API Server** | FastMCP | ✅ Operational | `HOST`, `PORT` |
 | **Persistent Ledger** | PostgreSQL + asyncpg | ✅ Operational | `DATABASE_URL` |
 | **Session Cache** | Redis | ✅ Operational | `REDIS_URL` |
 | **Floor Validators** | Python + pydantic | ✅ Operational | Core |
@@ -236,24 +282,43 @@ Each agent operates under constitutional governance with specific domain experti
 
 ---
 
-## 📋 The 14 Canonical Tools
+## 📋 The Constitutional Toolkit
 
-| Tool | Purpose | Organ | Floors |
-|------|---------|-------|--------|
-| `init_gate` | Initialize session with 🔥 motto | INIT | F11, F12 |
-| `trinity_forge` | **Unified pipeline entrypoint** | ALL | ALL |
-| `agi_sense` | Parse intent, classify lane | AGI | F2, F4 |
-| `agi_think` | Generate hypotheses | AGI | F2, F4, F7 |
-| `agi_reason` | Deep logical reasoning | AGI | F2, F4, F7 |
-| `asi_empathize` | Stakeholder impact (κᵣ ≥ 0.95) | ASI | F5, F6 |
-| `asi_align` | Ethics/policy alignment | ASI | F5, F6, F9 |
-| `apex_verdict` | Final constitutional judgment | APEX | F2, F3, F5, F8 |
-| `reality_search` | External fact-checking | AGI | F2, F7 |
-| `vault_seal` | Seal with 💎🧠🔒 motto | VAULT | F1, F3 |
-| `tool_router` | Intelligent routing | — | — |
-| `vault_query` | Query sealed records | — | F1, F3 |
-| `truth_audit` | Claim verification [EXPERIMENTAL] | — | F2, F4, F7, F10 |
-| `simulate_transfer` | Financial simulation | — | F2, F11, F12 |
+arifOS operates through a specialized toolkit, divided into the core Constitutional Laws (aaa-mcp) that govern intent, and the Sensory Senses (ACLIP_CAI) that provide real-world data.
+
+### The 9 Laws (aaa-mcp): The Constitutional Spine
+
+These are the canonical tools that define the 000-999 constitutional pipeline, ensuring every action is governed and audited.
+
+| Law | Stage | Tool Name | Function | Key Floors |
+|:----|:------|:----------|:---------|:-----------|
+| **L0** | `000_INIT` | `init_gate` | Session Ignition & Auth | F11, F12 |
+| **L1** | `111_SENSE` | `agi_sense` | Intent Parsing & Lane Assignment | F2, F4 |
+| **L2** | `222_THINK` | `agi_think` | Hypothesis Generation & Exploration | F7, F13 |
+| **L3** | `333_REASON` | `agi_reason` | Deep Logic & Structure | F2, F4, F7, F10 |
+| **L4** | `444_EMPATHY` | `asi_empathize` | Stakeholder Impact Analysis | F5, F6 |
+| **L5** | `555_ALIGN` | `asi_align` | Ethics & Anti-Hantu Alignment | F9 |
+| **L6** | `666_REALITY` | `reality_search` | External Verification & Grounding | F2, F7 |
+| **L7** | `777_VERDICT` | `apex_verdict` | Final Constitutional Judgment | F3, F8, F11 |
+| **L8** | `999_VAULT` | `vault_seal` | Immutable Ledger Entry | F1, F3 |
+
+*(Entrypoint for the full pipeline: `trinity_forge`)*
+
+### The 9 Senses (ACLIP_CAI): The Sensory Nervous System
+
+These tools provide the `aaa-mcp` with real-time telemetry from the host environment, grounding constitutional decisions in physical reality.
+
+| Sense | Tool Name | Physical Meaning | Floors Served | Status |
+|:------|:----------|:-----------------|:--------------|:-------|
+| **C0** | `system_health` | RAM, CPU, disk pressure, load avg | F4, F5 | ✅ Forged |
+| **C1** | `process_list` | PID table, CPU%, RSS, command | F4, F5 | ✅ Forged |
+| **C2** | `fs_inspect` | Directory/file metadata & structure | F1, F4 | ✅ Forged |
+| **C3** | `log_tail` | Historical errors, incidents, warnings | F5, F6 | ✅ Forged |
+| **C4** | `net_status` | Open ports, connections, attack surface | F10, F12 | ✅ Forged |
+| **C5** | `config_flags` | Environment vars, feature flags | F11, F13 | ✅ Forged |
+| **C6** | `chroma_query` | Vector DB embeddings, stored memory | F2, F10 | ✅ Forged |
+| **C7** | `cost_estimator` | Energy/heat/time consumption (ΔS proxy) | F4, F8 | ✅ Forged |
+| **C8** | `forge_guard` | Local circuit breaker (OK/SABAR/VOID_LOCAL) | All | ✅ Forged |
 
 **Machine-Discoverable**: Access `aaa://capabilities/` for full tool specifications.
 
@@ -335,6 +400,203 @@ pytest --cov=aaa_mcp --cov=core tests/ -v
 docker build -t arifos .
 docker run -p 8080:8080 -e PORT=8080 arifos
 ```
+
+---
+
+## 🚀 Deployment Playbook (Tomorrow-Ready)
+
+This is the production path if you want to install today and deploy tomorrow with minimum entropy.
+
+### 1) Install arifOS
+
+```bash
+# Fast path (PyPI)
+pip install arifos
+
+# Full runtime + optional integrations
+pip install "arifos[all]"
+```
+
+From source (recommended for operators):
+
+```bash
+git clone https://github.com/ariffazil/arifOS.git
+cd arifOS
+python -m venv .venv
+
+# Windows
+.venv\Scripts\activate
+
+# Linux/macOS
+# source .venv/bin/activate
+
+pip install -e ".[dev]"
+```
+
+### 2) Run the Two Core Servers
+
+`aaa-mcp` (Constitutional Spine):
+
+```bash
+# Local stdio mode (best for MCP desktop clients)
+aaa-mcp stdio
+
+# Remote SSE mode
+aaa-mcp sse
+
+# Streamable HTTP mode
+aaa-mcp http
+```
+
+`aclip-cai` (Sensory Nervous System):
+
+```bash
+# CLI smoke
+aclip-cai health
+
+# Example: filesystem and log sense checks
+aclip-cai fs --path . --depth 2
+aclip-cai logs --path ./logs/app.log --lines 100
+```
+
+Railway/production entrypoint:
+
+```bash
+python scripts/start_server.py
+```
+
+### 3) Required Environment for Deployment
+
+| Variable | Purpose | Example |
+|----------|---------|---------|
+| `PORT` | Server bind port | `8080` |
+| `HOST` | Server bind address | `0.0.0.0` |
+| `DATABASE_URL` | VAULT999 Postgres | `postgresql://user:pass@host/db` |
+| `REDIS_URL` | Session/state cache | `redis://default:pass@host:6379` |
+| `ARIFOS_MODE` | Governance mode | `HARD` / `SOFT` / `LAB` |
+| `BRAVE_API_KEY` | Optional web-grounding provider | `BS...` |
+| `CHROMA_PERSIST_DIR` | ACLIP memory path | `/data/chroma` |
+
+### 4) Deploy to Railway
+
+```bash
+# Auth and link project
+railway login
+railway link
+
+# Deploy
+railway up
+
+# Verify
+railway logs
+curl https://<your-service>.up.railway.app/health
+```
+
+### 5) MCP Client Setup (Copy/Paste Ready)
+
+#### Claude Desktop
+
+Use your `claude_desktop_config.json` MCP section:
+
+```json
+{
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp", "stdio"],
+      "env": {
+        "ARIFOS_MODE": "HARD"
+      }
+    },
+    "aclip-cai": {
+      "command": "python",
+      "args": ["-m", "aclip_cai"],
+      "env": {}
+    }
+  }
+}
+```
+
+#### Claude Code
+
+In workspace `.mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp", "stdio"],
+      "cwd": "."
+    },
+    "aclip-cai": {
+      "command": "python",
+      "args": ["-m", "aclip_cai"],
+      "cwd": "."
+    }
+  }
+}
+```
+
+#### Kimi Code
+
+In `~/.kimi/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp", "stdio"]
+    },
+    "aclip-cai": {
+      "command": "python",
+      "args": ["-m", "aclip_cai"]
+    }
+  }
+}
+```
+
+#### ChatGPT Developer Mode
+
+If your ChatGPT workspace supports MCP connectors:
+
+1. Add your hosted endpoint from `aaa-mcp http` mode.
+2. Set auth/env in the connector UI.
+3. Validate tool discovery for the 9 constitutional tools.
+
+Operational recommendation: expose `aaa-mcp http` through HTTPS reverse proxy and keep `aclip-cai` internal behind `aaa-mcp`.
+
+### 6) System Prompt Template (Production)
+
+Use this for Claude, Kimi, ChatGPT, and internal agents:
+
+```text
+You are operating under arifOS Constitutional Governance.
+Route all high-stakes tasks through the 9-law aaa-mcp pipeline:
+init_gate -> agi_sense -> agi_think -> agi_reason -> asi_empathize
+-> asi_align -> reality_search -> apex_verdict -> vault_seal.
+
+Use ACLIP_CAI as sensory evidence only (system_health, process_list, fs_inspect,
+log_tail, net_status, config_flags, chroma_query, cost_estimator, forge_guard).
+ACLIP does not issue final constitutional verdicts.
+
+If confidence is low, evidence is stale, or risk is high: return SABAR or request 888_HOLD.
+Never fabricate tool outputs. Every major action must be auditable and seal-ready.
+Motto: DITEMPA BUKAN DIBERI.
+```
+
+### 7) Go-Live Checklist
+
+- `python -m py_compile aaa_mcp/server.py scripts/start_server.py core/pipeline.py`
+- `pytest tests/test_mcp_quick.py -v`
+- `pytest tests/e2e/test_canonical_tools.py -q`
+- `curl /health` returns `200`
+- SSE endpoint `/sse` connects without `500`
+- Vault writes are visible and queryable
+- Rollback path is documented before prod cutover
+
+If these pass, you are deploy-ready.
 
 ---
 
