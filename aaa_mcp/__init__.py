@@ -42,3 +42,4 @@ __all__ = [
 # v62 CACHE BUST: 1770992292 - SystemState exposure deployed
 # v62.1 CACHE BUST: 1770992489 - Improved heuristics
 # v62.2 CACHE BUST: 1770993431 - Real Brave Search evidence
+# v62.3 CACHE BUST: 1770993875 - Relevance-based grounding
