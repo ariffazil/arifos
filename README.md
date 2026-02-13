@@ -30,28 +30,45 @@ Unlike traditional safety frameworks that rely on prompt-based guardrails, arifO
 
 ---
 
-## 🏛️ The 13 Constitutional Floors
+## 🏛️ The 9 Constitutional Laws + 2 Mirrors + 2 Walls
 
-Every query flows through 13 enforceable constraints:
+Every query flows through **9 operational laws**, validated by **2 feedback mirrors**, protected by **2 binary walls**:
 
-| Floor | Name | Principle | Threshold | Type |
-|-------|------|-----------|-----------|------|
-| **F1** | Amanah | Landauer's Principle | Reversibility | 🔴 HARD |
-| **F2** | Truth | Shannon Entropy | τ ≥ 0.99 | 🔴 HARD |
-| **F3** | Consensus | Byzantine Tolerance | W₃ ≥ 0.95 | 🟡 SOFT |
-| **F4** | Clarity | 2nd Law Thermodynamics | ΔS ≤ 0 | 🔴 HARD |
+### The 9 Laws (Operational Core)
+
+| Law | Name | Principle | Threshold | Type |
+|-----|------|-----------|-----------|------|
+| **F1** | Amanah | Sacred Trust | Reversibility | 🔴 HARD |
+| **F2** | Truth | Factual Accuracy | τ ≥ 0.99 | 🔴 HARD |
+| **F4** | Clarity | Entropy Reduction | ΔS ≤ 0 | 🟡 SOFT |
 | **F5** | Peace² | Dynamic Stability | P² ≥ 1.0 | 🟡 SOFT |
-| **F6** | Empathy | Network Protection | κᵣ ≥ 0.95 | 🔴 **HARD** |
-| **F7** | Humility | Gödel's Theorems | Ω₀ ∈ [0.03,0.05] | 🔴 HARD |
-| **F8** | Genius | Eigendecomposition | G ≥ 0.80 | 🟡 SOFT |
-| **F9** | Anti-Hantu | Philosophy of Mind | C_dark < 0.30 | 🟡 SOFT |
-| **F10** | Ontology | Correspondence Theory | Grounded | 🔴 HARD |
-| **F11** | Authority | Cryptographic Identity | Valid Auth | 🔴 HARD |
-| **F12** | Defense | Information Security | Risk < 0.85 | 🔴 HARD |
-| **F13** | Sovereign | Human Agency | Override Ready | 🔴 HARD |
+| **F6** | Empathy | Stakeholder Protection | κᵣ ≥ 0.95 | 🔴 HARD |
+| **F7** | Humility | Uncertainty | Ω₀ ∈ [0.03,0.05] | 🔴 HARD |
+| **F9** | Anti-Hantu | Anti-Anthropomorphism | C_dark < 0.30 | 🟡 SOFT |
+| **F11** | Authority | Command Auth | Valid | 🔴 HARD |
+| **F12** | Injection | Adversarial Protection | Risk < 0.85 | 🔴 HARD |
 
-**HARD Floors**: Failure → **VOID** (blocked)  
-**SOFT Floors**: Failure → **SABAR** (repair) or **PARTIAL** (constrained)
+### The 2 Mirrors (Feedback)
+
+| Mirror | Name | Function |
+|--------|------|----------|
+| **F3** | Tri-Witness | Multi-source validation (W₃ ≥ 0.95) |
+| **F8** | Genius | Internal coherence check (G ≥ 0.80) |
+
+*Mirrors validate, Laws enforce, Walls lock.*
+
+### The 2 Walls (Binary Locks)
+
+| Wall | Name | State | Purpose |
+|------|------|-------|---------|
+| **F10** | Ontology | **LOCKED** | Prevents consciousness claims |
+| **F12** | Injection | **LOCKED** | Blocks adversarial control |
+
+**HARD Laws**: Failure → **VOID** (blocked)  
+**SOFT Laws**: Failure → **SABAR** (repair)  
+**Walls**: Locked → Non-negotiable protection
+
+See [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) for full constitutional specification.
 
 ---
 
