@@ -3,7 +3,7 @@
 <p align="center">
   <strong>The Seatbelt for the AI Revolution</strong><br>
   <em>13 Constitutional Floors • 5-Organ Trinity • Thermodynamic Safety</em><br><br>
-  <img src="https://img.shields.io/badge/version-62.2.0--EVIDENCE-blue" alt="Version">
+  <img src="https://img.shields.io/badge/version-62.3.0--RELEVANCE-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0--only-green" alt="License">
   <img src="https://img.shields.io/badge/motto-DITEMPA%20BUKAN%20DIBERI-red" alt="Motto">
 </p>
@@ -119,7 +119,68 @@ Each stage has a Malay motto reflecting active construction:
 
 ---
 
-## 🆕 v62.2 — Real Evidence Grounding (Current)
+## 🆕 v62.3 — Relevance-Based Grounding (Current)
+
+**Status:** LIVE on Railway  
+**Version:** 62.3.0-RELEVANCE  
+**Commit:** `21e0583e`
+
+### What's New — Grounding Inflation Fixed
+
+v62.3 fixes **grounding inflation** — the issue where any evidence counted as grounding, regardless of relevance:
+
+**Before (v62.2):**
+- Query: "CONTRAST TEST: What is 2+2?"
+- Evidence: 5 sources about "contrast analysis" (irrelevant)
+- Result: `grounded=true` ❌
+
+**After (v62.3):**
+- Query sanitized: "What is 2+2?"
+- Trivial math detected → **skips search** (analytic proof)
+- Result: `grounded=false` ✅ (correct for trivial math)
+
+### Relevance Scoring
+
+```python
+# Evidence relevance (0-1)
+relevance = (keyword_overlap * 0.6) + (domain_credibility * 0.4)
+
+# Only include if relevance >= 0.3
+# Only grounded=true if relevance >= 0.7 AND 2+ sources
+```
+
+**Domain credibility bonus:**
+- `.edu`, `.gov`, Wikipedia, Britannica
+- ArXiv, Nature, Science
+- Reuters, AP, Bloomberg
+- CTBUH (Council on Tall Buildings)
+
+### Query Sanitization
+
+Removes test pollution:
+- `CONTRAST v62.2 TEST A: What is 2+2?` → `What is 2+2?`
+- `TEST B: Petronas height` → `Petronas height`
+
+### Trivial Math Bypass
+
+For analytic truths (2+2, 5*3), search is skipped:
+- `grounding = 0.0` (no external evidence needed)
+- `proof_type = "analytic"`
+- Internal calculation sufficient
+
+### Roadmap
+
+| Step | Status | Description |
+|------|--------|-------------|
+| 1 | ✅ DONE | SystemState exposure (v62.1) |
+| 2 | ✅ DONE | Real T6 Brave Search (v62.2) |
+| 3 | ✅ DONE | Relevance-based grounding (v62.3) |
+| 4 | ⏳ NEXT | Contrast re-test |
+| 5 | ⏳ | Minimal Meta-Scheduler |
+
+---
+
+## 🆕 v62.2 — Real Evidence Grounding
 
 **Status:** LIVE on Railway  
 **Version:** 62.2.0-EVIDENCE  
