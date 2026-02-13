@@ -21,6 +21,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Remove old conflicting codebase package from site-packages
+RUN pip uninstall -y codebase 2>/dev/null || true
+RUN rm -rf /usr/local/lib/python*/site-packages/codebase* 2>/dev/null || true
+
 # Copy package configuration
 COPY pyproject.toml .
 COPY README.md .
@@ -28,6 +32,7 @@ COPY README.md .
 # Copy source code in dependency order (least likely to change first)
 COPY scripts/start_server.py scripts/start_server.py
 COPY core/ core/
+COPY codebase/ codebase/
 COPY aaa_mcp/ aaa_mcp/
 
 # Clear Python cache to ensure fresh imports
