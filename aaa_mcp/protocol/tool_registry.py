@@ -19,7 +19,20 @@ class ToolSpec:
     verb: str                    # Human action (anchor, reason, validate, etc.)
     required_floors: List[str]   # Constitutional floors
     next_tool: Optional[str]     # Next tool in pipeline (None if terminal)
-    description: str
+    
+    # v60: Machine-readable intent tags for agent routing
+    category: str                # "entry" | "reasoning" | "safety" | "judgment" | "audit"
+    risk_scope: str              # "low" | "medium" | "high"
+    hard_floors: List[str]       # Which floors are HARD at this stage
+    requires_human_for: List[str]  # Conditions requiring human (e.g., ["prod", "finance"])
+    
+    # v60: Documentation tiers (short for agents, long for humans)
+    doc_short: str               # 3-6 lines, agent-friendly
+    doc_long: str                # Full governance spec (external link or full text)
+    
+    # v60: Availability status
+    availability: str            # "ready" | "requires_install" | "disabled"
+    install_hint: Optional[str]  # How to enable if not ready
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -36,7 +49,14 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         verb="anchor",
         required_floors=["F11", "F12"],
         next_tool="aaa.agi_sense",
-        description="Initialize constitutional session"
+        category="entry",
+        risk_scope="low",
+        hard_floors=["F11", "F12"],
+        requires_human_for=[],
+        doc_short="Initialize a constitutional session. CALL THIS FIRST. Returns session_id for pipeline.",
+        doc_long="https://docs.arifos.org/tools/init_gate",
+        availability="ready",
+        install_hint=None
     ),
     
     # 111-333 — AGI Mind (Δ)
@@ -48,7 +68,14 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         verb="sense",
         required_floors=["F2", "F4"],
         next_tool="aaa.agi_think",
-        description="Parse intent and classify lane"
+        category="reasoning",
+        risk_scope="low",
+        hard_floors=[],
+        requires_human_for=[],
+        doc_short="Parse intent and classify query lane. Requires init_gate session.",
+        doc_long="https://docs.arifos.org/tools/agi_sense",
+        availability="ready",
+        install_hint=None
     ),
     
     "agi_think": ToolSpec(
@@ -59,7 +86,14 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         verb="think",
         required_floors=["F2", "F4", "F7"],
         next_tool="aaa.agi_reason",
-        description="Generate hypotheses"
+        category="reasoning",
+        risk_scope="low",
+        hard_floors=[],
+        requires_human_for=[],
+        doc_short="Generate hypotheses (Conservative, Exploratory, Adversarial).",
+        doc_long="https://docs.arifos.org/tools/agi_think",
+        availability="ready",
+        install_hint=None
     ),
     
     "agi_reason": ToolSpec(
@@ -70,7 +104,14 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         verb="reason",
         required_floors=["F2", "F4", "F7"],
         next_tool="aaa.asi_empathize",
-        description="Deep logical reasoning"
+        category="reasoning",
+        risk_scope="medium",
+        hard_floors=["F2"],
+        requires_human_for=[],
+        doc_short="Deep logical reasoning with truth_score and confidence.",
+        doc_long="https://docs.arifos.org/tools/agi_reason",
+        availability="ready",
+        install_hint=None
     ),
     
     # 444-666 — ASI Heart (Ω)
@@ -82,7 +123,14 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         verb="validate",
         required_floors=["F5", "F6"],
         next_tool="aaa.asi_align",
-        description="Assess stakeholder impact"
+        category="safety",
+        risk_scope="high",
+        hard_floors=["F6"],
+        requires_human_for=["stakeholder_harm_detected"],
+        doc_short="Assess stakeholder impact. HARD FLOOR F6 (κᵣ ≥ 0.95). VOID if fails.",
+        doc_long="https://docs.arifos.org/tools/asi_empathize",
+        availability="ready",
+        install_hint=None
     ),
     
     "asi_align": ToolSpec(
@@ -93,7 +141,14 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         verb="align",
         required_floors=["F5", "F6", "F9"],
         next_tool="aaa.apex_verdict",
-        description="Reconcile ethics, law, policy"
+        category="safety",
+        risk_scope="high",
+        hard_floors=[],
+        requires_human_for=["ethical_conflict"],
+        doc_short="Reconcile ethics, law, policy. Checks F5, F6, F9.",
+        doc_long="https://docs.arifos.org/tools/asi_align",
+        availability="ready",
+        install_hint=None
     ),
     
     # 777-999 — APEX Soul (Ψ)
@@ -105,7 +160,14 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         verb="audit",
         required_floors=["F2", "F3", "F5", "F8"],
         next_tool="aaa.vault_seal",
-        description="Final constitutional verdict"
+        category="judgment",
+        risk_scope="high",
+        hard_floors=["F2", "F3"],
+        requires_human_for=["high_stakes"],
+        doc_short="Final constitutional verdict. Only APEX has verdict authority.",
+        doc_long="https://docs.arifos.org/tools/apex_verdict",
+        availability="ready",
+        install_hint=None
     ),
     
     "vault_seal": ToolSpec(
@@ -116,7 +178,14 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         verb="seal",
         required_floors=["F1", "F3"],
         next_tool=None,
-        description="Cryptographic ledger sealing"
+        category="audit",
+        risk_scope="high",
+        hard_floors=["F1", "F3"],
+        requires_human_for=[],
+        doc_short="Cryptographic ledger sealing. CALL THIS LAST. Immutable record.",
+        doc_long="https://docs.arifos.org/tools/vault_seal",
+        availability="ready",
+        install_hint=None
     ),
     
     # Unified pipeline
@@ -128,7 +197,14 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         verb="forge",
         required_floors=["F11", "F12"],  # Entry only; internal stages self-enforce
         next_tool=None,
-        description="Unified 000-999 pipeline"
+        category="entry",
+        risk_scope="high",
+        hard_floors=["F11", "F12"],
+        requires_human_for=["high_stakes"],
+        doc_short="Unified 000-999 pipeline. Single call for full constitutional processing.",
+        doc_long="https://docs.arifos.org/tools/trinity_forge",
+        availability="ready",
+        install_hint=None
     ),
 }
 
@@ -280,6 +356,87 @@ def build_hard_floor_block(
 
 
 # ═════════════════════════════════════════════════════════════════════════════
+# AGENT-FRIENDLY SCHEMA EXPORT (for tool selection)
+# ═════════════════════════════════════════════════════════════════════════════
+
+def export_tool_schema_for_agents() -> dict:
+    """
+    Export tool schema optimized for agent tool selection.
+    
+    Answers 5 questions in <2 seconds:
+    1. What stage am I in?
+    2. Which tool comes next?
+    3. Is the tool callable right now?
+    4. What's the minimum args needed?
+    5. What happens if it fails?
+    """
+    schema = {}
+    for name, spec in CANONICAL_TOOLS.items():
+        schema[name] = {
+            # Identification
+            "name": spec.name,
+            "canonical_path": spec.canonical_path,
+            
+            # Navigation (Q1: stage, Q2: next)
+            "stage": spec.stage,
+            "trinity": spec.trinity,
+            "verb": spec.verb,
+            "next_tool": spec.next_tool,
+            "pipeline_position": get_pipeline_sequence().index(spec.canonical_path) + 1 if spec.canonical_path in get_pipeline_sequence() else None,
+            
+            # Routing hints (Q3: callable, Q5: failure mode)
+            "category": spec.category,
+            "risk_scope": spec.risk_scope,
+            "availability": spec.availability,
+            "install_hint": spec.install_hint,
+            "hard_floors": spec.hard_floors,
+            "requires_human_for": spec.requires_human_for,
+            
+            # Documentation (Q4: args from doc_short)
+            "doc_short": spec.doc_short,
+            "doc_long": spec.doc_long,
+            
+            # Constitutional
+            "required_floors": spec.required_floors,
+        }
+    return schema
+
+
+def get_agent_selection_hints(current_stage: str) -> dict:
+    """
+    Get hints for agent selecting next tool.
+    Returns recommended next tool with rationale.
+    """
+    current_spec = get_tool_by_stage(current_stage)
+    if not current_spec:
+        return {"error": f"Unknown stage: {current_stage}"}
+    
+    next_path = current_spec.next_tool
+    if not next_path:
+        return {
+            "stage": current_stage,
+            "pipeline_complete": True,
+            "message": "Pipeline complete. No next tool."
+        }
+    
+    next_name = next_path.replace("aaa.", "")
+    next_spec = get_tool_spec(next_name)
+    
+    return {
+        "current_stage": current_stage,
+        "current_tool": current_spec.canonical_path,
+        "next_tool": next_path,
+        "next_name": next_name,
+        "next_category": next_spec.category if next_spec else None,
+        "next_risk_scope": next_spec.risk_scope if next_spec else None,
+        "next_hard_floors": next_spec.hard_floors if next_spec else [],
+        "next_doc_short": next_spec.doc_short if next_spec else None,
+        "pipeline_complete": False,
+        "rationale": f"{current_stage} → {next_spec.stage if next_spec else 'END'}: {next_spec.doc_short if next_spec else 'Complete'}"
+    }
+
+
+# ═════════════════════════════════════════════════════════════════════════════
 # EXPORTS
 # ═════════════════════════════════════════════════════════════════════════════
 
@@ -294,4 +451,6 @@ __all__ = [
     "get_pipeline_sequence",
     "build_tool_unavailable_error",
     "build_hard_floor_block",
+    "export_tool_schema_for_agents",
+    "get_agent_selection_hints",
 ]

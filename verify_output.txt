@@ -1,0 +1,32 @@
+🔨 Verifying init_gate hardening (Option 3: Progressive Disclosure)...
+✅ Governance object found.
+   - Total Floors: 13
+   - Checked: 2
+   - Pending: 11
+   - Summary: Entry checks passed (2/13). 11 floors pending across later stages.
+✅ Pipeline object found.
+   - Stage: 000_INIT
+   - Next: 111_SENSE
+✅ Alias 'floors_enforced' found: ['F11', 'F12']
+
+Sample Output:
+{
+  "mode": "conscience",
+  "grounding_required": true,
+  "legacy_verdict": "SEAL",
+  "motto": "DITEMPA, BUKAN DIBERI",
+  "motto_english": "Forged, Not Given",
+  "motto_emojis": "\ud83d\udd28\u2692\ufe0f\ud83d\udee0\ufe0f",
+  "bookend": "INIT",
+  "governance": {
+    "total_floors": 13,
+    "floors_checked_count": 2,
+    "floors_pending_count": 11,
+    "summary": "Entry checks passed (2/13). 11 floors pending across later stages."
+  },
+  "pipeline": {
+    "stage": "000_INIT",
+    "status": "IN_PROGRESS",
+    "next_stage": "111_SENSE"
+  }
+}

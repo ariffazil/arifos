@@ -33,6 +33,17 @@ from .response import (
     get_next_step_template,
     NEXT_STEP_TEMPLATES,
 )
+from .tool_registry import (
+    ToolSpec,
+    CANONICAL_TOOLS,
+    get_tool_spec,
+    get_tool_by_stage,
+    get_next_tool,
+    validate_tool_path,
+    get_pipeline_sequence,
+    export_tool_schema_for_agents,
+    get_agent_selection_hints,
+)
 
 __all__ = [
     # Operators
@@ -60,4 +71,14 @@ __all__ = [
     "render_user_answer",
     "get_next_step_template",
     "NEXT_STEP_TEMPLATES",
+    # Tool registry (v60)
+    "ToolSpec",
+    "CANONICAL_TOOLS",
+    "get_tool_spec",
+    "get_tool_by_stage",
+    "get_next_tool",
+    "validate_tool_path",
+    "get_pipeline_sequence",
+    "export_tool_schema_for_agents",
+    "get_agent_selection_hints",
 ]

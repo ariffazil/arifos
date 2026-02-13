@@ -2868,8 +2868,6 @@ async def _opa_list_policies_wrapper() -> dict:
     return await opa_list_policies()
 
 
-
-
 # Apply annotations at module load time
 _apply_tool_annotations()
 

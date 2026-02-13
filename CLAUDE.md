@@ -8,29 +8,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
 
 **Foundation:** RUKUN AGI (The Five Pillars) — 555 is sacred
-**Architecture:** `core/` is the **single source of truth** for constitutional modules
+**Architecture:** `core/` is the **single source of truth** for constitutional modules; `aaa_mcp/` is the MCP server
 
-**🎉 MCP REGISTRY:** `io.github.ariffazil/aaa-mcp` v60.0.0 — [ACTIVE](https://registry.modelcontextprotocol.io)
-
----
-
-## 📋 MCP Registry Quick Reference
-
-AAA MCP is officially published in the MCP Registry:
-
-```
-Registry Name: io.github.ariffazil/aaa-mcp
-Version:       60.0.0
-Status:        ACTIVE (Published 2026-02-10)
-Registry URL:  https://registry.modelcontextprotocol.io
-```
-
-**Installation Methods:**
-- **PyPI:** `pip install arifos==60.0.0`
-- **Docker:** `docker pull ariffazil/arifos:60.0.0`
-- **Remote SSE:** `https://aaamcp.arif-fazil.com/sse`
-
-**First Constitutional AI Governance system in the MCP Registry.**
+**MCP Registry:** `io.github.ariffazil/aaa-mcp` v60.0.0 — ACTIVE (Published 2026-02-10)
 
 ---
 
@@ -40,10 +20,11 @@ Registry URL:  https://registry.modelcontextprotocol.io
 # Install (editable with dev dependencies)
 pip install -e ".[dev]"
 
-# Run MCP Server (2 transports)
+# Run MCP Server (3 transports)
 python -m aaa_mcp            # stdio (default — Local Agents)
-python -m aaa_mcp sse         # sse (Remote — Railway/Network)
-aaa-mcp                       # Console script equivalent (stdio default)
+python -m aaa_mcp sse        # SSE (Remote — Railway/Network)
+python -m aaa_mcp http       # HTTP (MCP 2025-11-25 spec)
+aaa-mcp                      # Console script equivalent (stdio default)
 ```
 
 ## Testing
@@ -107,9 +88,8 @@ from core.shared.types import Verdict, VaultOutput, FloorScores
 from core.shared.crypto import generate_session_id, sha256_hash, merkle_root
 from core.organs.init import init, scan_injection
 
-# LEGACY — still works but avoid in new code
-from codebase.floors.truth import F2_Truth
-from codebase.agi.atlas import ATLAS
+# NOTE: codebase/ is now EMPTY — old `from codebase.*` imports will ImportError
+# engine_adapters.py handles this gracefully with fallback stubs
 ```
 
 **The Five Pillars (RUKUN AGI - 555):**
@@ -142,38 +122,43 @@ exclude = ["core.archive*"]  # Legacy code preserved but excluded
 
 ## Architecture
 
-### Trinity Framework (Three Engines)
+### 5-Organ Trinity Pipeline
 
 ```
-000_INIT → AGI(Δ) → ASI(Ω) → APEX(Ψ) → 999_VAULT
-             111-333   444-666    777-888
+000_INIT → 111-333_AGI(Δ) → 555-666_ASI(Ω) → 888_APEX(Ψ) → 999_VAULT
+ (Gate)      (Mind)            (Heart)          (Soul)        (Memory)
 ```
 
-| Engine | Role | Floors | Location |
-|--------|------|--------|----------|
-| **AGI (Δ)** | Mind — reasoning, precision, truth | F2, F4, F7, F10 | `codebase/agi/` |
-| **ASI (Ω)** | Heart — empathy, safety, alignment | F1, F5, F6, F9 | `codebase/asi/` |
-| **APEX (Ψ)** | Soul — judgment, 9-paradox equilibrium | F3, F8, F11, F12 | `codebase/apex/` |
+| Engine | Role | Floors |
+|--------|------|--------|
+| **AGI (Δ)** | Mind — reasoning, precision, truth | F2, F4, F7, F10 |
+| **ASI (Ω)** | Heart — empathy, safety, alignment | F1, F5, F6, F9 |
+| **APEX (Ψ)** | Soul — judgment, 9-paradox equilibrium | F3, F8, F11, F12 |
 
 **Thermodynamic wall:** AGI and ASI cannot see each other's reasoning until stage 444 (TRINITY_SYNC). Enforced via immutable `DeltaBundle` (AGI output) and `OmegaBundle` (ASI output) that merge into `MergedBundle` at convergence.
 
-### 9 Canonical MCP Tools (v55)
+### MCP Tools (v60)
 
-All tools accept `session_id` for chaining multi-step workflows. Defined in `aaa_mcp/server.py` with `@constitutional_floor()` guards.
+All tools accept `session_id` for chaining multi-step workflows. Defined in `aaa_mcp/server.py` with `@constitutional_floor()` guards. Confirm current tool list in `aaa_mcp/server.py` (tool count has changed across versions).
 
-| Tool | Engine | Purpose | Key Floors |
-|------|--------|---------|------------|
-| `init_gate` | — | Session init + injection scan + auth check | F11, F12 |
+**Core pipeline tools:**
+
+| Tool | Organ | Purpose | Key Floors |
+|------|-------|---------|------------|
+| `init_gate` | INIT | Session init + injection scan + auth check | F11, F12 |
+| `trinity_forge` | ALL | Unified pipeline entrypoint (runs full 000-999) | ALL |
 | `agi_sense` | AGI | Parse input, detect intent, classify lane | F2, F4 |
 | `agi_think` | AGI | Generate hypotheses without committing | F2, F4, F7 |
 | `agi_reason` | AGI | Deep logical reasoning chain | F2, F4, F7 |
 | `asi_empathize` | ASI | Stakeholder impact, vulnerability scoring | F5, F6 |
 | `asi_align` | ASI | Ethics/law/policy reconciliation | F5, F6, F9 |
-| `apex_verdict` | APEX | Final verdict (SEAL/VOID/SABAR) | F5, F3, F8 |
-| `reality_search` | — | External fact-checking | F2, F7 |
-| `vault_seal` | — | Merkle-chained immutable ledger record | F1, F3 |
+| `apex_verdict` | APEX | Final verdict (SEAL/VOID/SABAR) | F2, F3, F5, F8 |
+| `reality_search` | — | External fact-checking (callable from any stage) | F2, F7 |
+| `vault_seal` | VAULT | Merkle-chained immutable ledger record | F1, F3 |
 
-**Tool pipeline flow:** `init_gate → agi_sense → agi_think → agi_reason → asi_empathize → asi_align → apex_verdict → vault_seal` (with `reality_search` callable from any stage).
+**Additional tools:** `tool_router` (intelligent routing), `vault_query` (query sealed records), `truth_audit` (claim verification, EXPERIMENTAL), `simulate_transfer` (financial simulation).
+
+**Pipeline flow:** `init_gate → agi_sense → agi_think → agi_reason → asi_empathize → asi_align → apex_verdict → vault_seal`
 
 ### Verdict Hierarchy
 
@@ -187,72 +172,62 @@ SABAR > VOID > 888_HOLD > PARTIAL > SEAL
 - **PARTIAL**: Soft floor warning — proceed with caution
 - **SABAR**: Floor violated — stop and repair first
 
-### core/ Package Structure (v55.5 RUKUN AGI Foundation)
+### core/ Package Structure (Source of Truth)
 
 ```
 core/
-├── __init__.py              # Package root
-├── shared/                  # The Five Pillars (Source of Truth)
-│   ├── __init__.py
-│   ├── physics.py           # Pillar 1: Thermodynamic primitives
-│   ├── atlas.py             # Pillar 2: Governance routing
-│   ├── types.py             # Pillar 3: Constitutional contracts
-│   ├── crypto.py            # Pillar 4: Trust primitives
-│   └── guards.py            # Floor guards (F10, F11, F12)
+├── shared/                  # The Five Pillars
+│   ├── physics.py           # Pillar 1: Thermodynamic primitives (W_3, delta_S, G)
+│   ├── atlas.py             # Pillar 2: Governance routing (Lambda, Theta, Phi)
+│   ├── types.py             # Pillar 3: Constitutional contracts (Verdict, Pydantic models)
+│   ├── crypto.py            # Pillar 4: Trust primitives (Ed25519, Merkle, SHA-256)
+│   ├── floors.py            # Floor definitions and thresholds
+│   ├── guards/              # Hypervisor guards (F10, F11, F12)
+│   ├── mottos.py            # Nusantara stage mottos
+│   ├── routing.py           # Request routing logic
+│   ├── formatter.py         # Output formatting
+│   ├── nudge.py             # Nudge/guidance system
+│   └── skills/              # Skills registry
 ├── organs/                  # Pillar 5: Active enforcement
-│   ├── __init__.py
 │   └── _0_init.py           # Airlock (F11 Auth, F12 Injection)
-│   # TODO: 1_agi.py, 2_asi.py, 3_apex.py, 4_vault.py
+├── pipeline.py              # Core pipeline orchestration
 └── archive/                 # F1 Amanah: Legacy preservation
-    ├── agi/                 # Old AGI engine
-    ├── asi/                 # Old ASI engine
-    ├── apex/                # Old APEX engine
-    └── v60_legacy/          # Refactored core_*.py files
 ```
 
 ### aaa_mcp/ Package Structure (MCP Server)
 
 ```
 aaa_mcp/
-├── server.py                # 9 MCP tools (should migrate to use core.*)
+├── server.py                # MCP tool definitions (@mcp.tool + @constitutional_floor)
 ├── core/
-│   ├── constitutional_decorator.py  # Floor enforcement
-│   ├── engine_adapters.py           # Bridge to codebase engines (migrate to core.*)
-│   └── ...
-├── services/
-│   ├── constitutional_metrics.py
-│   └── ...
-└── sessions/
-    ├── session_ledger.py            # VAULT999 ledger
-    └── ...
+│   ├── constitutional_decorator.py  # Floor enforcement decorator
+│   ├── engine_adapters.py           # Bridge to engines (with fallback stubs)
+│   ├── mode_selector.py             # Governance mode selection
+│   └── stage_adapter.py             # Stage pipeline adapter
+├── tools/                   # Tool implementations (vault_seal, gateway, etc.)
+├── gateway/                 # MCP gateway layer
+├── protocol/                # Response/request protocol handling
+├── transports/              # Transport implementations (stdio, SSE, HTTP)
+├── services/                # Constitutional metrics, Redis, etc.
+├── sessions/                # Session ledger (VAULT999)
+├── external_gateways/       # Brave search, external APIs
+├── infrastructure/          # Docker/K8s constitutional gateway
+├── policies/                # OPA/policy-as-code
+├── presentation/            # Output formatting
+└── wrappers/                # Tool wrappers
 ```
 
-**Migration Path:** Update `aaa_mcp/` to import from `core.shared.*` and `core.organs.*` instead of scattered `codebase/` imports.
-
-### Key Module Map (Rest of Repository)
+### Key Module Map
 
 | Path | Purpose |
 |------|---------|
-| `codebase/` | Core engines (AGI, ASI, APEX), stages, floors, guards |
-| `codebase/stages/` | Metabolic loop stages (444-999) |
-| `codebase/floors/` | Floor implementations (F1, F8, F10, F12 as standalone modules) |
-| `codebase/guards/` | Hypervisor guards (ontology F10, nonce F11, injection F12) |
-| `codebase/kernel.py` | KernelManager singleton — lazy-loads Trinity cores |
-| `codebase/state.py` | SessionState — immutable copy-on-write pattern |
-| `codebase/vault/persistence.py` | Ledger backend used by `vault_seal` tool |
-| `333_APPS/` | Metabolic layers (L1-L7), skills, actions |
-| `mcp_server/` | Config/integration layer (separate from `aaa_mcp/`) |
+| `core/` | **Single source of truth** — shared primitives, organs, pipeline |
+| `aaa_mcp/` | MCP server — tools, transports, services, gateway |
+| `codebase/` | **EMPTY** — engines migrated to `core/` and `aaa_mcp/core/engine_adapters.py` (stubs) |
+| `333_APPS/` | Metabolic layers (L1-L7), skills, actions (LEGACY) |
 | `spec/` | **PRIMARY** constitutional source — JSON schemas, thresholds |
 | `canon/` | **PRIMARY** sealed canonical law (`*_v38Omega.md` with SEALED status) |
-
-### SessionState Pattern (Immutable Copy-on-Write)
-
-```python
-state = SessionState.from_context(ctx)
-new_state = state.to_stage("333")       # Returns NEW instance
-new_state = state.set_floor_score(...)   # Returns NEW instance
-# Never: state.field = value (mutation forbidden)
-```
+| `VAULT999/` | Immutable audit ledger storage |
 
 ---
 
@@ -324,10 +299,9 @@ The 9-paradox solver uses geometric mean (GM), not arithmetic. GM punishes imbal
 
 ### New Floor Validator
 
-1. Create module in `codebase/floors/fX_name.py`
-2. Export from `codebase/floors/__init__.py`
-3. Wire into `codebase/enforcement/floor_validators.py`
-4. Add tests in `tests/constitutional/`
+1. Create module in `core/shared/floors.py` or a new file under `core/shared/`
+2. Wire into `aaa_mcp/core/constitutional_decorator.py` (`FLOOR_ENFORCEMENT` dict)
+3. Add tests in `tests/constitutional/`
 
 ---
 
@@ -336,13 +310,23 @@ The 9-paradox solver uses geometric mean (GM), not arithmetic. GM punishes imbal
 - **F4/F6 numbering swap**: CLAUDE.md and `constitutional_floors.py` historically had F4 (Empathy) and F6 (Clarity) swapped. Check the actual `FLOOR_ENFORCEMENT` dict in `constitutional_decorator.py` for truth.
 - **vault_seal KeyError**: `vault_seal` in `server.py` can crash on `result["seal"]` if the persistence backend returns unexpected format — use `.get("seal", fallback)`.
 - **test_mcp_all_tools.py**: 3 pre-existing assertion failures (stub returns `confidence=0.92` but tests assert `0.99`). These are known and non-blocking.
-- **Dual init paths**: `bridge.py` (Ed25519 + Shannon entropy + APEX summary) vs `codebase/init/000_init/init_000.py` (loop manager + canonical bootstrap) have drifted. `server.py` uses `engine_adapters.py`, not either directly.
+- **`codebase/` is empty**: All engine code now lives in `core/` and `aaa_mcp/core/engine_adapters.py`. Old imports like `from codebase.agi.engine import AGIEngine` will hit the `ImportError` fallback path in engine_adapters.py (heuristic stubs).
 - **`333_APPS/L4_TOOLS/mcp/`** is LEGACY — still has old `from mcp.` imports. Not critical, do not fix.
 - **F2 Truth gotcha**: Don't default `truth_score` in decorator context — `F2_Truth` has internal logic (defaults to 1.0) which is correct for stubs. Only engine results should override.
+
+## Commit Message Conventions
+
+Use scoped prefixes: `governance:`, `trinity:`, `docs:`, `fix:`, `test:`
+
+Examples:
+- `governance: strengthen F8 witness consensus`
+- `trinity: add evidence chain to asi_act`
+- `fix: vault_seal KeyError on missing seal field`
 
 ## Environment & Config
 
 - **Windows environment** — use PowerShell for commands, watch quoting issues with `$env:` in nested `-Command` strings
 - **MCP config locations:** `.mcp.json` (root), `.claude/mcp.json`, `.agents/mcp.json`
-- **Test env vars** (set automatically by `tests/conftest.py`): `ARIFOS_PHYSICS_DISABLED=1`, `ARIFOS_ALLOW_LEGACY_SPEC=1`
+- **Test env vars** (set automatically by `tests/conftest.py`): `ARIFOS_PHYSICS_DISABLED=1`, `ARIFOS_ALLOW_LEGACY_SPEC=1`, `AAA_MCP_OUTPUT_MODE=debug`
+- **Production env vars:** `DATABASE_URL` (PostgreSQL), `REDIS_URL`, `BRAVE_API_KEY` (web search), `GOVERNANCE_MODE` (`HARD`/`SOFT`), `AAA_MCP_TRANSPORT` (`stdio`/`sse`/`http`)
 - **Dependencies:** FastMCP 2.14.4, MCP SDK 1.26.0, Python 3.12 (supports 3.10+)
