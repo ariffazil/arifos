@@ -25,6 +25,7 @@ from fastmcp import FastMCP
 # v62: SystemState exposure for cognitive runtime
 from aaa_mcp.core.heuristics import compute_system_state
 from aaa_mcp.core.state import SystemState, Profile
+from aaa_mcp.capabilities.t6_web_search import brave_search, EvidenceArtifact
 
 # Tool annotations for MCP 2025-11-25 compliance
 TOOL_ANNOTATIONS = {
@@ -270,11 +271,61 @@ async def agi_cognition(
 
     # Check capability modules
     module_results = {}
+    real_evidence = []
+    
     if capability_modules:
         config = load_capability_config()
         for mod_id in capability_modules:
-            # Would invoke actual capability via tool_router
-            module_results[mod_id] = {"invoked": True, "status": "placeholder"}
+            if mod_id == "T6":
+                # v62 Step 2: Real Brave Search integration
+                try:
+                    artifacts = await brave_search(query, count=5)
+                    real_evidence = [art.to_dict() for art in artifacts]
+                    module_results[mod_id] = {
+                        "invoked": True,
+                        "status": "success",
+                        "evidence_count": len(artifacts)
+                    }
+                except Exception as e:
+                    module_results[mod_id] = {
+                        "invoked": True,
+                        "status": "error",
+                        "error": str(e)
+                    }
+            else:
+                # Placeholder for other modules
+                module_results[mod_id] = {"invoked": True, "status": "placeholder"}
+
+    # Use real evidence if available, otherwise fallback to grounding param
+    evidence_sources = real_evidence if real_evidence else (grounding or [])
+    evidence_count = len(evidence_sources)
+    
+    # Recalculate SystemState with real evidence
+    system_state = compute_system_state(
+        query=query,
+        loop_count=0,
+        evidence_count=evidence_count
+    )
+
+    # AGI Pipeline: Sense → Think → Reason
+    # F2: Truth - calculate confidence (v62 Step 2: real evidence)
+    # Use uncertainty from system_state AND evidence quality
+    truth_score = 0.85 - (system_state.uncertainty * 0.3)
+    if evidence_count > 0:
+        # Boost truth_score based on real evidence
+        truth_score = min(0.99, 0.75 + (evidence_count * 0.05))
+
+    # F4: Clarity - entropy reduction
+    clarity_delta = -0.1  # Entropy reduced
+
+    # F7: Humility - uncertainty from system_state
+    omega_0 = system_state.uncertainty
+
+    # F8: Genius - coherence
+    genius_score = 0.88
+
+    # F10: Ontology - grounding (real evidence = true grounding)
+    grounded = evidence_count >= 2  # Require 2+ sources for grounded=true
 
     # Calculate overall floor scores
     floor_scores = {
@@ -304,12 +355,16 @@ async def agi_cognition(
         "motto": "🔥 DIKAJI, BUKAN DISUAPI — Examined, Not Spoon-fed",
     }
 
+    if real_evidence:
+        output["evidence"] = real_evidence  # v62 Step 2: Real evidence artifacts
+
     if module_results:
         output["capability_modules"] = module_results
 
     if debug:
         output["debug"] = {
-            "grounding_count": len(grounding) if grounding else 0,
+            "grounding_count": evidence_count,
+            "real_evidence": len(real_evidence) > 0,
         }
 
     return output
