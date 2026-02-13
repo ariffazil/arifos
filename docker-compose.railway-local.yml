@@ -1,0 +1,109 @@
+# Local Development Stack for Railway Deployment Testing
+# Mirrors the Railway production environment
+#
+# Usage:
+#   docker-compose up -d
+#   docker-compose logs -f arifos
+#   docker-compose down
+
+version: '3.8'
+
+services:
+  # PostgreSQL - VAULT999 Ledger Backend
+  postgres:
+    image: postgres:16-alpine
+    container_name: arifos-postgres
+    environment:
+      POSTGRES_USER: arifos
+      POSTGRES_PASSWORD: localdev_password
+      POSTGRES_DB: arifos_vault
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_vault_postgres.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arifos -d arifos_vault"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - arifos-network
+
+  # Redis - MindVault Session Cache
+  redis:
+    image: redis:7-alpine
+    container_name: arifos-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - arifos-network
+
+  # arifOS MCP Server - Governed Backend
+  arifos:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arifos-mcp-server
+    environment:
+      # Server settings
+      PORT: 8080
+      HOST: 0.0.0.0
+      PYTHONUNBUFFERED: 1
+      
+      # arifOS governance
+      ARIFOS_ENV: development
+      GOVERNANCE_MODE: HARD
+      VAULT_BACKEND: postgres
+      AAA_MCP_TRANSPORT: sse
+      LOG_LEVEL: debug
+      
+      # Database (matches postgres service above)
+      DATABASE_URL: postgresql://arifos:localdev_password@postgres:5432/arifos_vault
+      
+      # Redis (matches redis service above)
+      REDIS_URL: redis://redis:6379
+      
+      # Optional API keys (copy from .env.oo0 for testing)
+      # BRAVE_API_KEY: ${BRAVE_API_KEY}
+      # BROWSERBASE_API_KEY: ${BROWSERBASE_API_KEY}
+    
+    ports:
+      - "8080:8080"
+    
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    
+    networks:
+      - arifos-network
+    
+    restart: unless-stopped
+    
+    # Health check for docker-compose
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+networks:
+  arifos-network:
+    driver: bridge

@@ -1,6 +1,14 @@
 [project]
 name = "arifos"
-version = "60.0.0"
+version = "60.1.0"
+# v60.1-ACLIP_CAI: 9-Sense Nervous System (2026-02-13)
+#   - ACLIP_CAI: Console Intelligence & Perception Console
+#   - 9-Tool Nervous System: system_health, process_list, fs_inspect,
+#     log_tail, net_status, config_flags, chroma_query, cost_estimator,
+#     forge_guard (gating)
+#   - MCP Bridge: All tools exposed as aclip_* for 9-law pipeline
+#   - Integration: Law 3 (Ground), Law 5 (Search), Law 7 (Guard)
+#   - Console-only tools (no ethics), read-only except forge_guard
 # v60.0-FORGE: Unified Pipeline + 10-Tool Canon (2026-02-11)
 #   - Axiom Engine: Physics/CCS ground truth injection for reality_search
 #   - Evidence v2: Cryptographic hash-based integrity across all tools
@@ -163,6 +171,10 @@ all = [
 # Usage: aaa-mcp [stdio|sse|http]  (default: stdio)
 aaa-mcp = "aaa_mcp.__main__:main"
 
+# ACLIP_CAI Console Intelligence Tools (v1.0.0)
+# The 9-Sense Nervous System for arifOS Infrastructure
+aclip-cai = "aclip_cai.cli:main"
+
 # Legacy arifos commands (DEPRECATED - will be removed in v54)
 # arifos-mcp = "arifos.mcp.__main__:main"
 # arifos-mcp-sse = "arifos.mcp.sse:main"
@@ -213,7 +225,7 @@ Changelog = "https://github.com/ariffazil/arifOS/blob/main/CHANGELOG.md"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["arifos*", "scripts*", "codebase*", "aaa_mcp*", "mcp_server*", "core*"]
+include = ["arifos*", "scripts*", "codebase*", "aaa_mcp*", "mcp_server*", "core*", "aclip_cai*"]
 exclude = [
     "arifos.tests*",
     "arifos.tests",
