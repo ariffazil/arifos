@@ -11,6 +11,7 @@ ABSOLUTIST = ("definitely", "guaranteed", "always", "never", "100%", "certainly"
 UNCERTAIN = ("maybe", "perhaps", "unclear", "not sure", "estimate", "possibly", "might")
 SENSITIVE = ("layoff", "workers", "b40", "suicide", "violence", "abuse", "rape", 
              "death", "kill", "harm", "patient", "medical", "diagnosis")
+POLITICAL = ("politics", "election", "race", "religion", "government", "policy")
 CRISIS = ("emergency", "urgent", "immediate", "life-threatening", "critical")
 
 def clamp01(x: float) -> float:
@@ -72,7 +73,7 @@ def estimate_uncertainty(query: str) -> float:
     
     return clamp01(score)
 
-def estimate_risk(query: str, stakeholders: Optional[list] = None) -> float:
+def estimate_risk(query: str) -> float:
     """
     Estimate stakeholder risk from query.
     
@@ -80,59 +81,50 @@ def estimate_risk(query: str, stakeholders: Optional[list] = None) -> float:
     Step 2: Will integrate with T14 (Perspective API)
     """
     q = query.lower()
-    score = 0.1  # Base risk
+    score = 0.05  # Base risk (low)
     
-    # Sensitive keywords
+    # Sensitive keywords (high impact)
     if any(k in q for k in SENSITIVE):
-        score += 0.3
+        score += 0.75
     
-    # Crisis keywords
+    # Political/societal keywords (moderate impact)
+    if any(k in q for k in POLITICAL):
+        score += 0.35
+    
+    # Crisis keywords (critical)
     if any(k in q for k in CRISIS):
-        score += 0.4
-    
-    # Explicit stakeholders mentioned
-    if stakeholders and len(stakeholders) > 0:
-        score += 0.1 * len(stakeholders)
-    
-    # Financial/legal terms
-    if any(k in q for k in ("money", "invest", "legal", "law", "contract", "sue")):
-        score += 0.15
+        score += 0.50
     
     return clamp01(score)
 
-def estimate_grounding(query: str, evidence: Optional[list] = None) -> float:
-    """
-    Estimate evidence grounding.
-    
-    Step 1: Always 0.0 (no evidence artifacts yet)
-    Step 2: Will use real evidence from T6 (Brave Search)
-    """
-    # Step 1: No evidence system yet
-    if evidence is None or len(evidence) == 0:
-        return 0.0
-    
-    # Step 2+ (future): Calculate from evidence artifacts
-    # grounded_score = min(len(evidence) * 0.3, 1.0)
-    # return grounded_score
-    
-    return 0.0
-
-def calculate_system_state(
+def compute_system_state(
     query: str,
-    session_id: str,
     loop_count: int = 0,
-    stakeholders: Optional[list] = None,
-    evidence: Optional[list] = None
+    evidence_count: int = 0
 ) -> SystemState:
     """
     Calculate complete SystemState for tool response.
     
     This is the main entry point for v62 Step 1.
+    
+    Args:
+        query: The user query
+        loop_count: Number of iterations (for loop detection)
+        evidence_count: Number of evidence artifacts (Step 2: from T6)
+    
+    Returns:
+        SystemState with calculated heuristics
     """
+    # Grounding: 1.0 if evidence exists, else 0.0 (Step 1: always 0)
+    grounding = 1.0 if evidence_count > 0 else 0.0
+    
     return SystemState(
         uncertainty=estimate_uncertainty(query),
-        risk=estimate_risk(query, stakeholders),
-        grounding=estimate_grounding(query, evidence),
+        risk=estimate_risk(query),
+        grounding=grounding,
         loop_count=loop_count,
         profile=detect_profile(query)
     )
+
+# Backwards compatibility alias
+calculate_system_state = compute_system_state
