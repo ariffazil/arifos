@@ -14,6 +14,7 @@ Authentication: OAuth 2.1
 """
 
 import json
+from dataclasses import asdict, is_dataclass
 from typing import Any, Optional
 
 from fastmcp import FastMCP
@@ -417,13 +418,28 @@ async def trinity_forge(
         mode: "conscience" (enforce floors, default) or "ghost" (log only)
         output_mode: "user" (minimal), "developer" (metrics), "audit" (full tensor)
     """
-    result = await core_forge(
-        query,
-        actor_id=actor_id,
-        auth_token=auth_token,
-        require_sovereign=require_sovereign_for_high_stakes,
-        mode=mode,
-    )
+    try:
+        result = await core_forge(
+            query,
+            actor_id=actor_id,
+            auth_token=auth_token,
+            require_sovereign=require_sovereign_for_high_stakes,
+            mode=mode,
+        )
+    except Exception as e:
+        return {
+            "status": ConflictStatus.SABAR.value,
+            "session_id": "",
+            "verdict": ConflictStatus.SABAR.value,
+            "mode": mode,
+            "error": {"code": 500, "message": f"trinity_forge exception captured: {e}"},
+        }
+
+    seal_payload: Any = result.seal
+    if hasattr(seal_payload, "model_dump"):
+        seal_payload = seal_payload.model_dump()
+    elif is_dataclass(seal_payload):
+        seal_payload = asdict(seal_payload)
 
     # Build standard output
     # Phase A: Only APEX has verdict authority
@@ -433,7 +449,7 @@ async def trinity_forge(
         "agi": result.agi,
         "asi": result.asi,
         "apex": result.apex,
-        "seal": result.seal,
+        "seal": seal_payload,
         "mode": mode,
     }
 
