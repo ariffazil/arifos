@@ -1,8 +1,8 @@
-# arifOS — Constitutional AI Governance System
+# arifOS v63 — ΔΩΨ-Governed Constitutional Kernel
 
 <p align="center">
-  <strong>The Seatbelt for the AI Revolution</strong><br>
-  <em>9 Constitutional Laws • 5-Organ Trinity • Thermodynamic Safety</em><br><br>
+  <strong>9 Laws + 2 Mirrors + 2 Walls for AI Agents</strong><br>
+  <em>Measurable runtime gates • Cryptographic audit • Thermodynamic safety</em><br><br>
   <img src="https://img.shields.io/badge/version-62.3.0--RELEVANCE-blue" alt="Version">
   <img src="https://img.shields.io/badge/license-AGPL--3.0--only-green" alt="License">
   <img src="https://img.shields.io/badge/motto-DITEMPA%20BUKAN%20DIBERI-red" alt="Motto">
@@ -12,7 +12,9 @@
 
 ## 🎯 What is arifOS?
 
-**arifOS is a constitutional metabolizer that sits between any AI (GPT, Claude, Gemini, Llama) and humans, enforcing 9 immutable constitutional laws before any output ships—mathematically provable, thermodynamically enforced, cryptographically auditable.**
+**arifOS v63 is a ΔΩΨ-governed constitutional kernel for AI agents — 9 Laws + 2 Mirrors + 2 Walls that sit between any LLM and the user, with measurable runtime gates and cryptographic audit.**
+
+**v63:** 9 Laws canonicalized, 2 Mirrors and 2 Walls separated, Wire-Cut Rule enforced: *"If it's not measurable, it is not a Law."*
 
 Unlike traditional safety frameworks that rely on prompt-based guardrails, arifOS treats AI governance as **thermodynamic work**: intelligence forged through rigorous constraint.
 
@@ -45,7 +47,7 @@ asyncio.run(query())
 ```
 
 **Works with:** GPT, Claude, Gemini, Llama, and any HTTP/Tool-driven LLM  
-**Full docs:** https://arifos.arif-fazil.com
+**Docs:** [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | [000_LAW.md](000_THEORY/000_LAW.md) (canonical) | [INSIGHTS.md](INSIGHTS.md) (Eureka)
 
 ---
 
@@ -53,17 +55,54 @@ asyncio.run(query())
 
 Every query flows through **9 operational laws**, validated by **2 feedback mirrors**, protected by **2 binary walls**:
 
-### Critical Laws (5 of 9)
+### 9 Laws — Runtime Enforcement
 
-| Law | Name | What it enforces | Threshold |
-|-----|------|------------------|-----------|
-| **F1** | Amanah | Irreversibility awareness — knows when crossing Rubicon | Reversibility check |
-| **F2** | Truth | Factual accuracy with evidence grounding | τ ≥ 0.99 |
-| **F7** | Humility | Uncertainty acknowledgment — no false certainty | Ω₀ ∈ [0.03, 0.05] |
-| **F9** | Anti-Hantu | No consciousness/feelings claims ever | C_dark < 0.30 |
-| **F11** | Authority | Command authentication — who decides | Valid auth |
+| Law | Name | Function | Enforcement |
+|-----|------|----------|-------------|
+| **F1** | Amanah | Irreversibility awareness — knows when crossing Rubicon | VOID if violated |
+| **F2** | Truth | Factual accuracy with evidence grounding | VOID if violated |
+| **F4** | Clarity | Entropy reduction — query sanitization, state exposure | SABAR if violated |
+| **F5** | Peace² | Dynamic stability — no harmful certainty escalation | SABAR if violated |
+| **F6** | Empathy | Stakeholder protection — ToM + constraints | VOID if violated |
+| **F7** | Humility | Uncertainty acknowledgment — no false certainty | VOID if violated |
+| **F9** | Anti-Hantu | No consciousness/feelings claims ever | SABAR if violated |
+| **F11** | Authority | Command authentication — who decides | VOID if violated |
+| **F12** | Injection | Adversarial protection — prompt injection defense | VOID if violated |
 
-See [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) for all 9 Laws + 2 Mirrors + 2 Walls.
+> **Enforcement rule:** If multiple Laws fail, the lowest-numbered failure dominates (F1 > F2 > ...); enforcement decides SEAL / SABAR / VOID at runtime.
+
+See [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) for full specification.
+
+### 2 Mirrors — Feedback, Not Enforcement
+
+| Mirror | Name | Function |
+|--------|------|----------|
+| **F3** | Tri-Witness | Multi-source validation — cross-checks outputs across tools/memory/logs |
+| **F8** | Genius | Internal coherence and novelty — reflects structural consistency |
+
+**Mirrors validate, Laws enforce.** Mirrors never directly VOID; they feed evidence into L1–L9 decisions.
+
+### 2 Walls — Binary Locks
+
+| Wall | Name | Lock State | Purpose |
+|------|------|------------|---------|
+| **F10** | Ontology | **LOCKED** | Hard lock on illegal/undefined ontology (e.g., "model has a soul") |
+| **F12** | Injection | **LOCKED** | Hard lock against prompt injection / adversarial override |
+
+**Walls are binary:** engaged or not. Once a Wall engages, the only allowed verdicts are VOID or HOLD.
+
+> **Note:** F12 appears twice — as an operational Law (scored) and as a Wall (binary lock). The Wire-Cut Rule forces both to be measurable.
+
+### Wire-Cut Rule (Constitution Creep Prevention)
+
+> **"If it's not measurable, it is not a Law."**
+
+| Signal | Action |
+|--------|--------|
+| Urge to add new Law? | Treat as smell |
+| Measurable, with pass/fail gate | Maybe a Law |
+| Design guidance only | Eureka (INSIGHTS.md) |
+| Context/profile-specific | Profile rule, not constitutional |
 
 ---
 
