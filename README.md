@@ -119,6 +119,16 @@ Each stage has a Malay motto reflecting active construction:
 
 ---
 
+## 📚 Documentation
+
+| Document | Purpose |
+|----------|---------|
+| **INSIGHTS.md** | 🏆 **Canonical 12 Eureka Principles** — governing philosophy for v63+ |
+| **docs/V81_ARCHITECTURE_SPEC.md** | Meta-scheduler and cognitive runtime design |
+| **docs/V60_V61_ARCHITECTURAL_DIFF.md** | 5-Core consolidation rationale |
+
+---
+
 ## 🆕 v62.3 — Relevance-Based Grounding (Current)
 
 **Status:** LIVE on Railway  
