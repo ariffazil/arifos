@@ -27,7 +27,7 @@ COPY README.md .
 
 # Copy source code in dependency order (least likely to change first)
 COPY scripts/start_server.py scripts/start_server.py
-COPY codebase/ codebase/
+COPY core/ core/
 COPY aaa_mcp/ aaa_mcp/
 
 # Clear Python cache to ensure fresh imports
