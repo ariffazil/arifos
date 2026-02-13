@@ -83,8 +83,10 @@ class CapabilityRouter:
     def __init__(self, config_path: Optional[str] = None):
         """Initialize the capability router with YAML configuration"""
         if config_path is None:
-            # Default to package config
-            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            # Resolve from this file's location
+            this_file = os.path.abspath(__file__)
+            # Go up from arifos/core/tool_router.py to arifos/, then to config/
+            base_dir = os.path.dirname(os.path.dirname(this_file))
             config_path = os.path.join(base_dir, "config", "capability_modules.yaml")
         
         self.config_path = config_path
@@ -113,9 +115,14 @@ class CapabilityRouter:
     
     def _index_modules(self):
         """Index all capability modules by ID for fast lookup"""
-        registry = self.config.get("capability_modules", {}).get("registry", {})
+        cap_config = self.config.get("capability_modules", {})
         
-        for stage, modules in registry.items():
+        # The YAML has modules organized by stage (init, agi, asi, apex, seal)
+        # not under a 'registry' key
+        stage_names = ["init", "agi", "asi", "apex", "seal"]
+        
+        for stage in stage_names:
+            modules = cap_config.get(stage, [])
             for module_data in modules:
                 module = CapabilityModule(
                     name=module_data["name"],

@@ -26,16 +26,24 @@ logger = logging.getLogger(__name__)
 
 # ─── Floor Registry ─────────────────────────────────────────────────────────
 # Maps tool names to their required constitutional floors
+# v61.0: Updated for 5-Core Architecture
 FLOOR_ENFORCEMENT = {
+    # 5-Core Constitutional Kernel (v61.0)
+    "init_session": ["F11", "F12"],  # 000_INIT
+    "agi_cognition": ["F2", "F4", "F7", "F8", "F10"],  # 111-333_AGI (Δ Mind)
+    "asi_empathy": ["F1", "F5", "F6", "F9"],  # 555-666_ASI (Ω Heart)
+    "apex_verdict": ["F2", "F3", "F8", "F10", "F11", "F12", "F13"],  # 888_APEX (Ψ Soul)
+    "vault_seal": ["F1", "F3"],  # 999_VAULT (🔒 Memory)
+    # Legacy tools (deprecated but kept for backwards compatibility)
     "init_gate": ["F11", "F12"],
     "agi_sense": ["F2", "F4"],
     "agi_think": ["F2", "F4", "F7"],
     "agi_reason": ["F2", "F4", "F7"],
     "asi_empathize": ["F5", "F6"],
     "asi_align": ["F5", "F6", "F9"],
-    "apex_verdict": ["F5", "F3", "F8"],
+    "apex_verdict_legacy": ["F5", "F3", "F8"],
     "reality_search": ["F2", "F7"],
-    "vault_seal": ["F1", "F3"],
+    "vault_seal_legacy": ["F1", "F3"],
     # Unified 000-999 pipeline (forge) enforces ALL floors F1-F13
     "forge": [
         "F1",
