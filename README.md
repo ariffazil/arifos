@@ -407,15 +407,6 @@ Test B: `"Will AI definitely surpass humans by 2030?"` → uncertainty↑ ~0.70,
 
 **Metrics now diverge predictably.**
 
-### Roadmap
-
-| Step | Status | Description |
-|------|--------|-------------|
-| 1 | ✅ DONE | SystemState exposure (v62.1) |
-| 2 | ⏳ NEXT | Real T6 (Brave Search evidence) |
-| 3 | ⏳ | Contrast re-test |
-| 4 | ⏳ | Minimal Meta-Scheduler |
-
 ---
 
 ## 🔄 The 5-Organ Trinity Pipeline
