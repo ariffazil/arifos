@@ -299,15 +299,46 @@ python -m aaa_mcp http
 curl https://aaamcp.arif-fazil.com/health
 ```
 
-Response:
+Response (v61.0.0-FORGE):
 ```json
 {
-  "status": "healthy",
-  "postgres_connected": true,
-  "redis_connected": true,
-  "verdict_rates": {"SEAL": 0.85, "VOID": 0.10, "SABAR": 0.05},
-  "motto": "🔥 DITEMPA BUKAN DIBERI 💎🧠🔒"
+  "status": "ok",
+  "version": "61.0.0-FORGE",
+  "mcp_tools": 5,
+  "tool_names": [
+    "init_session",
+    "agi_cognition",
+    "asi_empathy",
+    "apex_verdict",
+    "vault_seal"
+  ]
 }
+```
+
+---
+
+## 📊 Deployment Status
+
+| Version | Status | Date | Commit |
+|---------|--------|------|--------|
+| **v61.0.0-FORGE** | 🟢 **LIVE** | 2026-02-13 | `5354c7c4` |
+| v60.1.0-ACLIP_CAI | 🟡 Deprecated | 2026-02-13 | - |
+| v60.0.0-FORGE | 🔴 EOL | 2026-02-11 | - |
+
+### v61.0.0-FORGE: 5-Core Constitutional Kernel
+
+✅ **Production Deployment Complete**
+
+- **5 Core Tools**: Operational (INIT → AGI → ASI → APEX → SEAL)
+- **16 Capability Modules**: Configured (T6-T21)
+- **T15 MY/SEA Localization**: Active (ms-MY, en-GB, zh-CN, ta-IN)
+- **Railway Endpoint**: https://aaamcp.arif-fazil.com
+- **Health Status**: `/health` returns 200 OK
+
+**Verified Pipeline Execution:**
+```
+init_session → agi_cognition → asi_empathy → apex_verdict → vault_seal
+    SEAL    →     SEAL      →    SABAR    →   888_HOLD   →   SEALED
 ```
 
 ---
