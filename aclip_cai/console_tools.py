@@ -32,7 +32,7 @@ from pathlib import Path
 from typing import Any, Optional
 from dataclasses import dataclass, field, asdict
 from datetime import datetime, timezone
-from collections import defaultdict
+from collections import defaultdict, deque
 
 
 # =============================================================================
@@ -337,8 +337,9 @@ async def process_list(
 # =============================================================================
 
 async def fs_inspect(
-    path: str = "/root/arifOS",
-    max_depth: int = 2,
+    path: str = ".",
+    depth: int = 1,
+    max_depth: Optional[int] = None,
     include_hidden: bool = False,
     min_size_bytes: int = 0,
     pattern: Optional[str] = None,
@@ -349,7 +350,8 @@ async def fs_inspect(
     
     Args:
         path: Root path to inspect
-        max_depth: Maximum directory depth to traverse
+        depth: Maximum directory depth to traverse
+        max_depth: Compatibility alias for depth
         include_hidden: Include hidden files (starting with .)
         min_size_bytes: Minimum file size to include
         pattern: Glob pattern to filter files (e.g., "*.py")
@@ -364,6 +366,7 @@ async def fs_inspect(
     
     try:
         root_path = Path(path).resolve()
+        effective_depth = max_depth if max_depth is not None else depth
         
         if not root_path.exists():
             raise FileNotFoundError(f"Path not found: {path}")
@@ -396,7 +399,7 @@ async def fs_inspect(
             except ValueError:
                 continue
             
-            if rel_depth > max_depth:
+            if rel_depth > effective_depth:
                 continue
             
             # Skip hidden
@@ -442,7 +445,7 @@ async def fs_inspect(
                 'files': files,
                 'total_dirs': len(dirs),
                 'total_files': len(files),
-                'traversal_depth': max_depth,
+                'traversal_depth': effective_depth,
             },
             latency_ms=round(latency, 2)
         )
@@ -464,8 +467,10 @@ async def fs_inspect(
 # =============================================================================
 
 async def log_tail(
-    log_path: str,
+    log_file: str = "aaa_mcp.log",
     lines: int = 50,
+    pattern: str = "",
+    log_path: Optional[str] = None,
     follow: bool = False,
     grep_pattern: Optional[str] = None,
     since_minutes: Optional[int] = None,
@@ -474,8 +479,10 @@ async def log_tail(
     Tail and search log files.
     
     Args:
-        log_path: Path to log file
+        log_file: Path to log file
         lines: Number of lines to retrieve
+        pattern: Substring/regex filter for lines (compat with server API)
+        log_path: Compatibility alias for log_file
         follow: Stream mode (not implemented for MCP, returns last N lines)
         grep_pattern: Filter lines matching pattern
         since_minutes: Only return lines from last N minutes
@@ -486,26 +493,28 @@ async def log_tail(
     start = time.perf_counter()
     
     try:
-        path = Path(log_path)
+        selected_path = log_path or log_file
+        selected_pattern = grep_pattern if grep_pattern is not None else pattern
+        path = Path(selected_path)
         if not path.exists():
-            raise FileNotFoundError(f"Log file not found: {log_path}")
-        
+            raise FileNotFoundError(f"Log file not found: {selected_path}")
+
         if not path.is_file():
-            raise ValueError(f"Path is not a file: {log_path}")
+            raise ValueError(f"Path is not a file: {selected_path}")
         
         # Use tail command for efficiency
         cmd = ['tail', '-n', str(lines), str(path)]
-        stdout, stderr, rc = _run_cmd(cmd, timeout=5.0)
-        
-        if rc != 0:
-            raise RuntimeError(f"tail command failed: {stderr}")
-        
-        log_lines = stdout.strip().split('\n') if stdout.strip() else []
+        stdout, _, rc = _run_cmd(cmd, timeout=5.0)
+        if rc == 0:
+            log_lines = stdout.strip().split('\n') if stdout.strip() else []
+        else:
+            with path.open("r", encoding="utf-8", errors="ignore") as handle:
+                log_lines = [line.rstrip("\n") for line in deque(handle, maxlen=lines)]
         
         # Apply grep filter
-        if grep_pattern:
+        if selected_pattern:
             try:
-                regex = re.compile(grep_pattern, re.IGNORECASE)
+                regex = re.compile(selected_pattern, re.IGNORECASE)
                 log_lines = [line for line in log_lines if regex.search(line)]
             except re.error as e:
                 raise ValueError(f"Invalid regex pattern: {e}")
@@ -530,9 +539,29 @@ async def log_tail(
             level_match = re.search(r'\b(DEBUG|INFO|WARNING|WARN|ERROR|CRITICAL|FATAL)\b', line, re.IGNORECASE)
             if level_match:
                 entry['level'] = level_match.group(1).upper()
-            
+
             parsed_entries.append(entry)
-        
+
+        # Time-window filter: keep entries with parseable timestamps within window.
+        if since_minutes is not None:
+            if since_minutes < 0:
+                raise ValueError("since_minutes must be >= 0")
+
+            cutoff_ts = datetime.now(timezone.utc).timestamp() - (since_minutes * 60)
+            filtered_entries: list[dict[str, Any]] = []
+            for entry in parsed_entries:
+                ts_raw = entry.get("timestamp")
+                if not ts_raw:
+                    continue
+                try:
+                    normalized = ts_raw.replace("Z", "+00:00")
+                    entry_ts = datetime.fromisoformat(normalized).timestamp()
+                    if entry_ts >= cutoff_ts:
+                        filtered_entries.append(entry)
+                except ValueError:
+                    continue
+            parsed_entries = filtered_entries
+
         latency = (time.perf_counter() - start) * 1000
         return ToolResponse(
             tool="log_tail",
@@ -544,7 +573,7 @@ async def log_tail(
                 'lines_returned': len(parsed_entries),
                 'entries': parsed_entries,
                 'filters': {
-                    'grep_pattern': grep_pattern,
+                    'grep_pattern': selected_pattern,
                     'since_minutes': since_minutes,
                 },
             },
@@ -568,8 +597,9 @@ async def log_tail(
 # =============================================================================
 
 async def net_status(
-    check_interfaces: bool = True,
+    check_ports: bool = True,
     check_connections: bool = True,
+    check_interfaces: bool = True,
     check_routing: bool = True,
     target_host: Optional[str] = None,
 ) -> ToolResponse:
@@ -577,6 +607,8 @@ async def net_status(
     Network connectivity and interface status.
     
     Args:
+        check_ports: Include listening/open ports
+        check_connections: Include active socket connections
         check_interfaces: Include network interface status
         check_connections: Include active connections
         check_routing: Include routing table
@@ -611,20 +643,43 @@ async def net_status(
                                 }
             data['interfaces'] = interfaces
         
+        # Open/listening ports
+        if check_ports:
+            stdout, _, rc = _run_cmd(['ss', '-tuln'], timeout=3.0)
+            if rc != 0:
+                stdout, _, rc = _run_cmd(['netstat', '-an'], timeout=3.0)
+            if rc == 0:
+                ports = []
+                lines = stdout.strip().split('\n')
+                for line in lines[1:]:
+                    parts = line.split()
+                    if len(parts) >= 4:
+                        local_addr = parts[4] if parts[0].startswith("tcp") else parts[3] if len(parts) > 3 else ""
+                        ports.append(
+                            {
+                                'protocol': parts[0],
+                                'state': parts[1] if len(parts) > 1 else None,
+                                'local': local_addr,
+                            }
+                        )
+                data['ports'] = ports[:50]
+
         # Active connections
         if check_connections:
-            stdout, _, rc = _run_cmd(['ss', '-tuln'], timeout=3.0)
+            stdout, _, rc = _run_cmd(['ss', '-tan'], timeout=3.0)
+            if rc != 0:
+                stdout, _, rc = _run_cmd(['netstat', '-an'], timeout=3.0)
             if rc == 0:
                 connections = []
                 for line in stdout.strip().split('\n')[1:]:  # Skip header
                     parts = line.split()
-                    if len(parts) >= 5:
+                    if len(parts) >= 4:
                         connections.append({
                             'protocol': parts[0],
-                            'state': parts[1],
-                            'recv_q': parts[2],
-                            'send_q': parts[3],
-                            'local': parts[4],
+                            'state': parts[1] if len(parts) > 1 else None,
+                            'recv_q': parts[2] if len(parts) > 2 else None,
+                            'send_q': parts[3] if len(parts) > 3 else None,
+                            'local': parts[4] if len(parts) > 4 else None,
                             'peer': parts[5] if len(parts) > 5 else None,
                         })
                 data['connections'] = connections[:20]  # Limit output
@@ -632,6 +687,8 @@ async def net_status(
         # Routing table
         if check_routing:
             stdout, _, rc = _run_cmd(['ip', 'route'], timeout=2.0)
+            if rc != 0:
+                stdout, _, rc = _run_cmd(['route', 'print'], timeout=2.0)
             if rc == 0:
                 routes = []
                 for line in stdout.strip().split('\n'):
@@ -648,11 +705,20 @@ async def net_status(
         # Ping test
         if target_host:
             stdout, _, rc = _run_cmd(['ping', '-c', '3', '-W', '2', target_host], timeout=8.0)
+            if rc != 0:
+                stdout, _, rc = _run_cmd(['ping', '-n', '3', target_host], timeout=8.0)
             data['ping_test'] = {
                 'target': target_host,
                 'success': rc == 0,
                 'output': stdout[-500:] if stdout else None,  # Last 500 chars
             }
+
+        data['summary'] = {
+            'ports_count': len(data.get('ports', [])),
+            'connections_count': len(data.get('connections', [])),
+            'interfaces_count': len(data.get('interfaces', {})),
+            'routing_count': len(data.get('routing', [])),
+        }
         
         latency = (time.perf_counter() - start) * 1000
         return ToolResponse(
@@ -696,14 +762,33 @@ async def config_flags(
         ToolResponse with configuration data
     """
     start = time.perf_counter()
-    data = {'files': {}, 'environment': {}}
-    
+    data: dict[str, Any] = {'files': {}, 'environment': {}}
+
     try:
+        def _is_sensitive_key(key: str) -> bool:
+            lowered = key.lower()
+            return any(s in lowered for s in ['key', 'secret', 'pass', 'token', 'pwd'])
+
+        def _masked_value(key: str, value: str) -> str:
+            if include_secrets or not _is_sensitive_key(key):
+                return value
+            return '***masked***'
+
+        def _detect_repo_root() -> Path:
+            env_root = os.environ.get("ARIFOS_ROOT")
+            if env_root:
+                return Path(env_root).resolve()
+            cwd = Path.cwd().resolve()
+            for candidate in [cwd] + list(cwd.parents):
+                if (candidate / "pyproject.toml").exists():
+                    return candidate
+            return cwd
+
         # Parse config file
         if config_path:
             path = Path(config_path)
             if path.exists():
-                content = path.read_text()
+                content = path.read_text(encoding="utf-8", errors="ignore")
                 suffix = path.suffix.lower()
                 
                 if suffix == '.json':
@@ -720,35 +805,65 @@ async def config_flags(
                         line = line.strip()
                         if line and not line.startswith('#') and '=' in line:
                             key, _, value = line.partition('=')
-                            if include_secrets or not any(s in key.lower() for s in ['key', 'secret', 'pass', 'token', 'pwd']):
-                                env_vars[key] = value
-                            else:
-                                env_vars[key] = '***masked***'
+                            env_vars[key] = _masked_value(key, value)
                     data['files'][str(path)] = env_vars
+                elif suffix == '.toml':
+                    try:
+                        import tomllib
+
+                        data['files'][str(path)] = tomllib.loads(content)
+                    except Exception:
+                        data['files'][str(path)] = {
+                            'note': 'TOML parse failed',
+                            'size_bytes': len(content.encode('utf-8')),
+                        }
                 else:
-                    data['files'][str(path)] = {'raw': content[:2000]}
+                    # Never expose raw contents for unknown file types by default.
+                    data['files'][str(path)] = {
+                        'note': 'unsupported file type',
+                        'suffix': suffix or None,
+                        'size_bytes': len(content.encode('utf-8')),
+                    }
+            else:
+                data['files'][str(path)] = {'error': 'file_not_found'}
         
         # Environment variables
         if env_prefix:
             for key, value in os.environ.items():
                 if key.startswith(env_prefix):
-                    if include_secrets or not any(s in key.lower() for s in ['key', 'secret', 'pass', 'token', 'pwd']):
-                        data['environment'][key] = value
-                    else:
-                        data['environment'][key] = '***masked***'
+                    data['environment'][key] = _masked_value(key, value)
         
-        # Check for common config files in arifOS
-        arifos_root = Path('/root/arifOS')
+        # Check for common config files in arifOS/root
+        arifos_root = _detect_repo_root()
         common_configs = [
             'pyproject.toml',
             '.env',
             'requirements.txt',
+            'railway.toml',
         ]
+        detected: list[str] = []
         for cfg in common_configs:
             cfg_path = arifos_root / cfg
             if cfg_path.exists() and str(cfg_path) != str(config_path or ''):
-                data['files']['detected'] = data['files'].get('detected', [])
-                data['files']['detected'].append(str(cfg_path))
+                detected.append(str(cfg_path))
+        data['files']['detected'] = detected
+
+        mode = (
+            os.environ.get("ARIFOS_MODE")
+            or os.environ.get("ARIFOS_GOVERNANCE_MODE")
+            or ("LAB" if os.environ.get("ARIFOS_LAB_MODE", "").lower() in {"1", "true", "yes"} else "HARD")
+        )
+        feature_flags = {
+            key: _masked_value(key, value)
+            for key, value in os.environ.items()
+            if key.startswith("ARIFOS_FEATURE_")
+        }
+        data['governance'] = {
+            'mode': mode,
+            'mode_source': 'env',
+            'feature_flags': feature_flags,
+            'repo_root': str(arifos_root),
+        }
         
         latency = (time.perf_counter() - start) * 1000
         return ToolResponse(
@@ -885,7 +1000,11 @@ async def chroma_query(
 # =============================================================================
 
 async def cost_estimator(
-    operation_type: str,
+    action_description: str = "",
+    estimated_cpu_percent: float = 0.0,
+    estimated_ram_mb: float = 0.0,
+    estimated_io_mb: float = 0.0,
+    operation_type: str = "compute",
     token_count: Optional[int] = None,
     compute_seconds: Optional[float] = None,
     storage_gb: Optional[float] = None,
@@ -897,6 +1016,10 @@ async def cost_estimator(
     Estimate costs for AI operations and infrastructure usage.
     
     Args:
+        action_description: Free-form action description for C7 output
+        estimated_cpu_percent: Estimated CPU usage percentage
+        estimated_ram_mb: Estimated RAM usage in MB
+        estimated_io_mb: Estimated I/O impact in MB
         operation_type: Type of operation (llm, embedding, storage, compute)
         token_count: Number of tokens (input + output)
         compute_seconds: Compute time in seconds
@@ -998,18 +1121,40 @@ async def cost_estimator(
             costs['api_cost_usd'], 
             6
         )
-        
+
+        # C7 thermodynamic cost proxy (0..1)
+        cpu_score = max(0.0, min(1.0, estimated_cpu_percent / 100.0))
+        ram_score = max(0.0, min(1.0, estimated_ram_mb / 8192.0))
+        io_score = max(0.0, min(1.0, estimated_io_mb / 2048.0))
+        thermo_score = round((0.5 * cpu_score) + (0.3 * ram_score) + (0.2 * io_score), 4)
+        if thermo_score >= 0.8:
+            risk_band = "red"
+        elif thermo_score >= 0.5:
+            risk_band = "amber"
+        else:
+            risk_band = "green"
+
         latency = (time.perf_counter() - start) * 1000
         return ToolResponse(
             tool="cost_estimator",
             status="ok",
             timestamp=_now(),
             data={
+                'action_description': action_description,
                 'operation_type': operation_type,
                 'provider': provider,
                 'model': model,
                 'costs': costs,
                 'breakdown': breakdown,
+                'resource_estimate': {
+                    'estimated_cpu_percent': estimated_cpu_percent,
+                    'estimated_ram_mb': estimated_ram_mb,
+                    'estimated_io_mb': estimated_io_mb,
+                },
+                'thermodynamic': {
+                    'cost_score': thermo_score,
+                    'risk_band': risk_band,
+                },
                 'note': 'Estimates are approximate. Actual costs may vary.',
             },
             latency_ms=round(latency, 2)
@@ -1032,21 +1177,27 @@ async def cost_estimator(
 # =============================================================================
 
 async def forge_guard(
-    action: str,
-    target: str,
-    session_id: str,
+    check_system_health: bool = True,
+    cost_score_threshold: float = 0.8,
+    cost_score_to_check: float = 0.0,
+    action: str = "",
+    target: str = "",
+    session_id: str = "",
     risk_level: str = "low",  # low | medium | high | critical
     justification: str = "",
     dry_run: bool = True,
     require_approval: bool = False,
 ) -> ToolResponse:
     """
-    Forge guard — the only ACLIP_CAI tool with write/decision capability.
+    Forge guard — local circuit breaker for ACLIP_CAI.
     
     Evaluates gating decisions for actions that could modify system state.
     This is the integration point with aaa-mcp 9-law pipeline.
     
     Args:
+        check_system_health: Include host pressure checks from C0
+        cost_score_threshold: Threshold for SABAR/hold gate
+        cost_score_to_check: Caller-provided C7 score
         action: Action to evaluate (deploy, modify, delete, execute)
         target: Target resource (path, service, config)
         session_id: aaa-mcp session ID for correlation
@@ -1056,11 +1207,41 @@ async def forge_guard(
         require_approval: If True, mandate human approval
     
     Returns:
-        ToolResponse with verdict (SEAL/VOID/PARTIAL/SABAR)
+        ToolResponse with local gate outcome (OK/SABAR/VOID_LOCAL)
     """
     start = time.perf_counter()
     
     try:
+        gate = "OK"
+        reason_code = "CLEAR"
+        can_proceed = True
+
+        # Optional host-pressure check
+        host_hot = False
+        host_signals: dict[str, Any] = {}
+        if check_system_health:
+            health = await system_health(include_swap=True, include_io=False, include_temp=False)
+            if health.status == "ok":
+                load_1m = float(health.data.get("cpu", {}).get("load_1m", 0))
+                cores = int(health.data.get("cpu", {}).get("cores", 1)) or 1
+                mem_pct = float(health.data.get("memory", {}).get("usage_percent", 0))
+                host_signals = {
+                    "load_1m": load_1m,
+                    "cores": cores,
+                    "memory_usage_percent": mem_pct,
+                }
+                host_hot = (load_1m / cores) > 1.5 or mem_pct > 90.0
+
+        if host_hot:
+            gate = "SABAR"
+            reason_code = "HOST_HOT"
+            can_proceed = False
+
+        if cost_score_to_check >= cost_score_threshold and gate != "VOID_LOCAL":
+            gate = "SABAR"
+            reason_code = "COST_THRESHOLD_EXCEEDED"
+            can_proceed = False
+
         # Risk-based gate evaluation
         GATE_THRESHOLDS = {
             'low': {'auto_approve': True, 'max_scope': 'single_file'},
@@ -1070,24 +1251,13 @@ async def forge_guard(
         }
         
         threshold = GATE_THRESHOLDS.get(risk_level, GATE_THRESHOLDS['critical'])
-        
-        # Build verdict
-        if risk_level == 'critical' or require_approval:
-            verdict = '888_HOLD'
-            status = 'hold'
-            can_proceed = False
-        elif risk_level == 'high':
-            verdict = 'SABAR'
-            status = 'repair_required'
-            can_proceed = not dry_run  # Can proceed after review
-        elif risk_level == 'medium':
-            verdict = 'PARTIAL'
-            status = 'warning'
-            can_proceed = dry_run  # Only in dry-run mode
-        else:
-            verdict = 'SEAL'
-            status = 'approved'
-            can_proceed = True
+
+        # Elevate based on explicit risk gate
+        if risk_level in {"high", "critical"} or require_approval:
+            if gate == "OK":
+                gate = "SABAR"
+                reason_code = "RISK_REVIEW_REQUIRED"
+                can_proceed = False
         
         # Check for forbidden patterns
         forbidden_patterns = [
@@ -1102,10 +1272,17 @@ async def forge_guard(
         for pattern in forbidden_patterns:
             if re.search(pattern, target, re.IGNORECASE) or re.search(pattern, action, re.IGNORECASE):
                 danger_detected = True
-                verdict = 'VOID'
-                status = 'blocked'
+                gate = "VOID_LOCAL"
+                reason_code = "FORBIDDEN_PATTERN"
                 can_proceed = False
                 break
+
+        # Legacy alias for downstream compatibility
+        verdict_alias = {
+            "OK": "SEAL",
+            "SABAR": "SABAR",
+            "VOID_LOCAL": "VOID",
+        }[gate]
         
         latency = (time.perf_counter() - start) * 1000
         return ToolResponse(
@@ -1113,7 +1290,8 @@ async def forge_guard(
             status="ok",
             timestamp=_now(),
             data={
-                'verdict': verdict,
+                'gate': gate,
+                'reason_code': reason_code,
                 'action': action,
                 'target': target,
                 'session_id': session_id,
@@ -1121,8 +1299,12 @@ async def forge_guard(
                 'can_proceed': can_proceed,
                 'dry_run': dry_run,
                 'danger_detected': danger_detected,
+                'cost_score_threshold': cost_score_threshold,
+                'cost_score_to_check': cost_score_to_check,
+                'host_signals': host_signals,
                 'approval_required': not threshold['auto_approve'] or require_approval,
                 'justification': justification,
+                'verdict': verdict_alias,
                 'recommendations': [
                     'Review target scope before execution',
                     'Ensure backup is available',

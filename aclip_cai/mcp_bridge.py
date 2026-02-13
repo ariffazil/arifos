@@ -23,9 +23,6 @@ from typing import Optional, Any
 import json
 
 from aaa_mcp.server import mcp
-from aaa_mcp.core.constitutional_decorator import constitutional_floor, get_tool_floors
-from aaa_mcp.services.constitutional_metrics import ConflictStatus
-
 from .console_tools import (
     system_health,
     process_list,
@@ -108,8 +105,9 @@ async def aclip_process_list(
 
 @mcp.tool()
 async def aclip_fs_inspect(
-    path: str = "/root/arifOS",
-    max_depth: int = 2,
+    path: str = ".",
+    depth: int = 1,
+    max_depth: Optional[int] = None,
     include_hidden: bool = False,
     min_size_bytes: int = 0,
     pattern: Optional[str] = None,
@@ -122,7 +120,8 @@ async def aclip_fs_inspect(
     
     Args:
         path: Root path to inspect
-        max_depth: Maximum directory depth to traverse
+        depth: Maximum directory depth to traverse
+        max_depth: Compatibility alias for depth
         include_hidden: Include hidden files
         min_size_bytes: Minimum file size to include
         pattern: Glob pattern to filter files (e.g., "*.py")
@@ -133,6 +132,7 @@ async def aclip_fs_inspect(
     """
     result = await fs_inspect(
         path=path,
+        depth=depth,
         max_depth=max_depth,
         include_hidden=include_hidden,
         min_size_bytes=min_size_bytes,
@@ -144,8 +144,10 @@ async def aclip_fs_inspect(
 
 @mcp.tool()
 async def aclip_log_tail(
-    log_path: str,
+    log_file: str = "aaa_mcp.log",
     lines: int = 50,
+    pattern: str = "",
+    log_path: Optional[str] = None,
     grep_pattern: Optional[str] = None,
     since_minutes: Optional[int] = None,
 ) -> dict:
@@ -155,8 +157,10 @@ async def aclip_log_tail(
     Console-only tool. No constitutional floors. Log introspection.
     
     Args:
-        log_path: Path to log file
+        log_file: Path to log file
         lines: Number of lines to retrieve
+        pattern: Filter lines matching regex pattern
+        log_path: Compatibility alias for log_file
         grep_pattern: Filter lines matching regex pattern
         since_minutes: Only return lines from last N minutes
     
@@ -164,8 +168,10 @@ async def aclip_log_tail(
         Log entries with parsed metadata
     """
     result = await log_tail(
-        log_path=log_path,
+        log_file=log_file,
         lines=lines,
+        pattern=pattern,
+        log_path=log_path,
         grep_pattern=grep_pattern,
         since_minutes=since_minutes,
     )
@@ -174,8 +180,9 @@ async def aclip_log_tail(
 
 @mcp.tool()
 async def aclip_net_status(
-    check_interfaces: bool = True,
+    check_ports: bool = True,
     check_connections: bool = True,
+    check_interfaces: bool = True,
     check_routing: bool = True,
     target_host: Optional[str] = None,
 ) -> dict:
@@ -185,8 +192,9 @@ async def aclip_net_status(
     Console-only tool. No constitutional floors. Network introspection.
     
     Args:
-        check_interfaces: Include network interface status
+        check_ports: Include listening/open ports
         check_connections: Include active connections
+        check_interfaces: Include network interface status
         check_routing: Include routing table
         target_host: Optional host to ping test
     
@@ -194,8 +202,9 @@ async def aclip_net_status(
         Network status and diagnostics
     """
     result = await net_status(
-        check_interfaces=check_interfaces,
+        check_ports=check_ports,
         check_connections=check_connections,
+        check_interfaces=check_interfaces,
         check_routing=check_routing,
         target_host=target_host,
     )
@@ -265,7 +274,11 @@ async def aclip_chroma_query(
 
 @mcp.tool()
 async def aclip_cost_estimator(
-    operation_type: str,
+    action_description: str,
+    estimated_cpu_percent: float = 0.0,
+    estimated_ram_mb: float = 0.0,
+    estimated_io_mb: float = 0.0,
+    operation_type: str = "compute",
     token_count: Optional[int] = None,
     compute_seconds: Optional[float] = None,
     storage_gb: Optional[float] = None,
@@ -279,6 +292,10 @@ async def aclip_cost_estimator(
     Console-only tool. No constitutional floors. Cost projection.
     
     Args:
+        action_description: Description of planned action
+        estimated_cpu_percent: Estimated CPU usage percentage
+        estimated_ram_mb: Estimated RAM usage in MB
+        estimated_io_mb: Estimated I/O impact in MB
         operation_type: Type of operation (llm, embedding, storage, compute)
         token_count: Number of tokens
         compute_seconds: Compute time in seconds
@@ -291,6 +308,10 @@ async def aclip_cost_estimator(
         Cost breakdown in USD
     """
     result = await cost_estimator(
+        action_description=action_description,
+        estimated_cpu_percent=estimated_cpu_percent,
+        estimated_ram_mb=estimated_ram_mb,
+        estimated_io_mb=estimated_io_mb,
         operation_type=operation_type,
         token_count=token_count,
         compute_seconds=compute_seconds,
@@ -303,23 +324,27 @@ async def aclip_cost_estimator(
 
 
 @mcp.tool()
-@constitutional_floor("F1", "F7", "F11")  # Forge guard needs constitutional oversight
 async def aclip_forge_guard(
-    action: str,
-    target: str,
-    session_id: str,
+    check_system_health: bool = True,
+    cost_score_threshold: float = 0.8,
+    cost_score_to_check: float = 0.0,
+    action: str = "",
+    target: str = "",
+    session_id: str = "",
     risk_level: str = "low",
     justification: str = "",
     dry_run: bool = True,
     require_approval: bool = False,
 ) -> dict:
     """
-    [ACLIP_CAI] Forge guard — gating decisions for system modifications.
-    
-    The ONLY ACLIP_CAI tool with constitutional floors (F1, F7, F11).
-    Evaluates and gates actions that modify system state.
+    [ACLIP_CAI] Forge guard — local circuit breaker.
+
+    Evaluates local host/cost/risk signals and returns gate-only outcomes.
     
     Args:
+        check_system_health: Include C0 host pressure checks
+        cost_score_threshold: Threshold for SABAR gate
+        cost_score_to_check: Caller-provided C7 score
         action: Action to evaluate (deploy, modify, delete, execute)
         target: Target resource (path, service, config)
         session_id: aaa-mcp session ID
@@ -329,9 +354,12 @@ async def aclip_forge_guard(
         require_approval: Mandate human approval
     
     Returns:
-        Verdict (SEAL/VOID/PARTIAL/SABAR/888_HOLD) with recommendations
+        Gate decision (OK/SABAR/VOID_LOCAL) with recommendations
     """
     result = await forge_guard(
+        check_system_health=check_system_health,
+        cost_score_threshold=cost_score_threshold,
+        cost_score_to_check=cost_score_to_check,
         action=action,
         target=target,
         session_id=session_id,
@@ -341,12 +369,9 @@ async def aclip_forge_guard(
         require_approval=require_approval,
     )
     
-    # Wrap in constitutional envelope
     response = result.to_dict()
     response["motto"] = "DITEMPA BUKAN DIBERI 🔥"
-    response["floors_enforced"] = get_tool_floors("aclip_forge_guard")
     response["pass"] = "forward" if result.data.get("can_proceed") else "hold"
-    
     return response
 
 
