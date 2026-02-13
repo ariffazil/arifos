@@ -7,3 +7,6 @@ starlette>=0.30.0
 pydantic>=2.0.0
 anyio>=4.0.0
 httpx>=0.25.0
+
+# System monitoring for ACLIP_CAI senses
+psutil>=5.9.0
