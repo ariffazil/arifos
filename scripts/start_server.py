@@ -70,7 +70,19 @@ async def sse_endpoint(request):
 
 # Handler for POST messages
 async def messages_endpoint(request):
-    return await sse.handle_post_message(request.scope, request.receive, request.send)
+    """Handle JSON-RPC POST messages for MCP tools.
+
+    Starlette's Request object wraps the underlying ASGI ``send`` callable
+    on a private ``_send`` attribute. The SseServerTransport expects the
+    raw ASGI ``send`` function, so we must pass ``request._send`` here
+    (similar to the SSE endpoint) instead of the non-existent
+    ``request.send`` attribute which causes AttributeError in production.
+    """
+    return await sse.handle_post_message(
+        request.scope,
+        request.receive,
+        request._send,  # type: ignore[attr-defined]
+    )
 
 # Create Starlette app with routes
 app = Starlette(
