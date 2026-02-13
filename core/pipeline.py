@@ -324,7 +324,7 @@ async def forge(
         "seal",
         judge_output=apex_dict.get("judge", apex_dict),
         agi_tensor=agi_tensor,
-        asi_output=asi_out,
+        asi_output=asi_dict,
         session_id=token.session_id,
         query=query,
     )
