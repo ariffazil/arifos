@@ -144,7 +144,7 @@ Motto: DITEMPA BUKAN DIBERI
 # 5 CORE CONSTITUTIONAL ORGANS
 # =============================================================================
 
-@mcp.tool(annotations=TOOL_ANNOTATIONS["init_session"])
+@mcp.tool(name="init_session", description="000_INIT - Session ignition")
 @constitutional_floor("F11", "F12")
 async def init_session(
     query: str,
@@ -238,7 +238,7 @@ async def init_session(
 from aaa_mcp.core.heuristics import calculate_system_state
 from aaa_mcp.core.state import SystemState, Profile
 
-@mcp.tool(annotations=TOOL_ANNOTATIONS["agi_cognition"])
+@mcp.tool(name="agi_cognition", description="111-333_AGI - The Mind")
 @constitutional_floor("F2", "F4", "F7", "F8", "F10")
 async def agi_cognition(
     query: str,
@@ -429,7 +429,7 @@ async def agi_cognition(
     return output
 
 
-@mcp.tool(annotations=TOOL_ANNOTATIONS["asi_empathy"])
+@mcp.tool(name="asi_empathy", description="444-555_ASI - The Heart")
 @constitutional_floor("F1", "F5", "F6", "F9")
 async def asi_empathy(
     query: str,
@@ -517,7 +517,7 @@ async def asi_empathy(
     return output
 
 
-@mcp.tool(annotations=TOOL_ANNOTATIONS["apex_verdict"])
+@mcp.tool(name="apex_verdict", description="666-888_APEX - The Judge")
 @constitutional_floor("F2", "F3", "F8", "F10", "F11", "F12", "F13")
 async def apex_verdict(
     query: str,
@@ -641,7 +641,7 @@ async def apex_verdict(
     return output
 
 
-@mcp.tool(annotations=TOOL_ANNOTATIONS["vault_seal"])
+@mcp.tool(name="vault_seal", description="999_VAULT - Immutable Record")
 @constitutional_floor("F1", "F3")
 async def vault_seal(
     session_id: str,
@@ -720,6 +720,44 @@ async def vault_seal(
             "seal_algorithm": "SHA256",
             "witness_count": 3,
         }
+
+    # F1: Persist to VAULT999 (PostgreSQL)
+    try:
+        import asyncpg
+        import os
+        
+        db_url = os.getenv("DATABASE_URL", "postgresql://localhost/arifos_vault")
+        conn = await asyncpg.connect(db_url)
+        
+        # Get previous hash for Merkle chain
+        prev_row = await conn.fetchrow(
+            "SELECT entry_hash FROM vault_entries ORDER BY id DESC LIMIT 1"
+        )
+        prev_hash = prev_row["entry_hash"] if prev_row else "GENESIS"
+        
+        # Calculate Merkle root (simplified: hash of current + prev)
+        merkle_root = hashlib.sha256(
+            f"{seal_hash}:{prev_hash}".encode()
+        ).hexdigest()[:16]
+        
+        # Insert to VAULT
+        await conn.execute("""
+            INSERT INTO vault_entries 
+            (session_id, seal_id, verdict, risk_level, category, 
+             seal_data, entry_hash, prev_hash, merkle_root)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        """, session_id, seal_id, verdict, risk_level, category,
+             seal_data, seal_hash, prev_hash, merkle_root)
+        
+        await conn.close()
+        output["vault_status"] = "PERSISTED"
+        output["merkle_root"] = merkle_root
+        output["prev_hash"] = prev_hash
+        
+    except Exception as e:
+        # F1 Degraded: Log but don't fail (SQLite fallback in future)
+        output["vault_status"] = "DEGRADED"
+        output["vault_error"] = str(e)
 
     return output
 
