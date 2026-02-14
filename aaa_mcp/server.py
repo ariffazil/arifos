@@ -22,6 +22,10 @@ import uuid
 from dataclasses import asdict, is_dataclass
 from typing import Any, Optional
 
+from dotenv import load_dotenv
+
+load_dotenv()  # Load secrets from .env
+
 from fastmcp import FastMCP
 
 from aaa_mcp.capabilities.t6_web_search import EvidenceArtifact, brave_search
@@ -270,5 +274,6 @@ async def get_floor_spec(floor_id: str) -> str:
 # =============================================================================
 
 if __name__ == "__main__":
+    mcp.run()
     mcp.run()
     mcp.run()
