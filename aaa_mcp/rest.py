@@ -41,6 +41,7 @@ from starlette.requests import Request
 
 # Import tools directly from server module (avoid mcp wrapper issues)
 from aaa_mcp.server import anchor, reason, integrate, respond, validate, align, forge, audit, seal
+from aaa_mcp.integrations.self_ops import self_diagnose
 
 # Build info
 BUILD_INFO = {
@@ -61,6 +62,7 @@ TOOLS = {
     "forge": forge,
     "audit": audit,
     "seal": seal,
+    "self_diagnose": self_diagnose,
 }
 
 # Tool schemas with enums (ChatGPT feedback: schema hardening)
@@ -130,6 +132,12 @@ TOOL_SCHEMAS = {
             "grounding": {"type": "array|null", "default": None},
             "auto_seal": {"type": "boolean", "default": False},
             "debug": {"type": "boolean", "default": False},
+        }
+    },
+    "self_diagnose": {
+        "description": "SELF_OPS — Infrastructure health check, protocol compatibility, auto-remediation (non-constitutional)",
+        "args": {
+            "base_url": {"type": "string|null", "required": False, "default": None, "description": "Optional custom base URL to diagnose"},
         }
     },
 }
@@ -204,6 +212,38 @@ async def metrics_endpoint(request: Request):
         "errors": metrics.errors,
         "active_sessions": len(active_sessions),
     })
+
+
+async def well_known_mcp_server_json(request: Request):
+    """Serve MCP server.json for registry auto-discovery.
+    
+    Endpoint: /.well-known/mcp/server.json
+    Used by MCP Registry for automatic server discovery and updates.
+    """
+    try:
+        # Try static directory first (for production deployments)
+        static_path = os.path.join(os.path.dirname(__file__), "..", "static", ".well-known", "mcp", "server.json")
+        # Fallback to repo root (for development)
+        root_path = os.path.join(os.path.dirname(__file__), "..", "server.json")
+        
+        if os.path.exists(static_path):
+            with open(static_path, "r") as f:
+                content = json.load(f)
+        elif os.path.exists(root_path):
+            with open(root_path, "r") as f:
+                content = json.load(f)
+        else:
+            return JSONResponse(
+                {"error": "server.json not found"},
+                status_code=404
+            )
+        
+        return JSONResponse(content)
+    except Exception as e:
+        return JSONResponse(
+            {"error": f"Failed to load server.json: {str(e)}"},
+            status_code=500
+        )
 
 
 async def list_tools(request: Request):
@@ -441,11 +481,13 @@ async def route_info(request: Request):
 # Create Starlette app with REST routes
 routes = [
     Route("/", route_info, methods=["GET"]),
+    Route("/.well-known/mcp/server.json", well_known_mcp_server_json, methods=["GET"]),
     Route("/health", health, methods=["GET"]),
     Route("/ready", ready, methods=["GET"]),
     Route("/version", version, methods=["GET"]),
     Route("/metrics", metrics_endpoint, methods=["GET"]),
     Route("/tools", list_tools, methods=["GET"]),
+    Route("/self_diagnose", self_diagnose, methods=["GET"]),
     Route("/tools/{tool_name}", call_tool, methods=["POST"]),
     Route("/{tool_name}", call_tool, methods=["POST"]),  # Root path for direct tool calls
     Route("/apex_judge", apex_judge_wrapper, methods=["POST"]),

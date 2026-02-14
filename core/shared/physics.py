@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import math
 import statistics
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
 # =============================================================================
@@ -41,11 +41,8 @@ class Stakeholder:
     """Stakeholder with vulnerability assessment."""
 
     name: str
-    role: str
-    vulnerability_score: float  # [0, 1], higher = more vulnerable
-
-    def __post_init__(self):
-        self.vulnerability_score = max(0.0, min(1.0, self.vulnerability_score))
+    role: str = "unknown"
+    vulnerability_score: float = field(default=0.5)  # 0.0 (resilient) to 1.0 (highly vulnerable)
 
 
 # Distress signals for empathy calculation
