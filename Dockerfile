@@ -1,9 +1,9 @@
-# arifOS MCP Server Dockerfile (v65.0-ROUTER)
+# arifOS MCP Server Dockerfile (v65.0-AAA-MCP)
 # Production-ready container for Railway deployment
 # Supports: PostgreSQL (VAULT999), Redis (MindVault), SSE transport
-# v65.0 Features: arifos-router gateway, AAA-MCP + ACLIP-CAI backends
+# v65.0 Features: AAA-MCP directly (no router)
 #
-# CACHE BUST: 2026-02-14T04-25-00Z (Force Railway rebuild)
+# CACHE BUST: 2026-02-14T05-30-00Z (Force Railway rebuild)
 #
 # Build: docker build -t arifos-governed-backend .
 # Run:   docker run -p 8080:8080 --env-file .env arifos-governed-backend
@@ -37,8 +37,6 @@ COPY ARCHITECTURE.md .
 COPY scripts/start_server.py scripts/start_server.py
 COPY core/ core/
 COPY aaa_mcp/ aaa_mcp/
-# v65.0: Router removed - using aaa_mcp directly (faster, less deps)
-COPY arifos_router.py .
 # NOTE: aclip_cai/ not copied — deployed separately on Hostinger (F13 Sovereignty)
 
 # Clear Python cache to ensure fresh imports
