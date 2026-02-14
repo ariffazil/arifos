@@ -17,7 +17,7 @@ from typing import Any, Dict, Optional
 from uuid import uuid4
 
 try:
-    from codebase.vault.eureka_sieve_hardened import HardenedAnomalousContrastEngine
+    from aaa_mcp.vault.hardened import HardenedAnomalousContrastEngine
 except ImportError:
     HardenedAnomalousContrastEngine = None
 

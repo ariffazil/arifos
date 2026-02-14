@@ -1,6 +1,35 @@
 [project]
 name = "arifos"
-version = "60.1.0"
+version = "64.1.0"
+# v64.1-GAGI: Governed AGI Infrastructure (2026-02-13)
+#   - Uncertainty Engine: 5-dimensional vector with harmonic/geometric mean
+#   - Governance Kernel: Unified GovernanceState with conditional AWAITING_888
+#   - Telemetry: 30-day locked adaptation with drift tracking
+#   - F4 Fixes: /sse and /messages endpoints return proper Response objects
+#   - Module path fix: sys.path.insert(0, os.getcwd()) prevents site-packages shadowing
+#   - Status: GAGI RUNTIME OPERATIONAL
+# v62.0-STATE: SystemState Exposure for Cognitive Runtime (2026-02-13)
+#   - SystemState dataclass: uncertainty, risk, grounding, loop_count, profile
+#   - Heuristics module: Cheap, reversible signals (not fake metrics)
+#     - detect_profile(): factual/creative/crisis/routine
+#     - estimate_uncertainty(): linguistic signals (absolutist/uncertain/question)
+#     - estimate_risk(): stakeholder impact from keywords
+#     - estimate_grounding(): 0.0 placeholder (Step 2: real T6 evidence)
+#   - agi_cognition: Returns system_state with real uncertainty calculation
+#   - truth_score now derived from uncertainty (contrast test ready)
+#   - omega_0 now from uncertainty (not hardcoded)
+#   - Foundation: Meta-scheduler preparation (Step 4)
+#   - Status: STEP 1 COMPLETE — Ready for Step 2 (Real T6)
+# v61.0-FORGE: 5-Core Constitutional Architecture (2026-02-13)
+#   - 5-Core Kernel: init_session, agi_cognition, asi_empathy, apex_verdict, vault_seal
+#   - Trinity Pipeline: 000_INIT → 111-333_AGI(Δ) → 555-666_ASI(Ω) → 888_APEX(Ψ) → 999_VAULT(🔒)
+#   - 21-Tool Weave: 5 Core + 16 Capability Modules (T6-T21)
+#   - Unified AGI: sense + think + reason → agi_cognition
+#   - Unified ASI: empathize + align → asi_empathy
+#   - Capability Router: Ring 0 (Core) → Ring 3 (Extensions) with F1-F13 enforcement
+#   - T15 Localization: MY/SEA support (ms-MY, en-GB, zh-CN, ta-IN)
+#   - Code Reduction: 83% lines removed (3647 → 797) while preserving all floors
+#   - Status: SEAL — 5-Core Constitutional Kernel ready for production
 # v60.1-ACLIP_CAI: 9-Sense Nervous System (2026-02-13)
 #   - ACLIP_CAI: Console Intelligence & Perception Console
 #   - 9-Tool Nervous System: system_health, process_list, fs_inspect,
@@ -167,13 +196,18 @@ all = [
 ]
 
 [project.scripts]
-# AAA MCP Server Commands (v60.0-FORGE) - Unified pipeline, 10-tool canon
+# AAA MCP Server Commands (v64.1-GAGI) - 5-Core Constitutional Architecture
 # Usage: aaa-mcp [stdio|sse|http]  (default: stdio)
 aaa-mcp = "aaa_mcp.__main__:main"
 
 # ACLIP_CAI Console Intelligence Tools (v1.0.0)
-# The 9-Sense Nervous System for arifOS Infrastructure
+# The 10-Sense Nervous System for arifOS Infrastructure
 aclip-cai = "aclip_cai.cli:main"
+aclip-server = "aclip_cai.server:main"  # MCP server mode
+
+# arifOS Router (v65.0-ROUTER) - Unified Gateway
+# Single entry point for Constitutional + Sensory tools
+arifos-router = "arifos_router:main"
 
 # Legacy arifos commands (DEPRECATED - will be removed in v54)
 # arifos-mcp = "arifos.mcp.__main__:main"

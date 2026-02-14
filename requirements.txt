@@ -1,12 +1,23 @@
-# Railway pre-install (main deps come from pip install -e . in Dockerfile)
-fastmcp>=2.0
-uvicorn[standard]>=0.24.0
-# sentence-transformers>=2.2.0
-mcp>=1.0.0
-starlette>=0.30.0
-pydantic>=2.0.0
-anyio>=4.0.0
-httpx>=0.25.0
+# arifOS AAA MCP Server
+# Constitutional AI Governance Framework
 
-# System monitoring for ACLIP_CAI senses
-psutil>=5.9.0
+# Core dependencies
+fastmcp>=1.0,<2.0.0  # Pinned: SCAR-002 - v2 API drift, upgrade in v65.1
+pydantic>=2.0.0
+httpx>=0.24.0
+
+# Database (F1 Amanah)
+asyncpg>=0.28.0  # PostgreSQL VAULT999
+
+# NOTE: ACLIP Tactics Layer deps (psutil, brave-search) removed from Railway
+# ACLIP deployed on Hostinger VPS (hybrid topology — F13 Sovereignty)
+# See: arifOS/aclip_cai/requirements.txt for Hostinger deployment
+
+# Constitutional enforcement
+# arifos>=0.1.0  # Local constitutional kernel
+
+# Development
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+black>=23.0.0
+ruff>=0.1.0
