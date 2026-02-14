@@ -1,6 +1,51 @@
-# aaa_mcp/legacy/__init__.py
-# Constitutional floors and legacy components
+"""
+Legacy constitutional modules.
+"""
 
-from .floors import THRESHOLDS, CONSTITUTIONAL_VERSION
+from .floors import (
+    THRESHOLDS,
+    FloorResult,
+    Floor,
+    F1_Amanah,
+    F2_Truth,
+    F3_TriWitness,
+    F4_Clarity,
+    F5_Peace2,
+    F6_Empathy,
+    F7_Humility,
+    F8_Genius,
+    F9_AntiHantu,
+    F10_Ontology,
+    F11_CommandAuth,
+    F12_Injection,
+    F13_Sovereign,
+    ALL_FLOORS,
+    check_all_floors,
+    CONSTITUTIONAL_VERSION,
+    EPOCH,
+    AUTHORITY,
+)
 
-__all__ = ["THRESHOLDS", "CONSTITUTIONAL_VERSION"]
+__all__ = [
+    "THRESHOLDS",
+    "FloorResult",
+    "Floor",
+    "F1_Amanah",
+    "F2_Truth",
+    "F3_TriWitness",
+    "F4_Clarity",
+    "F5_Peace2",
+    "F6_Empathy",
+    "F7_Humility",
+    "F8_Genius",
+    "F9_AntiHantu",
+    "F10_Ontology",
+    "F11_CommandAuth",
+    "F12_Injection",
+    "F13_Sovereign",
+    "ALL_FLOORS",
+    "check_all_floors",
+    "CONSTITUTIONAL_VERSION",
+    "EPOCH",
+    "AUTHORITY",
+]

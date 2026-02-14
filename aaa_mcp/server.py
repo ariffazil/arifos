@@ -28,12 +28,14 @@ from typing import Any, Optional
 
 from fastmcp import FastMCP
 
-# v62: SystemState exposure for cognitive runtime
+# v64.1: Import from core/ (kernel) not aaa_mcp.core/ (wrapper)
+from core.uncertainty_engine import UncertaintyEngine, UncertaintyVector, calculate_uncertainty
+from core.governance_kernel import GovernanceKernel, GovernanceState, AuthorityLevel, get_governance_kernel
+from core.telemetry import log_telemetry, check_adaptation_status, telemetry_store
+
+# v62: Keep heuristics in aaa_mcp (wrapper-specific)
 from aaa_mcp.core.heuristics import compute_system_state
 from aaa_mcp.core.state import SystemState, Profile
-from aaa_mcp.core.uncertainty_engine import UncertaintyEngine, UncertaintyVector, calculate_uncertainty
-from aaa_mcp.core.governance_kernel import GovernanceKernel, GovernanceState, AuthorityLevel, get_governance_kernel
-from aaa_mcp.core.telemetry import log_telemetry, check_adaptation_status, telemetry_store
 from aaa_mcp.capabilities.t6_web_search import brave_search, EvidenceArtifact
 
 # v64.1: Initialize engines

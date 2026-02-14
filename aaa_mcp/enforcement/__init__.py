@@ -1,5 +1,6 @@
-# aaa_mcp/enforcement/__init__.py
-# Enforcement and routing components
+"""
+Enforcement modules for constitutional compliance.
+"""
 
 from .routing import route_refuse
 
