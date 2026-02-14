@@ -8,7 +8,7 @@
   <strong>Governance Middleware for AI Systems</strong><br>
   <em>From zero-context prompts to autonomous institutions</em><br><br>
   <a href="https://aaamcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
-  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-64.1.0-blue" alt="Version"></a>
+  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-64.2.0-blue" alt="Version"></a>
   <a href="#tool-overview"><img src="https://img.shields.io/badge/tools-19%20operational-orange" alt="Tools"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
 </p>
@@ -93,7 +93,7 @@ Current AI safety relies on hope:
 arifOS treats safety as **infrastructure**, not **instruction**:
 
 1. 🛑 **Interception** — Every AI query/response passes through arifOS first
-2. 🔍 **Measurement** — Six tools evaluate truth, empathy, uncertainty, evidence, and harm
+2. 🔍 **Measurement** — [Nine tools](#the-9-a-clip-tools-governance-loop) evaluate in sequence: anchor (000) → reason (222) → integrate (333) → respond (444) → validate (555) → align (666) → forge (777) → audit (888) → seal (999)
 3. ✅ **Enforcement** — Failed checks block (VOID), repair (SABAR), or approve (SEAL)
 4. 🔒 **Audit** — Every decision is cryptographically sealed for accountability
 
@@ -283,7 +283,7 @@ See [333_APPS/README.md](333_APPS/) for full stack documentation.
 
 ## The 9 A-CLIP Tools: Governance Loop
 
-Every request runs through six tools in sequence:
+Every request runs through nine tools in sequence:
 
 | Tool | Stage | What It Measures | Fails If | Outcome |
 |:---|:---:|:---|:---|:---:|
