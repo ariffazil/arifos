@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "arifOS AAA MCP v64.1-GAGI — Kimi Config",
+  "$comment": "arifOS AAA MCP v64.1-GAGI — OpenCode Config",
   "mcpServers": {
     "aaa-mcp": {
       "command": "C:\\Users\\User\\arifOS\\.venv313\\Scripts\\python.exe",
