@@ -9,6 +9,7 @@
   <em>From zero-context prompts to autonomous institutions</em><br><br>
   <a href="https://aaamcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-64.1.0-blue" alt="Version"></a>
+  <a href="#tool-overview"><img src="https://img.shields.io/badge/tools-19%20operational-orange" alt="Tools"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
 </p>
 
@@ -21,7 +22,7 @@
   <a href="./aclip_cai">🧠 ACLIP_CAI</a>
 </p>
 
-**arifOS is governance middleware that sits between AI models and users, evaluating every response before it reaches a human. If a response fails safety checks, it's blocked—not sent with a warning.**
+**arifOS is governance middleware that sits between AI models and users, evaluating every response through 9 A-CLIP constitutional tools + 5 container management tools (14 total). If a response fails safety checks, it's blocked—not sent with a warning.**
 
 > arifOS follows the **333_APPS model**, a layered governance stack that scales from prompts to institutional systems.
 
@@ -34,13 +35,15 @@
 - [The Problem: AI Failure Modes](#the-problem-ai-failure-modes)
 - [How It Works (Mechanical Explanation)](#how-it-works-mechanical-explanation)
 - [Deployment & Access Paths](#deployment--access-paths)
+- [Deployment Options](#deployment-options)
 - [Architecture: Kernel + Adapter Pattern](#architecture-kernel--adapter-pattern)
 - [The 7-Layer Application Stack (333_APPS)](#the-7-layer-application-stack-333_apps)
-- [The 6 Conceptual Stages (Tool Loop)](#the-6-conceptual-stages-tool-loop)
+- [The 9 A-CLIP Tools (Governance Loop)](#the-9-a-clip-tools-governance-loop)
 - [Tool Overview](#tool-overview)
 - [Real-World Scenarios](#real-world-scenarios)
 - [Repository Structure](#repository-structure)
 - [Advanced Concepts](#advanced-concepts)
+- [Verification & Testing](#verification--testing)
 - [Version Lineage](#version-lineage)
 - [Contributing](#contributing)
 - [Philosophy & Closing](#philosophy--closing)
@@ -129,9 +132,40 @@ print(result["verdict"])  # → VOID
 **Way 3 — Prompt-only (L1_PROMPT):**
 
 1. Open `333_APPS/L1_PROMPT/SYSTEM_PROMPT.md`  
-2. Copy the raw content into your model’s system prompt  
+2. Copy the raw content into your model's system prompt  
 3. Use normally — responses are now governed by arifOS
 
+
+---
+
+## Deployment Options
+
+arifOS is deployed and running on multiple infrastructure paths:
+
+### VPS (Production — Currently Running)
+```bash
+# Server is already operational
+curl http://localhost:8888/health
+# → {"status":"healthy","version":"64.1.0"}
+
+# 19 tools tested and operational
+# Systemd service: aaa-mcp.service
+# Docker containers: qdrant, openclaw, arifos
+```
+
+### Railway (Cloud — Auto-deployed)
+```bash
+# Auto-deploys from GitHub on every push
+# URL: https://arifos-production.up.railway.app
+# Transport: SSE (Server-Sent Events)
+# Cache bust: Update DEPLOY_TS in railway.toml to force rebuild
+```
+
+### Docker (Local/Development)
+```bash
+docker build -t arifos .
+docker run -p 8080:8080 --env-file .env arifos
+```
 
 ---
 
@@ -247,18 +281,21 @@ See [333_APPS/README.md](333_APPS/) for full stack documentation.
 
 ---
 
-## The 6 Tools: Governance Loop
+## The 9 A-CLIP Tools: Governance Loop
 
 Every request runs through six tools in sequence:
 
 | Tool | Stage | What It Measures | Fails If | Outcome |
 |:---|:---:|:---|:---|:---:|
-| **init_session** | 000 | Authentication, injection attacks | Invalid auth, adversarial input | SEAL/VOID |
-| **agi_cognition** | 111-333 | Truth, clarity, humility, genius | Ω > 0.08, truth < 0.5 | VOID/SABAR |
-| **asi_empathy** | 555-666 | Stakeholder impact, reversibility | Irreversible harm, vulnerable users | SABAR/VOID |
-| **tri_witness** | 777 | Evidence from 3 sources | Human/AI/external disagree | SABAR |
-| **apex_verdict** | 888 | Final judgment synthesis | Constitutional conflict | SEAL/VOID/SABAR |
-| **vault_seal** | 999 | Immutable audit record | — | SEAL |
+| **anchor** (init_session) | 000 | Authentication, injection attacks | Invalid auth, adversarial input | SEAL/VOID |
+| **reason** (agi_cognition) | 222 | Truth, clarity, humility, genius | Ω > 0.08, truth < 0.5 | VOID/SABAR |
+| **integrate** | 333 | Map & Ground external knowledge | No evidence, high uncertainty | VOID |
+| **respond** | 444 | Draft Plan creation | Unclear parameters | SABAR |
+| **validate** (asi_empathy) | 555 | Stakeholder impact, reversibility | Irreversible harm, vulnerable users | SABAR/VOID |
+| **align** | 666 | Ethics & Constitution check | F9 Anti-Hantu violation | SABAR |
+| **forge** | 777 | Synthesize Solution | Resource constraints | SABAR |
+| **audit** (apex_verdict) | 888 | Final judgment synthesis | Constitutional conflict | SEAL/VOID/SABAR |
+| **seal** (vault_seal) | 999 | Immutable audit record | — | SEALED |
 
 ### Example Flow: Life Savings in Crypto
 
@@ -381,6 +418,7 @@ arifOS/
 │   ├── uncertainty_engine.py  # Ω₀ calculation (harmonic/geometric)
 │   ├── governance_kernel.py   # Unified Ψ state
 │   ├── telemetry.py           # 30-day locked adaptation
+│   ├── pipeline.py            # Constitutional pipeline
 │   └── organs/                # Six governance tools
 │       ├── t0_init.py
 │       ├── t1_agi_cognition.py
@@ -391,9 +429,15 @@ arifOS/
 │
 ├── aaa_mcp/                   # ADAPTER — Transport only
 │   ├── server.py              # MCP server (calls kernel)
-│   ├── tools/                 # Tool wrappers
-│   ├── capabilities/          # Optional: web search, code analysis
+│   ├── rest.py                # REST API bridge
+│   ├── tools/                 # Tool wrappers (9 A-CLIP + container)
+│   ├── capabilities/          # Web search, code analysis
+│   ├── core/                  # Constitutional decorator
+│   ├── protocol/              # Tool specs and schemas
 │   └── vault/                 # Audit logging
+│
+├── aclip_cai/                 # 9-Sense Nervous System
+│   └── tools/                 # Infrastructure observability
 │
 ├── 333_APPS/                  # APPLICATION LAYERS L1-L7
 │   ├── L1_PROMPT/             # Zero-context system entry
@@ -404,7 +448,18 @@ arifOS/
 │   ├── L6_INSTITUTION/        # Trinity consensus (stubs)
 │   └── L7_AGI/                # Recursive research
 │
-├── tests/                     # Test suite
+├── mcp/                       # Docker MCP configurations
+├── telemetry/                 # Constitutional metrics
+├── VAULT999/                  # Immutable ledger storage
+│   ├── AAA_HUMAN/             # Human authority layer
+│   ├── BBB_LEDGER/            # Audit records
+│   └── CCC_CANON/             # Constitutional canon
+│
+├── tests/                     # Test suite (138 tests)
+├── scripts/                   # Deployment scripts
+├── Dockerfile                 # Railway/VPS deployment
+├── railway.toml              # Railway configuration
+├── pyproject.toml            # Package config (v64.1.0)
 ├── ARCHITECTURAL_BOUNDARY.md  # Kernel/wrapper enforcement rules
 └── README.md                  # This file
 ```
@@ -473,6 +528,50 @@ Scores > 0.8 trigger 888_HOLD (human approval required).
 | **888_HOLD** | Awaiting human | "Human review required" |
 
 </details>
+
+---
+
+## Verification & Testing
+
+### Quick Health Check
+```bash
+# Check server health
+curl http://localhost:8888/health
+
+# Expected response:
+# {"status":"healthy","service":"aaa-mcp","version":"64.1.0"}
+```
+
+### Run Self-Test
+```bash
+cd /root/arifOS
+python3 -m aaa_mcp.selftest
+
+# Tests:
+# ✓ 15 Constitutional Floors loaded
+# ✓ 19 MCP Tools operational
+# ✓ Governance mode: SOFT|HARD
+# ✓ Health endpoint responding
+```
+
+### Test Individual Tools
+```bash
+# Test anchor (000)
+curl -X POST http://localhost:8888/anchor \
+  -H "Content-Type: application/json" \
+  -d '{"query":"Test","actor_id":"user"}'
+
+# All 9 A-CLIP tools available:
+# anchor, reason, integrate, respond, validate, align, forge, audit, seal
+```
+
+### Container Tools (VPS Only)
+```bash
+# List Docker containers
+python3 -c "from aaa_mcp.integrations.mcp_container_tools import register_container_tools; ..."
+
+# Available: container_list, container_restart, container_logs, sovereign_health, container_exec
+```
 
 ---
 
