@@ -33,8 +33,8 @@ COPY README.md .
 # Copy source code in dependency order (least likely to change first)
 COPY scripts/start_server.py scripts/start_server.py
 # v64.1: Kernel/Wrapper architecture - copy both layers
-COPY core/ core/           # <-- Kernel (ALL decision logic)
-COPY aaa_mcp/ aaa_mcp/     # <-- Wrapper (transport only)
+COPY core/ core/
+COPY aaa_mcp/ aaa_mcp/
 
 # Clear Python cache to ensure fresh imports
 RUN find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
