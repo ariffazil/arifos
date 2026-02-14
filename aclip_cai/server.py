@@ -19,20 +19,17 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastmcp import FastMCP
 
-# Import all sensory tools
-from aclip_cai.tools.system_monitor import (
-    get_resource_usage,
-    get_system_health,
-    list_processes,
-)
+from aclip_cai.tools.chroma_query import list_collections, query_memory
+from aclip_cai.tools.config_reader import config_flags as config_reader
+from aclip_cai.tools.financial_monitor import financial_cost as estimate_financial_cost
 from aclip_cai.tools.fs_inspector import fs_inspect as fs_inspector
 from aclip_cai.tools.log_reader import log_tail as log_reader
 from aclip_cai.tools.net_monitor import net_status as net_monitor
-from aclip_cai.tools.config_reader import config_flags as config_reader
-from aclip_cai.tools.chroma_query import query_memory, list_collections
-from aclip_cai.tools.thermo_estimator import cost_estimator as thermo_cost
 from aclip_cai.tools.safety_guard import forge_guard as safety_guard
-from aclip_cai.tools.financial_monitor import financial_cost as estimate_financial_cost
+
+# Import all sensory tools
+from aclip_cai.tools.system_monitor import get_resource_usage, get_system_health, list_processes
+from aclip_cai.tools.thermo_estimator import cost_estimator as thermo_cost
 
 # Create MCP server
 mcp = FastMCP(
@@ -66,6 +63,7 @@ Constitutional governance lives in AAA-MCP.
 # SENSORY TOOLS (10 Senses)
 # =============================================================================
 
+
 @mcp.tool()
 async def system_health(
     mode: str = "full",
@@ -74,7 +72,7 @@ async def system_health(
 ) -> dict:
     """
     [C0] System health — CPU, RAM, disk, processes.
-    
+
     The AI equivalent of 'top' or Task Manager.
     """
     if mode == "resources":
@@ -93,7 +91,7 @@ async def fs_inspect(
 ) -> dict:
     """
     [C2] Filesystem inspection — read-only directory traversal.
-    
+
     Physical meaning: How much data exists where.
     """
     return fs_inspector(path=path, depth=depth, include_hidden=include_hidden)
@@ -107,7 +105,7 @@ async def log_tail(
 ) -> dict:
     """
     [C3] Log tail — recent entries with optional grep.
-    
+
     Physical meaning: Historical errors, incidents, warnings.
     """
     return log_reader(log_file=log_file, lines=lines, pattern=pattern)
@@ -120,7 +118,7 @@ async def net_status(
 ) -> dict:
     """
     [C4] Network posture — ports, connections, routing.
-    
+
     Physical meaning: Attack surface, data exfil risk.
     """
     return net_monitor(check_ports=check_ports, check_connections=check_connections)
@@ -130,7 +128,7 @@ async def net_status(
 async def config_flags() -> dict:
     """
     [C5] Environment and feature flags.
-    
+
     Physical meaning: How the system is configured in reality.
     """
     return config_reader()
@@ -145,7 +143,7 @@ async def chroma_query(
 ) -> dict:
     """
     [C6] Vector memory semantic search.
-    
+
     The AI equivalent of 'grep' over persistent memory.
     """
     if list_only:
@@ -162,7 +160,7 @@ async def cost_estimator(
 ) -> dict:
     """
     [C7] Thermodynamic cost estimation.
-    
+
     Physical meaning: Energy/heat/time consumption.
     """
     return thermo_cost(
@@ -182,7 +180,7 @@ async def financial_cost(
 ) -> dict:
     """
     [C9] Financial cost estimation.
-    
+
     Physical meaning: Monetary cost of operations.
     """
     return estimate_financial_cost(
@@ -201,10 +199,10 @@ async def forge_guard(
 ) -> dict:
     """
     [C8] Local safety circuit breaker.
-    
+
     Physical meaning: Console-level circuit breaker.
     Returns: OK / SABAR (delay) / VOID_LOCAL (don't try).
-    
+
     NOTE: This is the ONLY tool with write/gate potential.
     It only gates local actions, never executes remotely.
     """
@@ -219,29 +217,34 @@ async def forge_guard(
 # Entry Point
 # =============================================================================
 
+
 def main():
     """Start the ACLIP-CAI server."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="ACLIP-CAI MCP Server")
     parser.add_argument("--sse", action="store_true", help="Use SSE transport (localhost only)")
     parser.add_argument("--port", type=int, default=50080, help="Port for SSE mode")
-    parser.add_argument("--host", default="127.0.0.1", help="Host for SSE mode (default: localhost)")
-    
+    parser.add_argument(
+        "--host", default="127.0.0.1", help="Host for SSE mode (default: localhost)"
+    )
+
     args = parser.parse_args()
-    
+
     print(f"[aclip] ACLIP-CAI Server Starting", file=sys.stderr)
     print(f"[aclip] Mode: {'SSE' if args.sse else 'stdio'}", file=sys.stderr)
-    
+
     if args.sse:
         # FORCE localhost only for security
         if args.host not in ("127.0.0.1", "localhost"):
-            print(f"[aclip] WARNING: Overriding host to 127.0.0.1 (localhost only)", file=sys.stderr)
+            print(
+                f"[aclip] WARNING: Overriding host to 127.0.0.1 (localhost only)", file=sys.stderr
+            )
             args.host = "127.0.0.1"
         print(f"[aclip] Binding to {args.host}:{args.port}", file=sys.stderr)
-        mcp.run_sse(host=args.host, port=args.port)
+        mcp.run(transport="sse", host=args.host, port=args.port)
     else:
-        mcp.run_stdio()
+        mcp.run(transport="stdio")
 
 
 if __name__ == "__main__":
