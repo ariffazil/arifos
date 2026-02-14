@@ -54,8 +54,17 @@ def main():
         # Railway terminates TLS at proxy and sets X-Forwarded-Proto.
         # We need uvicorn to trust these headers so SSE endpoint
         # advertises https:// URLs, not http://.
-        os.environ["FORWARDED_ALLOW_IPS"] = "*"
-        mcp.run(transport="sse", host=host, port=port)
+        import uvicorn
+        from fastmcp.server.http import create_sse_app
+
+        app = create_sse_app(mcp)
+        uvicorn.run(
+            app,
+            host=host,
+            port=port,
+            proxy_headers=True,
+            forwarded_allow_ips="*",
+        )
         return
 
     if mode in ("http", "streamable-http"):
