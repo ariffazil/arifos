@@ -168,6 +168,8 @@ dev = [
     "mypy>=1.0.0",
     "httpx>=0.28.0",
     "beautifulsoup4>=4.12.0",
+    "redis>=5.0.0",
+    "psutil>=5.9.0",
 ]
 yaml = ["pyyaml>=6.0.0"]
 api = [

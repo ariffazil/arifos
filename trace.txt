@@ -1,0 +1,62 @@
+* URL rejected: Port number was not a decimal number between 0 and 65535
+* closing connection #-1
+* Host aaamcp.arif-fazil.com:443 was resolved.
+* IPv6: 2606:4700:3034::ac43:864c, 2606:4700:3031::6815:198e
+* IPv4: 104.21.25.142, 172.67.134.76
+*   Trying [2606:4700:3034::ac43:864c]:443...
+* schannel: disabled automatic use of client certificate
+* ALPN: curl offers http/1.1
+* ALPN: server accepted http/1.1
+* Established connection to aaamcp.arif-fazil.com (2606:4700:3034::ac43:864c port 443) from 2001:f40:990:b9f:2498:2008:5581:de9c port 2017 
+* using HTTP/1.x
+=> Send header, 145 bytes (0x91)
+0000: POST /messages HTTP/1.1
+0019: Host: aaamcp.arif-fazil.com
+0036: User-Agent: curl/8.18.0
+004f: Accept: */*
+005c: Content-Type: application/json
+007c: Content-Length: 2
+008f: 
+=> Send data, 2 bytes (0x2)
+0000: {\
+* upload completely sent off: 2 bytes
+* schannel: remote party requests renegotiation
+* schannel: renegotiating SSL/TLS connection
+* schannel: SSL/TLS connection renegotiated
+<= Recv header, 24 bytes (0x18)
+0000: HTTP/1.1 404 Not Found
+<= Recv header, 37 bytes (0x25)
+0000: Date: Sat, 14 Feb 2026 08:53:58 GMT
+<= Recv header, 32 bytes (0x20)
+0000: Content-Type: application/json
+<= Recv header, 20 bytes (0x14)
+0000: Content-Length: 69
+<= Recv header, 24 bytes (0x18)
+0000: Connection: keep-alive
+<= Recv header, 20 bytes (0x14)
+0000: Server: cloudflare
+<= Recv header, 48 bytes (0x30)
+0000: x-railway-edge: railway/asia-southeast1-eqsg3a
+<= Recv header, 46 bytes (0x2e)
+0000: x-railway-request-id: umbXWQGORIu6wenUAQeqjw
+<= Recv header, 26 bytes (0x1a)
+0000: cf-cache-status: DYNAMIC
+<= Recv header, 69 bytes (0x45)
+0000: Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":6048
+0040: 00}
+<= Recv header, 260 bytes (0x104)
+0000: Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url
+0040: ":"https://a.nel.cloudflare.com/report/v4?s=COopHYq6zJCT0dpa%2FD
+0080: wNsGtYyzV8mkaCygs7J%2FhEBcRh39jXOHOorn%2Bpo8lxVopYI%2BluaXPLgsTf
+00c0: 4VujugafFNiqS95DakGTtiGLk6S79OAzuKgO9Vz1WSJwZ%2F8kmNaL7Q%3D%3D"}
+0100: ]}
+<= Recv header, 30 bytes (0x1e)
+0000: CF-RAY: 9cdb568d6f2f3e8d-KUL
+<= Recv header, 30 bytes (0x1e)
+0000: alt-svc: h3=":443"; ma=86400
+<= Recv header, 2 bytes (0x2)
+0000: 
+<= Recv data, 69 bytes (0x45)
+0000: {"error":"Tool 'messages' not found","request_id":"req-6888cf11f
+0040: bb5"}
+* Connection #0 to host aaamcp.arif-fazil.com:443 left intact
