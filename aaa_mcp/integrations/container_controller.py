@@ -5,6 +5,7 @@ Manages Docker containers via AAA MCP with Constitutional governance
 
 import subprocess
 import json
+import time
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
@@ -57,8 +58,29 @@ class ContainerController:
     
     def __init__(self):
         self.operation_log = []
+        self._cache = {}
+        self._cache_ttl = 5  # seconds
+    
+    def _get_cached(self, key: str) -> Optional[List[ContainerInfo]]:
+        """Get cached result if still valid."""
+        if key in self._cache:
+            result, timestamp = self._cache[key]
+            if time.time() - timestamp < self._cache_ttl:
+                return result
+        return None
+    
+    def _set_cached(self, key: str, value: List[ContainerInfo]):
+        """Cache result with timestamp."""
+        self._cache[key] = (value, time.time())
     
     def list_containers(self) -> List[ContainerInfo]:
+        """List all sovereign stack containers with caching."""
+        # Check cache first
+        cached = self._get_cached("containers")
+        if cached is not None:
+            return cached
+        
+        containers = []
         """List all sovereign stack containers."""
         containers = []
         
@@ -106,6 +128,8 @@ class ContainerController:
         except Exception:
             pass
         
+        # Cache the result
+        self._set_cached("containers", containers)
         return containers
     
     def restart_container(self, name: str) -> Dict:

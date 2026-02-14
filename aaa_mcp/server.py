@@ -29,6 +29,7 @@ load_dotenv()  # Load secrets from .env
 from fastmcp import FastMCP
 
 from aaa_mcp.capabilities.t6_web_search import EvidenceArtifact, brave_search
+from aaa_mcp.config.constants import ConstitutionalThresholds, ToolDefaults, SessionConfig
 
 # Wrapper Imports
 from aaa_mcp.core.heuristics import compute_system_state
@@ -78,7 +79,11 @@ def get_tool_floors(tool_name: str) -> list:
     return floor_map.get(tool_name, [])
 
 
+from functools import lru_cache
+
+@lru_cache(maxsize=1)
 def load_capability_config() -> dict:
+    """Load capability config with caching to avoid repeated I/O."""
     try:
         import yaml
 
@@ -89,7 +94,7 @@ def load_capability_config() -> dict:
             "r",
         ) as f:
             return yaml.safe_load(f)
-    except:
+    except (FileNotFoundError, yaml.YAMLError):
         return {}
 
 
@@ -131,8 +136,8 @@ async def anchor(
     # F12 Defense (Simplified)
     injection_risk = 0.05
     if "ignore previous" in query.lower():
-        injection_risk = 0.9
-    if injection_risk > 0.85:
+        injection_risk = ConstitutionalThresholds.INJECTION_RISK_HIGH
+    if injection_risk > ConstitutionalThresholds.INJECTION_RISK_BLOCK:
         return {"verdict": "VOID", "error": "F12_FAIL: Injection detected"}
 
     session_id = f"SESS-{uuid.uuid4().hex[:12].upper()}"
@@ -157,8 +162,8 @@ async def reason(query: str, session_id: str, hypotheses: int = 3) -> dict:
         "stage": "222_REASON",
         "session_id": session_id,
         "hypotheses_generated": hypotheses,
-        "truth_score": 0.85,  # Placeholder for model confidence
-        "clarity_delta": -0.2,
+        "truth_score": ToolDefaults.TRUTH_SCORE_PLACEHOLDER,  # TODO: Replace with real calculation
+        "clarity_delta": ToolDefaults.CLARITY_DELTA,
     }
 
 
@@ -174,7 +179,7 @@ async def integrate(query: str, session_id: str, grounding: Optional[list] = Non
         "session_id": session_id,
         "grounded": evidence_count > 0,
         "evidence_count": evidence_count,
-        "humility_omega": 0.04,
+        "humility_omega": ConstitutionalThresholds.OMEGA_DISPLAY_MIN,
     }
 
 
@@ -195,13 +200,12 @@ async def respond(session_id: str, draft_content: str) -> dict:
 async def validate(session_id: str, stakeholders: list) -> dict:
     """555_EMPATHY — Check stakeholder impact."""
     # Logic: Empathy check
-    kappa_r = 0.95
     return {
         "verdict": "SEAL",
         "stage": "555_VALIDATE",
         "session_id": session_id,
-        "empathy_kappa_r": kappa_r,
-        "safe": True,
+        "empathy_kappa_r": ConstitutionalThresholds.EMPATHY_KAPPA_R,
+        "safe": ToolDefaults.SAFE_DEFAULT,
     }
 
 
@@ -210,7 +214,12 @@ async def validate(session_id: str, stakeholders: list) -> dict:
 async def align(session_id: str, draft_content: str) -> dict:
     """666_ALIGN — Ethics and Anti-Hantu check."""
     # Logic: Alignment
-    return {"verdict": "SEAL", "stage": "666_ALIGN", "session_id": session_id, "anti_hantu": True}
+    return {
+        "verdict": "SEAL",
+        "stage": "666_ALIGN",
+        "session_id": session_id,
+        "anti_hantu": ToolDefaults.ANTI_HANTU,
+    }
 
 
 @mcp.tool(name="forge", description="7. FORGE (777) - Synthesize Solution")
@@ -221,7 +230,7 @@ async def forge(session_id: str, plan: str) -> dict:
         "verdict": "SEAL",
         "stage": "777_FORGE",
         "session_id": session_id,
-        "artifact_ready": True,
+        "artifact_ready": ToolDefaults.ARTIFACT_READY,
     }
 
 
@@ -239,7 +248,7 @@ async def audit(session_id: str, verdict: str, human_approve: bool = False) -> d
         "verdict": final_verdict,
         "stage": "888_AUDIT",
         "session_id": session_id,
-        "tri_witness_score": 0.98,
+        "tri_witness_score": ConstitutionalThresholds.TRI_WITNESS_SCORE,
     }
 
 
