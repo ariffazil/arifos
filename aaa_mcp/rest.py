@@ -405,7 +405,8 @@ async def apex_judge_wrapper(request: Request):
 async def sse_endpoint(request: Request):
     """MCP SSE transport endpoint."""
     async def event_generator() -> AsyncGenerator[str, None]:
-        msg_url = f"{request.url.scheme}://{request.url.netloc}/messages"
+        scheme = request.headers.get("x-forwarded-proto", request.url.scheme)
+        msg_url = f"{scheme}://{request.url.netloc}/messages"
         yield f"event: endpoint\ndata: {msg_url}\n\n"
         
         while True:

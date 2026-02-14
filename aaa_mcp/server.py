@@ -317,16 +317,15 @@ async def get_floor_spec(floor_id: str) -> str:
 
 
 # =============================================================================
-# HEALTH CHECK ENDPOINT (Deferred Registration)
+# HEALTH CHECK ENDPOINT
 # =============================================================================
 
-from starlette.requests import Request
-from starlette.responses import JSONResponse
 
-
-# Health check endpoint function (defined without decorator)
-async def health_check(request: Request):
+# Health check using FastMCP 2.x custom_route API
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request):
     """Health check endpoint for Railway and load balancers."""
+    from starlette.responses import JSONResponse
     return JSONResponse({
         "status": "healthy",
         "service": "aaa-mcp",
@@ -334,17 +333,6 @@ async def health_check(request: Request):
         "transport": "sse",
         "timestamp": time.time()
     })
-
-
-# Try to register health check - works with FastMCP 2.x+
-# FastMCP 1.x will silently skip this
-_health_check_registered = False
-try:
-    if hasattr(mcp, 'app') and mcp.app is not None:
-        mcp.app.get("/health")(health_check)
-        _health_check_registered = True
-except Exception:
-    pass  # FastMCP 1.x or other issues - server still runs
 
 
 # =============================================================================

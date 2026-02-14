@@ -1,0 +1,34 @@
+# RESOURCES
+# =============================================================================
+
+
+@mcp.resource("constitutional://floors/{floor_id}")
+async def get_floor_spec(floor_id: str) -> str:
+    return f"Specification for Floor {floor_id} (Hardened)"
+
+
+# =============================================================================
+# HEALTH CHECK ENDPOINT
+# =============================================================================
+
+
+# Health check using FastMCP 2.x custom_route API
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request):
+    """Health check endpoint for Railway and load balancers."""
+    from starlette.responses import JSONResponse
+    return JSONResponse({
+        "status": "healthy",
+        "service": "aaa-mcp",
+        "version": "64.2.0",
+        "transport": "sse",
+        "timestamp": time.time()
+    })
+
+
+# =============================================================================
+# MAIN
+# =============================================================================
+
+if __name__ == "__main__":
+    mcp.run()
