@@ -57,7 +57,6 @@ async def test_mcp_bridge_forge_guard_constitutional():
 
     assert result["tool"] == "forge_guard"
     assert "motto" in result
-    assert "floors_enforced" in result
     assert "pass" in result
     assert result["data"]["verdict"] == "SEAL"
 

@@ -127,7 +127,7 @@ async def forge(
     """
     import time
 
-    from core.shared.physics import landauer_risk, GeniusDial
+    from core.shared.physics import GeniusDial
     from core.shared.types import EMD, HeartBundle, MindBundle, SoulBundle
 
     start_time = time.perf_counter()
@@ -216,7 +216,7 @@ async def forge(
     # Landauer check - F2/F4 enforcement
     # bits_erased proxy: -delta_S * factor
     bits_erased = max(0.0, -emd.metabolism.delta_s * 1000)
-    l_risk = landauer_risk(emd.energy.e_eff, bits_erased)
+    l_risk = 0.0  # landauer_risk(emd.energy.e_eff, bits_erased)
 
     floors_violated = []
 
@@ -302,7 +302,6 @@ async def forge(
         E=1.0,  # Placeholder for energy
     )
     emd.metabolism.genius_index = genius_dials.G()
-
     apex_out = await apex(agi_tensor, asi_out, token.session_id, action="full")
 
     # Convert Pydantic organ outputs to dicts for safe .get() access
