@@ -26,8 +26,8 @@ from typing import Optional, Any
 # Force local source priority
 sys.path.insert(0, os.getcwd())
 
-from fastmcp import FastMCP, Client
-from mcp import StdioServerParameters
+from fastmcp import FastMCP
+from mcp import Client, StdioServerParameters
 
 # Router configuration
 AAA_CMD = [sys.executable, "-m", "aaa_mcp"]
