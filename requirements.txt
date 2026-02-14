@@ -9,9 +9,9 @@ httpx>=0.24.0
 # Database (F1 Amanah)
 asyncpg>=0.28.0  # PostgreSQL VAULT999
 
-# ACLIP Tactics Layer (F2 Truth - System observation)
-psutil>=5.9.0  # System monitoring (net_monitor, process_guard)
-brave-search>=0.1.0  # External ground truth (reality_search)
+# NOTE: ACLIP Tactics Layer deps (psutil, brave-search) removed from Railway
+# ACLIP deployed on Hostinger VPS (hybrid topology — F13 Sovereignty)
+# See: arifOS/aclip_cai/requirements.txt for Hostinger deployment
 
 # Constitutional enforcement
 # arifos>=0.1.0  # Local constitutional kernel

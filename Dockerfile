@@ -33,11 +33,11 @@ COPY ARCHITECTURE.md .
 
 # Copy source code in dependency order (least likely to change first)
 COPY scripts/start_server.py scripts/start_server.py
-# v65.0: Router + both backends
+# v65.0: Router + AAA Core (ACLIP on Hostinger — hybrid topology)
 COPY core/ core/
 COPY aaa_mcp/ aaa_mcp/
-COPY aclip_cai/ aclip_cai/
 COPY arifos_router.py .
+# NOTE: aclip_cai/ not copied — deployed separately on Hostinger (F13 Sovereignty)
 
 # Clear Python cache to ensure fresh imports
 RUN find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -46,11 +46,12 @@ RUN find . -name "*.pyc" -delete 2>/dev/null || true
 # Install package in editable mode
 RUN pip install --no-cache-dir -e .
 
-# Verify package is importable (kernel + both backends)
+# Verify package is importable (AAA Core only — ACLIP on Hostinger)
 RUN python3 -c "import core; from core.judgment import judge_cognition; print(f'✓ Kernel: {core.__file__}')"
 RUN python3 -c "import aaa_mcp; from aaa_mcp.server import mcp; print(f'✓ AAA-MCP: {aaa_mcp.__file__}')"
-RUN python3 -c "import aclip_cai.server; print(f'✓ ACLIP-CAI: {aclip_cai.server.__file__}')"
 RUN python3 -c "import arifos_router; print(f'✓ Router: {arifos_router.__file__}')"
+# NOTE: ACLIP-CAI verification skipped — requires psutil build deps
+# ACLIP deployed separately on Hostinger (Option C hybrid)
 
 # Create non-root user for security
 RUN useradd -m -u 1000 arifos && chown -R arifos:arifos /app
