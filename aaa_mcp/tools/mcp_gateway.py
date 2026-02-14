@@ -115,6 +115,168 @@ DOWNSTREAM_SERVERS: Dict[str, DownstreamMCPServer] = {
             "check_compliance": ToolClass.READ_ONLY,
         }
     ),
+    "redis": DownstreamMCPServer(
+        name="redis-mcp",
+        endpoint=os.environ.get("REDIS_MCP_ENDPOINT", "http://localhost:8084"),
+        allowed_tools=["redis_get", "redis_set", "redis_del", "redis_scan", "redis_lpush", "redis_rpush"],
+        tool_class_map={
+            "redis_get": ToolClass.READ_ONLY,
+            "redis_scan": ToolClass.READ_ONLY,
+            "redis_set": ToolClass.INFRA_WRITE,
+            "redis_lpush": ToolClass.INFRA_WRITE,
+            "redis_rpush": ToolClass.INFRA_WRITE,
+            "redis_del": ToolClass.DESTRUCTIVE,
+        },
+        auth_token=os.environ.get("REDIS_MCP_TOKEN"),
+    ),
+    "postgres": DownstreamMCPServer(
+        name="postgres-mcp",
+        endpoint=os.environ.get("POSTGRES_MCP_ENDPOINT", "http://localhost:8085"),
+        allowed_tools=["postgres_query", "postgres_execute", "postgres_schema_get", "postgres_table_create", "postgres_table_drop"],
+        tool_class_map={
+            "postgres_query": ToolClass.READ_ONLY,
+            "postgres_schema_get": ToolClass.READ_ONLY,
+            "postgres_execute": ToolClass.INFRA_WRITE,
+            "postgres_table_create": ToolClass.INFRA_WRITE,
+            "postgres_table_drop": ToolClass.DESTRUCTIVE,
+        },
+        auth_token=os.environ.get("POSTGRES_MCP_TOKEN"),
+    ),
+    "github-git": DownstreamMCPServer(
+        name="github-git-tools-mcp",
+        endpoint=os.environ.get("GITHUB_GIT_MCP_ENDPOINT", "http://localhost:8086"),
+        allowed_tools=["github_commit_write", "github_pr_draft", "github_status"],
+        tool_class_map={
+            "github_status": ToolClass.READ_ONLY,
+            "github_commit_write": ToolClass.INFRA_WRITE,
+            "github_pr_draft": ToolClass.INFRA_WRITE,
+        },
+        auth_token=os.environ.get("GITHUB_GIT_MCP_TOKEN"),
+    ),
+    "github-issues": DownstreamMCPServer(
+        name="github-issue-agent-mcp",
+        endpoint=os.environ.get("GITHUB_ISSUES_MCP_ENDPOINT", "http://localhost:8087"),
+        allowed_tools=["github_issue_find", "github_issue_create", "github_issue_update"],
+        tool_class_map={
+            "github_issue_find": ToolClass.READ_ONLY,
+            "github_issue_create": ToolClass.INFRA_WRITE,
+            "github_issue_update": ToolClass.INFRA_WRITE,
+        },
+        auth_token=os.environ.get("GITHUB_ISSUES_MCP_TOKEN"),
+    ),
+    "auth0": DownstreamMCPServer(
+        name="auth0-mcp",
+        endpoint=os.environ.get("AUTH0_MCP_ENDPOINT", "http://localhost:8088"),
+        allowed_tools=["auth0_app_create", "auth0_user_manage", "auth0_log_view", "auth0_user_block"],
+        tool_class_map={
+            "auth0_log_view": ToolClass.READ_ONLY,
+            "auth0_app_create": ToolClass.INFRA_WRITE,
+            "auth0_user_manage": ToolClass.INFRA_WRITE,
+            "auth0_user_block": ToolClass.DESTRUCTIVE, # Blocking a user is destructive
+        },
+        auth_token=os.environ.get("AUTH0_MCP_TOKEN"),
+    ),
+    "screenshot": DownstreamMCPServer(
+        name="screenshot-mcp",
+        endpoint=os.environ.get("SCREENSHOT_MCP_ENDPOINT", "http://localhost:8089"),
+        allowed_tools=["screenshot_capture", "screenshot_window"],
+        tool_class_map={
+            "screenshot_capture": ToolClass.READ_ONLY,
+            "screenshot_window": ToolClass.READ_ONLY,
+        },
+        # auth_token=None, # Local tool, likely no external auth token
+    ),
+    "ssh": DownstreamMCPServer(
+        name="ssh-mcp",
+        endpoint=os.environ.get("SSH_MCP_ENDPOINT", "http://localhost:8090"),
+        allowed_tools=["ssh_exec_command", "ssh_sftp_get", "ssh_sftp_put"],
+        tool_class_map={
+            "ssh_exec_command": ToolClass.INFRA_WRITE, # Can be read-only or destructive
+            "ssh_sftp_get": ToolClass.READ_ONLY,
+            "ssh_sftp_put": ToolClass.INFRA_WRITE,
+        },
+        auth_token=os.environ.get("SSH_MCP_TOKEN"),
+    ),
+    "uv-python": DownstreamMCPServer(
+        name="uv-python-mcp",
+        endpoint=os.environ.get("UV_PYTHON_MCP_ENDPOINT", "http://localhost:8091"),
+        allowed_tools=["uv_install", "uv_uninstall", "uv_check"],
+        tool_class_map={
+            "uv_check": ToolClass.READ_ONLY,
+            "uv_install": ToolClass.INFRA_WRITE,
+            "uv_uninstall": ToolClass.DESTRUCTIVE,
+        },
+        # auth_token=None, # Local tool, likely no external auth token
+    ),
+    "obsidian": DownstreamMCPServer(
+        name="obsidian-mcp",
+        endpoint=os.environ.get("OBSIDIAN_MCP_ENDPOINT", "http://localhost:8092"),
+        allowed_tools=["obsidian_search", "obsidian_read", "obsidian_write", "obsidian_connect_notes"],
+        tool_class_map={
+            "obsidian_search": ToolClass.READ_ONLY,
+            "obsidian_read": ToolClass.READ_ONLY,
+            "obsidian_write": ToolClass.INFRA_WRITE,
+            "obsidian_connect_notes": ToolClass.INFRA_WRITE,
+        },
+        auth_token=os.environ.get("OBSIDIAN_MCP_TOKEN"),
+    ),
+    "notion": DownstreamMCPServer(
+        name="notion-mcp",
+        endpoint=os.environ.get("NOTION_MCP_ENDPOINT", "http://localhost:8093"),
+        allowed_tools=["notion_search", "notion_get_page", "notion_create_page", "notion_update_page", "notion_delete_page"],
+        tool_class_map={
+            "notion_search": ToolClass.READ_ONLY,
+            "notion_get_page": ToolClass.READ_ONLY,
+            "notion_create_page": ToolClass.INFRA_WRITE,
+            "notion_update_page": ToolClass.INFRA_WRITE,
+            "notion_delete_page": ToolClass.DESTRUCTIVE,
+        },
+        auth_token=os.environ.get("NOTION_MCP_TOKEN"),
+    ),
+    "doc-detective": DownstreamMCPServer(
+        name="doc-detective-mcp",
+        endpoint=os.environ.get("DOC_DETECTIVE_MCP_ENDPOINT", "http://localhost:8094"),
+        allowed_tools=["doc_detective_generate_tests", "doc_detective_run_tests", "doc_detective_inject_steps"],
+        tool_class_map={
+            "doc_detective_generate_tests": ToolClass.INFRA_WRITE, # Generates files
+            "doc_detective_run_tests": ToolClass.READ_ONLY,
+            "doc_detective_inject_steps": ToolClass.INFRA_WRITE,
+        },
+        # auth_token=None, # Local tool, likely no external auth token
+    ),
+    "context7": DownstreamMCPServer(
+        name="context7-mcp",
+        endpoint=os.environ.get("CONTEXT7_MCP_ENDPOINT", "http://localhost:8095"),
+        allowed_tools=["context7_query_docs", "context7_resolve_library"],
+        tool_class_map={
+            "context7_query_docs": ToolClass.READ_ONLY,
+            "context7_resolve_library": ToolClass.READ_ONLY,
+        },
+        auth_token=os.environ.get("CONTEXT7_MCP_API_KEY"),
+    ),
+    "apify-scrape": DownstreamMCPServer(
+        name="apify-agent-skills-mcp",
+        endpoint=os.environ.get("APIFY_MCP_ENDPOINT", "http://localhost:8096"),
+        allowed_tools=["apify_scrape_web", "apify_extract_data", "apify_run_actor"],
+        tool_class_map={
+            "apify_scrape_web": ToolClass.READ_ONLY,
+            "apify_extract_data": ToolClass.READ_ONLY,
+            "apify_run_actor": ToolClass.INFRA_WRITE, # Can trigger external actions
+        },
+        auth_token=os.environ.get("APIFY_MCP_TOKEN"),
+    ),
+    "wordpress": DownstreamMCPServer(
+        name="wordpress-mcp",
+        endpoint=os.environ.get("WORDPRESS_MCP_ENDPOINT", "http://localhost:8097"),
+        allowed_tools=["wordpress_get_post", "wordpress_create_post", "wordpress_update_post", "wordpress_delete_post"],
+        tool_class_map={
+            "wordpress_get_post": ToolClass.READ_ONLY,
+            "wordpress_create_post": ToolClass.INFRA_WRITE,
+            "wordpress_update_post": ToolClass.INFRA_WRITE,
+            "wordpress_delete_post": ToolClass.DESTRUCTIVE,
+        },
+        auth_token=os.environ.get("WORDPRESS_MCP_TOKEN"),
+    ),
 }
 
 # Floor requirements per tool class
