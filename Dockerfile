@@ -69,4 +69,4 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # Default command (overridden by railway.toml)
 CMD ["python", "-m", "aaa_mcp", "sse", "--port", "8080", "--host", "0.0.0.0"]
-# CACHE BUST: 20260214061156
+# CACHE BUST: 20260214061500 (REST bridge for OpenAI adapter)
