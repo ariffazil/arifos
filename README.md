@@ -10,6 +10,8 @@
 
 **arifOS is governance middleware that sits between AI models and users, evaluating every response before it reaches a human. If a response fails safety checks, it's blocked—not sent with a warning.**
 
+> arifOS follows the **333_APPS model**, a layered governance stack that scales from prompts to institutional systems.
+
 ---
 
 ## 10-Second Demo
@@ -126,7 +128,9 @@ See [ARCHITECTURAL_BOUNDARY.md](ARCHITECTURAL_BOUNDARY.md) for enforcement rules
 
 ## The 7-Layer Application Stack (333_APPS)
 
-arifOS scales from simple prompts to autonomous institutions:
+arifOS is not only a kernel or middleware layer. It is a governed application ecosystem designed to scale from single prompts to autonomous institutional systems.
+
+The 333_APPS model defines how governance expands across increasing levels of capability while remaining anchored to the constitutional kernel.
 
 ```
 ┌─────────────────────────────────────────┐
@@ -142,19 +146,63 @@ arifOS scales from simple prompts to autonomous institutions:
     [arifOS Kernel: core/]
 ```
 
-| Layer | What It Does | Status |
-|:---|:---|:---:|
-| **L1 PROMPTS** | Copy `SYSTEM_PROMPT.md` to any AI → instant governance | ✅ |
-| **L2 SKILLS** | 9 canonical actions mapped to kernel organs | ✅ |
-| **L3 WORKFLOW** | Sequences: `000_INIT` → `888_COMMIT` → `999_SEAL` | ✅ |
-| **L4 TOOLS** | Production MCP server with 6 constitutional tools | ✅ |
-| **L5 AGENTS** | Multi-agent federation (Δ Architect, Ω Engineer, Ψ Auditor) | 🟡 |
-| **L6 INSTITUTION** | Trinity consensus, Tri-Witness governance | 🔴 |
-| **L7 AGI** | Recursive self-healing, F13 exploration | 📋 |
+| Layer | Name | Purpose | Coverage | Status |
+|:---|:---|:---|:---:|:---:|
+| **L1** | **PROMPTS** | Zero-context governance entry via `SYSTEM_PROMPT.md` | ~10% | ✅ Production |
+| **L2** | **SKILLS** | Canonical actions mapped to kernel organs | — | ✅ Production |
+| **L3** | **WORKFLOW** | Structured execution sequences (`000_INIT` → `888_COMMIT`) | — | ✅ Production |
+| **L4** | **TOOLS** | MCP runtime and constitutional tool interface | — | ✅ Production |
+| **L5** | **AGENTS** | Federated multi-agent coordination (Δ / Ω / Ψ roles) | ~85% | 🟡 Pilot |
+| **L6** | **INSTITUTION** | Trinity consensus and Tri-Witness governance | ~5% | 🔴 Stubs |
+| **L7** | **AGI** | Recursive stabilization and self-healing research | — | 📋 Research |
 
-**Current:** L1-L4 hardened and live. L5-L7 roadmap for v56.0.
+### What This Architecture Enables
 
-See [333_APPS/README.md](333_APPS/) for full stack details.
+**L1 — Prompts:** Governance can be deployed instantly by copying a single system prompt. No infrastructure dependency required.
+
+**L2–L3 — Skills & Workflows:** Converts raw model capability into predictable, auditable behavior. Establishes deterministic execution paths.
+
+**L4 — Tools:** Production MCP server exposes constitutional operations through controlled interfaces. Kernel logic becomes operational infrastructure.
+
+**L5+ — Agents & Institutions:** Governance expands beyond single agents. Coordination, consensus, and institutional logic emerge without removing human authority.
+
+### Infrastructure Layer: ACLIP_CAI (9-Sense Nervous System)
+
+Beneath the 7 layers, **ACLIP_CAI** provides infrastructure observability — the sensory layer feeding data into the constitutional pipeline:
+
+| Tool | Purpose | Pipeline Stage |
+|:---|:---|:---|
+| `aclip_system_health` | CPU, memory, disk metrics | Law 3 (GROUND) |
+| `aclip_fs_inspect` | Filesystem traversal | Law 3 (GROUND) |
+| `aclip_log_tail` | Log monitoring | Law 5 (SEARCH) |
+| `aclip_chroma_query` | Vector DB semantic search | Law 5 (SEARCH) |
+| `aclip_forge_guard` | Action gating (non-read) | Law 7 (GUARD) |
+
+**Key characteristic:** 8 of 9 tools are strictly read-only. Only `aclip_forge_guard` en constitutional floors (F1, F7, F11).
+
+See [aclip_cai/README.md](aclip_cai/) for full 9-sense documentation.
+
+### Current Maturity
+
+- **L1–L4:** Hardened and operational.
+- **L5:** Active federation experiments.
+- **L6–L7:** Long-term research roadmap (target: v56.0+).
+
+### Why 333_APPS Matters
+
+| Without 333_APPS | With 333_APPS |
+|:---|:---|
+| arifOS appears as a technical framework | arifOS becomes a **scalable governance platform** |
+
+The system evolves along a continuous path:
+
+```
+Prompt → Skill → Workflow → Tool → Agent → Institution → AGI Research
+```
+
+Governance remains constant while capability increases.
+
+See [333_APPS/README.md](333_APPS/) for full stack documentation.
 
 ---
 
