@@ -638,6 +638,21 @@ async def apex_verdict(
             "apex_reasoning": apex_result.reasoning,
         }
 
+    # F11: Notify 888 Judge for critical verdicts
+    if apex_result.verdict in ["888_HOLD", "VOID"]:
+        try:
+            from .notifiers.telegram_judge import judge
+            notification = await judge.notify_888_hold({
+                "session_id": session_id,
+                "floor_violated": "F1" if apex_result.verdict == "VOID" else "F11",
+                "reason": str(apex_result.reasoning) if apex_result.reasoning else "Constitutional violation",
+                "verdict": apex_result.verdict,
+                "risk_level": "critical" if apex_result.verdict == "888_HOLD" else "high"
+            })
+            output["f11_notification"] = notification
+        except Exception as e:
+            output["f11_notification"] = {"sent": False, "error": str(e)}
+
     return output
 
 
