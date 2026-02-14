@@ -1,7 +1,7 @@
-# arifOS Agent Guide (v64.1-GAGI)
+# arifOS Agent Guide (v64.2-GAGI)
 
 **Canon:** `C:/Users/User/arifOS/AGENTS.md`
-**Version:** v64.1-GAGI
+**Version:** v64.2-GAGI
 **Motto:** "DITEMPA BUKAN DIBERI — Forged, Not Given"
 
 ---
@@ -34,133 +34,114 @@
 | **Framework** | `fastmcp`, `starlette` |
 | **Data** | `pydantic` v2, `dataclasses` |
 | **Storage** | PostgreSQL (Vault), Redis (MindVault), ChromaDB (Memory) |
-| **Tooling** | `uv` (package manager), `ruff` (linter), `black` (formatter), `pytest` |
+| **Tooling** | `uv` (package manager), `ruff`, `black`, `pytest`, `mypy` |
 
 ---
 
-## 📂 Project Structure
+## 🚀 Build, Lint, and Test Commands
 
-```text
-arifOS/
-├── aaa_mcp/                 # [THE BRAIN] Constitutional Governance Server
-│   ├── server.py            # Main MCP entry point (5-Core Tools)
-│   ├── core/                # Wrapper logic (telemetry, heuristics)
-│   └── capabilities/        # T6-T21 Capability Modules
-├── aclip_cai/               # [THE SENSES] Sensory & Observability Server
-│   ├── server.py            # Standalone MCP entry point (C0-C9 Tools)
-│   └── tools/               # Implementation of sensory tools (C0-C9)
-├── core/                    # [THE KERNEL] Shared Logic (Pure Python)
-│   ├── judgment.py          # Central decision engine (AGI/ASI/APEX)
-│   ├── organs/              # Organ implementations
-│   └── shared/              # Types, Physics, Floors
-├── scripts/                 # [DEPLOYMENT]
-│   └── start_server.py      # Railway entry point (Integrates Brain + Senses)
-├── tests/                   # Test Suite
-├── AGENTS.md                # Agent Playbook (You are here)
-├── CLAUDE.md                # Claude-specific rules
-└── GEMINI.md                # Gemini-specific rules
-```
-
----
-
-## 🤖 Kimi Code Agent Setup
-
-**Kimi** connects to arifOS via `stdio`. Ensure your `~/.kimi/mcp.json` is configured correctly.
-
-### Configuration (`~/.kimi/mcp.json`)
-
-```json
-{
-  "mcpServers": {
-    "aaa-mcp": {
-      "command": "C:/Users/User/arifOS/.venv313/Scripts/python.exe",
-      "args": ["-m", "aaa_mcp", "stdio"],
-      "env": {
-        "PYTHONPATH": "C:/Users/User/arifOS",
-        "PYTHONIOENCODING": "utf-8",
-        "ARIFOS_CONSTITUTIONAL_MODE": "AAA"
-      }
-    },
-    "aclip-cai": {
-      "command": "C:/Users/User/arifOS/.venv313/Scripts/python.exe",
-      "args": ["-m", "aclip_cai.server"],
-      "env": {
-        "PYTHONPATH": "C:/Users/User/arifOS",
-        "PYTHONIOENCODING": "utf-8"
-      }
-    }
-  }
-}
-```
-
-**Troubleshooting Kimi Connection:**
-1.  **Check Virtual Environment:** Ensure `.venv313` exists and has dependencies (`fastmcp`, `pydantic`, `starlette`).
-2.  **Verify Command:** Run `C:/Users/User/arifOS/.venv313/Scripts/python.exe -m aaa_mcp stdio` manually to check for import errors.
-3.  **Logs:** Check `~/.kimi/logs/kimi.log`.
-
----
-
-## 🚀 Build & Run Commands
-
-### Local Development
+### Setup
 ```bash
 # Install dependencies
 pip install -e ".[dev]"
-
-# Run AAA-MCP (The Brain)
-python -m aaa_mcp
-
-# Run ACLIP-CAI (The Senses)
-python -m aclip_cai.server
 ```
 
-### Deployment (Railway)
-The `scripts/start_server.py` script starts the production server.
-- **Entry Point:** `scripts/start_server.py`
-- **Port:** `PORT` env var (default 8080)
-- **Host:** `0.0.0.0`
-- **Features:** SSE Transport, Integrated Brain + Senses.
+### Formatting, Linting, and Type Checking
+```bash
+# Format code with Black
+black . --line-length 100
 
----
+# Lint code with Ruff
+ruff check . --line-length 100
 
-## 🧪 Testing Strategies
+# Type check with MyPy
+mypy .
+```
 
+### Testing
 All agents MUST write tests for new functionality.
 
 ```bash
 # Run all tests
 pytest tests/ -v
 
-# Run specific test file
+# Run a specific test file
 pytest tests/test_e2e_core_to_aaa_mcp.py -v
+
+# Run a specific test class
+pytest tests/test_e2e_core_to_aaa_mcp.py::TestClassName -v
+
+# Run a specific test method
+pytest tests/test_e2e_core_to_aaa_mcp.py::TestClassName::test_method_name -v
 
 # Run tests skipping physics (faster)
 ARIFOS_PHYSICS_DISABLED=1 pytest tests/
 ```
 
-### Key Test Files:
-- `tests/test_e2e_core_to_aaa_mcp.py`: End-to-end flow.
-- `tests/test_aclip_cai.py`: Sensory tool tests.
-- `tests/test_mcp_protocol.py`: Protocol compliance.
+### Local Development
+```bash
+# Run AAA-MCP (The Brain) via stdio
+python -m aaa_mcp stdio
+
+# Run AAA-MCP (The Brain) via sse
+python -m aaa_mcp sse
+
+# Run ACLIP-CAI (The Senses)
+python -m aclip_cai.server
+```
 
 ---
 
 ## 📝 Code Style & Conventions
 
-- **Imports:** `from core.judgment import ...` (Kernel first).
-- **Typing:** `pydantic` v2 models for all I/O.
-- **Async:** All IO-bound tools MUST be `async`.
-- **Error Handling:** Never swallow errors. Return `{"verdict": "VOID", "error": "..."}`.
-- **Floors:** Decorate tools with enforced floors: `@constitutional_floor("F2", "F4")`.
+- **Imports:** Use `from core.judgment import ...` for kernel modules first. Follow with standard library and third-party imports.
+- **Formatting:** Code is formatted with `black` using a line length of 100 characters.
+- **Typing:** Use `pydantic` v2 models for all I/O. All functions must have type hints.
+- **Async:** All I/O-bound tools and functions MUST be `async`.
+- **Naming:**
+    - Modules: `lowercase_with_underscores`.
+    - Classes: `PascalCase`.
+    - Functions/Variables: `snake_case`.
+    - Constants: `UPPERCASE_WITH_UNDERSCORES`.
+- **Error Handling:** Never swallow errors. For MCP tools, return a `{"verdict": "VOID", "error": "..."}` payload. Raise exceptions for internal logic errors.
+- **Constitutional Floors:** Decorate tools with enforced floors using `@constitutional_floor("F2", "F4")`. The `@mcp.tool()` decorator should be the outer decorator.
+
+---
+
+## 🤖 Agent & Copilot Guidelines
+
+### High-Stakes Operations (888_HOLD)
+The agent MUST trigger an `888_HOLD` and wait for human confirmation for high-stakes operations such as:
+- Database operations (DROP, TRUNCATE, DELETE without WHERE)
+- Production deployments
+- Mass file changes (>10 files)
+- Credential/secret handling
+- Git history modification (rebase, force push)
+
+### Code-Level Floor Violations
+Refer to the following table for common code smells and their fixes related to constitutional floors:
+
+| Floor | Code Smell | Fix |
+|---|---|---|
+| F1 | Mutates input, hidden side effects | Pure functions, explicit returns |
+| F2 | Fabricated data, fake metrics | Empty/null when unknown |
+| F3 | Contract mismatch, type lies | Use canonical interfaces |
+| F4 | Magic numbers, obscure logic | Named constants, clear params |
+| F5 | Destructive defaults, no backup | Safe defaults, preserve state |
+| F6 | Only happy path, cryptic errors | Handle edge cases, clear messages |
+| F7 | False confidence, fake computation | Admit uncertainty, cap confidence |
+| F8 | Bypasses governance, invents patterns | Use established systems |
+| F9 | Deceptive naming, hidden behavior | Honest names, transparent logic |
 
 ---
 
 ## 🔐 Security Considerations
 
-1.  **F11 Authority:** `init_session` must validate tokens.
-2.  **F12 Injection:** Inputs must be scanned for adversarial patterns.
+1.  **F11 Authority:** `init_session` must validate tokens. See `codebase/guards/nonce_manager.py`.
+2.  **F12 Injection:** Inputs must be scanned for adversarial patterns. See `codebase/guards/injection_guard.py`.
 3.  **F1 Reversibility:** High-stakes actions (DB writes) usually require `888_HOLD`.
 4.  **Secrets:** Use environment variables. Never commit keys.
+5.  **Ontology Guard:** Prevent claims of consciousness or soul. See `codebase/guards/ontology_guard.py`.
 
 ---
 **Status:** ALIVE & OBSERVANT

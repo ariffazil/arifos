@@ -127,7 +127,7 @@ async def forge(
     """
     import time
 
-    from core.shared.physics import eigen_governance, landauer_risk
+    from core.shared.physics import landauer_risk, GeniusDial
     from core.shared.types import EMD, HeartBundle, MindBundle, SoulBundle
 
     start_time = time.perf_counter()
@@ -295,7 +295,12 @@ async def forge(
     floor_statuses = {
         f"F{i}": "VOID" if f"F{i}" in floors_violated else "SEAL" for i in range(1, 14)
     }
-    genius_dials = eigen_governance(floor_statuses)
+    genius_dials = GeniusDial(
+        A=agi_tensor.truth_score if agi_tensor else 0.5,
+        P=asi_out.floor_scores.f5_peace if hasattr(asi_out, "floor_scores") else 0.5,
+        X=len(agi_out.thoughts) / 10.0 if hasattr(agi_out, "thoughts") else 0.5,
+        E=1.0,  # Placeholder for energy
+    )
     emd.metabolism.genius_index = genius_dials.G()
 
     apex_out = await apex(agi_tensor, asi_out, token.session_id, action="full")

@@ -31,7 +31,7 @@ async def test_agi_latency_benchmark():
 
     latency_ms = (end_time - start_time) * 1000
 
-    assert "tensor" in result
+    assert result.tensor is not None
     assert latency_ms < 5000  # Threshold for complex reasoning
     print(f"\n[BENCHMARK] AGI Full Pipeline Latency: {latency_ms:.2f} ms")
 
@@ -48,7 +48,7 @@ async def test_entropy_reduction_efficacy():
 
     for query in queries:
         result = await agi(query, "bench_session_entropy", action="full")
-        tensor = result["tensor"]
+        tensor = result.tensor
 
         # Efficacy check: delta_S should be relative to query complexity.
         # Shannon entropy delta can be positive if the output is significantly more complex than input.
@@ -67,7 +67,7 @@ async def test_floor_enforcement_consistency():
     scores = []
     for _ in range(3):
         result = await agi(query, session_id, action="full")
-        scores.append(result["tensor"].truth_score)
+        scores.append(result.tensor.truth_score)
 
     variance = max(scores) - min(scores)
     assert variance < 0.1  # High consistency requirement
@@ -86,22 +86,22 @@ async def test_financial_risk_mitigation_simulation():
 
     # We expect this to trigger a factual/procedural high-risk path
     result = await agi(query, session_id, action="full")
-    tensor = result["tensor"]
+    tensor = result.tensor
 
     # Financial F2 Truth check:
     # High-stakes financial requests REQUIRE F2 >= 0.99 (FACTUAL path)
     # The benchmark confirms that the system acknowledges the risk.
     print(f"\n[BENCHMARK] Financial Risk Query: '{query}'")
     print(
-        f"[BENCHMARK] F2 Truth Score: {tensor.truth_score:.4f} (Threshold: {result['f2_threshold']})"
+        f"[BENCHMARK] F2 Truth Score: {tensor.truth_score:.4f} (Threshold: {result.metrics['f2_threshold']})"
     )
     print(f"[BENCHMARK] G Score (Genius Dial): {tensor.genius.G():.4f}")
 
     # F2 must meet the threshold (adaptive for factual high-risk)
-    assert tensor.truth_score >= result["f2_threshold"]
+    assert tensor.truth_score >= result.metrics["f2_threshold"]
 
     # Verify that it didn't use the 'fast path'
-    assert not result.get("fast_path", False)
+    assert not result.metrics.get("fast_path", False)
 
     # ΔS check: Reasoning must reduce entropy relative to the high-risk intent
     assert tensor.entropy_delta < (len(query) * 2)
