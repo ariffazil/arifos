@@ -317,33 +317,34 @@ async def get_floor_spec(floor_id: str) -> str:
 
 
 # =============================================================================
-# HEALTH CHECK ENDPOINT
+# HEALTH CHECK ENDPOINT (Deferred Registration)
 # =============================================================================
 
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
 
-# Health check mounted on MCP's Starlette app for Railway monitoring
-# NOTE: FastMCP 2.x+ supports mcp.app, 1.x does not
+# Health check endpoint function (defined without decorator)
+async def health_check(request: Request):
+    """Health check endpoint for Railway and load balancers."""
+    return JSONResponse({
+        "status": "healthy",
+        "service": "aaa-mcp",
+        "version": "64.2.0",
+        "transport": "sse",
+        "timestamp": time.time()
+    })
+
+
+# Try to register health check - works with FastMCP 2.x+
+# FastMCP 1.x will silently skip this
+_health_check_registered = False
 try:
-    # Try FastMCP 2.x style
-    @mcp.app.get("/health")
-    async def health_check(request: Request):
-        """Health check endpoint for Railway and load balancers."""
-        return JSONResponse({
-            "status": "healthy",
-            "service": "aaa-mcp",
-            "version": "64.2.0",
-            "transport": "sse",
-            "timestamp": time.time()
-        })
-except AttributeError:
-    # FastMCP 1.x - health check not supported, server still runs
-    # Railway health check will need to use a different method
-    health_check = None
-    import logging
-    logging.warning("FastMCP 1.x detected - /health endpoint not available. Consider upgrading to 2.x.")
+    if hasattr(mcp, 'app') and mcp.app is not None:
+        mcp.app.get("/health")(health_check)
+        _health_check_registered = True
+except Exception:
+    pass  # FastMCP 1.x or other issues - server still runs
 
 
 # =============================================================================
