@@ -37,7 +37,7 @@ COPY ARCHITECTURE.md .
 COPY scripts/start_server.py scripts/start_server.py
 COPY core/ core/
 COPY aaa_mcp/ aaa_mcp/
-# v65.0: Router restored with compatibility fallback for mcp.Client import.
+# v65.0: Router removed - using aaa_mcp directly (faster, less deps)
 COPY arifos_router.py .
 # NOTE: aclip_cai/ not copied — deployed separately on Hostinger (F13 Sovereignty)
 
@@ -48,10 +48,10 @@ RUN find . -name "*.pyc" -delete 2>/dev/null || true
 # Install package in editable mode
 RUN pip install --no-cache-dir -e .
 
-# Verify package is importable (AAA Core only — ACLIP on Hostinger)
+# Verify package is importable (AAA Core only)
 RUN python3 -c "import core; from core.judgment import judge_cognition; print(f'✓ Kernel: {core.__file__}')"
 RUN python3 -c "import aaa_mcp; from aaa_mcp.server import mcp; print(f'✓ AAA-MCP: {aaa_mcp.__file__}')"
-RUN python3 -c "import arifos_router; print(f'✓ Router: {arifos_router.__file__}')"
+# Router removed from build - using aaa_mcp directly (see railway.toml)
 
 # Create non-root user for security
 RUN useradd -m -u 1000 arifos && chown -R arifos:arifos /app
@@ -69,5 +69,5 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Default command (can be overridden in railway.toml)
-CMD ["arifos-router", "--sse", "--port", "8080", "--host", "0.0.0.0"]
+# Default command (overridden by railway.toml)
+CMD ["python", "-m", "aaa_mcp", "sse", "--port", "8080", "--host", "0.0.0.0"]
