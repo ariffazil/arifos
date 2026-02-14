@@ -320,30 +320,19 @@ async def get_floor_spec(floor_id: str) -> str:
 # HEALTH CHECK ENDPOINT
 # =============================================================================
 
-from starlette.requests import Request
-from starlette.responses import JSONResponse
 
-
-# Health check mounted on MCP's Starlette app for Railway monitoring
-# NOTE: FastMCP 2.x+ supports mcp.app, 1.x does not
-try:
-    # Try FastMCP 2.x style
-    @mcp.app.get("/health")
-    async def health_check(request: Request):
-        """Health check endpoint for Railway and load balancers."""
-        return JSONResponse({
-            "status": "healthy",
-            "service": "aaa-mcp",
-            "version": "64.2.0",
-            "transport": "sse",
-            "timestamp": time.time()
-        })
-except AttributeError:
-    # FastMCP 1.x - health check not supported, server still runs
-    # Railway health check will need to use a different method
-    health_check = None
-    import logging
-    logging.warning("FastMCP 1.x detected - /health endpoint not available. Consider upgrading to 2.x.")
+# Health check using FastMCP 2.x custom_route API
+@mcp.custom_route("/health", methods=["GET"])
+async def health_check(request):
+    """Health check endpoint for Railway and load balancers."""
+    from starlette.responses import JSONResponse
+    return JSONResponse({
+        "status": "healthy",
+        "service": "aaa-mcp",
+        "version": "64.2.0",
+        "transport": "sse",
+        "timestamp": time.time()
+    })
 
 
 # =============================================================================
