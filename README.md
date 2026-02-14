@@ -326,17 +326,42 @@ User: "Should I invest my life savings in crypto?"
 
 ## Tool Overview
 
-### init_session (000)
-Entry gate. Validates identity, scans for prompt injection (F12), establishes session context.
+### anchor (000_INIT)
+Constitutional airlock and ignition gate. All sessions must pass 000_INIT before downstream processing. Implements fail-closed security: if this contract is not satisfied, the pipeline refuses to ignite.
+
+**Key Features:**
+- **F11 Authority**: Actor identity from context (Telegram user ID, etc.) — no anonymous bypass
+- **F12 InjectionGuard**: 20+ regex patterns with compound scoring (not single-regex)
+- **Query Classification**: Adaptive F2 strictness based on query type (FACTUAL → 0.99, CONVERSATIONAL → 0.60)
+- **Thermodynamic Budget**: Allocated tokens/time per session (8k/30s default)
+- **Governance Mode**: HARD (strict) or SOFT (permissive) based on actor and query
 
 ```python
-result = await client.call("init_session", {
-    "query": user_query,
-    "actor_id": "user_123",
-    "mode": "conscience"  # strict | permissive
+result = await client.call("anchor", {
+    "query": "Should I invest in crypto?",
+    "actor_id": "267378578"  # Telegram user ID from context
 })
-# Returns: session_id, auth_status, floor_scores
+# Returns canonical 000_INIT contract:
+# {
+#   "verdict": "SEAL",
+#   "stage": "000",
+#   "session_id": "SESS-...",
+#   "actor_id": "267378578",
+#   "f12_score": 0.12,
+#   "governance_mode": "HARD",
+#   "authority_token": "tok_...",
+#   "query_type": "FACTUAL",
+#   "thermodynamic_budget": {"tokens": 8000, "time_ms": 30000},
+#   "next_stage": "111"
+# }
 ```
+
+**F12 Thresholds (HARD mode):**
+- `f12_score >= 0.8` → VOID (requires 888 Judge override)
+- `0.5 <= f12_score < 0.8` → Auto-sanitize + strong log
+- `f12_score < 0.5` → Proceed with query-type adaptation
+
+**Implementation:** See [`000_INIT.md`](000_INIT.md) for full specification and [`aaa_mcp/server.py`](aaa_mcp/server.py) for current implementation.
 
 ### agi_cognition (111-333)
 The Mind (Δ). Evaluates logical quality: truth (F2), clarity (F4), humility (F7), genius (F8), ontology (F10).
@@ -447,6 +472,8 @@ arifOS/
 │   ├── L5_AGENTS/             # Multi-agent federation (pilot)
 │   ├── L6_INSTITUTION/        # Trinity consensus (stubs)
 │   └── L7_AGI/                # Recursive research
+│
+├── 000_INIT.md               # Constitutional session initialization spec (v64.2)
 │
 ├── mcp/                       # Docker MCP configurations
 ├── telemetry/                 # Constitutional metrics
