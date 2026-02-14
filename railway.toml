@@ -3,7 +3,7 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "python -m aaa_mcp http"
+startCommand = "python -m aaa_mcp.rest"
 healthcheckPath = "/health"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
@@ -23,7 +23,7 @@ AAA_MCP_TRANSPORT = "sse"
 LOG_LEVEL = "info"
 
 # Railway deployment timestamp (forces cache bust)
-DEPLOY_TS = "2026-02-14T04-25"
+DEPLOY_TS = "2026-02-14T06-16"
 
 # API keys (set these in Railway dashboard for security)
 # BRAVE_API_KEY = "${{BRAVE_API_KEY}}"

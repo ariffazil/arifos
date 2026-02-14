@@ -33,11 +33,15 @@ COPY pyproject.toml .
 COPY README.md .
 COPY ARCHITECTURE.md .
 
-# Copy source code in dependency order (least likely to change first)
-COPY scripts/start_server.py scripts/start_server.py
+# Copy source code — REST bridge for OpenAI compatibility
 COPY core/ core/
 COPY aaa_mcp/ aaa_mcp/
+
+# Verify REST bridge exists (critical for OpenAI adapter)
+RUN python3 -c "import aaa_mcp.rest; print('✓ REST bridge: aaa_mcp.rest')"
+
 # NOTE: aclip_cai/ not copied — deployed separately on Hostinger (F13 Sovereignty)
+# NOTE: scripts/start_server.py removed — using REST bridge instead
 
 # Clear Python cache to ensure fresh imports
 RUN find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -69,3 +73,4 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # Default command (overridden by railway.toml)
 CMD ["python", "-m", "aaa_mcp", "sse", "--port", "8080", "--host", "0.0.0.0"]
+# CACHE BUST: 20260214062000 (AGGRESSIVE - REST bridge validation)
