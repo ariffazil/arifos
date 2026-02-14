@@ -95,6 +95,61 @@ async def list_tools(request: Request):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+async def mcp_jsonrpc(request: Request):
+    """JSON-RPC compatible endpoint for MCP protocol."""
+    try:
+        body = await request.json()
+        method = body.get("method", "")
+        params = body.get("params", {})
+        
+        # Extract tool name from method (e.g., "init_session" or "tools/init_session")
+        tool_name = method.split("/")[-1] if "/" in method else method
+        
+        # Map classic tool names
+        if tool_name in TOOL_ALIASES:
+            tool_name = TOOL_ALIASES[tool_name]
+        
+        # Get tool from MCP server
+        tools = await mcp_server.get_tools()
+        if tool_name not in tools:
+            return JSONResponse({
+                "jsonrpc": "2.0",
+                "error": {"code": -32601, "message": f"Method '{method}' not found"},
+                "id": body.get("id")
+            })
+        
+        tool = tools[tool_name]
+        result = await tool(**params)
+        
+        return JSONResponse({
+            "jsonrpc": "2.0",
+            "result": result,
+            "id": body.get("id")
+        })
+    except Exception as e:
+        return JSONResponse({
+            "jsonrpc": "2.0",
+            "error": {"code": -32603, "message": str(e)},
+            "id": body.get("id") if body else None
+        })
+
+
+async def call_tool_get(request: Request):
+    """Handle GET requests to tool endpoints - explain to use POST."""
+    tool_name = request.path_params.get("tool_name")
+    return JSONResponse({
+        "error": "Method not allowed",
+        "message": f"Tool '{tool_name}' requires POST, not GET",
+        "hint": "Use POST with JSON body",
+        "example": {
+            "method": "POST",
+            "url": f"/tools/{tool_name}",
+            "body": {"session_id": "your-session-id"}
+        },
+        "available_methods": ["POST"]
+    }, status_code=405)
+
+
 async def call_tool(request: Request):
     """Call an MCP tool via HTTP POST."""
     tool_name = request.path_params.get("tool_name")
@@ -142,10 +197,16 @@ routes = [
     Route("/health", health, methods=["GET"]),
     Route("/tools", list_tools, methods=["GET"]),
     Route("/tools/{tool_name}", call_tool, methods=["POST"]),
+    Route("/tools/{tool_name}", call_tool_get, methods=["GET"]),  # Helpful 405
+    # JSON-RPC endpoint (MCP standard)
+    Route("/mcp", mcp_jsonrpc, methods=["POST"]),
     # Additional routes for different path conventions
     Route("/{tool_name}", call_tool, methods=["POST"]),  # Root path
+    Route("/{tool_name}", call_tool_get, methods=["GET"]),  # Helpful 405
     Route("/mcp/{tool_name}", call_tool, methods=["POST"]),  # MCP prefix
+    Route("/mcp/{tool_name}", call_tool_get, methods=["GET"]),  # Helpful 405
     Route("/api/{tool_name}", call_tool, methods=["POST"]),  # API prefix
+    Route("/api/{tool_name}", call_tool_get, methods=["GET"]),  # Helpful 405
 ]
 
 app = Starlette(routes=routes, debug=False)
