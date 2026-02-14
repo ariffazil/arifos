@@ -3,7 +3,7 @@
 # Supports: PostgreSQL (VAULT999), Redis (MindVault), SSE transport
 # v65.0 Features: AAA-MCP directly (no router)
 #
-# CACHE BUST: 2026-02-14T07-00-00Z (Force Railway rebuild - REST bridge fix)
+# CACHE BUST: 2026-02-14T07-05-00Z (v64.2.0 - ChatGPT feedback implemented)
 #
 # Build: docker build -t arifos-governed-backend .
 # Run:   docker run -p 8080:8080 --env-file .env arifos-governed-backend
