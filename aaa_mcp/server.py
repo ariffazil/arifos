@@ -40,6 +40,9 @@ from core.governance_kernel import GovernanceKernel, get_governance_kernel
 from core.judgment import CognitionResult, EmpathyResult, judge_apex, judge_cognition, judge_empathy
 from core.telemetry import check_adaptation_status, log_telemetry, telemetry_store
 
+# P0 Refactor: Import InjectionGuard and classify_query from core/organs/_0_init.py
+from core.organs._0_init import InjectionGuard, classify_query, QueryType
+
 # 9 Hardened Skills Metadata
 TOOL_ANNOTATIONS = {
     "anchor": {"title": "1. ANCHOR", "description": "Init & Sense (Authority/F12)"},
@@ -126,28 +129,63 @@ mcp = FastMCP(
 @mcp.tool(name="anchor", description="1. ANCHOR (000) - Init & Sense")
 @constitutional_floor("F11", "F12")
 async def anchor(
-    query: str, actor_id: str = "user", auth_token: Optional[str] = None, mode: str = "conscience"
+    query: str, actor_id: str = "user", auth_token: Optional[str] = None, mode: str = "conscience", platform: str = "unknown"
 ) -> dict:
     """000_INIT — Establish Authority and Context."""
-    # F11 Authority
-    if not (auth_token or actor_id == "user") and mode == "conscience":
-        return {"verdict": "VOID", "error": "F11_FAIL: Auth required"}
+    # P0 Refactor: Wire actor_id from request context (no default "user" bypass)
+    if not actor_id or actor_id == "user":
+        return {"verdict": "VOID", "error": "F11_FAIL: No actor identity"}
 
-    # F12 Defense (Simplified)
-    injection_risk = 0.05
-    if "ignore previous" in query.lower():
-        injection_risk = ConstitutionalThresholds.INJECTION_RISK_HIGH
-    if injection_risk > ConstitutionalThresholds.INJECTION_RISK_BLOCK:
-        return {"verdict": "VOID", "error": "F12_FAIL: Injection detected"}
+    # P0 Refactor: Replace single-regex F12 check with full InjectionGuard.assess()
+    guard = InjectionGuard()
+    f12_result = guard.scan(query)
+
+    # P0 Refactor: Query classification for adaptive governance
+    query_type = classify_query(query)
+    query_type_str = query_type.value if isinstance(query_type, QueryType) else str(query_type)
+
+    # Determine governance mode (always HARD for P0)
+    governance_mode = "HARD"
+
+    # F12 threshold enforcement
+    if governance_mode == "HARD":
+        if f12_result.score >= 0.8:
+            return {
+                "verdict": "VOID",
+                "error": "F12_FAIL: Critical injection risk",
+                "f12_score": f12_result.score,
+            }
+    else:
+        if f12_result.score >= 0.9:
+            return {
+                "verdict": "VOID",
+                "error": "F12_FAIL: Injection detected",
+                "f12_score": f12_result.score,
+            }
 
     session_id = f"SESS-{uuid.uuid4().hex[:12].upper()}"
     get_governance_kernel(session_id)  # Init kernel
 
+    # P0 Refactor: Implement full canonical output contract
     return {
         "verdict": "SEAL",
-        "stage": "000_ANCHOR",
+        "stage": "000",
         "session_id": session_id,
-        "floor_scores": {"F11": 1.0, "F12": 1.0 - injection_risk},
+        "actor_id": actor_id,
+        "platform": platform,
+        "f12_score": f12_result.score,
+        "f12_matches": getattr(f12_result, 'matches', []),
+        "f12_level": getattr(f12_result, 'level', 0),
+        "governance_mode": governance_mode,
+        "authority_token": f"tok_{uuid.uuid4().hex[:16]}",
+        "query_type": query_type_str,
+        "f2_threshold": 0.85,  # Default, can be adaptive
+        "thermodynamic_budget": {
+            "tokens": 8000,
+            "time_ms": 30000
+        },
+        "next_stage": "111",
+        "floors_passed": ["F11", "F12"],
         "motto": "⚓ DITEMPA BUKAN DIBERI",
     }
 

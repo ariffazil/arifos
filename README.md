@@ -8,7 +8,7 @@
   <strong>Governance Middleware for AI Systems</strong><br>
   <em>From zero-context prompts to autonomous institutions</em><br><br>
   <a href="https://aaamcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
-  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-64.1.0-blue" alt="Version"></a>
+  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-64.2.0-blue" alt="Version"></a>
   <a href="#tool-overview"><img src="https://img.shields.io/badge/tools-19%20operational-orange" alt="Tools"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
 </p>
@@ -93,7 +93,7 @@ Current AI safety relies on hope:
 arifOS treats safety as **infrastructure**, not **instruction**:
 
 1. 🛑 **Interception** — Every AI query/response passes through arifOS first
-2. 🔍 **Measurement** — Six tools evaluate truth, empathy, uncertainty, evidence, and harm
+2. 🔍 **Measurement** — [Nine tools](#the-9-a-clip-tools-governance-loop) evaluate in sequence: anchor (000) → reason (222) → integrate (333) → respond (444) → validate (555) → align (666) → forge (777) → audit (888) → seal (999)
 3. ✅ **Enforcement** — Failed checks block (VOID), repair (SABAR), or approve (SEAL)
 4. 🔒 **Audit** — Every decision is cryptographically sealed for accountability
 
@@ -283,7 +283,7 @@ See [333_APPS/README.md](333_APPS/) for full stack documentation.
 
 ## The 9 A-CLIP Tools: Governance Loop
 
-Every request runs through six tools in sequence:
+Every request runs through nine tools in sequence:
 
 | Tool | Stage | What It Measures | Fails If | Outcome |
 |:---|:---:|:---|:---|:---:|
@@ -326,17 +326,42 @@ User: "Should I invest my life savings in crypto?"
 
 ## Tool Overview
 
-### init_session (000)
-Entry gate. Validates identity, scans for prompt injection (F12), establishes session context.
+### anchor (000_INIT)
+Constitutional airlock and ignition gate. All sessions must pass 000_INIT before downstream processing. Implements fail-closed security: if this contract is not satisfied, the pipeline refuses to ignite.
+
+**Key Features:**
+- **F11 Authority**: Actor identity from context (Telegram user ID, etc.) — no anonymous bypass
+- **F12 InjectionGuard**: 20+ regex patterns with compound scoring (not single-regex)
+- **Query Classification**: Adaptive F2 strictness based on query type (FACTUAL → 0.99, CONVERSATIONAL → 0.60)
+- **Thermodynamic Budget**: Allocated tokens/time per session (8k/30s default)
+- **Governance Mode**: HARD (strict) or SOFT (permissive) based on actor and query
 
 ```python
-result = await client.call("init_session", {
-    "query": user_query,
-    "actor_id": "user_123",
-    "mode": "conscience"  # strict | permissive
+result = await client.call("anchor", {
+    "query": "Should I invest in crypto?",
+    "actor_id": "267378578"  # Telegram user ID from context
 })
-# Returns: session_id, auth_status, floor_scores
+# Returns canonical 000_INIT contract:
+# {
+#   "verdict": "SEAL",
+#   "stage": "000",
+#   "session_id": "SESS-...",
+#   "actor_id": "267378578",
+#   "f12_score": 0.12,
+#   "governance_mode": "HARD",
+#   "authority_token": "tok_...",
+#   "query_type": "FACTUAL",
+#   "thermodynamic_budget": {"tokens": 8000, "time_ms": 30000},
+#   "next_stage": "111"
+# }
 ```
+
+**F12 Thresholds (HARD mode):**
+- `f12_score >= 0.8` → VOID (requires 888 Judge override)
+- `0.5 <= f12_score < 0.8` → Auto-sanitize + strong log
+- `f12_score < 0.5` → Proceed with query-type adaptation
+
+**Implementation:** See [`000_INIT.md`](000_INIT.md) for full specification and [`aaa_mcp/server.py`](aaa_mcp/server.py) for current implementation.
 
 ### agi_cognition (111-333)
 The Mind (Δ). Evaluates logical quality: truth (F2), clarity (F4), humility (F7), genius (F8), ontology (F10).
@@ -447,6 +472,8 @@ arifOS/
 │   ├── L5_AGENTS/             # Multi-agent federation (pilot)
 │   ├── L6_INSTITUTION/        # Trinity consensus (stubs)
 │   └── L7_AGI/                # Recursive research
+│
+├── 000_INIT.md               # Constitutional session initialization spec (v64.2)
 │
 ├── mcp/                       # Docker MCP configurations
 ├── telemetry/                 # Constitutional metrics

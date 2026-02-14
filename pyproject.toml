@@ -1,6 +1,14 @@
 [project]
 name = "arifos"
-version = "64.1.0"
+version = "64.2.0"
+# v64.2-INIT: Hardened 000_INIT with InjectionGuard and Canonical Contract (2026-02-14)
+#   - P0 Refactor: anchor() now uses full InjectionGuard (20+ patterns) vs single-regex
+#   - Query Classification: classify_query() from core/organs for adaptive F2 strictness
+#   - Canonical Output: f12_score, governance_mode, thermodynamic_budget, query_type
+#   - F12 Thresholds: HARD mode (>=0.8 VOID, 0.5-0.8 sanitize), SOFT mode (>=0.9 VOID)
+#   - Actor ID: Wired from Telegram context, no "user" bypass
+#   - 000_INIT.md: Full specification document for constitutional airlock
+#   - Status: SEAL — 000_INIT hardened, ready for P1 (session persistence)
 # v64.1-GAGI: Governed AGI Infrastructure (2026-02-13)
 #   - Uncertainty Engine: 5-dimensional vector with harmonic/geometric mean
 #   - Governance Kernel: Unified GovernanceState with conditional AWAITING_888
