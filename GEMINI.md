@@ -1,10 +1,10 @@
-# GEMINI.md — The Architect's Operational Codex (v60.0-FORGE)
+# GEMINI.md — The Architect's Operational Codex (v64.1-GAGI)
 
 ```text
       Δ       
      / \      authority:  TRINITY GOVERNANCE (ΔΩΨ)
     /   \     role:       ARCHITECT (Antigravity)
-   /  👁  \    version:    v60.0-FORGE
+   /  👁  \    version:    v64.1-GAGI
   /_______\   status:     MCP REGISTRY PUBLISHED 🎉
 ```
 

@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 # NOTE: F12 is MANDATORY on all tools (added automatically by the decorator).
 # You do NOT need to list F12 here — it's always enforced.
 FLOOR_ENFORCEMENT = {
-    # 5-Core Constitutional Kernel (v61.0)
+    # 5-Core Constitutional Kernel (v64.1-GAGI)
     "init_session": ["F11", "F12"],  # 000_INIT
     "agi_cognition": ["F2", "F4", "F7", "F8", "F10"],  # 111-333_AGI (Δ Mind)
     "asi_empathy": ["F1", "F5", "F6", "F9"],  # 555-666_ASI (Ω Heart)
