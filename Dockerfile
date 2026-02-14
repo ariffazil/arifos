@@ -75,4 +75,4 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # Default command (overridden by railway.toml)
 CMD ["python", "-m", "aaa_mcp", "sse", "--port", "8080", "--host", "0.0.0.0"]
-# CACHE BUST: 20260214080000 (FORCE REBUILD - Core update)
+# CACHE BUST: 20260214094300 (FORCE REBUILD - FastMCP fix)
