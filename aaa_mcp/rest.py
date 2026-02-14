@@ -16,14 +16,15 @@ DITEMPA BUKAN DIBERI
 import os
 import sys
 import json
-from typing import Any
+import asyncio
+from typing import Any, AsyncGenerator
 
 # Force local source priority
 sys.path.insert(0, os.getcwd())
 
 import uvicorn
 from starlette.applications import Starlette
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, StreamingResponse
 from starlette.routing import Route
 from starlette.requests import Request
 
@@ -214,6 +215,67 @@ async def mcp_jsonrpc(request: Request):
         })
 
 
+async def sse_endpoint(request: Request):
+    """MCP SSE transport endpoint."""
+    async def event_generator() -> AsyncGenerator[str, None]:
+        # Send initial endpoint event with message URL
+        msg_url = f"{request.url.scheme}://{request.url.netloc}/messages"
+        yield f"event: endpoint\ndata: {msg_url}\n\n"
+
+        # Keep connection alive with periodic pings
+        while True:
+            if await request.is_disconnected():
+                break
+            yield ": ping\n\n"  # SSE comment (heartbeat)
+            await asyncio.sleep(30)  # Ping every 30 seconds
+
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+        }
+    )
+
+
+async def messages_endpoint(request: Request):
+    """MCP messages endpoint for client to server communication."""
+    try:
+        body = await request.json()
+        method = body.get("method", "")
+        params = body.get("params", {})
+        msg_id = body.get("id")
+
+        # Map classic tool names
+        tool_name = method.split("/")[-1] if "/" in method else method
+        if tool_name in TOOL_ALIASES:
+            tool_name = TOOL_ALIASES[tool_name]
+
+        # Execute tool
+        if tool_name not in TOOLS:
+            return JSONResponse({
+                "jsonrpc": "2.0",
+                "id": msg_id,
+                "error": {"code": -32601, "message": f"Method '{method}' not found"}
+            })
+
+        tool = TOOLS[tool_name]
+        result = await tool(**params)
+
+        return JSONResponse({
+            "jsonrpc": "2.0",
+            "id": msg_id,
+            "result": result
+        })
+    except Exception as e:
+        return JSONResponse({
+            "jsonrpc": "2.0",
+            "id": body.get("id") if 'body' in dir() else None,
+            "error": {"code": -32603, "message": str(e)}
+        })
+
+
 # Create Starlette app with REST routes
 routes = [
     Route("/", route_info, methods=["GET"]),
@@ -221,6 +283,9 @@ routes = [
     Route("/tools", list_tools, methods=["GET"]),
     Route("/tools/{tool_name}", call_tool, methods=["POST"]),
     Route("/tools/{tool_name}", call_tool_get, methods=["GET"]),  # Helpful 405
+    # MCP SSE transport endpoints
+    Route("/sse", sse_endpoint, methods=["GET"]),
+    Route("/messages", messages_endpoint, methods=["POST"]),
     # JSON-RPC endpoint (MCP standard)
     Route("/mcp", mcp_jsonrpc, methods=["POST"]),
     # Additional routes for different path conventions
