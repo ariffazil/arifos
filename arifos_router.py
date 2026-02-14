@@ -27,17 +27,7 @@ from typing import Optional, Any
 sys.path.insert(0, os.getcwd())
 
 from fastmcp import FastMCP
-try:
-    from mcp.client import Client
-except ImportError:
-    from mcp import client as _client_module
-    Client = _client_module.Client
-
-try:
-    from mcp.types import StdioServerParameters
-except ImportError:
-    from mcp import types as _types_module
-    StdioServerParameters = _types_module.StdioServerParameters
+from mcp import ClientSession, StdioServerParameters, stdio_client
 
 # Router configuration
 AAA_CMD = [sys.executable, "-m", "aaa_mcp"]
@@ -67,31 +57,39 @@ This is the canonical entry point for arifOS MCP ecosystem.
 )
 
 # Backend clients
-aaa_client: Optional[Client] = None
-aclip_client: Optional[Client] = None
+aaa_client: Optional[ClientSession] = None
+aclip_client: Optional[ClientSession] = None
 
+# Backend stdio contexts (to shut down gracefully if needed)
+aaa_stdio_ctx: Optional[Any] = None
+aclip_stdio_ctx: Optional[Any] = None
+
+
+async def _attach_backend(command: list[str]) -> tuple[ClientSession, Any]:
+    """Spawn a backend and return its client session plus the stdio context."""
+    params = StdioServerParameters(
+        command=command[0],
+        args=command[1:],
+        env=os.environ.copy(),
+    )
+
+    ctx = stdio_client(params)
+    read_stream, write_stream = await ctx.__aenter__()
+    session = ClientSession(read_stream, write_stream)
+    await session.__aenter__()
+    await session.initialize()
+    return session, ctx
 
 async def ensure_backends():
     """Ensure both backends are connected."""
     global aaa_client, aclip_client
+    global aaa_stdio_ctx, aclip_stdio_ctx
 
     if aaa_client is None:
-        aaa_params = StdioServerParameters(
-            command=AAA_CMD[0],
-            args=AAA_CMD[1:],
-            env=os.environ.copy(),
-        )
-        aaa_client = Client(aaa_params)
-        await aaa_client.__aenter__()
+        aaa_client, aaa_stdio_ctx = await _attach_backend(AAA_CMD)
 
     if aclip_client is None:
-        aclip_params = StdioServerParameters(
-            command=ACLIP_CMD[0],
-            args=ACLIP_CMD[1:],
-            env=os.environ.copy(),
-        )
-        aclip_client = Client(aclip_params)
-        await aclip_client.__aenter__()
+        aclip_client, aclip_stdio_ctx = await _attach_backend(ACLIP_CMD)
 
 
 async def route_tool(tool_name: str, arguments: dict) -> Any:
