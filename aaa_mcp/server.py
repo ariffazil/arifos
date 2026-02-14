@@ -721,43 +721,77 @@ async def vault_seal(
             "witness_count": 3,
         }
 
-    # F1: Persist to VAULT999 (PostgreSQL)
+    # F1: Persist to VAULT999 (PostgreSQL primary, SQLite fallback)
     try:
         import asyncpg
         import os
         
-        db_url = os.getenv("DATABASE_URL", "postgresql://localhost/arifos_vault")
-        conn = await asyncpg.connect(db_url)
-        
-        # Get previous hash for Merkle chain
-        prev_row = await conn.fetchrow(
-            "SELECT entry_hash FROM vault_entries ORDER BY id DESC LIMIT 1"
-        )
-        prev_hash = prev_row["entry_hash"] if prev_row else "GENESIS"
-        
-        # Calculate Merkle root (simplified: hash of current + prev)
-        merkle_root = hashlib.sha256(
-            f"{seal_hash}:{prev_hash}".encode()
-        ).hexdigest()[:16]
-        
-        # Insert to VAULT
-        await conn.execute("""
-            INSERT INTO vault_entries 
-            (session_id, seal_id, verdict, risk_level, category, 
-             seal_data, entry_hash, prev_hash, merkle_root)
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-        """, session_id, seal_id, verdict, risk_level, category,
-             seal_data, seal_hash, prev_hash, merkle_root)
-        
-        await conn.close()
-        output["vault_status"] = "PERSISTED"
-        output["merkle_root"] = merkle_root
-        output["prev_hash"] = prev_hash
-        
+        db_url = os.getenv("DATABASE_URL")
+        if db_url:
+            conn = await asyncpg.connect(db_url)
+            
+            # Get previous hash for Merkle chain
+            prev_row = await conn.fetchrow(
+                "SELECT entry_hash FROM vault_entries ORDER BY id DESC LIMIT 1"
+            )
+            prev_hash = prev_row["entry_hash"] if prev_row else "GENESIS"
+            
+            # Calculate Merkle root
+            merkle_root = hashlib.sha256(
+                f"{seal_hash}:{prev_hash}".encode()
+            ).hexdigest()[:16]
+            
+            # Insert to VAULT
+            await conn.execute("""
+                INSERT INTO vault_entries 
+                (session_id, seal_id, verdict, risk_level, category, 
+                 seal_data, entry_hash, prev_hash, merkle_root)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            """, session_id, seal_id, verdict, risk_level, category,
+                 seal_data, seal_hash, prev_hash, merkle_root)
+            
+            await conn.close()
+            output["vault_status"] = "PERSISTED_POSTGRES"
+            output["merkle_root"] = merkle_root
+            output["prev_hash"] = prev_hash
+        else:
+            # F1 Fallback: SQLite
+            from .vault_sqlite import vault
+            sqlite_result = vault.seal(
+                session_id=session_id,
+                seal_id=seal_id,
+                verdict=verdict,
+                risk_level=risk_level,
+                category=category,
+                seal_data=seal_data,
+                floors_checked=floors_checked
+            )
+            output["vault_status"] = sqlite_result["vault_status"]
+            output["merkle_root"] = sqlite_result["merkle_root"]
+            output["prev_hash"] = sqlite_result["prev_hash"]
+            output["vault_id"] = sqlite_result["vault_id"]
+            
     except Exception as e:
-        # F1 Degraded: Log but don't fail (SQLite fallback in future)
-        output["vault_status"] = "DEGRADED"
-        output["vault_error"] = str(e)
+        # F1 Degraded: SQLite emergency fallback
+        try:
+            from .vault_sqlite import vault
+            sqlite_result = vault.seal(
+                session_id=session_id,
+                seal_id=seal_id,
+                verdict=verdict,
+                risk_level=risk_level,
+                category=category,
+                seal_data=seal_data,
+                floors_checked=floors_checked
+            )
+            output["vault_status"] = sqlite_result["vault_status"]
+            output["merkle_root"] = sqlite_result["merkle_root"]
+            output["prev_hash"] = sqlite_result["prev_hash"]
+            output["vault_id"] = sqlite_result["vault_id"]
+            output["vault_fallback_reason"] = str(e)
+        except Exception as e2:
+            output["vault_status"] = "FAILED"
+            output["vault_error"] = f"PostgreSQL: {e}; SQLite: {e2}"
 
     return output
 
