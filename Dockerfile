@@ -3,7 +3,7 @@
 # Supports: PostgreSQL (VAULT999), Redis (MindVault), SSE transport
 # v65.0 Features: AAA-MCP directly (no router)
 #
-# CACHE BUST: 2026-02-14T07-25-00Z (v64.2.1 - Root path route fix)
+# CACHE BUST: 2026-02-14T08-00-00Z (v64.2.2 - Core module update)
 #
 # Build: docker build -t arifos-governed-backend .
 # Run:   docker run -p 8080:8080 --env-file .env arifos-governed-backend
@@ -73,4 +73,4 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # Default command (overridden by railway.toml)
 CMD ["python", "-m", "aaa_mcp", "sse", "--port", "8080", "--host", "0.0.0.0"]
-# CACHE BUST: 20260214062000 (AGGRESSIVE - REST bridge validation)
+# CACHE BUST: 20260214080000 (FORCE REBUILD - Core update)
