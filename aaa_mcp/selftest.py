@@ -28,10 +28,9 @@ def check_floors() -> Tuple[bool, List[str]]:
     """Verify constitutional floors are configured."""
     issues = []
     
-    # Check for floor configuration
+    # Check for floor configuration (v64.1+ migrated to aaa_mcp/legacy)
     try:
-        # Primary canonical source (v55+): codebase constitutional floors
-        from codebase.constitutional_floors import THRESHOLDS as CONSTITUTIONAL_FLOORS  # type: ignore
+        from aaa_mcp.legacy.floors import THRESHOLDS as CONSTITUTIONAL_FLOORS
         if not CONSTITUTIONAL_FLOORS:
             issues.append("WARN: No constitutional floors defined")
         else:
@@ -39,24 +38,8 @@ def check_floors() -> Tuple[bool, List[str]]:
             if floor_count < 13:
                 issues.append(f"WARN: Only {floor_count}/13 floors defined")
             print(f"✓ Constitutional floors loaded: {floor_count}")
-    except ImportError:
-        # Backwards compat: older layout inside aaa_mcp
-        try:
-            from aaa_mcp.core.constitutional_floors import CONSTITUTIONAL_FLOORS  # type: ignore
-            if not CONSTITUTIONAL_FLOORS:
-                issues.append("WARN: No constitutional floors defined (legacy module)")
-            else:
-                floor_count = len(CONSTITUTIONAL_FLOORS)
-                if floor_count < 13:
-                    issues.append(f"WARN: Only {floor_count}/13 floors defined (legacy)")
-                print(f"✓ Constitutional floors loaded from legacy module: {floor_count}")
-        except ImportError:
-            try:
-                from aaa_mcp.config.floors import FLOORS  # type: ignore
-                floor_count = len(FLOORS)
-                print(f"✓ Constitutional floors loaded from config: {floor_count}")
-            except ImportError:
-                issues.append("WARN: Constitutional floors module not found (non-blocking)")
+    except ImportError as e:
+        issues.append(f"ERROR: Cannot load constitutional floors: {e}")
     
     return len([i for i in issues if i.startswith("FAIL")]) == 0, issues
 
