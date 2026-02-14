@@ -1,16 +1,49 @@
-# arifOS v64.1-GAGI
+# arifOS
+
+<p align="center">
+  <img src="docs/forged_page_1.png" alt="arifOS — Forged, Not Given" width="800">
+</p>
 
 <p align="center">
   <strong>Governance Middleware for AI Systems</strong><br>
   <em>From zero-context prompts to autonomous institutions</em><br><br>
   <a href="https://aaamcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
-  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-64.1--GAGI-blue" alt="Version"></a>
+  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-64.1.0-blue" alt="Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
+</p>
+
+<p align="center">
+  <a href="https://arif-fazil.com">🏠 Home</a> •
+  <a href="https://arifos.arif-fazil.com">📚 Docs</a> •
+  <a href="https://pypi.org/project/arifos/">📦 PyPI</a> •
+  <a href="https://aaamcp.arif-fazil.com/health">🌐 AAA MCP Live</a> •
+  <a href="./333_APPS">🧱 333_APPS</a> •
+  <a href="./aclip_cai">🧠 ACLIP_CAI</a>
 </p>
 
 **arifOS is governance middleware that sits between AI models and users, evaluating every response before it reaches a human. If a response fails safety checks, it's blocked—not sent with a warning.**
 
 > arifOS follows the **333_APPS model**, a layered governance stack that scales from prompts to institutional systems.
+
+---
+
+## Table of Contents
+
+- [10-Second Demo](#10-second-demo)
+- [What arifOS Is NOT](#what-arifos-is-not)
+- [The Problem: AI Failure Modes](#the-problem-ai-failure-modes)
+- [How It Works (Mechanical Explanation)](#how-it-works-mechanical-explanation)
+- [Deployment & Access Paths](#deployment--access-paths)
+- [Architecture: Kernel + Adapter Pattern](#architecture-kernel--adapter-pattern)
+- [The 7-Layer Application Stack (333_APPS)](#the-7-layer-application-stack-333_apps)
+- [The 6 Conceptual Stages (Tool Loop)](#the-6-conceptual-stages-tool-loop)
+- [Tool Overview](#tool-overview)
+- [Real-World Scenarios](#real-world-scenarios)
+- [Repository Structure](#repository-structure)
+- [Advanced Concepts](#advanced-concepts)
+- [Version Lineage](#version-lineage)
+- [Contributing](#contributing)
+- [Philosophy & Closing](#philosophy--closing)
 
 ---
 
@@ -65,18 +98,19 @@ arifOS treats safety as **infrastructure**, not **instruction**:
 
 ---
 
-## Quickstart
+## Deployment & Access Paths
+
+### For engineers in a hurry
+
+**Way 1 — MCP (AAA MCP server):**
 
 ```bash
-# Install
 pip install arifos
-
-# Run local server
-python -m aaa_mcp
-
-# Or connect to live server
+python -m aaa_mcp      # stdio mode (MCP IDEs)
 curl https://aaamcp.arif-fazil.com/health
 ```
+
+**Way 2 — Python SDK / governed HTTP:**
 
 ```python
 from mcp import Client
@@ -91,6 +125,13 @@ result = await client.call("agi_cognition", {
 })
 print(result["verdict"])  # → VOID
 ```
+
+**Way 3 — Prompt-only (L1_PROMPT):**
+
+1. Open `333_APPS/L1_PROMPT/SYSTEM_PROMPT.md`  
+2. Copy the raw content into your model’s system prompt  
+3. Use normally — responses are now governed by arifOS
+
 
 ---
 
@@ -472,9 +513,22 @@ The 13 floors are not suggestions. They are load-bearing structure. When F7 Humi
 
 ---
 
+## Version Lineage
+
+| Era         | Version band | Key traits                                      | Status      |
+|-------------|--------------|-------------------------------------------------|------------|
+| 9-Floor     | v30–44       | Single-organ `apex_prime`, SABAR-72            | Deprecated |
+| SOVEREIGN   | v45–53       | Early Trinity, 9→13 floor migration            | Archived   |
+| Trinity v1  | v54–63       | ΔΩΨ kernel, non-MCP integrations                | Superseded |
+| Current     | v64.x        | 333_APPS, 5-organs, 13 floors, AAA MCP + ACLIP | Active     |
+
+Earlier arifOS releases (≤ v53) used a 9-floor model; v64.x formalizes 13 floors (F1–F13) with the same spirit but stricter separation between hard (VOID), soft (SABAR), and derived indices (Ω₀, Irreversibility Index).
+
+---
+
 ## META: Canonical Reconstruction
 
-This README represents the **v64.1-GAGI** release following the AAA-ACTOR MASTER DIRECTIVE (2026-02-14):
+This README represents the **v64.x** series following the AAA-ACTOR MASTER DIRECTIVE (2026-02-14):
 
 **Key improvements:**
 - Concrete-first opening with 10-second demo
