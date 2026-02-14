@@ -56,6 +56,100 @@ try:
 
     print(f"[startup] MCP v{__version__} loaded", file=sys.stderr, flush=True)
 
+    # =============================================================================
+    # ACLIP-CAI INTEGRATION (Sensory Tools C0-C9)
+    # =============================================================================
+    try:
+        from aclip_cai.server import chroma_query as _chroma_query
+        from aclip_cai.server import config_flags as _config_flags
+        from aclip_cai.server import cost_estimator as _cost_estimator
+        from aclip_cai.server import financial_cost as _financial_cost
+        from aclip_cai.server import forge_guard as _forge_guard
+        from aclip_cai.server import fs_inspect as _fs_inspect
+        from aclip_cai.server import log_tail as _log_tail
+        from aclip_cai.server import net_status as _net_status
+        from aclip_cai.server import system_health as _system_health
+
+        print(
+            "[startup] ACLIP-CAI module loaded, registering tools...", file=sys.stderr, flush=True
+        )
+
+        @mcp_server.tool(
+            name="aclip_system_health", description="[C0] System Health - CPU/RAM/Processes"
+        )
+        async def aclip_system_health(
+            mode: str = "full", filter_process: str = "", top_n: int = 15
+        ) -> dict:
+            return await _system_health(mode, filter_process, top_n)
+
+        @mcp_server.tool(
+            name="aclip_fs_inspect", description="[C2] Filesystem Inspector - Read-only"
+        )
+        async def aclip_fs_inspect(
+            path: str = ".", depth: int = 1, include_hidden: bool = False
+        ) -> dict:
+            return await _fs_inspect(path, depth, include_hidden)
+
+        @mcp_server.tool(name="aclip_log_tail", description="[C3] Log Tail - View recent logs")
+        async def aclip_log_tail(
+            log_file: str = "aaa_mcp.log", lines: int = 50, pattern: str = ""
+        ) -> dict:
+            return await _log_tail(log_file, lines, pattern)
+
+        @mcp_server.tool(name="aclip_net_status", description="[C4] Network Status - Ports/Conns")
+        async def aclip_net_status(
+            check_ports: bool = True, check_connections: bool = True
+        ) -> dict:
+            return await _net_status(check_ports, check_connections)
+
+        @mcp_server.tool(name="aclip_config_flags", description="[C5] Config Flags - Env check")
+        async def aclip_config_flags() -> dict:
+            return await _config_flags()
+
+        @mcp_server.tool(name="aclip_chroma_query", description="[C6] Chroma Query - Vector DB")
+        async def aclip_chroma_query(
+            query: str, collection: str = "default", top_k: int = 5, list_only: bool = False
+        ) -> dict:
+            return await _chroma_query(query, collection, top_k, list_only)
+
+        @mcp_server.tool(
+            name="aclip_cost_estimator", description="[C7] Cost Estimator - Thermodynamic"
+        )
+        async def aclip_cost_estimator(
+            action_description: str,
+            estimated_cpu_percent: float = 0,
+            estimated_ram_mb: float = 0,
+            estimated_io_mb: float = 0,
+        ) -> dict:
+            return await _cost_estimator(
+                action_description, estimated_cpu_percent, estimated_ram_mb, estimated_io_mb
+            )
+
+        @mcp_server.tool(name="aclip_financial_cost", description="[C9] Financial Cost - Monetary")
+        async def aclip_financial_cost(
+            service: str, action: str, resource_id: str = "", period_days: int = 1
+        ) -> dict:
+            return await _financial_cost(service, action, resource_id, period_days)
+
+        @mcp_server.tool(name="aclip_forge_guard", description="[C8] Forge Guard - Circuit Breaker")
+        async def aclip_forge_guard(
+            check_system_health: bool = True,
+            cost_score_threshold: float = 0.8,
+            cost_score_to_check: float = 0.0,
+        ) -> dict:
+            return await _forge_guard(
+                check_system_health, cost_score_threshold, cost_score_to_check
+            )
+
+        print("[startup] ACLIP-CAI tools registered (C0-C9)", file=sys.stderr, flush=True)
+
+    except ImportError:
+        print(
+            "[startup] ACLIP-CAI module not found. Skipping sensory tools.",
+            file=sys.stderr,
+            flush=True,
+        )
+
 except Exception as e:
     print(f"[startup] ERROR importing MCP: {e}", file=sys.stderr, flush=True)
     import traceback
