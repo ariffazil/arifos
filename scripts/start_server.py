@@ -35,7 +35,7 @@ print(f"[startup] Port: {port}, Host: {host}", file=sys.stderr, flush=True)
 try:
     import uvicorn
     from starlette.applications import Starlette
-    from starlette.responses import JSONResponse
+    from starlette.responses import JSONResponse, Response
     from starlette.routing import Route
     import inspect  # For module path verification
     print("[startup] Dependencies imported", file=sys.stderr, flush=True)
