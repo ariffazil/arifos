@@ -32,7 +32,7 @@ from aclip_cai.tools.config_reader import config_flags as config_reader
 from aclip_cai.tools.chroma_query import query_memory, list_collections
 from aclip_cai.tools.thermo_estimator import cost_estimator as thermo_cost
 from aclip_cai.tools.safety_guard import forge_guard as safety_guard
-from aclip_cai.tools.financial_monitor import financial_cost
+from aclip_cai.tools.financial_monitor import financial_cost as estimate_financial_cost
 
 # Create MCP server
 mcp = FastMCP(
@@ -185,7 +185,7 @@ async def financial_cost(
     
     Physical meaning: Monetary cost of operations.
     """
-    return financial_cost(
+    return estimate_financial_cost(
         service=service,
         action=action,
         resource_id=resource_id,

@@ -31,7 +31,7 @@ from fastmcp import FastMCP
 # v64.1: Import from core/ (kernel) not aaa_mcp.core/ (wrapper)
 # v64.1: Kernel imports — decision logic lives in core/, wrapper only calls kernel
 from core.governance_kernel import GovernanceKernel, get_governance_kernel
-from core.telemetry import log_telemetry
+from core.telemetry import log_telemetry, telemetry_store, check_adaptation_status
 from core.judgment import judge_cognition, judge_empathy, judge_apex
 
 # v62: Keep heuristics in aaa_mcp (wrapper-specific)
