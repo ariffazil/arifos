@@ -447,6 +447,7 @@ routes = [
     Route("/metrics", metrics_endpoint, methods=["GET"]),
     Route("/tools", list_tools, methods=["GET"]),
     Route("/tools/{tool_name}", call_tool, methods=["POST"]),
+    Route("/{tool_name}", call_tool, methods=["POST"]),  # Root path for direct tool calls
     Route("/apex_judge", apex_judge_wrapper, methods=["POST"]),
     Route("/sse", sse_endpoint, methods=["GET"]),
     Route("/messages", messages_endpoint, methods=["POST"]),
@@ -460,9 +461,14 @@ def main():
     port = int(os.getenv("PORT", 8080))
     host = os.getenv("HOST", "0.0.0.0")
     
+    # Show both core tools and aliases
+    all_tool_names = list(TOOLS.keys()) + list(TOOL_ALIASES.keys())
+    
     print(f"[rest] AAA MCP REST Bridge v{BUILD_INFO['version']} starting on {host}:{port}", file=sys.stderr)
     print(f"[rest] Schema: {BUILD_INFO['schema_version']}", file=sys.stderr)
-    print(f"[rest] Tools: {list(TOOLS.keys())}", file=sys.stderr)
+    print(f"[rest] Core tools: {list(TOOLS.keys())}", file=sys.stderr)
+    print(f"[rest] Aliases: {list(TOOL_ALIASES.keys())}", file=sys.stderr)
+    print(f"[rest] All endpoints: {all_tool_names}", file=sys.stderr)
     
     uvicorn.run(app, host=host, port=port, log_level="info")
 
