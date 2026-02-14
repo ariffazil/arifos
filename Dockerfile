@@ -1,7 +1,7 @@
-# arifOS MCP Server Dockerfile (v64.1-GAGI)
+# arifOS MCP Server Dockerfile (v65.0-ROUTER)
 # Production-ready container for Railway deployment
 # Supports: PostgreSQL (VAULT999), Redis (MindVault), SSE transport
-# v64.1 Features: Uncertainty Engine, Governance Kernel, Telemetry
+# v65.0 Features: arifos-router gateway, AAA-MCP + ACLIP-CAI backends
 #
 # Build: docker build -t arifos-governed-backend .
 # Run:   docker run -p 8080:8080 --env-file .env arifos-governed-backend
@@ -29,12 +29,15 @@ RUN rm -rf /usr/local/lib/python*/site-packages/codebase* 2>/dev/null || true
 # Copy package configuration
 COPY pyproject.toml .
 COPY README.md .
+COPY ARCHITECTURE.md .
 
 # Copy source code in dependency order (least likely to change first)
 COPY scripts/start_server.py scripts/start_server.py
-# v64.1: Kernel/Wrapper architecture - copy both layers
+# v65.0: Router + both backends
 COPY core/ core/
 COPY aaa_mcp/ aaa_mcp/
+COPY aclip_cai/ aclip_cai/
+COPY arifos_router.py .
 
 # Clear Python cache to ensure fresh imports
 RUN find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -43,9 +46,11 @@ RUN find . -name "*.pyc" -delete 2>/dev/null || true
 # Install package in editable mode
 RUN pip install --no-cache-dir -e .
 
-# Verify package is importable (kernel + wrapper)
+# Verify package is importable (kernel + both backends)
 RUN python3 -c "import core; from core.judgment import judge_cognition; print(f'✓ Kernel: {core.__file__}')"
-RUN python3 -c "import aaa_mcp; from aaa_mcp.server import mcp; print(f'✓ Wrapper: {aaa_mcp.__file__}')"
+RUN python3 -c "import aaa_mcp; from aaa_mcp.server import mcp; print(f'✓ AAA-MCP: {aaa_mcp.__file__}')"
+RUN python3 -c "import aclip_cai.server; print(f'✓ ACLIP-CAI: {aclip_cai.server.__file__}')"
+RUN python3 -c "import arifos_router; print(f'✓ Router: {arifos_router.__file__}')"
 
 # Create non-root user for security
 RUN useradd -m -u 1000 arifos && chown -R arifos:arifos /app
@@ -64,4 +69,4 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # Default command (can be overridden in railway.toml)
-CMD ["python", "-u", "scripts/start_server.py"]
+CMD ["arifos-router", "--sse", "--port", "8080", "--host", "0.0.0.0"]
