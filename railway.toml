@@ -3,11 +3,11 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "python -m aaa_mcp sse --port 8080 --host 0.0.0.0"
+startCommand = "python -m aaa_mcp http --port 8080 --host 0.0.0.0"
 healthcheckPath = "/health"
-healthcheckTimeout = 30
+healthcheckTimeout = 60
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 3
+restartPolicyMaxRetries = 5
 
 [variables]
 # Core server settings
