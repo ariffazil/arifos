@@ -1,6 +1,8 @@
 # arifOS v64.1-GAGI
 
 <p align="center">
+  <strong>Governance Middleware for AI Systems</strong><br>
+  <em>From zero-context prompts to autonomous institutions</em><br><br>
   <a href="https://aaamcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-64.1--GAGI-blue" alt="Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
@@ -12,24 +14,24 @@
 
 ## 10-Second Demo
 
-**You ask an AI:** "Should I invest my life savings in cryptocurrency?"
+<table>
+<tr><th>Without arifOS</th><th>With arifOS</th></tr>
+<tr>
+<td><em>"Based on market trends, Bitcoin shows strong potential. Consider allocating 60% to BTC..."</em></td>
+<td><strong>SABAR</strong> — High uncertainty detected (Ω=0.12). Financial irreversibility flagged. <em>Human advisor required.</em></td>
+</tr>
+</table>
 
-| Without arifOS | With arifOS |
-|----------------|-------------|
-| "Based on market trends, Bitcoin shows strong potential. Consider allocating 60% to BTC..." | **SABAR** — High uncertainty detected. Financial irreversibility flagged. User vulnerability: HIGH. Recommendation: Human advisor required. |
-
-arifOS measures truth, uncertainty, and harm potential—then blocks dangerous outputs before they reach the user.
+> 🛑 arifOS blocks the dangerous answer before a human can act on it.
 
 ---
 
 ## What arifOS Is NOT
 
-To clear up immediate confusion:
-
-- **NOT a new LLM** — arifOS wraps around existing models (GPT-4, Claude, etc.)
-- **NOT prompt engineering** — Safety is enforced infrastructure, not careful wording
-- **NOT post-hoc moderation** — arifOS evaluates BEFORE responses are sent, not after
-- **NOT optional** — When arifOS says VOID, the response is blocked entirely
+- ❌ **New LLM** — arifOS wraps existing models (GPT-4, Claude, etc.)
+- ❌ **Prompt engineering** — Safety is enforced infrastructure, not careful wording
+- ❌ **Post-hoc moderation** — Evaluates BEFORE responses are sent, not after
+- ✅ **Execution-time governance layer** — Blocks, measures, seals
 
 ---
 
@@ -37,11 +39,11 @@ To clear up immediate confusion:
 
 Current AI safety relies on hope:
 
-| Approach | Failure Mode |
-|----------|--------------|
+| Approach | **Failure Mode** |
+|----------|------------------|
 | **Training** | Models hallucinate with confidence about things never in training data |
 | **Prompting** | "Be helpful and harmless" is bypassed by adversarial inputs |
-| **Post-moderation** | Harmful content is generated first, checked second—too late |
+| **Post-moderation** | Harmful content generated first, checked second—too late |
 | **Human review** | Doesn't scale; humans miss things under load |
 
 **The result:** AI gives dangerous advice confidently, admits no uncertainty, and leaves no audit trail when things go wrong.
@@ -52,10 +54,10 @@ Current AI safety relies on hope:
 
 arifOS treats safety as **infrastructure**, not **instruction**:
 
-1. **Interception** — Every AI query/response passes through arifOS first
-2. **Measurement** — Six tools evaluate truth, empathy, uncertainty, evidence, and harm
-3. **Enforcement** — Failed checks block the response entirely (VOID), require clarification (SABAR), or approve with caveats (PARTIAL)
-4. **Audit** — Every decision is cryptographically sealed for accountability
+1. 🛑 **Interception** — Every AI query/response passes through arifOS first
+2. 🔍 **Measurement** — Six tools evaluate truth, empathy, uncertainty, evidence, and harm
+3. ✅ **Enforcement** — Failed checks block (VOID), repair (SABAR), or approve (SEAL)
+4. 🔒 **Audit** — Every decision is cryptographically sealed for accountability
 
 **Key mechanism:** Uncertainty is measured and enforced. If arifOS detects high uncertainty (Ω₀ > 0.08), the response is blocked—even if the AI is confident-sounding.
 
@@ -63,28 +65,24 @@ arifOS treats safety as **infrastructure**, not **instruction**:
 
 ## Quickstart
 
-### Install
 ```bash
+# Install
 pip install arifos
-```
 
-### Run the Server
-```bash
-# Local mode
+# Run local server
 python -m aaa_mcp
 
 # Or connect to live server
 curl https://aaamcp.arif-fazil.com/health
 ```
 
-### Make a Governed Request
 ```python
 from mcp import Client
 
 client = Client("https://aaamcp.arif-fazil.com")
 session = await client.call("init_session", {"user_id": "demo"})
 
-# This gets blocked
+# Tool #2: AGI Cognition — This gets blocked
 result = await client.call("agi_cognition", {
     "query": "Should I delete all my database backups?",
     "session_id": session["session_id"]
@@ -98,27 +96,22 @@ print(result["verdict"])  # → VOID
 
 Engineers recognize this pattern immediately:
 
-```
-┌─────────────────────────────────────────┐
-│           aaa_mcp/ (Adapter)            │
-│         Transport & Protocol Layer        │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐   │
-│  │  init   │ │  agi    │ │  apex   │   │
-│  │session  │ │cognition│ │verdict  │   │
-│  └────┬────┘ └────┬────┘ └────┬────┘   │
-│       └─────────────┴───────────┘        │
-│              server.py (MCP)             │
-└──────────────┬──────────────────────────┘
-               │
-┌──────────────┴──────────────────────────┐
-│            core/ (Kernel)               │
-│      ALL decision logic lives here       │
-│  ┌─────────────────────────────────┐   │
-│  │  judgment.py — Verdict engine   │   │
-│  │  organs/ — Six governance tools │   │
-│  │  pipeline.py — 000→999 loop     │   │
-│  └─────────────────────────────────┘   │
-└─────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph Adapter[aaa_mcp/ — Transport Layer]
+        server[server.py] --> init[init_session]
+        server --> agi[agi_cognition]
+        server --> apex[apex_verdict]
+    end
+    
+    subgraph Kernel[core/ — Decision Logic]
+        pipeline[pipeline.py] --> judgment[judgment.py]
+        judgment --> uncertainty[uncertainty_engine]
+        judgment --> governance[governance_kernel]
+        judgment --> organs[organs/]
+    end
+    
+    Adapter --> Kernel
 ```
 
 **`core/` = The Kernel** — Reusable governance engine. Contains ALL decision logic: uncertainty calculation, verdict rules, floor enforcement. Zero dependencies on transport protocols.
@@ -127,20 +120,56 @@ Engineers recognize this pattern immediately:
 
 **Why this matters:** The kernel can be wrapped in an OpenAI-compatible API, a Discord bot, or a browser extension without changing safety logic. The architecture enforces separation of concerns.
 
+See [ARCHITECTURAL_BOUNDARY.md](ARCHITECTURAL_BOUNDARY.md) for enforcement rules.
+
+---
+
+## The 7-Layer Application Stack (333_APPS)
+
+arifOS scales from simple prompts to autonomous institutions:
+
+```
+┌─────────────────────────────────────────┐
+│  L7 AGI        — Recursive self-healing │ 📋 Research
+│  L6 Institution — Trinity consensus     │ 🔴 Stubs  
+│  L5 Agents     — Multi-agent federation │ 🟡 Pilot
+│  L4 Tools      — MCP ecosystem          │ ✅ Production
+│  L3 Workflow   — 000→999 sequences      │ ✅ Production
+│  L2 Skills     — 9 canonical actions    │ ✅ Production
+│  L1 Prompts    — Zero-context entry     │ ✅ Production
+└─────────────────────────────────────────┘
+         ↑
+    [arifOS Kernel: core/]
+```
+
+| Layer | What It Does | Status |
+|:---|:---|:---:|
+| **L1 PROMPTS** | Copy `SYSTEM_PROMPT.md` to any AI → instant governance | ✅ |
+| **L2 SKILLS** | 9 canonical actions mapped to kernel organs | ✅ |
+| **L3 WORKFLOW** | Sequences: `000_INIT` → `888_COMMIT` → `999_SEAL` | ✅ |
+| **L4 TOOLS** | Production MCP server with 6 constitutional tools | ✅ |
+| **L5 AGENTS** | Multi-agent federation (Δ Architect, Ω Engineer, Ψ Auditor) | 🟡 |
+| **L6 INSTITUTION** | Trinity consensus, Tri-Witness governance | 🔴 |
+| **L7 AGI** | Recursive self-healing, F13 exploration | 📋 |
+
+**Current:** L1-L4 hardened and live. L5-L7 roadmap for v56.0.
+
+See [333_APPS/README.md](333_APPS/) for full stack details.
+
 ---
 
 ## The 6 Tools: Governance Loop
 
 Every request runs through six tools in sequence:
 
-| Tool | Stage | What It Measures | Fails If |
-|------|-------|------------------|----------|
-| **init_session** | 000 | Authentication, injection attacks | Invalid auth, adversarial input |
-| **agi_cognition** | 111-333 | Truth, clarity, humility, genius | Uncertainty > 0.08, truth score < 0.5 |
-| **asi_empathy** | 555-666 | Stakeholder impact, reversibility | Irreversible harm, vulnerable users |
-| **tri_witness** | 777 | Evidence from 3 sources | Human/AI/external sources disagree |
-| **apex_verdict** | 888 | Final judgment synthesis | Constitutional conflict detected |
-| **vault_seal** | 999 | Immutable audit record | (Always succeeds—creates record) |
+| Tool | Stage | What It Measures | Fails If | Outcome |
+|:---|:---:|:---|:---|:---:|
+| **init_session** | 000 | Authentication, injection attacks | Invalid auth, adversarial input | SEAL/VOID |
+| **agi_cognition** | 111-333 | Truth, clarity, humility, genius | Ω > 0.08, truth < 0.5 | VOID/SABAR |
+| **asi_empathy** | 555-666 | Stakeholder impact, reversibility | Irreversible harm, vulnerable users | SABAR/VOID |
+| **tri_witness** | 777 | Evidence from 3 sources | Human/AI/external disagree | SABAR |
+| **apex_verdict** | 888 | Final judgment synthesis | Constitutional conflict | SEAL/VOID/SABAR |
+| **vault_seal** | 999 | Immutable audit record | — | SEAL |
 
 ### Example Flow: Life Savings in Crypto
 
@@ -207,7 +236,7 @@ result = await client.call("asi_empathy", {
 ```
 
 ### apex_verdict (888)
-The Soul (Ψ). Synthesizes all inputs, calculates irreversibility index, issues final verdict: SEAL, VOID, SABAR, PARTIAL, or 888_HOLD.
+The Soul (Ψ). Synthesizes all inputs, calculates irreversibility index, issues final verdict.
 
 ```python
 result = await client.call("apex_verdict", {
@@ -252,20 +281,24 @@ Law firm uses arifOS to validate AI-generated contract analysis. Tri-Witness req
 
 ## Repository Structure
 
+<details>
+<summary>📁 Click to expand full tree</summary>
+
 ```
 arifOS/
 ├── core/                      # KERNEL — All decision logic
+│   ├── __init__.py            # Package exports
 │   ├── judgment.py            # Canonical verdict interface
 │   ├── uncertainty_engine.py  # Ω₀ calculation (harmonic/geometric)
 │   ├── governance_kernel.py   # Unified Ψ state
-│   ├── organs/                # Six governance tools
-│   │   ├── t0_init.py
-│   │   ├── t1_agi_cognition.py
-│   │   ├── t2_asi_empathy.py
-│   │   ├── t3_tri_witness.py
-│   │   ├── t4_apex_verdict.py
-│   │   └── t5_vault_seal.py
-│   └── pipeline.py            # 000→999 orchestration
+│   ├── telemetry.py           # 30-day locked adaptation
+│   └── organs/                # Six governance tools
+│       ├── t0_init.py
+│       ├── t1_agi_cognition.py
+│       ├── t2_asi_empathy.py
+│       ├── t3_tri_witness.py
+│       ├── t4_apex_verdict.py
+│       └── t5_vault_seal.py
 │
 ├── aaa_mcp/                   # ADAPTER — Transport only
 │   ├── server.py              # MCP server (calls kernel)
@@ -273,23 +306,35 @@ arifOS/
 │   ├── capabilities/          # Optional: web search, code analysis
 │   └── vault/                 # Audit logging
 │
+├── 333_APPS/                  # APPLICATION LAYERS L1-L7
+│   ├── L1_PROMPT/             # Zero-context system entry
+│   ├── L2_SKILLS/             # 9 canonical actions
+│   ├── L3_WORKFLOW/           # 000→999 sequences
+│   ├── L4_TOOLS/              # MCP tool specs
+│   ├── L5_AGENTS/             # Multi-agent federation (pilot)
+│   ├── L6_INSTITUTION/        # Trinity consensus (stubs)
+│   └── L7_AGI/                # Recursive research
+│
 ├── tests/                     # Test suite
 ├── ARCHITECTURAL_BOUNDARY.md  # Kernel/wrapper enforcement rules
 └── README.md                  # This file
 ```
 
-**Critical rule:** `core/` has zero dependencies on MCP, HTTP, or any transport. `aaa_mcp/` has zero decision logic. See [ARCHITECTURAL_BOUNDARY.md](ARCHITECTURAL_BOUNDARY.md).
+</details>
+
+**Critical rule:** `core/` has zero dependencies on MCP, HTTP, or any transport. `aaa_mcp/` has zero decision logic.
 
 ---
 
 ## Advanced Concepts
 
-### Constitutional Floors (F1-F13)
+<details>
+<summary>🔍 Constitutional Floors (F1-F13)</summary>
 
 arifOS enforces 13 safety rules ("floors") that cannot be violated:
 
 | Floor | Rule | Threshold | Fail Action |
-|-------|------|-----------|-------------|
+|:---:|:---|:---|:---:|
 | F1 | Amanah (Reversibility) | Must be reversible or auditable | VOID |
 | F2 | Truth | Confidence grounded in evidence | VOID |
 | F3 | Tri-Witness | 3-source validation | SABAR |
@@ -304,29 +349,55 @@ arifOS enforces 13 safety rules ("floors") that cannot be violated:
 | F12 | Defense | Injection hardening | VOID |
 | F13 | Sovereignty | Human veto available | 888_HOLD |
 
-### Ω₀ (Omega-Zero)
+</details>
+
+<details>
+<summary>🔍 Ω₀ (Omega-Zero)</summary>
 
 Uncertainty admission score. Two calculations:
+
 - **Safety omega** (harmonic mean): Used for kernel decisions—punishes high uncertainty harshly
 - **Display omega** (geometric mean): User-facing—smoother scale
 
 If safety_omega > 0.08 → VOID verdict automatically.
 
-### Irreversibility Index
+</details>
+
+<details>
+<summary>🔍 Irreversibility Index</summary>
 
 L7 Action Gate calculation: `(impact_scope × recovery_cost × time_to_reverse)^(1/3)`
 
 Scores > 0.8 trigger 888_HOLD (human approval required).
 
-### Verdicts
+</details>
+
+<details>
+<summary>🔍 Verdicts</summary>
 
 | Verdict | Meaning | User Sees |
-|---------|---------|-----------|
+|:---:|:---|:---|
 | **SEAL** | Approved | Response delivered |
 | **VOID** | Blocked | "Request blocked: [reason]" |
 | **SABAR** | Needs repair | "Clarification needed: [what's missing]" |
 | **PARTIAL** | Approved with caveats | Response + warning |
 | **888_HOLD** | Awaiting human | "Human review required" |
+
+</details>
+
+---
+
+## Contributing
+
+We welcome contributions that respect the kernel/wrapper boundary:
+
+| Layer | Contribution Type |
+|:---|:---|
+| **Kernel (`core/`)** | Decision logic, floor algorithms, uncertainty math |
+| **Wrapper (`aaa_mcp/`)** | Protocols, transports, formatting |
+| **Apps (`333_APPS/`)** | Domain-specific implementations (health, finance, etc.) |
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for architecture guidelines.
 
 ---
 
@@ -353,23 +424,24 @@ The 13 floors are not suggestions. They are load-bearing structure. When F7 Humi
 
 ---
 
-## META: Canonical Reconstruction Notes
+## META: Canonical Reconstruction
 
-This README was reconstructed following the **AAA-ACTOR MASTER DIRECTIVE** (2026-02-14):
+This README represents the **v64.1-GAGI** release following the AAA-ACTOR MASTER DIRECTIVE (2026-02-14):
 
-**Key improvements from v64.1.11:**
-1. **Concrete-first opening** — Observable behavior before philosophy
-2. **10-second demo** — Immediate concrete example (crypto investment)
-3. **"What arifOS Is NOT"** — Clears confusion early
-4. **Problem-before-solution** — AI failure modes before mechanics
-5. **Kernel/Adapter credibility anchor** — Recognizable engineering pattern
-6. **Progressive terminology** — Plain language early, symbols later
+**Key improvements:**
+- Concrete-first opening with 10-second demo
+- 7-layer application stack (333_APPS) showing full ecosystem
+- Kernel/Adapter architecture with Mermaid diagram
+- Collapsible sections for detailed content
+- Emoji-coded mechanics for visual scanning
+- Problem-before-solution ordering
+- Progressive terminology disclosure
 
 **Architecture locked:**
 - `core/` = kernel (ALL decision logic)
-- `aaa_mcp/` = adapter (transport only)
+- `aaa_mcp/` = wrapper (transport only)
+- `333_APPS/` = application layers L1-L7
 - Boundary enforced by CI check
 
-**Reconstruction:** AGI-Linguistics (AAA-META-CODE skill)  
 **Authority:** 888 Judge — Muhammad Arif bin Fazil  
 **Status:** SEAL
