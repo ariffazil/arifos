@@ -102,120 +102,94 @@ async def system_health(
     include_temp: bool = False,
 ) -> ToolResponse:
     """
-    Retrieve comprehensive system health metrics.
-
-    Args:
-        include_swap: Include swap/memory statistics
-        include_io: Include disk I/O statistics (requires iostat)
-        include_temp: Include thermal readings (requires sensors)
-
-    Returns:
-        ToolResponse with CPU, memory, disk, and optional metrics
+    Retrieve comprehensive system health metrics using psutil.
     """
     start = time.perf_counter()
     data: dict[str, Any] = {}
 
     try:
-        # CPU Load
-        with open("/proc/loadavg", "r") as f:
-            load_parts = f.read().strip().split()
-            data["cpu"] = {
-                "load_1m": float(load_parts[0]),
-                "load_5m": float(load_parts[1]),
-                "load_15m": float(load_parts[2]),
-                "running_tasks": load_parts[3].split("/")[0],
-                "total_tasks": load_parts[3].split("/")[1],
-            }
+        import psutil
 
-        # CPU Count
-        data["cpu"]["cores"] = os.cpu_count() or 0
+        # CPU Load
+        cpu_cores = psutil.cpu_count() or 1
+        # psutil.getloadavg() is not available on Windows
+        if hasattr(psutil, "getloadavg"):
+            load_avg = [x / cpu_cores * 100 for x in psutil.getloadavg()]
+            data["cpu"] = {
+                "load_1m": round(load_avg[0], 2),
+                "load_5m": round(load_avg[1], 2),
+                "load_15m": round(load_avg[2], 2),
+            }
+        else:
+            data["cpu"] = {}
+
+        data["cpu"]["usage_percent"] = psutil.cpu_percent(interval=1)
+        data["cpu"]["cores"] = cpu_cores
 
         # Memory
-        with open("/proc/meminfo", "r") as f:
-            meminfo = f.read()
-            mem_total = _parse_size(
-                re.search(r"MemTotal:\s+(\d+\s*\w*)", meminfo).group(1)
-                if re.search(r"MemTotal:\s+(\d+\s*\w*)", meminfo)
-                else "0"
-            )
-            mem_free = _parse_size(
-                re.search(r"MemFree:\s+(\d+\s*\w*)", meminfo).group(1)
-                if re.search(r"MemFree:\s+(\d+\s*\w*)", meminfo)
-                else "0"
-            )
-            mem_available = _parse_size(
-                re.search(r"MemAvailable:\s+(\d+\s*\w*)", meminfo).group(1)
-                if re.search(r"MemAvailable:\s+(\d+\s*\w*)", meminfo)
-                else str(mem_free)
-            )
-            buffers = _parse_size(
-                re.search(r"Buffers:\s+(\d+\s*\w*)", meminfo).group(1)
-                if re.search(r"Buffers:\s+(\d+\s*\w*)", meminfo)
-                else "0"
-            )
-            cached = _parse_size(
-                re.search(r"Cached:\s+(\d+\s*\w*)", meminfo).group(1)
-                if re.search(r"Cached:\s+(\d+\s*\w*)", meminfo)
-                else "0"
-            )
+        mem = psutil.virtual_memory()
+        data["memory"] = {
+            "total_bytes": mem.total,
+            "available_bytes": mem.available,
+            "used_bytes": mem.used,
+            "usage_percent": mem.percent,
+        }
 
-            data["memory"] = {
-                "total_bytes": mem_total,
-                "available_bytes": mem_available,
-                "used_bytes": mem_total - mem_available,
-                "usage_percent": (
-                    round((mem_total - mem_available) / mem_total * 100, 2) if mem_total else 0
-                ),
-                "buffers_bytes": buffers,
-                "cached_bytes": cached,
+        if include_swap:
+            swap = psutil.swap_memory()
+            data["memory"]["swap"] = {
+                "total_bytes": swap.total,
+                "free_bytes": swap.free,
+                "used_bytes": swap.used,
+                "usage_percent": swap.percent,
             }
-
-            if include_swap:
-                swap_total = _parse_size(
-                    re.search(r"SwapTotal:\s+(\d+\s*\w*)", meminfo).group(1)
-                    if re.search(r"SwapTotal:\s+(\d+\s*\w*)", meminfo)
-                    else "0"
-                )
-                swap_free = _parse_size(
-                    re.search(r"SwapFree:\s+(\d+\s*\w*)", meminfo).group(1)
-                    if re.search(r"SwapFree:\s+(\d+\s*\w*)", meminfo)
-                    else "0"
-                )
-                data["memory"]["swap"] = {
-                    "total_bytes": swap_total,
-                    "free_bytes": swap_free,
-                    "used_bytes": swap_total - swap_free,
-                    "usage_percent": (
-                        round((swap_total - swap_free) / swap_total * 100, 2) if swap_total else 0
-                    ),
-                }
 
         # Disk Usage
         data["disk"] = {}
-        total_size = shutil.disk_usage("/")
-        data["disk"]["root"] = {
-            "total_bytes": total_size.total,
-            "used_bytes": total_size.used,
-            "free_bytes": total_size.free,
-            "usage_percent": round(total_size.used / total_size.total * 100, 2),
-        }
+        try:
+            total_size = psutil.disk_usage("/")
+            data["disk"]["root"] = {
+                "total_bytes": total_size.total,
+                "used_bytes": total_size.used,
+                "free_bytes": total_size.free,
+                "usage_percent": total_size.percent,
+            }
+        except FileNotFoundError:
+            data["disk"]["root"] = {"error": "Root directory '/' not found."}
 
-        # Disk I/O (optional)
         if include_io:
-            stdout, _, rc = _run_cmd(["iostat", "-x", "1", "1"], timeout=3.0)
-            if rc == 0:
-                data["disk"]["io_stats"] = stdout.strip()
+            io = psutil.disk_io_counters()
+            if io:
+                data["disk"]["io_stats"] = {
+                    "read_count": io.read_count,
+                    "write_count": io.write_count,
+                    "read_bytes": io.read_bytes,
+                    "write_bytes": io.write_bytes,
+                }
 
-        # Temperature (optional)
         if include_temp:
-            stdout, _, rc = _run_cmd(["sensors"], timeout=2.0)
-            if rc == 0:
-                data["thermal"] = stdout.strip()
+            if hasattr(psutil, "sensors_temperatures"):
+                temps = psutil.sensors_temperatures()
+                if temps:
+                    data["thermal"] = {
+                        key: [
+                            {
+                                "label": s.label,
+                                "current": s.current,
+                                "high": s.high,
+                                "critical": s.critical,
+                            }
+                            for s in sensors
+                        ]
+                        for key, sensors in temps.items()
+                    }
+            else:
+                data["thermal"] = {"error": "sensors_temperatures not available on this platform"}
 
         # Uptime
-        with open("/proc/uptime", "r") as f:
-            uptime_seconds = float(f.read().split()[0])
-            data["uptime_seconds"] = round(uptime_seconds, 2)
+        boot_time = psutil.boot_time()
+        uptime_seconds = time.time() - boot_time
+        data["uptime_seconds"] = round(uptime_seconds, 2)
 
         latency = (time.perf_counter() - start) * 1000
         return ToolResponse(
@@ -226,6 +200,14 @@ async def system_health(
             latency_ms=round(latency, 2),
         )
 
+    except ImportError:
+        return ToolResponse(
+            tool="system_health",
+            status="error",
+            timestamp=_now(),
+            error="psutil is not installed. Please install it with 'pip install psutil'",
+            latency_ms=(time.perf_counter() - start) * 1000,
+        )
     except Exception as e:
         latency = (time.perf_counter() - start) * 1000
         return ToolResponse(
@@ -252,86 +234,56 @@ async def process_list(
     include_threads: bool = False,
 ) -> ToolResponse:
     """
-    List and filter system processes.
-
-    Args:
-        filter_name: Filter by process name (substring match)
-        filter_user: Filter by username
-        min_cpu_percent: Minimum CPU percentage
-        min_memory_mb: Minimum memory usage in MB
-        limit: Maximum number of processes to return
-        include_threads: Include thread count per process
-
-    Returns:
-        ToolResponse with filtered process list
+    List and filter system processes using psutil.
     """
     start_time = time.perf_counter()
     processes = []
 
     try:
-        # Get process info via ps
-        cmd = ["ps", "aux", "--no-headers"]
-        stdout, stderr, rc = _run_cmd(cmd, timeout=5.0)
+        import psutil
 
-        if rc != 0:
-            raise RuntimeError(f"ps command failed: {stderr}")
+        for proc in psutil.process_iter(
+            [
+                "pid",
+                "name",
+                "username",
+                "cpu_percent",
+                "memory_percent",
+                "memory_info",
+                "status",
+                "create_time",
+                "cmdline",
+            ]
+        ):
+            try:
+                # Apply filters
+                if filter_name and filter_name.lower() not in proc.info["name"].lower():
+                    continue
+                if filter_user and filter_user != proc.info["username"]:
+                    continue
+                if proc.info["cpu_percent"] < min_cpu_percent:
+                    continue
+                if (proc.info["memory_info"].rss / 1024 / 1024) < min_memory_mb:
+                    continue
 
-        lines = stdout.strip().split("\n")
+                proc_info = {
+                    "pid": proc.info["pid"],
+                    "name": proc.info["name"],
+                    "command": " ".join(proc.info["cmdline"])[:200] if proc.info["cmdline"] else "",
+                    "user": proc.info["username"],
+                    "cpu_percent": proc.info["cpu_percent"],
+                    "memory_percent": round(proc.info["memory_percent"], 2),
+                    "memory_rss_mb": round(proc.info["memory_info"].rss / 1024 / 1024, 2),
+                    "stat": proc.info["status"],
+                    "started": datetime.fromtimestamp(proc.info["create_time"]).isoformat(),
+                }
 
-        for line in lines:
-            parts = line.split(None, 10)
-            if len(parts) < 11:
+                if include_threads:
+                    proc_info["threads"] = proc.num_threads()
+
+                processes.append(proc_info)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
                 continue
-
-            user = parts[0]
-            pid = int(parts[1])
-            cpu_percent = float(parts[2])
-            mem_percent = float(parts[3])
-            vsz = int(parts[4])  # Virtual memory in KB
-            rss = int(parts[5])  # Resident memory in KB
-            tty = parts[6]
-            stat = parts[7]
-            proc_start = parts[8]
-            time_cpu = parts[9]
-            command = parts[10]
-
-            # Extract process name
-            proc_name = command.split()[0] if command else ""
-            proc_name = proc_name.lstrip("[").rstrip("]")
-
-            # Apply filters
-            if filter_name and filter_name.lower() not in proc_name.lower():
-                continue
-            if filter_user and filter_user != user:
-                continue
-            if cpu_percent < min_cpu_percent:
-                continue
-            if (rss / 1024) < min_memory_mb:
-                continue
-
-            proc_info = {
-                "pid": pid,
-                "name": proc_name,
-                "command": command[:200],  # Truncate long commands
-                "user": user,
-                "cpu_percent": cpu_percent,
-                "memory_percent": mem_percent,
-                "memory_rss_mb": round(rss / 1024, 2),
-                "memory_vsz_mb": round(vsz / 1024, 2),
-                "stat": stat,
-                "started": proc_start,
-            }
-
-            if include_threads:
-                # Get thread count from /proc/{pid}/task
-                try:
-                    task_dir = f"/proc/{pid}/task"
-                    if os.path.exists(task_dir):
-                        proc_info["threads"] = len(os.listdir(task_dir))
-                except:
-                    proc_info["threads"] = None
-
-            processes.append(proc_info)
 
         # Sort by CPU usage descending
         processes.sort(key=lambda p: p["cpu_percent"], reverse=True)
@@ -354,7 +306,14 @@ async def process_list(
             },
             latency_ms=round(latency, 2),
         )
-
+    except ImportError:
+        return ToolResponse(
+            tool="process_list",
+            status="error",
+            timestamp=_now(),
+            error="psutil is not installed. Please install it with 'pip install psutil'",
+            latency_ms=(time.perf_counter() - start_time) * 1000,
+        )
     except Exception as e:
         latency = (time.perf_counter() - start_time) * 1000
         return ToolResponse(
@@ -699,7 +658,9 @@ async def net_status(
                         local_addr = (
                             parts[4]
                             if parts[0].startswith("tcp")
-                            else parts[3] if len(parts) > 3 else ""
+                            else parts[3]
+                            if len(parts) > 3
+                            else ""
                         )
                         ports.append(
                             {

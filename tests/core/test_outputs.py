@@ -43,7 +43,7 @@ def create_mock_tensor():
 async def test_init_output_standardization():
     res = await init("test query", actor_id="user")
     assert isinstance(res, InitOutput)
-    assert res.status == "SUCCESS"
+    assert res.status == "READY"
     assert res.verdict == Verdict.SEAL
 
 
