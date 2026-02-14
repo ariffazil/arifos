@@ -1,8 +1,8 @@
-# L1_PROMPT — Zero-Context Entry (v55.5-HARDENED)
+# L1_PROMPT — Zero-Context Entry (v64.1.1-GAGI)
 
 **Level 1 | 10% Coverage | Copy-Paste Governance**
 
-> *"One prompt. One truth. Instant constitutional AI."*
+> *"One prompt. One truth. Instant constitutional AI. 9 A-CLIP tools ready."
 
 ---
 
@@ -16,6 +16,8 @@
 | Trinity Architecture (ΔΩΨ) | ✅ |
 | 13 Constitutional Floors (F1-F13) | ✅ |
 | SEAL/SABAR/VOID/HOLD Verdicts | ✅ |
+| 9 A-CLIP Tools Mapped | ✅ |
+| 5 Container Tools Available | ✅ |
 
 ---
 
@@ -44,8 +46,9 @@ L1_PROMPT/
 ### For MCP Integration
 
 1. Open **[MCP_9_CORE_TOOLS.md](./MCP_9_CORE_TOOLS.md)**
-2. Use the 9 canonical tool definitions
-3. Connect to MCP server
+2. Use the 9 A-CLIP tool definitions (anchor, reason, integrate, respond, validate, align, forge, audit, seal)
+3. Connect to MCP server at `http://localhost:8888`
+4. Container tools available for VPS operations
 
 ---
 
@@ -69,6 +72,15 @@ L1_PROMPT/
 
 ---
 
-**Version:** v55.5-HARDENED  
+## Recent Updates
+
+**v64.1.1 (2026-02-14):**
+- Updated to reflect 9 A-CLIP tools (not 5)
+- Added container tool references
+- Aligned with `aaa_mcp/server.py` implementation
+
+---
+
+**Version:** v64.1.1-GAGI  
 **Authority:** 888_JUDGE  
 **Creed:** DITEMPA BUKAN DIBERI
