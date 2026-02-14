@@ -1,4 +1,4 @@
-# 9 Canonical MCP Tools (v55.5-EIGEN)
+# 5 Canonical MCP Tools (v64.1-GAGI)
 
 **Purpose:** MCP tool specifications for Claude Code + arifOS integration  
 **Principle:** MCP server is a "blind bridge" — all wisdom lives in Core Kernels
@@ -8,7 +8,7 @@
 ## Architecture
 
 ```
-Claude Code → MCP Client → MCP Server → Bridge → Core Kernels → Verdict → VAULT-999
+Claude Code → MCP Client → MCP Server → Core Organs → Verdict → VAULT-999
 ```
 
 ---
@@ -17,42 +17,21 @@ Claude Code → MCP Client → MCP Server → Bridge → Core Kernels → Verdic
 
 | # | Tool | Role | Stages | Floors |
 |---|------|------|--------|--------|
-| 1 | `init_gate` | Gate | 000 | F11, F12 |
-| 2 | `agi_sense` | Mind | 111 | F12 |
-| 3 | `agi_think` | Mind | 222 | F4 |
-| 4 | `agi_reason` | Mind | 333 | F2, F4, F7, F10 |
-| 5 | `asi_empathize` | Heart | 555 | F5, F6, F9 |
-| 6 | `asi_align` | Heart | 666 | F9 |
-| 7 | `apex_verdict` | Soul | 888 | F3, F8, F11 |
-| 8 | `reality_search` | Ground | External | F7, F10 |
-| 9 | `vault_seal` | Seal | 999 | F1 |
+| 1 | `init_session` | Gate | 000 | F11, F12 |
+| 2 | `agi_cognition` | Mind | 111-333 | F2, F4, F7, F8, F10 |
+| 3 | `asi_empathy` | Heart | 444-666 | F1, F5, F6, F9 |
+| 4 | `apex_verdict` | Soul | 888 | F2, F3, F8, F10-F13 |
+| 5 | `vault_seal` | Seal | 999 | F1, F3 |
 
 ---
 
 ## Tool Definitions
 
-### 1. `init_gate` — Session Initialization
+### 1. `init_session` — Session Initialization (000)
 ```json
 {
-  "name": "init_gate",
-  "description": "Initialize governed session. Verify authority, scan for injection (F12).",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "query": {"type": "string"},
-      "user_token": {"type": "string"},
-      "session_id": {"type": "string"}
-    },
-    "required": ["query"]
-  }
-}
-```
-
-### 2. `agi_sense` — Intent Detection
-```json
-{
-  "name": "agi_sense",
-  "description": "Parse input, detect intent, classify into lanes (HARD/SOFT/PHATIC).",
+  "name": "init_session",
+  "description": "000_INIT - Session ignition. Verify authority, scan for injection (F11, F12).",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -64,28 +43,11 @@ Claude Code → MCP Client → MCP Server → Bridge → Core Kernels → Verdic
 }
 ```
 
-### 3. `agi_think` — Hypothesis Generation
+### 2. `agi_cognition` — Mind Pipeline (111-333)
 ```json
 {
-  "name": "agi_think",
-  "description": "Generate multiple hypotheses without commitment.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "query": {"type": "string"},
-      "session_id": {"type": "string"},
-      "num_hypotheses": {"type": "integer"}
-    },
-    "required": ["query"]
-  }
-}
-```
-
-### 4. `agi_reason` — Deep Reasoning
-```json
-{
-  "name": "agi_reason",
-  "description": "Logical reasoning with step-by-step chain. Enforces F2 Truth, F4 Clarity.",
+  "name": "agi_cognition",
+  "description": "111-333_AGI - The Mind. Sense → Think → Reason pipeline. Enforces F2, F4, F7, F8, F10.",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -98,43 +60,28 @@ Claude Code → MCP Client → MCP Server → Bridge → Core Kernels → Verdic
 }
 ```
 
-### 5. `asi_empathize` — Stakeholder Analysis
+### 3. `asi_empathy` — Heart Pipeline (444-666)
 ```json
 {
-  "name": "asi_empathize",
-  "description": "Model human impact. Identify stakeholders, calculate vulnerability scores.",
+  "name": "asi_empathy",
+  "description": "444-666_ASI - The Heart. Empathize → Align pipeline. Enforces F1, F5, F6, F9.",
   "inputSchema": {
     "type": "object",
     "properties": {
-      "scenario": {"type": "string"},
-      "session_id": {"type": "string"}
+      "query": {"type": "string"},
+      "session_id": {"type": "string"},
+      "context": {"type": "object"}
     },
-    "required": ["scenario"]
+    "required": ["query"]
   }
 }
 ```
 
-### 6. `asi_align` — Ethical Alignment
-```json
-{
-  "name": "asi_align",
-  "description": "Reconcile request with ethics, law, policy. Check constitutional alignment.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "proposal": {"type": "string"},
-      "session_id": {"type": "string"}
-    },
-    "required": ["proposal"]
-  }
-}
-```
-
-### 7. `apex_verdict` — Final Judgment
+### 4. `apex_verdict` — Soul Judgment (888)
 ```json
 {
   "name": "apex_verdict",
-  "description": "Synthesize AGI + ASI into final verdict. Enforces F3 Tri-Witness consensus.",
+  "description": "666-888_APEX - The Judge. Final constitutional judgment. Enforces F2, F3, F8, F10-F13.",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -148,28 +95,11 @@ Claude Code → MCP Client → MCP Server → Bridge → Core Kernels → Verdic
 }
 ```
 
-### 8. `reality_search` — Fact Checking
-```json
-{
-  "name": "reality_search",
-  "description": "External grounding via Brave Search. Enforces F7 Humility.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "query": {"type": "string"},
-      "session_id": {"type": "string"},
-      "freshness": {"type": "string"}
-    },
-    "required": ["query"]
-  }
-}
-```
-
-### 9. `vault_seal` — Immutable Seal
+### 5. `vault_seal` — Immutable Seal (999)
 ```json
 {
   "name": "vault_seal",
-  "description": "Merkle-tree sealing for tamper-proof storage. Implements F1 Amanah.",
+  "description": "999_VAULT - Immutable Record. Merkle-tree sealing for tamper-proof storage. Implements F1, F3.",
   "inputSchema": {
     "type": "object",
     "properties": {
@@ -184,6 +114,6 @@ Claude Code → MCP Client → MCP Server → Bridge → Core Kernels → Verdic
 
 ---
 
-**Note:** Legacy `_ignite_`, `_logic_`, `_forge_` names are deprecated. Use snake_case tools above.
+**Note:** v64.1 consolidates tools into 5 canonical entry points. Internal stages run sequentially within each tool.
 
 **DITEMPA BUKAN DIBERI**

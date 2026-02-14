@@ -1,9 +1,9 @@
 # 333_APPS - arifOS Application Layer
 
 ## Overview
-This layer contains the core applications and capabilities of the arifOS system. For the **v55.5-HARDENED** release, the focus is on the **L1-L4 Foundational Layers**, ensuring production-ready prompts, skills, workflows, and tools.
+This layer contains the core applications and capabilities of the arifOS system. For the **v64.1-GAGI** release, the focus is on the **L1-L4 Foundational Layers**, ensuring production-ready prompts, skills, workflows, and tools.
 
-## 4-Layer Hierarchy (v55.5 Production)
+## 4-Layer Hierarchy (v64.1 Production)
 
 ### L1: PROMPTS (System Entry)
 Zero-context instructions for direct agent alignment. 
