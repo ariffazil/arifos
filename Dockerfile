@@ -3,6 +3,8 @@
 # Supports: PostgreSQL (VAULT999), Redis (MindVault), SSE transport
 # v65.0 Features: arifos-router gateway, AAA-MCP + ACLIP-CAI backends
 #
+# CACHE BUST: 2026-02-14T04-25-00Z (Force Railway rebuild)
+#
 # Build: docker build -t arifos-governed-backend .
 # Run:   docker run -p 8080:8080 --env-file .env arifos-governed-backend
 

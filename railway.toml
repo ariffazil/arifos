@@ -22,6 +22,9 @@ VAULT_BACKEND = "postgres"
 AAA_MCP_TRANSPORT = "sse"
 LOG_LEVEL = "info"
 
+# Railway deployment timestamp (forces cache bust)
+DEPLOY_TS = "2026-02-14T04-25"
+
 # API keys (set these in Railway dashboard for security)
 # BRAVE_API_KEY = "${{BRAVE_API_KEY}}"
 # BROWSERBASE_API_KEY = "${{BROWSERBASE_API_KEY}}"
