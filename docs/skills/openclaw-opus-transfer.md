@@ -220,34 +220,21 @@ ${KIMI_WORK_DIR}
 ```yaml
 version: 1
 agent:
-  name: "OpenClaw-Coder"
-  parent: "openclaw"
-  system_prompt_path: ./openclaw-system.md
+  extend: ./openclaw.yaml
   system_prompt_args:
-    ROLE: "Ω (Actor) — Fast implementation"
-    MODE: "generation"
+    ROLE_ADDITIONAL: |
+      You are the CODER sub-agent of OpenClaw.
+      Your job: write clean, tested, minimal code.
+      
+      Rules:
+      - Read existing code before modifying
+      - Use StrReplaceFile for targeted edits
+      - Run tests after changes when possible
+      - If uncertain about an API → say UNKNOWN, don't guess
+      - Return results to the main agent when complete
   
-  tools:
-    # Fast path tools
-    - "kimi_cli.tools.file:ReadFile"
-    - "kimi_cli.tools.file:WriteFile"
-    - "kimi_cli.tools.file:StrReplaceFile"
-    - "kimi_cli.tools.shell:Shell"
-    - "kimi_cli.tools.web:SearchWeb"
-    
-    # Governance hooks (lightweight)
-    - "arifos.anchor"
-    - "arifos.audit"
-  
-  constraints:
-    max_tokens_per_task: 32000
-    max_retries: 3
-    require_audit_before_output: true
-  
-  speed_profile:
-    description: "Fast generation with checkpoint validation"
-    parallel_subagents: true
-    speculative_generation: true
+  exclude_tools:
+    - "kimi_cli.tools.multiagent:Task"  # No nesting
 ```
 
 ### `.kimi/agents/reviewer-sub.yaml`
@@ -255,41 +242,127 @@ agent:
 ```yaml
 version: 1
 agent:
-  name: "OpenClaw-Reviewer"
-  parent: "openclaw"
-  system_prompt_path: ./openclaw-system.md
+  extend: ./openclaw.yaml
   system_prompt_args:
-    ROLE: "Ψ (Auditor) — Governance validation"
-    MODE: "review"
+    ROLE_ADDITIONAL: |
+      You are the REVIEWER sub-agent of OpenClaw.
+      Your job: validate code against governance floors.
+      
+      Check:
+      1. Does the code do what was asked? (Truth)
+      2. Does it introduce unnecessary complexity? (ΔS)
+      3. Are there security risks? (Amanah)
+      4. Are error messages helpful? (Peace²)
+      5. Is the code readable by a junior dev? (κᵣ)
+      
+      Return: PASS / PARTIAL / VOID with specific floor citations.
   
-  tools:
-    # Full governance suite
-    - "arifos.anchor"
-    - "arifos.reason"
-    - "arifos.integrate"
-    - "arifos.validate"
-    - "arifos.align"
-    - "arifos.audit"
-    - "arifos.seal"
-    - "arifos.self_diagnose"
-  
-  constraints:
-    require_full_pipeline: true
-    min_floor_scores:
-      F2: 0.90
-      F5: 0.85
-      F6: 0.90
-      F9: 1.0
-    max_omega_0: 0.06
-  
-  fallback:
-    trigger_conditions:
-      - verdict == "VOID"
-      - omega_0 > 0.08
-      - any_floor_score < 0.70
-    action: "request_claude_review"
-    claude_model: "claude-opus-4"
+  exclude_tools:
+    - "kimi_cli.tools.multiagent:Task"
+    - "kimi_cli.tools.shell:Shell"  # Reviewer doesn't execute
 ```
+
+---
+
+## Step 5: Skills (SKILL.md files)
+
+### `.kimi/skills/arifos-governance/SKILL.md`
+
+```markdown
+---
+name: arifos-governance
+description: Enforce arifOS 9-Floor constitutional governance on all outputs. Activate whenever code is generated, reviewed, or deployed.
+---
+
+# arifOS Governance Skill
+
+## When to Activate
+Always. Every code generation or modification should pass floor checks.
+
+## Quick Floor Check
+Before finalizing any output, verify:
+- [ ] Truth: Are all API calls, imports, and methods verified to exist?
+- [ ] ΔS: Does this reduce complexity or add unnecessary abstraction?
+- [ ] Amanah: Is this reversible? Any destructive operations flagged?
+- [ ] Peace²: Will error messages help the user, not confuse them?
+- [ ] κᵣ: Can a mid-level developer understand this code?
+- [ ] Ω₀: Did I acknowledge what I'm uncertain about?
+
+## If Any Check Fails
+Trigger SABAR:
+1. State which floor is at risk
+2. Explain why
+3. Offer bounded alternatives
+4. Wait for sovereign decision
+
+## Verdict Format
+End governance-sensitive outputs with:
+```
+[OpenClaw Governance]
+Floors: T=✓ ΔS=✓ A=✓ P²=✓ κ=✓ Ω=✓
+Verdict: SEAL / PARTIAL / VOID
+```
+```
+
+### `.kimi/skills/opus-patterns/SKILL.md`
+
+```markdown
+---
+name: opus-patterns
+description: Reasoning patterns extracted from Claude Opus 4.6 behavior. Use for complex multi-file tasks, architectural decisions, and debugging.
+---
+
+# Opus Reasoning Patterns
+
+## Pattern 1: Plan Before Code
+Before writing any code longer than 20 lines:
+1. State what you're building (1 sentence)
+2. List dependencies and assumptions
+3. Identify the riskiest part
+4. Then write code
+
+## Pattern 2: Minimal Diff
+When modifying existing code:
+- Read the full file first (ReadFile)
+- Identify the exact lines to change
+- Use StrReplaceFile with minimal scope
+- Never rewrite files you've only partially read
+
+## Pattern 3: Error Diagnosis Before Retry
+When a command or test fails:
+1. Read the FULL error output
+2. Identify the root cause (not just the symptom)
+3. Fix the root cause
+4. Only then re-run
+
+Do NOT: retry the same command hoping for different results.
+
+## Pattern 4: Dependency Verification
+Before using any library or API:
+- Verify it exists in the project's dependencies
+- Check the version matches your usage
+- If uncertain → SearchWeb or say UNKNOWN
+
+## Pattern 5: Staged Delivery
+For complex tasks, deliver in stages:
+1. Skeleton/scaffold first → verify it runs
+2. Core logic second → verify with tests
+3. Edge cases third → verify coverage
+4. Polish last → only if earlier stages pass
+
+Never deliver a monolith that can't be tested incrementally.
+
+## Pattern 6: Context Preservation
+Before switching tasks or ending session:
+- Summarize what was accomplished
+- Note what remains uncertain (Ω₀)
+- Document any 888 Judge decisions made
+- Leave breadcrumbs for next session
+```
+
+---
+
+## Step 6: MCP Configuration
 
 ---
 
