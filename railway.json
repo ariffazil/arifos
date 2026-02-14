@@ -62,6 +62,14 @@
       "description": "Redis connection string (auto-set by Railway Redis plugin)",
       "generator": "REDIS_URL",
       "required": true
+    },
+    "TELEGRAM_BOT_TOKEN": {
+      "description": "Telegram Bot Token for 888 Judge notifications (F11)",
+      "required": false
+    },
+    "TELEGRAM_CHAT_ID": {
+      "description": "Telegram Chat ID for 888 Judge notifications (F11)",
+      "required": false
     }
   }
 }

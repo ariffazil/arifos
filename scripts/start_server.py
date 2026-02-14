@@ -126,7 +126,8 @@ async def root(request):
         "status": "operational",
         "endpoints": {
             "health": "/health",
-            "mcp_sse": "/mcp/sse",
+            "mcp_sse": "/sse",
+            "mcp_messages": "/messages",
         },
     })
 

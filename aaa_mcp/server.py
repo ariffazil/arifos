@@ -751,7 +751,7 @@ async def vault_seal(
         
         # Get previous hash for Merkle chain
         prev_row = await conn.fetchrow(
-            "SELECT entry_hash FROM vault_entries ORDER BY id DESC LIMIT 1"
+            "SELECT entry_hash FROM vault_ledger ORDER BY sequence DESC LIMIT 1"
         )
         prev_hash = prev_row["entry_hash"] if prev_row else "GENESIS"
         
@@ -762,7 +762,7 @@ async def vault_seal(
         
         # Insert to VAULT
         await conn.execute("""
-            INSERT INTO vault_entries 
+            INSERT INTO vault_ledger 
             (session_id, seal_id, verdict, risk_level, category, 
              seal_data, entry_hash, prev_hash, merkle_root)
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
