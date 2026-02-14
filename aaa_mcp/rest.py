@@ -27,8 +27,14 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from starlette.requests import Request
 
-# Import MCP server to get tools
-from aaa_mcp.server import mcp as mcp_server
+# Tool name aliases for backward compatibility (classic 5-tool schema)
+TOOL_ALIASES = {
+    "init_session": "anchor",      # 000_INIT → anchor
+    "agi_cognition": "reason",     # 111-333_AGI → reason  
+    "asi_empathy": "validate",     # 555-666_ASI → validate
+    "apex_verdict": "audit",       # 888_APEX → audit
+    "vault_seal": "seal",          # 999_VAULT → seal
+}
 
 
 async def health(request: Request):
@@ -50,7 +56,19 @@ async def list_tools(request: Request):
                 "name": name,
                 "description": getattr(tool, 'description', 'No description'),
             })
-        return JSONResponse({"tools": tool_list})
+        # Also list classic aliases for backward compatibility
+        classic_tools = [
+            {"name": "init_session", "description": "000_INIT - Session ignition (alias for anchor)", "alias_for": "anchor"},
+            {"name": "agi_cognition", "description": "111-333_AGI - Mind/Reasoning (alias for reason)", "alias_for": "reason"},
+            {"name": "asi_empathy", "description": "555-666_ASI - Heart/Empathy (alias for validate)", "alias_for": "validate"},
+            {"name": "apex_verdict", "description": "888_APEX - Soul/Judgment (alias for audit)", "alias_for": "audit"},
+            {"name": "vault_seal", "description": "999_VAULT - Seal/Commit (alias for seal)", "alias_for": "seal"},
+        ]
+        return JSONResponse({
+            "tools": tool_list,
+            "classic_aliases": classic_tools,
+            "note": "Use classic names (init_session, agi_cognition, etc.) for ChatGPT compatibility"
+        })
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
@@ -58,6 +76,11 @@ async def list_tools(request: Request):
 async def call_tool(request: Request):
     """Call an MCP tool via HTTP POST."""
     tool_name = request.path_params.get("tool_name")
+    
+    # Map classic tool names to new names
+    original_name = tool_name
+    if tool_name in TOOL_ALIASES:
+        tool_name = TOOL_ALIASES[tool_name]
     
     try:
         body = await request.json()
@@ -69,7 +92,7 @@ async def call_tool(request: Request):
         tools = await mcp_server.get_tools()
         if tool_name not in tools:
             return JSONResponse(
-                {"error": f"Tool '{tool_name}' not found"}, 
+                {"error": f"Tool '{original_name}' (mapped to '{tool_name}') not found"}, 
                 status_code=404
             )
         
@@ -80,12 +103,13 @@ async def call_tool(request: Request):
         
         return JSONResponse({
             "status": "success",
-            "tool": tool_name,
+            "tool": original_name,
+            "mapped_to": tool_name,
             "result": result
         })
     except Exception as e:
         return JSONResponse(
-            {"error": str(e), "tool": tool_name}, 
+            {"error": str(e), "tool": original_name}, 
             status_code=500
         )
 
