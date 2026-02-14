@@ -2,7 +2,7 @@
 # Constitutional AI Governance Framework
 
 # Core dependencies
-fastmcp>=1.0,<2.0.0  # Pinned: SCAR-002 - v2 API drift, upgrade in v65.1
+fastmcp>=2.14.0  # v65.1 - Upgraded to FastMCP 2.x for custom_route support
 pydantic>=2.0.0
 httpx>=0.24.0
 
