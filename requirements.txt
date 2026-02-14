@@ -8,6 +8,7 @@ httpx>=0.24.0
 
 # Database (F1 Amanah)
 asyncpg>=0.28.0  # PostgreSQL VAULT999
+redis>=5.0.0     # Redis MindVault (v55.5)
 
 # NOTE: ACLIP Tactics Layer deps (psutil, brave-search) removed from Railway
 # ACLIP deployed on Hostinger VPS (hybrid topology — F13 Sovereignty)
