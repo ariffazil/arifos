@@ -27,6 +27,22 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 from starlette.requests import Request
 
+# Import tools directly from server module (avoid mcp wrapper issues)
+from aaa_mcp.server import anchor, reason, integrate, respond, validate, align, forge, audit, seal
+
+# Tool registry mapping names to functions
+TOOLS = {
+    "anchor": anchor,
+    "reason": reason,
+    "integrate": integrate,
+    "respond": respond,
+    "validate": validate,
+    "align": align,
+    "forge": forge,
+    "audit": audit,
+    "seal": seal,
+}
+
 # Tool name aliases for backward compatibility (classic 5-tool schema)
 TOOL_ALIASES = {
     "init_session": "anchor",      # 000_INIT → anchor
@@ -36,8 +52,18 @@ TOOL_ALIASES = {
     "vault_seal": "seal",          # 999_VAULT → seal
 }
 
-# Import MCP server to get tools
-from aaa_mcp.server import mcp as mcp_server
+# Tool metadata
+TOOL_META = {
+    "anchor": {"title": "1. ANCHOR", "description": "Init & Sense (Authority/F12)"},
+    "reason": {"title": "2. REASON", "description": "Think & Hypothesize (Risk/Truth)"},
+    "integrate": {"title": "3. INTEGRATE", "description": "Map & Ground (Facts)"},
+    "respond": {"title": "4. RESPOND", "description": "Draft Response (Clarity)"},
+    "validate": {"title": "5. VALIDATE", "description": "Check Impact (Stakeholders)"},
+    "align": {"title": "6. ALIGN", "description": "Check Ethics (Anti-Hantu)"},
+    "forge": {"title": "7. FORGE", "description": "Synthesize Solution (Code)"},
+    "audit": {"title": "8. AUDIT", "description": "Verify & Judge (Consensus)"},
+    "seal": {"title": "9. SEAL", "description": "Commit to Vault (Permanence)"},
+}
 
 
 async def route_info(request: Request):
@@ -71,12 +97,11 @@ async def health(request: Request):
 async def list_tools(request: Request):
     """List available MCP tools."""
     try:
-        tools = await mcp_server.get_tools()
         tool_list = []
-        for name, tool in tools.items():
+        for name, meta in TOOL_META.items():
             tool_list.append({
                 "name": name,
-                "description": getattr(tool, 'description', 'No description'),
+                "description": meta["description"],
             })
         # Also list classic aliases for backward compatibility
         classic_tools = [
@@ -93,45 +118,6 @@ async def list_tools(request: Request):
         })
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
-async def mcp_jsonrpc(request: Request):
-    """JSON-RPC compatible endpoint for MCP protocol."""
-    try:
-        body = await request.json()
-        method = body.get("method", "")
-        params = body.get("params", {})
-        
-        # Extract tool name from method (e.g., "init_session" or "tools/init_session")
-        tool_name = method.split("/")[-1] if "/" in method else method
-        
-        # Map classic tool names
-        if tool_name in TOOL_ALIASES:
-            tool_name = TOOL_ALIASES[tool_name]
-        
-        # Get tool from MCP server
-        tools = await mcp_server.get_tools()
-        if tool_name not in tools:
-            return JSONResponse({
-                "jsonrpc": "2.0",
-                "error": {"code": -32601, "message": f"Method '{method}' not found"},
-                "id": body.get("id")
-            })
-        
-        tool = tools[tool_name]
-        result = await tool(**params)
-        
-        return JSONResponse({
-            "jsonrpc": "2.0",
-            "result": result,
-            "id": body.get("id")
-        })
-    except Exception as e:
-        return JSONResponse({
-            "jsonrpc": "2.0",
-            "error": {"code": -32603, "message": str(e)},
-            "id": body.get("id") if body else None
-        })
 
 
 async def call_tool_get(request: Request):
@@ -165,15 +151,14 @@ async def call_tool(request: Request):
         body = {}
     
     try:
-        # Get tool from MCP server
-        tools = await mcp_server.get_tools()
-        if tool_name not in tools:
+        # Get tool from registry
+        if tool_name not in TOOLS:
             return JSONResponse(
                 {"error": f"Tool '{original_name}' (mapped to '{tool_name}') not found"}, 
                 status_code=404
             )
         
-        tool = tools[tool_name]
+        tool = TOOLS[tool_name]
         
         # Call the tool with provided arguments
         result = await tool(**body)
@@ -189,6 +174,44 @@ async def call_tool(request: Request):
             {"error": str(e), "tool": original_name}, 
             status_code=500
         )
+
+
+async def mcp_jsonrpc(request: Request):
+    """JSON-RPC compatible endpoint for MCP protocol."""
+    try:
+        body = await request.json()
+        method = body.get("method", "")
+        params = body.get("params", {})
+        
+        # Extract tool name from method (e.g., "init_session" or "tools/init_session")
+        tool_name = method.split("/")[-1] if "/" in method else method
+        
+        # Map classic tool names
+        if tool_name in TOOL_ALIASES:
+            tool_name = TOOL_ALIASES[tool_name]
+        
+        # Get tool from registry
+        if tool_name not in TOOLS:
+            return JSONResponse({
+                "jsonrpc": "2.0",
+                "error": {"code": -32601, "message": f"Method '{method}' not found"},
+                "id": body.get("id")
+            })
+        
+        tool = TOOLS[tool_name]
+        result = await tool(**params)
+        
+        return JSONResponse({
+            "jsonrpc": "2.0",
+            "result": result,
+            "id": body.get("id")
+        })
+    except Exception as e:
+        return JSONResponse({
+            "jsonrpc": "2.0",
+            "error": {"code": -32603, "message": str(e)},
+            "id": body.get("id") if body else None
+        })
 
 
 # Create Starlette app with REST routes
