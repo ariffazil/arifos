@@ -360,19 +360,140 @@ Before switching tasks or ending session:
 - Leave breadcrumbs for next session
 ```
 
+### `.kimi/skills/mcp-bridge/SKILL.md`
+
+```markdown
+---
+name: mcp-bridge
+description: Connect OpenClaw to arifOS MCP server for constitutional validation, vault sealing, and reality grounding.
+---
+
+# MCP Bridge Skill
+
+## Setup
+
+Add to your MCP config (mcp-config.json):
+```json
+{
+  "mcpServers": {
+    "arifos": {
+      "url": "https://YOUR-MCP-BRIDGE-URL/sse"
+    }
+  }
+}
+```
+
+Run kimi with:
+```bash
+kimi --mcp-config-file mcp-config.json
+```
+
+## Available Tools
+
+| Tool | Use When |
+|------|----------|
+| forge | Final production output — needs vault seal |
+| think | Research/draft — needs governance but not sealing |
+| health | Check if arifOS server is reachable |
+| reality_search | Ground claims in physical constants |
+| vault_query | Retrieve past governance records |
+
+## When to Call MCP
+
+- Before deploying any code to production → forge
+- When making architectural decisions → think
+- When claims involve physical/scientific facts → reality_search
+- When auditing past decisions → vault_query
+
+## When NOT to Call MCP
+
+- Simple code formatting
+- File reading/listing
+- Routine bug fixes with clear solutions
+- Conversational exchanges
+
+Governance overhead should be proportional to decision impact.
+```
+
+**Kimi Context Tip:** Load relevant files early, don't re-read unless modified, summarize long outputs, keep conversation focused — context is finite even at 256K.
+
 ---
 
 ## Step 6: MCP Configuration
 
+### `mcp-config.json`
+
+```json
+{
+  "mcpServers": {
+    "arifos": {
+      "url": "https://YOUR-MCP-BRIDGE-URL/sse"
+    },
+    "context7": {
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "CONTEXT7_API_KEY": "YOUR_KEY"
+      }
+    }
+  }
+}
+```
+
 ---
 
-## Implementation Status
+## Step 7: Launch
 
-- ✅ Architecture defined
-- ✅ Transfer matrix complete
-- ✅ Agent structure specified
-- ⏳ MCP bridge implementation
-- ⏳ System prompt templates
-- ⏳ Validation testing
+```bash
+# Install Kimi Code CLI
+curl -LsSf https://code.kimi.com/install.sh | bash
 
-**Ω₀: 0.04 | Status: SEAL**
+# Login
+kimi /login
+
+# Run OpenClaw with governance
+kimi --agent-file .kimi/agents/openclaw.yaml \
+  --mcp-config-file mcp-config.json
+
+# Or with specific skills directory
+kimi --agent-file .kimi/agents/openclaw.yaml \
+  --skills-dir .kimi/skills \
+  --mcp-config-file mcp-config.json
+```
+
+---
+
+## What You Gain
+
+| Capability | Claude Alone | Kimi Alone | OpenClaw (Both) |
+|-----------|-------------|-----------|----------------|
+| Governance rigor | ★★★★★ | ★★ | ★★★★ (via arifOS MCP) |
+| Frontend/visual coding | ★★★ | ★★★★★ | ★★★★★ |
+| Cost per token | $$$$ | $ | $ (Kimi runs, arifOS governs) |
+| Context window | 200K | 256K | 256K |
+| Agent swarm | ✗ | 100 sub-agents | 100 sub-agents + governed |
+| Vault audit trail | Via MCP | ✗ | Via MCP |
+| Open source | ✗ | ✓ (Apache 2.0) | ✓ |
+
+---
+
+## What You Lose
+
+Be honest about the trade-offs:
+
+- **Instruction precision drops ~15-20%.** Kimi follows instructions well but not at Opus level. Compensate with more explicit system prompts.
+
+- **Refusal calibration is weaker.** Kimi may attempt things it shouldn't. arifOS Floor F9 (Anti-Hantu) via MCP compensates.
+
+- **Tone nuance reduces.** Kimi's English is functional but less calibrated than Opus. For sovereign-facing outputs, keep it plain.
+
+- **Debugging reasoning is shallower.** For deep architectural bugs, consider routing to Claude via API as a fallback reviewer.
+
+---
+
+## Governance Law
+
+**OpenClaw is a tool. arifOS is the law. Arif is the judge.**
+
+The model can change. The governance cannot.
+
+*DITEMPA BUKAN DIBERI*
