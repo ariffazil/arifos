@@ -27,7 +27,17 @@ from typing import Optional, Any
 sys.path.insert(0, os.getcwd())
 
 from fastmcp import FastMCP
-from mcp import Client, StdioServerParameters
+try:
+    from mcp.client import Client
+except ImportError:
+    from mcp import client as _client_module
+    Client = _client_module.Client
+
+try:
+    from mcp.types import StdioServerParameters
+except ImportError:
+    from mcp import types as _types_module
+    StdioServerParameters = _types_module.StdioServerParameters
 
 # Router configuration
 AAA_CMD = [sys.executable, "-m", "aaa_mcp"]
@@ -64,7 +74,7 @@ aclip_client: Optional[Client] = None
 async def ensure_backends():
     """Ensure both backends are connected."""
     global aaa_client, aclip_client
-    
+
     if aaa_client is None:
         aaa_params = StdioServerParameters(
             command=AAA_CMD[0],
@@ -73,7 +83,7 @@ async def ensure_backends():
         )
         aaa_client = Client(aaa_params)
         await aaa_client.__aenter__()
-    
+
     if aclip_client is None:
         aclip_params = StdioServerParameters(
             command=ACLIP_CMD[0],
@@ -87,7 +97,7 @@ async def ensure_backends():
 async def route_tool(tool_name: str, arguments: dict) -> Any:
     """Route tool call to appropriate backend."""
     await ensure_backends()
-    
+
     if tool_name.startswith("aclip_"):
         # Route to ACLIP-CAI (sensory)
         if aclip_client is None:
@@ -104,6 +114,7 @@ async def route_tool(tool_name: str, arguments: dict) -> Any:
 # CONSTITUTIONAL TOOLS (Proxy to AAA-MCP)
 # =============================================================================
 
+
 @mcp.tool()
 async def init_session(
     session_id: str = "",
@@ -112,12 +123,15 @@ async def init_session(
     grounding_required: bool = False,
 ) -> dict:
     """000_INIT — Session ignition with F11/F12 authority checks."""
-    return await route_tool("init_session", {
-        "session_id": session_id,
-        "query": query,
-        "authority_context": authority_context,
-        "grounding_required": grounding_required,
-    })
+    return await route_tool(
+        "init_session",
+        {
+            "session_id": session_id,
+            "query": query,
+            "authority_context": authority_context,
+            "grounding_required": grounding_required,
+        },
+    )
 
 
 @mcp.tool()
@@ -128,12 +142,15 @@ async def agi_cognition(
     evidence_required: bool = True,
 ) -> dict:
     """111-333_AGI — Mind (Δ): Sense, Think, Reason."""
-    return await route_tool("agi_cognition", {
-        "query": query,
-        "session_id": session_id,
-        "context": context,
-        "evidence_required": evidence_required,
-    })
+    return await route_tool(
+        "agi_cognition",
+        {
+            "query": query,
+            "session_id": session_id,
+            "context": context,
+            "evidence_required": evidence_required,
+        },
+    )
 
 
 @mcp.tool()
@@ -159,11 +176,14 @@ async def apex_verdict(
     risk_level: str = "medium",
 ) -> dict:
     """888_APEX — Soul (Ψ): Final constitutional judgment."""
-    return await route_tool("apex_verdict", {
-        "session_id": session_id,
-        "query_summary": query_summary,
-        "risk_level": risk_level,
-    })
+    return await route_tool(
+        "apex_verdict",
+        {
+            "session_id": session_id,
+            "query_summary": query_summary,
+            "risk_level": risk_level,
+        },
+    )
 
 
 @mcp.tool()
@@ -196,17 +216,21 @@ async def human_approve(
     reason: str = "",
 ) -> dict:
     """L8 Human Sovereign — Approve AWAITING_888 state."""
-    return await route_tool("human_approve", {
-        "session_id": session_id,
-        "approved": approved,
-        "actor": actor,
-        "reason": reason,
-    })
+    return await route_tool(
+        "human_approve",
+        {
+            "session_id": session_id,
+            "approved": approved,
+            "actor": actor,
+            "reason": reason,
+        },
+    )
 
 
 # =============================================================================
 # SENSORY TOOLS (Proxy to ACLIP-CAI)
 # =============================================================================
+
 
 @mcp.tool()
 async def aclip_system_health(
@@ -215,11 +239,14 @@ async def aclip_system_health(
     top_n: int = 15,
 ) -> dict:
     """[ACLIP C0] System health — CPU, RAM, disk, processes."""
-    return await route_tool("system_health", {
-        "mode": mode,
-        "filter_process": filter_process,
-        "top_n": top_n,
-    })
+    return await route_tool(
+        "system_health",
+        {
+            "mode": mode,
+            "filter_process": filter_process,
+            "top_n": top_n,
+        },
+    )
 
 
 @mcp.tool()
@@ -229,11 +256,14 @@ async def aclip_fs_inspect(
     include_hidden: bool = False,
 ) -> dict:
     """[ACLIP C2] Filesystem inspection — read-only directory traversal."""
-    return await route_tool("fs_inspect", {
-        "path": path,
-        "depth": depth,
-        "include_hidden": include_hidden,
-    })
+    return await route_tool(
+        "fs_inspect",
+        {
+            "path": path,
+            "depth": depth,
+            "include_hidden": include_hidden,
+        },
+    )
 
 
 @mcp.tool()
@@ -243,11 +273,14 @@ async def aclip_log_tail(
     pattern: str = "",
 ) -> dict:
     """[ACLIP C3] Log tail — recent entries with optional grep."""
-    return await route_tool("log_tail", {
-        "log_file": log_file,
-        "lines": lines,
-        "pattern": pattern,
-    })
+    return await route_tool(
+        "log_tail",
+        {
+            "log_file": log_file,
+            "lines": lines,
+            "pattern": pattern,
+        },
+    )
 
 
 @mcp.tool()
@@ -256,10 +289,13 @@ async def aclip_net_status(
     check_connections: bool = True,
 ) -> dict:
     """[ACLIP C4] Network posture — ports, connections, routing."""
-    return await route_tool("net_status", {
-        "check_ports": check_ports,
-        "check_connections": check_connections,
-    })
+    return await route_tool(
+        "net_status",
+        {
+            "check_ports": check_ports,
+            "check_connections": check_connections,
+        },
+    )
 
 
 @mcp.tool()
@@ -276,12 +312,15 @@ async def aclip_chroma_query(
     list_only: bool = False,
 ) -> dict:
     """[ACLIP C6] Vector memory semantic search."""
-    return await route_tool("chroma_query", {
-        "query": query,
-        "collection": collection,
-        "top_k": top_k,
-        "list_only": list_only,
-    })
+    return await route_tool(
+        "chroma_query",
+        {
+            "query": query,
+            "collection": collection,
+            "top_k": top_k,
+            "list_only": list_only,
+        },
+    )
 
 
 @mcp.tool()
@@ -292,12 +331,15 @@ async def aclip_cost_estimator(
     estimated_io_mb: float = 0,
 ) -> dict:
     """[ACLIP C7] Thermodynamic cost estimation."""
-    return await route_tool("cost_estimator", {
-        "action_description": action_description,
-        "estimated_cpu_percent": estimated_cpu_percent,
-        "estimated_ram_mb": estimated_ram_mb,
-        "estimated_io_mb": estimated_io_mb,
-    })
+    return await route_tool(
+        "cost_estimator",
+        {
+            "action_description": action_description,
+            "estimated_cpu_percent": estimated_cpu_percent,
+            "estimated_ram_mb": estimated_ram_mb,
+            "estimated_io_mb": estimated_io_mb,
+        },
+    )
 
 
 @mcp.tool()
@@ -308,12 +350,15 @@ async def aclip_financial_cost(
     period_days: int = 1,
 ) -> dict:
     """[ACLIP C9] Financial cost estimation."""
-    return await route_tool("financial_cost", {
-        "service": service,
-        "action": action,
-        "resource_id": resource_id,
-        "period_days": period_days,
-    })
+    return await route_tool(
+        "financial_cost",
+        {
+            "service": service,
+            "action": action,
+            "resource_id": resource_id,
+            "period_days": period_days,
+        },
+    )
 
 
 @mcp.tool()
@@ -323,32 +368,36 @@ async def aclip_forge_guard(
     cost_score_to_check: float = 0.0,
 ) -> dict:
     """[ACLIP C8] Local safety circuit breaker."""
-    return await route_tool("forge_guard", {
-        "check_system_health": check_system_health,
-        "cost_score_threshold": cost_score_threshold,
-        "cost_score_to_check": cost_score_to_check,
-    })
+    return await route_tool(
+        "forge_guard",
+        {
+            "check_system_health": check_system_health,
+            "cost_score_threshold": cost_score_threshold,
+            "cost_score_to_check": cost_score_to_check,
+        },
+    )
 
 
 # =============================================================================
 # Entry Point
 # =============================================================================
 
+
 def main():
     """Start the arifos-router."""
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="arifos-router — Canonical MCP Face of arifOS")
     parser.add_argument("--sse", action="store_true", help="Use SSE transport")
     parser.add_argument("--port", type=int, default=8080, help="Port for SSE mode")
     parser.add_argument("--host", default="0.0.0.0", help="Host for SSE mode")
-    
+
     args = parser.parse_args()
-    
+
     print("[router] arifos-router Starting", file=sys.stderr)
     print("[router] Canonical MCP Face of arifOS", file=sys.stderr)
     print(f"[router] Mode: {'SSE' if args.sse else 'stdio'}", file=sys.stderr)
-    
+
     if args.sse:
         mcp.run_sse(host=args.host, port=args.port)
     else:

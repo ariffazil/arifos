@@ -2,7 +2,7 @@
 
 > **Ground Truth for arifOS Application Stack**  
 > **Last Updated:** 2026-02-10  
-> **Version:** v55.5-HARDENED
+> **Version:** v64.1-GAGI
 
 ---
 
@@ -37,8 +37,14 @@
 - ✅ **Model-Agnostic:** Verified on Claude 3.5 Sonnet and Gemini 1.5 Pro.
 
 ### L4_TOOLS — Production MCP ✅
-- ✅ **Active:** 10 core tools served via `aaa_mcp/server.py`.
-- ✅ **Transports:** SSE and stdio fully supported.
+- ✅ **Active:** 5 canonical tools served via `aaa_mcp/server.py`:
+  1. `init_session` (000)
+  2. `agi_cognition` (111-333)
+  3. `asi_empathy` (444-666)
+  4. `apex_verdict` (888)
+  5. `vault_seal` (999)
+- ✅ **Transports:** SSE, HTTP, and stdio fully supported.
+- ✅ **Governance:** v64.1 Uncertainty Engine + Telemetry
 
 ### L5_AGENTS — Federation Pilot 🟡
 - 🟡 **Status:** Federation stubs exist; primary logic is being centralized in `core/organs`.

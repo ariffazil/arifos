@@ -1,8 +1,8 @@
-# L4_TOOLS — MCP Tool Layer (v55.5.0)
+# L4_TOOLS — MCP Tool Layer (v64.1-GAGI)
 
-**Level 4 | 80% Coverage | Production MCP Tools**
+**Level 4 | 100% Coverage | 5 Canonical Tools**
 
-> *"13 canonical tools exposing the arifOS Metabolic Loop via MCP."*
+> *"5 consolidated tools exposing the arifOS 5-Organ Kernel via MCP."*
 
 ---
 
@@ -21,26 +21,18 @@ python -m aaa_mcp http
 
 ---
 
-## The 13 Canonical Tools
+## The 5 Canonical Tools
 
-| # | Tool | Stage | Trinity | Floors | Annotations |
+| # | Tool | Stage | Trinity | Floors | Description |
 |---|------|-------|---------|--------|-------------|
-| 1 | `init_gate` | 000 | Gate | F11, F12 | readOnly:❌ destructive:❌ openWorld:❌ |
-| 2 | `trinity_forge` | 000-999 | All | F1-F13 | readOnly:❌ destructive:✅ openWorld:✅ |
-| 3 | `agi_sense` | 111 | Δ Mind | F4 | readOnly:✅ destructive:❌ openWorld:❌ |
-| 4 | `agi_think` | 222 | Δ Mind | F2, F4, F7 | readOnly:✅ destructive:❌ openWorld:✅ |
-| 5 | `agi_reason` | 333 | Δ Mind | F2, F4, F7, F10 | readOnly:✅ destructive:❌ openWorld:❌ |
-| 6 | `asi_empathize` | 555 | Ω Heart | F5, F6, F9 | readOnly:✅ destructive:❌ openWorld:❌ |
-| 7 | `asi_align` | 666 | Ω Heart | F5, F6, F9 | readOnly:✅ destructive:❌ openWorld:❌ |
-| 8 | `apex_verdict` | 888 | Ψ Soul | F3, F8, F11 | readOnly:❌ destructive:✅ openWorld:❌ |
-| 9 | `reality_search` | — | External | F2, F7, F10 | readOnly:✅ destructive:❌ openWorld:✅ |
-| 10 | `vault_seal` | 999 | VAULT | F1, F3 | readOnly:❌ destructive:✅ openWorld:❌ |
-| 11 | `vault_query` | — | VAULT | F1 | readOnly:✅ destructive:❌ openWorld:❌ |
-| 12 | `tool_router` | — | Trinity | F4 | readOnly:✅ destructive:❌ openWorld:❌ |
-| 13 | `truth_audit` | 888 | Ψ Soul | F2 | readOnly:✅ destructive:❌ openWorld:❌ |
+| 1 | `init_session` | 000 | Gate | F11, F12 | Session ignition with authority checks |
+| 2 | `agi_cognition` | 111-333 | Δ Mind | F2, F4, F7, F8, F10 | Sense → Think → Reason pipeline |
+| 3 | `asi_empathy` | 444-666 | Ω Heart | F1, F5, F6, F9 | Empathize → Align pipeline |
+| 4 | `apex_verdict` | 888 | Ψ Soul | F2, F3, F8, F10-F13 | Final constitutional judgment |
+| 5 | `vault_seal` | 999 | VAULT | F1, F3 | Immutable audit record |
 
 **Protocol:** MCP 2025-11-25 (Streamable HTTP, SSE, stdio)  
-**FastMCP:** 2.0+  
+**FastMCP:** 2.14+  
 **Auth:** OAuth 2.1
 
 ---
@@ -48,8 +40,8 @@ python -m aaa_mcp http
 ## Pipeline Flow
 
 ```
-000_INIT → 111_AGI → 222_AGI → 333_AGI → 444_SYNC → 555_ASI → 666_ASI → 777_FORGE → 888_APEX → 999_VAULT
-   F11/F12      F4         F2/F4/F7   F2/F4/F7/F10           F5/F6/F9   F5/F6/F9              F3/F8/F11   F1/F3
+000_INIT → 111_SENSE → 222_THINK → 333_REASON → 444_SYNC → 555_EMPATHIZE → 666_ALIGN → 888_VERDICT → 999_SEAL
+  F11/F12      F4          F2/F4/F7    F2/F4/F7/F10      F5/F6/F9          F5/F6/F9         F2/F3/F8/F10-F13   F1/F3
 ```
 
 **Verdicts:** `SEAL` | `VOID` | `PARTIAL` | `SABAR` | `888_HOLD`
@@ -89,9 +81,11 @@ See [`mcp-configs/`](./mcp-configs/) for copy-paste configs:
 | MCP Server | [`aaa_mcp/server.py`](../../aaa_mcp/server.py) |
 | 5-Organs | [`core/organs/`](../../core/organs/) |
 | Floors | [`core/shared/floors.py`](../../core/shared/floors.py) |
+| Governance Kernel | [`core/governance_kernel.py`](../../core/governance_kernel.py) |
+| Telemetry | [`core/telemetry.py`](../../core/telemetry.py) |
 
 ---
 
-**Version:** v55.5.0  
+**Version:** v64.1-GAGI  
 **Protocol:** MCP 2025-11-25  
 **Creed:** DITEMPA BUKAN DIBERI
