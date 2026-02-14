@@ -206,6 +206,38 @@ async def metrics_endpoint(request: Request):
     })
 
 
+async def well_known_mcp_server_json(request: Request):
+    """Serve MCP server.json for registry auto-discovery.
+    
+    Endpoint: /.well-known/mcp/server.json
+    Used by MCP Registry for automatic server discovery and updates.
+    """
+    try:
+        # Try static directory first (for production deployments)
+        static_path = os.path.join(os.path.dirname(__file__), "..", "static", ".well-known", "mcp", "server.json")
+        # Fallback to repo root (for development)
+        root_path = os.path.join(os.path.dirname(__file__), "..", "server.json")
+        
+        if os.path.exists(static_path):
+            with open(static_path, "r") as f:
+                content = json.load(f)
+        elif os.path.exists(root_path):
+            with open(root_path, "r") as f:
+                content = json.load(f)
+        else:
+            return JSONResponse(
+                {"error": "server.json not found"},
+                status_code=404
+            )
+        
+        return JSONResponse(content)
+    except Exception as e:
+        return JSONResponse(
+            {"error": f"Failed to load server.json: {str(e)}"},
+            status_code=500
+        )
+
+
 async def list_tools(request: Request):
     """List available MCP tools with schemas."""
     tool_list = []
@@ -441,6 +473,7 @@ async def route_info(request: Request):
 # Create Starlette app with REST routes
 routes = [
     Route("/", route_info, methods=["GET"]),
+    Route("/.well-known/mcp/server.json", well_known_mcp_server_json, methods=["GET"]),
     Route("/health", health, methods=["GET"]),
     Route("/ready", ready, methods=["GET"]),
     Route("/version", version, methods=["GET"]),
