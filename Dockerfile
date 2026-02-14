@@ -38,9 +38,7 @@ COPY core/ core/
 COPY aaa_mcp/ aaa_mcp/
 
 # Verify REST bridge exists (critical for OpenAI adapter)
-# Build-time check disabled - version compatibility issues with FastMCP
-# Runtime check in __main__.py will verify on server start
-# RUN python3 -c "from aaa_mcp.rest import TOOLS; ..."
+RUN python3 -c "from aaa_mcp.rest import TOOLS; print(f'✓ REST bridge: {len(TOOLS)} tools: {list(TOOLS.keys())}')"
 
 # NOTE: aclip_cai/ not copied — deployed separately on Hostinger (F13 Sovereignty)
 # NOTE: scripts/start_server.py removed — using REST bridge instead
@@ -75,4 +73,4 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # Default command (overridden by railway.toml)
 CMD ["python", "-m", "aaa_mcp", "sse", "--port", "8080", "--host", "0.0.0.0"]
-# CACHE BUST: 20260214094300 (FORCE REBUILD - FastMCP fix)
+# CACHE BUST: 20260214080000 (FORCE REBUILD - Core update)
