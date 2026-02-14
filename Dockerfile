@@ -3,7 +3,7 @@
 # Supports: PostgreSQL (VAULT999), Redis (MindVault), SSE transport
 # v65.0 Features: AAA-MCP directly (no router)
 #
-# CACHE BUST: 2026-02-14T05-30-00Z (Force Railway rebuild)
+# CACHE BUST: 2026-02-14T07-00-00Z (Force Railway rebuild - REST bridge fix)
 #
 # Build: docker build -t arifos-governed-backend .
 # Run:   docker run -p 8080:8080 --env-file .env arifos-governed-backend
@@ -38,7 +38,7 @@ COPY core/ core/
 COPY aaa_mcp/ aaa_mcp/
 
 # Verify REST bridge exists (critical for OpenAI adapter)
-RUN python3 -c "import aaa_mcp.rest; print('✓ REST bridge: aaa_mcp.rest')"
+RUN python3 -c "from aaa_mcp.rest import TOOLS; print(f'✓ REST bridge: {len(TOOLS)} tools: {list(TOOLS.keys())}')"
 
 # NOTE: aclip_cai/ not copied — deployed separately on Hostinger (F13 Sovereignty)
 # NOTE: scripts/start_server.py removed — using REST bridge instead
