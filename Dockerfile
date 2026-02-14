@@ -32,8 +32,9 @@ COPY README.md .
 
 # Copy source code in dependency order (least likely to change first)
 COPY scripts/start_server.py scripts/start_server.py
-# v64.1: codebase/ and core/ migrated to aaa_mcp/ - single source of truth
-COPY aaa_mcp/ aaa_mcp/
+# v64.1: Kernel/Wrapper architecture - copy both layers
+COPY core/ core/           # <-- Kernel (ALL decision logic)
+COPY aaa_mcp/ aaa_mcp/     # <-- Wrapper (transport only)
 
 # Clear Python cache to ensure fresh imports
 RUN find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
@@ -42,8 +43,9 @@ RUN find . -name "*.pyc" -delete 2>/dev/null || true
 # Install package in editable mode
 RUN pip install --no-cache-dir -e .
 
-# Verify package is importable
-RUN python3 -c "import aaa_mcp; from aaa_mcp.server import mcp; print(f'✓ Package installed: {aaa_mcp.__file__}')"
+# Verify package is importable (kernel + wrapper)
+RUN python3 -c "import core; from core.judgment import judge_cognition; print(f'✓ Kernel: {core.__file__}')"
+RUN python3 -c "import aaa_mcp; from aaa_mcp.server import mcp; print(f'✓ Wrapper: {aaa_mcp.__file__}')"
 
 # Create non-root user for security
 RUN useradd -m -u 1000 arifos && chown -R arifos:arifos /app
