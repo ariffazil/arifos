@@ -41,6 +41,7 @@ from starlette.requests import Request
 
 # Import tools directly from server module (avoid mcp wrapper issues)
 from aaa_mcp.server import anchor, reason, integrate, respond, validate, align, forge, audit, seal
+from aaa_mcp.integrations.self_ops import self_diagnose
 
 # Build info
 BUILD_INFO = {
@@ -61,6 +62,7 @@ TOOLS = {
     "forge": forge,
     "audit": audit,
     "seal": seal,
+    "self_diagnose": self_diagnose,
 }
 
 # Tool schemas with enums (ChatGPT feedback: schema hardening)
@@ -130,6 +132,12 @@ TOOL_SCHEMAS = {
             "grounding": {"type": "array|null", "default": None},
             "auto_seal": {"type": "boolean", "default": False},
             "debug": {"type": "boolean", "default": False},
+        }
+    },
+    "self_diagnose": {
+        "description": "SELF_OPS — Infrastructure health check, protocol compatibility, auto-remediation (non-constitutional)",
+        "args": {
+            "base_url": {"type": "string|null", "required": False, "default": None, "description": "Optional custom base URL to diagnose"},
         }
     },
 }
@@ -479,6 +487,7 @@ routes = [
     Route("/version", version, methods=["GET"]),
     Route("/metrics", metrics_endpoint, methods=["GET"]),
     Route("/tools", list_tools, methods=["GET"]),
+    Route("/self_diagnose", self_diagnose, methods=["GET"]),
     Route("/tools/{tool_name}", call_tool, methods=["POST"]),
     Route("/{tool_name}", call_tool, methods=["POST"]),  # Root path for direct tool calls
     Route("/apex_judge", apex_judge_wrapper, methods=["POST"]),
