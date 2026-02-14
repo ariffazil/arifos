@@ -29,17 +29,17 @@ from typing import Any, Optional
 from fastmcp import FastMCP
 
 # v64.1: Import from core/ (kernel) not aaa_mcp.core/ (wrapper)
-from core.uncertainty_engine import UncertaintyEngine, UncertaintyVector, calculate_uncertainty
-from core.governance_kernel import GovernanceKernel, GovernanceState, AuthorityLevel, get_governance_kernel
-from core.telemetry import log_telemetry, check_adaptation_status, telemetry_store
+# v64.1: Kernel imports — decision logic lives in core/, wrapper only calls kernel
+from core.governance_kernel import GovernanceKernel, get_governance_kernel
+from core.telemetry import log_telemetry
+from core.judgment import judge_cognition, judge_empathy, judge_apex
 
 # v62: Keep heuristics in aaa_mcp (wrapper-specific)
 from aaa_mcp.core.heuristics import compute_system_state
 from aaa_mcp.core.state import SystemState, Profile
 from aaa_mcp.capabilities.t6_web_search import brave_search, EvidenceArtifact
 
-# v64.1: Initialize engines
-uncertainty_engine = UncertaintyEngine()
+# WRAPPER RULE: No engine instantiation. Wrapper calls kernel only.
 
 # Tool annotations for MCP 2025-11-25 compliance
 TOOL_ANNOTATIONS = {
@@ -274,51 +274,17 @@ async def agi_cognition(
             "error": "F11_FAILURE: No session_id provided",
         }
 
-    # Calculate SystemState (v62 Step 1)
-    evidence_count = len(grounding) if grounding else 0
+    # WRAPPER: Call kernel for judgment, format response only
+    # v64.1 REFACTOR: All decision logic moved to core.judgment
     
-    # v64.1: Calculate uncertainty with 5-dimensional vector
-    # Q1: Harmonic mean for safety, Geometric for display
-    uncertainty_calc = calculate_uncertainty(
-        evidence_count=evidence_count,
-        evidence_relevance=0.7 if grounding else 0.0,  # Placeholder
-        reasoning_consistency=0.8,  # Placeholder
-        knowledge_gaps=[],
-        model_logits_confidence=0.85  # Placeholder
-    )
-    
-    safety_omega = uncertainty_calc["safety_omega"]  # Harmonic - for decisions
-    display_omega = uncertainty_calc["display_omega"]  # Geometric - for display
-    omega_0 = safety_omega  # Use harmonic for internal thresholds
-
-    # AGI Pipeline: Sense → Think → Reason
-    # F2: Truth - calculate confidence (v64.1 Step 2: real evidence + uncertainty vector)
-    truth_score = 0.85 - (safety_omega * 0.3)  # Higher uncertainty = lower truth
-    if grounding:
-        truth_score = min(0.99, 0.7 + (len(grounding) * 0.05))
-
-    # F4: Clarity - entropy reduction
-    clarity_delta = -0.1  # Entropy reduced
-
-    # F7: Humility - v64.1 uses multi-dimensional uncertainty
-    # safety_omega (harmonic) for internal decisions
-    # display_omega (geometric) for user-facing output
-
-    # F8: Genius - coherence
-    genius_score = 0.88
-
-    # F10: Ontology - grounding
-    grounded = bool(grounding)
-
-    # Check capability modules
-    module_results = {}
+    # Prepare evidence sources (wrapper handles capability modules)
     real_evidence = []
+    module_results = {}
     
     if capability_modules:
         config = load_capability_config()
         for mod_id in capability_modules:
             if mod_id == "T6":
-                # v62 Step 2: Real Brave Search integration
                 try:
                     artifacts = await brave_search(query, count=5)
                     real_evidence = [art.to_dict() for art in artifacts]
@@ -334,19 +300,58 @@ async def agi_cognition(
                         "error": str(e)
                     }
             else:
-                # Placeholder for other modules
                 module_results[mod_id] = {"invoked": True, "status": "placeholder"}
 
-    # Use real evidence if available, otherwise fallback to grounding param
+    # Use real evidence if available
     evidence_sources = real_evidence if real_evidence else (grounding or [])
     
-    # Calculate relevance-based grounding (not just count)
-    if evidence_sources:
-        avg_relevance = sum(e.get("relevance", 0) for e in evidence_sources) / len(evidence_sources)
-        # grounding = relevance * credibility (already in relevance score)
-        grounding_score = min(1.0, avg_relevance)
-    else:
-        grounding_score = 0.0
+    # Calculate relevance-based evidence count
+    evidence_count = len(evidence_sources)
+    evidence_relevance = sum(e.get("relevance", 0) for e in evidence_sources) / len(evidence_sources) if evidence_sources else 0.0
+
+    # KERNEL CALL: All decision logic lives in core.judgment
+    cognition_result = judge_cognition(
+        query=query,
+        evidence_count=evidence_count,
+        evidence_relevance=evidence_relevance,
+        reasoning_consistency=0.8,  # Placeholder - would come from model
+        knowledge_gaps=[],  # Placeholder
+        model_logits_confidence=0.85,  # Placeholder
+        grounding=evidence_sources,
+        module_results=module_results,
+    )
+
+    # WRAPPER: Format kernel result into MCP response
+    output = {
+        "verdict": cognition_result.verdict,
+        "stage": "AGI",
+        "session_id": session_id,
+        "truth_score": round(cognition_result.truth_score, 4),
+        "omega": round(cognition_result.humility_omega, 4),  # Display omega (geometric)
+        "floor_scores": cognition_result.floor_scores,
+        "cognition": {
+            "sense": {"entities": [], "intent": query[:50]},
+            "think": {"hypotheses": 3},
+            "reason": {
+                "conclusion": f"AGI analysis complete with τ={cognition_result.truth_score:.3f}",
+                "evidence_count": evidence_count,
+            }
+        },
+        "grounding": evidence_sources,
+        "module_results": cognition_result.module_results,
+        "motto": "🔥 Δ Mind — Ditempa Bukan Diberi",
+    }
+
+    if cognition_result.error:
+        output["error"] = cognition_result.error
+
+    if debug:
+        output["debug"] = {
+            "reasoning": cognition_result.reasoning,
+            "safety_omega": cognition_result.safety_omega,  # Harmonic - for debugging only
+        }
+
+    return output
     
     evidence_count = len(evidence_sources)
     
@@ -551,132 +556,86 @@ async def apex_verdict(
     Returns:
         Final verdict with tri_witness score, governance state, and justification
     """
-    # Gather inputs
+    # WRAPPER: Gather inputs, call kernel for judgment, format response only
+    # v64.1 REFACTOR: All decision logic moved to core.judgment
+    
+    # Prepare inputs for kernel judgment
     truth_score = agi_result.get("truth_score", 0.5) if agi_result else 0.5
-    kappa_r = asi_result.get("empathy_kappa_r", 0.5) if asi_result else 0.5
-    peace_squared = asi_result.get("peace_squared", 1.0) if asi_result else 1.0
     evidence_count = agi_result.get("grounding_count", 0) if agi_result else 0
+    
+    # Calculate irreversibility index
+    irreversibility_index = (impact_scope * recovery_cost * time_to_reverse) ** (1/3)
 
-    # v64.1: Get GovernanceKernel (unified Ψ state)
-    gov_kernel = get_governance_kernel(session_id)
-
-    # v64.1: Calculate uncertainty with UncertaintyEngine
-    uncertainty_result = calculate_uncertainty(
-        evidence_count=evidence_count,
-        evidence_relevance=truth_score,
-        reasoning_consistency=0.85,  # Placeholder
-        knowledge_gaps=[],
-        model_logits_confidence=truth_score
+    # KERNEL CALL: Create cognition result from AGI data
+    from core.judgment import CognitionResult, EmpathyResult
+    
+    cognition_result = CognitionResult(
+        verdict=agi_result.get("verdict", "SEAL") if agi_result else "SEAL",
+        truth_score=truth_score,
+        clarity_delta=agi_result.get("clarity_delta", -0.1) if agi_result else -0.1,
+        humility_omega=agi_result.get("omega", 0.04) if agi_result else 0.04,
+        safety_omega=agi_result.get("safety_omega", 0.04) if agi_result else 0.04,
+        genius_score=agi_result.get("genius_score", 0.88) if agi_result else 0.88,
+        grounded=agi_result.get("grounded", False) if agi_result else False,
+        reasoning=agi_result.get("reasoning", {}) if agi_result else {},
+        evidence_sources=[],
+        floor_scores=agi_result.get("floor_scores", {}) if agi_result else {},
+        module_results={},
     )
     
-    safety_omega = uncertainty_result["safety_omega"]  # Harmonic mean
-    display_omega = uncertainty_result["display_omega"]  # Geometric mean
+    empathy_result = None
+    if asi_result:
+        empathy_result = EmpathyResult(
+            verdict=asi_result.get("verdict", "SEAL"),
+            stakeholder_impact=asi_result.get("stakeholder_impact", {}),
+            reversibility_score=asi_result.get("reversibility_score", 0.5),
+            peace_squared=asi_result.get("peace_squared", 1.0),
+            empathy_score=asi_result.get("empathy_score", 0.5),
+            floor_scores=asi_result.get("floor_scores", {}),
+        )
 
-    # v64.1: Update GovernanceKernel with uncertainty
-    gov_kernel.update_uncertainty(
-        safety_omega=safety_omega,
-        display_omega=display_omega,
-        components=uncertainty_result["components"]
+    # KERNEL CALL: APEX judgment
+    apex_result = judge_apex(
+        agi_result=cognition_result,
+        asi_result=empathy_result,
+        session_id=session_id,
+        irreversibility_index=irreversibility_index,
     )
 
-    # v64.1: Calculate Irreversibility Index (L7 Action Gate)
-    gov_kernel.update_irreversibility(
-        impact_scope=impact_scope,
-        recovery_cost=recovery_cost,
-        time_to_reverse=time_to_reverse
-    )
-
-    # F3: Tri-Witness calculation
-    # W₃ = √(H × A × E) where H=human, A=AI, E=evidence
+    # F3: Tri-Witness calculation (wrapper-side data gathering)
     human_witness = 0.95  # Placeholder
     ai_witness = truth_score
     evidence_witness = 0.90 if agi_result and agi_result.get("grounded") else 0.5
-
     tri_witness = (human_witness * ai_witness * evidence_witness) ** 0.5
 
-    # Capability modules
+    # Capability modules (wrapper-side)
     module_results = {}
     if capability_modules:
         for mod_id in capability_modules:
             module_results[mod_id] = {"invoked": True, "status": "placeholder"}
 
-    # v64.1: Determine verdict based on GovernanceKernel state
-    if gov_kernel.governance_state.value == "void":
-        verdict = "VOID"
-        justification = "Governance kernel VOID state — critical floor failure"
-    elif gov_kernel.governance_state.value == "awaiting_888":
-        verdict = "888_HOLD"
-        justification = f"AWAITING_888: irreversibility={gov_kernel.irreversibility_index:.2f}, omega={safety_omega:.2f}"
-    elif truth_score < 0.5 or kappa_r < 0.5:
-        verdict = "VOID"
-        justification = "Critical floor failure detected"
-    elif tri_witness < 0.95:
-        verdict = "SABAR"
-        justification = "Tri-Witness below threshold - needs more evidence"
-    elif peace_squared < 1.0:
-        verdict = "PARTIAL"
-        justification = "Peace² degraded - proceed with caution"
-    else:
-        verdict = "SEAL"
-        justification = "All constitutional floors satisfied"
-
-    # Floor scores
-    floor_scores = {
-        "F2": truth_score,
-        "F3": tri_witness,
-        "F7": 1.0 - safety_omega,
-        "F8": 0.88,
-        "F10": 0.95 if agi_result and agi_result.get("grounded") else 0.6,
-        "F11": 0.95,
-        "F12": 0.90,
-        "F13": 0.95 if verdict != "888_HOLD" else 0.0,
-    }
-
-    # v64.1: Log telemetry (L9 Feedback Loop)
-    log_telemetry(
-        session_id=session_id,
-        omega_0=safety_omega,
-        irreversibility_index=gov_kernel.irreversibility_index,
-        gate_activated=gov_kernel.governance_state.value == "awaiting_888",
-        human_override=verdict == "888_HOLD",
-        verdict=verdict,
-        predicted_risk=1.0 - truth_score,
-        observed_outcome=0.0  # To be filled after human feedback
-    )
-
+    # WRAPPER: Format kernel result into MCP response
     output = {
-        "verdict": verdict,
-        "stage": "888",
+        "verdict": apex_result.verdict,
+        "stage": "APEX",
         "session_id": session_id,
+        "confidence": round(apex_result.confidence, 4),
         "tri_witness": round(tri_witness, 4),
-        "truth_score": truth_score,
-        "verdict_justification": justification,
-        "requires_human_override": verdict == "888_HOLD",
-        "floor_scores": floor_scores,
-        "v64_1": {
-            "uncertainty": uncertainty_result,
-            "governance_kernel": gov_kernel.to_dict(),
-            "irreversibility_index": round(gov_kernel.irreversibility_index, 4),
-            "output_tags": gov_kernel.get_output_tags(),
-            "can_proceed": gov_kernel.can_proceed(),
-        },
-        "synthesis": {
-            "mind": agi_result.get("cognition", {}) if agi_result else {},
-            "heart": asi_result.get("alignment", {}) if asi_result else {},
-        },
-        "motto": "🔥 DISEDARKAN, BUKAN DIYAKINKAN — Made Aware, Not Over-assured",
+        "irreversibility_index": round(irreversibility_index, 4),
+        "justification": apex_result.reasoning,
+        "floor_scores": apex_result.floor_scores,
+        "motto": "🔥 Ψ Soul — Ditempa Bukan Diberi",
     }
 
-    if module_results:
-        output["capability_modules"] = module_results
+    if apex_result.requires_human_approval:
+        output["human_approval_required"] = True
+        output["888_hold_reason"] = "Irreversibility or constitutional conflict"
 
     if debug:
         output["debug"] = {
-            "human_witness": human_witness,
-            "ai_witness": ai_witness,
-            "evidence_witness": evidence_witness,
-            "telemetry_days": telemetry_store.get_telemetry_days(),
-            "can_adapt": check_adaptation_status()["can_adapt"],
+            "agi_input": agi_result,
+            "asi_input": asi_result,
+            "apex_reasoning": apex_result.reasoning,
         }
 
     return output
