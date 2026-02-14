@@ -1,4 +1,23 @@
-# aaa_mcp/vault/__init__.py
-# Vault and hardened components
+"""
+Vault hardened modules.
+"""
 
-__all__ = []
+from .hardened import (
+    HardenedAnomalousContrastEngine,
+    HardenedEUREKASieve,
+    EUREKAScore,
+    EUREKA_THRESHOLD,
+    SABAR_THRESHOLD,
+    create_hardened_sieve,
+    should_seal_to_vault_hardened,
+)
+
+__all__ = [
+    "HardenedAnomalousContrastEngine",
+    "HardenedEUREKASieve",
+    "EUREKAScore",
+    "EUREKA_THRESHOLD",
+    "SABAR_THRESHOLD",
+    "create_hardened_sieve",
+    "should_seal_to_vault_hardened",
+]

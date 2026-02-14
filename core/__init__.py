@@ -1,68 +1,31 @@
 """
-arifOS core — Constitutional Kernel (RUKUN AGI)
-================================================
+core/ — arifOS Kernel (v64.1-GAGI)
 
-The 5-Organ Kernel + 4 Shared Modules.
+Reusable brain + physics + organs
+Imported by: aaa_mcp (MCP wrapper), future products
 
-Organs:
-- airlock (init): Session Authentication (F11/F12)
-- mind (agi): AGI Evidence Engine (F2/F4/F7/F8)
-- heart (asi): ASI Alignment Engine (F1/F5/F6)
-- soul (apex): APEX Verdict Engine (F3/F8/F9/F10/F13)
-- memory (vault): Constitutional Memory (F1/F13)
-
-Version: v55.5.0-RUKUN
-Author: Muhammad Arif bin Fazil
-License: AGPL-3.0-only
-DITEMPA BUKAN DIBERI
+Components:
+- uncertainty_engine: 5-dim vector with harmonic/geometric mean
+- governance_kernel: Conditional AWAITING_888
+- telemetry: 30-day locked adaptation
 """
 
-__version__ = "60.0.0-RUKUN"
+__version__ = "64.1.0"
 
-from . import organs, shared
-
-# Convenience exports (public surface)
-from .organs import (
-    agi,
-    align,
-    anchor,
-    apex,
-    asi,
-    empathize,
-    feel,
-    forge,
-    heart,
-    init,
-    judge,
-    memory,
-    mind,
-    reason,
-    seal,
-    sense,
-    soul,
-    sync,
-    think,
-    vault,
-)
-from .pipeline import ForgeResult, quick
-from .pipeline import forge as trinity_forge
+# Expose kernel components
+from .uncertainty_engine import UncertaintyEngine, UncertaintyVector, calculate_uncertainty
+from .governance_kernel import GovernanceKernel, GovernanceState, AuthorityLevel, get_governance_kernel
+from .telemetry import log_telemetry, check_adaptation_status, telemetry_store
 
 __all__ = [
-    "organs",
-    "shared",
-    "init",
-    "sense",
-    "think",
-    "reason",
-    "sync",
-    "empathize",
-    "align",
-    "forge",
-    "judge",
-    "seal",
-    "anchor",
-    "feel",
-    "trinity_forge",
-    "quick",
-    "ForgeResult",
+    "UncertaintyEngine",
+    "UncertaintyVector", 
+    "calculate_uncertainty",
+    "GovernanceKernel",
+    "GovernanceState",
+    "AuthorityLevel",
+    "get_governance_kernel",
+    "log_telemetry",
+    "check_adaptation_status",
+    "telemetry_store",
 ]
