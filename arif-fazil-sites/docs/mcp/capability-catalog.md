@@ -4,56 +4,100 @@ This catalog lists all MCP capabilities exposed by the arifOS server. All tools 
 
 ## Tools
 
-### 000_init
+### anchor (000)
 | Property | Value |
 |----------|-------|
-| Name | 000_init |
-| Description | Initialize a new governance session |
-| Schema | [000_init.schema.json](schemas/000_init.schema.json) |
+| Name | anchor |
+| Description | Init & Sense — Establish authority and context (F11/F12) |
+| Schema | [anchor.schema.json](schemas/anchor.schema.json) |
 | Auth Scope | session:init |
-| Safety Constraints | None |
+| Safety Constraints | F12 Injection Guard |
 | Version | 1.0 |
 | Specification | [MCP 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25) |
 
-### 222_reason
+### reason (222)
 | Property | Value |
 |----------|-------|
-| Name | 222_reason |
-| Description | Cognitive processing and truth assessment |
-| Schema | [222_reason.schema.json](schemas/222_reason.schema.json) |
+| Name | reason |
+| Description | Think & Hypothesize — Generate hypotheses and analyze (F2/F4/F8) |
+| Schema | [reason.schema.json](schemas/reason.schema.json) |
 | Auth Scope | cognition:reason |
 | Safety Constraints | None |
 | Version | 1.0 |
 | Specification | [MCP 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25) |
 
-### 555_validate
+### integrate (333)
 | Property | Value |
 |----------|-------|
-| Name | 555_validate |
-| Description | Empathy assessment and stakeholder impact analysis |
-| Schema | [555_validate.schema.json](schemas/555_validate.schema.json) |
+| Name | integrate |
+| Description | Map & Ground — Integrate context and external knowledge (F7/F10) |
+| Schema | [integrate.schema.json](schemas/integrate.schema.json) |
+| Auth Scope | context:integrate |
+| Safety Constraints | None |
+| Version | 1.0 |
+| Specification | [MCP 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25) |
+
+### respond (444)
+| Property | Value |
+|----------|-------|
+| Name | respond |
+| Description | Draft & Plan — Create draft response/plan (F4/F6) |
+| Schema | [respond.schema.json](schemas/respond.schema.json) |
+| Auth Scope | response:draft |
+| Safety Constraints | None |
+| Version | 1.0 |
+| Specification | [MCP 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25) |
+
+### validate (555)
+| Property | Value |
+|----------|-------|
+| Name | validate |
+| Description | Check Impact — Stakeholder impact and safety validation (F5/F6/F1) |
+| Schema | [validate.schema.json](schemas/validate.schema.json) |
 | Auth Scope | empathy:validate |
 | Safety Constraints | None |
 | Version | 1.0 |
 | Specification | [MCP 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25) |
 
-### 888_audit
+### align (666)
 | Property | Value |
 |----------|-------|
-| Name | 888_audit |
-| Description | Final judgment system that issues governance verdicts |
-| Schema | [888_audit.schema.json](schemas/888_audit.schema.json) |
+| Name | align |
+| Description | Check Ethics — Ethics and Anti-Hantu verification (F9) |
+| Schema | [align.schema.json](schemas/align.schema.json) |
+| Auth Scope | ethics:align |
+| Safety Constraints | F9 Anti-Hantu enforcement |
+| Version | 1.0 |
+| Specification | [MCP 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25) |
+
+### forge (777)
+| Property | Value |
+|----------|-------|
+| Name | forge |
+| Description | Synthesize Solution — Crystalize plan into actionable artifact (F2/F4/F7) |
+| Schema | [forge.schema.json](schemas/forge.schema.json) |
+| Auth Scope | synthesis:forge |
+| Safety Constraints | None |
+| Version | 1.0 |
+| Specification | [MCP 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25) |
+
+### audit (888)
+| Property | Value |
+|----------|-------|
+| Name | audit |
+| Description | Verify & Judge — Final judgment and consensus (F3/F11/F13) |
+| Schema | [audit.schema.json](schemas/audit.schema.json) |
 | Auth Scope | governance:audit |
 | Safety Constraints | None |
 | Version | 1.0 |
 | Specification | [MCP 2025-11-25](https://modelcontextprotocol.io/specification/2025-11-25) |
 
-### 999_seal
+### seal (999)
 | Property | Value |
 |----------|-------|
-| Name | 999_seal |
-| Description | Seal a session with cryptographic integrity |
-| Schema | [999_seal.schema.json](schemas/999_seal.schema.json) |
+| Name | seal |
+| Description | Commit to Vault — Cryptographic seal with integrity (F1/F3) |
+| Schema | [seal.schema.json](schemas/seal.schema.json) |
 | Auth Scope | vault:seal |
 | Safety Constraints | None |
 | Version | 1.0 |
@@ -91,6 +135,20 @@ This catalog lists all MCP capabilities exposed by the arifOS server. All tools 
 - All side-effects are auditable
 - All actions are reversible
 - Human sovereignty is preserved
+
+### Tool-to-Floor Mapping
+
+| Tool | Stage | Floors Enforced |
+|------|-------|-----------------|
+| anchor | 000 | F11 (Command Auth), F12 (Injection) |
+| reason | 222 | F2 (Truth), F4 (Clarity), F8 (Genius) |
+| integrate | 333 | F7 (Humility), F10 (Ontology) |
+| respond | 444 | F4 (Clarity), F6 (Empathy) |
+| validate | 555 | F5 (Peace²), F6 (Empathy), F1 (Amanah) |
+| align | 666 | F9 (Anti-Hantu) |
+| forge | 777 | F2 (Truth), F4 (Clarity), F7 (Humility) |
+| audit | 888 | F3 (Tri-Witness), F11 (Command Auth), F13 (Sovereign) |
+| seal | 999 | F1 (Amanah), F3 (Tri-Witness) |
 
 ### Versioning
 - Semantic versioning (MAJOR.MINOR.PATCH)
