@@ -353,11 +353,14 @@ async def mcp_streamable_http(request: Any) -> Any:
     Handles POST requests with JSON-RPC and returns JSON responses.
     """
     from starlette.requests import Request
-    from starlette.responses import JSONResponse
+    from starlette.responses import JSONResponse, Response
     
+    # Handle session ID header for MCP 2024-11-05
     if isinstance(request, Request):
+        session_id = request.headers.get("Mcp-Session-Id", str(uuid.uuid4()))
         body = await request.json()
     else:
+        session_id = str(uuid.uuid4())
         body = request
     
     method = body.get("method")
@@ -366,23 +369,26 @@ async def mcp_streamable_http(request: Any) -> Any:
     
     # Handle MCP protocol methods
     if method == "initialize":
-        return JSONResponse({
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "result": {
-                "protocolVersion": "2024-11-05",
-                "capabilities": {
-                    "tools": {},
-                    "logging": {},
-                    "prompts": {},
-                    "resources": {}
-                },
-                "serverInfo": {
-                    "name": "arifos-aaa-mcp",
-                    "version": "64.2"
+        return JSONResponse(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {
+                        "tools": {},
+                        "logging": {},
+                        "prompts": {},
+                        "resources": {}
+                    },
+                    "serverInfo": {
+                        "name": "arifos-aaa-mcp",
+                        "version": "64.2"
+                    }
                 }
-            }
-        })
+            },
+            headers={"Mcp-Session-Id": session_id}
+        )
     
     elif method == "tools/list":
         tools = [
@@ -432,11 +438,14 @@ async def mcp_streamable_http(request: Any) -> Any:
                 "inputSchema": {"type": "object", "properties": {"artifact": {"type": "object"}, "signatures": {"type": "array"}}}
             }
         ]
-        return JSONResponse({
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "result": {"tools": tools}
-        })
+        return JSONResponse(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {"tools": tools}
+            },
+            headers={"Mcp-Session-Id": session_id}
+        )
     
     elif method == "tools/call":
         tool_name = params.get("name", "")
@@ -461,18 +470,24 @@ async def mcp_streamable_http(request: Any) -> Any:
             artifact = tool_args.get("artifact", {})
             result = await seal(artifact=artifact)
         
-        return JSONResponse({
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "result": {"content": [{"type": "text", "text": json.dumps(result)}]}
-        })
+        return JSONResponse(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {"content": [{"type": "text", "text": json.dumps(result)}]}
+            },
+            headers={"Mcp-Session-Id": session_id}
+        )
     
     else:
-        return JSONResponse({
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "error": {"code": -32601, "message": f"Method not found: {method}"}
-        })
+        return JSONResponse(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32601, "message": f"Method not found: {method}"}
+            },
+            headers={"Mcp-Session-Id": session_id}
+        )
 
 
 @mcp.custom_route("/transport", methods=["GET"])
