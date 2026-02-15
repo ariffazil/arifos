@@ -81,18 +81,23 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
 
 ---
 
-## 🚀 Quick Start (30 seconds)
+## 🚀 Quick Start
 
+### 1. Copy-Paste (5 seconds)
+Copy [SYSTEM_PROMPT.md](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) into any AI's system settings. Immediate protection.
+
+### 2. Install (30 seconds)
 ```bash
-# Install
 pip install arifos
-
-# Run MCP server
 python -m aaa_mcp  # Starts on :8888
-
-# Or copy-paste prompt
-cat 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md  # Into any LLM system prompt
 ```
+
+### 3. Full Deployment
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for:
+- Railway cloud deployment (5 min)
+- Docker/VPS setup (15 min)
+- Platform integrations (Claude, ChatGPT, Cursor, etc.)
+- Production checklist
 
 **arifOS follows the 333_APPS model** — a layered governance stack scaling from prompts to institutions.
 
@@ -104,8 +109,9 @@ cat 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md  # Into any LLM system prompt
 - [What arifOS Is NOT](#what-arifos-is-not)
 - [The Problem: AI Failure Modes](#the-problem-ai-failure-modes)
 - [How It Works (Mechanical Explanation)](#how-it-works-mechanical-explanation)
-- [Deployment & Access Paths](#deployment--access-paths)
-- [Deployment Options](#deployment-options)
+- [Quick Start](#-quick-start)
+- [Full Deployment Guide](./DEPLOYMENT.md)
+- [Platform Integration](./MCP_PLATFORM_GUIDE.md)
 - [Architecture: Kernel + Adapter Pattern](#architecture-kernel--adapter-pattern)
 - [The 7-Layer Application Stack (333_APPS)](#the-7-layer-application-stack-333_apps)
 - [The 9 A-CLIP Tools (Governance Loop)](#the-9-a-clip-tools-governance-loop)
