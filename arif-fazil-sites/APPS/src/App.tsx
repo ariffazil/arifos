@@ -768,33 +768,56 @@ function App() {
 
       {/* How It Works Section — 60 Seconds */}
       <section id="how-it-works" className="py-16 relative bg-gradient-to-b from-[#0a0a0a] to-gray-900/10">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+        <div className="max-w-5xl mx-auto px-4 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6">
             <Zap className="w-4 h-4 text-cyan-400" />
             <span className="text-sm text-cyan-400">How It Works (60 seconds)</span>
           </div>
           
           <p className="text-lg text-gray-300 mb-8">
-            Your query is processed through 5 MCP tools, then sealed into VAULT999 — an immutable ledger you can audit later.
+            Your query flows through 9 MCP tools — from initial sensing to final vault seal. Each enforces constitutional floors.
           </p>
 
-          {/* MCP Pipeline Flow */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
-            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 px-3 py-1">000_init</Badge>
+          {/* MCP Pipeline Flow — 9 Tools */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 px-3 py-1">000_anchor</Badge>
             <ChevronRight className="w-4 h-4 text-gray-600" />
             <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 px-3 py-1">222_reason</Badge>
             <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30 px-3 py-1">333_integrate</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-sky-500/20 text-sky-400 border-sky-500/30 px-3 py-1">444_respond</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
             <Badge className="bg-rose-500/20 text-rose-400 border-rose-500/30 px-3 py-1">555_validate</Badge>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+            <ChevronRight className="w-4 h-4 text-gray-600 hidden sm:block" />
+            <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/30 px-3 py-1">666_align</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 px-3 py-1">777_forge</Badge>
             <ChevronRight className="w-4 h-4 text-gray-600" />
             <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30 px-3 py-1">888_audit</Badge>
             <ChevronRight className="w-4 h-4 text-gray-600" />
             <Badge className="bg-green-500/20 text-green-400 border-green-500/30 px-3 py-1">999_seal</Badge>
             <ChevronRight className="w-4 h-4 text-gray-600" />
-            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 px-3 py-1">VAULT999</Badge>
+            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 px-3 py-1">VAULT</Badge>
+          </div>
+
+          {/* Tool descriptions */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-2 text-xs text-gray-500 mb-6">
+            <span>Init & Sense</span>
+            <span>Think & Hypothesize</span>
+            <span>Map & Ground</span>
+            <span>Draft & Plan</span>
+            <span>Check Impact</span>
+            <span>Check Ethics</span>
+            <span>Synthesize</span>
+            <span>Verify & Judge</span>
+            <span>Commit</span>
           </div>
 
           <p className="text-sm text-gray-500">
-            Each tool enforces constitutional floors. All actions are reversible, auditable, and subject to human sovereignty.
+            All 9 tools enforce constitutional floors F1–F13. Actions are reversible, auditable, and subject to 888 Judge sovereignty.
           </p>
         </div>
       </section>
@@ -1965,39 +1988,45 @@ result = await moderator.moderate("User generated content here...")`}</code></pr
             </div>
             <h2 className="text-4xl font-bold mb-4">The Constitutional Pipeline</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
-              Every request flows through 5 MCP tools, each enforcing constitutional constraints,
+              Every request flows through 9 MCP tools (v64.2-GAGI), each enforcing constitutional constraints,
               before being sealed into an immutable ledger you can audit later.
             </p>
           </div>
 
-          {/* Pipeline Steps */}
-          <div className="max-w-4xl mx-auto">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+          {/* Pipeline Steps — 9 Tools v64.2-GAGI */}
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4 mb-8">
               {[
-                { id: '000_init', name: '000_init', desc: 'Initialize session', color: 'blue' },
-                { id: '222_reason', name: '222_reason', desc: 'Cognitive processing', color: 'cyan' },
-                { id: '555_validate', name: '555_validate', desc: 'Empathy check', color: 'rose' },
-                { id: '888_audit', name: '888_audit', desc: 'Final judgment', color: 'violet' },
-                { id: '999_seal', name: '999_seal', desc: 'Cryptographic seal', color: 'green' },
-              ].map((step, idx) => {
+                { id: '000_anchor', name: 'anchor', stage: '000', desc: 'Init & Sense', color: 'blue' },
+                { id: '222_reason', name: 'reason', stage: '222', desc: 'Think & Hypothesize', color: 'cyan' },
+                { id: '333_integrate', name: 'integrate', stage: '333', desc: 'Map & Ground', color: 'teal' },
+                { id: '444_respond', name: 'respond', stage: '444', desc: 'Draft & Plan', color: 'sky' },
+                { id: '555_validate', name: 'validate', stage: '555', desc: 'Check Impact', color: 'rose' },
+                { id: '666_align', name: 'align', stage: '666', desc: 'Check Ethics', color: 'pink' },
+                { id: '777_forge', name: 'forge', stage: '777', desc: 'Synthesize Solution', color: 'amber' },
+                { id: '888_audit', name: 'audit', stage: '888', desc: 'Verify & Judge', color: 'violet' },
+                { id: '999_seal', name: 'seal', stage: '999', desc: 'Commit to Vault', color: 'green' },
+              ].map((step) => {
                 const colors = getColorClasses(step.color);
                 return (
-                  <div key={step.id} className="flex items-center gap-4">
-                    <div className={`p-4 rounded-lg ${colors.bg} border ${colors.border} text-center min-w-[120px]`}>
-                      <code className={`text-sm font-code ${colors.text} block mb-1`}>{step.name}</code>
-                      <p className="text-xs text-gray-400">{step.desc}</p>
-                    </div>
-                    {idx < 4 && <ArrowRight className="w-5 h-5 text-gray-600 hidden md:block" />}
-                    {idx < 4 && <div className="w-8 h-0.5 bg-gray-700 md:hidden" />}
+                  <div key={step.id} className={`p-4 rounded-lg ${colors.bg} border ${colors.border} text-center`}>
+                    <code className={`text-xs font-code ${colors.text} block mb-1`}>{step.stage}</code>
+                    <code className={`text-sm font-code ${colors.text} block mb-1`}>{step.name}</code>
+                    <p className="text-xs text-gray-400">{step.desc}</p>
                   </div>
                 );
               })}
             </div>
 
-            {/* VAULT999 */}
-            <div className="p-6 rounded-xl bg-gray-900/50 border border-gray-800 text-center">
+            {/* Arrow indicator */}
+            <div className="flex justify-center mb-8">
+              <ArrowRight className="w-8 h-8 text-gray-600 rotate-90 lg:rotate-0" />
+            </div>
+
+            {/* VAULT */}
+            <div className="p-6 rounded-xl bg-gray-900/50 border border-gray-800 text-center max-w-md mx-auto">
               <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Immutable Ledger</p>
-              <code className="text-lg font-code text-green-400">VAULT999</code>
+              <code className="text-lg font-code text-green-400">VAULT</code>
               <p className="text-sm text-gray-400 mt-2">
                 Every decision is sealed with cryptographic integrity. Audit trails are complete, tamper-evident, and permanently preserved.
               </p>
