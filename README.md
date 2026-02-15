@@ -25,7 +25,7 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
 <p align="center">
   <strong>Governance Middleware for AI Systems</strong><br>
   <em>From zero-context prompts to autonomous institutions</em><br><br>
-  <a href="https://aaamcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
+  <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-2026.02.15--FORGE--TRINITY--SEAL-blue" alt="Version"></a>
   <a href="#tool-overview"><img src="https://img.shields.io/badge/tools-14%20operational-orange" alt="Tools"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
@@ -36,7 +36,7 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
   <a href="https://apex.arif-fazil.com">📖 apex.arif-fazil.com (Theory)</a> •
   <a href="https://arifos.arif-fazil.com">📚 arifos.arif-fazil.com (Apps)</a> •
   <a href="https://pypi.org/project/arifos/">📦 PyPI</a> •
-  <a href="https://aaamcp.arif-fazil.com/health">🌐 Live API</a>
+  <a href="https://arifosmcp.arif-fazil.com/health">🌐 Live API</a>
 </p>
 
 **T000 Version:** `2026.02.15-FORGE-TRINITY-SEAL` — Forged, Trinity Unified, Sealed  
@@ -55,7 +55,7 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
 | [arif-fazil.com](https://arif-fazil.com) | **HUMAN** — Muhammad Arif bin Fazil, About, Blog | ✅ LIVE |
 | [apex.arif-fazil.com](https://apex.arif-fazil.com) | **THEORY** — APEX-THEORY, Authority, Canon | ✅ LIVE |
 | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | **APPS** — Documentation, 333_APPS Stack | ✅ LIVE |
-| [aaamcp.arif-fazil.com/health](https://aaamcp.arif-fazil.com/health) | **API** — AAA MCP Health Check | ✅ v64.2.0 |
+| [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | **API** — AAA MCP Health Check | ✅ v64.2.0 |
 
 ---
 
@@ -180,7 +180,7 @@ arifOS treats safety as **infrastructure**, not **instruction**:
 ```bash
 pip install arifos
 python -m aaa_mcp      # stdio mode (MCP IDEs)
-curl https://aaamcp.arif-fazil.com/health
+curl https://arifosmcp.arif-fazil.com/health
 ```
 
 **Way 2 — Python SDK / governed HTTP:**
@@ -188,7 +188,7 @@ curl https://aaamcp.arif-fazil.com/health
 ```python
 from mcp import Client
 
-client = Client("https://aaamcp.arif-fazil.com")
+client = Client("https://arifosmcp.arif-fazil.com")
 session = await client.call("init_session", {"user_id": "demo"})
 
 # Tool #2: AGI Cognition — This gets blocked
@@ -762,7 +762,7 @@ arifOS does not "align" models through training or prompting. It creates **enfor
 
 The 13 floors are not suggestions. They are load-bearing structure. When F7 Humility is violated, the response is blocked. When F1 Amanah flags irreversible harm, human approval is required. No exceptions.
 
-**Live server:** [aaamcp.arif-fazil.com](https://aaamcp.arif-fazil.com/health)  
+**Live server:** [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com/health)  
 **Package:** `pip install arifos`  
 **License:** AGPL-3.0
 
