@@ -561,7 +561,7 @@ function App() {
       {/* Sticky Sidebar Navigation — Desktop Only */}
       <nav className="hidden lg:block fixed left-4 top-1/2 -translate-y-1/2 z-40 w-48">
         <div className="bg-gray-900/80 backdrop-blur-md rounded-xl border border-gray-800 p-3 shadow-xl">
-          <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 px-2">Navigate</p>
+          <p className="text-xs text-gray-500 uppercase tracking-wider mb-3 px-2 text-center">Navigate</p>
           {[
             { id: 'overview', label: 'Overview' },
             { id: 'metrics', label: 'Live Metrics' },
@@ -577,7 +577,7 @@ function App() {
             <a
               key={item.id}
               href={`#${item.id}`}
-              className={`block px-3 py-2 rounded-lg text-sm transition-all ${
+              className={`block px-3 py-2 rounded-lg text-sm transition-all text-center ${
                 activeSection === item.id
                   ? 'bg-cyan-500/20 text-cyan-400 border-l-2 border-cyan-400'
                   : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
