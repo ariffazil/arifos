@@ -1,10 +1,10 @@
-# arifOS v55.1 – Railway Deployment Playbook
+# arifOS v55.5 – Railway Deployment Playbook
 
 This is the minimal, reproducible path to deploy the modernized MCP (Streamable HTTP) server on Railway and front it with Caddy/Cloudflare.
 
 ## Container
 - Image builds from `Dockerfile` (Python 3.12-slim, FastMCP streamable HTTP).
-- Entry point: `codebase-mcp-sse` (maps to `codebase.mcp.entrypoints.sse_entry:main`).
+- Entry point: `codebase-mcp-sse` (maps to `mcp.entrypoints.sse_entry:main`).
 - Health endpoint: `GET /health` (exposed by `SSETransport`).
 - Port: `PORT` (Railway default 8000). `HOST` defaults to `127.0.0.1` locally and is overridden to `0.0.0.0` in `railway.toml`.
 
@@ -19,7 +19,7 @@ healthcheckTimeout = 120
 [deploy.env]
 HOST = "0.0.0.0"
 ARIFOS_ENV = "production"
-ARIFOS_VERSION = "v55.1-CODEBASE-AAA"
+ARIFOS_VERSION = "v55.5-CODEBASE-AAA"
 ARIFOS_LOG_LEVEL = "INFO"
 ARIFOS_CLUSTER = "3"
 REDIS_URL = "${{Redis.REDIS_URL}}"

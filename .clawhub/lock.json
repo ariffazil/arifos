@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "skills": {
+    "transcribee": {
+      "version": "1.2.1",
+      "installedAt": 1770472090034
+    },
+    "gemini-stt": {
+      "version": "1.1.0",
+      "installedAt": 1770472092068
+    },
+    "elevenlabs-stt": {
+      "version": "1.0.0",
+      "installedAt": 1770472094288
+    },
+    "ai-explain": {
+      "version": "1.0.1",
+      "installedAt": 1770472101050
+    },
+    "ai-codemod": {
+      "version": "1.0.1",
+      "installedAt": 1770472103019
+    },
+    "better-notion": {
+      "version": "1.1.0",
+      "installedAt": 1770472114622
+    },
+    "deep-scraper": {
+      "version": "1.0.1",
+      "installedAt": 1770472124947
+    },
+    "firecrawl-skills": {
+      "version": "1.0.0",
+      "installedAt": 1770472127033
+    },
+    "browser-automation": {
+      "version": "1.0.1",
+      "installedAt": 1770472129196
+    },
+    "llm": {
+      "version": "1.1.0",
+      "installedAt": 1770472139160
+    },
+    "claude": {
+      "version": "1.1.0",
+      "installedAt": 1770472141079
+    },
+    "llm-supervisor": {
+      "version": "0.3.0",
+      "installedAt": 1770472143819
+    },
+    "data-analyst": {
+      "version": "1.0.0",
+      "installedAt": 1770472153960
+    },
+    "atlassian-mcp": {
+      "version": "1.0.0",
+      "installedAt": 1770472162354
+    },
+    "docker-essentials": {
+      "version": "1.0.0",
+      "installedAt": 1770473945374
+    },
+    "sysadmin-toolbox": {
+      "version": "1.1.0",
+      "installedAt": 1770473948431
+    },
+    "n8n-workflow-automation": {
+      "version": "1.0.0",
+      "installedAt": 1770473950289
+    }
+  }
+}

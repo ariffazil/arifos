@@ -1,167 +1,190 @@
-# L3_WORKFLOW — Documented Sequences
+# L3_WORKFLOW — Documented Sequences (v55.5-HARDENED)
 
 **Level 3 | 70% Coverage | Medium Complexity**
 
-> *"Workflows are skills with state — file persistence across sessions."*
+> *"Workflows are compositions of actions — multi-step recipes with state persistence."*
 
 ---
 
 ## 🎯 Purpose
 
-L3_WORKFLOW adds **state persistence** to the parameterized skills from L2. Workflows are documented sequences that can:
-- Save intermediate results to files
-- Resume from checkpoints
-- Maintain context across sessions
-- Follow structured SOPs (Standard Operating Procedures)
-
-This layer is the **team collaboration** layer — enabling shared, repeatable processes.
+L3_WORKFLOW combines atomic **Actions** (from L2) into **multi-step sequences** that implement the full arifOS Metabolic Loop. Each workflow spans one or more stages of the 000→999 cycle.
 
 ---
 
 ## 📈 Effectiveness Spectrum
 
 ```
-Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░ 70%
-Cost:      $0.50-1.00 per 1K operations
-Setup:     1 hour
-Autonomy:  Low (human-guided)
+Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░ 70%
+Cost:      $1.00-2.00 per workflow
+Setup:     15 minutes
+Autonomy:  Medium (human triggers, AI sequences)
 ```
 
 ---
 
-## 📁 Files in This Directory
+## 📁 Directory Structure (v55.5-HARDENED)
 
-### Current
-| File | Description | Status |
-|------|-------------|--------|
-| `README.md` | This file | ✅ Complete |
-
-### ✅ Now Available
-| File | Description | Status |
-|------|-------------|--------|
-| `.claude/workflows/000_SESSION_INIT.md` | Session initialization (Stage 000) | ✅ Complete |
-| `.claude/workflows/111_INTENT.md` | Intent mapping (Stage 111) | ✅ Complete |
-| `.claude/workflows/333_CONTEXT.md` | Context gathering (Stage 333) | ✅ Complete |
-| `.claude/workflows/555_SAFETY.md` | Safety evaluation (Stage 555) | ✅ Complete |
-| `.claude/workflows/777_IMPLEMENT.md` | Implementation (Stage 777) | ✅ Complete |
-| `.claude/workflows/888_COMMIT.md` | Commit/SEAL (Stage 888) | ✅ Complete |
+```
+L3_WORKFLOW/
+├── README.md                    # This file
+│
+└── WORKFLOWS/                   # 🔥 6 CANONICAL WORKFLOWS
+    ├── 000_SESSION_INIT.md      # Ignition (init_gate)
+    ├── 111_INTENT.md            # Sense (anchor)
+    ├── 333_CONTEXT.md           # Think + Atlas (reason, integrate)
+    ├── 555_SAFETY.md            # Empathy + Align (validate, align)
+    ├── 777_IMPLEMENT.md         # Forge (forge, respond)
+    └── 888_COMMIT.md            # Judge + Seal (audit, seal)
+```
 
 ---
 
-## 🔄 The 6 Canonical Workflows
+## 🔄 The Metabolic Loop (6 Workflows)
 
-Each workflow maps to a stage in the 000-999 metabolic loop:
+| # | Workflow | Stage | Actions Used (L2) | Trinity |
+|---|----------|-------|-------------------|---------|
+| 1 | **000_SESSION_INIT** | `000` | `init_gate` | Gate |
+| 2 | **111_INTENT** | `111` | `anchor` | Δ Mind |
+| 3 | **333_CONTEXT** | `222-333` | `reason`, `integrate` | Δ Mind |
+| 4 | **555_SAFETY** | `444-666` | `respond`, `validate`, `align` | Ω Heart |
+| 5 | **777_IMPLEMENT** | `777` | `forge` | Δ Mind |
+| 6 | **888_COMMIT** | `888-999` | `audit`, `seal` | Ψ Soul |
+
+### Workflow Flow
 
 ```
 000_SESSION_INIT → 111_INTENT → 333_CONTEXT → 555_SAFETY → 777_IMPLEMENT → 888_COMMIT
+       ↓                                                                        ↓
+       └────────────────────── Strange Loop (999→000) ──────────────────────────┘
 ```
-
-### 000_SESSION_INIT.md
-**Purpose:** Initialize constitutional session  
-**Inputs:** User query, optional context  
-**Outputs:** Session ID, loaded floors, authority verification  
-**State Saved:** `sessions/{session_id}/000_init.json`
-
-### 111_INTENT.md
-**Purpose:** Map user intent to constitutional lanes  
-**Inputs:** Natural language query  
-**Outputs:** Intent classification, lane assignment (HARD/SOFT/PHATIC)  
-**State Saved:** `sessions/{session_id}/111_intent.json`
-
-### 333_CONTEXT.md
-**Purpose:** Gather relevant context  
-**Inputs:** Intent, codebase structure  
-**Outputs:** Context map, relevant files  
-**State Saved:** `sessions/{session_id}/333_context.json`
-
-### 555_SAFETY.md
-**Purpose:** Evaluate safety and empathy  
-**Inputs:** Proposed action  
-**Outputs:** Safety report, weakest stakeholder, empathy score  
-**State Saved:** `sessions/{session_id}/555_safety.json`
-
-### 777_IMPLEMENT.md
-**Purpose:** Execute implementation  
-**Inputs:** Safety-approved plan  
-**Outputs:** Code changes, documentation  
-**State Saved:** `sessions/{session_id}/777_implement.json`
-
-### 888_COMMIT.md
-**Purpose:** Final verification and SEAL  
-**Inputs:** Implementation results  
-**Outputs:** SEAL verdict, vault entry, merkle root  
-**State Saved:** `sessions/{session_id}/888_commit.json`
 
 ---
 
-## 🛡️ Constitutional Floors Enforced
+## 🔗 Relationship to Actions (L2)
 
-| Floor | Enforcement | Mechanism | Status |
-|-------|-------------|-----------|--------|
-| F1 Amanah | ✅ Full | File persistence + audit | **Active** |
-| F2 Truth | ✅ Full | Checkpoint validation | **Active** |
-| F3 Tri-Witness | ⚠️ Partial | Human checkpoint | Available |
-| F4 Clarity | ✅ Full | Documented steps | **Active** |
-| F5 Peace² | ✅ Full | Safety workflow | **Active** |
-| F6 Empathy | ✅ Full | Stakeholder workflow | **Active** |
-| F7 Humility | ✅ Full | Uncertainty tracking | **Active** |
-| F8 Genius | ⚠️ Partial | Score calculation | Available |
-| F9 Anti-Hantu | ✅ Full | Pattern detection | **Active** |
-| F10 Ontology | ✅ Full | Reality checks | **Active** |
-| F11 Command Auth | ✅ Full | Token validation | **Active** |
-| F12 Injection | ✅ Full | Input workflow | **Active** |
-| F13 Sovereign | ✅ Full | Human checkpoints | **Active** |
+Workflows **compose** atomic Actions:
+
+| Abstraction | Layer | Example | Scope |
+|-------------|-------|---------|-------|
+| **Action** | L2 | `anchor` | Single stage operation |
+| **Workflow** | L3 | `333_CONTEXT` | Multi-stage sequence |
+| **Agent** | L5 | `ASI_Guardian` | Full autonomy |
+
+```
+Workflow = Action₁ + Action₂ + ... + Actionₙ + State Management
+```
+
+---
+
+## 📋 Workflow Anatomy
+
+Each workflow file follows this structure:
+
+```markdown
+# Workflow: [STAGE]_[NAME]
+
+**Stage:** [Number] ([Name])
+**Purpose:** [Description]
+**Trigger:** [When to use]
+**Output:** [What it produces]
+
+---
+
+## When to Use
+[Conditions for invocation]
+
+## Workflow Steps
+### Step 1: [Name]
+[Details]
+
+### Step 2: [Name]
+[Details]
+...
+
+## Output Specification
+[YAML/JSON schema]
+
+## Constitutional Compliance
+| Floor | Verification | Status |
+[Table of floors checked]
+
+## Next Stage
+[What workflow follows this one]
+
+---
+**DITEMPA BUKAN DIBERI**
+```
+
+---
+
+## 🛡️ Constitutional Floors Per Workflow
+
+| Workflow | Primary Floors | Enforcement |
+|----------|----------------|-------------|
+| **000_SESSION_INIT** | F11, F12, F13 | Authority, Injection, Sovereign |
+| **111_INTENT** | F4, F12 | Clarity, Injection |
+| **333_CONTEXT** | F2, F4, F7 | Truth, Clarity, Humility |
+| **555_SAFETY** | F5, F6, F9 | Peace, Empathy, Anti-Hantu |
+| **777_IMPLEMENT** | F1, F4, F8 | Amanah, Clarity, Genius |
+| **888_COMMIT** | ALL F1-F13 | Full constitutional check |
+
+---
+
+## 🔧 Platform Integration
+
+These workflows are **model-agnostic**. Platform-specific bindings:
+
+| Platform | Integration |
+|----------|-------------|
+| **Gemini/Antigravity** | `.agent/workflows/` references these |
+| **Claude** | Import directly or use MCP tools |
+| **ChatGPT** | Use via MCP HTTP transport |
 
 ---
 
 ## 🚀 Deployment History
 
-### v52.0 — Workflow Experiments (Archived)
-- Basic markdown workflows
-- Manual state management
-- Single-user only
+### v53.x — Platform-Specific (Archived)
+- Workflows in `.claude/workflows/` only
+- No Gemini integration
+- Platform-locked
 
-### v53.0 — Standardization (Archived)
-- `.claude/workflows/` structure
-- 3 initial workflows
-- File persistence added
-
-### v54.1-SEAL — Current
-- 6-workflow architecture defined
-- State management framework
-- ✅ **All 6 workflow files implemented**
-
----
-
-## 📊 Use Cases
-
-| Scenario | Workflow | Benefit |
-|----------|----------|---------|
-| Onboard new team member | `000_SESSION_INIT` + `111_INTENT` | Consistent process |
-| Code review | `555_SAFETY` + `777_IMPLEMENT` | Safety-first |
-| Architecture decision | `333_CONTEXT` + `888_COMMIT` | Documented rationale |
-| Incident response | `000_SESSION_INIT` → `888_COMMIT` | Full traceability |
-
----
-
-## 🔗 Next Steps
-
-### Immediate (v55.0)
-- [ ] Create `.claude/workflows/` directory
-- [ ] Implement 6 canonical workflow files
-- [ ] Add state persistence layer
-- [ ] Test resume-from-checkpoint
-
-### Future (v55.1+)
-- [ ] Visual workflow editor
-- [ ] Workflow marketplace
-- [ ] Cross-team sharing
+### v55.5-HARDENED — Current ✅
+- **Unified to `L3_WORKFLOW/WORKFLOWS/`**
+- Model-agnostic canonical location
+- Cross-references to L2 Actions
+- All 6 metabolic workflows present
 
 ---
 
 ## 👑 Authority
 
 **Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v54.1-SEAL  
-**Status:** ⚠️ Partial — Implementation needed  
+**Version:** v55.5-HARDENED  
+**Last Updated:** 2026-02-06  
 **Creed:** DITEMPA BUKAN DIBERI
+
+---
+
+## ✅ Reality Check
+
+| Component | Status | Evidence |
+|-----------|--------|----------|
+| 000_SESSION_INIT | ✅ Complete | 163 lines |
+| 111_INTENT | ✅ Complete | 5KB |
+| 333_CONTEXT | ✅ Complete | 6KB |
+| 555_SAFETY | ✅ Complete | 7KB |
+| 777_IMPLEMENT | ✅ Complete | 6KB |
+| 888_COMMIT | ✅ Complete | 323 lines |
+| **Coverage** | **70%** | **As designed** |
+
+> This layer is **production-ready** for workflow-based orchestration.
+
+---
+
+## 🔗 Related Documents
+
+- [../L2_SKILLS/ACTIONS/](../L2_SKILLS/ACTIONS/) — The 9 Canonical Actions
+- [../L4_TOOLS/](../L4_TOOLS/) — MCP Tool bindings
+- [../../.agent/workflows/](../../.agent/workflows/) — Gemini-specific workflows

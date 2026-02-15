@@ -23,8 +23,8 @@ from typing import Any, Dict
 
 import pytest
 
-from arifos.core.system.dream_forge.crucible import OAlignCrucible, OreType
-from arifos.core.system.dream_forge.anvil import OForgeAnvil
+from codebase.core.system.dream_forge.crucible import OAlignCrucible, OreType
+from codebase.core.system.dream_forge.anvil import OForgeAnvil
 
 
 # ============================================================================

@@ -17,7 +17,7 @@ import time
 
 import pytest
 
-from arifos.core.guards.nonce_manager import (
+from codebase.core.guards.nonce_manager import (
     NonceManager,
     NonceStatus,
 )

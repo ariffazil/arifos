@@ -12,7 +12,7 @@ Coverage:
 
 import pytest
 
-from arifos.core.agi.delta_kernel import DeltaKernel, DeltaVerdict, evaluate_agi_floors
+from codebase.core.agi.delta_kernel import DeltaKernel, DeltaVerdict, evaluate_agi_floors
 
 
 class TestF1Amanah:

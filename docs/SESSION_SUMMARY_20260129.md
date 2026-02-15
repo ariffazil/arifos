@@ -131,7 +131,7 @@ Updated all CLIs to use new 7-tool architecture:
 ### Test 1: MCP Server Startup ✅
 
 ```bash
-$ python -m codebase.mcp
+$ python -m mcp
 2026-01-29 15:58:51 - codebase.kernel.init - INFO - Canonical init_000 loaded
 [BOOT] Codebase MCP v53.1.0 starting in auto mode
 [PHYSICS] Constitutional Engines Loaded: AGI, ASI, APEX

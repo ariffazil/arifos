@@ -1,0 +1,62 @@
+# Deploy arifOS APPS site to GitHub Pages
+# Uses pre-built dist folder (build locally due to CI path issues)
+
+name: Deploy arifOS to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'arif-fazil-sites/APPS/dist/**'
+      - '.github/workflows/deploy-sites.yml'
+  workflow_dispatch:
+
+# GitHub Pages permissions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Prevent concurrent deployments
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build arifOS APPS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: arif-fazil-sites/APPS/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify Deployment
+        run: |
+          echo "========================================"
+          echo "  arifOS APPS DEPLOYED"
+          echo "========================================"
+          echo "  GitHub URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "  Custom Domain: https://arifos.arif-fazil.com"
+          echo "========================================"
+          echo "  DITEMPA BUKAN DIBERI 🔥"
+          echo "========================================"

@@ -9,9 +9,9 @@ These tests focus on three canonical scenarios:
 
 from __future__ import annotations
 
-from arifos.core.system.eye.anti_hantu_view import AntiHantuView
-from arifos.core.system.eye.base import AlertSeverity, EyeReport
-from arifos.core.enforcement.metrics import Metrics
+from codebase.core.system.eye.anti_hantu_view import AntiHantuView
+from codebase.core.system.eye.base import AlertSeverity, EyeReport
+from codebase.core.enforcement.metrics import Metrics
 
 
 def _baseline_metrics() -> Metrics:

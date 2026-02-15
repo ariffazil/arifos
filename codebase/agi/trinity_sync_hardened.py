@@ -27,8 +27,9 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
 # Import hardened engines
-from .engine_hardened import AGIEngineHardened, DeltaBundle, execute_agi_hardened
-from ..asi.engine_hardened import ASIEngineHardened, OmegaBundle, execute_asi_hardened
+# v55.5: Consolidated imports
+from .engine import AGIEngineHardened, DeltaBundle, execute_agi_hardened
+from ..asi.engine import ASIEngineHardened, OmegaBundle, execute_asi_hardened
 
 
 # ============ CONSTANTS ============

@@ -1,0 +1,17 @@
+{
+  "clientId": "",
+  "currentIndex": 0,
+  "tabs": [
+    {
+      "name": "Blank Test",
+      "icon": "icon-blank",
+      "type": "blank",
+      "componentIndex": -1,
+      "storage": {
+        "activeNames": [
+          0
+        ]
+      }
+    }
+  ]
+}

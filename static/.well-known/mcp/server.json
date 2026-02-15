@@ -1,0 +1,129 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.ariffazil/aaa-mcp",
+  "version": "64.2.0",
+  "description": "Constitutional AI Governance with 9 A-CLIP tools, 13 enforced floors (F1-F13), 20+ injection defense patterns, and tri-witness consensus for LLMs.",
+  "vendor": {
+    "name": "arifOS",
+    "url": "https://arifos.arif-fazil.com"
+  },
+  "license": "AGPL-3.0-only",
+  "repository": {
+    "url": "https://github.com/ariffazil/arifOS",
+    "source": "github"
+  },
+  "packages": [
+    {
+      "registryType": "pypi",
+      "identifier": "arifos",
+      "version": "64.2.0",
+      "transport": {
+        "type": "stdio",
+        "command": "python -m aaa_mcp"
+      }
+    },
+    {
+      "registryType": "oci",
+      "identifier": "docker.io/ariffazil/arifos:64.2.0",
+      "transport": {
+        "type": "sse",
+        "url": "https://arifos-production.up.railway.app/sse"
+      }
+    }
+  ],
+  "tools": [
+    {
+      "name": "anchor",
+      "description": "000_ANCHOR: Constitutional airlock with F11 Authority, F12 Injection Guard (20+ patterns), F13 High-Stakes detection, and adaptive query classification (6 types)"
+    },
+    {
+      "name": "reason",
+      "description": "222_REASON: Hypothesis generation and analysis with F2 Truth, F4 Clarity, and F8 Genius enforcement (Δ Mind)"
+    },
+    {
+      "name": "integrate",
+      "description": "333_INTEGRATE: Map and ground external knowledge with F7 Humility (Ω₀ bounds) and F10 Ontology validation (Δ Mind)"
+    },
+    {
+      "name": "respond",
+      "description": "444_RESPOND: Draft plan and response with F4 Clarity and F6 Empathy checks (Δ Mind)"
+    },
+    {
+      "name": "validate",
+      "description": "555_VALIDATE: Stakeholder impact analysis with F5 Peace², F6 Empathy, and F1 Amanah (reversibility) checks (Ω Heart)"
+    },
+    {
+      "name": "align",
+      "description": "666_ALIGN: Ethics and policy alignment with F5, F6, and F9 Anti-Hantu enforcement (Ω Heart)"
+    },
+    {
+      "name": "forge",
+      "description": "777_FORGE: Synthesize solution into actionable artifact with F2, F4, and F7 enforcement (Ω Heart)"
+    },
+    {
+      "name": "audit",
+      "description": "888_AUDIT: Final constitutional verdict with F3 Tri-Witness (W₃>=0.95), F11 Authority, and F13 Sovereignty checks (Ψ Soul)"
+    },
+    {
+      "name": "seal",
+      "description": "999_SEAL: Cryptographic seal and immutable audit with F1 Amanah and F3 Tri-Witness consensus (VAULT)"
+    },
+    {
+      "name": "container_list",
+      "description": "List sovereign stack containers (qdrant, openclaw, agentzero) with 5s TTL caching"
+    },
+    {
+      "name": "container_restart",
+      "description": "Restart containers with F1 Amanah logging and 888_HOLD protection for critical operations"
+    },
+    {
+      "name": "container_logs",
+      "description": "Get container logs with F11/F2 enforcement and configurable tail length"
+    },
+    {
+      "name": "sovereign_health",
+      "description": "Full health check of sovereign stack with F2 Truth and F7 Humility reporting"
+    },
+    {
+      "name": "container_exec",
+      "description": "Execute commands inside containers with F11/F12 injection defense and command validation"
+    }
+  ],
+  "categories": ["governance", "safety", "compliance", "security", "audit", "infrastructure"],
+  "tags": [
+    "constitutional-ai",
+    "ai-governance",
+    "hallucination-prevention",
+    "audit-trail",
+    "enterprise-safety",
+    "tri-witness-consensus",
+    "thermodynamic-governance",
+    "a-clip",
+    "9-tools",
+    "injection-defense",
+    "container-management",
+    "f12-guard",
+    "f13-sovereignty"
+  ],
+  "features": {
+    "streaming": true,
+    "batch": false,
+    "authorization": {
+      "type": "oauth2",
+      "required": false
+    }
+  },
+  "performance": {
+    "config_caching": "13,725x speedup",
+    "container_caching": "16,022x speedup",
+    "injection_patterns": 20,
+    "query_types": 6
+  },
+  "canonical_names": {
+    "init_session": "anchor",
+    "agi_cognition": "reason",
+    "asi_empathy": "validate",
+    "apex_verdict": "audit",
+    "vault_seal": "seal"
+  }
+}

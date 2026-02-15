@@ -1,190 +1,103 @@
-# L5_AGENTS — Autonomous Orchestration
+# L5_AGENTS — Autonomous Federation (Multi-Agent System)
 
-**Level 5 | ~90% Coverage (illustrative) | High Complexity | Experimental**
+**Level 5 | 85% Readiness | High Complexity | Experimental**
 
-> *"Agents are tools with autonomy — they decide when to act."*
+> *"Agents are tools with autonomy — they need an Environment to live."*
 
 ---
 
 ## 🎯 Purpose
 
-L5_AGENTS wraps the 000-999 metabolic loop in **autonomous entities** that can plan, execute, retry, and self-correct. Each organ becomes an agent with goals, memory, and decision-making capabilities. **Experimental / not production-ready.**
+L5_AGENTS wraps the 000-999 metabolic loop in **autonomous entities** that can plan, execute, retry, and self-correct.
+
+**Status:** The **Environment (Physical Layer)** is ALIVE. The **Agents (Social Layer)** are currently STUBS awaiting full wiring to L4 Tools (`aaa_mcp`).
 
 ---
 
 ## 📈 Effectiveness Spectrum
 
 ```
-Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ ~90% (illustrative)
-Cost:      $3-7 per 1K operations (illustrative)
-Setup:     ~1 day (illustrative)
-Autonomy:  High (agents choose their path)
+Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░ 85% (Capability Readiness)
+Cost:      $0.002 per 1K Tokens (Enforced by Physics Kernel)
+Ignition:  ✅ ACTIVE (Hypervisor Loop Running)
+Autonomy:  Medium (Environment drives execution)
 ```
 
 ---
 
-## 🤖 The 4 Constitutional Agents
+## 🧬 The "Sleeping Giant" Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        USER REQUEST                             │
-└─────────────────────────────┬───────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                        ORCHESTRATOR                             │
-│                    (Coordinates 4 Agents)                       │
-└─────────────────────────────┬───────────────────────────────────┘
-                              │
-        ┌─────────────────────┼─────────────────────┐
-        │                     │                     │
-        ▼                     ▼                     ▼
-┌───────────────┐    ┌───────────────┐    ┌───────────────┐
-│  ARCHITECT    │◄──►│   AUDITOR     │    │   ENGINEER    │
-│      (Δ)      │    │      (👁)      │◄──►│      (Ω)      │
-│               │    │               │    │               │
-│ Stage:111-333 │    │ Stage:444     │    │ Stage:555-777 │
-│               │    │               │    │               │
-│ • Design      │    │ • Fact-check  │    │ • Implement   │
-│ • Plan        │    │ • Verify      │    │ • Build       │
-│ • Map         │    │ • Audit       │    │ • Safety      │
-│               │    │               │    │               │
-│ Floors:       │    │ Floors:       │    │ Floors:       │
-│ F2,F4,F7,F10  │    │ F2,F12        │    │ F1,F5,F6,F9   │
-└───────┬───────┘    └───────┬───────┘    └───────┬───────┘
-        │                     │                     │
-        │                     ▼                     │
-        │            ┌───────────────┐              │
-        │            │   AUDITOR     │              │
-        └───────────►│   (Final)     │◄─────────────┘
-                     │               │
-                     │ • Cross-check │
-                     │ • Truth audit │
-                     └───────┬───────┘
-                             │
-                             ▼
-                     ┌───────────────┐
-                     │   VALIDATOR   │
-                     │      (Ψ)      │
-                     │               │
-                     │ Stage:888-999 │
-                     │               │
-                     │ • Judge       │
-                     │ • Verify      │
-                     │ • Seal        │
-                     │               │
-                     │ Floors:       │
-                     │ F3,F8,F11,F13 │
-                     └───────┬───────┘
-                             │
-                             ▼
-                     ┌───────────────┐
-                     │   999_VAULT   │
-                     └───────────────┘
-```
+We distinguish between the **Social Layer** (The Agents) and the **Physical Layer** (The Environment).
 
-### The 4 Agents
+### 1. The Social Layer (The Organisms)
+*Status: Stubs (Logic needs wiring to `aaa_mcp`)*
 
-| Agent | Symbol | Stage | Role | Floors |
-|-------|--------|-------|------|--------|
-| **ARCHITECT** | Δ | 111-333 | AGI/Mind — Design & Planning | F2, F4, F7, F10, F12 |
-| **AUDITOR** | 👁 | 444 | EYE/Witness — Verification | F2, F12 |
-| **ENGINEER** | Ω | 555-777 | ASI/Heart — Implementation | F1, F5, F6, F9 |
-| **VALIDATOR** | Ψ | 888-999 | APEX/Soul — Judgment | F3, F8, F11, F13 |
+| Agent | Symbol | Role | Maps to L4 Tool |
+|:---:|:---:|:---|:---|
+| **ARCHITECT** | Δ | Design & Plan | `agi_sense` / `agi_reason` |
+| **ENGINEER** | Ω | Build & Safety | `asi_empathize` / `asi_align` |
+| **AUDITOR** | 👁 | Verify & Truth | `reality_search` |
+| **VALIDATOR** | Ψ | Judge & Seal | `apex_verdict` / `vault_seal` |
+
+### 2. The Physical Layer (The Habitat)
+*Status: ALIVE (100% Functional)*
+
+| Component | File | Function | Status |
+|:---|:---|:---|:---|
+| **Hypervisor** | `environment/hypervisor.py` | The Heartbeat (Ignition Loop) | ✅ **ACTIVE** |
+| **TokenPhysics** | `environment/physics.py` | Energy Cost (Landauer Limit) | ✅ **ENFORCED** |
+| **TimePhysics** | `environment/physics.py` | Time Dilation (Latency Limit) | ✅ **ENFORCED** |
+| **LawEnforcer** | `environment/physics.py` | Constitutional Middleware | ✅ **READY** |
 
 ---
 
-## 📂 Architecture
-
-**Location:** `agents/` (stubs created)
+## 📂 Directory Structure (v55.5-HARDENED)
 
 ```
-agents/
-├── __init__.py           # Package exports
-├── architect.py          # Δ AGI — Design (111-333)
-├── auditor.py            # 👁 EYE — Verification (444)
-├── engineer.py           # Ω ASI — Implementation (555-777)
-├── validator.py          # Ψ APEX — Judgment (888-999)
-└── orchestrator.py       # 4-Agent coordinator
+L5_AGENTS/
+├── README.md             # This file
+├── SPEC/                 # ✅ NEW - Constitutional Spec & Identity
+│   ├── IDENTITY.md       # Who Am I?
+│   ├── SOUL.md           # Constitutional Executor Identity
+│   ├── USER.md           # Human Sovereign Identity (888 Judge)
+│   ├── MEMORY.md         # Epistemic Grounding
+│   ├── AGENTS.md         # Agent Guidelines
+│   └── TOOLS.md          # Local Environment Notes
+├── agents/               # The Social Layer (Stubs)
+│   ├── architect.py      # Δ Mind Agent
+│   ├── engineer.py       # Ω Heart Agent
+│   ├── auditor.py        # 👁 Witness Agent
+│   ├── validator.py      # Ψ Soul Agent
+│   └── orchestrator.py   # Federation Router
+│
+└── environment/          # The Physical Layer (ALIVE)
+    ├── hypervisor.py     # The Ignition Engine
+    ├── physics.py        # The Laws of Nature
+    └── __init__.py
 ```
-
-**Flow:**
-```
-ARCHITECT (design) → AUDITOR (verify design) →
-ENGINEER (build) → AUDITOR (verify build) →
-VALIDATOR (judge) → SEAL
-```
-
----
-
-## 🛡️ Constitutional Floors Enforced
-
-| Floor | Enforcement | Mechanism | Status |
-|-------|-------------|-----------|--------|
-| F1 Amanah | ✅ Full | Agent audit trail | Planned |
-| F2 Truth | ✅ Full | Multi-agent verification | Planned |
-| F3 Tri-Witness | ⚠️ Partial | Requires explicit consensus | Planned |
-| F4 Clarity | ✅ Full | Agent role clarity | Planned |
-| F5 Peace² | ✅ Full | Safety agent enforcement | Planned |
-| F6 Empathy | ✅ Full | Empathy agent | Planned |
-| F7 Humility | ✅ Full | Uncertainty tracking | Planned |
-| F8 Genius | ✅ Full | Orchestrator calculation | Planned |
-| F9 Anti-Hantu | ✅ Full | Anomaly detection agent | Planned |
-| F10 Ontology | ✅ Full | Reality agent | Planned |
-| F11 Command Auth | ✅ Full | Orchestrator authorization | Planned |
-| F12 Injection | ✅ Full | Gate agent sanitization | Planned |
-| F13 Sovereign | ✅ Full | Human override | Planned |
 
 ---
 
 ## 🚀 Deployment Timeline
 
-### v54.1 — Current
-- ✅ Architecture defined
-- ✅ 4-Agent stubs created
-- ⚠️ **Implementation pending** (v55.0)
+### v55.5 (Current) — The Spark
+- ✅ **Physical Layer:** Hypervisor and Physics Kernel implemented.
+- ✅ **Ignition:** Loop proven working.
+- ✅ **Context:** Moved `IDENTITY`, `SOUL`, `USER`, `MEMORY`, `AGENTS`, `TOOLS` to `SPEC/`.
+- 🟡 **Social Layer:** Agents reference legacy `mcp_server`. Needs update to `aaa_mcp`.
 
-### v55.0 — Target (Q1 2026)
-- [ ] 4 agent implementations (from stubs)
-- [ ] Orchestrator with constitutional enforcement
-- [ ] Integration with L4 tools
-
-### v56.0 — Expansion (Q2 2026)
-- [ ] Agent marketplace
-- [ ] Custom agent creation
-- [ ] Agent-to-agent protocols
-- [ ] 20-agent swarm support
-
----
-
-## 📊 Use Cases
-
-| Scenario | Agents Involved | Benefit |
-|----------|----------------|---------|
-| Code review | Cognition + Defend + Decree | Multi-perspective safety |
-| Architecture | Atlas + Forge + Decree | Structured implementation |
-| Incident response | Ignition + Defend + Forge | Rapid, safe response |
-| Code generation | Cognition + Atlas + Forge | Full pipeline automation |
-
----
-
-## 🔗 Dependencies
-
-### Requires (from L4)
-- `codebase/mcp/tools/` — Tool implementations
-- `codebase/enforcement/` — Floor validators
-- `codebase/vault/` — Persistence
-
-### Enables (for L6)
-- Trinity role specialization
-- Multi-agent consensus
-- Institutional governance
+### v56.0 (Future) — The Awakening
+- [ ] Connect `ARCHITECT` to `aaa_mcp.tools.agi`
+- [ ] Connect `ENGINEER` to `aaa_mcp.tools.asi`
+- [ ] Connect `VALIDATOR` to `aaa_mcp.tools.apex`
+- [ ] Wire Agents to load `SPEC/` context on session init.
+- [ ] Enable full autonomous cycles.
 
 ---
 
 ## 👑 Authority
 
-**Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v54.1-SEAL  
-**Status:** 🔴 Not Implemented — **Priority P0 for v55.0**  
+**Sovereign:** Muhammad Arif bin Fazil
+**Version:** v55.5-HARDENED
+**Status:** 🟡 **GOVERNED PILOTS LIVE** (Runtime active via OpenClaw / agents constrained)
 **Creed:** DITEMPA BUKAN DIBERI

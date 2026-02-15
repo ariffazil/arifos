@@ -26,7 +26,7 @@ This starts the Codebase MCP server which proxies commands to the Constitutional
 
 ```bash
 # Start SSE Server (Railway/Remote Compatible)
-python -m codebase.mcp.sse
+python -m mcp.sse
 ```
 *Port defaults to 8000. Access via `http://localhost:8000/sse`*
 

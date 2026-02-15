@@ -1,0 +1,84 @@
+/**
+ * Trinity Design System — Unified Tokens
+ * arifOS v55.5-SEAL
+ * 
+ * Canonical design tokens for HUMAN (🔴), THEORY (🟡), and APPS (🔵)
+ */
+
+:root {
+  /* Neutral Foundation */
+  --trinity-slate-950: #0f172a;
+  --trinity-slate-900: #1e293b;
+  --trinity-slate-800: #334155;
+  --trinity-white: #ffffff;
+  --trinity-gray-200: #e2e8f0;
+  --trinity-gray-400: #94a3b8;
+  
+  /* HUMAN — Crimson */
+  --crimson: #FF2D2D;
+  --crimson-10: #FF2D2D10;
+  --crimson-20: #FF2D2D33;
+  --crimson-50: #FF2D2D80;
+  
+  /* THEORY — Gold */
+  --gold: #FFD700;
+  --gold-10: #FFD70010;
+  --gold-20: #FFD70033;
+  --gold-50: #FFD70080;
+  
+  /* APPS — Cyan */
+  --cyan: #06B6D4;
+  --cyan-10: #06B6D410;
+  --cyan-20: #06B6D433;
+  --cyan-50: #06B6D480;
+  
+  /* Typography */
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --font-mono-alt: 'JetBrains Mono', monospace;
+  
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
+  
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  
+  /* Layout — UNIFIED 720px */
+  --container-max: 720px;
+  --container-padding: var(--space-8);
+  --header-margin: var(--space-12);
+  --footer-margin: var(--space-16);
+  
+  /* Animation */
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-pulse: 2000ms;
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+}
+
+[data-theme="human"] { --trinity-primary: var(--crimson); }
+[data-theme="theory"] { --trinity-primary: var(--gold); }
+[data-theme="apps"] { --trinity-primary: var(--cyan); }
+
+@keyframes trinity-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}

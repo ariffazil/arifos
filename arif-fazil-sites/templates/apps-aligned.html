@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="apps">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔵 APPS — arifOS v55.5</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../shared/theme/unified-tokens.css">
+  <style>
+    :root { --trinity-primary: var(--cyan); --trinity-primary-10: var(--cyan-10); }
+    body { margin: 0; padding: 0; background: var(--trinity-slate-950); color: var(--trinity-white); font-family: var(--font-mono-alt); line-height: 1.6; }
+    .container { max-width: var(--container-max); margin: 0 auto; padding: var(--container-padding); }
+    header { text-align: center; margin-bottom: var(--header-margin); }
+    h1 { font-size: var(--text-4xl); font-weight: var(--weight-bold); color: var(--trinity-primary); margin: 0; }
+    .subtitle { color: var(--trinity-gray-200); font-size: var(--text-lg); margin-top: var(--space-2); }
+    .live-pulse { width: 100%; height: 6px; background: var(--trinity-primary); margin: var(--space-8) 0; box-shadow: 0 0 20px var(--trinity-primary); animation: pulse 2s ease-in-out infinite; border-radius: 2px; }
+    @keyframes pulse { 0%, 100% { opacity: 0.6; box-shadow: 0 0 10px var(--trinity-primary); } 50% { opacity: 1; box-shadow: 0 0 30px var(--trinity-primary); } }
+    .metrics-row { display: flex; justify-content: center; gap: var(--space-4); flex-wrap: wrap; }
+    .metric-card { background: var(--trinity-primary-10); border: 1px solid var(--trinity-primary); padding: var(--space-4); border-radius: 4px; text-align: center; min-width: 120px; }
+    .metric-value { color: var(--trinity-primary); font-weight: var(--weight-bold); font-size: var(--text-2xl); display: block; }
+    .metric-label { font-size: var(--text-xs); color: var(--trinity-gray-200); margin-top: var(--space-1); }
+    .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-4); margin: var(--space-8) 0; }
+    .tool-card { background: var(--trinity-primary-10); border: 1px solid var(--trinity-primary); padding: var(--space-4); border-radius: 4px; transition: box-shadow var(--duration-normal) var(--ease-out), transform var(--duration-normal) var(--ease-out); }
+    .tool-card:hover { box-shadow: 0 0 15px var(--trinity-primary); transform: translateY(-2px); }
+    .tool-name { color: var(--trinity-primary); font-weight: var(--weight-semibold); font-size: var(--text-base); margin: 0 0 var(--space-2) 0; }
+    .tool-desc { color: var(--trinity-gray-200); font-size: var(--text-sm); margin: 0; }
+    .thermodynamic-a { display: inline-block; width: 48px; height: 48px; margin: var(--space-4) 0; }
+    .thermodynamic-a svg { width: 100%; height: 100%; }
+    .thermodynamic-a path { stroke: var(--trinity-primary); stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+    footer { text-align: center; margin-top: var(--footer-margin); color: var(--trinity-gray-400); font-size: var(--text-sm); }
+    .footer-nav { display: flex; justify-content: center; align-items: center; gap: var(--space-3); margin-top: var(--space-4); }
+    .footer-nav a { font-size: var(--text-lg); text-decoration: none; transition: transform var(--duration-fast) var(--ease-out); }
+    .footer-nav a:hover { transform: scale(1.2); }
+    @media (max-width: 640px) { h1 { font-size: var(--text-3xl); } .tool-grid { grid-template-columns: 1fr; } .metric-card { min-width: 100px; padding: var(--space-3); } .metric-value { font-size: var(--text-xl); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="thermodynamic-a"><svg viewBox="0 0 48 48"><path d="M12 40 L24 12 L36 40" /><path d="M24 12 L24 8" /></svg></div>
+      <h1>🔵 APPS</h1>
+      <p class="subtitle">The Omega Runtime — Tools & API</p>
+    </header>
+    <main>
+      <div class="live-pulse" aria-label="System active indicator"></div>
+      <section class="metrics-row" aria-label="System Metrics">
+        <div class="metric-card"><span class="metric-value">G=0.82</span><p class="metric-label">F8 Genius</p></div>
+        <div class="metric-card"><span class="metric-value">Ω₀=0.04</span><p class="metric-label">F7 Humility ✅</p></div>
+      </section>
+      <section class="tool-grid" aria-label="Available Tools">
+        <article class="tool-card" tabindex="0"><h2 class="tool-name">⚙️ init_gate</h2><p class="tool-desc">Pre-execution validation (F11, F12)</p></article>
+        <article class="tool-card" tabindex="0"><h2 class="tool-name">🧠 agi_sense</h2><p class="tool-desc">F2 Truth + F4 Clarity scan</p></article>
+        <article class="tool-card" tabindex="0"><h2 class="tool-name">💭 agi_think</h2><p class="tool-desc">F7 Humility bounded reasoning</p></article>
+        <article class="tool-card" tabindex="0"><h2 class="tool-name">⚖️ apex_verdict</h2><p class="tool-desc">F3 + F8 Genius eigendecomposition</p></article>
+      </section>
+    </main>
+    <footer>
+      <p>arifOS v55.5-SEAL • MCP endpoint: aaamcp.arif-fazil.com/mcp</p>
+      <nav class="footer-nav" aria-label="Trinity Sites">
+        <a href="/human" aria-label="HUMAN Site">🔴</a>
+        <span>•</span>
+        <a href="/theory" aria-label="THEORY Site">🟡</a>
+        <span>•</span>
+        <a href="/apps" aria-label="APPS Site">🔵</a>
+      </nav>
+    </footer>
+  </div>
+</body>
+</html>

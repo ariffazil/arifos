@@ -2,9 +2,9 @@ name: arifOS CI
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [main, master]
   pull_request:
-    branches: [ main, master ]
+    branches: [main, master]
 
 jobs:
   build-and-test:
@@ -12,18 +12,17 @@ jobs:
 
     permissions:
       contents: read
+      security-events: write
 
     steps:
-      # FIX: Changed v6 (hallucination) to v4 (Stable)
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
-      # FIX: Changed v6 (hallucination) to v5 (Stable)
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-          cache: 'pip'
+          python-version: "3.12"
+          cache: "pip"
 
       - name: Install dependencies
         run: |
@@ -35,6 +34,15 @@ jobs:
           elif [ -f "requirements.txt" ]; then
             pip install -r requirements.txt
           fi
+
+      - name: Compile critical runtime modules
+        run: |
+          python -m py_compile \
+            aaa_mcp/server.py \
+            scripts/start_server.py \
+            core/pipeline.py \
+            core/organs/_1_agi.py \
+            aaa_mcp/core/engine_adapters.py
 
       - name: Lint (ruff or flake8)
         run: |
@@ -49,7 +57,7 @@ jobs:
       - name: Type check (mypy)
         run: |
           if python -m pip show mypy >/dev/null 2>&1; then
-            mypy arifos_core tests || true
+            mypy aaa_mcp tests || true
           else
             echo "mypy not installed; skipping."
           fi
@@ -60,4 +68,50 @@ jobs:
             pytest -v
           else
             echo "pytest not installed; skipping."
+          fi
+
+  # --- Security Scanning (Snyk) ---
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+    
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt || true
+
+      - name: Run Snyk vulnerability scan
+        uses: snyk/actions/python@master
+        continue-on-error: true  # Don't block on vulns during pilot
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          args: --severity-threshold=high
+
+      - name: Run pip-audit (fallback if no Snyk token)
+        if: ${{ !env.SNYK_TOKEN }}
+        run: |
+          pip install pip-audit
+          pip-audit --ignore-vuln PYSEC-2022-43012 || echo "⚠ Vulnerabilities found (non-blocking during pilot)"
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: npm audit (for any JS deps)
+        run: |
+          if [ -f "package.json" ]; then
+            npm audit --audit-level=high || echo "⚠ npm audit found issues"
+          else
+            echo "No package.json; skipping npm audit"
           fi
