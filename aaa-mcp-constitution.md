@@ -1,4 +1,4 @@
-# aaa-mcp-constitution.md — The 5-Core That Actually Works (v64.1-GAGI)
+# aaa-mcp-constitution.md — The 5-Core That Actually Works (2026.02.15-FORGE-TRINITY-SEAL)
 
 **Extracted from:** `/root/arifOS/aaa_mcp/server.py`, `/root/arifOS/core/judgment.py`  
 **Date:** 2026-02-14  
@@ -32,7 +32,7 @@
 
 **Truth (τ):** Variable — 0.3 (no evidence) to 0.99 (grounded)  
 **Uncertainty (Ω₀):** Harmonic mean (safety) + Geometric mean (display)  
-**Genius (G):** A×P×X×E² — tapi A (Ability) dan P (Practice) hardcoded dalam v64.1
+**Genius (G):** A×P×X×E² — A (Ability) dan P (Practice) hardcoded dalam T000 seal
 
 ### 1.3 asi_empathy (555-666_ASI)
 **Location:** `aaa_mcp/server.py:350`  
@@ -75,7 +75,12 @@
 
 ---
 
-## 2. What Actually Works (v64.1 Evidence)
+## 2. What Actually Works (2026.02.15 Evidence)
+
+### Evidence (v64.1 → T000 Migration)
+- **Before:** v64.1 used semantic versioning (meaningless numbers)
+- **After:** T000 date-based versioning (2026.02.15-FORGE-TRINITY-SEAL)
+- **Result:** F2 Truth restored — versions now tell you *when* and *what state*
 
 ### 2.1 Uncertainty Engine (Real)
 **Location:** `core/uncertainty_engine.py` (referenced, not inspected)  
@@ -86,7 +91,7 @@
 
 **Not Working:**
 - Online learning (30-day locked — disabled)
-- Adaptive thresholds (static dalam v64.1)
+- Adaptive thresholds (static dalam T000, dynamic dalam roadmap)
 
 ### 2.2 Governance Kernel (Real)
 **Location:** `core/governance_kernel.py`  
