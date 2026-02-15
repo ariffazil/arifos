@@ -1,9 +1,9 @@
-# arifOS Agent Guide (v64.2-GAGI)
+# arifOS Agent Guide (T000: 2026.02.15-FORGE-TRINITY-SEAL)
 
 **Canon:** `C:/Users/User/arifOS/AGENTS.md`  
-**Version:** v64.2-GAGI  
+**Version:** 2026.02.15-FORGE-TRINITY-SEAL  
 **Motto:** "DITEMPA BUKAN DIBERI — Forged, Not Given"  
-**Code Version:** 64.2.0  
+**Code Version:** 2026.02.15  
 **Reality Index:** 0.94 (94% of documented features operational)
 
 ---
@@ -21,7 +21,7 @@
 | **core/** | **The Kernel** | DNA | Pure decision logic (stateless, pure functions). Shared by Brain and Senses. |
 | **scripts/** | **The Body** | Railway | Deployment entry points tailored for hosting environments. |
 
-### Architecture: v64.2-GAGI (Get A Grip Intelligence)
+### Architecture: 2026.02.15 (FORGE-TRINITY)
 - **Unified Deployment:** `aaa-mcp` and `aclip-cai` can run as a single organism via `arifos-router`
 - **5-Core Kernel:** 000_INIT, AGI, ASI, APEX, VAULT (located in `core/organs/`)
 - **9 A-CLIP Tools:** anchor (000) → reason (222) → integrate (333) → respond (444) → validate (555) → align (666) → forge (777) → audit (888) → seal (999)
@@ -46,6 +46,7 @@ L1 Prompts    — Zero-context entry (Production)
 | Layer | Specific Technologies |
 |:---|:---|
 | **Language** | Python 3.12+ (Async-first) |
+| **Interface** | **Raw MCP Protocol** (No Client SDK) |
 | **Protocol** | Model Context Protocol (MCP) 2024-11-05 |
 | **Framework** | `fastmcp>=2.14.0`, `starlette`, `fastapi`, `uvicorn` |
 | **Data** | `pydantic` v2, `dataclasses` |
@@ -307,7 +308,7 @@ docker run -p 8080:8080 --env-file .env arifos
 
 # Health check
 curl http://localhost:8080/health
-# → {"status":"healthy","service":"aaa-mcp","version":"64.2.0"}
+# → {"status":"healthy","service":"aaa-mcp","version":"2026.02.15"}
 ```
 
 ### Local Development

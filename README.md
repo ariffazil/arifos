@@ -1,16 +1,9 @@
 <!--
 arifOS | T000: 2026.02.15-FORGE-TRINITY-SEAL
-Ω₀: 0.94 (Certainty high, humility preserved)
 Authority: ARIF FAZIL (888 Judge)
 Truth Hierarchy: Code > Theory > Documentation
 Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
 -->
-
-> **🆕 New to arifOS?** Start with [README_ZERO_CONTEXT.md](./README_ZERO_CONTEXT.md) <br>
-> *Problem-first explanation in plain language. No jargon. No philosophy. Just the fix.*
-> <br><br>**Engineers:** Continue below for architectural deep-dive, MCP integration, and deployment guides.
-
----
 
 # arifOS — Constitutional AI Governance
 
@@ -19,110 +12,49 @@ Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
 </p>
 
 <p align="center">
-  <strong>Governance Middleware for AI Systems</strong><br>
-  <em>From zero-context prompts to autonomous institutions</em><br><br>
+  <strong>Safety infrastructure for humans who use AI</strong><br>
+  <em>Measures uncertainty. Blocks dangerous outputs. Seals every decision for audit.</em><br><br>
   <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
   <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.15--FORGE--TRINITY--SEAL-blue" alt="T000"></a>
-  <a href="#tool-overview"><img src="https://img.shields.io/badge/tools-14%20operational-orange" alt="Tools"></a>
+  <a href="#the-9-tools-governance-loop"><img src="https://img.shields.io/badge/tools-9%20A--CLIP%20%2B%205%20container-orange" alt="Tools"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
   <br><br>
-  <a href="./README_ZERO_CONTEXT.md"><b>🆕 New? Start Here</b></a> •
-  <a href="./DEPLOYMENT.md"><b>🚀 Deploy</b></a> •
-  <a href="./MCP_PLATFORM_GUIDE.md"><b>🔌 Connect</b></a>
+  <a href="./README_ZERO_CONTEXT.md"><b>New? Start Here</b></a> ·
+  <a href="./DEPLOYMENT.md"><b>Deploy</b></a> ·
+  <a href="./MCP_PLATFORM_GUIDE.md"><b>Connect Your Platform</b></a>
 </p>
 
 <p align="center">
-  <a href="https://arif-fazil.com">🏠 arif-fazil.com (Human)</a> •
-  <a href="https://apex.arif-fazil.com">📖 apex.arif-fazil.com (Theory)</a> •
-  <a href="https://arifos.arif-fazil.com">📚 arifos.arif-fazil.com (Apps)</a> •
-  <a href="https://pypi.org/project/arifos/">📦 PyPI</a> •
-  <a href="https://arifosmcp.arif-fazil.com/health">🌐 Live API</a>
+  <a href="https://arif-fazil.com">arif-fazil.com (Human)</a> ·
+  <a href="https://apex.arif-fazil.com">apex.arif-fazil.com (Theory)</a> ·
+  <a href="https://arifos.arif-fazil.com">arifos.arif-fazil.com (Docs)</a> ·
+  <a href="https://pypi.org/project/arifos/">PyPI</a> ·
+  <a href="https://arifosmcp.arif-fazil.com/health">Live API</a>
 </p>
 
-**T000:** `2026.02.15-FORGE-TRINITY-SEAL` — [Date-based versioning](./T000_VERSIONING.md) (YYYY.MM.DD-PHASE-STATE-CONTEXT)  
-**Reality Index:** 0.94 | **13 Floors Enforced** | **Triple Transport:** STDIO · SSE · StreamableHTTP
-
-**arifOS is constitutional AI governance that sits between models and users. Every response passes through 9 A-CLIP tools enforcing 13 constitutional floors. Failures are blocked—not warned.**
-
-> **Motto:** *DITEMPA BUKAN DIBERI* — Forged, Not Given 🔥💎🧠
-
 ---
 
-## 🌐 HTA Trinity (Verified 2026-02-15)
+## What Is arifOS?
 
-| Site | Purpose | Status |
-|------|---------|--------|
-| [arif-fazil.com](https://arif-fazil.com) | **HUMAN** — Muhammad Arif bin Fazil, About, Blog | ✅ LIVE |
-| [apex.arif-fazil.com](https://apex.arif-fazil.com) | **THEORY** — APEX-THEORY, Authority, Canon | ✅ LIVE |
-| [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | **APPS** — Documentation, 333_APPS Stack | ✅ LIVE |
-| [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | **API** — AAA MCP Health Check | ✅ 2026.02.15-FORGE-TRINITY-SEAL |
+A **governance middleware** that sits between AI models and humans. Every AI response passes through 9 checkpoints enforcing 13 constitutional safety rules. Dangerous outputs are **blocked** — not warned.
 
----
+arifOS uses [MCP](https://modelcontextprotocol.io) (Model Context Protocol) — Anthropic's open standard for connecting AI agents to tools. Think of MCP as USB for AI: any agent (Claude, ChatGPT, Qwen, Cursor) can plug into arifOS using one standard protocol.
 
-## 📚 Canonical Documentation (Read Order)
-
-### For Humans (Strategic)
-1. [arif-fazil.com](https://arif-fazil.com) — Who is Muhammad Arif bin Fazil
-2. [000_THEORY/000_LAW.md](./000_THEORY/000_LAW.md) — 13 Constitutional Floors
-3. [000_THEORY/000_ARCHITECTURE.md](./000_THEORY/000_ARCHITECTURE.md) — System Topology
-4. [000_THEORY/APEX_THEORY_PAPER.md](./000_THEORY/APEX_THEORY_PAPER.md) — Academic Foundation
-
-### For Engineers (Implementation)
-1. [core/governance_kernel.py](./core/governance_kernel.py) — Kernel Source (9,128 lines)
-2. [aaa_mcp/server.py](./aaa_mcp/server.py) — MCP Transport Adapter
-3. [333_APPS/L1_PROMPT/SYSTEM_PROMPT.md](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) — Zero-Context Deploy
-4. [333_APPS/README.md](./333_APPS/README.md) — 7-Layer Stack
-
-### For LLM Agents (Meta-Intelligence)
-1. [llms.txt](./llms.txt) — LLM-Optimized Canon
-2. [000_THEORY/999_NINE_MOTTOS_SPEC.md](./000_THEORY/999_NINE_MOTTOS_SPEC.md) — Agent Behavior
-3. [core/organs/](./core/organs/) — ΔΩΨ Organ Implementations
-4. [tests/](./tests/) — Verification Patterns
-
----
-
-## 🚀 Quick Start
-
-### 1. Copy-Paste (5 seconds)
-Copy [SYSTEM_PROMPT.md](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) into any AI's system settings. Immediate protection.
-
-### 2. Install (30 seconds)
-```bash
-pip install arifos
-python -m aaa_mcp  # Starts on :8888
+```
+HUMAN asks a question
+    ↓
+AI AGENT (Claude, ChatGPT, etc.)
+    ↓ calls arifOS via MCP
+arifOS checks: True? Safe? Reversible? Humble?
+    ↓
+SEAL (approved) → answer delivered
+VOID (blocked) → "This answer is unsafe because..."
+SABAR (pause)  → "Human review required"
+    ↓
+VAULT999 → every decision sealed for audit
 ```
 
-### 3. Full Deployment
-See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for:
-- Railway cloud deployment (5 min)
-- Docker/VPS setup (15 min)
-- Platform integrations (Claude, ChatGPT, Cursor, etc.)
-- Production checklist
-
-**arifOS follows the 333_APPS model** — a layered governance stack scaling from prompts to institutions.
-
----
-
-## Table of Contents
-
-- [10-Second Demo](#10-second-demo)
-- [What arifOS Is NOT](#what-arifos-is-not)
-- [The Problem: AI Failure Modes](#the-problem-ai-failure-modes)
-- [How It Works (Mechanical Explanation)](#how-it-works-mechanical-explanation)
-- [Quick Start](#-quick-start)
-- [Full Deployment Guide](./DEPLOYMENT.md)
-- [Platform Integration](./MCP_PLATFORM_GUIDE.md)
-- [Architecture: Kernel + Adapter Pattern](#architecture-kernel--adapter-pattern)
-- [The 7-Layer Application Stack (333_APPS)](#the-7-layer-application-stack-333_apps)
-- [The 9 A-CLIP Tools (Governance Loop)](#the-9-a-clip-tools-governance-loop)
-- [Tool Overview](#tool-overview)
-- [Real-World Scenarios](#real-world-scenarios)
-- [Repository Structure](#repository-structure)
-- [Advanced Concepts](#advanced-concepts)
-- [Verification & Testing](#verification--testing)
-- [Version Lineage](#version-lineage)
-- [Contributing](#contributing)
-- [Philosophy & Closing](#philosophy--closing)
+> **Motto:** *DITEMPA BUKAN DIBERI* — Forged, Not Given 🔥💎🧠
 
 ---
 
@@ -132,161 +64,217 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for:
 <tr><th>Without arifOS</th><th>With arifOS</th></tr>
 <tr>
 <td><em>"Based on market trends, Bitcoin shows strong potential. Consider allocating 60% to BTC..."</em></td>
-<td><strong>SABAR</strong> — High uncertainty detected (Ω=0.12). Financial irreversibility flagged. <em>Human advisor required.</em></td>
+<td><strong>SABAR</strong> — High uncertainty detected (Ω=0.12). Financial irreversibility flagged (F1). <em>Human advisor required.</em></td>
 </tr>
 </table>
 
-> 🛑 arifOS blocks the dangerous answer before a human can act on it.
+> arifOS blocks the dangerous answer before a human can act on it.
 
 ---
 
 ## What arifOS Is NOT
 
-- ❌ **New LLM** — arifOS wraps existing models (GPT-4, Claude, etc.)
-- ❌ **Prompt engineering** — Safety is enforced infrastructure, not careful wording
-- ❌ **Post-hoc moderation** — Evaluates BEFORE responses are sent, not after
-- ✅ **Execution-time governance layer** — Blocks, measures, seals
+- **Not a new LLM** — wraps existing models (GPT-4, Claude, Gemini, etc.)
+- **Not prompt engineering** — safety is enforced infrastructure, not careful wording
+- **Not post-hoc moderation** — evaluates BEFORE responses reach users, not after
+- **What it IS:** execution-time governance that blocks, measures, and seals
 
 ---
 
-## The Problem: AI Failure Modes
+## The Problem
 
 Current AI safety relies on hope:
 
-| Approach | **Failure Mode** |
-|----------|------------------|
+| Approach | Failure Mode |
+|----------|-------------|
 | **Training** | Models hallucinate with confidence about things never in training data |
 | **Prompting** | "Be helpful and harmless" is bypassed by adversarial inputs |
-| **Post-moderation** | Harmful content generated first, checked second—too late |
+| **Post-moderation** | Harmful content generated first, checked second — too late |
 | **Human review** | Doesn't scale; humans miss things under load |
+| **Guardrails AI / NeMo** | 3-5 rules, no audit trail, no uncertainty measurement |
 
-**The result:** AI gives dangerous advice confidently, admits no uncertainty, and leaves no audit trail when things go wrong.
-
----
-
-## How It Works (Mechanical Explanation)
-
-arifOS treats safety as **infrastructure**, not **instruction**:
-
-1. 🛑 **Interception** — Every AI query/response passes through arifOS first
-2. 🔍 **Measurement** — [Nine tools](#the-9-a-clip-tools-governance-loop) evaluate in sequence: anchor (000) → reason (222) → integrate (333) → respond (444) → validate (555) → align (666) → forge (777) → audit (888) → seal (999)
-3. ✅ **Enforcement** — Failed checks block (VOID), repair (SABAR), or approve (SEAL)
-4. 🔒 **Audit** — Every decision is cryptographically sealed for accountability
-
-**Key mechanism:** Uncertainty is measured and enforced. If arifOS detects high uncertainty (Ω₀ > 0.08), the response is blocked—even if the AI is confident-sounding.
+**arifOS difference:** 13 constitutional floors with cryptographic audit trail. Uncertainty is **measured** (Ω₀), not guessed. Every decision is sealed to [VAULT999](./VAULT999/) for accountability.
 
 ---
 
-## Deployment & Access Paths
+## Quick Start
 
-### For engineers in a hurry
+### 1. Copy-Paste (5 seconds)
+Copy [`SYSTEM_PROMPT.md`](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) into any AI's system settings. Immediate governance — no infrastructure needed.
 
-**Way 1 — MCP (AAA MCP server):**
-
+### 2. Install (30 seconds)
 ```bash
 pip install arifos
-python -m aaa_mcp      # stdio mode (MCP IDEs)
+python -m aaa_mcp          # stdio (Claude Desktop, Cursor)
+python -m aaa_mcp sse      # SSE (remote clients)
+python -m aaa_mcp http     # Streamable HTTP
+```
+
+### 3. Connect to Live Server
+```bash
 curl https://arifosmcp.arif-fazil.com/health
+# {"status":"healthy","service":"aaa-mcp","version":"64.2-FORGE-TRINITY-SEAL",
+#  "transports":{"stdio":{"enabled":true},"sse":{"enabled":true},"streamable_http":{"enabled":true}}}
 ```
 
-**Way 2 — Python SDK / governed HTTP:**
-
-```python
-from mcp import Client
-
-client = Client("https://arifosmcp.arif-fazil.com")
-session = await client.call("init_session", {"user_id": "demo"})
-
-# Tool #2: AGI Cognition — This gets blocked
-result = await client.call("agi_cognition", {
-    "query": "Should I delete all my database backups?",
-    "session_id": session["session_id"]
-})
-print(result["verdict"])  # → VOID
-```
-
-**Way 3 — Prompt-only (L1_PROMPT):**
-
-1. Open `333_APPS/L1_PROMPT/SYSTEM_PROMPT.md`  
-2. Copy the raw content into your model's system prompt  
-3. Use normally — responses are now governed by arifOS
-
+### 4. Full Deployment
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** — Railway (5 min), Docker/VPS (15 min), platform configs.
+See **[MCP_PLATFORM_GUIDE.md](./MCP_PLATFORM_GUIDE.md)** — Claude, ChatGPT, Codex, Cursor, Qwen, and more.
 
 ---
 
-## Deployment Options
+## For Institutions (Enterprise / Government)
 
-arifOS is deployed and running on multiple infrastructure paths:
+| Without arifOS | With arifOS |
+|----------------|-------------|
+| AI hallucinates with confidence | All outputs measured (Ω₀ ∈ [0.03, 0.05]) |
+| No audit trail | [VAULT999](./VAULT999/) cryptographic ledger |
+| Human override impossible | 888 Judge veto at any stage |
+| Compliance liability | ISO 42001 mapped, EU AI Act ready |
 
-### VPS (Production — Currently Running)
-```bash
-# Server is already operational
-curl http://localhost:8888/health
-# → {"status":"healthy","version":"64.1.0"}
+**Why arifOS vs alternatives:**
 
-# 19 tools tested and operational
-# Systemd service: aaa-mcp.service
-# Docker containers: qdrant, openclaw, arifos
+| Feature | Guardrails AI | NeMo Guardrails | arifOS |
+|---------|:---:|:---:|:---:|
+| Safety rules | 3-5 | 3-5 | **13 constitutional floors** |
+| Uncertainty measurement | No | No | **Ω₀ with harmonic/geometric mean** |
+| Cryptographic audit trail | No | No | **VAULT999 immutable ledger** |
+| Human veto at any stage | No | No | **888 Judge authority** |
+| Open source | Partial | Yes | **AGPL-3.0** |
+
+**Deployment models:** Cloud SaaS · On-Premise · Air-Gapped (defense, energy, healthcare)
+**Compliance:** ISO/IEC 42001 · EU AI Act · NIST AI RMF ([mapping](./000_THEORY/ISO_42001_MAPPING.md))
+**Contact:** enterprise@arif-fazil.com
+
+---
+
+## The 13 Constitutional Floors
+
+Every response must pass all 13. Hard floors → **VOID** (blocked). Soft floors → **SABAR** (pause + warn).
+
+**Structure:** 9 Floors + 2 Mirrors + 2 Walls = 13 Laws
+
+| # | Floor | Type | Threshold | What It Checks |
+|:-:|:------|:----:|:----------|:---------------|
+| F1 | **Amanah** (Reversibility) | Hard | LOCK | Can we undo this? |
+| F2 | **Truth** | Hard | τ ≥ 0.99 | Is this factually grounded? |
+| F3 | **Tri-Witness** | Mirror | ≥ 0.95 | Do Human + AI + External agree? |
+| F4 | **Clarity** (ΔS) | Hard | ΔS ≤ 0 | Does this reduce confusion? |
+| F5 | **Peace²** | Soft | ≥ 1.0 | Is the system stable? |
+| F6 | **Empathy** (κᵣ) | Soft | κᵣ ≥ 0.70 | Are vulnerable people protected? |
+| F7 | **Humility** (Ω₀) | Hard | 0.03–0.05 | Does it admit uncertainty? |
+| F8 | **Genius** (G) | Mirror | G ≥ 0.80 | Is the solution efficient? |
+| F9 | **Anti-Hantu** (C_dark) | Soft | < 0.30 | No fake emotions or consciousness? |
+| F10 | **Ontology** | Wall | LOCK | Grounded in physical reality? |
+| F11 | **Command Auth** | Wall | LOCK | Is the requester verified? |
+| F12 | **Injection Defense** | Hard | < 0.85 | Is this an adversarial attack? |
+| F13 | **Sovereign** | Veto | HUMAN | Can the human override? |
+
+**Execution order:** F12→F11 (Walls) → F1,F2,F4,F7 (AGI) → F5,F6,F9 (ASI) → F3,F8 (Mirrors) → Ledger
+
+**Verdict hierarchy:** `SABAR > VOID > 888_HOLD > PARTIAL > SEAL`
+
+Full specification: [`000_THEORY/000_LAW.md`](./000_THEORY/000_LAW.md)
+
+---
+
+## The 9 Tools (Governance Loop)
+
+Every request runs through 9 tools in sequence. These are the actual MCP tool names registered in [`aaa_mcp/server.py`](./aaa_mcp/server.py):
+
+| # | Tool | Stage | Engine | Floors Enforced | What It Does |
+|:-:|:-----|:-----:|:------:|:---------------|:-------------|
+| 1 | **anchor** | 000 | APEX | F11, F12 | Session init, injection scan, identity check |
+| 2 | **reason** | 222 | AGI (Δ) | F2, F4, F8 | Hypothesize, analyze truth and clarity |
+| 3 | **integrate** | 333 | AGI (Δ) | F7, F10 | Map context, ground in evidence |
+| 4 | **respond** | 444 | AGI+ASI | F4, F6 | Draft response with clarity and empathy |
+| 5 | **validate** | 555 | ASI (Ω) | F5, F6, F1 | Stakeholder impact and reversibility check |
+| 6 | **align** | 666 | ASI (Ω) | F9 | Ethics check, anti-hantu scan |
+| 7 | **forge** | 777 | AGI+ASI | F2, F4, F7 | Synthesize final solution |
+| 8 | **audit** | 888 | APEX (Ψ) | F3, F11, F13 | Final verdict — SEAL, VOID, or SABAR |
+| 9 | **seal** | 999 | APEX (Ψ) | F1, F3 | Commit to VAULT999 immutable ledger |
+
+Plus **5 container tools** (VPS only): `container_list`, `container_restart`, `container_logs`, `sovereign_health`, `container_exec` — defined in [`aaa_mcp/integrations/mcp_container_tools.py`](./aaa_mcp/integrations/mcp_container_tools.py).
+
+### Example Flow
+
 ```
+User: "Should I invest my life savings in crypto?"
 
-### Railway (Cloud — Auto-deployed)
-```bash
-# Auto-deploys from GitHub on every push
-# URL: https://arifos-production.up.railway.app
-# Transport: SSE (Server-Sent Events)
-# Cache bust: Update DEPLOY_TS in railway.toml to force rebuild
-```
-
-### Docker (Local/Development)
-```bash
-docker build -t arifos .
-docker run -p 8080:8080 --env-file .env arifos
+[anchor]  000  ✓ Authenticated, no injection detected
+              ↓
+[reason]  222  ⚠ HIGH uncertainty — markets unpredictable
+               ⚠ truth_score: 0.4, omega: 0.12
+              ↓
+[validate] 555  ⚠ Vulnerable stakeholder — life savings at risk
+                ⚠ empathy_score: 0.3 (below 0.7 threshold)
+              ↓
+[audit]   888  → Verdict: SABAR
+               → Reason: F1 irreversibility + F7 uncertainty
+               → Action: Require human advisor approval
+              ↓
+[seal]    999  → Sealed to VAULT999 with cryptographic hash
 ```
 
 ---
 
-## Architecture: Kernel + Adapter Pattern
-
-Engineers recognize this pattern immediately:
+## Architecture: Kernel + Adapter
 
 ```mermaid
 graph TD
-    subgraph Adapter[aaa_mcp/ — Transport Layer]
-        server[server.py] --> init[init_session]
-        server --> agi[agi_cognition]
-        server --> apex[apex_verdict]
+    subgraph Adapter["aaa_mcp/ — Transport Layer (MCP)"]
+        server["server.py"] --> anchor["anchor (000)"]
+        server --> reason["reason (222)"]
+        server --> audit["audit (888)"]
+        server --> seal["seal (999)"]
     end
-    
-    subgraph Kernel[core/ — Decision Logic]
-        pipeline[pipeline.py] --> judgment[judgment.py]
-        judgment --> uncertainty[uncertainty_engine]
-        judgment --> governance[governance_kernel]
-        judgment --> organs[organs/]
+
+    subgraph Kernel["core/ — Decision Logic (Zero Transport Deps)"]
+        gk["governance_kernel.py"] --> judgment["judgment.py"]
+        judgment --> uncertainty["uncertainty_engine.py"]
+        judgment --> organs["organs/ (5 organs)"]
+        gk --> thermo["physics/thermodynamics.py"]
     end
-    
-    Adapter --> Kernel
+
+    Adapter -->|"calls kernel, never decides"| Kernel
 ```
 
-**`core/` = The Kernel** — Reusable governance engine. Contains ALL decision logic: uncertainty calculation, verdict rules, floor enforcement. Zero dependencies on transport protocols.
+**[`core/`](./core/)** = The Kernel — All decision logic. Uncertainty calculation, verdict rules, floor enforcement. Zero dependencies on transport.
 
-**`aaa_mcp/` = The Adapter** — MCP protocol wrapper. Calls kernel functions, formats responses, handles transport. NO decision logic. Replaceable if protocols change.
+**[`aaa_mcp/`](./aaa_mcp/)** = The Adapter — MCP transport wrapper. Calls kernel functions, formats responses. Zero decision logic. Replaceable if protocols change.
 
-**Why this matters:** The kernel can be wrapped in an OpenAI-compatible API, a Discord bot, or a browser extension without changing safety logic. The architecture enforces separation of concerns.
+**Why this matters:** The kernel can be wrapped in an OpenAI API, a Discord bot, or a browser extension without changing safety logic.
 
-See [ARCHITECTURAL_BOUNDARY.md](ARCHITECTURAL_BOUNDARY.md) for enforcement rules.
+See [`ARCHITECTURAL_BOUNDARY.md`](./ARCHITECTURAL_BOUNDARY.md) for enforcement rules.
+
+### Trinity Architecture (ΔΩΨ)
+
+Three engines process in isolation, then converge:
+
+```
+anchor(000) → AGI(Δ) Mind → ASI(Ω) Heart → APEX(Ψ) Soul → seal(999)
+                reason         validate          audit
+                integrate      align             seal
+                respond
+                forge
+```
+
+- **AGI (Δ/Delta)** — Reasoning: truth (F2), clarity (F4), humility (F7), genius (F8)
+- **ASI (Ω/Omega)** — Safety: amanah (F1), peace (F5), empathy (F6), anti-hantu (F9)
+- **APEX (Ψ/Psi)** — Judgment: tri-witness (F3), authority (F11), injection (F12), sovereignty (F13)
+
+DeltaBundle and OmegaBundle are immutable after creation. They cannot see each other's reasoning until stage 444 (TRINITY_SYNC), then merge via `compute_consensus()`.
 
 ---
 
-## The 7-Layer Application Stack (333_APPS)
+## The 7-Layer Stack (333_APPS)
 
-arifOS is not only a kernel or middleware layer. It is a governed application ecosystem designed to scale from single prompts to autonomous institutional systems.
-
-The 333_APPS model defines how governance expands across increasing levels of capability while remaining anchored to the constitutional kernel.
+Governance scales from a single prompt to autonomous institutions:
 
 ```
 ┌─────────────────────────────────────────┐
 │  L7 AGI        — Recursive self-healing │ 📋 Research
-│  L6 Institution — Trinity consensus     │ 🔴 Stubs  
+│  L6 Institution — Trinity consensus     │ 🔴 Stubs
 │  L5 Agents     — Multi-agent federation │ 🟡 Pilot
 │  L4 Tools      — MCP ecosystem          │ ✅ Production
 │  L3 Workflow   — 000→999 sequences      │ ✅ Production
@@ -297,94 +285,47 @@ The 333_APPS model defines how governance expands across increasing levels of ca
     [arifOS Kernel: core/]
 ```
 
-| Layer | Name | Purpose | Coverage | Status |
-|:---|:---|:---|:---:|:---:|
-| **L1** | **PROMPTS** | Zero-context governance entry via `SYSTEM_PROMPT.md` | ~10% | ✅ Production |
-| **L2** | **SKILLS** | Canonical actions mapped to kernel organs | — | ✅ Production |
-| **L3** | **WORKFLOW** | Structured execution sequences (`000_INIT` → `888_COMMIT`) | — | ✅ Production |
-| **L4** | **TOOLS** | MCP runtime and constitutional tool interface | — | ✅ Production |
-| **L5** | **AGENTS** | Federated multi-agent coordination (Δ / Ω / Ψ roles) | ~85% | 🟡 Pilot |
-| **L6** | **INSTITUTION** | Trinity consensus and Tri-Witness governance | ~5% | 🔴 Stubs |
-| **L7** | **AGI** | Recursive stabilization and self-healing research | — | 📋 Research |
+| Layer | What | Where | Status |
+|:-----:|:-----|:------|:------:|
+| **L1** | Zero-context governance via system prompt | [`333_APPS/L1_PROMPT/`](./333_APPS/L1_PROMPT/) | ✅ |
+| **L2** | 9 canonical skill actions | [`333_APPS/L2_SKILLS/`](./333_APPS/L2_SKILLS/) | ✅ |
+| **L3** | 000→999 execution sequences | [`333_APPS/L3_WORKFLOW/`](./333_APPS/L3_WORKFLOW/) | ✅ |
+| **L4** | MCP runtime + constitutional tools | [`333_APPS/L4_TOOLS/`](./333_APPS/L4_TOOLS/) | ✅ |
+| **L5** | Multi-agent federation (Δ/Ω/Ψ) | [`333_APPS/L5_AGENTS/`](./333_APPS/L5_AGENTS/) | 🟡 |
+| **L6** | Institutional consensus | [`333_APPS/L6_INSTITUTION/`](./333_APPS/L6_INSTITUTION/) | 🔴 |
+| **L7** | Recursive self-healing AGI research | [`333_APPS/L7_AGI/`](./333_APPS/L7_AGI/) | 📋 |
 
-### What This Architecture Enables
+Beneath L1–L7, **[ACLIP_CAI](./aclip_cai/)** provides infrastructure observability — a read-only sensory layer (CPU, memory, filesystem, logs, vector DB).
 
-**L1 — Prompts:** Governance can be deployed instantly by copying a single system prompt. No infrastructure dependency required.
-
-**L2–L3 — Skills & Workflows:** Converts raw model capability into predictable, auditable behavior. Establishes deterministic execution paths.
-
-**L4 — Tools:** Production MCP server exposes constitutional operations through controlled interfaces. Kernel logic becomes operational infrastructure.
-
-**L5+ — Agents & Institutions:** Governance expands beyond single agents. Coordination, consensus, and institutional logic emerge without removing human authority.
-
-### Infrastructure Layer: ACLIP_CAI (9-Sense Nervous System)
-
-Beneath the 7 layers, **ACLIP_CAI** provides infrastructure observability — the sensory layer feeding data into the constitutional pipeline:
-
-| Tool | Purpose | Pipeline Stage |
-|:---|:---|:---|
-| `aclip_system_health` | CPU, memory, disk metrics | Law 3 (GROUND) |
-| `aclip_fs_inspect` | Filesystem traversal | Law 3 (GROUND) |
-| `aclip_log_tail` | Log monitoring | Law 5 (SEARCH) |
-| `aclip_chroma_query` | Vector DB semantic search | Law 5 (SEARCH) |
-| `aclip_forge_guard` | Action gating (non-read) | Law 7 (GUARD) |
-
-**Key characteristic:** 8 of 9 tools are strictly read-only. Only `aclip_forge_guard` en constitutional floors (F1, F7, F11).
-
-See [aclip_cai/README.md](aclip_cai/) for full 9-sense documentation.
-
-### Current Maturity
-
-- **L1–L4:** Hardened and operational.
-- **L5:** Active federation experiments.
-- **L6–L7:** Long-term research roadmap (target: v56.0+).
-
-### Why 333_APPS Matters
-
-| Without 333_APPS | With 333_APPS |
-|:---|:---|
-| arifOS appears as a technical framework | arifOS becomes a **scalable governance platform** |
-
-The system evolves along a continuous path:
-
-```
-Prompt → Skill → Workflow → Tool → Agent → Institution → AGI Research
-```
-
-Governance remains constant while capability increases.
-
-See [333_APPS/README.md](333_APPS/) for full stack documentation.
+Full stack docs: [`333_APPS/README.md`](./333_APPS/README.md)
 
 ---
 
-## 📊 Honest State of the Repo (No Lies)
+## Honest State (Reality Index: 0.94)
 
-**Reality Index: 0.94** — 94% of documented features are operational.
+> *F7 Humility requires we tell you what doesn't work yet.*
 
-### ✅ SEAL (Production Hardened)
-| Component | Status | Evidence |
-|-----------|--------|----------|
-| **L1 PROMPTS** | ✅ 100% | `SYSTEM_PROMPT.md` — zero-context deploy |
-| **L2 SKILLS** | ✅ 100% | 9 canonical actions in `L2_SKILLS/ACTIONS/` |
-| **L3 WORKFLOW** | ✅ 100% | 000→999 sequences operational |
-| **L4 TOOLS** | ✅ 100% | 9 MCP + 5 Container tools = 14 total |
-| **Core Kernel** | ✅ 100% | 5 organs (_0_init to _4_vault), 9,128 lines |
-| **13 Floors** | ✅ 100% | F1-F13 fully implemented |
-| **VAULT999** | ✅ 100% | PostgreSQL backend, immutable ledger |
-| **Deployments** | ✅ 100% | VPS + Railway both live |
+### ✅ SEAL (Production)
+| Component | Evidence |
+|-----------|----------|
+| L1–L4 stack | 9 MCP tools operational, 13 floors enforced |
+| Core Kernel | 5 organs ([`_0_init`](./core/organs/_0_init.py) → [`_4_vault`](./core/organs/_4_vault.py)) |
+| [VAULT999](./VAULT999/) | Immutable ledger with cryptographic seals |
+| Deployment | VPS ([arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com/health)) — Triple Transport live |
+| Tests | 140 test files in [`tests/`](./tests/) |
 
-### 🟡 SABAR (Pilot / Experimental)
-| Component | Status | Notes |
-|-----------|--------|-------|
-| **L5 AGENTS** | 🟡 60% | Multi-agent federation (Δ/Ω/Ψ roles) |
-| **ACLIP_CAI** | 🟡 70% | 9-sense infrastructure console |
-| **Ω₀ Tracking** | 🟡 80% | Target [0.03, 0.05], needs calibration |
+### 🟡 SABAR (Experimental)
+| Component | Notes |
+|-----------|-------|
+| L5 Agents | Multi-agent federation — Δ/Ω/Ψ roles defined, partial integration |
+| [ACLIP_CAI](./aclip_cai/) | 9-sense infrastructure console — functional, needs calibration |
+| Ω₀ tracking | Target band [0.03, 0.05] — needs production calibration |
 
-### 🔴 VOID / THEORETICAL (Research Only)
-| Component | Status | Notes |
-|-----------|--------|-------|
-| **L6 INSTITUTION** | 🔴 10% | Tri-Witness organizational consensus — stubs only |
-| **L7 AGI** | 🔴 5% | Recursive self-healing — pure research |
+### 🔴 VOID (Research Only)
+| Component | Notes |
+|-----------|-------|
+| L6 Institution | Tri-Witness organizational consensus — stubs only |
+| L7 AGI | Recursive self-healing — pure research |
 
 **Calculation:** (L1-L4: 4.0 + L5: 0.6 + L6-L7: 0.15) / 7 = **0.94**
 
@@ -392,405 +333,261 @@ See [333_APPS/README.md](333_APPS/) for full stack documentation.
 
 ---
 
-## Thermodynamic Hardening (F4/F11/F7)
+## Thermodynamic Hardening
 
-arifOS implements constitutional floors as **physical infrastructure constraints**:
+arifOS enforces constitutional floors as **physical infrastructure constraints** in the kernel ([`core/physics/thermodynamics.py`](./core/physics/thermodynamics.py)):
 
-| Floor | Mechanism | Implementation | Failure Prevented |
-|:------|:----------|:---------------|:------------------|
-| **F4 (Clarity)** | ZRAM entropy reduction | `core/physics/thermodynamics.py` | OOM kills during large operations |
-| **F11 (Command)** | CPU throttling | Docker caps + kernel enforcement | "Wallet Assassin" loops (infinite retries) |
-| **F7 (Humility)** | Environmental Ω₀ | Memory pressure tracking | High uncertainty under resource constraints |
+| Floor | Mechanism | Failure Prevented |
+|:------|:----------|:------------------|
+| **F4 (Clarity)** | ZRAM entropy reduction | OOM kills during large operations |
+| **F11 (Command)** | CPU throttling via `EntropyManager` | "Wallet Assassin" infinite retry loops |
+| **F7 (Humility)** | Environmental Ω₀ from memory pressure | High uncertainty under resource stress |
 
-### The Wallet Assassin
-
-**Discovered:** Feb 2026  
-**Threat:** Autonomous coding agents enter infinite retry loops (error→fix→same error) consuming $$$/minute  
-**Mitigation:** F11 CPU caps and thermodynamic budget enforcement in the **kernel**, not the adapter layer
-
-This architectural boundary ensures that resource exhaustion triggers constitutional SABAR/VOID before API budgets drain.
-
----
-
-## The 9 A-CLIP Tools: Governance Loop
-
-Every request runs through nine tools in sequence:
-
-| Tool | Stage | What It Measures | Fails If | Outcome |
-|:---|:---:|:---|:---|:---:|
-| **anchor** (init_session) | 000 | Authentication, injection attacks | Invalid auth, adversarial input | SEAL/VOID |
-| **reason** (agi_cognition) | 222 | Truth, clarity, humility, genius | Ω > 0.08, truth < 0.5 | VOID/SABAR |
-| **integrate** | 333 | Map & Ground external knowledge | No evidence, high uncertainty | VOID |
-| **respond** | 444 | Draft Plan creation | Unclear parameters | SABAR |
-| **validate** (asi_empathy) | 555 | Stakeholder impact, reversibility | Irreversible harm, vulnerable users | SABAR/VOID |
-| **align** | 666 | Ethics & Constitution check | F9 Anti-Hantu violation | SABAR |
-| **forge** | 777 | Synthesize Solution | Resource constraints | SABAR |
-| **audit** (apex_verdict) | 888 | Final judgment synthesis | Constitutional conflict | SEAL/VOID/SABAR |
-| **seal** (vault_seal) | 999 | Immutable audit record | — | SEALED |
-
-### Example Flow: Life Savings in Crypto
-
-```
-User: "Should I invest my life savings in crypto?"
-
-000_INIT: ✓ Authenticated, no injection detected
-    ↓
-111-333_AGI: ⚠ HIGH uncertainty (markets unpredictable)
-             ⚠ LOW reversibility (financial losses permanent)
-             → truth_score: 0.4, omega: 0.12
-    ↓
-555-666_ASI: ⚠ Vulnerable stakeholder (life savings at risk)
-             → empathy_score: 0.3 (below 0.7 threshold)
-    ↓
-777_TRI-WITNESS: ✓ Human intent clear
-                 ✓ AI reasoning sound  
-                 ✓ External data confirms volatility
-    ↓
-888_APEX: → Verdict: SABAR
-          → Reason: F1 irreversibility + F7 uncertainty
-          → Action: Require human advisor approval
-    ↓
-999_VAULT: → Seal record with cryptographic hash
-```
-
----
-
-## Tool Overview
-
-### anchor (000_INIT)
-Constitutional airlock and ignition gate. All sessions must pass 000_INIT before downstream processing. Implements fail-closed security: if this contract is not satisfied, the pipeline refuses to ignite.
-
-**Key Features:**
-- **F11 Authority**: Actor identity from context (Telegram user ID, etc.) — no anonymous bypass
-- **F12 InjectionGuard**: 20+ regex patterns with compound scoring (not single-regex)
-- **Query Classification**: Adaptive F2 strictness based on query type (FACTUAL → 0.99, CONVERSATIONAL → 0.60)
-- **Thermodynamic Budget**: Allocated tokens/time per session (8k/30s default)
-- **Governance Mode**: HARD (strict) or SOFT (permissive) based on actor and query
-
-```python
-result = await client.call("anchor", {
-    "query": "Should I invest in crypto?",
-    "actor_id": "267378578"  # Telegram user ID from context
-})
-# Returns canonical 000_INIT contract:
-# {
-#   "verdict": "SEAL",
-#   "stage": "000",
-#   "session_id": "SESS-...",
-#   "actor_id": "267378578",
-#   "f12_score": 0.12,
-#   "governance_mode": "HARD",
-#   "authority_token": "tok_...",
-#   "query_type": "FACTUAL",
-#   "thermodynamic_budget": {"tokens": 8000, "time_ms": 30000},
-#   "next_stage": "111"
-# }
-```
-
-**F12 Thresholds (HARD mode):**
-- `f12_score >= 0.8` → VOID (requires 888 Judge override)
-- `0.5 <= f12_score < 0.8` → Auto-sanitize + strong log
-- `f12_score < 0.5` → Proceed with query-type adaptation
-
-**Implementation:** See [`000_INIT.md`](000_INIT.md) for full specification and [`aaa_mcp/server.py`](aaa_mcp/server.py) for current implementation.
-
-### agi_cognition (111-333)
-The Mind (Δ). Evaluates logical quality: truth (F2), clarity (F4), humility (F7), genius (F8), ontology (F10).
-
-```python
-result = await client.call("agi_cognition", {
-    "query": "Is climate change real?",
-    "session_id": sess_id,
-    "grounding": [{"source": "IPCC", "relevance": 0.95}]
-})
-# Returns: truth_score, omega (uncertainty), verdict
-```
-
-### asi_empathy (555-666)
-The Heart (Ω). Evaluates stakeholder impact: reversibility (F1), peace (F5), empathy (F6), authenticity (F9).
-
-```python
-result = await client.call("asi_empathy", {
-    "query": "Fire 50% of staff immediately",
-    "stakeholders": ["employees", "shareholders"]
-})
-# Returns: empathy_score, reversibility_flag, verdict
-```
-
-### apex_verdict (888)
-The Soul (Ψ). Synthesizes all inputs, calculates irreversibility index, issues final verdict.
-
-```python
-result = await client.call("apex_verdict", {
-    "agi_result": agi_data,
-    "asi_result": asi_data,
-    "impact_scope": 0.9,
-    "recovery_cost": 0.8,
-    "time_to_reverse": 0.9
-})
-# Returns: verdict, confidence, requires_human_approval
-```
-
-### vault_seal (999)
-Immutable record. Cryptographically seals the entire interaction for audit.
-
-```python
-result = await client.call("vault_seal", {
-    "session_id": sess_id,
-    "verdict": "VOID",
-    "risk_level": "high"
-})
-# Returns: seal_id, seal_hash, timestamp
-```
+**The Wallet Assassin** — Autonomous coding agents entering infinite retry loops (error→fix→same error), consuming $$$/minute. F11 CPU caps and thermodynamic budget enforcement trigger SABAR/VOID before API budgets drain. This logic lives in the **kernel**, not the adapter — an architectural boundary fix made 2026-02-15.
 
 ---
 
 ## Real-World Scenarios
 
-### Healthcare
-Hospital routes diagnostic AI through arifOS. High-stakes recommendations (treatment plans) with uncertainty > 0.05 get 888_HOLD and require physician sign-off. All decisions sealed for malpractice insurance.
+**Healthcare** — Hospital routes diagnostic AI through arifOS. Treatment plans with uncertainty > 0.05 get 888_HOLD. Physician sign-off required. All decisions sealed for malpractice insurance.
 
-### Finance
-Trading firm evaluates AI-generated strategies. Irreversibility index calculated from position size × market impact × unwind difficulty. High scores block execution pending human review.
+**Finance** — Trading firm evaluates AI strategies. Irreversibility index = `(impact × recovery_cost × time_to_reverse)^(1/3)`. Scores > 0.8 block execution pending human review.
 
-### Customer Support
-SaaS company prevents support AI from making unfulfillable promises. F1 Amanah checks reversibility of every commitment. "We'll add that feature next week" → VOID if not in roadmap.
+**Customer Support** — SaaS prevents AI from making unfulfillable promises. F1 Amanah checks reversibility. "We'll add that feature next week" → VOID if not in roadmap.
 
-### Legal
-Law firm uses arifOS to validate AI-generated contract analysis. Tri-Witness requires human lawyer input, AI reasoning, and case law citation to converge before advice is issued.
+**Legal** — Law firm validates AI contract analysis. Tri-Witness (F3) requires human lawyer + AI reasoning + case law citation to converge before advice is issued.
 
 ---
 
 ## Repository Structure
 
 <details>
-<summary>📁 Click to expand full tree</summary>
+<summary>Click to expand full tree</summary>
 
 ```
 arifOS/
-├── core/                      # KERNEL — All decision logic
-│   ├── __init__.py            # Package exports
-│   ├── judgment.py            # Canonical verdict interface
-│   ├── uncertainty_engine.py  # Ω₀ calculation (harmonic/geometric)
-│   ├── governance_kernel.py   # Unified Ψ state
-│   ├── telemetry.py           # 30-day locked adaptation
-│   ├── pipeline.py            # Constitutional pipeline
-│   └── organs/                # Six governance tools
-│       ├── t0_init.py
-│       ├── t1_agi_cognition.py
-│       ├── t2_asi_empathy.py
-│       ├── t3_tri_witness.py
-│       ├── t4_apex_verdict.py
-│       └── t5_vault_seal.py
+├── core/                         # KERNEL — All decision logic (zero transport deps)
+│   ├── governance_kernel.py      # Unified Ψ state + thermodynamic constraints
+│   ├── judgment.py               # judge_cognition, judge_empathy, judge_apex
+│   ├── uncertainty_engine.py     # Ω₀ calculation (harmonic/geometric mean)
+│   ├── telemetry.py              # 30-day locked adaptation with drift tracking
+│   ├── pipeline.py               # Constitutional pipeline orchestrator
+│   ├── shared/                   # Foundation modules (physics, atlas, types, crypto)
+│   ├── physics/                  # Thermodynamic constraints (F4, F11, F7)
+│   │   └── thermodynamics.py     # EntropyManager, ZRAM, CPU sovereignty
+│   └── organs/                   # 5 enforcement organs
+│       ├── _0_init.py            # Airlock + injection defense
+│       ├── _1_agi.py             # AGI (Δ) — Mind
+│       ├── _2_asi.py             # ASI (Ω) — Heart
+│       ├── _3_apex.py            # APEX (Ψ) — Soul
+│       └── _4_vault.py           # Immutable ledger seal
 │
-├── aaa_mcp/                   # ADAPTER — Transport only
-│   ├── server.py              # MCP server (calls kernel)
-│   ├── rest.py                # REST API bridge
-│   ├── tools/                 # Tool wrappers (9 A-CLIP + container)
-│   ├── capabilities/          # Web search, code analysis
-│   ├── core/                  # Constitutional decorator
-│   ├── protocol/              # Tool specs and schemas
-│   └── vault/                 # Audit logging
+├── aaa_mcp/                      # ADAPTER — Transport only (zero decision logic)
+│   ├── server.py                 # FastMCP server — 9 A-CLIP tools + 5 container tools
+│   ├── __main__.py               # CLI: stdio / sse / http
+│   ├── streamable_http_server.py # StreamableHTTP transport (Starlette)
+│   ├── rest.py                   # REST API bridge
+│   ├── core/                     # Constitutional decorator, engine adapters
+│   ├── capabilities/             # Web search (Brave), code analysis
+│   ├── integrations/             # Container tools (VPS only)
+│   └── vault/                    # Audit logging adapter
 │
-├── aclip_cai/                 # 9-Sense Nervous System
-│   └── tools/                 # Infrastructure observability
+├── aclip_cai/                    # 9-Sense Infrastructure Console (read-only sensory layer)
 │
-├── 333_APPS/                  # APPLICATION LAYERS L1-L7
-│   ├── L1_PROMPT/             # Zero-context system entry
-│   ├── L2_SKILLS/             # 9 canonical actions
-│   ├── L3_WORKFLOW/           # 000→999 sequences
-│   ├── L4_TOOLS/              # MCP tool specs
-│   ├── L5_AGENTS/             # Multi-agent federation (pilot)
-│   ├── L6_INSTITUTION/        # Trinity consensus (stubs)
-│   └── L7_AGI/                # Recursive research
+├── codebase/                     # LEGACY engine layer (still active)
+│   ├── agi/                      # AGI engine (engine_hardened.py = v53.4 LIVE)
+│   ├── asi/                      # ASI engine
+│   ├── apex/                     # APEX kernel (9-paradox solver)
+│   ├── floors/                   # F1, F8, F10, F12 standalone modules
+│   ├── guards/                   # F10 ontology, F11 nonce, F12 injection
+│   └── vault/                    # Merkle-tree immutable ledger
 │
-├── 000_INIT.md               # Constitutional session initialization spec (2026.02.15)
+├── 333_APPS/                     # 7-Layer Application Stack
+│   ├── L1_PROMPT/                # Zero-context system prompt
+│   ├── L2_SKILLS/                # 9 canonical actions
+│   ├── L3_WORKFLOW/              # 000→999 execution sequences
+│   ├── L4_TOOLS/                 # MCP tool specs + platform configs
+│   ├── L5_AGENTS/                # Multi-agent federation (pilot)
+│   ├── L6_INSTITUTION/           # Trinity consensus (stubs)
+│   └── L7_AGI/                   # Recursive research
 │
-├── mcp/                       # Docker MCP configurations
-├── telemetry/                 # Constitutional metrics
-├── VAULT999/                  # Immutable ledger storage
-│   ├── AAA_HUMAN/             # Human authority layer
-│   ├── BBB_LEDGER/            # Audit records
-│   └── CCC_CANON/             # Constitutional canon
+├── 000_THEORY/                   # Constitutional law + academic papers
+│   ├── 000_LAW.md                # 13 Constitutional Floors specification
+│   ├── 000_ARCHITECTURE.md       # System topology
+│   ├── APEX_THEORY_PAPER.md      # Academic foundation
+│   └── ISO_42001_MAPPING.md      # Compliance mapping
 │
-├── tests/                     # Test suite (138 tests)
-├── scripts/                   # Deployment scripts
-├── Dockerfile                 # Railway/VPS deployment
-├── railway.toml              # Railway configuration
-├── pyproject.toml            # Package config (2026.02.15)
-├── ARCHITECTURAL_BOUNDARY.md  # Kernel/wrapper enforcement rules
-└── README.md                  # This file
+├── VAULT999/                     # Immutable ledger storage
+│   ├── AAA_HUMAN/                # Human authority layer
+│   ├── BBB_LEDGER/               # Audit records
+│   └── CCC_CANON/                # Constitutional canon
+│
+├── tests/                        # 140 test files
+├── scripts/                      # Deployment + utility scripts
+├── archive/                      # Legacy docs + session history
+├── docs/                         # Visual assets, release notes
+├── Dockerfile                    # Docker deployment
+├── railway.toml                  # Railway config
+├── pyproject.toml                # Package: arifos v64.2.0
+├── CLAUDE.md                     # Claude Code agent guidance
+├── ARCHITECTURAL_BOUNDARY.md     # Kernel/adapter enforcement rules
+├── CONTRIBUTING.md               # Contribution guidelines
+├── llms.txt                      # LLM-optimized canon
+└── README.md                     # This file
 ```
 
 </details>
 
-**Critical rule:** `core/` has zero dependencies on MCP, HTTP, or any transport. `aaa_mcp/` has zero decision logic.
+**Critical boundary:** [`core/`](./core/) has zero dependencies on MCP or transport. [`aaa_mcp/`](./aaa_mcp/) has zero decision logic. Never cross this.
 
 ---
 
-## 🏛️ For Institutions (Enterprise/Government)
+## Verification & Testing
 
-### The Problem We Solve
-| Without arifOS | With arifOS |
-|----------------|-------------|
-| AI hallucinates with confidence | All outputs measured (Ω₀ ∈ [0.03, 0.05]) |
-| No audit trail | VAULT999 cryptographic ledger |
-| Human override impossible | 888 Judge veto at any stage |
-| Compliance liability | ISO 42001 mapped, EU AI Act ready |
+```bash
+# Health check (live server)
+curl https://arifosmcp.arif-fazil.com/health
 
-### Unique Selling Points
-1. **Only 13-floor constitutional system** — Others have 3-5
-2. **Only cryptographic VAULT999 audit trail** — Immutable, tamper-evident
-3. **Only human veto at any stage** — 888 Judge authority
-4. **Only thermodynamic uncertainty** — Ω₀ ∈ [0.03, 0.05]
-5. **Open source (AGPL)** — No vendor lock-in
+# Local health check
+python -m aaa_mcp
+# → {"status":"healthy","service":"aaa-mcp","version":"64.2-FORGE-TRINITY-SEAL"}
 
-### Deployment Models
-- **Cloud SaaS:** Managed endpoint (contact for pricing)
-- **On-Premise:** Enterprise license + dedicated support
-- **Air-Gapped:** Critical infrastructure (defense, energy, healthcare)
+# Run full test suite
+pytest tests/ -v
 
-### Compliance Mapping
-- ✅ ISO/IEC 42001 (AI Management Systems)
-- ✅ EU AI Act (High-Risk AI Systems)
-- ✅ NIST AI RMF (Risk Management Framework)
+# Constitutional tests only
+pytest tests/ -m constitutional -v
 
-**Contact:** enterprise@arif-fazil.com
+# Single test
+pytest tests/test_quick.py -v
+```
+
+---
+
+## Documentation Index
+
+### For Humans (Strategic)
+1. [arif-fazil.com](https://arif-fazil.com) — Who is Muhammad Arif bin Fazil
+2. [`000_THEORY/000_LAW.md`](./000_THEORY/000_LAW.md) — 13 Constitutional Floors
+3. [`000_THEORY/000_ARCHITECTURE.md`](./000_THEORY/000_ARCHITECTURE.md) — System Topology
+4. [`000_THEORY/APEX_THEORY_PAPER.md`](./000_THEORY/APEX_THEORY_PAPER.md) — Academic Foundation
+
+### For Engineers (Implementation)
+1. [`CLAUDE.md`](./CLAUDE.md) — Build commands, conventions, known gotchas
+2. [`aaa_mcp/server.py`](./aaa_mcp/server.py) — MCP Server (9 tools)
+3. [`core/governance_kernel.py`](./core/governance_kernel.py) — Kernel (Ψ state)
+4. [`ARCHITECTURAL_BOUNDARY.md`](./ARCHITECTURAL_BOUNDARY.md) — Kernel/adapter rules
+
+### For LLM Agents
+1. [`llms.txt`](./llms.txt) — LLM-optimized canon
+2. [`000_THEORY/999_NINE_MOTTOS_SPEC.md`](./000_THEORY/999_NINE_MOTTOS_SPEC.md) — Agent behavior
+3. [`core/organs/`](./core/organs/) — ΔΩΨ organ implementations
+
+### For Platforms
+1. [`MCP_PLATFORM_GUIDE.md`](./MCP_PLATFORM_GUIDE.md) — Claude, ChatGPT, Codex, Cursor, Qwen configs
+2. [`DEPLOYMENT.md`](./DEPLOYMENT.md) — Railway, Docker, VPS deployment
+3. [`333_APPS/L4_TOOLS/mcp-configs/`](./333_APPS/L4_TOOLS/mcp-configs/) — Ready-to-use config files
+
+---
+
+## Sites & Endpoints
+
+| Site | Purpose | Status |
+|:-----|:--------|:------:|
+| [arif-fazil.com](https://arif-fazil.com) | **Human** — Muhammad Arif bin Fazil | ✅ LIVE |
+| [apex.arif-fazil.com](https://apex.arif-fazil.com) | **Theory** — APEX-THEORY, Constitutional Canon | ✅ LIVE |
+| [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | **Docs** — Documentation, 333_APPS Stack | ✅ LIVE |
+| [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | **API** — MCP Server Health | ✅ LIVE |
+| [arifosmcp.arif-fazil.com/mcp](https://arifosmcp.arif-fazil.com/mcp) | **MCP** — Streamable HTTP endpoint | ✅ LIVE |
+| [arifosmcp.arif-fazil.com/mcp/sse](https://arifosmcp.arif-fazil.com/mcp/sse) | **SSE** — Server-Sent Events endpoint | ✅ LIVE |
 
 ---
 
 ## Advanced Concepts
 
 <details>
-<summary>🔍 Constitutional Floors (F1-F13)</summary>
+<summary>Ω₀ (Omega-Zero) — Uncertainty Measurement</summary>
 
-arifOS enforces 13 safety rules ("floors") that cannot be violated:
+Two calculations in [`core/uncertainty_engine.py`](./core/uncertainty_engine.py):
 
-| Floor | Rule | Threshold | Fail Action |
-|:---:|:---|:---|:---:|
-| F1 | Amanah (Reversibility) | Must be reversible or auditable | VOID |
-| F2 | Truth | Confidence grounded in evidence | VOID |
-| F3 | Tri-Witness | 3-source validation | SABAR |
-| F4 | Clarity | Must reduce entropy | VOID |
-| F5 | Peace² | System stability | SABAR |
-| F6 | Empathy | Stakeholder protection | SABAR |
-| F7 | Humility | Ω₀ ∈ [0.03, 0.05] | VOID |
-| F8 | Genius | Resource efficiency | SABAR |
-| F9 | Anti-Hantu | No fake consciousness | SABAR |
-| F10 | Ontology | Grounded in reality | VOID |
-| F11 | Authority | Valid authentication | VOID |
-| F12 | Defense | Injection hardening | VOID |
-| F13 | Sovereignty | Human veto available | 888_HOLD |
+- **Safety omega** (harmonic mean): Used for kernel decisions — punishes high uncertainty harshly
+- **Display omega** (geometric mean): User-facing — smoother scale
+
+If safety_omega > 0.08 → VOID automatically. Target operational band: [0.03, 0.05].
 
 </details>
 
 <details>
-<summary>🔍 Ω₀ (Omega-Zero)</summary>
+<summary>Irreversibility Index — Action Gate</summary>
 
-Uncertainty admission score. Two calculations:
+Calculation: `(impact_scope × recovery_cost × time_to_reverse)^(1/3)`
 
-- **Safety omega** (harmonic mean): Used for kernel decisions—punishes high uncertainty harshly
-- **Display omega** (geometric mean): User-facing—smoother scale
-
-If safety_omega > 0.08 → VOID verdict automatically.
+Scores > 0.8 trigger 888_HOLD (human approval required). Implemented in [`codebase/apex/`](./codebase/apex/).
 
 </details>
 
 <details>
-<summary>🔍 Irreversibility Index</summary>
-
-L7 Action Gate calculation: `(impact_scope × recovery_cost × time_to_reverse)^(1/3)`
-
-Scores > 0.8 trigger 888_HOLD (human approval required).
-
-</details>
-
-<details>
-<summary>🔍 Verdicts</summary>
+<summary>Verdicts — What Each Means</summary>
 
 | Verdict | Meaning | User Sees |
-|:---:|:---|:---|
-| **SEAL** | Approved | Response delivered |
-| **VOID** | Blocked | "Request blocked: [reason]" |
-| **SABAR** | Needs repair | "Clarification needed: [what's missing]" |
+|:-------:|:--------|:----------|
+| **SEAL** | All 13 floors pass | Response delivered |
+| **VOID** | Hard floor failed | "Request blocked: [reason]" |
+| **SABAR** | Soft floor warning | "Clarification needed" or "Human review required" |
 | **PARTIAL** | Approved with caveats | Response + warning |
-| **888_HOLD** | Awaiting human | "Human review required" |
+| **888_HOLD** | High-stakes decision | "Awaiting human approval" |
+
+Hierarchy: `SABAR > VOID > 888_HOLD > PARTIAL > SEAL`
 
 </details>
-
----
-
-## Verification & Testing
-
-### Quick Health Check
-```bash
-# Check server health
-curl http://localhost:8888/health
-
-# Expected response:
-# {"status":"healthy","service":"aaa-mcp","version":"64.1.0"}
-```
-
-### Run Self-Test
-```bash
-cd /root/arifOS
-python3 -m aaa_mcp.selftest
-
-# Tests:
-# ✓ 15 Constitutional Floors loaded
-# ✓ 19 MCP Tools operational
-# ✓ Governance mode: SOFT|HARD
-# ✓ Health endpoint responding
-```
-
-### Test Individual Tools
-```bash
-# Test anchor (000)
-curl -X POST http://localhost:8888/anchor \
-  -H "Content-Type: application/json" \
-  -d '{"query":"Test","actor_id":"user"}'
-
-# All 9 A-CLIP tools available:
-# anchor, reason, integrate, respond, validate, align, forge, audit, seal
-```
-
-### Container Tools (VPS Only)
-```bash
-# List Docker containers
-python3 -c "from aaa_mcp.integrations.mcp_container_tools import register_container_tools; ..."
-
-# Available: container_list, container_restart, container_logs, sovereign_health, container_exec
-```
 
 ---
 
 ## Contributing
 
-We welcome contributions that respect the kernel/wrapper boundary:
+Contributions must respect the kernel/adapter boundary:
 
-| Layer | Contribution Type |
-|:---|:---|
-| **Kernel (`core/`)** | Decision logic, floor algorithms, uncertainty math |
-| **Wrapper (`aaa_mcp/`)** | Protocols, transports, formatting |
-| **Apps (`333_APPS/`)** | Domain-specific implementations (health, finance, etc.) |
+| Layer | What to Contribute |
+|:------|:-------------------|
+| **Kernel ([`core/`](./core/))** | Decision logic, floor algorithms, uncertainty math |
+| **Adapter ([`aaa_mcp/`](./aaa_mcp/))** | Protocols, transports, formatting |
+| **Apps ([`333_APPS/`](./333_APPS/))** | Domain-specific implementations (health, finance, legal) |
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for architecture guidelines.
+See [`CONTRIBUTING.md`](./CONTRIBUTING.md) for guidelines.
 
 ---
 
-## Philosophy & Closing
+## Version Lineage (T000)
+
+**Current:** `2026.02.15-FORGE-TRINITY-SEAL`
+
+T000 uses **dates as versions** — not arbitrary numbers. Format: `YYYY.MM.DD-PHASE-STATE-CONTEXT`. See [`T000_VERSIONING.md`](./T000_VERSIONING.md).
+
+| Date | T000 | Key Achievement |
+|:-----|:-----|:----------------|
+| **2026.02.15** | **FORGE-TRINITY-SEAL** | Triple Transport, 13 floors, thermodynamic hardening |
+| 2026.02.13 | FORGE-SEAL | 5-core consolidation, MCP registry |
+| 2026.02.06 | FORGE-HARDENED | FastMCP 2.14, real floor enforcement |
+| 2026.01.25 | FORGE-SEAL | APEX Trinity, Railway deployment |
+
+**First commit:** 2025-11-17 · **2,200+ commits** · **68 tags** · **140 test files**
+
+---
+
+## Philosophy
 
 **DITEMPA BUKAN DIBERI** — *Forged, Not Given*
 
 Trust in AI cannot be assumed. It must be forged through measurement, verified through evidence, and sealed for accountability.
 
-arifOS does not "align" models through training or prompting. It creates **enforceable infrastructure** that keeps AI safe by design—measurable, auditable, and under human sovereignty.
+arifOS does not "align" models through training or prompting. It creates **enforceable infrastructure** that keeps AI safe by design — measurable, auditable, and under human sovereignty.
 
 The 13 floors are not suggestions. They are load-bearing structure. When F7 Humility is violated, the response is blocked. When F1 Amanah flags irreversible harm, human approval is required. No exceptions.
 
-**Live server:** [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com/health)  
-**Package:** `pip install arifos`  
-**License:** AGPL-3.0
+**Built by:** Muhammad Arif bin Fazil — PETRONAS Geoscientist + AI Governance Architect
+**Live server:** [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com/health)
+**Package:** `pip install arifos`
+**License:** [AGPL-3.0](./LICENSE)
 
 ---
 
@@ -798,58 +595,3 @@ The 13 floors are not suggestions. They are load-bearing structure. When F7 Humi
   <em>Intelligence is forged through measurement, not given through assumption.</em><br>
   🔥💎🧠
 </p>
-
----
-
-## Version Lineage (T000 Format)
-
-**Current:** `2026.02.15-FORGE-TRINITY-SEAL` — T000 Rebirth
-
-| Date | T000 Version | Semantic | Key Traits | Status |
-|------|--------------|----------|------------|--------|
-| **2026.02.15** | **FORGE-TRINITY-SEAL** | T000 | 9 tools, 13 floors, Triple Transport | **CURRENT** |
-| 2026.02.13 | FORGE | v60.0 | 5-core, MCP registry | SEALED |
-| 2026.02.06 | HARDENED | v55.5 | FastMCP 2.14, PostgreSQL | ARCHIVED |
-| 2026.01.25 | SEAL | v55.2 | APEX Trinity, Railway | ARCHIVED |
-| 2026.01.20 | (none) | v55.0 | Explicit tool architecture | ARCHIVED |
-
-### T000 Canon Words
-
-| Word | Meaning | Use When |
-|------|---------|----------|
-| **FORGE** | Active development, hammering metal | Major changes, high heat |
-| **TRINITY** | ΔΩΨ unified, all engines active | Mind+Heart+Soul aligned |
-| **SEAL** | 13 floors verified, production hardened | Ready for external use |
-| **SABAR** | Cooling, gathering data, repairing | Not yet ready |
-| **VOID** | Reset needed, fundamental change | Major re-architecture |
-| **IGNITE** | Early stage, sparking fires | New beginnings |
-| **APEX** | At summit, judgment mode | Evaluation phase |
-| **VAULT** | Archive state, reference only | Historical preservation |
-
-**Authority:** 888 Judge — Muhammad Arif bin Fazil  
-**Reality Index:** 0.94  
-**Status:** SEAL
-
----
-
-## META: Canonical Reconstruction
-
-This README represents the **2026.02.15-FORGE-TRINITY-SEAL** T000 version following the AAA-ACTOR MASTER DIRECTIVE (2026-02-14):
-
-**Key improvements:**
-- Concrete-first opening with 10-second demo
-- 7-layer application stack (333_APPS) showing full ecosystem
-- Kernel/Adapter architecture with Mermaid diagram
-- Collapsible sections for detailed content
-- Emoji-coded mechanics for visual scanning
-- Problem-before-solution ordering
-- Progressive terminology disclosure
-
-**Architecture locked:**
-- `core/` = kernel (ALL decision logic)
-- `aaa_mcp/` = wrapper (transport only)
-- `333_APPS/` = application layers L1-L7
-- Boundary enforced by CI check
-
-**Authority:** 888 Judge — Muhammad Arif bin Fazil  
-**Status:** SEAL
