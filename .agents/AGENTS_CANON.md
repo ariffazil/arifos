@@ -1,6 +1,6 @@
 # arifOS AGENTS CANON
 **T000 Version:** 2026.02.15-FORGE-TRINITY-SEAL  
-**Code Version:** v64.2-GAGI  
+**Code Version:** 2026.02.15-FORGE-TRINITY-SEAL  
 **Location:** `.agents/`  
 **Purpose:** Master reference and role model for all arifOS agent configurations  
 **Authority:** Muhammad Arif bin Fazil (888 Judge)

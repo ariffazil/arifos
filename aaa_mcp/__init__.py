@@ -11,7 +11,7 @@ from .mcp_config import MCP_SERVERS, TrinityComponent, get_server_config
 from .mcp_integration import MCPIntegrationLayer, get_mcp_layer
 from .server import align, anchor, audit, forge, integrate, mcp, reason, respond, seal, validate
 
-__version__ = "64.2.0"
+__version__ = "2026.02.15-FORGE-TRINITY-SEAL"
 __all__ = [
     # FastMCP server instance
     "mcp",
