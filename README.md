@@ -35,6 +35,10 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-2026.02.15--FORGE--TRINITY--SEAL-blue" alt="Version"></a>
   <a href="#tool-overview"><img src="https://img.shields.io/badge/tools-14%20operational-orange" alt="Tools"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
+  <br><br>
+  <a href="./README_ZERO_CONTEXT.md"><b>🆕 New? Start Here</b></a> •
+  <a href="./DEPLOYMENT.md"><b>🚀 Deploy</b></a> •
+  <a href="./MCP_PLATFORM_GUIDE.md"><b>🔌 Connect</b></a>
 </p>
 
 <p align="center">
