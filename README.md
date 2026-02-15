@@ -16,6 +16,12 @@ When in doubt, prefer files in this order:
 Version Note: Code (v64.2) leads documentation. Always trust code reality.
 -->
 
+> **🆕 New to arifOS?** Start with [README_ZERO_CONTEXT.md](./README_ZERO_CONTEXT.md) <br>
+> *Problem-first explanation in plain language. No jargon. No philosophy. Just the fix.*
+> <br><br>**Engineers:** Continue below for architectural deep-dive, MCP integration, and deployment guides.
+
+---
+
 # arifOS — Constitutional AI Governance
 
 <p align="center">
