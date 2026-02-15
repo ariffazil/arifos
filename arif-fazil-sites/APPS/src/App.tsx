@@ -766,6 +766,85 @@ function App() {
         </div>
       </section>
 
+      {/* How It Works Section — 60 Seconds */}
+      <section id="how-it-works" className="py-16 relative bg-gradient-to-b from-[#0a0a0a] to-gray-900/10">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6">
+            <Zap className="w-4 h-4 text-cyan-400" />
+            <span className="text-sm text-cyan-400">How It Works (60 seconds)</span>
+          </div>
+          
+          <p className="text-lg text-gray-300 mb-8">
+            Your query is processed through 5 MCP tools, then sealed into VAULT999 — an immutable ledger you can audit later.
+          </p>
+
+          {/* MCP Pipeline Flow */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 px-3 py-1">000_init</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 px-3 py-1">222_reason</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-rose-500/20 text-rose-400 border-rose-500/30 px-3 py-1">555_validate</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30 px-3 py-1">888_audit</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 px-3 py-1">999_seal</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 px-3 py-1">VAULT999</Badge>
+          </div>
+
+          <p className="text-sm text-gray-500">
+            Each tool enforces constitutional floors. All actions are reversible, auditable, and subject to human sovereignty.
+          </p>
+        </div>
+      </section>
+
+      {/* Built on Universal MCP Section */}
+      <section className="py-12 relative border-y border-gray-800/30 bg-black/10">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+              <Server className="w-5 h-5 text-cyan-400" />
+            </div>
+            <h3 className="text-xl font-bold">Built on a Universal MCP Profile</h3>
+          </div>
+          
+          <ul className="space-y-3 text-gray-300">
+            <li className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <span>arifOS exposes its governance engine as a Model Context Protocol (MCP) server, with strict JSON Schema contracts and no model-specific assumptions.</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <span>Any MCP-compatible LLM host can connect: ChatGPT-style apps, Claude-style desktops, IDEs, or your own orchestrators.</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <span>All actions are reversible, auditable, and subject to human sovereignty (888 Judge).</span>
+            </li>
+          </ul>
+
+          <div className="mt-6 flex flex-wrap gap-4">
+            <a 
+              href="/docs/mcp/" 
+              className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+            >
+              <BookOpen className="w-4 h-4" />
+              arifOS MCP Profile
+              <ExternalLink className="w-3 h-3" />
+            </a>
+            <a 
+              href="/docs/mcp/capability-catalog/" 
+              className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+            >
+              <Code className="w-4 h-4" />
+              Capability Catalog
+              <ExternalLink className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* Live Metrics Section — Real Data from aaamcp.arif-fazil.com */}
       <section id="metrics" className="py-12 relative border-y border-gray-800/50 bg-black/20">
         <div className="max-w-7xl mx-auto px-4">
