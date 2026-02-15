@@ -392,6 +392,26 @@ See [333_APPS/README.md](333_APPS/) for full stack documentation.
 
 ---
 
+## Thermodynamic Hardening (F4/F11/F7)
+
+arifOS implements constitutional floors as **physical infrastructure constraints**:
+
+| Floor | Mechanism | Implementation | Failure Prevented |
+|:------|:----------|:---------------|:------------------|
+| **F4 (Clarity)** | ZRAM entropy reduction | `core/physics/thermodynamics.py` | OOM kills during large operations |
+| **F11 (Command)** | CPU throttling | Docker caps + kernel enforcement | "Wallet Assassin" loops (infinite retries) |
+| **F7 (Humility)** | Environmental Ω₀ | Memory pressure tracking | High uncertainty under resource constraints |
+
+### The Wallet Assassin
+
+**Discovered:** Feb 2026  
+**Threat:** Autonomous coding agents enter infinite retry loops (error→fix→same error) consuming $$$/minute  
+**Mitigation:** F11 CPU caps and thermodynamic budget enforcement in the **kernel**, not the adapter layer
+
+This architectural boundary ensures that resource exhaustion triggers constitutional SABAR/VOID before API budgets drain.
+
+---
+
 ## The 9 A-CLIP Tools: Governance Loop
 
 Every request runs through nine tools in sequence:

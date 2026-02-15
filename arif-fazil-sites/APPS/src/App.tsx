@@ -219,17 +219,21 @@ const LAYERS = [
   },
 ];
 
-// 9 Constitutional Floors (F1-F9) — Canonical v55.4
+// 13 Constitutional Floors (F1-F13) — Canonical v64.1.1-GAGI
 const FLOORS = [
-  { id: 'F1', name: 'Amanah', desc: 'Trust through reversibility', icon: GitBranch, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/floors/amanah.py`, type: 'hard' },
-  { id: 'F2', name: 'Truth', desc: 'Verifiable claims only', icon: Shield, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/floors/truth.py`, type: 'hard' },
-  { id: 'F3', name: 'Tri-Witness', desc: 'Human·AI·Earth consensus', icon: Users, color: 'amber', source: `${GITHUB_BASE}/blob/main/codebase/floors`, type: 'soft' },
-  { id: 'F4', name: 'ΔS', desc: 'Entropy reduction', icon: Lightbulb, color: 'amber', source: `${GITHUB_BASE}/blob/main/codebase/floors`, type: 'soft' },
-  { id: 'F5', name: 'Peace²', desc: 'Lyapunov stability', icon: Shield, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/floors`, type: 'hard' },
-  { id: 'F6', name: 'κᵣ', desc: 'Protect weakest listener', icon: Users, color: 'amber', source: `${GITHUB_BASE}/blob/main/codebase/floors`, type: 'soft' },
-  { id: 'F7', name: 'Ω₀', desc: 'Humility 3-5%', icon: Search, color: 'amber', source: `${GITHUB_BASE}/blob/main/codebase/floors`, type: 'soft' },
-  { id: 'F8', name: 'G', desc: 'Governed intelligence', icon: Zap, color: 'amber', source: `${GITHUB_BASE}/blob/main/codebase/floors/genius.py`, type: 'soft' },
-  { id: 'F9', name: 'Anti-Hantu', desc: 'No consciousness claims', icon: Lock, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/floors/antihantu.py`, type: 'hard' },
+  { id: 'F1', name: 'Amanah', desc: 'Trust through reversibility', icon: GitBranch, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/amanah.py`, type: 'hard' },
+  { id: 'F2', name: 'Truth', desc: 'Verifiable claims only', icon: Shield, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/truth.py`, type: 'hard' },
+  { id: 'F3', name: 'Tri-Witness', desc: 'Human·AI·Earth consensus', icon: Users, color: 'amber', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/canonical.py`, type: 'soft' },
+  { id: 'F4', name: 'ΔS', desc: 'Entropy reduction', icon: Lightbulb, color: 'amber', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/canonical.py`, type: 'soft' },
+  { id: 'F5', name: 'Peace²', desc: 'Lyapunov stability', icon: Shield, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/canonical.py`, type: 'hard' },
+  { id: 'F6', name: 'κᵣ', desc: 'Protect weakest listener', icon: Users, color: 'amber', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/canonical.py`, type: 'soft' },
+  { id: 'F7', name: 'Ω₀', desc: 'Humility 3-5%', icon: Search, color: 'amber', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/canonical.py`, type: 'soft' },
+  { id: 'F8', name: 'G', desc: 'Governed intelligence', icon: Zap, color: 'amber', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/genius.py`, type: 'soft' },
+  { id: 'F9', name: 'Anti-Hantu', desc: 'No consciousness claims', icon: Lock, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/antihantu.py`, type: 'hard' },
+  { id: 'F10', name: 'Ontology', desc: 'Category lock and semantic guard', icon: Scale, color: 'violet', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/ontology.py`, type: 'hard' },
+  { id: 'F11', name: 'Command', desc: 'Authority verification and delegation', icon: Terminal, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/authority.py`, type: 'hard' },
+  { id: 'F12', name: 'Injection', desc: 'Adversarial input defense', icon: Shield, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/injection.py`, type: 'hard' },
+  { id: 'F13', name: 'Sovereign', desc: 'Human sovereignty and veto right', icon: Shield, color: 'red', source: `${GITHUB_BASE}/blob/main/codebase/shared/floors/canonical.py`, type: 'hard' },
 ];
 
 // 2 Mirrors (Generative Engines)
@@ -416,7 +420,7 @@ const PRODUCT_SHOWCASE = [
     metrics: [
       { value: "99.9%", label: "Uptime" },
       { value: "0.04", label: "Ω₀ Target" },
-      { value: "9", label: "Constitutional Floors" }
+      { value: "13", label: "Constitutional Floors" }
     ],
     icon: Shield,
     color: "cyan"
@@ -450,7 +454,7 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [systemStatus, setSystemStatus] = useState<{ online: boolean | null; version: string; loading: boolean }>({ 
     online: null, 
-    version: 'v60.0.0', 
+     version: 'v64.2.0',
     loading: true 
   });
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -720,7 +724,7 @@ function App() {
             </div>
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-amber-500/30 bg-amber-500/10">
               <Shield className="w-4 h-4 text-amber-400" />
-              <span className="text-sm text-amber-400">9 Floors</span>
+              <span className="text-sm text-amber-400">13 Floors</span>
             </div>
           </div>
 
@@ -942,7 +946,7 @@ function App() {
                 <div className="text-sm text-gray-400">Ω₀ Target</div>
               </div>
               <div>
-                <div className="text-3xl font-bold text-cyan-400">9</div>
+                <div className="text-3xl font-bold text-cyan-400">13</div>
                 <div className="text-sm text-gray-400">Floors</div>
               </div>
             </div>
@@ -1346,11 +1350,11 @@ function App() {
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-400">Version</span>
-                    <span className="text-sm font-code text-cyan-400">v60.0.0</span>
+                     <span className="text-sm font-code text-cyan-400">v64.2.0</span>
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-400">PyPI Package</span>
-                    <span className="text-sm font-code text-cyan-400">arifos==60.0.0</span>
+                     <span className="text-sm font-code text-cyan-400">arifos==64.2.0</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-400">Protocol</span>
@@ -1371,17 +1375,17 @@ function App() {
                     <ExternalLink className="w-3 h-3" />
                   </a>
                   <p className="text-xs text-gray-500 mt-2">
-                    The canonical MCP manifest defining all 9 tools, their schemas, and annotations.
+                     The canonical MCP manifest defining all 9 A-CLIP tools, their schemas, and annotations.
                   </p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
                   <p className="text-xs text-blue-400 uppercase tracking-wider mb-2">Version Note</p>
-                  <p className="text-sm text-gray-300">
-                    MCP manifest version: <strong>v60.0.0</strong> (aligns with PyPI <code className="text-cyan-400">arifos==60.0.0</code>). 
-                    Site shows v55.4 as internal kernel release tag. 
-                    See <a href={`${GITHUB_BASE}/releases`} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">GitHub Releases</a> for full history.
-                  </p>
+                   <p className="text-sm text-gray-300">
+                     MCP manifest version: <strong>v64.2.0</strong> (aligns with PyPI <code className="text-cyan-400">arifos==64.2.0</code>). 
+                     Site shows v64.1.1-GAGI as internal kernel release tag. 
+                     See <a href={`${GITHUB_BASE}/releases`} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">GitHub Releases</a> for full history.
+                   </p>
                 </div>
               </div>
             </div>
