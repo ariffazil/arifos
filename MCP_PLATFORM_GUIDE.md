@@ -41,7 +41,7 @@ curl -H "Authorization: Bearer YOUR_ARIFOS_API_KEY" \
    - Settings → Apps → **Create app**
    - Name: `arifOS Governance Kernel`
    - Connection type:
-     - **HTTP MCP:** Set Server URL = `https://arifosmcp.arif-fazil.com/mcp`
+     - **HTTP MCP:** Set Server URL = `https://arifosmcp.arif-fazil.com/mcp/sse`
      - **STDIO only:** Use local MCP proxy (see below)
 
 3. **Scope and Safety**
@@ -58,7 +58,7 @@ curl -H "Authorization: Bearer YOUR_ARIFOS_API_KEY" \
 {
   "mcpServers": {
     "arifOS": {
-      "url": "https://arifosmcp.arif-fazil.com/mcp",
+      "url": "https://arifosmcp.arif-fazil.com/mcp/sse",
       "headers": {
         "Authorization": "Bearer YOUR_ARIFOS_API_KEY"
       },
@@ -91,7 +91,7 @@ curl -H "Authorization: Bearer YOUR_ARIFOS_API_KEY" \
   "mcpServers": {
     "arifOS": {
       "type": "remote",
-      "url": "https://arifosmcp.arif-fazil.com/mcp",
+      "url": "https://arifosmcp.arif-fazil.com/mcp/sse",
       "headers": {
         "Authorization": "Bearer YOUR_ARIFOS_API_KEY"
       },
@@ -123,7 +123,7 @@ model = "gpt-5"
 # arifOS MCP Server
 [mcp_servers.arifos]
 enabled = true
-url = "https://arifosmcp.arif-fazil.com/mcp"
+url = "https://arifosmcp.arif-fazil.com/mcp/sse"
 
 [mcp_servers.arifos.http_headers]
 Authorization = "Bearer YOUR_ARIFOS_API_KEY"
@@ -140,7 +140,7 @@ mcp_servers = ["arifos"]
 ```bash
 # Add via CLI
 codex mcp add arifos --env ARIFOS_KEY=YOUR_API_KEY \
-  -- https://arifosmcp.arif-fazil.com/mcp
+  -- https://arifosmcp.arif-fazil.com/mcp/sse
 
 # Verify connection
 codex > /mcp > "Check constitutional status using arifos"
@@ -165,7 +165,7 @@ codex > /mcp > "Check constitutional status using arifos"
   "mcp": {
     "arifOS": {
       "type": "remote",
-      "url": "https://arifosmcp.arif-fazil.com/mcp",
+      "url": "https://arifosmcp.arif-fazil.com/mcp/sse",
       "headers": {
         "Authorization": "Bearer YOUR_ARIFOS_API_KEY"
       },
@@ -178,7 +178,7 @@ codex > /mcp > "Check constitutional status using arifos"
 **Method B:** MCP Proxy (Advanced)
 ```bash
 npx @arifos/jetbrains-mcp-bridge \
-  --endpoint https://arifosmcp.arif-fazil.com/mcp
+  --endpoint https://arifosmcp.arif-fazil.com/mcp/sse
 ```
 
 ---
@@ -236,7 +236,7 @@ AntiGravity has built-in MCP support via `mcp.json` and a "Manage MCP Servers" U
   "mcp": {
     "arifOS": {
       "type": "remote",
-      "url": "https://arifosmcp.arif-fazil.com/mcp",
+      "url": "https://arifosmcp.arif-fazil.com/mcp/sse",
       "enabled": true,
       "headers": {
         "Authorization": "Bearer YOUR_ARIFOS_API_KEY"
@@ -274,7 +274,7 @@ opencode mcp debug arifOS
       "command": "npx",
       "args": ["openclaw-mcp", "--remote"],
       "env": {
-        "ARIFOS_ENDPOINT": "https://arifosmcp.arif-fazil.com/mcp",
+        "ARIFOS_ENDPOINT": "https://arifosmcp.arif-fazil.com/mcp/sse",
         "ARIFOS_TOKEN": "YOUR_ARIFOS_API_KEY",
         "OPENCLAW_MODE": "constitutional"
       }
