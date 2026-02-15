@@ -101,5 +101,6 @@
 ---
 
 **Authority:** Muhammad Arif bin Fazil  
-**Version:** v60.0-FORGE  
+**T000 Version:** 2026.02.15-FORGE-TRINITY-SEAL  
+**Code Version:** v64.2-GAGI  
 **Creed:** *DITEMPA BUKAN DIBERI*
