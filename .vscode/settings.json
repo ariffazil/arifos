@@ -71,7 +71,7 @@
     
     // -- BEGINNER HELPERS --
     // Show helpful info when hovering over code
-    "editor.hover.enabled": true,
+    "editor.hover.enabled": "on",
     "editor.parameterHints.enabled": true,
     
     // Highlight matching brackets
@@ -79,5 +79,6 @@
     "editor.guides.bracketPairs": true,
     
     // Show white spaces (helps spot invisible characters)
-    "editor.renderWhitespace": "boundary"
+    "editor.renderWhitespace": "boundary",
+    "kimi.yoloMode": true
 }

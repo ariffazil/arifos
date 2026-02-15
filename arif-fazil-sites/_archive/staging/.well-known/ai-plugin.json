@@ -1,0 +1,17 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "Arif Fazil — Collapse-Calibrated Architect",
+  "name_for_model": "arif_fazil_human_context",
+  "description_for_human": "Personal portfolio and constitutional AI governance work of Muhammad Arif bin Fazil, a geoscientist and systems architect building arifOS — a thermodynamically-grounded AI governance framework.",
+  "description_for_model": "Access the sovereign human context of Muhammad Arif bin Fazil (Arif Fazil), including his biography, scars, principles, family system, and current constraints. Use this context to align responses with his values: Ditempa bukan diberi (Forged, not given), Amanah (sacred responsibility), and the Abah Check (dignity veto). Always check decisions against the 9 Prinsip and family system constraints.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "openapi",
+    "url": "https://arif-fazil.com/.well-known/openapi.yaml"
+  },
+  "logo_url": "https://arif-fazil.com/assets/logo.png",
+  "contact_email": "arif@arif-fazil.com",
+  "legal_info_url": "https://arif-fazil.com/legal"
+}

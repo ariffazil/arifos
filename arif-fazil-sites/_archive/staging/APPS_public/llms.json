@@ -1,0 +1,132 @@
+{
+  "name": "arifOS APPS",
+  "description": "7-Layer Application Stack for Constitutional AI Governance",
+  "tagline": "AI That Can't Lie to You",
+  "location": "https://arifos.arif-fazil.com/llms.txt",
+  "version": "v55.2-SEAL",
+  "authority": "Muhammad Arif bin Fazil (888 Judge)",
+  "status": "SOVEREIGNLY_SEALED",
+  "motto": "Ditempa bukan diberi (Forged, not given)",
+  "quick_start": {
+    "install": "pip install arifos",
+    "verify": "python -c \"import arifos; print(arifos.__version__)\"",
+    "live_demo": "https://arif-fazil.com",
+    "constitutional_canon": "https://apex.arif-fazil.com",
+    "human_context": "https://arif-fazil.com/llms.txt"
+  },
+  "layers": [
+    {
+      "id": "L1",
+      "name": "PROMPT",
+      "purpose": "Zero-context system prompt",
+      "status": "Ready",
+      "entry_point": "Copy prompt"
+    },
+    {
+      "id": "L2",
+      "name": "UNIFIED",
+      "purpose": "Full constitutional prompt",
+      "status": "Ready",
+      "entry_point": "Copy prompt"
+    },
+    {
+      "id": "L3",
+      "name": "API",
+      "purpose": "Direct Python integration",
+      "status": "Ready",
+      "entry_point": "pip install arifos"
+    },
+    {
+      "id": "L4",
+      "name": "MCP",
+      "purpose": "Model Context Protocol tools",
+      "status": "Ready",
+      "entry_point": "MCP server"
+    },
+    {
+      "id": "L5",
+      "name": "SDK",
+      "purpose": "Application framework",
+      "status": "Beta",
+      "entry_point": "arifos.sdk"
+    },
+    {
+      "id": "L6",
+      "name": "INSTITUTION",
+      "purpose": "Trinity multi-agent system",
+      "status": "Design",
+      "entry_point": "Trinity spec"
+    },
+    {
+      "id": "L7",
+      "name": "AGI",
+      "purpose": "Constitutional AGI research",
+      "status": "Research",
+      "entry_point": "Research only"
+    }
+  ],
+  "mcp_tools": [
+    { "name": "apex.verdict", "function": "Non-generative judgment" },
+    { "name": "vault.read", "function": "Read from memory bands" },
+    { "name": "vault.write", "function": "Write with verdict routing" },
+    { "name": "floors.check", "function": "Validate against constitutional floors" },
+    { "name": "audit.trace", "function": "Generate audit trail" }
+  ],
+  "memory_bands": [
+    { "band": "L0_VAULT", "purpose": "Constitutional law", "confidence": 1.0, "ttl_hot": null, "canonical": true },
+    { "band": "L1_LEDGER", "purpose": "Sealed decisions", "confidence": 1.0, "ttl_hot": "90 days", "canonical": true },
+    { "band": "L2_ACTIVE", "purpose": "Volatile working state", "confidence": "Variable", "ttl_hot": "7 days", "canonical": "Session" },
+    { "band": "L3_PHOENIX", "purpose": "Amendment proposals", "confidence": "≤0.85", "ttl_hot": "90 days", "canonical": "Pending" },
+    { "band": "L4_WITNESS", "purpose": "Observations, scars", "confidence": "≤0.85", "ttl_hot": "90 days", "canonical": "Suggestion" },
+    { "band": "L5_VOID", "purpose": "Rejected facts", "confidence": null, "ttl_hot": "24-90h", "canonical": false }
+  ],
+  "verdicts": [
+    { "type": "SEAL", "meaning": "Approved", "band": "L1_LEDGER", "canonical": true },
+    { "type": "PARTIAL", "meaning": "Under review", "band": "L3_PHOENIX", "canonical": false },
+    { "type": "SABAR", "meaning": "Sealed with reason", "band": "L1_LEDGER (flagged)", "canonical": true },
+    { "type": "HOLD_888", "meaning": "Await human", "band": "L3_PHOENIX", "canonical": false },
+    { "type": "VOID", "meaning": "Rejected", "band": "L5_VOID", "canonical": false }
+  ],
+  "deployment": {
+    "local": {
+      "command": "pip install arifos && python -m arifos.server --local"
+    },
+    "docker": {
+      "command": "docker pull arifos/arifos:latest && docker run -p 8000:8000 arifos/arifos:latest"
+    },
+    "cloud": {
+      "endpoint": "aaamcp.arif-fazil.com/mcp",
+      "protocol": "Model Context Protocol",
+      "auth": "API key required"
+    }
+  },
+  "performance_targets": {
+    "floor_pass_rate": { "target": "≥99%", "measurement": "Validations passing all 9 floors" },
+    "verdict_latency": { "target": "<500ms", "measurement": "Time to verdict" },
+    "audit_coverage": { "target": "100%", "measurement": "All operations logged" },
+    "hash_chain_valid": { "target": "100%", "measurement": "No breaks in L1_LEDGER chain" },
+    "omega_0_compliance": { "target": "100%", "measurement": "All outputs show 3-5% uncertainty" }
+  },
+  "hta_trinity": {
+    "human": { "domain": "arif-fazil.com", "symbol": "Δ", "function": "Epistemic — The Body" },
+    "theory": { "domain": "apex.arif-fazil.com", "symbol": "Ψ", "function": "Authority — The Soul" },
+    "apps": { "domain": "arifos.arif-fazil.com", "symbol": "Ω", "function": "Safety — The Mind" },
+    "mind": { "domain": "aaamcp.arif-fazil.com", "function": "Runtime execution layer" }
+  },
+  "external_references": {
+    "human_context": "https://arif-fazil.com/llms.txt",
+    "human_context_json": "https://arif-fazil.com/llms.json",
+    "constitutional_canon": "https://apex.arif-fazil.com/llms.txt",
+    "constitutional_canon_json": "https://apex.arif-fazil.com/llms.json",
+    "github": "https://github.com/ariffazil/arifOS",
+    "pypi": "pip install arifos"
+  },
+  "metadata": {
+    "version": "v55.2-SEAL",
+    "epoch": "2026-02-02",
+    "sealed_by": "Muhammad Arif bin Fazil (888 Judge)",
+    "status": "SOVEREIGNLY_SEALED",
+    "confidence": 1.0,
+    "type": "IMPLEMENTATION LAW"
+  }
+}

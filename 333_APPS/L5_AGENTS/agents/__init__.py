@@ -16,7 +16,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, Optional
 
-__version__ = "v55.2-stub"
+__version__ = "v55.5-stub"
 __all__ = ["ARCHITECT", "ENGINEER", "AUDITOR", "VALIDATOR", "Agent", "AgentResult"]
 
 logger = logging.getLogger(__name__)

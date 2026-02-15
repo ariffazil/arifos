@@ -3,20 +3,32 @@ builder = "DOCKERFILE"
 dockerfilePath = "Dockerfile"
 
 [deploy]
-startCommand = "codebase-mcp-sse"
+startCommand = "python -m aaa_mcp sse"
 healthcheckPath = "/health"
-healthcheckTimeout = 120
-restartPolicyType = "ON_FAILURE"
-numReplicas = 1
+healthcheckTimeout = 60
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5
 
-[deploy.env]
-ARIFOS_ENV = "production"
-ARIFOS_VERSION = "v55.1-CODEBASE-AAA"
-ARIFOS_LOG_LEVEL = "INFO"
-ARIFOS_CLUSTER = "3"
-REDIS_URL = "${{Redis.REDIS_URL}}"
-HOST = "0.0.0.0"
+[variables]
+# Core server settings
 PORT = "8080"
+HOST = "0.0.0.0"
+PYTHONUNBUFFERED = "1"
 
-# Note: arif-fazil.com domain now points to Cloudflare Pages (BODY layer)
-# Railway hosts the MIND layer (API/MCP backend) only
+# arifOS governance
+ARIFOS_ENV = "production"
+GOVERNANCE_MODE = "HARD"
+VAULT_BACKEND = "postgres"
+AAA_MCP_TRANSPORT = "sse"
+LOG_LEVEL = "info"
+
+# Railway deployment timestamp (forces cache bust)
+DEPLOY_TS = "2026-02-14T06-16"
+
+# API keys (set these in Railway dashboard for security)
+# BRAVE_API_KEY = "${{BRAVE_API_KEY}}"
+# BROWSERBASE_API_KEY = "${{BROWSERBASE_API_KEY}}"
+
+# Database and Redis URLs are auto-injected by Railway plugins
+# DATABASE_URL = "${{POSTGRES_URL}}"
+# REDIS_URL = "${{REDIS_URL}}"

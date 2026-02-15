@@ -7,6 +7,7 @@
 # Archive & legacy
 archive/
 archive_local/
+arif-fazil-sites/
 
 # Tests (not needed in production image)
 tests/

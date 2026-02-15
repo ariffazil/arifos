@@ -14,7 +14,7 @@ Tests:
 
 import pytest
 
-from arifos.core.guards.injection_guard import (
+from codebase.core.guards.injection_guard import (
     InjectionGuard,
     InjectionRisk,
     scan_for_injection,

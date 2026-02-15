@@ -1,17 +1,16 @@
-# The Trinity Framework — AGI, ASI, APEX
-
-**arifOS v53.2.1-CODEBASE Canonical Reference**
-
 ---
-
-```yaml
-version: "v53.2.1"
-status: CANONICAL
+title: "010_TRINITY.md"
+version: "v55.5"
+epoch: "2026-02-02"
+sealed_by: "888_Judge"
 authority: "Muhammad Arif bin Fazil"
-doctrine: "DITEMPA BUKAN DIBERI"
-```
-
+status: "SOVEREIGNLY_SEALED"
 ---
+
+# 010 TRINITY — THE THREE ENGINES (ΔΩΨ)
+
+**Motto:** *Ditempa Bukan Diberi*
+**Scope:** The specialized engines that drive the 11-stage metabolic loop.
 
 ## I. THE TRINITY ARCHITECTURE (v53 Fusion)
 
@@ -55,6 +54,10 @@ doctrine: "DITEMPA BUKAN DIBERI"
 | **ASI** | Ω | Heart | `DEFEND` | 555 |
 | **APEX** | Ψ | Soul | `DECREE` | 888 |
 | **VAULT** | Κ | Seal | `CRYSTALLIZE` | 000, 999 |
+
+> While the **Trinity** describes the *Engines* (Who does the work), the **Metabolic Loop** (000-999) describes the *Pipeline* (When the work happens).
+> AGI spans stages 111-333 via multi-threaded cognition.
+> FUSION (formerly 777) is now absorbed into Stage 888 (DECREE) to ensure high-efficiency synthesis during final judgment. High-energy Mind-Soul overlap happens during paradox resolution.
 
 ---
 
@@ -107,19 +110,20 @@ def map(cognition: CognitionResult) -> AtlasResult:
 
 ## III. FUSION — MIND & SOUL (ΔΨ)
 
-### Definition
+### Definition (Absorbed into 888)
 
-**FUSION** is the synthesis engine—combining AGI's logic with APEX's discovery. It replaces the sequential Forge->Eureka line with a single hardened loop.
+**FUSION** is the synthesis engine—combining AGI's logic with APEX's discovery. In the v55.5 runtime, this functionality is absorbed into `apex_verdict` (Stage 888) to minimize latency while maintaining the Genius Floor (F8).
 
 ```yaml
 engine: FUSION
 symbol: ΔΨ
 role: Creator
-action: FORGE (777)
+action: FORGE (Absorbed into 888)
 floors: [F8 Genius, F10 Ontology, F13 Curiosity]
 ```
 
-#### Stage 777: FORGE (Synthesis)
+#### Stage 888 [FUSION]: FORGE + DECREE
+Synthesis now occurs during the paradox-resolution phase of judgment.
 
 ```python
 def forge(inputs: Union[AtlasResult, CognitionResult]) -> FuseResult:
@@ -208,14 +212,13 @@ def decree(safety: EmpathyResult) -> JudgeResult:
 
 ## VI. THE 5-TOOL INTERFACE (v53)
 
-| Tool | Engine | Symbol | Outcome |
+| Tool | Engine | Symbol | Function |
 |------|--------|--------|---------|
-| `init_000` | IGNITE | 🚪 | `SessionToken` |
-| `agi_genius` | PERCEIVE | Δ | `CognitionResult` |
-| `trinity_fuse`| FORGE | ΔΨ | `FuseResult` |
-| `asi_act` | DEFEND | Ω | `EmpathyResult` |
-| `apex_judge` | DECREE | Ψ | `JudgeResult` |
-| `999_vault` | CRYSTALLIZE | 🔒 | `AuditHash` |
+| `init_gate` | IGNITE | 🚪 | Session Ignition & Auth |
+| `agi_reason` | PERCEIVE | Δ | Deep Reasoning & Logic |
+| `asi_empathize`| DEFEND | Ω | Stakeholder Impact Analysis |
+| `apex_verdict` | DECREE | Ψ | Final Constitutional Judgment |
+| `vault_seal` | CRYSTALLIZE | 🔒 | Immutable Ledger Entry |
 
 ---
 

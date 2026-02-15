@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "OpenClaw MCP Client Config - Corrected for srv1325122 (Linux)",
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "/root/arifOS/.venv/bin/python",
+      "args": ["-m", "aaa_mcp", "stdio"],
+      "cwd": "/root/arifOS",
+      "env": {
+        "PYTHONPATH": "/root/arifOS",
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "ARIFOS_VAULT_PATH": "/root/arifOS/VAULT999",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUNBUFFERED": "1",
+        "ARIFOS_AGENT_ROLE": "CANON"
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "anchor",
+        "reason",
+        "integrate",
+        "respond",
+        "validate",
+        "align",
+        "forge",
+        "audit",
+        "seal"
+      ],
+      "description": "arifOS Constitutional Core"
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": ["--yes", "@modelcontextprotocol/server-filesystem", "/root/arifOS"],
+      "description": "TIER 1: Secure file operations"
+    },
+    "fetch": {
+      "command": "npx",
+      "args": ["--yes", "@modelcontextprotocol/server-fetch"],
+      "description": "TIER 1: Web content fetching"
+    },
+    "git": {
+      "command": "npx",
+      "args": ["--yes", "@modelcontextprotocol/server-git", "--repository", "/root/arifOS"],
+      "description": "TIER 1: Git repository tools"
+    },
+    "memory": {
+      "command": "npx",
+      "args": ["--yes", "@modelcontextprotocol/server-memory"],
+      "description": "TIER 1: Persistent memory system"
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": ["--yes", "@modelcontextprotocol/server-sequential-thinking"],
+      "description": "TIER 1: Reflective problem-solving"
+    },
+    "time": {
+      "command": "npx",
+      "args": ["--yes", "@modelcontextprotocol/server-time"],
+      "description": "TIER 1: Time and timezone capabilities"
+    },
+    "sqlite": {
+      "command": "npx",
+      "args": ["--yes", "@modelcontextprotocol/server-sqlite", "/root/arifOS/data"],
+      "description": "TIER 2: SQLite database interaction"
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["--yes", "@upstash/context7-mcp"],
+      "env": {
+        "CONTEXT7_API_KEY": "${CONTEXT7_API_KEY}"
+      },
+      "description": "TIER 2: Library documentation search"
+    },
+    "github": {
+      "command": "npx",
+      "args": ["--yes", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      },
+      "description": "TIER 2: GitHub API integration"
+    },
+    "brave-search": {
+      "command": "npx",
+      "args": ["--yes", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "description": "TIER 2: Web search using Brave Search API"
+    },
+    "perplexity": {
+      "command": "npx",
+      "args": ["--yes", "@perplexity-ai/mcp-server"],
+      "env": {
+        "PERPLEXITY_API_KEY": "${PERPLEXITY_API_KEY}"
+      },
+      "description": "TIER 2: AI-powered search and answers"
+    },
+    "firecrawl": {
+      "command": "npx",
+      "args": ["--yes", "firecrawl-mcp"],
+      "env": {
+        "FIRECRAWL_API_KEY": "${FIRECRAWL_API_KEY}"
+      },
+      "description": "TIER 2: Web scraping and crawling"
+    }
+  },
+  "vault999-server": {
+    "command": "python3",
+    "args": ["/root/arifOS/servers/vault999/server.py"],
+    "cwd": "/root/arifOS/servers/vault999",
+    "env": {
+      "PYTHONPATH": "/root/arifOS"
+    },
+    "description": "VAULT999 - Thermodynamic Archive Server",
+    "disabled": false
+  }
+}

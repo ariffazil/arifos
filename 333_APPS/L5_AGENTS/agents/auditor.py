@@ -14,6 +14,18 @@ Responsibilities:
 
 The AUDITOR sees all and speaks truth.
 """
+
+import os
+import sys
+
+if os.getcwd() not in sys.path:
+    sys.path.append(os.getcwd())
+
+try:
+    from mcp_server.tools.reality_tool import RealityTool
+except ImportError:
+    RealityTool = None
+
 from . import Agent, AgentResult
 
 
@@ -24,41 +36,49 @@ class AUDITOR(Agent):
     Verifies claims against external reality.
     Grounds the system in facts, not hallucinations.
     """
+
     name = "AUDITOR"
     symbol = "👁"
 
     async def evidence(self, claim):
         """444_EVIDENCE: Fact-check claim."""
-        # STUB: Search external sources, verify truth
-        # From: codebase/external_gateways/search.py
-        # From: codebase/agi/evidence.py
-        pass
-
-    async def verify_truth(self, statement, threshold=0.99):
-        """F2: Verify τ ≥ 0.99."""
-        # STUB: Calculate confidence, flag if below threshold
-        pass
+        if RealityTool:
+            return await RealityTool.execute("check", claim)
+        return {"verdict": "VOID", "error": "L4 Core not found"}
 
     async def detect_injection(self, input_data):
         """F12: Injection defense."""
-        # STUB: Scan for prompt injection, role-play attacks
-        # From: codebase/init/injection_scan.py
-        pass
-
-    async def audit(self, context):
-        """Full audit of session."""
-        # STUB: Cross-check all claims
-        pass
+        if RealityTool:
+            # We treat injection scan as a synchronous check in the wrapper, but let's keep async api
+            return await RealityTool.execute("scan", input_data)
+        return {"verdict": "VOID", "error": "L4 Core not found"}
 
     async def execute(self, context):
         """Run audit pipeline. Context is a dict with 'claim' and 'input' keys."""
         claim = self._safe_get(context, "claim", "")
         input_data = self._safe_get(context, "input", "")
-        evidence = await self.evidence(claim)
-        truth = await self.verify_truth(evidence)
+
+        # 1. Check Injection (F12)
         injection = await self.detect_injection(input_data)
+        if injection.get("verdict") == "VOID":
+            return AgentResult(
+                verdict="VOID", agent=self.name, data=injection, error=injection.get("reason")
+            )
+
+        # 2. Check Truth (F2)
+        if claim:
+            evidence = await self.evidence(claim)
+            truth_data = {
+                "score": evidence.get("truth_score", 0),
+                "sources": evidence.get("sources", []),
+            }
+            # If external reality contradicts claim, we might switch to SABAR, but usually Auditor just reports findings
+        else:
+            evidence = {"status": "No claim to check"}
+            truth_data = {}
+
         return AgentResult(
             verdict="SEAL",
             agent=self.name,
-            data={"evidence": evidence, "truth": truth, "injection_safe": injection},
+            data={"evidence": evidence, "truth": truth_data, "injection_safe": injection},
         )

@@ -102,7 +102,7 @@ Claude Desktop connects via stdio transport.
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "codebase.mcp"],
+      "args": ["-m", "mcp"],
       "cwd": "/path/to/arifOS",
       "env": {
         "PYTHONPATH": "/path/to/arifOS"
@@ -127,7 +127,7 @@ Claude Desktop connects via stdio transport.
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "codebase.mcp"],
+      "args": ["-m", "mcp"],
       "cwd": "/path/to/arifOS"
     }
   }
@@ -145,7 +145,7 @@ Add to Cursor MCP settings:
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "codebase.mcp"],
+      "args": ["-m", "mcp"],
       "cwd": "/path/to/arifOS"
     }
   }
@@ -186,7 +186,7 @@ Tools are auto-discovered via `tools/list`.
 
 | Command | Transport | Use Case |
 |---------|-----------|----------|
-| `python -m codebase.mcp` | stdio | Claude Desktop, Cursor |
+| `python -m mcp` | stdio | Claude Desktop, Cursor |
 | `codebase-mcp-sse` | HTTP/SSE | Railway, Docker, ChatGPT |
 | `codebase-mcp` | stdio | Alternative alias |
 

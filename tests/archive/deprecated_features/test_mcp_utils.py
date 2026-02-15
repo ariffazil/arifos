@@ -10,7 +10,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 
 # Import the tools
-from arifos.mcp.mcp_utils_server import (
+from codebase.mcp.mcp_utils_server import (
     tool_fetch_url,
     tool_shell,
     tool_grep_search,
@@ -195,7 +195,7 @@ class TestIntegration:
     @pytest.mark.asyncio
     async def test_server_creation(self):
         """Test that the server can be created."""
-        from arifos.mcp.mcp_utils_server import create_utils_server
+        from codebase.mcp.mcp_utils_server import create_utils_server
         server = await create_utils_server()
         assert server is not None
 

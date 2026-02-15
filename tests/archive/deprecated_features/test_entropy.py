@@ -21,7 +21,7 @@ Test Coverage:
 import math
 import pytest
 
-from arifos.core.agi.entropy import (
+from codebase.core.agi.entropy import (
     DeltaSResult,
     EntropyMetrics,
     compute_delta_s,

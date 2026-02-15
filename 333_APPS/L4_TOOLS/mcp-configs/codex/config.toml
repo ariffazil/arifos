@@ -1,0 +1,17 @@
+# Global settings
+preferred_auth_method = "apikey"
+model = "gpt-5"
+
+# arifOS MCP Server
+[mcp_servers.arifos]
+enabled = true
+url = "https://arifosmcp.arif-fazil.com/mcp"
+
+[mcp_servers.arifos.http_headers]
+Authorization = "Bearer ${ARIFOS_API_KEY}"
+X-ArifOS-Floor = "13"
+
+# Project-specific trust
+[projects."/path/to/your/project"]
+trust_level = "sovereign"
+mcp_servers = ["arifos"]

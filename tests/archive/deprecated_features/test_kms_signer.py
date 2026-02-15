@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 import pytest
 
-from arifos.core.utils.kms_signer import KmsSigner, KmsSignerConfig, KmsClientProtocol
+from codebase.core.utils.kms_signer import KmsSigner, KmsSignerConfig, KmsClientProtocol
 
 
 class FakeKmsClient(KmsClientProtocol):

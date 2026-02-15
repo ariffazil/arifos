@@ -8,7 +8,7 @@ import asyncio
 import sys
 sys.path.insert(0, 'C:/Users/User/arifOS')
 
-from arifos.mcp.bridge import bridge_trinity_hat_router
+from codebase.mcp.bridge import bridge_trinity_hat_router
 
 
 async def test_trinity_hat_loop():
@@ -84,8 +84,8 @@ async def test_integration():
     print("=" * 70)
     
     try:
-        from arifos.mcp.server import create_mcp_server, TOOL_DESCRIPTIONS, TOOL_ROUTERS
-        from arifos.mcp.mode_selector import MCPMode
+        from codebase.mcp.server import create_mcp_server, TOOL_DESCRIPTIONS, TOOL_ROUTERS
+        from codebase.mcp.mode_selector import MCPMode
         
         # Check tool is registered
         if "trinity_hat_loop" in TOOL_DESCRIPTIONS:

@@ -1,0 +1,37 @@
+{
+  "name": "Arif Fazil — Forged in Red",
+  "short_name": "Arif Fazil",
+  "description": "Personal portfolio of Muhammad Arif bin Fazil. Forged in red — where earth, economics, and AI converge.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050505",
+  "theme_color": "#8B0000",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "en",
+  "categories": ["portfolio", "technology", "AI"],
+  "icons": [
+    {
+      "src": "/forge-background.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/forge-background.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "web",
+      "url": "https://apex.arif-fazil.com",
+      "id": "apex-constitutional-canon"
+    },
+    {
+      "platform": "web", 
+      "url": "https://arifos.arif-fazil.com",
+      "id": "arifos-documentation"
+    }
+  ]
+}

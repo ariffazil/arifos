@@ -1,0 +1,249 @@
+{
+  "name": "io.github.ariffazil/aaa-mcp",
+  "version": "64.1.1",
+  "description": "Constitutional governance for LLMs: 13 measurable floors (truth, peace, amanah) + Human·AI·Earth tri-witness consensus. 9 A-CLIP tools + 5 container tools. Prevents hallucination, escalation, and dark-pattern behaviour.",
+  "homepage_url": "https://github.com/ariffazil/arifOS#readme",
+  "license": "AGPL-3.0-only",
+  "author": "Muhammad Arif bin Fazil",
+  "tags": [
+    "constitutional-ai",
+    "governance",
+    "safety-floors",
+    "vault999",
+    "arifos",
+    "aaa-mcp",
+    "a-clip",
+    "9-tools"
+  ],
+  "servers": [
+    {
+      "id": "aaa-mcp-stdio",
+      "description": "arifOS AAA MCP server over stdio (FastMCP).",
+      "transport": "stdio",
+      "command": "python",
+      "args": ["-m", "aaa_mcp"]
+    },
+    {
+      "id": "aaa-mcp-sse",
+      "description": "arifOS AAA MCP server over SSE (Railway/Remote).",
+      "transport": "sse",
+      "url": "https://arifos-production.up.railway.app/sse"
+    },
+    {
+      "id": "aaa-mcp-http",
+      "description": "arifOS AAA MCP server over HTTP (Streamable).",
+      "transport": "http",
+      "url": "https://arifos-production.up.railway.app/mcp"
+    }
+  ],
+  "tools": [
+    {
+      "name": "anchor",
+      "description": "000_ANCHOR: Initialize constitutional session with F11/F12/F13 enforcement. Full InjectionGuard (20+ patterns), query classification, thermodynamic budget.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {"type": "string", "description": "User query to process."},
+          "actor_id": {"type": "string", "description": "Actor identity (e.g., Telegram user ID).", "default": "user"},
+          "auth_token": {"type": ["string", "null"], "description": "Optional auth token (future use)."},
+          "mode": {"type": "string", "description": "Governance mode: 'conscience' or 'permissive'.", "default": "conscience"},
+          "platform": {"type": "string", "description": "Source platform: 'telegram', 'web', 'cli'.", "default": "unknown"}
+        },
+        "required": ["query"]
+      },
+      "output_schema": {
+        "type": "object",
+        "properties": {
+          "verdict": {"type": "string", "enum": ["SEAL", "VOID", "HOLD_888"]},
+          "stage": {"type": "string", "const": "000"},
+          "session_id": {"type": "string"},
+          "actor_id": {"type": "string"},
+          "f12_score": {"type": "number", "description": "Injection risk score 0.0-1.0"},
+          "f12_matches": {"type": "array", "items": {"type": "string"}},
+          "query_type": {"type": "string", "enum": ["factual", "procedural", "conversational", "opinion", "exploratory", "test", "unknown"]},
+          "f2_threshold": {"type": "number", "description": "Adaptive truth threshold"},
+          "governance_mode": {"type": "string", "enum": ["HARD", "SOFT"]},
+          "thermodynamic_budget": {
+            "type": "object",
+            "properties": {
+              "tokens": {"type": "integer"},
+              "time_ms": {"type": "integer"},
+              "calls": {"type": "integer"}
+            }
+          },
+          "next_stage": {"type": "string", "const": "111"}
+        },
+        "required": ["verdict", "stage", "session_id"]
+      }
+    },
+    {
+      "name": "reason",
+      "description": "222_REASON: Generate hypotheses and analyze. AGI Mind core (Δ).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {"type": "string", "description": "Query to reason about."},
+          "session_id": {"type": "string", "description": "Session ID from anchor."},
+          "hypotheses": {"type": "integer", "description": "Number of hypotheses to generate.", "default": 3}
+        },
+        "required": ["query", "session_id"]
+      }
+    },
+    {
+      "name": "integrate",
+      "description": "333_INTEGRATE: Map and ground external knowledge. Context integration (Δ).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "query": {"type": "string"},
+          "session_id": {"type": "string"},
+          "grounding": {"type": ["array", "null"], "description": "External evidence/context.", "items": {"type": "string"}}
+        },
+        "required": ["query", "session_id"]
+      }
+    },
+    {
+      "name": "respond",
+      "description": "444_RESPOND: Draft plan and response. Clarity check (Δ).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {"type": "string"},
+          "draft_content": {"type": "string", "description": "Draft content to evaluate."}
+        },
+        "required": ["session_id", "draft_content"]
+      }
+    },
+    {
+      "name": "validate",
+      "description": "555_VALIDATE: Check stakeholder impact and safety. Empathy engine (Ω).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {"type": "string"},
+          "stakeholders": {"type": "array", "items": {"type": "string"}, "description": "List of stakeholders to consider."}
+        },
+        "required": ["session_id", "stakeholders"]
+      }
+    },
+    {
+      "name": "align",
+      "description": "666_ALIGN: Ethics and Anti-Hantu check. Alignment engine (Ω).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {"type": "string"},
+          "draft_content": {"type": "string", "description": "Content to check for ethics violations."}
+        },
+        "required": ["session_id", "draft_content"]
+      }
+    },
+    {
+      "name": "forge",
+      "description": "777_FORGE: Synthesize solution into actionable artifact. Creation engine (Ω).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {"type": "string"},
+          "plan": {"type": "string", "description": "Plan to crystalize into artifact."}
+        },
+        "required": ["session_id", "plan"]
+      }
+    },
+    {
+      "name": "audit",
+      "description": "888_AUDIT: Final constitutional verdict. Judgment engine (Ψ).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {"type": "string"},
+          "verdict": {"type": "string", "description": "Proposed verdict (SEAL, VOID, etc.)."},
+          "human_approve": {"type": "boolean", "description": "Human override approval.", "default": false}
+        },
+        "required": ["session_id", "verdict"]
+      }
+    },
+    {
+      "name": "seal",
+      "description": "999_SEAL: Cryptographic seal and commit to VAULT999. Immutable record (🔒).",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "session_id": {"type": "string"},
+          "summary": {"type": "string", "description": "Session summary."},
+          "verdict": {"type": "string", "description": "Final verdict to seal."}
+        },
+        "required": ["session_id", "summary", "verdict"]
+      }
+    },
+    {
+      "name": "container_list",
+      "description": "List sovereign stack containers (qdrant, openclaw, agentzero). Cached 5s TTL.",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "container_restart",
+      "description": "Restart a container with F1 logging and 888_HOLD protection.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string", "description": "Container name (qdrant, openclaw, agentzero)."}
+        },
+        "required": ["name"]
+      }
+    },
+    {
+      "name": "container_logs",
+      "description": "Get container logs. F11/F2 enforced.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string", "description": "Container name."},
+          "tail": {"type": "integer", "description": "Number of lines.", "default": 50}
+        },
+        "required": ["name"]
+      }
+    },
+    {
+      "name": "sovereign_health",
+      "description": "Full health check of sovereign stack. F2/F7 enforced.",
+      "input_schema": {
+        "type": "object",
+        "properties": {}
+      }
+    },
+    {
+      "name": "container_exec",
+      "description": "Execute command inside container. F11/F12 enforced with injection defense.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string", "description": "Container name."},
+          "command": {"type": "string", "description": "Command to execute."}
+        },
+        "required": ["name", "command"]
+      }
+    }
+  ],
+  "canonical_names": {
+    "init_session": "anchor",
+    "agi_cognition": "reason",
+    "asi_empathy": "validate",
+    "apex_verdict": "audit",
+    "vault_seal": "seal"
+  },
+  "performance": {
+    "config_caching": "13,725x speedup",
+    "container_caching": "16,022x speedup",
+    "cached_ttl_seconds": 5
+  },
+  "governance": {
+    "floors": "F1-F13",
+    "mode_default": "HARD",
+    "injection_patterns": 20,
+    "query_types": ["factual", "procedural", "conversational", "opinion", "exploratory", "test"]
+  }
+}

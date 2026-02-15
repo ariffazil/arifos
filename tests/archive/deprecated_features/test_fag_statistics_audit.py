@@ -12,7 +12,7 @@ from pathlib import Path
 
 import pytest
 
-from arifos.core.apex.governance.fag import FAG
+from codebase.core.apex.governance.fag import FAG
 
 
 class TestFAGStatistics:

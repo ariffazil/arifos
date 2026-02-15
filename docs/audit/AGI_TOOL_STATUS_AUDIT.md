@@ -2,7 +2,7 @@
 
 **Scope:** AGI-layer tools within AAA MCP
 **Date:** 2026-02-02
-**Version:** v55.2
+**Version:** v55.5
 **Evaluator:** Runtime observation + live invocation
 
 ---

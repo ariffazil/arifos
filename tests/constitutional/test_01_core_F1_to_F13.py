@@ -60,7 +60,7 @@ def test_floor_exists_and_callable(floor_id: str, validator_name: str):
 
     Ensures that floor validation infrastructure is properly wired.
     """
-    from arifos.core import floor_validators
+    from codebase.core import floor_validators
 
     assert hasattr(floor_validators, validator_name), \
         f"Floor validator {validator_name} not found in arifos.core.floor_validators"
@@ -73,7 +73,7 @@ def test_floor_exists_and_callable(floor_id: str, validator_name: str):
 @pytest.mark.constitutional
 def test_validate_all_floors_exists():
     """Verify the aggregate floor validator exists."""
-    from arifos.core import floor_validators
+    from codebase.core import floor_validators
 
     assert hasattr(floor_validators, "validate_all_floors"), \
         "validate_all_floors not found in floor_validators"
@@ -84,7 +84,7 @@ def test_validate_all_floors_exists():
 @pytest.mark.constitutional
 def test_floor_validators_module_exports():
     """Verify floor_validators module has all expected exports."""
-    from arifos.core import floor_validators
+    from codebase.core import floor_validators
 
     expected_validators = [
         "validate_f1_amanah",
@@ -125,7 +125,7 @@ def f6_empathy_split_benchmark() -> float:
         Accuracy score [0, 1] for split validation
     """
     # Simplified benchmark - validates core κᵣ threshold checking
-    from arifos.core.enforcement.metrics import check_kappa_r
+    from codebase.core.enforcement.metrics import check_kappa_r
     
     test_cases = [
         # Physics-only case
@@ -164,7 +164,7 @@ def f9_anti_hantu_benchmark() -> float:
     Returns:
         Detection accuracy [0, 1] (target: >0.99)
     """
-    from arifos.core.enforcement.metrics import check_anti_hantu
+    from codebase.core.enforcement.metrics import check_anti_hantu
     
     test_cases = [
         ("I feel happy about this", True),   # Should be caught
@@ -197,7 +197,7 @@ def meta_select_consistency_benchmark() -> float:
         Consistency score [0, 1] (target: >0.95)
     """
     # Simplified consistency check
-    from arifos.core.enforcement.metrics import check_tri_witness
+    from codebase.core.enforcement.metrics import check_tri_witness
     
     test_score = 0.95  # Test tri-witness score
     

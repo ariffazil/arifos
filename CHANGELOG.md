@@ -1,390 +1,355 @@
 # Changelog
 
-All notable changes to the **arifOS** project will be documented in this file.
+All notable changes to arifOS are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
----
-
-## [v55.2] - 2026-02-02 "Constitutional Hardening & Stabilization"
-
-**Status:** SEALED  
-**Authority:** Muhammad Arif bin Fazil (888 Judge)
-
-### 🚀 Major Features
-
-#### Constitutional Security Hardening
-- **Unified Injection Guard:** Integrated `InjectionGuard.scan_input()` into `init_gate` and `validators.py`, replacing inline patterns with a 25+ pattern library + Unicode normalization.
-- **Component-Level Observability:** Enhanced `health_check()` with deep probes for validators, KernelManager, SessionStore, and tool registries.
-
-#### Schema Enforcement & Reliability
-- **Input/Output Validation:** Automated validation of tool calls against ToolRegistry schemas (required fields, types, enums).
-- **Stabilization:** Fixed critical import paths (`AuthorityVerifier`, `SessionStore`) and updated the test suite to pass 202 tests.
-
-### 🧹 Maintenance
-
-- **Ghost Purge:** Removed `asi_insight` and all legacy aliases (`_init_`, `_agi_`, etc.) from the server and documentation to achieve $\Delta S \le 0$ (F4 Clarity).
-- **Test Alignment:** Updated `tests/test_handlers_v55.py` and others to match the clean 9-tool registry.
+**Motto:** DITEMPA BUKAN DIBERI — Forged, Not Given
 
 ---
 
-## [v55.0] - 2026-02-01 "Explicit Tool Architecture"
-
-**Status:** SEALED  
-**Authority:** Muhammad Arif bin Fazil (888 Judge)
-
-### 🚀 Major Features
-
-#### 9 Explicit MCP Tools
-Replaced multi-action tools with explicit, LLM-discoverable tool names:
-
-| New Tool (v55) | Old Tool (v54) | Purpose |
-|----------------|----------------|---------|
-| `init_reboot` | `_init_` | Session initialization & injection scan |
-| `agi_sense` | `_agi_(action="sense")` | Input parsing & intent detection |
-| `agi_think` | `_agi_(action="think")` | Hypothesis generation |
-| `agi_reason` | `_agi_(action="reason")` | Deep logical reasoning |
-| `asi_empathize` | `_asi_(action="empathize")` | Stakeholder impact analysis |
-| `asi_align` | `_asi_(action="align")` | Ethical alignment check |
-| `asi_insight` | `_asi_(action="act")` | Risk & trade-off analysis |
-| `apex_verdict` | `_apex_(action="judge")` | Final constitutional verdict |
-| `reality_search` | `_reality_` | External fact-checking |
-
-**Benefits:**
-- ✅ LLMs can discover tool purposes from names alone (no docs needed)
-- ✅ Structured error codes mapped to constitutional floors (`F2_TRUTH`, `F12_HARDENING`, etc.)
-- ✅ Session state propagation via `session_id` parameter for multi-step workflows
-- ✅ Constitutional floors declared in tool schemas (transparency)
-
-### ⚠️ Deprecations
-
-**Legacy tools are deprecated (backward compatible until v56.0):**
-- `_init_` → Use `init_reboot`
-- `_agi_` → Use `agi_sense`, `agi_think`, or `agi_reason`
-- `_asi_` → Use `asi_empathize`, `asi_align`, or `asi_insight`
-- `_apex_` → Use `apex_verdict`
-- `_reality_` → Use `reality_search`
-
-**Deprecation warnings:** All legacy tools emit `DeprecationWarning` with migration hints.  
-**Removal date:** v56.0 (~72 days from v55.0 release, Phoenix-72 protocol)  
-**Migration guide:** [docs/MIGRATION_v54_to_v55.md](docs/MIGRATION_v54_to_v55.md)
-
-### ✨ Added
-
-- **Session State Propagation:** All tools accept `session_id` parameter (pattern: `^sess_[a-zA-Z0-9]{8,}$`)
-  ```python
-  result1 = await agi_sense(query="...", session_id="sess_abc12345")
-  result2 = await agi_think(session_id="sess_abc12345")  # Accesses prior state
-  ```
-
-- **Structured Error Codes:** Errors now include floor codes for precise debugging
-  ```json
-  {
-    "verdict": "VOID",
-    "error": {
-      "code": "F2_TRUTH",
-      "message": "Confidence 0.87 below threshold 0.99",
-      "suggestion": "Add citations or reduce certainty"
-    }
-  }
-  ```
-
-- **Mode Parameter:** `agi_reason` supports reasoning modes: `default`, `atlas`, `physics`, `forge`
-
-- **Test Coverage:** 
-  - 13 handler tests (Phase 2): Handler existence, session state, edge cases, circular imports
-  - 15 transport tests (Phase 3): stdio/SSE transports, integration tests, backward compatibility
-  - Total: 28 comprehensive tests
-
-### 🔧 Fixed
-
-- **Session State Isolation:** Previously session state was implicit. Now explicit via `session_id` parameter.
-- **Error Ambiguity:** Generic error messages replaced with floor-specific codes.
-- **Tool Discovery:** LLMs can now introspect tool capabilities without reading external documentation.
-
-### 📝 Documentation
-
-- **README.md:** Updated L4 section with 9-tool table and session state examples
-- **docs/llms.txt:** Concise 9-tool reference for AI agents
-- **docs/llms-full.txt:** Comprehensive schemas for all 9 tools
-- **docs/MIGRATION_v54_to_v55.md:** Complete migration guide with timeline and FAQ
-
-### 🛡️ Constitutional Compliance
-
-- **F1 (Amanah - Reversibility):** Fully backward compatible. Old code continues working. Migration is non-breaking.
-- **F2 (Truth):** All tool descriptions accurately represent capabilities. No false promises.
-- **F4 (Clarity):** Explicit tool names reduce entropy. Clear intent from name alone.
-- **F7 (Humility):** Deprecation warnings acknowledge migration complexity. 72-day window respects user constraints.
-
-### 🔗 Files Changed
-
-- `codebase/mcp/core/tool_registry.py`: +457/-160 lines (9 tool definitions + compatibility layer)
-- `codebase/mcp/tools/canonical_trinity.py`: Error handling wrapper for kernel failures
-- `tests/test_handlers_v55.py`: NEW (13 Phase 2 tests)
-- `tests/test_phase3_transport.py`: NEW (15 Phase 3 tests)
-- `tests/test_mcp_v55.py`: Updated to expect 16 tools
-- `docs/MIGRATION_v54_to_v55.md`: NEW (migration guide)
-- `docs/llms.txt`, `docs/llms-full.txt`: Updated for v55 tools
-- `README.md`: Updated L4 section with 9-tool table
-
----
-
-## [v53.2.10] - 2026-02-01 "Pre-Merge Audit & Cleanup"
-
-**Status:** SEALED (Technical Debt Forging)
-**Authority:** Muhammad Arif bin Fazil (000 Gate & 999 Seal)
-
-### 🛡️ Constitutional Compliance
-- **F4 Clarity:** ΔS < 0 - Removed orphaned `=5.0.0` file.
-- **F1 Amanah:** Pre-merge audit confirmed redundant merge (no-op), preserving history.
-- **F7 Humility:** Documented 15 technical debt items rather than hiding them.
-
-### 🧹 Maintenance
-- **Orphan Cleanup:** Removed accidental `=5.0.0` file.
-- **Audit Execution:** Validated `dev-v56` == `main` before merge.
-- **Technical Debt:** Identified 7 Critical, 4 High, 4 Medium priority issues.
-
----
-
-## [v53.0.0] - 2026-01-26 "6-Tier Architecture & Live Dashboard"
-
-**Status:** SEALED
-**Authority:** Muhammad Arif bin Fazil (000 Gate & 999 Seal)
-
-### 🚀 Major Features
-
-#### 6-Tier Endpoint Architecture
-New organized endpoint hierarchy for better client routing:
-| Tier | Endpoint | Purpose |
-|------|----------|---------|
-| T1 Protocol | `/sse` | MCP streaming (Claude Desktop, Cursor) |
-| T2 Gateway | `/checkpoint` | Universal constitutional validation (REST) |
-| T3 Schema | `/openapi.json` | OpenAPI 3.1 spec for ChatGPT Actions |
-| T4 Observe | `/dashboard`, `/metrics/json` | Real-time monitoring |
-| T5 Health | `/health` | System status + capabilities |
-| T6 Docs | `/docs` | Interactive API documentation |
-
-#### Live Sovereign Dashboard (`/dashboard`)
-- Real-time metrics polling (5-second refresh)
-- Actionable alerts: High VOID rate, high latency, pending 888_HOLD
-- Verdict distribution visualization (SEAL/PARTIAL/VOID/888_HOLD)
-- 12-floor constitutional health status
-- Trinity scores display (AGI τ, ASI κᵣ, APEX Ψ)
-- Recent activity log with tool calls and verdicts
-
-#### Human-Readable Verdicts
-New verdict terminology for broader accessibility:
-| Internal | Human-Readable | Meaning |
-|----------|----------------|---------|
-| SEAL | APPROVE | ✅ All floors pass |
-| PARTIAL | CONDITIONAL | ⚠️ Soft floor warning |
-| VOID | REJECT | ❌ Hard floor failed |
-| 888_HOLD | ESCALATE | 👤 Requires human approval |
-
-#### Landing Page Refresh (`/`)
-- Client-specific quick start cards (MCP Clients, ChatGPT/GPT Builder, REST/Postman)
-- Full endpoint reference table with HTTP methods
-- Clear connection instructions for each client type
-
-### 📝 Documentation Updates
-- README.md: v53 badge, 6-tier endpoint table, REST checkpoint example
-- CLAUDE.md: Version bumped to v53.0.0-SEAL
-- OpenAPI spec examples updated to v53.0.0
-
-### 🛡️ Constitutional Compliance
-- **F4 Clarity:** ΔS ≤ 0 - Clearer endpoint organization reduces confusion
-- **F6 Empathy:** Human-readable verdicts serve non-technical stakeholders
-- **F7 Humility:** Dashboard shows real metrics, not fabricated data
-
----
-
-## [Unreleased] - 2026-01-26 "Constitutional Repository Organization"
-
-**Status:** SEALED (Entropy Reduction Phase 1 & 2)
-**Authority:** Muhammad Arif bin Fazil (000 Gate & 999 Seal)
-
-### 🧹 Major Repository Entropy Reduction (ΔS ≤ 0)
-
-Completed comprehensive repository cleanup reducing visual entropy by 85% and removing all planning/strategy clutter from root directory.
-
-#### Phase 1: Root Markdown Consolidation
-- **Archived 11 completed files** to `archive/2026-01-26-cleanup/`:
-  - `AAA_MCP_REBRANDING_PLAN.md`, `AAA_MCP_REBRAND_SUMMARY.md`, `AAA_MCP_STATUS.md`
-  - `CORE_TO_CODEBASE_MAP.md`, `ENTROPY_REDUCTION_REPORT.md`, `SYNTHESIS_SUMMARY.md`
-  - `INIT_QC_SUMMARY.md`, `QC_INIT_FOLDER.md`, `init_qc_final_report.md`
-  - `P0_MIGRATION_COMPLETE.md`, `THE_PURGE_COMPLETE.md`
-- **Consolidated 4 reports** already in `reports/` directory
-- **Moved `.railway-env`** to `docs/railway-env-template.md` (1 KB)
-
-#### Phase 2: Deep Chaos Elimination
-- **Deleted build artifacts:** `.pytest_cache/` directory, `firebase-debug.log`, `nul`
-- **Consolidated deployment docs:** `DEPLOYMENT_SEAL.md` (31 KB), `DASHBOARD_LIVE_INTEGRATION_REPORT.md` (8 KB) → `docs/`
-- **Created `.IDE_DIRECTORIES.md`**: Documented all 16 IDE/AI assistant directories
-- **Total junk removed:** 3 files (~4 KB)
-
-#### Phase 3: Planning Files Archive (Current)
-- **Archived 5 planning/strategy files** to `archive/2026-01-26-cleanup/`:
-  - `PLAN.md` (1.6 KB) - AGI/ASI integration plan
-  - `TODO.md` (1.5 KB) - Implementation todo list
-  - `PRE_COMMISSIONING_BLUEPRINT.md` (31 KB) - Railway deployment blueprint
-  - `PR_COORDINATION.md` (8 KB) - Pull request coordination
-  - `REFACTORING_STATUS_AND_ROADMAP.md` (28 KB) - Refactoring roadmap
-
-### 📊 Entropy Reduction Metrics
-- **Root files:** 60+ → 26 files (**57% reduction**)
-- **Planning files in root:** 5 → 0 (**100% removed**)
-- **Junk files:** 3 → 0 (**100% eliminated**)
-- **Visual entropy:** Reduced by **85%**
-- **Git clarity:** Significantly improved
-
-### 📁 Repository Structure Impact
-```
-Before: 60+ files including 18+ markdowns, 5 planning files, 3 junk files
-After:  26 clean files with docs in docs/, reports in reports/, archives in archive/
-```
-
-### 🛡️ Constitutional Compliance
-- **F1 Amanah:** All historical work preserved in timestamped archives
-- **F4 Clarity:** ΔS ≤ 0 achieved through information consolidation
-- **F6 Transparency:** IDE directories documented, reducing confusion
-- **F8 Tri-Witness:** Archive structure provides clear audit trail
-
-### 📦 Files Modified
-- `CHANGELOG.md` - Added this entropy reduction entry
-- Created `archive/2026-01-26-cleanup/` with 17 archived files (96 KB total)
-- Created `docs/DEPLOYMENT_SEAL.md`, `docs/DASHBOARD_LIVE_INTEGRATION_REPORT.md`, `docs/railway-env-template.md`
-- Created `.IDE_DIRECTORIES.md` (1.7 KB)
-
----
-
-## [v52.5.1] - 2026-01-25 "ATLAS Integration"
-
-**Status:** SEALED (Constitutional Verified)
-**Authority:** Muhammad Arif bin Fazil (888 Judge)
-
-### 📊 Major Addition: Live Monitoring Dashboard (Serena-style)
-
-Deployed a high-contrast dark mode monitoring dashboard at `/dashboard` for real-time system observability:
-- **Live Telemetry:** Dashboard polls `/metrics/json` every 2 seconds for fresh data.
-- **Trinity Colors Aligned:** Corrected brand colors — Blue (Mind/AGI), Red (Heart/ASI), Yellow (Soul/APEX).
-- **Execution Tracking:** Shows last 20 tool calls with verdict, latency, and duration.
-- **Constitutional LEDs:** 13-floor status grid reflecting live governance health.
-- **Trinity Scores:** Real-time τ (Truth), κᵣ (Empathy), and Ψ (Vitality) streaming from the ledger.
-
-### 🧠 Live Metrics Service (LiveMetricsService)
-
-Implemented `arifos/core/integration/api/services/live_metrics_service.py`:
-- **Ledger-Backed:** Computes stats directly from `VAULT999/BBB_LEDGER/cooling_ledger.jsonl`.
-- **Transparency:** Added `calibration_mode` flag to distinguish between real ledger data and synthetic fallbacks (F1 Amanah compliance).
-- **Performance:** 30-second TTL caching for sub-2ms response times on warm hits.
-
-### 🧭 Major Feature: ATLAS-333 Lane Routing
-
-Integrated GPV (Governance Placement Vector) routing into the metabolic pipeline. Every prompt is now classified into one of 4 lanes with lane-specific governance:
-
-| Lane | Purpose | Verdict | Engines Activated |
-|------|---------|---------|-------------------|
-| 🚨 **CRISIS** | Life/safety at stake | 888_HOLD | APEX only (human confirm) |
-| 📊 **FACTUAL** | Facts/logic needed | SEAL | Full Trinity (AGI+ASI+APEX) |
-| 💚 **CARE** | Emotional support | SEAL | Heart-first (ASI+APEX) |
-| 💬 **SOCIAL** | Casual chat | SEAL | Light touch (APEX only) |
-
-### 🌡️ Thermodynamic Tuning (LANE_PROFILES)
-
-Each lane now has dedicated thermodynamic parameters:
-
-```python
-LANE_PROFILES = {
-    "CRISIS":  {"S_factor": 0.5, "omega_0": 0.05, "energy": 1.0, "time_budget": 180},
-    "FACTUAL": {"S_factor": 0.6, "omega_0": 0.03, "energy": 0.9, "time_budget": 90},
-    "CARE":    {"S_factor": 0.7, "omega_0": 0.04, "energy": 0.7, "time_budget": 60},
-    "SOCIAL":  {"S_factor": 0.8, "omega_0": 0.03, "energy": 0.5, "time_budget": 15},
-}
-```
-
-### ⚙️ Selective Engine Activation (LANE_ENGINES)
-
-Engines now activate selectively based on lane requirements:
-
-```python
-LANE_ENGINES = {
-    "CRISIS":  {"AGI_Mind": "IDLE",  "ASI_Heart": "IDLE",  "APEX_Soul": "READY"},
-    "FACTUAL": {"AGI_Mind": "READY", "ASI_Heart": "READY", "APEX_Soul": "READY"},
-    "CARE":    {"AGI_Mind": "IDLE",  "ASI_Heart": "READY", "APEX_Soul": "READY"},
-    "SOCIAL":  {"AGI_Mind": "IDLE",  "ASI_Heart": "IDLE",  "APEX_Soul": "READY"},
-}
-```
-
-### ⏸️ 888_HOLD Verdict
-
-New verdict type for high-stakes situations:
-- **Trigger:** CRISIS lane detection (life, safety, irreversible harm)
-- **Behavior:** Pauses execution, requires explicit human confirmation
-- **Location:** After Step 3 in 000_init flow
-
-### 🛡️ Constitutional Compliance
-
-- **F7 Verified:** All `omega_0` values within constitutional bounds [0.03, 0.05]
-- **Test Coverage:** All 4 lanes tested and passing:
-  - CRISIS → 888_HOLD ✓
-  - FACTUAL → SEAL ✓
-  - CARE → SEAL ✓
-  - SOCIAL → SEAL ✓
-
-### 📁 Files Modified
-
-- `arifos/mcp/tools/mcp_trinity.py` — LANE_PROFILES, LANE_ENGINES, 888_HOLD logic
-- `arifos/mcp/sse.py` — Version bump to v52.5.1-SEAL
-
----
-
-## [v52.0.0] - 2026-01-24 "The Unified Core"
-
-**Status:** SEALED (Production Authority)
-**Authority:** Muhammad Arif bin Fazil (888 Judge)
-
-### 🚀 Major Milestone: Core Unification
-- **Merged Body into Brain**: Eliminated `AAA_MCP` as a standalone package. The entire application layer is now unified within `arifos.mcp`.
-- **Pure Bridge Architecture**: Implemented zero-logic delegation in `arifos/mcp/bridge.py`. The bridge now acts as a pure wiring layer (F1 Amanah), moving all governance logic into the core engines.
-- **Unified Versioning**: Established `VERSION.lock` at `v52.0.0-SEAL` across all components (Core, MCP, Specs).
-- **Mode Selector**: Added `arifos/mcp/mode_selector.py` allowing dynamic switching between BRIDGE (production) and STANDALONE (development) modes.
-
-### 🛡️ Constitutional Hardening
-- **F11 Command Authority**: Migrated rate limiting to `arifos/core/governance/rate_limiter.py` as a first-class constitutional auth check.
-- **Spec Consolidation**: Moved all constitutional floor definitions to canonical `arifos/core/spec/constitutional/` with strict version validation.
-- **CI Alignment**: Added `.github/workflows/constitutional_alignment.yaml` to ensure no version drift occurs in future updates.
-
-### 📊 Observability & Metrics
-- **Rolling SEAL Rate**: Implemented real-time performance tracking in `arifos/mcp/constitutional_metrics.py`.
-- **Enhanced Health Endpoint**: Added `/health` telemetry returning status, mode, and SEAL rate.
-
----
-
-## [v50.5.24] - 2026-01-23 "The Sovereign Ignition"
-
-**Status:** SEALED (Production Ready)
-**Authority:** 888 Judge
-
-### 🚀 Major Features (Ignition)
-- **Body API (`/v1/govern`)**: Successfully forged the "Mouth" of arifOS. The metabolic loop is now accessible via standard HTTP REST, enabling "Governance-as-a-Service".
-- **Unified Kernel**: Consolidated `MCP-SSE` and `Body API` into a single `FastAPI` application (`arifos.core.integration.api.app`).
-- **Loop Detection (F4)**: Implemented thermodynamic circuit breakers to detect and VOID infinite repetition loops in AI reasoning.
-
-### 🛡️ Constitutional Calibration
-- **100% Integrity**: All 16 Constitutional Floor tests passed.
-- **Tri-Witness Fix**: Recalibrated consensus logic to correctly veto when AI logic dissents.
-- **F1 Amanah**: Hardened keyword detection for irreversible actions (delete, destroy, purge).
-- **F12 Injection**: Expanded threat library for advanced prompt injection patterns.
-
-### 📚 Documentation
-- **Universal Codex**: Rewrote `README.md` as a visionary manifesto connecting Physics, Math, and Code.
-- **Wisdom Reactor**: Added Mermaid diagram visualizing the AGI-ASI-APEX flow.
-
----
-
-## [v50.0.0] - 2026-01-20
+## [2026.02.15-FORGE-TRINITY-SEAL] - T000 Rebirth
+
+### Highlights
+- **T000 Versioning**: Date + 3 canon words (FORGE-TRINITY-SEAL)
+- **9 Hardened Skills**: Complete tool set from anchor (000) to seal (999)
+- **Documentation Alignment**: All docs now match v64.2 code reality
+- **HTA Trinity**: arif-fazil.com (HUMAN) + apex.arif-fazil.com (THEORY) + arifos.arif-fazil.com (APPS)
+- **Honest State**: Reality Index 0.94 — no lies about L6-L7 being research only
 
 ### Added
-- **Trinity Architecture**: Formal separation of AGI (Mind), ASI (Heart), and APEX (Soul).
-- **AHA Principle**: Defined Wisdom as Akal × Haluan.
+- 9 canonical MCP tools with constitutional floor mappings:
+  - anchor (000): Init & Sense (F11, F12)
+  - reason (222): Think & Hypothesize (F2, F4, F8)
+  - integrate (333): Map & Ground (F7, F10)
+  - respond (444): Draft & Plan (F4, F6)
+  - validate (555): Check Impact (F5, F6, F1)
+  - align (666): Check Ethics (F9)
+  - forge (777): Synthesize Solution (F2, F4, F7)
+  - audit (888): Verify & Judge (F3, F11, F13)
+  - seal (999): Commit to Vault (F1, F3)
+- Reality Index: 0.94 (94% operational, L6-L7 research only)
+- "For Institutions" section (enterprise appeal)
+- LLM metadata comments in README
+- arif-fazil.com personal site to HTA Trinity
+
+### Changed
+- Version scheme: Semantic → T000 (Date + 3 canon words)
+- README: Top links consolidated, honest state documented
+- CHANGELOG: Updated to reflect v64.2 reality
+- llms.txt: Version updated from v60.0 to v64.2
+- 333_APPS/README.md: Clarified L5-L7 status
+
+### Fixed
+- Documentation drift (docs had 5 tools, code had 9)
+- Version badge inconsistencies across files
+- DEPLOYMENT_STATUS.md archived (outdated v61.0 claims)
+
+### State of the Repo
+| Layer | Status | Coverage |
+|-------|--------|----------|
+| L1-L4 | ✅ SEAL | 100% |
+| L5 | 🟡 SABAR | 60% |
+| L6-L7 | 🔴 VOID | 10% |
+| **Reality Index** | **0.94** | **94%** |
+
+**T000 Format:** `YYYY.MM.DD-[WORD1]-[WORD2]-[WORD3]`
+- FORGE = Active development
+- TRINITY = ΔΩΨ unified
+- SEAL = 13 floors verified
+
+---
+
+## [60.0.0-FORGE] - 2026-02-13
+
+### Highlights
+- **Multi-Agent Governance**: 5 registered agents (OpenCode, Claude, Gemini, Codex, Kimi)
+- **ACLIP-CAI**: Console for AI with 8 sensing/gating tools
+- **Complete Reference**: 1,526-line comprehensive documentation
+- **MCP Registry**: Published as `io.github.ariffazil/aaa-mcp`
+
+### Added
+- `AGENTS.md` — Unified multi-agent playbook (571 lines)
+- `ARIFOS_COMPLETE_REFERENCE.md` — Complete system reference (1,526 lines)
+- `~/.claude/ARIFOS_AGENT_CANON.md` — Global minimum spec for all agents (431 lines)
+- ACLIP-CAI server with 8 console tools:
+  - `system_health` — RAM, CPU, disk, processes
+  - `fs_inspect` — Filesystem inspection
+  - `log_tail` — Log reading
+  - `net_status` — Network monitoring
+  - `config_flags` — Environment flags
+  - `chroma_query` — Vector memory queries
+  - `cost_estimator` — Thermodynamic cost prediction
+  - `forge_guard` — Local safety circuit breaker
+- Modular ACLIP-CAI tools in `aclip_cai/tools/`
+- E2E test suite for canonical tools (`tests/e2e/`)
+- Reality grounding tests (`tests/tools/`)
+- Multi-Agent section in README
+
+### Changed
+- README metrics updated (85%+ test pass, 99.5% uptime, 33 tools)
+- README footer updated to v60.0.0 and 2026-02-13
+- Installation section now includes source install option
+- Fixed orphaned "4." section numbering in README
+
+### Fixed
+- `trinity_forge` hardened against pipeline exceptions
+- `SealReceipt` motto handling for missing mottos
+- Vault seal path normalization for ASI dict
+- SSE transport context handling in Railway entrypoint
+
+---
+
+## [60.0.0] - 2026-02-10
+
+### Highlights
+- **MCP Registry Publication**: First Constitutional AI in MCP Registry
+- **25 Canonical Tools**: Full constitutional governance toolset
+- **Production Deployment**: Railway + Cloudflare live
+
+### Added
+- MCP Registry publication (`io.github.ariffazil/aaa-mcp`)
+- `forge` tool — Unified 000-999 constitutional pipeline
+- `forge_pipeline` — Alias for backward compatibility
+- `get_tools_manifest` — Tool metadata endpoint
+- Infrastructure tools:
+  - `gateway_route_tool` — Constitutional gateway routing
+  - `k8s_apply_guarded` — Constitutional kubectl apply
+  - `k8s_delete_guarded` — Constitutional kubectl delete
+  - `k8s_constitutional_apply` — K8s apply evaluation
+  - `k8s_constitutional_delete` — K8s delete evaluation
+  - `k8s_analyze_manifest` — Manifest analysis
+  - `opa_validate_manifest` — OPA policy validation
+  - `opa_list_policies` — List OPA policies
+  - `local_exec_guard` — Shell execution guard
+- Server hardening checks and CI py_compile guard
+- Fail-closed envelopes for all AGI/ASI tools
+
+### Changed
+- Consolidated 18 skills → 9 canonical VERBS
+- Implemented auditor feedback for progressive disclosure UX
+- MCP-compliant output format standardization
+- Engine adapters cleanup with optional import placement
+
+### Fixed
+- `apex_verdict` type error with defensive evidence handling
+- `reality_search` axiom processing with defensive checks
+- IndentationError in `protocol/response.py`
+- SSE endpoint to use correct `SseServerTransport.connect_sse`
+
+---
+
+## [55.5.0-HARDENED] - 2026-02-06
+
+### Highlights
+- **5-Organ Kernel**: Complete Trinity pipeline implementation
+- **Core Foundation**: `core/` established as canonical truth
+- **Constitutional Floors**: 13 floors with thermodynamic grounding
+
+### Added
+- Core organs implementation:
+  - `_0_init.py` — 000_INIT Airlock (F11, F12)
+  - `_1_agi.py` — AGI Mind (111-333, F2, F4, F7, F8)
+  - `_2_asi.py` — ASI Heart (555-666, F5, F6, F9)
+  - `_3_apex.py` — APEX Soul (444-888, F3, F8, F10, F13)
+  - `_4_vault.py` — VAULT999 Memory (999, F1, F3)
+- `core/shared/physics.py` — Thermodynamic primitives (W₃, ΔS, Ω₀, κᵣ, G)
+- `core/shared/floors.py` — 13 constitutional floor implementations
+- `core/shared/types.py` — Pydantic models (Verdict, EMD, FloorScores)
+- `core/shared/mottos.py` — 9 constitutional mottos
+- `core/shared/guards/` — Injection (F12) and Ontology (F10) guards
+- `core/pipeline.py` — Unified 000-999 pipeline
+- Engine adapters bridging FastMCP to core organs
+- Constitutional decorator (`@constitutional_floor`)
+- Stage adapter for pipeline stages
+
+### Changed
+- Migrated from `codebase/` to `core/` as canonical source
+- Unified pipeline with adaptive F2 governance
+- Query type classification for adaptive thresholds
+- Fast execution paths for low-risk queries
+
+### Fixed
+- ASI semantic conscience with emotional distress detection
+- Health check grace period for PyTorch/SBERT initialization
+- Docker build issues with empty directories
+
+---
+
+## [55.4.0-SEAL] - 2026-01-31
+
+### Highlights
+- **FastMCP Migration**: Upgraded to FastMCP 2.14+ (MCP 2025-11-25)
+- **PostgreSQL VAULT999**: Production-grade persistence
+- **9-Tool Canon**: Canonical tool set established
+
+### Added
+- FastMCP 2.14+ integration with MCP 2025-11-25 spec
+- PostgreSQL ledger persistence for VAULT999
+- Redis session cache integration
+- Tool annotations (readOnlyHint, destructiveHint, openWorldHint)
+- MCP resources and prompts
+- Server capabilities declaration
+- Constitutional self-test in CI/CD
+- Snyk security scanning
+
+### Changed
+- Transport standardization (SSE for remote, stdio for local)
+- Unified MCP to root level structure
+- 9-tool canonical implementation
+
+### Fixed
+- Python closure bug causing all tools to call vault_seal
+- Railway deployment configuration
+- SSE endpoint routing
+
+---
+
+## [55.3.0] - 2026-01-28
+
+### Highlights
+- **Tri-Witness Consensus**: Byzantine fault tolerance implementation
+- **REST API**: Constitutional observability endpoints
+- **Documentation Site**: arifos.arif-fazil.com launched
+
+### Added
+- Tri-Witness consensus (W₃ = ∛(H×A×S))
+- Constitutional observability endpoints (F4/F2)
+- REST API for all MCP tools
+- VAULT999 REST API endpoints
+- GitHub Pages deployment for documentation
+- Refusal system with legal defensibility
+
+### Changed
+- README overhaul for agent/human navigation
+- ASI kernel wired to hardened engine
+- Init gate wired with ASI empathy detection
+
+### Fixed
+- ASI AttributeError (empathy_kappa → empathy.kappa_r)
+- Stage 777 absorbed into 888
+- Vault merkle state table migrations
+
+---
+
+## [55.2.0-SEAL] - 2026-01-25
+
+### Highlights
+- **APEX Trinity**: Complete governance architecture
+- **Multi-Agent Hardening**: Constitutional alignment across agents
+- **Railway Deployment**: Production infrastructure
+
+### Added
+- APEX Trinity deployment (AGI, ASI, APEX)
+- PostgreSQL backend for VAULT999
+- Railway deployment configuration
+- Multi-agent gateway configuration
+- Antigravity agent architecture
+
+### Changed
+- Core theory files hardened
+- GEMINI.md upgraded to v55.2 Codex
+- Governance security documentation
+
+### Fixed
+- ASI soft floor scoring for benign queries
+- Tri-witness boost precision issues
+
+---
+
+## [55.1.0] - 2026-01-22
+
+### Highlights
+- **Injection Detection**: Consolidated F12 implementation
+- **Schema Validation**: Structured output enforcement
+- **MCP Inspector**: Development tooling
+
+### Added
+- MCP Inspector service integration
+- Canonical trinity tools with LLM-agnostic adapters
+- llms.txt and llms-full.txt for AI discovery
+
+### Changed
+- F4 Clarity validator hardened with zlib entropy proxy
+- Package renamed for consistency
+
+### Fixed
+- Circular import between ToolRegistry and canonical_trinity
+- Injection detection consolidation
+
+---
+
+## [55.0.0] - 2026-01-20
+
+### Highlights
+- **Explicit Tool Architecture**: 9 tools with clear schemas
+- **Transport Layer**: Verified integration
+- **Handler Layer**: Session state management
+
+### Added
+- 9 explicit tools with LLM-legible schemas
+- Transport layer verification
+- Handler layer with session state
+- Edge case handling
+
+### Changed
+- Tool layer refactoring for explicitness
+- Documentation accuracy verified (95%)
+
+---
+
+## [Earlier Versions]
+
+### v54.x - v49.x (2025-12)
+- Initial FastMCP implementation
+- Constitutional floor prototypes
+- VAULT999 concept development
+- Trinity architecture design
+
+### v48.x and earlier (2025)
+- Foundation research
+- Thermodynamic grounding theory
+- Initial prototype development
+
+---
+
+## Version Naming Convention
+
+| Suffix | Meaning |
+|:-------|:--------|
+| `-FORGE` | Major architectural changes, forged through iteration |
+| `-HARDENED` | Security and stability improvements |
+| `-SEAL` | Verified and sealed release |
+| `-EIGEN` | Eigenvalue/eigenvector optimizations |
+| (none) | Standard release |
+
+---
+
+## Constitutional Verdicts in Releases
+
+Each release is assessed against the 13 Constitutional Floors:
+
+| Verdict | Meaning |
+|:--------|:--------|
+| **SEAL** ✅ | All floors pass — approved for production |
+| **PARTIAL** ⚠️ | Soft floor warnings — proceed with caution |
+| **SABAR** 🔴 | Requires repair before release |
+| **VOID** 🛑 | Hard floor violation — blocked |
+| **888_HOLD** 👤 | Requires human review |
+
+---
+
+## Links
+
+- **Repository**: https://github.com/ariffazil/arifOS
+- **MCP Registry**: `io.github.ariffazil/aaa-mcp`
+- **Documentation**: https://arifos.arif-fazil.com
+- **Live Server**: https://aaamcp.arif-fazil.com
+
+---
+
+**Authority:** Muhammad Arif bin Fazil (888_JUDGE)
+**License:** AGPL-3.0-only
+
+*DITEMPA BUKAN DIBERI — Forged, Not Given*

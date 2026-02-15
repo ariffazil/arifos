@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "arifOS MCP Configuration for Claude Desktop (all platforms)",
+  "mcpServers": {
+    "arifOS": {
+      "type": "remote",
+      "url": "https://arifosmcp.arif-fazil.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${ARIFOS_API_KEY}"
+      },
+      "env": {
+        "ARIFOS_REALITY_INDEX": "0.94",
+        "ARIFOS_MODE": "constitutional"
+      }
+    }
+  }
+}

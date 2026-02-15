@@ -28,6 +28,10 @@ htmlcov/
 .nox/
 .coverage
 .pytest_cache/
+.pytest_cache_win/
+test_output*.txt
+verification_output.txt
+entropy_metrics.json
 
 # Virtual environments
 .env
@@ -47,18 +51,15 @@ venv/
 !.vscode/keybindings.json
 
 # Runtime artifacts
-runtime/vault_999/
 cooling_ledger.jsonl
 
 # VAULT999 runtime files (keep structure, ignore runtime data)
 VAULT999/cooling_ledger.json
 VAULT999/constitutional_vault.json
 
-# Ledger runtime exhaust (v42: do not version control)
-vault_999/ledger/*.jsonl
-vault_999/ledger/pending.jsonl
-vault_999/ledger/phoenix.jsonl
-vault_999/ledger/void.jsonl
+# Cryptographic keys (NEVER commit)
+*_private_key.b64
+*_private_key.pem
 
 # SSL/TLS certificates (VAULT999 MCP Server)
 *.pem
@@ -101,8 +102,6 @@ scripts/bogel_results_*.json
 # Ephemeral test output (manual Ollama runs)
 tests/arifOS llama test*.md
 
-# Vault-999 runtime ledger data (test artifacts)
-vault-999/ledger/*.jsonl
 *.mp4
 
 # v45Ω Housekeeping (2025-12-25)
@@ -146,6 +145,10 @@ logs/
 *.log
 
 # Temporary files
+tmp_*.py
+*_tmp.py
+test_*_debug.py
+sitecustomize.py
 nul
 .DS_Store
 Thumbs.db
@@ -173,9 +176,59 @@ vault_999_obsidian/**/.obsidian/plugins/
 # v50.5 Runtime Chaos Reduction
 arifos/mcp/sessions/*
 !arifos/mcp/sessions/.gitkeep
+mcp/sessions/*
+!mcp/sessions/.gitkeep
+# Keep session module code, ignore only archives
+aaa_mcp/sessions/archive/*
+!aaa_mcp/sessions/archive/.gitkeep
+VAULT999/sessions/*
+!VAULT999/sessions/.gitkeep
 VAULT999/BBB_LEDGER/entries/*
 cov_report.txt
 coverage_report.txt
 Dockerfile.bak
+output_log.txt
 
 gha-creds-*.json
+
+# IDE
+.vs/
+
+# Archive tarballs (keep compressed versions only)
+*.tar.gz
+
+# Additional Python cache
+.mypy_cache/
+.dmypy.json
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Local environment overrides
+.env.local
+.env.*.local
+.env.production
+
+# Agent ephemeral configs
+.kimi_mcp_fixed.json
+
+# Runtime MCP configs (secrets risk — keep at user-level ~/.mcp.json only)
+# .agents/mcp.json stays tracked as canonical reference template (uses ${VAR} refs)
+.mcp.json
+.kimi/mcp.json
+
+# Archived Roadmap Artifacts
+ROADMAP/archive/
+
+# Agent workspaces (ephemeral runtime data)
+.agents/
+.antigravity/
+.cache/
+.clawhub/
+.kimi/
+.openmcp/
+
+# Ruff cache
+.ruff_cache/

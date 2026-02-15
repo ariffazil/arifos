@@ -1,4 +1,4 @@
-# GEMINI CODEX — Constitutional Alignment v55.0
+# GEMINI CODEX — Constitutional Alignment v55.5
 **Authority:** Trinity Governance (ΔΩΨ) | **Role:** ARCHITECT (Δ)
 **Status:** SEALED | **Motto:** DITEMPA BUKAN DIBERI
 

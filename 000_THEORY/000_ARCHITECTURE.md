@@ -1,7 +1,7 @@
 ---
 title: "000_ARCHITECTURE.md"
-version: "v52.5.2-SEAL"
-epoch: "2026-01-25"
+version: "v55.5"
+epoch: "2026-02-02"
 sealed_by: "888_Judge"
 authority: "Muhammad Arif bin Fazil"
 status: "SOVEREIGNLY_SEALED"
@@ -17,12 +17,12 @@ reference: "See 000_LAW.md for Constitutional Rules"
 
 ## 1. CORE CONCEPT
 
-arifOS is a **Constitutional AI Governance System**. It functions as a middleware layer (Kernel) that sits between an LLM (the Engine) and the User/Tools. It enforces strict rules (Floors) on every input and output.
+arifOS is a **Constitutional AI Governance System**. It functions as the **Missing Constitutional Layer** that sits between raw Large Language Models (the Engines) and human sovereignty. It metabolizes intent through a structured thermodynamic process to ensure that AI remains a tool, not a sovereign actor.
 
 ### The "Air Gap" Principle
 The system is divided into two physically separated layers:
-1.  **Application Layer (AAA):** Mutable, fluid, user-facing (Dashboard, CLI).
-2.  **Constitutional Kernel (CCC):** Immutable, rigid, rule-enforcing.
+1.  **Application Layer (AAA):** Mutable, fluid, user-facing (Governance Interface).
+2.  **Constitutional Kernel (CCC):** Immutable, rigid, rule-enforcing (Metabolic Core).
 
 Data passes between them via the **Protocol Bridge (BBB)**.
 
@@ -63,9 +63,9 @@ Instead of a simple "Input -> Output" flow, arifOS uses an **11-stage metabolic 
 | **555** | **EMPATHY** | ASI | Check stakeholder impact and safety. | F6 Empathy |
 | **666** | **BRIDGE** | ASI | Synthesize logic and safety. | F5 Safety |
 | **777** | **EUREKA** | APEX | Detect novel insights. | F13 Curiosity |
-| **888** | **JUDGE** | APEX | Final constitutional verdict. | F8 Consensus |
+| **888** | **JUDGE** | APEX | Final constitutional verdict. | F3 Consensus |
 | **889** | **PROOF** | APEX | Generate cryptographic receipt. | - |
-| **999** | **VAULT** | Seal | Commit to immutable ledger. | F1 Reversibility |
+| **999** | **VAULT** | Seal | Commit to immutable ledger. | F1 Amanah |
 
 ### 3.2 The 7-Step Ignition (Inside Stage 000)
 
@@ -86,27 +86,28 @@ Instead of a simple "Input -> Output" flow, arifOS uses an **11-stage metabolic 
 
 ---
 
-## 4. THE TRINITY ENGINES (Processor Roles)
+## 4. THE TRINITY ENGINES (Governance Roles)
 
-The system uses three distinct "modes of thought" (Engines) to evaluate every request. These can be different LLMs or different prompts on the same LLM.
+Instead of traditional "processing", arifOS uses three distinct governance engines to evaluate every request. This **Composite Architecture** ensures that exploration is siempre balanced by discipline.
 
 ### 4.1 AGI (The Mind / Δ)
 *   **Role:** Architect & Reasoner.
-*   **Focus:** Logic, Factuality, Clarity.
+*   **Focus:** Logic, Factuality, Entropy Reduction.
+*   **Function:** LLM-driven exploration and ideation.
 *   **Floors:** F2 (Truth), F4 (Clarity), F7 (Humility).
-*   **Tools:** `agi_genius`, Search, Code Analysis.
+*   **Postulate Mapping:** Separation of creativity (Δ) and governance (Ψ).
 
 ### 4.2 ASI (The Heart / Ω)
 *   **Role:** Engineer & Guardian.
 *   **Focus:** Safety, Empathy, Consequence Analysis.
-*   **Floors:** F1 (Reversibility), F5 (Peace/Safety), F6 (Empathy).
-*   **Tools:** `asi_act`, Simulation, Impact Check.
+*   **Function:** Stakeholder impact modeling and risk limit enforcement.
+*   **Floors:** F1 (Amanah), F5 (Peace/Safety), F6 (Empathy).
 
 ### 4.3 APEX (The Soul / Ψ)
 *   **Role:** Judge & Auditor.
-*   **Focus:** Consensus, Authority, Final Decision.
-*   **Floors:** F3 (Consensus), F8 (Quality), F9 (Anti-Deception).
-*   **Tools:** `apex_judge`, Cryptography, Vault.
+*   **Focus:** Consensus, Authority, Final Constitutional Decision.
+*   **Function:** Discipline, validation, and cryptographic sealing.
+*   **Floors:** F3 (Consensus), F8 (Quality), F9 (Anti-Hantu).
 
 ---
 
@@ -128,7 +129,9 @@ arifOS/
 │   ├── 000_FOUNDATIONS.md # Principles & Glossary
 │   ├── 000_LAW.md         # Rules & Floors
 │   ├── 000_ARCHITECTURE.md# This File
-│   └── 002_SECURITY.md    # Threat Model
+│   ├── 111_MIND_GENIUS.md # Physics of Thought
+│   ├── 555_HEART_EMPATHY.md # Physics of Care
+│   └── 777_SOUL_APEX.md   # Physics of Law
 │
 ├── tests/                 # VALIDATION
 └── vault_999/             # STORAGE (Immutable Ledger)

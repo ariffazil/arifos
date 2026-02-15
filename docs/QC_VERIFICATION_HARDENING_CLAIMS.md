@@ -81,7 +81,7 @@ async def session_maintenance_loop(interval_seconds: int = 300):
 **Integration Verification:**
 ```python
 # codebase/mcp/sse.py:48, 289
-from codebase.mcp.maintenance import start_maintenance
+from mcp.maintenance import start_maintenance
 # ... (in startup)
 start_maintenance()
 ```

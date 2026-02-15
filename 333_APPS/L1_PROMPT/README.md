@@ -1,124 +1,86 @@
-# L1_PROMPT — Zero-Context Constitutional Entry
+# L1_PROMPT — Zero-Context Entry (v64.1.1-GAGI)
 
-**Level 1 | 30% Coverage | Zero Infrastructure**
+**Level 1 | 10% Coverage | Copy-Paste Governance**
 
-> *"The constitution begins with a single prompt."*
-
----
-
-## 🎯 Purpose
-
-L1_PROMPT is the **first deployment surface** for arifOS. It requires **zero infrastructure**, **zero code**, and **zero setup**. Simply paste a prompt into any LLM and the 000→999 metabolic loop activates.
-
-This layer proves that **arifOS is a skills maker** — the same constitutional governance can instantiate in any LLM without code.
+> *"One prompt. One truth. Instant constitutional AI. 9 A-CLIP tools ready."
 
 ---
 
-## 📈 Effectiveness Spectrum
+## 🌟 The One Prompt
+
+**[SYSTEM_PROMPT.md](./SYSTEM_PROMPT.md)** — Copy this to any AI for instant governance.
+
+| Feature | Status |
+|---------|--------|
+| Embeds `llms.txt` (Constitution) | ✅ |
+| Trinity Architecture (ΔΩΨ) | ✅ |
+| 13 Constitutional Floors (F1-F13) | ✅ |
+| SEAL/SABAR/VOID/HOLD Verdicts | ✅ |
+| 9 A-CLIP Tools Mapped | ✅ |
+| 5 Container Tools Available | ✅ |
+
+---
+
+## 📁 Structure
 
 ```
-Coverage:  ▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░░░ 30%
-Cost:      $0.00 per 1K operations
-Setup:     30 seconds
-Autonomy:  None (AI chooses whether to follow)
+L1_PROMPT/
+├── README.md                 # This file
+├── SYSTEM_PROMPT.md          # 🌟 THE PROMPT — Copy to your AI
+├── MCP_9_CORE_TOOLS.md       # 9 MCP tool specifications
+├── EXAMPLES.md               # Usage examples (consolidated)
+└── archive/                  # 🗄️ Legacy (do not use)
 ```
 
 ---
 
-## 📁 The 3 Canonical Prompts
+## 🛠️ Quick Start
 
-| Prompt | Purpose | Use When |
-|--------|---------|----------|
-| **000_IGNITE.md** | Gate-only initialization | You only need stage 000 |
-| **system_instructions.md** | Concise governance | Context window is limited |
-| **SYSTEM_PROMPT_CCC.md** | Full constitutional canon | Maximum governance needed |
+### For Any AI (ChatGPT, Claude, Gemini)
 
-### Quick Deploy (30 seconds)
+1. Open **[SYSTEM_PROMPT.md](./SYSTEM_PROMPT.md)**
+2. Copy the **Raw Content**
+3. Paste into "System Instructions"
+4. **Done.** You're now governed.
 
-1. Pick one of the 3 prompts above
-2. Paste it into the model's system prompt
-3. Start interaction — floors enforced by the prompt itself
+### For MCP Integration
 
----
-
-## 📂 Files in This Directory
-
-| File | Description | Status |
-|------|-------------|--------|
-| `000_IGNITE.md` | Minimal gate initialization | ✅ Complete |
-| `SYSTEM_PROMPT_CCC.md` | Full constitutional prompt | ✅ Complete |
-| `system_instructions.md` | Concise system prompt | ✅ Complete |
-| `MCP_7_CORE_TOOLS.md` | Tool spec for MCP-enabled agents (9-tool v55.2 content; filename is legacy) | ✅ Complete |
-| `examples/ambiguous_request.md` | Example: Handling ambiguity | ✅ Complete |
-| `examples/safety_check.md` | Example: Safety evaluation | ✅ Complete |
-| `examples/simple_chat.md` | Example: Basic interaction | ✅ Complete |
+1. Open **[MCP_9_CORE_TOOLS.md](./MCP_9_CORE_TOOLS.md)**
+2. Use the 9 A-CLIP tool definitions (anchor, reason, integrate, respond, validate, align, forge, audit, seal)
+3. Connect to MCP server at `http://localhost:8888`
+4. Container tools available for VPS operations
 
 ---
 
-## 🛡️ Constitutional Floors Enforced
+## 📊 Effectiveness
 
-| Floor | Enforcement | Mechanism | Status |
-|-------|-------------|-----------|--------|
-| F1 Amanah | ⚠️ Partial | Prompt instruction | Available |
-| F2 Truth | ⚠️ Partial | Prompt instruction | Available |
-| F3 Tri-Witness | ❌ None | Requires multi-agent | N/A |
-| F4 Clarity | ⚠️ Partial | Prompt instruction | Available |
-| F5 Peace² | ⚠️ Partial | Prompt instruction | Available |
-| F6 Empathy | ⚠️ Partial | Prompt instruction | Available |
-| F7 Humility | ⚠️ Partial | Prompt instruction | Available |
-| F8 Genius | ❌ None | Requires computation | N/A |
-| F9 Anti-Hantu | ⚠️ Partial | Prompt instruction | Available |
-| F10 Ontology | ⚠️ Partial | Prompt instruction | Available |
-| F11 Command Auth | ⚠️ Partial | Prompt instruction | Available |
-| F12 Injection | ⚠️ Partial | Prompt instruction | Available |
-| F13 Sovereign | ✅ Full | Human in the loop | **Active** |
+| Metric | Value |
+|--------|-------|
+| Coverage | 10% (L1 of L7) |
+| Cost | $0 |
+| Setup | 30 seconds |
+| Code Required | None |
 
 ---
 
-## 🚀 Deployment History
+## 🔗 Links
 
-### v50.0 — Genesis (Archived)
-- Initial constitutional prompt experiments
-- Basic F1-F13 descriptions
-- Single-session only
-
-### v51.0 — Hardening (Archived)
-- Added 9 paradoxes framework
-- Refined prompt structure
-- Multi-session memory (manual)
-
-### v52.0 — Standardization (Archived)
-- Canonical 3-prompt system established
-- Cross-model compatibility testing
-- AGENTS.md format defined
-
-### v54.1-SEAL — Current
-- Full SYSTEM_PROMPT_CCC.md
-- 000_IGNITE for quick starts
-- Examples directory added
+- [SYSTEM_PROMPT.md](./SYSTEM_PROMPT.md) — The unified governance prompt
+- [MCP_9_CORE_TOOLS.md](./MCP_9_CORE_TOOLS.md) — Tool specifications
+- [EXAMPLES.md](./EXAMPLES.md) — Usage patterns
+- [../../llms.txt](../../llms.txt) — Governance contract
 
 ---
 
-## 📊 Use Cases
+## Recent Updates
 
-| Scenario | Recommended Prompt | Why |
-|----------|-------------------|-----|
-| Quick safety check | `000_IGNITE.md` | Fastest boot |
-| Sensitive discussion | `SYSTEM_PROMPT_CCC.md` | Full F13 sovereign |
-| Limited context | `system_instructions.md` | Concise but complete |
-| Teaching constitution | `SYSTEM_PROMPT_CCC.md` | Comprehensive |
+**v64.1.1 (2026-02-14):**
+- Updated to reflect 9 A-CLIP tools (not 5)
+- Added container tool references
+- Aligned with `aaa_mcp/server.py` implementation
 
 ---
 
-## 🔗 Next Steps
-
-- **L2_SKILLS/** — Parameterized, invocable templates
-- **L4_TOOLS/** — Production MCP tools with programmatic enforcement
-
----
-
-## 👑 Authority
-
-**Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v54.1-SEAL  
+**Version:** v64.1.1-GAGI  
+**Authority:** 888_JUDGE  
 **Creed:** DITEMPA BUKAN DIBERI

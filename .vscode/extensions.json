@@ -18,6 +18,7 @@
     "ms-vscode.powershell",
     
     // -- JUPYTER (for notebooks if needed) --
-    "ms-toolsai.jupyter"
+    "ms-toolsai.jupyter",
+    "moonshot-ai.kimi-code"
   ]
 }

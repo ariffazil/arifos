@@ -20,7 +20,7 @@ async def test_legacy_arifos():
     print("TESTING: Legacy arifos/core Architecture")
     print("="*60)
     
-    from arifos.core.asi.kernel import ASIActionCore
+    from codebase.core.asi.kernel import ASIActionCore
     
     kernel = ASIActionCore()
     test_cases = [
