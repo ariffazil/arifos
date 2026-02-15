@@ -39,13 +39,19 @@ import {
   Rocket,
   Play,
   Download,
-  Star
+  Star,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Database
 } from 'lucide-react';
 // Note: TrinityLogo components temporarily disabled for Cloudflare Pages compatibility
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { MonitoringDashboard } from '@/components/MonitoringDashboard';
 
 // GitHub base URL
 const GITHUB_BASE = 'https://github.com/ariffazil/arifOS';
@@ -868,93 +874,10 @@ function App() {
         </div>
       </section>
 
-      {/* Live Metrics Section — Real Data from aaamcp.arif-fazil.com */}
+      {/* Live Monitoring Dashboard — Unified Health of 22-Server AI Stack */}
       <section id="metrics" className="py-12 relative border-y border-gray-800/50 bg-black/20">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Activity className="w-5 h-5 text-cyan-400" />
-              <h2 className="text-lg font-semibold">Live System Metrics</h2>
-              <span className="text-xs text-gray-500">— from aaamcp.arif-fazil.com</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {systemStatus.loading ? (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                  <span className="text-xs text-amber-400">CHECKING...</span>
-                </>
-              ) : (
-                <>
-                  <span className={`w-2 h-2 rounded-full ${systemStatus.online ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
-                  <span className={`text-xs ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
-                    {systemStatus.online ? 'LIVE' : 'OFFLINE'}
-                  </span>
-                </>
-              )}
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Status</p>
-              {systemStatus.loading ? (
-                <p className="text-lg font-bold text-amber-400">...</p>
-              ) : (
-                <p className={`text-lg font-bold ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
-                  {systemStatus.online ? 'Healthy' : 'Unreachable'}
-                </p>
-              )}
-              <p className="text-xs text-gray-600">/health check</p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Version</p>
-              <p className="text-lg font-bold text-cyan-400">{systemStatus.version}</p>
-              <p className="text-xs text-gray-600">Deployed</p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Endpoint</p>
-              <p className="text-sm font-code text-cyan-400 truncate">aaamcp.arif-fazil.com</p>
-              <p className="text-xs text-gray-600">Production</p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Protocol</p>
-              <p className="text-lg font-bold text-cyan-400">MCP</p>
-              <p className="text-xs text-gray-600">2025-11-25</p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Tools</p>
-              <p className="text-lg font-bold text-cyan-400">9</p>
-              <p className="text-xs text-gray-600">Canonical</p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Floors</p>
-              <p className="text-lg font-bold text-amber-400">F1-F13</p>
-              <p className="text-xs text-gray-600">Enforced</p>
-            </div>
-          </div>
-          
-          <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-            <p>
-              {systemStatus.loading 
-                ? 'Connecting to production MCP server...' 
-                : systemStatus.online === false 
-                  ? 'Could not reach server. Displaying cached version info.' 
-                  : 'Connected to production MCP server.'}
-            </p>
-            <a 
-              href={`https://${API_BASE}/health`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
-            >
-              View raw <ExternalLink className="w-3 h-3" />
-            </a>
-          </div>
+          <MonitoringDashboard />
         </div>
       </section>
 

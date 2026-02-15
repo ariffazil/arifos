@@ -211,6 +211,82 @@ class MetricsAggregator:
         """Get basic system metrics (CPU, memory, disk) via netdata or psutil."""
         # Use netdata for now
         return await self.get_netdata_metrics()
+
+    async def get_system_summary(self) -> Dict[str, Any]:
+        """Get summarized system metrics for dashboard."""
+        try:
+            # Try netdata first
+            async with self.session.get(f"{NETDATA_URL}/api/v1/data?chart=system.cpu", timeout=5) as resp:
+                if resp.status == 200:
+                    cpu_data = await resp.json()
+                    # Sum all CPU dimensions for total usage percentage
+                    cpu_percent = 0.0
+                    if 'data' in cpu_data and isinstance(cpu_data['data'], list) and len(cpu_data['data']) > 0:
+                        # Each dimension is a list of values; take the latest
+                        for dim_name, dim_values in cpu_data.get('labels', {}).items():
+                            if dim_name != 'time' and dim_name in cpu_data.get('data', [])[0]:
+                                idx = cpu_data['labels'].index(dim_name)
+                                latest = cpu_data['data'][0][idx]
+                                if isinstance(latest, (int, float)):
+                                    cpu_percent += latest
+                    cpu_percent = min(cpu_percent, 100.0)
+                else:
+                    cpu_percent = 0.0
+        except:
+            cpu_percent = 0.0
+
+        try:
+            async with self.session.get(f"{NETDATA_URL}/api/v1/data?chart=system.ram", timeout=5) as resp:
+                if resp.status == 200:
+                    mem_data = await resp.json()
+                    # Calculate memory used percent
+                    if 'data' in mem_data and mem_data['data'] and len(mem_data['data'][0]) >= 3:
+                        used = mem_data['data'][0][1]  # assuming second column is used
+                        total = mem_data['data'][0][2]  # third column is total
+                        memory_percent = (used / total * 100) if total > 0 else 0.0
+                    else:
+                        memory_percent = 0.0
+                else:
+                    memory_percent = 0.0
+        except:
+            memory_percent = 0.0
+
+        try:
+            async with self.session.get(f"{NETDATA_URL}/api/v1/data?chart=system.load", timeout=5) as resp:
+                if resp.status == 200:
+                    load_data = await resp.json()
+                    if 'data' in load_data and load_data['data'] and len(load_data['data'][0]) >= 4:
+                        load_1 = load_data['data'][0][1]  # 1min load
+                        load_5 = load_data['data'][0][2]  # 5min load
+                        load_15 = load_data['data'][0][3]  # 15min load
+                        load_avg = [load_1, load_5, load_15]
+                    else:
+                        load_avg = [0.0, 0.0, 0.0]
+                else:
+                    load_avg = [0.0, 0.0, 0.0]
+        except:
+            load_avg = [0.0, 0.0, 0.0]
+
+        # Disk usage - approximate via netdata disk space chart
+        disk_percent = 0.0
+        try:
+            async with self.session.get(f"{NETDATA_URL}/api/v1/data?chart=disk_space._", timeout=5) as resp:
+                if resp.status == 200:
+                    disk_data = await resp.json()
+                    if 'data' in disk_data and disk_data['data'] and len(disk_data['data'][0]) >= 3:
+                        used = disk_data['data'][0][1]
+                        total = disk_data['data'][0][2]
+                        disk_percent = (used / total * 100) if total > 0 else 0.0
+        except:
+            pass
+
+        return {
+            "cpu_percent": cpu_percent,
+            "memory_percent": memory_percent,
+            "disk_percent": disk_percent,
+            "load_avg": load_avg,
+            "timestamp": time.time()
+        }
         
     async def aggregate_all(self) -> AggregatedMetrics:
         """Aggregate all metrics."""

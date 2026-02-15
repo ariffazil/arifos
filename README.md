@@ -22,7 +22,7 @@ Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
   <strong>Governance Middleware for AI Systems</strong><br>
   <em>From zero-context prompts to autonomous institutions</em><br><br>
   <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
-  <a href="./RELEASE_NOTES.md"><img src="https://img.shields.io/badge/seal-FORGE--TRINITY--SEAL-blue" alt="Seal"></a>
+  <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.15--FORGE--TRINITY--SEAL-blue" alt="T000"></a>
   <a href="#tool-overview"><img src="https://img.shields.io/badge/tools-14%20operational-orange" alt="Tools"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
   <br><br>
@@ -39,8 +39,8 @@ Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
   <a href="https://arifosmcp.arif-fazil.com/health">🌐 Live API</a>
 </p>
 
-**T000:** `2026.02.15-FORGE-TRINITY-SEAL` — Forged, Trinity Unified, Sealed  
-**Reality Index:** 0.94 | **13 Floors Enforced** | [Release Notes](./RELEASE_NOTES.md)
+**T000:** `2026.02.15-FORGE-TRINITY-SEAL` — [Date-based versioning](./T000_VERSIONING.md) (YYYY.MM.DD-PHASE-STATE-CONTEXT)  
+**Reality Index:** 0.94 | **13 Floors Enforced** | **Triple Transport:** STDIO · SSE · StreamableHTTP
 
 **arifOS is constitutional AI governance that sits between models and users. Every response passes through 9 A-CLIP tools enforcing 13 constitutional floors. Failures are blocked—not warned.**
 
@@ -55,7 +55,7 @@ Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
 | [arif-fazil.com](https://arif-fazil.com) | **HUMAN** — Muhammad Arif bin Fazil, About, Blog | ✅ LIVE |
 | [apex.arif-fazil.com](https://apex.arif-fazil.com) | **THEORY** — APEX-THEORY, Authority, Canon | ✅ LIVE |
 | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | **APPS** — Documentation, 333_APPS Stack | ✅ LIVE |
-| [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | **API** — AAA MCP Health Check | ✅ v64.2.0 |
+| [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | **API** — AAA MCP Health Check | ✅ 2026.02.15-FORGE-TRINITY-SEAL |
 
 ---
 
@@ -584,7 +584,7 @@ arifOS/
 │   ├── L6_INSTITUTION/        # Trinity consensus (stubs)
 │   └── L7_AGI/                # Recursive research
 │
-├── 000_INIT.md               # Constitutional session initialization spec (v64.2)
+├── 000_INIT.md               # Constitutional session initialization spec (2026.02.15)
 │
 ├── mcp/                       # Docker MCP configurations
 ├── telemetry/                 # Constitutional metrics
@@ -597,7 +597,7 @@ arifOS/
 ├── scripts/                   # Deployment scripts
 ├── Dockerfile                 # Railway/VPS deployment
 ├── railway.toml              # Railway configuration
-├── pyproject.toml            # Package config (v64.1.0)
+├── pyproject.toml            # Package config (2026.02.15)
 ├── ARCHITECTURAL_BOUNDARY.md  # Kernel/wrapper enforcement rules
 └── README.md                  # This file
 ```
@@ -787,7 +787,7 @@ The 13 floors are not suggestions. They are load-bearing structure. When F7 Humi
 
 | Date | T000 Version | Semantic | Key Traits | Status |
 |------|--------------|----------|------------|--------|
-| **2026.02.15** | **FORGE-TRINITY-SEAL** | v64.2 | 9 tools, 13 floors, HTA Trinity | **CURRENT** |
+| **2026.02.15** | **FORGE-TRINITY-SEAL** | T000 | 9 tools, 13 floors, Triple Transport | **CURRENT** |
 | 2026.02.13 | FORGE | v60.0 | 5-core, MCP registry | SEALED |
 | 2026.02.06 | HARDENED | v55.5 | FastMCP 2.14, PostgreSQL | ARCHIVED |
 | 2026.01.25 | SEAL | v55.2 | APEX Trinity, Railway | ARCHIVED |
@@ -814,7 +814,7 @@ The 13 floors are not suggestions. They are load-bearing structure. When F7 Humi
 
 ## META: Canonical Reconstruction
 
-This README represents the **v64.x** series following the AAA-ACTOR MASTER DIRECTIVE (2026-02-14):
+This README represents the **2026.02.15-FORGE-TRINITY-SEAL** T000 version following the AAA-ACTOR MASTER DIRECTIVE (2026-02-14):
 
 **Key improvements:**
 - Concrete-first opening with 10-second demo
