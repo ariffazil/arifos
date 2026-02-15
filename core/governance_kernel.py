@@ -1,5 +1,6 @@
 # aaa_mcp/core/governance_kernel.py
-# v64.1 — Unified GovernanceState (Ψ) Object
+# v64.2 — Unified GovernanceState (Ψ) Object with Thermodynamic Constraints
+# T000: 2026.02.15-FORGE-TRINITY-SEAL
 # Q2 Verdict: SYNCHRONOUS but CONDITIONAL
 
 from dataclasses import dataclass, field
@@ -7,12 +8,21 @@ from typing import Dict, Optional, List, Any
 from enum import Enum
 import time
 
+# F4 + F11: Thermodynamic constraints (moved from aaa_mcp/ to core/)
+try:
+    from core.physics.thermodynamics import EntropyManager, ThermodynamicState
+    THERMODYNAMICS_AVAILABLE = True
+except ImportError:
+    THERMODYNAMICS_AVAILABLE = False
+
+
 class AuthorityLevel(Enum):
     """L5 Identity Control — Authority tagging."""
     ANALYSIS = "analysis"           # Informational only
     SUGGESTION = "suggestion"       # Optional recommendation
     REQUIRES_HUMAN = "requires_human"  # Decision boundary
     UNSAFE_TO_AUTOMATE = "unsafe"   # Hard stop
+
 
 class GovernanceState(Enum):
     """L6-L8 Governance states."""
@@ -25,15 +35,23 @@ class GovernanceState(Enum):
 @dataclass
 class GovernanceKernel:
     """
-    v64.1 Unified Governance Kernel (Ψ)
+    v64.2 Unified Governance Kernel (Ψ) — T000 Rebirth
+    
+    Architectural Fix: Thermodynamic constraints (F4, F11, F7)
+    now live in core/ (kernel), not aaa_mcp/ (adapter).
     
     Q2 Architectural Decision:
     - Single runtime object for all governance state
     - Synchronous AWAITING_888 when thresholds exceeded
     - Conditional flow for low-risk operations
+    - Thermodynamic state integrated (ZRAM, CPU, memory)
     
     All layers read/write this object — no more scattered checks.
     """
+    
+    # L0: Thermodynamic Foundation (NEW — v64.2)
+    entropy_manager: Optional[Any] = field(default=None, repr=False)
+    thermodynamic_state: Optional[Any] = field(default=None)
     
     # L5: Authority & Identity
     authority_level: AuthorityLevel = AuthorityLevel.ANALYSIS
@@ -63,6 +81,40 @@ class GovernanceKernel:
     # Metadata
     timestamp: float = field(default_factory=time.time)
     session_id: str = ""
+    
+    def __post_init__(self):
+        """
+        F4 + F11: Initialize thermodynamic constraints (v64.2 fix).
+        
+        This ensures EntropyManager lives in kernel (core/), not adapter (aaa_mcp/).
+        Constitutional Boundary: Thermodynamic state is kernel-level concern.
+        """
+        if THERMODYNAMICS_AVAILABLE and self.entropy_manager is None:
+            self.entropy_manager = EntropyManager()
+            # Initial thermodynamic assessment
+            self.thermodynamic_state = self.entropy_manager.check_thermodynamic_budget()
+    
+    def check_thermodynamic_constraints(self) -> Optional[Any]:
+        """
+        F4 + F11 + F7: Check hardware-level thermodynamic constraints.
+        
+        Returns ThermodynamicState with verdict (SEAL, SABAR, VOID).
+        Called by orchestrator before expensive operations.
+        """
+        if self.entropy_manager is None:
+            return None
+        
+        self.thermodynamic_state = self.entropy_manager.check_thermodynamic_budget()
+        
+        # Update governance state based on thermodynamics
+        if self.thermodynamic_state.verdict == "VOID":
+            self.governance_state = GovernanceState.VOID
+            self.authority_level = AuthorityLevel.UNSAFE_TO_AUTOMATE
+        elif self.thermodynamic_state.verdict == "SABAR":
+            self.governance_state = GovernanceState.AWAITING_888
+            self.authority_level = AuthorityLevel.REQUIRES_HUMAN
+        
+        return self.thermodynamic_state
     
     def update_uncertainty(self, safety_omega: float, display_omega: float, components: Dict[str, float]):
         """Update uncertainty state and re-evaluate governance."""
