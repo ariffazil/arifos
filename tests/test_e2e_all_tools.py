@@ -1,9 +1,8 @@
 """
-E2E Test Suite for arifOS v64.2 MCP Tools
+E2E Test Suite for arifOS T000 MCP Tools
 Tests all engine adapters directly (bypasses FastMCP transport layer).
 
 Author: arifOS Testing Framework
-Version: v64.2.0
 T000: 2026.02.15-FORGE-TRINITY-SEAL
 """
 

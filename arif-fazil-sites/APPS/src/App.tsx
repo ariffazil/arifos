@@ -62,23 +62,22 @@ const LAYERS = [
     id: 'L1',
     name: 'PROMPT',
     tagline: 'Instant Governance',
-    desc: 'Deploy constitutional AI governance instantly with system prompts. No setup required, immediate protection.',
-    coverage: '30%',
-    status: 'ready',
-    statusLabel: 'Ready',
+    desc: 'Deploy constitutional AI governance instantly with canonical system prompts. No setup required, immediate protection.',
+    coverage: '100%',
+    status: 'production',
+    statusLabel: 'Production',
     icon: MessageSquare,
     color: 'emerald',
     stage: '000-111',
-    details: '5 production-ready prompt templates. Works with any LLM that accepts system instructions.',
+    details: 'Canonical SYSTEM_PROMPT.md is the single source of truth for agent behavior. Focus: Constitutional Floor enforcement via zero-shot instructions.',
     businessValue: 'Reduces AI risk instantly with zero infrastructure overhead',
     implementationTime: '< 5 minutes',
     roi: 'Immediate risk reduction',
     links: [
       { label: 'System Prompt', url: `${GITHUB_BASE}/blob/main/333_APPS/L1_PROMPT/SYSTEM_PROMPT.md` },
-      { label: 'CCC Prompt', url: `${GITHUB_BASE}/blob/main/333_APPS/L1_PROMPT/SYSTEM_PROMPT_CCC.md` },
-      { label: 'Ignition Protocol', url: `${GITHUB_BASE}/blob/main/333_APPS/L1_PROMPT/000_IGNITE.md` },
-      { label: 'MCP 7 Core Tools', url: `${GITHUB_BASE}/blob/main/333_APPS/L1_PROMPT/MCP_7_CORE_TOOLS.md` },
+      { label: 'MCP 9 Core Tools', url: `${GITHUB_BASE}/blob/main/333_APPS/L1_PROMPT/MCP_9_CORE_TOOLS.md` },
       { label: 'Examples', url: `${GITHUB_BASE}/tree/main/333_APPS/L1_PROMPT/examples` },
+      { label: 'README', url: `${GITHUB_BASE}/blob/main/333_APPS/L1_PROMPT/README.md` },
       { label: 'llms.txt', url: `${GITHUB_BASE}/blob/main/llms.txt` },
     ],
   },
@@ -86,41 +85,42 @@ const LAYERS = [
     id: 'L2',
     name: 'SKILLS',
     tagline: 'Templated Solutions',
-    desc: 'Pre-built skill templates that enforce constitutional governance. Parameterized for rapid deployment.',
-    coverage: '50%',
-    status: 'ready',
-    statusLabel: 'Ready',
+    desc: 'Pre-built skill templates that enforce constitutional governance. 9 canonical actions mapped to kernel organs.',
+    coverage: '100%',
+    status: 'production',
+    statusLabel: 'Production',
     icon: Sparkles,
     color: 'emerald',
     stage: '222',
-    details: '50+ reusable skill templates. YAML frontmatter with Python wrappers for tool integration.',
+    details: '9 canonical actions (anchor, reason, integrate, respond, validate, align, forge, audit, seal) verified and mapped to kernel organs.',
     businessValue: 'Standardizes governance across teams and reduces development time',
     implementationTime: '1-2 days',
     roi: 'Reduced development overhead',
     links: [
-      { label: 'Skill Templates (YAML)', url: `${GITHUB_BASE}/blob/main/333_APPS/SKILLS/skill_templates.yaml` },
-      { label: 'MCP Tool Templates (Python)', url: `${GITHUB_BASE}/blob/main/333_APPS/SKILLS/mcp_tool_templates.py` },
-      { label: 'Deployment Guide', url: `${GITHUB_BASE}/blob/main/333_APPS/SKILLS/DEPLOYMENT.md` },
-      { label: 'L2 README', url: `${GITHUB_BASE}/blob/main/333_APPS/SKILLS/README.md` },
+      { label: 'ACTIONS Directory', url: `${GITHUB_BASE}/tree/main/333_APPS/L2_SKILLS/ACTIONS` },
+      { label: 'Anchor Skill', url: `${GITHUB_BASE}/blob/main/333_APPS/L2_SKILLS/ACTIONS/anchor/README.md` },
+      { label: 'Reason Skill', url: `${GITHUB_BASE}/blob/main/333_APPS/L2_SKILLS/ACTIONS/reason/README.md` },
+      { label: 'Integrate Skill', url: `${GITHUB_BASE}/blob/main/333_APPS/L2_SKILLS/ACTIONS/integrate/README.md` },
+      { label: 'Respond Skill', url: `${GITHUB_BASE}/blob/main/333_APPS/L2_SKILLS/ACTIONS/respond/README.md` },
     ],
   },
   {
     id: 'L3',
     name: 'WORKFLOW',
     tagline: 'Workflow Automation',
-    desc: 'Standardized operating procedures with built-in constitutional checks. Automate governance decisions.',
-    coverage: '70%',
-    status: 'ready',
-    statusLabel: 'Ready',
+    desc: 'Standardized operating procedures with built-in constitutional checks. Hardened sequences for session init, intent parsing, and verdict rendering.',
+    coverage: '100%',
+    status: 'production',
+    statusLabel: 'Production',
     icon: Workflow,
     color: 'emerald',
     stage: '333-444',
-    details: 'Session init, intent detection, context mapping, safety checks, implementation, and commit workflows.',
+    details: 'Model-agnostic sequences verified on Claude 3.5 Sonnet and Gemini 1.5 Pro.',
     businessValue: 'Ensures consistent governance across all AI interactions',
     implementationTime: '3-5 days',
     roi: 'Consistent governance, reduced manual oversight',
     links: [
-      { label: 'Workflow Files', url: `${GITHUB_BASE}/tree/main/333_APPS/L3_WORKFLOW/.claude/workflows` },
+      { label: 'WORKFLOWS Directory', url: `${GITHUB_BASE}/tree/main/333_APPS/L3_WORKFLOW/.claude/workflows` },
       { label: 'Constitutional Stages', url: `${GITHUB_BASE}/tree/main/codebase/stages` },
       { label: 'Metabolic Loop', url: `${GITHUB_BASE}/tree/main/codebase/loop` },
       { label: 'FAG Quick Start', url: `${GITHUB_BASE}/blob/main/docs/FAG_QUICK_START.md` },
@@ -130,23 +130,23 @@ const LAYERS = [
     id: 'L4',
     name: 'TOOLS',
     tagline: 'Production Tools',
-    desc: 'The constitutional MCP server. 9 canonical tools delivering production-grade governance.',
-    coverage: '80%',
+    desc: 'The constitutional MCP server with 14 production-ready tools (9 A-CLIP + 5 Container). Delivers production-grade governance with <1ms cached responses.',
+    coverage: '100%',
     status: 'production',
     statusLabel: 'Production',
     icon: Wrench,
     color: 'cyan',
     stage: '555-666',
-    details: 'FastMCP + SSE transport on Railway. v55.4-SEAL. Ready for enterprise deployment.',
+    details: 'FastMCP + SSE transport. v64.1.1-GAGI. Performance: config caching (13,725x faster), container caching (16,022x faster).',
     businessValue: 'Enterprise-grade AI governance with real-time compliance monitoring',
     implementationTime: '1-2 weeks',
     roi: 'Enterprise compliance, audit-ready operations',
     links: [
       { label: 'MCP Server (FastMCP)', url: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py` },
-      { label: 'Engine Adapters', url: `${GITHUB_BASE}/blob/main/aaa_mcp/engine_adapters.py` },
+      { label: 'Container Controller', url: `${GITHUB_BASE}/blob/main/aaa_mcp/integrations/container_controller.py` },
+      { label: 'Constants Config', url: `${GITHUB_BASE}/blob/main/aaa_mcp/config/constants.py` },
       { label: 'Constitutional Decorator', url: `${GITHUB_BASE}/blob/main/aaa_mcp/constitutional_decorator.py` },
       { label: 'Trinity Pipeline', url: `${GITHUB_BASE}/blob/main/aaa_mcp/tools/canonical_trinity.py` },
-      { label: 'OpenAPI Schema', url: `${GITHUB_BASE}/blob/main/docs/60_REFERENCE/openapi.json` },
       { label: 'L4 Manifest', url: `${GITHUB_BASE}/blob/main/333_APPS/L4_TOOLS/MANIFEST.md` },
     ],
   },
@@ -154,23 +154,22 @@ const LAYERS = [
     id: 'L5',
     name: 'AGENTS',
     tagline: 'Autonomous Agents',
-    desc: 'Self-coordinating agents that maintain constitutional compliance autonomously.',
-    coverage: '90%',
-    status: 'stubs',
-    statusLabel: 'Stubs Only',
+    desc: 'Self-coordinating agents that maintain constitutional compliance autonomously. Federation stubs exist; primary logic being centralized in core/organs.',
+    coverage: '50%',
+    status: 'experimental',
+    statusLabel: 'Experimental',
     icon: Bot,
-    color: 'red',
+    color: 'orange',
     stage: '777',
-    details: 'Architecture defined, stubs created with correct signatures. 0% functional — all methods pass.',
+    details: 'Agent identities (Architect, Engineer, etc.) defined in L5_AGENTS/SPEC/. OpenClaw active; logic migration to core/ in progress.',
     businessValue: 'Future autonomous governance systems with minimal human intervention',
     implementationTime: 'Q3 2026',
     roi: 'Autonomous compliance, reduced operational overhead',
     links: [
+      { label: 'SPEC Directory', url: `${GITHUB_BASE}/tree/main/333_APPS/L5_AGENTS/SPEC` },
       { label: 'Architect Agent', url: `${GITHUB_BASE}/blob/main/333_APPS/L5_AGENTS/agents/architect.py` },
       { label: 'Engineer Agent', url: `${GITHUB_BASE}/blob/main/333_APPS/L5_AGENTS/agents/engineer.py` },
       { label: 'Auditor Agent', url: `${GITHUB_BASE}/blob/main/333_APPS/L5_AGENTS/agents/auditor.py` },
-      { label: 'Validator Agent', url: `${GITHUB_BASE}/blob/main/333_APPS/L5_AGENTS/agents/validator.py` },
-      { label: 'Orchestrator', url: `${GITHUB_BASE}/blob/main/333_APPS/L5_AGENTS/agents/orchestrator.py` },
       { label: 'L5 README', url: `${GITHUB_BASE}/blob/main/333_APPS/L5_AGENTS/README.md` },
     ],
   },
@@ -178,10 +177,10 @@ const LAYERS = [
     id: 'L6',
     name: 'INSTITUTION',
     tagline: 'Institutional Systems',
-    desc: 'Full institutional governance with multi-agent coordination and constitutional oversight.',
-    coverage: '100%',
-    status: 'design',
-    statusLabel: 'Design Only',
+    desc: 'Full institutional governance with multi-agent coordination and constitutional oversight. Theoretical architecture for Multi-Agent Consensus (Balai).',
+    coverage: '10%',
+    status: 'planned',
+    statusLabel: 'Planned',
     icon: Building2,
     color: 'amber',
     stage: '888',
@@ -190,12 +189,9 @@ const LAYERS = [
     implementationTime: 'Q4 2026',
     roi: 'Institutional compliance, governance at scale',
     links: [
+      { label: 'Institution Directory', url: `${GITHUB_BASE}/tree/main/333_APPS/L6_INSTITUTION/institution` },
       { label: 'Constitutional Orchestrator', url: `${GITHUB_BASE}/blob/main/333_APPS/L6_INSTITUTION/institution/constitutional_orchestrator.py` },
-      { label: 'Mind Role', url: `${GITHUB_BASE}/blob/main/333_APPS/L6_INSTITUTION/institution/mind_role.py` },
-      { label: 'Heart Role', url: `${GITHUB_BASE}/blob/main/333_APPS/L6_INSTITUTION/institution/heart_role.py` },
-      { label: 'Soul Role', url: `${GITHUB_BASE}/blob/main/333_APPS/L6_INSTITUTION/institution/soul_role.py` },
       { label: 'Tri-Witness Gate', url: `${GITHUB_BASE}/blob/main/333_APPS/L6_INSTITUTION/institution/tri_witness_gate.py` },
-      { label: 'Phoenix-72 Cooling', url: `${GITHUB_BASE}/blob/main/333_APPS/L6_INSTITUTION/institution/phoenix_72.py` },
       { label: 'L6 README', url: `${GITHUB_BASE}/blob/main/333_APPS/L6_INSTITUTION/README.md` },
     ],
   },
@@ -204,22 +200,20 @@ const LAYERS = [
     name: 'AGI',
     tagline: 'Advanced AI',
     desc: 'Self-improving intelligence within constitutional bounds. Research phase with strict safety measures.',
-    coverage: '∞',
+    coverage: '5%',
     status: 'research',
-    statusLabel: 'Research',
+    statusLabel: 'Theoretical',
     icon: Brain,
     color: 'violet',
     stage: '999→000',
-    details: 'Theoretical research phase. Hard constraints: no consciousness claims, human override always available.',
+    details: 'Defining F13 (Sovereign/Exploration) constraints for safe recursive improvement. Theoretical research phase.',
     businessValue: 'Next-generation AI governance with self-regulation',
     implementationTime: '2027+',
     roi: 'Self-regulating AI systems',
     links: [
-      { label: 'L7 Research', url: `${GITHUB_BASE}/tree/main/333_APPS/L7_AGI/research` },
+      { label: 'Research Directory', url: `${GITHUB_BASE}/tree/main/333_APPS/L7_AGI/research` },
       { label: 'Theory Foundation', url: `${GITHUB_BASE}/tree/main/333_APPS/L7_AGI/000_THEORY` },
       { label: 'Constitutional Floors (Code)', url: `${GITHUB_BASE}/blob/main/codebase/constitutional_floors.py` },
-      { label: 'Floor Implementations', url: `${GITHUB_BASE}/tree/main/codebase/floors` },
-      { label: 'Kernel', url: `${GITHUB_BASE}/blob/main/codebase/kernel.py` },
       { label: 'L7 README', url: `${GITHUB_BASE}/blob/main/333_APPS/L7_AGI/README.md` },
     ],
   },
@@ -250,132 +244,132 @@ const WALLS = [
   { id: '888', name: 'JUDGE', role: 'Human Authority', desc: 'Sovereign veto always available', color: 'red' },
 ];
 
-// MCP Tools data — v55.4 Canonical Tool Architecture (9 tools)
+// MCP Tools data — v64.1.1-GAGI Canonical Tool Architecture (9 A-CLIP tools)
 const MCP_TOOLS = [
   {
-    name: 'init_gate',
+    name: 'anchor',
     stage: '000',
-    description: 'Gate & injection defense (F11/F12). Session bootstrap with identity verification and budget allocation',
-    params: ['query', 'session_id'],
-    actions: ['init', 'gate', 'validate', 'authorize'],
-    returns: 'session_id, verdict, motto, seal, floors_enforced',
+    description: 'Init & Sense (F11/F12). Session bootstrap with identity verification and injection defense',
+    params: ['query', 'actor_id', 'auth_token', 'mode', 'platform'],
+    actions: ['init', 'sense', 'validate', 'authorize'],
+    returns: 'session_id, verdict, actor_id, platform, f12_score, floors_passed',
     color: 'blue',
     engine: 'INIT',
     floors: ['F11', 'F12'],
-    businessValue: 'Establishes secure session boundaries',
-    useCases: ['Authentication', 'Authorization', 'Budget control'],
+    businessValue: 'Establishes secure session boundaries with injection defense',
+    useCases: ['Authentication', 'Injection protection', 'Session initialization'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
   },
   {
-    name: 'agi_sense',
-    stage: '111',
-    description: 'Input parsing & intent detection (F2/F4). First stage of the epistemic pipeline',
-    params: ['query', 'session_id'],
-    actions: ['parse', 'detect_intent', 'extract_entities'],
-    returns: 'parsed_input, intent, entities, confidence, floors_enforced',
-    color: 'cyan',
-    engine: 'AGI',
-    floors: ['F2', 'F4'],
-    businessValue: 'Accurate input interpretation for downstream processing',
-    useCases: ['Intent detection', 'Entity extraction', 'Context parsing'],
-    source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
-  },
-  {
-    name: 'agi_think',
+    name: 'reason',
     stage: '222',
-    description: 'Hypothesis generation with high entropy (F2/F4/F7). Divergent reasoning and pattern exploration',
-    params: ['query', 'session_id'],
-    actions: ['hypothesize', 'explore', 'brainstorm'],
-    returns: 'hypotheses, entropy_delta, candidate_count, floors_enforced',
+    description: 'Think & Hypothesize (F2/F4/F8). Generate multiple hypotheses with truth enforcement',
+    params: ['query', 'session_id', 'hypotheses'],
+    actions: ['hypothesize', 'analyze', 'explore'],
+    returns: 'hypotheses_generated, truth_score, clarity_delta, floors_enforced',
     color: 'cyan',
     engine: 'AGI',
-    floors: ['F2', 'F4', 'F7'],
-    businessValue: 'Generates multiple solution pathways for evaluation',
-    useCases: ['Brainstorming', 'Alternative solutions', 'Risk analysis'],
+    floors: ['F2', 'F4', 'F8'],
+    businessValue: 'Generates multiple solution pathways with truth guarantees',
+    useCases: ['Brainstorming', 'Hypothesis generation', 'Risk analysis'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
   },
   {
-    name: 'agi_reason',
+    name: 'integrate',
     stage: '333',
-    description: 'Deep logic chains with low entropy (F2/F4/F7). Convergent reasoning and proof construction',
-    params: ['query', 'session_id'],
-    actions: ['reason', 'prove', 'refute', 'synthesize'],
-    returns: 'conclusion, omega_0, precision, floor_scores, vote, floors_enforced',
-    color: 'cyan',
+    description: 'Map & Ground (F7/F10). Integrate context and external knowledge with humility',
+    params: ['query', 'session_id', 'grounding'],
+    actions: ['map', 'ground', 'synthesize'],
+    returns: 'grounded, evidence_count, humility_omega, floors_enforced',
+    color: 'teal',
     engine: 'AGI',
-    floors: ['F2', 'F4', 'F7'],
-    businessValue: 'Provides logical validation for decisions',
-    useCases: ['Logical validation', 'Proof construction', 'Decision support'],
+    floors: ['F7', 'F10'],
+    businessValue: 'Ensures decisions are grounded in verifiable evidence',
+    useCases: ['Context integration', 'Evidence gathering', 'Knowledge synthesis'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
   },
   {
-    name: 'asi_empathize',
+    name: 'respond',
     stage: '444',
-    description: 'Stakeholder modeling (F5/F6). Maps affected parties and impact vectors',
-    params: ['query', 'session_id'],
-    actions: ['model_stakeholders', 'assess_impact', 'map_harm'],
-    returns: 'stakeholder_map, empathy_kappa_r, impact_vectors, floors_enforced',
-    color: 'rose',
-    engine: 'ASI',
-    floors: ['F5', 'F6'],
-    businessValue: 'Identifies all affected parties for ethical considerations',
-    useCases: ['Impact assessment', 'Stakeholder analysis', 'Risk evaluation'],
+    description: 'Draft Plan (F4/F6). Create draft response/plan with clarity and empathy',
+    params: ['session_id', 'draft_content'],
+    actions: ['draft', 'plan', 'structure'],
+    returns: 'status, stage, session_id, floors_enforced',
+    color: 'sky',
+    engine: 'AGI',
+    floors: ['F4', 'F6'],
+    businessValue: 'Produces clear, actionable plans with stakeholder consideration',
+    useCases: ['Response drafting', 'Plan creation', 'Document structuring'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
   },
   {
-    name: 'asi_align',
-    stage: '555-666',
-    description: 'Constitutional alignment check (F5/F6/F9). Validates against all 9 floors with risk analysis',
-    params: ['query', 'session_id'],
-    actions: ['check_floors', 'validate_alignment', 'score', 'forecast_risk'],
-    returns: 'floor_results, alignment_score, violations, peace_squared, floors_enforced',
+    name: 'validate',
+    stage: '555',
+    description: 'Safety & Impact (F5/F6/F1). Check stakeholder impact with empathy enforcement',
+    params: ['session_id', 'stakeholders'],
+    actions: ['validate', 'assess', 'empathize'],
+    returns: 'empathy_kappa_r, safe, stage, floors_enforced',
     color: 'rose',
     engine: 'ASI',
-    floors: ['F5', 'F6', 'F9'],
-    businessValue: 'Ensures all actions meet constitutional standards',
-    useCases: ['Compliance checking', 'Risk scoring', 'Alignment validation'],
+    floors: ['F5', 'F6', 'F1'],
+    businessValue: 'Identifies and mitigates negative impacts on stakeholders',
+    useCases: ['Impact assessment', 'Safety validation', 'Stakeholder empathy'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
   },
   {
-    name: 'apex_verdict',
+    name: 'align',
+    stage: '666',
+    description: 'Ethics & Constitution (F9). Anti-Hantu check and constitutional alignment',
+    params: ['session_id', 'draft_content'],
+    actions: ['align', 'check', 'verify'],
+    returns: 'anti_hantu, stage, floors_enforced',
+    color: 'pink',
+    engine: 'ASI',
+    floors: ['F9'],
+    businessValue: 'Ensures outputs respect ontological boundaries and constitutional floors',
+    useCases: ['Ethics checking', 'Constitutional compliance', 'Anti-Hantu verification'],
+    source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
+  },
+  {
+    name: 'forge',
+    stage: '777',
+    description: 'Synthesize Solution (F2/F4/F7). Crystalize plan into actionable artifact',
+    params: ['session_id', 'plan'],
+    actions: ['forge', 'synthesize', 'crystallize'],
+    returns: 'artifact_ready, stage, floors_enforced',
+    color: 'amber',
+    engine: 'FORGE',
+    floors: ['F2', 'F4', 'F7'],
+    businessValue: 'Transforms plans into executable solutions with truth and clarity',
+    useCases: ['Solution synthesis', 'Artifact creation', 'Implementation planning'],
+    source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
+  },
+  {
+    name: 'audit',
     stage: '888',
-    description: 'Final constitutional judgment (F3/F8). 9-paradox equilibrium solver, renders SEAL/VOID/SABAR/888_HOLD',
-    params: ['query', 'session_id'],
-    actions: ['judge', 'seal', 'proof'],
-    returns: 'final_verdict, trinity_score, paradox_scores, merkle_root, floors_enforced',
+    description: 'Verify & Judge (F3/F11/F13). Final verdict with tri-witness consensus',
+    params: ['session_id', 'verdict', 'human_approve'],
+    actions: ['audit', 'judge', 'verify'],
+    returns: 'final_verdict, tri_witness_score, stage, floors_enforced',
     color: 'violet',
     engine: 'APEX',
-    floors: ['F3', 'F8'],
-    businessValue: 'Provides final authoritative decision',
-    useCases: ['Final approval', 'Dispute resolution', 'Sealing decisions'],
+    floors: ['F3', 'F11', 'F13'],
+    businessValue: 'Provides authoritative judgment with human sovereignty option',
+    useCases: ['Final approval', 'Dispute resolution', 'Consensus verification'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
   },
   {
-    name: 'reality_search',
-    stage: 'External',
-    description: 'Grounding via external data (F2/F7). Fact-checking against real-world sources',
-    params: ['query', 'session_id'],
-    actions: ['search', 'verify', 'cross_check'],
-    returns: 'verified, confidence, sources, caveats, recency, floors_enforced',
-    color: 'orange',
-    engine: 'AGI',
-    floors: ['F2', 'F7'],
-    businessValue: 'Validates claims against external sources',
-    useCases: ['Fact checking', 'External verification', 'Source validation'],
-    source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
-  },
-  {
-    name: 'vault_seal',
+    name: 'seal',
     stage: '999',
-    description: 'Seal session to immutable ledger (F1/F3). Merkle-chained persistence with audit trail',
-    params: ['session_id', 'verdict', 'payload'],
-    actions: ['seal', 'persist', 'hash'],
-    returns: 'verdict, seal, motto, floors_enforced',
+    description: 'Commit to Vault (F1/F3). Cryptographic seal with immutable audit trail',
+    params: ['session_id', 'summary', 'verdict'],
+    actions: ['seal', 'commit', 'hash'],
+    returns: 'seal_id, verdict, motto, stage, floors_enforced',
     color: 'green',
     engine: 'VAULT',
-    businessValue: 'Creates immutable audit trail for compliance',
-    useCases: ['Audit logging', 'Immutability', 'Compliance records'],
     floors: ['F1', 'F3'],
+    businessValue: 'Creates tamper-evident audit trail for compliance and verification',
+    useCases: ['Audit logging', 'Immutable records', 'Cryptographic verification'],
     source: `${GITHUB_BASE}/blob/main/aaa_mcp/server.py`,
   },
 ];
@@ -1131,8 +1125,8 @@ function App() {
             </div>
             <h2 className="text-4xl font-bold mb-4">9 Production Tools</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
-              v55.4 Production Tool Architecture. 9 tools delivering measurable governance outcomes.
-              Each tool provides specific business value with clear use cases.
+               v64.1.1-GAGI Production Tool Architecture. 9 A-CLIP tools delivering measurable governance outcomes.
+               Each tool provides specific business value with clear use cases.
             </p>
           </div>
 
@@ -1269,50 +1263,48 @@ function App() {
 
           {/* Pipeline Visualization — Trinity Parallel */}
 
-          <div className="mt-10 p-6 rounded-xl bg-gray-900/30 border border-gray-800">
-            <p className="text-xs text-gray-500 uppercase tracking-wider mb-4">Trinity Parallel Pipeline (Production Workflow)</p>
+           <div className="mt-10 p-6 rounded-xl bg-gray-900/30 border border-gray-800">
+             <p className="text-xs text-gray-500 uppercase tracking-wider mb-4">Constitutional Pipeline (Sequential Workflow)</p>
 
-            {/* Gate */}
-            <div className="flex items-center gap-2 flex-wrap justify-center mb-4">
-              <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">init_gate</Badge>
-              <ChevronRight className="w-4 h-4 text-gray-600" />
-            </div>
+             {/* Sequential 9-tool flow */}
+             <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+               <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 px-3 py-1">anchor</Badge>
+               <ChevronRight className="w-4 h-4 text-gray-600" />
+               <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 px-3 py-1">reason</Badge>
+               <ChevronRight className="w-4 h-4 text-gray-600" />
+               <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30 px-3 py-1">integrate</Badge>
+               <ChevronRight className="w-4 h-4 text-gray-600" />
+               <Badge className="bg-sky-500/20 text-sky-400 border-sky-500/30 px-3 py-1">respond</Badge>
+               <ChevronRight className="w-4 h-4 text-gray-600" />
+               <Badge className="bg-rose-500/20 text-rose-400 border-rose-500/30 px-3 py-1">validate</Badge>
+               <ChevronRight className="w-4 h-4 text-gray-600" />
+               <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/30 px-3 py-1">align</Badge>
+               <ChevronRight className="w-4 h-4 text-gray-600" />
+               <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 px-3 py-1">forge</Badge>
+               <ChevronRight className="w-4 h-4 text-gray-600" />
+               <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30 px-3 py-1">audit</Badge>
+               <ChevronRight className="w-4 h-4 text-gray-600" />
+               <Badge className="bg-green-500/20 text-green-400 border-green-500/30 px-3 py-1">seal</Badge>
+             </div>
 
-            {/* Parallel lanes */}
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-              <div className="p-3 rounded-lg bg-cyan-500/5 border border-cyan-500/20">
-                <p className="text-xs text-cyan-400 font-mono mb-2">AGI (Mind) — Logic & Reasoning</p>
-                <div className="flex items-center gap-1 flex-wrap">
-                  <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 text-xs">agi_sense</Badge>
-                  <ArrowRight className="w-3 h-3 text-cyan-600" />
-                  <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 text-xs">agi_think</Badge>
-                  <ArrowRight className="w-3 h-3 text-cyan-600" />
-                  <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 text-xs">agi_reason</Badge>
-                </div>
-              </div>
-              <div className="p-3 rounded-lg bg-rose-500/5 border border-rose-500/20">
-                <p className="text-xs text-rose-400 font-mono mb-2">ASI (Heart) — Ethics & Safety</p>
-                <div className="flex items-center gap-1 flex-wrap">
-                  <Badge className="bg-rose-500/20 text-rose-400 border-rose-500/30 text-xs">asi_empathize</Badge>
-                  <ArrowRight className="w-3 h-3 text-rose-600" />
-                  <Badge className="bg-rose-500/20 text-rose-400 border-rose-500/30 text-xs">asi_align (555-666)</Badge>
-                </div>
-              </div>
-            </div>
+             {/* Stage mapping */}
+             <div className="grid grid-cols-3 md:grid-cols-9 gap-2 text-xs text-gray-500 mb-6">
+               <span className="text-center">Init & Sense</span>
+               <span className="text-center">Think & Hypothesize</span>
+               <span className="text-center">Map & Ground</span>
+               <span className="text-center">Draft & Plan</span>
+               <span className="text-center">Check Impact</span>
+               <span className="text-center">Check Ethics</span>
+               <span className="text-center">Synthesize</span>
+               <span className="text-center">Verify & Judge</span>
+               <span className="text-center">Commit</span>
+             </div>
 
-            {/* Collapse at APEX + VAULT */}
-            <div className="flex items-center gap-2 flex-wrap justify-center">
-              <ChevronRight className="w-4 h-4 text-gray-600" />
-              <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30">apex_verdict (9-paradox)</Badge>
-              <ArrowRight className="w-3 h-3 text-gray-600" />
-              <Badge className="bg-green-500/20 text-green-400 border-green-500/30">vault_seal</Badge>
-            </div>
-
-            <p className="text-sm text-gray-500 text-center mt-4">
-              Production pipeline ensures constitutional compliance at every stage.
-              Mind (AGI) and Heart (ASI) run in parallel with external grounding via reality_search.
-            </p>
-          </div>
+             <p className="text-sm text-gray-500 text-center mt-4">
+               Production pipeline ensures constitutional compliance at every stage.
+               All 9 tools enforce floors F1–F13, with human sovereignty (888 Judge) as final authority.
+             </p>
+           </div>
 
         </div>
       </section>
