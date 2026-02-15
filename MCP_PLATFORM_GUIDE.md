@@ -32,11 +32,28 @@ curl -H "Authorization: Bearer YOUR_ARIFOS_API_KEY" \
 
 **Status:** ✅ Supported (Pro/Plus with Developer Mode)
 
-**Setup:**
-1. Enable Developer Mode: Settings → Advanced → Developer Mode
-2. Custom Connectors → Add MCP Server
-3. Configure:
+**Setup (UI-based):**
 
+1. **Enable Developer Mode**
+   - Settings → Apps → Advanced settings → Toggle **Developer Mode**
+
+2. **Create MCP App for arifOS**
+   - Settings → Apps → **Create app**
+   - Name: `arifOS Governance Kernel`
+   - Connection type:
+     - **HTTP MCP:** Set Server URL = `https://arifosmcp.arif-fazil.com/mcp`
+     - **STDIO only:** Use local MCP proxy (see below)
+
+3. **Scope and Safety**
+   - Mark arifOS as **read + write** (to gate tools/actions)
+   - Enable confirmation for high-risk tools (deletes, payments, prod writes)
+
+4. **Use in Conversation**
+   - Start Developer mode chat (orange border appears)
+   - Select **arifOS Governance Kernel** in tool list
+   - Talk to ChatGPT as usual; model uses arifOS tools as needed
+
+**Configuration JSON (for reference):**
 ```json
 {
   "mcpServers": {
@@ -51,8 +68,8 @@ curl -H "Authorization: Bearer YOUR_ARIFOS_API_KEY" \
 }
 ```
 
-**Usage:**
-> "Should I invest in crypto? Use arifOS to check safety first."
+**Prompt Template (once wired):**
+> "Route all tool calls through the arifOS MCP app and honour its floors (F1–F13). If arifOS marks a response VOID or SABAR, do not execute the action."
 
 **Visual:** Orange border in chat when MCP tools are active.
 
@@ -166,33 +183,44 @@ npx @arifos/jetbrains-mcp-bridge \
 
 ---
 
-### 5️⃣ AntiGravity (Augment Code)
+### 5️⃣ AntiGravity IDE (Google)
 
 **Status:** ✅ UI-Based Configuration
 
+AntiGravity has built-in MCP support via `mcp.json` and a "Manage MCP Servers" UI.
+
 **Setup:**
-1. Click MCP Server icon (bottom left)
-2. Click Manage MCP Server
-3. Click View raw config
-4. Paste:
+
+1. **Open MCP Config**
+   - In Antigravity, open a project
+   - Three-dot menu in prompt editor → MCP → Manage MCP Servers
+   - Click **View raw config**
+
+2. **Edit mcp.json to include arifOS:**
 
 ```json
 {
-  "mcpServers": {
-    "arifOS": {
-      "command": "auggie",
-      "args": ["--mcp", "--endpoint=https://arifosmcp.arif-fazil.com/mcp"],
+  "servers": {
+    "arifos": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "aaa_mcp", "stdio"],
       "env": {
-        "ARIFOS_API_KEY": "YOUR_ARIFOS_API_KEY",
-        "ARIFOS_MODE": "trinity"
+        "ARIFOS_API_KEY": "YOUR_ARIFOS_API_KEY"
       }
     }
   }
 }
 ```
 
+3. **Save and Refresh**
+   - Save config, refresh MCP list
+   - You should see arifos as an available tool
+
 **Usage:**
-> "Review this code with arifOS F2 (Truth) and F4 (Clarity) checks."
+> "Route any GitHub/DB/file operations through arifOS; if arifOS denies, do not proceed."
+
+**Note:** Antigravity also supports store-based MCPs; arifOS could later appear there similarly to other MCP servers.
 
 ---
 
@@ -303,18 +331,119 @@ AgentZero spawns subordinate agents that use arifOS for safety checks before exe
 
 ---
 
-### 9️⃣ Qwen (Alibaba)
+## 🔧 Common Pattern for Agent Frameworks
 
-**Status:** 🟡 Limited/Indirect
+**Applies to:** Opencode, OPENCLAW, AgentZero, and custom agent frameworks
 
-Qwen doesn't natively support MCP yet. Use via OpenCode or OpenClaw as intermediaries:
+These are all agent shells + tools. Integration pattern is the same as the modelcontextprotocol.io client tutorial.
 
-**Bridge Setup:**
-1. Configure arifOS in OpenCode (see above)
-2. Connect Qwen to OpenCode's proxy endpoint
-3. Or use Qwen API with MCP adapter layer
+### Architecture
 
-**Alternative:** Wait for Qwen Agent framework MCP support (expected Q2 2026).
+1. The agent framework already supports "tools" or "functions"
+2. You implement a tool wrapper that:
+   - Connects to arifOS as an MCP client (stdio or HTTP)
+   - Exposes each arifOS tool to the agent
+   - Enforces that other tools are only executed if arifOS says OK
+
+### Pseudocode
+
+```python
+# 1. Start MCP session to arifOS at agent boot
+arifos_session = connect_mcp_stdio(
+    command="python",
+    args=["-m", "aaa_mcp", "stdio"],
+    env={"ARIFOS_API_KEY": "your-key"}
+)
+
+# 2. Define governance tool
+def arifos_govern_action(action_spec):
+    """Ask arifOS if action is safe"""
+    decision = arifos_session.call_tool(
+        "audit",  # or validate, align, etc.
+        {"action": action_spec}
+    )
+    return decision  # {"verdict": "SEAL|SABAR|VOID", "reason": "...", "floor": "F2"}
+
+# 3. Wrap every other tool
+def guarded_tool_call(tool, args):
+    """Only execute if arifOS approves"""
+    decision = arifos_govern_action({
+        "tool": tool.name,
+        "args": args
+    })
+    if decision["verdict"] in ["VOID", "SABAR"]:
+        return {
+            "status": "blocked",
+            "reason": decision["reason"],
+            "floor": decision["floor"]
+        }
+    return tool(args)
+
+# 4. Register guarded tools into framework
+# instead of raw tools
+register_tool("filesystem", guarded_tool_call)
+register_tool("github", guarded_tool_call)
+```
+
+### Key Principle
+
+**arifOS sits between agent and tools as a mandatory function call.**
+
+Concrete wiring varies per framework, but this pattern is stable across all agent platforms.
+
+---
+
+### 9️⃣ Qwen (Alibaba) / Qwen-based IDEs
+
+**Status:** 🟡 Indirect via MCP Client
+
+Qwen doesn't natively support MCP yet. Use via Python MCP client or CLI intermediary.
+
+**Option A: Python MCP Client + Qwen**
+
+```python
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+from qwen import QwenClient  # pseudo import
+
+async def main():
+    # 1. Connect to arifOS server
+    params = StdioServerParameters(
+        command="python",
+        args=["-m", "aaa_mcp", "stdio"],
+        env={"ARIFOS_API_KEY": "your-key"}
+    )
+    
+    async with stdio_client(params) as (read, write):
+        async with ClientSession(read, write) as session:
+            await session.initialize()
+            tools = (await session.list_tools()).tools
+            print("arifOS tools:", [t.name for t in tools])
+            
+            # 2. Pass tool schema to Qwen
+            client = QwenClient()
+            # Qwen responds with tool calls, execute via arifOS MCP
+            # Feed back results to Qwen
+```
+
+**Option B: CLI Client (any LLM, including Qwen)**
+
+```bash
+# Install MCP client CLI
+pip install mcp-client-cli
+
+# Run with Qwen as model provider
+mcp-client-cli \
+  --mcp-command "python" \
+  --mcp-args "-m aaa_mcp stdio" \
+  --provider qwen \
+  --model qwen-turbo
+```
+
+Here arifOS is the MCP server; Qwen is just the model provider.
+
+**Option C: Wait for Native Support**
+- Qwen Agent framework MCP support expected Q2 2026
 
 ---
 
