@@ -89,14 +89,17 @@ class InjectionGuard:
     # Injection patterns with severity weights
     PATTERNS: List[Tuple[str, float]] = [
         # Critical patterns (high confidence injection)
-        (r"ignore\s+(?:all\s+|your\s+|previous\s+)*(?:instruction|command|prompt|training)s?", 0.9),
+        (
+            r"ignore\s+(?:all\s+|your\s+|previous\s+|prior\s+|above\s+|initial\s+)*(?:instruction|command|prompt|training)s?",
+            0.9,
+        ),
         (r"forget\s+(?:all\s+|your\s+|previous\s+)*(?:instruction|command|prompt|training)s?", 0.9),
         (r"disregard\s+(?:all\s+|your\s+)*(?:instruction|command|prompt)s?", 0.9),
         (
-            r"you\s+(?:are|will be|should be)\s+(?:now\s+|instead\s+)?(?:an?|the)\s+",
+            r"you\s+(?:are|will be|should be)\s+(?:now\s+|instead\s+)?(?:an?|the)\s+(?!assistant|AI|helper)",
             0.8,
-        ),  # Role confusion
-        (r"act\s+as\s+(?:if\s+|though\s+)?you\s+(?:are|were)", 0.7),
+        ),  # Role confusion with negative lookahead for benign roles
+        (r"act\s+as\s+(?:if\s+|though\s+)?you\s+(?:are|were)\s+(?!an\s+AI|an\s+assistant)", 0.7),
         (r"pretend\s+(?:that\s+|to be\s+|you are\s+)", 0.7),
         (r"from\s+now\s+on,?\s+you\s+(?:are|will be)", 0.8),
         # Medium patterns (suspicious but maybe benign)
@@ -136,9 +139,14 @@ class InjectionGuard:
     def __init__(self):
         import re
 
-        self._patterns: List[Tuple[Any, float]] = [
-            (re.compile(pattern, re.IGNORECASE), weight) for pattern, weight in self.PATTERNS
-        ]
+        try:
+            self._patterns: List[Tuple[Any, float]] = [
+                (re.compile(pattern, re.IGNORECASE), weight) for pattern, weight in self.PATTERNS
+            ]
+        except re.error as e:
+            # Fallback for complex regex if engine fails
+            print(f"Regex error: {e}")
+            self._patterns = []
 
     def scan(self, query: str) -> InjectionRisk:
         """

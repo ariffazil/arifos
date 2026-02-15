@@ -39,13 +39,19 @@ import {
   Rocket,
   Play,
   Download,
-  Star
+  Star,
+  RefreshCw,
+  AlertCircle,
+  CheckCircle,
+  XCircle,
+  Database
 } from 'lucide-react';
 // Note: TrinityLogo components temporarily disabled for Cloudflare Pages compatibility
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { MonitoringDashboard } from '@/components/MonitoringDashboard';
 
 // GitHub base URL
 const GITHUB_BASE = 'https://github.com/ariffazil/arifOS';
@@ -461,7 +467,7 @@ function App() {
   // Track active section for sidebar highlighting
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['overview', 'metrics', 'showcase', 'layers', 'mcp', 'mcp-server', 'applications', 'quickstart'];
+      const sections = ['overview', 'metrics', 'showcase', 'layers', 'mcp', 'mcp-server', 'applications', 'how-it-works', 'universal-mcp', 'quickstart'];
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
@@ -566,6 +572,8 @@ function App() {
             { id: 'mcp', label: 'MCP Tools' },
             { id: 'mcp-server', label: 'MCP Server' },
             { id: 'applications', label: 'Applications' },
+            { id: 'how-it-works', label: 'How It Works' },
+            { id: 'universal-mcp', label: 'Universal MCP' },
             { id: 'quickstart', label: 'Quick Start' },
           ].map((item) => (
             <a
@@ -764,93 +772,112 @@ function App() {
         </div>
       </section>
 
-      {/* Live Metrics Section — Real Data from aaamcp.arif-fazil.com */}
-      <section id="metrics" className="py-12 relative border-y border-gray-800/50 bg-black/20">
-        <div className="max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <Activity className="w-5 h-5 text-cyan-400" />
-              <h2 className="text-lg font-semibold">Live System Metrics</h2>
-              <span className="text-xs text-gray-500">— from aaamcp.arif-fazil.com</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {systemStatus.loading ? (
-                <>
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                  <span className="text-xs text-amber-400">CHECKING...</span>
-                </>
-              ) : (
-                <>
-                  <span className={`w-2 h-2 rounded-full ${systemStatus.online ? 'bg-green-400 animate-pulse' : 'bg-red-400'}`} />
-                  <span className={`text-xs ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
-                    {systemStatus.online ? 'LIVE' : 'OFFLINE'}
-                  </span>
-                </>
-              )}
-            </div>
+      {/* How It Works Section — 60 Seconds */}
+      <section id="how-it-works" className="py-16 relative bg-gradient-to-b from-[#0a0a0a] to-gray-900/10">
+        <div className="max-w-5xl mx-auto px-4 text-center">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6">
+            <Zap className="w-4 h-4 text-cyan-400" />
+            <span className="text-sm text-cyan-400">How It Works (60 seconds)</span>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Status</p>
-              {systemStatus.loading ? (
-                <p className="text-lg font-bold text-amber-400">...</p>
-              ) : (
-                <p className={`text-lg font-bold ${systemStatus.online ? 'text-green-400' : 'text-red-400'}`}>
-                  {systemStatus.online ? 'Healthy' : 'Unreachable'}
-                </p>
-              )}
-              <p className="text-xs text-gray-600">/health check</p>
+          <p className="text-lg text-gray-300 mb-8">
+            Your query flows through 9 MCP tools — from initial sensing to final vault seal. Each enforces constitutional floors.
+          </p>
+
+          {/* MCP Pipeline Flow — 9 Tools */}
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+            <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 px-3 py-1">000_anchor</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/30 px-3 py-1">222_reason</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-teal-500/20 text-teal-400 border-teal-500/30 px-3 py-1">333_integrate</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-sky-500/20 text-sky-400 border-sky-500/30 px-3 py-1">444_respond</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-rose-500/20 text-rose-400 border-rose-500/30 px-3 py-1">555_validate</Badge>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2 mb-8">
+            <ChevronRight className="w-4 h-4 text-gray-600 hidden sm:block" />
+            <Badge className="bg-pink-500/20 text-pink-400 border-pink-500/30 px-3 py-1">666_align</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-amber-500/20 text-amber-400 border-amber-500/30 px-3 py-1">777_forge</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-violet-500/20 text-violet-400 border-violet-500/30 px-3 py-1">888_audit</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-green-500/20 text-green-400 border-green-500/30 px-3 py-1">999_seal</Badge>
+            <ChevronRight className="w-4 h-4 text-gray-600" />
+            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 px-3 py-1">VAULT</Badge>
+          </div>
+
+          {/* Tool descriptions */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-2 text-xs text-gray-500 mb-6">
+            <span>Init & Sense</span>
+            <span>Think & Hypothesize</span>
+            <span>Map & Ground</span>
+            <span>Draft & Plan</span>
+            <span>Check Impact</span>
+            <span>Check Ethics</span>
+            <span>Synthesize</span>
+            <span>Verify & Judge</span>
+            <span>Commit</span>
+          </div>
+
+          <p className="text-sm text-gray-500">
+            All 9 tools enforce constitutional floors F1–F13. Actions are reversible, auditable, and subject to 888 Judge sovereignty.
+          </p>
+        </div>
+      </section>
+
+      {/* Built on Universal MCP Section */}
+      <section className="py-12 relative border-y border-gray-800/30 bg-black/10">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-lg bg-cyan-500/20 flex items-center justify-center">
+              <Server className="w-5 h-5 text-cyan-400" />
             </div>
-            
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Version</p>
-              <p className="text-lg font-bold text-cyan-400">{systemStatus.version}</p>
-              <p className="text-xs text-gray-600">Deployed</p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Endpoint</p>
-              <p className="text-sm font-code text-cyan-400 truncate">aaamcp.arif-fazil.com</p>
-              <p className="text-xs text-gray-600">Production</p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Protocol</p>
-              <p className="text-lg font-bold text-cyan-400">MCP</p>
-              <p className="text-xs text-gray-600">2025-11-25</p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Tools</p>
-              <p className="text-lg font-bold text-cyan-400">9</p>
-              <p className="text-xs text-gray-600">Canonical</p>
-            </div>
-            
-            <div className="p-4 rounded-lg bg-gray-900/50 border border-gray-800">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">Floors</p>
-              <p className="text-lg font-bold text-amber-400">F1-F13</p>
-              <p className="text-xs text-gray-600">Enforced</p>
-            </div>
+            <h3 className="text-xl font-bold">Built on a Universal MCP Profile</h3>
           </div>
           
-          <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
-            <p>
-              {systemStatus.loading 
-                ? 'Connecting to production MCP server...' 
-                : systemStatus.online === false 
-                  ? 'Could not reach server. Displaying cached version info.' 
-                  : 'Connected to production MCP server.'}
-            </p>
+          <ul className="space-y-3 text-gray-300">
+            <li className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <span>arifOS exposes its governance engine as a Model Context Protocol (MCP) server, with strict JSON Schema contracts and no model-specific assumptions.</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <span>Any MCP-compatible LLM host can connect: ChatGPT-style apps, Claude-style desktops, IDEs, or your own orchestrators.</span>
+            </li>
+            <li className="flex items-start gap-3">
+              <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+              <span>All actions are reversible, auditable, and subject to human sovereignty (888 Judge).</span>
+            </li>
+          </ul>
+
+          <div className="mt-6 flex flex-wrap gap-4">
             <a 
-              href={`https://${API_BASE}/health`} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+              href="/docs/mcp/" 
+              className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
             >
-              View raw <ExternalLink className="w-3 h-3" />
+              <BookOpen className="w-4 h-4" />
+              arifOS MCP Profile
+              <ExternalLink className="w-3 h-3" />
+            </a>
+            <a 
+              href="/docs/mcp/capability-catalog/" 
+              className="inline-flex items-center gap-2 text-sm text-cyan-400 hover:text-cyan-300 transition-colors"
+            >
+              <Code className="w-4 h-4" />
+              Capability Catalog
+              <ExternalLink className="w-3 h-3" />
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* Live Monitoring Dashboard — Unified Health of 22-Server AI Stack */}
+      <section id="metrics" className="py-12 relative border-y border-gray-800/50 bg-black/20">
+        <div className="max-w-7xl mx-auto px-4">
+          <MonitoringDashboard />
         </div>
       </section>
 
@@ -1874,6 +1901,105 @@ result = await moderator.moderate("User generated content here...")`}</code></pr
         </div>
       </section>
 
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-24 relative bg-gradient-to-b from-[#0a0a0a] via-gray-900/20 to-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6">
+              <Play className="w-4 h-4 text-cyan-400" />
+              <span className="text-sm text-cyan-400">How It Works (60 seconds)</span>
+            </div>
+            <h2 className="text-4xl font-bold mb-4">The Constitutional Pipeline</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Every request flows through 9 MCP tools (v64.2-GAGI), each enforcing constitutional constraints,
+              before being sealed into an immutable ledger you can audit later.
+            </p>
+          </div>
+
+          {/* Pipeline Steps — 9 Tools v64.2-GAGI */}
+          <div className="max-w-6xl mx-auto">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-9 gap-4 mb-8">
+              {[
+                { id: '000_anchor', name: 'anchor', stage: '000', desc: 'Init & Sense', color: 'blue' },
+                { id: '222_reason', name: 'reason', stage: '222', desc: 'Think & Hypothesize', color: 'cyan' },
+                { id: '333_integrate', name: 'integrate', stage: '333', desc: 'Map & Ground', color: 'teal' },
+                { id: '444_respond', name: 'respond', stage: '444', desc: 'Draft & Plan', color: 'sky' },
+                { id: '555_validate', name: 'validate', stage: '555', desc: 'Check Impact', color: 'rose' },
+                { id: '666_align', name: 'align', stage: '666', desc: 'Check Ethics', color: 'pink' },
+                { id: '777_forge', name: 'forge', stage: '777', desc: 'Synthesize Solution', color: 'amber' },
+                { id: '888_audit', name: 'audit', stage: '888', desc: 'Verify & Judge', color: 'violet' },
+                { id: '999_seal', name: 'seal', stage: '999', desc: 'Commit to Vault', color: 'green' },
+              ].map((step) => {
+                const colors = getColorClasses(step.color);
+                return (
+                  <div key={step.id} className={`p-4 rounded-lg ${colors.bg} border ${colors.border} text-center`}>
+                    <code className={`text-xs font-code ${colors.text} block mb-1`}>{step.stage}</code>
+                    <code className={`text-sm font-code ${colors.text} block mb-1`}>{step.name}</code>
+                    <p className="text-xs text-gray-400">{step.desc}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Arrow indicator */}
+            <div className="flex justify-center mb-8">
+              <ArrowRight className="w-8 h-8 text-gray-600 rotate-90 lg:rotate-0" />
+            </div>
+
+            {/* VAULT */}
+            <div className="p-6 rounded-xl bg-gray-900/50 border border-gray-800 text-center max-w-md mx-auto">
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Immutable Ledger</p>
+              <code className="text-lg font-code text-green-400">VAULT</code>
+              <p className="text-sm text-gray-400 mt-2">
+                Every decision is sealed with cryptographic integrity. Audit trails are complete, tamper-evident, and permanently preserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Built on Universal MCP Section */}
+      <section id="universal-mcp" className="py-24 relative">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
+              <Server className="w-4 h-4 text-blue-400" />
+              <span className="text-sm text-blue-400">Built on a Universal MCP Profile</span>
+            </div>
+            
+            <ul className="space-y-4 text-gray-300">
+              <li className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  arifOS exposes its governance engine as a Model Context Protocol (MCP) server, 
+                  with strict JSON Schema contracts and no model-specific assumptions.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  Any MCP-compatible LLM host can connect: ChatGPT-style apps, Claude-style desktops, 
+                  IDEs, or your own orchestrators.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  All actions are reversible, auditable, and subject to human sovereignty (888 Judge).
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  See the <a href={`${GITHUB_BASE}/tree/main/arif-fazil-sites/docs/mcp`} className="text-cyan-400 hover:underline">arifOS MCP Profile</a> and{' '}
+                  <a href={`${GITHUB_BASE}/blob/main/arif-fazil-sites/docs/mcp/capability-catalog.md`} className="text-cyan-400 hover:underline">Capability Catalog</a> for full details.
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* Quick Start Section */}
       <section id="quickstart" className="py-24 relative bg-gradient-to-b from-[#0a0a0a] via-gray-900/20 to-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4">
@@ -2116,6 +2242,14 @@ result = await moderator.moderate("User generated content here...")`}</code></pr
             <a href="https://arifos.arif-fazil.com" className="px-3 py-1.5 rounded-full bg-cyan-500/15 text-cyan-400 text-xs font-medium border border-cyan-500/30">
               APPS
             </a>
+          </div>
+
+          {/* AFI Statement */}
+          <div className="text-center mb-8">
+            <p className="text-xs text-gray-500 max-w-2xl mx-auto">
+              Every arifOS MCP deployment is scored with an arifOS Forge Index (AFI), 
+              a 0–1 metric of spec alignment, universality, security, auditability, and composability.
+            </p>
           </div>
 
           {/* Bottom */}

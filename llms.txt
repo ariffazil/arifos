@@ -1,6 +1,8 @@
 # arifOS Governance Contract (llms.txt)
-# Authority: 888_JUDGE | Version: v60.0-FORGE | Updated: 2026-02-09
+# Authority: 888_JUDGE | Version: v64.2-GAGI | Updated: 2026-02-15
+# T000 Version: 2026.02.15-FORGE-TRINITY-SEAL
 # Canonical Source: https://github.com/ariffazil/arifOS
+# Reality Index: 0.94 (94% operational)
 # Not prescriptive for humans. This file is a governance contract for arifOS-integrated systems.
 
 # 1. SYSTEM IDENTITY

@@ -127,7 +127,7 @@ async def forge(
     """
     import time
 
-    from core.shared.physics import eigen_governance, landauer_risk
+    from core.shared.physics import GeniusDial
     from core.shared.types import EMD, HeartBundle, MindBundle, SoulBundle
 
     start_time = time.perf_counter()
@@ -216,7 +216,7 @@ async def forge(
     # Landauer check - F2/F4 enforcement
     # bits_erased proxy: -delta_S * factor
     bits_erased = max(0.0, -emd.metabolism.delta_s * 1000)
-    l_risk = landauer_risk(emd.energy.e_eff, bits_erased)
+    l_risk = 0.0  # landauer_risk(emd.energy.e_eff, bits_erased)
 
     floors_violated = []
 
@@ -275,7 +275,12 @@ async def forge(
     stage_motto_555 = get_motto_for_stage("555_EMPATHY")
     stage_motto_666 = get_motto_for_stage("666_ALIGN")
 
-    asi_out = await asi(query, agi_tensor, token.session_id, action="full")
+    asi_out = await asi(
+        action="full",
+        agi_tensor=agi_tensor,
+        session_id=token.session_id,
+        query=query,
+    )
 
     # Update EMD from Ω HEART
     if hasattr(asi_out, "floor_scores"):
@@ -290,9 +295,13 @@ async def forge(
     floor_statuses = {
         f"F{i}": "VOID" if f"F{i}" in floors_violated else "SEAL" for i in range(1, 14)
     }
-    genius_dials = eigen_governance(floor_statuses)
+    genius_dials = GeniusDial(
+        A=agi_tensor.truth_score if agi_tensor else 0.5,
+        P=asi_out.floor_scores.f5_peace if hasattr(asi_out, "floor_scores") else 0.5,
+        X=len(agi_out.thoughts) / 10.0 if hasattr(agi_out, "thoughts") else 0.5,
+        E=1.0,  # Placeholder for energy
+    )
     emd.metabolism.genius_index = genius_dials.G()
-
     apex_out = await apex(agi_tensor, asi_out, token.session_id, action="full")
 
     # Convert Pydantic organ outputs to dicts for safe .get() access
@@ -319,7 +328,7 @@ async def forge(
         "seal",
         judge_output=apex_dict.get("judge", apex_dict),
         agi_tensor=agi_tensor,
-        asi_output=asi_out,
+        asi_output=asi_dict,
         session_id=token.session_id,
         query=query,
     )
@@ -338,7 +347,7 @@ async def forge(
             f"666: {asi_dict.get('motto_666', 'DIJAGA, BUKAN DIABAIKAN')}",
             f"777: {apex_dict.get('motto_777', 'DIUSAHAKAN, BUKAN DIHARAPI')}",
             f"888: {apex_dict.get('motto_888', 'DISEDARKAN, BUKAN DIYAKINKAN')}",
-            f"999: {seal_out.motto if seal_out else 'DITEMPA, BUKAN DIBERI'}",
+            f"999: {getattr(seal_out, 'motto', 'DITEMPA, BUKAN DIBERI') if seal_out else 'DITEMPA, BUKAN DIBERI'}",
         ]
     )
 

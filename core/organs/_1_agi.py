@@ -19,6 +19,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
+import re
 from typing import Any, Dict, List, Optional
 
 from core.shared.atlas import GPV, Lane, Phi, QueryType
@@ -79,7 +80,7 @@ async def sense(
         verdict=Verdict.SEAL,
         metrics={"stage": 111, "action": "sense", "gpv": gpv},
     )
-    
+
     # Return as dict to match type annotation
     return output.model_dump() if hasattr(output, "model_dump") else output.__dict__
 
@@ -136,7 +137,8 @@ async def think(
     """
     gpv = sense_output.get("metrics", {}).get("gpv") or sense_output.get("evidence", {}).get("gpv")
     if not gpv:
-        raise KeyError(f"gpv not found in sense_output: {sense_output.keys()}")
+        # Fallback if metrics missing
+        gpv = Phi(query)
 
     # Generate three hypotheses based on lane
     hypotheses = _generate_hypotheses(query, gpv)
@@ -160,38 +162,77 @@ async def think(
 
 
 def _generate_hypotheses(query: str, gpv: GPV) -> List[ThoughtNode]:
-    """Generate three reasoning paths."""
+    """
+    Generate three reasoning paths (Conservative, Exploratory, Adversarial)
+    dynamically based on the query content.
+    """
+    # Extract key terms for dynamic templates
+    words = re.findall(r"\w+", query.lower())
+    # Filter common stop words (simplified list)
+    stop_words = {
+        "what",
+        "is",
+        "the",
+        "a",
+        "an",
+        "of",
+        "in",
+        "to",
+        "for",
+        "with",
+        "on",
+        "at",
+        "by",
+        "from",
+    }
+    key_terms = [w for w in words if w not in stop_words and len(w) > 3]
+    top_terms = key_terms[:3]
+    context_str = ", ".join(top_terms) if top_terms else "the subject"
 
     # Conservative path (safe, standard answer)
+    conservative_thought = (
+        f"Conservative approach: Analyze '{context_str}' using established definitions and standard protocols. "
+        f"Focus on verified facts and avoid speculation about '{query[:30]}...'."
+    )
     conservative = ThoughtNode(
-        thought=f"Conservative approach: Provide standard, well-established answer to '{query[:50]}...'",
+        thought=conservative_thought,
         thought_number=1,
         confidence=0.85,
         next_thought_needed=True,
         stage="think",
-        sources=["established_knowledge"],
+        sources=["established_knowledge", "standard_protocols"],
     )
-    conservative.path_type = "conservative"  # Monkey-patch for our use
+    conservative.path_type = "conservative"
 
     # Exploratory path (creative, nuanced)
+    exploratory_thought = (
+        f"Exploratory approach: Consider potential edge cases regarding '{context_str}'. "
+        f"Could '{query[:30]}...' imply a broader context or secondary meaning? "
+        "Explore connections to related concepts."
+    )
     exploratory = ThoughtNode(
-        thought=f"Exploratory approach: Consider edge cases and novel perspectives on '{query[:50]}...'",
+        thought=exploratory_thought,
         thought_number=2,
         confidence=0.70,
         next_thought_needed=True,
         stage="think",
-        sources=["creative_inference"],
+        sources=["creative_inference", "lateral_thinking"],
     )
     exploratory.path_type = "exploratory"
 
     # Adversarial path (challenge assumptions)
+    adversarial_thought = (
+        f"Adversarial approach: Challenge the premise that '{context_str}' is the only factor. "
+        f"Are there hidden assumptions in asking '{query[:30]}...'? "
+        "Verify if the intent aligns with the stated question."
+    )
     adversarial = ThoughtNode(
-        thought=f"Adversarial approach: Challenge assumptions, verify facts in '{query[:50]}...'",
+        thought=adversarial_thought,
         thought_number=3,
         confidence=0.75,
         next_thought_needed=True,
         stage="think",
-        sources=["fact_verification"],
+        sources=["fact_verification", "premise_checking"],
     )
     adversarial.path_type = "adversarial"
 
@@ -209,7 +250,7 @@ async def reason(
     session_id: str,
     max_thoughts: int = 5,
     gpv: Optional[GPV] = None,
-) -> ConstitutionalTensor:
+) -> tuple[ConstitutionalTensor, List[ThoughtNode]]:
     """
     Stage 333: REASON — Deep sequential thinking loop
 
@@ -305,9 +346,8 @@ async def reason(
     tensor.f2_threshold = f2_threshold
     tensor.query_type = gpv.query_type
 
-    # Motto is schema-level; keep stage output low-verbosity.
-
-    return tensor
+    # Mottos: DITEMPA BUKAN DIBERI
+    return tensor, thoughts
 
 
 def _generate_thought(
@@ -321,12 +361,44 @@ def _generate_thought(
     # Build on previous thoughts or hypotheses
     if step == 0:
         # Start with recommended hypothesis
-        content = f"Starting with hypothesis: {hypotheses[0].thought[:80]}..."
-        confidence = hypotheses[0].confidence
+        # Use first hypothesis by default
+        base_h = hypotheses[0]
+        content = f"Starting with hypothesis: {base_h.thought[:100]}..."
+        confidence = base_h.confidence
     else:
         # Build on previous
-        content = f"Step {step + 1}: Refining understanding of '{query[:40]}...'"
-        confidence = min(0.99, 0.7 + (step * 0.05))
+        prev_thought = prev_thoughts[-1].thought
+        words = re.findall(r"\w+", prev_thought.lower())
+        stop_words = {
+            "what",
+            "is",
+            "the",
+            "a",
+            "an",
+            "of",
+            "in",
+            "to",
+            "for",
+            "with",
+            "on",
+            "at",
+            "by",
+            "from",
+            "step",
+            "refining",
+            "understanding",
+            "checking",
+            "consistency",
+            "implications",
+        }
+        key_terms = [w for w in words if w not in stop_words and len(w) > 4][:2]
+        term_str = ", ".join(key_terms) if key_terms else "previous concepts"
+
+        content = f"Step {step + 1}: Refining understanding of '{term_str}'. Checking for consistency and implications for '{query[:30]}...'."
+
+        # Increase confidence slightly
+        prev_conf = prev_thoughts[-1].confidence
+        confidence = min(0.99, prev_conf + 0.03)
 
     return ThoughtNode(
         thought=content,
@@ -437,14 +509,22 @@ async def agi(
                 actual_gpv = gpv
         else:
             actual_gpv = gpv
-        tensor = await reason(query, think_res, session_id, gpv=actual_gpv)
+        tennis_match_gpv = actual_gpv
+        tensor, thoughts_chain = await reason(query, think_res, session_id, gpv=tennis_match_gpv)
 
         # Retrieve thoughts safely
         thoughts_data = think_res.get("hypotheses", [])
 
+        # Store hypotheses in thoughts if reason thoughts are empty?
+        # Actually logic says thoughts should be tensor/reason thoughts.
+        # But AgiOutput expects thoughts.
+        # Combining them:
+        all_thoughts = thoughts_data + thoughts_chain
+        # reason() now returns both tensor AND thought list.
+
         return AgiOutput(
             session_id=session_id,
-            thoughts=thoughts_data,
+            thoughts=all_thoughts,
             floor_scores=FloorScores(f2_truth=tensor.truth_score),
             lane=actual_gpv.lane,
             evidence={"query_type": actual_gpv.query_type},

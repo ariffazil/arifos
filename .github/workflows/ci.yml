@@ -35,6 +35,15 @@ jobs:
             pip install -r requirements.txt
           fi
 
+      - name: Compile critical runtime modules
+        run: |
+          python -m py_compile \
+            aaa_mcp/server.py \
+            scripts/start_server.py \
+            core/pipeline.py \
+            core/organs/_1_agi.py \
+            aaa_mcp/core/engine_adapters.py
+
       - name: Lint (ruff or flake8)
         run: |
           if python -m pip show ruff >/dev/null 2>&1; then

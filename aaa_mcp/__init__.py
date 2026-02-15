@@ -1,6 +1,7 @@
 """
-arifOS AAA MCP Server — Constitutional AI Gateway
-9 Canonical Tools | Trinity Architecture (AGI/ASI/APEX)
+arifOS AAA MCP Server — 9-Skill Constitutional Architecture (v64.2-GAGI)
+T000 Version: 2026.02.15-FORGE-TRINITY-SEAL
+9 Canonical Verbs | Trinity Pipeline (ANCHOR → REASON → INTEGRATE → RESPOND → VALIDATE → ALIGN → FORGE → AUDIT → SEAL)
 
 Provides constitutional governance layer for MCP-compatible AI platforms.
 """
@@ -8,33 +9,22 @@ Provides constitutional governance layer for MCP-compatible AI platforms.
 from .core.constitutional_decorator import constitutional_floor, get_tool_floors
 from .mcp_config import MCP_SERVERS, TrinityComponent, get_server_config
 from .mcp_integration import MCPIntegrationLayer, get_mcp_layer
-from .server import (
-    agi_reason,
-    agi_sense,
-    agi_think,
-    apex_verdict,
-    asi_align,
-    asi_empathize,
-    init_gate,
-    mcp,
-    reality_search,
-    vault_seal,
-)
+from .server import align, anchor, audit, forge, integrate, mcp, reason, respond, seal, validate
 
-__version__ = "60.0.0"
+__version__ = "2026.02.15-FORGE-TRINITY-SEAL"
 __all__ = [
     # FastMCP server instance
     "mcp",
-    # 9 Canonical Tools (000-999 Metabolic Loop)
-    "init_gate",  # 000-111: Session gate + security
-    "agi_sense",  # 111: Perception (F2, F4)
-    "agi_think",  # 222: Cognition (F2, F4, F7)
-    "agi_reason",  # 333: Logic (F2, F4, F7)
-    "asi_empathize",  # 444-555: Care (F5, F6)
-    "asi_align",  # 666: Alignment (F5, F6, F9)
-    "apex_verdict",  # 777-888: Judgment (F3, F8)
-    "reality_search",  # F7: External fact-checking
-    "vault_seal",  # 999: Immutable ledger (F1, F3)
+    # 9 Canonical Skills (Verbs)
+    "anchor",  # 1. ANCHOR (000/111)
+    "reason",  # 2. REASON (222)
+    "integrate",  # 3. INTEGRATE (333)
+    "respond",  # 4. RESPOND (444)
+    "validate",  # 5. VALIDATE (555)
+    "align",  # 6. ALIGN (666)
+    "forge",  # 7. FORGE (777)
+    "audit",  # 8. AUDIT (888)
+    "seal",  # 9. SEAL (999)
     # Integration layer
     "MCPIntegrationLayer",
     "get_mcp_layer",
@@ -46,3 +36,4 @@ __all__ = [
     "constitutional_floor",
     "get_tool_floors",
 ]
+# CACHE BUST: 1770989689 - v64.1 GAGI Refactor

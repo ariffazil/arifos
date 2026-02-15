@@ -225,8 +225,8 @@ See [Configuration Reference](../README.md#configuration-reference) for full opt
 | Resource | Link |
 |----------|------|
 | **Documentation** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
-| **MCP Endpoint** | [aaamcp.arif-fazil.com/mcp](https://aaamcp.arif-fazil.com/mcp) |
-| **Health Check** | [aaamcp.arif-fazil.com/health](https://aaamcp.arif-fazil.com/health) |
+| **MCP Endpoint** | [arifosmcp.arif-fazil.com/mcp](https://arifosmcp.arif-fazil.com/mcp) |
+| **Health Check** | [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) |
 | **Registry Entry** | [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io) |
 | **Source Code** | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) |
 
