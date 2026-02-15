@@ -378,7 +378,7 @@ const MCP_TOOLS = [
   },
 ];
 
-// API Endpoints — served from aaamcp.arif-fazil.com (Railway)
+// API Endpoints — served from arifos.arif-fazil.com (Railway)
 const ENDPOINTS = [
   { path: '/health', method: 'GET', desc: 'System health check', status: 'stable' },
   { path: '/mcp', method: 'POST', desc: 'MCP tool invocation (9 canonical tools)', status: 'stable' },
@@ -387,7 +387,7 @@ const ENDPOINTS = [
   { path: '/docs', method: 'GET', desc: 'API documentation (OpenAPI)', status: 'stable' },
 ];
 
-const API_BASE = 'aaamcp.arif-fazil.com';
+const API_BASE = 'arifos.arif-fazil.com';
 
 // Code examples
 const INSTALL_CODE = `pip install arifos`;
@@ -403,7 +403,7 @@ const USAGE_CODE = `# MCP config for Claude Code / Cursor / etc.
 }
 
 # Or connect to the live SSE server:
-# Endpoint: https://aaamcp.arif-fazil.com/mcp/sse
+# Endpoint: https://arifos.arif-fazil.com/mcp/sse
 
 # Python SDK usage:
 from arifos import ConstitutionalAgent
@@ -454,7 +454,7 @@ function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [systemStatus, setSystemStatus] = useState<{ online: boolean | null; version: string; loading: boolean }>({ 
     online: null, 
-     version: 'v64.2.0',
+     version: '2026.02.15-FORGE-TRINITY-SEAL',
     loading: true 
   });
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
@@ -500,14 +500,14 @@ function App() {
           const data = await res.json().catch(() => ({}));
           setSystemStatus({ 
             online: true, 
-             version: data.version || 'v64.2.0',
+             version: data.version || '2026.02.15-FORGE-TRINITY-SEAL',
             loading: false
           });
         } else {
-           setSystemStatus({ online: false, version: 'v64.2.0', loading: false });
+           setSystemStatus({ online: false, version: '2026.02.15-FORGE-TRINITY-SEAL', loading: false });
         }
       })
-       .catch(() => setSystemStatus({ online: false, version: 'v64.2.0', loading: false }));
+       .catch(() => setSystemStatus({ online: false, version: '2026.02.15-FORGE-TRINITY-SEAL', loading: false }));
   }, []);
 
   const copyToClipboard = (code: string, id: string) => {
@@ -1350,7 +1350,7 @@ function App() {
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-400">Version</span>
-                     <span className="text-sm font-code text-cyan-400">v64.2.0</span>
+                     <span className="text-sm font-code text-cyan-400">2026.02.15-FORGE-TRINITY-SEAL</span>
                   </div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm text-gray-400">PyPI Package</span>
@@ -1382,7 +1382,7 @@ function App() {
                 <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
                   <p className="text-xs text-blue-400 uppercase tracking-wider mb-2">Version Note</p>
                    <p className="text-sm text-gray-300">
-                     MCP manifest version: <strong>v64.2.0</strong> (aligns with PyPI <code className="text-cyan-400">arifos==64.2.0</code>). 
+                     MCP manifest version: <strong>2026.02.15-FORGE-TRINITY-SEAL</strong> (aligns with PyPI <code className="text-cyan-400">arifos==64.2.0</code>). 
                      Site shows v64.1.1-GAGI as internal kernel release tag. 
                      See <a href={`${GITHUB_BASE}/releases`} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline">GitHub Releases</a> for full history.
                    </p>
@@ -1449,7 +1449,7 @@ function App() {
                   </div>
                   <pre className="text-xs text-gray-300 overflow-x-auto bg-black/30 p-2 rounded">
 {`// Connect to live SSE endpoint
-https://aaamcp.arif-fazil.com/mcp/sse
+https://arifos.arif-fazil.com/mcp/sse
 
 // Or run locally:
 python -m aaa_mcp sse`}
@@ -2217,10 +2217,10 @@ result = await moderator.moderate("User generated content here...")`}</code></pr
             <div>
               <h4 className="font-medium mb-4">Production</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="https://aaamcp.arif-fazil.com/health" className="hover:text-white transition-colors font-mono text-xs">Health Check</a></li>
-                <li><a href="https://aaamcp.arif-fazil.com/mcp" className="hover:text-white transition-colors font-mono text-xs">MCP Endpoint</a></li>
-                <li><a href="https://aaamcp.arif-fazil.com/mcp/sse" className="hover:text-white transition-colors font-mono text-xs">MCP SSE</a></li>
-                <li><a href="https://aaamcp.arif-fazil.com/dashboard" className="hover:text-white transition-colors font-mono text-xs">Dashboard</a></li>
+                <li><a href="https://arifos.arif-fazil.com/health" className="hover:text-white transition-colors font-mono text-xs">Health Check</a></li>
+                <li><a href="https://arifos.arif-fazil.com/mcp" className="hover:text-white transition-colors font-mono text-xs">MCP Endpoint</a></li>
+                <li><a href="https://arifos.arif-fazil.com/mcp/sse" className="hover:text-white transition-colors font-mono text-xs">MCP SSE</a></li>
+                <li><a href="https://arifos.arif-fazil.com/dashboard" className="hover:text-white transition-colors font-mono text-xs">Dashboard</a></li>
               </ul>
             </div>
           </div>
