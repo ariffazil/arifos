@@ -83,7 +83,7 @@ class SelfOpsDiagnostics:
             "ARIFOS_BASE_URL", 
             "http://localhost:8080"
         )
-        self.version = "64.2.0"
+        self.version = "2026.02.15-FORGE-TRINITY-SEAL"
         
     async def run_full_diagnostic(self) -> SelfOpsReport:
         """Run complete self-diagnostic suite."""

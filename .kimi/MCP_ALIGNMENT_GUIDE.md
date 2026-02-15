@@ -1,7 +1,7 @@
 # arifOS Kimi CLI MCP Configuration Guide
 
 > **T000 Version:** 2026.02.15-FORGE-TRINITY-SEAL  
-> **Code Version:** v64.2-GAGI  
+> **Code Version:** 2026.02.15-FORGE-TRINITY-SEAL  
 > **Last Updated:** 2026-02-15  
 > **Motto:** *DITEMPA BUKAN DIBERI* 💎🔥🧠
 

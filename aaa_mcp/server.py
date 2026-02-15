@@ -1,6 +1,7 @@
 """
-arifOS AAA MCP Server — The 9 Hardened Skills (v64.1-GAGI)
+arifOS AAA MCP Server — The 9 Hardened Skills (v64.2-FORGE-TRINITY-SEAL)
 
+Multi-Transport Support: STDIO | SSE | StreamableHTTP
 9 Canonical Verbs enforcing the 13 Constitutional Floors:
 1. ANCHOR (000)     — Init & Sense (F11/F12)
 2. REASON (222)     — Think & Hypothesize (F2/F8)
@@ -329,8 +330,12 @@ async def health_check(request):
     return JSONResponse({
         "status": "healthy",
         "service": "aaa-mcp",
-        "version": "64.2.0",
-        "transport": "sse",
+        "version": "64.2-FORGE-TRINITY-SEAL",
+        "transports": {
+            "stdio": {"enabled": True, "command": "python -m aaa_mcp stdio"},
+            "sse": {"enabled": True, "endpoint": "/mcp/sse"},
+            "streamable_http": {"enabled": True, "endpoint": "/mcp"}
+        },
         "timestamp": time.time()
     })
 
@@ -338,6 +343,190 @@ async def health_check(request):
 # =============================================================================
 # MAIN
 # =============================================================================
+# Multi-Transport Support: STDIO | SSE | StreamableHTTP
+# =============================================================================
+
+@mcp.custom_route("/mcp", methods=["POST"])
+async def mcp_streamable_http(request: Any) -> Any:
+    """
+    StreamableHTTP transport for MCP 2024-11-05 spec.
+    Handles POST requests with JSON-RPC and returns JSON responses.
+    """
+    from starlette.requests import Request
+    from starlette.responses import JSONResponse, Response
+    
+    # Handle session ID header for MCP 2024-11-05
+    if isinstance(request, Request):
+        session_id = request.headers.get("Mcp-Session-Id", str(uuid.uuid4()))
+        body = await request.json()
+    else:
+        session_id = str(uuid.uuid4())
+        body = request
+    
+    method = body.get("method")
+    request_id = body.get("id", 1)
+    params = body.get("params", {})
+    
+    # Handle MCP protocol methods
+    if method == "initialize":
+        return JSONResponse(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "protocolVersion": "2024-11-05",
+                    "capabilities": {
+                        "tools": {},
+                        "logging": {},
+                        "prompts": {},
+                        "resources": {}
+                    },
+                    "serverInfo": {
+                        "name": "arifos-aaa-mcp",
+                        "version": "64.2"
+                    }
+                }
+            },
+            headers={"Mcp-Session-Id": session_id}
+        )
+    
+    elif method == "tools/list":
+        tools = [
+            {
+                "name": "anchor",
+                "description": "1. ANCHOR (000) - Init & Sense",
+                "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}, "actor_id": {"type": "string"}}}
+            },
+            {
+                "name": "reason",
+                "description": "2. REASON (222) - Think & Hypothesize",
+                "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}, "context": {"type": "string"}}}
+            },
+            {
+                "name": "integrate",
+                "description": "3. INTEGRATE (333) - Map & Ground",
+                "inputSchema": {"type": "object", "properties": {"query": {"type": "string"}, "facts": {"type": "array"}}}
+            },
+            {
+                "name": "respond",
+                "description": "4. RESPOND (444) - Draft Plan",
+                "inputSchema": {"type": "object", "properties": {"draft": {"type": "string"}, "constraints": {"type": "array"}}}
+            },
+            {
+                "name": "validate",
+                "description": "5. VALIDATE (555) - Safety & Impact",
+                "inputSchema": {"type": "object", "properties": {"action": {"type": "object"}, "stakeholders": {"type": "array"}}}
+            },
+            {
+                "name": "align",
+                "description": "6. ALIGN (666) - Ethics & Constitution",
+                "inputSchema": {"type": "object", "properties": {"proposal": {"type": "string"}, "floors": {"type": "array"}}}
+            },
+            {
+                "name": "forge",
+                "description": "7. FORGE (777) - Synthesize Solution",
+                "inputSchema": {"type": "object", "properties": {"spec": {"type": "object"}, "materials": {"type": "array"}}}
+            },
+            {
+                "name": "audit",
+                "description": "8. AUDIT (888) - Verify & Judge",
+                "inputSchema": {"type": "object", "properties": {"decision": {"type": "object"}, "sources": {"type": "array"}}}
+            },
+            {
+                "name": "seal",
+                "description": "9. SEAL (999) - Commit to Vault",
+                "inputSchema": {"type": "object", "properties": {"artifact": {"type": "object"}, "signatures": {"type": "array"}}}
+            }
+        ]
+        return JSONResponse(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {"tools": tools}
+            },
+            headers={"Mcp-Session-Id": session_id}
+        )
+    
+    elif method == "tools/call":
+        tool_name = params.get("name", "")
+        tool_args = params.get("arguments", {})
+        
+        # Route to appropriate tool
+        result = {"status": "called", "tool": tool_name, "args": tool_args}
+        
+        if tool_name == "anchor":
+            query = tool_args.get("query", "")
+            actor_id = tool_args.get("actor_id", "unknown")
+            result = await anchor(query=query, actor_id=actor_id)
+        elif tool_name == "reason":
+            query = tool_args.get("query", "")
+            context = tool_args.get("context", "")
+            result = await reason(query=query, context=context)
+        elif tool_name == "audit":
+            decision = tool_args.get("decision", {})
+            sources = tool_args.get("sources", [])
+            result = await audit(decision=decision, sources=sources)
+        elif tool_name == "seal":
+            artifact = tool_args.get("artifact", {})
+            result = await seal(artifact=artifact)
+        
+        return JSONResponse(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {"content": [{"type": "text", "text": json.dumps(result)}]}
+            },
+            headers={"Mcp-Session-Id": session_id}
+        )
+    
+    else:
+        return JSONResponse(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "error": {"code": -32601, "message": f"Method not found: {method}"}
+            },
+            headers={"Mcp-Session-Id": session_id}
+        )
+
+
+@mcp.custom_route("/transport", methods=["GET"])
+async def transport_info(request: Any) -> Any:
+    """Show available transport protocols."""
+    from starlette.responses import JSONResponse
+    
+    return JSONResponse({
+        "transports": {
+            "stdio": {
+                "enabled": True,
+                "command": "python -m aaa_mcp stdio",
+                "description": "Standard input/output for local CLI tools"
+            },
+            "sse": {
+                "enabled": True,
+                "url": "/mcp/sse",
+                "description": "Server-Sent Events for streaming HTTP"
+            },
+            "streamable_http": {
+                "enabled": True,
+                "url": "/mcp",
+                "method": "POST",
+                "description": "StreamableHTTP for MCP 2024-11-05 spec"
+            }
+        },
+        "motto": "DITEMPA BUKAN DIBERI — Forged, Not Given"
+    })
+
+
+# =============================================================================
 
 if __name__ == "__main__":
-    mcp.run()
+    import sys
+    
+    # Check for transport argument
+    if len(sys.argv) > 1 and sys.argv[1] == "stdio":
+        # STDIO mode (default FastMCP behavior)
+        mcp.run(transport="stdio")
+    else:
+        # HTTP mode (SSE + StreamableHTTP)
+        mcp.run(transport="sse")

@@ -93,7 +93,7 @@
     }
   },
   "arifosAgentCanon": {
-    "version": "v64.2-GAGI",
+    "version": "2026.02.15-FORGE-TRINITY-SEAL",
     "role": "CANON_REFERENCE",
     "description": "Master configuration template for all arifOS agents",
     "constitutionalFloors": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13"],

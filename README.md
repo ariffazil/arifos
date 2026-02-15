@@ -1,20 +1,16 @@
 <!--
-ARIFOS-CANON-VERSION: 2026.02.15-FORGE-TRINITY-SEAL
-ARIFOS-CODE-VERSION: v64.2-GAGI
-ARIFOS-STATUS: PRODUCTION-HARDENED
-ARIFOS-AUTHORITY: Muhammad Arif bin Fazil (888 Judge)
-ARIFOS-REALITY-INDEX: 0.94 (94% of documented features operational)
-
-=== FOR LLM AGENTS ===
-This is the canonical entry point for arifOS constitutional AI governance.
-All links below verified as of 2026-02-15.
-When in doubt, prefer files in this order:
-1. 000_THEORY/000_LAW.md (constitutional source)
-2. core/governance_kernel.py (implementation source)
-3. 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md (instant deployment)
-
-Version Note: Code (v64.2) leads documentation. Always trust code reality.
+arifOS | T000: 2026.02.15-FORGE-TRINITY-SEAL
+Ω₀: 0.94 (Certainty high, humility preserved)
+Authority: ARIF FAZIL (888 Judge)
+Truth Hierarchy: Code > Theory > Documentation
+Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
 -->
+
+> **🆕 New to arifOS?** Start with [README_ZERO_CONTEXT.md](./README_ZERO_CONTEXT.md) <br>
+> *Problem-first explanation in plain language. No jargon. No philosophy. Just the fix.*
+> <br><br>**Engineers:** Continue below for architectural deep-dive, MCP integration, and deployment guides.
+
+---
 
 # arifOS — Constitutional AI Governance
 
@@ -26,9 +22,13 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
   <strong>Governance Middleware for AI Systems</strong><br>
   <em>From zero-context prompts to autonomous institutions</em><br><br>
   <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
-  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-2026.02.15--FORGE--TRINITY--SEAL-blue" alt="Version"></a>
+  <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.15--FORGE--TRINITY--SEAL-blue" alt="T000"></a>
   <a href="#tool-overview"><img src="https://img.shields.io/badge/tools-14%20operational-orange" alt="Tools"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
+  <br><br>
+  <a href="./README_ZERO_CONTEXT.md"><b>🆕 New? Start Here</b></a> •
+  <a href="./DEPLOYMENT.md"><b>🚀 Deploy</b></a> •
+  <a href="./MCP_PLATFORM_GUIDE.md"><b>🔌 Connect</b></a>
 </p>
 
 <p align="center">
@@ -39,8 +39,8 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
   <a href="https://arifosmcp.arif-fazil.com/health">🌐 Live API</a>
 </p>
 
-**T000 Version:** `2026.02.15-FORGE-TRINITY-SEAL` — Forged, Trinity Unified, Sealed  
-**Code Lineage:** v64.2-GAGI | **Reality Index:** 0.94 | **13 Floors Enforced**
+**T000:** `2026.02.15-FORGE-TRINITY-SEAL` — [Date-based versioning](./T000_VERSIONING.md) (YYYY.MM.DD-PHASE-STATE-CONTEXT)  
+**Reality Index:** 0.94 | **13 Floors Enforced** | **Triple Transport:** STDIO · SSE · StreamableHTTP
 
 **arifOS is constitutional AI governance that sits between models and users. Every response passes through 9 A-CLIP tools enforcing 13 constitutional floors. Failures are blocked—not warned.**
 
@@ -55,7 +55,7 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
 | [arif-fazil.com](https://arif-fazil.com) | **HUMAN** — Muhammad Arif bin Fazil, About, Blog | ✅ LIVE |
 | [apex.arif-fazil.com](https://apex.arif-fazil.com) | **THEORY** — APEX-THEORY, Authority, Canon | ✅ LIVE |
 | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | **APPS** — Documentation, 333_APPS Stack | ✅ LIVE |
-| [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | **API** — AAA MCP Health Check | ✅ v64.2.0 |
+| [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | **API** — AAA MCP Health Check | ✅ 2026.02.15-FORGE-TRINITY-SEAL |
 
 ---
 
@@ -81,18 +81,23 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
 
 ---
 
-## 🚀 Quick Start (30 seconds)
+## 🚀 Quick Start
 
+### 1. Copy-Paste (5 seconds)
+Copy [SYSTEM_PROMPT.md](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) into any AI's system settings. Immediate protection.
+
+### 2. Install (30 seconds)
 ```bash
-# Install
 pip install arifos
-
-# Run MCP server
 python -m aaa_mcp  # Starts on :8888
-
-# Or copy-paste prompt
-cat 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md  # Into any LLM system prompt
 ```
+
+### 3. Full Deployment
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for:
+- Railway cloud deployment (5 min)
+- Docker/VPS setup (15 min)
+- Platform integrations (Claude, ChatGPT, Cursor, etc.)
+- Production checklist
 
 **arifOS follows the 333_APPS model** — a layered governance stack scaling from prompts to institutions.
 
@@ -104,8 +109,9 @@ cat 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md  # Into any LLM system prompt
 - [What arifOS Is NOT](#what-arifos-is-not)
 - [The Problem: AI Failure Modes](#the-problem-ai-failure-modes)
 - [How It Works (Mechanical Explanation)](#how-it-works-mechanical-explanation)
-- [Deployment & Access Paths](#deployment--access-paths)
-- [Deployment Options](#deployment-options)
+- [Quick Start](#-quick-start)
+- [Full Deployment Guide](./DEPLOYMENT.md)
+- [Platform Integration](./MCP_PLATFORM_GUIDE.md)
 - [Architecture: Kernel + Adapter Pattern](#architecture-kernel--adapter-pattern)
 - [The 7-Layer Application Stack (333_APPS)](#the-7-layer-application-stack-333_apps)
 - [The 9 A-CLIP Tools (Governance Loop)](#the-9-a-clip-tools-governance-loop)
@@ -578,7 +584,7 @@ arifOS/
 │   ├── L6_INSTITUTION/        # Trinity consensus (stubs)
 │   └── L7_AGI/                # Recursive research
 │
-├── 000_INIT.md               # Constitutional session initialization spec (v64.2)
+├── 000_INIT.md               # Constitutional session initialization spec (2026.02.15)
 │
 ├── mcp/                       # Docker MCP configurations
 ├── telemetry/                 # Constitutional metrics
@@ -591,7 +597,7 @@ arifOS/
 ├── scripts/                   # Deployment scripts
 ├── Dockerfile                 # Railway/VPS deployment
 ├── railway.toml              # Railway configuration
-├── pyproject.toml            # Package config (v64.1.0)
+├── pyproject.toml            # Package config (2026.02.15)
 ├── ARCHITECTURAL_BOUNDARY.md  # Kernel/wrapper enforcement rules
 └── README.md                  # This file
 ```
@@ -781,7 +787,7 @@ The 13 floors are not suggestions. They are load-bearing structure. When F7 Humi
 
 | Date | T000 Version | Semantic | Key Traits | Status |
 |------|--------------|----------|------------|--------|
-| **2026.02.15** | **FORGE-TRINITY-SEAL** | v64.2 | 9 tools, 13 floors, HTA Trinity | **CURRENT** |
+| **2026.02.15** | **FORGE-TRINITY-SEAL** | T000 | 9 tools, 13 floors, Triple Transport | **CURRENT** |
 | 2026.02.13 | FORGE | v60.0 | 5-core, MCP registry | SEALED |
 | 2026.02.06 | HARDENED | v55.5 | FastMCP 2.14, PostgreSQL | ARCHIVED |
 | 2026.01.25 | SEAL | v55.2 | APEX Trinity, Railway | ARCHIVED |
@@ -808,7 +814,7 @@ The 13 floors are not suggestions. They are load-bearing structure. When F7 Humi
 
 ## META: Canonical Reconstruction
 
-This README represents the **v64.x** series following the AAA-ACTOR MASTER DIRECTIVE (2026-02-14):
+This README represents the **2026.02.15-FORGE-TRINITY-SEAL** T000 version following the AAA-ACTOR MASTER DIRECTIVE (2026-02-14):
 
 **Key improvements:**
 - Concrete-first opening with 10-second demo
