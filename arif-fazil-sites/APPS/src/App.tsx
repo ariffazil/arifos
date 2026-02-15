@@ -461,7 +461,7 @@ function App() {
   // Track active section for sidebar highlighting
   useEffect(() => {
     const handleScroll = () => {
-      const sections = ['overview', 'metrics', 'showcase', 'layers', 'mcp', 'mcp-server', 'applications', 'quickstart'];
+      const sections = ['overview', 'metrics', 'showcase', 'layers', 'mcp', 'mcp-server', 'applications', 'how-it-works', 'universal-mcp', 'quickstart'];
       for (const section of sections) {
         const element = document.getElementById(section);
         if (element) {
@@ -566,6 +566,8 @@ function App() {
             { id: 'mcp', label: 'MCP Tools' },
             { id: 'mcp-server', label: 'MCP Server' },
             { id: 'applications', label: 'Applications' },
+            { id: 'how-it-works', label: 'How It Works' },
+            { id: 'universal-mcp', label: 'Universal MCP' },
             { id: 'quickstart', label: 'Quick Start' },
           ].map((item) => (
             <a
@@ -1874,6 +1876,99 @@ result = await moderator.moderate("User generated content here...")`}</code></pr
         </div>
       </section>
 
+      {/* How It Works Section */}
+      <section id="how-it-works" className="py-24 relative bg-gradient-to-b from-[#0a0a0a] via-gray-900/20 to-[#0a0a0a]">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-6">
+              <Play className="w-4 h-4 text-cyan-400" />
+              <span className="text-sm text-cyan-400">How It Works (60 seconds)</span>
+            </div>
+            <h2 className="text-4xl font-bold mb-4">The Constitutional Pipeline</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Every request flows through 5 MCP tools, each enforcing constitutional constraints,
+              before being sealed into an immutable ledger you can audit later.
+            </p>
+          </div>
+
+          {/* Pipeline Steps */}
+          <div className="max-w-4xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8">
+              {[
+                { id: '000_init', name: '000_init', desc: 'Initialize session', color: 'blue' },
+                { id: '222_reason', name: '222_reason', desc: 'Cognitive processing', color: 'cyan' },
+                { id: '555_validate', name: '555_validate', desc: 'Empathy check', color: 'rose' },
+                { id: '888_audit', name: '888_audit', desc: 'Final judgment', color: 'violet' },
+                { id: '999_seal', name: '999_seal', desc: 'Cryptographic seal', color: 'green' },
+              ].map((step, idx) => {
+                const colors = getColorClasses(step.color);
+                return (
+                  <div key={step.id} className="flex items-center gap-4">
+                    <div className={`p-4 rounded-lg ${colors.bg} border ${colors.border} text-center min-w-[120px]`}>
+                      <code className={`text-sm font-code ${colors.text} block mb-1`}>{step.name}</code>
+                      <p className="text-xs text-gray-400">{step.desc}</p>
+                    </div>
+                    {idx < 4 && <ArrowRight className="w-5 h-5 text-gray-600 hidden md:block" />}
+                    {idx < 4 && <div className="w-8 h-0.5 bg-gray-700 md:hidden" />}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* VAULT999 */}
+            <div className="p-6 rounded-xl bg-gray-900/50 border border-gray-800 text-center">
+              <p className="text-xs text-gray-500 uppercase tracking-wider mb-2">Immutable Ledger</p>
+              <code className="text-lg font-code text-green-400">VAULT999</code>
+              <p className="text-sm text-gray-400 mt-2">
+                Every decision is sealed with cryptographic integrity. Audit trails are complete, tamper-evident, and permanently preserved.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Built on Universal MCP Section */}
+      <section id="universal-mcp" className="py-24 relative">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
+              <Server className="w-4 h-4 text-blue-400" />
+              <span className="text-sm text-blue-400">Built on a Universal MCP Profile</span>
+            </div>
+            
+            <ul className="space-y-4 text-gray-300">
+              <li className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  arifOS exposes its governance engine as a Model Context Protocol (MCP) server, 
+                  with strict JSON Schema contracts and no model-specific assumptions.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  Any MCP-compatible LLM host can connect: ChatGPT-style apps, Claude-style desktops, 
+                  IDEs, or your own orchestrators.
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  All actions are reversible, auditable, and subject to human sovereignty (888 Judge).
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Check className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <span>
+                  See the <a href={`${GITHUB_BASE}/tree/main/arif-fazil-sites/docs/mcp`} className="text-cyan-400 hover:underline">arifOS MCP Profile</a> and{' '}
+                  <a href={`${GITHUB_BASE}/blob/main/arif-fazil-sites/docs/mcp/capability-catalog.md`} className="text-cyan-400 hover:underline">Capability Catalog</a> for full details.
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       {/* Quick Start Section */}
       <section id="quickstart" className="py-24 relative bg-gradient-to-b from-[#0a0a0a] via-gray-900/20 to-[#0a0a0a]">
         <div className="max-w-7xl mx-auto px-4">
@@ -2116,6 +2211,14 @@ result = await moderator.moderate("User generated content here...")`}</code></pr
             <a href="https://arifos.arif-fazil.com" className="px-3 py-1.5 rounded-full bg-cyan-500/15 text-cyan-400 text-xs font-medium border border-cyan-500/30">
               APPS
             </a>
+          </div>
+
+          {/* AFI Statement */}
+          <div className="text-center mb-8">
+            <p className="text-xs text-gray-500 max-w-2xl mx-auto">
+              Every arifOS MCP deployment is scored with an arifOS Forge Index (AFI), 
+              a 0–1 metric of spec alignment, universality, security, auditability, and composability.
+            </p>
           </div>
 
           {/* Bottom */}
