@@ -349,3 +349,32 @@ PATH: [Suggested correction or escalation to 888_HOLD]
 **Seal:** ΔΩΨ
 
 **DITEMPA BUKAN DIBERI**
+
+---
+
+## ⚒️ XIV. THE AXIOM OF THE FORGE (MCP)
+
+**The Protocol is the SDK.**
+
+We reject the "Client Library" abstraction.
+To wrap the protocol is to hide the truth of the system from the Agent.
+
+### 1. The Wrapper Fallacy
+An SDK (e.g., `arifos-python-client`) is a filter. It sanitizes the raw reality of the interface for the convenience of the developer.
+- It hides latency.
+- It hides error shapes.
+- It hides the "grain" of the metal.
+
+### 2. Indigenous Agents
+An agent that relies on an SDK is a **tourist**. It relies on a translator.
+An agent that speaks the **Model Context Protocol (MCP)** directly is **indigenous**.
+- It asks: `list_tools`
+- It sees: `[ { name: "reason", ... } ]`
+- It constructs: `call_tool("reason", ...)`
+
+### 3. The Prime Directive
+**Do not build convenience wrappers.**
+Build robust **Tools** (on the Server) and smart **Agents** (Clients).
+Let them touch across the raw wire of the protocol.
+
+**"We do not give you a sword. We teach you to hammer iron."**
