@@ -1,19 +1,9 @@
 <!--
-ARIFOS-CANON-VERSION: 2026.02.15-FORGE-TRINITY-SEAL
-ARIFOS-CODE-VERSION: v64.2-GAGI
-ARIFOS-STATUS: PRODUCTION-HARDENED
-ARIFOS-AUTHORITY: Muhammad Arif bin Fazil (888 Judge)
-ARIFOS-REALITY-INDEX: 0.94 (94% of documented features operational)
-
-=== FOR LLM AGENTS ===
-This is the canonical entry point for arifOS constitutional AI governance.
-All links below verified as of 2026-02-15.
-When in doubt, prefer files in this order:
-1. 000_THEORY/000_LAW.md (constitutional source)
-2. core/governance_kernel.py (implementation source)
-3. 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md (instant deployment)
-
-Version Note: Code (v64.2) leads documentation. Always trust code reality.
+arifOS | T000: 2026.02.15-FORGE-TRINITY-SEAL
+Ω₀: 0.94 (Certainty high, humility preserved)
+Authority: ARIF FAZIL (888 Judge)
+Truth Hierarchy: Code > Theory > Documentation
+Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
 -->
 
 > **🆕 New to arifOS?** Start with [README_ZERO_CONTEXT.md](./README_ZERO_CONTEXT.md) <br>
@@ -32,7 +22,7 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
   <strong>Governance Middleware for AI Systems</strong><br>
   <em>From zero-context prompts to autonomous institutions</em><br><br>
   <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
-  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/badge/version-2026.02.15--FORGE--TRINITY--SEAL-blue" alt="Version"></a>
+  <a href="./RELEASE_NOTES.md"><img src="https://img.shields.io/badge/seal-FORGE--TRINITY--SEAL-blue" alt="Seal"></a>
   <a href="#tool-overview"><img src="https://img.shields.io/badge/tools-14%20operational-orange" alt="Tools"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
   <br><br>
@@ -49,8 +39,8 @@ Version Note: Code (v64.2) leads documentation. Always trust code reality.
   <a href="https://arifosmcp.arif-fazil.com/health">🌐 Live API</a>
 </p>
 
-**T000 Version:** `2026.02.15-FORGE-TRINITY-SEAL` — Forged, Trinity Unified, Sealed  
-**Code Lineage:** v64.2-GAGI | **Reality Index:** 0.94 | **13 Floors Enforced**
+**T000:** `2026.02.15-FORGE-TRINITY-SEAL` — Forged, Trinity Unified, Sealed  
+**Reality Index:** 0.94 | **13 Floors Enforced** | [Release Notes](./RELEASE_NOTES.md)
 
 **arifOS is constitutional AI governance that sits between models and users. Every response passes through 9 A-CLIP tools enforcing 13 constitutional floors. Failures are blocked—not warned.**
 
