@@ -1,5 +1,6 @@
 """
-arifOS AAA MCP Server — 9-Skill Constitutional Architecture (v64.1-GAGI)
+arifOS AAA MCP Server — 9-Skill Constitutional Architecture (v64.2-GAGI)
+T000 Version: 2026.02.15-FORGE-TRINITY-SEAL
 9 Canonical Verbs | Trinity Pipeline (ANCHOR → REASON → INTEGRATE → RESPOND → VALIDATE → ALIGN → FORGE → AUDIT → SEAL)
 
 Provides constitutional governance layer for MCP-compatible AI platforms.
@@ -10,7 +11,7 @@ from .mcp_config import MCP_SERVERS, TrinityComponent, get_server_config
 from .mcp_integration import MCPIntegrationLayer, get_mcp_layer
 from .server import align, anchor, audit, forge, integrate, mcp, reason, respond, seal, validate
 
-__version__ = "64.1.0"
+__version__ = "64.2.0"
 __all__ = [
     # FastMCP server instance
     "mcp",
