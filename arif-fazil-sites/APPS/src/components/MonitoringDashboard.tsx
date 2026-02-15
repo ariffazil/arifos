@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Activity, Server, Cpu, Database, Shield, Zap, Users, Brain, AlertCircle, CheckCircle, XCircle, RefreshCw } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -77,29 +77,74 @@ export function MonitoringDashboard() {
     return () => clearInterval(interval);
   }, []);
 
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    const ws = new WebSocket(`ws://${window.location.host}/api/ws`);
-    ws.onopen = () => {
-      setWsConnected(true);
-      console.log('WebSocket connected');
-    };
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === 'update') {
-        setLastUpdate(new Date().toLocaleTimeString());
-        if (data.payload) {
-          // Update specific data based on payload type
-          if (data.payload.servers) setServers(data.payload.servers);
-          if (data.payload.containers) setContainers(data.payload.containers);
-          if (data.payload.metrics) setMetrics(data.payload.metrics);
+    const connectWebSocket = () => {
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsUrl = `${protocol}//${window.location.host}/api/ws`;
+      
+      const ws = new WebSocket(wsUrl);
+      wsRef.current = ws;
+
+      ws.onopen = () => {
+        setWsConnected(true);
+        console.log('WebSocket connected');
+        // Clear any pending reconnect timeout
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+          reconnectTimeoutRef.current = null;
         }
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          if (data.type === 'update') {
+            setLastUpdate(new Date().toLocaleTimeString());
+            if (data.payload) {
+              if (data.payload.servers) setServers(data.payload.servers);
+              if (data.payload.containers) setContainers(data.payload.containers);
+              if (data.payload.metrics) setMetrics(data.payload.metrics);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to parse WebSocket message:', error);
+        }
+      };
+
+      ws.onclose = (event) => {
+        setWsConnected(false);
+        console.log(`WebSocket disconnected: ${event.code} ${event.reason}`);
+        
+        // Attempt reconnect with exponential backoff (max 30 seconds)
+        if (reconnectTimeoutRef.current === null) {
+          const delay = Math.min(1000 * 2 ** 3, 30000); // Cap at 30 seconds
+          reconnectTimeoutRef.current = setTimeout(() => {
+            reconnectTimeoutRef.current = null;
+            connectWebSocket();
+          }, delay);
+        }
+      };
+
+      ws.onerror = (error) => {
+        console.error('WebSocket error:', error);
+      };
+    };
+
+    connectWebSocket();
+
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
       }
     };
-    ws.onclose = () => {
-      setWsConnected(false);
-      console.log('WebSocket disconnected');
-    };
-    return () => ws.close();
   }, []);
 
   const getStatusIcon = (status: string) => {

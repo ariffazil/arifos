@@ -1,0 +1,20 @@
+[Unit]
+Description=arifOS Dashboard Metrics Aggregator
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=www-data
+Group=www-data
+WorkingDirectory=/root/arifOS
+Environment="PATH=/root/arifOS/.venv/bin:/usr/local/bin:/usr/bin:/bin"
+ExecStart=/root/arifOS/.venv/bin/python dashboard_aggregator.py
+Restart=always
+RestartSec=10
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=dashboard-aggregator
+
+[Install]
+WantedBy=multi-user.target

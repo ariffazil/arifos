@@ -130,7 +130,7 @@ const LAYERS = [
     id: 'L4',
     name: 'TOOLS',
     tagline: 'Production Tools',
-    desc: 'The constitutional MCP server with 14 production-ready tools (9 A-CLIP + 5 Container). Delivers production-grade governance with <1ms cached responses.',
+    desc: 'The constitutional MCP server with 9 production-ready A-CLIP tools (plus optional container management tools). Delivers production-grade governance with <1ms cached responses.',
     coverage: '100%',
     status: 'production',
     statusLabel: 'Production',
@@ -382,7 +382,7 @@ const MCP_TOOLS = [
 const ENDPOINTS = [
   { path: '/health', method: 'GET', desc: 'System health check', status: 'stable' },
   { path: '/mcp', method: 'POST', desc: 'MCP tool invocation (9 canonical tools)', status: 'stable' },
-  { path: '/sse', method: 'GET', desc: 'Server-sent events stream', status: 'stable' },
+  { path: '/mcp/sse', method: 'GET', desc: 'Server-sent events stream', status: 'stable' },
   { path: '/dashboard', method: 'GET', desc: 'Live system dashboard', status: 'stable' },
   { path: '/docs', method: 'GET', desc: 'API documentation (OpenAPI)', status: 'stable' },
 ];
@@ -403,7 +403,7 @@ const USAGE_CODE = `# MCP config for Claude Code / Cursor / etc.
 }
 
 # Or connect to the live SSE server:
-# Endpoint: https://aaamcp.arif-fazil.com/sse
+# Endpoint: https://aaamcp.arif-fazil.com/mcp/sse
 
 # Python SDK usage:
 from arifos import ConstitutionalAgent
@@ -500,14 +500,14 @@ function App() {
           const data = await res.json().catch(() => ({}));
           setSystemStatus({ 
             online: true, 
-            version: data.version || 'v60.0.0',
+             version: data.version || 'v64.2.0',
             loading: false
           });
         } else {
-          setSystemStatus({ online: false, version: 'v60.0.0', loading: false });
+           setSystemStatus({ online: false, version: 'v64.2.0', loading: false });
         }
       })
-      .catch(() => setSystemStatus({ online: false, version: 'v60.0.0', loading: false }));
+       .catch(() => setSystemStatus({ online: false, version: 'v64.2.0', loading: false }));
   }, []);
 
   const copyToClipboard = (code: string, id: string) => {
@@ -821,7 +821,7 @@ function App() {
           </div>
 
           <p className="text-sm text-gray-500">
-            All 9 tools enforce constitutional floors F1–F13. Actions are reversible, auditable, and subject to 888 Judge sovereignty.
+             All 9 A-CLIP tools enforce constitutional floors F1–F13. Actions are reversible, auditable, and subject to 888 Judge sovereignty.
           </p>
         </div>
       </section>
@@ -1306,7 +1306,7 @@ function App() {
 
              <p className="text-sm text-gray-500 text-center mt-4">
                Production pipeline ensures constitutional compliance at every stage.
-               All 9 tools enforce floors F1–F13, with human sovereignty (888 Judge) as final authority.
+                All 9 A-CLIP tools enforce floors F1–F13, with human sovereignty (888 Judge) as final authority.
              </p>
            </div>
 
@@ -1449,7 +1449,7 @@ function App() {
                   </div>
                   <pre className="text-xs text-gray-300 overflow-x-auto bg-black/30 p-2 rounded">
 {`// Connect to live SSE endpoint
-https://aaamcp.arif-fazil.com/sse
+https://aaamcp.arif-fazil.com/mcp/sse
 
 // Or run locally:
 python -m aaa_mcp sse`}
@@ -2052,7 +2052,7 @@ result = await moderator.moderate("User generated content here...")`}</code></pr
                     <h3 className="font-semibold mb-1">Deploy Production Instance</h3>
                     <p className="text-sm text-gray-400">Scale with SSE or HTTP transports</p>
                     <div className="mt-2 text-xs text-gray-400">
-                      Production endpoints: <code className="text-cyan-400">/health</code>, <code className="text-cyan-400">/mcp</code>, <code className="text-cyan-400">/sse</code>
+                      Production endpoints: <code className="text-cyan-400">/health</code>, <code className="text-cyan-400">/mcp</code>, <code className="text-cyan-400">/mcp/sse</code>
                     </div>
                   </div>
                 </div>
@@ -2219,7 +2219,7 @@ result = await moderator.moderate("User generated content here...")`}</code></pr
               <ul className="space-y-2 text-sm text-gray-400">
                 <li><a href="https://aaamcp.arif-fazil.com/health" className="hover:text-white transition-colors font-mono text-xs">Health Check</a></li>
                 <li><a href="https://aaamcp.arif-fazil.com/mcp" className="hover:text-white transition-colors font-mono text-xs">MCP Endpoint</a></li>
-                <li><a href="https://aaamcp.arif-fazil.com/sse" className="hover:text-white transition-colors font-mono text-xs">MCP SSE</a></li>
+                <li><a href="https://aaamcp.arif-fazil.com/mcp/sse" className="hover:text-white transition-colors font-mono text-xs">MCP SSE</a></li>
                 <li><a href="https://aaamcp.arif-fazil.com/dashboard" className="hover:text-white transition-colors font-mono text-xs">Dashboard</a></li>
               </ul>
             </div>
