@@ -27,7 +27,7 @@
 - [x] **Docker Hub** — Image pushed (`ariffazil/arifos:v60.0`)
 - [x] **PyPI** — Package live (`pip install arifos==60.0.0`)
 - [x] **MCP Registry** — `io.github.ariffazil/aaa-mcp` published
-- [x] **Railway Deploy** — Production at `aaamcp.arif-fazil.com`
+- [x] **Railway Deploy** — Production at `arifosmcp.arif-fazil.com`
 - [x] **Tool Rename** — `forge_pipeline` → `trinity_forge`
 
 ### Infrastructure (Configured & Working)
@@ -179,7 +179,7 @@
 ### Verify Production Health
 ```bash
 # Full health check with governance metrics
-curl https://aaamcp.arif-fazil.com/health
+curl https://arifosmcp.arif-fazil.com/health
 
 # Expected response:
 # {

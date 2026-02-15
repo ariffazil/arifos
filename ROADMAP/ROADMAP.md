@@ -14,7 +14,7 @@
 | **Version** | v60.0.0 (Production) |
 | **PyPI** | ✅ Live (`pip install arifos`) |
 | **MCP Registry** | ✅ `io.github.ariffazil/aaa-mcp` |
-| **Deployment** | ✅ Railway (aaamcp.arif-fazil.com) |
+| **Deployment** | ✅ Railway (arifosmcp.arif-fazil.com) |
 | **5-Organs** | ✅ INIT, AGI, ASI, APEX, VAULT |
 | **13 Floors** | ✅ F1-F13 Enforced |
 | **PostgreSQL** | ✅ Configured & Working |
