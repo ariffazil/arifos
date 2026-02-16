@@ -12,10 +12,9 @@ DITEMPA BUKAN DIBERI — Forged, not given.
 
 import hashlib
 import json
-import os
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List
 
 from .templates import DOMAIN_TEMPLATES, SKIN_TEMPLATES
 from .types import RefusalResponse, RefusalType, RiskDomain

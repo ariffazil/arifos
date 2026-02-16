@@ -31,7 +31,6 @@ Design:
 DITEMPA BUKAN DIBERI - Forged v53.0-HARDENED
 """
 
-
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional
@@ -39,11 +38,12 @@ from typing import Dict, List, Optional
 
 class Verdict(str, Enum):
     """Final verdict types (hierarchy: SABAR > VOID > HOLD_888 > PARTIAL > SEAL)."""
-    SABAR = "SABAR"          # Hypervisor block (F10-F12 failure)
-    VOID = "VOID"            # Hard floor failure (F1-F2, F6)
-    HOLD_888 = "HOLD_888"    # Soft floor failure or high-stakes escalation
-    PARTIAL = "PARTIAL"      # Soft floor warning (F4-F5, F7)
-    SEAL = "SEAL"            # All floors passed
+
+    SABAR = "SABAR"  # Hypervisor block (F10-F12 failure)
+    VOID = "VOID"  # Hard floor failure (F1-F2, F6)
+    HOLD_888 = "HOLD_888"  # Soft floor failure or high-stakes escalation
+    PARTIAL = "PARTIAL"  # Soft floor warning (F4-F5, F7)
+    SEAL = "SEAL"  # All floors passed
 
 
 @dataclass
@@ -59,6 +59,7 @@ class PsiVerdict:
         failures: List of all floor failures
         metadata: Rich debugging context
     """
+
     verdict: Verdict
     f8_genius: bool
     hypervisor_passed: bool
@@ -90,10 +91,7 @@ class PsiKernel:
         5. Return: PsiVerdict with final judgment
     """
 
-    def __init__(
-        self,
-        genius_threshold: float = 0.80
-    ):
+    def __init__(self, genius_threshold: float = 0.80):
         """
         Initialize PsiKernel.
 
@@ -108,7 +106,7 @@ class PsiKernel:
         omega_verdict,  # OmegaVerdict from ASI kernel
         genius: float,
         hypervisor_passed: bool,
-        hypervisor_failures: List[str]
+        hypervisor_failures: List[str],
     ) -> PsiVerdict:
         """
         Evaluate Trinity + Genius + Hypervisor → Final verdict.
@@ -151,7 +149,7 @@ class PsiKernel:
             f8_passed=f8_passed,
             hypervisor_passed=hypervisor_passed,
             failures=failures,
-            metadata=metadata
+            metadata=metadata,
         )
 
         return PsiVerdict(
@@ -160,14 +158,11 @@ class PsiKernel:
             hypervisor_passed=hypervisor_passed,
             passed=(final_verdict == Verdict.SEAL),
             failures=failures,
-            metadata=metadata
+            metadata=metadata,
         )
 
     def _check_f8_genius(
-        self,
-        genius: float,
-        failures: List[str],
-        metadata: Dict[str, any]
+        self, genius: float, failures: List[str], metadata: Dict[str, any]
     ) -> bool:
         """Check F8 (Genius)."""
         # Ensure genius is a float
@@ -175,7 +170,7 @@ class PsiKernel:
             g_score = float(genius)
         except (ValueError, TypeError):
             g_score = 0.0
-            
+
         metadata["f8_genius"] = g_score
         metadata["f8_threshold"] = self.genius_threshold
 
@@ -196,7 +191,7 @@ class PsiKernel:
         f8_passed: bool,
         hypervisor_passed: bool,
         failures: List[str],
-        metadata: Dict[str, any]
+        metadata: Dict[str, any],
     ) -> Verdict:
         """
         Render final verdict based on hierarchy.
@@ -215,7 +210,7 @@ class PsiKernel:
 
         # VOID: Hard floor failures
         hard_floor_failures = []
-        
+
         # Safely check delta_verdict
         if delta_verdict:
             # F1 (Amanah) - hard
@@ -283,7 +278,7 @@ def render_apex_verdict(
     omega_verdict,
     genius: float = 0.85,
     hypervisor_passed: bool = True,
-    hypervisor_failures: List[str] = None
+    hypervisor_failures: List[str] = None,
 ) -> PsiVerdict:
     """
     Convenience function to render APEX verdict.
@@ -304,7 +299,7 @@ def render_apex_verdict(
         omega_verdict=omega_verdict,
         genius=genius,
         hypervisor_passed=hypervisor_passed,
-        hypervisor_failures=hypervisor_failures or []
+        hypervisor_failures=hypervisor_failures or [],
     )
 
 
@@ -318,11 +313,12 @@ __all__ = [
 
 class Verdict(str, Enum):
     """Final verdict types (hierarchy: SABAR > VOID > HOLD_888 > PARTIAL > SEAL)."""
-    SABAR = "SABAR"          # Hypervisor block (F10-F12 failure)
-    VOID = "VOID"            # Hard floor failure (F1-F2, F6)
-    HOLD_888 = "HOLD_888"    # Soft floor failure or high-stakes escalation
-    PARTIAL = "PARTIAL"      # Soft floor warning (F4-F5, F7)
-    SEAL = "SEAL"            # All floors passed
+
+    SABAR = "SABAR"  # Hypervisor block (F10-F12 failure)
+    VOID = "VOID"  # Hard floor failure (F1-F2, F6)
+    HOLD_888 = "HOLD_888"  # Soft floor failure or high-stakes escalation
+    PARTIAL = "PARTIAL"  # Soft floor warning (F4-F5, F7)
+    SEAL = "SEAL"  # All floors passed
 
 
 @dataclass
@@ -338,6 +334,7 @@ class PsiVerdict:
         failures: List of all floor failures
         metadata: Rich debugging context
     """
+
     verdict: Verdict
     f8_genius: bool
     hypervisor_passed: bool
@@ -386,10 +383,7 @@ class PsiKernel:
         assert verdict.verdict == Verdict.SEAL
     """
 
-    def __init__(
-        self,
-        genius_threshold: float = 0.80
-    ):
+    def __init__(self, genius_threshold: float = 0.80):
         """
         Initialize PsiKernel.
 
@@ -404,7 +398,7 @@ class PsiKernel:
         omega_verdict,  # OmegaVerdict from ASI kernel
         genius: float,
         hypervisor_passed: bool,
-        hypervisor_failures: List[str]
+        hypervisor_failures: List[str],
     ) -> PsiVerdict:
         """
         Evaluate Trinity + Genius + Hypervisor → Final verdict.
@@ -447,7 +441,7 @@ class PsiKernel:
             f8_passed=f8_passed,
             hypervisor_passed=hypervisor_passed,
             failures=failures,
-            metadata=metadata
+            metadata=metadata,
         )
 
         return PsiVerdict(
@@ -456,14 +450,11 @@ class PsiKernel:
             hypervisor_passed=hypervisor_passed,
             passed=(final_verdict == Verdict.SEAL),
             failures=failures,
-            metadata=metadata
+            metadata=metadata,
         )
 
     def _check_f8_genius(
-        self,
-        genius: float,
-        failures: List[str],
-        metadata: Dict[str, any]
+        self, genius: float, failures: List[str], metadata: Dict[str, any]
     ) -> bool:
         """Check F8 (Genius)."""
         metadata["f8_genius"] = genius
@@ -486,7 +477,7 @@ class PsiKernel:
         f8_passed: bool,
         hypervisor_passed: bool,
         failures: List[str],
-        metadata: Dict[str, any]
+        metadata: Dict[str, any],
     ) -> Verdict:
         """
         Render final verdict based on hierarchy.
@@ -568,7 +559,7 @@ def render_apex_verdict(
     omega_verdict,
     genius: float = 0.85,
     hypervisor_passed: bool = True,
-    hypervisor_failures: List[str] = None
+    hypervisor_failures: List[str] = None,
 ) -> PsiVerdict:
     """
     Convenience function to render APEX verdict.
@@ -589,7 +580,7 @@ def render_apex_verdict(
         omega_verdict=omega_verdict,
         genius=genius,
         hypervisor_passed=hypervisor_passed,
-        hypervisor_failures=hypervisor_failures or []
+        hypervisor_failures=hypervisor_failures or [],
     )
 
 

@@ -12,13 +12,13 @@ Hardening:
 - Eureka Sieve verdict routing
 - ZKPC proof generation
 """
+
 from typing import Dict, Any, Optional
 from datetime import datetime
 import hashlib
 
 from .vault import SEAL999
 from .state import VaultEntry, VaultConfig
-
 
 # Singleton SEAL999 instance for pipeline use
 _seal999_instance: Optional[SEAL999] = None

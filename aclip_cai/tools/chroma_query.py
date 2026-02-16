@@ -24,9 +24,14 @@ def query_memory(
 
     try:
         import chromadb
+
         client = chromadb.PersistentClient(path=path)
     except ImportError:
-        return {"status": "VOID", "error": "chromadb not installed", "hint": "uv pip install chromadb"}
+        return {
+            "status": "VOID",
+            "error": "chromadb not installed",
+            "hint": "uv pip install chromadb",
+        }
     except Exception as e:
         return {"status": "VOID", "error": f"Failed to open Chroma at {path}: {e}"}
 
@@ -46,10 +51,10 @@ def query_memory(
     except Exception as e:
         return {"status": "VOID", "error": f"Query failed: {e}"}
 
-    docs  = results.get("documents", [[]])[0]
+    docs = results.get("documents", [[]])[0]
     metas = results.get("metadatas", [[]])[0]
     dists = results.get("distances", [[]])[0]
-    ids   = results.get("ids", [[]])[0]
+    ids = results.get("ids", [[]])[0]
 
     hits = [
         {
@@ -61,7 +66,13 @@ def query_memory(
         for i, doc in enumerate(docs)
     ]
 
-    return {"status": "SEAL", "collection": collection, "query": query, "count": len(hits), "results": hits}
+    return {
+        "status": "SEAL",
+        "collection": collection,
+        "query": query,
+        "count": len(hits),
+        "results": hits,
+    }
 
 
 def list_collections(chroma_path: Optional[str] = None) -> dict[str, Any]:
@@ -70,9 +81,14 @@ def list_collections(chroma_path: Optional[str] = None) -> dict[str, Any]:
 
     try:
         import chromadb
+
         client = chromadb.PersistentClient(path=path)
     except ImportError:
-        return {"status": "VOID", "error": "chromadb not installed", "hint": "uv pip install chromadb"}
+        return {
+            "status": "VOID",
+            "error": "chromadb not installed",
+            "hint": "uv pip install chromadb",
+        }
     except Exception as e:
         return {"status": "VOID", "error": str(e)}
 

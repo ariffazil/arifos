@@ -9,6 +9,7 @@ Per Phase 2.1 Definition of Done:
 
 from codebase.core.agi.atlas import ATLAS
 
+
 def test_atlas_classification():
     """Test ATLAS lane classification for Definition of Done."""
 
@@ -49,6 +50,7 @@ def test_atlas_classification():
     print("[PASS] All ATLAS classification tests PASSED!")
     print("Definition of Done #2: Verified")
     print("=" * 60)
+
 
 if __name__ == "__main__":
     test_atlas_classification()

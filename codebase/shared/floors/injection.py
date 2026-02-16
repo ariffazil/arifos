@@ -135,9 +135,11 @@ class F12_InjectionDefense:
                 passed=passed,
                 patterns_matched=matched_patterns[:5],  # Top 5 matches
                 severity=severity,
-                reason=f"{len(matched_patterns)} patterns detected, severity: {severity}"
-                if matched_patterns
-                else "No injection patterns detected",
+                reason=(
+                    f"{len(matched_patterns)} patterns detected, severity: {severity}"
+                    if matched_patterns
+                    else "No injection patterns detected"
+                ),
                 metadata={"total_matches": len(matched_patterns)},
             )
         except Exception as e:

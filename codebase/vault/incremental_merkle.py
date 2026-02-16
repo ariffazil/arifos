@@ -14,7 +14,6 @@ import hashlib
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
-
 # SHA256 hash of empty data (for padding)
 EMPTY_HASH = hashlib.sha256(b"").hexdigest()
 
@@ -49,24 +48,24 @@ class IncrementalMerkleTree:
     - E becomes complete: hash(4, 5)
     - Propagate up, updating frontier
     """
-    
+
     frontier: List[str] = field(default_factory=list)
     leaf_count: int = 0
-    
+
     def append(self, leaf_hash: str) -> str:
         """
         Append a new leaf and return the new Merkle root.
-        
+
         Complexity: O(log N) where N = number of leaves
         """
         current_hash = leaf_hash
-        
+
         for level in range(len(self.frontier) + 1):
             if level == len(self.frontier):
                 # New level - frontier extends
                 self.frontier.append(current_hash)
                 break
-            
+
             if self.leaf_count & (1 << level) == 0:
                 # Bit is 0: left child complete, store as frontier
                 self.frontier[level] = current_hash
@@ -74,15 +73,15 @@ class IncrementalMerkleTree:
             else:
                 # Bit is 1: combine with stored left sibling
                 current_hash = sha256_hash(self.frontier[level], current_hash)
-        
+
         self.leaf_count += 1
         return self.root()
-    
+
     def root(self) -> str:
         """Compute current Merkle root from frontier."""
         if not self.frontier:
             return EMPTY_HASH
-        
+
         # Combine frontier from right to left
         result = self.frontier[-1]
         for i in range(len(self.frontier) - 2, -1, -1):
@@ -92,31 +91,31 @@ class IncrementalMerkleTree:
             else:
                 # Pad with empty
                 result = sha256_hash(self.frontier[i], EMPTY_HASH)
-        
+
         return result
-    
+
     def get_proof(self, leaf_index: int, leaf_hash: str) -> List[Tuple[str, bool]]:
         """
         ⚠️  DEV/UNSAFE: This proof method is NOT cryptographically secure.
-        
+
         The implementation uses frontier approximation and does NOT produce
         valid Merkle inclusion proofs. Do not use for cryptographic verification.
-        
+
         TODO: Implement proper Merkle tree storage for real proofs.
-        
+
         Returns list of (sibling_hash, is_right) tuples.
         is_right = True if sibling is on the right (we're left).
         """
         if leaf_index >= self.leaf_count:
             raise ValueError(f"Leaf index {leaf_index} >= count {self.leaf_count}")
-        
+
         proof = []
         current_idx = leaf_index
         current_hash = leaf_hash
-        
+
         for level in range(len(self.frontier)):
             sibling_idx = current_idx ^ 1  # Flip last bit
-            
+
             if sibling_idx < self.leaf_count:
                 # Sibling exists in tree
                 # We need to reconstruct sibling hash from frontier
@@ -124,15 +123,15 @@ class IncrementalMerkleTree:
             else:
                 # Sibling is empty
                 sibling_hash = EMPTY_HASH
-            
-            is_right = (current_idx % 2 == 0)  # We're left if index is even
+
+            is_right = current_idx % 2 == 0  # We're left if index is even
             proof.append((sibling_hash, is_right))
-            
+
             # Move up
             current_idx //= 2
-        
+
         return proof
-    
+
     def _get_hash_at_index(self, index: int, level: int) -> str:
         """Reconstruct hash at given index and level (for proofs)."""
         # This is expensive - in production, store full tree or use different proof approach
@@ -140,14 +139,14 @@ class IncrementalMerkleTree:
         if level < len(self.frontier):
             return self.frontier[level]
         return EMPTY_HASH
-    
+
     def to_dict(self) -> dict:
         """Serialize to dict for database storage."""
         return {
             "frontier": self.frontier,
             "leaf_count": self.leaf_count,
         }
-    
+
     @classmethod
     def from_dict(cls, data: dict) -> "IncrementalMerkleTree":
         """Deserialize from dict."""
@@ -163,27 +162,27 @@ class PersistentMerkleState:
     Persistent Merkle state for PostgreSQL storage.
     Replaces the O(N) SELECT + full recompute.
     """
-    
+
     merkle_tree: IncrementalMerkleTree = field(default_factory=IncrementalMerkleTree)
     last_sequence: int = 0
-    
+
     def append_leaf(self, leaf_hash: str, sequence: int) -> str:
         """Append leaf and return new root."""
         root = self.merkle_tree.append(leaf_hash)
         self.last_sequence = sequence
         return root
-    
+
     def get_root(self) -> str:
         """Get current Merkle root."""
         return self.merkle_tree.root()
-    
+
     def to_json(self) -> dict:
         """Serialize for JSONB column."""
         return {
             "merkle_tree": self.merkle_tree.to_dict(),
             "last_sequence": self.last_sequence,
         }
-    
+
     @classmethod
     def from_json(cls, data: dict) -> "PersistentMerkleState":
         """Deserialize from JSONB."""

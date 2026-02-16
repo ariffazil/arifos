@@ -154,11 +154,11 @@ class TestPsiVitalityComputation:
         kappa_r = 0.98
 
         # Compute Ψ
-        peace_squared = peace_score ** 2
+        peace_squared = peace_score**2
         psi = delta_s * peace_squared * kappa_r
 
         # Expected: Ψ = 1.5 × 0.9025 × 0.98 = 1.32667
-        expected_psi = 1.5 * (0.95 ** 2) * 0.98
+        expected_psi = 1.5 * (0.95**2) * 0.98
         assert abs(psi - expected_psi) < 0.001
 
         # Ψ should be ≥ 1.0 for SEALED
@@ -170,7 +170,7 @@ class TestPsiVitalityComputation:
         peace_score = 0.95
         kappa_r = 0.98
 
-        psi = delta_s * (peace_score ** 2) * kappa_r
+        psi = delta_s * (peace_score**2) * kappa_r
 
         # Expected: Ψ = 0.4 × 0.9025 × 0.98 = 0.35378
         assert psi < 1.0, "Low clarity should result in Ψ < 1.0"
@@ -182,7 +182,7 @@ class TestPsiVitalityComputation:
         peace_score = 0.6  # Low peace (below threshold)
         kappa_r = 0.98
 
-        psi = delta_s * (peace_score ** 2) * kappa_r
+        psi = delta_s * (peace_score**2) * kappa_r
 
         # Expected: Ψ = 1.5 × 0.36 × 0.98 = 0.5292
         assert psi < 1.0, "Low peace should result in Ψ < 1.0"
@@ -193,7 +193,7 @@ class TestPsiVitalityComputation:
         peace_score = 0.95
         kappa_r = 0.5  # Low empathy (below threshold)
 
-        psi = delta_s * (peace_score ** 2) * kappa_r
+        psi = delta_s * (peace_score**2) * kappa_r
 
         # Expected: Ψ = 1.5 × 0.9025 × 0.5 = 0.676875
         assert psi < 1.0, "Low empathy should result in Ψ < 1.0"
@@ -205,7 +205,7 @@ class TestPsiVitalityComputation:
         peace_score = 1.0
         kappa_r = 0.91
 
-        psi = delta_s * (peace_score ** 2) * kappa_r
+        psi = delta_s * (peace_score**2) * kappa_r
 
         # Expected: Ψ = 1.1 × 1.0 × 0.91 = 1.001
         assert psi >= 1.0, "Edge case should still pass threshold"
@@ -217,7 +217,7 @@ class TestPsiVitalityComputation:
         peace_score = 1.0  # Perfect stability
         kappa_r = 1.0  # Perfect empathy
 
-        psi = delta_s * (peace_score ** 2) * kappa_r
+        psi = delta_s * (peace_score**2) * kappa_r
 
         # Expected: Ψ = 2.0 × 1.0 × 1.0 = 2.0
         assert psi == 2.0, "Maximum values should yield Ψ = 2.0"

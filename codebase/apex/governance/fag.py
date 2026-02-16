@@ -86,6 +86,7 @@ from .ledger import log_cooling_entry
 # SECURITY EXCEPTION
 # =============================================================================
 
+
 class SecurityAlert(Exception):
     """
     Raised when security thresholds are exceeded.
@@ -96,6 +97,7 @@ class SecurityAlert(Exception):
 
     Should be caught by monitoring systems for incident response.
     """
+
     pass
 
 
@@ -111,7 +113,6 @@ FORBIDDEN_PATTERNS = [
     r"secrets/",
     r"credentials/",
     r"\.secret",
-
     # SSH and keys
     r"id_rsa",
     r"id_ed25519",
@@ -120,26 +121,21 @@ FORBIDDEN_PATTERNS = [
     r"\.ppk$",
     r"authorized_keys",
     r"known_hosts",
-
     # Git internals (can leak history)
     r"\.git/",
     r"\.gitconfig",
-
     # arifOS governance (circular dependency risk)
     r"cooling_ledger/",
     r"L1_cooling_ledger\.jsonl",
     r"\.arifos_clip/",
-
     # Cloud credentials
     r"\.aws/",
     r"\.azure/",
     r"\.gcloud/",
     r"gcp-key\.json",
-
     # Database credentials
     r"\.pgpass",
     r"\.my\.cnf",
-
     # Password managers
     r"\.password-store/",
     r"keepass",
@@ -147,12 +143,36 @@ FORBIDDEN_PATTERNS = [
 
 # Binary/unreadable extensions (F4 DeltaS)
 BINARY_EXTENSIONS = {
-    ".exe", ".dll", ".so", ".dylib", ".bin",
-    ".zip", ".tar", ".gz", ".bz2", ".7z",
-    ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".ico",
-    ".mp3", ".mp4", ".avi", ".mov", ".mkv",
-    ".pdf", ".doc", ".docx", ".xls", ".xlsx",
-    ".pyc", ".pyo", ".class", ".jar",
+    ".exe",
+    ".dll",
+    ".so",
+    ".dylib",
+    ".bin",
+    ".zip",
+    ".tar",
+    ".gz",
+    ".bz2",
+    ".7z",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".gif",
+    ".bmp",
+    ".ico",
+    ".mp3",
+    ".mp4",
+    ".avi",
+    ".mov",
+    ".mkv",
+    ".pdf",
+    ".doc",
+    ".docx",
+    ".xls",
+    ".xlsx",
+    ".pyc",
+    ".pyo",
+    ".class",
+    ".jar",
 }
 
 # =============================================================================
@@ -180,9 +200,11 @@ PROTECTED_PATHS = [
 # FAG READ RESULT
 # =============================================================================
 
+
 @dataclass
 class FAGReadResult:
     """Result of FAG.read() operation."""
+
     verdict: ApexVerdict
     path: str
     content: Optional[str] = None
@@ -198,6 +220,7 @@ class FAGWritePlan:
 
     Defines a proposed write operation with verifiable read proof.
     """
+
     target_path: str
     operation: Literal["create", "patch", "delete"]
     justification: str
@@ -212,6 +235,7 @@ class FAGWritePlan:
 @dataclass
 class FAGWriteResult:
     """Result of FAG.write_validate() operation."""
+
     verdict: str  # SEAL, HOLD, VOID
     path: str
     reason: str
@@ -227,9 +251,11 @@ SANDBOX_ZONES = [".arifos_clip/", "scratch/"]
 # v45.0.3 HARDENING DATACLASSES
 # =============================================================================
 
+
 @dataclass
 class FAGSnapshot:
     """Pre-Mutate Snapshot for F1 Amanah rollback contract (v45.0.3)."""
+
     path: str
     content: bytes
     sha256: str
@@ -241,6 +267,7 @@ class FAGSnapshot:
 @dataclass
 class MutationEvent:
     """Filesystem mutation event for watchdog tracking (v45.0.3)."""
+
     operation: Literal["create", "modify", "rename", "delete"]
     path: str
     timestamp: datetime
@@ -251,6 +278,7 @@ class MutationEvent:
 @dataclass
 class OperatorAlert:
     """Alert for operator notification (v45.0.3)."""
+
     severity: Literal["INFO", "WARN", "CRITICAL"]
     code: str  # e.g., "HIGH_ENTROPY", "CONSECUTIVE_FAILURES"
     message: str
@@ -318,9 +346,11 @@ class MutationWatchdog:
             if event.operation == "delete":
                 # Check if any recent rename targeted a file now being deleted
                 for rename_event in recent:
-                    if (rename_event.operation == "rename" and
-                        rename_event.path == event.path and
-                        rename_event.timestamp < event.timestamp):
+                    if (
+                        rename_event.operation == "rename"
+                        and rename_event.path == event.path
+                        and rename_event.timestamp < event.timestamp
+                    ):
                         anomalies.append(
                             f"RENAME_DELETE_CHAIN: File renamed then deleted - "
                             f"{rename_event.previous_path} → {event.path} → deleted"
@@ -337,9 +367,7 @@ class MutationWatchdog:
                     event_path = event_path.resolve()
 
                 if not str(event_path).startswith(str(root_resolved)):
-                    anomalies.append(
-                        f"BOUNDARY_BREACH: Path {event.path} outside root {root}"
-                    )
+                    anomalies.append(f"BOUNDARY_BREACH: Path {event.path} outside root {root}")
             except Exception:
                 pass
 
@@ -429,10 +457,14 @@ class FAG:
         self.max_snapshots = 100
 
         # v45.0.3 Mutation Watchdog
-        self.watchdog = MutationWatchdog(
-            burst_threshold=watchdog_burst_threshold,
-            time_window_seconds=watchdog_time_window,
-        ) if enable_watchdog else None
+        self.watchdog = (
+            MutationWatchdog(
+                burst_threshold=watchdog_burst_threshold,
+                time_window_seconds=watchdog_time_window,
+            )
+            if enable_watchdog
+            else None
+        )
 
         # v45.0.3 Consecutive failure tracking for alerts
         self.consecutive_failures = 0
@@ -474,8 +506,8 @@ class FAG:
         # Security alert thresholds (denials per 60 seconds)
         if alert_thresholds is None:
             self.alert_thresholds = {
-                "f9_rate": 10,      # F9 C_dark denials (secret enumeration)
-                "total_rate": 50,   # Total denials (brute force)
+                "f9_rate": 10,  # F9 C_dark denials (secret enumeration)
+                "total_rate": 50,  # Total denials (brute force)
             }
         else:
             self.alert_thresholds = alert_thresholds
@@ -524,12 +556,14 @@ class FAG:
 
         # v45.0.3: Protected path check (no-touch zones)
         if self._is_protected_path(target) and not self._can_bypass_protection():
-            self._emit_alert(OperatorAlert(
-                severity="WARN",
-                code="PROTECTED_PATH_ACCESS",
-                message=f"Attempted read of protected path: {target}",
-                context={"path": str(target), "has_token": self.human_seal_token is not None},
-            ))
+            self._emit_alert(
+                OperatorAlert(
+                    severity="WARN",
+                    code="PROTECTED_PATH_ACCESS",
+                    message=f"Attempted read of protected path: {target}",
+                    context={"path": str(target), "has_token": self.human_seal_token is not None},
+                )
+            )
             return self._void_result(
                 path=path,
                 reason=f"F1 Amanah HOLD: Protected path requires HUMAN_SEAL_TOKEN - {target}",
@@ -629,12 +663,16 @@ class FAG:
             # Basic metadata
             try:
                 stat = entry.stat()
-                results.append({
-                    "name": entry.name,
-                    "type": "directory" if entry.is_dir() else "file",
-                    "size": stat.st_size if entry.is_file() else 0,
-                    "modified": datetime.fromtimestamp(stat.st_mtime, tz=timezone.utc).isoformat(),
-                })
+                results.append(
+                    {
+                        "name": entry.name,
+                        "type": "directory" if entry.is_dir() else "file",
+                        "size": stat.st_size if entry.is_file() else 0,
+                        "modified": datetime.fromtimestamp(
+                            stat.st_mtime, tz=timezone.utc
+                        ).isoformat(),
+                    }
+                )
             except Exception:
                 continue
 
@@ -687,12 +725,14 @@ class FAG:
 
         # v45.0.3: Record mutation event for watchdog
         if self.watchdog:
-            self.watchdog.record(MutationEvent(
-                operation=plan.operation,
-                path=target_path,
-                timestamp=datetime.now(timezone.utc),
-                diff_size=len(plan.diff) if plan.diff else 0,
-            ))
+            self.watchdog.record(
+                MutationEvent(
+                    operation=plan.operation,
+                    path=target_path,
+                    timestamp=datetime.now(timezone.utc),
+                    diff_size=len(plan.diff) if plan.diff else 0,
+                )
+            )
 
         # Normalize path for sandbox check
         path_normalized = target_path.replace("\\", "/")
@@ -729,7 +769,9 @@ class FAG:
         # === Rule 4: Read Before Write (HOLD if no read_proof) ===
         if plan.operation == "patch":
             if not plan.read_sha256 or plan.read_bytes is None:
-                violations.append("Read Before Write: No read_proof provided (sha256 + bytes required)")
+                violations.append(
+                    "Read Before Write: No read_proof provided (sha256 + bytes required)"
+                )
             else:
                 # Verify read_proof matches current file state
                 try:
@@ -740,9 +782,13 @@ class FAG:
                         actual_bytes = len(content)
 
                         if actual_sha256 != plan.read_sha256:
-                            violations.append(f"Read Before Write: File changed since read (sha256 mismatch)")
+                            violations.append(
+                                f"Read Before Write: File changed since read (sha256 mismatch)"
+                            )
                         if actual_bytes != plan.read_bytes:
-                            violations.append(f"Read Before Write: File size changed ({actual_bytes} vs {plan.read_bytes})")
+                            violations.append(
+                                f"Read Before Write: File size changed ({actual_bytes} vs {plan.read_bytes})"
+                            )
                 except Exception as e:
                     violations.append(f"Read Before Write: Cannot verify read_proof - {e}")
 
@@ -1113,10 +1159,7 @@ class FAG:
         window_start = now - timedelta(seconds=60)
 
         # Count denials in the last 60 seconds
-        recent_denials = [
-            (ts, dtype) for ts, dtype in self.denial_history
-            if ts >= window_start
-        ]
+        recent_denials = [(ts, dtype) for ts, dtype in self.denial_history if ts >= window_start]
 
         total_recent = len(recent_denials)
         f9_recent = sum(1 for _, dtype in recent_denials if dtype == "f9_c_dark")
@@ -1256,12 +1299,14 @@ class FAG:
             self.access_stats["watchdog_anomalies"] += len(anomalies)
             # Emit alert for each anomaly
             for anomaly in anomalies:
-                self._emit_alert(OperatorAlert(
-                    severity="CRITICAL",
-                    code="WATCHDOG_ANOMALY",
-                    message=anomaly,
-                    context={"root": str(self.root)},
-                ))
+                self._emit_alert(
+                    OperatorAlert(
+                        severity="CRITICAL",
+                        code="WATCHDOG_ANOMALY",
+                        message=anomaly,
+                        context={"root": str(self.root)},
+                    )
+                )
             return f"HOLD-888: Watchdog detected {len(anomalies)} anomalies: {'; '.join(anomalies)}"
 
         return None
@@ -1279,6 +1324,7 @@ class FAG:
 
         # Log alert
         import logging
+
         logger = logging.getLogger(__name__)
         log_method = {
             "INFO": logger.info,
@@ -1301,12 +1347,14 @@ class FAG:
 
         # Emit alert after 2+ consecutive failures
         if self.consecutive_failures >= 2:
-            self._emit_alert(OperatorAlert(
-                severity="WARN",
-                code="CONSECUTIVE_FAILURES",
-                message=f"{self.consecutive_failures} consecutive governance failures detected",
-                context={"session_id": self.job_id},
-            ))
+            self._emit_alert(
+                OperatorAlert(
+                    severity="WARN",
+                    code="CONSECUTIVE_FAILURES",
+                    message=f"{self.consecutive_failures} consecutive governance failures detected",
+                    context={"session_id": self.job_id},
+                )
+            )
 
     def _reset_consecutive_failures(self) -> None:
         """Reset consecutive failure counter on successful operation."""
@@ -1436,6 +1484,7 @@ class FAG:
 # =============================================================================
 # CONVENIENCE FUNCTIONS
 # =============================================================================
+
 
 def fag_read(
     path: str,

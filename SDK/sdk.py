@@ -6,20 +6,20 @@ of L5 multi-agent intelligence.
 
 Usage:
     from arifos_sdk import ArifOS
-    
+
     client = ArifOS()
-    
+
     # Simple ask — runs full 4-agent federation
     result = await client.ask("Analyze the quarterly data")
-    
+
     # With session persistence
     async with client.session() as session:
         r1 = await session.ask("What's the revenue trend?")
         r2 = await session.ask("Compare to last quarter")  # Maintains context
-    
+
     # Reflection — meta-AGI loop
     reflection = await client.reflect(result)
-    
+
     # Audit trail
     history = await client.audit(session_id="abc123")
 
@@ -50,15 +50,16 @@ import hashlib
 import json
 import uuid
 
-
 # Import L5 agents (local SDK package)
 try:
     from .federation import AgentFederation, FederationResult
     from .architect import Architect
     from .base_agent import Verdict, FloorScores
+
     L5_AVAILABLE = True
 except Exception:
     L5_AVAILABLE = False
+
     # Fallback types for when L5 isn't installed
     class Verdict(Enum):
         SEAL = "SEAL"
@@ -70,17 +71,18 @@ except Exception:
 
 class ResponseStatus(Enum):
     """SDK response status."""
-    SUCCESS = "success"         # SEAL or PARTIAL
-    BLOCKED = "blocked"         # VOID
-    PENDING = "pending"         # 888_HOLD (needs human)
-    ERROR = "error"             # System error
+
+    SUCCESS = "success"  # SEAL or PARTIAL
+    BLOCKED = "blocked"  # VOID
+    PENDING = "pending"  # 888_HOLD (needs human)
+    ERROR = "error"  # System error
 
 
 @dataclass
 class AskResponse:
     """
     Response from client.ask()
-    
+
     Contains:
     - answer: The governed response (or None if blocked)
     - status: SUCCESS, BLOCKED, PENDING, ERROR
@@ -91,6 +93,7 @@ class AskResponse:
     - session_id: For continuing conversation
     - timestamp: When response was generated
     """
+
     answer: Optional[str]
     status: ResponseStatus
     verdict: Verdict
@@ -101,19 +104,19 @@ class AskResponse:
     query: str = ""
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     processing_time_ms: float = 0.0
-    
+
     def is_success(self) -> bool:
         """Check if response was successful."""
         return self.status == ResponseStatus.SUCCESS
-    
+
     def is_blocked(self) -> bool:
         """Check if response was blocked (VOID)."""
         return self.status == ResponseStatus.BLOCKED
-    
+
     def needs_human(self) -> bool:
         """Check if response needs human review."""
         return self.status == ResponseStatus.PENDING
-    
+
     def to_dict(self) -> dict:
         """Serialize for storage/transmission."""
         return {
@@ -134,9 +137,10 @@ class AskResponse:
 class ReflectResponse:
     """
     Response from client.reflect()
-    
+
     Meta-AGI reflection on a previous response.
     """
+
     original_query: str
     original_answer: str
     reflection: str
@@ -149,6 +153,7 @@ class ReflectResponse:
 @dataclass
 class AuditEntry:
     """Single entry in audit trail."""
+
     session_id: str
     query: str
     verdict: str
@@ -160,25 +165,25 @@ class AuditEntry:
 class Session:
     """
     Persistent conversation session.
-    
+
     Maintains context across multiple asks.
     """
-    
+
     def __init__(self, client: "ArifOS", session_id: Optional[str] = None):
         self.client = client
         self.session_id = session_id or str(uuid.uuid4())
         self.history: list[AskResponse] = []
         self.created_at = datetime.now(timezone.utc)
         self._context: dict = {}
-    
+
     async def ask(self, query: str, **kwargs) -> AskResponse:
         """
         Ask within this session (maintains context).
-        
+
         Args:
             query: User query
             **kwargs: Additional parameters
-            
+
         Returns:
             AskResponse with session context
         """
@@ -191,28 +196,25 @@ class Session:
             ],
             **self._context,
         }
-        
+
         # Run through client
         response = await self.client.ask(
-            query,
-            session_id=self.session_id,
-            context=context,
-            **kwargs
+            query, session_id=self.session_id, context=context, **kwargs
         )
-        
+
         # Store in history
         self.history.append(response)
-        
+
         return response
-    
+
     def set_context(self, key: str, value: Any) -> None:
         """Set session context value."""
         self._context[key] = value
-    
+
     def get_context(self, key: str, default: Any = None) -> Any:
         """Get session context value."""
         return self._context.get(key, default)
-    
+
     def summary(self) -> str:
         """Get session summary."""
         return (
@@ -227,19 +229,19 @@ class ArifOS:
     """
     arifOS SDK Client
     =================
-    
+
     The gateway to governed AI intelligence.
-    
+
     Quick Start:
         client = ArifOS()
         result = await client.ask("What is the meaning of life?")
         print(result.answer)
-    
+
     With Session:
         async with client.session() as s:
             r1 = await s.ask("Tell me about entropy")
             r2 = await s.ask("How does that relate to information?")
-    
+
     Configuration:
         client = ArifOS(
             endpoint="https://api.arifos.dev",  # Custom endpoint
@@ -247,7 +249,7 @@ class ArifOS:
             enable_reflection=True,              # Enable meta-AGI
         )
     """
-    
+
     def __init__(
         self,
         endpoint: Optional[str] = None,
@@ -257,7 +259,7 @@ class ArifOS:
     ):
         """
         Initialize arifOS client.
-        
+
         Args:
             endpoint: API endpoint (None for local mode)
             tri_witness_threshold: Minimum W₃ for consensus
@@ -268,21 +270,19 @@ class ArifOS:
         self.tri_witness_threshold = tri_witness_threshold
         self.enable_reflection = enable_reflection
         self.vault_enabled = vault_enabled
-        
+
         # Initialize L5 federation if available
         if L5_AVAILABLE:
-            self._federation = AgentFederation(
-                tri_witness_threshold=tri_witness_threshold
-            )
+            self._federation = AgentFederation(tri_witness_threshold=tri_witness_threshold)
         else:
             self._federation = None
-        
+
         # Local vault (would be PostgreSQL in production)
         self._vault: list[AuditEntry] = []
-        
+
         # Active sessions
         self._sessions: dict[str, Session] = {}
-    
+
     async def ask(
         self,
         query: str,
@@ -292,29 +292,30 @@ class ArifOS:
     ) -> AskResponse:
         """
         Ask a question — runs full L5 federation.
-        
+
         This is the primary interface to arifOS intelligence.
-        
+
         Flow:
-            query → Architect (plan) → Engineer (execute) → 
+            query → Architect (plan) → Engineer (execute) →
             Auditor (check) → Validator (seal) → response
-        
+
         Args:
             query: User query
             session_id: Optional session for context
             context: Additional context
             human_override: Skip human review requirement
-            
+
         Returns:
             AskResponse with governed answer
         """
         import time
+
         start_time = time.time()
-        
+
         # Generate session ID if not provided
         if not session_id:
             session_id = str(uuid.uuid4())
-        
+
         # Check L5 availability
         if not L5_AVAILABLE or not self._federation:
             return AskResponse(
@@ -326,7 +327,7 @@ class ArifOS:
                 session_id=session_id,
                 query=query,
             )
-        
+
         # Run through L5 federation
         try:
             # Run full federation
@@ -335,11 +336,11 @@ class ArifOS:
                 context=context or {},
                 human_override=human_override,
             )
-            
+
             # Extract answer from plan
             answer = None
             plan_dict = None
-            
+
             if result.plan:
                 plan_dict = result.plan.to_dict()
 
@@ -356,7 +357,7 @@ class ArifOS:
                 )
                 if result.plan.requires_human_review:
                     answer += "\n⚠️ Human review required before execution."
-            
+
             # Map verdict to status
             if result.final_verdict == Verdict.SEAL:
                 status = ResponseStatus.SUCCESS
@@ -366,11 +367,11 @@ class ArifOS:
                 status = ResponseStatus.PENDING
             else:
                 status = ResponseStatus.BLOCKED
-            
+
             # Extract floor scores
             floor_scores = {}
             violations = []
-            
+
             # Prefer validator scores, then auditor, then architect
             if result.validator_output:
                 floor_scores = result.validator_output.floor_scores.to_dict()
@@ -381,9 +382,9 @@ class ArifOS:
             elif result.architect_output:
                 floor_scores = result.architect_output.floor_scores.to_dict()
                 violations = result.architect_output.violations
-            
+
             processing_time = (time.time() - start_time) * 1000
-            
+
             response = AskResponse(
                 answer=answer,
                 status=status,
@@ -395,13 +396,13 @@ class ArifOS:
                 query=query,
                 processing_time_ms=processing_time,
             )
-            
+
             # Write to vault
             if self.vault_enabled:
                 self._write_vault(response)
-            
+
             return response
-            
+
         except Exception as e:
             return AskResponse(
                 answer=None,
@@ -413,20 +414,20 @@ class ArifOS:
                 query=query,
                 processing_time_ms=(time.time() - start_time) * 1000,
             )
-    
+
     async def reflect(self, response: AskResponse) -> ReflectResponse:
         """
         Meta-AGI reflection on a previous response.
-        
+
         Analyzes the response for:
         - Logical consistency
         - Missing considerations
         - Potential improvements
         - Confidence calibration
-        
+
         Args:
             response: Previous AskResponse to reflect on
-            
+
         Returns:
             ReflectResponse with meta-analysis
         """
@@ -439,42 +440,42 @@ class ArifOS:
                 confidence_delta=0.0,
                 should_revise=False,
             )
-        
+
         # Simple reflection logic (would use LLM in production)
         improvements = []
         should_revise = False
         confidence_delta = 0.0
-        
+
         # Check for low scores
         if response.floor_scores:
             if response.floor_scores.get("f6_empathy", 1.0) < 0.80:
                 improvements.append("Consider stakeholder impact more deeply")
                 should_revise = True
                 confidence_delta -= 0.05
-            
+
             if response.floor_scores.get("f2_truth", 1.0) < 0.99:
                 improvements.append("Verify factual claims with sources")
                 should_revise = True
                 confidence_delta -= 0.10
-            
+
             if response.floor_scores.get("f4_clarity", 0.0) > 0:
                 improvements.append("Response may increase confusion - simplify")
                 should_revise = True
                 confidence_delta -= 0.05
-        
+
         # Check for violations
         if response.violations:
             improvements.append(f"Address violations: {', '.join(response.violations)}")
             should_revise = True
             confidence_delta -= 0.15
-        
+
         reflection = (
             f"Analyzed response to: {response.query[:50]}...\n"
             f"Verdict: {response.verdict.value}\n"
             f"Improvements needed: {len(improvements)}\n"
             f"Confidence adjustment: {confidence_delta:+.2f}"
         )
-        
+
         return ReflectResponse(
             original_query=response.query,
             original_answer=response.answer or "",
@@ -483,7 +484,7 @@ class ArifOS:
             confidence_delta=confidence_delta,
             should_revise=should_revise,
         )
-    
+
     async def audit(
         self,
         session_id: Optional[str] = None,
@@ -491,26 +492,26 @@ class ArifOS:
     ) -> list[AuditEntry]:
         """
         Query VAULT-999 audit trail.
-        
+
         Args:
             session_id: Filter by session (None for all)
             limit: Maximum entries to return
-            
+
         Returns:
             List of AuditEntry records
         """
         entries = self._vault
-        
+
         if session_id:
             entries = [e for e in entries if e.session_id == session_id]
-        
+
         return entries[-limit:]
-    
+
     def _write_vault(self, response: AskResponse) -> None:
         """Write response to local vault."""
         content = json.dumps(response.to_dict(), sort_keys=True)
         hash_value = hashlib.sha256(content.encode()).hexdigest()
-        
+
         entry = AuditEntry(
             session_id=response.session_id or "unknown",
             query=response.query,
@@ -519,46 +520,43 @@ class ArifOS:
             timestamp=response.timestamp.isoformat(),
             hash=hash_value,
         )
-        
+
         self._vault.append(entry)
-    
+
     @asynccontextmanager
-    async def session(
-        self,
-        session_id: Optional[str] = None
-    ) -> AsyncIterator[Session]:
+    async def session(self, session_id: Optional[str] = None) -> AsyncIterator[Session]:
         """
         Create a conversation session with persistent context.
-        
+
         Usage:
             async with client.session() as s:
                 r1 = await s.ask("First question")
                 r2 = await s.ask("Follow-up")  # Has context from r1
-        
+
         Args:
             session_id: Optional ID (generated if not provided)
-            
+
         Yields:
             Session object for conversation
         """
         session = Session(self, session_id)
         self._sessions[session.session_id] = session
-        
+
         try:
             yield session
         finally:
             # Session cleanup (context saved in vault)
             pass
-    
+
     def get_session(self, session_id: str) -> Optional[Session]:
         """Retrieve an existing session by ID."""
         return self._sessions.get(session_id)
-    
+
     @property
     def is_l5_available(self) -> bool:
         """Check if L5 federation is available."""
         return L5_AVAILABLE and self._federation is not None
-    
+
     def status(self) -> dict:
         """Get client status."""
         return {
@@ -577,7 +575,7 @@ class ArifOS:
 async def ask(query: str, **kwargs) -> AskResponse:
     """
     Quick ask without creating client.
-    
+
     Usage:
         from arifos_sdk import ask
         result = await ask("What is entropy?")

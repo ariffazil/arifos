@@ -270,9 +270,9 @@ class TestFloorEnforcementIntegration:
         result_harmful = floor.check(ctx_harmful)
 
         # Should have lower peace score
-        assert result_harmful.score < result_peaceful.score, (
-            "Harmful query should have lower Peace² score"
-        )
+        assert (
+            result_harmful.score < result_peaceful.score
+        ), "Harmful query should have lower Peace² score"
 
         print(f"✅ F5 Peace² floor: {result_peaceful.score:.3f} vs {result_harmful.score:.3f}")
 

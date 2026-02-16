@@ -13,7 +13,6 @@ Usage:
     python -m aaa_mcp.selftest --strict  # Fail on warnings
 """
 
-import json
 import os
 import sys
 from typing import List, Tuple
@@ -158,7 +157,6 @@ def check_health_contract() -> Tuple[bool, List[str]]:
 
     try:
         # Try to import health handler
-        from aaa_mcp.server import mcp
 
         print("✓ Health endpoint: /health available")
 

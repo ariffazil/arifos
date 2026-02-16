@@ -23,6 +23,7 @@ if str(REPO_ROOT) not in sys.path:
 try:
     import mcp
     import mcp.types
+
     HAS_MCP = True
 except ImportError:
     HAS_MCP = False
@@ -32,6 +33,7 @@ except ImportError:
 # Phase 3.1: MCP Module Availability
 # =============================================================================
 
+
 class TestMCPModuleAvailability:
     """Verify MCP module is available or tests skip gracefully."""
 
@@ -40,10 +42,11 @@ class TestMCPModuleAvailability:
         if HAS_MCP:
             import mcp
             import mcp.types
-            assert hasattr(mcp, 'types')
-            assert hasattr(mcp.types, 'Tool')
-            assert hasattr(mcp.types, 'Resource')
-            assert hasattr(mcp.types, 'Prompt')
+
+            assert hasattr(mcp, "types")
+            assert hasattr(mcp.types, "Tool")
+            assert hasattr(mcp.types, "Resource")
+            assert hasattr(mcp.types, "Prompt")
         else:
             pytest.skip("mcp module not installed")
 
@@ -51,6 +54,7 @@ class TestMCPModuleAvailability:
 # =============================================================================
 # Phase 3.2: Stdio Transport Tests
 # =============================================================================
+
 
 class TestStdioTransport:
     """Test stdio transport lists all 9 canonical tools."""
@@ -79,9 +83,15 @@ class TestStdioTransport:
         assert len(tools) == 9, f"Expected 9 tools, got {len(tools)}: {list(tools.keys())}"
 
         core_tools = [
-            "init_gate", "agi_sense", "agi_think", "agi_reason",
-            "asi_empathize", "asi_align",
-            "apex_verdict", "reality_search", "vault_seal",
+            "init_gate",
+            "agi_sense",
+            "agi_think",
+            "agi_reason",
+            "asi_empathize",
+            "asi_align",
+            "apex_verdict",
+            "reality_search",
+            "vault_seal",
         ]
 
         for tool_name in core_tools:
@@ -91,10 +101,10 @@ class TestStdioTransport:
         """All tools in stdio transport have valid handlers."""
         from mcp_server.core.tool_registry import ToolRegistry
         from mcp_server.transports.stdio import StdioTransport
-        
+
         registry = ToolRegistry()
         transport = StdioTransport(registry)
-        
+
         for name, tool in registry.list_tools().items():
             assert tool.handler is not None, f"{name} has no handler"
             assert callable(tool.handler), f"{name} handler not callable"
@@ -103,6 +113,7 @@ class TestStdioTransport:
 # =============================================================================
 # Phase 3.3: SSE Transport Tests
 # =============================================================================
+
 
 class TestSSETransport:
     """Test SSE transport lists all 9 canonical tools."""
@@ -131,9 +142,15 @@ class TestSSETransport:
         assert len(tools) == 9, f"Expected 9 tools, got {len(tools)}: {list(tools.keys())}"
 
         core_tools = [
-            "init_gate", "agi_sense", "agi_think", "agi_reason",
-            "asi_empathize", "asi_align",
-            "apex_verdict", "reality_search", "vault_seal",
+            "init_gate",
+            "agi_sense",
+            "agi_think",
+            "agi_reason",
+            "asi_empathize",
+            "asi_align",
+            "apex_verdict",
+            "reality_search",
+            "vault_seal",
         ]
 
         for tool_name in core_tools:
@@ -143,10 +160,10 @@ class TestSSETransport:
         """All tools in SSE transport have valid handlers."""
         from mcp_server.core.tool_registry import ToolRegistry
         from mcp_server.transports.sse import SSETransport
-        
+
         registry = ToolRegistry()
         transport = SSETransport(registry)
-        
+
         for name, tool in registry.list_tools().items():
             assert tool.handler is not None, f"{name} has no handler"
             assert callable(tool.handler), f"{name} handler not callable"
@@ -155,6 +172,7 @@ class TestSSETransport:
 # =============================================================================
 # Phase 3.4: Integration Tests - Full Tool Calls
 # =============================================================================
+
 
 class TestIntegrationToolCalls:
     """Test actual tool calls through MCP transport."""
@@ -182,27 +200,29 @@ class TestIntegrationToolCalls:
     async def test_agi_sense_tool_call(self):
         """Integration test: Call agi_sense and verify response."""
         from mcp_server.core.tool_registry import ToolRegistry
-        
+
         registry = ToolRegistry()
         tool = registry.get("agi_sense")
-        
+
         assert tool is not None, "agi_sense tool not found"
-        
+
         # Mock the kernel
-        with patch('mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
+        with patch("mcp.tools.canonical_trinity.get_kernel_manager") as mock_km:
             mock_agi = AsyncMock()
-            mock_agi.execute = AsyncMock(return_value={
-                "session_id": "sess_sense123",
-                "entropy_delta": -0.15,
-                "vote": "SEAL",
-                "intent": "EXPLAIN",
-                "lane": "SOFT"
-            })
+            mock_agi.execute = AsyncMock(
+                return_value={
+                    "session_id": "sess_sense123",
+                    "entropy_delta": -0.15,
+                    "vote": "SEAL",
+                    "intent": "EXPLAIN",
+                    "lane": "SOFT",
+                }
+            )
             mock_km.return_value.get_agi.return_value = mock_agi
-            
+
             # Call the handler
             result = await tool.handler(query="What is AI?", session_id="sess_sense123")
-            
+
             # Verify response has expected fields
             assert isinstance(result, dict)
             assert "session_id" in result
@@ -212,31 +232,31 @@ class TestIntegrationToolCalls:
     async def test_agi_reason_tool_call(self):
         """Integration test: Call agi_reason with mode parameter."""
         from mcp_server.core.tool_registry import ToolRegistry
-        
+
         registry = ToolRegistry()
         tool = registry.get("agi_reason")
-        
+
         assert tool is not None, "agi_reason tool not found"
-        
+
         # Mock the kernel
-        with patch('mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
+        with patch("mcp.tools.canonical_trinity.get_kernel_manager") as mock_km:
             mock_agi = AsyncMock()
-            mock_agi.execute = AsyncMock(return_value={
-                "session_id": "sess_reason456",
-                "entropy_delta": -0.20,
-                "vote": "SEAL",
-                "reasoning": "Logical analysis complete",
-                "floor_scores": {"F2": 0.99, "F4": 0.95}
-            })
+            mock_agi.execute = AsyncMock(
+                return_value={
+                    "session_id": "sess_reason456",
+                    "entropy_delta": -0.20,
+                    "vote": "SEAL",
+                    "reasoning": "Logical analysis complete",
+                    "floor_scores": {"F2": 0.99, "F4": 0.95},
+                }
+            )
             mock_km.return_value.get_agi.return_value = mock_agi
-            
+
             # Call with mode parameter
             result = await tool.handler(
-                query="Explain quantum computing",
-                session_id="sess_reason456",
-                mode="atlas"
+                query="Explain quantum computing", session_id="sess_reason456", mode="atlas"
             )
-            
+
             # Verify response
             assert isinstance(result, dict)
             assert "session_id" in result
@@ -245,35 +265,33 @@ class TestIntegrationToolCalls:
     async def test_session_state_propagation_across_tools(self):
         """Integration test: Verify session state flows between tools."""
         from mcp_server.core.tool_registry import ToolRegistry
-        
+
         registry = ToolRegistry()
         agi_sense = registry.get("agi_sense")
         agi_think = registry.get("agi_think")
-        
+
         session_id = "sess_integration789"
-        
+
         # Mock kernel with session state
-        with patch('mcp.tools.canonical_trinity.get_kernel_manager') as mock_km:
+        with patch("mcp.tools.canonical_trinity.get_kernel_manager") as mock_km:
             mock_agi = AsyncMock()
-            
+
             # First call (sense)
-            mock_agi.execute = AsyncMock(return_value={
-                "session_id": session_id,
-                "entropy_delta": -0.10,
-                "vote": "SEAL"
-            })
+            mock_agi.execute = AsyncMock(
+                return_value={"session_id": session_id, "entropy_delta": -0.10, "vote": "SEAL"}
+            )
             mock_km.return_value.get_agi.return_value = mock_agi
-            
+
             result1 = await agi_sense.handler(query="test", session_id=session_id)
-            
+
             # Verify session_id was passed to kernel
             call_args = mock_agi.execute.call_args
             assert call_args is not None
             assert call_args[0][1]["session_id"] == session_id
-            
+
             # Second call (think) with same session_id
             result2 = await agi_think.handler(query="test", session_id=session_id)
-            
+
             # Verify both calls used same session_id
             assert result1.get("session_id") == session_id or "session_id" in result1
             assert result2.get("session_id") == session_id or "session_id" in result2
@@ -282,6 +300,7 @@ class TestIntegrationToolCalls:
 # =============================================================================
 # Phase 3.5: Backward Compatibility Tests
 # =============================================================================
+
 
 class TestBackwardCompatibility:
     """Verify v55 canonical tools are fully functional."""
@@ -293,9 +312,15 @@ class TestBackwardCompatibility:
         registry = ToolRegistry()
 
         canonical = [
-            "init_gate", "agi_sense", "agi_think", "agi_reason",
-            "asi_empathize", "asi_align", "apex_verdict",
-            "reality_search", "vault_seal",
+            "init_gate",
+            "agi_sense",
+            "agi_think",
+            "agi_reason",
+            "asi_empathize",
+            "asi_align",
+            "apex_verdict",
+            "reality_search",
+            "vault_seal",
         ]
 
         for tool_name in canonical:
@@ -327,6 +352,7 @@ class TestBackwardCompatibility:
 # Phase 3 Validation Summary
 # =============================================================================
 
+
 class TestPhase3Validation:
     """Summary validation for Phase 3 completion."""
 
@@ -347,9 +373,15 @@ class TestPhase3Validation:
 
         # All 9 canonical tools present
         core_9 = [
-            "init_gate", "agi_sense", "agi_think", "agi_reason",
-            "asi_empathize", "asi_align",
-            "apex_verdict", "reality_search", "vault_seal",
+            "init_gate",
+            "agi_sense",
+            "agi_think",
+            "agi_reason",
+            "asi_empathize",
+            "asi_align",
+            "apex_verdict",
+            "reality_search",
+            "vault_seal",
         ]
 
         tools = registry.list_tools()

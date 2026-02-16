@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional
 
 class Verdict(str, Enum):
     """Constitutional verdicts."""
+
     SEAL = "SEAL"
     VOID = "VOID"
     PARTIAL = "PARTIAL"
@@ -23,6 +24,7 @@ class Verdict(str, Enum):
 
 class ActorType(str, Enum):
     """Types of actors."""
+
     HUMAN = "human"
     SERVICE_ACCOUNT = "service_account"
     AGENT = "agent"
@@ -30,6 +32,7 @@ class ActorType(str, Enum):
 
 class ToolClass(str, Enum):
     """Risk classification for tools."""
+
     READ_ONLY = "read_only"
     INFRA_WRITE = "infra_write"
     DESTRUCTIVE = "destructive"
@@ -39,6 +42,7 @@ class ToolClass(str, Enum):
 @dataclass
 class FloorResult:
     """Result of a single floor check."""
+
     floor: str  # F1, F2, etc.
     name: str
     passed: bool
@@ -49,6 +53,7 @@ class FloorResult:
 @dataclass
 class BlastRadius:
     """Infrastructure blast radius calculation."""
+
     score: float  # 0.0-1.0
     affected_pods: int
     affected_deployments: int
@@ -59,6 +64,7 @@ class BlastRadius:
 @dataclass
 class GatewayDecision:
     """Result of gateway constitutional evaluation."""
+
     session_id: str
     tool_name: str
     tool_class: ToolClass
@@ -70,17 +76,17 @@ class GatewayDecision:
     manifest_hash: Optional[str] = None
     downstream_endpoint: Optional[str] = None
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-    
+
     @property
     def is_blocked(self) -> bool:
         """Check if operation is blocked."""
         return self.verdict == Verdict.VOID
-    
+
     @property
     def requires_human_approval(self) -> bool:
         """Check if 888_HOLD."""
         return self.verdict == Verdict.HOLD_888
-    
+
     @property
     def can_proceed(self) -> bool:
         """Check if operation can proceed (SEAL or PARTIAL)."""
@@ -90,6 +96,7 @@ class GatewayDecision:
 @dataclass
 class HumanApprovalRequest:
     """Request for human approval (888_HOLD)."""
+
     hold_id: str
     session_id: str
     tool_name: str
@@ -100,7 +107,7 @@ class HumanApprovalRequest:
     requested_by: str
     requested_at: str
     review_url: str
-    
+
     def to_slack_message(self) -> str:
         """Format as Slack message."""
         return f"""
@@ -117,7 +124,7 @@ class HumanApprovalRequest:
 
 *Review:* {self.review_url}
         """.strip()
-    
+
     def to_email_subject(self) -> str:
         """Format as email subject."""
         return f"[arifOS] 888_HOLD: {self.tool_name} requires approval"
@@ -126,13 +133,14 @@ class HumanApprovalRequest:
 @dataclass
 class HumanApprovalResponse:
     """Response to human approval request."""
+
     hold_id: str
     approved: bool
     verdict: Verdict
     approved_by: Optional[str] = None
     approved_at: Optional[str] = None
     rejection_reason: Optional[str] = None
-    
+
     @property
     def is_approved(self) -> bool:
         """Check if approved (SEAL)."""
@@ -142,6 +150,7 @@ class HumanApprovalResponse:
 @dataclass
 class SessionContext:
     """Context for a constitutional session."""
+
     session_id: str
     actor_id: str
     actor_type: ActorType
@@ -149,7 +158,7 @@ class SessionContext:
     team: Optional[str] = None
     attestation: Optional[str] = None
     created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
-    
+
     def get_accountable_human(self) -> str:
         """Get ultimately accountable human."""
         if self.actor_type == ActorType.HUMAN:

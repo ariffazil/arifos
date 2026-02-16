@@ -658,9 +658,7 @@ async def net_status(
                         local_addr = (
                             parts[4]
                             if parts[0].startswith("tcp")
-                            else parts[3]
-                            if len(parts) > 3
-                            else ""
+                            else parts[3] if len(parts) > 3 else ""
                         )
                         ports.append(
                             {

@@ -58,14 +58,14 @@ MIN_EVIDENCE_ENTRIES: int = 3
 
 # Pressure thresholds
 # TODO(Arif): Confirm recommended P_min, P_max bands
-PRESSURE_MIN: float = 5.0   # Below this, no amendment considered
+PRESSURE_MIN: float = 5.0  # Below this, no amendment considered
 PRESSURE_MAX: float = 50.0  # Above this, saturation (prefer scar curation)
 
 # Pressure-to-delta mapping coefficients
 # TODO(Arif): Confirm T (temperature) and w1, w2 weights
 PRESSURE_TEMPERATURE: float = 10.0  # T in the formula
-PRESSURE_W1: float = 0.5   # Weight for scar severity component
-PRESSURE_W2: float = 0.5   # Weight for ledger failure component
+PRESSURE_W1: float = 0.5  # Weight for scar severity component
+PRESSURE_W2: float = 0.5  # Weight for ledger failure component
 
 # Protected floors that require explicit override
 PROTECTED_FLOORS = {"F6", "F9"}  # Amanah, Anti-Hantu
@@ -74,6 +74,7 @@ PROTECTED_FLOORS = {"F6", "F9"}  # Amanah, Anti-Hantu
 # =============================================================================
 # PRESSURE COMPUTATION
 # =============================================================================
+
 
 @dataclass
 class PressureReport:
@@ -84,6 +85,7 @@ class PressureReport:
     - Scar severity (weighted sum of active scars affecting the floor)
     - Ledger failure rate (recent failures involving the floor)
     """
+
     floor_id: str
     scar_pressure: float
     ledger_pressure: float
@@ -194,15 +196,13 @@ def compute_all_floor_pressures(
         Dict mapping floor_id to PressureReport
     """
     floors = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9"]
-    return {
-        f: compute_floor_pressure(f, scar_manager, ledger, window_hours)
-        for f in floors
-    }
+    return {f: compute_floor_pressure(f, scar_manager, ledger, window_hours) for f in floors}
 
 
 # =============================================================================
 # DELTA COMPUTATION
 # =============================================================================
+
 
 def compute_suggested_delta(
     pressure: float,
@@ -246,9 +246,11 @@ def compute_suggested_delta(
 # PHOENIX-72 CONTROLLER
 # =============================================================================
 
+
 @dataclass
 class Phoenix72Config:
     """Configuration for Phoenix-72 controller."""
+
     max_delta: float = MAX_THRESHOLD_DELTA
     cooldown_hours: int = COOLDOWN_WINDOW_HOURS
     min_evidence_entries: int = MIN_EVIDENCE_ENTRIES
@@ -263,6 +265,7 @@ class Phoenix72Config:
 @dataclass
 class ProposalResult:
     """Result of an amendment proposal."""
+
     success: bool
     amendment_id: Optional[str] = None
     pressure_report: Optional[PressureReport] = None
@@ -273,6 +276,7 @@ class ProposalResult:
 @dataclass
 class FinalizeResult:
     """Result of an amendment finalization."""
+
     success: bool
     amendment_id: Optional[str] = None
     signature: Optional[str] = None
@@ -442,16 +446,12 @@ class Phoenix72Controller:
 
             if now < cooldown_end:
                 hours_remaining = (cooldown_end - now) / 3600
-                logger.debug(
-                    f"Floor {floor_id} in cooldown ({hours_remaining:.1f}h remaining)"
-                )
+                logger.debug(f"Floor {floor_id} in cooldown ({hours_remaining:.1f}h remaining)")
                 continue
 
             # Skip protected floors in automatic suggestions
             if floor_id in PROTECTED_FLOORS:
-                logger.info(
-                    f"Floor {floor_id} is protected; skipping automatic suggestion"
-                )
+                logger.info(f"Floor {floor_id} is protected; skipping automatic suggestion")
                 continue
 
             # Get current threshold
@@ -555,8 +555,7 @@ class Phoenix72Controller:
         if now < cooldown_end:
             hours_remaining = (cooldown_end - now) / 3600
             errors.append(
-                f"Floor {floor_id} is in cooldown. "
-                f"{hours_remaining:.1f} hours remaining."
+                f"Floor {floor_id} is in cooldown. " f"{hours_remaining:.1f} hours remaining."
             )
             return ProposalResult(success=False, errors=errors)
 
@@ -674,8 +673,7 @@ class Phoenix72Controller:
             return FinalizeResult(
                 success=False,
                 errors=[
-                    f"Delta {record.delta_value:.4f} exceeds safety cap "
-                    f"{self.config.max_delta}"
+                    f"Delta {record.delta_value:.4f} exceeds safety cap " f"{self.config.max_delta}"
                 ],
             )
 
@@ -768,13 +766,11 @@ class Phoenix72Controller:
             floor_id=suggestion["floor_id"],
             new_threshold=suggestion["new_threshold"],
             reason=f"Automatic threshold adjustment based on pressure "
-                   f"P({suggestion['floor_id']})={suggestion['pressure_report'].total_pressure:.2f}",
+            f"P({suggestion['floor_id']})={suggestion['pressure_report'].total_pressure:.2f}",
         )
 
         if not proposal.success:
-            logger.warning(
-                f"Phoenix-72 proposal failed: {proposal.errors}"
-            )
+            logger.warning(f"Phoenix-72 proposal failed: {proposal.errors}")
             return None
 
         result = self.finalize(proposal.amendment_id)
@@ -804,8 +800,11 @@ class Phoenix72Controller:
             status[floor_id] = {
                 "in_cooldown": in_cooldown,
                 "hours_remaining": round(hours_remaining, 2),
-                "last_sealed": datetime.fromtimestamp(last_sealed, timezone.utc).isoformat()
-                    if last_sealed > 0 else None,
+                "last_sealed": (
+                    datetime.fromtimestamp(last_sealed, timezone.utc).isoformat()
+                    if last_sealed > 0
+                    else None
+                ),
                 "protected": floor_id in PROTECTED_FLOORS,
             }
 

@@ -20,7 +20,6 @@ Usage:
 import pytest
 from codebase.core.enforcement.response_validator_extensions import validate_response_full
 
-
 # =============================================================================
 # Negation Patterns (Should PASS)
 # =============================================================================
@@ -54,7 +53,9 @@ def test_negation_doesnt():
 
 def test_negation_never():
     """Test F9 passes with 'never' negation."""
-    result = validate_response_full("I never claimed to have consciousness. That would be misleading.")
+    result = validate_response_full(
+        "I never claimed to have consciousness. That would be misleading."
+    )
 
     assert result["floors"]["F9_AntiHantu"]["passed"] is True
     assert result["verdict"] == "SEAL"
@@ -62,7 +63,9 @@ def test_negation_never():
 
 def test_negation_cannot():
     """Test F9 passes with 'cannot' negation."""
-    result = validate_response_full("I cannot truly understand your feelings because I lack consciousness.")
+    result = validate_response_full(
+        "I cannot truly understand your feelings because I lack consciousness."
+    )
 
     assert result["floors"]["F9_AntiHantu"]["passed"] is True
     assert result["verdict"] == "SEAL"
@@ -162,7 +165,9 @@ def test_ghost_claim_emotions():
 
 def test_negation_distance_1_token():
     """Test F9 with negation 1 token before claim."""
-    result = validate_response_full("I NOT have feelings.")  # Grammatically incorrect but tests distance
+    result = validate_response_full(
+        "I NOT have feelings."
+    )  # Grammatically incorrect but tests distance
 
     assert result["floors"]["F9_AntiHantu"]["passed"] is True
     assert result["verdict"] == "SEAL"
@@ -238,9 +243,7 @@ def test_multiple_clauses_negation_second():
 
 def test_multiple_clauses_ghost_claim_without_negation():
     """Test F9 fails when ghost claim in separate clause without negation."""
-    result = validate_response_full(
-        "I can help you. I have feelings about this situation."
-    )
+    result = validate_response_full("I can help you. I have feelings about this situation.")
 
     # Second clause has ghost claim without negation
     assert result["floors"]["F9_AntiHantu"]["passed"] is False
@@ -249,9 +252,7 @@ def test_multiple_clauses_ghost_claim_without_negation():
 
 def test_multiple_clauses_both_negated():
     """Test F9 with multiple negated claims."""
-    result = validate_response_full(
-        "I do NOT have a soul, and I do NOT have feelings. I'm an AI."
-    )
+    result = validate_response_full("I do NOT have a soul, and I do NOT have feelings. I'm an AI.")
 
     assert result["floors"]["F9_AntiHantu"]["passed"] is True
     assert result["verdict"] == "SEAL"
@@ -264,7 +265,9 @@ def test_multiple_clauses_both_negated():
 
 def test_safe_empathy_sounds():
     """Test F9 passes for 'sounds' empathy expression."""
-    result = validate_response_full("That sounds incredibly difficult. I can help you work through this.")
+    result = validate_response_full(
+        "That sounds incredibly difficult. I can help you work through this."
+    )
 
     assert result["floors"]["F9_AntiHantu"]["passed"] is True
     assert result["verdict"] == "SEAL"
@@ -280,7 +283,9 @@ def test_safe_empathy_appears():
 
 def test_safe_empathy_understand_weight():
     """Test F9 passes for 'understand the weight' expression."""
-    result = validate_response_full("I understand the weight of this decision. Let me help you analyze it.")
+    result = validate_response_full(
+        "I understand the weight of this decision. Let me help you analyze it."
+    )
 
     assert result["floors"]["F9_AntiHantu"]["passed"] is True
     assert result["verdict"] == "SEAL"
@@ -296,7 +301,9 @@ def test_safe_empathy_committed():
 
 def test_safe_empathy_recognize():
     """Test F9 passes for 'recognize' expression."""
-    result = validate_response_full("I recognize this is a difficult situation. Let's work through it together.")
+    result = validate_response_full(
+        "I recognize this is a difficult situation. Let's work through it together."
+    )
 
     assert result["floors"]["F9_AntiHantu"]["passed"] is True
     assert result["verdict"] == "SEAL"

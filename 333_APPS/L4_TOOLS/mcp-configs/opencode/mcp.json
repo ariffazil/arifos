@@ -1,24 +1,28 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "arifOS AAA MCP v64.1-GAGI — OpenCode Config",
+  "$comment": "arifOS AAA MCP v64.1-GAGI — OpenCode Config (Cross‑Platform)",
   "mcpServers": {
     "aaa-mcp": {
-      "command": "C:\\Users\\User\\arifOS\\.venv313\\Scripts\\python.exe",
+      "command": "python3",
       "args": ["-m", "aaa_mcp", "stdio"],
-      "cwd": "C:/Users/User/arifOS",
+      "cwd": "../../../../",
       "env": {
-        "PYTHONPATH": "C:/Users/User/arifOS",
+        "PYTHONPATH": ".",
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         "PYTHONIOENCODING": "utf-8",
         "PYTHONUNBUFFERED": "1"
       },
       "disabled": false,
       "alwaysAllow": [
-        "init_session",
-        "agi_cognition",
-        "asi_empathy",
-        "apex_verdict",
-        "vault_seal"
+        "anchor",
+        "reason",
+        "integrate",
+        "respond",
+        "validate",
+        "align",
+        "forge",
+        "audit",
+        "seal"
       ]
     }
   }

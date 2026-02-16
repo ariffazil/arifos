@@ -16,6 +16,7 @@ Constitutional Mapping:
 - New Location: state/ (pure state management)
 - Related Theory: See 000_THEORY/canon/012_enforcement/STATE_MANAGEMENT.md
 """
+
 import warnings
 
 warnings.warn(
@@ -23,10 +24,10 @@ warnings.warn(
     "Use codebase.state.ledger instead. "
     "This shim will be removed in v47.2 (72 hours after v47.1).",
     DeprecationWarning,
-    stacklevel=2
+    stacklevel=2,
 )
 
 # Re-export everything from new location
 from codebase.memory.state.ledger import *
 
-__all__ = ['AuditLedger']
+__all__ = ["AuditLedger"]

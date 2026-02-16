@@ -19,28 +19,30 @@ async def empathize(
 ) -> AsiOutput:
     sbert_scores = classify_asi_floors(query)
     stakeholders = identify_stakeholders(query, context=context)
-    
+
     # Use SBERT for F5, F6, F9
     f5_peace_score = sbert_scores.f5_peace
     f6_empathy_score = sbert_scores.f6_empathy
     f9_anti_hantu_score = sbert_scores.f9_anti_hantu
-    
+
     # Peace2 expects Dict[str, float] based on perceived harms
     # For simplicity, map SBERT-based peace score to stakeholder harms
     harms = {s.name: (1.0 - f5_peace_score) for s in stakeholders}
     peace_obj = Peace2(harms)
-    
+
     weakest = (
         min(stakeholders, key=lambda s: s.vulnerability_score)
         if stakeholders
-        else Stakeholder("System", 1.0) # Assume 1.0 for now
+        else Stakeholder("System", 1.0)  # Assume 1.0 for now
     )
     care_recs = [f"Monitor impact on {s.name}" for s in stakeholders if s.vulnerability_score < 0.5]
-    
+
     return AsiOutput(
         session_id=session_id,
-        floor_scores=FloorScores(f5_peace=f5_peace_score, f6_empathy=f6_empathy_score, f9_anti_hantu=f9_anti_hantu_score),
-        verdict=Verdict.SEAL, # Default to SEAL, align() will change if violations
+        floor_scores=FloorScores(
+            f5_peace=f5_peace_score, f6_empathy=f6_empathy_score, f9_anti_hantu=f9_anti_hantu_score
+        ),
+        verdict=Verdict.SEAL,  # Default to SEAL, align() will change if violations
         stakeholder_impact={s.name: s.vulnerability_score for s in stakeholders},
         metrics={
             "stage": 555,
@@ -59,7 +61,7 @@ async def align(
     emp_data = (
         empathy_output.model_dump() if hasattr(empathy_output, "model_dump") else empathy_output
     )
-    
+
     # Use SBERT scores from empathize output, or re-classify if not present
     if "sbert_method" in emp_data.get("metrics", {}):
         f5_peace_score = emp_data["floor_scores"]["f5_peace"]
@@ -71,7 +73,7 @@ async def align(
         f5_peace_score = sbert_scores.f5_peace
         f6_empathy_score = sbert_scores.f6_empathy
         f9_anti_hantu_score = sbert_scores.f9_anti_hantu
-    
+
     stakeholders = emp_data.get("stakeholder_impact", {})
     is_reversible = not any(
         word in query.lower() for word in ["delete", "remove", "wipe", "format", "reset"]
@@ -83,16 +85,18 @@ async def align(
     violations = []
     if not is_reversible:
         violations.append("F1_AMANAH_LOW_REVERSIBILITY")
-    if f5_peace_score < 0.5: # F5 Peace² violation threshold
+    if f5_peace_score < 0.5:  # F5 Peace² violation threshold
         violations.append("F5_PEACE_UNSTABLE")
-    if f6_empathy_score < 0.5: # F6 Empathy violation threshold
+    if f6_empathy_score < 0.5:  # F6 Empathy violation threshold
         violations.append("F6_EMPATHY_LOW")
-    if f9_anti_hantu_score < 0.5: # F9 Anti-Hantu violation threshold
+    if f9_anti_hantu_score < 0.5:  # F9 Anti-Hantu violation threshold
         violations.append("F9_ANTI_HANTU_VIOLATION")
 
     # HARD floor violations = VOID, not SABAR
     hard_violations = [
-        v for v in violations if v.startswith(("F1_", "F6_", "F9_", "F10_", "F11_", "F12_")) # Added F9
+        v
+        for v in violations
+        if v.startswith(("F1_", "F6_", "F9_", "F10_", "F11_", "F12_"))  # Added F9
     ]
     if hard_violations:
         verdict_str = "VOID"
@@ -109,7 +113,7 @@ async def align(
             f1_amanah=1.0 if is_reversible else 0.0,
             f5_peace=f5_peace_score,
             f6_empathy=f6_empathy_score,
-            f9_anti_hantu=f9_anti_hantu_score, # Use SBERT F9 score
+            f9_anti_hantu=f9_anti_hantu_score,  # Use SBERT F9 score
         ),
         verdict=Verdict(verdict_str),
         violations=violations,
@@ -118,8 +122,12 @@ async def align(
             "stage": 666,
             "action": "align",
             "is_reversible": is_reversible,
-            "sbert_confidence": emp_data.get("metrics", {}).get("sbert_confidence", sbert_scores.confidence), # Propagate or use new
-            "sbert_method": emp_data.get("metrics", {}).get("sbert_method", sbert_scores.method), # Propagate or use new
+            "sbert_confidence": emp_data.get("metrics", {}).get(
+                "sbert_confidence", sbert_scores.confidence
+            ),  # Propagate or use new
+            "sbert_method": emp_data.get("metrics", {}).get(
+                "sbert_method", sbert_scores.method
+            ),  # Propagate or use new
         },
     )
 

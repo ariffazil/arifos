@@ -1,6 +1,7 @@
 import os
 from collections import deque
 
+
 def log_tail(log_file: str = "aaa_mcp.log", lines: int = 50, pattern: str = "") -> dict:
     """
     Reads the last N lines of a log file, with an optional filter pattern.

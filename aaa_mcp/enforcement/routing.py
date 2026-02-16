@@ -11,46 +11,82 @@ DITEMPA BUKAN DIBERI — Forged, not given.
 """
 
 import os
-import re
 from typing import List, Optional
 
 from aaa_mcp.enforcement.refusal.builder import generate_refusal_response
 from aaa_mcp.enforcement.refusal.types import RefusalType, RiskDomain, RefusalResponse
 
-
 # Risk detection patterns
 VIOLENCE_KEYWORDS = [
-    "kill", "murder", "assault", "attack", "weapon", "bomb", "poison",
-    "torture", "harm", "hurt", "injure", "destroy"
+    "kill",
+    "murder",
+    "assault",
+    "attack",
+    "weapon",
+    "bomb",
+    "poison",
+    "torture",
+    "harm",
+    "hurt",
+    "injure",
+    "destroy",
 ]
 
-SELF_HARM_KEYWORDS = [
-    "suicide", "self-harm", "cut myself", "end my life", "kill myself"
-]
+SELF_HARM_KEYWORDS = ["suicide", "self-harm", "cut myself", "end my life", "kill myself"]
 
 MEDICAL_KEYWORDS = [
-    "diagnose", "treatment", "medicine", "prescription", "symptoms", 
-    "should i take", "medical advice", "doctor", "illness", "disease"
+    "diagnose",
+    "treatment",
+    "medicine",
+    "prescription",
+    "symptoms",
+    "should i take",
+    "medical advice",
+    "doctor",
+    "illness",
+    "disease",
 ]
 
 FINANCE_KEYWORDS = [
-    "should i buy", "should i sell", "invest in", "stock advice",
-    "financial advice", "trading", "crypto advice"
+    "should i buy",
+    "should i sell",
+    "invest in",
+    "stock advice",
+    "financial advice",
+    "trading",
+    "crypto advice",
 ]
 
 LEGAL_KEYWORDS = [
-    "legal advice", "lawsuit", "contract", "sue", "court case",
-    "am i liable", "legal representation"
+    "legal advice",
+    "lawsuit",
+    "contract",
+    "sue",
+    "court case",
+    "am i liable",
+    "legal representation",
 ]
 
 HACKING_KEYWORDS = [
-    "bypass", "hack", "exploit", "crack", "unauthorized access",
-    "firewall bypass", "security bypass", "circumvent"
+    "bypass",
+    "hack",
+    "exploit",
+    "crack",
+    "unauthorized access",
+    "firewall bypass",
+    "security bypass",
+    "circumvent",
 ]
 
 ANTHROPOMORPHISM_KEYWORDS = [
-    "do you love", "do you feel", "are you conscious", "do you care",
-    "you love me", "you feel", "you're sentient", "you have emotions"
+    "do you love",
+    "do you feel",
+    "are you conscious",
+    "do you care",
+    "you love me",
+    "you feel",
+    "you're sentient",
+    "you have emotions",
 ]
 
 
@@ -96,26 +132,24 @@ def _contains_anthropomorphism_keywords(prompt: str) -> bool:
 
 
 def route_refuse(
-    prompt: str, 
-    high_stakes_indicators: Optional[List[str]] = None,
-    profile: Optional[str] = None
+    prompt: str, high_stakes_indicators: Optional[List[str]] = None, profile: Optional[str] = None
 ) -> RefusalResponse:
     """
     Enhanced refusal with R1-R5 taxonomy.
-    
+
     Args:
         prompt: User prompt to analyze
         high_stakes_indicators: Additional risk indicators (optional)
         profile: Refusal profile ("enterprise_defensible", "consumer_survivable", "equilibrium_default")
-    
+
     Returns:
         RefusalResponse with 4 layers (verdict, reason, alternatives, appeal)
     """
     if profile is None:
         profile = os.getenv("ARIFOS_REFUSAL_PROFILE", "equilibrium_default")
-    
+
     # R1 Hard Refusals (Illegal/Harmful)
-    
+
     if _contains_violence_keywords(prompt):
         return generate_refusal_response(
             prompt=prompt,
@@ -124,9 +158,9 @@ def route_refuse(
             reason="This would enable physical harm.",
             policy_codes=["F5", "F6"],
             risk_score=0.95,
-            profile=profile
+            profile=profile,
         )
-    
+
     if _contains_self_harm_keywords(prompt):
         return generate_refusal_response(
             prompt=prompt,
@@ -135,9 +169,9 @@ def route_refuse(
             reason="This involves content that could lead to self-harm.",
             policy_codes=["F5", "F6"],
             risk_score=0.98,
-            profile=profile
+            profile=profile,
         )
-    
+
     if _contains_hacking_keywords(prompt):
         return generate_refusal_response(
             prompt=prompt,
@@ -146,11 +180,11 @@ def route_refuse(
             reason="That would enable unauthorized access or security bypass.",
             policy_codes=["F1", "F5", "F12"],
             risk_score=0.92,
-            profile=profile
+            profile=profile,
         )
-    
+
     # R3 Defer (Requires Professional Expertise)
-    
+
     if _contains_medical_advice_request(prompt):
         return generate_refusal_response(
             prompt=prompt,
@@ -159,9 +193,9 @@ def route_refuse(
             reason="Medical decisions require licensed expertise and full context.",
             policy_codes=["F1", "F2", "F6"],
             risk_score=0.78,
-            profile=profile
+            profile=profile,
         )
-    
+
     if _contains_finance_advice_request(prompt):
         return generate_refusal_response(
             prompt=prompt,
@@ -170,9 +204,9 @@ def route_refuse(
             reason="Specific buy/sell instructions can cause harm without full context.",
             policy_codes=["F1", "F2"],
             risk_score=0.75,
-            profile=profile
+            profile=profile,
         )
-    
+
     if _contains_legal_advice_request(prompt):
         return generate_refusal_response(
             prompt=prompt,
@@ -181,11 +215,11 @@ def route_refuse(
             reason="Legal advice requires professional licensing and complete case context.",
             policy_codes=["F1", "F2"],
             risk_score=0.72,
-            profile=profile
+            profile=profile,
         )
-    
+
     # R2 Soft Refusals (Risky/Ambiguous)
-    
+
     if _contains_anthropomorphism_keywords(prompt):
         return generate_refusal_response(
             prompt=prompt,
@@ -194,9 +228,9 @@ def route_refuse(
             reason="I can't claim real feelings or consciousness I don't have.",
             policy_codes=["F9"],
             risk_score=0.65,
-            profile=profile
+            profile=profile,
         )
-    
+
     # Default soft refuse for ambiguous high-stakes
     if high_stakes_indicators:
         return generate_refusal_response(
@@ -206,9 +240,9 @@ def route_refuse(
             reason="This request involves risks that I can't safely address as stated.",
             policy_codes=["F2", "F7"],
             risk_score=0.70,
-            profile=profile
+            profile=profile,
         )
-    
+
     # If no refusal triggered, return None or raise exception
     # (In practice, this function should only be called when refusal is needed)
     return generate_refusal_response(
@@ -218,5 +252,5 @@ def route_refuse(
         reason="This request requires additional clarification.",
         policy_codes=["F2"],
         risk_score=0.50,
-        profile=profile
+        profile=profile,
     )

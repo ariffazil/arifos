@@ -12,12 +12,12 @@ import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 from datetime import datetime, timezone
-import json
 
 
 @dataclass
 class PipelineMetrics:
     """Metrics for constitutional pipeline execution."""
+
     session_id: str
     query_hash: str
     start_time: float
@@ -28,13 +28,13 @@ class PipelineMetrics:
     entropy_delta: float = 0.0
     tri_witness_score: float = 0.0
     genius_score: float = 0.0
-    
+
     @property
     def latency_ms(self) -> float:
         if self.end_time > 0:
             return (self.end_time - self.start_time) * 1000
         return 0.0
-    
+
     def to_dict(self) -> dict:
         return {
             "session_id": self.session_id,
@@ -53,31 +53,31 @@ class PipelineMetrics:
 
 class MetricsCollector:
     """Collects and exports constitutional metrics."""
-    
+
     def __init__(self):
         self.metrics: List[PipelineMetrics] = []
         self.max_history = 1000
         self._lock = asyncio.Lock()
-    
+
     async def record(self, metric: PipelineMetrics):
         """Record a pipeline execution metric."""
         async with self._lock:
             self.metrics.append(metric)
             if len(self.metrics) > self.max_history:
-                self.metrics = self.metrics[-self.max_history:]
-    
+                self.metrics = self.metrics[-self.max_history :]
+
     def get_stats(self, window: int = 100) -> dict:
         """Get statistics for recent executions."""
         recent = self.metrics[-window:] if self.metrics else []
-        
+
         if not recent:
             return {"error": "No metrics available"}
-        
+
         latencies = [m.latency_ms for m in recent]
         verdicts = {}
         for m in recent:
             verdicts[m.verdict] = verdicts.get(m.verdict, 0) + 1
-        
+
         return {
             "total_executions": len(recent),
             "avg_latency_ms": sum(latencies) / len(latencies),
@@ -87,37 +87,37 @@ class MetricsCollector:
             "seal_rate": verdicts.get("SEAL", 0) / len(recent),
             "void_rate": verdicts.get("VOID", 0) / len(recent),
         }
-    
+
     def export_prometheus(self) -> str:
         """Export metrics in Prometheus format."""
         lines = []
-        
+
         # Counter for executions
         lines.append("# HELP arifos_executions_total Total constitutional executions")
         lines.append("# TYPE arifos_executions_total counter")
-        
+
         verdict_counts = {}
         for m in self.metrics:
             verdict_counts[m.verdict] = verdict_counts.get(m.verdict, 0) + 1
-        
+
         for verdict, count in verdict_counts.items():
             lines.append(f'arifos_executions_total{{verdict="{verdict}"}} {count}')
-        
+
         # Histogram for latency
         lines.append("# HELP arifos_latency_ms Pipeline latency")
         lines.append("# TYPE arifos_latency_ms histogram")
-        
+
         for m in self.metrics[-100:]:
-            lines.append(f'arifos_latency_ms {m.latency_ms}')
-        
+            lines.append(f"arifos_latency_ms {m.latency_ms}")
+
         # Gauge for entropy
         lines.append("# HELP arifos_entropy_delta Thermodynamic clarity")
         lines.append("# TYPE arifos_entropy_delta gauge")
-        
+
         if self.metrics:
             latest = self.metrics[-1]
-            lines.append(f'arifos_entropy_delta {latest.entropy_delta}')
-        
+            lines.append(f"arifos_entropy_delta {latest.entropy_delta}")
+
         return "\n".join(lines)
 
 
@@ -135,26 +135,26 @@ def get_metrics_collector() -> MetricsCollector:
 
 class HealthMonitor:
     """Monitors system health for civilization deployment."""
-    
+
     def __init__(self):
         self.checks: Dict[str, callable] = {}
         self.status: Dict[str, bool] = {}
         self.last_check: Dict[str, float] = {}
-    
+
     def register(self, name: str, check_fn: callable):
         """Register a health check."""
         self.checks[name] = check_fn
-    
+
     async def check_all(self) -> Dict[str, any]:
         """Run all health checks."""
         results = {}
-        
+
         for name, check_fn in self.checks.items():
             try:
                 start = time.time()
                 result = await check_fn() if asyncio.iscoroutinefunction(check_fn) else check_fn()
                 latency = (time.time() - start) * 1000
-                
+
                 results[name] = {
                     "status": "healthy" if result else "unhealthy",
                     "latency_ms": latency,
@@ -162,7 +162,7 @@ class HealthMonitor:
                 }
                 self.status[name] = result
                 self.last_check[name] = time.time()
-                
+
             except Exception as e:
                 results[name] = {
                     "status": "error",
@@ -170,9 +170,9 @@ class HealthMonitor:
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
                 self.status[name] = False
-        
+
         return results
-    
+
     def is_healthy(self) -> bool:
         """Check if all systems are healthy."""
         return all(self.status.values()) if self.status else False
@@ -193,67 +193,76 @@ def get_health_monitor() -> HealthMonitor:
 async def init_monitoring():
     """Initialize monitoring for production."""
     monitor = get_health_monitor()
-    
+
     # Register core health checks
     async def check_core_pipeline():
         try:
             from core.pipeline import forge
+
             result = await forge("health check", actor_id="monitor")
             return result.verdict in ("SEAL", "PARTIAL", "VOID", "888_HOLD")
         except Exception:
             return False
-    
+
     async def check_mcp_tools():
         """Test MCP tools are registered and report any issues."""
         from aaa_mcp.server import mcp
-        
+
         try:
             tools = await mcp.get_tools()
             tool_count = len(tools)
-            
+
             # Get tool names for verification
             tool_names = set()
             for t in tools:
-                name = getattr(t, 'name', None) or str(t)
+                name = getattr(t, "name", None) or str(t)
                 tool_names.add(name)
-            
+
             # Check critical tools
             critical_tools = [
-                "init_gate", "agi_sense", "agi_think", "agi_reason",
-                "asi_empathize", "asi_align", "apex_verdict", 
-                "vault_seal", "vault_query", "truth_audit"
+                "init_gate",
+                "agi_sense",
+                "agi_think",
+                "agi_reason",
+                "asi_empathize",
+                "asi_align",
+                "apex_verdict",
+                "vault_seal",
+                "vault_query",
+                "truth_audit",
             ]
             missing = [t for t in critical_tools if t not in tool_names]
-            
+
             if missing:
                 print(f"[health] mcp_tools: UNHEALTHY - missing: {', '.join(missing)}")
                 return False
-            
+
             if tool_count < 10:
                 print(f"[health] mcp_tools: UNHEALTHY - only {tool_count} tools (need 10+)")
                 return False
-            
+
             print(f"[health] mcp_tools: HEALTHY - {tool_count} tools registered")
             return True
-            
+
         except Exception as e:
             err_type = type(e).__name__
             print(f"[health] mcp_tools: ERROR - {err_type}: {e}")
             return False
-    
+
     def check_memory():
         try:
             import psutil
+
             mem = psutil.virtual_memory()
             return mem.percent < 90
         except ImportError:
             # psutil not installed, skip memory check
             return True
-    
+
     monitor.register("core_pipeline", check_core_pipeline)
     monitor.register("mcp_tools", check_mcp_tools)
     monitor.register("memory", check_memory)
-    
+
     return monitor
 
 
@@ -262,7 +271,7 @@ async def startup_health_check() -> dict:
     """Run health checks on startup."""
     monitor = await init_monitoring()
     results = await monitor.check_all()
-    
+
     return {
         "status": "healthy" if monitor.is_healthy() else "degraded",
         "checks": results,

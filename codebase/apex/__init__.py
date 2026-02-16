@@ -42,14 +42,14 @@ from .trinity_nine import (
     check_equilibrium,
     EQUILIBRIUM_THRESHOLD,
     BALANCE_TOLERANCE,
-    MIN_PARADOX_SCORE
+    MIN_PARADOX_SCORE,
 )
 
 from .equilibrium_finder import (
     EquilibriumFinder,
     EquilibriumPoint,
     PerturbationAnalyzer,
-    demonstrate_equilibrium
+    demonstrate_equilibrium,
 )
 
 __version__ = "v54.0-9PARADOX"
@@ -64,13 +64,11 @@ __all__ = [
     "create_nine_paradoxes",
     "trinity_nine_sync",
     "check_equilibrium",
-    
     # Equilibrium
     "EquilibriumFinder",
     "EquilibriumPoint",
     "PerturbationAnalyzer",
     "demonstrate_equilibrium",
-    
     # Constants
     "EQUILIBRIUM_THRESHOLD",
     "BALANCE_TOLERANCE",

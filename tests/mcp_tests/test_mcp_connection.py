@@ -17,6 +17,7 @@ os.environ["ARIFOS_PHYSICS_DISABLED"] = "1"
 repo_root = Path(__file__).parent
 sys.path.insert(0, str(repo_root))
 
+
 def test_imports():
     """Test that all critical imports work"""
     print("=" * 80)
@@ -107,6 +108,7 @@ def test_trinity_kernels():
     # Test AGI Delta Kernel
     try:
         from codebase.core.agi.delta_kernel import DeltaKernel
+
         delta = DeltaKernel()
         print(f"[PASS] AGI Delta Kernel (Δ) - Architect")
         results.append(True)
@@ -117,6 +119,7 @@ def test_trinity_kernels():
     # Test ASI Omega Kernel
     try:
         from codebase.core.asi.omega_kernel import OmegaKernel
+
         omega = OmegaKernel()
         print(f"[PASS] ASI Omega Kernel (Ω) - Engineer")
         results.append(True)
@@ -127,6 +130,7 @@ def test_trinity_kernels():
     # Test APEX Psi Kernel
     try:
         from codebase.core.apex.psi_kernel import PsiKernel
+
         psi = PsiKernel()
         print(f"[PASS] APEX Psi Kernel (Ψ) - Judge")
         results.append(True)

@@ -122,9 +122,7 @@ class TestConvenienceFunctions(unittest.TestCase):
 
     def test_estimate_precision_module(self):
         now = datetime.now(timezone.utc)
-        pe = estimate_precision(
-            sources=["a"], timestamps=[now, now - timedelta(seconds=1)]
-        )
+        pe = estimate_precision(sources=["a"], timestamps=[now, now - timedelta(seconds=1)])
         self.assertIsInstance(pe, PrecisionEstimate)
 
     def test_update_belief_with_precision_module(self):

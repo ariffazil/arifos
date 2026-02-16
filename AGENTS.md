@@ -36,6 +36,18 @@
 | **Storage** | PostgreSQL (Vault), Redis (MindVault), ChromaDB (Memory) |
 | **Tooling** | `uv` (package manager), `ruff`, `black`, `pytest`, `mypy` |
 
+## 🤖 OpenCode Agent Setup
+
+For VPS deployment with OpenCode, ensure:
+
+1. **MCP servers**: Install missing npm packages (`@modelcontextprotocol/server-fetch`, `@modelcontextprotocol/server-git`)
+2. **Docker permissions**: Add user to `docker` group for container tools
+3. **Configuration**: Update `~/.config/opencode/opencode.json` to reduce server count (keep only `aaa-mcp`, `filesystem`, `fetch`, `git`)
+4. **Tool names**: Use the 9 canonical tool names (`anchor`, `reason`, `integrate`, `respond`, `validate`, `align`, `forge`, `audit`, `seal`)
+5. **Cross‑platform paths**: Use `python3` and relative `cwd` in `mcp.json`
+
+See [docs/opencode-agent.md](docs/opencode-agent.md) for detailed troubleshooting.
+
 ---
 
 ## 🚀 Build, Lint, and Test Commands

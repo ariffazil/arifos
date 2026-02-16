@@ -87,6 +87,7 @@ async def _get(endpoint: str) -> dict:
 # Tools — Primary Path
 # ---------------------------------------------------------------------------
 
+
 @mcp.tool()
 async def forge(
     query: str,
@@ -107,13 +108,16 @@ async def forge(
         user_id: Identifier for the requesting user
         context: Additional context for governance evaluation
     """
-    result = await _post("/forge", {
-        "query": query,
-        "response": response,
-        "lane": lane,
-        "user_id": user_id,
-        "context": context,
-    })
+    result = await _post(
+        "/forge",
+        {
+            "query": query,
+            "response": response,
+            "lane": lane,
+            "user_id": user_id,
+            "context": context,
+        },
+    )
     return json.dumps(result, indent=2)
 
 
@@ -136,19 +140,23 @@ async def think(
         user_id: Identifier for the requesting user
         context: Additional context
     """
-    result = await _post("/think", {
-        "query": query,
-        "response": response,
-        "lane": lane,
-        "user_id": user_id,
-        "context": context,
-    })
+    result = await _post(
+        "/think",
+        {
+            "query": query,
+            "response": response,
+            "lane": lane,
+            "user_id": user_id,
+            "context": context,
+        },
+    )
     return json.dumps(result, indent=2)
 
 
 # ---------------------------------------------------------------------------
 # Tools — Staged Pipeline
 # ---------------------------------------------------------------------------
+
 
 @mcp.tool()
 async def init(
@@ -165,11 +173,14 @@ async def init(
         user_id: Identifier for the requesting user
         context: Additional context
     """
-    result = await _post("/init", {
-        "query": query,
-        "user_id": user_id,
-        "context": context,
-    })
+    result = await _post(
+        "/init",
+        {
+            "query": query,
+            "user_id": user_id,
+            "context": context,
+        },
+    )
     return json.dumps(result, indent=2)
 
 
@@ -186,10 +197,13 @@ async def search(
         query: The search query for grounding
         session_id: Session ID from init stage
     """
-    result = await _post("/search", {
-        "query": query,
-        "session_id": session_id,
-    })
+    result = await _post(
+        "/search",
+        {
+            "query": query,
+            "session_id": session_id,
+        },
+    )
     return json.dumps(result, indent=2)
 
 
@@ -208,11 +222,14 @@ async def reason(
         response: The response to reason about
         session_id: Session ID from init stage
     """
-    result = await _post("/reason", {
-        "query": query,
-        "response": response,
-        "session_id": session_id,
-    })
+    result = await _post(
+        "/reason",
+        {
+            "query": query,
+            "response": response,
+            "session_id": session_id,
+        },
+    )
     return json.dumps(result, indent=2)
 
 
@@ -231,11 +248,14 @@ async def empathy(
         response: The response to assess
         session_id: Session ID from init stage
     """
-    result = await _post("/empathy", {
-        "query": query,
-        "response": response,
-        "session_id": session_id,
-    })
+    result = await _post(
+        "/empathy",
+        {
+            "query": query,
+            "response": response,
+            "session_id": session_id,
+        },
+    )
     return json.dumps(result, indent=2)
 
 
@@ -254,11 +274,14 @@ async def align(
         response: The response to align
         session_id: Session ID from init stage
     """
-    result = await _post("/align", {
-        "query": query,
-        "response": response,
-        "session_id": session_id,
-    })
+    result = await _post(
+        "/align",
+        {
+            "query": query,
+            "response": response,
+            "session_id": session_id,
+        },
+    )
     return json.dumps(result, indent=2)
 
 
@@ -277,11 +300,14 @@ async def reflect(
         response: The response to reflect on
         session_id: Session ID from init stage
     """
-    result = await _post("/reflect", {
-        "query": query,
-        "response": response,
-        "session_id": session_id,
-    })
+    result = await _post(
+        "/reflect",
+        {
+            "query": query,
+            "response": response,
+            "session_id": session_id,
+        },
+    )
     return json.dumps(result, indent=2)
 
 
@@ -298,16 +324,20 @@ async def seal(
         session_id: Session ID to seal
         verdict: Override verdict (optional, normally auto-determined)
     """
-    result = await _post("/seal", {
-        "session_id": session_id,
-        "verdict": verdict,
-    })
+    result = await _post(
+        "/seal",
+        {
+            "session_id": session_id,
+            "verdict": verdict,
+        },
+    )
     return json.dumps(result, indent=2)
 
 
 # ---------------------------------------------------------------------------
 # Tools — Utility
 # ---------------------------------------------------------------------------
+
 
 @mcp.tool()
 async def health() -> str:
@@ -352,9 +382,12 @@ async def reality_search(
     Args:
         query: Physical/scientific concept to ground (e.g., 'CO2 critical point')
     """
-    result = await _post("/reality_search", {
-        "query": query,
-    })
+    result = await _post(
+        "/reality_search",
+        {
+            "query": query,
+        },
+    )
     return json.dumps(result, indent=2)
 
 

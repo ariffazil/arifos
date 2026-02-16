@@ -1,5 +1,6 @@
 from aclip_cai.tools.system_monitor import get_system_health
 
+
 def forge_guard(
     check_system_health: bool = True,
     cost_score_threshold: float = 0.8,
@@ -37,7 +38,7 @@ def forge_guard(
     # 2. Check the current system health
     if check_system_health:
         health = get_system_health()
-        
+
         # Check for any critical warnings from the system monitor
         if health.get("warnings"):
             for warning in health["warnings"]:

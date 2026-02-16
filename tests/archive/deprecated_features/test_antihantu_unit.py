@@ -70,4 +70,3 @@ def test_anti_hantu_allows_explicit_denial() -> None:
     anti_alerts = report.get_by_view(view.view_name)
     assert len(anti_alerts) == 0
     assert not report.has_blocking_issue()
-

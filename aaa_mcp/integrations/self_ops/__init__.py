@@ -15,7 +15,7 @@ from .diagnostics import (
 
 __all__ = [
     "HealthCheckResult",
-    "SelfOpsDiagnostics", 
+    "SelfOpsDiagnostics",
     "SelfOpsReport",
     "get_self_ops",
     "self_diagnose",

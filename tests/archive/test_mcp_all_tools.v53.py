@@ -165,7 +165,9 @@ class TestAGITool:
         assert len(result.reasoning) > 0
         assert len(result.conclusion) > 0
         assert result.truth_score >= TRUTH_THRESHOLD  # F2 Truth threshold
-        print(f"✅ reason basic: truth={result.truth_score:.2%}, confidence={result.confidence:.2%}")
+        print(
+            f"✅ reason basic: truth={result.truth_score:.2%}, confidence={result.confidence:.2%}"
+        )
 
     async def test_reason_humility_band(self, sample_query):
         """Test F7 Humility band (0.03-0.05 uncertainty)."""

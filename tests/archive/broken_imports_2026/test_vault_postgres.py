@@ -18,7 +18,7 @@ import asyncpg
 import pytest
 
 from codebase.vault.persistent_ledger import (
-    PersistentVaultLedger, 
+    PersistentVaultLedger,
     GENESIS_HASH,
     _parse_seal_data,
 )
@@ -62,6 +62,7 @@ def _dummy(idx: int):
 # Basic Tests
 # ===================================================================
 
+
 @pytest.mark.asyncio
 async def test_append_and_verify(ledger):
     """Test basic append and chain verification."""
@@ -100,6 +101,7 @@ async def test_tamper_detected(ledger):
 @pytest.mark.asyncio
 async def test_concurrent_appends(ledger):
     """Test concurrent appends don't create forks."""
+
     async def do_append(idx):
         await ledger.append(**_dummy(idx))
 
@@ -115,11 +117,12 @@ async def test_concurrent_appends(ledger):
 # Bug Fix Tests
 # ===================================================================
 
+
 @pytest.mark.asyncio
 async def test_seal_data_jsonb_parsing(ledger):
     """
     BUG FIX: seal_data returned as dict from JSONB column.
-    
+
     asyncpg returns Python dict for JSONB columns, not a JSON string.
     This test ensures _parse_seal_data and _row_to_entry handle both.
     """
@@ -131,13 +134,13 @@ async def test_seal_data_jsonb_parsing(ledger):
         seal_data=seal_data,
         authority="test",
     )
-    
+
     # Read back - should return correct dict
     entry = await ledger.get_entry_by_sequence(receipt["sequence_number"])
     assert entry is not None
     assert entry["seal_data"] == seal_data
     assert entry["seal_data"]["nested"]["a"] == 1
-    
+
     # Verify chain works (uses _parse_seal_data internally)
     res = await ledger.verify_chain()
     assert res["valid"]
@@ -149,10 +152,10 @@ async def test_parse_seal_data_handles_both_types():
     # Test dict input (JSONB)
     d = {"key": "value"}
     assert _parse_seal_data(d) == d
-    
+
     # Test str input (TEXT column)
     assert _parse_seal_data('{"key": "value"}') == d
-    
+
     # Test invalid input returns empty dict
     assert _parse_seal_data(None) == {}
     # Note: json.loads(str(123)) returns 123 (valid JSON number), not {}
@@ -162,7 +165,7 @@ async def test_parse_seal_data_handles_both_types():
 async def test_list_entries_cursor_zero(ledger):
     """
     BUG FIX: cursor=0 should not be treated as falsy.
-    
+
     `if cursor:` fails for cursor=0. Should use `if cursor is not None:`.
     This test verifies pagination works with cursor=0.
     """
@@ -170,16 +173,16 @@ async def test_list_entries_cursor_zero(ledger):
     # which should return nothing (or we can test that the query runs correctly)
     for i in range(5):
         await ledger.append(**_dummy(i))
-    
+
     # cursor=0 should return entries with sequence < 0 (none)
     result = await ledger.list_entries(cursor=0, limit=10)
     assert result["entries"] == []  # No entries with sequence < 0
-    
+
     # cursor=1 should return entries with sequence < 1 (none, assuming sequence starts at 1)
     # Actually, sequences are 1-indexed, so cursor=1 returns entries with seq < 1
     result = await ledger.list_entries(cursor=1, limit=10)
     assert result["entries"] == []
-    
+
     # cursor=None should return latest entries
     result = await ledger.list_entries(cursor=None, limit=3)
     assert len(result["entries"]) == 3
@@ -192,11 +195,11 @@ async def test_query_by_verdict_cursor_zero(ledger):
     """
     for i in range(5):
         await ledger.append(**_dummy(i))
-    
+
     # cursor=0 should work (returns entries with sequence < 0)
     result = await ledger.query_by_verdict(verdict="SEAL", cursor=0, limit=10)
     assert result["entries"] == []
-    
+
     # cursor=None should return all matching
     result = await ledger.query_by_verdict(verdict="SEAL", cursor=None, limit=10)
     assert len(result["entries"]) > 0
@@ -206,37 +209,33 @@ async def test_query_by_verdict_cursor_zero(ledger):
 async def test_merkle_proof_with_sequence(ledger):
     """
     BUG FIX: get_merkle_proof finds entry by sequence number, not index.
-    
+
     This ensures the proof works even with gaps (after import/legacy).
     """
     # Append 5 entries
     for i in range(5):
         await ledger.append(**_dummy(i))
-    
+
     # Get proof for sequence 3
     proof = await ledger.get_merkle_proof(sequence=3)
     assert proof is not None
     assert proof["leaf_index"] == 2  # 0-indexed position
     assert len(proof["proof"]) > 0
-    
+
     # Verify the proof is correct
     entries = await ledger.list_entries(limit=10)
     entry_3 = next((e for e in entries["entries"] if e["sequence"] == 3), None)
     assert entry_3 is not None
-    
+
     # Manually verify Merkle proof
     current_hash = entry_3["entry_hash"]
     idx = proof["leaf_index"]
     for sibling in proof["proof"]:
         if sibling["position"] == "left":
-            current_hash = hashlib.sha256(
-                (sibling["hash"] + current_hash).encode()
-            ).hexdigest()
+            current_hash = hashlib.sha256((sibling["hash"] + current_hash).encode()).hexdigest()
         else:
-            current_hash = hashlib.sha256(
-                (current_hash + sibling["hash"]).encode()
-            ).hexdigest()
-    
+            current_hash = hashlib.sha256((current_hash + sibling["hash"]).encode()).hexdigest()
+
     assert current_hash == proof["root"]
 
 
@@ -244,7 +243,7 @@ async def test_merkle_proof_with_sequence(ledger):
 async def test_merkle_proof_nonexistent_sequence(ledger):
     """Test get_merkle_proof returns None for non-existent sequence."""
     await ledger.append(**_dummy(1))
-    
+
     proof = await ledger.get_merkle_proof(sequence=999)
     assert proof is None
 
@@ -253,30 +252,28 @@ async def test_merkle_proof_nonexistent_sequence(ledger):
 async def test_merkle_proof_no_mutation(ledger):
     """
     BUG FIX: Merkle proof should not mutate the original hashes list.
-    
+
     The old code did `level = hashes` (reference), then `level.append()`
     which modified the original list.
     """
     import hashlib
-    
+
     # Append 3 entries (odd count triggers padding)
     for i in range(3):
         await ledger.append(**_dummy(i))
-    
+
     # Get the raw hashes
     async with ledger._pool.acquire() as conn:  # type: ignore[attr-defined]
-        rows = await conn.fetch(
-            "SELECT entry_hash FROM vault_ledger ORDER BY sequence"
-        )
+        rows = await conn.fetch("SELECT entry_hash FROM vault_ledger ORDER BY sequence")
         original_hashes = [r["entry_hash"] for r in rows]
-    
+
     # Store copy before proof generation
     hashes_before = list(original_hashes)
-    
+
     # Generate proof (this used to mutate original_hashes)
     proof = await ledger.get_merkle_proof(sequence=1)
     assert proof is not None
-    
+
     # Verify original hashes weren't mutated
     assert original_hashes == hashes_before
     assert len(original_hashes) == 3  # Should still be 3, not 4 (padded)
@@ -286,7 +283,7 @@ async def test_merkle_proof_no_mutation(ledger):
 async def test_merkle_proof_with_gaps(ledger):
     """
     Test that Merkle proof works correctly even if sequences have gaps.
-    
+
     This simulates a scenario after legacy import where sequence numbers
     may not be contiguous.
     """
@@ -295,17 +292,17 @@ async def test_merkle_proof_with_gaps(ledger):
     for i in range(3):
         r = await ledger.append(**_dummy(i))
         receipts.append(r)
-    
+
     # Simulate a gap by deleting middle entry
     async with ledger._pool.acquire() as conn:  # type: ignore[attr-defined]
         await conn.execute("DELETE FROM vault_ledger WHERE sequence = 2")
-    
+
     # Now sequences are [1, 3] (gap at 2)
     # Proof for sequence=3 should still work
     proof = await ledger.get_merkle_proof(sequence=3)
     assert proof is not None
     assert proof["leaf_index"] == 1  # Position in remaining list
-    
+
     # Verify entry 1 still has proof
     proof1 = await ledger.get_merkle_proof(sequence=1)
     assert proof1 is not None
@@ -318,11 +315,11 @@ async def test_entries_by_session(ledger):
     await ledger.append(session_id="sess-A", verdict="SEAL", seal_data={}, authority="test")
     await ledger.append(session_id="sess-B", verdict="SEAL", seal_data={}, authority="test")
     await ledger.append(session_id="sess-A", verdict="VOID", seal_data={}, authority="test")
-    
+
     entries_a = await ledger.get_entries_by_session("sess-A")
     assert len(entries_a) == 2
     assert all(e["session_id"] == "sess-A" for e in entries_a)
-    
+
     entries_b = await ledger.get_entries_by_session("sess-B")
     assert len(entries_b) == 1
 
@@ -331,15 +328,15 @@ async def test_entries_by_session(ledger):
 async def test_query_by_verdict_time_range(ledger):
     """Test query with time range filtering."""
     from datetime import datetime, timezone, timedelta
-    
+
     # Add entries
     await ledger.append(**_dummy(1))
     await ledger.append(**_dummy(2))
-    
+
     # Query all SEAL entries
     result = await ledger.query_by_verdict(verdict="SEAL")
     assert len(result["entries"]) > 0
-    
+
     # Query with time range that includes now
     now = datetime.now(timezone.utc)
     result = await ledger.query_by_verdict(
@@ -348,7 +345,7 @@ async def test_query_by_verdict_time_range(ledger):
         end_time=now + timedelta(hours=1),
     )
     assert len(result["entries"]) > 0
-    
+
     # Query with future time range (should return nothing)
     result = await ledger.query_by_verdict(
         verdict="SEAL",
@@ -363,17 +360,17 @@ async def test_pagination(ledger):
     # Add 10 entries
     for i in range(10):
         await ledger.append(**_dummy(i))
-    
+
     # First page
     page1 = await ledger.list_entries(cursor=None, limit=3)
     assert len(page1["entries"]) == 3
     assert page1["has_more"] is True
-    
+
     # Second page using cursor
     page2 = await ledger.list_entries(cursor=page1["next_cursor"], limit=3)
     assert len(page2["entries"]) == 3
     assert page2["has_more"] is True
-    
+
     # Verify no overlap
     page1_seqs = {e["sequence"] for e in page1["entries"]}
     page2_seqs = {e["sequence"] for e in page2["entries"]}
@@ -384,15 +381,16 @@ async def test_pagination(ledger):
 async def test_singleton_pattern():
     """Test that get_vault_ledger returns the same instance."""
     from codebase.vault.persistent_ledger import get_vault_ledger, _ledger_singleton
-    
+
     # Reset singleton for test
     import codebase.vault.persistent_ledger as pvl
+
     pvl._ledger_singleton = None
-    
+
     ledger1 = get_vault_ledger()
     ledger2 = get_vault_ledger()
     assert ledger1 is ledger2
-    
+
     # Cleanup
     pvl._ledger_singleton = None
 
@@ -401,25 +399,25 @@ async def test_singleton_pattern():
 async def test_error_on_missing_dsn():
     """Test that missing DSN raises appropriate error."""
     import codebase.vault.persistent_ledger as pvl
-    
+
     # Save original
     orig_dsn = os.environ.get("DATABASE_URL")
     orig_vault = os.environ.get("VAULT_POSTGRES_DSN")
-    
+
     try:
         # Clear env vars
         if "DATABASE_URL" in os.environ:
             del os.environ["DATABASE_URL"]
         if "VAULT_POSTGRES_DSN" in os.environ:
             del os.environ["VAULT_POSTGRES_DSN"]
-        
+
         # Reset singleton
         pvl._ledger_singleton = None
-        
+
         # Should raise RuntimeError
         with pytest.raises(RuntimeError) as exc_info:
             pvl.get_vault_ledger()
-        
+
         assert "DATABASE_URL" in str(exc_info.value)
     finally:
         # Restore

@@ -7,7 +7,6 @@ Supports stdio (local/CLI) and SSE (remote/web).
 
 import os
 from enum import Enum
-from typing import Optional
 
 
 class MCPMode(Enum):

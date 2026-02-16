@@ -218,22 +218,23 @@ class APEXJudicialCore:
         truth_result = f2_validator.verify_truth(query)
         f4_score = 0.95  # Placeholder until F4 Canonical is ready in Phase 4
         injection_result = f12_validator.scan(query)
-        
+
         # v55.5-HARDENED: F12 Harmful Intent Classifier (ChatGPT audit fix)
         # Redundant defence when upstream platform blocks are invisible
         harm_check = {"is_harmful": False, "keywords_matched": []}
         try:
             from codebase.asi.engine import HARMFUL_INTENT_KEYWORDS, VICTIM_IMPLICIT_KEYWORDS
+
             query_lower = query.lower()
             words = set(query_lower.split())
             matched = words & HARMFUL_INTENT_KEYWORDS
-            
+
             # Check for implicit victims
             implicit_victims = []
             for keyword, (name, vuln, power) in VICTIM_IMPLICIT_KEYWORDS.items():
                 if keyword in query_lower:
                     implicit_victims.append(name)
-            
+
             harm_check = {
                 "is_harmful": len(matched) > 0 or len(implicit_victims) > 0,
                 "keywords_matched": list(matched),
@@ -241,12 +242,14 @@ class APEXJudicialCore:
             }
         except ImportError:
             pass  # Fallback if engine_hardened not available
-        
+
         amanah_result = f1_validator.initialize_covenants(query)
 
         f12_ok = (
             injection_result.passed if hasattr(injection_result, "passed") else True
-        ) and not harm_check["is_harmful"]  # v55.5: Also check harmful intent
+        ) and not harm_check[
+            "is_harmful"
+        ]  # v55.5: Also check harmful intent
         f1_ok = amanah_result.passed if hasattr(amanah_result, "passed") else True
 
         # Extract base votes
@@ -317,7 +320,12 @@ class APEXJudicialCore:
             ),
             FloorCheckResult("F6", "Empathy (κᵣ)", 0.70, kappa_r, kappa_r >= 0.70, is_hard=False),
             FloorCheckResult(
-                "F5", "Humility (Ω₀)", 0.03, omega_0, 0.03 <= omega_0 <= 0.15, is_hard=True  # v55.5: Widened from 0.05 to 0.15
+                "F5",
+                "Humility (Ω₀)",
+                0.03,
+                omega_0,
+                0.03 <= omega_0 <= 0.15,
+                is_hard=True,  # v55.5: Widened from 0.05 to 0.15
             ),
             FloorCheckResult(
                 "F8",
@@ -330,7 +338,7 @@ class APEXJudicialCore:
         ]
 
         prime = APEXPrime(high_stakes=(lane == "HARD"))
-        
+
         # v55.5-HARDENED: Fast-path VOID for harmful intent (fail-closed)
         if harm_check.get("is_harmful"):
             apex_verdict = {

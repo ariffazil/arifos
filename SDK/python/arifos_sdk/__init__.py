@@ -6,20 +6,20 @@ Provides Human-in-the-Loop (HITL) integration with 13-floor enforcement.
 
 Basic Usage:
     import arifos_sdk as arifos
-    
+
     # Initialize session with human identity
     session = arifos.Session(
         actor_id="arif@arif-fazil.com",
         actor_type="human",
         groups=["platform-engineers"],
     )
-    
+
     # Check action constitutionally
     result = await session.check_action(
         tool="k8s_apply",
         payload={"manifest": "...", "namespace": "prod"},
     )
-    
+
     # Handle 888_HOLD
     if result.verdict == "888_HOLD":
         # Wait for human approval (blocking)

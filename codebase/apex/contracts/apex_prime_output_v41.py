@@ -4,15 +4,16 @@ from typing import Optional, Literal, Dict, Any
 
 Verdict = Literal["SEAL", "SABAR", "VOID"]
 
-_ALLOWED_REASON_PREFIXES = (
-    "F1(", "F2(", "F3(", "F4(", "F5(", "F6(", "F7(", "F8(", "F9("
-)
+_ALLOWED_REASON_PREFIXES = ("F1(", "F2(", "F3(", "F4(", "F5(", "F6(", "F7(", "F8(", "F9(")
+
 
 def _clamp(x: float, lo: float, hi: float) -> float:
     return max(lo, min(hi, x))
 
+
 def _round2(x: float) -> float:
     return round(x + 1e-12, 2)
+
 
 def validate_reason_code(reason_code: Optional[str]) -> Optional[str]:
     if reason_code is None:
@@ -27,6 +28,7 @@ def validate_reason_code(reason_code: Optional[str]) -> Optional[str]:
     if len(rc) > 32:
         raise ValueError("reason_code too long.")
     return rc
+
 
 def compute_apex_pulse(psi_internal: float, verdict: Verdict) -> float:
     """
@@ -45,6 +47,7 @@ def compute_apex_pulse(psi_internal: float, verdict: Verdict) -> float:
     if verdict == "SEAL":
         return max(v, 1.00)
     raise ValueError(f"Unknown verdict: {verdict}")
+
 
 def serialize_public(
     *,

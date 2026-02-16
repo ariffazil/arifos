@@ -50,8 +50,8 @@ FLOOR_ENFORCEMENT = {
     "apex_verdict_legacy": ["F5", "F3", "F8"],
     "reality_search": ["F2", "F7"],
     "vault_seal_legacy": ["F1", "F3"],
-    # Unified 000-999 pipeline (forge) enforces ALL floors F1-F13
-    "forge": [
+    # Unified 000-999 pipeline (trinity_forge) enforces ALL floors F1-F13
+    "trinity_forge": [
         "F1",
         "F2",
         "F3",
@@ -66,6 +66,16 @@ FLOOR_ENFORCEMENT = {
         "F12",
         "F13",
     ],
+    # 9 Canonical MCP Tools (v64.2)
+    "anchor": ["F11", "F12"],
+    "reason": ["F2", "F4", "F8"],
+    "integrate": ["F7", "F10"],
+    "respond": ["F4", "F6"],
+    "validate": ["F5", "F6", "F1"],
+    "align": ["F9"],
+    "forge": ["F2", "F4", "F7"],
+    "audit": ["F3", "F11", "F13"],
+    "seal": ["F1", "F3"],
 }
 
 # ─── Mandatory Floors (v60.1-PHASE1) ────────────────────────────────────────

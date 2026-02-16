@@ -11,10 +11,10 @@ Modules:
 
 Usage:
     from aaa_mcp.wrappers import k8s_wrapper, opa_policy
-    
+
     # Validate K8s manifest
     result = await k8s_wrapper.evaluate_apply(manifest, namespace, strategy)
-    
+
     # Validate against OPA policies
     result = await opa_policy.f10_validator.validate(manifest)
 

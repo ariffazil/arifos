@@ -17,14 +17,21 @@ def check_fastmcp_version():
     """Verify FastMCP version compatibility."""
     try:
         import fastmcp
-        version = getattr(fastmcp, '__version__', 'unknown')
+
+        version = getattr(fastmcp, "__version__", "unknown")
         print(f"[arifOS] FastMCP version: {version}", file=sys.stderr)
-        
+
         # Parse major version
-        major = int(version.split('.')[0]) if version != 'unknown' else 0
+        major = int(version.split(".")[0]) if version != "unknown" else 0
         if major < 2:
-            print(f"[arifOS] ⚠️  WARNING: FastMCP {version} detected. Version 2.x+ required for full functionality.", file=sys.stderr)
-            print(f"[arifOS] Some features (like /health endpoint) may not work correctly.", file=sys.stderr)
+            print(
+                f"[arifOS] ⚠️  WARNING: FastMCP {version} detected. Version 2.x+ required for full functionality.",
+                file=sys.stderr,
+            )
+            print(
+                "[arifOS] Some features (like /health endpoint) may not work correctly.",
+                file=sys.stderr,
+            )
         else:
             print(f"[arifOS] ✓ FastMCP {version} - Full functionality available", file=sys.stderr)
         return major
@@ -35,8 +42,8 @@ def check_fastmcp_version():
 
 def main():
     # Check version before importing server
-    fastmcp_major = check_fastmcp_version()
-    
+    check_fastmcp_version()
+
     mode = (sys.argv[1] if len(sys.argv) > 1 else "stdio").strip().lower()
 
     from .server import mcp

@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional
 
 # Import canonical tool paths
-from .tool_registry import get_next_tool, CANONICAL_TOOLS
+from .tool_registry import get_next_tool
 
 # ═════════════════════════════════════════════════════════════════════════════
 # RESPONSE TYPES
@@ -90,7 +90,7 @@ class UnifiedResponse:
         """
         # Build structured content (machine/governance layer)
         structured_content = {
-            "tool": f"init_gate" if self.stage == "000" else f"stage_{self.stage}",
+            "tool": "init_gate" if self.stage == "000" else f"stage_{self.stage}",
             "stage": self.stage,
             "session_id": self.session_id,
             "status": self.status,

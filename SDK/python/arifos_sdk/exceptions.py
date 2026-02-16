@@ -7,13 +7,13 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 class ArifOSError(Exception):
     """Base exception for arifOS SDK."""
-    
+
     def __init__(self, message: str, code: str = None, details: dict = None):
         super().__init__(message)
         self.message = message
         self.code = code
         self.details = details or {}
-    
+
     def __str__(self) -> str:
         if self.code:
             return f"[{self.code}] {self.message}"
@@ -23,10 +23,10 @@ class ArifOSError(Exception):
 class FloorViolationError(ArifOSError):
     """
     Raised when constitutional floors are violated (VOID verdict).
-    
+
     This is a HARD floor failure - the operation is blocked.
     """
-    
+
     def __init__(self, message: str, floors_failed: list = None, decision: dict = None):
         super().__init__(
             message=message,
@@ -40,10 +40,10 @@ class FloorViolationError(ArifOSError):
 class HumanApprovalRequiredError(ArifOSError):
     """
     Raised when human approval is required (888_HOLD).
-    
+
     The operation needs F13 Sovereign override.
     """
-    
+
     def __init__(
         self,
         message: str,
@@ -67,7 +67,7 @@ class HumanApprovalRequiredError(ArifOSError):
 
 class HumanApprovalTimeoutError(ArifOSError):
     """Raised when waiting for human approval times out."""
-    
+
     def __init__(self, message: str, hold_id: str = None):
         super().__init__(
             message=message,
@@ -79,7 +79,7 @@ class HumanApprovalTimeoutError(ArifOSError):
 
 class GatewayConnectionError(ArifOSError):
     """Raised when connection to arifOS Gateway fails."""
-    
+
     def __init__(self, message: str, url: str = None):
         super().__init__(
             message=message,
@@ -91,7 +91,7 @@ class GatewayConnectionError(ArifOSError):
 
 class SessionError(ArifOSError):
     """Raised when session management fails."""
-    
+
     def __init__(self, message: str, session_id: str = None):
         super().__init__(
             message=message,
@@ -103,7 +103,7 @@ class SessionError(ArifOSError):
 
 class ValidationError(ArifOSError):
     """Raised when payload validation fails."""
-    
+
     def __init__(self, message: str, field: str = None):
         super().__init__(
             message=message,

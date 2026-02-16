@@ -16,21 +16,19 @@ async def ensure_vault_tables():
     """Ensure vault_ledger and vault_head tables exist."""
     if asyncpg is None:
         return
-    
-    dsn = (
-        os.environ.get("VAULT_POSTGRES_DSN")
-        or os.environ.get("DATABASE_URL")
-    )
-    
+
+    dsn = os.environ.get("VAULT_POSTGRES_DSN") or os.environ.get("DATABASE_URL")
+
     if not dsn:
         return  # Will fail later with proper error
-    
+
     # Railway TCP proxy requires SSL
     import ssl
+
     ssl_context = ssl.create_default_context()
     ssl_context.check_hostname = False
     ssl_context.verify_mode = ssl.CERT_NONE
-    
+
     conn = await asyncpg.connect(dsn, ssl=ssl_context)
     try:
         # Create vault_ledger table
@@ -49,7 +47,7 @@ async def ensure_vault_tables():
                 created_at TIMESTAMPTZ DEFAULT now()
             )
         """)
-        
+
         # Create indexes
         await conn.execute("""
             CREATE INDEX IF NOT EXISTS idx_vault_session 
@@ -59,7 +57,7 @@ async def ensure_vault_tables():
             CREATE INDEX IF NOT EXISTS idx_vault_timestamp 
             ON vault_ledger(timestamp)
         """)
-        
+
         # Create vault_head table
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS vault_head (
@@ -70,7 +68,7 @@ async def ensure_vault_tables():
                 updated_at TIMESTAMPTZ DEFAULT now()
             )
         """)
-        
+
         # Create vault_merkle_state table
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS vault_merkle_state (
@@ -79,7 +77,7 @@ async def ensure_vault_tables():
                 updated_at TIMESTAMPTZ DEFAULT now()
             )
         """)
-        
+
     finally:
         await conn.close()
 

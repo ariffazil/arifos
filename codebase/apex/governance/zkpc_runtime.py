@@ -36,7 +36,6 @@ from codebase.state.ledger_hashing import (
 )
 from codebase.state.merkle import build_merkle_tree
 
-
 # Paths (v47.1 Consolidated Structure)
 COOLING_LEDGER_PATH = Path("vault_999/INFRASTRUCTURE/cooling_ledger") / "L1_cooling_ledger.jsonl"
 MERKLE_ROOT_PATH = Path("vault_999/INFRASTRUCTURE/cooling_ledger") / "L1_merkle_root.txt"
@@ -54,6 +53,7 @@ class ZKPCContext:
     - retrieved canon entries
     etc.
     """
+
     user_query: str
     retrieved_canon: List[Dict[str, Any]] = field(default_factory=list)
     high_stakes: bool = False
@@ -68,6 +68,7 @@ def _now_iso() -> str:
 # ---------------------------------------------------------------------------
 # Phase I — PAUSE (Care Scope)
 # ---------------------------------------------------------------------------
+
 
 def build_care_scope(ctx: ZKPCContext) -> Dict[str, Any]:
     """
@@ -114,6 +115,7 @@ def build_care_scope(ctx: ZKPCContext) -> Dict[str, Any]:
 # Phases II & III — CONTRAST / INTEGRATE (Metrics)
 # ---------------------------------------------------------------------------
 
+
 def compute_metrics_stub(ctx: ZKPCContext, answer: str) -> Dict[str, Any]:
     """
     Placeholder for metrics computation.
@@ -143,6 +145,7 @@ def compute_metrics_stub(ctx: ZKPCContext, answer: str) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 # Phase IV — COOL (@EYE)
 # ---------------------------------------------------------------------------
+
 
 def run_eye_cool_phase_stub(
     ctx: ZKPCContext,
@@ -182,6 +185,7 @@ def run_eye_cool_phase_stub(
 # Phase V — SEAL (zkPC Receipt + Vault Commit)
 # ---------------------------------------------------------------------------
 
+
 def build_zkpc_receipt(
     ctx: ZKPCContext,
     answer: str,
@@ -208,7 +212,7 @@ def build_zkpc_receipt(
 
     tri_witness = {
         "human": metrics.get("tri_witness", 0.0),  # placeholder mapping
-        "ai": 0.98,   # TODO: derive from internal confidence / stability metrics
+        "ai": 0.98,  # TODO: derive from internal confidence / stability metrics
         "earth": 0.94,  # TODO: tie to external evidence grounding
         "consensus": metrics.get("tri_witness", 0.0),
     }
@@ -312,6 +316,7 @@ def commit_receipt_to_vault(
 # ---------------------------------------------------------------------------
 # High-level convenience function
 # ---------------------------------------------------------------------------
+
 
 def run_zkpc_for_answer(
     ctx: ZKPCContext,

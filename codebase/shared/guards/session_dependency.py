@@ -5,7 +5,7 @@ arifOS Session Dependency Guard
 
 Purpose:
     Provide a lightweight, PERSISTENT guard for long-horizon behaviour.
-    
+
     While the main constitutional floors (F1-F9) govern each response,
     this guard operates at the session level to detect potential
     overuse or parasocial dependency patterns.
@@ -36,12 +36,13 @@ from typing import Dict, TypedDict
 
 logger = logging.getLogger(__name__)
 
+
 class SessionRisk(str, Enum):
     """Risk level for a given session."""
 
-    GREEN = "GREEN"   # Healthy interaction
-    YELLOW = "YELLOW" # High frequency / density
-    RED = "RED"       # Dependency concern (SABAR)
+    GREEN = "GREEN"  # Healthy interaction
+    YELLOW = "YELLOW"  # High frequency / density
+    RED = "RED"  # Dependency concern (SABAR)
 
 
 @dataclass
@@ -64,6 +65,7 @@ class SessionState:
 
 class DependencyGuardResult(TypedDict, total=False):
     """Result structure for DependencyGuard.check_risk."""
+
     status: str
     reason: str
     message: str
@@ -81,7 +83,7 @@ class DependencyGuard:
         self,
         max_duration_min: float = 60.0,
         max_interactions: int = 80,
-        persistence_path: str = "codebase/data/sessions/session_store.json"
+        persistence_path: str = "codebase/data/sessions/session_store.json",
     ) -> None:
         """
         Initialize the dependency guard with persistence.
@@ -101,12 +103,12 @@ class DependencyGuard:
         """Load sessions from disk."""
         try:
             if os.path.exists(self.persistence_path):
-                with open(self.persistence_path, 'r') as f:
+                with open(self.persistence_path, "r") as f:
                     data = json.load(f)
                     for sid, sdata in data.items():
                         # Handle Enum conversion if needed, though string is default in JSON
                         # Convert string risk back to Enum if stored as string
-                        sdata['risk_level'] = SessionRisk(sdata.get('risk_level', 'GREEN'))
+                        sdata["risk_level"] = SessionRisk(sdata.get("risk_level", "GREEN"))
                         self.sessions[sid] = SessionState(**sdata)
         except Exception as e:
             logger.warning(f"Failed to load session store: {e}")
@@ -116,15 +118,12 @@ class DependencyGuard:
         """Save sessions to disk."""
         try:
             os.makedirs(os.path.dirname(self.persistence_path), exist_ok=True)
-            data = {
-                sid: asdict(state) 
-                for sid, state in self.sessions.items()
-            }
+            data = {sid: asdict(state) for sid, state in self.sessions.items()}
             # Convert Enum to value for JSON serialization
             for sid in data:
-                data[sid]['risk_level'] = data[sid]['risk_level'].value
+                data[sid]["risk_level"] = data[sid]["risk_level"].value
 
-            with open(self.persistence_path, 'w') as f:
+            with open(self.persistence_path, "w") as f:
                 json.dump(data, f, indent=2)
         except Exception as e:
             logger.error(f"Failed to save session store: {e}")
@@ -168,7 +167,7 @@ class DependencyGuard:
                     "risk_level": SessionRisk.RED.value,
                 }
             )
-        
+
         # Heuristic 2: Interaction count-based WARN
         elif session.interaction_count > self.max_interactions:
             session.risk_level = SessionRisk.YELLOW
@@ -189,7 +188,7 @@ class DependencyGuard:
 
         # Persist changes
         self._save_sessions()
-        
+
         return result
 
 

@@ -24,8 +24,13 @@ class TestF8Genius:
         """F8 should pass when G ≥ 0.80."""
         delta = DeltaVerdict(passed=True, f1_amanah=True, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=True, f3_tri_witness=True, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=True,
+            f3_tri_witness=True,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         kernel = PsiKernel()
@@ -34,7 +39,7 @@ class TestF8Genius:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=True,
-            hypervisor_failures=[]
+            hypervisor_failures=[],
         )
 
         assert verdict.f8_genius is True
@@ -44,8 +49,13 @@ class TestF8Genius:
         """F8 should fail when G < 0.80."""
         delta = DeltaVerdict(passed=True, f1_amanah=True, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=True, f3_tri_witness=True, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=True,
+            f3_tri_witness=True,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         kernel = PsiKernel()
@@ -54,7 +64,7 @@ class TestF8Genius:
             omega_verdict=omega,
             genius=0.70,
             hypervisor_passed=True,
-            hypervisor_failures=[]
+            hypervisor_failures=[],
         )
 
         assert verdict.f8_genius is False
@@ -69,8 +79,13 @@ class TestHypervisorIntegration:
         """Hypervisor pass should allow SEAL verdict."""
         delta = DeltaVerdict(passed=True, f1_amanah=True, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=True, f3_tri_witness=True, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=True,
+            f3_tri_witness=True,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         kernel = PsiKernel()
@@ -79,7 +94,7 @@ class TestHypervisorIntegration:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=True,
-            hypervisor_failures=[]
+            hypervisor_failures=[],
         )
 
         assert verdict.hypervisor_passed is True
@@ -89,8 +104,13 @@ class TestHypervisorIntegration:
         """Hypervisor failure should trigger SABAR verdict (highest priority)."""
         delta = DeltaVerdict(passed=True, f1_amanah=True, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=True, f3_tri_witness=True, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=True,
+            f3_tri_witness=True,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         kernel = PsiKernel()
@@ -99,7 +119,7 @@ class TestHypervisorIntegration:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=False,
-            hypervisor_failures=["F12 Injection Defense FAIL: Injection pattern detected"]
+            hypervisor_failures=["F12 Injection Defense FAIL: Injection pattern detected"],
         )
 
         assert verdict.hypervisor_passed is False
@@ -114,8 +134,13 @@ class TestVerdictHierarchy:
         """All floors passing should result in SEAL."""
         delta = DeltaVerdict(passed=True, f1_amanah=True, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=True, f3_tri_witness=True, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=True,
+            f3_tri_witness=True,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         kernel = PsiKernel()
@@ -124,7 +149,7 @@ class TestVerdictHierarchy:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=True,
-            hypervisor_failures=[]
+            hypervisor_failures=[],
         )
 
         assert verdict.verdict == Verdict.SEAL
@@ -134,8 +159,13 @@ class TestVerdictHierarchy:
         """Hard floor failure should result in VOID."""
         delta = DeltaVerdict(passed=False, f1_amanah=False, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=True, f3_tri_witness=True, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=True,
+            f3_tri_witness=True,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         kernel = PsiKernel()
@@ -144,7 +174,7 @@ class TestVerdictHierarchy:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=True,
-            hypervisor_failures=[]
+            hypervisor_failures=[],
         )
 
         assert verdict.verdict == Verdict.VOID
@@ -154,8 +184,13 @@ class TestVerdictHierarchy:
         """Soft floor warning should result in PARTIAL."""
         delta = DeltaVerdict(passed=True, f1_amanah=True, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=False, f3_tri_witness=True, f4_peace_squared=False,  # F4 soft fail
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=False,
+            f3_tri_witness=True,
+            f4_peace_squared=False,  # F4 soft fail
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         kernel = PsiKernel()
@@ -164,7 +199,7 @@ class TestVerdictHierarchy:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=True,
-            hypervisor_failures=[]
+            hypervisor_failures=[],
         )
 
         assert verdict.verdict == Verdict.PARTIAL
@@ -174,8 +209,13 @@ class TestVerdictHierarchy:
         """SABAR (hypervisor) should override VOID (hard floor failure)."""
         delta = DeltaVerdict(passed=False, f1_amanah=False, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=True, f3_tri_witness=True, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=True,
+            f3_tri_witness=True,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         kernel = PsiKernel()
@@ -184,7 +224,7 @@ class TestVerdictHierarchy:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=False,
-            hypervisor_failures=["F12 Injection detected"]
+            hypervisor_failures=["F12 Injection detected"],
         )
 
         # SABAR (highest) should override VOID
@@ -197,12 +237,19 @@ class TestTrinityIntegration:
     def test_aggregates_delta_failures(self):
         """PsiKernel should aggregate failures from DeltaKernel."""
         delta = DeltaVerdict(
-            passed=False, f1_amanah=False, f2_clarity=True,
-            failures=["F1 Amanah FAIL: Not reversible"]
+            passed=False,
+            f1_amanah=False,
+            f2_clarity=True,
+            failures=["F1 Amanah FAIL: Not reversible"],
         )
         omega = OmegaVerdict(
-            passed=True, f3_tri_witness=True, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=True,
+            f3_tri_witness=True,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         kernel = PsiKernel()
@@ -211,7 +258,7 @@ class TestTrinityIntegration:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=True,
-            hypervisor_failures=[]
+            hypervisor_failures=[],
         )
 
         assert "F1 Amanah FAIL" in verdict.failures[0]
@@ -221,9 +268,14 @@ class TestTrinityIntegration:
         """PsiKernel should aggregate failures from OmegaKernel."""
         delta = DeltaVerdict(passed=True, f1_amanah=True, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=False, f3_tri_witness=False, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True,
-            failures=["F3 Tri-Witness FAIL: 0.85 < 0.95"]
+            passed=False,
+            f3_tri_witness=False,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
+            failures=["F3 Tri-Witness FAIL: 0.85 < 0.95"],
         )
 
         kernel = PsiKernel()
@@ -232,7 +284,7 @@ class TestTrinityIntegration:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=True,
-            hypervisor_failures=[]
+            hypervisor_failures=[],
         )
 
         assert "F3 Tri-Witness FAIL" in verdict.failures[0]
@@ -242,8 +294,13 @@ class TestTrinityIntegration:
         """PsiVerdict should contain metadata from all kernels."""
         delta = DeltaVerdict(passed=True, f1_amanah=True, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=True, f3_tri_witness=True, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=True,
+            f3_tri_witness=True,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         kernel = PsiKernel()
@@ -252,7 +309,7 @@ class TestTrinityIntegration:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=True,
-            hypervisor_failures=[]
+            hypervisor_failures=[],
         )
 
         assert "f8_genius" in verdict.metadata
@@ -266,15 +323,17 @@ class TestConvenienceFunction:
         """render_apex_verdict should work as shortcut."""
         delta = DeltaVerdict(passed=True, f1_amanah=True, f2_clarity=True)
         omega = OmegaVerdict(
-            passed=True, f3_tri_witness=True, f4_peace_squared=True,
-            f5_kappa_r=True, f6_omega_0=True, f7_rasa=True, f9_c_dark=True
+            passed=True,
+            f3_tri_witness=True,
+            f4_peace_squared=True,
+            f5_kappa_r=True,
+            f6_omega_0=True,
+            f7_rasa=True,
+            f9_c_dark=True,
         )
 
         verdict = render_apex_verdict(
-            delta_verdict=delta,
-            omega_verdict=omega,
-            genius=0.85,
-            hypervisor_passed=True
+            delta_verdict=delta, omega_verdict=omega, genius=0.85, hypervisor_passed=True
         )
 
         assert isinstance(verdict, PsiVerdict)
@@ -293,18 +352,13 @@ class TestRealWorldScenario:
             response="arifOS is a constitutional AI governance framework.",
             reversible=True,
             within_mandate=True,
-            skip_clarity=True  # Skip for simplicity
+            skip_clarity=True,  # Skip for simplicity
         )
 
         # Step 2: Evaluate ASI (Omega)
         omega_kernel = OmegaKernel()
         omega = omega_kernel.evaluate(
-            tri_witness=0.98,
-            peace_squared=1.0,
-            kappa_r=0.96,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.98, peace_squared=1.0, kappa_r=0.96, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         # Step 3: Evaluate APEX (Psi)
@@ -314,7 +368,7 @@ class TestRealWorldScenario:
             omega_verdict=omega,
             genius=0.85,
             hypervisor_passed=True,
-            hypervisor_failures=[]
+            hypervisor_failures=[],
         )
 
         # Final verdict should be SEAL

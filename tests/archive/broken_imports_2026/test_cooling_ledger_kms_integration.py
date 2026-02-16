@@ -68,8 +68,16 @@ def test_ledger_tampering_after_sign_should_fail(tmp_path: Path, tamper_field: s
     signer = KmsSigner(config=KmsSignerConfig(key_id="kms-key-abc"), client=fake_client)
 
     # Create two signed entries
-    append_entry(ledger_path, {"timestamp": "2025-11-24T00:00:00Z", "event": "a", "payload": {"i": 1}}, kms_signer=signer)
-    append_entry(ledger_path, {"timestamp": "2025-11-24T00:00:01Z", "event": "b", "payload": {"i": 2}}, kms_signer=signer)
+    append_entry(
+        ledger_path,
+        {"timestamp": "2025-11-24T00:00:00Z", "event": "a", "payload": {"i": 1}},
+        kms_signer=signer,
+    )
+    append_entry(
+        ledger_path,
+        {"timestamp": "2025-11-24T00:00:01Z", "event": "b", "payload": {"i": 2}},
+        kms_signer=signer,
+    )
 
     # Tamper first line
     lines = ledger_path.read_text(encoding="utf-8").splitlines()

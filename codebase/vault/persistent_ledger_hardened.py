@@ -27,6 +27,7 @@ from uuid import UUID, uuid4
 # Import incremental Merkle
 try:
     from codebase.vault.incremental_merkle import PersistentMerkleState, sha256_hash
+
     INCREMENTAL_MERKLE_AVAILABLE = True
 except ImportError:
     INCREMENTAL_MERKLE_AVAILABLE = False
@@ -44,20 +45,22 @@ ADVISORY_LOCK_KEY = 999_911_777
 # SEAL CONTRACT: Pre-vault validation (VOID is expensive, SEAL is earned)
 # =============================================================================
 
+
 class SealContractViolation(Exception):
     """Raised when seal_data doesn't meet contract requirements."""
+
     pass
 
 
 def enforce_seal_contract(seal_data: Dict[str, Any], verdict: str) -> None:
     """
     HARDENED: Enforce pre-vault seal contract.
-    
+
     Theory of Anomalous Contrast:
     - VOID must be EXPENSIVE (requires tri-witness + justification)
     - SEAL must be EARNED (requires EUREKA score >= 0.75)
     - SABAR is DEFAULT (if no clear EUREKA)
-    
+
     Raises SealContractViolation if contract not met.
     """
     # Required fields check
@@ -65,29 +68,29 @@ def enforce_seal_contract(seal_data: Dict[str, Any], verdict: str) -> None:
     for field in required_top:
         if field not in seal_data:
             raise SealContractViolation(f"Missing required field: {field}")
-    
+
     trinity = seal_data.get("trinity", {})
     required_trinity = ["init", "agi", "asi", "apex"]
     for field in required_trinity:
         if field not in trinity:
             raise SealContractViolation(f"Missing trinity component: {field}")
-    
+
     # Tri-witness validation
     apex = trinity.get("apex", {})
     tri_witness = apex.get("tri_witness")
     if tri_witness is None:
         raise SealContractViolation("Missing tri_witness in apex results")
-    
+
     if not isinstance(tri_witness, (int, float)):
         raise SealContractViolation(f"tri_witness must be numeric, got {type(tri_witness)}")
-    
+
     # SEAL requires high tri-witness
     if verdict == "SEAL" and tri_witness < 0.95:
         raise SealContractViolation(
             f"SEAL requires tri_witness >= 0.95, got {tri_witness}. "
             "Use SABAR for partial consensus."
         )
-    
+
     # VOID requires justification
     if verdict == "VOID":
         failed_floors = apex.get("failed_floors", [])
@@ -96,19 +99,19 @@ def enforce_seal_contract(seal_data: Dict[str, Any], verdict: str) -> None:
                 "VOID requires failed_floors justification. "
                 "VOID must be expensive - cannot reject without reason."
             )
-    
+
     # EUREKA validation for SEAL
     if verdict == "SEAL":
         eureka = seal_data.get("eureka", {})
         eureka_score = eureka.get("eureka_score", 0.0)
         eureka_verdict = eureka.get("verdict", "TRANSIENT")
-        
+
         if eureka_verdict != "SEAL":
             raise SealContractViolation(
                 f"Vault SEAL requires EUREKA verdict SEAL, got {eureka_verdict}. "
                 f"EUREKA Score: {eureka_score:.2f}"
             )
-        
+
         if eureka_score < 0.75:
             raise SealContractViolation(
                 f"SEAL requires EUREKA score >= 0.75, got {eureka_score:.2f}. "
@@ -120,6 +123,7 @@ def enforce_seal_contract(seal_data: Dict[str, Any], verdict: str) -> None:
 # Merkle root computation (fallback if incremental not available)
 # =============================================================================
 
+
 def _merkle_root(hashes: List[str]) -> str:
     """Compute Merkle root from a list of hashes (O(N) fallback)."""
     if not hashes:
@@ -130,9 +134,7 @@ def _merkle_root(hashes: List[str]) -> str:
             level.append(level[-1])
         next_level: List[str] = []
         for i in range(0, len(level), 2):
-            next_level.append(
-                hashlib.sha256((level[i] + level[i + 1]).encode("utf-8")).hexdigest()
-            )
+            next_level.append(hashlib.sha256((level[i] + level[i + 1]).encode("utf-8")).hexdigest())
         level = next_level
     return level[0]
 
@@ -157,6 +159,7 @@ def _parse_seal_data(seal_data_val: Union[str, Dict[str, Any], Any]) -> Dict[str
 # Configuration
 # =============================================================================
 
+
 def should_use_postgres() -> bool:
     """Return True when Postgres backend is requested (default)."""
     backend = os.environ.get("VAULT_BACKEND", "postgres").lower()
@@ -179,6 +182,7 @@ def get_vault_dsn() -> str:
 # =============================================================================
 # Data classes
 # =============================================================================
+
 
 @dataclass
 class SealRow:
@@ -212,10 +216,11 @@ class SealRow:
 # Hardened Persistent Vault Ledger
 # =============================================================================
 
+
 class HardenedPersistentVaultLedger:
     """
     HARDENED Async Postgres-backed ledger.
-    
+
     Features:
     - Incremental Merkle tree (O(log N) append)
     - Seal contract enforcement (VOID expensive, SEAL earned)
@@ -229,16 +234,15 @@ class HardenedPersistentVaultLedger:
 
     async def connect(self):
         if asyncpg is None:
-            raise RuntimeError(
-                "asyncpg is not installed. Install with: pip install asyncpg"
-            )
+            raise RuntimeError("asyncpg is not installed. Install with: pip install asyncpg")
         if self._pool is None:
             # Railway TCP proxy requires SSL
             import ssl
+
             ssl_mode = os.environ.get("VAULT_SSL_MODE", "require")
-            
+
             pool_kwargs = {"min_size": 1, "max_size": 5}
-            
+
             if ssl_mode == "require":
                 # Create SSL context that accepts Railway's cert
                 ssl_context = ssl.create_default_context()
@@ -247,7 +251,7 @@ class HardenedPersistentVaultLedger:
                 pool_kwargs["ssl"] = ssl_context
             elif ssl_mode == "disable":
                 pool_kwargs["ssl"] = False
-            
+
             self._pool = await asyncpg.create_pool(self.dsn, **pool_kwargs)
             # Load or initialize Merkle state
             if INCREMENTAL_MERKLE_AVAILABLE:
@@ -263,11 +267,9 @@ class HardenedPersistentVaultLedger:
         """Load persisted Merkle state from database."""
         if not INCREMENTAL_MERKLE_AVAILABLE:
             return PersistentMerkleState()
-        
+
         async with self._pool.acquire() as conn:
-            row = await conn.fetchrow(
-                "SELECT merkle_state FROM vault_merkle_state WHERE id=1"
-            )
+            row = await conn.fetchrow("SELECT merkle_state FROM vault_merkle_state WHERE id=1")
             if row and row["merkle_state"]:
                 return PersistentMerkleState.from_json(row["merkle_state"])
             return PersistentMerkleState()
@@ -276,18 +278,18 @@ class HardenedPersistentVaultLedger:
         """Save Merkle state to database."""
         if not INCREMENTAL_MERKLE_AVAILABLE or not self._merkle_state:
             return
-        
+
         state_json = self._merkle_state.to_json()
         exists = await conn.fetchrow("SELECT 1 FROM vault_merkle_state WHERE id=1")
         if exists:
             await conn.execute(
                 "UPDATE vault_merkle_state SET merkle_state=$1, updated_at=now() WHERE id=1",
-                json.dumps(state_json)
+                json.dumps(state_json),
             )
         else:
             await conn.execute(
                 "INSERT INTO vault_merkle_state (id, merkle_state) VALUES (1, $1)",
-                json.dumps(state_json)
+                json.dumps(state_json),
             )
 
     # ------------------------------------------------------------------ core (HARDENED)
@@ -302,7 +304,7 @@ class HardenedPersistentVaultLedger:
     ) -> Dict[str, Any]:
         """
         HARDENED: Concurrency-safe append with seal contract enforcement.
-        
+
         - O(log N) Merkle update (incremental)
         - Seal contract validation (VOID expensive, SEAL earned)
         - Proper JSONB handling (dict, not string)
@@ -318,7 +320,7 @@ class HardenedPersistentVaultLedger:
                     "reason": str(e),
                     "contract_violation": True,
                 }
-        
+
         await self.connect()
         async with self._pool.acquire() as conn:
             async with conn.transaction():
@@ -345,15 +347,12 @@ class HardenedPersistentVaultLedger:
                 # HARDENED: Incremental Merkle (O(log N))
                 if INCREMENTAL_MERKLE_AVAILABLE and self._merkle_state:
                     merkle_root = self._merkle_state.append_leaf(
-                        entry_hash, 
-                        await self._get_next_sequence(conn)
+                        entry_hash, await self._get_next_sequence(conn)
                     )
                     await self._save_merkle_state(conn)
                 else:
                     # Fallback: O(N) full recompute
-                    rows = await conn.fetch(
-                        "SELECT entry_hash FROM vault_ledger ORDER BY sequence"
-                    )
+                    rows = await conn.fetch("SELECT entry_hash FROM vault_ledger ORDER BY sequence")
                     existing_hashes = [r["entry_hash"] for r in rows]
                     new_hashes = existing_hashes + [entry_hash]
                     merkle_root = _merkle_root(new_hashes)
@@ -463,8 +462,12 @@ class HardenedPersistentVaultLedger:
             return {"entries": entries, "next_cursor": next_cursor, "has_more": has_more}
 
     async def query_by_verdict(
-        self, verdict: str, start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None, cursor: Optional[int] = None, limit: int = 100
+        self,
+        verdict: str,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        cursor: Optional[int] = None,
+        limit: int = 100,
     ) -> Dict[str, Any]:
         limit = max(1, min(limit, 1000))
         await self.connect()
@@ -505,14 +508,12 @@ class HardenedPersistentVaultLedger:
         """Verify full chain integrity."""
         await self.connect()
         async with self._pool.acquire() as conn:
-            rows = await conn.fetch(
-                """
+            rows = await conn.fetch("""
                 SELECT sequence, session_id, seal_id, timestamp, authority, verdict,
                        seal_data, entry_hash, prev_hash
                 FROM vault_ledger
                 ORDER BY sequence ASC
-                """
-            )
+                """)
             hashes: List[str] = []
             prev = GENESIS_HASH
             for row in rows:
@@ -520,7 +521,7 @@ class HardenedPersistentVaultLedger:
                 entry_hash = row["entry_hash"]
                 prev_hash = row["prev_hash"] or GENESIS_HASH
                 seal_data = _parse_seal_data(row["seal_data"])
-                
+
                 recomputed = self._compute_entry_hash(
                     session_id=row["session_id"],
                     timestamp=row["timestamp"],
@@ -573,7 +574,7 @@ class HardenedPersistentVaultLedger:
                     break
             if index is None:
                 return None
-            
+
             proof = []
             level = list(hashes)
             idx = index
@@ -586,14 +587,22 @@ class HardenedPersistentVaultLedger:
                 idx = idx // 2
                 next_level = []
                 for i in range(0, len(level), 2):
-                    next_level.append(hashlib.sha256((level[i] + level[i + 1]).encode()).hexdigest())
+                    next_level.append(
+                        hashlib.sha256((level[i] + level[i + 1]).encode()).hexdigest()
+                    )
                 level = next_level
             return {"root": level[0], "proof": proof, "leaf_index": index}
 
     # ------------------------------------------------------------------ helpers
     def _compute_entry_hash(
-        self, session_id: str, timestamp: datetime, authority: str,
-        verdict: str, seal_data: Dict[str, Any], prev_hash: Optional[str], seal_id: UUID
+        self,
+        session_id: str,
+        timestamp: datetime,
+        authority: str,
+        verdict: str,
+        seal_data: Dict[str, Any],
+        prev_hash: Optional[str],
+        seal_id: UUID,
     ) -> str:
         canonical = {
             "session_id": session_id,
@@ -631,7 +640,9 @@ class HardenedPersistentVaultLedger:
                 SET head_sequence=$1, head_entry_hash=$2, head_merkle_root=$3, updated_at=now()
                 WHERE id=1
                 """,
-                sequence, entry_hash, merkle_root,
+                sequence,
+                entry_hash,
+                merkle_root,
             )
         else:
             await conn.execute(
@@ -639,7 +650,9 @@ class HardenedPersistentVaultLedger:
                 INSERT INTO vault_head (id, head_sequence, head_entry_hash, head_merkle_root)
                 VALUES (1, $1, $2, $3)
                 """,
-                sequence, entry_hash, merkle_root,
+                sequence,
+                entry_hash,
+                merkle_root,
             )
 
 

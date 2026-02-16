@@ -65,7 +65,9 @@ class ASINeuralCore:
             "session_id": session_id,
             "empathy_kappa_r": result.empathy.kappa_r,
             "is_reversible": result.empathy.reversibility_score >= 0.3,
-            "stakeholders": [s.id for s in result.empathy.stakeholders] if result.empathy.stakeholders else [],
+            "stakeholders": (
+                [s.id for s in result.empathy.stakeholders] if result.empathy.stakeholders else []
+            ),
             "weakest": weakest.id if weakest else None,
             "peace_squared": result.system.peace_squared,
             "verdict": result.vote.value if hasattr(result.vote, "value") else str(result.vote),

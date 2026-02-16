@@ -24,6 +24,7 @@ from codebase.utils.reduction_engine import SessionAttributes
 # TRACK B SPEC LOADER (v45.0: Session Physics Authority)
 # =============================================================================
 
+
 def _load_session_physics_spec() -> dict:
     """
     Load session physics spec from spec/v45/session_physics.json.
@@ -101,11 +102,12 @@ def _load_session_physics_spec() -> dict:
     v44_path = pkg_dir / "spec" / "v44" / "session_physics.json"
     if v44_path.exists():
         import warnings
+
         warnings.warn(
             "Loading from spec/v44/ (DEPRECATED). Please upgrade to spec/v45/. "
             "v44 fallback will be removed in future versions.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
         try:
             with open(v44_path, "r", encoding="utf-8") as f:
@@ -119,18 +121,13 @@ def _load_session_physics_spec() -> dict:
     # Priority D: Hardcoded defaults (only if legacy enabled)
     if allow_legacy:
         return {
-            "budget_thresholds": {
-                "warn_limit_percent": 80.0,
-                "hard_limit_percent": 100.0
-            },
+            "budget_thresholds": {"warn_limit_percent": 80.0, "hard_limit_percent": 100.0},
             "burst_detection": {
                 "turn_rate_threshold_per_min": 30.0,
                 "token_rate_threshold_per_min": 5000.0,
-                "variance_dt_threshold": 0.05
+                "variance_dt_threshold": 0.05,
             },
-            "streak_thresholds": {
-                "max_consecutive_failures": 3
-            }
+            "streak_thresholds": {"max_consecutive_failures": 3},
         }
 
     # Hard fail if v44 missing and legacy not enabled

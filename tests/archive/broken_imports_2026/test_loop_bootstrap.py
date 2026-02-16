@@ -38,13 +38,9 @@ class TestLoopBootstrap:
     @pytest.fixture
     def mock_session_path(self, sessions_dir, monkeypatch):
         """Patch SESSION_PATH to use temp directory."""
+        monkeypatch.setattr("arifos.mcp.session_ledger.SESSION_PATH", sessions_dir)
         monkeypatch.setattr(
-            "arifos.mcp.session_ledger.SESSION_PATH",
-            sessions_dir
-        )
-        monkeypatch.setattr(
-            "arifos.mcp.session_ledger.OPEN_SESSIONS_FILE",
-            sessions_dir / "open_sessions.json"
+            "arifos.mcp.session_ledger.OPEN_SESSIONS_FILE", sessions_dir / "open_sessions.json"
         )
         return sessions_dir
 
@@ -53,12 +49,7 @@ class TestLoopBootstrap:
         from codebase.mcp.session_ledger import open_session, _load_open_sessions
 
         # Create a session
-        open_session(
-            session_id="test-session-001",
-            token="token-abc",
-            pid=12345,
-            authority="HUMAN"
-        )
+        open_session(session_id="test-session-001", token="token-abc", pid=12345, authority="HUMAN")
 
         # Verify tracking file exists
         sessions = _load_open_sessions()
@@ -68,9 +59,7 @@ class TestLoopBootstrap:
 
     def test_close_session_removes_tracking(self, mock_session_path):
         """Verify close_session() removes entry."""
-        from codebase.mcp.session_ledger import (
-            open_session, close_session, _load_open_sessions
-        )
+        from codebase.mcp.session_ledger import open_session, close_session, _load_open_sessions
 
         # Create then close
         open_session("test-session-002", "token-xyz", 99999)
@@ -83,7 +72,9 @@ class TestLoopBootstrap:
     def test_orphan_detection_by_dead_pid(self, mock_session_path):
         """Detect orphan when PID no longer exists."""
         from codebase.mcp.session_ledger import (
-            open_session, get_orphaned_sessions, _save_open_sessions
+            open_session,
+            get_orphaned_sessions,
+            _save_open_sessions,
         )
 
         # Create session with a PID that definitely doesn't exist
@@ -97,7 +88,7 @@ class TestLoopBootstrap:
                 "token": "dead-token",
                 "pid": fake_dead_pid,
                 "started_at": datetime.utcnow().isoformat() + "Z",
-                "authority": "GUEST"
+                "authority": "GUEST",
             }
         }
         sessions_file.write_text(json.dumps(session_data))
@@ -124,7 +115,7 @@ class TestLoopBootstrap:
                 "token": "old-token",
                 "pid": os.getpid(),  # Current PID (still alive)
                 "started_at": old_time,
-                "authority": "GUEST"
+                "authority": "GUEST",
             }
         }
         sessions_file.write_text(json.dumps(session_data))
@@ -139,9 +130,7 @@ class TestLoopBootstrap:
 
     def test_recover_orphaned_session_seals_with_sabar(self, mock_session_path):
         """Verify recovery seals with SABAR verdict."""
-        from codebase.mcp.session_ledger import (
-            recover_orphaned_session, _load_open_sessions
-        )
+        from codebase.mcp.session_ledger import recover_orphaned_session, _load_open_sessions
 
         # Setup orphan
         sessions_file = mock_session_path / "open_sessions.json"
@@ -151,7 +140,7 @@ class TestLoopBootstrap:
                 "token": "victim-token",
                 "pid": 999999999,
                 "started_at": datetime.utcnow().isoformat() + "Z",
-                "authority": "HUMAN"
+                "authority": "HUMAN",
             }
         }
         sessions_file.write_text(json.dumps(session_data))
@@ -171,8 +160,10 @@ class TestLoopBootstrap:
     def test_full_crash_recovery_flow(self, mock_session_path):
         """End-to-end: init → crash → init → verify recovery."""
         from codebase.mcp.session_ledger import (
-            open_session, get_orphaned_sessions, recover_orphaned_session,
-            _load_open_sessions
+            open_session,
+            get_orphaned_sessions,
+            recover_orphaned_session,
+            _load_open_sessions,
         )
 
         # Step 1: Simulate first init (session opens)
@@ -180,7 +171,7 @@ class TestLoopBootstrap:
             session_id="production-session",
             token="prod-token",
             pid=999999999,  # Fake PID that will look "dead"
-            authority="HUMAN"
+            authority="HUMAN",
         )
 
         # Step 2: Crash happens (we don't call close_session)
@@ -214,13 +205,9 @@ class TestAxisServerRecovery:
         sessions = tmp_path / "sessions"
         sessions.mkdir()
 
+        monkeypatch.setattr("arifos.mcp.session_ledger.SESSION_PATH", sessions)
         monkeypatch.setattr(
-            "arifos.mcp.session_ledger.SESSION_PATH",
-            sessions
-        )
-        monkeypatch.setattr(
-            "arifos.mcp.session_ledger.OPEN_SESSIONS_FILE",
-            sessions / "open_sessions.json"
+            "arifos.mcp.session_ledger.OPEN_SESSIONS_FILE", sessions / "open_sessions.json"
         )
 
         return sessions
@@ -240,14 +227,16 @@ class TestAxisServerRecovery:
                 "token": "crash-token",
                 "pid": 999999999,
                 "started_at": old_time,
-                "authority": "GUEST"
+                "authority": "GUEST",
             }
         }
         sessions_file.write_text(json.dumps(session_data))
 
         # Import and run recovery
         from codebase.mcp.session_ledger import (
-            get_orphaned_sessions, recover_orphaned_session, _load_open_sessions
+            get_orphaned_sessions,
+            recover_orphaned_session,
+            _load_open_sessions,
         )
 
         # Simulate what AXIS does on init

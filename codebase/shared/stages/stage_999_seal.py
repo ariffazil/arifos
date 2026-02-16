@@ -80,8 +80,10 @@ async def execute_seal_stage(session_id: str) -> Dict[str, Any]:
         eureka_verdict = "SABAR"
         eureka_score = 0.5
         eureka_metadata = {
-            "verdict": "SABAR", "eureka_score": 0.5,
-            "error": str(e), "degraded": True,
+            "verdict": "SABAR",
+            "eureka_score": 0.5,
+            "error": str(e),
+            "degraded": True,
         }
 
     # Idempotency: skip if this seal_id was already committed
@@ -93,8 +95,12 @@ async def execute_seal_stage(session_id: str) -> Dict[str, Any]:
             await ledger.close()
             if isinstance(existing, list):
                 for ex in existing:
-                    if (ex.get("seal_id") or (ex.get("seal_data", {}) or {}).get("seal_id")) == seal_id:
-                        logger.info(f"[STAGE-999] Idempotency: seal_id {seal_id[:8]} already committed, skipping")
+                    if (
+                        ex.get("seal_id") or (ex.get("seal_data", {}) or {}).get("seal_id")
+                    ) == seal_id:
+                        logger.info(
+                            f"[STAGE-999] Idempotency: seal_id {seal_id[:8]} already committed, skipping"
+                        )
                         return {
                             "stage": "999_SEAL",
                             "status": "ALREADY_SEALED",

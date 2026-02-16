@@ -41,9 +41,7 @@ async def test_log_tail_since_minutes_filter(tmp_path: Path) -> None:
     new_ts = (now - timedelta(minutes=1)).isoformat().replace("+00:00", "Z")
     log_file = tmp_path / "app.log"
     log_file.write_text(
-        f"{old_ts} INFO old event\n"
-        f"{new_ts} ERROR recent event\n"
-        "line without timestamp\n",
+        f"{old_ts} INFO old event\n" f"{new_ts} ERROR recent event\n" "line without timestamp\n",
         encoding="utf-8",
     )
 

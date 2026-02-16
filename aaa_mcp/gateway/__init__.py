@@ -7,11 +7,11 @@ Enforces 13 floors before forwarding to downstream MCP servers.
 Modules:
     identity: Actor identity and RBAC (F11 Authority)
     observability: Post-deploy health checks (F4 Clarity)
-    
+
 Usage:
     from aaa_mcp.gateway import identity_registry, post_deploy_monitor
     from aaa_mcp.gateway.identity import create_human_actor
-    
+
     # Register human actor
     actor = create_human_actor(
         user_id="user-123",
@@ -19,7 +19,7 @@ Usage:
         name="Arif Fazil",
         groups=["platform-engineers"],
     )
-    
+
     # Start monitoring
     await post_deploy_monitor.start_monitoring(
         session_id="sess-001",

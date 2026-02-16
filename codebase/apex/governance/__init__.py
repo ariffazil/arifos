@@ -50,6 +50,7 @@ __all__ = [
 FileAccessGuardian = FAG
 FAGResult = FAGReadResult
 
+
 # v47: Issue deprecation warning on module-level access
 def __getattr__(name):
     state_modules = ["ledger_cryptography", "ledger_hashing", "merkle", "merkle_ledger"]
@@ -59,7 +60,6 @@ def __getattr__(name):
             f"Use 'from codebase.state import {name}' instead. "
             "This compatibility shim will be removed in v48.",
             DeprecationWarning,
-            stacklevel=2
+            stacklevel=2,
         )
     return globals().get(name)
-

@@ -2,8 +2,6 @@ from typing import Any, Dict, Optional
 
 from aaa_mcp.services.constitutional_metrics import store_stage_result
 
-from aaa_mcp.services.constitutional_metrics import store_stage_result
-
 
 async def vault_seal(
     session_id: str,

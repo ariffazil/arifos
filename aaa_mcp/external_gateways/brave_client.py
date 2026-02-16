@@ -15,7 +15,6 @@ import urllib.parse
 import urllib.request
 from typing import Optional
 
-
 # Environment variable name for API key
 BRAVE_API_KEY_ENV = "BRAVE_API_KEY"
 

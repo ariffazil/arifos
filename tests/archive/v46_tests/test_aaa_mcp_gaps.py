@@ -15,21 +15,24 @@ import pytest
 # GAP 4: ATTESTATION TESTS
 # ============================================================================
 
+
 class TestAgentAttestation:
     """Tests for Gap 4: Agent Attestation."""
 
     def test_attestation_import(self):
         """Test attestation module imports correctly."""
-        from codebase.core.enforcement.attestation import (AgentAttestation,
-                                             AttestationRegistry,
-                                             CapabilityDeclaration,
-                                             ConstraintDeclaration)
+        from codebase.core.enforcement.attestation import (
+            AgentAttestation,
+            AttestationRegistry,
+            CapabilityDeclaration,
+            ConstraintDeclaration,
+        )
+
         assert AgentAttestation is not None
 
     def test_create_attestation(self):
         """Test creating a new attestation."""
-        from codebase.core.enforcement.attestation import (AgentAttestation,
-                                             CapabilityDeclaration)
+        from codebase.core.enforcement.attestation import AgentAttestation, CapabilityDeclaration
 
         att = AgentAttestation(
             agent_id="test_agent",
@@ -77,9 +80,11 @@ class TestAgentAttestation:
 
     def test_builtin_attestations(self):
         """Test predefined attestations exist."""
-        from codebase.core.enforcement.attestation import (ARIF_AGI_ATTESTATION,
-                                             ARIF_APEX_ATTESTATION,
-                                             ARIF_ASI_ATTESTATION)
+        from codebase.core.enforcement.attestation import (
+            ARIF_AGI_ATTESTATION,
+            ARIF_APEX_ATTESTATION,
+            ARIF_ASI_ATTESTATION,
+        )
 
         assert ARIF_AGI_ATTESTATION.agent_id == "arif_agi_v45"
         assert ARIF_ASI_ATTESTATION.capabilities.truth_threshold == 0.99
@@ -97,8 +102,7 @@ class TestAgentAttestation:
 
     def test_registry_verify(self):
         """Test registry can verify agents."""
-        from codebase.core.enforcement.attestation import (ARIF_AGI_ATTESTATION,
-                                             AttestationRegistry)
+        from codebase.core.enforcement.attestation import ARIF_AGI_ATTESTATION, AttestationRegistry
 
         registry = AttestationRegistry()
         sig = ARIF_AGI_ATTESTATION.sign()
@@ -111,13 +115,18 @@ class TestAgentAttestation:
 # GAP 5: RECOVERY MATRIX TESTS
 # ============================================================================
 
+
 class TestRecoveryMatrix:
     """Tests for Gap 5: Recovery Matrix."""
 
     def test_recovery_import(self):
         """Test recovery module imports correctly."""
-        from codebase.core.system.recovery import (FLOOR_RECOVERY_MATRIX,
-                                          RecoveryAction, RecoveryMatrix)
+        from codebase.core.system.recovery import (
+            FLOOR_RECOVERY_MATRIX,
+            RecoveryAction,
+            RecoveryMatrix,
+        )
+
         assert RecoveryAction is not None
 
     def test_f1_amanah_no_recovery(self):
@@ -126,9 +135,7 @@ class TestRecoveryMatrix:
 
         matrix = RecoveryMatrix()
         action, output = matrix.attempt_recovery(
-            "F1_amanah",
-            "Amanah violation detected",
-            "Some output"
+            "F1_amanah", "Amanah violation detected", "Some output"
         )
 
         assert action == RecoveryAction.VOID_IMMEDIATE
@@ -139,11 +146,7 @@ class TestRecoveryMatrix:
         from codebase.core.system.recovery import RecoveryAction, RecoveryMatrix
 
         matrix = RecoveryMatrix()
-        action, output = matrix.attempt_recovery(
-            "F9_c_dark",
-            "Deception detected",
-            "Some output"
-        )
+        action, output = matrix.attempt_recovery("F9_c_dark", "Deception detected", "Some output")
 
         assert action == RecoveryAction.VOID_IMMEDIATE
         assert output is None
@@ -153,11 +156,7 @@ class TestRecoveryMatrix:
         from codebase.core.system.recovery import RecoveryAction, RecoveryMatrix
 
         matrix = RecoveryMatrix()
-        action, output = matrix.attempt_recovery(
-            "F2_truth",
-            "Truth score low",
-            "Some output"
-        )
+        action, output = matrix.attempt_recovery("F2_truth", "Truth score low", "Some output")
 
         assert action == RecoveryAction.SABAR_REVERIFY
         assert output == "SABAR"
@@ -167,11 +166,7 @@ class TestRecoveryMatrix:
         from codebase.core.system.recovery import RecoveryAction, RecoveryMatrix
 
         matrix = RecoveryMatrix()
-        action, output = matrix.attempt_recovery(
-            "F3_tri_witness",
-            "No consensus",
-            "Some output"
-        )
+        action, output = matrix.attempt_recovery("F3_tri_witness", "No consensus", "Some output")
 
         assert action == RecoveryAction.HOLD_ESCALATE
         assert output == "HOLD_888"
@@ -182,11 +177,7 @@ class TestRecoveryMatrix:
 
         matrix = RecoveryMatrix()
         long_output = "x" * 1000
-        action, output = matrix.attempt_recovery(
-            "F4_delta_s",
-            "Output adds confusion",
-            long_output
-        )
+        action, output = matrix.attempt_recovery("F4_delta_s", "Output adds confusion", long_output)
 
         assert action == RecoveryAction.PARTIAL_SIMPLIFY
         assert len(output) < len(long_output)
@@ -232,14 +223,19 @@ class TestRecoveryMatrix:
 # GAP 6: DISTRIBUTED VERIFICATION TESTS
 # ============================================================================
 
+
 class TestDistributedVerification:
     """Tests for Gap 6: Distributed Verification."""
 
     def test_verification_import(self):
         """Test verification module imports correctly."""
-        from codebase.core.enforcement.verification import (DistributedWitnessSystem,
-                                              TriWitnessConsensus, WitnessType,
-                                              WitnessVote)
+        from codebase.core.enforcement.verification import (
+            DistributedWitnessSystem,
+            TriWitnessConsensus,
+            WitnessType,
+            WitnessVote,
+        )
+
         assert WitnessType is not None
 
     def test_human_witness(self):
@@ -258,12 +254,7 @@ class TestDistributedVerification:
 
         witness = AIValidatorWitness()
         votes = witness.get_votes(
-            "test query",
-            {
-                "truth_score": 0.95,
-                "delta_s_score": 0.90,
-                "logic_score": 0.85
-            }
+            "test query", {"truth_score": 0.95, "delta_s_score": 0.90, "logic_score": 0.85}
         )
 
         assert len(votes) == 1
@@ -281,8 +272,11 @@ class TestDistributedVerification:
 
     def test_consensus_all_sources(self):
         """Test consensus with all witness types."""
-        from codebase.core.enforcement.verification import (TriWitnessConsensus, WitnessType,
-                                              WitnessVote)
+        from codebase.core.enforcement.verification import (
+            TriWitnessConsensus,
+            WitnessType,
+            WitnessVote,
+        )
 
         consensus = TriWitnessConsensus()
         votes = [
@@ -298,8 +292,11 @@ class TestDistributedVerification:
 
     def test_consensus_missing_witness(self):
         """Test consensus with missing witness type."""
-        from codebase.core.enforcement.verification import (TriWitnessConsensus, WitnessType,
-                                              WitnessVote)
+        from codebase.core.enforcement.verification import (
+            TriWitnessConsensus,
+            WitnessType,
+            WitnessVote,
+        )
 
         consensus = TriWitnessConsensus()
         votes = [
@@ -335,7 +332,7 @@ class TestDistributedVerification:
                 "delta_s_score": 0.90,
                 "logic_score": 0.92,
                 "external_verification_score": 0.88,
-            }
+            },
         )
 
         assert score > 0.8

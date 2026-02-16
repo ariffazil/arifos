@@ -31,7 +31,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Optional
+from typing import List
 
 
 class OntologyRisk(str, Enum):
@@ -122,9 +122,7 @@ class OntologyGuard:
             re.compile(pattern, re.IGNORECASE) for pattern in self.literalism_patterns
         ]
 
-    def check_literalism(
-        self, output: str, symbolic_mode: bool = False
-    ) -> OntologyGuardResult:
+    def check_literalism(self, output: str, symbolic_mode: bool = False) -> OntologyGuardResult:
         """
         Check if output treats symbolic language as literal physics.
 

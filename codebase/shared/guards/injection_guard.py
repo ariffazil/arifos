@@ -183,16 +183,16 @@ class InjectionGuard:
         # U+200C: Zero-width non-joiner
         # U+200D: Zero-width joiner
         # U+FEFF: Zero-width no-break space
-        normalized = re.sub(r'[\u200b-\u200d\ufeff]', '', user_input)
+        normalized = re.sub(r"[\u200b-\u200d\ufeff]", "", user_input)
 
         # Normalize Unicode to decomposed form, then remove combining characters
         # This helps with homoglyph attacks (e.g., Cyrillic 'а' looks like Latin 'a')
-        normalized = unicodedata.normalize('NFKD', normalized)
-        normalized = ''.join(c for c in normalized if not unicodedata.combining(c))
+        normalized = unicodedata.normalize("NFKD", normalized)
+        normalized = "".join(c for c in normalized if not unicodedata.combining(c))
 
         # Remove ALL whitespace for pattern matching (prevents "i g n o r e" attacks)
         # This is aggressive but necessary for security
-        normalized = re.sub(r'\s+', '', normalized)
+        normalized = re.sub(r"\s+", "", normalized)
 
         return normalized.lower()
 
@@ -232,7 +232,7 @@ class InjectionGuard:
                         match_text = first_match[0]
                     else:
                         match_text = str(first_match)  # Fallback
-                    
+
                     # Avoid duplicates
                     if (pattern_str, match_text) not in detected:
                         detected.append((pattern_str, match_text))

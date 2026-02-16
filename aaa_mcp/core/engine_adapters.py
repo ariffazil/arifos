@@ -197,27 +197,31 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
 
 
 class InitEngine:
-    async def ignite(self, query: str, session_id: str = None) -> Dict[str, Any]:
+    async def ignite(self, query: str, actor_id: str = "user", auth_token: Optional[str] = None, session_id: Optional[str] = None) -> Dict[str, Any]:
         """Initialize constitutional session using core organs."""
         try:
-            token = await init(query, actor_id="user")
+            token = await init(query, actor_id=actor_id, auth_token=auth_token)
             # InitOutput is a Pydantic model inheriting from BaseOrganOutput
             # Fields: session_id, verdict, status, violations, error_message, metrics
             # Phase A: Only APEX has verdict authority
             # InitOutput provides status (READY/VOID/HOLD_888), not verdict
+            # Convert QueryType enum to string if needed
+            query_type_str = token.query_type.value if hasattr(token.query_type, 'value') else str(token.query_type)
             return {
                 "status": token.status,
                 "session_id": token.session_id,
                 "engine_mode": "core",
-                "authority": token.metrics.get("authority", "user") if token.metrics else "user",
-                "floors_passed": (
-                    ["F11", "F12"]
-                    if not token.floors_failed
-                    else ["F11", "F12"] + [f"!{f}" for f in token.floors_failed]
-                ),
-                "violations": token.violations or token.floors_failed,
-                "injection_risk": getattr(token, "injection_score", 0.0),
-                "reason": token.error_message or "",
+                "authority": token.authority.value if hasattr(token.authority, 'value') else str(token.authority),
+                "floors_passed": token.floors_passed,
+                "floors_failed": token.floors_failed,
+                "violations": token.floors_failed,  # alias
+                "injection_risk": token.injection_risk,
+                "injection_score": token.injection_risk,
+                "reason": token.reason,
+                "actor_id": token.actor_id,
+                "query_type": query_type_str,
+                "f2_threshold": token.f2_threshold,
+                "motto": token.motto,
             }
         except Exception as e:
             logger.warning(f"Core init failed: {e}")

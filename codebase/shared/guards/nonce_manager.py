@@ -106,11 +106,11 @@ class NonceManager:
 
     Example usage:
         manager = NonceManager()
-        
+
         # Generate nonce for new session
         nonce = manager.generate_nonce("user_123")
         # Output: "X7K9F1"
-        
+
         # Later, verify identity reload
         result = manager.verify_nonce("user_123", "X7K9F1")
         if result.status == "SABAR":
@@ -132,9 +132,7 @@ class NonceManager:
         self.nonce_expiration = nonce_expiration_seconds
         self.nonce_prefix = "X7K9F"  # CIV-12 standard prefix
 
-    def generate_nonce(
-        self, user_id: str, channel_identifier: Optional[str] = None
-    ) -> str:
+    def generate_nonce(self, user_id: str, channel_identifier: Optional[str] = None) -> str:
         """
         Generate a unique nonce for a user session.
 
@@ -227,9 +225,7 @@ class NonceManager:
 
         # Optional: Verify channel integrity
         if channel_identifier and session_nonce.channel_hash:
-            provided_hash = hashlib.sha256(channel_identifier.encode()).hexdigest()[
-                :16
-            ]
+            provided_hash = hashlib.sha256(channel_identifier.encode()).hexdigest()[:16]
             if provided_hash != session_nonce.channel_hash:
                 return NonceVerificationResult(
                     status="SABAR",

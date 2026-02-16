@@ -17,7 +17,7 @@ SDK:
 
 Quick Start:
     from L5_AGENTS import ArifOS
-    
+
     client = ArifOS()
     result = await client.ask("What is entropy?")
     print(result.answer)
@@ -64,7 +64,6 @@ from .sdk import (
     ResponseStatus,
     ask,
 )
-
 
 __version__ = "55.3.0-L5-alpha"
 __author__ = "Muhammad Arif bin Fazil"

@@ -151,8 +151,8 @@ async def cmd_guard(args: argparse.Namespace) -> None:
 def main() -> int:
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        prog='aclip_cai',
-        description='ACLIP_CAI — arifOS Console Intelligence & Perception Console',
+        prog="aclip_cai",
+        description="ACLIP_CAI — arifOS Console Intelligence & Perception Console",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
@@ -165,106 +165,114 @@ Examples:
   %(prog)s chroma --query "AI safety" # Vector search
   %(prog)s cost --type llm --tokens 1000  # Cost estimate
   %(prog)s guard --action deploy --target /app --risk medium
-        """
+        """,
     )
-    
-    subparsers = parser.add_subparsers(dest='command', help='Available commands')
-    
+
+    subparsers = parser.add_subparsers(dest="command", help="Available commands")
+
     # Health command
-    health_p = subparsers.add_parser('health', help='System health metrics')
-    health_p.add_argument('--swap', action='store_true', default=True, help='Include swap info')
-    health_p.add_argument('--io', action='store_true', help='Include I/O stats')
-    health_p.add_argument('--temp', action='store_true', help='Include thermal readings')
-    
+    health_p = subparsers.add_parser("health", help="System health metrics")
+    health_p.add_argument("--swap", action="store_true", default=True, help="Include swap info")
+    health_p.add_argument("--io", action="store_true", help="Include I/O stats")
+    health_p.add_argument("--temp", action="store_true", help="Include thermal readings")
+
     # Processes command
-    proc_p = subparsers.add_parser('processes', help='List system processes')
-    proc_p.add_argument('--filter', '-f', help='Filter by process name')
-    proc_p.add_argument('--user', '-u', help='Filter by username')
-    proc_p.add_argument('--min-cpu', type=float, default=0.0, help='Min CPU %')
-    proc_p.add_argument('--min-mem', type=float, default=0.0, help='Min memory MB')
-    proc_p.add_argument('--limit', '-n', type=int, default=50, help='Max results')
-    proc_p.add_argument('--threads', action='store_true', help='Include thread count')
-    
+    proc_p = subparsers.add_parser("processes", help="List system processes")
+    proc_p.add_argument("--filter", "-f", help="Filter by process name")
+    proc_p.add_argument("--user", "-u", help="Filter by username")
+    proc_p.add_argument("--min-cpu", type=float, default=0.0, help="Min CPU %")
+    proc_p.add_argument("--min-mem", type=float, default=0.0, help="Min memory MB")
+    proc_p.add_argument("--limit", "-n", type=int, default=50, help="Max results")
+    proc_p.add_argument("--threads", action="store_true", help="Include thread count")
+
     # Filesystem command
-    fs_p = subparsers.add_parser('fs', help='Inspect filesystem')
-    fs_p.add_argument('--path', '-p', default='/root/arifOS', help='Root path')
-    fs_p.add_argument('--depth', '-d', type=int, default=2, help='Max depth')
-    fs_p.add_argument('--hidden', action='store_true', help='Include hidden files')
-    fs_p.add_argument('--min-size', type=int, default=0, help='Min file size bytes')
-    fs_p.add_argument('--pattern', help='Glob pattern (e.g., *.py)')
-    fs_p.add_argument('--max-files', type=int, default=100, help='Max files')
-    
+    fs_p = subparsers.add_parser("fs", help="Inspect filesystem")
+    fs_p.add_argument("--path", "-p", default="/root/arifOS", help="Root path")
+    fs_p.add_argument("--depth", "-d", type=int, default=2, help="Max depth")
+    fs_p.add_argument("--hidden", action="store_true", help="Include hidden files")
+    fs_p.add_argument("--min-size", type=int, default=0, help="Min file size bytes")
+    fs_p.add_argument("--pattern", help="Glob pattern (e.g., *.py)")
+    fs_p.add_argument("--max-files", type=int, default=100, help="Max files")
+
     # Logs command
-    logs_p = subparsers.add_parser('logs', help='Tail and search logs')
-    logs_p.add_argument('--path', '-p', required=True, help='Log file path')
-    logs_p.add_argument('--lines', '-n', type=int, default=50, help='Number of lines')
-    logs_p.add_argument('--grep', '-g', help='Filter pattern (regex)')
-    logs_p.add_argument('--since', type=int, help='Minutes since now')
-    
+    logs_p = subparsers.add_parser("logs", help="Tail and search logs")
+    logs_p.add_argument("--path", "-p", required=True, help="Log file path")
+    logs_p.add_argument("--lines", "-n", type=int, default=50, help="Number of lines")
+    logs_p.add_argument("--grep", "-g", help="Filter pattern (regex)")
+    logs_p.add_argument("--since", type=int, help="Minutes since now")
+
     # Network command
-    net_p = subparsers.add_parser('net', help='Network diagnostics')
-    net_p.add_argument('--interfaces', action='store_true', default=True, help='Show interfaces')
-    net_p.add_argument('--connections', action='store_true', default=True, help='Show connections')
-    net_p.add_argument('--routing', action='store_true', default=True, help='Show routing')
-    net_p.add_argument('--ping', help='Ping target host')
-    
+    net_p = subparsers.add_parser("net", help="Network diagnostics")
+    net_p.add_argument("--interfaces", action="store_true", default=True, help="Show interfaces")
+    net_p.add_argument("--connections", action="store_true", default=True, help="Show connections")
+    net_p.add_argument("--routing", action="store_true", default=True, help="Show routing")
+    net_p.add_argument("--ping", help="Ping target host")
+
     # Config command
-    cfg_p = subparsers.add_parser('config', help='Inspect configuration')
-    cfg_p.add_argument('--path', '-p', help='Config file path')
-    cfg_p.add_argument('--prefix', default='ARIFOS', help='Env var prefix')
-    cfg_p.add_argument('--secrets', action='store_true', help='Show secrets (caution)')
-    
+    cfg_p = subparsers.add_parser("config", help="Inspect configuration")
+    cfg_p.add_argument("--path", "-p", help="Config file path")
+    cfg_p.add_argument("--prefix", default="ARIFOS", help="Env var prefix")
+    cfg_p.add_argument("--secrets", action="store_true", help="Show secrets (caution)")
+
     # Chroma command
-    chroma_p = subparsers.add_parser('chroma', help='Query ChromaDB')
-    chroma_p.add_argument('--query', '-q', required=True, help='Search text')
-    chroma_p.add_argument('--collection', '-c', default='default', help='Collection name')
-    chroma_p.add_argument('--results', '-n', type=int, default=5, help='Result count')
-    chroma_p.add_argument('--where', '-w', help='JSON metadata filter')
-    chroma_p.add_argument('--embeddings', action='store_true', help='Include embeddings')
-    
+    chroma_p = subparsers.add_parser("chroma", help="Query ChromaDB")
+    chroma_p.add_argument("--query", "-q", required=True, help="Search text")
+    chroma_p.add_argument("--collection", "-c", default="default", help="Collection name")
+    chroma_p.add_argument("--results", "-n", type=int, default=5, help="Result count")
+    chroma_p.add_argument("--where", "-w", help="JSON metadata filter")
+    chroma_p.add_argument("--embeddings", action="store_true", help="Include embeddings")
+
     # Cost command
-    cost_p = subparsers.add_parser('cost', help='Cost estimation')
-    cost_p.add_argument('--type', '-t', required=True, 
-                       choices=['llm', 'embedding', 'storage', 'compute'],
-                       help='Operation type')
-    cost_p.add_argument('--tokens', type=int, help='Token count')
-    cost_p.add_argument('--compute', type=float, help='Compute seconds')
-    cost_p.add_argument('--storage', type=float, help='Storage GB')
-    cost_p.add_argument('--calls', type=int, help='API call count')
-    cost_p.add_argument('--provider', default='openai', help='LLM provider')
-    cost_p.add_argument('--model', '-m', default='gpt-4', help='Model name')
-    
+    cost_p = subparsers.add_parser("cost", help="Cost estimation")
+    cost_p.add_argument(
+        "--type",
+        "-t",
+        required=True,
+        choices=["llm", "embedding", "storage", "compute"],
+        help="Operation type",
+    )
+    cost_p.add_argument("--tokens", type=int, help="Token count")
+    cost_p.add_argument("--compute", type=float, help="Compute seconds")
+    cost_p.add_argument("--storage", type=float, help="Storage GB")
+    cost_p.add_argument("--calls", type=int, help="API call count")
+    cost_p.add_argument("--provider", default="openai", help="LLM provider")
+    cost_p.add_argument("--model", "-m", default="gpt-4", help="Model name")
+
     # Guard command
-    guard_p = subparsers.add_parser('guard', help='Forge guard gating')
-    guard_p.add_argument('--action', '-a', required=True, help='Action to evaluate')
-    guard_p.add_argument('--target', '-t', required=True, help='Target resource')
-    guard_p.add_argument('--session', '-s', help='Session ID')
-    guard_p.add_argument('--risk', '-r', default='low',
-                        choices=['low', 'medium', 'high', 'critical'],
-                        help='Risk level')
-    guard_p.add_argument('--justify', '-j', default='', help='Justification')
-    guard_p.add_argument('--execute', action='store_true', help='Actually execute (not dry-run)')
-    guard_p.add_argument('--approve', action='store_true', help='Require approval')
-    
+    guard_p = subparsers.add_parser("guard", help="Forge guard gating")
+    guard_p.add_argument("--action", "-a", required=True, help="Action to evaluate")
+    guard_p.add_argument("--target", "-t", required=True, help="Target resource")
+    guard_p.add_argument("--session", "-s", help="Session ID")
+    guard_p.add_argument(
+        "--risk",
+        "-r",
+        default="low",
+        choices=["low", "medium", "high", "critical"],
+        help="Risk level",
+    )
+    guard_p.add_argument("--justify", "-j", default="", help="Justification")
+    guard_p.add_argument("--execute", action="store_true", help="Actually execute (not dry-run)")
+    guard_p.add_argument("--approve", action="store_true", help="Require approval")
+
     args = parser.parse_args()
-    
+
     if not args.command:
         parser.print_help()
         return 1
-    
+
     # Dispatch to handler
     handlers = {
-        'health': cmd_health,
-        'processes': cmd_processes,
-        'fs': cmd_fs,
-        'logs': cmd_logs,
-        'net': cmd_net,
-        'config': cmd_config,
-        'chroma': cmd_chroma,
-        'cost': cmd_cost,
-        'guard': cmd_guard,
+        "health": cmd_health,
+        "processes": cmd_processes,
+        "fs": cmd_fs,
+        "logs": cmd_logs,
+        "net": cmd_net,
+        "config": cmd_config,
+        "chroma": cmd_chroma,
+        "cost": cmd_cost,
+        "guard": cmd_guard,
     }
-    
+
     handler = handlers.get(args.command)
     if handler:
         asyncio.run(handler(args))
@@ -274,5 +282,5 @@ Examples:
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

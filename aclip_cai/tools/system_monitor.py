@@ -23,12 +23,12 @@ def get_resource_usage() -> dict[str, Any]:
         cpu_percent = psutil.cpu_percent(interval=0.5)
         net_io = psutil.net_io_counters()
         disk_io = psutil.disk_io_counters()
-        
+
         # CPU load average (Not available on Windows)
         try:
             cpu_load = psutil.getloadavg()
         except AttributeError:
-            cpu_load = (0, 0, 0) # Graceful fallback for Windows
+            cpu_load = (0, 0, 0)  # Graceful fallback for Windows
 
         return {
             "status": "SEAL",
@@ -79,15 +79,17 @@ def list_processes(filter_name: str = "", top_n: int = 15) -> dict[str, Any]:
         import time
 
         procs = []
-        for p in psutil.process_iter(["pid", "name", "memory_info", "cpu_percent", "username", "create_time"]):
+        for p in psutil.process_iter(
+            ["pid", "name", "memory_info", "cpu_percent", "username", "create_time"]
+        ):
             try:
                 info = p.info
                 name = info["name"] or ""
                 if filter_name and filter_name.lower() not in name.lower():
                     continue
-                
+
                 mem_mb = round((info["memory_info"].rss if info["memory_info"] else 0) / 1e6, 1)
-                
+
                 # Calculate age
                 age_seconds = time.time() - info["create_time"]
                 if age_seconds < 60:
@@ -97,14 +99,16 @@ def list_processes(filter_name: str = "", top_n: int = 15) -> dict[str, Any]:
                 else:
                     age = f"{int(age_seconds / 3600)}h"
 
-                procs.append({
-                    "pid": info["pid"],
-                    "name": name,
-                    "ram_mb": mem_mb,
-                    "cpu_pct": round(info["cpu_percent"] or 0, 1),
-                    "user": info["username"],
-                    "age": age,
-                })
+                procs.append(
+                    {
+                        "pid": info["pid"],
+                        "name": name,
+                        "ram_mb": mem_mb,
+                        "cpu_pct": round(info["cpu_percent"] or 0, 1),
+                        "user": info["username"],
+                        "age": age,
+                    }
+                )
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
 
@@ -116,7 +120,11 @@ def list_processes(filter_name: str = "", top_n: int = 15) -> dict[str, Any]:
             "processes": procs[:top_n],
         }
     except ImportError:
-        return {"status": "PARTIAL", "error": "psutil not installed", "hint": "uv pip install psutil"}
+        return {
+            "status": "PARTIAL",
+            "error": "psutil not installed",
+            "hint": "uv pip install psutil",
+        }
 
 
 def get_system_health() -> dict[str, Any]:
@@ -131,19 +139,19 @@ def get_system_health() -> dict[str, Any]:
         warnings.append(f"HIGH DISK: {usage['disk_c']['percent']}% used (C:\\)")
     if usage.get("cpu", {}).get("percent", 0) > 80:
         warnings.append(f"HIGH CPU: {usage['cpu']['percent']}%")
-    
+
     # New warnings based on added metrics
     if usage.get("cpu", {}).get("load_avg_1m", 0) > psutil.cpu_count(logical=True) * 0.9:
         warnings.append(f"HIGH CPU LOAD (1m): {usage['cpu']['load_avg_1m']}")
-    
-    if usage.get("io", {}).get("network", {}).get("bytes_recv_gb", 0) > 10: # Example threshold
+
+    if usage.get("io", {}).get("network", {}).get("bytes_recv_gb", 0) > 10:  # Example threshold
         warnings.append(f"HIGH NET RX: {usage['io']['network']['bytes_recv_gb']}GB received")
-    if usage.get("io", {}).get("network", {}).get("bytes_sent_gb", 0) > 10: # Example threshold
+    if usage.get("io", {}).get("network", {}).get("bytes_sent_gb", 0) > 10:  # Example threshold
         warnings.append(f"HIGH NET TX: {usage['io']['network']['bytes_sent_gb']}GB sent")
 
-    if usage.get("io", {}).get("disk", {}).get("write_gb", 0) > 5: # Example threshold
+    if usage.get("io", {}).get("disk", {}).get("write_gb", 0) > 5:  # Example threshold
         warnings.append(f"HIGH DISK WRITE: {usage['io']['disk']['write_gb']}GB written")
-    if usage.get("io", {}).get("disk", {}).get("read_gb", 0) > 5: # Example threshold
+    if usage.get("io", {}).get("disk", {}).get("read_gb", 0) > 5:  # Example threshold
         warnings.append(f"HIGH DISK READ: {usage['io']['disk']['read_gb']}GB read")
 
     return {
@@ -171,9 +179,12 @@ def _fallback_wmi_usage() -> dict[str, Any]:
     try:
         result = subprocess.run(
             ["powershell", "-NoProfile", "-NonInteractive", "-Command", script],
-            capture_output=True, text=True, timeout=10
+            capture_output=True,
+            text=True,
+            timeout=10,
         )
         import json
+
         data = json.loads(result.stdout.strip())
         ram_total = data.get("ram_total", 0)
         ram_free = data.get("ram_free", 0)
@@ -193,13 +204,23 @@ def _fallback_wmi_usage() -> dict[str, Any]:
                 "total_gb": disk_total,
                 "free_gb": disk_free,
                 "used_gb": round(disk_total - disk_free, 1),
-                "percent": round((disk_total - disk_free) / disk_total * 100, 1) if disk_total else 0,
+                "percent": (
+                    round((disk_total - disk_free) / disk_total * 100, 1) if disk_total else 0
+                ),
             },
             "platform": "Windows",
         }
     except subprocess.TimeoutExpired:
-        return {"status": "VOID", "error": "PowerShell command timed out.", "hint": "Check PowerShell or system responsiveness."}
+        return {
+            "status": "VOID",
+            "error": "PowerShell command timed out.",
+            "hint": "Check PowerShell or system responsiveness.",
+        }
     except json.JSONDecodeError:
-        return {"status": "VOID", "error": "Failed to parse PowerShell output JSON.", "hint": "PowerShell script output might be malformed."}
+        return {
+            "status": "VOID",
+            "error": "Failed to parse PowerShell output JSON.",
+            "hint": "PowerShell script output might be malformed.",
+        }
     except Exception as e:
         return {"status": "VOID", "error": str(e), "hint": "Install psutil: uv pip install psutil"}

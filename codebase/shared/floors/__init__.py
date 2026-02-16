@@ -26,10 +26,11 @@ from codebase.floors.injection import F12_InjectionDefense, InjectionDefenseResu
 # F11: Command Authority
 from codebase.floors.authority import AuthorityVerifier, verify_authority
 
+
 # Floor Registry for health checks
 class FloorRegistry:
     """Registry of all constitutional floors F1-F13."""
-    
+
     _floors = {
         1: "F1_Amanah",
         2: "F2_Truth",
@@ -45,12 +46,12 @@ class FloorRegistry:
         12: "F12_Injection",
         13: "F13_Sovereign",
     }
-    
+
     @classmethod
     def list_floors(cls) -> list:
         """Return list of all floor names."""
         return list(cls._floors.values())
-    
+
     @classmethod
     def get_floor(cls, number: int) -> str:
         """Get floor name by number."""

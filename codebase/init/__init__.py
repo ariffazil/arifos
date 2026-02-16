@@ -18,7 +18,7 @@ if _cb_path.exists():
     # Register module BEFORE exec_module (required for dataclass resolution)
     sys.modules["codebase.init.canonical_bootstrap"] = _cb
     spec.loader.exec_module(_cb)
-    
+
     # Export canonical bootstrap components
     CanonicalBootstrap = _cb.CanonicalBootstrap
     fetch_canonical_state = _cb.fetch_canonical_state
@@ -35,7 +35,7 @@ if _mcp_bridge_path.exists():
     _mcp_bridge = importlib.util.module_from_spec(spec)
     sys.modules["codebase.init.mcp_bridge"] = _mcp_bridge
     spec.loader.exec_module(_mcp_bridge)
-    
+
     # Export mcp_000_init for kernel import
     mcp_000_init = _mcp_bridge.mcp_000_init
 

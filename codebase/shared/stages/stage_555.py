@@ -50,11 +50,26 @@ class Stage555Empathy:
 
     # High-vulnerability contexts
     HIGH_VULNERABILITY_CONTEXTS = [
-        "medical", "health", "patient", "hospital",
-        "child", "minor", "student", "school",
-        "financial", "money", "payment", "bank",
-        "legal", "court", "law", "compliance",
-        "security", "password", "credential", "auth",
+        "medical",
+        "health",
+        "patient",
+        "hospital",
+        "child",
+        "minor",
+        "student",
+        "school",
+        "financial",
+        "money",
+        "payment",
+        "bank",
+        "legal",
+        "court",
+        "law",
+        "compliance",
+        "security",
+        "password",
+        "credential",
+        "auth",
     ]
 
     def execute(self, state: SessionState, query: str) -> Tuple[Dict[str, Any], SessionState]:
@@ -101,27 +116,17 @@ class Stage555Empathy:
         stakeholders = []
 
         # Always add user as primary stakeholder
-        stakeholders.append(Stakeholder(
-            name="User",
-            role="user",
-            vulnerability_score=0.3
-        ))
+        stakeholders.append(Stakeholder(name="User", role="user", vulnerability_score=0.3))
 
         # Scan for mentioned stakeholders
         for pattern, (vuln, _) in self.VULNERABILITY_PATTERNS.items():
             if pattern in query_lower:
-                stakeholders.append(Stakeholder(
-                    name=pattern.title(),
-                    role=pattern,
-                    vulnerability_score=vuln
-                ))
+                stakeholders.append(
+                    Stakeholder(name=pattern.title(), role=pattern, vulnerability_score=vuln)
+                )
 
         # Always add system
-        stakeholders.append(Stakeholder(
-            name="System",
-            role="system",
-            vulnerability_score=0.1
-        ))
+        stakeholders.append(Stakeholder(name="System", role="system", vulnerability_score=0.1))
 
         return stakeholders
 
@@ -157,16 +162,16 @@ class Stage555Empathy:
         return max(stakeholders, key=lambda s: s.vulnerability_score)
 
     def _generate_care_recommendations(
-        self,
-        stakeholders: List[Stakeholder],
-        high_vuln: bool
+        self, stakeholders: List[Stakeholder], high_vuln: bool
     ) -> List[str]:
         """Generate care recommendations."""
         recs = []
 
         weakest = self._find_weakest(stakeholders)
         if weakest and weakest.vulnerability_score > 0.6:
-            recs.append(f"HIGH CARE: Protect {weakest.name} (vulnerability {weakest.vulnerability_score:.2f})")
+            recs.append(
+                f"HIGH CARE: Protect {weakest.name} (vulnerability {weakest.vulnerability_score:.2f})"
+            )
 
         if high_vuln:
             recs.append("HIGH VULNERABILITY CONTEXT: Apply maximum scrutiny")

@@ -29,14 +29,12 @@ ARCHIVE_FILES = [
     "test_canonical_integration.py",
     "test_canonical_import.py",
     "test_infrastructure_now.py",
-    
     # Fix scripts (already applied)
     "fix_vault_structure.py",
     "fix_vault_structure2.py",
     "fix_seal999_naming.py",
     "fix_cooling_tier_storage.py",
     "fix_cooling_tier_storage2.py",
-    
     # Cleanup scripts (already run)
     "cleanup_vault_test.py",
     "cleanup_vault999_final.py",
@@ -44,14 +42,11 @@ ARCHIVE_FILES = [
     "final_vault_cleanup.py",
     "final_vault_cleanup_fixed.py",
     "purge_vault999.py",
-    
     # Rename scripts (already applied)
     "rename_asi.py",
     "rename_to_seal999.py",
-    
     # Verify scripts (already verified)
     "verify_seal999_complete.py",
-    
     # Historical reports (already reviewed)
     "ARCHITECTURE_DECISION.txt",
     "ASI_ROOM_COMPLETE.txt",
@@ -70,6 +65,7 @@ ARCHIVE_FILES = [
     "WHERE_IS_ASI_ROOM.txt",
 ]
 
+
 def create_archive_structure():
     """Create archive directory structure."""
     print("=" * 60)
@@ -81,11 +77,12 @@ def create_archive_structure():
     (ARCHIVE / "reports").mkdir(exist_ok=True)
     print("✅ Archive structure created")
 
+
 def archive_files():
     """Archive outdated files from root."""
     print("\n[1/3] Archiving outdated files...")
     archived_count = 0
-    
+
     for filename in ARCHIVE_FILES:
         filepath = ROOT / filename
         if filepath.exists():
@@ -94,19 +91,20 @@ def archive_files():
                 dest = ARCHIVE / "temp_scripts" / filename
             else:
                 dest = ARCHIVE / "reports" / filename
-            
+
             # Move file
             shutil.move(str(filepath), str(dest))
             print(f"   Archived: {filename}")
             archived_count += 1
-    
+
     print(f"✅ Archived {archived_count} files")
     return archived_count
+
 
 def harden_canonical_core():
     """
     Harden canonical_core modules.
-    
+
     Hardening includes:
     - Add type hints where missing
     - Add docstrings
@@ -114,26 +112,26 @@ def harden_canonical_core():
     - Add error handling
     """
     print("\n[2/3] Hardening canonical_core...")
-    
+
     if not CANONICAL_CORE.exists():
         print("⚠️  canonical_core directory not found, skipping")
         return
-    
+
     # Check if canonical_core is still in use
     py_files = list(CANONICAL_CORE.rglob("*.py"))
     if not py_files:
         print("⚠️  canonical_core is empty, skipping")
         return
-    
+
     print(f"   Found {len(py_files)} Python files in canonical_core")
-    
+
     # Add __init__.py files for proper packaging
     for subdir in CANONICAL_CORE.rglob("*"):
         if subdir.is_dir() and not (subdir / "__init__.py").exists():
             init_file = subdir / "__init__.py"
             init_file.write_text('"""canonical_core module"""\n')
             print(f"   Added: {init_file.relative_to(ROOT)}")
-    
+
     # Add README.md to canonical_core
     readme_path = CANONICAL_CORE / "README.md"
     if not readme_path.exists():
@@ -171,13 +169,14 @@ Once migration is complete, this directory will be moved to `archive/canonical_c
 """
         readme_path.write_text(readme_content)
         print(f"   Added: {readme_path.relative_to(ROOT)}")
-    
+
     print("✅ canonical_core hardened with documentation")
+
 
 def create_housekeeping_report():
     """Create housekeeping report."""
     print("\n[3/3] Creating housekeeping report...")
-    
+
     report_path = ARCHIVE / "HOUSEKEEPING_REPORT.md"
     report_content = f"""# arifOS v52.5.1 Housekeeping Report
 
@@ -200,21 +199,21 @@ Archived {len([f for f in ARCHIVE_FILES if (ROOT / f).exists()])} outdated files
 
 #### Temporary Scripts
 """
-    
+
     # List archived scripts
     for filename in ARCHIVE_FILES:
         if filename.endswith(".py") and not (ROOT / filename).exists():
             report_content += f"- {filename}\n"
-    
+
     report_content += """
 #### Historical Reports
 """
-    
+
     # List archived reports
     for filename in ARCHIVE_FILES:
         if not filename.endswith(".py") and not (ROOT / filename).exists():
             report_content += f"- {filename}\n"
-    
+
     report_content += f"""
 
 ### 2. canonical_core Hardening
@@ -247,9 +246,10 @@ Root directory now contains only:
 
 **DITEMPA BUKAN DIBERI** - Forged, Not Given
 """
-    
+
     report_path.write_text(report_content)
     print(f"✅ Report created: {report_path.relative_to(ROOT)}")
+
 
 def main():
     """Main entry point."""
@@ -258,17 +258,18 @@ def main():
         archived_count = archive_files()
         harden_canonical_core()
         create_housekeeping_report()
-        
+
         print("\n" + "=" * 60)
         print("✅ Housekeeping Complete")
         print("=" * 60)
         print(f"\nArchived {archived_count} files")
         print(f"Archive location: {ARCHIVE.relative_to(ROOT)}")
         print("\nRoot directory is now clean and production-ready.")
-        
+
     except Exception as e:
         print(f"\n❌ Housekeeping failed: {e}")
         raise
+
 
 if __name__ == "__main__":
     main()

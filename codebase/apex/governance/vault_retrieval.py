@@ -48,6 +48,7 @@ class RetrievalQuery:
                      (may be used for ranking/strictness).
         limit: Maximum number of entries to return.
     """
+
     text: str
     types: Optional[List[str]] = None
     tags: Optional[List[str]] = None
@@ -66,6 +67,7 @@ class RetrievalResult:
         entries: List of ledger entries (dicts) that matched.
         debug_info: Optional diagnostics about how they were selected.
     """
+
     entries: List[Dict[str, Any]]
     debug_info: Dict[str, Any]
 

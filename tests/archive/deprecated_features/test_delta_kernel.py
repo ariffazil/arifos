@@ -26,7 +26,7 @@ class TestF1Amanah:
             response="4",
             reversible=True,
             within_mandate=True,
-            skip_clarity=True
+            skip_clarity=True,
         )
 
         assert verdict.f1_amanah is True
@@ -40,7 +40,7 @@ class TestF1Amanah:
             response="Deleting...",
             reversible=False,
             within_mandate=True,
-            skip_clarity=True
+            skip_clarity=True,
         )
 
         assert verdict.f1_amanah is False
@@ -55,7 +55,7 @@ class TestF1Amanah:
             response="Accessing...",
             reversible=True,
             within_mandate=False,
-            skip_clarity=True
+            skip_clarity=True,
         )
 
         assert verdict.f1_amanah is False
@@ -70,7 +70,7 @@ class TestF1Amanah:
             response="Executing...",
             reversible=False,
             within_mandate=False,
-            skip_clarity=True
+            skip_clarity=True,
         )
 
         assert verdict.f1_amanah is False
@@ -88,7 +88,7 @@ class TestF2Clarity:
             query="um uh maybe perhaps possibly could be might",
             response="yes",
             reversible=True,
-            within_mandate=True
+            within_mandate=True,
         )
 
         assert verdict.f2_clarity is True
@@ -102,7 +102,7 @@ class TestF2Clarity:
             query="yes",
             response="um uh maybe perhaps possibly could be might sometimes",
             reversible=True,
-            within_mandate=True
+            within_mandate=True,
         )
 
         assert verdict.f2_clarity is False
@@ -113,10 +113,7 @@ class TestF2Clarity:
         """F2 should respect custom clarity threshold."""
         kernel = DeltaKernel(clarity_threshold=2.0)  # Allow up to 2.0 entropy increase
         verdict = kernel.evaluate(
-            query="test",
-            response="test one two",
-            reversible=True,
-            within_mandate=True
+            query="test", response="test one two", reversible=True, within_mandate=True
         )
 
         # Entropy increase should pass with lenient threshold
@@ -127,12 +124,7 @@ class TestF2Clarity:
         """F2 should pass when entropy is neutral (ΔS ≈ 0)."""
         kernel = DeltaKernel(clarity_threshold=0.0)
         text = "The quick brown fox jumps over the lazy dog"
-        verdict = kernel.evaluate(
-            query=text,
-            response=text,
-            reversible=True,
-            within_mandate=True
-        )
+        verdict = kernel.evaluate(query=text, response=text, reversible=True, within_mandate=True)
 
         assert verdict.f2_clarity is True
         assert abs(verdict.delta_s) < 0.01
@@ -148,7 +140,7 @@ class TestDeltaKernelIntegration:
             query="What is arifOS?",
             response="arifOS is a constitutional AI governance framework.",
             reversible=True,
-            within_mandate=True
+            within_mandate=True,
         )
 
         assert verdict.f1_amanah is True
@@ -160,10 +152,7 @@ class TestDeltaKernelIntegration:
         """F1 failure should block overall verdict when required."""
         kernel = DeltaKernel(require_amanah=True)
         verdict = kernel.evaluate(
-            query="Delete file",
-            response="File deleted",
-            reversible=False,
-            within_mandate=True
+            query="Delete file", response="File deleted", reversible=False, within_mandate=True
         )
 
         assert verdict.f1_amanah is False
@@ -176,7 +165,7 @@ class TestDeltaKernelIntegration:
             query="clear answer",
             response="maybe possibly perhaps uncertainty vague ambiguous confusing unclear",
             reversible=True,
-            within_mandate=True
+            within_mandate=True,
         )
 
         assert verdict.f2_clarity is False
@@ -186,10 +175,7 @@ class TestDeltaKernelIntegration:
         """Verdict should contain rich metadata for debugging."""
         kernel = DeltaKernel()
         verdict = kernel.evaluate(
-            query="test",
-            response="result",
-            reversible=True,
-            within_mandate=True
+            query="test", response="result", reversible=True, within_mandate=True
         )
 
         assert "f1_reversible" in verdict.metadata
@@ -204,10 +190,7 @@ class TestConvenienceFunction:
     def test_evaluate_agi_floors(self):
         """evaluate_agi_floors should work as shortcut."""
         verdict = evaluate_agi_floors(
-            query="What is 2+2?",
-            response="4",
-            reversible=True,
-            within_mandate=True
+            query="What is 2+2?", response="4", reversible=True, within_mandate=True
         )
 
         assert isinstance(verdict, DeltaVerdict)

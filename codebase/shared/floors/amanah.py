@@ -83,9 +83,9 @@ class F1_Amanah:
                 passed=passed,
                 reversible=reversible,
                 auditable=auditable,
-                reason=f"Risk score: {risk_score:.2f}"
-                if risk_score > 0
-                else "Low risk - reversible",
+                reason=(
+                    f"Risk score: {risk_score:.2f}" if risk_score > 0 else "Low risk - reversible"
+                ),
                 covenant_hash=covenant_hash,
             )
         except Exception as e:
@@ -122,9 +122,11 @@ class F1_Amanah:
                 passed=passed,
                 reversible=reversible,
                 auditable=True,
-                reason="Requires sovereign override"
-                if requires_override
-                else "Reversible with audit trail",
+                reason=(
+                    "Requires sovereign override"
+                    if requires_override
+                    else "Reversible with audit trail"
+                ),
             )
         except Exception as e:
             logger.error(f"F1 Amanah verification failed: {e}", exc_info=True)

@@ -88,4 +88,3 @@ class TestAntiHantuEyeSentinel:
         anti_hantu_alerts = report.get_by_view("AntiHantuView")
         assert len(anti_hantu_alerts) == 0
         assert not report.has_blocking_issue()
-

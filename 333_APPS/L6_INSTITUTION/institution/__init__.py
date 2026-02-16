@@ -18,9 +18,10 @@ __all__ = [
 
 class RoleStub:
     """Base stub for Trinity roles."""
+
     symbol = "?"
     name = "stub"
-    
+
     async def evaluate(self, bundle):
         """To be implemented."""
         raise NotImplementedError(f"{self.name} role not yet implemented")

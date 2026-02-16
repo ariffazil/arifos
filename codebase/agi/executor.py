@@ -71,10 +71,10 @@ from .metrics import ThermodynamicDashboard, get_dashboard, record_session_alert
 from .parallel import ParallelHypothesisMatrix, ParallelHypothesisResult
 from .evidence import EvidenceKernel, get_evidence_kernel, cleanup_evidence_kernel
 
-
 # =============================================================================
 # DATA TYPES
 # =============================================================================
+
 
 @dataclass
 class AGIRoomResult:
@@ -84,6 +84,7 @@ class AGIRoomResult:
     Contains the sealed DeltaBundle plus diagnostic information
     about each stage for monitoring and debugging.
     """
+
     # The final output
     delta_bundle: DeltaBundle
 
@@ -128,6 +129,7 @@ class AGIRoomResult:
 # AGI ROOM CLASS
 # =============================================================================
 
+
 class AGIRoom:
     """
     AGI Room — The Mind/Δ Parallel Execution Environment.
@@ -154,11 +156,7 @@ class AGIRoom:
         self.session_id = session_id or f"agi_{uuid.uuid4().hex[:12]}"
         self._execution_count = 0
 
-    def execute(
-        self,
-        query: str,
-        context: Optional[Dict[str, Any]] = None
-    ) -> AGIRoomResult:
+    def execute(self, query: str, context: Optional[Dict[str, Any]] = None) -> AGIRoomResult:
         """
         Execute the full AGI Room pipeline with hardening.
 
@@ -185,124 +183,146 @@ class AGIRoom:
             # ===== INITIALIZE DASHBOARD =====
             dashboard = get_dashboard(exec_id)
             stage_start_time = time.time()
-            
+
             # ===== PRE-CHECKS (Hardening) =====
             hardening = run_pre_checks(query, exec_id)
-            
+
             # Record pre-check metrics
             dashboard.record_stage_metric(
                 stage="000_INIT",
                 delta_s=0.0,  # Gate stage, no entropy change
                 confidence=1.0,  # Pre-checks passed
                 peace_squared=1.0,  # No harm yet
-                cost_usd=0.0001  # Minimal cost
+                cost_usd=0.0001,  # Minimal cost
             )
 
             if not hardening.proceed:
                 # Rate limited or abuse detected
                 return self._build_blocked_result(
-                    exec_id, start_time, hardening,
-                    hardening.block_reason
+                    exec_id, start_time, hardening, hardening.block_reason
                 )
 
             # ===== Stage 111: CONCURRENT COGNITION (Streams A & B) =====
             # v53.2.1: Sense (Stream A) and Think (Stream B) run in parallel
             # to reduce entropy faster.
-            
+
             from concurrent.futures import ThreadPoolExecutor
-            
+
             # Create provisional sense for Stream B (Think) to start immediately
             provisional_sense = SenseOutput(session_id=exec_id, raw_query=query)
             provisional_sense.detected_intent = Intent.UNKNOWN  # Think needs to infer or generic
-            
+
             with ThreadPoolExecutor(max_workers=2) as executor:
                 # Stream A: SENSE (Fact Verification, Maxwell's Demon)
                 future_sense = executor.submit(
-                    execute_stage_111,
-                    query=query,
-                    session_id=exec_id,
-                    context=context
+                    execute_stage_111, query=query, session_id=exec_id, context=context
                 )
-                
+
                 # Stream B: THINK (Causal Chains / Parallel Hypotheses)
                 # We use the ParallelHypothesisMatrix as the "Think" stream
                 parallel_matrix = ParallelHypothesisMatrix(session_id=exec_id)
                 future_think = executor.submit(
                     parallel_matrix.generate_parallel_hypotheses,
-                    sense_output=provisional_sense, # Start with raw query
-                    context=context
+                    sense_output=provisional_sense,  # Start with raw query
+                    context=context,
                 )
-            
+
             # Convergence
             stage_111 = future_sense.result()
             parallel_results = future_think.result()
-            
+
             # ===== LIVE EVIDENCE INJECTION (Stream A Enhancement) =====
             # Inject verified facts into Sense Stream
             evidence_kernel = get_evidence_kernel(exec_id)
             stage_111 = evidence_kernel.inject_live_evidence(
-                sense_output=stage_111,
-                query=query,
-                context=context
+                sense_output=stage_111, query=query, context=context
             )
-            
+
             # Record SENSE Stream A Metrics
             evidence_injected = stage_111.metadata.get("evidence_injected", 0)
             sense_entropy_delta = stage_111.input_entropy * -0.15
-            
+
             dashboard.record_stage_metric(
                 stage="111_STREAM_A_SENSE",
                 delta_s=sense_entropy_delta,
                 confidence=max(0.85, stage_111.metadata.get("avg_evidence_confidence", 0.0)),
                 peace_squared=1.0,
-                cost_usd=0.002
+                cost_usd=0.002,
             )
-            
+
             # Check Stream A Floors (F2 Truth)
             if not stage_111.stage_pass:
-                 return self._build_failed_result(
-                    exec_id, start_time, stage_111, None, None,
+                return self._build_failed_result(
+                    exec_id,
+                    start_time,
+                    stage_111,
+                    None,
+                    None,
                     f"Cognition Stream A Failed: {stage_111.violations}",
-                    hardening=hardening
+                    hardening=hardening,
                 )
 
             # Record THINK Stream B Metrics
             if not parallel_results:
-                 return self._build_failed_result(
-                    exec_id, start_time, stage_111, None, None,
+                return self._build_failed_result(
+                    exec_id,
+                    start_time,
+                    stage_111,
+                    None,
+                    None,
                     "Cognition Stream B Failed (No Hypotheses)",
-                    hardening=hardening
+                    hardening=hardening,
                 )
-                
+
             for result in parallel_results:
                 dashboard.record_stage_metric(
                     stage=f"111_STREAM_B_{result.mode.value.upper()}",
                     delta_s=result.entropy_delta,
                     confidence=result.confidence,
                     peace_squared=1.0,
-                    cost_usd=0.005
+                    cost_usd=0.005,
                 )
 
             # ===== Stage 333: ATLAS (Convergence & Mapping) =====
             # Map observed facts (A) to reasoning models (B)
-            
+
             final_reasoning, convergence_debug = parallel_matrix.converge_hypotheses(
-                parallel_results=parallel_results,
-                sense_output=stage_111 # Synergize A & B
+                parallel_results=parallel_results, sense_output=stage_111  # Synergize A & B
             )
-            
+
             # Create synthetic stage_222 output for compatibility
             stage_222 = ThinkOutput(
                 session_id=exec_id,
                 sense_output=stage_111,
-                conservative=next((r.think_output.conservative for r in parallel_results if r.mode.value == "conservative"), None),
-                exploratory=next((r.think_output.exploratory for r in parallel_results if r.mode.value == "exploratory"), None),
-                adversarial=next((r.think_output.adversarial for r in parallel_results if r.mode.value == "adversarial"), None),
-                diversity_score=0.9, # Concurrent diverse streams
+                conservative=next(
+                    (
+                        r.think_output.conservative
+                        for r in parallel_results
+                        if r.mode.value == "conservative"
+                    ),
+                    None,
+                ),
+                exploratory=next(
+                    (
+                        r.think_output.exploratory
+                        for r in parallel_results
+                        if r.mode.value == "exploratory"
+                    ),
+                    None,
+                ),
+                adversarial=next(
+                    (
+                        r.think_output.adversarial
+                        for r in parallel_results
+                        if r.mode.value == "adversarial"
+                    ),
+                    None,
+                ),
+                diversity_score=0.9,  # Concurrent diverse streams
                 f13_pass=True,
-                stage_pass=True
+                stage_pass=True,
             )
-            
+
             # Stage 333 Output
             stage_333 = ReasonOutput(
                 session_id=exec_id,
@@ -312,16 +332,16 @@ class AGIRoom:
                 vote_reason=f"Converged from Concurrent Streams (A+B)",
                 reasoning_tree=final_reasoning.reasoning_tree,
                 violations=final_reasoning.violations,
-                stage_pass=True
+                stage_pass=True,
             )
-            
+
             # Record ATLAS Metrics
             dashboard.record_stage_metric(
                 stage="333_ATLAS_MAP",
                 delta_s=stage_333.delta_s,
                 confidence=stage_333.floor_scores.f2_truth,
                 peace_squared=stage_333.floor_scores.f3_peace_squared,
-                cost_usd=0.005
+                cost_usd=0.005,
             )
 
             # Post-check for 333 (Maps to old system)
@@ -340,33 +360,33 @@ class AGIRoom:
             # Replaces the final build step.
             # In this architecture, 333 produces the reasoning, and we seal it.
             # (If Forge existed as a class, we'd call it here)
-            
+
             # Build the sealed DeltaBundle
             delta_bundle = build_delta_bundle(stage_111, stage_222, stage_333)
-            
+
             # v53 Update: Add 'fuse_score' metadata (Genius G approximation)
             # G = A * P * X * E^2
             # We use metrics from dashboard
-            g_score = 0.95 # Placeholder for calculated G
-            delta_bundle.metadata['genius_score'] = g_score
-            
+            g_score = 0.95  # Placeholder for calculated G
+            delta_bundle.metadata["genius_score"] = g_score
+
             # Add dashboard metrics to delta bundle
             delta_bundle.dashboard = dashboard.generate_report()
 
             # Calculate execution time
             exec_time_ms = (time.time() - start_time) * 1000
-            
+
             # Record final metrics
             total_delta_s = dashboard.get_convergence_stats()["total_delta_s"]
             avg_confidence = dashboard.get_convergence_stats()["average_confidence"]
             avg_peace_squared = dashboard.get_convergence_stats().get("average_peace_squared", 1.0)
-            
+
             dashboard.record_stage_metric(
                 stage="999_SEAL",
                 delta_s=total_delta_s,
                 confidence=avg_confidence,
                 peace_squared=avg_peace_squared,
-                cost_usd=0.001  # Sealing cost
+                cost_usd=0.001,  # Sealing cost
             )
 
             return AGIRoomResult(
@@ -386,18 +406,14 @@ class AGIRoom:
             exec_time_ms = (time.time() - start_time) * 1000
             result = self._build_error_result(exec_id, exec_time_ms, str(e))
             raise  # Re-raise to trigger finally
-        
+
         finally:
             # Cleanup kernels (evidence + dashboard)
             cleanup_evidence_kernel(exec_id)
             # Note: Dashboard cleanup happens in metrics.py when session ends
 
     def _build_blocked_result(
-        self,
-        session_id: str,
-        start_time: float,
-        hardening: HardeningResult,
-        block_reason: str
+        self, session_id: str, start_time: float, hardening: HardeningResult, block_reason: str
     ) -> AGIRoomResult:
         """Build a blocked result from rate limiting or abuse detection."""
         exec_time_ms = (time.time() - start_time) * 1000
@@ -426,7 +442,7 @@ class AGIRoom:
         stage_222: Optional[ThinkOutput],
         stage_333: Optional[ReasonOutput],
         error: str,
-        hardening: Optional[HardeningResult] = None
+        hardening: Optional[HardeningResult] = None,
     ) -> AGIRoomResult:
         """Build a failed result with VOID bundle."""
         exec_time_ms = (time.time() - start_time) * 1000
@@ -453,10 +469,7 @@ class AGIRoom:
         )
 
     def _build_error_result(
-        self,
-        session_id: str,
-        exec_time_ms: float,
-        error: str
+        self, session_id: str, exec_time_ms: float, error: str
     ) -> AGIRoomResult:
         """Build an error result from unexpected exception."""
         bundle = DeltaBundle(
@@ -478,10 +491,9 @@ class AGIRoom:
 # CONVENIENCE FUNCTION
 # =============================================================================
 
+
 def execute_agi_room(
-    query: str,
-    session_id: Optional[str] = None,
-    context: Optional[Dict[str, Any]] = None
+    query: str, session_id: Optional[str] = None, context: Optional[Dict[str, Any]] = None
 ) -> DeltaBundle:
     """
     Execute the AGI Room and return the sealed DeltaBundle.

@@ -55,4 +55,3 @@ __all__ = [
     "InjectionRisk",
     "scan_for_injection",
 ]
-

@@ -17,11 +17,12 @@ from core.governance_kernel import GovernanceKernel, get_governance_kernel
 @dataclass
 class CognitionResult:
     """Result of AGI cognition judgment."""
+
     verdict: str  # SEAL, VOID, SABAR, PARTIAL
     truth_score: float
     clarity_delta: float
     humility_omega: float  # display omega (geometric)
-    safety_omega: float    # safety omega (harmonic) - for kernel use only
+    safety_omega: float  # safety omega (harmonic) - for kernel use only
     genius_score: float
     grounded: bool
     reasoning: Dict[str, Any]
@@ -31,9 +32,10 @@ class CognitionResult:
     error: Optional[str] = None
 
 
-@dataclass  
+@dataclass
 class EmpathyResult:
     """Result of ASI empathy judgment."""
+
     verdict: str
     stakeholder_impact: Dict[str, Any]
     reversibility_score: float
@@ -46,6 +48,7 @@ class EmpathyResult:
 @dataclass
 class VerdictResult:
     """Result of APEX final judgment."""
+
     verdict: str
     confidence: float
     reasoning: str
@@ -56,13 +59,13 @@ class VerdictResult:
 class JudgmentKernel:
     """
     Canonical judgment interface for arifOS kernel.
-    
+
     All decision logic lives here. Wrapper must not implement judgment.
     """
-    
+
     def __init__(self):
         self._uncertainty_engine = UncertaintyEngine()
-    
+
     def judge_cognition(
         self,
         query: str,
@@ -76,7 +79,7 @@ class JudgmentKernel:
     ) -> CognitionResult:
         """
         Execute AGI cognition judgment (111-333_AGI).
-        
+
         Computes uncertainty, truth, clarity, humility, genius.
         Returns verdict and all floor scores.
         """
@@ -88,29 +91,29 @@ class JudgmentKernel:
             knowledge_gaps=knowledge_gaps,
             model_logits_confidence=model_logits_confidence,
         )
-        
+
         safety_omega = uncertainty_calc["safety_omega"]  # Harmonic - for kernel decisions
         display_omega = uncertainty_calc["display_omega"]  # Geometric - for display
-        
+
         # F2: Truth - confidence grounded in evidence + uncertainty
         if grounding and len(grounding) > 0:
             avg_relevance = sum(e.get("relevance", 0) for e in grounding) / len(grounding)
             truth_score = min(0.99, 0.7 + (len(grounding) * 0.05) - (safety_omega * 0.2))
         else:
             truth_score = max(0.3, 0.85 - (safety_omega * 0.3))
-        
+
         # F4: Clarity - entropy reduction
         clarity_delta = -0.1  # Placeholder - real implementation would calculate
-        
+
         # F7: Humility - uncertainty admission
         # Already captured in omega values
-        
+
         # F8: Genius - coherence
         genius_score = 0.88  # Placeholder
-        
+
         # F10: Ontology - grounding check
         grounded = bool(grounding and len(grounding) > 0)
-        
+
         # Determine verdict
         if safety_omega > 0.08:
             verdict = "VOID"
@@ -124,13 +127,13 @@ class JudgmentKernel:
         else:
             verdict = "SEAL"
             error = None
-        
+
         return CognitionResult(
             verdict=verdict,
             truth_score=truth_score,
             clarity_delta=clarity_delta,
             humility_omega=display_omega,  # Display uses geometric
-            safety_omega=safety_omega,     # Safety uses harmonic
+            safety_omega=safety_omega,  # Safety uses harmonic
             genius_score=genius_score,
             grounded=grounded,
             reasoning={
@@ -148,7 +151,7 @@ class JudgmentKernel:
             module_results=module_results or {},
             error=error,
         )
-    
+
     def judge_empathy(
         self,
         query: str,
@@ -159,18 +162,18 @@ class JudgmentKernel:
     ) -> EmpathyResult:
         """
         Execute ASI empathy judgment (555-666_ASI).
-        
+
         Models stakeholder impact, reversibility, peace, empathy.
         """
         # F5: Peace² - stability metric
         peace_squared = 1.0 - (impact_severity * 0.5)
-        
+
         # F6: Empathy - stakeholder awareness
         empathy_score = min(1.0, 0.7 + (stakeholder_count * 0.05))
-        
+
         # F1: Amanah - reversibility check
         reversibility_score = reversibility_index
-        
+
         # Determine verdict based on empathy floors
         if vulnerability_score > 0.9 and impact_severity > 0.8:
             verdict = "888_HOLD"
@@ -184,7 +187,7 @@ class JudgmentKernel:
         else:
             verdict = "SEAL"
             error = None
-        
+
         return EmpathyResult(
             verdict=verdict,
             stakeholder_impact={
@@ -201,7 +204,7 @@ class JudgmentKernel:
             },
             error=error,
         )
-    
+
     def judge_apex(
         self,
         agi_result: CognitionResult,
@@ -211,25 +214,25 @@ class JudgmentKernel:
     ) -> VerdictResult:
         """
         Execute APEX final judgment (888_APEX).
-        
+
         Weighs AGI and ASI results, issues final verdict.
         """
         # Get governance kernel
         gov = get_governance_kernel(session_id)
-        
+
         # Calculate combined confidence
         agi_confidence = agi_result.truth_score * agi_result.genius_score
         asi_confidence = asi_result.empathy_score * asi_result.peace_squared if asi_result else 1.0
-        
+
         combined_confidence = (agi_confidence * asi_confidence) ** 0.5
-        
+
         # Check for 888_HOLD conditions
         requires_human = (
-            irreversibility_index > 0.8 or
-            agi_result.verdict in ["VOID", "888_HOLD"] or
-            (asi_result and asi_result.verdict == "888_HOLD")
+            irreversibility_index > 0.8
+            or agi_result.verdict in ["VOID", "888_HOLD"]
+            or (asi_result and asi_result.verdict == "888_HOLD")
         )
-        
+
         # Determine final verdict
         if requires_human:
             verdict = "888_HOLD"
@@ -246,7 +249,7 @@ class JudgmentKernel:
         else:
             verdict = "SEAL"
             reasoning = "All constitutional floors satisfied"
-        
+
         return VerdictResult(
             verdict=verdict,
             confidence=combined_confidence,

@@ -90,12 +90,9 @@ except ImportError:
 
 # Track B Authority: Import constitutional thresholds
 try:
-    from codebase.enforcement.metrics import \
-        OMEGA_0_MAX  # 0.05 - F7 humility max
-    from codebase.enforcement.metrics import \
-        OMEGA_0_MIN  # 0.03 - F7 humility min
-    from codebase.enforcement.metrics import \
-        PEACE_SQUARED_THRESHOLD  # 1.0  - F5 floor
+    from codebase.enforcement.metrics import OMEGA_0_MAX  # 0.05 - F7 humility max
+    from codebase.enforcement.metrics import OMEGA_0_MIN  # 0.03 - F7 humility min
+    from codebase.enforcement.metrics import PEACE_SQUARED_THRESHOLD  # 1.0  - F5 floor
     from codebase.enforcement.metrics import TRUTH_THRESHOLD  # 0.99 - F2 floor
 except ImportError:
     TRUTH_THRESHOLD = 0.99
@@ -459,8 +456,11 @@ async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -
     try:
         try:
             from codebase.memory.root_key_accessor import (
-                derive_session_key, get_root_key_info, get_root_key_status,
-                verify_genesis_block)
+                derive_session_key,
+                get_root_key_info,
+                get_root_key_status,
+                verify_genesis_block,
+            )
         except ImportError:
             from arifos.core.memory.root_key_accessor import (
                 get_root_key_info,
@@ -573,11 +573,9 @@ async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -
 
         try:
             try:
-                from aaa_mcp.functional_metrics import \
-                    record_constitutional_telemetry
+                from aaa_mcp.functional_metrics import record_constitutional_telemetry
             except ImportError:
-                from arifos.mcp.functional_metrics import \
-                    record_constitutional_telemetry
+                from arifos.mcp.functional_metrics import record_constitutional_telemetry
             record_constitutional_telemetry(
                 "000_init_root_key", {"status": result["constitutional_status"]}
             )
@@ -1269,7 +1267,5 @@ async def mcp_000_init(
             floors_checked=floors_checked,
         ).__dict__
         if BUNDLE_STORE_AVAILABLE and store_stage_result is not None:
-            store_stage_result(session, "init", result)
-        return result
             store_stage_result(session, "init", result)
         return result

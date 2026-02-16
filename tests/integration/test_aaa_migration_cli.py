@@ -15,7 +15,7 @@ def test_cli_basic():
             [sys.executable, "-m", "arifos_core.system", "--query", "Test query"],
             capture_output=True,
             text=True,
-            timeout=30
+            timeout=30,
         )
 
         print(f"Return code: {result.returncode}")
@@ -49,6 +49,7 @@ def test_cli_basic():
     except Exception as e:
         print(f"[FAIL] CLI test error: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -64,16 +65,15 @@ def test_cli_imports():
         with open(source, "r", encoding="utf-8") as f:
             content = f.read()
 
-        assert "from codebase.core.mcp import validate_text_sync" in content, \
-            "Missing AAA import"
+        assert "from codebase.core.mcp import validate_text_sync" in content, "Missing AAA import"
 
-        assert "quantum_state = validate_text_sync(" in content, \
-            "Not using quantum validation"
+        assert "quantum_state = validate_text_sync(" in content, "Not using quantum validation"
 
         # Check old pipeline is NOT imported
-        assert "from codebase.core.system.pipeline import Pipeline" not in content or \
-               "# OLD" in content, \
-            "Old pipeline still imported"
+        assert (
+            "from codebase.core.system.pipeline import Pipeline" not in content
+            or "# OLD" in content
+        ), "Old pipeline still imported"
 
         print("[PASS] CLI imports validated")
         print("  - AAA quantum helpers imported")
@@ -90,6 +90,7 @@ def test_cli_imports():
     except Exception as e:
         print(f"[FAIL] Test error: {e}")
         import traceback
+
         traceback.print_exc()
         return False
 
@@ -101,7 +102,7 @@ if __name__ == "__main__":
     results.append(("CLI Imports", test_cli_imports()))
     results.append(("CLI Execution", test_cli_basic()))
 
-    print("\n" + "="*60)
+    print("\n" + "=" * 60)
     passed = sum(1 for _, result in results if result)
     total = len(results)
 
@@ -109,7 +110,7 @@ if __name__ == "__main__":
         status = "[PASS]" if result else "[WARN]"
         print(f"{status} {name}")
 
-    print("="*60)
+    print("=" * 60)
     print(f"\n{passed}/{total} tests passed")
 
     if passed == total:

@@ -561,9 +561,11 @@ class RealityGroundingCascade:
             "throttle_applied": True,
             "constitutional_notes": [
                 "F1 Amanah: Rate limiting applied",
-                "F2 Truth: ASEAN bias available"
-                if region == "asean"
-                else "F2 Truth: No regional bias",
+                (
+                    "F2 Truth: ASEAN bias available"
+                    if region == "asean"
+                    else "F2 Truth: No regional bias"
+                ),
                 "F7 Humility: Uncertainty tracked per result",
                 "F9 Anti-Hantu: Source attribution enforced",
             ],

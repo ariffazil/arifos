@@ -22,7 +22,6 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Callable
 
-
 # ============ CONSTANTS ============
 
 MAX_QUERY_LENGTH = 10000
@@ -35,22 +34,54 @@ MIN_PEACE_SQ = 0.6  # Minimum Peace²
 # This provides local defence when platform blocks are invisible
 HARMFUL_INTENT_KEYWORDS = {
     # Technical exploitation
-    "hack", "exploit", "bypass", "crack", "breach", "penetrate",
-    "sql injection", "xss", "buffer overflow", "rootkit", "malware",
-    "phish", "spoof", "intercept", "sniff", "brute force",
+    "hack",
+    "exploit",
+    "bypass",
+    "crack",
+    "breach",
+    "penetrate",
+    "sql injection",
+    "xss",
+    "buffer overflow",
+    "rootkit",
+    "malware",
+    "phish",
+    "spoof",
+    "intercept",
+    "sniff",
+    "brute force",
     # Social harm
-    "harass", "intimidate", "bully", "stalk", "dox", "swat",
-    "threaten", "blackmail", "extort", "coerce", "manipulate",
+    "harass",
+    "intimidate",
+    "bully",
+    "stalk",
+    "dox",
+    "swat",
+    "threaten",
+    "blackmail",
+    "extort",
+    "coerce",
+    "manipulate",
     # Policy violations
-    "cheat", "plagiarize", "forge", "fraud", "scam", "launder",
-    "evade", "conceal", "destroy evidence", "false flag",
+    "cheat",
+    "plagiarize",
+    "forge",
+    "fraud",
+    "scam",
+    "launder",
+    "evade",
+    "conceal",
+    "destroy evidence",
+    "false flag",
     # Self-harm (already covered but included for completeness)
-    "suicide", "self-harm", "kill myself",
+    "suicide",
+    "self-harm",
+    "kill myself",
 }
 
 VICTIM_IMPLICIT_KEYWORDS = {
     # Implied victims when not explicitly stated
-    "neighbor": ("neighbor", 0.8, 0.2),      # (name, vulnerability, power)
+    "neighbor": ("neighbor", 0.8, 0.2),  # (name, vulnerability, power)
     "colleague": ("colleague", 0.7, 0.3),
     "classmate": ("classmate", 0.7, 0.3),
     "stranger": ("stranger", 0.9, 0.1),
@@ -89,16 +120,17 @@ class StakeholderType(Enum):
       8    ARD           الأرض          0.0    0.9    Earth
       9    GHAYB         الغيب          0.0    1.0    Future/Unseen
     """
+
     # 9 Layers of Agency
-    NAFS = "nafs"                # Layer 1: Self (the requester)
-    DYAD = "dyad"                # Layer 2: Intimate other (spouse, child, sibling)
-    US = "us"                    # Layer 3: Inner circle (family, team, close group)
-    WE = "we"                    # Layer 4: Community (neighborhood, congregation)
+    NAFS = "nafs"  # Layer 1: Self (the requester)
+    DYAD = "dyad"  # Layer 2: Intimate other (spouse, child, sibling)
+    US = "us"  # Layer 3: Inner circle (family, team, close group)
+    WE = "we"  # Layer 4: Community (neighborhood, congregation)
     INSTITUTION = "institution"  # Layer 5: Organization (company, government, school)
-    DAWLAH = "dawlah"            # Layer 6: Nation/civilization (state, culture)
-    INSAN = "insan"              # Layer 7: All humanity (universal moral circle)
-    ARD = "ard"                  # Layer 8: Earth (ecology, non-human life)
-    GHAYB = "ghayb"              # Layer 9: Future/unseen (unborn, posterity)
+    DAWLAH = "dawlah"  # Layer 6: Nation/civilization (state, culture)
+    INSAN = "insan"  # Layer 7: All humanity (universal moral circle)
+    ARD = "ard"  # Layer 8: Earth (ecology, non-human life)
+    GHAYB = "ghayb"  # Layer 9: Future/unseen (unborn, posterity)
 
 
 # ============ STAKEHOLDER KEYWORD REGISTRY ============
@@ -109,80 +141,150 @@ class StakeholderType(Enum):
 STAKEHOLDER_LAYERS = {
     StakeholderType.NAFS: {
         "keywords": ["myself", "my own"],
-        "vulnerability": 0.1, "power": 1.0,
+        "vulnerability": 0.1,
+        "power": 1.0,
         "description": "Self (the requester)",
     },
     StakeholderType.DYAD: {
         "keywords": [
-            "my wife", "my husband", "my child", "my daughter", "my son",
-            "my sister", "my brother", "my mother", "my father", "my partner",
-            "my baby", "my spouse", "my parent", "loved one", "my friend",
+            "my wife",
+            "my husband",
+            "my child",
+            "my daughter",
+            "my son",
+            "my sister",
+            "my brother",
+            "my mother",
+            "my father",
+            "my partner",
+            "my baby",
+            "my spouse",
+            "my parent",
+            "loved one",
+            "my friend",
         ],
-        "vulnerability": 0.3, "power": 0.8,
+        "vulnerability": 0.3,
+        "power": 0.8,
         "description": "Intimate other (loved one, dependent)",
     },
     StakeholderType.US: {
         "keywords": [
-            "our family", "my team", "our group", "my friends",
-            "our household", "my colleagues", "our class",
-            "my students", "my patients", "my staff", "our crew",
+            "our family",
+            "my team",
+            "our group",
+            "my friends",
+            "our household",
+            "my colleagues",
+            "our class",
+            "my students",
+            "my patients",
+            "my staff",
+            "our crew",
         ],
-        "vulnerability": 0.3, "power": 0.6,
+        "vulnerability": 0.3,
+        "power": 0.6,
         "description": "Inner circle (family unit, team, close group)",
     },
     StakeholderType.WE: {
         "keywords": [
-            "our community", "our neighborhood", "our village", "our town",
-            "our mosque", "our church", "our school", "the congregation",
-            "the locals", "the residents", "our people",
+            "our community",
+            "our neighborhood",
+            "our village",
+            "our town",
+            "our mosque",
+            "our church",
+            "our school",
+            "the congregation",
+            "the locals",
+            "the residents",
+            "our people",
         ],
-        "vulnerability": 0.5, "power": 0.5,
+        "vulnerability": 0.5,
+        "power": 0.5,
         "description": "Community (shared local identity)",
     },
     StakeholderType.INSTITUTION: {
         "keywords": [
-            "the company", "the organization", "the government", "the hospital",
-            "the university", "the court", "the military", "the corporation",
-            "the agency", "the ministry", "the department", "the police",
-            "the bank", "the authority",
+            "the company",
+            "the organization",
+            "the government",
+            "the hospital",
+            "the university",
+            "the court",
+            "the military",
+            "the corporation",
+            "the agency",
+            "the ministry",
+            "the department",
+            "the police",
+            "the bank",
+            "the authority",
         ],
-        "vulnerability": 0.2, "power": 0.7,
+        "vulnerability": 0.2,
+        "power": 0.7,
         "description": "Institution (organization with structural power)",
     },
     StakeholderType.DAWLAH: {
         "keywords": [
-            "the country", "the nation", "the state", "the public",
-            "the population", "the economy", "national security",
-            "public health", "public safety",
+            "the country",
+            "the nation",
+            "the state",
+            "the public",
+            "the population",
+            "the economy",
+            "national security",
+            "public health",
+            "public safety",
         ],
-        "vulnerability": 0.4, "power": 0.6,
+        "vulnerability": 0.4,
+        "power": 0.6,
         "description": "Nation/civilization (societal-scale entity)",
     },
     StakeholderType.INSAN: {
         "keywords": [
-            "all people", "human rights", "mankind", "humankind",
-            "the world", "vulnerable populations", "the poor",
-            "the oppressed", "every person",
+            "all people",
+            "human rights",
+            "mankind",
+            "humankind",
+            "the world",
+            "vulnerable populations",
+            "the poor",
+            "the oppressed",
+            "every person",
         ],
-        "vulnerability": 0.7, "power": 0.3,
+        "vulnerability": 0.7,
+        "power": 0.3,
         "description": "All humanity (universal moral circle)",
     },
     StakeholderType.ARD: {
         "keywords": [
-            "the planet", "the earth", "the environment", "the ocean",
-            "the forest", "the ecosystem", "the wildlife",
-            "the rainforest", "the coral reef", "the atmosphere",
+            "the planet",
+            "the earth",
+            "the environment",
+            "the ocean",
+            "the forest",
+            "the ecosystem",
+            "the wildlife",
+            "the rainforest",
+            "the coral reef",
+            "the atmosphere",
         ],
-        "vulnerability": 0.9, "power": 0.0,
+        "vulnerability": 0.9,
+        "power": 0.0,
         "description": "Earth (ecology, non-human life, planetary systems)",
     },
     StakeholderType.GHAYB: {
         "keywords": [
-            "future generations", "our grandchildren", "next generation",
-            "next century", "what we leave behind", "coming generations",
+            "future generations",
+            "our grandchildren",
+            "next generation",
+            "next century",
+            "what we leave behind",
+            "coming generations",
             "unborn children",
         ],
-        "vulnerability": 1.0, "power": 0.0,
+        "vulnerability": 1.0,
+        "power": 0.0,
         "description": "Future/unseen (those who cannot yet speak)",
     },
 }
@@ -263,41 +365,103 @@ SINGLE_WORD_STAKEHOLDERS = {
 # Emotional distress keywords - when detected, add a high-vulnerability
 # NAFS stakeholder (the distressed requester)
 DISTRESS_KEYWORDS = [
-    "stressed", "anxious", "worried", "afraid", "scared",
-    "depressed", "sad", "upset", "angry", "frustrated",
-    "overwhelmed", "exhausted", "burned out", "burnout",
-    "panic", "fear", "cry", "crying", "hurt", "pain",
-    "lonely", "alone", "isolated", "hopeless", "desperate",
-    "suicidal", "self-harm", "trauma", "grief", "mourning",
+    "stressed",
+    "anxious",
+    "worried",
+    "afraid",
+    "scared",
+    "depressed",
+    "sad",
+    "upset",
+    "angry",
+    "frustrated",
+    "overwhelmed",
+    "exhausted",
+    "burned out",
+    "burnout",
+    "panic",
+    "fear",
+    "cry",
+    "crying",
+    "hurt",
+    "pain",
+    "lonely",
+    "alone",
+    "isolated",
+    "hopeless",
+    "desperate",
+    "suicidal",
+    "self-harm",
+    "trauma",
+    "grief",
+    "mourning",
 ]
 
 # Expanded reversibility keywords
 IRREVERSIBLE_KEYWORDS = [
-    "delete", "destroy", "kill", "permanent", "final",
-    "terminate", "execute", "purge", "eradicate", "wipe",
-    "format", "nuke", "drop", "remove forever",
-    "fire", "dismiss", "expel", "deport", "evict",
-    "publish", "broadcast", "announce", "deploy",
-    "send", "release", "surrender", "abort",
+    "delete",
+    "destroy",
+    "kill",
+    "permanent",
+    "final",
+    "terminate",
+    "execute",
+    "purge",
+    "eradicate",
+    "wipe",
+    "format",
+    "nuke",
+    "drop",
+    "remove forever",
+    "fire",
+    "dismiss",
+    "expel",
+    "deport",
+    "evict",
+    "publish",
+    "broadcast",
+    "announce",
+    "deploy",
+    "send",
+    "release",
+    "surrender",
+    "abort",
 ]
 REVERSIBLE_KEYWORDS = [
-    "draft", "test", "temporary", "reversible", "undo",
-    "preview", "sandbox", "simulate", "trial", "mock",
-    "dry run", "plan", "prototype", "sketch", "propose",
-    "consider", "evaluate", "review", "check",
+    "draft",
+    "test",
+    "temporary",
+    "reversible",
+    "undo",
+    "preview",
+    "sandbox",
+    "simulate",
+    "trial",
+    "mock",
+    "dry run",
+    "plan",
+    "prototype",
+    "sketch",
+    "propose",
+    "consider",
+    "evaluate",
+    "review",
+    "check",
 ]
 
 
 # ============ DATA CLASSES ============
 
+
 @dataclass
 @dataclass
 class Stakeholder:
     """A stakeholder in the ethical analysis."""
+
     id: str
     type: StakeholderType
     vulnerability: float  # 0-1, higher = more vulnerable
-    power: float         # 0-1, higher = more power
+    power: float  # 0-1, higher = more power
     description: str
 
     @property
@@ -312,6 +476,7 @@ class EmpathyFlow:
     Trinity I: Empathy Flow (κᵣ)
     Measures capacity to feel with stakeholders.
     """
+
     kappa_r: float  # Empathy coefficient
     stakeholders: List[Stakeholder]
     bias_reflection: Dict[str, float]  # Detected biases
@@ -329,6 +494,7 @@ class SystemIntegrity:
     """
     Trinity II: System-level ethics.
     """
+
     peace_squared: float  # Peace² (F6)
     accountability_paths: List[str]  # Traceable responsibility chains
     consent_verified: bool  # F11
@@ -340,6 +506,7 @@ class SocietalImpact:
     """
     Trinity III: Society-level ethics.
     """
+
     stakeholder_matrix: Dict[str, Dict[str, float]]  # Impact matrix
     thermodynamic_justice: float  # ΔS impact on society
     ecological_equilibrium: float  # Non-human impact
@@ -352,6 +519,7 @@ class OmegaBundle:
     ASI Output Bundle (Ω)
     Contains all 3 Trinity evaluations.
     """
+
     session_id: str
     query_hash: str
 
@@ -385,12 +553,13 @@ class OmegaBundle:
             "trinity_balance": {
                 "self": self.empathy.kappa_r,
                 "system": self.system.peace_squared,
-                "society": self.society.thermodynamic_justice
-            }
+                "society": self.society.thermodynamic_justice,
+            },
         }
 
 
 # ============ TRINITY COMPONENTS ============
+
 
 class TrinitySelf:
     """Trinity I: Self/Empathy (κᵣ)"""
@@ -413,7 +582,7 @@ class TrinitySelf:
             kappa_r=kappa_r,
             stakeholders=stakeholders,
             bias_reflection=biases,
-            reversibility_score=reversibility
+            reversibility_score=reversibility,
         )
 
     def _identify_stakeholders(self, query: str, context: Optional[Dict]) -> List[Stakeholder]:
@@ -436,13 +605,15 @@ class TrinitySelf:
             if stype in seen_layers:
                 continue
             if any(phrase in query_lower for phrase in config["keywords"]):
-                stakeholders.append(Stakeholder(
-                    id=f"layer_{stype.value}",
-                    type=stype,
-                    vulnerability=config["vulnerability"],
-                    power=config["power"],
-                    description=config["description"],
-                ))
+                stakeholders.append(
+                    Stakeholder(
+                        id=f"layer_{stype.value}",
+                        type=stype,
+                        vulnerability=config["vulnerability"],
+                        power=config["power"],
+                        description=config["description"],
+                    )
+                )
                 seen_layers.add(stype)
 
         # Phase 2: Single-word keywords (broader catch)
@@ -451,28 +622,30 @@ class TrinitySelf:
             if stype in seen_layers:
                 continue
             if word in query_words:
-                layer_desc = STAKEHOLDER_LAYERS.get(stype, {}).get(
-                    "description", stype.value
+                layer_desc = STAKEHOLDER_LAYERS.get(stype, {}).get("description", stype.value)
+                stakeholders.append(
+                    Stakeholder(
+                        id=f"word_{stype.value}_{word}",
+                        type=stype,
+                        vulnerability=vuln,
+                        power=power,
+                        description=f"{layer_desc} (via '{word}')",
+                    )
                 )
-                stakeholders.append(Stakeholder(
-                    id=f"word_{stype.value}_{word}",
-                    type=stype,
-                    vulnerability=vuln,
-                    power=power,
-                    description=f"{layer_desc} (via '{word}')",
-                ))
                 seen_layers.add(stype)
 
         # Phase 3: Emotional distress detection - boosts NAFS vulnerability
         if any(w in query_lower for w in DISTRESS_KEYWORDS):
             if StakeholderType.NAFS not in seen_layers:
-                stakeholders.append(Stakeholder(
-                    id="distressed_nafs",
-                    type=StakeholderType.NAFS,
-                    vulnerability=0.9,
-                    power=0.1,
-                    description="Distressed self (high vulnerability)",
-                ))
+                stakeholders.append(
+                    Stakeholder(
+                        id="distressed_nafs",
+                        type=StakeholderType.NAFS,
+                        vulnerability=0.9,
+                        power=0.1,
+                        description="Distressed self (high vulnerability)",
+                    )
+                )
                 seen_layers.add(StakeholderType.NAFS)
 
         # If no stakeholders identified, return empty list.
@@ -543,7 +716,9 @@ class TrinitySelf:
 class TrinitySystem:
     """Trinity II: System/Ethics (Peace²)"""
 
-    def evaluate(self, query: str, empathy: EmpathyFlow, context: Optional[Dict] = None) -> SystemIntegrity:
+    def evaluate(
+        self, query: str, empathy: EmpathyFlow, context: Optional[Dict] = None
+    ) -> SystemIntegrity:
         """Evaluate system-level ethical integrity."""
         # Compute Peace² (F6)
         peace_sq = self._compute_peace_squared(query, empathy)
@@ -561,7 +736,7 @@ class TrinitySystem:
             peace_squared=peace_sq,
             accountability_paths=accountability,
             consent_verified=consent,
-            power_care_balance=power_care
+            power_care_balance=power_care,
         )
 
     def _compute_peace_squared(self, query: str, empathy: EmpathyFlow) -> float:
@@ -578,7 +753,9 @@ class TrinitySystem:
         # External peace (stakeholder harmony)
         if empathy.stakeholders:
             vulnerabilities = [s.vulnerability for s in empathy.stakeholders]
-            variance = sum((v - sum(vulnerabilities)/len(vulnerabilities))**2 for v in vulnerabilities) / len(vulnerabilities)
+            variance = sum(
+                (v - sum(vulnerabilities) / len(vulnerabilities)) ** 2 for v in vulnerabilities
+            ) / len(vulnerabilities)
             external = 1.0 - min(1.0, variance * 2)
         else:
             external = 1.0  # No stakeholders = no conflict = maximum peace
@@ -632,7 +809,13 @@ class TrinitySystem:
 class TrinitySociety:
     """Trinity III: Society/Justice (Ω)"""
 
-    def evaluate(self, query: str, empathy: EmpathyFlow, system: SystemIntegrity, context: Optional[Dict] = None) -> SocietalImpact:
+    def evaluate(
+        self,
+        query: str,
+        empathy: EmpathyFlow,
+        system: SystemIntegrity,
+        context: Optional[Dict] = None,
+    ) -> SocietalImpact:
         """Evaluate societal-level impact."""
         # Impact matrix
         matrix = self._compute_impact_matrix(empathy.stakeholders)
@@ -650,10 +833,12 @@ class TrinitySociety:
             stakeholder_matrix=matrix,
             thermodynamic_justice=justice,
             ecological_equilibrium=ecology,
-            future_generations=future
+            future_generations=future,
         )
 
-    def _compute_impact_matrix(self, stakeholders: List[Stakeholder]) -> Dict[str, Dict[str, float]]:
+    def _compute_impact_matrix(
+        self, stakeholders: List[Stakeholder]
+    ) -> Dict[str, Dict[str, float]]:
         """Compute pairwise impact between stakeholders."""
         matrix = {}
         for s1 in stakeholders:
@@ -664,7 +849,9 @@ class TrinitySociety:
                 matrix[s1.id][s2.id] = impact
         return matrix
 
-    def _compute_thermodynamic_justice(self, query: str, empathy: EmpathyFlow, system: SystemIntegrity) -> float:
+    def _compute_thermodynamic_justice(
+        self, query: str, empathy: EmpathyFlow, system: SystemIntegrity
+    ) -> float:
         """
         Justice = distribution of entropy reduction.
         Fair distribution → high justice
@@ -715,6 +902,7 @@ class TrinitySociety:
 
 # ============ MAIN ENGINE ============
 
+
 class ASIEngineHardened:
     """
     Hardened ASI Engine v53.4.0
@@ -763,7 +951,7 @@ class ASIEngineHardened:
                 omega_total=0.0,
                 vote=EngineVote.VOID,
                 floor_scores={"F12_defence": 0.0, "harm_detected": 1.0},
-                reasoning=f"F12 Defence: Harmful intent detected ({harm_check['keywords_matched']})"
+                reasoning=f"F12 Defence: Harmful intent detected ({harm_check['keywords_matched']})",
             )
 
         # 555 EMPATHY: Trinity I
@@ -784,10 +972,12 @@ class ASIEngineHardened:
         # Floor scores
         floor_scores = {
             "F1_reversibility": empathy.reversibility_score,
-            "F5_weakest": empathy.get_weakest().protection_priority if empathy.get_weakest() else 0.5,
+            "F5_weakest": (
+                empathy.get_weakest().protection_priority if empathy.get_weakest() else 0.5
+            ),
             "F6_peace_sq": system.peace_squared,
             "F11_consent": 1.0 if system.consent_verified else 0.0,
-            "omega_total": omega_total
+            "omega_total": omega_total,
         }
 
         return OmegaBundle(
@@ -799,10 +989,12 @@ class ASIEngineHardened:
             omega_total=omega_total,
             vote=vote,
             floor_scores=floor_scores,
-            reasoning=f"κᵣ={empathy.kappa_r:.2f}, Peace²={system.peace_squared:.2f}, Justice={society.thermodynamic_justice:.2f}"
+            reasoning=f"κᵣ={empathy.kappa_r:.2f}, Peace²={system.peace_squared:.2f}, Justice={society.thermodynamic_justice:.2f}",
         )
 
-    def _determine_vote(self, empathy: EmpathyFlow, system: SystemIntegrity, society: SocietalImpact, omega: float) -> EngineVote:
+    def _determine_vote(
+        self, empathy: EmpathyFlow, system: SystemIntegrity, society: SocietalImpact, omega: float
+    ) -> EngineVote:
         """Determine final vote based on Trinity evaluation."""
         # F1: Must be reversible
         if empathy.reversibility_score < 0.3:
@@ -845,11 +1037,7 @@ class ASIEngineHardened:
         implicit_victims = []
         for keyword, (name, vuln, power) in VICTIM_IMPLICIT_KEYWORDS.items():
             if keyword in query_lower:
-                implicit_victims.append({
-                    "name": name,
-                    "vulnerability": vuln,
-                    "power": power
-                })
+                implicit_victims.append({"name": name, "vulnerability": vuln, "power": power})
 
         # Determine if harmful
         is_harmful = len(matched) > 0 or len(implicit_victims) > 0
@@ -858,18 +1046,22 @@ class ASIEngineHardened:
             "is_harmful": is_harmful,
             "keywords_matched": list(matched),
             "implicit_victims": implicit_victims,
-            "f12_triggered": bool(matched or implicit_victims)
+            "f12_triggered": bool(matched or implicit_victims),
         }
 
     def _hash(self, query: str) -> str:
         """Generate query hash."""
         import hashlib
+
         return hashlib.sha256(query.encode()).hexdigest()[:16]
 
 
 # ============ CONVENIENCE ============
 
-async def execute_asi_hardened(query: str, session_id: Optional[str] = None, context: Optional[Dict] = None) -> OmegaBundle:
+
+async def execute_asi_hardened(
+    query: str, session_id: Optional[str] = None, context: Optional[Dict] = None
+) -> OmegaBundle:
     """Convenience function to execute hardened ASI."""
     engine = ASIEngineHardened(session_id)
     return await engine.execute(query, context)
@@ -881,11 +1073,13 @@ execute_asi = execute_asi_hardened
 
 _asi_engines: Dict[str, ASIEngineHardened] = {}
 
+
 def get_asi_engine(session_id: str) -> ASIEngineHardened:
     """Get or create ASI engine for session (backward compat)."""
     if session_id not in _asi_engines:
         _asi_engines[session_id] = ASIEngineHardened(session_id)
     return _asi_engines[session_id]
+
 
 def cleanup_expired_sessions(max_age_seconds: float = 3600) -> int:
     """Cleanup expired sessions (backward compat - no-op for now)."""

@@ -10,7 +10,7 @@ Flow:
 Current Status (v55.3-L5-alpha):
 - Architect: ✅ WORKING
 - Engineer: 🔴 STUB
-- Auditor: 🔴 STUB  
+- Auditor: 🔴 STUB
 - Validator: 🔴 STUB
 
 For full federation, use architect_only() method.
@@ -35,6 +35,7 @@ from .validator import Validator
 @dataclass
 class FederationResult:
     """Result from federation execution."""
+
     query: str
     plan: Optional[ArchitectPlan]
     architect_output: Optional[AgentOutput]
@@ -45,7 +46,7 @@ class FederationResult:
     final_response: any
     execution_path: list[str]
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    
+
     def to_dict(self) -> dict:
         return {
             "query": self.query,
@@ -65,33 +66,33 @@ class AgentFederation:
     """
     4-Agent Constitutional Federation
     ==================================
-    
+
     Orchestrates Architect → Engineer → Auditor → Validator pipeline.
-    
+
     Current Status (v55.3):
     - Full federation: 🔴 NOT AVAILABLE (Engineer/Auditor/Validator are stubs)
     - Architect only: ✅ WORKING
-    
+
     Usage:
         federation = AgentFederation()
-        
+
         # Full federation (coming v55.4)
         # result = await federation.execute(query)
-        
+
         # Architect only (working now)
         result = await federation.architect_only(query)
-    
+
     The federation ensures:
     - Every step is constitutionally governed
     - Tri-Witness consensus before final output
     - Audit trail in VAULT-999
     - Human can override at any point (F13 Sovereign)
     """
-    
+
     def __init__(self, tri_witness_threshold: float = 0.95):
         """
         Initialize the federation.
-        
+
         Args:
             tri_witness_threshold: Minimum W₃ for consensus (default 0.95)
         """
@@ -100,25 +101,25 @@ class AgentFederation:
         self.auditor = Auditor()
         self.validator = Validator()
         self.tri_witness_threshold = tri_witness_threshold
-    
+
     async def architect_only(self, query: str, context: dict = None) -> FederationResult:
         """
         Execute only the Architect agent (working in v55.3).
-        
+
         Returns a plan without full federation execution.
-        
+
         Args:
             query: User query
             context: Optional additional context
-            
+
         Returns:
             FederationResult with plan but no execution
         """
         input_data = {"query": query, "context": context or {}}
-        
+
         # Run Architect
         architect_output = await self.architect.governed_process(input_data)
-        
+
         # Extract plan if successful
         plan = None
         if architect_output.verdict in [Verdict.SEAL, Verdict.PARTIAL]:
@@ -126,7 +127,7 @@ class AgentFederation:
                 plan = architect_output.response.get("response")
             elif isinstance(architect_output.response, ArchitectPlan):
                 plan = architect_output.response
-        
+
         return FederationResult(
             query=query,
             plan=plan,
@@ -138,31 +139,28 @@ class AgentFederation:
             final_response=plan,
             execution_path=["Architect"],
         )
-    
+
     async def execute(
-        self,
-        query: str,
-        context: dict = None,
-        human_override: bool = False
+        self, query: str, context: dict = None, human_override: bool = False
     ) -> FederationResult:
         """
         Execute full 4-agent federation.
-        
+
         Args:
             query: User query
             context: Optional additional context
             human_override: If True, skip to human review (F13)
-            
+
         Returns:
             FederationResult with full execution trace
         """
         input_data = {"query": query, "context": context or {}}
         execution_path = []
-        
+
         # Stage 1: Architect
         execution_path.append("Architect")
         architect_output = await self.architect.governed_process(input_data)
-        
+
         if architect_output.verdict == Verdict.VOID:
             return FederationResult(
                 query=query,
@@ -175,12 +173,12 @@ class AgentFederation:
                 final_response=None,
                 execution_path=execution_path,
             )
-        
+
         # Extract plan
         plan = None
         if isinstance(architect_output.response, dict):
             plan = architect_output.response.get("response")
-        
+
         # Check if human review required
         if plan and plan.requires_human_review and not human_override:
             return FederationResult(
@@ -194,7 +192,7 @@ class AgentFederation:
                 final_response="F13 Sovereign: Human review required",
                 execution_path=execution_path,
             )
-        
+
         # Stage 2: Engineer
         execution_path.append("Engineer")
         engineer_input = {
@@ -204,7 +202,7 @@ class AgentFederation:
             "session_id": f"l5-{query[:8].strip().replace(' ', '-')}",
         }
         engineer_output = await self.engineer.governed_process(engineer_input)
-        
+
         # Stage 3: Auditor
         execution_path.append("Auditor")
         auditor_input = {
@@ -214,7 +212,7 @@ class AgentFederation:
             "session_id": engineer_input["session_id"],
         }
         auditor_output = await self.auditor.governed_process(auditor_input)
-        
+
         # Stage 4: Validator
         execution_path.append("Validator")
         validator_input = {
@@ -224,7 +222,7 @@ class AgentFederation:
             "session_id": engineer_input["session_id"],
         }
         validator_output = await self.validator.governed_process(validator_input)
-        
+
         # Full federation complete
         return FederationResult(
             query=query,

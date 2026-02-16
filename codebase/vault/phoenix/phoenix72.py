@@ -15,10 +15,10 @@ from typing import Any, Dict, List, Optional
 from ..vault.vault999 import Vault999
 from ..ledger.cooling_ledger import CoolingLedger
 
-
 # -------------------------
 # Phoenix Entities
 # -------------------------
+
 
 @dataclass
 class Scar:
@@ -43,6 +43,7 @@ class PhoenixAmendment:
 # -------------------------
 # Phoenix-72 Engine
 # -------------------------
+
 
 class Phoenix72:
     """
@@ -193,4 +194,5 @@ class Phoenix72:
     @staticmethod
     def _now() -> str:
         from datetime import datetime, timezone
+
         return datetime.now(timezone.utc).isoformat()

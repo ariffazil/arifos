@@ -3,6 +3,7 @@ Test script for v64.2 RUKUN AGI foundation (core/ architecture).
 Verifies that all 4 core.shared modules and core.organs can be imported correctly.
 T000: 2026.02.15-FORGE-TRINITY-SEAL
 """
+
 import sys
 import os
 
@@ -15,22 +16,26 @@ print()
 # Test 1: Physics
 print("[1/5] Testing core.shared.physics...")
 from core.shared.physics import W_3, delta_S, G, geometric_mean
+
 print("      ✓ Physics module OK")
 
 # Test 2: ATLAS
 print("[2/5] Testing core.shared.atlas...")
 from core.shared.atlas import Lane, Lambda
+
 print("      ✓ ATLAS module OK")
 
 # Test 3: Types
 print("[3/5] Testing core.shared.types...")
 from core.shared.types import Verdict, VaultOutput
+
 print("      ✓ Types module OK")
 print(f"      Verdicts: {[v.value for v in Verdict]}")
 
 # Test 4: Crypto
 print("[4/5] Testing core.shared.crypto...")
 from core.shared.crypto import generate_session_id, sha256_hash
+
 session_id = generate_session_id()
 print("      ✓ Crypto module OK")
 print(f"      Session ID sample: {session_id[:20]}...")
@@ -38,6 +43,7 @@ print(f"      Session ID sample: {session_id[:20]}...")
 # Test 5: Organs (Airlock)
 print("[5/5] Testing core.organs._0_init...")
 from core.organs._0_init import init, scan_injection
+
 print("      ✓ Airlock organ OK")
 
 print()

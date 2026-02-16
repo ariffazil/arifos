@@ -6,6 +6,7 @@ Verifies lane-aware Psi computation without calling actual LLM
 
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent))
 
 from codebase.core.enforcement.metrics import Metrics, get_lane_truth_threshold
