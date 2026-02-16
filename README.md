@@ -254,7 +254,7 @@ graph TD
 
 **Why this matters:** The kernel can be wrapped in OpenAI API, Discord bot, or browser extension without changing safety logic.
 
-See [`ARCHITECTURAL_BOUNDARY.md`](./ARCHITECTURAL_BOUNDARY.md) for enforcement rules.
+See [`_ARCHIVE/root_files/ARCHITECTURAL_BOUNDARY.md`](./_ARCHIVE/root_files/ARCHITECTURAL_BOUNDARY.md) for enforcement rules.
 
 ---
 
@@ -274,7 +274,7 @@ python -m aaa_mcp http     # Streamable HTTP
 ### 3. Connect to Live Server
 ```bash
 curl https://arifosmcp.arif-fazil.com/health
-# {"status":"healthy","service":"aaa-mcp","version":"65.0-FORGE-TRINITY-SEAL"}
+# {"status":"healthy","service":"aaa-mcp","version":"64.2-FORGE-TRINITY-SEAL"}
 ```
 
 ### 4. Full Deployment
