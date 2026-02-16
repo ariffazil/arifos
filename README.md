@@ -254,7 +254,7 @@ graph TD
 
 **Why this matters:** The kernel can be wrapped in OpenAI API, Discord bot, or browser extension without changing safety logic.
 
-See [`_ARCHIVE/root_files/ARCHITECTURAL_BOUNDARY.md`](./_ARCHIVE/root_files/ARCHITECTURAL_BOUNDARY.md) for enforcement rules.
+See [`_ARCHIVE/root_files/ARCHITECTURAL_BOUNDARY.md`](./_ARCHIVE/root_files/ARCHITECTURAL_BOUNDARY.md) for enforcement rules (Archived as of v65.0).
 
 ---
 
