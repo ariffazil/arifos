@@ -13,6 +13,7 @@ import sys
 import subprocess
 from pathlib import Path
 
+
 def venv_ok():
     venv = Path(".venv")
     if not venv.exists():
@@ -20,6 +21,7 @@ def venv_ok():
     if not (venv / "Scripts" / "python.exe").exists() and not (venv / "bin" / "python").exists():
         return False
     return True
+
 
 def pip_check():
     python = (
@@ -36,6 +38,7 @@ def pip_check():
     except Exception:
         return False
 
+
 def main():
     print("arifOS: Checking environment foundation...")
     if not venv_ok() or not pip_check():
@@ -49,6 +52,7 @@ def main():
         print("arifOS: Bootstrap complete.")
     else:
         print("arifOS: Environment is ready.")
+
 
 if __name__ == "__main__":
     main()

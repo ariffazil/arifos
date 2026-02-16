@@ -9,12 +9,13 @@ import json
 # Get DSN from environment or use Railway connection
 DSN = os.environ.get(
     "DATABASE_URL",
-    "postgresql://postgres:fyIXICkJENclZpNldXHfigCPkiWSXWVl@gondola.proxy.rlwy.net:36406/railway"
+    "postgresql://postgres:fyIXICkJENclZpNldXHfigCPkiWSXWVl@gondola.proxy.rlwy.net:36406/railway",
 )
+
 
 async def read_seal(sequence: int):
     conn = await asyncpg.connect(DSN)
-    
+
     row = await conn.fetchrow(
         """
         SELECT sequence, session_id, seal_id, timestamp, authority, 
@@ -22,11 +23,11 @@ async def read_seal(sequence: int):
         FROM vault_ledger 
         WHERE sequence = $1
         """,
-        sequence
+        sequence,
     )
-    
+
     await conn.close()
-    
+
     if row:
         return {
             "sequence": row["sequence"],
@@ -42,9 +43,10 @@ async def read_seal(sequence: int):
         }
     return None
 
+
 async def list_seals(limit: int = 10):
     conn = await asyncpg.connect(DSN)
-    
+
     rows = await conn.fetch(
         """
         SELECT sequence, session_id, timestamp, authority, verdict, entry_hash
@@ -52,11 +54,11 @@ async def list_seals(limit: int = 10):
         ORDER BY sequence DESC
         LIMIT $1
         """,
-        limit
+        limit,
     )
-    
+
     await conn.close()
-    
+
     return [
         {
             "sequence": r["sequence"],
@@ -64,20 +66,21 @@ async def list_seals(limit: int = 10):
             "timestamp": r["timestamp"].isoformat(),
             "authority": r["authority"],
             "verdict": r["verdict"],
-            "entry_hash": r["entry_hash"][:16] + "..."
+            "entry_hash": r["entry_hash"][:16] + "...",
         }
         for r in rows
     ]
 
+
 async def main():
     import sys
-    
+
     if len(sys.argv) > 1 and sys.argv[1] == "list":
         print("\n=== Last 10 Seals ===\n")
         seals = await list_seals(10)
         for s in seals:
             print(f"#{s['sequence']:2d} | {s['verdict']:5s} | {s['session_id']} | {s['timestamp']}")
-    
+
     elif len(sys.argv) > 1:
         seq = int(sys.argv[1])
         print(f"\n=== Reading Seal #{seq} ===\n")
@@ -86,10 +89,11 @@ async def main():
             print(json.dumps(seal, indent=2, default=str))
         else:
             print(f"Seal #{seq} not found")
-    
+
     else:
         print("Usage: python read_vault.py list")
         print("       python read_vault.py 12")
+
 
 if __name__ == "__main__":
     asyncio.run(main())

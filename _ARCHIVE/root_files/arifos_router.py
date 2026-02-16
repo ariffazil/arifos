@@ -80,6 +80,7 @@ async def _attach_backend(command: list[str]) -> tuple[ClientSession, Any]:
     await session.initialize()
     return session, ctx
 
+
 async def ensure_backends():
     """Ensure both backends are connected."""
     global aaa_client, aclip_client

@@ -99,12 +99,7 @@ def check_railway_cli():
     """Check if Railway CLI is installed."""
     cmd = get_railway_cmd()
     try:
-        result = subprocess.run(
-            [cmd, "--version"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
+        result = subprocess.run([cmd, "--version"], capture_output=True, text=True, check=True)
         print(f"✓ Railway CLI found: {result.stdout.strip()}")
         return True
     except (subprocess.CalledProcessError, FileNotFoundError):
@@ -119,12 +114,7 @@ def check_login():
     """Check if user is logged into Railway."""
     cmd = get_railway_cmd()
     try:
-        subprocess.run(
-            [cmd, "projects"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
+        subprocess.run([cmd, "projects"], capture_output=True, text=True, check=True)
         print("✓ Already logged in to Railway")
         return True
     except subprocess.CalledProcessError:
@@ -150,21 +140,17 @@ def run_migration():
     """Run the database migration."""
     print("\n→ Running database migration...")
     print("  Creating vault_ledger and vault_head tables...")
-    
+
     # Create temp Python file with migration
     py_code = PYTHON_MIGRATION.format(sql=MIGRATION_SQL.replace('"', '\\"'))
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(py_code)
         temp_file = f.name
-    
+
     try:
         cmd = get_railway_cmd()
-        result = subprocess.run(
-            [cmd, "run", "python", temp_file],
-            capture_output=True,
-            text=True
-        )
+        result = subprocess.run([cmd, "run", "python", temp_file], capture_output=True, text=True)
         print(result.stdout)
         if result.returncode != 0:
             print("Error:", result.stderr)
@@ -177,8 +163,8 @@ def run_migration():
 def verify_setup():
     """Verify the setup worked."""
     print("\n→ Verifying setup...")
-    
-    verify_code = '''
+
+    verify_code = """
 import asyncio
 import asyncpg
 import os
@@ -197,19 +183,15 @@ async def main():
     print("✓ Verification complete!")
 
 asyncio.run(main())
-'''
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+"""
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(verify_code)
         temp_file = f.name
-    
+
     try:
         cmd = get_railway_cmd()
-        result = subprocess.run(
-            [cmd, "run", "python", temp_file],
-            capture_output=True,
-            text=True
-        )
+        result = subprocess.run([cmd, "run", "python", temp_file], capture_output=True, text=True)
         print(result.stdout)
         if result.stderr:
             print(result.stderr)
@@ -223,30 +205,30 @@ def main():
     print("  VAULT999 Railway Migration Tool")
     print("=" * 50)
     print()
-    
+
     # Step 1: Check Railway CLI
     if not check_railway_cli():
         input("\nPress Enter to exit...")
         sys.exit(1)
-    
+
     # Step 2: Check login
     if not check_login():
         input("\nPress Enter to exit...")
         sys.exit(1)
-    
+
     # Step 3: Link project
     if not link_project():
         input("\nPress Enter to exit...")
         sys.exit(1)
-    
+
     # Step 4: Run migration
     if not run_migration():
         input("\nPress Enter to exit...")
         sys.exit(1)
-    
+
     # Step 5: Verify
     verify_setup()
-    
+
     print()
     print("=" * 50)
     print("  ✓ MIGRATION COMPLETE!")
@@ -255,7 +237,7 @@ def main():
     print("Your VAULT999 PostgreSQL tables are ready.")
     print("Next: Deploy with 'railway up'")
     print()
-    
+
     input("Press Enter to close...")
 
 

@@ -20,6 +20,7 @@ from pathlib import Path
 # Add root to path
 sys.path.append(os.getcwd())
 
+
 def get_file_content(path):
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -27,48 +28,42 @@ def get_file_content(path):
     except FileNotFoundError:
         return None
 
+
 def verify_version():
     print("🔍 [1/3] Verifying Version Consistency...")
     version_file = get_file_content("VERSION")
     pyproject = get_file_content("pyproject.toml")
-    
+
     if not version_file:
         print("❌ VERSION file missing.")
         return False
-        
+
     if not pyproject:
         print("❌ pyproject.toml file missing.")
         return False
-    
+
     # Simple check for version string in pyproject.toml
     if f'version = "{version_file}"' not in pyproject:
         print(f"❌ Version mismatch: VERSION={version_file} not found in pyproject.toml")
         return False
-        
+
     print(f"✅ Version {version_file} Verified.")
     return version_file
+
 
 def verify_tools():
     print("🔍 [2/3] Verifying 7-Core Tool Suite...")
     try:
         from aaa_mcp.server import TOOL_DESCRIPTIONS
-        
-        expected_tools = [
-            "_init_",
-            "_agi_",
-            "_asi_",
-            "_apex_",
-            "_vault_",
-            "_trinity_",
-            "_reality_"
-        ]
-        
+
+        expected_tools = ["_init_", "_agi_", "_asi_", "_apex_", "_vault_", "_trinity_", "_reality_"]
+
         missing = [t for t in expected_tools if t not in TOOL_DESCRIPTIONS]
-        
+
         if missing:
             print(f"❌ Missing Tools: {missing}")
             return False
-            
+
         print(f"✅ All 7 Core Tools Present: {', '.join(expected_tools)}")
         return True
     except ImportError as e:
@@ -78,48 +73,51 @@ def verify_tools():
         print(f"❌ Verification Error: {e}")
         return False
 
+
 def generate_seal(version):
     print("🔒 [3/3] Generating Cryptographic Seal...")
-    
+
     timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
     payload = f"{version}:{timestamp}:AAA-7-CORE"
     seal_hash = hashlib.sha256(payload.encode()).hexdigest()
-    
+
     seal_data = {
         "version": version,
         "timestamp": timestamp,
         "hash": seal_hash,
         "status": "SEALED",
         "authority": "AAA_HUMAN",
-        "motto": "DITEMPA BUKAN DIBERI"
+        "motto": "DITEMPA BUKAN DIBERI",
     }
-    
+
     seal_path = Path("SEAL999") / f"release_{version}.seal.json"
     seal_path.parent.mkdir(exist_ok=True)
-    
+
     with open(seal_path, "w") as f:
         json.dump(seal_data, f, indent=2)
-        
+
     print(f"✅ Release Sealed: {seal_path}")
     print(f"🔑 Seal Hash: {seal_hash}")
     return True
 
+
 def main():
     print("🚀 TRINITY SEAL WORKFLOW IGNITION")
     print("=================================")
-    
+
     version = verify_version()
     if not version:
         sys.exit(1)
-        
+
     if not verify_tools():
         sys.exit(1)
-        
+
     if not generate_seal(version):
         sys.exit(1)
-        
+
     print("=================================")
     print("🌟 SYSTEM STATUS: SOVEREIGNLY SEALED")
+
 
 if __name__ == "__main__":
     main()

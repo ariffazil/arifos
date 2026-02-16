@@ -74,23 +74,21 @@ def main():
     print("  VAULT999 Verification Tool")
     print("=" * 50)
     print()
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".py", delete=False) as f:
         f.write(VERIFY_CODE)
         temp_file = f.name
-    
+
     try:
         result = subprocess.run(
-            ["railway", "run", "python", temp_file],
-            capture_output=True,
-            text=True
+            ["railway", "run", "python", temp_file], capture_output=True, text=True
         )
         print(result.stdout)
         if result.stderr:
             print(result.stderr)
     finally:
         os.unlink(temp_file)
-    
+
     print()
     input("Press Enter to close...")
 

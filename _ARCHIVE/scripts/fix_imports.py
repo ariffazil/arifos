@@ -3,8 +3,9 @@ import re
 
 TARGET_DIR = "arifos/mcp"
 
+
 def fix_imports_in_file(filepath):
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(filepath, "r", encoding="utf-8") as f:
         content = f.read()
 
     # Pattern 1: from arifos_core.X import Y -> from arifos.core.X import Y OR from arifos.X import Y?
@@ -23,8 +24,9 @@ def fix_imports_in_file(filepath):
 
     if content != new_content:
         print(f"Fixing {filepath}")
-        with open(filepath, 'w', encoding='utf-8') as f:
+        with open(filepath, "w", encoding="utf-8") as f:
             f.write(new_content)
+
 
 for root, dirs, files in os.walk(TARGET_DIR):
     for file in files:

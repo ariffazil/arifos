@@ -18,7 +18,8 @@ def consolidate():
 
     # Strategy: Move everything to a TEMP folder, then rename TEMP to VAULT999
     temp = root / "VAULT_TEMP_MERGE"
-    if temp.exists(): shutil.rmtree(temp)
+    if temp.exists():
+        shutil.rmtree(temp)
     temp.mkdir()
 
     # Copy obsidian content
@@ -41,14 +42,19 @@ def consolidate():
 
     # Cleanup
     if obs.exists():
-        try: shutil.rmtree(obs)
-        except: print("Could not delete obsidian folder (locked?)")
+        try:
+            shutil.rmtree(obs)
+        except:
+            print("Could not delete obsidian folder (locked?)")
 
     if final_backup.exists():
-        try: shutil.rmtree(final_backup)
-        except: print("Could not delete backupVAULT999 folder (locked?)")
+        try:
+            shutil.rmtree(final_backup)
+        except:
+            print("Could not delete backupVAULT999 folder (locked?)")
 
     print("Consolidation Complete.")
+
 
 if __name__ == "__main__":
     consolidate()

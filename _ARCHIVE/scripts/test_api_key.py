@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Test API key authentication"""
+
 import httpx
 
 API_KEY = "Pmsx7POVlMg2aAKJ-G93uGwtAApUFcLEEcr7YtzFgyjuUPeOhBaIfC3OUNcLRCLh"
@@ -16,11 +17,7 @@ except Exception as e:
 print()
 print("=== Test 2: With API key (should succeed) ===")
 try:
-    r = httpx.get(
-        f"{BASE_URL}/api/tools",
-        headers={"x-api-key": API_KEY},
-        timeout=10
-    )
+    r = httpx.get(f"{BASE_URL}/api/tools", headers={"x-api-key": API_KEY}, timeout=10)
     print(f"Status: {r.status_code}")
     data = r.json()
     print(f"ok: {data.get('ok')}")
@@ -35,7 +32,7 @@ try:
         f"{BASE_URL}/api/vault/read",
         headers={"x-api-key": API_KEY, "Content-Type": "application/json"},
         json={"sequence": 12},
-        timeout=10
+        timeout=10,
     )
     print(f"Status: {r.status_code}")
     data = r.json()

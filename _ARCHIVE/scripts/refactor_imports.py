@@ -22,6 +22,7 @@ def refactor_imports(root_dir):
                     print(f"Skipping {filepath}: {e}")
     print(f"Total files refactored: {count}")
 
+
 if __name__ == "__main__":
     refactor_imports("arifos")
     refactor_imports("scripts")

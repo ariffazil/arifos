@@ -14,12 +14,13 @@ from typing import List, Tuple
 
 # Color codes for terminal output
 class Colors:
-    GREEN = '\033[92m'
-    RED = '\033[91m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    BOLD = '\033[1m'
-    END = '\033[0m'
+    GREEN = "\033[92m"
+    RED = "\033[91m"
+    YELLOW = "\033[93m"
+    BLUE = "\033[94m"
+    BOLD = "\033[1m"
+    END = "\033[0m"
+
 
 def check_python_version() -> Tuple[bool, str]:
     """Verify Python version is 3.10+"""
@@ -28,6 +29,7 @@ def check_python_version() -> Tuple[bool, str]:
         return True, f"Python {version.major}.{version.minor}.{version.micro}"
     return False, f"Python {version.major}.{version.minor}.{version.micro} (requires 3.10+)"
 
+
 def check_import(module_name: str, display_name: str = None) -> Tuple[bool, str]:
     """Check if a module can be imported"""
     if display_name is None:
@@ -35,28 +37,29 @@ def check_import(module_name: str, display_name: str = None) -> Tuple[bool, str]
 
     try:
         module = __import__(module_name)
-        version = getattr(module, '__version__', 'unknown')
+        version = getattr(module, "__version__", "unknown")
         return True, f"{display_name} {version}"
     except ImportError as e:
         return False, f"{display_name} not found: {str(e)}"
+
 
 def check_arifos_core() -> Tuple[bool, str]:
     """Check arifOS core functionality"""
     try:
         from arifos.core.system.apex_prime import APEX_VERSION, APEXPrime
+
         apex = APEXPrime()
         return True, f"arifOS APEX Prime {APEX_VERSION} OK"
     except Exception as e:
         return False, f"arifOS APEX Prime initialization failed: {str(e)}"
 
+
 def check_docker() -> Tuple[bool, str]:
     """Check Docker availability"""
     import subprocess
+
     try:
-        result = subprocess.run(['docker', '--version'],
-                              capture_output=True,
-                              text=True,
-                              timeout=5)
+        result = subprocess.run(["docker", "--version"], capture_output=True, text=True, timeout=5)
         if result.returncode == 0:
             version = result.stdout.strip()
             return True, version
@@ -67,6 +70,7 @@ def check_docker() -> Tuple[bool, str]:
         return False, "Docker command timeout (is Docker running?)"
     except Exception as e:
         return False, f"Docker check error: {str(e)}"
+
 
 def run_verification():
     """Run all verification checks"""
@@ -120,17 +124,25 @@ def run_verification():
     failed = total - passed
 
     if passed == total:
-        print(f"\n{Colors.GREEN}{Colors.BOLD}[OK] All checks passed! ({passed}/{total}){Colors.END}")
-        print(f"\n{Colors.GREEN}Your Visual Studio environment is fully configured for arifOS!{Colors.END}")
+        print(
+            f"\n{Colors.GREEN}{Colors.BOLD}[OK] All checks passed! ({passed}/{total}){Colors.END}"
+        )
+        print(
+            f"\n{Colors.GREEN}Your Visual Studio environment is fully configured for arifOS!{Colors.END}"
+        )
         print(f"\n{Colors.BOLD}Next steps:{Colors.END}")
         print(f"  1. Read QUICK_START_VISUAL_STUDIO.md")
         print(f"  2. Activate environment: .venv\\Scripts\\Activate.ps1")
         print(f"  3. Run tests: pytest")
         print(f"  4. Start coding: code .")
-        print(f"\n{Colors.BOLD}DITEMPA BUKAN DIBERI{Colors.END} - Your environment is forged! [checkmark][scales]\n")
+        print(
+            f"\n{Colors.BOLD}DITEMPA BUKAN DIBERI{Colors.END} - Your environment is forged! [checkmark][scales]\n"
+        )
         return 0
     else:
-        print(f"\n{Colors.RED}{Colors.BOLD}[FAIL] Some checks failed ({failed}/{total}){Colors.END}")
+        print(
+            f"\n{Colors.RED}{Colors.BOLD}[FAIL] Some checks failed ({failed}/{total}){Colors.END}"
+        )
         print(f"\n{Colors.YELLOW}Failed checks:{Colors.END}")
         for i, (check_name, _) in enumerate(checks):
             if not results[i]:
@@ -138,10 +150,11 @@ def run_verification():
 
         print(f"\n{Colors.YELLOW}Troubleshooting:{Colors.END}")
         print(f"  1. Activate virtual environment: .venv\\Scripts\\Activate.ps1")
-        print(f"  2. Reinstall dependencies: pip install -e \".[all]\"")
+        print(f'  2. Reinstall dependencies: pip install -e ".[all]"')
         print(f"  3. Check VISUAL_STUDIO_SETUP.md for detailed instructions")
         print(f"  4. For Docker: ensure Docker Desktop is running\n")
         return 1
+
 
 def main():
     """Main entry point"""
@@ -154,8 +167,10 @@ def main():
     except Exception as e:
         print(f"\n{Colors.RED}{Colors.BOLD}Fatal error:{Colors.END} {str(e)}\n")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -35,6 +35,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 @dataclass
 class TestResult:
     """Result of a single compliance test."""
+
     name: str
     passed: bool
     message: str
@@ -44,6 +45,7 @@ class TestResult:
 @dataclass
 class ComplianceReport:
     """Full compliance report."""
+
     tests: List[TestResult] = field(default_factory=list)
     passed: int = 0
     failed: int = 0
@@ -66,20 +68,16 @@ class ComplianceReport:
             "total": len(self.tests),
             "all_passed": self.all_passed,
             "tests": [
-                {
-                    "name": t.name,
-                    "passed": t.passed,
-                    "message": t.message,
-                    "details": t.details
-                }
+                {"name": t.name, "passed": t.passed, "message": t.message, "details": t.details}
                 for t in self.tests
-            ]
+            ],
         }
 
 
 # =============================================================================
 # JSON-RPC 2.0 VALIDATION
 # =============================================================================
+
 
 def validate_jsonrpc_request(req: Dict[str, Any]) -> TestResult:
     """Validate JSON-RPC 2.0 request structure."""
@@ -110,13 +108,13 @@ def validate_jsonrpc_request(req: Dict[str, Any]) -> TestResult:
             name="JSON-RPC 2.0 Request Structure",
             passed=False,
             message="; ".join(errors),
-            details={"request": req}
+            details={"request": req},
         )
 
     return TestResult(
         name="JSON-RPC 2.0 Request Structure",
         passed=True,
-        message="Valid JSON-RPC 2.0 request structure"
+        message="Valid JSON-RPC 2.0 request structure",
     )
 
 
@@ -157,19 +155,20 @@ def validate_jsonrpc_response(resp: Dict[str, Any]) -> TestResult:
             name="JSON-RPC 2.0 Response Structure",
             passed=False,
             message="; ".join(errors),
-            details={"response": resp}
+            details={"response": resp},
         )
 
     return TestResult(
         name="JSON-RPC 2.0 Response Structure",
         passed=True,
-        message="Valid JSON-RPC 2.0 response structure"
+        message="Valid JSON-RPC 2.0 response structure",
     )
 
 
 # =============================================================================
 # MCP PROTOCOL VALIDATION
 # =============================================================================
+
 
 def validate_initialize_response(resp: Dict[str, Any]) -> TestResult:
     """Validate MCP initialize response."""
@@ -201,14 +200,17 @@ def validate_initialize_response(resp: Dict[str, Any]) -> TestResult:
             name="MCP Initialize Handshake",
             passed=False,
             message="; ".join(errors),
-            details={"result": result}
+            details={"result": result},
         )
 
     return TestResult(
         name="MCP Initialize Handshake",
         passed=True,
         message=f"Valid initialize: {result.get('serverInfo', {}).get('name', 'Unknown')} v{result.get('protocolVersion', '?')}",
-        details={"protocolVersion": result.get("protocolVersion"), "serverInfo": result.get("serverInfo")}
+        details={
+            "protocolVersion": result.get("protocolVersion"),
+            "serverInfo": result.get("serverInfo"),
+        },
     )
 
 
@@ -224,7 +226,7 @@ def validate_tools_list(resp: Dict[str, Any], expected_count: int = 5) -> TestRe
             name="MCP tools/list Response",
             passed=False,
             message="tools must be an array",
-            details={"result": result}
+            details={"result": result},
         )
 
     # Check tool count
@@ -258,15 +260,16 @@ def validate_tools_list(resp: Dict[str, Any], expected_count: int = 5) -> TestRe
         return TestResult(
             name="MCP tools/list Response",
             passed=False,
-            message="; ".join(errors[:5]) + (f" (+{len(errors)-5} more)" if len(errors) > 5 else ""),
-            details={"tools": tool_names, "error_count": len(errors)}
+            message="; ".join(errors[:5])
+            + (f" (+{len(errors)-5} more)" if len(errors) > 5 else ""),
+            details={"tools": tool_names, "error_count": len(errors)},
         )
 
     return TestResult(
         name="MCP tools/list Response",
         passed=True,
         message=f"Valid tools/list: {len(tools)} tools with valid JSON Schema",
-        details={"tools": tool_names}
+        details={"tools": tool_names},
     )
 
 
@@ -299,14 +302,14 @@ def validate_tools_call_response(resp: Dict[str, Any]) -> TestResult:
             name="MCP tools/call Response Format",
             passed=False,
             message="; ".join(errors),
-            details={"result": result}
+            details={"result": result},
         )
 
     return TestResult(
         name="MCP tools/call Response Format",
         passed=True,
         message="Valid tools/call response format",
-        details={"content_count": len(result.get("content", []))}
+        details={"content_count": len(result.get("content", []))},
     )
 
 
@@ -332,20 +335,21 @@ def validate_error_code(error: Dict[str, Any], expected_code: int) -> TestResult
             name=f"Error Code {expected_code}",
             passed=False,
             message=f"Expected error code {expected_code}, got {code}",
-            details={"error": error}
+            details={"error": error},
         )
 
     return TestResult(
         name=f"Error Code {expected_code} ({MCP_ERROR_CODES.get(expected_code, 'Unknown')})",
         passed=True,
         message=f"Correct error code: {code}",
-        details={"error": error}
+        details={"error": error},
     )
 
 
 # =============================================================================
 # IN-PROCESS MCP SERVER TESTING
 # =============================================================================
+
 
 async def test_server_directly() -> ComplianceReport:
     """Test AAA MCP server in-process (no stdio/SSE)."""
@@ -354,35 +358,35 @@ async def test_server_directly() -> ComplianceReport:
     try:
         from arifos.mcp.server import create_mcp_server, TOOL_DESCRIPTIONS
     except ImportError as e:
-        report.add(TestResult(
-            name="Import arifos.mcp",
-            passed=False,
-            message=f"Failed to import arifos.mcp.server: {e}"
-        ))
+        report.add(
+            TestResult(
+                name="Import arifos.mcp",
+                passed=False,
+                message=f"Failed to import arifos.mcp.server: {e}",
+            )
+        )
         return report
 
-    report.add(TestResult(
-        name="Import arifos.mcp",
-        passed=True,
-        message="arifos.mcp.server imported successfully"
-    ))
+    report.add(
+        TestResult(
+            name="Import arifos.mcp", passed=True, message="arifos.mcp.server imported successfully"
+        )
+    )
 
     # Create server (validates server factory works)
     try:
         _ = create_mcp_server()  # Server created successfully
     except Exception as e:
-        report.add(TestResult(
-            name="Create Server",
-            passed=False,
-            message=f"Failed to create server: {e}"
-        ))
+        report.add(
+            TestResult(name="Create Server", passed=False, message=f"Failed to create server: {e}")
+        )
         return report
 
-    report.add(TestResult(
-        name="Create Server",
-        passed=True,
-        message="AAA-Model-Context-Protocol server created"
-    ))
+    report.add(
+        TestResult(
+            name="Create Server", passed=True, message="AAA-Model-Context-Protocol server created"
+        )
+    )
 
     # Test 1: Validate tool descriptions structure (pre-flight)
     for name, desc in TOOL_DESCRIPTIONS.items():
@@ -392,41 +396,53 @@ async def test_server_directly() -> ComplianceReport:
         schema_valid = isinstance(desc.get("inputSchema", {}), dict)
 
         if has_name and has_description and has_schema and schema_valid:
-            report.add(TestResult(
-                name=f"Tool Definition: {name}",
-                passed=True,
-                message=f"Valid tool definition with JSON Schema"
-            ))
+            report.add(
+                TestResult(
+                    name=f"Tool Definition: {name}",
+                    passed=True,
+                    message=f"Valid tool definition with JSON Schema",
+                )
+            )
         else:
             missing = []
-            if not has_name: missing.append("name")
-            if not has_description: missing.append("description")
-            if not has_schema: missing.append("inputSchema")
-            if not schema_valid: missing.append("valid schema")
-            report.add(TestResult(
-                name=f"Tool Definition: {name}",
-                passed=False,
-                message=f"Missing: {', '.join(missing)}"
-            ))
+            if not has_name:
+                missing.append("name")
+            if not has_description:
+                missing.append("description")
+            if not has_schema:
+                missing.append("inputSchema")
+            if not schema_valid:
+                missing.append("valid schema")
+            report.add(
+                TestResult(
+                    name=f"Tool Definition: {name}",
+                    passed=False,
+                    message=f"Missing: {', '.join(missing)}",
+                )
+            )
 
     # Test 2: Validate tools count matches expected
     expected_tools = ["000_init", "agi_genius", "asi_act", "apex_judge", "999_vault"]
     actual_tools = list(TOOL_DESCRIPTIONS.keys())
 
     if set(actual_tools) == set(expected_tools):
-        report.add(TestResult(
-            name="Tool Count Validation",
-            passed=True,
-            message=f"All 5 expected tools present: {', '.join(actual_tools)}"
-        ))
+        report.add(
+            TestResult(
+                name="Tool Count Validation",
+                passed=True,
+                message=f"All 5 expected tools present: {', '.join(actual_tools)}",
+            )
+        )
     else:
         missing = set(expected_tools) - set(actual_tools)
         extra = set(actual_tools) - set(expected_tools)
-        report.add(TestResult(
-            name="Tool Count Validation",
-            passed=False,
-            message=f"Missing: {missing}, Extra: {extra}"
-        ))
+        report.add(
+            TestResult(
+                name="Tool Count Validation",
+                passed=False,
+                message=f"Missing: {missing}, Extra: {extra}",
+            )
+        )
 
     # Test 3: Validate JSON Schema structure for each tool
     for name, desc in TOOL_DESCRIPTIONS.items():
@@ -434,20 +450,24 @@ async def test_server_directly() -> ComplianceReport:
 
         # Check schema has type: object
         if schema.get("type") != "object":
-            report.add(TestResult(
-                name=f"JSON Schema: {name}",
-                passed=False,
-                message=f"inputSchema.type must be 'object', got: {schema.get('type')}"
-            ))
+            report.add(
+                TestResult(
+                    name=f"JSON Schema: {name}",
+                    passed=False,
+                    message=f"inputSchema.type must be 'object', got: {schema.get('type')}",
+                )
+            )
             continue
 
         # Check schema has properties
         if "properties" not in schema:
-            report.add(TestResult(
-                name=f"JSON Schema: {name}",
-                passed=False,
-                message="inputSchema missing 'properties'"
-            ))
+            report.add(
+                TestResult(
+                    name=f"JSON Schema: {name}",
+                    passed=False,
+                    message="inputSchema missing 'properties'",
+                )
+            )
             continue
 
         props = schema.get("properties", {})
@@ -457,17 +477,21 @@ async def test_server_directly() -> ComplianceReport:
         invalid_props = [p for p, v in props.items() if not isinstance(v, dict) or "type" not in v]
 
         if invalid_props:
-            report.add(TestResult(
-                name=f"JSON Schema: {name}",
-                passed=False,
-                message=f"Properties without 'type': {invalid_props}"
-            ))
+            report.add(
+                TestResult(
+                    name=f"JSON Schema: {name}",
+                    passed=False,
+                    message=f"Properties without 'type': {invalid_props}",
+                )
+            )
         else:
-            report.add(TestResult(
-                name=f"JSON Schema: {name}",
-                passed=True,
-                message=f"{len(props)} properties, {len(required)} required"
-            ))
+            report.add(
+                TestResult(
+                    name=f"JSON Schema: {name}",
+                    passed=True,
+                    message=f"{len(props)} properties, {len(required)} required",
+                )
+            )
 
     # Test 4: Test tool routers directly (bypasses MCP transport)
     # Note: v52 routers are async
@@ -492,24 +516,28 @@ async def test_server_directly() -> ComplianceReport:
             # Verify result is dict with status
             if isinstance(result, dict):
                 status = result.get("status", result.get("verdict", "unknown"))
-                report.add(TestResult(
-                    name=f"Tool Router: {tool_name}",
-                    passed=True,
-                    message=f"Router returns dict with status/verdict: {status}"
-                ))
+                report.add(
+                    TestResult(
+                        name=f"Tool Router: {tool_name}",
+                        passed=True,
+                        message=f"Router returns dict with status/verdict: {status}",
+                    )
+                )
             else:
-                report.add(TestResult(
-                    name=f"Tool Router: {tool_name}",
-                    passed=False,
-                    message=f"Router should return dict, got: {type(result)}"
-                ))
+                report.add(
+                    TestResult(
+                        name=f"Tool Router: {tool_name}",
+                        passed=False,
+                        message=f"Router should return dict, got: {type(result)}",
+                    )
+                )
 
         except Exception as e:
-            report.add(TestResult(
-                name=f"Tool Router: {tool_name}",
-                passed=False,
-                message=f"Router failed: {e}"
-            ))
+            report.add(
+                TestResult(
+                    name=f"Tool Router: {tool_name}", passed=False, message=f"Router failed: {e}"
+                )
+            )
 
     # Test 5: Verify MCP types compatibility
     try:
@@ -520,31 +548,37 @@ async def test_server_directly() -> ComplianceReport:
             tool = mcp.types.Tool(
                 name=name,
                 description=desc.get("description", ""),
-                inputSchema=desc.get("inputSchema", {})
+                inputSchema=desc.get("inputSchema", {}),
             )
             # Verify Tool object was created successfully
             assert tool.name == name
             assert tool.inputSchema is not None
 
-        report.add(TestResult(
-            name="MCP Types Compatibility",
-            passed=True,
-            message="All 5 tools create valid mcp.types.Tool objects"
-        ))
+        report.add(
+            TestResult(
+                name="MCP Types Compatibility",
+                passed=True,
+                message="All 5 tools create valid mcp.types.Tool objects",
+            )
+        )
     except Exception as e:
-        report.add(TestResult(
-            name="MCP Types Compatibility",
-            passed=False,
-            message=f"MCP types compatibility failed: {e}"
-        ))
+        report.add(
+            TestResult(
+                name="MCP Types Compatibility",
+                passed=False,
+                message=f"MCP types compatibility failed: {e}",
+            )
+        )
 
     # Test 6: Verify unknown method handling (should return -32601)
     # This would require simulating the full JSON-RPC layer
-    report.add(TestResult(
-        name="Error Code -32601 (Method not found)",
-        passed=True,  # Deferred - MCP library handles this
-        message="Deferred to MCP library (standard JSON-RPC handling)"
-    ))
+    report.add(
+        TestResult(
+            name="Error Code -32601 (Method not found)",
+            passed=True,  # Deferred - MCP library handles this
+            message="Deferred to MCP library (standard JSON-RPC handling)",
+        )
+    )
 
     return report
 
@@ -552,6 +586,7 @@ async def test_server_directly() -> ComplianceReport:
 # =============================================================================
 # MAIN
 # =============================================================================
+
 
 def print_report(report: ComplianceReport, verbose: bool = False):
     """Print compliance report to stdout."""
