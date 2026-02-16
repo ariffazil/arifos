@@ -33,6 +33,10 @@ Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
   <a href="https://arifosmcp.arif-fazil.com/health">🌐 Live</a>
 </p>
 
+<p align="center">
+  <em>Drop-in governance kernel that wraps any LLM (Claude, GPT, Gemini, DeepSeek, OpenClaw) with 13 hard floors and a 000→999 verdict pipeline.</em>
+</p>
+
 ---
 
 ## 🎯 What Is arifOS?
@@ -84,7 +88,7 @@ arifOS is the **first operating system for artificial intelligence** — not har
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-**Key Insight:** L0 is the [Intelligence Kernel](./333_APPS/L0_KERNEL/) — the constitutional substrate. L1-L7 are applications that run on it.
+**Key Insight:** L0 is the [Intelligence Kernel](./333_APPS/L0_KERNEL/) — the constitutional substrate. L1-L7 are applications that run on it. **L0 is invariant, transport-agnostic law; L1–L7 are replaceable apps. Updating models or agents cannot bypass L0.**
 
 **Documentation:** [333_APPS README](./333_APPS/README.md) — Full 8-layer architecture
 
@@ -258,28 +262,35 @@ See [`_ARCHIVE/root_files/ARCHITECTURAL_BOUNDARY.md`](./_ARCHIVE/root_files/ARCH
 
 ---
 
+## 👤 Who Should Use This?
+
+- **OpenClaw operators**, **MCP platform builders**, and **AI safety teams**.
+- **Solo developers** and **agents** who want hard constitutional floors instead of vibes.
+
+---
+
 ## 🚀 Quick Start
 
-### 1. Copy-Paste (5 seconds)
+### For Prompt Tinkerers (5 seconds)
 Copy [`SYSTEM_PROMPT.md`](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) into any AI's system settings. Immediate L1 governance.
 
-### 2. Install (30 seconds)
+### For Operators & Self-Hosters (30 seconds)
 ```bash
 pip install arifos
 python -m aaa_mcp          # stdio (Claude Desktop, Cursor)
 python -m aaa_mcp sse      # SSE (remote clients)
 python -m aaa_mcp http     # Streamable HTTP
 ```
+Connect from OpenClaw, Claude Desktop, or any MCP client. See the [MCP Platform Guide](./MCP_PLATFORM_GUIDE.md) for configs.
 
-### 3. Connect to Live Server
+### Connect to Live Server
 ```bash
 curl https://arifosmcp.arif-fazil.com/health
 # {"status":"healthy","service":"aaa-mcp","version":"64.2-FORGE-TRINITY-SEAL"}
 ```
 
-### 4. Full Deployment
+### Full Deployment
 See [`DEPLOYMENT.md`](./DEPLOYMENT.md) — Railway, Docker, VPS.  
-See [`MCP_PLATFORM_GUIDE.md`](./MCP_PLATFORM_GUIDE.md) — Claude, ChatGPT, Cursor, Qwen configs.
 
 ---
 
