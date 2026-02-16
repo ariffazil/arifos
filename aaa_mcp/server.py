@@ -42,6 +42,9 @@ from core.governance_kernel import get_governance_kernel
 # P0 Refactor: Import InjectionGuard and classify_query from core/organs/_0_init.py
 from core.organs._0_init import InjectionGuard, classify_query, QueryType
 
+# Container management tools (5 additional tools)
+from aaa_mcp.integrations.mcp_container_tools import register_container_tools
+
 # 9 Hardened Skills Metadata
 TOOL_ANNOTATIONS = {
     "anchor": {"title": "1. ANCHOR", "description": "Init & Sense (Authority/F12)"},
@@ -496,6 +499,15 @@ async def health_check(request):
             "timestamp": time.time(),
         }
     )
+
+
+# =============================================================================
+# CONTAINER TOOLS REGISTRATION
+# =============================================================================
+
+# Register container management tools (5 tools: container_list, container_restart,
+# container_logs, sovereign_health, container_exec)
+register_container_tools(mcp)
 
 
 # =============================================================================

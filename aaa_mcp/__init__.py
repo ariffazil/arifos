@@ -1,5 +1,5 @@
 """
-arifOS AAA MCP Server — 9-Skill Constitutional Architecture (v64.2-GAGI)
+arifOS AAA MCP Server — 9-Skill Constitutional Architecture (T000)
 T000 Version: 2026.02.15-FORGE-TRINITY-SEAL
 9 Canonical Verbs | Trinity Pipeline (ANCHOR → REASON → INTEGRATE → RESPOND → VALIDATE → ALIGN → FORGE → AUDIT → SEAL)
 
@@ -36,4 +36,4 @@ __all__ = [
     "constitutional_floor",
     "get_tool_floors",
 ]
-# CACHE BUST: 1770989689 - v64.1 GAGI Refactor
+# CACHE BUST: 1771142400 - T000 FORGE-TRINITY SEAL

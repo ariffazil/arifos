@@ -1,33 +1,50 @@
 """
-Test script for v64.2 RUKUN AGI foundation (core/ architecture).
+Test script for T000 RUKUN AGI foundation (core/ architecture).
 Verifies that all 4 core.shared modules and core.organs can be imported correctly.
 T000: 2026.02.15-FORGE-TRINITY-SEAL
 """
 
+<<<<<<< HEAD
 import sys
+=======
+>>>>>>> 68c473264dad3e522261ce3c1431a646e6eaeb6c
 import os
+import sys
 
 # Add current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add project root to Python path (one level up from tests/)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-print("=== TESTING v64.2 RUKUN AGI FOUNDATION (core/) ===")
+print("=== TESTING T000 RUKUN AGI FOUNDATION (core/) ===")
 print()
 
 # Test 1: Physics
 print("[1/5] Testing core.shared.physics...")
+<<<<<<< HEAD
 from core.shared.physics import W_3, delta_S, G, geometric_mean
+=======
+from core.shared.physics import W_3, G, delta_S, geometric_mean
+>>>>>>> 68c473264dad3e522261ce3c1431a646e6eaeb6c
 
 print("      ✓ Physics module OK")
 
 # Test 2: ATLAS
 print("[2/5] Testing core.shared.atlas...")
+<<<<<<< HEAD
 from core.shared.atlas import Lane, Lambda
+=======
+from core.shared.atlas import Lambda, Lane
+>>>>>>> 68c473264dad3e522261ce3c1431a646e6eaeb6c
 
 print("      ✓ ATLAS module OK")
 
 # Test 3: Types
 print("[3/5] Testing core.shared.types...")
+<<<<<<< HEAD
 from core.shared.types import Verdict, VaultOutput
+=======
+from core.shared.types import VaultOutput, Verdict
+>>>>>>> 68c473264dad3e522261ce3c1431a646e6eaeb6c
 
 print("      ✓ Types module OK")
 print(f"      Verdicts: {[v.value for v in Verdict]}")
@@ -47,7 +64,7 @@ from core.organs._0_init import init, scan_injection
 print("      ✓ Airlock organ OK")
 
 print()
-print("=== v64.2 RUKUN AGI FOUNDATION VERIFIED ✓ ===")
+print("=== T000 RUKUN AGI FOUNDATION VERIFIED ✓ ===")
 print()
 print("Summary (core/ architecture):")
 print("  ✓ core.shared.physics  - Thermodynamic primitives (W_3, delta_S, G)")
