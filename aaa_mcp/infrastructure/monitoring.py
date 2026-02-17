@@ -78,6 +78,14 @@ class MetricsCollector:
         for m in recent:
             verdicts[m.verdict] = verdicts.get(m.verdict, 0) + 1
 
+        genius_scores = [m.genius_score for m in recent]
+        entropy_deltas = [m.entropy_delta for m in recent]
+        tri_witness_scores = [m.tri_witness_score for m in recent]
+
+        avg_genius = sum(genius_scores) / len(genius_scores) if genius_scores else 0.0
+        avg_entropy_delta = sum(entropy_deltas) / len(entropy_deltas) if entropy_deltas else 0.0
+        avg_tri_witness = sum(tri_witness_scores) / len(tri_witness_scores) if tri_witness_scores else 0.0
+
         return {
             "total_executions": len(recent),
             "avg_latency_ms": sum(latencies) / len(latencies),
@@ -86,6 +94,9 @@ class MetricsCollector:
             "verdict_distribution": verdicts,
             "seal_rate": verdicts.get("SEAL", 0) / len(recent),
             "void_rate": verdicts.get("VOID", 0) / len(recent),
+            "avg_genius_g": avg_genius,
+            "avg_entropy_delta": avg_entropy_delta,
+            "avg_tri_witness_score": avg_tri_witness,
         }
 
     def export_prometheus(self) -> str:
@@ -259,9 +270,35 @@ async def init_monitoring():
             # psutil not installed, skip memory check
             return True
 
+    async def check_postgres():
+        try:
+            from aaa_mcp.sessions.session_ledger import get_ledger
+            ledger = await get_ledger()
+            if not ledger.is_postgres_available:
+                return False
+            # Try a simple query to verify connection
+            if ledger._pool:
+                async with ledger._pool.acquire() as conn:
+                    row = await conn.fetchrow("SELECT 1")
+                    return row is not None
+            return False
+        except Exception:
+            return False
+
+    async def check_redis():
+        try:
+            from aaa_mcp.services.redis_client import get_mind_vault
+            vault = get_mind_vault()
+            health = vault.health_check()
+            return health.get("status") == "connected"
+        except Exception:
+            return False
+
     monitor.register("core_pipeline", check_core_pipeline)
     monitor.register("mcp_tools", check_mcp_tools)
     monitor.register("memory", check_memory)
+    monitor.register("postgres", check_postgres)
+    monitor.register("redis", check_redis)
 
     return monitor
 
