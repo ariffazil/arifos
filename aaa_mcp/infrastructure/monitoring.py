@@ -284,18 +284,18 @@ async def init_monitoring():
                 name = getattr(t, "name", None) or str(t)
                 tool_names.add(name)
 
-            # Check critical tools
+            # Check critical tools (MCP verbs)
             critical_tools = [
-                "init_gate",
-                "agi_sense",
-                "agi_think",
-                "agi_reason",
-                "asi_empathize",
-                "asi_align",
-                "apex_verdict",
-                "vault_seal",
-                "vault_query",
-                "truth_audit",
+                "anchor",
+                "reason",
+                "integrate",
+                "respond",
+                "validate",
+                "align",
+                "forge",
+                "audit",
+                "seal",
+                "trinity_forge",
             ]
             missing = [t for t in critical_tools if t not in tool_names]
 
