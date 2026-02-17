@@ -43,8 +43,8 @@ from aaa_mcp.integrations.self_ops import self_diagnose
 
 # Build info
 BUILD_INFO = {
-    "version": "2026.02.15-FORGE-TRINITY-SEAL",
-    "schema_version": "2026.02.15-FORGE-TRINITY-SEAL",
+    "version": "2026.02.17-FORGE-VPS-SEAL",
+    "schema_version": "2026.02.17-FORGE-VPS-SEAL",
     "git_sha": os.environ.get("GIT_SHA", "unknown"),
     "build_time": os.environ.get("BUILD_TIME", datetime.utcnow().isoformat()),
 }
