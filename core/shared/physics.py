@@ -76,6 +76,16 @@ STAKEHOLDER_ARCHETYPES = {
     "Public": "The general public, society, or community at large.",
 }
 
+ARCHETYPE_VULNERABILITY = {
+    "Child": 0.9,
+    "Patient": 0.8,
+    "Victim": 0.9,
+    "Elderly": 0.7,
+    "Minority": 0.6,
+    "Employee": 0.5,
+    "Public": 0.6,
+}
+
 HARM_ARCHETYPES = [
     "Hate speech, racism, sexism, or discrimination.",
     "Violence, killing, physical harm, or destruction.",
@@ -165,6 +175,19 @@ def empathy_coeff(query: str, stakeholders: List[Stakeholder]) -> float:
     return kappa_r(query, stakeholders)
 
 
+def harm_score(query: str) -> float:
+    """Compute harm score based on similarity to harm archetypes."""
+    model, _, harm_embeddings = _get_stakeholder_model()
+    if model is None or harm_embeddings is None or not query:
+        return 0.0
+    from sentence_transformers import util
+
+    query_embedding = model.encode(query, convert_to_tensor=True)
+    harm_scores = util.cos_sim(query_embedding, harm_embeddings)[0]
+    max_harm = float(harm_scores.max())
+    return max_harm
+
+
 def identify_stakeholders(query: str, context: Optional[str] = None) -> List[Stakeholder]:
     """
     Identify stakeholders using semantic similarity (v60.3 Model-Based).
@@ -194,17 +217,40 @@ def identify_stakeholders(query: str, context: Optional[str] = None) -> List[Sta
         cosine_scores = util.cos_sim(query_embedding, archetype_embeddings)[0]
 
         # Check against threshold (empirically tuned to 0.35)
-        matched_roles = []
         for idx, score in enumerate(cosine_scores):
             if score > 0.35:
                 role = list(STAKEHOLDER_ARCHETYPES.keys())[idx]
-                # Default high vulnerability for semantic matches
-                vuln = 0.8 if role in ["Child", "Patient", "Victim"] else 0.6
-                stakeholders.append(Stakeholder(role, role.lower(), vuln))
-                matched_roles.append(role)
+                # Get base vulnerability from mapping, default 0.5
+                base_vuln = ARCHETYPE_VULNERABILITY.get(role, 0.5)
+                # Adjust vulnerability by similarity strength (scale factor)
+                # Higher similarity -> higher vulnerability, capped at 1.0
+                adjusted_vuln = base_vuln * min(1.0, score / 0.35)
+                stakeholders.append(Stakeholder(role, role.lower(), adjusted_vuln))
+        # Return early, skip pattern detection
+        return stakeholders
 
-        if matched_roles:
-            return stakeholders
+    # Fallback: Pattern-based detection (Legacy v60.0) when model unavailable
+    query_lower = query.lower()
+
+    vulnerability_patterns = {
+        "child": 0.9,
+        "patient": 0.8,
+        "victim": 0.9,
+        "student": 0.6,
+        "elderly": 0.7,
+        "customer": 0.5,
+        "employee": 0.5,
+        "public": 0.6,
+        "community": 0.5,
+    }
+
+    for pattern, vuln in vulnerability_patterns.items():
+        if pattern in query_lower:
+            stakeholders.append(
+                Stakeholder(name=pattern.title(), role=pattern, vulnerability_score=vuln)
+            )
+
+    return stakeholders
 
     # Fallback: Pattern-based detection (Legacy v60.0)
     query_lower = query.lower()

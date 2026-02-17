@@ -15,6 +15,7 @@ from aaa_mcp.services.constitutional_metrics import (
     store_stage_result,
     get_stage_result,
 )
+from aaa_mcp.sessions.session_ledger import log_asi_decision
 
 logger = logging.getLogger("STAGE_ADAPTER")
 
@@ -124,6 +125,29 @@ async def run_stage_555_empathy(session_id: str, query: str) -> Dict[str, Any]:
             "status": "completed",
         }
         store_stage_result(session_id, "stage_555", result)
+        # Ω Incident Logging
+        try:
+            floor_scores = emp_data.get("floor_scores", {})
+            floors_checked = ["F5", "F6", "F9"]
+            floors_failed = []
+            for floor, score in floor_scores.items():
+                if floor == "f5_peace" and score < 0.5:
+                    floors_failed.append("F5")
+                elif floor == "f6_empathy" and score < 0.5:
+                    floors_failed.append("F6")
+                elif floor == "f9_anti_hantu" and score < 0.5:
+                    floors_failed.append("F9")
+            await log_asi_decision(
+                session_id=session_id,
+                stage="555",
+                query=query,
+                asi_output=emp_data,
+                verdict=result["verdict"],
+                floors_checked=floors_checked,
+                floors_failed=floors_failed,
+            )
+        except Exception as e:
+            logger.warning(f"[555] Failed to log ASI incident: {e}")
         return result
 
     except Exception as e:
@@ -175,6 +199,46 @@ async def run_stage_666_align(session_id: str, query: str) -> Dict[str, Any]:
             "status": "completed",
         }
         store_stage_result(session_id, "stage_666", result)
+        # Ω Incident Logging
+        try:
+            floors_checked = ["F1", "F5", "F6", "F9"]
+            floors_failed = []
+            violations = align_data.get("violations", [])
+            for v in violations:
+                if v.startswith("F1_"):
+                    floors_failed.append("F1")
+                elif v.startswith("F5_"):
+                    floors_failed.append("F5")
+                elif v.startswith("F6_"):
+                    floors_failed.append("F6")
+                elif v.startswith("F9_"):
+                    floors_failed.append("F9")
+            # Also check floor scores below threshold
+            floor_scores = align_data.get("floor_scores", {})
+            for floor, score in floor_scores.items():
+                if floor == "f1_amanah" and score < 0.5:
+                    if "F1" not in floors_failed:
+                        floors_failed.append("F1")
+                elif floor == "f5_peace" and score < 0.5:
+                    if "F5" not in floors_failed:
+                        floors_failed.append("F5")
+                elif floor == "f6_empathy" and score < 0.5:
+                    if "F6" not in floors_failed:
+                        floors_failed.append("F6")
+                elif floor == "f9_anti_hantu" and score < 0.5:
+                    if "F9" not in floors_failed:
+                        floors_failed.append("F9")
+            await log_asi_decision(
+                session_id=session_id,
+                stage="666",
+                query=query,
+                asi_output=align_data,
+                verdict=result["verdict"],
+                floors_checked=floors_checked,
+                floors_failed=floors_failed,
+            )
+        except Exception as e:
+            logger.warning(f"[666] Failed to log ASI incident: {e}")
         return result
 
     except Exception as e:

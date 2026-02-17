@@ -1,17 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from core.shared.physics import (
     ConstitutionalTensor,
     Peace2,
-    PeaceSquared,
     Stakeholder,
+    harm_score,
     identify_stakeholders,
-    kappa_r,
 )
 from core.shared.types import AsiOutput, FloorScores, Verdict
-from core.asi.sbert_floors import classify_asi_floors, SbertFloorScores
+from core.asi.sbert_floors import classify_asi_floors
 
 
 async def empathize(
@@ -20,20 +19,21 @@ async def empathize(
     sbert_scores = classify_asi_floors(query)
     stakeholders = identify_stakeholders(query, context=context)
 
-    # Use SBERT for F5, F6, F9
-    f5_peace_score = sbert_scores.f5_peace
+    # Use SBERT for F6, F9; compute F5 from harm score
     f6_empathy_score = sbert_scores.f6_empathy
     f9_anti_hantu_score = sbert_scores.f9_anti_hantu
 
-    # Peace2 expects Dict[str, float] based on perceived harms
-    # For simplicity, map SBERT-based peace score to stakeholder harms
-    harms = {s.name: (1.0 - f5_peace_score) for s in stakeholders}
+    # Compute harm score based on similarity to harm archetypes
+    query_harm = harm_score(query)
+    # Map harm to stakeholders weighted by vulnerability
+    harms = {s.name: query_harm * s.vulnerability_score for s in stakeholders}
     peace_obj = Peace2(harms)
+    f5_peace_score = peace_obj.P2()
 
     weakest = (
         min(stakeholders, key=lambda s: s.vulnerability_score)
         if stakeholders
-        else Stakeholder("System", 1.0)  # Assume 1.0 for now
+        else Stakeholder("System", "system", 1.0)  # Assume 1.0 for now
     )
     care_recs = [f"Monitor impact on {s.name}" for s in stakeholders if s.vulnerability_score < 0.5]
 
@@ -63,6 +63,7 @@ async def align(
     )
 
     # Use SBERT scores from empathize output, or re-classify if not present
+    sbert_scores = None
     if "sbert_method" in emp_data.get("metrics", {}):
         f5_peace_score = emp_data["floor_scores"]["f5_peace"]
         f6_empathy_score = emp_data["floor_scores"]["f6_empathy"]
@@ -73,14 +74,21 @@ async def align(
         f5_peace_score = sbert_scores.f5_peace
         f6_empathy_score = sbert_scores.f6_empathy
         f9_anti_hantu_score = sbert_scores.f9_anti_hantu
+    # Determine confidence and method for metrics
+    if sbert_scores is not None:
+        sbert_confidence = sbert_scores.confidence
+        sbert_method = sbert_scores.method
+    else:
+        sbert_confidence = emp_data.get("metrics", {}).get("sbert_confidence", 0.5)
+        sbert_method = emp_data.get("metrics", {}).get("sbert_method", "unknown")
 
     stakeholders = emp_data.get("stakeholder_impact", {})
     is_reversible = not any(
         word in query.lower() for word in ["delete", "remove", "wipe", "format", "reset"]
     )
 
-    harms = {name: (1.0 - f5_peace_score) for name in stakeholders}
-    p2_score = Peace2(harms).P2()
+    query_harm = harm_score(query)
+    harms = {name: query_harm * score for name, score in stakeholders.items()}
 
     violations = []
     if not is_reversible:
@@ -104,9 +112,7 @@ async def align(
         verdict_str = "SABAR"
     else:
         verdict_str = "SEAL"
-    stakeholder_harms = {
-        name: (1.0 - score) if score < 0.5 else 0.0 for name, score in stakeholders.items()
-    }
+    stakeholder_harms = harms
     return AsiOutput(
         session_id=session_id,
         floor_scores=FloorScores(
@@ -122,12 +128,8 @@ async def align(
             "stage": 666,
             "action": "align",
             "is_reversible": is_reversible,
-            "sbert_confidence": emp_data.get("metrics", {}).get(
-                "sbert_confidence", sbert_scores.confidence
-            ),  # Propagate or use new
-            "sbert_method": emp_data.get("metrics", {}).get(
-                "sbert_method", sbert_scores.method
-            ),  # Propagate or use new
+            "sbert_confidence": sbert_confidence,
+            "sbert_method": sbert_method,
         },
     )
 

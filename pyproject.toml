@@ -1,6 +1,6 @@
 [project]
 name = "arifos"
-version = "2026.02.15-FORGE-TRINITY-SEAL"
+version = "2026.2.15"
 # v64.2-INIT: Hardened 000_INIT with InjectionGuard and Canonical Contract (2026-02-14)
 #   - P0 Refactor: anchor() now uses full InjectionGuard (20+ patterns) vs single-regex
 #   - Query Classification: classify_query() from core/organs for adaptive F2 strictness

@@ -321,6 +321,80 @@ async def seal_memory(
     }
 
 
+async def log_asi_decision(
+    session_id: str,
+    stage: str,
+    query: str,
+    asi_output: Dict[str, Any],
+    verdict: str = "SEAL",
+    floors_checked: Optional[List[str]] = None,
+    floors_failed: Optional[List[str]] = None,
+) -> Dict[str, Any]:
+    """
+    Log an ASI decision to VAULT for future fine-tuning (Ω Incident Logging).
+
+    Args:
+        session_id: Constitutional session token
+        stage: "555" (empathy) or "666" (align)
+        query: Original user query (will be anonymized)
+        asi_output: ASI organ output (must include floor scores, stakeholder impact, metrics)
+        verdict: Verdict from ASI stage (SEAL, SABAR, VOID)
+        floors_checked: List of floors checked (optional)
+        floors_failed: List of floors failed (optional)
+
+    Returns:
+        dict with seal_id and entry_hash
+    """
+    ledger = await get_ledger()
+
+    # Anonymize query: store only hash and length
+    query_hash = hashlib.sha256(query.encode()).hexdigest()[:16]
+    query_len = len(query)
+
+    # Prepare payload with ASI decision data
+    payload = {
+        "stage": stage,
+        "query_hash": query_hash,
+        "query_length": query_len,
+        "asi_output": asi_output,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+
+    # Determine risk level based on verdict and floor failures
+    risk_level = "LOW"
+    if verdict == "VOID":
+        risk_level = "HIGH"
+    elif verdict == "SABAR":
+        risk_level = "MEDIUM"
+
+    # Determine category
+    category = "asi_decision"
+    if stage == "555":
+        category = "asi_empathy"
+    elif stage == "666":
+        category = "asi_align"
+
+    checked = floors_checked or []
+    failed = floors_failed or []
+    entry = await ledger.seal(
+        session_id=session_id,
+        verdict_type=verdict,
+        payload=payload,
+        query_summary=f"{stage} ASI decision - query hash {query_hash}",
+        risk_level=risk_level,
+        category=category,
+        environment="prod",
+        floors_checked=checked,
+        floors_failed=failed,
+    )
+
+    return {
+        "verdict": entry.verdict_type,
+        "seal_id": entry.entry_id,
+        "entry_hash": entry.entry_hash,
+    }
+
+
 async def inject_memory(session_id: str, context: Dict[str, Any]) -> bool:
     """
     Legacy compatibility function for memory injection.

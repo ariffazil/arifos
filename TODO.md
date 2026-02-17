@@ -115,10 +115,10 @@
   - [ ] Replace keyword-based harms with embedding similarity
   - *File:* `core/shared/physics.py`
 
-- [ ] **Ω Incident Logging**
-  - [ ] Log all ASI decisions to VAULT for future fine-tuning
-  - [ ] Anonymize queries before logging
-  - *File:* `aaa_mcp/sessions/session_ledger.py`
+- [x] **Ω Incident Logging**
+  - [x] Log all ASI decisions to VAULT for future fine-tuning
+  - [x] Anonymize queries before logging
+  - *File:* `aaa_mcp/sessions/session_ledger.py` (implemented)
 
 ### H1.3: Test Suite Recovery
 - [ ] **Fix Legacy Imports**
