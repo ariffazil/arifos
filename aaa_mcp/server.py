@@ -1,5 +1,5 @@
 """
-arifOS AAA MCP Server — The 9 Hardened Skills (2026.02.15-FORGE-TRINITY-SEAL)
+arifOS AAA MCP Server — The 9 Hardened Skills (2026.02.17-FORGE-VPS-SEAL)
 
 Multi-Transport Support: STDIO | SSE | StreamableHTTP
 9 Canonical Verbs enforcing the 13 Constitutional Floors:

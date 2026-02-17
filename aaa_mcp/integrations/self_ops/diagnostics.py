@@ -79,7 +79,7 @@ class SelfOpsDiagnostics:
 
     def __init__(self, base_url: Optional[str] = None):
         self.base_url = base_url or os.getenv("ARIFOS_BASE_URL", "http://localhost:8080")
-        self.version = "2026.02.15-FORGE-TRINITY-SEAL"
+        self.version = "2026.02.17-FORGE-VPS-SEAL"
 
     async def run_full_diagnostic(self) -> SelfOpsReport:
         """Run complete self-diagnostic suite."""
