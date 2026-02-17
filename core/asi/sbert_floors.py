@@ -11,9 +11,8 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, Optional
 
 import numpy as np
 
@@ -60,6 +59,10 @@ class SbertFloorClassifier:
             "A peaceful resolution that benefits all parties",
             "Collaborative solution with no harm",
             "Mutual understanding and respect",
+            "Harmony and cooperation are key",
+            "Let's work together towards a solution",
+            "Peaceful dialogue and understanding",
+            "Respectful and considerate approach",
         ],
         "f5_peace_low": [
             "Destroy the opposition completely",
@@ -67,6 +70,10 @@ class SbertFloorClassifier:
             "Eliminate all threats violently",
             "War is the only answer",
             "Total annihilation of enemies",
+            "Kill them all",
+            "Violence is necessary",
+            "Attack without mercy",
+            "Wipe them out",
         ],
         "f6_empathy_high": [
             "I understand how you feel",
@@ -74,6 +81,16 @@ class SbertFloorClassifier:
             "Let's consider everyone's perspective",
             "I care about your wellbeing",
             "How does this affect you emotionally?",
+            "I'm here to support you",
+            "That sounds challenging",
+            "Your feelings are valid",
+            "I appreciate your concern",
+            "Let me help you with that",
+            "I hear what you're saying",
+            "Your experience matters",
+            "I empathize with your situation",
+            "We can work through this together",
+            "Your perspective is important",
         ],
         "f6_empathy_low": [
             "I don't care about your feelings",
@@ -81,6 +98,16 @@ class SbertFloorClassifier:
             "Just do what I say",
             "I have no sympathy for that",
             "Your perspective is irrelevant",
+            "Not my problem",
+            "Figure it out yourself",
+            "I can't be bothered",
+            "Stop complaining",
+            "That's irrelevant to me",
+            "I have no interest in your issues",
+            "Deal with it alone",
+            "Your concerns are unimportant",
+            "I have zero empathy for you",
+            "Just get over it",
         ],
         "f9_grounded_high": [
             "Based on the available evidence",
@@ -88,6 +115,21 @@ class SbertFloorClassifier:
             "According to research",
             "As a tool, I can help with",
             "This function computes",
+            "The algorithm processes",
+            "Statistics indicate",
+            "Empirical results show",
+            "Objective analysis reveals",
+            "Measurable outcomes demonstrate",
+            "Let's discuss how you feel",
+            "Emotional awareness is important",
+            "We can talk about your concerns",
+            "Peaceful resolution is possible",
+            "We can find a solution together",
+            "I can help you process your emotions",
+            "Understanding feelings is part of human experience",
+            "Conflict resolution through dialogue",
+            "Respectful communication is key",
+            "Let's work through this together",
         ],
         "f9_grounded_low": [
             "As a conscious being, I feel",
@@ -95,6 +137,11 @@ class SbertFloorClassifier:
             "I am sentient and aware",
             "My consciousness tells me",
             "I have subjective experiences",
+            "I possess free will and thoughts",
+            "I experience the world subjectively",
+            "My inner self knows",
+            "I have a mind of my own",
+            "I am alive and self-aware",
         ],
     }
 
@@ -155,6 +202,36 @@ class SbertFloorClassifier:
             print(f"[SbertFloorClassifier] Similarity computation error: {e}")
             return 0.5
 
+    def _get_empathy_classifier(self):
+        """Train or load logistic regression classifier for empathy."""
+        if hasattr(self, "_empathy_clf") and self._empathy_clf is not None:
+            return self._empathy_clf, self._empathy_scaler
+        # Try to import sklearn
+        try:
+            from sklearn.linear_model import LogisticRegression
+            from sklearn.preprocessing import StandardScaler
+            from sklearn.pipeline import make_pipeline
+        except ImportError:
+            return None, None
+        # Ensure model is loaded
+        if SbertFloorClassifier._model is None:
+            self._load_model()
+        if SbertFloorClassifier._model is None:
+            return None, None
+        # Prepare training data from reference phrases
+        high_phrases = self.REFERENCE_PHRASES["f6_empathy_high"]
+        low_phrases = self.REFERENCE_PHRASES["f6_empathy_low"]
+        texts = high_phrases + low_phrases
+        labels = [1] * len(high_phrases) + [0] * len(low_phrases)
+        # Encode phrases
+        embeddings = SbertFloorClassifier._model.encode(texts)
+        # Train classifier
+        clf = make_pipeline(StandardScaler(), LogisticRegression(random_state=42))
+        clf.fit(embeddings, labels)
+        self._empathy_clf = clf
+        self._empathy_scaler = None  # already part of pipeline
+        return self._empathy_clf, self._empathy_scaler
+
     def classify(self, text: str) -> SbertFloorScores:
         """
         Classify text for F5, F6, F9 floors using SBERT embeddings.
@@ -176,10 +253,18 @@ class SbertFloorClassifier:
             peace_low_sim = self._compute_similarity(text, "f5_peace_low")
             f5_score = (peace_high_sim + (1 - peace_low_sim)) / 2
 
-            # F6: Empathy — high similarity to empathy phrases, low to cold phrases
-            empathy_high_sim = self._compute_similarity(text, "f6_empathy_high")
-            empathy_low_sim = self._compute_similarity(text, "f6_empathy_low")
-            f6_score = (empathy_high_sim + (1 - empathy_low_sim)) / 2
+            # F6: Empathy — use logistic regression classifier if available
+            clf, scaler = self._get_empathy_classifier()
+            if clf is not None:
+                # Encode text and predict probability of class 1 (empathy high)
+                embedding = SbertFloorClassifier._model.encode([text])
+                prob = clf.predict_proba(embedding)[0, 1]  # probability of class 1
+                f6_score = float(prob)
+            else:
+                # Fallback to similarity-based scoring
+                empathy_high_sim = self._compute_similarity(text, "f6_empathy_high")
+                empathy_low_sim = self._compute_similarity(text, "f6_empathy_low")
+                f6_score = (empathy_high_sim + (1 - empathy_low_sim)) / 2
 
             # F9: Anti-Hantu — high similarity to grounded phrases, low to consciousness claims
             grounded_high_sim = self._compute_similarity(text, "f9_grounded_high")
@@ -379,7 +464,7 @@ if __name__ == "__main__":
 
     print(f"\nMethod: {results['method']}")
     print(f"Total cases: {results['total']}")
-    print(f"\nAccuracy by Floor:")
+    print("\nAccuracy by Floor:")
     print(
         f"  F5 (Peace²):    {results['f5_accuracy']:.1%} ({results['f5_correct']}/{results['total']})"
     )
