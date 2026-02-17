@@ -22,18 +22,9 @@ DITEMPA BUKAN DIBERI
 
 import os
 import sys
-import json
-import asyncio
-import time
-import uuid
-from typing import AsyncGenerator, Dict, List
-from dataclasses import dataclass, field
-from datetime import datetime
+from contextlib import asynccontextmanager
+from typing import Any, AsyncGenerator, Dict
 
-# Force local source priority
-sys.path.insert(0, os.getcwd())
-
-import uvicorn
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse, StreamingResponse
 from starlette.routing import Route
@@ -571,13 +562,24 @@ routes = [
     Route("/messages", messages_endpoint, methods=["POST"]),
 ]
 
-app = Starlette(routes=routes, debug=False)
+
+@asynccontextmanager
+async def lifespan(app):
+    """Initialize app resources."""
+    from aaa_mcp.infrastructure.monitoring import init_monitoring
+
+    await init_monitoring()
+    yield
+
+
+app = Starlette(routes=routes, debug=False, lifespan=lifespan)
 
 
 def main():
     """Start REST API server."""
     # Initialize monitoring
     from aaa_mcp.infrastructure.monitoring import init_monitoring
+
     asyncio.run(init_monitoring())
 
     port = int(os.getenv("PORT", 8080))
