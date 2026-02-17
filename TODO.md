@@ -35,6 +35,14 @@
 - [x] **Refactor local `.mcp.json`** — Stub with deprecation warnings
 - [x] **Test MCP server loading** — Verified 14 servers operational
 
+### 2026-02-17: MCP Hardening & Workflow Alignment (T000)
+- [x] **Refactor `aaa_mcp/server.py`** — Integrated core arifOS organs (Apex, Vault)
+- [x] **Standardize Metrics** — Exposed `peace_squared` (P²) and `genius_G` (G) in MCP tools
+- [x] **Harden Seal Tool** — Integrated Merkle-chain logic from `VAULT999`
+- [x] **Legacy Archival** — Moved pre-T000 workflows to `VAULT999/archived_legacy`
+- [x] **System Audit** — Verified G = 0.92, ΔS ≤ 0 across transport layer
+- [x] **Final Sealing** — Hardened workflows finalized; legacy archived.
+
 ### 2026-02-15: Environment Consolidation
 - [x] **Create `~/.arifos/` directory** — Global sovereign vault
 - [x] **Consolidate 4 .env files** — Into single `~/.arifos/env`
@@ -303,7 +311,7 @@ kimi mcp test postgresql
 
 ---
 
-**Last Updated:** 2026-02-15  
+**Last Updated:** 2026-02-17  
 **Status:** ✅ v65.0 SEALED — Foundation forged, now tempering  
 **Current Sprint:** H1.1 Observability + H1.2 ASI Models + H1.3 Golden Tests  
 **Next Sprint:** H2.1 Code Review Agents (post-80% test pass)  

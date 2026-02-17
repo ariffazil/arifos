@@ -341,11 +341,20 @@ python -m aaa_mcp http
 
 ### High-Stakes Operations (888_HOLD)
 The agent MUST trigger an `888_HOLD` and wait for human confirmation for:
+
+#### High-Stakes Operations
 - Database operations (DROP, TRUNCATE, DELETE without WHERE)
 - Production deployments
 - Mass file changes (>10 files)
 - Credential/secret handling
 - Git history modification (rebase, force push)
+
+#### Evidence/Verification Failures
+- **H-USER-CORRECTION:** User corrects or disputes a constitutional claim
+- **H-SOURCE-CONFLICT:** Conflicting evidence across source tiers (PRIMARY vs SECONDARY vs TERTIARY)
+- **H-NO-PRIMARY:** Constitutional claim made without reading spec JSON
+- **H-GREP-CONTRADICTS:** grep results contradict spec/canon patterns
+- **H-RUSHED-FIX:** Proposing fixes based on <5 minutes audit
 
 ### Code-Level Floor Violations
 | Floor | Code Smell | Fix |

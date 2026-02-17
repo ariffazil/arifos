@@ -8,7 +8,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 ROUTE_SCRIPT = (
     REPO_ROOT / "333_APPS" / "L2_SKILLS" / "UTILITIES" / "route-tasks" / "scripts" / "route_task.py"
 )
-ROUTING_JSON = REPO_ROOT / "archive" / "cleanup_root_20260208" / "config" / "routing.json"
+ROUTING_JSON = REPO_ROOT / "_ARCHIVE" / "archive" / "cleanup_root_20260208" / "config" / "routing.json"
 
 
 def run_route(prompt: str) -> str:
