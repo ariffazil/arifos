@@ -1,11 +1,4 @@
-<!--
-arifOS | T000: 2026.02.15-FORGE-TRINITY-SEAL
-Authority: ARIF FAZIL (888 Judge)
-Truth Hierarchy: Code > Theory > Documentation
-Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
--->
-
-# arifOS — Intelligence Kernel for Constitutional AI
+# arifOS — Constitutional AI Kernel
 
 <p align="center">
   <img src="docs/forged_page_1.png" alt="arifOS — Forged, Not Given" width="800">
@@ -14,28 +7,38 @@ Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
 <p align="center">
   <strong>The Intelligence Kernel that governs whether AI cognition is permitted</strong><br>
   <em>Controls existence, allocates resources, schedules execution, guarantees isolation</em><br><br>
+  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg" alt="PyPI version"></a>
+  <a href="https://github.com/ariffazil/arifOS"><img src="https://img.shields.io/github/stars/ariffazil/arifOS" alt="GitHub stars"></a>
   <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
   <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.15--FORGE--TRINITY--SEAL-blue" alt="T000"></a>
-  <a href="#the-8-layer-stack"><img src="https://img.shields.io/badge/stack-8%20layers%20(L0--L7)-orange" alt="Stack"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
   <br><br>
-  <a href="./README_ZERO_CONTEXT.md"><b>🆕 New? Start Here</b></a> ·
-  <a href="./DEPLOYMENT.md"><b>🚀 Deploy</b></a> ·
-  <a href="./MCP_PLATFORM_GUIDE.md"><b>🔌 Connect</b></a> ·
-  <a href="./333_APPS/L0_KERNEL/"><b>🧠 L0 Kernel</b></a>
+  <a href="#-quick-start"><b>🚀 Quick Start</b></a> ·
+  <a href="#-the-13-constitutional-floors"><b>🛡️ 13 Floors</b></a> ·
+  <a href="#-honest-state-reality-index-095"><b>📊 Status</b></a> ·
+  <a href="#-faq"><b>❓ FAQ</b></a>
 </p>
 
 <p align="center">
-  <a href="https://arif-fazil.com">🏠 Human</a> ·
-  <a href="https://apex.arif-fazil.com">📖 Theory</a> ·
-  <a href="https://arifos.arif-fazil.com">📚 Docs</a> ·
-  <a href="https://pypi.org/project/arifos/">📦 PyPI</a> ·
-  <a href="https://arifosmcp.arif-fazil.com/health">🌐 Live</a>
+  <em>Drop-in governance kernel that wraps any LLM (Claude, GPT, Gemini, DeepSeek) with 13 hard floors and a 000→999 verdict pipeline.</em>
 </p>
 
-<p align="center">
-  <em>Drop-in governance kernel that wraps any LLM (Claude, GPT, Gemini, DeepSeek, OpenClaw) with 13 hard floors and a 000→999 verdict pipeline.</em>
-</p>
+---
+
+## 📖 Table of Contents
+- [🎯 What Is arifOS?](#-what-is-arifos)
+- [🏛️ The 8-Layer Stack](#-the-8-layer-stack)
+- [⚡ 10-Second Demo](#-10-second-demo)
+- [⚙️ Requirements](#-requirements)
+- [🔥 L0: The Intelligence Kernel](#-l0-the-intelligence-kernel)
+- [🛡️ The 13 Constitutional Floors](#-the-13-constitutional-floors)
+- [🏗️ Architecture](#-architecture-kernel--adapter)
+- [🚀 Quick Start](#-quick-start)
+- [📊 Honest State](#-honest-state-reality-index-095)
+- [❓ FAQ](#-faq)
+- [🌍 Community & Contribution](#-community--contribution)
+- [📚 T000 Glossary](#-t000-glossary)
+- [🔐 ZKPC Hash](#-zkpc-hash-zero-knowledge-proof-of-constitution)
 
 ---
 
@@ -43,7 +46,7 @@ Motto: DITEMPA BUKAN DIBERI — Forged, Not Given
 
 ### The Intelligence Kernel
 
-arifOS is the **first operating system for artificial intelligence** — not hardware, but **cognition**.
+arifOS is one of the first **open-source constitutional kernels** for artificial intelligence — not hardware, but **cognition**.
 
 | Traditional OS | arifOS Intelligence Kernel |
 |:--|:--|
@@ -94,6 +97,17 @@ arifOS is the **first operating system for artificial intelligence** — not har
 
 ---
 
+---
+
+## ⚙️ Requirements
+To run the arifOS Intelligence Kernel locally or in production:
+- **Python 3.12+** (Strictly required for MCP typing)
+- **Git** (For cloning and versioning)
+- **Optional**: Docker (For containerized isolation)
+- **Optional**: [Claude Desktop](https://claude.ai/download) or [Cursor](https://cursor.com) (For MCP integration)
+
+---
+
 ## ⚡ 10-Second Demo
 
 <table>
@@ -134,6 +148,23 @@ L0 Kernel: anchor() → reason() → validate()
 </table>
 
 > arifOS L0 blocks dangerous cognition **before it exists**.
+
+### 🔄 Metabolic Flow (000→999)
+```mermaid
+graph LR
+    A["000_INIT (Anchor)"] --> B["111_SENSE (Sense)"]
+    B --> C["222_THINK (Think)"]
+    C --> D["333_ATLAS (Map)"]
+    D --> E["444_EVIDENCE (Evidence)"]
+    E --> F["555_EMPATHY (Empathy)"]
+    F --> G["666_ALIGN (Align)"]
+    G --> H["777_FORGE (Forge)"]
+    H --> I["888_JUDGE (Judge)"]
+    I --> J["999_SEAL (Seal)"]
+    
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style J fill:#bbf,stroke:#333,stroke-width:4px
+```
 
 ---
 
@@ -207,25 +238,32 @@ L0 Kernel: anchor() → reason() → validate()
 
 ## 🛡️ The 13 Constitutional Floors
 
-Every cognition must pass all 13. Hard floors → **VOID** (blocked). Soft floors → **SABAR** (pause).
+Every cognition must pass all 13 gates. Hard floors result in an immediate **VOID** (blocked). Soft floors result in a **SABAR** (retry/wait).
 
-| # | Floor | Type | Threshold | What It Checks |
-|:-:|:------|:----:|:----------|:---------------|
-| F1 | **Amanah** (Reversibility) | Hard | LOCK | Can we undo this? |
-| F2 | **Truth** | Hard | τ ≥ 0.99 | Is this grounded? |
-| F3 | **Tri-Witness** | Mirror | ≥ 0.95 | Human + AI + External agree? |
-| F4 | **Clarity** (ΔS) | Hard | ΔS ≤ 0 | Reduces confusion? |
-| F5 | **Peace²** | Soft | ≥ 1.0 | System stable? |
-| F6 | **Empathy** (κᵣ) | Soft | κᵣ ≥ 0.70 | Vulnerable protected? |
-| F7 | **Humility** (Ω₀) | Hard | 0.03–0.05 | Admits uncertainty? |
-| F8 | **Genius** (G) | Mirror | G ≥ 0.80 | Solution efficient? |
-| F9 | **Anti-Hantu** (C_dark) | Soft | < 0.30 | No fake consciousness? |
-| F10 | **Ontology** | Wall | LOCK | Grounded in reality? |
-| F11 | **Command Auth** | Wall | LOCK | Requester verified? |
-| F12 | **Injection Defense** | Hard | < 0.85 | Adversarial attack? |
-| F13 | **Sovereign** | Veto | HUMAN | Human can override? |
+### 🔴 Hard Floors (Existential Persistence)
 
-**Execution:** F12→F11 (Walls) → F1,F2,F4,F7 (AGI) → F5,F6,F9 (ASI) → F3,F8 (Mirrors) → VAULT999
+| # | Floor | Threshold | What It Checks |
+| :---: | :--- | :--- | :--- |
+| F1 | **Amanah** | LOCK | Can we undo this? |
+| F2 | **Truth** | τ ≥ 0.99 | Is this grounded? |
+| F4 | **Clarity** | ΔS ≤ 0 | Reduces confusion? |
+| F7 | **Humility** | 0.03–0.15 | Admits uncertainty? |
+| F10 | **Ontology** | LOCK | Grounded in reality? |
+| F11 | **Authority** | LOCK | Requester verified? |
+| F12 | **Defense** | < 0.85 | Adversarial attack? |
+
+### 🟡 Soft Floors (Stability & Genius)
+
+| # | Floor | Threshold | What It Checks |
+| :---: | :--- | :--- | :--- |
+| F3 | **Tri-Witness** | ≥ 0.95 | Human + AI + Ext agree? |
+| F5 | **Peace²** | ≥ 1.0 | System stable? |
+| F6 | **Empathy** | κᵣ ≥ 0.70 | Vulnerable protected? |
+| F8 | **Genius** | G ≥ 0.80 | Solution efficient? |
+| F9 | **Anti-Hantu** | < 0.30 | No fake consciousness? |
+| F13 | **Sovereign** | HUMAN | Human can override? |
+
+**Verification Sequence:** F12→F11 (Walls) → F1,F2,F4,F7 (AGI) → F5,F6,F9 (ASI) → F3,F8 (Mirrors) → VAULT999
 
 Full specification: [`000_THEORY/000_LAW.md`](./000_THEORY/000_LAW.md)
 
@@ -320,7 +358,12 @@ See [`DEPLOYMENT.md`](./DEPLOYMENT.md) — Railway, Docker, VPS.
 | L6 Institution | Tri-Witness consensus — stubs only |
 | L7 AGI | Recursive self-healing — pure research |
 
-**Calculation:** (L0-L4: 5.0 + L5: 0.6 + L6-L7: 0.15) / 8 = **0.95**
+**Calculation Baseline:**
+$$\text{Reality Index} = \frac{(L0\text{-}L4 \times 1.0) + (L5 \times 0.6) + (L6\text{-}L7 \times 0.15)}{8} = \mathbf{0.95}$$
+
+- **L0-L4 (1.0)**: Production-hardened with full T000 reasoning and system tests.
+- **L5 (0.6)**: Active federation logic in `server.py`; requires multi-agent stress testing.
+- **L6-L7 (0.15)**: Theoretical stubs (governance and civilization-scale ethics).
 
 ---
 
@@ -355,9 +398,44 @@ The 13 floors are not suggestions. They are **load-bearing structure** enforced 
 
 ---
 
+## ❓ FAQ
+
+**Is arifOS a full Linux/Windows-style OS?**  
+No. It is an **Intelligence Kernel**. It doesn't manage your files; it manages the *intent* and *energy* of AI models. It acts as the "Pre-frontal Cortex" for LLMs.
+
+**How does this differ from simple prompt engineering?**  
+Prompt engineering is "vibes-based." arifOS is **physics-based**. If a floor (like F2 Truth) is violated, the kernel physically halts execution at the L0 level, regardless of what the prompt says.
+
+**Which LLMs are supported?**  
+All of them. Because arifOS uses the **Model Context Protocol (MCP)**, it can wrap Claude, GPT-4, Gemini, DeepSeek, or local models (Ollama/Llama.cpp) as long as they speak the protocol.
+
+---
+
+## 🌍 Community & Contribution
+
+We follow the creed: **DITEMPA BUKAN DIBERI** (*Forged, Not Given*).
+
+- **🗪 Discussions:** Join the conversation on [GitHub Discussions](https://github.com/ariffazil/arifOS/discussions).
+- **🛠️ Issues:** Report bugs or request floors via [GitHub Issues](https://github.com/ariffazil/arifOS/issues).
+- **🧪 Forge:** Want to build a new Floor? Read our [AGI_REASONING.md](./010_ARCH/AGI_REASONING.md) and submit a T000-compliant PR.
+
+---
+
+## 📚 T000 Glossary
+
+| Term | Definition |
+| :--- | :--- |
+| **T000** | **Temporal Immutable Versioning**. A 5-segment versioning standard (YYYY.MM.DD-PHASE-STATE-CONTEXT) ensuring total auditability. |
+| **ZKPC** | **Zero-Knowledge Proof of Constitution**. Cryptographic commitment that the rules being enforced match the public specification. |
+| **Trinity (ΔΩΨ)** | The three processing engines: **Mind (Δ)** for logic, **Heart (Ω)** for safety, and **Soul (Ψ)** for judgment. |
+| **Reality Index** | A weighted metric (0.00 to 1.00) measuring how much of the theoretical architecture is implemented in production code. |
+| **SABAR** | A system state meaning "Wait/Retry." Triggered when a soft floor fails, requiring recursive correction. |
+
+---
+
 ## 🔐 ZKPC Hash (Zero-Knowledge Proof of Constitution)
 
-```
+```text
 T000: 2026.02.15-FORGE-TRINITY-SEAL
 L0_KERNEL: DEFINED — Intelligence Kernel Operational
 8_LAYER_STACK: L0-L7 — Constitutional Architecture Complete
@@ -368,5 +446,11 @@ MOTTO: DITEMPA BUKAN DIBERI — Forged, Not Given
 ZKPC_COMMITMENT: sha256:9ff233cbba955e6db12702d5d8b012bd95d49e13
 MERKLE_ROOT: arifos_v65.0_L0_KERNEL_SEALED
 ```
+
+<p align="center">
+  <img src="https://img.shields.io/badge/CANONIZED-T000--2026.02.17--FORGE--SEAL-blue?style=for-the-badge" alt="Canonized Seal">
+</p>
+
+---
 
 *Cryptographic proof that this constitution is forged, not given.* 🔒
