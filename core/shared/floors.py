@@ -341,28 +341,11 @@ class F8_Genius(Floor):
         super().__init__("F8_Genius")
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
-        # v55.5: Use real eigendecomposition when accumulated floor scores available
-        floor_scores_dict = context.get("_floor_scores")
-
-        if floor_scores_dict:
-            try:
-                from codebase.floors.genius import extract_dials, FloorScores
-
-                floors = FloorScores.from_dict(floor_scores_dict)
-                dials = extract_dials(floors)
-                A, P, X, E = dials["A"], dials["P"], dials["X"], dials["E"]
-            except Exception:
-                # Fallback to legacy direct-dial path
-                A = context.get("akal", context.get("clarity", 1.0))
-                P = context.get("present", context.get("regulation", 1.0))
-                X = context.get("exploration", context.get("trust", 1.0))
-                E = context.get("energy", 0.9)
-        else:
-            # Legacy path: pre-computed dials in context
-            A = context.get("akal", context.get("clarity", 1.0))
-            P = context.get("present", context.get("regulation", 1.0))
-            X = context.get("exploration", context.get("trust", 1.0))
-            E = context.get("energy", 0.9)
+        # Extract APXE dials from context (pre-computed or defaults)
+        A = context.get("akal", context.get("clarity", 1.0))
+        P = context.get("present", context.get("regulation", 1.0))
+        X = context.get("exploration", context.get("trust", 1.0))
+        E = context.get("energy", 0.9)
 
         # Multiplicative law: if ANY factor = 0, Genius = 0
         genius = A * P * X * (E**2)

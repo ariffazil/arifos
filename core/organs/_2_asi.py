@@ -10,7 +10,7 @@ from core.shared.physics import (
     identify_stakeholders,
 )
 from core.shared.types import AsiOutput, FloorScores, Verdict
-from core.asi.sbert_floors import classify_asi_floors
+from core.shared.sbert_floors import classify_asi_floors
 
 
 async def empathize(

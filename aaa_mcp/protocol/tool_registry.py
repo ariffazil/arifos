@@ -241,6 +241,22 @@ def get_all_tool_paths() -> List[str]:
     return [spec.canonical_path for spec in CANONICAL_TOOLS.values()]
 
 
+# Mapping from actual MCP tool names (verbs) to internal registry keys
+MCP_NAME_TO_REGISTRY: Dict[str, str] = {spec.verb: name for name, spec in CANONICAL_TOOLS.items()}
+
+
+def get_tool_by_mcp_name(mcp_name: str) -> Optional[ToolSpec]:
+    """Look up a tool spec by its actual MCP tool name (verb).
+
+    Example: get_tool_by_mcp_name("anchor") returns the init_gate spec.
+    """
+    registry_key = MCP_NAME_TO_REGISTRY.get(mcp_name)
+    if registry_key:
+        return CANONICAL_TOOLS.get(registry_key)
+    # Also check if it's a direct registry key
+    return CANONICAL_TOOLS.get(mcp_name)
+
+
 def get_pipeline_sequence() -> List[str]:
     """Get ordered list of canonical paths for 000-999 pipeline."""
     sequence = []
@@ -438,7 +454,9 @@ def get_agent_selection_hints(current_stage: str) -> dict:
 __all__ = [
     "ToolSpec",
     "CANONICAL_TOOLS",
+    "MCP_NAME_TO_REGISTRY",
     "get_tool_spec",
+    "get_tool_by_mcp_name",
     "get_tool_by_stage",
     "get_next_tool",
     "validate_tool_path",

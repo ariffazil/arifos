@@ -96,9 +96,7 @@ def load_capability_config() -> dict:
         import yaml
 
         with open(
-            os.path.join(
-                os.path.dirname(__file__), "..", "arifos", "config", "capability_modules.yaml"
-            ),
+            os.path.join(os.path.dirname(__file__), "config", "capability_modules.yaml"),
             "r",
         ) as f:
             return yaml.safe_load(f)

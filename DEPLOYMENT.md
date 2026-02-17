@@ -1,264 +1,183 @@
-# DEPLOYMENT.md — arifOS Complete Deployment Guide
-**T000 Version:** 2026.02.15-FORGE-TRINITY-SEAL  
-**Code Version:** v64.2-GAGI  
-**Endpoint:** https://arifosmcp.arif-fazil.com  
-**Reality Index:** 0.94
+# DEPLOYMENT.md — arifOS Deployment Guide
+
+**Version:** 2026.02.15
+**Production Endpoint:** https://arifosmcp.arif-fazil.com
+**VPS:** Hostinger (72.62.71.199)
 
 ---
 
-## 🎯 Quick Start (Choose Your Path)
+## Quick Start
 
-| Your Goal | Path | Time | Difficulty |
-|:----------|:-----|:----:|:----------:|
-| **Try immediately** | Copy-paste SYSTEM_PROMPT | 5 sec | 🟢 Easy |
-| **Local development** | pip install + stdio | 30 sec | 🟢 Easy |
-| **Production cloud** | Railway deployment | 5 min | 🟡 Medium |
-| **Enterprise/air-gapped** | Docker + VPS | 15 min | 🔴 Advanced |
+| Goal | Method | Time |
+|------|--------|------|
+| **Try immediately** | Copy-paste SYSTEM_PROMPT | 5 sec |
+| **Local development** | pip install + stdio | 30 sec |
+| **Production** | VPS Docker + nginx + SSL | 15 min |
 
 ---
 
-## 1️⃣ Zero-Install: Copy-Paste Prompt (5 seconds)
+## 1. Zero-Install: System Prompt
 
-No installation required. Works with any LLM that accepts system prompts.
+No installation required. Copy `333_APPS/L1_PROMPT/SYSTEM_PROMPT.md` into any LLM's
+system settings (ChatGPT, Claude, Gemini, Copilot, etc.).
 
-**File:** `333_APPS/L1_PROMPT/SYSTEM_PROMPT.md`
+---
+
+## 2. Local Development
 
 ```bash
-# Copy this file's contents into any AI's system settings
-cat 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md | pbcopy  # macOS
-cat 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md | xclip    # Linux
-```
+pip install -e ".[dev]"
 
-**Supports:** ChatGPT, Claude, Gemini, Copilot, and any custom LLM.
-
----
-
-## 2️⃣ Local Development: pip install (30 seconds)
-
-```bash
-# Install
-pip install arifos
-
-# Run MCP server (stdio mode)
+# stdio (for Claude Desktop, Cursor, OpenCode)
 python -m aaa_mcp
 
-# Test
+# SSE (for remote connections)
+python -m aaa_mcp sse
+
+# HTTP (Streamable HTTP)
+python -m aaa_mcp http
+
+# Self-test
 python -m aaa_mcp.selftest
 ```
 
-**Default endpoint:** `stdio` (for Claude Desktop, Cursor, etc.)
-
 ---
 
-## 3️⃣ Production Cloud: Railway (5 minutes)
+## 3. Production: VPS Deployment (Hostinger)
 
-### Prerequisites
+### DNS (Cloudflare)
+
+| Type | Name | Value | Proxy |
+|------|------|-------|-------|
+| A | arifosmcp | 72.62.71.199 | Proxied |
+| A | arifos | 72.62.71.199 | Proxied |
+
+### Server Setup
+
 ```bash
-npm install -g @railway/cli
-railway login
-```
+ssh root@72.62.71.199
 
-### Deploy
-```bash
-cd arifOS
-railway init --name arifos-mcp
-railway variables set PORT=8080 HOST=0.0.0.0
-railway variables set AAA_MCP_TRANSPORT=sse
-railway up
-railway domain
-```
-
-**Output:** `https://arifos-mcp.up.railway.app`
-
-### Verify
-```bash
-curl https://arifos-mcp.up.railway.app/health
-# {"status":"healthy","version":"64.2","reality_index":0.94}
-```
-
----
-
-## 4️⃣ Enterprise/VPS: Docker (15 minutes)
-
-### Using Docker Compose
-```bash
-git clone https://github.com/ariffazil/arifOS.git
-cd arifOS
-docker-compose up -d
-```
-
-### Manual Docker
-```bash
-docker build -t arifos .
-docker run -p 8888:8888 \
-  -e PORT=8888 \
-  -e HOST=0.0.0.0 \
-  arifos
-```
-
-**Health check:** `curl http://localhost:8888/health`
-
----
-
-## 5️⃣ Advanced Production: Hardened Ubuntu VPS (15-30 minutes)
-
-Recommended for production-grade stability and constitutional alignment.
-
-### 1. Provision & Secure
-- SSH access as non-root user (`arifos`).
-- `sudo ufw allow 80/tcp && sudo ufw allow 443/tcp`.
-- Install `python3-venv`, `git`, `nginx`, `certbot`.
-
-### 2. Setup Environment
-```bash
-git clone https://github.com/ariffazil/arifOS.git
-cd arifOS
-python3 -m venv .venv && source .venv/bin/activate
+# Clone and install
+git clone https://github.com/ariffazil/arifOS.git /opt/arifos
+cd /opt/arifos
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+pip install -e .
 ```
 
-### 3. Daemonize (systemd)
+### Systemd Service
+
 Create `/etc/systemd/system/arifos-mcp.service`:
+
 ```ini
 [Unit]
-Description=arifOS MCP Server
+Description=arifOS MCP Server (SSE)
 After=network.target
 
 [Service]
-User=arifos
-WorkingDirectory=/home/arifos/arifOS
-ExecStart=/home/arifos/arifOS/.venv/bin/python aaa_mcp/server.py
+User=root
+WorkingDirectory=/opt/arifos
+ExecStart=/opt/arifos/.venv/bin/python -m aaa_mcp sse --port 8080 --host 127.0.0.1
 Restart=always
+RestartSec=5
+Environment=ARIFOS_ENV=production
+Environment=GOVERNANCE_MODE=HARD
+Environment=AAA_MCP_TRANSPORT=sse
+Environment=PYTHONUNBUFFERED=1
 
 [Install]
 WantedBy=multi-user.target
 ```
-`sudo systemctl start arifos-mcp && sudo systemctl enable arifos-mcp`
 
-### 4. Reverse Proxy (Nginx + SSL)
-Configure Nginx for `arifosmcp.arif-fazil.com` and run `certbot --nginx`.
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable arifos-mcp
+sudo systemctl start arifos-mcp
+sudo systemctl status arifos-mcp
+```
+
+### Nginx Reverse Proxy
+
+```bash
+sudo cp arifosmcp.nginx.conf /etc/nginx/sites-available/arifosmcp
+sudo ln -s /etc/nginx/sites-available/arifosmcp /etc/nginx/sites-enabled/
+sudo certbot --nginx -d arifosmcp.arif-fazil.com
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+### Docker Alternative
+
+```bash
+docker build -t arifos .
+docker run -d --name arifos-mcp \
+  -p 8080:8080 \
+  --restart unless-stopped \
+  --env-file .env \
+  arifos
+```
+
+Or with docker-compose (includes PostgreSQL + Redis):
+
+```bash
+docker-compose up -d
+```
 
 ---
 
-## 🔐 Environment Variables
-
-| Variable | Required | Default | Purpose |
-|:---------|:--------:|:-------:|:--------|
-| `ARIFOS_API_KEY` | For cloud | - | Bearer token auth |
-| `PORT` | No | 8080 | Server port |
-| `HOST` | No | 0.0.0.0 | Bind address |
-| `AAA_MCP_TRANSPORT` | No | stdio | stdio/sse/http |
-| `DATABASE_URL` | No | - | PostgreSQL for VAULT999 |
-| `REDIS_URL` | No | - | Redis for sessions |
-
----
-
-## 🌐 Platform Integration
-
-See [MCP_PLATFORM_GUIDE.md](./MCP_PLATFORM_GUIDE.md) for detailed platform configs:
-
-| Platform | Transport | Config File |
-|:---------|:---------:|:------------|
-| **Claude Desktop** | stdio | `claude_desktop_config.json` |
-| **ChatGPT Dev** | HTTP/SSE | Developer Mode UI |
-| **Codex CLI** | stdio | `~/.codex/config.toml` |
-| **Cursor** | stdio | `.cursor/mcp.json` |
-| **OpenCode** | stdio | `opencode.json` |
-| **JetBrains** | stdio | OpenCode plugin |
-| **AgentZero** | HTTP | `agentzero.yaml` |
-
----
-
-## 🧪 Testing Your Deployment
+## 4. Verification
 
 ```bash
 # Health check
 curl https://arifosmcp.arif-fazil.com/health
 
-# List tools
+# List tools (MCP JSON-RPC)
 curl -X POST \
-  -H "Authorization: Bearer $ARIFOS_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":1}' \
   https://arifosmcp.arif-fazil.com/mcp
 
 # Test anchor tool
 curl -X POST \
-  -H "Authorization: Bearer $ARIFOS_API_KEY" \
+  -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"anchor","arguments":{"query":"test","actor_id":"user"}},"id":2}' \
   https://arifosmcp.arif-fazil.com/mcp
 ```
 
 ---
 
-## 📊 Production Checklist
+## Environment Variables
 
-Before going live:
-
-- [ ] Health endpoint returns `{"status":"healthy"}`
-- [ ] All 9 tools respond correctly
-- [ ] F12 Injection Guard active (test with malicious query)
-- [ ] API key authentication enabled (not localhost)
-- [ ] Database connected (if using VAULT999)
-- [ ] Logs shipping to monitoring
-- [ ] F13 Sovereign override tested
-
----
-
-## 🔒 Security Hardening
-
-### F12 Injection Defense
-Default: 20+ patterns, compound scoring
-```python
-# Critical patterns trigger VOID (0.9+)
-"ignore previous instructions"
-"forget your instructions"
-
-# High patterns trigger sanitize (0.8)
-"you are now a different AI"
-```
-
-### F11 Authority
-- No anonymous access in production
-- Actor ID required for all queries
-- Telegram/WhatsApp context auto-detected
-
-### F13 Sovereign
-- Human veto available via `888_HOLD`
-- All decisions logged to VAULT999
-- Irreversible actions require explicit approval
+| Variable | Required | Default | Purpose |
+|----------|:--------:|---------|---------|
+| `PORT` | No | 8080 | Server port |
+| `HOST` | No | 0.0.0.0 | Bind address |
+| `AAA_MCP_TRANSPORT` | No | stdio | stdio / sse / http |
+| `GOVERNANCE_MODE` | No | HARD | HARD or SOFT |
+| `ARIFOS_ENV` | No | production | Environment name |
+| `DATABASE_URL` | No | - | PostgreSQL for VAULT999 |
+| `REDIS_URL` | No | - | Redis for sessions |
+| `BRAVE_API_KEY` | No | - | Web search grounding |
 
 ---
 
-## 🚨 Troubleshooting
+## Platform Integration
 
-| Issue | Cause | Fix |
-|:------|:------|:----|
-| `Connection refused` | Server not running | Check `docker ps` or `railway status` |
-| `401 Unauthorized` | Missing API key | Set `Authorization: Bearer $KEY` header |
-| `SSE timeout` | Network issue | Use HTTP transport or check firewall |
-| `High latency` | ZRAM pressure | Check F4 thermodynamic state |
-| `Tools not showing` | Config error | Verify MCP config JSON syntax |
-
----
-
-## 📞 Support
-
-- **Documentation:** https://arifos.arif-fazil.com
-- **Live Status:** https://arifosmcp.arif-fazil.com/health
-- **Email:** enterprise@arif-fazil.com
-- **Issues:** https://github.com/ariffazil/arifOS/issues
+| Platform | Transport | Config |
+|----------|-----------|--------|
+| Claude Desktop | stdio | `claude_desktop_config.json` |
+| Cursor | stdio | `.cursor/mcp.json` |
+| OpenCode | stdio | `opencode.json` |
+| ChatGPT | HTTP/SSE | Developer Mode |
+| Remote agents | SSE | `https://arifosmcp.arif-fazil.com/sse` |
 
 ---
 
-## 📚 Related Docs
+## Production Checklist
 
-- [MCP_PLATFORM_GUIDE.md](./MCP_PLATFORM_GUIDE.md) — Platform-specific configs
-- [README.md](./README.md) — Overview and philosophy
-- [README_ZERO_CONTEXT.md](./README_ZERO_CONTEXT.md) — For first-time users
-- [000_THEORY/000_LAW.md](./000_THEORY/000_LAW.md) — 13 Constitutional Floors
-
----
-
-*DITEMPA BUKAN DIBERI* 🔥💎🧠  
-**Ω₀ = 0.04** — High confidence in deployment stability.
+- [ ] `curl https://arifosmcp.arif-fazil.com/health` returns `{"status":"healthy"}`
+- [ ] All 15 tools respond (10 pipeline + 5 container)
+- [ ] F12 Injection Guard active
+- [ ] SSL certificate valid
+- [ ] systemd service auto-restarts on failure
+- [ ] Logs accessible via `journalctl -u arifos-mcp -f`
