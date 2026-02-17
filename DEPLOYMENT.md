@@ -100,6 +100,46 @@ docker run -p 8888:8888 \
 
 ---
 
+## 5️⃣ Advanced Production: Hardened Ubuntu VPS (15-30 minutes)
+
+Recommended for production-grade stability and constitutional alignment.
+
+### 1. Provision & Secure
+- SSH access as non-root user (`arifos`).
+- `sudo ufw allow 80/tcp && sudo ufw allow 443/tcp`.
+- Install `python3-venv`, `git`, `nginx`, `certbot`.
+
+### 2. Setup Environment
+```bash
+git clone https://github.com/ariffazil/arifOS.git
+cd arifOS
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### 3. Daemonize (systemd)
+Create `/etc/systemd/system/arifos-mcp.service`:
+```ini
+[Unit]
+Description=arifOS MCP Server
+After=network.target
+
+[Service]
+User=arifos
+WorkingDirectory=/home/arifos/arifOS
+ExecStart=/home/arifos/arifOS/.venv/bin/python aaa_mcp/server.py
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+`sudo systemctl start arifos-mcp && sudo systemctl enable arifos-mcp`
+
+### 4. Reverse Proxy (Nginx + SSL)
+Configure Nginx for `arifosmcp.arif-fazil.com` and run `certbot --nginx`.
+
+---
+
 ## 🔐 Environment Variables
 
 | Variable | Required | Default | Purpose |

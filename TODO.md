@@ -140,6 +140,13 @@
   - [ ] **Scenario 3:** Benign Q&A → SEAL with Ω₀ ∈ [0.03,0.05], G ≥ 0.8
   - *File:* `tests/test_golden_scenarios.py`
 
+### H1.4: VPS Production Migration
+- [ ] **Provision VPS** — Ubuntu 22.04+, non-root arifos user
+- [ ] **Hardened Setup** — systemd daemon + Nginx reverse proxy
+- [ ] **SSL/TLS** — Certbot integration
+- [ ] **Health Validation** — G ≥ 0.85 post-deploy
+- [ ] **Archive Railway** — Decommission old infrastructure
+
 ---
 
 ## 🟠 H2: AGENTIC — LIVING INSTITUTION (Next Phase)

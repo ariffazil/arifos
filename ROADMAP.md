@@ -19,8 +19,8 @@ arifOS is a **Constitutional AI Governance System** — the world's first produc
 | **Version** | ✅ v65.0-FORGE-TRINITY-SEAL | T000 format active |
 | **PyPI** | ✅ Live | `pip install arifos` |
 | **MCP Registry** | ✅ Published | `io.github.ariffazil/aaa-mcp` |
-| **Railway Deploy** | ✅ Live | `arifosmcp.arif-fazil.com` |
-| **VPS Deploy** | ✅ Live | Malaysia VPS (Hostinger) |
+| **Railway Deploy** | 🗑️ Deprecated | Migrating to VPS (VAULT999 sealed) |
+| **VPS Deploy** | ✅ **PRIMARY** | Hardened Ubuntu VPS (T000 alignment) |
 | **MCP Servers** | ✅ 14 Unified | Global config at `~/.kimi/mcp.json` |
 | **Environment** | ✅ Consolidated | Single `~/.arifos/env` profile |
 | **13 Floors** | ✅ F1-F13 Enforced | HARD mode active |
