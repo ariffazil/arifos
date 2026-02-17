@@ -33,7 +33,7 @@ PORT = int(os.getenv("PORT", "8000"))
 # ---------------------------------------------------------------------------
 mcp = FastMCP(
     "arifOS",
-    version="64.2.0",
+    version="2026.02.15-FORGE-TRINITY-SEAL",
     instructions=(
         "arifOS Constitutional AI Governance MCP Server. "
         "Use 'forge' for full pipeline (000→999), 'think' for AGI-only, "

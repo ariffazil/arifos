@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-arifOS MCP Self-Test Module (v55.5-HARDENED)
+arifOS MCP Self-Test Module (2026.02.15-FORGE-TRINITY-SEAL)
 
 Run before deployment to verify:
 1. Constitutional floors are loaded
@@ -27,7 +27,7 @@ def check_floors() -> Tuple[bool, List[str]]:
     """Verify constitutional floors are configured."""
     issues = []
 
-    # Check for floor configuration (v64.1+ uses core.constitutional_decorator)
+    # Check for floor configuration (T000 uses core.constitutional_decorator)
     try:
         from aaa_mcp.core.constitutional_decorator import FLOOR_ENFORCEMENT
 

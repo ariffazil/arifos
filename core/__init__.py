@@ -1,5 +1,5 @@
 """
-core/ — arifOS Kernel (v64.1-GAGI)
+core/ — arifOS Kernel (2026.02.15-FORGE-TRINITY-SEAL)
 
 Reusable governance engine containing ALL decision logic.
 Imported by: aaa_mcp (wrapper), future products
@@ -16,7 +16,7 @@ core/ = decision logic (this package)
 aaa_mcp/ = transport only (no decisions)
 """
 
-__version__ = "64.1.0"
+__version__ = "2026.02.15-FORGE-TRINITY-SEAL"
 
 # Expose kernel components for import
 from . import uncertainty_engine
