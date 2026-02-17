@@ -16,7 +16,7 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "64.2.0",
+  "version": "2026.02.15-FORGE-TRINITY-SEAL",
       "transport": {
         "type": "stdio",
         "command": "python -m aaa_mcp"

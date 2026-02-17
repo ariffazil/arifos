@@ -67,7 +67,7 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
                 "result": {
                     "protocolVersion": "2024-11-05",
                     "capabilities": {"tools": {}, "logging": {}, "prompts": {}, "resources": {}},
-                    "serverInfo": {"name": "arifos-aaa-mcp", "version": "64.2-FORGE-TRINITY-SEAL"},
+                    "serverInfo": {"name": "arifos-aaa-mcp", "version": "2026.02.15-FORGE-TRINITY-SEAL"},
                 },
             },
             headers={"Mcp-Session-Id": session_id},
@@ -98,7 +98,16 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
 
         try:
             # Call tool with timeout protection (10 seconds)
-            result = await asyncio.wait_for(tool(**tool_args), timeout=10.0)
+            # FastMCP 2.x tools are FunctionTool objects with fn attribute
+            if hasattr(tool, 'fn') and callable(tool.fn):
+                # Use the underlying function
+                func = tool.fn
+            elif callable(tool):
+                func = tool
+            else:
+                raise ValueError(f"Tool {tool_name} is not callable")
+            
+            result = await asyncio.wait_for(func(**tool_args), timeout=10.0)
             return JSONResponse(
                 {
                     "jsonrpc": "2.0",
@@ -143,7 +152,7 @@ async def health(request: Request) -> JSONResponse:
         {
             "status": "healthy",
             "transport": "streamable-http",
-            "version": "64.2-FORGE-TRINITY-SEAL",
+            "version": "2026.02.15-FORGE-TRINITY-SEAL",
             "endpoints": ["/mcp", "/health"],
         }
     )

@@ -127,7 +127,7 @@ import json
 
 # Health check
 response = requests.get("https://arifosmcp.arif-fazil.com/health")
-print(response.json())  # {"status": "healthy", "version": "64.2", ...}
+print(response.json())  # {"status": "healthy", "version": "2026.02.15-FORGE-TRINITY-SEAL", ...}
 
 # List tools
 payload = {
@@ -298,7 +298,7 @@ Structured JSON logs available when `ARIFOS_LOGGING=structured`:
 - Railway cloud deployment
 - PyPI package distribution
 
-### 🟡 In Development (v64.2-GAGI)
+### 🟡 In Development (T000: 2026.02.15-FORGE-TRINITY-SEAL)
 - Core ↔ MCP tool integration (P1 priority)
 - ASI hardening with embedding models
 - Test suite recovery (≥80% pass rate)

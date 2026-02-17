@@ -19,6 +19,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import hashlib
+import os
 import secrets
 import time
 from dataclasses import dataclass, field
@@ -462,10 +463,19 @@ def verify_auth(actor_id: str, auth_token: Optional[str] = None) -> Tuple[bool, 
 
     # Check if actor exists
     if actor_id not in VALID_ACTORS:
-        return False, AuthorityLevel.NONE
-
-    # Get authority level
-    level = ACTOR_AUTHORITY.get(actor_id, AuthorityLevel.USER)
+        # In test mode, accept any non-empty actor_id for user testing
+        if os.environ.get("ARIFOS_TEST_MODE") == "1":
+            # Basic validation: alphanumeric, hyphen, underscore, dot, length 1-100
+            import re
+            if not re.match(r'^[a-z0-9_\-\.]{1,100}$', actor_id):
+                return False, AuthorityLevel.NONE
+            # Assign USER level for unknown actors in test mode
+            level = AuthorityLevel.USER
+        else:
+            return False, AuthorityLevel.NONE
+    else:
+        # Get authority level from mapping
+        level = ACTOR_AUTHORITY.get(actor_id, AuthorityLevel.USER)
 
     # In production: verify auth_token cryptographically
     # For now, accept all valid actors

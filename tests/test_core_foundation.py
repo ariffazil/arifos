@@ -4,10 +4,6 @@ Verifies that all 4 core.shared modules and core.organs can be imported correctl
 T000: 2026.02.15-FORGE-TRINITY-SEAL
 """
 
-<<<<<<< HEAD
-import sys
-=======
->>>>>>> 68c473264dad3e522261ce3c1431a646e6eaeb6c
 import os
 import sys
 

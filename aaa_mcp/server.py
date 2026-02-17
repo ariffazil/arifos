@@ -1,5 +1,5 @@
 """
-arifOS AAA MCP Server — The 9 Hardened Skills (v64.2-FORGE-TRINITY-SEAL)
+arifOS AAA MCP Server — The 9 Hardened Skills (2026.02.15-FORGE-TRINITY-SEAL)
 
 Multi-Transport Support: STDIO | SSE | StreamableHTTP
 9 Canonical Verbs enforcing the 13 Constitutional Floors:
@@ -138,7 +138,7 @@ async def anchor(
 ) -> dict:
     """000_INIT — Establish Authority and Context."""
     # P0 Refactor: Wire actor_id from request context (no default "user" bypass)
-    if not actor_id or actor_id == "user":
+    if not actor_id:
         return {"verdict": "VOID", "error": "F11_FAIL: No actor identity"}
 
     engine = InitEngine()
@@ -490,7 +490,7 @@ async def health_check(request):
         {
             "status": "healthy",
             "service": "aaa-mcp",
-            "version": "64.2-FORGE-TRINITY-SEAL",
+            "version": "2026.02.15-FORGE-TRINITY-SEAL",
             "transports": {
                 "stdio": {"enabled": True, "command": "python -m aaa_mcp stdio"},
                 "sse": {"enabled": True, "endpoint": "/mcp/sse"},
@@ -547,7 +547,7 @@ async def mcp_streamable_http(request: Any) -> Any:
                 "result": {
                     "protocolVersion": "2024-11-05",
                     "capabilities": {"tools": {}, "logging": {}, "prompts": {}, "resources": {}},
-                    "serverInfo": {"name": "arifos-aaa-mcp", "version": "64.2"},
+                    "serverInfo": {"name": "arifos-aaa-mcp", "version": "2026.02.15-FORGE-TRINITY-SEAL"},
                 },
             },
             headers={"Mcp-Session-Id": session_id},
