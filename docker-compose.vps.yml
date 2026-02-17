@@ -1,0 +1,29 @@
+# This Docker Compose file defines the main arifOS MCP application service.
+# It is designed to be managed by a deployment script triggered by a webhook.
+version: '3.8'
+
+services:
+  # The primary application service
+  arifosmcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arifosmcp_server
+    # This policy ensures the service restarts automatically if it crashes,
+    # but not on server reboot (the deploy script will handle startup).
+    restart: unless-stopped
+    # Exposes the application ports only to the host machine (127.0.0.1) for security.
+    # An external web server like Nginx can be used to expose them publicly if needed.
+    ports:
+      - "127.0.0.1:8888:8080" # SSE port
+      - "127.0.0.1:8889:8089" # HTTP port
+    # Loads environment variables from a .env file in the same directory.
+    # Create a .env file to store secrets like GITHUB_WEBHOOK_SECRET.
+    env_file:
+      - .env
+    environment:
+      - PORT=8080 # Default for SSE
+      - HOST=0.0.0.0
+      - PYTHONUNBUFFERED=1
+      - FORWARDED_ALLOW_IPS=*
+    command: ["/app/start-trinity.sh"]

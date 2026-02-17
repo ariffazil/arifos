@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copy requirements first for layer caching
 COPY requirements.txt .
+COPY start-trinity.sh .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Remove old conflicting codebase package from site-packages
