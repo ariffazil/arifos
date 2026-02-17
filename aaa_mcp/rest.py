@@ -188,12 +188,22 @@ def generate_request_id() -> str:
 
 
 async def health(request: Request):
-    """Health check endpoint."""
+    """Health check endpoint with governance metrics."""
+    from aaa_mcp.infrastructure.monitoring import get_health_monitor, get_metrics_collector
+
+    monitor = get_health_monitor()
+    collector = get_metrics_collector()
+
+    health_results = await monitor.check_all()
+    stats = collector.get_stats()
+
     return JSONResponse(
         {
-            "status": "healthy",
+            "status": "healthy" if monitor.is_healthy() else "degraded",
             "service": "aaa-mcp-rest",
             "version": BUILD_INFO["version"],
+            "governance_metrics": stats,
+            "health_checks": health_results,
         }
     )
 
@@ -221,18 +231,28 @@ async def version(request: Request):
 
 
 async def metrics_endpoint(request: Request):
-    """Metrics endpoint (ChatGPT feedback: /metrics endpoint)."""
+    """Metrics endpoint with v65.0 governance support."""
+    from aaa_mcp.infrastructure.monitoring import get_metrics_collector
+
+    collector = get_metrics_collector()
+    stats = collector.get_stats()
+
+    # Legacy compatibility
     avg_latency = (
         sum(metrics.latencies_ms) / len(metrics.latencies_ms) if metrics.latencies_ms else 0
     )
+
     return JSONResponse(
         {
-            "requests_total": metrics.requests_total,
-            "requests_by_tool": metrics.requests_by_tool,
-            "avg_latency_ms": round(avg_latency, 2),
-            "timeouts": metrics.timeouts,
-            "errors": metrics.errors,
-            "active_sessions": len(active_sessions),
+            "requests_total": stats.get("total_executions", 0) + metrics.requests_total,
+            "avg_latency_ms": stats.get("avg_latency_ms", round(avg_latency, 2)),
+            "governance_stats": stats,
+            "legacy_stats": {
+                "requests_by_tool": metrics.requests_by_tool,
+                "timeouts": metrics.timeouts,
+                "errors": metrics.errors,
+                "active_sessions": len(active_sessions),
+            },
         }
     )
 
@@ -556,6 +576,10 @@ app = Starlette(routes=routes, debug=False)
 
 def main():
     """Start REST API server."""
+    # Initialize monitoring
+    from aaa_mcp.infrastructure.monitoring import init_monitoring
+    asyncio.run(init_monitoring())
+
     port = int(os.getenv("PORT", 8080))
     host = os.getenv("HOST", "0.0.0.0")
 

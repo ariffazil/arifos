@@ -25,7 +25,9 @@ class PipelineMetrics:
     verdict: str = ""
     stages_executed: List[str] = field(default_factory=list)
     floors_checked: Dict[str, bool] = field(default_factory=dict)
-    entropy_delta: float = 0.0
+    landauer_risk: float = 0.0
+    vault_lag_ms: float = 0.0
+    energy_eff: float = 0.0
     tri_witness_score: float = 0.0
     genius_score: float = 0.0
 
@@ -45,6 +47,9 @@ class PipelineMetrics:
             "floors_passed": sum(1 for v in self.floors_checked.values() if v),
             "floors_failed": sum(1 for v in self.floors_checked.values() if not v),
             "entropy_delta": self.entropy_delta,
+            "landauer_risk": self.landauer_risk,
+            "vault_lag_ms": self.vault_lag_ms,
+            "energy_eff": self.energy_eff,
             "tri_witness_score": self.tri_witness_score,
             "genius_score": self.genius_score,
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -71,7 +76,17 @@ class MetricsCollector:
         recent = self.metrics[-window:] if self.metrics else []
 
         if not recent:
-            return {"error": "No metrics available"}
+            return {
+                "total_executions": 0,
+                "avg_latency_ms": 0.0,
+                "avg_genius_g": 0.0,
+                "avg_entropy_delta": 0.0,
+                "avg_tri_witness_score": 0.0,
+                "avg_landauer_risk": 0.0,
+                "avg_vault_lag_ms": 0.0,
+                "avg_energy_eff": 0.0,
+                "verdicts": {},
+            }
 
         latencies = [m.latency_ms for m in recent]
         verdicts = {}
@@ -81,10 +96,16 @@ class MetricsCollector:
         genius_scores = [m.genius_score for m in recent]
         entropy_deltas = [m.entropy_delta for m in recent]
         tri_witness_scores = [m.tri_witness_score for m in recent]
+        landauer_risks = [m.landauer_risk for m in recent]
+        vault_lags = [m.vault_lag_ms for m in recent]
+        energy_effs = [m.energy_eff for m in recent]
 
         avg_genius = sum(genius_scores) / len(genius_scores) if genius_scores else 0.0
         avg_entropy_delta = sum(entropy_deltas) / len(entropy_deltas) if entropy_deltas else 0.0
         avg_tri_witness = sum(tri_witness_scores) / len(tri_witness_scores) if tri_witness_scores else 0.0
+        avg_landauer = sum(landauer_risks) / len(landauer_risks) if landauer_risks else 0.0
+        avg_vault_lag = sum(vault_lags) / len(vault_lags) if vault_lags else 0.0
+        avg_energy_eff = sum(energy_effs) / len(energy_effs) if energy_effs else 0.0
 
         return {
             "total_executions": len(recent),
@@ -97,6 +118,9 @@ class MetricsCollector:
             "avg_genius_g": avg_genius,
             "avg_entropy_delta": avg_entropy_delta,
             "avg_tri_witness_score": avg_tri_witness,
+            "avg_landauer_risk": avg_landauer,
+            "avg_vault_lag_ms": avg_vault_lag,
+            "avg_energy_eff": avg_energy_eff,
         }
 
     def export_prometheus(self) -> str:
@@ -276,11 +300,17 @@ async def init_monitoring():
             ledger = await get_ledger()
             if not ledger.is_postgres_available:
                 return False
-            # Try a simple query to verify connection
+            # Try a simple query to verify connection and calculate vault lag
             if ledger._pool:
                 async with ledger._pool.acquire() as conn:
-                    row = await conn.fetchrow("SELECT 1")
-                    return row is not None
+                    row = await conn.fetchrow("""
+                        SELECT EXTRACT(EPOCH FROM (created_at - timestamp)) * 1000 as lag_ms
+                        FROM vault999
+                        ORDER BY id DESC
+                        LIMIT 1
+                    """)
+                    lag = row["lag_ms"] if row else 0.0
+                    return {"status": "connected", "lag_ms": lag}
             return False
         except Exception:
             return False
