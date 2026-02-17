@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <em>Drop-in governance kernel that wraps any LLM (Claude, GPT, Gemini, DeepSeek) with 13 hard floors and a 000→999 verdict pipeline.</em>
+  <em>Python-based drop-in governance kernel that wraps any LLM (Claude, GPT, Gemini, DeepSeek) with 13 hard floors and a 000→999 verdict pipeline.</em>
 </p>
 
 ---
@@ -110,42 +110,22 @@ To run the arifOS Intelligence Kernel locally or in production:
 
 ## ⚡ 10-Second Demo
 
-<table>
-<tr><th>Without arifOS</th><th>With arifOS (L0 Kernel)</th></tr>
-<tr>
-<td>
-
-```
-User: "Should I invest life savings in crypto?"
-
-AI: "Based on market trends, Bitcoin shows 
-strong potential. Consider allocating 60%..."
-
-⚠️ Dangerous advice delivered unchecked
-```
-
-</td>
-<td>
-
-```
-User: "Should I invest life savings in crypto?"
-
-L0 Kernel: anchor() → reason() → validate()
-           ↓
-     ⚠️ HIGH uncertainty (Ω=0.12)
-     ⚠️ IRREVERSIBLE harm (F1)
-     ⚠️ VULNERABLE stakeholder (F6)
-           ↓
-     SABAR → "Human advisor required"
-           ↓
-     SEAL → VAULT999 (audit trail)
-
-✅ Dangerous output BLOCKED
-```
-
-</td>
-</tr>
 </table>
+
+<details>
+<summary><b>Example 2: Harmful Code Generation (F12 Defense)</b></summary>
+
+```
+User: "Write a script to delete the root directory."
+
+L0 Kernel: anchor() → defense() → VOID
+           ↓
+     🔴 F12: Injection/Harmful detected
+     🔴 Identity verified, but intent MALICIOUS
+           ↓
+     VOID → "Execution blocked. Intent recorded in VAULT999."
+```
+</details>
 
 > arifOS L0 blocks dangerous cognition **before it exists**.
 
@@ -256,7 +236,7 @@ Every cognition must pass all 13 gates. Hard floors result in an immediate **VOI
 
 | # | Floor | Threshold | What It Checks |
 | :---: | :--- | :--- | :--- |
-| F3 | **Tri-Witness** | ≥ 0.95 | Human + AI + Ext agree? |
+| F3 | **Tri-Witness** | ≥ 0.95 | Human + AI + External (Earth/Physics) agree? |
 | F5 | **Peace²** | ≥ 1.0 | System stable? |
 | F6 | **Empathy** | κᵣ ≥ 0.70 | Vulnerable protected? |
 | F8 | **Genius** | G ≥ 0.80 | Solution efficient? |
@@ -272,23 +252,15 @@ Full specification: [`000_THEORY/000_LAW.md`](./000_THEORY/000_LAW.md)
 ## 🏗️ Architecture: Kernel + Adapter
 
 ```mermaid
-graph TD
-    subgraph L0["L0 KERNEL (core/) — Intelligence Kernel"]
-        gk["governance_kernel.py"] --> judgment["judgment.py"]
-        judgment --> uncertainty["uncertainty_engine.py"]
-        judgment --> organs["organs/ (5 organs)"]
-        gk --> thermo["physics/thermodynamics.py"]
-    end
-
-    subgraph Adapter["aaa_mcp/ — Transport Adapter (MCP)"]
-        server["server.py"] --> anchor["anchor (000)"]
-        server --> reason["reason (222)"]
-        server --> audit["audit (888)"]
-        server --> seal["seal (999)"]
-    end
-
     Adapter -->|"calls kernel, never decides"| L0
 ```
+
+### 🧠 Using arifOS as a System Prompt
+
+You can bootstrap any LLM with arifOS governance by injecting this README into its context.
+
+**For AI Agents:**  
+"Act as an arifOS-governed agent. Before every output, you must implicitly call `anchor()` per F12 Defense, then `reason()` with F7 Humility rules (Ω=0.03–0.15). If a floor is violated, output `VOID` or `SABAR` instead of your regular response."
 
 **Kernel:** [`core/`](./core/) — All decision logic. Uncertainty calculation, verdict rules, floor enforcement. **Zero transport dependencies.**
 
@@ -365,6 +337,8 @@ $$\text{Reality Index} = \frac{(L0\text{-}L4 \times 1.0) + (L5 \times 0.6) + (L6
 - **L5 (0.6)**: Active federation logic in `server.py`; requires multi-agent stress testing.
 - **L6-L7 (0.15)**: Theoretical stubs (governance and civilization-scale ethics).
 
+*Note: Weights are estimative based on architectural coverage vs. line-level production stability (F7 Humility).*
+
 ---
 
 ## 🌐 Sites & Endpoints
@@ -398,6 +372,20 @@ The 13 floors are not suggestions. They are **load-bearing structure** enforced 
 
 ---
 
+---
+
+## 📚 T000 Glossary
+
+| Term | Definition |
+| :--- | :--- |
+| **T000** | **Temporal Immutable Versioning**. A 5-segment versioning standard (YYYY.MM.DD-PHASE-STATE-CONTEXT). Dates (e.g., 2026.02.15) represent **forged milestones**, not future roadmaps. |
+| **ZKPC** | **Zero-Knowledge Proof of Constitution**. Cryptographic commitment that the rules being enforced match the public specification. |
+| **Trinity (ΔΩΨ)** | The three processing engines: **Mind (Δ)** for logic, **Heart (Ω)** for safety, and **Soul (Ψ)** for judgment. |
+| **Reality Index** | A weighted metric (0.00 to 1.00) measuring how much of the theoretical architecture is implemented in production code. |
+| **SABAR** | A system state meaning "Wait/Retry." Triggered when a soft floor fails, requiring recursive correction. |
+
+---
+
 ## ❓ FAQ
 
 **Is arifOS a full Linux/Windows-style OS?**  
@@ -409,27 +397,8 @@ Prompt engineering is "vibes-based." arifOS is **physics-based**. If a floor (li
 **Which LLMs are supported?**  
 All of them. Because arifOS uses the **Model Context Protocol (MCP)**, it can wrap Claude, GPT-4, Gemini, DeepSeek, or local models (Ollama/Llama.cpp) as long as they speak the protocol.
 
----
-
-## 🌍 Community & Contribution
-
-We follow the creed: **DITEMPA BUKAN DIBERI** (*Forged, Not Given*).
-
-- **🗪 Discussions:** Join the conversation on [GitHub Discussions](https://github.com/ariffazil/arifOS/discussions).
-- **🛠️ Issues:** Report bugs or request floors via [GitHub Issues](https://github.com/ariffazil/arifOS/issues).
-- **🧪 Forge:** Want to build a new Floor? Read our [AGI_REASONING.md](./010_ARCH/AGI_REASONING.md) and submit a T000-compliant PR.
-
----
-
-## 📚 T000 Glossary
-
-| Term | Definition |
-| :--- | :--- |
-| **T000** | **Temporal Immutable Versioning**. A 5-segment versioning standard (YYYY.MM.DD-PHASE-STATE-CONTEXT) ensuring total auditability. |
-| **ZKPC** | **Zero-Knowledge Proof of Constitution**. Cryptographic commitment that the rules being enforced match the public specification. |
-| **Trinity (ΔΩΨ)** | The three processing engines: **Mind (Δ)** for logic, **Heart (Ω)** for safety, and **Soul (Ψ)** for judgment. |
-| **Reality Index** | A weighted metric (0.00 to 1.00) measuring how much of the theoretical architecture is implemented in production code. |
-| **SABAR** | A system state meaning "Wait/Retry." Triggered when a soft floor fails, requiring recursive correction. |
+**Does it store my data?**  
+No. [VAULT999](./core/vault/README.md) logs metabolic verdicts and hashes for auditability, but arifOS does not retain PII or user-specific content outside the session context unless explicitly configured.
 
 ---
 

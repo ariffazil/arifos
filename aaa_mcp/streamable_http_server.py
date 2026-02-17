@@ -5,10 +5,12 @@ Runs alongside main SSE server
 """
 
 import asyncio
+import inspect
 import json
 import os
 import sys
 import uuid
+from typing import Any, get_args, get_origin
 
 # Force local source priority (same as rest.py)
 sys.path.insert(0, os.getcwd())
@@ -49,6 +51,86 @@ TOOL_DESCRIPTIONS = {
 }
 
 
+def _resolve_tool_callable(tool: Any):
+    """Resolve FastMCP FunctionTool wrappers to raw callables."""
+    if hasattr(tool, "fn") and callable(tool.fn):
+        return tool.fn
+    if callable(tool):
+        return tool
+    return None
+
+
+def _annotation_to_json_type(annotation: Any) -> str:
+    """Convert Python annotation to a coarse JSON Schema type."""
+    if annotation is inspect._empty:
+        return "string"
+
+    origin = get_origin(annotation)
+    args = get_args(annotation)
+
+    if origin is None:
+        if annotation in (str,):
+            return "string"
+        if annotation in (int, float):
+            return "number"
+        if annotation is bool:
+            return "boolean"
+        if annotation in (list, tuple, set):
+            return "array"
+        if annotation is dict:
+            return "object"
+        return "string"
+
+    if origin in (list, tuple, set):
+        return "array"
+    if origin is dict:
+        return "object"
+    if origin is Any:
+        return "object"
+
+    # Optional[T] / Union[T, None]
+    if str(origin).endswith("Union") and args:
+        non_none = [a for a in args if a is not type(None)]
+        if non_none:
+            return _annotation_to_json_type(non_none[0])
+        return "string"
+
+    return "string"
+
+
+def _build_input_schema(tool: Any) -> dict:
+    """Build MCP-compliant inputSchema from tool signature."""
+    func = _resolve_tool_callable(tool)
+    if func is None:
+        return {"type": "object", "properties": {}, "additionalProperties": True}
+
+    sig = inspect.signature(func)
+    properties: dict[str, dict] = {}
+    required: list[str] = []
+
+    for name, param in sig.parameters.items():
+        if name in ("self", "cls"):
+            continue
+        if param.kind in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD):
+            continue
+
+        prop = {"type": _annotation_to_json_type(param.annotation)}
+        if param.default is not inspect._empty:
+            prop["default"] = param.default
+        else:
+            required.append(name)
+        properties[name] = prop
+
+    schema = {
+        "type": "object",
+        "properties": properties,
+        "additionalProperties": False,
+    }
+    if required:
+        schema["required"] = required
+    return schema
+
+
 async def mcp_endpoint(request: Request) -> JSONResponse:
     """Handle MCP StreamableHTTP requests."""
     body = await request.json()
@@ -74,7 +156,15 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
         )
 
     elif method == "tools/list":
-        tools = [{"name": name, "description": desc} for name, desc in TOOL_DESCRIPTIONS.items()]
+        tools = []
+        for name, desc in TOOL_DESCRIPTIONS.items():
+            tools.append(
+                {
+                    "name": name,
+                    "description": desc,
+                    "inputSchema": _build_input_schema(TOOLS[name]),
+                }
+            )
         return JSONResponse(
             {"jsonrpc": "2.0", "id": request_id, "result": {"tools": tools}},
             headers={"Mcp-Session-Id": session_id},
@@ -99,12 +189,8 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
         try:
             # Call tool with timeout protection (10 seconds)
             # FastMCP 2.x tools are FunctionTool objects with fn attribute
-            if hasattr(tool, 'fn') and callable(tool.fn):
-                # Use the underlying function
-                func = tool.fn
-            elif callable(tool):
-                func = tool
-            else:
+            func = _resolve_tool_callable(tool)
+            if func is None:
                 raise ValueError(f"Tool {tool_name} is not callable")
             
             result = await asyncio.wait_for(func(**tool_args), timeout=10.0)

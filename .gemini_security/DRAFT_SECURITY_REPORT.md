@@ -1,7 +1,0 @@
-- **Vulnerability:** Hardcoded Secret
-- **Vulnerability Type:** Security
-- **Severity:** High
-- **Source Location:** `C:\Users\User\arifOS\codebase\vault\phoenix\phoenix72_controller.py`
-- **Line Content:** `hmac_key: bytes = field(default_factory=lambda: b"phoenix72_stub_key_v37")`
-- **Description:** A hardcoded HMAC key is used for signing constitutional amendments. If an attacker gains read access to the source code, they can forge amendment signatures, compromising the integrity of the entire governance system. The code includes a `TODO` comment acknowledging this is a stub key that needs replacement.
-- **Recommendation:** Replace the hardcoded key with a secure secret management solution. The key should be loaded from an environment variable or a dedicated secrets management service (like HashiCorp Vault or AWS KMS), as suggested by the `TODO` comment.
