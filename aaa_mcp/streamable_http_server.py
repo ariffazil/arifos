@@ -2,6 +2,13 @@
 arifOS StreamableHTTP MCP Server
 Dedicated POST endpoint for MCP 2024-11-05 spec
 Runs alongside main SSE server
+
+Identity Policy: "Guest book only, no bouncer"
+- Transport auth: none (by design)
+- Identity: mandatory to log, optional to enforce
+- Required fields: user_id, session_id (clientInfo and/or headers)
+- No request rejection if IDs missing
+- Log "null" for missing fields
 """
 
 import asyncio
@@ -10,6 +17,7 @@ import json
 import os
 import sys
 import uuid
+from datetime import datetime
 from typing import Any, get_args, get_origin
 
 # Force local source priority (same as rest.py)
@@ -49,6 +57,42 @@ TOOL_DESCRIPTIONS = {
     "audit": "8. AUDIT (888) - Verify & Judge",
     "seal": "9. SEAL (999) - Commit to Vault",
 }
+
+
+async def log_identity(
+    user_id: str | None,
+    session_id: str | None,
+    client_name: str | None,
+    client_version: str | None,
+    timestamp: datetime,
+    method: str,
+) -> None:
+    """
+    Log identity metadata to cooling ledger (guest book).
+    
+    Path A: Logging only, no enforcement.
+    Logs to /tmp/arifos-identity.log for now (append-only).
+    """
+    log_entry = {
+        "timestamp": timestamp.isoformat(),
+        "method": method,
+        "user_id": user_id,
+        "session_id": session_id,
+        "client_name": client_name,
+        "client_version": client_version,
+    }
+    
+    # Simple append-only log file (cooling ledger stub)
+    log_file = "/tmp/arifos-identity.log"
+    try:
+        with open(log_file, "a") as f:
+            f.write(json.dumps(log_entry) + "\n")
+    except Exception as e:
+        # Don't fail the request if logging fails
+        print(f"Identity logging failed: {e}")
+    
+    # Also print to console for debugging
+    print(f"IDENTITY: {json.dumps(log_entry)}")
 
 
 def _resolve_tool_callable(tool: Any):
@@ -138,8 +182,33 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
     request_id = body.get("id", 1)
     params = body.get("params", {})
 
-    # Generate or use existing session ID
-    session_id = request.headers.get("Mcp-Session-Id", str(uuid.uuid4()))
+    # Capture identity metadata (Path A: guest book only)
+    client_info = params.get("clientInfo", {})
+    
+    # Extract user_id from clientInfo or headers
+    user_id = client_info.get("user_id") or request.headers.get("x-arifos-user-id")
+    
+    # Extract session_id with fallback chain:
+    # 1. clientInfo.session_id
+    # 2. x-arifos-session-id header
+    # 3. mcp-session-id header (standard MCP)
+    # 4. Generate new UUID (last resort)
+    session_id = (
+        client_info.get("session_id") or
+        request.headers.get("x-arifos-session-id") or
+        request.headers.get("mcp-session-id") or
+        str(uuid.uuid4())
+    )
+
+    # Log identity (guest book entry)
+    await log_identity(
+        user_id=user_id,
+        session_id=session_id,
+        client_name=client_info.get("name"),
+        client_version=client_info.get("version"),
+        timestamp=datetime.utcnow(),
+        method=method or "unknown",
+    )
 
     if method == "initialize":
         return JSONResponse(
