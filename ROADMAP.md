@@ -57,6 +57,7 @@ arifOS is a **Constitutional AI Governance System** — the world's first produc
 | H1.1 | 🔄 In Progress | 🔴 Critical | Production observability (`/health` with governance metrics) |
 | H1.2 | 🔄 In Progress | 🔴 Critical | ASI hardening (SBERT classifier replacing keyword heuristics) |
 | H1.3 | 🔄 In Progress | 🔴 Critical | Test suite recovery (80%+ pass rate + 3 golden scenarios) |
+| H1.4 | 🔄 In Progress | 🔴 Critical | VPS Production Migration (Hardened Systemd + Nginx) |
 
 **What's Working (v65.0 SEAL)**:
 - ✅ MCP Configuration Unified — 14 servers, single global config

@@ -5,12 +5,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 # Mock optional dependencies before import
+# NOTE: httpx is NOT mocked — it's installed via FastMCP and mocking it
+# causes metaclass conflicts in authlib's httpx integration.
 import sys
 
 sys.modules["ddgs"] = MagicMock()
 sys.modules["playwright"] = MagicMock()
 sys.modules["playwright.async_api"] = MagicMock()
-sys.modules["httpx"] = MagicMock()
 sys.modules["bs4"] = MagicMock()
 
 from aaa_mcp.tools import reality_grounding
@@ -110,6 +111,7 @@ async def test_throttle_governor_waits_correctly():
     assert (end_time - start_time) >= interval
 
 
+@patch("aaa_mcp.tools.reality_grounding.DDGS_AVAILABLE", True)
 def test_ddgs_engine_asean_bias_query_build():
     """
     Given: The DDGSEngine.
@@ -124,8 +126,9 @@ def test_ddgs_engine_asean_bias_query_build():
     biased_query = engine._build_query(query, region="asean")
 
     # Assert
-    assert "site:.my" in biased_query
-    assert "site:.sg" in biased_query
+    # ASEAN site operators use wildcard: site:*.my
+    assert "site:*.my" in biased_query
+    assert "site:*.sg" in biased_query
     assert f"({query})" in biased_query
 
 
@@ -176,6 +179,8 @@ def test_cascade_initializes_engines_with_brave_key(
     assert cascade.engines[0] == mock_brave.return_value
 
 
+@patch("aaa_mcp.tools.reality_grounding.DDGS_AVAILABLE", True)
+@patch("aaa_mcp.tools.reality_grounding.PLAYWRIGHT_AVAILABLE", True)
 @patch.dict(os.environ, {}, clear=True)
 @patch("aaa_mcp.tools.reality_grounding.PlaywrightGoogleEngine")
 @patch("aaa_mcp.tools.reality_grounding.PlaywrightDDGEngine")
