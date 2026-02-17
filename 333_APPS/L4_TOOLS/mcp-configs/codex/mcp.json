@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "arifOS AAA MCP v64.1-GAGI — Codex Config",
+  "$comment": "arifOS AAA MCP v65.1 — Codex Config (aligned with global)",
   "mcpServers": {
     "aaa-mcp": {
       "command": "C:\\Users\\User\\arifOS\\.venv313\\Scripts\\python.exe",
@@ -14,11 +14,16 @@
       },
       "disabled": false,
       "alwaysAllow": [
-        "init_session",
-        "agi_cognition",
-        "asi_empathy",
-        "apex_verdict",
-        "vault_seal"
+        "anchor",
+        "reason",
+        "integrate",
+        "respond",
+        "validate",
+        "align",
+        "forge",
+        "audit",
+        "seal",
+        "trinity_forge"
       ]
     }
   }

@@ -22,7 +22,13 @@
         "align",
         "forge",
         "audit",
-        "seal"
+        "seal",
+        "trinity_forge",
+        "container_list",
+        "container_restart",
+        "container_logs",
+        "sovereign_health",
+        "container_exec"
       ]
     },
     "aaa-mcp-windows": {
@@ -45,7 +51,13 @@
         "align",
         "forge",
         "audit",
-        "seal"
+        "seal",
+        "trinity_forge",
+        "container_list",
+        "container_restart",
+        "container_logs",
+        "sovereign_health",
+        "container_exec"
       ]
     }
   }
