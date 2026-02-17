@@ -10,7 +10,7 @@ DITEMPA BUKAN DIBERI
 import asyncio
 import time
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime, timezone
 
 
@@ -25,6 +25,7 @@ class PipelineMetrics:
     verdict: str = ""
     stages_executed: List[str] = field(default_factory=list)
     floors_checked: Dict[str, bool] = field(default_factory=dict)
+    entropy_delta: float = 0.0
     landauer_risk: float = 0.0
     vault_lag_ms: float = 0.0
     energy_eff: float = 0.0
@@ -102,7 +103,9 @@ class MetricsCollector:
 
         avg_genius = sum(genius_scores) / len(genius_scores) if genius_scores else 0.0
         avg_entropy_delta = sum(entropy_deltas) / len(entropy_deltas) if entropy_deltas else 0.0
-        avg_tri_witness = sum(tri_witness_scores) / len(tri_witness_scores) if tri_witness_scores else 0.0
+        avg_tri_witness = (
+            sum(tri_witness_scores) / len(tri_witness_scores) if tri_witness_scores else 0.0
+        )
         avg_landauer = sum(landauer_risks) / len(landauer_risks) if landauer_risks else 0.0
         avg_vault_lag = sum(vault_lags) / len(vault_lags) if vault_lags else 0.0
         avg_energy_eff = sum(energy_effs) / len(energy_effs) if energy_effs else 0.0
@@ -172,15 +175,15 @@ class HealthMonitor:
     """Monitors system health for civilization deployment."""
 
     def __init__(self):
-        self.checks: Dict[str, callable] = {}
+        self.checks: Dict[str, Callable] = {}
         self.status: Dict[str, bool] = {}
         self.last_check: Dict[str, float] = {}
 
-    def register(self, name: str, check_fn: callable):
+    def register(self, name: str, check_fn: Callable):
         """Register a health check."""
         self.checks[name] = check_fn
 
-    async def check_all(self) -> Dict[str, any]:
+    async def check_all(self) -> Dict[str, Any]:
         """Run all health checks."""
         results = {}
 
@@ -190,12 +193,36 @@ class HealthMonitor:
                 result = await check_fn() if asyncio.iscoroutinefunction(check_fn) else check_fn()
                 latency = (time.time() - start) * 1000
 
-                results[name] = {
+                # Base result object
+                check_data = {
                     "status": "healthy" if result else "unhealthy",
                     "latency_ms": latency,
                     "timestamp": datetime.now(timezone.utc).isoformat(),
                 }
-                self.status[name] = result
+
+                # If check returned a dict, merge it (but don't overwrite base keys unless intentional)
+                if isinstance(result, dict):
+                    check_data.update(result)
+                    # Ensure status is string "healthy"/"unhealthy" even if dict had boolean
+                    if "status" in result:
+                        if isinstance(result["status"], bool):
+                            check_data["status"] = "healthy" if result["status"] else "unhealthy"
+                            self.status[name] = result["status"]
+                        elif isinstance(result["status"], str):
+                            # Trust string status (connected/healthy/etc) as True unless it's "unhealthy"/"error"
+                            self.status[name] = result["status"] not in (
+                                "unhealthy",
+                                "error",
+                                "failed",
+                                "disconnected",
+                            )
+                    else:
+                        # Dict without status key -> assume True (data return)
+                        self.status[name] = True
+                else:
+                    self.status[name] = bool(result)
+
+                results[name] = check_data
                 self.last_check[name] = time.time()
 
             except Exception as e:
@@ -235,9 +262,13 @@ async def init_monitoring():
             from core.pipeline import forge
 
             result = await forge("health check", actor_id="monitor")
-            return result.verdict in ("SEAL", "PARTIAL", "VOID", "888_HOLD")
-        except Exception:
-            return False
+            return {
+                "status": result.verdict in ("SEAL", "PARTIAL", "VOID", "888_HOLD"),
+                "verdict": result.verdict,
+                "session_id": result.session_id,
+            }
+        except Exception as e:
+            return {"status": False, "error": str(e)}
 
     async def check_mcp_tools():
         """Test MCP tools are registered and report any issues."""
@@ -270,14 +301,14 @@ async def init_monitoring():
 
             if missing:
                 print(f"[health] mcp_tools: UNHEALTHY - missing: {', '.join(missing)}")
-                return False
+                return {"status": False, "tool_count": tool_count, "missing": missing}
 
             if tool_count < 10:
                 print(f"[health] mcp_tools: UNHEALTHY - only {tool_count} tools (need 10+)")
-                return False
+                return {"status": False, "tool_count": tool_count, "missing": []}
 
             print(f"[health] mcp_tools: HEALTHY - {tool_count} tools registered")
-            return True
+            return {"status": True, "tool_count": tool_count}
 
         except Exception as e:
             err_type = type(e).__name__
@@ -289,7 +320,7 @@ async def init_monitoring():
             import psutil
 
             mem = psutil.virtual_memory()
-            return mem.percent < 90
+            return {"status": mem.percent < 90, "percent": mem.percent, "available": mem.available}
         except ImportError:
             # psutil not installed, skip memory check
             return True
@@ -297,6 +328,7 @@ async def init_monitoring():
     async def check_postgres():
         try:
             from aaa_mcp.sessions.session_ledger import get_ledger
+
             ledger = await get_ledger()
             if not ledger.is_postgres_available:
                 return False
@@ -318,9 +350,11 @@ async def init_monitoring():
     async def check_redis():
         try:
             from aaa_mcp.services.redis_client import get_mind_vault
+
             vault = get_mind_vault()
             health = vault.health_check()
-            return health.get("status") == "connected"
+            # Pass through the full health dict (keys, memory, etc.)
+            return health
         except Exception:
             return False
 
