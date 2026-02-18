@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-arifOS MCP Self-Test Module (2026.02.15-FORGE-TRINITY-SEAL)
+arifOS MCP Self-Test Module (2026.02.17-FORGE-VPS-SEAL)
 
 Run before deployment to verify:
 1. Constitutional floors are loaded

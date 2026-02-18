@@ -20,20 +20,18 @@ Usage:
 DITEMPA BUKAN DIBERI
 """
 
+import asyncio
+import json
 import os
 import sys
-import json
-import asyncio
 import time
 import uuid
-from typing import AsyncGenerator, Dict, List
+import uvicorn
+from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Any, AsyncGenerator, Dict, List, Optional
 
-# Force local source priority
-sys.path.insert(0, os.getcwd())
-
-import uvicorn
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse, StreamingResponse
 from starlette.routing import Route
@@ -45,8 +43,8 @@ from aaa_mcp.integrations.self_ops import self_diagnose
 
 # Build info
 BUILD_INFO = {
-    "version": "2026.02.15-FORGE-TRINITY-SEAL",
-    "schema_version": "2026.02.15-FORGE-TRINITY-SEAL",
+    "version": "2026.02.17-FORGE-VPS-SEAL",
+    "schema_version": "2026.02.17-FORGE-VPS-SEAL",
     "git_sha": os.environ.get("GIT_SHA", "unknown"),
     "build_time": os.environ.get("BUILD_TIME", datetime.utcnow().isoformat()),
 }
@@ -188,12 +186,22 @@ def generate_request_id() -> str:
 
 
 async def health(request: Request):
-    """Health check endpoint."""
+    """Health check endpoint with governance metrics."""
+    from aaa_mcp.infrastructure.monitoring import get_health_monitor, get_metrics_collector
+
+    monitor = get_health_monitor()
+    collector = get_metrics_collector()
+
+    health_results = await monitor.check_all()
+    stats = collector.get_stats()
+
     return JSONResponse(
         {
-            "status": "healthy",
+            "status": "healthy" if monitor.is_healthy() else "degraded",
             "service": "aaa-mcp-rest",
             "version": BUILD_INFO["version"],
+            "governance_metrics": stats,
+            "health_checks": health_results,
         }
     )
 
@@ -221,18 +229,28 @@ async def version(request: Request):
 
 
 async def metrics_endpoint(request: Request):
-    """Metrics endpoint (ChatGPT feedback: /metrics endpoint)."""
+    """Metrics endpoint with v65.0 governance support."""
+    from aaa_mcp.infrastructure.monitoring import get_metrics_collector
+
+    collector = get_metrics_collector()
+    stats = collector.get_stats()
+
+    # Legacy compatibility
     avg_latency = (
         sum(metrics.latencies_ms) / len(metrics.latencies_ms) if metrics.latencies_ms else 0
     )
+
     return JSONResponse(
         {
-            "requests_total": metrics.requests_total,
-            "requests_by_tool": metrics.requests_by_tool,
-            "avg_latency_ms": round(avg_latency, 2),
-            "timeouts": metrics.timeouts,
-            "errors": metrics.errors,
-            "active_sessions": len(active_sessions),
+            "requests_total": stats.get("total_executions", 0) + metrics.requests_total,
+            "avg_latency_ms": stats.get("avg_latency_ms", round(avg_latency, 2)),
+            "governance_stats": stats,
+            "legacy_stats": {
+                "requests_by_tool": metrics.requests_by_tool,
+                "timeouts": metrics.timeouts,
+                "errors": metrics.errors,
+                "active_sessions": len(active_sessions),
+            },
         }
     )
 
@@ -333,8 +351,10 @@ async def call_tool(request: Request):
         tool = TOOLS[tool_name]
 
         # Call with timeout protection (ChatGPT feedback: prevent timeouts)
+        # Note: FastMCP FunctionTool has .fn attribute with the actual function
         try:
-            result = await asyncio.wait_for(tool(**body), timeout=10.0)
+            actual_fn = getattr(tool, "fn", tool)
+            result = await asyncio.wait_for(actual_fn(**body), timeout=10.0)
         except asyncio.TimeoutError:
             metrics.timeouts += 1
             return JSONResponse(
@@ -436,6 +456,11 @@ async def apex_judge_wrapper(request: Request):
 
 async def sse_endpoint(request: Request):
     """MCP SSE transport endpoint."""
+    if request.method == "POST":
+        return JSONResponse(
+            {"error": "Method not allowed. Use GET for SSE."},
+            status_code=405,
+        )
 
     async def event_generator() -> AsyncGenerator[str, None]:
         scheme = request.headers.get("x-forwarded-proto", request.url.scheme)
@@ -456,14 +481,121 @@ async def sse_endpoint(request: Request):
 
 
 async def messages_endpoint(request: Request):
-    """MCP messages endpoint for client to server communication."""
+    """MCP JSON-RPC endpoint — handles full MCP lifecycle + tool calls."""
+    body: dict = {}
     try:
         body = await request.json()
         method = body.get("method", "")
-        params = body.get("params", {})
+        params = body.get("params", {}) or {}
         msg_id = body.get("id")
 
-        # Handle apex_judge wrapper
+        # ── MCP lifecycle methods ──────────────────────────────────────────
+        if method == "initialize":
+            return JSONResponse(
+                {
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "result": {
+                        "protocolVersion": "2024-11-05",
+                        "serverInfo": {
+                            "name": "arifos",
+                            "version": BUILD_INFO["version"],
+                        },
+                        "capabilities": {"tools": {}},
+                    },
+                }
+            )
+
+        if method == "notifications/initialized":
+            # Client acknowledgment — no response needed
+            return JSONResponse({})
+
+        if method == "ping":
+            return JSONResponse({"jsonrpc": "2.0", "id": msg_id, "result": {}})
+
+        if method == "tools/list":
+            tools_list = []
+            for name, schema in TOOL_SCHEMAS.items():
+                tool_def: dict = {
+                    "name": name,
+                    "description": schema.get("description", ""),
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                    },
+                }
+                for arg_name, arg_meta in schema.get("args", {}).items():
+                    prop: dict = {"type": arg_meta.get("type", "string")}
+                    if "description" in arg_meta:
+                        prop["description"] = arg_meta["description"]
+                    if "values" in arg_meta:
+                        prop["enum"] = arg_meta["values"]
+                    tool_def["inputSchema"]["properties"][arg_name] = prop
+                    if arg_meta.get("required", False):
+                        tool_def["inputSchema"]["required"].append(arg_name)
+                tools_list.append(tool_def)
+            return JSONResponse(
+                {
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "result": {"tools": tools_list},
+                }
+            )
+
+        if method == "tools/call":
+            tool_name = params.get("name", "")
+            tool_args = params.get("arguments", {}) or {}
+            # Resolve alias
+            if tool_name in TOOL_ALIASES:
+                tool_name = TOOL_ALIASES[tool_name]
+            if tool_name not in TOOLS:
+                return JSONResponse(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": msg_id,
+                        "error": {"code": -32601, "message": f"Tool '{tool_name}' not found"},
+                    }
+                )
+            # Wrap with timeout like call_tool does
+            # Note: FastMCP FunctionTool has .fn attribute with the actual function
+            try:
+                tool = TOOLS[tool_name]
+                actual_fn = getattr(tool, "fn", tool)
+                result = await asyncio.wait_for(actual_fn(**tool_args), timeout=10.0)
+            except asyncio.TimeoutError:
+                return JSONResponse(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": msg_id,
+                        "error": {"code": -32603, "message": "Tool execution timeout"},
+                    }
+                )
+            except Exception as e:
+                return JSONResponse(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": msg_id,
+                        "result": {
+                            "content": [
+                                {"type": "text", "text": json.dumps({"error": str(e)}, default=str)}
+                            ],
+                            "isError": True,
+                        },
+                    }
+                )
+            return JSONResponse(
+                {
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "result": {
+                        "content": [{"type": "text", "text": json.dumps(result, default=str)}],
+                        "isError": False,
+                    },
+                }
+            )
+
+        # ── Legacy direct tool-name methods (backward compat) ─────────────
         if method == "apex_judge":
             result = await apex_judge_wrapper(request)
             return result
@@ -481,15 +613,14 @@ async def messages_endpoint(request: Request):
                 }
             )
 
-        tool = TOOLS[tool_name]
-        result = await tool(**params)
-
+        result = await TOOLS[tool_name](**params)
         return JSONResponse({"jsonrpc": "2.0", "id": msg_id, "result": result})
+
     except Exception as e:
         return JSONResponse(
             {
                 "jsonrpc": "2.0",
-                "id": body.get("id") if "body" in dir() else None,
+                "id": body.get("id"),
                 "error": {"code": -32603, "message": str(e)},
             }
         )
@@ -545,17 +676,34 @@ routes = [
     Route("/tools", list_tools, methods=["GET"]),
     Route("/self_diagnose", self_diagnose, methods=["GET"]),
     Route("/tools/{tool_name}", call_tool, methods=["POST"]),
-    Route("/{tool_name}", call_tool, methods=["POST"]),  # Root path for direct tool calls
     Route("/apex_judge", apex_judge_wrapper, methods=["POST"]),
-    Route("/sse", sse_endpoint, methods=["GET"]),
+    Route("/sse", sse_endpoint, methods=["GET", "POST"]),
     Route("/messages", messages_endpoint, methods=["POST"]),
+    Route(
+        "/{tool_name}", call_tool, methods=["POST"]
+    ),  # Root path for direct tool calls — MUST BE LAST
 ]
 
-app = Starlette(routes=routes, debug=False)
+
+@asynccontextmanager
+async def lifespan(app):
+    """Initialize app resources."""
+    from aaa_mcp.infrastructure.monitoring import init_monitoring
+
+    await init_monitoring()
+    yield
+
+
+app = Starlette(routes=routes, debug=False, lifespan=lifespan)
 
 
 def main():
     """Start REST API server."""
+    # Initialize monitoring
+    from aaa_mcp.infrastructure.monitoring import init_monitoring
+
+    asyncio.run(init_monitoring())
+
     port = int(os.getenv("PORT", 8080))
     host = os.getenv("HOST", "0.0.0.0")
 

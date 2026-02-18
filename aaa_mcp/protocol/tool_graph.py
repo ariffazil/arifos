@@ -301,6 +301,21 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
 # WORKFLOW SEQUENCES
 # ═════════════════════════════════════════════════════════════════════════════
 
+# Mapping from actual MCP tool names to internal graph node names
+MCP_TO_GRAPH: Dict[str, str] = {
+    "anchor": "init_gate",
+    "reason": "agi_think",  # reason tool combines sense+think
+    "integrate": "agi_reason",
+    "respond": "agi_reason",  # respond is stage 444 (trinity sync)
+    "validate": "asi_empathize",
+    "align": "asi_align",
+    "forge": "apex_verdict",  # forge is stage 777
+    "audit": "apex_verdict",
+    "seal": "vault_seal",
+    "trinity_forge": "trinity_forge",
+}
+
+
 WORKFLOW_SEQUENCES: Dict[str, List[str]] = {
     "fact_check": ["init_gate", "reality_search", "agi_reason", "apex_verdict", "vault_seal"],
     "safety_assessment": ["init_gate", "asi_empathize", "asi_align", "apex_verdict", "vault_seal"],

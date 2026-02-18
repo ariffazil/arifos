@@ -218,7 +218,7 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
                 "result": {
                     "protocolVersion": "2024-11-05",
                     "capabilities": {"tools": {}, "logging": {}, "prompts": {}, "resources": {}},
-                    "serverInfo": {"name": "arifos-aaa-mcp", "version": "2026.02.15-FORGE-TRINITY-SEAL"},
+                    "serverInfo": {"name": "arifos-aaa-mcp", "version": "2026.02.17-FORGE-VPS-SEAL"},
                 },
             },
             headers={"Mcp-Session-Id": session_id},
@@ -302,12 +302,22 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
 
 
 async def health(request: Request) -> JSONResponse:
-    """Health check."""
+    """Health check with governance metrics."""
+    from aaa_mcp.infrastructure.monitoring import get_health_monitor, get_metrics_collector
+
+    monitor = get_health_monitor()
+    collector = get_metrics_collector()
+
+    health_results = await monitor.check_all()
+    stats = collector.get_stats()
+
     return JSONResponse(
         {
-            "status": "healthy",
+            "status": "healthy" if monitor.is_healthy() else "degraded",
             "transport": "streamable-http",
-            "version": "2026.02.15-FORGE-TRINITY-SEAL",
+            "version": "2026.02.17-FORGE-VPS-SEAL",
+            "governance_metrics": stats,
+            "health_checks": health_results,
             "endpoints": ["/mcp", "/health"],
         }
     )
@@ -321,4 +331,8 @@ routes = [
 app = Starlette(routes=routes)
 
 if __name__ == "__main__":
+    # Initialize monitoring
+    from aaa_mcp.infrastructure.monitoring import init_monitoring
+    asyncio.run(init_monitoring())
+
     uvicorn.run(app, host="0.0.0.0", port=8889)

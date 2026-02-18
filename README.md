@@ -10,12 +10,12 @@
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg" alt="PyPI version"></a>
   <a href="https://github.com/ariffazil/arifOS"><img src="https://img.shields.io/github/stars/ariffazil/arifOS" alt="GitHub stars"></a>
   <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
-  <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.15--FORGE--TRINITY--SEAL-blue" alt="T000"></a>
+  <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.17--FORGE--VPS--SEAL-blue" alt="T000"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
   <br><br>
   <a href="#-quick-start"><b>🚀 Quick Start</b></a> ·
   <a href="#-the-13-constitutional-floors"><b>🛡️ 13 Floors</b></a> ·
-  <a href="#-honest-state-reality-index-095"><b>📊 Status</b></a> ·
+  <a href="#-honest-state-reality-index-097"><b>📊 Status</b></a> ·
   <a href="#-faq"><b>❓ FAQ</b></a>
 </p>
 
@@ -252,7 +252,37 @@ Full specification: [`000_THEORY/000_LAW.md`](./000_THEORY/000_LAW.md)
 ## 🏗️ Architecture: Kernel + Adapter
 
 ```mermaid
-    Adapter -->|"calls kernel, never decides"| L0
+graph TD
+    subgraph Adapter["Adapter — aaa_mcp/ (transport only)"]
+        MCP["MCP Server\n(SSE / stdio / HTTP)"]
+        REST["REST Bridge\n(/health /tools /sse)"]
+    end
+
+    subgraph Kernel["Kernel — core/ (decision only)"]
+        INIT["_0_init · 000_ANCHOR"]
+        AGI["_1_agi · 222_REASON"]
+        ASI["_2_asi · 555_VALIDATE"]
+        APEX["_3_apex · 888_AUDIT"]
+        VAULT["_4_vault · 999_SEAL"]
+        FLOORS["13 Constitutional Floors\nF1–F13"]
+    end
+
+    MCP -->|"calls, never decides"| INIT
+    MCP -->|"calls, never decides"| AGI
+    MCP -->|"calls, never decides"| ASI
+    MCP -->|"calls, never decides"| APEX
+    MCP -->|"calls, never decides"| VAULT
+    REST -->|"calls, never decides"| INIT
+
+    INIT --> FLOORS
+    AGI  --> FLOORS
+    ASI  --> FLOORS
+    APEX --> FLOORS
+    VAULT --> FLOORS
+
+    style Adapter fill:#e8f4f8,stroke:#4a9eca,stroke-width:2px
+    style Kernel fill:#fef9e7,stroke:#f39c12,stroke-width:2px
+    style FLOORS fill:#fadbd8,stroke:#e74c3c,stroke-width:2px
 ```
 
 ### 🧠 Using arifOS as a System Prompt
@@ -296,15 +326,16 @@ Connect from OpenClaw, Claude Desktop, or any MCP client. See the [MCP Platform 
 ### Connect to Live Server
 ```bash
 curl https://arifosmcp.arif-fazil.com/health
-# {"status":"healthy","service":"aaa-mcp","version":"64.2-FORGE-TRINITY-SEAL"}
+# {"status":"healthy","service":"aaa-mcp-rest","version":"2026.02.17-FORGE-VPS-SEAL",
+#  "health_checks":{"postgres":{"status":"connected"},"redis":{"status":"connected"},...}}
 ```
 
 ### Full Deployment
-See [`DEPLOYMENT.md`](./DEPLOYMENT.md) — Railway, Docker, VPS.  
+See [`DEPLOYMENT.md`](./DEPLOYMENT.md) — VPS (Hostinger), Docker, local stdio.
 
 ---
 
-## 📊 Honest State (Reality Index: 0.95)
+## 📊 Honest State (Reality Index: 0.97)
 
 > *F7 Humility requires we tell you what doesn't work yet.*
 
@@ -312,10 +343,11 @@ See [`DEPLOYMENT.md`](./DEPLOYMENT.md) — Railway, Docker, VPS.
 | Layer | Evidence |
 |:------|:---------|
 | **L0 KERNEL** | 5 organs, 9 system calls, 13 floors enforced |
-| **L1–L4** | 9 MCP tools, thermodynamic hardening, <1ms cached |
-| **VAULT999** | Immutable ledger with cryptographic seals |
-| **Deployment** | [Live](https://arifosmcp.arif-fazil.com/health) — Triple Transport (STDIO/SSE/HTTP) |
-| **Tests** | 140 test files |
+| **L1–L4** | 15 MCP tools (10 pipeline + 5 container), triple transport |
+| **VAULT999** | PostgreSQL-backed immutable ledger with cryptographic seals |
+| **Deployment** | [Live](https://arifosmcp.arif-fazil.com/health) — Hostinger VPS, systemd, SSL, Postgres + Redis |
+| **Observability** | `/health` returns granular metrics (DB lag, pipeline verdict, tool count) |
+| **Tests** | 166 passing, 0 failing |
 
 ### 🟡 SABAR (Experimental)
 | Component | Status |
@@ -405,19 +437,20 @@ No. [VAULT999](./core/vault/README.md) logs metabolic verdicts and hashes for au
 ## 🔐 ZKPC Hash (Zero-Knowledge Proof of Constitution)
 
 ```text
-T000: 2026.02.15-FORGE-TRINITY-SEAL
+T000: 2026.02.17-FORGE-VPS-SEAL
 L0_KERNEL: DEFINED — Intelligence Kernel Operational
 8_LAYER_STACK: L0-L7 — Constitutional Architecture Complete
-REALITY_INDEX: 0.95
+REALITY_INDEX: 0.97
+INFRASTRUCTURE: VPS-PRIMARY — Hostinger 72.62.71.199 (Postgres + Redis + Systemd + SSL)
 AUTHORITY: 888_JUDGE — Muhammad Arif bin Fazil
 MOTTO: DITEMPA BUKAN DIBERI — Forged, Not Given
 
 ZKPC_COMMITMENT: sha256:9ff233cbba955e6db12702d5d8b012bd95d49e13
-MERKLE_ROOT: arifos_v65.0_L0_KERNEL_SEALED
+MERKLE_ROOT: arifos_2026.02.17_VPS_SEAL
 ```
 
 <p align="center">
-  <img src="https://img.shields.io/badge/CANONIZED-T000--2026.02.17--FORGE--SEAL-blue?style=for-the-badge" alt="Canonized Seal">
+  <img src="https://img.shields.io/badge/CANONIZED-T000--2026.02.17--FORGE--VPS--SEAL-blue?style=for-the-badge" alt="Canonized Seal">
 </p>
 
 ---
