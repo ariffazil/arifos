@@ -1,38 +1,82 @@
-# Build context exclusions for Railway
-# Keeps build fast by excluding non-runtime files
-
-# Node modules
-**/node_modules/
-
-# Archive & legacy
-archive/
-archive_local/
-arif-fazil-sites/
-
-# Tests (not needed in production image)
-tests/
-
-# Git & IDE
-.git/
-.github/
-.vscode/
-.cursor/
-
-# Reports & docs (not needed at runtime)
-reports/
-VAULT999/
-333_APPS/
-
-# Build artifacts
-*.egg-info/
+# Python cache files
 __pycache__/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-htmlcov/
-dist/
-build/
+*.py[cod]
+*$py.class
+*.so
+.Python
 
-# Large files
-*.tar.gz
-*.zip
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+.ENV
+
+# Distribution / packaging
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Testing
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# pyenv
+.python-version
+
+# Project files
+.git
+.gitignore
+.dockerignore
+Dockerfile
+fly.toml
+README.md
+docs/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/

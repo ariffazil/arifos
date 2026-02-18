@@ -1,69 +1,49 @@
-# arifOS MCP Server Dockerfile
-# Production-ready container for VPS deployment
-# Supports: PostgreSQL (VAULT999), Redis (MindVault), SSE transport
-#
-# Build: docker build -t arifos .
-# Run:   docker run -p 8080:8080 --env-file .env arifos
+# Stage 1: Build the Application
+# We use python:3.12 as the base for building and installing dependencies.
+FROM python:3.12 AS build
 
-FROM python:3.12-slim
+# Set the working directory inside the container
+WORKDIR /usr/src/app
 
-WORKDIR /app
+# Install system dependencies if needed
+RUN apt-get update && apt-get install -y --no-install-recommends     build-essential     && rm -rf /var/lib/apt/lists/*
 
-# Install system dependencies
-# - curl: healthcheck support
-# - gcc: compile native extensions if needed
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    curl \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+# Create a virtual environment
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy requirements first for layer caching
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy requirements.txt if it exists (using wildcard to avoid build failure)
+COPY requirements.tx[t] ./requirements.txt
 
-# Clean stale packages from site-packages
-RUN pip uninstall -y codebase arifos 2>/dev/null || true
+# Install Python dependencies only if requirements.txt exists
+RUN pip install --upgrade pip &&     if [ -f requirements.txt ]; then         pip install -r requirements.txt;     fi
 
-# Copy package configuration
-COPY pyproject.toml .
-COPY README.md .
-COPY ARCHITECTURE.md .
+# Copy the rest of the application source code
+COPY . .
 
-# Copy source code — REST bridge for OpenAI compatibility
-COPY core/ core/
-COPY aaa_mcp/ aaa_mcp/
+# Stage 2: Create the Final Production Image
+# We use python:3.12 as the runtime image with all the necessary tools.
+FROM python:3.12
 
-# Verify REST bridge exists (critical for OpenAI adapter)
-RUN python3 -c "from aaa_mcp.rest import TOOLS; print(f'✓ REST bridge: {len(TOOLS)} tools: {list(TOOLS.keys())}')"
+# Set the working directory
+WORKDIR /usr/src/app
 
-# NOTE: aclip_cai/ not copied — deployed separately as its own MCP server
+# Copy the virtual environment from the build stage
+COPY --from=build /opt/venv /opt/venv
 
-# Clear Python cache to ensure fresh imports
-RUN find . -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
-RUN find . -name "*.pyc" -delete 2>/dev/null || true
+# Copy the application code
+COPY --from=build /usr/src/app .
 
-# Install package in editable mode
-RUN pip install --no-cache-dir -e .
+# Set the virtual environment as the active Python environment
+ENV PATH="/opt/venv/bin:$PATH"
 
-# Verify package is importable (AAA Core only)
-RUN python3 -c "import core; from core.judgment import judge_cognition; print(f'✓ Kernel: {core.__file__}')"
-RUN python3 -c "import aaa_mcp; from aaa_mcp.server import mcp; print(f'✓ AAA-MCP: {aaa_mcp.__file__}')"
-# Using aaa_mcp directly (no router)
+# Create a non-root user to run the application
+RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /usr/src/app
+USER appuser
 
-# Create non-root user for security
-RUN useradd -m -u 1000 arifos && chown -R arifos:arifos /app
-USER arifos
+# Expose the port your app runs on
+ENV PORT=8080
+EXPOSE $PORT
 
-# Expose port
-EXPOSE 8080
-
-# Health check
-HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -sf http://localhost:${PORT:-8080}/health || exit 1
-
-# Run with unbuffered output for real-time log streaming
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-
-# Default command
-CMD ["python", "-m", "aaa_mcp", "sse", "--port", "8080", "--host", "0.0.0.0"]
+# Define the command to start your application
+CMD ["python", "app.py"]
