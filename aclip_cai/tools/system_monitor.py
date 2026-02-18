@@ -10,6 +10,7 @@ from __future__ import annotations
 import platform
 import subprocess
 import time
+import os
 from typing import Any
 
 
@@ -19,7 +20,8 @@ def get_resource_usage() -> dict[str, Any]:
         import psutil
 
         mem = psutil.virtual_memory()
-        disk = psutil.disk_usage("C:\\")
+        root_path = os.path.abspath(os.sep)
+        disk = psutil.disk_usage(root_path)
         cpu_percent = psutil.cpu_percent(interval=0.5)
         net_io = psutil.net_io_counters()
         disk_io = psutil.disk_io_counters()

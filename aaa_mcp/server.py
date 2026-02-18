@@ -166,7 +166,9 @@ async def integrate(query: str, session_id: str, grounding: Optional[list] = Non
 
 @mcp.tool(name="respond", description="4. RESPOND (444) - Draft & Plan")
 @constitutional_floor("F4", "F6")
-async def respond(query: str, session_id: str, plan: Optional[str] = None) -> dict:
+async def respond(
+    query: str, session_id: str, plan: Optional[str] = None, scope: str = "social"
+) -> dict:
     """444_TRINITY — Generate consolidated plan or draft."""
     return await respond_tool(
         session_id=session_id,
@@ -178,13 +180,19 @@ async def respond(query: str, session_id: str, plan: Optional[str] = None) -> di
 
 @mcp.tool(name="validate", description="5. VALIDATE (555) - Impact Check")
 @constitutional_floor("F5", "F6")
-async def validate(query: str, session_id: str, stakeholders: Optional[list] = None) -> dict:
+async def validate(
+    query: str,
+    session_id: str,
+    stakeholders: Optional[list] = None,
+    scope: str = "social",
+) -> dict:
     """555_ASI — Empathy & Safety Verification."""
     return await validate_tool(
         query=query,
         session_id=session_id,
         stakeholders=stakeholders,
         run_stage_555_fn=run_stage_555_empathy,
+
         peace_squared_min=(
             ConstitutionalThresholds.PEACE_SQUARED_MIN
             if hasattr(ConstitutionalThresholds, "PEACE_SQUARED_MIN")

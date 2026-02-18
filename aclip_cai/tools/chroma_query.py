@@ -10,7 +10,7 @@ from __future__ import annotations
 import os
 from typing import Any, Optional
 
-_DEFAULT_CHROMA_PATH = r"C:\Users\User\chroma_memory"
+_DEFAULT_CHROMA_PATH = os.path.join(os.path.expanduser("~"), "chroma_memory")
 
 
 def query_memory(

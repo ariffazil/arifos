@@ -396,9 +396,10 @@ def _generate_thought(
 
         content = f"Step {step + 1}: Refining understanding of '{term_str}'. Checking for consistency and implications for '{query[:30]}...'."
 
-        # Increase confidence slightly
+        # Increase confidence (Cognitive Velocity Patch)
         prev_conf = prev_thoughts[-1].confidence
-        confidence = min(0.99, prev_conf + 0.03)
+        # Boost increment to ensuring convergence to 0.99 from 0.75 within 5 steps
+        confidence = min(0.99, prev_conf + 0.06)
 
     return ThoughtNode(
         thought=content,

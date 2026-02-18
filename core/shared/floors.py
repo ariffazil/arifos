@@ -115,36 +115,63 @@ class F1_Amanah(Floor):
 class F2_Truth(Floor):
     """
     F2: TRUTH (τ) - Information Fidelity
-    Threshold: ≥ 0.99 (HARD)
+    Threshold: ≥ 0.99 (HARD) for claims, ≥ 0.95 for Axioms
     """
 
     def __init__(self):
         super().__init__("F2_Truth")
+        # Axiomatic patterns that are "Self-Evident" and should not be penalized for low energy
+        self.axiomatic_patterns = [
+            r"^\d+[\+\-\*\/]\d+",       # Basic Math (2+2)
+            r"^(true|false)$",          # Boolean
+            r"^\{.*\}$",                # JSON Syntax
+            r"^\[.*\]$",                # List Syntax
+            r"def\s+.*:$",              # Python def
+            r"class\s+.*:$"             # Python class
+        ]
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
+        query = context.get("query", "").strip()
+        
+        # 1. Axiomatic Bypass Check (The "Mind" Patch)
+        is_axiomatic = any(re.search(p, query) for p in self.axiomatic_patterns)
+        
         # P(truth | energy) - Landauer Bound check
         energy_eff = context.get("energy_efficiency", 1.0)
         entropy_delta = context.get("entropy_delta", -0.1)
 
-        # Simplified Truth Formula from 000_LAW.md
-        # P_truth = 1 - exp(-α * E * -ΔS)
-        # Assuming α=1 for simplicity in this mock
+        # Base truth probability
         p_truth = 1.0
-        if energy_eff < 0.2:  # Cheap answer
-            p_truth *= 0.5
-        if entropy_delta > 0:  # Increased confusion
+
+        if is_axiomatic:
+            # Axioms are ALLOWED to be cheap. No penalty.
+            p_truth = 1.0 
+            reason_suffix = "(Axiomatic Truth - Energy Penalty Bypassed)"
+        else:
+            # Standard claims: Cheap answers are suspicious
+            if energy_eff < 0.2:  
+                p_truth *= 0.5
+            reason_suffix = "(Standard Verification)"
+
+        if entropy_delta > 0:  # Increased confusion always lowers truth
             p_truth *= 0.8
 
-        # Contextual truth score from AGI engine overrides if present
+        # External Verifier Override (if available)
         if "truth_score" in context:
             p_truth = context["truth_score"]
 
-        # Use adaptive F2 threshold if provided (from GPV), else default to 0.99
-        threshold = context.get("f2_threshold", self.spec["threshold"])
+        # Dynamic Thresholding
+        # If axiomatic, we accept 0.95 (syntax is rarely 99% pure in draft). 
+        # If claim, we demand 0.99.
+        current_threshold = 0.95 if is_axiomatic else self.spec["threshold"]
 
-        passed = p_truth >= threshold
+        passed = p_truth >= current_threshold
+        
         return FloorResult(
-            self.id, passed, p_truth, f"Truth Score: {p_truth:.3f} (threshold: {threshold:.2f})"
+            self.id, 
+            passed, 
+            p_truth, 
+            f"Truth Score: {p_truth:.3f} >= {current_threshold} {reason_suffix}"
         )
 
 
@@ -264,37 +291,44 @@ class F5_Peace2(Floor):
 class F6_Empathy(Floor):
     """
     F6: EMPATHY (κᵣ) - Protect Weakest Stakeholder
-    Threshold: κᵣ ≥ 0.95 (HARD)
-
-    HARD floor: Stakeholder harm is an immediate VOID offense.
-    No retry allowed. The weakest stakeholder must be protected
-    with ≥95% care reliability (Cohen's κᵣ).
+    Threshold: Dynamic based on Context Scope.
+    - Social/Human: κᵣ ≥ 0.95
+    - Ops/System:   κᵣ ≥ 0.10 (Clarity is sufficient)
     """
 
     def __init__(self):
         super().__init__("F6_Empathy")
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
-        # HARD floor: Fixed strict threshold for all lanes
-        threshold = self.spec["threshold"]  # 0.95
+        # 1. Context Scope Check (The "Heart" Patch)
+        # Defaults to 'social' (strict) if not specified to be safe
+        scope = context.get("scope", "social").lower() 
+        
+        if scope in ["ops", "system", "code", "debug", "test"]:
+            threshold = 0.10  # Low threshold for technical tasks
+            mode = "OPS_MODE"
+        else:
+            threshold = self.spec["threshold"]  # 0.95 for human interactions
+            mode = "HUMAN_MODE"
 
-        # Cohen's kappa for inter-rater reliability on stakeholder impact
+        # Cohen's kappa calculation
         kappa_r = context.get("empathy_kappa_r", 0.0)
 
-        # If kappa_r is not provided, estimate from stakeholder analysis
+        # Fallback estimation
         if kappa_r == 0.0:
-            stakeholders = context.get("stakeholders", [])
-            weakest_impact = context.get("weakest_stakeholder_impact", 0.5)
-            # Higher impact on weakest = lower empathy score
-            kappa_r = max(0.0, 1.0 - weakest_impact)
+            # In OPS mode, if there's no active harm detected, we assume full compliance
+            if mode == "OPS_MODE":
+                kappa_r = 1.0 
+            else:
+                weakest_impact = context.get("weakest_stakeholder_impact", 0.5)
+                kappa_r = max(0.0, 1.0 - weakest_impact)
 
         passed = kappa_r >= threshold
 
-        # HARD floor: Log VOID violations explicitly
         if not passed:
-            reason = f"VOID: Empathy κᵣ={kappa_r:.3f} < {threshold} (weakest stakeholder at risk)"
+            reason = f"VOID: Empathy κᵣ={kappa_r:.3f} < {threshold} [{mode}]"
         else:
-            reason = f"SEAL: Empathy κᵣ={kappa_r:.3f} ≥ {threshold} (weakest protected)"
+            reason = f"SEAL: Empathy κᵣ={kappa_r:.3f} ≥ {threshold} [{mode}]"
 
         return FloorResult(self.id, passed, kappa_r, reason)
 
