@@ -677,7 +677,7 @@ routes = [
     Route("/self_diagnose", self_diagnose, methods=["GET"]),
     Route("/tools/{tool_name}", call_tool, methods=["POST"]),
     Route("/apex_judge", apex_judge_wrapper, methods=["POST"]),
-    Route("/sse", sse_endpoint, methods=["GET"]),
+    Route("/sse", sse_endpoint, methods=["GET", "POST"]),
     Route("/messages", messages_endpoint, methods=["POST"]),
     Route(
         "/{tool_name}", call_tool, methods=["POST"]
