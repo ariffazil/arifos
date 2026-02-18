@@ -10,7 +10,105 @@
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg" alt="PyPI version"></a>
   <a href="https://github.com/ariffazil/arifOS"><img src="https://img.shields.io/github/stars/ariffazil/arifOS" alt="GitHub stars"></a>
   <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
-  <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.17--FORGE--VPS--SEAL-blue" alt="T000"></a>
+  <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.17--FORGE--UVX--SEAL-blue" alt="T000"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
+  <br><br>
+  <a href="#-quick-start"><b>🚀 Quick Start</b></a> ·
+  <a href="#-the-13-constitutional-floors"><b>🛡️ 13 Floors</b></a> ·
+  <a href="#-honest-state-reality-index-097"><b>📊 Status</b></a> ·
+  <a href="#-faq"><b>❓ FAQ</b></a>
+</p>
+
+<p align="center">
+  <em>Python-based drop-in governance kernel that wraps any LLM (Claude, GPT, Gemini, DeepSeek) with 13 hard floors and a 000→999 verdict pipeline.</em>
+</p>
+
+---
+
+## 📖 Table of Contents
+- [🎯 What Is arifOS?](#-what-is-arifos)
+- [🏛️ The 8-Layer Stack](#-the-8-layer-stack)
+- [⚡ 10-Second Demo](#-10-second-demo)
+- [⚙️ Requirements](#-requirements)
+- [🔥 L0: The Intelligence Kernel](#-l0-the-intelligence-kernel)
+- [🛡️ The 13 Constitutional Floors](#-the-13-constitutional-floors)
+- [🏗️ Architecture](#-architecture-kernel--adapter)
+- [🚀 Quick Start](#-quick-start)
+- [📊 Honest State](#-honest-state-reality-index-095)
+- [❓ FAQ](#-faq)
+- [🌍 Community & Contribution](#-community--contribution)
+- [📚 T000 Glossary](#-t000-glossary)
+- [🔐 ZKPC Hash](#-zkpc-hash-zero-knowledge-proof-of-constitution)
+
+---
+
+## 🎯 What Is arifOS?
+
+### The Intelligence Kernel
+
+arifOS is one of the first **open-source constitutional kernels** for artificial intelligence — not hardware, but **cognition**.
+
+| Traditional OS | arifOS Intelligence Kernel |
+|:--|:--|
+| Controls whether a **program runs** | Controls whether a **thought is permitted** |
+| Manages CPU/memory resources | Manages **thermodynamic cognitive budget** |
+| Schedules process execution | Schedules **000→999 governance pipeline** |
+| Provides isolation via memory protection | Provides isolation via **13 constitutional floors** |
+
+**Hardware OS** = Linux manages computers  
+**Intelligence Kernel** = arifOS manages AI cognition
+
+---
+
+## 🏛️ The 8-Layer Stack
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ L7: ECOSYSTEM — Permissionless sovereignty (civilization-scale) │ 📋 Research
+├─────────────────────────────────────────────────────────────────┤
+│ L6: INSTITUTION — Trinity consensus (organizational governance) │ 🔴 Stubs
+├─────────────────────────────────────────────────────────────────┤
+│ L5: AGENTS — Multi-agent federation (coordinated actors)        │ 🟡 Pilot
+├─────────────────────────────────────────────────────────────────┤
+│ L4: TOOLS — MCP ecosystem (individual capabilities)             │ ✅ Production
+├─────────────────────────────────────────────────────────────────┤
+│ L3: WORKFLOW — 000→999 sequences (structured processes)         │ ✅ Production
+├─────────────────────────────────────────────────────────────────┤
+│ L2: SKILLS — Canonical actions (behavioral primitives)          │ ✅ Production
+├─────────────────────────────────────────────────────────────────┤
+│ L1: PROMPTS — Zero-context entry (user interface)               │ ✅ Production
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│ 🆕 L0: KERNEL — INTELLIGENCE KERNEL                             │ ✅ SEALED
+│     ├─ 5-Organs (ΔΩΨ governance engine)                        │
+│     ├─ 9 System Calls (A-CLIP tools)                           │
+│     ├─ 13 Floors (existential enforcement)                     │
+│     └─ VAULT999 (immutable audit filesystem)                   │
+│                                                                 │
+│     The substrate that L1-L7 run on                            │
+│     [333_APPS/L0_KERNEL/README.md](./333_APPS/L0_KERNEL/)      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key Insight:** L0 is the [Intelligence Kernel](./333_APPS/L0_KERNEL/) — the constitutional substrate. L1-L7 are applications that run on it. **L0 is invariant, transport-agnostic law; L1–L7 are replaceable apps. Updating models or agents cannot bypass L0.**
+
+**Documentation:** [333_APPS README](./333_APPS/README.md) — Full 8-layer architecture
+
+---
+# arifOS — Constitutional AI Kernel
+
+<p align="center">
+  <img src="docs/forged_page_1.png" alt="arifOS — Forged, Not Given" width="800">
+</p>
+
+<p align="center">
+  <strong>The Intelligence Kernel that governs whether AI cognition is permitted</strong><br>
+  <em>Controls existence, allocates resources, schedules execution, guarantees isolation</em><br><br>
+  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg" alt="PyPI version"></a>
+  <a href="https://github.com/ariffazil/arifOS"><img src="https://img.shields.io/github/stars/ariffazil/arifOS" alt="GitHub stars"></a>
+  <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
+  <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.17--FORGE--UVX--SEAL-blue" alt="T000"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
   <br><br>
   <a href="#-quick-start"><b>🚀 Quick Start</b></a> ·
@@ -102,9 +200,10 @@ arifOS is one of the first **open-source constitutional kernels** for artificial
 ## ⚙️ Requirements
 To run the arifOS Intelligence Kernel locally or in production:
 - **Python 3.12+** (Strictly required for MCP typing)
+- **uv** (Recommended for package management and `uvx` execution)
 - **Git** (For cloning and versioning)
 - **Optional**: Docker (For containerized isolation)
-- **Optional**: [Claude Desktop](https://claude.ai/download) or [Cursor](https://cursor.com) (For MCP integration)
+- **Optional**: [Claude Desktop](https://claude.ai/download), [Cursor](https://cursor.com), or **Qwen** (For MCP integration)
 
 ---
 
@@ -316,17 +415,17 @@ Copy [`SYSTEM_PROMPT.md`](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) into any AI's s
 
 ### For Operators & Self-Hosters (30 seconds)
 ```bash
-pip install arifos
-python -m aaa_mcp          # stdio (Claude Desktop, Cursor)
-python -m aaa_mcp sse      # SSE (remote clients)
-python -m aaa_mcp http     # Streamable HTTP
+# No installation required with uvx!
+uvx arifos stdio      # stdio (Claude Desktop, Cursor, Qwen)
+uvx arifos sse        # SSE (Remote/Cloud)
+uvx arifos http       # Streamable HTTP
 ```
 Connect from OpenClaw, Claude Desktop, or any MCP client. See the [MCP Platform Guide](./MCP_PLATFORM_GUIDE.md) for configs.
 
 ### Connect to Live Server
 ```bash
 curl https://arifosmcp.arif-fazil.com/health
-# {"status":"healthy","service":"aaa-mcp-rest","version":"2026.02.17-FORGE-VPS-SEAL",
+# {"status":"healthy","service":"aaa-mcp-rest","version":"2026.02.17-FORGE-UVX-SEAL",
 #  "health_checks":{"postgres":{"status":"connected"},"redis":{"status":"connected"},...}}
 ```
 
@@ -437,7 +536,7 @@ No. [VAULT999](./core/vault/README.md) logs metabolic verdicts and hashes for au
 ## 🔐 ZKPC Hash (Zero-Knowledge Proof of Constitution)
 
 ```text
-T000: 2026.02.17-FORGE-VPS-SEAL
+T000: 2026.02.17-FORGE-UVX-SEAL
 L0_KERNEL: DEFINED — Intelligence Kernel Operational
 8_LAYER_STACK: L0-L7 — Constitutional Architecture Complete
 REALITY_INDEX: 0.97
@@ -446,11 +545,11 @@ AUTHORITY: 888_JUDGE — Muhammad Arif bin Fazil
 MOTTO: DITEMPA BUKAN DIBERI — Forged, Not Given
 
 ZKPC_COMMITMENT: sha256:9ff233cbba955e6db12702d5d8b012bd95d49e13
-MERKLE_ROOT: arifos_2026.02.17_VPS_SEAL
+MERKLE_ROOT: arifos_2026.02.17_UVX_SEAL
 ```
 
 <p align="center">
-  <img src="https://img.shields.io/badge/CANONIZED-T000--2026.02.17--FORGE--VPS--SEAL-blue?style=for-the-badge" alt="Canonized Seal">
+  <img src="https://img.shields.io/badge/CANONIZED-T000--2026.02.17--FORGE--UVX--SEAL-blue?style=for-the-badge" alt="Canonized Seal">
 </p>
 
 ---
