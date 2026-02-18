@@ -1,0 +1,299 @@
+"""Core service layer for MCP tool flow control.
+
+This module holds orchestration logic used by transport adapters.
+It has no transport/framework imports.
+"""
+
+from __future__ import annotations
+
+import uuid
+from typing import Any, Awaitable, Callable, Dict, Optional
+
+from core.kernel.mcp_transport_kernel import (
+    build_align_error,
+    build_align_output,
+    build_anchor_output,
+    build_audit_error,
+    build_audit_fallback,
+    build_forge_error,
+    build_forge_output,
+    build_integrate_error,
+    build_integrate_output,
+    build_legacy_seal,
+    build_reason_error,
+    build_reason_output,
+    build_respond_error,
+    build_respond_output,
+    build_seal_error,
+    build_validate_error,
+    normalize_audit_output,
+    normalize_seal_receipt,
+    normalize_validate_result,
+)
+
+
+def _to_dict(value: Any) -> Dict[str, Any]:
+    if isinstance(value, dict):
+        return value
+    if hasattr(value, "model_dump"):
+        return value.model_dump()
+    if hasattr(value, "dict"):
+        return value.dict()
+    return {}
+
+
+async def anchor_tool(
+    *,
+    query: str,
+    actor_id: str,
+    auth_token: str,
+    platform: str,
+    init_engine: Any,
+    store_stage_result_fn: Callable[[str, str, Dict[str, Any]], None],
+) -> Dict[str, Any]:
+    init_result = await init_engine.ignite(
+        query=query,
+        actor_id=actor_id,
+        auth_token=auth_token,
+        session_id=None,
+    )
+    output = build_anchor_output(
+        init_result=init_result,
+        actor_id=actor_id,
+        platform=platform,
+        governance_mode="HARD",
+    )
+    store_stage_result_fn(init_result["session_id"], "init", output)
+    return output
+
+
+async def reason_tool(
+    *,
+    query: str,
+    session_id: str,
+    hypotheses: int,
+    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
+    store_stage_result_fn: Callable[[str, str, Dict[str, Any]], None],
+    sense_fn: Callable[..., Awaitable[Dict[str, Any]]],
+    think_fn: Callable[..., Awaitable[Dict[str, Any]]],
+    truth_score_placeholder: float,
+    clarity_delta_placeholder: float,
+) -> Dict[str, Any]:
+    try:
+        sense_result = get_stage_result_fn(session_id, "sense")
+        if not sense_result:
+            sense_result = await sense_fn(query, session_id)
+            store_stage_result_fn(session_id, "sense", sense_result)
+
+        think_result = await think_fn(query, sense_result, session_id)
+        store_stage_result_fn(session_id, "think", think_result)
+        return build_reason_output(session_id=session_id, think_result=think_result)
+    except Exception as e:
+        return build_reason_error(
+            session_id=session_id,
+            hypotheses=hypotheses,
+            truth_score_placeholder=truth_score_placeholder,
+            clarity_delta_placeholder=clarity_delta_placeholder,
+            error=e,
+        )
+
+
+async def integrate_tool(
+    *,
+    query: str,
+    session_id: str,
+    grounding: Optional[list],
+    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
+    store_stage_result_fn: Callable[[str, str, Dict[str, Any]], None],
+    sense_fn: Callable[..., Awaitable[Dict[str, Any]]],
+    think_fn: Callable[..., Awaitable[Dict[str, Any]]],
+    reason_fn: Callable[..., Awaitable[Dict[str, Any]]],
+    humility_omega_default: float,
+) -> Dict[str, Any]:
+    try:
+        think_result = get_stage_result_fn(session_id, "think")
+        if not think_result:
+            sense_result = get_stage_result_fn(session_id, "sense")
+            if not sense_result:
+                sense_result = await sense_fn(query, session_id)
+                store_stage_result_fn(session_id, "sense", sense_result)
+            think_result = await think_fn(query, sense_result, session_id)
+            store_stage_result_fn(session_id, "think", think_result)
+
+        reason_result = await reason_fn(query, think_result, session_id)
+        store_stage_result_fn(session_id, "reason", reason_result)
+        return build_integrate_output(
+            session_id=session_id,
+            reason_result=reason_result,
+            grounding=grounding,
+            humility_omega_default=humility_omega_default,
+        )
+    except Exception as e:
+        return build_integrate_error(
+            session_id=session_id,
+            humility_omega_default=humility_omega_default,
+            error=e,
+        )
+
+
+async def respond_tool(
+    *,
+    session_id: str,
+    plan: Optional[str],
+    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
+    run_stage_444_fn: Callable[..., Awaitable[Dict[str, Any]]],
+) -> Dict[str, Any]:
+    try:
+        agi_res = get_stage_result_fn(session_id, "think")
+        asi_res = get_stage_result_fn(session_id, "empathy")
+        stage_result = await run_stage_444_fn(session_id, agi_res, asi_res)
+        return build_respond_output(
+            session_id=session_id,
+            stage_result=stage_result,
+            plan=plan,
+            plan_id=f"PLAN-{uuid.uuid4().hex[:8].upper()}",
+        )
+    except Exception as e:
+        return build_respond_error(session_id=session_id, error=e)
+
+
+async def validate_tool(
+    *,
+    query: str,
+    session_id: str,
+    stakeholders: Optional[list],
+    run_stage_555_fn: Callable[..., Awaitable[Dict[str, Any]]],
+    peace_squared_min: float,
+    empathy_kappa_r_default: float,
+    safe_default: bool,
+) -> Dict[str, Any]:
+    try:
+        result = await run_stage_555_fn(session_id, query)
+        return normalize_validate_result(
+            result=result,
+            stakeholders=stakeholders,
+            default_kappa_r=empathy_kappa_r_default,
+        )
+    except Exception as e:
+        return build_validate_error(
+            session_id=session_id,
+            peace_squared_min=peace_squared_min,
+            empathy_kappa_r_default=empathy_kappa_r_default,
+            safe_default=safe_default,
+            error=e,
+        )
+
+
+async def align_tool(
+    *,
+    query: str,
+    session_id: str,
+    ethical_rules: Optional[list],
+    run_stage_666_fn: Callable[..., Awaitable[Dict[str, Any]]],
+) -> Dict[str, Any]:
+    try:
+        result = await run_stage_666_fn(session_id, query)
+        return build_align_output(session_id=session_id, result=result, ethical_rules=ethical_rules)
+    except Exception as e:
+        return build_align_error(session_id=session_id, error=e)
+
+
+async def forge_tool(
+    *,
+    session_id: str,
+    implementation_details: Dict[str, Any],
+    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
+    run_stage_777_fn: Callable[..., Awaitable[Dict[str, Any]]],
+) -> Dict[str, Any]:
+    try:
+        agi_res = get_stage_result_fn(session_id, "think")
+        asi_res = get_stage_result_fn(session_id, "empathy")
+        stage_result = await run_stage_777_fn(session_id, agi_res, asi_res)
+        return build_forge_output(
+            session_id=session_id,
+            stage_result=stage_result,
+            implementation_details=implementation_details,
+        )
+    except Exception as e:
+        return build_forge_error(session_id=session_id, error=e)
+
+
+async def audit_tool(
+    *,
+    session_id: str,
+    verdict: str,
+    human_approve: bool,
+    tri_witness_score: float,
+    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
+    run_stage_888_fn: Callable[..., Awaitable[Dict[str, Any]]],
+) -> Dict[str, Any]:
+    try:
+        agi_res = get_stage_result_fn(session_id, "agi") or get_stage_result_fn(session_id, "think")
+        asi_res = get_stage_result_fn(session_id, "asi") or get_stage_result_fn(session_id, "empathy")
+        if agi_res and asi_res:
+            judge_out = await run_stage_888_fn(session_id, agi_res, asi_res)
+            judge_dict = _to_dict(judge_out) or {"verdict": verdict}
+            return normalize_audit_output(judge_dict=judge_dict, human_approve=human_approve)
+        return build_audit_fallback(
+            session_id=session_id,
+            verdict=verdict,
+            human_approve=human_approve,
+            tri_witness_score=tri_witness_score,
+        )
+    except Exception as e:
+        return build_audit_error(session_id=session_id, error=e)
+
+
+async def seal_tool(
+    *,
+    session_id: str,
+    summary: str,
+    verdict: str,
+    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
+    run_stage_999_fn: Callable[..., Awaitable[Any]],
+) -> Dict[str, Any]:
+    try:
+        judge_res = get_stage_result_fn(session_id, "judge") or get_stage_result_fn(session_id, "audit")
+        agi_res = get_stage_result_fn(session_id, "think") or get_stage_result_fn(session_id, "agi")
+        asi_res = get_stage_result_fn(session_id, "empathy") or get_stage_result_fn(session_id, "asi")
+        if judge_res and agi_res and asi_res:
+            receipt = await run_stage_999_fn(session_id, judge_res, agi_res, asi_res, summary)
+            return normalize_seal_receipt(session_id=session_id, receipt=receipt)
+        return build_legacy_seal(session_id=session_id, verdict=verdict)
+    except Exception as e:
+        return build_seal_error(session_id=session_id, error=e)
+
+
+async def trinity_forge_tool(
+    *,
+    query: str,
+    actor_id: str,
+    forge_pipeline_fn: Callable[..., Awaitable[Any]],
+) -> Dict[str, Any]:
+    try:
+        result = await forge_pipeline_fn(query, actor_id=actor_id)
+        if hasattr(result, "model_dump"):
+            return result.model_dump()
+        if isinstance(result, dict):
+            return result
+        return {"verdict": "SABAR", "stage": "FORGE_PIPELINE", "error": "Unexpected forge output"}
+    except Exception as e:
+        return {
+            "verdict": "SABAR",
+            "error": str(e),
+            "stage": "FORGE_PIPELINE",
+        }
+
+
+__all__ = [
+    "anchor_tool",
+    "reason_tool",
+    "integrate_tool",
+    "respond_tool",
+    "validate_tool",
+    "align_tool",
+    "forge_tool",
+    "audit_tool",
+    "seal_tool",
+    "trinity_forge_tool",
+]
