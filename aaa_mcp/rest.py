@@ -555,7 +555,30 @@ async def messages_endpoint(request: Request):
                         "error": {"code": -32601, "message": f"Tool '{tool_name}' not found"},
                     }
                 )
-            result = await TOOLS[tool_name](**tool_args)
+            # Wrap with timeout like call_tool does
+            try:
+                result = await asyncio.wait_for(TOOLS[tool_name](**tool_args), timeout=10.0)
+            except asyncio.TimeoutError:
+                return JSONResponse(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": msg_id,
+                        "error": {"code": -32603, "message": "Tool execution timeout"},
+                    }
+                )
+            except Exception as e:
+                return JSONResponse(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": msg_id,
+                        "result": {
+                            "content": [
+                                {"type": "text", "text": json.dumps({"error": str(e)}, default=str)}
+                            ],
+                            "isError": True,
+                        },
+                    }
+                )
             return JSONResponse(
                 {
                     "jsonrpc": "2.0",
