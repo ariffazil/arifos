@@ -1,17 +1,29 @@
-import psutil
 import socket
+import sys
+
+# Defense: Robust Import for Broken Environments
+try:
+    import psutil
+    # Validation: checking for essential attributes to confirm it's the real psutil
+    if not hasattr(psutil, "net_connections") or not hasattr(psutil, "AccessDenied"):
+        raise ImportError("Broken psutil module detected")
+    PSUTIL_AVAILABLE = True
+except (ImportError, AttributeError):
+    psutil = None
+    PSUTIL_AVAILABLE = False
 
 
 def net_status(
     check_ports: bool = True, 
     check_connections: bool = True,
-    check_interfaces: bool = True,  # NEW
-    check_routing: bool = True,      # NEW
-    target_host: str = None         # Compatibility arg
+    check_interfaces: bool = True,
+    check_routing: bool = True,
+    target_host: str = None
 ) -> dict:
     """
     Inspects the system's network posture.
     Hardened with Interface & Routing Awareness (V2).
+    Resilient to missing dependencies (F4 Clarity).
 
     Args:
         check_ports: Check listening ports
@@ -23,8 +35,12 @@ def net_status(
     
     results = {}
 
+    # dependency check
+    if not PSUTIL_AVAILABLE:
+        results["warning"] = "psutil library missing or broken. Port/Interface checks disabled."
+
     try:
-        if check_ports:
+        if check_ports and PSUTIL_AVAILABLE:
             # net_connections can also be used to find listening ports
             listeners = [
                 conn
@@ -45,7 +61,7 @@ def net_status(
                     }
                 )
 
-        if check_connections:
+        if check_connections and PSUTIL_AVAILABLE:
             # Established connections
             conns = [
                 conn
@@ -68,13 +84,15 @@ def net_status(
                         "process_name": _get_proc_name(conn.pid),
                     }
                 )
-    except psutil.AccessDenied:
-        results["error"] = "Access denied to retrieve network information. Try running with higher privileges."
     except Exception as e:
-        results["error"] = str(e)
+        # Catch-all for psutil runtime errors if it passes import check but fails later
+        if PSUTIL_AVAILABLE and isinstance(e, psutil.AccessDenied):
+             results["error"] = "Access denied to retrieve network information. Try running with higher privileges."
+        else:
+             results["error"] = str(e)
 
     # NEW: Interface Logic
-    if check_interfaces:
+    if check_interfaces and PSUTIL_AVAILABLE:
         results["interfaces"] = {}
         try:
             addrs = psutil.net_if_addrs()
@@ -95,8 +113,10 @@ def net_status(
                 }
         except Exception as e:
             results["interfaces_error"] = str(e)
+    elif check_interfaces:
+        results["interfaces_error"] = "Interface check requires psutil."
 
-    # NEW: Basic Routing (Gateway)
+    # NEW: Basic Routing (Gateway) - Works without psutil!
     if check_routing:
         results["routing"] = {}
         try:
@@ -116,14 +136,14 @@ def net_status(
             results["routing"]["error"] = f"Routing check failed: {e}"
 
     if not results:
-        results["info"] = "No checks requested or all failed."
+        results["info"] = "No checks requested or checks failed."
 
     return results
 
 
 def _get_proc_name(pid: int) -> str:
     """Helper to resolve PID to process name safely."""
-    if not pid:
+    if not pid or not PSUTIL_AVAILABLE:
         return "N/A"
     try:
         return psutil.Process(pid).name()
