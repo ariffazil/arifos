@@ -474,14 +474,95 @@ async def sse_endpoint(request: Request):
 
 
 async def messages_endpoint(request: Request):
-    """MCP messages endpoint for client to server communication."""
+    """MCP JSON-RPC endpoint — handles full MCP lifecycle + tool calls."""
+    body: dict = {}
     try:
         body = await request.json()
         method = body.get("method", "")
-        params = body.get("params", {})
+        params = body.get("params", {}) or {}
         msg_id = body.get("id")
 
-        # Handle apex_judge wrapper
+        # ── MCP lifecycle methods ──────────────────────────────────────────
+        if method == "initialize":
+            return JSONResponse(
+                {
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "result": {
+                        "protocolVersion": "2024-11-05",
+                        "serverInfo": {
+                            "name": "arifos",
+                            "version": BUILD_INFO["version"],
+                        },
+                        "capabilities": {"tools": {}},
+                    },
+                }
+            )
+
+        if method == "notifications/initialized":
+            # Client acknowledgment — no response needed
+            return JSONResponse({})
+
+        if method == "ping":
+            return JSONResponse({"jsonrpc": "2.0", "id": msg_id, "result": {}})
+
+        if method == "tools/list":
+            tools_list = []
+            for name, schema in TOOL_SCHEMAS.items():
+                tool_def: dict = {
+                    "name": name,
+                    "description": schema.get("description", ""),
+                    "inputSchema": {
+                        "type": "object",
+                        "properties": {},
+                        "required": [],
+                    },
+                }
+                for arg_name, arg_meta in schema.get("args", {}).items():
+                    prop: dict = {"type": arg_meta.get("type", "string")}
+                    if "description" in arg_meta:
+                        prop["description"] = arg_meta["description"]
+                    if "values" in arg_meta:
+                        prop["enum"] = arg_meta["values"]
+                    tool_def["inputSchema"]["properties"][arg_name] = prop
+                    if arg_meta.get("required", False):
+                        tool_def["inputSchema"]["required"].append(arg_name)
+                tools_list.append(tool_def)
+            return JSONResponse(
+                {
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "result": {"tools": tools_list},
+                }
+            )
+
+        if method == "tools/call":
+            tool_name = params.get("name", "")
+            tool_args = params.get("arguments", {}) or {}
+            # Resolve alias
+            if tool_name in TOOL_ALIASES:
+                tool_name = TOOL_ALIASES[tool_name]
+            if tool_name not in TOOLS:
+                return JSONResponse(
+                    {
+                        "jsonrpc": "2.0",
+                        "id": msg_id,
+                        "error": {"code": -32601, "message": f"Tool '{tool_name}' not found"},
+                    }
+                )
+            result = await TOOLS[tool_name](**tool_args)
+            return JSONResponse(
+                {
+                    "jsonrpc": "2.0",
+                    "id": msg_id,
+                    "result": {
+                        "content": [{"type": "text", "text": json.dumps(result, default=str)}],
+                        "isError": False,
+                    },
+                }
+            )
+
+        # ── Legacy direct tool-name methods (backward compat) ─────────────
         if method == "apex_judge":
             result = await apex_judge_wrapper(request)
             return result
@@ -499,15 +580,14 @@ async def messages_endpoint(request: Request):
                 }
             )
 
-        tool = TOOLS[tool_name]
-        result = await tool(**params)
-
+        result = await TOOLS[tool_name](**params)
         return JSONResponse({"jsonrpc": "2.0", "id": msg_id, "result": result})
+
     except Exception as e:
         return JSONResponse(
             {
                 "jsonrpc": "2.0",
-                "id": body.get("id") if "body" in dir() else None,
+                "id": body.get("id"),
                 "error": {"code": -32603, "message": str(e)},
             }
         )
@@ -563,10 +643,12 @@ routes = [
     Route("/tools", list_tools, methods=["GET"]),
     Route("/self_diagnose", self_diagnose, methods=["GET"]),
     Route("/tools/{tool_name}", call_tool, methods=["POST"]),
-    Route("/{tool_name}", call_tool, methods=["POST"]),  # Root path for direct tool calls
     Route("/apex_judge", apex_judge_wrapper, methods=["POST"]),
     Route("/sse", sse_endpoint, methods=["GET"]),
     Route("/messages", messages_endpoint, methods=["POST"]),
+    Route(
+        "/{tool_name}", call_tool, methods=["POST"]
+    ),  # Root path for direct tool calls — MUST BE LAST
 ]
 
 
