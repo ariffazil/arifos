@@ -454,6 +454,11 @@ async def apex_judge_wrapper(request: Request):
 
 async def sse_endpoint(request: Request):
     """MCP SSE transport endpoint."""
+    if request.method == "POST":
+        return JSONResponse(
+            {"error": "Method not allowed. Use GET for SSE."},
+            status_code=405,
+        )
 
     async def event_generator() -> AsyncGenerator[str, None]:
         scheme = request.headers.get("x-forwarded-proto", request.url.scheme)
