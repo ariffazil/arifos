@@ -3,7 +3,7 @@
 
 # Core dependencies
 # CACHE BUST: 2026-02-14-Force-FastMCP-2.x
-fastmcp>=2.14.0  # v65.1 - Upgraded to FastMCP 2.x for custom_route support
+fastmcp>=2.14.0,<3.0.0  # v65.1 - Upgraded to FastMCP 2.x for custom_route support
 pydantic>=2.0.0
 httpx>=0.24.0
 numpy>=1.20.0  # Required for SBERT ASI floors (F5, F6, F9)

@@ -18,6 +18,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     gcc \
+    procps \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first for layer caching
@@ -36,6 +37,8 @@ COPY ARCHITECTURE.md .
 # Copy source code — REST bridge for OpenAI compatibility
 COPY core/ core/
 COPY aaa_mcp/ aaa_mcp/
+COPY start-trinity.sh .
+RUN chmod +x start-trinity.sh
 
 # Verify REST bridge exists (critical for OpenAI adapter)
 RUN python3 -c "from aaa_mcp.rest import TOOLS; print(f'✓ REST bridge: {len(TOOLS)} tools: {list(TOOLS.keys())}')"
@@ -63,9 +66,9 @@ USER arifos
 EXPOSE 8080
 
 # Health check for Railway monitoring
-# Hits /health on the MCP server
+# Health check: verify both SSE and HTTP processes are running
 HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
-    CMD curl -sf http://localhost:${PORT:-8080}/health || exit 1
+    CMD pgrep -f "python -m aaa_mcp sse" && pgrep -f "python -m aaa_mcp http" || exit 1
 
 # Run with unbuffered output for real-time log streaming
 ENV PYTHONUNBUFFERED=1

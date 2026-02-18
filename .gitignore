@@ -210,6 +210,7 @@ gha-creds-*.json
 .env.local
 .env.*.local
 .env.production
+.env.docker
 
 # Agent ephemeral configs
 .kimi_mcp_fixed.json
