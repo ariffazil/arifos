@@ -1,7 +1,7 @@
-# core/ — v55.5 RUKUN AGI Foundation
+# core/ — 2026.02.17 RUKUN AGI Foundation
 
 > **RUKUN AGI** — The Five Pillars of Constitutional AI
-> **Version:** v55.5.0
+> **Version:** 2026.02.17-FORGE-UVX-SEAL
 > **Philosophy:** 555 is sacred — just as Islam has 5 pillars, AGI needs 5 pillars to stand
 > **Motto:** DITEMPA BUKAN DIBERI — Forged, Not Given 💎🔥🧠
 
@@ -525,6 +525,7 @@ from core.shared.types import FloorScores
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 2026.02.17 | 2026-02-17 | **FORGE-UVX-SEAL** — `uvx` compatibility, verified import, README updates |
 | v55.5.0 | 2026-02-09 | **RUKUN AGI Foundation** — Consolidated to `core/`, Airlock implemented |
 | v55.4.0 | 2026-02-06 | Constitutional decorator hardening, F8 Genius wiring |
 | v55.3.0 | 2026-02-06 | MCP namespace fix (`mcp/` → `aaa_mcp/`) |

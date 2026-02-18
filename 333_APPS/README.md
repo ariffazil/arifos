@@ -179,12 +179,12 @@ L1: Prompts (user interface)
 
 ---
 
-## Recent Improvements (v65.0-FORGE-TRINITY-SEAL)
+## Recent Improvements (v2026.02.17-FORGE-UVX-SEAL)
 
 - ✅ **L0 KERNEL Defined:** Constitutional OS layer documented
 - ✅ **MCP Unification:** 14 servers, global config
 - ✅ **Environment Consolidation:** Single `~/.arifos/env`
-- ✅ **SDK Deprecation:** MCP = Universal SDK
+- ✅ **Verified UVX Compatibility:** `uvx arifos` for instant execution
 - ✅ **Tool Expansion:** 5 → 14 tools
 - ✅ **Performance:** <1ms cached responses
 
@@ -192,7 +192,7 @@ L1: Prompts (user interface)
 
 **DITEMPA BUKAN DIBERI — Forged, Not Given** 🔥💎🧠
 
-**Version:** v65.0-FORGE-TRINITY-SEAL  
-**T000:** 2026.02.15  
+**Version:** 2026.02.17-FORGE-UVX-SEAL  
+**T000:** 2026.02.17  
 **Stack:** 8 Layers (L0-L7)  
-**Reality Index:** 0.95
+**Reality Index:** 0.97

@@ -51,11 +51,11 @@ ACLIP_CAI provides **infrastructure observability** for arifOS through a 9-tool 
 ## Installation
 
 ```bash
-# ACLIP_CAI is included in arifOS
-pip install -e /root/arifOS
+# Install with uv
+uv pip install -e .
 
-# Or directly
-python -m pip install -e /root/arifOS/aclip_cai
+# Or run directly with uvx (if packaged)
+# uvx aclip-cai
 ```
 
 ---

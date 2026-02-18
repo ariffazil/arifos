@@ -13,17 +13,10 @@ Production-grade **Governance Engine** enforcing 13 constitutional floors (F1-F1
 ## Quick Start
 
 ```bash
-# Install
-pip install arifos
-
-# Run (stdio transport for Claude Desktop, Cursor)
-python -m aaa_mcp
-
-# Run (SSE transport for remote clients)
-python -m aaa_mcp sse
-
-# Run (HTTP transport)
-python -m aaa_mcp http
+# No installation required with uvx!
+uvx arifos stdio      # stdio (Claude Desktop, Cursor, Qwen)
+uvx arifos sse        # SSE (Remote/Cloud)
+uvx arifos http       # Streamable HTTP
 ```
 
 ---
@@ -76,8 +69,8 @@ Edit `%APPDATA%\Claude\claude_desktop_config.json`:
 {
   "mcpServers": {
     "aaa-mcp": {
-      "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "command": "uvx",
+      "args": ["arifos", "stdio"],
       "env": { "ARIFOS_MODE": "PROD" }
     }
   }
@@ -92,8 +85,30 @@ Create `.cursor/mcp.json`:
 {
   "mcpServers": {
     "aaa-mcp": {
-      "command": "python",
-      "args": ["-m", "aaa_mcp"]
+      "command": "uvx",
+      "args": ["arifos", "stdio"]
+    }
+  }
+}
+```
+
+### Cline / Claude Dev
+
+Add to your Cline MCP settings file (e.g., `%APPDATA%\Code\User\globalStorage\saoudrizwan.claude-dev\settings\cline_mcp_settings.json`):
+
+```json
+{
+  "mcpServers": {
+    "arifos-local": {
+      "command": "uvx",
+      "args": ["arifos", "stdio"],
+      "disabled": false,
+      "alwaysAllow": []
+    },
+    "arifos-vps": {
+      "url": "https://arifosmcp.arif-fazil.com/sse",
+      "disabled": false,
+      "alwaysAllow": []
     }
   }
 }
@@ -177,9 +192,9 @@ See [`core/`](../core/) for the Trinity Engine and Metabolic Loop implementation
 
 | Transport | Command | Use Case |
 |-----------|---------|----------|
-| **stdio** | `python -m aaa_mcp` | Claude Desktop, Cursor, local agents |
-| **SSE** | `python -m aaa_mcp sse` | Remote connections, ChatGPT Developer Mode |
-| **HTTP** | `python -m aaa_mcp http` | Streamable HTTP transport |
+| **stdio** | `uvx arifos stdio` | Claude Desktop, Cursor, local agents |
+| **SSE** | `uvx arifos sse` | Remote connections, ChatGPT Developer Mode |
+| **HTTP** | `uvx arifos http` | Streamable HTTP transport |
 
 ### MCP JSON-RPC Protocol (SSE)
 

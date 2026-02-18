@@ -1,4 +1,4 @@
-# arifOS Theory (v55.5)
+# arifOS Theory (2026.02.17)
 
 **Governance First. Intelligence Second.**
 
@@ -26,8 +26,8 @@ This directory contains the **Constitutional Canon** of arifOS. These documents 
 *   **[005_EVALS.md](005_EVALS.md)** — Validation & Testing strategy.
 
 ### 4. Technical Specifications
-*   **[codebase/mcp/README.md](../codebase/mcp/README.md)** — The Model Context Protocol implementation.
-*   **[codebase/mcp/tools/VAULT_SPEC.md](../codebase/mcp/tools/VAULT_SPEC.md)** — The Vault sealing protocol.
+*   **[aaa_mcp/README.md](../aaa_mcp/README.md)** — The Model Context Protocol implementation.
+*   **[VAULT_HARDENING_v55.3.md](../VAULT999/CCC_CANON/VAULT_HARDENING_v55.3.md)** — The Vault sealing protocol.
 
 
 ---
