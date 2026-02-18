@@ -351,8 +351,10 @@ async def call_tool(request: Request):
         tool = TOOLS[tool_name]
 
         # Call with timeout protection (ChatGPT feedback: prevent timeouts)
+        # Note: FastMCP FunctionTool has .fn attribute with the actual function
         try:
-            result = await asyncio.wait_for(tool(**body), timeout=10.0)
+            actual_fn = getattr(tool, "fn", tool)
+            result = await asyncio.wait_for(actual_fn(**body), timeout=10.0)
         except asyncio.TimeoutError:
             metrics.timeouts += 1
             return JSONResponse(
@@ -556,8 +558,11 @@ async def messages_endpoint(request: Request):
                     }
                 )
             # Wrap with timeout like call_tool does
+            # Note: FastMCP FunctionTool has .fn attribute with the actual function
             try:
-                result = await asyncio.wait_for(TOOLS[tool_name](**tool_args), timeout=10.0)
+                tool = TOOLS[tool_name]
+                actual_fn = getattr(tool, "fn", tool)
+                result = await asyncio.wait_for(actual_fn(**tool_args), timeout=10.0)
             except asyncio.TimeoutError:
                 return JSONResponse(
                     {
