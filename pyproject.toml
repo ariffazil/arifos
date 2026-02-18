@@ -131,8 +131,9 @@ all = [
 ]
 
 [project.scripts]
-# AAA MCP Server Commands (v64.1-GAGI) - 5-Core Constitutional Architecture
-# Usage: aaa-mcp [stdio|sse|http]  (default: stdio)
+# arifOS Canonical CLI (v65.0-FORGE-UVX)
+# Usage: uvx arifos [stdio|sse|http]
+arifos = "aaa_mcp.__main__:main"
 aaa-mcp = "aaa_mcp.__main__:main"
 
 # ACLIP_CAI Console Intelligence Tools (v1.0.0)
