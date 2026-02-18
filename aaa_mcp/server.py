@@ -30,7 +30,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from fastmcp import FastMCP
 
-from aaa_mcp.config.constants import ConstitutionalThresholds, ToolDefaults
+from core.kernel.constants import ConstitutionalThresholds, ToolDefaults
 
 # Import real constitutional enforcement
 from aaa_mcp.core.constitutional_decorator import constitutional_floor
