@@ -1,24 +1,55 @@
 import pytest
+from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
+import sys
+import types
 
-# Skip tests if core modules unavailable
+
+def _load_module(module_name: str, rel_path: str):
+    root = Path(__file__).resolve().parents[1]
+    aaa_mcp_path = root / "aaa_mcp"
+    protocol_path = aaa_mcp_path / "protocol"
+
+    if "aaa_mcp" not in sys.modules:
+        pkg = types.ModuleType("aaa_mcp")
+        pkg.__path__ = [str(aaa_mcp_path)]
+        sys.modules["aaa_mcp"] = pkg
+    if "aaa_mcp.protocol" not in sys.modules:
+        protocol_pkg = types.ModuleType("aaa_mcp.protocol")
+        protocol_pkg.__path__ = [str(protocol_path)]
+        sys.modules["aaa_mcp.protocol"] = protocol_pkg
+
+    module_path = root / rel_path
+    spec = spec_from_file_location(module_name, module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Unable to load module spec for {module_path}")
+    module = module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+LOAD_ERROR = None
 try:
-    from aaa_mcp.protocol.response import (
-        build_align_response,
-        build_empathize_response,
-        build_init_response,
-        build_reason_response,
-        build_seal_response,
-        build_sense_response,
-        build_think_response,
-        build_verdict_response,
-    )
-    from aaa_mcp.protocol.tool_graph import TOOL_GRAPH
+    response_module = _load_module("aaa_mcp.protocol.response", "aaa_mcp/protocol/response.py")
+    tool_graph_module = _load_module("aaa_mcp.protocol.tool_graph", "aaa_mcp/protocol/tool_graph.py")
+except Exception as exc:
+    LOAD_ERROR = exc
 
-    CORE_AVAILABLE = True
-except ImportError:
-    CORE_AVAILABLE = False
+if LOAD_ERROR is None:
+    build_align_response = response_module.build_align_response
+    build_empathize_response = response_module.build_empathize_response
+    build_init_response = response_module.build_init_response
+    build_reason_response = response_module.build_reason_response
+    build_seal_response = response_module.build_seal_response
+    build_sense_response = response_module.build_sense_response
+    build_think_response = response_module.build_think_response
+    build_verdict_response = response_module.build_verdict_response
+    TOOL_GRAPH = tool_graph_module.TOOL_GRAPH
 
-pytestmark = pytest.mark.skipif(not CORE_AVAILABLE, reason="Core aaa_mcp modules not available")
+pytestmark = pytest.mark.skipif(
+    LOAD_ERROR is not None, reason=f"Core aaa_mcp modules not available: {LOAD_ERROR}"
+)
 
 
 def test_init_gate_integration():

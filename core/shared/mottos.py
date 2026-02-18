@@ -107,6 +107,21 @@ class ConstitutionalMotto:
     usage_context: str  # When to use this motto
     violation_response: str  # Message when floor fails
 
+    def translate(self) -> str:
+        """Get the English translation."""
+        return self.english
+
+    def to_dict(self) -> Dict[str, str]:
+        """Convert to dict for transport."""
+        return {
+            "malay": self.malay,
+            "english": self.english,
+            "positive": self.positive,
+            "negative": self.negative,
+            "stage": self.stage_name,
+            "floor": self.primary_floor
+        }
+
     def __str__(self) -> str:
         return f"{self.malay} — {self.english}"
 

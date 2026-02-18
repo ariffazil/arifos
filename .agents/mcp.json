@@ -3,7 +3,7 @@
   "$comment": "arifOS AGENTS CANON - Master MCP Configuration (TIER 0-3) - The Role Model for All arifOS Agents",
   "mcpServers": {
     "aaa-mcp": {
-      "command": "C:\\Users\\User\\arifOS\\.venv313\\Scripts\\python.exe",
+      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
       "args": ["-m", "aaa_mcp", "stdio"],
       "cwd": "C:/Users/User/arifOS",
       "env": {

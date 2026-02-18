@@ -1,0 +1,17 @@
+[Unit]
+Description=arifOS MCP Server (REST+SSE)
+After=network.target postgresql.service redis-server.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/arifos
+EnvironmentFile=/opt/arifos/.env
+ExecStart=/opt/arifos/.venv/bin/python -c "from aaa_mcp.rest import app; import uvicorn; uvicorn.run(app, host=\"127.0.0.1\", port=8080)"
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

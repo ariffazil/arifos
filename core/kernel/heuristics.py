@@ -2,7 +2,7 @@
 # Cheap, reversible heuristics for SystemState (v62 Step 1)
 # Rule: Do not pretend metrics are real until evidence exists (Step 2)
 
-from .state import SystemState, Profile
+from core.shared.types import SystemState, Profile
 
 # Signal word lists
 ABSOLUTIST = ("definitely", "guaranteed", "always", "never", "100%", "certainly", "absolutely")

@@ -13,8 +13,8 @@ DITEMPA BUKAN DIBERI — Forged, not given.
 import os
 from typing import List, Optional
 
-from aaa_mcp.enforcement.refusal.builder import generate_refusal_response
-from aaa_mcp.enforcement.refusal.types import RefusalType, RiskDomain, RefusalResponse
+from core.enforcement.refusal.builder import generate_refusal_response
+from core.enforcement.refusal.types import RefusalType, RiskDomain, RefusalResponse
 
 # Risk detection patterns
 VIOLENCE_KEYWORDS = [

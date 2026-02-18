@@ -58,9 +58,9 @@ try:
 except ImportError:
     BS4_AVAILABLE = False
 
-# Routing: migrated to aaa_mcp (v64.1+)
+# Routing: migrated to core (v64.1+)
 try:
-    from aaa_mcp.enforcement.routing import route_refuse
+    from core.enforcement.routing import route_refuse
 except ImportError:
     route_refuse = None
 

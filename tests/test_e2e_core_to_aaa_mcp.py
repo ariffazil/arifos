@@ -12,25 +12,58 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 import pytest
-import asyncio
-from typing import Dict, Any
+from importlib.util import module_from_spec, spec_from_file_location
+from pathlib import Path
+import sys
+import types
 
-# Skip tests if core modules unavailable
+
+def _load_module(module_name: str, rel_path: str):
+    root = Path(__file__).resolve().parents[1]
+    aaa_mcp_path = root / "aaa_mcp"
+    protocol_path = aaa_mcp_path / "protocol"
+
+    if "aaa_mcp" not in sys.modules:
+        pkg = types.ModuleType("aaa_mcp")
+        pkg.__path__ = [str(aaa_mcp_path)]
+        sys.modules["aaa_mcp"] = pkg
+    if "aaa_mcp.protocol" not in sys.modules:
+        protocol_pkg = types.ModuleType("aaa_mcp.protocol")
+        protocol_pkg.__path__ = [str(protocol_path)]
+        sys.modules["aaa_mcp.protocol"] = protocol_pkg
+
+    module_path = root / rel_path
+    spec = spec_from_file_location(module_name, module_path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"Unable to load module spec for {module_path}")
+    module = module_from_spec(spec)
+    sys.modules[module_name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+LOAD_ERROR = None
 try:
-    from aaa_mcp.protocol.tool_graph import WORKFLOW_SEQUENCES, validate_sequence
-    from aaa_mcp.protocol.capabilities import TOOL_CAPABILITIES
-    from aaa_mcp.protocol.response import (
-        build_init_response,
-        build_seal_response,
-        build_verdict_response,
+    tool_graph_module = _load_module("aaa_mcp.protocol.tool_graph", "aaa_mcp/protocol/tool_graph.py")
+    capabilities_module = _load_module(
+        "aaa_mcp.protocol.capabilities", "aaa_mcp/protocol/capabilities.py"
     )
+    response_module = _load_module("aaa_mcp.protocol.response", "aaa_mcp/protocol/response.py")
+    schemas_module = _load_module("aaa_mcp.protocol.schemas", "aaa_mcp/protocol/schemas.py")
+except Exception as exc:
+    LOAD_ERROR = exc
 
-    CORE_AVAILABLE = True
-except ImportError:
-    CORE_AVAILABLE = False
+if LOAD_ERROR is None:
+    WORKFLOW_SEQUENCES = tool_graph_module.WORKFLOW_SEQUENCES
+    validate_sequence = tool_graph_module.validate_sequence
+    TOOL_GRAPH = tool_graph_module.TOOL_GRAPH
+    TOOL_CAPABILITIES = capabilities_module.TOOL_CAPABILITIES
+    TOOL_INPUT_SCHEMAS = schemas_module.TOOL_INPUT_SCHEMAS
+    build_init_response = response_module.build_init_response
+    build_seal_response = response_module.build_seal_response
+    build_verdict_response = response_module.build_verdict_response
 
-
-pytestmark = pytest.mark.skipif(not CORE_AVAILABLE, reason="Core modules not available")
+pytestmark = pytest.mark.skipif(LOAD_ERROR is not None, reason=f"Core modules not available: {LOAD_ERROR}")
 
 
 class TestConstitutionalPipeline:
@@ -119,8 +152,6 @@ class TestConstitutionalPipeline:
 
     def test_all_tools_have_capability_descriptions(self):
         """Every tool in graph must have capability description."""
-        from aaa_mcp.protocol.tool_graph import TOOL_GRAPH
-
         for tool_name in TOOL_GRAPH.keys():
             assert (
                 tool_name in TOOL_CAPABILITIES
@@ -134,8 +165,6 @@ class TestConstitutionalPipeline:
 
     def test_trinity_forge_is_primary_entrypoint(self):
         """trinity_forge must be the unified entrypoint."""
-        from aaa_mcp.protocol.tool_graph import TOOL_GRAPH
-
         assert "trinity_forge" in TOOL_GRAPH, "trinity_forge must exist in tool graph"
 
         node = TOOL_GRAPH["trinity_forge"]
@@ -155,8 +184,6 @@ class TestAuthenticationRelaxed:
 
     def test_auth_token_is_optional(self):
         """auth_token parameter must be optional for all tools."""
-        from aaa_mcp.protocol.schemas import TOOL_INPUT_SCHEMAS
-
         # Check trinity_forge schema
         forge_schema = TOOL_INPUT_SCHEMAS.get("trinity_forge", {})
         props = forge_schema.get("properties", {})
@@ -176,7 +203,14 @@ class TestAuthenticationRelaxed:
 
     def test_init_gate_no_strict_auth(self):
         """init_gate should not require strict authentication."""
-        from aaa_mcp.core.constitutional_decorator import _build_pre_context
+        try:
+            decorator_module = _load_module(
+                "constitutional_decorator", "aaa_mcp/core/constitutional_decorator.py"
+            )
+        except Exception as exc:
+            pytest.skip(f"constitutional_decorator unavailable in this environment: {exc}")
+
+        _build_pre_context = decorator_module._build_pre_context
 
         ctx = _build_pre_context("test query", {"session_id": "test-123"})
 
@@ -192,8 +226,7 @@ class TestAuthenticationRelaxed:
 class TestEndToEndFlow:
     """Full E2E flow tests."""
 
-    @pytest.mark.asyncio
-    async def test_full_pipeline_flow(self):
+    def test_full_pipeline_flow(self):
         """Test complete 000-999 pipeline execution."""
         # This would require full server integration
         # For now, verify the sequence is correct

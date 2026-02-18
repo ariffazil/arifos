@@ -365,6 +365,42 @@ class GPV(BaseModel):
 
 
 # ============================================================================
+# SYSTEM STATE — v62 Cognitive Runtime
+# ============================================================================
+
+Profile = Literal["factual", "creative", "crisis", "routine"]
+
+
+class SystemState(BaseModel):
+    """
+    Minimal SystemState for v62.
+    Exposes system metrics for scheduler routing.
+
+    Fields:
+        uncertainty: 0.0-1.0 (epistemic uncertainty)
+        risk: 0.0-1.0 (stakeholder impact)
+        grounding: 0.0-1.0 (evidence strength)
+        loop_count: int (iteration detection)
+        profile: domain classification for adaptive floors
+    """
+
+    uncertainty: float  # 0..1
+    risk: float  # 0..1
+    grounding: float  # 0..1
+    loop_count: int
+    profile: Profile
+
+    def to_dict(self) -> dict:
+        return {
+            "uncertainty": round(self.uncertainty, 2),
+            "risk": round(self.risk, 2),
+            "grounding": round(self.grounding, 2),
+            "loop_count": self.loop_count,
+            "profile": self.profile,
+        }
+
+
+# ============================================================================
 # EXPORT PUBLIC API
 # ============================================================================
 
@@ -400,4 +436,6 @@ __all__ = [
     "MindBundle",
     "HeartBundle",
     "SoulBundle",
+    "SystemState",
+    "Profile",
 ]
