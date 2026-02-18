@@ -252,7 +252,37 @@ Full specification: [`000_THEORY/000_LAW.md`](./000_THEORY/000_LAW.md)
 ## 🏗️ Architecture: Kernel + Adapter
 
 ```mermaid
-    Adapter -->|"calls kernel, never decides"| L0
+graph TD
+    subgraph Adapter["Adapter — aaa_mcp/ (transport only)"]
+        MCP["MCP Server\n(SSE / stdio / HTTP)"]
+        REST["REST Bridge\n(/health /tools /sse)"]
+    end
+
+    subgraph Kernel["Kernel — core/ (decision only)"]
+        INIT["_0_init · 000_ANCHOR"]
+        AGI["_1_agi · 222_REASON"]
+        ASI["_2_asi · 555_VALIDATE"]
+        APEX["_3_apex · 888_AUDIT"]
+        VAULT["_4_vault · 999_SEAL"]
+        FLOORS["13 Constitutional Floors\nF1–F13"]
+    end
+
+    MCP -->|"calls, never decides"| INIT
+    MCP -->|"calls, never decides"| AGI
+    MCP -->|"calls, never decides"| ASI
+    MCP -->|"calls, never decides"| APEX
+    MCP -->|"calls, never decides"| VAULT
+    REST -->|"calls, never decides"| INIT
+
+    INIT --> FLOORS
+    AGI  --> FLOORS
+    ASI  --> FLOORS
+    APEX --> FLOORS
+    VAULT --> FLOORS
+
+    style Adapter fill:#e8f4f8,stroke:#4a9eca,stroke-width:2px
+    style Kernel fill:#fef9e7,stroke:#f39c12,stroke-width:2px
+    style FLOORS fill:#fadbd8,stroke:#e74c3c,stroke-width:2px
 ```
 
 ### 🧠 Using arifOS as a System Prompt
