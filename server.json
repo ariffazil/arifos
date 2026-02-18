@@ -1,8 +1,8 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ariffazil/aaa-mcp",
-  "version": "2026.02.15",
-  "description": "Constitutional AI Governance with 10 pipeline tools, 5 container tools, 13 enforced floors (F1-F13), 20+ injection defense patterns, and tri-witness consensus for LLMs.",
+  "version": "2026.02.18",
+  "description": "Constitutional AI Governance with 10 pipeline tools, 5 container tools, 13 enforced floors (F1-F13), 20+ injection defense patterns, and tri-witness consensus for LLMs. Full MCP JSON-RPC protocol support over SSE.",
   "vendor": {
     "name": "arifOS",
     "url": "https://arifos.arif-fazil.com"
@@ -16,7 +16,7 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "2026.02.15",
+      "version": "2026.02.18",
       "transport": {
         "type": "stdio",
         "command": "python -m aaa_mcp"
@@ -24,10 +24,11 @@
     },
     {
       "registryType": "oci",
-      "identifier": "docker.io/ariffazil/arifos:2026.02.15",
+      "identifier": "docker.io/ariffazil/arifos:2026.02.18",
       "transport": {
         "type": "sse",
-        "url": "https://arifosmcp.arif-fazil.com/sse"
+        "url": "https://arifosmcp.arif-fazil.com/sse",
+        "messagesEndpoint": "https://arifosmcp.arif-fazil.com/messages"
       }
     }
   ],
@@ -110,6 +111,17 @@
     "authorization": {
       "type": "oauth2",
       "required": false
+    },
+    "protocols": {
+      "jsonrpc": "2.0",
+      "mcp": "2024-11-05",
+      "supportedMethods": [
+        "initialize",
+        "notifications/initialized",
+        "ping",
+        "tools/list",
+        "tools/call"
+      ]
     }
   },
   "canonical_names": {

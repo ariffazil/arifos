@@ -1,8 +1,9 @@
 # DEPLOYMENT.md — arifOS Deployment Guide
 
-**Version:** 2026.02.15
+**Version:** 2026.02.18
 **Production Endpoint:** https://arifosmcp.arif-fazil.com
 **VPS:** Hostinger (72.62.71.199)
+**MCP Protocol:** JSON-RPC 2.0 over SSE/HTTP
 
 ---
 
@@ -127,22 +128,109 @@ docker-compose up -d
 
 ## 4. Verification
 
+### Health & Readiness
+
 ```bash
-# Health check
+# Health check with governance metrics
 curl https://arifosmcp.arif-fazil.com/health
 
-# List tools (MCP JSON-RPC)
-curl -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}' \
-  https://arifosmcp.arif-fazil.com/mcp
+# Readiness check (tools loaded, dependencies ready)
+curl https://arifosmcp.arif-fazil.com/ready
 
-# Test anchor tool
-curl -X POST \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"tools/call","params":{"name":"anchor","arguments":{"query":"test","actor_id":"user"}},"id":2}' \
-  https://arifosmcp.arif-fazil.com/mcp
+# Version info
+curl https://arifosmcp.arif-fazil.com/version
 ```
+
+### MCP JSON-RPC Protocol
+
+All MCP methods use `/messages` endpoint with JSON-RPC 2.0:
+
+```bash
+# Initialize MCP connection
+curl -X POST https://arifosmcp.arif-fazil.com/messages \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'
+
+# List available tools with schemas
+curl -X POST https://arifosmcp.arif-fazil.com/messages \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}'
+
+# Call anchor tool
+curl -X POST https://arifosmcp.arif-fazil.com/messages \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc":"2.0",
+    "id":3,
+    "method":"tools/call",
+    "params":{"name":"anchor","arguments":{"query":"test","actor_id":"user"}}
+  }'
+
+# Ping (keepalive)
+curl -X POST https://arifosmcp.arif-fazil.com/messages \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":4,"method":"ping","params":{}}'
+```
+
+### SSE Transport
+
+```bash
+# Connect to SSE endpoint (streams endpoint event + keepalive pings)
+curl -N https://arifosmcp.arif-fazil.com/sse
+```
+
+The SSE endpoint returns:
+- `event: endpoint` with the messages URL
+- `: ping` keepalive comments every 30 seconds
+
+### Direct REST API (Alternative)
+
+For non-MCP clients, direct tool endpoints are available:
+
+```bash
+# Call tool directly via POST /tools/{tool_name}
+curl -X POST https://arifosmcp.arif-fazil.com/tools/anchor \
+  -H "Content-Type: application/json" \
+  -d '{"query":"test","actor_id":"user"}'
+
+# Full pipeline wrapper (000→333→666→888→999)
+curl -X POST https://arifosmcp.arif-fazil.com/apex_judge \
+  -H "Content-Type: application/json" \
+  -d '{"query":"Should we proceed?","actor_id":"user"}'
+
+# List tools (non-MCP format)
+curl https://arifosmcp.arif-fazil.com/tools
+```
+
+---
+
+## MCP Protocol Specification
+
+### Endpoints
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `GET` | `/sse` | SSE transport stream (returns endpoint URL + pings) |
+| `POST` | `/messages` | MCP JSON-RPC message endpoint |
+| `POST` | `/tools/{tool_name}` | Direct tool call (non-MCP) |
+| `POST` | `/apex_judge` | Full pipeline wrapper (non-MCP) |
+
+### JSON-RPC Methods
+
+| Method | Params | Returns |
+|--------|--------|---------|
+| `initialize` | `{}` | `protocolVersion`, `serverInfo`, `capabilities` |
+| `notifications/initialized` | `{}` | Empty response |
+| `ping` | `{}` | Empty result |
+| `tools/list` | `{}` | Array of tool definitions with `inputSchema` |
+| `tools/call` | `{"name": "...", "arguments": {...}}` | Tool result with `content` array |
+
+### Error Codes
+
+| Code | Meaning |
+|------|---------|
+| `-32601` | Method not found |
+| `-32603` | Internal error |
 
 ---
 

@@ -5,6 +5,32 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.2.18] — 2026-02-18 — FORGE-MCP-PROTOCOL-SEAL
+
+**T000:** 2026.02.18-FORGE-MCP-PROTOCOL-SEAL  
+**Theme:** Full MCP JSON-RPC protocol compliance for SSE transport
+
+### Fixed
+- **`/messages` endpoint** — Complete MCP JSON-RPC protocol implementation:
+  - `initialize` — Returns protocolVersion, serverInfo, capabilities
+  - `notifications/initialized` — Client acknowledgment (empty response)
+  - `ping` — Keepalive method
+  - `tools/list` — Returns full tool schemas with inputSchema
+  - `tools/call` — Execute tools with proper JSON-RPC response format
+- **Route ordering** — Moved catch-all `/{tool_name}` to END of route list to prevent
+  intercepting `/sse` and `/messages` requests
+- **POST /sse handling** — Now returns proper HTTP 405 (Method Not Allowed) instead of 404
+- **FunctionTool calling** — Fixed `tools/call` to use `.fn` attribute for FastMCP FunctionTool
+  objects (they are not directly callable)
+
+### Technical Details
+- Starlette routes now correctly ordered: specific routes first, catch-all last
+- SSE endpoint accepts both GET (streaming) and POST (405 response)
+- All MCP lifecycle methods return proper JSON-RPC 2.0 responses
+- Tool schemas include full inputSchema with properties, required fields, and enums
+
+---
+
 ## [2026.2.17] — 2026-02-17 — FORGE-VPS-SEAL
 
 **T000:** 2026.02.17-FORGE-VPS-SEAL  
