@@ -1,7 +1,9 @@
 [project]
 name = "arifos"
-version = "2026.2.17"
+version = "2026.2.19"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.2.19 — ChatGPT integration + tool annotations (readOnlyHint)
+#   Added search/fetch tools for ChatGPT Deep Research; annotated read-only tools
 # 2026.2.17 — H1.1 Observability + VPS migration (Railway → Hostinger)
 #   /health now returns granular governance metrics; redis.from_url; lifespan init
 # 2026.2.15 — Codebase consolidation: removed arifos/ and codebase/ (21K lines dead code)
