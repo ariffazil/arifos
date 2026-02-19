@@ -442,7 +442,7 @@ See [`DEPLOYMENT.md`](./DEPLOYMENT.md) — VPS (Hostinger), Docker, local stdio.
 | Layer | Evidence |
 |:------|:---------|
 | **L0 KERNEL** | 5 organs, 9 system calls, 13 floors enforced |
-| **L1–L4** | 15 MCP tools (10 pipeline + 5 container), triple transport |
+| **L1–L4** | 17 MCP tools (10 pipeline + 5 container + 2 ChatGPT), triple transport |
 | **VAULT999** | PostgreSQL-backed immutable ledger with cryptographic seals |
 | **Deployment** | [Live](https://arifosmcp.arif-fazil.com/health) — Hostinger VPS, systemd, SSL, Postgres + Redis |
 | **Observability** | `/health` returns granular metrics (DB lag, pipeline verdict, tool count) |

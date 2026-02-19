@@ -47,6 +47,11 @@ from aaa_mcp.core.stage_adapter import (
 # Container management tools (5 additional tools)
 from aaa_mcp.integrations.mcp_container_tools import register_container_tools
 
+# ChatGPT integration: web search tools
+from aaa_mcp.tools.reality_grounding import web_search_noapi
+import time
+from typing import Dict, Any
+
 # Import stage storage and adapters
 from aaa_mcp.services.constitutional_metrics import get_stage_result, store_stage_result
 
@@ -192,7 +197,6 @@ async def validate(
         session_id=session_id,
         stakeholders=stakeholders,
         run_stage_555_fn=run_stage_555_empathy,
-
         peace_squared_min=(
             ConstitutionalThresholds.PEACE_SQUARED_MIN
             if hasattr(ConstitutionalThresholds, "PEACE_SQUARED_MIN")
@@ -262,6 +266,89 @@ async def trinity_forge(query: str, actor_id: str = "anonymous") -> dict:
         actor_id=actor_id,
         forge_pipeline_fn=forge_pipeline,
     )
+
+
+# ChatGPT Deep Research integration cache
+_search_cache: Dict[str, Dict[str, Any]] = {}
+_CACHE_TIMEOUT = 300  # 5 minutes
+
+
+def _cache_search_results(query: str, results: list) -> list:
+    """Cache search results and return IDs (URLs)."""
+    global _search_cache
+    current_time = time.time()
+
+    # Clean old entries
+    expired_keys = [
+        k for k, v in _search_cache.items() if current_time - v["timestamp"] > _CACHE_TIMEOUT
+    ]
+    for key in expired_keys:
+        del _search_cache[key]
+
+    # Generate IDs (use URLs)
+    ids = []
+    for result in results:
+        url = result.get("url")
+        if url:
+            cache_key = f"{query}:{url}"
+            _search_cache[cache_key] = {"data": result, "timestamp": current_time, "query": query}
+            ids.append(url)
+
+    return ids
+
+
+@mcp.tool(name="search", annotations={"readOnlyHint": True})
+async def search(query: str) -> dict:
+    """
+    ChatGPT Deep Research: Search for records matching the query.
+
+    Must return {"ids": [list of string IDs]} per ChatGPT Deep Research spec.
+    Uses arifOS reality grounding for web search.
+    """
+    try:
+        # Use arifOS web search
+        result = await web_search_noapi(query, max_results=10)
+
+        # Extract results
+        search_results = result.get("results", [])
+
+        # Cache results and get IDs
+        ids = _cache_search_results(query, search_results)
+
+        return {"ids": ids}
+    except Exception as e:
+        return {"ids": [], "error": str(e)}
+
+
+@mcp.tool(name="fetch", annotations={"readOnlyHint": True})
+async def fetch(id: str) -> dict:
+    """
+    ChatGPT Deep Research: Fetch a complete record by ID.
+
+    Returns the full record data for ChatGPT to analyze.
+    ID should be a URL from previous search results.
+    """
+    global _search_cache
+    current_time = time.time()
+
+    # Find cached result
+    for cache_key, cached in list(_search_cache.items()):
+        if cached["data"].get("url") == id:
+            # Check if expired
+            if current_time - cached["timestamp"] > _CACHE_TIMEOUT:
+                del _search_cache[cache_key]
+                continue
+
+            # Return full record
+            return {
+                "id": id,
+                **cached["data"],
+                "query": cached["query"],
+                "cached_at": cached["timestamp"],
+            }
+
+    # Not found in cache
+    return {"error": f"Record with ID '{id}' not found or expired"}
 
 
 @mcp.resource("capability://modules")

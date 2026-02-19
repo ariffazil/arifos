@@ -5,6 +5,29 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.2.19] — 2026-02-19 — FORGE-CHATGPT-INTEGRATION-SEAL
+
+**T000:** 2026.02.19-FORGE-CHATGPT-INTEGRATION-SEAL  
+**Theme:** ChatGPT integration and tool annotations for read‑only operations
+
+### Added
+- **ChatGPT Deep Research compatibility** — Added `search` and `fetch` tools following FastMCP spec:
+  - `search(query)` returns cached result IDs (URLs) using arifOS reality grounding
+  - `fetch(id)` retrieves full cached record for ChatGPT analysis
+- **Read‑only tool annotations** — Added `readOnlyHint=True` to all safe tools:
+  - Container tools: `container_list`, `container_logs`, `sovereign_health`
+  - ACLIP‑CAI tools: all 9 sensing/gating tools
+  - ChatGPT tools: `search`, `fetch`
+- **Tool count** — Now 17 MCP tools (10 pipeline + 5 container + 2 ChatGPT)
+
+### Technical Details
+- `search` uses `web_search_noapi` (Brave‑based) with 5‑minute caching
+- `fetch` returns cached results; IDs are URLs from search
+- Read‑only annotations allow ChatGPT Chat mode to skip confirmation prompts
+- Deep Research mode automatically uses `search`/`fetch` when available
+
+---
+
 ## [2026.2.18] — 2026-02-18 — FORGE-MCP-PROTOCOL-SEAL
 
 **T000:** 2026.02.18-FORGE-MCP-PROTOCOL-SEAL  

@@ -10,7 +10,7 @@ from aaa_mcp.integrations.container_controller import get_controller
 def register_container_tools(mcp):
     """Register container management tools with the MCP server."""
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     async def container_list() -> dict:
         """
         List all sovereign stack containers (AgentZero, OpenClaw, Qdrant).
@@ -61,7 +61,7 @@ def register_container_tools(mcp):
             "floor_enforced": ["F11", "F1", "F5"],
         }
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     async def container_logs(name: str, tail: int = 50) -> dict:
         """
         Get logs from a container.
@@ -77,7 +77,7 @@ def register_container_tools(mcp):
 
         return {"verdict": "SEAL", "container": name, "logs": logs, "floor_enforced": ["F11", "F2"]}
 
-    @mcp.tool()
+    @mcp.tool(annotations={"readOnlyHint": True})
     async def sovereign_health() -> dict:
         """
         Full health check of the sovereign stack.

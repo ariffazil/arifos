@@ -20,7 +20,6 @@ The 9-Law Pipeline uses ACLIP_CAI tools at specific stages:
 """
 
 from typing import Optional, Any
-import json
 
 from aaa_mcp.server import mcp
 from .console_tools import (
@@ -40,7 +39,7 @@ from .console_tools import (
 # =============================================================================
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True})
 async def aclip_system_health(
     include_swap: bool = True,
     include_io: bool = False,
@@ -67,7 +66,7 @@ async def aclip_system_health(
     return result.to_dict()
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True})
 async def aclip_process_list(
     filter_name: Optional[str] = None,
     filter_user: Optional[str] = None,
@@ -103,7 +102,7 @@ async def aclip_process_list(
     return result.to_dict()
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True})
 async def aclip_fs_inspect(
     path: str = ".",
     depth: int = 1,
@@ -142,7 +141,7 @@ async def aclip_fs_inspect(
     return result.to_dict()
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True})
 async def aclip_log_tail(
     log_file: str = "aaa_mcp.log",
     lines: int = 50,
@@ -178,7 +177,7 @@ async def aclip_log_tail(
     return result.to_dict()
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True})
 async def aclip_net_status(
     check_ports: bool = True,
     check_connections: bool = True,
@@ -211,7 +210,7 @@ async def aclip_net_status(
     return result.to_dict()
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True})
 async def aclip_config_flags(
     config_path: Optional[str] = None,
     env_prefix: Optional[str] = "ARIFOS",
@@ -239,7 +238,7 @@ async def aclip_config_flags(
     return result.to_dict()
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True})
 async def aclip_chroma_query(
     query_text: str,
     collection_name: str = "default",
@@ -272,7 +271,7 @@ async def aclip_chroma_query(
     return result.to_dict()
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True})
 async def aclip_cost_estimator(
     action_description: str,
     estimated_cpu_percent: float = 0.0,
@@ -323,7 +322,7 @@ async def aclip_cost_estimator(
     return result.to_dict()
 
 
-@mcp.tool()
+@mcp.tool(annotations={"readOnlyHint": True})
 async def aclip_forge_guard(
     check_system_health: bool = True,
     cost_score_threshold: float = 0.8,
