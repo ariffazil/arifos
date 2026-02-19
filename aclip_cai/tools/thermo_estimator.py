@@ -51,9 +51,7 @@ def cost_estimator(
     norm_io = min(estimated_io_mb / MAX_IO_MB, 1.0)
 
     # Calculate weighted score (0.0 - 1.0)
-    cost_score = (
-        (norm_cpu * WEIGHT_CPU) + (norm_ram * WEIGHT_RAM) + (norm_io * WEIGHT_IO)
-    )
+    cost_score = (norm_cpu * WEIGHT_CPU) + (norm_ram * WEIGHT_RAM) + (norm_io * WEIGHT_IO)
 
     # Risk Banding (The "Pain Threshold")
     if cost_score > 0.8:

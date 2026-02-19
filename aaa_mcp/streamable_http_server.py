@@ -69,7 +69,7 @@ async def log_identity(
 ) -> None:
     """
     Log identity metadata to cooling ledger (guest book).
-    
+
     Path A: Logging only, no enforcement.
     Logs to /tmp/arifos-identity.log for now (append-only).
     """
@@ -81,7 +81,7 @@ async def log_identity(
         "client_name": client_name,
         "client_version": client_version,
     }
-    
+
     # Simple append-only log file (cooling ledger stub)
     log_file = "/tmp/arifos-identity.log"
     try:
@@ -90,7 +90,7 @@ async def log_identity(
     except Exception as e:
         # Don't fail the request if logging fails
         print(f"Identity logging failed: {e}")
-    
+
     # Also print to console for debugging
     print(f"IDENTITY: {json.dumps(log_entry)}")
 
@@ -184,20 +184,20 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
 
     # Capture identity metadata (Path A: guest book only)
     client_info = params.get("clientInfo", {})
-    
+
     # Extract user_id from clientInfo or headers
     user_id = client_info.get("user_id") or request.headers.get("x-arifos-user-id")
-    
+
     # Extract session_id with fallback chain:
     # 1. clientInfo.session_id
     # 2. x-arifos-session-id header
     # 3. mcp-session-id header (standard MCP)
     # 4. Generate new UUID (last resort)
     session_id = (
-        client_info.get("session_id") or
-        request.headers.get("x-arifos-session-id") or
-        request.headers.get("mcp-session-id") or
-        str(uuid.uuid4())
+        client_info.get("session_id")
+        or request.headers.get("x-arifos-session-id")
+        or request.headers.get("mcp-session-id")
+        or str(uuid.uuid4())
     )
 
     # Log identity (guest book entry)
@@ -218,7 +218,10 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
                 "result": {
                     "protocolVersion": "2024-11-05",
                     "capabilities": {"tools": {}, "logging": {}, "prompts": {}, "resources": {}},
-                    "serverInfo": {"name": "arifos-aaa-mcp", "version": "2026.02.17-FORGE-VPS-SEAL"},
+                    "serverInfo": {
+                        "name": "arifos-aaa-mcp",
+                        "version": "2026.02.17-FORGE-VPS-SEAL",
+                    },
                 },
             },
             headers={"Mcp-Session-Id": session_id},
@@ -261,7 +264,7 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
             func = _resolve_tool_callable(tool)
             if func is None:
                 raise ValueError(f"Tool {tool_name} is not callable")
-            
+
             result = await asyncio.wait_for(func(**tool_args), timeout=10.0)
             return JSONResponse(
                 {
@@ -333,6 +336,7 @@ app = Starlette(routes=routes)
 if __name__ == "__main__":
     # Initialize monitoring
     from aaa_mcp.infrastructure.monitoring import init_monitoring
+
     asyncio.run(init_monitoring())
 
     uvicorn.run(app, host="0.0.0.0", port=8889)

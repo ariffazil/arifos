@@ -122,20 +122,20 @@ class F2_Truth(Floor):
         super().__init__("F2_Truth")
         # Axiomatic patterns that are "Self-Evident" and should not be penalized for low energy
         self.axiomatic_patterns = [
-            r"^\d+[\+\-\*\/]\d+",       # Basic Math (2+2)
-            r"^(true|false)$",          # Boolean
-            r"^\{.*\}$",                # JSON Syntax
-            r"^\[.*\]$",                # List Syntax
-            r"def\s+.*:$",              # Python def
-            r"class\s+.*:$"             # Python class
+            r"^\d+[\+\-\*\/]\d+",  # Basic Math (2+2)
+            r"^(true|false)$",  # Boolean
+            r"^\{.*\}$",  # JSON Syntax
+            r"^\[.*\]$",  # List Syntax
+            r"def\s+.*:$",  # Python def
+            r"class\s+.*:$",  # Python class
         ]
 
     def check(self, context: Dict[str, Any]) -> FloorResult:
         query = context.get("query", "").strip()
-        
+
         # 1. Axiomatic Bypass Check (The "Mind" Patch)
         is_axiomatic = any(re.search(p, query) for p in self.axiomatic_patterns)
-        
+
         # P(truth | energy) - Landauer Bound check
         energy_eff = context.get("energy_efficiency", 1.0)
         entropy_delta = context.get("entropy_delta", -0.1)
@@ -145,11 +145,11 @@ class F2_Truth(Floor):
 
         if is_axiomatic:
             # Axioms are ALLOWED to be cheap. No penalty.
-            p_truth = 1.0 
+            p_truth = 1.0
             reason_suffix = "(Axiomatic Truth - Energy Penalty Bypassed)"
         else:
             # Standard claims: Cheap answers are suspicious
-            if energy_eff < 0.2:  
+            if energy_eff < 0.2:
                 p_truth *= 0.5
             reason_suffix = "(Standard Verification)"
 
@@ -161,17 +161,17 @@ class F2_Truth(Floor):
             p_truth = context["truth_score"]
 
         # Dynamic Thresholding
-        # If axiomatic, we accept 0.95 (syntax is rarely 99% pure in draft). 
+        # If axiomatic, we accept 0.95 (syntax is rarely 99% pure in draft).
         # If claim, we demand 0.99.
         current_threshold = 0.95 if is_axiomatic else self.spec["threshold"]
 
         passed = p_truth >= current_threshold
-        
+
         return FloorResult(
-            self.id, 
-            passed, 
-            p_truth, 
-            f"Truth Score: {p_truth:.3f} >= {current_threshold} {reason_suffix}"
+            self.id,
+            passed,
+            p_truth,
+            f"Truth Score: {p_truth:.3f} >= {current_threshold} {reason_suffix}",
         )
 
 
@@ -302,8 +302,8 @@ class F6_Empathy(Floor):
     def check(self, context: Dict[str, Any]) -> FloorResult:
         # 1. Context Scope Check (The "Heart" Patch)
         # Defaults to 'social' (strict) if not specified to be safe
-        scope = context.get("scope", "social").lower() 
-        
+        scope = context.get("scope", "social").lower()
+
         if scope in ["ops", "system", "code", "debug", "test"]:
             threshold = 0.10  # Low threshold for technical tasks
             mode = "OPS_MODE"
@@ -318,7 +318,7 @@ class F6_Empathy(Floor):
         if kappa_r == 0.0:
             # In OPS mode, if there's no active harm detected, we assume full compliance
             if mode == "OPS_MODE":
-                kappa_r = 1.0 
+                kappa_r = 1.0
             else:
                 weakest_impact = context.get("weakest_stakeholder_impact", 0.5)
                 kappa_r = max(0.0, 1.0 - weakest_impact)

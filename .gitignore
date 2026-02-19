@@ -233,3 +233,6 @@ ROADMAP/archive/
 
 # Ruff cache
 .ruff_cache/
+
+# Backup files
+*.backup

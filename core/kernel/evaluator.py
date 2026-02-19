@@ -35,7 +35,7 @@ SOFT_FLOORS: Set[str] = {"F3", "F4", "F5", "F6", "F8", "F9"}
 class ConstitutionalEvaluator:
     """
     Orchestrates the validation of constitutional floors.
-    
+
     Can be used by decorators, API gateways, or internal pipelines.
     """
 
@@ -49,6 +49,7 @@ class ConstitutionalEvaluator:
             return None
         try:
             from core.shared.floors import ALL_FLOORS
+
             self._floors_available = True
             return ALL_FLOORS
         except Exception as e:
@@ -105,7 +106,9 @@ class ConstitutionalEvaluator:
                 "reason": f"Floor check error (fail-closed): {e}",
             }
 
-    def build_pre_context(self, query: str, context_overrides: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def build_pre_context(
+        self, query: str, context_overrides: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """Build context dict for pre-execution floor checks."""
         ctx = {
             "query": query,
@@ -116,15 +119,17 @@ class ConstitutionalEvaluator:
         }
         if context_overrides:
             ctx.update(context_overrides)
-        
+
         # F11 normalization: ensure role/token logic if session exists
         if ctx.get("session_id") and not ctx.get("authority_token"):
             ctx["role"] = "AGENT"
             ctx["authority_token"] = "arifos_internal"
-            
+
         return ctx
 
-    def build_post_context(self, query: str, result: Any, context_overrides: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    def build_post_context(
+        self, query: str, result: Any, context_overrides: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
         """Build context dict for post-execution floor checks."""
         # Extract response text from result
         response = ""
@@ -149,21 +154,29 @@ class ConstitutionalEvaluator:
             "ai_witness": 1.0,
             "earth_witness": 1.0,
         }
-        
+
         if context_overrides:
             ctx.update(context_overrides)
 
         # Override defaults with explicit metrics from result
         if isinstance(result, dict):
             for key in (
-                "truth_score", "confidence", "entropy_delta", "human_witness",
-                "ai_witness", "earth_witness", "empathy_kappa_r",
-                "weakest_stakeholder_impact", "entropy_input", "entropy_output",
-                "humility_omega", "f2_threshold"
+                "truth_score",
+                "confidence",
+                "entropy_delta",
+                "human_witness",
+                "ai_witness",
+                "earth_witness",
+                "empathy_kappa_r",
+                "weakest_stakeholder_impact",
+                "entropy_input",
+                "entropy_output",
+                "humility_omega",
+                "f2_threshold",
             ):
                 if key in result:
                     ctx[key] = result[key]
-            
+
             if "entropy_delta" in result and "entropy_input" in ctx:
                 ctx["entropy_output"] = ctx["entropy_input"] + result["entropy_delta"]
 
@@ -195,6 +208,7 @@ class ConstitutionalEvaluator:
         elif soft_fails:
             return "PARTIAL"
         return "SEAL"
+
 
 # Singleton instance
 evaluator = ConstitutionalEvaluator()

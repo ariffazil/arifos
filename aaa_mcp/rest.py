@@ -21,6 +21,7 @@ DITEMPA BUKAN DIBERI
 """
 
 import asyncio
+import inspect
 import json
 import os
 import sys
@@ -30,7 +31,7 @@ import uvicorn
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, AsyncGenerator, Dict, List, Optional
+from typing import AsyncGenerator, Dict, List
 
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse, StreamingResponse
@@ -38,7 +39,7 @@ from starlette.routing import Route
 from starlette.requests import Request
 
 # Import tools directly from server module (avoid mcp wrapper issues)
-from aaa_mcp.server import anchor, reason, integrate, respond, validate, align, forge, audit, seal
+from aaa_mcp.server import anchor, reason, integrate, respond, validate, align, forge, audit, seal, search, fetch
 from aaa_mcp.integrations.self_ops import self_diagnose
 
 # Build info
@@ -61,6 +62,8 @@ TOOLS = {
     "audit": audit,
     "seal": seal,
     "self_diagnose": self_diagnose,
+    "search": search,
+    "fetch": fetch,
 }
 
 # Tool schemas with enums (ChatGPT feedback: schema hardening)
@@ -149,6 +152,18 @@ TOOL_SCHEMAS = {
                 "default": None,
                 "description": "Optional custom base URL to diagnose",
             },
+        },
+    },
+    "search": {
+        "description": "ChatGPT Deep Research: Search for records matching the query.",
+        "args": {
+            "query": {"type": "string", "required": True},
+        },
+    },
+    "fetch": {
+        "description": "ChatGPT Deep Research: Fetch a complete record by ID.",
+        "args": {
+            "id": {"type": "string", "required": True},
         },
     },
 }
@@ -354,7 +369,24 @@ async def call_tool(request: Request):
         # Note: FastMCP FunctionTool has .fn attribute with the actual function
         try:
             actual_fn = getattr(tool, "fn", tool)
-            result = await asyncio.wait_for(actual_fn(**body), timeout=10.0)
+            # Get function parameters and filter body
+            sig = inspect.signature(actual_fn)
+            param_names = []
+            has_kwargs = False
+            for name, param in sig.parameters.items():
+                if param.kind == inspect.Parameter.VAR_KEYWORD:
+                    has_kwargs = True
+                else:
+                    param_names.append(name)
+            
+            if has_kwargs:
+                # Function accepts **kwargs, pass all body parameters
+                filtered_body = body
+            else:
+                # Filter to only valid parameters
+                filtered_body = {k: v for k, v in body.items() if k in param_names}
+            
+            result = await asyncio.wait_for(actual_fn(**filtered_body), timeout=10.0)
         except asyncio.TimeoutError:
             metrics.timeouts += 1
             return JSONResponse(
@@ -678,6 +710,7 @@ routes = [
     Route("/tools/{tool_name}", call_tool, methods=["POST"]),
     Route("/apex_judge", apex_judge_wrapper, methods=["POST"]),
     Route("/sse", sse_endpoint, methods=["GET", "POST"]),
+    Route("/messages", sse_endpoint, methods=["GET"]),
     Route("/messages", messages_endpoint, methods=["POST"]),
     Route(
         "/{tool_name}", call_tool, methods=["POST"]
@@ -688,9 +721,12 @@ routes = [
 @asynccontextmanager
 async def lifespan(app):
     """Initialize app resources."""
-    from aaa_mcp.infrastructure.monitoring import init_monitoring
-
-    await init_monitoring()
+    if os.getenv("ARIFOS_SKIP_MONITORING") != "1":
+        try:
+            from aaa_mcp.infrastructure.monitoring import init_monitoring
+            await init_monitoring()
+        except Exception as e:
+            print(f"[rest] ⚠️ Lifespan monitoring init failed: {e} - continuing", file=sys.stderr)
     yield
 
 
@@ -699,10 +735,16 @@ app = Starlette(routes=routes, debug=False, lifespan=lifespan)
 
 def main():
     """Start REST API server."""
-    # Initialize monitoring
-    from aaa_mcp.infrastructure.monitoring import init_monitoring
-
-    asyncio.run(init_monitoring())
+    # Initialize monitoring with timeout and error tolerance
+    try:
+        from aaa_mcp.infrastructure.monitoring import init_monitoring
+        # Timeout after 5 seconds to avoid blocking startup
+        asyncio.run(asyncio.wait_for(init_monitoring(), timeout=5.0))
+        print("[rest] Monitoring initialized successfully", file=sys.stderr)
+    except asyncio.TimeoutError:
+        print("[rest] ⚠️ Monitoring initialization timeout - continuing without monitoring", file=sys.stderr)
+    except Exception as e:
+        print(f"[rest] ⚠️ Monitoring initialization failed: {e} - continuing without monitoring", file=sys.stderr)
 
     port = int(os.getenv("PORT", 8080))
     host = os.getenv("HOST", "0.0.0.0")

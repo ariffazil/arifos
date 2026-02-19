@@ -96,50 +96,6 @@ arifOS is one of the first **open-source constitutional kernels** for artificial
 **Documentation:** [333_APPS README](./333_APPS/README.md) — Full 8-layer architecture
 
 ---
-# arifOS — Constitutional AI Kernel
-
-<p align="center">
-  <img src="docs/forged_page_1.png" alt="arifOS — Forged, Not Given" width="800">
-</p>
-
-<p align="center">
-  <strong>The Intelligence Kernel that governs whether AI cognition is permitted</strong><br>
-  <em>Controls existence, allocates resources, schedules execution, guarantees isolation</em><br><br>
-  <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg" alt="PyPI version"></a>
-  <a href="https://github.com/ariffazil/arifOS"><img src="https://img.shields.io/github/stars/ariffazil/arifOS" alt="GitHub stars"></a>
-  <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
-  <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.17--FORGE--UVX--SEAL-blue" alt="T000"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
-  <br><br>
-  <a href="#-quick-start"><b>🚀 Quick Start</b></a> ·
-  <a href="#-the-13-constitutional-floors"><b>🛡️ 13 Floors</b></a> ·
-  <a href="#-honest-state-reality-index-097"><b>📊 Status</b></a> ·
-  <a href="#-faq"><b>❓ FAQ</b></a>
-</p>
-
-<p align="center">
-  <em>Python-based drop-in governance kernel that wraps any LLM (Claude, GPT, Gemini, DeepSeek) with 13 hard floors and a 000→999 verdict pipeline.</em>
-</p>
-
----
-
-## 📖 Table of Contents
-- [🎯 What Is arifOS?](#-what-is-arifos)
-- [🏛️ The 8-Layer Stack](#-the-8-layer-stack)
-- [⚡ 10-Second Demo](#-10-second-demo)
-- [⚙️ Requirements](#-requirements)
-- [🔥 L0: The Intelligence Kernel](#-l0-the-intelligence-kernel)
-- [🛡️ The 13 Constitutional Floors](#-the-13-constitutional-floors)
-- [🏗️ Architecture](#-architecture-kernel--adapter)
-- [🚀 Quick Start](#-quick-start)
-- [📊 Honest State](#-honest-state-reality-index-095)
-- [❓ FAQ](#-faq)
-- [🌍 Community & Contribution](#-community--contribution)
-- [📚 T000 Glossary](#-t000-glossary)
-- [🔐 ZKPC Hash](#-zkpc-hash-zero-knowledge-proof-of-constitution)
-
----
-
 ## 🎯 What Is arifOS?
 
 ### The Intelligence Kernel
@@ -414,13 +370,30 @@ See [`_ARCHIVE/root_files/ARCHITECTURAL_BOUNDARY.md`](./_ARCHIVE/root_files/ARCH
 Copy [`SYSTEM_PROMPT.md`](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) into any AI's system settings. Immediate L1 governance.
 
 ### For Operators & Self-Hosters (30 seconds)
+
+**Option A: Unified Server (Recommended)** — Single `server.py` with all tools:
+```bash
+python server.py                   # REST API (default)
+python server.py --mode rest       # HTTP + SSE + Tools
+python server.py --mode http       # FastMCP HTTP transport
+python server.py --mode sse        # FastMCP SSE transport
+python server.py --mode stdio      # STDIO for local clients
+```
+
+**Option B: Package Installation**
 ```bash
 # No installation required with uvx!
 uvx arifos stdio      # stdio (Claude Desktop, Cursor, Qwen)
 uvx arifos sse        # SSE (Remote/Cloud)
 uvx arifos http       # Streamable HTTP
 ```
-Connect from OpenClaw, Claude Desktop, or any MCP client. See the [MCP Platform Guide](./MCP_PLATFORM_GUIDE.md) for configs.
+
+**Features:**
+- **22 Tools:** 9 AAA-MCP governance skills + 10 ACLIP-CAI sensory tools + 2 ChatGPT (search/fetch) + container tools
+- **MCP Resource Templates:** `constitutional://mottos`, `constitutional://floors/{id}`, `system://health`, `tools://schemas/{tool}`
+- **4 Transport Modes:** stdio, sse, http, rest
+
+Connect from OpenClaw, Claude Desktop, ChatGPT Developer Mode, or any MCP client. See the [MCP Platform Guide](./MCP_PLATFORM_GUIDE.md) for configs.
 
 ### Connect to Live Server
 ```bash
@@ -442,9 +415,10 @@ See [`DEPLOYMENT.md`](./DEPLOYMENT.md) — VPS (Hostinger), Docker, local stdio.
 | Layer | Evidence |
 |:------|:---------|
 | **L0 KERNEL** | 5 organs, 9 system calls, 13 floors enforced |
-| **L1–L4** | 17 MCP tools (10 pipeline + 5 container + 2 ChatGPT), triple transport |
+| **L1–L4** | 22 MCP tools (9 AAA + 10 ACLIP-CAI + 2 ChatGPT + container tools), triple transport |
 | **VAULT999** | PostgreSQL-backed immutable ledger with cryptographic seals |
 | **Deployment** | [Live](https://arifosmcp.arif-fazil.com/health) — Hostinger VPS, systemd, SSL, Postgres + Redis |
+| **Unified Server** | Single `server.py` — 4 modes (rest/http/sse/stdio), MCP Resource Templates |
 | **Observability** | `/health` returns granular metrics (DB lag, pipeline verdict, tool count) |
 | **Tests** | 166 passing, 0 failing |
 

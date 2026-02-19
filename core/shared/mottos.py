@@ -119,7 +119,7 @@ class ConstitutionalMotto:
             "positive": self.positive,
             "negative": self.negative,
             "stage": self.stage_name,
-            "floor": self.primary_floor
+            "floor": self.primary_floor,
         }
 
     def __str__(self) -> str:

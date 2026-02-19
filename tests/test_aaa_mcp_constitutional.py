@@ -420,9 +420,7 @@ class TestServerToolExecution:
     async def test_respond_executes(self):
         from aaa_mcp.server import respond
 
-        result = await _get_tool_fn(respond)(
-            query="Is this approach safe?", session_id="test-003"
-        )
+        result = await _get_tool_fn(respond)(query="Is this approach safe?", session_id="test-003")
         assert "verdict" in result
 
     async def test_validate_executes(self):

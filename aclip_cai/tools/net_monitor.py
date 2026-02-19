@@ -1,9 +1,9 @@
 import socket
-import sys
 
 # Defense: Robust Import for Broken Environments
 try:
     import psutil
+
     # Validation: checking for essential attributes to confirm it's the real psutil
     if not hasattr(psutil, "net_connections") or not hasattr(psutil, "AccessDenied"):
         raise ImportError("Broken psutil module detected")
@@ -14,11 +14,11 @@ except (ImportError, AttributeError):
 
 
 def net_status(
-    check_ports: bool = True, 
+    check_ports: bool = True,
     check_connections: bool = True,
     check_interfaces: bool = True,
     check_routing: bool = True,
-    target_host: str = None
+    target_host: str = None,
 ) -> dict:
     """
     Inspects the system's network posture.
@@ -32,7 +32,7 @@ def net_status(
         check_routing: Check default route
         target_host: Optional host to ping (not fully implemented in this minimal ver, but arg exists)
     """
-    
+
     results = {}
 
     # dependency check
@@ -87,9 +87,11 @@ def net_status(
     except Exception as e:
         # Catch-all for psutil runtime errors if it passes import check but fails later
         if PSUTIL_AVAILABLE and isinstance(e, psutil.AccessDenied):
-             results["error"] = "Access denied to retrieve network information. Try running with higher privileges."
+            results["error"] = (
+                "Access denied to retrieve network information. Try running with higher privileges."
+            )
         else:
-             results["error"] = str(e)
+            results["error"] = str(e)
 
     # NEW: Interface Logic
     if check_interfaces and PSUTIL_AVAILABLE:
@@ -97,19 +99,19 @@ def net_status(
         try:
             addrs = psutil.net_if_addrs()
             stats = psutil.net_if_stats()
-            
+
             for iface, addr_list in addrs.items():
                 is_up = stats[iface].isup if iface in stats else "Unknown"
                 speed = stats[iface].speed if iface in stats else 0
-                
+
                 ipv4 = [a.address for a in addr_list if a.family == socket.AF_INET]
                 ipv6 = [a.address for a in addr_list if a.family == socket.AF_INET6]
-                
+
                 results["interfaces"][iface] = {
                     "status": "UP" if is_up else "DOWN",
                     "speed_mbps": speed,
                     "ipv4": ipv4,
-                    "ipv6": ipv6
+                    "ipv6": ipv6,
                 }
         except Exception as e:
             results["interfaces_error"] = str(e)
@@ -125,7 +127,7 @@ def net_status(
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             s.settimeout(0)
             try:
-                s.connect(('8.8.8.8', 1)) 
+                s.connect(("8.8.8.8", 1))
                 local_ip = s.getsockname()[0]
                 results["routing"]["default_route_interface_ip"] = local_ip
             except Exception:

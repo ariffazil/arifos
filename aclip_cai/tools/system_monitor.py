@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import platform
 import subprocess
-import time
 import os
 from typing import Any
 

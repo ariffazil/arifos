@@ -231,15 +231,13 @@ def main():
 
     args = parser.parse_args()
 
-    print(f"[aclip] ACLIP-CAI Server Starting", file=sys.stderr)
+    print("[aclip] ACLIP-CAI Server Starting", file=sys.stderr)
     print(f"[aclip] Mode: {'SSE' if args.sse else 'stdio'}", file=sys.stderr)
 
     if args.sse:
         # FORCE localhost only for security
         if args.host not in ("127.0.0.1", "localhost"):
-            print(
-                f"[aclip] WARNING: Overriding host to 127.0.0.1 (localhost only)", file=sys.stderr
-            )
+            print("[aclip] WARNING: Overriding host to 127.0.0.1 (localhost only)", file=sys.stderr)
             args.host = "127.0.0.1"
         print(f"[aclip] Binding to {args.host}:{args.port}", file=sys.stderr)
         mcp.run(transport="sse", host=args.host, port=args.port)

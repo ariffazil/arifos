@@ -187,19 +187,35 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
 
 
 class InitEngine:
-    async def ignite(self, query: str, actor_id: str = "user", auth_token: Optional[str] = None, session_id: Optional[str] = None) -> Dict[str, Any]:
+    async def ignite(
+        self,
+        query: str,
+        actor_id: str = "user",
+        auth_token: Optional[str] = None,
+        session_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Initialize constitutional session using core organs."""
         try:
             token = await init_000_anchor(query, actor_id=actor_id, auth_token=auth_token)
             # InitOutput is a Pydantic model inheriting from BaseOrganOutput
-            query_type_str = token.query_type if isinstance(token.query_type, str) else (token.query_type.value if hasattr(token.query_type, 'value') else str(token.query_type))
-            
+            query_type_str = (
+                token.query_type
+                if isinstance(token.query_type, str)
+                else (
+                    token.query_type.value
+                    if hasattr(token.query_type, "value")
+                    else str(token.query_type)
+                )
+            )
+
             return {
                 "status": token.status,
                 "session_id": token.session_id,
                 "engine_mode": "core",
-                "authority": token.metrics.get("authority_level", "none") if token.metrics else "none",
-                "floors_passed": [], # Not explicitly tracked in new anchor yet
+                "authority": (
+                    token.metrics.get("authority_level", "none") if token.metrics else "none"
+                ),
+                "floors_passed": [],  # Not explicitly tracked in new anchor yet
                 "floors_failed": token.violations,
                 "violations": token.violations,
                 "injection_risk": token.injection_score,

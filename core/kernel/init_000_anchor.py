@@ -27,6 +27,7 @@ logger = logging.getLogger(__name__)
 
 # ─── Authority Enums ─────────────────────────────────────────────────────────
 
+
 class AuthorityLevel(Enum):
     NONE = "none"
     USER = "user"
@@ -34,7 +35,9 @@ class AuthorityLevel(Enum):
     SOVEREIGN = "sovereign"
     SYSTEM = "system"
 
+
 # ─── Anchor Logic ────────────────────────────────────────────────────────────
+
 
 class AnchorEngine:
     """
@@ -56,7 +59,7 @@ class AnchorEngine:
         query: str,
         actor_id: str = "anonymous",
         auth_token: Optional[str] = None,
-        require_sovereign: bool = False
+        require_sovereign: bool = False,
     ) -> InitOutput:
         """
         Universal ignition protocol.
@@ -66,12 +69,12 @@ class AnchorEngine:
         4. Anchor in Infrastructure (ACLIP signals)
         """
         start_time = time.time()
-        
+
         # 1. F12: Injection Defense
         # We use the kernel evaluator which has the latest F12 logic
         pre_ctx = evaluator.build_pre_context(query, {"actor_id": actor_id})
         f12_result = evaluator.check_floor("F12", pre_ctx)
-        
+
         if not f12_result["passed"]:
             return self._build_void_output("F12", f12_result["reason"], actor_id)
 
@@ -83,12 +86,14 @@ class AnchorEngine:
         # 3. F13: High-Stakes Check
         if require_sovereign or self._is_high_stakes(query):
             if level != AuthorityLevel.SOVEREIGN:
-                return self._build_hold_output("F13", "Sovereign approval required for high-stakes operation", actor_id)
+                return self._build_hold_output(
+                    "F13", "Sovereign approval required for high-stakes operation", actor_id
+                )
 
         # 4. Infrastructure Anchoring (Shadow ACLIP call)
         # In v64.2, we anchor to host pressure heuristics
         infra_risk = self._estimate_infra_risk(query)
-        
+
         # 5. Success: Issue Token
         session_id = secrets.token_hex(16)
         token = self._sign_token(f"{session_id}:{actor_id}:{start_time}")
@@ -100,19 +105,19 @@ class AnchorEngine:
             auth_verified=True,
             verdict=Verdict.SEAL,
             status="READY",
-            query_type="ANCHORED", # Dynamic classification placeholder
+            query_type="ANCHORED",  # Dynamic classification placeholder
             metrics={
                 "authority_level": level.value,
                 "infra_risk": infra_risk,
-                "processing_ms": (time.time() - start_time) * 1000
-            }
+                "processing_ms": (time.time() - start_time) * 1000,
+            },
         )
 
     def _verify_auth(self, actor_id: str, token: Optional[str]) -> Tuple[bool, AuthorityLevel]:
         actor = actor_id.lower().strip()
         if actor not in self.valid_actors and actor != "anonymous":
             return False, AuthorityLevel.NONE
-        
+
         level = self.actor_authority.get(actor, AuthorityLevel.USER)
         return True, level
 
@@ -122,8 +127,10 @@ class AnchorEngine:
 
     def _estimate_infra_risk(self, query: str) -> float:
         # Heuristic bridge to ACLIP concepts
-        if len(query) > 5000: return 0.8
-        if "execute" in query.lower(): return 0.5
+        if len(query) > 5000:
+            return 0.8
+        if "execute" in query.lower():
+            return 0.5
         return 0.1
 
     def _sign_token(self, data: str) -> str:
@@ -140,7 +147,7 @@ class AnchorEngine:
             status="ERROR",
             violations=[floor],
             error_message=reason,
-            query_type="VOID"
+            query_type="VOID",
         )
 
     def _build_hold_output(self, floor: str, reason: str, actor: str) -> InitOutput:
@@ -153,11 +160,13 @@ class AnchorEngine:
             status="SABAR",
             violations=[floor],
             error_message=reason,
-            query_type="HIGH_STAKES"
+            query_type="HIGH_STAKES",
         )
+
 
 # Singleton
 anchor_engine = AnchorEngine()
+
 
 async def init_000_anchor(query: str, actor_id: str = "user", **kwargs) -> InitOutput:
     """Canonical kernel entry point for Stage 000."""

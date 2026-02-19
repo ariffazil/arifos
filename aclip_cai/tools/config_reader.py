@@ -21,17 +21,15 @@ def config_flags(
         dict: A dictionary containing safely masked flags.
     """
     flags = {"environment_variables": {}, "from_file": {}}
-    
+
     # F1 Amanah: Define patterns that trigger masking
-    SECRET_PATTERNS = [
-        "KEY", "TOKEN", "SECRET", "PASS", "PWD", "AUTH", "CREDENTIAL", "SIGNATURE"
-    ]
+    SECRET_PATTERNS = ["KEY", "TOKEN", "SECRET", "PASS", "PWD", "AUTH", "CREDENTIAL", "SIGNATURE"]
 
     def _mask_value(key: str, value: str) -> str:
         """Masks the value if the key is a secret and include_secrets is False."""
         if include_secrets:
             return value
-        
+
         # Check if key contains any secret pattern
         upper_key = key.upper()
         if any(p in upper_key for p in SECRET_PATTERNS):

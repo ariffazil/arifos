@@ -100,7 +100,9 @@ def build_integrate_output(
     }
 
 
-def build_integrate_error(session_id: str, humility_omega_default: float, error: Exception) -> Dict[str, Any]:
+def build_integrate_error(
+    session_id: str, humility_omega_default: float, error: Exception
+) -> Dict[str, Any]:
     return {
         "verdict": "SEAL",
         "stage": "333_INTEGRATE",
@@ -111,7 +113,10 @@ def build_integrate_error(session_id: str, humility_omega_default: float, error:
 
 
 def build_respond_output(
-    session_id: str, stage_result: Dict[str, Any], plan: Optional[str], plan_id: Optional[str] = None
+    session_id: str,
+    stage_result: Dict[str, Any],
+    plan: Optional[str],
+    plan_id: Optional[str] = None,
 ) -> Dict[str, Any]:
     output = {
         "verdict": "SEAL",
@@ -173,7 +178,9 @@ def build_validate_error(
     }
 
 
-def build_align_output(session_id: str, result: Dict[str, Any], ethical_rules: Optional[list]) -> Dict[str, Any]:
+def build_align_output(
+    session_id: str, result: Dict[str, Any], ethical_rules: Optional[list]
+) -> Dict[str, Any]:
     return {
         "verdict": "SEAL",
         "stage": "666_ALIGN",
@@ -221,7 +228,9 @@ def normalize_audit_output(judge_dict: Dict[str, Any], human_approve: bool) -> D
         output["verdict"] = "SEAL"
         output["sovereign_ratified"] = True
     floor_scores = output.get("floor_scores", {})
-    output["genius_G"] = floor_scores.get("f8_genius", 0.0) if isinstance(floor_scores, dict) else 0.0
+    output["genius_G"] = (
+        floor_scores.get("f8_genius", 0.0) if isinstance(floor_scores, dict) else 0.0
+    )
     output["tri_witness_W3"] = (
         floor_scores.get("f3_tri_witness", 0.0) if isinstance(floor_scores, dict) else 0.0
     )

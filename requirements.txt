@@ -1,30 +1,39 @@
-# arifOS AAA MCP Server
-# Constitutional AI Governance Framework
+# arifOS Constitutional AI Governance System
+# Production dependencies - install with: pip install -r requirements.txt
+# For development: pip install -r requirements-dev.txt
 
-# Core dependencies
-# CACHE BUST: 2026-02-14-Force-FastMCP-2.x
-fastmcp>=2.14.0,<3.0.0  # v65.1 - Upgraded to FastMCP 2.x for custom_route support
+# Core runtime dependencies (required for basic operation)
+numpy>=1.20.0
 pydantic>=2.0.0
-httpx>=0.24.0
-numpy>=1.20.0  # Required for SBERT ASI floors (F5, F6, F9)
+anyio>=4.0.0
+starlette>=0.30.0
+fastmcp>=2.14.0,<3.0.0
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+sse-starlette>=1.8.2
+mcp>=1.0.0
+httpx>=0.25.0
+prometheus-client>=0.19.0
+rich>=13.7.0
+python-dotenv>=1.0.0
+pyyaml>=6.0.0
 
-# H1.2 ASI Hardening - SBERT-based constitutional floors
-sentence-transformers>=2.2.0
-scikit-learn>=1.3.0
+# AI/ML components for constitutional floors
+sentence-transformers>=2.2.0  # SBERT-based ASI floors (F5, F6, F9)
+scikit-learn>=1.3.0           # Cosine similarity for SBERT embeddings
 
-# Database (F1 Amanah)
-asyncpg>=0.28.0  # PostgreSQL VAULT999
-redis>=5.0.0     # Redis MindVault (v55.5)
+# Database backends (optional but recommended for full functionality)
+asyncpg>=0.29.0               # PostgreSQL VAULT999 backend
+redis>=5.0.0                  # Redis MindVault for session management
 
-# NOTE: ACLIP Tactics Layer deps (psutil, brave-search) removed from Railway
-# ACLIP deployed on Hostinger VPS (hybrid topology — F13 Sovereignty)
-# See: arifOS/aclip_cai/requirements.txt for Hostinger deployment
+# Web search and reality grounding (for ChatGPT search/fetch tools)
+duckduckgo-search>=5.0.0      # DuckDuckGo search integration
+playwright>=1.40.0            # Browser automation for web search
+beautifulsoup4>=4.12.0        # HTML parsing
+requests>=2.31.0              # HTTP client for fetch tool
 
-# Constitutional enforcement
-# arifos>=0.1.0  # Local constitutional kernel
+# System monitoring (optional)
+psutil>=5.9.0                 # System resource monitoring
 
-# Development
-pytest>=7.0.0
-pytest-asyncio>=0.21.0
-black>=23.0.0
-ruff>=0.1.0
+# Note: For ChatGPT Deep Research integration, ensure playwright browsers are installed:
+# playwright install chromium

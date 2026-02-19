@@ -467,7 +467,8 @@ def verify_auth(actor_id: str, auth_token: Optional[str] = None) -> Tuple[bool, 
         if os.environ.get("ARIFOS_TEST_MODE") == "1":
             # Basic validation: alphanumeric, hyphen, underscore, dot, length 1-100
             import re
-            if not re.match(r'^[a-z0-9_\-\.]{1,100}$', actor_id):
+
+            if not re.match(r"^[a-z0-9_\-\.]{1,100}$", actor_id):
                 return False, AuthorityLevel.NONE
             # Assign USER level for unknown actors in test mode
             level = AuthorityLevel.USER

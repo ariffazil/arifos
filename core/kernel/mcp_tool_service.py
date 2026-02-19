@@ -229,7 +229,9 @@ async def audit_tool(
 ) -> Dict[str, Any]:
     try:
         agi_res = get_stage_result_fn(session_id, "agi") or get_stage_result_fn(session_id, "think")
-        asi_res = get_stage_result_fn(session_id, "asi") or get_stage_result_fn(session_id, "empathy")
+        asi_res = get_stage_result_fn(session_id, "asi") or get_stage_result_fn(
+            session_id, "empathy"
+        )
         if agi_res and asi_res:
             judge_out = await run_stage_888_fn(session_id, agi_res, asi_res)
             judge_dict = _to_dict(judge_out) or {"verdict": verdict}
@@ -253,9 +255,13 @@ async def seal_tool(
     run_stage_999_fn: Callable[..., Awaitable[Any]],
 ) -> Dict[str, Any]:
     try:
-        judge_res = get_stage_result_fn(session_id, "judge") or get_stage_result_fn(session_id, "audit")
+        judge_res = get_stage_result_fn(session_id, "judge") or get_stage_result_fn(
+            session_id, "audit"
+        )
         agi_res = get_stage_result_fn(session_id, "think") or get_stage_result_fn(session_id, "agi")
-        asi_res = get_stage_result_fn(session_id, "empathy") or get_stage_result_fn(session_id, "asi")
+        asi_res = get_stage_result_fn(session_id, "empathy") or get_stage_result_fn(
+            session_id, "asi"
+        )
         if judge_res and agi_res and asi_res:
             receipt = await run_stage_999_fn(session_id, judge_res, agi_res, asi_res, summary)
             return normalize_seal_receipt(session_id=session_id, receipt=receipt)

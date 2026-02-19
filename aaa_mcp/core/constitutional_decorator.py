@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
 
 from core.kernel.constitutional_decorator import FLOOR_ENFORCEMENT, get_tool_floors
-from core.kernel.constitutional_decorator import constitutional_floor as _kernel_constitutional_floor
+from core.kernel.constitutional_decorator import (
+    constitutional_floor as _kernel_constitutional_floor,
+)
 
 
 def constitutional_floor(*floors: str):

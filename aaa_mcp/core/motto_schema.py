@@ -14,10 +14,11 @@ from core.shared.mottos import (
     get_motto_by_floor,
 )
 
+
 def get_mottos_resource() -> Dict[str, Any]:
     """Get the complete mottos resource for MCP."""
     mottos_data = {code.value: motto.to_dict() for code, motto in ALL_MOTTOS.items()}
-    
+
     return {
         "uri": "constitutional://mottos",
         "mimeType": "application/json",
@@ -27,26 +28,29 @@ def get_mottos_resource() -> Dict[str, Any]:
             "mottos": mottos_data,
             "bookends": {
                 "init": {"header": MOTTO_000_INIT_HEADER},
-                "seal": {"header": MOTTO_999_SEAL_HEADER}
+                "seal": {"header": MOTTO_999_SEAL_HEADER},
             },
             "error_mottos": ERROR_MOTTOS,
-            "cultural_context": "Nusantara constitutional governance error-handling language."
+            "cultural_context": "Nusantara constitutional governance error-handling language.",
         },
     }
+
 
 def format_failure_with_motto(floor: str, reason: str) -> str:
     """Format a failure message with cultural motto."""
     motto = get_motto_by_floor(floor)
     if not motto:
         return f"[!] {floor} Floor Breach: {reason}"
-    
+
     return f"""[!] {floor} Floor Breach
     Reason: {reason}
     {motto.malay}
     ({motto.english})"""
 
+
 def get_init_gate_message() -> str:
     return f"\n{MOTTO_000_INIT_HEADER}\n[000_INIT] Session Ignition\n"
+
 
 def get_seal_gate_message() -> str:
     return f"\n{MOTTO_999_SEAL_HEADER}\n[999_SEAL] Immutable Commit\n"

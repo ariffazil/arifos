@@ -1,4 +1,3 @@
-import os
 import datetime
 import fnmatch
 from pathlib import Path
@@ -8,10 +7,10 @@ def fs_inspect(
     path: str = ".",
     depth: int = 1,
     include_hidden: bool = False,
-    pattern: str = "*",        # Filter by filename (e.g., "*.py")
-    min_size_bytes: int = 0,   # Filter by size
-    max_files: int = 100,       # Circuit Breaker
-    max_depth: int = None,      # Compatibility arg (bridge sends this)
+    pattern: str = "*",  # Filter by filename (e.g., "*.py")
+    min_size_bytes: int = 0,  # Filter by size
+    max_files: int = 100,  # Circuit Breaker
+    max_depth: int = None,  # Compatibility arg (bridge sends this)
 ) -> dict:
     """
     Inspects the filesystem at a given path without modification.
@@ -28,7 +27,7 @@ def fs_inspect(
     """
     # Use max_depth if provided (priority over depth if not None, but usually they align)
     effective_depth = max_depth if max_depth is not None else depth
-    
+
     root_path = Path(path)
     if not root_path.exists():
         return {"error": f"Path not found: {path}"}
@@ -58,10 +57,10 @@ def fs_inspect(
                 # 1. Hidden File Check
                 if not include_hidden and item.name.startswith("."):
                     continue
-                
+
                 # 2. Pattern Match Check
                 # If it's a file, we strictly enforce pattern.
-                # If it's a dir, we recurse unless strictly excluded? 
+                # If it's a dir, we recurse unless strictly excluded?
                 # For safety/clarity, we apply pattern to files only, but allow dirs to be traversed
                 # so we can find files deep inside.
                 if item.is_file() and pattern and pattern != "*":
@@ -69,23 +68,23 @@ def fs_inspect(
                         continue
 
                 stats["scanned"] += 1
-                
+
                 try:
                     stat = item.stat()
-                    
+
                     # 3. Size Filter Check (Files only)
                     if item.is_file() and stat.st_size < min_size_bytes:
                         continue
 
-                    # If it's a dir, we include it so we can show structure, 
+                    # If it's a dir, we include it so we can show structure,
                     # unless we want to filter empty dirs? For now, we show them.
-                    
+
                     item_details = {
                         "name": item.name,
                         "type": "dir" if item.is_dir() else "file",
                         "size": stat.st_size,
                         "modified": _format_time(stat.st_mtime),
-                        "path": str(item)
+                        "path": str(item),
                     }
 
                     if item.is_dir():
@@ -93,24 +92,24 @@ def fs_inspect(
                         children = _inspect_path(item, current_depth + 1)
                         if children:
                             item_details["children"] = children
-                    
+
                     items.append(item_details)
                     stats["returned"] += 1
 
                 except (OSError, PermissionError):
                     continue
-                    
+
             return items
         except (OSError, PermissionError):
             return [{"error": f"Permission Denied: {current_path}"}]
 
     result = _inspect_path(root_path, 1)
-    
+
     return {
         "root": str(root_path),
         "pattern": pattern,
         "limits": {"depth": effective_depth, "max_files": max_files},
         "status": "PARTIAL" if stats["limit_reached"] else "COMPLETE",
         "stats": stats,
-        "tree": result
+        "tree": result,
     }
