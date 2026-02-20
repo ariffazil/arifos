@@ -39,7 +39,19 @@ from starlette.routing import Route
 from starlette.requests import Request
 
 # Import tools directly from server module (avoid mcp wrapper issues)
-from aaa_mcp.server import anchor, reason, integrate, respond, validate, align, forge, audit, seal, search, fetch
+from aaa_mcp.server import (
+    anchor,
+    reason,
+    integrate,
+    respond,
+    validate,
+    align,
+    forge,
+    audit,
+    seal,
+    search,
+    fetch,
+)
 from aaa_mcp.integrations.self_ops import self_diagnose
 
 # Build info
@@ -378,14 +390,14 @@ async def call_tool(request: Request):
                     has_kwargs = True
                 else:
                     param_names.append(name)
-            
+
             if has_kwargs:
                 # Function accepts **kwargs, pass all body parameters
                 filtered_body = body
             else:
                 # Filter to only valid parameters
                 filtered_body = {k: v for k, v in body.items() if k in param_names}
-            
+
             result = await asyncio.wait_for(actual_fn(**filtered_body), timeout=10.0)
         except asyncio.TimeoutError:
             metrics.timeouts += 1
@@ -446,26 +458,36 @@ async def apex_judge_wrapper(request: Request):
 
     try:
         # Stage 1: INIT (000)
-        init_result = await anchor(query=query, actor_id=actor_id, mode="conscience")
+        anchor_tool = TOOLS["anchor"]
+        anchor_fn = getattr(anchor_tool, "fn", anchor_tool)
+        init_result = await anchor_fn(query=query, actor_id=actor_id)
         pipeline_results["pipeline"].append({"stage": "000_INIT", "result": init_result})
 
         # Stage 2: AGI (333)
-        agi_result = await reason(query=query, session_id=session_id)
+        reason_tool = TOOLS["reason"]
+        reason_fn = getattr(reason_tool, "fn", reason_tool)
+        agi_result = await reason_fn(query=query, session_id=session_id)
         pipeline_results["pipeline"].append({"stage": "333_AGI", "result": agi_result})
 
         # Stage 3: ASI (666)
-        asi_result = await validate(
-            session_id=session_id, stakeholders=body.get("stakeholders", [])
+        validate_tool = TOOLS["validate"]
+        validate_fn = getattr(validate_tool, "fn", validate_tool)
+        asi_result = await validate_fn(
+            query=query, session_id=session_id, stakeholders=body.get("stakeholders", [])
         )
         pipeline_results["pipeline"].append({"stage": "666_ASI", "result": asi_result})
 
         # Stage 4: APEX (888)
-        apex_result = await audit(session_id=session_id, verdict="SEAL")
+        audit_tool = TOOLS["audit"]
+        audit_fn = getattr(audit_tool, "fn", audit_tool)
+        apex_result = await audit_fn(session_id=session_id, verdict="SEAL")
         pipeline_results["pipeline"].append({"stage": "888_APEX", "result": apex_result})
 
         # Stage 5: VAULT (999) — optional
         if auto_seal:
-            seal_result = await seal(session_id=session_id, summary=query[:100], verdict="SEAL")
+            seal_tool = TOOLS["seal"]
+            seal_fn = getattr(seal_tool, "fn", seal_tool)
+            seal_result = await seal_fn(session_id=session_id, summary=query[:100], verdict="SEAL")
             pipeline_results["pipeline"].append({"stage": "999_VAULT", "result": seal_result})
 
         latency_ms = (time.time() - start_time) * 1000
@@ -724,6 +746,7 @@ async def lifespan(app):
     if os.getenv("ARIFOS_SKIP_MONITORING") != "1":
         try:
             from aaa_mcp.infrastructure.monitoring import init_monitoring
+
             await init_monitoring()
         except Exception as e:
             print(f"[rest] ⚠️ Lifespan monitoring init failed: {e} - continuing", file=sys.stderr)
@@ -738,13 +761,20 @@ def main():
     # Initialize monitoring with timeout and error tolerance
     try:
         from aaa_mcp.infrastructure.monitoring import init_monitoring
+
         # Timeout after 5 seconds to avoid blocking startup
         asyncio.run(asyncio.wait_for(init_monitoring(), timeout=5.0))
         print("[rest] Monitoring initialized successfully", file=sys.stderr)
     except asyncio.TimeoutError:
-        print("[rest] ⚠️ Monitoring initialization timeout - continuing without monitoring", file=sys.stderr)
+        print(
+            "[rest] ⚠️ Monitoring initialization timeout - continuing without monitoring",
+            file=sys.stderr,
+        )
     except Exception as e:
-        print(f"[rest] ⚠️ Monitoring initialization failed: {e} - continuing without monitoring", file=sys.stderr)
+        print(
+            f"[rest] ⚠️ Monitoring initialization failed: {e} - continuing without monitoring",
+            file=sys.stderr,
+        )
 
     port = int(os.getenv("PORT", 8080))
     host = os.getenv("HOST", "0.0.0.0")

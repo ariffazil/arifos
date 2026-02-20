@@ -46,7 +46,8 @@ def main():
 
     mode = (sys.argv[1] if len(sys.argv) > 1 else "stdio").strip().lower()
 
-    from .server import mcp
+    # Unified server combines AAA-MCP and ACLIP-CAI tools
+    from server import mcp
 
     if mode in ("", "stdio"):
         # Default to stdio for local agents

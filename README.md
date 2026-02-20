@@ -453,7 +453,13 @@ $$\text{Reality Index} = \frac{(L0\text{-}L4 \times 1.0) + (L5 \times 0.6) + (L6
 | [arif-fazil.com](https://arif-fazil.com) | **Human** — Muhammad Arif bin Fazil | ✅ |
 | [apex.arif-fazil.com](https://apex.arif-fazil.com) | **Theory** — APEX-THEORY, Constitutional Canon | ✅ |
 | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | **Docs** — 8-Layer Stack Documentation | ✅ |
-| [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | **API** — MCP Server Health | ✅ |
+| [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) | **Landing Page** — MCP Server Overview & Documentation | ✅ |
+| [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | **API Health** — System Health & Metrics | ⚠️ |
+| [arifosmcp.arif-fazil.com/tools](https://arifosmcp.arif-fazil.com/tools) | **Tool Registry** — List of 22 MCP Tools | ✅ |
+| [arifosmcp.arif-fazil.com/version](https://arifosmcp.arif-fazil.com/version) | **Version Info** — T000 Version & Build Info | ✅ |
+| [arifosmcp.arif-fazil.com/apex_judge](https://arifosmcp.arif-fazil.com/apex_judge) | **Pipeline Endpoint** — Full 000→999 Governance Pipeline | ✅ |
+| [arifosmcp.arif-fazil.com/sse](https://arifosmcp.arif-fazil.com/sse) | **SSE Transport** — Server-Sent Events MCP Transport | ✅ |
+| [arifosmcp.arif-fazil.com/mcp](https://arifosmcp.arif-fazil.com/mcp) | **HTTP Transport** — FastMCP HTTP Transport (POST only) | ✅ |
 
 ---
 

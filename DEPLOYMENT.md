@@ -17,6 +17,10 @@
 
 ---
 
+**Note:** The primary MCP server entry point is now the unified server at `server.py` (root), combining AAA-MCP and ACLIP-CAI tools. The standalone `aaa_mcp/server.py` and `aclip_cai/server.py` are deprecated but remain for backward compatibility.
+
+---
+
 ## 1️⃣ Zero-Install: Copy-Paste Prompt (5 seconds)
 
 No installation required. Works with any LLM that accepts system prompts.

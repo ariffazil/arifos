@@ -1,6 +1,10 @@
 """
 arifOS AAA MCP Server — The 9 Hardened Skills (2026.02.17-FORGE-VPS-SEAL)
 
+DEPRECATED: This module is superseded by the unified server at `/root/arifOS/server.py`.
+The unified server combines AAA-MCP and ACLIP-CAI tools into a single MCP server.
+Use `python -m aaa_mcp` or `python server.py` (root) for production.
+
 Multi-Transport Support: STDIO | SSE | StreamableHTTP
 9 Canonical Verbs enforcing the 13 Constitutional Floors:
 1. ANCHOR (000)     — Init & Sense (F11/F12)

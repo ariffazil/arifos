@@ -20,22 +20,32 @@ TRANSPORT_MODES = {"stdio", "sse", "http", "streamable-http"}
 def main():
     mode = (sys.argv[1] if len(sys.argv) > 1 else "stdio").strip().lower()
 
+    # DEPRECATED: aclip_cai standalone server is superseded by unified server at root.
+    # Using unified server (combines AAA-MCP and ACLIP-CAI tools).
+    import warnings
+
+    warnings.warn(
+        "aclip_cai standalone server is deprecated. Use 'python -m aaa_mcp' or 'python server.py' for unified server.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
     # Route to FastMCP server for transport modes
     if mode in TRANSPORT_MODES or mode == "":
-        from .server import mcp
+        from server import mcp
 
         if mode in ("", "stdio"):
             mcp.run(transport="stdio")
             return
 
         if mode == "sse":
-            port = int(os.getenv("PORT", 8081))
+            port = int(os.getenv("PORT", 8080))
             host = os.getenv("HOST", "0.0.0.0")
             mcp.run(transport="sse", host=host, port=port)
             return
 
         if mode in ("http", "streamable-http"):
-            port = int(os.getenv("PORT", 8081))
+            port = int(os.getenv("PORT", 8080))
             host = os.getenv("HOST", "0.0.0.0")
             mcp.run(transport="http", host=host, port=port)
             return

@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>arifOS MCP Server - Constitutional AI Governance System</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #7c3aed;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .logo-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .logo-text h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+        
+        .logo-text p {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+        
+        .tagline {
+            font-size: 1.25rem;
+            color: #475569;
+            margin-bottom: 2rem;
+            line-height: 1.8;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card h3 i {
+            font-style: normal;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .endpoint-list {
+            list-style: none;
+        }
+        
+        .endpoint-item {
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: rgba(248, 250, 252, 0.8);
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .endpoint-method {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 0.75rem;
+            text-transform: uppercase;
+        }
+        
+        .method-get { background: #d1fae5; color: #065f46; }
+        .method-post { background: #dbeafe; color: #1e40af; }
+        .method-put { background: #fef3c7; color: #92400e; }
+        .method-delete { background: #fee2e2; color: #991b1b; }
+        
+        .endpoint-path {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            font-size: 0.9rem;
+            color: var(--dark);
+        }
+        
+        .endpoint-desc {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            margin-left: calc(0.75rem + 4px);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+        
+        .status-live { background: #d1fae5; color: #065f46; }
+        .status-beta { background: #fef3c7; color: #92400e; }
+        
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+        
+        .tool-tag {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            color: var(--primary);
+            text-align: center;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.875rem;
+        }
+        
+        .footer a {
+            color: white;
+            text-decoration: none;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .footer a:hover {
+            border-bottom-color: white;
+        }
+        
+        .api-test {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .api-test h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .test-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .test-result {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .header {
+                padding: 2rem 1.5rem;
+            }
+            
+            .logo-text h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <div class="logo-icon">α</div>
+                <div class="logo-text">
+                    <h1>arifOS MCP Server</h1>
+                    <p>Constitutional AI Governance System</p>
+                </div>
+            </div>
+            
+            <div class="tagline">
+                A full-stack MCP (Model Context Protocol) server implementing Constitutional AI with 9 foundational laws. 
+                Provides 21 tools for AGI governance, system monitoring, and reality grounding.
+            </div>
+            
+            <div class="grid">
+                <div class="card">
+                    <h3><i>⚡</i> Core MCP Endpoints</h3>
+                    <ul class="endpoint-list">
+                        <li class="endpoint-item">
+                            <span class="endpoint-method method-get">GET</span>
+                            <span class="endpoint-path">/sse</span>
+                            <div class="endpoint-desc">SSE transport for MCP clients</div>
+                        </li>
+                        <li class="endpoint-item">
+                            <span class="endpoint-method method-post">POST</span>
+                            <span class="endpoint-path">/messages</span>
+                            <div class="endpoint-desc">MCP JSON-RPC messages endpoint</div>
+                        </li>
+                        <li class="endpoint-item">
+                            <span class="endpoint-method method-post">POST</span>
+                            <span class="endpoint-path">/mcp</span>
+                            <div class="endpoint-desc">HTTP transport for MCP <span class="status-badge status-beta">Beta</span></div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3><i>🩺</i> Health & Monitoring</h3>
+                    <ul class="endpoint-list">
+                        <li class="endpoint-item">
+                            <span class="endpoint-method method-get">GET</span>
+                            <span class="endpoint-path">/health</span>
+                            <div class="endpoint-desc">System health check</div>
+                        </li>
+                        <li class="endpoint-item">
+                            <span class="endpoint-method method-get">GET</span>
+                            <span class="endpoint-path">/ready</span>
+                            <div class="endpoint-desc">Tool registry readiness</div>
+                        </li>
+                        <li class="endpoint-item">
+                            <span class="endpoint-method method-get">GET</span>
+                            <span class="endpoint-path">/metrics</span>
+                            <div class="endpoint-desc">Performance metrics</div>
+                        </li>
+                        <li class="endpoint-item">
+                            <span class="endpoint-method method-get">GET</span>
+                            <span class="endpoint-path">/version</span>
+                            <div class="endpoint-desc">Build information</div>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h3><i>🛠️</i> API Tools</h3>
+                    <ul class="endpoint-list">
+                        <li class="endpoint-item">
+                            <span class="endpoint-method method-get">GET</span>
+                            <span class="endpoint-path">/tools</span>
+                            <div class="endpoint-desc">List all available tools</div>
+                        </li>
+                        <li class="endpoint-item">
+                            <span class="endpoint-method method-post">POST</span>
+                            <span class="endpoint-path">/tools/{name}</span>
+                            <div class="endpoint-desc">Call specific tool</div>
+                        </li>
+                        <li class="endpoint-item">
+                            <span class="endpoint-method method-post">POST</span>
+                            <span class="endpoint-path">/apex_judge</span>
+                            <div class="endpoint-desc">Full pipeline wrapper</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h3><i>🧰</i> Available Tools (21 total)</h3>
+                <div class="tools-grid" id="tools-list">
+                    <!-- Tools will be loaded dynamically -->
+                    <div class="tool-tag">Loading tools...</div>
+                </div>
+            </div>
+            
+            <div class="api-test">
+                <h3><i>🔍</i> API Quick Test</h3>
+                <select class="test-select" id="endpoint-select">
+                    <option value="/health">Health Check (/health)</option>
+                    <option value="/ready">Ready Check (/ready)</option>
+                    <option value="/version">Version (/version)</option>
+                    <option value="/tools">List Tools (/tools)</option>
+                    <option value="/metrics">Metrics (/metrics)</option>
+                </select>
+                <button onclick="testEndpoint()" style="
+                    background: linear-gradient(135deg, var(--primary), var(--secondary));
+                    color: white;
+                    border: none;
+                    padding: 0.75rem 1.5rem;
+                    border-radius: 8px;
+                    font-size: 1rem;
+                    font-weight: 600;
+                    cursor: pointer;
+                    margin-bottom: 1rem;
+                ">Test Endpoint</button>
+                <div class="test-result" id="test-result">Click "Test Endpoint" to see results</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>
+            <strong>arifOS MCP Server</strong> • 
+            <a href="https://github.com/anomalyco/opencode" target="_blank">GitHub</a> • 
+            <a href="https://gofastmcp.com" target="_blank">FastMCP</a> • 
+            <a href="https://modelcontextprotocol.io" target="_blank">MCP Protocol</a>
+        </p>
+        <p style="margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.7;">
+            Version: 2026.02.17-FORGE-VPS-SEAL • Server: arifOS-Unified
+        </p>
+    </div>
+    
+    <script>
+        // Load tools dynamically
+        async function loadTools() {
+            try {
+                const response = await fetch('/tools');
+                if (!response.ok) throw new Error('Failed to load tools');
+                const data = await response.json();
+                
+                const toolsList = document.getElementById('tools-list');
+                toolsList.innerHTML = '';
+                
+                if (data.tools && Array.isArray(data.tools)) {
+                    data.tools.forEach(tool => {
+                        const toolEl = document.createElement('div');
+                        toolEl.className = 'tool-tag';
+                        toolEl.textContent = tool;
+                        toolsList.appendChild(toolEl);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading tools:', error);
+                document.getElementById('tools-list').innerHTML = 
+                    '<div class="tool-tag">Error loading tools</div>';
+            }
+        }
+        
+        // Test endpoint function
+        async function testEndpoint() {
+            const select = document.getElementById('endpoint-select');
+            const endpoint = select.value;
+            const resultDiv = document.getElementById('test-result');
+            
+            resultDiv.textContent = 'Testing...';
+            resultDiv.style.color = 'var(--dark)';
+            
+            try {
+                const response = await fetch(endpoint);
+                const data = await response.json();
+                resultDiv.textContent = JSON.stringify(data, null, 2);
+                resultDiv.style.color = 'var(--success)';
+            } catch (error) {
+                resultDiv.textContent = `Error: ${error.message}`;
+                resultDiv.style.color = 'var(--danger)';
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTools();
+        });
+    </script>
+</body>
+</html>

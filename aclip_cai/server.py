@@ -1,6 +1,10 @@
 """
 ACLIP-CAI MCP Server — Sensory Backend (v1.0-LOCAL)
 
+DEPRECATED: This module is superseded by the unified server at `/root/arifOS/server.py`.
+The unified server combines AAA-MCP and ACLIP-CAI tools into a single MCP server.
+Use `python -m aaa_mcp` or `python server.py` (root) for production.
+
 Standalone MCP server exposing the 10-sense nervous system.
 DEFAULT: localhost only (127.0.0.1) — internal to arifOS ecosystem.
 
@@ -183,7 +187,7 @@ async def financial_cost(
 
     Physical meaning: Monetary cost of operations.
     """
-    return estimate_financial_cost(
+    return await estimate_financial_cost(
         service=service,
         action=action,
         resource_id=resource_id,
