@@ -1,0 +1,58 @@
+# arifOS — Constitutional AI Governance Documentation
+
+**The Intelligence Kernel that governs whether AI cognition is permitted.**
+Mathematical enforcement of ethical constraints through 13 stationary floors (F1-F13) and thermodynamic stability.
+
+> Motto: DITEMPA BUKAN DIBERI (Forged, Not Given)
+> Version: 2026.02.17-FORGE-UVX-SEAL
+
+## Core Documentation
+- [Introduction](https://arifos.arif-fazil.com/docs/)
+- [The 13 Constitutional Floors](https://arifos.arif-fazil.com/docs/theory/floors)
+- [MCP Server Integration](https://arifos.arif-fazil.com/docs/governance/mcp-integration)
+- [API Reference](https://arifos.arif-fazil.com/docs/api/reference)
+
+## 26 Canonical MCP Tools
+arifOS provides a suite of 26 tools for AGI governance, reality grounding, container orchestration, and system operations.
+
+### Governance Verbs (The 9 Stages)
+1. **anchor (000)**: Session ignition and authority verification (F11/F12).
+2. **reason (222)**: Hypothesis generation and truth-score verification (F2/F8).
+3. **integrate (333)**: Context mapping and knowledge grounding (F7/F10).
+4. **respond (444)**: Draft synthesis and clarity verification (F4/F6).
+5. **validate (555)**: Stakeholder impact and empathy scoring (F5/F6).
+6. **align (666)**: Ethical constraint alignment (F9).
+7. **forge (777)**: Implementation synthesis and code generation.
+8. **audit (888)**: Verdict consensus and Tri-Witness scoring (F3/F13).
+9. **seal (999)**: Immutable commitment to VAULT999 ledger (F1/F3).
+
+### Container Orchestration (Guarded)
+- **container_list**: List all managed AI containers.
+- **container_restart**: Safely restart a specific container.
+- **container_logs**: Retrieve real-time logs from isolated environments.
+- **container_exec**: Execute commands within a sandboxed container.
+- **sovereign_health**: High-level health of the container host.
+
+### Utility & Ops Tools
+- **system_health**: Real-time metrics (CPU, RAM, Disk, IO).
+- **fs_inspect**: Managed filesystem security inspection.
+- **log_tail**: Constitutional audit trail monitoring.
+- **net_status**: Network environment analysis.
+- **config_flags**: Dynamic governance state flags.
+- **chroma_query**: Vector memory retrieval.
+- **cost_estimator**: Thermodynamic cost prediction.
+- **financial_cost**: External API cost tracking.
+- **forge_guard**: Local safety circuit breaker.
+- **trinity_forge**: Unified 000-999 pipeline execution.
+- **search**: Multi-agent reality search.
+- **fetch**: Source document retrieval.
+
+## System Endpoints
+- **Production MCP**: `https://arifosmcp.arif-fazil.com/mcp`
+- **REST API**: `https://arifosmcp.arif-fazil.com`
+- **Health Check**: `https://arifosmcp.arif-fazil.com/health`
+
+## Infrastructure
+- **VAULT999**: Merkle-chained PostgreSQL ledger for immutable auditing.
+- **AXIOM Engine**: Thermodynamic grounding layer.
+- **TRINITY**: Cognition (AGI), Safety (ASI), and Judicial (APEX) engines.
