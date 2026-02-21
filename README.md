@@ -10,9 +10,11 @@
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg" alt="PyPI version"></a>
   <a href="https://github.com/ariffazil/arifOS"><img src="https://img.shields.io/github/stars/ariffazil/arifOS" alt="GitHub stars"></a>
   <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
+  <a href="https://arifos.arif-fazil.com/docs/"><img src="https://img.shields.io/badge/docs-LATEST-cyan" alt="Documentation"></a>
   <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.17--FORGE--UVX--SEAL-blue" alt="T000"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
   <br><br>
+  <a href="https://arifos.arif-fazil.com/docs/"><b>📖 Documentation</b></a> ·
   <a href="#-quick-start"><b>🚀 Quick Start</b></a> ·
   <a href="#-the-13-constitutional-floors"><b>🛡️ 13 Floors</b></a> ·
   <a href="#-honest-state-reality-index-097"><b>📊 Status</b></a> ·
@@ -93,7 +95,7 @@ arifOS is one of the first **open-source constitutional kernels** for artificial
 
 **Key Insight:** L0 is the [Intelligence Kernel](./333_APPS/L0_KERNEL/) — the constitutional substrate. L1-L7 are applications that run on it. **L0 is invariant, transport-agnostic law; L1–L7 are replaceable apps. Updating models or agents cannot bypass L0.**
 
-**Documentation:** [333_APPS README](./333_APPS/README.md) — Full 8-layer architecture
+**Documentation:** [arifos.arif-fazil.com/docs](https://arifos.arif-fazil.com/docs/) — Full 8-layer architecture & API Reference
 
 ---
 ## 🎯 What Is arifOS?
@@ -147,7 +149,7 @@ arifOS is one of the first **open-source constitutional kernels** for artificial
 
 **Key Insight:** L0 is the [Intelligence Kernel](./333_APPS/L0_KERNEL/) — the constitutional substrate. L1-L7 are applications that run on it. **L0 is invariant, transport-agnostic law; L1–L7 are replaceable apps. Updating models or agents cannot bypass L0.**
 
-**Documentation:** [333_APPS README](./333_APPS/README.md) — Full 8-layer architecture
+**Documentation:** [arifos.arif-fazil.com/docs](https://arifos.arif-fazil.com/docs/) — Full 8-layer architecture & API Reference
 
 ---
 

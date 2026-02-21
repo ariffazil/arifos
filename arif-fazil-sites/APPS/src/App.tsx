@@ -616,6 +616,7 @@ function App() {
               <a href="#layers" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Implementations</a>
               <a href="#mcp" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Tools</a>
               <a href="#mcp-server" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">MCP Server</a>
+              <a href="/docs" className="text-sm text-cyan-400 hover:text-white transition-colors flex items-center gap-1 font-medium">Docs <ExternalLink className="w-3 h-3" /></a>
               <a href="#quickstart" className="text-sm text-gray-400 hover:text-cyan-400 transition-colors">Get Started</a>
               <div className="flex items-center gap-2 ml-4">
                 <a href="https://arif-fazil.com" className="px-3 py-1.5 rounded text-red-400 text-xs font-medium hover:bg-red-900/20 transition-colors">HUMAN</a>
@@ -642,6 +643,7 @@ function App() {
             <a href="#layers" className="block text-gray-400 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Implementations</a>
             <a href="#mcp" className="block text-gray-400 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Tools</a>
             <a href="#mcp-server" className="block text-gray-400 hover:text-white" onClick={() => setMobileMenuOpen(false)}>MCP Server</a>
+            <a href="/docs" className="block text-cyan-400 font-medium hover:text-white" onClick={() => setMobileMenuOpen(false)}>Documentation</a>
             <a href="#quickstart" className="block text-gray-400 hover:text-white" onClick={() => setMobileMenuOpen(false)}>Get Started</a>
             <div className="flex gap-2 pt-2">
               <a href="https://arif-fazil.com" className="px-3 py-1.5 rounded text-red-400 text-xs hover:bg-red-900/20">HUMAN</a>
@@ -2083,7 +2085,8 @@ result = await moderator.moderate("User generated content here...")`}</code></pr
             <div>
               <h4 className="font-medium mb-4">Resources</h4>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li><a href="https://github.com/ariffazil/arifOS" className="hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="/docs" className="text-cyan-400 hover:text-white transition-colors font-medium">Documentation</a></li>
+                <li><a href="https://github.com/ariffazil/arifOS" className="hover:text-white transition-colors">GitHub Source</a></li>
                 <li><a href="https://pypi.org/project/arifos/" className="hover:text-white transition-colors">PyPI Package</a></li>
                 <li><a href="https://github.com/ariffazil/arifOS/releases" className="hover:text-white transition-colors">Releases</a></li>
                 <li><a href="https://github.com/ariffazil/arifOS/issues" className="hover:text-white transition-colors">Support</a></li>
