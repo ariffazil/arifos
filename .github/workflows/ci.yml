@@ -39,7 +39,7 @@ jobs:
         run: |
           python -m py_compile \
             aaa_mcp/server.py \
-            scripts/start_server.py \
+            server.py \
             core/pipeline.py \
             core/organs/_1_agi.py \
             aaa_mcp/core/engine_adapters.py
