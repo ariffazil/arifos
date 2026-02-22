@@ -10,19 +10,19 @@ description: Install, configure, and connect to the arifOS MCP server via stdio,
 > Source: [`README.md`](https://github.com/ariffazil/arifOS/blob/main/README.md) · [`aaa_mcp/server.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/server.py) · [`server.py`](https://github.com/ariffazil/arifOS/blob/main/server.py)  
 > PyPI: [`pip install arifos`](https://pypi.org/project/arifos/)
 
-arifOS speaks the **Model Context Protocol (MCP)** — the open standard for LLM tool use. Any MCP-compatible client (Claude Desktop, Cursor, OpenClaw, ChatGPT developer mode) can connect to it.
+arifOS speaks the **Model Context Protocol (MCP)** - the open standard for LLM tool use. Any MCP-compatible client (Claude Desktop, Cursor, OpenClaw, ChatGPT developer mode) can connect to it.
 
 ---
 
 ## Installation
 
-### Option A — PyPI (fastest)
+### Option A - PyPI (fastest)
 
 ```bash
 pip install arifos
 ```
 
-### Option B — From source (recommended for contributors)
+### Option B - From source (recommended for contributors)
 
 ```bash
 git clone https://github.com/ariffazil/arifOS.git
@@ -38,7 +38,12 @@ pip install uv && uv pip install -e ".[dev]"
 
 ### Unified server (recommended for production)
 
-The `server.py` at repo root runs **22 tools** in one process — 9 AAA-MCP governance tools + 10 ACLIP-CAI sensory tools + ChatGPT search/fetch tools.
+The `server.py` at repo root runs a **unified** FastMCP server that bundles:
+
+- AAA-MCP governance pipeline tools (000->999)
+- Additional read-only observability/sensory tools
+
+Counts and non-governance tool names can change; treat the governance pipeline tools as the stable operator contract.
 
 ```bash
 python server.py                  # default: REST mode
@@ -59,26 +64,36 @@ python -m aaa_mcp.selftest        # smoke test
 
 ---
 
-## The 9 Canonical Governance Tools
+## Public MCP Tools (Truth-Grounded)
 
-All tools chain via `session_id`. Each enforces specific constitutional floors.
+The AAA-MCP transport currently exposes **legacy verb tool names** as the MCP tool surface.
+These are public tool names today (call them via MCP). They also correspond to internal pipeline stages.
 
-| # | Tool | Verb | Stages | Floors Checked |
+All tools chain via `session_id`.
+
+| # | MCP tool name | Stage | Purpose | Floors |
 |:--|:--|:--|:--|:--|
-| 1 | `_init_` / `ANCHOR` | Init & authorise | 000 | F11, F12 |
-| 2 | `_agi_` / `REASON` | Think & hypothesise | 222 | F2, F8 |
-| 3 | `INTEGRATE` | Map & ground | 333 | F7, F10 |
-| 4 | `RESPOND` | Draft & plan | 444 | F4, F6 |
-| 5 | `VALIDATE` | Impact check | 555 | F5, F6 |
-| 6 | `ALIGN` | Ethics check | 666 | F9 |
-| 7 | `FORGE` | Synthesise code | 777 | F2, F4 |
-| 8 | `_apex_` / `AUDIT` | Verdict & consensus | 888 | F3, F11 |
-| 9 | `_vault_` / `SEAL` | Commit to vault | 999 | F1, F3 |
+| 1 | `anchor` | 000 | Session ignition / airlock | F11, F12 |
+| 2 | `reason` | 222 | Hypotheses / reasoning | F2, F4, F8 |
+| 3 | `integrate` | 333 | Context + grounding merge | F7, F10 |
+| 4 | `respond` | 444 | Draft / plan synthesis | F4, F6 |
+| 5 | `validate` | 555 | Stakeholder impact | F5, F6 |
+| 6 | `align` | 666 | Ethics/policy reconciliation | F9 |
+| 7 | `forge` | 777 | Solution synthesis | F2, F4 |
+| 8 | `audit` | 888 | Final judgment | F3, F11, F13 |
+| 9 | `seal` | 999 | Commit to VAULT999 | F1, F3 |
+| 10 | `trinity_forge` | 000->999 | Full pipeline shortcut | entry enforces F11/F12; internal stages enforce floors |
 
-Additional tools in the unified server:
+Additional tools may be present depending on which server you run:
 
-- **`reality_search`** — Web search via Brave API (F7, F10 grounding)
-- **ACLIP-CAI C0–C9** — Sensory/observability tools
+- `search`, `fetch` - ChatGPT Deep Research integration (read-only hints)
+- Additional read-only observability/sensory tools (unified server)
+
+:::info Canonical IDs vs MCP tool names
+You may also see canonical tool identifiers in `aaa_mcp/protocol/tool_registry.py` (e.g. `init_gate`, `agi_reason`).
+These are routing/documentation identifiers, not the MCP tool names currently registered by `aaa_mcp/server.py`.
+For MCP calls, use the tool names in the table above.
+:::
 
 ---
 
@@ -87,10 +102,10 @@ Additional tools in the unified server:
 | Variable | Required | Default | Description |
 |:--|:--|:--|:--|
 | `ARIF_SECRET` | Recommended | `""` | Authentication header for SSE/HTTP transports |
-| `BRAVE_API_KEY` | Optional | `""` | Enables `reality_search` web grounding |
+| `BRAVE_API_KEY` | Optional | `""` | Enables external web search grounding (where configured) |
 | `OPENAI_API_KEY` | Optional | `""` | ChatGPT search/fetch tools in unified server |
-| `DATABASE_URL` | Optional | SQLite | VAULT999 PostgreSQL connection string |
-| `REDIS_URL` | Optional | In-memory | Session state Redis URL |
+| `DATABASE_URL` | Optional | SQLite/memory | VAULT999 persistence (PostgreSQL when configured; local fallbacks supported) |
+| `REDIS_URL` | Optional | In-memory | Session state cache (Redis when configured; local fallbacks supported) |
 | `PORT` | Optional | `8080` | Server port for SSE/HTTP modes |
 | `HOST` | Optional | `0.0.0.0` | Server bind address |
 | `AAA_MCP_TRANSPORT` | Optional | `stdio` | Override transport (`stdio`/`sse`/`http`) |
@@ -168,10 +183,7 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
 # Live health check (returns JSON)
 curl https://arifosmcp.arif-fazil.com/health
 
-# Response:
-# {"status":"healthy","version":"2026.2.19","reality_index":0.94,"floors_passing":13}
-
-# Governance metrics
+# Governance metrics (if enabled)
 curl https://arifosmcp.arif-fazil.com/metrics.json
 ```
 
@@ -183,13 +195,13 @@ curl https://arifosmcp.arif-fazil.com/metrics.json
 python -m aaa_mcp.selftest
 ```
 
-A passing self-test confirms all 9 tools are reachable, at least one tool produces `SEAL`, and F12 injection scanning is active.
+A passing self-test confirms the server loads, tools are registered, and baseline health contracts are intact.
 
 ---
 
 ## Zero-Install: System Prompt Only
 
-If you cannot run a server, copy `333_APPS/L1_PROMPT/SYSTEM_PROMPT.md` into any LLM's system settings. This gives L1 governance (prompting only — no cryptographic sealing, no VAULT999, no tool calls).
+If you cannot run a server, copy `333_APPS/L1_PROMPT/SYSTEM_PROMPT.md` into any LLM's system settings. This gives L1 governance (prompting only - no cryptographic sealing, no VAULT999, no tool calls).
 
 ```bash
 cat 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md | pbcopy   # macOS

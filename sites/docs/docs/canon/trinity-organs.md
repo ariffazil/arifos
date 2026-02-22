@@ -147,7 +147,7 @@ Plus two supporting tools:
 - **`reality_search`** — raises S₃ (external witness) via Brave Search API
 - **Pipeline shortcut** — `_agi_` with `action: "forge"` runs the full 000→999 pipeline in one call
 
-See: [API Reference →](../api) for full parameter schemas.
+See: [API Reference ->](/api) for full parameter schemas.
 
 ---
 
