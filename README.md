@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/arifOSreadme.png" alt="arifOS: THE CONSTITUTIONAL KERNEL FOR AI" />
+</p>
+
 # arifOS — DITEMPA BUKAN DIBERI
 <!-- mcp-name: io.github.ariffazil/arifos-mcp -->
 
@@ -95,6 +99,10 @@ Non-derogable guardrails (F1–F13) that act as the system's "Prefrontal Cortex"
 ## 🔄 IV. THE METABOLIC JOURNEY (000–999)
 
 Every decision travels through an 11-stage metabolic loop.
+
+<p align="center">
+  <img src="docs/arifOS_Constitutional_Governance_Kernel.png" alt="The Metabolic Pipeline (000-999)" />
+</p>
 
 ```mermaid
 stateDiagram-v2
