@@ -1,0 +1,34 @@
+"""
+aclip_cai/core/kernel.py — Unified Constitutional Kernel Singleton
+The single source of truth for arifOS governance.
+"""
+from .lifecycle import LifecycleManager
+from .floor_audit import FloorAuditor
+from .thermo_budget import ThermoBudget
+from .vault_logger import VaultLogger
+from .amendment import AmendmentChain
+from .federation import FederationCoordinator
+from .eval_suite import EvalSuite
+
+class ConstitutionalKernel:
+    _instance = None
+
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(ConstitutionalKernel, cls).__new__(cls)
+            # Initialize all constitutional singletons
+            cls._instance.lifecycle = LifecycleManager()
+            cls._instance.auditor = FloorAuditor()
+            cls._instance.thermo = ThermoBudget()
+            cls._instance.vault = VaultLogger()
+            cls._instance.amendment = AmendmentChain()
+            cls._instance.federation = FederationCoordinator()
+            cls._instance.eval_suite = EvalSuite()
+        return cls._instance
+
+    def audit(self, action: str, context: str = "", severity: str = "medium"):
+        """Centralized audit gate for all triad tools."""
+        return self.auditor.check_floors(action, context=context, severity=severity)
+
+# Export the singleton
+kernel = ConstitutionalKernel()
