@@ -27,6 +27,19 @@ def create_unified_mcp_server() -> Any:
     return mcp
 
 
+class ToolHandle:
+    """
+    Compatibility wrapper.
+
+    Some test suites expect tool objects with a `.fn` attribute. FastMCP registers
+    tools but returns the original function from its decorator, so we provide a
+    stable `.fn` surface without affecting runtime registration.
+    """
+
+    def __init__(self, fn: Any) -> None:
+        self.fn = fn
+
+
 def _fold_verdict(verdicts: List[str]) -> str:
     if any(v.upper() == "VOID" for v in verdicts):
         return "VOID"
@@ -43,7 +56,7 @@ def _fold_verdict(verdicts: List[str]) -> str:
 
 
 @mcp.tool(name="init_session", description="000_INIT — Session ignition + defense scan.")
-async def init_session(
+async def _init_session(
     query: str,
     actor_id: str = "anonymous",
     auth_token: Optional[str] = None,
@@ -68,9 +81,10 @@ async def init_session(
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "000_INIT"}
 
+init_session = ToolHandle(_init_session)
 
 @mcp.tool(name="agi_cognition", description="111–444_AGI — Reason + integrate + draft response.")
-async def agi_cognition(
+async def _agi_cognition(
     query: str,
     session_id: str,
     grounding: Optional[List[Dict[str, Any]]] = None,
@@ -94,9 +108,10 @@ async def agi_cognition(
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "111-444", "session_id": session_id}
 
+agi_cognition = ToolHandle(_agi_cognition)
 
 @mcp.tool(name="asi_empathy", description="555–666_ASI — Validate + align.")
-async def asi_empathy(
+async def _asi_empathy(
     query: str,
     session_id: str,
     stakeholders: Optional[List[str]] = None,
@@ -119,9 +134,10 @@ async def asi_empathy(
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "555-666", "session_id": session_id}
 
+asi_empathy = ToolHandle(_asi_empathy)
 
 @mcp.tool(name="apex_verdict", description="777–888_APEX — Forge + audit final verdict.")
-async def apex_verdict(
+async def _apex_verdict(
     session_id: str,
     query: str,
     agi_result: Optional[Dict[str, Any]] = None,
@@ -156,9 +172,10 @@ async def apex_verdict(
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "777-888", "session_id": session_id}
 
+apex_verdict = ToolHandle(_apex_verdict)
 
 @mcp.tool(name="vault_seal", description="999_VAULT — Commit decision to immutable vault.")
-async def vault_seal(
+async def _vault_seal(
     session_id: str,
     summary: str,
     verdict: str = "SEAL",
@@ -169,6 +186,7 @@ async def vault_seal(
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "999_VAULT", "session_id": session_id}
 
+vault_seal = ToolHandle(_vault_seal)
 
 # ═══════════════════════════════════════════════════════
 # UTILITIES (Read-only)
@@ -176,7 +194,7 @@ async def vault_seal(
 
 
 @mcp.tool(name="search", description="Read-only web search (Brave API if configured).")
-async def search(query: str, intent: str = "general") -> Dict[str, Any]:
+async def _search(query: str, intent: str = "general") -> Dict[str, Any]:
     try:
         client = BraveSearchClient()
         payload = await client.search(query=query, intent=intent)
@@ -191,9 +209,10 @@ async def search(query: str, intent: str = "general") -> Dict[str, Any]:
     except Exception as e:
         return {"query": query, "intent": intent, "ids": [], "results": [], "status": f"ERROR: {e}"}
 
+search = ToolHandle(_search)
 
 @mcp.tool(name="fetch", description="Read-only fetch by URL/id from `search` results.")
-async def fetch(id: str, max_chars: int = 4000) -> Dict[str, Any]:
+async def _fetch(id: str, max_chars: int = 4000) -> Dict[str, Any]:
     try:
         import urllib.request
 
@@ -208,9 +227,10 @@ async def fetch(id: str, max_chars: int = 4000) -> Dict[str, Any]:
     except Exception as e:
         return {"id": id, "error": str(e), "status": "ERROR"}
 
+fetch = ToolHandle(_fetch)
 
 @mcp.tool(name="analyze", description="Read-only analysis helper for structured data.")
-async def analyze(data: Dict[str, Any], analysis_type: str = "structure") -> Dict[str, Any]:
+async def _analyze(data: Dict[str, Any], analysis_type: str = "structure") -> Dict[str, Any]:
     try:
         if analysis_type == "structure":
             depth = 1
@@ -221,9 +241,10 @@ async def analyze(data: Dict[str, Any], analysis_type: str = "structure") -> Dic
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "analysis_type": analysis_type}
 
+analyze = ToolHandle(_analyze)
 
 @mcp.tool(name="system_audit", description="Read-only system audit (health + basic invariants).")
-async def system_audit(audit_scope: str = "quick", verify_floors: bool = True) -> Dict[str, Any]:
+async def _system_audit(audit_scope: str = "quick", verify_floors: bool = True) -> Dict[str, Any]:
     try:
         details: Dict[str, Any] = {"scope": audit_scope}
         if verify_floors:
@@ -239,6 +260,7 @@ async def system_audit(audit_scope: str = "quick", verify_floors: bool = True) -
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "scope": audit_scope}
 
+system_audit = ToolHandle(_system_audit)
 
 __all__ = [
     "create_unified_mcp_server",
