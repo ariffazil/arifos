@@ -1,39 +1,60 @@
 /**
  * arifOS Docs — Custom CSS
- * Dark-first theme with constitutional gold accents.
+ * Black-first theme with primary RGB accents (red/yellow/blue).
  */
 
 :root {
-  --ifm-color-primary: #00c896;
-  --ifm-color-primary-dark: #00b387;
-  --ifm-color-primary-darker: #00a87e;
-  --ifm-color-primary-darkest: #008b68;
-  --ifm-color-primary-light: #00dda5;
-  --ifm-color-primary-lighter: #00e2aa;
-  --ifm-color-primary-lightest: #00ffbf;
+  /* Brand palette */
+  --arif-red: #ff2d2d;
+  --arif-yellow: #ffd100;
+  --arif-blue: #1aa3ff;
+  --arif-black: #070707;
+  --arif-ink: #eaeaea;
+
+  /* Infima (Docusaurus) theme */
+  --ifm-color-primary: var(--arif-blue);
+  --ifm-color-primary-dark: #0f8fe0;
+  --ifm-color-primary-darker: #0b7fc6;
+  --ifm-color-primary-darkest: #076aa6;
+  --ifm-color-primary-light: #3bb2ff;
+  --ifm-color-primary-lighter: #54bbff;
+  --ifm-color-primary-lightest: #8ad0ff;
   --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 200, 150, 0.1);
+  --docusaurus-highlighted-code-line-bg: rgba(26, 163, 255, 0.14);
 }
 
-/* Dark mode — primary colours adjusted for contrast */
+/* Force the "dark" palette to be truly black. */
 [data-theme='dark'] {
-  --ifm-color-primary: #00ff88;
-  --ifm-color-primary-dark: #00e57a;
-  --ifm-color-primary-darker: #00d872;
-  --ifm-color-primary-darkest: #00b35e;
-  --ifm-color-primary-light: #1aff91;
-  --ifm-color-primary-lighter: #26ff97;
-  --ifm-color-primary-lightest: #52ffa9;
-  --docusaurus-highlighted-code-line-bg: rgba(0, 255, 136, 0.1);
-  --ifm-background-color: #0d1117;
-  --ifm-navbar-background-color: #1a1a2e;
-  --ifm-footer-background-color: #0d1117;
+  --ifm-background-color: var(--arif-black);
+  --ifm-background-surface-color: #0c0c0c;
+  --ifm-navbar-background-color: #0b0b0b;
+  --ifm-footer-background-color: #070707;
+  --ifm-font-color-base: var(--arif-ink);
+  --ifm-heading-color: #ffffff;
+  --ifm-toc-border-color: rgba(255, 255, 255, 0.10);
+  --ifm-color-emphasis-200: rgba(255, 255, 255, 0.08);
+  --ifm-color-emphasis-300: rgba(255, 255, 255, 0.12);
+  --ifm-color-emphasis-500: rgba(255, 255, 255, 0.24);
+  --docusaurus-highlighted-code-line-bg: rgba(26, 163, 255, 0.14);
 }
 
-/* Constitutional gold for callouts and badges */
+/* Accent helpers */
+.accent-red {
+  color: var(--arif-red);
+}
+
+.accent-yellow {
+  color: var(--arif-yellow);
+}
+
+.accent-blue {
+  color: var(--arif-blue);
+}
+
+/* Badges */
 .badge--gold {
-  background-color: #c8a000;
-  color: #000;
+  background-color: var(--arif-yellow);
+  color: #000000;
 }
 
 /* Mono font for floor scores and stage numbers */
@@ -41,13 +62,60 @@
   font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
 }
 
-/* Admonition: 888_HOLD warning */
+/* Links: blue by default, yellow on hover for high contrast */
+a {
+  color: var(--arif-blue);
+}
+
+a:hover {
+  color: var(--arif-yellow);
+}
+
+/* Buttons: primary = blue, secondary = red */
+.button.button--primary {
+  background: var(--arif-blue);
+  border-color: var(--arif-blue);
+  color: #000;
+}
+
+.button.button--primary:hover {
+  background: #54bbff;
+  border-color: #54bbff;
+  color: #000;
+}
+
+.button.button--secondary {
+  background: transparent;
+  border-color: var(--arif-red);
+  color: var(--arif-red);
+}
+
+.button.button--secondary:hover {
+  background: rgba(255, 45, 45, 0.12);
+  border-color: var(--arif-red);
+  color: #ffffff;
+}
+
+/* Admonitions: map types to RGB */
 .alert--warning {
-  border-left: 4px solid #ff8c00;
+  border-left: 4px solid var(--arif-yellow);
+}
+
+.alert--danger {
+  border-left: 4px solid var(--arif-red);
+}
+
+.alert--info {
+  border-left: 4px solid var(--arif-blue);
 }
 
 /* Navbar brand feels weightier */
 .navbar__brand {
   font-weight: 700;
   letter-spacing: 0.03em;
+}
+
+/* Make headings pop with a subtle yellow underline glow */
+.markdown h1, .markdown h2, .markdown h3 {
+  text-shadow: 0 0 14px rgba(255, 209, 0, 0.08);
 }
