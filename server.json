@@ -20,6 +20,14 @@
       "transport": {
         "type": "stdio"
       }
+    },
+    {
+      "registryType": "oci",
+      "identifier": "docker.io/ariffazil/arifos:2026.2.22",
+      "transport": {
+        "type": "sse",
+        "url": "https://arifosmcp.arif-fazil.com/sse"
+      }
     }
   ]
 }
