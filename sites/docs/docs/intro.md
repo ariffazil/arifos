@@ -52,7 +52,7 @@ pip install -r requirements.txt
 python server.py --mode rest   # REST API + SSE + all tools
 ```
 
-The live endpoint is at **[arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com/health)** — check `/health` to confirm it is up.
+The live endpoint is at **[arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com)** - check `/health` to confirm it is up.
 
 ---
 

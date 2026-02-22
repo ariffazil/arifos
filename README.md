@@ -9,7 +9,7 @@
   <em>Controls existence, allocates resources, schedules execution, guarantees isolation</em><br><br>
   <a href="https://pypi.org/project/arifos/"><img src="https://img.shields.io/pypi/v/arifos.svg" alt="PyPI version"></a>
   <a href="https://github.com/ariffazil/arifOS/actions/workflows/ci.yml"><img src="https://github.com/ariffazil/arifOS/actions/workflows/ci.yml/badge.svg" alt="arifOS CI"></a>
-  <a href="https://arifosmcp.arif-fazil.com/health"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
+  <a href="https://arifosmcp.arif-fazil.com"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
   <a href="https://arifos.arif-fazil.com/"><img src="https://img.shields.io/badge/docs-LATEST-cyan" alt="Documentation"></a>
   <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.17--FORGE--UVX--SEAL-blue" alt="T000"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
@@ -226,7 +226,7 @@ Full specification: [`000_THEORY/000_LAW.md`](./000_THEORY/000_LAW.md)
 | **L1–L4** | 22 MCP tools (9 AAA + 10 ACLIP-CAI + 2 ChatGPT + container tools), multiple transports |
 | **VAULT999** | PostgreSQL-backed immutable ledger with cryptographic seals |
 | **Unified Server** | Single `server.py` with 4 modes (rest/http/sse/stdio) and MCP Resource Templates |
-| **Live Deployment** | [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) |
+| **Live Deployment** | `https://arifosmcp.arif-fazil.com` (health: `https://arifosmcp.arif-fazil.com/health`) |
 
 ### 🟡 SABAR (Experimental / In Progress)
 | Component | Status |
@@ -257,8 +257,8 @@ Full specification: [`000_THEORY/000_LAW.md`](./000_THEORY/000_LAW.md)
 | [apex.arif-fazil.com](https://apex.arif-fazil.com) | **Theory** — APEX-THEORY, Constitutional Canon | ✅ |
 | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | **Docs** — 8-Layer Stack Documentation | ✅ |
 | [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) | **Landing Page** — MCP Server Overview & Documentation | ✅ |
-| [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | **API Health** — System Health & Metrics | ✅ |
-| [arifosmcp.arif-fazil.com/tools](https://arifosmcp.arif-fazil.com/tools) | **Tool Registry** — List of 22 MCP Tools | ✅ |
+| `https://arifosmcp.arif-fazil.com/health` | **API Health** — System Health & Metrics | ✅ |
+| [sites/docs/docs/api.md](https://github.com/ariffazil/arifOS/blob/main/sites/docs/docs/api.md) | **API Reference** — Tool names + parameters | ✅ |
 
 ---
 ## 🆘 Getting Help

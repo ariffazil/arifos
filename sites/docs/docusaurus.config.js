@@ -86,7 +86,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://arifosmcp.arif-fazil.com/health',
+            href: 'https://arifosmcp.arif-fazil.com',
             label: 'Status',
             position: 'right',
           },
@@ -127,7 +127,7 @@ const config = {
             items: [
               {
                 label: 'Live Health',
-                href: 'https://arifosmcp.arif-fazil.com/health',
+                href: 'https://arifosmcp.arif-fazil.com',
               },
               {
                 label: '000_THEORY',
@@ -153,7 +153,7 @@ const config = {
       announcementBar: {
         id: 'live_status',
         content:
-          '🟢 arifOS MCP is <a href="https://arifosmcp.arif-fazil.com/health">LIVE</a> — <a href="/mcp-server">Connect in 30 seconds</a>',
+          '🟢 arifOS MCP is <a href="https://arifosmcp.arif-fazil.com">LIVE</a> — <a href="/mcp-server">Connect in 30 seconds</a>',
         backgroundColor: '#1a1a2e',
         textColor: '#00ff88',
         isCloseable: true,

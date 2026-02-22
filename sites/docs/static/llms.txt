@@ -17,7 +17,7 @@ docs         = https://arifos.arif-fazil.com/
 source       = https://github.com/ariffazil/arifOS
 theory       = https://github.com/ariffazil/arifOS/tree/main/000_THEORY
 pypi         = https://pypi.org/project/arifos/
-live_health  = https://arifosmcp.arif-fazil.com/health
+live_health  = https://arifosmcp.arif-fazil.com
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 2. IDENTITY
@@ -26,7 +26,7 @@ live_health  = https://arifosmcp.arif-fazil.com/health
 [identity]
 name         = arifOS
 type         = Constitutional AI Governance Kernel
-version      = 2026.2.19
+version      = 2026.02.22-FORGE-VPS-SEAL
 license      = AGPL-3.0-only
 description  = Mathematical enforcement of 13 constitutional floors on any AI tool call. MCP-compatible. Trinity architecture (AGI Δ / ASI Ω / APEX Ψ). Immutable VAULT999 ledger.
 
