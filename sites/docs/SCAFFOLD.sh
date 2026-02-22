@@ -25,7 +25,7 @@ cd "$SCRIPT_DIR"
 
 echo "═══════════════════════════════════════════════════════════"
 echo "  arifOS Docs — Scaffold & Preview"
-echo "  Target: https://arifos.arif-fazil.com/docs/"
+echo "  Target: https://arifos.arif-fazil.com/"
 echo "  Node: $(node --version 2>/dev/null || echo 'NOT FOUND — install Node >= 18')"
 echo "═══════════════════════════════════════════════════════════"
 echo ""

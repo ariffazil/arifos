@@ -47,6 +47,7 @@ const sidebars = {
       collapsed: true,
       items: [
         'architecture',
+        'advanced-roadmap',
       ],
     },
     {

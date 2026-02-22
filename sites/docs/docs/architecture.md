@@ -90,16 +90,16 @@ Implemented in `core/organs/`:
 
 ## MCP Transports
 
-arifOS exposes three transports, all serving the same 9+ tools:
+AAA-MCP exposes three transports (stdio/SSE/HTTP). They serve the same governance pipeline tool surface.
 
 | Transport | Command | Best for |
 |:--|:--|:--|
 | **stdio** | `python -m aaa_mcp` | Claude Desktop, Cursor, local dev |
 | **SSE** | `python -m aaa_mcp sse` | Cloud clients, Railway, OpenClaw |
 | **HTTP** | `python -m aaa_mcp http` | Direct JSON-RPC integrations |
-| **REST (unified)** | `python server.py --mode rest` | Production (22 tools, recommended) |
+| **REST (unified)** | `python server.py --mode rest` | Unified server (governance + observability tools) |
 
-The unified `server.py` at repo root combines AAA-MCP governance tools (9) and ACLIP-CAI sensory tools (10+) into one server. The standalone `aaa_mcp/server.py` remains for backward compatibility.
+The unified `server.py` at repo root bundles governance pipeline tools plus additional observability/sensory tools into one server. The standalone `aaa_mcp/server.py` provides the governance pipeline transport.
 
 ---
 

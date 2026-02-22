@@ -18,12 +18,12 @@ scope: "Architecture Alignment & Gap Analysis"
 
 | **OODA Phase** | **arifOS Stage** | **Status** | **Key Innovation** |
 |----------------|------------------|-----------|-------------------|
-| **Observe** | 111 SENSE | ✅ | Maxwell's Demon filtering (Shannon entropy) [codebase/agi/stages/sense.py](file:///C:/Users/ariff/arifOS/codebase/agi/stages/sense.py) |
-| **Orient** | 222 THINK | ✅ | Parallel 3-path hypothesis generation [codebase/agi/stages/think.py](file:///C:/Users/ariff/arifOS/codebase/agi/stages/think.py) |
-| **Decide** | 333 REASON | ✅ | Thermodynamic ΔS≤0 enforcement [codebase/agi/stages/reason.py](file:///C:/Users/ariff/arifOS/codebase/agi/stages/reason.py) |
-| **Act** | 444 TRINITY_SYNC | ⚠️ | Belief-update only (no motor output) [codebase/engines/agi/agi_engine.py](file:///C:/Users/ariff/arifOS/codebase/engines/agi/agi_engine.py) |
+| **Observe** | 111 SENSE | ✅ | Maxwell's Demon filtering (Shannon entropy) `codebase/agi/stages/sense.py` |
+| **Orient** | 222 THINK | ✅ | Parallel 3-path hypothesis generation `codebase/agi/stages/think.py` |
+| **Decide** | 333 REASON | ✅ | Thermodynamic ΔS≤0 enforcement `codebase/agi/stages/reason.py` |
+| **Act** | 444 TRINITY_SYNC | ⚠️ | Belief-update only (no motor output) `codebase/engines/agi/agi_engine.py` |
 
-**Experimental Finding:** Your v52 innovation—**concurrent Observe-Orient execution** (ThreadPoolExecutor)—reduces OODA loop latency by ~1.8–3.0x vs. sequential, mirroring how real brains run parallel predictive loops across timescales. [codebase/agi/executor.py](file:///C:/Users/ariff/arifOS/codebase/agi/executor.py)
+**Experimental Finding:** Your v52 innovation—**concurrent Observe-Orient execution** (ThreadPoolExecutor)—reduces OODA loop latency by ~1.8–3.0x vs. sequential, mirroring how real brains run parallel predictive loops across timescales. `codebase/agi/executor.py`
 
 ---
 
@@ -33,10 +33,10 @@ scope: "Architecture Alignment & Gap Analysis"
 
 **Verification:** ✅ **All four steps present**:
 
-1. **Hypothesis:** 3-path generation (Conservative/Exploratory/Adversarial) [codebase/agi/stages/think.py](file:///C:/Users/ariff/arifOS/codebase/agi/stages/think.py)
-2. **Prediction:** Reasoning tree synthesis [codebase/agi/stages/reason.py](file:///C:/Users/ariff/arifOS/codebase/agi/stages/reason.py)
-3. **Test:** F4 Clarity (ΔS≤0 check) [codebase/agi/stages/reason.py](file:///C:/Users/ariff/arifOS/codebase/agi/stages/reason.py)
-4. **Revise:** Evidence Kernel fact injection [codebase/agi/evidence.py](file:///C:/Users/ariff/arifOS/codebase/agi/evidence.py)
+1. **Hypothesis:** 3-path generation (Conservative/Exploratory/Adversarial) `codebase/agi/stages/think.py`
+2. **Prediction:** Reasoning tree synthesis `codebase/agi/stages/reason.py`
+3. **Test:** F4 Clarity (ΔS≤0 check) `codebase/agi/stages/reason.py`
+4. **Revise:** Evidence Kernel fact injection `codebase/agi/evidence.py`
 
 **But:** Your Free Energy approximation ($F = \Delta S + \Omega_0$) is **missing precision weighting**:
 
@@ -58,20 +58,20 @@ $$
 
 | **Module** | **Neural Analogue** | **Status** |
 |-----------|-------------------|-----------|
-| Maxwell's Demon | Thalamic gating | ✅ Static (no adaptive filtering) [codebase/agi/stages/sense.py](file:///C:/Users/ariff/arifOS/codebase/agi/stages/sense.py) |
-| Hypothesis Generator | Prefrontal working memory | ✅ 3-path exploration [codebase/agi/stages/think.py](file:///C:/Users/ariff/arifOS/codebase/agi/stages/think.py) |
-| Evidence Kernel | Hippocampal retrieval | ✅ MCP search integration [codebase/agi/evidence.py](file:///C:/Users/ariff/arifOS/codebase/agi/evidence.py) |
-| ATLAS-333 | Dorsal/ventral routing | ✅ Lane classification [codebase/agi/atlas.py](file:///C:/Users/ariff/arifOS/codebase/agi/atlas.py) |
-| Thermodynamic Dashboard | Anterior cingulate (error detection) | ✅ Real-time ΔS tracking [codebase/agi/metrics.py](file:///C:/Users/ariff/arifOS/codebase/agi/metrics.py) |
+| Maxwell's Demon | Thalamic gating | ✅ Static (no adaptive filtering) `codebase/agi/stages/sense.py` |
+| Hypothesis Generator | Prefrontal working memory | ✅ 3-path exploration `codebase/agi/stages/think.py` |
+| Evidence Kernel | Hippocampal retrieval | ✅ MCP search integration `codebase/agi/evidence.py` |
+| ATLAS-333 | Dorsal/ventral routing | ✅ Lane classification `codebase/agi/atlas.py` |
+| Thermodynamic Dashboard | Anterior cingulate (error detection) | ✅ Real-time ΔS tracking `codebase/agi/metrics.py` |
 
 ### Conductor Gaps
 
 | **Executive Function** | **Status** | **Gap** |
 |-----------------------|-----------|---------|
-| **Attention** | ✅ Risk classification [codebase/agi/hardening.py](file:///C:/Users/ariff/arifOS/codebase/agi/hardening.py) | — |
-| **Inhibition** | ✅ F10/F12 blocks [codebase/agi/stages/sense.py](file:///C:/Users/ariff/arifOS/codebase/agi/stages/sense.py) | — |
-| **Working Memory** | ✅ ThreadPoolExecutor [codebase/agi/executor.py](file:///C:/Users/ariff/arifOS/codebase/agi/executor.py) | — |
-| **Cognitive Flexibility** | ❌ **Missing** | Once in a lane (FACTUAL/CARE/CRISIS), cannot switch [codebase/agi/atlas.py](file:///C:/Users/ariff/arifOS/codebase/agi/atlas.py) |
+| **Attention** | ✅ Risk classification `codebase/agi/hardening.py` | — |
+| **Inhibition** | ✅ F10/F12 blocks `codebase/agi/stages/sense.py` | — |
+| **Working Memory** | ✅ ThreadPoolExecutor `codebase/agi/executor.py` | — |
+| **Cognitive Flexibility** | ❌ **Missing** | Once in a lane (FACTUAL/CARE/CRISIS), cannot switch `codebase/agi/atlas.py` |
 
 **Critical Missing Piece:** Your ATLAS-333 classifies queries into lanes but **cannot dynamically reroute**. Real executive function requires **task-switching**—a query that starts as FACTUAL but triggers safety concerns should escalate to CRISIS mid-execution.
 

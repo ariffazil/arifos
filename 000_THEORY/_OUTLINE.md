@@ -62,10 +62,10 @@ The protocols for reality instantiation.
 
 ## 🔌 IV. Technical Implementation
 
-*   **[codebase/mcp/README.md](../codebase/mcp/README.md)**
-    *   Model Context Protocol implementation & Architecture.
-*   **[codebase/mcp/tools/VAULT_SPEC.md](../codebase/mcp/tools/VAULT_SPEC.md)**
-    *   The Immutable Ledger protocol.
+*   **[aaa_mcp/README.md](../aaa_mcp/README.md)**
+    *   MCP transport adapter and server implementation (stdio/SSE/HTTP).
+*   **[VAULT999/README.md](../VAULT999/README.md)**
+    *   VAULT999 ledger overview (durability and audit semantics).
 
 ---
 
