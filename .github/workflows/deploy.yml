@@ -4,7 +4,18 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "aaa_mcp/**"
+      - "core/**"
+      - "Dockerfile"
+      - "pyproject.toml"
+      - "requirements.txt"
+      - ".github/workflows/deploy.yml"
   workflow_dispatch:
+
+concurrency:
+  group: deploy-railway-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   # --- Constitutional Self-Test (arifOS-grade) ---
@@ -18,7 +29,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           cache: 'pip'
 
       - name: Install dependencies
@@ -41,6 +52,7 @@ jobs:
     name: Deploy Backend (Railway)
     needs: selftest
     runs-on: ubuntu-latest
+    if: ${{ secrets.RAILWAY_TOKEN != '' }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -59,7 +71,7 @@ jobs:
       - name: Verify Backend Health
         run: |
           echo "Checking health endpoint..."
-          HEALTH=$(curl -sf https://aaamcp.arif-fazil.com/health 2>/dev/null || echo '{"status":"pending"}')
+          HEALTH=$(curl -sf https://arifosmcp.arif-fazil.com/health 2>/dev/null || echo '{"status":"pending"}')
           echo "Health response: $HEALTH"
           echo "$HEALTH" | grep -q '"status"' && echo "✓ Health check passed" || echo "⚠ Health check pending (DNS propagation)"
 
@@ -68,20 +80,21 @@ jobs:
     name: Verify Deployment
     needs: deploy-backend
     runs-on: ubuntu-latest
+    if: ${{ secrets.RAILWAY_TOKEN != '' }}
     steps:
       - name: Final Health Check
         run: |
           sleep 10
-          curl -sf https://aaamcp.arif-fazil.com/health && echo "✓ MIND is ONLINE" || echo "⚠ MIND may need more time"
+          curl -sf https://arifosmcp.arif-fazil.com/health && echo "✓ MIND is ONLINE" || echo "⚠ MIND may need more time"
 
       - name: Deployment Report
         run: |
           echo "========================================"
           echo "  arifOS MCP — DEPLOYMENT REPORT"
           echo "========================================"
-          echo "  Endpoint: https://aaamcp.arif-fazil.com"
-          echo "  MCP:      https://aaamcp.arif-fazil.com/mcp"
-          echo "  Health:   https://aaamcp.arif-fazil.com/health"
+          echo "  Endpoint: https://arifosmcp.arif-fazil.com"
+          echo "  MCP:      https://arifosmcp.arif-fazil.com/mcp"
+          echo "  Health:   https://arifosmcp.arif-fazil.com/health"
           echo "========================================"
           echo "  Constitutional: Self-test PASSED"
           echo "  Transport:      HTTP/SSE"

@@ -87,6 +87,7 @@ def fs_inspect(
                         "size": stat.st_size,
                         "modified": _format_time(stat.st_mtime),
                         "path": str(item),
+                        "relative": str(item.relative_to(root_path)),
                     }
 
                     if item.is_dir():
