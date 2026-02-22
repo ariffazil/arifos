@@ -37,7 +37,7 @@ Current cron entries:
 ```
 
 ## Docker Log Rotation
-Configured in `docker-compose.vps.yml`:
+Configured in `deployment/docker-compose.vps.yml`:
 ```yaml
 logging:
   driver: json-file
@@ -74,12 +74,12 @@ docker logs -f arifosmcp_server
 docker stats arifosmcp_server
 
 # Restart container
-cd /root/arifOS && docker-compose -f docker-compose.vps.yml restart
+cd /root/arifOS && docker-compose -f deployment/docker-compose.vps.yml restart
 
 # Update deployment (after git pull)
-cd /root/arifOS && docker-compose -f docker-compose.vps.yml down
+cd /root/arifOS && docker-compose -f deployment/docker-compose.vps.yml down
 git pull origin main
-docker-compose -f docker-compose.vps.yml up -d --build
+docker-compose -f deployment/docker-compose.vps.yml up -d --build
 ```
 
 ## Alerting (Optional)

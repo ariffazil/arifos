@@ -18,4 +18,4 @@ jobs:
           script: |
             cd /root/arifOS
             git pull origin main
-            docker compose -f docker-compose.vps.yml up -d --build
+            docker compose -f deployment/docker-compose.vps.yml up -d --build

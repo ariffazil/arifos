@@ -105,7 +105,7 @@ cp .env.docker.example .env.docker
 
 ### 2. Start Container
 ```bash
-docker-compose -f docker-compose.vps.yml up -d --build
+docker-compose -f deployment/docker-compose.vps.yml up -d --build
 ```
 
 **Port Mapping:**
@@ -232,7 +232,7 @@ docker run --rm -v arifos_data:/data -v $(pwd):/backup alpine \
 ```
 
 **Configuration Backups:**
-- Backup `docker-compose.vps.yml`, `.env.docker`, Nginx configs
+- Backup `deployment/docker-compose.vps.yml`, `.env.docker`, Nginx configs
 - Store encrypted backups offsite
 
 ### 4. High Availability (Optional)

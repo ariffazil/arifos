@@ -218,10 +218,10 @@ nano .env.docker
 
 #### 3.2.1 Docker Compose Specification
 
-Create **`docker-compose.vps.yml`**—referenced in CI/CD workflows but requiring local generation for environment-specific tuning:
+Create **`deployment/docker-compose.vps.yml`**—referenced in CI/CD workflows but requiring local generation for environment-specific tuning:
 
 ```bash
-cat > docker-compose.vps.yml << 'EOF'
+cat > deployment/docker-compose.vps.yml << 'EOF'
 # arifOS MCP Server — Hostinger VPS Production Stack
 # Trinity Protocol: Dual SSE (8080) + HTTP (8089) Transport
 
@@ -289,10 +289,10 @@ Execute the complete build-and-launch sequence:
 cd /root/arifOS
 
 # Build image and start container (detached mode)
-docker compose -f docker-compose.vps.yml up -d --build
+docker compose -f deployment/docker-compose.vps.yml up -d --build
 
 # Monitor real-time logs
-docker compose -f docker-compose.vps.yml logs -f
+docker compose -f deployment/docker-compose.vps.yml logs -f
 ```
 
 **Expected build duration: 3–5 minutes**, dominated by **sentence-transformers model download** (hundreds of megabytes) and PyTorch dependency resolution. First builds lack cache acceleration; subsequent builds with unchanged dependencies complete substantially faster.
@@ -658,7 +658,7 @@ Post-configuration, every `git push` to `main` triggers automatic VPS deployment
 | Operation | Command | Use Case |
 |-----------|---------|----------|
 | **Full rebuild** | `./rebuild-arifosmcp.sh` | Code changes, dependency updates |
-| **Service restart** | `docker compose -f docker-compose.vps.yml restart` | Configuration reload, quick recovery |
+| **Service restart** | `docker compose -f deployment/docker-compose.vps.yml restart` | Configuration reload, quick recovery |
 | **Log inspection** | `docker logs -f arifosmcp_server` | Real-time troubleshooting |
 | **Health check** | `curl http://127.0.0.1:8888/health` | Container status verification |
 
@@ -670,7 +670,7 @@ Post-configuration, every `git push` to `main` triggers automatic VPS deployment
 
 | Uncertainty | Impact | Mitigation | Status |
 |-------------|--------|------------|--------|
-| `docker-compose.vps.yml` repository presence | Deployment reproducibility | Verify post-clone; create from documentation if absent | **Verify required** |
+| `deployment/docker-compose.vps.yml` repository presence | Deployment reproducibility | Verify post-clone; create from documentation if absent | **Verify required** |
 | Cloudflare proxy mode vs. SSE stability | Client disconnection experience | Monitor Claude Desktop behavior; switch to DNS-only if issues arise | **Monitor actively** |
 | `.env.docker` version control exclusion | Credential exposure risk | Verify `.gitignore`; implement pre-commit hooks | **Verify required** |
 
@@ -722,7 +722,7 @@ Post-configuration, every `git push` to `main` triggers automatic VPS deployment
 | **Framework** | FastMCP 2.14.5 (pinned `<3.0.0`) |
 | **Health Check** | `http://127.0.0.1:8888/health` |
 | **Logs** | `docker logs -f arifosmcp_server` |
-| **Restart** | `docker compose -f docker-compose.vps.yml restart` |
+| **Restart** | `docker compose -f deployment/docker-compose.vps.yml restart` |
 | **Rebuild** | `./rebuild-arifosmcp.sh` |
 
 ---
@@ -730,4 +730,3 @@ Post-configuration, every `git push` to `main` triggers automatic VPS deployment
 *DITEMPA BUKAN DIBERI* 🔥💎🧠
 
 **Attribution:** arifOS constitutional AI governance | [GitHub: ariffazil/arifOS](https://github.com/ariffazil/arifOS)
-

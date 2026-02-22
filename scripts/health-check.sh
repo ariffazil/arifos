@@ -10,7 +10,7 @@ echo "[$(date)] Health check for $CONTAINER_NAME" >> "$LOG_FILE"
 # Check if container is running
 if ! docker ps --filter "name=$CONTAINER_NAME" --format "{{.Names}}" | grep -q "$CONTAINER_NAME"; then
     echo "Container not running, starting..." >> "$LOG_FILE"
-    cd /root/arifOS && docker-compose -f docker-compose.vps.yml up -d
+    cd /root/arifOS && docker-compose -f deployment/docker-compose.vps.yml up -d
     exit 0
 fi
 
