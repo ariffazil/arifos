@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/arifOSreadme.png" alt="arifOS: THE CONSTITUTIONAL KERNEL FOR AI" />
+  <img src="C:\\Users\\User\\arifOS\\docs\\forged_page_1.png" alt="arifOS: THE CONSTITUTIONAL KERNEL FOR AI" />
 </p>
 
 # arifOS
