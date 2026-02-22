@@ -1,0 +1,55 @@
+.hero {
+  padding: 4rem 0 3rem;
+}
+
+.title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -0.02em;
+  margin: 0 0 0.75rem;
+}
+
+.tagline {
+  max-width: 60ch;
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 1rem;
+  padding: 0 0 3rem;
+}
+
+.card {
+  grid-column: span 12;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 14px;
+  padding: 1.1rem 1.1rem 1.2rem;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0));
+}
+
+.card h2 {
+  margin: 0 0 0.4rem;
+  font-size: 1.1rem;
+}
+
+.card p {
+  margin: 0;
+  opacity: 0.9;
+}
+
+@media (min-width: 900px) {
+  .card {
+    grid-column: span 4;
+  }
+}
+
