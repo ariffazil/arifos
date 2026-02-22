@@ -1,11 +1,16 @@
 .hero {
   padding: 4rem 0 3rem;
+  background:
+    radial-gradient(900px 450px at 12% 20%, rgba(26, 163, 255, 0.20), transparent 55%),
+    radial-gradient(700px 350px at 90% 10%, rgba(255, 209, 0, 0.16), transparent 55%),
+    radial-gradient(700px 350px at 70% 85%, rgba(255, 45, 45, 0.12), transparent 55%);
 }
 
 .title {
   font-size: clamp(2rem, 4vw, 3rem);
   letter-spacing: -0.02em;
   margin: 0 0 0.75rem;
+  color: #ffffff;
 }
 
 .tagline {
@@ -34,7 +39,11 @@
   border: 1px solid rgba(255, 255, 255, 0.10);
   border-radius: 14px;
   padding: 1.1rem 1.1rem 1.2rem;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0));
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0)),
+    radial-gradient(400px 240px at 12% 20%, rgba(26, 163, 255, 0.10), transparent 55%),
+    radial-gradient(380px 220px at 85% 0%, rgba(255, 209, 0, 0.08), transparent 55%),
+    radial-gradient(380px 220px at 70% 85%, rgba(255, 45, 45, 0.06), transparent 55%);
 }
 
 .card h2 {
@@ -52,4 +61,3 @@
     grid-column: span 4;
   }
 }
-

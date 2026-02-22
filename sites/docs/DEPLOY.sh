@@ -37,7 +37,7 @@ echo "════════════════════════�
 echo "  arifOS Docs — Production Deploy"
 echo "  Source:  $BUILD_DIR"
 echo "  Target:  $WEB_ROOT"
-echo "  Domain:  https://$DOMAIN/docs/"
+echo "  Domain:  https://$DOMAIN/"
 echo "  Mode:    ${DRY_RUN:-live}"
 echo "══════════════════════════════════════════════════════════"
 echo ""
@@ -64,7 +64,7 @@ if [ "$DRY_RUN" = "--dry-run" ]; then
     echo "  ln -sf $NGINX_SITES_AVAILABLE $NGINX_SITES_ENABLED"
     echo "  nginx -t"
     echo "  systemctl reload nginx"
-    echo "  curl -I https://$DOMAIN/docs/intro"
+    echo "  curl -I https://$DOMAIN/intro"
     echo ""
     echo "No changes made. Remove --dry-run to execute."
     exit 0
@@ -124,20 +124,20 @@ echo ""
 echo "▶ Step 7: Live health check..."
 sleep 2   # brief settle time
 
-HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$DOMAIN/docs/intro" --max-time 10 || echo "000")
+HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "https://$DOMAIN/intro" --max-time 10 || echo "000")
 
 if [ "$HTTP_STATUS" = "200" ]; then
-    echo "  ✅ https://$DOMAIN/docs/intro → HTTP $HTTP_STATUS — SEAL"
+    echo "  ✅ https://$DOMAIN/intro → HTTP $HTTP_STATUS — SEAL"
 else
-    echo "  ⚠️  https://$DOMAIN/docs/intro → HTTP $HTTP_STATUS"
+    echo "  ⚠️  https://$DOMAIN/intro → HTTP $HTTP_STATUS"
     echo "  SABAR: Check Nginx error log: tail -50 /var/log/nginx/arifos-docs-error.log"
 fi
 
 echo ""
 echo "══════════════════════════════════════════════════════════"
 echo "  Deploy complete."
-echo "  Docs live at: https://$DOMAIN/docs/"
+echo "  Docs live at: https://$DOMAIN/"
 echo "  Nginx root:   $WEB_ROOT"
 echo "  Logs:         /var/log/nginx/arifos-docs-access.log"
-echo "  Sitemap:      https://$DOMAIN/docs/sitemap.xml"
+echo "  Sitemap:      https://$DOMAIN/sitemap.xml"
 echo "══════════════════════════════════════════════════════════"

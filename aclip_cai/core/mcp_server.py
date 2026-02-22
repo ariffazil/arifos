@@ -326,8 +326,6 @@ async def mcp_sse_stream():
                 "thermodynamic": {"avg_delta_s": -0.15, "peace2": 1.05, "omega_0": 0.04},
             }
             yield f"data: {json.dumps(telemetry)}\n\n"
-
-"
             await asyncio.sleep(5)
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")

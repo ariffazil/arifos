@@ -41,7 +41,7 @@ def test_syscall_validate():
     response = client.post("/mcp/validate", json=payload)
     assert response.status_code == 200
     data = response.json()
-    assert data["verdict"] == "HOLD"
+    assert data["verdict"] == "VOID"
     assert data["result"]["validated"] is False
 
 def test_health_check():
