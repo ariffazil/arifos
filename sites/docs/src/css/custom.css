@@ -711,3 +711,23 @@ div[class*='announcementBar'] a {
   text-align: center;
   margin-top: 3rem;
 }
+
+/* ---- Prism Code Block Overrides (No Green) ---- */
+.prism-code .token.string,
+.prism-code .token.attr-value {
+  color: var(--sovereign-yellow) !important;
+}
+
+.prism-code .token.keyword,
+.prism-code .token.operator,
+.prism-code .token.entity,
+.prism-code .token.url,
+.prism-code .token.variable,
+.prism-code .token.function,
+.prism-code .token.class-name {
+  color: var(--sovereign-blue) !important;
+}
+
+.prism-code .token.comment {
+  color: var(--text-muted) !important;
+}
