@@ -239,4 +239,4 @@ These exist to support ChatGPT Deep Research style workflows.
   - PostgreSQL is used when `DATABASE_URL` is configured and Postgres dependencies are available.
   - Local fallbacks exist (memory and/or SQLite), so Postgres is recommended for high-load durability, not a universal runtime blocker.
 - Cache:
-  - Redis is recommended for high-load session state stability (F5 Peace²), but local fallbacks exist.
+  - Redis is recommended for high-load session state stability (F5 Peace^2), but local fallbacks exist.

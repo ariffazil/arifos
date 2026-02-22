@@ -1,5 +1,5 @@
 // @ts-check
-// sidebars.js — arifOS Docs Navigation
+// sidebars.js - arifOS Docs Navigation
 // All operator-focused paths; theory links out to GitHub.
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
@@ -8,11 +8,11 @@ const sidebars = {
     {
       type: 'doc',
       id: 'intro',
-      label: '🏛️ Introduction',
+      label: ' Introduction',
     },
     {
       type: 'category',
-      label: '⚙️ MCP Server',
+      label: ' MCP Server',
       collapsed: false,
       items: [
         'mcp-server',
@@ -22,7 +22,7 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: '🛡️ Governance',
+      label: ' Governance',
       collapsed: false,
       items: [
         'governance',
@@ -31,7 +31,7 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: '📜 000_THEORY Canon',
+      label: ' 000_THEORY Canon',
       collapsed: false,
       items: [
         'canon/canon-foundation',
@@ -43,7 +43,7 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: '🏗️ Architecture',
+      label: ' Architecture',
       collapsed: true,
       items: [
         'architecture',
@@ -52,10 +52,10 @@ const sidebars = {
     },
     {
       type: 'category',
-      label: '🤖 Crawlers & LLMs',
+      label: 'Bot Crawlers & LLMs',
       collapsed: true,
       items: [
-        'llms-and-robots',
+        'crawlers',
       ],
     },
   ],

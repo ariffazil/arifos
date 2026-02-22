@@ -12,7 +12,7 @@ export default function Console(): JSX.Element {
     <Layout title="Console" description="arifOS Metabolic Console">
       <main className="container margin-vert--lg">
         <h1>Console</h1>
-        <p>Redirecting to the Metabolic Console…</p>
+        <p>Redirecting to the Metabolic Console...</p>
         <p>
           If nothing happens, open <a href="/console/">/console/</a>.
         </p>

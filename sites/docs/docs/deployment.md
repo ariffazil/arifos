@@ -7,9 +7,9 @@ description: Deploy arifOS to VPS/Coolify, Docker, or run locally. Nginx, system
 
 # Deployment
 
-> Source: [`DEPLOYMENT.md`](https://github.com/ariffazil/arifOS/blob/main/DEPLOYMENT.md) · [`docker-compose.yml`](https://github.com/ariffazil/arifOS/blob/main/docker-compose.yml) · [`Dockerfile`](https://github.com/ariffazil/arifOS/blob/main/Dockerfile)
+> Source: [`DEPLOYMENT.md`](https://github.com/ariffazil/arifOS/blob/main/DEPLOYMENT.md) . [`docker-compose.yml`](https://github.com/ariffazil/arifOS/blob/main/docker-compose.yml) . [`Dockerfile`](https://github.com/ariffazil/arifOS/blob/main/Dockerfile)
 
-:::warning 888_HOLD — Review Before Executing
+:::warning 888_HOLD - Review Before Executing
 All deployment commands below should be reviewed before running. Do not copy-paste into production without understanding each step. Irreversible actions (firewall rules, DNS changes) are marked explicitly.
 :::
 
@@ -26,7 +26,7 @@ All deployment commands below should be reviewed before running. Do not copy-pas
 
 ---
 
-## Path 1 — Local Development (stdio)
+## Path 1 - Local Development (stdio)
 
 ```bash
 pip install arifos
@@ -41,7 +41,7 @@ python -m aaa_mcp.selftest
 
 ---
 
-## Path 2 — Railway (Cloud, 5 minutes)
+## Path 2 - Railway (Cloud, 5 minutes)
 
 Railway provides free tier with persistent volumes and automatic TLS.
 
@@ -67,9 +67,9 @@ curl https://your-app.up.railway.app/health
 
 ---
 
-## Path 3 — Docker Compose on VPS (recommended for production)
+## Path 3 - Docker Compose on VPS (recommended for production)
 
-### 3.1 — Clone and configure
+### 3.1 - Clone and configure
 
 ```bash
 git clone https://github.com/ariffazil/arifOS.git
@@ -78,7 +78,7 @@ cp .env.docker.example .env.docker
 # Edit .env.docker: set ARIF_SECRET, BRAVE_API_KEY, DATABASE_URL
 ```
 
-### 3.2 — Start the Trinity stack (SSE + HTTP dual transport)
+### 3.2 - Start the Trinity stack (SSE + HTTP dual transport)
 
 ```bash
 # [888_HOLD] Starts containers; review docker-compose.vps.yml first
@@ -92,13 +92,13 @@ Port mapping after startup:
 | `8088` | SSE | `/sse` endpoint |
 | `8089` | HTTP MCP | `/mcp` endpoint |
 
-### 3.3 — Verify containers
+### 3.3 - Verify containers
 
 ```bash
 docker ps --filter "name=arifosmcp"
 docker logs -f arifosmcp_server             # live logs
 
-# Test SSE (expects connection to hang — that is correct)
+# Test SSE (expects connection to hang - that is correct)
 curl -H "ARIF_SECRET: your-secret" http://localhost:8088/sse -m 2
 
 # Test HTTP MCP
@@ -108,7 +108,7 @@ curl -X POST http://localhost:8889/mcp \
   -d '{"jsonrpc":"2.0","method":"ping","id":1}'
 ```
 
-### 3.4 — Nginx reverse proxy (TLS termination)
+### 3.4 - Nginx reverse proxy (TLS termination)
 
 Install Nginx and Certbot, then create `/etc/nginx/sites-available/arifosmcp`:
 
@@ -149,16 +149,16 @@ sudo ln -s /etc/nginx/sites-available/arifosmcp /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-### 3.5 — Obtain TLS certificate
+### 3.5 - Obtain TLS certificate
 
 ```bash
-# [888_HOLD] Modifies /etc/letsencrypt — review first
+# [888_HOLD] Modifies /etc/letsencrypt - review first
 sudo certbot --nginx -d arifosmcp.arif-fazil.com
 ```
 
 ---
 
-## Path 4 — Systemd Service (no Docker)
+## Path 4 - Systemd Service (no Docker)
 
 Create `/etc/systemd/system/arifos-mcp.service`:
 
@@ -181,7 +181,7 @@ WantedBy=multi-user.target
 ```
 
 ```bash
-# [888_HOLD] Modifies systemd — review before running
+# [888_HOLD] Modifies systemd - review before running
 sudo systemctl daemon-reload
 sudo systemctl enable --now arifos-mcp
 sudo systemctl status arifos-mcp
@@ -239,9 +239,9 @@ docker run --rm \
 
 The repo ships `.github/workflows/deploy.yml` for auto-deploy on push to `main`. Set these secrets in your GitHub repository:
 
-- `VPS_HOST` — VPS IP
-- `VPS_USERNAME` — SSH user (typically `root`)
-- `VPS_SSH_KEY` — Private SSH key
+- `VPS_HOST` - VPS IP
+- `VPS_USERNAME` - SSH user (typically `root`)
+- `VPS_SSH_KEY` - Private SSH key
 
 ---
 

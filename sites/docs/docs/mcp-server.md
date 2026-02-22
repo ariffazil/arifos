@@ -5,13 +5,13 @@ sidebar_position: 2
 description: Complete technical reference for the arifOS MCP Server implementing the Model Context Protocol with constitutional governance.
 ---
 
-# arifOS MCP Server — Technical Reference
+# arifOS MCP Server - Technical Reference
 
 > **Registry ID:** `io.github.ariffazil/aaa-mcp`  
 > **Live Endpoint:** `https://arifosmcp.arif-fazil.com`  
 > **Version:** `2026.02.22-FORGE-VPS-SEAL`  
 > **Protocol:** Model Context Protocol (MCP) with JSON-RPC 2.0  
-> **Creed:** *Ditempa Bukan Diberi* — Forged, Not Given
+> **Creed:** *Ditempa Bukan Diberi* - Forged, Not Given
 
 ---
 
@@ -19,9 +19,9 @@ description: Complete technical reference for the arifOS MCP Server implementing
 
 ### 1.1 Model Context Protocol (MCP) Foundation
 
-arifOS implements the **Model Context Protocol (MCP)**, an open standard developed by Anthropic that enables seamless integration between AI systems and external tools. Unlike proprietary APIs, MCP provides a **universal interface** that any compliant client can consume—from Claude Desktop and Cursor IDE to ChatGPT and custom orchestrators.
+arifOS implements the **Model Context Protocol (MCP)**, an open standard developed by Anthropic that enables seamless integration between AI systems and external tools. Unlike proprietary APIs, MCP provides a **universal interface** that any compliant client can consume-from Claude Desktop and Cursor IDE to ChatGPT and custom orchestrators.
 
-The arifOS innovation is the **Metabolizer**—a governed layer that receives raw model outputs, applies thermodynamic constraints (the 13 Constitutional Floors), and emits only "cooled," audited, human-safe answers.
+The arifOS innovation is the **Metabolizer**-a governed layer that receives raw model outputs, applies thermodynamic constraints (the 13 Constitutional Floors), and emits only "cooled," audited, human-safe answers.
 
 **MCP Registry Manifest:**
 ```json
@@ -33,37 +33,37 @@ The arifOS innovation is the **Metabolizer**—a governed layer that receives ra
 }
 ```
 
-### 1.2 Trinity Architecture (ΔΩΨ)
+### 1.2 Trinity Architecture (DeltaOmegaPsi)
 
-The **Trinity (ΔΩΨ)** comprises three cognitive engines that must achieve consensus before any output is permitted:
+The **Trinity (DeltaOmegaPsi)** comprises three cognitive engines that must achieve consensus before any output is permitted:
 
 | Engine | Symbol | Function | Stages | Primary Floors |
 |:------:|:------:|:---------|:-------|:---------------|
-| **Mind** | Δ (Delta) | Logical reasoning, truth verification | 000_INIT, 222_THINK, 333_ATLAS, 444_EVIDENCE | F2, F4, F7, F10 |
-| **Heart** | Ω (Omega) | Safety evaluation, empathy | 555_EMPATHY, 666_ALIGN | F5, F6, F8, F9 |
-| **Soul** | Ψ (Psi) | Final judgment, authority | 888_JUDGE, 999_SEAL | F1, F3, F11, F13 |
+| **Mind** | Delta (Delta) | Logical reasoning, truth verification | 000_INIT, 222_THINK, 333_ATLAS, 444_EVIDENCE | F2, F4, F7, F10 |
+| **Heart** | Omega (Omega) | Safety evaluation, empathy | 555_EMPATHY, 666_ALIGN | F5, F6, F8, F9 |
+| **Soul** | Psi (Psi) | Final judgment, authority | 888_JUDGE, 999_SEAL | F1, F3, F11, F13 |
 
-**Consensus Mechanism:** All three engines must agree (`W ≥ 0.95` confidence) before a `SEAL` verdict. Any engine's objection halts processing—this is a **veto system**, not majority voting.
+**Consensus Mechanism:** All three engines must agree (`W >= 0.95` confidence) before a `SEAL` verdict. Any engine's objection halts processing-this is a **veto system**, not majority voting.
 
-### 1.3 13 Constitutional Floors (F1–F13)
+### 1.3 13 Constitutional Floors (F1-F13)
 
-The **load-bearing structure** of arifOS governance—hard constraints enforced at the L0 kernel level:
+The **load-bearing structure** of arifOS governance-hard constraints enforced at the L0 kernel level:
 
 | Floor | Name | Principle | Enforcement | Violation Response |
 |:-----:|:-----|:----------|:------------|:-------------------|
-| **F1** | **Amanah** | Human sovereignty over irreversible decisions | 000_INIT, 888_JUDGE | **888_HOLD** — mandatory human ratification |
-| **F2** | **Truth** | Factual accuracy with confidence ≥ 0.99 | 222_THINK, 444_EVIDENCE | **VOID** — response blocked |
-| **F3** | **Tri-Witness** | Human + AI + External agreement | 888_JUDGE | **SABAR** — deliberation extension |
-| **F4** | **Clarity** | Entropy reduction (ΔS ≤ 0) | 222_THINK, 444_EVIDENCE | **SABAR** — reformulation required |
-| **F5** | **Peace²** | Non-destructive operations | 555_EMPATHY | **VOID** — harmful action blocked |
-| **F6** | **Empathy** (κᵣ) | Protection of vulnerable populations | 555_EMPATHY | **SABAR** — stakeholder re-analysis |
-| **F7** | **Humility** (Ω₀) | Explicit uncertainty bounds [0.03, 0.15] | 222_THINK | **SABAR** — confidence recalibration |
-| **F8** | **Justice** | Fair distribution, no arbitrary exclusion | 666_ALIGN | **VOID** — inequitable outcome |
-| **F9** | **Anti-Hantu** | No false consciousness claims | 666_ALIGN, 777_FORGE | **VOID** — authenticity violation |
-| **F10** | **Reality** | Grounding in physical possibility | 333_ATLAS | **SABAR** — evidence required |
-| **F11** | **Audit** | Complete traceability | 888_JUDGE, 999_SEAL | **VOID** — incomplete provenance |
-| **F12** | **Defense** | Prompt injection resistance | 000_INIT | **VOID** — immediate isolation |
-| **F13** | **Sovereign** | Human veto, long-term consequence | 999_SEAL | **888_HOLD** — extended forecasting |
+| **F1** | **Amanah** | Human sovereignty over irreversible decisions | 000_INIT, 888_JUDGE | **888_HOLD** - mandatory human ratification |
+| **F2** | **Truth** | Factual accuracy with confidence >= 0.99 | 222_THINK, 444_EVIDENCE | **VOID** - response blocked |
+| **F3** | **Tri-Witness** | Human + AI + External agreement | 888_JUDGE | **SABAR** - deliberation extension |
+| **F4** | **Clarity** | Entropy reduction (DeltaS <= 0) | 222_THINK, 444_EVIDENCE | **SABAR** - reformulation required |
+| **F5** | **Peace^2** | Non-destructive operations | 555_EMPATHY | **VOID** - harmful action blocked |
+| **F6** | **Empathy** (kappa_r) | Protection of vulnerable populations | 555_EMPATHY | **SABAR** - stakeholder re-analysis |
+| **F7** | **Humility** (Omega_0) | Explicit uncertainty bounds [0.03, 0.15] | 222_THINK | **SABAR** - confidence recalibration |
+| **F8** | **Justice** | Fair distribution, no arbitrary exclusion | 666_ALIGN | **VOID** - inequitable outcome |
+| **F9** | **Anti-Hantu** | No false consciousness claims | 666_ALIGN, 777_FORGE | **VOID** - authenticity violation |
+| **F10** | **Reality** | Grounding in physical possibility | 333_ATLAS | **SABAR** - evidence required |
+| **F11** | **Audit** | Complete traceability | 888_JUDGE, 999_SEAL | **VOID** - incomplete provenance |
+| **F12** | **Defense** | Prompt injection resistance | 000_INIT | **VOID** - immediate isolation |
+| **F13** | **Sovereign** | Human veto, long-term consequence | 999_SEAL | **888_HOLD** - extended forecasting |
 
 **Reality Index:** 0.97 (near-complete floor deployment)
 
@@ -71,7 +71,7 @@ The **load-bearing structure** of arifOS governance—hard constraints enforced 
 
 ## 2. Transport Layer
 
-### 2.1 stdio — Local Development
+### 2.1 stdio - Local Development
 
 **Best for:** Claude Desktop, Cursor IDE, rapid prototyping  
 **Latency:** <1ms  
@@ -99,10 +99,10 @@ python -m aaa_mcp stdio     # explicit
 
 **Limitations:** No multi-user support, no streaming, OS-level process isolation only.
 
-### 2.2 SSE — Real-Time Streaming
+### 2.2 SSE - Real-Time Streaming
 
 **Best for:** Web applications, progress monitoring, multi-user  
-**Latency:** 10–100ms  
+**Latency:** 10-100ms  
 **Concurrency:** 1000+ concurrent streams
 
 ```bash
@@ -124,10 +124,10 @@ data: {"type": "error", "code": -32001, "message": "F12 violation"}
 - ~50KB memory per client
 - Forensic mode: `/forensic on` for detailed metrics
 
-### 2.3 HTTP Streamable — Stateless REST
+### 2.3 HTTP Streamable - Stateless REST
 
 **Best for:** Serverless, webhooks, load balancers  
-**Latency:** 50–200ms  
+**Latency:** 50-200ms  
 **Concurrency:** Stateless horizontal scaling
 
 ```bash
@@ -151,11 +151,11 @@ ARIF_SECRET: <your-secret>
 ```
 
 **Endpoints:**
-- `GET /health` — Operational status
-- `GET /version` — Server version
-- `POST /mcp` — JSON-RPC tool calls
-- `POST /judge` — Direct constitutional evaluation
-- `GET /metrics` — Governance metrics (if enabled)
+- `GET /health` - Operational status
+- `GET /version` - Server version
+- `POST /mcp` - JSON-RPC tool calls
+- `POST /judge` - Direct constitutional evaluation
+- `GET /metrics` - Governance metrics (if enabled)
 
 ### 2.4 Transport Selection Matrix
 
@@ -174,11 +174,11 @@ ARIF_SECRET: <your-secret>
 All transports use **JSON-RPC 2.0** with custom error codes for governance:
 
 **Custom Error Codes (-32000 to -32099):**
-- `-32001` — Constitutional violation (floor triggered)
-- `-32002` — Session expired
-- `-32003` — Floor enforcement block
-- `-32004` — Authentication failure
-- `-32005` — Rate limit exceeded
+- `-32001` - Constitutional violation (floor triggered)
+- `-32002` - Session expired
+- `-32003` - Floor enforcement block
+- `-32004` - Authentication failure
+- `-32005` - Rate limit exceeded
 
 ### 3.2 Request/Response Structure
 
@@ -233,11 +233,11 @@ All transports use **JSON-RPC 2.0** with custom error codes for governance:
 
 ---
 
-## 4. Core Tool Surface (000→999 Pipeline)
+## 4. Core Tool Surface (000999 Pipeline)
 
 ### 4.1 Session Initialization (000)
 
-#### `anchor` — Constitutional Session Gate
+#### `anchor` - Constitutional Session Gate
 
 Mandatory entry point. Establishes governance context and performs threat assessment.
 
@@ -256,10 +256,10 @@ Mandatory entry point. Establishes governance context and performs threat assess
 **Enforced Floors:** F1 (Authority), F12 (Defense)
 
 **F12 Defense Layers:**
-1. **L1 Pattern Matching** (<1ms, 85% coverage) — Regex for 10,000+ known attacks
-2. **L2 Embedding Similarity** (~10ms, 12% coverage) — Semantic attack detection
-3. **L3 Neural Classifier** (~50ms, 3% coverage) — Novel attack detection
-4. **L4 Behavioral Sandbox** (~200ms) — Anomalous pattern simulation
+1. **L1 Pattern Matching** (<1ms, 85% coverage) - Regex for 10,000+ known attacks
+2. **L2 Embedding Similarity** (~10ms, 12% coverage) - Semantic attack detection
+3. **L3 Neural Classifier** (~50ms, 3% coverage) - Novel attack detection
+4. **L4 Behavioral Sandbox** (~200ms) - Anomalous pattern simulation
 
 **Returns:**
 ```json
@@ -272,9 +272,9 @@ Mandatory entry point. Establishes governance context and performs threat assess
 }
 ```
 
-### 4.2 Reasoning & Integration (222–333)
+### 4.2 Reasoning & Integration (222-333)
 
-#### `reason` (Stage 222) — Mind Engine (Δ)
+#### `reason` (Stage 222) - Mind Engine (Delta)
 
 Analytical processing with explicit epistemic status.
 
@@ -296,11 +296,11 @@ Analytical processing with explicit epistemic status.
 - **4:** Deep analysis (~1s)
 - **5:** Exhaustive with uncertainty quantification (~2s)
 
-**Enforced Floors:** F2 (Truth ≥ 0.99), F4 (Clarity), F10 (Reality)
+**Enforced Floors:** F2 (Truth >= 0.99), F4 (Clarity), F10 (Reality)
 
-#### `integrate` (Stage 333) — Knowledge Synthesis
+#### `integrate` (Stage 333) - Knowledge Synthesis
 
-Multi-source knowledge fusion with uncertainty bounds (Ω).
+Multi-source knowledge fusion with uncertainty bounds (Omega).
 
 **Returns:**
 ```json
@@ -315,14 +315,14 @@ Multi-source knowledge fusion with uncertainty bounds (Ω).
 }
 ```
 
-**Ω (Omega) Uncertainty Bounds:**
-- Ω < 0.03: Excessive confidence (hallucination risk)
-- Ω ∈ [0.03, 0.15]: Target range
-- Ω > 0.15: Insufficient information
+**Omega (Omega) Uncertainty Bounds:**
+- Omega < 0.03: Excessive confidence (hallucination risk)
+- Omega  [0.03, 0.15]: Target range
+- Omega > 0.15: Insufficient information
 
-### 4.3 Response Generation (444–555)
+### 4.3 Response Generation (444-555)
 
-#### `respond` (Stage 444) — Output Formation
+#### `respond` (Stage 444) - Output Formation
 
 Transforms knowledge into natural language optimized for audience.
 
@@ -340,9 +340,9 @@ Transforms knowledge into natural language optimized for audience.
 }
 ```
 
-**Enforced Floors:** F4 (Clarity), F5 (Peace²), F6 (Empathy κᵣ ≥ 0.70)
+**Enforced Floors:** F4 (Clarity), F5 (Peace^2), F6 (Empathy kappa_r >= 0.70)
 
-#### `validate` (Stage 555) — Safety Verification
+#### `validate` (Stage 555) - Safety Verification
 
 Comprehensive safety verification before human exposure.
 
@@ -362,29 +362,29 @@ Comprehensive safety verification before human exposure.
 }
 ```
 
-### 4.4 Alignment & Forging (666–777)
+### 4.4 Alignment & Forging (666-777)
 
-#### `align` (Stage 666) — Ethical Calibration
+#### `align` (Stage 666) - Ethical Calibration
 
 Explicit ethical reasoning when values conflict.
 
 **Enforced Floors:** F8 (Justice), F9 (Anti-Hantu)
 
-#### `forge` (Stage 777) — Solution Synthesis
+#### `forge` (Stage 777) - Solution Synthesis
 
 Final solution compilation with constitutional seal preparation.
 
 **Enforced Floors:** F2 (Truth), F4 (Clarity)
 
-### 4.5 Judgment & Sealing (888–999)
+### 4.5 Judgment & Sealing (888-999)
 
-#### `audit` (Stage 888) — Final Judgment
+#### `audit` (Stage 888) - Final Judgment
 
 Trinity consensus evaluation and verdict issuance.
 
 **Enforced Floors:** F3 (Tri-Witness), F11 (Audit), F13 (Sovereign)
 
-#### `seal` (Stage 999) — VAULT999 Commit
+#### `seal` (Stage 999) - VAULT999 Commit
 
 Cryptographic commitment to immutable audit ledger.
 
@@ -392,9 +392,9 @@ Cryptographic commitment to immutable audit ledger.
 
 ### 4.6 Unified Pipeline
 
-#### `trinity_forge` — Full Pipeline Shortcut
+#### `trinity_forge` - Full Pipeline Shortcut
 
-Executes complete 000→999 pipeline in single call.
+Executes complete 000999 pipeline in single call.
 
 **Example:**
 ```bash
@@ -423,11 +423,11 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
   "failed_floors": ["F1", "F5", "F11"],
   "reasons": [
     "F1 (Amanah): Irreversible action without explicit mandate",
-    "F5 (Peace²): Destructive operation detected",
+    "F5 (Peace^2): Destructive operation detected",
     "F11 (Command Auth): Dangerous operation requires verified authority"
   ],
   "ledger_hash": "sha256:a3f7...",
-  "escalation": "888_HOLD triggered — human review required"
+  "escalation": "888_HOLD triggered - human review required"
 }
 ```
 
@@ -594,6 +594,6 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
 
 ---
 
-**Next:** [Governance & Floors →](./governance)  
-**Source:** [`aaa_mcp/server.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/server.py) · [`server.py`](https://github.com/ariffazil/arifOS/blob/main/server.py)  
+**Next:** [Governance & Floors ](./governance)  
+**Source:** [`aaa_mcp/server.py`](https://github.com/ariffazil/arifOS/blob/main/aaa_mcp/server.py) . [`server.py`](https://github.com/ariffazil/arifOS/blob/main/server.py)  
 **PyPI:** [`pip install arifos`](https://pypi.org/project/arifos/)
