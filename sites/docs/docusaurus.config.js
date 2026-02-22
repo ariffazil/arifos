@@ -18,6 +18,7 @@ const config = {
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
+  onBrokenAnchors: 'warn',
 
   i18n: {
     defaultLocale: 'en',
@@ -55,8 +56,8 @@ const config = {
       // Dark-first colour palette (matches arifOS identity)
       colorMode: {
         defaultMode: 'dark',
-        disableSwitch: false,
-        respectPrefersColorScheme: true,
+        disableSwitch: true,
+        respectPrefersColorScheme: false,
       },
 
       image: 'img/arifos-og.png',
