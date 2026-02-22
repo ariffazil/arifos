@@ -20,7 +20,7 @@ arifOS is a **constitutional intelligence kernel** for AI agents. It wraps any L
 
 Before installing arifOS, ensure you have:
 
-- **Python 3.10+** (strictly required for MCP protocol compliance)
+- **Python 3.12+** (strictly required for MCP typing + tool contracts)
 - **LLM API keys** set in environment (the kernel wraps the LLM, so it needs the keys):
   ```bash
   export ANTHROPIC_API_KEY="sk-ant-..."      # For Claude

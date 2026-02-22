@@ -160,8 +160,8 @@ const config = {
         id: 'live_status',
         content:
           'LIVE: arifOS MCP is <a href="https://arifosmcp.arif-fazil.com">UP</a> - <a href="/mcp-server">Connect in 30 seconds</a>',
-        backgroundColor: '#1a1a2e',
-        textColor: '#00ff88',
+        backgroundColor: '#060a14',
+        textColor: '#f0c040',
         isCloseable: true,
       },
     }),

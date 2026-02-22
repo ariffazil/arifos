@@ -37,7 +37,7 @@ export default function Home() {
       <div className="hero hero--primary hero-polished">
         <div className="container">
           <h1 className="hero__title hero-title-polished">
-            arif<span style={{ color: '#e6c25d' }}>OS</span>
+            arif<span className="text-accent">OS</span>
           </h1>
           <p className="hero__subtitle hero-subtitle-polished">
             The System That Knows It Doesn't Know<br />
@@ -56,7 +56,7 @@ export default function Home() {
           <div className="status-bar">
             <span>LIVE MCP ENDPOINT &rarr;</span>
             <code className="status-code">https://arifosmcp.arif-fazil.com</code>
-            <span style={{ opacity: 0.3 }}>|</span>
+            <span className="divider-pipe">|</span>
             <span className={`health-pulse ${health.status !== 'healthy' && health.status !== 'loading' ? 'degraded' : ''}`}></span>
             <span>STATUS:</span>
             <span className={`status-text ${health.status === 'healthy' || health.status === 'loading' ? 'status-healthy' : 'status-degraded'}`}>
@@ -87,12 +87,12 @@ export default function Home() {
         <div id="deploy" className="deploy-section">
           <h2 className="deploy-heading">Deploy or Connect in 60 Seconds</h2>
           <pre className="deploy-pre">
-            <span style={{ opacity: 0.4 }}># Get the kernel</span>{'\n'}
-            <span style={{ color: '#fff' }}>pip install</span> arifos{'\n'}{'\n'}
-            <span style={{ opacity: 0.4 }}># Ignite the metabolic engine</span>{'\n'}
-            <span style={{ color: '#fff' }}>arifos</span> serve --mode rest --profile strict
+            <span className="code-comment"># Get the kernel</span>{'\n'}
+            <span className="code-command">pip install</span> arifos{'\n'}{'\n'}
+            <span className="code-comment"># Ignite the metabolic engine</span>{'\n'}
+            <span className="code-command">arifos</span> serve --mode rest --profile strict
           </pre>
-          <p style={{ textAlign: 'center', marginTop: '3rem' }}>
+          <p className="deploy-cta">
             <a href="/chatgpt" className="chatgpt-link">
               &rarr; Add arifOS as a Sovereign Connector in ChatGPT
             </a>

@@ -90,7 +90,7 @@ Port mapping after startup:
 | Port | Transport | Connect via |
 |:--|:--|:--|
 | `8088` | SSE | `/sse` endpoint |
-| `8089` | HTTP MCP | `/mcp` endpoint |
+| `8889` | HTTP MCP | `/mcp` endpoint |
 
 ### 3.3 - Verify containers
 
@@ -108,7 +108,56 @@ curl -X POST http://localhost:8889/mcp \
   -d '{"jsonrpc":"2.0","method":"ping","id":1}'
 ```
 
-### 3.4 - Nginx reverse proxy (TLS termination)
+### 3.4 - Coolify (Hostinger VPS + Traefik) — recommended routing
+
+If you're deploying on a VPS running **Coolify** (Ubuntu 24.04 + Traefik), use the repo compose file
+`deployment/docker-compose.vps.yml`. It already includes Traefik labels to route:
+
+- `GET /sse` → in-container port `8080`
+- `POST /mcp` and `GET /health` → in-container port `8089`
+
+#### 3.4.1 - DNS
+
+- Create/confirm an `A` record: `arifosmcp.arif-fazil.com` → `<your-vps-ip>`.
+- For early SSE debugging, keep Cloudflare **DNS-only (grey-cloud)** until stable.
+
+#### 3.4.2 - Coolify resource (Docker Compose)
+
+1. Coolify → Project → **Add Resource** → **Docker Compose**
+2. Repo: `ariffazil/arifOS`
+3. Compose path: `deployment/docker-compose.vps.yml`
+4. Deploy
+
+If deploy fails with `network not found`, create the external network once on the VPS, then redeploy:
+
+```bash
+docker network create coolify
+```
+
+#### 3.4.3 - Domain + HTTPS
+
+- Resource → Domains → add `arifosmcp.arif-fazil.com`
+- Enable HTTPS / Let’s Encrypt (Coolify-managed)
+
+#### 3.4.4 - Verify (from your laptop)
+
+```bash
+# Health
+curl -i https://arifosmcp.arif-fazil.com/health
+
+# SSE (expects a hanging stream)
+curl -N -H "Accept: text/event-stream" https://arifosmcp.arif-fazil.com/sse
+
+# MCP Streamable HTTP
+curl -sS https://arifosmcp.arif-fazil.com/mcp \
+  -H "Content-Type: application/json" \
+  --data '{"jsonrpc":"2.0","id":1,"method":"tools/list","params":{}}'
+
+# Optional: well-known discovery
+curl -i https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json
+```
+
+### 3.5 - Nginx reverse proxy (TLS termination)
 
 Install Nginx and Certbot, then create `/etc/nginx/sites-available/arifosmcp`:
 
@@ -149,7 +198,7 @@ sudo ln -s /etc/nginx/sites-available/arifosmcp /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-### 3.5 - Obtain TLS certificate
+### 3.6 - Obtain TLS certificate
 
 ```bash
 # [888_HOLD] Modifies /etc/letsencrypt - review first
