@@ -29,10 +29,15 @@ from .response import (
     validate_input,
 )
 from .schemas import (
+    CANONICAL_TOOL_INPUT_SCHEMAS,
+    CANONICAL_TOOL_OUTPUT_SCHEMAS,
     OUTPUT_CONTRACTS,
     STAGE_OPERATORS,
     TOOL_SCHEMAS,
+    get_input_schema,
+    get_output_schema,
 )
+from .tool_naming import CANONICAL_PUBLIC_TO_LEGACY, MCP_VERB_TO_LEGACY, resolve_protocol_tool_name
 from .tool_registry import (
     CANONICAL_TOOLS,
     ToolSpec,
@@ -54,8 +59,12 @@ __all__ = [
     "get_schema_for_stage",
     # Schemas
     "TOOL_SCHEMAS",
+    "CANONICAL_TOOL_INPUT_SCHEMAS",
+    "CANONICAL_TOOL_OUTPUT_SCHEMAS",
     "STAGE_OPERATORS",
     "OUTPUT_CONTRACTS",
+    "get_input_schema",
+    "get_output_schema",
     # Response envelope
     "UnifiedResponse",
     "build_init_response",
@@ -81,4 +90,8 @@ __all__ = [
     "get_pipeline_sequence",
     "export_tool_schema_for_agents",
     "get_agent_selection_hints",
+    # Naming resolution
+    "CANONICAL_PUBLIC_TO_LEGACY",
+    "MCP_VERB_TO_LEGACY",
+    "resolve_protocol_tool_name",
 ]

@@ -3,9 +3,15 @@
 ## Project Overview
 
 arifOS is a Constitutional AI Governance System built on the Model Context Protocol (MCP).
-Python 3.10+ (async-first). Key architectural boundary: `core/` contains pure decision
+Python 3.12+ (Strictly required for MCP typing). Key architectural boundary: `core/` contains pure decision
 logic with ZERO transport dependencies; `aaa_mcp/` is the MCP transport adapter with ZERO
 decision logic. Never mix these layers.
+
+### ⚠️ Critical Rule: Logging
+**For STDIO-based servers:** NEVER use `print()` or write to `stdout`. Doing so will corrupt the JSON-RPC stream and break the MCP connection.
+- ❌ **Bad:** `print("Starting server")`
+- ✅ **Good:** `print("Starting server", file=sys.stderr)`
+- ✅ **Good:** `logging.info("Starting server")` (ensure logger is configured for stderr)
 
 ### Key Directories
 
@@ -177,6 +183,13 @@ The repo has `.pre-commit-config.yaml` with: trailing-whitespace fix, Black, Ruf
 floor checks and F9 Anti-Hantu (blocks deceptive naming patterns like "I feel", "I am
 conscious") and F1 Amanah (blocks `shutil.rmtree`, `DROP TABLE`, `DELETE FROM` without
 safeguards).
+
+## GOVERNANCE_MODES
+
+- **STRICT (Default):** Complete floor enforcement. Hard floor violations return VOID.
+- **BALANCED:** Complete enforcement, but soft floor thresholds are moderated.
+- **PERMISSIVE:** Minimal enforcement (F9, F12 only). Primarily for development.
+- **AUDIT:** Evaluation and logging only. No blocking.
 
 ## 888_HOLD & SABAR_72 — High-Stakes Governance
 

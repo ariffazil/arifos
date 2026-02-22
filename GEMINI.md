@@ -154,6 +154,9 @@ Utility tools available via `aaa_mcp` include `search`, `fetch`, `analyze`, and 
 - **`core/`** is for pure logic only. Do not add any transport-layer (HTTP, MCP) code here.
 - **`aaa_mcp/`** is for transport only. Do not add any decision-making logic here; it must call the `core` kernel.
 
+### ⚠️ Critical Rule: Logging
+For STDIO transport, NEVER write to `stdout` (e.g., via `print()`). This corrupts the JSON-RPC messages and breaks the MCP connection. Use `sys.stderr` or a logging library configured for `stderr`.
+
 ---
 
 ## 📁 Key Files & Directories

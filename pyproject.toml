@@ -14,7 +14,7 @@ version = "2026.2.22"
 # 2026.1.18 — Constitutional Forge: 13 floors F1-F13, Trinity ΔΩΨ, VAULT999, 9-tool MCP
 description = "arifOS - The World's First Production-Grade Constitutional AI Governance System. Mathematical enforcement of ethical constraints with 13 stationary floors (F1-F13), Axiom Engine for physics-grounded truth, and immutable VAULT999 ledger. Trinity architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul. MCP-compatible. Install: pip install arifos. https://arifos.arif-fazil.com/"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 license = "AGPL-3.0-only"
 license-files = ["LICENSE"]
 keywords = [

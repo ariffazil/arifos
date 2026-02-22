@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Set
 
+from .tool_naming import CANONICAL_PUBLIC_TO_LEGACY, MCP_VERB_TO_LEGACY, resolve_protocol_tool_name
 
 class ToolPosition(str, Enum):
     """Pipeline position classification."""
@@ -301,17 +302,10 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
 # WORKFLOW SEQUENCES
 # ═════════════════════════════════════════════════════════════════════════════
 
-# Mapping from actual MCP tool names to internal graph node names
+# Mapping from public names/verbs to internal graph node names.
 MCP_TO_GRAPH: Dict[str, str] = {
-    "anchor": "init_gate",
-    "reason": "agi_think",  # reason tool combines sense+think
-    "integrate": "agi_reason",
-    "respond": "agi_reason",  # respond is stage 444 (trinity sync)
-    "validate": "asi_empathize",
-    "align": "asi_align",
-    "forge": "apex_verdict",  # forge is stage 777
-    "audit": "apex_verdict",
-    "seal": "vault_seal",
+    **MCP_VERB_TO_LEGACY,
+    **CANONICAL_PUBLIC_TO_LEGACY,
     "trinity_forge": "trinity_forge",
 }
 
@@ -352,12 +346,12 @@ WORKFLOW_DESCRIPTIONS: Dict[str, str] = {
 
 def get_tool_node(tool_name: str) -> Optional[ToolNode]:
     """Get tool node by name."""
-    return TOOL_GRAPH.get(tool_name)
+    return TOOL_GRAPH.get(resolve_protocol_tool_name(tool_name))
 
 
 def get_valid_next_tools(current_tool: str) -> List[str]:
     """Get list of tools that can legally follow the current tool."""
-    node = TOOL_GRAPH.get(current_tool)
+    node = TOOL_GRAPH.get(resolve_protocol_tool_name(current_tool))
     if not node:
         return []
 
@@ -373,7 +367,7 @@ def get_required_predecessors(tool_name: str) -> List[str]:
     constitutional tools can be called with minimal prerequisites
     (e.g., only requiring session_id from init_gate).
     """
-    node = TOOL_GRAPH.get(tool_name)
+    node = TOOL_GRAPH.get(resolve_protocol_tool_name(tool_name))
     if not node:
         return []
 
@@ -392,7 +386,9 @@ def validate_sequence(sequence: List[str]) -> tuple[bool, str]:
         return False, "Empty sequence"
 
     # Check first tool
-    first = TOOL_GRAPH.get(sequence[0])
+    normalized = [resolve_protocol_tool_name(tool_name) for tool_name in sequence]
+
+    first = TOOL_GRAPH.get(normalized[0])
     if not first:
         return False, f"Unknown tool: {sequence[0]}"
 
@@ -401,14 +397,16 @@ def validate_sequence(sequence: List[str]) -> tuple[bool, str]:
 
     # Check for multiple entry points
     entry_count = sum(
-        1 for tool in sequence if TOOL_GRAPH.get(tool) and TOOL_GRAPH[tool].must_call_first
+        1
+        for tool in normalized
+        if TOOL_GRAPH.get(tool) and TOOL_GRAPH[tool].must_call_first
     )
     if entry_count > 1:
         return False, "Multiple entry points in sequence"
 
     # Check dependencies
     seen = set()
-    for i, tool_name in enumerate(sequence):
+    for i, tool_name in enumerate(normalized):
         node = TOOL_GRAPH.get(tool_name)
         if not node:
             return False, f"Unknown tool: {tool_name}"
@@ -426,7 +424,7 @@ def validate_sequence(sequence: List[str]) -> tuple[bool, str]:
         seen.add(tool_name)
 
     # Check last tool - terminal OR auxiliary tools can end sequences
-    last = TOOL_GRAPH.get(sequence[-1])
+    last = TOOL_GRAPH.get(normalized[-1])
     if last and not (
         last.terminal or last.must_call_last or last.position == ToolPosition.AUXILIARY
     ):

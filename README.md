@@ -11,7 +11,7 @@
   <a href="https://github.com/ariffazil/arifOS/actions/workflows/ci.yml"><img src="https://github.com/ariffazil/arifOS/actions/workflows/ci.yml/badge.svg" alt="arifOS CI"></a>
   <a href="https://arifosmcp.arif-fazil.com"><img src="https://img.shields.io/badge/status-LIVE-success" alt="Status"></a>
   <a href="https://arifos.arif-fazil.com/"><img src="https://img.shields.io/badge/docs-LATEST-cyan" alt="Documentation"></a>
-  <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.17--FORGE--UVX--SEAL-blue" alt="T000"></a>
+  <a href="./T000_VERSIONING.md"><img src="https://img.shields.io/badge/T000-2026.02.22--FORGE--UVX--SEAL-blue" alt="T000"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-AGPL--3.0-green" alt="License"></a>
   <br><br>
   <a href="https://arifos.arif-fazil.com/"><b>📖 Documentation</b></a> ·

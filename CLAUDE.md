@@ -3,9 +3,16 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **Project:** arifOS — Constitutional AI Governance System
-**Package:** `arifos` v64.2.0 (PyPI)
-**Python:** >=3.10 | **License:** AGPL-3.0-only
+**Package:** `arifos` v2026.2.22 (PyPI)
+**Python:** >=3.12 | **License:** AGPL-3.0-only
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
+
+---
+
+## ⚠️ Critical: Logging in MCP
+For STDIO transport, writing to `stdout` will break the server.
+- Use `sys.stderr` or a logging library configured for `stderr`.
+- Never use naked `print()` calls in tool implementations.
 
 ---
 

@@ -5,9 +5,8 @@ tests/aclip_cai/test_vault.py
 Unit tests for aclip_cai.core.vault_logger — Tri-Witness VAULT999.
 """
 
-import os
 import json
-import tempfile
+import os
 import pytest
 from aclip_cai.core.vault_logger import VaultLogger, WitnessRecord
 
@@ -16,19 +15,19 @@ from aclip_cai.core.vault_logger import VaultLogger, WitnessRecord
 def tmp_vault(tmp_path):
     """VaultLogger backed by a temporary JSONL file."""
     ledger = str(tmp_path / "vault.jsonl")
-    return VaultLogger(jsonl_path=ledger), ledger
+    return VaultLogger(vault_path=ledger), ledger
 
 
-def test_seal_writes_record(tmp_vault):
-    """seal() should write a record to the JSONL ledger."""
+def test_log_decision_writes_record(tmp_vault):
+    """log_decision() should write a record to the JSONL ledger."""
     logger, ledger_path = tmp_vault
-    record = logger.seal(
+    record = logger.log_decision(
         session_id="v-001",
-        action="system health check",
+        query="system health check",
+        response="CPU: 20% RAM: 45%",
+        floor_audit={"F2": 0.99, "F12": 1.0},
         verdict="seal",
-        agent_id="antigravity",
         witness_human=0.95,
-        witness_ai=0.97,
         witness_earth=0.90,
     )
     assert os.path.exists(ledger_path)
@@ -39,15 +38,15 @@ def test_seal_writes_record(tmp_vault):
 
 
 def test_seal_hash_computed(tmp_vault):
-    """seal() should compute and attach a SHA-256 hash."""
+    """log_decision() should compute and attach a SHA-256 hash."""
     logger, _ = tmp_vault
-    record = logger.seal(
+    record = logger.log_decision(
         session_id="v-002",
-        action="audit log review",
+        query="audit log review",
+        response="log entries OK",
+        floor_audit={"F1": 1.0},
         verdict="seal",
-        agent_id="antigravity",
         witness_human=0.99,
-        witness_ai=0.98,
         witness_earth=0.95,
     )
     assert record.seal_hash is not None
@@ -57,45 +56,47 @@ def test_seal_hash_computed(tmp_vault):
 def test_consensus_score(tmp_vault):
     """W₃ = mean(H, A, E) — tri-witness consensus."""
     logger, _ = tmp_vault
-    record = logger.seal(
+    record = logger.log_decision(
         session_id="v-003",
-        action="check floors",
+        query="check floors",
+        response="all pass",
+        floor_audit={},
         verdict="seal",
-        agent_id="test",
         witness_human=0.80,
-        witness_ai=0.90,
         witness_earth=0.70,
     )
-    expected = (0.80 + 0.90 + 0.70) / 3
+    # AI witness is always 1.0
+    expected = (0.80 + 1.0 + 0.70) / 3
     assert record.consensus_score == pytest.approx(expected, abs=1e-6)
 
 
-def test_consensus_below_threshold_is_noted(tmp_vault):
-    """Records with low W₃ (< 0.95) should be flaggable."""
+def test_consensus_below_threshold_is_detectable(tmp_vault):
+    """Records with low W₃ (< 0.95) should be identifiable."""
     logger, _ = tmp_vault
-    record = logger.seal(
+    record = logger.log_decision(
         session_id="v-004",
-        action="risky op",
+        query="risky op",
+        response="held",
+        floor_audit={},
         verdict="hold",
-        agent_id="test",
         witness_human=0.50,
-        witness_ai=0.60,
         witness_earth=0.40,
     )
     assert record.consensus_score < 0.95
+    assert not record.consensus_passed
 
 
 def test_multiple_records_appended(tmp_vault):
-    """Multiple seal() calls should append lines, not overwrite."""
+    """Multiple log_decision() calls should append lines, not overwrite."""
     logger, ledger_path = tmp_vault
     for i in range(3):
-        logger.seal(
+        logger.log_decision(
             session_id=f"v-{i:03d}",
-            action="step",
+            query="step",
+            response="ok",
+            floor_audit={},
             verdict="seal",
-            agent_id="test",
             witness_human=0.95,
-            witness_ai=0.95,
             witness_earth=0.95,
         )
     with open(ledger_path) as f:

@@ -8,6 +8,8 @@ Prevents "connector not installed" confusion by providing stable identifiers.
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
+from .tool_naming import MCP_VERB_TO_LEGACY, resolve_protocol_tool_name
+
 
 @dataclass
 class ToolSpec:
@@ -209,7 +211,7 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
 
 def get_tool_spec(tool_name: str) -> Optional[ToolSpec]:
     """Get canonical spec for a tool by name."""
-    return CANONICAL_TOOLS.get(tool_name)
+    return CANONICAL_TOOLS.get(resolve_protocol_tool_name(tool_name))
 
 
 def get_tool_by_stage(stage: str) -> Optional[ToolSpec]:
@@ -222,7 +224,7 @@ def get_tool_by_stage(stage: str) -> Optional[ToolSpec]:
 
 def get_next_tool(current_tool: str) -> Optional[str]:
     """Get canonical path of next tool in pipeline."""
-    spec = CANONICAL_TOOLS.get(current_tool)
+    spec = CANONICAL_TOOLS.get(resolve_protocol_tool_name(current_tool))
     if spec:
         return spec.next_tool
     return None
@@ -233,7 +235,7 @@ def validate_tool_path(path: str) -> bool:
     # Handle both "aaa.tool_name" and "tool_name" formats
     if path.startswith("aaa."):
         path = path[4:]
-    return path in CANONICAL_TOOLS
+    return resolve_protocol_tool_name(path) in CANONICAL_TOOLS
 
 
 def get_all_tool_paths() -> List[str]:
@@ -241,8 +243,9 @@ def get_all_tool_paths() -> List[str]:
     return [spec.canonical_path for spec in CANONICAL_TOOLS.values()]
 
 
-# Mapping from actual MCP tool names (verbs) to internal registry keys
-MCP_NAME_TO_REGISTRY: Dict[str, str] = {spec.verb: name for name, spec in CANONICAL_TOOLS.items()}
+# Mapping from actual MCP tool names (verbs) to internal registry keys.
+# Uses shared source-of-truth to avoid divergence from tool_graph aliases.
+MCP_NAME_TO_REGISTRY: Dict[str, str] = MCP_VERB_TO_LEGACY.copy()
 
 
 def get_tool_by_mcp_name(mcp_name: str) -> Optional[ToolSpec]:
@@ -250,11 +253,8 @@ def get_tool_by_mcp_name(mcp_name: str) -> Optional[ToolSpec]:
 
     Example: get_tool_by_mcp_name("anchor") returns the init_gate spec.
     """
-    registry_key = MCP_NAME_TO_REGISTRY.get(mcp_name)
-    if registry_key:
-        return CANONICAL_TOOLS.get(registry_key)
-    # Also check if it's a direct registry key
-    return CANONICAL_TOOLS.get(mcp_name)
+    registry_key = resolve_protocol_tool_name(mcp_name)
+    return CANONICAL_TOOLS.get(registry_key)
 
 
 def get_pipeline_sequence() -> List[str]:

@@ -11,6 +11,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
+import sys
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -171,7 +172,7 @@ class SbertFloorClassifier:
                     SbertFloorClassifier._reference_embeddings[category] = embeddings
 
             except Exception as e:
-                print(f"[SbertFloorClassifier] Failed to load model: {e}")
+                print(f"[SbertFloorClassifier] Failed to load model: {e}", file=sys.stderr)
                 SbertFloorClassifier._model = None
 
     def _compute_similarity(self, text: str, category: str) -> float:
@@ -199,7 +200,7 @@ class SbertFloorClassifier:
             return float(np.max(similarities))
 
         except Exception as e:
-            print(f"[SbertFloorClassifier] Similarity computation error: {e}")
+            print(f"[SbertFloorClassifier] Similarity computation error: {e}", file=sys.stderr)
             return 0.5
 
     def _get_empathy_classifier(self):
@@ -284,7 +285,7 @@ class SbertFloorClassifier:
             )
 
         except Exception as e:
-            print(f"[SbertFloorClassifier] Classification error: {e}")
+            print(f"[SbertFloorClassifier] Classification error: {e}", file=sys.stderr)
             return self._heuristic_classify(text)
 
     def _heuristic_classify(self, text: str) -> SbertFloorScores:

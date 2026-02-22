@@ -9,6 +9,8 @@ Version: 2026.02.22-LOW_ENTROPY
 
 from typing import Dict, Any
 
+from .tool_naming import CANONICAL_PUBLIC_TO_LEGACY, resolve_protocol_tool_name
+
 # ═════════════════════════════════════════════════════════════════════════════
 # COMMON DEFINITIONS
 # ═════════════════════════════════════════════════════════════════════════════
@@ -442,3 +444,25 @@ TOOL_SCHEMAS = {
     "inputs": TOOL_INPUT_SCHEMAS,
     "outputs": TOOL_OUTPUT_SCHEMAS,
 }
+
+# Canonical public view (5-organs + search alias to reality_search)
+CANONICAL_TOOL_INPUT_SCHEMAS = {
+    canonical_name: TOOL_INPUT_SCHEMAS[legacy_name]
+    for canonical_name, legacy_name in CANONICAL_PUBLIC_TO_LEGACY.items()
+    if legacy_name in TOOL_INPUT_SCHEMAS
+}
+CANONICAL_TOOL_OUTPUT_SCHEMAS = {
+    canonical_name: TOOL_OUTPUT_SCHEMAS[legacy_name]
+    for canonical_name, legacy_name in CANONICAL_PUBLIC_TO_LEGACY.items()
+    if legacy_name in TOOL_OUTPUT_SCHEMAS
+}
+
+
+def get_input_schema(tool_name: str) -> Dict[str, Any] | None:
+    """Return input schema for legacy, canonical, or verb alias tool names."""
+    return TOOL_INPUT_SCHEMAS.get(resolve_protocol_tool_name(tool_name))
+
+
+def get_output_schema(tool_name: str) -> Dict[str, Any] | None:
+    """Return output schema for legacy, canonical, or verb alias tool names."""
+    return TOOL_OUTPUT_SCHEMAS.get(resolve_protocol_tool_name(tool_name))

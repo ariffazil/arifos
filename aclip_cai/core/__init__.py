@@ -14,7 +14,7 @@ Exports the 8 kernel modules:
   amendment     — Phoenix-72 cooldown protocol
 """
 
-from .amendment import AmendmentProtocol
+from .amendment import AmendmentChain, AmendmentRecord
 from .eval_suite import EvalSuite
 from .federation import FederationCoordinator
 from .floor_audit import AuditResult, FloorAuditor, FloorResult, Verdict
@@ -36,5 +36,6 @@ __all__ = [
     "WitnessRecord",
     "FederationCoordinator",
     "EvalSuite",
-    "AmendmentProtocol",
+    "AmendmentChain",
+    "AmendmentRecord",
 ]
