@@ -74,7 +74,10 @@ def config_flags(
                      try:
                          data = json.load(f)
                      except json.JSONDecodeError:
-                         data = {"note": "unsupported file type", "size_bytes": os.path.getsize(path_to_read)}
+                         data = {
+                             "note": "unsupported file type",
+                             "size_bytes": os.path.getsize(path_to_read),
+                         }
                 
                 # Recursively mask file data (simplified flat masking for now)
                 masked_data = {}
