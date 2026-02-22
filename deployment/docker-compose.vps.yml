@@ -1,5 +1,5 @@
-# arifOS MCP Server on VPS (Trinity Protocol - SSE + HTTP)
-# Deploys the real aaa_mcp server with SSE (port 8888) and HTTP (port 8889)
+# arifOS MCP Server on VPS (Trinity Protocol - SSE + REST)
+# Deploys the real aaa_mcp server with SSE (port 8888) and REST (port 8889)
 # Health check verifies both processes are running
 
 version: '3.8'
@@ -17,14 +17,14 @@ services:
     # Map host ports to container ports
     ports:
       - "8888:8080"   # SSE transport
-      - "8889:8089"   # HTTP transport
+      - "8889:8089"   # REST bridge (/health)
     volumes:
       - ../data:/usr/src/app/data
     # Override the default command to run both servers
     command: /usr/src/app/start-trinity.sh
     # Health check: verify both python processes are running
     healthcheck:
-      test: ["CMD-SHELL", "ps aux | grep -v grep | grep 'python -m aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m aaa_mcp http'"]
+      test: ["CMD-SHELL", "ps aux | grep -v grep | grep 'python -m aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m aaa_mcp rest'"]
       interval: 15s
       timeout: 5s
       start_period: 30s
