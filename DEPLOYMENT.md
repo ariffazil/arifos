@@ -103,7 +103,7 @@ docker-compose -f deployment/docker-compose.vps.yml up -d --build
 ```
 
 **Port Mapping:**
-- SSE Transport: `8888:8080` → Clients connect to `/sse`
+- SSE Transport: `8088:8080` → Clients connect to `/sse`
 - REST Bridge: `8889:8089` → Clients connect to `/mcp` and `/health`
 
 ### 3. Verify Deployment
@@ -112,7 +112,7 @@ docker-compose -f deployment/docker-compose.vps.yml up -d --build
 docker ps --filter "name=arifosmcp"
 
 # Test SSE endpoint (should hang - expected)
-curl -H "ARIF_SECRET: YOUR_STRONG_SECRET_HERE" http://localhost:8888/sse -m 2
+curl -H "ARIF_SECRET: YOUR_STRONG_SECRET_HERE" http://localhost:8088/sse -m 2
 
 # Test HTTP MCP endpoint
 curl -X POST http://localhost:8889/mcp \
@@ -133,7 +133,7 @@ For public access with SSL termination:
    ```
 
 2. **Configure Nginx** (see `docs/nginx/arifosmcp.conf.example`):
-   - Proxy `/sse` to `http://127.0.0.1:8888/sse`
+   - Proxy `/sse` to `http://127.0.0.1:8088/sse`
    - Proxy `/mcp` to `http://127.0.0.1:8889/mcp`
    - Set up SSL with Let's Encrypt
 
@@ -178,7 +178,7 @@ docker update --restart unless-stopped arifosmcp_server
 sudo ufw allow 22/tcp comment 'SSH'
 sudo ufw allow 80/tcp comment 'HTTP'
 sudo ufw allow 443/tcp comment 'HTTPS'
-sudo ufw allow from 172.0.0.0/8 to any port 8888 comment 'Docker SSE'
+sudo ufw allow from 172.0.0.0/8 to any port 8088 comment 'Docker SSE'
 sudo ufw allow from 172.0.0.0/8 to any port 8889 comment 'Docker HTTP'
 sudo ufw enable
 ```
@@ -238,7 +238,7 @@ docker run --rm -v arifos_data:/data -v $(pwd):/backup alpine \
 ```nginx
 # Nginx upstream configuration for multiple containers
 upstream arifos_mcp {
-    server 127.0.0.1:8888;
+    server 127.0.0.1:8088;
     server 127.0.0.1:8889 backup;
 }
 ```

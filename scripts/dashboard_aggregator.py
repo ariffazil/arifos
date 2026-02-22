@@ -22,7 +22,7 @@ import uvicorn
 # Configuration
 NETDATA_URL = "http://localhost:19999"
 UPTIME_KUMA_URL = "http://localhost:3001"
-MCP_SSE_URL = "http://localhost:8888"
+MCP_SSE_URL = "http://localhost:8088"
 MCP_STREAMABLE_URL = "http://localhost:8889"
 DOCKER_SOCKET = "unix://var/run/docker.sock"
 
@@ -33,7 +33,7 @@ SERVERS = [
     {"name": "cupsd", "port": 631, "type": "service", "check": "tcp"},
     {"name": "postgresql", "port": 5432, "type": "database", "check": "tcp"},
     {"name": "redis", "port": 6379, "type": "database", "check": "tcp"},
-    {"name": "aaa_mcp_sse", "port": 8888, "type": "mcp", "health_path": "/health"},
+    {"name": "aaa_mcp_sse", "port": 8088, "type": "mcp", "health_path": "/health"},
     {"name": "aaa_mcp_streamable", "port": 8889, "type": "mcp", "health_path": "/health"},
     {"name": "netdata", "port": 19999, "type": "monitoring", "health_path": "/api/v1/data"},
     {"name": "uptime-kuma", "port": 3001, "type": "monitoring", "health_path": "/api/status-page"},

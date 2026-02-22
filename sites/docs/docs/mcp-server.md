@@ -547,7 +547,7 @@ Validates server load, tool registration, and baseline health contracts.
 python -m aaa_mcp
 
 # SSE (cloud)
-python -m aaa_mcp sse --host 0.0.0.0 --port 8888
+python -m aaa_mcp sse --host 0.0.0.0 --port 8088
 
 # HTTP (REST)
 python -m aaa_mcp http --host 0.0.0.0 --port 8889

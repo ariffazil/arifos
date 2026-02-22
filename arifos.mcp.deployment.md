@@ -27,7 +27,7 @@ The **2 pre-existing snapshots** in your Hostinger control panel provide essenti
 
 #### 1.1.2 Existing Deployment State
 
-Your arifOS MCP server is **already operational** on this infrastructure, validating the architecture's feasibility and providing reference behavior for troubleshooting. The **Trinity Protocol** implementation runs within the **`arifosmcp_server`** Docker container, exposing **dual transports simultaneously**: **SSE on port 8888→8080** for real-time streaming clients, and **HTTP/StreamableHTTP on port 8889→8089** for request-response interactions. This architectural pattern enables broad client compatibility—from Claude Desktop's native SSE support to Perplexity and Antigravity's HTTP preferences—without forcing transport selection at deployment time.
+Your arifOS MCP server is **already operational** on this infrastructure, validating the architecture's feasibility and providing reference behavior for troubleshooting. The **Trinity Protocol** implementation runs within the **`arifosmcp_server`** Docker container, exposing **dual transports simultaneously**: **SSE on port 8088→8080** for real-time streaming clients, and **HTTP/StreamableHTTP on port 8889→8089** for request-response interactions. This architectural pattern enables broad client compatibility—from Claude Desktop's native SSE support to Perplexity and Antigravity's HTTP preferences—without forcing transport selection at deployment time.
 
 The **Nginx reverse proxy** handles SSL termination and intelligent request routing, presenting unified HTTPS on port 443 while internally dispatching `/sse` and `/mcp` paths to their respective container ports. **Cloudflare DNS integration** at `arifosmcp.arif-fazil.com` provides DDoS mitigation and edge optimization, though with acknowledged trade-offs regarding SSE long-polling stability that require monitoring and potential configuration adjustment.
 
@@ -58,9 +58,9 @@ Your complete request lifecycle traverses **four infrastructure layers**, each c
 │  HOSTINGER VPS — NGINX REVERSE PROXY (72.62.71.199)                     │
 │  SSL Termination: Let's Encrypt or Cloudflare Origin Certificate        │
 │  ┌─────────────────┐    ┌─────────────────┐                             │
-│  │  Location /sse  │ →  │  127.0.0.1:8888 │  (SSE: 86400s timeout)      │
+│  │  Location /sse  │ →  │  127.0.0.1:8088 │  (SSE: 86400s timeout)      │
 │  │  Location /mcp  │ →  │  127.0.0.1:8889 │  (HTTP: 300s timeout)       │
-│  │  Location /health│ → │  127.0.0.1:8888 │  (Health monitoring)        │
+│  │  Location /health│ → │  127.0.0.1:8088 │  (Health monitoring)        │
 │  └─────────────────┘    └─────────────────┘                             │
 │  Protocol: TLS 1.2+, HTTP/2 enabled                                     │
 └─────────────────────────────────────────────────────────────────────────┘
@@ -69,7 +69,7 @@ Your complete request lifecycle traverses **four infrastructure layers**, each c
 ┌─────────────────────────────────────────────────────────────────────────┐
 │  DOCKER CONTAINER: arifosmcp_server                                     │
 │  ┌─────────────────────────────────────────────────────────────────┐    │
-│  │  PORT MAPPING: 8888:8080 (SSE) | 8889:8089 (HTTP)              │    │
+│  │  PORT MAPPING: 8088:8080 (SSE) | 8889:8089 (HTTP)              │    │
 │  │                                                                 │    │
 │  │  TRINITY PROTOCOL — start-trinity.sh                            │    │
 │  │  ┌─────────────────┐      ┌─────────────────┐                   │    │
@@ -94,7 +94,7 @@ The **Trinity Protocol** embodies arifOS's architectural philosophy of **paralle
 
 | Component | Internal Port | External Port | Transport Characteristics | Optimal Client |
 |-----------|--------------|---------------|--------------------------|--------------|
-| **SSE Server** | 8080 | 8888 | Persistent connection, server-push, unidirectional streaming | Claude Desktop, real-time applications |
+| **SSE Server** | 8080 | 8088 | Persistent connection, server-push, unidirectional streaming | Claude Desktop, real-time applications |
 | **HTTP/StreamableHTTP Server** | 8089 | 8889 | Request-response, stateless-compatible, optional response streaming | Perplexity, Antigravity, API integrations |
 
 Both servers bind to the **FastMCP 2.14.5 framework** with explicit version constraint **`<3.0.0`** to prevent breaking API changes. They share the **sentence-transformers embedding model** (approximately 2 GB RAM) for semantic operations in constitutional floor validation, and unified **`.env.docker` configuration** for API keys and behavioral parameters. The **13 constitutional floors**—from F1 Amanah (Trust) to F13 Unity (Tawhid)—apply uniformly across transports, ensuring consistent AI governance regardless of client connection method.
@@ -242,7 +242,7 @@ services:
       - AAA_MCP_TRANSPORT=sse        # Default transport identifier
       - LOG_LEVEL=info               # Verbosity: debug, info, warning, error
     ports:
-      - "8888:8080"                  # SSE transport (host:container)
+      - "8088:8080"                  # SSE transport (host:container)
       - "8889:8089"                  # HTTP/StreamableHTTP transport
     command: ["./start-trinity.sh"]  # Trinity Protocol orchestration
     restart: unless-stopped          # Automatic recovery, manual override respect
@@ -304,7 +304,7 @@ Confirm operational status through layered validation:
 | Test Level | Command | Success Indicator |
 |-----------|---------|-----------------|
 | **Container status** | `docker ps --filter "name=arifosmcp"` | `STATUS: Up (healthy)`, ports mapped |
-| **SSE transport (internal)** | `curl -H "ARIF_SECRET: IM ARIF" http://127.0.0.1:8888/sse -m 3` | HTTP 200, connection maintained until timeout |
+| **SSE transport (internal)** | `curl -H "ARIF_SECRET: IM ARIF" http://127.0.0.1:8088/sse -m 3` | HTTP 200, connection maintained until timeout |
 | **HTTP transport (internal)** | `curl -X POST -H "ARIF_SECRET: IM ARIF" -d '{"jsonrpc":"2.0","method":"ping","id":1}' http://127.0.0.1:8889/mcp` | JSON-RPC response with matching `id` |
 
 The **`-m 3` timeout** for SSE testing prevents indefinite hanging on successful connection establishment—SSE connections intentionally persist awaiting server-pushed events.
@@ -324,7 +324,7 @@ ufw allow 80/tcp comment 'HTTP redirect to HTTPS'
 ufw allow 443/tcp comment 'HTTPS production traffic'
 
 # Block direct Docker port access (Nginx handles all routing)
-ufw deny 8888/tcp comment 'Block direct SSE — force Nginx proxy'
+ufw deny 8088/tcp comment 'Block direct SSE — force Nginx proxy'
 ufw deny 8889/tcp comment 'Block direct HTTP MCP — force Nginx proxy'
 
 # Apply and verify
@@ -332,7 +332,7 @@ ufw enable
 ufw status verbose
 ```
 
-**Critical security principle:** The **DENY rules for 8888 and 8889** enforce architectural integrity—all external traffic must traverse Nginx for unified logging, rate limiting, and request inspection. Without these rules, Docker's default `0.0.0.0` binding exposes containers directly to the internet, bypassing protective layers.
+**Critical security principle:** The **DENY rules for 8088 and 8889** enforce architectural integrity—all external traffic must traverse Nginx for unified logging, rate limiting, and request inspection. Without these rules, Docker's default `0.0.0.0` binding exposes containers directly to the internet, bypassing protective layers.
 
 #### 4.1.2 Hostinger Panel Firewall
 
@@ -382,7 +382,7 @@ server {
     # SSE TRANSPORT — Server-Sent Events (Real-time streaming)
     # ═══════════════════════════════════════════════════════════
     location /sse {
-        proxy_pass http://127.0.0.1:8888/sse;
+        proxy_pass http://127.0.0.1:8088/sse;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -419,7 +419,7 @@ server {
 
     # Health check endpoint for monitoring
     location /health {
-        proxy_pass http://127.0.0.1:8888/health;
+        proxy_pass http://127.0.0.1:8088/health;
         access_log off;                # Reduce log noise
     }
 
@@ -660,7 +660,7 @@ Post-configuration, every `git push` to `main` triggers automatic VPS deployment
 | **Full rebuild** | `./rebuild-arifosmcp.sh` | Code changes, dependency updates |
 | **Service restart** | `docker compose -f deployment/docker-compose.vps.yml restart` | Configuration reload, quick recovery |
 | **Log inspection** | `docker logs -f arifosmcp_server` | Real-time troubleshooting |
-| **Health check** | `curl http://127.0.0.1:8888/health` | Container status verification |
+| **Health check** | `curl http://127.0.0.1:8088/health` | Container status verification |
 
 ## 8. Troubleshooting & Governance
 
@@ -718,9 +718,9 @@ Post-configuration, every `git push` to `main` triggers automatic VPS deployment
 | **HTTP Endpoint** | `https://arifosmcp.arif-fazil.com/mcp` |
 | **Authentication** | `ARIF_SECRET: IM ARIF` |
 | **Container** | `arifosmcp_server` |
-| **Port Mapping** | `8888:8080` (SSE), `8889:8089` (HTTP) |
+| **Port Mapping** | `8088:8080` (SSE), `8889:8089` (HTTP) |
 | **Framework** | FastMCP 2.14.5 (pinned `<3.0.0`) |
-| **Health Check** | `http://127.0.0.1:8888/health` |
+| **Health Check** | `http://127.0.0.1:8088/health` |
 | **Logs** | `docker logs -f arifosmcp_server` |
 | **Restart** | `docker compose -f deployment/docker-compose.vps.yml restart` |
 | **Rebuild** | `./rebuild-arifosmcp.sh` |

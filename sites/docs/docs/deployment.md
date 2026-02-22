@@ -89,7 +89,7 @@ Port mapping after startup:
 
 | Port | Transport | Connect via |
 |:--|:--|:--|
-| `8888` | SSE | `/sse` endpoint |
+| `8088` | SSE | `/sse` endpoint |
 | `8089` | HTTP MCP | `/mcp` endpoint |
 
 ### 3.3 — Verify containers
@@ -99,7 +99,7 @@ docker ps --filter "name=arifosmcp"
 docker logs -f arifosmcp_server             # live logs
 
 # Test SSE (expects connection to hang — that is correct)
-curl -H "ARIF_SECRET: your-secret" http://localhost:8888/sse -m 2
+curl -H "ARIF_SECRET: your-secret" http://localhost:8088/sse -m 2
 
 # Test HTTP MCP
 curl -X POST http://localhost:8889/mcp \
@@ -122,7 +122,7 @@ server {
 
     # SSE transport
     location /sse {
-        proxy_pass         http://127.0.0.1:8888/sse;
+        proxy_pass         http://127.0.0.1:8088/sse;
         proxy_http_version 1.1;
         proxy_set_header   Connection "";
         proxy_buffering    off;
@@ -138,7 +138,7 @@ server {
 
     # Health endpoint (public)
     location /health {
-        proxy_pass http://127.0.0.1:8888/health;
+        proxy_pass http://127.0.0.1:8088/health;
     }
 }
 ```
@@ -199,7 +199,7 @@ sudo ufw allow 22/tcp    comment 'SSH'
 sudo ufw allow 80/tcp    comment 'HTTP (redirect)'
 sudo ufw allow 443/tcp   comment 'HTTPS'
 # Block direct container port access from internet:
-sudo ufw deny 8888/tcp
+sudo ufw deny 8088/tcp
 sudo ufw deny 8889/tcp
 sudo ufw enable
 ```
