@@ -71,7 +71,10 @@ def config_flags(
                          if line.startswith("[") and line.endswith("]"):
                              data[line[1:-1]] = {}
                 else:
-                     data = json.load(f)
+                     try:
+                         data = json.load(f)
+                     except json.JSONDecodeError:
+                         data = {"note": "unsupported file type", "size_bytes": os.path.getsize(path_to_read)}
                 
                 # Recursively mask file data (simplified flat masking for now)
                 masked_data = {}

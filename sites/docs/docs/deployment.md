@@ -2,7 +2,7 @@
 id: deployment
 title: Deployment
 sidebar_position: 3
-description: Deploy arifOS to VPS, Docker, Railway, or run locally. Nginx, systemd, and health check guidance.
+description: Deploy arifOS to VPS/Coolify, Docker, or run locally. Nginx, systemd, and health check guidance.
 ---
 
 # Deployment
@@ -237,7 +237,7 @@ docker run --rm \
 
 ### CI/CD (GitHub Actions)
 
-The repo ships `.github/workflows/deploy-vps.yml` for auto-deploy on push to `main`. Set these secrets in your GitHub repository:
+The repo ships `.github/workflows/deploy.yml` for auto-deploy on push to `main`. Set these secrets in your GitHub repository:
 
 - `VPS_HOST` — VPS IP
 - `VPS_USERNAME` — SSH user (typically `root`)
