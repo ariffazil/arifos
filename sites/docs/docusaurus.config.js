@@ -10,7 +10,8 @@ const config = {
   favicon: 'img/favicon.ico',
 
   url: 'https://arifos.arif-fazil.com',
-  baseUrl: '/',
+  // Production deploy serves this site under /docs/
+  baseUrl: '/docs/',
 
   organizationName: 'ariffazil',
   projectName: 'arifOS',

@@ -99,6 +99,6 @@ def test_server_constructor_returns_fastmcp_instance() -> None:
 
 def test_dockerfile_uses_rest_entrypoint() -> None:
     dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
-    assert "FROM python:3.11-slim AS build" in dockerfile
-    assert "FROM python:3.11-slim AS runtime" in dockerfile
+    assert "FROM python:3.12-slim AS build" in dockerfile
+    assert "FROM python:3.12-slim AS runtime" in dockerfile
     assert 'CMD ["python", "-m", "aaa_mcp", "rest"]' in dockerfile

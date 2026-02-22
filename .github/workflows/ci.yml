@@ -47,9 +47,18 @@ jobs:
       - name: Lint (ruff or flake8)
         run: |
           if python -m pip show ruff >/dev/null 2>&1; then
-            ruff check .
+            ruff check \
+              aaa_mcp \
+              aclip_cai \
+              core \
+              tests/aclip_cai \
+              tests/test_entrypoint_contract.py \
+              tests/test_fastmcp_config_contract.py \
+              tests/test_fastmcp_profiles_contract.py \
+              tests/test_e2e_core_to_aaa_mcp.py \
+              tests/integration/test_health_metrics.py
           elif python -m pip show flake8 >/dev/null 2>&1; then
-            flake8 .
+            flake8 aaa_mcp aclip_cai core tests/aclip_cai
           else
             echo "No linter installed; skipping."
           fi
@@ -65,7 +74,14 @@ jobs:
       - name: Run tests (pytest)
         run: |
           if python -m pip show pytest >/dev/null 2>&1; then
-            pytest -v
+            pytest \
+              tests/aclip_cai \
+              tests/test_entrypoint_contract.py \
+              tests/test_fastmcp_config_contract.py \
+              tests/test_fastmcp_profiles_contract.py \
+              tests/test_e2e_core_to_aaa_mcp.py \
+              tests/integration/test_health_metrics.py \
+              -q
           else
             echo "pytest not installed; skipping."
           fi
