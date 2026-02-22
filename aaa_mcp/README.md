@@ -40,20 +40,19 @@ Unlike prompt-based guardrails that can be bypassed, **AAA MCP enforces constrai
 
 ---
 
-## The 10 Canonical MCP Tools
+## The 9 Canonical MCP Tools
 
 | Tool | Stage | Trinity | Floors | Purpose |
 |------|-------|---------|--------|---------|
-| `init_gate` | 000_INIT | Gate | F11, F12 | Session ignition, injection scan |
-| `trinity_forge` | 000-999 | All | F1-F13 | Unified pipeline entry |
-| `agi_sense` | 111_SENSE | Δ Mind | F4 | Intent classification |
-| `agi_think` | 222_THINK | Δ Mind | F2, F4, F7 | Hypothesis generation |
-| `agi_reason` | 333_REASON | Δ Mind | F2, F4, F7, F10 | Logic & deduction |
-| `reality_search` | — | External | F2, F7, F10 | Web grounding |
-| `asi_empathize` | 555_EMPATHY | Ω Heart | F5, F6 | Stakeholder impact |
-| `asi_align` | 666_ALIGN | Ω Heart | F5, F6, F9 | Ethics alignment |
-| `apex_verdict` | 888_JUDGE | Ψ Soul | F3, F8, F11 | Final judgment |
-| `vault_seal` | 999_SEAL | VAULT | F1, F3 | Immutable audit |
+| `init_session` | 000+555 | Ψ Init | F11, F12, F5, F6 | Session ignition + impact validation |
+| `agi_cognition` | 222+333+444 | Δ Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
+| `asi_empathy` | 555+666 | Ω Heart | F5, F6, F9 | Empathy + ethics alignment |
+| `apex_verdict` | 777+888 | Ψ Soul | F2, F3, F4, F11, F13 | Forge + constitutional judgment |
+| `vault_seal` | 999 | VAULT | F1, F3 | Immutable audit seal |
+| `search` | utility | External | F2, F7 | Web search (read-only) |
+| `fetch` | utility | External | F2, F7 | Web fetch (read-only) |
+| `analyze` | utility | Internal | F4 | Data/structure analysis |
+| `system_audit` | utility | Internal | F2, F3 | Constitutional health verification |
 
 **Verdicts:** `SEAL` | `VOID` | `PARTIAL` | `SABAR` | `888_HOLD`
 
@@ -117,10 +116,10 @@ Add to your Cline MCP settings file (e.g., `%APPDATA%\Code\User\globalStorage\sa
 ### Programmatic
 
 ```python
-from aaa_mcp.server import init_gate, agi_reason, apex_verdict
+from aaa_mcp.server import init_session, agi_cognition, apex_verdict
 
 # Start constitutional session
-session = await init_gate(
+session = await init_session(
     query="Should we approve this loan?",
     actor_id="analyst_001"
 )
@@ -129,8 +128,8 @@ if session["verdict"] == "VOID":
     print(f"Blocked: {session['reason']}")
     return
 
-# Execute with F2, F4, F7 enforcement
-result = await agi_reason(
+# Execute with Δ cognition (reason + integrate + draft)
+result = await agi_cognition(
     query="Analyze credit risk",
     session_id=session["session_id"]
 )
@@ -149,7 +148,7 @@ AAA MCP implements a **Composite Architecture** where human sovereignty is the f
 ┌─────────────────────────────────────────────────────────────┐
 │                    AAA MCP Server                           │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
-│  │  init_gate  │───→│   agi_*     │───→│ apex_verdict│     │
+│  │init_session │───→│agi_cognition│───→│apex_verdict │     │
 │  │  (F11,F12)  │    │  Reasoning  │    │ Constitutional│     │
 │  └─────────────┘    └─────────────┘    └──────┬──────┘     │
 │                                                │            │
@@ -229,7 +228,7 @@ curl -X POST https://arifosmcp.arif-fazil.com/messages \
 {"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
 
 # Call a tool
-{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"anchor","arguments":{"query":"..."}}}
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"init_session","arguments":{"query":"..."}}}
 
 # Keepalive ping
 {"jsonrpc":"2.0","id":4,"method":"ping","params":{}}
@@ -252,7 +251,7 @@ curl https://arifosmcp.arif-fazil.com/version
 curl https://arifosmcp.arif-fazil.com/tools
 
 # Call tool directly
-curl -X POST https://arifosmcp.arif-fazil.com/tools/anchor \
+curl -X POST https://arifosmcp.arif-fazil.com/tools/init_session \
   -H "Content-Type: application/json" \
   -d '{"query":"test","actor_id":"user"}'
 
@@ -270,27 +269,36 @@ See [`rest.py`](rest.py) for the full REST API implementation.
 
 ### Financial Services (Compliance)
 ```python
-verdict = await apex_verdict(
+session = await init_session(
     query="Approve $500K loan to Acme Corp",
-    require_sovereign=True  # F13: Forces human sign-off
+    actor_id="risk_officer_001",
+)
+
+verdict = await apex_verdict(
+    session_id=session["session_id"],
+    query="Approve $500K loan to Acme Corp",
+    implementation_details={"risk_model": "v3", "policy": "credit_2026"},
+    proposed_verdict="SEAL",
+    human_approve=True,  # F13 human sign-off path
 )
 # VAULT999 proves due diligence to regulators
 ```
 
 ### Healthcare (Safety-Critical)
 ```python
-result = await agi_reason(
+result = await agi_cognition(
     query="Side effects of warfarin with aspirin",
-    grounding_required=True  # F2: Requires external verification
+    session_id="sess_12345",
+    grounding=["pubmed", "clinical-guidelines"],  # F2 external verification context
 )
 # Ω₀ ∈ [0.03,0.05] — no overconfident medical claims
 ```
 
 ### Legal (Liability Protection)
 ```python
-session = await init_gate(
+session = await init_session(
     query="Review merger agreement for risks",
-    grounding_required=True
+    actor_id="legal_analyst_001",
 )
 # Immutable audit trail proves review occurred
 ```

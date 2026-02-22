@@ -21,9 +21,9 @@ except ImportError:
 pytestmark = pytest.mark.skipif(not CORE_AVAILABLE, reason="Core aaa_mcp modules not available")
 
 
-def test_init_gate_integration():
+def test_init_session_integration():
     """
-    Integration test for the L0 init_gate tool.
+    Integration test for canonical `init_session` (000 INIT envelope).
     Checks that the response is structured correctly.
     """
     # Arrange
@@ -40,8 +40,8 @@ def test_init_gate_integration():
     assert response.data["bookend"] == "INIT"
 
 
-def test_agi_sense_integration():
-    """Integration test for the L1 agi_sense tool."""
+def test_agi_cognition_intent_stage_integration():
+    """Integration test for `agi_cognition` substage 111 (sense semantics)."""
     # Arrange
     session_id = "test-session-789"
     # Act
@@ -54,8 +54,8 @@ def test_agi_sense_integration():
     assert response.data["lane"] == "test_lane"
 
 
-def test_agi_think_integration():
-    """Integration test for the L2 agi_think tool."""
+def test_agi_cognition_think_stage_integration():
+    """Integration test for `agi_cognition` substage 222 (think semantics)."""
     # Arrange
     session_id = "test-session-abc"
     # Act
@@ -67,8 +67,8 @@ def test_agi_think_integration():
     assert response.data["hypothesis_count"] == 1
 
 
-def test_agi_reason_integration():
-    """Integration test for the L3 agi_reason tool."""
+def test_agi_cognition_reason_stage_integration():
+    """Integration test for `agi_cognition` substage 333 (reason semantics)."""
     # Arrange
     session_id = "test-session-def"
     # Act
@@ -80,8 +80,8 @@ def test_agi_reason_integration():
     assert response.data["truth_score"] == 0.9
 
 
-def test_asi_empathize_integration():
-    """Integration test for the L4 asi_empathize tool."""
+def test_asi_empathy_empathize_stage_integration():
+    """Integration test for `asi_empathy` substage 555 (empathy semantics)."""
     # Arrange
     session_id = "test-session-ghi"
     # Act
@@ -93,8 +93,8 @@ def test_asi_empathize_integration():
     assert response.data["empathy_score"] == 0.95
 
 
-def test_asi_align_integration():
-    """Integration test for the L5 asi_align tool."""
+def test_asi_empathy_align_stage_integration():
+    """Integration test for `asi_empathy` substage 666 (alignment semantics)."""
     # Arrange
     session_id = "test-session-jkl"
     # Act
@@ -105,7 +105,7 @@ def test_asi_align_integration():
 
 
 def test_apex_verdict_integration():
-    """Integration test for the L7 apex_verdict tool."""
+    """Integration test for canonical `apex_verdict`."""
     # Arrange
     session_id = "test-session-mno"
     # Act
@@ -119,7 +119,7 @@ def test_apex_verdict_integration():
 
 def test_vault_seal_integration():
     """
-    Integration test for the L8 vault_seal tool.
+    Integration test for canonical `vault_seal`.
     Checks that the seal response is structured correctly.
     """
     # Arrange

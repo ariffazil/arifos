@@ -1,10 +1,9 @@
 import json
-from typing import Optional
 
 
 def config_flags(
-    config_path: Optional[str] = None,
-    env_prefix: Optional[str] = "ARIFOS",
+    config_path: str | None = None,
+    env_prefix: str | None = "ARIFOS",
     include_secrets: bool = False,
 ) -> dict:
     """
@@ -52,7 +51,7 @@ def config_flags(
 
     if path_to_read and os.path.exists(path_to_read):
         try:
-            with open(path_to_read, "r") as f:
+            with open(path_to_read) as f:
                 data = json.load(f)
                 # Recursively mask file data (simplified flat masking for now)
                 masked_data = {}

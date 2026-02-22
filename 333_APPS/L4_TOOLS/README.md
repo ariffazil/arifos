@@ -1,8 +1,8 @@
-# L4_TOOLS — MCP Tool Layer (v64.1.1-GAGI)
+# L4_TOOLS — MCP Tool Layer (v2026.02.22-FORGE)
 
-**Level 4 | 100% Coverage | 14 Tools (9 A-CLIP + 5 Container)**
+**Level 4 | 100% Coverage | 14 Tools (5 Organs + 4 Utilities + 5 Container)**
 
-> *"9 A-CLIP constitutional tools + 5 container management tools, all exposed via MCP with <1ms response time (cached)."*
+> *"5-Organ Trinity public contract + utility and container tools, exposed via MCP with constitutional floor enforcement."*
 
 ---
 
@@ -21,19 +21,19 @@ python -m aaa_mcp http
 
 ---
 
-## The 9 A-CLIP Constitutional Tools
+## The 9 Canonical MCP Tools
 
-| # | Tool | Stage | Trinity | Floors | Description | Canonical Name |
-|---|------|-------|---------|--------|-------------|----------------|
-| 1 | `anchor` | 000 | Gate | F11, F12 | Session ignition with authority checks | `init_session` |
-| 2 | `reason` | 222 | Δ Mind | F2, F4, F8 | Generate hypotheses & analyze | `agi_cognition` |
-| 3 | `integrate` | 333 | Δ Mind | F7, F10 | Map & ground external knowledge | — |
-| 4 | `respond` | 444 | Δ Mind | F4, F6 | Draft plan & response | — |
-| 5 | `validate` | 555 | Ω Heart | F5, F6, F1 | Check stakeholder impact | `asi_empathy` |
-| 6 | `align` | 666 | Ω Heart | F9 | Ethics & Anti-Hantu check | — |
-| 7 | `forge` | 777 | Ω Heart | F2, F4, F7 | Synthesize solution | — |
-| 8 | `audit` | 888 | Ψ Soul | F3, F11, F13 | Final constitutional judgment | `apex_verdict` |
-| 9 | `seal` | 999 | VAULT | F1, F3 | Immutable audit record | `vault_seal` |
+| # | Tool | Stage | Trinity | Floors | Description |
+|---|------|-------|---------|--------|-------------|
+| 1 | `init_session` | 000+555 | Ψ Init | F11, F12, F5, F6 | Session ignition + impact validation |
+| 2 | `agi_cognition` | 222+333+444 | Δ Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
+| 3 | `asi_empathy` | 555+666 | Ω Heart | F5, F6, F9 | Stakeholder and ethics alignment |
+| 4 | `apex_verdict` | 777+888 | Ψ Soul | F2, F3, F4, F11, F13 | Constitutional judgment |
+| 5 | `vault_seal` | 999 | VAULT | F1, F3 | Immutable audit record |
+| 6 | `search` | utility | External | F2, F7 | Web search (read-only) |
+| 7 | `fetch` | utility | External | F2, F7 | Web fetch (read-only) |
+| 8 | `analyze` | utility | Internal | F4 | Data/structure analysis |
+| 9 | `system_audit` | utility | Internal | F2, F3 | Constitutional system verification |
 
 ## The 5 Container Management Tools
 
@@ -53,14 +53,14 @@ python -m aaa_mcp http
 
 ---
 
-## Pipeline Flow
+## Internal Pipeline Flow
 
 ```
 000_INIT → 222_REASON → 333_INTEGRATE → 444_RESPOND → 555_VALIDATE → 666_ALIGN → 777_FORGE → 888_AUDIT → 999_SEAL
   F11/F12      F2/F4/F8       F7/F10         F4/F6         F5/F6/F1       F9         F2/F4/F7      F3/F11/F13      F1/F3
 ```
 
-**Optimized:** 9 stages with caching for 13,725x performance improvement.
+The 9-stage sequence above is internalized behind the 5-organ public API to prevent abstraction leaks.
 
 **Verdicts:** `SEAL` | `VOID` | `PARTIAL` | `SABAR` | `888_HOLD`
 
@@ -96,7 +96,7 @@ See [`mcp-configs/`](./mcp-configs/) for copy-paste configs:
 
 | Component | Location | Status |
 |-----------|----------|--------|
-| MCP Server | [`aaa_mcp/server.py`](../../aaa_mcp/server.py) | ✅ 9 tools operational |
+| MCP Server | [`aaa_mcp/server.py`](../../aaa_mcp/server.py) | ✅ 9 canonical tools operational |
 | Constants | [`aaa_mcp/config/constants.py`](../../aaa_mcp/config/constants.py) | ✅ Centralized thresholds |
 | Container Tools | [`aaa_mcp/integrations/`](../../aaa_mcp/integrations/) | ✅ 5 tools + caching |
 | 5-Organs | [`core/organs/`](../../core/organs/) | ✅ Kernel logic |
@@ -104,18 +104,19 @@ See [`mcp-configs/`](./mcp-configs/) for copy-paste configs:
 | Governance Kernel | [`core/governance_kernel.py`](../../core/governance_kernel.py) | ✅ Unified Ψ state |
 | Telemetry | [`core/telemetry.py`](../../core/telemetry.py) | ✅ 30-day adaptation |
 
-## Recent Improvements (v64.1.1)
+## Recent Improvements (v2026.02.22)
 
 - ✅ **Caching:** Config loading 13,725x faster with LRU cache
 - ✅ **Caching:** Container listing 16,022x faster with 5s TTL
 - ✅ **Constants:** Centralized thresholds in `config/constants.py`
 - ✅ **Error Handling:** Specific exceptions (FileNotFoundError, yaml.YAMLError)
-- ✅ **Tools:** 9 A-CLIP tools + 5 container tools = 14 total
+- ✅ **Surface:** 5-organ trinity + 4 utility tools = 9 canonical public tools
+- ✅ **Compatibility:** Legacy 9-subroutine flow internalized behind organ boundaries
 
 ---
 
-**Version:** v64.1.1-GAGI  
-**Last Updated:** 2026-02-14  
+**Version:** v2026.02.22-FORGE  
+**Last Updated:** 2026-02-22  
 **Protocol:** MCP 2025-11-25  
 **Performance:** <1ms cached responses  
 **Creed:** DITEMPA BUKAN DIBERI

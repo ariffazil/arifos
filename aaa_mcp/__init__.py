@@ -1,30 +1,64 @@
 """
-arifOS AAA MCP Server — 9-Skill Constitutional Architecture (T000)
-T000 Version: 2026.02.22-FORGE-VPS-SEAL
-9 Canonical Verbs | Trinity Pipeline (ANCHOR → REASON → INTEGRATE → RESPOND → VALIDATE → ALIGN → FORGE → AUDIT → SEAL)
+arifOS AAA MCP package exports.
 
-Provides constitutional governance layer for MCP-compatible AI platforms.
+Public contract:
+- 5-organ tools (`init_session`, `agi_cognition`, `asi_empathy`, `apex_verdict`, `vault_seal`)
+- 4 utility tools (`search`, `fetch`, `analyze`, `system_audit`)
+
+Legacy verb aliases are kept for backward compatibility.
 """
 
 from .core.constitutional_decorator import constitutional_floor, get_tool_floors
 from .mcp_config import MCP_SERVERS, TrinityComponent, get_server_config
 from .mcp_integration import MCPIntegrationLayer, get_mcp_layer
-from .server import align, anchor, audit, forge, integrate, mcp, reason, respond, seal, validate
+from .server import (
+    agi_cognition,
+    analyze,
+    apex_verdict,
+    asi_empathy,
+    fetch,
+    init_session,
+    mcp,
+    search,
+    system_audit,
+    vault_seal,
+)
+
+# Backward-compatible aliases (legacy 9-verb naming)
+anchor = init_session
+reason = agi_cognition
+integrate = agi_cognition
+respond = agi_cognition
+validate = asi_empathy
+align = asi_empathy
+forge = apex_verdict
+audit = apex_verdict
+seal = vault_seal
 
 __version__ = "2026.02.22-FORGE-VPS-SEAL"
 __all__ = [
     # FastMCP server instance
     "mcp",
-    # 9 Canonical Skills (Verbs)
-    "anchor",  # 1. ANCHOR (000/111)
-    "reason",  # 2. REASON (222)
-    "integrate",  # 3. INTEGRATE (333)
-    "respond",  # 4. RESPOND (444)
-    "validate",  # 5. VALIDATE (555)
-    "align",  # 6. ALIGN (666)
-    "forge",  # 7. FORGE (777)
-    "audit",  # 8. AUDIT (888)
-    "seal",  # 9. SEAL (999)
+    # Canonical 5-organ + 4-utility surface
+    "init_session",
+    "agi_cognition",
+    "asi_empathy",
+    "apex_verdict",
+    "vault_seal",
+    "search",
+    "fetch",
+    "analyze",
+    "system_audit",
+    # Legacy aliases
+    "anchor",
+    "reason",
+    "integrate",
+    "respond",
+    "validate",
+    "align",
+    "forge",
+    "audit",
+    "seal",
     # Integration layer
     "MCPIntegrationLayer",
     "get_mcp_layer",

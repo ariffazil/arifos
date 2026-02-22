@@ -1,16 +1,15 @@
 import os
 import time
 from collections import deque
-from typing import Optional
 
 
 def log_tail(
     log_file: str = "aaa_mcp.log",
     lines: int = 50,
     pattern: str = "",
-    log_path: Optional[str] = None,
-    grep_pattern: Optional[str] = None,
-    since_minutes: Optional[int] = None,
+    log_path: str | None = None,
+    grep_pattern: str | None = None,
+    since_minutes: int | None = None,
 ) -> dict:
     """
     Reads the last N lines of a log file, with optional filtering.
@@ -49,7 +48,7 @@ def log_tail(
                     "info": f"File not modified in last {since_minutes} minutes.",
                 }
 
-        with open(target_file, "r", encoding="utf-8", errors="ignore") as f:
+        with open(target_file, encoding="utf-8", errors="ignore") as f:
             # Use deque for efficient append and fixed-length storage
             last_lines = deque(f, maxlen=lines)
 

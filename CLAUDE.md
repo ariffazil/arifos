@@ -108,7 +108,11 @@ codebase/                → LEGACY engine layer (still used by adapter)
 │   └── stages/          → 444-999 metabolic loop stages
 └── vault/               → Merkle-tree immutable ledger
 
-aclip_cai/               → 9-Sense Infrastructure Console (read-only sensory layer)
+aclip_cai/               → 9-Sense Infrastructure Console & MCP Federation Hub
+├── core/                → Lifecycle, Floor Audit, Vault Logger, Thermo-Budgeting
+├── dashboard/           → React dashboard for 9 senses (Sight, Hearing, Touch, etc.)
+├── config/              → Floor thresholds and tool specifications
+└── scripts/             → Deployment and evaluation runners
 333_APPS/                → 8-Layer Application Stack (L0 Kernel → L7 AGI)
 VAULT999/                → Immutable ledger storage (AAA_HUMAN, BBB_LEDGER, CCC_CANON)
 ```
@@ -146,7 +150,7 @@ The kernel exposes actions through 5 organs, importable via `from core.organs im
 
 ## 10 MCP Tools (v64.2 — "Hardened Skills")
 
-All defined in `aaa_mcp/server.py` with `@mcp.tool()` + `@constitutional_floor()` decorators:
+All defined in `aaa_mcp/server.py` and federated via `aclip_cai/core/mcp_server.py` as canonical system calls:
 
 | Tool | Stage | Floors | Purpose |
 |------|-------|--------|---------|
@@ -305,6 +309,18 @@ Require explicit user confirmation:
 - MCP: `https://arifosmcp.arif-fazil.com/mcp`
 
 **MCP config files:** `.claude/mcp.json` (active), `.agents/mcp.json` (agent mode)
+
+---
+
+## 📚 MCP Resources
+
+- **Official Site:** [modelcontextprotocol.io](https://modelcontextprotocol.io)
+- **Documentation:** [modelcontextprotocol.info/docs/](https://modelcontextprotocol.info/docs/)
+- **Mirror (CN):** [mcpcn.com/en/docs/](https://mcpcn.com/en/docs/)
+- **Anthropic Intro:** [anthropic.com/news/model-context-protocol](https://www.anthropic.com/news/model-context-protocol)
+- **GitHub:** [github.com/modelcontextprotocol](https://github.com/modelcontextprotocol)
+- **OpenAI/Codex:** [developers.openai.com/codex/mcp/](https://developers.openai.com/codex/mcp/)
+- **LangChain Adapter:** [docs.langchain.com/oss/python/langchain/mcp](https://docs.langchain.com/oss/python/langchain/mcp)
 
 ---
 

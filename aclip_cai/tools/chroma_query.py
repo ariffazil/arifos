@@ -8,7 +8,7 @@ at C:\\Users\\User\\chroma_memory without re-reading files.
 from __future__ import annotations
 
 import os
-from typing import Any, Optional
+from typing import Any
 
 _DEFAULT_CHROMA_PATH = os.path.join(os.path.expanduser("~"), "chroma_memory")
 
@@ -17,7 +17,7 @@ def query_memory(
     query: str,
     collection: str = "default",
     top_k: int = 5,
-    chroma_path: Optional[str] = None,
+    chroma_path: str | None = None,
 ) -> dict[str, Any]:
     """Query the Chroma vector store with a natural language query."""
     path = chroma_path or os.environ.get("ARIFOS_CHROMA_PATH", _DEFAULT_CHROMA_PATH)
@@ -75,7 +75,7 @@ def query_memory(
     }
 
 
-def list_collections(chroma_path: Optional[str] = None) -> dict[str, Any]:
+def list_collections(chroma_path: str | None = None) -> dict[str, Any]:
     """List all available Chroma collections and their document counts."""
     path = chroma_path or os.environ.get("ARIFOS_CHROMA_PATH", _DEFAULT_CHROMA_PATH)
 

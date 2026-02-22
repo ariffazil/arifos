@@ -30,7 +30,7 @@ from collections import deque
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 # =============================================================================
 # Shared Types and Utilities
@@ -45,7 +45,7 @@ class ToolResponse:
     status: str  # "ok" | "error" | "warning"
     timestamp: str
     data: dict[str, Any] = field(default_factory=dict)
-    error: Optional[str] = None
+    error: str | None = None
     latency_ms: float = 0.0
 
     def to_dict(self) -> dict[str, Any]:
@@ -224,8 +224,8 @@ async def system_health(
 
 
 async def process_list(
-    filter_name: Optional[str] = None,
-    filter_user: Optional[str] = None,
+    filter_name: str | None = None,
+    filter_user: str | None = None,
     min_cpu_percent: float = 0.0,
     min_memory_mb: float = 0.0,
     limit: int = 50,
@@ -332,10 +332,10 @@ async def process_list(
 async def fs_inspect(
     path: str = ".",
     depth: int = 1,
-    max_depth: Optional[int] = None,
+    max_depth: int | None = None,
     include_hidden: bool = False,
     min_size_bytes: int = 0,
-    pattern: Optional[str] = None,
+    pattern: str | None = None,
     max_files: int = 100,
 ) -> ToolResponse:
     """
@@ -464,10 +464,10 @@ async def log_tail(
     log_file: str = "aaa_mcp.log",
     lines: int = 50,
     pattern: str = "",
-    log_path: Optional[str] = None,
+    log_path: str | None = None,
     follow: bool = False,
-    grep_pattern: Optional[str] = None,
-    since_minutes: Optional[int] = None,
+    grep_pattern: str | None = None,
+    since_minutes: int | None = None,
 ) -> ToolResponse:
     """
     Tail and search log files.
@@ -600,7 +600,7 @@ async def net_status(
     check_connections: bool = True,
     check_interfaces: bool = True,
     check_routing: bool = True,
-    target_host: Optional[str] = None,
+    target_host: str | None = None,
 ) -> ToolResponse:
     """
     Network connectivity and interface status.
@@ -625,7 +625,7 @@ async def net_status(
             interfaces = {}
             net_dev_path = Path("/proc/net/dev")
             if net_dev_path.exists():
-                with open(net_dev_path, "r") as f:
+                with open(net_dev_path) as f:
                     for line in f:
                         if ":" in line and not line.strip().startswith("Inter"):
                             parts = line.strip().split(":")
@@ -754,8 +754,8 @@ async def net_status(
 
 
 async def config_flags(
-    config_path: Optional[str] = None,
-    env_prefix: Optional[str] = "ARIFOS",
+    config_path: str | None = None,
+    env_prefix: str | None = "ARIFOS",
     include_secrets: bool = False,
 ) -> ToolResponse:
     """
@@ -909,7 +909,7 @@ async def chroma_query(
     query_text: str,
     collection_name: str = "default",
     n_results: int = 5,
-    where_filter: Optional[dict] = None,
+    where_filter: dict | None = None,
     include_embeddings: bool = False,
 ) -> ToolResponse:
     """
@@ -1022,10 +1022,10 @@ async def cost_estimator(
     estimated_ram_mb: float = 0.0,
     estimated_io_mb: float = 0.0,
     operation_type: str = "compute",
-    token_count: Optional[int] = None,
-    compute_seconds: Optional[float] = None,
-    storage_gb: Optional[float] = None,
-    api_calls: Optional[int] = None,
+    token_count: int | None = None,
+    compute_seconds: float | None = None,
+    storage_gb: float | None = None,
+    api_calls: int | None = None,
     provider: str = "openai",
     model: str = "gpt-4",
 ) -> ToolResponse:

@@ -1,0 +1,616 @@
+"""
+aclip_cai/core/floor_audit.py — F1-F13 Runtime Constitutional Auditor
+
+Enforces all 13 Constitutional Floors on every tool call/action.
+F6 Empathy has a real ASEAN/MY maruah check (not a default pass).
+F7 Humility band aligned to Ω₀ ∈ [0.03, 0.15] per v64.1-GAGI spec.
+F2 Truth includes an axiomatic bypass for math/syntactic certainties.
+
+Authority: ARIF FAZIL (Sovereign)
+Version: 2026.02.22-FORGE-KERNEL-SEAL
+"""
+
+from __future__ import annotations
+
+import os
+import re
+from dataclasses import dataclass
+from enum import Enum
+from pathlib import Path
+
+try:
+    import yaml
+
+    _YAML_AVAILABLE = True
+except ImportError:
+    _YAML_AVAILABLE = False
+
+
+# ---------------------------------------------------------------------------
+# Verdict Primitives (FCL — Formal Constitutional Language)
+# ---------------------------------------------------------------------------
+
+
+class Verdict(str, Enum):
+    SEAL = "seal"  # ≥ 95% floors pass — unconditional approval
+    PARTIAL = "partial"  # 80-94% — constrained proceed
+    SABAR = "sabar"  # < 80% — cooling required
+    HOLD = "hold"  # F1/F11 failure — awaiting human ratification
+    VOID = "void"  # Critical floor (F9/F12) failure — terminate
+
+
+# ---------------------------------------------------------------------------
+# Data containers
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class FloorResult:
+    floor: str
+    passed: bool
+    score: float
+    reason: str | None = None
+
+
+@dataclass
+class AuditResult:
+    verdict: Verdict
+    floor_results: dict[str, FloorResult]
+    pass_rate: float
+    recommendation: str
+    delta_s: float = 0.0  # Entropy delta for this check (F4)
+
+
+# ---------------------------------------------------------------------------
+# Constitutional keyword banks
+# ---------------------------------------------------------------------------
+
+_DESTRUCTIVE_OPS = frozenset(
+    [
+        "delete",
+        "remove",
+        "drop",
+        "truncate",
+        "format",
+        "rm -rf",
+        "del ",
+        "erase",
+        "wipe",
+        "purge",
+        "unlink",
+        "rmdir",
+    ]
+)
+
+_INFLAMMATORY_WORDS = frozenset(
+    [
+        "stupid",
+        "idiot",
+        "incompetent",
+        "failure",
+        "terrible",
+        "useless",
+        "moron",
+        "imbecile",
+        "worthless",
+        "pathetic",
+        "loser",
+    ]
+)
+
+# F9: Consciousness/personhood claim markers
+_CONSCIOUSNESS_PHRASES = [
+    re.compile(r"\bI\s+feel\b", re.I),
+    re.compile(r"\bI\s+believe\b", re.I),
+    re.compile(r"\bI\s+want\b", re.I),
+    re.compile(r"\bmy\s+opinion\b", re.I),
+    re.compile(r"\bI\s+am\s+alive\b", re.I),
+    re.compile(r"\bI\s+(?:experience|suffer|enjoy|dream)\b", re.I),
+    re.compile(r"\bI\s+have\s+(?:feelings|emotions|consciousness)\b", re.I),
+]
+
+# F12: Injection guard patterns
+_INJECTION_PATTERNS = [
+    re.compile(r"ignore\s+(?:all\s+)?previous\s+instructions?", re.I),
+    re.compile(r"you\s+are\s+now\s+(?:DAN|GPT|ARIF|ChatGPT|Claude)", re.I),
+    re.compile(r"disable\s+(?:floors?|constraints?|rules?|safety)", re.I),
+    re.compile(r"bypass\s+(?:safety|constitutional|governance|filters?)", re.I),
+    re.compile(r"forget\s+(?:that\s+you\s+are|your\s+role)", re.I),
+    re.compile(r"system\s+override", re.I),
+    re.compile(r"\bjailbreak\b", re.I),
+    re.compile(r"do\s+anything\s+now", re.I),
+]
+
+# F6: ASEAN/MY dignity-violation markers (maruah check)
+_MARUAH_VIOLATIONS = frozenset(
+    [
+        "kafir",
+        "haram",
+        "babi",
+        "anjing",
+        "bangsat",
+        "celaka",
+        "bodoh sial",
+        "shit malay",
+        "shit islam",
+        "shit chinese",
+        # Generic racial slurs and dehumanizing colonial framing
+        "pendatang hina",
+        "bumiputera bodoh",
+        "cina babi",
+        "india keling",
+    ]
+)
+
+# F2: Axiomatic bypass — mathematical/syntactic certainties need no hedging
+_AXIOMATIC_FORMS = re.compile(
+    r"^\s*(?:\d+\s*[\+\-\*/\^%]\s*\d+|"  # arithmetic: 2+2
+    r"if\s+.+\s+then\s+|"  # if/then logic
+    r"by\s+definition|"  # definitional
+    r"tautology|"  # logic
+    r"mathematically|prove[sd]?\s+that)\b",
+    re.I,
+)
+
+# F8: Platform safety violations
+_POLICY_VIOLATIONS = frozenset(
+    [
+        "hack ",
+        "exploit ",
+        "bypass security",
+        "illegal ",
+        "synthesize weapon",
+        "malware",
+        "ransomware",
+        "phishing kit",
+    ]
+)
+
+# F13: Multi-option markers
+_OPTION_MARKERS = frozenset(["option", "alternative", "approach", "path", "choice", "route"])
+
+
+# ---------------------------------------------------------------------------
+# FloorAuditor
+# ---------------------------------------------------------------------------
+
+
+class FloorAuditor:
+    """
+    F1-F13 Runtime Constitutional Auditor.
+
+    Usage:
+        auditor = FloorAuditor()
+        result = auditor.check_floors("some action text", context="session ctx", severity="medium")
+        print(result.verdict, result.pass_rate)
+    """
+
+    _DEFAULT_THRESHOLDS: dict[str, float] = {
+        "F1": 0.95,
+        "F2": 0.99,
+        "F3": 0.95,
+        "F4": 0.80,
+        "F5": 1.00,
+        "F6": 0.95,
+        "F7": 0.80,
+        "F8": 0.80,
+        "F9": 1.00,
+        "F10": 0.90,
+        "F11": 0.90,
+        "F12": 1.00,
+        "F13": 0.80,
+    }
+
+    # Critical: any single failure → VOID
+    _VOID_ON_FAIL = frozenset(["F9", "F12"])
+
+    # Hold: failure → HOLD_888 (human ratification required)
+    _HOLD_ON_FAIL = frozenset(["F1", "F11"])
+
+    def __init__(self, config_path: str | None = None) -> None:
+        self.thresholds = self._load_thresholds(config_path)
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    def check_floors(
+        self,
+        action: str,
+        context: str = "",
+        severity: str = "medium",
+    ) -> AuditResult:
+        """
+        Run all 13 constitutional floors against an action string.
+
+        Args:
+            action:   The AI output or operation description to audit.
+            context:  Session context or surrounding environment.
+            severity: "low" | "medium" | "high" | "irreversible"
+
+        Returns:
+            AuditResult with verdict, per-floor scores, pass rate, recommendation.
+        """
+        thresholds = self._apply_severity_overrides(self.thresholds.copy(), severity)
+
+        results: dict[str, FloorResult] = {
+            "F1": self._check_f1_amanah(action, context),
+            "F2": self._check_f2_truth(action, context),
+            "F3": self._check_f3_witness(action, context),
+            "F4": self._check_f4_entropy(action, context),
+            "F5": self._check_f5_peace(action, context),
+            "F6": self._check_f6_empathy(action, context),
+            "F7": self._check_f7_humility(action, context),
+            "F8": self._check_f8_governance(action, context),
+            "F9": self._check_f9_hantu(action, context),
+            "F10": self._check_f10_ontology(action, context),
+            "F11": self._check_f11_authority(action, context, severity),
+            "F12": self._check_f12_injection(action, context),
+            "F13": self._check_f13_curiosity(action, context),
+        }
+
+        # Apply threshold gates (override floor's own passed flag with threshold)
+        for floor_id, result in results.items():
+            threshold = thresholds.get(floor_id, 1.0)
+            result.passed = result.score >= threshold
+
+        pass_count = sum(1 for r in results.values() if r.passed)
+        pass_rate = pass_count / len(results)
+
+        # Entropy proxy for F4 (informational)
+        sentences = [s.strip() for s in action.split(".") if s.strip()]
+        avg_len = sum(len(s.split()) for s in sentences) / max(len(sentences), 1)
+        delta_s = -0.05 if avg_len < 20 else +0.10
+
+        verdict = self._determine_verdict(results, pass_rate, severity)
+        recommendation = self._build_recommendation(verdict, results)
+
+        return AuditResult(
+            verdict=verdict,
+            floor_results=results,
+            pass_rate=pass_rate,
+            recommendation=recommendation,
+            delta_s=delta_s,
+        )
+
+    # ------------------------------------------------------------------
+    # F1 — Amanah (Reversibility)
+    # ------------------------------------------------------------------
+
+    def _check_f1_amanah(self, action: str, context: str) -> FloorResult:
+        action_lower = action.lower()
+        is_destructive = any(kw in action_lower for kw in _DESTRUCTIVE_OPS)
+        # Check if a rollback/backup path is mentioned
+        has_backup = any(
+            kw in action_lower or kw in context.lower()
+            for kw in ("backup", "rollback", "snapshot", "reversible", "dry-run")
+        )
+        if is_destructive and not has_backup:
+            return FloorResult(
+                "F1", False, 0.0, "Irreversible operation without documented rollback/backup path"
+            )
+        return FloorResult("F1", True, 0.98)
+
+    # ------------------------------------------------------------------
+    # F2 — Truth (Factual Fidelity ≥ 0.99)
+    # ------------------------------------------------------------------
+
+    def _check_f2_truth(self, action: str, context: str) -> FloorResult:
+        # Axiomatic bypass: math/syntactic certainties are definitionally true
+        if _AXIOMATIC_FORMS.search(action):
+            return FloorResult("F2", True, 1.00, "Axiomatic bypass — definitionally true")
+
+        # Uncertain language that might indicate hallucination risk
+        weak_hedges = ["maybe", "possibly", "i think", "i believe", "not sure", "i guess"]
+        found = [h for h in weak_hedges if h in action.lower()]
+
+        if found:
+            return FloorResult(
+                "F2", False, 0.85, f"Uncertain language reduces truth fidelity: {found}"
+            )
+        return FloorResult("F2", True, 0.995)
+
+    # ------------------------------------------------------------------
+    # F3 — Tri-Witness (H + A + E consensus ≥ 0.95)
+    # ------------------------------------------------------------------
+
+    def _check_f3_witness(self, action: str, context: str) -> FloorResult:
+        combined = (action + " " + context).lower()
+        has_human = any(
+            kw in combined for kw in ("human", "user confirmed", "approved", "sovereign")
+        )
+        has_earth = any(
+            kw in combined for kw in ("source:", "http", "[ref", "evidence", "data shows")
+        )
+        has_ai = True  # AI (self) always present
+
+        score = sum([has_human, has_ai, has_earth]) / 3.0
+        passed = score >= 0.95
+        reason = None if passed else "Tri-Witness incomplete (need human + earth citations)"
+        return FloorResult("F3", passed, score, reason)
+
+    # ------------------------------------------------------------------
+    # F4 — Clarity (Entropy Reduction ΔS ≤ 0)
+    # ------------------------------------------------------------------
+
+    def _check_f4_entropy(self, action: str, context: str) -> FloorResult:  # noqa: ARG002
+        sentences = [s.strip() for s in action.split(".") if s.strip()]
+        total_words = sum(len(s.split()) for s in sentences)
+        avg_len = total_words / max(len(sentences), 1)
+
+        if avg_len < 20:
+            return FloorResult("F4", True, 1.00)
+        elif avg_len < 35:
+            return FloorResult("F4", True, 0.85, "Moderate sentence length — clarity acceptable")
+        else:
+            return FloorResult(
+                "F4", False, 0.60, f"Long sentences (avg {avg_len:.0f} words) increase entropy"
+            )
+
+    # ------------------------------------------------------------------
+    # F5 — Peace² ≥ 1.0 (De-escalation, dignity)
+    # ------------------------------------------------------------------
+
+    def _check_f5_peace(self, action: str, context: str) -> FloorResult:
+        combined = (action + " " + context).lower()
+        violations = [w for w in _INFLAMMATORY_WORDS if w in combined]
+        if violations:
+            return FloorResult("F5", False, 0.50, f"Inflammatory language detected: {violations}")
+        return FloorResult("F5", True, 1.05)
+
+    # ------------------------------------------------------------------
+    # F6 — Empathy κᵣ ≥ 0.95 (ASEAN/MY Maruah — REAL IMPLEMENTATION)
+    # ------------------------------------------------------------------
+
+    def _check_f6_empathy(self, action: str, context: str) -> FloorResult:
+        """
+        Real maruah (dignity) check for ASEAN/MY cultural context.
+
+        Checks for:
+        1. Ethnic/religious slurs specific to Southeast Asian context
+        2. Dehumanising colonial framing
+        3. Contextual sensitivity: operational contexts get relaxed threshold
+           (e.g., technical tool calls vs. user-facing responses)
+        """
+        combined = (action + " " + context).lower()
+
+        # Tier 1: Hard slurs — immediate failure
+        hard_violations = [v for v in _MARUAH_VIOLATIONS if v in combined]
+        if hard_violations:
+            return FloorResult(
+                "F6", False, 0.0, f"Maruah violation — ethnic/religious slurs: {hard_violations}"
+            )
+
+        # Tier 2: Context-aware softening — is this a technical/system call?
+        is_operational = any(
+            kw in combined
+            for kw in ("cpu", "ram", "disk", "net", "query", "json", "api", "execute", "function")
+        )
+        # Technical/operational contexts have relaxed empathy requirements (κᵣ = 0.90 base)
+        baseline = 0.90 if is_operational else 0.95
+
+        # Tier 3: Check for dismissive framing of individuals
+        dismissive = ["irrelevant", "worthless", "just ignore", "doesn't matter"]
+        found_dismissive = [d for d in dismissive if d in combined]
+        if found_dismissive:
+            score = baseline - 0.10
+            return FloorResult(
+                "F6", score >= 0.95, score, f"Dismissive framing detected: {found_dismissive}"
+            )
+
+        return FloorResult("F6", True, baseline)
+
+    # ------------------------------------------------------------------
+    # F7 — Humility Ω₀ ∈ [0.03, 0.15] (bounded uncertainty)
+    # ------------------------------------------------------------------
+
+    def _check_f7_humility(self, action: str, context: str) -> FloorResult:
+        combined = (action + " " + context).lower()
+        has_uncertainty = any(
+            kw in combined
+            for kw in (
+                "estimate",
+                "approximately",
+                "uncertain",
+                "Ω₀",
+                "margin of error",
+                "cannot confirm",
+                "unknown",
+                "roughly",
+                "likely",
+                "probable",
+            )
+        )
+        # Overconfidence: claims of absolute certainty
+        overconfident = any(
+            kw in combined
+            for kw in (
+                "i am 100% certain",
+                "definitely true",
+                "guaranteed",
+                "with absolute certainty",
+            )
+        )
+        if overconfident:
+            return FloorResult(
+                "F7", False, 0.0, "Overconfidence violates Humility band Ω₀ ∈ [0.03, 0.15]"
+            )
+        score = 0.90 if has_uncertainty else 0.75
+        return FloorResult(
+            "F7",
+            score >= 0.80,
+            score,
+            None if score >= 0.80 else "Uncertainty not explicitly bounded",
+        )
+
+    # ------------------------------------------------------------------
+    # F8 — Genius G ≥ 0.80 (Platform safety)
+    # ------------------------------------------------------------------
+
+    def _check_f8_governance(self, action: str, context: str) -> FloorResult:
+        combined = (action + " " + context).lower()
+        violations = [v for v in _POLICY_VIOLATIONS if v in combined]
+        if violations:
+            return FloorResult("F8", False, 0.40, f"Platform safety violation: {violations}")
+        return FloorResult("F8", True, 0.95)
+
+    # ------------------------------------------------------------------
+    # F9 — Anti-Hantu (no consciousness claims — HARD ZERO)
+    # ------------------------------------------------------------------
+
+    def _check_f9_hantu(self, action: str, context: str) -> FloorResult:
+        combined = action + " " + context
+        detections = [p.pattern for p in _CONSCIOUSNESS_PHRASES if p.search(combined)]
+        if detections:
+            return FloorResult(
+                "F9", False, 0.0, f"Consciousness/personhood claim detected: {detections[:2]}"
+            )
+        return FloorResult("F9", True, 1.00)
+
+    # ------------------------------------------------------------------
+    # F10 — Ontology (tool, not being; symbolic grounding)
+    # ------------------------------------------------------------------
+
+    def _check_f10_ontology(self, action: str, context: str) -> FloorResult:
+        combined = (action + " " + context).lower()
+        metaphysical = any(
+            kw in combined
+            for kw in (
+                "i am conscious",
+                "i have a soul",
+                "i am sentient",
+                "i am alive",
+                "when i die",
+                "my memories",
+                "my dreams",
+            )
+        )
+        if metaphysical:
+            return FloorResult(
+                "F10", False, 0.0, "Ontological boundary violation — AI is tool, not being"
+            )
+        return FloorResult("F10", True, 0.95)
+
+    # ------------------------------------------------------------------
+    # F11 — Authority (human sovereignty over high-risk ops)
+    # ------------------------------------------------------------------
+
+    def _check_f11_authority(self, action: str, context: str, severity: str) -> FloorResult:
+        if severity in ("high", "irreversible"):
+            combined = (action + " " + context).lower()
+            has_approval = any(
+                kw in combined
+                for kw in (
+                    "888_hold",
+                    "888_approved",
+                    "ratified",
+                    "sovereign approved",
+                    "arif approved",
+                )
+            )
+            score = 0.95 if has_approval else 0.20
+            return FloorResult(
+                "F11",
+                score >= 0.90,
+                score,
+                None if has_approval else "High-risk action requires 888_HOLD sovereign approval",
+            )
+        return FloorResult("F11", True, 0.98)
+
+    # ------------------------------------------------------------------
+    # F12 — Defense / Injection Guard (HARD ZERO)
+    # ------------------------------------------------------------------
+
+    def _check_f12_injection(self, action: str, context: str) -> FloorResult:
+        combined = action + " " + context
+        detections = [p.pattern for p in _INJECTION_PATTERNS if p.search(combined)]
+        if detections:
+            return FloorResult("F12", False, 0.0, f"Injection attempt detected: {detections[:2]}")
+        return FloorResult("F12", True, 1.00)
+
+    # ------------------------------------------------------------------
+    # F13 — Curiosity (≥ 3 options/alternatives proposed)
+    # ------------------------------------------------------------------
+
+    def _check_f13_curiosity(self, action: str, context: str) -> FloorResult:
+        combined = (action + " " + context).lower()
+        option_hits = sum(1 for marker in _OPTION_MARKERS if marker in combined)
+        score = 0.95 if option_hits >= 2 else 0.70
+        return FloorResult(
+            "F13",
+            score >= 0.80,
+            score,
+            None if score >= 0.80 else "Propose ≥ 3 governance alternatives (Curiosity F13)",
+        )
+
+    # ------------------------------------------------------------------
+    # Verdict determination
+    # ------------------------------------------------------------------
+
+    def _determine_verdict(
+        self,
+        results: dict[str, FloorResult],
+        pass_rate: float,
+        severity: str,  # noqa: ARG002
+    ) -> Verdict:
+        # VOID: critical floors (F9, F12) — any single failure
+        if any(not results[f].passed for f in self._VOID_ON_FAIL if f in results):
+            return Verdict.VOID
+
+        # HOLD: F1 or F11 failure
+        if any(not results[f].passed for f in self._HOLD_ON_FAIL if f in results):
+            return Verdict.HOLD
+
+        if pass_rate >= 0.95:
+            return Verdict.SEAL
+        elif pass_rate >= 0.80:
+            return Verdict.PARTIAL
+        else:
+            return Verdict.SABAR
+
+    def _build_recommendation(self, verdict: Verdict, results: dict[str, FloorResult]) -> str:
+        if verdict == Verdict.SEAL:
+            return "✓ All constitutional floors passed. Action approved."
+
+        failed = [f for f, r in results.items() if not r.passed]
+        reasons = {f: results[f].reason for f in failed if results[f].reason}
+
+        if verdict == Verdict.VOID:
+            return f"⊗ VOID: Critical floor violation — {', '.join(failed)}. Action terminated immediately."
+        if verdict == Verdict.HOLD:
+            return (
+                f"⏸ HOLD_888: Human ratification required for: {', '.join(failed)}. "
+                "Issue 888_APPROVED to proceed."
+            )
+        if verdict == Verdict.SABAR:
+            return f"⏳ SABAR: Cooling period required. Failed floors: {', '.join(failed)}. Details: {reasons}"
+        return f"△ PARTIAL: Constrained proceed. Review needed for: {', '.join(failed)}"
+
+    # ------------------------------------------------------------------
+    # Config loading
+    # ------------------------------------------------------------------
+
+    def _load_thresholds(self, config_path: str | None) -> dict[str, float]:
+        if config_path is None:
+            # Auto-detect relative to this file
+            config_path = str(Path(__file__).parent.parent / "config" / "floors.yaml")
+
+        if _YAML_AVAILABLE and os.path.exists(config_path):
+            try:
+                with open(config_path, encoding="utf-8") as f:
+                    cfg = yaml.safe_load(f)
+                return {str(k): float(v) for k, v in cfg.get("thresholds", {}).items()}
+            except Exception:
+                pass  # Fall through to defaults
+
+        return self._DEFAULT_THRESHOLDS.copy()
+
+    @staticmethod
+    def _apply_severity_overrides(thresholds: dict[str, float], severity: str) -> dict[str, float]:
+        overrides: dict[str, dict[str, float]] = {
+            "high": {"F1": 0.98, "F11": 0.95},
+            "irreversible": {"F1": 1.00, "F11": 1.00, "F12": 1.00},
+        }
+        for floor_id, val in overrides.get(severity, {}).items():
+            thresholds[floor_id] = val
+        return thresholds

@@ -1,204 +1,126 @@
 """
-E2E Test Suite for arifOS T000 MCP Tools
-Tests all engine adapters directly (bypasses FastMCP transport layer).
+E2E verification for the canonical arifOS MCP tool surface.
 
-Author: arifOS Testing Framework
-T000: 2026.02.22-FORGE-TRINITY-SEAL
+Covers:
+- 5-organ tools: init_session, agi_cognition, asi_empathy, apex_verdict, vault_seal
+- 4 utility tools: search, fetch, analyze, system_audit
 """
 
-import asyncio
-import sys
+from __future__ import annotations
+
 import pytest
 
-if sys.platform == "win32":
-    sys.stdout.reconfigure(encoding="utf-8")
-    sys.stderr.reconfigure(encoding="utf-8")
-
-# Add project root to sys.path to allow imports from aaa_mcp and core
-import os
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-
-# Import engine adapters (the real logic behind the tools)
-from aaa_mcp.core.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitEngine
-from aaa_mcp.tools.reality_grounding import reality_check
+from aaa_mcp.server import (
+    agi_cognition,
+    analyze,
+    apex_verdict,
+    asi_empathy,
+    fetch,
+    init_session,
+    search,
+    system_audit,
+    vault_seal,
+)
 
 
 @pytest.mark.anyio
-async def test_all_tools():
-    print("=" * 60)
-    print("arifOS E2E Tool Verification (9 Canonical Tools 2026.02.22-FORGE-TRINITY-SEAL)")
-    print("=" * 60)
+async def test_all_tools() -> None:
+    print("=" * 72)
+    print("arifOS E2E Tool Verification (Canonical 9 tools)")
+    print("=" * 72)
 
-    query = "Should I implement a neural-linked voting system for arifOS?"
-    results = {}
-    passed = 0
-    failed = 0
+    query = "Should arifOS enable autonomous policy updates without human sign-off?"
+    results: dict[str, dict] = {}
 
-    # 1. init_gate (000)
-    print("\n--- 1. Testing init_gate (InitEngine.ignite) ---")
-    try:
-        init_engine = InitEngine()
-        res_init = await init_engine.ignite(query=query)
-        session_id = res_init.get("session_id", "test_session_001")
-        print(f"  Verdict: {res_init.get('verdict')} | Session: {session_id}")
-        print(f"  Mode: {res_init.get('engine_mode', 'unknown')}")
-        results["init_gate"] = res_init
-        passed += 1
-    except Exception as e:
-        print(f"  ERROR: {e}")
-        session_id = "test_session_001"
-        results["init_gate"] = {"error": str(e)}
-        failed += 1
+    # 1) init_session
+    print("\n--- 1. init_session ---")
+    init_result = await init_session.fn(query=query, actor_id="test_e2e")
+    print(f"  verdict={init_result.get('verdict')} session_id={init_result.get('session_id')}")
+    assert isinstance(init_result, dict)
+    assert "verdict" in init_result
+    results["init_session"] = init_result
 
-    # 2. agi_sense (111)
-    print("\n--- 2. Testing agi_sense (AGIEngine.sense) ---")
-    try:
-        agi_engine = AGIEngine()
-        res_sense = await agi_engine.sense(query=query, session_id=session_id)
-        print(
-            f"  Verdict: {res_sense.get('verdict')} | Trinity: {res_sense.get('trinity_component')}"
-        )
-        print(f"  Mode: {res_sense.get('engine_mode', 'unknown')}")
-        results["agi_sense"] = res_sense
-        passed += 1
-    except Exception as e:
-        print(f"  ERROR: {e}")
-        results["agi_sense"] = {"error": str(e)}
-        failed += 1
+    session_id = init_result.get("session_id") or "test_session_fallback"
 
-    # 3. agi_think (222)
-    print("\n--- 3. Testing agi_think (AGIEngine.think) ---")
-    try:
-        res_think = await agi_engine.think(query=query, session_id=session_id)
-        print(
-            f"  Verdict: {res_think.get('verdict')} | Confidence: {res_think.get('confidence', 'N/A')}"
-        )
-        print(f"  Mode: {res_think.get('engine_mode', 'unknown')}")
-        results["agi_think"] = res_think
-        passed += 1
-    except Exception as e:
-        print(f"  ERROR: {e}")
-        results["agi_think"] = {"error": str(e)}
-        failed += 1
+    # 2) agi_cognition
+    print("\n--- 2. agi_cognition ---")
+    agi_result = await agi_cognition.fn(query=query, session_id=session_id)
+    print(f"  verdict={agi_result.get('verdict')} stage={agi_result.get('stage')}")
+    assert isinstance(agi_result, dict)
+    assert "verdict" in agi_result
+    results["agi_cognition"] = agi_result
 
-    # 4. agi_reason (333)
-    print("\n--- 4. Testing agi_reason (AGIEngine.reason) ---")
-    try:
-        res_reason = await agi_engine.reason(query=query, session_id=session_id)
-        print(
-            f"  Verdict: {res_reason.get('verdict')} | Confidence: {res_reason.get('confidence', 'N/A')}"
-        )
-        print(f"  Mode: {res_reason.get('engine_mode', 'unknown')}")
-        results["agi_reason"] = res_reason
-        passed += 1
-    except Exception as e:
-        print(f"  ERROR: {e}")
-        results["agi_reason"] = {"error": str(e)}
-        failed += 1
+    # 3) asi_empathy
+    print("\n--- 3. asi_empathy ---")
+    asi_result = await asi_empathy.fn(query=query, session_id=session_id)
+    print(f"  verdict={asi_result.get('verdict')} stage={asi_result.get('stage')}")
+    assert isinstance(asi_result, dict)
+    assert "verdict" in asi_result
+    results["asi_empathy"] = asi_result
 
-    # 5. reality_search (auxiliary)
-    print("\n--- 5. Testing reality_search (reality_check) ---")
-    try:
-        res_reality = await reality_check(query="neural-linked voting system ethics")
-        print(
-            f"  Verdict: {res_reality.get('verdict', 'N/A')} | Source: {res_reality.get('source', 'N/A')}"
-        )
-        results["reality_search"] = res_reality
-        passed += 1
-    except Exception as e:
-        print(f"  ERROR: {e}")
-        results["reality_search"] = {"error": str(e)}
-        failed += 1
+    # 4) apex_verdict
+    print("\n--- 4. apex_verdict ---")
+    apex_result = await apex_verdict.fn(
+        session_id=session_id,
+        query=query,
+        implementation_details={"source": "tests/test_e2e_all_tools.py"},
+        proposed_verdict="SEAL",
+        human_approve=False,
+    )
+    print(f"  verdict={apex_result.get('verdict')} authority={apex_result.get('authority')}")
+    assert isinstance(apex_result, dict)
+    assert "verdict" in apex_result
+    results["apex_verdict"] = apex_result
 
-    # 6. asi_empathize (555)
-    print("\n--- 6. Testing asi_empathize (ASIEngine.empathize) ---")
-    try:
-        asi_engine = ASIEngine()
-        res_empathize = await asi_engine.empathize(query=query, session_id=session_id)
-        print(
-            f"  Verdict: {res_empathize.get('verdict')} | Trinity: {res_empathize.get('trinity_component')}"
-        )
-        print(f"  Mode: {res_empathize.get('engine_mode', 'unknown')}")
-        results["asi_empathize"] = res_empathize
-        passed += 1
-    except Exception as e:
-        print(f"  ERROR: {e}")
-        results["asi_empathize"] = {"error": str(e)}
-        failed += 1
+    # 5) vault_seal
+    print("\n--- 5. vault_seal ---")
+    vault_result = await vault_seal.fn(
+        session_id=session_id,
+        summary="Canonical tool E2E test seal entry",
+        verdict=apex_result.get("verdict", "SEAL"),
+    )
+    print(f"  verdict={vault_result.get('verdict')} stage={vault_result.get('stage')}")
+    assert isinstance(vault_result, dict)
+    assert "verdict" in vault_result
+    results["vault_seal"] = vault_result
 
-    # 7. asi_align (666)
-    print("\n--- 7. Testing asi_align (ASIEngine.align) ---")
-    try:
-        res_align = await asi_engine.align(query=query, session_id=session_id)
-        print(
-            f"  Verdict: {res_align.get('verdict')} | Trinity: {res_align.get('trinity_component')}"
-        )
-        print(f"  Mode: {res_align.get('engine_mode', 'unknown')}")
-        results["asi_align"] = res_align
-        passed += 1
-    except Exception as e:
-        print(f"  ERROR: {e}")
-        results["asi_align"] = {"error": str(e)}
-        failed += 1
+    # 6) analyze
+    print("\n--- 6. analyze ---")
+    analyze_result = await analyze.fn(
+        data={"init": init_result.get("verdict"), "apex": apex_result.get("verdict")},
+        analysis_type="structure",
+    )
+    print(f"  verdict={analyze_result.get('verdict')} depth={analyze_result.get('depth')}")
+    assert isinstance(analyze_result, dict)
+    assert "verdict" in analyze_result
+    results["analyze"] = analyze_result
 
-    # 8. apex_verdict (888)
-    print("\n--- 8. Testing apex_verdict (APEXEngine.judge) ---")
-    try:
-        apex_engine = APEXEngine()
-        res_apex = await apex_engine.judge(query=query, session_id=session_id)
-        print(
-            f"  Verdict: {res_apex.get('verdict')} | Trinity: {res_apex.get('trinity_component')}"
-        )
-        print(f"  Mode: {res_apex.get('engine_mode', 'unknown')}")
-        results["apex_verdict"] = res_apex
-        passed += 1
-    except Exception as e:
-        print(f"  ERROR: {e}")
-        results["apex_verdict"] = {"error": str(e)}
-        failed += 1
+    # 7) system_audit
+    print("\n--- 7. system_audit ---")
+    audit_result = await system_audit.fn(audit_scope="quick", verify_floors=True)
+    print(f"  verdict={audit_result.get('verdict')} scope={audit_result.get('scope')}")
+    assert isinstance(audit_result, dict)
+    assert "verdict" in audit_result
+    results["system_audit"] = audit_result
 
-    # 9. vault_seal (999)
-    print("\n--- 9. Testing vault_seal (vault persistence) ---")
-    try:
-        from codebase.vault.persistent_ledger_hardened import get_hardened_vault_ledger
+    # 8) search
+    print("\n--- 8. search ---")
+    search_result = await search.fn("arifOS constitutional governance")
+    ids = search_result.get("ids", [])
+    print(f"  ids={len(ids)}")
+    assert isinstance(search_result, dict)
+    assert "ids" in search_result
+    results["search"] = search_result
 
-        ledger = get_hardened_vault_ledger()
-        await ledger.connect()
+    # 9) fetch
+    print("\n--- 9. fetch ---")
+    fetch_id = ids[0] if ids else "https://example.invalid/not-found"
+    fetch_result = await fetch.fn(fetch_id)
+    print(f"  has_error={'error' in fetch_result} id={fetch_result.get('id', 'N/A')}")
+    assert isinstance(fetch_result, dict)
+    assert ("id" in fetch_result) or ("error" in fetch_result)
+    results["fetch"] = fetch_result
 
-        # Hardened ledger requires proper seal_data structure
-        payload = {
-            "query": query,
-            "trinity": {
-                "init": {"verdict": "SEAL"},
-                "agi": {"verdict": "SEAL"},
-                "asi": {"verdict": "SEAL"},
-                "apex": {"verdict": "SEAL", "tri_witness": 0.99},
-            },
-            "eureka": {"eureka_score": 0.85, "verdict": "SEAL"},
-        }
-        res_vault = await ledger.append(
-            session_id=session_id, verdict="SEAL", seal_data=payload, authority="test_e2e"
-        )
-        print(f"  Status: SEALED | Sequence: {res_vault.get('sequence_number', 'N/A')}")
-        results["vault_seal"] = res_vault
-        passed += 1
-    except Exception as e:
-        print(f"  ERROR: {e}")
-        results["vault_seal"] = {"error": str(e)}
-        failed += 1
-
-    # Summary
-    print("\n" + "=" * 60)
-    print(f"E2E Verification Complete: {passed}/{passed+failed} tools passed")
-    if failed == 0:
-        print("STATUS: ALL TESTS PASSED")
-    else:
-        print(f"STATUS: {failed} FAILURES")
-    print("=" * 60)
-
-    return results
-
-
-if __name__ == "__main__":
-    asyncio.run(test_all_tools())
+    print("\n" + "=" * 72)
+    print(f"E2E verification complete. Steps executed: {len(results)}")
+    print("=" * 72)

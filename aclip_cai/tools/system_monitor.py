@@ -7,9 +7,9 @@ Replaces ad-hoc PowerShell scripts with structured, queryable output.
 
 from __future__ import annotations
 
+import os
 import platform
 import subprocess
-import os
 from typing import Any
 
 
@@ -76,8 +76,9 @@ def get_resource_usage() -> dict[str, Any]:
 def list_processes(filter_name: str = "", top_n: int = 15) -> dict[str, Any]:
     """Return top processes by RAM usage as structured JSON."""
     try:
-        import psutil
         import time
+
+        import psutil
 
         procs = []
         for p in psutil.process_iter(
@@ -132,10 +133,11 @@ def get_system_health() -> dict[str, Any]:
     """Combined health report: resources + top RAM consumers + warnings."""
     try:
         import psutil
+
         psutil_available = True
     except ImportError:
         psutil_available = False
-    
+
     usage = get_resource_usage()
     procs = list_processes(top_n=10)
 
@@ -148,7 +150,10 @@ def get_system_health() -> dict[str, Any]:
         warnings.append(f"HIGH CPU: {usage['cpu']['percent']}%")
 
     # New warnings based on added metrics
-    if psutil_available and usage.get("cpu", {}).get("load_avg_1m", 0) > psutil.cpu_count(logical=True) * 0.9:
+    if (
+        psutil_available
+        and usage.get("cpu", {}).get("load_avg_1m", 0) > psutil.cpu_count(logical=True) * 0.9
+    ):
         warnings.append(f"HIGH CPU LOAD (1m): {usage['cpu']['load_avg_1m']}")
 
     if usage.get("io", {}).get("network", {}).get("bytes_recv_gb", 0) > 10:  # Example threshold

@@ -15,7 +15,9 @@ decision logic. Never mix these layers.
 | `core/organs/` | 5-core organs: `_0_init.py`, `_1_agi.py`, `_2_asi.py`, `_3_apex.py`, `_4_vault.py` |
 | `core/shared/` | Shared types (`types.py`), guards, floors |
 | `aaa_mcp/` | MCP server adapter — transport only, calls into `core/` |
-| `aclip_cai/` | Sensory/observability layer (C0-C9 tools) |
+| `aclip_cai/` | 9-Sense Infrastructure Console & MCP Federation Hub |
+| `aclip_cai/core/` | Sensory kernel: lifecycle, floor audits, vault logging, thermo-budgeting |
+| `aclip_cai/dashboard/` | 9-Sense React dashboard (Sight, Hearing, Touch, etc.) |
 | `333_APPS/` | Application layers L1 (Prompts) through L7 (AGI) |
 | `tests/` | Test suite; `tests/archive/` and `tests/legacy/` are auto-ignored |
 
@@ -153,12 +155,12 @@ async def reason(query: str) -> dict:
 
 ## Architectural Rules
 
-1. **`core/` is pure:** No imports from `fastmcp`, `starlette`, `fastapi`, `uvicorn`, or any
-   transport/HTTP library. It must remain a stateless decision kernel.
-2. **`aaa_mcp/` is transport only:** No decision logic. It calls `core/` functions and wraps
-   results for MCP transport.
-3. **Do NOT shadow `mcp`:** The external SDK is `mcp`. Local modules must not use that name.
-4. **SessionState is copy-on-write:** Never mutate session state in place.
+1. **`core/` is pure:** No imports from `fastmcp`, `starlette`, `fastapi`, `uvicorn`, or any transport/HTTP library. It must remain a stateless decision kernel.
+2. **`aaa_mcp/` is the brain adapter:** Transport only. No decision logic. Calls `core/` functions.
+3. **`aclip_cai/` is the sensory adapter:** Transport + Observability. No core decision logic. Calls into `aclip_cai/core/` for infrastructure-specific audits.
+4. **Do NOT shadow `mcp`:** The external SDK is `mcp`. Local modules must not use that name.
+5. **SessionState is copy-on-write:** Never mutate session state in place.
+6. **5-Organ Trinity (Public Contract):** `aaa_mcp` exposes 5 core organs (`init_session`, `agi_cognition`, `asi_empathy`, `apex_verdict`, `vault_seal`) + 4 utilities (`search`, `fetch`, `analyze`, `system_audit`). `aclip_cai` exposes 9 governed sensory tools. Both layers must maintain constitutional alignment (F1-F13) without leaking decision logic across boundaries.
 
 ## Testing Requirements
 
@@ -176,7 +178,12 @@ floor checks and F9 Anti-Hantu (blocks deceptive naming patterns like "I feel", 
 conscious") and F1 Amanah (blocks `shutil.rmtree`, `DROP TABLE`, `DELETE FROM` without
 safeguards).
 
-## 888_HOLD — Mandatory Human Confirmation
+## 888_HOLD & SABAR_72 — High-Stakes Governance
+
+Constitutional governance requires mandatory pauses for high-risk and irreversible actions:
+
+- **SABAR_72:** 72-hour cooling period for high-risk actions (F11 Authority). Stop and await human review.
+- **888_HOLD:** Quarantine for irreversible operations pending explicit human ratification.
 
 Stop and request explicit human approval before:
 - Database operations (DROP, TRUNCATE, DELETE without WHERE)
@@ -184,9 +191,37 @@ Stop and request explicit human approval before:
 - Mass file changes (>10 files)
 - Credential/secret handling
 - Git history modification (rebase, force push)
+- Bypassing constitutional floor failures (F1-F13)
 
-## Copilot / GitHub Instructions
+## 📚 MCP Resources
+
+- **Official Site:** [modelcontextprotocol.io](https://modelcontextprotocol.io)
+- **Documentation:** [modelcontextprotocol.info/docs/](https://modelcontextprotocol.info/docs/)
+- **Mirror (CN):** [mcpcn.com/en/docs/](https://mcpcn.com/en/docs/)
+- **Anthropic Intro:** [anthropic.com/news/model-context-protocol](https://www.anthropic.com/news/model-context-protocol)
+- **GitHub:** [github.com/modelcontextprotocol](https://github.com/modelcontextprotocol)
+- **OpenAI/Codex:** [developers.openai.com/codex/mcp/](https://developers.openai.com/codex/mcp/)
+- **LangChain Adapter:** [docs.langchain.com/oss/python/langchain/mcp](https://docs.langchain.com/oss/python/langchain/mcp)
+
+Protocol: List consequences → State irreversibles → Ask "yes, proceed" → Wait for confirmation → Execute with logging.
 
 See `.github/copilot-instructions.md` for GitHub Copilot-specific rules (v46 alignment,
 stage gating, session data contracts, output format). That file is derivative guidance;
 this file (`AGENTS.md`) and `pyproject.toml` are the canonical sources for build and style.
+
+## MCP Protocol References
+
+Canonical bookmarks for the Model Context Protocol — the wire standard this system is built on:
+
+| Resource | URL |
+|:---------|:----|
+| **Main site & spec overview** | https://modelcontextprotocol.io |
+| **Full documentation (EN)** | https://modelcontextprotocol.info/docs/ |
+| **Full documentation (CN mirror)** | https://mcpcn.com/en/docs/ |
+| **Anthropic intro & architecture** | https://www.anthropic.com/news/model-context-protocol |
+| **GitHub org (spec, SDKs, servers)** | https://github.com/modelcontextprotocol |
+| **OpenAI/Codex integration guide** | https://developers.openai.com/codex/mcp/ |
+| **LangChain MCP adapter docs** | https://docs.langchain.com/oss/python/langchain/mcp |
+
+> **F2 Truth note:** URLs may drift over time. Always verify against the GitHub org
+> (`github.com/modelcontextprotocol`) as the ground-truth source for spec versions.
