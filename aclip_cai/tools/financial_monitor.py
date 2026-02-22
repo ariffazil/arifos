@@ -1,3 +1,6 @@
+import random
+
+
 async def financial_cost(
     service: str,
     action: str,
@@ -12,10 +15,10 @@ async def financial_cost(
     and require proper authentication and permissions.
 
     Args:
-        service (str): The cloud service (e.g., "AWS_EC2", "GCP_Cloud_Run", "Azure_Functions").
-        action (str): The action or resource type (e.g., "compute_hours", "storage_gb", "data_transfer").
+        service (str): Cloud service (e.g., "AWS_EC2", "GCP_Cloud_Run").
+        action (str): Resource type (e.g., "compute_hours", "storage_gb").
         resource_id (str): Optional. Specific resource ID to query cost for.
-        period_days (int): The number of days to look back for cost estimation.
+        period_days (int): Days to look back for cost estimation.
 
     Returns:
         dict: A dictionary containing estimated cost data.
@@ -32,9 +35,6 @@ async def financial_cost(
     elif "api_calls" in action.lower():
         base_cost = 0.0001 * period_days  # $0.0001 per day per generic API call
 
-    # Add some randomness for mock realism
-    import random
-
     estimated_amount = round(base_cost * random.uniform(0.8, 1.2), 4)
     currency = "USD"
 
@@ -46,7 +46,7 @@ async def financial_cost(
         "estimated_cost": f"{estimated_amount} {currency}",
         "raw_amount": estimated_amount,
         "currency": currency,
-        "disclaimer": "This is a mock estimation. Real implementation requires cloud API integration.",
+        "disclaimer": "Mock estimation. Real version requires cloud API integration.",
     }
 
     return mock_response

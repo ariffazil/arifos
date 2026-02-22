@@ -26,7 +26,7 @@ If you need to publish without creating a release:
 
 ## Namespace
 
-- **MCP Name**: `io.github.ariffazil/aaa-mcp`
+- **MCP Name**: `io.github.ariffazil/arifos-mcp`
 - **Authentication**: GitHub OIDC (uses `GITHUB_TOKEN`)
 
 ## Troubleshooting
@@ -41,4 +41,4 @@ If you need to publish without creating a release:
 
 - [MCP Registry](https://registry.modelcontextprotocol.io)
 - [Publishing Docs](https://modelcontextprotocol.io/registry/quickstart)
-- [Your Server](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.ariffazil/aaa-mcp) (after publish)
+- [Your Server](https://registry.modelcontextprotocol.io/v0.1/servers/io.github.ariffazil/arifos-mcp) (after publish)

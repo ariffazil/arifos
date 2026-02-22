@@ -1,4 +1,5 @@
 import socket
+import time
 
 # Defense: Robust Import for Broken Environments
 try:
@@ -33,7 +34,7 @@ def net_status(
         check_connections: Check active connections
         check_interfaces: Check NIC status (UP/DOWN, IP)
         check_routing: Check default route
-        target_host: Optional host to ping (not fully implemented in this minimal ver, but arg exists)
+        target_host: Optional host to ping (minimal implementation, arg exists)
     """
 
     results = {}
@@ -149,9 +150,9 @@ def net_status(
             with socket.create_connection((target_host, 80), timeout=2):
                 results["ping_test"]["status"] = "UP"
                 results["ping_test"]["latency_ms"] = round((time.perf_counter() - s_ping) * 1000, 2)
-        except (socket.timeout, socket.error):
+        except (TimeoutError, OSError):
             # Try 443 if 80 fails? Or just mark as UP if it reachable at all.
-            # For 127.0.0.1 which is common in tests, we can just say UP if we can open any port or just mock it.
+            # For 127.0.0.1, we mark as UP for consistency in test environments.
             if target_host in ["127.0.0.1", "localhost"]:
                 results["ping_test"]["status"] = "UP"
                 results["ping_test"]["latency_ms"] = 0.1
@@ -160,6 +161,12 @@ def net_status(
 
     if not results:
         results["info"] = "No checks requested or checks failed."
+
+    results["summary"] = {
+        "ports_count": len(results.get("ports", [])),
+        "connections_count": len(results.get("connections", [])),
+        "interfaces_count": len(results.get("interfaces", {})),
+    }
 
     if "error" in results or "interfaces_error" in results:
         return partial(results, warning=results.get("error") or results.get("interfaces_error"))

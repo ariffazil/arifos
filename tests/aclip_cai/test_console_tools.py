@@ -307,14 +307,12 @@ async def test_cost_estimator_compute():
 @pytest.mark.asyncio
 async def test_forge_guard_low_risk():
     """Test forge guard with low risk."""
-    with patch("aclip_cai.console_tools.system_health") as mock_health:
-        from aclip_cai.console_tools import ToolResponse
-        mock_health.return_value = ToolResponse(
-            tool="system_health",
-            status="ok",
-            timestamp="2026-02-22T12:00:00Z",
-            data={"cpu": {"load_1m": 0.1, "cores": 8}, "memory": {"usage_percent": 10.0}}
-        )
+    with patch("aclip_cai.tools.safety_guard.get_system_health") as mock_health:
+        mock_health.return_value = {
+            "status": "SEAL",
+            "cpu": {"percent": 10.0},
+            "memory": {"percent": 10.0}
+        }
         result = await forge_guard(
             action="read", target="/tmp/test", session_id="test-session", risk_level="low", dry_run=True
         )

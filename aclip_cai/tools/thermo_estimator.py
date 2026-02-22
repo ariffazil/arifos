@@ -42,7 +42,7 @@ def cost_estimator(
     # ---------------------------------------------------------------------------
     # 1. Financial Costs (USD) — Mirrored from console_tools.py
     # ---------------------------------------------------------------------------
-    PRICING = {
+    pricing = {
         "openai": {
             "gpt-4": {"input_per_1k": 0.03, "output_per_1k": 0.06},
             "gpt-4-turbo": {"input_per_1k": 0.01, "output_per_1k": 0.03},
@@ -61,7 +61,7 @@ def cost_estimator(
         },
     }
 
-    INFRA_COSTS = {
+    infra_costs = {
         "compute_per_hour": 0.05,
         "storage_per_gb_month": 0.02,
         "egress_per_gb": 0.09,
@@ -76,7 +76,7 @@ def cost_estimator(
     }
 
     if operation_type == "llm" and token_count:
-        p_pricing = PRICING.get(provider, {})
+        p_pricing = pricing.get(provider, {})
         m_pricing = p_pricing.get(model, {"input_per_1k": 0.01, "output_per_1k": 0.03})
         in_tokens = int(token_count * 0.7)
         out_tokens = int(token_count * 0.3)
@@ -85,14 +85,16 @@ def cost_estimator(
             (out_tokens / 1000) * m_pricing.get("output_per_1k", 0.03), 6
         )
     elif operation_type == "embedding" and token_count:
-        p_pricing = PRICING.get(provider, {})
+        p_pricing = pricing.get(provider, {})
         m_pricing = p_pricing.get(model, {"per_1k": 0.00002})
         costs["llm_cost_usd"] = round((token_count / 1000) * m_pricing.get("per_1k", 0.00002), 6)
 
     if compute_seconds:
-        costs["compute_cost_usd"] = round((compute_seconds / 3600) * INFRA_COSTS["compute_per_hour"], 6)
+        compute_cost = (compute_seconds / 3600) * infra_costs["compute_per_hour"]
+        costs["compute_cost_usd"] = round(compute_cost, 6)
     if storage_gb:
-        costs["storage_cost_usd"] = round(storage_gb * INFRA_COSTS["storage_per_gb_month"], 6)
+        storage_cost = storage_gb * infra_costs["storage_per_gb_month"]
+        costs["storage_cost_usd"] = round(storage_cost, 6)
     if api_calls:
         costs["api_cost_usd"] = round(api_calls * 0.0001, 6)
 

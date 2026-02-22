@@ -1,0 +1,283 @@
+F401 [*] `json` imported but unused
+  --> aclip_cai\console_tools.py:24:8
+   |
+22 | from __future__ import annotations
+23 |
+24 | import json
+   |        ^^^^
+25 | import os
+26 | import re
+   |
+help: Remove unused import: `json`
+
+F401 [*] `os` imported but unused
+  --> aclip_cai\console_tools.py:25:8
+   |
+24 | import json
+25 | import os
+   |        ^^
+26 | import re
+27 | import subprocess
+   |
+help: Remove unused import: `os`
+
+F401 [*] `re` imported but unused
+  --> aclip_cai\console_tools.py:26:8
+   |
+24 | import json
+25 | import os
+26 | import re
+   |        ^^
+27 | import subprocess
+28 | import time
+   |
+help: Remove unused import: `re`
+
+F401 [*] `collections.deque` imported but unused
+  --> aclip_cai\console_tools.py:29:25
+   |
+27 | import subprocess
+28 | import time
+29 | from collections import deque
+   |                         ^^^^^
+30 | from dataclasses import asdict, dataclass, field
+31 | from datetime import datetime, timezone
+   |
+help: Remove unused import: `collections.deque`
+
+F401 [*] `pathlib.Path` imported but unused
+  --> aclip_cai\console_tools.py:32:21
+   |
+30 | from dataclasses import asdict, dataclass, field
+31 | from datetime import datetime, timezone
+32 | from pathlib import Path
+   |                     ^^^^
+33 | from typing import Any
+   |
+help: Remove unused import: `pathlib.Path`
+
+E501 Line too long (108 > 100)
+   --> aclip_cai\core\floor_audit.py:580:101
+    |
+579 |         if verdict == Verdict.VOID:
+580 |             return f"⊗ VOID: Critical floor violation — {', '.join(failed)}. Action terminated immediately."
+    |                                                                                                     ^^^^^^^^
+581 |         if verdict == Verdict.HOLD:
+582 |             return (
+    |
+
+E501 Line too long (111 > 100)
+   --> aclip_cai\core\floor_audit.py:587:100
+    |
+585 |             )
+586 |         if verdict == Verdict.SABAR:
+587 |             return f"⏳ SABAR: Cooling period required. Failed floors: {', '.join(failed)}. Details: {reasons}"
+    |                                                                                                     ^^^^^^^^^^^
+588 |         return f"△ PARTIAL: Constrained proceed. Review needed for: {', '.join(failed)}"
+    |
+
+E402 Module level import not at top of file
+  --> aclip_cai\tools\chroma_query.py:16:1
+   |
+16 | from aclip_cai.tools.aclip_base import ok, partial, void
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> aclip_cai\tools\config_reader.py:1:1
+  |
+1 | / import json
+2 | | import os
+3 | |
+4 | |
+5 | | from aclip_cai.tools.aclip_base import ok
+  | |_________________________________________^
+  |
+help: Organize imports
+
+N806 Variable `SECRET_PATTERNS` in function should be lowercase
+  --> aclip_cai\tools\config_reader.py:28:5
+   |
+27 |     # F1 Amanah: Define patterns that trigger masking
+28 |     SECRET_PATTERNS = ["KEY", "TOKEN", "SECRET", "PASS", "PWD", "AUTH", "CREDENTIAL", "SIGNATURE"]
+   |     ^^^^^^^^^^^^^^^
+29 |
+30 |     def _mask_value(key: str, value: str) -> str:
+   |
+
+E701 Multiple statements on one line (colon)
+  --> aclip_cai\tools\config_reader.py:46:43
+   |
+44 |     if env_prefix:
+45 |         if env_prefix.endswith("_"):
+46 |              if env_prefix not in prefixes: prefixes.append(env_prefix)
+   |                                           ^
+47 |         else:
+48 |              p_with_u = f"{env_prefix}_"
+   |
+
+E701 Multiple statements on one line (colon)
+  --> aclip_cai\tools\config_reader.py:49:41
+   |
+47 |         else:
+48 |              p_with_u = f"{env_prefix}_"
+49 |              if p_with_u not in prefixes: prefixes.append(p_with_u)
+   |                                         ^
+50 |              # Also allow exact match for common short prefixes like PATH
+51 |              if env_prefix not in prefixes: prefixes.append(env_prefix)
+   |
+
+E701 Multiple statements on one line (colon)
+  --> aclip_cai\tools\config_reader.py:51:43
+   |
+49 |              if p_with_u not in prefixes: prefixes.append(p_with_u)
+50 |              # Also allow exact match for common short prefixes like PATH
+51 |              if env_prefix not in prefixes: prefixes.append(env_prefix)
+   |                                           ^
+52 |
+53 |     for key, value in os.environ.items():
+   |
+
+E501 Line too long (105 > 100)
+  --> aclip_cai\tools\financial_monitor.py:16:101
+   |
+14 |     Args:
+15 |         service (str): The cloud service (e.g., "AWS_EC2", "GCP_Cloud_Run", "Azure_Functions").
+16 |         action (str): The action or resource type (e.g., "compute_hours", "storage_gb", "data_transfer").
+   |                                                                                                     ^^^^^
+17 |         resource_id (str): Optional. Specific resource ID to query cost for.
+18 |         period_days (int): The number of days to look back for cost estimation.
+   |
+
+E501 Line too long (103 > 100)
+  --> aclip_cai\tools\financial_monitor.py:49:101
+   |
+47 |         "raw_amount": estimated_amount,
+48 |         "currency": currency,
+49 |         "disclaimer": "This is a mock estimation. Real implementation requires cloud API integration.",
+   |                                                                                                     ^^^
+50 |     }
+   |
+
+I001 [*] Import block is un-sorted or un-formatted
+ --> aclip_cai\tools\log_reader.py:1:1
+  |
+1 | / import os
+2 | | import time
+3 | | from collections import deque
+4 | |
+5 | |
+6 | | from aclip_cai.tools.aclip_base import ok, void
+  | |_______________________________________________^
+  |
+help: Organize imports
+
+E501 Line too long (102 > 100)
+  --> aclip_cai\tools\net_monitor.py:37:101
+   |
+35 |         check_interfaces: Check NIC status (UP/DOWN, IP)
+36 |         check_routing: Check default route
+37 |         target_host: Optional host to ping (not fully implemented in this minimal ver, but arg exists)
+   |                                                                                                     ^^
+38 |     """
+   |
+
+UP024 [*] Replace aliased errors with `OSError`
+   --> aclip_cai\tools\net_monitor.py:153:16
+    |
+151 |                 results["ping_test"]["status"] = "UP"
+152 |                 results["ping_test"]["latency_ms"] = round((time.perf_counter() - s_ping) * 1000, 2)
+153 |         except (socket.timeout, socket.error):
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+154 |             # Try 443 if 80 fails? Or just mark as UP if it reachable at all.
+155 |             # For 127.0.0.1 which is common in tests, we can just say UP if we can open any port or just mock it.
+    |
+help: Replace with builtin `OSError`
+
+UP041 [*] Replace aliased errors with `TimeoutError`
+   --> aclip_cai\tools\net_monitor.py:153:16
+    |
+151 |                 results["ping_test"]["status"] = "UP"
+152 |                 results["ping_test"]["latency_ms"] = round((time.perf_counter() - s_ping) * 1000, 2)
+153 |         except (socket.timeout, socket.error):
+    |                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+154 |             # Try 443 if 80 fails? Or just mark as UP if it reachable at all.
+155 |             # For 127.0.0.1 which is common in tests, we can just say UP if we can open any port or just mock it.
+    |
+help: Replace with builtin `TimeoutError`
+
+E501 Line too long (113 > 100)
+   --> aclip_cai\tools\net_monitor.py:155:101
+    |
+153 |         except (socket.timeout, socket.error):
+154 |             # Try 443 if 80 fails? Or just mark as UP if it reachable at all.
+155 |             # For 127.0.0.1 which is common in tests, we can just say UP if we can open any port or just mock it.
+    |                                                                                                     ^^^^^^^^^^^^^
+156 |             if target_host in ["127.0.0.1", "localhost"]:
+157 |                 results["ping_test"]["status"] = "UP"
+    |
+
+E501 Line too long (107 > 100)
+   --> aclip_cai\tools\safety_guard.py:108:101
+    |
+106 |                     reason_code = "CRITICAL_TARGET_SABAR"
+107 |                     can_proceed = False
+108 |                     reasons.append(f"PROTECTED: Accessing critical target '{target_pat}' requires review.")
+    |                                                                                                     ^^^^^^^
+109 |
+110 |     # Alignment with MCP Bridge Verdicts
+    |
+
+E501 Line too long (104 > 100)
+   --> aclip_cai\tools\safety_guard.py:130:101
+    |
+129 |     if gate == "VOID_LOCAL":
+130 |         return void(f"Safety violation: {reason_code}", hint="Action blocked by forge_guard", **payload)
+    |                                                                                                     ^^^^
+131 |     if not can_proceed:
+132 |         return partial(payload, warning="; ".join(reasons))
+    |
+
+E402 Module level import not at top of file
+   --> aclip_cai\tools\system_monitor.py:177:1
+    |
+175 |         return void("psutil not installed", "uv pip install psutil")
+176 |
+177 | import datetime
+    | ^^^^^^^^^^^^^^^
+    |
+
+N806 Variable `PRICING` in function should be lowercase
+  --> aclip_cai\tools\thermo_estimator.py:45:5
+   |
+43 |     # 1. Financial Costs (USD) — Mirrored from console_tools.py
+44 |     # ---------------------------------------------------------------------------
+45 |     PRICING = {
+   |     ^^^^^^^
+46 |         "openai": {
+47 |             "gpt-4": {"input_per_1k": 0.03, "output_per_1k": 0.06},
+   |
+
+N806 Variable `INFRA_COSTS` in function should be lowercase
+  --> aclip_cai\tools\thermo_estimator.py:64:5
+   |
+62 |     }
+63 |
+64 |     INFRA_COSTS = {
+   |     ^^^^^^^^^^^
+65 |         "compute_per_hour": 0.05,
+66 |         "storage_per_gb_month": 0.02,
+   |
+
+E501 Line too long (104 > 100)
+  --> aclip_cai\tools\thermo_estimator.py:93:101
+   |
+92 |     if compute_seconds:
+93 |         costs["compute_cost_usd"] = round((compute_seconds / 3600) * INFRA_COSTS["compute_per_hour"], 6)
+   |                                                                                                     ^^^^
+94 |     if storage_gb:
+95 |         costs["storage_cost_usd"] = round(storage_gb * INFRA_COSTS["storage_per_gb_month"], 6)
+   |
+
+Found 26 errors.
+[*] 9 fixable with the `--fix` option.

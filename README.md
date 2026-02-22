@@ -1,4 +1,5 @@
 # arifOS — DITEMPA BUKAN DIBERI
+<!-- mcp-name: io.github.ariffazil/arifos-mcp -->
 
 <p align="center">
   <img src="docs/forged_page_1.png" alt="arifOS — Forged, Not Given" width="800">

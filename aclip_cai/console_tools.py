@@ -21,15 +21,10 @@ Design Principles:
 
 from __future__ import annotations
 
-import json
-import os
-import re
 import subprocess
 import time
-from collections import deque
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
-from pathlib import Path
 from typing import Any
 
 import aclip_cai.tools as internal_tools
@@ -191,6 +186,25 @@ async def fs_inspect(
         pattern=pattern,
         max_files=max_files,
     )
+    # Post-process for backward compatibility (split tree into directories/files)
+    if "tree" in res:
+        tree = res.get("tree", [])
+        flat_files = []
+        flat_dirs = []
+        
+        def _collect_recursive(nodes):
+            for node in nodes:
+                if node.get("type") == "dir":
+                    flat_dirs.append(node.get("path") or node.get("name"))
+                    if "children" in node:
+                        _collect_recursive(node["children"])
+                else:
+                    flat_files.append(node.get("path") or node.get("name"))
+        
+        _collect_recursive(tree)
+        res["directories"] = flat_dirs
+        res["files"] = flat_files
+
     return _wrap_tool("fs_inspect", start, res)
 
 # =============================================================================

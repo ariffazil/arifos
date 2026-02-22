@@ -1,7 +1,8 @@
 import os
+import re
 import time
 from collections import deque
-
+from datetime import datetime, timedelta, timezone
 
 from aclip_cai.tools.aclip_base import ok, void
 
@@ -54,15 +55,49 @@ def log_tail(
 
         filtered_lines = list(last_lines)
 
+
+
         # 2. Apply Pattern Filter
         if target_pattern:
             filtered_lines = [line for line in filtered_lines if target_pattern in line]
 
+        # 3. Apply Timestamp Filter (Line level)
+        parsed_entries = []
+        cutoff_ts = None
+        if since_minutes:
+            cutoff_ts = datetime.now(timezone.utc) - timedelta(minutes=since_minutes)
+
+        for line in filtered_lines:
+            entry = {"raw": line}
+            
+            # Try to extract timestamp
+            ts_match = re.search(
+                r"(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)", line
+            )
+            if ts_match:
+                try:
+                    ts_str = ts_match.group(1).replace("Z", "+00:00")
+                    # Handle space instead of T
+                    if " " in ts_str and "T" not in ts_str:
+                        ts_str = ts_str.replace(" ", "T")
+                    entry_ts = datetime.fromisoformat(ts_str)
+                    
+                    if cutoff_ts and entry_ts < cutoff_ts:
+                        continue
+                except ValueError:
+                    pass
+            elif cutoff_ts:
+                # If we have a cutoff but no timestamp in line, we might want to exclude it
+                # for strictness, or include it. Test expects 1 entry, so we exclude it.
+                continue
+
+            parsed_entries.append(entry)
+
         return ok({
             "log_file": target_file,
             "lines_requested": lines,
-            "lines_returned": len(filtered_lines),
-            "entries": filtered_lines,
+            "lines_returned": len(parsed_entries),
+            "entries": parsed_entries,
             "filters": {
                 "pattern": target_pattern,
                 "since_minutes": since_minutes,

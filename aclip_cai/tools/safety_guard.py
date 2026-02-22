@@ -58,15 +58,18 @@ def forge_guard(
         if health.get("status") == "VOID":
             reasons.append(f"Safety check partial: System monitor error: {health.get('error')}")
         else:
-            # Check for high pressure in get_system_health result
-            # Note: get_system_health returns a dict with 'resources' and 'warnings'
-            res = health.get("data", {}).get("resources", {})
-            warnings = health.get("warnings", [])
+            # get_system_health returns combined resource data at top level (wrapped by ok/partial)
+            # meta keys are status, warning, etc.
             host_signals = {
-                "cpu_percent": res.get("cpu", {}).get("percent", 0),
-                "ram_percent": res.get("ram", {}).get("percent", 0),
+                "cpu_percent": health.get("cpu", {}).get("percent", 0),
+                "ram_percent": health.get("memory", {}).get("percent", 0),
             }
             
+            # Use warnings from result if present
+            warnings = health.get("warnings", [])
+            if not warnings and "warning" in health:
+                warnings = [health["warning"]]
+                
             if any("HIGH" in w or "CRITICAL" in w for w in warnings):
                 gate = "SABAR"
                 reason_code = "HOST_PRESSURE"
@@ -102,7 +105,7 @@ def forge_guard(
                     gate = "SABAR"
                     reason_code = "CRITICAL_TARGET_SABAR"
                     can_proceed = False
-                    reasons.append(f"PROTECTED: Accessing critical target '{target_pat}' requires review.")
+                    reasons.append(f"PROTECTED: Target '{target_pat}' requires review.")
 
     # Alignment with MCP Bridge Verdicts
     verdict_alias = {
@@ -124,7 +127,11 @@ def forge_guard(
     }
 
     if gate == "VOID_LOCAL":
-        return void(f"Safety violation: {reason_code}", hint="Action blocked by forge_guard", data=payload)
+        return void(
+            f"Safety violation: {reason_code}",
+            hint="Action blocked by forge_guard",
+            **payload
+        )
     if not can_proceed:
         return partial(payload, warning="; ".join(reasons))
     

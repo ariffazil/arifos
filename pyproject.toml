@@ -140,6 +140,7 @@ all = [
 # Usage: uvx arifos [stdio|sse|http]
 arifos = "aaa_mcp.__main__:main"
 aaa-mcp = "aaa_mcp.__main__:main"
+arifos-mcp = "aaa_mcp.__main__:main"
 
 # ACLIP_CAI Console Intelligence Tools (v1.0.0)
 # The 10-Sense Nervous System for arifOS Infrastructure

@@ -577,14 +577,20 @@ class FloorAuditor:
         reasons = {f: results[f].reason for f in failed if results[f].reason}
 
         if verdict == Verdict.VOID:
-            return f"⊗ VOID: Critical floor violation — {', '.join(failed)}. Action terminated immediately."
+            return (
+                f"⊗ VOID: Critical floor violation — {', '.join(failed)}. "
+                "Action terminated immediately."
+            )
         if verdict == Verdict.HOLD:
             return (
                 f"⏸ HOLD_888: Human ratification required for: {', '.join(failed)}. "
                 "Issue 888_APPROVED to proceed."
             )
         if verdict == Verdict.SABAR:
-            return f"⏳ SABAR: Cooling period required. Failed floors: {', '.join(failed)}. Details: {reasons}"
+            return (
+                f"⏳ SABAR: Cooling period required. Failed floors: {', '.join(failed)}. "
+                f"Details: {reasons}"
+            )
         return f"△ PARTIAL: Constrained proceed. Review needed for: {', '.join(failed)}"
 
     # ------------------------------------------------------------------

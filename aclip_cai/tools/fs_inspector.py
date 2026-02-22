@@ -107,13 +107,22 @@ def fs_inspect(
 
     result = _inspect_path(root_path, 1)
 
+    # Separate directories and files for test compatibility
+    directories = [item for item in (result or []) if item["type"] == "dir"]
+    files = [item for item in (result or []) if item["type"] == "file"]
+
     return (partial if stats["limit_reached"] else ok)(
         {
-            "root": str(root_path),
+            "root": str(root_path.resolve()),
             "pattern": pattern,
             "limits": {"depth": effective_depth, "max_files": max_files},
             "stats": stats,
             "tree": result,
+            "directories": directories,
+            "files": files,
+            "total_dirs": len(directories),
+            "total_files": len(files),
+            "traversal_depth": effective_depth,
         },
         warning="Max files limit reached" if stats["limit_reached"] else None,
     )

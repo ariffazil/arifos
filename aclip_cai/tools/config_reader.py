@@ -1,7 +1,6 @@
 import json
 import os
 
-
 from aclip_cai.tools.aclip_base import ok
 
 
@@ -25,7 +24,7 @@ def config_flags(
     flags = {"environment": {}, "files": {}}
 
     # F1 Amanah: Define patterns that trigger masking
-    SECRET_PATTERNS = ["KEY", "TOKEN", "SECRET", "PASS", "PWD", "AUTH", "CREDENTIAL", "SIGNATURE"]
+    secret_patterns = ["KEY", "TOKEN", "SECRET", "PASS", "PWD", "AUTH", "CREDENTIAL", "SIGNATURE"]
 
     def _mask_value(key: str, value: str) -> str:
         """Masks the value if the key is a secret and include_secrets is False."""
@@ -34,7 +33,7 @@ def config_flags(
 
         # Check if key contains any secret pattern
         upper_key = key.upper()
-        if any(p in upper_key for p in SECRET_PATTERNS):
+        if any(p in upper_key for p in secret_patterns):
             return "***masked***"
         return value
 
@@ -43,12 +42,15 @@ def config_flags(
     prefixes = ["ARIFOS_", "MCP_"]
     if env_prefix:
         if env_prefix.endswith("_"):
-             if env_prefix not in prefixes: prefixes.append(env_prefix)
+            if env_prefix not in prefixes:
+                prefixes.append(env_prefix)
         else:
-             p_with_u = f"{env_prefix}_"
-             if p_with_u not in prefixes: prefixes.append(p_with_u)
-             # Also allow exact match for common short prefixes like PATH
-             if env_prefix not in prefixes: prefixes.append(env_prefix)
+            p_with_u = f"{env_prefix}_"
+            if p_with_u not in prefixes:
+                prefixes.append(p_with_u)
+            # Also allow exact match for common short prefixes like PATH
+            if env_prefix not in prefixes:
+                prefixes.append(env_prefix)
 
     for key, value in os.environ.items():
         if any(key.startswith(p) for p in prefixes):
@@ -81,6 +83,13 @@ def config_flags(
                 flags["files"][path_to_read] = masked_data
                 flags["config_source"] = path_to_read
         except Exception as e:
-            flags["from_file"]["error"] = f"Failed to read config: {str(e)}"
+            flags["files"]["error"] = f"Failed to read config: {str(e)}"
+
+    # 3. Governance Context (Required by some tests)
+    mode = os.environ.get("ARIFOS_MODE", "HARD")
+    flags["governance"] = {
+        "mode": mode,
+        "feature_flags": {k: v for k, v in os.environ.items() if k.startswith("ARIFOS_FEATURE_")},
+    }
 
     return ok(flags)

@@ -7,6 +7,8 @@ Replaces ad-hoc PowerShell scripts with structured, queryable output.
 
 from __future__ import annotations
 
+import datetime
+import json
 import os
 import platform
 import subprocess
@@ -154,6 +156,7 @@ def list_processes(
                     "name": name,
                     "ram_mb": mem_mb,
                     "cpu_pct": cpu_pct,
+                    "cpu_percent": cpu_pct,
                     "user": user,
                     "created": datetime.datetime.fromtimestamp(info["create_time"]).isoformat(),
                 }
@@ -174,7 +177,7 @@ def list_processes(
     else:
         return void("psutil not installed", "uv pip install psutil")
 
-import datetime
+
 
 
 def get_system_health(
@@ -243,7 +246,7 @@ def _fallback_wmi_usage() -> dict[str, Any]:
             text=True,
             timeout=10,
         )
-        import json
+
 
         data = json.loads(result.stdout.strip())
         ram_total = data.get("ram_total", 0)

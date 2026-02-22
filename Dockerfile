@@ -36,4 +36,6 @@ EXPOSE 8080
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
     CMD curl -fsS http://localhost:${PORT}/health || exit 1
 
+LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"
+
 CMD ["python", "-m", "aaa_mcp", "rest"]

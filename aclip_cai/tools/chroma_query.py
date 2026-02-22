@@ -10,10 +10,9 @@ from __future__ import annotations
 import os
 from typing import Any
 
-_DEFAULT_CHROMA_PATH = os.path.join(os.path.expanduser("~"), "chroma_memory")
-
-
 from aclip_cai.tools.aclip_base import ok, partial, void
+
+_DEFAULT_CHROMA_PATH = os.path.join(os.path.expanduser("~"), "chroma_memory")
 
 
 def query_memory(
