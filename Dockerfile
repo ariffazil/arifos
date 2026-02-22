@@ -26,12 +26,23 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=build /usr/local /usr/local
 COPY . .
 
+# Create writable directories for runtime data (fixes PermissionError)
+RUN mkdir -p /usr/src/app/telemetry \
+    /usr/src/app/data \
+    /usr/src/app/VAULT999 \
+    /usr/src/app/memory \
+    && chmod -R 777 /usr/src/app/telemetry \
+    /usr/src/app/data \
+    /usr/src/app/VAULT999 \
+    /usr/src/app/memory
+
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PORT=8080
 ENV HOST=0.0.0.0
 
 EXPOSE 8080
+EXPOSE 8089
 
 HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
     CMD curl -fsS http://localhost:${PORT}/health || exit 1
