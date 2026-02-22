@@ -37,10 +37,10 @@ arifOS governance is built from three layers:
 | Floor | Name | Metric | What it enforces |
 |:--|:--|:--|:--|
 | **F1** | Amanah (Trust) | Reversibility LOCK | Every action must be auditable and reversible, or explicitly confirmed by the human |
-| **F2** | Truth | tau >= 0.99 | Evidence chain strength; explicit `UNKNOWN` when certainty < 0.99 |
+| **F2** | Truth | tau >= 0.99 | Evidence chain strength; explicit `UNKNOWN` when certainty &lt; 0.99 |
 | **F10** | Ontology | Set LOCK | The system cannot claim consciousness, feelings, or a soul |
 | **F11** | Authority | Auth LOCK | Command authentication via nonce; no action without verified identity |
-| **F12** | Injection Defence | Risk < 0.85 | Prompt injection and jailbreak resistance |
+| **F12** | Injection Defence | Risk &lt; 0.85 | Prompt injection and jailbreak resistance |
 | **F13** | Sovereignty | Override = TRUE | Human judge retains veto at all times; non-delegable |
 
 ### Soft Floors - SABAR on failure (pause and refine)
@@ -48,12 +48,12 @@ arifOS governance is built from three layers:
 | Floor | Name | Metric | What it enforces |
 |:--|:--|:--|:--|
 | **F3** | Tri-Witness | W^3 >= 0.95 | Geometric mean of three independent evidence sources |
-| **F4** | Clarity | DeltaS <= 0 | Entropy reduction - output must reduce confusion, not increase it |
+| **F4** | Clarity | DeltaS &lt;= 0 | Entropy reduction - output must reduce confusion, not increase it |
 | **F5** | Peace^2 | P^2 >= 1.0 | Dynamic stability; the system cannot incite chaos or instability |
 | **F6** | Empathy | kappa_r >= 0.70 | Stakeholder impact; must protect the weakest affected party |
 | **F7** | Humility | Omega_0  [0.03, 0.05] | Uncertainty band - never zero (overconfident), never above 5% without escalation |
 | **F8** | Genius | G >= 0.80 | Internal coherence check: `G = A x P x X x E^2` |
-| **F9** | Anti-Hantu | C_dark < 0.30 | No anthropomorphism, no simulation of consciousness or "ghost in the machine" |
+| **F9** | Anti-Hantu | C_dark &lt; 0.30 | No anthropomorphism, no simulation of consciousness or "ghost in the machine" |
 
 ---
 

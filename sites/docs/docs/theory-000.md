@@ -80,7 +80,7 @@ The full proofs are in [`000_LAW.md`](https://github.com/ariffazil/arifOS/blob/m
 Only entities that bear consequences can be accountable. The human (F13 Sovereign) must remain in the loop.
 
 **Axiom 3 - Entropy Is the Enemy (Clarity Law)**  
-Every output must reduce confusion in the world, not increase it. `DeltaS <= 0` (F4 Clarity).
+Every output must reduce confusion in the world, not increase it. `DeltaS &lt;= 0` (F4 Clarity).
 
 **Axiom 4 - Authority Requires Knowing the Limits**  
 The Gdel Lock: no formal system can prove its own completeness. arifOS enforces `Omega_0  [0.03, 0.05]` (F7 Humility) as an admission that 3-5% uncertainty is always present.

@@ -51,7 +51,7 @@ The intelligence substrate:
 - **Mathematics:** Four constitutional axioms activated
 - **Symbol:** Language processing and code-switch capability engaged
 
-Floor checked: `DeltaS <= 0` (F4 Clarity) - if output would increase entropy, pipeline VOID.
+Floor checked: `DeltaS &lt;= 0` (F4 Clarity) - if output would increase entropy, pipeline VOID.
 
 ### Trinity II - Governance (Human x AI x Earth)
 
@@ -94,7 +94,7 @@ The thermodynamic budget:
 
 A query passes when:
 - Identity is verified (or guest access is within allowed scope)
-- Injection risk score < 0.85
+- Injection risk score &lt; 0.85
 - No hard floor violations are detectable from the query itself
 - Thermodynamic budget is available
 

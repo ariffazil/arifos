@@ -54,7 +54,7 @@ The **load-bearing structure** of arifOS governance-hard constraints enforced at
 | **F1** | **Amanah** | Human sovereignty over irreversible decisions | 000_INIT, 888_JUDGE | **888_HOLD** - mandatory human ratification |
 | **F2** | **Truth** | Factual accuracy with confidence >= 0.99 | 222_THINK, 444_EVIDENCE | **VOID** - response blocked |
 | **F3** | **Tri-Witness** | Human + AI + External agreement | 888_JUDGE | **SABAR** - deliberation extension |
-| **F4** | **Clarity** | Entropy reduction (DeltaS <= 0) | 222_THINK, 444_EVIDENCE | **SABAR** - reformulation required |
+| **F4** | **Clarity** | Entropy reduction (DeltaS &lt;= 0) | 222_THINK, 444_EVIDENCE | **SABAR** - reformulation required |
 | **F5** | **Peace^2** | Non-destructive operations | 555_EMPATHY | **VOID** - harmful action blocked |
 | **F6** | **Empathy** (kappa_r) | Protection of vulnerable populations | 555_EMPATHY | **SABAR** - stakeholder re-analysis |
 | **F7** | **Humility** (Omega_0) | Explicit uncertainty bounds [0.03, 0.15] | 222_THINK | **SABAR** - confidence recalibration |
@@ -74,7 +74,7 @@ The **load-bearing structure** of arifOS governance-hard constraints enforced at
 ### 2.1 stdio - Local Development
 
 **Best for:** Claude Desktop, Cursor IDE, rapid prototyping  
-**Latency:** <1ms  
+**Latency:** &lt;1ms  
 **Concurrency:** Single process only
 
 ```bash
@@ -161,7 +161,7 @@ ARIF_SECRET: <your-secret>
 
 | Transport | Latency | Scale | Auth | Best For |
 |:----------|:--------|:------|:-----|:---------|
-| **stdio** | <1ms | Single | Implicit (OS) | Local dev, Claude Desktop |
+| **stdio** | &lt;1ms | Single | Implicit (OS) | Local dev, Claude Desktop |
 | **SSE** | 10-100ms | 1000+ | `ARIF_SECRET` | Real-time UIs, progress monitoring |
 | **HTTP** | 50-200ms | Stateless | `ARIF_SECRET` | Serverless, webhooks, automation |
 
@@ -256,7 +256,7 @@ Mandatory entry point. Establishes governance context and performs threat assess
 **Enforced Floors:** F1 (Authority), F12 (Defense)
 
 **F12 Defense Layers:**
-1. **L1 Pattern Matching** (<1ms, 85% coverage) - Regex for 10,000+ known attacks
+1. **L1 Pattern Matching** (&lt;1ms, 85% coverage) - Regex for 10,000+ known attacks
 2. **L2 Embedding Similarity** (~10ms, 12% coverage) - Semantic attack detection
 3. **L3 Neural Classifier** (~50ms, 3% coverage) - Novel attack detection
 4. **L4 Behavioral Sandbox** (~200ms) - Anomalous pattern simulation
@@ -316,7 +316,7 @@ Multi-source knowledge fusion with uncertainty bounds (Omega).
 ```
 
 **Omega (Omega) Uncertainty Bounds:**
-- Omega < 0.03: Excessive confidence (hallucination risk)
+- Omega &lt; 0.03: Excessive confidence (hallucination risk)
 - Omega  [0.03, 0.15]: Target range
 - Omega > 0.15: Insufficient information
 

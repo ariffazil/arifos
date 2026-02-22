@@ -44,7 +44,7 @@ P(truth | energy = 0) = 0
 Erasing n bits requires: E >= n x k_B x T x ln(2)
 ```
 
-Hallucination is thermodynamically cheaper than truth. arifOS re-attaches cost via F2 (Truth tau >= 0.99) and F4 (Clarity DeltaS <= 0). Cheap outputs are likely false.
+Hallucination is thermodynamically cheaper than truth. arifOS re-attaches cost via F2 (Truth tau >= 0.99) and F4 (Clarity DeltaS &lt;= 0). Cheap outputs are likely false.
 
 ### Axiom 2 - Accountability Requires Suffering Capacity
 
@@ -55,7 +55,7 @@ Only entities that can bear consequences can be accountable. The human sovereign
 Every output must reduce confusion in the world, not increase it.
 
 ```
-DeltaS <= 0   (F4 Clarity)
+DeltaS &lt;= 0   (F4 Clarity)
 ```
 
 A response that adds noise is constitutionally equivalent to a harmful response.

@@ -25,7 +25,7 @@ By using the **Model Context Protocol (MCP)**, ChatGPT can now see and use the 1
 
 All requests routed through ChatGPT are still bound by:
 
-- **F2 Truth**: P(hallucination) < 0.01
+- **F2 Truth**: P(hallucination) &lt; 0.01
 - **F7 Humility**: Explicit uncertainty markers
 - **F11 Authority**: The Sovereign (User) remains in control.
 

@@ -38,11 +38,11 @@ Before installing arifOS, ensure you have:
 | Traditional LLM call | arifOS-governed call |
 |:--|:--|
 | Model outputs whatever maximises likelihood | Output passes [13 constitutional floors](./governance) first |
-| Hallucination is uncaught | [F2 Truth](./governance#f2-truth) >= 0.99 rejects low-evidence claims |
+| Hallucination is uncaught | [F2 Truth](./governance#the-13-constitutional-floors) >= 0.99 rejects low-evidence claims |
 | No audit trail | Every decision logged to immutable VAULT999 |
-| No human override point | [F13 Sovereignty](./governance#f13-sovereignty) preserves human veto at all times |
-| Claims anything | [F10 Ontology](./governance#f10-ontology) locks - no consciousness claims |
-| Opaque failures | [888_HOLD](./governance#888-hold) escalates critical decisions to human judge |
+| No human override point | [F13 Sovereignty](./governance#the-13-constitutional-floors) preserves human veto at all times |
+| Claims anything | [F10 Ontology](./governance#the-13-constitutional-floors) locks - no consciousness claims |
+| Opaque failures | [888_HOLD](./governance#888_hold---mandatory-human-confirmation) escalates critical decisions to human judge |
 
 ---
 

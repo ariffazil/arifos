@@ -67,14 +67,14 @@ This prevents:
 
 ---
 
-## What Happens When W^3 < 0.95?
+## What Happens When W^3 &lt; 0.95?
 
 | W^3 Score | Verdict | Action |
 |:--|:--|:--|
 | >= 0.95 | Proceed to SEAL | All three witnesses agree |
 | 0.85-0.95 | PARTIAL | Proceed with documented warning |
 | 0.70-0.85 | SABAR | Pause; gather more evidence; retry |
-| < 0.70 | VOID (escalated) | Rejected; return to earlier stage |
+| &lt; 0.70 | VOID (escalated) | Rejected; return to earlier stage |
 
 ---
 
