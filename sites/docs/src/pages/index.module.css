@@ -32,6 +32,14 @@
   grid-template-columns: repeat(12, 1fr);
   gap: 1rem;
   padding: 0 0 3rem;
+  justify-items: stretch;
+}
+
+/* If `.grid` is applied to a wrapping <section> that contains a Docusaurus `.container`,
+   ensure the container spans the full 12-column grid (prevents ultra-narrow cards). */
+.grid > :global(.container) {
+  grid-column: 1 / -1;
+  width: 100%;
 }
 
 .card {
