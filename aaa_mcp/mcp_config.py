@@ -4,7 +4,6 @@ Maps 9 external MCP servers to constitutional governance layer
 """
 
 from dataclasses import dataclass
-from typing import List, Optional
 from enum import Enum
 from typing import Dict, List, Optional
 

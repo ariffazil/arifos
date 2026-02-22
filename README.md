@@ -121,7 +121,7 @@ python -m aaa_mcp --mode stdio
 ```
 
 ### Features
-- **9 Canonical MCP Tools:** 5-Organ Trinity (`init_session`, `agi_cognition`, `asi_empathy`, `apex_verdict`, `vault_seal`) + 4 Utility tools (`search`, `fetch`, `analyze`, `audit`).
+- **9 Canonical System Calls:** The Federation Hub exposes the arifOS Intelligence Kernel through 9 atomic calls: `anchor`, `reason`, `integrate`, `respond`, `validate`, `align`, `forge`, `audit`, and `seal`.
 - **Constitutional Resources:** `constitutional://floors/{id}`, `system://health`, `tools://schemas/{tool}`.
 - **Unified Entry:** Support for `stdio`, `sse`, and `http` transports via FastMCP.
 

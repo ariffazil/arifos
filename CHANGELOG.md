@@ -5,6 +5,29 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.2.22] — 2026-02-22 — FORGE-INTELLIGENCE-KERNEL-UPGRADE-SEAL
+
+**T000:** 2026.02.22-FORGE-INTELLIGENCE-KERNEL-UPGRADE-SEAL  
+**Theme:** aclip_cai re-architecture to 9-Sense Federation Hub
+
+### Added
+- **9-Sense Infrastructure Console** — `aclip_cai` re-architected into a sensory kernel:
+  - `core/lifecycle.py` — INIT/SABAR/HOLD/VOID state machine
+  - `core/floor_audit.py` — F1-F13 runtime validation
+  - `core/mcp_server.py` — 9 canonical system calls federation
+  - `core/vault_logger.py` — Tri-Witness + VAULT999 integration
+  - `core/thermo_budget.py` — Thermodynamic resource allocator
+  - `core/federation.py` — Multi-agent coordination protocol
+- **9 Canonical System Calls** — Standardized tool surface across federation hub:
+  - `anchor`, `reason`, `integrate`, `respond`, `validate`, `align`, `forge`, `audit`, `seal`
+- **Thermodynamic Governance** — Real-time enforcement of ΔS ≤ 0, P² ≥ 1.0, and Ω₀ ∈ [0.03, 0.05].
+
+### Changed
+- **L0 Kernel description** — Updated in `README.md`, `GEMINI.md`, and `AGENTS.md` to reflect the federation hub and sensory kernel.
+- **Agent Guide** — `AGENTS.md` updated with official MCP protocol resource links.
+
+---
+
 ## [2026.2.19] — 2026-02-19 — FORGE-CHATGPT-INTEGRATION-SEAL
 
 **T000:** 2026.02.19-FORGE-CHATGPT-INTEGRATION-SEAL  

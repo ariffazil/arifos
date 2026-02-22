@@ -1,6 +1,6 @@
-# 5 Canonical MCP Tools (v64.1-GAGI)
+# 9 Canonical System Calls (v65.0-FORGE)
 
-**Purpose:** MCP tool specifications for Claude Code + arifOS integration  
+**Purpose:** MCP tool specifications for arifOS Federation Hub integration  
 **Principle:** MCP server is a "blind bridge" — all wisdom lives in Core Kernels
 
 ---
@@ -8,112 +8,58 @@
 ## Architecture
 
 ```
-Claude Code → MCP Client → MCP Server → Core Organs → Verdict → VAULT-999
+Agent → MCP Client → Federation Hub (aclip_cai) → Intelligence Kernel (core) → Verdict → VAULT999
 ```
 
 ---
 
-## Tool Reference
+## System Call Reference
 
-| # | Tool | Role | Stages | Floors |
-|---|------|------|--------|--------|
-| 1 | `init_session` | Gate | 000 | F11, F12 |
-| 2 | `agi_cognition` | Mind | 111-333 | F2, F4, F7, F8, F10 |
-| 3 | `asi_empathy` | Heart | 444-666 | F1, F5, F6, F9 |
-| 4 | `apex_verdict` | Soul | 888 | F2, F3, F8, F10-F13 |
-| 5 | `vault_seal` | Seal | 999 | F1, F3 |
+| # | Call | Stage | Floors | Purpose |
+|---|------|-------|--------|---------|
+| 1 | `anchor` | 000 | F11, F12 | Session Ignition + F12 Injection Scan |
+| 2 | `reason` | 222 | F2, F4, F8 | Logical Analysis under ΔS constraints |
+| 3 | `integrate` | 333 | F7, F10 | Context Grounding & Tri-Witness consensus |
+| 4 | `respond` | 444 | F4, F6 | Draft generation with floor pre-checks |
+| 5 | `validate` | 555 | F5, F6, F1 | Safety/Impact checking F1-F13 |
+| 6 | `align` | 666 | F9 | Ethics & Anti-Hantu alignment |
+| 7 | `forge` | 777 | F2, F4, F7 | Solution synthesis under Ψ state |
+| 8 | `audit` | 888 | F3, F11, F13 | Final verdict & APEX consensus |
+| 9 | `seal` | 999 | F1, F3 | Immutable commit to VAULT999 |
 
 ---
 
 ## Tool Definitions
 
-### 1. `init_session` — Session Initialization (000)
-```json
-{
-  "name": "init_session",
-  "description": "000_INIT - Session ignition. Verify authority, scan for injection (F11, F12).",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "query": {"type": "string"},
-      "session_id": {"type": "string"}
-    },
-    "required": ["query"]
-  }
-}
-```
+### 1. `anchor` — Session Ignition (000)
+Initializes session with constitutional context and scans for injection.
 
-### 2. `agi_cognition` — Mind Pipeline (111-333)
-```json
-{
-  "name": "agi_cognition",
-  "description": "111-333_AGI - The Mind. Sense → Think → Reason pipeline. Enforces F2, F4, F7, F8, F10.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "query": {"type": "string"},
-      "session_id": {"type": "string"},
-      "mode": {"type": "string", "enum": ["default", "atlas", "physics", "forge"]}
-    },
-    "required": ["query"]
-  }
-}
-```
+### 2. `reason` — Logical Analysis (222)
+Deep reasoning under thermodynamic constraints (ΔS, Genius).
 
-### 3. `asi_empathy` — Heart Pipeline (444-666)
-```json
-{
-  "name": "asi_empathy",
-  "description": "444-666_ASI - The Heart. Empathize → Align pipeline. Enforces F1, F5, F6, F9.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "query": {"type": "string"},
-      "session_id": {"type": "string"},
-      "context": {"type": "object"}
-    },
-    "required": ["query"]
-  }
-}
-```
+### 3. `integrate` — Context Grounding (333)
+Mapping context to external evidence (Tri-Witness).
 
-### 4. `apex_verdict` — Soul Judgment (888)
-```json
-{
-  "name": "apex_verdict",
-  "description": "666-888_APEX - The Judge. Final constitutional judgment. Enforces F2, F3, F8, F10-F13.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "query": {"type": "string"},
-      "session_id": {"type": "string"},
-      "agi_result": {"type": "object"},
-      "asi_result": {"type": "object"}
-    },
-    "required": ["query"]
-  }
-}
-```
+### 4. `respond` — Draft Generation (444)
+Generating draft response with initial floor verification.
 
-### 5. `vault_seal` — Immutable Seal (999)
-```json
-{
-  "name": "vault_seal",
-  "description": "999_VAULT - Immutable Record. Merkle-tree sealing for tamper-proof storage. Implements F1, F3.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "action": {"type": "string", "default": "seal"},
-      "verdict": {"type": "string"},
-      "session_id": {"type": "string"}
-    },
-    "required": ["action"]
-  }
-}
-```
+### 5. `validate` — Safety Check (555)
+Thorough impact analysis for all stakeholders.
+
+### 6. `align` — Ethics Alignment (666)
+Ensuring compliance with Anti-Hantu and Peace² floors.
+
+### 7. `forge` — Solution Synthesis (777)
+Synthesizing the final solution within constitutional bounds.
+
+### 8. `audit` — Final Verdict (888)
+Comprehensive audit and consensus gathering (SEAL/VOID/SABAR/HOLD).
+
+### 9. `seal` — Immutable Commit (999)
+Cryptographic sealing and commitment to the VAULT999 ledger.
 
 ---
 
-**Note:** v64.1 consolidates tools into 5 canonical entry points. Internal stages run sequentially within each tool.
+**Note:** v65.0 implements the full 9-stage metabolic loop as public system calls.
 
 **DITEMPA BUKAN DIBERI**
