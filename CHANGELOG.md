@@ -5,6 +5,37 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.2.22-2] — 2026-02-22 — FORGE-PHOENIX-REBIRTH-INFRASTRUCTURE-SEAL
+
+**T000:** 2026.02.22-FORGE-PHOENIX-REBIRTH-INFRASTRUCTURE-SEAL  
+**Theme:** Phoenix Mode — Machine death and resurrection with full sovereignty preservation
+
+### Added
+- **Phoenix Kit** — Complete sovereignty exfiltration package (45K, 74 files) in `XXX/`:
+  - `metabolic_memory/` — 2 Scars (3.4K constitutional audit trails from L2_PHOENIX)
+  - `sovereign_secrets/` — `.env.master`, API keys, SSL certificates
+  - `infrastructure_scars/` — Systemd services, Nginx configs, PostgreSQL/Redis setup
+  - `ssl_certs/` — 3 domain certificates (agi, arifos, arifosmcp)
+  - `rebirth_verify.sh` — Automated post-migration validation script
+  - `PHOENIX_README.md` — Migration guide and checklist
+- **Infrastructure Reconciliation** — Fixed nginx upstream ports (8080→8889) for REST bridge
+- **DNS Reconciliation** — Added `console.arif-fazil.com` CNAME via Cloudflare API
+- **Registry Proofs Verified** — All three MCP registry proofs aligned:
+  - `server.json`: `io.github.ariffazil/arifos-mcp`
+  - `README.md`: `<!-- mcp-name: io.github.ariffazil/arifos-mcp -->`
+  - `Dockerfile`: `LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"`
+
+### Changed
+- **docker-compose.vps.yml** — Changed from FastMCP HTTP to REST bridge (`python -m aaa_mcp rest`)
+- **nginx_config/arifosmcp** — All REST endpoints now route to port 8889 (was 8080)
+- **Health endpoint** — `/health` now served on port 8889 via REST bridge
+
+### Fixed
+- **503 Cloudflare Error** — Nginx was routing `/health` to wrong upstream port (8080 vs 8889)
+- **Port mapping** — REST bridge (8889) and SSE (8888) now correctly exposed
+
+---
+
 ## [2026.2.22] — 2026-02-22 — FORGE-INTELLIGENCE-KERNEL-UPGRADE-SEAL
 
 **T000:** 2026.02.22-FORGE-INTELLIGENCE-KERNEL-UPGRADE-SEAL  
