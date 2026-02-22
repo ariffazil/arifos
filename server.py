@@ -534,7 +534,7 @@ def create_unified_mcp_server():
     def resource_all_floors() -> Dict[str, Any]:
         """All 13 constitutional floors specification."""
         return {
-            "schema_version": "v52.5.2-SEAL",
+            "schema_version": "2026.02.22-SEAL",
             "total_floors": len(THRESHOLDS),
             "floors": THRESHOLDS,
             "note": "Threshold values are canonical and immutable.",

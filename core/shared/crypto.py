@@ -16,6 +16,7 @@ import hashlib
 import time
 import uuid
 from datetime import datetime, timezone
+from typing import List, Tuple
 
 # ============================================================================
 # SESSION ID GENERATION (F1 Amanah - Traceable)

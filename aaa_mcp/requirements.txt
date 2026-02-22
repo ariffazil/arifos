@@ -1,8 +1,9 @@
 # arifOS MCP Server Integration Requirements
 # Core dependencies for ASI Gateway
+# Updated: 2026-02-22
 
 # MCP Framework
-fastmcp>=1.0.0
+fastmcp>=2.14.0,<3.0.0
 mcp>=1.0.0
 
 # Web Framework (for SSE transport)

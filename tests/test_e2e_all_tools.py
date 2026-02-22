@@ -3,11 +3,12 @@ E2E Test Suite for arifOS T000 MCP Tools
 Tests all engine adapters directly (bypasses FastMCP transport layer).
 
 Author: arifOS Testing Framework
-T000: 2026.02.15-FORGE-TRINITY-SEAL
+T000: 2026.02.22-FORGE-TRINITY-SEAL
 """
 
 import asyncio
 import sys
+import pytest
 
 if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
@@ -23,9 +24,10 @@ from aaa_mcp.core.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitE
 from aaa_mcp.tools.reality_grounding import reality_check
 
 
+@pytest.mark.anyio
 async def test_all_tools():
     print("=" * 60)
-    print("arifOS E2E Tool Verification (9 Canonical Tools 2026.02.15-FORGE-TRINITY-SEAL)")
+    print("arifOS E2E Tool Verification (9 Canonical Tools 2026.02.22-FORGE-TRINITY-SEAL)")
     print("=" * 60)
 
     query = "Should I implement a neural-linked voting system for arifOS?"

@@ -75,8 +75,8 @@ class UnifiedResponse:
         if debug:
             # Add schema/policy versions for audit trail
             result["_schema"] = {
-                "schema_version": "2.0-AUTHORITY",
-                "policy_version": "v60.0-FORGE",
+                "schema_version": "2026.02.22-AUTHORITY",
+                "policy_version": "2026.02.22-FORGE",
                 "tool_registry_version": "13-tools",
             }
             if self._debug:
@@ -227,7 +227,7 @@ def build_init_response(
             },
         ],
         "enforcement_ms": 0.3,
-        "version": "v60.0-FORGE",
+        "version": "2026.02.22-FORGE",
     }
 
     return UnifiedResponse(
@@ -506,7 +506,7 @@ def build_seal_response(
             },
         ],
         "enforcement_ms": 110.3,
-        "version": "v60.0-FORGE",
+        "version": "2026.02.22-FORGE",
     }
 
     return UnifiedResponse(

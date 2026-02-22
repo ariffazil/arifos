@@ -149,6 +149,19 @@ class TestConstitutionalPipeline:
 
         print(f"✅ trinity_forge is valid unified entrypoint")
 
+    def test_schema_versions_are_current(self):
+        """Tool/resource schema versions should match current deployment date."""
+        from aaa_mcp.core.motto_schema import get_mottos_resource
+
+        init_response = build_init_response(session_id="test-session-001", verdict="SEAL")
+        debug_payload = init_response.to_dict(debug=True)
+
+        assert debug_payload["_schema"]["schema_version"] == "2026.02.22-AUTHORITY"
+        assert debug_payload["_schema"]["policy_version"] == "2026.02.22-FORGE"
+
+        mottos = get_mottos_resource()
+        assert mottos["text"]["schema_version"] == "2026.02.22-CORE"
+
 
 class TestAuthenticationRelaxed:
     """Tests that authentication is relaxed for pilot phase."""

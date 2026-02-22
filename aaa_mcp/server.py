@@ -1,5 +1,5 @@
 """
-arifOS AAA MCP Server — The 9 Hardened Skills (2026.02.17-FORGE-VPS-SEAL)
+arifOS AAA MCP Server — The 9 Hardened Skills (2026.02.22-FORGE-VPS-SEAL)
 
 DEPRECATED: This module is superseded by the unified server at `/root/arifOS/server.py`.
 The unified server combines AAA-MCP and ACLIP-CAI tools into a single MCP server.

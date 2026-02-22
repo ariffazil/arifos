@@ -23,7 +23,7 @@ def get_mottos_resource() -> Dict[str, Any]:
         "uri": "constitutional://mottos",
         "mimeType": "application/json",
         "text": {
-            "schema_version": "v64.2-CORE",
+            "schema_version": "2026.02.22-CORE",
             "total_mottos": len(ALL_MOTTOS),
             "mottos": mottos_data,
             "bookends": {

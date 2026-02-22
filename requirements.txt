@@ -1,6 +1,7 @@
 # arifOS Constitutional AI Governance System
 # Production dependencies - install with: pip install -r requirements.txt
 # For development: pip install -e ".[dev]"
+# Updated: 2026-02-22
 
 # Core runtime dependencies (required for basic operation)
 numpy>=1.20.0

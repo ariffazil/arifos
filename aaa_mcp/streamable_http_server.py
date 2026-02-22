@@ -220,7 +220,7 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
                     "capabilities": {"tools": {}, "logging": {}, "prompts": {}, "resources": {}},
                     "serverInfo": {
                         "name": "arifos-aaa-mcp",
-                        "version": "2026.02.17-FORGE-VPS-SEAL",
+                        "version": "2026.02.22-FORGE-VPS-SEAL",
                     },
                 },
             },
@@ -318,7 +318,7 @@ async def health(request: Request) -> JSONResponse:
         {
             "status": "healthy" if monitor.is_healthy() else "degraded",
             "transport": "streamable-http",
-            "version": "2026.02.17-FORGE-VPS-SEAL",
+            "version": "2026.02.22-FORGE-VPS-SEAL",
             "governance_metrics": stats,
             "health_checks": health_results,
             "endpoints": ["/mcp", "/health"],

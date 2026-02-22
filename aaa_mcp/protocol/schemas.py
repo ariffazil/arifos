@@ -4,7 +4,7 @@ JSON Schema Definitions for All 13 Tools
 Formal, deterministic, zero-ambiguity schemas.
 Every field has explicit type, range, and semantics.
 
-Version: 1.0.0-LOW_ENTROPY
+Version: 2026.02.22-LOW_ENTROPY
 """
 
 from typing import Dict, Any
