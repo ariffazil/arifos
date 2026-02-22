@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  arifosmcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arifosmcp_server
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    ports:
+      - "8888:8080"
+      - "8889:8089"
+    networks:
+      - coolify
+    volumes:
+      - ./data:/usr/src/app/data
+    command: /usr/src/app/start-trinity.sh
+    healthcheck:
+      test: ["CMD-SHELL", "ps aux | grep -v grep | grep 'python -m aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m aaa_mcp rest'"]
+      interval: 15s
+      timeout: 5s
+      start_period: 30s
+      retries: 3
+    environment:
+      PYTHONUNBUFFERED: 1
+      PYTHONDONTWRITEBYTECODE: 1
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.arifosmcp.entrypoints=https"
+      - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
+      - "traefik.http.services.arifosmcp.loadbalancer.server.port=8089"
+      - "traefik.http.routers.arifosmcp.service=arifosmcp"
+
+networks:
+  coolify:
+    external: true
