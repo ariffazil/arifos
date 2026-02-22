@@ -270,6 +270,39 @@ WELCOME_HTML = """
 """
 
 
+async def route_info(request: Request):
+    """Root landing: HTML for humans, JSON for operators."""
+    accept = request.headers.get("Accept", "")
+    if "text/html" in accept:
+        return HTMLResponse(WELCOME_HTML)
+
+    return JSONResponse(
+        {
+            "service": "arifOS MCP Server",
+            "version": BUILD_INFO["version"],
+            "endpoints": [
+                {"method": "GET", "path": "/", "description": "Service info (JSON) / landing page (HTML)"},
+                {
+                    "method": "GET",
+                    "path": "/.well-known/mcp/server.json",
+                    "description": "MCP discovery (optional)",
+                },
+                {"method": "GET", "path": "/health", "description": "Health check"},
+                {"method": "GET", "path": "/ready", "description": "Readiness (tools + schemas loaded)"},
+                {"method": "GET", "path": "/version", "description": "Build info"},
+                {"method": "GET", "path": "/metrics", "description": "Operational metrics"},
+                {"method": "GET", "path": "/tools", "description": "List tools with schemas"},
+                {"method": "POST", "path": "/tools/{tool_name}", "description": "Call tool (canonical + aliases)"},
+                {"method": "POST", "path": "/apex_judge", "description": "Full pipeline wrapper"},
+                {"method": "GET", "path": "/sse", "description": "MCP SSE transport"},
+                {"method": "POST", "path": "/mcp", "description": "Unified MCP alias (Sovereign Connector)"},
+            ],
+            "tools": list(TOOL_SCHEMAS.keys()),
+            "aliases": TOOL_ALIASES,
+        }
+    )
+
+
 
 async def health(request: Request):
     """Health check endpoint with governance metrics."""
@@ -490,6 +523,40 @@ async def call_tool(request: Request):
         )
 
 
+async def sse_endpoint(request: Request):
+    """
+    Compatibility SSE endpoint for the REST bridge.
+
+    Production SSE transport is provided by FastMCP (`python -m aaa_mcp sse`) and should be
+    routed directly (e.g., via Traefik/Nginx) when needed.
+    """
+    accept = request.headers.get("Accept", "")
+    if "text/event-stream" in accept:
+        async def _stream():
+            yield "event: error\ndata: REST bridge SSE not enabled; use FastMCP SSE transport\n\n"
+
+        return StreamingResponse(_stream(), media_type="text/event-stream")
+
+    return JSONResponse(
+        {
+            "error": "SSE_NOT_ENABLED",
+            "message": "REST bridge SSE is a compatibility stub. Use FastMCP SSE transport instead.",
+        },
+        status_code=501,
+    )
+
+
+async def messages_endpoint(request: Request):
+    """Compatibility JSON-RPC endpoint stub for MCP clients."""
+    return JSONResponse(
+        {
+            "error": "MESSAGES_NOT_ENABLED",
+            "message": "Use POST /mcp for the unified connector, or FastMCP HTTP transport.",
+        },
+        status_code=501,
+    )
+
+
 async def apex_judge_wrapper(request: Request):
     """
     Full pipeline wrapper — 000→333→666→888→999 (ChatGPT feedback: DX win).
@@ -569,34 +636,23 @@ async def apex_judge_wrapper(request: Request):
                 verdict=apex_result.get("verdict", "SEAL"),
             )
             pipeline_results["pipeline"].append({"stage": "999_VAULT", "result": seal_result})
-                {
-                    "method": "GET",
-                    "path": "/ready",
-                    "description": "Tool registry + dependencies ready",
-                },
-                {
-                    "method": "GET",
-                    "path": "/version",
-                    "description": "Build info (git sha, schema version)",
-                },
-                {
-                    "method": "GET",
-                    "path": "/metrics",
-                    "description": "Latency, timeouts, active sessions",
-                },
-                {"method": "GET", "path": "/tools", "description": "List tools with schemas"},
-                {"method": "POST", "path": "/tools/{tool_name}", "description": "Call tool"},
-                {
-                    "method": "POST",
-                    "path": "/apex_judge",
-                    "description": "Full pipeline wrapper (DX win)",
-                },
-                {"method": "GET", "path": "/sse", "description": "MCP SSE transport"},
-                {"method": "POST", "path": "/messages", "description": "MCP JSON-RPC messages"},
-            ],
-            "tools": list(TOOL_SCHEMAS.keys()),
-        }
-    )
+        latency_ms = (time.time() - start_time) * 1000
+        pipeline_results["latency_ms"] = round(latency_ms, 2)
+        pipeline_results["verdict"] = apex_result.get("verdict", init_result.get("verdict", "SEAL"))
+
+        return JSONResponse(
+            {
+                "status": "success",
+                "tool": "apex_judge",
+                "request_id": request_id,
+                "result": pipeline_results,
+            }
+        )
+    except Exception as e:
+        metrics.errors += 1
+        return JSONResponse(
+            {"error": str(e), "tool": "apex_judge", "request_id": request_id}, status_code=500
+        )
 
 
 async def mcp_alias(request: Request):
