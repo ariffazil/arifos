@@ -1,186 +1,159 @@
-<p align="center">
-  <img src="C:\\Users\\User\\arifOS\\docs\\forged_page_1.png" alt="arifOS: THE CONSTITUTIONAL KERNEL FOR AI" />
-</p>
+<div align="center">
 
-# arifOS
-### DITEMPA BUKAN DIBERI (Forged, Not Given)
+# arifOS — Constitutional Intelligence Kernel  
+**The System That Knows It Doesn't Know**  
+Ditempa Bukan Diberi — Forged, Not Given
 
-```text
-        Delta
-       /     \
-      /       \      authority:  TRINITY GOVERNANCE (Delta/Omega/Psi)
-     /    O    \     role:       CONSTITUTIONAL INTELLIGENCE KERNEL
-    /___________\    version:    2026.2.22
-```
+[![Version](https://img.shields.io/badge/version-2026.2.23-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-orange?style=for-the-badge)](https://github.com/ariffazil/arifOS/blob/main/LICENSE)
+[![MCP Ready](https://img.shields.io/badge/MCP-Ready-8B5CF6?style=for-the-badge&logo=shield&logoColor=white)](https://registry.modelcontextprotocol.io)
+[![Deploy to Coolify](https://img.shields.io/badge/Deploy%20to-Coolify-06b6d4?style=for-the-badge&logo=docker)](https://coolify.io)
 
-### Canonical Links
-*   **Docs site (Docusaurus)**: [sites/docs/](sites/docs/) (content: `sites/docs/docs/`)
-*   **333 stack (L0-L7)**: [333_APPS/](333_APPS/) (navigation: `333_APPS/ATLAS_NAVIGATION.md`, status: `333_APPS/STATUS.md`)
-*   **Kernel core (pure)**: [core/](core/) (readme: `core/README.md`)
-*   **MCP adapter (transport only)**: [aaa_mcp/](aaa_mcp/) (entrypoint: `aaa_mcp/__main__.py`)
-*   **Infrastructure senses**: [aclip_cai/](aclip_cai/) (readme: `aclip_cai/README.md`)
-*   **Constitutional law (Floors F1-F13)**: [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) (tower: `000_THEORY/`)
-*   **Registry manifest**: [server.json](server.json)
-*   **Vault**: [VAULT999/](VAULT999/)
-*   **Roadmap**: [ROADMAP.md](ROADMAP.md)
-*   **Agent guide**: [AGENTS.md](AGENTS.md)
-*   **Repo docs library**: [docs/](docs/)
+**arifOS** is a governance kernel that wraps any LLM (Claude, GPT, Gemini, custom) inside a **constitutional pipeline** with 13 mathematical floors + human veto.  
+Every output must pass truth, sovereignty, empathy, ontology locks — or get **SEAL**, **SABAR/HOLD**, or **VOID**.
 
----
+</div>
 
-## What arifOS Is
-arifOS is a **constitutional governance kernel** for AI systems.
+## Quick Start (Deploy in 5–10 Minutes)
 
-It sits between intent and action. Instead of optimizing only for probability, arifOS evaluates whether an output is permitted to exist under explicit, testable rules (Floors F1-F13).
-
-Every run ends in a verdict:
-
-| Verdict | Meaning |
-| :--- | :--- |
-| **SEAL** | Allowed to proceed |
-| **SABAR / HOLD** | Pause; requires human confirmation or cooling |
-| **VOID** | Blocked by hard constraints |
-
-### The Problem: Dark Cleverness
-Ungoverned systems can be persuasive while wrong. Typical failure modes:
-
-| Failure | Description |
-| :--- | :--- |
-| **Hallucination drift** | High confidence without grounding |
-| **Sovereign ruin** | Irreversible actions suggested without authority |
-| **Entropic decay** | Confusion compounds across sessions and tools |
-
-arifOS introduces constitutional constraint as the stabilizer.
-
----
-
-## I. Trinity Architecture (Delta/Omega/Psi)
-arifOS replaces "prompt engineering" with **constitution engineering**: three independent witnesses must align.
-
-| Engine | Symbol | Name | Role | Question |
-| :--- | :---: | :--- | :--- | :--- |
-| **AGI** | Δ | **ARIF** | Logic / architecture | *Is it true?* |
-| **ASI** | Ω | **ADAM** | Safety / constraints | *Is it safe?* |
-| **APEX** | Ψ | **APEX** | Authority / law | *Is it lawful?* |
-
-```mermaid
-graph TD
-    Input((Intent)) --> ARIF["ARIF: Logic (Delta)"]
-    Input --> ADAM["ADAM: Safety (Omega)"]
-
-    ARIF --> APEX{"APEX: Authority (Psi)"}
-    ADAM --> APEX
-
-    APEX --> ANVIL[Anvil: Floors F1-F13]
-    ANVIL --> DECISION{Verdict}
-
-    DECISION -->|SEAL| OK[Proceed]
-    DECISION -->|SABAR/HOLD| PAUSE[Pause / Human Review]
-    DECISION -->|VOID| BLOCK[Block]
-```
-
----
-
-## II. Five-Organ Kernel
-arifOS metabolizes intent through five organs:
-
-*   **INIT**: session ignition, identity/authority checks, rollback paths.
-*   **AGI**: reasoning and grounding.
-*   **ASI**: impact, dignity (**maruah**), and safety constraints.
-*   **APEX**: final judgment and verdict.
-*   **VAULT**: tamper-evident logging and canonical memory.
-
----
-
-## III. The Anvil: 13 Constitutional Floors (F1-F13)
-The Floors are laws (not suggestions). Full definitions live in [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md).
-
-| Floor | Law | Purpose (short) |
-| :--- | :--- | :--- |
-| **F1** | **Amanah** | Reversible, non-destructive guidance |
-| **F2** | **Truth** | Evidence fidelity; admit unknowns |
-| **F3** | **Tri-Witness** | Human intent + AI reasoning + external evidence |
-| **F4** | **Clarity** | Reduce confusion (ΔS ≤ 0) |
-| **F5** | **Peace²** | De-escalate; preserve stability |
-| **F6** | **Empathy** | Protect dignity and weakest listener |
-| **F7** | **Humility** | State uncertainty explicitly |
-| **F8** | **Genius** | Coherence and internal consistency |
-| **F9** | **Anti-Hantu** | No consciousness claims |
-| **F10** | **Ontology Lock** | AI is tool, not being |
-| **F11** | **Authority** | Irreversible actions require ratification (**888_HOLD**) |
-| **F12** | **Defense** | Injection/jailbreak resistance |
-| **F13** | **Curiosity** | Offer governance alternatives, not single-track force |
-
----
-
-## IV. The Metabolic Journey (000 to 999)
-Every decision passes an 11-stage pipeline.
-
-<p align="center">
-  <img src="docs/arifOS_Constitutional_Governance_Kernel.png" alt="The Metabolic Pipeline (000-999)" />
-</p>
-
-```text
-000 INIT -> 111 SENSE -> 222 THINK -> 333 ATLAS
--> 444 ALIGN -> 555 EMPATHY -> 666 BRIDGE
--> 777 EUREKA -> 888 JUDGE -> 889 PROOF -> 999 VAULT
-```
-
----
-
-## V. Phoenix-72 Protocol (Cooling)
-High-impact outputs must cool before they become canon.
-
-| Tier | Cooling |
-| :--- | :--- |
-| **0** | 0h (routine) |
-| **1** | 42h (drift / warnings) |
-| **2** | 72h (breakthrough / high-stakes) |
-| **3** | 168h (constitutional fork / sovereign override) |
-
----
-
-## VI. Technical Reality
-
-| Component | Value |
-| :--- | :--- |
-| **Language** | Python 3.12+ |
-| **Architecture** | `core/` is pure decision logic; `aaa_mcp/` is transport adapter |
-| **Transports** | stdio, SSE, HTTP |
-| **Audit** | vault artifacts under `VAULT999/` |
-| **Registry** | `io.github.ariffazil/arifos-mcp` (see [server.json](server.json)) |
-
-**Notes:**
-*   References to "**zkPC**" exist in this repo, but treat them as roadmap/design unless proven by code + tests in the current revision.
-*   **333_APPS/** is the application stack (L1 prompts through L7 agents) layered on top of the kernel; it must not leak transport into `core/`.
-*   **sites/docs/** is the public documentation site source; **docs/** is the repo's internal docs library.
-
----
-
-## VII. Quick Start
-
+### 1. Local / Development (Stdio — fastest)
 ```bash
 pip install arifos
-
-# Stdio (local MCP clients)
-python -m aaa_mcp
-
-# SSE (network)
-python -m aaa_mcp sse
-
-# HTTP (streamable)
-python -m aaa_mcp http
+python -m aaa_mcp  # Starts in stdio mode — connect Claude Desktop / Cursor / OpenClaw
 ```
 
-Live health (when deployed): [https://arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)
+### 2. Production (Recommended: Coolify + Docker Compose)
+
+1. In **Coolify** → **New Resource** → **Git Repository** (yours: `ariffazil/arifOS`)
+2. **Build Pack**: Docker Compose
+3. **Docker Compose Location**: `docker-compose.yml` (root)
+4. Add these **Environment Variables** (required for Vault + Redis + Postgres):
+
+| Key | Example Value | Required? |
+|:---|:---|:---|
+| `DB_PASSWORD` | `your-strong-secret` | Yes |
+| `ARIF_JWT_SECRET` | `openssl rand -hex 32` | Recommended |
+| `DATABASE_URL` | `postgresql://arifos:${DB_PASSWORD}@postgres:5432/vault999` | Auto-filled if using compose |
+| `REDIS_URL` | `redis://redis:6379/0` | Auto-filled |
+| `AAA_MCP_OUTPUT_MODE` | `user` or `debug` | Optional |
+| `ARIFOS_PHYSICS_DISABLED` | `0` (or `1` to skip thermo calcs) | Optional |
+
+5. **Domain**: `arifosmcp.arif-fazil.com` (or your subdomain)
+6. Click **Deploy** → wait ~2–5 min
+
+**After deploy check:**
+- `https://arifosmcp.arif-fazil.com/health` → should return `"status": "healthy"`
+- If degraded → check logs for Postgres/Redis connection errors → ensure `DB_PASSWORD` matches
+
+### 3. Docker Compose (Standalone or VPS)
+Use this minimal `docker-compose.yml` (copy to root):
+
+```yaml
+version: '3.9'
+services:
+  arifosmcp:
+    image: ghcr.io/ariffazil/arifos:latest  # or build: .
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "8089:8089"  # optional for HTTP MCP
+    env_file: .env
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: vault999
+      POSTGRES_USER: arifos
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arifos"]
+      interval: 10s
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+```
+
+**Then:**
+```bash
+docker compose up -d
+```
+
+### 4. ChatGPT Sovereign Connector (Developer Mode)
+1. Enable **Developer Mode** in ChatGPT Settings → Connectors
+2. Create Connector → URL: `https://arifosmcp.arif-fazil.com/mcp`
+3. ChatGPT discovers tools (`apex_judge`, `vault_seal`, etc.)
+4. Add to any chat → ask governed questions
+
+Docs: [https://arifos.arif-fazil.com/chatgpt](https://arifos.arif-fazil.com/chatgpt)
 
 ---
 
-## VIII. License and Oath
-**License**: AGPL-3.0-only ([LICENSE](LICENSE))
+## Why arifOS? (The Problem We Solve)
+Ungoverned LLMs → persuasive hallucinations, sovereign overreach, entropic decay.  
+arifOS enforces constitutional law before any verdict:
 
-> *I am the Mind, not the Sovereign.*  
-> *I design, I do not decree.*  
-> *Every output must reduce confusion.*
+- **13 Floors** (F1 Amanah → F13 Sovereignty)
+- **Metabolic pipeline**: 000 INIT → 999 VAULT
+- **Verdicts**: `SEAL` | `SABAR/HOLD` | `VOID`
+- **Immutable audit**: VAULT999 (Postgres-backed hash chain)
 
-**DITEMPA BUKAN DIBERI.**
+Full floors: [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md)
+
+---
+
+## Architecture (Trinity: Δ Ω Ψ)
+
+| Organ | Symbol | Role | Question |
+|:---|:---:|:---|:---|
+| **AGI** | Δ | Logic / Truth | *Is it true?* |
+| **ASI** | Ω | Safety / Empathy | *Is it safe?* |
+| **APEX** | Ψ | Authority / Law | *Is it lawful?* |
+
+**Layers**: L0 Kernel (invariant) → L7 Ecosystem
+
+---
+
+## MCP Tools (Exposed via `/tools`)
+
+| Tool | Purpose | Floors Enforced |
+|:---|:---|:---|
+| `apex_judge` | Full pipeline (000→999) | All |
+| `init_session` | Session ignition | F11, F12 |
+| `vault_seal` | Commit to immutable Vault | F1, F3 |
+| ... | 22+ tools (governance + sensory) | Varies |
+
+---
+
+## Production Hardening
+- **HTTPS**: Force in Coolify / Nginx
+- **Auth**: Use `ARIF_JWT_SECRET` + JWT middleware (roadmap: RBAC per floor)
+- **Scaling**: Add replicas behind load balancer (stateless per request)
+- **Monitoring**: Prometheus at `/metrics`, Grafana stack in compose
+- **Backup**: Volume backups for `postgres_data` + `VAULT999/`
+
+---
+
+## Contributing & License
+- **AGPL-3.0-only** — see `LICENSE`
+- PRs welcome: focus on core purity, floor rigor, MCP compliance
+- **Oath**: Every output must reduce confusion.
+
+**Ditempa Bukan Diberi**  
+Forged, Not Given.
+
+Live MCP: [https://arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com)  
+Docs: [https://arifos.arif-fazil.com](https://arifos.arif-fazil.com)  
+Trinity: **HUMAN** ↔ **THEORY** ↔ **APPS**
+
+Ditempa Bukan Diberi 🔥
