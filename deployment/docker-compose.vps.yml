@@ -19,7 +19,7 @@ services:
     networks:
       - coolify
     volumes:
-      - ../data:/usr/src/app/data
+      - arifosmcp_data:/usr/src/app/data
     # Override the default command to run both servers
     command: /usr/src/app/start-trinity.sh
     # Health check: verify both python processes are running
@@ -48,12 +48,24 @@ services:
     # Coolify/Traefik labels for domain routing
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`)"
-      - "traefik.http.routers.arifosmcp.entrypoints=https"
-      - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
-      - "traefik.http.services.arifosmcp.loadbalancer.server.port=8089"
-      - "traefik.http.routers.arifosmcp.service=arifosmcp"
+      # Route /sse to the SSE server (port 8080 in-container)
+      - "traefik.http.routers.arifosmcp-sse.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/sse`)"
+      - "traefik.http.routers.arifosmcp-sse.entrypoints=https"
+      - "traefik.http.routers.arifosmcp-sse.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.arifosmcp-sse.priority=100"
+      - "traefik.http.routers.arifosmcp-sse.service=arifosmcp_sse"
+      - "traefik.http.services.arifosmcp_sse.loadbalancer.server.port=8080"
+      # Route everything else to the REST/HTTP MCP bridge (port 8089 in-container)
+      - "traefik.http.routers.arifosmcp-http.rule=Host(`arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.arifosmcp-http.entrypoints=https"
+      - "traefik.http.routers.arifosmcp-http.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.arifosmcp-http.priority=1"
+      - "traefik.http.routers.arifosmcp-http.service=arifosmcp_http"
+      - "traefik.http.services.arifosmcp_http.loadbalancer.server.port=8089"
 
 networks:
   coolify:
     external: true
+
+volumes:
+  arifosmcp_data:
