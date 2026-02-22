@@ -104,41 +104,28 @@ Example impact: when a model suggests a destructive operation, arifOS can return
 
 ## 🚀 Quick Start
 
-### For Operators & Self-Hosters (30 seconds)
-
-The unified server (`server.py`) is the recommended method for running arifOS.
+### For Operators (30 seconds) using `uv`:
 
 ```bash
-# Clone the repository
-git clone https://github.com/ariffazil/arifOS.git
-cd arifOS
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Run the server (default: REST API)
-python server.py
+# Install and run instantly
+uvx arifos --mode stdio
 ```
 
-#### Server Modes
-- `python server.py --mode rest`: **REST API** with HTTP + SSE + Tools (Default, Recommended)
-- `python server.py --mode http`: FastMCP HTTP transport
-- `python server.py --mode sse`: FastMCP SSE transport
-- `python server.py --mode stdio`: STDIO for local clients (Claude Desktop, Cursor)
+*Or via repository:*
 
-| You want to... | Use this mode |
-|:--|:--|
-| Deploy with MCP tools (recommended) | `--mode rest` |
-| Integrate with Claude Desktop | `--mode stdio` |
-| Use Server-Sent Events streaming | `--mode sse` |
-| Use FastMCP HTTP transport | `--mode http` |
+```bash
+git clone https://github.com/ariffazil/arifOS.git
+cd arifOS
+pip install -e .
+python -m aaa_mcp --mode stdio
+```
 
-#### Features
-- **5-Organ Trinity + Utilities:** 5 constitutional organs (`init_session`, `agi_cognition`, `asi_empathy`, `apex_verdict`, `vault_seal`) + 4 utilities (`search`, `fetch`, `analyze`, `system_audit`)
-- **Legacy 9-skills internalized:** `anchor`, `reason`, `integrate`, etc. are now encapsulated thermodynamic sub-routines within L0
-- **MCP Resource Templates:** `constitutional://mottos`, `constitutional://floors/{id}`, `system://health`, `tools://schemas/{tool}`
+### Features
+- **9 Canonical MCP Tools:** 5-Organ Trinity (`init_session`, `agi_cognition`, `asi_empathy`, `apex_verdict`, `vault_seal`) + 4 Utility tools (`search`, `fetch`, `analyze`, `audit`).
+- **Constitutional Resources:** `constitutional://floors/{id}`, `system://health`, `tools://schemas/{tool}`.
+- **Unified Entry:** Support for `stdio`, `sse`, and `http` transports via FastMCP.
 
-Connect from OpenClaw, Claude Desktop, ChatGPT Developer Mode, or any MCP client.
+Connect from Claude Desktop, Cursor, ChatGPT Developer Mode, or any MCP client.
 
 ### For Prompt Tinkerers (5 seconds)
 Copy [`SYSTEM_PROMPT.md`](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) into any AI's system settings for immediate L1 governance.
@@ -222,9 +209,9 @@ Full specification: [`000_THEORY/000_LAW.md`](./000_THEORY/000_LAW.md)
 ### ✅ SEAL (Production)
 | Layer | Evidence |
 |:------|:---------|
-| **L0 KERNEL** | 5 organs wired to 13 floors; `core/` kernel with zero transport dependencies |
-| **L1–L4** | 5-Organ Trinity + 4 Utilities exposed via `aaa_mcp/` FastMCP adapter; thermodynamic encapsulation |
-| **VAULT999** | PostgreSQL-backed immutable ledger with cryptographic seals |
+| **L0 KERNEL** | 5 organs, 13 floors enforced via internal metabolic loop. |
+| **L1–L4** | **9 Canonical MCP Tools** (5-Organ Trinity + 4 Utilities) via `aaa_mcp`. |
+| **VAULT999** | **PostgreSQL/SQLite** backed immutable ledger with cryptographic seals. |
 | **Server** | FastMCP module (`python -m aaa_mcp`) with stdio/sse/http transports |
 | **Live Deployment** | `https://arifosmcp.arif-fazil.com` (health: `/health`) |
 
