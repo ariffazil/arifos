@@ -59,7 +59,9 @@ jobs:
           script: |
             set -e
             cd /root/arifOS
-            git pull --ff-only origin main
+            git fetch origin main
+            git checkout main
+            git reset --hard origin/main
             docker compose -f deployment/docker-compose.vps.yml up -d --build
 
       - name: VPS Smoke Check (/health on REST bridge)
