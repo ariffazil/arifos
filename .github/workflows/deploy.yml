@@ -62,6 +62,25 @@ jobs:
             git pull --ff-only origin main
             docker compose -f deployment/docker-compose.vps.yml up -d --build
 
+      - name: VPS Smoke Check (/health on REST bridge)
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            for i in 1 2 3 4 5; do
+              if curl -fss http://localhost:8889/health >/dev/null; then
+                echo "VPS smoke check passed: /health reachable on localhost:8889"
+                exit 0
+              fi
+              echo "Attempt $i/5 failed, retrying in 5s..."
+              sleep 5
+            done
+            echo "VPS smoke check failed: /health unreachable on localhost:8889"
+            exit 1
+
   verify:
     name: Verify Deployment
     needs: deploy_vps

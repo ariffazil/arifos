@@ -1,5 +1,5 @@
 # robots.txt — arifOS Docs Site
-# https://arifos.arif-fazil.com/docs/
+# https://arifos.arif-fazil.com/
 # Updated: 2026-02-22
 
 # Allow all search engines to index public docs

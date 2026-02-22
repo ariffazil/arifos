@@ -91,7 +91,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://console.arif-fazil.com',
+            href: '/console/',
             label: 'Console',
             position: 'right',
           },

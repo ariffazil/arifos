@@ -1,6 +1,6 @@
-# Deploy arifOS Metabolic Console (React Dashboard) to GitHub Pages
+# Build arifOS Metabolic Console (React Dashboard)
 
-name: Deploy arifOS Console
+name: Build arifOS Console
 
 on:
   push:
@@ -10,13 +10,10 @@ on:
       - '.github/workflows/deploy-console.yml'
   workflow_dispatch:
 
-# GitHub Pages permissions
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
-# Prevent concurrent deployments
+# Prevent concurrent builds
 concurrency:
   group: "console-pages"
   cancel-in-progress: false
@@ -43,32 +40,3 @@ jobs:
       - name: Build Console
         run: npm run build
         working-directory: aclip_cai/dashboard
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
-        with:
-          path: aclip_cai/dashboard/dist
-
-  deploy:
-    name: Deploy to GitHub Pages
-    needs: build
-    runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
-
-      - name: Verify Deployment
-        run: |
-          echo "========================================"
-          echo "  arifOS METABOLIC CONSOLE DEPLOYED"
-          echo "========================================"
-          echo "  URL: ${{ steps.deployment.outputs.page_url }}"
-          echo "  DITEMPA BUKAN DIBERI 🔥"
-          echo "========================================"
