@@ -1,4 +1,4 @@
-FROM python:3.11-slim AS build
+FROM python:3.12-slim AS build
 
 WORKDIR /usr/src/app
 
@@ -14,7 +14,7 @@ RUN python -m pip install --upgrade pip && \
     pip install --no-cache-dir .
 
 
-FROM python:3.11-slim AS runtime
+FROM python:3.12-slim AS runtime
 
 WORKDIR /usr/src/app
 
