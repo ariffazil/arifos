@@ -1,43 +1,54 @@
-version: '3.8'
+version: '3.9'
 
 services:
   arifosmcp:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
+    image: arifos/arifosmcp:latest
     container_name: arifosmcp_server
     restart: unless-stopped
-    env_file:
-      - .env.docker
+    user: "1001:1001"
+    env_file: .env.docker
     ports:
-      - "8088:8080"
-      - "8889:8089"
-    networks:
-      - coolify
+      - "8080:8080"     # SSE transport
+      - "8089:8089"     # HTTP MCP transport
     volumes:
-      - ./data:/usr/src/app/data
-    command: /usr/src/app/start-trinity.sh
-    healthcheck:
-      test: ["CMD-SHELL", "ps aux | grep -v grep | grep 'python -m aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m aaa_mcp rest'"]
-      interval: 15s
-      timeout: 5s
-      start_period: 30s
-      retries: 3
-    environment:
-      PYTHONUNBUFFERED: 1
-      PYTHONDONTWRITEBYTECODE: 1
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`)"
-      - "traefik.http.routers.arifosmcp.entrypoints=https"
-      - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
-      - "traefik.http.services.arifosmcp.loadbalancer.server.port=8089"
-      - "traefik.http.routers.arifosmcp.service=arifosmcp"
+      - arifos_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
-networks:
-  coolify:
-    external: true
+  postgres:
+    image: postgres:16-alpine
+    container_name: arifos_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vault999
+      POSTGRES_USER: arifos
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-supersecret}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arifos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: arifos_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  arifos_data:
+  postgres_data:
+  redis_data:
