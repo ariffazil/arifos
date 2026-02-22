@@ -41,13 +41,15 @@ def check_fastmcp_version():
 
 
 def main():
-    # Check version before importing server
+    # Check version before importing server modules
     check_fastmcp_version()
 
     mode = (sys.argv[1] if len(sys.argv) > 1 else "stdio").strip().lower()
 
     # Unified server combines AAA-MCP and ACLIP-CAI tools
-    from server import mcp
+    from aaa_mcp.server import create_unified_mcp_server
+
+    mcp = create_unified_mcp_server()
 
     if mode in ("", "stdio"):
         # Default to stdio for local agents
@@ -73,7 +75,14 @@ def main():
         mcp.run(transport="http", host=host, port=port)
         return
 
-    print(f"Unknown mode '{mode}'. Use one of: stdio, sse, http", file=sys.stderr)
+    if mode == "rest":
+        from aaa_mcp.rest import main as rest_main
+
+        print("[arifOS] Starting REST bridge (Starlette + Uvicorn)", file=sys.stderr)
+        rest_main()
+        return
+
+    print(f"Unknown mode '{mode}'. Use one of: stdio, sse, http, rest", file=sys.stderr)
     raise SystemExit(2)
 
 

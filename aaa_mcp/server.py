@@ -1,9 +1,8 @@
 """
 arifOS AAA MCP Server — 5-Organ Trinity + 4 Utilities (2026.02.22-FORGE-VPS-SEAL)
 
-DEPRECATED: This module is superseded by the unified server at `/root/arifOS/server.py`.
-The unified server combines AAA-MCP and ACLIP-CAI tools into a single MCP server.
-Use `python -m aaa_mcp` or `python server.py` (root) for production.
+Canonical AAA-MCP server module for `python -m aaa_mcp`.
+This module exposes the canonical 5-organ public API and utility tools.
 
 Multi-Transport Support: STDIO | SSE | StreamableHTTP
 
@@ -149,6 +148,16 @@ mcp = FastMCP(
 
 # Register container tools
 register_container_tools(mcp)
+
+
+def create_unified_mcp_server() -> FastMCP:
+    """
+    Canonical MCP constructor for aaa_mcp entrypoints.
+
+    Returns the singleton server instance with the canonical 5-organ public API
+    plus utilities and registered integrations.
+    """
+    return mcp
 
 
 # ═══════════════════════════════════════════════════════════════════════════

@@ -3,11 +3,15 @@ import time
 from collections import deque
 
 
+from aclip_cai.tools.aclip_base import ok, void
+
+
 def log_tail(
     log_file: str = "aaa_mcp.log",
     lines: int = 50,
     pattern: str = "",
     log_path: str | None = None,
+    follow: bool = False,
     grep_pattern: str | None = None,
     since_minutes: int | None = None,
 ) -> dict:
@@ -30,11 +34,7 @@ def log_tail(
     target_pattern = grep_pattern or pattern
 
     if not os.path.exists(target_file):
-        return {
-            "log_file": target_file,
-            "lines": [],
-            "error": "Log file not found.",
-        }
+        return void("Log file not found.")
 
     try:
         # Check mtime for since_minutes optimization (file level check)
@@ -58,14 +58,15 @@ def log_tail(
         if target_pattern:
             filtered_lines = [line for line in filtered_lines if target_pattern in line]
 
-        return {
+        return ok({
             "log_file": target_file,
-            "line_count": len(filtered_lines),
-            "lines": filtered_lines,
+            "lines_requested": lines,
+            "lines_returned": len(filtered_lines),
+            "entries": filtered_lines,
             "filters": {
                 "pattern": target_pattern,
                 "since_minutes": since_minutes,
             },
-        }
+        })
     except Exception as e:
-        return {"log_file": target_file, "lines": [], "error": str(e)}
+        return void(str(e))

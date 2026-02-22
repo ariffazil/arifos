@@ -2,6 +2,8 @@ import datetime
 import fnmatch
 from pathlib import Path
 
+from aclip_cai.tools.aclip_base import ok, partial, void
+
 
 def fs_inspect(
     path: str = ".",
@@ -10,7 +12,7 @@ def fs_inspect(
     pattern: str = "*",  # Filter by filename (e.g., "*.py")
     min_size_bytes: int = 0,  # Filter by size
     max_files: int = 100,  # Circuit Breaker
-    max_depth: int = None,  # Compatibility arg (bridge sends this)
+    max_depth: int | None = None,  # Compatibility arg (bridge sends this)
 ) -> dict:
     """
     Inspects the filesystem at a given path without modification.
@@ -30,7 +32,7 @@ def fs_inspect(
 
     root_path = Path(path)
     if not root_path.exists():
-        return {"error": f"Path not found: {path}"}
+        return void(f"Path not found: {path}")
 
     stats = {"scanned": 0, "returned": 0, "limit_reached": False}
 
@@ -105,11 +107,13 @@ def fs_inspect(
 
     result = _inspect_path(root_path, 1)
 
-    return {
-        "root": str(root_path),
-        "pattern": pattern,
-        "limits": {"depth": effective_depth, "max_files": max_files},
-        "status": "PARTIAL" if stats["limit_reached"] else "COMPLETE",
-        "stats": stats,
-        "tree": result,
-    }
+    return (partial if stats["limit_reached"] else ok)(
+        {
+            "root": str(root_path),
+            "pattern": pattern,
+            "limits": {"depth": effective_depth, "max_files": max_files},
+            "stats": stats,
+            "tree": result,
+        },
+        warning="Max files limit reached" if stats["limit_reached"] else None,
+    )

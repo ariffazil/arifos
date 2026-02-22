@@ -96,7 +96,7 @@ def _govern(tool_name: str, action: str, context: str, severity: str = "low") ->
         return {
             "verdict": audit.verdict.value,
             "pass_rate": audit.pass_rate,
-            "failed_floors": [f.floor_id for f in audit.results if not f.passed],
+            "failed_floors": [f.floor for f in audit.floor_results.values() if not f.passed],
             "recommendation": audit.recommendation,
         }
     except Exception as exc:  # pragma: no cover
