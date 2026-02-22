@@ -48,7 +48,6 @@ jobs:
     name: Deploy to VPS
     needs: selftest
     runs-on: ubuntu-latest
-    if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USERNAME != '' && secrets.VPS_SSH_KEY != '' }}
     steps:
       - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.2.2
@@ -66,7 +65,6 @@ jobs:
     name: Verify Deployment
     needs: deploy_vps
     runs-on: ubuntu-latest
-    if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USERNAME != '' && secrets.VPS_SSH_KEY != '' }}
     steps:
       - name: Final Health Check
         run: |

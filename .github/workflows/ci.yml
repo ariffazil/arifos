@@ -93,7 +93,6 @@ jobs:
           pip install -r requirements.txt || true
 
       - name: Run Snyk vulnerability scan
-        if: ${{ secrets.SNYK_TOKEN != '' }}
         uses: snyk/actions/python@master
         continue-on-error: true  # Don't block on vulns during pilot
         env:
@@ -101,8 +100,7 @@ jobs:
         with:
           args: --severity-threshold=high
 
-      - name: Run pip-audit (fallback if no Snyk token)
-        if: ${{ secrets.SNYK_TOKEN == '' }}
+      - name: Run pip-audit
         run: |
           pip install pip-audit
           pip-audit --ignore-vuln PYSEC-2022-43012 || echo "⚠ Vulnerabilities found (non-blocking during pilot)"
