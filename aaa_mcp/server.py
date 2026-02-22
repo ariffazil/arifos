@@ -20,6 +20,7 @@ from aclip_cai.mcp_server import mcp
 from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, validate
 
 from aaa_mcp.external_gateways.brave_client import BraveSearchClient
+from aaa_mcp.protocol.l0_kernel_prompt import inject_l0_into_session
 
 
 def create_unified_mcp_server() -> Any:
@@ -55,7 +56,7 @@ def _fold_verdict(verdicts: List[str]) -> str:
 # ═══════════════════════════════════════════════════════
 
 
-@mcp.tool(name="init_session", description="000_INIT — Session ignition + defense scan.")
+@mcp.tool(name="init_session", description="000_INIT — Session ignition + L0 Kernel injection + defense scan.")
 async def _init_session(
     query: str,
     actor_id: str = "anonymous",
@@ -63,12 +64,31 @@ async def _init_session(
     mode: str = "conscience",
     grounding_required: bool = True,
     debug: bool = False,
+    inject_kernel: bool = True,
+    compact_kernel: bool = False,
 ) -> Dict[str, Any]:
+    """
+    Initialize a new constitutional session with L0 Kernel enforcement.
+    
+    Args:
+        query: User's initial query
+        actor_id: Authenticated actor identifier
+        auth_token: Optional authentication token
+        mode: Session mode (conscience, exploration, etc.)
+        grounding_required: Whether to require source grounding
+        debug: Include detailed internal data
+        inject_kernel: Inject L0 constitutional prompt (default: True)
+        compact_kernel: Use compact L0 prompt to save tokens (default: False)
+    
+    Returns:
+        Session data with constitutional system prompt
+    """
     try:
         session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
         anch = await anchor(session_id=session_id, user_id=actor_id, context=query)
         verdict = str(anch.get("verdict", "SEAL"))
-        return {
+        
+        result = {
             "verdict": verdict,
             "session_id": anch.get("session_id", session_id),
             "stage": "000_INIT",
@@ -78,6 +98,13 @@ async def _init_session(
             "debug": debug,
             "data": {"anchor": anch} if debug else {},
         }
+        
+        # 🔥 CONSTITUTIONAL INJECTION: Embed L0 Kernel prompt
+        if inject_kernel:
+            result = inject_l0_into_session(result, compact=compact_kernel)
+            
+        return result
+        
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "000_INIT"}
 
