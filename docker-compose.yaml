@@ -10,7 +10,7 @@ services:
     env_file:
       - .env.docker
     ports:
-      - "8888:8080"
+      - "8088:8080"
       - "8889:8089"
     networks:
       - coolify

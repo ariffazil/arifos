@@ -156,7 +156,7 @@ server {
     
     # SSE transport (Server-Sent Events)
     location /sse {
-        proxy_pass http://127.0.0.1:8888/sse;
+        proxy_pass http://127.0.0.1:8088/sse;
         proxy_http_version 1.1;
         proxy_set_header Connection "";
         proxy_buffering off;

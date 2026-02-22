@@ -1,0 +1,159 @@
+# arifOS TRINITY-2 Stack with Full Observability
+# Postgres + Redis + Grafana + Production MCP Server
+# Usage: docker compose -f docker-compose.forge2.yml up -d
+
+version: '3.9'
+
+services:
+  # Core MCP Server (FORGE-2 hardened)
+  arifosmcp:
+    build:
+      context: .
+      dockerfile: Dockerfile.forge2
+    image: arifos/arifosmcp:2026.2.23-forge2
+    container_name: arifosmcp_server
+    restart: unless-stopped
+    user: "65532:65532"  # nonroot user from distroless
+    env_file:
+      - .env.docker
+    ports:
+      - "8088:8080"   # SSE endpoint
+      - "8889:8089"   # HTTP MCP endpoint (if REST bridge enabled)
+    volumes:
+      - arifos_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    # Health check uses wget (distroless doesn't have curl)
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      start_period: 15s
+      retries: 3
+    networks:
+      - arifos_network
+    labels:
+      - "com.arifos.component=mcp-server"
+      - "com.arifos.version=forge2"
+
+  # VAULT999 PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: arifos_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vault999
+      POSTGRES_USER: arifos
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - arifos_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arifos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "com.arifos.component=database"
+
+  # Session State Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: arifos_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-} --maxmemory 256mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - arifos_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    labels:
+      - "com.arifos.component=cache"
+
+  # Observability: Grafana Dashboard
+  grafana:
+    image: grafana/grafana:11.0.0
+    container_name: arifos_grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./deployment/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./deployment/grafana/datasources:/etc/grafana/provisioning/datasources
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-admin}
+      GF_INSTALL_PLUGINS: "grafana-piechart-panel"
+    networks:
+      - arifos_network
+    depends_on:
+      - arifosmcp
+    labels:
+      - "com.arifos.component=observability"
+
+  # Loki Log Aggregator (optional)
+  loki:
+    image: grafana/loki:3.0.0
+    container_name: arifos_loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - loki_data:/loki
+    networks:
+      - arifos_network
+    labels:
+      - "com.arifos.component=logging"
+
+  # Prometheus Metrics (optional)
+  prometheus:
+    image: prom/prometheus:v3.0.0
+    container_name: arifos_prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./deployment/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - arifos_network
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    labels:
+      - "com.arifos.component=metrics"
+
+volumes:
+  arifos_data:
+    driver: local
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local
+  prometheus_data:
+    driver: local
+
+networks:
+  arifos_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
