@@ -104,7 +104,7 @@ docker-compose -f deployment/docker-compose.vps.yml up -d --build
 
 **Port Mapping:**
 - SSE Transport: `8888:8080` → Clients connect to `/sse`
-- HTTP Transport: `8889:8089` → Clients connect to `/mcp`
+- REST Bridge: `8889:8089` → Clients connect to `/mcp` and `/health`
 
 ### 3. Verify Deployment
 ```bash
@@ -112,13 +112,16 @@ docker-compose -f deployment/docker-compose.vps.yml up -d --build
 docker ps --filter "name=arifosmcp"
 
 # Test SSE endpoint (should hang - expected)
-curl -H "ARIF_SECRET: IM ARIF" http://localhost:8888/sse -m 2
+curl -H "ARIF_SECRET: YOUR_STRONG_SECRET_HERE" http://localhost:8888/sse -m 2
 
 # Test HTTP MCP endpoint
 curl -X POST http://localhost:8889/mcp \
   -H "Content-Type: application/json" \
-  -H "ARIF_SECRET: IM ARIF" \
+  -H "ARIF_SECRET: YOUR_STRONG_SECRET_HERE" \
   -d '{"jsonrpc":"2.0","method":"ping","id":1}'
+
+# Test health endpoint (served by REST bridge)
+curl -fss http://localhost:8889/health
 ```
 
 ### 4. Production Setup with Nginx + Cloudflare
@@ -209,7 +212,7 @@ tail -f /var/log/nginx/error.log
 ```
 
 **Constitutional Metrics:**
-- Check VAULT999 ledger: `docker exec arifosmcp_server ls -la /app/data/VAULT999/`
+- Check VAULT999 ledger: `docker exec arifosmcp_server ls -la /usr/src/app/data/VAULT999/`
 - Monitor F12 injection attempts in logs
 
 ### 3. Backup & Disaster Recovery
