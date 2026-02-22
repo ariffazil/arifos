@@ -69,6 +69,8 @@ curl https://your-app.up.railway.app/health
 
 ## Path 3 - Docker Compose on VPS (recommended for production)
 
+If you're on Hostinger’s **Ubuntu 24.04 with Coolify** template, start here first: [Hostinger Coolify VPS Template](./coolify-hostinger).
+
 ### 3.1 - Clone and configure
 
 ```bash
