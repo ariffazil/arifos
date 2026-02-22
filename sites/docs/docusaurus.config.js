@@ -31,8 +31,7 @@ const config = {
       /** @type {import('@docusaurus/preset-classic').Options} */
       ({
         docs: {
-          // Serve docs at the site root
-          routeBasePath: '/',
+          routeBasePath: '/docs',
           sidebarPath: './sidebars.js',
           editUrl: 'https://github.com/ariffazil/arifOS/edit/main/sites/docs/',
           showLastUpdateTime: true,
