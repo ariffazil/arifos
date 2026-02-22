@@ -21,7 +21,7 @@ Hostinger’s **“Ubuntu 24.04 with Coolify”** template ships with Coolify pr
 ## 1) Prerequisites (Hostinger)
 
 - Create a VPS using Hostinger’s **“Ubuntu 24.04 with Coolify”** template (Coolify is preinstalled).  
-  Hostinger guide: <https://www.hostinger.com/support/9615197-how-to-use-the-coolify-vps-template-at-hostinger/>
+  Hostinger guide: [https://www.hostinger.com/support/9615197-how-to-use-the-coolify-vps-template-at-hostinger/](https://www.hostinger.com/support/9615197-how-to-use-the-coolify-vps-template-at-hostinger/)
 - Find your VPS **public IP** in Hostinger → **VPS** → **Overview**.
 
 > Note: Port defaults can vary across Coolify installs (commonly **8000** for generic installs), but the
@@ -41,8 +41,8 @@ apps to run on the same VPS.
 
 Coolify refs:
 
-- <https://coolify.io/docs/get-started/introduction>
-- <https://coolify.io/docs/knowledge-base/server/introduction>
+- [https://coolify.io/docs/get-started/introduction](https://coolify.io/docs/get-started/introduction)
+- [https://coolify.io/docs/knowledge-base/server/introduction](https://coolify.io/docs/knowledge-base/server/introduction)
 
 ## 4) Create a project + add resources
 
