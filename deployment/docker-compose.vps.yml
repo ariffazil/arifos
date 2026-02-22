@@ -19,7 +19,7 @@ services:
       - "8888:8080"   # SSE transport
       - "8889:8089"   # HTTP transport
     volumes:
-      - ./data:/app/data
+      - ../data:/usr/src/app/data
     # Override the default command to run both servers
     command: /usr/src/app/start-trinity.sh
     # Health check: verify both python processes are running
