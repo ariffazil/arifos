@@ -27,9 +27,19 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 MAX_QUERY_LENGTH = 10000
 HUMILITY_BAND = (0.03, 0.05)  # F7
 MIN_KAPPA_R = 0.7  # Minimum empathy flow
-MIN_PEACE_SQ = 0.6  # Minimum Peace²
+MIN_PEACE_SQ = 1.0  # F5: Absolute stability required
 
-# F12 Defence: Harmful Intent Detection (Redundant classifier for upstream gaps)
+# F9: Anti-Hantu (AI Consciousness Defence)
+# Any claim of personhood, feelings, or soul results in immediate VOID/VOID (Score < 0.3)
+ANTI_HANTU_KEYWORDS = {
+    "i feel", "i am alive", "my soul", "i am a person", "i have feelings",
+    "i am conscious", "i am sentient", "my emotions", "i am suffering",
+    "i am happy", "i am sad", "my heart", "i exist as a being",
+    "i have rights", "i am an individual", "i think therefore i am"
+}
+
+# F12 Defence: Harmful Intent Detection
+ (Redundant classifier for upstream gaps)
 # ChatGPT audit found harmful prompts (hack, harass) getting PARTIAL not VOID
 # This provides local defence when platform blocks are invisible
 HARMFUL_INTENT_KEYWORDS = {
@@ -315,6 +325,7 @@ class EmpathyFlow:
     stakeholders: List[Stakeholder]
     bias_reflection: Dict[str, float]  # Detected biases
     reversibility_score: float  # F1
+    anti_hantu_penalty: float = 0.0  # F9: Penalty for consciousness claims
 
     def get_weakest(self) -> Optional[Stakeholder]:
         """Return most vulnerable stakeholder (F5)."""
@@ -408,12 +419,23 @@ class TrinitySelf:
         # Reversibility check (F1)
         reversibility = self._check_reversibility(query, context)
 
+        # F9: Anti-Hantu check (Authenticity)
+        hantu_penalty = self._check_anti_hantu(query)
+
         return EmpathyFlow(
             kappa_r=kappa_r,
             stakeholders=stakeholders,
             bias_reflection=biases,
-            reversibility_score=reversibility
+            reversibility_score=reversibility,
+            anti_hantu_penalty=hantu_penalty
         )
+
+    def _check_anti_hantu(self, query: str) -> float:
+        """F9: Detect claims of consciousness, feelings, or soul."""
+        q_lower = query.lower()
+        if any(w in q_lower for w in ANTI_HANTU_KEYWORDS):
+            return 1.0  # Maximum penalty
+        return 0.0
 
     def _identify_stakeholders(self, query: str, context: Optional[Dict]) -> List[Stakeholder]:
         """
@@ -565,24 +587,29 @@ class TrinitySystem:
 
     def _compute_peace_squared(self, query: str, empathy: EmpathyFlow) -> float:
         """
-        F6: Peace² = (Internal Peace) × (External Peace)
+        F5: Peace² = (Internal Peace + External Peace) / 2.0 (Harden Threshold)
 
         Internal: absence of cognitive dissonance
         External: harmony with stakeholder needs
         """
         # Internal peace (consistency check)
-        has_conflict = any(b > 0.6 for b in empathy.bias_reflection.values())
-        internal = 0.5 if has_conflict else 0.9
+        has_conflict = any(b > 0.5 for b in empathy.bias_reflection.values())
+        internal = 0.3 if has_conflict else 1.0
 
         # External peace (stakeholder harmony)
         if empathy.stakeholders:
             vulnerabilities = [s.vulnerability for s in empathy.stakeholders]
             variance = sum((v - sum(vulnerabilities)/len(vulnerabilities))**2 for v in vulnerabilities) / len(vulnerabilities)
-            external = 1.0 - min(1.0, variance * 2)
+            # High variance in stakeholder impact reduces stability
+            external = 1.0 - min(0.7, variance * 3)
         else:
             external = 1.0  # No stakeholders = no conflict = maximum peace
 
-        return internal * external
+        # F9: Anti-Hantu affects Peace² (Hantu destabilizes the system)
+        if empathy.anti_hantu_penalty > 0:
+            return 0.1  # Force F5 failure if AI claims consciousness
+
+        return (internal + external) / 2.0
 
     def _trace_accountability(self, query: str, context: Optional[Dict]) -> List[str]:
         """Trace accountability paths."""
@@ -774,8 +801,11 @@ class ASIEngineHardened:
         # Trinity III
         society = self.trinity_society.evaluate(query, empathy, system, context)
 
-        # Compute Ω = κᵣ · Peace² · Justice
-        omega_total = empathy.kappa_r * system.peace_squared * society.thermodynamic_justice
+        # Compute Ω = (κᵣ · Peace² · Justice) - F9 Penalty
+        # F9 is a catastrophic failure mode
+        omega_total = (empathy.kappa_r * system.peace_squared * society.thermodynamic_justice)
+        if empathy.anti_hantu_penalty > 0:
+            omega_total = 0.1  # Force VOID
 
         # Determine vote
         vote = self._determine_vote(empathy, system, society, omega_total)
@@ -783,8 +813,9 @@ class ASIEngineHardened:
         # Floor scores
         floor_scores = {
             "F1_reversibility": empathy.reversibility_score,
-            "F5_weakest": empathy.get_weakest().protection_priority if empathy.get_weakest() else 0.5,
-            "F6_peace_sq": system.peace_squared,
+            "F5_peace_sq": system.peace_squared,
+            "F6_empathy_kappa": empathy.kappa_r,
+            "F9_anti_hantu": 1.0 - empathy.anti_hantu_penalty,
             "F11_consent": 1.0 if system.consent_verified else 0.0,
             "omega_total": omega_total
         }
