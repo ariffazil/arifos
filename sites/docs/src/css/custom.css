@@ -166,3 +166,118 @@ body {
 .trinity-footer .links a:hover {
   color: #e6c25d;
 }
+
+/* Hero Polished Buttons */
+.hero-btn-primary {
+  background: var(--ifm-color-primary) !important;
+  color: #000 !important;
+  font-weight: 900;
+  padding: 1.2rem 2.8rem !important;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  margin-right: 1.5rem;
+  box-shadow: 0 0 30px rgba(230, 194, 93, 0.25);
+  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.hero-btn-primary:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 40px rgba(230, 194, 93, 0.4);
+  text-decoration: none !important;
+}
+
+.hero-btn-secondary {
+  border: 2px solid rgba(230, 194, 93, 0.5) !important;
+  color: #fff !important;
+  padding: 1.2rem 2.8rem !important;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  font-weight: 700;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s !important;
+  background: transparent !important;
+}
+
+.hero-btn-secondary:hover {
+  background: rgba(230, 194, 93, 0.1) !important;
+  border-color: var(--ifm-color-primary) !important;
+  text-decoration: none !important;
+}
+
+.status-bar {
+  margin-top: 3.5rem;
+  font-size: 0.9rem;
+  opacity: 0.9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: rgba(255,255,255,0.7);
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.status-code {
+  color: var(--ifm-color-primary);
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
+.status-text {
+  font-weight: 800;
+}
+
+.status-healthy { color: #4caf50; }
+.status-degraded { color: #ff5252; }
+
+.deploy-section {
+  background: linear-gradient(145deg, #050505 0%, #0a0a0a 100%);
+  border-radius: 32px;
+  margin: 6rem auto;
+  border: 1px solid rgba(230,194,93,0.15);
+  padding: 5rem 3rem;
+}
+
+.deploy-pre {
+  background: #000 !important;
+  padding: 3rem !important;
+  border-radius: 20px !important;
+  border: 1px solid rgba(230,194,93,0.2) !important;
+  color: var(--ifm-color-primary) !important;
+  font-size: 1.15rem !important;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
+.chatgpt-link {
+  color: var(--ifm-color-primary);
+  font-size: 1.4rem;
+  font-weight: 900;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(230,194,93,0.3);
+  padding-bottom: 4px;
+  transition: all 0.3s;
+}
+
+.chatgpt-link:hover {
+  border-bottom: 2px solid var(--ifm-color-primary);
+  text-decoration: none;
+}
+
+.hero-polished {
+  background: linear-gradient(180deg, #0a0a0a 0%, #111 100%) !important;
+  padding: 6rem 0 4rem !important;
+}
+
+.hero-title-polished {
+  font-size: 4.2rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+}
+
+.hero-subtitle-polished {
+  font-size: 1.6rem;
+  max-width: 720px;
+  margin: 1.5rem auto;
+  opacity: 0.9;
+}
