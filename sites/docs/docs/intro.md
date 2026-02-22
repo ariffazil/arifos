@@ -16,19 +16,64 @@ arifOS is a **constitutional intelligence kernel** for AI agents. It wraps any L
 
 ---
 
+## Prerequisites
+
+Before installing arifOS, ensure you have:
+
+- **Python 3.10+** (strictly required for MCP protocol compliance)
+- **LLM API keys** set in environment (the kernel wraps the LLM, so it needs the keys):
+  ```bash
+  export ANTHROPIC_API_KEY="sk-ant-..."      # For Claude
+  export OPENAI_API_KEY="sk-..."             # For GPT
+  export GOOGLE_API_KEY="..."                # For Gemini
+  ```
+- **Optional**: PostgreSQL and Redis for persistent VAULT999 logging
+
+---
+
 ## What arifOS Does
+
+**F = Constitutional Floor** — Each F-number represents a mathematical constraint enforced on every LLM call:
 
 | Traditional LLM call | arifOS-governed call |
 |:--|:--|
-| Model outputs whatever maximises likelihood | Output passes 13 constitutional floors first |
-| Hallucination is uncaught | F2 Truth ≥ 0.99 rejects low-evidence claims |
+| Model outputs whatever maximises likelihood | Output passes [13 constitutional floors](./governance) first |
+| Hallucination is uncaught | [F2 Truth](./governance#f2-truth) ≥ 0.99 rejects low-evidence claims |
 | No audit trail | Every decision logged to immutable VAULT999 |
-| No human override point | F13 Sovereignty preserves human veto at all times |
-| Claims anything | F10 Ontology locks — no consciousness claims |
+| No human override point | [F13 Sovereignty](./governance#f13-sovereignty) preserves human veto at all times |
+| Claims anything | [F10 Ontology](./governance#f10-ontology) locks — no consciousness claims |
+| Opaque failures | [888_HOLD](./governance#888-hold) escalates critical decisions to human judge |
+
+---
+
+## The Governance Pipeline (EMD Stack)
+
+```
+Raw Prompt
+    ↓
+┌─────────────────────────────────────────┐
+│  000_INIT — Session initialization      │
+│  111_AGI — Akal (Intellect) cognition   │
+│  222_ASI — Qalb (Empathy) evaluation    │
+│  444_APEX — Iradah (Authority) verdict  │
+│  999_VAULT — Immutable logging          │
+└─────────────────────────────────────────┘
+    ↓
+Governed Output (SEAL / SABAR / VOID)
+```
+
+Every query flows through the **Encoder → Metabolizer → Decoder** (EMD Stack):
+- **Encoder (000-111)**: Grounds the input in reality
+- **Metabolizer (222-777)**: Applies 13 constitutional floors
+- **Decoder (888-999)**: Issues verdict with audit trail
+
+[Learn the theory →](./theory-000)
 
 ---
 
 ## Quick Start (30 seconds)
+
+### 1. Install and Boot
 
 ```bash
 pip install arifos
@@ -53,6 +98,41 @@ python server.py --mode rest   # REST API + SSE + all tools
 ```
 
 The live endpoint is at **[arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com)** - check `/health` to confirm it is up.
+
+### 2. Wrap Your LLM Call (Python Example)
+
+```python
+import requests
+
+# Query through arifOS kernel instead of calling LLM directly
+response = requests.post("http://localhost:8889/mcp", json={
+    "tool": "reason",
+    "params": {
+        "query": "Should I invest in cryptocurrency?",
+        "context": {"portfolio": "conservative", "risk_tolerance": "low"}
+    }
+})
+
+result = response.json()
+print(f"Verdict: {result['verdict']}")  # SEAL, SABAR, or VOID
+print(f"Confidence: {result['confidence']}")
+print(f"Governed Answer: {result['response']}")
+```
+
+### 3. Human Override (888 Judge)
+
+When a query hits critical thresholds (high risk, irreversible actions, uncertain evidence), the system returns:
+
+```json
+{
+  "verdict": "888_HOLD",
+  "message": "High-stakes decision requires human review",
+  "escalation": "Check Metabolic Console at console.arif-fazil.com",
+  "estimated_review_time": "72 hours"
+}
+```
+
+The **888 Judge** (human operator) reviews via the [Metabolic Console](https://console.arif-fazil.com) and issues the final ruling.
 
 ---
 
