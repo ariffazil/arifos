@@ -19,7 +19,7 @@ async def main():
     print(f"Loading datasets from {golden_dir}...")
     results = await suite.run_all(kernel)
     
-    report_path = "test-reports/arifos-golden-report.html"
+    report_path = "test-reports/index.html"
     print(f"Generating living constitutional dashboard: {report_path}")
     
     generate_html_report(results, report_path)

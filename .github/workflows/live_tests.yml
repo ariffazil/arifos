@@ -31,18 +31,28 @@ jobs:
         run: |
           uv pip install --system -e ".[dev]"
 
-      - name: Run MCP Live Tests (v2)
+      - name: Run MCP Live Tests & Polygraph
         run: |
-          # Use the new v2 wrapper in CI mode (generates JSON output)
-          python test_all_tools_live.py --ci
+          # Use the new Polygraph Runner
+          python run_evals.py
         env:
           AAA_MCP_OUTPUT_MODE: debug
           ARIFOS_PHYSICS_DISABLED: 1
           ARIFOS_ALLOW_LEGACY_SPEC: 1
+
+      - name: Deploy to Cloudflare Pages (The Observer)
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: arifosmcp-truth-claim
+          directory: test-reports
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          branch: main
 
       - name: Upload Test Results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: constitutional-test-results
-          path: test-results.json
+          path: test-reports/
