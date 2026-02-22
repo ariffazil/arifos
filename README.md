@@ -18,6 +18,30 @@
 
 [🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🏗️ Architecture](#%EF%B8%8F-architecture) • [🎬 Demo Video](#-demo-video) • [🤝 Contributing](#-contributing) • [⚖️ License](#%EF%B8%8F-license)
 
+---
+
+### 📊 Live Deployments
+
+**Try arifOS right now** — All services are live and operational:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| 🌐 **Live MCP Server** | [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) | Production MCP endpoint — Connect AI clients here |
+| ✅ **Health Check** | [/health](https://arifosmcp.arif-fazil.com/health) | Real-time system status + 13 floors monitoring |
+| 📊 **Test Dashboard** | [Constitutional Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev) | Live test results + Genius scores + Floor compliance |
+| 📚 **Documentation** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Complete guides, tutorials, and API reference |
+| ⚙️ **GitHub Actions** | [CI/CD Pipeline](https://github.com/ariffazil/arifOS/actions) | Automated tests + deployments (runs daily) |
+| 🐳 **Docker Image** | `ghcr.io/ariffazil/arifos:latest` | Pull-ready production container image |
+
+**Quick test**:
+```bash
+# Check if arifOS is healthy
+curl https://arifosmcp.arif-fazil.com/health
+
+# Expected output:
+# {"status": "healthy", "version": "2026.2.23", "floors": 13}
+```
+
 </div>
 
 ---
