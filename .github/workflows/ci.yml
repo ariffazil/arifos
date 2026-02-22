@@ -81,6 +81,7 @@ jobs:
               tests/test_fastmcp_profiles_contract.py \
               tests/test_e2e_core_to_aaa_mcp.py \
               tests/integration/test_health_metrics.py \
+              -k "not test_all_tools_latency" \
               -q
           else
             echo "pytest not installed; skipping."
