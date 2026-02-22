@@ -90,10 +90,9 @@ Example impact: when a model suggests a destructive operation, arifOS can return
 
 ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ L0: KERNEL — INTELLIGENCE KERNEL (SEALED)                     ┃
-┃ - 5 Organs (Delta/Omega/Psi governance engine)                ┃
-┃ - 9 System Calls (A-CLIP tools)                               ┃
-┃ - 13 Floors (existential enforcement)                         ┃
-┃ - VAULT999 (immutable audit filesystem)                       ┃
+┃ - 5 Organs (INIT, AGI, ASI, APEX, VAULT)                      ┃
+┃ - 13 Floors (existential constitutional enforcement)          ┃
+┃ - VAULT999 (immutable audit filesystem / PostgreSQL)          ┃
 ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛
 ```
 
@@ -135,7 +134,8 @@ python server.py
 | Use FastMCP HTTP transport | `--mode http` |
 
 #### Features
-- **22 Tools:** 9 AAA-MCP governance skills + 10 ACLIP-CAI sensory tools + 2 ChatGPT (search/fetch) + container tools
+- **5-Organ Trinity + Utilities:** 5 constitutional organs (`init_session`, `agi_cognition`, `asi_empathy`, `apex_verdict`, `vault_seal`) + 4 utilities (`search`, `fetch`, `analyze`, `system_audit`)
+- **Legacy 9-skills internalized:** `anchor`, `reason`, `integrate`, etc. are now encapsulated thermodynamic sub-routines within L0
 - **MCP Resource Templates:** `constitutional://mottos`, `constitutional://floors/{id}`, `system://health`, `tools://schemas/{tool}`
 
 Connect from OpenClaw, Claude Desktop, ChatGPT Developer Mode, or any MCP client.
@@ -175,7 +175,7 @@ Copy [`SYSTEM_PROMPT.md`](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) into any AI's s
 │  ┌─────────────────────────────────────────────────────────────┐│
 │  │ 3. EXECUTION SCHEDULING                                     ││
 │  │    000→111→222→333→555→666→777→888→999                      ││
-│  │    anchor→reason→validate→audit→seal                        ││
+│  │    Internal: anchor→reason→validate→audit→seal              ││
 │  └─────────────────────────────────────────────────────────────┘│
 │                              │                                  │
 │                              ▼                                  │
@@ -205,7 +205,7 @@ Every cognition must pass all 13 gates. Hard floors result in an immediate **VOI
 | F1 | **Amanah** | LOCK | Reversibility | Prevents permanent damage |
 | F2 | **Truth** | τ ≥ 0.99 | Grounding and evidence | Reduces hallucination risk |
 | F4 | **Clarity** | ΔS ≤ 0 | Entropy reduction | Keeps output actionable |
-| F7 | **Humility** | 0.03–0.15 | Uncertainty declaration | Makes limits explicit |
+| F7 | **Humility** | 0.03–0.05 | Uncertainty declaration | Makes limits explicit |
 | F10 | **Ontology** | LOCK | Reality-set validity | Blocks impossible/invalid claims |
 | F11 | **Authority** | LOCK | Requester verification | Preserves human sovereignty |
 | F12 | **Defense** | < 0.85 | Injection/jailbreak resistance | Blocks adversarial override |
@@ -222,11 +222,11 @@ Full specification: [`000_THEORY/000_LAW.md`](./000_THEORY/000_LAW.md)
 ### ✅ SEAL (Production)
 | Layer | Evidence |
 |:------|:---------|
-| **L0 KERNEL** | 5 organs, 9 system calls, 13 floors enforced |
-| **L1–L4** | 22 MCP tools (9 AAA + 10 ACLIP-CAI + 2 ChatGPT + container tools), multiple transports |
+| **L0 KERNEL** | 5 organs wired to 13 floors; `core/` kernel with zero transport dependencies |
+| **L1–L4** | 5-Organ Trinity + 4 Utilities exposed via `aaa_mcp/` FastMCP adapter; thermodynamic encapsulation |
 | **VAULT999** | PostgreSQL-backed immutable ledger with cryptographic seals |
-| **Unified Server** | Single `server.py` with 4 modes (rest/http/sse/stdio) and MCP Resource Templates |
-| **Live Deployment** | `https://arifosmcp.arif-fazil.com` (health: `https://arifosmcp.arif-fazil.com/health`) |
+| **Server** | FastMCP module (`python -m aaa_mcp`) with stdio/sse/http transports |
+| **Live Deployment** | `https://arifosmcp.arif-fazil.com` (health: `/health`) |
 
 ### 🟡 SABAR (Experimental / In Progress)
 | Component | Status |
