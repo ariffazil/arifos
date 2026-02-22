@@ -1,0 +1,53 @@
+/**
+ * arifOS Docs — Custom CSS
+ * Dark-first theme with constitutional gold accents.
+ */
+
+:root {
+  --ifm-color-primary: #00c896;
+  --ifm-color-primary-dark: #00b387;
+  --ifm-color-primary-darker: #00a87e;
+  --ifm-color-primary-darkest: #008b68;
+  --ifm-color-primary-light: #00dda5;
+  --ifm-color-primary-lighter: #00e2aa;
+  --ifm-color-primary-lightest: #00ffbf;
+  --ifm-code-font-size: 95%;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 200, 150, 0.1);
+}
+
+/* Dark mode — primary colours adjusted for contrast */
+[data-theme='dark'] {
+  --ifm-color-primary: #00ff88;
+  --ifm-color-primary-dark: #00e57a;
+  --ifm-color-primary-darker: #00d872;
+  --ifm-color-primary-darkest: #00b35e;
+  --ifm-color-primary-light: #1aff91;
+  --ifm-color-primary-lighter: #26ff97;
+  --ifm-color-primary-lightest: #52ffa9;
+  --docusaurus-highlighted-code-line-bg: rgba(0, 255, 136, 0.1);
+  --ifm-background-color: #0d1117;
+  --ifm-navbar-background-color: #1a1a2e;
+  --ifm-footer-background-color: #0d1117;
+}
+
+/* Constitutional gold for callouts and badges */
+.badge--gold {
+  background-color: #c8a000;
+  color: #000;
+}
+
+/* Mono font for floor scores and stage numbers */
+.floor-score, code {
+  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+}
+
+/* Admonition: 888_HOLD warning */
+.alert--warning {
+  border-left: 4px solid #ff8c00;
+}
+
+/* Navbar brand feels weightier */
+.navbar__brand {
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}

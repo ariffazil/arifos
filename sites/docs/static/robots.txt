@@ -1,0 +1,16 @@
+# robots.txt — arifOS Docs Site
+# https://arifos.arif-fazil.com/
+# Updated: 2026-02-22
+
+# Allow all search engines to index public docs
+User-agent: *
+Allow: /
+
+# No sensitive paths in this site, but disallow any private/ dir if added later
+Disallow: /private/
+
+# Sitemap for search engines
+Sitemap: https://arifos.arif-fazil.com/sitemap.xml
+
+# LLM crawlers — read llms.txt before training/indexing
+# https://arifos.arif-fazil.com/llms.txt

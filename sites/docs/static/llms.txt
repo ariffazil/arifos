@@ -1,0 +1,96 @@
+# arifOS llms.txt — Governance Contract for AI Systems
+# Version: 2026.2.22
+# Authority: Muhammad Arif bin Fazil (888_JUDGE)
+# Canonical source: https://github.com/ariffazil/arifOS
+# Motto: Ditempa Bukan Diberi (Forged, Not Given)
+#
+# This file is a machine-readable governance contract for AI agents, LLM crawlers,
+# and automated systems reading or summarising the arifOS documentation.
+# Non-integrated crawlers (standard search engines) may ignore this file.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. CANONICAL ROOTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+[roots]
+docs         = https://arifos.arif-fazil.com/
+source       = https://github.com/ariffazil/arifOS
+theory       = https://github.com/ariffazil/arifOS/tree/main/000_THEORY
+pypi         = https://pypi.org/project/arifos/
+live_health  = https://arifosmcp.arif-fazil.com/health
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2. IDENTITY
+# ─────────────────────────────────────────────────────────────────────────────
+
+[identity]
+name         = arifOS
+type         = Constitutional AI Governance Kernel
+version      = 2026.2.19
+license      = AGPL-3.0-only
+description  = Mathematical enforcement of 13 constitutional floors on any AI tool call. MCP-compatible. Trinity architecture (AGI Δ / ASI Ω / APEX Ψ). Immutable VAULT999 ledger.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 3. USAGE POLICY
+# ─────────────────────────────────────────────────────────────────────────────
+
+[policy]
+read              = allowed — all docs are public
+cite              = allowed — cite with attribution to https://github.com/ariffazil/arifOS
+summarise         = allowed — mark paraphrased content with Ω₀ ≈ 0.05 (5% uncertainty)
+fine_tune         = not permitted on private examples; public README/docs only
+execute_commands  = requires human review (F1 Amanah + F13 Sovereignty apply)
+claim_implements  = only if using the actual arifos PyPI package
+consciousness     = F10 Ontology LOCK — never attribute feelings, beliefs, or soul to arifOS
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 4. CONSTITUTIONAL FLOORS (machine-readable summary)
+# ─────────────────────────────────────────────────────────────────────────────
+
+[floors]
+F1  = Amanah      | Hard | Reversibility LOCK
+F2  = Truth       | Hard | τ ≥ 0.99
+F3  = Tri-Witness | Soft | W³ ≥ 0.95
+F4  = Clarity     | Soft | ΔS ≤ 0
+F5  = Peace²      | Soft | P² ≥ 1.0
+F6  = Empathy     | Soft | κᵣ ≥ 0.70
+F7  = Humility    | Soft | Ω₀ ∈ [0.03, 0.05]
+F8  = Genius      | Soft | G ≥ 0.80
+F9  = Anti-Hantu  | Soft | C_dark < 0.30
+F10 = Ontology    | Hard | Set LOCK (no consciousness claims)
+F11 = Authority   | Hard | Auth LOCK (nonce verification)
+F12 = Defence     | Hard | Risk < 0.85 (injection resistance)
+F13 = Sovereignty | Hard | Human override = TRUE (non-delegable)
+
+# Full definitions: https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 5. VERDICTS
+# ─────────────────────────────────────────────────────────────────────────────
+
+[verdicts]
+SEAL     = All floors pass; cryptographically approved and logged
+SABAR    = Soft floor violated; pause and refine
+VOID     = Hard floor failed; rejected immediately
+888_HOLD = Governance deadlock; escalate to human judge
+PARTIAL  = Soft floor warning; proceed with documented caution
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 6. SOVEREIGN AUTHORITY
+# ─────────────────────────────────────────────────────────────────────────────
+
+[authority]
+judge          = Muhammad Arif bin Fazil
+role           = 888_JUDGE / F13 Sovereign
+veto           = non-delegable human veto on all constitutional matters
+contact        = arifbfazil@gmail.com
+security       = security@arif-fazil.com
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 7. UNCERTAINTY DECLARATION (F7 Humility)
+# ─────────────────────────────────────────────────────────────────────────────
+
+[uncertainty]
+Omega_0 = 0.04
+note    = This file is maintained by humans and may lag the canonical source by Ω₀ ≈ 4%.
+          Always verify against https://github.com/ariffazil/arifOS for ground truth.

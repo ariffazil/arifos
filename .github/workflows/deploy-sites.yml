@@ -1,13 +1,12 @@
-# Deploy arifOS APPS site to GitHub Pages
-# Uses pre-built dist folder (build locally due to CI path issues)
+# Deploy arifOS docs site to GitHub Pages
 
-name: Deploy arifOS to GitHub Pages
+name: Deploy arifOS Docs to GitHub Pages
 
 on:
   push:
     branches: [main, master]
     paths:
-      - 'arif-fazil-sites/APPS/dist/**'
+      - 'sites/docs/**'
       - '.github/workflows/deploy-sites.yml'
   workflow_dispatch:
 
@@ -24,11 +23,26 @@ concurrency:
 
 jobs:
   build:
-    name: Build arifOS APPS
+    name: Build arifOS Docs
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: sites/docs/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: sites/docs
+
+      - name: Build docs
+        run: npm run build
+        working-directory: sites/docs
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -36,7 +50,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v4
         with:
-          path: arif-fazil-sites/APPS/dist
+          path: sites/docs/build
 
   deploy:
     name: Deploy to GitHub Pages
@@ -53,7 +67,7 @@ jobs:
       - name: Verify Deployment
         run: |
           echo "========================================"
-          echo "  arifOS APPS DEPLOYED"
+          echo "  arifOS DOCS DEPLOYED"
           echo "========================================"
           echo "  GitHub URL: ${{ steps.deployment.outputs.page_url }}"
           echo "  Custom Domain: https://arifos.arif-fazil.com"
