@@ -70,6 +70,16 @@ const config = {
         },
         items: [
           {
+            href: 'https://arif-fazil.com/',
+            label: 'HUMAN',
+            position: 'left',
+          },
+          {
+            href: 'https://apex.arif-fazil.com/',
+            label: 'THEORY',
+            position: 'left',
+          },
+          {
             type: 'docSidebar',
             sidebarId: 'docsSidebar',
             position: 'left',
@@ -101,6 +111,14 @@ const config = {
       footer: {
         style: 'dark',
         links: [
+          {
+            title: 'Trinity',
+            items: [
+              { label: 'HUMAN', href: 'https://arif-fazil.com/' },
+              { label: 'THEORY', href: 'https://apex.arif-fazil.com/' },
+              { label: 'APPS', href: 'https://arifos.arif-fazil.com/' },
+            ],
+          },
           {
             title: 'Docs',
             items: [
@@ -160,7 +178,7 @@ const config = {
         content:
           'LIVE: arifOS MCP is <a href="https://arifosmcp.arif-fazil.com">UP</a> - <a href="/mcp-server">Connect in 30 seconds</a>',
         backgroundColor: '#060a14',
-        textColor: '#f0c040',
+        textColor: '#3b82f6',
         isCloseable: true,
       },
     }),

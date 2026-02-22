@@ -1,7 +1,7 @@
 /* ===========================================
    arifOS APPS - Sovereign Theme
    Deep Blue + Red/Yellow/Blue Primaries
-   No green anywhere.
+   Palette contract: black + primary RGB only (red/yellow/blue). No green.
    =========================================== */
 
 /* ---- Design Tokens ---- */
@@ -12,30 +12,37 @@
   --sovereign-blue: #3b82f6;
 
   /* Surfaces */
-  --bg-deep: #0a0e1a;
-  --bg-surface: #0f1428;
-  --bg-card: #111832;
-  --bg-elevated: #161d3a;
-  --bg-code: #080c18;
+  --bg-deep: #000000;
+  --bg-surface: #050810;
+  --bg-card: #080c18;
+  --bg-elevated: #0c1020;
+  --bg-code: #000000;
 
   /* Borders */
-  --border-subtle: rgba(59, 130, 246, 0.12);
-  --border-hover: rgba(240, 192, 64, 0.5);
+  --border-subtle: rgba(59, 130, 246, 0.18);
+  --border-hover: rgba(59, 130, 246, 0.55);
   --border-gold: rgba(240, 192, 64, 0.25);
 
   /* Text */
-  --text-primary: #f0f0f5;
-  --text-secondary: rgba(240, 240, 245, 0.6);
-  --text-muted: rgba(240, 240, 245, 0.35);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.72);
+  --text-muted: rgba(255, 255, 255, 0.45);
 
   /* Docusaurus overrides */
-  --ifm-color-primary: #f0c040;
-  --ifm-color-primary-dark: #daa830;
-  --ifm-color-primary-darker: #c89528;
-  --ifm-color-primary-darkest: #a67a1c;
-  --ifm-color-primary-light: #f5d060;
-  --ifm-color-primary-lighter: #f8dc80;
-  --ifm-color-primary-lightest: #fcf0c0;
+  /* Primary contrast = BLUE (arifOS APPS) */
+  --ifm-color-primary: var(--sovereign-blue);
+  --ifm-color-primary-dark: #2f6cd0;
+  --ifm-color-primary-darker: #2a62bf;
+  --ifm-color-primary-darkest: #214e98;
+  --ifm-color-primary-light: #5b9cf6;
+  --ifm-color-primary-lighter: #79aff9;
+  --ifm-color-primary-lightest: #a9ccff;
+
+  /* Clamp Docusaurus semantic colors to palette contract (no green) */
+  --ifm-color-success: var(--sovereign-blue);
+  --ifm-color-info: var(--sovereign-blue);
+  --ifm-color-warning: var(--sovereign-yellow);
+  --ifm-color-danger: var(--sovereign-red);
 
   --ifm-background-color: var(--bg-deep);
   --ifm-background-surface-color: var(--bg-surface);
@@ -47,7 +54,7 @@
   --ifm-code-font-size: 90%;
   --ifm-heading-color: var(--text-primary);
   --ifm-font-color-base: var(--text-secondary);
-  --ifm-link-color: var(--sovereign-yellow);
+  --ifm-link-color: var(--sovereign-blue);
   --ifm-hero-background-color: var(--bg-deep);
   --ifm-hero-text-color: var(--text-primary);
   --ifm-card-background-color: var(--bg-card);
@@ -58,34 +65,44 @@
 
 /* Force same vars in dark mode */
 [data-theme='dark'] {
-  --ifm-color-primary: #f0c040;
-  --ifm-color-primary-dark: #daa830;
-  --ifm-color-primary-darker: #c89528;
-  --ifm-color-primary-darkest: #a67a1c;
-  --ifm-color-primary-light: #f5d060;
-  --ifm-color-primary-lighter: #f8dc80;
-  --ifm-color-primary-lightest: #fcf0c0;
+  --ifm-color-primary: var(--sovereign-blue);
+  --ifm-color-primary-dark: #2f6cd0;
+  --ifm-color-primary-darker: #2a62bf;
+  --ifm-color-primary-darkest: #214e98;
+  --ifm-color-primary-light: #5b9cf6;
+  --ifm-color-primary-lighter: #79aff9;
+  --ifm-color-primary-lightest: #a9ccff;
+
+  --ifm-color-success: var(--sovereign-blue);
+  --ifm-color-info: var(--sovereign-blue);
+  --ifm-color-warning: var(--sovereign-yellow);
+  --ifm-color-danger: var(--sovereign-red);
   --ifm-background-color: var(--bg-deep);
   --ifm-background-surface-color: var(--bg-surface);
   --ifm-navbar-background-color: #060a14;
   --ifm-footer-background-color: #050810;
   --ifm-heading-color: var(--text-primary);
   --ifm-font-color-base: var(--text-secondary);
-  --ifm-link-color: var(--sovereign-yellow);
+  --ifm-link-color: var(--sovereign-blue);
   --ifm-card-background-color: var(--bg-card);
   --ifm-toc-border-color: var(--border-subtle);
 }
 
 /* Force dark even in light */
 [data-theme='light'] {
-  --ifm-color-primary: #daa830;
-  --ifm-background-color: #0c1020;
-  --ifm-background-surface-color: #101528;
+  --ifm-color-primary: var(--sovereign-blue);
+  --ifm-background-color: var(--bg-deep);
+  --ifm-background-surface-color: var(--bg-surface);
   --ifm-navbar-background-color: #080c18;
   --ifm-footer-background-color: #060a14;
   --ifm-heading-color: var(--text-primary);
   --ifm-font-color-base: var(--text-secondary);
-  --ifm-link-color: #daa830;
+  --ifm-link-color: var(--sovereign-blue);
+
+  --ifm-color-success: var(--sovereign-blue);
+  --ifm-color-info: var(--sovereign-blue);
+  --ifm-color-warning: var(--sovereign-yellow);
+  --ifm-color-danger: var(--sovereign-red);
 }
 
 /* ---- Global ---- */
@@ -126,7 +143,7 @@ body {
 
 .navbar__link:hover,
 .navbar__link--active {
-  color: var(--sovereign-yellow) !important;
+  color: var(--sovereign-blue) !important;
 }
 
 /* ---- Announcement Bar ---- */
@@ -140,7 +157,7 @@ div[class*='announcementBar'] {
 }
 
 div[class*='announcementBar'] a {
-  color: var(--sovereign-yellow) !important;
+  color: var(--sovereign-blue) !important;
   font-weight: 700;
 }
 
