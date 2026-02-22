@@ -1,5 +1,5 @@
 // @ts-check
-// docusaurus.config.js — arifOS Docs Site
+// docusaurus.config.js - arifOS Docs Site
 // Target: https://arifos.arif-fazil.com/
 // Source: https://github.com/ariffazil/arifOS
 
@@ -145,7 +145,7 @@ const config = {
             ],
           },
         ],
-        copyright: `arifOS — <em>Ditempa Bukan Diberi</em> (Forged, Not Given)<br/>Built ${new Date().getFullYear()} · Muhammad Arif bin Fazil · AGPL-3.0`,
+        copyright: `arifOS - <em>Ditempa Bukan Diberi</em> (Forged, Not Given)<br/>Built ${new Date().getFullYear()} - Muhammad Arif bin Fazil - AGPL-3.0`,
       },
 
       prism: {
@@ -158,7 +158,7 @@ const config = {
       announcementBar: {
         id: 'live_status',
         content:
-          '🟢 arifOS MCP is <a href="https://arifosmcp.arif-fazil.com">LIVE</a> — <a href="/mcp-server">Connect in 30 seconds</a>',
+          'LIVE: arifOS MCP is <a href="https://arifosmcp.arif-fazil.com">UP</a> - <a href="/mcp-server">Connect in 30 seconds</a>',
         backgroundColor: '#1a1a2e',
         textColor: '#00ff88',
         isCloseable: true,
