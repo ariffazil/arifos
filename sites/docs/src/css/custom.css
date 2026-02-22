@@ -145,6 +145,24 @@ div[class*='announcementBar'] a {
 }
 
 /* ===============================
+   HOMEPAGE GRID FIX
+   =============================== */
+/*
+  Docusaurus homepages often use CSS modules like `grid_VHx4` (generated from `.grid`).
+  If that class is placed on a wrapping `<section>` that contains a `.container`, the
+  container becomes a grid item and may collapse to a single column width (causing the
+  "vertical letter-stack" cards seen on the live landing page).
+*/
+main > section[class^='grid_'] {
+  justify-items: stretch;
+}
+
+main > section[class^='grid_'] > .container {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+/* ===============================
    TRINITY NAV
    =============================== */
 .trinity-nav {
