@@ -6,12 +6,13 @@ This script provides a direct bridge between terminal output and Kimi CLI,
 enabling seamless copy/paste functionality with slash command support.
 """
 
-import sys
-import os
-import tempfile
 import argparse
+import os
+import sys
+import tempfile
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
+
 
 
 def capture_terminal_output(lines: int = 50, output_file: Optional[str] = None) -> str:

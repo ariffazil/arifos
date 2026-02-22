@@ -4,9 +4,10 @@ arifOS Docker MCP Server (stdio mode)
 Simple stdio-based MCP for Kimi Code CLI
 """
 
-import sys
 import json
 import subprocess
+import sys
+
 
 
 def send_message(msg):

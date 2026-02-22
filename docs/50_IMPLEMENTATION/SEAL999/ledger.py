@@ -4,12 +4,12 @@ LEDGER IMPLEMENTATION
 Hash-chain and Merkle tree for VAULT-999 integrity.
 """
 
-import os
 import json
+import os
 from datetime import datetime
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
-from .state import VaultEntry, SessionLedger, VaultConfig
+from .state import SessionLedger, VaultConfig, VaultEntry
 
 
 class HashChain:

@@ -17,12 +17,13 @@ F10 Ontology Wall: LOCK enforced
 DITEMPA BUKAN DIBERI
 """
 
-from dataclasses import dataclass, field
-from typing import Tuple, Dict, Optional, List, Any
-from enum import Enum
-import math
 import logging
-from codebase.system.safe_types import safe_float, safe_bool
+import math
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any, Dict, List, Optional, Tuple
+
+from codebase.system.safe_types import safe_bool, safe_float
 
 logger = logging.getLogger(__name__)
 

@@ -21,9 +21,9 @@ DITEMPA BUKAN DIBERI - Your environment will be forged!
 """
 
 import os
-import sys
-import subprocess
 import platform
+import subprocess
+import sys
 from pathlib import Path
 from typing import Optional, Tuple
 

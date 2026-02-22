@@ -3,12 +3,13 @@ F1: AMANAH (Sacred Trust)
 Canonical implementation of the First Floor.
 """
 
-from dataclasses import dataclass
-from typing import Dict, Any, Optional, List
-import re
 import hashlib
 import logging
-from codebase.system.safe_types import safe_float, safe_bool
+import re
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
+from codebase.system.safe_types import safe_bool, safe_float
 
 logger = logging.getLogger(__name__)
 

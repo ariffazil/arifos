@@ -13,6 +13,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, List, Any, Optional
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
 
 
 class OperatorType(Enum):

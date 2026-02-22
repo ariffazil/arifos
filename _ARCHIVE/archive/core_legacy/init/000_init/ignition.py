@@ -8,13 +8,13 @@ Usage:
     python -m canonical_core.ignition "System check"
 """
 
-import sys
 import json
 import logging
+import sys
 from typing import Optional
 
 # Use relative imports (we're inside the 000_init package)
-from .stage_000_core import execute_stage_000, VerdictType
+from .stage_000_core import VerdictType, execute_stage_000
 
 try:
     from codebase.constitutional_floors import ALL_FLOORS

@@ -14,7 +14,6 @@ print("=" * 60)
 # Test 1: Import all modules
 print("\n[1] Testing imports...")
 try:
-    from aaa_mcp.server import mcp as mcp_server
     from aaa_mcp import __version__
 
     print(f"✅ All imports successful (version: {__version__})")

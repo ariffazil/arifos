@@ -12,8 +12,8 @@ while providing gears for AI.
 Version: 1.0.0-LOW_ENTROPY
 """
 
-from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 
 @dataclass(frozen=True)

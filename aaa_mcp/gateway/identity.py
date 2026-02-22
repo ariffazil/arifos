@@ -9,12 +9,12 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
+import hashlib
+import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Dict, List, Optional, Any
-import hashlib
-import json
+from typing import Any, Dict, List, Optional
 
 
 class IdentitySource(str, Enum):

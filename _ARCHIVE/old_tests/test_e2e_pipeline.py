@@ -13,10 +13,10 @@ import time
 sys.path.insert(0, ".")
 
 from aaa_mcp.server import (
-    init_gate,
-    agi_sense,
     agi_reason,
+    agi_sense,
     apex_verdict,
+    init_gate,
     vault_seal,
 )
 

@@ -26,27 +26,21 @@ from . import _3_apex as soul
 from . import _4_vault as memory
 
 # Unified interfaces
-from ._0_init import init
-from ._1_agi import agi
-from ._2_asi import asi
-from ._3_apex import apex
-from ._4_vault import vault
-
 # Actions for direct use
 from ._0_init import (
-    init,
-    scan_injection,
-    verify_auth,
-    requires_sovereign,
-    SessionToken,
     AuthorityLevel,
-    validate_token,
+    SessionToken,
     get_authority_name,
+    init,
+    requires_sovereign,
+    scan_injection,
+    validate_token,
+    verify_auth,
 )
-from ._1_agi import sense, think, reason
-from ._2_asi import empathize, align
-from ._3_apex import sync, forge, judge
-from ._4_vault import seal, query, verify, SealReceipt
+from ._1_agi import agi, reason, sense, think
+from ._2_asi import align, asi, empathize
+from ._3_apex import apex, forge, judge, sync
+from ._4_vault import SealReceipt, query, seal, vault, verify
 
 # Humanized aliases
 anchor = init

@@ -42,7 +42,7 @@ async def validate():
 
     # Check 1: Core imports
     try:
-        from core.organs import init, agi, asi, apex, vault
+        from core.organs import agi, apex, asi, init, vault
         from core.pipeline import forge, quick_check
 
         checks.append("Core imports")

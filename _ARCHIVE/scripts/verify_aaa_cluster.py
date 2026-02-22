@@ -6,6 +6,8 @@ Verifies the Petronas Pattern topology: Axis, Arif, Apex, and Gateway.
 import sys
 import os
 import asyncio
+import os
+import sys
 from typing import List
 
 # Ensure we can import from root

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional, Literal, Dict, Any
+from typing import Any, Dict, Literal, Optional
 
 Verdict = Literal["SEAL", "SABAR", "VOID"]
 

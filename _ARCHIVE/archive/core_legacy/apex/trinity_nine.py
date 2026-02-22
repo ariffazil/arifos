@@ -37,11 +37,10 @@ DITEMPA BUKAN DIBERI
 from __future__ import annotations
 
 import math
-import numpy as np
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple, Callable
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 # ============ CONSTANTS ============
 

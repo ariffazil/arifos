@@ -9,9 +9,9 @@ Provides:
 Marginal effort, big UX win.
 """
 
-from enum import Enum
-from typing import Dict, Any, Optional, List
 from dataclasses import dataclass
+from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class OutputMode(str, Enum):

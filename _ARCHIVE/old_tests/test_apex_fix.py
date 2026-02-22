@@ -6,9 +6,9 @@ import sys
 sys.path.insert(0, ".")
 
 from aaa_mcp.services.constitutional_metrics import (
+    _EVIDENCE_VAULT,
     get_session_evidence,
     store_stage_result,
-    _EVIDENCE_VAULT,
 )
 
 

@@ -2,12 +2,13 @@
 # T6 Web Search — Brave Search API integration (v62 Step 2)
 # Real evidence grounding for F2 Truth verification
 
-import os
 import hashlib
 import re
 from typing import List
 from dataclasses import dataclass
 from datetime import datetime, timezone
+from typing import List, Optional
+
 import httpx
 
 BRAVE_API_KEY = os.getenv("BRAVE_API_KEY")

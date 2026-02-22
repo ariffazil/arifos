@@ -10,39 +10,39 @@ Machine-executable governance layer:
 Version: 1.1.0-LOW_ENTROPY
 """
 
-from .operators import PrincipleOperator, OPERATOR_REGISTRY
 from .mapping import SchemaMottoMapper, get_schema_for_stage
-from .schemas import (
-    TOOL_SCHEMAS,
-    STAGE_OPERATORS,
-    OUTPUT_CONTRACTS,
-)
+from .operators import OPERATOR_REGISTRY, PrincipleOperator
 from .response import (
+    NEXT_STEP_TEMPLATES,
     UnifiedResponse,
+    build_align_response,
+    build_empathize_response,
+    build_error_response,
     build_init_response,
+    build_reason_response,
+    build_seal_response,
     build_sense_response,
     build_think_response,
-    build_reason_response,
-    build_empathize_response,
-    build_align_response,
     build_verdict_response,
-    build_seal_response,
-    build_error_response,
-    validate_input,
-    render_user_answer,
     get_next_step_template,
-    NEXT_STEP_TEMPLATES,
+    render_user_answer,
+    validate_input,
+)
+from .schemas import (
+    OUTPUT_CONTRACTS,
+    STAGE_OPERATORS,
+    TOOL_SCHEMAS,
 )
 from .tool_registry import (
-    ToolSpec,
     CANONICAL_TOOLS,
-    get_tool_spec,
-    get_tool_by_stage,
-    get_next_tool,
-    validate_tool_path,
-    get_pipeline_sequence,
+    ToolSpec,
     export_tool_schema_for_agents,
     get_agent_selection_hints,
+    get_next_tool,
+    get_pipeline_sequence,
+    get_tool_by_stage,
+    get_tool_spec,
+    validate_tool_path,
 )
 
 __all__ = [

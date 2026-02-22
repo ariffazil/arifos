@@ -8,8 +8,9 @@ import sys
 # Test import
 sys.path.insert(0, "C:\\Users\\User\\arifOS")
 
-from SEAL999 import SEAL999, VaultEntry, VaultConfig
 from datetime import datetime
+
+from SEAL999 import SEAL999, VaultConfig, VaultEntry
 
 print("=== SEAL999 Final Verification ===\n")
 

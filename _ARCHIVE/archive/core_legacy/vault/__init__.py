@@ -11,31 +11,30 @@ Doctrine: Theory of Anomalous Contrast (888_SOUL_VERDICT.md)
 """
 
 # HARDENED: Only export hardened implementations
-from .persistent_ledger_hardened import (
-    HardenedPersistentVaultLedger,
-    should_use_postgres,
-    get_vault_dsn,
-    get_hardened_vault_ledger,
-    GENESIS_HASH,
-    SealContractViolation,
-    enforce_seal_contract,
-)
-
 # HARDENED: EUREKA sieve
 from .eureka_sieve_hardened import (
-    HardenedEUREKASieve,
-    HardenedAnomalousContrastEngine,
-    EUREKAScore,
-    should_seal_to_vault_hardened,
-    create_hardened_sieve,
     EUREKA_THRESHOLD,
     SABAR_THRESHOLD,
+    EUREKAScore,
+    HardenedAnomalousContrastEngine,
+    HardenedEUREKASieve,
+    create_hardened_sieve,
+    should_seal_to_vault_hardened,
 )
 
 # Incremental Merkle (O(log N))
 from .incremental_merkle import (
     IncrementalMerkleTree,
     PersistentMerkleState,
+)
+from .persistent_ledger_hardened import (
+    GENESIS_HASH,
+    HardenedPersistentVaultLedger,
+    SealContractViolation,
+    enforce_seal_contract,
+    get_hardened_vault_ledger,
+    get_vault_dsn,
+    should_use_postgres,
 )
 
 # Backwards compatibility aliases

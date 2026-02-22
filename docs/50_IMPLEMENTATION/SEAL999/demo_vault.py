@@ -3,18 +3,19 @@ Demo script for SEAL-999 canonical vault.
 Shows basic functionality without pytest.
 """
 
-import sys
 import os
+import sys
 
 # Add canonical vault to path
 vault_path = os.path.dirname(os.path.abspath(__file__))
 if vault_path not in sys.path:
     sys.path.insert(0, vault_path)
 
-from datetime import datetime
-from vault import SEAL999, VaultEntry
-from state import VaultConfig
 import tempfile
+from datetime import datetime
+
+from state import VaultConfig
+from vault import SEAL999, VaultEntry
 
 
 def test_basic_flow():

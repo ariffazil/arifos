@@ -30,13 +30,13 @@ import json
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
-from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, TYPE_CHECKING
+from datetime import datetime, timedelta, timezone
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Literal, Optional, Tuple
 
 if TYPE_CHECKING:
-    from .scar_manager import ScarManager, ScarRecord
-    from .vault_manager import VaultManager, AmendmentRecord, AmendmentEvidence
     from .cooling_ledger import CoolingLedgerV37
+    from .scar_manager import ScarManager, ScarRecord
+    from .vault_manager import AmendmentEvidence, AmendmentRecord, VaultManager
 
 
 logger = logging.getLogger(__name__)

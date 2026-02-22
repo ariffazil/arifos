@@ -4,14 +4,14 @@ SEAL-999 CANONICAL IMPLEMENTATION
 The one and only sovereign vault for constitutional memory.
 """
 
-import os
-import json
 import hashlib
+import json
+import os
 from datetime import datetime, timedelta
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
-from .state import VaultEntry, SessionLedger, VaultConfig
 from .ledger import HashChain, Ledger
+from .state import SessionLedger, VaultConfig, VaultEntry
 from .zkpc import ZKPCGenerator
 
 

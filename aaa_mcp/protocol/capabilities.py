@@ -10,6 +10,7 @@ Version: 1.0.0-SEAL
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class ToolCategory(str, Enum):

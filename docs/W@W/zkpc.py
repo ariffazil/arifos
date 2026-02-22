@@ -16,7 +16,7 @@ import datetime as _dt
 import hashlib
 import json
 import uuid
-from typing import Dict, Any
+from typing import Any, Dict
 
 
 @dataclasses.dataclass

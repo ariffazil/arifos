@@ -9,8 +9,8 @@ arifOS IDE-Agnostic Auto-Bootstrap Script
 """
 
 import os
-import sys
 import subprocess
+import sys
 from pathlib import Path
 
 

@@ -15,11 +15,11 @@ DITEMPA BUKAN DIBERI
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
-from typing import Any, Callable, Dict, List, Optional, Tuple
-from enum import Enum, auto
-from datetime import datetime, timezone
 import random
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import Enum, auto
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 
 class ActionType(Enum):

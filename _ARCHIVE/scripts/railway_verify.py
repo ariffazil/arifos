@@ -4,9 +4,9 @@ VAULT999 Railway Verification Tool
 Run: python scripts/railway_verify.py
 """
 
+import os
 import subprocess
 import tempfile
-import os
 
 VERIFY_CODE = '''
 import asyncio

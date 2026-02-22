@@ -27,9 +27,9 @@ except ImportError:
 
 try:
     from .web_search_noapi import (
-        WebSearchNoAPI,
         DuckDuckGoSearcher,
         PlaywrightSearcher,
+        WebSearchNoAPI,
     )
 except ImportError:
     WebSearchNoAPI = None  # type: ignore
@@ -38,9 +38,9 @@ except ImportError:
 
 try:
     from .web_browser import (
-        WebBrowser,
-        SimpleHTTPFetcher,
         PlaywrightBrowser,
+        SimpleHTTPFetcher,
+        WebBrowser,
     )
 except ImportError:
     WebBrowser = None  # type: ignore

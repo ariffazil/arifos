@@ -16,21 +16,20 @@ Philosophy:
 
 from __future__ import annotations
 
-import logging
-import time
-import os
-import json
-import hashlib
 import base64
+import hashlib
+import json
+import logging
+import os
+import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 from uuid import uuid4
-from pathlib import Path
 
 # Real crypto imports
 try:
-    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
     from cryptography.hazmat.primitives import serialization
 
     CRYPTO_AVAILABLE = True
@@ -50,10 +49,10 @@ except ImportError:
 # Native codebase imports
 try:
     from codebase.enforcement.metrics import (
-        TRUTH_THRESHOLD,
-        PEACE_SQUARED_THRESHOLD,
-        OMEGA_0_MIN,
         OMEGA_0_MAX,
+        OMEGA_0_MIN,
+        PEACE_SQUARED_THRESHOLD,
+        TRUTH_THRESHOLD,
     )
 except ImportError:
     # Defaults if imports fail

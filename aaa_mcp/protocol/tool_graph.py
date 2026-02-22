@@ -10,6 +10,7 @@ Version: 1.0.0-SEAL
 from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Dict, List, Optional, Set
 
 
 class ToolPosition(str, Enum):

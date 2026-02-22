@@ -8,7 +8,9 @@ Enforces the immutable laws of the agentic environment.
 
 import time
 import asyncio
-from typing import Dict, Any, Optional
+import time
+from typing import Any, Dict, Optional
+
 
 
 class TokenPhysics:

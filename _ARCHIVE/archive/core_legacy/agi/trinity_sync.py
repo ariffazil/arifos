@@ -22,7 +22,8 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
-from codebase.bundles import DeltaBundle, OmegaBundle, EngineVote, MergedBundle
+from codebase.bundles import DeltaBundle, EngineVote, MergedBundle, OmegaBundle
+
 
 
 # Lazy imports — legacy engines may be unavailable (archived deps)

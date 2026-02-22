@@ -17,15 +17,16 @@ Requirements:
     - Requires ed25519 keys for signing
 """
 
-import os
-import sys
-import json
 import base64
 import getpass
 import hashlib
-from pathlib import Path
+import json
+import os
+import sys
 from datetime import datetime
-from typing import Dict, Any
+from pathlib import Path
+from typing import Any, Dict
+
 
 
 def check_human_authority():
@@ -135,8 +136,6 @@ def create_self_signature(
 ) -> str:
     """Create self-signature proving key ownership."""
     try:
-        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-        from cryptography.hazmat.primitives import hashes
         from cryptography.exceptions import InvalidSignature
 
         # Load private key

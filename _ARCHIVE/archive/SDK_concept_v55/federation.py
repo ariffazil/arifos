@@ -21,14 +21,14 @@ Author: Muhammad Arif bin Fazil
 License: AGPL-3.0-only
 """
 
-from typing import Optional
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from typing import Optional
 
-from .base_agent import Verdict, AgentOutput, FloorScores
 from .architect import Architect, ArchitectPlan
-from .engineer import Engineer
 from .auditor import Auditor
+from .base_agent import AgentOutput, FloorScores, Verdict
+from .engineer import Engineer
 from .validator import Validator
 
 

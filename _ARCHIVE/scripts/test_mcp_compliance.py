@@ -356,7 +356,7 @@ async def test_server_directly() -> ComplianceReport:
     report = ComplianceReport()
 
     try:
-        from arifos.mcp.server import create_mcp_server, TOOL_DESCRIPTIONS
+        from arifos.mcp.server import TOOL_DESCRIPTIONS, create_mcp_server
     except ImportError as e:
         report.add(
             TestResult(

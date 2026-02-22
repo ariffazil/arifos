@@ -23,16 +23,16 @@ from __future__ import annotations
 import datetime as _dt
 import uuid
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
 from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 from codebase.state.ledger_hashing import (
+    GENESIS_PREVIOUS_HASH,
+    HASH_FIELD,
+    PREVIOUS_HASH_FIELD,
     compute_entry_hash,
     dump_jsonl,
     load_jsonl,
-    HASH_FIELD,
-    PREVIOUS_HASH_FIELD,
-    GENESIS_PREVIOUS_HASH,
 )
 from codebase.state.merkle import build_merkle_tree
 

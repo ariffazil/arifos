@@ -3,16 +3,16 @@ arifOS v45 - Sovereign Signatures (Ed25519)
 Cryptographic non-repudiation for Tier-4 Verdicts.
 """
 
-from typing import Optional, Tuple
 import hashlib
 import os
+from typing import Optional, Tuple
 
 # Try to import VerifyKey/SigningKey from nacl (PyNaCl)
 # If unavailable, we provide a placeholder wrapper that fails securely or warns
 try:
-    from nacl.signing import SigningKey, VerifyKey
     from nacl.encoding import HexEncoder
     from nacl.exceptions import BadSignatureError
+    from nacl.signing import SigningKey, VerifyKey
 
     HAS_NACL = True
 except ImportError:

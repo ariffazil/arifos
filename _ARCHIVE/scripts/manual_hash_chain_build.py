@@ -5,10 +5,11 @@ Manual Hash Chain Builder for VAULT999
 Builds hash chain from markdown entries when sync script fails.
 """
 
-import os
 import hashlib
-from pathlib import Path
+import os
 from datetime import datetime
+from pathlib import Path
+
 
 
 def build_hash_chain():

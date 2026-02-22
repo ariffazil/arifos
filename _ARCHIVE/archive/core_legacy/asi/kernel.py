@@ -18,8 +18,8 @@ from codebase.bundles import EngineVote, OmegaBundle
 from . import (
     ASIEngine,
     cleanup_expired_sessions,
-    get_asi_engine,
     execute_asi,
+    get_asi_engine,
 )
 
 logger = logging.getLogger(__name__)

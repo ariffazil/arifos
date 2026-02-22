@@ -5,8 +5,8 @@ Ensures deterministic, callable tool paths for all AAA MCP tools.
 Prevents "connector not installed" confusion by providing stable identifiers.
 """
 
-from typing import Dict, Optional, List
 from dataclasses import dataclass
+from typing import Dict, List, Optional
 
 
 @dataclass

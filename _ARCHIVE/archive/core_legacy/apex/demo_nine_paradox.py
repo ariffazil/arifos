@@ -7,7 +7,6 @@ Run: python demo_nine_paradox.py
 """
 
 import asyncio
-import numpy as np
 from typing import Dict, List
 
 from trinity_nine import (
@@ -20,6 +19,15 @@ from trinity_nine import (
     EQUILIBRIUM_THRESHOLD,
 )
 from equilibrium_finder import EquilibriumFinder, demonstrate_equilibrium
+from trinity_nine import (
+    EQUILIBRIUM_THRESHOLD,
+    NineFoldBundle,
+    NineParadox,
+    TrinityNine,
+    TrinityTier,
+    create_nine_paradoxes,
+    trinity_nine_sync,
+)
 
 
 def print_matrix(paradoxes: Dict[str, NineParadox], title: str = "9-PARADOX MATRIX"):

@@ -4,8 +4,9 @@ Stage 666: Bridge - Neuro-Symbolic Synthesis logic.
 
 import logging
 from typing import Any, Dict
-from codebase.engines.bridge.neuro_symbolic_bridge import NeuroSymbolicBridgeNative
+
 from codebase.bundle_store import get_store
+from codebase.engines.bridge.neuro_symbolic_bridge import NeuroSymbolicBridgeNative
 
 logger = logging.getLogger(__name__)
 

@@ -7,16 +7,17 @@ Provides Docker container management via Model Context Protocol
 
 import asyncio
 import json
-import subprocess
 import os
+import subprocess
 from typing import Any, Optional
+
+import uvicorn
 from mcp.server import Server
 from mcp.server.sse import SseServerTransport
-from mcp.types import Tool, TextContent
+from mcp.types import TextContent, Tool
 from starlette.applications import Starlette
-from starlette.routing import Route, Mount
 from starlette.responses import JSONResponse
-import uvicorn
+from starlette.routing import Mount, Route
 
 # Initialize MCP Server
 app = Server("arifos-docker-mcp")

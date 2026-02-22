@@ -6,10 +6,11 @@ Runs the Empathy (555) and Alignment (666) engines.
 Produces the Omega Bundle.
 """
 
-from typing import Dict, Any, Tuple, List
 import logging
+from typing import Any, Dict, List, Tuple
+
+from codebase.bundles import ASIFloorScores, EngineVote, OmegaBundle, Stakeholder
 from codebase.state import SessionState
-from codebase.bundles import OmegaBundle, ASIFloorScores, EngineVote, Stakeholder
 
 logger = logging.getLogger("STAGE_666")
 

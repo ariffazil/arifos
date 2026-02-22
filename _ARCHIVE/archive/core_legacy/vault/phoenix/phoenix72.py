@@ -9,10 +9,9 @@ Specification: spec/PHOENIX_72.md
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from typing import Any, Dict, List, Optional
 
-from ..vault.vault999 import Vault999
 from ..ledger.cooling_ledger import CoolingLedger
 
 # -------------------------
