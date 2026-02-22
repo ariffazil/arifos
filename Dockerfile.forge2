@@ -1,0 +1,61 @@
+# arifOS FORGE-2 Production Dockerfile
+# Non-root distroless runtime with UV + Gunicorn
+# Based on TRINITY-2 Security & Observability Blueprint
+
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential curl git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy dependency manifests
+COPY pyproject.toml uv.lock requirements.txt ./
+
+# Install UV and dependencies
+RUN pip install --no-cache-dir uv && \
+    uv pip install --system -r requirements.txt
+
+# Copy source code and install package
+COPY . .
+RUN uv pip install --system .
+
+# --- Runtime Stage (Distroless) ---
+FROM gcr.io/distroless/python3-debian12:nonroot AS runtime
+
+WORKDIR /app
+
+# Copy installed packages from builder
+COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
+COPY --from=builder /app .
+
+# Non-root user (distroless default: nonroot:65532)
+USER nonroot
+
+# Runtime environment
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PORT=8080 \
+    HOST=0.0.0.0
+
+EXPOSE 8080
+
+# Health check (requires curl in distroless - using wget instead)
+HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=3 \
+    CMD wget -q --spider http://localhost:${PORT}/health || exit 1
+
+# Container metadata
+LABEL org.opencontainers.image.title="arifOS MCP Server" \
+      org.opencontainers.image.description="Constitutional AI Governance System with MCP Protocol" \
+      org.opencontainers.image.version="2026.2.23-forge2" \
+      org.opencontainers.image.source="https://github.com/ariffazil/arifOS" \
+      org.opencontainers.image.licenses="AGPL-3.0-only"
+
+# Gunicorn with Uvicorn workers for production
+CMD ["gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", \
+     "--workers", "4", "--bind", "0.0.0.0:8080", "aaa_mcp.rest:app"]
+
+# Alternative command for development (comment out above, uncomment below):
+# CMD ["python", "-m", "aaa_mcp", "rest"]

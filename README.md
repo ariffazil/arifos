@@ -13,9 +13,10 @@
 [![Python](https://img.shields.io/badge/python-3.12+-green?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)  
 [![Dashboard](https://img.shields.io/badge/Dashboard-Live-FF6600?style=for-the-badge&logo=cloudflare&logoColor=white)](https://674a01a3.arifosmcp-truth-claim.pages.dev)
 [![Tests](https://img.shields.io/github/actions/workflow/status/ariffazil/arifOS/live_tests.yml?branch=main&style=for-the-badge&label=Tests&logo=github)](https://github.com/ariffazil/arifOS/actions/workflows/live_tests.yml)
-[![Deploy](https://img.shields.io/badge/Deploy-Coolify-06b6d4?style=for-the-badge&logo=docker)](https://coolify.io)
+[![Deploy](https://img.shields.io/badge/Deploy-Coolify-06b6d4?style=for-the-badge&logo=docker)](https://coolify.io)  
+[![YouTube](https://img.shields.io/badge/Demo-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/AJ92efMy1ns)
 
-[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🏗️ Architecture](#%EF%B8%8F-architecture) • [🤝 Contributing](#-contributing) • [⚖️ License](#%EF%B8%8F-license)
+[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🏗️ Architecture](#%EF%B8%8F-architecture) • [🎬 Demo Video](#-demo-video) • [🤝 Contributing](#-contributing) • [⚖️ License](#%EF%B8%8F-license)
 
 </div>
 
@@ -529,12 +530,25 @@ mypy .
 
 ---
 
+## 🎬 Demo Video
+
+**Watch arifOS in Action** (5 minutes):
+
+[![arifOS Demo Video](https://img.youtube.com/vi/AJ92efMy1ns/maxresdefault.jpg)](https://youtu.be/AJ92efMy1ns)
+
+**Click to watch**: [YouTube Demo](https://youtu.be/AJ92efMy1ns)
+
+Learn how arifOS enforces constitutional governance, blocks hallucinations, and maintains human sovereignty in real-time.
+
+---
+
 ## 🌍 Community & Support
 
 - **Discord**: [Join arifOS Discord](https://discord.gg/arifos) (coming soon)
 - **GitHub Issues**: [Report bugs or request features](https://github.com/ariffazil/arifOS/issues)
 - **Email**: arifbfazil@gmail.com
 - **Twitter/X**: [@arifbfazil](https://twitter.com/arifbfazil)
+- **YouTube**: [arifOS Channel](https://youtube.com/@arifbfazil)
 
 **Commercial support**: Email for enterprise licensing and support contracts.
 
