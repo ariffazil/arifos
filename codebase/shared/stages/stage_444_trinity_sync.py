@@ -4,6 +4,7 @@ Stage 444: Trinity Sync - Sovereign Consensus logic.
 
 import logging
 from typing import Any, Dict
+
 from codebase.engines.apex.apex_engine import get_apex_room
 
 logger = logging.getLogger(__name__)

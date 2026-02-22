@@ -2,10 +2,12 @@
 Quick test - SEAL999 production ready
 """
 import sys
+
 sys.path.insert(0, "C:\\Users\\User\\arifOS")
 
-from SEAL999 import SEAL999, VaultEntry, VaultConfig
 from datetime import datetime
+
+from SEAL999 import SEAL999, VaultConfig, VaultEntry
 
 vault = SEAL999()
 assert type(vault).__name__ == "SEAL999"

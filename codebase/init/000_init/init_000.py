@@ -1271,5 +1271,3 @@ async def mcp_000_init(
         if BUNDLE_STORE_AVAILABLE and store_stage_result is not None:
             store_stage_result(session, "init", result)
         return result
-            store_stage_result(session, "init", result)
-        return result

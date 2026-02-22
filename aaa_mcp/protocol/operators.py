@@ -10,9 +10,10 @@ Version: 1.0.0-LOW_ENTROPY
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass, field
-from typing import Dict, List, Callable, Any, Optional
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional
 
 
 class OperatorType(Enum):

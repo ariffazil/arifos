@@ -7,8 +7,8 @@ DITEMPA BUKAN DIBERI
 """
 
 from typing import Optional
-from .session_ledger import SessionLedger, get_ledger
 
+from .session_ledger import SessionLedger, get_ledger
 
 # Singleton ledger instance
 _session_ledger: Optional[SessionLedger] = None

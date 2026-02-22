@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-import sys
 import json
+import sys
+
 
 def audit_skill(skill_path):
     print(f"Auditing skill: {skill_path}")

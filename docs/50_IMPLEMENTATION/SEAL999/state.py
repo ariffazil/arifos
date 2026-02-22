@@ -4,11 +4,11 @@ SEAL-999 State Management
 Core state classes for immutable constitutional memory.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, Any, Optional, List
-from datetime import datetime
 import hashlib
 import json
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 
 @dataclass

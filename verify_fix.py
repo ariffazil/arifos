@@ -5,6 +5,7 @@ This doesn't call the tools (they're MCP-wrapped), but verifies the code structu
 """
 
 import sys
+
 sys.path.insert(0, '.')
 
 

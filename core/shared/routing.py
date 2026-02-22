@@ -5,7 +5,7 @@ Simplified from codebase.enforcement.routing.prompt_router
 for core/ migration without codebase dependencies.
 """
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 # Risk detection patterns (simplified)
 RISK_PATTERNS = {

@@ -26,11 +26,11 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
+from ..asi.engine import ASIEngineHardened, OmegaBundle, execute_asi_hardened
+
 # Import hardened engines
 # v55.5: Consolidated imports
 from .engine import AGIEngineHardened, DeltaBundle, execute_agi_hardened
-from ..asi.engine import ASIEngineHardened, OmegaBundle, execute_asi_hardened
-
 
 # ============ CONSTANTS ============
 

@@ -11,8 +11,9 @@ Usage:
     result = adapter.wrap_output("333_REASON", raw_result, task="Explain X")
 """
 
-from typing import Dict, Any, Optional
-from core.shared.mottos import PromptManifold, MatrixAxis, get_motto_for_stage
+from typing import Any, Dict, Optional
+
+from core.shared.mottos import MatrixAxis, PromptManifold, get_motto_for_stage
 
 
 class ManifoldMCPAdapter:

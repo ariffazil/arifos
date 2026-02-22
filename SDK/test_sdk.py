@@ -8,14 +8,15 @@ Run with: pytest test_sdk.py -v
 Version: v55.3-L5-alpha
 """
 
-import pytest
 import asyncio
+
+import pytest
 from sdk import (
     ArifOS,
     AskResponse,
     ReflectResponse,
-    Session,
     ResponseStatus,
+    Session,
     Verdict,
     ask,
 )

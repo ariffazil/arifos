@@ -8,6 +8,7 @@ Fixes cold start entropy violation by making root key check lazy.
 import sys
 from pathlib import Path
 
+
 def fix_root_key_accessor():
     """Make root key status check lazy."""
     file_path = Path("arifos/core/memory/root_key_accessor.py")
@@ -36,10 +37,8 @@ def get_root_key_status() -> bool:
     content = content.replace(old_line, new_code)
     
     # Update exports
-    old_export = "'derive_ledger_entry_hash',
-    'ROOT_KEY_READY'"
-    new_export = "'derive_ledger_entry_hash',
-    'get_root_key_status'  # Lazy getter - replaced ROOT_KEY_READY'"
+    old_export = "'derive_ledger_entry_hash',\n    'ROOT_KEY_READY'"
+    new_export = "'derive_ledger_entry_hash',\n    'get_root_key_status'  # Lazy getter - replaced ROOT_KEY_READY'"
     
     content = content.replace(old_export, new_export)
     

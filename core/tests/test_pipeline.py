@@ -8,7 +8,8 @@ DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
 import pytest
-from core.pipeline import forge, quick_check, ForgeResult
+
+from core.pipeline import ForgeResult, forge, quick_check
 
 
 class TestForgePipeline:

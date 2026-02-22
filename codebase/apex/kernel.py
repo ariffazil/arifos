@@ -28,11 +28,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from codebase.system.apex_prime import APEXPrime
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from aaa_mcp.services.constitutional_metrics import get_stage_result, store_stage_result
 from aaa_mcp.sessions.session_ledger import seal_memory
-from codebase.system.apex_prime import APEXPrime
 from codebase.vault import should_seal_to_vault
 
 _apex_logger = _apex_logging.getLogger("codebase.apex.kernel")

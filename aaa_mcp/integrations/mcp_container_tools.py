@@ -5,6 +5,7 @@ Adds container management to the constitutional AI gateway
 
 from aaa_mcp.integrations.container_controller import get_controller
 
+
 # These will be registered with the main MCP server
 def register_container_tools(mcp):
     """Register container management tools with the MCP server."""

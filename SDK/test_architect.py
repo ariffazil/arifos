@@ -8,14 +8,15 @@ Run with: pytest test_architect.py -v
 Version: v55.3-L5-alpha
 """
 
-import pytest
 import asyncio
+
+import pytest
 from L5_AGENTS import (
+    AgentFederation,
     Architect,
     ArchitectPlan,
-    AgentFederation,
-    Verdict,
     FloorScores,
+    Verdict,
 )
 
 

@@ -2,8 +2,9 @@
 Canonical Constitutional Floors (F1-F13)
 Single source of truth for all floor validators
 """
-from typing import Dict, Any, Tuple
 import asyncio
+from typing import Any, Dict, Tuple
+
 
 class FloorValidator:
     """Base class for constitutional floor validation"""

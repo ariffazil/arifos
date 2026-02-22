@@ -3,9 +3,10 @@ F2: TRUTH GATE (T)
 Canonical implementation of the Truth/Factuality Floor.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, Any, List, Optional
 import logging
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
+
 from codebase.system.safe_types import safe_float
 
 logger = logging.getLogger(__name__)

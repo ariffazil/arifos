@@ -18,14 +18,15 @@ import os
 import time
 import uuid
 from dataclasses import asdict, is_dataclass
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from fastmcp import FastMCP
 
+from aaa_mcp.capabilities.t6_web_search import EvidenceArtifact, brave_search
+
 # v62: SystemState exposure for cognitive runtime
 from aaa_mcp.core.heuristics import compute_system_state
-from aaa_mcp.core.state import SystemState, Profile
-from aaa_mcp.capabilities.t6_web_search import brave_search, EvidenceArtifact
+from aaa_mcp.core.state import Profile, SystemState
 
 # Tool annotations for MCP 2025-11-25 compliance
 TOOL_ANNOTATIONS = {
@@ -130,7 +131,7 @@ async def init_session(
     query: str,
     actor_id: str = "user",
     auth_token: Optional[str] = None,
-    mode: str = "conscience",
+    mode: Literal["conscience", "ghost"] = "conscience",
     grounding_required: bool = True,
     debug: bool = False,
 ) -> dict:
@@ -204,7 +205,8 @@ async def init_session(
 
 
 from aaa_mcp.core.heuristics import calculate_system_state
-from aaa_mcp.core.state import SystemState, Profile
+from aaa_mcp.core.state import Profile, SystemState
+
 
 @mcp.tool(annotations=TOOL_ANNOTATIONS["agi_cognition"])
 @constitutional_floor("F2", "F4", "F7", "F8", "F10")
@@ -579,9 +581,9 @@ async def apex_verdict(
 @constitutional_floor("F1", "F3")
 async def vault_seal(
     session_id: str,
-    verdict: str,
+    verdict: Literal["SEAL", "VOID", "PARTIAL", "SABAR", "888_HOLD"],
     query_summary: Optional[str] = None,
-    risk_level: str = "low",
+    risk_level: Literal["low", "medium", "high", "critical"] = "low",
     category: str = "general",
     floors_checked: Optional[list] = None,
     payload: Optional[dict] = None,
@@ -867,6 +869,226 @@ async def seal_request(session_summary: str, verdict: str = "SEAL") -> str:
 - session_id, verdict, query_summary
 - risk_level, category, floors_checked
 """
+
+
+# =============================================================================
+# CHATGPT DEEP RESEARCH — search + fetch into VAULT999 ledger
+# These two tools follow the ChatGPT Deep Research MCP contract:
+#   search(query) → list of matching records
+#   fetch(id)     → full record by ID
+# =============================================================================
+
+VAULT_PATH = os.path.join(os.path.dirname(__file__), "..", "VAULT999", "vault.jsonl")
+
+
+def _load_vault_records() -> list[dict]:
+    """Load all records from vault.jsonl."""
+    path = os.environ.get("ARIFOS_VAULT_PATH", VAULT_PATH)
+    vault_file = os.path.join(path, "vault.jsonl") if os.path.isdir(path) else path
+    records = []
+    try:
+        with open(vault_file, "r") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    records.append(json.loads(line))
+    except FileNotFoundError:
+        pass
+    return records
+
+
+@mcp.tool()
+async def search(query: str) -> dict:
+    """ChatGPT Deep Research: Search for records matching the query.
+
+    Searches VAULT999 ledger by session_id, seal_id, verdict, or timestamp.
+
+    Args:
+        query: Search string — matches against session_id, seal_id, verdict, category
+
+    Returns:
+        List of matching VAULT records with their IDs for use with fetch()
+    """
+    records = _load_vault_records()
+    q = query.lower()
+    matches = []
+    for r in records:
+        searchable = " ".join([
+            str(r.get("session_id", "")),
+            str(r.get("seal_id", "")),
+            str(r.get("verdict", "")),
+            str(r.get("category", "")),
+            str(r.get("timestamp", "")),
+        ]).lower()
+        if q in searchable:
+            matches.append({
+                "id": r.get("seal_id") or r.get("session_id"),
+                "session_id": r.get("session_id"),
+                "seal_id": r.get("seal_id"),
+                "verdict": r.get("verdict"),
+                "timestamp": r.get("timestamp"),
+                "sequence": r.get("sequence"),
+            })
+    return {
+        "query": query,
+        "total": len(matches),
+        "results": matches[:50],  # cap at 50
+    }
+
+
+@mcp.tool()
+async def fetch(id: str) -> dict:
+    """ChatGPT Deep Research: Fetch a complete record by ID.
+
+    Retrieves a full VAULT999 record by seal_id or session_id.
+
+    Args:
+        id: seal_id or session_id to retrieve
+
+    Returns:
+        Full VAULT record including hash chain fields
+    """
+    records = _load_vault_records()
+    for r in records:
+        if r.get("seal_id") == id or r.get("session_id") == id:
+            return r
+    return {"error": f"Record not found: {id}"}
+
+
+# =============================================================================
+# APEX JUDGE — Full pipeline wrapper (single-call convenience)
+# =============================================================================
+
+@mcp.tool()
+async def apex_judge(
+    query: str,
+    actor_id: str = "user",
+    auth_token: Optional[str] = None,
+    stakeholders: Optional[list] = None,
+    grounding: Optional[list] = None,
+    auto_seal: bool = True,
+    debug: bool = False,
+) -> dict:
+    """Full pipeline wrapper — 000→333→666→888→999.
+
+    Runs the complete constitutional pipeline in one call:
+    init_session → agi_cognition → asi_empathy → apex_verdict → vault_seal
+
+    Args:
+        query: The query to process
+        actor_id: Identity of the requesting actor
+        auth_token: Authentication credential
+        stakeholders: Affected stakeholder groups
+        grounding: External evidence/grounding data
+        auto_seal: Automatically seal to VAULT999 on completion
+        debug: Enable debug output
+
+    Returns:
+        Unified pipeline result with final verdict and seal_id
+    """
+    # Use .fn to call the underlying coroutines (FunctionTool is not directly callable)
+    # Stage 000: Init
+    init = await init_session.fn(
+        query=query, actor_id=actor_id, auth_token=auth_token, debug=debug
+    )
+    if init.get("verdict") == "VOID":
+        return {"verdict": "VOID", "stage": "000", "error": init.get("error"), "pipeline": [init]}
+
+    session_id = init["session_id"]
+
+    # Stage AGI: Cognition
+    agi = await agi_cognition.fn(query=query, session_id=session_id, grounding=grounding, debug=debug)
+
+    # Stage ASI: Empathy
+    asi = await asi_empathy.fn(query=query, session_id=session_id, stakeholders=stakeholders, debug=debug)
+
+    # Stage APEX: Verdict
+    apex = await apex_verdict.fn(
+        query=query, session_id=session_id, agi_result=agi, asi_result=asi, debug=debug
+    )
+
+    result: dict = {
+        "verdict": apex["verdict"],
+        "session_id": session_id,
+        "tri_witness": apex.get("tri_witness"),
+        "truth_score": apex.get("truth_score"),
+        "pipeline": [init, agi, asi, apex],
+    }
+
+    # Stage 999: Vault seal
+    if auto_seal:
+        valid_verdicts = ("SEAL", "VOID", "PARTIAL", "SABAR", "888_HOLD")
+        seal_verdict = apex["verdict"] if apex["verdict"] in valid_verdicts else "PARTIAL"
+        seal = await vault_seal.fn(
+            session_id=session_id,
+            verdict=seal_verdict,
+            query_summary=query[:200],
+            risk_level="low",
+        )
+        result["seal_id"] = seal.get("seal_id")
+        result["pipeline"].append(seal)
+
+    return result
+
+
+# =============================================================================
+# SELF DIAGNOSE — Infrastructure health check
+# =============================================================================
+
+@mcp.tool()
+async def self_diagnose(base_url: Optional[str] = None) -> dict:
+    """SELF_OPS — Infrastructure health check, protocol compatibility, auto-remediation.
+
+    Checks server health, VAULT accessibility, and MCP protocol alignment.
+    Non-constitutional — does not enforce floors.
+
+    Args:
+        base_url: Optional custom base URL to diagnose (default: self)
+
+    Returns:
+        Health report with status of each subsystem
+    """
+    checks: dict[str, Any] = {}
+
+    # VAULT check
+    records = _load_vault_records()
+    checks["vault"] = {
+        "status": "ok" if records else "empty",
+        "record_count": len(records),
+        "path": os.environ.get("ARIFOS_VAULT_PATH", VAULT_PATH),
+    }
+
+    # Core imports check
+    try:
+        from aaa_mcp.core.heuristics import compute_system_state
+        checks["heuristics"] = {"status": "ok"}
+    except ImportError as e:
+        checks["heuristics"] = {"status": "error", "error": str(e)}
+
+    try:
+        from aaa_mcp.capabilities.t6_web_search import brave_search
+        checks["brave_search"] = {
+            "status": "ok" if os.environ.get("BRAVE_API_KEY") else "no_api_key"
+        }
+    except ImportError as e:
+        checks["brave_search"] = {"status": "error", "error": str(e)}
+
+    # Env check
+    checks["env"] = {
+        "GOVERNANCE_MODE": os.environ.get("GOVERNANCE_MODE", "not set"),
+        "ARIFOS_CONSTITUTIONAL_MODE": os.environ.get("ARIFOS_CONSTITUTIONAL_MODE", "not set"),
+        "AAA_MCP_TRANSPORT": os.environ.get("AAA_MCP_TRANSPORT", "not set"),
+    }
+
+    overall = "ok" if all(v.get("status") in ("ok", "no_api_key", "empty") for v in checks.values() if isinstance(v, dict)) else "degraded"
+
+    return {
+        "status": overall,
+        "server": "aaa-mcp",
+        "version": "v62.3.0",
+        "checks": checks,
+        "motto": "🔥 DITEMPA BUKAN DIBERI",
+    }
 
 
 # =============================================================================

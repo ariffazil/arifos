@@ -2,9 +2,10 @@
 Final verification: SEAL999 ready for production
 """
 import sys
+
 sys.path.insert(0, "C:\\Users\\User\\arifOS")
 
-from SEAL999 import SEAL999, VaultEntry, VaultConfig
+from SEAL999 import SEAL999, VaultConfig, VaultEntry
 
 vault = SEAL999()
 print(f"✓ SEAL999 class: {type(vault).__name__}")

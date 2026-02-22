@@ -9,9 +9,9 @@ This module transports the constitutional mottos to AI/LLM agents via MCP:
 Used by: server.py, llms.txt context, AI agent prompts
 """
 
-from dataclasses import dataclass, asdict
-from typing import Dict, List, Optional, Any
+from dataclasses import asdict, dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class MottoStage(str, Enum):

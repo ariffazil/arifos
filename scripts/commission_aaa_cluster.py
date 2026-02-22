@@ -5,8 +5,8 @@ Verifies Loop Bootstrap, Token Exchange, and Tool Logic.
 """
 import asyncio
 import logging
-import sys
 import os
+import sys
 from unittest.mock import MagicMock
 
 # Ensure we can import from root
@@ -25,9 +25,9 @@ async def commission_cluster():
     # -------------------------------------------------------------------------
     print("\n[1] Loading Micro-Servers...")
     try:
-        from arifos.mcp.servers.axis import axis_000_init, axis_999_vault
-        from arifos.mcp.servers.arif import arif_agi_genius, arif_asi_act
         from arifos.mcp.servers.apex import apex_judge
+        from arifos.mcp.servers.arif import arif_agi_genius, arif_asi_act
+        from arifos.mcp.servers.axis import axis_000_init, axis_999_vault
         print("✅ Servers loaded successfully.")
     except ImportError as e:
         print(f"❌ Failed to load servers: {e}")

@@ -9,9 +9,6 @@ from aaa_mcp.server import (
 )
 
 # Import original functions for logic verification
-from aaa_mcp.tools.mcp_gateway import gateway_list_tools, gateway_route_tool
-from aaa_mcp.wrappers.k8s_wrapper import k8s_constitutional_apply
-
 # Import original functions for logic verification
 from aaa_mcp.tools.mcp_gateway import gateway_list_tools, gateway_route_tool
 from aaa_mcp.wrappers.k8s_wrapper import k8s_constitutional_apply

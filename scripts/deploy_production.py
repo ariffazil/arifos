@@ -59,8 +59,8 @@ async def validate_environment():
     
     # 2. Core imports
     try:
+        from core.organs import agi, apex, asi, init, vault
         from core.pipeline import forge
-        from core.organs import init, agi, asi, apex, vault
         log_ok("Core organs importable")
         checks_passed += 1
     except Exception as e:

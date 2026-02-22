@@ -27,18 +27,24 @@ from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-# Import our new hardening modules
-from .precision import PrecisionEstimate, estimate_precision, update_belief_with_precision
-from .hierarchy import (
-    HierarchyLevel, HierarchicalBelief, 
-    encode_hierarchically, get_cumulative_delta_s
-)
 from .action import (
-    ActionType, ActionPolicy, BeliefState,
-    ExpectedFreeEnergyCalculator, MotorOutput,
-    compute_action_policy, execute_action
+    ActionPolicy,
+    ActionType,
+    BeliefState,
+    ExpectedFreeEnergyCalculator,
+    MotorOutput,
+    compute_action_policy,
+    execute_action,
+)
+from .hierarchy import (
+    HierarchicalBelief,
+    HierarchyLevel,
+    encode_hierarchically,
+    get_cumulative_delta_s,
 )
 
+# Import our new hardening modules
+from .precision import PrecisionEstimate, estimate_precision, update_belief_with_precision
 
 # ============ CONSTANTS ============
 

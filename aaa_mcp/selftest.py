@@ -13,10 +13,10 @@ Usage:
     python -m aaa_mcp.selftest --strict  # Fail on warnings
 """
 
-import sys
-import os
 import json
-from typing import Tuple, List
+import os
+import sys
+from typing import List, Tuple
 
 # Target bands
 OMEGA_TARGET_MIN = 0.03
@@ -31,7 +31,9 @@ def check_floors() -> Tuple[bool, List[str]]:
     # Check for floor configuration
     try:
         # Primary canonical source (v55+): codebase constitutional floors
-        from codebase.constitutional_floors import THRESHOLDS as CONSTITUTIONAL_FLOORS  # type: ignore
+        from codebase.constitutional_floors import (
+            THRESHOLDS as CONSTITUTIONAL_FLOORS,  # type: ignore
+        )
         if not CONSTITUTIONAL_FLOORS:
             issues.append("WARN: No constitutional floors defined")
         else:
@@ -66,8 +68,9 @@ async def check_tools() -> Tuple[bool, List[str]]:
     issues = []
     
     try:
-        from aaa_mcp.server import mcp
         import asyncio
+
+        from aaa_mcp.server import mcp
         
         # Introspect tool registry using FastMCP public API (v2+)
         tool_names = []

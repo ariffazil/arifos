@@ -3,14 +3,14 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **Project:** arifOS — Constitutional AI governance system (AAA MCP Server)
-**Package:** `arifos` v60.0.0 (editable install)
+**Package:** `arifos` v62.3.0 (editable install)
 **Python:** >=3.10 | **License:** AGPL-3.0-only
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
 
 **Foundation:** RUKUN AGI (The Five Pillars) — 555 is sacred
 **Architecture:** `core/` is the **single source of truth** for constitutional modules; `aaa_mcp/` is the MCP server
 
-**MCP Registry:** `io.github.ariffazil/aaa-mcp` v60.0.0 — ACTIVE (Published 2026-02-10)
+**MCP Registry:** `io.github.ariffazil/aaa-mcp` v60.0.0 — ACTIVE (Published 2026-02-10; Python package is v62.3.0)
 
 ---
 
@@ -33,17 +33,17 @@ aaa-mcp                      # Console script equivalent (stdio default)
 # Full suite
 pytest tests/ -v
 
-# Quick smoke test (~3 min)
-pytest tests/test_mcp_quick.py -v
+# Quick smoke test
+pytest tests/test_quick.py -v
 
-# All MCP tool integration tests
-pytest tests/test_mcp_all_tools.py -v
+# All MCP tool integration tests (E2E)
+pytest tests/test_e2e_all_tools.py -v
+
+# Constitutional floor tests
+pytest tests/test_aaa_mcp_constitutional.py -v
 
 # Specific test file
-pytest tests/mcp_tests/test_session_ledger.py -v
-
-# Single test function
-pytest tests/mcp_tests/test_metrics.py::test_constitutional_metrics -v
+pytest tests/mcp_tests/test_mcp_connection.py -v
 
 # By marker
 pytest -m constitutional      # Floor enforcement tests
@@ -86,7 +86,7 @@ from core.shared.physics import W_3, delta_S, G, geometric_mean
 from core.shared.atlas import Lane, Lambda, Phi
 from core.shared.types import Verdict, VaultOutput, FloorScores
 from core.shared.crypto import generate_session_id, sha256_hash, merkle_root
-from core.organs.init import init, scan_injection
+from core.organs._0_init import init, scan_injection
 
 # NOTE: codebase/ is now EMPTY — old `from codebase.*` imports will ImportError
 # engine_adapters.py handles this gracefully with fallback stubs
@@ -97,7 +97,7 @@ from core.organs.init import init, scan_injection
 2. `core/shared/atlas.py` — Governance routing (Lambda, Theta, Phi)
 3. `core/shared/types.py` — Constitutional contracts (Verdict, Pydantic models)
 4. `core/shared/crypto.py` — Trust primitives (Ed25519, Merkle, SHA-256)
-5. `core/organs/` — Active enforcement (Airlock implemented, AGI/ASI/APEX/Vault pending)
+5. `core/organs/` — Active enforcement (`_0_init.py` through `_4_vault.py`, all 5 implemented)
 
 ### 2. MCP Server vs SDK
 
@@ -189,7 +189,11 @@ core/
 │   ├── nudge.py             # Nudge/guidance system
 │   └── skills/              # Skills registry
 ├── organs/                  # Pillar 5: Active enforcement
-│   └── _0_init.py           # Airlock (F11 Auth, F12 Injection)
+│   ├── _0_init.py           # Airlock (F11 Auth, F12 Injection)
+│   ├── _1_agi.py            # AGI Mind engine
+│   ├── _2_asi.py            # ASI Heart engine
+│   ├── _3_apex.py           # APEX Soul verdict engine
+│   └── _4_vault.py          # VAULT Memory engine
 ├── pipeline.py              # Core pipeline orchestration
 └── archive/                 # F1 Amanah: Legacy preservation
 ```
@@ -223,7 +227,7 @@ aaa_mcp/
 |------|---------|
 | `core/` | **Single source of truth** — shared primitives, organs, pipeline |
 | `aaa_mcp/` | MCP server — tools, transports, services, gateway |
-| `codebase/` | **EMPTY** — engines migrated to `core/` and `aaa_mcp/core/engine_adapters.py` (stubs) |
+| `codebase/` | Legacy engine code (`agi/`, `asi/`, `apex/`, `vault/`) — NOT empty, but superseded by `core/`; `engine_adapters.py` imports from here with fallback stubs |
 | `333_APPS/` | Metabolic layers (L1-L7), skills, actions (LEGACY) |
 | `spec/` | **PRIMARY** constitutional source — JSON schemas, thresholds |
 | `canon/` | **PRIMARY** sealed canonical law (`*_v38Omega.md` with SEALED status) |
@@ -310,7 +314,7 @@ The 9-paradox solver uses geometric mean (GM), not arithmetic. GM punishes imbal
 - **F4/F6 numbering swap**: CLAUDE.md and `constitutional_floors.py` historically had F4 (Empathy) and F6 (Clarity) swapped. Check the actual `FLOOR_ENFORCEMENT` dict in `constitutional_decorator.py` for truth.
 - **vault_seal KeyError**: `vault_seal` in `server.py` can crash on `result["seal"]` if the persistence backend returns unexpected format — use `.get("seal", fallback)`.
 - **test_mcp_all_tools.py**: 3 pre-existing assertion failures (stub returns `confidence=0.92` but tests assert `0.99`). These are known and non-blocking.
-- **`codebase/` is empty**: All engine code now lives in `core/` and `aaa_mcp/core/engine_adapters.py`. Old imports like `from codebase.agi.engine import AGIEngine` will hit the `ImportError` fallback path in engine_adapters.py (heuristic stubs).
+- **`codebase/` has legacy engines but is superseded**: Contains `agi/`, `asi/`, `apex/`, `vault/` modules, but canonical implementations are now in `core/`. `engine_adapters.py` tries to import from `codebase/` first; on `ImportError` it falls back to heuristic stubs.
 - **`333_APPS/L4_TOOLS/mcp/`** is LEGACY — still has old `from mcp.` imports. Not critical, do not fix.
 - **F2 Truth gotcha**: Don't default `truth_score` in decorator context — `F2_Truth` has internal logic (defaults to 1.0) which is correct for stubs. Only engine results should override.
 
@@ -325,7 +329,7 @@ Examples:
 
 ## Environment & Config
 
-- **Windows environment** — use PowerShell for commands, watch quoting issues with `$env:` in nested `-Command` strings
+- **Dev environment:** Linux (Codespaces/CI) — `bash` commands apply; if developing locally on Windows use PowerShell and watch quoting issues with `$env:` in nested `-Command` strings
 - **MCP config locations:** `.mcp.json` (root), `.claude/mcp.json`, `.agents/mcp.json`
 - **Test env vars** (set automatically by `tests/conftest.py`): `ARIFOS_PHYSICS_DISABLED=1`, `ARIFOS_ALLOW_LEGACY_SPEC=1`, `AAA_MCP_OUTPUT_MODE=debug`
 - **Production env vars:** `DATABASE_URL` (PostgreSQL), `REDIS_URL`, `BRAVE_API_KEY` (web search), `GOVERNANCE_MODE` (`HARD`/`SOFT`), `AAA_MCP_TRANSPORT` (`stdio`/`sse`/`http`)

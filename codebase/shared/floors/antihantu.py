@@ -3,12 +3,12 @@ F9: ANTI-HANTU GATE (X)
 Canonical implementation of the Anti-Hantu (Ghost Prevention) Floor.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, Any, List, Optional, Tuple
-import logging
 import json
+import logging
 import unicodedata
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
 
 from codebase.system.safe_types import safe_float
 

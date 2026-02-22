@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-import sys
 import json
+import sys
+
 
 def check_injection(input_data):
     # D1-D5 checks placeholder

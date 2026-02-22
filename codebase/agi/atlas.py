@@ -19,7 +19,6 @@ import re
 from dataclasses import dataclass
 from typing import Dict, List, Literal, Optional, Pattern
 
-
 # Lane types for conditional kernel invocation
 LaneType = Literal["SOCIAL", "CARE", "FACTUAL", "CRISIS"]
 

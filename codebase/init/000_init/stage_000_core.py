@@ -28,7 +28,9 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+
+from codebase.authority import AuthorityVerifier
 
 # Import Canonical Floors from the Constitutional Core
 # Note: canonical_core is at root level, not inside arifos package
@@ -37,7 +39,6 @@ from codebase.floors import (
     F10_OntologyGate,
     F12_InjectionDefense,
 )
-from codebase.authority import AuthorityVerifier
 
 if TYPE_CHECKING:
     from codebase.utils.runtime_types import Job

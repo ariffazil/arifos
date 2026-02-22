@@ -2,9 +2,10 @@
 """Read VAULT999 seal directly from Railway PostgreSQL"""
 
 import asyncio
-import asyncpg
-import os
 import json
+import os
+
+import asyncpg
 
 # Get DSN from environment or use Railway connection
 DSN = os.environ.get(

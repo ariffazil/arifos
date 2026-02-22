@@ -7,7 +7,7 @@ Every field has explicit type, range, and semantics.
 Version: 1.0.0-LOW_ENTROPY
 """
 
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 # ═════════════════════════════════════════════════════════════════════════════
 # COMMON DEFINITIONS

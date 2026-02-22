@@ -30,26 +30,25 @@ Exports:
 DITEMPA BUKAN DIBERI
 """
 
-from .trinity_nine import (
-    TrinityNine,
-    NineFoldBundle,
-    NineParadox,
-    EquilibriumState,
-    EquilibriumSolver,
-    TrinityTier,
-    create_nine_paradoxes,
-    trinity_nine_sync,
-    check_equilibrium,
-    EQUILIBRIUM_THRESHOLD,
-    BALANCE_TOLERANCE,
-    MIN_PARADOX_SCORE
-)
-
 from .equilibrium_finder import (
     EquilibriumFinder,
     EquilibriumPoint,
     PerturbationAnalyzer,
-    demonstrate_equilibrium
+    demonstrate_equilibrium,
+)
+from .trinity_nine import (
+    BALANCE_TOLERANCE,
+    EQUILIBRIUM_THRESHOLD,
+    MIN_PARADOX_SCORE,
+    EquilibriumSolver,
+    EquilibriumState,
+    NineFoldBundle,
+    NineParadox,
+    TrinityNine,
+    TrinityTier,
+    check_equilibrium,
+    create_nine_paradoxes,
+    trinity_nine_sync,
 )
 
 __version__ = "v54.0-9PARADOX"

@@ -18,10 +18,12 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from AAA_MCP.v49.mcp_obsidian_bridge import (OBSIDIAN_VAULT_PATH,
-                                             check_obsidian_connection,
-                                             sync_ledger_to_obsidian,
-                                             sync_seal_to_obsidian)
+from AAA_MCP.v49.mcp_obsidian_bridge import (
+    OBSIDIAN_VAULT_PATH,
+    check_obsidian_connection,
+    sync_ledger_to_obsidian,
+    sync_seal_to_obsidian,
+)
 
 
 def main():

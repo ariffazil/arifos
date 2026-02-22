@@ -37,9 +37,9 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional, Set, Tuple
-from datetime import datetime, timezone
 
 import yaml
 

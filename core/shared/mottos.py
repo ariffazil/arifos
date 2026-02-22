@@ -20,9 +20,8 @@ DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple, Any
 from enum import Enum
-
+from typing import Any, Dict, List, Optional, Tuple
 
 # ═════════════════════════════════════════════════════════════════════════════
 # ENUMS

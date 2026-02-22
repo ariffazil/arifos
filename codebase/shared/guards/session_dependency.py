@@ -26,11 +26,11 @@ Motto:
 
 from __future__ import annotations
 
-import time
 import json
-import os
 import logging
-from dataclasses import dataclass, field, asdict
+import os
+import time
+from dataclasses import asdict, dataclass, field
 from enum import Enum
 from typing import Dict, TypedDict
 

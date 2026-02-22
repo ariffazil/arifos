@@ -6,15 +6,15 @@ v60.0-CORE: Now uses core/organs exclusively — codebase/ dependency removed.
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-from typing import Dict, Any, Optional
 import logging
+from typing import Any, Dict, Optional
 
+from aaa_mcp.services.constitutional_metrics import (
+    get_stage_result,
+    store_stage_result,
+)
 from core import organs as core_organs
 from core.shared.physics import Peace2
-from aaa_mcp.services.constitutional_metrics import (
-    store_stage_result,
-    get_stage_result,
-)
 
 logger = logging.getLogger("STAGE_ADAPTER")
 

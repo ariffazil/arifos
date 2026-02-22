@@ -1,6 +1,7 @@
-import os
 import datetime
+import os
 from pathlib import Path
+
 
 def fs_inspect(path: str = ".", depth: int = 1, include_hidden: bool = False) -> dict:
     """

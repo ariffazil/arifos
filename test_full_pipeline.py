@@ -6,6 +6,7 @@ Tests: init_gate -> agi_sense -> agi_reason -> apex_verdict -> vault_seal
 
 import asyncio
 import sys
+
 sys.path.insert(0, '.')
 
 # Import server module

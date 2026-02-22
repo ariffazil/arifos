@@ -19,11 +19,10 @@ WHAT THIS IS NOT:
 DITEMPA BUKAN DIBERI
 """
 
+import zlib
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
-import zlib
-
 
 # =============================================================================
 # THE 9 CONSTITUTIONAL FLOORS (v45.0)

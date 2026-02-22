@@ -5,8 +5,8 @@ Minimal stub for constitutional authority verification.
 Provides AuthorityVerifier class for F11 (Command Authority) enforcement.
 """
 
-from typing import Optional, Dict, Any
 import logging
+from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 

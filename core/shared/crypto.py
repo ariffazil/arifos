@@ -13,11 +13,10 @@ DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
 import hashlib
-import uuid
 import time
-from typing import List, Tuple, Optional
+import uuid
 from datetime import datetime, timezone
-
+from typing import List, Optional, Tuple
 
 # ============================================================================
 # SESSION ID GENERATION (F1 Amanah - Traceable)
@@ -97,8 +96,8 @@ def ed25519_sign(message: str, private_key: str) -> str:
           In production, use cryptography.hazmat.primitives.asymmetric.ed25519
     """
     try:
-        from cryptography.hazmat.primitives.asymmetric import ed25519
         from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import ed25519
 
         # Convert hex private key to bytes
         private_key_bytes = bytes.fromhex(private_key)
@@ -138,8 +137,8 @@ def ed25519_verify(message: str, signature: str, public_key: str) -> bool:
         valid: True if signature is valid
     """
     try:
-        from cryptography.hazmat.primitives.asymmetric import ed25519
         from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives.asymmetric import ed25519
 
         # Convert hex to bytes
         public_key_bytes = bytes.fromhex(public_key)
@@ -171,8 +170,8 @@ def generate_ed25519_keypair() -> Tuple[str, str]:
         (private_key_hex, public_key_hex)
     """
     try:
-        from cryptography.hazmat.primitives.asymmetric import ed25519
         from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric import ed25519
 
         private_key = ed25519.Ed25519PrivateKey.generate()
         public_key = private_key.public_key()

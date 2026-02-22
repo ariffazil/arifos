@@ -8,7 +8,7 @@ This module provides:
 DITEMPA BUKAN DIBERI
 """
 
-from .session_ledger import SessionLedger
 from .session_dependency import get_session_ledger
+from .session_ledger import SessionLedger
 
 __all__ = ["SessionLedger", "get_session_ledger"]

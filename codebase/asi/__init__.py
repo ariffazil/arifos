@@ -20,21 +20,21 @@ DITEMPA BUKAN DIBERI
 
 # v55.5: Consolidated - all hardened exports now from engine.py
 from .engine import (
-    ASIEngineHardened,
     ASIEngine,
-    OmegaBundle,
+    ASIEngineHardened,
     EmpathyFlow,
-    SystemIntegrity,
+    EngineVote,
+    OmegaBundle,
     SocietalImpact,
     Stakeholder,
-    TrinitySelf,
-    TrinitySystem,
-    TrinitySociety,
-    EngineVote,
     StakeholderType,
-    execute_asi_hardened,
-    execute_asi,
+    SystemIntegrity,
+    TrinitySelf,
+    TrinitySociety,
+    TrinitySystem,
     cleanup_expired_sessions,
+    execute_asi,
+    execute_asi_hardened,
     get_asi_engine,
 )
 

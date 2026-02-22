@@ -6,10 +6,10 @@ Run: python scripts/railway_migration.py
 This creates the vault_ledger and vault_head tables on Railway PostgreSQL.
 """
 
+import os
 import subprocess
 import sys
 import tempfile
-import os
 
 MIGRATION_SQL = """
 -- VAULT999 PostgreSQL Schema (v60.0-FORGE)

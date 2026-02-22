@@ -29,12 +29,13 @@ DITEMPA, BUKAN DIBERI — Forged, not given; truth must cool before it rules.
 """
 
 from __future__ import annotations
+
+import hashlib
+import json
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-import json
-import hashlib
 
 # =============================================================================
 # SECTION 1: TRACK B AUTHORITY — SPEC LOADING

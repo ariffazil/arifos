@@ -1,14 +1,14 @@
 """
 Verify VAULT_999 flat structure works - fixed imports
 """
-import sys
 import os
+import sys
 
 # Add root to path
 sys.path.insert(0, "C:\\Users\\User\\arifOS")
 
 try:
-    from VAULT_999 import VAULT999, VaultEntry, VaultConfig
+    from VAULT_999 import VAULT999, VaultConfig, VaultEntry
     print("[SUCCESS] Imported VAULT999 from flat VAULT_999/")
     
     # Test instantiation

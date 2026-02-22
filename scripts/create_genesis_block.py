@@ -15,12 +15,13 @@ Constitutional Requirements:
     - Stored in VAULT999/CCC_CANON/genesis.json
 """
 
-import os
-import sys
 import json
+import os
 import shutil
-from pathlib import Path
+import sys
 from datetime import datetime
+from pathlib import Path
+
 
 def check_prerequisites():
     """Check if all prerequisites are met."""
@@ -92,8 +93,8 @@ def create_genesis():
         # Import accessor
         from arifos.core.memory.root_key_accessor import (
             create_genesis_block,
+            get_root_key_info,
             verify_genesis_block,
-            get_root_key_info
         )
         
         # Create genesis block

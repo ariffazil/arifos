@@ -8,7 +8,8 @@ Hardening:
 - F13: Sovereign Override (Human Veto)
 - Energy Budget Check
 """
-from typing import Dict, Any
+from typing import Any, Dict
+
 from codebase.system.apex_prime import APEXPrime
 
 APEX = APEXPrime()

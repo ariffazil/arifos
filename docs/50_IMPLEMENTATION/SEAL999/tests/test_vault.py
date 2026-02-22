@@ -2,14 +2,16 @@
 Tests for canonical SEAL-999 implementation.
 """
 
-import sys
 import os
+import sys
 import tempfile
+
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from vault import SEAL999, VaultEntry
-from state import VaultConfig
 from datetime import datetime
+
+from state import VaultConfig
+from vault import SEAL999, VaultEntry
 
 
 def test_vault_initialization():

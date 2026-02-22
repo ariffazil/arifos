@@ -23,15 +23,15 @@ import sys
 from typing import Any
 
 from .console_tools import (
-    system_health,
-    process_list,
+    chroma_query,
+    config_flags,
+    cost_estimator,
+    forge_guard,
     fs_inspect,
     log_tail,
     net_status,
-    config_flags,
-    chroma_query,
-    cost_estimator,
-    forge_guard,
+    process_list,
+    system_health,
 )
 
 

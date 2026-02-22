@@ -7,7 +7,8 @@ Hardening:
 - F3: Tri-Witness (Multi-Agent Audit)
 - Cryptographic Seal
 """
-from typing import Dict, Any
+from typing import Any, Dict
+
 from codebase.system.apex_prime import APEXPrime
 
 APEX = APEXPrime()

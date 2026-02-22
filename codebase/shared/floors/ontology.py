@@ -3,12 +3,13 @@ F10: ONTOLOGY LOCK (O)
 Canonical implementation of the Ontology Guard Floor.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, Any, List, Tuple
+import logging
 import re
 import unicodedata
-import logging
-from codebase.system.safe_types import safe_float, safe_bool
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Tuple
+
+from codebase.system.safe_types import safe_bool, safe_float
 
 logger = logging.getLogger(__name__)
 

@@ -10,10 +10,16 @@ import asyncio
 import os
 import uuid
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any, Callable, Dict, List, Optional
 
 import httpx
 
+from .exceptions import (
+    ArifOSError,
+    FloorViolationError,
+    GatewayConnectionError,
+    HumanApprovalTimeoutError,
+)
 from .types import (
     ActorType,
     GatewayDecision,
@@ -22,12 +28,6 @@ from .types import (
     SessionContext,
     ToolClass,
     Verdict,
-)
-from .exceptions import (
-    ArifOSError,
-    FloorViolationError,
-    GatewayConnectionError,
-    HumanApprovalTimeoutError,
 )
 
 
@@ -258,7 +258,7 @@ class ArifOSClient:
         tool_name: str,
     ) -> GatewayDecision:
         """Parse gateway response into GatewayDecision."""
-        from .types import FloorResult, BlastRadius
+        from .types import BlastRadius, FloorResult
         
         floors = [
             FloorResult(

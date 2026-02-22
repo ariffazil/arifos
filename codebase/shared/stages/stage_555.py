@@ -8,10 +8,11 @@ Runs before Stage 666 ALIGN.
 Mnemonic: "Init the Genius, Act with Heart, Sync the Bridge, Judge at Apex, Seal in Vault."
 """
 
-from typing import Dict, Any, Tuple, List
 import logging
-from codebase.state import SessionState
+from typing import Any, Dict, List, Tuple
+
 from codebase.bundles import Stakeholder
+from codebase.state import SessionState
 
 logger = logging.getLogger("STAGE_555")
 

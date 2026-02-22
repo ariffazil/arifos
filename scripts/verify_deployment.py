@@ -8,6 +8,7 @@ import os
 import sys
 from pathlib import Path
 
+
 def check_file_exists(path, required=True):
     """Check if a file exists."""
     exists = os.path.exists(path)

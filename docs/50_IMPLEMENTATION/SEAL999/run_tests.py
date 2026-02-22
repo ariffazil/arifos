@@ -3,9 +3,10 @@ Test runner for SEAL-999 canonical implementation.
 Works around PowerShell && syntax issues.
 """
 
-import sys
 import os
 import subprocess
+import sys
+
 
 def run_tests():
     """Run pytest for vault tests."""

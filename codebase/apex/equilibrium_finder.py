@@ -20,14 +20,21 @@ DITEMPA BUKAN DIBERI
 """
 
 import math
-import numpy as np
-from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
+
+import numpy as np
 
 from .trinity_nine import (
-    TrinityNine, NineFoldBundle, NineParadox, 
-    EquilibriumState, EquilibriumSolver, create_nine_paradoxes,
-    EQUILIBRIUM_THRESHOLD, BALANCE_TOLERANCE, MIN_PARADOX_SCORE
+    BALANCE_TOLERANCE,
+    EQUILIBRIUM_THRESHOLD,
+    MIN_PARADOX_SCORE,
+    EquilibriumSolver,
+    EquilibriumState,
+    NineFoldBundle,
+    NineParadox,
+    TrinityNine,
+    create_nine_paradoxes,
 )
 
 

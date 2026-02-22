@@ -11,8 +11,8 @@ Version: v52.5.1-SEAL
 
 import json
 import sys
-from pathlib import Path
 from datetime import datetime, timezone
+from pathlib import Path
 
 # Direct import without triggering full arifos initialization
 # This avoids prometheus_client and other heavy dependencies

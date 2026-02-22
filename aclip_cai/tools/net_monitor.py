@@ -1,5 +1,6 @@
 import psutil
 
+
 def net_status(check_ports: bool = True, check_connections: bool = True) -> dict:
     """
     Inspects the system's network posture.

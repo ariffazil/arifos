@@ -28,7 +28,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from codebase.vault.persistent_ledger import PersistentVaultLedger
 
-
 LEGACY_PATHS = [
     "VAULT999/BBB_LEDGER/entries",
     "VAULT999/BBB_LEDGER/refusal_audit.jsonl",

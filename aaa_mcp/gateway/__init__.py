@@ -31,22 +31,21 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 from aaa_mcp.gateway.identity import (
-    IdentityRegistry,
     Actor,
     ActorType,
+    IdentityRegistry,
     IdentitySource,
     SessionIdentity,
-    identity_registry,
+    create_agent,
     create_human_actor,
     create_service_account,
-    create_agent,
+    identity_registry,
 )
-
 from aaa_mcp.gateway.observability import (
-    PostDeployMonitor,
     F4ClarityResult,
     HealthMetrics,
     HealthStatus,
+    PostDeployMonitor,
     post_deploy_monitor,
 )
 

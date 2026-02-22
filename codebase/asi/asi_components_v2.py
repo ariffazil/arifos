@@ -3,11 +3,11 @@ Component-module for ASIRoom (Heart)
 A1 Semantic Stakeholder, A2 Impact Diffusion, A3 Audit Sink
 """
 
-import json
 import hashlib
+import json
 import logging
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

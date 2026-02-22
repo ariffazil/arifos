@@ -57,20 +57,25 @@ from typing import Any, Dict, List, Optional
 
 from codebase.bundles import DeltaBundle, EngineVote
 
-from .stages import execute_stage_111, SenseOutput
-from .stages import execute_stage_222, ThinkOutput
-from .stages import execute_stage_333, ReasonOutput, build_delta_bundle
+from .evidence import EvidenceKernel, cleanup_evidence_kernel, get_evidence_kernel
 from .hardening import (
-    run_pre_checks,
-    run_post_checks,
-    cleanup_session,
     HardeningResult,
     RiskLevel,
+    cleanup_session,
+    run_post_checks,
+    run_pre_checks,
 )
 from .metrics import ThermodynamicDashboard, get_dashboard, record_session_alert
 from .parallel import ParallelHypothesisMatrix, ParallelHypothesisResult
-from .evidence import EvidenceKernel, get_evidence_kernel, cleanup_evidence_kernel
-
+from .stages import (
+    ReasonOutput,
+    SenseOutput,
+    ThinkOutput,
+    build_delta_bundle,
+    execute_stage_111,
+    execute_stage_222,
+    execute_stage_333,
+)
 
 # =============================================================================
 # DATA TYPES

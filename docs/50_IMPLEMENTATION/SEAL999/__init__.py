@@ -12,11 +12,11 @@ Brain/Body Separation:
 - VAULT999 is the "Long-Term Memory Store" - the data PERSISTENCE
 """
 
-from .vault import SEAL999
-from .state import VaultEntry, SessionLedger, VaultConfig
 from .ledger import HashChain, Ledger, MerkleTree
-from .zkpc import ZKPCGenerator, ZKPCProof
 from .stage import execute_stage, get_seal999, vault_999
+from .state import SessionLedger, VaultConfig, VaultEntry
+from .vault import SEAL999
+from .zkpc import ZKPCGenerator, ZKPCProof
 
 __all__ = [
     # Core sealing class

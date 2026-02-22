@@ -9,6 +9,7 @@ if project_root not in sys.path:
 
 from mcp_server.core.tool_registry import ToolRegistry
 
+
 def generate_llms_txt():
     registry = ToolRegistry()
     tools = registry.list_tools()

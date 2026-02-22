@@ -12,8 +12,8 @@ The Topological Trinity:
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Any
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 class GeometricType(Enum):

@@ -12,13 +12,13 @@ Hardening: Fixed fingerprint dedup, real similarity, ledger wiring
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import math
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple, Set
-import asyncio
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 # Anomalous Contrast Thresholds
 EUREKA_THRESHOLD = 0.75  # SEAL worthy

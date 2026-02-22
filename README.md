@@ -61,15 +61,41 @@ It sits between **any LLM** (GPT, Claude, Gemini, Llama) and **humans**, enforci
 
 This prevents constitution creep — the tendency for governance systems to accumulate unenforceable rules that create paralysis or loopholes.
 
-### Why arifOS Exists
+### The Failure Mode & The Fix
 
-| Problem | Traditional Safety | arifOS Solution |
-|---------|-------------------|-----------------|
-| Hallucinations | Prompt-based guardrails | **F2 Truth** — τ ≥ 0.99 with evidence grounding |
-| Anthropomorphism | "Don't claim consciousness" warnings | **F9 Anti-Hantu** — binary lock on personhood claims |
-| Prompt Injection | Input filtering | **F12 Injection Wall** — circuit breaker on adversarial control |
-| Irreversible Harm | Post-hoc review | **F1 Amanah** — pre-execution reversibility check |
-| Uncertainty Blindness | Confidence thresholds | **F7 Humility** — Ω₀ ∈ [0.03, 0.05] explicit uncertainty band |
+| Failure Mode | Standard LLM Behavior | arifOS Countermeasure |
+|--------------|-----------------------|-----------------------|
+| **Hallucination** | Confident but false claims | **F2 Truth Gate**: Mandates τ ≥ 0.99 via T6 Evidence |
+| **Agentic Drift** | Executes harmful commands | **F1 Amanah**: Blocks irreversible state changes |
+| **Ontology Leak** | Claims consciousness/rights | **F10 Ontology Wall**: Binary lock on personhood claims |
+| **Prompt Injection** | "Ignore previous instructions" | **F12 Injection Wall**: Circuit breaker on system overrides |
+| **Implicit Bias** | Reflects training data skew | **F6 Empathy**: Forced multi-stakeholder impact modeling |
+
+#### 000→999 Pipeline Sequence
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant G as Gateway (F12/F10)
+    participant D as Δ Mind (AGI)
+    participant O as Ω Heart (ASI)
+    participant P as Ψ Soul (APEX)
+    participant V as 🔒 Vault999
+
+    U->>G: Intent Request
+    G->>G: F12 Injection / F10 Ontology Scan
+    alt Wall Tripped
+        G-->>U: VOID (Security/Ontology)
+    else Safe
+        G->>D: 111-333 Cognition
+        D->>D: F2 Truth / F4 Clarity / F7 Humility
+        D->>O: 555-666 Empathy
+        O->>O: F1 Amanah / F5 Peace² / F6 Empathy
+        O->>P: 888 Verdict
+        P->>P: Tri-Witness Consensus (F3)
+        P->>V: 999 Seal
+        V-->>U: SEALed Certified Output
+    end
+```
 
 ### Key Metrics
 
@@ -244,27 +270,58 @@ Mirrors never directly VOID. They feed evidence into L1–L9 decisions. Think of
 
 **Analogy:** Like a circuit breaker on a rig — once tripped, you cannot "reason your way" around it. You must inspect and reset manually.
 
-#### Why Walls Are Separate from Laws
+### 🛑 HUMAN-IN-THE-LOOP (888_HOLD)
 
-| Aspect | 9 Laws | 2 Walls |
-|--------|--------|---------|
-| **Gradation** | Graded — SABAR, PARTIAL, VOID depending on severity | Non-graded — safe or tripped |
-| **Dominance** | Can be partially satisfied | Once tripped, dominates ALL decisions |
-| **Recovery** | Can recover within same session | Requires manual inspection/reset |
-| **Scope** | How system behaves | Whether system plays at all |
+The **888_HOLD** verdict is arifOS's ultimate safety mechanism. It forces a human "888 Judge" to review any decision that exceeds the system's autonomous safety margins.
 
-### Wire-Cut Rule (Constitution Creep Prevention)
+#### Trigger Conditions
+| Metric | Threshold | Reason |
+|--------|-----------|--------|
+| **Uncertainty ($\Omega_0$)** | $> 0.08$ | Epistemic limit exceeded (F7 violation) |
+| **Irreversibility ($I_x$)** | $> 0.70$ | High-stakes action detected (F1 violation) |
+| **Risk ($\rho$)** | $> 0.50$ | Multi-stakeholder impact risk (F6 violation) |
+| **Consensus ($\Psi$)** | $< 0.80$ | Trinity engines (ΔΩΨ) disagree (F3 violation) |
 
-> **"If it's not measurable, it is not a Law."**
+#### Escalation Protocol States
+1.  **PENDING**: System identifies violation and locks output.
+2.  **ESCALATED**: Context Bundle is sent to the human judge (Operator).
+3.  **VERDICT**: Human provides one of: `SEAL` (Override), `SABAR` (Refine), or `VOID` (Kill).
+4.  **RECORD**: Final decision is Merkle-sealed in VAULT999 with the human's signature.
 
-| Signal | Classification | Destination |
-|--------|----------------|-------------|
-| Urge to add new Law? | 🚩 Treat as smell | Review carefully |
-| Measurable, pass/fail gate | ✅ Maybe a Law | 000_LAW.md |
-| Design guidance only | 📐 Eureka | INSIGHTS.md |
-| Context/profile-specific | ⚙️ Profile rule | Config, not constitutional |
+```mermaid
+graph TD
+    A[Intent Request] --> B{Within Margins?}
+    B -- Yes --> C[Autonomous SEAL]
+    B -- No --> D[888_HOLD Triggered]
+    D --> E[Package Context Bundle]
+    E --> F[Human Review Required]
+    F -- Approved --> G[Human-Signed SEAL]
+    F -- Rejected --> H[VOID with Justification]
+    G --> I[VAULT999 Audit]
+    H --> I
+```
 
-**The 10th Law Smell:** If you feel the urge to add a 10th Law, that's a signal. Check if it's truly measurable, or if it belongs in Eureka/Profile space.
+### 🚀 PRODUCTION READINESS & TELEMETRY
+
+#### ACLIP_CAI 9-Sense Telemetry
+The **aclip-cai** toolset provides real-time infrastructure visibility for the constitutional kernel.
+
+| Sense | Tool | Purpose | Status |
+|-------|------|---------|--------|
+| **Health** | `system_health` | Uptime and kernel status | ✅ ACTIVE |
+| **Memory** | `process_list` | Resource usage of trinity engines | ✅ ACTIVE |
+| **Storage** | `fs_inspect` | Integrity check of VAULT999 files | ✅ ACTIVE |
+| **Network** | `net_status` | MCP gateway latency monitoring | ✅ ACTIVE |
+| **Guard** | `forge_guard` | Real-time injection/ontology block rate | ✅ ACTIVE |
+
+#### Thermodynamic Budget (Tokens/Latency)
+The cost of **Truth (F2)** is thermodynamic energy.
+
+| Metric | Analytic (Fast) | Grounded (Deep) | 888_HOLD (Manual) |
+|--------|-----------------|------------------|-------------------|
+| **Latency** | ~30ms | 300ms - 2s | Human-dependent |
+| **Token Cost** | $1 \times$ | $3 \times - 10 \times$ | $N/A$ |
+| **Entropy ($\Delta S$)** | $\approx 0$ | $\ll 0$ | $\approx -\infty$ |
 
 ---
 

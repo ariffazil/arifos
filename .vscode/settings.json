@@ -5,7 +5,7 @@
     
     // -- PYTHON SETUP --
     // Use the project's Python virtual environment
-    "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+    "python.defaultInterpreterPath": "/home/codespace/.python/current/bin/python3",
     "python.terminal.activateEnvironment": true,
     
     // Testing with pytest

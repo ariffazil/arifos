@@ -15,15 +15,15 @@ Refactored (v56): Uses Canonical Floors from codebase.floors
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, Optional, List
-
-# Import Canonical Floors
-from codebase.floors.amanah import F1_Amanah, AmanahCovenant
-from codebase.floors.antihantu import F9_AntiHantuGate
+from typing import Any, Dict, List, Optional
 
 # Import existing tri-witness check (Safe to keep if it's just metric logic,
 # but ideally should move to floors/triwitness.py in Phase 4)
 from codebase.enforcement.metrics import check_tri_witness
+
+# Import Canonical Floors
+from codebase.floors.amanah import AmanahCovenant, F1_Amanah
+from codebase.floors.antihantu import F9_AntiHantuGate
 
 
 @dataclass

@@ -16,18 +16,18 @@ import asyncio
 import json
 import os
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any, Dict, List, Optional, Callable, Awaitable
 from datetime import datetime, timezone
+from enum import Enum
+from typing import Any, Awaitable, Callable, Dict, List, Optional
 
 from aaa_mcp.core.constitutional_decorator import constitutional_floor
+from aaa_mcp.protocol.response import build_error_response, build_init_response
 
 # Note: mcp is imported lazily in functions to avoid circular imports
 from aaa_mcp.services.constitutional_metrics import (
-    store_stage_result,
     generate_content_hash,
+    store_stage_result,
 )
-from aaa_mcp.protocol.response import build_init_response, build_error_response
 
 
 class ToolClass(str, Enum):

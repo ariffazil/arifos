@@ -18,13 +18,13 @@ Author: Muhammad Arif bin Fazil
 License: AGPL-3.0-only
 """
 
+import hashlib
+import json
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Optional
 from enum import Enum
-import hashlib
-import json
+from typing import Any, Optional
 
 
 class Verdict(Enum):

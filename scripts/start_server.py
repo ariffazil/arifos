@@ -34,9 +34,9 @@ except Exception as e:
 # Import MCP server - this triggers tool registration
 try:
     # Import server module first (registers all tools)
+    from aaa_mcp import __version__
     from aaa_mcp import server as mcp_module
     from aaa_mcp.server import mcp as mcp_server
-    from aaa_mcp import __version__
     
     print(f"[startup] MCP v{__version__} loaded", file=sys.stderr, flush=True)
     

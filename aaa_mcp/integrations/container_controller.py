@@ -3,11 +3,12 @@ Container Controller Integration for arifOS
 Manages Docker containers via AAA MCP with Constitutional governance
 """
 
-import subprocess
 import json
-from typing import Dict, List, Optional
+import subprocess
 from dataclasses import dataclass
 from enum import Enum
+from typing import Dict, List, Optional
+
 
 class ContainerStatus(Enum):
     RUNNING = "running"

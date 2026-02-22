@@ -14,6 +14,7 @@ import json
 import time
 from pathlib import Path
 
+
 def generate_genesis_hash():
     """Generate cryptographic genesis hash."""
     genesis_data = f"arifOS_v52.5.1_genesis_{int(time.time())}"

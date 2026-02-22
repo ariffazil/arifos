@@ -1,5 +1,6 @@
-import os
 import json
+import os
+
 
 def config_flags() -> dict:
     """

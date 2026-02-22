@@ -3,8 +3,9 @@ arifOS MCP Server Integration Configuration
 Maps 9 external MCP servers to constitutional governance layer
 """
 from dataclasses import dataclass
-from typing import List, Dict, Optional
 from enum import Enum
+from typing import Dict, List, Optional
+
 
 class TrinityComponent(Enum):
     AGI = "Δ"  # Mind/Logic

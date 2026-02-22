@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-import sys
-import json
 import datetime
 import hashlib
+import json
+import sys
+
 
 def calculate_reversibility(steps):
     # Placeholder logic for reversibility

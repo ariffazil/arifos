@@ -16,21 +16,13 @@
       },
       "disabled": false,
       "alwaysAllow": [
-        "init_gate",
-        "forge_pipeline",
-        "agi_sense",
-        "agi_think",
-        "agi_reason",
-        "asi_empathize",
-        "asi_align",
+        "init_session",
+        "agi_cognition",
+        "asi_empathy",
         "apex_verdict",
-        "reality_search",
-        "truth_audit",
-        "vault_seal",
-        "tool_router",
-        "vault_query"
+        "vault_seal"
       ],
-      "description": "arifOS Constitutional Core - 13 Canonical Tools (000-999 Metabolic Loop)"
+      "description": "arifOS Constitutional Core — 5 Tools + 3 Resources (constitutional://) + 3 Prompts"
     },
     "filesystem": {
       "command": "npx",
@@ -93,7 +85,7 @@
     }
   },
   "arifosAgentCanon": {
-    "version": "v55.2",
+    "version": "v62.3.0",
     "role": "CANON_REFERENCE",
     "description": "Master configuration template for all arifOS agents",
     "constitutionalFloors": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13"],

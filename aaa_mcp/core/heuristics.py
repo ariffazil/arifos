@@ -4,7 +4,8 @@
 
 import re
 from typing import Optional
-from .state import SystemState, Profile
+
+from .state import Profile, SystemState
 
 # Signal word lists
 ABSOLUTIST = ("definitely", "guaranteed", "always", "never", "100%", "certainly", "absolutely")

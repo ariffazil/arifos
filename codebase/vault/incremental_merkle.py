@@ -14,7 +14,6 @@ import hashlib
 from dataclasses import dataclass, field
 from typing import List, Optional, Tuple
 
-
 # SHA256 hash of empty data (for padding)
 EMPTY_HASH = hashlib.sha256(b"").hexdigest()
 

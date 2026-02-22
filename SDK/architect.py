@@ -21,12 +21,12 @@ Author: Muhammad Arif bin Fazil
 License: AGPL-3.0-only
 """
 
-from dataclasses import dataclass, field
-from typing import Any, Optional
-from datetime import datetime, timezone
 import json
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from typing import Any, Optional
 
-from .base_agent import BaseAgent, FloorScores, Verdict, AgentOutput
+from .base_agent import AgentOutput, BaseAgent, FloorScores, Verdict
 
 
 @dataclass

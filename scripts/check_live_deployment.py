@@ -4,6 +4,7 @@
 import socket
 import sys
 
+
 def check_dns():
     """Check if DNS is configured"""
     print("=" * 60)
@@ -28,8 +29,8 @@ def check_http():
     print("CHECKING HTTP ENDPOINTS")
     print("=" * 60)
     
-    import urllib.request
     import ssl
+    import urllib.request
     
     ctx = ssl.create_default_context()
     ctx.check_hostname = False

@@ -5,9 +5,10 @@ Enforces the immutable laws of the agentic environment.
 "Code that sleeps is dead. Code that loops is alive.
  But even life must obey the laws of thermodynamics."
 """
-import time
 import asyncio
-from typing import Dict, Any, Optional
+import time
+from typing import Any, Dict, Optional
+
 
 class TokenPhysics:
     """

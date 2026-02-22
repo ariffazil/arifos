@@ -2,8 +2,9 @@
 """arifOS Version Validator - Simple alignment check."""
 
 import argparse
-import sys
 import os
+import sys
+
 
 def main():
     parser = argparse.ArgumentParser()

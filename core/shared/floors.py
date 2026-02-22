@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, Any, List
+from typing import Any, Dict, List
 
 from core.shared.guards.injection_guard import InjectionGuard
 from core.shared.guards.ontology_guard import OntologyGuard
@@ -333,7 +333,7 @@ class F8_Genius(Floor):
 
         if floor_scores_dict:
             try:
-                from codebase.floors.genius import extract_dials, FloorScores
+                from codebase.floors.genius import FloorScores, extract_dials
                 floors = FloorScores.from_dict(floor_scores_dict)
                 dials = extract_dials(floors)
                 A, P, X, E = dials["A"], dials["P"], dials["X"], dials["E"]

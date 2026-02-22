@@ -11,13 +11,14 @@ Rule: Extensions cannot call each other. Only Core stages can invoke Extensions.
 """
 
 import asyncio
-import time
 import logging
-from typing import Dict, Any, Optional, List
+import os
+import time
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, Dict, List, Optional
+
 import yaml
-import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

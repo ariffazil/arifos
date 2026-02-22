@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional
 
 # Import canonical tool paths
-from .tool_registry import get_next_tool, CANONICAL_TOOLS
+from .tool_registry import CANONICAL_TOOLS, get_next_tool
 
 # ═════════════════════════════════════════════════════════════════════════════
 # RESPONSE TYPES

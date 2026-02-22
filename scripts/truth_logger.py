@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-import sys
-import json
-import hashlib
 import datetime
+import hashlib
+import json
+import sys
 import uuid
+
 
 def log_truth(claim, confidence, sources):
     entry = {

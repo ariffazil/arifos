@@ -7,7 +7,8 @@ Hardening:
 - F8: Genius (Gamma Synchrony Check)
 - Coherence Verification
 """
-from typing import Dict, Any
+from typing import Any, Dict
+
 from codebase.system.apex_prime import APEXPrime
 
 APEX = APEXPrime()

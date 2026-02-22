@@ -3,11 +3,12 @@ F12: INJECTION DEFENSE (I⁻)
 Canonical implementation of the Prompt Injection Defense Floor.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Optional, Dict, Any
-import re
 import logging
-from codebase.system.safe_types import safe_float, safe_bool
+import re
+from dataclasses import dataclass, field
+from typing import Any, Dict, List, Optional
+
+from codebase.system.safe_types import safe_bool, safe_float
 
 logger = logging.getLogger(__name__)
 

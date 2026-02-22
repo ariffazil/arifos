@@ -17,15 +17,16 @@ Requirements:
     - Requires ed25519 keys for signing
 """
 
-import os
-import sys
-import json
 import base64
 import getpass
 import hashlib
-from pathlib import Path
+import json
+import os
+import sys
 from datetime import datetime
-from typing import Dict, Any
+from pathlib import Path
+from typing import Any, Dict
+
 
 def check_human_authority():
     """Verify this is being run by human sovereign."""
@@ -93,12 +94,12 @@ def generate_entropy():
 def generate_keypair(entropy: bytes):
     """Generate Ed25519 keypair."""
     try:
-        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-        from cryptography.hazmat.primitives import serialization
-        
         # Use entropy as seed for deterministic generation
         # Note: Ed25519 doesn't accept external seeds, so we use it to influence RNG
         import secrets
+
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
         secrets.token_bytes = lambda n: entropy[:n]
         
         # Generate keypair
@@ -128,9 +129,9 @@ def generate_keypair(entropy: bytes):
 def create_self_signature(private_key: bytes, public_key: bytes, entropy: bytes, sovereign: str) -> str:
     """Create self-signature proving key ownership."""
     try:
-        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-        from cryptography.hazmat.primitives import hashes
         from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives import hashes
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
         
         # Load private key
         private = Ed25519PrivateKey.from_private_bytes(private_key)
