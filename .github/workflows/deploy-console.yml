@@ -1,0 +1,74 @@
+# Deploy arifOS Metabolic Console (React Dashboard) to GitHub Pages
+
+name: Deploy arifOS Console
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'aclip_cai/dashboard/**'
+      - '.github/workflows/deploy-console.yml'
+  workflow_dispatch:
+
+# GitHub Pages permissions
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Prevent concurrent deployments
+concurrency:
+  group: "console-pages"
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build Console
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: aclip_cai/dashboard/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+        working-directory: aclip_cai/dashboard
+
+      - name: Build Console
+        run: npm run build
+        working-directory: aclip_cai/dashboard
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: aclip_cai/dashboard/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Verify Deployment
+        run: |
+          echo "========================================"
+          echo "  arifOS METABOLIC CONSOLE DEPLOYED"
+          echo "========================================"
+          echo "  URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "  DITEMPA BUKAN DIBERI 🔥"
+          echo "========================================"
