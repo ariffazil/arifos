@@ -12,7 +12,7 @@
 # stdio (Claude, Cursor, Kimi)
 python -m aaa_mcp
 
-# SSE (Railway/Remote)
+# SSE (VPS/Remote)
 python -m aaa_mcp sse
 
 # HTTP (Streamable HTTP)

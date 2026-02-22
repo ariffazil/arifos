@@ -9,7 +9,7 @@ Minimal gateway that:
 
 Usage:
     arifos-router              # stdio mode (default)
-    arifos-router --sse        # SSE mode for Railway
+    arifos-router --sse        # SSE mode for VPS/remote clients
 
 Backends:
     - AAA-MCP: constitutional pipeline (5-Core)

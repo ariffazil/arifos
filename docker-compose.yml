@@ -1,5 +1,5 @@
-# Local Development Stack for Railway Deployment Testing
-# Mirrors the Railway production environment
+# Local Development Stack for VPS/Coolify Deployment Testing
+# Mirrors the current production runtime profile
 #
 # Usage:
 #   docker-compose up -d

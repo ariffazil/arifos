@@ -12,7 +12,7 @@
 |:----------|:-----|:----:|:----------:|
 | **Try immediately** | Copy-paste SYSTEM_PROMPT | 5 sec | 🟢 Easy |
 | **Local development** | pip install + stdio | 30 sec | 🟢 Easy |
-| **Production cloud** | Railway deployment | 5 min | 🟡 Medium |
+| **Production (recommended)** | VPS/Coolify deployment | 5-10 min | 🟡 Medium |
 | **Enterprise/air-gapped** | Docker + VPS | 15 min | 🔴 Advanced |
 
 ---
@@ -54,30 +54,24 @@ python -m aaa_mcp.selftest
 
 ---
 
-## 3️⃣ Production Cloud: Railway (5 minutes)
+## 3️⃣ Production: VPS/Coolify (5-10 minutes)
 
 ### Prerequisites
-```bash
-npm install -g @railway/cli
-railway login
-```
+- VPS reachable over SSH
+- Coolify or Docker Compose available on host
+- GitHub repo secrets set: `VPS_HOST`, `VPS_USERNAME`, `VPS_SSH_KEY`
 
 ### Deploy
 ```bash
-cd arifOS
-railway init --name arifos-mcp
-railway variables set PORT=8080 HOST=0.0.0.0
-railway variables set AAA_MCP_TRANSPORT=sse
-railway up
-railway domain
+# Auto-deploy from GitHub Actions
+# Workflow: .github/workflows/deploy.yml
+git push origin main
 ```
-
-**Output:** `https://arifos-mcp.up.railway.app`
 
 ### Verify
 ```bash
-curl https://arifos-mcp.up.railway.app/health
-# {"status":"healthy","version":"64.2","reality_index":0.94}
+curl https://arifosmcp.arif-fazil.com/health
+# {"status":"healthy","version":"...","reality_index":...}
 ```
 
 ---
@@ -380,7 +374,7 @@ Default: 20+ patterns, compound scoring
 
 | Issue | Cause | Fix |
 |:------|:------|:----|
-| `Connection refused` | Server not running | Check `docker ps` or `railway status` |
+| `Connection refused` | Server not running | Check `docker ps` and container logs |
 | `401 Unauthorized` | Missing API key | Set `Authorization: Bearer $KEY` header |
 | `SSE timeout` | Network issue | Use HTTP transport or check firewall |
 | `High latency` | ZRAM pressure | Check F4 thermodynamic state |

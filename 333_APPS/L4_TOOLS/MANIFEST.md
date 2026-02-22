@@ -17,7 +17,7 @@ See [README.md](./README.md) for detailed tool reference.
 pip install -e ".[dev]"
 python -m aaa_mcp
 
-# SSE (Railway)
+# SSE (VPS)
 python -m aaa_mcp sse
 
 # HTTP (Streamable)

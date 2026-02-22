@@ -3,7 +3,7 @@ aaa_mcp CLI Entry Point — Triple Transport Support
 
 Usage:
     python -m aaa_mcp                # stdio (default — Local Agents)
-    python -m aaa_mcp sse            # sse (Remote — Railway/Network)
+    python -m aaa_mcp sse            # sse (Remote — VPS/Network)
     python -m aaa_mcp http           # http (Streamable HTTP at /mcp)
 
 DITEMPA BUKAN DIBERI
@@ -61,7 +61,7 @@ def main():
         host = os.getenv("HOST", "0.0.0.0")
         print(f"[arifOS] Starting MCP server with SSE transport on {host}:{port}", file=sys.stderr)
 
-        # Railway terminates TLS at proxy and sets X-Forwarded-Proto.
+        # Reverse proxy terminates TLS and sets X-Forwarded-Proto.
         # We need uvicorn to trust these headers so SSE endpoint
         # advertises https:// URLs, not http://.
         os.environ["FORWARDED_ALLOW_IPS"] = "*"

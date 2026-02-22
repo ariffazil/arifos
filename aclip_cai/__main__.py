@@ -4,7 +4,7 @@ aclip_cai CLI Entry Point — Triple Transport Support
 Usage:
     python -m aclip_cai                # stdio (default — MCP server)
     python -m aclip_cai stdio          # stdio (explicit)
-    python -m aclip_cai sse            # SSE (Remote — Railway/Network)
+    python -m aclip_cai sse            # SSE (Remote — VPS/Network)
     python -m aclip_cai http           # HTTP (Streamable HTTP at /mcp)
     python -m aclip_cai health         # CLI subcommand (legacy)
 

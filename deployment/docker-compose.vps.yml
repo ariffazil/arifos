@@ -7,12 +7,13 @@ version: '3.8'
 services:
   arifosmcp:
     build:
-      context: .
+      context: ..
       dockerfile: Dockerfile
     container_name: arifosmcp_server
     restart: unless-stopped
     env_file:
-      - .env.docker
+      - path: ../.env.docker
+        required: false
     # Map host ports to container ports
     ports:
       - "8888:8080"   # SSE transport
@@ -20,7 +21,7 @@ services:
     volumes:
       - ./data:/app/data
     # Override the default command to run both servers
-    command: /app/start-trinity.sh
+    command: /usr/src/app/start-trinity.sh
     # Health check: verify both python processes are running
     healthcheck:
       test: ["CMD-SHELL", "ps aux | grep -v grep | grep 'python -m aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m aaa_mcp http'"]

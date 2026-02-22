@@ -24,7 +24,7 @@ pip install -e ".[dev]"
 
 # Run MCP Server (3 transports)
 python -m aaa_mcp              # stdio (default — Claude Desktop, local agents)
-python -m aaa_mcp sse          # SSE (Railway, remote HTTP clients)
+python -m aaa_mcp sse          # SSE (VPS/remote HTTP clients)
 python -m aaa_mcp http         # Streamable HTTP at /mcp
 
 # Alternative CLI entry points (from pyproject.toml [project.scripts])
@@ -308,7 +308,7 @@ Require explicit user confirmation:
 | Target | Command | Notes |
 |--------|---------|-------|
 | Local (stdio) | `python -m aaa_mcp` | Claude Desktop, Cursor IDE |
-| Railway (SSE) | Auto-deploys from GitHub | `railway.toml`, port 8080 |
+| VPS/Coolify (SSE) | Auto-deploys from GitHub | `.github/workflows/deploy.yml`, port 8080 |
 | Docker | `docker build -t arifos . && docker run -p 8080:8080 arifos` | |
 
 **Live endpoints:**
