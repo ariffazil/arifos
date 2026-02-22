@@ -32,3 +32,7 @@ class ConstitutionalKernel:
 
 # Export the singleton
 kernel = ConstitutionalKernel()
+
+async def get_kernel() -> ConstitutionalKernel:
+    """Provides async-friendly access to the kernel singleton."""
+    return kernel
