@@ -1,33 +1,87 @@
-name: Deploy Docs Redirect to Cloudflare Pages
+name: Deploy Constitutional Dashboard to Cloudflare Pages
 
 on:
   push:
     branches:
       - main
     paths:
-      - 'docs-site/**'
+      - 'run_evals.py'
+      - 'tests/mcp_live/golden/**'
+      - 'aclip_cai/core/eval/**'
+      - '.github/workflows/deploy-cloudflare.yml'
   workflow_dispatch:
+  schedule:
+    # Auto-refresh dashboard daily at 02:00 UTC (after tests run at 00:00 UTC)
+    - cron: '0 2 * * *'
 
 concurrency:
   group: deploy-cloudflare-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       contents: read
       deployments: write
-    name: Deploy to Cloudflare Pages
+    name: Build & Deploy Constitutional Dashboard
+    
     steps:
-      - name: Checkout
+      - name: 🔥 Checkout Repository
         uses: actions/checkout@v6
 
-      - name: Deploy to Cloudflare Pages
+      - name: 📦 Install uv (Rust-based package manager)
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "latest"
+
+      - name: 🐍 Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 📥 Install Dependencies
+        run: |
+          uv pip install --system -e ".[dev]"
+
+      - name: 🔥 Generate Constitutional Dashboard
+        run: |
+          python run_evals.py
+        env:
+          ARIFOS_PHYSICS_DISABLED: 1
+          ARIFOS_ALLOW_LEGACY_SPEC: 1
+          PYTHONUNBUFFERED: 1
+
+      - name: ✅ Verify index.html Exists
+        run: |
+          if [ ! -f test-reports/index.html ]; then
+            echo "❌ ERROR: test-reports/index.html not found!"
+            echo "Contents of test-reports/:"
+            ls -la test-reports/
+            exit 1
+          fi
+          echo "✅ index.html exists at test-reports/index.html"
+          echo "📦 File size: $(du -h test-reports/index.html | cut -f1)"
+          echo "📊 Total assets: $(find test-reports -type f | wc -l) files"
+
+      - name: 🚀 Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: arifos
-          directory: docs-site
+          projectName: arifosmcp-truth-claim
+          directory: test-reports
           branch: main
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📊 Deployment Summary
+        run: |
+          echo "## 🔥 Constitutional Dashboard Deployed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ Dashboard deployed to Cloudflare Pages" >> $GITHUB_STEP_SUMMARY
+          echo "📁 Source: \`test-reports/index.html\`" >> $GITHUB_STEP_SUMMARY
+          echo "🌍 Network: Cloudflare Global CDN" >> $GITHUB_STEP_SUMMARY
+          echo "⏰ Next auto-refresh: 02:00 UTC daily" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Ditempa Bukan Diberi** 🔥" >> $GITHUB_STEP_SUMMARY
