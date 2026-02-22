@@ -155,7 +155,7 @@ Use the included CI/CD pipeline for automatic deployment on git push:
 
 2. Push to `main` branch → auto-deploys to VPS
 
-**Workflow file:** `.github/workflows/deploy-vps.yml`
+**Workflow file:** `.github/workflows/deploy.yml`
 
 ---
 

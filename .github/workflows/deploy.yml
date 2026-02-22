@@ -1,4 +1,4 @@
-name: Deploy arifOS MCP to Railway
+name: Deploy arifOS MCP to VPS (Coolify)
 
 on:
   push:
@@ -7,6 +7,8 @@ on:
     paths:
       - "aaa_mcp/**"
       - "core/**"
+      - "aclip_cai/**"
+      - "deployment/**"
       - "Dockerfile"
       - "pyproject.toml"
       - "requirements.txt"
@@ -14,11 +16,10 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-railway-${{ github.ref }}
+  group: deploy-vps-coolify-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # --- Constitutional Self-Test (arifOS-grade) ---
   selftest:
     name: Constitutional Self-Test
     runs-on: ubuntu-latest
@@ -30,7 +31,7 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: "3.12"
-          cache: 'pip'
+          cache: pip
 
       - name: Install dependencies
         run: |
@@ -38,67 +39,46 @@ jobs:
           pip install -e . || pip install -r requirements.txt
 
       - name: Run arifOS Self-Test
-        run: |
-          echo "Running arifOS constitutional self-test..."
-          python -m aaa_mcp.selftest
+        run: python -m aaa_mcp.selftest
         env:
           GOVERNANCE_MODE: HARD
           CLUSTER_LEVEL: "1"
-          HOST: "0.0.0.0"
-          PORT: "8080"
 
-  # --- Deploy MIND (Backend) to Railway ---
-  deploy-backend:
-    name: Deploy Backend (Railway)
+  deploy_vps:
+    name: Deploy to VPS
     needs: selftest
     runs-on: ubuntu-latest
-    if: ${{ secrets.RAILWAY_TOKEN != '' }}
+    if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USERNAME != '' && secrets.VPS_SSH_KEY != '' }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+            cd /root/arifOS
+            git pull --ff-only origin main
+            docker compose -f deployment/docker-compose.vps.yml up -d --build
 
-      - name: Setup Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Deploy MIND to Railway
-        run: railway up --service arifos-mind --detach
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
-      - name: Wait for deployment
-        run: sleep 15
-
-      - name: Verify Backend Health
-        run: |
-          echo "Checking health endpoint..."
-          HEALTH=$(curl -sf https://arifosmcp.arif-fazil.com/health 2>/dev/null || echo '{"status":"pending"}')
-          echo "Health response: $HEALTH"
-          echo "$HEALTH" | grep -q '"status"' && echo "✓ Health check passed" || echo "⚠ Health check pending (DNS propagation)"
-
-  # --- Verify MIND is Online ---
   verify:
     name: Verify Deployment
-    needs: deploy-backend
+    needs: deploy_vps
     runs-on: ubuntu-latest
-    if: ${{ secrets.RAILWAY_TOKEN != '' }}
+    if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USERNAME != '' && secrets.VPS_SSH_KEY != '' }}
     steps:
       - name: Final Health Check
         run: |
           sleep 10
-          curl -sf https://arifosmcp.arif-fazil.com/health && echo "✓ MIND is ONLINE" || echo "⚠ MIND may need more time"
+          curl -fsS https://arifosmcp.arif-fazil.com/health
 
       - name: Deployment Report
         run: |
           echo "========================================"
-          echo "  arifOS MCP — DEPLOYMENT REPORT"
+          echo "  arifOS MCP — VPS DEPLOYMENT REPORT"
           echo "========================================"
           echo "  Endpoint: https://arifosmcp.arif-fazil.com"
           echo "  MCP:      https://arifosmcp.arif-fazil.com/mcp"
           echo "  Health:   https://arifosmcp.arif-fazil.com/health"
-          echo "========================================"
-          echo "  Constitutional: Self-test PASSED"
-          echo "  Transport:      HTTP/SSE"
-          echo "  Mode:           HARD (production)"
-          echo "========================================"
-          echo "  DITEMPA BUKAN DIBERI"
           echo "========================================"

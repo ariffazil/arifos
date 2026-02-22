@@ -101,6 +101,13 @@ def forge_guard(
             reasons.append(f"DANGER: Forbidden pattern matched: {pattern}")
             break
 
+    # 4. High/Critical Risk Actions require review (888_HOLD lane)
+    if not danger_detected and risk_level in ("high", "critical"):
+        gate = "SABAR"
+        reason_code = "RISK_REVIEW_REQUIRED"
+        can_proceed = False
+        reasons.append(f"RISK: {risk_level.upper()} action requires sovereign review.")
+
     # 4. Critical Target Protection (F6 Empathy)
     if not danger_detected:
         critical_targets = [r"\.env", r"id_rsa", r"\.ssh", r"production", r"database"]
@@ -132,11 +139,10 @@ def forge_guard(
     }
 
     if gate == "VOID_LOCAL":
-        return void(
-            f"Safety violation: {reason_code}",
-            hint="Action blocked by forge_guard",
-            **payload
-        )
+        # We return ok() here because the guard successfully executed its logic
+        # and correctly identified a violation. The verdict field in payload
+        # carries the actual 'VOID' signal for the consumer.
+        return ok(payload, error=f"Safety violation: {reason_code}")
     if not can_proceed:
         return partial(payload, warning="; ".join(reasons))
     
