@@ -1,329 +1,81 @@
-/**
- * arifOS Sovereign Portal — Custom CSS (v65.0-FORGE)
- * Theme: Onyx & Forged Gold
- */
-
+/* sites/docs/src/css/custom.css — Unified Sovereign Theme */
 :root {
-  /* The Forged Palette */
-  --onyx-deep: #050505;
-  --onyx-surface: #0a0a0a;
-  --onyx-elevated: #111111;
-  --gold-raw: #8c7631;
-  --gold-forged: #e6c25d;
-  --gold-glow: #ffeb3b;
-  --gold-dim: #4a3e1a;
+  --ifm-color-primary: #e6c25d;           /* Forged Gold */
+  --ifm-color-primary-dark: #d4a94a;
+  --ifm-color-primary-darker: #c89a3f;
+  --ifm-color-primary-darkest: #b88a2f;
+  --ifm-color-primary-light: #f0d16f;
+  --ifm-color-primary-lighter: #f6e08a;
+  --ifm-color-primary-lightest: #fcf4c8;
 
-  --arif-red: #ff3e3e;
-  --arif-blue: #00a2ff;
-  --arif-green: #00ff88;
-
-  /* Infima Overrides */
-  --ifm-color-primary: var(--gold-forged);
-  --ifm-color-primary-dark: var(--gold-raw);
-  --ifm-color-primary-darker: var(--gold-dim);
-  --ifm-color-primary-darkest: #2a220d;
-  --ifm-color-primary-light: #f1d78c;
-  --ifm-color-primary-lighter: #f7e6b3;
-  --ifm-color-primary-lightest: #ffffff;
-
-  --ifm-background-color: var(--onyx-deep);
-  --ifm-navbar-background-color: rgba(5, 5, 5, 0.8);
-  --ifm-footer-background-color: var(--onyx-deep);
-
-  --ifm-font-family-base:
-    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  --ifm-font-family-monospace: "JetBrains Mono", "Fira Code", monospace;
-
-  --glass-bg: rgba(255, 255, 255, 0.03);
-  --glass-border: rgba(255, 255, 255, 0.05);
+  --ifm-background-color: #0a0a0a;
+  --ifm-navbar-background-color: #000000;
+  --ifm-footer-background-color: #000000;
+  --ifm-font-family-base: 'JetBrains Mono', system-ui, sans-serif;
 }
 
-[data-theme="dark"] {
-  --ifm-background-color: var(--onyx-deep);
-  --ifm-background-surface-color: var(--onyx-surface);
-  --ifm-font-color-base: #e0e0e0;
-  --ifm-heading-color: #ffffff;
-}
-
-/* Global Aesthetics */
 body {
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
+  background: radial-gradient(circle at 50% 20%, rgba(230, 194, 93, 0.08) 0%, transparent 70%);
 }
 
-.navbar {
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--glass-border);
-}
-
-.footer {
-  border-top: 1px solid var(--glass-border);
-}
-
-/* Hero Section */
-.heroBanner {
-  padding: 8rem 0;
-  position: relative;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 50%, #151515 0%, #050505 100%);
-  text-align: center;
-}
-
-.heroBanner::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    linear-gradient(rgba(230, 194, 93, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(230, 194, 93, 0.03) 1px, transparent 1px);
-  background-size: 50px 50px;
-  mask-image: radial-gradient(ellipse at center, black, transparent 80%);
-}
-
-.heroTitle {
-  font-size: 5rem;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #fff 0%, var(--gold-forged) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 1rem;
-  text-transform: uppercase;
-}
-
-.heroSubtitle {
-  font-size: 1.5rem;
-  color: #888;
-  max-width: 600px;
-  margin: 0 auto 2.5rem;
-  font-weight: 400;
-  line-height: 1.4;
-}
-
-/* 13+1 Floors Grid */
-.floorsGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
-  padding: 4rem 0;
-}
-
-.floorCard {
-  background: var(--onyx-surface);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  padding: 2rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-}
-
-.floorCard:hover {
-  transform: translateY(-5px);
-  border-color: var(--gold-dim);
-  box-shadow:
-    0 10px 30px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(230, 194, 93, 0.05);
-}
-
-.floorNumber {
-  font-family: var(--ifm-font-family-monospace);
-  color: var(--gold-forged);
-  font-size: 0.8rem;
-  margin-bottom: 0.5rem;
-  opacity: 0.6;
-}
-
-.floorName {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: #fff;
-}
-
-.floorDescription {
-  font-size: 0.9rem;
-  color: #999;
-  line-height: 1.6;
-}
-
-/* Health Widget */
-.healthWidget {
-  background: rgba(0, 255, 136, 0.03);
-  border: 1px solid rgba(0, 255, 136, 0.1);
-  border-radius: 50px;
-  padding: 0.5rem 1.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-family: var(--ifm-font-family-monospace);
-  font-size: 0.8rem;
-  color: var(--arif-green);
-  margin-top: 2rem;
-}
-
-.healthDot {
-  width: 8px;
-  height: 8px;
-  background: var(--arif-green);
-  border-radius: 50%;
-  box-shadow: 0 0 10px var(--arif-green);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* CTA Buttons */
-.ctaButton {
-  background: var(--gold-forged);
-  color: #000 !important;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 1rem 2.5rem;
-  border-radius: 4px;
-  transition: all 0.2s;
-}
-
-.ctaButton:hover {
-  background: #fff;
-  transform: scale(1.05);
-  text-decoration: none;
-}
-
-/* Code Snippet Box */
-.installBox {
-  background: #000;
-  border: 1px solid #222;
-  padding: 1.5rem;
-  border-radius: 8px;
-  margin: 2rem auto;
-  max-width: 500px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.installCommand {
-  font-family: var(--ifm-font-family-monospace);
-  color: #ccc;
-}
-
-/* Trinity Navigation Styles */
+/* TRINITY NAV - Sticky Sovereign Bar */
 .trinity-nav {
-  background-color: #000;
-  border-bottom: 1px solid rgba(255, 209, 0, 0.3);
+  background: #000;
+  border-bottom: 1px solid rgba(230, 194, 93, 0.25);
   position: sticky;
   top: 0;
-  z-index: 100;
-  width: 100%;
+  z-index: 9999;
+  backdrop-filter: blur(12px);
 }
 
 .trinity-container {
-  max-width: 1140px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 1rem 1.5rem;
+  padding: 0.85rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.trinity-left {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  font-size: 0.92rem;
 }
 
 .trinity-logo {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 1.25rem;
+  font-size: 1.55rem;
   font-weight: 800;
-  letter-spacing: -0.05em;
-  text-decoration: none !important;
+  letter-spacing: -0.04em;
+  color: #fff;
+  text-decoration: none;
 }
-
-.trinity-logo .arif { color: var(--gold-forged); }
-.trinity-logo .os { color: #fff; }
+.trinity-logo .arif { color: #e6c25d; }
 
 .trinity-badge {
-  font-size: 0.65rem;
-  padding: 0.25rem 0.75rem;
+  font-size: 0.62rem;
+  padding: 0.18rem 0.65rem;
   background: rgba(230, 194, 93, 0.1);
-  border: 1px solid rgba(230, 194, 93, 0.3);
-  border-radius: 50px;
-  color: var(--gold-forged);
-  font-family: var(--ifm-font-family-monospace);
-  text-transform: uppercase;
-}
-
-.trinity-center {
-  display: flex;
-  gap: 2rem;
-}
-
-.trinity-link {
-  color: #e5e5e5;
-  font-size: 0.85rem;
+  border: 1px solid rgba(230, 194, 93, 0.35);
+  border-radius: 9999px;
+  color: #e6c25d;
   font-weight: 700;
-  text-decoration: none !important;
-  transition: color 0.2s;
-  padding-bottom: 2px;
+  letter-spacing: 1.5px;
 }
 
-.trinity-link:hover {
-  color: var(--gold-forged);
+.trinity-center a {
+  margin: 0 1.4rem;
+  color: rgba(255,255,255,0.65);
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s;
 }
-
-.trinity-link.active {
-  color: var(--gold-forged);
-  border-bottom: 2px solid var(--gold-forged);
-}
-
-.trinity-right {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  font-size: 0.85rem;
+.trinity-center a:hover,
+.trinity-center a.active {
+  color: #e6c25d;
+  border-bottom: 2px solid #e6c25d;
+  padding-bottom: 4px;
 }
 
 .trinity-right a {
-  color: #888;
-  text-decoration: none !important;
+  color: rgba(255,255,255,0.5);
+  margin-left: 1.2rem;
+  text-decoration: none;
 }
-
-.trinity-right a:hover {
-  color: var(--gold-forged);
-}
-
-.trinity-enter {
-  color: var(--gold-forged) !important;
-  font-weight: 700;
-}
-
-/* Adjust layout to accommodate sticky trinity nav and navbar */
-.navbar {
-  top: 0px !important; /* Docusaurus navbar should be below trinity nav if both sticky */
-}
-
-/* If Trinity Nav is used, we might need to offset content */
-/* But stickiness should work if handled in root */
+.trinity-right a:hover { color: #fff; }
+.trinity-enter { color: #e6c25d !important; font-weight: 800; }

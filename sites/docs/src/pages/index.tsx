@@ -1,9 +1,7 @@
-import React, { useState, useEffect } from 'react';
+// sites/docs/src/pages/index.tsx
+import React, { useEffect, useState } from 'react';
 import Layout from '@theme/Layout';
-import Link from '@docusaurus/Link';
-import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 
-// Floor definitions for arifOS v65.0-FORGE
 const FLOORS = [
   { id: 'F1', name: 'Amanah', desc: 'Sacred trust and irreversibility awareness. Cross the Rubicon with care.' },
   { id: 'F2', name: 'Truth (τ)', desc: 'Factual fidelity ≥ 0.99. Every claim is grounded in multi-source evidence.' },
@@ -21,107 +19,102 @@ const FLOORS = [
   { id: 'F14', name: 'Temporal Coherence', desc: 'Coherence across time. Continuity of state and constitutional memory.' },
 ];
 
-function HealthIndicator() {
-  const [status, setStatus] = useState('FETCHING');
+export default function Home() {
+  const [health, setHealth] = useState({ status: 'loading', version: '' });
 
   useEffect(() => {
     fetch('https://arifosmcp.arif-fazil.com/health')
-      .then(res => res.json())
-      .then(data => setStatus(data.status.toUpperCase()))
-      .catch(() => setStatus('OFFLINE'));
+      .then(r => r.json())
+      .then(data => setHealth({ status: data.status || 'healthy', version: data.version || '2026.2.23' }))
+      .catch(() => setHealth({ status: 'degraded', version: '—' }));
   }, []);
 
-  const color = status === 'HEALTHY' ? '#00ff88' : status === 'DEGRADED' ? '#ffeb3b' : '#ff3e3e';
-
   return (
-    <div className="healthWidget" style={{ borderColor: `${color}33`, color }}>
-      <div className="healthDot" style={{ backgroundColor: color, boxShadow: `0 0 10px ${color}` }}></div>
-      <span>SYSTEM STATUS: {status}</span>
-    </div>
-  );
-}
-
-export default function Home(): JSX.Element {
-  const { siteConfig } = useDocusaurusContext();
-  
-  return (
-    <Layout
-      title={`Sovereign Intelligence | ${siteConfig.title}`}
-      description="Constitutional intelligence kernel that governs AI cognition via 13+1 floors and a 000→999 metabolic pipeline.">
-      
-      <main>
-        {/* HERO SECTION */}
-        <section className="heroBanner">
-          <div className="container">
-            <h1 className="heroTitle">arifOS</h1>
-            <p className="heroSubtitle">
-              The first production-grade constitutional governance system for AGI-scale intelligence. 
-              <strong> Forged, not given.</strong>
-            </p>
-            
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link className="button ctaButton" to="/intro">
-                Ignite Discovery
-              </Link>
-              <Link className="button button--outline button--lg" style={{ color: '#fff', borderColor: '#333' }} to="/mcp-server">
-                Connect MCP
-              </Link>
-            </div>
-
-            <HealthIndicator />
-            
-            <div className="installBox">
-              <span className="installCommand">$ gemini install arifos --server=aaa-mcp</span>
-              <button 
-                className="button button--link" 
-                onClick={() => navigator.clipboard.writeText('gemini install arifos --server=aaa-mcp')}
-                style={{ color: '#888' }}
-              >
-                Copy
-              </button>
-            </div>
+    <Layout title="arifOS — Constitutional Intelligence Kernel" description="Ditempa Bukan Diberi">
+      {/* TRINITY NAV */}
+      <nav className="trinity-nav">
+        <div className="trinity-container">
+          <div className="trinity-left">
+            <a href="https://arif-fazil.com/" className="trinity-logo">
+              <span className="arif">ARIF</span><span className="os">OS</span>
+            </a>
+            <div className="trinity-badge">THE TRINITY</div>
           </div>
-        </section>
 
-        {/* 14 FLOORS SECTION */}
-        <section style={{ padding: '6rem 0', background: '#070707' }}>
-          <div className="container">
-            <h2 style={{ textAlign: 'center', marginBottom: '4rem', fontSize: '2.5rem' }}>
-              The 14 Floors of Governance
-            </h2>
-            
-            <div className="floorsGrid">
-              {FLOORS.map((floor) => (
-                <div key={floor.id} className="floorCard">
-                  <div className="floorNumber">{floor.id}</div>
-                  <div className="floorName">{floor.name}</div>
-                  <div className="floorDescription">{floor.desc}</div>
-                </div>
-              ))}
-            </div>
+          <div className="trinity-center">
+            <a href="https://arif-fazil.com/">HUMAN</a>
+            <a href="https://apex.arif-fazil.com/">THEORY</a>
+            <a href="https://arifos.arif-fazil.com/" className="active">APPS</a>
           </div>
-        </section>
 
-        {/* TRINITY SECTION */}
-        <section style={{ padding: '6rem 0', background: '#000', borderTop: '1px solid #111' }}>
-          <div className="container">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem' }}>
-              <div>
-                <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1rem' }}>Δ Mind (Architect)</h3>
-                <p style={{ color: '#888' }}>Cognition, mapping, and truth-seeking. Stages 111–333. Reduces entropy via agi_reason.</p>
-              </div>
-              <div>
-                <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1rem' }}>Ω Heart (Guardian)</h3>
-                <p style={{ color: '#888' }}>Safety, empathy, and stakeholder protection. Stages 555–666. Enforces κᵣ thresholds.</p>
-              </div>
-              <div>
-                <h3 style={{ color: '#fff', fontSize: '1.5rem', marginBottom: '1rem' }}>Ψ Soul (Judge)</h3>
-                <p style={{ color: '#888' }}>Final judgment and consensus. Stages 888–999. Issues SEAL or VOID verdicts.</p>
-              </div>
-            </div>
+          <div className="trinity-right">
+            <a href="https://github.com/ariffazil/arifOS" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="https://arif-fazil.com/" className="trinity-enter">ENTER →</a>
           </div>
-        </section>
-      </main>
+        </div>
+      </nav>
+
+      <div className="hero hero--primary" style={{ background: 'linear-gradient(180deg, #0a0a0a 0%, #111 100%)', padding: '6rem 0 4rem' }}>
+        <div className="container">
+          <h1 className="hero__title" style={{ fontSize: '4.2rem', fontWeight: 800, letterSpacing: '-0.04em' }}>
+            arif<span style={{ color: '#e6c25d' }}>OS</span>
+          </h1>
+          <p className="hero__subtitle" style={{ fontSize: '1.6rem', maxWidth: '720px', margin: '1.5rem auto' }}>
+            The System That Knows It Doesn't Know<br />
+            <strong>Ditempa Bukan Diberi — Forged, Not Given</strong>
+          </p>
+
+          <div style={{ margin: '2.5rem 0' }}>
+            <a href="#deploy" className="button button--lg" style={{ background: '#e6c25d', color: '#000', fontWeight: 800, marginRight: '1rem' }}>
+              DEPLOY IN 60 SECONDS
+            </a>
+            <a href="https://arifos.arif-fazil.com/chatgpt" className="button button--lg button--outline button--secondary">
+              Add to ChatGPT
+            </a>
+          </div>
+
+          <div style={{ marginTop: '3rem', fontSize: '0.95rem', opacity: 0.8 }}>
+            LIVE MCP ENDPOINT → <strong>https://arifosmcp.arif-fazil.com</strong><br />
+            STATUS: <span style={{ color: health.status === 'healthy' ? '#e6c25d' : '#f55' }}>
+              {health.status.toUpperCase()} {health.version && `• v${health.version}`}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 14 FLOORS GRID */}
+      <div className="container padding-vert--xl">
+        <h2 style={{ textAlign: 'center', fontSize: '2.6rem', marginBottom: '3rem', color: '#e6c25d' }}>
+          14 Constitutional Floors
+        </h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem' }}>
+          {FLOORS.map((floor) => (
+            <div key={floor.id} className="card" style={{ padding: '1.8rem', border: '1px solid rgba(230,194,93,0.2)', background: 'rgba(230,194,93,0.03)' }}>
+              <h3 style={{ color: '#e6c25d', marginBottom: '0.5rem' }}>{floor.id} {floor.name}</h3>
+              <p style={{ fontSize: '0.9rem', color: '#888' }}>{floor.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* QUICK DEPLOY & CHATGPT SECTION */}
+      <div id="deploy" className="container padding-vert--xl" style={{ background: '#111', borderRadius: '20px', margin: '4rem auto' }}>
+        <h2 style={{ textAlign: 'center', color: '#e6c25d', marginBottom: '2rem' }}>Deploy or Connect in 60 Seconds</h2>
+        <pre style={{ background: '#000', padding: '2rem', borderRadius: '12px', overflow: 'auto', border: '1px solid #222' }}>
+          pip install arifos<br />
+          arifos serve --mode rest --profile strict
+        </pre>
+        <p style={{ textAlign: 'center', marginTop: '2rem' }}>
+          <a href="https://arifos.arif-fazil.com/chatgpt" style={{ color: '#e6c25d', fontSize: '1.3rem', fontWeight: 'bold' }}>
+            → Add arifOS as a Sovereign Connector in ChatGPT (Developer Mode)
+          </a>
+        </p>
+      </div>
+
+      <footer style={{ textAlign: 'center', padding: '3rem 0', borderTop: '1px solid rgba(230,194,93,0.2)', color: '#666', fontSize: '0.8rem' }}>
+        THE TRINITY — HUMAN • THEORY • APPS<br />
+        Ditempa Bukan Diberi • AGPL-3.0 • 2026.2.23
+      </footer>
     </Layout>
   );
 }
