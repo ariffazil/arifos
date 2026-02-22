@@ -1,75 +1,120 @@
-<!-- mcp-name: io.github.ariffazil/arifos-mcp -->
-
 <p align="center">
   <img src="docs/arifOSreadme.png" alt="arifOS: THE CONSTITUTIONAL KERNEL FOR AI" />
 </p>
 
 # arifOS
-
-## DITEMPA BUKAN DIBERI (Forged, Not Given)
+### DITEMPA BUKAN DIBERI (Forged, Not Given)
 
 ```text
-      Delta
-     / \
-    /   \      authority: TRINITY GOVERNANCE (Delta / Omega / Psi)
-   /  O  \     role:      Constitutional Intelligence Kernel
-  /_______\    version:   2026.2.22
+        Delta
+       /     \
+      /       \      authority:  TRINITY GOVERNANCE (Delta/Omega/Psi)
+     /    O    \     role:       CONSTITUTIONAL INTELLIGENCE KERNEL
+    /___________\    version:    2026.2.22
 ```
 
-## Canonical Links (Repo-True)
+### Canonical Links
+*   **Docs site (Docusaurus)**: [sites/docs/](sites/docs/) (content: `sites/docs/docs/`)
+*   **333 stack (L0-L7)**: [333_APPS/](333_APPS/) (navigation: `333_APPS/ATLAS_NAVIGATION.md`, status: `333_APPS/STATUS.md`)
+*   **Kernel core (pure)**: [core/](core/) (readme: `core/README.md`)
+*   **MCP adapter (transport only)**: [aaa_mcp/](aaa_mcp/) (entrypoint: `aaa_mcp/__main__.py`)
+*   **Infrastructure senses**: [aclip_cai/](aclip_cai/) (readme: `aclip_cai/README.md`)
+*   **Constitutional law (Floors F1-F13)**: [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) (tower: `000_THEORY/`)
+*   **Registry manifest**: [server.json](server.json)
+*   **Vault**: [VAULT999/](VAULT999/)
+*   **Roadmap**: [ROADMAP.md](ROADMAP.md)
+*   **Agent guide**: [AGENTS.md](AGENTS.md)
+*   **Repo docs library**: [docs/](docs/)
 
-- Kernel (pure): [`core/`](core/) and [`core/README.md`](core/README.md)
-- MCP adapter (transport): [`aaa_mcp/`](aaa_mcp/), entry: [`aaa_mcp/__main__.py`](aaa_mcp/__main__.py), docs: [`aaa_mcp/README.md`](aaa_mcp/README.md)
-- 333 apps stack (L0-L7): [`333_APPS/`](333_APPS/), nav: [`333_APPS/ATLAS_NAVIGATION.md`](333_APPS/ATLAS_NAVIGATION.md), status: [`333_APPS/STATUS.md`](333_APPS/STATUS.md)
-- Sensory/observability: [`aclip_cai/`](aclip_cai/) and [`aclip_cai/README.md`](aclip_cai/README.md)
-- Constitutional law (Floors): [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md)
-- Docs site source: [`sites/docs/`](sites/docs/) (pages: [`sites/docs/docs/`](sites/docs/docs/))
-- Registry manifest: [`server.json`](server.json)
-- Vault: [`VAULT999/`](VAULT999/)
-- Roadmap: [`ROADMAP.md`](ROADMAP.md)
-- Agent guide: [`AGENTS.md`](AGENTS.md)
-- Repo docs library: [`docs/`](docs/)
+---
 
 ## What arifOS Is
+arifOS is a **constitutional governance kernel** for AI systems.
 
-arifOS is a constitutional governance kernel for AI systems.
+It sits between intent and action. Instead of optimizing only for probability, arifOS evaluates whether an output is permitted to exist under explicit, testable rules (Floors F1-F13).
 
-It sits between intent and action, and returns a verdict:
+Every run ends in a verdict:
 
 | Verdict | Meaning |
-|---|---|
-| `SEAL` | proceed |
-| `SABAR` / `HOLD` | pause; human confirmation / cooling |
-| `VOID` | blocked by hard constraints |
+| :--- | :--- |
+| **SEAL** | Allowed to proceed |
+| **SABAR / HOLD** | Pause; requires human confirmation or cooling |
+| **VOID** | Blocked by hard constraints |
 
-## Repo Architecture (Contract)
+### The Problem: Dark Cleverness
+Ungoverned systems can be persuasive while wrong. Typical failure modes:
 
-This repo has a strict boundary:
+| Failure | Description |
+| :--- | :--- |
+| **Hallucination drift** | High confidence without grounding |
+| **Sovereign ruin** | Irreversible actions suggested without authority |
+| **Entropic decay** | Confusion compounds across sessions and tools |
 
-- `core/` contains pure decision logic and types. No transport dependencies.
-- `aaa_mcp/` is the MCP server adapter. Transport only, calls into `core/`.
-- `aclip_cai/` is observability + sensory tooling (console/dashboard + federation hub).
-- `333_APPS/` is the application layer stack above the kernel (L0-L7).
-- `sites/docs/` is the public docs website source; `docs/` is the internal docs library.
+arifOS introduces constitutional constraint as the stabilizer.
 
-## Trinity Governance (Delta / Omega / Psi)
+---
 
-### Tri-Witness Flow (GitHub Mermaid-safe)
+## I. Trinity Architecture (Delta/Omega/Psi)
+arifOS replaces "prompt engineering" with **constitution engineering**: three independent witnesses must align.
+
+| Engine | Symbol | Name | Role | Question |
+| :--- | :---: | :--- | :--- | :--- |
+| **AGI** | Δ | **ARIF** | Logic / architecture | *Is it true?* |
+| **ASI** | Ω | **ADAM** | Safety / constraints | *Is it safe?* |
+| **APEX** | Ψ | **APEX** | Authority / law | *Is it lawful?* |
 
 ```mermaid
 graph TD
-    I(("Intent")) --> ARIF["ARIF: Logic - Delta"]
-    I --> ADAM["ADAM: Safety - Omega"]
-    ARIF --> APEX{"APEX: Authority - Psi"}
+    Input((Intent)) --> ARIF["ARIF: Logic (Delta)"]
+    Input --> ADAM["ADAM: Safety (Omega)"]
+
+    ARIF --> APEX{"APEX: Authority (Psi)"}
     ADAM --> APEX
-    APEX --> ANVIL["Anvil: Floors F1-F13"]
-    ANVIL --> V{"Verdict"}
-    V -->|"SEAL"| OK["Proceed"]
-    V -->|"SABAR/HOLD"| PAUSE["Pause / Human Review"]
-    V -->|"VOID"| BLOCK["Block"]
+
+    APEX --> ANVIL[Anvil: Floors F1-F13]
+    ANVIL --> DECISION{Verdict}
+
+    DECISION -->|SEAL| OK[Proceed]
+    DECISION -->|SABAR/HOLD| PAUSE[Pause / Human Review]
+    DECISION -->|VOID| BLOCK[Block]
 ```
 
-## Metabolic Journey (000 to 999)
+---
+
+## II. Five-Organ Kernel
+arifOS metabolizes intent through five organs:
+
+*   **INIT**: session ignition, identity/authority checks, rollback paths.
+*   **AGI**: reasoning and grounding.
+*   **ASI**: impact, dignity (**maruah**), and safety constraints.
+*   **APEX**: final judgment and verdict.
+*   **VAULT**: tamper-evident logging and canonical memory.
+
+---
+
+## III. The Anvil: 13 Constitutional Floors (F1-F13)
+The Floors are laws (not suggestions). Full definitions live in [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md).
+
+| Floor | Law | Purpose (short) |
+| :--- | :--- | :--- |
+| **F1** | **Amanah** | Reversible, non-destructive guidance |
+| **F2** | **Truth** | Evidence fidelity; admit unknowns |
+| **F3** | **Tri-Witness** | Human intent + AI reasoning + external evidence |
+| **F4** | **Clarity** | Reduce confusion (ΔS ≤ 0) |
+| **F5** | **Peace²** | De-escalate; preserve stability |
+| **F6** | **Empathy** | Protect dignity and weakest listener |
+| **F7** | **Humility** | State uncertainty explicitly |
+| **F8** | **Genius** | Coherence and internal consistency |
+| **F9** | **Anti-Hantu** | No consciousness claims |
+| **F10** | **Ontology Lock** | AI is tool, not being |
+| **F11** | **Authority** | Irreversible actions require ratification (**888_HOLD**) |
+| **F12** | **Defense** | Injection/jailbreak resistance |
+| **F13** | **Curiosity** | Offer governance alternatives, not single-track force |
+
+---
+
+## IV. The Metabolic Journey (000 to 999)
+Every decision passes an 11-stage pipeline.
 
 <p align="center">
   <img src="docs/arifOS_Constitutional_Governance_Kernel.png" alt="The Metabolic Pipeline (000-999)" />
@@ -81,924 +126,61 @@ graph TD
 -> 777 EUREKA -> 888 JUDGE -> 889 PROOF -> 999 VAULT
 ```
 
-```mermaid
-stateDiagram-v2
-    [*] --> 000_INIT: Ignition
-    000_INIT --> 111_SENSE: Perceive
-    111_SENSE --> 222_THINK: Reason
-    222_THINK --> 333_ATLAS: Map
-    333_ATLAS --> 444_ALIGN: Sync
-    444_ALIGN --> 555_EMPATHY: Model
-    555_EMPATHY --> 666_BRIDGE: Synthesis
-    666_BRIDGE --> 777_EUREKA: Novelty
-    777_EUREKA --> 888_JUDGE: Verdict
-    888_JUDGE --> 889_PROOF: Proof
-    889_PROOF --> 999_VAULT: Seal
-    999_VAULT --> [*]: Cooling
-```
+---
 
-## Quick Start (Repo-True)
+## V. Phoenix-72 Protocol (Cooling)
+High-impact outputs must cool before they become canon.
+
+| Tier | Cooling |
+| :--- | :--- |
+| **0** | 0h (routine) |
+| **1** | 42h (drift / warnings) |
+| **2** | 72h (breakthrough / high-stakes) |
+| **3** | 168h (constitutional fork / sovereign override) |
+
+---
+
+## VI. Technical Reality
+
+| Component | Value |
+| :--- | :--- |
+| **Language** | Python 3.12+ |
+| **Architecture** | `core/` is pure decision logic; `aaa_mcp/` is transport adapter |
+| **Transports** | stdio, SSE, HTTP |
+| **Audit** | vault artifacts under `VAULT999/` |
+| **Registry** | `io.github.ariffazil/arifos-mcp` (see [server.json](server.json)) |
+
+**Notes:**
+*   References to "**zkPC**" exist in this repo, but treat them as roadmap/design unless proven by code + tests in the current revision.
+*   **333_APPS/** is the application stack (L1 prompts through L7 agents) layered on top of the kernel; it must not leak transport into `core/`.
+*   **sites/docs/** is the public documentation site source; **docs/** is the repo's internal docs library.
+
+---
+
+## VII. Quick Start
 
 ```bash
-pip install -e .
+pip install arifos
 
-# MCP server: stdio
+# Stdio (local MCP clients)
 python -m aaa_mcp
 
-# MCP server: SSE
+# SSE (network)
 python -m aaa_mcp sse
 
-# MCP server: streamable HTTP
+# HTTP (streamable)
 python -m aaa_mcp http
 ```
 
-- VPS deploy workflow: [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
-- Pages docs deploy: [`.github/workflows/deploy-sites.yml`](.github/workflows/deploy-sites.yml)
-- Console build workflow: [`.github/workflows/deploy-console.yml`](.github/workflows/deploy-console.yml)
+Live health (when deployed): [https://arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)
 
 ---
 
-# Appendix A: Repository Inventory (Link-True)
+## VIII. License and Oath
+**License**: AGPL-3.0-only ([LICENSE](LICENSE))
 
-Generated index of relevant files (excludes secrets, caches, build outputs).
+> *I am the Mind, not the Sovereign.*  
+> *I design, I do not decree.*  
+> *Every output must reduce confusion.*
 
-- [`000_THEORY/000_ARCHITECTURE.md`](000_THEORY/000_ARCHITECTURE.md)
-- [`000_THEORY/000_FOUNDATIONS.md`](000_THEORY/000_FOUNDATIONS.md)
-- [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md)
-- [`000_THEORY/001_IGNITION.md`](000_THEORY/001_IGNITION.md)
-- [`000_THEORY/002_GOVERNANCE_EMERGENCE.md`](000_THEORY/002_GOVERNANCE_EMERGENCE.md)
-- [`000_THEORY/002_TPCP_PAPER.md`](000_THEORY/002_TPCP_PAPER.md)
-- [`000_THEORY/003_WITNESS.md`](000_THEORY/003_WITNESS.md)
-- [`000_THEORY/004_REALITY.md`](000_THEORY/004_REALITY.md)
-- [`000_THEORY/005_EVALS.md`](000_THEORY/005_EVALS.md)
-- [`000_THEORY/010_FEDERATION.md`](000_THEORY/010_FEDERATION.md)
-- [`000_THEORY/010_TRINITY.md`](000_THEORY/010_TRINITY.md)
-- [`000_THEORY/030_COGNITIVE_WORKFLOWS.md`](000_THEORY/030_COGNITIVE_WORKFLOWS.md)
-- [`000_THEORY/111_MIND_GENIUS.md`](000_THEORY/111_MIND_GENIUS.md)
-- [`000_THEORY/333_MIND_ATLAS.md`](000_THEORY/333_MIND_ATLAS.md)
-- [`000_THEORY/555_HEART_EMPATHY.md`](000_THEORY/555_HEART_EMPATHY.md)
-- [`000_THEORY/777_SOUL_APEX.md`](000_THEORY/777_SOUL_APEX.md)
-- [`000_THEORY/888_SOUL_VERDICT.md`](000_THEORY/888_SOUL_VERDICT.md)
-- [`000_THEORY/999_NINE_MOTTOS_SPEC.md`](000_THEORY/999_NINE_MOTTOS_SPEC.md)
-- [`000_THEORY/999_SOVEREIGN_VAULT.md`](000_THEORY/999_SOVEREIGN_VAULT.md)
-- [`000_THEORY/AGENTIC_ECONOMY_ROADMAP_2026.md`](000_THEORY/AGENTIC_ECONOMY_ROADMAP_2026.md)
-- [`000_THEORY/APEX_THEORY_PAPER.md`](000_THEORY/APEX_THEORY_PAPER.md)
-- [`000_THEORY/CFO_GLOSSARY.md`](000_THEORY/CFO_GLOSSARY.md)
-- [`000_THEORY/ISO_42001_MAPPING.md`](000_THEORY/ISO_42001_MAPPING.md)
-- [`000_THEORY/MANIFESTO.md`](000_THEORY/MANIFESTO.md)
-- [`000_THEORY/README.md`](000_THEORY/README.md)
-- [`000_THEORY/ROOTKEY_SPEC.md`](000_THEORY/ROOTKEY_SPEC.md)
-- [`000_THEORY/STRUCTURE.md`](000_THEORY/STRUCTURE.md)
-- [`000_THEORY/TRINITY_ARCHITECTURE.md`](000_THEORY/TRINITY_ARCHITECTURE.md)
-- [`000_THEORY/_OUTLINE.md`](000_THEORY/_OUTLINE.md)
-- [`333_APPS/.seal_timestamp`](333_APPS/.seal_timestamp)
-- [`333_APPS/ATLAS_NAVIGATION.md`](333_APPS/ATLAS_NAVIGATION.md)
-- [`333_APPS/FORGE_SEAL.md`](333_APPS/FORGE_SEAL.md)
-- [`333_APPS/L0_KERNEL/README.md`](333_APPS/L0_KERNEL/README.md)
-- [`333_APPS/L1_PROMPT/EXAMPLES.md`](333_APPS/L1_PROMPT/EXAMPLES.md)
-- [`333_APPS/L1_PROMPT/MCP_9_CORE_TOOLS.md`](333_APPS/L1_PROMPT/MCP_9_CORE_TOOLS.md)
-- [`333_APPS/L1_PROMPT/README.md`](333_APPS/L1_PROMPT/README.md)
-- [`333_APPS/L1_PROMPT/SYSTEM_PROMPT.md`](333_APPS/L1_PROMPT/SYSTEM_PROMPT.md)
-- [`333_APPS/L2_SKILLS/ACTIONS/align/SKILL.md`](333_APPS/L2_SKILLS/ACTIONS/align/SKILL.md)
-- [`333_APPS/L2_SKILLS/ACTIONS/anchor/SKILL.md`](333_APPS/L2_SKILLS/ACTIONS/anchor/SKILL.md)
-- [`333_APPS/L2_SKILLS/ACTIONS/audit/SKILL.md`](333_APPS/L2_SKILLS/ACTIONS/audit/SKILL.md)
-- [`333_APPS/L2_SKILLS/ACTIONS/forge/SKILL.md`](333_APPS/L2_SKILLS/ACTIONS/forge/SKILL.md)
-- [`333_APPS/L2_SKILLS/ACTIONS/integrate/SKILL.md`](333_APPS/L2_SKILLS/ACTIONS/integrate/SKILL.md)
-- [`333_APPS/L2_SKILLS/ACTIONS/reason/SKILL.md`](333_APPS/L2_SKILLS/ACTIONS/reason/SKILL.md)
-- [`333_APPS/L2_SKILLS/ACTIONS/respond/SKILL.md`](333_APPS/L2_SKILLS/ACTIONS/respond/SKILL.md)
-- [`333_APPS/L2_SKILLS/ACTIONS/seal/SKILL.md`](333_APPS/L2_SKILLS/ACTIONS/seal/SKILL.md)
-- [`333_APPS/L2_SKILLS/ACTIONS/validate/SKILL.md`](333_APPS/L2_SKILLS/ACTIONS/validate/SKILL.md)
-- [`333_APPS/L2_SKILLS/CONSOLIDATION_v60.md`](333_APPS/L2_SKILLS/CONSOLIDATION_v60.md)
-- [`333_APPS/L2_SKILLS/README.md`](333_APPS/L2_SKILLS/README.md)
-- [`333_APPS/L2_SKILLS/UTILITIES/capture-terminal/SKILL.md`](333_APPS/L2_SKILLS/UTILITIES/capture-terminal/SKILL.md)
-- [`333_APPS/L2_SKILLS/UTILITIES/capture-terminal/capture.ps1`](333_APPS/L2_SKILLS/UTILITIES/capture-terminal/capture.ps1)
-- [`333_APPS/L2_SKILLS/UTILITIES/capture-terminal/scripts/format_output.py`](333_APPS/L2_SKILLS/UTILITIES/capture-terminal/scripts/format_output.py)
-- [`333_APPS/L2_SKILLS/UTILITIES/route-tasks/SKILL.md`](333_APPS/L2_SKILLS/UTILITIES/route-tasks/SKILL.md)
-- [`333_APPS/L2_SKILLS/UTILITIES/route-tasks/scripts/route_task.py`](333_APPS/L2_SKILLS/UTILITIES/route-tasks/scripts/route_task.py)
-- [`333_APPS/L2_SKILLS/UTILITIES/visual-law/SKILL.md`](333_APPS/L2_SKILLS/UTILITIES/visual-law/SKILL.md)
-- [`333_APPS/L2_SKILLS/UTILITIES/visual-law/assets/apps-template.html`](333_APPS/L2_SKILLS/UTILITIES/visual-law/assets/apps-template.html)
-- [`333_APPS/L2_SKILLS/UTILITIES/visual-law/assets/human-template.html`](333_APPS/L2_SKILLS/UTILITIES/visual-law/assets/human-template.html)
-- [`333_APPS/L2_SKILLS/UTILITIES/visual-law/assets/theory-template.html`](333_APPS/L2_SKILLS/UTILITIES/visual-law/assets/theory-template.html)
-- [`333_APPS/L2_SKILLS/UTILITIES/visual-law/references/color-tokens.md`](333_APPS/L2_SKILLS/UTILITIES/visual-law/references/color-tokens.md)
-- [`333_APPS/L2_SKILLS/apex-888-judgment-engine/SKILL.md`](333_APPS/L2_SKILLS/apex-888-judgment-engine/SKILL.md)
-- [`333_APPS/L2_SKILLS/f1-amanah-file-guardian/SKILL.md`](333_APPS/L2_SKILLS/f1-amanah-file-guardian/SKILL.md)
-- [`333_APPS/L2_SKILLS/f3-tri-witness-consensus/SKILL.md`](333_APPS/L2_SKILLS/f3-tri-witness-consensus/SKILL.md)
-- [`333_APPS/L2_SKILLS/f6-constitutional-care/SKILL.md`](333_APPS/L2_SKILLS/f6-constitutional-care/SKILL.md)
-- [`333_APPS/L2_SKILLS/f7-godel-uncertainty-guard/SKILL.md`](333_APPS/L2_SKILLS/f7-godel-uncertainty-guard/SKILL.md)
-- [`333_APPS/L2_SKILLS/f8-wisdom-equation-calculator/SKILL.md`](333_APPS/L2_SKILLS/f8-wisdom-equation-calculator/SKILL.md)
-- [`333_APPS/L2_SKILLS/f9-shadow-cleverness-guard/SKILL.md`](333_APPS/L2_SKILLS/f9-shadow-cleverness-guard/SKILL.md)
-- [`333_APPS/L2_SKILLS/mcp_tool_templates.py`](333_APPS/L2_SKILLS/mcp_tool_templates.py)
-- [`333_APPS/L2_SKILLS/skill-creator/SKILL.md`](333_APPS/L2_SKILLS/skill-creator/SKILL.md)
-- [`333_APPS/L2_SKILLS/skill_templates.yaml`](333_APPS/L2_SKILLS/skill_templates.yaml)
-- [`333_APPS/L2_SKILLS/trinity-000-999-pipeline/SKILL.md`](333_APPS/L2_SKILLS/trinity-000-999-pipeline/SKILL.md)
-- [`333_APPS/L2_SKILLS/trinity-governance-core/SKILL.md`](333_APPS/L2_SKILLS/trinity-governance-core/SKILL.md)
-- [`333_APPS/L3_WORKFLOW/README.md`](333_APPS/L3_WORKFLOW/README.md)
-- [`333_APPS/L3_WORKFLOW/WORKFLOWS/000_SESSION_INIT.md`](333_APPS/L3_WORKFLOW/WORKFLOWS/000_SESSION_INIT.md)
-- [`333_APPS/L3_WORKFLOW/WORKFLOWS/111_INTENT.md`](333_APPS/L3_WORKFLOW/WORKFLOWS/111_INTENT.md)
-- [`333_APPS/L3_WORKFLOW/WORKFLOWS/333_CONTEXT.md`](333_APPS/L3_WORKFLOW/WORKFLOWS/333_CONTEXT.md)
-- [`333_APPS/L3_WORKFLOW/WORKFLOWS/555_SAFETY.md`](333_APPS/L3_WORKFLOW/WORKFLOWS/555_SAFETY.md)
-- [`333_APPS/L3_WORKFLOW/WORKFLOWS/777_IMPLEMENT.md`](333_APPS/L3_WORKFLOW/WORKFLOWS/777_IMPLEMENT.md)
-- [`333_APPS/L3_WORKFLOW/WORKFLOWS/888_COMMIT.md`](333_APPS/L3_WORKFLOW/WORKFLOWS/888_COMMIT.md)
-- [`333_APPS/L3_WORKFLOW/WORKFLOWS/README.md`](333_APPS/L3_WORKFLOW/WORKFLOWS/README.md)
-- [`333_APPS/L4_TOOLS/MANIFEST.md`](333_APPS/L4_TOOLS/MANIFEST.md)
-- [`333_APPS/L4_TOOLS/README.md`](333_APPS/L4_TOOLS/README.md)
-- [`333_APPS/L4_TOOLS/mcp-configs/antigravity/mcp_config.json`](333_APPS/L4_TOOLS/mcp-configs/antigravity/mcp_config.json)
-- [`333_APPS/L4_TOOLS/mcp-configs/claude/claude_desktop_config.json`](333_APPS/L4_TOOLS/mcp-configs/claude/claude_desktop_config.json)
-- [`333_APPS/L4_TOOLS/mcp-configs/claude/mcp.json`](333_APPS/L4_TOOLS/mcp-configs/claude/mcp.json)
-- [`333_APPS/L4_TOOLS/mcp-configs/codex/config.toml`](333_APPS/L4_TOOLS/mcp-configs/codex/config.toml)
-- [`333_APPS/L4_TOOLS/mcp-configs/codex/mcp.json`](333_APPS/L4_TOOLS/mcp-configs/codex/mcp.json)
-- [`333_APPS/L4_TOOLS/mcp-configs/kimi/mcp.json`](333_APPS/L4_TOOLS/mcp-configs/kimi/mcp.json)
-- [`333_APPS/L4_TOOLS/mcp-configs/opencode/mcp.json`](333_APPS/L4_TOOLS/mcp-configs/opencode/mcp.json)
-- [`333_APPS/L4_TOOLS/mcp-configs/opencode/opencode.json`](333_APPS/L4_TOOLS/mcp-configs/opencode/opencode.json)
-- [`333_APPS/L5_AGENTS/README.md`](333_APPS/L5_AGENTS/README.md)
-- [`333_APPS/L5_AGENTS/SPEC/000_THEORY.md`](333_APPS/L5_AGENTS/SPEC/000_THEORY.md)
-- [`333_APPS/L5_AGENTS/SPEC/SOUL.md`](333_APPS/L5_AGENTS/SPEC/SOUL.md)
-- [`333_APPS/L5_AGENTS/SPEC/TOOLS.md`](333_APPS/L5_AGENTS/SPEC/TOOLS.md)
-- [`333_APPS/L5_AGENTS/SPEC/USER.md`](333_APPS/L5_AGENTS/SPEC/USER.md)
-- [`333_APPS/L5_AGENTS/agents/__init__.py`](333_APPS/L5_AGENTS/agents/__init__.py)
-- [`333_APPS/L5_AGENTS/agents/architect.py`](333_APPS/L5_AGENTS/agents/architect.py)
-- [`333_APPS/L5_AGENTS/agents/auditor.py`](333_APPS/L5_AGENTS/agents/auditor.py)
-- [`333_APPS/L5_AGENTS/agents/engineer.py`](333_APPS/L5_AGENTS/agents/engineer.py)
-- [`333_APPS/L5_AGENTS/agents/orchestrator.py`](333_APPS/L5_AGENTS/agents/orchestrator.py)
-- [`333_APPS/L5_AGENTS/agents/validator.py`](333_APPS/L5_AGENTS/agents/validator.py)
-- [`333_APPS/L5_AGENTS/environment/__init__.py`](333_APPS/L5_AGENTS/environment/__init__.py)
-- [`333_APPS/L5_AGENTS/environment/hypervisor.py`](333_APPS/L5_AGENTS/environment/hypervisor.py)
-- [`333_APPS/L5_AGENTS/environment/physics.py`](333_APPS/L5_AGENTS/environment/physics.py)
-- [`333_APPS/L6_INSTITUTION/README.md`](333_APPS/L6_INSTITUTION/README.md)
-- [`333_APPS/L6_INSTITUTION/institution/__init__.py`](333_APPS/L6_INSTITUTION/institution/__init__.py)
-- [`333_APPS/L6_INSTITUTION/institution/constitutional_orchestrator.py`](333_APPS/L6_INSTITUTION/institution/constitutional_orchestrator.py)
-- [`333_APPS/L6_INSTITUTION/institution/heart_role.py`](333_APPS/L6_INSTITUTION/institution/heart_role.py)
-- [`333_APPS/L6_INSTITUTION/institution/mind_role.py`](333_APPS/L6_INSTITUTION/institution/mind_role.py)
-- [`333_APPS/L6_INSTITUTION/institution/phoenix_72.py`](333_APPS/L6_INSTITUTION/institution/phoenix_72.py)
-- [`333_APPS/L6_INSTITUTION/institution/soul_role.py`](333_APPS/L6_INSTITUTION/institution/soul_role.py)
-- [`333_APPS/L6_INSTITUTION/institution/tri_witness_gate.py`](333_APPS/L6_INSTITUTION/institution/tri_witness_gate.py)
-- [`333_APPS/L7_AGI/000_THEORY/README_COMPLETE.md`](333_APPS/L7_AGI/000_THEORY/README_COMPLETE.md)
-- [`333_APPS/L7_AGI/000_THEORY/RESEARCH_SUMMARY_COMPLETE.md`](333_APPS/L7_AGI/000_THEORY/RESEARCH_SUMMARY_COMPLETE.md)
-- [`333_APPS/L7_AGI/README.md`](333_APPS/L7_AGI/README.md)
-- [`333_APPS/L7_AGI/research/CONSTITUTIONAL_LEARNING.md`](333_APPS/L7_AGI/research/CONSTITUTIONAL_LEARNING.md)
-- [`333_APPS/L7_AGI/research/SAFETY_FRAMEWORK.md`](333_APPS/L7_AGI/research/SAFETY_FRAMEWORK.md)
-- [`333_APPS/L7_AGI/research/__init__.py`](333_APPS/L7_AGI/research/__init__.py)
-- [`333_APPS/README.md`](333_APPS/README.md)
-- [`333_APPS/STATUS.md`](333_APPS/STATUS.md)
-- [`333_APPS/forge_init.py`](333_APPS/forge_init.py)
-- [`333_APPS/manifesto.py`](333_APPS/manifesto.py)
-- [`333_APPS/metabolizer.py`](333_APPS/metabolizer.py)
-- [`aaa_mcp/DEPLOYMENT.md`](aaa_mcp/DEPLOYMENT.md)
-- [`aaa_mcp/MCP_2025_11_25_ALIGNMENT.md`](aaa_mcp/MCP_2025_11_25_ALIGNMENT.md)
-- [`aaa_mcp/QC_REPORT_REMOTE_DEPLOYMENT.md`](aaa_mcp/QC_REPORT_REMOTE_DEPLOYMENT.md)
-- [`aaa_mcp/README.md`](aaa_mcp/README.md)
-- [`aaa_mcp/__init__.py`](aaa_mcp/__init__.py)
-- [`aaa_mcp/__main__.py`](aaa_mcp/__main__.py)
-- [`aaa_mcp/capabilities/__init__.py`](aaa_mcp/capabilities/__init__.py)
-- [`aaa_mcp/capabilities/t6_web_search.py`](aaa_mcp/capabilities/t6_web_search.py)
-- [`aaa_mcp/claude_desktop_config.json`](aaa_mcp/claude_desktop_config.json)
-- [`aaa_mcp/config/__init__.py`](aaa_mcp/config/__init__.py)
-- [`aaa_mcp/config/capability_modules.yaml`](aaa_mcp/config/capability_modules.yaml)
-- [`aaa_mcp/config/constants.py`](aaa_mcp/config/constants.py)
-- [`aaa_mcp/core/__init__.py`](aaa_mcp/core/__init__.py)
-- [`aaa_mcp/core/constitutional_decorator.py`](aaa_mcp/core/constitutional_decorator.py)
-- [`aaa_mcp/core/engine_adapters.py`](aaa_mcp/core/engine_adapters.py)
-- [`aaa_mcp/core/mode_selector.py`](aaa_mcp/core/mode_selector.py)
-- [`aaa_mcp/core/motto_schema.py`](aaa_mcp/core/motto_schema.py)
-- [`aaa_mcp/core/stage_adapter.py`](aaa_mcp/core/stage_adapter.py)
-- [`aaa_mcp/enforcement/__init__.py`](aaa_mcp/enforcement/__init__.py)
-- [`aaa_mcp/enforcement/routing.py`](aaa_mcp/enforcement/routing.py)
-- [`aaa_mcp/external_gateways/__init__.py`](aaa_mcp/external_gateways/__init__.py)
-- [`aaa_mcp/external_gateways/brave_client.py`](aaa_mcp/external_gateways/brave_client.py)
-- [`aaa_mcp/gateway/README.md`](aaa_mcp/gateway/README.md)
-- [`aaa_mcp/gateway/__init__.py`](aaa_mcp/gateway/__init__.py)
-- [`aaa_mcp/gateway/identity.py`](aaa_mcp/gateway/identity.py)
-- [`aaa_mcp/gateway/observability.py`](aaa_mcp/gateway/observability.py)
-- [`aaa_mcp/guards/__init__.py`](aaa_mcp/guards/__init__.py)
-- [`aaa_mcp/guards/injection_guard.py`](aaa_mcp/guards/injection_guard.py)
-- [`aaa_mcp/guards/ontology_guard.py`](aaa_mcp/guards/ontology_guard.py)
-- [`aaa_mcp/index.ts`](aaa_mcp/index.ts)
-- [`aaa_mcp/infrastructure/__init__.py`](aaa_mcp/infrastructure/__init__.py)
-- [`aaa_mcp/infrastructure/logging.py`](aaa_mcp/infrastructure/logging.py)
-- [`aaa_mcp/infrastructure/monitoring.py`](aaa_mcp/infrastructure/monitoring.py)
-- [`aaa_mcp/infrastructure/rate_limiter.py`](aaa_mcp/infrastructure/rate_limiter.py)
-- [`aaa_mcp/integrations/__init__.py`](aaa_mcp/integrations/__init__.py)
-- [`aaa_mcp/integrations/container_controller.py`](aaa_mcp/integrations/container_controller.py)
-- [`aaa_mcp/integrations/mcp_container_tools.py`](aaa_mcp/integrations/mcp_container_tools.py)
-- [`aaa_mcp/integrations/self_ops/__init__.py`](aaa_mcp/integrations/self_ops/__init__.py)
-- [`aaa_mcp/integrations/self_ops/diagnostics.py`](aaa_mcp/integrations/self_ops/diagnostics.py)
-- [`aaa_mcp/legacy/__init__.py`](aaa_mcp/legacy/__init__.py)
-- [`aaa_mcp/legacy/floors.py`](aaa_mcp/legacy/floors.py)
-- [`aaa_mcp/mcp_config.py`](aaa_mcp/mcp_config.py)
-- [`aaa_mcp/mcp_integration.py`](aaa_mcp/mcp_integration.py)
-- [`aaa_mcp/notifiers/__init__.py`](aaa_mcp/notifiers/__init__.py)
-- [`aaa_mcp/notifiers/telegram_judge.py`](aaa_mcp/notifiers/telegram_judge.py)
-- [`aaa_mcp/package.json`](aaa_mcp/package.json)
-- [`aaa_mcp/policies/gateway_config.yaml`](aaa_mcp/policies/gateway_config.yaml)
-- [`aaa_mcp/presentation/__init__.py`](aaa_mcp/presentation/__init__.py)
-- [`aaa_mcp/presentation/formatter.py`](aaa_mcp/presentation/formatter.py)
-- [`aaa_mcp/protocol/__init__.py`](aaa_mcp/protocol/__init__.py)
-- [`aaa_mcp/protocol/capabilities.py`](aaa_mcp/protocol/capabilities.py)
-- [`aaa_mcp/protocol/mapping.py`](aaa_mcp/protocol/mapping.py)
-- [`aaa_mcp/protocol/operators.py`](aaa_mcp/protocol/operators.py)
-- [`aaa_mcp/protocol/response.py`](aaa_mcp/protocol/response.py)
-- [`aaa_mcp/protocol/schemas.py`](aaa_mcp/protocol/schemas.py)
-- [`aaa_mcp/protocol/tool_graph.py`](aaa_mcp/protocol/tool_graph.py)
-- [`aaa_mcp/protocol/tool_naming.py`](aaa_mcp/protocol/tool_naming.py)
-- [`aaa_mcp/protocol/tool_registry.py`](aaa_mcp/protocol/tool_registry.py)
-- [`aaa_mcp/requirements.txt`](aaa_mcp/requirements.txt)
-- [`aaa_mcp/rest.py`](aaa_mcp/rest.py)
-- [`aaa_mcp/selftest.py`](aaa_mcp/selftest.py)
-- [`aaa_mcp/server.py`](aaa_mcp/server.py)
-- [`aaa_mcp/server_fixed.py`](aaa_mcp/server_fixed.py)
-- [`aaa_mcp/services/__init__.py`](aaa_mcp/services/__init__.py)
-- [`aaa_mcp/services/constitutional_metrics.py`](aaa_mcp/services/constitutional_metrics.py)
-- [`aaa_mcp/services/redis_client.py`](aaa_mcp/services/redis_client.py)
-- [`aaa_mcp/sessions/__init__.py`](aaa_mcp/sessions/__init__.py)
-- [`aaa_mcp/sessions/session_dependency.py`](aaa_mcp/sessions/session_dependency.py)
-- [`aaa_mcp/sessions/session_ledger.py`](aaa_mcp/sessions/session_ledger.py)
-- [`aaa_mcp/shared/__init__.py`](aaa_mcp/shared/__init__.py)
-- [`aaa_mcp/shared/guards/__init__.py`](aaa_mcp/shared/guards/__init__.py)
-- [`aaa_mcp/shared/guards/injection_guard.py`](aaa_mcp/shared/guards/injection_guard.py)
-- [`aaa_mcp/shared/guards/ontology_guard.py`](aaa_mcp/shared/guards/ontology_guard.py)
-- [`aaa_mcp/streamable_http_server.py`](aaa_mcp/streamable_http_server.py)
-- [`aaa_mcp/tools/__init__.py`](aaa_mcp/tools/__init__.py)
-- [`aaa_mcp/tools/local/local_exec_guard.py`](aaa_mcp/tools/local/local_exec_guard.py)
-- [`aaa_mcp/tools/manifold_adapter.py`](aaa_mcp/tools/manifold_adapter.py)
-- [`aaa_mcp/tools/mcp_gateway.py`](aaa_mcp/tools/mcp_gateway.py)
-- [`aaa_mcp/tools/reality_grounding.py`](aaa_mcp/tools/reality_grounding.py)
-- [`aaa_mcp/tools/trinity_validator.py`](aaa_mcp/tools/trinity_validator.py)
-- [`aaa_mcp/tools/vault_seal.py`](aaa_mcp/tools/vault_seal.py)
-- [`aaa_mcp/transports/__init__.py`](aaa_mcp/transports/__init__.py)
-- [`aaa_mcp/transports/sse.py`](aaa_mcp/transports/sse.py)
-- [`aaa_mcp/vault/__init__.py`](aaa_mcp/vault/__init__.py)
-- [`aaa_mcp/vault/hardened.py`](aaa_mcp/vault/hardened.py)
-- [`aaa_mcp/vault_sqlite.py`](aaa_mcp/vault_sqlite.py)
-- [`aaa_mcp/wrappers/__init__.py`](aaa_mcp/wrappers/__init__.py)
-- [`aaa_mcp/wrappers/k8s_wrapper.py`](aaa_mcp/wrappers/k8s_wrapper.py)
-- [`aaa_mcp/wrappers/opa_policy.py`](aaa_mcp/wrappers/opa_policy.py)
-- [`aclip_cai/README.md`](aclip_cai/README.md)
-- [`aclip_cai/__init__.py`](aclip_cai/__init__.py)
-- [`aclip_cai/__main__.py`](aclip_cai/__main__.py)
-- [`aclip_cai/aclip_cai Intelligence Kernel Upgra.md`](aclip_cai/aclip_cai Intelligence Kernel Upgra.md)
-- [`aclip_cai/cli.py`](aclip_cai/cli.py)
-- [`aclip_cai/config/eval_cases.yaml`](aclip_cai/config/eval_cases.yaml)
-- [`aclip_cai/config/floors.yaml`](aclip_cai/config/floors.yaml)
-- [`aclip_cai/config/mcp_tools.yaml`](aclip_cai/config/mcp_tools.yaml)
-- [`aclip_cai/console_tools.py`](aclip_cai/console_tools.py)
-- [`aclip_cai/core/__init__.py`](aclip_cai/core/__init__.py)
-- [`aclip_cai/core/amendment.py`](aclip_cai/core/amendment.py)
-- [`aclip_cai/core/eval_suite.py`](aclip_cai/core/eval_suite.py)
-- [`aclip_cai/core/federation.py`](aclip_cai/core/federation.py)
-- [`aclip_cai/core/floor_audit.py`](aclip_cai/core/floor_audit.py)
-- [`aclip_cai/core/lifecycle.py`](aclip_cai/core/lifecycle.py)
-- [`aclip_cai/core/mcp_server.py`](aclip_cai/core/mcp_server.py)
-- [`aclip_cai/core/thermo_budget.py`](aclip_cai/core/thermo_budget.py)
-- [`aclip_cai/core/vault_logger.py`](aclip_cai/core/vault_logger.py)
-- [`aclip_cai/dashboard/.gitignore`](aclip_cai/dashboard/.gitignore)
-- [`aclip_cai/dashboard/README.md`](aclip_cai/dashboard/README.md)
-- [`aclip_cai/dashboard/eslint.config.js`](aclip_cai/dashboard/eslint.config.js)
-- [`aclip_cai/dashboard/index.html`](aclip_cai/dashboard/index.html)
-- [`aclip_cai/dashboard/package.json`](aclip_cai/dashboard/package.json)
-- [`aclip_cai/dashboard/postcss.config.js`](aclip_cai/dashboard/postcss.config.js)
-- [`aclip_cai/dashboard/public/vite.svg`](aclip_cai/dashboard/public/vite.svg)
-- [`aclip_cai/dashboard/src/App.css`](aclip_cai/dashboard/src/App.css)
-- [`aclip_cai/dashboard/src/App.tsx`](aclip_cai/dashboard/src/App.tsx)
-- [`aclip_cai/dashboard/src/assets/react.svg`](aclip_cai/dashboard/src/assets/react.svg)
-- [`aclip_cai/dashboard/src/components/BalancePanel.tsx`](aclip_cai/dashboard/src/components/BalancePanel.tsx)
-- [`aclip_cai/dashboard/src/components/HearingPanel.tsx`](aclip_cai/dashboard/src/components/HearingPanel.tsx)
-- [`aclip_cai/dashboard/src/components/PainPanel.tsx`](aclip_cai/dashboard/src/components/PainPanel.tsx)
-- [`aclip_cai/dashboard/src/components/ProprioPanel.tsx`](aclip_cai/dashboard/src/components/ProprioPanel.tsx)
-- [`aclip_cai/dashboard/src/components/SightPanel.tsx`](aclip_cai/dashboard/src/components/SightPanel.tsx)
-- [`aclip_cai/dashboard/src/components/SmellPanel.tsx`](aclip_cai/dashboard/src/components/SmellPanel.tsx)
-- [`aclip_cai/dashboard/src/components/TastePanel.tsx`](aclip_cai/dashboard/src/components/TastePanel.tsx)
-- [`aclip_cai/dashboard/src/components/TimePanel.tsx`](aclip_cai/dashboard/src/components/TimePanel.tsx)
-- [`aclip_cai/dashboard/src/components/TouchPanel.tsx`](aclip_cai/dashboard/src/components/TouchPanel.tsx)
-- [`aclip_cai/dashboard/src/index.css`](aclip_cai/dashboard/src/index.css)
-- [`aclip_cai/dashboard/src/lib/api.ts`](aclip_cai/dashboard/src/lib/api.ts)
-- [`aclip_cai/dashboard/src/main.tsx`](aclip_cai/dashboard/src/main.tsx)
-- [`aclip_cai/dashboard/tailwind.config.js`](aclip_cai/dashboard/tailwind.config.js)
-- [`aclip_cai/dashboard/tsconfig.app.json`](aclip_cai/dashboard/tsconfig.app.json)
-- [`aclip_cai/dashboard/tsconfig.json`](aclip_cai/dashboard/tsconfig.json)
-- [`aclip_cai/dashboard/tsconfig.node.json`](aclip_cai/dashboard/tsconfig.node.json)
-- [`aclip_cai/dashboard/vite.config.ts`](aclip_cai/dashboard/vite.config.ts)
-- [`aclip_cai/mcp_bridge.py`](aclip_cai/mcp_bridge.py)
-- [`aclip_cai/scripts/deploy.sh`](aclip_cai/scripts/deploy.sh)
-- [`aclip_cai/scripts/run_evals.sh`](aclip_cai/scripts/run_evals.sh)
-- [`aclip_cai/server.py`](aclip_cai/server.py)
-- [`aclip_cai/tools/__init__.py`](aclip_cai/tools/__init__.py)
-- [`aclip_cai/tools/aclip_base.py`](aclip_cai/tools/aclip_base.py)
-- [`aclip_cai/tools/chroma_query.py`](aclip_cai/tools/chroma_query.py)
-- [`aclip_cai/tools/config_reader.py`](aclip_cai/tools/config_reader.py)
-- [`aclip_cai/tools/financial_monitor.py`](aclip_cai/tools/financial_monitor.py)
-- [`aclip_cai/tools/fs_inspector.py`](aclip_cai/tools/fs_inspector.py)
-- [`aclip_cai/tools/log_reader.py`](aclip_cai/tools/log_reader.py)
-- [`aclip_cai/tools/net_monitor.py`](aclip_cai/tools/net_monitor.py)
-- [`aclip_cai/tools/safety_guard.py`](aclip_cai/tools/safety_guard.py)
-- [`aclip_cai/tools/system_monitor.py`](aclip_cai/tools/system_monitor.py)
-- [`aclip_cai/tools/thermo_estimator.py`](aclip_cai/tools/thermo_estimator.py)
-- [`core/README.md`](core/README.md)
-- [`core/__init__.py`](core/__init__.py)
-- [`core/config/runtime.py`](core/config/runtime.py)
-- [`core/enforcement/refusal/__init__.py`](core/enforcement/refusal/__init__.py)
-- [`core/enforcement/refusal/builder.py`](core/enforcement/refusal/builder.py)
-- [`core/enforcement/refusal/templates.py`](core/enforcement/refusal/templates.py)
-- [`core/enforcement/refusal/types.py`](core/enforcement/refusal/types.py)
-- [`core/enforcement/routing.py`](core/enforcement/routing.py)
-- [`core/governance_kernel.py`](core/governance_kernel.py)
-- [`core/judgment.py`](core/judgment.py)
-- [`core/kernel/constants.py`](core/kernel/constants.py)
-- [`core/kernel/constitutional_decorator.py`](core/kernel/constitutional_decorator.py)
-- [`core/kernel/engine_adapters.py`](core/kernel/engine_adapters.py)
-- [`core/kernel/evaluator.py`](core/kernel/evaluator.py)
-- [`core/kernel/heuristics.py`](core/kernel/heuristics.py)
-- [`core/kernel/init_000_anchor.py`](core/kernel/init_000_anchor.py)
-- [`core/kernel/mcp_tool_service.py`](core/kernel/mcp_tool_service.py)
-- [`core/kernel/mcp_transport_kernel.py`](core/kernel/mcp_transport_kernel.py)
-- [`core/kernel/stage_orchestrator.py`](core/kernel/stage_orchestrator.py)
-- [`core/organs/_0_init.py`](core/organs/_0_init.py)
-- [`core/organs/_1_agi.py`](core/organs/_1_agi.py)
-- [`core/organs/_2_asi.py`](core/organs/_2_asi.py)
-- [`core/organs/_3_apex.py`](core/organs/_3_apex.py)
-- [`core/organs/_4_vault.py`](core/organs/_4_vault.py)
-- [`core/organs/__init__.py`](core/organs/__init__.py)
-- [`core/physics/thermodynamics.py`](core/physics/thermodynamics.py)
-- [`core/pipeline.py`](core/pipeline.py)
-- [`core/shared/__init__.py`](core/shared/__init__.py)
-- [`core/shared/atlas.py`](core/shared/atlas.py)
-- [`core/shared/crypto.py`](core/shared/crypto.py)
-- [`core/shared/floors.py`](core/shared/floors.py)
-- [`core/shared/formatter.py`](core/shared/formatter.py)
-- [`core/shared/guards/injection_guard.py`](core/shared/guards/injection_guard.py)
-- [`core/shared/guards/ontology_guard.py`](core/shared/guards/ontology_guard.py)
-- [`core/shared/mottos.py`](core/shared/mottos.py)
-- [`core/shared/nudge.py`](core/shared/nudge.py)
-- [`core/shared/physics.py`](core/shared/physics.py)
-- [`core/shared/routing.py`](core/shared/routing.py)
-- [`core/shared/sbert_floors.py`](core/shared/sbert_floors.py)
-- [`core/shared/skills/mcp-config-separation/ARIFOS_CONSTITUTION.md`](core/shared/skills/mcp-config-separation/ARIFOS_CONSTITUTION.md)
-- [`core/shared/skills/mcp-config-separation/SKILL.md`](core/shared/skills/mcp-config-separation/SKILL.md)
-- [`core/shared/types.py`](core/shared/types.py)
-- [`core/telemetry.py`](core/telemetry.py)
-- [`core/tests/__init__.py`](core/tests/__init__.py)
-- [`core/tests/test_init.py`](core/tests/test_init.py)
-- [`core/tests/test_physics.py`](core/tests/test_physics.py)
-- [`core/tests/test_pipeline.py`](core/tests/test_pipeline.py)
-- [`core/uncertainty_engine.py`](core/uncertainty_engine.py)
-- [`docs/# Welcome to FastMCP 3.0!__&gt; The fast, Pythonic.md`](docs/# Welcome to FastMCP 3.0!__&gt; The fast, Pythonic.md)
-- [`docs/000/000_CANON_FULL.md`](docs/000/000_CANON_FULL.md)
-- [`docs/000_INIT_PROTOCOL.md`](docs/000_INIT_PROTOCOL.md)
-- [`docs/00_META/AGENTS.md`](docs/00_META/AGENTS.md)
-- [`docs/00_META/CLAUDE.md`](docs/00_META/CLAUDE.md)
-- [`docs/00_META/GEMINI.md`](docs/00_META/GEMINI.md)
-- [`docs/010_DELTA_OMEGA_PSI_v42.md`](docs/010_DELTA_OMEGA_PSI_v42.md)
-- [`docs/020_THERMODYNAMICS_v42.md`](docs/020_THERMODYNAMICS_v42.md)
-- [`docs/030_ZKPC_PROTOCOL_v42.md`](docs/030_ZKPC_PROTOCOL_v42.md)
-- [`docs/10_THEORY/000_THEORY/000_ARCHITECTURE.md`](docs/10_THEORY/000_THEORY/000_ARCHITECTURE.md)
-- [`docs/10_THEORY/000_THEORY/000_FOUNDATIONS.md`](docs/10_THEORY/000_THEORY/000_FOUNDATIONS.md)
-- [`docs/10_THEORY/000_THEORY/000_LAW.md`](docs/10_THEORY/000_THEORY/000_LAW.md)
-- [`docs/10_THEORY/000_THEORY/001_IGNITION.md`](docs/10_THEORY/000_THEORY/001_IGNITION.md)
-- [`docs/10_THEORY/000_THEORY/002_GOVERNANCE_EMERGENCE.md`](docs/10_THEORY/000_THEORY/002_GOVERNANCE_EMERGENCE.md)
-- [`docs/10_THEORY/000_THEORY/002_TPCP_PAPER.md`](docs/10_THEORY/000_THEORY/002_TPCP_PAPER.md)
-- [`docs/10_THEORY/000_THEORY/003_WITNESS.md`](docs/10_THEORY/000_THEORY/003_WITNESS.md)
-- [`docs/10_THEORY/000_THEORY/004_REALITY.md`](docs/10_THEORY/000_THEORY/004_REALITY.md)
-- [`docs/10_THEORY/000_THEORY/005_EVALS.md`](docs/10_THEORY/000_THEORY/005_EVALS.md)
-- [`docs/10_THEORY/000_THEORY/010_FEDERATION.md`](docs/10_THEORY/000_THEORY/010_FEDERATION.md)
-- [`docs/10_THEORY/000_THEORY/010_TRINITY.md`](docs/10_THEORY/000_THEORY/010_TRINITY.md)
-- [`docs/10_THEORY/000_THEORY/111_MIND_GENIUS.md`](docs/10_THEORY/000_THEORY/111_MIND_GENIUS.md)
-- [`docs/10_THEORY/000_THEORY/333_MIND_ATLAS.md`](docs/10_THEORY/000_THEORY/333_MIND_ATLAS.md)
-- [`docs/10_THEORY/000_THEORY/555_HEART_EMPATHY.md`](docs/10_THEORY/000_THEORY/555_HEART_EMPATHY.md)
-- [`docs/10_THEORY/000_THEORY/777_SOUL_APEX.md`](docs/10_THEORY/000_THEORY/777_SOUL_APEX.md)
-- [`docs/10_THEORY/000_THEORY/888_SOUL_VERDICT.md`](docs/10_THEORY/000_THEORY/888_SOUL_VERDICT.md)
-- [`docs/10_THEORY/000_THEORY/999_SOVEREIGN_VAULT.md`](docs/10_THEORY/000_THEORY/999_SOVEREIGN_VAULT.md)
-- [`docs/10_THEORY/000_THEORY/APEX_ALIGNMENT_ANALYSIS.md`](docs/10_THEORY/000_THEORY/APEX_ALIGNMENT_ANALYSIS.md)
-- [`docs/10_THEORY/000_THEORY/APEX_CROSS_REFERENCE_MATRIX.md`](docs/10_THEORY/000_THEORY/APEX_CROSS_REFERENCE_MATRIX.md)
-- [`docs/10_THEORY/000_THEORY/README.md`](docs/10_THEORY/000_THEORY/README.md)
-- [`docs/10_THEORY/000_THEORY/ROOTKEY_SPEC.md`](docs/10_THEORY/000_THEORY/ROOTKEY_SPEC.md)
-- [`docs/10_THEORY/000_THEORY/The Foundational Knowledge Trinity of arifOS__list.md`](docs/10_THEORY/000_THEORY/The Foundational Knowledge Trinity of arifOS__list.md)
-- [`docs/10_THEORY/000_THEORY/_OUTLINE.md`](docs/10_THEORY/000_THEORY/_OUTLINE.md)
-- [`docs/13_ABSTRACTIONS.md`](docs/13_ABSTRACTIONS.md)
-- [`docs/1706.03762.md`](docs/1706.03762.md)
-- [`docs/50_IMPLEMENTATION/SEAL999/CLEANUP_COMPLETE.md`](docs/50_IMPLEMENTATION/SEAL999/CLEANUP_COMPLETE.md)
-- [`docs/50_IMPLEMENTATION/SEAL999/COOLING_STORAGE_FIXED.txt`](docs/50_IMPLEMENTATION/SEAL999/COOLING_STORAGE_FIXED.txt)
-- [`docs/50_IMPLEMENTATION/SEAL999/INTEGRATION_GUIDE.md`](docs/50_IMPLEMENTATION/SEAL999/INTEGRATION_GUIDE.md)
-- [`docs/50_IMPLEMENTATION/SEAL999/OPERATIONAL_DATA_GUIDE.md`](docs/50_IMPLEMENTATION/SEAL999/OPERATIONAL_DATA_GUIDE.md)
-- [`docs/50_IMPLEMENTATION/SEAL999/PURGE_SUMMARY.txt`](docs/50_IMPLEMENTATION/SEAL999/PURGE_SUMMARY.txt)
-- [`docs/50_IMPLEMENTATION/SEAL999/README.md`](docs/50_IMPLEMENTATION/SEAL999/README.md)
-- [`docs/50_IMPLEMENTATION/SEAL999/USAGE.md`](docs/50_IMPLEMENTATION/SEAL999/USAGE.md)
-- [`docs/50_IMPLEMENTATION/SEAL999/__init__.py`](docs/50_IMPLEMENTATION/SEAL999/__init__.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/antigravity_architecture_2026-02-02_999_SEAL.md`](docs/50_IMPLEMENTATION/SEAL999/antigravity_architecture_2026-02-02_999_SEAL.md)
-- [`docs/50_IMPLEMENTATION/SEAL999/demo_vault.py`](docs/50_IMPLEMENTATION/SEAL999/demo_vault.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/environment_physics_2026-02-02_999_SEAL.md`](docs/50_IMPLEMENTATION/SEAL999/environment_physics_2026-02-02_999_SEAL.md)
-- [`docs/50_IMPLEMENTATION/SEAL999/final_cleanup_test.py`](docs/50_IMPLEMENTATION/SEAL999/final_cleanup_test.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/final_test.py`](docs/50_IMPLEMENTATION/SEAL999/final_test.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/governance_security_2026-02-02_999_SEAL.md`](docs/50_IMPLEMENTATION/SEAL999/governance_security_2026-02-02_999_SEAL.md)
-- [`docs/50_IMPLEMENTATION/SEAL999/housekeeping_2026-02-02_999_SEAL.md`](docs/50_IMPLEMENTATION/SEAL999/housekeeping_2026-02-02_999_SEAL.md)
-- [`docs/50_IMPLEMENTATION/SEAL999/ledger.py`](docs/50_IMPLEMENTATION/SEAL999/ledger.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/release_53.2.7.seal.json`](docs/50_IMPLEMENTATION/SEAL999/release_53.2.7.seal.json)
-- [`docs/50_IMPLEMENTATION/SEAL999/run_tests.py`](docs/50_IMPLEMENTATION/SEAL999/run_tests.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/stage.py`](docs/50_IMPLEMENTATION/SEAL999/stage.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/state.py`](docs/50_IMPLEMENTATION/SEAL999/state.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/test_final.py`](docs/50_IMPLEMENTATION/SEAL999/test_final.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/test_seal999_final.py`](docs/50_IMPLEMENTATION/SEAL999/test_seal999_final.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/tests/__init__.py`](docs/50_IMPLEMENTATION/SEAL999/tests/__init__.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/tests/test_vault.py`](docs/50_IMPLEMENTATION/SEAL999/tests/test_vault.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/vault.py`](docs/50_IMPLEMENTATION/SEAL999/vault.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/verify.py`](docs/50_IMPLEMENTATION/SEAL999/verify.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/verify_flat.py`](docs/50_IMPLEMENTATION/SEAL999/verify_flat.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/verify_flat_final.py`](docs/50_IMPLEMENTATION/SEAL999/verify_flat_final.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/verify_flat_fixed.py`](docs/50_IMPLEMENTATION/SEAL999/verify_flat_fixed.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/verify_flat_working.py`](docs/50_IMPLEMENTATION/SEAL999/verify_flat_working.py)
-- [`docs/50_IMPLEMENTATION/SEAL999/zkpc.py`](docs/50_IMPLEMENTATION/SEAL999/zkpc.py)
-- [`docs/50_IMPLEMENTATION/SUMMARY.md`](docs/50_IMPLEMENTATION/SUMMARY.md)
-- [`docs/60_REFERENCE/openapi.json`](docs/60_REFERENCE/openapi.json)
-- [`docs/60_REFERENCE/spec/v46/schema/constitutional_floors.schema.json`](docs/60_REFERENCE/spec/v46/schema/constitutional_floors.schema.json)
-- [`docs/60_REFERENCE/spec/v55/refusals.json`](docs/60_REFERENCE/spec/v55/refusals.json)
-- [`docs/9_MOTTOS_META_TRANSFORMER.md`](docs/9_MOTTOS_META_TRANSFORMER.md)
-- [`docs/@RIF_PEACE_SQUARED_AUDIT_v45.md`](docs/@RIF_PEACE_SQUARED_AUDIT_v45.md)
-- [`docs/AAA_BBB_CCC_ARCHITECTURE.md`](docs/AAA_BBB_CCC_ARCHITECTURE.md)
-- [`docs/AAA_BBB_CCC_CORRECT_MAPPING.md`](docs/AAA_BBB_CCC_CORRECT_MAPPING.md)
-- [`docs/AAA_BBB_CCC_QUICK_REFERENCE.md`](docs/AAA_BBB_CCC_QUICK_REFERENCE.md)
-- [`docs/AAA_QUANTUM_MIGRATION.md`](docs/AAA_QUANTUM_MIGRATION.md)
-- [`docs/AAA_TRINITY_MAPPING.md`](docs/AAA_TRINITY_MAPPING.md)
-- [`docs/ACLIP_DOC_PUSH_README.md`](docs/ACLIP_DOC_PUSH_README.md)
-- [`docs/ADR_001_CONSTITUTIONAL_MONOLITH.md`](docs/ADR_001_CONSTITUTIONAL_MONOLITH.md)
-- [`docs/AFFIDAVIT_v38_TRIWITNESS.md`](docs/AFFIDAVIT_v38_TRIWITNESS.md)
-- [`docs/AGENTS_TOOLS_PROCESSES_MAP_v45.md`](docs/AGENTS_TOOLS_PROCESSES_MAP_v45.md)
-- [`docs/AGI_BUILDER_BLUEPRINT.md`](docs/AGI_BUILDER_BLUEPRINT.md)
-- [`docs/APEX-THEORY_ Constitutional AI Governance as Thermodynamic Operating System.txt`](docs/APEX-THEORY_ Constitutional AI Governance as Thermodynamic Operating System.txt)
-- [`docs/APEX_AUTONOMOUS_FIX.yml`](docs/APEX_AUTONOMOUS_FIX.yml)
-- [`docs/APEX_COMPLETE_REDESIGN_v55.2.md`](docs/APEX_COMPLETE_REDESIGN_v55.2.md)
-- [`docs/APEX_IMPLEMENTATION_GUIDE.md`](docs/APEX_IMPLEMENTATION_GUIDE.md)
-- [`docs/APEX_REDESIGN_SUMMARY.md`](docs/APEX_REDESIGN_SUMMARY.md)
-- [`docs/APEX_ZERO_EFFORT_FIX.md`](docs/APEX_ZERO_EFFORT_FIX.md)
-- [`docs/API_REFERENCE.md`](docs/API_REFERENCE.md)
-- [`docs/API_STABILITY.md`](docs/API_STABILITY.md)
-- [`docs/APPLICATIONS.md`](docs/APPLICATIONS.md)
-- [`docs/ARCHITECTURE_AND_NAMING_v45.md`](docs/ARCHITECTURE_AND_NAMING_v45.md)
-- [`docs/ARCHITECTURE_AND_NAMING_v46.md`](docs/ARCHITECTURE_AND_NAMING_v46.md)
-- [`docs/ARCHITECTURE_CORRECTED.md`](docs/ARCHITECTURE_CORRECTED.md)
-- [`docs/ARIFOS_CORE_ARCHITECTURE.md`](docs/ARIFOS_CORE_ARCHITECTURE.md)
-- [`docs/ARIFOS_FUTURE_PLAYBOOK.md`](docs/ARIFOS_FUTURE_PLAYBOOK.md)
-- [`docs/ARIFOS_v42_MIGRATION_STATUS_REPORT.md`](docs/ARIFOS_v42_MIGRATION_STATUS_REPORT.md)
-- [`docs/ARIF_FAZIL_PROFILE_COMPONENTS.html`](docs/ARIF_FAZIL_PROFILE_COMPONENTS.html)
-- [`docs/ARIF_FAZIL_PROFILE_UPDATE.md`](docs/ARIF_FAZIL_PROFILE_UPDATE.md)
-- [`docs/ARIF_PROFILE_README.md`](docs/ARIF_PROFILE_README.md)
-- [`docs/AST_TRUTH_UPGRADE.md`](docs/AST_TRUTH_UPGRADE.md)
-- [`docs/AUDIT_FAIL_CLOSED_2025-12-19.md`](docs/AUDIT_FAIL_CLOSED_2025-12-19.md)
-- [`docs/Apex.md`](docs/Apex.md)
-- [`docs/BACKUP_STRATEGY.md`](docs/BACKUP_STRATEGY.md)
-- [`docs/CANON_QA_REPORT_v42.md`](docs/CANON_QA_REPORT_v42.md)
-- [`docs/CASE_STUDY_v38_GEMINI_KILLSHOT.md`](docs/CASE_STUDY_v38_GEMINI_KILLSHOT.md)
-- [`docs/CHANGELOG.md`](docs/CHANGELOG.md)
-- [`docs/CHATGPT_CUSTOM_GPT_SETUP.md`](docs/CHATGPT_CUSTOM_GPT_SETUP.md)
-- [`docs/CLAUDE_CODE_MCP_GUIDE.md`](docs/CLAUDE_CODE_MCP_GUIDE.md)
-- [`docs/CLAUDE_VS_KIMI_CONTRAST.md`](docs/CLAUDE_VS_KIMI_CONTRAST.md)
-- [`docs/CLOUDFLARE_DNS_SETUP.md`](docs/CLOUDFLARE_DNS_SETUP.md)
-- [`docs/CLOUDFLARE_RAILWAY_DNS.md`](docs/CLOUDFLARE_RAILWAY_DNS.md)
-- [`docs/CLOUDFLARE_REDO_GUIDE.md`](docs/CLOUDFLARE_REDO_GUIDE.md)
-- [`docs/CODEX_MCP_SETUP.md`](docs/CODEX_MCP_SETUP.md)
-- [`docs/CODEX_SETUP.md`](docs/CODEX_SETUP.md)
-- [`docs/COMPARISON.md`](docs/COMPARISON.md)
-- [`docs/COMPLEMENTARY_REPOS.md`](docs/COMPLEMENTARY_REPOS.md)
-- [`docs/COMPLETE_DEPLOYMENT_GUIDE.md`](docs/COMPLETE_DEPLOYMENT_GUIDE.md)
-- [`docs/CONTRAST_ANALYSIS_CORE_VS_UNIFIED.md`](docs/CONTRAST_ANALYSIS_CORE_VS_UNIFIED.md)
-- [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md)
-- [`docs/COPILOT_INTEGRATION.md`](docs/COPILOT_INTEGRATION.md)
-- [`docs/DASHBOARD_LIVE_INTEGRATION_REPORT.md`](docs/DASHBOARD_LIVE_INTEGRATION_REPORT.md)
-- [`docs/DEEPSCAN_AUDIT_LOG.md`](docs/DEEPSCAN_AUDIT_LOG.md)
-- [`docs/DEFERRED_WORK_ITEMS.md`](docs/DEFERRED_WORK_ITEMS.md)
-- [`docs/DEPLOYMENT_GUIDE.md`](docs/DEPLOYMENT_GUIDE.md)
-- [`docs/DEPLOYMENT_MAP.md`](docs/DEPLOYMENT_MAP.md)
-- [`docs/DEPLOYMENT_RAILWAY.md`](docs/DEPLOYMENT_RAILWAY.md)
-- [`docs/DEPLOYMENT_SEAL.md`](docs/DEPLOYMENT_SEAL.md)
-- [`docs/DEPLOYMENT_WISDOM.md`](docs/DEPLOYMENT_WISDOM.md)
-- [`docs/DOCKER_GUIDE.md`](docs/DOCKER_GUIDE.md)
-- [`docs/DREAM_FORGE_LAB_MODE.md`](docs/DREAM_FORGE_LAB_MODE.md)
-- [`docs/ECONOMICS.md`](docs/ECONOMICS.md)
-- [`docs/EMPIRICAL_TESTING_FRAMEWORK.md`](docs/EMPIRICAL_TESTING_FRAMEWORK.md)
-- [`docs/ENTROPY_ANALYSIS_20260106.md`](docs/ENTROPY_ANALYSIS_20260106.md)
-- [`docs/ENTROPY_MANAGEMENT.md`](docs/ENTROPY_MANAGEMENT.md)
-- [`docs/EUREKA_MCP_PYDANTIC_SERIALIZATION_FIX_20260118.md`](docs/EUREKA_MCP_PYDANTIC_SERIALIZATION_FIX_20260118.md)
-- [`docs/EXECUTION_GUIDE.md`](docs/EXECUTION_GUIDE.md)
-- [`docs/EXTENSIONS_GUIDE.md`](docs/EXTENSIONS_GUIDE.md)
-- [`docs/FAG_DOCUMENT_PROTOCOL.md`](docs/FAG_DOCUMENT_PROTOCOL.md)
-- [`docs/FAG_QUICK_START.md`](docs/FAG_QUICK_START.md)
-- [`docs/FAG_STATISTICS_AUDIT.md`](docs/FAG_STATISTICS_AUDIT.md)
-- [`docs/FAG_v41_0_COMPLETION_REPORT.md`](docs/FAG_v41_0_COMPLETION_REPORT.md)
-- [`docs/FAG_v41_1_ROADMAP.md`](docs/FAG_v41_1_ROADMAP.md)
-- [`docs/FAILOVER_GUIDE.md`](docs/FAILOVER_GUIDE.md)
-- [`docs/FINAL_UI_TEST_GUIDE.md`](docs/FINAL_UI_TEST_GUIDE.md)
-- [`docs/FUTURE_ARIFOS_DEEP_RESEARCH.md`](docs/FUTURE_ARIFOS_DEEP_RESEARCH.md)
-- [`docs/Forge A CLIP Unified Artifact (MVP.md`](docs/Forge A CLIP Unified Artifact (MVP.md)
-- [`docs/GEMINI_CLI_SETUP.md`](docs/GEMINI_CLI_SETUP.md)
-- [`docs/GEMINI_CODEX.md`](docs/GEMINI_CODEX.md)
-- [`docs/GENIUS_LAW_MEASUREMENT_SPEC.md`](docs/GENIUS_LAW_MEASUREMENT_SPEC.md)
-- [`docs/GOVERNED_CLIENT_PHASE2_DELIVERY.md`](docs/GOVERNED_CLIENT_PHASE2_DELIVERY.md)
-- [`docs/HEARTBEAT.md`](docs/HEARTBEAT.md)
-- [`docs/HOUSEKEEPING_REPORT.md`](docs/HOUSEKEEPING_REPORT.md)
-- [`docs/HTA_ALIGNMENT_SUMMARY.md`](docs/HTA_ALIGNMENT_SUMMARY.md)
-- [`docs/HTA_WEBSITE_ALIGNMENT_QUICKSTART.md`](docs/HTA_WEBSITE_ALIGNMENT_QUICKSTART.md)
-- [`docs/HUMANIZED_SDK_PROPOSAL.md`](docs/HUMANIZED_SDK_PROPOSAL.md)
-- [`docs/HUMAN_LANGUAGE_ENDPOINTS.md`](docs/HUMAN_LANGUAGE_ENDPOINTS.md)
-- [`docs/ICL_v43_CANONICAL_SPEC.md`](docs/ICL_v43_CANONICAL_SPEC.md)
-- [`docs/ICL_v43_MIGRATION_NOTES.md`](docs/ICL_v43_MIGRATION_NOTES.md)
-- [`docs/IGNITION.md`](docs/IGNITION.md)
-- [`docs/IMPLEMENTATION_SLASH_COMMANDS.md`](docs/IMPLEMENTATION_SLASH_COMMANDS.md)
-- [`docs/INDEX.md`](docs/INDEX.md)
-- [`docs/INDEX_MCP_V55_5.md`](docs/INDEX_MCP_V55_5.md)
-- [`docs/INFRASTRUCTURE.md`](docs/INFRASTRUCTURE.md)
-- [`docs/INFRASTRUCTURE_GUIDE.md`](docs/INFRASTRUCTURE_GUIDE.md)
-- [`docs/INTERFACE_AND_AUTHORITY_README.md`](docs/INTERFACE_AND_AUTHORITY_README.md)
-- [`docs/KIMI_FORGE_SPEC.md`](docs/KIMI_FORGE_SPEC.md)
-- [`docs/LAYERED_ARCHITECTURE_SUMMARY.md`](docs/LAYERED_ARCHITECTURE_SUMMARY.md)
-- [`docs/LEGACY_CANON_MIGRATION_PLAN_v42.md`](docs/LEGACY_CANON_MIGRATION_PLAN_v42.md)
-- [`docs/LEGACY_CANON_NOTES/ADME.md`](docs/LEGACY_CANON_NOTES/ADME.md)
-- [`docs/LEGACY_CANON_NOTES/_CANON/APEX THEORY/APEX THEORY CANON 36.md`](docs/LEGACY_CANON_NOTES/_CANON/APEX THEORY/APEX THEORY CANON 36.md)
-- [`docs/LEGACY_CANON_NOTES/_CANON/APEX_DOCUMENT_TEMPLATE_v35Omega.md`](docs/LEGACY_CANON_NOTES/_CANON/APEX_DOCUMENT_TEMPLATE_v35Omega.md)
-- [`docs/LEGACY_CANON_NOTES/_PARADOX/README.md`](docs/LEGACY_CANON_NOTES/_PARADOX/README.md)
-- [`docs/LEGACY_CANON_NOTES/_TEMPLATES/APEX_ARTIFACT_SKELETON.md`](docs/LEGACY_CANON_NOTES/_TEMPLATES/APEX_ARTIFACT_SKELETON.md)
-- [`docs/LEGACY_CANON_NOTES/_TEMPLATES/README.md`](docs/LEGACY_CANON_NOTES/_TEMPLATES/README.md)
-- [`docs/LEGACY_CANON_NOTES/_actors/README.md`](docs/LEGACY_CANON_NOTES/_actors/README.md)
-- [`docs/LEGACY_CANON_NOTES/_foundation/README.md`](docs/LEGACY_CANON_NOTES/_foundation/README.md)
-- [`docs/LEGACY_CANON_NOTES/_measurement/README.md`](docs/LEGACY_CANON_NOTES/_measurement/README.md)
-- [`docs/LEGACY_CANON_NOTES/_memory/README.md`](docs/LEGACY_CANON_NOTES/_memory/README.md)
-- [`docs/LEGACY_CANON_NOTES/_runtime/README.md`](docs/LEGACY_CANON_NOTES/_runtime/README.md)
-- [`docs/LEVEL3_EUREKA_LOG.md`](docs/LEVEL3_EUREKA_LOG.md)
-- [`docs/MANUAL_DEPLOYMENT_STEPS.md`](docs/MANUAL_DEPLOYMENT_STEPS.md)
-- [`docs/MCP_ARCHITECTURE_ANALYSIS.md`](docs/MCP_ARCHITECTURE_ANALYSIS.md)
-- [`docs/MCP_CLIENT_CONFIGURATIONS.md`](docs/MCP_CLIENT_CONFIGURATIONS.md)
-- [`docs/MCP_CLIENT_INTEGRATION.md`](docs/MCP_CLIENT_INTEGRATION.md)
-- [`docs/MCP_DEPLOYMENT_GUIDE_V55_5.md`](docs/MCP_DEPLOYMENT_GUIDE_V55_5.md)
-- [`docs/MCP_ECOSYSTEM.md`](docs/MCP_ECOSYSTEM.md)
-- [`docs/MCP_KERNEL_MANUAL.md`](docs/MCP_KERNEL_MANUAL.md)
-- [`docs/MCP_PLATFORM_GUIDE.md`](docs/MCP_PLATFORM_GUIDE.md)
-- [`docs/MCP_QC_REPORT_v53.md`](docs/MCP_QC_REPORT_v53.md)
-- [`docs/MCP_QUICKSTART_GUIDE.md`](docs/MCP_QUICKSTART_GUIDE.md)
-- [`docs/MCP_SPEC_FASTMCP_ALIGNMENT_CHECKLIST.md`](docs/MCP_SPEC_FASTMCP_ALIGNMENT_CHECKLIST.md)
-- [`docs/MCP_STACK_SUMMARY.md`](docs/MCP_STACK_SUMMARY.md)
-- [`docs/MCP_TRANSLATION_PATTERNS.md`](docs/MCP_TRANSLATION_PATTERNS.md)
-- [`docs/MCP_TRINITY_SUMMARY.md`](docs/MCP_TRINITY_SUMMARY.md)
-- [`docs/MCP_UNIFICATION_GUIDE.md`](docs/MCP_UNIFICATION_GUIDE.md)
-- [`docs/MCP_WORKFLOW_ARCHITECTURE_v49.md`](docs/MCP_WORKFLOW_ARCHITECTURE_v49.md)
-- [`docs/MEMORY.md`](docs/MEMORY.md)
-- [`docs/MEMORY_ARCHITECTURE.md`](docs/MEMORY_ARCHITECTURE.md)
-- [`docs/MEMORY_INTEGRATION_TEST_PLAN_v38.md`](docs/MEMORY_INTEGRATION_TEST_PLAN_v38.md)
-- [`docs/MEMORY_WRITE_POLICY.md`](docs/MEMORY_WRITE_POLICY.md)
-- [`docs/MIGRATION_GUIDE_v47.md`](docs/MIGRATION_GUIDE_v47.md)
-- [`docs/MIGRATION_PLAN.md`](docs/MIGRATION_PLAN.md)
-- [`docs/MIGRATION_v41_v42.md`](docs/MIGRATION_v41_v42.md)
-- [`docs/MIGRATION_v54_to_v55.md`](docs/MIGRATION_v54_to_v55.md)
-- [`docs/MONITORING.md`](docs/MONITORING.md)
-- [`docs/NAMING_CONVENTION.md`](docs/NAMING_CONVENTION.md)
-- [`docs/OBSIDIAN_META_VAULT_ARCHITECTURE.md`](docs/OBSIDIAN_META_VAULT_ARCHITECTURE.md)
-- [`docs/OPENCLAW_AAA_MCP_GUIDE.md`](docs/OPENCLAW_AAA_MCP_GUIDE.md)
-- [`docs/OPERATIONS.md`](docs/OPERATIONS.md)
-- [`docs/PARADOX_MATRIX.md`](docs/PARADOX_MATRIX.md)
-- [`docs/PATCH_NOTES_v45.md`](docs/PATCH_NOTES_v45.md)
-- [`docs/PHASE4_INTEGRATION_COMPLETE.md`](docs/PHASE4_INTEGRATION_COMPLETE.md)
-- [`docs/PHASE_1-3_COMPLETE_DELIVERY.md`](docs/PHASE_1-3_COMPLETE_DELIVERY.md)
-- [`docs/PHILOSOPHY.md`](docs/PHILOSOPHY.md)
-- [`docs/PHOENIX_72_ROLLOUT.md`](docs/PHOENIX_72_ROLLOUT.md)
-- [`docs/PHOENIX_PROTOCOL.md`](docs/PHOENIX_PROTOCOL.md)
-- [`docs/PHYSICS_CODEX.md`](docs/PHYSICS_CODEX.md)
-- [`docs/PROMPTS/AUTONOMOUS_COMPREHENSIVE.md`](docs/PROMPTS/AUTONOMOUS_COMPREHENSIVE.md)
-- [`docs/PROMPTS/AUTONOMOUS_CONCISE.md`](docs/PROMPTS/AUTONOMOUS_CONCISE.md)
-- [`docs/PROMPTS/HUMAN_READABLE.md`](docs/PROMPTS/HUMAN_READABLE.md)
-- [`docs/PROMPTS/resume_prompt.md`](docs/PROMPTS/resume_prompt.md)
-- [`docs/PROMPT_CANONv45.md`](docs/PROMPT_CANONv45.md)
-- [`docs/PUSH_TO_MAIN.md`](docs/PUSH_TO_MAIN.md)
-- [`docs/QC_VERIFICATION_HARDENING_CLAIMS.md`](docs/QC_VERIFICATION_HARDENING_CLAIMS.md)
-- [`docs/QUANTUM_MIGRATION_SUMMARY.md`](docs/QUANTUM_MIGRATION_SUMMARY.md)
-- [`docs/QUANTUM_QUICKSTART.md`](docs/QUANTUM_QUICKSTART.md)
-- [`docs/QUANTUM_TEST_MIGRATION_GUIDE.md`](docs/QUANTUM_TEST_MIGRATION_GUIDE.md)
-- [`docs/QUICK_REFERENCE.md`](docs/QUICK_REFERENCE.md)
-- [`docs/QUICK_START_DOCKER.md`](docs/QUICK_START_DOCKER.md)
-- [`docs/QUICK_START_MCP.md`](docs/QUICK_START_MCP.md)
-- [`docs/RAILWAY_DEPLOYMENT.md`](docs/RAILWAY_DEPLOYMENT.md)
-- [`docs/RAILWAY_DEPLOYMENT_FINAL.md`](docs/RAILWAY_DEPLOYMENT_FINAL.md)
-- [`docs/RAILWAY_DEPLOYMENT_RUNBOOK.md`](docs/RAILWAY_DEPLOYMENT_RUNBOOK.md)
-- [`docs/RAILWAY_FIX_ROOT_DIRECTORY.md`](docs/RAILWAY_FIX_ROOT_DIRECTORY.md)
-- [`docs/RAILWAY_PRE_COMMISSIONING_COMPLETE.md`](docs/RAILWAY_PRE_COMMISSIONING_COMPLETE.md)
-- [`docs/RAILWAY_QUICKSTART.md`](docs/RAILWAY_QUICKSTART.md)
-- [`docs/RAW_CLIENT_PHASE1_DELIVERY.md`](docs/RAW_CLIENT_PHASE1_DELIVERY.md)
-- [`docs/README.md`](docs/README.md)
-- [`docs/README_CONSTITUTIONAL_ACTIONS.md`](docs/README_CONSTITUTIONAL_ACTIONS.md)
-- [`docs/README_CONSTITUTIONAL_ANALYSIS.md`](docs/README_CONSTITUTIONAL_ANALYSIS.md)
-- [`docs/README_CONSTITUTIONAL_QC_REPORT.md`](docs/README_CONSTITUTIONAL_QC_REPORT.md)
-- [`docs/REDO_CHEATSHEET.txt`](docs/REDO_CHEATSHEET.txt)
-- [`docs/REDO_SIMPLE.md`](docs/REDO_SIMPLE.md)
-- [`docs/REFACTORING_REPORT_2025_12_12.md`](docs/REFACTORING_REPORT_2025_12_12.md)
-- [`docs/REFUSAL_SYSTEM_SEAL.md`](docs/REFUSAL_SYSTEM_SEAL.md)
-- [`docs/RELEASE_NOTES.md`](docs/RELEASE_NOTES.md)
-- [`docs/RELEASE_NOTES_v38_2.md`](docs/RELEASE_NOTES_v38_2.md)
-- [`docs/RELEASE_NOTES_v41.0.md`](docs/RELEASE_NOTES_v41.0.md)
-- [`docs/RELEASE_v55.3.md`](docs/RELEASE_v55.3.md)
-- [`docs/REPO_STRUCTURE_v49.md`](docs/REPO_STRUCTURE_v49.md)
-- [`docs/REPO_STRUCTURE_v50.md`](docs/REPO_STRUCTURE_v50.md)
-- [`docs/ROOT_FILES_DOCUMENTATION.md`](docs/ROOT_FILES_DOCUMENTATION.md)
-- [`docs/SANITATION_PLAN.md`](docs/SANITATION_PLAN.md)
-- [`docs/SCALE_STRATEGY.md`](docs/SCALE_STRATEGY.md)
-- [`docs/SCRIPTS_CLI.md`](docs/SCRIPTS_CLI.md)
-- [`docs/SEALION_LITELLM_QUICKSTART.md`](docs/SEALION_LITELLM_QUICKSTART.md)
-- [`docs/SESSION_ANCHOR_v42_1.md`](docs/SESSION_ANCHOR_v42_1.md)
-- [`docs/SESSION_DEPENDENCY_GUARD.md`](docs/SESSION_DEPENDENCY_GUARD.md)
-- [`docs/SESSION_DEPENDENCY_GUARD_DESIGN.md`](docs/SESSION_DEPENDENCY_GUARD_DESIGN.md)
-- [`docs/SESSION_SUMMARY_20260129.md`](docs/SESSION_SUMMARY_20260129.md)
-- [`docs/SYSTEM_PROMPT_v45.md`](docs/SYSTEM_PROMPT_v45.md)
-- [`docs/TEARFRAME_SESSION_PHYSICS.md`](docs/TEARFRAME_SESSION_PHYSICS.md)
-- [`docs/TERMINAL_CAPTURE_GUIDE.md`](docs/TERMINAL_CAPTURE_GUIDE.md)
-- [`docs/TERMINAL_CAPTURE_QUICKREF.md`](docs/TERMINAL_CAPTURE_QUICKREF.md)
-- [`docs/THE_115_THEORIES.json`](docs/THE_115_THEORIES.json)
-- [`docs/THE_FINAL_FIX.md`](docs/THE_FINAL_FIX.md)
-- [`docs/TODO_v45_followups.md`](docs/TODO_v45_followups.md)
-- [`docs/TRACK_ABC_ENFORCEMENT_GUIDE.md`](docs/TRACK_ABC_ENFORCEMENT_GUIDE.md)
-- [`docs/The 21 Repositories_ arifOS Ecosystem Architecture.md`](docs/The 21 Repositories_ arifOS Ecosystem Architecture.md)
-- [`docs/UNIFIED_INTERFACE_PHASE3_DELIVERY.md`](docs/UNIFIED_INTERFACE_PHASE3_DELIVERY.md)
-- [`docs/UNIVERSAL_PROMPT.md`](docs/UNIVERSAL_PROMPT.md)
-- [`docs/UPGRADE_TO_V45_FULL.md`](docs/UPGRADE_TO_V45_FULL.md)
-- [`docs/USER.md`](docs/USER.md)
-- [`docs/V45_FULL_DELIVERY_SUMMARY.md`](docs/V45_FULL_DELIVERY_SUMMARY.md)
-- [`docs/V46_ARCHITECTURE_DIAGRAM.md`](docs/V46_ARCHITECTURE_DIAGRAM.md)
-- [`docs/V46_QUICKSTART.md`](docs/V46_QUICKSTART.md)
-- [`docs/V47_IMPLEMENTATION_SUMMARY.md`](docs/V47_IMPLEMENTATION_SUMMARY.md)
-- [`docs/V55.5_RUKUN_AGI_FOUNDATION.md`](docs/V55.5_RUKUN_AGI_FOUNDATION.md)
-- [`docs/V55_5_ARCHITECTURE.md`](docs/V55_5_ARCHITECTURE.md)
-- [`docs/V55_5_ARCHITECTURE_DIAGRAM.txt`](docs/V55_5_ARCHITECTURE_DIAGRAM.txt)
-- [`docs/V55_5_CONTRAST_ANALYSIS.md`](docs/V55_5_CONTRAST_ANALYSIS.md)
-- [`docs/V60_TRINITY_ARCHITECTURE.md`](docs/V60_TRINITY_ARCHITECTURE.md)
-- [`docs/V60_V61_ARCHITECTURAL_DIFF.md`](docs/V60_V61_ARCHITECTURAL_DIFF.md)
-- [`docs/V81_ARCHITECTURE_SPEC.md`](docs/V81_ARCHITECTURE_SPEC.md)
-- [`docs/VAULT999_SEAL_v55.2.md`](docs/VAULT999_SEAL_v55.2.md)
-- [`docs/VAULT_QUERY_SPEC.md`](docs/VAULT_QUERY_SPEC.md)
-- [`docs/VAULT_SCHEMA_V2.md`](docs/VAULT_SCHEMA_V2.md)
-- [`docs/VAULT_SCHEMA_V3.md`](docs/VAULT_SCHEMA_V3.md)
-- [`docs/VIBE_INFRASTRUCTURE.md`](docs/VIBE_INFRASTRUCTURE.md)
-- [`docs/W@W/#PROMPT_INDEX.yaml`](docs/W@W/#PROMPT_INDEX.yaml)
-- [`docs/W@W/000-999_Machine_Full_Spec_v31 (1).md.txt`](docs/W@W/000-999_Machine_Full_Spec_v31 (1).md.txt)
-- [`docs/W@W/APEX_ROOT/000_ROOTKEY_v34Ω_CANON.md`](docs/W@W/APEX_ROOT/000_ROOTKEY_v34Ω_CANON.md)
-- [`docs/W@W/APEX_ROOT/200_ZKPC_PROTOCOL.md`](docs/W@W/APEX_ROOT/200_ZKPC_PROTOCOL.md)
-- [`docs/W@W/VAULT_999/README.md`](docs/W@W/VAULT_999/README.md)
-- [`docs/W@W/arifos/runtime/README.md`](docs/W@W/arifos/runtime/README.md)
-- [`docs/W@W/zkpc.py`](docs/W@W/zkpc.py)
-- [`docs/WAW_GEOX_OVERVIEW.md`](docs/WAW_GEOX_OVERVIEW.md)
-- [`docs/WAW_OVERVIEW.md`](docs/WAW_OVERVIEW.md)
-- [`docs/WAW_PROMPT_OVERVIEW.md`](docs/WAW_PROMPT_OVERVIEW.md)
-- [`docs/WAW_RIF_OVERVIEW.md`](docs/WAW_RIF_OVERVIEW.md)
-- [`docs/WAW_WEALTH_OVERVIEW.md`](docs/WAW_WEALTH_OVERVIEW.md)
-- [`docs/WAW_WELL_OVERVIEW.md`](docs/WAW_WELL_OVERVIEW.md)
-- [`docs/WEBSITE_ALIGNMENT_v55.2.md`](docs/WEBSITE_ALIGNMENT_v55.2.md)
-- [`docs/WELL_QUICK_START.md`](docs/WELL_QUICK_START.md)
-- [`docs/WELL_UNIVERSAL_PROTOCOL.md`](docs/WELL_UNIVERSAL_PROTOCOL.md)
-- [`docs/WISDOM_SEALION_INTERACTIVE_v45.md`](docs/WISDOM_SEALION_INTERACTIVE_v45.md)
-- [`docs/ZKPC_IMPLEMENTATION_GUIDE.md`](docs/ZKPC_IMPLEMENTATION_GUIDE.md)
-- [`docs/aCLIP_DOC_PUSH_INTEGRATION_GUIDE.md`](docs/aCLIP_DOC_PUSH_INTEGRATION_GUIDE.md)
-- [`docs/aclip_cai_integration.md`](docs/aclip_cai_integration.md)
-- [`docs/analysis/CONSTITUTIONAL_ENTROPY_REPORT.md`](docs/analysis/CONSTITUTIONAL_ENTROPY_REPORT.md)
-- [`docs/analysis/CONSTITUTIONAL_SEAL_VERIFICATION_v47.md`](docs/analysis/CONSTITUTIONAL_SEAL_VERIFICATION_v47.md)
-- [`docs/analysis/ENTROPY_CLEANUP_SUMMARY.md`](docs/analysis/ENTROPY_CLEANUP_SUMMARY.md)
-- [`docs/analysis/QUANTUM_INTELLIGENCE_UPGRADE_SUMMARY_v47.1.md`](docs/analysis/QUANTUM_INTELLIGENCE_UPGRADE_SUMMARY_v47.1.md)
-- [`docs/analysis/README.md`](docs/analysis/README.md)
-- [`docs/analysis/STAGE_000_CONSOLIDATION_PLAN.md`](docs/analysis/STAGE_000_CONSOLIDATION_PLAN.md)
-- [`docs/analysis/arifos_core_unification_analysis.md`](docs/analysis/arifos_core_unification_analysis.md)
-- [`docs/analysis/arifos_core_unification_implementation.md`](docs/analysis/arifos_core_unification_implementation.md)
-- [`docs/analysis/geometric_analysis_simple.py`](docs/analysis/geometric_analysis_simple.py)
-- [`docs/analysis/geometric_final.py`](docs/analysis/geometric_final.py)
-- [`docs/apex/APEX_IMPLEMENTATION_GUIDE_v46.md`](docs/apex/APEX_IMPLEMENTATION_GUIDE_v46.md)
-- [`docs/architecture.md`](docs/architecture.md)
-- [`docs/architecture/AAA_MCP_ARCHITECTURE.md`](docs/architecture/AAA_MCP_ARCHITECTURE.md)
-- [`docs/architecture/ARCHITECTURE_COMPLETE.txt`](docs/architecture/ARCHITECTURE_COMPLETE.txt)
-- [`docs/architecture/CODE_ARCHITECTURE_MAP.md`](docs/architecture/CODE_ARCHITECTURE_MAP.md)
-- [`docs/architecture/MCP_CORE_UNIFICATION_PLAN.md`](docs/architecture/MCP_CORE_UNIFICATION_PLAN.md)
-- [`docs/architecture/TRINITY_PARALLEL_FLOW.md`](docs/architecture/TRINITY_PARALLEL_FLOW.md)
-- [`docs/archives/v49/ARCHITECTURE_COMPLETE.md`](docs/archives/v49/ARCHITECTURE_COMPLETE.md)
-- [`docs/archives/v49/CONSOLIDATION_COMPLETE_v49.md`](docs/archives/v49/CONSOLIDATION_COMPLETE_v49.md)
-- [`docs/archives/v49/IMPLEMENTATION_MAP.md`](docs/archives/v49/IMPLEMENTATION_MAP.md)
-- [`docs/archives/v49/MODULAR_ARCHITECTURE.md`](docs/archives/v49/MODULAR_ARCHITECTURE.md)
-- [`docs/archives/v49/QUICK_LEDGER_GUIDE.md`](docs/archives/v49/QUICK_LEDGER_GUIDE.md)
-- [`docs/archives/v49/STARTUP_VERIFIED.md`](docs/archives/v49/STARTUP_VERIFIED.md)
-- [`docs/archives/v49/v49_MANIFEST.md`](docs/archives/v49/v49_MANIFEST.md)
-- [`docs/arif-hero-og.jpg`](docs/arif-hero-og.jpg)
-- [`docs/arifOS-COMPREHENSIVE-CANON.md`](docs/arifOS-COMPREHENSIVE-CANON.md)
-- [`docs/arifOS-MEMORY-FORGING-DEEPRESEARCH.md`](docs/arifOS-MEMORY-FORGING-DEEPRESEARCH.md)
-- [`docs/arifOS-v38.2-STACK.md`](docs/arifOS-v38.2-STACK.md)
-- [`docs/arifOS_AAA_MCP_DEPLOYMENT_READINESS.md`](docs/arifOS_AAA_MCP_DEPLOYMENT_READINESS.md)
-- [`docs/arifOS_Constitutional_Governance_Kernel.png`](docs/arifOS_Constitutional_Governance_Kernel.png)
-- [`docs/arifOS_REDUNDANCY_ENTROPY_AUDIT_FOCUSED.md`](docs/arifOS_REDUNDANCY_ENTROPY_AUDIT_FOCUSED.md)
-- [`docs/arifOSreadme.png`](docs/arifOSreadme.png)
-- [`docs/arif_os_whitepaper.md`](docs/arif_os_whitepaper.md)
-- [`docs/arifos_000_init_protocol.md`](docs/arifos_000_init_protocol.md)
-- [`docs/arifos_compliance_checklist.md`](docs/arifos_compliance_checklist.md)
-- [`docs/arifos_governance_framework.jpg`](docs/arifos_governance_framework.jpg)
-- [`docs/article-thumbnail-core.jpg`](docs/article-thumbnail-core.jpg)
-- [`docs/assets/2026-02-06-trinity-v55.5-visual-spec.png`](docs/assets/2026-02-06-trinity-v55.5-visual-spec.png)
-- [`docs/audit/AGI_TOOL_STATUS_AUDIT.md`](docs/audit/AGI_TOOL_STATUS_AUDIT.md)
-- [`docs/audit/ARIFOS_AUDIT_FINDINGS.md`](docs/audit/ARIFOS_AUDIT_FINDINGS.md)
-- [`docs/audit/CHANGELOG.md`](docs/audit/CHANGELOG.md)
-- [`docs/audit/CLAIM_TO_TEST_MAP.md`](docs/audit/CLAIM_TO_TEST_MAP.md)
-- [`docs/audit/README.md`](docs/audit/README.md)
-- [`docs/audit/arifOS_fix_roadmap.md`](docs/audit/arifOS_fix_roadmap.md)
-- [`docs/audit/arifOS_full_audit.md`](docs/audit/arifOS_full_audit.md)
-- [`docs/blueprints/aaa_mcp_gateway_blueprint.md`](docs/blueprints/aaa_mcp_gateway_blueprint.md)
-- [`docs/briefings/DOSSIER_v41.md`](docs/briefings/DOSSIER_v41.md)
-- [`docs/briefings/INSTITUTIONAL_v41.md`](docs/briefings/INSTITUTIONAL_v41.md)
-- [`docs/constitutional-floors.jpg`](docs/constitutional-floors.jpg)
-- [`docs/constitutional_developer_guide_v46.md`](docs/constitutional_developer_guide_v46.md)
-- [`docs/constitutional_implementation_guide_v46.md`](docs/constitutional_implementation_guide_v46.md)
-- [`docs/deployment/DEPLOYMENT_CONFIG.md`](docs/deployment/DEPLOYMENT_CONFIG.md)
-- [`docs/development/HANDOFF_000_INIT_LOOP.md`](docs/development/HANDOFF_000_INIT_LOOP.md)
-- [`docs/diagrams.md`](docs/diagrams.md)
-- [`docs/entropy-cooling.jpg`](docs/entropy-cooling.jpg)
-- [`docs/executive_briefing.md`](docs/executive_briefing.md)
-- [`docs/forge-background.jpg`](docs/forge-background.jpg)
-- [`docs/forged_page_1.png`](docs/forged_page_1.png)
-- [`docs/forged_page_10.png`](docs/forged_page_10.png)
-- [`docs/forged_page_11.png`](docs/forged_page_11.png)
-- [`docs/forged_page_12.png`](docs/forged_page_12.png)
-- [`docs/forged_page_13.png`](docs/forged_page_13.png)
-- [`docs/forged_page_14.png`](docs/forged_page_14.png)
-- [`docs/forged_page_15.png`](docs/forged_page_15.png)
-- [`docs/forged_page_2.png`](docs/forged_page_2.png)
-- [`docs/forged_page_3.png`](docs/forged_page_3.png)
-- [`docs/forged_page_4.png`](docs/forged_page_4.png)
-- [`docs/forged_page_5.png`](docs/forged_page_5.png)
-- [`docs/forged_page_6.png`](docs/forged_page_6.png)
-- [`docs/forged_page_7.png`](docs/forged_page_7.png)
-- [`docs/forged_page_8.png`](docs/forged_page_8.png)
-- [`docs/forged_page_9.png`](docs/forged_page_9.png)
-- [`docs/governance/CONSTITUTIONAL_REORGANIZATION_SEAL.md`](docs/governance/CONSTITUTIONAL_REORGANIZATION_SEAL.md)
-- [`docs/governance/DECISION_2025-11-16_BASECAMP.md`](docs/governance/DECISION_2025-11-16_BASECAMP.md)
-- [`docs/governance/DECISION_BASECAMP3E.md`](docs/governance/DECISION_BASECAMP3E.md)
-- [`docs/governance/FILE_REORGANIZATION_SEAL_20260120.md`](docs/governance/FILE_REORGANIZATION_SEAL_20260120.md)
-- [`docs/governance/GOVERNANCE_OVERVIEW.md`](docs/governance/GOVERNANCE_OVERVIEW.md)
-- [`docs/governance/V50_AGENT_HOUSEKEEPING_REPORT.md`](docs/governance/V50_AGENT_HOUSEKEEPING_REPORT.md)
-- [`docs/governance/V51_CONSOLIDATION_VERIFICATION_REPORT.md`](docs/governance/V51_CONSOLIDATION_VERIFICATION_REPORT.md)
-- [`docs/integrations/CHATGPT_CUSTOM_GPT_GUIDE.md`](docs/integrations/CHATGPT_CUSTOM_GPT_GUIDE.md)
-- [`docs/integrations/chatgpt_integration_config.md`](docs/integrations/chatgpt_integration_config.md)
-- [`docs/llms-full-v54-backup.txt`](docs/llms-full-v54-backup.txt)
-- [`docs/llms-full.txt`](docs/llms-full.txt)
-- [`docs/llms.txt`](docs/llms.txt)
-- [`docs/manifests/well_manifest_v42.json`](docs/manifests/well_manifest_v42.json)
-- [`docs/mcp/AAA_ATTESTATION.json`](docs/mcp/AAA_ATTESTATION.json)
-- [`docs/mcp/MCP_INTEGRATION_GUIDE.md`](docs/mcp/MCP_INTEGRATION_GUIDE.md)
-- [`docs/mcp/VAULT_RECOVERY.md`](docs/mcp/VAULT_RECOVERY.md)
-- [`docs/mcp/implementation_plan.md`](docs/mcp/implementation_plan.md)
-- [`docs/memory/MEMORY_CODEX.md`](docs/memory/MEMORY_CODEX.md)
-- [`docs/memory/ZKP_receipts.md`](docs/memory/ZKP_receipts.md)
-- [`docs/migration/CHECKPOINT_MIGRATION_GUIDE.md`](docs/migration/CHECKPOINT_MIGRATION_GUIDE.md)
-- [`docs/openai_gateway_https.md`](docs/openai_gateway_https.md)
-- [`docs/openapi/arifos_openapi_v52.yaml`](docs/openapi/arifos_openapi_v52.yaml)
-- [`docs/openapi/arifos_openapi_v53.yaml`](docs/openapi/arifos_openapi_v53.yaml)
-- [`docs/opencode-agent.md`](docs/opencode-agent.md)
-- [`docs/planning/v50/ENTROPY_REDUCTION_PHASES_4-11.md`](docs/planning/v50/ENTROPY_REDUCTION_PHASES_4-11.md)
-- [`docs/planning/v50/HOUSEKEEPING_REPORT.md`](docs/planning/v50/HOUSEKEEPING_REPORT.md)
-- [`docs/platforms/chatgpt_dev.md`](docs/platforms/chatgpt_dev.md)
-- [`docs/platforms/cline.md`](docs/platforms/cline.md)
-- [`docs/platforms/continue_dev.md`](docs/platforms/continue_dev.md)
-- [`docs/platforms/kimi.md`](docs/platforms/kimi.md)
-- [`docs/platforms/ollama.md`](docs/platforms/ollama.md)
-- [`docs/profile-avatar.jpg`](docs/profile-avatar.jpg)
-- [`docs/proposals/CONSTITUTIONAL_RENAME_PROPOSAL_333_SPEC.md`](docs/proposals/CONSTITUTIONAL_RENAME_PROPOSAL_333_SPEC.md)
-- [`docs/ref/Analyzing arifOS Core Runtime Artifact.md`](docs/ref/Analyzing arifOS Core Runtime Artifact.md)
-- [`docs/ref/MOCK_SIGNING_POLICY.md`](docs/ref/MOCK_SIGNING_POLICY.md)
-- [`docs/ref/arifOS Architecture and Core Module.md`](docs/ref/arifOS Architecture and Core Module.md)
-- [`docs/ref/arifOS flaws.md`](docs/ref/arifOS flaws.md)
-- [`docs/ref/arifOS v45 (Sovereign Witness).md`](docs/ref/arifOS v45 (Sovereign Witness).md)
-- [`docs/ref/arifOS v45 Recovery Plan – ΔΩΨ Rout.md`](docs/ref/arifOS v45 Recovery Plan – ΔΩΨ Rout.md)
-- [`docs/ref/arifOS_Canon_AAA.md`](docs/ref/arifOS_Canon_AAA.md)
-- [`docs/ref/crypto_ledger.txt`](docs/ref/crypto_ledger.txt)
-- [`docs/ref/sealiontest24dec.md`](docs/ref/sealiontest24dec.md)
-- [`docs/ref/task_1_1.txt`](docs/ref/task_1_1.txt)
-- [`docs/reference/arifos_kernel_v45.py`](docs/reference/arifos_kernel_v45.py)
-- [`docs/reference/track_c_core_enforcement_v45.py`](docs/reference/track_c_core_enforcement_v45.py)
-- [`docs/refusal_system_v55.2.md`](docs/refusal_system_v55.2.md)
-- [`docs/releases/RELEASE_NOTES.md`](docs/releases/RELEASE_NOTES.md)
-- [`docs/releases/RELEASE_NOTES_v43.0.md`](docs/releases/RELEASE_NOTES_v43.0.md)
-- [`docs/releases/RELEASE_NOTES_v45_patch_b1.md`](docs/releases/RELEASE_NOTES_v45_patch_b1.md)
-- [`docs/releases/RELEASE_NOTES_v60.md`](docs/releases/RELEASE_NOTES_v60.md)
-- [`docs/releases/RELEASE_v64.2.0_COMPLETE.md`](docs/releases/RELEASE_v64.2.0_COMPLETE.md)
-- [`docs/releases/SESSION_COMPLETION_v45_CONSOLIDATION.md`](docs/releases/SESSION_COMPLETION_v45_CONSOLIDATION.md)
-- [`docs/releases/SPEC_v45_MIGRATION_COMPLETE.md`](docs/releases/SPEC_v45_MIGRATION_COMPLETE.md)
-- [`docs/releases/v45_CANON_CONSOLIDATION_COMPLETE.md`](docs/releases/v45_CANON_CONSOLIDATION_COMPLETE.md)
-- [`docs/releases/v45_PATCH_B2_SUMMARY.md`](docs/releases/v45_PATCH_B2_SUMMARY.md)
-- [`docs/reports/CONSTITUTIONAL_VERIFICATION_FINAL.md`](docs/reports/CONSTITUTIONAL_VERIFICATION_FINAL.md)
-- [`docs/reports/EXTERNAL_AUDIT_FIX_SUMMARY.md`](docs/reports/EXTERNAL_AUDIT_FIX_SUMMARY.md)
-- [`docs/reports/FLOOR_AUDIT_REPORT.md`](docs/reports/FLOOR_AUDIT_REPORT.md)
-- [`docs/reports/GROK_FINAL_FIX_SUMMARY.md`](docs/reports/GROK_FINAL_FIX_SUMMARY.md)
-- [`docs/reports/PYTHON_ARCHAEOLOGY_REPORT.md`](docs/reports/PYTHON_ARCHAEOLOGY_REPORT.md)
-- [`docs/reports/SEALION_GOVERNANCE_FIX_SUMMARY.md`](docs/reports/SEALION_GOVERNANCE_FIX_SUMMARY.md)
-- [`docs/reports/SEALION_RUNTIME_FIX_SUMMARY.md`](docs/reports/SEALION_RUNTIME_FIX_SUMMARY.md)
-- [`docs/reports/reports/README.md`](docs/reports/reports/README.md)
-- [`docs/runbook.md`](docs/runbook.md)
-- [`docs/session_2026-01-31_v55_architecture.md`](docs/session_2026-01-31_v55_architecture.md)
-- [`docs/sessions/SESSION_INSIGHTS_2026-01-17_README_REWRITE.md`](docs/sessions/SESSION_INSIGHTS_2026-01-17_README_REWRITE.md)
-- [`docs/setup/BOOTSTRAP.md`](docs/setup/BOOTSTRAP.md)
-- [`docs/setup/DEPENDENCY_ENHANCEMENT_SUMMARY.md`](docs/setup/DEPENDENCY_ENHANCEMENT_SUMMARY.md)
-- [`docs/setup/IDE_AGNOSTIC_SUMMARY.md`](docs/setup/IDE_AGNOSTIC_SUMMARY.md)
-- [`docs/setup/RECOMMENDED_DEPENDENCIES_RESEARCH.md`](docs/setup/RECOMMENDED_DEPENDENCIES_RESEARCH.md)
-- [`docs/setup/TOOLS_QUICK_START.md`](docs/setup/TOOLS_QUICK_START.md)
-- [`docs/skills/openclaw-opus-transfer.md`](docs/skills/openclaw-opus-transfer.md)
-- [`docs/soul_symlink_fix.txt`](docs/soul_symlink_fix.txt)
-- [`docs/testing/TEST_IMPORT_FAILURES_ANALYSIS.md`](docs/testing/TEST_IMPORT_FAILURES_ANALYSIS.md)
-- [`docs/testing/TEST_UNIFICATION_PLAN_v47.md`](docs/testing/TEST_UNIFICATION_PLAN_v47.md)
-- [`docs/three-judges.jpg`](docs/three-judges.jpg)
-- [`docs/tool/Autonomous Web Search Systems in LL.md`](docs/tool/Autonomous Web Search Systems in LL.md)
-- [`docs/tool/Autonomous Web Search Systems in LL.txt`](docs/tool/Autonomous Web Search Systems in LL.txt)
-- [`docs/v55.0-RFP.md`](docs/v55.0-RFP.md)
-- [`docs/wrangler-apex-fix.toml`](docs/wrangler-apex-fix.toml)
-- [`sites/docs/.gitignore`](sites/docs/.gitignore)
-- [`sites/docs/DEPLOY.sh`](sites/docs/DEPLOY.sh)
-- [`sites/docs/SCAFFOLD.sh`](sites/docs/SCAFFOLD.sh)
-- [`sites/docs/docs/advanced-roadmap.md`](sites/docs/docs/advanced-roadmap.md)
-- [`sites/docs/docs/api.md`](sites/docs/docs/api.md)
-- [`sites/docs/docs/architecture.md`](sites/docs/docs/architecture.md)
-- [`sites/docs/docs/canon/foundation.md`](sites/docs/docs/canon/foundation.md)
-- [`sites/docs/docs/canon/ignition.md`](sites/docs/docs/canon/ignition.md)
-- [`sites/docs/docs/canon/law.md`](sites/docs/docs/canon/law.md)
-- [`sites/docs/docs/canon/trinity-organs.md`](sites/docs/docs/canon/trinity-organs.md)
-- [`sites/docs/docs/canon/witness.md`](sites/docs/docs/canon/witness.md)
-- [`sites/docs/docs/deployment.md`](sites/docs/docs/deployment.md)
-- [`sites/docs/docs/governance.md`](sites/docs/docs/governance.md)
-- [`sites/docs/docs/intro.md`](sites/docs/docs/intro.md)
-- [`sites/docs/docs/llms-and-robots.md`](sites/docs/docs/llms-and-robots.md)
-- [`sites/docs/docs/mcp-server.md`](sites/docs/docs/mcp-server.md)
-- [`sites/docs/docs/theory-000.md`](sites/docs/docs/theory-000.md)
-- [`sites/docs/docusaurus.config.js`](sites/docs/docusaurus.config.js)
-- [`sites/docs/package.json`](sites/docs/package.json)
-- [`sites/docs/sidebars.js`](sites/docs/sidebars.js)
-- [`sites/docs/src/css/custom.css`](sites/docs/src/css/custom.css)
-- [`sites/docs/src/pages/console/index.tsx`](sites/docs/src/pages/console/index.tsx)
-- [`sites/docs/src/pages/index.module.css`](sites/docs/src/pages/index.module.css)
-- [`sites/docs/src/pages/index.tsx`](sites/docs/src/pages/index.tsx)
-- [`sites/docs/static/CNAME`](sites/docs/static/CNAME)
-- [`sites/docs/static/img/arifos-og.png`](sites/docs/static/img/arifos-og.png)
-- [`sites/docs/static/img/logo.svg`](sites/docs/static/img/logo.svg)
-- [`sites/docs/static/img/undraw_docusaurus_mountain.svg`](sites/docs/static/img/undraw_docusaurus_mountain.svg)
-- [`sites/docs/static/img/undraw_docusaurus_react.svg`](sites/docs/static/img/undraw_docusaurus_react.svg)
-- [`sites/docs/static/img/undraw_docusaurus_tree.svg`](sites/docs/static/img/undraw_docusaurus_tree.svg)
-- [`sites/docs/static/llms.json`](sites/docs/static/llms.json)
-- [`sites/docs/static/llms.txt`](sites/docs/static/llms.txt)
-- [`sites/docs/static/robots.txt`](sites/docs/static/robots.txt)
-
----
-
-# Appendix B: Padding (Intentional)
-This section exists only to satisfy the minimum line count requirement.
-- Line pad 1
-- Line pad 2
-- Line pad 3
-- Line pad 4
-- Line pad 5
-- Line pad 6
-- Line pad 7
-- Line pad 8
-- Line pad 9
-- Line pad 10
-- Line pad 11
-- Line pad 12
-- Line pad 13
-- Line pad 14
-- Line pad 15
-- Line pad 16
-- Line pad 17
-- Line pad 18
-- Line pad 19
-- Line pad 20
-- Line pad 21
-- Line pad 22
-- Line pad 23
-- Line pad 24
-- Line pad 25
-- Line pad 26
-- Line pad 27
-- Line pad 28
-- Line pad 29
-- Line pad 30
-- Line pad 31
-- Line pad 32
-- Line pad 33
-- Line pad 34
-- Line pad 35
-- Line pad 36
-- Line pad 37
-- Line pad 38
-- Line pad 39
-- Line pad 40
-- Line pad 41
-- Line pad 42
-- Line pad 43
-- Line pad 44
-- Line pad 45
-- Line pad 46
-- Line pad 47
-- Line pad 48
-- Line pad 49
-- Line pad 50
-- Line pad 51
-- Line pad 52
-- Line pad 53
-- Line pad 54
-- Line pad 55
-- Line pad 56
-- Line pad 57
-- Line pad 58
-- Line pad 59
-- Line pad 60
-- Line pad 61
-- Line pad 62
-- Line pad 63
+**DITEMPA BUKAN DIBERI.**
