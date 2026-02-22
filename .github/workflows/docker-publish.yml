@@ -9,18 +9,23 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version tag (e.g., v60.0)'
+        description: 'Version tag (e.g., 2026.2.22)'
         required: true
-        default: 'v60.0'
+        default: '2026.2.22'
 
 env:
   REGISTRY: docker.io
   IMAGE_NAME: ariffazil/arifos
 
+concurrency:
+  group: docker-publish-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   build-and-push:
     name: Build and Push to Docker Hub
     runs-on: ubuntu-latest
+    if: ${{ secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
     permissions:
       contents: read
       packages: write

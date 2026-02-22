@@ -4,13 +4,25 @@ on:
   push:
     branches:
       - main
+    paths:
+      - "aaa_mcp/**"
+      - "core/**"
+      - "Dockerfile"
+      - "deployment/docker-compose.vps.yml"
+      - ".github/workflows/deploy-vps.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-vps-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    if: ${{ secrets.VPS_HOST != '' && secrets.VPS_USERNAME != '' && secrets.VPS_SSH_KEY != '' }}
     steps:
       - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}

@@ -21,7 +21,7 @@ If you need to publish without creating a release:
 
 1. Go to **Actions** → **Publish to MCP Registry**
 2. Click **Run workflow**
-3. Enter version (e.g., `55.5.0`)
+3. Enter version (e.g., `2026.2.22`)
 4. Click **Run workflow**
 
 ## Namespace

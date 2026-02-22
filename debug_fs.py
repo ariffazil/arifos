@@ -1,24 +1,27 @@
+import asyncio
 import os
 import shutil
-import fnmatch
-from aclip_cai.tools.fs_inspector import fs_inspect
+import tempfile
+from pathlib import Path
+from aclip_cai.console_tools import fs_inspect
 
-def test():
-    base = "test_fs_inspect"
-    if os.path.exists(base):
-        shutil.rmtree(base)
-    os.makedirs(base)
-    
-    (open(os.path.join(base, "a.py"), "w")).close()
-    (open(os.path.join(base, "b.txt"), "w")).close()
-    (open(os.path.join(base, "c.py"), "w")).close()
-    
-    res_pat = fs_inspect(path=base, pattern="*.py", depth=1)
-    print("Pattern *.py result:", res_pat)
-    
-    items = res_pat.get("tree", [])
-    files = [i["name"] for i in items if i["type"] == "file"]
-    print("Files found:", files)
+async def main():
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        tmp_path = Path(tmp_dir)
+        d = tmp_path / "sub"
+        d.mkdir()
+        f = d / "test.txt"
+        f.write_text("content")
+        
+        res = await fs_inspect(path=str(tmp_path), max_depth=1)
+        print(f"Tool: {res.tool}")
+        print(f"Status: {res.status}")
+        data = res.data
+        if "directories" in data and data["directories"]:
+            first = data["directories"][0]
+            print(f"First directory type: {type(first)}")
+            print(f"First directory content: {first}")
+            print(f"Path in first dir: {first['path']}")
 
 if __name__ == "__main__":
-    test()
+    asyncio.run(main())

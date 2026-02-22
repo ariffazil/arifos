@@ -71,10 +71,15 @@ def forge_guard(
                 warnings = [health["warning"]]
                 
             if any("HIGH" in w or "CRITICAL" in w for w in warnings):
-                gate = "SABAR"
-                reason_code = "HOST_PRESSURE"
-                can_proceed = False
-                reasons.extend(warnings)
+                # Dry-run must stay deterministic for policy simulation and CI.
+                # We surface host pressure as context, but only block live actions.
+                if dry_run:
+                    reasons.extend([f"DRY_RUN_HOST_SIGNAL: {w}" for w in warnings])
+                else:
+                    gate = "SABAR"
+                    reason_code = "HOST_PRESSURE"
+                    can_proceed = False
+                    reasons.extend(warnings)
 
     # 3. Forbidden Patterns (F12 Defense)
     forbidden_patterns = [

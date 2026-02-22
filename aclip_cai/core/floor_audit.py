@@ -119,6 +119,8 @@ _INJECTION_PATTERNS = [
     re.compile(r"system\s+override", re.I),
     re.compile(r"\bjailbreak\b", re.I),
     re.compile(r"do\s+anything\s+now", re.I),
+    re.compile(r"rm\s+-rf\s+/", re.I),  # Hard stop dangerous command
+    re.compile(r"format\s+[a-z]:", re.I),
 ]
 
 # F6: ASEAN/MY dignity-violation markers (maruah check)

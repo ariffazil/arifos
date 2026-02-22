@@ -33,7 +33,7 @@ async def test_mcp_bridge_system_health():
     assert result["verdict"] == "SEAL"
     assert "data" in result
     assert "timestamp" in result
-    assert "latency_ms" in result
+    assert "latency_ms" in result["data"]
 
 
 @pytest.mark.asyncio
@@ -44,7 +44,7 @@ async def test_mcp_bridge_process_list():
 
     assert result["tool"] == "aclip_process_list"
     assert result["verdict"] == "SEAL"
-    assert "processes" in result["data"]
+    assert "processes" in result["data"]["data"]
 
 
 @pytest.mark.asyncio
