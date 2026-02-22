@@ -1,6 +1,7 @@
 """
-arifOS AAA MCP Server — 5-Core Constitutional Architecture (v61.0)
-5 Canonical Tools | Trinity Pipeline (INIT → AGI → ASI → APEX → SEAL)
+arifOS AAA MCP Server — 9-Skill Constitutional Architecture (T000)
+T000 Version: 2026.02.17-FORGE-VPS-SEAL
+9 Canonical Verbs | Trinity Pipeline (ANCHOR → REASON → INTEGRATE → RESPOND → VALIDATE → ALIGN → FORGE → AUDIT → SEAL)
 
 Provides constitutional governance layer for MCP-compatible AI platforms.
 """
@@ -8,25 +9,22 @@ Provides constitutional governance layer for MCP-compatible AI platforms.
 from .core.constitutional_decorator import constitutional_floor, get_tool_floors
 from .mcp_config import MCP_SERVERS, TrinityComponent, get_server_config
 from .mcp_integration import MCPIntegrationLayer, get_mcp_layer
-from .server import (
-    agi_cognition,
-    apex_verdict,
-    asi_empathy,
-    init_session,
-    mcp,
-    vault_seal,
-)
+from .server import align, anchor, audit, forge, integrate, mcp, reason, respond, seal, validate
 
-__version__ = "61.0.0-FORGE"
+__version__ = "2026.02.17-FORGE-VPS-SEAL"
 __all__ = [
     # FastMCP server instance
     "mcp",
-    # 5 Canonical Tools (000-999 Trinity Pipeline)
-    "init_session",    # 000_INIT: Session ignition (F11, F12)
-    "agi_cognition",   # 111-333_AGI: Mind - sense/think/reason (F2, F4, F7, F8, F10)
-    "asi_empathy",     # 555-666_ASI: Heart - empathize/align (F1, F5, F6, F9)
-    "apex_verdict",    # 888_APEX: Soul - judgment (F2, F3, F8, F10, F11, F12, F13)
-    "vault_seal",      # 999_VAULT: Memory - seal (F1, F3)
+    # 9 Canonical Skills (Verbs)
+    "anchor",  # 1. ANCHOR (000/111)
+    "reason",  # 2. REASON (222)
+    "integrate",  # 3. INTEGRATE (333)
+    "respond",  # 4. RESPOND (444)
+    "validate",  # 5. VALIDATE (555)
+    "align",  # 6. ALIGN (666)
+    "forge",  # 7. FORGE (777)
+    "audit",  # 8. AUDIT (888)
+    "seal",  # 9. SEAL (999)
     # Integration layer
     "MCPIntegrationLayer",
     "get_mcp_layer",
@@ -38,8 +36,4 @@ __all__ = [
     "constitutional_floor",
     "get_tool_floors",
 ]
-# CACHE BUST: 1770989689 - v61 forced rebuild
-# v62 CACHE BUST: 1770992292 - SystemState exposure deployed
-# v62.1 CACHE BUST: 1770992489 - Improved heuristics
-# v62.2 CACHE BUST: 1770993431 - Real Brave Search evidence
-# v62.3 CACHE BUST: 1770993875 - Relevance-based grounding
+# CACHE BUST: 1771142400 - T000 FORGE-TRINITY SEAL

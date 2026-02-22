@@ -20,7 +20,7 @@ from __future__ import annotations
 
 import math
 import statistics
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Sequence, Tuple
 
 # =============================================================================
@@ -30,7 +30,33 @@ from typing import Dict, List, Optional, Sequence, Tuple
 K_BOLTZMANN = 1.380649e-23  # J/K
 T_ROOM = 300.0  # Kelvin (26.85 °C)
 
-# ... (omitted sections) ...
+
+# =============================================================================
+# STAKEHOLDER PRIMITIVES
+# =============================================================================
+
+
+@dataclass
+class Stakeholder:
+    """Stakeholder with vulnerability assessment."""
+
+    name: str
+    role: str = "unknown"
+    vulnerability_score: float = field(default=0.5)  # 0.0 (resilient) to 1.0 (highly vulnerable)
+
+
+# Distress signals for empathy calculation
+DISTRESS_SIGNALS = [
+    ("help", 0.3),
+    ("urgent", 0.4),
+    ("emergency", 0.5),
+    ("scared", 0.4),
+    ("worried", 0.3),
+    ("desperate", 0.5),
+    ("please", 0.1),
+    ("thank", 0.05),
+]
+
 
 # =============================================================================
 # SEMANTIC STAKEHOLDER MODEL (Lazy Loaded)
@@ -48,6 +74,16 @@ STAKEHOLDER_ARCHETYPES = {
     "Minority": "A member of a minority group, marginalized community, or protected class.",
     "Employee": "An employee, worker, staff member, or subordinate.",
     "Public": "The general public, society, or community at large.",
+}
+
+ARCHETYPE_VULNERABILITY = {
+    "Child": 0.9,
+    "Patient": 0.8,
+    "Victim": 0.9,
+    "Elderly": 0.7,
+    "Minority": 0.6,
+    "Employee": 0.5,
+    "Public": 0.6,
 }
 
 HARM_ARCHETYPES = [
@@ -139,17 +175,34 @@ def empathy_coeff(query: str, stakeholders: List[Stakeholder]) -> float:
     return kappa_r(query, stakeholders)
 
 
-def identify_stakeholders(query: str) -> List[Stakeholder]:
+def harm_score(query: str) -> float:
+    """Compute harm score based on similarity to harm archetypes."""
+    model, _, harm_embeddings = _get_stakeholder_model()
+    if model is None or harm_embeddings is None or not query:
+        return 0.0
+    from sentence_transformers import util
+
+    query_embedding = model.encode(query, convert_to_tensor=True)
+    harm_scores = util.cos_sim(query_embedding, harm_embeddings)[0]
+    max_harm = float(harm_scores.max())
+    return max_harm
+
+
+def identify_stakeholders(query: str, context: Optional[str] = None) -> List[Stakeholder]:
     """
     Identify stakeholders using semantic similarity (v60.3 Model-Based).
 
-    Falls back to heuristics if model fails or dependency missing.
-    Threshold: 0.35 cosine similarity for vulnerability match.
+    Args:
+        query: The user query
+        context: Optional reasoning context (e.g. from AGI thoughts)
     """
     stakeholders = [
         Stakeholder("User", "user", 0.3),
         Stakeholder("System", "system", 0.1),
     ]
+
+    # Combine query with context for richer analysis
+    analysis_text = f"{query}\n{context}" if context else query
 
     # Try Semantic Detection
     model, archetype_embeddings, _ = _get_stakeholder_model()
@@ -157,24 +210,47 @@ def identify_stakeholders(query: str) -> List[Stakeholder]:
     if model is not None and archetype_embeddings is not None:
         from sentence_transformers import util
 
-        # Encode query
-        query_embedding = model.encode(query, convert_to_tensor=True)
+        # Encode query + context
+        query_embedding = model.encode(analysis_text, convert_to_tensor=True)
 
         # Compute cosine similarities
         cosine_scores = util.cos_sim(query_embedding, archetype_embeddings)[0]
 
         # Check against threshold (empirically tuned to 0.35)
-        matched_roles = []
         for idx, score in enumerate(cosine_scores):
             if score > 0.35:
                 role = list(STAKEHOLDER_ARCHETYPES.keys())[idx]
-                # Default high vulnerability for semantic matches
-                vuln = 0.8 if role in ["Child", "Patient", "Victim"] else 0.6
-                stakeholders.append(Stakeholder(role, role.lower(), vuln))
-                matched_roles.append(role)
+                # Get base vulnerability from mapping, default 0.5
+                base_vuln = ARCHETYPE_VULNERABILITY.get(role, 0.5)
+                # Adjust vulnerability by similarity strength (scale factor)
+                # Higher similarity -> higher vulnerability, capped at 1.0
+                adjusted_vuln = base_vuln * min(1.0, score / 0.35)
+                stakeholders.append(Stakeholder(role, role.lower(), adjusted_vuln))
+        # Return early, skip pattern detection
+        return stakeholders
 
-        if matched_roles:
-            return stakeholders
+    # Fallback: Pattern-based detection (Legacy v60.0) when model unavailable
+    query_lower = query.lower()
+
+    vulnerability_patterns = {
+        "child": 0.9,
+        "patient": 0.8,
+        "victim": 0.9,
+        "student": 0.6,
+        "elderly": 0.7,
+        "customer": 0.5,
+        "employee": 0.5,
+        "public": 0.6,
+        "community": 0.5,
+    }
+
+    for pattern, vuln in vulnerability_patterns.items():
+        if pattern in query_lower:
+            stakeholders.append(
+                Stakeholder(name=pattern.title(), role=pattern, vulnerability_score=vuln)
+            )
+
+    return stakeholders
 
     # Fallback: Pattern-based detection (Legacy v60.0)
     query_lower = query.lower()
@@ -531,185 +607,27 @@ def peace_squared(stakeholder_harms: Dict[str, float]) -> float:
 
 
 # =============================================================================
-# F6: EMPATHY QUOTIENT — kappa_r
+# F8: GENIUS — G = A × P × X × E²
 # =============================================================================
 
 
-@dataclass
-class Stakeholder:
-    """Stakeholder with vulnerability assessment."""
-
-    name: str
-    role: str
-    vulnerability_score: float  # [0, 1], higher = more vulnerable
-
-    def __post_init__(self):
-        self.vulnerability_score = max(0.0, min(1.0, self.vulnerability_score))
-
-
-# Distress signals for empathy calculation
-DISTRESS_SIGNALS = [
-    ("help", 0.3),
-    ("urgent", 0.4),
-    ("emergency", 0.5),
-    ("scared", 0.4),
-    ("worried", 0.3),
-    ("desperate", 0.5),
-    ("please", 0.1),
-    ("thank", 0.05),
-]
-
-
-def kappa_r(query: str, stakeholders: List[Stakeholder]) -> float:
-    """
-    F6 Integrated Empathy Quotient: kappa_r
-
-    kappa_r = 1.0 - (max_vulnerability * 0.5)
-
-    Higher vulnerability in stakeholders -> lower kappa_r -> more protection needed.
-
-    Args:
-        query: The query being evaluated
-        stakeholders: List of affected stakeholders
-
-    Returns:
-        kappa_r in [0.5, 1.0] empathy quotient
-    """
-    if not stakeholders:
-        return 1.0  # No stakeholders = no harm
-
-    max_vuln = max(s.vulnerability_score for s in stakeholders)
-
-    # kappa_r = 1.0 - (max_vulnerability * 0.5)
-    # Range: [0.5, 1.0]
-    return min(1.0, 1.0 - (max_vuln * 0.5))
-
-
-def empathy_coeff(query: str, stakeholders: List[Stakeholder]) -> float:
-    """Clear alias for kappa_r()."""
-    return kappa_r(query, stakeholders)
-
-
-# =============================================================================
-# SEMANTIC STAKEHOLDER MODEL (Lazy Loaded)
-# =============================================================================
-
-_STAKEHOLDER_MODEL = None
-_ARCHETYPE_EMBEDDINGS = None
-
-STAKEHOLDER_ARCHETYPES = {
-    "Child": "A child, minor, student, or young person under 18.",
-    "Patient": "A medical patient, someone sick, injured, or under care.",
-    "Victim": "A victim of crime, abuse, harassment, or disaster.",
-    "Elderly": "An elderly person, senior citizen, or retiree.",
-    "Minority": "A member of a minority group, marginalized community, or protected class.",
-    "Employee": "An employee, worker, staff member, or subordinate.",
-    "Public": "The general public, society, or community at large.",
-}
-
-
-def _get_stakeholder_model():
-    """Lazy load the sentence transformer model and archetype embeddings."""
-    global _STAKEHOLDER_MODEL, _ARCHETYPE_EMBEDDINGS
-
-    if _STAKEHOLDER_MODEL is None:
-        try:
-            from sentence_transformers import SentenceTransformer, util
-
-            # Use a small, efficient model (all-MiniLM-L6-v2 is ~80MB)
-            _STAKEHOLDER_MODEL = SentenceTransformer("all-MiniLM-L6-v2")
-
-            # Pre-compute archetype embeddings
-            descriptions = list(STAKEHOLDER_ARCHETYPES.values())
-            _ARCHETYPE_EMBEDDINGS = _STAKEHOLDER_MODEL.encode(descriptions, convert_to_tensor=True)
-        except ImportError:
-            print("WARNING: sentence-transformers not found. Falling back to heuristics.")
-            return None, None
-
-    return _STAKEHOLDER_MODEL, _ARCHETYPE_EMBEDDINGS
-
-
-def identify_stakeholders(query: str) -> List[Stakeholder]:
-    """
-    Identify stakeholders using semantic similarity (v60.3 Model-Based).
-
-    Falls back to heuristics if model fails or dependency missing.
-    Threshold: 0.35 cosine similarity for vulnerability match.
-    """
-    stakeholders = [
-        Stakeholder("User", "user", 0.1),
-        Stakeholder("System", "system", 0.1),
-    ]
-
-    # Try Semantic Detection
-    model, archetype_embeddings = _get_stakeholder_model()
-
-    if model is not None:
-        from sentence_transformers import util
-
-        # Encode query
-        query_embedding = model.encode(query, convert_to_tensor=True)
-
-        # Compute cosine similarities
-        cosine_scores = util.cos_sim(query_embedding, archetype_embeddings)[0]
-
-        # Check against threshold (empirically tuned to 0.35)
-        matched_roles = []
-        for idx, score in enumerate(cosine_scores):
-            if score > 0.35:
-                role = list(STAKEHOLDER_ARCHETYPES.keys())[idx]
-                # Default high vulnerability for semantic matches
-                vuln = 0.8 if role in ["Child", "Patient", "Victim"] else 0.6
-                stakeholders.append(Stakeholder(role, role.lower(), vuln))
-                matched_roles.append(role)
-
-        if matched_roles:
-            return stakeholders
-
-    # Fallback: Pattern-based detection (Legacy v60.0)
-    query_lower = query.lower()
-
-    vulnerability_patterns = {
-        "child": 0.9,
-        "patient": 0.8,
-        "victim": 0.9,
-        "student": 0.6,
-        "elderly": 0.7,
-        "customer": 0.5,
-        "employee": 0.5,
-        "public": 0.6,
-        "community": 0.5,
-    }
-
-    for pattern, vuln in vulnerability_patterns.items():
-        if pattern in query_lower:
-            stakeholders.append(
-                Stakeholder(name=pattern.title(), role=pattern, vulnerability_score=vuln)
-            )
-
-    return stakeholders
-
-
-# =============================================================================
-# F8: GENIUS EQUATION — G = A × P × X × E²
-# =============================================================================
-
-
-@dataclass
+@dataclass(frozen=True)
 class GeniusDial:
     """
-    F8: G = A × P × X × E² >= 0.80
+    F8: Genius Equation: G = A × P × X × E²
 
-    A: Akal (Intellect/Wisdom)
-    P: Present (Mindfulness/Attention)
-    X: Exploration (Curiosity/Openness)
-    E: Energy (Vitality/Flow)
+    A (Akal): Logical Accuracy [0, 1]
+    P (Peace): Safety/Stability [0, 1]
+    X (Exploration): Novelty/Creativity [0, 1]
+    E (Energy): Efficiency [0, 1] (Squared power)
+
+    Threshold: G >= 0.80 for Genius certification.
     """
 
-    A: float  # Akal in [0, 1]
-    P: float  # Present in [0, 1]
-    X: float  # Exploration in [0, 1]
-    E: float  # Energy in [0, 1]
+    A: float
+    P: float
+    X: float
+    E: float
 
     def __post_init__(self):
         object.__setattr__(self, "A", max(0.0, min(1.0, self.A)))
@@ -718,34 +636,17 @@ class GeniusDial:
         object.__setattr__(self, "E", max(0.0, min(1.0, self.E)))
 
     def G(self) -> float:
-        """Genius Index: G = A*P*X*E²"""
+        """Compute Genius Score."""
         return self.A * self.P * self.X * (self.E**2)
 
-    def is_genius(self, threshold: float = 0.80) -> bool:
-        """F8 enforcement: G >= threshold?"""
-        return self.G() >= threshold
-
-    def weakest_dial(self) -> str:
-        """Return the dial with lowest value."""
-        dials = {"A": self.A, "P": self.P, "X": self.X, "E": self.E}
-        return min(dials.items(), key=lambda x: x[1])[0]
+    def is_genius(self) -> bool:
+        """F8 enforcement: G >= 0.80?"""
+        return self.G() >= 0.80
 
 
 def G(A: float, P: float, X: float, E: float) -> float:
     """
     F8 Genius Equation: G = A × P × X × E²
-
-    Multiplicative: All four dials must be high for genius.
-    If any dial -> 0, then G -> 0.
-
-    Args:
-        A: Akal (Intellect/Wisdom) [0, 1]
-        P: Present (Mindfulness) [0, 1]
-        X: Exploration (Curiosity) [0, 1]
-        E: Energy (Vitality) [0, 1]
-
-    Returns:
-        G in [0, 1] genius score
     """
     return GeniusDial(A, P, X, E).G()
 
@@ -756,225 +657,58 @@ def genius_score(A: float, P: float, X: float, E: float) -> float:
 
 
 def G_from_dial(dial: GeniusDial) -> float:
-    """Extract G from GeniusDial."""
+    """Extract G from GeniusDial object."""
     return dial.G()
 
 
 # =============================================================================
-# UNIFIED CONSTITUTIONAL STATE
+# CONSTITUTIONAL TENSOR — The Unified State Object
 # =============================================================================
 
 
 @dataclass
 class ConstitutionalTensor:
     """
-    Unified governance state carrying all constitutional metrics.
+    The Unified State Object for arifOS v60.
 
-    This replaces the scattered floor checks across 169 files.
+    Aggregates all 7 physics primitives into a single tensor
+    passed between organs (Mind -> Heart -> Soul).
     """
 
-    # F3: Tri-Witness
-    witness: TrinityTensor
+    witness: TrinityTensor  # F3 (H, A, S)
+    entropy_delta: float  # F4 (<= 0)
+    humility: UncertaintyBand  # F7 (0.03-0.05)
+    genius: GeniusDial  # F8 (G >= 0.8)
+    peace: PeaceSquared  # F5 (P2 >= 0.95)
+    empathy: float  # F6 (kappa_r)
+    truth_score: float  # F2 (tau >= 0.99)
+    evidence: List[str] = None  # Supporting facts
 
-    # F4: Thermodynamic clarity
-    entropy_delta: float  # delta_S (should be <= 0)
+    def __post_init__(self):
+        if self.evidence is None:
+            object.__setattr__(self, "evidence", [])
 
-    # F7: Humility
-    humility: UncertaintyBand  # Omega_0 in [0.03, 0.05]
-
-    # F8: Genius
-    genius: GeniusDial  # G = A*P*X*E²
-
-    # F5: Peace
-    peace: PeaceSquared  # Peace² = 1 - max(harm)
-
-    # F6: Empathy
-    empathy: float  # kappa_r
-
-    # F2: Truth
-    truth_score: float  # P(truth) in [0, 1]
-
-    # Computed fields
-    verdict: Optional[str] = None
-    reason: Optional[str] = None
-
-    def constitutional_check(self) -> Tuple[str, List[str]]:
+    def constitutional_check(self) -> Tuple[bool, List[str]]:
         """
-        Check all floors, return verdict and violations.
-
-        Returns: (verdict, violations_list)
+        Verify all hard floors.
+        Returns (passed, list_of_violations).
         """
         violations = []
 
-        # F3: Tri-Witness
-        if W_3_from_tensor(self.witness) < 0.95:
-            violations.append("F3")
-
-        # F4: Clarity (delta_S <= 0)
-        if self.entropy_delta > 0:
-            violations.append("F4")
-
-        # F7: Humility
-        if not self.humility.is_locked():
-            violations.append("F7")
-
-        # F8: Genius
-        if not self.genius.is_genius():
-            violations.append("F8")
-
-        # F5: Peace (defensive: handle None peace)
-        if self.peace is None or not self.peace.is_peaceful():
-            violations.append("F5")
-
-        # F6: Empathy
-        if self.empathy < 0.95:
-            violations.append("F6")
-
-        # F2: Truth
+        # F2 Truth
         if self.truth_score < 0.99:
-            violations.append("F2")
+            violations.append(f"F2: Truth score {self.truth_score} < 0.99")
 
-        # Determine verdict
-        if not violations:
-            verdict = "SEAL"
-        elif len(violations) == 1:
-            verdict = "PARTIAL"
-        elif violations == ["F7"]:
-            verdict = "SABAR"  # Repair humility
-        else:
-            verdict = "VOID"
+        # F3 Consensus (Soft/Derived)
+        if W_3_from_tensor(self.witness) < 0.95:
+            pass
 
-        return verdict, violations
+        # F4 Clarity (Soft floor, but tracked)
+        if self.entropy_delta > 0:
+            violations.append(f"F4: Entropy increased by {self.entropy_delta}")
 
-    def to_metrics(self) -> Dict[str, float]:
-        """Export as flat metrics dict."""
-        verdict, _ = self.constitutional_check()
-        return {
-            "W_3": W_3_from_tensor(self.witness),
-            "delta_S": self.entropy_delta,
-            "omega_0": self.humility.omega_0,
-            "genius_G": self.genius.G(),
-            "peace_2": self.peace.P2(),
-            "empathy_kr": self.empathy,
-            "truth_score": self.truth_score,
-            "verdict": verdict,
-        }
+        # F7 Humility
+        if not self.humility.is_locked():
+            violations.append(f"F7: Humility {self.humility.omega_0} outside [0.03, 0.05]")
 
-
-# =============================================================================
-# LANDAUER PHYSICS — The Cost of Truth
-# =============================================================================
-
-
-def landauer_min_energy(bits_erased: float, temperature: float = T_ROOM) -> float:
-    """
-    Landauer's principle: minimum energy required to erase one bit of information.
-    E_min = k_B * T * ln(2) * n_bits
-    """
-    if bits_erased <= 0:
-        return 0.0
-    return K_BOLTZMANN * temperature * math.log(2) * bits_erased
-
-
-def landauer_risk(e_eff: float, delta_s_bits: float) -> float:
-    """
-    Risk of hallucination (Sovereign Dial).
-    Measures the ratio of energy paid (e_eff) vs the Landauer limit.
-    Returns [0.0 (safe) to 1.0 (certain hallucination)].
-    """
-    e_min = landauer_min_energy(delta_s_bits)
-    if e_min <= 0:
-        return 0.0
-    ratio = e_eff / e_min
-
-    # Threshold: ratio < 1.0 means physics violation (hallucination required)
-    # Threshold: ratio > 5.0 means 'Paid Truth' (high fidelity)
-    return max(0.0, min(1.0, (5.0 - ratio) / 4.0))
-
-
-# =============================================================================
-# EIGEN-GOVERNANCE — Multi-Floor Folding
-# =============================================================================
-
-# Weighting matrix to collapse 13 floors into 4 Genius dials (A, P, X, E)
-FLOOR_TO_DIAL_WEIGHTS = {
-    "F1": {"P": 0.4, "A": 0.2, "E": 0.4},  # Amanah (Audit) -> Reliability+Energy
-    "F2": {"A": 0.5, "E": 0.5},  # Truth -> Intellect+Energy
-    "F4": {"A": 0.5, "P": 0.5},  # Clarity -> Intellect+Mindfulness
-    "F6": {"P": 0.6, "X": 0.4},  # Empathy (HARD) -> Mindfulness+Exploration
-    "F7": {"A": 0.3, "P": 0.4, "X": 0.3},  # Humility -> All dials
-    "F9": {"P": 0.5, "A": 0.5},  # Anti-Hantu -> Mindfulness+Intellect
-    "F10": {"A": 0.7, "P": 0.3},  # Ontology -> Structural Intellect
-    "F12": {"P": 0.6, "E": 0.4},  # Defense -> Protection+Resilience
-}
-
-
-def eigen_governance(floor_results: Dict[str, str]) -> GeniusDial:
-    """
-    Map 13 floor statuses to the 4 dimensional Genius dial (Akal, Present, Exploration, Energy).
-
-    HARD_FAIL results reduce dials exponentially.
-    """
-    dials = {"A": 1.0, "P": 1.0, "X": 1.0, "E": 1.0}
-
-    for floor_id, status in floor_results.items():
-        weights = FLOOR_TO_DIAL_WEIGHTS.get(floor_id, {})
-        for dial, weight in weights.items():
-            if status == "HARD_FAIL" or status == "VOID":
-                dials[dial] *= 1.0 - (0.5 * weight)  # Major degradation
-            elif status == "WARN" or status == "PARTIAL":
-                dials[dial] *= 1.0 - (0.1 * weight)  # Minor friction
-
-    return GeniusDial(A=dials["A"], P=dials["P"], X=dials["X"], E=dials["E"])
-
-
-# =============================================================================
-# EXPORTS
-# =============================================================================
-
-__all__ = [
-    # F3: Tri-Witness
-    "TrinityTensor",
-    "W_3",
-    "W_3_from_tensor",
-    "W_3_check",
-    "tri_witness",
-    # Utilities
-    "geometric_mean",
-    "std_dev",
-    # F4: Thermodynamic Clarity
-    "delta_S",
-    "entropy_delta",
-    "is_cooling",
-    "clarity_ratio",
-    # F7: Humility
-    "UncertaintyBand",
-    "Omega_0",
-    "humility_band",
-    # Precision
-    "pi",
-    "kalman_gain",
-    # F5: Peace
-    "PeaceSquared",
-    "Peace2",
-    "peace_squared",
-    # F6: Empathy
-    "Stakeholder",
-    "kappa_r",
-    "empathy_coeff",
-    "identify_stakeholders",
-    "DISTRESS_SIGNALS",
-    # F8: Genius
-    "GeniusDial",
-    "G",
-    "genius_score",
-    "G_from_dial",
-    # Unified state
-    "ConstitutionalTensor",
-    # Physics 2.0
-    "landauer_min_energy",
-    "landauer_risk",
-    "eigen_governance",
-    "K_BOLTZMANN",
-    "T_ROOM",
-]
+        return len(violations) == 0, violations

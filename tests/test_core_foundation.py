@@ -1,53 +1,55 @@
 """
-Test script for v55.5 RUKUN AGI foundation (core/ architecture).
+Test script for T000 RUKUN AGI foundation (core/ architecture).
 Verifies that all 4 core.shared modules and core.organs can be imported correctly.
+T000: 2026.02.15-FORGE-TRINITY-SEAL
 """
-import sys
+
 import os
+import sys
 
-# Add current directory to Python path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+# Add project root to Python path (one level up from tests/)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-print("=== TESTING v55.5 RUKUN AGI FOUNDATION (core/) ===")
-print()
 
-# Test 1: Physics
-print("[1/5] Testing core.shared.physics...")
-from core.shared.physics import W_3, delta_S, G, geometric_mean
-print("      ✓ Physics module OK")
+def test_physics_module():
+    """core.shared.physics exports thermodynamic primitives."""
+    from core.shared.physics import W_3, G, delta_S, geometric_mean
 
-# Test 2: ATLAS
-print("[2/5] Testing core.shared.atlas...")
-from core.shared.atlas import Lane, Lambda
-print("      ✓ ATLAS module OK")
+    assert callable(W_3)
+    assert callable(G)
+    assert callable(delta_S)
+    assert callable(geometric_mean)
 
-# Test 3: Types
-print("[3/5] Testing core.shared.types...")
-from core.shared.types import Verdict, VaultOutput
-print("      ✓ Types module OK")
-print(f"      Verdicts: {[v.value for v in Verdict]}")
 
-# Test 4: Crypto
-print("[4/5] Testing core.shared.crypto...")
-from core.shared.crypto import generate_session_id, sha256_hash
-session_id = generate_session_id()
-print("      ✓ Crypto module OK")
-print(f"      Session ID sample: {session_id[:20]}...")
+def test_atlas_module():
+    """core.shared.atlas exports governance routing."""
+    from core.shared.atlas import Lambda, Lane
 
-# Test 5: Organs (Airlock)
-print("[5/5] Testing core.organs._0_init...")
-from core.organs._0_init import init, scan_injection
-print("      ✓ Airlock organ OK")
+    assert Lambda is not None
+    assert Lane is not None
 
-print()
-print("=== v55.5 RUKUN AGI FOUNDATION VERIFIED ✓ ===")
-print()
-print("Summary (core/ architecture):")
-print("  ✓ core.shared.physics  - Thermodynamic primitives (W_3, delta_S, G)")
-print("  ✓ core.shared.atlas    - Governance routing (Lambda, Lane)")
-print("  ✓ core.shared.types    - Pydantic contracts (Verdict)")
-print("  ✓ core.shared.crypto   - Trust primitives (Ed25519, Merkle)")
-print("  ✓ core.organs._0_init  - Constitutional Airlock (F11/F12)")
-print()
-print("RUKUN AGI - The Five Pillars: 555")
-print("Source of Truth: core/ directory")
+
+def test_types_module():
+    """core.shared.types exports Pydantic contracts."""
+    from core.shared.types import VaultOutput, Verdict
+
+    verdicts = [v.value for v in Verdict]
+    assert len(verdicts) > 0
+    assert "SEAL" in verdicts
+
+
+def test_crypto_module():
+    """core.shared.crypto exports trust primitives."""
+    from core.shared.crypto import generate_session_id, sha256_hash
+
+    session_id = generate_session_id()
+    assert isinstance(session_id, str)
+    assert len(session_id) > 0
+
+
+def test_airlock_organ():
+    """core.organs._0_init exports constitutional airlock."""
+    from core.organs._0_init import init, scan_injection
+
+    assert callable(init)
+    assert callable(scan_injection)

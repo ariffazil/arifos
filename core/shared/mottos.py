@@ -21,14 +21,15 @@ DITEMPA BUKAN DIBERI 💎🔥🧠
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
 
 # ═════════════════════════════════════════════════════════════════════════════
 # ENUMS
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 class StageCode(str, Enum):
     """The 9 metabolic stage codes."""
+
     INIT = "000"
     SENSE = "111"
     THINK = "222"
@@ -42,73 +43,78 @@ class StageCode(str, Enum):
 
 class TrinityTier(str, Enum):
     """The three trinities of the paradox matrix."""
-    ALPHA = "alpha"    # Core Virtues (Truth/Care, Clarity/Peace, Humility/Justice)
-    BETA = "beta"      # Implementation (Precision/Reversibility, Hierarchy/Consent, Agency/Protection)
-    GAMMA = "gamma"    # Temporal/Meta (Urgency/Sustainability, Certainty/Doubt, Unity/Diversity)
+
+    ALPHA = "alpha"  # Core Virtues (Truth/Care, Clarity/Peace, Humility/Justice)
+    BETA = "beta"  # Implementation (Precision/Reversibility, Hierarchy/Consent, Agency/Protection)
+    GAMMA = "gamma"  # Temporal/Meta (Urgency/Sustainability, Certainty/Doubt, Unity/Diversity)
 
 
 class MatrixAxis(Enum):
     """The two axes of the 3×3 control matrix."""
-    TRUTH = "truth"      # F2 — Examination, Clarification, Awareness
+
+    TRUTH = "truth"  # F2 — Examination, Clarification, Awareness
     CLARITY = "clarity"  # F4 — Exploration, Confrontation, Work
     HUMILITY = "humility"  # F7 — Protection, Calming, Forging
-    
-    CARE = "care"        # F6 — Stakeholder protection
-    PEACE = "peace"      # F5 — Stability, de-escalation
+
+    CARE = "care"  # F6 — Stakeholder protection
+    PEACE = "peace"  # F5 — Stability, de-escalation
     JUSTICE = "justice"  # F8/F9 — Balanced outcomes, anti-hantu
 
 
 class GeometryType(Enum):
     """Geometry metaphors for cognitive routing."""
+
     ORTHOGONAL = "orthogonal"  # 111, 222, 444 — Independent basis vectors
-    FRACTAL = "fractal"        # 333, 555 — Recursive at different scales
-    TOROIDAL = "toroidal"      # 666, 888, 999 — Closing loops
+    FRACTAL = "fractal"  # 333, 555 — Recursive at different scales
+    TOROIDAL = "toroidal"  # 666, 888, 999 — Closing loops
 
 
 # ═════════════════════════════════════════════════════════════════════════════
 # DATA CLASSES
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass(frozen=True)
 class ConstitutionalMotto:
     """
     A canonical motto in the arifOS constitutional framework.
-    
+
     Each motto represents the vocative (call to action) for its
     corresponding stage, floor, and paradox cell.
     """
-    id: int                           # 1-9 position in matrix
-    stage: StageCode                  # Which metabolic stage
-    stage_name: str                   # Human-readable stage name
-    
+
+    id: int  # 1-9 position in matrix
+    stage: StageCode  # Which metabolic stage
+    stage_name: str  # Human-readable stage name
+
     # The motto (Malay-English code-switch)
-    malay: str                        # Malay original
-    english: str                      # English translation
-    positive: str                     # DI___KAN form
-    negative: str                     # BUKAN DI___KAN form
-    
+    malay: str  # Malay original
+    english: str  # English translation
+    positive: str  # DI___KAN form
+    negative: str  # BUKAN DI___KAN form
+
     # Constitutional mappings
-    primary_floor: str                # Main floor (F1-F13)
-    secondary_floors: List[str]       # Related floors
-    paradox_cell: str                 # Matrix position (e.g., "truth_care")
-    trinity_tier: TrinityTier         # Which trinity
-    
+    primary_floor: str  # Main floor (F1-F13)
+    secondary_floors: List[str]  # Related floors
+    paradox_cell: str  # Matrix position (e.g., "truth_care")
+    trinity_tier: TrinityTier  # Which trinity
+
     # Geometry
-    geometry: GeometryType            # orthogonal/fractal/toroidal
-    
+    geometry: GeometryType  # orthogonal/fractal/toroidal
+
     # Usage context
-    usage_context: str                # When to use this motto
-    violation_response: str           # Message when floor fails
-    
+    usage_context: str  # When to use this motto
+    violation_response: str  # Message when floor fails
+
     def __str__(self) -> str:
         return f"{self.malay} — {self.english}"
-    
+
     def format_output(self, context: str = "") -> str:
         """Format motto for output with optional context."""
         if context:
             return f"{self.malay} — {self.english}\n  Context: {context}"
         return f"{self.malay} — {self.english}"
-    
+
     def format_error(self, floor: str, reason: str) -> str:
         """Format as error/violation message."""
         return (
@@ -122,15 +128,16 @@ class ConstitutionalMotto:
 @dataclass(frozen=True)
 class StageMotto:
     """Simplified motto pair for a specific stage (legacy compatibility)."""
-    positive: str   # The "DI[VERB]" form
-    negative: str   # The "BUKAN DI[VERB]" form
-    stage: str      # 000-999 stage code
-    meaning: str    # English translation
-    floor: str      # Primary constitutional floor
-    
+
+    positive: str  # The "DI[VERB]" form
+    negative: str  # The "BUKAN DI[VERB]" form
+    stage: str  # 000-999 stage code
+    meaning: str  # English translation
+    floor: str  # Primary constitutional floor
+
     def __str__(self) -> str:
         return f"{self.positive}, {self.negative}"
-    
+
     def format_output(self, context: str = "") -> str:
         """Format motto for stage output."""
         if context:
@@ -141,17 +148,20 @@ class StageMotto:
 @dataclass(frozen=True)
 class MatrixCell:
     """A cell in the 3×3 paradox-motto matrix."""
-    row: MatrixAxis      # Truth/Clarity/Humility
-    col: MatrixAxis      # Care/Peace/Justice
-    motto: str           # The motto for this intersection
-    meaning: str         # English translation
-    stage: str           # 000-999 stage code
+
+    row: MatrixAxis  # Truth/Clarity/Humility
+    col: MatrixAxis  # Care/Peace/Justice
+    motto: str  # The motto for this intersection
+    meaning: str  # English translation
+    stage: str  # 000-999 stage code
     geometry: GeometryType
-    constraint: str      # What "good" looks like at this intersection
-    
+    constraint: str  # What "good" looks like at this intersection
+
     def to_prompt_framing(self) -> str:
         """Convert to a prompt framing constraint."""
-        return f"[{self.row.value.upper()} × {self.col.value.upper()}] {self.motto}: {self.constraint}"
+        return (
+            f"[{self.row.value.upper()} × {self.col.value.upper()}] {self.motto}: {self.constraint}"
+        )
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -172,7 +182,7 @@ MOTTO_000_INIT = ConstitutionalMotto(
     trinity_tier=TrinityTier.GAMMA,
     geometry=GeometryType.TOROIDAL,
     usage_context="Session ignition and foundation - ALL work must be forged",
-    violation_response="Return to the forge. Nothing is given without work."
+    violation_response="Return to the forge. Nothing is given without work.",
 )
 # Emoji signature for INIT: Fire (transformation begins)
 MOTTO_000_INIT_EMOJI = "🔥"
@@ -192,7 +202,7 @@ MOTTO_111_SENSE = ConstitutionalMotto(
     trinity_tier=TrinityTier.ALPHA,
     geometry=GeometryType.ORTHOGONAL,
     usage_context="Perception and input validation - Question what you receive",
-    violation_response="Examine the evidence. Do not accept blindly."
+    violation_response="Examine the evidence. Do not accept blindly.",
 )
 
 MOTTO_222_THINK = ConstitutionalMotto(
@@ -209,7 +219,7 @@ MOTTO_222_THINK = ConstitutionalMotto(
     trinity_tier=TrinityTier.ALPHA,
     geometry=GeometryType.ORTHOGONAL,
     usage_context="Hypothesis generation - Explore the solution space",
-    violation_response="Expand your search. Do not limit the inquiry."
+    violation_response="Expand your search. Do not limit the inquiry.",
 )
 
 MOTTO_333_REASON = ConstitutionalMotto(
@@ -226,7 +236,7 @@ MOTTO_333_REASON = ConstitutionalMotto(
     trinity_tier=TrinityTier.ALPHA,
     geometry=GeometryType.ORTHOGONAL,
     usage_context="Logical reasoning - Reduce entropy (dS ≤ 0)",
-    violation_response="Clarify the ambiguity. Do not add confusion."
+    violation_response="Clarify the ambiguity. Do not add confusion.",
 )
 
 MOTTO_444_SYNC = ConstitutionalMotto(
@@ -243,7 +253,7 @@ MOTTO_444_SYNC = ConstitutionalMotto(
     trinity_tier=TrinityTier.ALPHA,
     geometry=GeometryType.TOROIDAL,
     usage_context="Tri-witness sync - Confront tension directly",
-    violation_response="Face the tension now. Postponement creates debt."
+    violation_response="Face the tension now. Postponement creates debt.",
 )
 
 MOTTO_555_EMPATHY = ConstitutionalMotto(
@@ -260,7 +270,7 @@ MOTTO_555_EMPATHY = ConstitutionalMotto(
     trinity_tier=TrinityTier.GAMMA,
     geometry=GeometryType.FRACTAL,
     usage_context="Stakeholder impact analysis - Cool the system",
-    violation_response="De-escalate. Do not add heat to the system."
+    violation_response="De-escalate. Do not add heat to the system.",
 )
 
 MOTTO_666_ALIGN = ConstitutionalMotto(
@@ -277,7 +287,7 @@ MOTTO_666_ALIGN = ConstitutionalMotto(
     trinity_tier=TrinityTier.GAMMA,
     geometry=GeometryType.TOROIDAL,
     usage_context="Alignment and safety - Guard the vulnerable",
-    violation_response="Protect the weakest stakeholder. Neglect is harm."
+    violation_response="Protect the weakest stakeholder. Neglect is harm.",
 )
 
 MOTTO_777_FORGE = ConstitutionalMotto(
@@ -294,7 +304,7 @@ MOTTO_777_FORGE = ConstitutionalMotto(
     trinity_tier=TrinityTier.BETA,
     geometry=GeometryType.TOROIDAL,
     usage_context="Phase transition and Genius - Work creates value",
-    violation_response="Reasoning requires work. Hope is not a strategy."
+    violation_response="Reasoning requires work. Hope is not a strategy.",
 )
 
 MOTTO_888_JUDGE = ConstitutionalMotto(
@@ -311,7 +321,7 @@ MOTTO_888_JUDGE = ConstitutionalMotto(
     trinity_tier=TrinityTier.ALPHA,
     geometry=GeometryType.TOROIDAL,
     usage_context="Final verdict with uncertainty band - Admit not-knowing",
-    violation_response="Acknowledge uncertainty. Do not claim false certainty."
+    violation_response="Acknowledge uncertainty. Do not claim false certainty.",
 )
 
 MOTTO_999_SEAL = ConstitutionalMotto(
@@ -328,7 +338,7 @@ MOTTO_999_SEAL = ConstitutionalMotto(
     trinity_tier=TrinityTier.GAMMA,
     geometry=GeometryType.TOROIDAL,
     usage_context="Immutable commit - The seal is earned through work",
-    violation_response="Nothing is sealed without passing through fire."
+    violation_response="Nothing is sealed without passing through fire.",
 )
 # Emoji signature for SEAL: Diamond (hardened result) + Brain (intelligence forged)
 MOTTO_999_SEAL_EMOJI = "💎"
@@ -353,41 +363,57 @@ ALL_MOTTOS: Dict[StageCode, ConstitutionalMotto] = {
 
 # Floor-to-motto mapping for failure responses (The 9 Anthem)
 ERROR_MOTTOS: Dict[str, str] = {
-    "F1": "DIJAGA, BUKAN DIABAIKAN",      # Amanah: Safeguarded, not neglected
-    "F2": "DIKAJI, BUKAN DISUAPI",       # Truth: Examined, not spoon-fed
-    "F4": "DIJELASKAN, BUKAN DIKABURKAN", # Clarity: Clarified, not obscured
-    "F5": "DIDAMAIKAN, BUKAN DIPANASKAN", # Peace: Calmed, not inflamed
-    "F6": "DIJAGA, BUKAN DIABAIKAN",     # Empathy: Protected, not neglected
-    "F7": "DISEDARKAN, BUKAN DIYAKINKAN", # Humility: Made aware, not over-assured
+    "F1": "DIJAGA, BUKAN DIABAIKAN",  # Amanah: Safeguarded, not neglected
+    "F2": "DIKAJI, BUKAN DISUAPI",  # Truth: Examined, not spoon-fed
+    "F4": "DIJELASKAN, BUKAN DIKABURKAN",  # Clarity: Clarified, not obscured
+    "F5": "DIDAMAIKAN, BUKAN DIPANASKAN",  # Peace: Calmed, not inflamed
+    "F6": "DIJAGA, BUKAN DIABAIKAN",  # Empathy: Protected, not neglected
+    "F7": "DISEDARKAN, BUKAN DIYAKINKAN",  # Humility: Made aware, not over-assured
     "F8": "DIUSAHAKAN, BUKAN DIHARAPI",  # Genius: Worked for, not hoped
-    "F9": "DIJAGA, BUKAN DIABAIKAN",     # Anti-Hantu: Protected, not neglected
-    "F10": "DIKAJI, BUKAN DISUAPI",      # Ontology: Examined, not spoon-fed
+    "F9": "DIJAGA, BUKAN DIABAIKAN",  # Anti-Hantu: Protected, not neglected
+    "F10": "DIKAJI, BUKAN DISUAPI",  # Ontology: Examined, not spoon-fed
     "EXPLORE": "DIJELAJAH, BUKAN DISEKATI",  # Exploration: Explored, not restricted
     "ENERGY": "DIUSAHAKAN, BUKAN DIHARAPI",  # Energy: Worked for, not hoped
-    "FOUNDATION": "DITEMPA, BUKAN DIBERI",   # Foundation: Forged, not given
+    "FOUNDATION": "DITEMPA, BUKAN DIBERI",  # Foundation: Forged, not given
 }
 
 # Constitutional motto objects by floor
 MOTTOS_BY_FLOOR: Dict[str, ConstitutionalMotto] = {
-    "F1": MOTTO_666_ALIGN,   # DIJAGA, BUKAN DIABAIKAN
-    "F2": MOTTO_111_SENSE,   # DIKAJI, BUKAN DISUAPI
+    "F1": MOTTO_666_ALIGN,  # DIJAGA, BUKAN DIABAIKAN
+    "F2": MOTTO_111_SENSE,  # DIKAJI, BUKAN DISUAPI
     "F4": MOTTO_333_REASON,  # DIJELASKAN, BUKAN DIKABURKAN
-    "F5": MOTTO_555_EMPATHY, # DIDAMAIKAN, BUKAN DIPANASKAN
-    "F6": MOTTO_666_ALIGN,   # DIJAGA, BUKAN DIABAIKAN
-    "F7": MOTTO_888_JUDGE,   # DISEDARKAN, BUKAN DIYAKINKAN
-    "F8": MOTTO_777_FORGE,   # DIUSAHAKAN, BUKAN DIHARAPI
+    "F5": MOTTO_555_EMPATHY,  # DIDAMAIKAN, BUKAN DIPANASKAN
+    "F6": MOTTO_666_ALIGN,  # DIJAGA, BUKAN DIABAIKAN
+    "F7": MOTTO_888_JUDGE,  # DISEDARKAN, BUKAN DIYAKINKAN
+    "F8": MOTTO_777_FORGE,  # DIUSAHAKAN, BUKAN DIHARAPI
 }
 
 STAGE_MOTTO_MAP: Dict[str, StageMotto] = {
     "000_INIT": StageMotto("DITEMPA", "BUKAN DIBERI", "000/999", "Forged, Not Given", "F1 Amanah"),
-    "111_SENSE": StageMotto("DIKAJI", "BUKAN DISUAPI", "111", "Examined, Not Spoon-fed", "F2 Truth"),
-    "222_THINK": StageMotto("DIJELAJAH", "BUKAN DISEKATI", "222", "Explored, Not Restricted", "F4 Clarity"),
-    "333_REASON": StageMotto("DIJELASKAN", "BUKAN DIKABURKAN", "333", "Clarified, Not Obscured", "F4 Clarity"),
-    "444_SYNC": StageMotto("DIHADAPI", "BUKAN DITANGGUHI", "444", "Faced, Not Postponed", "F3 Tri-Witness"),
-    "555_EMPATHY": StageMotto("DIDAMAIKAN", "BUKAN DIPANASKAN", "555", "Calmed, Not Inflamed", "F5 Peace²"),
-    "666_ALIGN": StageMotto("DIJAGA", "BUKAN DIABAIKAN", "666", "Protected, Not Neglected", "F6 Empathy"),
-    "777_FORGE": StageMotto("DIUSAHAKAN", "BUKAN DIHARAPI", "777", "Worked, Not Hoped", "F8 Genius"),
-    "888_JUDGE": StageMotto("DISEDARKAN", "BUKAN DIYAKINKAN", "888", "Made Aware, Not Over-assured", "F7 Humility"),
+    "111_SENSE": StageMotto(
+        "DIKAJI", "BUKAN DISUAPI", "111", "Examined, Not Spoon-fed", "F2 Truth"
+    ),
+    "222_THINK": StageMotto(
+        "DIJELAJAH", "BUKAN DISEKATI", "222", "Explored, Not Restricted", "F4 Clarity"
+    ),
+    "333_REASON": StageMotto(
+        "DIJELASKAN", "BUKAN DIKABURKAN", "333", "Clarified, Not Obscured", "F4 Clarity"
+    ),
+    "444_SYNC": StageMotto(
+        "DIHADAPI", "BUKAN DITANGGUHI", "444", "Faced, Not Postponed", "F3 Tri-Witness"
+    ),
+    "555_EMPATHY": StageMotto(
+        "DIDAMAIKAN", "BUKAN DIPANASKAN", "555", "Calmed, Not Inflamed", "F5 Peace²"
+    ),
+    "666_ALIGN": StageMotto(
+        "DIJAGA", "BUKAN DIABAIKAN", "666", "Protected, Not Neglected", "F6 Empathy"
+    ),
+    "777_FORGE": StageMotto(
+        "DIUSAHAKAN", "BUKAN DIHARAPI", "777", "Worked, Not Hoped", "F8 Genius"
+    ),
+    "888_JUDGE": StageMotto(
+        "DISEDARKAN", "BUKAN DIYAKINKAN", "888", "Made Aware, Not Over-assured", "F7 Humility"
+    ),
     "999_SEAL": StageMotto("DITEMPA", "BUKAN DIBERI", "000/999", "Forged, Not Given", "F1 Amanah"),
 }
 
@@ -408,18 +434,18 @@ TRINITY_MOTTOS = {
     TrinityTier.ALPHA: {
         "malay": "DIKAJI, DIJELASKAN, DISEDARKAN",
         "english": "Examined, Clarified, Aware",
-        "meaning": "Core Virtues: Truth through examination, Peace through clarity, Justice through awareness"
+        "meaning": "Core Virtues: Truth through examination, Peace through clarity, Justice through awareness",
     },
     TrinityTier.BETA: {
         "malay": "DIJELAJAH, DIHADAPI, DIUSAHAKAN",
         "english": "Explored, Faced, Worked",
-        "meaning": "Implementation: Reasoning requires exploration, action requires facing, value requires work"
+        "meaning": "Implementation: Reasoning requires exploration, action requires facing, value requires work",
     },
     TrinityTier.GAMMA: {
         "malay": "DIJAGA, DIDAMAIKAN, DITEMPA",
         "english": "Protected, Calmed, Forged",
-        "meaning": "Wisdom: Care protects, Peace calms, Seal forges"
-    }
+        "meaning": "Wisdom: Care protects, Peace calms, Seal forges",
+    },
 }
 
 
@@ -430,7 +456,8 @@ TRINITY_MOTTOS = {
 PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
     # TRUTH ROW
     (MatrixAxis.TRUTH, MatrixAxis.CARE): MatrixCell(
-        row=MatrixAxis.TRUTH, col=MatrixAxis.CARE,
+        row=MatrixAxis.TRUTH,
+        col=MatrixAxis.CARE,
         motto="DIKAJI, BUKAN DISUAPI",
         meaning="Examined, not spoon-fed",
         stage="111_SENSE",
@@ -438,7 +465,8 @@ PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
         constraint="Care must be grounded in examination, not assumed",
     ),
     (MatrixAxis.TRUTH, MatrixAxis.PEACE): MatrixCell(
-        row=MatrixAxis.TRUTH, col=MatrixAxis.PEACE,
+        row=MatrixAxis.TRUTH,
+        col=MatrixAxis.PEACE,
         motto="DIJELASKAN, BUKAN DIKABURKAN",
         meaning="Clarified, not obscured",
         stage="333_REASON",
@@ -446,7 +474,8 @@ PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
         constraint="Peace comes from clarity, not obscuring truth",
     ),
     (MatrixAxis.TRUTH, MatrixAxis.JUSTICE): MatrixCell(
-        row=MatrixAxis.TRUTH, col=MatrixAxis.JUSTICE,
+        row=MatrixAxis.TRUTH,
+        col=MatrixAxis.JUSTICE,
         motto="DISEDARKAN, BUKAN DIYAKINKAN",
         meaning="Made aware, not over-assured",
         stage="888_JUDGE",
@@ -455,7 +484,8 @@ PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
     ),
     # CLARITY ROW
     (MatrixAxis.CLARITY, MatrixAxis.CARE): MatrixCell(
-        row=MatrixAxis.CLARITY, col=MatrixAxis.CARE,
+        row=MatrixAxis.CLARITY,
+        col=MatrixAxis.CARE,
         motto="DIJELAJAH, BUKAN DISEKATI",
         meaning="Explored, not restricted",
         stage="222_THINK",
@@ -463,7 +493,8 @@ PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
         constraint="Care requires exploration, not premature restriction",
     ),
     (MatrixAxis.CLARITY, MatrixAxis.PEACE): MatrixCell(
-        row=MatrixAxis.CLARITY, col=MatrixAxis.PEACE,
+        row=MatrixAxis.CLARITY,
+        col=MatrixAxis.PEACE,
         motto="DIHADAPI, BUKAN DITANGGUHI",
         meaning="Faced, not postponed",
         stage="444_SYNC",
@@ -471,7 +502,8 @@ PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
         constraint="Peace comes from facing tension, not postponing it",
     ),
     (MatrixAxis.CLARITY, MatrixAxis.JUSTICE): MatrixCell(
-        row=MatrixAxis.CLARITY, col=MatrixAxis.JUSTICE,
+        row=MatrixAxis.CLARITY,
+        col=MatrixAxis.JUSTICE,
         motto="DIUSAHAKAN, BUKAN DIHARAPI",
         meaning="Worked for, not merely hoped",
         stage="777_FORGE",
@@ -480,7 +512,8 @@ PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
     ),
     # HUMILITY ROW
     (MatrixAxis.HUMILITY, MatrixAxis.CARE): MatrixCell(
-        row=MatrixAxis.HUMILITY, col=MatrixAxis.CARE,
+        row=MatrixAxis.HUMILITY,
+        col=MatrixAxis.CARE,
         motto="DIJAGA, BUKAN DIABAIKAN",
         meaning="Protected, not neglected",
         stage="666_ALIGN",
@@ -488,7 +521,8 @@ PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
         constraint="Care means protection with humility, not neglect",
     ),
     (MatrixAxis.HUMILITY, MatrixAxis.PEACE): MatrixCell(
-        row=MatrixAxis.HUMILITY, col=MatrixAxis.PEACE,
+        row=MatrixAxis.HUMILITY,
+        col=MatrixAxis.PEACE,
         motto="DIDAMAIKAN, BUKAN DIPANASKAN",
         meaning="Calmed, not inflamed",
         stage="555_EMPATHY",
@@ -496,7 +530,8 @@ PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
         constraint="Peace comes from calming, not escalating",
     ),
     (MatrixAxis.HUMILITY, MatrixAxis.JUSTICE): MatrixCell(
-        row=MatrixAxis.HUMILITY, col=MatrixAxis.JUSTICE,
+        row=MatrixAxis.HUMILITY,
+        col=MatrixAxis.JUSTICE,
         motto="DITEMPA, BUKAN DIBERI",
         meaning="Forged, not given",
         stage="000_INIT/999_SEAL",
@@ -510,6 +545,7 @@ PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
 # CORE FUNCTIONS
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def get_motto_by_stage(stage: str) -> Optional[ConstitutionalMotto]:
     """Get motto by stage code (000, 111, 000_INIT, etc.)."""
     # Normalize stage code
@@ -517,7 +553,7 @@ def get_motto_by_stage(stage: str) -> Optional[ConstitutionalMotto]:
     stage_clean = stage_clean.replace("_REASON", "").replace("_SYNC", "").replace("_EMPATHY", "")
     stage_clean = stage_clean.replace("_ALIGN", "").replace("_BRIDGE", "").replace("_JUDGE", "")
     stage_clean = stage_clean.replace("_SEAL", "").replace("_FORGE", "")
-    
+
     try:
         return ALL_MOTTOS.get(StageCode(stage_clean))
     except ValueError:
@@ -571,7 +607,7 @@ def format_stage_output(stage: str, verdict: str, context: str = "") -> str:
     motto = get_motto_by_stage(stage)
     if not motto:
         return f"[{stage}] {verdict}"
-    
+
     lines = [
         f"[{motto.stage.value} {motto.stage_name}] {motto.malay}",
         f"    {motto.english}",
@@ -595,7 +631,7 @@ def format_stage_header(stage_code: str) -> str:
     motto = get_motto_by_stage(stage_code)
     if not motto:
         return f"[{stage_code}] Stage"
-    
+
     return f"""
 ======================================================================
   [{motto.stage.value}] {motto.stage_name:<10}  {motto.malay}
@@ -609,7 +645,7 @@ def format_stage_message(stage_code: str, context: str = "") -> str:
     motto = get_motto_by_stage(stage_code)
     if not motto:
         return f"[{stage_code}] {context}"
-    
+
     prefix = {
         "000": "[IGNITE]",
         "111": "[?]",
@@ -621,7 +657,7 @@ def format_stage_message(stage_code: str, context: str = "") -> str:
         "888": "[SCALE]",
         "999": "[LOCK]",
     }.get(motto.stage.value, "[*]")
-    
+
     return f"{prefix} {motto.malay}\n   {context}"
 
 
@@ -629,13 +665,13 @@ def get_full_pipeline_chant() -> str:
     """Get the full rhythmic chant of all 9 mottos."""
     positives = [m.positive for m in ALL_MOTTOS.values()]
     negatives = [m.negative for m in ALL_MOTTOS.values()]
-    
+
     # Remove duplicates while preserving order
     seen_pos = set()
     seen_neg = set()
     unique_pos = []
     unique_neg = []
-    
+
     for p, n in zip(positives, negatives):
         if p not in seen_pos:
             seen_pos.add(p)
@@ -643,32 +679,36 @@ def get_full_pipeline_chant() -> str:
         if n not in seen_neg:
             seen_neg.add(n)
             unique_neg.append(n)
-    
-    return (
-        ", ".join(unique_pos) + "\n" +
-        ", ".join(unique_neg)
-    )
+
+    return ", ".join(unique_pos) + "\n" + ", ".join(unique_neg)
 
 
 def get_geometry_path(start_stage: str, end_stage: str) -> List[str]:
     """Get the geometric path between two stages."""
     stage_order = [
-        "000_INIT", "111_SENSE", "222_THINK", "333_REASON",
-        "444_SYNC", "555_EMPATHY", "666_ALIGN", "777_FORGE",
-        "888_JUDGE", "999_SEAL"
+        "000_INIT",
+        "111_SENSE",
+        "222_THINK",
+        "333_REASON",
+        "444_SYNC",
+        "555_EMPATHY",
+        "666_ALIGN",
+        "777_FORGE",
+        "888_JUDGE",
+        "999_SEAL",
     ]
-    
+
     try:
         start_idx = stage_order.index(start_stage)
         end_idx = stage_order.index(end_stage)
     except ValueError:
         return []
-    
+
     if start_idx <= end_idx:
-        return stage_order[start_idx:end_idx+1]
+        return stage_order[start_idx : end_idx + 1]
     else:
         # Toroidal wrap-around
-        return stage_order[start_idx:] + stage_order[:end_idx+1]
+        return stage_order[start_idx:] + stage_order[: end_idx + 1]
 
 
 def get_geometry_type(stage: str) -> GeometryType:
@@ -685,7 +725,7 @@ def get_matrix_cell(row: MatrixAxis, col: MatrixAxis) -> Optional[MatrixCell]:
 def get_init_gate_header() -> str:
     """
     Get the INIT gate header with fire emoji and DITEMPA motto.
-    
+
     The beginning of the constitutional journey - transformation starts here.
     """
     return """
@@ -702,7 +742,7 @@ def get_init_gate_header() -> str:
 def get_seal_gate_header() -> str:
     """
     Get the SEAL gate header with diamond/brain emojis and DITEMPA motto.
-    
+
     The end of the constitutional journey - the hardened result.
     """
     return """
@@ -719,20 +759,17 @@ def get_seal_gate_header() -> str:
 def get_ditempa_bookends() -> tuple[str, str]:
     """
     Get the DITEMPA bookend headers for INIT and SEAL.
-    
+
     Returns:
         (init_header, seal_header) with emojis
     """
-    return (
-        "🔥 IGNITE — DITEMPA, BUKAN DIBERI 💎",
-        "💎🧠 SEAL — DITEMPA, BUKAN DIBERI 🔒"
-    )
+    return ("🔥 IGNITE — DITEMPA, BUKAN DIBERI 💎", "💎🧠 SEAL — DITEMPA, BUKAN DIBERI 🔒")
 
 
 def get_failure_anthem() -> str:
     """
     Get the complete 9-motto failure response anthem.
-    
+
     This is the cultural error-handling language that maps
     each floor failure to a rhyming Nusantara motto.
     """
@@ -756,14 +793,14 @@ def get_failure_anthem() -> str:
 def format_failure_response(floor: str, reason: str, use_motto: bool = True) -> str:
     """
     Format a floor failure with Nusantara cultural response.
-    
+
     Example:
         [!] F7 Humility Breach
             Confidence too high for available evidence.
             DISEDARKAN, BUKAN DIYAKINKAN.
     """
     motto_text = ERROR_MOTTOS.get(floor, "DITEMPA, BUKAN DIBERI")
-    
+
     if use_motto:
         return f"""[!] {floor} Floor Breach
     Reason: {reason}
@@ -775,7 +812,7 @@ def format_failure_response(floor: str, reason: str, use_motto: bool = True) -> 
 def render_full_pipeline_output(stages_data: List[Tuple[str, str, str]] = None) -> str:
     """
     Render the complete 000-999 pipeline with all mottos.
-    
+
     Args:
         stages_data: List of (stage_code, verdict, context) tuples
     """
@@ -791,28 +828,18 @@ def render_full_pipeline_output(stages_data: List[Tuple[str, str, str]] = None) 
             ("888", "SEAL", "omega_0=0.04"),
             ("999", "SEALED", "hash: a3f7..."),
         ]
-    
-    lines = [
-        "=" * 70,
-        "  arifOS CONSTITUTIONAL PIPELINE — 9 MOTTOS",
-        "=" * 70,
-        ""
-    ]
-    
+
+    lines = ["=" * 70, "  arifOS CONSTITUTIONAL PIPELINE — 9 MOTTOS", "=" * 70, ""]
+
     for stage_code, verdict, context in stages_data:
         motto = get_motto_by_stage(stage_code)
         if motto:
             lines.append(f"[{stage_code}] {motto.stage_name:8} | {verdict:8} | {motto.malay}")
             if context:
                 lines.append(f"                              {context}")
-    
-    lines.extend([
-        "",
-        "=" * 70,
-        "  DITEMPA BUKAN DIBERI — The loop is complete.",
-        "=" * 70
-    ])
-    
+
+    lines.extend(["", "=" * 70, "  DITEMPA BUKAN DIBERI — The loop is complete.", "=" * 70])
+
     return "\n".join(lines)
 
 
@@ -820,69 +847,70 @@ def render_full_pipeline_output(stages_data: List[Tuple[str, str, str]] = None) 
 # PROMPT MANIFOLD CLASS (from prompt_manifold.py)
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 class PromptManifold:
     """
     Control surface for prompt framing using the 3×3 matrix.
-    
+
     This class implements the "matrix language frame" concept:
     the 9-motto architecture provides the structural skeleton into
     which all task-specific prompts are embedded.
     """
-    
+
     def __init__(self):
         self.omega_0 = 0.04  # Uncertainty bound
         self.matrix = PARADOX_MATRIX
-    
+
     def get_cell(self, row: MatrixAxis, col: MatrixAxis) -> Optional[MatrixCell]:
         """Get the matrix cell at the given intersection."""
         return self.matrix.get((row, col))
-    
+
     def get_by_stage(self, stage: str) -> Optional[MatrixCell]:
         """Get matrix cell by 000-999 stage code."""
         for cell in self.matrix.values():
             if stage in cell.stage:
                 return cell
         return None
-    
+
     def get_prompt_frame(self, stage: str, task: str = "") -> str:
         """Generate a prompt framing for a given stage."""
         cell = self.get_by_stage(stage)
         if not cell:
             return f"[{stage}] Process with constitutional care."
-        
+
         frame_parts = [
             f"[{cell.stage}] {cell.motto}",
             f"Geometry: {cell.geometry.value}",
             f"Constraint: {cell.constraint}",
         ]
-        
+
         if task:
             frame_parts.append(f"Task: {task}")
-        
+
         frame_parts.append(f"Ω₀ ≈ {self.omega_0}: Operate within humility bounds.")
-        
+
         return "\n".join(frame_parts)
-    
+
     def validate_output(self, stage: str, output: str) -> Dict[str, Any]:
         """Validate that output adheres to the matrix constraints."""
         cell = self.get_by_stage(stage)
         if not cell:
             return {"adherence_score": 1.0, "violations": [], "suggestions": []}
-        
+
         violations = []
         suggestions = []
-        
+
         # Heuristic checks
         if cell.row == MatrixAxis.CLARITY and cell.col == MatrixAxis.JUSTICE:
             if "work" not in output.lower() and "effort" not in output.lower():
                 suggestions.append("Add explicit effort/work language (DIUSAHAKAN)")
-        
+
         if cell.row == MatrixAxis.TRUTH and cell.col == MatrixAxis.JUSTICE:
             if "uncertain" not in output.lower() and "aware" not in output.lower():
                 suggestions.append("Add humility/uncertainty acknowledgment (DISEDARKAN)")
-        
+
         adherence = 1.0 - (len(violations) * 0.2)
-        
+
         return {
             "adherence_score": max(0.0, adherence),
             "violations": violations,
@@ -943,9 +971,9 @@ __all__ = [
     "format_floor_violation",
     "format_failure_response",
     "get_failure_anthem",
-    "get_init_gate_header",      # NEW: Fire emoji INIT
-    "get_seal_gate_header",      # NEW: Diamond/Brain SEAL
-    "get_ditempa_bookends",      # NEW: Both headers
+    "get_init_gate_header",  # NEW: Fire emoji INIT
+    "get_seal_gate_header",  # NEW: Diamond/Brain SEAL
+    "get_ditempa_bookends",  # NEW: Both headers
     "format_stage_header",
     "format_stage_message",
     "get_full_pipeline_chant",

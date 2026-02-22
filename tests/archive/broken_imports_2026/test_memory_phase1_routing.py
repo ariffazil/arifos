@@ -35,7 +35,7 @@ class TestPhase1Routing:
             content={"issue": "incomplete data"},
         )
         decision = route_write(req)
-        
+
         assert decision.target_band == MemoryBand.PENDING
         assert decision.allowed is True
         assert decision.action == "APPEND"
@@ -50,7 +50,7 @@ class TestPhase1Routing:
             parent_hash="abc123",
         )
         decision = route_write(req)
-        
+
         assert decision.target_band == MemoryBand.PENDING
         assert decision.allowed is True
 
@@ -64,7 +64,7 @@ class TestPhase1Routing:
             high_stakes=True,
         )
         decision = route_write(req)
-        
+
         assert decision.target_band == MemoryBand.PENDING
         assert decision.allowed is True
 
@@ -77,7 +77,7 @@ class TestPhase1Routing:
             content={"concern": "Peace² threshold"},
         )
         decision = route_write(req)
-        
+
         assert decision.target_band == MemoryBand.PHOENIX
         assert decision.allowed is True
 
@@ -91,7 +91,7 @@ class TestPhase1Routing:
             content={"test": "data"},
         )
         decision = route_write(req)
-        
+
         assert decision.allowed is False
         assert decision.action == "DROP"
 
@@ -104,7 +104,7 @@ class TestPhase1Routing:
             content={"query": "incomplete"},
         )
         decision = route_write(req)
-        
+
         assert "SABAR" in decision.why or "PENDING" in decision.why
 
     def test_high_stakes_flag_preserved(self):
@@ -117,14 +117,14 @@ class TestPhase1Routing:
             high_stakes=True,
         )
         decision = route_write(req)
-        
+
         # High-stakes HOLD_888 goes to PENDING for review
         assert decision.target_band == MemoryBand.PENDING
 
     def test_in_memory_store_append(self):
         """InMemoryStore correctly appends records."""
         store = InMemoryStore()
-        
+
         req = MemoryWriteRequest(
             actor_role=ActorRole.ENGINE,
             verdict=Verdict.SEAL,
@@ -132,9 +132,9 @@ class TestPhase1Routing:
             content={"test": "data"},
         )
         decision = route_write(req)
-        
+
         store.append(decision.target_band, req, decision)
-        
+
         assert len(store.records) == 1
         assert store.records[0]["band"] == decision.target_band.value
         assert store.records[0]["request"] == req
@@ -143,7 +143,7 @@ class TestPhase1Routing:
     def test_multiple_writes_to_different_bands(self):
         """Multiple writes route to correct bands independently."""
         store = InMemoryStore()
-        
+
         # SABAR → PENDING
         req1 = MemoryWriteRequest(
             actor_role=ActorRole.ENGINE,
@@ -153,7 +153,7 @@ class TestPhase1Routing:
         )
         dec1 = route_write(req1)
         store.append(dec1.target_band, req1, dec1)
-        
+
         # PARTIAL → PHOENIX
         req2 = MemoryWriteRequest(
             actor_role=ActorRole.JUDICIARY,
@@ -163,7 +163,7 @@ class TestPhase1Routing:
         )
         dec2 = route_write(req2)
         store.append(dec2.target_band, req2, dec2)
-        
+
         # VOID → VOID
         req3 = MemoryWriteRequest(
             actor_role=ActorRole.ENGINE,
@@ -173,7 +173,7 @@ class TestPhase1Routing:
         )
         dec3 = route_write(req3)
         store.append(dec3.target_band, req3, dec3)
-        
+
         assert len(store.records) == 3
         assert store.records[0]["band"] == "PENDING"
         assert store.records[1]["band"] == "PHOENIX"
@@ -182,7 +182,7 @@ class TestPhase1Routing:
     def test_store_clear(self):
         """InMemoryStore clear() removes all records."""
         store = InMemoryStore()
-        
+
         req = MemoryWriteRequest(
             actor_role=ActorRole.ENGINE,
             verdict=Verdict.SEAL,
@@ -191,7 +191,7 @@ class TestPhase1Routing:
         )
         decision = route_write(req)
         store.append(decision.target_band, req, decision)
-        
+
         assert len(store.records) == 1
         store.clear()
         assert len(store.records) == 0

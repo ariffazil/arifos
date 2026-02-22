@@ -58,11 +58,11 @@ try:
 except ImportError:
     BS4_AVAILABLE = False
 
-# Routing: prefer core.shared, fallback to legacy codebase
+# Routing: migrated to aaa_mcp (v64.1+)
 try:
-    from core.shared.routing import route_refuse
+    from aaa_mcp.enforcement.routing import route_refuse
 except ImportError:
-    from codebase.enforcement.routing.prompt_router import route_refuse
+    route_refuse = None
 
 # Configuration
 DEFAULT_THROTTLE_SECONDS = 2.0
@@ -561,9 +561,11 @@ class RealityGroundingCascade:
             "throttle_applied": True,
             "constitutional_notes": [
                 "F1 Amanah: Rate limiting applied",
-                "F2 Truth: ASEAN bias available"
-                if region == "asean"
-                else "F2 Truth: No regional bias",
+                (
+                    "F2 Truth: ASEAN bias available"
+                    if region == "asean"
+                    else "F2 Truth: No regional bias"
+                ),
                 "F7 Humility: Uncertainty tracked per result",
                 "F9 Anti-Hantu: Source attribution enforced",
             ],

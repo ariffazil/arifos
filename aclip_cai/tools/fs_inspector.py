@@ -53,12 +53,11 @@ def fs_inspect(path: str = ".", depth: int = 1, include_hidden: bool = False) ->
         except (OSError, PermissionError):
             return {"error": f"Permission denied to read: {current_path}"}
 
-
     stat = root_path.stat()
     return {
         "path": str(root_path),
         "is_dir": root_path.is_dir(),
         "size_bytes": stat.st_size,
         "modified_at": _format_time(stat.st_mtime),
-        "children": _inspect_path(root_path, 1) if root_path.is_dir() else []
+        "children": _inspect_path(root_path, 1) if root_path.is_dir() else [],
     }

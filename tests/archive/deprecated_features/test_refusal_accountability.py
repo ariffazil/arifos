@@ -16,10 +16,18 @@ import pytest
 os.environ["ARIFOS_REFUSAL_ACCOUNTABILITY_ENABLED"] = "1"
 
 from codebase.core.enforcement.refusal_accountability import (
-    _REFUSAL_TRACKER, check_escalation_needed, clear_refusal_history,
-    format_refusal_message, get_guidance_for_reason, get_refusal_count,
-    get_refusal_display_reason, get_refusal_reason_code,
-    is_refusal_accountability_enabled, log_refusal, track_refusal)
+    _REFUSAL_TRACKER,
+    check_escalation_needed,
+    clear_refusal_history,
+    format_refusal_message,
+    get_guidance_for_reason,
+    get_refusal_count,
+    get_refusal_display_reason,
+    get_refusal_reason_code,
+    is_refusal_accountability_enabled,
+    log_refusal,
+    track_refusal,
+)
 
 
 class TestRefusalAccountabilityEnabled:
@@ -93,15 +101,21 @@ class TestMessageFormatting:
     """Test refusal message formatting."""
 
     def test_basic_message(self):
-        message = format_refusal_message(["F1 violation"], include_reason=False, include_guidance=False)
+        message = format_refusal_message(
+            ["F1 violation"], include_reason=False, include_guidance=False
+        )
         assert "cannot assist" in message.lower()
 
     def test_message_with_reason(self):
-        message = format_refusal_message(["F1 violation"], include_reason=True, include_guidance=False)
+        message = format_refusal_message(
+            ["F1 violation"], include_reason=True, include_guidance=False
+        )
         assert "cannot" in message.lower()
 
     def test_message_with_guidance(self):
-        message = format_refusal_message(["F5 Peace² violation"], include_reason=True, include_guidance=True)
+        message = format_refusal_message(
+            ["F5 Peace² violation"], include_reason=True, include_guidance=True
+        )
         assert len(message) > 20
 
     def test_escalation_message(self):

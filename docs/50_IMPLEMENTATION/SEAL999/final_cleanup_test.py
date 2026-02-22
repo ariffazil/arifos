@@ -1,6 +1,7 @@
 """
 Final cleanup - test SEAL999 works and remove temp files
 """
+
 import os
 import sys
 
@@ -33,16 +34,16 @@ entry = VaultEntry(
     timestamp=datetime.utcnow(),
     verdict="SEAL",
     merkle_root="test_root_final",
-    floor_scores={"F12_Injection": 0.15, "F2_Truth": 0.99}
+    floor_scores={"F12_Injection": 0.15, "F2_Truth": 0.99},
 )
 assert entry.entry_id == "final_test_001"
 print(f"  ✓ Created entry: {entry.entry_id}")
 
 # Test 4: Methods exist
 print("\n[TEST 4] Method check...")
-assert hasattr(vault, 'seal_entry')
-assert hasattr(vault, 'verify_entry')
-assert hasattr(vault, 'get_session_ledger')
+assert hasattr(vault, "seal_entry")
+assert hasattr(vault, "verify_entry")
+assert hasattr(vault, "get_session_ledger")
 print("  ✓ All required methods exist")
 
 print("\n=== [SUCCESS] SEAL999 is fully functional and correctly named! ===")

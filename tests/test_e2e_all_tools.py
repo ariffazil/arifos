@@ -1,9 +1,9 @@
 """
-E2E Test Suite for arifOS v55.5 MCP Tools
+E2E Test Suite for arifOS T000 MCP Tools
 Tests all engine adapters directly (bypasses FastMCP transport layer).
 
 Author: arifOS Testing Framework
-Version: v55.5.0
+T000: 2026.02.15-FORGE-TRINITY-SEAL
 """
 
 import asyncio
@@ -13,6 +13,11 @@ if sys.platform == "win32":
     sys.stdout.reconfigure(encoding="utf-8")
     sys.stderr.reconfigure(encoding="utf-8")
 
+# Add project root to sys.path to allow imports from aaa_mcp and core
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 # Import engine adapters (the real logic behind the tools)
 from aaa_mcp.core.engine_adapters import AGIEngine, APEXEngine, ASIEngine, InitEngine
 from aaa_mcp.tools.reality_grounding import reality_check
@@ -20,7 +25,7 @@ from aaa_mcp.tools.reality_grounding import reality_check
 
 async def test_all_tools():
     print("=" * 60)
-    print("arifOS E2E Tool Verification (9 Canonical Tools v55.5)")
+    print("arifOS E2E Tool Verification (9 Canonical Tools 2026.02.15-FORGE-TRINITY-SEAL)")
     print("=" * 60)
 
     query = "Should I implement a neural-linked voting system for arifOS?"

@@ -16,11 +16,11 @@ import hashlib
 import time
 import uuid
 from datetime import datetime, timezone
-from typing import List, Optional, Tuple
 
 # ============================================================================
 # SESSION ID GENERATION (F1 Amanah - Traceable)
 # ============================================================================
+
 
 def generate_session_id() -> str:
     """
@@ -46,6 +46,7 @@ def generate_session_id() -> str:
 # SHA-256 HASHING (F1 Amanah - Immutability)
 # ============================================================================
 
+
 def sha256_hash(data: str) -> str:
     """
     Compute SHA-256 hash for immutable audit.
@@ -56,7 +57,7 @@ def sha256_hash(data: str) -> str:
     Returns:
         hex_digest: 64-character hex string
     """
-    return hashlib.sha256(data.encode('utf-8')).hexdigest()
+    return hashlib.sha256(data.encode("utf-8")).hexdigest()
 
 
 def sha256_hash_dict(data: dict) -> str:
@@ -70,14 +71,16 @@ def sha256_hash_dict(data: dict) -> str:
         hex_digest: Hash of JSON representation
     """
     import json
+
     # Sort keys for deterministic hashing
-    json_str = json.dumps(data, sort_keys=True, separators=(',', ':'))
+    json_str = json.dumps(data, sort_keys=True, separators=(",", ":"))
     return sha256_hash(json_str)
 
 
 # ============================================================================
 # ED25519 SIGNATURES (F11 Command Auth)
 # ============================================================================
+
 
 def ed25519_sign(message: str, private_key: str) -> str:
     """
@@ -103,23 +106,18 @@ def ed25519_sign(message: str, private_key: str) -> str:
         private_key_bytes = bytes.fromhex(private_key)
 
         # Load private key
-        private_key_obj = ed25519.Ed25519PrivateKey.from_private_bytes(
-            private_key_bytes
-        )
+        private_key_obj = ed25519.Ed25519PrivateKey.from_private_bytes(private_key_bytes)
 
         # Sign message
-        signature = private_key_obj.sign(message.encode('utf-8'))
+        signature = private_key_obj.sign(message.encode("utf-8"))
 
         return signature.hex()
 
     except ImportError:
         # Fallback: SHA-256 HMAC simulation (NOT SECURE FOR PRODUCTION)
         import hmac
-        return hmac.new(
-            private_key.encode(),
-            message.encode(),
-            hashlib.sha256
-        ).hexdigest()
+
+        return hmac.new(private_key.encode(), message.encode(), hashlib.sha256).hexdigest()
 
 
 def ed25519_verify(message: str, signature: str, public_key: str) -> bool:
@@ -145,13 +143,11 @@ def ed25519_verify(message: str, signature: str, public_key: str) -> bool:
         signature_bytes = bytes.fromhex(signature)
 
         # Load public key
-        public_key_obj = ed25519.Ed25519PublicKey.from_public_bytes(
-            public_key_bytes
-        )
+        public_key_obj = ed25519.Ed25519PublicKey.from_public_bytes(public_key_bytes)
 
         # Verify signature
         try:
-            public_key_obj.verify(signature_bytes, message.encode('utf-8'))
+            public_key_obj.verify(signature_bytes, message.encode("utf-8"))
             return True
         except InvalidSignature:
             return False
@@ -180,11 +176,10 @@ def generate_ed25519_keypair() -> Tuple[str, str]:
         private_bytes = private_key.private_bytes(
             encoding=serialization.Encoding.Raw,
             format=serialization.PrivateFormat.Raw,
-            encryption_algorithm=serialization.NoEncryption()
+            encryption_algorithm=serialization.NoEncryption(),
         )
         public_bytes = public_key.public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw
+            encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
         )
 
         return (private_bytes.hex(), public_bytes.hex())
@@ -199,6 +194,7 @@ def generate_ed25519_keypair() -> Tuple[str, str]:
 # ============================================================================
 # MERKLE TREE (F1 Amanah - Tamper-Evident Chain)
 # ============================================================================
+
 
 def merkle_hash_pair(left: str, right: str) -> str:
     """
@@ -257,7 +253,7 @@ def merkle_root(entries: List[str]) -> str:
 def verify_merkle_proof(
     leaf: str,
     proof: List[Tuple[str, str]],  # (hash, position) where position is 'left'|'right'
-    root: str
+    root: str,
 ) -> bool:
     """
     Verify Merkle proof for a leaf.
@@ -273,7 +269,7 @@ def verify_merkle_proof(
     current_hash = sha256_hash(leaf)
 
     for sibling_hash, position in proof:
-        if position == 'left':
+        if position == "left":
             current_hash = merkle_hash_pair(sibling_hash, current_hash)
         else:
             current_hash = merkle_hash_pair(current_hash, sibling_hash)
@@ -284,6 +280,7 @@ def verify_merkle_proof(
 # ============================================================================
 # NONCE MANAGEMENT (F11 Command Auth - Replay Protection)
 # ============================================================================
+
 
 class NonceManager:
     """
@@ -325,7 +322,7 @@ class NonceManager:
         """
         # Parse timestamp from nonce
         try:
-            timestamp_str = nonce.split('_')[0]
+            timestamp_str = nonce.split("_")[0]
             nonce_time = int(timestamp_str)
         except (ValueError, IndexError):
             return False
@@ -365,21 +362,17 @@ class NonceManager:
 __all__ = [
     # Session
     "generate_session_id",
-
     # Hashing
     "sha256_hash",
     "sha256_hash_dict",
-
     # Ed25519
     "ed25519_sign",
     "ed25519_verify",
     "generate_ed25519_keypair",
-
     # Merkle
     "merkle_root",
     "merkle_hash_pair",
     "verify_merkle_proof",
-
     # Nonce
     "NonceManager",
 ]

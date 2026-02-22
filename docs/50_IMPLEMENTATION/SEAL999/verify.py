@@ -1,6 +1,7 @@
 """
 Final verification: SEAL999 ready for production
 """
+
 import sys
 
 sys.path.insert(0, "C:\\Users\\User\\arifOS")

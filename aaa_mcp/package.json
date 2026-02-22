@@ -1,6 +1,6 @@
 {
   "name": "arifos-aaa-mcp",
-  "version": "60.0.0",
+  "version": "2026.2.15",
   "description": "arifOS Constitutional AI Governance MCP Server - AAA Pattern Implementation",
   "main": "dist/index.js",
   "type": "module",

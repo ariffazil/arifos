@@ -9,6 +9,47 @@ The 4 Shared Modules:
     guards.py   — F9/F10 guards
 """
 
+from .physics import (
+    # F3: Tri-Witness
+    TrinityTensor,
+    W_3,
+    W_3_from_tensor,
+    W_3_check,
+    tri_witness,
+    # Utilities
+    geometric_mean,
+    std_dev,
+    # F4: Thermodynamic Clarity
+    delta_S,
+    entropy_delta,
+    is_cooling,
+    clarity_ratio,
+    # F7: Humility
+    UncertaintyBand,
+    Omega_0,
+    humility_band,
+    # Precision
+    pi,
+    kalman_gain,
+    # F5: Peace
+    PeaceSquared,
+    Peace2,
+    peace_squared,
+    # F6: Empathy
+    Stakeholder,
+    kappa_r,
+    empathy_coeff,
+    identify_stakeholders,
+    DISTRESS_SIGNALS,
+    # F8: Genius
+    GeniusDial,
+    G,
+    genius_score,
+    G_from_dial,
+    # Unified state
+    ConstitutionalTensor,
+)
+
 from .atlas import (
     ATLAS,
     GPV,
@@ -73,6 +114,7 @@ try:
         ThoughtNode,
         Verdict,
     )
+
     TYPES_AVAILABLE = True
 except ImportError:
     TYPES_AVAILABLE = False
@@ -87,6 +129,7 @@ try:
         sha256_hash,
         sha256_hash_dict,
     )
+
     CRYPTO_AVAILABLE = True
 except ImportError:
     CRYPTO_AVAILABLE = False
@@ -97,6 +140,7 @@ try:
         detect_hantu,
         validate_ontology,
     )
+
     GUARDS_AVAILABLE = True
 except ImportError:
     GUARDS_AVAILABLE = False
@@ -132,7 +176,6 @@ __all__ = [
     "genius_score",
     "G_from_dial",
     "ConstitutionalTensor",
-    
     # ATLAS
     "Lane",
     "GPV",
@@ -148,30 +191,36 @@ __all__ = [
 
 # Add types to __all__ if available
 if TYPES_AVAILABLE:
-    __all__.extend([
-        "Verdict",
-        "ThoughtNode",
-        "ThoughtChain",
-        "FloorScores",
-        "AgiMetrics",
-        "AsiMetrics",
-        "ApexMetrics",
-    ])
+    __all__.extend(
+        [
+            "Verdict",
+            "ThoughtNode",
+            "ThoughtChain",
+            "FloorScores",
+            "AgiMetrics",
+            "AsiMetrics",
+            "ApexMetrics",
+        ]
+    )
 
 # Add crypto to __all__ if available
 if CRYPTO_AVAILABLE:
-    __all__.extend([
-        "generate_session_id",
-        "sha256_hash",
-        "sha256_hash_dict",
-        "ed25519_sign",
-        "ed25519_verify",
-        "merkle_root",
-    ])
+    __all__.extend(
+        [
+            "generate_session_id",
+            "sha256_hash",
+            "sha256_hash_dict",
+            "ed25519_sign",
+            "ed25519_verify",
+            "merkle_root",
+        ]
+    )
 
 # Add guards to __all__ if available
 if GUARDS_AVAILABLE:
-    __all__.extend([
-        "detect_hantu",
-        "validate_ontology",
-    ])
+    __all__.extend(
+        [
+            "detect_hantu",
+            "validate_ontology",
+        ]
+    )

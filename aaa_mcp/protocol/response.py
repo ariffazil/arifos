@@ -14,7 +14,7 @@ from dataclasses import dataclass, field
 from typing import Any, Dict, List, Literal, Optional
 
 # Import canonical tool paths
-from .tool_registry import CANONICAL_TOOLS, get_next_tool
+from .tool_registry import get_next_tool
 
 # ═════════════════════════════════════════════════════════════════════════════
 # RESPONSE TYPES
@@ -90,7 +90,7 @@ class UnifiedResponse:
         """
         # Build structured content (machine/governance layer)
         structured_content = {
-            "tool": f"init_gate" if self.stage == "000" else f"stage_{self.stage}",
+            "tool": "init_gate" if self.stage == "000" else f"stage_{self.stage}",
             "stage": self.stage,
             "session_id": self.session_id,
             "status": self.status,
@@ -156,9 +156,9 @@ class UnifiedResponse:
 
         if self.policy_verdict == "SEAL":
             if self.stage == "000":
-                return f"🔨⚒️🛠️ Session initialized. Verdict: SEAL. You may proceed to 111_SENSE."
+                return f"{INIT_MOTTO} — Session initialized. Verdict: SEAL. You may proceed to 111_SENSE."
             elif self.stage == "999":
-                return f"💎🧠🔒 Session sealed. Pipeline complete."
+                return f"{SEAL_MOTTO} — Session sealed. Pipeline complete."
             else:
                 return f"{stage_name} complete. Verdict: SEAL. You may proceed to next stage."
         else:
@@ -170,7 +170,7 @@ class UnifiedResponse:
 
 
 # Mottos for bookends
-INIT_MOTTO = "🔨⚒️🛠️ DITEMPA, BUKAN DIBERI"
+INIT_MOTTO = "🔥 DITEMPA, BUKAN DIBERI"
 SEAL_MOTTO = "💎🧠🔒 DITEMPA, BUKAN DIBERI"
 
 
@@ -247,7 +247,7 @@ def build_init_response(
             "legacy_verdict": verdict,
             "motto": "DITEMPA, BUKAN DIBERI",
             "motto_english": "Forged, Not Given",
-            "motto_emojis": "🔨⚒️🛠️",
+            "motto_emojis": "🔥",
             "bookend": "INIT",
             # v60-REFLECT-OPT3: Progressive Disclosure
             "governance": {

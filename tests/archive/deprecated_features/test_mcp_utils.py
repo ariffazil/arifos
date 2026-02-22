@@ -102,9 +102,7 @@ class TestGrepSearch:
     async def test_search_in_current_file(self):
         """Test searching in the current test file."""
         result = await tool_grep_search(
-            pattern="async def test_",
-            path=__file__,
-            output_mode="content"
+            pattern="async def test_", path=__file__, output_mode="content"
         )
         assert result["status"] == "success"
         assert result["match_count"] > 0
@@ -113,33 +111,21 @@ class TestGrepSearch:
     @pytest.mark.asyncio
     async def test_files_mode(self):
         """Test files-only output mode."""
-        result = await tool_grep_search(
-            pattern="class.*",
-            path=__file__,
-            output_mode="files"
-        )
+        result = await tool_grep_search(pattern="class.*", path=__file__, output_mode="files")
         assert result["status"] == "success"
         assert __file__ in result["matches"]
 
     @pytest.mark.asyncio
     async def test_invalid_path(self):
         """Test invalid path handling."""
-        result = await tool_grep_search(
-            pattern="test",
-            path="/nonexistent/path"
-        )
+        result = await tool_grep_search(pattern="test", path="/nonexistent/path")
         assert result["status"] == "error"
         assert "Path does not exist" in result["error"]
 
     @pytest.mark.asyncio
     async def test_glob_filter(self):
         """Test file glob filtering."""
-        result = await tool_grep_search(
-            pattern="def ",
-            path=".",
-            glob="*.py",
-            head_limit=5
-        )
+        result = await tool_grep_search(pattern="def ", path=".", glob="*.py", head_limit=5)
         assert result["status"] == "success"
         # Should only find .py files
         for match in result["matches"]:
@@ -151,8 +137,7 @@ class TestFetchUrl:
 
     @pytest.mark.asyncio
     @pytest.mark.skipif(
-        not pytest.importorskip("httpx", reason="httpx not installed"),
-        reason="httpx not installed"
+        not pytest.importorskip("httpx", reason="httpx not installed"), reason="httpx not installed"
     )
     async def test_invalid_url_scheme(self):
         """Test that non-http schemes are rejected."""
@@ -162,8 +147,7 @@ class TestFetchUrl:
 
     @pytest.mark.asyncio
     @pytest.mark.skipif(
-        not pytest.importorskip("httpx", reason="httpx not installed"),
-        reason="httpx not installed"
+        not pytest.importorskip("httpx", reason="httpx not installed"), reason="httpx not installed"
     )
     async def test_malformed_url(self):
         """Test malformed URL handling."""
@@ -172,17 +156,12 @@ class TestFetchUrl:
 
     @pytest.mark.asyncio
     @pytest.mark.skipif(
-        not pytest.importorskip("httpx", reason="httpx not installed"),
-        reason="httpx not installed"
+        not pytest.importorskip("httpx", reason="httpx not installed"), reason="httpx not installed"
     )
     async def test_successful_fetch(self):
         """Test successful URL fetch (requires internet)."""
         # Use httpbin for reliable testing
-        result = await tool_fetch_url(
-            "https://httpbin.org/get",
-            extract_text=False,
-            timeout=10
-        )
+        result = await tool_fetch_url("https://httpbin.org/get", extract_text=False, timeout=10)
         # Note: May fail if no internet, so we just check structure
         if result["status"] == "success":
             assert "status_code" in result
@@ -196,6 +175,7 @@ class TestIntegration:
     async def test_server_creation(self):
         """Test that the server can be created."""
         from codebase.mcp.mcp_utils_server import create_utils_server
+
         server = await create_utils_server()
         assert server is not None
 

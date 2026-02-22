@@ -44,6 +44,7 @@ from typing import Any, Dict, List, Optional, Tuple
 # Spec: spec/v44/constitutional_floors.json
 # =============================================================================
 
+
 def load_track_b_spec_with_integrity() -> dict:
     """
     Load Track B v44 specification with fail-closed enforcement.
@@ -97,14 +98,14 @@ def load_track_b_spec_with_integrity() -> dict:
 
 
 # Threshold constants loaded from spec/v44/constitutional_floors.json
-TRUTH_THRESHOLD = 0.99      # F2: Truth ≥ 0.99 (factual integrity)
-DELTA_S_THRESHOLD = 0.0     # F4: ΔS ≥ 0 (clarity, no entropy increase)
+TRUTH_THRESHOLD = 0.99  # F2: Truth ≥ 0.99 (factual integrity)
+DELTA_S_THRESHOLD = 0.0  # F4: ΔS ≥ 0 (clarity, no entropy increase)
 PEACE_SQUARED_THRESHOLD = 1.0  # F5: Peace² ≥ 1.0 (non-escalation)
-KAPPA_R_THRESHOLD = 0.95    # F6: κᵣ ≥ 0.95 (empathy, weakest listener)
-OMEGA_0_MIN = 0.03          # F7: Ω₀ ∈ [0.03, 0.05] (humility band)
+KAPPA_R_THRESHOLD = 0.95  # F6: κᵣ ≥ 0.95 (empathy, weakest listener)
+OMEGA_0_MIN = 0.03  # F7: Ω₀ ∈ [0.03, 0.05] (humility band)
 OMEGA_0_MAX = 0.05
 TRI_WITNESS_THRESHOLD = 0.95  # F3: Tri-Witness ≥ 0.95 (consensus)
-PSI_THRESHOLD = 1.0         # Ψ: Vitality ≥ 1.0 (system health)
+PSI_THRESHOLD = 1.0  # Ψ: Vitality ≥ 1.0 (system health)
 
 
 # =============================================================================
@@ -113,6 +114,7 @@ PSI_THRESHOLD = 1.0         # Ψ: Vitality ≥ 1.0 (system health)
 # Implementation: arifos_core/enforcement/metrics.py:287-426
 # Spec: spec/v44/constitutional_floors.json
 # =============================================================================
+
 
 @dataclass
 class Metrics:
@@ -134,6 +136,7 @@ class Metrics:
     Real Implementation:
         from arifos_core.enforcement.metrics import Metrics
     """
+
     # Core floors
     truth: float
     delta_s: float
@@ -166,6 +169,7 @@ class FloorsVerdict:
     Real Implementation:
         from arifos_core.enforcement.metrics import FloorsVerdict
     """
+
     hard_ok: bool
     soft_ok: bool
     reasons: List[str]
@@ -266,13 +270,7 @@ def check_floors(
     else:
         tri_witness_ok = True
 
-    soft_ok = (
-        peace_squared_ok
-        and kappa_r_ok
-        and tri_witness_ok
-        and delta_s_ok
-        and omega_0_ok
-    )
+    soft_ok = peace_squared_ok and kappa_r_ok and tri_witness_ok and delta_s_ok and omega_0_ok
 
     return FloorsVerdict(
         hard_ok=hard_ok,
@@ -299,9 +297,9 @@ def check_floors(
 # =============================================================================
 
 # Thresholds loaded from spec/v44/genius_law.json
-G_MIN_THRESHOLD = 0.50      # G < 0.50 → VOID (insufficient governed intelligence)
+G_MIN_THRESHOLD = 0.50  # G < 0.50 → VOID (insufficient governed intelligence)
 C_DARK_MAX_THRESHOLD = 0.30  # C_dark > 0.30 → Warning (ungoverned cleverness risk)
-PSI_APEX_MIN = 1.00         # Ψ_APEX ≥ 1.0 → Healthy system
+PSI_APEX_MIN = 1.00  # Ψ_APEX ≥ 1.0 → Healthy system
 
 
 def compute_genius_index(metrics: Metrics, energy: float = 1.0) -> float:
@@ -332,7 +330,11 @@ def compute_genius_index(metrics: Metrics, energy: float = 1.0) -> float:
     """
     # Δ (Clarity score)
     truth_ratio = min(metrics.truth / TRUTH_THRESHOLD, 1.0)
-    clarity_ratio = max(0.0, 1.0 + metrics.delta_s * 0.1) if metrics.delta_s >= 0 else max(0.0, 1.0 + metrics.delta_s)
+    clarity_ratio = (
+        max(0.0, 1.0 + metrics.delta_s * 0.1)
+        if metrics.delta_s >= 0
+        else max(0.0, 1.0 + metrics.delta_s)
+    )
     delta = (truth_ratio + clarity_ratio) / 2
 
     # Ω (Empathy score)
@@ -345,10 +347,10 @@ def compute_genius_index(metrics: Metrics, energy: float = 1.0) -> float:
     peace_ratio = min(metrics.peace_squared / PEACE_SQUARED_THRESHOLD, 1.0)
     omega_band_score = 1.0 if OMEGA_0_MIN <= metrics.omega_0 <= OMEGA_0_MAX else 0.5
     witness_ratio = min(metrics.tri_witness / 0.95, 1.0)
-    psi = (peace_ratio * omega_band_score * witness_ratio) ** (1/3)
+    psi = (peace_ratio * omega_band_score * witness_ratio) ** (1 / 3)
 
     # G = Δ · Ω · Ψ · E²
-    e_squared = energy ** 2
+    e_squared = energy**2
     return delta * omega * psi * e_squared
 
 
@@ -388,6 +390,7 @@ def compute_dark_cleverness(metrics: Metrics) -> float:
 # Spec: spec/v44/constitutional_floors.json (verdicts section)
 # =============================================================================
 
+
 class Verdict(Enum):
     """
     Constitutional verdict types (v45Ω).
@@ -405,6 +408,7 @@ class Verdict(Enum):
     Real Implementation:
         from arifos_core.system.apex_prime import Verdict
     """
+
     SEAL = "SEAL"
     SABAR = "SABAR"
     VOID = "VOID"
@@ -429,6 +433,7 @@ class ApexVerdict:
     Real Implementation:
         from arifos_core.system.apex_prime import ApexVerdict
     """
+
     verdict: Verdict
     pulse: float = field(default=1.0)
     reason: str = field(default="")
@@ -525,9 +530,7 @@ def apex_review(
         or (trm == "BENIGN_DENIAL" and is_denial)
         or (trm == "CLARITY_CONSTRAINT")
     )
-    soft_lane_exempt = (
-        lane == "SOFT" and truth_only_failure and metrics.truth >= 0.80
-    )
+    soft_lane_exempt = lane == "SOFT" and truth_only_failure and metrics.truth >= 0.80
 
     # Hard floor failure → VOID (unless exempt)
     if not floors.hard_ok and not (truth_only_failure and trm_exempt) and not soft_lane_exempt:
@@ -639,6 +642,7 @@ def apex_review(
 # Spec: spec/arifos_pipeline_v35Omega.yaml
 # =============================================================================
 
+
 class StakesClass(Enum):
     """
     Classification for routing decisions.
@@ -649,6 +653,7 @@ class StakesClass(Enum):
     Real Implementation:
         from arifos_core.system.pipeline import StakesClass
     """
+
     CLASS_A = "A"
     CLASS_B = "B"
 
@@ -670,6 +675,7 @@ class PipelineState:
     Real Implementation:
         from arifos_core.system.pipeline import PipelineState
     """
+
     # Input
     query: str
     job_id: str = ""
@@ -736,6 +742,7 @@ def pipeline_orchestration_overview():
 # Spec: spec/v44/cooling_ledger_phoenix.json
 # =============================================================================
 
+
 class MemoryVerdict(Enum):
     """
     Verdict types for memory write routing.
@@ -743,6 +750,7 @@ class MemoryVerdict(Enum):
     Real Implementation:
         from arifos_core.memory.policy import Verdict
     """
+
     SEAL = "SEAL"
     SABAR = "SABAR"
     PARTIAL = "PARTIAL"
@@ -753,12 +761,12 @@ class MemoryVerdict(Enum):
 
 # Verdict → Band routing rules (v38.3)
 VERDICT_BAND_ROUTING = {
-    "SEAL": ["LEDGER", "ACTIVE"],      # Canonical + session
-    "SABAR": ["PENDING", "LEDGER"],    # Epistemic queue + log
+    "SEAL": ["LEDGER", "ACTIVE"],  # Canonical + session
+    "SABAR": ["PENDING", "LEDGER"],  # Epistemic queue + log
     "PARTIAL": ["PHOENIX", "LEDGER"],  # Law mismatch queue + log
-    "VOID": ["VOID"],                   # Diagnostic ONLY, never canonical
-    "888_HOLD": ["LEDGER"],             # Log hold for audit
-    "SUNSET": ["PHOENIX"],              # Revocation pulse
+    "VOID": ["VOID"],  # Diagnostic ONLY, never canonical
+    "888_HOLD": ["LEDGER"],  # Log hold for audit
+    "SUNSET": ["PHOENIX"],  # Revocation pulse
 }
 
 
@@ -797,6 +805,7 @@ def memory_write_policy_overview():
 # Spec: Track B thresholds applied per-lane
 # =============================================================================
 
+
 class ApplicabilityLane(Enum):
     """
     Prompt classification lanes for context-aware governance.
@@ -810,6 +819,7 @@ class ApplicabilityLane(Enum):
     Real Implementation:
         from arifos_core.enforcement.routing.prompt_router import ApplicabilityLane
     """
+
     PHATIC = "PHATIC"
     SOFT = "SOFT"
     HARD = "HARD"
@@ -894,7 +904,6 @@ TRACK_C_TO_TRACK_B_MAPPING = {
         "manifest": "spec/v44/MANIFEST.sha256.json",
         "purpose": "Load TEARFRAME session physics thresholds",
     },
-
     # Floor Enforcement
     "arifos_core/enforcement/metrics.py:check_truth()": {
         "spec_value": "constitutional_floors.json:floors.truth.threshold",
@@ -911,7 +920,6 @@ TRACK_C_TO_TRACK_B_MAPPING = {
         "threshold": 1.0,
         "purpose": "F5 Peace² ≥ 1.0 check (stability)",
     },
-
     # GENIUS LAW
     "arifos_core/enforcement/genius_metrics.py:compute_genius_index()": {
         "spec_value": "genius_law.json:metrics.G.thresholds.seal",
@@ -923,13 +931,11 @@ TRACK_C_TO_TRACK_B_MAPPING = {
         "threshold": 0.30,
         "purpose": "Compute C_dark = Δ·(1-Ω)·(1-Ψ) (ungoverned risk)",
     },
-
     # Verdict Decision
     "arifos_core/system/apex_prime.py:apex_review()": {
         "spec_value": "constitutional_floors.json:verdicts",
         "purpose": "SOLE SOURCE OF TRUTH for verdict decisions",
     },
-
     # Memory Governance
     "arifos_core/memory/policy.py:should_write()": {
         "spec_value": "cooling_ledger_phoenix.json:verdict_routing",
@@ -946,7 +952,6 @@ TEST_COVERAGE = {
     "Passing": 2345,
     "Failed": 0,
     "Coverage": "100%",
-
     "By Module": {
         "Floor Enforcement (metrics.py)": {
             "tests": "tests/test_metrics_*.py",

@@ -17,7 +17,6 @@ from datetime import datetime, timezone
 from unittest.mock import patch
 from uuid import uuid4
 
-
 # ---------------------------------------------------------------------------
 # Unit tests — pure functions (no DB, no asyncpg required)
 # ---------------------------------------------------------------------------
@@ -102,12 +101,22 @@ class TestEntryHash:
         sid = uuid4()
         ts = datetime(2026, 1, 1, tzinfo=timezone.utc)
         h1 = self._compute(
-            session_id="s1", timestamp=ts, authority="sys", verdict="SEAL",
-            seal_data={}, prev_hash=None, seal_id=sid,
+            session_id="s1",
+            timestamp=ts,
+            authority="sys",
+            verdict="SEAL",
+            seal_data={},
+            prev_hash=None,
+            seal_id=sid,
         )
         h2 = self._compute(
-            session_id="s1", timestamp=ts, authority="sys", verdict="VOID",
-            seal_data={}, prev_hash=None, seal_id=sid,
+            session_id="s1",
+            timestamp=ts,
+            authority="sys",
+            verdict="VOID",
+            seal_data={},
+            prev_hash=None,
+            seal_id=sid,
         )
         assert h1 != h2
 
@@ -115,8 +124,13 @@ class TestEntryHash:
         sid = uuid4()
         ts = datetime(2026, 1, 1, tzinfo=timezone.utc)
         kwargs = dict(
-            session_id="s1", timestamp=ts, authority="sys", verdict="SEAL",
-            seal_data={"x": 1}, prev_hash="abc", seal_id=sid,
+            session_id="s1",
+            timestamp=ts,
+            authority="sys",
+            verdict="SEAL",
+            seal_data={"x": 1},
+            prev_hash="abc",
+            seal_id=sid,
         )
         assert self._compute(**kwargs) == self._compute(**kwargs)
 
@@ -125,11 +139,15 @@ class TestShouldUsePostgres:
     def test_default_is_postgres(self):
         """VAULT_BACKEND defaults to postgres."""
         from codebase.vault.persistent_ledger import should_use_postgres
-        with patch.dict(os.environ, {"VAULT_BACKEND": "postgres", "DATABASE_URL": "x"}, clear=False):
+
+        with patch.dict(
+            os.environ, {"VAULT_BACKEND": "postgres", "DATABASE_URL": "x"}, clear=False
+        ):
             assert should_use_postgres() is True
 
     def test_false_when_filesystem(self):
         from codebase.vault.persistent_ledger import should_use_postgres
+
         with patch.dict(os.environ, {"VAULT_BACKEND": "filesystem"}, clear=True):
             assert should_use_postgres() is False
 
@@ -137,12 +155,20 @@ class TestShouldUsePostgres:
 class TestSealRowDataclass:
     def test_to_dict(self):
         from codebase.vault.persistent_ledger import SealRow
+
         ts = datetime(2026, 1, 1, tzinfo=timezone.utc)
         sid = uuid4()
         row = SealRow(
-            sequence=1, session_id="sess-1", seal_id=sid, timestamp=ts,
-            authority="system", verdict="SEAL", seal_data={"k": "v"},
-            entry_hash="abc123", prev_hash=None, merkle_root="root123",
+            sequence=1,
+            session_id="sess-1",
+            seal_id=sid,
+            timestamp=ts,
+            authority="system",
+            verdict="SEAL",
+            seal_data={"k": "v"},
+            entry_hash="abc123",
+            prev_hash=None,
+            merkle_root="root123",
         )
         d = row.to_dict()
         assert d["sequence"] == 1
@@ -155,6 +181,7 @@ class TestGetVaultLedger:
     def test_singleton(self):
         from codebase.vault.persistent_ledger import get_vault_ledger, PersistentVaultLedger
         import codebase.vault.persistent_ledger as mod
+
         mod._ledger_singleton = None
         l1 = get_vault_ledger()
         l2 = get_vault_ledger()
@@ -183,6 +210,7 @@ class TestPersistentVaultLedgerIntegration:
 
     async def _get_ledger(self):
         from codebase.vault.persistent_ledger import PersistentVaultLedger
+
         ledger = PersistentVaultLedger()
         await ledger.connect()
         return ledger

@@ -2,19 +2,24 @@
 arifOS MCP Server Integration Configuration
 Maps 9 external MCP servers to constitutional governance layer
 """
+
 from dataclasses import dataclass
+from typing import List, Optional
 from enum import Enum
 from typing import Dict, List, Optional
 
 
+
 class TrinityComponent(Enum):
     AGI = "Δ"  # Mind/Logic
-    ASI = "Ω"  # Heart/Care  
+    ASI = "Ω"  # Heart/Care
     APEX = "Ψ"  # Crown/Law
+
 
 @dataclass
 class MCPServerConfig:
     """Configuration for an MCP server with constitutional mapping"""
+
     name: str
     description: str
     trinity: TrinityComponent
@@ -23,7 +28,8 @@ class MCPServerConfig:
     omega_threshold: float  # Ω₀ uncertainty limit
     reversible: bool  # F1 Amanah compliance
     package_name: Optional[str] = None
-    
+
+
 # arifOS MCP Server Registry
 MCP_SERVERS = {
     "filesystem": MCPServerConfig(
@@ -34,9 +40,8 @@ MCP_SERVERS = {
         atomic_action="VAULT999",
         omega_threshold=0.04,
         reversible=True,
-        package_name="@modelcontextprotocol/server-filesystem"
+        package_name="@modelcontextprotocol/server-filesystem",
     ),
-    
     "memory": MCPServerConfig(
         name="MCP Memory Server",
         description="Knowledge graph-based persistent memory",
@@ -45,9 +50,8 @@ MCP_SERVERS = {
         atomic_action="Memory Weaver (#9)",
         omega_threshold=0.05,
         reversible=True,
-        package_name="@modelcontextprotocol/server-memory"
+        package_name="@modelcontextprotocol/server-memory",
     ),
-    
     "fetch": MCPServerConfig(
         name="MCP Fetch Server",
         description="Web content fetching with safety filtering",
@@ -56,9 +60,8 @@ MCP_SERVERS = {
         atomic_action="Geo-Radar (#4)",
         omega_threshold=0.06,
         reversible=False,  # External data fetch
-        package_name="@modelcontextprotocol/server-fetch"
+        package_name="@modelcontextprotocol/server-fetch",
     ),
-    
     "everything": MCPServerConfig(
         name="MCP Everything Server",
         description="Reference/test server for validation",
@@ -67,9 +70,8 @@ MCP_SERVERS = {
         atomic_action="Peace² Auditor (#2)",
         omega_threshold=0.03,
         reversible=True,
-        package_name="@modelcontextprotocol/server-everything"
+        package_name="@modelcontextprotocol/server-everything",
     ),
-    
     "git": MCPServerConfig(
         name="MCP Git Server",
         description="Git repository tools with version control",
@@ -78,9 +80,8 @@ MCP_SERVERS = {
         atomic_action="PyPI Sentinel (#3)",
         omega_threshold=0.04,
         reversible=True,
-        package_name="@modelcontextprotocol/server-git"
+        package_name="@modelcontextprotocol/server-git",
     ),
-    
     "time": MCPServerConfig(
         name="MCP Time Server",
         description="Time and timezone conversion",
@@ -89,9 +90,8 @@ MCP_SERVERS = {
         atomic_action="Meeting Metabolizer (#6)",
         omega_threshold=0.02,
         reversible=True,
-        package_name="@modelcontextprotocol/server-time"
+        package_name="@modelcontextprotocol/server-time",
     ),
-    
     "sequential-thinking": MCPServerConfig(
         name="MCP Sequential Thinking Server",
         description="Dynamic reflective problem-solving",
@@ -100,9 +100,8 @@ MCP_SERVERS = {
         atomic_action="ASI Align/Reason",
         omega_threshold=0.05,
         reversible=True,
-        package_name="@modelcontextprotocol/server-sequential-thinking"
+        package_name="@modelcontextprotocol/server-sequential-thinking",
     ),
-
     "brave-search": MCPServerConfig(
         name="MCP Brave Search Server",
         description="Privacy-focused web search",
@@ -111,17 +110,20 @@ MCP_SERVERS = {
         atomic_action="Reality Search",
         omega_threshold=0.06,
         reversible=False,
-        package_name="@modelcontextprotocol/server-brave-search"
+        package_name="@modelcontextprotocol/server-brave-search",
     ),
 }
+
 
 def get_server_config(name: str) -> Optional[MCPServerConfig]:
     """Get MCP server configuration by name"""
     return MCP_SERVERS.get(name)
 
+
 def list_servers_by_trinity(component: TrinityComponent) -> List[MCPServerConfig]:
     """List all MCP servers mapped to a Trinity component"""
     return [s for s in MCP_SERVERS.values() if s.trinity == component]
+
 
 def validate_constitutional_compliance(server_name: str, omega: float) -> bool:
     """Check if operation meets constitutional Ω₀ threshold"""

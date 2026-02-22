@@ -38,6 +38,7 @@ def _read_ledger(path: Path) -> Tuple[Dict[str, Any], Dict[str, Any]]:
 
 # --- Chain linkage tests ------------------------------------------------------
 
+
 def test_ledger_chain_links_via_prev_hash(tmp_path: Path) -> None:
     """
     Cooling Ledger enforces prev_hash chain without breaks.
@@ -90,6 +91,7 @@ def test_ledger_first_entry_has_null_prev_hash(tmp_path: Path) -> None:
 
 
 # --- Tamper detection tests ---------------------------------------------------
+
 
 def test_ledger_detects_content_tampering(tmp_path: Path) -> None:
     """
@@ -186,6 +188,7 @@ def test_ledger_rejects_broken_prev_hash_link(tmp_path: Path) -> None:
 
 # --- Edge cases ---------------------------------------------------------------
 
+
 def test_ledger_handles_single_entry_chain(tmp_path: Path) -> None:
     """
     A single-entry ledger should still verify successfully.
@@ -249,6 +252,7 @@ def test_ledger_handles_malformed_json(tmp_path: Path) -> None:
 
 # --- Long chain tests ---------------------------------------------------------
 
+
 def test_ledger_verifies_long_chain(tmp_path: Path) -> None:
     """
     Verify that a longer chain (100 entries) validates correctly.
@@ -302,6 +306,7 @@ def test_ledger_detects_tampering_in_middle_of_long_chain(tmp_path: Path) -> Non
 
 # --- Cryptographic properties -------------------------------------------------
 
+
 def test_ledger_uses_sha3_256(tmp_path: Path) -> None:
     """
     Verify that the ledger uses SHA3-256 for hashing.
@@ -350,6 +355,7 @@ def test_ledger_hash_is_deterministic(tmp_path: Path) -> None:
 
 
 # --- Append-only properties ---------------------------------------------------
+
 
 def test_ledger_append_creates_parent_directory(tmp_path: Path) -> None:
     """

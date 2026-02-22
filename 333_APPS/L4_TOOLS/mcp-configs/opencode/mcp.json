@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "arifOS AAA MCP v65.1 — OpenCode Config (Cross-Platform, aligned with global)",
+  "mcpServers": {
+    "aaa-mcp": {
+      "command": "python3",
+      "args": ["-m", "aaa_mcp", "stdio"],
+      "cwd": "../../../../",
+      "env": {
+        "PYTHONPATH": ".",
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUNBUFFERED": "1"
+      },
+      "disabled": false,
+      "alwaysAllow": [
+        "anchor",
+        "reason",
+        "integrate",
+        "respond",
+        "validate",
+        "align",
+        "forge",
+        "audit",
+        "seal"
+      ]
+    }
+  }
+}

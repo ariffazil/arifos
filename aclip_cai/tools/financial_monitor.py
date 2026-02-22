@@ -1,4 +1,3 @@
-
 async def financial_cost(
     service: str,
     action: str,
@@ -29,12 +28,13 @@ async def financial_cost(
     elif "storage" in action.lower():
         base_cost = 0.01 * period_days  # $0.01 per day per generic storage unit
     elif "data_transfer" in action.lower():
-        base_cost = 0.002 * period_days # $0.002 per day per generic data unit
+        base_cost = 0.002 * period_days  # $0.002 per day per generic data unit
     elif "api_calls" in action.lower():
-        base_cost = 0.0001 * period_days # $0.0001 per day per generic API call
+        base_cost = 0.0001 * period_days  # $0.0001 per day per generic API call
 
     # Add some randomness for mock realism
     import random
+
     estimated_amount = round(base_cost * random.uniform(0.8, 1.2), 4)
     currency = "USD"
 

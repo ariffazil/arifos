@@ -20,17 +20,14 @@ async def run_full_integration_test():
     print(f"Started: {datetime.now().isoformat()}")
     print()
 
-    results = {
-        "passed": 0,
-        "failed": 0,
-        "warnings": 0
-    }
+    results = {"passed": 0, "failed": 0, "warnings": 0}
 
     # Test 1: Module Imports
     print("[ TEST 1/7 ] Module Imports...")
     try:
         from codebase.kernel import KernelManager, get_kernel_manager
         from mcp import bridge
+
         # Note: Skip mcp_trinity import if it has missing router dependencies
         # from mcp.tools import mcp_trinity
         from codebase.constitutional_floors import THRESHOLDS
@@ -70,8 +67,7 @@ async def run_full_integration_test():
     print("[ TEST 3/7 ] Session Initialization (000_INIT)...")
     try:
         init_result = await bridge.bridge_init_router(
-            action="init",
-            query="Integration test session"
+            action="init", query="Integration test session"
         )
         session_id = init_result.get("session_id")
 
@@ -97,7 +93,7 @@ async def run_full_integration_test():
         agi_result = await bridge.bridge_agi_router(
             action="sense",
             query="Test AGI reasoning with constitutional floors",
-            session_id=session_id
+            session_id=session_id,
         )
 
         status = agi_result.get("status", "UNKNOWN")
@@ -119,7 +115,7 @@ async def run_full_integration_test():
         asi_result = await bridge.bridge_asi_router(
             action="empathize",
             query="Care for all stakeholders with empathy",
-            session_id=session_id
+            session_id=session_id,
         )
 
         status = asi_result.get("status", "UNKNOWN")
@@ -146,7 +142,7 @@ async def run_full_integration_test():
             query="Final constitutional judgment",
             session_id=session_id,
             reasoning="Test reasoning",
-            safety_evaluation={"verdict": "SEAL"}
+            safety_evaluation={"verdict": "SEAL"},
         )
 
         status = apex_result.get("status", "UNKNOWN")
@@ -171,6 +167,7 @@ async def run_full_integration_test():
     print("[ TEST 7/7 ] VAULT999 Ledger Integrity...")
     try:
         import os
+
         vault_path = "VAULT999"
 
         required_dirs = ["AAA_HUMAN", "BBB_LEDGER", "CCC_CANON", "SEALS", "entropy"]

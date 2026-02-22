@@ -13,7 +13,37 @@ import os
 import sys
 
 
+def check_fastmcp_version():
+    """Verify FastMCP version compatibility."""
+    try:
+        import fastmcp
+
+        version = getattr(fastmcp, "__version__", "unknown")
+        print(f"[arifOS] FastMCP version: {version}", file=sys.stderr)
+
+        # Parse major version
+        major = int(version.split(".")[0]) if version != "unknown" else 0
+        if major < 2:
+            print(
+                f"[arifOS] ⚠️  WARNING: FastMCP {version} detected. Version 2.x+ required for full functionality.",
+                file=sys.stderr,
+            )
+            print(
+                "[arifOS] Some features (like /health endpoint) may not work correctly.",
+                file=sys.stderr,
+            )
+        else:
+            print(f"[arifOS] ✓ FastMCP {version} - Full functionality available", file=sys.stderr)
+        return major
+    except Exception as e:
+        print(f"[arifOS] ⚠️  Could not check FastMCP version: {e}", file=sys.stderr)
+        return 0
+
+
 def main():
+    # Check version before importing server
+    check_fastmcp_version()
+
     mode = (sys.argv[1] if len(sys.argv) > 1 else "stdio").strip().lower()
 
     from .server import mcp
@@ -26,12 +56,19 @@ def main():
     if mode == "sse":
         port = int(os.getenv("PORT", 8080))
         host = os.getenv("HOST", "0.0.0.0")
+        print(f"[arifOS] Starting MCP server with SSE transport on {host}:{port}", file=sys.stderr)
+
+        # Railway terminates TLS at proxy and sets X-Forwarded-Proto.
+        # We need uvicorn to trust these headers so SSE endpoint
+        # advertises https:// URLs, not http://.
+        os.environ["FORWARDED_ALLOW_IPS"] = "*"
         mcp.run(transport="sse", host=host, port=port)
         return
 
     if mode in ("http", "streamable-http"):
         port = int(os.getenv("PORT", 8080))
         host = os.getenv("HOST", "0.0.0.0")
+        print(f"[arifOS] Starting MCP server with HTTP transport on {host}:{port}", file=sys.stderr)
         mcp.run(transport="http", host=host, port=port)
         return
 

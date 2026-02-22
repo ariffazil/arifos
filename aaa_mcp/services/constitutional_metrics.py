@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, TypedDict, Union
+from typing import Any, Dict, List, Optional, TypedDict
 
 
 # --- Universal Evidence Schema v2.1 (APEX-Hardened) ---
@@ -33,15 +33,19 @@ class EvidenceObject(TypedDict):
     Universal Evidence Object v2 (Chain of Custody).
     Includes cryptographic grounding to prevent 'Hantu' hallucinations.
     """
+
     evidence_id: str
     content: Dict[str, str]  # {"text": "...", "hash": "sha256:...", "language": "..."}
-    source_meta: Dict[str, Any]  # {"uri": "...", "type": "...", "author": "...", "timestamp": "..."}
+    source_meta: Dict[
+        str, Any
+    ]  # {"uri": "...", "type": "...", "author": "...", "timestamp": "..."}
     metrics: Dict[str, float]  # {"trust_weight": 1.0, "relevance_score": 0.9}
     lifecycle: Dict[str, str]  # {"status": "active", "retrieved_by": "..."}
 
 
 class PlanObject(TypedDict):
     """Universal Tool Router Plan Object v1."""
+
     plan_id: str
     recommended_pipeline: List[str]
     justification: str
@@ -62,12 +66,12 @@ AXIOM_DATABASE = {
         },
         "general": {
             "molar_mass": {"value": 44.01, "unit": "g/mol"},
-            "ideal_gas_constant": {"value": 8.314, "unit": "J/mol/K"}
-        }
+            "ideal_gas_constant": {"value": 8.314, "unit": "J/mol/K"},
+        },
     },
     "physics_constants": {
         "speed_of_light": {"value": 299792458, "unit": "m/s"},
-        "planck_constant": {"value": 6.626e-34, "unit": "J*s"}
+        "planck_constant": {"value": 6.626e-34, "unit": "J*s"},
     },
     "photosynthesis": {
         "value": "6CO2 + 6H2O + light -> C6H12O6 + 6O2",
@@ -174,7 +178,9 @@ def update_metabolic_state(
     if delta_bundle:
         confidence = delta_bundle.get("confidence") or {}
         state["omega_0"] = confidence.get("omega_0", state.get("omega_0", 0.04))
-        state["ambiguity_reduction"] = delta_bundle.get("ambiguity_reduction", state.get("ambiguity_reduction", 0.0))
+        state["ambiguity_reduction"] = delta_bundle.get(
+            "ambiguity_reduction", state.get("ambiguity_reduction", 0.0)
+        )
         state["tri_witness"] = delta_bundle.get("floor_scores", {}).get(
             "F8", state.get("tri_witness", 0.95)
         )
@@ -195,17 +201,19 @@ def store_stage_result(session_id: str, stage: str, result: Dict[str, Any]):
     if session_id not in _STAGE_RESULTS:
         _STAGE_RESULTS[session_id] = {}
         _SESSION_EVENT_LOG[session_id] = []
-        
+
     _STAGE_RESULTS[session_id][stage] = result
-    
+
     # Flight Recorder Addition: Record the transition
-    _SESSION_EVENT_LOG[session_id].append({
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "stage": stage,
-        "verdict": result.get("verdict", "UNKNOWN"),
-        "transition": f"Completed {stage}",
-        "ambiguity_reduction": result.get("ambiguity_reduction", 0.0)
-    })
+    _SESSION_EVENT_LOG[session_id].append(
+        {
+            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "stage": stage,
+            "verdict": result.get("verdict", "UNKNOWN"),
+            "transition": f"Completed {stage}",
+            "ambiguity_reduction": result.get("ambiguity_reduction", 0.0),
+        }
+    )
 
     # Universal Evidence Tracking (v2 awareness)
     evidence = result.get("evidence", [])

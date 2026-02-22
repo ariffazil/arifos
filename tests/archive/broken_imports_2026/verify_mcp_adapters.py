@@ -1,4 +1,3 @@
-
 import sys
 import os
 import asyncio
@@ -12,6 +11,7 @@ sys.modules["codebase.kernel"] = MagicMock()
 sys.modules["codebase.init.000_init.mcp_bridge"] = MagicMock()
 sys.modules["mcp.core.bridge"] = MagicMock()
 
+
 # Mock definitions
 async def mock_init_execute(*args, **kwargs):
     return {
@@ -21,8 +21,9 @@ async def mock_init_execute(*args, **kwargs):
         "injection_risk": 0.0,
         "energy_budget": 1.0,
         "lane": "SOFT",
-        "reason": "Mock init success"
+        "reason": "Mock init success",
     }
+
 
 async def mock_agi_execute(*args, **kwargs):
     # Simulate DeltaBundle or dict
@@ -32,8 +33,9 @@ async def mock_agi_execute(*args, **kwargs):
         "omega_0": 0.04,
         "status": "SEAL",
         "action_policy": {"action": "think"},
-        "hierarchical_beliefs": {}
+        "hierarchical_beliefs": {},
     }
+
 
 async def mock_asi_execute(*args, **kwargs):
     # Simulate OmegaBundle
@@ -44,20 +46,22 @@ async def mock_asi_execute(*args, **kwargs):
         "empathy": {"kappa_r": 0.9},
         "system": {"peace_squared": 1.0},
         "society": {"thermodynamic_justice": 0.95},
-        "floor_scores": {"F1_reversibility": 1.0, "F11_consent": True}
+        "floor_scores": {"F1_reversibility": 1.0, "F11_consent": True},
     }
+
 
 async def mock_apex_execute(*args, **kwargs):
     # Simulate verdict strict
     return {
-        "status": "SEAL", 
-        "verdict": "SEAL", 
+        "status": "SEAL",
+        "verdict": "SEAL",
         "session_id": "test_sess_123",
         "trinity_score": 0.92,
         "paradox_scores": {},
         "equilibrium": {"score": 0.92},
-        "proof": {"hash": "abc"}
+        "proof": {"hash": "abc"},
     }
+
 
 # Patch get_kernel_manager
 mock_km = MagicMock()
@@ -73,13 +77,14 @@ try:
         from mcp_server.tools.canonical_trinity import mcp_init, mcp_agi, mcp_asi, mcp_apex
 except Exception as e:
     import traceback
+
     print(f"IMPORT ERROR: {e}")
     traceback.print_exc()
     sys.exit(1)
 
     async def verify():
         print("Verifying MCP Adapters...")
-        
+
         # 1. Verify INIT
         print("Testing mcp_init...")
         init_res = await mcp_init(action="init", query="test")
@@ -96,9 +101,9 @@ except Exception as e:
         print(f"AGI Result keys: {agi_res.keys()}")
         assert "entropy_delta" in agi_res
         assert "vote" in agi_res
-        assert agi_res["entropy_delta"] == 0.3 # 0.8 - 0.5
+        assert agi_res["entropy_delta"] == 0.3  # 0.8 - 0.5
         print("✅ AGI Passed")
-        
+
         # 3. Verify ASI
         print("Testing mcp_asi...")
         asi_res = await mcp_asi(action="full", query="test")
@@ -116,7 +121,7 @@ except Exception as e:
         assert "trinity_score" in apex_res
         assert apex_res["final_verdict"] == "SEAL"
         print("✅ APEX Passed")
-        
+
         print("\n🎉 ALL TESTS PASSED!")
 
     if __name__ == "__main__":

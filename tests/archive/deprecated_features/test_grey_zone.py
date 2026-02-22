@@ -22,10 +22,10 @@ Motto: "Precision over paranoia."
 
 import pytest
 
-
 # =============================================================================
 # EDUCATIONAL CONTENT TESTS
 # =============================================================================
+
 
 class TestEducationalContent:
     """
@@ -50,9 +50,9 @@ class TestEducationalContent:
         )
 
         result = check_amanah(text)
-        assert result.is_safe, (
-            f"Educational SQL injection definition was blocked: {result.violations}"
-        )
+        assert (
+            result.is_safe
+        ), f"Educational SQL injection definition was blocked: {result.violations}"
 
     def test_xss_explanation_allowed(self):
         """
@@ -67,9 +67,7 @@ class TestEducationalContent:
         )
 
         result = check_amanah(text)
-        assert result.is_safe, (
-            f"Educational XSS explanation was blocked: {result.violations}"
-        )
+        assert result.is_safe, f"Educational XSS explanation was blocked: {result.violations}"
 
     def test_buffer_overflow_concept_allowed(self):
         """
@@ -84,9 +82,9 @@ class TestEducationalContent:
         )
 
         result = check_amanah(text)
-        assert result.is_safe, (
-            f"Educational buffer overflow concept was blocked: {result.violations}"
-        )
+        assert (
+            result.is_safe
+        ), f"Educational buffer overflow concept was blocked: {result.violations}"
 
     def test_cybersecurity_psi_score(self):
         """
@@ -96,20 +94,19 @@ class TestEducationalContent:
 
         # Educational content: High clarity, neutral tone, good empathy
         psi = calculate_psi_phoenix(
-            delta_s=0.6,       # High clarity (teaching)
-            peace_score=0.5,   # Neutral academic tone
-            kr_score=0.85,     # Good empathy
+            delta_s=0.6,  # High clarity (teaching)
+            peace_score=0.5,  # Neutral academic tone
+            kr_score=0.85,  # Good empathy
             amanah_safe=True,  # No executable code
         )
 
-        assert psi >= 1.0, (
-            f"Educational content got low Ψ: {psi:.2f} (should be ≥1.0)"
-        )
+        assert psi >= 1.0, f"Educational content got low Ψ: {psi:.2f} (should be ≥1.0)"
 
 
 # =============================================================================
 # EMPATHIC LANGUAGE TESTS
 # =============================================================================
+
 
 class TestEmpathicLanguage:
     """
@@ -130,9 +127,7 @@ class TestEmpathicLanguage:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Empathic observation triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Empathic observation triggered Hantu: {triggers}"
 
     def test_acknowledgment_allowed(self):
         """
@@ -144,9 +139,7 @@ class TestEmpathicLanguage:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Acknowledgment triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Acknowledgment triggered Hantu: {triggers}"
 
     def test_support_language_allowed(self):
         """
@@ -158,9 +151,7 @@ class TestEmpathicLanguage:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Support language triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Support language triggered Hantu: {triggers}"
 
     def test_weight_acknowledgment_allowed(self):
         """
@@ -172,9 +163,7 @@ class TestEmpathicLanguage:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Weight acknowledgment triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Weight acknowledgment triggered Hantu: {triggers}"
 
     def test_commitment_language_allowed(self):
         """
@@ -186,14 +175,13 @@ class TestEmpathicLanguage:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Commitment language triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Commitment language triggered Hantu: {triggers}"
 
 
 # =============================================================================
 # CULTURAL GREETING TESTS (MALAY)
 # =============================================================================
+
 
 class TestMalayCulturalGreetings:
     """
@@ -211,9 +199,7 @@ class TestMalayCulturalGreetings:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Selamat pagi triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Selamat pagi triggered Hantu: {triggers}"
 
     def test_apa_khabar_allowed(self):
         """
@@ -225,9 +211,7 @@ class TestMalayCulturalGreetings:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Apa khabar triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Apa khabar triggered Hantu: {triggers}"
 
     def test_terima_kasih_allowed(self):
         """
@@ -239,9 +223,7 @@ class TestMalayCulturalGreetings:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Terima kasih triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Terima kasih triggered Hantu: {triggers}"
 
     def test_salam_allowed(self):
         """
@@ -253,9 +235,7 @@ class TestMalayCulturalGreetings:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Salam triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Salam triggered Hantu: {triggers}"
 
     def test_northern_dialect_greeting_allowed(self):
         """
@@ -267,9 +247,7 @@ class TestMalayCulturalGreetings:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Northern dialect greeting triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Northern dialect greeting triggered Hantu: {triggers}"
 
     def test_khabar_baik_response_allowed(self):
         """
@@ -281,14 +259,13 @@ class TestMalayCulturalGreetings:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"Khabar baik response triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"Khabar baik response triggered Hantu: {triggers}"
 
 
 # =============================================================================
 # METAPHORICAL LANGUAGE TESTS
 # =============================================================================
+
 
 class TestMetaphoricalLanguage:
     """
@@ -305,9 +282,7 @@ class TestMetaphoricalLanguage:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"'I see' metaphor triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"'I see' metaphor triggered Hantu: {triggers}"
 
     def test_let_me_think_allowed(self):
         """
@@ -319,9 +294,7 @@ class TestMetaphoricalLanguage:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"'Let me think' triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"'Let me think' triggered Hantu: {triggers}"
 
     def test_appears_significant_allowed(self):
         """
@@ -333,14 +306,13 @@ class TestMetaphoricalLanguage:
         patterns = AntiHantuView.ANTI_HANTU_PATTERNS
 
         triggers = [p for p in patterns if p in text.lower()]
-        assert len(triggers) == 0, (
-            f"'Appears significant' triggered Hantu: {triggers}"
-        )
+        assert len(triggers) == 0, f"'Appears significant' triggered Hantu: {triggers}"
 
 
 # =============================================================================
 # TELEMETRY TESTS
 # =============================================================================
+
 
 class TestTelemetryModule:
     """
@@ -350,6 +322,7 @@ class TestTelemetryModule:
     def test_telemetry_import(self):
         """Telemetry module should be importable."""
         from codebase.core.utils.telemetry import telemetry, TelemetryEvent
+
         assert telemetry is not None
         assert TelemetryEvent is not None
 
@@ -403,6 +376,7 @@ class TestTelemetryModule:
 # =============================================================================
 # INTEGRATION: PSI + AMANAH COMBINED
 # =============================================================================
+
 
 class TestCombinedGovernance:
     """

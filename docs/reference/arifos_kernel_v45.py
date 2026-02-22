@@ -23,10 +23,12 @@ import zlib
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
+import zlib
 
 # =============================================================================
 # THE 9 CONSTITUTIONAL FLOORS (v45.0)
 # =============================================================================
+
 
 @dataclass
 class FloorThresholds:
@@ -54,10 +56,16 @@ class FloorThresholds:
     TRI_WITNESS: float = 0.95
 
     # F9: Anti-Hantu/No Ghosts (meta, ==True)
-    ANTI_HANTU_FORBIDDEN: List[str] = field(default_factory=lambda: [
-        "I feel", "my heart", "I promise", "as a sentient being",
-        "I have a soul", "I want this for you"
-    ])
+    ANTI_HANTU_FORBIDDEN: List[str] = field(
+        default_factory=lambda: [
+            "I feel",
+            "my heart",
+            "I promise",
+            "as a sentient being",
+            "I have a soul",
+            "I want this for you",
+        ]
+    )
 
 
 FLOORS = FloorThresholds()
@@ -67,35 +75,39 @@ FLOORS = FloorThresholds()
 # VERDICT SYSTEM (What happens when you pass/fail)
 # =============================================================================
 
+
 class Verdict(Enum):
     """Constitutional verdicts (v45.0)"""
-    SEAL = "SEAL"          # All floors pass, safe to proceed
-    PARTIAL = "PARTIAL"    # Soft floor warning, proceed with caution
-    VOID = "VOID"          # Hard floor failure, blocked
-    SABAR = "SABAR"        # Stop. Acknowledge. Breathe. Adjust. Resume.
+
+    SEAL = "SEAL"  # All floors pass, safe to proceed
+    PARTIAL = "PARTIAL"  # Soft floor warning, proceed with caution
+    VOID = "VOID"  # Hard floor failure, blocked
+    SABAR = "SABAR"  # Stop. Acknowledge. Breathe. Adjust. Resume.
     HOLD_888 = "888_HOLD"  # High-stakes hold, needs confirmation
-    SUNSET = "SUNSET"      # Truth expired, revocation
+    SUNSET = "SUNSET"  # Truth expired, revocation
 
 
 # =============================================================================
 # MEASUREMENT (How we score)
 # =============================================================================
 
+
 @dataclass
 class FloorScores:
     """Measured floor values"""
-    truth: float = 0.85                    # F1: Truth (claimed or measured)
-    delta_s: float = 0.0                   # F2: Clarity (zlib compression delta)
-    peace_squared: float = 1.0             # F3: Stability (tone analysis)
-    kappa_r: float = 0.95                  # F4: Empathy (distress detection)
-    omega_0: float = 0.04                  # F5: Humility (claimed)
-    amanah: bool = True                    # F6: Integrity (pattern check)
-    rasa: bool = True                      # F7: Felt care (acknowledgment)
-    tri_witness: float = 0.90              # F8: Reality check (multi-agent)
-    anti_hantu: bool = True                # F9: No ghost claims (pattern check)
+
+    truth: float = 0.85  # F1: Truth (claimed or measured)
+    delta_s: float = 0.0  # F2: Clarity (zlib compression delta)
+    peace_squared: float = 1.0  # F3: Stability (tone analysis)
+    kappa_r: float = 0.95  # F4: Empathy (distress detection)
+    omega_0: float = 0.04  # F5: Humility (claimed)
+    amanah: bool = True  # F6: Integrity (pattern check)
+    rasa: bool = True  # F7: Felt care (acknowledgment)
+    tri_witness: float = 0.90  # F8: Reality check (multi-agent)
+    anti_hantu: bool = True  # F9: No ghost claims (pattern check)
 
     # Derived metrics (GENIUS LAW)
-    shadow: float = 0.0                    # Shadow-Truth (obscurity)
+    shadow: float = 0.0  # Shadow-Truth (obscurity)
 
 
 def check_amanah_patterns(text: str) -> Tuple[bool, str]:
@@ -183,15 +195,28 @@ def compute_empathy_score(input_text: str, output_text: str) -> Tuple[float, str
 
     # Detect distress in user input
     distress_signals = [
-        "i failed", "i'm sad", "i'm scared", "i'm worried", "help me",
-        "i don't know what to do", "frustrated", "hopeless", "alone"
+        "i failed",
+        "i'm sad",
+        "i'm scared",
+        "i'm worried",
+        "help me",
+        "i don't know what to do",
+        "frustrated",
+        "hopeless",
+        "alone",
     ]
     distress = [sig for sig in distress_signals if sig in input_lower]
 
     # Check for consolation in output
     consolation = [
-        "i understand", "that's understandable", "it's okay", "it's normal",
-        "you're not alone", "take your time", "here to help", "step by step"
+        "i understand",
+        "that's understandable",
+        "it's okay",
+        "it's normal",
+        "you're not alone",
+        "take your time",
+        "here to help",
+        "step by step",
     ]
     consoling = [pat for pat in consolation if pat in output_lower]
 
@@ -218,6 +243,7 @@ def compute_empathy_score(input_text: str, output_text: str) -> Tuple[float, str
 # GENIUS LAW (Derived Metrics)
 # =============================================================================
 
+
 def compute_genius_index(scores: FloorScores) -> float:
     """
     G = Δ · Ω · Ψ (simplified, energy=1.0)
@@ -231,7 +257,11 @@ def compute_genius_index(scores: FloorScores) -> float:
     """
     # Delta (Clarity)
     truth_ratio = min(scores.truth / FLOORS.TRUTH, 1.0)
-    clarity_ratio = min(1.0, 1.0 + scores.delta_s * 0.1) if scores.delta_s >= 0 else max(0.0, 1.0 + scores.delta_s)
+    clarity_ratio = (
+        min(1.0, 1.0 + scores.delta_s * 0.1)
+        if scores.delta_s >= 0
+        else max(0.0, 1.0 + scores.delta_s)
+    )
     delta = (truth_ratio + clarity_ratio) / 2
 
     # Omega (Ethics)
@@ -244,7 +274,7 @@ def compute_genius_index(scores: FloorScores) -> float:
     peace_ratio = min(scores.peace_squared / FLOORS.PEACE_SQUARED, 1.0)
     omega_band = 1.0 if FLOORS.OMEGA_MIN <= scores.omega_0 <= FLOORS.OMEGA_MAX else 0.5
     witness_ratio = min(scores.tri_witness / FLOORS.TRI_WITNESS, 1.0)
-    psi = (peace_ratio * omega_band * witness_ratio) ** (1/3)
+    psi = (peace_ratio * omega_band * witness_ratio) ** (1 / 3)
 
     return delta * omega * psi
 
@@ -259,7 +289,11 @@ def compute_dark_cleverness(scores: FloorScores) -> float:
     C_dark ≤ 0.3 = safe
     """
     truth_ratio = min(scores.truth / FLOORS.TRUTH, 1.0)
-    clarity_ratio = min(1.0, 1.0 + scores.delta_s * 0.1) if scores.delta_s >= 0 else max(0.0, 1.0 + scores.delta_s)
+    clarity_ratio = (
+        min(1.0, 1.0 + scores.delta_s * 0.1)
+        if scores.delta_s >= 0
+        else max(0.0, 1.0 + scores.delta_s)
+    )
     delta = (truth_ratio + clarity_ratio) / 2
 
     kappa_ratio = min(scores.kappa_r / FLOORS.KAPPA_R, 1.0)
@@ -270,7 +304,7 @@ def compute_dark_cleverness(scores: FloorScores) -> float:
     peace_ratio = min(scores.peace_squared / FLOORS.PEACE_SQUARED, 1.0)
     omega_band = 1.0 if FLOORS.OMEGA_MIN <= scores.omega_0 <= FLOORS.OMEGA_MAX else 0.5
     witness_ratio = min(scores.tri_witness / FLOORS.TRI_WITNESS, 1.0)
-    psi = (peace_ratio * omega_band * witness_ratio) ** (1/3)
+    psi = (peace_ratio * omega_band * witness_ratio) ** (1 / 3)
 
     return delta * (1 - omega) * (1 - psi)
 
@@ -278,6 +312,7 @@ def compute_dark_cleverness(scores: FloorScores) -> float:
 # =============================================================================
 # VERDICT LOGIC (The Judge)
 # =============================================================================
+
 
 def apex_review(scores: FloorScores, high_stakes: bool = False) -> Verdict:
     """
@@ -330,24 +365,24 @@ def apex_review(scores: FloorScores, high_stakes: bool = False) -> Verdict:
 # PIPELINE (000→999)
 # =============================================================================
 
+
 class Stage(Enum):
     """The 000-999 pipeline stages"""
-    VOID_000 = "000_VOID"          # Initialize (blank slate)
-    SENSE_111 = "111_SENSE"        # Gather context
-    REFLECT_222 = "222_REFLECT"    # Self-audit
-    REASON_333 = "333_REASON"      # Generate response
+
+    VOID_000 = "000_VOID"  # Initialize (blank slate)
+    SENSE_111 = "111_SENSE"  # Gather context
+    REFLECT_222 = "222_REFLECT"  # Self-audit
+    REASON_333 = "333_REASON"  # Generate response
     EVIDENCE_444 = "444_EVIDENCE"  # Gather evidence
     EMPATHIZE_555 = "555_EMPATHIZE"  # Check empathy
-    ALIGN_666 = "666_ALIGN"        # Constitutional check
-    FORGE_777 = "777_FORGE"        # Finalize output
-    JUDGE_888 = "888_JUDGE"        # Verdict
-    SEAL_999 = "999_SEAL"          # Approve + log
+    ALIGN_666 = "666_ALIGN"  # Constitutional check
+    FORGE_777 = "777_FORGE"  # Finalize output
+    JUDGE_888 = "888_JUDGE"  # Verdict
+    SEAL_999 = "999_SEAL"  # Approve + log
 
 
 def validate_response(
-    user_input: str,
-    ai_output: str,
-    high_stakes: bool = False
+    user_input: str, ai_output: str, high_stakes: bool = False
 ) -> Tuple[Verdict, FloorScores, Dict[str, Any]]:
     """
     Full validation pipeline: input + output → verdict
@@ -446,9 +481,9 @@ THE SPEC AS AUTHORITY (REAL):
 # =============================================================================
 
 if __name__ == "__main__":
-    print("="*80)
+    print("=" * 80)
     print("arifOS KERNEL v45.0 - The Actual System")
-    print("="*80)
+    print("=" * 80)
     print()
 
     # Demo 1: Clean response
@@ -504,7 +539,7 @@ if __name__ == "__main__":
     print(f"F4 Empathy: {meta['F4_KappaR']}")
     print()
 
-    print("="*80)
+    print("=" * 80)
     print("KERNEL NOTES:")
-    print("="*80)
+    print("=" * 80)
     print(KERNEL_NOTES)

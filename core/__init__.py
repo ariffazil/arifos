@@ -1,68 +1,34 @@
 """
-arifOS core — Constitutional Kernel (RUKUN AGI)
-================================================
+core/ — arifOS Kernel (2026.02.15-FORGE-TRINITY-SEAL)
 
-The 5-Organ Kernel + 4 Shared Modules.
+Reusable governance engine containing ALL decision logic.
+Imported by: aaa_mcp (wrapper), future products
 
-Organs:
-- airlock (init): Session Authentication (F11/F12)
-- mind (agi): AGI Evidence Engine (F2/F4/F7/F8)
-- heart (asi): ASI Alignment Engine (F1/F5/F6)
-- soul (apex): APEX Verdict Engine (F3/F8/F9/F10/F13)
-- memory (vault): Constitutional Memory (F1/F13)
+Components:
+- uncertainty_engine: 5-dim vector with harmonic/geometric mean
+- governance_kernel: Conditional AWAITING_888
+- telemetry: 30-day locked adaptation
+- judgment: Canonical verdict interface
+- organs: Six constitutional tools
 
-Version: v55.5.0-RUKUN
-Author: Muhammad Arif bin Fazil
-License: AGPL-3.0-only
-DITEMPA BUKAN DIBERI
+Architecture: Kernel/Wrapper pattern
+core/ = decision logic (this package)
+aaa_mcp/ = transport only (no decisions)
 """
 
-__version__ = "60.0.0-RUKUN"
+__version__ = "2026.02.15-FORGE-TRINITY-SEAL"
 
-from . import organs, shared
-
-# Convenience exports (public surface)
-from .organs import (
-    agi,
-    align,
-    anchor,
-    apex,
-    asi,
-    empathize,
-    feel,
-    forge,
-    heart,
-    init,
-    judge,
-    memory,
-    mind,
-    reason,
-    seal,
-    sense,
-    soul,
-    sync,
-    think,
-    vault,
-)
-from .pipeline import ForgeResult, quick
-from .pipeline import forge as trinity_forge
+# Expose kernel components for import
+from . import uncertainty_engine
+from . import governance_kernel
+from . import telemetry
+from . import judgment
+from . import organs
 
 __all__ = [
+    "uncertainty_engine",
+    "governance_kernel",
+    "telemetry",
+    "judgment",
     "organs",
-    "shared",
-    "init",
-    "sense",
-    "think",
-    "reason",
-    "sync",
-    "empathize",
-    "align",
-    "forge",
-    "judge",
-    "seal",
-    "anchor",
-    "feel",
-    "trinity_forge",
-    "quick",
-    "ForgeResult",
 ]

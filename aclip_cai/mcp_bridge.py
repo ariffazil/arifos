@@ -40,6 +40,7 @@ from .console_tools import (
 # MCP Tool Wrappers
 # =============================================================================
 
+
 @mcp.tool()
 async def aclip_system_health(
     include_swap: bool = True,
@@ -48,14 +49,14 @@ async def aclip_system_health(
 ) -> dict:
     """
     [ACLIP_CAI] Retrieve system health metrics (CPU, memory, disk).
-    
+
     Console-only tool. No constitutional floors. Fast system introspection.
-    
+
     Args:
         include_swap: Include swap/memory statistics
         include_io: Include disk I/O statistics
         include_temp: Include thermal readings
-    
+
     Returns:
         System metrics with latency and timestamp
     """
@@ -78,9 +79,9 @@ async def aclip_process_list(
 ) -> dict:
     """
     [ACLIP_CAI] List and filter system processes.
-    
+
     Console-only tool. No constitutional floors. Process introspection.
-    
+
     Args:
         filter_name: Filter by process name (substring match)
         filter_user: Filter by username
@@ -88,7 +89,7 @@ async def aclip_process_list(
         min_memory_mb: Minimum memory usage in MB
         limit: Maximum number of processes to return
         include_threads: Include thread count per process
-    
+
     Returns:
         Filtered process list with resource usage
     """
@@ -115,9 +116,9 @@ async def aclip_fs_inspect(
 ) -> dict:
     """
     [ACLIP_CAI] Inspect filesystem structure and file metadata.
-    
+
     Console-only tool. No constitutional floors. Filesystem introspection.
-    
+
     Args:
         path: Root path to inspect
         depth: Maximum directory depth to traverse
@@ -126,7 +127,7 @@ async def aclip_fs_inspect(
         min_size_bytes: Minimum file size to include
         pattern: Glob pattern to filter files (e.g., "*.py")
         max_files: Maximum files to return
-    
+
     Returns:
         File tree with metadata
     """
@@ -153,9 +154,9 @@ async def aclip_log_tail(
 ) -> dict:
     """
     [ACLIP_CAI] Tail and search log files.
-    
+
     Console-only tool. No constitutional floors. Log introspection.
-    
+
     Args:
         log_file: Path to log file
         lines: Number of lines to retrieve
@@ -163,7 +164,7 @@ async def aclip_log_tail(
         log_path: Compatibility alias for log_file
         grep_pattern: Filter lines matching regex pattern
         since_minutes: Only return lines from last N minutes
-    
+
     Returns:
         Log entries with parsed metadata
     """
@@ -188,16 +189,16 @@ async def aclip_net_status(
 ) -> dict:
     """
     [ACLIP_CAI] Network connectivity and interface status.
-    
+
     Console-only tool. No constitutional floors. Network introspection.
-    
+
     Args:
         check_ports: Include listening/open ports
         check_connections: Include active connections
         check_interfaces: Include network interface status
         check_routing: Include routing table
         target_host: Optional host to ping test
-    
+
     Returns:
         Network status and diagnostics
     """
@@ -219,15 +220,15 @@ async def aclip_config_flags(
 ) -> dict:
     """
     [ACLIP_CAI] Inspect configuration files and environment variables.
-    
+
     Console-only tool. No constitutional floors. Config introspection.
     Secrets are masked by default.
-    
+
     Args:
         config_path: Path to config file (.json, .yaml, .env)
         env_prefix: Filter environment variables by prefix
         include_secrets: Include unmasked secrets (use with caution)
-    
+
     Returns:
         Configuration data with safe defaults
     """
@@ -249,16 +250,16 @@ async def aclip_chroma_query(
 ) -> dict:
     """
     [ACLIP_CAI] Query ChromaDB vector store for semantic search.
-    
+
     Console-only tool. No constitutional floors. Vector DB introspection.
-    
+
     Args:
         query_text: Text to search for
         collection_name: ChromaDB collection name
         n_results: Number of results to return
         where_filter: Optional metadata filter
         include_embeddings: Include vector embeddings
-    
+
     Returns:
         Semantic search results with distances
     """
@@ -288,9 +289,9 @@ async def aclip_cost_estimator(
 ) -> dict:
     """
     [ACLIP_CAI] Estimate costs for AI operations and infrastructure.
-    
+
     Console-only tool. No constitutional floors. Cost projection.
-    
+
     Args:
         action_description: Description of planned action
         estimated_cpu_percent: Estimated CPU usage percentage
@@ -303,7 +304,7 @@ async def aclip_cost_estimator(
         api_calls: Number of API calls
         provider: LLM provider (openai, anthropic, gemini)
         model: Model name for pricing
-    
+
     Returns:
         Cost breakdown in USD
     """
@@ -340,7 +341,7 @@ async def aclip_forge_guard(
     [ACLIP_CAI] Forge guard — local circuit breaker.
 
     Evaluates local host/cost/risk signals and returns gate-only outcomes.
-    
+
     Args:
         check_system_health: Include C0 host pressure checks
         cost_score_threshold: Threshold for SABAR gate
@@ -352,7 +353,7 @@ async def aclip_forge_guard(
         justification: Reason for the action
         dry_run: Only evaluate without executing
         require_approval: Mandate human approval
-    
+
     Returns:
         Gate decision (OK/SABAR/VOID_LOCAL) with recommendations
     """
@@ -368,7 +369,7 @@ async def aclip_forge_guard(
         dry_run=dry_run,
         require_approval=require_approval,
     )
-    
+
     response = result.to_dict()
     response["motto"] = "DITEMPA BUKAN DIBERI 🔥"
     response["pass"] = "forward" if result.data.get("can_proceed") else "hold"
@@ -379,13 +380,14 @@ async def aclip_forge_guard(
 # Registration Function
 # =============================================================================
 
+
 def register_aclip_tools(mcp_server: Any) -> None:
     """
     Register all ACLIP_CAI tools with an MCP server instance.
-    
+
     This is called during aaa-mcp server initialization to expose
     the 9-tool nervous system to the 9-law pipeline.
-    
+
     Args:
         mcp_server: FastMCP server instance
     """
@@ -400,8 +402,8 @@ def register_aclip_tools(mcp_server: Any) -> None:
         aclip_cost_estimator,
         aclip_forge_guard,
     ]
-    
+
     for tool in tools:
         mcp_server.tool()(tool)
-    
+
     return None

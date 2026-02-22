@@ -16,14 +16,16 @@ from typing import Any, Dict, List, Optional
 
 class OutputMode(str, Enum):
     """Output formatting modes."""
-    USER = "user"       # Human-friendly, concise
-    DEBUG = "debug"     # Full technical details
-    SCHEMA = "schema"   # Structured, validated output
+
+    USER = "user"  # Human-friendly, concise
+    DEBUG = "debug"  # Full technical details
+    SCHEMA = "schema"  # Structured, validated output
 
 
 @dataclass
 class SchemaTemplate:
     """Template for structured output."""
+
     name: str
     required_fields: List[str]
     optional_fields: List[str]
@@ -44,11 +46,10 @@ SCHEMA_TEMPLATES: Dict[str, SchemaTemplate] = {
             "summary": "Brief synthesis of findings",
             "key_points": ["Point 1", "Point 2"],
             "confidence": 0.95,
-            "uncertainties": ["Edge case not fully tested"]
+            "uncertainties": ["Edge case not fully tested"],
         },
-        description="General analysis with structured reasoning"
+        description="General analysis with structured reasoning",
     ),
-    
     "comparison": SchemaTemplate(
         name="comparison",
         required_fields=["options", "criteria", "recommendation"],
@@ -57,11 +58,10 @@ SCHEMA_TEMPLATES: Dict[str, SchemaTemplate] = {
             "options": ["Option A", "Option B"],
             "criteria": [{"name": "cost", "weight": 0.3}],
             "tradeoffs": {"Option A": "Lower cost, higher risk"},
-            "recommendation": "Option A with caveats"
+            "recommendation": "Option A with caveats",
         },
-        description="Compare alternatives with weighted criteria"
+        description="Compare alternatives with weighted criteria",
     ),
-    
     "code_review": SchemaTemplate(
         name="code_review",
         required_fields=["issues", "severity", "suggestions"],
@@ -70,11 +70,10 @@ SCHEMA_TEMPLATES: Dict[str, SchemaTemplate] = {
             "issues": [{"line": 42, "type": "security", "description": "SQL injection risk"}],
             "severity": "high",
             "suggestions": ["Use parameterized queries"],
-            "positive_patterns": ["Good error handling"]
+            "positive_patterns": ["Good error handling"],
         },
-        description="Code review with structured feedback"
+        description="Code review with structured feedback",
     ),
-    
     "decision": SchemaTemplate(
         name="decision",
         required_fields=["verdict", "reasoning", "stakeholders"],
@@ -84,11 +83,10 @@ SCHEMA_TEMPLATES: Dict[str, SchemaTemplate] = {
             "reasoning": "Benefits outweigh risks with monitoring",
             "stakeholders": [{"name": "users", "impact": "positive"}],
             "risks": ["Implementation complexity"],
-            "reversibility": "Medium (can rollback within 24h)"
+            "reversibility": "Medium (can rollback within 24h)",
         },
-        description="Structured decision with full rationale"
+        description="Structured decision with full rationale",
     ),
-    
     "eureka_result": SchemaTemplate(
         name="eureka_result",
         required_fields=["insight", "novelty_score", "coherence_score", "confidence"],
@@ -100,9 +98,9 @@ SCHEMA_TEMPLATES: Dict[str, SchemaTemplate] = {
             "confidence": 0.78,
             "supporting_evidence": ["Data point 1", "Pattern match"],
             "alternative_explanations": ["Other possible interpretation"],
-            "testable_predictions": ["If true, then X should happen"]
+            "testable_predictions": ["If true, then X should happen"],
         },
-        description="Eureka insight with quality metrics"
+        description="Eureka insight with quality metrics",
     ),
 }
 
@@ -111,32 +109,33 @@ SCHEMA_TEMPLATES: Dict[str, SchemaTemplate] = {
 # FORMATTER CLASS
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 class OutputFormatter:
     """
     Format pipeline outputs for different audiences.
-    
+
     Usage:
         formatter = OutputFormatter(mode=OutputMode.USER)
         user_output = formatter.format(result, query_type="analysis")
     """
-    
+
     def __init__(self, mode: OutputMode = OutputMode.USER):
         self.mode = mode
-    
+
     def format(
         self,
         result: Dict[str, Any],
         query_type: str = "general",
-        template_name: Optional[str] = None
+        template_name: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Format result based on mode and query type.
-        
+
         Args:
             result: Raw pipeline result
             query_type: Type of query (determines template)
             template_name: Specific schema template to use
-            
+
         Returns:
             Formatted output appropriate for the mode
         """
@@ -148,7 +147,7 @@ class OutputFormatter:
             return self._format_schema(result, template_name or query_type)
         else:
             return result
-    
+
     def _format_user(self, result: Dict[str, Any], query_type: str) -> Dict[str, Any]:
         """Format for human consumption—concise, readable."""
         formatted = {
@@ -156,16 +155,16 @@ class OutputFormatter:
             "verdict": result.get("verdict", "UNKNOWN"),
             "confidence": self._extract_confidence(result),
         }
-        
+
         # Add principles applied (from 9 principles)
         principles = self._extract_principles(result)
         if principles:
             formatted["principles_applied"] = principles
-        
+
         # Add brief rationale if verdict isn't SEAL
         if result.get("verdict") not in ["SEAL", None]:
             formatted["note"] = self._extract_rationale(result)
-        
+
         # Add seal_id for audit trail
         if "seal" in result and result["seal"]:
             seal = result["seal"]
@@ -173,9 +172,9 @@ class OutputFormatter:
                 formatted["audit_id"] = seal.seal_id[:16] + "..."
             elif isinstance(seal, dict):
                 formatted["audit_id"] = seal.get("seal_id", "")[:16] + "..."
-        
+
         return formatted
-    
+
     def _format_debug(self, result: Dict[str, Any]) -> Dict[str, Any]:
         """Format for debugging—full technical details."""
         # Return everything, but add human-readable labels
@@ -190,7 +189,7 @@ class OutputFormatter:
             },
             "stage_outputs": {},
         }
-        
+
         # Extract stage-specific outputs with mottos
         if "agi" in result:
             agi = result["agi"]
@@ -199,14 +198,14 @@ class OutputFormatter:
                 "motto_222": agi.get("motto_222"),
                 "motto_333": agi.get("motto_333"),
             }
-        
+
         if "asi" in result:
             asi = result["asi"]
             debug_output["stage_outputs"]["asi"] = {
                 "motto_555": asi.get("motto_555"),
                 "motto_666": asi.get("motto_666"),
             }
-        
+
         if "apex" in result:
             apex = result["apex"]
             debug_output["stage_outputs"]["apex"] = {
@@ -214,45 +213,41 @@ class OutputFormatter:
                 "motto_777": apex.get("motto_777"),
                 "motto_888": apex.get("motto_888"),
             }
-        
+
         return debug_output
-    
-    def _format_schema(
-        self,
-        result: Dict[str, Any],
-        template_name: str
-    ) -> Dict[str, Any]:
+
+    def _format_schema(self, result: Dict[str, Any], template_name: str) -> Dict[str, Any]:
         """Format according to schema template."""
         template = SCHEMA_TEMPLATES.get(template_name)
         if not template:
             # Fall back to user mode if unknown template
             return self._format_user(result, template_name)
-        
+
         # Extract and validate required fields
         structured = {"_schema": template.name}
-        
+
         for field in template.required_fields:
             value = self._extract_field(result, field)
             structured[field] = value if value is not None else ""
-        
+
         for field in template.optional_fields:
             value = self._extract_field(result, field)
             if value is not None:
                 structured[field] = value
-        
+
         # Add metadata
         structured["_metadata"] = {
             "verdict": result.get("verdict"),
             "confidence": self._extract_confidence(result),
             "template": template.name,
         }
-        
+
         return structured
-    
+
     # ═════════════════════════════════════════════════════════════════════════
     # HELPER METHODS
     # ═════════════════════════════════════════════════════════════════════════
-    
+
     def _extract_answer(self, result: Dict[str, Any]) -> str:
         """Extract the main answer text."""
         # Try various possible locations
@@ -260,23 +255,27 @@ class OutputFormatter:
             return result["answer"]
         if "response" in result:
             return result["response"]
-        
+
         # Try to extract from AGI tensor
         if "agi" in result and isinstance(result["agi"], dict):
             agi = result["agi"]
             if "tensor" in agi and hasattr(agi["tensor"], "thought_chain"):
                 thoughts = agi["tensor"].thought_chain
                 if thoughts:
-                    return thoughts[-1].thought if hasattr(thoughts[-1], "thought") else str(thoughts[-1])
-        
+                    return (
+                        thoughts[-1].thought
+                        if hasattr(thoughts[-1], "thought")
+                        else str(thoughts[-1])
+                    )
+
         # Try apex output
         if "apex" in result and isinstance(result["apex"], dict):
             apex = result["apex"]
             if "judge" in apex and isinstance(apex["judge"], dict):
                 return apex["judge"].get("justification", "No answer generated")
-        
+
         return "No answer available"
-    
+
     def _extract_confidence(self, result: Dict[str, Any]) -> float:
         """Extract confidence score."""
         # Try W_3 first
@@ -288,11 +287,11 @@ class OutputFormatter:
         if "f2_threshold" in result:
             return result["f2_threshold"]
         return 0.5
-    
+
     def _extract_principles(self, result: Dict[str, Any]) -> List[str]:
         """Extract the 9 principles that were applied."""
         principles = []
-        
+
         # Map stage outputs to principles
         principle_map = {
             "motto_111": "Examined, not spoon-fed",
@@ -304,61 +303,62 @@ class OutputFormatter:
             "motto_777": "Worked for, not merely hoped",
             "motto_888": "Aware, not overconfident",
         }
-        
+
         # Check AGI outputs
         if "agi" in result and isinstance(result["agi"], dict):
             for key, principle in principle_map.items():
                 if key in result["agi"]:
                     principles.append(principle)
-        
+
         # Check ASI outputs
         if "asi" in result and isinstance(result["asi"], dict):
             for key in ["motto_555", "motto_666"]:
                 if key in result["asi"]:
                     principles.append(principle_map[key])
-        
+
         # Check APEX outputs
         if "apex" in result and isinstance(result["apex"], dict):
             for key in ["motto_444", "motto_777", "motto_888"]:
                 if key in result["apex"]:
                     principles.append(principle_map[key])
-        
+
         return principles if principles else ["Earned, not given"]
-    
+
     def _extract_rationale(self, result: Dict[str, Any]) -> str:
         """Extract brief rationale for non-SEAL verdicts."""
         if "remediation" in result and result["remediation"]:
             return result["remediation"]
-        
+
         if "apex" in result and isinstance(result["apex"], dict):
             apex = result["apex"]
             if "judge" in apex and isinstance(apex["judge"], dict):
                 return apex["judge"].get("justification", "Check details above")
-        
+
         floors = result.get("floors_failed", [])
         if floors:
             return f"Needs attention: {', '.join(floors)}"
-        
+
         return "Review output for details"
-    
+
     def _extract_field(self, result: Dict[str, Any], field: str) -> Any:
         """Extract a specific field from nested result."""
         # Direct access
         if field in result:
             return result[field]
-        
+
         # Nested access
         for key in ["agi", "asi", "apex", "judge", "seal"]:
             if key in result and isinstance(result[key], dict):
                 if field in result[key]:
                     return result[key][field]
-        
+
         return None
 
 
 # ═════════════════════════════════════════════════════════════════════════════
 # CONVENIENCE FUNCTIONS
 # ═════════════════════════════════════════════════════════════════════════════
+
 
 def format_for_user(result: Dict[str, Any], query_type: str = "general") -> Dict[str, Any]:
     """Quick format for user mode."""

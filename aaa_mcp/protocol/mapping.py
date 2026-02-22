@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional
 @dataclass(frozen=True)
 class StageSchema:
     """Complete schema definition for a stage."""
+
     stage_id: str
     operator_id: str
     motto: str
@@ -42,9 +43,8 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
         principle="Nothing of value comes free",
         input_schema={"query": "string", "auth": "optional"},
         output_schema={"session_id": "string", "verdict": "enum[SEAL,VOID]"},
-        floors=["F11", "F12"]
+        floors=["F11", "F12"],
     ),
-    
     "111": StageSchema(
         stage_id="111",
         operator_id="EXAMINE",
@@ -53,9 +53,8 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
         principle="Don't accept things at face value",
         input_schema={"query": "string", "session_id": "string"},
         output_schema={"intent": "string", "lane": "enum[SOCIAL,CARE,FACTUAL,CRISIS]"},
-        floors=["F2", "F4"]
+        floors=["F2", "F4"],
     ),
-    
     "222": StageSchema(
         stage_id="222",
         operator_id="EXPLORE",
@@ -64,9 +63,8 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
         principle="Consider multiple paths",
         input_schema={"query": "string", "intent": "classified"},
         output_schema={"hypotheses": "array[3]", "confidence_range": "tuple"},
-        floors=["F2", "F4", "F7"]
+        floors=["F2", "F4", "F7"],
     ),
-    
     "333": StageSchema(
         stage_id="333",
         operator_id="CLARIFY",
@@ -74,10 +72,13 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
         meaning="Clarified, Not Obscured",
         principle="Reduce confusion",
         input_schema={"query": "string", "hypotheses": "array"},
-        output_schema={"conclusion": "string", "truth_score": "float[0,1]", "entropy_delta": "float"},
-        floors=["F2", "F4", "F7"]
+        output_schema={
+            "conclusion": "string",
+            "truth_score": "float[0,1]",
+            "entropy_delta": "float",
+        },
+        floors=["F2", "F4", "F7"],
     ),
-    
     "444": StageSchema(
         stage_id="444",
         operator_id="FACE",
@@ -86,9 +87,8 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
         principle="Address hard truths directly",
         input_schema={"agi_output": "object", "asi_output": "object"},
         output_schema={"consensus_score": "float", "conflicts": "array"},
-        floors=["F3"]
+        floors=["F3"],
     ),
-    
     "555": StageSchema(
         stage_id="555",
         operator_id="CALM",
@@ -97,9 +97,8 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
         principle="Reduce tension",
         input_schema={"query": "string", "context": "object"},
         output_schema={"empathy_kappa_r": "float[0,1]", "stakeholders": "array"},
-        floors=["F5", "F6"]
+        floors=["F5", "F6"],
     ),
-    
     "666": StageSchema(
         stage_id="666",
         operator_id="PROTECT",
@@ -108,9 +107,8 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
         principle="Duty of care",
         input_schema={"query": "string", "empathy_analysis": "object"},
         output_schema={"is_reversible": "bool", "safety_score": "float[0,1]"},
-        floors=["F5", "F6", "F9"]
+        floors=["F5", "F6", "F9"],
     ),
-    
     "777": StageSchema(
         stage_id="777",
         operator_id="WORK",
@@ -119,9 +117,8 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
         principle="Results require effort",
         input_schema={"sync_output": "object", "safety_verified": "bool"},
         output_schema={"output": "string", "coherence": "float[0,1]"},
-        floors=["F3", "F8"]
+        floors=["F3", "F8"],
     ),
-    
     "888": StageSchema(
         stage_id="888",
         operator_id="AWARE",
@@ -129,10 +126,12 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
         meaning="Aware, Not Over-assured",
         principle="Know the limits of knowledge",
         input_schema={"forged_output": "object", "floors_checked": "array"},
-        output_schema={"verdict": "enum[SEAL,PARTIAL,VOID,888_HOLD]", "omega_0": "float[0.03,0.05]"},
-        floors=["F2", "F3", "F5", "F8"]
+        output_schema={
+            "verdict": "enum[SEAL,PARTIAL,VOID,888_HOLD]",
+            "omega_0": "float[0.03,0.05]",
+        },
+        floors=["F2", "F3", "F5", "F8"],
     ),
-    
     "999": StageSchema(
         stage_id="999",
         operator_id="SEAL",
@@ -141,7 +140,7 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
         principle="Approval must be earned",
         input_schema={"verdict": "enum", "audit_trail": "object"},
         output_schema={"seal_id": "string", "seal_hash": "string"},
-        floors=["F1", "F3"]
+        floors=["F1", "F3"],
     ),
 }
 
@@ -150,14 +149,15 @@ STAGE_SCHEMAS: Dict[str, StageSchema] = {
 # MAPPING FUNCTIONS
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 class SchemaMottoMapper:
     """Bidirectional mapping between human and machine representations."""
-    
+
     @staticmethod
     def get_by_stage(stage_id: str) -> Optional[StageSchema]:
         """Get schema by stage ID (e.g., '333')."""
         return STAGE_SCHEMAS.get(stage_id)
-    
+
     @staticmethod
     def get_by_operator(operator_id: str) -> Optional[StageSchema]:
         """Get schema by operator ID (e.g., 'CLARIFY')."""
@@ -165,7 +165,7 @@ class SchemaMottoMapper:
             if schema.operator_id == operator_id:
                 return schema
         return None
-    
+
     @staticmethod
     def get_by_motto(motto_fragment: str) -> Optional[StageSchema]:
         """Get schema by motto fragment (fuzzy match)."""
@@ -174,7 +174,7 @@ class SchemaMottoMapper:
             if fragment_lower in schema.motto.lower() or fragment_lower in schema.meaning.lower():
                 return schema
         return None
-    
+
     @staticmethod
     def get_by_principle(principle: str) -> Optional[StageSchema]:
         """Get schema by principle description (fuzzy match)."""
@@ -183,7 +183,7 @@ class SchemaMottoMapper:
             if principle_lower in schema.principle.lower():
                 return schema
         return None
-    
+
     @staticmethod
     def to_human_readable(stage_id: str) -> Dict[str, str]:
         """Convert stage to human-readable format."""
@@ -196,7 +196,7 @@ class SchemaMottoMapper:
             "motto": f"{schema.motto} ({schema.meaning})",
             "meaning": schema.meaning,
         }
-    
+
     @staticmethod
     def to_machine_readable(stage_id: str) -> Dict[str, Any]:
         """Convert stage to machine-readable (low-entropy) format."""
@@ -211,7 +211,7 @@ class SchemaMottoMapper:
             "output": schema.output_schema,
             "floors": schema.floors,
         }
-    
+
     @staticmethod
     def build_pipeline_schema(stage_ids: List[str]) -> Dict[str, Any]:
         """Build complete pipeline schema from stage list."""
@@ -219,11 +219,13 @@ class SchemaMottoMapper:
         for stage_id in stage_ids:
             schema = STAGE_SCHEMAS.get(stage_id)
             if schema:
-                pipeline.append({
-                    "stage": stage_id,
-                    "operator": schema.operator_id,
-                    "invariant": get_operator_invariant(schema.operator_id),
-                })
+                pipeline.append(
+                    {
+                        "stage": stage_id,
+                        "operator": schema.operator_id,
+                        "invariant": get_operator_invariant(schema.operator_id),
+                    }
+                )
         return {
             "pipeline_id": f"{'-'.join(stage_ids)}",
             "stages": pipeline,

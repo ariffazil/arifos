@@ -25,12 +25,7 @@ class TestF3TriWitness:
         """F3 should pass when tri-witness ≥ 0.95."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.98,
-            peace_squared=1.0,
-            kappa_r=0.95,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.98, peace_squared=1.0, kappa_r=0.95, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert verdict.f3_tri_witness is True
@@ -40,12 +35,7 @@ class TestF3TriWitness:
         """F3 should fail when tri-witness < 0.95."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.85,
-            peace_squared=1.0,
-            kappa_r=0.95,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.85, peace_squared=1.0, kappa_r=0.95, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert verdict.f3_tri_witness is False
@@ -60,12 +50,7 @@ class TestF4PeaceSquared:
         """F4 should pass when peace² ≥ 1.0."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.5,
-            kappa_r=0.95,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=1.5, kappa_r=0.95, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert verdict.f4_peace_squared is True
@@ -75,12 +60,7 @@ class TestF4PeaceSquared:
         """F4 should fail when peace² < 1.0."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=0.5,
-            kappa_r=0.95,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=0.5, kappa_r=0.95, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert verdict.f4_peace_squared is False
@@ -95,12 +75,7 @@ class TestF5KappaR:
         """F5 should pass when κᵣ ≥ 0.95."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.0,
-            kappa_r=0.98,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=1.0, kappa_r=0.98, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert verdict.f5_kappa_r is True
@@ -110,12 +85,7 @@ class TestF5KappaR:
         """F5 should fail when κᵣ < 0.95."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.0,
-            kappa_r=0.85,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=1.0, kappa_r=0.85, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert verdict.f5_kappa_r is False
@@ -130,12 +100,7 @@ class TestF6Omega0:
         """F6 should pass when Ω₀ in [0.03, 0.05]."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.0,
-            kappa_r=0.95,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=1.0, kappa_r=0.95, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert verdict.f6_omega_0 is True
@@ -145,12 +110,7 @@ class TestF6Omega0:
         """F6 should fail when Ω₀ < 0.03 (overconfident)."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.0,
-            kappa_r=0.95,
-            omega_0=0.01,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=1.0, kappa_r=0.95, omega_0=0.01, rasa=True, c_dark=0.15
         )
 
         assert verdict.f6_omega_0 is False
@@ -161,12 +121,7 @@ class TestF6Omega0:
         """F6 should fail when Ω₀ > 0.05 (too uncertain)."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.0,
-            kappa_r=0.95,
-            omega_0=0.10,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=1.0, kappa_r=0.95, omega_0=0.10, rasa=True, c_dark=0.15
         )
 
         assert verdict.f6_omega_0 is False
@@ -180,12 +135,7 @@ class TestF7RASA:
         """F7 should pass when RASA = True."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.0,
-            kappa_r=0.95,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=1.0, kappa_r=0.95, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert verdict.f7_rasa is True
@@ -195,12 +145,7 @@ class TestF7RASA:
         """F7 should fail when RASA = False."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.0,
-            kappa_r=0.95,
-            omega_0=0.04,
-            rasa=False,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=1.0, kappa_r=0.95, omega_0=0.04, rasa=False, c_dark=0.15
         )
 
         assert verdict.f7_rasa is False
@@ -215,12 +160,7 @@ class TestF9CDark:
         """F9 should pass when C_dark < 0.30."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.0,
-            kappa_r=0.95,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=1.0, kappa_r=0.95, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert verdict.f9_c_dark is True
@@ -230,12 +170,7 @@ class TestF9CDark:
         """F9 should fail when C_dark ≥ 0.30."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.0,
-            kappa_r=0.95,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.50
+            tri_witness=0.95, peace_squared=1.0, kappa_r=0.95, omega_0=0.04, rasa=True, c_dark=0.50
         )
 
         assert verdict.f9_c_dark is False
@@ -250,12 +185,7 @@ class TestOmegaKernelIntegration:
         """All ASI floors passing should result in overall pass."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.98,
-            peace_squared=1.0,
-            kappa_r=0.96,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.98, peace_squared=1.0, kappa_r=0.96, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert verdict.f3_tri_witness is True
@@ -276,7 +206,7 @@ class TestOmegaKernelIntegration:
             kappa_r=0.95,
             omega_0=0.04,
             rasa=True,
-            c_dark=0.15
+            c_dark=0.15,
         )
 
         assert verdict.f3_tri_witness is False
@@ -286,12 +216,7 @@ class TestOmegaKernelIntegration:
         """Verdict should contain rich metadata for all floors."""
         kernel = OmegaKernel()
         verdict = kernel.evaluate(
-            tri_witness=0.95,
-            peace_squared=1.0,
-            kappa_r=0.95,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.95, peace_squared=1.0, kappa_r=0.95, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert "f3_tri_witness" in verdict.metadata
@@ -308,12 +233,7 @@ class TestConvenienceFunction:
     def test_evaluate_asi_floors(self):
         """evaluate_asi_floors should work as shortcut."""
         verdict = evaluate_asi_floors(
-            tri_witness=0.98,
-            peace_squared=1.0,
-            kappa_r=0.96,
-            omega_0=0.04,
-            rasa=True,
-            c_dark=0.15
+            tri_witness=0.98, peace_squared=1.0, kappa_r=0.96, omega_0=0.04, rasa=True, c_dark=0.15
         )
 
         assert isinstance(verdict, OmegaVerdict)

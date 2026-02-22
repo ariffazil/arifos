@@ -3,15 +3,14 @@ arifOS MCP Server Integration Layer
 Wraps external MCP servers with constitutional governance
 """
 
-import asyncio
-import json
 import logging
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Callable, Dict, Optional
 
 from .core.constitutional_decorator import constitutional_floor, get_tool_floors
-from .mcp_config import MCP_SERVERS, get_server_config, validate_constitutional_compliance
+from .mcp_config import get_server_config, validate_constitutional_compliance
+from .tools.mcp_gateway import gateway_route_tool  # Added import
 
 logger = logging.getLogger(__name__)
 
@@ -86,24 +85,33 @@ class MCPIntegrationLayer:
         )
 
         try:
-            # Execute server call
-            # Note: Actual MCP server call would happen here
-            # For now, return structured response template
+            # Execute server call via the constitutional gateway
+            # Assume operation maps to tool_name for gateway
+            gateway_result = await gateway_route_tool(
+                tool_name=operation,
+                payload=params,
+                session_id="integration_session_"
+                + datetime.utcnow().isoformat(),  # Dummy session ID for now
+                actor_id="mcp_integration_layer",  # Dummy actor ID for now
+                # Additional arguments like require_human_override can be passed if needed
+            )
+
             result = {
                 "server": server_name,
                 "operation": operation,
                 "params": params,
                 "status": "completed",
-                "verdict": "SEAL",
+                "verdict": gateway_result.get("verdict", "VOID"),  # Get verdict from gateway
                 "trinity_component": config.trinity.value,
                 "floors_enforced": config.floors,
                 "atomic_action": config.atomic_action,
                 "reversible": config.reversible,
                 "omega_estimate": omega_estimate,
                 "motto": "DITEMPA BUKAN DIBERI 💎🔥🧠",
+                "gateway_response": gateway_result,  # Include full gateway response
             }
 
-            call_record.verdict = "SEAL"
+            call_record.verdict = result["verdict"]
             call_record.omega_after = omega_estimate * 0.9  # Assume uncertainty reduced
 
         except Exception as e:

@@ -1,32 +1,63 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "arifOS AAA MCP v55.5-HARDENED — Claude Desktop Config",
+  "$comment": "arifOS AAA MCP v64.2-GAGI — Claude Desktop Config (T000: 2026.02.15-FORGE-TRINITY-SEAL). NOTE: Platform-specific paths - adjust for Windows vs Linux",
   "mcpServers": {
-    "aaa-mcp": {
-      "command": "C:\\Users\\User\\arifOS\\venv\\Scripts\\python.exe",
+    "aaa-mcp-linux": {
+      "command": "/root/arifOS/.venv/bin/python",
       "args": ["-m", "aaa_mcp", "stdio"],
-      "cwd": "C:/Users/User/arifOS",
+      "cwd": "/root/arifOS",
       "env": {
-        "PYTHONPATH": "C:/Users/User/arifOS",
-        "ARIFOS_MODE": "PROD",
+        "PYTHONPATH": "/root/arifOS",
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         "PYTHONIOENCODING": "utf-8",
         "PYTHONUNBUFFERED": "1"
       },
       "disabled": false,
       "alwaysAllow": [
-        "init_gate",
+        "anchor",
+        "reason",
+        "integrate",
+        "respond",
+        "validate",
+        "align",
+        "forge",
+        "audit",
+        "seal",
         "trinity_forge",
-        "agi_sense",
-        "agi_think",
-        "agi_reason",
-        "asi_empathize",
-        "asi_align",
-        "apex_verdict",
-        "reality_search",
-        "vault_seal",
-        "vault_query",
-        "tool_router",
-        "truth_audit"
+        "container_list",
+        "container_restart",
+        "container_logs",
+        "sovereign_health",
+        "container_exec"
+      ]
+    },
+    "aaa-mcp-windows": {
+      "command": "C:\\Users\\User\\arifOS\\.venv313\\Scripts\\python.exe",
+      "args": ["-m", "aaa_mcp", "stdio"],
+      "cwd": "C:/Users/User/arifOS",
+      "env": {
+        "PYTHONPATH": "C:/Users/User/arifOS",
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUNBUFFERED": "1"
+      },
+      "disabled": true,
+      "alwaysAllow": [
+        "anchor",
+        "reason",
+        "integrate",
+        "respond",
+        "validate",
+        "align",
+        "forge",
+        "audit",
+        "seal",
+        "trinity_forge",
+        "container_list",
+        "container_restart",
+        "container_logs",
+        "sovereign_health",
+        "container_exec"
       ]
     }
   }

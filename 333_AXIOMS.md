@@ -1,4 +1,5 @@
-# 333 AXIOMS — The Constitutional Glossary of arifOS (v60.0-FORGE)
+# 333 AXIOMS — The Constitutional Glossary of arifOS (2026.02.15-FORGE-TRINITY-SEAL)
+**T000 Version:** 2026.02.15-FORGE-TRINITY-SEAL
 
 > *These terms are not metaphors—they are **Operational Primitives**.*
 > Replacing them with generic synonyms dissolves the metabolic integrity of the system.
@@ -100,5 +101,6 @@
 ---
 
 **Authority:** Muhammad Arif bin Fazil  
-**Version:** v60.0-FORGE  
+**T000 Version:** 2026.02.15-FORGE-TRINITY-SEAL  
+**Code Version:** 2026.02.15-FORGE-TRINITY-SEAL  
 **Creed:** *DITEMPA BUKAN DIBERI*

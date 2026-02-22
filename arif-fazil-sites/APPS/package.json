@@ -1,7 +1,7 @@
 {
   "name": "arifos-mind-docs",
   "private": true,
-  "version": "55.2.0",
+  "version": "64.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

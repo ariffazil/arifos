@@ -25,7 +25,8 @@ logger = logging.getLogger(__name__)
 @dataclass
 class AgentResult:
     """Typed result from any agent execution."""
-    verdict: str = "VOID"          # SEAL / VOID / SABAR / PARTIAL / 888_HOLD
+
+    verdict: str = "VOID"  # SEAL / VOID / SABAR / PARTIAL / 888_HOLD
     data: Dict[str, Any] = field(default_factory=dict)
     session_id: Optional[str] = None
     agent: str = ""
@@ -38,6 +39,7 @@ class AgentResult:
 
 class Agent:
     """Base agent with typed contract and error handling."""
+
     name: str = "base"
     symbol: str = "?"
 

@@ -20,7 +20,6 @@ Usage:
 import pytest
 from codebase.core.enforcement.response_validator_extensions import meta_select
 
-
 # =============================================================================
 # Strong Consensus Tests
 # =============================================================================

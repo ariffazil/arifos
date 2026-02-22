@@ -8,13 +8,12 @@ import subprocess
 import sys
 
 
+
 def run_tests():
     """Run pytest for vault tests."""
     os.chdir("C:\\Users\\User\\arifOS\\SEAL999_CANONICAL")
     result = subprocess.run(
-        ["python", "-m", "pytest", "tests/test_vault.py", "-v"],
-        capture_output=True,
-        text=True
+        ["python", "-m", "pytest", "tests/test_vault.py", "-v"], capture_output=True, text=True
     )
     print("STDOUT:")
     print(result.stdout)
@@ -23,6 +22,7 @@ def run_tests():
         print(result.stderr)
     print(f"Return code: {result.returncode}")
     return result.returncode == 0
+
 
 if __name__ == "__main__":
     success = run_tests()

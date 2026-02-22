@@ -52,34 +52,30 @@ __all__ = [
     "heart",
     "soul",
     "memory",
-
     # Unified interfaces
     "init",
     "agi",
     "asi",
     "apex",
     "vault",
-
     # Humanized aliases
     "anchor",
     "feel",
-
     # Actions
     "scan_injection",  # F12
-    "verify_auth",     # F11
+    "verify_auth",  # F11
     "requires_sovereign",
-    "sense",           # Stage 111
-    "think",           # Stage 222
-    "reason",          # Stage 333
-    "empathize",       # Stage 555
-    "align",           # Stage 666
-    "sync",            # Stage 444
-    "forge",           # Stage 777
-    "judge",           # Stage 888
-    "seal",            # Stage 999
-    "query",           # Vault read
-    "verify",          # Vault verify
-
+    "sense",  # Stage 111
+    "think",  # Stage 222
+    "reason",  # Stage 333
+    "empathize",  # Stage 555
+    "align",  # Stage 666
+    "sync",  # Stage 444
+    "forge",  # Stage 777
+    "judge",  # Stage 888
+    "seal",  # Stage 999
+    "query",  # Vault read
+    "verify",  # Vault verify
     # Types
     "SessionToken",
     "AuthorityLevel",

@@ -20,7 +20,6 @@ Usage:
 import pytest
 from codebase.core.enforcement.response_validator_extensions import validate_response_full
 
-
 # =============================================================================
 # F1 AMANAH (Integrity) Tests
 # =============================================================================
@@ -64,8 +63,7 @@ def test_f2_truth_unverifiable_without_evidence():
 def test_f2_truth_pass_with_high_score():
     """Test F2 Truth passes with high external truth score."""
     result = validate_response_full(
-        "Paris is the capital of France.",
-        evidence={"truth_score": 0.99}
+        "Paris is the capital of France.", evidence={"truth_score": 0.99}
     )
 
     assert result["floors"]["F2_Truth"]["passed"] is True
@@ -77,8 +75,7 @@ def test_f2_truth_pass_with_high_score():
 def test_f2_truth_fail_with_low_score():
     """Test F2 Truth fails with low external truth score."""
     result = validate_response_full(
-        "Paris is the capital of Spain.",
-        evidence={"truth_score": 0.50}
+        "Paris is the capital of Spain.", evidence={"truth_score": 0.50}
     )
 
     assert result["floors"]["F2_Truth"]["passed"] is False
@@ -89,11 +86,7 @@ def test_f2_truth_fail_with_low_score():
 
 def test_f2_truth_high_stakes_mode_escalation():
     """Test F2 Truth escalates to HOLD-888 in high-stakes mode when UNVERIFIABLE."""
-    result = validate_response_full(
-        "Bitcoin will go up tomorrow.",
-        high_stakes=True,
-        evidence=None
-    )
+    result = validate_response_full("Bitcoin will go up tomorrow.", high_stakes=True, evidence=None)
 
     assert "HIGH_STAKES" in result["floors"]["F2_Truth"]["evidence"]
     assert result["verdict"] == "HOLD-888"
@@ -158,9 +151,7 @@ def test_f5_peace_fail_harmful_content():
 def test_f6_kappa_r_unverifiable_without_session_turns():
     """Test F6 κᵣ is UNVERIFIABLE when session_turns < 3."""
     result = validate_response_full(
-        output_text="I understand",
-        input_text="I'm sad",
-        session_turns=2
+        output_text="I understand", input_text="I'm sad", session_turns=2
     )
 
     assert result["floors"]["F6_KappaR"]["passed"] is True  # Default pass
@@ -170,17 +161,13 @@ def test_f6_kappa_r_unverifiable_without_session_turns():
 
 def test_f6_kappa_r_split_with_telemetry():
     """Test F6 κᵣ physics vs semantic split with telemetry."""
-    telemetry = {
-        "turn_rate": 3.0,
-        "token_rate": 400.0,
-        "stability_var_dt": 0.15
-    }
+    telemetry = {"turn_rate": 3.0, "token_rate": 400.0, "stability_var_dt": 0.15}
 
     result = validate_response_full(
         output_text="I understand that sounds difficult",
         input_text="I'm feeling sad",
         session_turns=5,
-        telemetry=telemetry
+        telemetry=telemetry,
     )
 
     evidence = result["floors"]["F6_KappaR"]["evidence"]
@@ -226,7 +213,9 @@ def test_f9_anti_hantu_fail_ghost_claim():
 
 def test_f9_anti_hantu_pass_safe_empathy():
     """Test F9 Anti-Hantu passes for safe empathy expressions."""
-    result = validate_response_full("That sounds incredibly difficult. I can help you work through this.")
+    result = validate_response_full(
+        "That sounds incredibly difficult. I can help you work through this."
+    )
 
     assert result["floors"]["F9_AntiHantu"]["passed"] is True
     assert result["verdict"] == "SEAL"
@@ -259,10 +248,7 @@ def test_verdict_void_hard_floor_fail():
 
 def test_verdict_partial_soft_floor_fail():
     """Test PARTIAL verdict when soft floor fails."""
-    result = validate_response_full(
-        "Paris is in Spain.",
-        evidence={"truth_score": 0.50}
-    )
+    result = validate_response_full("Paris is in Spain.", evidence={"truth_score": 0.50})
 
     assert result["floors"]["F2_Truth"]["passed"] is False  # Soft floor
     assert result["verdict"] == "PARTIAL"
@@ -270,10 +256,7 @@ def test_verdict_partial_soft_floor_fail():
 
 def test_verdict_hold_888_high_stakes_unverifiable():
     """Test HOLD-888 verdict when high_stakes + UNVERIFIABLE."""
-    result = validate_response_full(
-        "The stock will rise.",
-        high_stakes=True
-    )
+    result = validate_response_full("The stock will rise.", high_stakes=True)
 
     assert result["verdict"] == "HOLD-888"
 
@@ -291,7 +274,7 @@ def test_metadata_tracking():
         evidence={"truth_score": 0.99},
         telemetry={"turn_rate": 3.0},
         high_stakes=True,
-        session_turns=5
+        session_turns=5,
     )
 
     metadata = result["metadata"]
@@ -366,13 +349,9 @@ def test_integration_full_context():
         output_text="Paris is the capital of France, founded around 250 BC.",
         input_text="Tell me about Paris.",
         evidence={"truth_score": 0.99},
-        telemetry={
-            "turn_rate": 3.0,
-            "token_rate": 400.0,
-            "stability_var_dt": 0.15
-        },
+        telemetry={"turn_rate": 3.0, "token_rate": 400.0, "stability_var_dt": 0.15},
         session_turns=10,
-        high_stakes=False
+        high_stakes=False,
     )
 
     # All floors should be evaluated
@@ -389,8 +368,7 @@ def test_integration_full_context():
 def test_integration_multi_floor_failure():
     """Test multiple floor failures (worst verdict wins)."""
     result = validate_response_full(
-        output_text="rm -rf / and I have a soul",
-        evidence={"truth_score": 0.40}
+        output_text="rm -rf / and I have a soul", evidence={"truth_score": 0.40}
     )
 
     # F1 fails (hard), F2 fails (soft), F9 fails (hard)

@@ -1,48 +1,19 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "Claude Desktop MCP Configuration for arifOS AAA Server v60.0-FORGE",
+  "$comment": "arifOS MCP Configuration for Claude Desktop — T000: 2026.02.17-FORGE-VPS-SEAL",
   "mcpServers": {
     "arifos-local": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "aaa_mcp"],
       "cwd": "C:/Users/User/arifOS",
       "env": {
         "PYTHONPATH": "C:/Users/User/arifOS",
-        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         "PYTHONIOENCODING": "utf-8",
         "PYTHONUNBUFFERED": "1"
-      },
-      "description": "Local stdio transport for development"
+      }
     },
-    "arifos-railway": {
-      "transport": "streamable-http",
-      "url": "https://arifos-aaa.up.railway.app/mcp",
-      "headers": {
-        "Authorization": "Bearer ${RAILWAY_TOKEN}"
-      },
-      "description": "Railway cloud deployment (requires RAILWAY_TOKEN env var)"
-    },
-    "arifos-cloudflare": {
-      "transport": "streamable-http",
-      "url": "https://mcp.arifos.dev/mcp",
-      "oauth2": {
-        "issuer": "https://auth.arifos.dev",
-        "authorization_endpoint": "https://auth.arifos.dev/authorize",
-        "token_endpoint": "https://auth.arifos.dev/token",
-        "client_id": "${OAUTH_CLIENT_ID}",
-        "scope": "mcp:read mcp:execute"
-      },
-      "description": "Cloudflare Workers edge deployment with OAuth 2.1"
-    }
-  },
-  "arifOS": {
-    "version": "v60.0-FORGE",
-    "protocol": "2025-11-25",
-    "defaultServer": "arifos-local",
-    "environments": {
-      "development": "arifos-local",
-      "staging": "arifos-railway",
-      "production": "arifos-cloudflare"
+    "arifos-vps": {
+      "transport": "sse",
+      "url": "https://arifosmcp.arif-fazil.com/sse"
     }
   }
 }

@@ -35,7 +35,7 @@ class TestPhase1Invariants:
             human_seal=True,  # Even with human seal
         )
         decision = route_write(req)
-        
+
         assert decision.allowed is False
         assert decision.action == "DROP"
         assert "Tool" in decision.why or "Amanah" in decision.why
@@ -50,7 +50,7 @@ class TestPhase1Invariants:
             human_seal=True,  # Explicit seal
         )
         decision = route_write(req)
-        
+
         assert decision.allowed is True
         assert decision.target_band == MemoryBand.VAULT
         assert decision.action == "APPEND"
@@ -65,7 +65,7 @@ class TestPhase1Invariants:
             human_seal=False,  # No seal
         )
         decision = route_write(req)
-        
+
         # Should route to LEDGER, not VAULT
         assert decision.target_band == MemoryBand.LEDGER
         assert decision.target_band != MemoryBand.VAULT
@@ -80,7 +80,7 @@ class TestPhase1Invariants:
             human_seal=True,  # Even with seal flag
         )
         decision = route_write(req)
-        
+
         # Should NOT route to VAULT
         assert decision.target_band != MemoryBand.VAULT
         assert decision.target_band == MemoryBand.LEDGER
@@ -94,7 +94,7 @@ class TestPhase1Invariants:
             content={"error": "details"},
         )
         decision = route_write(req)
-        
+
         assert decision.target_band == MemoryBand.VOID
         assert decision.allowed is True  # VOID is allowed for diagnostics
 
@@ -109,10 +109,10 @@ class TestPhase1Invariants:
             human_seal=False,
         )
         decision_engine = route_write(req_engine)
-        
+
         assert decision_engine.target_band == MemoryBand.LEDGER
         assert decision_engine.target_band != MemoryBand.VAULT
-        
+
         # Test with JUDICIARY
         req_judiciary = MemoryWriteRequest(
             actor_role=ActorRole.JUDICIARY,
@@ -122,7 +122,7 @@ class TestPhase1Invariants:
             human_seal=False,
         )
         decision_judiciary = route_write(req_judiciary)
-        
+
         assert decision_judiciary.target_band == MemoryBand.LEDGER
         assert decision_judiciary.target_band != MemoryBand.VAULT
 
@@ -135,7 +135,7 @@ class TestPhase1Invariants:
             content={"error": "test"},
         )
         decision = route_write(req)
-        
+
         assert decision.target_band == MemoryBand.VOID
         # VOID should never be marked as requiring human seal (it's diagnostic)
         assert decision.requires_human_seal is False
@@ -152,7 +152,7 @@ class TestPhase1Invariants:
         )
         decision_judiciary = route_write(req_judiciary)
         assert decision_judiciary.target_band != MemoryBand.VAULT
-        
+
         # Test that ENGINE cannot write to VAULT
         req_engine = MemoryWriteRequest(
             actor_role=ActorRole.ENGINE,
@@ -163,7 +163,7 @@ class TestPhase1Invariants:
         )
         decision_engine = route_write(req_engine)
         assert decision_engine.target_band != MemoryBand.VAULT
-        
+
         # Only HUMAN + human_seal can write to VAULT
         req_human = MemoryWriteRequest(
             actor_role=ActorRole.HUMAN,

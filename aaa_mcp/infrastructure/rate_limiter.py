@@ -6,7 +6,6 @@ Enforces F12 (Defense) by preventing request floods.
 """
 
 import time
-from collections import defaultdict
 from dataclasses import dataclass
 from typing import Dict, Optional
 

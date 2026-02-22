@@ -7,6 +7,7 @@ Enables AI agents to discover valid tool sequences automatically.
 Version: 1.0.0-SEAL
 """
 
+from typing import Dict, List, Optional
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Dict, List, Optional, Set
@@ -14,17 +15,19 @@ from typing import Dict, List, Optional, Set
 
 class ToolPosition(str, Enum):
     """Pipeline position classification."""
-    ENTRY = "entry"           # Must be first
-    GROUNDING = "grounding"   # Evidence collection
-    ANALYSIS = "analysis"     # Reasoning/empathy
-    SYNC = "sync"             # Trinity merge
-    JUDGMENT = "judgment"     # Verdict rendering
-    TERMINAL = "terminal"     # Must be last
-    AUXILIARY = "auxiliary"   # Can be called anytime
+
+    ENTRY = "entry"  # Must be first
+    GROUNDING = "grounding"  # Evidence collection
+    ANALYSIS = "analysis"  # Reasoning/empathy
+    SYNC = "sync"  # Trinity merge
+    JUDGMENT = "judgment"  # Verdict rendering
+    TERMINAL = "terminal"  # Must be last
+    AUXILIARY = "auxiliary"  # Can be called anytime
 
 
 class EvidenceRequirement(str, Enum):
     """Evidence requirements for tool execution."""
+
     REQUIRED = "required"
     RECOMMENDED = "recommended"
     OPTIONAL = "optional"
@@ -34,32 +37,32 @@ class EvidenceRequirement(str, Enum):
 @dataclass
 class ToolNode:
     """Complete specification for a constitutional tool."""
-    
+
     name: str
     description: str
     position: ToolPosition
     floors_enforced: List[str]
-    
+
     # Dependency relationships
     requires: List[str] = field(default_factory=list)
     produces: List[str] = field(default_factory=list)
     must_precede: List[str] = field(default_factory=list)
     may_precede: List[str] = field(default_factory=list)
     feeds_into: List[str] = field(default_factory=list)
-    
+
     # Execution properties
     parallel_safe: bool = False
     idempotent: bool = False
     terminal: bool = False
     must_call_first: bool = False
     must_call_last: bool = False
-    
+
     # Evidence requirements
     evidence_requirement: EvidenceRequirement = EvidenceRequirement.NONE
-    
+
     # Lane affinity (which query types this tool serves best)
     lane_affinity: List[str] = field(default_factory=list)
-    
+
     # Success/failure semantics
     success_indicator: str = ""
     failure_action: str = ""
@@ -78,9 +81,14 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         floors_enforced=["F11", "F12"],
         produces=["session_id", "mode", "grounding_required", "lane"],
         must_precede=[
-            "agi_sense", "agi_think", "agi_reason",
-            "asi_empathize", "asi_align", "apex_verdict",
-            "reality_search", "truth_audit"
+            "agi_sense",
+            "agi_think",
+            "agi_reason",
+            "asi_empathize",
+            "asi_align",
+            "apex_verdict",
+            "reality_search",
+            "truth_audit",
         ],
         may_precede=["tool_router"],
         must_call_first=True,
@@ -89,7 +97,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="status == 'READY' and verdict == 'SEAL'",
         failure_action="Halt — cannot proceed without valid session (VOID)",
     ),
-    
     # ─── UNIFIED PIPELINE ────────────────────────────────────────────────────
     "trinity_forge": ToolNode(
         name="trinity_forge",
@@ -105,7 +112,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="verdict == 'SEAL'",
         failure_action="Follow verdict semantics: VOID=reject, SABAR=revise, PARTIAL=constrain",
     ),
-    
     # ─── AGI MIND (Δ) ────────────────────────────────────────────────────────
     "agi_sense": ToolNode(
         name="agi_sense",
@@ -122,7 +128,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="lane in ['FACTUAL', 'CARE', 'SOCIAL', 'CRISIS']",
         failure_action="Use FACTUAL as default lane",
     ),
-    
     "agi_think": ToolNode(
         name="agi_think",
         description="Generate hypotheses and explore reasoning paths (Stage 222)",
@@ -138,14 +143,20 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="len(hypotheses) > 0",
         failure_action="Proceed with single default hypothesis",
     ),
-    
     "agi_reason": ToolNode(
         name="agi_reason",
         description="Deep logical reasoning — core analysis tool (Stage 333)",
         position=ToolPosition.ANALYSIS,
         floors_enforced=["F2", "F4", "F7"],
         requires=["init_gate"],
-        produces=["truth_score", "confidence", "entropy_delta", "humility_omega", "genius_score", "conclusion"],
+        produces=[
+            "truth_score",
+            "confidence",
+            "entropy_delta",
+            "humility_omega",
+            "genius_score",
+            "conclusion",
+        ],
         may_precede=["apex_verdict"],  # Can be called directly or after sensing/thinking
         feeds_into=["apex_verdict"],
         parallel_safe=False,
@@ -155,7 +166,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="truth_score >= 0.99 and verdict == 'SEAL'",
         failure_action="May trigger SABAR in apex_verdict if F2 not met",
     ),
-    
     # ─── ASI HEART (Ω) ───────────────────────────────────────────────────────
     "asi_empathize": ToolNode(
         name="asi_empathize",
@@ -172,7 +182,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="empathy_kappa_r >= 0.95",
         failure_action="VOID if F6 HARD floor violated (stakeholder harm detected)",
     ),
-    
     "asi_align": ToolNode(
         name="asi_align",
         description="Reconcile ethics, law, and policy (Stage 666)",
@@ -188,7 +197,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="is_reversible == True",
         failure_action="PARTIAL verdict with reversibility warning",
     ),
-    
     # ─── APEX SOUL (Ψ) ───────────────────────────────────────────────────────
     "apex_verdict": ToolNode(
         name="apex_verdict",
@@ -205,7 +213,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="verdict == 'SEAL' and tri_witness >= 0.95",
         failure_action="Execute verdict semantics: VOID=reject, SABAR=revise, PARTIAL=constrain, 888_HOLD=escalate",
     ),
-    
     # ─── VAULT MEMORY ────────────────────────────────────────────────────────
     "vault_seal": ToolNode(
         name="vault_seal",
@@ -221,7 +228,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="verdict == 'SEALED' and seal_id is not None",
         failure_action="Retry or log to fallback storage",
     ),
-    
     # ─── GROUNDING ───────────────────────────────────────────────────────────
     "reality_search": ToolNode(
         name="reality_search",
@@ -237,7 +243,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="len(evidence) > 0",
         failure_action="If HARD lane: may trigger VOID in apex_verdict for F2 failure",
     ),
-    
     # ─── AUXILIARY TOOLS ─────────────────────────────────────────────────────
     "tool_router": ToolNode(
         name="tool_router",
@@ -251,7 +256,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="len(recommended_pipeline) > 0",
         failure_action="Default to ['trinity_forge']",
     ),
-    
     "vault_query": ToolNode(
         name="vault_query",
         description="Query sealed records for institutional memory",
@@ -264,7 +268,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="entries is not None",
         failure_action="Return empty results with error message",
     ),
-    
     "truth_audit": ToolNode(
         name="truth_audit",
         description="[EXPERIMENTAL] Full claim verification pipeline",
@@ -279,7 +282,6 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
         success_indicator="overall_verdict == 'SEAL'",
         failure_action="Report claims with p_truth < 0.8 for review",
     ),
-    
     "simulate_transfer": ToolNode(
         name="simulate_transfer",
         description="Financial transfer simulation for testing",
@@ -300,21 +302,24 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
 # WORKFLOW SEQUENCES
 # ═════════════════════════════════════════════════════════════════════════════
 
+# Mapping from actual MCP tool names to internal graph node names
+MCP_TO_GRAPH: Dict[str, str] = {
+    "anchor": "init_gate",
+    "reason": "agi_think",  # reason tool combines sense+think
+    "integrate": "agi_reason",
+    "respond": "agi_reason",  # respond is stage 444 (trinity sync)
+    "validate": "asi_empathize",
+    "align": "asi_align",
+    "forge": "apex_verdict",  # forge is stage 777
+    "audit": "apex_verdict",
+    "seal": "vault_seal",
+    "trinity_forge": "trinity_forge",
+}
+
+
 WORKFLOW_SEQUENCES: Dict[str, List[str]] = {
-    "fact_check": [
-        "init_gate",
-        "reality_search",
-        "agi_reason", 
-        "apex_verdict",
-        "vault_seal"
-    ],
-    "safety_assessment": [
-        "init_gate",
-        "asi_empathize",
-        "asi_align",
-        "apex_verdict",
-        "vault_seal"
-    ],
+    "fact_check": ["init_gate", "reality_search", "agi_reason", "apex_verdict", "vault_seal"],
+    "safety_assessment": ["init_gate", "asi_empathize", "asi_align", "apex_verdict", "vault_seal"],
     "full_analysis": [
         "init_gate",
         "agi_sense",
@@ -324,19 +329,11 @@ WORKFLOW_SEQUENCES: Dict[str, List[str]] = {
         "asi_empathize",
         "asi_align",
         "apex_verdict",
-        "vault_seal"
+        "vault_seal",
     ],
-    "quick_decision": [
-        "trinity_forge"
-    ],
-    "claim_verification": [
-        "init_gate",
-        "truth_audit",
-        "vault_seal"
-    ],
-    "institutional_memory": [
-        "vault_query"
-    ],
+    "quick_decision": ["trinity_forge"],
+    "claim_verification": ["init_gate", "truth_audit", "vault_seal"],
+    "institutional_memory": ["vault_query"],
 }
 
 WORKFLOW_DESCRIPTIONS: Dict[str, str] = {
@@ -353,6 +350,7 @@ WORKFLOW_DESCRIPTIONS: Dict[str, str] = {
 # UTILITY FUNCTIONS
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def get_tool_node(tool_name: str) -> Optional[ToolNode]:
     """Get tool node by name."""
     return TOOL_GRAPH.get(tool_name)
@@ -363,7 +361,7 @@ def get_valid_next_tools(current_tool: str) -> List[str]:
     node = TOOL_GRAPH.get(current_tool)
     if not node:
         return []
-    
+
     # Must precede + may precede + feeds into
     valid = set(node.must_precede + node.may_precede + node.feeds_into)
     return list(valid)
@@ -371,7 +369,7 @@ def get_valid_next_tools(current_tool: str) -> List[str]:
 
 def get_required_predecessors(tool_name: str) -> List[str]:
     """Get tools that MUST be called before this tool.
-    
+
     Note: This only returns strict requirements. In practice, many
     constitutional tools can be called with minimal prerequisites
     (e.g., only requiring session_id from init_gate).
@@ -379,7 +377,7 @@ def get_required_predecessors(tool_name: str) -> List[str]:
     node = TOOL_GRAPH.get(tool_name)
     if not node:
         return []
-    
+
     # Most tools only strictly require init_gate for session context
     # The validation should be more about valid sequences than strict prerequisites
     return node.requires if node.requires else []
@@ -387,53 +385,54 @@ def get_required_predecessors(tool_name: str) -> List[str]:
 
 def validate_sequence(sequence: List[str]) -> tuple[bool, str]:
     """Validate a tool sequence follows constitutional order.
-    
+
     Returns:
         (is_valid, error_message)
     """
     if not sequence:
         return False, "Empty sequence"
-    
+
     # Check first tool
     first = TOOL_GRAPH.get(sequence[0])
     if not first:
         return False, f"Unknown tool: {sequence[0]}"
-    
+
     if not (first.must_call_first or first.position == ToolPosition.ENTRY):
         return False, f"First tool {sequence[0]} is not an entry point"
-    
+
     # Check for multiple entry points
     entry_count = sum(
-        1 for tool in sequence 
-        if TOOL_GRAPH.get(tool) and TOOL_GRAPH[tool].must_call_first
+        1 for tool in sequence if TOOL_GRAPH.get(tool) and TOOL_GRAPH[tool].must_call_first
     )
     if entry_count > 1:
         return False, "Multiple entry points in sequence"
-    
+
     # Check dependencies
     seen = set()
     for i, tool_name in enumerate(sequence):
         node = TOOL_GRAPH.get(tool_name)
         if not node:
             return False, f"Unknown tool: {tool_name}"
-        
+
         # Check if all required predecessors have been called
         required = get_required_predecessors(tool_name)
         missing = [r for r in required if r not in seen]
         if missing and i > 0:  # First tool has no predecessors
             return False, f"{tool_name} requires: {missing}"
-        
+
         # Check terminal constraint
         if node.terminal and i < len(sequence) - 1:
             return False, f"{tool_name} is terminal but not last"
-        
+
         seen.add(tool_name)
-    
+
     # Check last tool - terminal OR auxiliary tools can end sequences
     last = TOOL_GRAPH.get(sequence[-1])
-    if last and not (last.terminal or last.must_call_last or last.position == ToolPosition.AUXILIARY):
-        return False, f"Sequence does not end with terminal tool (recommend: vault_seal)"
-    
+    if last and not (
+        last.terminal or last.must_call_last or last.position == ToolPosition.AUXILIARY
+    ):
+        return False, "Sequence does not end with terminal tool (recommend: vault_seal)"
+
     return True, "Valid constitutional sequence"
 
 
@@ -449,17 +448,17 @@ def list_available_workflows() -> Dict[str, str]:
 
 def get_parallel_groups(sequence: List[str]) -> List[List[str]]:
     """Group tools that can be executed in parallel.
-    
+
     Returns list of groups where tools in same group are parallel_safe.
     """
     groups = []
     current_group = []
-    
+
     for tool_name in sequence:
         node = TOOL_GRAPH.get(tool_name)
         if not node:
             continue
-        
+
         if node.parallel_safe and current_group:
             # Can add to current parallel group
             current_group.append(tool_name)
@@ -468,33 +467,33 @@ def get_parallel_groups(sequence: List[str]) -> List[List[str]]:
             if current_group:
                 groups.append(current_group)
             current_group = [tool_name]
-    
+
     if current_group:
         groups.append(current_group)
-    
+
     return groups
 
 
 def suggest_sequence(intent: str, lane: str = "FACTUAL") -> List[str]:
     """Suggest optimal tool sequence based on intent and lane."""
     intent_lower = intent.lower()
-    
+
     # Intent matching
     if any(k in intent_lower for k in ["fact", "check", "verify", "true", "false"]):
         return WORKFLOW_SEQUENCES["fact_check"]
-    
+
     if any(k in intent_lower for k in ["safe", "harm", "risk", "impact", "stakeholder"]):
         return WORKFLOW_SEQUENCES["safety_assessment"]
-    
+
     if any(k in intent_lower for k in ["audit", "claims", "ai generated", "text"]):
         return WORKFLOW_SEQUENCES["claim_verification"]
-    
+
     if any(k in intent_lower for k in ["past", "history", "previous", "query"]):
         return WORKFLOW_SEQUENCES["institutional_memory"]
-    
+
     if any(k in intent_lower for k in ["quick", "fast", "simple"]):
         return WORKFLOW_SEQUENCES["quick_decision"]
-    
+
     # Lane-based default
     if lane == "FACTUAL":
         return WORKFLOW_SEQUENCES["fact_check"]

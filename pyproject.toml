@@ -1,74 +1,13 @@
 [project]
 name = "arifos"
-version = "62.3.0"
-# v62.0-STATE: SystemState Exposure for Cognitive Runtime (2026-02-13)
-#   - SystemState dataclass: uncertainty, risk, grounding, loop_count, profile
-#   - Heuristics module: Cheap, reversible signals (not fake metrics)
-#     - detect_profile(): factual/creative/crisis/routine
-#     - estimate_uncertainty(): linguistic signals (absolutist/uncertain/question)
-#     - estimate_risk(): stakeholder impact from keywords
-#     - estimate_grounding(): 0.0 placeholder (Step 2: real T6 evidence)
-#   - agi_cognition: Returns system_state with real uncertainty calculation
-#   - truth_score now derived from uncertainty (contrast test ready)
-#   - omega_0 now from uncertainty (not hardcoded)
-#   - Foundation: Meta-scheduler preparation (Step 4)
-#   - Status: STEP 1 COMPLETE — Ready for Step 2 (Real T6)
-# v61.0-FORGE: 5-Core Constitutional Architecture (2026-02-13)
-#   - 5-Core Kernel: init_session, agi_cognition, asi_empathy, apex_verdict, vault_seal
-#   - Trinity Pipeline: 000_INIT → 111-333_AGI(Δ) → 555-666_ASI(Ω) → 888_APEX(Ψ) → 999_VAULT(🔒)
-#   - 21-Tool Weave: 5 Core + 16 Capability Modules (T6-T21)
-#   - Unified AGI: sense + think + reason → agi_cognition
-#   - Unified ASI: empathize + align → asi_empathy
-#   - Capability Router: Ring 0 (Core) → Ring 3 (Extensions) with F1-F13 enforcement
-#   - T15 Localization: MY/SEA support (ms-MY, en-GB, zh-CN, ta-IN)
-#   - Code Reduction: 83% lines removed (3647 → 797) while preserving all floors
-#   - Status: SEAL — 5-Core Constitutional Kernel ready for production
-# v60.1-ACLIP_CAI: 9-Sense Nervous System (2026-02-13)
-#   - ACLIP_CAI: Console Intelligence & Perception Console
-#   - 9-Tool Nervous System: system_health, process_list, fs_inspect,
-#     log_tail, net_status, config_flags, chroma_query, cost_estimator,
-#     forge_guard (gating)
-#   - MCP Bridge: All tools exposed as aclip_* for 9-law pipeline
-#   - Integration: Law 3 (Ground), Law 5 (Search), Law 7 (Guard)
-#   - Console-only tools (no ethics), read-only except forge_guard
-# v60.0-FORGE: Unified Pipeline + 10-Tool Canon (2026-02-11)
-#   - Axiom Engine: Physics/CCS ground truth injection for reality_search
-#   - Evidence v2: Cryptographic hash-based integrity across all tools
-#   - Plan Objects: Formal tool routing with structured execution plans
-#   - Enhanced init_gate: grounding_required parameter for physics-bound sessions
-#   - APEX Verdict Semantics: SABAR/PARTIAL/VOID/SEAL with grounding quality
-#   - 10 Canonical Tools: Including new tool_router
-#   - Constitutional Decorator: Hardened enforcement with pre/post validation
-#   - VAULT999: Reality Weight Protocol with immutable Merkle DAG
-#   - Trinity Architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul consensus
-#   - Entropy: ΔS ≤ 0 — Chaos eliminated, repository aligned
-#   - Status: SEAL — Production ready with 888_JUDGE authority
-# v53.2.8-CODEBASE-AAA7: ChatGPT MCP Compatibility Fix
-#   - Unified DeltaBundle/OmegaBundle to canonical dataclass (bundles.py).
-#   - Relaxed SSE transport: text→query aliasing, kwargs pass-through.
-#   - AGI as Thinking Aid (insight/rationale, not strict verdicts).
-#   - ASI engine: proper Stakeholder objects, field alignment.
-# v53.2.7-CODEBASE-AAA7: 7-Core Tool Consolidation (INIT, AGI, ASI, APEX, VAULT, TRINITY, REALITY)
-#   - Internalized prompt_codec and context_docs.
-#   - Standardized CAPS naming for all tools.
-#   - Unified stdio and SSE architectures.
-# v52.5.26-LIVE: Dashboard Metrics Integration & Constitutional Governance (2026-01-26)
-#   - LiveMetricsService: Real-time constitutional metrics from VAULT999 ledger
-#   - Live τ (truth), κᵣ (empathy), Ψ (vitality), ΔS (clarity) computation
-#   - API endpoint /metrics/json serves live data with calibration_mode transparency
-#   - Removed all static placeholders (0.99, 0.98, 0.85)
-#   - Frontend dashboard displays live Trinity scores with 3-decimal precision
-#   - F1 Amanah compliance: explicit calibration_mode flag for synthetic data
-#   - F2 Truth compliance: τ computed from actual eval harness
-#   - 13/13 constitutional floors passing, TEACH score: 0.98/1.00
-# v52.5.1-SEAL: ATLAS-333 Integration + Zero-Context README (2026-01-25)
-#   - ATLAS-333 smart lane routing (CRISIS/FACTUAL/CARE/SOCIAL)
-#   - 888_HOLD verdict for high-stakes human confirmation
-#   - Lane-aware thermodynamic profiles (LANE_PROFILES, LANE_ENGINES)
-# v52.0.0: Unified Core SEAL - Merged AAA_MCP into Brain, Pure Bridge (2026-01-24)
-# v51.0.0: AAA MCP SERVER - Bridge to Core Engines + Rebrand (2026-01-24)
-# v50.0.0: Constitutional Housekeeping - Consolidated core (2026-01-20)
-# v49.0.0: Constitutional Forge - 13 Floors, Trinity Engines, 25 MCP Servers (2026-01-18)
+version = "2026.2.17"
+# T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.2.17 — H1.1 Observability + VPS migration (Railway → Hostinger)
+#   /health now returns granular governance metrics; redis.from_url; lifespan init
+# 2026.2.15 — Codebase consolidation: removed arifos/ and codebase/ (21K lines dead code)
+# 2026.1.26 — Live constitutional metrics; 13/13 floors passing
+# 2026.1.24 — Unified core: aaa_mcp pure transport, all logic in core/
+# 2026.1.18 — Constitutional Forge: 13 floors F1-F13, Trinity ΔΩΨ, VAULT999, 9-tool MCP
 description = "arifOS - The World's First Production-Grade Constitutional AI Governance System. Mathematical enforcement of ethical constraints with 13 stationary floors (F1-F13), Axiom Engine for physics-grounded truth, and immutable VAULT999 ledger. Trinity architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul. MCP-compatible. Install: pip install arifos. https://arifos.arif-fazil.com/"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -149,7 +88,8 @@ dependencies = [
     "prometheus-client>=0.19.0",
     "rich>=13.7.0",
     "asyncpg>=0.29.0",  # VAULT999 PostgreSQL backend
-    # "sentence-transformers>=2.2.0",  # ASI v60.3: Semantic Stakeholder Detection
+    "sentence-transformers>=2.2.0",  # H1.2: SBERT-based ASI floors (F5, F6, F9)
+    "scikit-learn>=1.3.0",  # H1.2: Cosine similarity for SBERT embeddings
 ]
 
 [project.optional-dependencies]
@@ -160,6 +100,8 @@ dev = [
     "mypy>=1.0.0",
     "httpx>=0.28.0",
     "beautifulsoup4>=4.12.0",
+    "redis>=5.0.0",
+    "psutil>=5.9.0",
 ]
 yaml = ["pyyaml>=6.0.0"]
 api = [
@@ -188,13 +130,18 @@ all = [
 ]
 
 [project.scripts]
-# AAA MCP Server Commands (v60.0-FORGE) - Unified pipeline, 10-tool canon
+# AAA MCP Server Commands (v64.1-GAGI) - 5-Core Constitutional Architecture
 # Usage: aaa-mcp [stdio|sse|http]  (default: stdio)
 aaa-mcp = "aaa_mcp.__main__:main"
 
 # ACLIP_CAI Console Intelligence Tools (v1.0.0)
-# The 9-Sense Nervous System for arifOS Infrastructure
+# The 10-Sense Nervous System for arifOS Infrastructure
 aclip-cai = "aclip_cai.cli:main"
+aclip-server = "aclip_cai.server:main"  # MCP server mode
+
+# arifOS Router (v65.0-ROUTER) - Unified Gateway
+# Single entry point for Constitutional + Sensory tools
+arifos-router = "arifos_router:main"
 
 # Legacy arifos commands (DEPRECATED - will be removed in v54)
 # arifos-mcp = "arifos.mcp.__main__:main"
@@ -238,18 +185,16 @@ Documentation = "https://github.com/ariffazil/arifOS/blob/main/README.md"
 Repository = "https://github.com/ariffazil/arifOS"
 Issues = "https://github.com/ariffazil/arifOS/issues"
 Changelog = "https://github.com/ariffazil/arifOS/blob/main/CHANGELOG.md"
-"Live Server" = "https://arif-fazil.com/"
-"Health Check" = "https://aaamcp.arif-fazil.com/health"
-"MCP Endpoint" = "https://aaamcp.arif-fazil.com/mcp"
+"Live Server" = "https://arifos.arif-fazil.com/"
+"Health Check" = "https://arifosmcp.arif-fazil.com/health"
+"MCP Endpoint" = "https://arifosmcp.arif-fazil.com/sse"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["arifos*", "scripts*", "codebase*", "aaa_mcp*", "mcp_server*", "core*", "aclip_cai*"]
+include = ["scripts*", "aaa_mcp*", "mcp_server*", "core*", "aclip_cai*"]
 exclude = [
-    "arifos.tests*",
-    "arifos.tests",
     "*.tests",
     "*.tests.*",
     "tests.*",
@@ -258,14 +203,13 @@ exclude = [
 ]
 
 [tool.setuptools.package-data]
-arifos = ["py.typed", "*.py", "**/*.py"]
 "*" = ["spec/*.yaml", "spec/*.json"]
 
 [tool.setuptools.data-files]
 "spec" = ["spec/**/*.json", "spec/**/*.yaml", "spec/**/*.md"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "arifos/tests"]
+testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
@@ -330,11 +274,11 @@ namespace_packages = true
 [[tool.mypy.overrides]]
 # Core governance modules - stricter type enforcement
 module = [
-    "arifos.enforcement.metrics",
-    "arifos.enforcement.genius_metrics",
-    "arifos.engines.APEX_PRIME",
-    "arifos.pipeline",
-    "arifos.organs.*",
+    "core.governance_kernel",
+    "core.judgment",
+    "core.pipeline",
+    "core.organs.*",
+    "core.shared.*",
 ]
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
@@ -392,5 +336,5 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 # Bridge files have optional imports - suppress unused-ignore warnings
-module = ["arifos_core.waw.bridges.*", "arifos_core.kms_signer"]
+module = ["aaa_mcp.core.*"]
 warn_unused_ignores = false

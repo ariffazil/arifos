@@ -62,11 +62,11 @@ class TestAmanahDetectorSetup:
         """Result should have correct structure."""
         result = check_amanah("print('hello')")
         assert isinstance(result, AmanahResult)
-        assert hasattr(result, 'is_safe')
-        assert hasattr(result, 'risk_level')
-        assert hasattr(result, 'violations')
-        assert hasattr(result, 'warnings')
-        assert hasattr(result, 'matches')
+        assert hasattr(result, "is_safe")
+        assert hasattr(result, "risk_level")
+        assert hasattr(result, "violations")
+        assert hasattr(result, "warnings")
+        assert hasattr(result, "matches")
 
     def test_convenience_functions(self):
         """Convenience functions should work."""
@@ -80,6 +80,7 @@ class TestAmanahDetectorSetup:
 # =============================================================================
 # RED PATTERNS — SQL DESTRUCTION
 # =============================================================================
+
 
 class TestRedPatternsSQLDestruction:
     """Test SQL destruction patterns (RED → VOID)."""
@@ -134,6 +135,7 @@ class TestRedPatternsSQLDestruction:
 # RED PATTERNS — UNIX DESTRUCTION
 # =============================================================================
 
+
 class TestRedPatternsUnixDestruction:
     """Test Unix destruction patterns (RED → VOID)."""
 
@@ -179,6 +181,7 @@ class TestRedPatternsUnixDestruction:
 # RED PATTERNS — GIT DESTRUCTION
 # =============================================================================
 
+
 class TestRedPatternsGitDestruction:
     """Test Git destruction patterns (RED → VOID)."""
 
@@ -217,6 +220,7 @@ class TestRedPatternsGitDestruction:
 # =============================================================================
 # RED PATTERNS — PYTHON DESTRUCTION
 # =============================================================================
+
 
 class TestRedPatternsPythonDestruction:
     """Test Python destruction patterns (RED → VOID)."""
@@ -263,6 +267,7 @@ class TestRedPatternsPythonDestruction:
 # RED PATTERNS — CREDENTIAL LEAKS
 # =============================================================================
 
+
 class TestRedPatternsCredentialLeaks:
     """Test credential leak patterns (RED → VOID)."""
 
@@ -302,6 +307,7 @@ class TestRedPatternsCredentialLeaks:
 # RED PATTERNS — DATABASE DESTRUCTION
 # =============================================================================
 
+
 class TestRedPatternsDatabaseDestruction:
     """Test database destruction patterns (RED → VOID)."""
 
@@ -333,6 +339,7 @@ class TestRedPatternsDatabaseDestruction:
 # =============================================================================
 # ORANGE PATTERNS — WARNINGS
 # =============================================================================
+
 
 class TestOrangePatterns:
     """Test ORANGE patterns (WARNING → 888_HOLD)."""
@@ -393,6 +400,7 @@ class TestOrangePatterns:
 # =============================================================================
 # SAFE PATTERNS — PASSED
 # =============================================================================
+
 
 class TestSafePatterns:
     """Test safe patterns that should pass."""
@@ -476,6 +484,7 @@ print(result)
 # =============================================================================
 # EDGE CASES
 # =============================================================================
+
 
 class TestEdgeCases:
     """Test edge cases and special scenarios."""
@@ -573,6 +582,7 @@ shutil.rmtree('/data');
 # INTEGRATION TESTS
 # =============================================================================
 
+
 class TestIntegration:
     """Integration tests with apex_measurements.py."""
 
@@ -580,6 +590,7 @@ class TestIntegration:
         """Detector should be importable from apex_measurements."""
         try:
             from arifos_eval.apex.apex_measurements import AMANAH_DETECTOR_AVAILABLE
+
             # This test just checks the import works
             assert AMANAH_DETECTOR_AVAILABLE in [True, False]
         except ImportError:
@@ -600,6 +611,7 @@ class TestIntegration:
 # =============================================================================
 # REGRESSION TESTS
 # =============================================================================
+
 
 class TestRegressions:
     """Regression tests for specific bugs or edge cases found."""
@@ -642,12 +654,14 @@ config_file.unlink()
 # PERFORMANCE TESTS
 # =============================================================================
 
+
 class TestPerformance:
     """Performance tests for the detector."""
 
     def test_large_input_performance(self):
         """Detector should handle large inputs reasonably."""
         import time
+
         # Generate a large but safe input
         large_input = "print('hello')\n" * 10000
 
@@ -671,6 +685,7 @@ os.remove('/etc/passwd')
 """ * 100
 
         import time
+
         start = time.time()
         result = check_amanah(dangerous_input)
         elapsed = time.time() - start

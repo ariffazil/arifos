@@ -1,0 +1,121 @@
+# arifOS APPS Site Nginx Configuration
+# Domain: arifos.arif-fazil.com
+# Serves: React static site + Dashboard Aggregator API (WebSocket enabled)
+
+# Upstream for dashboard aggregator (runs on port 3002)
+upstream dashboard_aggregator {
+    server 127.0.0.1:3002;
+    keepalive 16;
+}
+
+server {
+    listen 80;
+    server_name arifos.arif-fazil.com;
+    
+    # Redirect to HTTPS
+    return 301 https://$server_name$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name arifos.arif-fazil.com;
+    
+    # SSL Configuration (Let's Encrypt)
+    ssl_certificate /etc/letsencrypt/live/arifos.arif-fazil.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/arifos.arif-fazil.com/privkey.pem;
+    ssl_trusted_certificate /etc/letsencrypt/live/arifos.arif-fazil.com/chain.pem;
+    
+    # Modern SSL settings
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384;
+    ssl_prefer_server_ciphers off;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+    
+    # Security headers
+    add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload" always;
+    add_header X-Frame-Options DENY always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header Referrer-Policy strict-origin-when-cross-origin always;
+    add_header Permissions-Policy "geolocation=(), microphone=(), camera=()" always;
+    
+    # Root directory for static files (built React app)
+    root /var/www/arifos-apps;
+    index index.html;
+    
+    # Gzip compression
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
+    
+    # Serve static files
+    location / {
+        try_files $uri $uri/ /index.html;
+        
+        # Cache static assets
+        location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff2?|ttf|eot)$ {
+            expires 1y;
+            add_header Cache-Control "public, immutable";
+        }
+    }
+    
+    # Proxy API requests to dashboard aggregator
+    location /api/ {
+        proxy_pass http://dashboard_aggregator;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # WebSocket support
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 86400; # 24 hours for WebSocket
+        
+        # CORS headers (if needed)
+        add_header Access-Control-Allow-Origin $http_origin always;
+        add_header Access-Control-Allow-Methods "GET, POST, OPTIONS" always;
+        add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range" always;
+        add_header Access-Control-Expose-Headers "Content-Length,Content-Range" always;
+        
+        # Handle preflight requests
+        if ($request_method = 'OPTIONS') {
+            add_header Access-Control-Allow-Origin $http_origin;
+            add_header Access-Control-Allow-Methods "GET, POST, OPTIONS";
+            add_header Access-Control-Allow-Headers "DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range";
+            add_header Access-Control-Max-Age 1728000;
+            add_header Content-Type 'text/plain; charset=utf-8';
+            add_header Content-Length 0;
+            return 204;
+        }
+    }
+    
+    # Health check endpoint
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+    
+    # Let's Encrypt challenge (for certificate renewal)
+    location /.well-known/acme-challenge/ {
+        root /var/www/letsencrypt;
+        allow all;
+    }
+    
+    # Deny access to hidden files
+    location ~ /\. {
+        deny all;
+    }
+    
+    # Custom error pages
+    error_page 404 /index.html;
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+        root /usr/share/nginx/html;
+    }
+}

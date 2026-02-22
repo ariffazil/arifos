@@ -171,6 +171,86 @@ See [`core/`](../core/) for the Trinity Engine and Metabolic Loop implementation
 
 ---
 
+## REST API & MCP Protocol
+
+### Transports
+
+| Transport | Command | Use Case |
+|-----------|---------|----------|
+| **stdio** | `python -m aaa_mcp` | Claude Desktop, Cursor, local agents |
+| **SSE** | `python -m aaa_mcp sse` | Remote connections, ChatGPT Developer Mode |
+| **HTTP** | `python -m aaa_mcp http` | Streamable HTTP transport |
+
+### MCP JSON-RPC Protocol (SSE)
+
+When running in SSE mode, the server exposes:
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/sse` | `GET` | SSE event stream (returns endpoint URL) |
+| `/messages` | `POST` | MCP JSON-RPC message handling |
+
+**Protocol Flow:**
+
+```bash
+# 1. Client connects to SSE endpoint
+curl -N https://arifosmcp.arif-fazil.com/sse
+# Returns: event: endpoint
+data: https://arifosmcp.arif-fazil.com/messages
+
+# 2. Client sends JSON-RPC messages to /messages
+curl -X POST https://arifosmcp.arif-fazil.com/messages \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}'
+```
+
+**Supported Methods:**
+
+```bash
+# Initialize connection
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{}}
+
+# List available tools
+{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
+
+# Call a tool
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"anchor","arguments":{"query":"..."}}}
+
+# Keepalive ping
+{"jsonrpc":"2.0","id":4,"method":"ping","params":{}}
+
+# Client initialized notification
+{"jsonrpc":"2.0","method":"notifications/initialized","params":{}}
+```
+
+### Direct REST API
+
+For non-MCP integrations, direct REST endpoints are available:
+
+```bash
+# Health and readiness
+curl https://arifosmcp.arif-fazil.com/health
+curl https://arifosmcp.arif-fazil.com/ready
+curl https://arifosmcp.arif-fazil.com/version
+
+# List tools (simple format)
+curl https://arifosmcp.arif-fazil.com/tools
+
+# Call tool directly
+curl -X POST https://arifosmcp.arif-fazil.com/tools/anchor \
+  -H "Content-Type: application/json" \
+  -d '{"query":"test","actor_id":"user"}'
+
+# Full pipeline wrapper (000→333→666→888→999)
+curl -X POST https://arifosmcp.arif-fazil.com/apex_judge \
+  -H "Content-Type: application/json" \
+  -d '{"query":"Should we proceed?","actor_id":"user"}'
+```
+
+See [`rest.py`](rest.py) for the full REST API implementation.
+
+---
+
 ## Enterprise Use Cases
 
 ### Financial Services (Compliance)
@@ -225,8 +305,9 @@ See [Configuration Reference](../README.md#configuration-reference) for full opt
 | Resource | Link |
 |----------|------|
 | **Documentation** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
-| **MCP Endpoint** | [aaamcp.arif-fazil.com/mcp](https://aaamcp.arif-fazil.com/mcp) |
-| **Health Check** | [aaamcp.arif-fazil.com/health](https://aaamcp.arif-fazil.com/health) |
+| **MCP SSE** | `https://arifosmcp.arif-fazil.com/sse` |
+| **MCP Messages** | `https://arifosmcp.arif-fazil.com/messages` |
+| **Health Check** | [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) |
 | **Registry Entry** | [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io) |
 | **Source Code** | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) |
 

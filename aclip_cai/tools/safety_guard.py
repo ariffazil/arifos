@@ -38,7 +38,7 @@ def forge_guard(
     # 2. Check the current system health
     if check_system_health:
         health = get_system_health()
-        
+
         # Check for any critical warnings from the system monitor
         if health.get("warnings"):
             for warning in health["warnings"]:

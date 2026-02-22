@@ -24,7 +24,7 @@ def test_basic_flow():
     test_dir = tempfile.mkdtemp(prefix="vault_demo_")
     config = VaultConfig(base_path=test_dir)
     vault = SEAL999(config=config)
-    
+
     print("Creating vault entry...")
     entry = VaultEntry(
         entry_id="demo_001",
@@ -35,12 +35,12 @@ def test_basic_flow():
         merkle_root="test_root_123456",
         floor_scores={"F12_Injection": 0.15},
     )
-    
+
     print("Sealing entry...")
     merkle_root = vault.seal_entry(entry)
     print(f"Merkle root: {merkle_root}")
     print(f"Cooling tier: {entry.cooling_tier}")
-    
+
     print("\n[OK] SEAL-999 canonical demo completed successfully!")
     print(f"Test data stored in: {test_dir}")
 

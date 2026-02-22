@@ -2,6 +2,7 @@ import json
 import os
 
 
+
 def config_flags() -> dict:
     """
     Reads environment and feature flags.
@@ -13,11 +14,8 @@ def config_flags() -> dict:
     Returns:
         dict: A dictionary containing relevant configuration flags.
     """
-    flags = {
-        "environment_variables": {},
-        "from_file": {}
-    }
-    
+    flags = {"environment_variables": {}, "from_file": {}}
+
     # Read environment variables with specific prefixes
     for key, value in os.environ.items():
         if key.startswith("ARIFOS_") or key.startswith("MCP_"):
@@ -33,5 +31,5 @@ def config_flags() -> dict:
             flags["from_file"]["error"] = f"Failed to decode JSON from {config_file_path}: {e}"
         except Exception as e:
             flags["from_file"]["error"] = f"Failed to read config file {config_file_path}: {e}"
-    
+
     return flags

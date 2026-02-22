@@ -8,8 +8,6 @@ DITEMPA BUKAN DIBERI
 
 from typing import Optional
 
-from .session_ledger import SessionLedger, get_ledger
-
 # Singleton ledger instance
 _session_ledger: Optional[SessionLedger] = None
 
@@ -17,7 +15,7 @@ _session_ledger: Optional[SessionLedger] = None
 async def get_session_ledger() -> SessionLedger:
     """
     Dependency for getting the SessionLedger.
-    
+
     Usage in FastAPI:
         @app.post("/seal")
         async def seal_entry(ledger: SessionLedger = Depends(get_session_ledger)):

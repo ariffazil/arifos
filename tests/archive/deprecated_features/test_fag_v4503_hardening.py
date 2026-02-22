@@ -16,13 +16,20 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from codebase.core.apex.governance.fag import (FAG, PROTECTED_PATHS, FAGSnapshot,
-                                        FAGWritePlan, MutationEvent,
-                                        MutationWatchdog, OperatorAlert)
+from codebase.core.apex.governance.fag import (
+    FAG,
+    PROTECTED_PATHS,
+    FAGSnapshot,
+    FAGWritePlan,
+    MutationEvent,
+    MutationWatchdog,
+    OperatorAlert,
+)
 
 # =============================================================================
 # FIXTURES
 # =============================================================================
+
 
 @pytest.fixture
 def temp_workspace(tmp_path):
@@ -55,6 +62,7 @@ def fag_with_hardening(temp_workspace):
 # =============================================================================
 # PRE-MUTATE SNAPSHOT TESTS
 # =============================================================================
+
 
 class TestPreMutateSnapshot:
     """Tests for v45.0.3 Pre-Mutate Snapshot (Rollback Contract)."""
@@ -149,6 +157,7 @@ class TestPreMutateSnapshot:
 # PROTECTED PATHS TESTS
 # =============================================================================
 
+
 class TestProtectedPaths:
     """Tests for v45.0.3 Protected Paths (No-Touch Zones)."""
 
@@ -211,6 +220,7 @@ class TestProtectedPaths:
 # MUTATION WATCHDOG TESTS
 # =============================================================================
 
+
 class TestMutationWatchdog:
     """Tests for v45.0.3 Mutation Watchdog (Anomaly Detection)."""
 
@@ -223,11 +233,13 @@ class TestMutationWatchdog:
 
         # Record 10 mutations (exceeds threshold of 5)
         for i in range(10):
-            watchdog.record(MutationEvent(
-                operation="modify",
-                path=f"file_{i}.txt",
-                timestamp=datetime.now(timezone.utc),
-            ))
+            watchdog.record(
+                MutationEvent(
+                    operation="modify",
+                    path=f"file_{i}.txt",
+                    timestamp=datetime.now(timezone.utc),
+                )
+            )
 
         anomalies = watchdog.detect_anomalies(temp_workspace)
 
@@ -244,19 +256,23 @@ class TestMutationWatchdog:
         now = datetime.now(timezone.utc)
 
         # Rename file
-        watchdog.record(MutationEvent(
-            operation="rename",
-            path="new_name.txt",
-            previous_path="original.txt",
-            timestamp=now,
-        ))
+        watchdog.record(
+            MutationEvent(
+                operation="rename",
+                path="new_name.txt",
+                previous_path="original.txt",
+                timestamp=now,
+            )
+        )
 
         # Then delete it (stealth-delete pattern)
-        watchdog.record(MutationEvent(
-            operation="delete",
-            path="new_name.txt",
-            timestamp=now + timedelta(seconds=1),
-        ))
+        watchdog.record(
+            MutationEvent(
+                operation="delete",
+                path="new_name.txt",
+                timestamp=now + timedelta(seconds=1),
+            )
+        )
 
         anomalies = watchdog.detect_anomalies(temp_workspace)
 
@@ -274,11 +290,13 @@ class TestMutationWatchdog:
 
         # Trigger burst by recording many mutations
         for i in range(10):
-            fag.watchdog.record(MutationEvent(
-                operation="modify",
-                path=f"file_{i}.txt",
-                timestamp=datetime.now(timezone.utc),
-            ))
+            fag.watchdog.record(
+                MutationEvent(
+                    operation="modify",
+                    path=f"file_{i}.txt",
+                    timestamp=datetime.now(timezone.utc),
+                )
+            )
 
         # Now try write_validate - should get HOLD
         plan = FAGWritePlan(
@@ -301,11 +319,13 @@ class TestMutationWatchdog:
 
         # Record only 3 mutations (under threshold)
         for i in range(3):
-            watchdog.record(MutationEvent(
-                operation="modify",
-                path=f"file_{i}.txt",
-                timestamp=datetime.now(timezone.utc),
-            ))
+            watchdog.record(
+                MutationEvent(
+                    operation="modify",
+                    path=f"file_{i}.txt",
+                    timestamp=datetime.now(timezone.utc),
+                )
+            )
 
         anomalies = watchdog.detect_anomalies(temp_workspace)
 
@@ -315,6 +335,7 @@ class TestMutationWatchdog:
 # =============================================================================
 # OPERATOR ALERTS TESTS
 # =============================================================================
+
 
 class TestOperatorAlerts:
     """Tests for v45.0.3 Operator Alerts (Entropy Spike Warnings)."""
@@ -353,11 +374,13 @@ class TestOperatorAlerts:
         )
 
         # Emit an alert
-        fag._emit_alert(OperatorAlert(
-            severity="WARN",
-            code="TEST_ALERT",
-            message="Test message",
-        ))
+        fag._emit_alert(
+            OperatorAlert(
+                severity="WARN",
+                code="TEST_ALERT",
+                message="Test message",
+            )
+        )
 
         callback_mock.assert_called_once()
 
@@ -373,11 +396,13 @@ class TestOperatorAlerts:
         )
 
         # Emit an alert (should be ignored)
-        fag._emit_alert(OperatorAlert(
-            severity="CRITICAL",
-            code="TEST",
-            message="Test",
-        ))
+        fag._emit_alert(
+            OperatorAlert(
+                severity="CRITICAL",
+                code="TEST",
+                message="Test",
+            )
+        )
 
         callback_mock.assert_not_called()
 
@@ -401,6 +426,7 @@ class TestOperatorAlerts:
 # =============================================================================
 # HEALTH CHECK TESTS
 # =============================================================================
+
 
 class TestHealthCheck:
     """Tests for v45.0.3 health_check() method."""
@@ -430,11 +456,13 @@ class TestHealthCheck:
 
         # Trigger anomaly
         for i in range(10):
-            fag.watchdog.record(MutationEvent(
-                operation="modify",
-                path=f"file_{i}.txt",
-                timestamp=datetime.now(timezone.utc),
-            ))
+            fag.watchdog.record(
+                MutationEvent(
+                    operation="modify",
+                    path=f"file_{i}.txt",
+                    timestamp=datetime.now(timezone.utc),
+                )
+            )
 
         health = fag.health_check()
 

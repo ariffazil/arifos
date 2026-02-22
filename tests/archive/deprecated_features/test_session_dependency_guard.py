@@ -93,4 +93,3 @@ def test_sessions_are_isolated() -> None:
     assert result_new["status"] == "PASS"
     assert result_new["interaction_count"] == 1
     assert result_new["risk_level"] == SessionRisk.GREEN.value
-

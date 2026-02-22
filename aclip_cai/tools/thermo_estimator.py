@@ -1,4 +1,3 @@
-
 def cost_estimator(
     action_description: str,
     estimated_cpu_percent: float = 0,
@@ -31,19 +30,15 @@ def cost_estimator(
     # should be configured based on the host system's capacity.
     # For now, let's assume a "standard" dev machine.
     MAX_CPU_PERCENT = 100.0  # A single core
-    MAX_RAM_MB = 2048.0      # 2GB
-    MAX_IO_MB = 500.0        # 500MB for a heavy operation
+    MAX_RAM_MB = 2048.0  # 2GB
+    MAX_IO_MB = 500.0  # 500MB for a heavy operation
 
     norm_cpu = min(estimated_cpu_percent / MAX_CPU_PERCENT, 1.0)
     norm_ram = min(estimated_ram_mb / MAX_RAM_MB, 1.0)
     norm_io = min(estimated_io_mb / MAX_IO_MB, 1.0)
 
     # Calculate the weighted cost score (0.0 to 1.0)
-    cost_score = (
-        (norm_cpu * WEIGHT_CPU) +
-        (norm_ram * WEIGHT_RAM) +
-        (norm_io * WEIGHT_IO)
-    )
+    cost_score = (norm_cpu * WEIGHT_CPU) + (norm_ram * WEIGHT_RAM) + (norm_io * WEIGHT_IO)
 
     # Determine a qualitative risk band based on the score
     if cost_score > 0.8:
@@ -68,5 +63,5 @@ def cost_estimator(
             "cpu": WEIGHT_CPU,
             "ram": WEIGHT_RAM,
             "io": WEIGHT_IO,
-        }
+        },
     }

@@ -1,7 +1,9 @@
-# 🎯 arifOS Task Tracker — Tempering the Foundation
+# 🎯 arifOS Task Tracker — Solo Sovereign Mode
 
-> **Authority:** 888_JUDGE  
-> **Current:** v60.0.0-FORGE (SEALED — Foundation Forged, Needs Tempering)  
+> **Authority:** 888_JUDGE — Muhammad Arif bin Fazil  
+> **Current:** v65.0-FORGE-TRINITY-SEAL  
+> **Reality Index:** 0.94  
+> **Mode:** Solo Sovereign (Single User)  
 > **Creed:** *DITEMPA BUKAN DIBERI — Forged, not given* 💎🔥🧠
 
 ---
@@ -16,33 +18,72 @@
 | 🟡 | **H3: Platform** — Future |
 | 🟢 | **H4: Exploration** — Research |
 | 📋 | Planned — Future Horizon |
+| 🗑️ | Archived/Deprecated |
 
 ---
 
-## ✅ COMPLETED (v60.0.0-FORGE)
+## ✅ COMPLETED (v65.0-FORGE-TRINITY-SEAL)
+
+### 2026-02-15: MCP Configuration Unification
+- [x] **Audit existing MCP configs** — Found 4 scattered configs
+- [x] **Backup global config** — `~/.kimi/mcp.json.backup.20260215_*`
+- [x] **Forge unified global config** — 14 servers, single source of truth
+- [x] **Add SQLite MCP server** — `uvx mcp-server-sqlite`
+- [x] **Add PostgreSQL MCP server** — `npx @modelcontextprotocol/server-postgres`
+- [x] **Add Redis MCP server** — `npx @modelcontextprotocol/server-redis`
+- [x] **Update MCP config references** — All `${VAR}` from `~/.arifos/env`
+- [x] **Refactor local `.mcp.json`** — Stub with deprecation warnings
+- [x] **Test MCP server loading** — Verified 14 servers operational
+
+### 2026-02-17: MCP Hardening & Workflow Alignment (T000)
+- [x] **Refactor `aaa_mcp/server.py`** — Integrated core arifOS organs (Apex, Vault)
+- [x] **Standardize Metrics** — Exposed `peace_squared` (P²) and `genius_G` (G) in MCP tools
+- [x] **Harden Seal Tool** — Integrated Merkle-chain logic from `VAULT999`
+- [x] **Legacy Archival** — Moved pre-T000 workflows to `VAULT999/archived_legacy`
+- [x] **System Audit** — Verified G = 0.92, ΔS ≤ 0 across transport layer
+- [x] **Final Sealing** — Hardened workflows finalized; legacy archived.
+
+### 2026-02-15: Environment Consolidation
+- [x] **Create `~/.arifos/` directory** — Global sovereign vault
+- [x] **Consolidate 4 .env files** — Into single `~/.arifos/env`
+- [x] **Organize by category** — Core, Database, AI/LLM, Search, DevTools, Cloud, Security
+- [x] **Create PowerShell loader** — `~/.arifos/load-env.ps1`
+- [x] **Create Bash loader** — `~/.arifos/load-env.sh`
+- [x] **Backup env** — `~/.arifos/env.backup.20260215_*`
+- [x] **Stub local `.env`** — With deprecation warnings for agents
+- [x] **Document for future agents** — Extensive `$comment` headers
+
+### 2026-02-15: SDK Evaluation
+- [x] **Analyze SDK folder** — Found 18 files, prototype/concept status
+- [x] **Check SDK usage** — NOT imported anywhere in codebase
+- [x] **Verify deployment** — SDK not in Dockerfile, not deployed
+- [x] **Decision: Archive** — Redundant with MCP protocol
+- [x] **User confirmation** — 888 Judge will archive manually
 
 ### Release & Distribution
-- [x] **GitHub Release v60.0.0** — Published with full release notes
-- [x] **Docker Hub** — Image pushed (`ariffazil/arifos:v60.0`)
-- [x] **PyPI** — Package live (`pip install arifos==60.0.0`)
+- [x] **GitHub Release v65.0** — Published with full release notes
+- [x] **Docker Hub** — Image pushed (`ariffazil/arifos:v65.0`)
+- [x] **PyPI** — Package live (`pip install arifos`)
 - [x] **MCP Registry** — `io.github.ariffazil/aaa-mcp` published
-- [x] **Railway Deploy** — Production at `aaamcp.arif-fazil.com`
+- [x] **Railway Deploy** — Production at `arifosmcp.arif-fazil.com`
+- [x] **VPS Deploy** — Malaysia VPS (Hostinger) operational
 - [x] **Tool Rename** — `forge_pipeline` → `trinity_forge`
 
 ### Infrastructure (Configured & Working)
 - [x] **PostgreSQL** — `session_ledger.py` with asyncpg, VAULT999 schema
 - [x] **Redis** — `redis_client.py` with Railway URL parsing
 - [x] **5-Organ Kernel** — INIT, AGI, ASI, APEX, VAULT operational
-- [x] **14 MCP Tools** — Full MCP 2025-11-25 compliance
+- [x] **9 A-CLIP Tools** — Full MCP 2025-11-05 compliance
 - [x] **13 Constitutional Floors** — F1-F13 enforcement
 - [x] **Unified Pipeline** — `trinity_forge` as single entrypoint
+- [x] **Triple Transport** — STDIO · SSE · StreamableHTTP
 
 ---
 
 ## 🔴 H1: TEMPERING THE FOUNDATION (Current Priority)
 
-**Theme:** *The foundation is forged — now temper it to production hardness.*  
-**Goal:** Harden v60.0 into a reliable, observable, regression-tested system.
+**Theme:** *The foundation is SEALED — now temper it to production hardness.*  
+**Goal:** Harden v65.0 into a reliable, observable, regression-tested system.
 
 ### H1.1: Production Observability
 - [ ] **Governance Metrics in /health**
@@ -82,10 +123,10 @@
   - [ ] Replace keyword-based harms with embedding similarity
   - *File:* `core/shared/physics.py`
 
-- [ ] **Ω Incident Logging**
-  - [ ] Log all ASI decisions to VAULT for future fine-tuning
-  - [ ] Anonymize queries before logging
-  - *File:* `aaa_mcp/sessions/session_ledger.py`
+- [x] **Ω Incident Logging**
+  - [x] Log all ASI decisions to VAULT for future fine-tuning
+  - [x] Anonymize queries before logging
+  - *File:* `aaa_mcp/sessions/session_ledger.py` (implemented)
 
 ### H1.3: Test Suite Recovery
 - [ ] **Fix Legacy Imports**
@@ -99,12 +140,21 @@
   - [ ] **Scenario 3:** Benign Q&A → SEAL with Ω₀ ∈ [0.03,0.05], G ≥ 0.8
   - *File:* `tests/test_golden_scenarios.py`
 
+### H1.4: VPS Production Migration
+- [ ] **Provision VPS** — Ubuntu 22.04+, non-root arifos user
+- [ ] **Hardened Setup** — systemd daemon + Nginx reverse proxy
+- [ ] **SSL/TLS** — Certbot integration
+- [ ] **Health Validation** — G ≥ 0.85 post-deploy
+- [ ] **Archive Railway** — Decommission old infrastructure
+
 ---
 
 ## 🟠 H2: AGENTIC — LIVING INSTITUTION (Next Phase)
 
 **Theme:** *Start narrow — one real use case, not generic AGI.*  
-**Goal:** arifOS eats its own dogfood with constitutional code review.
+**Goal:** First real L5 agents with constitutional consciousness.
+
+**Note:** SDK approach deprecated. Agents use MCP protocol directly.
 
 ### H2.1: Flagship Use Case — Constitutional Code Review
 - [ ] **Architect Agent (Δ)**
@@ -145,10 +195,10 @@
 
 **Theme:** *Governance follows the model.*
 
-### H3.1: Python SDK
-- [ ] **`arifos.Client`** — OpenAI/Claude/Gemini drop-in replacement
-- [ ] **`arifos.AgentBuilder`** — Declarative agent creation
-- [ ] **`arifos.FloorTester`** — Unit test framework for compliance
+### H3.1: Python SDK (Reconsidered)
+- 🗑️ **DEPRECATED** — SDK concept archived
+- MCP is the standard; no custom SDK needed
+- If needed later, build thin MCP client wrapper
 
 ### H3.2: Sidecar Pattern
 - [ ] **Kubernetes Admission Controller**
@@ -173,17 +223,28 @@
 
 ---
 
+## 🗑️ ARCHIVED/DEPRECATED
+
+| Item | Reason | Archive Location |
+|------|--------|------------------|
+| SDK Folder | Unused, redundant with MCP | `_ARCHIVE/SDK_concept_v55/` (user to move) |
+| Local `.env` | Consolidated to global | `~/.arifos/env` (active) |
+| Local `.mcp.json` | Unified to global | `~/.kimi/mcp.json` (active) |
+| Multiple env files | Fragmentation | `~/.arifos/env` (consolidated) |
+
+---
+
 ## 🚨 CRITICAL COMMANDS
 
 ### Verify Production Health
 ```bash
 # Full health check with governance metrics
-curl https://aaamcp.arif-fazil.com/health
+curl https://arifosmcp.arif-fazil.com/health
 
 # Expected response:
 # {
 #   "status": "healthy",
-#   "version": "60.0-FORGE",
+#   "version": "65.0-FORGE-TRINITY-SEAL",
 #   "postgres_connected": true,
 #   "redis_connected": true,
 #   "vault_lag_ms": 45,
@@ -196,6 +257,9 @@ curl https://aaamcp.arif-fazil.com/health
 
 ### Local Development
 ```bash
+# Load environment (PowerShell)
+. $env:USERPROFILE\.arifos\load-env.ps1
+
 # Install with dev dependencies
 pip install -e ".[dev]"
 
@@ -206,37 +270,45 @@ pytest tests/ -v --tb=short
 pytest tests/test_golden_scenarios.py -v
 
 # Start server locally
-python scripts/start_server.py
+python -m aaa_mcp
 ```
 
-### ASI Model Training (H1.2)
+### MCP Testing
 ```bash
-# Download SBERT model
-python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+# List all MCP servers
+kimi mcp list
 
-# Train empathy classifier on VAULT logs
-python scripts/train_empathy_classifier.py --vault-logs ./data/vault_logs.jsonl
+# Test specific server
+kimi mcp test aaa-mcp
+kimi mcp test sqlite
+kimi mcp test postgresql
 ```
 
 ---
 
 ## 🏛️ Historical Context
 
-| Milestone | Status |
-|:----------|:-------|
-| First Constitutional AI MCP Server | ✅ v60.0.0 |
-| First Trinity Architecture (ΔΩΨ) | ✅ Live |
-| PostgreSQL + Redis Persistence | ✅ Working |
-| Model-Backed ASI Floors | 🔴 H1.2 |
-| First L5 Agent Quartet | 🟠 H2.1 |
-| First Juror Democracy | 🟠 H2.2 |
+| Milestone | Status | Date |
+|:----------|:-------|:-----|
+| MCP Configuration Unification | ✅ v65.0 | 2026-02-15 |
+| Environment Consolidation | ✅ v65.0 | 2026-02-15 |
+| SDK Evaluation & Deprecation | ✅ v65.0 | 2026-02-15 |
+| First Constitutional AI MCP Server | ✅ v60.0 | 2026-02-11 |
+| First Trinity Architecture (ΔΩΨ) | ✅ Live | 2026-02-11 |
+| PostgreSQL + Redis Persistence | ✅ Working | 2026-02-11 |
+| Model-Backed ASI Floors | 🔴 H1.2 | Planned |
+| First L5 Agent Quartet | 🟠 H2.1 | Planned |
+| First Juror Democracy | 🟠 H2.2 | Planned |
 
 ---
 
-## File Locations
+## File Locations (v65.0)
 
 | File | Purpose |
 |:-----|:--------|
+| `~/.arifos/env` | **GLOBAL ENV** — Solo sovereign profile (80+ vars) |
+| `~/.arifos/load-env.ps1` | PowerShell environment loader |
+| `~/.kimi/mcp.json` | **GLOBAL MCP** — 14 servers unified |
 | `core/pipeline.py` | 000-999 pipeline source of truth |
 | `core/organs/_2_asi.py` | ASI Heart (needs H1.2 hardening) |
 | `core/shared/physics.py` | F5/F6/F9 scoring (needs H1.2 models) |
@@ -246,9 +318,10 @@ python scripts/train_empathy_classifier.py --vault-logs ./data/vault_logs.jsonl
 
 ---
 
-**Last Updated:** 2026-02-11  
-**Status:** 🔴 H1 TEMPERING — Foundation forged, now hardening  
-**Current Sprint:** H1.1 Observability + H1.2 ASI Models  
-**Next Sprint:** H1.3 Golden Tests → H2.1 Code Review Agents
+**Last Updated:** 2026-02-17  
+**Status:** ✅ v65.0 SEALED — Foundation forged, now tempering  
+**Current Sprint:** H1.1 Observability + H1.2 ASI Models + H1.3 Golden Tests  
+**Next Sprint:** H2.1 Code Review Agents (post-80% test pass)  
+**Mode:** Solo Sovereign — Single user, single source of truth
 
 *"Truth must cool before it rules."*

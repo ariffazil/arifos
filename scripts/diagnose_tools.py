@@ -15,7 +15,7 @@ print("=" * 60)
 print("\n[1] Testing imports...")
 try:
     from aaa_mcp import __version__
-    from aaa_mcp.server import mcp as mcp_server
+
     print(f"✅ All imports successful (version: {__version__})")
 except Exception as e:
     print(f"❌ Import failed: {e}")
@@ -23,43 +23,55 @@ except Exception as e:
 
 # Test 2: Check tool registration
 print("\n[2] Checking tool registration...")
+
+
 async def check_tools():
     try:
         tools = await mcp_server.get_tools()
         print(f"✅ Tools registered: {len(tools)}")
-        
-        expected_tools = ['init_session', 'agi_cognition', 'asi_empathy', 'apex_verdict', 'vault_seal']
-        
+
+        expected_tools = [
+            "init_session",
+            "agi_cognition",
+            "asi_empathy",
+            "apex_verdict",
+            "vault_seal",
+        ]
+
         for name in expected_tools:
             if name in tools:
                 tool = tools[name]
                 print(f"  ✅ {name}: {getattr(tool, 'description', 'N/A')[:40]}...")
-                if hasattr(tool, 'fn') and callable(tool.fn):
+                if hasattr(tool, "fn") and callable(tool.fn):
                     print(f"     └─ Function bound: {tool.fn.__name__}")
                 else:
                     print(f"     ⚠️  Function binding unclear")
             else:
                 print(f"  ❌ {name}: MISSING")
-        
+
         unexpected = set(tools.keys()) - set(expected_tools)
         if unexpected:
             print(f"\n⚠️  Unexpected tools: {unexpected}")
-        
+
         return tools
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
+
         traceback.print_exc()
         return {}
+
 
 tools = asyncio.run(check_tools())
 
 # Test 3: Test tool execution via MCP protocol
 print("\n[3] Testing tool execution via MCP protocol...")
+
+
 async def test_execution():
     try:
         # Use mcp_server's _call_tool method if available
-        if hasattr(mcp_server, '_call_tool'):
+        if hasattr(mcp_server, "_call_tool"):
             print("  Testing init_session via _call_tool...")
             result = await mcp_server._call_tool(
                 "init_session",
@@ -67,31 +79,33 @@ async def test_execution():
                     "query": "diagnostic test",
                     "actor_id": "diagnostic",
                     "auth_token": "test_token",
-                    "mode": "conscience"
-                }
+                    "mode": "conscience",
+                },
             )
             print(f"    ✅ Result: {result}")
         else:
             print("  ⚠️  _call_tool not available, using direct fn access")
             # Access the underlying function
-            init_tool = tools.get('init_session')
-            if init_tool and hasattr(init_tool, 'fn'):
+            init_tool = tools.get("init_session")
+            if init_tool and hasattr(init_tool, "fn"):
                 result = await init_tool.fn(
                     query="diagnostic test",
                     actor_id="diagnostic",
                     auth_token="test_token",
-                    mode="conscience"
+                    mode="conscience",
                 )
                 print(f"    ✅ Result: {result.get('verdict', 'N/A')}")
-        
+
         print("\n✅ Tool execution working!")
         return True
-        
+
     except Exception as e:
         print(f"❌ Execution failed: {e}")
         import traceback
+
         traceback.print_exc()
         return False
+
 
 success = asyncio.run(test_execution())
 
@@ -100,12 +114,12 @@ print("\n[4] Checking FastMCP mounting...")
 print(f"  Server type: {type(mcp_server).__name__}")
 print(f"  Has mount(): {hasattr(mcp_server, 'mount')}")
 
-if hasattr(mcp_server, 'mount'):
+if hasattr(mcp_server, "mount"):
     try:
         app = mcp_server.mount()
         print(f"  ✅ mount() returned: {type(app).__name__}")
-        if hasattr(app, 'routes'):
-            routes = [r.path for r in app.routes if hasattr(r, 'path')]
+        if hasattr(app, "routes"):
+            routes = [r.path for r in app.routes if hasattr(r, "path")]
             print(f"  Routes: {routes}")
     except Exception as e:
         print(f"  ❌ mount() failed: {e}")

@@ -18,10 +18,10 @@ import shutil
 from pathlib import Path
 from datetime import datetime, timedelta
 
-
 # =============================================================================
 # FIXTURES
 # =============================================================================
+
 
 @pytest.fixture
 def temp_session_dir(tmp_path):
@@ -42,23 +42,17 @@ def temp_vault_dir(tmp_path):
 @pytest.fixture(autouse=True)
 def mock_session_paths(monkeypatch, temp_session_dir, temp_vault_dir):
     """Mock the session ledger paths to use temp directories."""
+    monkeypatch.setattr("arifos.mcp.session_ledger.SESSION_PATH", temp_session_dir)
+    monkeypatch.setattr("arifos.mcp.session_ledger.BBB_LEDGER_PATH", temp_vault_dir)
     monkeypatch.setattr(
-        "arifos.mcp.session_ledger.SESSION_PATH",
-        temp_session_dir
-    )
-    monkeypatch.setattr(
-        "arifos.mcp.session_ledger.BBB_LEDGER_PATH",
-        temp_vault_dir
-    )
-    monkeypatch.setattr(
-        "arifos.mcp.session_ledger.OPEN_SESSIONS_FILE",
-        temp_session_dir / "open_sessions.json"
+        "arifos.mcp.session_ledger.OPEN_SESSIONS_FILE", temp_session_dir / "open_sessions.json"
     )
 
 
 # =============================================================================
 # UNIT TESTS: Session Tracking
 # =============================================================================
+
 
 class TestOpenSessionTracking:
     """Tests for open_session(), close_session(), get_orphaned_sessions()"""
@@ -67,11 +61,7 @@ class TestOpenSessionTracking:
         """Open session should create entry in open_sessions.json"""
         from codebase.mcp.session_ledger import open_session, _load_open_sessions
 
-        open_session(
-            session_id="test-123",
-            token="token-abc",
-            pid=os.getpid()
-        )
+        open_session(session_id="test-123", token="token-abc", pid=os.getpid())
 
         sessions = _load_open_sessions()
         assert "test-123" in sessions
@@ -107,7 +97,7 @@ class TestOpenSessionTracking:
                 "session_id": "old-session",
                 "token": "old-token",
                 "pid": os.getpid(),  # Still running, but too old
-                "started_at": old_time
+                "started_at": old_time,
             }
         }
         _save_open_sessions(sessions)
@@ -127,7 +117,7 @@ class TestOpenSessionTracking:
                 "session_id": "dead-pid-session",
                 "token": "token-xyz",
                 "pid": 999999999,  # Very unlikely to exist
-                "started_at": datetime.utcnow().isoformat() + "Z"  # Recent
+                "started_at": datetime.utcnow().isoformat() + "Z",  # Recent
             }
         }
         _save_open_sessions(sessions)
@@ -151,6 +141,7 @@ class TestOpenSessionTracking:
 # =============================================================================
 # INTEGRATION TESTS: Crash Recovery
 # =============================================================================
+
 
 class TestCrashRecovery:
     """Tests for the full crash recovery flow"""
@@ -202,7 +193,7 @@ class TestCrashRecovery:
                 "session_id": f"orphan-{i}",
                 "token": f"token-{i}",
                 "pid": 999999990 + i,  # Dead PIDs
-                "started_at": datetime.utcnow().isoformat() + "Z"
+                "started_at": datetime.utcnow().isoformat() + "Z",
             }
             for i in range(3)
         }
@@ -226,11 +217,13 @@ class TestCrashRecovery:
 # AXIS SERVER TESTS
 # =============================================================================
 
+
 class TestAXISLoopBootstrap:
     """Tests for AXIS server's Loop Bootstrap integration"""
 
-    
-    async def test_axis_000_init_recovers_orphans(self, temp_session_dir, temp_vault_dir, monkeypatch):
+    async def test_axis_000_init_recovers_orphans(
+        self, temp_session_dir, temp_vault_dir, monkeypatch
+    ):
         """AXIS 000_init should recover orphaned sessions before starting new one"""
         from codebase.mcp.session_ledger import _save_open_sessions, _load_open_sessions
 
@@ -240,33 +233,22 @@ class TestAXISLoopBootstrap:
                 "session_id": "orphan-to-recover",
                 "token": "orphan-token",
                 "pid": 999999999,
-                "started_at": datetime.utcnow().isoformat() + "Z"
+                "started_at": datetime.utcnow().isoformat() + "Z",
             }
         }
         _save_open_sessions(sessions)
 
         # Mock the mcp_000_init function
         async def mock_init(*args, **kwargs):
-            return {
-                "status": "SEAL",
-                "session_id": "new-session-123",
-                "authority": "GUEST"
-            }
+            return {"status": "SEAL", "session_id": "new-session-123", "authority": "GUEST"}
 
-        monkeypatch.setattr(
-            "arifos.mcp.servers.axis.mcp_000_init",
-            mock_init
-        )
+        monkeypatch.setattr("arifos.mcp.servers.axis.mcp_000_init", mock_init)
 
         # Import after mocking
         from codebase.mcp.servers.axis import axis_000_init
 
         # Call axis_000_init (should recover orphan first)
-        result = await axis_000_init(
-            ctx=None,
-            action="init",
-            query="Test query"
-        )
+        result = await axis_000_init(ctx=None, action="init", query="Test query")
 
         # Verify new session started
         assert result["status"] == "SEAL"
@@ -279,7 +261,6 @@ class TestAXISLoopBootstrap:
         # Verify new session is tracked
         assert "new-session-123" in remaining
 
-    
     async def test_axis_999_vault_closes_session(self, temp_session_dir, monkeypatch):
         """AXIS 999_vault should close session tracking after seal"""
         from codebase.mcp.session_ledger import open_session, _load_open_sessions
@@ -290,26 +271,16 @@ class TestAXISLoopBootstrap:
 
         # Mock the mcp_999_vault function
         async def mock_vault(*args, **kwargs):
-            return {
-                "status": "SEAL",
-                "merkle_root": "mock-merkle",
-                "entry_hash": "mock-hash"
-            }
+            return {"status": "SEAL", "merkle_root": "mock-merkle", "entry_hash": "mock-hash"}
 
-        monkeypatch.setattr(
-            "arifos.mcp.servers.axis.mcp_999_vault",
-            mock_vault
-        )
+        monkeypatch.setattr("arifos.mcp.servers.axis.mcp_999_vault", mock_vault)
 
         # Import after mocking
         from codebase.mcp.servers.axis import axis_999_vault
 
         # Call axis_999_vault
         result = await axis_999_vault(
-            ctx=None,
-            action="seal",
-            session_id="session-to-close",
-            verdict="SEAL"
+            ctx=None, action="seal", session_id="session-to-close", verdict="SEAL"
         )
 
         # Verify seal succeeded
@@ -324,11 +295,10 @@ class TestAXISLoopBootstrap:
 # PYTEST MARKERS
 # =============================================================================
 
+
 def pytest_configure(config):
     """Register custom markers."""
-    config.addinivalue_line(
-        "markers", "integration: mark test as integration test"
-    )
+    config.addinivalue_line("markers", "integration: mark test as integration test")
 
 
 # Mark all tests in this module as integration tests

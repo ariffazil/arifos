@@ -1,84 +1,85 @@
 {
-    // ==========================================
-    // arifOS VS Code Settings (Beginner-Friendly)
-    // ==========================================
-    
-    // -- PYTHON SETUP --
-    // Use the project's Python virtual environment
-    "python.defaultInterpreterPath": "/home/codespace/.python/current/bin/python3",
-    "python.terminal.activateEnvironment": true,
-    
-    // Testing with pytest
-    "python.testing.pytestEnabled": true,
-    "python.testing.pytestArgs": ["tests"],
-    "python.testing.unittestEnabled": false,
-    
-    // Code intelligence
-    "python.analysis.extraPaths": ["${workspaceFolder}"],
-    "python.analysis.autoImportCompletions": true,
-    "python.analysis.typeCheckingMode": "basic",
-    
-    // -- CODE FORMATTING --
-    // Auto-format Python files when you save
-    "[python]": {
-        "editor.defaultFormatter": "ms-python.black-formatter",
-        "editor.formatOnSave": true,
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": "explicit"
-        }
-    },
-    
-    // Linting (code quality checks)
-    "ruff.lint.run": "onSave",
-    "ruff.organizeImports": true,
-    
-    // -- EDITOR APPEARANCE --
-    // Show a line at 100 characters (coding standard)
-    "editor.rulers": [100],
-    
-    // Better font and visibility
-    "editor.fontSize": 14,
-    "editor.lineHeight": 22,
-    "editor.wordWrap": "on",
-    
-    // -- FILE HANDLING --
-    // Automatically save files
-    "files.autoSave": "afterDelay",
-    "files.autoSaveDelay": 1000,
-    
-    // Ignore these folders in the sidebar
-    "files.exclude": {
-        "**/__pycache__": true,
-        "**/.pytest_cache": true,
-        "**/*.pyc": true,
-        "**/.git": false,  // Keep git visible
-        "**/.venv": true
-    },
-    
-    // -- TERMINAL --
-    // Use PowerShell on Windows (works better with arifOS)
-    "terminal.integrated.defaultProfile.windows": "PowerShell",
-    "terminal.integrated.enablePersistentSessions": true,
-    "terminal.integrated.scrollback": 10000,
-    
-    // -- GITHUB INTEGRATION --
-    "githubPullRequests.ignoredPullRequestBranches": ["main"],
-    
-    // -- arifOS SPECIFIC --
-    "arifos.terminalAutoCapture": true,
-    "arifos.terminalCapturePath": "${userHome}/.arifos_clip/terminal_output.log",
-    "arifos.autoSaveTerminal": true,
-    
-    // -- BEGINNER HELPERS --
-    // Show helpful info when hovering over code
-    "editor.hover.enabled": "on",
-    "editor.parameterHints.enabled": true,
-    
-    // Highlight matching brackets
-    "editor.bracketPairColorization.enabled": true,
-    "editor.guides.bracketPairs": true,
-    
-    // Show white spaces (helps spot invisible characters)
-    "editor.renderWhitespace": "boundary",
-    "kimi.yoloMode": true
+  // ==========================================
+  // arifOS VS Code Settings (Beginner-Friendly)
+  // ==========================================
+
+  // -- PYTHON SETUP --
+  // Use the project's Python virtual environment
+  "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+  "python.terminal.activateEnvironment": true,
+
+  // Testing with pytest
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": ["tests"],
+  "python.testing.unittestEnabled": false,
+
+  // Code intelligence
+  "python.analysis.extraPaths": ["${workspaceFolder}"],
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.typeCheckingMode": "basic",
+
+  // -- CODE FORMATTING --
+  // Auto-format Python files when you save
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "explicit"
+    }
+  },
+
+  // Linting (code quality checks)
+  "ruff.lint.run": "onSave",
+  "ruff.organizeImports": true,
+
+  // -- EDITOR APPEARANCE --
+  // Show a line at 100 characters (coding standard)
+  "editor.rulers": [100],
+
+  // Better font and visibility
+  "editor.fontSize": 14,
+  "editor.lineHeight": 22,
+  "editor.wordWrap": "on",
+
+  // -- FILE HANDLING --
+  // Automatically save files
+  "files.autoSave": "afterDelay",
+  "files.autoSaveDelay": 1000,
+
+  // Ignore these folders in the sidebar
+  "files.exclude": {
+    "**/__pycache__": true,
+    "**/.pytest_cache": true,
+    "**/*.pyc": true,
+    "**/.git": false, // Keep git visible
+    "**/.venv": true
+  },
+
+  // -- TERMINAL --
+  // Use PowerShell on Windows (works better with arifOS)
+  "terminal.integrated.defaultProfile.windows": "PowerShell",
+  "terminal.integrated.enablePersistentSessions": true,
+  "terminal.integrated.scrollback": 10000,
+
+  // -- GITHUB INTEGRATION --
+  "githubPullRequests.ignoredPullRequestBranches": ["main"],
+
+  // -- arifOS SPECIFIC --
+  "arifos.terminalAutoCapture": true,
+  "arifos.terminalCapturePath": "${userHome}/.arifos_clip/terminal_output.log",
+  "arifos.autoSaveTerminal": true,
+
+  // -- BEGINNER HELPERS --
+  // Show helpful info when hovering over code
+  "editor.hover.enabled": "on",
+  "editor.parameterHints.enabled": true,
+
+  // Highlight matching brackets
+  "editor.bracketPairColorization.enabled": true,
+  "editor.guides.bracketPairs": true,
+
+  // Show white spaces (helps spot invisible characters)
+  "editor.renderWhitespace": "boundary",
+  "kimi.yoloMode": true,
+  "kimi.executablePath": "C:\\Users\\User\\.local\\bin\\kimi.exe"
 }

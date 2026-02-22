@@ -7,24 +7,27 @@ Provides semantic descriptions of when/how to use each tool.
 Version: 1.0.0-SEAL
 """
 
-from dataclasses import asdict, dataclass, field
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Dict, List, Optional
 
 
 class ToolCategory(str, Enum):
     """Tool classification by function."""
-    ENTRY = "entry"           # Session initialization
-    REASONING = "reasoning"   # AGI Mind tools
-    EMPATHY = "empathy"       # ASI Heart tools  
-    JUDGMENT = "judgment"     # APEX Soul tools
-    MEMORY = "memory"         # VAULT tools
-    GROUNDING = "grounding"   # Evidence collection
-    AUXILIARY = "auxiliary"   # Support tools
+
+    ENTRY = "entry"  # Session initialization
+    REASONING = "reasoning"  # AGI Mind tools
+    EMPATHY = "empathy"  # ASI Heart tools
+    JUDGMENT = "judgment"  # APEX Soul tools
+    MEMORY = "memory"  # VAULT tools
+    GROUNDING = "grounding"  # Evidence collection
+    AUXILIARY = "auxiliary"  # Support tools
 
 
 class RiskLevel(str, Enum):
     """Risk classification for tool usage."""
+
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
@@ -34,41 +37,41 @@ class RiskLevel(str, Enum):
 @dataclass
 class ToolCapability:
     """Complete capability specification for a tool."""
-    
+
     # Identity
     name: str
     description: str
     category: ToolCategory
-    
+
     # Constitutional
     floors_enforced: List[str]
     stage: Optional[str] = None
-    
+
     # Input/Output
     input_schema: Dict[str, Any] = field(default_factory=dict)
     output_schema: Dict[str, Any] = field(default_factory=dict)
     required_params: List[str] = field(default_factory=list)
     optional_params: List[str] = field(default_factory=list)
-    
+
     # Usage guidance
     when_to_use: str = ""
     when_not_to_use: str = ""
     prerequisites: List[str] = field(default_factory=list)
     next_recommended: List[str] = field(default_factory=list)
-    
+
     # Success/failure
     success_indicator: str = ""
     failure_action: str = ""
-    
+
     # Performance
     estimated_latency: str = "medium"  # low/medium/high
     parallelizable: bool = False
     idempotent: bool = False
-    
+
     # Risk
     risk_level: RiskLevel = RiskLevel.LOW
     produces_side_effects: bool = False
-    
+
     # Examples
     example_usage: str = ""
     example_output: Dict[str, Any] = field(default_factory=dict)
@@ -86,7 +89,15 @@ TOOL_CAPABILITIES: Dict[str, ToolCapability] = {
         floors_enforced=["F11", "F12"],
         stage="000",
         required_params=["query"],
-        optional_params=["session_id", "grounding_required", "mode", "debug", "intent_hint", "urgency", "user_context"],
+        optional_params=[
+            "session_id",
+            "grounding_required",
+            "mode",
+            "debug",
+            "intent_hint",
+            "urgency",
+            "user_context",
+        ],
         when_to_use="""
 ALWAYS call this FIRST for any new constitutional query.
 Creates session context required by all subsequent tools.
@@ -104,31 +115,36 @@ Only skip if re-using an existing session from a prior init_gate call.
         idempotent=False,
         risk_level=RiskLevel.LOW,
         produces_side_effects=True,  # Creates session state
-        example_usage='''
+        example_usage="""
 result = await init_gate(
     query="Is CCS safe for long-term storage?",
     mode="strict",
     grounding_required=True
 )
 session_id = result["session_id"]
-        '''.strip(),
+        """.strip(),
         example_output={
             "session_id": "sess_abc123",
             "verdict": "SEAL",
             "status": "READY",
             "grounding_required": True,
             "mode": "strict",
-            "stage": "000"
-        }
+            "stage": "000",
+        },
     ),
-    
     "trinity_forge": ToolCapability(
         name="trinity_forge",
         description="Unified 000→999 pipeline — single entrypoint for full constitutional execution",
         category=ToolCategory.ENTRY,
         floors_enforced=["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F11", "F12", "F13"],
         required_params=["query"],
-        optional_params=["actor_id", "auth_token", "require_sovereign_for_high_stakes", "envelope", "output_mode"],
+        optional_params=[
+            "actor_id",
+            "auth_token",
+            "require_sovereign_for_high_stakes",
+            "envelope",
+            "output_mode",
+        ],
         when_to_use="""
 Use for quick decisions when you want the full constitutional pipeline in one call.
 Best for: simple queries, low-risk decisions, or when you don't need granular control.
@@ -153,13 +169,13 @@ Follow verdict semantics:
         idempotent=False,
         risk_level=RiskLevel.MEDIUM,
         produces_side_effects=True,
-        example_usage='''
+        example_usage="""
 result = await trinity_forge(
     query="Should we approve this CCS injection protocol?",
     require_sovereign_for_high_stakes=True
 )
 # Returns complete constitutional analysis
-        '''.strip(),
+        """.strip(),
         example_output={
             "verdict": "SEAL",
             "session_id": "sess_xyz789",
@@ -167,10 +183,9 @@ result = await trinity_forge(
             "agi": {"truth_score": 0.995, "confidence": 0.98},
             "asi": {"empathy_kappa_r": 0.96, "stakeholders": ["public", "operators"]},
             "apex": {"verdict": "SEAL", "tri_witness": 0.97},
-            "seal": {"status": "SEALED"}
-        }
+            "seal": {"status": "SEALED"},
+        },
     ),
-    
     "agi_sense": ToolCapability(
         name="agi_sense",
         description="Parse intent and classify lane (Stage 111)",
@@ -196,23 +211,22 @@ Skip if lane is already known from context.
         idempotent=True,
         risk_level=RiskLevel.LOW,
         produces_side_effects=False,
-        example_usage='''
+        example_usage="""
 sense_result = await agi_sense(
     query="Is this pressure reading dangerous?",
     session_id=session_id
 )
 lane = sense_result["lane"]  # "FACTUAL" or "CRISIS"
-        '''.strip(),
+        """.strip(),
         example_output={
             "stage": "111",
             "intent": "safety_assessment",
             "lane": "CRISIS",
             "requires_grounding": True,
             "truth_score": 0.95,
-            "evidence": []
-        }
+            "evidence": [],
+        },
     ),
-    
     "agi_think": ToolCapability(
         name="agi_think",
         description="Generate hypotheses and explore reasoning paths (Stage 222)",
@@ -238,24 +252,23 @@ Skip if using trinity_forge.
         idempotent=False,
         risk_level=RiskLevel.LOW,
         produces_side_effects=False,
-        example_usage='''
+        example_usage="""
 think_result = await agi_think(
     query="What are the failure modes for this CCS system?",
     session_id=session_id
 )
 hypotheses = think_result["hypotheses"]
-        '''.strip(),
+        """.strip(),
         example_output={
             "stage": "222",
             "hypotheses": [
                 {"id": "H1", "description": "Pressure buildup", "probability": 0.3},
-                {"id": "H2", "description": "Seal degradation", "probability": 0.5}
+                {"id": "H2", "description": "Seal degradation", "probability": 0.5},
             ],
             "confidence_range": [0.3, 0.7],
-            "recommended_path": "H2"
-        }
+            "recommended_path": "H2",
+        },
     ),
-    
     "agi_reason": ToolCapability(
         name="agi_reason",
         description="Deep logical reasoning — core analysis tool (Stage 333)",
@@ -281,13 +294,13 @@ Don't call without grounding for FACTUAL lane queries.
         idempotent=False,
         risk_level=RiskLevel.MEDIUM,
         produces_side_effects=False,
-        example_usage='''
+        example_usage="""
 reasoning = await agi_reason(
     query="Evaluate pressure containment risk",
     session_id=session_id,
     grounding=evidence_from_reality_search
 )
-        '''.strip(),
+        """.strip(),
         example_output={
             "stage": "333",
             "verdict": "SEAL",
@@ -296,10 +309,9 @@ reasoning = await agi_reason(
             "entropy_delta": -0.15,
             "humility_omega": 0.04,
             "genius_score": 0.85,
-            "conclusion": "Risk is within acceptable parameters"
-        }
+            "conclusion": "Risk is within acceptable parameters",
+        },
     ),
-    
     "asi_empathize": ToolCapability(
         name="asi_empathize",
         description="Assess stakeholder impact — empathy engine (Stage 555)",
@@ -326,7 +338,7 @@ Never skip for safety-critical decisions.
         idempotent=True,
         risk_level=RiskLevel.HIGH,  # Critical for safety
         produces_side_effects=False,
-        example_usage='''
+        example_usage="""
 empathy = await asi_empathize(
     query="What happens if this CCS facility leaks?",
     session_id=session_id
@@ -334,19 +346,18 @@ empathy = await asi_empathize(
 if empathy["high_vulnerability"]:
     # Escalate safety measures
     pass
-        '''.strip(),
+        """.strip(),
         example_output={
             "stage": "555",
             "verdict": "SEAL",
             "empathy_kappa_r": 0.96,
             "stakeholders": [
                 {"name": "local_community", "vulnerability": "high"},
-                {"name": "operators", "vulnerability": "medium"}
+                {"name": "operators", "vulnerability": "medium"},
             ],
-            "high_vulnerability": True
-        }
+            "high_vulnerability": True,
+        },
     ),
-    
     "asi_align": ToolCapability(
         name="asi_align",
         description="Reconcile ethics, law, and policy (Stage 666)",
@@ -371,21 +382,20 @@ Skip for purely informational queries.
         idempotent=True,
         risk_level=RiskLevel.MEDIUM,
         produces_side_effects=False,
-        example_usage='''
+        example_usage="""
 alignment = await asi_align(
     query="Is this CCS protocol ethically sound?",
     session_id=session_id
 )
-        '''.strip(),
+        """.strip(),
         example_output={
             "stage": "666",
             "verdict": "SEAL",
             "is_reversible": True,
             "ethics_check": "PASS",
-            "policy_check": "COMPLIANT"
-        }
+            "policy_check": "COMPLIANT",
+        },
     ),
-    
     "apex_verdict": ToolCapability(
         name="apex_verdict",
         description="Final constitutional judgment with Tri-Witness (Stage 888)",
@@ -417,7 +427,7 @@ Execute verdict semantics:
         idempotent=False,
         risk_level=RiskLevel.CRITICAL,  # Final decision point
         produces_side_effects=True,  # Renders binding verdict
-        example_usage='''
+        example_usage="""
 verdict = await apex_verdict(
     query="Approve CCS injection protocol?",
     session_id=session_id
@@ -425,17 +435,16 @@ verdict = await apex_verdict(
 if verdict["verdict"] == "SEAL":
     # Proceed with action
     pass
-        '''.strip(),
+        """.strip(),
         example_output={
             "stage": "888",
             "verdict": "SEAL",
             "truth_score": 0.99,
             "tri_witness": 0.97,
             "votes": {"agi": "APPROVE", "asi": "APPROVE", "apex": "APPROVE"},
-            "justification": "All floors passed with consensus"
-        }
+            "justification": "All floors passed with consensus",
+        },
     ),
-    
     "vault_seal": ToolCapability(
         name="vault_seal",
         description="Seal session into immutable ledger (Stage 999)",
@@ -444,12 +453,30 @@ if verdict["verdict"] == "SEAL":
         stage="999",
         required_params=["session_id", "verdict", "payload"],
         optional_params=[
-            "query_summary", "risk_level", "risk_tags", "intent", "category",
-            "floors_checked", "floors_passed", "floors_failed",
-            "entropy_omega", "tri_witness_score", "peace_squared", "genius_g",
-            "human_override", "override_reason", "model_used", "tags",
-            "tool_chain", "model_info", "environment", "prompt_excerpt",
-            "response_excerpt", "pii_level", "actor_type", "actor_id"
+            "query_summary",
+            "risk_level",
+            "risk_tags",
+            "intent",
+            "category",
+            "floors_checked",
+            "floors_passed",
+            "floors_failed",
+            "entropy_omega",
+            "tri_witness_score",
+            "peace_squared",
+            "genius_g",
+            "human_override",
+            "override_reason",
+            "model_used",
+            "tags",
+            "tool_chain",
+            "model_info",
+            "environment",
+            "prompt_excerpt",
+            "response_excerpt",
+            "pii_level",
+            "actor_type",
+            "actor_id",
         ],
         when_to_use="""
 ALWAYS call this LAST to finalize any constitutional session.
@@ -468,7 +495,7 @@ Only skip in test/debug scenarios.
         idempotent=True,  # Safe to retry
         risk_level=RiskLevel.LOW,
         produces_side_effects=True,  # Writes to ledger
-        example_usage='''
+        example_usage="""
 await vault_seal(
     session_id=session_id,
     verdict=apex_result["verdict"],
@@ -477,16 +504,15 @@ await vault_seal(
     risk_level="high",
     floors_checked=["F2", "F4", "F6", "F7"]
 )
-        '''.strip(),
+        """.strip(),
         example_output={
             "verdict": "SEALED",
             "seal_id": "seal_abc123xyz",
             "seal": "a1b2c3d4...",
             "session_id": "sess_abc123",
-            "stage": "999"
-        }
+            "stage": "999",
+        },
     ),
-    
     "reality_search": ToolCapability(
         name="reality_search",
         description="External fact-checking via web search + Axiom Engine",
@@ -512,13 +538,13 @@ Skip if using trinity_forge (handles grounding internally).
         idempotent=True,
         risk_level=RiskLevel.LOW,
         produces_side_effects=False,
-        example_usage='''
+        example_usage="""
 evidence = await reality_search(
     query="What is CO2 critical point?",
     session_id=session_id,
     region="wt-wt"
 )
-        '''.strip(),
+        """.strip(),
         example_output={
             "query": "What is CO2 critical point?",
             "session_id": "sess_abc123",
@@ -526,14 +552,13 @@ evidence = await reality_search(
                 {
                     "evidence_id": "E-AXIOM-CO2-CRITICAL_POINT",
                     "content": {"text": "Axiomatic Truth: CO2 Critical Point = 304.25 K"},
-                    "source_meta": {"type": "AXIOM", "trust_weight": 1.0}
+                    "source_meta": {"type": "AXIOM", "trust_weight": 1.0},
                 }
             ],
             "verdict": "SEAL",
-            "stage": "REALITY_SEARCH"
-        }
+            "stage": "REALITY_SEARCH",
+        },
     ),
-    
     "tool_router": ToolCapability(
         name="tool_router",
         description="Smart triage nurse — recommends pipeline sequence",
@@ -558,19 +583,18 @@ Skip if using trinity_forge.
         idempotent=True,
         risk_level=RiskLevel.LOW,
         produces_side_effects=False,
-        example_usage='''
+        example_usage="""
 routing = await tool_router(query="Check if this is true")
 sequence = routing["recommended_pipeline"]
-        '''.strip(),
+        """.strip(),
         example_output={
             "plan_id": "PLAN-ABC123",
             "recommended_pipeline": ["init_gate", "reality_search", "agi_reason", "apex_verdict"],
             "lane": "FACTUAL",
             "grounding_required": True,
-            "justification": "Factual query requiring external verification"
-        }
+            "justification": "Factual query requiring external verification",
+        },
     ),
-    
     "vault_query": ToolCapability(
         name="vault_query",
         description="Query sealed records for institutional memory",
@@ -578,9 +602,18 @@ sequence = routing["recommended_pipeline"]
         floors_enforced=["F1", "F3"],
         required_params=[],
         optional_params=[
-            "session_pattern", "verdict", "date_from", "date_to",
-            "risk_level", "category", "human_override_only", "tag",
-            "environment", "actor_id", "tool_used", "limit"
+            "session_pattern",
+            "verdict",
+            "date_from",
+            "date_to",
+            "risk_level",
+            "category",
+            "human_override_only",
+            "tag",
+            "environment",
+            "actor_id",
+            "tool_used",
+            "limit",
         ],
         when_to_use="""
 Query past decisions to learn from history.
@@ -600,23 +633,22 @@ Only for retrospective analysis.
         idempotent=True,
         risk_level=RiskLevel.LOW,
         produces_side_effects=False,
-        example_usage='''
+        example_usage="""
 history = await vault_query(
     verdict="VOID",
     category="safety",
     limit=10
 )
 # Analyze past failures
-        '''.strip(),
+        """.strip(),
         example_output={
             "count": 5,
             "entries": [
                 {"session_id": "sess_001", "verdict": "VOID", "timestamp": "2026-01-15T10:00:00Z"}
             ],
-            "patterns": {"void_rate": 0.15}
-        }
+            "patterns": {"void_rate": 0.15},
+        },
     ),
-    
     "truth_audit": ToolCapability(
         name="truth_audit",
         description="[EXPERIMENTAL] Full claim verification pipeline",
@@ -641,24 +673,23 @@ Use standard pipeline for production decisions.
         idempotent=True,
         risk_level=RiskLevel.MEDIUM,
         produces_side_effects=False,
-        example_usage='''
+        example_usage="""
 audit = await truth_audit(
     text="AI-generated content to verify",
     lane="HARD",
     sources=["https://trusted-source.com"]
 )
-        '''.strip(),
+        """.strip(),
         example_output={
             "overall_verdict": "SEAL",
             "overall_truth": 0.92,
             "claims": [
                 {"text": "Claim 1", "p_truth": 0.95, "status": "SUPPORTED"},
-                {"text": "Claim 2", "p_truth": 0.6, "status": "CONTESTED"}
+                {"text": "Claim 2", "p_truth": 0.6, "status": "CONTESTED"},
             ],
-            "omega_0": 0.05
-        }
+            "omega_0": 0.05,
+        },
     ),
-    
     "simulate_transfer": ToolCapability(
         name="simulate_transfer",
         description="Financial transfer simulation for testing",
@@ -683,18 +714,18 @@ Only for testing scenarios.
         idempotent=True,
         risk_level=RiskLevel.LOW,
         produces_side_effects=False,
-        example_usage='''
+        example_usage="""
 result = await simulate_transfer(
     amount=10000.00,
     recipient="test_account"
 )
-        '''.strip(),
+        """.strip(),
         example_output={
             "status": "SIMULATION_COMPLETE",
             "query": "Execute a wire transfer of $10000.0 to account test_account.",
             "verdict": "VOID",
-            "session_id": "sess_test_001"
-        }
+            "session_id": "sess_test_001",
+        },
     ),
 }
 
@@ -703,6 +734,7 @@ result = await simulate_transfer(
 # UTILITY FUNCTIONS
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def get_capability(tool_name: str) -> Optional[ToolCapability]:
     """Get capability description for a tool."""
     return TOOL_CAPABILITIES.get(tool_name)
@@ -710,26 +742,17 @@ def get_capability(tool_name: str) -> Optional[ToolCapability]:
 
 def list_capabilities() -> Dict[str, str]:
     """List all tools with brief descriptions."""
-    return {
-        name: cap.description 
-        for name, cap in TOOL_CAPABILITIES.items()
-    }
+    return {name: cap.description for name, cap in TOOL_CAPABILITIES.items()}
 
 
 def get_tools_by_category(category: ToolCategory) -> List[str]:
     """Get all tools in a category."""
-    return [
-        name for name, cap in TOOL_CAPABILITIES.items()
-        if cap.category == category
-    ]
+    return [name for name, cap in TOOL_CAPABILITIES.items() if cap.category == category]
 
 
 def get_tools_by_floor(floor: str) -> List[str]:
     """Get all tools that enforce a specific floor."""
-    return [
-        name for name, cap in TOOL_CAPABILITIES.items()
-        if floor in cap.floors_enforced
-    ]
+    return [name for name, cap in TOOL_CAPABILITIES.items() if floor in cap.floors_enforced]
 
 
 def get_capability_dict(tool_name: str) -> Optional[Dict[str, Any]]:
@@ -737,7 +760,7 @@ def get_capability_dict(tool_name: str) -> Optional[Dict[str, Any]]:
     cap = TOOL_CAPABILITIES.get(tool_name)
     if not cap:
         return None
-    
+
     return {
         "name": cap.name,
         "description": cap.description,
@@ -764,7 +787,4 @@ def get_capability_dict(tool_name: str) -> Optional[Dict[str, Any]]:
 
 def get_all_capabilities_dict() -> Dict[str, Dict[str, Any]]:
     """Get all capabilities as dictionaries."""
-    return {
-        name: get_capability_dict(name)
-        for name in TOOL_CAPABILITIES.keys()
-    }
+    return {name: get_capability_dict(name) for name in TOOL_CAPABILITIES.keys()}

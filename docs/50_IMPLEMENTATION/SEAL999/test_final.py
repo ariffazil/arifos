@@ -1,6 +1,7 @@
 """
 Quick test - SEAL999 production ready
 """
+
 import sys
 
 sys.path.insert(0, "C:\\Users\\User\\arifOS")
@@ -19,7 +20,7 @@ entry = VaultEntry(
     timestamp=datetime.utcnow(),
     verdict="SEAL",
     merkle_root="prod_root",
-    floor_scores={}
+    floor_scores={},
 )
 
 print(f"SEAL999: {type(vault).__name__}")

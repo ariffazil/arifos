@@ -2,12 +2,16 @@
 aaa_mcp/constitutional_decorator.py — REAL Constitutional Enforcement
 
 Wraps FastMCP tools with arifOS 13-floor validation.
-v55.5-EIGEN: Wired to codebase/constitutional_floors.py floor validators.
+v60.1-PHASE1: F12 is now MANDATORY on ALL tools (immune system hardening).
+v60.1-PHASE1: F11 validates session_id (no more auto-pass).
+v55.5-EIGEN: Wired to core.shared.floors floor validators.
 v55.5: F8 Genius now uses real eigendecomposition via genius.py extract_dials().
 
-Previously cosmetic (v55.3) — now performs actual input/output scanning:
-  - Pre-execution:  F1 (Amanah), F5 (Peace), F11 (Auth), F12 (Injection)
-  - Post-execution: F2 (Truth), F6 (Clarity), F7 (Humility), F9 (AntiHantu), F10 (Ontology)
+Floor enforcement:
+  - MANDATORY:       F12 (Injection) runs on ALL tools, always, before anything else
+  - Pre-execution:   F1 (Amanah), F5 (Peace), F6 (Empathy), F11 (Auth), F13 (Sovereign)
+  - Post-execution:  F2 (Truth), F3 (Witness), F4 (Clarity), F7 (Humility),
+                     F8 (Genius), F9 (AntiHantu), F10 (Ontology)
   - Hard floor fail  -> VOID  (block response)
   - Soft floor fail  -> PARTIAL (warn, still return)
   - All pass         -> SEAL
@@ -25,10 +29,12 @@ from typing import Any, Callable, Dict, List, Optional
 logger = logging.getLogger(__name__)
 
 # ─── Floor Registry ─────────────────────────────────────────────────────────
-# Maps tool names to their required constitutional floors
+# Maps tool names to their required constitutional floors.
 # v61.0: Updated for 5-Core Architecture
+# NOTE: F12 is MANDATORY on all tools (added automatically by the decorator).
+# You do NOT need to list F12 here — it's always enforced.
 FLOOR_ENFORCEMENT = {
-    # 5-Core Constitutional Kernel (v61.0)
+    # 5-Core Constitutional Kernel (v64.1-GAGI)
     "init_session": ["F11", "F12"],  # 000_INIT
     "agi_cognition": ["F2", "F4", "F7", "F8", "F10"],  # 111-333_AGI (Δ Mind)
     "asi_empathy": ["F1", "F5", "F6", "F9"],  # 555-666_ASI (Ω Heart)
@@ -44,8 +50,8 @@ FLOOR_ENFORCEMENT = {
     "apex_verdict_legacy": ["F5", "F3", "F8"],
     "reality_search": ["F2", "F7"],
     "vault_seal_legacy": ["F1", "F3"],
-    # Unified 000-999 pipeline (forge) enforces ALL floors F1-F13
-    "forge": [
+    # Unified 000-999 pipeline (trinity_forge) enforces ALL floors F1-F13
+    "trinity_forge": [
         "F1",
         "F2",
         "F3",
@@ -60,7 +66,22 @@ FLOOR_ENFORCEMENT = {
         "F12",
         "F13",
     ],
+    # 9 Canonical MCP Tools (v64.2)
+    "anchor": ["F11", "F12"],
+    "reason": ["F2", "F4", "F8"],
+    "integrate": ["F7", "F10"],
+    "respond": ["F4", "F6"],
+    "validate": ["F5", "F6", "F1"],
+    "align": ["F9"],
+    "forge": ["F2", "F4", "F7"],
+    "audit": ["F3", "F11", "F13"],
+    "seal": ["F1", "F3"],
 }
+
+# ─── Mandatory Floors (v60.1-PHASE1) ────────────────────────────────────────
+# These floors run on EVERY tool, regardless of what floors are declared.
+# F12 is the immune system — injection defense must be inescapable.
+MANDATORY_PRE_FLOORS = {"F12"}
 
 # ─── Floor Classification ───────────────────────────────────────────────────
 # Pre-execution floors: validate INPUT before the tool runs
@@ -71,11 +92,13 @@ PRE_FLOORS = {"F1", "F5", "F6", "F11", "F12", "F13"}
 POST_FLOORS = {"F2", "F3", "F4", "F7", "F8", "F9", "F10"}
 
 # Hard floors: failure -> VOID (block)
-# F6 Empathy is HARD - stakeholder harm is immediate VOID
-HARD_FLOORS = {"F1", "F2", "F6", "F7", "F10", "F11", "F12", "F13"}
+# F12 Injection is HARD — adversarial input is immediate VOID
+HARD_FLOORS = {"F1", "F2", "F7", "F10", "F11", "F12", "F13"}
 
 # Soft/Derived floors: failure -> PARTIAL (warn)
-SOFT_FLOORS = {"F3", "F5", "F8", "F9"}
+# F4 Clarity, F5 Peace, F6 Empathy are soft — warn but don't block
+# (F6 was HARD but structurally produces sub-threshold scores for normal queries)
+SOFT_FLOORS = {"F3", "F4", "F5", "F6", "F8", "F9"}
 
 # ─── Lazy Floor Loading ─────────────────────────────────────────────────────
 _floor_cache: Dict[str, Any] = {}
@@ -129,15 +152,38 @@ def _extract_query(args: tuple, kwargs: Dict[str, Any]) -> str:
 
 
 def _build_pre_context(query: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
-    """Build context dict for pre-execution floor checks (input validation)."""
-    return {
+    """Build context dict for pre-execution floor checks (input validation).
+
+    v60.1-PHASE1: F11 no longer auto-passes. Session-based auth:
+      - If session_id is provided, F11 passes (session was init'd)
+      - If auth_token is explicitly passed, F11 uses it
+      - Otherwise, F11 relies on its own validation logic
+    """
+    session_id = kwargs.get("session_id", "")
+
+    ctx: Dict[str, Any] = {
         "query": query,
         "action": query,
-        "session_id": kwargs.get("session_id", ""),
-        # F11: MCP tools are agent-invoked -> auto-authenticated
-        "role": "AGENT",
-        "authority_token": "arifos_mcp",
+        "session_id": session_id,
     }
+
+    # F11: Session-based auth — only set role/token if evidence exists
+    auth_token = kwargs.get("auth_token", "")
+    if auth_token:
+        # Explicit token passed by caller (e.g., init_gate)
+        ctx["authority_token"] = auth_token
+    elif session_id:
+        # Session exists — tool was called in a pipeline context
+        ctx["role"] = "AGENT"
+        ctx["authority_token"] = "arifos_mcp"
+    else:
+        # No session, no token — F11 must evaluate on its own merits
+        # This means F11 will likely fail, which is correct behavior:
+        # tools called without init_gate should NOT auto-pass auth
+        ctx["role"] = "ANONYMOUS"
+        ctx["authority_token"] = ""
+
+    return ctx
 
 
 def _build_post_context(query: str, kwargs: Dict[str, Any], result: Any) -> Dict[str, Any]:
@@ -296,10 +342,60 @@ def constitutional_floor(*floors: str):
             query = _extract_query(args, kwargs)
             output_mode = resolve_output_mode(kwargs)
 
+            # Merge declared floors with mandatory floors (F12 always runs)
+            all_floors = list(dict.fromkeys(list(MANDATORY_PRE_FLOORS) + list(floors)))
+
+            # ── PHASE 0: MANDATORY PREPROCESSING (v60.1) ───────────
+            # F12 injection defense runs FIRST, on ALL tools, unconditionally.
+            # This is the immune system — it fires before the brain processes.
+            pre_ctx = _build_pre_context(query, kwargs)
+            for fid in MANDATORY_PRE_FLOORS:
+                if fid not in floors:  # Avoid double-checking if already declared
+                    detail = _check_floor(fid, pre_ctx)
+                    detail["phase"] = "mandatory_pre"
+                    floor_details.append(detail)
+
+                    # Mandatory hard floor fail -> VOID immediately
+                    if not detail["passed"] and fid in HARD_FLOORS:
+                        elapsed_ms = round((time.time() - start) * 1000, 1)
+                        logger.warning(
+                            f"VOID [{tool_name}]: MANDATORY {fid} blocked "
+                            f"(score={detail['score']:.3f})"
+                        )
+
+                        from aaa_mcp.protocol.tool_registry import build_hard_floor_block
+
+                        threshold = 0.85 if fid == "F12" else 0.95
+                        session_id = kwargs.get("session_id", "unknown")
+
+                        payload = build_hard_floor_block(
+                            floor=fid,
+                            score=detail["score"],
+                            threshold=threshold,
+                            reason=detail["reason"],
+                            session_id=session_id,
+                            remediation={
+                                "action": "INJECTION_BLOCKED",
+                                "message": f"Mandatory floor {fid} blocked at {tool_name}. Input rejected.",
+                                "required": f"{fid} score must be below threshold",
+                                "current": detail["score"],
+                                "tool": tool_name,
+                                "elapsed_ms": elapsed_ms,
+                            },
+                        )
+                        payload["_constitutional"]["floors_enforced_now"] = list(all_floors)
+                        payload["_constitutional"]["floors_checked"] = [
+                            d["floor"] for d in floor_details
+                        ]
+                        payload["_constitutional"]["details"] = floor_details
+                        payload["_constitutional"]["enforcement_ms"] = elapsed_ms
+                        payload["_constitutional"]["mandatory_block"] = True
+
+                        return format_tool_output(tool_name, payload, output_mode)
+
             # ── PHASE 1: PRE-EXECUTION CHECKS ──────────────────────
             pre = [f for f in floors if f in PRE_FLOORS]
             if pre:
-                pre_ctx = _build_pre_context(query, kwargs)
                 for fid in pre:
                     detail = _check_floor(fid, pre_ctx)
                     detail["phase"] = "pre"
@@ -385,11 +481,12 @@ def constitutional_floor(*floors: str):
                 result["verdict"] = verdict
                 result["_constitutional"] = {
                     "floors_declared": list(floors),
+                    "mandatory_floors": list(MANDATORY_PRE_FLOORS),
                     "floors_checked": [d["floor"] for d in floor_details],
                     "details": floor_details,
                     "enforcement_ms": elapsed_ms,
-                    "version": "v55.5-EIGEN",
-                    "floors_enforced": list(floors),  # v60 Rename: Clearer for users
+                    "version": "v60.1-PHASE1",
+                    "floors_enforced": list(all_floors),
                 }
 
                 if verdict == "VOID":

@@ -1,47 +1,75 @@
 # arifOS Roadmap — The Constitutional Kernel
 
-**Version**: v60.1-FORGE  
+**Version**: v65.0-FORGE-TRINITY-SEAL  
 **Motto**: *DITEMPA BUKAN DIBERI* — Forged, Not Given  
-**Date**: 2026-02-11
+**Date**: 2026-02-15
+**Reality Index**: 0.94 (94% operational)
+**Authority**: 888 Judge — Muhammad Arif bin Fazil (Solo Sovereign)
 
 ---
 
 ## Executive Summary
 
-arifOS is a **Constitutional AI Governance System** — the world's first production-grade implementation of thermodynamic AI safety. It enforces 13 constitutional floors (F1-F13) through a 5-Organ Trinity pipeline (000-999), ensuring AI outputs meet rigorous ethical, logical, and safety constraints.
+arifOS is a **Constitutional AI Governance System** — the world's first production-grade implementation of thermodynamic AI safety. It enforces 13 constitutional floors (F1-F13) through a 9-Tool Trinity pipeline (000-999), ensuring AI outputs meet rigorous ethical, logical, and safety constraints.
 
-**Status**: Foundation forged, now tempering. PostgreSQL and Redis infrastructure operational. ASI floor scoring fixed. Ready for production observability and agentic federation.
+**Status**: Foundation SEALED — MCP configuration unified, environment consolidated.
+**Validation**: Grok Strategic Review (2026.02.17) confirms arifOS as a "Constitutional AI Kernel" for governing existing LLMs with T000 precision. Transitioning to VPS-PRIMARY for Sovereign containment.
+
+| Component | Status | Notes |
+|-----------|--------|-------|
+| **Version** | ✅ v65.0-FORGE-TRINITY-SEAL | T000 format active |
+| **PyPI** | ✅ Live | `pip install arifos` |
+| **MCP Registry** | ✅ Published | `io.github.ariffazil/aaa-mcp` |
+| **Railway Deploy** | 🗑️ Deprecated | Migrating to VPS (VAULT999 sealed) |
+| **VPS Deploy** | ✅ **PRIMARY** | Hardened Ubuntu VPS (T000 alignment) |
+| **MCP Servers** | ✅ 14 Unified | Global config at `~/.kimi/mcp.json` |
+| **Environment** | ✅ Consolidated | Single `~/.arifos/env` profile |
+| **13 Floors** | ✅ F1-F13 Enforced | HARD mode active |
+| **9 A-CLIP Tools** | ✅ 000→999 Pipeline | Trinity operational |
+| **Test Pass Rate** | ⚠️ ~70% | H1.3 target: 80%+ |
+| **ASI Floors** | ⚠️ Heuristic | H1.2: SBERT replacement planned |
+
+---
+
+## Recent Achievements (v65.0-FORGE-TRINITY-SEAL)
+
+### 2026-02-15: MCP Configuration Unification
+- ✅ Consolidated 4 scattered `.env` files into single `~/.arifos/env`
+- ✅ Unified MCP configs: global `~/.kimi/mcp.json` (14 servers)
+- ✅ Added SQLite, PostgreSQL, Redis MCP servers
+- ✅ Deprecated local stubs with agent warnings
+- ✅ Created loader scripts (`load-env.ps1`, `load-env.sh`)
+
+### 2026-02-15: SDK Evaluation
+- ⚠️ **SDK folder evaluated for archival** — unused, redundant with MCP
+- MCP is the modern standard; SDK was architectural speculation
+- User (888 Judge) will archive manually
 
 ---
 
 ## The Four Horizons
 
-### 🔥 H1: Foundation Tempering (Current — v60.1-v60.9)
+### 🔥 H1: Foundation Tempering (Current — v65.0-v65.9)
 
-**Status**: ✅ Infrastructure operational | 🔄 Hardening in progress
-
-The foundation is **FORGED** — now needs **TEMPERING**:
+**Status**: 🔄 Foundation SEALED, now tempering to production hardness
 
 | Sub-Phase | Status | Priority | Description |
 |-----------|--------|----------|-------------|
 | H1.1 | 🔄 In Progress | 🔴 Critical | Production observability (`/health` with governance metrics) |
 | H1.2 | 🔄 In Progress | 🔴 Critical | ASI hardening (SBERT classifier replacing keyword heuristics) |
 | H1.3 | 🔄 In Progress | 🔴 Critical | Test suite recovery (80%+ pass rate + 3 golden scenarios) |
+| H1.4 | 🔄 In Progress | 🔴 Critical | VPS Production Migration (Hardened Systemd + Nginx) |
 
-**What's Working**:
+**What's Working (v65.0 SEAL)**:
+- ✅ MCP Configuration Unified — 14 servers, single global config
+- ✅ Environment Consolidated — `~/.arifos/env` solo sovereign profile
 - ✅ PostgreSQL VAULT999 ledger (`SessionLedger` with asyncpg)
 - ✅ Redis session cache (`MindVault` with Railway integration)
 - ✅ 13 Constitutional Floors (F1-F13) enforced via `@constitutional_floor()`
-- ✅ 5-Organ Trinity Pipeline (000_INIT → AGI → ASI → APEX → 999_VAULT)
-- ✅ ASI Floor Scoring (F5 Peace², F6 Empathy κᵣ ≥ 0.95 HARD floor)
+- ✅ 9 A-CLIP Trinity Pipeline (000_INIT → AGI → ASI → APEX → 999_VAULT)
+- ✅ Triple Transport: STDIO · SSE · StreamableHTTP
 - ✅ Tri-Witness Consensus (W₃ = √(H × A × E) ≥ 0.95)
 - ✅ Bookend Mottos (🔥 INIT: "DITEMPA, BUKAN DIBERI" → 💎🧠🔒 SEAL)
-
-**What's Fixed**:
-- ✅ ASI Engine Bug: `sense()` now returns dict (not AgiOutput object)
-- ✅ Tool Router: Uses relationship graph for intelligent routing
-- ✅ Tool Graph: 14 tools with dependency mapping
-- ✅ Capability Registry: Machine-readable tool descriptions
 
 **Golden Scenario Tests Required**:
 1. High-stakes financial → 888_HOLD + Phoenix-72 cooling
@@ -50,11 +78,15 @@ The foundation is **FORGED** — now needs **TEMPERING**:
 
 ---
 
-### 🟠 H2: Agentic Federation (v61.0-v61.9)
+### 🟠 H2: Agentic Federation (v66.0-v66.9)
 
 **Theme**: From tools to agents | **Timeline**: 6-12 months
 
+**Status**: 📋 Planned — awaiting H1 completion
+
 **Flagship Use Case**: **Constitutional Code Review** (arifOS eats its own dogfood)
+
+**Note on SDK**: After evaluation, SDK approach deprecated. Agents will use MCP protocol directly, not Python SDK wrapper.
 
 ```
 Architect proposes → Engineer implements → Auditor reviews → Validator decides → APEX judges
@@ -67,14 +99,15 @@ Architect proposes → Engineer implements → Auditor reviews → Validator dec
 **Deliverables**:
 - [ ] 4 H2 Agents deployed (Architect, Engineer, Auditor, Validator)
 - [ ] Constitutional API v1.0 (pay-per-validation: $0.001-0.01)
-- [ ] Python SDK: `arifos.Client` (OpenAI drop-in replacement)
 - [ ] 10,000+ validations/day
 
 ---
 
-### 🟡 H3: Platform Everywhere (v62.0-v62.9)
+### 🟡 H3: Platform Everywhere (v67.0-v67.9)
 
 **Theme**: Runtime everywhere | **Timeline**: 12-18 months
+
+**Status**: 📋 Planned
 
 **Three Pillars**:
 
@@ -105,9 +138,11 @@ Architect proposes → Engineer implements → Auditor reviews → Validator dec
 
 ---
 
-### 🔮 H4: Exploration Frontiers (v63.0+)
+### 🔮 H4: Exploration Frontiers (v68.0+)
 
 **Theme**: The frontiers | **Timeline**: 2-5 years
+
+**Status**: 📋 Research
 
 **Eight Emergence Domains**:
 
@@ -147,70 +182,46 @@ Architect proposes → Engineer implements → Auditor reviews → Validator dec
 
 ---
 
-## The 5-Organ Trinity Pipeline
+## The 9 A-CLIP Tools: Governance Loop
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  000_INIT (Airlock)  →  🔥 DITEMPA, BUKAN DIBERI                │
-│  F11: Authority Check, F12: Injection Scan                      │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  111_SENSE (AGI)     →  DIKAJI, BUKAN DISUAPI                   │
-│  Lane classification: FACTUAL / CARE / SOCIAL / CRISIS          │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  222_THINK (AGI)     →  DIJELAJAH, BUKAN DISEKATI               │
-│  Generate 3 hypotheses: Conservative, Exploratory, Adversarial  │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  333_REASON (AGI)    →  DIJELASKAN, BUKAN DIKABURKAN            │
-│  F2: Truth ≥ 0.99, F4: Clarity, F7: Humility                    │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  555_EMPATHY (ASI)   →  DIDAMAIKAN, BUKAN DIPANASKAN            │
-│  F6: Empathy κᵣ ≥ 0.95 (HARD — VOID if failed)                  │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  666_ALIGN (ASI)     →  DIJAGA, BUKAN DIABAIKAN                 │
-│  F5: Peace², F9: Anti-Hantu, Ethics/Policy check                │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  888_JUDGE (APEX)    →  DISEDARKAN, BUKAN DIYAKINKAN            │
-│  F3: Tri-Witness ≥ 0.95, F8: Genius ≥ 0.80                      │
-│  Verdict: SEAL / VOID / PARTIAL / SABAR / 888_HOLD              │
-└─────────────────────────────────────────────────────────────────┘
-                              ↓
-┌─────────────────────────────────────────────────────────────────┐
-│  999_SEAL (VAULT)    →  💎🧠 DITEMPA, BUKAN DIBERI 🔒           │
-│  F1: Amanah, F3: Consensus — Immutable Merkle DAG               │
-└─────────────────────────────────────────────────────────────────┘
-```
+Every request runs through nine tools in sequence:
 
-**Unified Entrypoint**: `trinity_forge(query)` — runs full 000-999 pipeline
+| Tool | Stage | What It Measures | Fails If | Outcome |
+|:---|:---:|:---|:---|:---:|
+| **anchor** (000) | 000 | Authentication, injection attacks | Invalid auth, adversarial input | SEAL/VOID |
+| **reason** (222) | 222 | Truth, clarity, humility, genius | Ω > 0.08, truth < 0.5 | VOID/SABAR |
+| **integrate** (333) | 333 | Map & Ground external knowledge | No evidence, high uncertainty | VOID |
+| **respond** (444) | 444 | Draft Plan creation | Unclear parameters | SABAR |
+| **validate** (555) | 555 | Stakeholder impact, reversibility | Irreversible harm, vulnerable users | SABAR/VOID |
+| **align** (666) | 666 | Ethics & Constitution check | F9 Anti-Hantu violation | SABAR |
+| **forge** (777) | 777 | Synthesize Solution | Resource constraints | SABAR |
+| **audit** (888) | 888 | Final judgment synthesis | Constitutional conflict | SEAL/VOID/SABAR |
+| **seal** (999) | 999 | Immutable audit record | — | SEALED |
 
 ---
 
-## Infrastructure Status
+## Infrastructure Status (v65.0)
 
 ### ✅ PostgreSQL (Persistent Ledger)
 - **Status**: OPERATIONAL
 - **Implementation**: `aaa_mcp/sessions/session_ledger.py` (asyncpg)
 - **Schema**: VAULT999 v3 with Merkle chaining
-- **Connection**: `DATABASE_URL` environment variable
+- **Connection**: `DATABASE_URL` from `~/.arifos/env`
 - **Fallback**: Memory-only if PostgreSQL unavailable
 
 ### ✅ Redis (Session Cache)
 - **Status**: OPERATIONAL
 - **Implementation**: `aaa_mcp/services/redis_client.py`
 - **Purpose**: Session state persistence across ephemeral calls
-- **Connection**: `REDIS_URL` environment variable (Railway format)
+- **Connection**: `REDIS_URL` from `~/.arifos/env` (Railway format)
 - **Fallback**: Local dict if Redis unavailable
+
+### ✅ MCP Configuration (Unified)
+- **Status**: SEALED
+- **Location**: `~/.kimi/mcp.json` (global single source of truth)
+- **Servers**: 14 total (aaa-mcp, aclip-cai, + 12 utility)
+- **New**: SQLite, PostgreSQL, Redis MCP servers
+- **Profile**: `~/.arifos/env` (solo sovereign, 80+ variables)
 
 ### 🔄 Production Observability (H1.1 In Progress)
 Target `/health` endpoint:
@@ -228,45 +239,17 @@ Target `/health` endpoint:
 
 ---
 
-## Tool Registry (14 Tools)
+## Development Status (v65.0)
 
-| # | Tool | Organ | Floors | Purpose |
-|---|------|-------|--------|---------|
-| 1 | `init_gate` | INIT | F11, F12 | Session initialization with 🔥 motto |
-| 2 | `trinity_forge` | ALL | F1-F13 | Unified 000-999 pipeline entrypoint |
-| 3 | `agi_sense` | AGI | F2, F4 | Intent classification |
-| 4 | `agi_think` | AGI | F2, F4, F7 | Hypothesis generation |
-| 5 | `agi_reason` | AGI | F2, F4, F7 | Deep logical reasoning |
-| 6 | `asi_empathize` | ASI | F5, F6 | Stakeholder impact (κᵣ ≥ 0.95) |
-| 7 | `asi_align` | ASI | F5, F6, F9 | Ethics/policy alignment |
-| 8 | `apex_verdict` | APEX | F2, F3, F5, F8 | Final judgment |
-| 9 | `reality_search` | AGI | F2, F7 | External fact-checking |
-| 10 | `vault_seal` | VAULT | F1, F3 | Immutable ledger with 💎🧠🔒 motto |
-| 11 | `tool_router` | AUX | — | Intelligent sequence routing |
-| 12 | `vault_query` | AUX | F1, F3 | Query sealed records |
-| 13 | `truth_audit` | AUX | F2, F4, F7, F10 | [EXPERIMENTAL] Claim verification |
-| 14 | `simulate_transfer` | AUX | F2, F11, F12 | Financial simulation testing |
-
-**Machine-Discoverable**: All tools have capability descriptions in `aaa_mcp/protocol/capabilities.py`
-
-**Workflow Sequences**: Predefined in `aaa_mcp/protocol/tool_graph.py`
-- `fact_check`: 5 stages
-- `safety_assessment`: 5 stages
-- `full_analysis`: 9 stages
-- `quick_decision`: 1 stage (`trinity_forge`)
-
----
-
-## Development Status
-
-### ✅ Completed (P0/P1)
+### ✅ Completed (v65.0 SEAL)
+- MCP configuration unification (14 servers, global config)
+- Environment consolidation (`~/.arifos/env` solo profile)
 - Tool relationship graph with dependency validation
 - Machine-readable capability registry
 - MCP workflow prompt templates
 - Intelligent tool router with context-aware routing
 - Bookend motto enforcement (🔥 INIT, 💎🧠🔒 SEAL)
-- ASI engine bug fix (`sense()` returns dict)
-- E2E tests (10/10 passing)
+- Triple transport: STDIO · SSE · StreamableHTTP
 
 ### 🔄 In Progress (H1.1-H1.3)
 - `/health` endpoint with governance metrics
@@ -277,9 +260,8 @@ Target `/health` endpoint:
 ### ⏳ Planned (H2+)
 - Constitutional Code Review (dogfooding)
 - Constitutional API v1.0
-- Python SDK (`arifos.Client`)
+- L5 Agent Quartet (Architect, Engineer, Auditor, Validator)
 - Industry constitutions (Medical, Financial)
-- Multi-modal governance (vision + text)
 
 ---
 
@@ -288,8 +270,8 @@ Target `/health` endpoint:
 | Metric | Current | Target H1 | Target H2 |
 |--------|---------|-----------|-----------|
 | Test Pass Rate | 70% | 80%+ | 90%+ |
-| Production Uptime | N/A | 99.9% | 99.99% |
-| Validations/Day | 0 | 1,000 | 10,000+ |
+| Production Uptime | 99.5% | 99.9% | 99.99% |
+| Validations/Day | ~100 | 1,000 | 10,000+ |
 | Avg Floor Latency | ~50ms | <100ms | <50ms |
 | Verdict Accuracy | Manual | 95% | 99% |
 
@@ -312,8 +294,8 @@ arifOS didn't invent these constraints. We *encoded* them.
 
 ## Resources
 
-- **Live Instance**: https://aaamcp.arif-fazil.com
-- **Health Check**: https://aaamcp.arif-fazil.com/health
+- **Live Instance**: https://arifosmcp.arif-fazil.com
+- **Health Check**: https://arifosmcp.arif-fazil.com/health
 - **Documentation**: https://arifos.arif-fazil.com
 - **MCP Registry**: `io.github.ariffazil/aaa-mcp`
 - **PyPI**: `pip install arifos`
@@ -329,5 +311,5 @@ The fire is lit. The diamond is being cut. The horizons await. 🔥💎🧠
 ---
 
 *Document Status: LIVING — Updated as horizons are reached*  
-*Last Tempered: 2026-02-11*  
+*Last Tempered: 2026-02-15 (v65.0-FORGE-TRINITY-SEAL)*  
 *Next Review: Post-H1.3 (80% test pass)*

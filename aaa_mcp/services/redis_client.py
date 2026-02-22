@@ -19,36 +19,10 @@ REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 
 def get_redis_client() -> Optional[redis.Redis]:
-    """Initialize Redis client from Railway connection string."""
+    """Initialize Redis client from connection string."""
     try:
-        # Parse redis://username:password@host:port
-        # Strip redis:// prefix
-        url = REDIS_URL.replace("redis://", "")
-
-        # Split auth and host
-        if "@" in url:
-            auth, host_port = url.split("@")
-        else:
-            auth, host_port = "", url
-
-        # Parse username:password
-        if ":" in auth:
-            username, password = auth.split(":", 1)
-        else:
-            username, password = "default", ""
-
-        # Parse host:port
-        if ":" in host_port:
-            host, port_str = host_port.rsplit(":", 1)
-            port = int(port_str)
-        else:
-            host, port = host_port, 6379
-
-        client = redis.Redis(
-            host=host,
-            port=port,
-            username=username or None,
-            password=password or None,
+        client = redis.from_url(
+            REDIS_URL,
             decode_responses=True,
             socket_connect_timeout=5,
             socket_timeout=5,

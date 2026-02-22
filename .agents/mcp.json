@@ -3,7 +3,7 @@
   "$comment": "arifOS AGENTS CANON - Master MCP Configuration (TIER 0-3) - The Role Model for All arifOS Agents",
   "mcpServers": {
     "aaa-mcp": {
-      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
+      "command": "C:\\Users\\User\\arifOS\\.venv313\\Scripts\\python.exe",
       "args": ["-m", "aaa_mcp", "stdio"],
       "cwd": "C:/Users/User/arifOS",
       "env": {
@@ -16,13 +16,23 @@
       },
       "disabled": false,
       "alwaysAllow": [
-        "init_session",
-        "agi_cognition",
-        "asi_empathy",
-        "apex_verdict",
-        "vault_seal"
+        "anchor",
+        "reason",
+        "integrate",
+        "respond",
+        "validate",
+        "align",
+        "forge",
+        "audit",
+        "seal",
+        "trinity_forge",
+        "container_list",
+        "container_restart",
+        "container_logs",
+        "sovereign_health",
+        "container_exec"
       ],
-      "description": "arifOS Constitutional Core — 5 Tools + 3 Resources (constitutional://) + 3 Prompts"
+      "description": "arifOS Constitutional Core - 10+5 Tools (000-999 Metabolic Loop + Container Ops)"
     },
     "filesystem": {
       "command": "npx",
@@ -85,7 +95,7 @@
     }
   },
   "arifosAgentCanon": {
-    "version": "v62.3.0",
+    "version": "v65.1",
     "role": "CANON_REFERENCE",
     "description": "Master configuration template for all arifOS agents",
     "constitutionalFloors": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13"],

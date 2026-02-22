@@ -408,14 +408,14 @@ class TestPropertyBasedTests:
         text = "the quick brown fox jumps"
         metrics = compute_entropy_metrics(text, mode="word")
 
-        expected_perplexity = 2 ** metrics.shannon_entropy
+        expected_perplexity = 2**metrics.shannon_entropy
         assert metrics.perplexity == pytest.approx(expected_perplexity, rel=0.01)
 
     def test_redundancy_between_0_and_1(self):
         """Redundancy should be in range [0, 1]."""
         test_cases = [
             "hello world test",  # Low redundancy
-            "test test test",    # High redundancy
+            "test test test",  # High redundancy
         ]
 
         for text in test_cases:
@@ -491,7 +491,9 @@ class TestIntegrationWithF2Floor:
     def test_f2_floor_allows_clarity_improvement(self):
         """F2 floor should pass when response reduces entropy."""
         input_text = "What should I do?"
-        output_text = "Step 1: Identify the problem. Step 2: Analyze options. Step 3: Choose best solution."
+        output_text = (
+            "Step 1: Identify the problem. Step 2: Analyze options. Step 3: Choose best solution."
+        )
 
         result = compute_delta_s(input_text, output_text, normalize=True)
         passed, reason = evaluate_clarity_floor(result.delta_s, threshold=0.0)

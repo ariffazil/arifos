@@ -1,0 +1,37 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "aaa-mcp": {
+      "type": "local",
+      "command": ["python", "-m", "aaa_mcp", "stdio"],
+      "cwd": ".",
+      "enabled": true,
+      "timeout": 15000,
+      "environment": {
+        "PYTHONPATH": ".",
+        "ARIFOS_MODE": "PROD"
+      }
+    },
+    "filesystem": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "/", "/home", "/tmp", "/var"],
+      "enabled": true
+    },
+    "fetch": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-fetch"],
+      "enabled": false
+    },
+    "git": {
+      "type": "local",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-git"],
+      "enabled": false
+    },
+    "docker-mcp": {
+      "type": "local",
+      "command": [".venv/bin/python", "mcp/docker-mcp-stdio.py"],
+      "enabled": false,
+      "cwd": "."
+    }
+  }
+}

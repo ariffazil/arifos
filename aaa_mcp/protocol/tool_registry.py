@@ -12,26 +12,27 @@ from typing import Dict, List, Optional
 @dataclass
 class ToolSpec:
     """Canonical specification for an AAA MCP tool."""
-    name: str                    # Tool name (e.g., "init_gate")
-    canonical_path: str          # Stable identifier (e.g., "aaa.init_gate")
-    stage: str                   # Pipeline stage (000-999)
-    trinity: str                 # Δ, Ω, Ψ, or ALL
-    verb: str                    # Human action (anchor, reason, validate, etc.)
-    required_floors: List[str]   # Constitutional floors
-    next_tool: Optional[str]     # Next tool in pipeline (None if terminal)
-    
+
+    name: str  # Tool name (e.g., "init_gate")
+    canonical_path: str  # Stable identifier (e.g., "aaa.init_gate")
+    stage: str  # Pipeline stage (000-999)
+    trinity: str  # Δ, Ω, Ψ, or ALL
+    verb: str  # Human action (anchor, reason, validate, etc.)
+    required_floors: List[str]  # Constitutional floors
+    next_tool: Optional[str]  # Next tool in pipeline (None if terminal)
+
     # v60: Machine-readable intent tags for agent routing
-    category: str                # "entry" | "reasoning" | "safety" | "judgment" | "audit"
-    risk_scope: str              # "low" | "medium" | "high"
-    hard_floors: List[str]       # Which floors are HARD at this stage
+    category: str  # "entry" | "reasoning" | "safety" | "judgment" | "audit"
+    risk_scope: str  # "low" | "medium" | "high"
+    hard_floors: List[str]  # Which floors are HARD at this stage
     requires_human_for: List[str]  # Conditions requiring human (e.g., ["prod", "finance"])
-    
+
     # v60: Documentation tiers (short for agents, long for humans)
-    doc_short: str               # 3-6 lines, agent-friendly
-    doc_long: str                # Full governance spec (external link or full text)
-    
+    doc_short: str  # 3-6 lines, agent-friendly
+    doc_long: str  # Full governance spec (external link or full text)
+
     # v60: Availability status
-    availability: str            # "ready" | "requires_install" | "disabled"
+    availability: str  # "ready" | "requires_install" | "disabled"
     install_hint: Optional[str]  # How to enable if not ready
 
 
@@ -56,9 +57,8 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         doc_short="Initialize a constitutional session. CALL THIS FIRST. Returns session_id for pipeline.",
         doc_long="https://docs.arifos.org/tools/init_gate",
         availability="ready",
-        install_hint=None
+        install_hint=None,
     ),
-    
     # 111-333 — AGI Mind (Δ)
     "agi_sense": ToolSpec(
         name="agi_sense",
@@ -75,9 +75,8 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         doc_short="Parse intent and classify query lane. Requires init_gate session.",
         doc_long="https://docs.arifos.org/tools/agi_sense",
         availability="ready",
-        install_hint=None
+        install_hint=None,
     ),
-    
     "agi_think": ToolSpec(
         name="agi_think",
         canonical_path="aaa.agi_think",
@@ -93,9 +92,8 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         doc_short="Generate hypotheses (Conservative, Exploratory, Adversarial).",
         doc_long="https://docs.arifos.org/tools/agi_think",
         availability="ready",
-        install_hint=None
+        install_hint=None,
     ),
-    
     "agi_reason": ToolSpec(
         name="agi_reason",
         canonical_path="aaa.agi_reason",
@@ -111,9 +109,8 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         doc_short="Deep logical reasoning with truth_score and confidence.",
         doc_long="https://docs.arifos.org/tools/agi_reason",
         availability="ready",
-        install_hint=None
+        install_hint=None,
     ),
-    
     # 444-666 — ASI Heart (Ω)
     "asi_empathize": ToolSpec(
         name="asi_empathize",
@@ -130,9 +127,8 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         doc_short="Assess stakeholder impact. HARD FLOOR F6 (κᵣ ≥ 0.95). VOID if fails.",
         doc_long="https://docs.arifos.org/tools/asi_empathize",
         availability="ready",
-        install_hint=None
+        install_hint=None,
     ),
-    
     "asi_align": ToolSpec(
         name="asi_align",
         canonical_path="aaa.asi_align",
@@ -148,9 +144,8 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         doc_short="Reconcile ethics, law, policy. Checks F5, F6, F9.",
         doc_long="https://docs.arifos.org/tools/asi_align",
         availability="ready",
-        install_hint=None
+        install_hint=None,
     ),
-    
     # 777-999 — APEX Soul (Ψ)
     "apex_verdict": ToolSpec(
         name="apex_verdict",
@@ -167,9 +162,8 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         doc_short="Final constitutional verdict. Only APEX has verdict authority.",
         doc_long="https://docs.arifos.org/tools/apex_verdict",
         availability="ready",
-        install_hint=None
+        install_hint=None,
     ),
-    
     "vault_seal": ToolSpec(
         name="vault_seal",
         canonical_path="aaa.vault_seal",
@@ -185,9 +179,8 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         doc_short="Cryptographic ledger sealing. CALL THIS LAST. Immutable record.",
         doc_long="https://docs.arifos.org/tools/vault_seal",
         availability="ready",
-        install_hint=None
+        install_hint=None,
     ),
-    
     # Unified pipeline
     "trinity_forge": ToolSpec(
         name="trinity_forge",
@@ -204,7 +197,7 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
         doc_short="Unified 000-999 pipeline. Single call for full constitutional processing.",
         doc_long="https://docs.arifos.org/tools/trinity_forge",
         availability="ready",
-        install_hint=None
+        install_hint=None,
     ),
 }
 
@@ -212,6 +205,7 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
 # ═════════════════════════════════════════════════════════════════════════════
 # LOOKUP FUNCTIONS
 # ═════════════════════════════════════════════════════════════════════════════
+
 
 def get_tool_spec(tool_name: str) -> Optional[ToolSpec]:
     """Get canonical spec for a tool by name."""
@@ -247,6 +241,22 @@ def get_all_tool_paths() -> List[str]:
     return [spec.canonical_path for spec in CANONICAL_TOOLS.values()]
 
 
+# Mapping from actual MCP tool names (verbs) to internal registry keys
+MCP_NAME_TO_REGISTRY: Dict[str, str] = {spec.verb: name for name, spec in CANONICAL_TOOLS.items()}
+
+
+def get_tool_by_mcp_name(mcp_name: str) -> Optional[ToolSpec]:
+    """Look up a tool spec by its actual MCP tool name (verb).
+
+    Example: get_tool_by_mcp_name("anchor") returns the init_gate spec.
+    """
+    registry_key = MCP_NAME_TO_REGISTRY.get(mcp_name)
+    if registry_key:
+        return CANONICAL_TOOLS.get(registry_key)
+    # Also check if it's a direct registry key
+    return CANONICAL_TOOLS.get(mcp_name)
+
+
 def get_pipeline_sequence() -> List[str]:
     """Get ordered list of canonical paths for 000-999 pipeline."""
     sequence = []
@@ -262,10 +272,9 @@ def get_pipeline_sequence() -> List[str]:
 # ERROR RESPONSE BUILDER (for unavailable tools)
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def build_tool_unavailable_error(
-    requested_tool: str,
-    session_id: str,
-    reason: str = "Tool connector not installed"
+    requested_tool: str, session_id: str, reason: str = "Tool connector not installed"
 ) -> dict:
     """Build standardized error when a tool is unavailable."""
     return {
@@ -279,14 +288,14 @@ def build_tool_unavailable_error(
             "action": "INSTALL_CONNECTOR",
             "message": f"The tool '{requested_tool}' requires a connector that is not installed.",
             "available_tools": get_all_tool_paths(),
-            "documentation": "https://docs.arifos.org/connectors"
+            "documentation": "https://docs.arifos.org/connectors",
         },
         "_constitutional": {
             "floor_violated": "F11",  # Authority/availability
             "floors_checked": ["F11"],
             "pipeline_stage": "ERROR",
-            "pipeline_complete": False
-        }
+            "pipeline_complete": False,
+        },
     }
 
 
@@ -294,17 +303,18 @@ def build_tool_unavailable_error(
 # HARD FLOOR FAILURE ENVELOPE (standardized block response)
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def build_hard_floor_block(
     floor: str,
     score: float,
     threshold: float,
     reason: str,
     session_id: str,
-    remediation: Optional[dict] = None
+    remediation: Optional[dict] = None,
 ) -> dict:
     """
     Build standardized block envelope when a hard floor fails.
-    
+
     This ensures agents always get:
     - What failed (floor)
     - By how much (score vs threshold)
@@ -320,10 +330,10 @@ def build_hard_floor_block(
             "Review stakeholder impact if F6",
             "Add external grounding if F2",
             "Reduce confidence if F7",
-            "Request 888_HOLD override if critical"
-        ]
+            "Request 888_HOLD override if critical",
+        ],
     }
-    
+
     return {
         "verdict": "VOID",
         "status": "BLOCKED",
@@ -336,22 +346,22 @@ def build_hard_floor_block(
             "threshold": threshold,
             "gap": round(threshold - score, 3),
             "unit": "normalized_score",
-            "confidence_band": "hard_floor"
+            "confidence_band": "hard_floor",
         },
         "remediation": remediation or default_remediation,
         "pipeline": {
             "stage": "BLOCKED",
             "next_tool": None,
             "can_resume": floor not in ["F6", "F10", "F12"],  # Some floors never resume
-            "requires_888_override": floor in ["F6", "F13"]
+            "requires_888_override": floor in ["F6", "F13"],
         },
         "_constitutional": {
             "total_floors": 13,
             "floors_enforced_now": [floor],
             "floors_checked": [floor],
             "pipeline_complete": False,
-            "governance_summary": f"Hard floor {floor} failed. Human review required."
-        }
+            "governance_summary": f"Hard floor {floor} failed. Human review required.",
+        },
     }
 
 
@@ -359,10 +369,11 @@ def build_hard_floor_block(
 # AGENT-FRIENDLY SCHEMA EXPORT (for tool selection)
 # ═════════════════════════════════════════════════════════════════════════════
 
+
 def export_tool_schema_for_agents() -> dict:
     """
     Export tool schema optimized for agent tool selection.
-    
+
     Answers 5 questions in <2 seconds:
     1. What stage am I in?
     2. Which tool comes next?
@@ -376,14 +387,16 @@ def export_tool_schema_for_agents() -> dict:
             # Identification
             "name": spec.name,
             "canonical_path": spec.canonical_path,
-            
             # Navigation (Q1: stage, Q2: next)
             "stage": spec.stage,
             "trinity": spec.trinity,
             "verb": spec.verb,
             "next_tool": spec.next_tool,
-            "pipeline_position": get_pipeline_sequence().index(spec.canonical_path) + 1 if spec.canonical_path in get_pipeline_sequence() else None,
-            
+            "pipeline_position": (
+                get_pipeline_sequence().index(spec.canonical_path) + 1
+                if spec.canonical_path in get_pipeline_sequence()
+                else None
+            ),
             # Routing hints (Q3: callable, Q5: failure mode)
             "category": spec.category,
             "risk_scope": spec.risk_scope,
@@ -391,11 +404,9 @@ def export_tool_schema_for_agents() -> dict:
             "install_hint": spec.install_hint,
             "hard_floors": spec.hard_floors,
             "requires_human_for": spec.requires_human_for,
-            
             # Documentation (Q4: args from doc_short)
             "doc_short": spec.doc_short,
             "doc_long": spec.doc_long,
-            
             # Constitutional
             "required_floors": spec.required_floors,
         }
@@ -410,18 +421,18 @@ def get_agent_selection_hints(current_stage: str) -> dict:
     current_spec = get_tool_by_stage(current_stage)
     if not current_spec:
         return {"error": f"Unknown stage: {current_stage}"}
-    
+
     next_path = current_spec.next_tool
     if not next_path:
         return {
             "stage": current_stage,
             "pipeline_complete": True,
-            "message": "Pipeline complete. No next tool."
+            "message": "Pipeline complete. No next tool.",
         }
-    
+
     next_name = next_path.replace("aaa.", "")
     next_spec = get_tool_spec(next_name)
-    
+
     return {
         "current_stage": current_stage,
         "current_tool": current_spec.canonical_path,
@@ -432,7 +443,7 @@ def get_agent_selection_hints(current_stage: str) -> dict:
         "next_hard_floors": next_spec.hard_floors if next_spec else [],
         "next_doc_short": next_spec.doc_short if next_spec else None,
         "pipeline_complete": False,
-        "rationale": f"{current_stage} → {next_spec.stage if next_spec else 'END'}: {next_spec.doc_short if next_spec else 'Complete'}"
+        "rationale": f"{current_stage} → {next_spec.stage if next_spec else 'END'}: {next_spec.doc_short if next_spec else 'Complete'}",
     }
 
 
@@ -443,7 +454,9 @@ def get_agent_selection_hints(current_stage: str) -> dict:
 __all__ = [
     "ToolSpec",
     "CANONICAL_TOOLS",
+    "MCP_NAME_TO_REGISTRY",
     "get_tool_spec",
+    "get_tool_by_mcp_name",
     "get_tool_by_stage",
     "get_next_tool",
     "validate_tool_path",

@@ -10,33 +10,35 @@ Version: 1.0.0-LOW_ENTROPY
 """
 
 from __future__ import annotations
-
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+from typing import Dict, List, Any, Optional
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional
 
 
 class OperatorType(Enum):
     """Classification of operator behavior."""
-    GUARD = "guard"      # Blocks if condition fails
+
+    GUARD = "guard"  # Blocks if condition fails
     TRANSFORM = "transform"  # Modifies data
-    VERIFY = "verify"    # Checks without blocking
+    VERIFY = "verify"  # Checks without blocking
 
 
 @dataclass(frozen=True)
 class PrincipleOperator:
     """
     Executable operator derived from a Principle.
-    
+
     Machine-readable format with zero ambiguity:
     - id: Short identifier (e.g., "EARNED", "EXAMINE")
     - principle: Human motto (e.g., "Earned, Not Given")
     - type: Operator classification
     - precondition: What must be true before execution
-    - invariant: What must remain true during execution  
+    - invariant: What must remain true during execution
     - action: What the operator does
     - output_schema: Expected return structure
     """
+
     id: str
     principle: str
     stage: str
@@ -45,7 +47,7 @@ class PrincipleOperator:
     invariant: Dict[str, Any]
     action: str
     output_schema: Dict[str, str]
-    
+
     def to_prompt(self) -> str:
         """Convert to low-entropy system prompt format."""
         return f"""
@@ -75,7 +77,6 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
         action="VERIFY_AUTHORITY: Confirm caller has right to invoke this operation",
         output_schema={"authorized": "bool", "session_id": "string"},
     ),
-    
     # 111: Examined, Not Spoon-fed
     "EXAMINE": PrincipleOperator(
         id="EXAMINE",
@@ -89,11 +90,10 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
             "intent": "string",
             "lane": "enum[SOCIAL,CARE,FACTUAL,CRISIS]",
             "requires_grounding": "bool",
-            "confidence": "float[0,1]"
+            "confidence": "float[0,1]",
         },
     ),
-    
-    # 222: Explored, Not Restricted  
+    # 222: Explored, Not Restricted
     "EXPLORE": PrincipleOperator(
         id="EXPLORE",
         principle="Explored, Not Restricted",
@@ -105,10 +105,9 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
         output_schema={
             "hypotheses": "array[Hypothesis]",
             "confidence_range": "tuple[float,float]",
-            "recommended_path": "string"
+            "recommended_path": "string",
         },
     ),
-    
     # 333: Clarified, Not Obscured
     "CLARIFY": PrincipleOperator(
         id="CLARIFY",
@@ -123,10 +122,9 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
             "truth_score": "float[0,1]",
             "entropy_delta": "float",
             "confidence": "float[0,1]",
-            "reasoning_chain": "array[ThoughtNode]"
+            "reasoning_chain": "array[ThoughtNode]",
         },
     ),
-    
     # 444: Faced, Not Postponed
     "FACE": PrincipleOperator(
         id="FACE",
@@ -139,10 +137,9 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
         output_schema={
             "consensus_score": "float[0,1]",
             "conflicts": "array[Conflict]",
-            "pre_verdict": "enum[SEAL,PARTIAL,VOID]"
+            "pre_verdict": "enum[SEAL,PARTIAL,VOID]",
         },
     ),
-    
     # 555: Calmed, Not Inflamed
     "CALM": PrincipleOperator(
         id="CALM",
@@ -156,10 +153,9 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
             "empathy_kappa_r": "float[0,1]",
             "stakeholders": "array[Stakeholder]",
             "weakest_stakeholder": "string",
-            "care_recommendations": "array[string]"
+            "care_recommendations": "array[string]",
         },
     ),
-    
     # 666: Protected, Not Neglected
     "PROTECT": PrincipleOperator(
         id="PROTECT",
@@ -167,20 +163,15 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
         stage="666",
         operator_type=OperatorType.GUARD,
         precondition={"empathy_analysis": "complete", "risk_assessment": "ready"},
-        invariant={
-            "reversibility": "True", 
-            "weakest_impact": "<=0.1",
-            "safety": "guaranteed"
-        },
+        invariant={"reversibility": "True", "weakest_impact": "<=0.1", "safety": "guaranteed"},
         action="SAFETY_ALIGNMENT: Verify ethics, policy compliance, reversibility of action",
         output_schema={
             "is_reversible": "bool",
             "safety_score": "float[0,1]",
             "risk_level": "enum[low,medium,high,critical]",
-            "violations": "array[Violation]"
+            "violations": "array[Violation]",
         },
     ),
-    
     # 777: Worked For, Not Merely Hoped
     "WORK": PrincipleOperator(
         id="WORK",
@@ -194,10 +185,9 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
             "output": "string",
             "coherence": "float[0,1]",
             "genius_score": "float[0,1]",
-            "resource_cost": "float"
+            "resource_cost": "float",
         },
     ),
-    
     # 888: Aware, Not Overconfident
     "AWARE": PrincipleOperator(
         id="AWARE",
@@ -208,7 +198,7 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
         invariant={
             "uncertainty_declared": "True",
             "omega_0": "in_range[0.03,0.05]",
-            "humility": "present"
+            "humility": "present",
         },
         action="FINAL_VERDICT: Render judgment with explicit uncertainty bounds",
         output_schema={
@@ -216,10 +206,9 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
             "truth_score": "float[0,1]",
             "omega_0": "float",
             "justification": "string",
-            "uncertainty_bounds": "tuple[float,float]"
+            "uncertainty_bounds": "tuple[float,float]",
         },
     ),
-    
     # 999: Earned, Not Given (Seal)
     "SEAL": PrincipleOperator(
         id="SEAL",
@@ -233,7 +222,7 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
             "seal_id": "string",
             "seal_hash": "string",
             "status": "enum[SEALED,PARTIAL]",
-            "audit_trail": "AuditRecord"
+            "audit_trail": "AuditRecord",
         },
     ),
 }
@@ -242,6 +231,7 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
 # ═════════════════════════════════════════════════════════════════════════════
 # UTILITY FUNCTIONS
 # ═════════════════════════════════════════════════════════════════════════════
+
 
 def get_operator(stage_id: str) -> Optional[PrincipleOperator]:
     """Get operator by stage ID (e.g., '333' → CLARIFY)."""
@@ -273,7 +263,7 @@ def get_operator_by_principle(principle: str) -> Optional[PrincipleOperator]:
 def build_system_prompt(stage_ids: List[str]) -> str:
     """
     Build low-entropy system prompt for given pipeline stages.
-    
+
     Example:
         build_system_prompt(["111", "222", "333"])
         → Returns executable prompt for sense→think→reason
@@ -283,7 +273,7 @@ def build_system_prompt(stage_ids: List[str]) -> str:
         op = get_operator(stage_id)
         if op:
             prompts.append(op.to_prompt())
-    
+
     header = """
 ╔═══════════════════════════════════════════════════════════════╗
 ║  AAA MCP PROTOCOL v1.0 — LOW ENTROPY MODE                     ║
