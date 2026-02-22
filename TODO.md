@@ -167,6 +167,11 @@
 - [x] **Post-Rebirth Validation** — Run `rebirth_verify.sh`, confirm SEALED status
 - [x] **DNS Cutover** — Point `naazira.cloud` and subdomains to new VPS IP
 - [ ] **Archive Old Infrastructure** — Decommission old VPS after 48h validation
+- [ ] **GitHub Environments Cleanup** — Delete 10+ stale PR environments, configure production/pypi
+  - [ ] Delete stale environments via GitHub UI
+  - [ ] Add environment protection rules to `production`
+  - [ ] Move VPS secrets to environment scope
+  - [ ] Update deploy.yml to use `environment: production`
 
 ---
 
