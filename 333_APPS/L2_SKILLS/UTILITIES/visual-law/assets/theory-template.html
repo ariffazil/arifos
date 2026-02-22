@@ -1,146 +1,357 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🟡 THEORY — arifOS v55.5</title>
-  <style>
-    :root {
-      --slate-950: #0f172a;
-      --gold: #FFD700;
-      --gold-50: #FFD70010;
-      --white: #ffffff;
-      --gray-200: #e2e8f0;
-    }
-    body {
-      margin: 0;
-      padding: 0;
-      background: var(--slate-950);
-      color: var(--white);
-      font-family: 'Space Mono', monospace;
-      line-height: 1.6;
-    }
-    .container {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 2rem;
-    }
-    header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-    h1 {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: var(--gold);
-      margin: 0;
-    }
-    .subtitle {
-      color: var(--gray-200);
-      font-size: 1rem;
-      margin-top: 0.5rem;
-    }
-    .void-guard {
-      background: var(--gold-50);
-      border: 2px solid var(--gold);
-      padding: 1.5rem;
-      margin: 2rem 0;
-      text-align: center;
-    }
-    .void-title {
-      color: var(--gold);
-      font-weight: 700;
-      font-size: 1.5rem;
-      margin: 0 0 0.5rem 0;
-    }
-    .floor-pyramid {
-      margin: 3rem 0;
-      padding: 1rem;
-    }
-    .floor-row {
-      display: flex;
-      align-items: center;
-      margin: 0.25rem 0;
-    }
-    .floor-label {
-      color: var(--gold);
-      width: 60px;
-      font-weight: 700;
-    }
-    .floor-bar {
-      height: 4px;
-      background: var(--gold);
-      margin-left: 1rem;
-      opacity: 0.5;
-    }
-    .thermodynamic-a {
-      display: inline-block;
-      width: 48px;
-      height: 48px;
-      margin: 1rem 0;
-    }
-    .thermodynamic-a svg {
-      width: 100%;
-      height: 100%;
-    }
-    .thermodynamic-a path {
-      stroke: var(--gold);
-      stroke-width: 2.5;
-      fill: none;
-    }
-    footer {
-      text-align: center;
-      margin-top: 4rem;
-      color: #94a3b8;
-      font-size: 0.9rem;
-    }
-    .motto {
-      color: var(--gold);
-      font-style: italic;
-      margin-top: 2rem;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <header>
-      <div class="thermodynamic-a">
-        <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 40 L24 12 L36 40" />
-          <path d="M24 12 L24 8" />
-        </svg>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🟡 THEORY — arifOS v55.5</title>
+    <style>
+      :root {
+        --slate-950: #0f172a;
+        --gold-forged: #e6c25d;
+        --gold: var(--gold-forged);
+        --gold-50: rgba(230, 194, 93, 0.1);
+        --white: #ffffff;
+        --gray-200: #e2e8f0;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        background: var(--slate-950);
+        color: var(--white);
+        font-family: "Space Mono", monospace;
+        line-height: 1.6;
+      }
+      .container {
+        max-width: 680px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      header {
+        text-align: center;
+        margin-bottom: 3rem;
+      }
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--gold);
+        margin: 0;
+      }
+      .subtitle {
+        color: var(--gray-200);
+        font-size: 1rem;
+        margin-top: 0.5rem;
+      }
+      .void-guard {
+        background: var(--gold-50);
+        border: 2px solid var(--gold);
+        padding: 1.5rem;
+        margin: 2rem 0;
+        text-align: center;
+      }
+      .void-title {
+        color: var(--gold);
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin: 0 0 0.5rem 0;
+      }
+      .floor-pyramid {
+        margin: 3rem 0;
+        padding: 1rem;
+      }
+      .floor-row {
+        display: flex;
+        align-items: center;
+        margin: 0.25rem 0;
+      }
+      .floor-label {
+        color: var(--gold);
+        width: 60px;
+        font-weight: 700;
+      }
+      .floor-bar {
+        height: 4px;
+        background: var(--gold);
+        margin-left: 1rem;
+        opacity: 0.5;
+      }
+      .thermodynamic-a {
+        display: inline-block;
+        width: 48px;
+        height: 48px;
+        margin: 1rem 0;
+      }
+      .thermodynamic-a svg {
+        width: 100%;
+        height: 100%;
+      }
+      .thermodynamic-a path {
+        stroke: var(--gold);
+        stroke-width: 2.5;
+        fill: none;
+      }
+      footer {
+        text-align: center;
+        margin-top: 4rem;
+        color: #94a3b8;
+        font-size: 0.9rem;
+      }
+      .motto {
+        color: var(--gold);
+        font-style: italic;
+        margin-top: 2rem;
+      }
+
+      /* Trinity Nav Utility Classes */
+      .bg-black {
+        background-color: #000;
+      }
+      .border-b {
+        border-bottom-width: 1px;
+      }
+      .border-yellow-500\/30 {
+        border-color: rgba(234, 179, 8, 0.3);
+      }
+      .sticky {
+        position: sticky;
+      }
+      .top-0 {
+        top: 0;
+      }
+      .z-50 {
+        z-index: 50;
+      }
+      .max-w-6xl {
+        max-width: 72rem;
+      }
+      .mx-auto {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .px-6 {
+        padding-left: 1.5rem;
+        padding-right: 1.5rem;
+      }
+      .py-4 {
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+      }
+      .flex {
+        display: flex;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .justify-between {
+        justify-content: space-between;
+      }
+      .gap-4 {
+        gap: 1rem;
+      }
+      .gap-3 {
+        gap: 0.75rem;
+      }
+      .gap-8 {
+        gap: 2rem;
+      }
+      .gap-6 {
+        gap: 1.5rem;
+      }
+      .text-2xl {
+        font-size: 1.5rem;
+        line-height: 2rem;
+      }
+      .text-xs {
+        font-size: 0.75rem;
+        line-height: 1rem;
+      }
+      .text-sm {
+        font-size: 0.875rem;
+        line-height: 1.25rem;
+      }
+      .font-bold {
+        font-weight: 700;
+      }
+      .font-medium {
+        font-weight: 500;
+      }
+      .font-mono {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+      .tracking-tighter {
+        letter-spacing: -0.05em;
+      }
+      .text-yellow-400 {
+        color: #facc15;
+      }
+      .text-white {
+        color: #fff;
+      }
+      .bg-yellow-500\/10 {
+        background-color: rgba(234, 179, 8, 0.1);
+      }
+      .border-yellow-400\/30 {
+        border-color: rgba(250, 204, 21, 0.3);
+      }
+      .rounded-full {
+        border-radius: 9999px;
+      }
+      .transition-colors {
+        transition-property:
+          color, background-color, border-color, text-decoration-color, fill,
+          stroke;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+      }
+      header {
+        text-align: center;
+        margin-top: 2rem; /* Added margin because of nav */
+        margin-bottom: 3rem;
+      }
+    </style>
+    <style>
+      .nav-link {
+        color: #e5e5e5;
+        text-decoration: none;
+      }
+      .nav-link:hover {
+        color: #facc15;
+      }
+      .THEORY {
+        color: #facc15 !important;
+        border-bottom: 2px solid #facc15;
+        padding-bottom: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- TRINITY NAV -->
+    <nav class="bg-black border-b border-gold-forged/30 sticky top-0 z-50">
+      <div
+        class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between"
+      >
+        <!-- Left: Logo + Trinity -->
+        <div class="flex items-center gap-4">
+          <a
+            href="https://arif-fazil.com/"
+            class="flex items-center gap-3 text-2xl font-bold tracking-tighter"
+            style="text-decoration: none"
+          >
+            <span class="text-gold-forged">ARIF</span>
+            <span class="text-white">OS</span>
+          </a>
+          <div
+            class="text-xs px-3 py-1 bg-gold-forged/10 border border-gold-forged/30 rounded-full text-gold-forged font-mono"
+          >
+            THE TRINITY
+          </div>
+        </div>
+
+        <!-- Center: The 3 Pillars -->
+        <div class="flex gap-8 text-sm font-medium">
+          <a href="https://arif-fazil.com/" class="nav-link">HUMAN</a>
+          <a href="https://apex.arif-fazil.com/" class="nav-link THEORY"
+            >THEORY</a
+          >
+          <a href="https://arifos.arif-fazil.com/" class="nav-link">APPS</a>
+        </div>
+
+        <!-- Right: Links -->
+        <div class="flex items-center gap-6 text-sm">
+          <a
+            href="https://github.com/ariffazil/arifOS"
+            target="_blank"
+            class="nav-link hover:text-gold-forged"
+            >GitHub</a
+          >
+          <a
+            href="https://apex.arif-fazil.com/"
+            class="text-gold-forged font-medium"
+            style="text-decoration: none"
+            >Enter</a
+          >
+        </div>
       </div>
-      <h1>🟡 THEORY</h1>
-      <p class="subtitle">The Constitutional Canon — Immutable Law</p>
-    </header>
+    </nav>
+    <div class="container">
+      <header>
+        <div class="thermodynamic-a">
+          <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 40 L24 12 L36 40" />
+            <path d="M24 12 L24 8" />
+          </svg>
+        </div>
+        <h1>🟡 THEORY</h1>
+        <p class="subtitle">The Constitutional Canon — Immutable Law</p>
+      </header>
 
-    <div class="void-guard">
-      <div class="void-title">VOID</div>
-      <p>This is a canonical manifesto.<br>
-      No interaction. No mutation. Only reading.</p>
+      <div class="void-guard">
+        <div class="void-title">VOID</div>
+        <p>
+          This is a canonical manifesto.<br />
+          No interaction. No mutation. Only reading.
+        </p>
+      </div>
+
+      <div class="floor-pyramid">
+        <div class="floor-row">
+          <span class="floor-label">F13</span>
+          <div class="floor-bar" style="width: 100%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F12</span>
+          <div class="floor-bar" style="width: 95%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F11</span>
+          <div class="floor-bar" style="width: 90%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F10</span>
+          <div class="floor-bar" style="width: 85%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F9</span>
+          <div class="floor-bar" style="width: 80%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F8</span>
+          <div class="floor-bar" style="width: 75%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F7</span>
+          <div class="floor-bar" style="width: 70%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F6</span>
+          <div class="floor-bar" style="width: 65%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F5</span>
+          <div class="floor-bar" style="width: 60%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F4</span>
+          <div class="floor-bar" style="width: 55%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F3</span>
+          <div class="floor-bar" style="width: 50%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F2</span>
+          <div class="floor-bar" style="width: 45%"></div>
+        </div>
+        <div class="floor-row">
+          <span class="floor-label">F1</span>
+          <div class="floor-bar" style="width: 40%"></div>
+        </div>
+      </div>
+
+      <p class="motto">"Ditempa bukan diberi" — Forged, Not Given</p>
+
+      <footer>arifOS v55.5-SEAL • Muhammad Arif bin Fazil (888 Judge)</footer>
     </div>
-
-    <div class="floor-pyramid">
-      <div class="floor-row"><span class="floor-label">F13</span><div class="floor-bar" style="width: 100%"></div></div>
-      <div class="floor-row"><span class="floor-label">F12</span><div class="floor-bar" style="width: 95%"></div></div>
-      <div class="floor-row"><span class="floor-label">F11</span><div class="floor-bar" style="width: 90%"></div></div>
-      <div class="floor-row"><span class="floor-label">F10</span><div class="floor-bar" style="width: 85%"></div></div>
-      <div class="floor-row"><span class="floor-label">F9</span><div class="floor-bar" style="width: 80%"></div></div>
-      <div class="floor-row"><span class="floor-label">F8</span><div class="floor-bar" style="width: 75%"></div></div>
-      <div class="floor-row"><span class="floor-label">F7</span><div class="floor-bar" style="width: 70%"></div></div>
-      <div class="floor-row"><span class="floor-label">F6</span><div class="floor-bar" style="width: 65%"></div></div>
-      <div class="floor-row"><span class="floor-label">F5</span><div class="floor-bar" style="width: 60%"></div></div>
-      <div class="floor-row"><span class="floor-label">F4</span><div class="floor-bar" style="width: 55%"></div></div>
-      <div class="floor-row"><span class="floor-label">F3</span><div class="floor-bar" style="width: 50%"></div></div>
-      <div class="floor-row"><span class="floor-label">F2</span><div class="floor-bar" style="width: 45%"></div></div>
-      <div class="floor-row"><span class="floor-label">F1</span><div class="floor-bar" style="width: 40%"></div></div>
-    </div>
-
-    <p class="motto">"Ditempa bukan diberi" — Forged, Not Given</p>
-
-    <footer>
-      arifOS v55.5-SEAL • Muhammad Arif bin Fazil (888 Judge)
-    </footer>
-  </div>
-</body>
+  </body>
 </html>

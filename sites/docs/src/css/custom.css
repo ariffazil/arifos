@@ -1,121 +1,329 @@
 /**
- * arifOS Docs — Custom CSS
- * Black-first theme with primary RGB accents (red/yellow/blue).
+ * arifOS Sovereign Portal — Custom CSS (v65.0-FORGE)
+ * Theme: Onyx & Forged Gold
  */
 
 :root {
-  /* Brand palette */
-  --arif-red: #ff2d2d;
-  --arif-yellow: #ffd100;
-  --arif-blue: #1aa3ff;
-  --arif-black: #070707;
-  --arif-ink: #eaeaea;
+  /* The Forged Palette */
+  --onyx-deep: #050505;
+  --onyx-surface: #0a0a0a;
+  --onyx-elevated: #111111;
+  --gold-raw: #8c7631;
+  --gold-forged: #e6c25d;
+  --gold-glow: #ffeb3b;
+  --gold-dim: #4a3e1a;
 
-  /* Infima (Docusaurus) theme */
-  --ifm-color-primary: var(--arif-blue);
-  --ifm-color-primary-dark: #0f8fe0;
-  --ifm-color-primary-darker: #0b7fc6;
-  --ifm-color-primary-darkest: #076aa6;
-  --ifm-color-primary-light: #3bb2ff;
-  --ifm-color-primary-lighter: #54bbff;
-  --ifm-color-primary-lightest: #8ad0ff;
-  --ifm-code-font-size: 95%;
-  --docusaurus-highlighted-code-line-bg: rgba(26, 163, 255, 0.14);
+  --arif-red: #ff3e3e;
+  --arif-blue: #00a2ff;
+  --arif-green: #00ff88;
+
+  /* Infima Overrides */
+  --ifm-color-primary: var(--gold-forged);
+  --ifm-color-primary-dark: var(--gold-raw);
+  --ifm-color-primary-darker: var(--gold-dim);
+  --ifm-color-primary-darkest: #2a220d;
+  --ifm-color-primary-light: #f1d78c;
+  --ifm-color-primary-lighter: #f7e6b3;
+  --ifm-color-primary-lightest: #ffffff;
+
+  --ifm-background-color: var(--onyx-deep);
+  --ifm-navbar-background-color: rgba(5, 5, 5, 0.8);
+  --ifm-footer-background-color: var(--onyx-deep);
+
+  --ifm-font-family-base:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  --ifm-font-family-monospace: "JetBrains Mono", "Fira Code", monospace;
+
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.05);
 }
 
-/* Force the "dark" palette to be truly black. */
-[data-theme='dark'] {
-  --ifm-background-color: var(--arif-black);
-  --ifm-background-surface-color: #0c0c0c;
-  --ifm-navbar-background-color: #0b0b0b;
-  --ifm-footer-background-color: #070707;
-  --ifm-font-color-base: var(--arif-ink);
+[data-theme="dark"] {
+  --ifm-background-color: var(--onyx-deep);
+  --ifm-background-surface-color: var(--onyx-surface);
+  --ifm-font-color-base: #e0e0e0;
   --ifm-heading-color: #ffffff;
-  --ifm-toc-border-color: rgba(255, 255, 255, 0.10);
-  --ifm-color-emphasis-200: rgba(255, 255, 255, 0.08);
-  --ifm-color-emphasis-300: rgba(255, 255, 255, 0.12);
-  --ifm-color-emphasis-500: rgba(255, 255, 255, 0.24);
-  --docusaurus-highlighted-code-line-bg: rgba(26, 163, 255, 0.14);
 }
 
-/* Accent helpers */
-.accent-red {
-  color: var(--arif-red);
+/* Global Aesthetics */
+body {
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-.accent-yellow {
-  color: var(--arif-yellow);
+.navbar {
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--glass-border);
 }
 
-.accent-blue {
-  color: var(--arif-blue);
+.footer {
+  border-top: 1px solid var(--glass-border);
 }
 
-/* Badges */
-.badge--gold {
-  background-color: var(--arif-yellow);
-  color: #000000;
+/* Hero Section */
+.heroBanner {
+  padding: 8rem 0;
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 50%, #151515 0%, #050505 100%);
+  text-align: center;
 }
 
-/* Mono font for floor scores and stage numbers */
-.floor-score, code {
-  font-family: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
+.heroBanner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    linear-gradient(rgba(230, 194, 93, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(230, 194, 93, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  mask-image: radial-gradient(ellipse at center, black, transparent 80%);
 }
 
-/* Links: blue by default, yellow on hover for high contrast */
-a {
-  color: var(--arif-blue);
+.heroTitle {
+  font-size: 5rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #fff 0%, var(--gold-forged) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
 }
 
-a:hover {
-  color: var(--arif-yellow);
+.heroSubtitle {
+  font-size: 1.5rem;
+  color: #888;
+  max-width: 600px;
+  margin: 0 auto 2.5rem;
+  font-weight: 400;
+  line-height: 1.4;
 }
 
-/* Buttons: primary = blue, secondary = red */
-.button.button--primary {
-  background: var(--arif-blue);
-  border-color: var(--arif-blue);
-  color: #000;
+/* 13+1 Floors Grid */
+.floorsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 4rem 0;
 }
 
-.button.button--primary:hover {
-  background: #54bbff;
-  border-color: #54bbff;
-  color: #000;
+.floorCard {
+  background: var(--onyx-surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 2rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
 
-.button.button--secondary {
-  background: transparent;
-  border-color: var(--arif-red);
-  color: var(--arif-red);
+.floorCard:hover {
+  transform: translateY(-5px);
+  border-color: var(--gold-dim);
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(230, 194, 93, 0.05);
 }
 
-.button.button--secondary:hover {
-  background: rgba(255, 45, 45, 0.12);
-  border-color: var(--arif-red);
-  color: #ffffff;
+.floorNumber {
+  font-family: var(--ifm-font-family-monospace);
+  color: var(--gold-forged);
+  font-size: 0.8rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.6;
 }
 
-/* Admonitions: map types to RGB */
-.alert--warning {
-  border-left: 4px solid var(--arif-yellow);
-}
-
-.alert--danger {
-  border-left: 4px solid var(--arif-red);
-}
-
-.alert--info {
-  border-left: 4px solid var(--arif-blue);
-}
-
-/* Navbar brand feels weightier */
-.navbar__brand {
+.floorName {
+  font-size: 1.25rem;
   font-weight: 700;
-  letter-spacing: 0.03em;
+  margin-bottom: 1rem;
+  color: #fff;
 }
 
-/* Make headings pop with a subtle yellow underline glow */
-.markdown h1, .markdown h2, .markdown h3 {
-  text-shadow: 0 0 14px rgba(255, 209, 0, 0.08);
+.floorDescription {
+  font-size: 0.9rem;
+  color: #999;
+  line-height: 1.6;
 }
+
+/* Health Widget */
+.healthWidget {
+  background: rgba(0, 255, 136, 0.03);
+  border: 1px solid rgba(0, 255, 136, 0.1);
+  border-radius: 50px;
+  padding: 0.5rem 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-size: 0.8rem;
+  color: var(--arif-green);
+  margin-top: 2rem;
+}
+
+.healthDot {
+  width: 8px;
+  height: 8px;
+  background: var(--arif-green);
+  border-radius: 50%;
+  box-shadow: 0 0 10px var(--arif-green);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* CTA Buttons */
+.ctaButton {
+  background: var(--gold-forged);
+  color: #000 !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1rem 2.5rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.ctaButton:hover {
+  background: #fff;
+  transform: scale(1.05);
+  text-decoration: none;
+}
+
+/* Code Snippet Box */
+.installBox {
+  background: #000;
+  border: 1px solid #222;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.installCommand {
+  font-family: var(--ifm-font-family-monospace);
+  color: #ccc;
+}
+
+/* Trinity Navigation Styles */
+.trinity-nav {
+  background-color: #000;
+  border-bottom: 1px solid rgba(255, 209, 0, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+}
+
+.trinity-container {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.trinity-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.trinity-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  text-decoration: none !important;
+}
+
+.trinity-logo .arif { color: var(--gold-forged); }
+.trinity-logo .os { color: #fff; }
+
+.trinity-badge {
+  font-size: 0.65rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(230, 194, 93, 0.1);
+  border: 1px solid rgba(230, 194, 93, 0.3);
+  border-radius: 50px;
+  color: var(--gold-forged);
+  font-family: var(--ifm-font-family-monospace);
+  text-transform: uppercase;
+}
+
+.trinity-center {
+  display: flex;
+  gap: 2rem;
+}
+
+.trinity-link {
+  color: #e5e5e5;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: color 0.2s;
+  padding-bottom: 2px;
+}
+
+.trinity-link:hover {
+  color: var(--gold-forged);
+}
+
+.trinity-link.active {
+  color: var(--gold-forged);
+  border-bottom: 2px solid var(--gold-forged);
+}
+
+.trinity-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.85rem;
+}
+
+.trinity-right a {
+  color: #888;
+  text-decoration: none !important;
+}
+
+.trinity-right a:hover {
+  color: var(--gold-forged);
+}
+
+.trinity-enter {
+  color: var(--gold-forged) !important;
+  font-weight: 700;
+}
+
+/* Adjust layout to accommodate sticky trinity nav and navbar */
+.navbar {
+  top: 0px !important; /* Docusaurus navbar should be below trinity nav if both sticky */
+}
+
+/* If Trinity Nav is used, we might need to offset content */
+/* But stickiness should work if handled in root */

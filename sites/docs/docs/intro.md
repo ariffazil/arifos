@@ -138,13 +138,14 @@ The **888 Judge** (human operator) reviews via the [Metabolic Console](https://c
 
 ## Where to Go Next
 
-| You are… | Start here |
-|:--|:--|
+| You are... | Start here |
+| :--- | :--- |
 | An operator running the server | [MCP Server →](./mcp-server) |
 | Deploying to VPS / Docker / Railway | [Deployment →](./deployment) |
 | Connecting an MCP client | [API Reference →](./api) |
 | A policy lead or auditor | [Governance & Floors →](./governance) |
 | Curious about the theory | [000_THEORY Map →](./theory-000) |
+| Connecting ChatGPT | [ChatGPT Connector →](./chatgpt) |
 | Building the L0–L7 stack | [Architecture →](./architecture) |
 
 ---
@@ -161,4 +162,4 @@ The 13 floors codify exactly what is known, what is admitted as unknown, and wha
 - Source: [`000_THEORY/000_FOUNDATIONS.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_FOUNDATIONS.md)
 - PyPI: [`pip install arifos`](https://pypi.org/project/arifos/)
 - License: [AGPL-3.0](https://github.com/ariffazil/arifOS/blob/main/LICENSE)
-- Version: `2026.2.22` (T000 date-versioned — see [`T000_VERSIONING.md`](https://github.com/ariffazil/arifOS/blob/main/T000_VERSIONING.md))
+- Version: `2026.2.23` (T000 date-versioned — see [`T000_VERSIONING.md`](https://github.com/ariffazil/arifOS/blob/main/T000_VERSIONING.md))

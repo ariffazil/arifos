@@ -27,14 +27,38 @@ import os
 import sys
 import time
 import uuid
+"""
+AAA MCP REST Bridge — HTTP REST API for OpenAI Tool Adapter
+Maps HTTP POST /tools/{name} → MCP tool calls
+Implements ChatGPT feedback: fast ACK, apex_judge wrapper, observability
+
+Endpoints:
+  GET  /health              → Health check
+  GET  /ready               → Tool registry + dependencies ready
+  GET  /version             → Build info (git sha, schema version)
+  GET/POST /mcp             → Unified Sovereign Connector alias
+
+Usage:
+  python -m aaa_mcp.rest
+
+DITEMPA BUKAN DIBERI
+"""
+
+import asyncio
+import inspect
+import json
+import os
+import sys
+import time
+import uuid
 import uvicorn
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import AsyncGenerator, Dict, List
+from typing import AsyncGenerator, Dict, List, Any, Optional
 
 from starlette.applications import Starlette
-from starlette.responses import JSONResponse, StreamingResponse
+from starlette.responses import JSONResponse, StreamingResponse, HTMLResponse
 from starlette.routing import Route
 from starlette.requests import Request
 
@@ -211,6 +235,40 @@ active_sessions: Dict[str, dict] = {}
 def generate_request_id() -> str:
     """Generate unique request ID for tracing (ChatGPT feedback: request_id correlation)."""
     return f"req-{uuid.uuid4().hex[:12]}"
+
+
+# --- HUMANS WELCOME ---
+WELCOME_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>arifOS MCP Server</title>
+    <style>
+        body { background: #050505; color: #e6c25d; font-family: 'JetBrains Mono', monospace; padding: 4rem; text-align: center; }
+        .box { border: 1px solid #e6c25d33; padding: 2rem; display: inline-block; border-radius: 8px; background: #0a0a0a; }
+        h1 { font-weight: 900; letter-spacing: -0.1rem; border-bottom: 2px solid #e6c25d; display: inline-block; padding-bottom: 0.5rem; }
+        p { color: #888; max-width: 400px; margin: 1rem auto; }
+        .status { color: #00ff88; font-weight: bold; margin-top: 2rem; border: 1px solid #00ff8833; padding: 0.5rem 1rem; border-radius: 50px; display: inline-block; }
+        a { color: #00a2ff; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>arifOS MCP</h1>
+        <p>This is a live <strong>Model Context Protocol</strong> server. 
+           It is optimized for machine intelligence, but humans are welcome.</p>
+        <div class="status">● ONLINE</div>
+        <div style="margin-top: 2rem;">
+            <a href="/tools">/tools</a> &nbsp;|&nbsp; 
+            <a href="/health">/health</a> &nbsp;|&nbsp; 
+            <a href="https://arifos.arif-fazil.com">documentation</a>
+        </div>
+    </div>
+</body>
+</html>
+"""
+
 
 
 async def health(request: Request):
@@ -511,206 +569,6 @@ async def apex_judge_wrapper(request: Request):
                 verdict=apex_result.get("verdict", "SEAL"),
             )
             pipeline_results["pipeline"].append({"stage": "999_VAULT", "result": seal_result})
-
-        latency_ms = (time.time() - start_time) * 1000
-        pipeline_results["latency_ms"] = round(latency_ms, 2)
-        pipeline_results["final_verdict"] = apex_result.get("verdict", "UNKNOWN")
-
-        return JSONResponse(pipeline_results)
-
-    except Exception as e:
-        return JSONResponse(
-            {
-                "error": str(e),
-                "request_id": request_id,
-                "session_id": session_id,
-                "pipeline": pipeline_results["pipeline"],
-            },
-            status_code=500,
-        )
-
-
-async def sse_endpoint(request: Request):
-    """MCP SSE transport endpoint."""
-    if request.method == "POST":
-        return JSONResponse(
-            {"error": "Method not allowed. Use GET for SSE."},
-            status_code=405,
-        )
-
-    async def event_generator() -> AsyncGenerator[str, None]:
-        scheme = request.headers.get("x-forwarded-proto", request.url.scheme)
-        msg_url = f"{scheme}://{request.url.netloc}/messages"
-        yield f"event: endpoint\ndata: {msg_url}\n\n"
-
-        while True:
-            if await request.is_disconnected():
-                break
-            yield ": ping\n\n"
-            await asyncio.sleep(30)
-
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream",
-        headers={"Cache-Control": "no-cache", "Connection": "keep-alive"},
-    )
-
-
-async def messages_endpoint(request: Request):
-    """MCP JSON-RPC endpoint — handles full MCP lifecycle + tool calls."""
-    body: dict = {}
-    try:
-        body = await request.json()
-        method = body.get("method", "")
-        params = body.get("params", {}) or {}
-        msg_id = body.get("id")
-
-        # ── MCP lifecycle methods ──────────────────────────────────────────
-        if method == "initialize":
-            return JSONResponse(
-                {
-                    "jsonrpc": "2.0",
-                    "id": msg_id,
-                    "result": {
-                        "protocolVersion": "2024-11-05",
-                        "serverInfo": {
-                            "name": "arifos",
-                            "version": BUILD_INFO["version"],
-                        },
-                        "capabilities": {"tools": {}},
-                    },
-                }
-            )
-
-        if method == "notifications/initialized":
-            # Client acknowledgment — no response needed
-            return JSONResponse({})
-
-        if method == "ping":
-            return JSONResponse({"jsonrpc": "2.0", "id": msg_id, "result": {}})
-
-        if method == "tools/list":
-            tools_list = []
-            for name, schema in TOOL_SCHEMAS.items():
-                tool_def: dict = {
-                    "name": name,
-                    "description": schema.get("description", ""),
-                    "inputSchema": {
-                        "type": "object",
-                        "properties": {},
-                        "required": [],
-                    },
-                }
-                for arg_name, arg_meta in schema.get("args", {}).items():
-                    prop: dict = {"type": arg_meta.get("type", "string")}
-                    if "description" in arg_meta:
-                        prop["description"] = arg_meta["description"]
-                    if "values" in arg_meta:
-                        prop["enum"] = arg_meta["values"]
-                    tool_def["inputSchema"]["properties"][arg_name] = prop
-                    if arg_meta.get("required", False):
-                        tool_def["inputSchema"]["required"].append(arg_name)
-                tools_list.append(tool_def)
-            return JSONResponse(
-                {
-                    "jsonrpc": "2.0",
-                    "id": msg_id,
-                    "result": {"tools": tools_list},
-                }
-            )
-
-        if method == "tools/call":
-            tool_name = params.get("name", "")
-            tool_args = params.get("arguments", {}) or {}
-            # Resolve alias
-            if tool_name in TOOL_ALIASES:
-                tool_name = TOOL_ALIASES[tool_name]
-            if tool_name not in TOOLS:
-                return JSONResponse(
-                    {
-                        "jsonrpc": "2.0",
-                        "id": msg_id,
-                        "error": {"code": -32601, "message": f"Tool '{tool_name}' not found"},
-                    }
-                )
-            # Wrap with timeout like call_tool does
-            # Note: FastMCP FunctionTool has .fn attribute with the actual function
-            try:
-                tool = TOOLS[tool_name]
-                actual_fn = getattr(tool, "fn", tool)
-                result = await asyncio.wait_for(actual_fn(**tool_args), timeout=10.0)
-            except asyncio.TimeoutError:
-                return JSONResponse(
-                    {
-                        "jsonrpc": "2.0",
-                        "id": msg_id,
-                        "error": {"code": -32603, "message": "Tool execution timeout"},
-                    }
-                )
-            except Exception as e:
-                return JSONResponse(
-                    {
-                        "jsonrpc": "2.0",
-                        "id": msg_id,
-                        "result": {
-                            "content": [
-                                {"type": "text", "text": json.dumps({"error": str(e)}, default=str)}
-                            ],
-                            "isError": True,
-                        },
-                    }
-                )
-            return JSONResponse(
-                {
-                    "jsonrpc": "2.0",
-                    "id": msg_id,
-                    "result": {
-                        "content": [{"type": "text", "text": json.dumps(result, default=str)}],
-                        "isError": False,
-                    },
-                }
-            )
-
-        # ── Legacy direct tool-name methods (backward compat) ─────────────
-        if method == "apex_judge":
-            result = await apex_judge_wrapper(request)
-            return result
-
-        tool_name = method.split("/")[-1] if "/" in method else method
-        if tool_name in TOOL_ALIASES:
-            tool_name = TOOL_ALIASES[tool_name]
-
-        if tool_name not in TOOLS:
-            return JSONResponse(
-                {
-                    "jsonrpc": "2.0",
-                    "id": msg_id,
-                    "error": {"code": -32601, "message": f"Method '{method}' not found"},
-                }
-            )
-
-        result = await TOOLS[tool_name](**params)
-        return JSONResponse({"jsonrpc": "2.0", "id": msg_id, "result": result})
-
-    except Exception as e:
-        return JSONResponse(
-            {
-                "jsonrpc": "2.0",
-                "id": body.get("id"),
-                "error": {"code": -32603, "message": str(e)},
-            }
-        )
-
-
-async def route_info(request: Request):
-    """Show all available routes for debugging."""
-    return JSONResponse(
-        {
-            "service": "aaa-mcp-rest",
-            "version": BUILD_INFO["version"],
-            "schema_version": BUILD_INFO["schema_version"],
-            "routes": [
-                {"method": "GET", "path": "/health", "description": "Health check"},
                 {
                     "method": "GET",
                     "path": "/ready",
@@ -741,10 +599,38 @@ async def route_info(request: Request):
     )
 
 
+async def mcp_alias(request: Request):
+    """
+    Unified /mcp endpoint (ChatGPT Sovereign Connector).
+    Handles both direct tool calls and MCP protocol detection.
+    """
+    # Detect if it's an MCP SSE request
+    accept = request.headers.get("Accept", "")
+    if request.method == "GET" and ("text/event-stream" in accept or "application/json" in accept):
+        # If it's a GET, return tool list or SSE entry based on Accept header
+        if "text/event-stream" in accept:
+            from aaa_mcp.rest import sse_endpoint
+            return await sse_endpoint(request)
+        return await list_tools(request)
+    
+    # If it's a POST, it might be an MCP message or a direct tool call
+    try:
+        body = await request.json()
+        if "method" in body and "params" in body:
+            from aaa_mcp.rest import messages_endpoint
+            return await messages_endpoint(request)
+    except Exception:
+        pass
+
+    # Default to direct tool call if it's a POST to /mcp
+    return await call_tool(request)
+
+
 # Create Starlette app with REST routes
 routes = [
     Route("/", route_info, methods=["GET"]),
     Route("/.well-known/mcp/server.json", well_known_mcp_server_json, methods=["GET"]),
+    Route("/mcp", mcp_alias, methods=["GET", "POST"]),
     Route("/health", health, methods=["GET"]),
     Route("/ready", ready, methods=["GET"]),
     Route("/version", version, methods=["GET"]),
@@ -756,9 +642,7 @@ routes = [
     Route("/sse", sse_endpoint, methods=["GET", "POST"]),
     Route("/messages", sse_endpoint, methods=["GET"]),
     Route("/messages", messages_endpoint, methods=["POST"]),
-    Route(
-        "/{tool_name}", call_tool, methods=["POST"]
-    ),  # Root path for direct tool calls — MUST BE LAST
+    Route("/{tool_name}", call_tool, methods=["POST"]),  # Root path for direct tool calls — MUST BE LAST
 ]
 
 
