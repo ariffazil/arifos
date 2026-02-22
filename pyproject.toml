@@ -137,15 +137,14 @@ all = [
 
 [project.scripts]
 # arifOS Canonical CLI (v65.0-FORGE-UVX)
-# Usage: uvx arifos [stdio|sse|http]
+# Usage: uvx arifos [stdio|sse|http|rest]
 arifos = "aaa_mcp.__main__:main"
 aaa-mcp = "aaa_mcp.__main__:main"
 arifos-mcp = "aaa_mcp.__main__:main"
 
 # ACLIP_CAI Console Intelligence Tools (v1.0.0)
-# The 10-Sense Nervous System for arifOS Infrastructure
 aclip-cai = "aclip_cai.cli:main"
-aclip-server = "aclip_cai.server:main"  # MCP server mode
+aclip-server = "aaa_mcp.__main__:main"  # Unified server mode
 
 # arifOS Router (v65.0-ROUTER) - Unified Gateway
 # Single entry point for Constitutional + Sensory tools

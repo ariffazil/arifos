@@ -44,7 +44,34 @@ def main():
     # Check version before importing server modules
     check_fastmcp_version()
 
-    mode = (sys.argv[1] if len(sys.argv) > 1 else "stdio").strip().lower()
+    import argparse
+    parser = argparse.ArgumentParser(description="arifOS Unified MCP Server")
+    parser.add_argument(
+        "mode_pos",
+        nargs="?",
+        choices=["stdio", "sse", "http", "rest"],
+        help="Server mode (positional)",
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["stdio", "sse", "http", "rest"],
+        help="Server mode (optional flag)",
+    )
+    parser.add_argument(
+        "--host", default=os.getenv("HOST", "0.0.0.0"), help="Host to bind to (default: 0.0.0.0)"
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.getenv("PORT", 8080)),
+        help="Port to bind to (default: 8080)",
+    )
+
+    args = parser.parse_args()
+    
+    # Determine mode from either positional or flag
+    mode = args.mode or args.mode_pos or "stdio"
+    mode = mode.strip().lower()
 
     # Unified server combines AAA-MCP and ACLIP-CAI tools
     from aaa_mcp.server import create_unified_mcp_server
@@ -53,24 +80,23 @@ def main():
 
     if mode in ("", "stdio"):
         # Default to stdio for local agents
+        print("[arifOS] Starting Unified MCP server with STDIO transport", file=sys.stderr)
         mcp.run(transport="stdio")
         return
 
     if mode == "sse":
-        port = int(os.getenv("PORT", 8080))
-        host = os.getenv("HOST", "0.0.0.0")
+        port = args.port
+        host = args.host
         print(f"[arifOS] Starting MCP server with SSE transport on {host}:{port}", file=sys.stderr)
 
         # Reverse proxy terminates TLS and sets X-Forwarded-Proto.
-        # We need uvicorn to trust these headers so SSE endpoint
-        # advertises https:// URLs, not http://.
         os.environ["FORWARDED_ALLOW_IPS"] = "*"
         mcp.run(transport="sse", host=host, port=port)
         return
 
     if mode in ("http", "streamable-http"):
-        port = int(os.getenv("PORT", 8080))
-        host = os.getenv("HOST", "0.0.0.0")
+        port = args.port
+        host = args.host
         print(f"[arifOS] Starting MCP server with HTTP transport on {host}:{port}", file=sys.stderr)
         mcp.run(transport="http", host=host, port=port)
         return
@@ -78,7 +104,9 @@ def main():
     if mode == "rest":
         from aaa_mcp.rest import main as rest_main
 
-        print("[arifOS] Starting REST bridge (Starlette + Uvicorn)", file=sys.stderr)
+        os.environ["HOST"] = args.host
+        os.environ["PORT"] = str(args.port)
+        print(f"[arifOS] Starting REST bridge on {args.host}:{args.port} (Starlette + Uvicorn)", file=sys.stderr)
         rest_main()
         return
 

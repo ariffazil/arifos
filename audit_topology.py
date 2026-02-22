@@ -193,21 +193,20 @@ def run_audit():
     print()
     
     # ───────────────────────────────────────────────────────────────────────
-    # Verify 5-Organ Trinity + 4 Utilities contract
+    # Verify Unified Toolset Contract (5-Organ Trinity + 4 Utilities +  sensory)
     # ───────────────────────────────────────────────────────────────────────
-    print("🔍 Verifying Public API Contract (5-Organ Trinity + 4 Utilities)...")
+    print("🔍 Verifying Public API Contract (Unified Era: Trinity + Utilities + Sensory)...")
     server_py = mcp_dir / 'server.py' if mcp_dir.exists() else None
     if server_py and server_py.exists():
         tool_count = count_mcp_tools(server_py)
         print(f"   @mcp.tool decorators found: {tool_count}")
         
-        if tool_count == 9:
-            print("   ✅ Contract verified: Exactly 9 public tools (5 Organs + 4 Utilities)")
-        elif tool_count < 9:
-            print(f"   ⚠️  WARNING: Missing tools (expected 9, found {tool_count})")
+        if tool_count >= 18:
+            print(f"   ✅ Contract verified: Unified toolset active ({tool_count} tools)")
+        elif tool_count == 9:
+            print("   ⚠️  WARNING: Using legacy 9-tool contract")
         else:
-            print(f"   ⚠️  WARNING: Excess tools (expected 9, found {tool_count})")
-            print("      Legacy tools may still be exposed as public API")
+            print(f"   ⚠️  WARNING: Tool count mismatch (found {tool_count})")
     
     print()
     

@@ -64,6 +64,20 @@ from typing import Dict, Any
 # Import stage storage and adapters
 from aaa_mcp.services.constitutional_metrics import get_stage_result, store_stage_result
 
+# Import ACLIP-CAI sensory tools
+from aclip_cai.tools.chroma_query import list_collections, query_memory
+from aclip_cai.tools.config_reader import config_flags as config_reader
+from aclip_cai.tools.financial_monitor import financial_cost as estimate_financial_cost
+from aclip_cai.tools.fs_inspector import fs_inspect as fs_inspector
+from aclip_cai.tools.log_reader import log_tail as log_reader
+from aclip_cai.tools.net_monitor import net_status as net_monitor
+from aclip_cai.tools.safety_guard import forge_guard as safety_guard
+from aclip_cai.tools.system_monitor import get_resource_usage, get_system_health, list_processes
+from aclip_cai.tools.thermo_estimator import cost_estimator as thermo_cost
+
+# Import constitutional resources
+from core.shared.floors import THRESHOLDS
+
 from core.kernel.mcp_tool_service import (
     align_tool,
     anchor_tool,
@@ -142,8 +156,49 @@ def load_capability_config() -> dict:
 
 # Initialize FastMCP Server
 mcp = FastMCP(
-    "arifOS-AAA",
-    instructions="The Trinity Governance Layer (000-999)",
+    "arifOS-Unified",
+    instructions="""
+    arifOS Unified Server — 5-Organ Trinity + Sensory Perception
+    
+    5-Organ Trinity (Thermodynamically Encapsulated):
+      1. init_session   — Ψ (000_INIT + 555_ASI) Session ignition with validation
+      2. agi_cognition  — Δ (222+333+444) The Mind Engine (reason, integrate, respond)
+      3. asi_empathy    — Ω (555+666) The Heart Engine (validate, align)
+      4. apex_verdict   — Ψ (777+888) The Soul Engine (forge, audit) → SEAL/SABAR/VOID/888_HOLD
+      5. vault_seal     — F1 (999) Cryptographic permanence
+    
+    4 Utilities (Read-Only):
+      search         — Web search (ChatGPT integration)
+      fetch          — Web fetch (ChatGPT integration)
+      analyze        — Data/structure analysis
+      system_audit   — System verification
+    
+    ACLIP-CAI (10 Sensory Tools):
+      system_health   — C0: CPU, RAM, disk, processes
+      fs_inspect      — C2: Filesystem traversal (read-only)
+      log_tail        — C3: Log monitoring
+      net_status      — C4: Network diagnostics
+      config_flags    — C5: Environment inspection
+      chroma_query    — C6: Vector memory search
+      cost_estimator  — C7: Thermodynamic cost
+      forge_guard     — C8: Safety circuit breaker (gated)
+      financial_cost  — C9: Monetary cost
+    
+    MCP Resource Templates (Read‑Only Data):
+      constitutional://mottos             — All constitutional mottos
+      constitutional://mottos/{floor}     — Motto for specific floor
+      constitutional://floors             — All 13 floors specification
+      constitutional://floors/{floor_id}  — Specific floor details
+      system://health                     — Current system health
+      tools://schemas                     — All tool schemas
+      tools://schemas/{tool_name}         — Schema for specific tool
+    
+    Architectural Note: Legacy 9-subroutine model (anchor, reason, integrate, 
+    respond, validate, align, forge, audit, seal) is now internalized within 
+    the 5-Organ Trinity to prevent abstraction leaks and reduce attack surface.
+    
+    DITEMPA BUKAN DIBERI — Forged, Not Given
+    """,
 )
 
 # Register container tools
@@ -565,7 +620,289 @@ async def vault_seal(
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-# 4 UTILITIES (Read-Only Helpers)
+# ACLIP-CAI SENSORY TOOLS (10 Senses)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@mcp.tool(annotations={"readOnlyHint": True})
+async def system_health(
+    mode: str = "full",
+    filter_process: str = "",
+    top_n: int = 15,
+) -> dict:
+    """
+    [C0] System health — CPU, RAM, disk, processes.
+
+    The AI equivalent of 'top' or Task Manager.
+    """
+    if mode == "resources":
+        return get_resource_usage()
+    elif mode == "processes":
+        return list_processes(filter_name=filter_process, top_n=top_n)
+    else:
+        return get_system_health()
+
+
+@mcp.tool(annotations={"readOnlyHint": True})
+async def fs_inspect(
+    path: str = ".",
+    depth: int = 1,
+    include_hidden: bool = False,
+) -> dict:
+    """
+    [C2] Filesystem inspection — read-only directory traversal.
+
+    Physical meaning: How much data exists where.
+    """
+    return fs_inspector(path=path, depth=depth, include_hidden=include_hidden)
+
+
+@mcp.tool(annotations={"readOnlyHint": True})
+async def log_tail(
+    log_file: str = "aaa_mcp.log",
+    lines: int = 50,
+    pattern: str = "",
+) -> dict:
+    """
+    [C3] Log tail — recent entries with optional grep.
+
+    Physical meaning: Historical errors, incidents, warnings.
+    """
+    return log_reader(log_file=log_file, lines=lines, pattern=pattern)
+
+
+@mcp.tool(annotations={"readOnlyHint": True})
+async def net_status(
+    check_ports: bool = True,
+    check_connections: bool = True,
+) -> dict:
+    """
+    [C4] Network posture — ports, connections, routing.
+
+    Physical meaning: Attack surface, data exfil risk.
+    """
+    return net_monitor(check_ports=check_ports, check_connections=check_connections)
+
+
+@mcp.tool(annotations={"readOnlyHint": True})
+async def config_flags() -> dict:
+    """
+    [C5] Environment and feature flags.
+
+    Physical meaning: How the system is configured in reality.
+    """
+    return config_reader()
+
+
+@mcp.tool(annotations={"readOnlyHint": True})
+async def chroma_query(
+    query: str,
+    collection: str = "default",
+    top_k: int = 5,
+    list_only: bool = False,
+) -> dict:
+    """
+    [C6] Vector memory semantic search.
+
+    The AI equivalent of 'grep' over persistent memory.
+    """
+    if list_only:
+        return list_collections()
+    return query_memory(query=query, collection=collection, top_k=top_k)
+
+
+@mcp.tool(annotations={"readOnlyHint": True})
+async def cost_estimator(
+    action_description: str,
+    estimated_cpu_percent: float = 0,
+    estimated_ram_mb: float = 0,
+    estimated_io_mb: float = 0,
+) -> dict:
+    """
+    [C7] Thermodynamic cost estimation.
+
+    Physical meaning: Energy/heat/time consumption.
+    """
+    return thermo_cost(
+        action_description=action_description,
+        estimated_cpu_percent=estimated_cpu_percent,
+        estimated_ram_mb=estimated_ram_mb,
+        estimated_io_mb=estimated_io_mb,
+    )
+
+
+@mcp.tool(annotations={"readOnlyHint": True})
+async def financial_cost(
+    service: str,
+    action: str,
+    resource_id: str = "",
+    period_days: int = 1,
+) -> dict:
+    """
+    [C9] Financial cost estimation.
+
+    Physical meaning: Monetary cost of operations.
+    """
+    return await estimate_financial_cost(
+        service=service,
+        action=action,
+        resource_id=resource_id,
+        period_days=period_days,
+    )
+
+
+@mcp.tool()
+async def forge_guard(
+    check_system_health: bool = True,
+    cost_score_threshold: float = 0.8,
+    cost_score_to_check: float = 0.0,
+) -> dict:
+    """
+    [C8] Local safety circuit breaker.
+
+    Physical meaning: Console-level circuit breaker.
+    Returns: OK / SABAR (delay) / VOID_LOCAL (don't try).
+
+    NOTE: This is the ONLY tool with write/gate potential.
+    It only gates local actions, never executes remotely.
+    """
+    return safety_guard(
+        check_system_health=check_system_health,
+        cost_score_threshold=cost_score_threshold,
+        cost_score_to_check=cost_score_to_check,
+    )
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# MCP RESOURCE TEMPLATES (Parameterized Read‑Only Data)
+# ═══════════════════════════════════════════════════════════════════════════
+
+@mcp.resource("constitutional://mottos")
+def resource_all_mottos() -> Dict[str, Any]:
+    """All constitutional mottos as a JSON resource."""
+    from aaa_mcp.core.motto_schema import get_mottos_resource
+    return get_mottos_resource()["text"]
+
+
+@mcp.resource("constitutional://mottos/{floor}")
+def resource_motto_for_floor(floor: str) -> Dict[str, Any]:
+    """Get motto for a specific constitutional floor."""
+    from core.shared.mottos import get_motto_by_floor
+
+    motto = get_motto_by_floor(floor)
+    if not motto:
+        return {"error": f"No motto found for floor {floor}"}
+
+    return {
+        "floor": floor,
+        "malay": motto.malay,
+        "english": motto.english,
+        "explanation": motto.explanation,
+    }
+
+
+@mcp.resource("constitutional://floors")
+def resource_all_floors() -> Dict[str, Any]:
+    """All 13 constitutional floors specification."""
+    return {
+        "schema_version": "2026.02.22-SEAL",
+        "total_floors": len(THRESHOLDS),
+        "floors": THRESHOLDS,
+        "note": "Threshold values are canonical and immutable.",
+    }
+
+
+@mcp.resource("constitutional://floors/{floor_id}")
+def resource_specific_floor(floor_id: str) -> Dict[str, Any]:
+    """Details for a specific constitutional floor."""
+    floor_key = floor_id.upper()
+    if floor_key not in THRESHOLDS:
+        return {"error": f"Floor {floor_id} not found. Valid floors: {list(THRESHOLDS.keys())}"}
+
+    floor_info = THRESHOLDS[floor_key].copy()
+    floor_info["id"] = floor_key
+    return floor_info
+
+
+@mcp.resource("system://health")
+def resource_system_health() -> Dict[str, Any]:
+    """Current system health status."""
+    health_data = get_system_health()
+    return {
+        "timestamp": health_data.get("timestamp"),
+        "status": health_data.get("status", "unknown"),
+        "cpu_percent": health_data.get("cpu_percent", 0),
+        "memory_percent": health_data.get("memory_percent", 0),
+        "disk_usage": health_data.get("disk_usage", {}),
+        "process_count": health_data.get("process_count", 0),
+    }
+
+
+@mcp.resource("tools://schemas")
+def resource_all_tool_schemas() -> Dict[str, Any]:
+    """Schemas for all available tools."""
+    # Collect tool schemas from MCP server
+    schemas = {}
+    for tool_name, tool_func in mcp._tools.items():
+        # Extract schema from tool function annotations
+        import inspect
+
+        sig = inspect.signature(tool_func)
+        params = {}
+        for param_name, param in sig.parameters.items():
+            params[param_name] = {
+                "type": (
+                    str(param.annotation)
+                    if param.annotation != inspect.Parameter.empty
+                    else "Any"
+                ),
+                "default": param.default if param.default != inspect.Parameter.empty else None,
+                "required": param.default == inspect.Parameter.empty,
+            }
+
+        schemas[tool_name] = {
+            "name": tool_name,
+            "description": getattr(tool_func, "__doc__", ""),
+            "parameters": params,
+            "async": inspect.iscoroutinefunction(tool_func),
+        }
+
+    return {
+        "total_tools": len(schemas),
+        "schemas": schemas,
+    }
+
+
+@mcp.resource("tools://schemas/{tool_name}")
+def resource_tool_schema(tool_name: str) -> Dict[str, Any]:
+    """Schema for a specific tool."""
+    import inspect
+
+    if tool_name not in mcp._tools:
+        return {"error": f"Tool {tool_name} not found"}
+
+    tool_func = mcp._tools[tool_name]
+    sig = inspect.signature(tool_func)
+    params = {}
+    for param_name, param in sig.parameters.items():
+        params[param_name] = {
+            "type": (
+                str(param.annotation) if param.annotation != inspect.Parameter.empty else "Any"
+            ),
+            "default": param.default if param.default != inspect.Parameter.empty else None,
+            "required": param.default == inspect.Parameter.empty,
+        }
+
+    return {
+        "name": tool_name,
+        "description": getattr(tool_func, "__doc__", ""),
+        "parameters": params,
+        "async": inspect.iscoroutinefunction(tool_func),
+        "constitutional_floors": getattr(tool_func, "_constitutional_floors", []),
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════
+# 4 UTILITIES (Complete the Public Contract)
 # ═══════════════════════════════════════════════════════════════════════════
 
 @mcp.tool(name="analyze", description="UTILITY: analyze — Data and structure analysis")
