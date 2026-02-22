@@ -39,7 +39,7 @@ async def test_triad_integrate(kernel, triad_sid):
 async def test_triad_respond(kernel, triad_sid):
     result = await respond(
         session_id=triad_sid,
-        draft="Draft: Constitutional AI is governed by 13 floors.",
+        draft_response="Draft: Constitutional AI is governed by 13 floors.",
     )
     validate_constitutionally("triad_respond", result, kernel)
     assert result is not None
@@ -64,7 +64,9 @@ async def test_triad_forge(kernel, triad_sid):
 
 @pytest.mark.asyncio
 async def test_triad_audit(kernel, triad_sid):
-    result = await audit(session_id=triad_sid, action="Audit the constitutional AI deployment.", token="")
+    result = await audit(
+        session_id=triad_sid, action="Audit the constitutional AI deployment.", sovereign_token=""
+    )
     validate_constitutionally("triad_audit", result, kernel)
     assert result is not None
 

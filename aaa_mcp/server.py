@@ -95,7 +95,7 @@ async def _agi_cognition(
         evidence = [str(x) for x in (grounding or [])]
         r = await reason(session_id=session_id, hypothesis=query, evidence=evidence)
         i = await integrate(session_id=session_id, context_bundle={"query": query, "grounding": grounding or {}})
-        d = await respond(session_id=session_id, draft=f"Draft response for: {query}")
+        d = await respond(session_id=session_id, draft_response=f"Draft response for: {query}")
         verdict = _fold_verdict([str(r.get("verdict", "")), str(i.get("verdict", "")), str(d.get("verdict", ""))])
         return {
             "verdict": verdict,
@@ -158,7 +158,8 @@ async def _apex_verdict(
             "implementation_details": implementation_details or {},
         }
         forged = await forge(session_id=session_id, plan=str(plan))
-        judged = await audit(session_id=session_id, action=str(plan), token="")
+        sovereign_token = "888_APPROVED" if human_approve else ""
+        judged = await audit(session_id=session_id, action=str(plan), sovereign_token=sovereign_token)
         verdict = str(judged.get("verdict", proposed_verdict))
         return {
             "verdict": verdict,

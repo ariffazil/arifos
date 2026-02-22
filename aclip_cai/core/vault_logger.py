@@ -129,6 +129,40 @@ class VaultLogger:
 
         return record
 
+    def log_witness(
+        self,
+        session_id: str,
+        agent_id: str,
+        stage: str,
+        statement: str,
+        verdict: str,
+        *,
+        floor_audit: dict[str, float] | None = None,
+        witness_human: float = 0.0,
+        witness_earth: float = 0.0,
+    ) -> WitnessRecord:
+        """
+        Backwards-compatible witness logger used by legacy triad modules.
+
+        New code should prefer :meth:`log_decision`. This wrapper preserves the
+        historical call signature:
+            log_witness(session_id, agent_id, stage, statement, verdict)
+        """
+        response = json.dumps(
+            {"agent_id": agent_id, "stage": stage, "verdict": verdict},
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+        return self.log_decision(
+            session_id=session_id,
+            query=statement,
+            response=response,
+            floor_audit=floor_audit or {},
+            verdict=verdict,
+            witness_human=witness_human,
+            witness_earth=witness_earth,
+        )
+
     def get_session_records(self, session_id: str) -> list[dict]:
         """Retrieve all records for a session (JSONL fallback only)."""
         records = []

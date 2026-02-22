@@ -54,7 +54,7 @@ async def test_full_pipeline_000_to_999(kernel):
         debug=True
     )
     assert apex_res is not None
-    assert apex_res.get("verdict") in ["SEAL", "PARTIAL", "SABAR"]  # Depending on logic
+    assert apex_res.get("verdict") in ["SEAL", "PARTIAL", "SABAR", "HOLD", "HOLD_888"]  # Depending on logic
 
     # 999 Vault Seal
     seal_res = await _vault_seal(
@@ -63,4 +63,3 @@ async def test_full_pipeline_000_to_999(kernel):
         verdict=apex_res.get("verdict", "SEAL")
     )
     assert seal_res is not None
-

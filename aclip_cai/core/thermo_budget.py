@@ -161,6 +161,32 @@ class ThermoBudget:
         )
         return snap
 
+    def update_budget(
+        self,
+        session_id: str,
+        *,
+        delta_s: float = 0.0,
+        peace2: float | None = None,
+        omega0: float | None = None,
+        akal: float | None = None,
+        exploration: float | None = None,
+        energy: float | None = None,
+    ) -> ThermoSnapshot:
+        """
+        Backwards-compatible alias for legacy triad modules.
+
+        Prefer :meth:`record_step` for new code.
+        """
+        return self.record_step(
+            session_id=session_id,
+            delta_s=delta_s,
+            peace2=peace2,
+            omega0=omega0,
+            akal=akal,
+            exploration=exploration,
+            energy=energy,
+        )
+
     def snapshot(self, session_id: str) -> ThermoSnapshot | None:
         """Return the current thermodynamic snapshot for a session."""
         state = self._sessions.get(session_id)
