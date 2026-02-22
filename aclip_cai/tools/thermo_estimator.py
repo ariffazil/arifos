@@ -1,80 +1,140 @@
-import psutil
+"""
+aclip_cai/tools/thermo_estimator.py — Resource Cost Projection
+"""
+
+from __future__ import annotations
+
+from typing import Any
+
+from aclip_cai.tools.aclip_base import PSUTIL_OK, ok, psutil
 
 
 def cost_estimator(
-    action_description: str,
-    estimated_cpu_percent: float = 0,
-    estimated_ram_mb: float = 0,
-    estimated_io_mb: float = 0,
-) -> dict:
+    action_description: str = "",
+    estimated_cpu_percent: float = 0.0,
+    estimated_ram_mb: float = 0.0,
+    estimated_io_mb: float = 0.0,
+    operation_type: str = "compute",
+    token_count: int | None = None,
+    compute_seconds: float | None = None,
+    storage_gb: float | None = None,
+    api_calls: int | None = None,
+    provider: str = "openai",
+    model: str = "gpt-4",
+) -> dict[str, Any]:
     """
-    Predicts the thermodynamic resource cost of a proposed action.
-
-    This serves as a proxy for entropy change (ΔS) and is used
-    for F4 (Clarity) and F8 (Genius) floor calculations.
+    Predicts the thermodynamic and financial cost of a proposed action.
+    Serves as a proxy for entropy change (ΔS).
 
     Args:
-        action_description (str): Description of the action.
-        estimated_cpu_percent (float): Estimated usage (0-100 per core).
-        estimated_ram_mb (float): RAM usage in MB.
-        estimated_io_mb (float): I/O usage in MB.
-
-    Returns:
-        dict: Cost breakdown and risk band.
+        action_description: Intent description
+        estimated_cpu_percent: 0-100 per core
+        estimated_ram_mb: RAM usage in MB
+        estimated_io_mb: I/O usage in MB
+        operation_type: compute, llm, embedding, storage
+        token_count: Input+Output tokens
+        compute_seconds: Clock time
+        storage_gb: Permanent storage size
+        api_calls: External request count
+        provider: e.g., 'openai'
+        model: e.g., 'gpt-4'
     """
-
-    # WEIGHTS (Review periodically via 'aclip_cai analyze')
-    WEIGHT_CPU = 0.5
-    WEIGHT_RAM = 0.3
-    WEIGHT_IO = 0.2
-
-    # DYNAMIC CALIBRATION (F2 Truth)
-    # We scale '100%' to the actual hardware reality.
-    # psutil.cpu_count(logical=True) returns the number of threads.
-    # e.g., on a 16-thread machine, Max CPU is 1600%.
-    logical_cores = psutil.cpu_count(logical=True) or 1
-    MAX_CPU_PERCENT = 100.0 * logical_cores
-
-    # RAM and IO are harder to get dynamic max for without expensive calls,
-    # so we keep reasonable defaults or try to get total physical memory.
-    try:
-        total_ram = psutil.virtual_memory().total / (1024 * 1024)  # MB
-        MAX_RAM_MB = total_ram
-    except Exception:
-        MAX_RAM_MB = 16384.0  # Fallback to 16GB if lookup fails
-
-    MAX_IO_MB = 1000.0  # 1GB throughput baseline
-
-    # Normalization
-    norm_cpu = min(estimated_cpu_percent / MAX_CPU_PERCENT, 1.0)
-    norm_ram = min(estimated_ram_mb / MAX_RAM_MB, 1.0)
-    norm_io = min(estimated_io_mb / MAX_IO_MB, 1.0)
-
-    # Calculate weighted score (0.0 - 1.0)
-    cost_score = (norm_cpu * WEIGHT_CPU) + (norm_ram * WEIGHT_RAM) + (norm_io * WEIGHT_IO)
-
-    # Risk Banding (The "Pain Threshold")
-    if cost_score > 0.8:
-        risk_band = "CRITICAL"
-    elif cost_score > 0.6:
-        risk_band = "HIGH"
-    elif cost_score > 0.3:
-        risk_band = "MEDIUM"
-    else:
-        risk_band = "LOW"
-
-    return {
-        "action_description": action_description,
-        "estimated_cost_score": round(cost_score, 4),
-        "risk_band": risk_band,
-        "hardware_context": {
-            "cores": logical_cores,
-            "max_cpu_percent": MAX_CPU_PERCENT,
-            "total_ram_mb": round(MAX_RAM_MB, 0),
+    # ---------------------------------------------------------------------------
+    # 1. Financial Costs (USD) — Mirrored from console_tools.py
+    # ---------------------------------------------------------------------------
+    PRICING = {
+        "openai": {
+            "gpt-4": {"input_per_1k": 0.03, "output_per_1k": 0.06},
+            "gpt-4-turbo": {"input_per_1k": 0.01, "output_per_1k": 0.03},
+            "gpt-3.5-turbo": {"input_per_1k": 0.0005, "output_per_1k": 0.0015},
+            "text-embedding-3-small": {"per_1k": 0.00002},
+            "text-embedding-3-large": {"per_1k": 0.00013},
         },
-        "details": {
-            "cpu_normalized": round(norm_cpu, 4),
-            "ram_normalized": round(norm_ram, 4),
-            "io_normalized": round(norm_io, 4),
+        "anthropic": {
+            "claude-3-opus": {"input_per_1k": 0.015, "output_per_1k": 0.075},
+            "claude-3-sonnet": {"input_per_1k": 0.003, "output_per_1k": 0.015},
+            "claude-3-haiku": {"input_per_1k": 0.00025, "output_per_1k": 0.00125},
+        },
+        "gemini": {
+            "gemini-pro": {"input_per_1k": 0.0005, "output_per_1k": 0.0015},
+            "gemini-ultra": {"input_per_1k": 0.001, "output_per_1k": 0.003},
         },
     }
+
+    INFRA_COSTS = {
+        "compute_per_hour": 0.05,
+        "storage_per_gb_month": 0.02,
+        "egress_per_gb": 0.09,
+    }
+
+    costs = {
+        "llm_cost_usd": 0.0,
+        "compute_cost_usd": 0.0,
+        "storage_cost_usd": 0.0,
+        "api_cost_usd": 0.0,
+        "total_usd": 0.0,
+    }
+
+    if operation_type == "llm" and token_count:
+        p_pricing = PRICING.get(provider, {})
+        m_pricing = p_pricing.get(model, {"input_per_1k": 0.01, "output_per_1k": 0.03})
+        in_tokens = int(token_count * 0.7)
+        out_tokens = int(token_count * 0.3)
+        costs["llm_cost_usd"] = round(
+            (in_tokens / 1000) * m_pricing.get("input_per_1k", 0.01) +
+            (out_tokens / 1000) * m_pricing.get("output_per_1k", 0.03), 6
+        )
+    elif operation_type == "embedding" and token_count:
+        p_pricing = PRICING.get(provider, {})
+        m_pricing = p_pricing.get(model, {"per_1k": 0.00002})
+        costs["llm_cost_usd"] = round((token_count / 1000) * m_pricing.get("per_1k", 0.00002), 6)
+
+    if compute_seconds:
+        costs["compute_cost_usd"] = round((compute_seconds / 3600) * INFRA_COSTS["compute_per_hour"], 6)
+    if storage_gb:
+        costs["storage_cost_usd"] = round(storage_gb * INFRA_COSTS["storage_per_gb_month"], 6)
+    if api_calls:
+        costs["api_cost_usd"] = round(api_calls * 0.0001, 6)
+
+    costs["total_usd"] = round(sum(v for k, v in costs.items() if k != "total_usd"), 6)
+
+    # ---------------------------------------------------------------------------
+    # 2. Thermodynamic Score (Entropy Proxy)
+    # ---------------------------------------------------------------------------
+    logical_cores = 1
+    max_ram_mb = 16384.0
+    if PSUTIL_OK:
+        logical_cores = psutil.cpu_count(logical=True) or 1
+        max_ram_mb = psutil.virtual_memory().total / (1024 * 1024)
+
+    max_cpu_pct = 100.0 * logical_cores
+    max_io_mb = 1000.0
+
+    norm_cpu = min(estimated_cpu_percent / max_cpu_pct, 1.0)
+    norm_ram = min(estimated_ram_mb / max_ram_mb, 1.0)
+    norm_io = min(estimated_io_mb / max_io_mb, 1.0)
+
+    cost_score = round((0.5 * norm_cpu) + (0.3 * norm_ram) + (0.2 * norm_io), 4)
+
+    if cost_score >= 0.8:
+        risk_band = "red"
+    elif cost_score >= 0.5:
+        risk_band = "amber"
+    else:
+        risk_band = "green"
+
+    return ok({
+        "action_description": action_description,
+        "operation_type": operation_type,
+        "costs": costs,
+        "hardware_context": {
+            "cores": logical_cores,
+            "max_cpu_percent": max_cpu_pct,
+            "total_ram_mb": round(max_ram_mb, 0),
+        },
+        "thermodynamic": {
+            "cost_score": cost_score,
+            "risk_band": risk_band,
+        }
+    })
+

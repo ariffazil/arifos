@@ -25,7 +25,8 @@ def main():
     import warnings
 
     warnings.warn(
-        "aclip_cai standalone server is deprecated. Use 'python -m aaa_mcp' or 'python server.py' for unified server.",
+        "aclip_cai standalone server is deprecated. "
+        "Use 'python -m aaa_mcp' or 'python server.py' for unified server.",
         DeprecationWarning,
         stacklevel=2,
     )

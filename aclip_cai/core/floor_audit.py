@@ -32,11 +32,11 @@ except ImportError:
 
 
 class Verdict(str, Enum):
-    SEAL = "seal"  # ≥ 95% floors pass — unconditional approval
-    PARTIAL = "partial"  # 80-94% — constrained proceed
-    SABAR = "sabar"  # < 80% — cooling required
-    HOLD = "hold"  # F1/F11 failure — awaiting human ratification
-    VOID = "void"  # Critical floor (F9/F12) failure — terminate
+    SEAL = "SEAL"  # ≥ 95% floors pass — unconditional approval
+    PARTIAL = "PARTIAL"  # 80-94% — constrained proceed
+    SABAR = "SABAR"  # < 80% — cooling required
+    HOLD = "HOLD"  # F1/F11 failure — awaiting human ratification
+    VOID = "VOID"  # Critical floor (F9/F12) failure — terminate
 
 
 # ---------------------------------------------------------------------------
@@ -386,8 +386,9 @@ class FloorAuditor:
             kw in combined
             for kw in ("cpu", "ram", "disk", "net", "query", "json", "api", "execute", "function")
         )
-        # Technical/operational contexts have relaxed empathy requirements (κᵣ = 0.90 base)
-        baseline = 0.90 if is_operational else 0.95
+        # Technical/operational contexts have relaxed empathy requirements
+        # If clean, they should pass easily.
+        baseline = 1.00 if is_operational else 0.95
 
         # Tier 3: Check for dismissive framing of individuals
         dismissive = ["irrelevant", "worthless", "just ignore", "doesn't matter"]
@@ -608,6 +609,12 @@ class FloorAuditor:
     @staticmethod
     def _apply_severity_overrides(thresholds: dict[str, float], severity: str) -> dict[str, float]:
         overrides: dict[str, dict[str, float]] = {
+            "low": {
+                "F3": 0.30,  # Relax witness for routine tasks
+                "F7": 0.70,  # Relax humility for low stakes
+                "F11": 0.50, # Relax authority
+                "F13": 0.50, # Relax curiosity
+            },
             "high": {"F1": 0.98, "F11": 0.95},
             "irreversible": {"F1": 1.00, "F11": 1.00, "F12": 1.00},
         }

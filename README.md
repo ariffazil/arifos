@@ -127,6 +127,33 @@ python -m aaa_mcp --mode stdio
 
 Connect from Claude Desktop, Cursor, ChatGPT Developer Mode, or any MCP client.
 
+### FastMCP Runtime Policy (Pinned)
+
+- **Pinned FastMCP baseline:** `fastmcp==3.0.1`
+- **Default config:** `fastmcp.json` (HTTP on `/mcp/`, `0.0.0.0:8080`)
+- **Development profile:** `dev.fastmcp.json` (STDIO + debug logging + editable install)
+- **Production profile:** `prod.fastmcp.json` (HTTP + pinned dependencies)
+
+Run profiles:
+
+```bash
+# Development (local stdio)
+fastmcp run dev.fastmcp.json
+
+# Production-like HTTP
+fastmcp run prod.fastmcp.json
+
+# Canonical default profile
+fastmcp run fastmcp.json
+```
+
+Conformance smoke checks:
+
+```bash
+fastmcp inspect fastmcp.json --format mcp
+fastmcp list aaa_mcp/server.py:mcp --json
+```
+
 ### For Prompt Tinkerers (5 seconds)
 Copy [`SYSTEM_PROMPT.md`](./333_APPS/L1_PROMPT/SYSTEM_PROMPT.md) into any AI's system settings for immediate L1 governance.
 

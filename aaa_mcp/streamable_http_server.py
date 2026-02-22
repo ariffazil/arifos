@@ -17,7 +17,7 @@ import json
 import os
 import sys
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, get_args, get_origin
 
 # Force local source priority (same as rest.py)
@@ -29,33 +29,37 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 import uvicorn
 
-# Import tools directly from server module (avoid mcp wrapper issues)
-from aaa_mcp.server import anchor, reason, integrate, respond, validate, align, forge, audit, seal
+# Import canonical tools directly from server module.
+from aaa_mcp.server import agi_cognition, apex_verdict, asi_empathy, init_session, vault_seal
 
 # Tool registry mapping names to functions
 TOOLS = {
-    "anchor": anchor,
-    "reason": reason,
-    "integrate": integrate,
-    "respond": respond,
-    "validate": validate,
-    "align": align,
-    "forge": forge,
-    "audit": audit,
-    "seal": seal,
+    "init_session": init_session,
+    "agi_cognition": agi_cognition,
+    "asi_empathy": asi_empathy,
+    "apex_verdict": apex_verdict,
+    "vault_seal": vault_seal,
 }
 
 # Tool descriptions for listing
 TOOL_DESCRIPTIONS = {
-    "anchor": "1. ANCHOR (000) - Init & Sense",
-    "reason": "2. REASON (222) - Think & Hypothesize",
-    "integrate": "3. INTEGRATE (333) - Map & Ground",
-    "respond": "4. RESPOND (444) - Draft Plan",
-    "validate": "5. VALIDATE (555) - Safety & Impact",
-    "align": "6. ALIGN (666) - Ethics & Constitution",
-    "forge": "7. FORGE (777) - Synthesize Solution",
-    "audit": "8. AUDIT (888) - Verify & Judge",
-    "seal": "9. SEAL (999) - Commit to Vault",
+    "init_session": "INIT_SESSION (000+555) - Session ignition and safety validation",
+    "agi_cognition": "AGI_COGNITION (222+333+444) - Reason, integrate, and respond",
+    "asi_empathy": "ASI_EMPATHY (555+666) - Impact validation and ethical alignment",
+    "apex_verdict": "APEX_VERDICT (777+888) - Forge and final judgment",
+    "vault_seal": "VAULT_SEAL (999) - Cryptographic persistence",
+}
+
+TOOL_ALIASES = {
+    "anchor": "init_session",
+    "reason": "agi_cognition",
+    "integrate": "agi_cognition",
+    "respond": "agi_cognition",
+    "validate": "asi_empathy",
+    "align": "asi_empathy",
+    "forge": "apex_verdict",
+    "audit": "apex_verdict",
+    "seal": "vault_seal",
 }
 
 
@@ -206,7 +210,7 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
         session_id=session_id,
         client_name=client_info.get("name"),
         client_version=client_info.get("version"),
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         method=method or "unknown",
     )
 
@@ -245,6 +249,7 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
     elif method == "tools/call":
         tool_name = params.get("name", "")
         tool_args = params.get("arguments", {})
+        tool_name = TOOL_ALIASES.get(tool_name, tool_name)
 
         if tool_name not in TOOLS:
             return JSONResponse(

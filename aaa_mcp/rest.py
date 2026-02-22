@@ -30,7 +30,7 @@ import uuid
 import uvicorn
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import AsyncGenerator, Dict, List
 
 from starlette.applications import Starlette
@@ -38,17 +38,14 @@ from starlette.responses import JSONResponse, StreamingResponse
 from starlette.routing import Route
 from starlette.requests import Request
 
-# Import tools directly from server module (avoid mcp wrapper issues)
+# Import canonical 5-organ tools directly from server module.
+# Legacy verbs are supported via HTTP aliases only.
 from aaa_mcp.server import (
-    anchor,
-    reason,
-    integrate,
-    respond,
-    validate,
-    align,
-    forge,
-    audit,
-    seal,
+    agi_cognition,
+    apex_verdict,
+    asi_empathy,
+    init_session,
+    vault_seal,
     search,
     fetch,
 )
@@ -59,20 +56,16 @@ BUILD_INFO = {
     "version": "2026.02.22-FORGE-VPS-SEAL",
     "schema_version": "2026.02.22-FORGE-VPS-SEAL",
     "git_sha": os.environ.get("GIT_SHA", "unknown"),
-    "build_time": os.environ.get("BUILD_TIME", datetime.utcnow().isoformat()),
+    "build_time": os.environ.get("BUILD_TIME", datetime.now(timezone.utc).isoformat()),
 }
 
 # Tool registry mapping names to functions
 TOOLS = {
-    "anchor": anchor,
-    "reason": reason,
-    "integrate": integrate,
-    "respond": respond,
-    "validate": validate,
-    "align": align,
-    "forge": forge,
-    "audit": audit,
-    "seal": seal,
+    "init_session": init_session,
+    "agi_cognition": agi_cognition,
+    "asi_empathy": asi_empathy,
+    "apex_verdict": apex_verdict,
+    "vault_seal": vault_seal,
     "self_diagnose": self_diagnose,
     "search": search,
     "fetch": fetch,
@@ -180,13 +173,21 @@ TOOL_SCHEMAS = {
     },
 }
 
-# Tool name aliases for backward compatibility (classic 5-tool schema)
+# Tool name aliases for backward compatibility.
+# Canonical names remain 5-organ; legacy 9-verbs are HTTP-only aliases.
 TOOL_ALIASES = {
-    "init_session": "anchor",
-    "agi_cognition": "reason",
-    "asi_empathy": "validate",
-    "apex_verdict": "audit",
-    "vault_seal": "seal",
+    # Legacy 9-verb surface
+    "anchor": "init_session",
+    "reason": "agi_cognition",
+    "integrate": "agi_cognition",
+    "respond": "agi_cognition",
+    "validate": "asi_empathy",
+    "align": "asi_empathy",
+    "forge": "apex_verdict",
+    "audit": "apex_verdict",
+    "seal": "vault_seal",
+    # Prior alias surface
+    "apex_judge": "apex_verdict",
 }
 
 
@@ -349,7 +350,7 @@ async def call_tool(request: Request):
 
     try:
         # Fast ACK for init_session (ChatGPT feedback: return fast ACK <200ms)
-        if tool_name == "anchor" and body.get("fast_ack", False):
+        if tool_name == "init_session" and body.get("fast_ack", False):
             session_id = body.get("actor_id", "anon") + "-" + uuid.uuid4().hex[:8]
             active_sessions[session_id] = {
                 "started": datetime.utcnow().isoformat(),
@@ -458,36 +459,57 @@ async def apex_judge_wrapper(request: Request):
 
     try:
         # Stage 1: INIT (000)
-        anchor_tool = TOOLS["anchor"]
-        anchor_fn = getattr(anchor_tool, "fn", anchor_tool)
-        init_result = await anchor_fn(query=query, actor_id=actor_id)
+        init_tool = TOOLS["init_session"]
+        init_fn = getattr(init_tool, "fn", init_tool)
+        init_result = await init_fn(query=query, actor_id=actor_id)
         pipeline_results["pipeline"].append({"stage": "000_INIT", "result": init_result})
 
+        canonical_session_id = init_result.get("session_id", session_id)
+        pipeline_results["session_id"] = canonical_session_id
+
         # Stage 2: AGI (333)
-        reason_tool = TOOLS["reason"]
-        reason_fn = getattr(reason_tool, "fn", reason_tool)
-        agi_result = await reason_fn(query=query, session_id=session_id)
+        agi_tool = TOOLS["agi_cognition"]
+        agi_fn = getattr(agi_tool, "fn", agi_tool)
+        agi_result = await agi_fn(
+            query=query,
+            session_id=canonical_session_id,
+            grounding=body.get("grounding"),
+        )
         pipeline_results["pipeline"].append({"stage": "333_AGI", "result": agi_result})
 
         # Stage 3: ASI (666)
-        validate_tool = TOOLS["validate"]
-        validate_fn = getattr(validate_tool, "fn", validate_tool)
-        asi_result = await validate_fn(
-            query=query, session_id=session_id, stakeholders=body.get("stakeholders", [])
+        asi_tool = TOOLS["asi_empathy"]
+        asi_fn = getattr(asi_tool, "fn", asi_tool)
+        asi_result = await asi_fn(
+            query=query, session_id=canonical_session_id, stakeholders=body.get("stakeholders", [])
         )
         pipeline_results["pipeline"].append({"stage": "666_ASI", "result": asi_result})
 
         # Stage 4: APEX (888)
-        audit_tool = TOOLS["audit"]
-        audit_fn = getattr(audit_tool, "fn", audit_tool)
-        apex_result = await audit_fn(session_id=session_id, verdict="SEAL")
+        apex_tool = TOOLS["apex_verdict"]
+        apex_fn = getattr(apex_tool, "fn", apex_tool)
+        apex_result = await apex_fn(
+            session_id=canonical_session_id,
+            query=query,
+            implementation_details={
+                "source": "rest_apex_judge",
+                "agi": agi_result,
+                "asi": asi_result,
+            },
+            proposed_verdict="SEAL",
+            human_approve=body.get("human_approve", False),
+        )
         pipeline_results["pipeline"].append({"stage": "888_APEX", "result": apex_result})
 
         # Stage 5: VAULT (999) — optional
         if auto_seal:
-            seal_tool = TOOLS["seal"]
+            seal_tool = TOOLS["vault_seal"]
             seal_fn = getattr(seal_tool, "fn", seal_tool)
-            seal_result = await seal_fn(session_id=session_id, summary=query[:100], verdict="SEAL")
+            seal_result = await seal_fn(
+                session_id=canonical_session_id,
+                summary=query[:100],
+                verdict=apex_result.get("verdict", "SEAL"),
+            )
             pipeline_results["pipeline"].append({"stage": "999_VAULT", "result": seal_result})
 
         latency_ms = (time.time() - start_time) * 1000

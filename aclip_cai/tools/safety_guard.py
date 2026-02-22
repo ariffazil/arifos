@@ -1,3 +1,13 @@
+"""
+aclip_cai/tools/safety_guard.py — Gating Decisions & Safety Relay
+"""
+
+from __future__ import annotations
+
+import re
+from typing import Any
+
+from aclip_cai.tools.aclip_base import ok, partial, void
 from aclip_cai.tools.system_monitor import get_system_health
 
 
@@ -5,55 +15,118 @@ def forge_guard(
     check_system_health: bool = True,
     cost_score_threshold: float = 0.8,
     cost_score_to_check: float = 0.0,
-) -> dict:
+    action: str = "",
+    target: str = "",
+    session_id: str = "",
+    risk_level: str = "low",  # low | medium | high | critical
+    justification: str = "",
+    dry_run: bool = True,
+    require_approval: bool = False,
+) -> dict[str, Any]:
     """
-    Acts as a local safety relay or circuit breaker before an action.
-
-    This tool provides a recommendation based on the current system state
-    and a proposed cost score for an action. It does not make a final
-    constitutional verdict, but signals whether it's safe to proceed locally.
+    Forge guard — local circuit breaker and gating sensor.
+    Evaluates actions against safety patterns and system pressure.
 
     Args:
-        check_system_health (bool): Whether to evaluate current system health.
-        cost_score_threshold (float): The threshold above which the guard will
-                                      recommend SABAR or VOID. (0.0 to 1.0)
-        cost_score_to_check (float): The estimated cost score of the action
-                                     to be performed.
-
-    Returns:
-        dict: A dictionary containing the verdict (OK, SABAR, VOID_LOCAL)
-              and the reasons for it.
+        check_system_health: Include host pressure checks
+        cost_score_threshold: Threshold for warning/stop
+        cost_score_to_check: Estimated cost score (0-1)
+        action: Proposed action (e.g., 'delete', 'execute')
+        target: Target resource or command
+        session_id: Correlation ID
+        risk_level: Assessed risk (low/medium/high/critical)
+        justification: Intent description
+        dry_run: Result only, no execution signal
+        require_approval: Mandate manual review
     """
-    verdict = "OK"
+    gate = "OK"
+    reason_code = "CLEAR"
+    can_proceed = True
     reasons = []
 
-    # 1. Check the estimated cost of the upcoming action
+    # 1. Cost Check
     if cost_score_to_check >= cost_score_threshold:
-        verdict = "SABAR"
-        reasons.append(
-            f"Action cost score ({cost_score_to_check}) exceeds threshold ({cost_score_threshold}). "
-            "Recommend delaying or running in a low-activity window."
-        )
+        gate = "SABAR"
+        reason_code = "COST_THRESHOLD_EXCEEDED"
+        can_proceed = False
+        reasons.append(f"Cost score {cost_score_to_check} >= threshold {cost_score_threshold}")
 
-    # 2. Check the current system health
+    # 2. System Health Check
+    host_signals = {}
     if check_system_health:
         health = get_system_health()
+        if health.get("status") == "VOID":
+            reasons.append(f"Safety check partial: System monitor error: {health.get('error')}")
+        else:
+            # Check for high pressure in get_system_health result
+            # Note: get_system_health returns a dict with 'resources' and 'warnings'
+            res = health.get("data", {}).get("resources", {})
+            warnings = health.get("warnings", [])
+            host_signals = {
+                "cpu_percent": res.get("cpu", {}).get("percent", 0),
+                "ram_percent": res.get("ram", {}).get("percent", 0),
+            }
+            
+            if any("HIGH" in w or "CRITICAL" in w for w in warnings):
+                gate = "SABAR"
+                reason_code = "HOST_PRESSURE"
+                can_proceed = False
+                reasons.extend(warnings)
 
-        # Check for any critical warnings from the system monitor
-        if health.get("warnings"):
-            for warning in health["warnings"]:
-                if "CRITICAL" in warning:
-                    # If health is already critical, any action is risky.
-                    verdict = "VOID_LOCAL"
-                    reasons.append(f"System health is CRITICAL: {warning}")
-                elif "HIGH" in warning and verdict != "VOID_LOCAL":
-                    verdict = "SABAR"
-                    reasons.append(f"System health is under HIGH pressure: {warning}")
+    # 3. Forbidden Patterns (F12 Defense)
+    forbidden_patterns = [
+        r"rm\s+-rf\s+/",
+        r"dd\s+if=.*\s+of=/dev/",
+        r"mkfs\.",
+        r">\s*/etc/passwd",
+        r":\(\)\{ :\|: & \}\;:",  # Fork bomb
+    ]
+    
+    scan_text = f"{action} {target} {justification}".lower()
+    danger_detected = False
+    for pattern in forbidden_patterns:
+        if re.search(pattern, scan_text, re.IGNORECASE):
+            danger_detected = True
+            gate = "VOID_LOCAL"
+            reason_code = "FORBIDDEN_PATTERN"
+            can_proceed = False
+            reasons.append(f"DANGER: Forbidden pattern matched: {pattern}")
+            break
 
-    if not reasons:
-        reasons.append("System health is nominal and action cost is within acceptable limits.")
+    # 4. Critical Target Protection (F6 Empathy)
+    if not danger_detected:
+        critical_targets = [r"\.env", r"id_rsa", r"\.ssh", r"production", r"database"]
+        for target_pat in critical_targets:
+            if re.search(target_pat, target.lower()):
+                if risk_level in ("high", "critical") or require_approval:
+                    gate = "SABAR"
+                    reason_code = "CRITICAL_TARGET_SABAR"
+                    can_proceed = False
+                    reasons.append(f"PROTECTED: Accessing critical target '{target_pat}' requires review.")
 
-    return {
-        "verdict": verdict,
+    # Alignment with MCP Bridge Verdicts
+    verdict_alias = {
+        "OK": "SEAL",
+        "SABAR": "SABAR",
+        "VOID_LOCAL": "VOID",
+    }.get(gate, "SABAR")
+
+    payload = {
+        "gate": gate,
+        "verdict": verdict_alias,
+        "reason_code": reason_code,
+        "can_proceed": can_proceed,
+        "danger_detected": danger_detected,
         "reasons": reasons,
+        "host_signals": host_signals,
+        "risk_level": risk_level,
+        "dry_run": dry_run,
     }
+
+    if gate == "VOID_LOCAL":
+        return void(f"Safety violation: {reason_code}", hint="Action blocked by forge_guard", data=payload)
+    if not can_proceed:
+        return partial(payload, warning="; ".join(reasons))
+    
+    return ok(payload)
+

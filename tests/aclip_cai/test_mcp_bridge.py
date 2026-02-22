@@ -29,8 +29,8 @@ async def test_mcp_bridge_system_health():
     fn = _get_tool_fn(aclip_system_health)
     result = await fn(include_swap=True)
 
-    assert result["tool"] == "system_health"
-    assert result["status"] == "ok"
+    assert result["tool"] == "aclip_system_health"
+    assert result["verdict"] == "SEAL"
     assert "data" in result
     assert "timestamp" in result
     assert "latency_ms" in result
@@ -42,8 +42,8 @@ async def test_mcp_bridge_process_list():
     fn = _get_tool_fn(aclip_process_list)
     result = await fn(limit=5)
 
-    assert result["tool"] == "process_list"
-    assert result["status"] == "ok"
+    assert result["tool"] == "aclip_process_list"
+    assert result["verdict"] == "SEAL"
     assert "processes" in result["data"]
 
 
@@ -55,10 +55,10 @@ async def test_mcp_bridge_forge_guard_constitutional():
         action="test", target="/tmp", session_id="test-session", risk_level="low", dry_run=True
     )
 
-    assert result["tool"] == "forge_guard"
+    assert result["tool"] == "aclip_forge_guard"
     assert "motto" in result
-    assert "pass" in result
-    assert result["data"]["verdict"] == "SEAL"
+    assert "pass_rate" in result
+    assert result["data"]["data"]["verdict"] == "SEAL"
 
 
 @pytest.mark.asyncio
@@ -73,9 +73,8 @@ async def test_mcp_bridge_forge_guard_blocks_dangerous():
         dry_run=True,
     )
 
-    assert result["data"]["verdict"] == "VOID"
-    assert result["data"]["danger_detected"] is True
-    assert result["pass"] == "hold"
+    assert result["verdict"] == "VOID"
+    assert result["data"]["can_proceed"] is False
 
 
 def test_register_aclip_tools():
@@ -95,13 +94,13 @@ async def test_mcp_response_structure():
     fn = _get_tool_fn(aclip_system_health)
     result = await fn()
 
-    # Required fields for MCP compatibility
-    required_fields = ["tool", "status", "timestamp", "data", "error", "latency_ms"]
+    # Required fields for governed MCPResponse envelope
+    required_fields = ["tool", "verdict", "pass_rate", "data", "recommendation", "failed_floors", "timestamp", "motto"]
     for field in required_fields:
         assert field in result, f"Missing field: {field}"
 
-    # Status must be valid
-    assert result["status"] in ["ok", "error", "warning"]
+    # Verdict must be a valid arifOS primitive
+    assert result["verdict"] in ["SEAL", "PARTIAL", "SABAR", "HOLD", "VOID"]
 
     # Timestamp must be ISO format-like
     assert "T" in result["timestamp"]
