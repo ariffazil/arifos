@@ -43,6 +43,9 @@ export default function Home() {
             The System That Knows It Doesn't Know<br />
             <strong>Ditempa Bukan Diberi</strong> &mdash; Forged, Not Given
           </p>
+          <div style={{ marginTop: '1rem' }}>
+            <img src="https://img.shields.io/pypi/v/arifos?color=3b82f6&label=version&style=flat-square" alt="PyPI version" />
+          </div>
 
           <div className="hero-btn-row">
             <a href="#deploy" className="button button--lg hero-btn-primary">
