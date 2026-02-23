@@ -59,6 +59,7 @@ async def seal(
     query: str = "",
     authority: str = "system",
     eureka_data: Optional[Dict[str, Any]] = None,
+    objective_contract: Optional[Dict[str, Any]] = None,
 ) -> SealReceipt:
     """
     Stage 999: SEAL — The final commitment
@@ -89,7 +90,7 @@ async def seal(
         - Low novelty = TRANSIENT (not stored)
     """
     # Compute EUREKA score
-    eureka = _compute_eureka_score(judge_output, agi_tensor, asi_output)
+    eureka = _compute_eureka_score(judge_output, agi_tensor, asi_output, objective_contract)
 
     # Determine storage tier
     if eureka < 0.50:
@@ -116,6 +117,14 @@ async def seal(
         "authority": authority,
         "motto": motto.positive + ", " + motto.negative,
     }
+
+    if objective_contract:
+        entry["objective_lineage"] = {
+            "declared": objective_contract.get("declared", {}),
+            "observed": objective_contract.get("observed", {}),
+            "drift": objective_contract.get("drift", 0.0),
+            "threshold": objective_contract.get("threshold", 0.45),
+        }
 
     # Store Eureka discovery data if provided
     if eureka_data:
@@ -178,6 +187,7 @@ def _compute_eureka_score(
     judge_output: Dict[str, Any],
     agi_tensor: ConstitutionalTensor,
     asi_output: Dict[str, Any],
+    objective_contract: Optional[Dict[str, Any]] = None,
 ) -> float:
     """
     Compute EUREKA score (anomalous contrast).
@@ -196,6 +206,12 @@ def _compute_eureka_score(
 
     # EUREKA = geometric mean of components weighted by novelty
     score = (truth * w3 * genius * peace * novelty) ** 0.2
+
+    if objective_contract:
+        drift = float(objective_contract.get("drift", 0.0))
+        threshold = float(objective_contract.get("threshold", 0.45))
+        if drift >= threshold:
+            score *= max(0.2, 1.0 - min(0.8, drift))
 
     return min(1.0, max(0.0, score))
 
@@ -257,6 +273,10 @@ async def verify(
     return True
 
 
+# Avoid name shadowing inside `vault(...)` where `query` is also an argument.
+query_record = query
+
+
 # =============================================================================
 # UNIFIED VAULT INTERFACE
 # =============================================================================
@@ -272,6 +292,7 @@ async def vault(
     seal_id: str = "",
     authority: str = "system",
     eureka_data: Optional[Dict[str, Any]] = None,
+    objective_contract: Optional[Dict[str, Any]] = None,
 ) -> Any:
     """
     Unified VAULT interface — The Memory in action.
@@ -299,11 +320,18 @@ async def vault(
         if not all([judge_output, agi_tensor, asi_output]):
             raise ValueError("seal requires judge_output, agi_tensor, asi_output")
         return await seal(
-            judge_output, agi_tensor, asi_output, session_id, query, authority, eureka_data
+            judge_output,
+            agi_tensor,
+            asi_output,
+            session_id,
+            query,
+            authority,
+            eureka_data,
+            objective_contract,
         )
 
     elif action == "query":
-        return await query(seal_id, session_id)
+        return await query_record(seal_id, session_id)
 
     elif action == "verify":
         return await verify(seal_id, "")
