@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "aaa_mcp/**"
+      - "arifos_aaa_mcp/**"
       - "core/**"
       - "aclip_cai/**"
       - "deployment/**"
@@ -72,7 +73,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
-            if ! ps aux | grep -v grep | grep 'python -m aaa_mcp sse' >/dev/null; then
+            if ! ps aux | grep -v grep | grep 'python -m arifos_aaa_mcp sse' >/dev/null; then
               echo "VPS smoke check failed: SSE primary process not running"
               exit 1
             fi

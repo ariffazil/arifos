@@ -20,7 +20,7 @@ services:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "if [ \"${ENABLE_REST_FALLBACK:-0}\" = \"1\" ]; then ps aux | grep -v grep | grep 'python -m aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m aaa_mcp rest'; else ps aux | grep -v grep | grep 'python -m aaa_mcp sse'; fi"]
+      test: ["CMD-SHELL", "if [ \"${ENABLE_REST_FALLBACK:-0}\" = \"1\" ]; then ps aux | grep -v grep | grep 'python -m arifos_aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m arifos_aaa_mcp http'; else ps aux | grep -v grep | grep 'python -m arifos_aaa_mcp sse'; fi"]
       interval: 15s
       timeout: 5s
       start_period: 30s

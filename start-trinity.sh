@@ -5,7 +5,7 @@ set -e
 mkdir -p /usr/src/app/telemetry /usr/src/app/data /usr/src/app/VAULT999 /usr/src/app/memory
 
 echo "[TRINITY] Starting SSE server on port 8080..."
-python -m aaa_mcp sse &
+python -m arifos_aaa_mcp sse &
 SSE_PID=$!
 
 REST_FALLBACK="${ENABLE_REST_FALLBACK:-0}"
@@ -13,8 +13,8 @@ REST_PID=""
 
 if [ "$REST_FALLBACK" = "1" ]; then
   REST_PORT="${REST_PORT:-8089}"
-  echo "[TRINITY] Starting Streamable HTTP fallback on port ${REST_PORT}..."
-  PORT="${REST_PORT}" python -m aaa_mcp.streamable_http_server &
+  echo "[TRINITY] Starting HTTP MCP fallback on port ${REST_PORT}..."
+  PORT="${REST_PORT}" python -m arifos_aaa_mcp http &
   REST_PID=$!
 fi
 

@@ -54,4 +54,4 @@ LABEL io.modelcontextprotocol.server.transport="sse"
 LABEL io.modelcontextprotocol.server.url="https://arifosmcp.arif-fazil.com/sse"
 LABEL io.modelcontextprotocol.server.license="AGPL-3.0-only"
 
-CMD ["python", "-m", "aaa_mcp", "sse"]
+CMD ["python", "-m", "arifos_aaa_mcp", "sse"]
