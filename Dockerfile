@@ -49,7 +49,7 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
 
 LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"
 LABEL io.modelcontextprotocol.server.version="2026.2.23"
-LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with 5-organ Trinity and enforced floors F1-F13."
+LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with canonical AAA MCP 13-tool surface and enforced floors F1-F13."
 LABEL io.modelcontextprotocol.server.transport="sse"
 LABEL io.modelcontextprotocol.server.url="https://arifosmcp.arif-fazil.com/sse"
 LABEL io.modelcontextprotocol.server.license="AGPL-3.0-only"
