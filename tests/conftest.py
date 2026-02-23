@@ -101,6 +101,9 @@ def pytest_ignore_collect(collection_path, config):
         legacy_markers = (
             "import aaa_mcp.server",
             "from aaa_mcp.server import",
+            "import aaa_mcp.tools",
+            "from aaa_mcp.tools import",
+            "from aaa_mcp.tools.",
             "import aclip_cai.mcp_server",
             "from aclip_cai.mcp_server import",
             "import aaa_mcp.__main__",
@@ -118,15 +121,17 @@ def is_postgres_running() -> bool:
     """Check if PostgreSQL is running and accessible."""
 
     db_url = os.environ.get("DATABASE_URL")
-    if not db_url or not asyncpg:
+    if not db_url or asyncpg is None:
         return False
+
+    import asyncpg as asyncpg_mod
 
     async def check_pg() -> bool:
         try:
-            conn = await asyncio.wait_for(asyncpg.connect(dsn=db_url), timeout=2.0)
+            conn = await asyncio.wait_for(asyncpg_mod.connect(dsn=db_url), timeout=2.0)
             await conn.close()
             return True
-        except (OSError, asyncio.TimeoutError, asyncpg.PostgresError):
+        except (OSError, asyncio.TimeoutError, asyncpg_mod.PostgresError):
             return False
 
     try:
@@ -139,12 +144,16 @@ def is_redis_running() -> bool:
     """Check if Redis is running and accessible."""
 
     redis_url = os.environ.get("REDIS_URL")
-    if not redis_url or not redis:
+    if not redis_url or redis is None:
         return False
+
+    import redis as redis_mod
+    from redis import exceptions as redis_exceptions
+
     try:
-        r = redis.from_url(redis_url, socket_connect_timeout=2)
+        r = redis_mod.from_url(redis_url, socket_connect_timeout=2)
         return bool(r.ping())
-    except (redis.exceptions.ConnectionError, redis.exceptions.TimeoutError):
+    except (redis_exceptions.ConnectionError, redis_exceptions.TimeoutError):
         return False
 
 
