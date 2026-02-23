@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
+from core.shared.floors import F10_Ontology, F9_AntiHantu
 from core.shared.physics import ConstitutionalTensor, GeniusDial, TrinityTensor, W_3_from_tensor
 from core.shared.types import ApexOutput, FloorScores, Verdict
 
@@ -175,7 +176,26 @@ async def judge(
         violations.append("F8")
         justifications.append(f"Genius {g_score:.3f} < 0.80")
 
-    verdict = "VOID" if len(violations) > 1 else ("SABAR" if violations else "SEAL")
+    solution_text = str(forge_output.get("solution_draft", ""))
+
+    f9_result = F9_AntiHantu().check({"response": solution_text})
+    if not f9_result.passed:
+        violations.append("F9")
+        justifications.append(f9_result.reason)
+
+    f10_result = F10_Ontology().check({"response": solution_text, "query": ""})
+    if not f10_result.passed:
+        violations.append("F10")
+        justifications.append(f10_result.reason)
+
+    hard_violations = {"F3", "F10"}
+    if any(v in hard_violations for v in violations):
+        verdict = "VOID"
+    elif violations:
+        verdict = "SABAR"
+    else:
+        verdict = "SEAL"
+
     if require_sovereign:
         verdict = "888_HOLD"
 
@@ -184,8 +204,8 @@ async def judge(
         floor_scores=FloorScores(
             f3_tri_witness=w3,
             f8_genius=g_score,
-            f9_anti_hantu=1.0,
-            f10_ontology=1.0,
+            f9_anti_hantu=f9_result.score,
+            f10_ontology=bool(f10_result.passed),
         ),
         verdict=Verdict(verdict),
         violations=violations,
