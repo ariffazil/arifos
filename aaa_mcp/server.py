@@ -20,6 +20,7 @@ from aclip_cai.mcp_server import mcp
 from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, validate
 
 from aaa_mcp.external_gateways.brave_client import BraveSearchClient
+from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
 from aaa_mcp.protocol.l0_kernel_prompt import inject_l0_into_session
 from aaa_mcp.protocol.schemas import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOOL_OUTPUT_SCHEMAS
 from core.shared.context_template import build_full_context_template
@@ -437,8 +438,14 @@ vault_seal = ToolHandle(_vault_seal)
 @mcp.tool(name="search", description="Read-only web search (Brave API if configured).")
 async def _search(query: str, intent: str = "general") -> Dict[str, Any]:
     try:
-        client = BraveSearchClient()
-        payload = await client.search(query=query, intent=intent)
+        # Preferred order: Perplexity (if PPLX key is set) -> Brave fallback.
+        primary = PerplexitySearchClient()
+        payload = await primary.search(query=query, intent=intent)
+
+        if payload.get("status") in {"NO_API_KEY", "BAD_RESPONSE", "BAD_JSON", "BAD_SHAPE"}:
+            fallback = BraveSearchClient()
+            payload = await fallback.search(query=query, intent=intent)
+
         urls = [r.get("url") for r in payload.get("results", []) if r.get("url")]
         return {
             "query": query,
