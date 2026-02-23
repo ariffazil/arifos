@@ -162,7 +162,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile.forge2
+          file: ./Dockerfile
           platforms: linux/amd64,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
@@ -226,8 +226,8 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            Dockerfile.forge2
-            docker-compose.forge2.yml
+            Dockerfile
+            docker-compose.yml
 
   # --- Deployment (Optional) ---
   deploy-staging:
@@ -247,6 +247,6 @@ jobs:
           key: ${{ secrets.STAGING_SSH_KEY }}
           script: |
             cd /opt/arifos
-            docker compose -f docker-compose.forge2.yml pull
-            docker compose -f docker-compose.forge2.yml up -d --remove-orphans
+            docker compose -f docker-compose.yml pull
+            docker compose -f docker-compose.yml up -d --remove-orphans
             docker system prune -f

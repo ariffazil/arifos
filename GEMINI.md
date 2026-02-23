@@ -10,20 +10,24 @@ This document provides the operational context for AI agents working within the 
 
 **arifOS** is a production-grade **Constitutional AI Governance System**. It functions as an "Intelligence Kernel" that wraps any Large Language Model (LLM) to enforce a set of 13 ethical and safety rules, known as "Constitutional Floors."
 
-Its purpose is to govern AI cognition, ensuring that all outputs are safe, truthful, and aligned with core principles before they are generated.
+Its purpose is to govern AI cognition and agency, ensuring that all outputs and material actions are safe, truthful, and aligned with core principles.
 
 ### Core Architecture
 
 The system is composed of three primary components, ensuring a strict separation of concerns:
 
-1.  **The Kernel (`core/`):** The heart of arifOS, containing all pure, transport-agnostic decision-making logic. It enforces the 13 Floors and contains the core governance pipeline.
+1.  **The Kernel (`core/`):** The heart of arifOS, containing all pure, transport-agnostic decision-making logic. It enforces the 13 Floors and contains the 7-Organ Sovereign Stack.
 2.  **The Brain (`aaa_mcp/`):** The primary transport adapter, exposing the Kernel's functions via the Model Context Protocol (MCP). It handles incoming requests and formats the Kernel's verdicts, but contains **no decision logic** itself.
-3.  **The Senses (`aclip_cai/`):** A 9-Sense Infrastructure Console and MCP Federation Hub for server intelligence kernel management, providing real-world context and constitutional observability.
+3.  **The Senses (`aclip_cai/`):** A console and MCP Federation Hub for server intelligence kernel management, providing real-world context and constitutional observability.
 
-This architecture is built on the **Trinity of Intelligence**:
-- **AGI (Δ - Mind):** Logical analysis and truth-seeking.
-- **ASI (Ω - Heart):** Empathy and ethical safety checks.
-- **APEX (Ψ - Soul):** Final judgment and consensus.
+This architecture is built on the **7-Organ Sovereign Stack**:
+- **INIT (000 - Airlock):** Session ignition and defense.
+- **AGI (111-444 - Mind):** Logical analysis and truth-seeking.
+- **PHOENIX (555 - Subconscious):** Associative memory retrieval and Eureka Scars.
+- **ASI (666 - Heart):** Empathy and ethical safety checks.
+- **APEX (777 - Soul):** Final judgment and consensus.
+- **FORGE (888 - Hands):** Sandboxed material execution (Actuator).
+- **VAULT (999 - Memory):** Immutable ledger and Merkle chaining.
 
 ---
 
@@ -129,26 +133,24 @@ All AI cognition is managed as a thermodynamic process with specific constraints
 If the Genius score $G < 0.80$, the output is **VOID**.
 
 ### High-Stakes Operations (888_HOLD)
-You **MUST** trigger an `888_HOLD` and await human confirmation for any high-stakes operations, including but not limited to:
+You **MUST** trigger an `888_HOLD` and await human confirmation for any high-stakes operations. These trigger a `Signed Intent Envelope` that requires a physical `ratification_token` from the Sovereign (888 Judge) via the local `888_signer` utility.
 - Production deployments
+- Material state mutations (e.g., infrastructure destroy, DB purge)
 - Git history modification (`rebase`, `force-push`)
-- Mass file modifications
 - Handling of secrets or credentials
-- Any destructive database operations (`DROP`, `DELETE`)
 
-### Public MCP Surface (9-Sense Federation Hub)
-The **9-Sense Federation Hub (`aclip_cai`)** exposes the arifOS Intelligence Kernel through 9 canonical system calls:
-- `anchor` (Session Ignition + F12 Scan)
-- `reason` (Logical Analysis under ΔS constraints)
-- `integrate` (Context Grounding & Tri-Witness consensus)
-- `respond` (Draft generation with floor pre-checks)
-- `validate` (Safety/Impact checking F1-F13)
-- `align` (Ethics & Anti-Hantu alignment)
-- `forge` (Solution synthesis under Ψ state)
-- `audit` (Final verdict & APEX consensus)
-- `seal` (Immutable commit to VAULT999)
+### Public MCP Surface (Sovereign Federation Hub)
+The **Federation Hub (`aaa_mcp` / `aclip_cai`)** exposes the arifOS Intelligence Kernel through 11 canonical system calls:
+- `init_session` (000 - Airlock)
+- `agi_cognition` (111-444 - Mind)
+- `phoenix_recall` (555 - Subconscious)
+- `asi_empathy` (666 - Heart)
+- `apex_verdict` (777 - Soul)
+- `sovereign_actuator` (888 - Hands)
+- `vault_seal` (999 - Memory)
+- `search`, `fetch`, `analyze`, `system_audit` (Utility)
 
-Utility tools available via `aaa_mcp` include `search`, `fetch`, `analyze`, and `system_audit`. The core organ actions (`init_session`, `agi_cognition`, etc.) are mapped to these federation calls.
+The core organ actions are mapped to these federation calls.
 
 ### Core Principle: Separation of Concerns
 - **`core/`** is for pure logic only. Do not add any transport-layer (HTTP, MCP) code here.

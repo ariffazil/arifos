@@ -12,7 +12,7 @@ Primary goal: safe, reversible, test-backed changes that respect architecture bo
 - Cursor rules status: no `.cursorrules` and no `.cursor/rules/` found.
 
 ## Repository Layout
-- `core/`: pure governance/kernel logic.
+- `core/`: pure governance/kernel logic (7-Organ Sovereign Stack).
 - `aaa_mcp/`: transport and MCP adapter layer.
 - `aclip_cai/`: console/federation support.
 - `tests/`: unit, integration, and constitutional tests.
@@ -143,7 +143,7 @@ When triggered:
 
 ## Copilot and Cursor Rules
 From `.github/copilot-instructions.md`:
-- Canonical stage spine: `000 -> 444 -> 666 -> 888 -> 999`.
+- Canonical stage spine: `000 -> 444 -> 555 -> 666 -> 777 -> 888 -> 999`.
 - Run 000 before actions and 999 before handoff.
 - Cite PRIMARY canonical sources for constitutional claims (`AGENTS.md`, `spec/v46/*`).
 - Preserve role separation (Architect != Engineer != Auditor != KIMI).
