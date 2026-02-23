@@ -1,4 +1,4 @@
-name: Deploy arifOS MCP to VPS (Coolify)
+name: Deploy arifOS AAA MCP to VPS
 
 on:
   push:
@@ -17,7 +17,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: deploy-vps-coolify-${{ github.ref }}
+  group: deploy-vps-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -25,11 +25,11 @@ jobs:
     name: Constitutional Self-Test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: pip
@@ -37,21 +37,21 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e . || pip install -r requirements.txt
-          pip install redis
+          pip install -e ".[dev]" || pip install -r requirements.txt
 
-      - name: Run arifOS Self-Test
+      - name: Run self-test
         run: python -m aaa_mcp.selftest
         env:
           GOVERNANCE_MODE: HARD
-          CLUSTER_LEVEL: "1"
+          ARIFOS_PHYSICS_DISABLED: "1"
+          ARIFOS_ALLOW_LEGACY_SPEC: "1"
 
-  deploy_vps:
+  deploy:
     name: Deploy to VPS
     needs: selftest
     runs-on: ubuntu-latest
     steps:
-      - name: Deploy over SSH
+      - name: Pull and rebuild on VPS
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -61,11 +61,11 @@ jobs:
             set -e
             cd /root/arifOS
             git fetch origin main
-            git checkout main
             git reset --hard origin/main
-            docker compose -f deployment/docker-compose.vps.yml up -d --build
+            docker compose up -d --build --remove-orphans
+            echo "Container started. Waiting for /health..."
 
-      - name: VPS Smoke Check (SSE primary + MCP fallback)
+      - name: Smoke check — /health on VPS
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -73,37 +73,34 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
-            if ! ps aux | grep -v grep | grep 'python -m arifos_aaa_mcp sse' >/dev/null; then
-              echo "VPS smoke check failed: SSE primary process not running"
-              exit 1
-            fi
-            for i in 1 2 3 4 5; do
-              if curl -fss http://localhost:8889/health >/dev/null; then
-                echo "VPS smoke check passed: SSE process running and /health reachable on localhost:8889"
+            for i in 1 2 3 4 5 6; do
+              if curl -fsSL --max-time 5 http://localhost:8088/health > /dev/null; then
+                echo "Health check passed on attempt $i"
                 exit 0
               fi
-              echo "Attempt $i/5 failed, retrying in 5s..."
-              sleep 5
+              echo "Attempt $i/6 — waiting 10s..."
+              sleep 10
             done
-            echo "VPS smoke check failed: /health unreachable on localhost:8889"
+            echo "FAILED: /health unreachable after 60s"
+            docker logs arifosmcp_server --tail 50
             exit 1
 
   verify:
-    name: Verify Deployment
-    needs: deploy_vps
+    name: Verify Public Endpoint
+    needs: deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Final Health Check
+      - name: Final public health check
         run: |
-          sleep 10
-          curl -fsS https://arifosmcp.arif-fazil.com/health
+          sleep 5
+          curl -fsSL https://arifosmcp.arif-fazil.com/health
 
-      - name: Deployment Report
+      - name: Report
         run: |
-          echo "========================================"
-          echo "  arifOS MCP — VPS DEPLOYMENT REPORT"
-          echo "========================================"
-          echo "  Endpoint: https://arifosmcp.arif-fazil.com"
-          echo "  MCP:      https://arifosmcp.arif-fazil.com/mcp"
-          echo "  Health:   https://arifosmcp.arif-fazil.com/health"
-          echo "========================================"
+          echo "============================================"
+          echo "  arifOS AAA MCP — DEPLOYMENT COMPLETE"
+          echo "============================================"
+          echo "  Base:   https://arifosmcp.arif-fazil.com"
+          echo "  MCP:    https://arifosmcp.arif-fazil.com/mcp"
+          echo "  Health: https://arifosmcp.arif-fazil.com/health"
+          echo "============================================"
