@@ -413,6 +413,30 @@ def export_tool_schema_for_agents() -> dict:
     return schema
 
 
+def export_full_context_pack() -> dict:
+    """Export full-context orchestration metadata for prompt/resource clients."""
+
+    return {
+        "template_id": "arifos.full_context.v1",
+        "schema_version": "1.0.0",
+        "stage_spine": ["000", "222", "333", "444", "666", "888", "999"],
+        "entrypoint": "anchor/init_session",
+        "continuity": {
+            "required_after_entry": ["session_id"],
+            "recommended": ["actor_id", "auth_token"],
+        },
+        "resources": [
+            "arifos://templates/full-context",
+            "arifos://schemas/tooling",
+        ],
+        "prompts": [
+            "arifos.prompt.trinity_forge",
+            "arifos.prompt.anchor_reason",
+            "arifos.prompt.audit_then_seal",
+        ],
+    }
+
+
 def get_agent_selection_hints(current_stage: str) -> dict:
     """
     Get hints for agent selecting next tool.
@@ -465,5 +489,6 @@ __all__ = [
     "build_tool_unavailable_error",
     "build_hard_floor_block",
     "export_tool_schema_for_agents",
+    "export_full_context_pack",
     "get_agent_selection_hints",
 ]

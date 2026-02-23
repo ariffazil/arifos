@@ -21,6 +21,8 @@ from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, resp
 
 from aaa_mcp.external_gateways.brave_client import BraveSearchClient
 from aaa_mcp.protocol.l0_kernel_prompt import inject_l0_into_session
+from aaa_mcp.protocol.schemas import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOOL_OUTPUT_SCHEMAS
+from core.shared.context_template import build_full_context_template
 
 
 def create_unified_mcp_server() -> Any:
@@ -290,6 +292,69 @@ async def _system_audit(audit_scope: str = "quick", verify_floors: bool = True) 
 
 system_audit = ToolHandle(_system_audit)
 
+# ═══════════════════════════════════════════════════════
+# MCP RESOURCES + PROMPTS (Full-context orchestration)
+# ═══════════════════════════════════════════════════════
+
+
+@mcp.resource(
+    "arifos://templates/full-context",
+    name="arifos_full_context_template",
+    mime_type="application/json",
+    description="Canonical full-context template for AAA constitutional orchestration.",
+)
+def _resource_full_context_template() -> Dict[str, Any]:
+    return build_full_context_template()
+
+
+@mcp.resource(
+    "arifos://schemas/tooling",
+    name="arifos_tool_schemas",
+    mime_type="application/json",
+    description="Canonical tool input/output schemas for AAA MCP tools.",
+)
+def _resource_tool_schemas() -> Dict[str, Any]:
+    return {
+        "schema_version": "2026.02.23-context-forge",
+        "inputs": CANONICAL_TOOL_INPUT_SCHEMAS,
+        "outputs": CANONICAL_TOOL_OUTPUT_SCHEMAS,
+    }
+
+
+@mcp.prompt(name="arifos.prompt.trinity_forge")
+def _prompt_trinity_forge(query: str, actor_id: str = "user", mode: str = "conscience") -> str:
+    return (
+        "Use trinity_forge for full constitutional orchestration with session continuity.\n"
+        "Stage spine: 000 -> 222 -> 333 -> 444 -> 666 -> 888 -> 999.\n"
+        "Require truthful grounding; fail closed on F2/F11/F12 with remediation.\n"
+        "Call shape: {\"name\":\"trinity_forge\",\"arguments\":{"
+        f"\"query\":{query!r},\"actor_id\":{actor_id!r},\"mode\":{mode!r}"
+        "}}"
+    )
+
+
+@mcp.prompt(name="arifos.prompt.anchor_reason")
+def _prompt_anchor_reason(query: str, actor_id: str = "user") -> str:
+    return (
+        "Run two-step constitutional flow with explicit session continuity.\n"
+        "1) anchor/init_session to obtain session_id.\n"
+        "2) reason/agi_cognition using same session_id.\n"
+        "If VOID on F11: request auth_token or corrected actor_id.\n"
+        "If VOID on F2: request external evidence before retry.\n"
+        f"Input query: {query}\nActor: {actor_id}"
+    )
+
+
+@mcp.prompt(name="arifos.prompt.audit_then_seal")
+def _prompt_audit_then_seal(session_id: str, summary: str, proposed_verdict: str = "SEAL") -> str:
+    return (
+        "Finalize governed decision in two steps.\n"
+        "1) apex_verdict/audit with session_id and explicit proposed_verdict.\n"
+        "2) vault_seal with same session_id and immutable summary.\n"
+        "If verdict is 888_HOLD, stop and request human ratification before seal.\n"
+        f"session_id={session_id}; proposed_verdict={proposed_verdict}; summary={summary}"
+    )
+
 __all__ = [
     "create_unified_mcp_server",
     "mcp",
@@ -302,4 +367,9 @@ __all__ = [
     "fetch",
     "analyze",
     "system_audit",
+    "_resource_full_context_template",
+    "_resource_tool_schemas",
+    "_prompt_trinity_forge",
+    "_prompt_anchor_reason",
+    "_prompt_audit_then_seal",
 ]

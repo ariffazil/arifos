@@ -41,6 +41,7 @@ from .tool_naming import CANONICAL_PUBLIC_TO_LEGACY, MCP_VERB_TO_LEGACY, resolve
 from .tool_registry import (
     CANONICAL_TOOLS,
     ToolSpec,
+    export_full_context_pack,
     export_tool_schema_for_agents,
     get_agent_selection_hints,
     get_next_tool,
@@ -89,6 +90,7 @@ __all__ = [
     "validate_tool_path",
     "get_pipeline_sequence",
     "export_tool_schema_for_agents",
+    "export_full_context_pack",
     "get_agent_selection_hints",
     # Naming resolution
     "CANONICAL_PUBLIC_TO_LEGACY",

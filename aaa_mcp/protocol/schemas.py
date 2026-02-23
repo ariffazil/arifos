@@ -68,6 +68,15 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
                 "minLength": 1,
                 "description": "User query to initialize session for",
             },
+            "actor_id": {
+                "type": "string",
+                "default": "anonymous",
+                "description": "Actor identifier used for F11 authority continuity",
+            },
+            "auth_token": {
+                "type": ["string", "null"],
+                "description": "Optional authority token for strict environments",
+            },
             "session_id": {"type": "string", "description": "Optional existing session ID"},
             "grounding_required": {
                 "type": "boolean",
@@ -76,8 +85,8 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
             },
             "mode": {
                 "type": "string",
-                "enum": ["fluid", "strict"],
-                "default": "fluid",
+                "enum": ["fluid", "strict", "conscience", "ghost"],
+                "default": "conscience",
                 "description": "Governance strictness mode",
             },
         },
@@ -88,8 +97,17 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "properties": {
             "query": {"type": "string", "minLength": 1},
             "actor_id": {"type": "string", "default": "user"},
+            "session_id": {
+                "type": ["string", "null"],
+                "description": "Optional existing session for continuity from anchor/init_session",
+            },
             "auth_token": {"type": ["string", "null"]},
             "require_sovereign_for_high_stakes": {"type": "boolean", "default": True},
+            "template_id": {
+                "type": "string",
+                "default": "arifos.full_context.v1",
+                "description": "Full-context resource template identifier",
+            },
             "mode": {
                 "type": "string",
                 "enum": ["ghost", "conscience"],
@@ -126,6 +144,8 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "properties": {
             "query": {"type": "string", "minLength": 1},
             "session_id": {"type": "string"},
+            "actor_id": {"type": "string"},
+            "auth_token": {"type": ["string", "null"]},
             "grounding": {
                 "type": ["object", "null"],
                 "description": "Optional structured grounding data",
@@ -138,6 +158,9 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "properties": {
             "query": {"type": "string", "minLength": 1},
             "session_id": {"type": "string"},
+            "actor_id": {"type": "string"},
+            "auth_token": {"type": ["string", "null"]},
+            "stakeholders": {"type": ["array", "null"], "items": {"type": "string"}},
         },
         "required": ["query", "session_id"],
     },
@@ -154,6 +177,12 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "properties": {
             "query": {"type": "string", "minLength": 1},
             "session_id": {"type": "string"},
+            "actor_id": {"type": "string"},
+            "auth_token": {"type": ["string", "null"]},
+            "proposed_verdict": VERDICT_ENUM,
+            "human_approve": {"type": "boolean", "default": False},
+            "agi_result": {"type": ["object", "null"]},
+            "asi_result": {"type": ["object", "null"]},
         },
         "required": ["query", "session_id"],
     },
@@ -171,6 +200,10 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "type": "object",
         "properties": {
             "session_id": {"type": "string"},
+            "summary": {
+                "type": ["string", "null"],
+                "description": "Human-readable immutable summary for canonical vault_seal tool",
+            },
             "verdict": VERDICT_ENUM,
             "payload": {"type": "object"},
             "query_summary": {"type": ["string", "null"]},
@@ -180,7 +213,7 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
                 "enum": ["finance", "safety", "content", "code", "governance"],
             },
         },
-        "required": ["session_id", "verdict", "payload"],
+        "required": ["session_id", "verdict"],
     },
     "vault_query": {
         "type": "object",
@@ -226,6 +259,9 @@ TOOL_OUTPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
             "session_id": {"type": "string"},
             "verdict": VERDICT_ENUM,
             "status": {"type": "string", "enum": ["READY", "VOID", "HOLD_888"]},
+            "token_status": {"type": ["string", "null"]},
+            "next_action": {"type": ["string", "null"]},
+            "remediation": {"type": ["string", "null"]},
             "grounding_required": {"type": "boolean"},
             "mode": {"type": "string"},
             "stage": {"type": "string", "const": "000"},
@@ -238,6 +274,8 @@ TOOL_OUTPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
             "verdict": VERDICT_ENUM,
             "session_id": {"type": "string"},
             "token_status": {"type": "string"},
+            "next_action": {"type": ["string", "null"]},
+            "remediation": {"type": ["string", "null"]},
             "agi": {"type": "object"},
             "asi": {"type": "object"},
             "apex": {"type": "object"},

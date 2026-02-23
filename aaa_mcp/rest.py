@@ -103,6 +103,11 @@ TOOL_SCHEMAS = {
             "query": {"type": "string", "required": True},
             "actor_id": {"type": "string", "required": False, "default": "user"},
             "auth_token": {"type": "string|null", "required": False, "default": None},
+            "template_id": {
+                "type": "string",
+                "required": False,
+                "default": "arifos.full_context.v1",
+            },
             "mode": {"type": "enum", "values": ["conscience", "ghost"], "default": "conscience"},
             "grounding_required": {"type": "boolean", "default": True},
             "debug": {"type": "boolean", "default": False},
@@ -113,6 +118,8 @@ TOOL_SCHEMAS = {
         "args": {
             "query": {"type": "string", "required": True},
             "session_id": {"type": "string", "required": True},
+            "actor_id": {"type": "string", "required": False},
+            "auth_token": {"type": "string|null", "required": False, "default": None},
             "grounding": {"type": "array|null", "default": None},
             "capability_modules": {"type": "array|null", "default": None},
             "debug": {"type": "boolean", "default": False},
@@ -123,6 +130,8 @@ TOOL_SCHEMAS = {
         "args": {
             "query": {"type": "string", "required": True},
             "session_id": {"type": "string", "required": True},
+            "actor_id": {"type": "string", "required": False},
+            "auth_token": {"type": "string|null", "required": False, "default": None},
             "stakeholders": {"type": "array|null", "default": None},
             "capability_modules": {"type": "array|null", "default": None},
             "debug": {"type": "boolean", "default": False},
@@ -133,8 +142,16 @@ TOOL_SCHEMAS = {
         "args": {
             "query": {"type": "string", "required": True},
             "session_id": {"type": "string", "required": True},
+            "actor_id": {"type": "string", "required": False},
+            "auth_token": {"type": "string|null", "required": False, "default": None},
             "agi_result": {"type": "object|null", "default": None},
             "asi_result": {"type": "object|null", "default": None},
+            "proposed_verdict": {
+                "type": "enum",
+                "values": ["SEAL", "VOID", "PARTIAL", "SABAR", "888_HOLD"],
+                "default": "SEAL",
+            },
+            "human_approve": {"type": "boolean", "default": False},
             "capability_modules": {"type": "array|null", "default": None},
             "debug": {"type": "boolean", "default": False},
         },
