@@ -15,9 +15,14 @@ from aaa_mcp.protocol.tool_registry import get_tool_by_mcp_name, get_tool_spec
 def test_canonical_public_names_resolve_to_protocol_keys() -> None:
     assert resolve_protocol_tool_name("init_session") == "init_gate"
     assert resolve_protocol_tool_name("agi_cognition") == "agi_reason"
+    assert resolve_protocol_tool_name("phoenix_recall") == "phoenix_recall"
     assert resolve_protocol_tool_name("asi_empathy") == "asi_empathize"
     assert resolve_protocol_tool_name("apex_verdict") == "apex_verdict"
+    assert resolve_protocol_tool_name("sovereign_actuator") == "sovereign_actuator"
     assert resolve_protocol_tool_name("vault_seal") == "vault_seal"
+    assert resolve_protocol_tool_name("fetch") == "fetch"
+    assert resolve_protocol_tool_name("analyze") == "analyze"
+    assert resolve_protocol_tool_name("system_audit") == "system_audit"
 
 
 def test_legacy_verbs_resolve_to_protocol_keys() -> None:
@@ -39,11 +44,17 @@ def test_schema_accessors_accept_canonical_names() -> None:
     reason_schema = get_input_schema("agi_cognition")
     empathy_schema = get_input_schema("asi_empathy")
     verdict_schema = get_output_schema("apex_verdict")
+    phoenix_schema = get_input_schema("phoenix_recall")
+    actuator_schema = get_input_schema("sovereign_actuator")
+    audit_schema = get_input_schema("system_audit")
 
     assert init_schema is not None and "query" in init_schema["properties"]
     assert reason_schema is not None and "session_id" in reason_schema["properties"]
     assert empathy_schema is not None and "session_id" in empathy_schema["properties"]
     assert verdict_schema is not None and "verdict" in verdict_schema["properties"]
+    assert phoenix_schema is not None and "current_thought_vector" in phoenix_schema["properties"]
+    assert actuator_schema is not None and "action_payload" in actuator_schema["properties"]
+    assert audit_schema is not None and "audit_scope" in audit_schema["properties"]
 
 
 def test_validate_sequence_accepts_canonical_public_names() -> None:
