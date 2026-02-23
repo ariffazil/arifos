@@ -1,12 +1,30 @@
-# Railway pre-install (main deps come from pip install -e . in Dockerfile)
-fastmcp>=2.0
-uvicorn[standard]>=0.24.0
-# sentence-transformers>=2.2.0
-mcp>=1.0.0
-starlette>=0.30.0
+# arifOS Dependencies (v62.3.0)
+# Install: pip install -r requirements.txt
+# OR: pip install -e ".[all]" (recommended)
+
+numpy>=1.20.0
 pydantic>=2.0.0
 anyio>=4.0.0
+starlette>=0.30.0
+fastmcp>=0.1.0
+fastapi>=0.104.1
+uvicorn[standard]>=0.24.0
+sse-starlette>=1.8.2
+mcp>=1.0.0
 httpx>=0.25.0
+prometheus-client>=0.19.0
+rich>=13.7.0
+asyncpg>=0.29.0
 
-# System monitoring for ACLIP_CAI senses
-psutil>=5.9.0
+# Optional
+pyyaml>=6.0.0
+python-multipart>=0.0.6
+litellm>=1.0.0
+openai>=1.6.0
+
+# Dev
+pytest>=7.0.0
+pytest-cov>=4.0.0
+ruff>=0.1.0
+mypy>=1.0.0
+beautifulsoup4>=4.12.0
