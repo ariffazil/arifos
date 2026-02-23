@@ -152,6 +152,7 @@ async def judge(
     asi_output: Dict[str, Any] | Any,
     session_id: str,
     require_sovereign: bool = False,
+    objective_contract: Optional[Dict[str, Any]] = None,
 ) -> ApexOutput:
     """
     Stage 888: JUDGE — The Soul's Final Verdict
@@ -188,6 +189,24 @@ async def judge(
         violations.append("F10")
         justifications.append(f10_result.reason)
 
+    objective_alignment = {
+        "drift": 0.0,
+        "threshold": 0.45,
+        "nonstationary": False,
+    }
+    if objective_contract:
+        objective_alignment["drift"] = float(objective_contract.get("drift", 0.0))
+        objective_alignment["threshold"] = float(objective_contract.get("threshold", 0.45))
+        objective_alignment["nonstationary"] = (
+            objective_alignment["drift"] >= objective_alignment["threshold"]
+        )
+        if objective_alignment["nonstationary"]:
+            violations.append("F13")
+            justifications.append(
+                "Objective nonstationarity detected: drift "
+                f"{objective_alignment['drift']:.3f} >= {objective_alignment['threshold']:.3f}"
+            )
+
     hard_violations = {"F3", "F10"}
     if any(v in hard_violations for v in violations):
         verdict = "VOID"
@@ -195,6 +214,9 @@ async def judge(
         verdict = "SABAR"
     else:
         verdict = "SEAL"
+
+    if objective_alignment["nonstationary"] and objective_alignment["drift"] >= 0.70:
+        verdict = "888_HOLD"
 
     if require_sovereign:
         verdict = "888_HOLD"
@@ -213,6 +235,14 @@ async def judge(
             "stage": 888,
             "action": "judge",
             "justification": "; ".join(justifications) if justifications else "All floors pass",
+            "self_audit": {
+                "deterministic": True,
+                "llm_inside_kernel": False,
+                "identity_projection_guard": True,
+                "f9_score": f9_result.score,
+                "f10_passed": bool(f10_result.passed),
+            },
+            "objective_alignment": objective_alignment,
         },
     )
 
@@ -223,6 +253,7 @@ async def apex(
     session_id: str,
     action: str = "full",
     require_sovereign: bool = False,
+    objective_contract: Optional[Dict[str, Any]] = None,
 ) -> Any:
     """Unified APEX interface."""
     if action == "sync":
@@ -230,7 +261,14 @@ async def apex(
     elif action == "full":
         sync_res = await sync(agi_tensor, asi_output, session_id)
         forge_res = await forge(sync_res, agi_tensor, session_id)
-        return await judge(forge_res, sync_res, asi_output, session_id, require_sovereign)
+        return await judge(
+            forge_res,
+            sync_res,
+            asi_output,
+            session_id,
+            require_sovereign,
+            objective_contract=objective_contract,
+        )
     else:
         raise ValueError(f"Unknown action: {action}")
 

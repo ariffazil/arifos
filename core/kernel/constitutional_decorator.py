@@ -176,6 +176,7 @@ def constitutional_floor(
                     floor_details.append(detail)
 
             verdict = evaluator.evaluate_verdict(floor_details)
+            self_audit = evaluator.build_self_audit(floor_details, verdict)
             elapsed_ms = round((time.time() - start) * 1000, 1)
 
             if isinstance(result, dict):
@@ -184,6 +185,11 @@ def constitutional_floor(
                     "floors_declared": list(floors),
                     "floors_checked": [d["floor"] for d in floor_details],
                     "details": floor_details,
+                    "self_audit": self_audit,
+                    "arif_test": {
+                        "deterministic_kernel": True,
+                        "llm_inside_kernel": False,
+                    },
                     "enforcement_ms": elapsed_ms,
                     "version": "v64.2-CORE",
                 }
