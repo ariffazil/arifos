@@ -27,6 +27,9 @@ def test_server_resources_expose_template_and_schemas() -> None:
     assert template["template_id"] == "arifos.full_context.v1"
     assert schemas["schema_version"] == "2026.02.23-context-forge"
     assert "init_session" in schemas["inputs"]
+    assert "phoenix_recall" in schemas["inputs"]
+    assert "sovereign_actuator" in schemas["inputs"]
+    assert "system_audit" in schemas["inputs"]
 
 
 def test_prompts_include_continuity_context() -> None:
