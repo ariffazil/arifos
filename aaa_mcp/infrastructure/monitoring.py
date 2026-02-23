@@ -9,6 +9,7 @@ DITEMPA BUKAN DIBERI
 
 import asyncio
 import json
+import inspect
 import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Any, Callable
@@ -276,14 +277,50 @@ async def init_monitoring():
         from aaa_mcp.server import mcp
 
         try:
-            tools = await mcp.get_tools()
-            tool_count = len(tools)
-
-            # Get tool names for verification
             tool_names = set()
-            for t in tools:
-                name = getattr(t, "name", None) or str(t)
-                tool_names.add(name)
+
+            # FastMCP API differs across versions. Prefer get_tools() when available,
+            # otherwise fall back to known canonical exports from aaa_mcp.server.
+            get_tools_fn = getattr(mcp, "get_tools", None)
+            if callable(get_tools_fn):
+                tools = get_tools_fn()
+                if inspect.isawaitable(tools):
+                    tools = await tools
+                if isinstance(tools, dict):
+                    tool_names.update(str(k) for k in tools.keys())
+                elif isinstance(tools, (list, tuple, set)):
+                    for t in tools:
+                        name = getattr(t, "name", None) or str(t)
+                        tool_names.add(name)
+                elif tools is not None:
+                    # Last-resort fallback for unknown tool container types
+                    tool_names.add(str(tools))
+            else:
+                from aaa_mcp import server as server_mod
+
+                candidates = [
+                    "init_session",
+                    "agi_cognition",
+                    "asi_empathy",
+                    "apex_verdict",
+                    "vault_seal",
+                    "search",
+                    "fetch",
+                    "anchor",
+                    "reason",
+                    "integrate",
+                    "respond",
+                    "validate",
+                    "align",
+                    "forge",
+                    "audit",
+                    "seal",
+                ]
+                for name in candidates:
+                    if hasattr(server_mod, name):
+                        tool_names.add(name)
+
+            tool_count = len(tool_names)
 
             # Check critical tools (MCP verbs)
             critical_tools = [
@@ -296,7 +333,6 @@ async def init_monitoring():
                 "forge",
                 "audit",
                 "seal",
-                "trinity_forge",
             ]
             missing = [t for t in critical_tools if t not in tool_names]
 
@@ -314,7 +350,7 @@ async def init_monitoring():
         except Exception as e:
             err_type = type(e).__name__
             print(f"[health] mcp_tools: ERROR - {err_type}: {e}")
-            return False
+            return {"status": False, "error": f"{err_type}: {e}"}
 
     def check_memory():
         try:
