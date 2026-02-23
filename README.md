@@ -47,8 +47,7 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
 
-# Expected output:
-# {"status": "healthy", "version": "2026.2.23", "floors": 13}
+# Expected output includes: status, service, version, and health_checks
 ```
 
 </div>
@@ -147,7 +146,7 @@ Edit `~/.config/claude/claude_desktop_config.json` (macOS/Linux) or `%APPDATA%\C
   "mcpServers": {
     "arifOS": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "aaa_mcp", "stdio"],
       "env": {
         "ARIFOS_PHYSICS_DISABLED": "1"
       }
@@ -156,7 +155,7 @@ Edit `~/.config/claude/claude_desktop_config.json` (macOS/Linux) or `%APPDATA%\C
 }
 ```
 
-Restart Claude Desktop → Tools panel will show arifOS tools (e.g., `apex_judge`, `vault_seal`).
+Restart Claude Desktop → Tools panel will show arifOS tools (e.g., `init_session`, `apex_verdict`, `vault_seal`).
 
 **Full integration guides**:
 - [Claude Desktop Setup](https://github.com/ariffazil/arifOS/wiki/Claude-Desktop)
@@ -199,8 +198,7 @@ Click **Deploy** → Wait ~2–5 minutes → Done! ✅
 ```bash
 curl https://arifosmcp.yourdomain.com/health
 
-# Expected output:
-# {"status": "healthy", "version": "2026.2.23", "floors": 13}
+# Expected output includes: status, service, version, and health_checks
 ```
 
 **If degraded**: Check logs for Postgres/Redis connection errors. Ensure `DB_PASSWORD` matches in both services.
@@ -298,7 +296,7 @@ Connect arifOS to ChatGPT as a custom tool provider.
 3. **Add to Chat**: Click "Tools" → Select "arifOS" → Start asking governed questions
 
 **Example prompts**:
-- "Use `apex_judge` to evaluate: Should we deploy this AI model to production?"
+- "Use `apex_verdict` to evaluate: Should we deploy this AI model to production?"
 - "Run `vault_seal` to commit this decision to the constitutional ledger"
 
 **Full guide**: [ChatGPT Integration Wiki](https://github.com/ariffazil/arifOS/wiki/ChatGPT)
@@ -314,7 +312,7 @@ Connect arifOS to ChatGPT as a custom tool provider.
 | **Constitutional Law** | The 13 Floors (F1-F13) explained | [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) |
 | **Architecture** | System design and deployment | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | **Trinity (Δ Ω Ψ)** | AGI-ASI-APEX parallel consensus | [000_THEORY/010_TRINITY.md](000_THEORY/010_TRINITY.md) |
-| **MCP Tools Reference** | All 22 governance + sensory tools | [aaa_mcp/README.md](aaa_mcp/README.md) |
+| **MCP Tools Reference** | Unified 20 tools + resources/prompts | [aaa_mcp/README.md](aaa_mcp/README.md) |
 | **Deployment Guide** | Production hardening checklist | [docs/DEPLOYMENT_FIREWALL.md](docs/DEPLOYMENT_FIREWALL.md) |
 
 ### The 13 Constitutional Floors
@@ -401,9 +399,13 @@ arifOS evaluates every decision through **three parallel engines**:
 
 ---
 
-## 🛠️ MCP Tools
+## 🛠️ MCP Surface
 
-arifOS exposes **22 constitutional tools** via the Model Context Protocol:
+Current unified MCP server exposes:
+
+- **20 tools**
+- **2 resources** (`arifos://templates/full-context`, `arifos://schemas/tooling`)
+- **3 prompts** (`arifos.prompt.trinity_forge`, `arifos.prompt.anchor_reason`, `arifos.prompt.audit_then_seal`)
 
 ### Core Governance (5 Tools)
 
@@ -419,17 +421,17 @@ arifOS exposes **22 constitutional tools** via the Model Context Protocol:
 
 | Tool | Stage | Purpose |
 |------|-------|---------|
-| `anchor` | 000 | Context grounding |
-| `reason` | 222 | Hypothesis validation |
-| `integrate` | 333 | Multi-source synthesis |
-| `respond` | 444 | Draft generation |
-| `validate` | 555 | Safety verification |
-| `align` | 666 | Value alignment |
-| `forge` | 777 | Action planning |
-| `audit` | 888 | Sovereignty audit |
-| `seal` | 999 | Task finalization |
+| `triad_anchor` | 000 | Context grounding |
+| `triad_reason` | 222 | Hypothesis validation |
+| `triad_integrate` | 333 | Multi-source synthesis |
+| `triad_respond` | 444 | Draft generation |
+| `triad_validate` | 555 | Safety verification |
+| `triad_align` | 666 | Value alignment |
+| `triad_forge` | 777 | Action planning |
+| `triad_audit` | 888 | Sovereignty audit |
+| `triad_seal` | 999 | Task finalization |
 
-### Sensory Tools (8 Tools)
+### Additional Read-Only Tools (6 Tools)
 
 | Tool | Purpose | Read-Only? |
 |------|---------|------------|
@@ -437,10 +439,8 @@ arifOS exposes **22 constitutional tools** via the Model Context Protocol:
 | `fetch` | URL content retrieval | ✅ Yes |
 | `analyze` | Data structure analysis | ✅ Yes |
 | `system_audit` | Constitutional health check | ✅ Yes |
-| `fs_inspect` | Filesystem inspection | ✅ Yes |
-| `process_monitor` | System resource monitoring | ✅ Yes |
-| `network_scan` | Network diagnostics | ✅ Yes |
-| `log_reader` | Application log analysis | ✅ Yes |
+| `sense_health` | System health telemetry | ✅ Yes |
+| `sense_fs` | Filesystem traversal | ✅ Yes |
 
 **Full tool reference**: [aaa_mcp/README.md](aaa_mcp/README.md)
 
@@ -464,13 +464,11 @@ python test_all_tools_live.py --block edge_cases
 python test_all_tools_live.py --ci
 ```
 
-**Test coverage**:
-- ✅ 13/13 Constitutional Floors
-- ✅ F12 Injection attacks (blocked)
-- ✅ F9 Anti-Hantu (consciousness claims rejected)
-- ✅ 888_HOLD (irreversible actions require approval)
-- ✅ Phoenix-72 (72-hour cooling for amendments)
-- ✅ Concurrency & race conditions
+**Test coverage focus**:
+- ✅ Constitutional floor validation suites (`tests/constitutional/`)
+- ✅ Injection and anti-hantu guard checks
+- ✅ Transport and entrypoint contract tests
+- ✅ Integration and workflow-level tests
 
 **Test dashboard**: [Live Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev)
 
@@ -617,6 +615,8 @@ Intelligence is not a gift. It is a thermodynamic work process constrained by en
 | Resource | URL |
 |----------|-----|
 | **Live MCP Server** | https://arifosmcp.arif-fazil.com |
+| **SSE Primary** | https://arifosmcp.arif-fazil.com/sse |
+| **MCP Fallback** | https://arifosmcp.arif-fazil.com/mcp |
 | **Health Check** | https://arifosmcp.arif-fazil.com/health |
 | **Test Dashboard** | https://674a01a3.arifosmcp-truth-claim.pages.dev |
 | **Documentation Site** | https://arifos.arif-fazil.com |

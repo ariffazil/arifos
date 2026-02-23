@@ -53,6 +53,58 @@ def _fold_verdict(verdicts: List[str]) -> str:
     return "SEAL"
 
 
+def _build_floor_block(stage: str, reason: str) -> Dict[str, Any]:
+    """Standardized F11 block for missing session/auth continuity."""
+    return {
+        "verdict": "VOID",
+        "stage": stage,
+        "session_id": "",
+        "token_status": "ERROR",
+        "floors": {"passed": [], "failed": ["F11"]},
+        "truth": {"score": None, "threshold": None, "drivers": []},
+        "next_actions": [
+            "Run init_session (anchor) first to obtain session_id.",
+            "Reuse the same session_id across downstream tools.",
+            "Include actor_id/auth_token when available for continuity.",
+        ],
+        "remediation": {
+            "required_auth_fields": ["session_id", "actor_id", "auth_token"],
+            "reuse_session": True,
+        },
+        "error": reason,
+    }
+
+
+def _extract_truth(payload: Dict[str, Any]) -> Dict[str, Any]:
+    score = payload.get("truth_score")
+    threshold = payload.get("f2_threshold")
+    drivers = payload.get("truth_drivers")
+    if not isinstance(drivers, list):
+        drivers = []
+    return {"score": score, "threshold": threshold, "drivers": drivers}
+
+
+def _envelope(stage: str, session_id: str, verdict: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    floors_failed = payload.get("floors_failed", [])
+    if not isinstance(floors_failed, list):
+        floors_failed = []
+    actions: List[str] = []
+    if "F2" in floors_failed:
+        actions.append("Provide stronger evidence and retry with grounded claims.")
+    if "F11" in floors_failed:
+        actions.append("Restore session/auth continuity and retry.")
+    if not actions:
+        actions.append("Continue to next constitutional stage.")
+    return {
+        "verdict": verdict,
+        "stage": stage,
+        "session_id": session_id,
+        "floors": {"passed": [], "failed": floors_failed},
+        "truth": _extract_truth(payload),
+        "next_actions": actions,
+    }
+
+
 # ═══════════════════════════════════════════════════════
 # GOVERNANCE TOOLS (5-Organ Trinity)
 # ═══════════════════════════════════════════════════════
@@ -68,6 +120,8 @@ async def _init_session(
     debug: bool = False,
     inject_kernel: bool = True,
     compact_kernel: bool = False,
+    template_id: str = "arifos.full_context.v1",
+    auth_context: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Initialize a new constitutional session with L0 Kernel enforcement.
@@ -94,12 +148,24 @@ async def _init_session(
             "verdict": verdict,
             "session_id": anch.get("session_id", session_id),
             "stage": "000_INIT",
+            "template_id": template_id,
             "mode": mode,
             "grounding_required": grounding_required,
+            "token_status": "AUTHENTICATED" if auth_token else "ANONYMOUS",
             "auth": {"present": bool(auth_token)},
+            "auth_context": auth_context or {},
             "debug": debug,
             "data": {"anchor": anch} if debug else {},
         }
+
+        result.update(
+            _envelope(
+                stage="000_INIT",
+                session_id=result["session_id"],
+                verdict=verdict,
+                payload=anch if isinstance(anch, dict) else {},
+            )
+        )
         
         # 🔥 CONSTITUTIONAL INJECTION: Embed L0 Kernel prompt
         if inject_kernel:
@@ -119,21 +185,40 @@ async def _agi_cognition(
     grounding: Optional[List[Dict[str, Any]]] = None,
     capability_modules: Optional[List[str]] = None,
     debug: bool = False,
+    actor_id: str = "anonymous",
+    auth_token: Optional[str] = None,
+    parent_session_id: Optional[str] = None,
+    auth_context: Optional[Dict[str, Any]] = None,
+    inference_budget: int = 1,
+    risk_mode: str = "medium",
 ) -> Dict[str, Any]:
     try:
+        if not session_id:
+            return _build_floor_block("111-444", "Missing session_id")
+
         evidence = [str(x) for x in (grounding or [])]
         r = await reason(session_id=session_id, hypothesis=query, evidence=evidence)
         i = await integrate(session_id=session_id, context_bundle={"query": query, "grounding": grounding or {}})
         d = await respond(session_id=session_id, draft_response=f"Draft response for: {query}")
         verdict = _fold_verdict([str(r.get("verdict", "")), str(i.get("verdict", "")), str(d.get("verdict", ""))])
-        return {
-            "verdict": verdict,
-            "session_id": session_id,
-            "stage": "111-444",
+        merged = {
+            "truth_score": r.get("truth_score"),
+            "f2_threshold": r.get("f2_threshold"),
+            "floors_failed": list(r.get("floors_failed", [])) + list(i.get("floors_failed", [])) + list(d.get("floors_failed", [])),
+        }
+        result = {
             "capability_modules": capability_modules or [],
+            "actor_id": actor_id,
+            "token_status": "AUTHENTICATED" if auth_token else "ANONYMOUS",
+            "parent_session_id": parent_session_id,
+            "auth_context": auth_context or {},
+            "inference_budget": max(0, min(3, int(inference_budget))),
+            "risk_mode": risk_mode,
             "debug": debug,
             "data": {"reason": r, "integrate": i, "respond": d} if debug else {},
         }
+        result.update(_envelope(stage="111-444", session_id=session_id, verdict=verdict, payload=merged))
+        return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "111-444", "session_id": session_id}
 
@@ -146,20 +231,37 @@ async def _asi_empathy(
     stakeholders: Optional[List[str]] = None,
     capability_modules: Optional[List[str]] = None,
     debug: bool = False,
+    actor_id: str = "anonymous",
+    auth_token: Optional[str] = None,
+    parent_session_id: Optional[str] = None,
+    auth_context: Optional[Dict[str, Any]] = None,
+    risk_mode: str = "medium",
 ) -> Dict[str, Any]:
     try:
+        if not session_id:
+            return _build_floor_block("555-666", "Missing session_id")
+
         v = await validate(session_id=session_id, action=query)
         a = await align(session_id=session_id, action=query)
         verdict = _fold_verdict([str(v.get("verdict", "")), str(a.get("verdict", ""))])
-        return {
-            "verdict": verdict,
-            "session_id": session_id,
-            "stage": "555-666",
+        merged = {
+            "truth_score": v.get("truth_score"),
+            "f2_threshold": v.get("f2_threshold"),
+            "floors_failed": list(v.get("floors_failed", [])) + list(a.get("floors_failed", [])),
+        }
+        result = {
             "stakeholders": stakeholders or [],
             "capability_modules": capability_modules or [],
+            "actor_id": actor_id,
+            "token_status": "AUTHENTICATED" if auth_token else "ANONYMOUS",
+            "parent_session_id": parent_session_id,
+            "auth_context": auth_context or {},
+            "risk_mode": risk_mode,
             "debug": debug,
             "data": {"validate": v, "align": a} if debug else {},
         }
+        result.update(_envelope(stage="555-666", session_id=session_id, verdict=verdict, payload=merged))
+        return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "555-666", "session_id": session_id}
 
@@ -176,8 +278,16 @@ async def _apex_verdict(
     proposed_verdict: str = "SEAL",
     human_approve: bool = False,
     debug: bool = False,
+    actor_id: str = "anonymous",
+    auth_token: Optional[str] = None,
+    parent_session_id: Optional[str] = None,
+    auth_context: Optional[Dict[str, Any]] = None,
+    risk_mode: str = "medium",
 ) -> Dict[str, Any]:
     try:
+        if not session_id:
+            return _build_floor_block("777-888", "Missing session_id")
+
         plan = {
             "query": query,
             "proposed_verdict": proposed_verdict,
@@ -190,15 +300,24 @@ async def _apex_verdict(
         sovereign_token = "888_APPROVED" if human_approve else ""
         judged = await audit(session_id=session_id, action=str(plan), sovereign_token=sovereign_token)
         verdict = str(judged.get("verdict", proposed_verdict))
-        return {
-            "verdict": verdict,
-            "session_id": session_id,
-            "stage": "777-888",
+        merged = {
+            "truth_score": judged.get("truth_score"),
+            "f2_threshold": judged.get("f2_threshold"),
+            "floors_failed": list(forged.get("floors_failed", [])) + list(judged.get("floors_failed", [])),
+        }
+        result = {
             "authority": {"human_approve": human_approve},
             "capability_modules": capability_modules or [],
+            "actor_id": actor_id,
+            "token_status": "AUTHENTICATED" if auth_token else "ANONYMOUS",
+            "parent_session_id": parent_session_id,
+            "auth_context": auth_context or {},
+            "risk_mode": risk_mode,
             "debug": debug,
             "data": {"forge": forged, "audit": judged} if debug else {},
         }
+        result.update(_envelope(stage="777-888", session_id=session_id, verdict=verdict, payload=merged))
+        return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "777-888", "session_id": session_id}
 
@@ -211,8 +330,12 @@ async def _vault_seal(
     verdict: str = "SEAL",
 ) -> Dict[str, Any]:
     try:
+        if not session_id:
+            return _build_floor_block("999_VAULT", "Missing session_id")
         res = await seal(session_id=session_id, task_summary=summary, was_modified=True)
-        return {"verdict": verdict, "stage": "999_VAULT", "session_id": session_id, "data": res}
+        result = {"data": res}
+        result.update(_envelope(stage="999_VAULT", session_id=session_id, verdict=verdict, payload=res))
+        return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "999_VAULT", "session_id": session_id}
 

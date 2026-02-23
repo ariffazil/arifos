@@ -8,6 +8,11 @@ This is the human-friendly wrapper around `python -m aaa_mcp`, matching docs:
     python server.py --mode sse       # FastMCP SSE transport
     python server.py --mode http      # FastMCP Streamable HTTP transport
     python server.py --mode stdio     # FastMCP stdio (local clients)
+
+Capabilities exposed by unified server:
+- 20 registered MCP tools
+- 2 MCP resources (`arifos://templates/full-context`, `arifos://schemas/tooling`)
+- 3 MCP prompts for constitutional orchestration
 """
 
 from __future__ import annotations
