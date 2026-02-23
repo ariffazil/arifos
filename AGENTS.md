@@ -2,6 +2,7 @@
 
 Project: arifOS constitutional MCP server
 Python: >=3.12 (runtime), tooling currently targets py310+ for lint/type configs
+Release baseline: 2026.2.23
 
 This file is for agentic coding tools working in this repository.
 Primary goal: make safe, style-consistent changes that respect architecture boundaries.
@@ -18,6 +19,13 @@ Primary goal: make safe, style-consistent changes that respect architecture boun
 - `aaa_mcp/`: MCP and HTTP/SSE transport adapter layer.
 - `aclip_cai/`: 9-sense console/federation support.
 - `tests/`: unit, integration, and constitutional tests.
+
+## Current Runtime Surface (Truth)
+
+- Unified MCP server currently registers 20 tools.
+- MCP resources: `arifos://templates/full-context`, `arifos://schemas/tooling`.
+- MCP prompts: `arifos.prompt.trinity_forge`, `arifos.prompt.anchor_reason`, `arifos.prompt.audit_then_seal`.
+- Runtime default transport is SSE; HTTP `/mcp` is fallback; stdio is optional local mode.
 
 ## Setup
 
@@ -70,6 +78,7 @@ Async test policy: `asyncio_mode = "auto"`; avoid `@pytest.mark.asyncio` by defa
 python3 -m aaa_mcp
 python3 -m aaa_mcp sse
 python3 -m aaa_mcp http
+python3 -m aaa_mcp stdio
 python3 -m aaa_mcp.selftest
 ```
 

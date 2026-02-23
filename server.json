@@ -18,14 +18,14 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "2026.2.22",
+      "version": "2026.2.23",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "oci",
-      "identifier": "docker.io/ariffazil/arifos:2026.2.22",
+      "identifier": "ghcr.io/ariffazil/arifos:latest",
       "transport": {
         "type": "sse",
         "url": "https://arifosmcp.arif-fazil.com/sse"
@@ -41,5 +41,20 @@
       "type": "streamable-http",
       "url": "https://arifosmcp.arif-fazil.com/mcp"
     }
+  ],
+  "resources": [
+    {
+      "uri": "arifos://templates/full-context",
+      "description": "Canonical full-context template for constitutional orchestration"
+    },
+    {
+      "uri": "arifos://schemas/tooling",
+      "description": "Canonical tool input/output schemas"
+    }
+  ],
+  "prompts": [
+    "arifos.prompt.trinity_forge",
+    "arifos.prompt.anchor_reason",
+    "arifos.prompt.audit_then_seal"
   ]
 }
