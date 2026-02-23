@@ -7,7 +7,6 @@ on:
     branches: [main, master]
     paths:
       - 'sites/docs/**'
-      - 'aclip_cai/dashboard/**'
       - '.github/workflows/deploy-sites.yml'
   workflow_dispatch:
 
@@ -35,30 +34,15 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: |
-            sites/docs/package-lock.json
-            aclip_cai/dashboard/package-lock.json
+          cache-dependency-path: sites/docs/package-lock.json
 
       - name: Install dependencies
         run: npm ci
         working-directory: sites/docs
 
-      - name: Install console dependencies
-        run: npm ci
-        working-directory: aclip_cai/dashboard
-
-      - name: Build console
-        run: npm run build
-        working-directory: aclip_cai/dashboard
-
       - name: Build docs
         run: npm run build
         working-directory: sites/docs
-
-      - name: Embed console under /console/
-        run: |
-          mkdir -p sites/docs/build/console
-          cp -r aclip_cai/dashboard/dist/* sites/docs/build/console/
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
