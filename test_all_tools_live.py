@@ -78,15 +78,15 @@ def main():
 
     # CI mode
     if args.ci:
-        # Quiet mode with JSON report
-        pytest_args.extend(["--report-log=test-results.json", "-q", "--tb=short"])
-        # Try to use pytest-json-report if available
+        # Quiet mode
+        pytest_args.extend(["-q", "--tb=short"])
+        # Prefer pytest-json-report when available
         try:
             import pytest_jsonreport  # noqa: F401
 
             pytest_args.extend(["--json-report", "--json-report-file=test-results.json"])
         except ImportError:
-            pass  # Fall back to --report-log
+            pass  # No JSON artifact plugin installed
     else:
         # Human-readable mode
         pytest_args.append("-v" if not args.verbose else "-vv")

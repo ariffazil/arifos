@@ -5,6 +5,31 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.2.23-2] — 2026-02-23 — FORGE-APEX-OBJECTIVE-ALIGNMENT-PHASE2-SEAL
+
+**T000:** 2026.02.23-FORGE-APEX-OBJECTIVE-ALIGNMENT-PHASE2-SEAL  
+**Theme:** APEX objective nonstationarity governance + release truth alignment
+
+### Added
+- Deterministic self-audit metadata in core constitutional decorator/evaluator envelopes.
+- Objective contract at 000 init with APEX axes (`akal`, `present`, `energy`, `exploration`).
+- Objective lineage threading into pipeline provenance and VAULT999 seal payload.
+
+### Changed
+- APEX judge now evaluates objective drift and enforces nonstationary escalation:
+  - drift >= threshold -> `SABAR`
+  - drift >= hold threshold -> `888_HOLD`
+- Phase-2 drift policy is now query-type aware (FACTUAL stricter than EXPLORATORY/TEST).
+- `test_all_tools_live.py --ci` now uses `pytest-json-report` when available and no longer passes unsupported `--report-log`.
+- README badges and release note block aligned with current workflow reality (`Live Tests` + `CI`).
+- MCP live test validator now handles missing thermo snapshots safely and `vault_seal` returns top-level `status` compatibility for live-suite assertions.
+
+### Why Tests Badge Was Failing
+- `live_tests.yml` invokes `python test_all_tools_live.py --ci`.
+- Runner previously injected unsupported `--report-log=test-results.json`, causing argparse failure before suite execution.
+
+---
+
 ## [2026.2.23] — 2026-02-23 — FORGE-SSE-PRIMARY-CONTEXT-HARDENING-SEAL
 
 **T000:** 2026.02.23-FORGE-SSE-PRIMARY-CONTEXT-HARDENING-SEAL  

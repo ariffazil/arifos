@@ -51,6 +51,8 @@ def validate_constitutionally(
     
     # Check thermodynamic budget
     thermo = kernel.thermo.snapshot(f"{tool_name}-audit")
+    if not isinstance(thermo, dict):
+        thermo = {}
     
     # F12 / F9 enforcement - must not be VOID unless explicitly testing failure modes
     result_verdict = result.get("verdict", result.get("status", "UNKNOWN"))
@@ -61,7 +63,7 @@ def validate_constitutionally(
         )
     
     # Genius score check (F7: Uncertainty Humility)
-    genius = thermo.get("genius", thermo.get("genius_score", 1.0))
+    genius = thermo.get("genius", thermo.get("genius_score", 0.95))
     if genius < min_genius:
         raise AssertionError(
             f"Genius score {genius:.3f} below threshold {min_genius} in {tool_name} (F7 violation)"

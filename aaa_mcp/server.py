@@ -333,7 +333,7 @@ async def _vault_seal(
         if not session_id:
             return _build_floor_block("999_VAULT", "Missing session_id")
         res = await seal(session_id=session_id, task_summary=summary, was_modified=True)
-        result = {"data": res}
+        result = {"data": res, "status": verdict}
         result.update(_envelope(stage="999_VAULT", session_id=session_id, verdict=verdict, payload=res))
         return result
     except Exception as e:

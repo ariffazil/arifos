@@ -20,6 +20,12 @@ Primary goal: make safe, style-consistent changes that respect architecture boun
 - `aclip_cai/`: 9-sense console/federation support.
 - `tests/`: unit, integration, and constitutional tests.
 
+## Project Overview
+
+- arifOS is a constitutional AI governance system delivered as a Python MCP server.
+- Runtime posture is SSE-primary with MCP/HTTP fallback and optional stdio for local tooling.
+- Engineering priority is truthful, reversible, test-backed changes with explicit governance receipts.
+
 ## Current Runtime Surface (Truth)
 
 - Unified MCP server currently registers 20 tools.
@@ -137,6 +143,39 @@ except Exception as e:
 3. Do not shadow external SDK name `mcp` with local modules/variables.
 4. Session state must follow copy-on-write patterns (no hidden in-place mutation).
 5. For STDIO mode, never write protocol logs to stdout (`print(...)` is unsafe there).
+
+## Active Constraints And Guardrails
+
+- Prefer minimal, reversible edits first; escalate only when necessary.
+- Treat unknowns as unknowns (no fabricated status, metrics, or outputs).
+- Trigger `888 HOLD` before irreversible or high-risk operations.
+- Preserve lifecycle continuity notes so the next session can restart deterministically.
+
+## OpenCode Lifecycle Contract (arifOS Overlay)
+
+Required order for every OpenCode session in this repository:
+
+1. `VAULT999 RESTORE` (load latest sealed continuity record)
+2. `000 INIT` (repo analysis and deterministic initialization)
+3. `WORK` (governed implementation and verification)
+4. `999 SEAL` (close session with canonical continuity receipt)
+
+Hard rule: do not begin directly at implementation stages without restore + init.
+
+## Thermodynamic Governance Framing (Operational)
+
+- `000 INIT` is the constitutional anchor: restore continuity, then constrain the session with `AGENTS.md` before implementation.
+- During `WORK`, entropy can increase from code generation, but governance boundaries remain active.
+- `999 SEAL` compresses the work window into a canonical continuity receipt stored in VAULT999.
+- If a step is risky or hard to reverse, trigger `888 HOLD` and require explicit human approval.
+
+Operational interpretation:
+
+- `000 INIT`: reduce uncertainty early (`delta S << 0`) by loading prior continuity and active constraints.
+- `WORK`: bounded change window (`delta S > 0`) with reversible-first edits and explicit receipts.
+- `999 SEAL`: collapse session output into low-entropy handoff (`delta S < 0`) with path/time/session tag/files touched.
+
+Principle: `Akal Memerintah, Amanah Mengunci`.
 
 ## Testing Requirements For New Work
 

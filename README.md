@@ -12,7 +12,8 @@
 [![MCP Protocol](https://img.shields.io/badge/MCP-1.0-8B5CF6?style=for-the-badge&logo=shield&logoColor=white)](https://modelcontextprotocol.io)
 [![Python](https://img.shields.io/badge/python-3.12+-green?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)  
 [![Dashboard](https://img.shields.io/badge/Dashboard-Live-FF6600?style=for-the-badge&logo=cloudflare&logoColor=white)](https://674a01a3.arifosmcp-truth-claim.pages.dev)
-[![Tests](https://img.shields.io/github/actions/workflow/status/ariffazil/arifOS/live_tests.yml?branch=main&style=for-the-badge&label=Tests&logo=github)](https://github.com/ariffazil/arifOS/actions/workflows/live_tests.yml)
+[![Live Tests](https://img.shields.io/github/actions/workflow/status/ariffazil/arifOS/live_tests.yml?branch=main&style=for-the-badge&label=Live%20Tests&logo=github)](https://github.com/ariffazil/arifOS/actions/workflows/live_tests.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/ariffazil/arifOS/ci.yml?branch=main&style=for-the-badge&label=CI&logo=github)](https://github.com/ariffazil/arifOS/actions/workflows/ci.yml)
 [![Deploy](https://img.shields.io/badge/Deploy-Coolify-06b6d4?style=for-the-badge&logo=docker)](https://coolify.io)  
 [![YouTube](https://img.shields.io/badge/Demo-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/AJ92efMy1ns)
 
@@ -49,6 +50,15 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
 
 # Expected output includes: status, service, version, and health_checks
 ```
+
+**Status note**: the `Live Tests` badge tracks `.github/workflows/live_tests.yml` (strict end-to-end runner). It can fail independently from core `CI` when live-suite contracts or benchmark thresholds drift.
+
+### 🧾 Release Notes (2026.2.23)
+
+- SSE-primary runtime with `/mcp` fallback is now the default deployment posture.
+- Full-context MCP resources/prompts are published and discoverable.
+- ARIF TEST hardening added deterministic `self_audit` and provenance markers.
+- APEX phase-1/phase-2 objective alignment now tracks nonstationary drift by query class and escalates via `SABAR`/`888_HOLD` thresholds.
 
 </div>
 
