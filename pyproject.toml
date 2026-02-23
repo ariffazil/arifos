@@ -2,6 +2,8 @@
 name = "arifos"
 version = "2026.2.23"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.2.23 — Perplexity-first search grounding with Brave fallback
+#   Added optional PPLX API gateway for search_reality/fetch_content workflows
 # 2026.2.23 — SSE-primary runtime + MCP fallback + full-context MCP resources/prompts
 #   Added MCP resources/prompts and session/auth continuity hardening in unified server
 # 2026.2.22 — Intelligence Kernel Upgrade (aclip_cai 9-Sense Console)

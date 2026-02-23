@@ -59,6 +59,7 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
 - Full-context MCP resources/prompts are published and discoverable.
 - ARIF TEST hardening added deterministic `self_audit` and provenance markers.
 - APEX phase-1/phase-2 objective alignment now tracks nonstationary drift by query class and escalates via `SABAR`/`888_HOLD` thresholds.
+- `search_reality` now supports Perplexity-first web grounding with Brave fallback (`PPLX_API_KEY` / `PERPLEXITY_API_KEY`, fallback `BRAVE_API_KEY`).
 
 </div>
 
@@ -205,6 +206,10 @@ Restart Claude Desktop → Tools panel will show arifOS tools (e.g., `init_sessi
 | `REDIS_URL` | `redis://redis:6379/0` | ✅ Auto-filled | Redis connection string |
 | `AAA_MCP_OUTPUT_MODE` | `user` or `debug` | Optional | Output verbosity |
 | `ARIFOS_PHYSICS_DISABLED` | `0` (enable) or `1` (disable) | Optional | Thermodynamic calculations |
+| `PPLX_API_KEY` | `pplx-...` | Optional | Perplexity API key for `search_reality` primary provider |
+| `PERPLEXITY_API_KEY` | `pplx-...` | Optional | Alias for `PPLX_API_KEY` |
+| `PPLX_MODEL` | `sonar-pro` | Optional | Perplexity model for search grounding |
+| `BRAVE_API_KEY` | `BSA...` | Optional | Brave fallback provider when Perplexity is unavailable |
 
 #### Step 3: Set Domain
 
