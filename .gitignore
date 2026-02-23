@@ -56,6 +56,7 @@ cooling_ledger.jsonl
 # VAULT999 runtime files (keep structure, ignore runtime data)
 VAULT999/cooling_ledger.json
 VAULT999/constitutional_vault.json
+VAULT999/*.jsonl
 
 # Cryptographic keys (NEVER commit)
 *_private_key.b64
