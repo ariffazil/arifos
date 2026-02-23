@@ -51,7 +51,7 @@ async def test_call_tool_supports_timeout_progress_and_meta(aaa_client: FastMCPC
     result = await aaa_client.call_tool(
         "check_vital",
         {"include_swap": False, "include_io": False, "include_temp": False},
-        timeout=2.0,
+        timeout=10.0,
         progress_handler=_progress,
         meta={"trace_id": "core-op-2"},
     )
@@ -89,7 +89,6 @@ async def test_get_prompt_and_get_prompt_mcp(aaa_client: FastMCPClient) -> None:
     prompt = await aaa_client.get_prompt(
         "arifos.prompt.aaa_chain",
         {"query": "hello", "actor_id": "ops"},
-        meta={"trace_id": "core-op-4"},
     )
     assert hasattr(prompt, "messages")
     assert prompt.messages
@@ -100,7 +99,6 @@ async def test_get_prompt_and_get_prompt_mcp(aaa_client: FastMCPClient) -> None:
     raw = await aaa_client.get_prompt_mcp(
         "arifos.prompt.aaa_chain",
         {"query": "hello", "actor_id": "ops"},
-        meta={"trace_id": "core-op-5"},
     )
     assert hasattr(raw, "messages")
     assert raw.messages

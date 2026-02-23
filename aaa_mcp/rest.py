@@ -66,15 +66,15 @@ from starlette.requests import Request
 # Import canonical 5-organ tools directly from server module.
 # Legacy verbs are supported via HTTP aliases only.
 from aaa_mcp.server import (
-    agi_cognition,
-    phoenix_recall,
-    apex_verdict,
-    asi_empathy,
-    init_session,
-    sovereign_actuator,
-    vault_seal,
-    search,
-    fetch,
+    reason_mind,
+    recall_memory,
+    judge_soul,
+    simulate_heart,
+    anchor_session,
+    forge_hand,
+    seal_vault,
+    search_reality,
+    fetch_content,
 )
 from aaa_mcp.integrations.self_ops import self_diagnose
 
@@ -88,16 +88,16 @@ BUILD_INFO = {
 
 # Tool registry mapping names to functions
 TOOLS = {
-    "init_session": init_session,
-    "agi_cognition": agi_cognition,
-    "phoenix_recall": phoenix_recall,
-    "asi_empathy": asi_empathy,
-    "apex_verdict": apex_verdict,
-    "sovereign_actuator": sovereign_actuator,
-    "vault_seal": vault_seal,
+    "init_session": anchor_session,
+    "agi_cognition": reason_mind,
+    "phoenix_recall": recall_memory,
+    "asi_empathy": simulate_heart,
+    "apex_verdict": judge_soul,
+    "sovereign_actuator": forge_hand,
+    "vault_seal": seal_vault,
     "self_diagnose": self_diagnose,
-    "search": search,
-    "fetch": fetch,
+    "search": search_reality,
+    "fetch": fetch_content,
 }
 
 # Tool schemas with enums (ChatGPT feedback: schema hardening)

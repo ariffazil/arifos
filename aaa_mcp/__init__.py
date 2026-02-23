@@ -16,27 +16,27 @@ __version__ = "2026.02.23-AAA-BRIDGE"
 __all__ = ["mcp"]
 
 
-_LEGACY_EXPORTS = {
-    "init_session",
-    "agi_cognition",
-    "phoenix_recall",
-    "asi_empathy",
-    "apex_verdict",
-    "sovereign_actuator",
-    "vault_seal",
-    "search",
-    "fetch",
-    "analyze",
-    "system_audit",
-    "anchor",
-    "reason",
-    "integrate",
-    "respond",
-    "validate",
-    "align",
-    "forge",
-    "audit",
-    "seal",
+_OLD_TO_NEW = {
+    "init_session": "anchor_session",
+    "agi_cognition": "reason_mind",
+    "phoenix_recall": "recall_memory",
+    "asi_empathy": "simulate_heart",
+    "apex_verdict": "judge_soul",
+    "sovereign_actuator": "forge_hand",
+    "vault_seal": "seal_vault",
+    "search": "search_reality",
+    "fetch": "fetch_content",
+    "analyze": "inspect_file",
+    "system_audit": "audit_rules",
+    "anchor": "anchor_session",
+    "reason": "reason_mind",
+    "integrate": "reason_mind",
+    "respond": "reason_mind",
+    "validate": "simulate_heart",
+    "align": "simulate_heart",
+    "forge": "judge_soul",
+    "audit": "judge_soul",
+    "seal": "seal_vault",
 }
 
 
@@ -46,7 +46,7 @@ def __getattr__(name: str) -> Any:
 
         aaa = importlib.import_module("arifos_aaa_mcp.server")
         return getattr(aaa, "mcp")
-    if name in _LEGACY_EXPORTS:
+    if name in _OLD_TO_NEW:
         warnings.warn(
             f"aaa_mcp.{name} is deprecated; use arifos_aaa_mcp canonical tools instead",
             DeprecationWarning,
@@ -55,5 +55,5 @@ def __getattr__(name: str) -> Any:
         import importlib
 
         legacy = importlib.import_module("aaa_mcp.server")
-        return getattr(legacy, name)
+        return getattr(legacy, _OLD_TO_NEW[name])
     raise AttributeError(name)
