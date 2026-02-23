@@ -438,25 +438,29 @@ Current canonical AAA MCP server exposes:
 - **2 resources** (`arifos://aaa/schemas`, `arifos://aaa/full-context-pack`)
 - **1 prompt** (`arifos.prompt.aaa_chain`)
 
-### Canonical AAA Tools (13)
+### Canonical Tool Taxonomy (13) 🏛️
 
-| Tool | Stage | Purpose |
-|------|-------|---------|
-| `anchor_session` | 000_INIT | Session anchor + continuity boot |
-| `reason_mind` | 333_REASON | Reasoning + evidence synthesis |
-| `recall_memory` | 444_SYNC | Memory recall and context stitching |
-| `simulate_heart` | 555_EMPATHY | Stakeholder impact and empathy pass |
-| `critique_thought` | 666_ALIGN | Constitutional critique/alignment |
-| `judge_soul` | 888_JUDGE | Governance verdict under 13-law envelope |
-| `forge_hand` | 777_FORGE | Execution planning / forge stage |
-| `seal_vault` | 999_SEAL | Final seal and continuity handoff |
-| `search_reality` | 111_SENSE | Web grounding (Perplexity first, Brave fallback) |
-| `fetch_content` | 444_SYNC | Fetch content from grounded URLs |
-| `inspect_file` | 111_SENSE | Safe filesystem inspection |
-| `audit_rules` | 333_REASON | Rule and governance audit checks |
-| `check_vital` | 555_EMPATHY | Runtime/system vital signs |
+The following table serves as the **unified audit map** for arifOS. It aligns the **Stable UX Verbs** (Public MCP) with their **Kernel Aliases**, **Trinity Lanes**, and **Constitutional Floor** bindings.
 
-**Full tool reference**: [aaa_mcp/README.md](aaa_mcp/README.md)
+| Tool (UX Verb) | Kernel Alias | Trinity | Stage | Floors | Description |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| `anchor_session` | `init_session` | Δ Delta | 000 | F11, F12, F13 | Session ignition & injection defense |
+| `reason_mind` | `agi_cognition` | Δ Delta | 333 | F2, F4, F7, F8 | AGI cognition & logic grounding |
+| `recall_memory` | `phoenix_recall` | Ω Omega | 444 | F4, F7, F13 | Associative memory traces |
+| `simulate_heart` | `asi_empathy` | Ω Omega | 555 | F4, F5, F6 | Stakeholder impact & care constraints |
+| `critique_thought`| - | Ω Omega | 666 | F4, F7, F8 | 7-organ alignment & bias critique |
+| `judge_soul` | `apex_verdict` | Ψ Psi | 888 | F1-F13 | Sovereign verdict synthesis |
+| `forge_hand` | `sovereign_actuator`| Ψ Psi | 777 | F1, F11, F12 | Sandboxed action execution |
+| `seal_vault` | `vault_seal` | Ψ Psi | 999 | F1, F3, F10 | Immutable ledger persistence |
+| `search_reality` | `search` | Δ Delta | 111 | F2, F4, F12 | Web grounding (Perplexity/Brave) |
+| `fetch_content` | `fetch` | Δ Delta | 444 | F2, F4, F12 | Raw evidence content retrieval |
+| `inspect_file` | `fs_inspect` | Δ Delta | 111 | F1, F4, F11 | Filesystem inspection (read-only) |
+| `audit_rules` | `system_audit` | Δ Delta | 333 | F2, F8, F10 | Rule & governance audit checks |
+| `check_vital` | `get_health` | Ω Omega | 555 | F4, F5, F7 | System health & vital signs |
+
+> **Note on Telemetry:** The `verdict` field in telemetry records (e.g., `SEAL`, `SABAR`, `VOID`) is a **governance outcome**. System status indicators (e.g., `status: "ALIVE"`) are strictly **operational telemetry** and do not satisfy constitutional requirements.
+
+**Verdicts:** `SEAL` | `VOID` | `PARTIAL` | `SABAR` | `888_HOLD`
 
 ---
 
