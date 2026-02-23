@@ -65,9 +65,45 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
 
 ---
 
+## ✅ What You Get in 15 Seconds
+
+**arifOS is an AI Control Plane** — a governance runtime between language models and real-world actions.
+
+- **Governed output verdicts** → SEAL / SABAR / VOID (with audit trail)
+- **Human veto power** → 888_HOLD for irreversible decisions
+- **Real-time metrics** → Floor scores, entropy (ΔS), Genius score
+- **Drop-in MCP server** → Works with Claude Desktop, Cursor, Windsurf, ChatGPT
+
+---
+
 ## 🎯 What is arifOS?
 
 **arifOS** is a **constitutional governance kernel** for AI systems. It wraps any Large Language Model (Claude, GPT, Gemini, or custom models) inside a **mathematical pipeline** that enforces **13 constitutional floors** and **human sovereignty** before any output reaches the user.
+
+### What arifOS is NOT
+- ❌ A new LLM or foundation model
+- ❌ A prompt wrapper or chatbot framework
+- ❌ Just a moderation filter or jailbreak defense
+- ❌ A replacement for your existing AI stack
+
+### What arifOS IS
+- ✅ A **governance gateway** between models and real-world actions
+- ✅ An **audit and decision control layer** with enforceable constraints
+- ✅ An **MCP-native runtime** with constitutional verdicts
+- ✅ A **constraint engine** designed to prevent high-confidence ungrounded outputs from reaching production
+
+---
+
+## 🗺️ Choose Your Path
+
+Jump to the section that matches your needs:
+
+- **⚡ [Try arifOS in 2 minutes](#1️⃣-local-development-fastest--2-minutes)** → Quick start with local development
+- **🔌 [Integrate with MCP clients](#-quick-start)** → Connect to Claude Desktop, Cursor, ChatGPT
+- **🏢 [Evaluate for enterprise governance](#-production-hardening)** → Security, deployment, and compliance
+- **🧠 [Understand the architecture](#%EF%B8%8F-architecture)** → Constitutional foundations and system design
+
+---
 
 ### The Problem We Solve
 
@@ -88,38 +124,38 @@ Every AI output must pass through **constitutional checkpoints**. Furthermore, w
                  ▼
         ┌────────────────┐
         │  000 — INIT    │  Session ignition + defense scan
-        │  (Airlock)     │
+        │  (Airlock)     │  [Entry validation]
         └────────┬───────┘
                  ▼
         ┌────────────────┐
         │  111–444 — AGI │  Logic / Truth (Δ)
         │  (Mind)        │  Is it mathematically true?
-        └────────┬───────┘
+        └────────┬───────┘  [Reasoning engine]
                  ▼
         ┌────────────────┐
-        │  555 — PHOENIX │  Associative memory retrieval (Ω₀, W_scar)
+        │  555 — PHOENIX │  Associative memory retrieval (Ω₀)
         │  (Subconscious)│  Closes the cognitive loop
-        └────────┬───────┘
+        └────────┬───────┘  [Pattern matching]
                  ▼
         ┌────────────────┐
         │  666 — ASI     │  Safety / Empathy (Ω)
         │  (Heart)       │  Is it safe for stakeholders?
-        └────────┬───────┘
+        └────────┬───────┘  [Safety validation]
                  ▼
         ┌────────────────┐
-        │  777 — APEX    │  Authority / Law (Ψ)
+        │  777 — APEX    │  Authority / Policy validation (Ψ)
         │  (Soul)        │  Is it lawful? (F1-F13 check)
-        └────────┬───────┘
+        └────────┬───────┘  [Constitutional compliance]
                  ▼
         ┌────────────────┐
-        │  888 — FORGE   │  Sandboxed execution (ΔS external)
-        │  (Hands)       │  Closes the physical loop
-        └────────┬───────┘
+        │  888 — FORGE   │  Sandboxed execution gate (ΔS external)
+        │  (Hands)       │  Human veto for irreversible actions
+        └────────┬───────┘  [888_HOLD checkpoint]
                  ▼
         ┌────────────────┐
-        │  999 — VAULT   │  Immutable ledger commit
+        │  999 — VAULT   │  Immutable audit ledger
         │  (Memory)      │  Cryptographic hash chain
-        └────────┬───────┘
+        └────────┬───────┘  [Permanent record]
                  ▼
     ┌──────────────────────┐
     │  Verdict:            │
@@ -129,11 +165,52 @@ Every AI output must pass through **constitutional checkpoints**. Furthermore, w
     └──────────────────────┘
 ```
 
-**Result**: No hallucinations reach production. No overreach escapes oversight. No deception passes the gate.
+**Designed to**: Prevent high-confidence ungrounded outputs from reaching production through verifiable constitutional checks. Block common failure modes (injection, overreach, deception) with enforceable constraints. Reduce hallucination risk by gating outputs through multi-stage verification.
+
+---
+
+## 💡 Example: Governed Decision in Action
+
+See how arifOS prevents risky actions through constitutional gating:
+
+**User request:**
+```
+Deploy this new AI model to production immediately.
+```
+
+**arifOS response:**
+```json
+{
+  "verdict": "SABAR",
+  "stage": "888_FORGE",
+  "reason": "Irreversible operational change detected (Floor F11: Command Authority)",
+  "required_action": "Human approval required before execution",
+  "floors_triggered": ["F1_Amanah", "F11_CommandAuth"],
+  "audit_hash": "0x82ab4f91c3d2e567...",
+  "session_id": "sess_2026_02_23_1534",
+  "next_step": "Escalate to 888_HOLD for human review"
+}
+```
+
+**What happened:**
+1. ✅ Request parsed successfully (000 INIT)
+2. ✅ Logic validated (222-444 AGI pipeline)
+3. ✅ Safety checks passed (666 ASI)
+4. ⚠️ **Authority gate triggered** (777 APEX detected irreversible action)
+5. ⚠️ **Human veto invoked** (888 FORGE requires approval)
+6. 📝 Decision logged to immutable audit trail (999 VAULT)
+
+**Result:** Deployment blocked until human explicitly approves, with full audit trail of the decision process.
 
 ---
 
 ## 🚀 Quick Start
+
+**Choose your deployment path:**
+- **1️⃣ Local Development (Recommended — 2 mins)** → For testing & MCP client integration
+- **2️⃣ Production (Coolify + Docker — 5 mins)** → For VPS/network deployment
+- **3️⃣ Docker Compose (Standalone — 3 mins)** → For self-managed VPS
+- **4️⃣ ChatGPT Integration (1 min)** → Connect to ChatGPT Developer Mode
 
 ### Prerequisites
 
@@ -143,18 +220,21 @@ Every AI output must pass through **constitutional checkpoints**. Furthermore, w
 
 ---
 
-### 1️⃣ Local Development (Fastest — 2 Minutes)
+### 1️⃣ Local Development (Recommended — 2 Minutes)
 
-Perfect for testing and connecting to AI clients like **Claude Desktop**, **Cursor IDE**, or **Windsurf**.
+**Best for:** Testing and connecting to AI clients like Claude Desktop, Cursor IDE, or Windsurf.
 
 ```bash
 # Install arifOS
 pip install arifos
 
-# Start local MCP server for desktop IDE clients (stdio)
+# Start local MCP server for desktop IDE clients (stdio mode - recommended)
 python -m arifos_aaa_mcp stdio
+```
 
-# SSE-first runtime (recommended for VPS/network)
+**Alternative for network access:**
+```bash
+# SSE-first runtime (for VPS/network deployment)
 HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp sse
 ```
 
@@ -496,6 +576,19 @@ python test_all_tools_live.py --ci
 
 ## 🔒 Production Hardening
 
+### 🛡️ Security at a Glance
+
+| Feature | Status | Notes |
+|---------|--------|-------|
+| **Authentication** | ✅ JWT Support | Set `ARIF_JWT_SECRET` for bearer token auth |
+| **TLS Termination** | ✅ Recommended | Use Nginx/Coolify/Cloudflare for SSL |
+| **Audit Ledger** | ✅ VAULT999 (Immutable ledger) | Cryptographic hash chain with Postgres persistence |
+| **Rate Limiting** | ⚠️ Deployment-level | Configure at reverse proxy (Nginx/Cloudflare) |
+| **Secrets Handling** | ✅ Environment vars | Never commit credentials; use `.env` files |
+| **Metrics Export** | ✅ Prometheus-compatible | Available at `/metrics` endpoint |
+| **Data Retention** | ✅ Configurable | Postgres backups + VAULT999 snapshots |
+| **RBAC** | 🚧 Roadmap | Per-floor role-based access control (planned) |
+
 ### Security Checklist
 
 - [ ] **HTTPS**: Force SSL termination in Nginx/Coolify
@@ -610,13 +703,32 @@ Learn how arifOS enforces constitutional governance, blocks hallucinations, and 
 
 **AGPL-3.0-only** — See [LICENSE](LICENSE) for details.
 
-**TL;DR**:
-- ✅ You can use, modify, and distribute arifOS
-- ✅ You can deploy arifOS commercially
-- ⚠️ If you modify arifOS and provide it as a **network service**, you **must open-source** your modifications
-- ❌ No warranty or liability (use at your own risk)
+### What This Means
 
-**Why AGPL?** We believe AI governance should be transparent and auditable. If you build on arifOS, your constitutional improvements should benefit everyone.
+**✅ You CAN:**
+- Use arifOS freely for any purpose (personal, commercial, research)
+- Modify arifOS to fit your needs
+- Deploy arifOS internally within your organization
+- Distribute modified versions
+
+**⚠️ You MUST:**
+- Provide source code to users if you **modify** and **offer arifOS as a network service**
+- Keep the AGPL license notice in your derivative works
+- Disclose your modifications under AGPL-3.0
+
+**❌ Important Notes:**
+- AGPL applies **only if** you modify the code **and** provide it as a service over a network
+- No warranty or liability (use at your own risk)
+- If you simply **use** arifOS (without modifying), no obligations
+
+### Commercial Licensing
+
+Want to modify arifOS without AGPL obligations?
+
+- **Enterprise license available** → Email arifbfazil@gmail.com
+- Includes: Commercial source modifications, priority support, SLA guarantees, custom governance packs
+
+**Why AGPL?** We believe AI governance should be transparent and auditable. If you build on arifOS, your constitutional improvements should benefit the community.
 
 ---
 
