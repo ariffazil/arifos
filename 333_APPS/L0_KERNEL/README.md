@@ -37,7 +37,7 @@ arifOS: `AI Models → L0 KERNEL → Governed Cognition`
 │         │                │                     │               │
 │         ▼                ▼                     ▼               │
 │    ┌─────────┐      ┌─────────┐      ┌─────────────────┐     │
-│    │  CPU    │      │  GPT-4  │      │ 5-Organ Trinity │     │
+│    │  CPU    │      │  GPT-4  │      │ 7-Organ Sovereign Stack │     │
 │    │ Memory  │      │ Claude  │◄────►│ 9 System Calls  │     │
 │    │   IO    │      │ Gemini  │      │ 13 Floors       │     │
 │    └─────────┘      └─────────┘      └─────────────────┘     │
@@ -57,8 +57,8 @@ arifOS: `AI Models → L0 KERNEL → Governed Cognition`
 
 | Component | Location | Kernel Function |
 |-----------|----------|-----------------|
-| **5-Organs** | `core/organs/` | Governance subsystems (like Linux kernel modules) |
-| **9 Tools** | `aaa_mcp/tools/` | System calls for governed cognition |
+| **7-Organs** | `core/organs/` | Governance subsystems (like Linux kernel modules) |
+| **11 Tools** | `aaa_mcp/tools/` | System calls for governed cognition |
 | **13 Floors** | `core/shared/floors.py` | Enforcement policies (like kernel security modules) |
 | **VAULT999** | `aaa_mcp/sessions/` | Audit filesystem (like kernel audit log) |
 
@@ -170,7 +170,7 @@ result = await kernel.call("reason", {
              ▼
 ┌─────────────────────────────────────────┐
 │  L0 KERNEL (core/ + organs/)            │  ◄─── Like Linux kernel
-│  - 5-Organ Trinity                      │       The actual governance
+│  - 7-Organ Sovereign Stack                      │       The actual governance
 │  - 13 Floor enforcement                 │
 │  - VAULT999 persistence                 │
 └─────────────────────────────────────────┘
@@ -206,7 +206,7 @@ MCP is just **how you talk to the kernel**.
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │ L0: KERNEL — 🆕 CONSTITUTIONAL OPERATING SYSTEM                 │
-│    ├─ 5-Organs (ΔΩΨ governance engine)                          │
+│    ├─ 7-Organs (ΔΩΨ governance engine)                          │
 │    ├─ 9 System Calls (A-CLIP tools)                             │
 │    ├─ 13 Floors (enforced at kernel level)                      │
 │    └─ VAULT999 (immutable audit filesystem)                     │
@@ -337,7 +337,7 @@ arifOS L0:
 | Component | Path | Description |
 |-----------|------|-------------|
 | **Kernel Core** | `core/` | Pure governance logic, zero transport deps |
-| **5-Organs** | `core/organs/` | ΔΩΨ subsystems |
+| **7-Organs** | `core/organs/` | ΔΩΨ subsystems |
 | **System Calls** | `aaa_mcp/tools/` | 9 A-CLIP tool implementations |
 | **Floor Enforcement** | `core/shared/floors.py` | 13 constitutional policies |
 | **Audit Log** | `aaa_mcp/sessions/` | VAULT999 persistence |

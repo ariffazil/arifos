@@ -78,7 +78,7 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
 
 ### The arifOS Solution
 
-Every AI output must pass through **constitutional checkpoints**:
+Every AI output must pass through **constitutional checkpoints**. Furthermore, with the introduction of the 7-Organ Sovereign Stack, arifOS operates under a **Steady-State Philosophy**: it manages real-world emergence by observing anomalies, measuring their entropy impact (ΔS), and adjusting constraints while remaining thermodynamically grounded. It represents the transition from a passive oracle to an active, governed process.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -87,7 +87,7 @@ Every AI output must pass through **constitutional checkpoints**:
                  ▼
         ┌────────────────┐
         │  000 — INIT    │  Session ignition + defense scan
-        │  (Anchor)      │
+        │  (Airlock)     │
         └────────┬───────┘
                  ▼
         ┌────────────────┐
@@ -96,23 +96,33 @@ Every AI output must pass through **constitutional checkpoints**:
         └────────┬───────┘
                  ▼
         ┌────────────────┐
-        │  555–666 — ASI │  Safety / Empathy (Ω)
+        │  555 — PHOENIX │  Associative memory retrieval (Ω₀, W_scar)
+        │  (Subconscious)│  Closes the cognitive loop
+        └────────┬───────┘
+                 ▼
+        ┌────────────────┐
+        │  666 — ASI     │  Safety / Empathy (Ω)
         │  (Heart)       │  Is it safe for stakeholders?
         └────────┬───────┘
                  ▼
         ┌────────────────┐
-        │  777–888—APEX  │  Authority / Law (Ψ)
+        │  777 — APEX    │  Authority / Law (Ψ)
         │  (Soul)        │  Is it lawful? (F1-F13 check)
         └────────┬───────┘
                  ▼
         ┌────────────────┐
+        │  888 — FORGE   │  Sandboxed execution (ΔS external)
+        │  (Hands)       │  Closes the physical loop
+        └────────┬───────┘
+                 ▼
+        ┌────────────────┐
         │  999 — VAULT   │  Immutable ledger commit
-        │  (Seal)        │  Cryptographic hash chain
+        │  (Memory)      │  Cryptographic hash chain
         └────────┬───────┘
                  ▼
     ┌──────────────────────┐
     │  Verdict:            │
-    │  ✅ SEAL (Pass)      │  Output approved
+    │  ✅ SEAL (Pass)      │  Output approved / Actuated
     │  ⚠️  SABAR (Hold)    │  Needs human review
     │  ❌ VOID (Reject)    │  Constitutional violation
     └──────────────────────┘
@@ -393,7 +403,7 @@ arifOS evaluates every decision through **three parallel engines**:
 ├─────────────────────────────────────────────────────────┤
 │  L4: Governance (aclip_cai/ — 9-Sense Infrastructure)  │
 ├─────────────────────────────────────────────────────────┤
-│  L3: Organs (core/organs/ — 5 decision modules)        │
+│  L3: Organs (core/organs/ — 7 decision modules)        │
 ├─────────────────────────────────────────────────────────┤
 │  L2: Shared Types (core/shared/ — Constitutional types)│
 ├─────────────────────────────────────────────────────────┤
@@ -417,14 +427,16 @@ Current unified MCP server exposes:
 - **2 resources** (`arifos://templates/full-context`, `arifos://schemas/tooling`)
 - **3 prompts** (`arifos.prompt.trinity_forge`, `arifos.prompt.anchor_reason`, `arifos.prompt.audit_then_seal`)
 
-### Core Governance (5 Tools)
+### Core Governance (7 Tools)
 
 | Tool | Stage | Purpose | Floors Enforced |
 |------|-------|---------|-----------------|
 | `init_session` | 000 | Session ignition + defense scan | F11, F12, F13 |
 | `agi_cognition` | 111-444 | Logic/Truth (AGI Mind) | F2, F4, F7, F8 |
-| `asi_empathy` | 555-666 | Safety/Empathy (ASI Heart) | F5, F6 |
-| `apex_verdict` | 777-888 | Authority/Law (APEX Soul) | F1-F13 (all) |
+| `phoenix_recall` | 555 | Associative Subconscious (Ω₀, W_scar) | F4, F7, F8 |
+| `asi_empathy` | 666 | Safety/Empathy (ASI Heart) | F5, F6 |
+| `apex_verdict` | 777 | Authority/Law (APEX Soul) | F1-F13 (all) |
+| `sovereign_actuator` | 888 | Sandboxed Material Forge (Hands) | F1, F3, F9, F13 |
 | `vault_seal` | 999 | Immutable ledger commit | F1, F3, F10 |
 
 ### Triad Tools (9 Tools)

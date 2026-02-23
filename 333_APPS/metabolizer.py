@@ -4,7 +4,7 @@ metabolizer.py — Metabolic Membrane for 333_APPS
 This module enforces the EMD Stack (Encoder → Metabolizer → Decoder) on all
 high-level applications in 333_APPS. It ensures:
 
-1. Zero-bypass: All apps MUST route through L0 Kernel (5-Organ Trinity)
+1. Zero-bypass: All apps MUST route through L0 Kernel (7-Organ Sovereign Stack)
 2. Floor enforcement: Every app defines Hard vs Soft floors
 3. Telemetry: Standard arifOS telemetry appended to all outputs
 4. 888_HOLD: Sovereign gate for irreversible actions

@@ -128,7 +128,7 @@ core/
 
 ## 🔄 The Metabolic Loop Integration
 
-The transition from `v55` to `v64.1.1-GAGI` involves moving implementation logic from the application folders into the **5-Organ Kernel** (`core/`). 
+The transition from `v55` to `v64.1.1-GAGI` involves moving implementation logic from the application folders into the **7-Organ Sovereign Stack** (`core/`). 
 
 1.  **Request** enters via **L1_PROMPT** (`anchor`).
 2.  **Logic** is executed by **L2_SKILLS** via 9 A-CLIP tools (`reason`, `integrate`, `respond`).

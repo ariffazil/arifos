@@ -40,14 +40,16 @@ Unlike prompt-based guardrails that can be bypassed, **AAA MCP enforces constrai
 
 ---
 
-## The 9 Canonical MCP Tools
+## The 11 Canonical MCP Tools
 
-| Tool | Stage | Trinity | Floors | Purpose |
+| Tool | Stage | Organ | Floors | Purpose |
 |------|-------|---------|--------|---------|
-| `init_session` | 000+555 | Ψ Init | F11, F12, F5, F6 | Session ignition + impact validation |
-| `agi_cognition` | 222+333+444 | Δ Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
-| `asi_empathy` | 555+666 | Ω Heart | F5, F6, F9 | Empathy + ethics alignment |
-| `apex_verdict` | 777+888 | Ψ Soul | F2, F3, F4, F11, F13 | Forge + constitutional judgment |
+| `init_session` | 000 | Ψ Init | F11, F12, F13 | Session ignition + defense scan |
+| `agi_cognition` | 111-444 | Δ Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
+| `phoenix_recall` | 555 | PHOENIX | F4, F7, F8 | Subconscious - Dynamic associative memory retrieval |
+| `asi_empathy` | 666 | Ω Heart | F5, F6, F9 | Empathy + alignment |
+| `apex_verdict` | 777 | Ψ Soul | F1-F13 | Judgment + consensus |
+| `sovereign_actuator`| 888 | FORGE | F1, F3, F9, F13 | Hands - Sandboxed execution (ΔS external) |
 | `vault_seal` | 999 | VAULT | F1, F3 | Immutable audit seal |
 | `search` | utility | External | F2, F7 | Web search (read-only) |
 | `fetch` | utility | External | F2, F7 | Web fetch (read-only) |
@@ -156,32 +158,30 @@ AAA MCP implements a **Composite Architecture** where human sovereignty is the f
 │  │                                                           │
 │  ▼                                                           │
 │  ┌─────────────────────────────────────────────────────┐    │
-│  │               ΔΩΨ Trinity Engine                    │    │
-│  │  ┌─────────┐  ┌─────────┐  ┌─────────┐  ┌─────────┐ │    │
-│  │  │INIT(000)│→ │Mind (Δ) │→ │Heart (Ω)│→ │Soul (Ψ) │ │    │
-│  │  │Airlock  │  │Explorer │  │Guardian │  │Judge    │ │    │
-│  │  └─────────┘  └─────────┘  └─────────┘  └────┬────┘ │    │
-│  │                                               │      │    │
-│  │  ┌────────────────────────────────────────────┘      │    │
-│  │  │                                                    │    │
-│  │  ▼                                                    │    │
-│  │  ┌─────────────┐    ┌─────────────┐                   │    │
-│  │  │ vault_seal  │    │  VAULT999   │                   │    │
-│  │  │  (F1,F3)    │───→│  Ledger     │                   │    │
-│  │  └─────────────┘    └─────────────┘                   │    │
+│  │               7-Organ Sovereign Stack               │    │
+│  │  ┌──────┐  ┌──────┐  ┌───────┐  ┌──────┐  ┌──────┐  │    │
+│  │  │ INIT │→ │ AGI  │→ │PHOENIX│→ │ ASI  │→ │ APEX │  │    │
+│  │  └──────┘  └──────┘  └───────┘  └──────┘  └──┬───┘  │    │
+│  │                                              │      │    │
+│  │  ┌───────────────────────────────────────────┘      │    │
+│  │  │                                                  │    │
+│  │  ▼                                                  │    │
+│  │  ┌──────┐    ┌─────────┐    ┌───────┐               │    │
+│  │  │FORGE │──→ │vault_seal│──→ │ VAULT │               │    │
+│  │  └──────┘    └─────────┘    └───────┘               │    │
 │  └─────────────────────────────────────────────────────┘    │
 │                     The Metabolic Loop                       │
 └─────────────────────────────────────────────────────────────┘
-```
+``````
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
 | **MCP Server** | [`server.py`](server.py) | FastMCP 2.0+ entry point |
-| **Governance Core** | [`core/`](../core/) | Trinity Engines, v60 Postulate enforcement |
+| **Governance Core** | [`core/`](../core/) | 7-Organ Sovereign Stack, v60 Postulate enforcement |
 | **Pipeline** | [`core/pipeline.py`](../core/pipeline.py) | 000-999 stage orchestration |
 | **Floors** | [`core/shared/floors.py`](../core/shared/floors.py) | Constitutional validation |
 
-See [`core/`](../core/) for the Trinity Engine and Metabolic Loop implementation.
+See [`core/`](../core/) for the 7-Organ Sovereign Stack and Metabolic Loop implementation.
 
 ---
 

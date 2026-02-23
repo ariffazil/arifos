@@ -78,10 +78,18 @@ def test_unknown_mode_exits_with_code_2(monkeypatch) -> None:
         assert exc.code == 2
 
 
-def test_rest_aliases_map_to_canonical_five_organs() -> None:
+def test_rest_aliases_map_to_canonical_seven_organs() -> None:
     from aaa_mcp.rest import TOOL_ALIASES, TOOLS
 
-    canonical = {"init_session", "agi_cognition", "asi_empathy", "apex_verdict", "vault_seal"}
+    canonical = {
+        "init_session",
+        "agi_cognition",
+        "phoenix_recall",
+        "asi_empathy",
+        "apex_verdict",
+        "sovereign_actuator",
+        "vault_seal",
+    }
     assert canonical.issubset(set(TOOLS.keys()))
     assert TOOL_ALIASES["anchor"] == "init_session"
     assert TOOL_ALIASES["reason"] == "agi_cognition"

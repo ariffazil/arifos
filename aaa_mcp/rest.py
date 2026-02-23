@@ -66,9 +66,11 @@ from starlette.requests import Request
 # Legacy verbs are supported via HTTP aliases only.
 from aaa_mcp.server import (
     agi_cognition,
+    phoenix_recall,
     apex_verdict,
     asi_empathy,
     init_session,
+    sovereign_actuator,
     vault_seal,
     search,
     fetch,
@@ -87,8 +89,10 @@ BUILD_INFO = {
 TOOLS = {
     "init_session": init_session,
     "agi_cognition": agi_cognition,
+    "phoenix_recall": phoenix_recall,
     "asi_empathy": asi_empathy,
     "apex_verdict": apex_verdict,
+    "sovereign_actuator": sovereign_actuator,
     "vault_seal": vault_seal,
     "self_diagnose": self_diagnose,
     "search": search,
@@ -137,6 +141,14 @@ TOOL_SCHEMAS = {
             "debug": {"type": "boolean", "default": False},
         },
     },
+    "phoenix_recall": {
+        "description": "555_RECALL — Subconscious memory retrieval",
+        "args": {
+            "current_thought_vector": {"type": "string", "required": True},
+            "session_id": {"type": "string", "required": True},
+            "debug": {"type": "boolean", "default": False},
+        },
+    },
     "apex_verdict": {
         "description": "888_APEX — Final judgment synthesis + tri-witness scoring",
         "args": {
@@ -154,6 +166,18 @@ TOOL_SCHEMAS = {
             "human_approve": {"type": "boolean", "default": False},
             "capability_modules": {"type": "array|null", "default": None},
             "debug": {"type": "boolean", "default": False},
+        },
+    },
+    "sovereign_actuator": {
+        "description": "888_FORGE — Sandboxed execution with constitutional gating",
+        "args": {
+            "action_payload": {"type": "object", "required": True},
+            "signed_tensor": {"type": "object", "required": True},
+            "execution_context": {"type": "object", "required": True},
+            "signature": {"type": "string", "required": True},
+            "session_id": {"type": "string", "required": True},
+            "idempotency_key": {"type": "string", "required": True},
+            "ratification_token": {"type": "string|null", "required": False, "default": None},
         },
     },
     "vault_seal": {
@@ -609,7 +633,7 @@ async def apex_judge_wrapper(request: Request):
         canonical_session_id = init_result.get("session_id", session_id)
         pipeline_results["session_id"] = canonical_session_id
 
-        # Stage 2: AGI (333)
+        # Stage 2: AGI (111-444)
         agi_tool = TOOLS["agi_cognition"]
         agi_fn = getattr(agi_tool, "fn", agi_tool)
         agi_result = await agi_fn(
@@ -617,7 +641,16 @@ async def apex_judge_wrapper(request: Request):
             session_id=canonical_session_id,
             grounding=body.get("grounding"),
         )
-        pipeline_results["pipeline"].append({"stage": "333_AGI", "result": agi_result})
+        pipeline_results["pipeline"].append({"stage": "111-444_AGI", "result": agi_result})
+
+        # Stage 2.5: PHOENIX (555)
+        phoenix_tool = TOOLS["phoenix_recall"]
+        phoenix_fn = getattr(phoenix_tool, "fn", phoenix_tool)
+        phoenix_result = await phoenix_fn(
+            current_thought_vector=query,
+            session_id=canonical_session_id
+        )
+        pipeline_results["pipeline"].append({"stage": "555_RECALL", "result": phoenix_result})
 
         # Stage 3: ASI (666)
         asi_tool = TOOLS["asi_empathy"]
@@ -642,6 +675,20 @@ async def apex_judge_wrapper(request: Request):
             human_approve=body.get("human_approve", False),
         )
         pipeline_results["pipeline"].append({"stage": "888_APEX", "result": apex_result})
+
+        # Stage 4.5: FORGE (888_ACTUATE)
+        if apex_result.get("verdict") == "SEAL":
+            forge_tool = TOOLS["sovereign_actuator"]
+            forge_fn = getattr(forge_tool, "fn", forge_tool)
+            forge_result = await forge_fn(
+                action_payload=body.get("action_payload", {}),
+                signed_tensor=apex_result.get("payload", {}),
+                execution_context=body.get("execution_context", {}),
+                signature=body.get("signature", ""),
+                session_id=canonical_session_id,
+                idempotency_key=request_id
+            )
+            pipeline_results["pipeline"].append({"stage": "888_FORGE", "result": forge_result})
 
         # Stage 5: VAULT (999) — optional
         if auto_seal:

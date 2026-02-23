@@ -185,6 +185,6 @@ These workflows are **model-agnostic**. Platform-specific bindings:
 
 ## 🔗 Related Documents
 
-- [../L2_SKILLS/ACTIONS/](../L2_SKILLS/ACTIONS/) — The 9 Canonical Actions
+- [../L2_SKILLS/ACTIONS/](../L2_SKILLS/ACTIONS/) — The 11 Canonical Actions
 - [../L4_TOOLS/](../L4_TOOLS/) — MCP Tool bindings
 - [../../.agent/workflows/](../../.agent/workflows/) — Gemini-specific workflows

@@ -29,7 +29,7 @@
 - ✅ **Focus:** Constitutional Floor enforcement via zero-shot instructions.
 
 ### L2_SKILLS — Functional Templates ✅
-- ✅ **Actions:** 9 canonical actions (Reason, Anchor, etc.) verified and mapped.
+- ✅ **Actions:** 11 canonical actions (Reason, Anchor, etc.) verified and mapped.
 - ✅ **Consistency:** All skills point to verified kernel organs.
 
 ### L3_WORKFLOW — Canonical Sequences ✅

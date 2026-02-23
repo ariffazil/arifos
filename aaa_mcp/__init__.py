@@ -2,7 +2,7 @@
 arifOS AAA MCP package exports.
 
 Public contract:
-- 5-organ tools (`init_session`, `agi_cognition`, `asi_empathy`, `apex_verdict`, `vault_seal`)
+- 7-organ tools (`init_session`, `agi_cognition`, `phoenix_recall`, `asi_empathy`, `apex_verdict`, `sovereign_actuator`, `vault_seal`)
 - 4 utility tools (`search`, `fetch`, `analyze`, `system_audit`)
 
 Legacy verb aliases are kept for backward compatibility.
@@ -19,7 +19,9 @@ from .server import (
     fetch,
     init_session,
     mcp,
+    phoenix_recall,
     search,
+    sovereign_actuator,
     system_audit,
     vault_seal,
 )
@@ -39,11 +41,13 @@ __version__ = "2026.02.22-FORGE-VPS-SEAL"
 __all__ = [
     # FastMCP server instance
     "mcp",
-    # Canonical 5-organ + 4-utility surface
+    # Canonical 7-organ + 4-utility surface
     "init_session",
     "agi_cognition",
+    "phoenix_recall",
     "asi_empathy",
     "apex_verdict",
+    "sovereign_actuator",
     "vault_seal",
     "search",
     "fetch",

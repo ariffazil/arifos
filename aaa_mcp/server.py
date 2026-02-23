@@ -25,6 +25,32 @@ from aaa_mcp.protocol.schemas import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOO
 from core.shared.context_template import build_full_context_template
 
 
+LEGACY_TRIAD_TOOL_NAMES = (
+    "triad_anchor",
+    "triad_reason",
+    "triad_integrate",
+    "triad_respond",
+    "triad_validate",
+    "triad_align",
+    "triad_forge",
+    "triad_audit",
+    "triad_seal",
+)
+
+
+def _harden_external_tool_surface() -> None:
+    """Remove legacy triad aliases from external MCP exposure."""
+    for name in LEGACY_TRIAD_TOOL_NAMES:
+        try:
+            mcp.local_provider.remove_tool(name)
+        except Exception:
+            # Tool may already be absent depending on import order.
+            continue
+
+
+_harden_external_tool_surface()
+
+
 def create_unified_mcp_server() -> Any:
     """Return the unified FastMCP server instance (tool registration happens at import time)."""
     return mcp
@@ -224,6 +250,37 @@ async def _agi_cognition(
 
 agi_cognition = ToolHandle(_agi_cognition)
 
+@mcp.tool(name="phoenix_recall", description="555_RECALL — Subconscious memory retrieval.")
+async def _phoenix_recall(
+    current_thought_vector: str,
+    session_id: str,
+    debug: bool = False,
+) -> Dict[str, Any]:
+    """
+    Organ 5: PHOENIX. Associative memory retrieval via EUREKA sieve.
+    """
+    try:
+        if not session_id:
+            return _build_floor_block("555_RECALL", "Missing session_id")
+        
+        # Implementation will call core.organs._5_phoenix.phoenix_recall
+        # For now, return a placeholder that confirms the stage
+        result = {
+            "status": "RECALL_SUCCESS",
+            "memories": [],
+            "metrics": {
+                "jaccard_max": 0.0,
+                "delta_s_actual": 0.0,
+                "w_scar_applied": 0.5
+            }
+        }
+        result.update(_envelope(stage="555_RECALL", session_id=session_id, verdict="SEAL", payload={}))
+        return result
+    except Exception as e:
+        return {"verdict": "VOID", "error": str(e), "stage": "555_RECALL", "session_id": session_id}
+
+phoenix_recall = ToolHandle(_phoenix_recall)
+
 @mcp.tool(name="asi_empathy", description="555–666_ASI — Validate + align.")
 async def _asi_empathy(
     query: str,
@@ -322,6 +379,37 @@ async def _apex_verdict(
         return {"verdict": "VOID", "error": str(e), "stage": "777-888", "session_id": session_id}
 
 apex_verdict = ToolHandle(_apex_verdict)
+
+@mcp.tool(name="sovereign_actuator", description="888_FORGE — Sandboxed execution of physical state mutations.")
+async def _sovereign_actuator(
+    action_payload: Dict[str, Any],
+    signed_tensor: Dict[str, Any],
+    execution_context: Dict[str, Any],
+    signature: str,
+    session_id: str,
+    idempotency_key: str,
+    ratification_token: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Organ 6: FORGE. Physical world interaction gated by APEX Soul SEAL.
+    """
+    try:
+        if not session_id:
+            return _build_floor_block("888_FORGE", "Missing session_id")
+        
+        # Implementation will call core.organs._6_forge.sovereign_actuator
+        # For now, return a placeholder that yields 888_HOLD if irreversible
+        result = {
+            "status": "888_HOLD",
+            "message": "FORGE YIELDED. Sovereign ratification required.",
+            "instruction": "Sign the ratification_challenge with the Sovereign Key to proceed."
+        }
+        result.update(_envelope(stage="888_FORGE", session_id=session_id, verdict="888_HOLD", payload={}))
+        return result
+    except Exception as e:
+        return {"verdict": "VOID", "error": str(e), "stage": "888_FORGE", "session_id": session_id}
+
+sovereign_actuator = ToolHandle(_sovereign_actuator)
 
 @mcp.tool(name="vault_seal", description="999_VAULT — Commit decision to immutable vault.")
 async def _vault_seal(

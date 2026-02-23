@@ -1,4 +1,4 @@
-# L2_SKILLS — 9 Canonical VERBS (v60.0-FORGE)
+# L2_SKILLS — 11 Canonical VERBS (v60.0-FORGE)
 
 **Level 2 | 9 Actions Only | ΔS ≤ 0**
 
@@ -6,7 +6,7 @@
 
 ---
 
-## The 9 Canonical VERBS
+## The 11 Canonical VERBS
 
 | # | VERB | Stage | Trinity | MCP Tool | Primary Floors | Action |
 |---|------|-------|---------|----------|----------------|--------|
@@ -41,7 +41,7 @@ L2_SKILLS/
 ├── 333_AXIOMS.md             # Root glossary (symlink)
 ├── skill_templates.yaml      # 9 verb templates
 ├── mcp_tool_templates.py     # Python wrappers
-└── ACTIONS/                  # 9 canonical VERBS
+└── ACTIONS/                  # 11 canonical VERBS
     ├── anchor/
     ├── reason/
     ├── integrate/
