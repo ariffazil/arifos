@@ -4,9 +4,11 @@ Manages Docker containers via AAA MCP with Constitutional governance
 """
 
 import json
+import os
+import subprocess
 import time
-from typing import Dict, List, Optional
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Dict, List, Optional
 
@@ -84,9 +86,7 @@ class ContainerController:
         if cached is not None:
             return cached
 
-        containers = []
-        """List all sovereign stack containers."""
-        containers = []
+        containers: List[ContainerInfo] = []
 
         # Get Docker containers
         try:
@@ -133,23 +133,24 @@ class ContainerController:
             )
 
         # Check OpenClaw host process
-        try:
-            result = subprocess.run(
-                ["pgrep", "-f", "openclaw-gateway"], capture_output=True, text=True, timeout=5
-            )
-            if result.returncode == 0:
-                containers.append(
-                    ContainerInfo(
-                        name="openclaw-host",
-                        status=ContainerStatus.RUNNING,
-                        image="openclaw-gateway",
-                        ports="127.0.0.1:18789",
-                        health="healthy",
-                        uptime="host process",
-                    )
+        if os.name != "nt":
+            try:
+                result = subprocess.run(
+                    ["pgrep", "-f", "openclaw-gateway"], capture_output=True, text=True, timeout=5
                 )
-        except Exception:
-            pass
+                if result.returncode == 0:
+                    containers.append(
+                        ContainerInfo(
+                            name="openclaw-host",
+                            status=ContainerStatus.RUNNING,
+                            image="openclaw-gateway",
+                            ports="127.0.0.1:18789",
+                            health="healthy",
+                            uptime="host process",
+                        )
+                    )
+            except Exception:
+                pass
 
         # Cache the result
         self._set_cached("containers", containers)
@@ -168,7 +169,7 @@ class ContainerController:
             "action": "restart",
             "target": name,
             "container": container_name,
-            "timestamp": subprocess.check_output(["date", "-Iseconds"]).decode().strip(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
         try:
@@ -181,6 +182,12 @@ class ContainerController:
                 )
                 success = result.returncode == 0
             else:
+                if os.name == "nt":
+                    return {
+                        "verdict": "VOID",
+                        "operation": operation,
+                        "error": "Host-process restart is not supported on Windows dev machines.",
+                    }
                 # Host process - restart via systemd or direct
                 result = subprocess.run(
                     ["pkill", "-f", config.get("process_name", name)],
@@ -222,6 +229,8 @@ class ContainerController:
                 )
                 return result.stdout or result.stderr or "No logs"
             else:
+                if os.name == "nt":
+                    return "Host-process logs are not available on Windows dev machines."
                 # Host process - use journalctl or log files
                 result = subprocess.run(
                     [
@@ -245,7 +254,7 @@ class ContainerController:
         containers = self.list_containers()
 
         report = {
-            "timestamp": subprocess.check_output(["date", "-Iseconds"]).decode().strip(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "overall_status": "HEALTHY",
             "containers": [],
             "verdict": "SEAL",

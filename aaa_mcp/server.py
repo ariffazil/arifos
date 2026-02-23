@@ -13,6 +13,7 @@ All tools must be async and must not write to stdout (stdio transport safety).
 
 from __future__ import annotations
 
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 import uuid
 
@@ -20,6 +21,7 @@ from aclip_cai.mcp_server import mcp
 from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, validate
 
 from aaa_mcp.external_gateways.brave_client import BraveSearchClient
+from fastmcp.resources.template import ResourceTemplate
 
 
 def create_unified_mcp_server() -> Any:
@@ -262,6 +264,80 @@ async def _system_audit(audit_scope: str = "quick", verify_floors: bool = True) 
         return {"verdict": "VOID", "error": str(e), "scope": audit_scope}
 
 system_audit = ToolHandle(_system_audit)
+
+# ═══════════════════════════════════════════════════════
+# RESOURCES, TEMPLATES, PROMPTS (Inspector completeness)
+# ═══════════════════════════════════════════════════════
+
+
+@mcp.resource(
+    "arifos://info",
+    mime_type="application/json",
+    description="Static server metadata and surface summary.",
+)
+async def _arifos_info_resource() -> Dict[str, Any]:
+    return {
+        "name": "arifOS",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "tools": [
+            "init_session",
+            "agi_cognition",
+            "asi_empathy",
+            "apex_verdict",
+            "vault_seal",
+            "search",
+            "fetch",
+            "analyze",
+            "system_audit",
+        ],
+    }
+
+
+async def _constitutional_floor_resource(floor_id: str) -> Dict[str, Any]:
+    """
+    Lightweight floor lookup for MCP Resource Templates.
+    If YAML config is available, returns threshold and hold-on-fail metadata.
+    """
+    floor_id = (floor_id or "").strip().upper()
+    payload: Dict[str, Any] = {"floor": floor_id}
+
+    try:
+        import yaml  # type: ignore[import-not-found]
+
+        from pathlib import Path
+
+        cfg_path = Path(__file__).resolve().parents[1] / "aclip_cai" / "config" / "floors.yaml"
+        data = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+        payload["thresholds"] = data.get("thresholds", {})
+        payload["hold_on_fail"] = data.get("hold_on_fail", [])
+        payload["floor_threshold"] = payload["thresholds"].get(floor_id)
+    except Exception:
+        payload["floor_threshold"] = None
+
+    return payload
+
+
+mcp.add_template(
+    ResourceTemplate.from_function(
+        fn=_constitutional_floor_resource,
+        uri_template="constitutional://floors/{floor_id}",
+        name="constitutional_floor",
+        description="Lookup threshold/config for a constitutional floor ID.",
+        mime_type="application/json",
+    )
+)
+
+
+@mcp.prompt(
+    name="arifos_governance_brief",
+    description="Reusable prompt: arifOS governance constraints and usage.",
+)
+async def _arifos_governance_brief_prompt() -> str:
+    return (
+        "You are operating under arifOS constitutional governance.\n"
+        "Use tools for actions; prefer reversible steps; avoid secrets leakage.\n"
+        "If an operation is high-stakes or irreversible, request explicit human approval.\n"
+    )
 
 __all__ = [
     "create_unified_mcp_server",
