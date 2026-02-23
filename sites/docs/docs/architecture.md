@@ -48,7 +48,7 @@ L0 is implemented across two packages with a hard architectural boundary:
 | Package | Role | Rule |
 |:--|:--|:--|
 | `core/` | Pure decision logic, 7 organs, 13 floors | **Zero** transport imports |
-| `aaa_mcp/` | MCP transport adapter (stdio/SSE/HTTP) | **Zero** decision logic |
+| `aaa_mcp/` | MCP transport adapter (stdio/streamable-HTTP) | **Zero** decision logic |
 
 Violating this boundary is a hard rule. `core/` must never import `fastmcp`, `starlette`, `fastapi`, or any HTTP library.
 
@@ -95,13 +95,14 @@ The addition of the Actuator and Phoenix organs represents the transition to the
 
 ## MCP Transports
 
-AAA-MCP exposes three transports (stdio/SSE/HTTP). They serve the same governance pipeline tool surface.
+AAA-MCP exposes transports for different deployment scenarios. They serve the same governance pipeline tool surface.
 
 | Transport | Command | Best for |
 |:--|:--|:--|
-| **stdio** | `python -m aaa_mcp` | Claude Desktop, Cursor, local dev |
-| **SSE** | `python -m aaa_mcp sse` | Cloud clients, Railway, OpenClaw |
-| **HTTP** | `python -m aaa_mcp http` | Direct JSON-RPC integrations |
+| **stdio** | `python -m aaa_mcp stdio` | Claude Desktop, Cursor, local IDE integration |
+| **Streamable HTTP** (Recommended) | `python -m aaa_mcp http` | Production deployments, cloud services, JSON-RPC integrations |
+
+**Note:** Streamable HTTP is the current MCP standard (2024+), replacing legacy SSE two-channel transport. See [transport architecture](/mcp-server#transport) for details.
 | **REST (unified)** | `python server.py --mode rest` | Unified server (governance + observability tools) |
 
 The unified `server.py` at repo root bundles governance pipeline tools plus additional observability/sensory tools into one server. The standalone `aaa_mcp/server.py` provides the governance pipeline transport.

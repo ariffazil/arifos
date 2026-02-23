@@ -101,11 +101,7 @@ const config = {
             label: 'Status',
             position: 'right',
           },
-          {
-            href: '/console/',
-            label: 'Console',
-            position: 'right',
-          },
+
         ],
       },
 
@@ -164,7 +160,7 @@ const config = {
             ],
           },
         ],
-        copyright: `arifOS - <em>Ditempa Bukan Diberi</em> (Forged, Not Given)<br/>Built ${new Date().getFullYear()} - Muhammad Arif bin Fazil - AGPL-3.0`,
+        copyright: `arifOS - <em>Ditempa Bukan Diberi</em> (Forged, Not Given)<br/>Built ${new Date().getFullYear()} - ARIF FAZIL - AGPL-3.0`,
       },
 
       prism: {
