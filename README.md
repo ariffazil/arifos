@@ -426,6 +426,12 @@ arifOS evaluates every decision through **three parallel engines**:
 
 ## 🛠️ MCP Surface
 
+### Canonical Source of Truth 🧰
+To prevent documentation drift, please note:
+- **The live `tools/list` output is the absolute canonical source of truth** for all available MCP tools.
+- The tables below are generated from it and represent stable UX verbs (`anchor_session`, `reason_mind`, etc.). Legacy internal names (`init_gate`, `agi_sense`, etc.) may still exist in older documentation or fallbacks but are superseded by the 13 canonical verbs on the primary surface.
+- The telemetry schema is versioned; all system health statuses (e.g., `status: "ALIVE"`) are structurally distinct from governance verdicts (`verdict: "SEAL"`, `SABAR`, `VOID`).
+
 Current canonical AAA MCP server exposes:
 
 - **13 tools**
