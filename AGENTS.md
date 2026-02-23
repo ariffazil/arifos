@@ -1,158 +1,247 @@
-# AGENTS.md - arifOS Development Guide
-Project: arifOS constitutional MCP server
-Python: >=3.12 (runtime), tooling config targets py310+
-Release baseline: 2026.2.23
+# AGENTS.md — arifOS Development Guide
 
-This file guides agentic coding tools in this repository.
-Primary goal: safe, reversible, test-backed changes that respect architecture boundaries.
+**Project:** arifOS — Constitutional AI Governance System (Python MCP Server)
+**Python:** >=3.12 (runtime) | tooling targets py310+ | **Version:** 2026.2.23
+**Motto:** *Ditempa Bukan Diberi* — Forged, Not Given
 
-## Source Of Truth
-- PRIMARY: `AGENTS.md`, `pyproject.toml`, and repository code.
-- SECONDARY: `.github/copilot-instructions.md` (integrated below).
-- Cursor rules status: no `.cursorrules` and no `.cursor/rules/` found.
+This file is the PRIMARY guidance document for agentic coding tools in this repository.
+Goal: safe, reversible, test-backed changes that respect architecture and governance boundaries.
+
+---
+
+## Source of Truth Hierarchy
+- **PRIMARY:** `AGENTS.md` (this file), `pyproject.toml`, and repository code.
+- **SECONDARY:** `.github/copilot-instructions.md` (derivative; key content integrated below).
+- **TERTIARY:** Sealed receipts in `VAULT999/`, `spec/v46/*`, `ARIFOS_SKILLS_REGISTRY.md`.
+- Cursor rules status: no `.cursorrules` or `.cursor/rules/` present.
+
+---
 
 ## Repository Layout
-- `core/`: pure governance/kernel logic (7-Organ Sovereign Stack).
-- `aaa_mcp/`: transport and MCP adapter layer.
-- `aclip_cai/`: console/federation support.
-- `tests/`: unit, integration, and constitutional tests.
-- `spec/`: canonical governance specs, including v46 floors/stages.
+```
+core/           Pure governance/kernel logic (7-Organ Sovereign Stack) — NO transport imports
+aaa_mcp/        Transport and MCP adapter layer — NO decision logic
+aclip_cai/      Console / 9-Sense Federation Hub
+tests/          Unit, integration, and constitutional tests
+spec/           Canonical governance specs (v46 floors, stages, traceability)
+VAULT999/       Immutable sealed receipts (append-only)
+```
+
+---
 
 ## Setup
 ```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install uv
-uv pip install -e ".[dev]"
-```
-Fallback:
-```bash
+python -m venv .venv && source .venv/bin/activate
+pip install uv && uv pip install -e ".[dev]"
+# Fallback (no uv):
 pip install -e ".[dev]"
 ```
 
+---
+
 ## Build, Lint, and Typecheck
 ```bash
-black . --line-length 100
-ruff check . --line-length 100
-ruff check . --line-length 100 --fix
-mypy .
+black . --line-length 100               # Format
+ruff check . --line-length 100          # Lint
+ruff check . --line-length 100 --fix    # Lint with auto-fix
+mypy .                                  # Type check (strict on core/ modules)
 ```
-Notes:
-- Black/Ruff line length is 100.
-- Ruff excludes `tests/**` in current config.
-- MyPy has stricter overrides for core governance modules.
+- Ruff excludes `tests/**` and `archive/**` (see `pyproject.toml`).
+- MyPy applies stricter overrides to `core.governance_kernel`, `core.judgment`, `core.pipeline`, `core.organs.*`.
 
-## Test Commands (Single Test Emphasis)
-Use these exact patterns:
+---
+
+## Test Commands
 ```bash
-pytest tests/ -v
-pytest tests/test_file.py -v
-pytest tests/test_file.py::TestClassName -v
-pytest tests/test_file.py::TestClassName::test_method -v
-pytest tests/test_file.py::test_function_name -v
-pytest -m constitutional -v
-pytest -m integration -v
-pytest -m "not slow" -v
+pytest tests/ -v                                              # All tests
+pytest tests/test_file.py -v                                  # Single file
+pytest tests/test_file.py::TestClassName -v                   # Single class
+pytest tests/test_file.py::TestClassName::test_method -v      # Single method
+pytest tests/test_file.py::test_function_name -v              # Single function
+pytest -m constitutional -v                                   # Constitutional floor tests
+pytest -m integration -v                                      # Integration tests
+pytest -m "not slow" -v                                       # Skip slow tests
+pytest tests/test_mcp_quick.py -v                             # Quick MCP smoke test
 ```
-Async policy:
-- `asyncio_mode = "auto"`.
-- Do not add `@pytest.mark.asyncio` unless explicitly required.
+**Async policy:** `asyncio_mode = "auto"` — do NOT add `@pytest.mark.asyncio` decorators.
+**Auto-set env in conftest:** `ARIFOS_PHYSICS_DISABLED=1`, `ARIFOS_ALLOW_LEGACY_SPEC=1`, `AAA_MCP_OUTPUT_MODE=debug`.
 
-## Run Commands
+---
+
+## Run the Server
 ```bash
-python -m aaa_mcp
-python -m aaa_mcp sse
-python -m aaa_mcp http
-python -m aaa_mcp stdio
-python -m aaa_mcp.selftest
+python -m aaa_mcp              # stdio (default)
+python -m aaa_mcp sse          # SSE transport
+python -m aaa_mcp http         # Streamable HTTP
+python -m aaa_mcp.selftest     # Self-test
 arifos serve --profile strict --metrics
+arifos deploy --target docker --stack trinity2
+arifos health --endpoint http://localhost:8888/health
 ```
+
+---
+
+## Environment Variables
+| Variable | Purpose |
+|----------|---------|
+| `ARIF_SECRET` / `ARIF_JWT_SECRET` | Authentication for SSE/HTTP transports |
+| `BRAVE_API_KEY` / `OPENAI_API_KEY` | External search tools |
+| `DATABASE_URL` / `REDIS_URL` | VAULT999 persistence and session cache |
+| `AAA_MCP_TRANSPORT` | Override transport: `stdio` / `sse` / `http` |
+| `AAA_MCP_OUTPUT_MODE` | `user` or `debug` |
+| `ARIFOS_PHYSICS_DISABLED` | Set `1` to skip thermodynamic calculations |
+| `ARIFOS_ALLOW_LEGACY_SPEC` | Set `1` to bypass spec version gating in tests |
+
+Copy `.env.docker.example` to `.env.docker` and fill in keys before deploying.
+
+---
 
 ## Code Style Guidelines
 
-### Imports
-- Order: standard library -> third-party -> local modules.
-- Local module groups: `core.*`, `aaa_mcp.*`, `aclip_cai.*`.
-- Do not shadow external SDK name `mcp`.
-- Use lazy imports (`try/except ImportError`) for optional dependencies.
+### Import Order
+1. Standard library (`os`, `hashlib`, `typing`, etc.)
+2. Third-party (`pydantic`, `fastmcp`, `numpy`, etc.)
+3. Local packages (`core.*`, `aaa_mcp.*`, `aclip_cai.*`)
+
+Do not shadow the external SDK name `mcp` with any local module.
+Use `try/except ImportError` for optional dependencies (lazy imports).
 
 ### Formatting and Types
-- Keep lines <= 100 chars.
-- Add type hints on function signatures in production code.
-- Use Pydantic v2 `BaseModel` for external tool/API I/O contracts.
-- Use `str`-backed enums for verdict-like state (`class Verdict(str, Enum)`).
-- Prefer `async def` for I/O-bound operations.
+- **Line length:** 100 characters (Black + Ruff)
+- **Type hints:** Required on all function signatures in production code
+- **Data models:** Pydantic v2 `BaseModel` for I/O contracts
+- **Enums:** `class Verdict(str, Enum)` pattern
+- **Async:** All I/O-bound functions MUST be `async def`
 
-### Naming
-- Modules/functions/variables: `snake_case`.
-- Classes: `PascalCase`.
-- Constants: `UPPER_SNAKE_CASE`.
-- Private helpers: `_leading_underscore`.
-- Organ files follow `_N_name.py` style (for example `_0_init.py`).
+### Naming Conventions
+| Type | Convention | Example |
+|------|-----------|---------|
+| Modules | `snake_case` | `governance_kernel.py` |
+| Classes | `PascalCase` | `GovernanceKernel` |
+| Functions/Variables | `snake_case` | `compute_uncertainty` |
+| Constants | `UPPER_SNAKE_CASE` | `UNCERTAINTY_THRESHOLD` |
+| Private helpers | `_prefix` | `_generate_session_id` |
+| Organ modules | `_N_name.py` | `_0_init.py`, `_1_agi.py` |
 
 ### Error Handling
-- MCP-facing tools catch exceptions and return structured dict errors.
-- Core functions may raise internal exceptions when appropriate.
+- **MCP tools** catch all exceptions and return structured dicts:
+  ```python
+  except Exception as e:
+      return {"verdict": "VOID", "error": str(e), "stage": "222_REASON"}
+  ```
+- **`core/` kernel functions** may raise exceptions for internal errors.
 - Never swallow errors silently.
-Canonical MCP tool failure pattern:
-```python
-except Exception as e:
-    return {"verdict": "VOID", "error": str(e), "stage": "222_REASON"}
-```
 
 ### Decorator Order
-- `@mcp.tool(...)` must be outermost.
-- `@constitutional_floor(...)` must be inner.
+`@mcp.tool()` must be OUTER, `@constitutional_floor()` must be INNER:
+```python
+@mcp.tool(name="reason", description="...")
+@constitutional_floor("F2", "F4", "F7")
+async def reason(query: str) -> dict: ...
+```
 
 ### Module Hygiene
-- Include module docstrings for non-trivial modules.
-- Keep exports explicit with `__all__` where practical.
-- Avoid hidden side effects, especially session state mutation.
+- Every non-trivial module must have a module docstring.
+- Use section delimiters: `# ═══════════════════════════════════════════════════════`
+- Define `__all__` exports explicitly.
+- STDIO mode: NEVER use `print()` or write to `stdout`. Use `sys.stderr` or the logger.
+
+---
 
 ## Architecture Constraints
-1. `core/` must stay transport-agnostic (no FastAPI/Starlette/Uvicorn/FastMCP imports).
-2. `aaa_mcp/` should remain transport glue, not governance decision logic.
-3. SessionState is copy-on-write; do not mutate shared state in place.
-4. In STDIO mode, never write logs/protocol data to stdout (`print()` is unsafe).
+1. **`core/` is pure:** No imports from `fastmcp`, `starlette`, `fastapi`, `uvicorn`, or any transport/HTTP library.
+2. **`aaa_mcp/` is transport only:** No governance decision logic. Calls `core/` functions.
+3. **Do NOT shadow `mcp`:** External SDK is `mcp`. No local module may use that name.
+4. **SessionState is copy-on-write:** Never mutate session state in place.
+5. **Separation of powers:** Architect (Δ) ≠ Engineer (Ω) ≠ Auditor (Ψ) ≠ KIMI (Κ).
 
-## Testing Requirements For Changes
-- Every behavior change should add or update tests.
+---
+
+## Testing Requirements
+- All new functionality MUST have tests.
 - Place tests in the appropriate `tests/` subtree.
-- Run focused single tests first, then broader suites.
+- Run focused single tests first, then the broader suite to confirm no regressions.
+
+---
+
+## MCP Tools Reference
+9 governance tools: `anchor` (000), `reason` (222), `integrate` (333), `respond` (444),
+`validate` (555), `align` (666), `forge` (777), `audit` (888), `seal` (999).
+Additional: `search`, `fetch`. Confirm current list in `aaa_mcp/server.py` before edits.
+
+---
 
 ## OpenCode Session Lifecycle (Mandatory)
-Session order for this repository:
-1. Restore continuity from VAULT999.
-2. Run `000 INIT` before planning or implementation.
-3. Execute governed work with honest receipts/evidence.
-4. Run `999 SEAL` before handoff, including continuity notes.
-Hard rule: do not start directly at implementation stages without restore + init.
+1. **Session Open:** Restore prior sealed state from VAULT999 (latest 999 receipt).
+2. **000 INIT:** Run stage `000` immediately after vault restore — before any implementation.
+3. **Execution Window:** Work through governed stages with explicit receipts.
+4. **Session Close:** Run `999 SEAL` before handoff, with continuity notes for the next `000`.
 
-## 888 HOLD - Mandatory Human Confirmation
-Trigger HOLD before:
-- database-destructive operations
-- production deployments
-- mass file changes (>10 files)
-- credential or secret handling
-- git history modifications (rebase, force-push, destructive reset)
-When triggered:
-1. Declare: `888 HOLD - [trigger] detected`
-2. List conflicts: PRIMARY vs SECONDARY vs TERTIARY
-3. Re-check PRIMARY source(s)
-4. Wait for explicit human approval
+**Hard rule:** No session starts directly at 222/333/444. Must follow: `VAULT999 restore → 000 INIT → governed execution`.
+**Canonical stage spine:** `000 → 444 → 666 → 888 → 999`.
 
-## Copilot and Cursor Rules
-From `.github/copilot-instructions.md`:
-- Canonical stage spine: `000 -> 444 -> 555 -> 666 -> 777 -> 888 -> 999`.
-- Run 000 before actions and 999 before handoff.
-- Cite PRIMARY canonical sources for constitutional claims (`AGENTS.md`, `spec/v46/*`).
-- Preserve role separation (Architect != Engineer != Auditor != KIMI).
-- Keep session data honest; never fabricate executed steps.
-Cursor status:
-- No `.cursorrules` or `.cursor/rules/` files are present.
+---
+
+## 888 HOLD — Mandatory Human Confirmation
+Stop and await explicit human approval when any trigger below is met:
+
+**Original triggers:** database-destructive ops, production deployments, mass file changes (>10 files),
+credential/secret handling, git history modification, bypassing constitutional failures.
+
+**v41.2 Expanded triggers:**
+- **H-USER-CORRECTION:** User corrects or disputes a constitutional claim
+- **H-SOURCE-CONFLICT:** Conflicting evidence across source tiers (PRIMARY vs SECONDARY vs TERTIARY)
+- **H-NO-PRIMARY:** Constitutional claim made without reading spec JSON
+- **H-GREP-CONTRADICTS:** Search results contradict spec/canon patterns
+- **H-RUSHED-FIX:** Proposing fixes based on <5 minutes of audit
+
+**Action sequence:**
+1. Declare: `888 HOLD — [trigger type] detected`
+2. List conflicts: PRIMARY vs SECONDARY vs TERTIARY sources
+3. Re-read PRIMARY: verify against spec JSON or SEALED canon
+4. Await: `"Ready to proceed after verification"` — wait for explicit human approval
+
+---
+
+## Floor Violations Quick Reference
+| Floor | Code Smell | Fix |
+|-------|------------|-----|
+| F1 | Mutates input, hidden side effects | Pure functions, explicit returns |
+| F2 | Fabricated data, fake metrics | Empty/null when unknown |
+| F3 | Contract mismatch, type lies | Use canonical interfaces |
+| F4 | Magic numbers, obscure logic | Named constants, clear params |
+| F5 | Destructive defaults, no backup | Safe defaults, preserve state |
+| F6 | Only happy path, cryptic errors | Handle edge cases, clear messages |
+| F7 | False confidence, fake computation | Admit uncertainty, cap confidence |
+| F8 | Bypasses governance, invents patterns | Use established systems |
+| F9 | Deceptive naming, hidden behavior | Honest names, transparent logic |
+| F10–F13 | See `spec/v46/constitutional_floors.json` | Symbolic Guard, Command Auth, Injection Defense |
+
+---
+
+## Output Format for Governed Stages
+```
+[STAGE NNN] Stage Name
+Status: [IN_PROGRESS | COMPLETE]
+Floor Scores: F1=X F2=X ... F9=X
+Verdict: [SEAL | PARTIAL | SABAR | VOID | 888_HOLD]
+```
+
+---
+
+## v46 Alignment (from `.github/copilot-instructions.md`)
+- Canonical sources: `AGENTS.md`, `spec/v46/*`, `L2_GOVERNANCE/skills/ARIFOS_SKILLS_REGISTRY.md`.
+- 12 constitutional floors in `spec/v46/constitutional_floors.json` (F1–F12: Truth through Injection Defense).
+- Drift check: `rg --hidden -n "v45" .agent .codex .claude .kimi .cursor .gemini .github`
+- Skills sync: `python scripts/sync_skills.py --check`
+- Human veto power is ABSOLUTE. AI role is to propose, not decide.
+
+---
 
 ## Practical Agent Workflow
 1. Read target files and nearby tests first.
 2. Implement the smallest safe change that solves the request.
-3. Run a focused single test, then broader checks.
-4. Report what changed and what was actually verified.
+3. Run a focused single test, then the broader suite to confirm no regressions.
+4. Report what changed and what was actually verified — never fabricate steps.
+
+*Last Updated: 2026-02-23*
