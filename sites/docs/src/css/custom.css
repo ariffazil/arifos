@@ -808,10 +808,26 @@ main > section[class^='grid_'] > .container {
 .trinity-link.trinity-apps.active {
   color: var(--trinity-apps) !important;
   border-bottom-color: var(--trinity-apps);
+  background: rgba(77, 163, 255, 0.15);
+  font-weight: 600;
+  box-shadow: 0 0 12px rgba(77, 163, 255, 0.4);
 }
 
 .trinity-enter {
   color: var(--trinity-apps) !important;
+  background: rgba(77, 163, 255, 0.18);
+  padding: 0.5rem 1.2rem;
+  border-radius: 6px;
+  font-weight: 600;
+  border: 1px solid rgba(77, 163, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+.trinity-enter:hover {
+  background: rgba(77, 163, 255, 0.3) !important;
+  border-color: var(--trinity-apps);
+  box-shadow: 0 0 16px rgba(77, 163, 255, 0.5);
+  transform: translateY(-1px);
 }
 
 .trinity-right a:hover {
