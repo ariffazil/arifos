@@ -24,6 +24,7 @@ import asyncio
 import inspect
 import json
 import os
+import secrets
 import sys
 import time
 import uuid
@@ -213,6 +214,141 @@ TOOL_ALIASES = {
     # Prior alias surface
     "apex_judge": "apex_verdict",
 }
+
+# ═══════════════════════════════════════════════════════
+# AUTH (OPTIONAL) — Bearer token gate for REST bridge
+# ═══════════════════════════════════════════════════════
+
+
+def _env_truthy(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _required_bearer_token() -> Optional[str]:
+    # Prefer the canonical name used in docs.
+    return os.getenv("ARIFOS_API_KEY") or os.getenv("ARIFOS_API_TOKEN")
+
+
+def _auth_error_response(request: Request) -> Optional[JSONResponse]:
+    """
+    Enforce Bearer auth when configured.
+
+    - If `ARIFOS_API_KEY` (or `ARIFOS_API_TOKEN`) is unset → allow all (local dev default).
+    - If `ARIFOS_DEV_MODE=true` → bypass (explicit local-only override).
+    - Otherwise require `Authorization: Bearer <token>` matching the configured token.
+    """
+    required = _required_bearer_token()
+    if not required:
+        return None
+    if _env_truthy("ARIFOS_DEV_MODE"):
+        return None
+
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return JSONResponse(
+            {"error": "invalid_request", "error_description": "Bearer token required"},
+            status_code=401,
+        )
+
+    presented = auth_header[7:].strip()
+    if not presented or not secrets.compare_digest(presented, required):
+        return JSONResponse(
+            {"error": "invalid_token", "error_description": "Invalid bearer token"},
+            status_code=401,
+        )
+    return None
+
+
+# ═══════════════════════════════════════════════════════
+# TOOL DISPATCH
+# ═══════════════════════════════════════════════════════
+
+
+async def _execute_tool_call(
+    incoming_tool_name: str,
+    body: Dict[str, Any],
+    *,
+    request_id: str,
+    start_time: float,
+) -> JSONResponse:
+    original_name = incoming_tool_name
+    tool_name = TOOL_ALIASES.get(incoming_tool_name, incoming_tool_name)
+
+    # Add request_id for tracing (ChatGPT feedback: request_id correlation)
+    body["request_id"] = request_id
+
+    # Track metrics
+    metrics.requests_total += 1
+    metrics.requests_by_tool[original_name] = metrics.requests_by_tool.get(original_name, 0) + 1
+
+    # Fast ACK for init_session (ChatGPT feedback: return fast ACK <200ms)
+    if tool_name == "init_session" and body.get("fast_ack", False):
+        session_id = body.get("actor_id", "anon") + "-" + uuid.uuid4().hex[:8]
+        active_sessions[session_id] = {
+            "started": datetime.utcnow().isoformat(),
+            "request_id": request_id,
+            "status": "initializing",
+        }
+        return JSONResponse(
+            {
+                "status": "ack",
+                "tool": original_name,
+                "session_id": session_id,
+                "request_id": request_id,
+                "message": "Session initializing async",
+            }
+        )
+
+    if tool_name not in TOOLS:
+        metrics.errors += 1
+        return JSONResponse(
+            {"error": f"Tool '{original_name}' not found", "request_id": request_id},
+            status_code=404,
+        )
+
+    tool = TOOLS[tool_name]
+
+    try:
+        actual_fn = getattr(tool, "fn", tool)
+        sig = inspect.signature(actual_fn)
+        param_names: list[str] = []
+        has_kwargs = False
+        for name, param in sig.parameters.items():
+            if param.kind == inspect.Parameter.VAR_KEYWORD:
+                has_kwargs = True
+            else:
+                param_names.append(name)
+
+        filtered_body: Dict[str, Any]
+        if has_kwargs:
+            filtered_body = body
+        else:
+            filtered_body = {k: v for k, v in body.items() if k in param_names}
+
+        result = await asyncio.wait_for(actual_fn(**filtered_body), timeout=10.0)
+    except asyncio.TimeoutError:
+        metrics.timeouts += 1
+        return JSONResponse(
+            {
+                "error": "INIT_TIMEOUT",
+                "stage": "tool_execution",
+                "request_id": request_id,
+                "tool": original_name,
+            },
+            status_code=504,
+        )
+
+    latency_ms = (time.time() - start_time) * 1000
+    metrics.latencies_ms.append(latency_ms)
+    return JSONResponse(
+        {
+            "status": "success",
+            "tool": original_name,
+            "request_id": request_id,
+            "latency_ms": round(latency_ms, 2),
+            "result": result,
+        }
+    )
 
 
 # Metrics tracking (ChatGPT feedback: observability)
@@ -404,6 +540,9 @@ async def well_known_mcp_server_json(request: Request):
 
 async def list_tools(request: Request):
     """List available MCP tools with schemas."""
+    auth_error = _auth_error_response(request)
+    if auth_error:
+        return auth_error
     tool_list = []
     for name, schema in TOOL_SCHEMAS.items():
         tool_list.append(
@@ -418,103 +557,37 @@ async def list_tools(request: Request):
 
 async def call_tool(request: Request):
     """Call an MCP tool via HTTP POST with fast ACK pattern (ChatGPT feedback)."""
+    auth_error = _auth_error_response(request)
+    if auth_error:
+        return auth_error
     request_id = generate_request_id()
     tool_name = request.path_params.get("tool_name")
     start_time = time.time()
 
     # Map classic tool names
     original_name = tool_name
-    if tool_name in TOOL_ALIASES:
-        tool_name = TOOL_ALIASES[tool_name]
 
     try:
         body = await request.json()
     except Exception:
         body = {}
 
-    # Add request_id for tracing (ChatGPT feedback: request_id correlation)
-    body["request_id"] = request_id
-
-    # Track metrics
-    metrics.requests_total += 1
-    metrics.requests_by_tool[original_name] = metrics.requests_by_tool.get(original_name, 0) + 1
-
     try:
-        # Fast ACK for init_session (ChatGPT feedback: return fast ACK <200ms)
-        if tool_name == "init_session" and body.get("fast_ack", False):
-            session_id = body.get("actor_id", "anon") + "-" + uuid.uuid4().hex[:8]
-            active_sessions[session_id] = {
-                "started": datetime.utcnow().isoformat(),
-                "request_id": request_id,
-                "status": "initializing",
-            }
-            # Return fast ACK, continue async work
-            return JSONResponse(
-                {
-                    "status": "ack",
-                    "tool": original_name,
-                    "session_id": session_id,
-                    "request_id": request_id,
-                    "message": "Session initializing async",
-                }
-            )
-
-        # Get tool from registry
-        if tool_name not in TOOLS:
+        if not isinstance(original_name, str) or not original_name.strip():
             metrics.errors += 1
             return JSONResponse(
-                {"error": f"Tool '{original_name}' not found", "request_id": request_id},
-                status_code=404,
+                {"error": "Tool name required", "request_id": request_id},
+                status_code=400,
             )
 
-        tool = TOOLS[tool_name]
+        if not isinstance(body, dict):
+            body = {}
 
-        # Call with timeout protection (ChatGPT feedback: prevent timeouts)
-        # Note: FastMCP FunctionTool has .fn attribute with the actual function
-        try:
-            actual_fn = getattr(tool, "fn", tool)
-            # Get function parameters and filter body
-            sig = inspect.signature(actual_fn)
-            param_names = []
-            has_kwargs = False
-            for name, param in sig.parameters.items():
-                if param.kind == inspect.Parameter.VAR_KEYWORD:
-                    has_kwargs = True
-                else:
-                    param_names.append(name)
-
-            if has_kwargs:
-                # Function accepts **kwargs, pass all body parameters
-                filtered_body = body
-            else:
-                # Filter to only valid parameters
-                filtered_body = {k: v for k, v in body.items() if k in param_names}
-
-            result = await asyncio.wait_for(actual_fn(**filtered_body), timeout=10.0)
-        except asyncio.TimeoutError:
-            metrics.timeouts += 1
-            return JSONResponse(
-                {
-                    "error": "INIT_TIMEOUT",
-                    "stage": "tool_execution",
-                    "request_id": request_id,
-                    "tool": original_name,
-                },
-                status_code=504,
-            )
-
-        # Track latency
-        latency_ms = (time.time() - start_time) * 1000
-        metrics.latencies_ms.append(latency_ms)
-
-        return JSONResponse(
-            {
-                "status": "success",
-                "tool": original_name,
-                "request_id": request_id,
-                "latency_ms": round(latency_ms, 2),
-                "result": result,
-            }
+        return await _execute_tool_call(
+            original_name,
+            body,
+            request_id=request_id,
+            start_time=start_time,
         )
     except Exception as e:
         metrics.errors += 1
@@ -530,6 +603,9 @@ async def sse_endpoint(request: Request):
     Production SSE transport is provided by FastMCP (`python -m aaa_mcp sse`) and should be
     routed directly (e.g., via Traefik/Nginx) when needed.
     """
+    auth_error = _auth_error_response(request)
+    if auth_error:
+        return auth_error
     accept = request.headers.get("Accept", "")
     if "text/event-stream" in accept:
         async def _stream():
@@ -548,6 +624,9 @@ async def sse_endpoint(request: Request):
 
 async def messages_endpoint(request: Request):
     """Compatibility JSON-RPC endpoint stub for MCP clients."""
+    auth_error = _auth_error_response(request)
+    if auth_error:
+        return auth_error
     return JSONResponse(
         {
             "error": "MESSAGES_NOT_ENABLED",
@@ -562,6 +641,9 @@ async def apex_judge_wrapper(request: Request):
     Full pipeline wrapper — 000→333→666→888→999 (ChatGPT feedback: DX win).
     Orchestrates complete Trinity pipeline in one call.
     """
+    auth_error = _auth_error_response(request)
+    if auth_error:
+        return auth_error
     request_id = generate_request_id()
     start_time = time.time()
 
@@ -660,6 +742,9 @@ async def mcp_alias(request: Request):
     Unified /mcp endpoint (ChatGPT Sovereign Connector).
     Handles both direct tool calls and MCP protocol detection.
     """
+    auth_error = _auth_error_response(request)
+    if auth_error:
+        return auth_error
     # Detect if it's an MCP SSE request
     accept = request.headers.get("Accept", "")
     if request.method == "GET" and ("text/event-stream" in accept or "application/json" in accept):
@@ -672,6 +757,29 @@ async def mcp_alias(request: Request):
     # If it's a POST, it might be an MCP message or a direct tool call
     try:
         body = await request.json()
+        if isinstance(body, dict) and "tool" in body:
+            request_id = generate_request_id()
+            start_time = time.time()
+            tool = str(body.get("tool", "")).strip()
+            args = body.get("arguments") or {}
+            if not tool:
+                metrics.errors += 1
+                return JSONResponse(
+                    {"error": "Tool name required", "request_id": request_id},
+                    status_code=400,
+                )
+            if not isinstance(args, dict):
+                metrics.errors += 1
+                return JSONResponse(
+                    {"error": "Tool arguments must be an object", "request_id": request_id},
+                    status_code=400,
+                )
+            return await _execute_tool_call(
+                tool,
+                args,
+                request_id=request_id,
+                start_time=start_time,
+            )
         if "method" in body and "params" in body:
             from aaa_mcp.rest import messages_endpoint
             return await messages_endpoint(request)
