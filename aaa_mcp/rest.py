@@ -1,21 +1,20 @@
 """
 AAA MCP REST Bridge — HTTP REST API for OpenAI Tool Adapter
 Maps HTTP POST /tools/{name} → MCP tool calls
-Implements ChatGPT feedback: fast ACK, apex_judge wrapper, observability
 
 Endpoints:
-  GET  /health              → Health check
+  GET  /                    → Service info (JSON) / landing page (HTML)
+  GET  /health              → Health check with governance metrics
   GET  /ready               → Tool registry + dependencies ready
   GET  /version             → Build info (git sha, schema version)
   GET  /metrics             → Latency, timeouts, active sessions
   GET  /tools               → List available tools with schemas
-  POST /tools/{tool_name}   → Call tool with JSON body
+  POST /tools/{tool_name}   → Call tool with JSON body (canonical + aliases)
   POST /apex_judge          → Full pipeline wrapper (000→333→666→888→999)
-  GET  /sse                 → MCP SSE transport
-  POST /messages            → MCP JSON-RPC messages
+  GET/POST /mcp             → Unified Sovereign Connector alias
 
 Usage:
-  python -m aaa_mcp.rest
+  python -m aaa_mcp rest
 
 DITEMPA BUKAN DIBERI
 """
@@ -25,30 +24,6 @@ import inspect
 import json
 import os
 import secrets
-import sys
-import time
-import uuid
-"""
-AAA MCP REST Bridge — HTTP REST API for OpenAI Tool Adapter
-Maps HTTP POST /tools/{name} → MCP tool calls
-Implements ChatGPT feedback: fast ACK, apex_judge wrapper, observability
-
-Endpoints:
-  GET  /health              → Health check
-  GET  /ready               → Tool registry + dependencies ready
-  GET  /version             → Build info (git sha, schema version)
-  GET/POST /mcp             → Unified Sovereign Connector alias
-
-Usage:
-  python -m aaa_mcp.rest
-
-DITEMPA BUKAN DIBERI
-"""
-
-import asyncio
-import inspect
-import json
-import os
 import sys
 import time
 import uuid
@@ -63,100 +38,104 @@ from starlette.responses import JSONResponse, StreamingResponse, HTMLResponse
 from starlette.routing import Route
 from starlette.requests import Request
 
-# Import canonical 5-organ tools directly from server module.
+# Import all 13 canonical tools from server module.
 # Legacy verbs are supported via HTTP aliases only.
 from aaa_mcp.server import (
+    anchor_session,
     reason_mind,
     recall_memory,
-    judge_soul,
     simulate_heart,
-    anchor_session,
+    critique_thought,
+    judge_soul,
     forge_hand,
     seal_vault,
     search_reality,
     fetch_content,
+    inspect_file,
+    audit_rules,
+    check_vital,
 )
 from aaa_mcp.integrations.self_ops import self_diagnose
 
 # Build info
 BUILD_INFO = {
-    "version": "2026.02.22-FORGE-VPS-SEAL",
-    "schema_version": "2026.02.22-FORGE-VPS-SEAL",
+    "version": "2026.02.23-CANONICAL-13",
+    "schema_version": "2026.02.23-CANONICAL-13",
     "git_sha": os.environ.get("GIT_SHA", "unknown"),
     "build_time": os.environ.get("BUILD_TIME", datetime.now(timezone.utc).isoformat()),
 }
 
-# Tool registry mapping names to functions
+# Tool registry — canonical UX names as primary keys.
 TOOLS = {
-    "init_session": anchor_session,
-    "agi_cognition": reason_mind,
-    "phoenix_recall": recall_memory,
-    "asi_empathy": simulate_heart,
-    "apex_verdict": judge_soul,
-    "sovereign_actuator": forge_hand,
-    "vault_seal": seal_vault,
+    "anchor_session": anchor_session,
+    "reason_mind": reason_mind,
+    "recall_memory": recall_memory,
+    "simulate_heart": simulate_heart,
+    "critique_thought": critique_thought,
+    "judge_soul": judge_soul,
+    "forge_hand": forge_hand,
+    "seal_vault": seal_vault,
+    "search_reality": search_reality,
+    "fetch_content": fetch_content,
+    "inspect_file": inspect_file,
+    "audit_rules": audit_rules,
+    "check_vital": check_vital,
     "self_diagnose": self_diagnose,
-    "search": search_reality,
-    "fetch": fetch_content,
 }
 
-# Tool schemas with enums (ChatGPT feedback: schema hardening)
+# Tool schemas with canonical UX names.
 TOOL_SCHEMAS = {
-    "init_session": {
-        "description": "000_INIT — Session ignition + authority checks + injection scan",
+    "anchor_session": {
+        "description": "[Lane: Delta] 000_INIT — Session ignition + injection scan + authority check",
         "args": {
             "query": {"type": "string", "required": True},
-            "actor_id": {"type": "string", "required": False, "default": "user"},
+            "actor_id": {"type": "string", "required": False, "default": "anonymous"},
             "auth_token": {"type": "string|null", "required": False, "default": None},
-            "template_id": {
-                "type": "string",
-                "required": False,
-                "default": "arifos.full_context.v1",
-            },
             "mode": {"type": "enum", "values": ["conscience", "ghost"], "default": "conscience"},
             "grounding_required": {"type": "boolean", "default": True},
             "debug": {"type": "boolean", "default": False},
         },
     },
-    "agi_cognition": {
-        "description": "111–333_AGI — SENSE→THINK→REASON",
+    "reason_mind": {
+        "description": "[Lane: Delta] 111-444_AGI — SENSE→THINK→REASON with grounding",
         "args": {
             "query": {"type": "string", "required": True},
             "session_id": {"type": "string", "required": True},
-            "actor_id": {"type": "string", "required": False},
-            "auth_token": {"type": "string|null", "required": False, "default": None},
             "grounding": {"type": "array|null", "default": None},
             "capability_modules": {"type": "array|null", "default": None},
             "debug": {"type": "boolean", "default": False},
         },
     },
-    "asi_empathy": {
-        "description": "555–666_ASI — EMPATHIZE→ALIGN",
-        "args": {
-            "query": {"type": "string", "required": True},
-            "session_id": {"type": "string", "required": True},
-            "actor_id": {"type": "string", "required": False},
-            "auth_token": {"type": "string|null", "required": False, "default": None},
-            "stakeholders": {"type": "array|null", "default": None},
-            "capability_modules": {"type": "array|null", "default": None},
-            "debug": {"type": "boolean", "default": False},
-        },
-    },
-    "phoenix_recall": {
-        "description": "555_RECALL — Subconscious memory retrieval",
+    "recall_memory": {
+        "description": "[Lane: Omega] 555_RECALL — Associative memory retrieval",
         "args": {
             "current_thought_vector": {"type": "string", "required": True},
             "session_id": {"type": "string", "required": True},
             "debug": {"type": "boolean", "default": False},
         },
     },
-    "apex_verdict": {
-        "description": "888_APEX — Final judgment synthesis + tri-witness scoring",
+    "simulate_heart": {
+        "description": "[Lane: Omega] 555-666_ASI — Stakeholder impact + care constraints",
         "args": {
             "query": {"type": "string", "required": True},
             "session_id": {"type": "string", "required": True},
-            "actor_id": {"type": "string", "required": False},
-            "auth_token": {"type": "string|null", "required": False, "default": None},
+            "stakeholders": {"type": "array|null", "default": None},
+            "capability_modules": {"type": "array|null", "default": None},
+            "debug": {"type": "boolean", "default": False},
+        },
+    },
+    "critique_thought": {
+        "description": "[Lane: Omega] 666_ALIGN — 7-model bias critique",
+        "args": {
+            "session_id": {"type": "string", "required": True},
+            "query": {"type": "string", "required": True},
+        },
+    },
+    "judge_soul": {
+        "description": "[Lane: Psi] 777-888_APEX — Sovereign verdict synthesis",
+        "args": {
+            "query": {"type": "string", "required": True},
+            "session_id": {"type": "string", "required": True},
             "agi_result": {"type": "object|null", "default": None},
             "asi_result": {"type": "object|null", "default": None},
             "proposed_verdict": {
@@ -165,12 +144,11 @@ TOOL_SCHEMAS = {
                 "default": "SEAL",
             },
             "human_approve": {"type": "boolean", "default": False},
-            "capability_modules": {"type": "array|null", "default": None},
             "debug": {"type": "boolean", "default": False},
         },
     },
-    "sovereign_actuator": {
-        "description": "888_FORGE — Sandboxed execution with constitutional gating",
+    "forge_hand": {
+        "description": "[Lane: Psi] 888_FORGE — Sandboxed action execution with sovereign gating",
         "args": {
             "action_payload": {"type": "object", "required": True},
             "signed_tensor": {"type": "object", "required": True},
@@ -181,29 +159,54 @@ TOOL_SCHEMAS = {
             "ratification_token": {"type": "string|null", "required": False, "default": None},
         },
     },
-    "vault_seal": {
-        "description": "999_VAULT — Immutable record seal",
+    "seal_vault": {
+        "description": "[Lane: Psi] 999_VAULT — Immutable ledger seal",
         "args": {
             "session_id": {"type": "string", "required": True},
+            "summary": {"type": "string", "required": True},
             "verdict": {
                 "type": "enum",
                 "values": ["SEAL", "VOID", "PARTIAL", "SABAR", "888_HOLD"],
-                "required": True,
+                "default": "SEAL",
             },
-            "query_summary": {"type": "string|null", "default": None},
-            "risk_level": {
-                "type": "enum",
-                "values": ["low", "medium", "high", "critical"],
-                "default": "low",
-            },
-            "category": {"type": "string", "default": "general"},
-            "floors_checked": {"type": "array|null", "default": None},
-            "payload": {"type": "object|null", "default": None},
-            "debug": {"type": "boolean", "default": False},
+        },
+    },
+    "search_reality": {
+        "description": "[Lane: Delta] Web grounding search (Perplexity/Brave)",
+        "args": {
+            "query": {"type": "string", "required": True},
+            "intent": {"type": "string", "default": "general"},
+        },
+    },
+    "fetch_content": {
+        "description": "[Lane: Delta] Raw evidence content retrieval by URL",
+        "args": {
+            "id": {"type": "string", "required": True},
+            "max_chars": {"type": "integer", "default": 4000},
+        },
+    },
+    "inspect_file": {
+        "description": "[Lane: Delta] Filesystem inspection (read-only)",
+        "args": {
+            "session_id": {"type": "string", "required": True},
+            "path": {"type": "string", "required": True},
+        },
+    },
+    "audit_rules": {
+        "description": "[Lane: Delta] Rule & governance audit checks",
+        "args": {
+            "audit_scope": {"type": "string", "default": "quick"},
+            "verify_floors": {"type": "boolean", "default": True},
+        },
+    },
+    "check_vital": {
+        "description": "[Lane: Omega] System health & vital signs",
+        "args": {
+            "session_id": {"type": "string", "required": True},
         },
     },
     "apex_judge": {
-        "description": "Full pipeline wrapper — 000→333→666→888→999 (ChatGPT DX win)",
+        "description": "Full pipeline wrapper — 000→333→555→666→888→999",
         "args": {
             "query": {"type": "string", "required": True},
             "actor_id": {"type": "string", "required": False, "default": "user"},
@@ -215,45 +218,39 @@ TOOL_SCHEMAS = {
         },
     },
     "self_diagnose": {
-        "description": "SELF_OPS — Infrastructure health check, protocol compatibility, auto-remediation (non-constitutional)",
+        "description": "SELF_OPS — Infrastructure health check (non-constitutional)",
         "args": {
-            "base_url": {
-                "type": "string|null",
-                "required": False,
-                "default": None,
-                "description": "Optional custom base URL to diagnose",
-            },
-        },
-    },
-    "search": {
-        "description": "ChatGPT Deep Research: Search for records matching the query.",
-        "args": {
-            "query": {"type": "string", "required": True},
-        },
-    },
-    "fetch": {
-        "description": "ChatGPT Deep Research: Fetch a complete record by ID.",
-        "args": {
-            "id": {"type": "string", "required": True},
+            "base_url": {"type": "string|null", "required": False, "default": None},
         },
     },
 }
 
-# Tool name aliases for backward compatibility.
-# Canonical names remain 5-organ; legacy 9-verbs are HTTP-only aliases.
+# Tool name aliases — all map to canonical UX names.
 TOOL_ALIASES = {
-    # Legacy 9-verb surface
-    "anchor": "init_session",
-    "reason": "agi_cognition",
-    "integrate": "agi_cognition",
-    "respond": "agi_cognition",
-    "validate": "asi_empathy",
-    "align": "asi_empathy",
-    "forge": "apex_verdict",
-    "audit": "apex_verdict",
-    "seal": "vault_seal",
-    # Prior alias surface
-    "apex_judge": "apex_verdict",
+    # Mid-gen kernel names → canonical
+    "init_session": "anchor_session",
+    "agi_cognition": "reason_mind",
+    "phoenix_recall": "recall_memory",
+    "asi_empathy": "simulate_heart",
+    "apex_verdict": "judge_soul",
+    "sovereign_actuator": "forge_hand",
+    "vault_seal": "seal_vault",
+    "search": "search_reality",
+    "fetch": "fetch_content",
+    "analyze": "inspect_file",
+    "system_audit": "audit_rules",
+    # Legacy 9-verb surface → canonical
+    "anchor": "anchor_session",
+    "reason": "reason_mind",
+    "integrate": "reason_mind",
+    "respond": "reason_mind",
+    "validate": "simulate_heart",
+    "align": "simulate_heart",
+    "forge": "judge_soul",
+    "audit": "judge_soul",
+    "seal": "seal_vault",
+    # Pipeline alias
+    "apex_judge": "judge_soul",
 }
 
 # ═══════════════════════════════════════════════════════
@@ -707,7 +704,7 @@ async def apex_judge_wrapper(request: Request):
 
     try:
         # Stage 1: INIT (000)
-        init_tool = TOOLS["init_session"]
+        init_tool = TOOLS["anchor_session"]
         init_fn = getattr(init_tool, "fn", init_tool)
         init_result = await init_fn(query=query, actor_id=actor_id)
         pipeline_results["pipeline"].append({"stage": "000_INIT", "result": init_result})
@@ -716,7 +713,7 @@ async def apex_judge_wrapper(request: Request):
         pipeline_results["session_id"] = canonical_session_id
 
         # Stage 2: AGI (111-444)
-        agi_tool = TOOLS["agi_cognition"]
+        agi_tool = TOOLS["reason_mind"]
         agi_fn = getattr(agi_tool, "fn", agi_tool)
         agi_result = await agi_fn(
             query=query,
@@ -726,16 +723,16 @@ async def apex_judge_wrapper(request: Request):
         pipeline_results["pipeline"].append({"stage": "111-444_AGI", "result": agi_result})
 
         # Stage 2.5: PHOENIX (555)
-        phoenix_tool = TOOLS["phoenix_recall"]
+        phoenix_tool = TOOLS["recall_memory"]
         phoenix_fn = getattr(phoenix_tool, "fn", phoenix_tool)
         phoenix_result = await phoenix_fn(
             current_thought_vector=query,
-            session_id=canonical_session_id
+            session_id=canonical_session_id,
         )
         pipeline_results["pipeline"].append({"stage": "555_RECALL", "result": phoenix_result})
 
         # Stage 3: ASI (666)
-        asi_tool = TOOLS["asi_empathy"]
+        asi_tool = TOOLS["simulate_heart"]
         asi_fn = getattr(asi_tool, "fn", asi_tool)
         asi_result = await asi_fn(
             query=query, session_id=canonical_session_id, stakeholders=body.get("stakeholders", [])
@@ -743,7 +740,7 @@ async def apex_judge_wrapper(request: Request):
         pipeline_results["pipeline"].append({"stage": "666_ASI", "result": asi_result})
 
         # Stage 4: APEX (888)
-        apex_tool = TOOLS["apex_verdict"]
+        apex_tool = TOOLS["judge_soul"]
         apex_fn = getattr(apex_tool, "fn", apex_tool)
         apex_result = await apex_fn(
             session_id=canonical_session_id,
@@ -760,7 +757,7 @@ async def apex_judge_wrapper(request: Request):
 
         # Stage 4.5: FORGE (888_ACTUATE)
         if apex_result.get("verdict") == "SEAL":
-            forge_tool = TOOLS["sovereign_actuator"]
+            forge_tool = TOOLS["forge_hand"]
             forge_fn = getattr(forge_tool, "fn", forge_tool)
             forge_result = await forge_fn(
                 action_payload=body.get("action_payload", {}),
@@ -768,13 +765,13 @@ async def apex_judge_wrapper(request: Request):
                 execution_context=body.get("execution_context", {}),
                 signature=body.get("signature", ""),
                 session_id=canonical_session_id,
-                idempotency_key=request_id
+                idempotency_key=request_id,
             )
             pipeline_results["pipeline"].append({"stage": "888_FORGE", "result": forge_result})
 
         # Stage 5: VAULT (999) — optional
         if auto_seal:
-            seal_tool = TOOLS["vault_seal"]
+            seal_tool = TOOLS["seal_vault"]
             seal_fn = getattr(seal_tool, "fn", seal_tool)
             seal_result = await seal_fn(
                 session_id=canonical_session_id,

@@ -11,12 +11,14 @@ import warnings
 from typing import Any
 
 
-__version__ = "2026.02.23-AAA-BRIDGE"
+__version__ = "2026.02.23-CANONICAL-13"
 
 __all__ = ["mcp"]
 
 
+# All legacy/mid-gen names resolve to canonical UX names.
 _OLD_TO_NEW = {
+    # Mid-gen kernel names → canonical
     "init_session": "anchor_session",
     "agi_cognition": "reason_mind",
     "phoenix_recall": "recall_memory",
@@ -28,6 +30,7 @@ _OLD_TO_NEW = {
     "fetch": "fetch_content",
     "analyze": "inspect_file",
     "system_audit": "audit_rules",
+    # Legacy 9-verb surface → canonical
     "anchor": "anchor_session",
     "reason": "reason_mind",
     "integrate": "reason_mind",
@@ -37,6 +40,20 @@ _OLD_TO_NEW = {
     "forge": "judge_soul",
     "audit": "judge_soul",
     "seal": "seal_vault",
+    # Canonical names → self (for pass-through)
+    "anchor_session": "anchor_session",
+    "reason_mind": "reason_mind",
+    "recall_memory": "recall_memory",
+    "simulate_heart": "simulate_heart",
+    "critique_thought": "critique_thought",
+    "judge_soul": "judge_soul",
+    "forge_hand": "forge_hand",
+    "seal_vault": "seal_vault",
+    "search_reality": "search_reality",
+    "fetch_content": "fetch_content",
+    "inspect_file": "inspect_file",
+    "audit_rules": "audit_rules",
+    "check_vital": "check_vital",
 }
 
 

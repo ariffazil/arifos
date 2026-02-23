@@ -1,13 +1,12 @@
 """
-aaa_mcp/server.py — Unified FastMCP Tool Surface
+aaa_mcp/server.py — Canonical 13-Tool FastMCP Surface
 
-Contract:
-- 5 canonical governance tools:
-  init_session, agi_cognition, asi_empathy, apex_verdict, vault_seal
-- 4 read-only utilities:
-  search, fetch, analyze, system_audit
+Contract — 13 canonical tools with UX verb names:
+  Governance (7):  anchor_session, reason_mind, recall_memory, simulate_heart,
+                   critique_thought, judge_soul, forge_hand, seal_vault
+  Utilities (5):   search_reality, fetch_content, inspect_file, audit_rules, check_vital
 
-This module exposes a FastMCP server instance via `create_unified_mcp_server()`.
+This module owns its own FastMCP instance (isolated from aclip_cai triad tools).
 All tools must be async and must not write to stdout (stdio transport safety).
 """
 
@@ -17,8 +16,19 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 import uuid
 
-from aclip_cai.mcp_server import mcp
+from fastmcp import FastMCP
 from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, validate
+
+# Isolated FastMCP instance — canonical 13-tool surface ONLY.
+# Previously shared aclip_cai's instance which leaked triad_*/sense_* tools.
+mcp = FastMCP(
+    "arifOS_AAA_MCP",
+    instructions=(
+        "Canonical 13-tool arifOS AAA MCP surface. "
+        "Governance spine: 000->222->333->444->555->666->777->888->999. "
+        "All tools return {verdict, stage, session_id} envelope."
+    ),
+)
 
 from aaa_mcp.external_gateways.brave_client import BraveSearchClient
 from fastmcp.resources.template import ResourceTemplate

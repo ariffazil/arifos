@@ -29,37 +29,80 @@ from starlette.responses import JSONResponse
 from starlette.routing import Route
 import uvicorn
 
-# Import canonical tools directly from server module.
-from aaa_mcp.server import reason_mind, judge_soul, simulate_heart, anchor_session, seal_vault
+# Import all 13 canonical tools from server module.
+from aaa_mcp.server import (
+    anchor_session,
+    reason_mind,
+    recall_memory,
+    simulate_heart,
+    critique_thought,
+    judge_soul,
+    forge_hand,
+    seal_vault,
+    search_reality,
+    fetch_content,
+    inspect_file,
+    audit_rules,
+    check_vital,
+)
 
-# Tool registry mapping names to functions
+# Tool registry — canonical UX names as primary keys.
 TOOLS = {
-    "init_session": anchor_session,
-    "agi_cognition": reason_mind,
-    "asi_empathy": simulate_heart,
-    "apex_verdict": judge_soul,
-    "vault_seal": seal_vault,
+    "anchor_session": anchor_session,
+    "reason_mind": reason_mind,
+    "recall_memory": recall_memory,
+    "simulate_heart": simulate_heart,
+    "critique_thought": critique_thought,
+    "judge_soul": judge_soul,
+    "forge_hand": forge_hand,
+    "seal_vault": seal_vault,
+    "search_reality": search_reality,
+    "fetch_content": fetch_content,
+    "inspect_file": inspect_file,
+    "audit_rules": audit_rules,
+    "check_vital": check_vital,
 }
 
-# Tool descriptions for listing
+# Tool descriptions for MCP tools/list.
 TOOL_DESCRIPTIONS = {
-    "init_session": "INIT_SESSION (000+555) - Session ignition and safety validation",
-    "agi_cognition": "AGI_COGNITION (222+333+444) - Reason, integrate, and respond",
-    "asi_empathy": "ASI_EMPATHY (555+666) - Impact validation and ethical alignment",
-    "apex_verdict": "APEX_VERDICT (777+888) - Forge and final judgment",
-    "vault_seal": "VAULT_SEAL (999) - Cryptographic persistence",
+    "anchor_session": "[Lane: Delta] 000_INIT — Session ignition + injection scan",
+    "reason_mind": "[Lane: Delta] 111-444_AGI — SENSE→THINK→REASON with grounding",
+    "recall_memory": "[Lane: Omega] 555_RECALL — Associative memory retrieval",
+    "simulate_heart": "[Lane: Omega] 555-666_ASI — Stakeholder impact + care",
+    "critique_thought": "[Lane: Omega] 666_ALIGN — 7-model bias critique",
+    "judge_soul": "[Lane: Psi] 777-888_APEX — Sovereign verdict synthesis",
+    "forge_hand": "[Lane: Psi] 888_FORGE — Sandboxed action execution",
+    "seal_vault": "[Lane: Psi] 999_VAULT — Immutable ledger seal",
+    "search_reality": "[Lane: Delta] Web grounding search (Perplexity/Brave)",
+    "fetch_content": "[Lane: Delta] Raw evidence content retrieval",
+    "inspect_file": "[Lane: Delta] Filesystem inspection (read-only)",
+    "audit_rules": "[Lane: Delta] Rule & governance audit checks",
+    "check_vital": "[Lane: Omega] System health & vital signs",
 }
 
+# All aliases resolve to canonical names.
 TOOL_ALIASES = {
-    "anchor": "init_session",
-    "reason": "agi_cognition",
-    "integrate": "agi_cognition",
-    "respond": "agi_cognition",
-    "validate": "asi_empathy",
-    "align": "asi_empathy",
-    "forge": "apex_verdict",
-    "audit": "apex_verdict",
-    "seal": "vault_seal",
+    # Mid-gen kernel names
+    "init_session": "anchor_session",
+    "agi_cognition": "reason_mind",
+    "phoenix_recall": "recall_memory",
+    "asi_empathy": "simulate_heart",
+    "apex_verdict": "judge_soul",
+    "sovereign_actuator": "forge_hand",
+    "vault_seal": "seal_vault",
+    "search": "search_reality",
+    "fetch": "fetch_content",
+    "system_audit": "audit_rules",
+    # Legacy 9-verb surface
+    "anchor": "anchor_session",
+    "reason": "reason_mind",
+    "integrate": "reason_mind",
+    "respond": "reason_mind",
+    "validate": "simulate_heart",
+    "align": "simulate_heart",
+    "forge": "judge_soul",
+    "audit": "judge_soul",
+    "seal": "seal_vault",
 }
 
 
@@ -224,10 +267,29 @@ async def mcp_endpoint(request: Request) -> JSONResponse:
                     "capabilities": {"tools": {}, "logging": {}, "prompts": {}, "resources": {}},
                     "serverInfo": {
                         "name": "arifos-aaa-mcp",
-                        "version": "2026.02.22-FORGE-VPS-SEAL",
+                        "version": "2026.02.23-CANONICAL-13",
                     },
                 },
             },
+            headers={"Mcp-Session-Id": session_id},
+        )
+
+    elif method == "notifications/initialized":
+        # Client acknowledgment — no response needed for notifications.
+        return JSONResponse(
+            {"jsonrpc": "2.0", "id": request_id, "result": None},
+            headers={"Mcp-Session-Id": session_id},
+        )
+
+    elif method == "resources/list":
+        return JSONResponse(
+            {"jsonrpc": "2.0", "id": request_id, "result": {"resources": []}},
+            headers={"Mcp-Session-Id": session_id},
+        )
+
+    elif method == "prompts/list":
+        return JSONResponse(
+            {"jsonrpc": "2.0", "id": request_id, "result": {"prompts": []}},
             headers={"Mcp-Session-Id": session_id},
         )
 
@@ -323,7 +385,7 @@ async def health(request: Request) -> JSONResponse:
         {
             "status": "healthy" if monitor.is_healthy() else "degraded",
             "transport": "streamable-http",
-            "version": "2026.02.22-FORGE-VPS-SEAL",
+            "version": "2026.02.23-CANONICAL-13",
             "governance_metrics": stats,
             "health_checks": health_results,
             "endpoints": ["/mcp", "/health"],
