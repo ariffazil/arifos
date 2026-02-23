@@ -713,7 +713,7 @@ Learn how arifOS enforces constitutional governance, blocks hallucinations, and 
 
 - **Discord**: [Join arifOS Discord](https://discord.gg/arifos) (coming soon)
 - **GitHub Issues**: [Report bugs or request features](https://github.com/ariffazil/arifOS/issues)
-- **Email**: arifbfazil@gmail.com
+- **Email**: arifos@arif-fazil.com
 - **Twitter/X**: [@arifbfazil](https://twitter.com/arifbfazil)
 - **YouTube**: [arifOS Channel](https://youtube.com/@arifbfazil)
 
@@ -747,7 +747,7 @@ Learn how arifOS enforces constitutional governance, blocks hallucinations, and 
 
 Want to modify arifOS without AGPL obligations?
 
-- **Enterprise license available** → Email arifbfazil@gmail.com
+- **Enterprise license available** → Email arifos@arif-fazil.com
 - Includes: Commercial source modifications, priority support, SLA guarantees, custom governance packs
 
 **Why AGPL?** We believe AI governance should be transparent and auditable. If you build on arifOS, your constitutional improvements should benefit the community.
@@ -762,17 +762,15 @@ Intelligence is not a gift. It is a thermodynamic work process constrained by en
 
 ---
 
-## 📊 Live Links
+## 📊 Quick Links
 
 | Resource | URL |
 |----------|-----|
-| **Live MCP Server** | https://arifosmcp.arif-fazil.com |
-| **SSE Primary** | https://arifosmcp.arif-fazil.com/sse |
-| **MCP Fallback** | https://arifosmcp.arif-fazil.com/mcp |
+| **Live MCP Server** | https://arifosmcp.arif-fazil.com/mcp |
 | **Health Check** | https://arifosmcp.arif-fazil.com/health |
 | **Test Dashboard** | https://674a01a3.arifosmcp-truth-claim.pages.dev |
 | **Documentation Site** | https://arifos.arif-fazil.com |
-| **GitHub Actions** | https://github.com/ariffazil/arifOS/actions |
+| **GitHub Repository** | https://github.com/ariffazil/arifOS |
 | **Docker Image** | ghcr.io/ariffazil/arifos:latest |
 
 ---
@@ -790,7 +788,7 @@ arifOS is built on the shoulders of giants:
 
 <div align="center">
 
-**Made with 🔥 by [Muhammad Arif bin Fazil](https://github.com/ariffazil)**
+**Made with 🔥 by [ARIF FAZIL](https://github.com/ariffazil)**
 
 *HUMAN ↔ THEORY ↔ APPS*
 
