@@ -11,14 +11,14 @@ services:
       - .env.docker
     ports:
       - "8888:8080"
-      - "8889:8089"
+      - "8889:8089" # REST fallback (enable with ENABLE_REST_FALLBACK=1)
     networks:
       - coolify
     volumes:
       - ./data:/usr/src/app/data
     command: /usr/src/app/start-trinity.sh
     healthcheck:
-      test: ["CMD-SHELL", "ps aux | grep -v grep | grep 'python -m aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m aaa_mcp rest'"]
+      test: ["CMD-SHELL", "if [ \"${ENABLE_REST_FALLBACK:-0}\" = \"1\" ]; then ps aux | grep -v grep | grep 'python -m aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m aaa_mcp rest'; else ps aux | grep -v grep | grep 'python -m aaa_mcp sse'; fi"]
       interval: 15s
       timeout: 5s
       start_period: 30s
@@ -26,6 +26,7 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
+      ENABLE_REST_FALLBACK: 1
     deploy:
       resources:
         limits:
@@ -35,7 +36,7 @@ services:
       - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`)"
       - "traefik.http.routers.arifosmcp.entrypoints=https"
       - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
-      - "traefik.http.services.arifosmcp.loadbalancer.server.port=8089"
+      - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
       - "traefik.http.routers.arifosmcp.service=arifosmcp"
 
 networks:

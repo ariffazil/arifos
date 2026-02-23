@@ -2,7 +2,7 @@
 aaa_mcp CLI Entry Point — Triple Transport Support
 
 Usage:
-    python -m aaa_mcp                # stdio (default — Local Agents)
+    python -m aaa_mcp                # sse (default — Primary runtime)
     python -m aaa_mcp sse            # sse (Remote — VPS/Network)
     python -m aaa_mcp http           # http (Streamable HTTP at /mcp)
 
@@ -70,19 +70,13 @@ def main():
     args = parser.parse_args()
     
     # Determine mode from either positional or flag
-    mode = args.mode or args.mode_pos or "stdio"
+    mode = args.mode or args.mode_pos or os.getenv("AAA_MCP_TRANSPORT", "sse")
     mode = mode.strip().lower()
 
     # Unified server combines AAA-MCP and ACLIP-CAI tools
     from aaa_mcp.server import create_unified_mcp_server
 
     mcp = create_unified_mcp_server()
-
-    if mode in ("", "stdio"):
-        # Default to stdio for local agents
-        print("[arifOS] Starting Unified MCP server with STDIO transport", file=sys.stderr)
-        mcp.run(transport="stdio")
-        return
 
     if mode == "sse":
         port = args.port
@@ -92,6 +86,11 @@ def main():
         # Reverse proxy terminates TLS and sets X-Forwarded-Proto.
         os.environ["FORWARDED_ALLOW_IPS"] = "*"
         mcp.run(transport="sse", host=host, port=port)
+        return
+
+    if mode in ("", "stdio"):
+        print("[arifOS] Starting Unified MCP server with STDIO transport", file=sys.stderr)
+        mcp.run(transport="stdio")
         return
 
     if mode in ("http", "streamable-http"):

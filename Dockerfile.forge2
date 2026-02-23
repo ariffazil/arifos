@@ -42,9 +42,9 @@ ENV PYTHONUNBUFFERED=1 \
 
 EXPOSE 8080
 
-# Health check (requires curl in distroless - using wget instead)
+# Health check for primary SSE transport
 HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=3 \
-    CMD wget -q --spider http://localhost:${PORT}/health || exit 1
+    CMD wget -q --spider http://localhost:${PORT}/sse || exit 1
 
 # Container metadata
 LABEL org.opencontainers.image.title="arifOS MCP Server" \
@@ -53,9 +53,8 @@ LABEL org.opencontainers.image.title="arifOS MCP Server" \
       org.opencontainers.image.source="https://github.com/ariffazil/arifOS" \
       org.opencontainers.image.licenses="AGPL-3.0-only"
 
-# Gunicorn with Uvicorn workers for production
-CMD ["gunicorn", "--worker-class", "uvicorn.workers.UvicornWorker", \
-     "--workers", "4", "--bind", "0.0.0.0:8080", "aaa_mcp.rest:app"]
+# FastMCP SSE as primary container runtime
+CMD ["python", "-m", "aaa_mcp", "sse"]
 
-# Alternative command for development (comment out above, uncomment below):
+# Fallback plan (optional):
 # CMD ["python", "-m", "aaa_mcp", "rest"]

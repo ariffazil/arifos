@@ -122,11 +122,11 @@ Perfect for testing and connecting to AI clients like **Claude Desktop**, **Curs
 # Install arifOS
 pip install arifos
 
-# Start the MCP server in stdio mode
-python -m aaa_mcp
+# Start local MCP server for desktop IDE clients (stdio)
+python -m aaa_mcp stdio
 
-# Output: Server running on stdio transport
-# → Ready to connect AI clients!
+# SSE-first runtime (recommended for VPS/network)
+python -m aaa_mcp sse --host 0.0.0.0 --port 8080
 ```
 
 **Connect to Claude Desktop**:
@@ -217,8 +217,8 @@ services:
     image: ghcr.io/ariffazil/arifos:latest
     restart: unless-stopped
     ports:
-      - "8080:8080"  # MCP server
-      - "8089:8089"  # HTTP transport (optional)
+      - "8080:8080"  # SSE primary transport
+      - "8089:8089"  # MCP HTTP fallback (/mcp)
     env_file: .env
     depends_on:
       postgres:
@@ -266,8 +266,11 @@ docker compose up -d
 # Check logs
 docker compose logs -f arifosmcp
 
-# Verify health
-curl http://localhost:8080/health
+# Verify SSE primary
+curl -N --max-time 2 http://localhost:8080/sse
+
+# Verify MCP fallback
+curl http://localhost:8089/health
 ```
 
 **Production hardening**: See [DEPLOYMENT_FIREWALL.md](docs/DEPLOYMENT_FIREWALL.md) for Nginx, SSL, and monitoring setup.
@@ -281,7 +284,7 @@ Connect arifOS to ChatGPT as a custom tool provider.
 1. **Enable Developer Mode**: ChatGPT Settings → Beta Features → Developer Mode
 2. **Create Connector**:
    - Name: `arifOS Constitutional Governance`
-   - URL: `https://arifosmcp.yourdomain.com/mcp`
+   - URL: `https://arifosmcp.yourdomain.com/mcp` (HTTP fallback)
    - Auth: None (or Bearer token if `ARIF_JWT_SECRET` is set)
 3. **Add to Chat**: Click "Tools" → Select "arifOS" → Start asking governed questions
 

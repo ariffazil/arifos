@@ -3,7 +3,7 @@ Unified arifOS server entrypoint (repo root).
 
 This is the human-friendly wrapper around `python -m aaa_mcp`, matching docs:
 
-    python server.py                  # default: rest
+    python server.py                  # default: sse
     python server.py --mode rest      # REST bridge (+ /mcp alias + /health)
     python server.py --mode sse       # FastMCP SSE transport
     python server.py --mode http      # FastMCP Streamable HTTP transport
@@ -22,8 +22,8 @@ def main() -> None:
     parser.add_argument(
         "--mode",
         choices=["rest", "sse", "http", "stdio"],
-        default=os.getenv("ARIFOS_MODE", "rest"),
-        help="Server mode (default: rest)",
+        default=os.getenv("ARIFOS_MODE", "sse"),
+        help="Server mode (default: sse)",
     )
     parser.add_argument(
         "--host",
@@ -38,7 +38,7 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    mode = (args.mode or "rest").strip().lower()
+    mode = (args.mode or "sse").strip().lower()
 
     if mode == "rest":
         from aaa_mcp.rest import main as rest_main
@@ -73,4 +73,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

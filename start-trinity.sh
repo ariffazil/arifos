@@ -8,14 +8,23 @@ echo "[TRINITY] Starting SSE server on port 8080..."
 python -m aaa_mcp sse &
 SSE_PID=$!
 
-echo "[TRINITY] Starting REST bridge on port 8089..."
-PORT=8089 python -m aaa_mcp rest &
-REST_PID=$!
+REST_FALLBACK="${ENABLE_REST_FALLBACK:-0}"
+REST_PID=""
 
-echo "[TRINITY] Both servers running (SSE=$SSE_PID, REST=$REST_PID)"
+if [ "$REST_FALLBACK" = "1" ]; then
+  REST_PORT="${REST_PORT:-8089}"
+  echo "[TRINITY] Starting REST fallback on port ${REST_PORT}..."
+  PORT="${REST_PORT}" python -m aaa_mcp rest &
+  REST_PID=$!
+fi
 
-# Wait for either to exit — if one dies, kill the other
-wait -n $SSE_PID $REST_PID
-echo "[TRINITY] A process exited. Shutting down..."
-kill $SSE_PID $REST_PID 2>/dev/null
-wait
+if [ -n "$REST_PID" ]; then
+  echo "[TRINITY] Servers running (SSE=$SSE_PID, REST fallback=$REST_PID)"
+  wait -n "$SSE_PID" "$REST_PID"
+  echo "[TRINITY] A process exited. Shutting down..."
+  kill "$SSE_PID" "$REST_PID" 2>/dev/null
+  wait
+else
+  echo "[TRINITY] SSE server running (REST fallback disabled)"
+  wait "$SSE_PID"
+fi
