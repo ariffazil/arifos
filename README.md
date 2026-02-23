@@ -27,15 +27,16 @@
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| 🌊 **SSE Primary** | [/sse](https://arifosmcp.arif-fazil.com/sse) | Primary FastMCP transport (v2026.2.23) |
-| 🔁 **MCP Fallback** | [/mcp](https://arifosmcp.arif-fazil.com/mcp) | HTTP MCP fallback endpoint |
+| 🔌 **MCP Endpoint** | [/mcp](https://arifosmcp.arif-fazil.com/mcp) | Modern streamable HTTP transport (JSON-RPC 2.0) |
 | ✅ **Health Check** | [/health](https://arifosmcp.arif-fazil.com/health) | Real-time system status + 13 floors monitoring |
 | 📊 **Test Dashboard** | [Constitutional Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev) | Live test results + Genius scores + Floor compliance |
 | 📚 **Documentation** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Complete guides, tutorials, and API reference |
 | ⚙️ **GitHub Actions** | [CI/CD Pipeline](https://github.com/ariffazil/arifOS/actions) | Automated tests + deployments (runs daily) |
 | 🐳 **Docker Image** | `ghcr.io/ariffazil/arifos:latest` | Pull-ready production container image |
 
-> **Latest (2026.2.23):** SSE-primary runtime with `/mcp` fallback is now default. Full-context MCP resources/prompts are discoverable via `tools/list`. APEX phase-1/phase-2 now tracks nonstationary drift and escalates via `SABAR`/`888_HOLD` thresholds. `search_reality` supports Perplexity-first web grounding with Brave fallback.
+> **Transport:** Streamable HTTP (modern MCP standard) — Single endpoint with bidirectional JSON-RPC, chunked streaming responses, and cloud-native scaling. Replaces legacy SSE two-channel model.
+
+> **Latest (2026.2.23):** Full-context MCP resources/prompts discoverable via `tools/list`. APEX phase-1/phase-2 tracks nonstationary drift and escalates via `SABAR`/`888_HOLD` thresholds. `search_reality` supports Perplexity-first web grounding with Brave fallback.
 
 </div>
 
@@ -279,17 +280,17 @@ Click **Deploy** → Wait ~2–5 minutes → Done! ✅
 ```bash
 # 1. Check health status
 curl https://arifosmcp.yourdomain.com/health
-# Expected: {"status":"healthy","service":"arifOS-MCP",...}
+# Expected: {"status":"healthy","service":"arifos-aaa-mcp","transport":"streamable-http",...}
 
-# 2. Test SSE primary endpoint (should open stream)
-curl -N --max-time 2 https://arifosmcp.yourdomain.com/sse
-# Expected: SSE connection opens (may timeout after 2s - this is normal)
-
-# 3. Test MCP fallback endpoint
+# 2. Test MCP endpoint (modern streamable HTTP transport)
 curl -X POST https://arifosmcp.yourdomain.com/mcp \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
-# Expected: JSON response with available MCP tools
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"1.0"}},"id":1}'
+# Expected: JSON-RPC response with server capabilities
+
+# 3. Quick health check (simplest test)
+curl https://arifosmcp.yourdomain.com/health | grep -q "healthy" && echo "✅ Deployment successful"
 ```
 
 **If degraded**: Check logs for Postgres/Redis connection errors. Ensure `DB_PASSWORD` matches in both services.
@@ -317,8 +318,7 @@ services:
     image: ghcr.io/ariffazil/arifos:latest
     restart: unless-stopped
     ports:
-      - "8080:8080"  # SSE primary transport
-      - "8089:8089"  # MCP HTTP fallback (/mcp)
+      - "8080:8080"  # Modern MCP streamable HTTP endpoint
     env_file: .env
     depends_on:
       postgres:
@@ -370,18 +370,44 @@ docker compose logs -f arifosmcp
 **Verify deployment**:
 ```bash
 # 1. Check health status
-curl http://localhost:8089/health
+curl http://localhost:8080/health
+# Expected: {"status":"healthy","transport":"streamable-http",...}
 
-# 2. Test SSE primary endpoint
-curl -N --max-time 2 http://localhost:8080/sse
-
-# 3. Test MCP tools endpoint
-curl -X POST http://localhost:8089/mcp \
+# 2. Test MCP endpoint
+curl -X POST http://localhost:8080/mcp \
   -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
+  -H "Accept: application/json, text/event-stream" \
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"1.0"}},"id":1}'
+# Expected: JSON-RPC response with MCP server capabilities
+
+# 3. Confirm service running
+docker compose ps arifosmcp
 ```
 
 **Production hardening**: See [DEPLOYMENT_FIREWALL.md](docs/DEPLOYMENT_FIREWALL.md) for Nginx, SSL, and monitoring setup.
+
+---
+
+### 🧭 Why Streamable HTTP (Not SSE)?
+
+arifOS uses **modern streamable HTTP** transport — the current MCP standard that replaced legacy SSE:
+
+| Feature | Legacy SSE (`/sse`) | Modern HTTP (`/mcp`) |
+|---------|---------------------|----------------------|
+| **Architecture** | Two endpoints (GET stream + POST messages) | Single endpoint (bidirectional JSON-RPC) |
+| **Communication** | Unidirectional (server → client) | Bidirectional (request/response + streaming) |
+| **Scaling** | Stateful long-lived connections | Stateless, cloud-native friendly |
+| **Protocol** | HTTP + Server-Sent Events | JSON-RPC 2.0 over HTTP |
+| **MCP Status** | ⚠️ Deprecated (legacy compatibility) | ✅ Current standard (2024+) |
+
+**Key advantages:**
+- ✅ Single endpoint eliminates connection management complexity
+- ✅ Works seamlessly with load balancers, CDNs, and proxies
+- ✅ Better firewall/NAT traversal
+- ✅ Supports modern auth (OAuth, JWT) natively
+- ✅ Request batching and bidirectional streaming
+
+> **Note:** Some older MCP clients may still expect `/sse`. For production governance infrastructure, `/mcp` is the canonical interface.
 
 ---
 
