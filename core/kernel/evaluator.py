@@ -120,10 +120,15 @@ class ConstitutionalEvaluator:
         if context_overrides:
             ctx.update(context_overrides)
 
-        # F11 normalization: ensure role/token logic if session exists
+        # F11 normalization: never auto-escalate authority from session_id alone.
         if ctx.get("session_id") and not ctx.get("authority_token"):
-            ctx["role"] = "AGENT"
-            ctx["authority_token"] = "arifos_internal"
+            ctx["role"] = "SESSION_UNVERIFIED"
+            ctx["authority_token"] = ""
+            ctx["f11_continuity"] = "MISSING_AUTH_TOKEN"
+
+        if ctx.get("session_id") and ctx.get("authority_token"):
+            ctx["role"] = ctx.get("role") or "AGENT"
+            ctx["f11_continuity"] = "VERIFIED"
 
         return ctx
 

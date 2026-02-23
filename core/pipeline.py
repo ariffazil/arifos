@@ -40,6 +40,7 @@ class ForgeResult(BaseModel):
     f2_threshold: float = 0.99
     floors_failed: List[str] = Field(default_factory=list)
     remediation: str = ""
+    provenance: Dict[str, Any] = Field(default_factory=dict)
     motto_summary: str = ""
 
     # Organ outputs (for debugging/audit)
@@ -152,7 +153,9 @@ async def forge(
     if token.is_void or token.requires_human:
         verdict = "VOID" if token.is_void else "888_HOLD"
         elapsed = (time.perf_counter() - start_time) * 1000
-        remediation = "Check authentication (F11) or injection patterns (F12)."
+        remediation = (
+            "Airlock blocked request. Verify actor/session authority (F11) and clean prompt input (F12)."
+        )
         return ForgeResult(
             verdict=verdict,
             session_id=token.session_id,
@@ -166,6 +169,12 @@ async def forge(
             f2_threshold=f2_threshold,
             floors_failed=getattr(token, "floors_failed", []),
             remediation=remediation,
+            provenance={
+                "engine_mode": "deterministic",
+                "llm_inside_kernel": False,
+                "stage_path": ["000_INIT"],
+                "evidence_count": 0,
+            },
             emd=emd.model_dump() if emd else None,
             landauer_risk=0.0,
             mode=mode,
@@ -174,17 +183,17 @@ async def forge(
     # Fast path for TEST/CONVERSATIONAL
     if query_type in [QueryType.TEST, QueryType.CONVERSATIONAL]:
         agi_out = await agi(query, token.session_id, action="full")
-        asi_out = {"verdict": "SEAL", "empathy": 0.8, "fast_path": True}
-        apex_out = {"verdict": "SEAL", "fast_path": True}
+        asi_out = {"verdict": "PARTIAL", "empathy": 0.8, "fast_path": True}
+        apex_out = {"verdict": "PARTIAL", "fast_path": True}
         elapsed = (time.perf_counter() - start_time) * 1000
 
         # Update EMD for fast path
         emd.metabolism.delta_s = 0.0
         emd.decision.confidence = 0.5
-        emd.decision.verdict_kind = "SEAL"
+        emd.decision.verdict_kind = None
 
         return ForgeResult(
-            verdict="SEAL",
+            verdict="PARTIAL",
             session_id=token.session_id,
             token_status=token.status,
             agi=agi_out,
@@ -194,8 +203,21 @@ async def forge(
             processing_time_ms=elapsed,
             query_type=query_type_value,
             f2_threshold=f2_threshold,
-            floors_failed=[],
-            remediation="Fast path: TEST/CONVERSATIONAL query processed with minimal stages.",
+            floors_failed=["F2"],
+            remediation=(
+                "Fast path executed for low-stakes query class. Result is PARTIAL only; "
+                "provide grounded evidence and run full pipeline for SEAL eligibility."
+            ),
+            provenance={
+                "engine_mode": "deterministic",
+                "llm_inside_kernel": False,
+                "stage_path": ["000_INIT", "111-333_AGI_FAST"],
+                "evidence_count": (
+                    len(agi_out.get("evidence", {}))
+                    if isinstance(agi_out, dict)
+                    else len(getattr(agi_out, "evidence", {}) or {})
+                ),
+            },
             emd=emd.model_dump(),
             landauer_risk=0.0,
             mode=mode,
@@ -265,6 +287,16 @@ async def forge(
             f2_threshold=f2_threshold,
             floors_failed=floors_violated,
             remediation=" ".join(remediation_parts),
+            provenance={
+                "engine_mode": "deterministic",
+                "llm_inside_kernel": False,
+                "stage_path": ["000_INIT", "111-333_AGI"],
+                "evidence_count": (
+                    len(agi_out.get("evidence", {}))
+                    if isinstance(agi_out, dict)
+                    else len(getattr(agi_out, "evidence", {}) or {})
+                ),
+            },
             emd=emd.model_dump() if emd else None,
             landauer_risk=l_risk,
             mode=mode,
@@ -364,6 +396,12 @@ async def forge(
         f2_threshold=f2_threshold,
         floors_failed=apex_dict.get("floors_failed", []),
         remediation="" if verdict == "SEAL" else "Review floor violations above.",
+        provenance={
+            "engine_mode": "deterministic",
+            "llm_inside_kernel": False,
+            "stage_path": ["000_INIT", "111-333_AGI", "444-666_ASI", "777-888_APEX", "999_VAULT"],
+            "evidence_count": len(agi_dict.get("evidence", {})) if isinstance(agi_dict, dict) else 0,
+        },
         motto_summary=motto_summary,
         emd=emd.model_dump() if emd else None,
         landauer_risk=l_risk,
