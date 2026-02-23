@@ -27,39 +27,15 @@
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| 🌊 **SSE Primary** | [/sse](https://arifosmcp.arif-fazil.com/sse) | Primary FastMCP transport for remote runtime |
-| 🔁 **MCP Fallback** | [/mcp](https://arifosmcp.arif-fazil.com/mcp) | HTTP MCP fallback endpoint for compatible clients |
+| 🌊 **SSE Primary** | [/sse](https://arifosmcp.arif-fazil.com/sse) | Primary FastMCP transport (v2026.2.23) |
+| 🔁 **MCP Fallback** | [/mcp](https://arifosmcp.arif-fazil.com/mcp) | HTTP MCP fallback endpoint |
 | ✅ **Health Check** | [/health](https://arifosmcp.arif-fazil.com/health) | Real-time system status + 13 floors monitoring |
 | 📊 **Test Dashboard** | [Constitutional Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev) | Live test results + Genius scores + Floor compliance |
 | 📚 **Documentation** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Complete guides, tutorials, and API reference |
 | ⚙️ **GitHub Actions** | [CI/CD Pipeline](https://github.com/ariffazil/arifOS/actions) | Automated tests + deployments (runs daily) |
 | 🐳 **Docker Image** | `ghcr.io/ariffazil/arifos:latest` | Pull-ready production container image |
 
-**Quick test**:
-```bash
-# Check if arifOS is healthy
-curl https://arifosmcp.arif-fazil.com/health
-
-# SSE primary endpoint (should open stream)
-curl -N --max-time 2 https://arifosmcp.arif-fazil.com/sse
-
-# MCP fallback endpoint
-curl -X POST https://arifosmcp.arif-fazil.com/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
-
-# Expected output includes: status, service, version, and health_checks
-```
-
-**Status note**: the `Live Tests` badge tracks `.github/workflows/live_tests.yml` (strict end-to-end runner). It can fail independently from core `CI` when live-suite contracts or benchmark thresholds drift.
-
-### 🧾 Release Notes (2026.2.23)
-
-- SSE-primary runtime with `/mcp` fallback is now the default deployment posture.
-- Full-context MCP resources/prompts are published and discoverable.
-- ARIF TEST hardening added deterministic `self_audit` and provenance markers.
-- APEX phase-1/phase-2 objective alignment now tracks nonstationary drift by query class and escalates via `SABAR`/`888_HOLD` thresholds.
-- `search_reality` now supports Perplexity-first web grounding with Brave fallback (`PPLX_API_KEY` / `PERPLEXITY_API_KEY`, fallback `BRAVE_API_KEY`).
+> **Latest (2026.2.23):** SSE-primary runtime with `/mcp` fallback is now default. Full-context MCP resources/prompts are discoverable via `tools/list`. APEX phase-1/phase-2 now tracks nonstationary drift and escalates via `SABAR`/`888_HOLD` thresholds. `search_reality` supports Perplexity-first web grounding with Brave fallback.
 
 </div>
 
@@ -301,12 +277,24 @@ Click **Deploy** → Wait ~2–5 minutes → Done! ✅
 
 **Verify deployment**:
 ```bash
+# 1. Check health status
 curl https://arifosmcp.yourdomain.com/health
+# Expected: {"status":"healthy","service":"arifOS-MCP",...}
 
-# Expected output includes: status, service, version, and health_checks
+# 2. Test SSE primary endpoint (should open stream)
+curl -N --max-time 2 https://arifosmcp.yourdomain.com/sse
+# Expected: SSE connection opens (may timeout after 2s - this is normal)
+
+# 3. Test MCP fallback endpoint
+curl -X POST https://arifosmcp.yourdomain.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
+# Expected: JSON response with available MCP tools
 ```
 
 **If degraded**: Check logs for Postgres/Redis connection errors. Ensure `DB_PASSWORD` matches in both services.
+
+> **Note:** The `Live Tests` badge tracks `.github/workflows/live_tests.yml` (strict end-to-end runner). It can fail independently from core `CI` when live-suite contracts or benchmark thresholds drift.
 
 **Deployment guides**:
 - [📘 Coolify Full Guide](docs/DEPLOYMENT_FIREWALL.md)
@@ -377,12 +365,20 @@ docker compose up -d
 
 # Check logs
 docker compose logs -f arifosmcp
+```
 
-# Verify SSE primary
+**Verify deployment**:
+```bash
+# 1. Check health status
+curl http://localhost:8089/health
+
+# 2. Test SSE primary endpoint
 curl -N --max-time 2 http://localhost:8080/sse
 
-# Verify MCP fallback
-curl http://localhost:8089/health
+# 3. Test MCP tools endpoint
+curl -X POST http://localhost:8089/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
 ```
 
 **Production hardening**: See [DEPLOYMENT_FIREWALL.md](docs/DEPLOYMENT_FIREWALL.md) for Nginx, SSL, and monitoring setup.
