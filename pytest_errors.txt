@@ -1,0 +1,902 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\User\arifOS\.venv\Scripts\python.exe
+cachedir: C:\Users\User\AppData\Local\Temp\pytest_cache
+metadata: {'Python': '3.13.3', 'Platform': 'Windows-11-10.0.26220-SP0', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.12.1', 'asyncio': '1.3.0', 'cov': '7.0.0', 'html': '4.2.0', 'metadata': '3.1.1'}, 'JAVA_HOME': 'C:\\Users\\User\\AppData\\Roaming\\Antigravity\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\latest'}
+rootdir: C:\Users\User\arifOS
+configfile: pyproject.toml
+plugins: anyio-4.12.1, asyncio-1.3.0, cov-7.0.0, html-4.2.0, metadata-3.1.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 5 items
+
+tests/test_aaa_mcp_core_operations.py::test_call_tool_returns_structured_data_and_content FAILED [ 20%]
+tests/test_aaa_mcp_core_operations.py::test_call_tool_supports_timeout_progress_and_meta FAILED [ 40%]
+tests/test_aaa_mcp_core_operations.py::test_call_tool_mcp_raw_protocol_access FAILED [ 60%]
+tests/test_aaa_mcp_core_operations.py::test_read_resource_and_read_resource_mcp PASSED [ 80%]
+tests/test_aaa_mcp_core_operations.py::test_get_prompt_and_get_prompt_mcp PASSED [100%]
+
+================================== FAILURES ===================================
+_____________ test_call_tool_returns_structured_data_and_content ______________
+
+aaa_client = <fastmcp.client.client.Client object at 0x000001CADF956660>
+
+    async def test_call_tool_returns_structured_data_and_content(aaa_client: FastMCPClient) -> None:
+>       result = await aaa_client.call_tool(
+            "anchor_session",
+            {"query": "core ops test", "actor_id": "ops"},
+            timeout=2.0,
+            meta={"trace_id": "core-op-1", "request_source": "pytest"},
+        )
+
+tests\test_aaa_mcp_core_operations.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastmcp.client.client.Client object at 0x000001CADF956660>
+name = 'anchor_session'
+arguments = {'actor_id': 'ops', 'query': 'core ops test'}
+
+    async def call_tool(
+        self: Client,
+        name: str,
+        arguments: dict[str, Any] | None = None,
+        *,
+        version: str | None = None,
+        timeout: datetime.timedelta | float | int | None = None,
+        progress_handler: ProgressHandler | None = None,
+        raise_on_error: bool = True,
+        meta: dict[str, Any] | None = None,
+        task: bool = False,
+        task_id: str | None = None,
+        ttl: int = 60000,
+    ) -> CallToolResult | ToolTask:
+        """Call a tool on the server.
+    
+        Unlike call_tool_mcp, this method raises a ToolError if the tool call results in an error.
+    
+        Args:
+            name (str): The name of the tool to call.
+            arguments (dict[str, Any] | None, optional): Arguments to pass to the tool. Defaults to None.
+            version (str | None, optional): Specific tool version to call. If None, calls highest version.
+            timeout (datetime.timedelta | float | int | None, optional): The timeout for the tool call. Defaults to None.
+            progress_handler (ProgressHandler | None, optional): The progress handler to use for the tool call. Defaults to None.
+            raise_on_error (bool, optional): Whether to raise an exception if the tool call results in an error. Defaults to True.
+            meta (dict[str, Any] | None, optional): Additional metadata to include with the request.
+                This is useful for passing contextual information (like user IDs, trace IDs, or preferences)
+                that shouldn't be tool arguments but may influence server-side processing. The server
+                can access this via `context.request_context.meta`. Defaults to None.
+            task (bool): If True, execute as background task (SEP-1686). Defaults to False.
+            task_id (str | None): Optional client-provided task ID (auto-generated if not provided).
+            ttl (int): Time to keep results available in milliseconds (default 60s).
+    
+        Returns:
+            CallToolResult | ToolTask: The content returned by the tool if task=False,
+                or a ToolTask object if task=True. If the tool returns structured
+                outputs, they are returned as a dataclass (if an output schema
+                is available) or a dictionary; otherwise, a list of content
+                blocks is returned. Note: to receive both structured and
+                unstructured outputs, use call_tool_mcp instead and access the
+                raw result object.
+    
+        Raises:
+            ToolError: If the tool call results in an error.
+            McpError: If the tool call request results in a TimeoutError | JSONRPCError
+            RuntimeError: If called while the client is not connected.
+        """
+        # Merge version into request-level meta (not arguments)
+        request_meta = dict(meta) if meta else {}
+        if version is not None:
+            request_meta["fastmcp"] = {
+                **request_meta.get("fastmcp", {}),
+                "version": version,
+            }
+    
+        if task:
+            return await self._call_tool_as_task(
+                name, arguments, task_id, ttl, meta=request_meta or None
+            )
+    
+        result = await self.call_tool_mcp(
+            name=name,
+            arguments=arguments or {},
+            timeout=timeout,
+            progress_handler=progress_handler,
+            meta=request_meta or None,
+        )
+>       return await self._parse_call_tool_result(
+            name, result, raise_on_error=raise_on_error
+        )
+
+.venv\Lib\site-packages\fastmcp\client\mixins\tools.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastmcp.client.client.Client object at 0x000001CADF956660>
+name = 'anchor_session'
+result = CallToolResult(meta=None, content=[TextContent(type='text', text="Error calling tool 'anchor_session': module 'aaa_mcp.server' has no attribute 'init_session'", annotations=None, meta=None)], structuredContent=None, isError=True)
+raise_on_error = True
+
+    async def _parse_call_tool_result(
+        self: Client,
+        name: str,
+        result: mcp.types.CallToolResult,
+        raise_on_error: bool = False,
+    ) -> CallToolResult:
+        """Parse an mcp.types.CallToolResult into our CallToolResult dataclass.
+    
+        Args:
+            name: Tool name (for schema lookup)
+            result: Raw MCP protocol result
+            raise_on_error: Whether to raise ToolError on errors
+    
+        Returns:
+            CallToolResult: Parsed result with structured data
+        """
+    
+>       return await _parse_call_tool_result(
+            name=name,
+            result=result,
+            tool_output_schemas=self.session._tool_output_schemas,
+            list_tools_fn=self.session.list_tools,
+            client_name=self.name,
+            raise_on_error=raise_on_error,
+        )
+
+.venv\Lib\site-packages\fastmcp\client\mixins\tools.py:166: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+name = 'anchor_session'
+result = CallToolResult(meta=None, content=[TextContent(type='text', text="Error calling tool 'anchor_session': module 'aaa_mcp.server' has no attribute 'init_session'", annotations=None, meta=None)], structuredContent=None, isError=True)
+tool_output_schemas = {}
+list_tools_fn = <bound method ClientSession.list_tools of <mcp.client.session.ClientSession object at 0x000001CADF9578C0>>
+client_name = 'Client-3ca3', raise_on_error = True
+
+    async def _parse_call_tool_result(
+        name: str,
+        result: mcp.types.CallToolResult,
+        tool_output_schemas: dict[str, dict[str, Any] | None],
+        list_tools_fn: Any,  # Callable[[], Awaitable[None]]
+        client_name: str | None = None,
+        raise_on_error: bool = False,
+    ) -> CallToolResult:
+        """Parse an mcp.types.CallToolResult into our CallToolResult dataclass.
+    
+        Args:
+            name: Tool name (for schema lookup)
+            result: Raw MCP protocol result
+            tool_output_schemas: Dictionary mapping tool names to their output schemas
+            list_tools_fn: Async function to refresh tool schemas if needed
+            client_name: Optional client name for logging
+            raise_on_error: Whether to raise ToolError on errors
+    
+        Returns:
+            CallToolResult: Parsed result with structured data
+        """
+        from typing import cast
+    
+        from fastmcp.client.client import CallToolResult
+    
+        data = None
+        if result.isError and raise_on_error:
+            msg = cast(mcp.types.TextContent, result.content[0]).text
+>           raise ToolError(msg)
+E           fastmcp.exceptions.ToolError: Error calling tool 'anchor_session': module 'aaa_mcp.server' has no attribute 'init_session'
+
+.venv\Lib\site-packages\fastmcp\client\mixins\tools.py:374: ToolError
+---------------------------- Captured stderr call -----------------------------
+[02/23/26 21:00:47] Error calling tool 'anchor_session'                        
+                    ┌─────────── Traceback (most recent call last) ───────────┐
+                    │ C:\Users\User\arifOS\.venv\Lib\site-packages\fastmcp\se │
+                    │ rver\server.py:982 in call_tool                         │
+                    │                                                         │
+                    │ C:\Users\User\arifOS\.venv\Lib\site-packages\fastmcp\to │
+                    │ ols\tool.py:332 in _run                                 │
+                    │                                                         │
+                    │ C:\Users\User\arifOS\.venv\Lib\site-packages\fastmcp\to │
+                    │ ols\function_tool.py:284 in run                         │
+                    │                                                         │
+                    │ C:\Users\User\arifOS\arifos_aaa_mcp\server.py:75 in     │
+                    │ anchor_session                                          │
+                    │                                                         │
+                    │    72 │   blocked = validate_input("anchor_session", {" │
+                    │    73 │   if blocked:                                   │
+                    │    74 │   │   return wrap_tool_output("anchor_session", │
+                    │ >  75 │   payload = await legacy.init_session.fn(       │
+                    │    76 │   │   query=query,                              │
+                    │    77 │   │   actor_id=actor_id,                        │
+                    │    78 │   │   auth_token=auth_token,                    │
+                    └─────────────────────────────────────────────────────────┘
+                    AttributeError: module 'aaa_mcp.server' has no attribute   
+                    'init_session'                                             
+______________ test_call_tool_supports_timeout_progress_and_meta ______________
+
+self = MemoryObjectReceiveStream(_state=_MemoryObjectStreamState(max_buffer_size=1, buffer=deque([]), open_send_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True)
+
+    async def receive(self) -> T_co:
+        await checkpoint()
+        try:
+>           return self.receive_nowait()
+                   ^^^^^^^^^^^^^^^^^^^^^
+
+.venv\Lib\site-packages\anyio\streams\memory.py:117: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = MemoryObjectReceiveStream(_state=_MemoryObjectStreamState(max_buffer_size=1, buffer=deque([]), open_send_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True)
+
+    def receive_nowait(self) -> T_co:
+        """
+        Receive the next item if it can be done without waiting.
+    
+        :return: the received item
+        :raises ~anyio.ClosedResourceError: if this send stream has been closed
+        :raises ~anyio.EndOfStream: if the buffer is empty and this stream has been
+            closed from the sending end
+        :raises ~anyio.WouldBlock: if there are no items in the buffer and no tasks
+            waiting to send
+    
+        """
+        if self._closed:
+            raise ClosedResourceError
+    
+        if self._state.waiting_senders:
+            # Get the item from the next sender
+            send_event, item = self._state.waiting_senders.popitem(last=False)
+            self._state.buffer.append(item)
+            send_event.set()
+    
+        if self._state.buffer:
+            return self._state.buffer.popleft()
+        elif not self._state.open_send_channels:
+            raise EndOfStream
+    
+>       raise WouldBlock
+E       anyio.WouldBlock
+
+.venv\Lib\site-packages\anyio\streams\memory.py:112: WouldBlock
+
+During handling of the above exception, another exception occurred:
+
+delay = 2.0, shield = False
+
+    @contextmanager
+    def fail_after(
+        delay: float | None, shield: bool = False
+    ) -> Generator[CancelScope, None, None]:
+        """
+        Create a context manager which raises a :class:`TimeoutError` if does not finish in
+        time.
+    
+        :param delay: maximum allowed time (in seconds) before raising the exception, or
+            ``None`` to disable the timeout
+        :param shield: ``True`` to shield the cancel scope from external cancellation
+        :return: a context manager that yields a cancel scope
+        :rtype: :class:`~typing.ContextManager`\\[:class:`~anyio.CancelScope`\\]
+        :raises NoEventLoopError: if no supported asynchronous event loop is running in the
+            current thread
+    
+        """
+        current_time = get_async_backend().current_time
+        deadline = (current_time() + delay) if delay is not None else math.inf
+        with get_async_backend().create_cancel_scope(
+            deadline=deadline, shield=shield
+        ) as cancel_scope:
+>           yield cancel_scope
+
+.venv\Lib\site-packages\anyio\_core\_tasks.py:124: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <mcp.client.session.ClientSession object at 0x000001CADFAF8CD0>
+request = ClientRequest(root=CallToolRequest(method='tools/call', params=CallToolRequestParams(task=None, meta=Meta(progressToke...e_id='core-op-2'), name='check_vital', arguments={'include_swap': False, 'include_io': False, 'include_temp': False})))
+result_type = <class 'mcp.types.CallToolResult'>
+request_read_timeout_seconds = datetime.timedelta(seconds=2), metadata = None
+progress_callback = <function test_call_tool_supports_timeout_progress_and_meta.<locals>._progress at 0x000001CADFAA1F80>
+
+    async def send_request(
+        self,
+        request: SendRequestT,
+        result_type: type[ReceiveResultT],
+        request_read_timeout_seconds: timedelta | None = None,
+        metadata: MessageMetadata = None,
+        progress_callback: ProgressFnT | None = None,
+    ) -> ReceiveResultT:
+        """
+        Sends a request and wait for a response. Raises an McpError if the
+        response contains an error. If a request read timeout is provided, it
+        will take precedence over the session read timeout.
+    
+        Do not use this method to emit notifications! Use send_notification()
+        instead.
+        """
+        request_id = self._request_id
+        self._request_id = request_id + 1
+    
+        response_stream, response_stream_reader = anyio.create_memory_object_stream[JSONRPCResponse | JSONRPCError](1)
+        self._response_streams[request_id] = response_stream
+    
+        # Set up progress token if progress callback is provided
+        request_data = request.model_dump(by_alias=True, mode="json", exclude_none=True)
+        if progress_callback is not None:  # pragma: no cover
+            # Use request_id as progress token
+            if "params" not in request_data:
+                request_data["params"] = {}
+            if "_meta" not in request_data["params"]:  # pragma: no branch
+                request_data["params"]["_meta"] = {}
+            request_data["params"]["_meta"]["progressToken"] = request_id
+            # Store the callback for this request
+            self._progress_callbacks[request_id] = progress_callback
+    
+        try:
+            jsonrpc_request = JSONRPCRequest(
+                jsonrpc="2.0",
+                id=request_id,
+                **request_data,
+            )
+    
+            await self._write_stream.send(SessionMessage(message=JSONRPCMessage(jsonrpc_request), metadata=metadata))
+    
+            # request read timeout takes precedence over session read timeout
+            timeout = None
+            if request_read_timeout_seconds is not None:  # pragma: no cover
+                timeout = request_read_timeout_seconds.total_seconds()
+            elif self._session_read_timeout_seconds is not None:  # pragma: no cover
+                timeout = self._session_read_timeout_seconds.total_seconds()
+    
+            try:
+                with anyio.fail_after(timeout):
+>                   response_or_error = await response_stream_reader.receive()
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv\Lib\site-packages\mcp\shared\session.py:292: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = MemoryObjectReceiveStream(_state=_MemoryObjectStreamState(max_buffer_size=1, buffer=deque([]), open_send_channels=0, open_receive_channels=0, waiting_receivers=OrderedDict(), waiting_senders=OrderedDict()), _closed=True)
+
+    async def receive(self) -> T_co:
+        await checkpoint()
+        try:
+            return self.receive_nowait()
+        except WouldBlock:
+            # Add ourselves in the queue
+            receive_event = Event()
+            receiver = _MemoryObjectItemReceiver[T_co]()
+            self._state.waiting_receivers[receive_event] = receiver
+    
+            try:
+>               await receive_event.wait()
+
+.venv\Lib\site-packages\anyio\streams\memory.py:125: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <anyio._backends._asyncio.Event object at 0x000001CADFAA92B0>
+
+    async def wait(self) -> None:
+        if self.is_set():
+            await AsyncIOBackend.checkpoint()
+        else:
+>           await self._event.wait()
+
+.venv\Lib\site-packages\anyio\_backends\_asyncio.py:1789: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <asyncio.locks.Event object at 0x000001CADFB42C30 [unset]>
+
+    async def wait(self):
+        """Block until the internal flag is true.
+    
+        If the internal flag is true on entry, return True
+        immediately.  Otherwise, block until another task calls
+        set() to set the flag to true, then return True.
+        """
+        if self._value:
+            return True
+    
+        fut = self._get_loop().create_future()
+        self._waiters.append(fut)
+        try:
+>           await fut
+E           asyncio.exceptions.CancelledError: Cancelled via cancel scope 1cadfbb8710; reason: deadline exceeded
+
+..\AppData\Local\Programs\Python\Python313\Lib\asyncio\locks.py:213: CancelledError
+
+During handling of the above exception, another exception occurred:
+
+self = <mcp.client.session.ClientSession object at 0x000001CADFAF8CD0>
+request = ClientRequest(root=CallToolRequest(method='tools/call', params=CallToolRequestParams(task=None, meta=Meta(progressToke...e_id='core-op-2'), name='check_vital', arguments={'include_swap': False, 'include_io': False, 'include_temp': False})))
+result_type = <class 'mcp.types.CallToolResult'>
+request_read_timeout_seconds = datetime.timedelta(seconds=2), metadata = None
+progress_callback = <function test_call_tool_supports_timeout_progress_and_meta.<locals>._progress at 0x000001CADFAA1F80>
+
+    async def send_request(
+        self,
+        request: SendRequestT,
+        result_type: type[ReceiveResultT],
+        request_read_timeout_seconds: timedelta | None = None,
+        metadata: MessageMetadata = None,
+        progress_callback: ProgressFnT | None = None,
+    ) -> ReceiveResultT:
+        """
+        Sends a request and wait for a response. Raises an McpError if the
+        response contains an error. If a request read timeout is provided, it
+        will take precedence over the session read timeout.
+    
+        Do not use this method to emit notifications! Use send_notification()
+        instead.
+        """
+        request_id = self._request_id
+        self._request_id = request_id + 1
+    
+        response_stream, response_stream_reader = anyio.create_memory_object_stream[JSONRPCResponse | JSONRPCError](1)
+        self._response_streams[request_id] = response_stream
+    
+        # Set up progress token if progress callback is provided
+        request_data = request.model_dump(by_alias=True, mode="json", exclude_none=True)
+        if progress_callback is not None:  # pragma: no cover
+            # Use request_id as progress token
+            if "params" not in request_data:
+                request_data["params"] = {}
+            if "_meta" not in request_data["params"]:  # pragma: no branch
+                request_data["params"]["_meta"] = {}
+            request_data["params"]["_meta"]["progressToken"] = request_id
+            # Store the callback for this request
+            self._progress_callbacks[request_id] = progress_callback
+    
+        try:
+            jsonrpc_request = JSONRPCRequest(
+                jsonrpc="2.0",
+                id=request_id,
+                **request_data,
+            )
+    
+            await self._write_stream.send(SessionMessage(message=JSONRPCMessage(jsonrpc_request), metadata=metadata))
+    
+            # request read timeout takes precedence over session read timeout
+            timeout = None
+            if request_read_timeout_seconds is not None:  # pragma: no cover
+                timeout = request_read_timeout_seconds.total_seconds()
+            elif self._session_read_timeout_seconds is not None:  # pragma: no cover
+                timeout = self._session_read_timeout_seconds.total_seconds()
+    
+            try:
+>               with anyio.fail_after(timeout):
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.venv\Lib\site-packages\mcp\shared\session.py:291: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <contextlib._GeneratorContextManager object at 0x000001CADFBBC7C0>
+typ = <class 'asyncio.exceptions.CancelledError'>
+value = CancelledError('Cancelled via cancel scope 1cadfbb8710; reason: deadline exceeded')
+traceback = <traceback object at 0x000001CADFBC3180>
+
+    def __exit__(self, typ, value, traceback):
+        if typ is None:
+            try:
+                next(self.gen)
+            except StopIteration:
+                return False
+            else:
+                try:
+                    raise RuntimeError("generator didn't stop")
+                finally:
+                    self.gen.close()
+        else:
+            if value is None:
+                # Need to force instantiation so we can reliably
+                # tell if we get the same exception back
+                value = typ()
+            try:
+>               self.gen.throw(value)
+
+..\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:162: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+delay = 2.0, shield = False
+
+    @contextmanager
+    def fail_after(
+        delay: float | None, shield: bool = False
+    ) -> Generator[CancelScope, None, None]:
+        """
+        Create a context manager which raises a :class:`TimeoutError` if does not finish in
+        time.
+    
+        :param delay: maximum allowed time (in seconds) before raising the exception, or
+            ``None`` to disable the timeout
+        :param shield: ``True`` to shield the cancel scope from external cancellation
+        :return: a context manager that yields a cancel scope
+        :rtype: :class:`~typing.ContextManager`\\[:class:`~anyio.CancelScope`\\]
+        :raises NoEventLoopError: if no supported asynchronous event loop is running in the
+            current thread
+    
+        """
+        current_time = get_async_backend().current_time
+        deadline = (current_time() + delay) if delay is not None else math.inf
+        with get_async_backend().create_cancel_scope(
+            deadline=deadline, shield=shield
+        ) as cancel_scope:
+            yield cancel_scope
+    
+        if cancel_scope.cancelled_caught and current_time() >= cancel_scope.deadline:
+>           raise TimeoutError
+E           TimeoutError
+
+.venv\Lib\site-packages\anyio\_core\_tasks.py:127: TimeoutError
+
+During handling of the above exception, another exception occurred:
+
+aaa_client = <fastmcp.client.client.Client object at 0x000001CADF9F2E90>
+
+    async def test_call_tool_supports_timeout_progress_and_meta(aaa_client: FastMCPClient) -> None:
+        progress_events: list[dict[str, Any]] = []
+    
+        def _progress(event: Any) -> None:
+            progress_events.append({"event": str(event)})
+    
+>       result = await aaa_client.call_tool(
+            "check_vital",
+            {"include_swap": False, "include_io": False, "include_temp": False},
+            timeout=2.0,
+            progress_handler=_progress,
+            meta={"trace_id": "core-op-2"},
+        )
+
+tests\test_aaa_mcp_core_operations.py:51: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastmcp.client.client.Client object at 0x000001CADF9F2E90>
+name = 'check_vital'
+arguments = {'include_io': False, 'include_swap': False, 'include_temp': False}
+
+    async def call_tool(
+        self: Client,
+        name: str,
+        arguments: dict[str, Any] | None = None,
+        *,
+        version: str | None = None,
+        timeout: datetime.timedelta | float | int | None = None,
+        progress_handler: ProgressHandler | None = None,
+        raise_on_error: bool = True,
+        meta: dict[str, Any] | None = None,
+        task: bool = False,
+        task_id: str | None = None,
+        ttl: int = 60000,
+    ) -> CallToolResult | ToolTask:
+        """Call a tool on the server.
+    
+        Unlike call_tool_mcp, this method raises a ToolError if the tool call results in an error.
+    
+        Args:
+            name (str): The name of the tool to call.
+            arguments (dict[str, Any] | None, optional): Arguments to pass to the tool. Defaults to None.
+            version (str | None, optional): Specific tool version to call. If None, calls highest version.
+            timeout (datetime.timedelta | float | int | None, optional): The timeout for the tool call. Defaults to None.
+            progress_handler (ProgressHandler | None, optional): The progress handler to use for the tool call. Defaults to None.
+            raise_on_error (bool, optional): Whether to raise an exception if the tool call results in an error. Defaults to True.
+            meta (dict[str, Any] | None, optional): Additional metadata to include with the request.
+                This is useful for passing contextual information (like user IDs, trace IDs, or preferences)
+                that shouldn't be tool arguments but may influence server-side processing. The server
+                can access this via `context.request_context.meta`. Defaults to None.
+            task (bool): If True, execute as background task (SEP-1686). Defaults to False.
+            task_id (str | None): Optional client-provided task ID (auto-generated if not provided).
+            ttl (int): Time to keep results available in milliseconds (default 60s).
+    
+        Returns:
+            CallToolResult | ToolTask: The content returned by the tool if task=False,
+                or a ToolTask object if task=True. If the tool returns structured
+                outputs, they are returned as a dataclass (if an output schema
+                is available) or a dictionary; otherwise, a list of content
+                blocks is returned. Note: to receive both structured and
+                unstructured outputs, use call_tool_mcp instead and access the
+                raw result object.
+    
+        Raises:
+            ToolError: If the tool call results in an error.
+            McpError: If the tool call request results in a TimeoutError | JSONRPCError
+            RuntimeError: If called while the client is not connected.
+        """
+        # Merge version into request-level meta (not arguments)
+        request_meta = dict(meta) if meta else {}
+        if version is not None:
+            request_meta["fastmcp"] = {
+                **request_meta.get("fastmcp", {}),
+                "version": version,
+            }
+    
+        if task:
+            return await self._call_tool_as_task(
+                name, arguments, task_id, ttl, meta=request_meta or None
+            )
+    
+>       result = await self.call_tool_mcp(
+            name=name,
+            arguments=arguments or {},
+            timeout=timeout,
+            progress_handler=progress_handler,
+            meta=request_meta or None,
+        )
+
+.venv\Lib\site-packages\fastmcp\client\mixins\tools.py:265: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastmcp.client.client.Client object at 0x000001CADF9F2E90>
+name = 'check_vital'
+arguments = {'include_io': False, 'include_swap': False, 'include_temp': False}
+progress_handler = <function test_call_tool_supports_timeout_progress_and_meta.<locals>._progress at 0x000001CADFAA1F80>
+timeout = 2.0, meta = {'trace_id': 'core-op-2'}
+
+    async def call_tool_mcp(
+        self: Client,
+        name: str,
+        arguments: dict[str, Any],
+        progress_handler: ProgressHandler | None = None,
+        timeout: datetime.timedelta | float | int | None = None,
+        meta: dict[str, Any] | None = None,
+    ) -> mcp.types.CallToolResult:
+        """Send a tools/call request and return the complete MCP protocol result.
+    
+        This method returns the raw CallToolResult object, which includes an isError flag
+        and other metadata. It does not raise an exception if the tool call results in an error.
+    
+        Args:
+            name (str): The name of the tool to call.
+            arguments (dict[str, Any]): Arguments to pass to the tool.
+            timeout (datetime.timedelta | float | int | None, optional): The timeout for the tool call. Defaults to None.
+            progress_handler (ProgressHandler | None, optional): The progress handler to use for the tool call. Defaults to None.
+            meta (dict[str, Any] | None, optional): Additional metadata to include with the request.
+                This is useful for passing contextual information (like user IDs, trace IDs, or preferences)
+                that shouldn't be tool arguments but may influence server-side processing. The server
+                can access this via `context.request_context.meta`. Defaults to None.
+    
+        Returns:
+            mcp.types.CallToolResult: The complete response object from the protocol,
+                containing the tool result and any additional metadata.
+    
+        Raises:
+            RuntimeError: If called while the client is not connected.
+            McpError: If the tool call requests results in a TimeoutError | JSONRPCError
+        """
+        with client_span(
+            f"tools/call {name}",
+            "tools/call",
+            name,
+            session_id=self.transport.get_session_id(),
+        ):
+            logger.debug(f"[{self.name}] called call_tool: {name}")
+    
+            # Inject trace context into meta for propagation to server
+            propagated_meta = inject_trace_context(meta)
+    
+>           result = await self._await_with_session_monitoring(
+                self.session.call_tool(
+                    name=name,
+                    arguments=arguments,
+                    read_timeout_seconds=normalize_timeout_to_timedelta(timeout),
+                    progress_callback=progress_handler or self._progress_handler,
+                    meta=propagated_meta if propagated_meta else None,
+                )
+            )
+
+.venv\Lib\site-packages\fastmcp\client\mixins\tools.py:138: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <fastmcp.client.client.Client object at 0x000001CADF9F2E90>
+coro = <coroutine object ClientSession.call_tool at 0x000001CADFAF96C0>
+
+    async def _await_with_session_monitoring(
+        self, coro: Coroutine[Any, Any, ResultT]
+    ) -> ResultT:
+        """Await a coroutine while monitoring the session task for errors.
+    
+        When using HTTP transports, server errors (4xx/5xx) are raised in the
+        background session task, not in the coroutine waiting for a response.
+        This causes the client to hang indefinitely since the response never
+        arrives. This method monitors the session task and propagates any
+        exceptions that occur, preventing the client from hanging.
+    
+        Args:
+            coro: The coroutine to await (typically a session method call)
+    
+        Returns:
+            The result of the coroutine
+    
+        Raises:
+            The exception from the session task if it fails, or RuntimeError
+            if the session task completes unexpectedly without an exception.
+        """
+        session_task = self._session_state.session_task
+    
+        # If no session task, just await directly
+        if session_task is None:
+            return await coro
+    
+        # If session task already failed, raise immediately
+        if session_task.done():
+            # Close the coroutine to avoid "was never awaited" warning
+            coro.close()
+            exc = session_task.exception()
+            if exc:
+                raise exc
+            raise RuntimeError("Session task completed unexpectedly")
+    
+        # Create task for our call
+        call_task = asyncio.create_task(coro)
+    
+        try:
+            done, _ = await asyncio.wait(
+                {call_task, session_task},
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+    
+            if session_task in done:
+                # Session task completed (likely errored) before our call finished
+                call_task.cancel()
+                with anyio.CancelScope(shield=True), suppress(asyncio.CancelledError):
+                    await call_task
+    
+                # Raise the session task exception
+                exc = session_task.exception()
+                if exc:
+                    raise exc
+                raise RuntimeError("Session task completed unexpectedly")
+    
+            # Our call completed first - get the result
+>           return call_task.result()
+                   ^^^^^^^^^^^^^^^^^^
+
+.venv\Lib\site-packages\fastmcp\client\client.py:706: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <mcp.client.session.ClientSession object at 0x000001CADFAF8CD0>
+name = 'check_vital'
+arguments = {'include_io': False, 'include_swap': False, 'include_temp': False}
+read_timeout_seconds = datetime.timedelta(seconds=2)
+progress_callback = <function test_call_tool_supports_timeout_progress_and_meta.<locals>._progress at 0x000001CADFAA1F80>
+
+    async def call_tool(
+        self,
+        name: str,
+        arguments: dict[str, Any] | None = None,
+        read_timeout_seconds: timedelta | None = None,
+        progress_callback: ProgressFnT | None = None,
+        *,
+        meta: dict[str, Any] | None = None,
+    ) -> types.CallToolResult:
+        """Send a tools/call request with optional progress callback support."""
+    
+        _meta: types.RequestParams.Meta | None = None
+        if meta is not None:
+            _meta = types.RequestParams.Meta(**meta)
+    
+>       result = await self.send_request(
+            types.ClientRequest(
+                types.CallToolRequest(
+                    params=types.CallToolRequestParams(name=name, arguments=arguments, _meta=_meta),
+                )
+            ),
+            types.CallToolResult,
+            request_read_timeout_seconds=read_timeout_seconds,
+            progress_callback=progress_callback,
+        )
+
+.venv\Lib\site-packages\mcp\client\session.py:383: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <mcp.client.session.ClientSession object at 0x000001CADFAF8CD0>
+request = ClientRequest(root=CallToolRequest(method='tools/call', params=CallToolRequestParams(task=None, meta=Meta(progressToke...e_id='core-op-2'), name='check_vital', arguments={'include_swap': False, 'include_io': False, 'include_temp': False})))
+result_type = <class 'mcp.types.CallToolResult'>
+request_read_timeout_seconds = datetime.timedelta(seconds=2), metadata = None
+progress_callback = <function test_call_tool_supports_timeout_progress_and_meta.<locals>._progress at 0x000001CADFAA1F80>
+
+    async def send_request(
+        self,
+        request: SendRequestT,
+        result_type: type[ReceiveResultT],
+        request_read_timeout_seconds: timedelta | None = None,
+        metadata: MessageMetadata = None,
+        progress_callback: ProgressFnT | None = None,
+    ) -> ReceiveResultT:
+        """
+        Sends a request and wait for a response. Raises an McpError if the
+        response contains an error. If a request read timeout is provided, it
+        will take precedence over the session read timeout.
+    
+        Do not use this method to emit notifications! Use send_notification()
+        instead.
+        """
+        request_id = self._request_id
+        self._request_id = request_id + 1
+    
+        response_stream, response_stream_reader = anyio.create_memory_object_stream[JSONRPCResponse | JSONRPCError](1)
+        self._response_streams[request_id] = response_stream
+    
+        # Set up progress token if progress callback is provided
+        request_data = request.model_dump(by_alias=True, mode="json", exclude_none=True)
+        if progress_callback is not None:  # pragma: no cover
+            # Use request_id as progress token
+            if "params" not in request_data:
+                request_data["params"] = {}
+            if "_meta" not in request_data["params"]:  # pragma: no branch
+                request_data["params"]["_meta"] = {}
+            request_data["params"]["_meta"]["progressToken"] = request_id
+            # Store the callback for this request
+            self._progress_callbacks[request_id] = progress_callback
+    
+        try:
+            jsonrpc_request = JSONRPCRequest(
+                jsonrpc="2.0",
+                id=request_id,
+                **request_data,
+            )
+    
+            await self._write_stream.send(SessionMessage(message=JSONRPCMessage(jsonrpc_request), metadata=metadata))
+    
+            # request read timeout takes precedence over session read timeout
+            timeout = None
+            if request_read_timeout_seconds is not None:  # pragma: no cover
+                timeout = request_read_timeout_seconds.total_seconds()
+            elif self._session_read_timeout_seconds is not None:  # pragma: no cover
+                timeout = self._session_read_timeout_seconds.total_seconds()
+    
+            try:
+                with anyio.fail_after(timeout):
+                    response_or_error = await response_stream_reader.receive()
+            except TimeoutError:
+>               raise McpError(
+                    ErrorData(
+                        code=httpx.codes.REQUEST_TIMEOUT,
+                        message=(
+                            f"Timed out while waiting for response to "
+                            f"{request.__class__.__name__}. Waited "
+                            f"{timeout} seconds."
+                        ),
+                    )
+                )
+E               mcp.shared.exceptions.McpError: Timed out while waiting for response to ClientRequest. Waited 2.0 seconds.
+
+.venv\Lib\site-packages\mcp\shared\session.py:294: McpError
+___________________ test_call_tool_mcp_raw_protocol_access ____________________
+
+aaa_client = <fastmcp.client.client.Client object at 0x000001CADF9F3110>
+
+    async def test_call_tool_mcp_raw_protocol_access(aaa_client: FastMCPClient) -> None:
+        raw = await aaa_client.call_tool_mcp(
+            "search_reality",
+            {"query": "arifOS"},
+            timeout=2.0,
+            meta={"trace_id": "core-op-3"},
+        )
+    
+        assert hasattr(raw, "isError")
+        assert hasattr(raw, "content")
+>       assert raw.isError is False
+E       assert True is False
+E        +  where True = CallToolResult(meta=None, content=[TextContent(type='text', text="Error calling tool 'search_reality': module 'aaa_mcp.server' has no attribute 'search'", annotations=None, meta=None)], structuredContent=None, isError=True).isError
+
+tests\test_aaa_mcp_core_operations.py:74: AssertionError
+---------------------------- Captured stderr call -----------------------------
+[02/23/26 21:00:56] Error calling tool 'search_reality'                        
+                    ┌─────────── Traceback (most recent call last) ───────────┐
+                    │ C:\Users\User\arifOS\.venv\Lib\site-packages\fastmcp\se │
+                    │ rver\server.py:982 in call_tool                         │
+                    │                                                         │
+                    │ C:\Users\User\arifOS\.venv\Lib\site-packages\fastmcp\to │
+                    │ ols\tool.py:332 in _run                                 │
+                    │                                                         │
+                    │ C:\Users\User\arifOS\.venv\Lib\site-packages\fastmcp\to │
+                    │ ols\function_tool.py:284 in run                         │
+                    │                                                         │
+                    │ C:\Users\User\arifOS\arifos_aaa_mcp\server.py:258 in    │
+                    │ search_reality                                          │
+                    │                                                         │
+                    │   255 │   blocked = validate_input("search_reality", {" │
+                    │   256 │   if blocked:                                   │
+                    │   257 │   │   return wrap_tool_output("search_reality", │
+                    │ > 258 │   payload = await legacy.search.fn(query=query, │
+                    │   259 │   return wrap_tool_output("search_reality", pay │
+                    │   260                                                   │
+                    │   261                                                   │
+                    └─────────────────────────────────────────────────────────┘
+                    AttributeError: module 'aaa_mcp.server' has no attribute   
+                    'search'                                                   
+=========================== short test summary info ===========================
+FAILED tests/test_aaa_mcp_core_operations.py::test_call_tool_returns_structured_data_and_content
+FAILED tests/test_aaa_mcp_core_operations.py::test_call_tool_supports_timeout_progress_and_meta
+FAILED tests/test_aaa_mcp_core_operations.py::test_call_tool_mcp_raw_protocol_access
+======================== 3 failed, 2 passed in 29.19s =========================

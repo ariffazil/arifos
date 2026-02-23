@@ -30,15 +30,15 @@ from starlette.routing import Route
 import uvicorn
 
 # Import canonical tools directly from server module.
-from aaa_mcp.server import agi_cognition, apex_verdict, asi_empathy, init_session, vault_seal
+from aaa_mcp.server import reason_mind, judge_soul, simulate_heart, anchor_session, seal_vault
 
 # Tool registry mapping names to functions
 TOOLS = {
-    "init_session": init_session,
-    "agi_cognition": agi_cognition,
-    "asi_empathy": asi_empathy,
-    "apex_verdict": apex_verdict,
-    "vault_seal": vault_seal,
+    "init_session": anchor_session,
+    "agi_cognition": reason_mind,
+    "asi_empathy": simulate_heart,
+    "apex_verdict": judge_soul,
+    "vault_seal": seal_vault,
 }
 
 # Tool descriptions for listing
