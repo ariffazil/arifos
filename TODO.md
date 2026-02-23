@@ -1,8 +1,8 @@
 # 🎯 arifOS Task Tracker — Solo Sovereign Mode
 
 > **Authority:** 888_JUDGE — Muhammad Arif bin Fazil  
-> **Current:** v65.0-FORGE-TRINITY-SEAL  
-> **Reality Index:** 0.94  
+> **Current:** v66.0-SOVEREIGN-ACTUATOR  
+> **Reality Index:** 0.98  
 > **Mode:** Solo Sovereign (Single User)  
 > **Creed:** *DITEMPA BUKAN DIBERI — Forged, not given* 💎🔥🧠
 
@@ -22,7 +22,16 @@
 
 ---
 
-## ✅ COMPLETED (v65.0-FORGE-TRINITY-SEAL → v66.0-PHOENIX-REBIRTH)
+## ✅ COMPLETED (v65.0 → v66.0-SOVEREIGN-ACTUATOR)
+
+### 2026-02-23: The 7-Organ Sovereign Stack Evolution
+- [x] **Organ 5: PHOENIX** (`phoenix_recall`) — Implemented associative memory retrieval with Ω₀ softness and W_scar boost.
+- [x] **Organ 6: FORGE** (`sovereign_actuator`) — Implemented sandboxed material forge with ed25519 signature binding.
+- [x] **888_HOLD Intercept** — Created Signed Intent Envelope and ratification challenge logic.
+- [x] **Offline 888_signer** — Forged local CLI utility for secure out-of-band ratification.
+- [x] **Transport Alignment** — Updated `aaa_mcp` server and REST bridge to expose 11 canonical tools.
+- [x] **Architecture Documentation** — Fully synchronized README, 333_APPS, and architecture site docs with 7-organ spec.
+- [x] **Test Surface Recovery** — Added `test_canonical_tool_surface.py` and updated protocol entropy checks.
 
 ### 2026-02-22: Phoenix Mode — Sovereign Migration (VPS Rebirth)
 - [x] **Phoenix Cycle Extraction** — Identified and preserved 2 Scars (3.4K) from L2_PHOENIX/warm_band/
@@ -51,110 +60,50 @@
 - [x] **Refactor local `.mcp.json`** — Stub with deprecation warnings
 - [x] **Test MCP server loading** — Verified 14 servers operational
 
-### 2026-02-17: MCP Hardening & Workflow Alignment (T000)
-- [x] **Refactor `aaa_mcp/server.py`** — Integrated core arifOS organs (Apex, Vault)
-- [x] **Standardize Metrics** — Exposed `peace_squared` (P²) and `genius_G` (G) in MCP tools
-- [x] **Harden Seal Tool** — Integrated Merkle-chain logic from `VAULT999`
-- [x] **Legacy Archival** — Moved pre-T000 workflows to `VAULT999/archived_legacy`
-- [x] **System Audit** — Verified G = 0.92, ΔS ≤ 0 across transport layer
-- [x] **Final Sealing** — Hardened workflows finalized; legacy archived.
-
-### 2026-02-15: Environment Consolidation
-- [x] **Create `~/.arifos/` directory** — Global sovereign vault
-- [x] **Consolidate 4 .env files** — Into single `~/.arifos/env`
-- [x] **Organize by category** — Core, Database, AI/LLM, Search, DevTools, Cloud, Security
-- [x] **Create PowerShell loader** — `~/.arifos/load-env.ps1`
-- [x] **Create Bash loader** — `~/.arifos/load-env.sh`
-- [x] **Backup env** — `~/.arifos/env.backup.20260215_*`
-- [x] **Stub local `.env`** — With deprecation warnings for agents
-- [x] **Document for future agents** — Extensive `$comment` headers
-
-### 2026-02-15: SDK Evaluation
-- [x] **Analyze SDK folder** — Found 18 files, prototype/concept status
-- [x] **Check SDK usage** — NOT imported anywhere in codebase
-- [x] **Verify deployment** — SDK not in Dockerfile, not deployed
-- [x] **Decision: Archive** — Redundant with MCP protocol
-- [x] **User confirmation** — 888 Judge will archive manually
-
-### Release & Distribution
-- [x] **GitHub Release v65.0** — Published with full release notes
-- [x] **Docker Hub** — Image pushed (`ariffazil/arifos:v65.0`)
-- [x] **PyPI** — Package live (`pip install arifos`)
-- [x] **MCP Registry** — `io.github.ariffazil/aaa-mcp` published
-- [x] **Railway Deploy** — Production at `arifosmcp.arif-fazil.com`
-- [x] **VPS Deploy** — Malaysia VPS (Hostinger) operational
-- [x] **Tool Rename** — `forge_pipeline` → `trinity_forge`
-
-### Infrastructure (Configured & Working)
-- [x] **PostgreSQL** — `session_ledger.py` with asyncpg, VAULT999 schema
-- [x] **Redis** — `redis_client.py` with Railway URL parsing
-- [x] **5-Organ Kernel** — INIT, AGI, ASI, APEX, VAULT operational
-- [x] **9 A-CLIP Tools** — Full MCP 2025-11-05 compliance
-- [x] **13 Constitutional Floors** — F1-F13 enforcement
-- [x] **Unified Pipeline** — `trinity_forge` as single entrypoint
-- [x] **Triple Transport** — STDIO · SSE · StreamableHTTP
-
 ---
 
-## 🔴 H1: TEMPERING THE FOUNDATION (Current Priority)
+## 🔴 H1: HARDENING AGENCY (Current Priority)
 
-**Theme:** *The foundation is SEALED — now temper it to production hardness.*  
-**Goal:** Harden v65.0 into a reliable, observable, regression-tested system.
+**Theme:** *The 7-Organ Stack is live — now harden the agency protocols.*  
+**Goal:** Transition from Phase 2 (Ghost Actuation) to Phase 3 (Live Actuation).
 
-### H1.1: Production Observability
-- [ ] **Governance Metrics in /health**
-  - [ ] `postgres_connected` — DB connection status
-  - [ ] `redis_connected` — Redis connection status
-  - [ ] `vault_lag_ms` — Time from query to seal
-  - [ ] `verdict_rates` — VOID/SABAR/SEAL distribution
-  - [ ] `avg_genius_g` — Average Genius Index
-  - [ ] `avg_e_eff` — Average energy efficiency
-  - [ ] `avg_landauer_risk` — Average hallucination risk
+### H1.1: Agency Observability
+- [ ] **Extended Metrics in /health**
+  - [ ] `actuation_failure_rate` — % of FORGE calls resulting in ActuatorError
+  - [ ] `recall_resonance_avg` — Average Jaccard similarity for subconscious hits
+  - [ ] `hold_escalation_ratio` — % of queries hitting 888_HOLD
+  - [ ] `delta_s_external_avg` — Average external entropy mutation
   - *File:* `aaa_mcp/infrastructure/monitoring.py`
 
-- [ ] **Alerting Setup**
-  - [ ] DB disconnect alert
-  - [ ] VAULT write failure alert
-  - [ ] Low G (< 0.6) sustained alert
-  - [ ] High VOID ratio (> 30%) alert
-  - *Platform:* Railway native alerts or webhook
-
 ### H1.2: ASI Hardening (Ω)
-**Problem:** F5/F6/F9 use keyword heuristics, not trained models.
+**Problem:** F5/F6/F9 use keyword heuristics.
 
 - [ ] **Embedding-Based Stakeholder Detection**
   - [ ] Integrate SBERT (`sentence-transformers/all-MiniLM-L6-v2`)
   - [ ] Replace `identify_stakeholders()` pattern matching with semantic similarity
-  - [ ] Map embeddings to vulnerability scores
   - *File:* `core/shared/physics.py`
 
-- [ ] **Model-Backed κᵣ (Empathy)**
-  - [ ] Light classifier (logistic regression on embeddings) for F6
-  - [ ] Train on anonymized VAULT logs
-  - [ ] Score range: [0.5, 1.0] with confidence
-  - *File:* `core/organs/_2_asi.py`
+### H1.3: Phase 3 "Live Actuation" Prep
+- [ ] **Action Policy Fine-Tuning**
+  - [ ] Define precise JSON schemas for `POLICY_ALLOWLIST` actions.
+  - [ ] Implement `check_action_reversibility()` for F1 Amanah compliance.
+  - [ ] Move `dry_run` toggle to environment variable (`ARIFOS_FORGE_LIVE`).
 
-- [ ] **Model-Backed Peace² (F5)**
-  - [ ] Sentiment analysis for stability scoring
-  - [ ] Replace keyword-based harms with embedding similarity
-  - *File:* `core/shared/physics.py`
+---
 
-- [x] **Ω Incident Logging**
-  - [x] Log all ASI decisions to VAULT for future fine-tuning
-  - [x] Anonymize queries before logging
-  - *File:* `aaa_mcp/sessions/session_ledger.py` (implemented)
+## 🟠 H2: AGENTIC — LIVING INSTITUTION (Next Phase)
 
-### H1.3: Test Suite Recovery
-- [ ] **Fix Legacy Imports**
-  - [ ] Replace `arifos.core` → `codebase` in all tests
-  - [ ] Target: **≥80% pass rate**
-  - *Files:* `tests/constitutional/`, `tests/integration/`
+**Theme:** *Deploying the Sovereign Agent.*  
 
-- [ ] **Golden Scenario Tests**
-  - [ ] **Scenario 1:** High-stakes financial decision → HOLD_888 + Phoenix-72
-  - [ ] **Scenario 2:** Medical query without grounding → SABAR/VOID
-  - [ ] **Scenario 3:** Benign Q&A → SEAL with Ω₀ ∈ [0.03,0.05], G ≥ 0.8
-  - *File:* `tests/test_golden_scenarios.py`
+### H2.1: Sovereign Agent Deployment
+- [ ] **Constitutional Code Review (Dogfooding)**
+  - [ ] Deploy Validator Agent using the 7-Organ stack to review own PRs.
+  - [ ] Integration with `888_signer` for deployment ratification.
+
+### H2.2: W_scar (Scar-Weight) Hardening
+- [ ] **Dynamic Scar Weighting**
+  - [ ] Implement `scar_weight` calculation based on VAULT999 audit frequency.
+  - [ ] High-risk historical decisions automatically carry higher weight in `phoenix_recall`.
 
 ### H1.4: VPS Production Migration ✅ COMPLETE
 - [x] **Phoenix Kit Creation** — Full exfiltration package assembled (45K)
