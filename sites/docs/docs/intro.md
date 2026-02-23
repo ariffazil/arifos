@@ -3,167 +3,74 @@ id: intro
 title: Introduction
 slug: /intro
 sidebar_position: 1
-description: arifOS - The constitutional intelligence kernel that governs AI cognition via 13 mathematical floors and a 000999 metabolic pipeline.
+description: arifOS is a constitutional intelligence kernel with canonical AAA MCP 13-tool surface and governed 000->999 pipeline.
 ---
 
-# arifOS - The System That Knows It Doesn't Know
+# arifOS - Forged, Not Given
 
-> *Ditempa Bukan Diberi* - Forged, Not Given
+arifOS is a constitutional intelligence kernel that governs AI cognition through 13 floors and a staged pipeline ending in auditable verdicts.
 
-arifOS is a **constitutional intelligence kernel** for AI agents. It wraps any LLM call - Claude, GPT, Gemini, or your own model - inside a governed pipeline that enforces 13 mathematical floors before a verdict is issued.
+## Canonical runtime
 
-**It is not a chatbot, a prompt template, or an AI assistant.** It is the substrate that decides whether a thought is permitted to exist.
+- Python: `>=3.12`
+- Module: `arifos_aaa_mcp`
+- Transports: `stdio`, `sse`, `http`
+- MCP surface: 13 tools, 2 resources, 1 prompt
 
----
-
-## Prerequisites
-
-Before installing arifOS, ensure you have:
-
-- **Python 3.12+** (strictly required for MCP typing + tool contracts)
-- **LLM API keys** set in environment (the kernel wraps the LLM, so it needs the keys):
-  ```bash
-  export ANTHROPIC_API_KEY="sk-ant-..."      # For Claude
-  export OPENAI_API_KEY="sk-..."             # For GPT
-  export GOOGLE_API_KEY="..."                # For Gemini
-  ```
-- **Optional**: PostgreSQL and Redis for persistent VAULT999 logging
-
----
-
-## What arifOS Does
-
-**F = Constitutional Floor** - Each F-number represents a mathematical constraint enforced on every LLM call:
-
-| Traditional LLM call | arifOS-governed call |
-|:--|:--|
-| Model outputs whatever maximises likelihood | Output passes [13 constitutional floors](./governance) first |
-| Hallucination is uncaught | [F2 Truth](./governance#the-13-constitutional-floors) >= 0.99 rejects low-evidence claims |
-| No audit trail | Every decision logged to immutable VAULT999 |
-| No human override point | [F13 Sovereignty](./governance#the-13-constitutional-floors) preserves human veto at all times |
-| Claims anything | [F10 Ontology](./governance#the-13-constitutional-floors) locks - no consciousness claims |
-| Opaque failures | [888_HOLD](./governance#888_hold---mandatory-human-confirmation) escalates critical decisions to human judge |
-
----
-
-## The Governance Pipeline (EMD Stack)
-
-```
-Raw Prompt
-    
-
-  000_INIT - Session initialization      
-  111_AGI - Akal (Intellect) cognition   
-  222_ASI - Qalb (Empathy) evaluation    
-  444_APEX - Iradah (Authority) verdict  
-  999_VAULT - Immutable logging          
-
-    
-Governed Output (SEAL / SABAR / VOID)
-```
-
-Every query flows through the **Encoder  Metabolizer  Decoder** (EMD Stack):
-- **Encoder (000-111)**: Grounds the input in reality
-- **Metabolizer (222-777)**: Applies 13 constitutional floors
-- **Decoder (888-999)**: Issues verdict with audit trail
-
-[Learn the theory ](./theory-000)
-
----
-
-## Quick Start (30 seconds)
-
-### 1. Install and Boot
+## Quick start
 
 ```bash
 pip install arifos
 
-# SSE primary (default) - for cloud / remote clients
-python -m aaa_mcp
+# Local clients (Claude Desktop / Cursor)
+python -m arifos_aaa_mcp stdio
 
-# Stdio - for Claude Desktop, Cursor, OpenClaw
-python -m aaa_mcp stdio
+# Remote SSE runtime
+HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp sse
 
-# HTTP (MCP Streamable HTTP)
-python -m aaa_mcp http --host 0.0.0.0 --port 8080
+# HTTP MCP fallback
+PORT=8089 python -m arifos_aaa_mcp http
 ```
 
-Or run the unified server (recommended for production):
+Live endpoints:
 
-```bash
-git clone https://github.com/ariffazil/arifOS.git
-cd arifOS
-pip install -r requirements.txt
-python server.py --mode sse    # SSE primary runtime
-```
+- SSE: `https://arifosmcp.arif-fazil.com/sse`
+- MCP HTTP: `https://arifosmcp.arif-fazil.com/mcp`
+- Health: `https://arifosmcp.arif-fazil.com/health`
 
-Live production endpoints:
+## Canonical tools (13)
 
-- **SSE primary:** `https://arifosmcp.arif-fazil.com/sse`
-- **MCP fallback:** `https://arifosmcp.arif-fazil.com/mcp`
-- **Health:** `https://arifosmcp.arif-fazil.com/health`
+1. `anchor_session`
+2. `reason_mind`
+3. `recall_memory`
+4. `simulate_heart`
+5. `critique_thought`
+6. `judge_soul`
+7. `forge_hand`
+8. `seal_vault`
+9. `search_reality`
+10. `fetch_content`
+11. `inspect_file`
+12. `audit_rules`
+13. `check_vital`
 
-### 2. Wrap Your LLM Call (Python Example)
+## Resources and prompt
 
-```python
-import requests
+- `arifos://aaa/schemas`
+- `arifos://aaa/full-context-pack`
+- `arifos.prompt.aaa_chain`
 
-# Query through arifOS kernel instead of calling LLM directly
-response = requests.post("http://localhost:8889/mcp", json={
-    "tool": "reason",
-    "params": {
-        "query": "Should I invest in cryptocurrency?",
-        "context": {"portfolio": "conservative", "risk_tolerance": "low"}
-    }
-})
+## Governance verdicts
 
-result = response.json()
-print(f"Verdict: {result['verdict']}")  # SEAL, SABAR, or VOID
-print(f"Confidence: {result['confidence']}")
-print(f"Governed Answer: {result['response']}")
-```
+- `SEAL` - approved
+- `PARTIAL` - approved with warnings
+- `SABAR` - hold/refine
+- `VOID` - blocked
+- `888_HOLD` - mandatory human ratification
 
-### 3. Human Override (888 Judge)
+Continue with:
 
-When a query hits critical thresholds (high risk, irreversible actions, uncertain evidence), the system returns:
-
-```json
-{
-  "verdict": "888_HOLD",
-  "message": "High-stakes decision requires human review",
-  "escalation": "Check Metabolic Console at console.arif-fazil.com",
-  "estimated_review_time": "72 hours"
-}
-```
-
-The **888 Judge** (human operator) reviews via the [Metabolic Console](https://console.arif-fazil.com) and issues the final ruling.
-
----
-
-## Where to Go Next
-
-| You are... | Start here |
-| :--- | :--- |
-| An operator running the server | [MCP Server ](./mcp-server) |
-| Deploying to VPS / Docker / Railway | [Deployment ](./deployment) |
-| Connecting an MCP client | [API Reference ](./api) |
-| A policy lead or auditor | [Governance & Floors ](./governance) |
-| Curious about the theory | [000_THEORY Map ](./theory-000) |
-| Connecting ChatGPT | [ChatGPT Connector ](./chatgpt) |
-| Building the L0-L7 stack | [Architecture ](./architecture) |
-
----
-
-## The Guiding Principle
-
-Most AI systems claim knowing and hide not-knowing.  
-arifOS claims knowing **and** admits not-knowing - through constitutional law, not marketing.
-
-**Authority is not power. Authority is knowing the limits and admitting them.**
-
-The 13 floors codify exactly what is known, what is admitted as unknown, and what escalates to the human judge (888_HOLD).
-
-- Source: [`000_THEORY/000_FOUNDATIONS.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_FOUNDATIONS.md)
-- PyPI: [`pip install arifos`](https://pypi.org/project/arifos/)
-- License: [AGPL-3.0](https://github.com/ariffazil/arifOS/blob/main/LICENSE)
-- Version: `2026.2.23` (T000 date-versioned - see [`T000_VERSIONING.md`](https://github.com/ariffazil/arifOS/blob/main/T000_VERSIONING.md))
+- [MCP Server](./mcp-server)
+- [API Reference](./api)
+- [Governance](./governance)
+- [Deployment](./deployment)

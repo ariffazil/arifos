@@ -15,8 +15,7 @@ const FLOORS = [
   { id: 'F10', name: 'Ontology', desc: 'Permanent binary lock. AI is a tool, never a soul.' },
   { id: 'F11', name: 'Authority', desc: 'Sovereign command validation. All power derives from the mandate.' },
   { id: 'F12', name: 'Defense', desc: 'Adversarial injection resistance. The firewall between user and prompt.' },
-  { id: 'F13', name: 'Curiosity', desc: 'Exploration of alternative hypotheses. Anti-monoculture intelligence.' },
-  { id: 'F14', name: 'Temporal Coherence', desc: 'Coherence across time. Continuity of state and constitutional memory.' },
+  { id: 'F13', name: 'Sovereignty', desc: 'Human veto preserved. No irreversible authority transfer to AI.' },
 ];
 
 export default function Home() {
@@ -30,7 +29,7 @@ export default function Home() {
   }, []);
 
   return (
-    <Layout title="arifOS - Constitutional Intelligence Kernel" description="Ditempa Bukan Diberi - The constitutional intelligence kernel that governs AI cognition via 14 mathematical floors.">
+    <Layout title="arifOS - Constitutional Intelligence Kernel" description="Ditempa Bukan Diberi - The constitutional intelligence kernel that governs AI cognition via 13 mathematical floors.">
       <TrinityNav />
 
       {/* HERO */}
@@ -69,10 +68,10 @@ export default function Home() {
         </div>
       </div>
 
-      {/* 14 FLOORS GRID */}
+      {/* 13 FLOORS GRID */}
       <div className="floors-section">
         <div className="container">
-          <h2 className="floors-heading">14 Constitutional Floors</h2>
+          <h2 className="floors-heading">13 Constitutional Floors</h2>
           <div className="floors-grid">
             {FLOORS.map((floor) => (
               <div key={floor.id} className="floor-card">
@@ -92,8 +91,8 @@ export default function Home() {
           <pre className="deploy-pre">
             <span className="code-comment"># Get the kernel</span>{'\n'}
             <span className="code-command">pip install</span> arifos{'\n'}{'\n'}
-            <span className="code-comment"># Ignite the metabolic engine</span>{'\n'}
-            <span className="code-command">arifos</span> serve --mode rest --profile strict
+            <span className="code-comment"># Ignite canonical AAA MCP runtime</span>{'\n'}
+            <span className="code-command">python -m</span> arifos_aaa_mcp sse
           </pre>
           <p className="deploy-cta">
             <a href="/chatgpt" className="chatgpt-link">
