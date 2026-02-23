@@ -107,7 +107,7 @@ if [ ! -f "/etc/letsencrypt/live/$DOMAIN/fullchain.pem" ]; then
     echo "  [888_HOLD] This modifies /etc/letsencrypt/ — confirm? (Ctrl+C to abort)"
     read -r -t 30 -p "  Press Enter to continue or Ctrl+C to abort..."
     certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos \
-        --email "arifbfazil@gmail.com" --redirect
+        --email "arifos@arif-fazil.com" --redirect
     echo "  ✅ Certificate obtained."
 else
     echo "▶ Step 5: TLS certificate found — skipping Certbot."
