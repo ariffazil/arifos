@@ -176,7 +176,7 @@ Edit `~/.config/claude/claude_desktop_config.json` (macOS/Linux) or `%APPDATA%\C
 }
 ```
 
-Restart Claude Desktop → Tools panel will show arifOS tools (e.g., `init_session`, `apex_verdict`, `vault_seal`).
+Restart Claude Desktop -> Tools panel will show arifOS tools (e.g., `anchor_session`, `judge_soul`, `seal_vault`).
 
 **Full integration guides**:
 - [Claude Desktop Setup](https://github.com/ariffazil/arifOS/wiki/Claude-Desktop)
@@ -321,8 +321,8 @@ Connect arifOS to ChatGPT as a custom tool provider.
 3. **Add to Chat**: Click "Tools" → Select "arifOS" → Start asking governed questions
 
 **Example prompts**:
-- "Use `apex_verdict` to evaluate: Should we deploy this AI model to production?"
-- "Run `vault_seal` to commit this decision to the constitutional ledger"
+- "Use `judge_soul` to evaluate: Should we deploy this AI model to production?"
+- "Run `seal_vault` to commit this decision to the constitutional ledger"
 
 **Full guide**: [ChatGPT Integration Wiki](https://github.com/ariffazil/arifOS/wiki/ChatGPT)
 
@@ -426,48 +426,29 @@ arifOS evaluates every decision through **three parallel engines**:
 
 ## 🛠️ MCP Surface
 
-Current unified MCP server exposes:
+Current canonical AAA MCP server exposes:
 
-- **20 tools**
-- **2 resources** (`arifos://templates/full-context`, `arifos://schemas/tooling`)
-- **3 prompts** (`arifos.prompt.trinity_forge`, `arifos.prompt.anchor_reason`, `arifos.prompt.audit_then_seal`)
+- **13 tools**
+- **2 resources** (`arifos://aaa/schemas`, `arifos://aaa/full-context-pack`)
+- **1 prompt** (`arifos.prompt.aaa_chain`)
 
-### Core Governance (7 Tools)
-
-| Tool | Stage | Purpose | Floors Enforced |
-|------|-------|---------|-----------------|
-| `init_session` | 000 | Session ignition + defense scan | F11, F12, F13 |
-| `agi_cognition` | 111-444 | Logic/Truth (AGI Mind) | F2, F4, F7, F8 |
-| `phoenix_recall` | 555 | Associative Subconscious (Ω₀, W_scar) | F4, F7, F8 |
-| `asi_empathy` | 666 | Safety/Empathy (ASI Heart) | F5, F6 |
-| `apex_verdict` | 777 | Authority/Law (APEX Soul) | F1-F13 (all) |
-| `sovereign_actuator` | 888 | Sandboxed Material Forge (Hands) | F1, F3, F9, F13 |
-| `vault_seal` | 999 | Immutable ledger commit | F1, F3, F10 |
-
-### Triad Tools (9 Tools)
+### Canonical AAA Tools (13)
 
 | Tool | Stage | Purpose |
 |------|-------|---------|
-| `triad_anchor` | 000 | Context grounding |
-| `triad_reason` | 222 | Hypothesis validation |
-| `triad_integrate` | 333 | Multi-source synthesis |
-| `triad_respond` | 444 | Draft generation |
-| `triad_validate` | 555 | Safety verification |
-| `triad_align` | 666 | Value alignment |
-| `triad_forge` | 777 | Action planning |
-| `triad_audit` | 888 | Sovereignty audit |
-| `triad_seal` | 999 | Task finalization |
-
-### Additional Read-Only Tools (6 Tools)
-
-| Tool | Purpose | Read-Only? |
-|------|---------|------------|
-| `search` | Web search (Brave API) | ✅ Yes |
-| `fetch` | URL content retrieval | ✅ Yes |
-| `analyze` | Data structure analysis | ✅ Yes |
-| `system_audit` | Constitutional health check | ✅ Yes |
-| `sense_health` | System health telemetry | ✅ Yes |
-| `sense_fs` | Filesystem traversal | ✅ Yes |
+| `anchor_session` | 000_INIT | Session anchor + continuity boot |
+| `reason_mind` | 333_REASON | Reasoning + evidence synthesis |
+| `recall_memory` | 444_SYNC | Memory recall and context stitching |
+| `simulate_heart` | 555_EMPATHY | Stakeholder impact and empathy pass |
+| `critique_thought` | 666_ALIGN | Constitutional critique/alignment |
+| `judge_soul` | 888_JUDGE | Governance verdict under 13-law envelope |
+| `forge_hand` | 777_FORGE | Execution planning / forge stage |
+| `seal_vault` | 999_SEAL | Final seal and continuity handoff |
+| `search_reality` | 111_SENSE | Web grounding (Perplexity first, Brave fallback) |
+| `fetch_content` | 444_SYNC | Fetch content from grounded URLs |
+| `inspect_file` | 111_SENSE | Safe filesystem inspection |
+| `audit_rules` | 333_REASON | Rule and governance audit checks |
+| `check_vital` | 555_EMPATHY | Runtime/system vital signs |
 
 **Full tool reference**: [aaa_mcp/README.md](aaa_mcp/README.md)
 
