@@ -1,116 +1,14 @@
-"""
-aaa_mcp CLI Entry Point — Triple Transport Support
+"""Compatibility launcher.
 
-Usage:
-    python -m aaa_mcp                # sse (default — Primary runtime)
-    python -m aaa_mcp sse            # sse (Remote — VPS/Network)
-    python -m aaa_mcp http           # http (Streamable HTTP at /mcp)
-
-DITEMPA BUKAN DIBERI
+Phase 4 default external runtime is `arifos_aaa_mcp`.
 """
 
-import os
-import sys
+from __future__ import annotations
 
+def main() -> None:
+    from arifos_aaa_mcp.__main__ import main as aaa_main
 
-def check_fastmcp_version():
-    """Verify FastMCP version compatibility."""
-    try:
-        import fastmcp
-
-        version = getattr(fastmcp, "__version__", "unknown")
-        print(f"[arifOS] FastMCP version: {version}", file=sys.stderr)
-
-        # Parse major version
-        major = int(version.split(".")[0]) if version != "unknown" else 0
-        if major < 2:
-            print(
-                f"[arifOS] ⚠️  WARNING: FastMCP {version} detected. Version 2.x+ required for full functionality.",
-                file=sys.stderr,
-            )
-            print(
-                "[arifOS] Some features (like /health endpoint) may not work correctly.",
-                file=sys.stderr,
-            )
-        else:
-            print(f"[arifOS] ✓ FastMCP {version} - Full functionality available", file=sys.stderr)
-        return major
-    except Exception as e:
-        print(f"[arifOS] ⚠️  Could not check FastMCP version: {e}", file=sys.stderr)
-        return 0
-
-
-def main():
-    # Check version before importing server modules
-    check_fastmcp_version()
-
-    import argparse
-    parser = argparse.ArgumentParser(description="arifOS Unified MCP Server")
-    parser.add_argument(
-        "mode_pos",
-        nargs="?",
-        choices=["stdio", "sse", "http", "rest"],
-        help="Server mode (positional)",
-    )
-    parser.add_argument(
-        "--mode",
-        choices=["stdio", "sse", "http", "rest"],
-        help="Server mode (optional flag)",
-    )
-    parser.add_argument(
-        "--host", default=os.getenv("HOST", "0.0.0.0"), help="Host to bind to (default: 0.0.0.0)"
-    )
-    parser.add_argument(
-        "--port",
-        type=int,
-        default=int(os.getenv("PORT", 8080)),
-        help="Port to bind to (default: 8080)",
-    )
-
-    args = parser.parse_args()
-    
-    # Determine mode from either positional or flag
-    mode = args.mode or args.mode_pos or os.getenv("AAA_MCP_TRANSPORT", "sse")
-    mode = mode.strip().lower()
-
-    # Unified server combines AAA-MCP and ACLIP-CAI tools
-    from aaa_mcp.server import create_unified_mcp_server
-
-    mcp = create_unified_mcp_server()
-
-    if mode == "sse":
-        port = args.port
-        host = args.host
-        print(f"[arifOS] Starting MCP server with SSE transport on {host}:{port}", file=sys.stderr)
-
-        # Reverse proxy terminates TLS and sets X-Forwarded-Proto.
-        os.environ["FORWARDED_ALLOW_IPS"] = "*"
-        mcp.run(transport="sse", host=host, port=port)
-        return
-
-    if mode in ("", "stdio"):
-        print("[arifOS] Starting Unified MCP server with STDIO transport", file=sys.stderr)
-        mcp.run(transport="stdio")
-        return
-
-    if mode in ("http", "streamable-http"):
-        port = args.port
-        host = args.host
-        print(f"[arifOS] Starting MCP server with HTTP transport on {host}:{port}", file=sys.stderr)
-        mcp.run(transport="http", host=host, port=port)
-        return
-
-    if mode == "rest":
-        from aaa_mcp.rest import main as rest_main
-
-        os.environ["HOST"] = args.host
-        os.environ["PORT"] = str(args.port)
-        print(f"[arifOS] Starting REST bridge on {args.host}:{args.port} (Starlette + Uvicorn)", file=sys.stderr)
-        rest_main()
-        return
-
-    print(f"Unknown mode '{mode}'. Use one of: stdio, sse, http, rest", file=sys.stderr)
-    raise SystemExit(2)
+    aaa_main()
 
 
 if __name__ == "__main__":

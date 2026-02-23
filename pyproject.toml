@@ -155,13 +155,13 @@ all = [
 [project.scripts]
 # arifOS Canonical CLI (v65.0-FORGE-UVX)
 # Usage: uvx arifos [stdio|sse|http|rest]
-arifos = "aaa_mcp.__main__:main"
-aaa-mcp = "aaa_mcp.__main__:main"
-arifos-mcp = "aaa_mcp.__main__:main"
+arifos = "arifos_aaa_mcp.__main__:main"
+aaa-mcp = "arifos_aaa_mcp.__main__:main"
+arifos-mcp = "arifos_aaa_mcp.__main__:main"
 
 # ACLIP_CAI Console Intelligence Tools (v1.0.0)
 aclip-cai = "aclip_cai.cli:main"
-aclip-server = "aaa_mcp.__main__:main"  # Unified server mode
+aclip-server = "arifos_aaa_mcp.__main__:main"  # Canonical AAA MCP surface
 
 # arifOS FORGE-2 CLI (v2026.2.23-FORGE2)
 arifos-cli = "aaa_mcp.cli:main"
@@ -222,7 +222,14 @@ Changelog = "https://github.com/ariffazil/arifOS/blob/main/CHANGELOG.md"
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["scripts*", "aaa_mcp*", "mcp_server*", "core*", "aclip_cai*"]
+include = [
+    "scripts*",
+    "aaa_mcp*",
+    "arifos_aaa_mcp*",
+    "mcp_server*",
+    "core*",
+    "aclip_cai*",
+]
 exclude = [
     "*.tests",
     "*.tests.*",

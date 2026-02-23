@@ -2,7 +2,7 @@
   "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
   "source": {
     "type": "filesystem",
-    "path": "aaa_mcp/server.py",
+    "path": "arifos_aaa_mcp/server.py",
     "entrypoint": "mcp"
   },
   "environment": {

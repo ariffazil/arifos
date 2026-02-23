@@ -1,47 +1,22 @@
-"""
-arifOS AAA MCP package exports.
+"""Legacy compatibility package.
 
-Public contract:
-- 7-organ tools (`init_session`, `agi_cognition`, `phoenix_recall`, `asi_empathy`, `apex_verdict`, `sovereign_actuator`, `vault_seal`)
-- 4 utility tools (`search`, `fetch`, `analyze`, `system_audit`)
+External/public interface is now `arifos_aaa_mcp` (canonical 13-tool surface).
 
-Legacy verb aliases are kept for backward compatibility.
+This `aaa_mcp` package remains as internal/legacy wiring.
 """
 
-from .core.constitutional_decorator import constitutional_floor, get_tool_floors
-from .mcp_config import MCP_SERVERS, TrinityComponent, get_server_config
-from .mcp_integration import MCPIntegrationLayer, get_mcp_layer
-from .server import (
-    agi_cognition,
-    analyze,
-    apex_verdict,
-    asi_empathy,
-    fetch,
-    init_session,
-    mcp,
-    phoenix_recall,
-    search,
-    sovereign_actuator,
-    system_audit,
-    vault_seal,
-)
+from __future__ import annotations
 
-# Backward-compatible aliases (legacy 9-verb naming)
-anchor = init_session
-reason = agi_cognition
-integrate = agi_cognition
-respond = agi_cognition
-validate = asi_empathy
-align = asi_empathy
-forge = apex_verdict
-audit = apex_verdict
-seal = vault_seal
+import warnings
+from typing import Any
 
-__version__ = "2026.02.22-FORGE-VPS-SEAL"
-__all__ = [
-    # FastMCP server instance
-    "mcp",
-    # Canonical 7-organ + 4-utility surface
+
+__version__ = "2026.02.23-AAA-BRIDGE"
+
+__all__ = ["mcp"]
+
+
+_LEGACY_EXPORTS = {
     "init_session",
     "agi_cognition",
     "phoenix_recall",
@@ -53,7 +28,6 @@ __all__ = [
     "fetch",
     "analyze",
     "system_audit",
-    # Legacy aliases
     "anchor",
     "reason",
     "integrate",
@@ -63,15 +37,23 @@ __all__ = [
     "forge",
     "audit",
     "seal",
-    # Integration layer
-    "MCPIntegrationLayer",
-    "get_mcp_layer",
-    # Config
-    "MCP_SERVERS",
-    "get_server_config",
-    "TrinityComponent",
-    # Decorators
-    "constitutional_floor",
-    "get_tool_floors",
-]
-# CACHE BUST: 1771142400 - T000 FORGE-TRINITY SEAL
+}
+
+
+def __getattr__(name: str) -> Any:
+    if name == "mcp":
+        import importlib
+
+        aaa = importlib.import_module("arifos_aaa_mcp.server")
+        return getattr(aaa, "mcp")
+    if name in _LEGACY_EXPORTS:
+        warnings.warn(
+            f"aaa_mcp.{name} is deprecated; use arifos_aaa_mcp canonical tools instead",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        import importlib
+
+        legacy = importlib.import_module("aaa_mcp.server")
+        return getattr(legacy, name)
+    raise AttributeError(name)
