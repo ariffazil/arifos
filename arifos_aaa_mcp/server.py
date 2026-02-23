@@ -72,7 +72,7 @@ async def anchor_session(
     blocked = validate_input("anchor_session", {"query": query, "actor_id": actor_id})
     if blocked:
         return wrap_tool_output("anchor_session", blocked)
-    payload = await legacy.anchor_session.fn.fn(
+    payload = await legacy.anchor_session.fn(
         query=query,
         actor_id=actor_id,
         auth_token=auth_token,
@@ -98,7 +98,7 @@ async def reason_mind(
     missing = require_session("reason_mind", session_id)
     if missing:
         return wrap_tool_output("reason_mind", missing)
-    payload = await legacy.reason_mind.fn.fn(
+    payload = await legacy.reason_mind.fn(
         query=query,
         session_id=session_id,
         grounding=grounding,
@@ -123,7 +123,7 @@ async def recall_memory(
     missing = require_session("recall_memory", session_id)
     if missing:
         return wrap_tool_output("recall_memory", missing)
-    payload = await legacy.recall_memory.fn.fn(
+    payload = await legacy.recall_memory.fn(
         current_thought_vector=current_thought_vector,
         session_id=session_id,
         debug=debug,
@@ -146,7 +146,7 @@ async def simulate_heart(
     missing = require_session("simulate_heart", session_id)
     if missing:
         return wrap_tool_output("simulate_heart", missing)
-    payload = await legacy.simulate_heart.fn.fn(
+    payload = await legacy.simulate_heart.fn(
         query=query,
         session_id=session_id,
         stakeholders=stakeholders,
@@ -195,7 +195,7 @@ async def judge_soul(
     missing = require_session("judge_soul", session_id)
     if missing:
         return wrap_tool_output("judge_soul", missing)
-    payload = await legacy.judge_soul.fn.fn(
+    payload = await legacy.judge_soul.fn(
         session_id=session_id,
         query=query,
         agi_result=agi_result,
@@ -225,7 +225,7 @@ async def forge_hand(
     missing = require_session("forge_hand", session_id)
     if missing:
         return wrap_tool_output("forge_hand", missing)
-    payload = await legacy.forge_hand.fn.fn(
+    payload = await legacy.forge_hand.fn(
         action_payload=action_payload,
         signed_tensor={},
         execution_context=execution_context or {},
@@ -245,7 +245,7 @@ async def seal_vault(session_id: str, summary: str, verdict: str = "SEAL") -> Di
     missing = require_session("seal_vault", session_id)
     if missing:
         return wrap_tool_output("seal_vault", missing)
-    payload = await legacy.seal_vault.fn.fn(session_id=session_id, summary=summary, verdict=verdict)
+    payload = await legacy.seal_vault.fn(session_id=session_id, summary=summary, verdict=verdict)
     return wrap_tool_output("seal_vault", payload)
 
 
@@ -255,7 +255,7 @@ async def search_reality(query: str, intent: str = "general") -> Dict[str, Any]:
     blocked = validate_input("search_reality", {"query": query})
     if blocked:
         return wrap_tool_output("search_reality", blocked)
-    payload = await legacy.search_reality.fn.fn(query=query, intent=intent)
+    payload = await legacy.search_reality.fn(query=query, intent=intent)
     return wrap_tool_output("search_reality", payload)
 
 
@@ -265,7 +265,7 @@ async def fetch_content(id: str, max_chars: int = 4000) -> Dict[str, Any]:
     blocked = validate_input("fetch_content", {"id": id})
     if blocked:
         return wrap_tool_output("fetch_content", blocked)
-    payload = await legacy.fetch_content.fn.fn(id=id, max_chars=max_chars)
+    payload = await legacy.fetch_content.fn(id=id, max_chars=max_chars)
     return wrap_tool_output("fetch_content", payload)
 
 
@@ -299,7 +299,7 @@ async def audit_rules(audit_scope: str = "quick", verify_floors: bool = True) ->
     blocked = validate_input("audit_rules", {"audit_scope": audit_scope})
     if blocked:
         return wrap_tool_output("audit_rules", blocked)
-    payload = await legacy.audit_rules.fn.fn(audit_scope=audit_scope, verify_floors=verify_floors)
+    payload = await legacy.audit_rules.fn(audit_scope=audit_scope, verify_floors=verify_floors)
     return wrap_tool_output("audit_rules", payload)
 
 

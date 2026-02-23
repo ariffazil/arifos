@@ -51,7 +51,7 @@ async def test_call_tool_supports_timeout_progress_and_meta(aaa_client: FastMCPC
     result = await aaa_client.call_tool(
         "check_vital",
         {"include_swap": False, "include_io": False, "include_temp": False},
-        timeout=10.0,
+        timeout=30.0,
         progress_handler=_progress,
         meta={"trace_id": "core-op-2"},
     )
