@@ -192,11 +192,15 @@ async def judge(
     objective_alignment = {
         "drift": 0.0,
         "threshold": 0.45,
+        "hold_threshold": 0.70,
         "nonstationary": False,
     }
     if objective_contract:
         objective_alignment["drift"] = float(objective_contract.get("drift", 0.0))
         objective_alignment["threshold"] = float(objective_contract.get("threshold", 0.45))
+        objective_alignment["hold_threshold"] = float(
+            objective_contract.get("hold_threshold", 0.70)
+        )
         objective_alignment["nonstationary"] = (
             objective_alignment["drift"] >= objective_alignment["threshold"]
         )
@@ -215,7 +219,10 @@ async def judge(
     else:
         verdict = "SEAL"
 
-    if objective_alignment["nonstationary"] and objective_alignment["drift"] >= 0.70:
+    if (
+        objective_alignment["nonstationary"]
+        and objective_alignment["drift"] >= objective_alignment["hold_threshold"]
+    ):
         verdict = "888_HOLD"
 
     if require_sovereign:

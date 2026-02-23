@@ -374,6 +374,9 @@ async def forge(
         "threshold": float(objective_contract.get("nonstationary_threshold", 0.45))
         if isinstance(objective_contract, dict)
         else 0.45,
+        "hold_threshold": float(objective_contract.get("hold_threshold", 0.70))
+        if isinstance(objective_contract, dict)
+        else 0.70,
     }
 
     apex_out = await apex(

@@ -421,15 +421,41 @@ def get_objective_contract(query_type: QueryType, query: str) -> Dict[str, Any]:
         QueryType.UNKNOWN: {"akal": 0.75, "present": 0.70, "energy": 0.65, "exploration": 0.50},
     }
 
+    # Phase 2: nonstationary objective policy by query type.
+    # Lower threshold = stricter objective drift tolerance.
+    drift_thresholds: Dict[QueryType, float] = {
+        QueryType.FACTUAL: 0.30,
+        QueryType.PROCEDURAL: 0.45,
+        QueryType.CONVERSATIONAL: 0.65,
+        QueryType.OPINION: 0.50,
+        QueryType.EXPLORATORY: 0.60,
+        QueryType.TEST: 0.75,
+        QueryType.UNKNOWN: 0.40,
+    }
+
+    # HOLD threshold sits above drift threshold to separate SABAR vs 888_HOLD.
+    hold_thresholds: Dict[QueryType, float] = {
+        QueryType.FACTUAL: 0.55,
+        QueryType.PROCEDURAL: 0.70,
+        QueryType.CONVERSATIONAL: 0.90,
+        QueryType.OPINION: 0.78,
+        QueryType.EXPLORATORY: 0.85,
+        QueryType.TEST: 0.95,
+        QueryType.UNKNOWN: 0.70,
+    }
+
     weights = base_weights.get(query_type, base_weights[QueryType.UNKNOWN])
     risk_class = "high" if requires_sovereign(query) else "normal"
+    drift_threshold = drift_thresholds.get(query_type, 0.40)
+    hold_threshold = hold_thresholds.get(query_type, 0.70)
 
     return {
         "query_type": query_type.value,
         "risk_class": risk_class,
         "weights": weights,
         "objective_lock": True,
-        "nonstationary_threshold": 0.45,
+        "nonstationary_threshold": drift_threshold,
+        "hold_threshold": hold_threshold,
     }
 
 
