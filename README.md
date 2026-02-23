@@ -152,10 +152,10 @@ Perfect for testing and connecting to AI clients like **Claude Desktop**, **Curs
 pip install arifos
 
 # Start local MCP server for desktop IDE clients (stdio)
-python -m aaa_mcp stdio
+python -m arifos_aaa_mcp stdio
 
 # SSE-first runtime (recommended for VPS/network)
-python -m aaa_mcp sse --host 0.0.0.0 --port 8080
+HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp sse
 ```
 
 **Connect to Claude Desktop**:
@@ -167,7 +167,7 @@ Edit `~/.config/claude/claude_desktop_config.json` (macOS/Linux) or `%APPDATA%\C
   "mcpServers": {
     "arifOS": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifos_aaa_mcp", "stdio"],
       "env": {
         "ARIFOS_PHYSICS_DISABLED": "1"
       }
