@@ -20,7 +20,7 @@ def test_fastmcp_json_has_required_sections() -> None:
 
     source = config.get("source", {})
     assert source.get("type") == "filesystem"
-    assert source.get("path") == "aaa_mcp/server.py"
+    assert source.get("path") == "arifos_aaa_mcp/server.py"
     assert source.get("entrypoint") == "mcp"
 
     deployment = config.get("deployment", {})
@@ -30,6 +30,6 @@ def test_fastmcp_json_has_required_sections() -> None:
 
 
 def test_fastmcp_source_entrypoint_is_importable() -> None:
-    from aaa_mcp.server import mcp
+    from arifos_aaa_mcp.server import mcp
 
     assert hasattr(mcp, "run")

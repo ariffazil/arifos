@@ -164,6 +164,9 @@ cooling_ledger/
 # Local archival parking (do not commit)
 archive_local/
 
+# Phase 000-999 forge archives (do not commit)
+_ARCHIVE/v63_legacy/
+
 # Local session archives (do not push)
 _local_archive/
 coverage.xml
