@@ -91,8 +91,8 @@ export default function Home() {
           <pre className="deploy-pre">
             <span className="code-comment"># Get the kernel</span>{'\n'}
             <span className="code-command">pip install</span> arifos{'\n'}{'\n'}
-            <span className="code-comment"># Ignite canonical AAA MCP runtime</span>{'\n'}
-            <span className="code-command">python -m</span> arifos_aaa_mcp sse
+            <span className="code-comment"># Ignite canonical AAA MCP runtime (streamable HTTP)</span>{'\n'}
+            <span className="code-command">python -m</span> arifos_aaa_mcp http
           </pre>
           <p className="deploy-cta">
             <a href="/chatgpt" className="chatgpt-link">
