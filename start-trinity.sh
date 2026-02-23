@@ -13,8 +13,8 @@ REST_PID=""
 
 if [ "$REST_FALLBACK" = "1" ]; then
   REST_PORT="${REST_PORT:-8089}"
-  echo "[TRINITY] Starting REST fallback on port ${REST_PORT}..."
-  PORT="${REST_PORT}" python -m aaa_mcp rest &
+  echo "[TRINITY] Starting Streamable HTTP fallback on port ${REST_PORT}..."
+  PORT="${REST_PORT}" python -m aaa_mcp.streamable_http_server &
   REST_PID=$!
 fi
 

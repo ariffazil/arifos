@@ -331,9 +331,31 @@ async def health(request: Request) -> JSONResponse:
     )
 
 
+async def well_known_mcp_server_json(request: Request) -> JSONResponse:
+    """Serve MCP discovery document for clients and registries."""
+    try:
+        static_path = os.path.join(
+            os.path.dirname(__file__), "..", "static", ".well-known", "mcp", "server.json"
+        )
+        root_path = os.path.join(os.path.dirname(__file__), "..", "server.json")
+
+        file_path = static_path if os.path.exists(static_path) else root_path
+        if not os.path.exists(file_path):
+            return JSONResponse({"error": "server.json not found"}, status_code=404)
+
+        with open(file_path, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+        return JSONResponse(payload)
+    except Exception as e:
+        return JSONResponse({"error": f"failed to load server.json: {str(e)}"}, status_code=500)
+
+
 routes = [
     Route("/mcp", mcp_endpoint, methods=["POST"]),
+    Route("/messages", mcp_endpoint, methods=["POST"]),
+    Route("/messages/", mcp_endpoint, methods=["POST"]),
     Route("/health", health, methods=["GET"]),
+    Route("/.well-known/mcp/server.json", well_known_mcp_server_json, methods=["GET"]),
 ]
 
 app = Starlette(routes=routes)
@@ -344,4 +366,6 @@ if __name__ == "__main__":
 
     asyncio.run(init_monitoring())
 
-    uvicorn.run(app, host="0.0.0.0", port=8889)
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8889"))
+    uvicorn.run(app, host=host, port=port)
