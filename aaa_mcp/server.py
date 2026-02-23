@@ -12,11 +12,12 @@ All tools must be async and must not write to stdout (stdio transport safety).
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional
 import uuid
+from datetime import datetime, timezone
+from typing import Any
 
 from fastmcp import FastMCP
+
 from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, validate
 
 # Isolated FastMCP instance — canonical 13-tool surface ONLY.
@@ -30,12 +31,14 @@ mcp = FastMCP(
     ),
 )
 
-from aaa_mcp.external_gateways.brave_client import BraveSearchClient
 from fastmcp.resources.template import ResourceTemplate
+
+from aaa_mcp.external_gateways.brave_client import BraveSearchClient
 from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
 from aaa_mcp.protocol.l0_kernel_prompt import inject_l0_into_session
 from aaa_mcp.protocol.schemas import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOOL_OUTPUT_SCHEMAS
 from core.shared.context_template import build_full_context_template
+
 
 def create_unified_mcp_server() -> Any:
     """Return the unified FastMCP server instance (tool registration happens at import time)."""
@@ -58,7 +61,7 @@ class ToolHandle:
             self.fn = fn
 
 
-def _fold_verdict(verdicts: List[str]) -> str:
+def _fold_verdict(verdicts: list[str]) -> str:
     if any(v.upper() == "VOID" for v in verdicts):
         return "VOID"
     if any(v.upper() in {"SABAR", "888_HOLD"} for v in verdicts):
@@ -68,7 +71,7 @@ def _fold_verdict(verdicts: List[str]) -> str:
     return "SEAL"
 
 
-def _build_floor_block(stage: str, reason: str) -> Dict[str, Any]:
+def _build_floor_block(stage: str, reason: str) -> dict[str, Any]:
     """Standardized F11 block for missing session/auth continuity."""
     return {
         "verdict": "VOID",
@@ -90,35 +93,67 @@ def _build_floor_block(stage: str, reason: str) -> Dict[str, Any]:
     }
 
 
-def _extract_truth(payload: Dict[str, Any]) -> Dict[str, Any]:
-    score = payload.get("truth_score")
-    threshold = payload.get("f2_threshold")
-    drivers = payload.get("truth_drivers")
-    if not isinstance(drivers, list):
-        drivers = []
-    return {"score": score, "threshold": threshold, "drivers": drivers}
+class EnvelopeBuilder:
+    def __init__(self):
+        pass
+
+    def _extract_truth(self, payload: dict[str, Any]) -> dict[str, Any]:
+        score = payload.get("truth_score")
+        threshold = payload.get("f2_threshold")
+        drivers = payload.get("truth_drivers")
+        if not isinstance(drivers, list):
+            drivers = []
+        return {"score": score, "threshold": threshold, "drivers": drivers}
+
+    def _generate_sabar_requirements(self, verdict: str, payload: dict[str, Any]) -> dict[str, Any] | None:
+        if verdict not in {"SABAR", "PARTIAL"}:
+            return None
+
+        failed_floors = payload.get("floors_failed", [])
+        missing_fields = []
+        template_fields = {}
+        generic_guidance = "Provide minimal input to address the constitutional failures." # Placeholder
+        
+        # This section needs to be dynamically generated based on specific tool context
+        # For now, a generic structure based on failed floors
+        for floor in failed_floors:
+            missing_fields.append({"field": f"input_for_{floor.lower()}", "needed_for": [floor], "example": "<FILL_REQUIRED_DATA>"})
+            template_fields[f"input_for_{floor.lower()}"] = "<FILL_REQUIRED_DATA>"
+        
+        if not missing_fields:
+            missing_fields.append({"field": "contextual_data", "needed_for": ["F_UNKNOWN"], "example": "<PROVIDE_MORE_CONTEXT>"})
+            template_fields["contextual_data"] = "<PROVIDE_MORE_CONTEXT>"
+
+        return {
+            "missing_grounding": [f for f in failed_floors if f.startswith("F2")],
+            "missing_fields": missing_fields,
+            "minimum_next_input": generic_guidance,
+            "minimum_next_payload_template": template_fields
+        }
+
+    def build_envelope(self, stage: str, session_id: str, verdict: str, payload: dict[str, Any]) -> dict[str, Any]:
+        floors_failed = payload.get("floors_failed", [])
+        if not isinstance(floors_failed, list):
+            floors_failed = []
+        actions: list[str] = []
+        if "F2" in floors_failed:
+            actions.append("Provide stronger evidence and retry with grounded claims.")
+        if "F11" in floors_failed:
+            actions.append("Restore session/auth continuity and retry.")
+        if not actions:
+            actions.append("Continue to next constitutional stage.")
+        return {
+            "verdict": verdict,
+            "stage": stage,
+            "session_id": session_id,
+            "floors": {"passed": [], "failed": floors_failed},
+            "truth": self._extract_truth(payload),
+            "next_actions": actions,
+            "sabar_requirements": self._generate_sabar_requirements(verdict, payload),
+        }
 
 
-def _envelope(stage: str, session_id: str, verdict: str, payload: Dict[str, Any]) -> Dict[str, Any]:
-    floors_failed = payload.get("floors_failed", [])
-    if not isinstance(floors_failed, list):
-        floors_failed = []
-    actions: List[str] = []
-    if "F2" in floors_failed:
-        actions.append("Provide stronger evidence and retry with grounded claims.")
-    if "F11" in floors_failed:
-        actions.append("Restore session/auth continuity and retry.")
-    if not actions:
-        actions.append("Continue to next constitutional stage.")
-    return {
-        "verdict": verdict,
-        "stage": stage,
-        "session_id": session_id,
-        "floors": {"passed": [], "failed": floors_failed},
-        "truth": _extract_truth(payload),
-        "next_actions": actions,
-    }
-
+envelope_builder = EnvelopeBuilder()
 
 # ═══════════════════════════════════════════════════════
 # GOVERNANCE TOOLS (5-Organ Trinity)
@@ -129,15 +164,15 @@ def _envelope(stage: str, session_id: str, verdict: str, payload: Dict[str, Any]
 async def _init_session(
     query: str,
     actor_id: str = "anonymous",
-    auth_token: Optional[str] = None,
+    auth_token: str | None = None,
     mode: str = "conscience",
     grounding_required: bool = True,
     debug: bool = False,
     inject_kernel: bool = True,
     compact_kernel: bool = False,
     template_id: str = "arifos.full_context.v1",
-    auth_context: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    auth_context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Initialize a new constitutional session with L0 Kernel enforcement.
     
@@ -174,7 +209,7 @@ async def _init_session(
         }
 
         result.update(
-            _envelope(
+            envelope_builder.build_envelope(
                 stage="000_INIT",
                 session_id=result["session_id"],
                 verdict=verdict,
@@ -197,16 +232,16 @@ anchor_session = ToolHandle(_init_session)
 async def _agi_cognition(
     query: str,
     session_id: str,
-    grounding: Optional[List[Dict[str, Any]]] = None,
-    capability_modules: Optional[List[str]] = None,
+    grounding: list[dict[str, Any]] | None = None,
+    capability_modules: list[str] | None = None,
     debug: bool = False,
     actor_id: str = "anonymous",
-    auth_token: Optional[str] = None,
-    parent_session_id: Optional[str] = None,
-    auth_context: Optional[Dict[str, Any]] = None,
+    auth_token: str | None = None,
+    parent_session_id: str | None = None,
+    auth_context: dict[str, Any] | None = None,
     inference_budget: int = 1,
     risk_mode: str = "medium",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     try:
         if not session_id:
             return _build_floor_block("111-444", "Missing session_id")
@@ -232,7 +267,7 @@ async def _agi_cognition(
             "debug": debug,
             "data": {"reason": r, "integrate": i, "respond": d} if debug else {},
         }
-        result.update(_envelope(stage="111-444", session_id=session_id, verdict=verdict, payload=merged))
+        result.update(envelope_builder.build_envelope(stage="111-444", session_id=session_id, verdict=verdict, payload=merged))
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "111-444", "session_id": session_id}
@@ -244,7 +279,7 @@ async def _phoenix_recall(
     current_thought_vector: str,
     session_id: str,
     debug: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Organ 5: PHOENIX. Associative memory retrieval via EUREKA sieve.
     """
@@ -263,7 +298,7 @@ async def _phoenix_recall(
                 "w_scar_applied": 0.5
             }
         }
-        result.update(_envelope(stage="555_RECALL", session_id=session_id, verdict="SEAL", payload={}))
+        result.update(envelope_builder.build_envelope(stage="555_RECALL", session_id=session_id, verdict="SEAL", payload={}))
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "555_RECALL", "session_id": session_id}
@@ -274,15 +309,15 @@ recall_memory = ToolHandle(_phoenix_recall)
 async def _asi_empathy(
     query: str,
     session_id: str,
-    stakeholders: Optional[List[str]] = None,
-    capability_modules: Optional[List[str]] = None,
+    stakeholders: list[str] | None = None,
+    capability_modules: list[str] | None = None,
     debug: bool = False,
     actor_id: str = "anonymous",
-    auth_token: Optional[str] = None,
-    parent_session_id: Optional[str] = None,
-    auth_context: Optional[Dict[str, Any]] = None,
+    auth_token: str | None = None,
+    parent_session_id: str | None = None,
+    auth_context: dict[str, Any] | None = None,
     risk_mode: str = "medium",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     try:
         if not session_id:
             return _build_floor_block("555-666", "Missing session_id")
@@ -306,7 +341,7 @@ async def _asi_empathy(
             "debug": debug,
             "data": {"validate": v, "align": a} if debug else {},
         }
-        result.update(_envelope(stage="555-666", session_id=session_id, verdict=verdict, payload=merged))
+        result.update(envelope_builder.build_envelope(stage="555-666", session_id=session_id, verdict=verdict, payload=merged))
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "555-666", "session_id": session_id}
@@ -317,19 +352,19 @@ simulate_heart = ToolHandle(_asi_empathy)
 async def _apex_verdict(
     session_id: str,
     query: str,
-    agi_result: Optional[Dict[str, Any]] = None,
-    asi_result: Optional[Dict[str, Any]] = None,
-    capability_modules: Optional[List[str]] = None,
-    implementation_details: Optional[Dict[str, Any]] = None,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+    capability_modules: list[str] | None = None,
+    implementation_details: dict[str, Any] | None = None,
     proposed_verdict: str = "SEAL",
     human_approve: bool = False,
     debug: bool = False,
     actor_id: str = "anonymous",
-    auth_token: Optional[str] = None,
-    parent_session_id: Optional[str] = None,
-    auth_context: Optional[Dict[str, Any]] = None,
+    auth_token: str | None = None,
+    parent_session_id: str | None = None,
+    auth_context: dict[str, Any] | None = None,
     risk_mode: str = "medium",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     try:
         if not session_id:
             return _build_floor_block("777-888", "Missing session_id")
@@ -362,7 +397,7 @@ async def _apex_verdict(
             "debug": debug,
             "data": {"forge": forged, "audit": judged} if debug else {},
         }
-        result.update(_envelope(stage="777-888", session_id=session_id, verdict=verdict, payload=merged))
+        result.update(envelope_builder.build_envelope(stage="777-888", session_id=session_id, verdict=verdict, payload=merged))
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "777-888", "session_id": session_id}
@@ -371,14 +406,14 @@ judge_soul = ToolHandle(_apex_verdict)
 
 @mcp.tool(name="forge_hand", description="[Lane: Ψ Psi] [Floors: F1, F11, F12] Sandboxed action execution.")
 async def _sovereign_actuator(
-    action_payload: Dict[str, Any],
-    signed_tensor: Dict[str, Any],
-    execution_context: Dict[str, Any],
+    action_payload: dict[str, Any],
+    signed_tensor: dict[str, Any],
+    execution_context: dict[str, Any],
     signature: str,
     session_id: str,
     idempotency_key: str,
-    ratification_token: Optional[str] = None,
-) -> Dict[str, Any]:
+    ratification_token: str | None = None,
+) -> dict[str, Any]:
     """
     Organ 6: FORGE. Physical world interaction gated by APEX Soul SEAL.
     """
@@ -393,7 +428,7 @@ async def _sovereign_actuator(
             "message": "FORGE YIELDED. Sovereign ratification required.",
             "instruction": "Sign the ratification_challenge with the Sovereign Key to proceed."
         }
-        result.update(_envelope(stage="888_FORGE", session_id=session_id, verdict="888_HOLD", payload={}))
+        result.update(envelope_builder.build_envelope(stage="888_FORGE", session_id=session_id, verdict="888_HOLD", payload={}))
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "888_FORGE", "session_id": session_id}
@@ -405,13 +440,13 @@ async def _vault_seal(
     session_id: str,
     summary: str,
     verdict: str = "SEAL",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     try:
         if not session_id:
             return _build_floor_block("999_VAULT", "Missing session_id")
         res = await seal(session_id=session_id, task_summary=summary, was_modified=True)
         result = {"data": res, "status": verdict}
-        result.update(_envelope(stage="999_VAULT", session_id=session_id, verdict=verdict, payload=res))
+        result.update(envelope_builder.build_envelope(stage="999_VAULT", session_id=session_id, verdict=verdict, payload=res))
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "999_VAULT", "session_id": session_id}
@@ -424,7 +459,7 @@ seal_vault = ToolHandle(_vault_seal)
 
 
 @mcp.tool(name="search_reality", description="[Lane: Δ Delta] [Floors: F2, F4, F12] Web grounding (Perplexity/Brave).")
-async def _search(query: str, intent: str = "general") -> Dict[str, Any]:
+async def _search(query: str, intent: str = "general") -> dict[str, Any]:
     try:
         # Preferred order: Perplexity (if PPLX key is set) -> Brave fallback.
         primary = PerplexitySearchClient()
@@ -448,7 +483,7 @@ async def _search(query: str, intent: str = "general") -> Dict[str, Any]:
 search_reality = ToolHandle(_search)
 
 @mcp.tool(name="fetch_content", description="[Lane: Δ Delta] [Floors: F2, F4, F12] Raw evidence content retrieval.")
-async def _fetch(id: str, max_chars: int = 4000) -> Dict[str, Any]:
+async def _fetch(id: str, max_chars: int = 4000) -> dict[str, Any]:
     try:
         import urllib.request
 
@@ -466,7 +501,7 @@ async def _fetch(id: str, max_chars: int = 4000) -> Dict[str, Any]:
 fetch_content = ToolHandle(_fetch)
 
 # Internal Tool
-async def _analyze(data: Dict[str, Any], analysis_type: str = "structure") -> Dict[str, Any]:
+async def _analyze(data: dict[str, Any], analysis_type: str = "structure") -> dict[str, Any]:
     try:
         if analysis_type == "structure":
             depth = 1
@@ -480,9 +515,9 @@ async def _analyze(data: Dict[str, Any], analysis_type: str = "structure") -> Di
 # analyze = ToolHandle(_analyze)
 
 @mcp.tool(name="audit_rules", description="[Lane: Δ Delta] [Floors: F2, F8, F10] Rule & governance audit checks.")
-async def _system_audit(audit_scope: str = "quick", verify_floors: bool = True) -> Dict[str, Any]:
+async def _system_audit(audit_scope: str = "quick", verify_floors: bool = True) -> dict[str, Any]:
     try:
-        details: Dict[str, Any] = {"scope": audit_scope}
+        details: dict[str, Any] = {"scope": audit_scope}
         if verify_floors:
             try:
                 from aaa_mcp.core.constitutional_decorator import FLOOR_ENFORCEMENT
@@ -500,20 +535,20 @@ audit_rules = ToolHandle(_system_audit)
 
 
 @mcp.tool(name="critique_thought", description="[Lane: Ω Omega] [Floors: F4, F7, F8] 7-organ alignment & bias critique.")
-async def _critique_thought(session_id: str, query: str) -> Dict[str, Any]:
-    return _envelope(stage="666_CRITIQUE", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
+async def _critique_thought(session_id: str, query: str) -> dict[str, Any]:
+    return envelope_builder.build_envelope(stage="666_CRITIQUE", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
 
 critique_thought = ToolHandle(_critique_thought)
 
 @mcp.tool(name="inspect_file", description="[Lane: Δ Delta] [Floors: F1, F4, F11] Filesystem inspection (read-only).")
-async def _inspect_file(session_id: str, path: str) -> Dict[str, Any]:
-    return _envelope(stage="111_INSPECT", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
+async def _inspect_file(session_id: str, path: str) -> dict[str, Any]:
+    return envelope_builder.build_envelope(stage="111_INSPECT", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
 
 inspect_file = ToolHandle(_inspect_file)
 
 @mcp.tool(name="check_vital", description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.")
-async def _check_vital(session_id: str) -> Dict[str, Any]:
-    return _envelope(stage="555_HEALTH", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
+async def _check_vital(session_id: str) -> dict[str, Any]:
+    return envelope_builder.build_envelope(stage="555_HEALTH", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
 
 check_vital = ToolHandle(_check_vital)
 
@@ -528,7 +563,7 @@ check_vital = ToolHandle(_check_vital)
     mime_type="application/json",
     description="Static server metadata and surface summary.",
 )
-async def _arifos_info_resource() -> Dict[str, Any]:
+async def _arifos_info_resource() -> dict[str, Any]:
     return {
         "name": "arifOS",
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -550,18 +585,18 @@ async def _arifos_info_resource() -> Dict[str, Any]:
     }
 
 
-async def _constitutional_floor_resource(floor_id: str) -> Dict[str, Any]:
+async def _constitutional_floor_resource(floor_id: str) -> dict[str, Any]:
     """
     Lightweight floor lookup for MCP Resource Templates.
     If YAML config is available, returns threshold and hold-on-fail metadata.
     """
     floor_id = (floor_id or "").strip().upper()
-    payload: Dict[str, Any] = {"floor": floor_id}
+    payload: dict[str, Any] = {"floor": floor_id}
 
     try:
-        import yaml  # type: ignore[import-not-found]
-
         from pathlib import Path
+
+        import yaml  # type: ignore[import-not-found]
 
         cfg_path = Path(__file__).resolve().parents[1] / "aclip_cai" / "config" / "floors.yaml"
         data = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
@@ -602,7 +637,7 @@ async def _arifos_governance_brief_prompt() -> str:
     mime_type="application/json",
     description="Canonical full-context template for AAA constitutional orchestration.",
 )
-def _resource_full_context_template() -> Dict[str, Any]:
+def _resource_full_context_template() -> dict[str, Any]:
     return build_full_context_template()
 
 
@@ -612,7 +647,7 @@ def _resource_full_context_template() -> Dict[str, Any]:
     mime_type="application/json",
     description="Canonical tool input/output schemas for AAA MCP tools.",
 )
-def _resource_tool_schemas() -> Dict[str, Any]:
+def _resource_tool_schemas() -> dict[str, Any]:
     return {
         "schema_version": "2026.02.23-context-forge",
         "inputs": CANONICAL_TOOL_INPUT_SCHEMAS,
@@ -626,9 +661,7 @@ def _prompt_trinity_forge(query: str, actor_id: str = "user", mode: str = "consc
         "Use trinity_forge for full constitutional orchestration with session continuity.\n"
         "Stage spine: 000 -> 222 -> 333 -> 444 -> 666 -> 888 -> 999.\n"
         "Require truthful grounding; fail closed on F2/F11/F12 with remediation.\n"
-        "Call shape: {\"name\":\"trinity_forge\",\"arguments\":{"
-        f"\"query\":{query!r},\"actor_id\":{actor_id!r},\"mode\":{mode!r}"
-        "}}"
+        "Call shape: {\"name\":\"trinity_forge\",\"arguments\":{\"query\":%r,\"actor_id\":%r,\"mode\":%r}}" % (query, actor_id, mode)
     )
 
 
@@ -640,7 +673,7 @@ def _prompt_anchor_reason(query: str, actor_id: str = "user") -> str:
         "2) reason/agi_cognition using same session_id.\n"
         "If VOID on F11: request auth_token or corrected actor_id.\n"
         "If VOID on F2: request external evidence before retry.\n"
-        f"Input query: {query}\nActor: {actor_id}"
+        "Input query: %s\nActor: %s" % (query, actor_id)
     )
 
 
@@ -651,7 +684,7 @@ def _prompt_audit_then_seal(session_id: str, summary: str, proposed_verdict: str
         "1) apex_verdict/audit with session_id and explicit proposed_verdict.\n"
         "2) vault_seal with same session_id and immutable summary.\n"
         "If verdict is 888_HOLD, stop and request human ratification before seal.\n"
-        f"session_id={session_id}; proposed_verdict={proposed_verdict}; summary={summary}"
+        "session_id=%s; proposed_verdict=%s; summary=%s" % (session_id, proposed_verdict, summary)
     )
 
 __all__ = [

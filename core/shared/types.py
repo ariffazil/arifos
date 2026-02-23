@@ -14,12 +14,12 @@ DITEMPA BUKAN DIBERI 💎🔥🧠
 
 from datetime import datetime
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Literal, Optional
+from typing import TYPE_CHECKING, Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
 if TYPE_CHECKING:
-    from core.shared.physics import ConstitutionalTensor
+    pass
 
 # ============================================================================
 # EMD STACK — Energy-Metabolism-Decision Layer
@@ -30,7 +30,7 @@ class EnergyState(BaseModel):
     """E in EMD - Energy layer (Thermodynamic work)"""
 
     e_eff: float = Field(default=0.0, description="Effective energy available (Joules)")
-    work_log: Dict[str, Any] = Field(default_factory=dict)
+    work_log: dict[str, Any] = Field(default_factory=dict)
 
 
 class MetabolismState(BaseModel):
@@ -68,7 +68,7 @@ class MindBundle(BaseModel):
     """Δ MIND output (Stage 111-333)"""
 
     draft: str = ""
-    analysis: Dict[str, Any] = Field(default_factory=dict)
+    analysis: dict[str, Any] = Field(default_factory=dict)
     delta_s: float = 0.0
     confidence: float = 0.0
     genius_g: float = 0.0
@@ -87,8 +87,8 @@ class SoulBundle(BaseModel):
     """Ψ SOUL output (Stage 777-888)"""
 
     verdict: "Verdict" = Field(default="VOID")
-    vault_id: Optional[str] = None
-    scar_weight: Optional[Dict[str, Any]] = None
+    vault_id: str | None = None
+    scar_weight: dict[str, Any] | None = None
 
 
 class ScarWeight(BaseModel):
@@ -136,8 +136,8 @@ class ThoughtNode(BaseModel):
     confidence: float = Field(ge=0.0, le=1.0, default=0.5)
     next_thought_needed: bool = True
     stage: Literal["sense", "ground", "think", "reason", "sync", "judge", "seal"] = "think"
-    sources: List[str] = Field(default_factory=list)
-    path_type: Optional[str] = None
+    sources: list[str] = Field(default_factory=list)
+    path_type: str | None = None
 
     model_config = ConfigDict(frozen=False)
 
@@ -145,7 +145,7 @@ class ThoughtNode(BaseModel):
 class ThoughtChain(BaseModel):
     """Complete chain of sequential thoughts."""
 
-    thoughts: List[ThoughtNode]
+    thoughts: list[ThoughtNode]
     total_steps: int
     convergence_achieved: bool = False
     final_confidence: float = Field(ge=0.0, le=1.0, default=0.0)
@@ -186,7 +186,7 @@ class FloorScores(BaseModel):
     f8_genius: float = Field(ge=0.0, le=1.0, default=0.80)
     f9_anti_hantu: float = Field(ge=0.0, le=1.0, default=0.0)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export as dictionary."""
         return {
             "f1_amanah": self.f1_amanah,
@@ -262,10 +262,10 @@ class BaseOrganOutput(BaseModel):
     session_id: str
     verdict: Verdict = Verdict.SEAL
     status: Literal["SUCCESS", "ERROR", "SABAR"] = "SUCCESS"
-    violations: List[str] = Field(default_factory=list)
-    error_message: Optional[str] = None
+    violations: list[str] = Field(default_factory=list)
+    error_message: str | None = None
     timestamp: datetime = Field(default_factory=datetime.now)
-    metrics: Optional[Dict[str, Any]] = None
+    metrics: dict[str, Any] | None = None
 
     model_config = ConfigDict(extra="allow", populate_by_name=True)
 
@@ -283,8 +283,8 @@ class InitOutput(BaseOrganOutput):
     auth_verified: bool
     query_type: str = "CARE"  # Changed to str to avoid Enums in types if possible, or use Enum
     f2_threshold: float = 0.99
-    status: str = "ACTIVE"
-    floors_failed: List[str] = Field(default_factory=list)
+    init_process_status: str = "ACTIVE"
+    floors_failed: list[str] = Field(default_factory=list)
 
     @property
     def is_void(self) -> bool:
@@ -298,25 +298,25 @@ class InitOutput(BaseOrganOutput):
 class AgiOutput(BaseOrganOutput):
     """Output from core_agi (Evidence Engine)."""
 
-    thoughts: List[ThoughtNode]
-    evidence: Dict[str, Any] = Field(default_factory=dict)
+    thoughts: list[ThoughtNode]
+    evidence: dict[str, Any] = Field(default_factory=dict)
     floor_scores: FloorScores
     lane: Literal["CRISIS", "FACTUAL", "SOCIAL", "CARE"] = "CARE"
-    tensor: Optional[Any] = None  # Forward ref: ConstitutionalTensor
+    tensor: Any | None = None  # Forward ref: ConstitutionalTensor
 
 
 class AsiOutput(BaseOrganOutput):
     """Output from core_asi (Alignment Engine)."""
 
     floor_scores: FloorScores
-    stakeholder_impact: Dict[str, float] = Field(default_factory=dict)
+    stakeholder_impact: dict[str, float] = Field(default_factory=dict)
 
 
 class ApexOutput(BaseOrganOutput):
     """Output from core_apex (Verdict Engine)."""
 
     floor_scores: FloorScores
-    proof: Optional[str] = None  # If audit mode
+    proof: str | None = None  # If audit mode
 
 
 class VaultEntry(BaseModel):
@@ -325,7 +325,7 @@ class VaultEntry(BaseModel):
     session_id: str
     query: str
     verdict: str
-    floor_scores: Dict[str, Any]
+    floor_scores: dict[str, Any]
     timestamp: str
     seal_hash: str
     merkle_root: str
@@ -335,9 +335,9 @@ class VaultOutput(BaseOrganOutput):
     """Output from core_memory (Memory Engine)."""
 
     action: Literal["write", "read", "query"]
-    entries: List[VaultEntry] = Field(default_factory=list)
-    seal_hash: Optional[str] = None
-    merkle_root: Optional[str] = None
+    entries: list[VaultEntry] = Field(default_factory=list)
+    seal_hash: str | None = None
+    merkle_root: str | None = None
 
 
 # ============================================================================
