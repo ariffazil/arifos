@@ -52,7 +52,10 @@ class ToolHandle:
     """
 
     def __init__(self, fn: Any) -> None:
-        self.fn = fn
+        if hasattr(fn, "fn"):
+            self.fn = fn.fn
+        else:
+            self.fn = fn
 
 
 def _fold_verdict(verdicts: List[str]) -> str:
