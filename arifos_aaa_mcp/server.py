@@ -7,6 +7,7 @@ Legacy `aaa_mcp` and `aclip_cai` remain internal intelligence providers.
 from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
+import json
 
 from fastmcp import FastMCP
 
@@ -327,9 +328,9 @@ def create_aaa_mcp_server() -> Any:
     mime_type="application/json",
     description="Canonical AAA MCP 13-tool schema/contract overview.",
 )
-def aaa_tool_schemas() -> Dict[str, Any]:
+def aaa_tool_schemas() -> str:
     discovery = build_surface_discovery(AAA_TOOLS)
-    return {
+    payload = {
         "tool_count": 13,
         "surface": AAA_TOOLS,
         "trinity": {
@@ -349,6 +350,8 @@ def aaa_tool_schemas() -> Dict[str, Any]:
         "apex_g_map": TOOL_DIALS_MAP,
         "discovery": discovery,
     }
+    # FastMCP resources must return str/bytes or ResourceContent.
+    return json.dumps(payload, ensure_ascii=True)
 
 
 @mcp.resource(
@@ -357,8 +360,8 @@ def aaa_tool_schemas() -> Dict[str, Any]:
     mime_type="application/json",
     description="Full-context orchestration metadata (stage spine, prompts, resources).",
 )
-def aaa_full_context_pack() -> Dict[str, Any]:
-    return export_full_context_pack()
+def aaa_full_context_pack() -> str:
+    return json.dumps(export_full_context_pack(), ensure_ascii=True)
 
 
 @mcp.prompt(name="arifos.prompt.aaa_chain")
