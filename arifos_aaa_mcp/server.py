@@ -374,6 +374,31 @@ def aaa_chain_prompt(query: str, actor_id: str = "user") -> str:
     )
 
 
+# ── REST routes (custom HTTP endpoints alongside MCP at /mcp) ──────────
+# Registered here so they're available when mcp.run(transport="http") creates
+# the Starlette app.  Each route is added via mcp.custom_route() which appends
+# to mcp._additional_http_routes — picked up by create_streamable_http_app().
+from .rest_routes import register_rest_routes
+
+_TOOL_REGISTRY = {
+    "anchor_session": anchor_session,
+    "reason_mind": reason_mind,
+    "recall_memory": recall_memory,
+    "simulate_heart": simulate_heart,
+    "critique_thought": critique_thought,
+    "judge_soul": judge_soul,
+    "forge_hand": forge_hand,
+    "seal_vault": seal_vault,
+    "search_reality": search_reality,
+    "fetch_content": fetch_content,
+    "inspect_file": inspect_file,
+    "audit_rules": audit_rules,
+    "check_vital": check_vital,
+}
+
+register_rest_routes(mcp, _TOOL_REGISTRY)
+
+
 __all__ = [
     "mcp",
     "create_aaa_mcp_server",
