@@ -26,7 +26,8 @@
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| 🌐 **Live MCP Server** | [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) | Production MCP endpoint — Connect AI clients here |
+| 🌊 **SSE Primary** | [/sse](https://arifosmcp.arif-fazil.com/sse) | Primary FastMCP transport for remote runtime |
+| 🔁 **MCP Fallback** | [/mcp](https://arifosmcp.arif-fazil.com/mcp) | HTTP MCP fallback endpoint for compatible clients |
 | ✅ **Health Check** | [/health](https://arifosmcp.arif-fazil.com/health) | Real-time system status + 13 floors monitoring |
 | 📊 **Test Dashboard** | [Constitutional Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev) | Live test results + Genius scores + Floor compliance |
 | 📚 **Documentation** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Complete guides, tutorials, and API reference |
@@ -37,6 +38,14 @@
 ```bash
 # Check if arifOS is healthy
 curl https://arifosmcp.arif-fazil.com/health
+
+# SSE primary endpoint (should open stream)
+curl -N --max-time 2 https://arifosmcp.arif-fazil.com/sse
+
+# MCP fallback endpoint
+curl -X POST https://arifosmcp.arif-fazil.com/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
 
 # Expected output:
 # {"status": "healthy", "version": "2026.2.23", "floors": 13}
