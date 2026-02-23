@@ -78,11 +78,11 @@ Every query flows through the **Encoder  Metabolizer  Decoder** (EMD Stack):
 ```bash
 pip install arifos
 
-# Stdio - for Claude Desktop, Cursor, OpenClaw
+# SSE primary (default) - for cloud / remote clients
 python -m aaa_mcp
 
-# SSE - for cloud / remote clients
-python -m aaa_mcp sse --host 0.0.0.0 --port 8080
+# Stdio - for Claude Desktop, Cursor, OpenClaw
+python -m aaa_mcp stdio
 
 # HTTP (MCP Streamable HTTP)
 python -m aaa_mcp http --host 0.0.0.0 --port 8080
@@ -94,10 +94,14 @@ Or run the unified server (recommended for production):
 git clone https://github.com/ariffazil/arifOS.git
 cd arifOS
 pip install -r requirements.txt
-python server.py --mode rest   # REST API + SSE + all tools
+python server.py --mode sse    # SSE primary runtime
 ```
 
-The live endpoint is at **[arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com)** - check `/health` to confirm it is up.
+Live production endpoints:
+
+- **SSE primary:** `https://arifosmcp.arif-fazil.com/sse`
+- **MCP fallback:** `https://arifosmcp.arif-fazil.com/mcp`
+- **Health:** `https://arifosmcp.arif-fazil.com/health`
 
 ### 2. Wrap Your LLM Call (Python Example)
 

@@ -29,9 +29,9 @@ If you are looking for names like `init_gate` or `apex_verdict`: those exist as 
 
 | Transport | Connection | Best for |
 |:--|:--|:--|
-| stdio | `python -m aaa_mcp` | Claude Desktop, Cursor IDE, local dev |
-| SSE | `GET /sse` | remote clients, streaming |
-| HTTP (streamable) | `POST /mcp` | direct JSON-RPC automation |
+| stdio | `python -m aaa_mcp stdio` | Claude Desktop, Cursor IDE, local dev |
+| SSE (primary) | `GET /sse` | remote clients, streaming |
+| HTTP (fallback) | `POST /mcp` | direct JSON-RPC automation |
 
 Authentication (SSE/HTTP):
 

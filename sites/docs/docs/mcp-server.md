@@ -79,8 +79,8 @@ The **load-bearing structure** of arifOS governance-hard constraints enforced at
 
 ```bash
 # Launch
-python -m aaa_mcp           # default: stdio
-python -m aaa_mcp stdio     # explicit
+python -m aaa_mcp           # default: sse (primary)
+python -m aaa_mcp stdio     # explicit local stdio
 
 # Claude Desktop config (~/.config/claude/claude_desktop_config.json)
 {
@@ -124,7 +124,7 @@ data: {"type": "error", "code": -32001, "message": "F12 violation"}
 - ~50KB memory per client
 - Forensic mode: `/forensic on` for detailed metrics
 
-### 2.3 HTTP Streamable - Stateless REST
+### 2.3 HTTP Streamable - MCP Fallback
 
 **Best for:** Serverless, webhooks, load balancers  
 **Latency:** 50-200ms  
@@ -162,8 +162,8 @@ ARIF_SECRET: <your-secret>
 | Transport | Latency | Scale | Auth | Best For |
 |:----------|:--------|:------|:-----|:---------|
 | **stdio** | &lt;1ms | Single | Implicit (OS) | Local dev, Claude Desktop |
-| **SSE** | 10-100ms | 1000+ | `ARIF_SECRET` | Real-time UIs, progress monitoring |
-| **HTTP** | 50-200ms | Stateless | `ARIF_SECRET` | Serverless, webhooks, automation |
+| **SSE (primary)** | 10-100ms | 1000+ | `ARIF_SECRET` | Real-time UIs, progress monitoring |
+| **HTTP (fallback)** | 50-200ms | Stateless | `ARIF_SECRET` | Serverless, webhooks, automation |
 
 ---
 
