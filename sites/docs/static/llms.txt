@@ -157,12 +157,29 @@ python -m arifos_aaa_mcp stdio # Local IDE
 
 ---
 
+## WEBMCP CAPABILITIES (Future: Phase 2)
+
+**Planned for arifOS docs site:**
+- `search_docs(query)` — Search documentation
+- `get_tool_info(tool_name)` — Get specific tool details
+- `get_floor_definition(floor_id)` — Get constitutional floor details
+
+**Status:** Not yet implemented (Phase 1 complete on arif-fazil.com)
+
+**Current AI Discovery:**
+- Read llms.txt for full context
+- Read humans.txt for team info
+- Use Trinity links to navigate ecosystem
+
+---
+
 ## EXTERNAL REFERENCES
 
-- **Human Context:** https://arif-fazil.com/llms.txt
+- **Human Context:** https://arif-fazil.com/llms.txt (WebMCP tools available!)
 - **Constitutional Canon:** https://apex.arif-fazil.com/llms.txt
 - **GitHub Repository:** https://github.com/ariffazil/arifOS
-- **Live MCP Server:** https://arifosmcp.arif-fazil.com/health
+- **Live MCP Server:** https://arifosmcp.arif-fazil.com/mcp
+- **Health Check:** https://arifosmcp.arif-fazil.com/health
 - **PyPI Package:** https://pypi.org/project/arifos/
 
 ---
