@@ -24,16 +24,30 @@ LEGACY_TOOL_NAMES = {
     "vault_query",
     "truth_audit",
     "simulate_transfer",
+    "phoenix_recall",
+    "sovereign_actuator",
+    "fetch",
+    "analyze",
+    "system_audit",
+    "sense_health",
+    "sense_fs",
 }
 
 # Public canonical names from aaa_mcp.server.
 CANONICAL_PUBLIC_TO_LEGACY: Dict[str, str] = {
     "init_session": "init_gate",
     "agi_cognition": "agi_reason",
+    "phoenix_recall": "phoenix_recall",
     "asi_empathy": "asi_empathize",
     "apex_verdict": "apex_verdict",
+    "sovereign_actuator": "sovereign_actuator",
     "vault_seal": "vault_seal",
     "search": "reality_search",
+    "fetch": "fetch",
+    "analyze": "analyze",
+    "system_audit": "system_audit",
+    "sense_health": "sense_health",
+    "sense_fs": "sense_fs",
 }
 
 # Verb aliases used by legacy clients.

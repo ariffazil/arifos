@@ -246,6 +246,69 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         },
         "required": ["text"],
     },
+    "phoenix_recall": {
+        "type": "object",
+        "properties": {
+            "current_thought_vector": {"type": "string", "minLength": 1},
+            "session_id": {"type": "string"},
+            "debug": {"type": "boolean", "default": False},
+        },
+        "required": ["current_thought_vector", "session_id"],
+    },
+    "sovereign_actuator": {
+        "type": "object",
+        "properties": {
+            "action_payload": {"type": "object"},
+            "signed_tensor": {"type": "object"},
+            "execution_context": {"type": "object"},
+            "signature": {"type": "string"},
+            "session_id": {"type": "string"},
+            "idempotency_key": {"type": "string"},
+            "ratification_token": {"type": ["string", "null"]},
+        },
+        "required": [
+            "action_payload",
+            "signed_tensor",
+            "execution_context",
+            "signature",
+            "session_id",
+            "idempotency_key",
+        ],
+    },
+    "fetch": {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string", "minLength": 1},
+            "max_chars": {"type": "integer", "minimum": 1, "default": 4000},
+        },
+        "required": ["id"],
+    },
+    "analyze": {
+        "type": "object",
+        "properties": {
+            "data": {"type": "object"},
+            "analysis_type": {"type": "string", "default": "structure"},
+        },
+        "required": ["data"],
+    },
+    "system_audit": {
+        "type": "object",
+        "properties": {
+            "audit_scope": {"type": "string", "default": "quick"},
+            "verify_floors": {"type": "boolean", "default": True},
+        },
+    },
+    "sense_health": {
+        "type": "object",
+        "properties": {},
+    },
+    "sense_fs": {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "default": "."},
+            "depth": {"type": "integer", "minimum": 0, "default": 1},
+        },
+    },
 }
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -434,6 +497,76 @@ TOOL_OUTPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
             "omega_0": {"type": "number"},
         },
         "required": ["overall_verdict", "overall_truth", "claims"],
+    },
+    "phoenix_recall": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "stage": {"type": "string", "const": "555_RECALL"},
+            "session_id": {"type": "string"},
+            "status": {"type": "string"},
+            "memories": {"type": "array"},
+            "metrics": {"type": "object"},
+        },
+        "required": ["verdict", "stage", "session_id"],
+    },
+    "sovereign_actuator": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "stage": {"type": "string", "const": "888_FORGE"},
+            "session_id": {"type": "string"},
+            "status": {"type": "string"},
+            "message": {"type": "string"},
+            "instruction": {"type": "string"},
+        },
+        "required": ["verdict", "stage", "session_id"],
+    },
+    "fetch": {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string"},
+            "status": {"type": "string"},
+            "content": {"type": "string"},
+            "truncated": {"type": "boolean"},
+            "error": {"type": "string"},
+        },
+        "required": ["id", "status"],
+    },
+    "analyze": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "analysis_type": {"type": "string"},
+            "depth": {"type": "integer"},
+            "keys": {"type": "array", "items": {"type": "string"}},
+            "message": {"type": "string"},
+            "error": {"type": "string"},
+        },
+    },
+    "system_audit": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "scope": {"type": "string"},
+            "details": {"type": "object"},
+            "error": {"type": "string"},
+        },
+        "required": ["scope"],
+    },
+    "sense_health": {
+        "type": "object",
+        "properties": {
+            "status": {"type": "string"},
+        },
+        "required": ["status"],
+    },
+    "sense_fs": {
+        "type": "object",
+        "properties": {
+            "status": {"type": "string"},
+        },
+        "required": ["status"],
     },
 }
 
