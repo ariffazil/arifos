@@ -14,41 +14,48 @@ description: Technical reference for the canonical arifOS AAA MCP runtime.
 
 ## Runtime profile
 
-- Primary transport: SSE (`/sse`)
-- Fallback transport: Streamable HTTP (`/mcp`)
-- Local transport: stdio
-- Constitutional envelope: 333 axioms + 13 laws + APEX dials
+- **Production transport:** Streamable HTTP (`/mcp`) — Current MCP standard
+- **Local transport:** stdio — For Claude Desktop, Cursor IDE
+- **Constitutional envelope:** 333 axioms + 13 laws + APEX dials
+- **Port:** 8080 (default)
 
 ## Launch commands
 
 ```bash
-# stdio
+# Local stdio (for Claude Desktop, Cursor)
 python -m arifos_aaa_mcp stdio
 
-# SSE
-HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp sse
-
-# HTTP MCP
-PORT=8089 python -m arifos_aaa_mcp http
+# Streamable HTTP (production - recommended)
+HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
 ```
+
+**Why streamable HTTP?**
+- Single endpoint (vs legacy SSE two-channel model)
+- Cloud-native scaling
+- Better firewall/proxy compatibility
+- Current MCP standard (2024+)
 
 ## Canonical MCP surface
 
 ### Tools (13)
 
-- `anchor_session`
-- `reason_mind`
-- `recall_memory`
-- `simulate_heart`
-- `critique_thought`
-- `judge_soul`
-- `forge_hand`
-- `seal_vault`
-- `search_reality`
-- `fetch_content`
-- `inspect_file`
-- `audit_rules`
-- `check_vital`
+| Tool | Purpose |
+|:--|:--|
+| `anchor_session` | 000 INIT: Start governed session |
+| `reason_mind` | 333 REASON: AGI cognition |
+| `recall_memory` | 444 EVIDENCE: Memory retrieval |
+| `simulate_heart` | 555 EMPATHY: Impact analysis |
+| `critique_thought` | 666 ALIGN: 7-model critique |
+| `judge_soul` | 777/888 APEX: Constitutional verdict |
+| `forge_hand` | 888 FORGE: Execute with gates |
+| `seal_vault` | 999 SEAL: Commit to ledger |
+| `search_reality` | Web evidence discovery |
+| `fetch_content` | Fetch raw content |
+| `inspect_file` | Filesystem inspection |
+| `audit_rules` | Rule compliance check |
+| `check_vital` | System health metrics |
+
+**Test live:** `curl https://arifosmcp.arif-fazil.com/health`
 
 ### Resources (2)
 

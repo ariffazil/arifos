@@ -17,9 +17,10 @@ Source of truth:
 
 | Transport | Connection | Use case |
 |:--|:--|:--|
-| stdio | `python -m arifos_aaa_mcp stdio` | Local IDE clients |
-| SSE | `GET /sse` | Streaming remote clients |
-| HTTP MCP | `POST /mcp` | Stateless automation |
+| **stdio** | `python -m arifos_aaa_mcp stdio` | Local IDE clients (Claude Desktop, Cursor) |
+| **Streamable HTTP (Recommended)** | `POST /mcp` | Production deployments, cloud services |
+
+**Note:** Streamable HTTP is the current MCP standard (2024+). See [architecture docs](/architecture) for details.
 
 ## JSON-RPC call shape
 
@@ -38,23 +39,27 @@ Source of truth:
 }
 ```
 
-## Canonical tool list
+## Canonical 13 Tools
 
-| Tool | Stage |
+**Source of truth:** `arifos_aaa_mcp/server.py` → `AAA_TOOLS` list
+
+| Tool | Description |
 |:--|:--|
-| `anchor_session` | `000_INIT` |
-| `reason_mind` | `333_REASON` |
-| `recall_memory` | `444_SYNC` |
-| `simulate_heart` | `555_EMPATHY` |
-| `critique_thought` | `666_ALIGN` |
-| `judge_soul` | `888_JUDGE` |
-| `forge_hand` | `777_FORGE` |
-| `seal_vault` | `999_SEAL` |
-| `search_reality` | `111_SENSE` |
-| `fetch_content` | `444_SYNC` |
-| `inspect_file` | `111_SENSE` |
-| `audit_rules` | `333_REASON` |
-| `check_vital` | `555_EMPATHY` |
+| `anchor_session` | 000 INIT: ignite constitutional session and continuity token. |
+| `reason_mind` | 333 REASON: run AGI cognition with grounding and budget controls. |
+| `recall_memory` | 444 EVIDENCE: retrieve associative memory traces for current thought. |
+| `simulate_heart` | 555 EMPATHY: evaluate stakeholder impact and care constraints. |
+| `critique_thought` | 666 ALIGN: run 7-model critique (inversion, framing, non-linearity, etc.). |
+| `judge_soul` | 777/888 APEX: sovereign constitutional verdict synthesis. |
+| `forge_hand` | 888 FORGE: execute action payload behind sovereign control gates. |
+| `seal_vault` | 999 SEAL: commit immutable session decision record. |
+| `search_reality` | External evidence discovery (read-only). |
+| `fetch_content` | Fetch raw evidence content (read-only). |
+| `inspect_file` | Inspect local filesystem structure and metadata (read-only). |
+| `audit_rules` | Run constitutional/system rule audit checks (read-only). |
+| `check_vital` | Read system health telemetry (CPU, memory, IO/thermal optional). |
+
+**Live test:** `curl -X POST https://arifosmcp.arif-fazil.com/mcp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'`
 
 ## Resources and prompt
 
