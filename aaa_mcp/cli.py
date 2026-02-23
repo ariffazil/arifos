@@ -115,7 +115,7 @@ def serve_command(args):
         print(f"   Metrics endpoint: http://{host}:9090/metrics")
     
     # Build command
-    cmd = [sys.executable, "-m", "aaa_mcp", "rest"]
+    cmd = [sys.executable, "-m", "aaa_mcp", "sse"]
     
     print(f"\nEnvironment:")
     for key, value in env_vars.items():
@@ -128,7 +128,7 @@ def serve_command(args):
     os.environ.update(env_vars)
     try:
         import aaa_mcp.__main__ as main_module
-        sys.argv = ["aaa_mcp", "rest"]
+        sys.argv = ["aaa_mcp", "sse"]
         main_module.main()
     except KeyboardInterrupt:
         print("\n👋 Server stopped by user")
@@ -156,13 +156,10 @@ def deploy_command(args):
         print("   Install Docker Compose: https://docs.docker.com/compose/install/")
         return 1
     
-    # Determine compose file
-    compose_file = "docker-compose.forge2.yml"
+    compose_file = "docker-compose.yml"
     if not os.path.exists(compose_file):
-        compose_file = "docker-compose.yml"
-        if not os.path.exists(compose_file):
-            print(f"❌ Docker Compose file not found")
-            return 1
+        print("❌ Docker Compose file not found")
+        return 1
     
     print(f"   Using compose file: {compose_file}")
     
@@ -199,10 +196,7 @@ def monitor_command(args):
         webbrowser.open(url)
         return 0
     
-    # Show service status
-    compose_file = "docker-compose.forge2.yml"
-    if not os.path.exists(compose_file):
-        compose_file = "docker-compose.yml"
+    compose_file = "docker-compose.yml"
     
     if os.path.exists(compose_file):
         print("📊 Service Status:")

@@ -40,6 +40,8 @@ class ForgeResult(BaseModel):
     f2_threshold: float = 0.99
     floors_failed: List[str] = Field(default_factory=list)
     remediation: str = ""
+    provenance: Dict[str, Any] = Field(default_factory=dict)
+    self_audit: Dict[str, Any] = Field(default_factory=dict)
     motto_summary: str = ""
 
     # Organ outputs (for debugging/audit)
@@ -147,12 +149,16 @@ async def forge(
     f2_threshold = token.f2_threshold
     query_type = token.query_type
     query_type_value = query_type.value if hasattr(query_type, "value") else str(query_type)
+    token_metrics = getattr(token, "metrics", {}) or {}
+    objective_contract = token_metrics.get("objective_contract", {})
     stage_motto_000 = get_motto_for_stage("000_INIT")
 
     if token.is_void or token.requires_human:
         verdict = "VOID" if token.is_void else "888_HOLD"
         elapsed = (time.perf_counter() - start_time) * 1000
-        remediation = "Check authentication (F11) or injection patterns (F12)."
+        remediation = (
+            "Airlock blocked request. Verify actor/session authority (F11) and clean prompt input (F12)."
+        )
         return ForgeResult(
             verdict=verdict,
             session_id=token.session_id,
@@ -166,6 +172,18 @@ async def forge(
             f2_threshold=f2_threshold,
             floors_failed=getattr(token, "floors_failed", []),
             remediation=remediation,
+            provenance={
+                "engine_mode": "deterministic",
+                "llm_inside_kernel": False,
+                "stage_path": ["000_INIT"],
+                "evidence_count": 0,
+                "objective_contract": objective_contract,
+            },
+            self_audit={
+                "loop": "airlock_only",
+                "verdict_consistent": verdict in {"VOID", "888_HOLD"},
+                "identity_projection_guard": True,
+            },
             emd=emd.model_dump() if emd else None,
             landauer_risk=0.0,
             mode=mode,
@@ -174,17 +192,17 @@ async def forge(
     # Fast path for TEST/CONVERSATIONAL
     if query_type in [QueryType.TEST, QueryType.CONVERSATIONAL]:
         agi_out = await agi(query, token.session_id, action="full")
-        asi_out = {"verdict": "SEAL", "empathy": 0.8, "fast_path": True}
-        apex_out = {"verdict": "SEAL", "fast_path": True}
+        asi_out = {"verdict": "PARTIAL", "empathy": 0.8, "fast_path": True}
+        apex_out = {"verdict": "PARTIAL", "fast_path": True}
         elapsed = (time.perf_counter() - start_time) * 1000
 
         # Update EMD for fast path
         emd.metabolism.delta_s = 0.0
         emd.decision.confidence = 0.5
-        emd.decision.verdict_kind = "SEAL"
+        emd.decision.verdict_kind = None
 
         return ForgeResult(
-            verdict="SEAL",
+            verdict="PARTIAL",
             session_id=token.session_id,
             token_status=token.status,
             agi=agi_out,
@@ -194,8 +212,27 @@ async def forge(
             processing_time_ms=elapsed,
             query_type=query_type_value,
             f2_threshold=f2_threshold,
-            floors_failed=[],
-            remediation="Fast path: TEST/CONVERSATIONAL query processed with minimal stages.",
+            floors_failed=["F2"],
+            remediation=(
+                "Fast path executed for low-stakes query class. Result is PARTIAL only; "
+                "provide grounded evidence and run full pipeline for SEAL eligibility."
+            ),
+            provenance={
+                "engine_mode": "deterministic",
+                "llm_inside_kernel": False,
+                "stage_path": ["000_INIT", "111-333_AGI_FAST"],
+                "evidence_count": (
+                    len(agi_out.get("evidence", {}))
+                    if isinstance(agi_out, dict)
+                    else len(getattr(agi_out, "evidence", {}) or {})
+                ),
+                "objective_contract": objective_contract,
+            },
+            self_audit={
+                "loop": "fast_path_partial",
+                "verdict_consistent": True,
+                "identity_projection_guard": True,
+            },
             emd=emd.model_dump(),
             landauer_risk=0.0,
             mode=mode,
@@ -208,6 +245,8 @@ async def forge(
 
     agi_out = await agi(query, token.session_id, action="full")
     agi_tensor = agi_out.tensor
+
+    declared_weights = objective_contract.get("weights", {}) if isinstance(objective_contract, dict) else {}
 
     # Update EMD from Δ MIND
     emd.metabolism.delta_s = agi_tensor.entropy_delta if agi_tensor else 0.0
@@ -265,6 +304,21 @@ async def forge(
             f2_threshold=f2_threshold,
             floors_failed=floors_violated,
             remediation=" ".join(remediation_parts),
+            provenance={
+                "engine_mode": "deterministic",
+                "llm_inside_kernel": False,
+                "stage_path": ["000_INIT", "111-333_AGI"],
+                "evidence_count": (
+                    len(agi_out.get("evidence", {}))
+                    if isinstance(agi_out, dict)
+                    else len(getattr(agi_out, "evidence", {}) or {})
+                ),
+            },
+            self_audit={
+                "loop": "agi_gate",
+                "verdict_consistent": True,
+                "identity_projection_guard": True,
+            },
             emd=emd.model_dump() if emd else None,
             landauer_risk=l_risk,
             mode=mode,
@@ -302,7 +356,36 @@ async def forge(
         E=1.0,  # Placeholder for energy
     )
     emd.metabolism.genius_index = genius_dials.G()
-    apex_out = await apex(agi_tensor, asi_out, token.session_id, action="full")
+    observed_weights = {
+        "akal": agi_tensor.truth_score if agi_tensor else 0.5,
+        "present": asi_out.floor_scores.f5_peace if hasattr(asi_out, "floor_scores") else 0.5,
+        "energy": max(0.0, min(1.0, 1.0 - l_risk)),
+        "exploration": min(1.0, len(getattr(agi_out, "thoughts", []) or []) / 10.0),
+    }
+    objective_drift = 0.0
+    if declared_weights:
+        axes = ["akal", "present", "energy", "exploration"]
+        objective_drift = sum(abs(observed_weights[a] - float(declared_weights.get(a, 0.0))) for a in axes) / len(axes)
+
+    objective_state = {
+        "declared": declared_weights,
+        "observed": observed_weights,
+        "drift": round(objective_drift, 4),
+        "threshold": float(objective_contract.get("nonstationary_threshold", 0.45))
+        if isinstance(objective_contract, dict)
+        else 0.45,
+        "hold_threshold": float(objective_contract.get("hold_threshold", 0.70))
+        if isinstance(objective_contract, dict)
+        else 0.70,
+    }
+
+    apex_out = await apex(
+        agi_tensor,
+        asi_out,
+        token.session_id,
+        action="full",
+        objective_contract=objective_state,
+    )
 
     # Convert Pydantic organ outputs to dicts for safe .get() access
     apex_dict = (
@@ -331,6 +414,7 @@ async def forge(
         asi_output=asi_dict,
         session_id=token.session_id,
         query=query,
+        objective_contract=objective_state,
     )
 
     verdict = apex_dict.get("verdict") or apex_dict.get("judge", {}).get("verdict", "SEAL")
@@ -364,6 +448,20 @@ async def forge(
         f2_threshold=f2_threshold,
         floors_failed=apex_dict.get("floors_failed", []),
         remediation="" if verdict == "SEAL" else "Review floor violations above.",
+        provenance={
+            "engine_mode": "deterministic",
+            "llm_inside_kernel": False,
+            "stage_path": ["000_INIT", "111-333_AGI", "444-666_ASI", "777-888_APEX", "999_VAULT"],
+            "evidence_count": len(agi_dict.get("evidence", {})) if isinstance(agi_dict, dict) else 0,
+            "objective_contract": objective_contract,
+            "objective_state": objective_state,
+        },
+        self_audit={
+            "loop": "full_pipeline",
+            "verdict_consistent": bool(verdict),
+            "objective_nonstationary": objective_state["drift"] >= objective_state["threshold"],
+            "identity_projection_guard": True,
+        },
         motto_summary=motto_summary,
         emd=emd.model_dump() if emd else None,
         landauer_risk=l_risk,

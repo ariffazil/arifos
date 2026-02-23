@@ -43,14 +43,17 @@ cat 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md | xclip    # Linux
 # Install
 pip install arifos
 
-# Run MCP server (stdio mode)
+# Run MCP server (SSE primary)
 python -m aaa_mcp
+
+# For local desktop clients that require stdio
+python -m aaa_mcp stdio
 
 # Test
 python -m aaa_mcp.selftest
 ```
 
-**Default endpoint:** `stdio` (for Claude Desktop, Cursor, etc.)
+**Default transport:** `sse` (use `python -m aaa_mcp stdio` for Claude Desktop/Cursor local mode)
 
 ---
 
@@ -290,7 +293,7 @@ sudo systemctl enable arifos-mcp
 | `ARIFOS_API_KEY` | For cloud | - | Bearer token auth |
 | `PORT` | No | 8080 | Server port |
 | `HOST` | No | 0.0.0.0 | Bind address |
-| `AAA_MCP_TRANSPORT` | No | stdio | stdio/sse/http |
+| `AAA_MCP_TRANSPORT` | No | sse | stdio/sse/http |
 | `DATABASE_URL` | No | - | PostgreSQL for VAULT999 |
 | `REDIS_URL` | No | - | Redis for sessions |
 

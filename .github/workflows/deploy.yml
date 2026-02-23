@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "aaa_mcp/**"
+      - "arifos_aaa_mcp/**"
       - "core/**"
       - "aclip_cai/**"
       - "deployment/**"
@@ -64,7 +65,7 @@ jobs:
             git reset --hard origin/main
             docker compose -f deployment/docker-compose.vps.yml up -d --build
 
-      - name: VPS Smoke Check (/health on REST bridge)
+      - name: VPS Smoke Check (SSE primary + MCP fallback)
         uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -72,9 +73,13 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             set -e
+            if ! ps aux | grep -v grep | grep 'python -m arifos_aaa_mcp sse' >/dev/null; then
+              echo "VPS smoke check failed: SSE primary process not running"
+              exit 1
+            fi
             for i in 1 2 3 4 5; do
               if curl -fss http://localhost:8889/health >/dev/null; then
-                echo "VPS smoke check passed: /health reachable on localhost:8889"
+                echo "VPS smoke check passed: SSE process running and /health reachable on localhost:8889"
                 exit 0
               fi
               echo "Attempt $i/5 failed, retrying in 5s..."

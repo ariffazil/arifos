@@ -1,8 +1,8 @@
 # L4_TOOLS — MCP Tool Layer (v2026.02.22-FORGE)
 
-**Level 4 | 100% Coverage | 14 Tools (5 Organs + 4 Utilities + 5 Container)**
+**Level 4 | 100% Coverage | 16 Tools (7 Organs + 4 Utilities + 5 Container)**
 
-> *"5-Organ Trinity public contract + utility and container tools, exposed via MCP with constitutional floor enforcement."*
+> *"7-Organ Sovereign Stack public contract + utility and container tools, exposed via MCP with constitutional floor enforcement."*
 
 ---
 
@@ -21,7 +21,7 @@ python -m aaa_mcp http
 
 ---
 
-## The 9 Canonical MCP Tools
+## The 11 Canonical MCP Tools
 
 | # | Tool | Stage | Trinity | Floors | Description |
 |---|------|-------|---------|--------|-------------|
@@ -60,7 +60,7 @@ python -m aaa_mcp http
   F11/F12      F2/F4/F8       F7/F10         F4/F6         F5/F6/F1       F9         F2/F4/F7      F3/F11/F13      F1/F3
 ```
 
-The 9-stage sequence above is internalized behind the 5-organ public API to prevent abstraction leaks.
+The 11-stage sequence above is internalized behind the 7-organ public API to prevent abstraction leaks.
 
 **Verdicts:** `SEAL` | `VOID` | `PARTIAL` | `SABAR` | `888_HOLD`
 
@@ -96,10 +96,10 @@ See [`mcp-configs/`](./mcp-configs/) for copy-paste configs:
 
 | Component | Location | Status |
 |-----------|----------|--------|
-| MCP Server | [`aaa_mcp/server.py`](../../aaa_mcp/server.py) | ✅ 9 canonical tools operational |
+| MCP Server | [`aaa_mcp/server.py`](../../aaa_mcp/server.py) | ✅ 11 canonical tools operational |
 | Constants | [`aaa_mcp/config/constants.py`](../../aaa_mcp/config/constants.py) | ✅ Centralized thresholds |
 | Container Tools | [`aaa_mcp/integrations/`](../../aaa_mcp/integrations/) | ✅ 5 tools + caching |
-| 5-Organs | [`core/organs/`](../../core/organs/) | ✅ Kernel logic |
+| 7-Organs | [`core/organs/`](../../core/organs/) | ✅ Kernel logic |
 | Floors | [`core/shared/floors.py`](../../core/shared/floors.py) | ✅ 13 floors enforced |
 | Governance Kernel | [`core/governance_kernel.py`](../../core/governance_kernel.py) | ✅ Unified Ψ state |
 | Telemetry | [`core/telemetry.py`](../../core/telemetry.py) | ✅ 30-day adaptation |
@@ -110,7 +110,7 @@ See [`mcp-configs/`](./mcp-configs/) for copy-paste configs:
 - ✅ **Caching:** Container listing 16,022x faster with 5s TTL
 - ✅ **Constants:** Centralized thresholds in `config/constants.py`
 - ✅ **Error Handling:** Specific exceptions (FileNotFoundError, yaml.YAMLError)
-- ✅ **Surface:** 5-organ trinity + 4 utility tools = 9 canonical public tools
+- ✅ **Surface:** 7-organ stack + 4 utility tools = 11 canonical public tools
 - ✅ **Compatibility:** Legacy 9-subroutine flow internalized behind organ boundaries
 
 ---

@@ -34,7 +34,7 @@
 │ L0: KERNEL — 🆕 CONSTITUTIONAL OPERATING SYSTEM                 │
 │     Status: ✅ SEALED — The substrate everything runs on        │
 │                                                                 │
-│     ├─ 5-Organs (ΔΩΨ governance engine)                        │
+│     ├─ 7-Organs (ΔΩΨ governance engine)                        │
 │     ├─ 9 System Calls (A-CLIP tools)                           │
 │     ├─ 13 Floors (enforced at kernel level)                    │
 │     └─ VAULT999 (immutable audit filesystem)                   │
@@ -56,7 +56,7 @@
 - **Analogy:** Like Linux manages hardware, L0 manages AI governance
 
 **Core Components:**
-- `core/organs/` — 5-Organ Trinity (ΔΩΨ governance engine)
+- `core/organs/` — 7-Organ Sovereign Stack (ΔΩΨ governance engine)
 - `aaa_mcp/tools/` — 9 System Calls (A-CLIP tools)
 - `core/shared/floors.py` — 13 Floor enforcement (kernel policies)
 - `aaa_mcp/sessions/` — VAULT999 (audit filesystem)

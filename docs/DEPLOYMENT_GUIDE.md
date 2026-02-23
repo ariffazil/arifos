@@ -1,223 +1,64 @@
 # Deployment Guide
 
-**arifOS v53 — Railway, Docker, Claude Desktop, Cursor, Kimi**
+This guide is the canonical deployment path for the latest arifOS AAA MCP runtime.
 
----
+## Runtime Target
 
-## 1. Railway (Production)
+- Module: `arifos_aaa_mcp`
+- Primary transport: `sse` on port `8080`
+- Fallback transport: `http` on port `8089` (mapped to `/mcp` externally)
+- Canonical MCP surface: 13 tools, 2 resources, 1 prompt
 
-arifOS is deployed on Railway with auto-deploy from GitHub.
+## VPS Deployment (Docker Compose)
 
-### Auto-Deploy (Recommended)
+Use:
 
-1. Push to `main` branch on GitHub
-2. Railway auto-builds from `Dockerfile` and deploys
-3. Health check at `/health` validates liveness
+- `deployment/docker-compose.vps.yml`
+- `start-trinity.sh`
+- `Dockerfile`
 
-### Configuration
-
-**railway.toml:**
-```toml
-[build]
-builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
-
-[deploy]
-startCommand = "codebase-mcp-sse"
-healthcheckPath = "/health"
-healthcheckTimeout = 120
-restartPolicyType = "ON_FAILURE"
-numReplicas = 1
-```
-
-### Environment Variables
-
-| Variable | Value | Purpose |
-|----------|-------|---------|
-| `PORT` | (set by Railway) | Server port |
-| `ARIFOS_ENV` | `production` | Environment mode |
-| `ARIFOS_VERSION` | `v53.2.7-CODEBASE-AAA7` | Version tag |
-| `ARIFOS_LOG_LEVEL` | `INFO` | Log level |
-| `REDIS_URL` | (Railway Redis plugin) | Session store (optional) |
-| `BRAVE_API_KEY` | (your key) | For `_reality_` tool |
-
-### Live Endpoints
-
-| URL | Purpose |
-|-----|---------|
-| `https://aaamcp.arif-fazil.com/health` | Health check |
-| `https://aaamcp.arif-fazil.com/mcp` | MCP protocol endpoint |
-| `https://aaamcp.arif-fazil.com/dashboard` | Live telemetry |
-| `https://aaamcp.arif-fazil.com/metrics/json` | JSON metrics |
-
----
-
-## 2. Docker (Local/Self-Hosted)
-
-### Build and Run
+Bring up services:
 
 ```bash
-# Build
-docker build -t arifos:v53 .
-
-# Run
-docker run -p 8080:8080 \
-  -e PORT=8080 \
-  -e ARIFOS_ENV=production \
-  arifos:v53
-
-# Verify
-curl http://localhost:8080/health
+docker compose -f deployment/docker-compose.vps.yml up -d --build
 ```
 
-### Docker Compose
-
-```yaml
-version: "3.8"
-services:
-  arifos:
-    build: .
-    ports:
-      - "8080:8080"
-    environment:
-      - PORT=8080
-      - ARIFOS_ENV=production
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-```
-
----
-
-## 3. Claude Desktop (stdio)
-
-Claude Desktop connects via stdio transport.
-
-### claude_desktop_config.json
-
-```json
-{
-  "mcpServers": {
-    "arifos": {
-      "command": "python",
-      "args": ["-m", "mcp"],
-      "cwd": "/path/to/arifOS",
-      "env": {
-        "PYTHONPATH": "/path/to/arifOS"
-      }
-    }
-  }
-}
-```
-
-**Location:**
-- macOS: `~/Library/Application Support/Claude/claude_desktop_config.json`
-- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
-
----
-
-## 4. Claude Code (stdio)
-
-### .mcp.json (project root)
-
-```json
-{
-  "mcpServers": {
-    "arifos": {
-      "command": "python",
-      "args": ["-m", "mcp"],
-      "cwd": "/path/to/arifOS"
-    }
-  }
-}
-```
-
----
-
-## 5. Cursor (stdio)
-
-Add to Cursor MCP settings:
-
-```json
-{
-  "mcpServers": {
-    "arifos": {
-      "command": "python",
-      "args": ["-m", "mcp"],
-      "cwd": "/path/to/arifOS"
-    }
-  }
-}
-```
-
----
-
-## 6. Kimi (Moonshot AI)
-
-Kimi connects via SSE transport to the deployed server.
-
-### Connection
-
-```
-MCP Endpoint: https://aaamcp.arif-fazil.com/mcp
-Transport: SSE / Streamable HTTP
-```
-
-See `mcp/kimi/kimi_config.yaml` for adapter configuration.
-
----
-
-## 7. ChatGPT / Codex (HTTP)
-
-ChatGPT Developer Mode and OpenAI Codex connect via HTTP:
-
-```
-MCP URL: https://aaamcp.arif-fazil.com/mcp
-Transport: Streamable HTTP (JSON-RPC 2.0)
-```
-
-Tools are auto-discovered via `tools/list`.
-
----
-
-## Entry Points
-
-| Command | Transport | Use Case |
-|---------|-----------|----------|
-| `python -m mcp` | stdio | Claude Desktop, Cursor |
-| `codebase-mcp-sse` | HTTP/SSE | Railway, Docker, ChatGPT |
-| `codebase-mcp` | stdio | Alternative alias |
-
----
-
-## Health Check
-
-All deployments should verify health:
+Check health:
 
 ```bash
-curl https://aaamcp.arif-fazil.com/health
-# {"status":"healthy","version":"v53.2.8-CODEBASE-AAA7","mode":"CODEBASE","transport":"streamable-http","tools":7}
+curl -fsS http://localhost:8889/health
+curl -N --max-time 2 http://localhost:8088/sse
 ```
 
-Expected response:
-- HTTP 200
-- `status: "healthy"`
-- `tools: 7`
+## Required Environment
 
----
+Create `.env.docker` from `.env.docker.example` and set at minimum:
 
-## Troubleshooting
+- `ARIF_SECRET` (or `ARIF_JWT_SECRET`)
+- `DATABASE_URL`
+- `REDIS_URL`
 
-| Issue | Fix |
-|-------|-----|
-| `ModuleNotFoundError: codebase` | Set `PYTHONPATH` to project root |
-| Health check timeout | Ensure `/health` returns in < 1s (no external deps) |
-| `ImportError: hardening` | Normal warning — legacy modules archived, engine uses hardened versions |
-| Port conflict | Set `PORT` env var |
-| Redis connection failed | Redis is optional; sessions fall back to in-memory |
+Search grounding (optional but recommended):
 
----
+- `PPLX_API_KEY` (preferred) or `PERPLEXITY_API_KEY`
+- `PPLX_MODEL` (optional, default `sonar-pro`)
+- `BRAVE_API_KEY` (fallback provider)
 
-*DITEMPA BUKAN DIBERI*
+## Public Endpoints
+
+- SSE: `https://<your-domain>/sse`
+- MCP streamable HTTP: `https://<your-domain>/mcp`
+- Health: `https://<your-domain>/health`
+
+## CI/CD Notes
+
+- Workflow: `.github/workflows/deploy.yml`
+- Deploy path includes `arifos_aaa_mcp/**`
+- VPS smoke check validates `python -m arifos_aaa_mcp sse`
+
+## Registry Metadata
+
+If publishing to MCP Registry, keep `server.json` aligned with runtime surface:
+
+- resources: `arifos://aaa/schemas`, `arifos://aaa/full-context-pack`
+- prompt: `arifos.prompt.aaa_chain`

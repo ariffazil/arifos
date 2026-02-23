@@ -37,7 +37,7 @@ def test_cli_modes_use_unified_constructor_and_transport(monkeypatch) -> None:
     assert stub_http.calls[-1]["transport"] == "http"
 
 
-def test_cli_default_mode_is_stdio(monkeypatch) -> None:
+def test_cli_default_mode_is_sse(monkeypatch) -> None:
     import aaa_mcp.__main__ as cli
 
     stub = _StubMCP()
@@ -46,7 +46,7 @@ def test_cli_default_mode_is_stdio(monkeypatch) -> None:
     monkeypatch.setattr(sys, "argv", ["aaa_mcp"])
     cli.main()
 
-    assert stub.calls[-1]["transport"] == "stdio"
+    assert stub.calls[-1]["transport"] == "sse"
 
 
 def test_rest_mode_dispatches_to_rest_main(monkeypatch) -> None:
@@ -78,10 +78,18 @@ def test_unknown_mode_exits_with_code_2(monkeypatch) -> None:
         assert exc.code == 2
 
 
-def test_rest_aliases_map_to_canonical_five_organs() -> None:
+def test_rest_aliases_map_to_canonical_seven_organs() -> None:
     from aaa_mcp.rest import TOOL_ALIASES, TOOLS
 
-    canonical = {"init_session", "agi_cognition", "asi_empathy", "apex_verdict", "vault_seal"}
+    canonical = {
+        "init_session",
+        "agi_cognition",
+        "phoenix_recall",
+        "asi_empathy",
+        "apex_verdict",
+        "sovereign_actuator",
+        "vault_seal",
+    }
     assert canonical.issubset(set(TOOLS.keys()))
     assert TOOL_ALIASES["anchor"] == "init_session"
     assert TOOL_ALIASES["reason"] == "agi_cognition"
@@ -97,8 +105,8 @@ def test_server_constructor_returns_fastmcp_instance() -> None:
     assert hasattr(mcp, "run")
 
 
-def test_dockerfile_uses_rest_entrypoint() -> None:
+def test_dockerfile_uses_sse_entrypoint() -> None:
     dockerfile = Path("Dockerfile").read_text(encoding="utf-8")
     assert "FROM python:3.12-slim AS build" in dockerfile
     assert "FROM python:3.12-slim AS runtime" in dockerfile
-    assert 'CMD ["python", "-m", "aaa_mcp", "rest"]' in dockerfile
+    assert 'CMD ["python", "-m", "aaa_mcp", "sse"]' in dockerfile

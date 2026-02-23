@@ -30,7 +30,7 @@ description: The L0-L7 stack, Trinity engines (DeltaOmegaPsi), MCP transports, a
  L1: PROMPTS     - Zero-context entry (user interface)              Production
 
  L0: KERNEL      - Intelligence Kernel (DeltaOmegaPsi governance engine)     SEALED
-      5 Organs (constitutional pipeline)                      
+      7 Organs (constitutional pipeline)                      
       9 System Calls (A-CLIP sensory tools)                  
       13 Floors (existential enforcement)                     
       VAULT999 (immutable audit filesystem)                   
@@ -47,7 +47,7 @@ L0 is implemented across two packages with a hard architectural boundary:
 
 | Package | Role | Rule |
 |:--|:--|:--|
-| `core/` | Pure decision logic, 5 organs, 13 floors | **Zero** transport imports |
+| `core/` | Pure decision logic, 7 organs, 13 floors | **Zero** transport imports |
 | `aaa_mcp/` | MCP transport adapter (stdio/SSE/HTTP) | **Zero** decision logic |
 
 Violating this boundary is a hard rule. `core/` must never import `fastmcp`, `starlette`, `fastapi`, or any HTTP library.
@@ -74,17 +74,22 @@ AGI and ASI are **thermodynamically isolated** until stage 444 - they cannot see
 
 ---
 
-## The 5 Organs
+## The 7-Organ Sovereign Stack
 
-Implemented in `core/organs/`:
+Implemented in `core/organs/`. arifOS has evolved from a passive oracle into an active, governed agent operating a 7-Organ Sovereign Stack. This represents a transition to the governance of a living, evolving process.
 
-| Organ | File | Stage | Function |
-|:--|:--|:--|:--|
-| **INIT** | `_0_init.py` | 000 | Constitutional airlock (F11/F12) |
-| **AGI** | `_1_agi.py` | 111-333 | Mind engine - truth, clarity, humility |
-| **ASI** | `_2_asi.py` | 444-666 | Heart engine - peace, empathy, anti-hantu |
-| **APEX** | `_3_apex.py` | 777-888 | Soul engine - tri-witness, authority, sovereignty |
-| **VAULT** | `_4_vault.py` | 999 | Memory engine - immutable VAULT999 ledger |
+| Organ | Stage | Function |
+|:--|:--|:--|
+| **INIT** | 000 | Airlock - Session ignition and F11/F12 defense scan |
+| **AGI** | 111-444 | Mind - Logic, truth, and hypothesis generation |
+| **PHOENIX** | 555 | Subconscious - Dynamic associative memory retrieval. Uses the Humility Band (Ω₀) to soften Jaccard thresholds, and Human Scar-Weight (W_scar) as a historical relevance multiplier. |
+| **ASI** | 666 | Heart - Safety, empathy, alignment |
+| **APEX** | 777 | Soul - Judgment, verdict, sealing. Tri-witness consensus. |
+| **FORGE** | 888 | Hands - Sandboxed execution engine for Thermodynamic State Mutations (ΔS). Rejects any execution without a cryptographically signed ConstitutionalTensor. Irreversible actions trigger an `888_HOLD` intercept, requiring a physical ratification token from the 888 Judge. |
+| **VAULT** | 999 | Memory - Immutable VAULT999 ledger commit |
+
+### Steady-State Philosophy
+The addition of the Actuator and Phoenix organs represents the transition to the governance of a living process. Real-world emergence is managed by observing anomalies, measuring their entropy impact (ΔS < 0), and adjusting constraints while remaining grounded. AI possesses agency through tools but no soul (The Hantu Warning - F9).
 
 ---
 

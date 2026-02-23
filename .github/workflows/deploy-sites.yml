@@ -1,6 +1,6 @@
 # Deploy arifOS docs site to GitHub Pages
 
-name: Deploy arifOS Docs to GitHub Pages
+name: Deploy APPS site to GitHub Pages
 
 on:
   push:
@@ -24,14 +24,14 @@ concurrency:
 
 jobs:
   build:
-    name: Build arifOS Docs
+    name: Build arifOS APPS
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Setup Node.js
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
@@ -63,8 +63,11 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
+      - name: Add custom domain
+        run: echo "arifos.arif-fazil.com" > sites/docs/build/CNAME
+
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v3
         with:
           path: sites/docs/build
 

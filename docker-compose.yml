@@ -1,24 +1,26 @@
-version: '3.8'
-
 services:
   arifosmcp:
     build:
       context: .
       dockerfile: Dockerfile
+    image: arifos/arifosmcp:latest
     container_name: arifosmcp_server
     restart: unless-stopped
     env_file:
       - .env.docker
-    ports:
-      - "8888:8080"
-      - "8889:8089"
-    networks:
-      - coolify
-    volumes:
-      - ./data:/usr/src/app/data
     command: /usr/src/app/start-trinity.sh
+    ports:
+      - "8088:8080"
+      - "8889:8089"
+    volumes:
+      - arifos_data:/usr/src/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "ps aux | grep -v grep | grep 'python -m aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m aaa_mcp rest'"]
+      test: ["CMD-SHELL", "if [ \"${ENABLE_REST_FALLBACK:-0}\" = \"1\" ]; then ps aux | grep -v grep | grep 'python -m arifos_aaa_mcp sse' && ps aux | grep -v grep | grep 'python -m arifos_aaa_mcp http'; else ps aux | grep -v grep | grep 'python -m arifos_aaa_mcp sse'; fi"]
       interval: 15s
       timeout: 5s
       start_period: 30s
@@ -26,17 +28,80 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
+      ENABLE_REST_FALLBACK: 1
     deploy:
       resources:
         limits:
           memory: 2G
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`)"
-      - "traefik.http.routers.arifosmcp.entrypoints=https"
-      - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
-      - "traefik.http.services.arifosmcp.loadbalancer.server.port=8089"
-      - "traefik.http.routers.arifosmcp.service=arifosmcp"
+      - "traefik.http.routers.arifosmcp-sse.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/sse`)"
+      - "traefik.http.routers.arifosmcp-sse.entrypoints=https"
+      - "traefik.http.routers.arifosmcp-sse.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.arifosmcp-sse.priority=2000"
+      - "traefik.http.routers.arifosmcp-sse.service=arifosmcp_sse"
+      - "traefik.http.services.arifosmcp_sse.loadbalancer.server.port=8080"
+      - "traefik.http.routers.arifosmcp-mcp.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/mcp`)"
+      - "traefik.http.routers.arifosmcp-mcp.entrypoints=https"
+      - "traefik.http.routers.arifosmcp-mcp.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.arifosmcp-mcp.priority=3000"
+      - "traefik.http.routers.arifosmcp-mcp.service=arifosmcp_http"
+      - "traefik.http.routers.arifosmcp-messages.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/messages`)"
+      - "traefik.http.routers.arifosmcp-messages.entrypoints=https"
+      - "traefik.http.routers.arifosmcp-messages.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.arifosmcp-messages.priority=2800"
+      - "traefik.http.routers.arifosmcp-messages.service=arifosmcp_http"
+      - "traefik.http.routers.arifosmcp-wellknown.rule=Host(`arifosmcp.arif-fazil.com`) && PathPrefix(`/.well-known/mcp/server.json`)"
+      - "traefik.http.routers.arifosmcp-wellknown.entrypoints=https"
+      - "traefik.http.routers.arifosmcp-wellknown.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.arifosmcp-wellknown.priority=2900"
+      - "traefik.http.routers.arifosmcp-wellknown.service=arifosmcp_http"
+      - "traefik.http.routers.arifosmcp-http.rule=Host(`arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.arifosmcp-http.entrypoints=https"
+      - "traefik.http.routers.arifosmcp-http.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.arifosmcp-http.priority=1"
+      - "traefik.http.routers.arifosmcp-http.service=arifosmcp_http"
+      - "traefik.http.services.arifosmcp_http.loadbalancer.server.port=8089"
+    networks:
+      - coolify
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: arifos_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: vault999
+      POSTGRES_USER: arifos
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U arifos"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - coolify
+
+  redis:
+    image: redis:7-alpine
+    container_name: arifos_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - coolify
+
+volumes:
+  arifos_data:
+  postgres_data:
+  redis_data:
 
 networks:
   coolify:

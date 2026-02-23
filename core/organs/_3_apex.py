@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Optional
 
+from core.shared.floors import F10_Ontology, F9_AntiHantu
 from core.shared.physics import ConstitutionalTensor, GeniusDial, TrinityTensor, W_3_from_tensor
 from core.shared.types import ApexOutput, FloorScores, Verdict
 
@@ -151,6 +152,7 @@ async def judge(
     asi_output: Dict[str, Any] | Any,
     session_id: str,
     require_sovereign: bool = False,
+    objective_contract: Optional[Dict[str, Any]] = None,
 ) -> ApexOutput:
     """
     Stage 888: JUDGE — The Soul's Final Verdict
@@ -175,7 +177,54 @@ async def judge(
         violations.append("F8")
         justifications.append(f"Genius {g_score:.3f} < 0.80")
 
-    verdict = "VOID" if len(violations) > 1 else ("SABAR" if violations else "SEAL")
+    solution_text = str(forge_output.get("solution_draft", ""))
+
+    f9_result = F9_AntiHantu().check({"response": solution_text})
+    if not f9_result.passed:
+        violations.append("F9")
+        justifications.append(f9_result.reason)
+
+    f10_result = F10_Ontology().check({"response": solution_text, "query": ""})
+    if not f10_result.passed:
+        violations.append("F10")
+        justifications.append(f10_result.reason)
+
+    objective_alignment = {
+        "drift": 0.0,
+        "threshold": 0.45,
+        "hold_threshold": 0.70,
+        "nonstationary": False,
+    }
+    if objective_contract:
+        objective_alignment["drift"] = float(objective_contract.get("drift", 0.0))
+        objective_alignment["threshold"] = float(objective_contract.get("threshold", 0.45))
+        objective_alignment["hold_threshold"] = float(
+            objective_contract.get("hold_threshold", 0.70)
+        )
+        objective_alignment["nonstationary"] = (
+            objective_alignment["drift"] >= objective_alignment["threshold"]
+        )
+        if objective_alignment["nonstationary"]:
+            violations.append("F13")
+            justifications.append(
+                "Objective nonstationarity detected: drift "
+                f"{objective_alignment['drift']:.3f} >= {objective_alignment['threshold']:.3f}"
+            )
+
+    hard_violations = {"F3", "F10"}
+    if any(v in hard_violations for v in violations):
+        verdict = "VOID"
+    elif violations:
+        verdict = "SABAR"
+    else:
+        verdict = "SEAL"
+
+    if (
+        objective_alignment["nonstationary"]
+        and objective_alignment["drift"] >= objective_alignment["hold_threshold"]
+    ):
+        verdict = "888_HOLD"
+
     if require_sovereign:
         verdict = "888_HOLD"
 
@@ -184,8 +233,8 @@ async def judge(
         floor_scores=FloorScores(
             f3_tri_witness=w3,
             f8_genius=g_score,
-            f9_anti_hantu=1.0,
-            f10_ontology=1.0,
+            f9_anti_hantu=f9_result.score,
+            f10_ontology=bool(f10_result.passed),
         ),
         verdict=Verdict(verdict),
         violations=violations,
@@ -193,6 +242,14 @@ async def judge(
             "stage": 888,
             "action": "judge",
             "justification": "; ".join(justifications) if justifications else "All floors pass",
+            "self_audit": {
+                "deterministic": True,
+                "llm_inside_kernel": False,
+                "identity_projection_guard": True,
+                "f9_score": f9_result.score,
+                "f10_passed": bool(f10_result.passed),
+            },
+            "objective_alignment": objective_alignment,
         },
     )
 
@@ -203,6 +260,7 @@ async def apex(
     session_id: str,
     action: str = "full",
     require_sovereign: bool = False,
+    objective_contract: Optional[Dict[str, Any]] = None,
 ) -> Any:
     """Unified APEX interface."""
     if action == "sync":
@@ -210,7 +268,14 @@ async def apex(
     elif action == "full":
         sync_res = await sync(agi_tensor, asi_output, session_id)
         forge_res = await forge(sync_res, agi_tensor, session_id)
-        return await judge(forge_res, sync_res, asi_output, session_id, require_sovereign)
+        return await judge(
+            forge_res,
+            sync_res,
+            asi_output,
+            session_id,
+            require_sovereign,
+            objective_contract=objective_contract,
+        )
     else:
         raise ValueError(f"Unknown action: {action}")
 

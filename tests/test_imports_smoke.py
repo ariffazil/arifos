@@ -18,7 +18,9 @@ def test_import_canonical_tools_from_package() -> None:
         asi_empathy,
         fetch,
         init_session,
+        phoenix_recall,
         search,
+        sovereign_actuator,
         system_audit,
         vault_seal,
     )
@@ -27,6 +29,8 @@ def test_import_canonical_tools_from_package() -> None:
     assert callable(agi_cognition.fn)
     assert callable(asi_empathy.fn)
     assert callable(apex_verdict.fn)
+    assert callable(phoenix_recall.fn)
+    assert callable(sovereign_actuator.fn)
     assert callable(vault_seal.fn)
     assert callable(search.fn)
     assert callable(fetch.fn)

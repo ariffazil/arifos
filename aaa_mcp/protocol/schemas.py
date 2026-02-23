@@ -68,6 +68,15 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
                 "minLength": 1,
                 "description": "User query to initialize session for",
             },
+            "actor_id": {
+                "type": "string",
+                "default": "anonymous",
+                "description": "Actor identifier used for F11 authority continuity",
+            },
+            "auth_token": {
+                "type": ["string", "null"],
+                "description": "Optional authority token for strict environments",
+            },
             "session_id": {"type": "string", "description": "Optional existing session ID"},
             "grounding_required": {
                 "type": "boolean",
@@ -76,8 +85,8 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
             },
             "mode": {
                 "type": "string",
-                "enum": ["fluid", "strict"],
-                "default": "fluid",
+                "enum": ["fluid", "strict", "conscience", "ghost"],
+                "default": "conscience",
                 "description": "Governance strictness mode",
             },
         },
@@ -88,8 +97,17 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "properties": {
             "query": {"type": "string", "minLength": 1},
             "actor_id": {"type": "string", "default": "user"},
+            "session_id": {
+                "type": ["string", "null"],
+                "description": "Optional existing session for continuity from anchor/init_session",
+            },
             "auth_token": {"type": ["string", "null"]},
             "require_sovereign_for_high_stakes": {"type": "boolean", "default": True},
+            "template_id": {
+                "type": "string",
+                "default": "arifos.full_context.v1",
+                "description": "Full-context resource template identifier",
+            },
             "mode": {
                 "type": "string",
                 "enum": ["ghost", "conscience"],
@@ -126,6 +144,8 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "properties": {
             "query": {"type": "string", "minLength": 1},
             "session_id": {"type": "string"},
+            "actor_id": {"type": "string"},
+            "auth_token": {"type": ["string", "null"]},
             "grounding": {
                 "type": ["object", "null"],
                 "description": "Optional structured grounding data",
@@ -138,6 +158,9 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "properties": {
             "query": {"type": "string", "minLength": 1},
             "session_id": {"type": "string"},
+            "actor_id": {"type": "string"},
+            "auth_token": {"type": ["string", "null"]},
+            "stakeholders": {"type": ["array", "null"], "items": {"type": "string"}},
         },
         "required": ["query", "session_id"],
     },
@@ -154,6 +177,12 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "properties": {
             "query": {"type": "string", "minLength": 1},
             "session_id": {"type": "string"},
+            "actor_id": {"type": "string"},
+            "auth_token": {"type": ["string", "null"]},
+            "proposed_verdict": VERDICT_ENUM,
+            "human_approve": {"type": "boolean", "default": False},
+            "agi_result": {"type": ["object", "null"]},
+            "asi_result": {"type": ["object", "null"]},
         },
         "required": ["query", "session_id"],
     },
@@ -171,6 +200,10 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         "type": "object",
         "properties": {
             "session_id": {"type": "string"},
+            "summary": {
+                "type": ["string", "null"],
+                "description": "Human-readable immutable summary for canonical vault_seal tool",
+            },
             "verdict": VERDICT_ENUM,
             "payload": {"type": "object"},
             "query_summary": {"type": ["string", "null"]},
@@ -180,7 +213,7 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
                 "enum": ["finance", "safety", "content", "code", "governance"],
             },
         },
-        "required": ["session_id", "verdict", "payload"],
+        "required": ["session_id", "verdict"],
     },
     "vault_query": {
         "type": "object",
@@ -213,6 +246,69 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
         },
         "required": ["text"],
     },
+    "phoenix_recall": {
+        "type": "object",
+        "properties": {
+            "current_thought_vector": {"type": "string", "minLength": 1},
+            "session_id": {"type": "string"},
+            "debug": {"type": "boolean", "default": False},
+        },
+        "required": ["current_thought_vector", "session_id"],
+    },
+    "sovereign_actuator": {
+        "type": "object",
+        "properties": {
+            "action_payload": {"type": "object"},
+            "signed_tensor": {"type": "object"},
+            "execution_context": {"type": "object"},
+            "signature": {"type": "string"},
+            "session_id": {"type": "string"},
+            "idempotency_key": {"type": "string"},
+            "ratification_token": {"type": ["string", "null"]},
+        },
+        "required": [
+            "action_payload",
+            "signed_tensor",
+            "execution_context",
+            "signature",
+            "session_id",
+            "idempotency_key",
+        ],
+    },
+    "fetch": {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string", "minLength": 1},
+            "max_chars": {"type": "integer", "minimum": 1, "default": 4000},
+        },
+        "required": ["id"],
+    },
+    "analyze": {
+        "type": "object",
+        "properties": {
+            "data": {"type": "object"},
+            "analysis_type": {"type": "string", "default": "structure"},
+        },
+        "required": ["data"],
+    },
+    "system_audit": {
+        "type": "object",
+        "properties": {
+            "audit_scope": {"type": "string", "default": "quick"},
+            "verify_floors": {"type": "boolean", "default": True},
+        },
+    },
+    "sense_health": {
+        "type": "object",
+        "properties": {},
+    },
+    "sense_fs": {
+        "type": "object",
+        "properties": {
+            "path": {"type": "string", "default": "."},
+            "depth": {"type": "integer", "minimum": 0, "default": 1},
+        },
+    },
 }
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -226,6 +322,9 @@ TOOL_OUTPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
             "session_id": {"type": "string"},
             "verdict": VERDICT_ENUM,
             "status": {"type": "string", "enum": ["READY", "VOID", "HOLD_888"]},
+            "token_status": {"type": ["string", "null"]},
+            "next_action": {"type": ["string", "null"]},
+            "remediation": {"type": ["string", "null"]},
             "grounding_required": {"type": "boolean"},
             "mode": {"type": "string"},
             "stage": {"type": "string", "const": "000"},
@@ -238,6 +337,8 @@ TOOL_OUTPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
             "verdict": VERDICT_ENUM,
             "session_id": {"type": "string"},
             "token_status": {"type": "string"},
+            "next_action": {"type": ["string", "null"]},
+            "remediation": {"type": ["string", "null"]},
             "agi": {"type": "object"},
             "asi": {"type": "object"},
             "apex": {"type": "object"},
@@ -396,6 +497,76 @@ TOOL_OUTPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
             "omega_0": {"type": "number"},
         },
         "required": ["overall_verdict", "overall_truth", "claims"],
+    },
+    "phoenix_recall": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "stage": {"type": "string", "const": "555_RECALL"},
+            "session_id": {"type": "string"},
+            "status": {"type": "string"},
+            "memories": {"type": "array"},
+            "metrics": {"type": "object"},
+        },
+        "required": ["verdict", "stage", "session_id"],
+    },
+    "sovereign_actuator": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "stage": {"type": "string", "const": "888_FORGE"},
+            "session_id": {"type": "string"},
+            "status": {"type": "string"},
+            "message": {"type": "string"},
+            "instruction": {"type": "string"},
+        },
+        "required": ["verdict", "stage", "session_id"],
+    },
+    "fetch": {
+        "type": "object",
+        "properties": {
+            "id": {"type": "string"},
+            "status": {"type": "string"},
+            "content": {"type": "string"},
+            "truncated": {"type": "boolean"},
+            "error": {"type": "string"},
+        },
+        "required": ["id", "status"],
+    },
+    "analyze": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "analysis_type": {"type": "string"},
+            "depth": {"type": "integer"},
+            "keys": {"type": "array", "items": {"type": "string"}},
+            "message": {"type": "string"},
+            "error": {"type": "string"},
+        },
+    },
+    "system_audit": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "scope": {"type": "string"},
+            "details": {"type": "object"},
+            "error": {"type": "string"},
+        },
+        "required": ["scope"],
+    },
+    "sense_health": {
+        "type": "object",
+        "properties": {
+            "status": {"type": "string"},
+        },
+        "required": ["status"],
+    },
+    "sense_fs": {
+        "type": "object",
+        "properties": {
+            "status": {"type": "string"},
+        },
+        "required": ["status"],
     },
 }
 

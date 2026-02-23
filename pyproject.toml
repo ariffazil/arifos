@@ -1,7 +1,11 @@
 [project]
 name = "arifos"
-version = "2026.2.22"
+version = "2026.2.23"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.2.23 — Perplexity-first search grounding with Brave fallback
+#   Added optional PPLX API gateway for search_reality/fetch_content workflows
+# 2026.2.23 — SSE-primary runtime + MCP fallback + full-context MCP resources/prompts
+#   Added MCP resources/prompts and session/auth continuity hardening in unified server
 # 2026.2.22 — Intelligence Kernel Upgrade (aclip_cai 9-Sense Console)
 #   Re-architected aclip_cai to 9-Sense Federation Hub; 9 canonical system calls
 # 2026.2.19 — ChatGPT integration + tool annotations (readOnlyHint)
@@ -153,13 +157,13 @@ all = [
 [project.scripts]
 # arifOS Canonical CLI (v65.0-FORGE-UVX)
 # Usage: uvx arifos [stdio|sse|http|rest]
-arifos = "aaa_mcp.__main__:main"
-aaa-mcp = "aaa_mcp.__main__:main"
-arifos-mcp = "aaa_mcp.__main__:main"
+arifos = "arifos_aaa_mcp.__main__:main"
+aaa-mcp = "arifos_aaa_mcp.__main__:main"
+arifos-mcp = "arifos_aaa_mcp.__main__:main"
 
 # ACLIP_CAI Console Intelligence Tools (v1.0.0)
 aclip-cai = "aclip_cai.cli:main"
-aclip-server = "aaa_mcp.__main__:main"  # Unified server mode
+aclip-server = "arifos_aaa_mcp.__main__:main"  # Canonical AAA MCP surface
 
 # arifOS FORGE-2 CLI (v2026.2.23-FORGE2)
 arifos-cli = "aaa_mcp.cli:main"
@@ -207,19 +211,27 @@ arifos-router = "arifos_router:main"
 
 [project.urls]
 Homepage = "https://github.com/ariffazil/arifOS"
-Documentation = "https://github.com/ariffazil/arifOS/blob/main/README.md"
+Documentation = "https://arifos.arif-fazil.com"
 Repository = "https://github.com/ariffazil/arifOS"
 Issues = "https://github.com/ariffazil/arifOS/issues"
 Changelog = "https://github.com/ariffazil/arifOS/blob/main/CHANGELOG.md"
-"Live Server" = "https://arifos.arif-fazil.com/"
+"Live Server" = "https://arifosmcp.arif-fazil.com"
 "Health Check" = "https://arifosmcp.arif-fazil.com/health"
 "MCP Endpoint" = "https://arifosmcp.arif-fazil.com/sse"
+"MCP Fallback" = "https://arifosmcp.arif-fazil.com/mcp"
 
 [tool.setuptools]
 include-package-data = true
 
 [tool.setuptools.packages.find]
-include = ["scripts*", "aaa_mcp*", "mcp_server*", "core*", "aclip_cai*"]
+include = [
+    "scripts*",
+    "aaa_mcp*",
+    "arifos_aaa_mcp*",
+    "mcp_server*",
+    "core*",
+    "aclip_cai*",
+]
 exclude = [
     "*.tests",
     "*.tests.*",

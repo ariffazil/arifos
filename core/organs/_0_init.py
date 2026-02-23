@@ -403,6 +403,62 @@ def get_f4_skip(query_type: QueryType) -> bool:
     }
 
 
+def get_objective_contract(query_type: QueryType, query: str) -> Dict[str, Any]:
+    """Build deterministic objective profile for APEX nonstationary checks."""
+
+    base_weights: Dict[QueryType, Dict[str, float]] = {
+        QueryType.FACTUAL: {"akal": 0.95, "present": 0.65, "energy": 0.45, "exploration": 0.35},
+        QueryType.PROCEDURAL: {"akal": 0.70, "present": 0.75, "energy": 0.80, "exploration": 0.40},
+        QueryType.CONVERSATIONAL: {
+            "akal": 0.55,
+            "present": 0.85,
+            "energy": 0.90,
+            "exploration": 0.30,
+        },
+        QueryType.OPINION: {"akal": 0.65, "present": 0.70, "energy": 0.55, "exploration": 0.75},
+        QueryType.EXPLORATORY: {"akal": 0.70, "present": 0.55, "energy": 0.50, "exploration": 0.95},
+        QueryType.TEST: {"akal": 0.50, "present": 0.80, "energy": 0.95, "exploration": 0.25},
+        QueryType.UNKNOWN: {"akal": 0.75, "present": 0.70, "energy": 0.65, "exploration": 0.50},
+    }
+
+    # Phase 2: nonstationary objective policy by query type.
+    # Lower threshold = stricter objective drift tolerance.
+    drift_thresholds: Dict[QueryType, float] = {
+        QueryType.FACTUAL: 0.30,
+        QueryType.PROCEDURAL: 0.45,
+        QueryType.CONVERSATIONAL: 0.65,
+        QueryType.OPINION: 0.50,
+        QueryType.EXPLORATORY: 0.60,
+        QueryType.TEST: 0.75,
+        QueryType.UNKNOWN: 0.40,
+    }
+
+    # HOLD threshold sits above drift threshold to separate SABAR vs 888_HOLD.
+    hold_thresholds: Dict[QueryType, float] = {
+        QueryType.FACTUAL: 0.55,
+        QueryType.PROCEDURAL: 0.70,
+        QueryType.CONVERSATIONAL: 0.90,
+        QueryType.OPINION: 0.78,
+        QueryType.EXPLORATORY: 0.85,
+        QueryType.TEST: 0.95,
+        QueryType.UNKNOWN: 0.70,
+    }
+
+    weights = base_weights.get(query_type, base_weights[QueryType.UNKNOWN])
+    risk_class = "high" if requires_sovereign(query) else "normal"
+    drift_threshold = drift_thresholds.get(query_type, 0.40)
+    hold_threshold = hold_thresholds.get(query_type, 0.70)
+
+    return {
+        "query_type": query_type.value,
+        "risk_class": risk_class,
+        "weights": weights,
+        "objective_lock": True,
+        "nonstationary_threshold": drift_threshold,
+        "hold_threshold": hold_threshold,
+    }
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 # F11: COMMAND AUTHORITY — Authentication
 # ═════════════════════════════════════════════════════════════════════════════
@@ -676,6 +732,7 @@ async def init(
     query_type = classify_query(query)
     f2_threshold = get_f2_threshold(query_type)
     skip_f4 = get_f4_skip(query_type)
+    objective_contract = get_objective_contract(query_type, query)
 
     # Step 1: F12 — Injection Guard
     injection = scan_injection(query)
@@ -697,6 +754,7 @@ async def init(
             metrics={
                 "actor_id": actor_id,
                 "query_hash": _hash_query(query),
+                "objective_contract": objective_contract,
             },
         )
     elif injection.level >= InjectionRisk.MEDIUM:
@@ -724,6 +782,7 @@ async def init(
             metrics={
                 "skip_f4": skip_f4,
                 "injection_risk": injection.score,
+                "objective_contract": objective_contract,
             },
         )
 
@@ -747,6 +806,7 @@ async def init(
                 metrics={
                     "skip_f4": skip_f4,
                     "authority": authority.value,
+                    "objective_contract": objective_contract,
                 },
             )
 
@@ -773,6 +833,7 @@ async def init(
         metrics={
             "skip_f4": skip_f4,
             "authority": authority.value,
+            "objective_contract": objective_contract,
         },
     )
 

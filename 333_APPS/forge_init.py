@@ -3,7 +3,7 @@
 forge_init.py — Sovereign Forge Initialization for 333_APPS
 
 Tujuan: Keras-kan folder 333_APPS dengan EMD Stack (Encoder-Metabolizer-Decoder)
-Verifikasi: 5-Organ Membrane + Thermodynamic Separation + Zero Bypass
+Verifikasi: 7-Organ Membrane + Thermodynamic Separation + Zero Bypass
 
 DITEMPA BUKAN DIBERI 🔐
 """
@@ -30,7 +30,7 @@ def print_banner():
 
 def check_5_organ_membrane(arifos_root: Path) -> Tuple[bool, List[str]]:
     """
-    Verify aaa_mcp/server.py registers exactly 5-Organ Trinity + 4 Utilities.
+    Verify aaa_mcp/server.py registers exactly 7-Organ Sovereign Stack + 4 Utilities.
     
     Returns:
         (is_valid, violations)
@@ -43,7 +43,7 @@ def check_5_organ_membrane(arifos_root: Path) -> Tuple[bool, List[str]]:
     
     content = server_path.read_text()
     
-    # Check for 5-Organ Trinity
+    # Check for 7-Organ Sovereign Stack
     required_organs = [
         ("init_session", "Ψ"),
         ("agi_cognition", "Δ"),
@@ -65,7 +65,7 @@ def check_5_organ_membrane(arifos_root: Path) -> Tuple[bool, List[str]]:
     # Check for legacy references (should not exist)
     legacy_patterns = [
         '"reason"', '"validate"', '"align"', '"forge"', '"audit"',
-        "9 A-CLIP skills", "22 tools", "9 tools"
+        "9 A-CLIP skills", "22 tools", "11 tools"
     ]
     for pattern in legacy_patterns:
         if pattern in content and "Internal" not in content:

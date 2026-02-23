@@ -7,6 +7,7 @@
 const config = {
   title: 'arifOS',
   tagline: 'The System That Knows It Doesn\'t Know',
+  titleDelimiter: '·',
   favicon: 'img/favicon.ico',
 
   url: 'https://arifos.arif-fazil.com',
@@ -176,7 +177,7 @@ const config = {
       announcementBar: {
         id: 'live_status',
         content:
-          'LIVE: arifOS MCP is <a href="https://arifosmcp.arif-fazil.com">UP</a> - <a href="/mcp-server">Connect in 30 seconds</a>',
+          '<span class="health-pulse" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#3b82f6;margin-right:8px;box-shadow:0 0 8px rgba(59,130,246,0.6);"></span> <span style="font-family: monospace; letter-spacing: 0.05em;">&gt; arifOS MCP :: <a href="https://arifosmcp.arif-fazil.com">STATUS LIVE</a> &mdash; <a href="/mcp-server">Connect in 30s</a></span>',
         backgroundColor: '#060a14',
         textColor: '#3b82f6',
         isCloseable: true,

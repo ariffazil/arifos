@@ -120,10 +120,15 @@ class ConstitutionalEvaluator:
         if context_overrides:
             ctx.update(context_overrides)
 
-        # F11 normalization: ensure role/token logic if session exists
+        # F11 normalization: never auto-escalate authority from session_id alone.
         if ctx.get("session_id") and not ctx.get("authority_token"):
-            ctx["role"] = "AGENT"
-            ctx["authority_token"] = "arifos_internal"
+            ctx["role"] = "SESSION_UNVERIFIED"
+            ctx["authority_token"] = ""
+            ctx["f11_continuity"] = "MISSING_AUTH_TOKEN"
+
+        if ctx.get("session_id") and ctx.get("authority_token"):
+            ctx["role"] = ctx.get("role") or "AGENT"
+            ctx["f11_continuity"] = "VERIFIED"
 
         return ctx
 
@@ -208,6 +213,24 @@ class ConstitutionalEvaluator:
         elif soft_fails:
             return "PARTIAL"
         return "SEAL"
+
+    def build_self_audit(self, floor_details: List[Dict[str, Any]], verdict: str) -> Dict[str, Any]:
+        """Build deterministic self-audit metadata for ARIF TEST observability."""
+        hard_fails = [d["floor"] for d in floor_details if not d["passed"] and d["floor"] in HARD_FLOORS]
+        soft_fails = [d["floor"] for d in floor_details if not d["passed"] and d["floor"] in SOFT_FLOORS]
+
+        expected = self.evaluate_verdict(floor_details)
+        consistent = expected == verdict
+
+        return {
+            "deterministic": True,
+            "llm_inside_kernel": False,
+            "self_reference_mode": "rule-audit",
+            "hard_fails": hard_fails,
+            "soft_fails": soft_fails,
+            "expected_verdict": expected,
+            "verdict_consistent": consistent,
+        }
 
 
 # Singleton instance

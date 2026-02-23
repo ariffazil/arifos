@@ -5,6 +5,61 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.2.23-2] — 2026-02-23 — FORGE-APEX-OBJECTIVE-ALIGNMENT-PHASE2-SEAL
+
+**T000:** 2026.02.23-FORGE-APEX-OBJECTIVE-ALIGNMENT-PHASE2-SEAL  
+**Theme:** APEX objective nonstationarity governance + release truth alignment
+
+### Added
+- Deterministic self-audit metadata in core constitutional decorator/evaluator envelopes.
+- Objective contract at 000 init with APEX axes (`akal`, `present`, `energy`, `exploration`).
+- Objective lineage threading into pipeline provenance and VAULT999 seal payload.
+
+### Changed
+- APEX judge now evaluates objective drift and enforces nonstationary escalation:
+  - drift >= threshold -> `SABAR`
+  - drift >= hold threshold -> `888_HOLD`
+- Phase-2 drift policy is now query-type aware (FACTUAL stricter than EXPLORATORY/TEST).
+- `test_all_tools_live.py --ci` now uses `pytest-json-report` when available and no longer passes unsupported `--report-log`.
+- README badges and release note block aligned with current workflow reality (`Live Tests` + `CI`).
+- MCP live test validator now handles missing thermo snapshots safely and `vault_seal` returns top-level `status` compatibility for live-suite assertions.
+
+### Why Tests Badge Was Failing
+- `live_tests.yml` invokes `python test_all_tools_live.py --ci`.
+- Runner previously injected unsupported `--report-log=test-results.json`, causing argparse failure before suite execution.
+
+---
+
+## [2026.2.23] — 2026-02-23 — FORGE-SSE-PRIMARY-CONTEXT-HARDENING-SEAL
+
+**T000:** 2026.02.23-FORGE-SSE-PRIMARY-CONTEXT-HARDENING-SEAL  
+**Theme:** Runtime truth alignment + MCP context hardening + docs/metadata reconciliation
+
+### Added
+- MCP resource contracts surfaced in unified server:
+  - `arifos://templates/full-context`
+  - `arifos://schemas/tooling`
+- MCP orchestration prompts surfaced in unified server:
+  - `arifos.prompt.trinity_forge`
+  - `arifos.prompt.anchor_reason`
+  - `arifos.prompt.audit_then_seal`
+
+### Changed
+- Runtime defaults reaffirmed as **SSE primary** with HTTP `/mcp` fallback and stdio optional local mode.
+- `README.md` updated to reflect current tool/resource/prompt surface and live links.
+- `AGENTS.md` updated with current runtime truth and transport guidance.
+- `server.json` and `static/.well-known/mcp/server.json` updated to 2026.2.23 metadata and discovery links.
+- `pyproject.toml` package version updated to `2026.2.23`; project URLs aligned to current endpoints.
+- Requirements reconciled for FastMCP v3 parity (`aaa_mcp/requirements.txt` now matches runtime line).
+
+### Hardened
+- Unified tool handlers in `aaa_mcp/server.py` now include stronger session/auth continuity semantics:
+  - deterministic F11 block envelope when `session_id` is missing downstream,
+  - standardized envelope fields (`floors`, `truth`, `next_actions`) for recovery-oriented clients,
+  - continuity context fields (`actor_id`, `auth_token`, `parent_session_id`, `auth_context`) on major stages.
+
+---
+
 ## [2026.2.22-2] — 2026-02-22 — FORGE-PHOENIX-REBIRTH-INFRASTRUCTURE-SEAL
 
 **T000:** 2026.02.22-FORGE-PHOENIX-REBIRTH-INFRASTRUCTURE-SEAL  

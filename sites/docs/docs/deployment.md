@@ -80,7 +80,7 @@ cp .env.docker.example .env.docker
 # Edit .env.docker: set ARIF_SECRET, BRAVE_API_KEY, DATABASE_URL
 ```
 
-### 3.2 - Start the Trinity stack (SSE + HTTP dual transport)
+### 3.2 - Start the Trinity stack (SSE primary + MCP fallback)
 
 ```bash
 # [888_HOLD] Starts containers; review docker-compose.vps.yml first
@@ -92,7 +92,7 @@ Port mapping after startup:
 | Port | Transport | Connect via |
 |:--|:--|:--|
 | `8088` | SSE | `/sse` endpoint |
-| `8889` | HTTP MCP | `/mcp` endpoint |
+| `8889` | HTTP MCP fallback | `/mcp` endpoint |
 
 ### 3.3 - Verify containers
 
@@ -116,7 +116,7 @@ If you're deploying on a VPS running **Coolify** (Ubuntu 24.04 + Traefik), use t
 `deployment/docker-compose.vps.yml`. It already includes Traefik labels to route:
 
 - `GET /sse` → in-container port `8080`
-- `POST /mcp` and `GET /health` → in-container port `8089`
+- `POST /mcp` and `GET /health` → in-container port `8089` (fallback sidecar)
 
 #### 3.4.1 - DNS
 
@@ -187,9 +187,9 @@ server {
         proxy_set_header   Host $host;
     }
 
-    # Health endpoint (public)
+    # Health endpoint (served by MCP fallback sidecar)
     location /health {
-        proxy_pass http://127.0.0.1:8088/health;
+        proxy_pass http://127.0.0.1:8889/health;
     }
 }
 ```

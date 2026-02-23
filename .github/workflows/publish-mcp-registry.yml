@@ -14,7 +14,7 @@ on:
       version:
         description: "Version to publish (must match server.json)"
         required: true
-        default: "2026.2.22"
+        default: "2026.2.23"
 
 jobs:
   publish:
@@ -59,7 +59,7 @@ jobs:
           elif tag_name:
               workflow_version = tag_name.lstrip('v')
           else:
-              workflow_version = '2026.2.22'
+              workflow_version = '2026.2.23'
           server_version = server['version']
           if workflow_version != server_version:
               print(f'⚠️ Version mismatch: workflow={workflow_version}, server.json={server_version}')

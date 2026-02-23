@@ -6,6 +6,7 @@ Manages Docker containers via AAA MCP with Constitutional governance
 import json
 import os
 import subprocess
+import subprocess
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone

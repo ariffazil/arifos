@@ -3,7 +3,7 @@
   "name": "io.github.ariffazil/arifos-mcp",
   "version": "2026.2.23",
   "title": "arifOS Sovereign Governance MCP",
-  "description": "Constitutional AI governance server exposing the 5-Organ Trinity and unified 000-999 pipeline.",
+  "description": "Constitutional AI governance server exposing canonical AAA MCP 13-tool surface with governed 000-999 pipeline.",
   "websiteUrl": "https://arifos.arif-fazil.com/",
   "vendor": {
     "name": "arifOS",
@@ -18,14 +18,14 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "2026.2.22",
+      "version": "2026.2.23",
       "transport": {
         "type": "stdio"
       }
     },
     {
       "registryType": "oci",
-      "identifier": "docker.io/ariffazil/arifos:2026.2.22",
+      "identifier": "ghcr.io/ariffazil/arifos:latest",
       "transport": {
         "type": "sse",
         "url": "https://arifosmcp.arif-fazil.com/sse"
@@ -41,5 +41,18 @@
       "type": "streamable-http",
       "url": "https://arifosmcp.arif-fazil.com/mcp"
     }
+  ],
+  "resources": [
+    {
+      "uri": "arifos://aaa/schemas",
+      "description": "Canonical AAA MCP schema and tool metadata"
+    },
+    {
+      "uri": "arifos://aaa/full-context-pack",
+      "description": "Canonical full-context pack for governed orchestration"
+    }
+  ],
+  "prompts": [
+    "arifos.prompt.aaa_chain"
   ]
 }
