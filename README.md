@@ -17,26 +17,34 @@
 [![Deploy](https://img.shields.io/badge/Deploy-Coolify-06b6d4?style=for-the-badge&logo=docker)](https://coolify.io)  
 [![YouTube](https://img.shields.io/badge/Demo-YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/AJ92efMy1ns)
 
-[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🏗️ Architecture](#%EF%B8%8F-architecture) • [🎬 Demo Video](#-demo-video) • [🤝 Contributing](#-contributing) • [⚖️ License](#%EF%B8%8F-license)
+---
+
+### 🌐 Trinity Architecture
+
+Part of the **Trinity constitutional governance ecosystem**:
+
+| Layer | Domain | Function | AI Context |
+|-------|--------|----------|------------|
+| 🧍 **HUMAN** | [arif-fazil.com](https://arif-fazil.com) | Identity & Authority Anchor | [llms.txt](https://arif-fazil.com/llms.txt) |
+| ⚖️ **THEORY** | [apex.arif-fazil.com](https://apex.arif-fazil.com) | Constitutional Canon & Law | [llms.txt](https://apex.arif-fazil.com/llms.txt) |
+| 📘 **APPS** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Documentation & Guides | [llms.txt](https://arifos.arif-fazil.com/llms.txt) |
+
+**Canonical Index:** [arif-fazil.com/.well-known/arifos.json](https://arif-fazil.com/.well-known/arifos.json)  
+**Backend MCP Server:** [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com/health)
+
+[🚀 Quick Start](#-quick-start) • [📖 Documentation](#-documentation) • [🏗️ Architecture](#%EF%B8%8F-architecture) • [🔗 All Links](#-links--resources) • [⚖️ License](#%EF%B8%8F-license)
 
 ---
 
-### 📊 Live Deployments
+### 📊 Live Status
 
-**Try arifOS right now** — All services are live and operational:
+| Service | Status | URL |
+|---------|--------|-----|
+| 🔌 **MCP Server** | 🟢 Live | [arifosmcp.arif-fazil.com/mcp](https://arifosmcp.arif-fazil.com/mcp) |
+| ✅ **Health Check** | 🟢 Live | [/health](https://arifosmcp.arif-fazil.com/health) |
+| 📊 **Test Dashboard** | 🟢 Live | [Constitutional Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev) |
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| 🔌 **MCP Endpoint** | [/mcp](https://arifosmcp.arif-fazil.com/mcp) | Modern streamable HTTP transport (JSON-RPC 2.0) |
-| ✅ **Health Check** | [/health](https://arifosmcp.arif-fazil.com/health) | Real-time system status + 13 floors monitoring |
-| 📊 **Test Dashboard** | [Constitutional Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev) | Live test results + Genius scores + Floor compliance |
-| 📚 **Documentation** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Complete guides, tutorials, and API reference |
-| ⚙️ **GitHub Actions** | [CI/CD Pipeline](https://github.com/ariffazil/arifOS/actions) | Automated tests + deployments (runs daily) |
-| 🐳 **Docker Image** | `ghcr.io/ariffazil/arifos:latest` | Pull-ready production container image |
-
-> **Transport:** Streamable HTTP (modern MCP standard) — Single endpoint with bidirectional JSON-RPC, chunked streaming responses, and cloud-native scaling. Replaces legacy SSE two-channel model.
-
-> **Latest (2026.2.23):** Full-context MCP resources/prompts discoverable via `tools/list`. APEX phase-1/phase-2 tracks nonstationary drift and escalates via `SABAR`/`888_HOLD` thresholds. `search_reality` supports Perplexity-first web grounding with Brave fallback.
+> **Latest (2026.2.23):** Streamable HTTP transport • 13 MCP tools • Full-context resources • APEX drift tracking • Perplexity-first web grounding
 
 </div>
 
@@ -762,16 +770,44 @@ Intelligence is not a gift. It is a thermodynamic work process constrained by en
 
 ---
 
-## 📊 Quick Links
+## 🔗 Links & Resources
+
+### Trinity Ecosystem
+
+| Layer | Domain | Purpose |
+|-------|--------|---------|
+| 🧍 **HUMAN** | [arif-fazil.com](https://arif-fazil.com) | Identity & Authority Anchor |
+| ⚖️ **THEORY** | [apex.arif-fazil.com](https://apex.arif-fazil.com) | Constitutional Canon & 13 Floors |
+| 📘 **APPS** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) | Documentation & Implementation |
+
+**Canonical Index:** [arif-fazil.com/.well-known/arifos.json](https://arif-fazil.com/.well-known/arifos.json)
+
+### Live Services
+
+| Service | URL | Status |
+|---------|-----|--------|
+| **MCP Server** | [arifosmcp.arif-fazil.com/mcp](https://arifosmcp.arif-fazil.com/mcp) | 🟢 Live |
+| **Health Check** | [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) | 🟢 Live |
+| **Test Dashboard** | [Constitutional Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev) | 🟢 Live |
+
+### Project Resources
 
 | Resource | URL |
 |----------|-----|
-| **Live MCP Server** | https://arifosmcp.arif-fazil.com/mcp |
-| **Health Check** | https://arifosmcp.arif-fazil.com/health |
-| **Test Dashboard** | https://674a01a3.arifosmcp-truth-claim.pages.dev |
-| **Documentation Site** | https://arifos.arif-fazil.com |
-| **GitHub Repository** | https://github.com/ariffazil/arifOS |
-| **Docker Image** | ghcr.io/ariffazil/arifos:latest |
+| **GitHub Repository** | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) |
+| **PyPI Package** | [pypi.org/project/arifos](https://pypi.org/project/arifos/) |
+| **Docker Image** | [ghcr.io/ariffazil/arifos:latest](https://github.com/ariffazil/arifOS/pkgs/container/arifos) |
+| **GitHub Actions** | [CI/CD Pipeline](https://github.com/ariffazil/arifOS/actions) |
+| **Demo Video** | [YouTube](https://youtu.be/AJ92efMy1ns) |
+
+### AI Discovery
+
+| File | URL | Purpose |
+|------|-----|---------|
+| **Canonical Index** | [arif-fazil.com/.well-known/arifos.json](https://arif-fazil.com/.well-known/arifos.json) | Single source of truth |
+| **HUMAN Context** | [arif-fazil.com/llms.txt](https://arif-fazil.com/llms.txt) | Identity & scars |
+| **THEORY Canon** | [apex.arif-fazil.com/llms.txt](https://apex.arif-fazil.com/llms.txt) | Constitutional floors |
+| **APPS Docs** | [arifos.arif-fazil.com/llms.txt](https://arifos.arif-fazil.com/llms.txt) | Technical context |
 
 ---
 
@@ -788,9 +824,11 @@ arifOS is built on the shoulders of giants:
 
 <div align="center">
 
-**Made with 🔥 by [ARIF FAZIL](https://github.com/ariffazil)**
+**Made with 🔥 by [ARIF FAZIL](https://arif-fazil.com)**
 
-*HUMAN ↔ THEORY ↔ APPS*
+📧 [arifos@arif-fazil.com](mailto:arifos@arif-fazil.com) • 🐙 [GitHub](https://github.com/ariffazil) • 🧍 [HUMAN](https://arif-fazil.com) • ⚖️ [THEORY](https://apex.arif-fazil.com) • 📘 [APPS](https://arifos.arif-fazil.com)
+
+*Ditempa Bukan Diberi* — Forged, Not Given
 
 [![GitHub Stars](https://img.shields.io/github/stars/ariffazil/arifOS?style=social)](https://github.com/ariffazil/arifOS)
 [![GitHub Forks](https://img.shields.io/github/forks/ariffazil/arifOS?style=social)](https://github.com/ariffazil/arifOS/fork)
