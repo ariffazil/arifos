@@ -83,10 +83,65 @@ Part of the **Trinity constitutional governance ecosystem**:
 
 Jump to the section that matches your needs:
 
-- **⚡ [Try arifOS in 2 minutes](#1️⃣-local-development-fastest--2-minutes)** → Quick start with local development
+- **⚡ [Try arifOS in 2 minutes](#1️⃣-local-development-recommended--2-minutes)** → Quick start with local development
 - **🔌 [Integrate with MCP clients](#-quick-start)** → Connect to Claude Desktop, Cursor, ChatGPT
 - **🏢 [Evaluate for enterprise governance](#-production-hardening)** → Security, deployment, and compliance
 - **🧠 [Understand the architecture](#%EF%B8%8F-architecture)** → Constitutional foundations and system design
+- **🤝 [Adopt arifOS in your organization](#-adoption-pathways)** → Implementation strategies for different use cases
+
+---
+
+## 🤝 Adoption Pathways
+
+### For Individual Developers
+**Goal:** Add constitutional governance to your AI tools
+
+1. **Install:** `pip install arifos`
+2. **Run locally:** `python -m arifos_aaa_mcp stdio`
+3. **Connect:** Add to Claude Desktop, Cursor, or Windsurf
+4. **Govern:** All AI outputs now pass through 13 constitutional floors
+
+**Time:** 5 minutes • **Risk:** Low (local-only) • **Value:** Immediate hallucination reduction
+
+---
+
+### For Small Teams (2-10 people)
+**Goal:** Shared governance layer with audit trails
+
+1. **Deploy:** Use Docker Compose or Coolify (see [Quick Start](#-quick-start))
+2. **Configure:** Set up Postgres (VAULT999 ledger) + Redis (session cache)
+3. **Integrate:** Connect team AI tools to shared MCP endpoint
+4. **Audit:** Review VAULT999 decisions via dashboard
+
+**Time:** 30 minutes • **Risk:** Medium (shared infra) • **Value:** Team-wide consistency + audit trail
+
+---
+
+### For Enterprises
+**Goal:** Production governance with RBAC, compliance, SLA
+
+1. **Evaluate:** Review [Security at a Glance](#%EF%B8%8F-security-at-a-glance) section
+2. **Pilot:** Deploy to staging with JWT auth + rate limiting
+3. **Integrate:** Connect to existing AI workflows via MCP protocol
+4. **Scale:** Use Kubernetes + horizontal scaling (stateless design)
+5. **Govern:** Implement 888_HOLD approval workflows for critical decisions
+
+**Time:** 1-2 weeks • **Risk:** Managed (staging-first) • **Value:** Full auditability + compliance-ready
+
+**Need help?** Enterprise support: [arifos@arif-fazil.com](mailto:arifos@arif-fazil.com)
+
+---
+
+### For Researchers
+**Goal:** Study constitutional AI governance in practice
+
+1. **Read:** [Constitutional Canon](https://apex.arif-fazil.com/llms.txt) (13 floors, thermodynamic foundations)
+2. **Explore:** [GitHub Repository](https://github.com/ariffazil/arifOS) (full source, AGPL-3.0)
+3. **Test:** Run constitutional floor tests: `pytest -m constitutional`
+4. **Extend:** Fork and experiment with custom floors/verdicts
+5. **Cite:** Use [CITATION.cff](CITATION.cff) for academic references
+
+**Time:** Self-paced • **Risk:** None (read-only) • **Value:** Understanding governance-first AI design
 
 ---
 
@@ -604,6 +659,71 @@ python test_all_tools_live.py --ci
 
 ---
 
+## 📊 Governance Observability
+
+**Deploy → Observe → Govern** — Real-time visibility into constitutional AI decisions
+
+### Built-in Observability
+
+| Metric | Endpoint/Method | Purpose |
+|--------|-----------------|---------|
+| **System Health** | `/health` | Service status + 13 floors monitoring |
+| **Floor Scores** | Tool responses | Per-decision floor compliance (F1-F13) |
+| **Entropy (ΔS)** | Telemetry field | Information flow direction |
+| **Genius Score** | Telemetry field | Coherence measure (G = A × P × X × E²) |
+| **Verdict Distribution** | VAULT999 ledger | SEAL/SABAR/VOID/888_HOLD counts |
+| **Session Traces** | VAULT999 + Redis | Full decision lineage |
+
+### Observability Stack
+
+```bash
+# 1. Real-time health monitoring
+curl https://arifosmcp.arif-fazil.com/health | jq .
+
+# 2. Prometheus metrics (if enabled)
+curl https://arifosmcp.arif-fazil.com/metrics
+
+# 3. VAULT999 audit query (via Postgres)
+psql $DATABASE_URL -c "SELECT * FROM vault999 ORDER BY created_at DESC LIMIT 10;"
+
+# 4. Live test dashboard
+open https://674a01a3.arifosmcp-truth-claim.pages.dev
+```
+
+### What You Can Observe
+
+**Per-Decision Metrics:**
+- Which floors triggered (F1-F13 scores)
+- Entropy delta (ΔS internal vs external)
+- Genius coherence score
+- Verdict reasoning
+- Session continuity token
+- Timestamp + audit hash
+
+**System-Level Metrics:**
+- Uptime and availability
+- Request latency (p50, p95, p99)
+- Verdict distribution over time
+- Floor violation patterns
+- 888_HOLD escalation rate
+
+**Governance Insights:**
+- Which floors fail most often?
+- What types of queries trigger SABAR?
+- How often does 888_HOLD engage?
+- Are decisions thermodynamically stable? (ΔS trends)
+
+### Roadmap (Observability)
+
+- 🚧 **Grafana dashboards** — Pre-built governance metrics
+- 🚧 **Floor-level alerting** — Alert on constitutional violations
+- 🚧 **Session replay** — Reconstruct decision trees from VAULT999
+- 🚧 **Comparative analysis** — Multi-session governance patterns
+
+**See:** [Production Hardening](#-production-hardening) for deployment monitoring setup
+
+---
+
 ## 🔒 Production Hardening
 
 ### 🛡️ Security at a Glance
@@ -808,6 +928,46 @@ Intelligence is not a gift. It is a thermodynamic work process constrained by en
 | **HUMAN Context** | [arif-fazil.com/llms.txt](https://arif-fazil.com/llms.txt) | Identity & scars |
 | **THEORY Canon** | [apex.arif-fazil.com/llms.txt](https://apex.arif-fazil.com/llms.txt) | Constitutional floors |
 | **APPS Docs** | [arifos.arif-fazil.com/llms.txt](https://arifos.arif-fazil.com/llms.txt) | Technical context |
+
+### Verification (Verify in 60 Seconds)
+
+**Verify canonical files are authentic:**
+
+```bash
+# 1. Fetch canonical index
+curl -s https://arif-fazil.com/.well-known/arifos.json > canonical.json
+
+# 2. Get MCP endpoint from index (zero ambiguity)
+jq -r '.arifos_system.canonical_urls.mcp_backend.canonical_base' canonical.json
+# Output: https://arifosmcp.arif-fazil.com
+
+# 3. Verify Trinity architecture
+jq '.trinity_sites' canonical.json
+
+# 4. Compute SHA-256 of any llms.txt file
+curl -s https://arif-fazil.com/llms.txt | sha256sum
+
+# 5. Compare against declared hashes in canonical index
+jq '.trinity_sites.HUMAN' canonical.json
+```
+
+**WebMCP Verification (if MCP-B extension installed):**
+```javascript
+// Visit arif-fazil.com, open console:
+navigator.modelContext.tools.get_trinity_links()
+// Returns: Structured Trinity architecture (JSON)
+
+// Visit apex.arif-fazil.com:
+navigator.modelContext.tools.verify_canon_hashes()
+// Returns: SHA-256 verification manifest
+```
+
+**Trust Model:**
+- ✅ Canonical index at `.well-known/arifos.json` (single source of truth)
+- ✅ SHA-256 hashes for file integrity
+- ✅ WebMCP tools for programmatic verification
+- ✅ GitHub as backup verification source
+- ⚠️ Crypto signatures (Ed25519) - Roadmap
 
 ---
 
