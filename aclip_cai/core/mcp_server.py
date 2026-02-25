@@ -25,9 +25,9 @@ from __future__ import annotations
 import asyncio
 import json
 import time
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
@@ -59,15 +59,15 @@ app.add_middleware(
 
 class SystemCall(BaseModel):
     name: str
-    arguments: Dict[str, Any]
+    arguments: dict[str, Any]
     session_id: str
 
 
 class MCPResponse(BaseModel):
     result: Any
     verdict: str
-    floor_audit: Dict[str, Any]
-    telemetry: Dict[str, float]
+    floor_audit: dict[str, Any]
+    telemetry: dict[str, float]
 
 
 # ---------------------------------------------------------------------------

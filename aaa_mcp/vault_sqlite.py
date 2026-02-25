@@ -4,11 +4,10 @@ SQLite-based VAULT999 untuk DEV_MODE.
 F1 Amanah: Reversible migration path ke PostgreSQL.
 """
 
-import sqlite3
 import hashlib
 import json
+import sqlite3
 from datetime import datetime
-from typing import Dict, Optional, List
 from pathlib import Path
 
 
@@ -63,8 +62,8 @@ class SQLiteVault:
         risk_level: str = "low",
         category: str = "general",
         seal_data: str = "",
-        floors_checked: Optional[List[str]] = None,
-    ) -> Dict:
+        floors_checked: list[str] | None = None,
+    ) -> dict:
         """
         Seal constitutional decision ke VAULT999.
 
@@ -123,7 +122,7 @@ class SQLiteVault:
             "warning": "SQLite fallback — migrate to PostgreSQL for production",
         }
 
-    def verify_chain(self) -> Dict:
+    def verify_chain(self) -> dict:
         """Verify Merkle chain integrity (F1 audit)."""
         with sqlite3.connect(self.db_path) as conn:
             cursor = conn.execute("SELECT id, entry_hash, prev_hash FROM vault_entries ORDER BY id")
@@ -145,7 +144,7 @@ class SQLiteVault:
 
         return {"status": "BROKEN" if breaks else "INTACT", "count": len(entries), "breaks": breaks}
 
-    def get_entry(self, vault_id: int) -> Optional[Dict]:
+    def get_entry(self, vault_id: int) -> dict | None:
         """Retrieve vault entry by ID."""
         with sqlite3.connect(self.db_path) as conn:
             conn.row_factory = sqlite3.Row
@@ -156,7 +155,7 @@ class SQLiteVault:
                 return dict(row)
             return None
 
-    def migrate_to_postgres(self, postgres_url: str) -> Dict:
+    def migrate_to_postgres(self, postgres_url: str) -> dict:
         """
         F1 Amanah: Reversible migration ke PostgreSQL.
 

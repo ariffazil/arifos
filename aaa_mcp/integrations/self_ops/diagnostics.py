@@ -16,7 +16,7 @@ import asyncio
 import os
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import httpx
 from starlette.requests import Request
@@ -30,9 +30,9 @@ class HealthCheckResult:
     name: str
     status: str  # "healthy", "degraded", "failed"
     latency_ms: float
-    details: Dict[str, Any] = field(default_factory=dict)
-    error: Optional[str] = None
-    remediation: Optional[str] = None
+    details: dict[str, Any] = field(default_factory=dict)
+    error: str | None = None
+    remediation: str | None = None
 
 
 @dataclass
@@ -42,10 +42,10 @@ class SelfOpsReport:
     timestamp: str
     overall_status: str  # "healthy", "degraded", "critical"
     version: str
-    checks: List[HealthCheckResult]
-    recommendations: List[str]
+    checks: list[HealthCheckResult]
+    recommendations: list[str]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "timestamp": self.timestamp,
             "overall_status": self.overall_status,
@@ -77,7 +77,7 @@ class SelfOpsDiagnostics:
     - All expected endpoints responding
     """
 
-    def __init__(self, base_url: Optional[str] = None):
+    def __init__(self, base_url: str | None = None):
         self.base_url = base_url or os.getenv("ARIFOS_BASE_URL", "http://localhost:8080")
         self.version = "2026.02.22-FORGE-VPS-SEAL"
 
@@ -388,7 +388,7 @@ class SelfOpsDiagnostics:
                 remediation="Check if static/.well-known/mcp/server.json exists and is served",
             )
 
-    def _generate_recommendations(self, checks: List[HealthCheckResult]) -> List[str]:
+    def _generate_recommendations(self, checks: list[HealthCheckResult]) -> list[str]:
         """Generate remediation recommendations based on failed checks."""
         recommendations = []
 
@@ -414,7 +414,7 @@ class SelfOpsDiagnostics:
 
 
 # Singleton instance
-_self_ops: Optional[SelfOpsDiagnostics] = None
+_self_ops: SelfOpsDiagnostics | None = None
 
 
 def get_self_ops() -> SelfOpsDiagnostics:
@@ -425,7 +425,7 @@ def get_self_ops() -> SelfOpsDiagnostics:
     return _self_ops
 
 
-async def self_diagnose(request: Optional[Request] = None) -> JSONResponse:
+async def self_diagnose(request: Request | None = None) -> JSONResponse:
     """
     MCP tool: self_diagnose
 

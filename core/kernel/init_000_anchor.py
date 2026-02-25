@@ -11,17 +11,15 @@ Consolidates:
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-import time
-import secrets
 import hashlib
 import hmac
 import logging
+import secrets
+import time
 from enum import Enum
-from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Set
 
-from core.shared.types import InitOutput, Verdict, SystemState
 from core.kernel.evaluator import evaluator
+from core.shared.types import InitOutput, Verdict
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +56,7 @@ class AnchorEngine:
         self,
         query: str,
         actor_id: str = "anonymous",
-        auth_token: Optional[str] = None,
+        auth_token: str | None = None,
         require_sovereign: bool = False,
     ) -> InitOutput:
         """
@@ -113,7 +111,7 @@ class AnchorEngine:
             },
         )
 
-    def _verify_auth(self, actor_id: str, token: Optional[str]) -> Tuple[bool, AuthorityLevel]:
+    def _verify_auth(self, actor_id: str, token: str | None) -> tuple[bool, AuthorityLevel]:
         actor = actor_id.lower().strip()
         if actor not in self.valid_actors and actor != "anonymous":
             return False, AuthorityLevel.NONE

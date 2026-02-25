@@ -5,9 +5,8 @@ Drives the continuous metabolic loop of the Agentic Federation.
 "Fire requires three things: Fuel (Tokens), Oxygen (Context), and Heat (Ignition)."
 """
 
-import asyncio
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from .physics import PHYSICS
 
@@ -28,7 +27,7 @@ class Hypervisor:
         self.running = False
         self.cycle_count = 0
 
-    async def get_fresh_context(self) -> Dict[str, Any]:
+    async def get_fresh_context(self) -> dict[str, Any]:
         """
         Entropy Reset.
         Returns a clean state for the next cycle.
@@ -39,7 +38,7 @@ class Hypervisor:
             "budget_remaining": PHYSICS["token"].MAX_SESSION_BUDGET - PHYSICS["token"].session_cost,
         }
 
-    async def cycle(self, agent_instance, input_data: Dict[str, Any]):
+    async def cycle(self, agent_instance, input_data: dict[str, Any]):
         """
         Execute one metabolic cycle with Physics enforcement.
         """

@@ -7,12 +7,12 @@ Schema: VAULT999 v3 (hybrid)
 DITEMPA BUKAN DIBERI
 """
 
-import os
-import json
 import hashlib
-from datetime import datetime, timezone
-from typing import Optional, Dict, Any, List
+import json
+import os
 from dataclasses import dataclass
+from datetime import datetime, timezone
+from typing import Any
 
 # Try to import asyncpg for Postgres support
 try:
@@ -34,13 +34,13 @@ class VaultEntry:
     risk_level: str  # LOW | MEDIUM | HIGH | CRITICAL
     category: str
     environment: str
-    payload: Dict[str, Any]
+    payload: dict[str, Any]
     query_summary: str
     prev_hash: str
     entry_hash: str
     schema_version: str = "3.0"
-    floors_checked: List[str] = None
-    floors_failed: List[str] = None
+    floors_checked: list[str] = None
+    floors_failed: list[str] = None
 
     def __post_init__(self):
         if self.floors_checked is None:
@@ -88,10 +88,10 @@ class SessionLedger:
     CREATE INDEX IF NOT EXISTS idx_vault999_timestamp ON vault999(timestamp DESC);
     """
 
-    def __init__(self, database_url: Optional[str] = None):
+    def __init__(self, database_url: str | None = None):
         self.database_url = database_url or os.environ.get("DATABASE_URL")
-        self._pool: Optional[asyncpg.Pool] = None
-        self._memory_ledger: List[VaultEntry] = []
+        self._pool: asyncpg.Pool | None = None
+        self._memory_ledger: list[VaultEntry] = []
         self._last_hash = "GENESIS"
         self._initialized = False
 
@@ -143,13 +143,13 @@ class SessionLedger:
         self,
         session_id: str,
         verdict_type: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         query_summary: str = "",
         risk_level: str = "LOW",
         category: str = "general",
         environment: str = "prod",
-        floors_checked: Optional[List[str]] = None,
-        floors_failed: Optional[List[str]] = None,
+        floors_checked: list[str] | None = None,
+        floors_failed: list[str] | None = None,
     ) -> VaultEntry:
         """
         Seal a new entry into the VAULT999 ledger.
@@ -214,11 +214,11 @@ class SessionLedger:
 
     async def query(
         self,
-        session_id: Optional[str] = None,
-        verdict_type: Optional[str] = None,
+        session_id: str | None = None,
+        verdict_type: str | None = None,
         limit: int = 10,
         offset: int = 0,
-    ) -> List[VaultEntry]:
+    ) -> list[VaultEntry]:
         """Query the VAULT999 ledger."""
         await self.initialize()
 
@@ -291,7 +291,7 @@ class SessionLedger:
 
 
 # Global ledger instance
-_ledger: Optional[SessionLedger] = None
+_ledger: SessionLedger | None = None
 
 
 async def get_ledger() -> SessionLedger:
@@ -304,8 +304,8 @@ async def get_ledger() -> SessionLedger:
 
 
 async def seal_memory(
-    session_id: str, verdict: str, payload: Dict[str, Any], **kwargs
-) -> Dict[str, Any]:
+    session_id: str, verdict: str, payload: dict[str, Any], **kwargs
+) -> dict[str, Any]:
     """
     Legacy compatibility function for APEX engine.
     Uses the new SessionLedger under the hood.
@@ -325,11 +325,11 @@ async def log_asi_decision(
     session_id: str,
     stage: str,
     query: str,
-    asi_output: Dict[str, Any],
+    asi_output: dict[str, Any],
     verdict: str = "SEAL",
-    floors_checked: Optional[List[str]] = None,
-    floors_failed: Optional[List[str]] = None,
-) -> Dict[str, Any]:
+    floors_checked: list[str] | None = None,
+    floors_failed: list[str] | None = None,
+) -> dict[str, Any]:
     """
     Log an ASI decision to VAULT for future fine-tuning (Ω Incident Logging).
 
@@ -395,7 +395,7 @@ async def log_asi_decision(
     }
 
 
-async def inject_memory(session_id: str, context: Dict[str, Any]) -> bool:
+async def inject_memory(session_id: str, context: dict[str, Any]) -> bool:
     """
     Legacy compatibility function for memory injection.
     In VAULT999 v3, context is stored as part of the ledger entry payload.

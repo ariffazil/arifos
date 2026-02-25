@@ -9,27 +9,26 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 import logging
-import time
-from typing import Any, Dict, List, Optional, Tuple, Set
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 # ─── Floor Classification ───────────────────────────────────────────────────
 
 # Mandatory floors run on EVERY evaluation (the "immune system").
-MANDATORY_PRE_FLOORS: Set[str] = {"F12"}
+MANDATORY_PRE_FLOORS: set[str] = {"F12"}
 
 # Pre-execution floors: validate INPUT before action
-PRE_FLOORS: Set[str] = {"F1", "F5", "F6", "F11", "F12", "F13"}
+PRE_FLOORS: set[str] = {"F1", "F5", "F6", "F11", "F12", "F13"}
 
 # Post-execution floors: validate OUTPUT after action
-POST_FLOORS: Set[str] = {"F2", "F3", "F4", "F7", "F8", "F9", "F10"}
+POST_FLOORS: set[str] = {"F2", "F3", "F4", "F7", "F8", "F9", "F10"}
 
 # Hard floors: failure -> VOID (block)
-HARD_FLOORS: Set[str] = {"F1", "F2", "F7", "F10", "F11", "F12", "F13"}
+HARD_FLOORS: set[str] = {"F1", "F2", "F7", "F10", "F11", "F12", "F13"}
 
 # Soft/Derived floors: failure -> PARTIAL (warn)
-SOFT_FLOORS: Set[str] = {"F3", "F4", "F5", "F6", "F8", "F9"}
+SOFT_FLOORS: set[str] = {"F3", "F4", "F5", "F6", "F8", "F9"}
 
 
 class ConstitutionalEvaluator:
@@ -40,10 +39,10 @@ class ConstitutionalEvaluator:
     """
 
     def __init__(self):
-        self._floor_cache: Dict[str, Any] = {}
-        self._floors_available: Optional[bool] = None
+        self._floor_cache: dict[str, Any] = {}
+        self._floors_available: bool | None = None
 
-    def _load_all_floors(self) -> Optional[Dict[str, Any]]:
+    def _load_all_floors(self) -> dict[str, Any] | None:
         """Lazy-load ALL_FLOORS from core.shared.floors."""
         if self._floors_available is False:
             return None
@@ -78,7 +77,7 @@ class ConstitutionalEvaluator:
             logger.error(f"Failed to instantiate {floor_id}: {e}")
             return None
 
-    def check_floor(self, floor_id: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    def check_floor(self, floor_id: str, context: dict[str, Any]) -> dict[str, Any]:
         """Run a single floor check."""
         floor = self._get_floor(floor_id)
         if floor is None:
@@ -107,8 +106,8 @@ class ConstitutionalEvaluator:
             }
 
     def build_pre_context(
-        self, query: str, context_overrides: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, query: str, context_overrides: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Build context dict for pre-execution floor checks."""
         ctx = {
             "query": query,
@@ -133,8 +132,8 @@ class ConstitutionalEvaluator:
         return ctx
 
     def build_post_context(
-        self, query: str, result: Any, context_overrides: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, query: str, result: Any, context_overrides: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Build context dict for post-execution floor checks."""
         # Extract response text from result
         response = ""
@@ -187,9 +186,9 @@ class ConstitutionalEvaluator:
 
         return ctx
 
-    def accumulate_floor_scores(self, floor_details: List[Dict[str, Any]]) -> Dict[str, float]:
+    def accumulate_floor_scores(self, floor_details: list[dict[str, Any]]) -> dict[str, float]:
         """Normalize accumulated scores for Genius engine."""
-        scores: Dict[str, float] = {}
+        scores: dict[str, float] = {}
         for d in floor_details:
             fid = d["floor"]
             score = d.get("score", 0.0)
@@ -203,7 +202,7 @@ class ConstitutionalEvaluator:
                 scores[fid] = score
         return scores
 
-    def evaluate_verdict(self, floor_details: List[Dict[str, Any]]) -> str:
+    def evaluate_verdict(self, floor_details: list[dict[str, Any]]) -> str:
         """Compute aggregate verdict (VOID | PARTIAL | SEAL)."""
         hard_fails = [d for d in floor_details if not d["passed"] and d["floor"] in HARD_FLOORS]
         soft_fails = [d for d in floor_details if not d["passed"] and d["floor"] in SOFT_FLOORS]
@@ -214,10 +213,14 @@ class ConstitutionalEvaluator:
             return "PARTIAL"
         return "SEAL"
 
-    def build_self_audit(self, floor_details: List[Dict[str, Any]], verdict: str) -> Dict[str, Any]:
+    def build_self_audit(self, floor_details: list[dict[str, Any]], verdict: str) -> dict[str, Any]:
         """Build deterministic self-audit metadata for ARIF TEST observability."""
-        hard_fails = [d["floor"] for d in floor_details if not d["passed"] and d["floor"] in HARD_FLOORS]
-        soft_fails = [d["floor"] for d in floor_details if not d["passed"] and d["floor"] in SOFT_FLOORS]
+        hard_fails = [
+            d["floor"] for d in floor_details if not d["passed"] and d["floor"] in HARD_FLOORS
+        ]
+        soft_fails = [
+            d["floor"] for d in floor_details if not d["passed"] and d["floor"] in SOFT_FLOORS
+        ]
 
         expected = self.evaluate_verdict(floor_details)
         consistent = expected == verdict

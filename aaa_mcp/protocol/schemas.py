@@ -7,7 +7,7 @@ Every field has explicit type, range, and semantics.
 Version: 2026.02.22-LOW_ENTROPY
 """
 
-from typing import Dict, Any
+from typing import Any
 
 from .tool_naming import CANONICAL_PUBLIC_TO_LEGACY, resolve_protocol_tool_name
 
@@ -59,7 +59,7 @@ EVIDENCE_SCHEMA = {
 # TOOL INPUT SCHEMAS
 # ═════════════════════════════════════════════════════════════════════════════
 
-TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
+TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
     "init_gate": {
         "type": "object",
         "properties": {
@@ -315,7 +315,7 @@ TOOL_INPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
 # TOOL OUTPUT SCHEMAS (Minimal, Low-Entropy)
 # ═════════════════════════════════════════════════════════════════════════════
 
-TOOL_OUTPUT_SCHEMAS: Dict[str, Dict[str, Any]] = {
+TOOL_OUTPUT_SCHEMAS: dict[str, dict[str, Any]] = {
     "init_gate": {
         "type": "object",
         "properties": {
@@ -629,11 +629,11 @@ CANONICAL_TOOL_OUTPUT_SCHEMAS = {
 }
 
 
-def get_input_schema(tool_name: str) -> Dict[str, Any] | None:
+def get_input_schema(tool_name: str) -> dict[str, Any] | None:
     """Return input schema for legacy, canonical, or verb alias tool names."""
     return TOOL_INPUT_SCHEMAS.get(resolve_protocol_tool_name(tool_name))
 
 
-def get_output_schema(tool_name: str) -> Dict[str, Any] | None:
+def get_output_schema(tool_name: str) -> dict[str, Any] | None:
     """Return output schema for legacy, canonical, or verb alias tool names."""
     return TOOL_OUTPUT_SCHEMAS.get(resolve_protocol_tool_name(tool_name))

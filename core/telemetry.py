@@ -2,11 +2,10 @@
 # v64.1 — Constitutional Telemetry & Feedback Loop
 # Q3 Verdict: TELEMETRY FIRST with LOCKED ADAPTATION TRIGGER
 
-from dataclasses import dataclass, field
-from typing import Dict, List, Optional
-from datetime import datetime, timedelta
 import json
 import os
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
 
 # Q3: Locked adaptation trigger
 ADAPTATION_LOCK_DAYS = 30
@@ -66,10 +65,10 @@ class TelemetryStore:
         self.first_telemetry_file = os.path.join(storage_path, ".first_telemetry")
         self.first_telemetry_date = self._load_first_date()
 
-    def _load_first_date(self) -> Optional[datetime]:
+    def _load_first_date(self) -> datetime | None:
         """Load first telemetry date (adaptation lock)."""
         if os.path.exists(self.first_telemetry_file):
-            with open(self.first_telemetry_file, "r") as f:
+            with open(self.first_telemetry_file) as f:
                 date_str = f.read().strip()
                 return datetime.fromisoformat(date_str)
         return None
@@ -122,7 +121,7 @@ class TelemetryStore:
             return 0
         return (datetime.utcnow() - self.first_telemetry_date).days
 
-    def can_adapt(self) -> Dict[str, any]:
+    def can_adapt(self) -> dict[str, any]:
         """
         Q3: Check if adaptation is allowed.
 
@@ -163,7 +162,7 @@ class TelemetryStore:
             log_file = os.path.join(self.storage_path, f"telemetry-{date_str}.jsonl")
 
             if os.path.exists(log_file):
-                with open(log_file, "r") as f:
+                with open(log_file) as f:
                     for line in f:
                         try:
                             data = json.loads(line.strip())
@@ -173,7 +172,7 @@ class TelemetryStore:
 
         return sum(drift_scores) / len(drift_scores) if drift_scores else 0.0
 
-    def generate_weekly_report(self) -> Dict:
+    def generate_weekly_report(self) -> dict:
         """Generate weekly telemetry report."""
         days = self.get_telemetry_days()
         drift = self._calculate_weekly_drift()
@@ -234,6 +233,6 @@ def log_telemetry(
     telemetry_store.log(telemetry)
 
 
-def check_adaptation_status() -> Dict:
+def check_adaptation_status() -> dict:
     """Check if constitutional adaptation is allowed."""
     return telemetry_store.can_adapt()

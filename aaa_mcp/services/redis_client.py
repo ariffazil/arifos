@@ -9,7 +9,7 @@ ChatGPT audit: "Persist 'mind' in vault/DB, not local env/processes"
 import json
 import os
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 import redis
 
@@ -18,7 +18,7 @@ import redis
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 
-def get_redis_client() -> Optional[redis.Redis]:
+def get_redis_client() -> redis.Redis | None:
     """Initialize Redis client from connection string."""
     try:
         client = redis.from_url(
@@ -50,12 +50,12 @@ class MindVault:
 
     def __init__(self):
         self._redis = get_redis_client()
-        self._local_fallback: Dict[str, Any] = {}  # Fallback if Redis unavailable
+        self._local_fallback: dict[str, Any] = {}  # Fallback if Redis unavailable
 
     def _key(self, session_id: str) -> str:
         return f"{self.KEY_PREFIX}:{session_id}"
 
-    def load(self, session_id: str) -> Dict[str, Any]:
+    def load(self, session_id: str) -> dict[str, Any]:
         """Hydrate session state from Redis."""
         if not self._redis:
             return self._local_fallback.get(session_id, {})
@@ -69,7 +69,7 @@ class MindVault:
             print(f"Redis load error: {e}")
             return self._local_fallback.get(session_id, {})
 
-    def save(self, session_id: str, state: Dict[str, Any], ttl: int = None) -> bool:
+    def save(self, session_id: str, state: dict[str, Any], ttl: int = None) -> bool:
         """Persist session state to Redis."""
         if not self._redis:
             self._local_fallback[session_id] = state
@@ -87,7 +87,7 @@ class MindVault:
             self._local_fallback[session_id] = state
             return False
 
-    def update(self, session_id: str, updates: Dict[str, Any]) -> bool:
+    def update(self, session_id: str, updates: dict[str, Any]) -> bool:
         """Merge updates into existing session state."""
         state = self.load(session_id)
         state.update(updates)
@@ -107,7 +107,7 @@ class MindVault:
             self._local_fallback.pop(session_id, None)
             return False
 
-    def health_check(self) -> Dict[str, Any]:
+    def health_check(self) -> dict[str, Any]:
         """Check Redis connectivity."""
         if not self._redis:
             return {"status": "unavailable", "mode": "local_fallback"}
@@ -125,7 +125,7 @@ class MindVault:
 
 
 # Singleton instance
-_mind_vault: Optional[MindVault] = None
+_mind_vault: MindVault | None = None
 
 
 def get_mind_vault() -> MindVault:

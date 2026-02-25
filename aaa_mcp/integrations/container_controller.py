@@ -6,13 +6,10 @@ Manages Docker containers via AAA MCP with Constitutional governance
 import json
 import os
 import subprocess
-import subprocess
 import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Dict, List, Optional
-
 
 
 class ContainerStatus(Enum):
@@ -28,7 +25,7 @@ class ContainerInfo:
     status: ContainerStatus
     image: str
     ports: str
-    health: Optional[str]
+    health: str | None
     uptime: str
 
 
@@ -68,7 +65,7 @@ class ContainerController:
         self._cache = {}
         self._cache_ttl = 5  # seconds
 
-    def _get_cached(self, key: str) -> Optional[List[ContainerInfo]]:
+    def _get_cached(self, key: str) -> list[ContainerInfo] | None:
         """Get cached result if still valid."""
         if key in self._cache:
             result, timestamp = self._cache[key]
@@ -76,18 +73,18 @@ class ContainerController:
                 return result
         return None
 
-    def _set_cached(self, key: str, value: List[ContainerInfo]):
+    def _set_cached(self, key: str, value: list[ContainerInfo]):
         """Cache result with timestamp."""
         self._cache[key] = (value, time.time())
 
-    def list_containers(self) -> List[ContainerInfo]:
+    def list_containers(self) -> list[ContainerInfo]:
         """List all sovereign stack containers with caching."""
         # Check cache first
         cached = self._get_cached("containers")
         if cached is not None:
             return cached
 
-        containers: List[ContainerInfo] = []
+        containers: list[ContainerInfo] = []
 
         # Get Docker containers
         try:
@@ -157,7 +154,7 @@ class ContainerController:
         self._set_cached("containers", containers)
         return containers
 
-    def restart_container(self, name: str) -> Dict:
+    def restart_container(self, name: str) -> dict:
         """Restart a container with F1 logging."""
         config = self.MANAGED_CONTAINERS.get(name)
         if not config:
@@ -250,7 +247,7 @@ class ContainerController:
         except Exception as e:
             return f"Error getting logs: {e}"
 
-    def health_check(self) -> Dict:
+    def health_check(self) -> dict:
         """Full sovereign stack health check."""
         containers = self.list_containers()
 

@@ -6,8 +6,7 @@ without changing transport/runtime dependencies.
 
 from __future__ import annotations
 
-from typing import Any, Dict
-
+from typing import Any
 
 REQUIRES_SESSION = {
     "reason_mind",
@@ -20,7 +19,7 @@ REQUIRES_SESSION = {
 }
 
 
-TOOL_INPUT_CONTRACTS: Dict[str, Dict[str, str]] = {
+TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "anchor_session": {"query": "str", "actor_id": "str"},
     "reason_mind": {"query": "str", "session_id": "str"},
     "recall_memory": {"current_thought_vector": "str", "session_id": "str"},
@@ -37,7 +36,7 @@ TOOL_INPUT_CONTRACTS: Dict[str, Dict[str, str]] = {
 }
 
 
-def require_session(tool: str, session_id: str | None) -> Dict[str, Any] | None:
+def require_session(tool: str, session_id: str | None) -> dict[str, Any] | None:
     if tool in REQUIRES_SESSION and (not session_id or not str(session_id).strip()):
         return {
             "verdict": "VOID",
@@ -52,7 +51,7 @@ def require_session(tool: str, session_id: str | None) -> Dict[str, Any] | None:
     return None
 
 
-def validate_input(tool: str, payload: Dict[str, Any]) -> Dict[str, Any] | None:
+def validate_input(tool: str, payload: dict[str, Any]) -> dict[str, Any] | None:
     contract = TOOL_INPUT_CONTRACTS.get(tool, {})
     for key, type_name in contract.items():
         if key not in payload:

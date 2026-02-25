@@ -12,10 +12,10 @@ Hardening: Fixed fingerprint dedup, real similarity, ledger wiring
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple, Set
-import asyncio
+from typing import Any
 
 # Anomalous Contrast Thresholds
 EUREKA_THRESHOLD = 0.75  # SEAL worthy
@@ -41,7 +41,7 @@ class EUREKAScore:
     verdict: str  # SEAL, SABAR, TRANSIENT
 
     # Metadata
-    reasoning: List[str] = field(default_factory=list)
+    reasoning: list[str] = field(default_factory=list)
     fingerprint: str = ""  # Full 64-char hash for dedup
     jaccard_sim: float = 0.0  # Max similarity to history
     degraded: bool = False  # True if history cache failed to load
@@ -58,11 +58,11 @@ class HardenedAnomalousContrastEngine:
     - Caches history n-grams for O(1) similarity
     """
 
-    def __init__(self, vault_ledger: Optional[Any] = None):
+    def __init__(self, vault_ledger: Any | None = None):
         self.vault_ledger = vault_ledger
         # Cache: fingerprint -> ngrams set
-        self._history_ngrams: Dict[str, Set[str]] = {}
-        self._history_fingerprints: Set[str] = set()
+        self._history_ngrams: dict[str, set[str]] = {}
+        self._history_fingerprints: set[str] = set()
         self._cache_loaded = False
         self._cache_lock = asyncio.Lock()
 
@@ -70,7 +70,7 @@ class HardenedAnomalousContrastEngine:
         self,
         query: str,
         response: str,
-        trinity_bundle: Dict[str, Any],
+        trinity_bundle: dict[str, Any],
     ) -> EUREKAScore:
         """
         Evaluate if this deserves to enter VAULT999.
@@ -167,8 +167,8 @@ class HardenedAnomalousContrastEngine:
         query: str,
         response: str,
         fingerprint: str,
-        query_ngrams: Set[str],
-    ) -> Tuple[float, float]:
+        query_ngrams: set[str],
+    ) -> tuple[float, float]:
         """
         HARDENED: Real Jaccard similarity on n-grams.
 
@@ -271,7 +271,7 @@ class HardenedAnomalousContrastEngine:
             )
             self._degraded = True  # Mark for metadata
 
-    def _calculate_entropy_reduction(self, trinity_bundle: Dict[str, Any]) -> float:
+    def _calculate_entropy_reduction(self, trinity_bundle: dict[str, Any]) -> float:
         """Did this reduce entropy (confusion)?"""
         agi = trinity_bundle.get("agi", {})
         entropy_delta = agi.get("entropy_delta", 0.0)
@@ -283,7 +283,7 @@ class HardenedAnomalousContrastEngine:
         else:
             return max(0.0, 0.5 - (entropy_delta / 2.0))
 
-    def _calculate_ontological_shift(self, trinity_bundle: Dict[str, Any]) -> float:
+    def _calculate_ontological_shift(self, trinity_bundle: dict[str, Any]) -> float:
         """Did this change the ontological framework?"""
         score = 0.0
 
@@ -307,7 +307,7 @@ class HardenedAnomalousContrastEngine:
 
         return min(1.0, score)
 
-    def _calculate_decision_weight(self, trinity_bundle: Dict[str, Any]) -> float:
+    def _calculate_decision_weight(self, trinity_bundle: dict[str, Any]) -> float:
         """How weighty is this decision?"""
         score = 0.0
 
@@ -343,7 +343,7 @@ class HardenedAnomalousContrastEngine:
         content = f"{query}|{response}".lower().strip()
         return hashlib.sha256(content.encode()).hexdigest()
 
-    def _get_ngrams(self, text: str, n: int = 3) -> Set[str]:
+    def _get_ngrams(self, text: str, n: int = 3) -> set[str]:
         """Extract character n-grams from text."""
         text = text.lower()
         if len(text) < n:
@@ -356,7 +356,7 @@ class HardenedEUREKASieve:
     HARDENED Pre-vault filter with real ledger wiring.
     """
 
-    def __init__(self, vault_ledger: Optional[Any] = None):
+    def __init__(self, vault_ledger: Any | None = None):
         # HARDENED: Pass ledger to engine
         self.engine = HardenedAnomalousContrastEngine(vault_ledger=vault_ledger)
 
@@ -364,8 +364,8 @@ class HardenedEUREKASieve:
         self,
         query: str,
         response: str,
-        trinity_bundle: Dict[str, Any],
-    ) -> Tuple[str, EUREKAScore]:
+        trinity_bundle: dict[str, Any],
+    ) -> tuple[str, EUREKAScore]:
         """
         Filter content before vault entry.
 
@@ -382,7 +382,7 @@ class HardenedEUREKASieve:
 
 
 # HARDENED: Factory function with proper ledger wiring
-async def create_hardened_sieve(vault_ledger: Optional[Any] = None):
+async def create_hardened_sieve(vault_ledger: Any | None = None):
     """Create a properly wired EUREKA Sieve."""
     return HardenedEUREKASieve(vault_ledger=vault_ledger)
 
@@ -390,9 +390,9 @@ async def create_hardened_sieve(vault_ledger: Optional[Any] = None):
 async def should_seal_to_vault_hardened(
     query: str,
     response: str,
-    trinity_bundle: Dict[str, Any],
-    vault_ledger: Optional[Any] = None,
-) -> Tuple[bool, Dict[str, Any]]:
+    trinity_bundle: dict[str, Any],
+    vault_ledger: Any | None = None,
+) -> tuple[bool, dict[str, Any]]:
     """
     HARDENED: Should this be sealed to VAULT999?
 

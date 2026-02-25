@@ -3,11 +3,11 @@ Vault hardened modules.
 """
 
 from .hardened import (
-    HardenedAnomalousContrastEngine,
-    HardenedEUREKASieve,
-    EUREKAScore,
     EUREKA_THRESHOLD,
     SABAR_THRESHOLD,
+    EUREKAScore,
+    HardenedAnomalousContrastEngine,
+    HardenedEUREKASieve,
     create_hardened_sieve,
     should_seal_to_vault_hardened,
 )

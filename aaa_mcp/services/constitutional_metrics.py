@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, TypedDict
+from typing import Any, TypedDict
 
 
 # --- Universal Evidence Schema v2.1 (APEX-Hardened) ---
@@ -35,19 +35,19 @@ class EvidenceObject(TypedDict):
     """
 
     evidence_id: str
-    content: Dict[str, str]  # {"text": "...", "hash": "sha256:...", "language": "..."}
-    source_meta: Dict[
+    content: dict[str, str]  # {"text": "...", "hash": "sha256:...", "language": "..."}
+    source_meta: dict[
         str, Any
     ]  # {"uri": "...", "type": "...", "author": "...", "timestamp": "..."}
-    metrics: Dict[str, float]  # {"trust_weight": 1.0, "relevance_score": 0.9}
-    lifecycle: Dict[str, str]  # {"status": "active", "retrieved_by": "..."}
+    metrics: dict[str, float]  # {"trust_weight": 1.0, "relevance_score": 0.9}
+    lifecycle: dict[str, str]  # {"status": "active", "retrieved_by": "..."}
 
 
 class PlanObject(TypedDict):
     """Universal Tool Router Plan Object v1."""
 
     plan_id: str
-    recommended_pipeline: List[str]
+    recommended_pipeline: list[str]
     justification: str
     grounding_required: bool
     entropy_score: float
@@ -98,11 +98,11 @@ AXIOM_DATABASE = {
 
 
 # In-memory storage for lightweight runtime tracking
-_STAGE_RESULTS: Dict[str, Dict[str, Any]] = {}
+_STAGE_RESULTS: dict[str, dict[str, Any]] = {}
 _VERDICT_LOG: list[dict] = []
-_METABOLIC_STATE: Dict[str, Dict[str, Any]] = {}
-_EVIDENCE_VAULT: Dict[str, List[EvidenceObject]] = {}
-_SESSION_EVENT_LOG: Dict[str, List[Dict[str, Any]]] = {}  # The "Flight Recorder"
+_METABOLIC_STATE: dict[str, dict[str, Any]] = {}
+_EVIDENCE_VAULT: dict[str, list[EvidenceObject]] = {}
+_SESSION_EVENT_LOG: dict[str, list[dict[str, Any]]] = {}  # The "Flight Recorder"
 
 
 def generate_content_hash(text: str) -> str:
@@ -118,7 +118,7 @@ def build_evidence_dict(
     uri: str,
     author: str,
     language: str = "en",
-    timestamp: Optional[str] = None,
+    timestamp: str | None = None,
     trust_weight: float = 1.0,
     relevance_score: float = 1.0,
     retrieved_by: str = "",
@@ -169,10 +169,10 @@ def record_verdict(tool: str, verdict: str, duration: float, mode: str):
 def update_metabolic_state(
     session_id: str,
     *,
-    delta_bundle: Optional[Dict[str, Any]] = None,
-    omega_bundle: Optional[Dict[str, Any]] = None,
-    verdict: Optional[str] = None,
-) -> Dict[str, Any]:
+    delta_bundle: dict[str, Any] | None = None,
+    omega_bundle: dict[str, Any] | None = None,
+    verdict: str | None = None,
+) -> dict[str, Any]:
     """Update lightweight metabolizer state from bundles."""
     state = _METABOLIC_STATE.get(session_id, {})
     if delta_bundle:
@@ -196,7 +196,7 @@ def update_metabolic_state(
     return state
 
 
-def store_stage_result(session_id: str, stage: str, result: Dict[str, Any]):
+def store_stage_result(session_id: str, stage: str, result: dict[str, Any]):
     """Store the result of a pipeline stage, track evidence, and record event."""
     if session_id not in _STAGE_RESULTS:
         _STAGE_RESULTS[session_id] = {}
@@ -234,16 +234,16 @@ def store_stage_result(session_id: str, stage: str, result: Dict[str, Any]):
     )
 
 
-def get_session_evidence(session_id: str) -> List[EvidenceObject]:
+def get_session_evidence(session_id: str) -> list[EvidenceObject]:
     """Retrieve all evidence collected in a session."""
     return _EVIDENCE_VAULT.get(session_id, [])
 
 
-def get_stage_result(session_id: str, stage: str) -> Optional[Dict[str, Any]]:
+def get_stage_result(session_id: str, stage: str) -> dict[str, Any] | None:
     """Retrieve a stored stage result."""
     return _STAGE_RESULTS.get(session_id, {}).get(stage)
 
 
-def get_flight_recorder(session_id: str) -> List[Dict[str, Any]]:
+def get_flight_recorder(session_id: str) -> list[dict[str, Any]]:
     """Retrieve the event log for a session."""
     return _SESSION_EVENT_LOG.get(session_id, [])

@@ -41,6 +41,7 @@ def psutil_available() -> bool:
 # Return Shape Factories — F4 Clarity (consistent contract)
 # ---------------------------------------------------------------------------
 
+
 def ok(data: dict[str, Any] | None = None, **meta: Any) -> dict[str, Any]:
     """Successful result. status=SEAL."""
     result: dict[str, Any] = {"status": "SEAL"}

@@ -55,8 +55,6 @@ def log_tail(
 
         filtered_lines = list(last_lines)
 
-
-
         # 2. Apply Pattern Filter
         if target_pattern:
             filtered_lines = [line for line in filtered_lines if target_pattern in line]
@@ -69,7 +67,7 @@ def log_tail(
 
         for line in filtered_lines:
             entry = {"raw": line}
-            
+
             # Try to extract timestamp
             ts_match = re.search(
                 r"(\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?)", line
@@ -81,7 +79,7 @@ def log_tail(
                     if " " in ts_str and "T" not in ts_str:
                         ts_str = ts_str.replace(" ", "T")
                     entry_ts = datetime.fromisoformat(ts_str)
-                    
+
                     if cutoff_ts and entry_ts < cutoff_ts:
                         continue
                 except ValueError:
@@ -93,15 +91,17 @@ def log_tail(
 
             parsed_entries.append(entry)
 
-        return ok({
-            "log_file": target_file,
-            "lines_requested": lines,
-            "lines_returned": len(parsed_entries),
-            "entries": parsed_entries,
-            "filters": {
-                "pattern": target_pattern,
-                "since_minutes": since_minutes,
-            },
-        })
+        return ok(
+            {
+                "log_file": target_file,
+                "lines_requested": lines,
+                "lines_returned": len(parsed_entries),
+                "entries": parsed_entries,
+                "filters": {
+                    "pattern": target_pattern,
+                    "since_minutes": since_minutes,
+                },
+            }
+        )
     except Exception as e:
         return void(str(e))

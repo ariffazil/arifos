@@ -7,7 +7,6 @@ Enforces F12 (Defense) by preventing request floods.
 
 import time
 from dataclasses import dataclass
-from typing import Dict, Optional
 
 
 @dataclass
@@ -34,7 +33,7 @@ class RateLimiter:
     def __init__(self, capacity: int = DEFAULT_CAPACITY, refill_rate: float = DEFAULT_REFILL_RATE):
         self.capacity = capacity
         self.refill_rate = refill_rate
-        self._buckets: Dict[str, TokenBucket] = {}
+        self._buckets: dict[str, TokenBucket] = {}
 
     def _get_bucket(self, session_id: str) -> TokenBucket:
         """Get or create token bucket for session."""
@@ -85,7 +84,7 @@ class RateLimiter:
         if session_id in self._buckets:
             del self._buckets[session_id]
 
-    def get_stats(self, session_id: str) -> Dict:
+    def get_stats(self, session_id: str) -> dict:
         """Get rate limit statistics for session."""
         bucket = self._get_bucket(session_id)
         self._refill(bucket)
@@ -99,7 +98,7 @@ class RateLimiter:
 
 
 # Singleton instance
-_rate_limiter: Optional[RateLimiter] = None
+_rate_limiter: RateLimiter | None = None
 
 
 def get_rate_limiter() -> RateLimiter:

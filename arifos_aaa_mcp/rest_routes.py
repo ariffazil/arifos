@@ -19,8 +19,9 @@ import json
 import os
 import time
 import uuid
+from collections.abc import Callable
 from datetime import datetime, timezone
-from typing import Any, Callable, Dict
+from typing import Any
 
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
@@ -28,13 +29,11 @@ from starlette.responses import HTMLResponse, JSONResponse, Response
 BUILD_INFO = {
     "version": "2026.02.23",
     "git_sha": os.environ.get("GIT_SHA", "unknown"),
-    "build_time": os.environ.get(
-        "BUILD_TIME", datetime.now(timezone.utc).isoformat()
-    ),
+    "build_time": os.environ.get("BUILD_TIME", datetime.now(timezone.utc).isoformat()),
 }
 
 # Canonical aliases — legacy and mid-gen names → current UX names.
-TOOL_ALIASES: Dict[str, str] = {
+TOOL_ALIASES: dict[str, str] = {
     "init_session": "anchor_session",
     "agi_cognition": "reason_mind",
     "phoenix_recall": "recall_memory",
@@ -91,7 +90,7 @@ WELCOME_HTML = """\
 """
 
 
-def register_rest_routes(mcp: Any, tool_registry: Dict[str, Callable]) -> None:
+def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
     """Register REST endpoints as custom routes on the FastMCP instance.
 
     Args:
@@ -104,26 +103,30 @@ def register_rest_routes(mcp: Any, tool_registry: Dict[str, Callable]) -> None:
         accept = request.headers.get("Accept", "")
         if "text/html" in accept:
             return HTMLResponse(WELCOME_HTML)
-        return JSONResponse({
-            "service": "arifOS AAA MCP Server",
-            "version": BUILD_INFO["version"],
-            "mcp_endpoint": "/mcp",
-            "tools_endpoint": "/tools",
-            "health_endpoint": "/health",
-            "tool_count": len(tool_registry),
-            "tools": list(tool_registry.keys()),
-        })
+        return JSONResponse(
+            {
+                "service": "arifOS AAA MCP Server",
+                "version": BUILD_INFO["version"],
+                "mcp_endpoint": "/mcp",
+                "tools_endpoint": "/tools",
+                "health_endpoint": "/health",
+                "tool_count": len(tool_registry),
+                "tools": list(tool_registry.keys()),
+            }
+        )
 
     @mcp.custom_route("/health", methods=["GET"])
     async def health(request: Request) -> Response:
-        return JSONResponse({
-            "status": "healthy",
-            "service": "arifos-aaa-mcp",
-            "version": BUILD_INFO["version"],
-            "transport": "streamable-http",
-            "tools_loaded": len(tool_registry),
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-        })
+        return JSONResponse(
+            {
+                "status": "healthy",
+                "service": "arifos-aaa-mcp",
+                "version": BUILD_INFO["version"],
+                "transport": "streamable-http",
+                "tools_loaded": len(tool_registry),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
 
     @mcp.custom_route("/version", methods=["GET"])
     async def version(request: Request) -> Response:
@@ -172,8 +175,7 @@ def register_rest_routes(mcp: Any, tool_registry: Dict[str, Callable]) -> None:
             # Filter body to only valid parameters
             sig = inspect.signature(tool_fn)
             has_kwargs = any(
-                p.kind == inspect.Parameter.VAR_KEYWORD
-                for p in sig.parameters.values()
+                p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
             )
             if has_kwargs:
                 filtered = body
@@ -181,7 +183,8 @@ def register_rest_routes(mcp: Any, tool_registry: Dict[str, Callable]) -> None:
                 valid_params = {
                     name
                     for name, p in sig.parameters.items()
-                    if p.kind not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
+                    if p.kind
+                    not in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD)
                 }
                 filtered = {k: v for k, v in body.items() if k in valid_params}
 
@@ -193,27 +196,29 @@ def register_rest_routes(mcp: Any, tool_registry: Dict[str, Callable]) -> None:
             )
 
         latency_ms = (time.time() - start_time) * 1000
-        return JSONResponse({
-            "status": "success",
-            "tool": incoming_name,
-            "canonical": canonical_name,
-            "request_id": request_id,
-            "latency_ms": round(latency_ms, 2),
-            "result": result,
-        })
+        return JSONResponse(
+            {
+                "status": "success",
+                "tool": incoming_name,
+                "canonical": canonical_name,
+                "request_id": request_id,
+                "latency_ms": round(latency_ms, 2),
+                "result": result,
+            }
+        )
 
     @mcp.custom_route("/.well-known/mcp/server.json", methods=["GET"])
     async def well_known(request: Request) -> Response:
-        static_path = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), "server.json"
-        )
+        static_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "server.json")
         if os.path.exists(static_path):
-            with open(static_path, "r") as f:
+            with open(static_path) as f:
                 return JSONResponse(json.load(f))
         # Fallback: generate minimal discovery
-        return JSONResponse({
-            "name": "arifOS AAA MCP",
-            "version": BUILD_INFO["version"],
-            "transport": {"type": "streamable-http", "url": "/mcp"},
-            "tools": list(tool_registry.keys()),
-        })
+        return JSONResponse(
+            {
+                "name": "arifOS AAA MCP",
+                "version": BUILD_INFO["version"],
+                "transport": {"type": "streamable-http", "url": "/mcp"},
+                "tools": list(tool_registry.keys()),
+            }
+        )

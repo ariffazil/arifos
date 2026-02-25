@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -22,7 +22,7 @@ def build_session_context(actor_id: str, session_id: str, auth_token: str | None
     )
 
 
-def context_to_dict(ctx: SessionContext) -> Dict[str, Any]:
+def context_to_dict(ctx: SessionContext) -> dict[str, Any]:
     return {
         "actor_id": ctx.actor_id,
         "session_id": ctx.session_id,

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 
 def coerce_bool(value: Any, default: bool = False) -> bool:
@@ -17,7 +17,7 @@ def coerce_bool(value: Any, default: bool = False) -> bool:
     return default
 
 
-def ensure_dict(value: Any) -> Dict[str, Any]:
+def ensure_dict(value: Any) -> dict[str, Any]:
     if isinstance(value, dict):
         return value
     return {}

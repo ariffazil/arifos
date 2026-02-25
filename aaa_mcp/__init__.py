@@ -10,7 +10,6 @@ from __future__ import annotations
 import warnings
 from typing import Any
 
-
 __version__ = "2026.02.23-CANONICAL-13"
 
 __all__ = ["mcp"]
@@ -62,7 +61,7 @@ def __getattr__(name: str) -> Any:
         import importlib
 
         aaa = importlib.import_module("arifos_aaa_mcp.server")
-        return getattr(aaa, "mcp")
+        return aaa.mcp
     if name in _OLD_TO_NEW:
         warnings.warn(
             f"aaa_mcp.{name} is deprecated; use arifos_aaa_mcp canonical tools instead",

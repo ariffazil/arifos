@@ -14,7 +14,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class IdentitySource(str, Enum):
@@ -41,19 +41,19 @@ class Actor:
     id: str
     type: ActorType
     source: IdentitySource
-    email: Optional[str] = None
-    name: Optional[str] = None
-    groups: List[str] = field(default_factory=list)
-    team: Optional[str] = None
+    email: str | None = None
+    name: str | None = None
+    groups: list[str] = field(default_factory=list)
+    team: str | None = None
 
     # For agents: who authorized this agent?
-    authorized_by: Optional[str] = None
+    authorized_by: str | None = None
 
     # Attestation (for prod operations)
-    attestation: Optional[str] = None
-    attestation_timestamp: Optional[str] = None
+    attestation: str | None = None
+    attestation_timestamp: str | None = None
 
-    def to_vault_record(self) -> Dict[str, Any]:
+    def to_vault_record(self) -> dict[str, Any]:
         """Convert to VAULT999-compatible record."""
         return {
             "actor_id": self.id,
@@ -89,7 +89,7 @@ class SessionIdentity:
     # Risk indicators
     blast_radius_score: float = 0.0
 
-    def get_accountable_human(self) -> Optional[str]:
+    def get_accountable_human(self) -> str | None:
         """
         Get the ultimately accountable human.
 
@@ -124,7 +124,7 @@ class IdentityRegistry:
     """
 
     def __init__(self):
-        self._sessions: Dict[str, SessionIdentity] = {}
+        self._sessions: dict[str, SessionIdentity] = {}
 
     def register(
         self,
@@ -143,7 +143,7 @@ class IdentityRegistry:
         self._sessions[session_id] = session
         return session
 
-    def get(self, session_id: str) -> Optional[SessionIdentity]:
+    def get(self, session_id: str) -> SessionIdentity | None:
         """Get session identity by ID."""
         return self._sessions.get(session_id)
 
@@ -182,7 +182,7 @@ def create_human_actor(
     user_id: str,
     email: str,
     name: str,
-    groups: List[str] = None,
+    groups: list[str] = None,
     source: IdentitySource = IdentitySource.IDP_OIDC,
 ) -> Actor:
     """Create a human actor."""
@@ -199,7 +199,7 @@ def create_human_actor(
 def create_service_account(
     sa_id: str,
     authorized_by: str,
-    groups: List[str] = None,
+    groups: list[str] = None,
 ) -> Actor:
     """Create a service account actor."""
     return Actor(
@@ -214,7 +214,7 @@ def create_service_account(
 def create_agent(
     agent_id: str,
     authorized_by: str,
-    groups: List[str] = None,
+    groups: list[str] = None,
 ) -> Actor:
     """Create an AI agent actor."""
     return Actor(

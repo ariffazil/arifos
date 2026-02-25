@@ -7,8 +7,9 @@ from __future__ import annotations
 
 import logging
 import time
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from core.kernel.evaluator import (
     HARD_FLOORS,
@@ -49,7 +50,7 @@ FLOOR_ENFORCEMENT = {
 }
 
 
-def _extract_query(args: tuple, kwargs: Dict[str, Any]) -> str:
+def _extract_query(args: tuple, kwargs: dict[str, Any]) -> str:
     query = kwargs.get("query") or kwargs.get("input") or ""
     if not query and args:
         query = args[0] if isinstance(args[0], str) else ""
@@ -60,7 +61,7 @@ def _default_format_tool_output(_tool_name: str, payload: Any, _output_mode: str
     return payload
 
 
-def _default_resolve_output_mode(_kwargs: Dict[str, Any]) -> str:
+def _default_resolve_output_mode(_kwargs: dict[str, Any]) -> str:
     return "debug"
 
 
@@ -71,8 +72,8 @@ def _default_build_hard_floor_block(
     threshold: float,
     reason: str,
     session_id: str,
-    remediation: Dict[str, Any],
-) -> Dict[str, Any]:
+    remediation: dict[str, Any],
+) -> dict[str, Any]:
     return {
         "verdict": "VOID",
         "blocked_by_floor": floor,
@@ -86,9 +87,9 @@ def _default_build_hard_floor_block(
 
 def constitutional_floor(
     *floors: str,
-    format_tool_output_fn: Optional[Callable[[str, Any, str], Any]] = None,
-    resolve_output_mode_fn: Optional[Callable[[Dict[str, Any]], str]] = None,
-    build_hard_floor_block_fn: Optional[Callable[..., Dict[str, Any]]] = None,
+    format_tool_output_fn: Callable[[str, Any, str], Any] | None = None,
+    resolve_output_mode_fn: Callable[[dict[str, Any]], str] | None = None,
+    build_hard_floor_block_fn: Callable[..., dict[str, Any]] | None = None,
 ):
     """Decorator to enforce constitutional floors on tool callables."""
 
@@ -101,7 +102,7 @@ def constitutional_floor(
         async def wrapper(*args, **kwargs) -> Any:
             start = time.time()
             tool_name = func.__name__
-            floor_details: List[Dict[str, Any]] = []
+            floor_details: list[dict[str, Any]] = []
             query = _extract_query(args, kwargs)
             output_mode = resolve_output_mode(kwargs)
             session_id = kwargs.get("session_id", "unknown")

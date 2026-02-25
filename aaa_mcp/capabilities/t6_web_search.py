@@ -4,10 +4,8 @@
 
 import hashlib
 import re
-from typing import List
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import List, Optional
 
 import httpx
 
@@ -166,23 +164,10 @@ def calculate_relevance(query: str, title: str, snippet: str, url: str) -> float
         "my",
         "your",
         "his",
-        "her",
         "its",
         "our",
         "their",
-        "what",
-        "which",
-        "who",
-        "whom",
-        "this",
-        "that",
-        "these",
-        "those",
         "am",
-        "is",
-        "are",
-        "was",
-        "were",
     }
 
     query_words -= stop_words
@@ -224,7 +209,7 @@ def calculate_relevance(query: str, title: str, snippet: str, url: str) -> float
 
 async def brave_search(
     query: str, count: int = 5, original_query: str = None
-) -> List[EvidenceArtifact]:
+) -> list[EvidenceArtifact]:
     """
     Search Brave API and return evidence artifacts.
 
@@ -305,7 +290,7 @@ async def brave_search(
     return artifacts
 
 
-def format_evidence_for_context(artifacts: List[EvidenceArtifact]) -> str:
+def format_evidence_for_context(artifacts: list[EvidenceArtifact]) -> str:
     """Format evidence artifacts as context string."""
     if not artifacts:
         return ""

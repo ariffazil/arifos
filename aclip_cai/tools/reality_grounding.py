@@ -25,7 +25,7 @@ import time
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -85,9 +85,9 @@ class SearchResult:
     source: str
     rank: int
     uncertainty: float = field(default=UNCERTAINTY_DDGS)
-    timestamp: Optional[str] = None
+    timestamp: str | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "title": self.title,
             "url": self.url,
@@ -105,13 +105,13 @@ class RealityGroundingResult:
 
     status: str
     query: str
-    results: List[SearchResult]
-    engines_used: List[str]
-    engines_failed: List[str]
+    results: list[SearchResult]
+    engines_used: list[str]
+    engines_failed: list[str]
     uncertainty_aggregate: float
-    audit_trail: Dict[str, Any]
+    audit_trail: dict[str, Any]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "status": self.status,
             "query": self.query,
@@ -129,7 +129,7 @@ class ThrottleGovernor:
 
     def __init__(self, min_interval: float = DEFAULT_THROTTLE_SECONDS):
         self.min_interval = min_interval
-        self._last_call_time: Optional[float] = None
+        self._last_call_time: float | None = None
         self._lock = asyncio.Lock()
 
     async def wait(self) -> float:
@@ -172,8 +172,8 @@ class BraveSearchEngine:
         query: str,
         max_results: int = 10,
         region: str = "wt-wt",
-        timelimit: Optional[str] = None,
-    ) -> Tuple[List[SearchResult], Optional[str]]:
+        timelimit: str | None = None,
+    ) -> tuple[list[SearchResult], str | None]:
         """Search via Brave API."""
         await self._throttle.wait()
 
@@ -247,8 +247,8 @@ class DDGSEngine:
         max_results: int = 10,
         region: str = "wt-wt",
         safesearch: str = "moderate",
-        timelimit: Optional[str] = None,
-    ) -> Tuple[List[SearchResult], Optional[str]]:
+        timelimit: str | None = None,
+    ) -> tuple[list[SearchResult], str | None]:
         """Search DuckDuckGo."""
         await self._throttle.wait()
         built_query = self._build_query(query, region)
@@ -265,8 +265,8 @@ class DDGSEngine:
             return [], error_msg
 
     def _sync_search(
-        self, query: str, max_results: int, safesearch: str, timelimit: Optional[str]
-    ) -> List[SearchResult]:
+        self, query: str, max_results: int, safesearch: str, timelimit: str | None
+    ) -> list[SearchResult]:
         """Synchronous DDGS search."""
         with DDGS(timeout=self.timeout) as ddgs:
             raw_results = ddgs.text(
@@ -306,7 +306,7 @@ class PlaywrightDDGEngine:
 
     async def search(
         self, query: str, max_results: int = 10, region: str = "wt-wt"
-    ) -> Tuple[List[SearchResult], Optional[str]]:
+    ) -> tuple[list[SearchResult], str | None]:
         """Search DuckDuckGo HTML version via browser."""
         await self._throttle.wait()
         results = []
@@ -376,7 +376,7 @@ class PlaywrightGoogleEngine:
 
     async def search(
         self, query: str, max_results: int = 10, region: str = "wt-wt"
-    ) -> Tuple[List[SearchResult], Optional[str]]:
+    ) -> tuple[list[SearchResult], str | None]:
         """Search Google via browser - WARNING: High CAPTCHA risk."""
         await self._throttle.wait()
         results = []
@@ -449,7 +449,7 @@ class RealityGroundingCascade:
     """
 
     def __init__(self):
-        self.engines: List[Any] = []
+        self.engines: list[Any] = []
         self._init_engines()
 
     def _init_engines(self):
@@ -491,7 +491,7 @@ class RealityGroundingCascade:
         query: str,
         max_results: int = 10,
         region: str = "wt-wt",
-        timelimit: Optional[str] = None,
+        timelimit: str | None = None,
     ) -> RealityGroundingResult:
         """Execute thermodynamic cascade search."""
         if not self.engines:
@@ -508,9 +508,9 @@ class RealityGroundingCascade:
                 },
             )
 
-        all_results: List[SearchResult] = []
-        engines_used: List[str] = []
-        engines_failed: List[str] = []
+        all_results: list[SearchResult] = []
+        engines_used: list[str] = []
+        engines_failed: list[str] = []
 
         for engine in self.engines:
             try:
@@ -595,7 +595,7 @@ class WebBrowser:
         self.playwright_available = PLAYWRIGHT_AVAILABLE
         self._throttle = ThrottleGovernor(min_interval=1.0)
 
-    async def fetch(self, url: str, javascript: bool = False) -> Dict[str, Any]:
+    async def fetch(self, url: str, javascript: bool = False) -> dict[str, Any]:
         """Fetch page content."""
         await self._throttle.wait()
 
@@ -616,7 +616,7 @@ class WebBrowser:
             "title": "",
         }
 
-    async def _fetch_http(self, url: str) -> Dict[str, Any]:
+    async def _fetch_http(self, url: str) -> dict[str, Any]:
         """Fetch via HTTP (httpx + BeautifulSoup)."""
         try:
             async with httpx.AsyncClient(
@@ -669,7 +669,7 @@ class WebBrowser:
                 "title": "",
             }
 
-    async def _fetch_playwright(self, url: str) -> Dict[str, Any]:
+    async def _fetch_playwright(self, url: str) -> dict[str, Any]:
         """Fetch via Playwright."""
         try:
             async with async_playwright() as p:
@@ -708,8 +708,8 @@ class WebBrowser:
 
 
 # Singletons
-_cascade: Optional[RealityGroundingCascade] = None
-_browser: Optional[WebBrowser] = None
+_cascade: RealityGroundingCascade | None = None
+_browser: WebBrowser | None = None
 
 
 def get_cascade() -> RealityGroundingCascade:
@@ -728,7 +728,7 @@ def get_browser() -> WebBrowser:
     return _browser
 
 
-def should_reality_check(query: str) -> Tuple[bool, str]:
+def should_reality_check(query: str) -> tuple[bool, str]:
     """Determine if reality check is needed."""
     q = query.lower()
 
@@ -763,10 +763,10 @@ async def reality_check(
     query: str,
     max_results: int = 10,
     region: str = "wt-wt",
-    timelimit: Optional[str] = None,
+    timelimit: str | None = None,
     fetch_sources: bool = False,
     max_sources: int = 2,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Perform constitutional reality grounding. Main MCP entry point."""
     refusal = route_refuse(query)
     needs_check, reason = should_reality_check(query)
@@ -813,7 +813,7 @@ async def reality_check(
     return response
 
 
-async def open_web_page(url: str, javascript: bool = False) -> Dict[str, Any]:
+async def open_web_page(url: str, javascript: bool = False) -> dict[str, Any]:
     """Open and extract content from a web page."""
     browser = get_browser()
     return await browser.fetch(url, javascript)
@@ -823,8 +823,8 @@ async def web_search_noapi(
     query: str,
     max_results: int = 10,
     region: str = "wt-wt",
-    timelimit: Optional[str] = None,
-) -> Dict[str, Any]:
+    timelimit: str | None = None,
+) -> dict[str, Any]:
     """Search web without API key. Simplified interface."""
     cascade = get_cascade()
     result = await cascade.search(query, max_results, region, timelimit)

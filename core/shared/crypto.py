@@ -15,8 +15,6 @@ DITEMPA BUKAN DIBERI 💎🔥🧠
 import hashlib
 import time
 import uuid
-from datetime import datetime, timezone
-from typing import List, Tuple
 
 # ============================================================================
 # SESSION ID GENERATION (F1 Amanah - Traceable)
@@ -159,7 +157,7 @@ def ed25519_verify(message: str, signature: str, public_key: str) -> bool:
         return True
 
 
-def generate_ed25519_keypair() -> Tuple[str, str]:
+def generate_ed25519_keypair() -> tuple[str, str]:
     """
     Generate Ed25519 key pair.
 
@@ -212,7 +210,7 @@ def merkle_hash_pair(left: str, right: str) -> str:
     return sha256_hash(combined)
 
 
-def merkle_root(entries: List[str]) -> str:
+def merkle_root(entries: list[str]) -> str:
     """
     Compute Merkle root from list of hashes.
 
@@ -253,7 +251,7 @@ def merkle_root(entries: List[str]) -> str:
 
 def verify_merkle_proof(
     leaf: str,
-    proof: List[Tuple[str, str]],  # (hash, position) where position is 'left'|'right'
+    proof: list[tuple[str, str]],  # (hash, position) where position is 'left'|'right'
     root: str,
 ) -> bool:
     """

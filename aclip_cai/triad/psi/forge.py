@@ -2,30 +2,25 @@
 aclip_cai/triad/psi/forge.py — Stage 777 Eureka
 Solution synthesis.
 """
+
 from ...core.kernel import kernel
 
-async def forge(
-    session_id: str,
-    plan: str
-) -> dict:
+
+async def forge(session_id: str, plan: str) -> dict:
     """
     STAGE 777: Synthesis.
     Crystallize logic and empathy into a final solution plan.
     """
-    audit_res = kernel.audit(
-        action=plan,
-        context="FORGING_PLAN",
-        severity="high"
-    )
-    
+    audit_res = kernel.audit(action=plan, context="FORGING_PLAN", severity="high")
+
     # Calculate Genius Score G
     # G = A * P * X * E^2
     f5_score = audit_res.floor_results.get("F5").score if "F5" in audit_res.floor_results else 1.0
     genius_score = audit_res.pass_rate * (f5_score / 1.05)
-    
+
     return {
         "verdict": audit_res.verdict.value,
         "genius_score": round(genius_score, 3),
         "recommendation": audit_res.recommendation,
-        "status": "forged" if genius_score >= 0.80 else "sabar"
+        "status": "forged" if genius_score >= 0.80 else "sabar",
     }

@@ -2,29 +2,31 @@
 aclip_cai/cli.py — The 'ag' Metabolic CLI
 Unified CLI for arifOS perception (sense) and pipeline (triads).
 """
-import sys
+
 import argparse
 import asyncio
 import json
 from typing import Any
 
-from .triad.delta.anchor import anchor
-from .triad.delta.reason import reason
-from .triad.delta.integrate import integrate
-from .triad.omega.respond import respond
-from .triad.omega.validate import validate
-from .triad.omega.align import align
-from .triad.psi.forge import forge
-from .triad.psi.audit import audit
-from .triad.psi.seal import seal
+from .tools.fs_inspector import fs_inspect
 
 # Import sensory tools
 from .tools.system_monitor import get_system_health
-from .tools.fs_inspector import fs_inspect
+from .triad.delta.anchor import anchor
+from .triad.delta.integrate import integrate
+from .triad.delta.reason import reason
+from .triad.omega.align import align
+from .triad.omega.respond import respond
+from .triad.omega.validate import validate
+from .triad.psi.audit import audit
+from .triad.psi.forge import forge
+from .triad.psi.seal import seal
+
 
 def print_result(data: Any):
     """Print results in formatted JSON."""
     print(json.dumps(data, indent=2, default=str))
+
 
 async def handle_sense(args):
     """Handle perception commands."""
@@ -35,6 +37,7 @@ async def handle_sense(args):
     else:
         print(f"Unknown sense command: {args.subcommand}")
 
+
 async def handle_guard(args):
     """Handle safety guard commands."""
     if args.subcommand == "forge":
@@ -42,6 +45,7 @@ async def handle_guard(args):
         print_result({"verdict": "SEAL", "risk": "low", "guard": "passed"})
     else:
         print(f"Unknown guard command: {args.subcommand}")
+
 
 async def handle_pipeline(args):
     """Handle 3-Triad metabolic pipeline tools."""
@@ -67,6 +71,7 @@ async def handle_pipeline(args):
     else:
         print(f"Unknown pipeline tool: {args.tool}")
 
+
 def main():
     parser = argparse.ArgumentParser(prog="ag", description="arifOS Metabolic Registry CLI")
     subparsers = parser.add_subparsers(dest="command")
@@ -87,7 +92,9 @@ def main():
 
     # Command: ag pipeline (The 9 tools)
     pipe_parser = subparsers.add_parser("pipeline", help="Metabolic Triad Pipeline")
-    pipe_parser.add_argument("tool", help="anchor|reason|integrate|respond|validate|align|forge|audit|seal")
+    pipe_parser.add_argument(
+        "tool", help="anchor|reason|integrate|respond|validate|align|forge|audit|seal"
+    )
     pipe_parser.add_argument("--session", help="Session ID")
     pipe_parser.add_argument("--user_id", default="arif")
     pipe_parser.add_argument("--context", default="")
@@ -110,6 +117,7 @@ def main():
         asyncio.run(handle_pipeline(args))
     else:
         parser.print_help()
+
 
 if __name__ == "__main__":
     main()

@@ -64,21 +64,21 @@ def config_flags(
             with open(path_to_read) as f:
                 # Basic check for .toml or .json
                 if path_to_read.endswith(".toml"):
-                     content = f.read()
-                     # Extremely primitive TOML parser for tests (just [section])
-                     data = {}
-                     for line in content.splitlines():
-                         if line.startswith("[") and line.endswith("]"):
-                             data[line[1:-1]] = {}
+                    content = f.read()
+                    # Extremely primitive TOML parser for tests (just [section])
+                    data = {}
+                    for line in content.splitlines():
+                        if line.startswith("[") and line.endswith("]"):
+                            data[line[1:-1]] = {}
                 else:
-                     try:
-                         data = json.load(f)
-                     except json.JSONDecodeError:
-                         data = {
-                             "note": "unsupported file type",
-                             "size_bytes": os.path.getsize(path_to_read),
-                         }
-                
+                    try:
+                        data = json.load(f)
+                    except json.JSONDecodeError:
+                        data = {
+                            "note": "unsupported file type",
+                            "size_bytes": os.path.getsize(path_to_read),
+                        }
+
                 # Recursively mask file data (simplified flat masking for now)
                 masked_data = {}
                 for k, v in data.items():

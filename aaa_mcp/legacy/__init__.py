@@ -3,9 +3,11 @@ Legacy constitutional modules.
 """
 
 from .floors import (
+    ALL_FLOORS,
+    AUTHORITY,
+    CONSTITUTIONAL_VERSION,
+    EPOCH,
     THRESHOLDS,
-    FloorResult,
-    Floor,
     F1_Amanah,
     F2_Truth,
     F3_TriWitness,
@@ -19,11 +21,9 @@ from .floors import (
     F11_CommandAuth,
     F12_Injection,
     F13_Sovereign,
-    ALL_FLOORS,
+    Floor,
+    FloorResult,
     check_all_floors,
-    CONSTITUTIONAL_VERSION,
-    EPOCH,
-    AUTHORITY,
 )
 
 __all__ = [

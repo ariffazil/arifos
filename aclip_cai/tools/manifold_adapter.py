@@ -11,7 +11,8 @@ Usage:
     result = adapter.wrap_output("333_REASON", raw_result, task="Explain X")
 """
 
-from typing import Dict, Any
+from typing import Any
+
 from core.shared.mottos import PromptManifold, get_motto_for_stage
 
 
@@ -29,10 +30,10 @@ class ManifoldMCPAdapter:
     def wrap_output(
         self,
         stage: str,
-        output: Dict[str, Any],
+        output: dict[str, Any],
         task: str = "",
         validate: bool = True,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Wrap an MCP tool output with manifold framing.
 
@@ -99,8 +100,8 @@ class ManifoldMCPAdapter:
     def audit_compliance(
         self,
         session_id: str,
-        outputs: Dict[str, Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        outputs: dict[str, dict[str, Any]],
+    ) -> dict[str, Any]:
         """
         Audit compliance across all stages of a session.
 
@@ -137,37 +138,37 @@ class ManifoldMCPAdapter:
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-def wrap_agi_sense(output: Dict[str, Any]) -> Dict[str, Any]:
+def wrap_agi_sense(output: dict[str, Any]) -> dict[str, Any]:
     """Wrap AGI SENSE output with manifold framing."""
     adapter = ManifoldMCPAdapter()
     return adapter.wrap_output("111_SENSE", output, task="Classify intent")
 
 
-def wrap_agi_think(output: Dict[str, Any]) -> Dict[str, Any]:
+def wrap_agi_think(output: dict[str, Any]) -> dict[str, Any]:
     """Wrap AGI THINK output with manifold framing."""
     adapter = ManifoldMCPAdapter()
     return adapter.wrap_output("222_THINK", output, task="Generate hypotheses")
 
 
-def wrap_agi_reason(output: Dict[str, Any]) -> Dict[str, Any]:
+def wrap_agi_reason(output: dict[str, Any]) -> dict[str, Any]:
     """Wrap AGI REASON output with manifold framing."""
     adapter = ManifoldMCPAdapter()
     return adapter.wrap_output("333_REASON", output, task="Logical deduction")
 
 
-def wrap_asi_empathize(output: Dict[str, Any]) -> Dict[str, Any]:
+def wrap_asi_empathize(output: dict[str, Any]) -> dict[str, Any]:
     """Wrap ASI EMPATHIZE output with manifold framing."""
     adapter = ManifoldMCPAdapter()
     return adapter.wrap_output("555_EMPATHY", output, task="Stakeholder analysis")
 
 
-def wrap_asi_align(output: Dict[str, Any]) -> Dict[str, Any]:
+def wrap_asi_align(output: dict[str, Any]) -> dict[str, Any]:
     """Wrap ASI ALIGN output with manifold framing."""
     adapter = ManifoldMCPAdapter()
     return adapter.wrap_output("666_ALIGN", output, task="Safety alignment")
 
 
-def wrap_apex_verdict(output: Dict[str, Any]) -> Dict[str, Any]:
+def wrap_apex_verdict(output: dict[str, Any]) -> dict[str, Any]:
     """Wrap APEX VERDICT output with manifold framing."""
     adapter = ManifoldMCPAdapter()
     return adapter.wrap_output("888_JUDGE", output, task="Final judgment")

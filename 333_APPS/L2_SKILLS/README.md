@@ -17,7 +17,7 @@
 | 5 | **validate** | 555 | Ω Heart | `asi_empathize` | F1, F5, F6 | 🛡️ DEFEND |
 | 6 | **align** | 666 | Ω Heart | `asi_align` | F5, F6, F9 | ⚖️ HARMONIZE |
 | 7 | **forge** | 777 | Ψ Soul | `trinity_forge` | F2, F4, F7 | 🔥 CRYSTALLIZE |
-| 8 | **audit** | 888 | Ψ Soul | `apex_verdict` | F1-F13 | 👁️ JUDGE |
+| 8 | **audit** | 888 | Ψ Soul | `apex_judge` | F1-F13 | 👁️ JUDGE |
 | 9 | **seal** | 999 | Ψ Soul | `vault_seal` | F1, F3, F11 | 🔒 COMMIT |
 
 ---

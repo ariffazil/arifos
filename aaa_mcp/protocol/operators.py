@@ -10,10 +10,10 @@ Version: 1.0.0-LOW_ENTROPY
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Dict, List, Any, Optional
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 
 class OperatorType(Enum):
@@ -43,10 +43,10 @@ class PrincipleOperator:
     principle: str
     stage: str
     operator_type: OperatorType
-    precondition: Dict[str, Any]
-    invariant: Dict[str, Any]
+    precondition: dict[str, Any]
+    invariant: dict[str, Any]
     action: str
-    output_schema: Dict[str, str]
+    output_schema: dict[str, str]
 
     def to_prompt(self) -> str:
         """Convert to low-entropy system prompt format."""
@@ -65,7 +65,7 @@ OUTPUT: {self.output_schema}
 # 9 PRINCIPLES → OPERATORS
 # ═════════════════════════════════════════════════════════════════════════════
 
-OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
+OPERATOR_REGISTRY: dict[str, PrincipleOperator] = {
     # 000: Earned, Not Given
     "EARNED": PrincipleOperator(
         id="EARNED",
@@ -233,7 +233,7 @@ OPERATOR_REGISTRY: Dict[str, PrincipleOperator] = {
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-def get_operator(stage_id: str) -> Optional[PrincipleOperator]:
+def get_operator(stage_id: str) -> PrincipleOperator | None:
     """Get operator by stage ID (e.g., '333' → CLARIFY)."""
     stage_to_op = {
         "000": "EARNED",
@@ -251,7 +251,7 @@ def get_operator(stage_id: str) -> Optional[PrincipleOperator]:
     return OPERATOR_REGISTRY.get(op_id) if op_id else None
 
 
-def get_operator_by_principle(principle: str) -> Optional[PrincipleOperator]:
+def get_operator_by_principle(principle: str) -> PrincipleOperator | None:
     """Get operator by human principle text (fuzzy match)."""
     principle_lower = principle.lower()
     for op in OPERATOR_REGISTRY.values():
@@ -260,7 +260,7 @@ def get_operator_by_principle(principle: str) -> Optional[PrincipleOperator]:
     return None
 
 
-def build_system_prompt(stage_ids: List[str]) -> str:
+def build_system_prompt(stage_ids: list[str]) -> str:
     """
     Build low-entropy system prompt for given pipeline stages.
 

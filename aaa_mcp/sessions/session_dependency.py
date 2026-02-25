@@ -8,12 +8,10 @@ DITEMPA BUKAN DIBERI
 
 from __future__ import annotations
 
-from typing import Optional
-
 from .session_ledger import SessionLedger, get_ledger
 
 # Singleton ledger instance
-_session_ledger: Optional[SessionLedger] = None
+_session_ledger: SessionLedger | None = None
 
 
 async def get_session_ledger() -> SessionLedger:

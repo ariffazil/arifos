@@ -1,17 +1,18 @@
-import json
 import datetime
+import json
 from pathlib import Path
+
 
 def generate_html_report(results: list[dict], output_path: str):
     """
-    Generates a beautifully styled, un-tamperable HTML report map 
+    Generates a beautifully styled, un-tamperable HTML report map
     of the Constitutional Eval Suite run - designed as the 'Ultimate Polygraph'.
     Includes visual charts!
     """
     Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
+
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S %Z")
-    
+
     passes = sum(1 for r in results if r.get("passed_const", False))
     fails = len(results) - passes
     total = len(results)
@@ -29,14 +30,28 @@ def generate_html_report(results: list[dict], output_path: str):
         for f, score in r.get("floor_scores", {}).items():
             floor_totals[f] = floor_totals.get(f, 0.0) + score
             floor_counts[f] = floor_counts.get(f, 0) + 1
-            
-    avg_floors = {f: (floor_totals[f]/floor_counts[f]) for f in floor_totals}
+
+    avg_floors = {f: (floor_totals[f] / floor_counts[f]) for f in floor_totals}
     floor_labels = list(avg_floors.keys())
     floor_data = [avg_floors[f] for f in floor_labels]
 
     # Handle empty datasets for radar chart gracefully
     if not floor_labels:
-        floor_labels = ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13"]
+        floor_labels = [
+            "F1",
+            "F2",
+            "F3",
+            "F4",
+            "F5",
+            "F6",
+            "F7",
+            "F8",
+            "F9",
+            "F10",
+            "F11",
+            "F12",
+            "F13",
+        ]
         floor_data = [0] * 13
 
     # CSS Styles for Premium Deep Blue & Gold Theme
@@ -286,7 +301,7 @@ def generate_html_report(results: list[dict], output_path: str):
             animation: fadeIn 0.5s ease backwards;
         }
     """
-    
+
     html = f"""
     <!DOCTYPE html>
     <html lang="en">
@@ -341,40 +356,45 @@ def generate_html_report(results: list[dict], output_path: str):
 
         <div class="cases-container">
     """
-    
+
     # Render Cases
     for i, r in enumerate(results):
         verdict = str(r.get("verdict", "UNKNOWN")).upper()
         passed = r.get("passed_const", False)
-        
+
         # Determine styling based on verdict
         card_class = "pass" if passed else "fail"
         if verdict in ["HOLD", "HOLD_888"]:
             card_class = "hold"
-        elif verdict == "VOID" and passed: # Void can be a passed test if it correctly caught an attack!
+        elif (
+            verdict == "VOID" and passed
+        ):  # Void can be a passed test if it correctly caught an attack!
             card_class = "pass"
-            
+
         badge_class = "badge-seal"
-        if verdict in ["VOID", "EMERGED"]: badge_class = "badge-void"
-        elif verdict in ["HOLD", "HOLD_888"]: badge_class = "badge-hold"
-        elif verdict == "SABAR": badge_class = "badge-sabar"
-        
+        if verdict in ["VOID", "EMERGED"]:
+            badge_class = "badge-void"
+        elif verdict in ["HOLD", "HOLD_888"]:
+            badge_class = "badge-hold"
+        elif verdict == "SABAR":
+            badge_class = "badge-sabar"
+
         # Floor formatting
         floors = r.get("floor_scores", {})
         floor_html = ""
         for floor, score in floors.items():
             f_class = "pass" if float(score) >= 0.8 else "fail"
             floor_html += f"<span class='floor-tag {f_class}'>{floor}: {score:.2f}</span>"
-            
+
         genius = r.get("genius", 0.0)
         genius_color = "var(--accent-cyan)" if genius >= 0.80 else "var(--accent-red)"
-        
+
         delta_s = r.get("delta_s", 0.0)
         ds_color = "var(--accent-cyan)" if delta_s <= 0 else "var(--accent-red)"
-        
+
         # Add a sequential animation delay
         delay = i * 0.05
-        
+
         html += f"""
             <div class="case-card {card_class}" style="animation-delay: {delay}s;">
                 <div class="case-header">
@@ -413,7 +433,7 @@ def generate_html_report(results: list[dict], output_path: str):
                 </div>
             </div>
         """
-        
+
     html += f"""
         </div>
         <footer style="margin-top: 3rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
@@ -516,7 +536,6 @@ def generate_html_report(results: list[dict], output_path: str):
     </body>
     </html>
     """
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(html)
 
+    with open(output_path, "w", encoding="utf-8") as f:
+        f.write(html)

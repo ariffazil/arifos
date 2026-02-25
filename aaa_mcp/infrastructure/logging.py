@@ -25,10 +25,10 @@ import uuid
 from contextvars import ContextVar
 from datetime import datetime, timezone
 from functools import wraps
-from typing import Any, Dict, Optional
+from typing import Any
 
 # Context variable for correlation ID
-_correlation_id: ContextVar[Optional[str]] = ContextVar("correlation_id", default=None)
+_correlation_id: ContextVar[str | None] = ContextVar("correlation_id", default=None)
 
 
 class StructuredFormatter(logging.Formatter):
@@ -162,7 +162,7 @@ def get_logger(name: str) -> logging.Logger:
 class correlation_id:
     """Context manager for correlation ID."""
 
-    def __init__(self, cid: Optional[str] = None):
+    def __init__(self, cid: str | None = None):
         self.cid = cid or str(uuid.uuid4())
         self.token = None
 
@@ -174,7 +174,7 @@ class correlation_id:
         _correlation_id.reset(self.token)
 
 
-def get_correlation_id() -> Optional[str]:
+def get_correlation_id() -> str | None:
     """Get current correlation ID."""
     return _correlation_id.get()
 
@@ -279,7 +279,7 @@ def log_constitutional_event(
     event_type: str,
     session_id: str,
     query: str,
-    emd: Optional[Dict[str, Any]] = None,
+    emd: dict[str, Any] | None = None,
     mode: str = "conscience",
     **kwargs,
 ) -> None:

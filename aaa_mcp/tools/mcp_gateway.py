@@ -15,14 +15,11 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any, Dict, List, Optional
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Awaitable, Callable, Dict, List, Optional
+from typing import Any
 
 from aaa_mcp.core.constitutional_decorator import constitutional_floor
-from aaa_mcp.protocol.response import build_error_response, build_init_response
 
 # Note: mcp is imported lazily in functions to avoid circular imports
 from aaa_mcp.services.constitutional_metrics import (
@@ -46,9 +43,9 @@ class DownstreamMCPServer:
 
     name: str
     endpoint: str
-    allowed_tools: List[str]
-    tool_class_map: Dict[str, ToolClass] = field(default_factory=dict)
-    auth_token: Optional[str] = None
+    allowed_tools: list[str]
+    tool_class_map: dict[str, ToolClass] = field(default_factory=dict)
+    auth_token: str | None = None
     enabled: bool = True
 
 
@@ -60,10 +57,10 @@ class GatewayDecision:
     tool_name: str
     tool_class: ToolClass
     verdict: str  # SEAL, VOID, PARTIAL, 888_HOLD
-    floors_checked: List[str]
-    floors_failed: List[str]
-    blast_radius: Dict[str, Any]
-    downstream_endpoint: Optional[str]
+    floors_checked: list[str]
+    floors_failed: list[str]
+    blast_radius: dict[str, Any]
+    downstream_endpoint: str | None
     timestamp: str
     reasoning: str
 
@@ -73,7 +70,7 @@ class GatewayDecision:
 # =============================================================================
 
 # Downstream MCP servers registry
-DOWNSTREAM_SERVERS: Dict[str, DownstreamMCPServer] = {
+DOWNSTREAM_SERVERS: dict[str, DownstreamMCPServer] = {
     "k8s": DownstreamMCPServer(
         name="kubernetes-mcp",
         endpoint=os.environ.get("K8S_MCP_ENDPOINT", "http://localhost:8081"),
@@ -332,7 +329,7 @@ DOWNSTREAM_SERVERS: Dict[str, DownstreamMCPServer] = {
 }
 
 # Floor requirements per tool class
-FLOOR_REQUIREMENTS: Dict[ToolClass, List[str]] = {
+FLOOR_REQUIREMENTS: dict[ToolClass, list[str]] = {
     ToolClass.READ_ONLY: ["F11", "F12"],  # Auth + Injection scan
     ToolClass.INFRA_WRITE: ["F1", "F2", "F6", "F10", "F11", "F12"],
     ToolClass.DESTRUCTIVE: ["F1", "F2", "F5", "F6", "F10", "F11", "F12", "F13"],
@@ -347,8 +344,8 @@ FLOOR_REQUIREMENTS: Dict[ToolClass, List[str]] = {
 
 
 def calculate_blast_radius(
-    tool_name: str, payload: Dict[str, Any], namespace: str = "default"
-) -> Dict[str, Any]:
+    tool_name: str, payload: dict[str, Any], namespace: str = "default"
+) -> dict[str, Any]:
     """
     Calculate infrastructure blast radius for F6 Empathy evaluation.
 
@@ -410,9 +407,9 @@ class MCPGateway:
 
     def __init__(self):
         self.servers = DOWNSTREAM_SERVERS
-        self.decisions: List[GatewayDecision] = []
+        self.decisions: list[GatewayDecision] = []
 
-    def classify_tool(self, tool_name: str) -> Optional[ToolClass]:
+    def classify_tool(self, tool_name: str) -> ToolClass | None:
         """Classify tool by name to determine floor requirements."""
         for server in self.servers.values():
             if tool_name in server.tool_class_map:
@@ -428,7 +425,7 @@ class MCPGateway:
         else:
             return ToolClass.INFRA_WRITE
 
-    def get_downstream_server(self, tool_name: str) -> Optional[DownstreamMCPServer]:
+    def get_downstream_server(self, tool_name: str) -> DownstreamMCPServer | None:
         """Find which downstream server handles this tool."""
         for server in self.servers.values():
             if tool_name in server.allowed_tools:
@@ -438,7 +435,7 @@ class MCPGateway:
     async def evaluate_constitution(
         self,
         tool_name: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         session_id: str,
         actor_id: str = "agent",
     ) -> GatewayDecision:
@@ -573,9 +570,9 @@ class MCPGateway:
     async def forward_to_downstream(
         self,
         tool_name: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         decision: GatewayDecision,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Forward approved call to downstream MCP server."""
         import httpx
 
@@ -614,11 +611,11 @@ gateway = MCPGateway()
 @constitutional_floor("F11", "F12")
 async def gateway_route_tool(
     tool_name: str,
-    payload: Dict[str, Any],
+    payload: dict[str, Any],
     session_id: str,
     actor_id: str = "agent",
     require_human_override: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Route any MCP tool call through arifOS constitutional gateway.
 
@@ -765,7 +762,7 @@ async def gateway_route_tool(
     }
 
 
-async def gateway_list_tools() -> Dict[str, Any]:
+async def gateway_list_tools() -> dict[str, Any]:
     """List all tools available through the constitutional gateway."""
     tools_by_server = {}
 
@@ -799,9 +796,9 @@ async def gateway_list_tools() -> Dict[str, Any]:
 
 
 async def gateway_get_decisions(
-    session_id: Optional[str] = None,
+    session_id: str | None = None,
     limit: int = 100,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Query gateway decisions (audit trail)."""
     decisions = gateway.decisions
 
@@ -839,7 +836,7 @@ async def k8s_apply_guarded(
     strategy: str = "rolling",  # canary, blue-green, rolling
     backup_made: bool = False,
     human_override: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Constitutionally-governed kubectl apply.
 
@@ -883,7 +880,7 @@ async def k8s_delete_guarded(
     backup_made: bool = False,
     human_override: bool = False,
     cascade: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Constitutionally-governed kubectl delete.
 

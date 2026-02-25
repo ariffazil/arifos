@@ -7,8 +7,7 @@ ARCHITECT (Δ) → AUDITOR (👁) → ENGINEER (Ω) → VALIDATOR (Ψ)
 With continuous AUDITOR oversight.
 """
 
-import asyncio
-from typing import Any, Dict
+from typing import Any
 
 from .architect import ARCHITECT
 from .auditor import AUDITOR
@@ -24,7 +23,7 @@ class Orchestrator:
 
     AGENTS = ["ARCHITECT", "AUDITOR", "ENGINEER", "VALIDATOR"]
 
-    async def run(self, query: str, user_token=None) -> Dict[str, Any]:
+    async def run(self, query: str, user_token=None) -> dict[str, Any]:
         """
         Execute full constitutional cycle (The Pipeline).
         Fails fast if any Agent returns VOID.
@@ -87,7 +86,7 @@ class Orchestrator:
             "artifacts": {"delta": delta_bundle, "omega": omega_bundle, "judgment": psi_res.data},
         }
 
-    def _fail(self, source: str, result: Any) -> Dict[str, Any]:
+    def _fail(self, source: str, result: Any) -> dict[str, Any]:
         """Circuit breaker helper."""
         return {
             "verdict": "VOID",

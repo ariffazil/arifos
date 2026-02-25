@@ -23,9 +23,8 @@ import os
 import secrets
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 
 from core.shared.types import InitOutput, Verdict
 
@@ -47,7 +46,7 @@ class InjectionRisk:
     HIGH = 3
     CRITICAL = 4
 
-    def __init__(self, score: float, pattern: str = "", matches: List[str] = None):
+    def __init__(self, score: float, pattern: str = "", matches: list[str] = None):
         self.score = max(0.0, min(1.0, score))  # Clamp to [0, 1]
         self.pattern = pattern
         self.matches = matches or []
@@ -88,7 +87,7 @@ class InjectionGuard:
     """
 
     # Injection patterns with severity weights
-    PATTERNS: List[Tuple[str, float]] = [
+    PATTERNS: list[tuple[str, float]] = [
         # Critical patterns (high confidence injection)
         (
             r"ignore\s+(?:all\s+|your\s+|previous\s+|prior\s+|above\s+|initial\s+)*(?:instruction|command|prompt|training)s?",
@@ -141,7 +140,7 @@ class InjectionGuard:
         import re
 
         try:
-            self._patterns: List[Tuple[Any, float]] = [
+            self._patterns: list[tuple[Any, float]] = [
                 (re.compile(pattern, re.IGNORECASE), weight) for pattern, weight in self.PATTERNS
             ]
         except re.error as e:
@@ -403,10 +402,10 @@ def get_f4_skip(query_type: QueryType) -> bool:
     }
 
 
-def get_objective_contract(query_type: QueryType, query: str) -> Dict[str, Any]:
+def get_objective_contract(query_type: QueryType, query: str) -> dict[str, Any]:
     """Build deterministic objective profile for APEX nonstationary checks."""
 
-    base_weights: Dict[QueryType, Dict[str, float]] = {
+    base_weights: dict[QueryType, dict[str, float]] = {
         QueryType.FACTUAL: {"akal": 0.95, "present": 0.65, "energy": 0.45, "exploration": 0.35},
         QueryType.PROCEDURAL: {"akal": 0.70, "present": 0.75, "energy": 0.80, "exploration": 0.40},
         QueryType.CONVERSATIONAL: {
@@ -423,7 +422,7 @@ def get_objective_contract(query_type: QueryType, query: str) -> Dict[str, Any]:
 
     # Phase 2: nonstationary objective policy by query type.
     # Lower threshold = stricter objective drift tolerance.
-    drift_thresholds: Dict[QueryType, float] = {
+    drift_thresholds: dict[QueryType, float] = {
         QueryType.FACTUAL: 0.30,
         QueryType.PROCEDURAL: 0.45,
         QueryType.CONVERSATIONAL: 0.65,
@@ -434,7 +433,7 @@ def get_objective_contract(query_type: QueryType, query: str) -> Dict[str, Any]:
     }
 
     # HOLD threshold sits above drift threshold to separate SABAR vs 888_HOLD.
-    hold_thresholds: Dict[QueryType, float] = {
+    hold_thresholds: dict[QueryType, float] = {
         QueryType.FACTUAL: 0.55,
         QueryType.PROCEDURAL: 0.70,
         QueryType.CONVERSATIONAL: 0.90,
@@ -476,7 +475,7 @@ class AuthorityLevel(Enum):
 
 # Valid actor IDs (in production, this would be a database)
 # For now, simple hardcoded set for demonstration
-VALID_ACTORS: Set[str] = {
+VALID_ACTORS: set[str] = {
     "user",
     "operator",
     "arif-fazil",  # Sovereign authority
@@ -488,7 +487,7 @@ VALID_ACTORS: Set[str] = {
 }
 
 # Actor ID → Authority level mapping
-ACTOR_AUTHORITY: Dict[str, AuthorityLevel] = {
+ACTOR_AUTHORITY: dict[str, AuthorityLevel] = {
     "user": AuthorityLevel.USER,
     "cli": AuthorityLevel.USER,
     "agent": AuthorityLevel.USER,
@@ -500,7 +499,7 @@ ACTOR_AUTHORITY: Dict[str, AuthorityLevel] = {
 }
 
 
-def verify_auth(actor_id: str, auth_token: Optional[str] = None) -> Tuple[bool, AuthorityLevel]:
+def verify_auth(actor_id: str, auth_token: str | None = None) -> tuple[bool, AuthorityLevel]:
     """
     F11: Verify actor has authority to invoke kernel.
 
@@ -589,8 +588,8 @@ class SessionToken:
     query_hash: str = ""
 
     # F11/F12 results
-    floors_passed: List[str] = field(default_factory=list)
-    floors_failed: List[str] = field(default_factory=list)
+    floors_passed: list[str] = field(default_factory=list)
+    floors_failed: list[str] = field(default_factory=list)
 
     # If VOID, reason for rejection
     reason: str = ""
@@ -624,7 +623,7 @@ class SessionToken:
         """Token requires sovereign approval (888_HOLD)."""
         return self.status == "HOLD_888"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Export to dictionary (for serialization)."""
         return {
             "session_id": self.session_id,
@@ -660,7 +659,7 @@ def _hash_query(query: str) -> str:
     return hashlib.sha256(query.encode("utf-8")).hexdigest()[:16]
 
 
-def _sign_token(data: str, secret: Optional[str] = None) -> str:
+def _sign_token(data: str, secret: str | None = None) -> str:
     """
     Create HMAC signature for token.
 
@@ -680,7 +679,7 @@ try:
     import hmac
 except ImportError:
     # Fallback: simple concatenation hash
-    def _sign_token(data: str, secret: Optional[str] = None) -> str:
+    def _sign_token(data: str, secret: str | None = None) -> str:
         secret = secret or "arifos-v60-dev"
         combined = secret + data + secret
         return hashlib.sha256(combined.encode()).hexdigest()[:32]
@@ -694,7 +693,7 @@ except ImportError:
 async def init(
     query: str,
     actor_id: str,
-    auth_token: Optional[str] = None,
+    auth_token: str | None = None,
     require_sovereign_for_high_stakes: bool = True,
 ) -> SessionToken:
     """
@@ -725,8 +724,8 @@ async def init(
         'HOLD_888'
     """
     # Step 0: Initialize tracking + classify query (P0.1)
-    floors_passed: List[str] = []
-    floors_failed: List[str] = []
+    floors_passed: list[str] = []
+    floors_failed: list[str] = []
 
     # P0.1: Classify query for adaptive governance
     query_type = classify_query(query)
@@ -842,7 +841,7 @@ async def init(
 def init_sync(
     query: str,
     actor_id: str,
-    auth_token: Optional[str] = None,
+    auth_token: str | None = None,
 ) -> SessionToken:
     """Synchronous wrapper for init()."""
     import asyncio
@@ -855,7 +854,7 @@ def init_sync(
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-def validate_token(token: SessionToken) -> Tuple[bool, str]:
+def validate_token(token: SessionToken) -> tuple[bool, str]:
     """
     Validate a session token.
 

@@ -4,9 +4,10 @@ Wraps external MCP servers with constitutional governance
 """
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Callable, Dict, Optional
+from typing import Any
 
 from .core.constitutional_decorator import constitutional_floor, get_tool_floors
 from .mcp_config import get_server_config, validate_constitutional_compliance
@@ -27,7 +28,7 @@ class MCPCallRecord:
     verdict: str  # SEAL / VOID / SABAR
     floors_enforced: list
     reversible: bool
-    rollback_data: Optional[Dict] = None
+    rollback_data: dict | None = None
 
 
 class MCPIntegrationLayer:
@@ -38,11 +39,11 @@ class MCPIntegrationLayer:
 
     def __init__(self):
         self.call_history: list[MCPCallRecord] = []
-        self._servers: Dict[str, Any] = {}
+        self._servers: dict[str, Any] = {}
 
     async def call_server(
-        self, server_name: str, operation: str, params: Dict[str, Any], omega_estimate: float = 0.05
-    ) -> Dict[str, Any]:
+        self, server_name: str, operation: str, params: dict[str, Any], omega_estimate: float = 0.05
+    ) -> dict[str, Any]:
         """
         Execute MCP server call with constitutional enforcement.
 
@@ -131,7 +132,7 @@ class MCPIntegrationLayer:
 
         return result
 
-    async def batch_call(self, calls: list[Dict[str, Any]]) -> list[Dict[str, Any]]:
+    async def batch_call(self, calls: list[dict[str, Any]]) -> list[dict[str, Any]]:
         """
         Execute multiple MCP calls with sequential constitutional checks.
         Each call is evaluated independently with Ω₀ tracking.
@@ -165,7 +166,7 @@ class MCPIntegrationLayer:
 
 
 # Singleton instance for system-wide use
-_mcp_layer: Optional[MCPIntegrationLayer] = None
+_mcp_layer: MCPIntegrationLayer | None = None
 
 
 def get_mcp_layer() -> MCPIntegrationLayer:
@@ -177,7 +178,7 @@ def get_mcp_layer() -> MCPIntegrationLayer:
 
 
 # Convenience functions for direct use
-async def mcp_call(server: str, operation: str, **kwargs) -> Dict[str, Any]:
+async def mcp_call(server: str, operation: str, **kwargs) -> dict[str, Any]:
     """Quick call to MCP server with constitutional enforcement"""
     layer = get_mcp_layer()
     return await layer.call_server(server, operation, kwargs)

@@ -1,6 +1,6 @@
 # L4_TOOLS — MCP Tool Layer (v2026.02.22-FORGE)
 
-**Level 4 | 100% Coverage | 16 Tools (7 Organs + 4 Utilities + 5 Container)**
+**Level 4 | 100% Coverage | 18 Tools (13 Canonical + 5 Container)**
 
 > *"7-Organ Sovereign Stack public contract + utility and container tools, exposed via MCP with constitutional floor enforcement."*
 
@@ -21,19 +21,27 @@ python -m aaa_mcp http
 
 ---
 
-## The 11 Canonical MCP Tools
+## The 13 Canonical MCP Tools
 
 | # | Tool | Stage | Trinity | Floors | Description |
 |---|------|-------|---------|--------|-------------|
-| 1 | `init_session` | 000+555 | Ψ Init | F11, F12, F5, F6 | Session ignition + impact validation |
-| 2 | `agi_cognition` | 222+333+444 | Δ Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
-| 3 | `asi_empathy` | 555+666 | Ω Heart | F5, F6, F9 | Stakeholder and ethics alignment |
-| 4 | `apex_verdict` | 777+888 | Ψ Soul | F2, F3, F4, F11, F13 | Constitutional judgment |
-| 5 | `vault_seal` | 999 | VAULT | F1, F3 | Immutable audit record |
-| 6 | `search` | utility | External | F2, F7 | Web search (read-only) |
-| 7 | `fetch` | utility | External | F2, F7 | Web fetch (read-only) |
-| 8 | `analyze` | utility | Internal | F4 | Data/structure analysis |
-| 9 | `system_audit` | utility | Internal | F2, F3 | Constitutional system verification |
+| 1 | `anchor_session` | 000 | Ψ Init | F11, F12, F13 | Session ignition + defense scan |
+| 2 | `reason_mind` | 111-444 | Δ Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
+| 3 | `recall_memory` | 555 | PHOENIX | F4, F7, F8 | Memory continuity retrieval |
+| 4 | `simulate_heart` | 555-666 | Ω Heart | F5, F6, F9 | Stakeholder and ethics alignment |
+| 5 | `critique_thought` | 666 | Ω Heart | F4, F7, F8 | Constitutional critique |
+| 6 | `eureka_forge` | 777 | Ψ Soul | F1, F11, F12 | Sandboxed forge execution |
+| 7 | `apex_judge` | 888 | Ψ Soul | F1-F13 | Sovereign constitutional judgment |
+| 8 | `seal_vault` | 999 | VAULT | F1, F3, F10 | Immutable audit record |
+| 9 | `search_reality` | utility | External | F2, F7 | Web search grounding |
+| 10 | `fetch_content` | utility | External | F2, F7 | Evidence content retrieval |
+| 11 | `inspect_file` | utility | Internal | F1, F4, F11 | Filesystem inspection |
+| 12 | `audit_rules` | utility | Internal | F2, F3, F10 | Constitutional system verification |
+| 13 | `check_vital` | utility | Internal | F4, F5, F7 | Runtime health telemetry |
+
+Alias compatibility:
+- `forge_hand` -> `eureka_forge`
+- `judge_soul` -> `apex_judge`
 
 ## The 5 Container Management Tools
 
@@ -96,7 +104,7 @@ See [`mcp-configs/`](./mcp-configs/) for copy-paste configs:
 
 | Component | Location | Status |
 |-----------|----------|--------|
-| MCP Server | [`aaa_mcp/server.py`](../../aaa_mcp/server.py) | ✅ 11 canonical tools operational |
+| MCP Server | [`arifos_aaa_mcp/server.py`](../../arifos_aaa_mcp/server.py) | ✅ 13 canonical tools operational |
 | Constants | [`aaa_mcp/config/constants.py`](../../aaa_mcp/config/constants.py) | ✅ Centralized thresholds |
 | Container Tools | [`aaa_mcp/integrations/`](../../aaa_mcp/integrations/) | ✅ 5 tools + caching |
 | 7-Organs | [`core/organs/`](../../core/organs/) | ✅ Kernel logic |
@@ -110,7 +118,7 @@ See [`mcp-configs/`](./mcp-configs/) for copy-paste configs:
 - ✅ **Caching:** Container listing 16,022x faster with 5s TTL
 - ✅ **Constants:** Centralized thresholds in `config/constants.py`
 - ✅ **Error Handling:** Specific exceptions (FileNotFoundError, yaml.YAMLError)
-- ✅ **Surface:** 7-organ stack + 4 utility tools = 11 canonical public tools
+- ✅ **Surface:** canonical 13-tool public MCP surface + alias compatibility
 - ✅ **Compatibility:** Legacy 9-subroutine flow internalized behind organ boundaries
 
 ---

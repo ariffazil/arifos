@@ -14,13 +14,13 @@ import hashlib
 import json
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from .templates import DOMAIN_TEMPLATES, SKIN_TEMPLATES
 from .types import RefusalResponse, RefusalType, RiskDomain
 
 
-def load_refusal_config(profile: str = "equilibrium_default") -> Dict[str, Any]:
+def load_refusal_config(profile: str = "equilibrium_default") -> dict[str, Any]:
     """
     Load refusal configuration from spec/v55/refusals.json.
 
@@ -80,7 +80,7 @@ def generate_refusal_response(
     refusal_type: RefusalType,
     risk_domain: RiskDomain,
     reason: str,
-    policy_codes: List[str],
+    policy_codes: list[str],
     risk_score: float,
     profile: str = "equilibrium_default",
 ) -> RefusalResponse:

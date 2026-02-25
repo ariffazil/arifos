@@ -11,12 +11,13 @@ This is the DECLARATIVE counterpart to metabolizer.py (IMPERATIVE).
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any
 from enum import Enum
+from typing import Any
 
 
 class AppLayer(Enum):
     """Application layer in the 8-layer stack."""
+
     L1_PROMPT = "L1"
     L2_SKILLS = "L2"
     L3_WORKFLOW = "L3"
@@ -28,17 +29,19 @@ class AppLayer(Enum):
 
 class FloorClassification(Enum):
     """How a floor is classified for this app."""
-    HARD = "hard"      # Existential: VOID on failure
-    SOFT = "soft"      # Performance: SABAR on failure
-    N_A = "n/a"        # Not applicable to this app
+
+    HARD = "hard"  # Existential: VOID on failure
+    SOFT = "soft"  # Performance: SABAR on failure
+    N_A = "n/a"  # Not applicable to this app
 
 
 @dataclass
 class FloorManifesto:
     """Manifesto entry for a single floor."""
+
     floor_id: str
     classification: FloorClassification
-    custom_threshold: Optional[Any] = None
+    custom_threshold: Any | None = None
     rationale: str = ""
 
 
@@ -46,9 +49,9 @@ class FloorManifesto:
 class AppManifesto:
     """
     Constitutional manifesto for a 333_APPS application.
-    
+
     Every app must instantiate this and register with the AppRegistry.
-    
+
     Example:
         manifesto = AppManifesto(
             app_name="DocumentAnalyzer",
@@ -63,44 +66,42 @@ class AppManifesto:
             irreversible_actions=["delete", "overwrite"],
         )
     """
-    
+
     app_name: str
     layer: AppLayer
     description: str
     version: str = "1.0.0"
-    
+
     # Constitutional contract
-    floors: List[FloorManifesto] = field(default_factory=list)
-    
+    floors: list[FloorManifesto] = field(default_factory=list)
+
     # Sovereign gate requirements
     requires_sovereign_gate: bool = False
-    irreversible_actions: List[str] = field(default_factory=list)
-    
+    irreversible_actions: list[str] = field(default_factory=list)
+
     # L0 Kernel routing
-    l0_organs_used: List[str] = field(default_factory=lambda: ["agi_cognition"])
-    
+    l0_organs_used: list[str] = field(default_factory=lambda: ["agi_cognition"])
+
     # Metadata
     author: str = ""
-    dependencies: List[str] = field(default_factory=list)
-    
+    dependencies: list[str] = field(default_factory=list)
+
     def validate(self) -> bool:
         """Validate that manifesto is complete."""
         if not self.floors:
             raise ValueError(f"App '{self.app_name}' must declare at least one floor")
-        
+
         # Check for required floors
         floor_ids = {f.floor_id for f in self.floors}
         required = {"F1", "F2", "F7"}  # Amanah, Truth, Humility
         missing = required - floor_ids
-        
+
         if missing:
-            raise ValueError(
-                f"App '{self.app_name}' missing required floors: {missing}"
-            )
-        
+            raise ValueError(f"App '{self.app_name}' missing required floors: {missing}")
+
         return True
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         """Convert manifesto to dictionary."""
         return {
             "app_name": self.app_name,
@@ -125,47 +126,47 @@ class AppManifesto:
 class AppRegistry:
     """
     Registry of all constitutional applications in 333_APPS.
-    
+
     This is the authoritative directory of what apps exist and their
     constitutional contracts.
     """
-    
-    _apps: Dict[str, AppManifesto] = {}
-    
+
+    _apps: dict[str, AppManifesto] = {}
+
     @classmethod
     def register(cls, manifesto: AppManifesto) -> None:
         """Register an app manifesto."""
         manifesto.validate()
         cls._apps[manifesto.app_name] = manifesto
-    
+
     @classmethod
-    def get(cls, app_name: str) -> Optional[AppManifesto]:
+    def get(cls, app_name: str) -> AppManifesto | None:
         """Get manifesto by app name."""
         return cls._apps.get(app_name)
-    
+
     @classmethod
-    def list_all(cls) -> List[str]:
+    def list_all(cls) -> list[str]:
         """List all registered app names."""
         return list(cls._apps.keys())
-    
+
     @classmethod
-    def audit(cls) -> Dict[str, Any]:
+    def audit(cls) -> dict[str, Any]:
         """
         Audit all registered apps for constitutional compliance.
-        
+
         Returns:
             Audit report with statistics
         """
         total = len(cls._apps)
         by_layer = {}
         sovereign_gates = 0
-        
+
         for app in cls._apps.values():
             layer = app.layer.value
             by_layer[layer] = by_layer.get(layer, 0) + 1
             if app.requires_sovereign_gate:
                 sovereign_gates += 1
-        
+
         return {
             "total_apps": total,
             "by_layer": by_layer,
@@ -178,16 +179,19 @@ class AppRegistry:
 # EXAMPLE MANIFESTOS (Template for new apps)
 # ═══════════════════════════════════════════════════════════════════════════
 
+
 def create_example_manifestos():
     """Create example manifestos for reference."""
-    
+
     # Example: L4 Tool that analyzes documents
     doc_analyzer = AppManifesto(
         app_name="DocumentAnalyzer",
         layer=AppLayer.L4_TOOLS,
         description="Constitutional document analysis with grounded citations",
         floors=[
-            FloorManifesto("F1", FloorClassification.HARD, None, "Analysis must not corrupt source"),
+            FloorManifesto(
+                "F1", FloorClassification.HARD, None, "Analysis must not corrupt source"
+            ),
             FloorManifesto("F2", FloorClassification.HARD, 0.99, "Citations must be verifiable"),
             FloorManifesto("F4", FloorClassification.SOFT, 0.0, "Reduce cognitive entropy"),
             FloorManifesto("F7", FloorClassification.HARD, 0.05, "Declare uncertainty bounds"),
@@ -195,7 +199,7 @@ def create_example_manifestos():
         requires_sovereign_gate=False,
         l0_organs_used=["agi_cognition", "asi_empathy"],
     )
-    
+
     # Example: L5 Agent that executes tasks
     task_executor = AppManifesto(
         app_name="TaskExecutor",
@@ -205,13 +209,15 @@ def create_example_manifestos():
             FloorManifesto("F1", FloorClassification.HARD, None, "All actions reversible"),
             FloorManifesto("F2", FloorClassification.HARD, 0.99, "Ground all decisions"),
             FloorManifesto("F6", FloorClassification.HARD, None, "Protect vulnerable stakeholders"),
-            FloorManifesto("F11", FloorClassification.HARD, None, "Human authority over irreversible"),
+            FloorManifesto(
+                "F11", FloorClassification.HARD, None, "Human authority over irreversible"
+            ),
         ],
         requires_sovereign_gate=True,
         irreversible_actions=["delete", "execute", "deploy"],
         l0_organs_used=["agi_cognition", "asi_empathy", "apex_verdict"],
     )
-    
+
     return [doc_analyzer, task_executor]
 
 
@@ -219,7 +225,7 @@ if __name__ == "__main__":
     # Register example manifestos and print audit
     for manifesto in create_example_manifestos():
         AppRegistry.register(manifesto)
-    
+
     print("📋 CONSTITUTIONAL APP REGISTRY")
     print("=" * 60)
     audit = AppRegistry.audit()

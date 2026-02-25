@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import os
-from typing import Any, Dict, Iterable, List, Optional
+from collections.abc import Iterable
+from typing import Any
 
 
-def resolve_output_mode(kwargs: Dict[str, Any] | None = None) -> str:
+def resolve_output_mode(kwargs: dict[str, Any] | None = None) -> str:
     """
     Resolve desired output mode.
 
@@ -29,10 +30,10 @@ def _truncate(text: str, limit: int) -> str:
     return text[: max(0, limit - 1)] + "…"
 
 
-def _slim_evidence(evidence: Any, limit: int = 3) -> List[Dict[str, Any]]:
+def _slim_evidence(evidence: Any, limit: int = 3) -> list[dict[str, Any]]:
     if not isinstance(evidence, list):
         return []
-    slim: List[Dict[str, Any]] = []
+    slim: list[dict[str, Any]] = []
     for item in evidence[:limit]:
         if not isinstance(item, dict):
             continue
@@ -54,7 +55,7 @@ def _slim_evidence(evidence: Any, limit: int = 3) -> List[Dict[str, Any]]:
     return slim
 
 
-def _pick_first(payload: Dict[str, Any], keys: Iterable[str]) -> Optional[Any]:
+def _pick_first(payload: dict[str, Any], keys: Iterable[str]) -> Any | None:
     for k in keys:
         if k in payload:
             return payload.get(k)
@@ -122,7 +123,7 @@ def format_tool_output(tool_name: str, payload: Any, mode: str) -> Any:
         next_action = "HALT_REVIEW_CONSTITUTIONAL_BLOCK"
 
     # Build structured content (machine/governance layer)
-    structured_content: Dict[str, Any] = {
+    structured_content: dict[str, Any] = {
         "tool": tool_name,
         "stage": stage,
         "session_id": session_id,
@@ -193,7 +194,7 @@ def format_tool_output(tool_name: str, payload: Any, mode: str) -> Any:
 
     # Build MCP-compliant output with content + structuredContent
     # AUDIT_MARKER_v60: New format per external auditor feedback
-    out: Dict[str, Any] = {
+    out: dict[str, Any] = {
         "_format_version": "v60-MCP-AUDIT",
         "content": [{"type": "text", "text": message}],
         "structuredContent": structured_content,

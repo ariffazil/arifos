@@ -10,15 +10,14 @@ DITEMPA BUKAN DIBERI 💎🔥🧠
 import pytest
 
 from core.organs._0_init import (
-    init,
-    init_sync,
-    scan_injection,
-    verify_auth,
-    InjectionRisk,
     AuthorityLevel,
     SessionToken,
+    init,
+    init_sync,
     requires_sovereign,
+    scan_injection,
     validate_token,
+    verify_auth,
 )
 
 

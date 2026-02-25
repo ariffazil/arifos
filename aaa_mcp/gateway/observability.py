@@ -10,10 +10,11 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Dict, Optional, Any, Callable
+from typing import Any
 
 
 class HealthStatus(str, Enum):
@@ -50,7 +51,7 @@ class HealthMetrics:
     cpu_usage: float = 0.0
     memory_usage: float = 0.0
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         return {
             "error_rate": self.error_rate,
             "latency_p99": self.latency_p99,
@@ -79,10 +80,10 @@ class F4ClarityResult:
     namespace: str
 
     # Pre-deployment baseline
-    baseline_metrics: Optional[HealthMetrics] = None
+    baseline_metrics: HealthMetrics | None = None
 
     # Post-deployment metrics
-    post_metrics: Optional[HealthMetrics] = None
+    post_metrics: HealthMetrics | None = None
 
     # Delta analysis
     delta_entropy: float = 0.0  # Negative = good (reduced entropy)
@@ -183,18 +184,18 @@ class PostDeployMonitor:
     Implements the "observe before seal is complete" pattern.
     """
 
-    def __init__(self, config: Optional[ObservabilityConfig] = None):
+    def __init__(self, config: ObservabilityConfig | None = None):
         self.config = config or ObservabilityConfig()
-        self._monitors: Dict[str, asyncio.Task] = {}
-        self._results: Dict[str, F4ClarityResult] = {}
+        self._monitors: dict[str, asyncio.Task] = {}
+        self._results: dict[str, F4ClarityResult] = {}
 
     async def start_monitoring(
         self,
         session_id: str,
         deployment_name: str,
         namespace: str,
-        baseline: Optional[HealthMetrics] = None,
-        metrics_provider: Optional[Callable[[], HealthMetrics]] = None,
+        baseline: HealthMetrics | None = None,
+        metrics_provider: Callable[[], HealthMetrics] | None = None,
     ) -> F4ClarityResult:
         """
         Start monitoring a deployment for F4 Clarity.
@@ -228,7 +229,7 @@ class PostDeployMonitor:
         session_id: str,
         deployment_name: str,
         namespace: str,
-        metrics_provider: Optional[Callable[[], HealthMetrics]],
+        metrics_provider: Callable[[], HealthMetrics] | None,
     ):
         """Internal monitoring loop."""
         start_time = datetime.now(timezone.utc)
@@ -337,14 +338,14 @@ class PostDeployMonitor:
         # For now, just log
         print(f"[OBSERVABILITY] Auto-rollback triggered for {deployment_name} in {namespace}")
 
-    def get_result(self, session_id: str) -> Optional[F4ClarityResult]:
+    def get_result(self, session_id: str) -> F4ClarityResult | None:
         """Get monitoring result for a session."""
         return self._results.get(session_id)
 
     async def finalize_seal(
         self,
         session_id: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Finalize seal after observability validation.
 

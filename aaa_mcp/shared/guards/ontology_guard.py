@@ -31,7 +31,6 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import List
 
 
 class OntologyRisk(str, Enum):
@@ -56,7 +55,7 @@ class OntologyGuardResult:
 
     status: str
     risk_level: OntologyRisk
-    detected_patterns: List[str]
+    detected_patterns: list[str]
     reason: str
     symbolic_mode: bool
 

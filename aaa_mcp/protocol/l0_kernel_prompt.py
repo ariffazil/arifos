@@ -199,10 +199,10 @@ Ditempa Bukan Diberi 🔥
 def get_l0_prompt(compact: bool = False) -> str:
     """
     Get the L0 Kernel constitutional system prompt.
-    
+
     Args:
         compact: If True, returns compact version (saves tokens)
-    
+
     Returns:
         Constitutional system prompt string
     """
@@ -212,11 +212,11 @@ def get_l0_prompt(compact: bool = False) -> str:
 def inject_l0_into_session(session_data: dict, compact: bool = False) -> dict:
     """
     Inject L0 Kernel prompt into session initialization.
-    
+
     Args:
         session_data: Session dictionary from init_session
         compact: Use compact prompt (default: False)
-    
+
     Returns:
         Enhanced session data with system_prompt field
     """

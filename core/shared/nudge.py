@@ -5,7 +5,6 @@ Just a little push. That's it.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class NudgeType(Enum):
@@ -75,7 +74,7 @@ NUDGES = {
 }
 
 
-def get_nudge(nudge_type: Optional[NudgeType] = None) -> EurekaNudge:
+def get_nudge(nudge_type: NudgeType | None = None) -> EurekaNudge:
     """Get a specific nudge or random one."""
     import random
 
@@ -84,7 +83,7 @@ def get_nudge(nudge_type: Optional[NudgeType] = None) -> EurekaNudge:
     return NUDGES[nudge_type]
 
 
-def apply_nudge(query: str, nudge: Optional[EurekaNudge] = None) -> str:
+def apply_nudge(query: str, nudge: EurekaNudge | None = None) -> str:
     """Apply a nudge to a query. Just a little push."""
     if nudge is None:
         nudge = get_nudge()

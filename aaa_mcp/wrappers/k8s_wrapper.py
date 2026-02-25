@@ -35,9 +35,8 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass
-from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import yaml
 
@@ -64,14 +63,14 @@ class ManifestAnalysis:
     kind: str
     name: str
     namespace: str
-    labels: Dict[str, str]
-    annotations: Dict[str, str]
+    labels: dict[str, str]
+    annotations: dict[str, str]
 
     # Container analysis (for F2 Truth)
-    images: List[str]
+    images: list[str]
     uses_latest_tag: bool
     uses_digest: bool
-    untrusted_registries: List[str]
+    untrusted_registries: list[str]
 
     # Security analysis (for F6 Empathy)
     privileged_containers: bool
@@ -97,7 +96,7 @@ class ManifestAnalysis:
 class BlastRadius:
     """Infrastructure blast radius for F6 Empathy."""
 
-    affected_namespaces: List[str]
+    affected_namespaces: list[str]
     affected_deployments: int
     affected_pods: int
     affected_services: int
@@ -105,7 +104,7 @@ class BlastRadius:
     affected_secrets: int
     critical_impact: bool
     score: float  # 0.0-1.0, higher = more dangerous
-    mitigation_suggestions: List[str]
+    mitigation_suggestions: list[str]
 
 
 # =============================================================================
@@ -213,7 +212,7 @@ class ManifestParser:
         )
 
     def _calculate_f2_score(
-        self, images: List[str], uses_digest: bool, untrusted: List[str]
+        self, images: list[str], uses_digest: bool, untrusted: list[str]
     ) -> float:
         """Calculate F2 Truth score based on image provenance."""
         if not images:
@@ -255,7 +254,7 @@ class ManifestParser:
 
         return max(0.0, score)
 
-    def _calculate_f5_score(self, has_liveness: bool, has_readiness: bool, strategy: Dict) -> float:
+    def _calculate_f5_score(self, has_liveness: bool, has_readiness: bool, strategy: dict) -> float:
         """Calculate F5 Peace² score based on operational maturity."""
         score = 0.5  # Base
 
@@ -280,9 +279,9 @@ class BlastRadiusCalculator:
     def calculate(
         self,
         operation: str,
-        manifest: Optional[ManifestAnalysis],
+        manifest: ManifestAnalysis | None,
         namespace: str,
-        existing_state: Optional[Dict] = None,
+        existing_state: dict | None = None,
     ) -> BlastRadius:
         """Calculate blast radius for an operation."""
         affected_ns = [namespace]
@@ -371,7 +370,7 @@ class K8sConstitutionalWrapper:
         namespace: str,
         strategy: str,
         dry_run: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Evaluate a kubectl apply through constitutional floors."""
 
         # Parse manifest
@@ -494,7 +493,7 @@ class K8sConstitutionalWrapper:
         name: str,
         namespace: str,
         backup_made: bool,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Evaluate a kubectl delete through constitutional floors."""
 
         # Blast radius for delete
@@ -567,7 +566,7 @@ async def k8s_constitutional_apply(
     strategy: str = "rolling",
     session_id: str = "",
     dry_run: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Evaluate K8s apply through constitutional floors.
 
@@ -600,7 +599,7 @@ async def k8s_constitutional_delete(
     namespace: str = "default",
     backup_made: bool = False,
     session_id: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Evaluate K8s delete through constitutional floors.
 
@@ -620,7 +619,7 @@ async def k8s_constitutional_delete(
     return result
 
 
-async def k8s_analyze_manifest(manifest: str) -> Dict[str, Any]:
+async def k8s_analyze_manifest(manifest: str) -> dict[str, Any]:
     """
     Analyze a K8s manifest without constitutional enforcement.
 

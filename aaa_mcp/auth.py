@@ -19,7 +19,7 @@ Usage:
     from aaa_mcp.auth import jwt_auth_middleware, require_floor_permission
 
     app = Starlette(middleware=[jwt_auth_middleware])
-    
+
     @require_floor_permission("F11")  # Authority floor required
     async def restricted_tool(request):
         ...
@@ -27,16 +27,18 @@ Usage:
 
 import os
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from functools import wraps
-from typing import Optional, Dict, Any, List, Callable
+from typing import Any
 
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
 
 try:
     import jwt
+
     JWT_AVAILABLE = True
 except ImportError:
     jwt = None
@@ -46,23 +48,24 @@ except ImportError:
 @dataclass
 class AuthContext:
     """Authentication context for request lifecycle."""
+
     user_id: str
     session_id: str
-    floors: List[str]  # Constitutional floors user has access to
-    metadata: Dict[str, Any]
+    floors: list[str]  # Constitutional floors user has access to
+    metadata: dict[str, Any]
     is_authenticated: bool = True
 
 
 class JWTConfig:
     """JWT configuration from environment variables."""
-    
+
     def __init__(self):
         self.secret = os.getenv("ARIF_JWT_SECRET", os.getenv("ARIF_SECRET", ""))
         self.algorithm = os.getenv("ARIF_JWT_ALGORITHM", "HS256")
         self.audience = os.getenv("ARIF_JWT_AUDIENCE")
         self.issuer = os.getenv("ARIF_JWT_ISSUER")
         self.mtls_enabled = os.getenv("ARIF_MTLS_ENABLED", "false").lower() == "true"
-        
+
         # Floor to tool mapping (configurable)
         self.floor_tool_mapping = {
             "F1": ["vault_seal"],  # Amanah - immutable ledger
@@ -73,25 +76,25 @@ class JWTConfig:
         }
 
 
-def decode_jwt(token: str, config: JWTConfig) -> Optional[Dict[str, Any]]:
+def decode_jwt(token: str, config: JWTConfig) -> dict[str, Any] | None:
     """Decode and validate JWT token."""
     if not JWT_AVAILABLE:
         raise RuntimeError("PyJWT not installed. Run: pip install pyjwt")
-    
+
     try:
         # For RS256, secret should be a public key file path
         secret = config.secret
         if config.algorithm == "RS256" and os.path.exists(secret):
-            with open(secret, "r") as f:
+            with open(secret) as f:
                 secret = f.read()
-        
+
         payload = jwt.decode(
             token,
             secret,
             algorithms=[config.algorithm],
             audience=config.audience,
             issuer=config.issuer,
-            options={"require_exp": True, "require_iat": True}
+            options={"require_exp": True, "require_iat": True},
         )
         return payload
     except jwt.InvalidTokenError as e:
@@ -99,7 +102,7 @@ def decode_jwt(token: str, config: JWTConfig) -> Optional[Dict[str, Any]]:
         return None
 
 
-def extract_auth_context(request: Request, config: JWTConfig) -> Optional[AuthContext]:
+def extract_auth_context(request: Request, config: JWTConfig) -> AuthContext | None:
     """Extract authentication context from request."""
     # Check mTLS client certificate if enabled
     if config.mtls_enabled:
@@ -107,89 +110,93 @@ def extract_auth_context(request: Request, config: JWTConfig) -> Optional[AuthCo
         if client_cert:
             # TODO: Validate client certificate
             pass
-    
+
     # Extract JWT from Authorization header
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
         return None
-    
+
     token = auth_header[7:]  # Remove "Bearer " prefix
     payload = decode_jwt(token, config)
     if not payload:
         return None
-    
+
     # Extract floors from JWT claims
     floors = payload.get("floors", [])
     if isinstance(floors, str):
         floors = [f.strip() for f in floors.split(",")]
-    
+
     return AuthContext(
         user_id=payload.get("sub", "anonymous"),
         session_id=payload.get("sid", str(time.time())),
         floors=floors,
         metadata=payload,
-        is_authenticated=True
+        is_authenticated=True,
     )
 
 
 class JWTAuthMiddleware(BaseHTTPMiddleware):
     """JWT authentication middleware for Starlette."""
-    
-    def __init__(self, app, config: Optional[JWTConfig] = None):
+
+    def __init__(self, app, config: JWTConfig | None = None):
         super().__init__(app)
         self.config = config or JWTConfig()
-        
+
     async def dispatch(self, request: Request, call_next):
         # Skip auth for health checks and public endpoints
         if request.url.path in ["/health", "/ready", "/version", "/metrics"]:
             return await call_next(request)
-        
+
         # Extract auth context
         auth_context = extract_auth_context(request, self.config)
         if not auth_context:
             return JSONResponse(
                 status_code=401,
-                content={"error": "Unauthorized", "details": "Invalid or missing JWT token"}
+                content={"error": "Unauthorized", "details": "Invalid or missing JWT token"},
             )
-        
+
         # Attach auth context to request state
         request.state.auth = auth_context
-        
+
         # Check tool-level RBAC for tool endpoints
         if request.url.path.startswith("/tools/"):
             tool_name = request.url.path.split("/")[-1]
             if not self._check_tool_access(tool_name, auth_context.floors):
                 return JSONResponse(
                     status_code=403,
-                    content={"error": "Forbidden", "details": f"Insufficient floor permissions for tool '{tool_name}'"}
+                    content={
+                        "error": "Forbidden",
+                        "details": f"Insufficient floor permissions for tool '{tool_name}'",
+                    },
                 )
-        
+
         response = await call_next(request)
-        
+
         # Add authentication headers
         response.headers["X-Authenticated-User"] = auth_context.user_id
         response.headers["X-Authenticated-Floors"] = ",".join(auth_context.floors)
-        
+
         return response
-    
-    def _check_tool_access(self, tool_name: str, user_floors: List[str]) -> bool:
+
+    def _check_tool_access(self, tool_name: str, user_floors: list[str]) -> bool:
         """Check if user has required floor permissions for tool."""
         # Find floors that grant access to this tool
         required_floors = []
         for floor, tools in self.config.floor_tool_mapping.items():
             if tool_name in tools:
                 required_floors.append(floor)
-        
+
         # If no specific floor mapping, allow access
         if not required_floors:
             return True
-        
+
         # Check if user has at least one required floor
         return any(floor in user_floors for floor in required_floors)
 
 
 def require_floor_permission(floor: str):
     """Decorator to require specific floor permission for endpoint."""
+
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(request: Request, *args, **kwargs):
@@ -197,30 +204,37 @@ def require_floor_permission(floor: str):
             if not auth_context or floor not in auth_context.floors:
                 return JSONResponse(
                     status_code=403,
-                    content={"error": "Forbidden", "details": f"Floor '{floor}' permission required"}
+                    content={
+                        "error": "Forbidden",
+                        "details": f"Floor '{floor}' permission required",
+                    },
                 )
             return await func(request, *args, **kwargs)
+
         return wrapper
+
     return decorator
 
 
 # Backward compatibility: support ARIF_SECRET as simple bearer token
 def legacy_auth_middleware(app):
     """Legacy middleware using ARIF_SECRET header."""
+
     async def middleware(request: Request, call_next):
         if request.url.path in ["/health", "/ready", "/version", "/metrics"]:
             return await call_next(request)
-        
+
         secret = os.getenv("ARIF_SECRET")
         if secret:
             auth_header = request.headers.get("Authorization")
             if not auth_header or auth_header != f"Bearer {secret}":
                 return JSONResponse(
                     status_code=401,
-                    content={"error": "Unauthorized", "details": "Invalid ARIF_SECRET"}
+                    content={"error": "Unauthorized", "details": "Invalid ARIF_SECRET"},
                 )
-        
+
         return await call_next(request)
+
     return middleware
 
 

@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
 
-def normalize_error(stage: str, error: Exception) -> Dict[str, Any]:
+def normalize_error(stage: str, error: Exception) -> dict[str, Any]:
     """Canonical MCP-facing error payload."""
     return {
         "verdict": "VOID",
@@ -14,7 +14,7 @@ def normalize_error(stage: str, error: Exception) -> Dict[str, Any]:
     }
 
 
-def attach_runtime_meta(payload: Dict[str, Any], transport: str) -> Dict[str, Any]:
+def attach_runtime_meta(payload: dict[str, Any], transport: str) -> dict[str, Any]:
     """Attach non-sensitive runtime metadata to payload."""
     merged = dict(payload)
     meta = dict(merged.get("runtime", {}))

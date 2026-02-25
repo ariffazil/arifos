@@ -37,7 +37,7 @@ import json
 import os
 import subprocess
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Note: mcp is imported lazily in server.py to avoid circular imports
 
@@ -48,9 +48,9 @@ class PolicyResult:
 
     policy_name: str
     passed: bool
-    violations: List[str]
+    violations: list[str]
     severity: str  # critical, warning, info
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
 
 
 @dataclass
@@ -61,7 +61,7 @@ class F10OntologyResult:
     policies_checked: int
     policies_passed: int
     policies_failed: int
-    violations: List[Dict[str, Any]]
+    violations: list[dict[str, Any]]
     score: float  # 0.0-1.0
     reasoning: str
 
@@ -126,7 +126,7 @@ class ConftestAdapter:
         "/opt/arifos/policies/",
     ]
 
-    def __init__(self, policy_dir: Optional[str] = None):
+    def __init__(self, policy_dir: str | None = None):
         self.policy_dir = policy_dir or self._find_policy_dir()
 
     def _find_policy_dir(self) -> str:
@@ -136,7 +136,7 @@ class ConftestAdapter:
                 return d
         return "policies/"  # Default
 
-    def evaluate(self, manifest: str, namespace: str = "k8s") -> List[PolicyResult]:
+    def evaluate(self, manifest: str, namespace: str = "k8s") -> list[PolicyResult]:
         """Evaluate manifest using Conftest."""
         results = []
 
@@ -315,7 +315,7 @@ BUILT_IN_POLICIES = {
 class BuiltInPolicyEngine:
     """Fallback policy engine using built-in Rego-like rules."""
 
-    def evaluate(self, manifest: str) -> List[PolicyResult]:
+    def evaluate(self, manifest: str) -> list[PolicyResult]:
         """Evaluate against built-in policies."""
         import yaml
 
@@ -395,7 +395,7 @@ class F10OntologyValidator:
     async def validate(self, manifest: str, namespace: str = "k8s") -> F10OntologyResult:
         """Validate manifest against all available policy engines."""
 
-        all_results: List[PolicyResult] = []
+        all_results: list[PolicyResult] = []
 
         # Try engines in order of preference
         if self.preferred_engine in ("auto", "opa"):
@@ -475,7 +475,7 @@ async def opa_validate_manifest(
     manifest: str,
     namespace: str = "k8s",
     session_id: str = "",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Validate K8s manifest against OPA policies (F10 Ontology).
 
@@ -507,7 +507,7 @@ async def opa_validate_manifest(
     }
 
 
-async def opa_list_policies() -> Dict[str, Any]:
+async def opa_list_policies() -> dict[str, Any]:
     """List available OPA/Conftest policies."""
     return {
         "engines": {

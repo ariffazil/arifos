@@ -7,51 +7,17 @@ Test thermodynamic primitives: W_3, delta_S, Omega_0, G, etc.
 DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
-import math
-
 import pytest
 
 from core.shared.physics import (
     # F3: Tri-Witness
-    TrinityTensor,
     W_3,
-    W_3_from_tensor,
-    W_3_check,
-    geometric_mean,
-    std_dev,
-    # F4: Entropy
-    delta_S,
-    is_cooling,
-    clarity_ratio,
-    # F7: Humility
-    UncertaintyBand,
-    Omega_0,
-    # Precision
-    pi,
-    kalman_gain,
-    # F5: Peace
-    PeaceSquared,
-    Peace2,
-    # F6: Empathy
-    Stakeholder,
-    kappa_r,
-    identify_stakeholders,
-    DISTRESS_SIGNALS,
-    # F8: Genius
-    GeniusDial,
-    G,
-    G_from_dial,
-    # Unified
     ConstitutionalTensor,
     G,
-    G_from_dial,
-    # F8: Genius
     GeniusDial,
     Omega_0,
     Peace2,
     # F5: Peace
-    PeaceSquared,
-    # F6: Empathy
     Stakeholder,
     # F3: Tri-Witness
     TrinityTensor,
@@ -69,7 +35,6 @@ from core.shared.physics import (
     kappa_r,
     # Precision
     pi,
-    std_dev,
 )
 
 

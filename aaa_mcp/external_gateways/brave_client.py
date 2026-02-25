@@ -13,7 +13,6 @@ import json
 import os
 import urllib.parse
 import urllib.request
-from typing import Optional
 
 # Environment variable name for API key
 BRAVE_API_KEY_ENV = "BRAVE_API_KEY"
@@ -30,7 +29,7 @@ class BraveSearchClient:
         client = BraveSearchClient(api_key="your-key")
     """
 
-    def __init__(self, api_key: Optional[str] = None):
+    def __init__(self, api_key: str | None = None):
         """Initialize client with API key from param or environment.
 
         Args:

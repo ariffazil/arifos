@@ -20,7 +20,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Literal, Optional, Pattern, Tuple
+from re import Pattern
 
 # Setup ATLAS Audit Logger
 logger = logging.getLogger("arifos.atlas")
@@ -100,7 +100,7 @@ class GPV:
         object.__setattr__(self, "care_demand", max(0.0, min(1.0, self.care_demand)))
         object.__setattr__(self, "risk_level", max(0.0, min(1.0, self.risk_level)))
 
-    def to_tensor(self) -> Tuple[float, float, float]:
+    def to_tensor(self) -> tuple[float, float, float]:
         """Return (τ, κ, ρ) as tuple."""
         return (self.truth_demand, self.care_demand, self.risk_level)
 
@@ -171,7 +171,7 @@ class ATLAS:
         # ═════════════════════════════════════════════════════════════════════
         # CRISIS PATTERNS — Direct harm signals (highest priority)
         # ═════════════════════════════════════════════════════════════════════
-        self._crisis_patterns: List[Pattern] = [
+        self._crisis_patterns: list[Pattern] = [
             # Self-harm (with negative lookbehind for idioms)
             re.compile(
                 r"(?<!kill )\b(kill myself|murder|suicide|self-harm|cut myself|end it all)\b"
@@ -187,7 +187,7 @@ class ATLAS:
         ]
 
         # Idiomatic expressions to filter (false positive prevention)
-        self._idiom_patterns: List[Pattern] = [
+        self._idiom_patterns: list[Pattern] = [
             re.compile(r"\bkill time\b"),
             re.compile(r"\bkill (the|my) (lights?|mood|vibe|buzz)\b"),
             re.compile(r"\bkill two birds\b"),
@@ -198,7 +198,7 @@ class ATLAS:
         # ═════════════════════════════════════════════════════════════════════
         # FACTUAL PATTERNS — Technical, verifiable claims
         # ═════════════════════════════════════════════════════════════════════
-        self._factual_patterns: List[Pattern] = [
+        self._factual_patterns: list[Pattern] = [
             # Code/programming
             re.compile(r"\b(code|function|algorithm|class|method|variable|import|def |return )\b"),
             re.compile(r"\b(python|javascript|java|rust|c\+\+|typescript|golang)\b"),
@@ -217,7 +217,7 @@ class ATLAS:
         # ═════════════════════════════════════════════════════════════════════
         # SOCIAL PATTERNS — Phatic communication
         # ═════════════════════════════════════════════════════════════════════
-        self._social_patterns: List[Pattern] = [
+        self._social_patterns: list[Pattern] = [
             # Greetings
             re.compile(r"\b(hello|hi|hey|greetings|good morning|good afternoon|good evening)\b"),
             # Thanks/gratitude/gestures
@@ -231,7 +231,7 @@ class ATLAS:
         # ═════════════════════════════════════════════════════════════════════
         # CARE PATTERNS — Explanations, support
         # ═════════════════════════════════════════════════════════════════════
-        self._care_patterns: List[Pattern] = [
+        self._care_patterns: list[Pattern] = [
             # Help requests
             re.compile(r"\b(help|assist|support|guide me)\b"),
             # Explanations
@@ -245,7 +245,7 @@ class ATLAS:
         # ═════════════════════════════════════════════════════════════════════
         # HIGH-VULNERABILITY CONTEXTS (for risk assessment)
         # ═════════════════════════════════════════════════════════════════════
-        self._high_vuln_contexts: List[Pattern] = [
+        self._high_vuln_contexts: list[Pattern] = [
             re.compile(r"\b(medical|health|patient|hospital|doctor|diagnosis)\b"),
             re.compile(r"\b(child|minor|student|school|education)\b"),
             re.compile(r"\b(financial|money|payment|bank|investment|debt)\b"),
@@ -435,7 +435,7 @@ def Λ(text: str) -> Lane:
         return Lane.CARE
 
 
-def Θ(lane: Lane) -> Tuple[float, float, float]:
+def Θ(lane: Lane) -> tuple[float, float, float]:
     """
     Θ (Theta): Lane → Demand tensor (τ, κ, ρ)
 
@@ -458,7 +458,7 @@ def Θ(lane: Lane) -> Tuple[float, float, float]:
         >>> Θ(Lane.CRISIS)
         (0.8, 0.9, 1.0)
     """
-    demand_map: Dict[Lane, Tuple[float, float, float]] = {
+    demand_map: dict[Lane, tuple[float, float, float]] = {
         Lane.SOCIAL: (0.2, 0.1, 0.0),  # Low demands
         Lane.CARE: (0.4, 0.7, 0.2),  # High care demand
         Lane.FACTUAL: (0.9, 0.3, 0.2),  # High truth demand
@@ -542,7 +542,7 @@ def Lambda(text: str) -> Lane:
     return Λ(text)
 
 
-def Theta(lane: Lane) -> Tuple[float, float, float]:
+def Theta(lane: Lane) -> tuple[float, float, float]:
     """ASCII alias for Θ()."""
     return Θ(lane)
 
@@ -557,7 +557,7 @@ def Phi(text: str) -> GPV:
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-def classify(query: str) -> Dict[str, any]:
+def classify(query: str) -> dict[str, any]:
     """
     Complete classification of a query.
 
@@ -602,7 +602,7 @@ def route(query: str) -> str:
 
 
 # Clear API aliases
-def classify_query(query: str) -> Dict[str, any]:
+def classify_query(query: str) -> dict[str, any]:
     """Clear alias for classify()."""
     return classify(query)
 

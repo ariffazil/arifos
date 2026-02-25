@@ -40,21 +40,27 @@ Unlike prompt-based guardrails that can be bypassed, **AAA MCP enforces constrai
 
 ---
 
-## The 11 Canonical MCP Tools
+## The 13 Canonical MCP Tools
 
 | Tool | Stage | Organ | Floors | Purpose |
 |------|-------|---------|--------|---------|
-| `init_session` | 000 | Ψ Init | F11, F12, F13 | Session ignition + defense scan |
-| `agi_cognition` | 111-444 | Δ Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
-| `phoenix_recall` | 555 | PHOENIX | F4, F7, F8 | Subconscious - Dynamic associative memory retrieval |
-| `asi_empathy` | 666 | Ω Heart | F5, F6, F9 | Empathy + alignment |
-| `apex_verdict` | 777 | Ψ Soul | F1-F13 | Judgment + consensus |
-| `sovereign_actuator`| 888 | FORGE | F1, F3, F9, F13 | Hands - Sandboxed execution (ΔS external) |
-| `vault_seal` | 999 | VAULT | F1, F3 | Immutable audit seal |
-| `search` | utility | External | F2, F7 | Web search (read-only) |
-| `fetch` | utility | External | F2, F7 | Web fetch (read-only) |
-| `analyze` | utility | Internal | F4 | Data/structure analysis |
-| `system_audit` | utility | Internal | F2, F3 | Constitutional health verification |
+| `anchor_session` | 000 | Ψ Init | F11, F12, F13 | Session ignition + defense scan |
+| `reason_mind` | 111-444 | Δ Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
+| `recall_memory` | 555 | PHOENIX | F4, F7, F8 | Dynamic associative memory retrieval |
+| `simulate_heart` | 555-666 | Ω Heart | F5, F6, F9 | Empathy + alignment simulation |
+| `critique_thought` | 666 | Ω Heart | F4, F7, F8 | Constitutional critique + bias checks |
+| `eureka_forge` | 777 | Ψ Soul | F1, F11, F12 | Sandboxed forge execution |
+| `apex_judge` | 888 | Ψ Soul | F1-F13 | Sovereign verdict synthesis |
+| `seal_vault` | 999 | VAULT | F1, F3, F10 | Immutable audit seal |
+| `search_reality` | utility | External | F2, F7 | Web grounding search |
+| `fetch_content` | utility | External | F2, F7 | Evidence/content retrieval |
+| `inspect_file` | utility | Internal | F1, F4, F11 | Filesystem inspection (read-only) |
+| `audit_rules` | utility | Internal | F2, F3, F10 | Constitutional health verification |
+| `check_vital` | utility | Internal | F4, F5, F7 | Runtime health telemetry |
+
+Alias compatibility:
+- `forge_hand` -> `eureka_forge`
+- `judge_soul` -> `apex_judge`
 
 **Verdicts:** `SEAL` | `VOID` | `PARTIAL` | `SABAR` | `888_HOLD`
 
@@ -118,10 +124,10 @@ Add to your Cline MCP settings file (e.g., `%APPDATA%\Code\User\globalStorage\sa
 ### Programmatic
 
 ```python
-from aaa_mcp.server import init_session, agi_cognition, apex_verdict
+from arifos_aaa_mcp.server import anchor_session, reason_mind, apex_judge
 
 # Start constitutional session
-session = await init_session(
+session = await anchor_session(
     query="Should we approve this loan?",
     actor_id="analyst_001"
 )
@@ -131,7 +137,7 @@ if session["verdict"] == "VOID":
     return
 
 # Execute with Δ cognition (reason + integrate + draft)
-result = await agi_cognition(
+result = await reason_mind(
     query="Analyze credit risk",
     session_id=session["session_id"]
 )
@@ -150,7 +156,7 @@ AAA MCP implements a **Composite Architecture** where human sovereignty is the f
 ┌─────────────────────────────────────────────────────────────┐
 │                    AAA MCP Server                           │
 │  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐     │
-│  │init_session │───→│agi_cognition│───→│apex_verdict │     │
+│  │anchor_session│──→│reason_mind  │───→│apex_judge  │     │
 │  │  (F11,F12)  │    │  Reasoning  │    │ Constitutional│     │
 │  └─────────────┘    └─────────────┘    └──────┬──────┘     │
 │                                                │            │
@@ -228,7 +234,7 @@ curl -X POST https://arifosmcp.arif-fazil.com/messages \
 {"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}
 
 # Call a tool
-{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"init_session","arguments":{"query":"..."}}}
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"anchor_session","arguments":{"query":"..."}}}
 
 # Keepalive ping
 {"jsonrpc":"2.0","id":4,"method":"ping","params":{}}
@@ -251,7 +257,7 @@ curl https://arifosmcp.arif-fazil.com/version
 curl https://arifosmcp.arif-fazil.com/tools
 
 # Call tool directly
-curl -X POST https://arifosmcp.arif-fazil.com/tools/init_session \
+curl -X POST https://arifosmcp.arif-fazil.com/tools/anchor_session \
   -H "Content-Type: application/json" \
   -d '{"query":"test","actor_id":"user"}'
 
@@ -269,12 +275,12 @@ See [`rest.py`](rest.py) for the full REST API implementation.
 
 ### Financial Services (Compliance)
 ```python
-session = await init_session(
+session = await anchor_session(
     query="Approve $500K loan to Acme Corp",
     actor_id="risk_officer_001",
 )
 
-verdict = await apex_verdict(
+verdict = await apex_judge(
     session_id=session["session_id"],
     query="Approve $500K loan to Acme Corp",
     implementation_details={"risk_model": "v3", "policy": "credit_2026"},
@@ -286,7 +292,7 @@ verdict = await apex_verdict(
 
 ### Healthcare (Safety-Critical)
 ```python
-result = await agi_cognition(
+result = await reason_mind(
     query="Side effects of warfarin with aspirin",
     session_id="sess_12345",
     grounding=["pubmed", "clinical-guidelines"],  # F2 external verification context
@@ -296,7 +302,7 @@ result = await agi_cognition(
 
 ### Legal (Liability Protection)
 ```python
-session = await init_session(
+session = await anchor_session(
     query="Review merger agreement for risks",
     actor_id="legal_analyst_001",
 )

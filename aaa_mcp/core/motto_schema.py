@@ -5,7 +5,8 @@ Transports core mottos to AI agents via MCP resources.
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-from typing import Dict, Any
+from typing import Any
+
 from core.shared.mottos import (
     ALL_MOTTOS,
     ERROR_MOTTOS,
@@ -15,7 +16,7 @@ from core.shared.mottos import (
 )
 
 
-def get_mottos_resource() -> Dict[str, Any]:
+def get_mottos_resource() -> dict[str, Any]:
     """Get the complete mottos resource for MCP."""
     mottos_data = {code.value: motto.to_dict() for code, motto in ALL_MOTTOS.items()}
 

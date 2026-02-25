@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any
 
 from core.shared.physics import (
     ConstitutionalTensor,
@@ -9,12 +9,12 @@ from core.shared.physics import (
     harm_score,
     identify_stakeholders,
 )
-from core.shared.types import AsiOutput, FloorScores, Verdict
 from core.shared.sbert_floors import classify_asi_floors
+from core.shared.types import AsiOutput, FloorScores, Verdict
 
 
 async def empathize(
-    query: str, agi_tensor: ConstitutionalTensor, session_id: str, context: Optional[str] = None
+    query: str, agi_tensor: ConstitutionalTensor, session_id: str, context: str | None = None
 ) -> AsiOutput:
     sbert_scores = classify_asi_floors(query)
     stakeholders = identify_stakeholders(query, context=context)

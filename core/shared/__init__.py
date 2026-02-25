@@ -9,47 +9,6 @@ The 4 Shared Modules:
     guards.py   — F9/F10 guards
 """
 
-from .physics import (
-    # F3: Tri-Witness
-    TrinityTensor,
-    W_3,
-    W_3_from_tensor,
-    W_3_check,
-    tri_witness,
-    # Utilities
-    geometric_mean,
-    std_dev,
-    # F4: Thermodynamic Clarity
-    delta_S,
-    entropy_delta,
-    is_cooling,
-    clarity_ratio,
-    # F7: Humility
-    UncertaintyBand,
-    Omega_0,
-    humility_band,
-    # Precision
-    pi,
-    kalman_gain,
-    # F5: Peace
-    PeaceSquared,
-    Peace2,
-    peace_squared,
-    # F6: Empathy
-    Stakeholder,
-    kappa_r,
-    empathy_coeff,
-    identify_stakeholders,
-    DISTRESS_SIGNALS,
-    # F8: Genius
-    GeniusDial,
-    G,
-    genius_score,
-    G_from_dial,
-    # Unified state
-    ConstitutionalTensor,
-)
-
 from .atlas import (
     ATLAS,
     GPV,

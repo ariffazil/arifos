@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 
-def build_surface_discovery(tools: List[str]) -> Dict[str, Any]:
+def build_surface_discovery(tools: list[str]) -> dict[str, Any]:
     """Build lightweight discovery payload for resources/prompts/clients."""
     return {
         "surface": "arifOS_AAA_MCP",

@@ -81,8 +81,9 @@ def cost_estimator(
         in_tokens = int(token_count * 0.7)
         out_tokens = int(token_count * 0.3)
         costs["llm_cost_usd"] = round(
-            (in_tokens / 1000) * m_pricing.get("input_per_1k", 0.01) +
-            (out_tokens / 1000) * m_pricing.get("output_per_1k", 0.03), 6
+            (in_tokens / 1000) * m_pricing.get("input_per_1k", 0.01)
+            + (out_tokens / 1000) * m_pricing.get("output_per_1k", 0.03),
+            6,
         )
     elif operation_type == "embedding" and token_count:
         p_pricing = pricing.get(provider, {})
@@ -125,18 +126,19 @@ def cost_estimator(
     else:
         risk_band = "green"
 
-    return ok({
-        "action_description": action_description,
-        "operation_type": operation_type,
-        "costs": costs,
-        "hardware_context": {
-            "cores": logical_cores,
-            "max_cpu_percent": max_cpu_pct,
-            "total_ram_mb": round(max_ram_mb, 0),
-        },
-        "thermodynamic": {
-            "cost_score": cost_score,
-            "risk_band": risk_band,
+    return ok(
+        {
+            "action_description": action_description,
+            "operation_type": operation_type,
+            "costs": costs,
+            "hardware_context": {
+                "cores": logical_cores,
+                "max_cpu_percent": max_cpu_pct,
+                "total_ram_mb": round(max_ram_mb, 0),
+            },
+            "thermodynamic": {
+                "cost_score": cost_score,
+                "risk_band": risk_band,
+            },
         }
-    })
-
+    )

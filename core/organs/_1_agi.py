@@ -20,7 +20,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import re
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from core.shared.atlas import GPV, Lane, Phi, QueryType
 from core.shared.physics import ConstitutionalTensor, GeniusDial, Omega_0, TrinityTensor, delta_S
@@ -32,8 +32,8 @@ from core.shared.types import AgiOutput, FloorScores, ThoughtNode, Verdict
 async def sense(
     query: str,
     session_id: str,
-    grounding: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    grounding: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Stage 111: SENSE — The first touch of the Mind
 
@@ -109,9 +109,9 @@ def _extract_intent(query: str) -> str:
 
 async def think(
     query: str,
-    sense_output: Dict[str, Any],
+    sense_output: dict[str, Any],
     session_id: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Stage 222: THINK — Generate three reasoning paths
 
@@ -161,7 +161,7 @@ async def think(
     }
 
 
-def _generate_hypotheses(query: str, gpv: GPV) -> List[ThoughtNode]:
+def _generate_hypotheses(query: str, gpv: GPV) -> list[ThoughtNode]:
     """
     Generate three reasoning paths (Conservative, Exploratory, Adversarial)
     dynamically based on the query content.
@@ -246,11 +246,11 @@ def _generate_hypotheses(query: str, gpv: GPV) -> List[ThoughtNode]:
 
 async def reason(
     query: str,
-    think_output: Dict[str, Any],
+    think_output: dict[str, Any],
     session_id: str,
     max_thoughts: int = 5,
-    gpv: Optional[GPV] = None,
-) -> tuple[ConstitutionalTensor, List[ThoughtNode]]:
+    gpv: GPV | None = None,
+) -> tuple[ConstitutionalTensor, list[ThoughtNode]]:
     """
     Stage 333: REASON — Deep sequential thinking loop
 
@@ -295,7 +295,7 @@ async def reason(
     hypotheses = think_output["hypotheses"]
 
     # Build reasoning chain
-    thoughts: List[ThoughtNode] = []
+    thoughts: list[ThoughtNode] = []
     prev_confidence = 0.5
 
     for i in range(max_thoughts):
@@ -352,8 +352,8 @@ async def reason(
 
 def _generate_thought(
     query: str,
-    hypotheses: List[ThoughtNode],
-    prev_thoughts: List[ThoughtNode],
+    hypotheses: list[ThoughtNode],
+    prev_thoughts: list[ThoughtNode],
     step: int,
 ) -> ThoughtNode:
     """Generate a single thought in the chain."""
@@ -420,9 +420,9 @@ async def agi(
     query: str,
     session_id: str,
     action: str = "full",
-    grounding: Optional[Dict[str, Any]] = None,
-    gpv: Optional[GPV] = None,
-) -> Dict[str, Any]:
+    grounding: dict[str, Any] | None = None,
+    gpv: GPV | None = None,
+) -> dict[str, Any]:
     """
     Unified AGI interface — The Mind in action.
 

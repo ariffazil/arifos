@@ -5,8 +5,6 @@ Maps 9 external MCP servers to constitutional governance layer
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List, Optional
-
 
 
 class TrinityComponent(Enum):
@@ -22,11 +20,11 @@ class MCPServerConfig:
     name: str
     description: str
     trinity: TrinityComponent
-    floors: List[str]
+    floors: list[str]
     atomic_action: str
     omega_threshold: float  # Ω₀ uncertainty limit
     reversible: bool  # F1 Amanah compliance
-    package_name: Optional[str] = None
+    package_name: str | None = None
 
 
 # arifOS MCP Server Registry
@@ -114,12 +112,12 @@ MCP_SERVERS = {
 }
 
 
-def get_server_config(name: str) -> Optional[MCPServerConfig]:
+def get_server_config(name: str) -> MCPServerConfig | None:
     """Get MCP server configuration by name"""
     return MCP_SERVERS.get(name)
 
 
-def list_servers_by_trinity(component: TrinityComponent) -> List[MCPServerConfig]:
+def list_servers_by_trinity(component: TrinityComponent) -> list[MCPServerConfig]:
     """List all MCP servers mapped to a Trinity component"""
     return [s for s in MCP_SERVERS.values() if s.trinity == component]
 

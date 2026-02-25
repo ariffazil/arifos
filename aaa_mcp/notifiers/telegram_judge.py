@@ -5,7 +5,6 @@ Human-in-the-loop untuk constitutional escalation.
 """
 
 import os
-from typing import Dict
 
 
 class TelegramJudge:
@@ -16,7 +15,7 @@ class TelegramJudge:
         self.chat_id = os.getenv("TELEGRAM_CHAT_ID")
         self.enabled = bool(self.bot_token and self.chat_id)
 
-    async def notify_888_hold(self, verdict_context: Dict) -> Dict:
+    async def notify_888_hold(self, verdict_context: dict) -> dict:
         """
         Notify 888 Judge when constitutional hold triggered.
 

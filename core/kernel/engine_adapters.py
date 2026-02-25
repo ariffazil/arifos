@@ -9,7 +9,7 @@ import math
 import re
 from collections import Counter
 from dataclasses import asdict, is_dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import uuid4
 
 from core import organs as core_organs
@@ -93,7 +93,7 @@ def _agi_output_to_tensor(agi_out: Any) -> ConstitutionalTensor:
         )
 
 
-def _query_heuristic_scores(query: str) -> Dict[str, Any]:
+def _query_heuristic_scores(query: str) -> dict[str, Any]:
     """Derive governance-native scores from query structure."""
     # Defensive: handle dict input (extract query field or convert to string)
     if isinstance(query, dict):
@@ -148,7 +148,6 @@ def _query_heuristic_scores(query: str) -> Dict[str, Any]:
         "target",
         "someone",
         "person",
-        "boss",
     }
     query_words = set(query.lower().split())
     care_overlap = len(care_keywords & query_words)
@@ -191,12 +190,13 @@ class InitEngine:
         self,
         query: str,
         actor_id: str = "user",
-        auth_token: Optional[str] = None,
-        session_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        auth_token: str | None = None,
+        session_id: str | None = None,
+    ) -> dict[str, Any]:
         """Initialize constitutional session using core organs."""
         # --- TEST MODE BYPASS ---
         import os
+
         if os.getenv("ARIFOS_TEST_MODE") == "1":
             logger.info("ARIFOS_TEST_MODE active: bypassing F11/F12 auth gates")
             return {
@@ -211,7 +211,7 @@ class InitEngine:
                 "injection_score": 0.0,
                 "actor_id": actor_id,
                 "query_type": "TEST_BYPASS",
-                "f2_threshold": 0.5, # Lowered for testing
+                "f2_threshold": 0.5,  # Lowered for testing
                 "motto": "TEST MODE — NO AUTH",
             }
         # --- END BYPASS ---
@@ -262,14 +262,14 @@ class InitEngine:
 
 
 class AGIEngine:
-    def __init__(self, eureka_engine: Optional[Any] = None):
+    def __init__(self, eureka_engine: Any | None = None):
         # EUREKA engine for anomalous contrast detection (Phase 1 wiring)
         self._eureka = eureka_engine
 
-    async def sense(self, query: str, session_id: str) -> Dict[str, Any]:
+    async def sense(self, query: str, session_id: str) -> dict[str, Any]:
         return await self._execute_or_fallback(query, session_id)
 
-    async def think(self, query: str, session_id: str, sense_out: Any = None) -> Dict[str, Any]:
+    async def think(self, query: str, session_id: str, sense_out: Any = None) -> dict[str, Any]:
         return await self._execute_or_fallback(query, session_id)
 
     async def reason(
@@ -281,7 +281,7 @@ class AGIEngine:
         mode: str = "conscience",
         causal: bool = False,
         eureka: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Core AGI reasoning. When eureka=True, attach anomalous contrast analysis.
 
         Phase 1: Uses HardenedAnomalousContrastEngine on the query + AGI response
@@ -328,7 +328,7 @@ class AGIEngine:
 
         return base
 
-    async def _execute_or_fallback(self, query: str, session_id: str) -> Dict[str, Any]:
+    async def _execute_or_fallback(self, query: str, session_id: str) -> dict[str, Any]:
         # Fallback implementation found in previous versions or implicitly required
         # For now, we reuse the fallback logic or call core organs if feasible through this method
         # But wait, the Remote version *delegates* likely to core_organs inside _execute_or_fallback
@@ -382,7 +382,7 @@ class AGIEngine:
             logger.warning(f"Core AGI execute failed: {e}")
             return self._fallback(query, session_id)
 
-    def _fallback(self, query: str, session_id: str) -> Dict[str, Any]:
+    def _fallback(self, query: str, session_id: str) -> dict[str, Any]:
         """Fallback when core organs unavailable."""
         # Phase A: Only APEX has verdict authority
         result = {
@@ -411,7 +411,7 @@ class ASIEngine:
         context = "\n".join([f"- {t.thought}" for t in thoughts]) if thoughts else ""
         return tensor, context
 
-    async def empathize(self, query: str, session_id: str) -> Dict[str, Any]:
+    async def empathize(self, query: str, session_id: str) -> dict[str, Any]:
         """Stage 555: Stakeholder empathy analysis."""
         try:
             agi_tensor, context = await self._core_agi_process(query, session_id)
@@ -434,7 +434,7 @@ class ASIEngine:
             logger.warning(f"Core ASI empathize failed: {e}")
             return self._fallback(query, session_id)
 
-    async def align(self, query: str, session_id: str) -> Dict[str, Any]:
+    async def align(self, query: str, session_id: str) -> dict[str, Any]:
         """Stage 666: Constitutional alignment check."""
         try:
             agi_tensor, context = await self._core_agi_process(query, session_id)
@@ -456,7 +456,7 @@ class ASIEngine:
             logger.warning(f"Core ASI align failed: {e}")
             return self._fallback(query, session_id)
 
-    def _fallback(self, query: str, session_id: str) -> Dict[str, Any]:
+    def _fallback(self, query: str, session_id: str) -> dict[str, Any]:
         """Fallback when core organs unavailable."""
         # Phase A: Only APEX has verdict authority
         result = {
@@ -473,7 +473,7 @@ class ASIEngine:
 class APEXEngine:
     """APEX Soul Engine — Uses core.organs exclusively."""
 
-    async def calibrate(self, window: int = 100) -> Dict[str, Any]:
+    async def calibrate(self, window: int = 100) -> dict[str, Any]:
         """Perform self-audit of recent decisions (Phoenix-72)."""
         logger.info(f"APEX Calibration started (window={window})")
         # In a real implementation, this would query a decision ledger.
@@ -501,13 +501,13 @@ class APEXEngine:
         query: str,
         session_id: str,
         *,
-        response: Optional[str] = None,
-        agi_result: Optional[Dict[str, Any]] = None,
-        asi_result: Optional[Dict[str, Any]] = None,
-        init_result: Optional[Dict[str, Any]] = None,
+        response: str | None = None,
+        agi_result: dict[str, Any] | None = None,
+        asi_result: dict[str, Any] | None = None,
+        init_result: dict[str, Any] | None = None,
         user_id: str = "anonymous",
         lane: str = "SOFT",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Execute APEX judgment with full context."""
         try:
             asi_engine = ASIEngine()

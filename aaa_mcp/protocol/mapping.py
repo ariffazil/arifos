@@ -13,7 +13,7 @@ Version: 1.0.0-LOW_ENTROPY
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass(frozen=True)
@@ -25,16 +25,16 @@ class StageSchema:
     motto: str
     meaning: str
     principle: str
-    input_schema: Dict[str, Any]
-    output_schema: Dict[str, Any]
-    floors: List[str]
+    input_schema: dict[str, Any]
+    output_schema: dict[str, Any]
+    floors: list[str]
 
 
 # ═════════════════════════════════════════════════════════════════════════════
 # 9 PRINCIPLES — Human + Machine Dual Representation
 # ═════════════════════════════════════════════════════════════════════════════
 
-STAGE_SCHEMAS: Dict[str, StageSchema] = {
+STAGE_SCHEMAS: dict[str, StageSchema] = {
     "000": StageSchema(
         stage_id="000",
         operator_id="EARNED",
@@ -154,12 +154,12 @@ class SchemaMottoMapper:
     """Bidirectional mapping between human and machine representations."""
 
     @staticmethod
-    def get_by_stage(stage_id: str) -> Optional[StageSchema]:
+    def get_by_stage(stage_id: str) -> StageSchema | None:
         """Get schema by stage ID (e.g., '333')."""
         return STAGE_SCHEMAS.get(stage_id)
 
     @staticmethod
-    def get_by_operator(operator_id: str) -> Optional[StageSchema]:
+    def get_by_operator(operator_id: str) -> StageSchema | None:
         """Get schema by operator ID (e.g., 'CLARIFY')."""
         for schema in STAGE_SCHEMAS.values():
             if schema.operator_id == operator_id:
@@ -167,7 +167,7 @@ class SchemaMottoMapper:
         return None
 
     @staticmethod
-    def get_by_motto(motto_fragment: str) -> Optional[StageSchema]:
+    def get_by_motto(motto_fragment: str) -> StageSchema | None:
         """Get schema by motto fragment (fuzzy match)."""
         fragment_lower = motto_fragment.lower()
         for schema in STAGE_SCHEMAS.values():
@@ -176,7 +176,7 @@ class SchemaMottoMapper:
         return None
 
     @staticmethod
-    def get_by_principle(principle: str) -> Optional[StageSchema]:
+    def get_by_principle(principle: str) -> StageSchema | None:
         """Get schema by principle description (fuzzy match)."""
         principle_lower = principle.lower()
         for schema in STAGE_SCHEMAS.values():
@@ -185,7 +185,7 @@ class SchemaMottoMapper:
         return None
 
     @staticmethod
-    def to_human_readable(stage_id: str) -> Dict[str, str]:
+    def to_human_readable(stage_id: str) -> dict[str, str]:
         """Convert stage to human-readable format."""
         schema = STAGE_SCHEMAS.get(stage_id)
         if not schema:
@@ -198,7 +198,7 @@ class SchemaMottoMapper:
         }
 
     @staticmethod
-    def to_machine_readable(stage_id: str) -> Dict[str, Any]:
+    def to_machine_readable(stage_id: str) -> dict[str, Any]:
         """Convert stage to machine-readable (low-entropy) format."""
         schema = STAGE_SCHEMAS.get(stage_id)
         if not schema:
@@ -213,7 +213,7 @@ class SchemaMottoMapper:
         }
 
     @staticmethod
-    def build_pipeline_schema(stage_ids: List[str]) -> Dict[str, Any]:
+    def build_pipeline_schema(stage_ids: list[str]) -> dict[str, Any]:
         """Build complete pipeline schema from stage list."""
         pipeline = []
         for stage_id in stage_ids:
@@ -234,7 +234,7 @@ class SchemaMottoMapper:
 
 
 # Helper function for invariants
-def get_operator_invariant(operator_id: str) -> Dict[str, Any]:
+def get_operator_invariant(operator_id: str) -> dict[str, Any]:
     """Get invariant constraints for an operator."""
     invariants = {
         "EARNED": {"auth": "valid"},
@@ -252,7 +252,7 @@ def get_operator_invariant(operator_id: str) -> Dict[str, Any]:
 
 
 # Convenience functions
-def get_schema_for_stage(stage_id: str) -> Optional[StageSchema]:
+def get_schema_for_stage(stage_id: str) -> StageSchema | None:
     """Get complete schema for a stage."""
     return SchemaMottoMapper.get_by_stage(stage_id)
 
@@ -275,11 +275,11 @@ def get_principle_for_stage(stage_id: str) -> str:
     return schema.principle if schema else ""
 
 
-def get_all_stages() -> List[str]:
+def get_all_stages() -> list[str]:
     """Get all stage IDs."""
     return list(STAGE_SCHEMAS.keys())
 
 
-def get_all_operators() -> List[str]:
+def get_all_operators() -> list[str]:
     """Get all operator IDs."""
     return [s.operator_id for s in STAGE_SCHEMAS.values()]

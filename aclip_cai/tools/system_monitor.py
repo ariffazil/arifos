@@ -27,7 +27,7 @@ def get_resource_usage(
     if PSUTIL_OK:
         try:
             data: dict[str, Any] = {}
-            
+
             # 1. CPU
             cpu_percent = psutil.cpu_percent(interval=0.1)
             try:
@@ -57,7 +57,7 @@ def get_resource_usage(
                 "usage_percent": mem.percent,
                 "total_gb": round(mem.total / 1e9, 1),
                 "used_gb": round(mem.used / 1e9, 1),
-                "percent": mem.percent, # Duplicate for compatibility
+                "percent": mem.percent,  # Duplicate for compatibility
             }
             if include_swap:
                 swap = psutil.swap_memory()
@@ -78,7 +78,7 @@ def get_resource_usage(
                 "usage_percent": disk.percent,
                 "total_gb": round(disk.total / 1e9, 1),
                 "used_gb": round(disk.used / 1e9, 1),
-                "percent": disk.percent, # Duplicate for compatibility
+                "percent": disk.percent,  # Duplicate for compatibility
             }
 
             # 4. IO
@@ -100,22 +100,19 @@ def get_resource_usage(
             if include_temp:
                 if hasattr(psutil, "sensors_temperatures"):
                     temps = psutil.sensors_temperatures()
-                    data["thermal"] = {
-                        k: [v.current for v in vals] for k, vals in temps.items()
-                    }
+                    data["thermal"] = {k: [v.current for v in vals] for k, vals in temps.items()}
                 else:
                     data["thermal"] = {"warning": "thermal_sensors_not_available"}
 
             data["platform"] = platform.system()
             data["uptime_seconds"] = round(time.time() - psutil.boot_time(), 1)
-            
+
             return ok(data)
-            
+
         except Exception as e:
             return void(f"psutil runtime error: {e}", "Check system permissions")
     else:
         return _fallback_wmi_usage()
-
 
 
 def list_processes(
@@ -136,16 +133,16 @@ def list_processes(
                 info = p.info
                 name = info["name"] or ""
                 user = info["username"] or "unknown"
-                
+
                 # Filters
                 if filter_name and filter_name.lower() not in name.lower():
                     continue
                 if filter_user and filter_user.lower() not in user.lower():
                     continue
-                
+
                 mem_mb = round((info["memory_info"].rss if info["memory_info"] else 0) / 1e6, 1)
                 cpu_pct = round(info["cpu_percent"] or 0.0, 1)
-                
+
                 if mem_mb < min_memory_mb:
                     continue
                 if cpu_pct < min_cpu_percent:
@@ -162,22 +159,22 @@ def list_processes(
                 }
                 if include_threads:
                     proc_data["threads"] = info["num_threads"]
-                
+
                 procs.append(proc_data)
-                
+
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
 
         # Sort by RAM by default
         procs.sort(key=lambda x: x["ram_mb"], reverse=True)
-        return ok({
-            "total_count": len(procs[:limit]),
-            "processes": procs[:limit],
-        })
+        return ok(
+            {
+                "total_count": len(procs[:limit]),
+                "processes": procs[:limit],
+            }
+        )
     else:
         return void("psutil not installed", "uv pip install psutil")
-
-
 
 
 def get_system_health(
@@ -196,7 +193,7 @@ def get_system_health(
     procs = list_processes(limit=10)
 
     warnings = []
-    
+
     def _pct(node, key):
         # res is already flattened by ok()
         return res.get(node, {}).get(key, 0)
@@ -224,7 +221,6 @@ def get_system_health(
         return partial(result_data, warning="; ".join(warnings), warnings=warnings)
 
 
-
 def _fallback_wmi_usage() -> dict[str, Any]:
     """PowerShell-based fallback for Windows when psutil is unavailable."""
     script = (
@@ -247,13 +243,12 @@ def _fallback_wmi_usage() -> dict[str, Any]:
             timeout=10,
         )
 
-
         data = json.loads(result.stdout.strip())
         ram_total = data.get("ram_total", 0)
         ram_free = data.get("ram_free", 0)
         disk_total = data.get("disk_total", 0)
         disk_free = data.get("disk_free", 0)
-        
+
         usage = {
             "source": "wmi_fallback",
             "ram": {
@@ -276,4 +271,3 @@ def _fallback_wmi_usage() -> dict[str, Any]:
         return ok(usage)
     except Exception as e:
         return void(f"WMI fallback failed: {e}", "Install psutil for better reliability")
-

@@ -135,7 +135,6 @@ async def system_health(
     return _wrap_tool("system_health", start, res)
 
 
-
 # =============================================================================
 # Tool 2: process_list — Process Inspection
 # =============================================================================
@@ -160,6 +159,7 @@ async def process_list(
         include_threads=include_threads,
     )
     return _wrap_tool("process_list", start, res)
+
 
 # =============================================================================
 # Tool 3: fs_inspect — Filesystem Inspection
@@ -188,6 +188,7 @@ async def fs_inspect(
     )
 
     return _wrap_tool("fs_inspect", start, res)
+
 
 # =============================================================================
 # Tool 4: log_tail — Log File Monitoring
@@ -259,7 +260,6 @@ async def config_flags(
         include_secrets=include_secrets,
     )
     return _wrap_tool("config_flags", start, res)
-
 
 
 # =============================================================================

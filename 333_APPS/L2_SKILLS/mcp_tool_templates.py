@@ -11,7 +11,7 @@ import re
 import secrets
 import time
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 # =============================================================================
 
 
-async def _ignite_(query: str, user_token: Optional[str] = None, **kwargs) -> Dict[str, Any]:
+async def _ignite_(query: str, user_token: str | None = None, **kwargs) -> dict[str, Any]:
     """000_INIT: Constitutional gate with F11/F12 enforcement."""
     session_id = f"sess_{int(datetime.now().timestamp())}_{secrets.token_hex(4)}"
 
@@ -53,7 +53,7 @@ async def _ignite_(query: str, user_token: Optional[str] = None, **kwargs) -> Di
         return {"verdict": "VOID", "session_id": session_id, "reason": "Internal error"}
 
 
-def _verify_authority(token: Optional[str]) -> str:
+def _verify_authority(token: str | None) -> str:
     """F11: Authority verification."""
     if not token:
         return "PUBLIC"
@@ -81,7 +81,7 @@ def _detect_injection(text: str) -> float:
 # =============================================================================
 
 
-async def _logic_(query: str, session_id: str, **kwargs) -> Dict[str, Any]:
+async def _logic_(query: str, session_id: str, **kwargs) -> dict[str, Any]:
     """111-333: AGI Mind with F2, F4, F7, F10 enforcement."""
     try:
         # Calculate metrics
@@ -131,7 +131,7 @@ async def _logic_(query: str, session_id: str, **kwargs) -> Dict[str, Any]:
 _circuit_breaker = {"failures": 0, "blocked_until": 0, "max": 3, "timeout": 300}
 
 
-async def _senses_(query: str, session_id: str, **kwargs) -> Dict[str, Any]:
+async def _senses_(query: str, session_id: str, **kwargs) -> dict[str, Any]:
     """External reality grounding with circuit breaker."""
     # Circuit breaker check
     if time.time() < _circuit_breaker["blocked_until"]:
@@ -161,7 +161,7 @@ async def _senses_(query: str, session_id: str, **kwargs) -> Dict[str, Any]:
 # =============================================================================
 
 
-async def _atlas_(query: str = "", session_id: Optional[str] = None, **kwargs) -> Dict[str, Any]:
+async def _atlas_(query: str = "", session_id: str | None = None, **kwargs) -> dict[str, Any]:
     """Knowledge atlas with F10 ontology enforcement."""
     from pathlib import Path
 
@@ -189,7 +189,7 @@ async def _atlas_(query: str = "", session_id: Optional[str] = None, **kwargs) -
 # =============================================================================
 
 
-async def _forge_(task: str, session_id: str, **kwargs) -> Dict[str, Any]:
+async def _forge_(task: str, session_id: str, **kwargs) -> dict[str, Any]:
     """444-777: Forge with F1, F5, F6, F9 enforcement."""
     # Placeholder calculations
     empathy_kappa = 0.96
@@ -233,7 +233,7 @@ async def _forge_(task: str, session_id: str, **kwargs) -> Dict[str, Any]:
 # =============================================================================
 
 
-async def _audit_(proposal: str, session_id: str, **kwargs) -> Dict[str, Any]:
+async def _audit_(proposal: str, session_id: str, **kwargs) -> dict[str, Any]:
     """Floor-by-floor constitutional compliance audit."""
     floors = {
         "F1": "PASS",
@@ -267,7 +267,7 @@ async def _audit_(proposal: str, session_id: str, **kwargs) -> Dict[str, Any]:
 # =============================================================================
 
 
-async def _decree_(verdict_data: Dict[str, Any], session_id: str, **kwargs) -> Dict[str, Any]:
+async def _decree_(verdict_data: dict[str, Any], session_id: str, **kwargs) -> dict[str, Any]:
     """888-999: Final judgment with cryptographic seal."""
     # F3 Tri-Witness
     consensus = verdict_data.get("consensus", 0.96)

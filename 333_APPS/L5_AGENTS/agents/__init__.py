@@ -27,10 +27,10 @@ class AgentResult:
     """Typed result from any agent execution."""
 
     verdict: str = "VOID"  # SEAL / VOID / SABAR / PARTIAL / 888_HOLD
-    data: Dict[str, Any] = field(default_factory=dict)
-    session_id: Optional[str] = None
+    data: dict[str, Any] = field(default_factory=dict)
+    session_id: str | None = None
     agent: str = ""
-    error: Optional[str] = None
+    error: str | None = None
 
     @property
     def ok(self) -> bool:
@@ -43,7 +43,7 @@ class Agent:
     name: str = "base"
     symbol: str = "?"
 
-    async def execute(self, context: Dict[str, Any]) -> AgentResult:
+    async def execute(self, context: dict[str, Any]) -> AgentResult:
         """
         Execute agent pipeline.
 
@@ -58,7 +58,7 @@ class Agent:
         """
         raise NotImplementedError(f"{self.name} not implemented")
 
-    def _safe_get(self, context: Dict[str, Any], key: str, default: Any = None) -> Any:
+    def _safe_get(self, context: dict[str, Any], key: str, default: Any = None) -> Any:
         """Safely get a value from context dict."""
         if isinstance(context, dict):
             return context.get(key, default)

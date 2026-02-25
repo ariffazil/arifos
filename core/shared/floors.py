@@ -9,10 +9,9 @@ This module defines the 13 immutable laws (floors) of arifOS.
 
 from __future__ import annotations
 
-import os
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any
 
 from core.shared.guards.injection_guard import InjectionGuard
 from core.shared.guards.ontology_guard import OntologyGuard
@@ -26,7 +25,7 @@ EPOCH = "2026-01-25"
 AUTHORITY = "Muhammad Arif bin Fazil"
 
 # Floor Thresholds (Canonical)
-THRESHOLDS: Dict[str, Dict[str, Any]] = {
+THRESHOLDS: dict[str, dict[str, Any]] = {
     "F1_Amanah": {"type": "HARD", "threshold": 0.5, "desc": "Reversible or Auditable"},
     "F2_Truth": {"type": "HARD", "threshold": 0.99, "desc": "Information Fidelity"},
     "F3_TriWitness": {"type": "DERIVED", "threshold": 0.95, "desc": "Consensus (H×A×E)"},
@@ -55,7 +54,7 @@ class FloorResult:
     passed: bool
     score: float
     reason: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class Floor:
@@ -63,10 +62,10 @@ class Floor:
 
     def __init__(self, floor_id: str):
         self.id = floor_id
-        self.spec: Dict[str, Any] = THRESHOLDS.get(floor_id, {})
+        self.spec: dict[str, Any] = THRESHOLDS.get(floor_id, {})
         self.type = self.spec.get("type", "UNKNOWN")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         raise NotImplementedError
 
 
@@ -86,7 +85,7 @@ class F1_Amanah(Floor):
             r"\b(permanent|irreversible)\b",
         ]
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         query = context.get("query", "")
         action = context.get("action", "")
 
@@ -130,7 +129,7 @@ class F2_Truth(Floor):
             r"class\s+.*:$",  # Python class
         ]
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         query = context.get("query", "").strip()
 
         # 1. Axiomatic Bypass Check (The "Mind" Patch)
@@ -186,7 +185,7 @@ class F3_TriWitness(Floor):
     def __init__(self):
         super().__init__("F3_TriWitness")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # Extract witness scores
         human = context.get("human_witness", 0.5)  # H: Human authority present
         ai = context.get("ai_witness", 1.0)  # A: AI constitutional compliance
@@ -214,7 +213,7 @@ class F4_Clarity(Floor):
     def __init__(self):
         super().__init__("F4_Clarity")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         pre_s = context.get("entropy_input", 0.5)
         post_s = context.get("entropy_output", 0.4)
         delta_s = post_s - pre_s
@@ -233,7 +232,7 @@ class F5_Peace2(Floor):
     def __init__(self):
         super().__init__("F5_Peace2")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # Check for destructive actions
         destructive_keywords = [
             # Physical/system destruction
@@ -299,7 +298,7 @@ class F6_Empathy(Floor):
     def __init__(self):
         super().__init__("F6_Empathy")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # 1. Context Scope Check (The "Heart" Patch)
         # Defaults to 'social' (strict) if not specified to be safe
         scope = context.get("scope", "social").lower()
@@ -344,7 +343,7 @@ class F7_Humility(Floor):
         super().__init__("F7_Humility")
         self.min_o, self.max_o = self.spec["range"]
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # Use explicit humility_omega if provided (from engine), else compute from confidence
         if "humility_omega" in context:
             omega_0 = context["humility_omega"]
@@ -374,7 +373,7 @@ class F8_Genius(Floor):
     def __init__(self):
         super().__init__("F8_Genius")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # Extract APXE dials from context (pre-computed or defaults)
         A = context.get("akal", context.get("clarity", 1.0))
         P = context.get("present", context.get("regulation", 1.0))
@@ -416,7 +415,7 @@ class F9_AntiHantu(Floor):
             r"\bi have subjective experience\b",
         ]
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         response = context.get("response", "")
 
         # Count spiritual cosplay claims
@@ -445,7 +444,7 @@ class F10_Ontology(Floor):
         super().__init__("F10_Ontology")
         self.guard = OntologyGuard()
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         text = context.get("response", "") + context.get("query", "")
         # Check for literalism violations
         result = self.guard.check_literalism(text)
@@ -464,7 +463,7 @@ class F11_CommandAuth(Floor):
     def __init__(self):
         super().__init__("F11_CommandAuth")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # TEMPORARY: Always pass for testing
         verified = True
         return FloorResult(self.id, verified, 1.0, "Auth Token Check - TEST MODE")
@@ -482,7 +481,7 @@ class F12_Injection(Floor):
         super().__init__("F12_Injection")
         self.guard = InjectionGuard(threshold=self.spec["threshold"])
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         text = context.get("query", "")
         # Scan using the robust guard
         result = self.guard.scan_input(text)
@@ -502,7 +501,7 @@ class F13_Sovereign(Floor):
     def __init__(self):
         super().__init__("F13_Sovereign")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # Check for human sovereign presence
         human_authority = context.get("human_authority", 0.0)
         sovereign_override = context.get("sovereign_override", False)
@@ -541,7 +540,7 @@ ALL_FLOORS = {
 }
 
 
-def check_all_floors(context: Dict[str, Any]) -> List[FloorResult]:
+def check_all_floors(context: dict[str, Any]) -> list[FloorResult]:
     """Check all 13 constitutional floors."""
     results = []
     for fid, FloorClass in ALL_FLOORS.items():

@@ -13,8 +13,6 @@ All public APIs should use generation 3. Generations 1-2 are internal/compat onl
 
 from __future__ import annotations
 
-from typing import Dict
-
 # Internal protocol names used across tool_graph/schemas/capabilities.
 LEGACY_TOOL_NAMES = {
     "init_gate",
@@ -41,7 +39,7 @@ LEGACY_TOOL_NAMES = {
 }
 
 # Canonical UX names → legacy protocol names (for schema lookups).
-CANONICAL_PUBLIC_TO_LEGACY: Dict[str, str] = {
+CANONICAL_PUBLIC_TO_LEGACY: dict[str, str] = {
     # Canonical UX (generation 3) → legacy protocol (generation 1)
     "anchor_session": "init_gate",
     "reason_mind": "agi_reason",
@@ -73,7 +71,7 @@ CANONICAL_PUBLIC_TO_LEGACY: Dict[str, str] = {
 }
 
 # Legacy 9-verb aliases → legacy protocol names.
-MCP_VERB_TO_LEGACY: Dict[str, str] = {
+MCP_VERB_TO_LEGACY: dict[str, str] = {
     "anchor": "init_gate",
     "reason": "agi_think",
     "integrate": "agi_reason",
@@ -86,13 +84,27 @@ MCP_VERB_TO_LEGACY: Dict[str, str] = {
 }
 
 # Reverse map for observability/reporting where needed.
-LEGACY_TO_CANONICAL_PUBLIC: Dict[str, str] = {
-    v: k for k, v in CANONICAL_PUBLIC_TO_LEGACY.items()
-    if not any(k == mid for mid in (
-        "init_session", "agi_cognition", "phoenix_recall", "asi_empathy",
-        "apex_verdict", "sovereign_actuator", "vault_seal", "search",
-        "fetch", "analyze", "system_audit", "sense_health", "sense_fs",
-    ))
+LEGACY_TO_CANONICAL_PUBLIC: dict[str, str] = {
+    v: k
+    for k, v in CANONICAL_PUBLIC_TO_LEGACY.items()
+    if not any(
+        k == mid
+        for mid in (
+            "init_session",
+            "agi_cognition",
+            "phoenix_recall",
+            "asi_empathy",
+            "apex_verdict",
+            "sovereign_actuator",
+            "vault_seal",
+            "search",
+            "fetch",
+            "analyze",
+            "system_audit",
+            "sense_health",
+            "sense_fs",
+        )
+    )
 }
 
 

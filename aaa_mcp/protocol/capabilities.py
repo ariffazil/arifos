@@ -9,7 +9,7 @@ Version: 1.0.0-SEAL
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class ToolCategory(str, Enum):
@@ -43,20 +43,20 @@ class ToolCapability:
     category: ToolCategory
 
     # Constitutional
-    floors_enforced: List[str]
-    stage: Optional[str] = None
+    floors_enforced: list[str]
+    stage: str | None = None
 
     # Input/Output
-    input_schema: Dict[str, Any] = field(default_factory=dict)
-    output_schema: Dict[str, Any] = field(default_factory=dict)
-    required_params: List[str] = field(default_factory=list)
-    optional_params: List[str] = field(default_factory=list)
+    input_schema: dict[str, Any] = field(default_factory=dict)
+    output_schema: dict[str, Any] = field(default_factory=dict)
+    required_params: list[str] = field(default_factory=list)
+    optional_params: list[str] = field(default_factory=list)
 
     # Usage guidance
     when_to_use: str = ""
     when_not_to_use: str = ""
-    prerequisites: List[str] = field(default_factory=list)
-    next_recommended: List[str] = field(default_factory=list)
+    prerequisites: list[str] = field(default_factory=list)
+    next_recommended: list[str] = field(default_factory=list)
 
     # Success/failure
     success_indicator: str = ""
@@ -73,14 +73,14 @@ class ToolCapability:
 
     # Examples
     example_usage: str = ""
-    example_output: Dict[str, Any] = field(default_factory=dict)
+    example_output: dict[str, Any] = field(default_factory=dict)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
 # TOOL CAPABILITY REGISTRY
 # ═════════════════════════════════════════════════════════════════════════════
 
-TOOL_CAPABILITIES: Dict[str, ToolCapability] = {
+TOOL_CAPABILITIES: dict[str, ToolCapability] = {
     "init_gate": ToolCapability(
         name="init_gate",
         description="Initialize constitutional session with F11/F12 enforcement",
@@ -734,27 +734,27 @@ result = await simulate_transfer(
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-def get_capability(tool_name: str) -> Optional[ToolCapability]:
+def get_capability(tool_name: str) -> ToolCapability | None:
     """Get capability description for a tool."""
     return TOOL_CAPABILITIES.get(tool_name)
 
 
-def list_capabilities() -> Dict[str, str]:
+def list_capabilities() -> dict[str, str]:
     """List all tools with brief descriptions."""
     return {name: cap.description for name, cap in TOOL_CAPABILITIES.items()}
 
 
-def get_tools_by_category(category: ToolCategory) -> List[str]:
+def get_tools_by_category(category: ToolCategory) -> list[str]:
     """Get all tools in a category."""
     return [name for name, cap in TOOL_CAPABILITIES.items() if cap.category == category]
 
 
-def get_tools_by_floor(floor: str) -> List[str]:
+def get_tools_by_floor(floor: str) -> list[str]:
     """Get all tools that enforce a specific floor."""
     return [name for name, cap in TOOL_CAPABILITIES.items() if floor in cap.floors_enforced]
 
 
-def get_capability_dict(tool_name: str) -> Optional[Dict[str, Any]]:
+def get_capability_dict(tool_name: str) -> dict[str, Any] | None:
     """Get capability as dictionary for JSON serialization."""
     cap = TOOL_CAPABILITIES.get(tool_name)
     if not cap:
@@ -784,6 +784,6 @@ def get_capability_dict(tool_name: str) -> Optional[Dict[str, Any]]:
     }
 
 
-def get_all_capabilities_dict() -> Dict[str, Dict[str, Any]]:
+def get_all_capabilities_dict() -> dict[str, dict[str, Any]]:
     """Get all capabilities as dictionaries."""
     return {name: get_capability_dict(name) for name in TOOL_CAPABILITIES.keys()}

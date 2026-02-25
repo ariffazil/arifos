@@ -24,7 +24,7 @@ import hashlib
 import secrets
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from core.shared.mottos import MOTTO_999_SEAL as motto
 from core.shared.physics import ConstitutionalTensor
@@ -42,24 +42,24 @@ class SealReceipt:
     status: str  # SEALED, SABAR, TRANSIENT, VOID
     seal_id: str
     entry_hash: str
-    merkle_root: Optional[str] = None
-    sequence_number: Optional[int] = None
+    merkle_root: str | None = None
+    sequence_number: int | None = None
     timestamp: str = ""
     eureka_score: float = 0.0
     vault_backend: str = "memory"  # memory, postgres, filesystem
-    scar_weight: Optional[ScarWeight] = None  # NEW: For HOLD_888 ratification
-    phoenix_72_expiry: Optional[str] = None  # NEW: For cooling logic
+    scar_weight: ScarWeight | None = None  # NEW: For HOLD_888 ratification
+    phoenix_72_expiry: str | None = None  # NEW: For cooling logic
 
 
 async def seal(
-    judge_output: Dict[str, Any],
+    judge_output: dict[str, Any],
     agi_tensor: ConstitutionalTensor,
-    asi_output: Dict[str, Any],
+    asi_output: dict[str, Any],
     session_id: str,
     query: str = "",
     authority: str = "system",
-    eureka_data: Optional[Dict[str, Any]] = None,
-    objective_contract: Optional[Dict[str, Any]] = None,
+    eureka_data: dict[str, Any] | None = None,
+    objective_contract: dict[str, Any] | None = None,
 ) -> SealReceipt:
     """
     Stage 999: SEAL — The final commitment
@@ -184,10 +184,10 @@ async def seal(
 
 
 def _compute_eureka_score(
-    judge_output: Dict[str, Any],
+    judge_output: dict[str, Any],
     agi_tensor: ConstitutionalTensor,
-    asi_output: Dict[str, Any],
-    objective_contract: Optional[Dict[str, Any]] = None,
+    asi_output: dict[str, Any],
+    objective_contract: dict[str, Any] | None = None,
 ) -> float:
     """
     Compute EUREKA score (anomalous contrast).
@@ -232,8 +232,8 @@ def _compute_merkle_root(entry_hash: str) -> str:
 
 async def query(
     seal_id: str,
-    session_id: Optional[str] = None,
-) -> Optional[Dict[str, Any]]:
+    session_id: str | None = None,
+) -> dict[str, Any] | None:
     """
     Query the VAULT for a sealed record.
 
@@ -284,15 +284,15 @@ query_record = query
 
 async def vault(
     action: str,
-    judge_output: Optional[Dict[str, Any]] = None,
-    agi_tensor: Optional[ConstitutionalTensor] = None,
-    asi_output: Optional[Dict[str, Any]] = None,
+    judge_output: dict[str, Any] | None = None,
+    agi_tensor: ConstitutionalTensor | None = None,
+    asi_output: dict[str, Any] | None = None,
     session_id: str = "",
     query: str = "",
     seal_id: str = "",
     authority: str = "system",
-    eureka_data: Optional[Dict[str, Any]] = None,
-    objective_contract: Optional[Dict[str, Any]] = None,
+    eureka_data: dict[str, Any] | None = None,
+    objective_contract: dict[str, Any] | None = None,
 ) -> Any:
     """
     Unified VAULT interface — The Memory in action.
@@ -348,7 +348,7 @@ async def vault(
 async def vault_create_pending(
     query: str,
     response: str,
-    judge_output: Dict[str, Any],
+    judge_output: dict[str, Any],
     session_id: str,
 ) -> str:
     """

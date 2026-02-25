@@ -77,12 +77,14 @@ def query_memory(
             hit["embedding"] = embs[i]
         hits.append(hit)
 
-    return ok({
-        "collection": collection,
-        "query": query,
-        "count": len(hits),
-        "results": hits,
-    })
+    return ok(
+        {
+            "collection": collection,
+            "query": query,
+            "count": len(hits),
+            "results": hits,
+        }
+    )
 
 
 def list_collections(chroma_path: str | None = None) -> dict[str, Any]:
@@ -100,10 +102,12 @@ def list_collections(chroma_path: str | None = None) -> dict[str, Any]:
 
     try:
         cols = client.list_collections()
-        return ok({
-            "chroma_path": path,
-            "count": len(cols),
-            "collections": [{"name": c.name, "documents": c.count()} for c in cols],
-        })
+        return ok(
+            {
+                "chroma_path": path,
+                "count": len(cols),
+                "collections": [{"name": c.name, "documents": c.count()} for c in cols],
+            }
+        )
     except Exception as e:
         return void(str(e))

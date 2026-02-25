@@ -19,11 +19,7 @@ aaa_mcp/ = transport only (no decisions)
 __version__ = "2026.02.15-FORGE-TRINITY-SEAL"
 
 # Expose kernel components for import
-from . import uncertainty_engine
-from . import governance_kernel
-from . import telemetry
-from . import judgment
-from . import organs
+from . import governance_kernel, judgment, organs, telemetry, uncertainty_engine
 
 __all__ = [
     "uncertainty_engine",

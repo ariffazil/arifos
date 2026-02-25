@@ -37,7 +37,7 @@ We distinguish between the **Social Layer** (The Agents) and the **Physical Laye
 | **ARCHITECT** | Δ | Design & Plan | `agi_sense` / `agi_reason` |
 | **ENGINEER** | Ω | Build & Safety | `asi_empathize` / `asi_align` |
 | **AUDITOR** | 👁 | Verify & Truth | `reality_search` |
-| **VALIDATOR** | Ψ | Judge & Seal | `apex_verdict` / `vault_seal` |
+| **VALIDATOR** | Ψ | Judge & Seal | `apex_judge` / `seal_vault` |
 
 ### 2. The Physical Layer (The Habitat)
 *Status: ALIVE (100% Functional)*

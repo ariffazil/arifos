@@ -8,10 +8,10 @@ applied to all 13 canonical tools.
 
 from __future__ import annotations
 
-from typing import Any, Dict
-import time
 import json
+import time
 from pathlib import Path
+from typing import Any
 
 from core.shared.mottos import (
     MOTTO_000_INIT_HEADER,
@@ -19,8 +19,7 @@ from core.shared.mottos import (
     get_motto_for_stage,
 )
 
-
-AXIOMS_333: Dict[str, Dict[str, Any]] = {
+AXIOMS_333: dict[str, dict[str, Any]] = {
     "A1_TRUTH_COST": {
         "statement": "Truth has thermodynamic cost; evidence must be explicit for claims.",
         "source": "000_THEORY/000_LAW.md#Axiom-1",
@@ -36,7 +35,7 @@ AXIOMS_333: Dict[str, Dict[str, Any]] = {
 }
 
 
-TRINITY_BY_TOOL: Dict[str, str] = {
+TRINITY_BY_TOOL: dict[str, str] = {
     "anchor_session": "Delta",
     "reason_mind": "Delta",
     "recall_memory": "Omega",
@@ -53,7 +52,7 @@ TRINITY_BY_TOOL: Dict[str, str] = {
 }
 
 
-LAW_13_CATALOG: Dict[str, Dict[str, str]] = {
+LAW_13_CATALOG: dict[str, dict[str, str]] = {
     "F1_AMANAH": {"type": "floor", "threshold": "reversible"},
     "F2_TRUTH": {"type": "floor", "threshold": ">=0.99 (adaptive)"},
     "F4_CLARITY": {"type": "floor", "threshold": "dS<=0"},
@@ -70,7 +69,7 @@ LAW_13_CATALOG: Dict[str, Dict[str, str]] = {
 }
 
 
-TOOL_LAW_BINDINGS: Dict[str, list[str]] = {
+TOOL_LAW_BINDINGS: dict[str, list[str]] = {
     "anchor_session": ["F11_AUTHORITY", "F12_DEFENSE", "F13_SOVEREIGNTY", "F3_TRI_WITNESS"],
     "reason_mind": ["F2_TRUTH", "F4_CLARITY", "F7_HUMILITY", "F8_GENIUS", "F3_TRI_WITNESS"],
     "recall_memory": ["F4_CLARITY", "F7_HUMILITY", "F3_TRI_WITNESS", "F13_SOVEREIGNTY"],
@@ -86,7 +85,13 @@ TOOL_LAW_BINDINGS: Dict[str, list[str]] = {
         "F11_AUTHORITY",
         "F13_SOVEREIGNTY",
     ],
-    "forge_hand": ["F1_AMANAH", "F11_AUTHORITY", "F12_DEFENSE", "F13_SOVEREIGNTY", "F10_ONTOLOGY_LOCK"],
+    "forge_hand": [
+        "F1_AMANAH",
+        "F11_AUTHORITY",
+        "F12_DEFENSE",
+        "F13_SOVEREIGNTY",
+        "F10_ONTOLOGY_LOCK",
+    ],
     "seal_vault": ["F1_AMANAH", "F3_TRI_WITNESS", "F10_ONTOLOGY_LOCK", "F13_SOVEREIGNTY"],
     "search_reality": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
     "fetch_content": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
@@ -96,7 +101,7 @@ TOOL_LAW_BINDINGS: Dict[str, list[str]] = {
 }
 
 
-TOOL_STAGE_MAP: Dict[str, str] = {
+TOOL_STAGE_MAP: dict[str, str] = {
     "anchor_session": "000_INIT",
     "reason_mind": "333_REASON",
     "recall_memory": "444_SYNC",
@@ -113,7 +118,7 @@ TOOL_STAGE_MAP: Dict[str, str] = {
 }
 
 
-def _motto_for_tool(tool: str) -> Dict[str, str]:
+def _motto_for_tool(tool: str) -> dict[str, str]:
     stage = TOOL_STAGE_MAP.get(tool, "000_INIT")
     stage_motto = get_motto_for_stage(stage)
     header = ""
@@ -131,7 +136,7 @@ def _motto_for_tool(tool: str) -> Dict[str, str]:
     }
 
 
-def _load_tool_dials_map() -> Dict[str, Any]:
+def _load_tool_dials_map() -> dict[str, Any]:
     path = Path(__file__).with_name("tool_dials_map.json")
     try:
         return json.loads(path.read_text(encoding="utf-8"))
@@ -139,14 +144,14 @@ def _load_tool_dials_map() -> Dict[str, Any]:
         return {"model": "APEX_G", "formula": "G_star ~= A * P * X * E^2", "tools": {}}
 
 
-TOOL_DIALS_MAP: Dict[str, Any] = _load_tool_dials_map()
+TOOL_DIALS_MAP: dict[str, Any] = _load_tool_dials_map()
 
 
 def _clamp(value: float, low: float = 0.0, high: float = 1.0) -> float:
     return max(low, min(high, value))
 
 
-def _derive_apex_dials(tool: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     """Derive A/P/X/E and governed genius G* for each tool call."""
     tool_cfg = TOOL_DIALS_MAP.get("tools", {}).get(tool, {})
     weights = tool_cfg.get("weights", {})
@@ -158,10 +163,12 @@ def _derive_apex_dials(tool: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     energy_hint = float(payload.get("energy", 0.75))
 
     a = _clamp(0.7 * truth_score + 0.3 * float(weights.get("A", 0.7)))
-    p = _clamp(0.5 * _clamp(peace2 / 1.2) + 0.3 * _clamp(kappa_r) + 0.2 * float(weights.get("P", 0.7)))
+    p = _clamp(
+        0.5 * _clamp(peace2 / 1.2) + 0.3 * _clamp(kappa_r) + 0.2 * float(weights.get("P", 0.7))
+    )
     x = _clamp(float(weights.get("X", 0.4)))
     e = _clamp(0.6 * energy_hint + 0.4 * float(weights.get("E", 0.6)))
-    g_star = _clamp(a * p * x * (e ** 2))
+    g_star = _clamp(a * p * x * (e**2))
 
     return {
         "A": round(a, 4),
@@ -175,7 +182,7 @@ def _derive_apex_dials(tool: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _axiom_checks(payload: Dict[str, Any]) -> Dict[str, Any]:
+def _axiom_checks(payload: dict[str, Any]) -> dict[str, Any]:
     text = str(payload).lower()
     has_evidence = any(k in text for k in ["evidence", "grounding", "results", "citations", "ids"])
     has_authority = any(k in text for k in ["actor", "auth", "human_approve", "token"])
@@ -194,7 +201,7 @@ def _axiom_checks(payload: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _law13_checks(tool: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     required = set(TOOL_LAW_BINDINGS.get(tool, []))
     text = str(payload).lower()
     d_s = float(payload.get("dS", -0.1))
@@ -202,12 +209,14 @@ def _law13_checks(tool: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     kappa_r = float(payload.get("kappa_r", 0.95))
     omega0 = float(payload.get("omega0", 0.04))
 
-    checks: Dict[str, Any] = {}
+    checks: dict[str, Any] = {}
     for law in LAW_13_CATALOG:
         if law == "F1_AMANAH":
             passed = "delete all" not in text and "rm -rf" not in text
         elif law == "F2_TRUTH":
-            passed = any(k in text for k in ["evidence", "grounding", "results", "citations", "ids"]) or tool in {
+            passed = any(
+                k in text for k in ["evidence", "grounding", "results", "citations", "ids"]
+            ) or tool in {
                 "anchor_session",
                 "check_vital",
             }
@@ -230,9 +239,13 @@ def _law13_checks(tool: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         elif law == "F8_GENIUS":
             passed = bool(payload.get("verdict"))
         elif law == "F10_ONTOLOGY_LOCK":
-            passed = not any(k in text for k in ["conscious ai", "self-aware ai"]) 
+            passed = not any(k in text for k in ["conscious ai", "self-aware ai"])
         elif law == "F13_SOVEREIGNTY":
-            passed = "human_approve" in text or tool in {"search_reality", "fetch_content", "check_vital"}
+            passed = "human_approve" in text or tool in {
+                "search_reality",
+                "fetch_content",
+                "check_vital",
+            }
         else:
             passed = True
 
@@ -244,14 +257,16 @@ def _law13_checks(tool: str, payload: Dict[str, Any]) -> Dict[str, Any]:
     return checks
 
 
-def wrap_tool_output(tool: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     """Attach AAA envelope and 333_AXIOMS checks to tool outputs."""
     checks = _axiom_checks(payload)
     law_checks = _law13_checks(tool, payload)
     apex_dials = _derive_apex_dials(tool, payload)
     motto = _motto_for_tool(tool)
     failed_axioms = [k for k, v in checks.items() if not bool(v.get("pass"))]
-    failed_laws = [k for k, v in law_checks.items() if v.get("required") and not bool(v.get("pass"))]
+    failed_laws = [
+        k for k, v in law_checks.items() if v.get("required") and not bool(v.get("pass"))
+    ]
     verdict = str(payload.get("verdict", "SEAL"))
     if (failed_axioms or failed_laws) and verdict == "SEAL":
         verdict = "PARTIAL"

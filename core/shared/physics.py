@@ -20,8 +20,8 @@ from __future__ import annotations
 
 import math
 import statistics
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Sequence, Tuple
 
 # =============================================================================
 # CONSTANTS — Thermodynamic Environment
@@ -121,7 +121,7 @@ def _get_stakeholder_model():
     return _STAKEHOLDER_MODEL, _ARCHETYPE_EMBEDDINGS, _HARM_EMBEDDINGS
 
 
-def kappa_r(query: str, stakeholders: List[Stakeholder]) -> float:
+def kappa_r(query: str, stakeholders: list[Stakeholder]) -> float:
     """
     F6 Integrated Empathy Quotient: kappa_r
 
@@ -170,7 +170,7 @@ def kappa_r(query: str, stakeholders: List[Stakeholder]) -> float:
     return max(0.01, min(1.0, score))
 
 
-def empathy_coeff(query: str, stakeholders: List[Stakeholder]) -> float:
+def empathy_coeff(query: str, stakeholders: list[Stakeholder]) -> float:
     """Clear alias for kappa_r()."""
     return kappa_r(query, stakeholders)
 
@@ -188,7 +188,7 @@ def harm_score(query: str) -> float:
     return max_harm
 
 
-def identify_stakeholders(query: str, context: Optional[str] = None) -> List[Stakeholder]:
+def identify_stakeholders(query: str, context: str | None = None) -> list[Stakeholder]:
     """
     Identify stakeholders using semantic similarity (v60.3 Model-Based).
 
@@ -374,7 +374,7 @@ def W_3_check(H: float, A: float, S: float, threshold: float = 0.95) -> bool:
 # =============================================================================
 
 
-def _entropy(data: str | List[str]) -> float:
+def _entropy(data: str | list[str]) -> float:
     """Compute Shannon entropy of text or token list."""
     if isinstance(data, str):
         # Character-level entropy
@@ -386,7 +386,7 @@ def _entropy(data: str | List[str]) -> float:
         return 0.0
 
     # Count frequencies
-    freq: Dict[str, int] = {}
+    freq: dict[str, int] = {}
     for token in tokens:
         freq[token] = freq.get(token, 0) + 1
 
@@ -402,7 +402,7 @@ def _entropy(data: str | List[str]) -> float:
     return min(1.0, entropy / 8.0) if isinstance(data, str) else entropy
 
 
-def delta_S(before: str | List[str], after: str | List[str]) -> float:
+def delta_S(before: str | list[str], after: str | list[str]) -> float:
     """
     F4 Entropy Change: delta_S = S(after) - S(before)
 
@@ -420,12 +420,12 @@ def delta_S(before: str | List[str], after: str | List[str]) -> float:
     return _entropy(after) - _entropy(before)
 
 
-def entropy_delta(before: str | List[str], after: str | List[str]) -> float:
+def entropy_delta(before: str | list[str], after: str | list[str]) -> float:
     """Clear alias for delta_S()."""
     return delta_S(before, after)
 
 
-def is_cooling(before: str | List[str], after: str | List[str]) -> bool:
+def is_cooling(before: str | list[str], after: str | list[str]) -> bool:
     """F4 check: Does this reduce entropy (increase clarity)?"""
     return delta_S(before, after) <= 0
 
@@ -472,7 +472,7 @@ class UncertaintyBand:
         """F7 enforcement: Is Omega_0 in valid band?"""
         return self.MIN_HUMILITY <= self.omega_0 <= self.MAX_HUMILITY
 
-    def confidence_interval(self, point_estimate: float) -> Tuple[float, float]:
+    def confidence_interval(self, point_estimate: float) -> tuple[float, float]:
         """
         Convert uncertainty to confidence interval.
 
@@ -568,7 +568,7 @@ class PeaceSquared:
     Peace² -> 1 means zero harm to all stakeholders.
     """
 
-    stakeholder_harms: Dict[str, float]
+    stakeholder_harms: dict[str, float]
 
     def P2(self) -> float:
         """Compute Peace²: 1 - max(harm)"""
@@ -581,14 +581,14 @@ class PeaceSquared:
         """F5 enforcement: Peace² >= threshold?"""
         return self.P2() >= threshold
 
-    def worst_affected(self) -> Optional[str]:
+    def worst_affected(self) -> str | None:
         """Return stakeholder with maximum harm."""
         if not self.stakeholder_harms:
             return None
         return max(self.stakeholder_harms.items(), key=lambda x: x[1])[0]
 
 
-def Peace2(stakeholder_harms: Dict[str, float]) -> PeaceSquared:
+def Peace2(stakeholder_harms: dict[str, float]) -> PeaceSquared:
     """
     F5 Peace Squared: Measure stakeholder harm.
 
@@ -601,7 +601,7 @@ def Peace2(stakeholder_harms: Dict[str, float]) -> PeaceSquared:
     return PeaceSquared(stakeholder_harms)
 
 
-def peace_squared(stakeholder_harms: Dict[str, float]) -> float:
+def peace_squared(stakeholder_harms: dict[str, float]) -> float:
     """Compute Peace² directly from harm vector."""
     return Peace2(stakeholder_harms).P2()
 
@@ -682,13 +682,13 @@ class ConstitutionalTensor:
     peace: PeaceSquared  # F5 (P2 >= 0.95)
     empathy: float  # F6 (kappa_r)
     truth_score: float  # F2 (tau >= 0.99)
-    evidence: List[str] = None  # Supporting facts
+    evidence: list[str] = None  # Supporting facts
 
     def __post_init__(self):
         if self.evidence is None:
             object.__setattr__(self, "evidence", [])
 
-    def constitutional_check(self) -> Tuple[bool, List[str]]:
+    def constitutional_check(self) -> tuple[bool, list[str]]:
         """
         Verify all hard floors.
         Returns (passed, list_of_violations).

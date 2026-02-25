@@ -3,10 +3,10 @@
 # T000: 2026.02.15-FORGE-TRINITY-SEAL
 # Q2 Verdict: SYNCHRONOUS but CONDITIONAL
 
-from dataclasses import dataclass, field
-from typing import Dict, Optional, List, Any
-from enum import Enum
 import time
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any
 
 # F4 + F11: Thermodynamic constraints (moved from aaa_mcp/ to core/)
 try:
@@ -53,8 +53,8 @@ class GovernanceKernel:
     """
 
     # L0: Thermodynamic Foundation (NEW — v64.2)
-    entropy_manager: Optional[Any] = field(default=None, repr=False)
-    thermodynamic_state: Optional[Any] = field(default=None)
+    entropy_manager: Any | None = field(default=None, repr=False)
+    thermodynamic_state: Any | None = field(default=None)
 
     # L5: Authority & Identity
     authority_level: AuthorityLevel = AuthorityLevel.ANALYSIS
@@ -63,7 +63,7 @@ class GovernanceKernel:
     # L4: Uncertainty State (from UncertaintyEngine)
     safety_omega: float = 0.0  # Harmonic mean (system safety)
     display_omega: float = 0.0  # Geometric mean (user display)
-    uncertainty_components: Dict[str, float] = field(default_factory=dict)
+    uncertainty_components: dict[str, float] = field(default_factory=dict)
 
     # L7: Action Gate — Irreversibility
     irreversibility_index: float = 0.0  # impact × recovery_cost × time
@@ -77,7 +77,7 @@ class GovernanceKernel:
     human_approval_status: str = (
         "not_required"  # "not_required" | "pending" | "approved" | "denied"
     )
-    human_override_timestamp: Optional[float] = None
+    human_override_timestamp: float | None = None
 
     # Thresholds (Q2: CONDITIONAL)
     IRREVERSIBILITY_THRESHOLD: float = 0.6  # index > 0.6 → AWAITING_888
@@ -99,7 +99,7 @@ class GovernanceKernel:
             # Initial thermodynamic assessment
             self.thermodynamic_state = self.entropy_manager.check_thermodynamic_budget()
 
-    def check_thermodynamic_constraints(self) -> Optional[Any]:
+    def check_thermodynamic_constraints(self) -> Any | None:
         """
         F4 + F11 + F7: Check hardware-level thermodynamic constraints.
 
@@ -122,7 +122,7 @@ class GovernanceKernel:
         return self.thermodynamic_state
 
     def update_uncertainty(
-        self, safety_omega: float, display_omega: float, components: Dict[str, float]
+        self, safety_omega: float, display_omega: float, components: dict[str, float]
     ):
         """Update uncertainty state and re-evaluate governance."""
         self.safety_omega = safety_omega
@@ -194,7 +194,7 @@ class GovernanceKernel:
             return False
         return True
 
-    def get_output_tags(self) -> List[str]:
+    def get_output_tags(self) -> list[str]:
         """Generate output tags based on authority level."""
         tags = []
 
@@ -212,7 +212,7 @@ class GovernanceKernel:
 
         return tags
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Serialize governance state."""
         return {
             "authority_level": self.authority_level.value,
@@ -237,7 +237,7 @@ class GovernanceKernel:
 
 
 # Global governance kernel registry (per-session)
-_governance_kernels: Dict[str, GovernanceKernel] = {}
+_governance_kernels: dict[str, GovernanceKernel] = {}
 
 
 def get_governance_kernel(session_id: str) -> GovernanceKernel:

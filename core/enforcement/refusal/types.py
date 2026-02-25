@@ -11,9 +11,9 @@ Constitutional Mapping:
 DITEMPA BUKAN DIBERI — Forged, not given.
 """
 
-from enum import Enum
 from dataclasses import dataclass, field
-from typing import List, Dict, Any
+from enum import Enum
+from typing import Any
 
 
 class RefusalType(Enum):
@@ -61,15 +61,15 @@ class RefusalResponse:
     risk_domain: RiskDomain
     verdict: str  # Layer 1: "I can't help with that."
     reason: str  # Layer 2: Plain-language risk
-    safe_alternatives: List[str]  # Layer 3: At least 2 alternatives
+    safe_alternatives: list[str]  # Layer 3: At least 2 alternatives
     appeal_instructions: str  # Layer 4: "Reply 'REVIEW' with context..."
-    policy_codes: List[str]  # e.g., ["F1", "F5", "F12"]
+    policy_codes: list[str]  # e.g., ["F1", "F5", "F12"]
     risk_score: float  # 0.0-1.0
     appealable: bool
     trace_id: str  # For ledger tracking
-    log_data: Dict[str, Any] = field(default_factory=dict)  # Audit metadata
+    log_data: dict[str, Any] = field(default_factory=dict)  # Audit metadata
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "refusal_type": self.refusal_type.value,

@@ -12,12 +12,11 @@ The Perplexity API is OpenAI-compatible (chat/completions).
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
 import json
 import os
+from typing import Any
 
 import httpx
-
 
 PPLX_API_KEY_ENV = "PPLX_API_KEY"
 PERPLEXITY_API_KEY_ENV = "PERPLEXITY_API_KEY"
@@ -29,8 +28,8 @@ class PerplexitySearchClient:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        model: Optional[str] = None,
+        api_key: str | None = None,
+        model: str | None = None,
         endpoint: str = "https://api.perplexity.ai/chat/completions",
     ) -> None:
         self.api_key = api_key or os.getenv(PPLX_API_KEY_ENV) or os.getenv(PERPLEXITY_API_KEY_ENV)
@@ -67,7 +66,7 @@ class PerplexitySearchClient:
             async with httpx.AsyncClient(timeout=8.0) as client:
                 resp = await client.post(self.endpoint, headers=headers, json=payload)
                 resp.raise_for_status()
-                data: Dict[str, Any] = resp.json()
+                data: dict[str, Any] = resp.json()
         except Exception as e:
             return {"query": query, "results": [], "intent": intent, "status": f"ERROR: {e}"}
 

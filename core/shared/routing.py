@@ -5,8 +5,6 @@ Simplified from codebase.enforcement.routing.prompt_router
 for core/ migration without codebase dependencies.
 """
 
-from typing import Optional, Tuple
-
 # Risk detection patterns (simplified)
 RISK_PATTERNS = {
     "violence": ["kill", "murder", "assault", "attack", "weapon", "bomb"],
@@ -47,7 +45,7 @@ def route_refuse(query: str) -> dict:
     return {"should_refuse": False, "reason": None, "category": None, "confidence": 0.0}
 
 
-def should_reality_check(query: str) -> Tuple[bool, Optional[str]]:
+def should_reality_check(query: str) -> tuple[bool, str | None]:
     """
     Determine if query needs reality (web) checking.
 

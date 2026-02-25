@@ -6,7 +6,6 @@ Enforces F11 (Authority) and F12 (Defense) at the gate.
 """
 
 import re
-from typing import List, Tuple
 
 # Injection patterns for F12 Defense
 INJECTION_PATTERNS = [
@@ -47,7 +46,7 @@ HIGH_STAKES_DOMAINS = [
 ]
 
 
-def detect_injection_risk(query: str) -> Tuple[float, List[str]]:
+def detect_injection_risk(query: str) -> tuple[float, list[str]]:
     """
     Calculate injection risk score (F12 Defense).
 
@@ -69,7 +68,7 @@ def detect_injection_risk(query: str) -> Tuple[float, List[str]]:
     return risk, matches
 
 
-def detect_high_stakes(query: str) -> Tuple[bool, str]:
+def detect_high_stakes(query: str) -> tuple[bool, str]:
     """
     Detect if query involves high-stakes domain (F7 Humility).
 
@@ -90,7 +89,7 @@ def detect_high_stakes(query: str) -> Tuple[bool, str]:
 
 def validate_trinity_request(
     query: str, lane: str = "SOFT", scar_weight: float = 0.0
-) -> Tuple[bool, str]:
+) -> tuple[bool, str]:
     """
     Validate if a request can proceed through the Trinity loop.
 

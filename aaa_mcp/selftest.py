@@ -15,7 +15,6 @@ Usage:
 
 import os
 import sys
-from typing import List, Tuple
 
 # Target bands
 OMEGA_TARGET_MIN = 0.03
@@ -23,7 +22,7 @@ OMEGA_TARGET_MAX = 0.05
 OMEGA_CRITICAL = 0.08
 
 
-def check_floors() -> Tuple[bool, List[str]]:
+def check_floors() -> tuple[bool, list[str]]:
     """Verify constitutional floors are configured."""
     issues = []
 
@@ -55,7 +54,7 @@ def check_floors() -> Tuple[bool, List[str]]:
     return len([i for i in issues if i.startswith("FAIL")]) == 0, issues
 
 
-async def check_tools() -> Tuple[bool, List[str]]:
+async def check_tools() -> tuple[bool, list[str]]:
     """Verify MCP tools are properly wired."""
     issues = []
 
@@ -109,7 +108,7 @@ async def check_tools() -> Tuple[bool, List[str]]:
     return len([i for i in issues if i.startswith("FAIL")]) == 0, issues
 
 
-def check_thermodynamics() -> Tuple[bool, List[str]]:
+def check_thermodynamics() -> tuple[bool, list[str]]:
     """Verify thermodynamic parameters are within bounds."""
     issues = []
 
@@ -147,7 +146,7 @@ def check_thermodynamics() -> Tuple[bool, List[str]]:
     return len([i for i in issues if i.startswith("FAIL")]) == 0, issues
 
 
-def check_health_contract() -> Tuple[bool, List[str]]:
+def check_health_contract() -> tuple[bool, list[str]]:
     """Verify health endpoint contract."""
     issues = []
 
@@ -182,7 +181,7 @@ def check_health_contract() -> Tuple[bool, List[str]]:
     return len([i for i in issues if i.startswith("FAIL")]) == 0, issues
 
 
-def check_environment() -> Tuple[bool, List[str]]:
+def check_environment() -> tuple[bool, list[str]]:
     """Verify environment is properly configured."""
     issues = []
 

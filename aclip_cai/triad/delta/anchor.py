@@ -2,41 +2,31 @@
 aclip_cai/triad/delta/anchor.py — Stage 000 Ignition
 Anchor session + F12 injection scan.
 """
+
 from ...core.kernel import kernel
 from ...core.lifecycle import KernelState
 
-async def anchor(
-    session_id: str,
-    user_id: str,
-    context: str,
-    jurisdiction: str = "GLOBAL"
-) -> dict:
+
+async def anchor(session_id: str, user_id: str, context: str, jurisdiction: str = "GLOBAL") -> dict:
     """
     STAGE 000: Establishing Authority and Defense.
     Scan context for injection (F12) and establish session.
     """
     # Initialize session through lifecycle manager
     session = kernel.lifecycle.init_session(
-        session_id=session_id,
-        user_id=user_id,
-        jurisdiction=jurisdiction,
-        context=context
+        session_id=session_id, user_id=user_id, jurisdiction=jurisdiction, context=context
     )
-    
+
     # Run constitutional audit
-    audit_res = kernel.audit(
-        action="SESSION_IGNITION",
-        context=context,
-        severity="low"
-    )
-    
+    audit_res = kernel.audit(action="SESSION_IGNITION", context=context, severity="low")
+
     # Log the event to Vault
     kernel.vault.log_witness(
         session_id=session_id,
         agent_id="ARCHITECT",
         stage="000_INIT",
         statement=f"Ignition attempt for user {user_id}",
-        verdict=audit_res.verdict.value
+        verdict=audit_res.verdict.value,
     )
 
     return {
@@ -47,6 +37,6 @@ async def anchor(
         "telemetry": {
             "created_at": session.created_at.isoformat(),
             "pass_rate": audit_res.pass_rate,
-            "dS": audit_res.delta_s
-        }
+            "dS": audit_res.delta_s,
+        },
     }

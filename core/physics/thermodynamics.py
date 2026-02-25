@@ -17,11 +17,12 @@ Linux‑only dependencies:
 - psutil (cross‑platform but used for Linux‑specific metrics)
 """
 
-import psutil
 import subprocess
 import time
 from dataclasses import dataclass
-from typing import Optional, Tuple, Any
+from typing import Any
+
+import psutil
 
 
 @dataclass
@@ -57,9 +58,9 @@ class EntropyManager:
 
     def __init__(
         self,
-        zram_threshold: Optional[float] = None,
-        cpu_cap: Optional[int] = None,
-        memory_pressure_threshold: Optional[float] = None,
+        zram_threshold: float | None = None,
+        cpu_cap: int | None = None,
+        memory_pressure_threshold: float | None = None,
     ):
         """
         Initialize EntropyManager with constitutional thresholds.
@@ -139,7 +140,7 @@ class EntropyManager:
             verdict="SEAL",
         )
 
-    def enforce_f11_cpu_sovereignty(self, target_pid: Optional[int] = None) -> bool:
+    def enforce_f11_cpu_sovereignty(self, target_pid: int | None = None) -> bool:
         """
         F11 Command: Enforce CPU resource sovereignty.
 
@@ -179,7 +180,7 @@ class EntropyManager:
         """
         try:
             # Read ZRAM statistics from /sys/block/zram0
-            with open("/sys/block/zram0/mm_stat", "r") as f:
+            with open("/sys/block/zram0/mm_stat") as f:
                 stats = f.read().strip().split()
                 if len(stats) >= 3:
                     # mm_stat format: orig_data_size compr_data_size mem_used_total
@@ -260,7 +261,7 @@ class EntropyManager:
 
 
 # Singleton instance for system-wide use
-_entropy_manager: Optional[EntropyManager] = None
+_entropy_manager: EntropyManager | None = None
 
 
 def get_entropy_manager() -> EntropyManager:

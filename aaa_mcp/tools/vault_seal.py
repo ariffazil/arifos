@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional
+from typing import Any
 
 from aaa_mcp.services.constitutional_metrics import store_stage_result
 
@@ -6,9 +6,9 @@ from aaa_mcp.services.constitutional_metrics import store_stage_result
 async def vault_seal(
     session_id: str,
     verdict: str,
-    payload: Dict[str, Any],
-    metadata: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    payload: dict[str, Any],
+    metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     999_SEAL: Immutable Audit Ledger.
     Final stage of the metabolic loop (F1 Amanah).

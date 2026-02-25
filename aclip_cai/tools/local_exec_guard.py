@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Dict
+from typing import Any
 
 from aaa_mcp.core.constitutional_decorator import constitutional_floor
 from aaa_mcp.services.constitutional_metrics import store_stage_result
@@ -24,7 +24,7 @@ NETWORK_PATTERNS = ["curl", "wget", "ssh", "nc ", "netcat", "telnet", "ftp"]
 CRITICAL_PATHS = ["/", "/etc", "/var", "/usr", "/bin", "/sbin", "C:\\Windows", "C:\\Program Files"]
 
 
-def calculate_local_blast_radius(command: str) -> Dict[str, Any]:
+def calculate_local_blast_radius(command: str) -> dict[str, Any]:
     """
     F6 Empathy: Calculate blast radius for local shell commands.
     Returns score (0.0-1.0) and reasoning.
@@ -72,7 +72,7 @@ async def local_exec_guard(
     justification: str,
     run_in_background: bool = False,
     require_human_match: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Constitutional Guard for Local Shell Execution.
     Enforces F1 (Audit), F6 (Blast Radius), and F11 (Authority).

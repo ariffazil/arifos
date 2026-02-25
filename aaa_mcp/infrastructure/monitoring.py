@@ -8,12 +8,12 @@ DITEMPA BUKAN DIBERI
 """
 
 import asyncio
-import json
 import inspect
 import time
+from collections.abc import Callable
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime, timezone
+from typing import Any
 
 
 @dataclass
@@ -25,8 +25,8 @@ class PipelineMetrics:
     start_time: float
     end_time: float = 0.0
     verdict: str = ""
-    stages_executed: List[str] = field(default_factory=list)
-    floors_checked: Dict[str, bool] = field(default_factory=dict)
+    stages_executed: list[str] = field(default_factory=list)
+    floors_checked: dict[str, bool] = field(default_factory=dict)
     entropy_delta: float = 0.0
     landauer_risk: float = 0.0
     vault_lag_ms: float = 0.0
@@ -63,7 +63,7 @@ class MetricsCollector:
     """Collects and exports constitutional metrics."""
 
     def __init__(self):
-        self.metrics: List[PipelineMetrics] = []
+        self.metrics: list[PipelineMetrics] = []
         self.max_history = 1000
         self._lock = asyncio.Lock()
 
@@ -162,7 +162,7 @@ class MetricsCollector:
 
 
 # Global collector instance
-_collector: Optional[MetricsCollector] = None
+_collector: MetricsCollector | None = None
 
 
 def get_metrics_collector() -> MetricsCollector:
@@ -177,15 +177,15 @@ class HealthMonitor:
     """Monitors system health for civilization deployment."""
 
     def __init__(self):
-        self.checks: Dict[str, Callable] = {}
-        self.status: Dict[str, bool] = {}
-        self.last_check: Dict[str, float] = {}
+        self.checks: dict[str, Callable] = {}
+        self.status: dict[str, bool] = {}
+        self.last_check: dict[str, float] = {}
 
     def register(self, name: str, check_fn: Callable):
         """Register a health check."""
         self.checks[name] = check_fn
 
-    async def check_all(self) -> Dict[str, Any]:
+    async def check_all(self) -> dict[str, Any]:
         """Run all health checks."""
         results = {}
 
@@ -243,7 +243,7 @@ class HealthMonitor:
 
 
 # Global health monitor
-_health_monitor: Optional[HealthMonitor] = None
+_health_monitor: HealthMonitor | None = None
 
 
 def get_health_monitor() -> HealthMonitor:

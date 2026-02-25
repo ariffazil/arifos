@@ -64,12 +64,12 @@ def forge_guard(
                 "cpu_percent": health.get("cpu", {}).get("percent", 0),
                 "ram_percent": health.get("memory", {}).get("percent", 0),
             }
-            
+
             # Use warnings from result if present
             warnings = health.get("warnings", [])
             if not warnings and "warning" in health:
                 warnings = [health["warning"]]
-                
+
             if any("HIGH" in w or "CRITICAL" in w for w in warnings):
                 # Dry-run must stay deterministic for policy simulation and CI.
                 # We surface host pressure as context, but only block live actions.
@@ -89,7 +89,7 @@ def forge_guard(
         r">\s*/etc/passwd",
         r":\(\)\{ :\|: & \}\;:",  # Fork bomb
     ]
-    
+
     scan_text = f"{action} {target} {justification}".lower()
     danger_detected = False
     for pattern in forbidden_patterns:
@@ -145,6 +145,5 @@ def forge_guard(
         return ok(payload, error=f"Safety violation: {reason_code}")
     if not can_proceed:
         return partial(payload, warning="; ".join(reasons))
-    
-    return ok(payload)
 
+    return ok(payload)

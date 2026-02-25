@@ -105,33 +105,51 @@ class EnvelopeBuilder:
             drivers = []
         return {"score": score, "threshold": threshold, "drivers": drivers}
 
-    def _generate_sabar_requirements(self, verdict: str, payload: dict[str, Any]) -> dict[str, Any] | None:
+    def _generate_sabar_requirements(
+        self, verdict: str, payload: dict[str, Any]
+    ) -> dict[str, Any] | None:
         if verdict not in {"SABAR", "PARTIAL"}:
             return None
 
         failed_floors = payload.get("floors_failed", [])
         missing_fields = []
         template_fields = {}
-        generic_guidance = "Provide minimal input to address the constitutional failures." # Placeholder
-        
+        generic_guidance = (
+            "Provide minimal input to address the constitutional failures."  # Placeholder
+        )
+
         # This section needs to be dynamically generated based on specific tool context
         # For now, a generic structure based on failed floors
         for floor in failed_floors:
-            missing_fields.append({"field": f"input_for_{floor.lower()}", "needed_for": [floor], "example": "<FILL_REQUIRED_DATA>"})
+            missing_fields.append(
+                {
+                    "field": f"input_for_{floor.lower()}",
+                    "needed_for": [floor],
+                    "example": "<FILL_REQUIRED_DATA>",
+                }
+            )
             template_fields[f"input_for_{floor.lower()}"] = "<FILL_REQUIRED_DATA>"
-        
+
         if not missing_fields:
-            missing_fields.append({"field": "contextual_data", "needed_for": ["F_UNKNOWN"], "example": "<PROVIDE_MORE_CONTEXT>"})
+            missing_fields.append(
+                {
+                    "field": "contextual_data",
+                    "needed_for": ["F_UNKNOWN"],
+                    "example": "<PROVIDE_MORE_CONTEXT>",
+                }
+            )
             template_fields["contextual_data"] = "<PROVIDE_MORE_CONTEXT>"
 
         return {
             "missing_grounding": [f for f in failed_floors if f.startswith("F2")],
             "missing_fields": missing_fields,
             "minimum_next_input": generic_guidance,
-            "minimum_next_payload_template": template_fields
+            "minimum_next_payload_template": template_fields,
         }
 
-    def build_envelope(self, stage: str, session_id: str, verdict: str, payload: dict[str, Any]) -> dict[str, Any]:
+    def build_envelope(
+        self, stage: str, session_id: str, verdict: str, payload: dict[str, Any]
+    ) -> dict[str, Any]:
         floors_failed = payload.get("floors_failed", [])
         if not isinstance(floors_failed, list):
             floors_failed = []
@@ -160,7 +178,10 @@ envelope_builder = EnvelopeBuilder()
 # ═══════════════════════════════════════════════════════
 
 
-@mcp.tool(name="anchor_session", description="[Lane: Δ Delta] [Floors: F11, F12, F13] Session ignition & injection defense.")
+@mcp.tool(
+    name="anchor_session",
+    description="[Lane: Δ Delta] [Floors: F11, F12, F13] Session ignition & injection defense.",
+)
 async def _init_session(
     query: str,
     actor_id: str = "anonymous",
@@ -175,7 +196,7 @@ async def _init_session(
 ) -> dict[str, Any]:
     """
     Initialize a new constitutional session with L0 Kernel enforcement.
-    
+
     Args:
         query: User's initial query
         actor_id: Authenticated actor identifier
@@ -185,7 +206,7 @@ async def _init_session(
         debug: Include detailed internal data
         inject_kernel: Inject L0 constitutional prompt (default: True)
         compact_kernel: Use compact L0 prompt to save tokens (default: False)
-    
+
     Returns:
         Session data with constitutional system prompt
     """
@@ -193,7 +214,7 @@ async def _init_session(
         session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
         anch = await anchor(session_id=session_id, user_id=actor_id, context=query)
         verdict = str(anch.get("verdict", "SEAL"))
-        
+
         result = {
             "verdict": verdict,
             "session_id": anch.get("session_id", session_id),
@@ -216,19 +237,24 @@ async def _init_session(
                 payload=anch if isinstance(anch, dict) else {},
             )
         )
-        
+
         # 🔥 CONSTITUTIONAL INJECTION: Embed L0 Kernel prompt
         if inject_kernel:
             result = inject_l0_into_session(result, compact=compact_kernel)
-            
+
         return result
-        
+
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "000_INIT"}
 
+
 anchor_session = ToolHandle(_init_session)
 
-@mcp.tool(name="reason_mind", description="[Lane: Δ Delta] [Floors: F2, F4, F7, F8] AGI cognition & logic grounding.")
+
+@mcp.tool(
+    name="reason_mind",
+    description="[Lane: Δ Delta] [Floors: F2, F4, F7, F8] AGI cognition & logic grounding.",
+)
 async def _agi_cognition(
     query: str,
     session_id: str,
@@ -248,13 +274,19 @@ async def _agi_cognition(
 
         evidence = [str(x) for x in (grounding or [])]
         r = await reason(session_id=session_id, hypothesis=query, evidence=evidence)
-        i = await integrate(session_id=session_id, context_bundle={"query": query, "grounding": grounding or {}})
+        i = await integrate(
+            session_id=session_id, context_bundle={"query": query, "grounding": grounding or {}}
+        )
         d = await respond(session_id=session_id, draft_response=f"Draft response for: {query}")
-        verdict = _fold_verdict([str(r.get("verdict", "")), str(i.get("verdict", "")), str(d.get("verdict", ""))])
+        verdict = _fold_verdict(
+            [str(r.get("verdict", "")), str(i.get("verdict", "")), str(d.get("verdict", ""))]
+        )
         merged = {
             "truth_score": r.get("truth_score"),
             "f2_threshold": r.get("f2_threshold"),
-            "floors_failed": list(r.get("floors_failed", [])) + list(i.get("floors_failed", [])) + list(d.get("floors_failed", [])),
+            "floors_failed": list(r.get("floors_failed", []))
+            + list(i.get("floors_failed", []))
+            + list(d.get("floors_failed", [])),
         }
         result = {
             "capability_modules": capability_modules or [],
@@ -267,14 +299,23 @@ async def _agi_cognition(
             "debug": debug,
             "data": {"reason": r, "integrate": i, "respond": d} if debug else {},
         }
-        result.update(envelope_builder.build_envelope(stage="111-444", session_id=session_id, verdict=verdict, payload=merged))
+        result.update(
+            envelope_builder.build_envelope(
+                stage="111-444", session_id=session_id, verdict=verdict, payload=merged
+            )
+        )
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "111-444", "session_id": session_id}
 
+
 reason_mind = ToolHandle(_agi_cognition)
 
-@mcp.tool(name="recall_memory", description="[Lane: Ω Omega] [Floors: F4, F7, F13] Associative memory traces.")
+
+@mcp.tool(
+    name="recall_memory",
+    description="[Lane: Ω Omega] [Floors: F4, F7, F13] Associative memory traces.",
+)
 async def _phoenix_recall(
     current_thought_vector: str,
     session_id: str,
@@ -286,26 +327,31 @@ async def _phoenix_recall(
     try:
         if not session_id:
             return _build_floor_block("555_RECALL", "Missing session_id")
-        
+
         # Implementation will call core.organs._5_phoenix.phoenix_recall
         # For now, return a placeholder that confirms the stage
         result = {
             "status": "RECALL_SUCCESS",
             "memories": [],
-            "metrics": {
-                "jaccard_max": 0.0,
-                "delta_s_actual": 0.0,
-                "w_scar_applied": 0.5
-            }
+            "metrics": {"jaccard_max": 0.0, "delta_s_actual": 0.0, "w_scar_applied": 0.5},
         }
-        result.update(envelope_builder.build_envelope(stage="555_RECALL", session_id=session_id, verdict="SEAL", payload={}))
+        result.update(
+            envelope_builder.build_envelope(
+                stage="555_RECALL", session_id=session_id, verdict="SEAL", payload={}
+            )
+        )
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "555_RECALL", "session_id": session_id}
 
+
 recall_memory = ToolHandle(_phoenix_recall)
 
-@mcp.tool(name="simulate_heart", description="[Lane: Ω Omega] [Floors: F4, F5, F6] Stakeholder impact & care constraints.")
+
+@mcp.tool(
+    name="simulate_heart",
+    description="[Lane: Ω Omega] [Floors: F4, F5, F6] Stakeholder impact & care constraints.",
+)
 async def _asi_empathy(
     query: str,
     session_id: str,
@@ -341,14 +387,22 @@ async def _asi_empathy(
             "debug": debug,
             "data": {"validate": v, "align": a} if debug else {},
         }
-        result.update(envelope_builder.build_envelope(stage="555-666", session_id=session_id, verdict=verdict, payload=merged))
+        result.update(
+            envelope_builder.build_envelope(
+                stage="555-666", session_id=session_id, verdict=verdict, payload=merged
+            )
+        )
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "555-666", "session_id": session_id}
 
+
 simulate_heart = ToolHandle(_asi_empathy)
 
-@mcp.tool(name="judge_soul", description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis.")
+
+@mcp.tool(
+    name="judge_soul", description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis."
+)
 async def _apex_verdict(
     session_id: str,
     query: str,
@@ -379,12 +433,15 @@ async def _apex_verdict(
         }
         forged = await forge(session_id=session_id, plan=str(plan))
         sovereign_token = "888_APPROVED" if human_approve else ""
-        judged = await audit(session_id=session_id, action=str(plan), sovereign_token=sovereign_token)
+        judged = await audit(
+            session_id=session_id, action=str(plan), sovereign_token=sovereign_token
+        )
         verdict = str(judged.get("verdict", proposed_verdict))
         merged = {
             "truth_score": judged.get("truth_score"),
             "f2_threshold": judged.get("f2_threshold"),
-            "floors_failed": list(forged.get("floors_failed", [])) + list(judged.get("floors_failed", [])),
+            "floors_failed": list(forged.get("floors_failed", []))
+            + list(judged.get("floors_failed", [])),
         }
         result = {
             "authority": {"human_approve": human_approve},
@@ -397,14 +454,23 @@ async def _apex_verdict(
             "debug": debug,
             "data": {"forge": forged, "audit": judged} if debug else {},
         }
-        result.update(envelope_builder.build_envelope(stage="777-888", session_id=session_id, verdict=verdict, payload=merged))
+        result.update(
+            envelope_builder.build_envelope(
+                stage="777-888", session_id=session_id, verdict=verdict, payload=merged
+            )
+        )
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "777-888", "session_id": session_id}
 
+
 judge_soul = ToolHandle(_apex_verdict)
 
-@mcp.tool(name="forge_hand", description="[Lane: Ψ Psi] [Floors: F1, F11, F12] Sandboxed action execution.")
+
+@mcp.tool(
+    name="forge_hand",
+    description="[Lane: Ψ Psi] [Floors: F1, F11, F12] Sandboxed action execution.",
+)
 async def _sovereign_actuator(
     action_payload: dict[str, Any],
     signed_tensor: dict[str, Any],
@@ -420,22 +486,31 @@ async def _sovereign_actuator(
     try:
         if not session_id:
             return _build_floor_block("888_FORGE", "Missing session_id")
-        
+
         # Implementation will call core.organs._6_forge.sovereign_actuator
         # For now, return a placeholder that yields 888_HOLD if irreversible
         result = {
             "status": "888_HOLD",
             "message": "FORGE YIELDED. Sovereign ratification required.",
-            "instruction": "Sign the ratification_challenge with the Sovereign Key to proceed."
+            "instruction": "Sign the ratification_challenge with the Sovereign Key to proceed.",
         }
-        result.update(envelope_builder.build_envelope(stage="888_FORGE", session_id=session_id, verdict="888_HOLD", payload={}))
+        result.update(
+            envelope_builder.build_envelope(
+                stage="888_FORGE", session_id=session_id, verdict="888_HOLD", payload={}
+            )
+        )
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "888_FORGE", "session_id": session_id}
 
+
 forge_hand = ToolHandle(_sovereign_actuator)
 
-@mcp.tool(name="seal_vault", description="[Lane: Ψ Psi] [Floors: F1, F3, F10] Immutable ledger persistence.")
+
+@mcp.tool(
+    name="seal_vault",
+    description="[Lane: Ψ Psi] [Floors: F1, F3, F10] Immutable ledger persistence.",
+)
 async def _vault_seal(
     session_id: str,
     summary: str,
@@ -446,10 +521,15 @@ async def _vault_seal(
             return _build_floor_block("999_VAULT", "Missing session_id")
         res = await seal(session_id=session_id, task_summary=summary, was_modified=True)
         result = {"data": res, "status": verdict}
-        result.update(envelope_builder.build_envelope(stage="999_VAULT", session_id=session_id, verdict=verdict, payload=res))
+        result.update(
+            envelope_builder.build_envelope(
+                stage="999_VAULT", session_id=session_id, verdict=verdict, payload=res
+            )
+        )
         return result
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "stage": "999_VAULT", "session_id": session_id}
+
 
 seal_vault = ToolHandle(_vault_seal)
 
@@ -458,7 +538,10 @@ seal_vault = ToolHandle(_vault_seal)
 # ═══════════════════════════════════════════════════════
 
 
-@mcp.tool(name="search_reality", description="[Lane: Δ Delta] [Floors: F2, F4, F12] Web grounding (Perplexity/Brave).")
+@mcp.tool(
+    name="search_reality",
+    description="[Lane: Δ Delta] [Floors: F2, F4, F12] Web grounding (Perplexity/Brave).",
+)
 async def _search(query: str, intent: str = "general") -> dict[str, Any]:
     try:
         # Preferred order: Perplexity (if PPLX key is set) -> Brave fallback.
@@ -480,9 +563,14 @@ async def _search(query: str, intent: str = "general") -> dict[str, Any]:
     except Exception as e:
         return {"query": query, "intent": intent, "ids": [], "results": [], "status": f"ERROR: {e}"}
 
+
 search_reality = ToolHandle(_search)
 
-@mcp.tool(name="fetch_content", description="[Lane: Δ Delta] [Floors: F2, F4, F12] Raw evidence content retrieval.")
+
+@mcp.tool(
+    name="fetch_content",
+    description="[Lane: Δ Delta] [Floors: F2, F4, F12] Raw evidence content retrieval.",
+)
 async def _fetch(id: str, max_chars: int = 4000) -> dict[str, Any]:
     try:
         import urllib.request
@@ -494,11 +582,18 @@ async def _fetch(id: str, max_chars: int = 4000) -> dict[str, Any]:
         with urllib.request.urlopen(req, timeout=8) as resp:
             raw = resp.read()
         text = raw.decode("utf-8", errors="replace")
-        return {"id": id, "status": "OK", "content": text[:max_chars], "truncated": len(text) > max_chars}
+        return {
+            "id": id,
+            "status": "OK",
+            "content": text[:max_chars],
+            "truncated": len(text) > max_chars,
+        }
     except Exception as e:
         return {"id": id, "error": str(e), "status": "ERROR"}
 
+
 fetch_content = ToolHandle(_fetch)
+
 
 # Internal Tool
 async def _analyze(data: dict[str, Any], analysis_type: str = "structure") -> dict[str, Any]:
@@ -507,14 +602,28 @@ async def _analyze(data: dict[str, Any], analysis_type: str = "structure") -> di
             depth = 1
             if isinstance(data, dict):
                 depth = 2 if any(isinstance(v, dict) for v in data.values()) else 1
-            return {"verdict": "SEAL", "analysis_type": analysis_type, "depth": depth, "keys": list(data.keys())}
-        return {"verdict": "PARTIAL", "analysis_type": analysis_type, "message": "Unknown analysis_type"}
+            return {
+                "verdict": "SEAL",
+                "analysis_type": analysis_type,
+                "depth": depth,
+                "keys": list(data.keys()),
+            }
+        return {
+            "verdict": "PARTIAL",
+            "analysis_type": analysis_type,
+            "message": "Unknown analysis_type",
+        }
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "analysis_type": analysis_type}
 
+
 # analyze = ToolHandle(_analyze)
 
-@mcp.tool(name="audit_rules", description="[Lane: Δ Delta] [Floors: F2, F8, F10] Rule & governance audit checks.")
+
+@mcp.tool(
+    name="audit_rules",
+    description="[Lane: Δ Delta] [Floors: F2, F8, F10] Rule & governance audit checks.",
+)
 async def _system_audit(audit_scope: str = "quick", verify_floors: bool = True) -> dict[str, Any]:
     try:
         details: dict[str, Any] = {"scope": audit_scope}
@@ -527,35 +636,68 @@ async def _system_audit(audit_scope: str = "quick", verify_floors: bool = True) 
             except Exception as e:
                 details["floors_loaded"] = False
                 details["floor_error"] = str(e)
-        return {"verdict": "SEAL" if details.get("floors_loaded", True) else "PARTIAL", "scope": audit_scope, "details": details}
+        return {
+            "verdict": "SEAL" if details.get("floors_loaded", True) else "PARTIAL",
+            "scope": audit_scope,
+            "details": details,
+        }
     except Exception as e:
         return {"verdict": "VOID", "error": str(e), "scope": audit_scope}
+
 
 audit_rules = ToolHandle(_system_audit)
 
 
-@mcp.tool(name="critique_thought", description="[Lane: Ω Omega] [Floors: F4, F7, F8] 7-organ alignment & bias critique.")
+@mcp.tool(
+    name="critique_thought",
+    description="[Lane: Ω Omega] [Floors: F4, F7, F8] 7-organ alignment & bias critique.",
+)
 async def _critique_thought(session_id: str, query: str) -> dict[str, Any]:
-    return envelope_builder.build_envelope(stage="666_CRITIQUE", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
+    return envelope_builder.build_envelope(
+        stage="666_CRITIQUE",
+        session_id=session_id,
+        verdict="SEAL",
+        payload={"status": "STUB_IMPLEMENTATION"},
+    )
+
 
 critique_thought = ToolHandle(_critique_thought)
 
-@mcp.tool(name="inspect_file", description="[Lane: Δ Delta] [Floors: F1, F4, F11] Filesystem inspection (read-only).")
+
+@mcp.tool(
+    name="inspect_file",
+    description="[Lane: Δ Delta] [Floors: F1, F4, F11] Filesystem inspection (read-only).",
+)
 async def _inspect_file(session_id: str, path: str) -> dict[str, Any]:
-    return envelope_builder.build_envelope(stage="111_INSPECT", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
+    return envelope_builder.build_envelope(
+        stage="111_INSPECT",
+        session_id=session_id,
+        verdict="SEAL",
+        payload={"status": "STUB_IMPLEMENTATION"},
+    )
+
 
 inspect_file = ToolHandle(_inspect_file)
 
-@mcp.tool(name="check_vital", description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.")
+
+@mcp.tool(
+    name="check_vital",
+    description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.",
+)
 async def _check_vital(session_id: str) -> dict[str, Any]:
-    return envelope_builder.build_envelope(stage="555_HEALTH", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
+    return envelope_builder.build_envelope(
+        stage="555_HEALTH",
+        session_id=session_id,
+        verdict="SEAL",
+        payload={"status": "STUB_IMPLEMENTATION"},
+    )
+
 
 check_vital = ToolHandle(_check_vital)
 
 # ═══════════════════════════════════════════════════════
 # RESOURCES, TEMPLATES, PROMPTS (Full-context orchestration + Inspector completeness)
 # ═══════════════════════════════════════════════════════
-
 
 
 @mcp.resource(
@@ -631,6 +773,7 @@ async def _arifos_governance_brief_prompt() -> str:
         "If an operation is high-stakes or irreversible, request explicit human approval.\n"
     )
 
+
 @mcp.resource(
     "arifos://templates/full-context",
     name="arifos_full_context_template",
@@ -661,7 +804,8 @@ def _prompt_trinity_forge(query: str, actor_id: str = "user", mode: str = "consc
         "Use trinity_forge for full constitutional orchestration with session continuity.\n"
         "Stage spine: 000 -> 222 -> 333 -> 444 -> 666 -> 888 -> 999.\n"
         "Require truthful grounding; fail closed on F2/F11/F12 with remediation.\n"
-        "Call shape: {\"name\":\"trinity_forge\",\"arguments\":{\"query\":%r,\"actor_id\":%r,\"mode\":%r}}" % (query, actor_id, mode)
+        'Call shape: {"name":"trinity_forge","arguments":{"query":%r,"actor_id":%r,"mode":%r}}'
+        % (query, actor_id, mode)
     )
 
 
@@ -686,6 +830,7 @@ def _prompt_audit_then_seal(session_id: str, summary: str, proposed_verdict: str
         "If verdict is 888_HOLD, stop and request human ratification before seal.\n"
         "session_id=%s; proposed_verdict=%s; summary=%s" % (session_id, proposed_verdict, summary)
     )
+
 
 __all__ = [
     "create_unified_mcp_server",

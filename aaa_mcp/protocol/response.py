@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal
 
 # Import canonical tool paths
 from .tool_registry import get_next_tool
@@ -49,16 +49,16 @@ class UnifiedResponse:
     stage: StageType
     message: str
     policy_verdict: PolicyVerdict
-    next_tool: Optional[str]
-    data: Dict[str, Any] = field(default_factory=dict)
+    next_tool: str | None
+    data: dict[str, Any] = field(default_factory=dict)
 
     # Constitutional governance (always present for audit)
-    _constitutional: Optional[Dict[str, Any]] = None
+    _constitutional: dict[str, Any] | None = None
 
     # Debug (gated)
-    _debug: Optional[Dict[str, Any]] = None
+    _debug: dict[str, Any] | None = None
 
-    def to_dict(self, debug: bool = False) -> Dict[str, Any]:
+    def to_dict(self, debug: bool = False) -> dict[str, Any]:
         """Convert to dictionary, optionally including debug data."""
         result = {
             "status": self.status,
@@ -83,7 +83,7 @@ class UnifiedResponse:
                 result["_debug"] = self._debug
         return result
 
-    def to_mcp_format(self, debug: bool = False) -> Dict[str, Any]:
+    def to_mcp_format(self, debug: bool = False) -> dict[str, Any]:
         """
         Convert to MCP-compliant format with content + structuredContent.
         This is the AUDIT-READY format per external auditor feedback.
@@ -183,7 +183,7 @@ def build_init_response(
     session_id: str,
     verdict: PolicyVerdict,
     mode: str = "fluid",
-    debug_data: Optional[Dict] = None,
+    debug_data: dict | None = None,
     debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for init_gate (stage 000)."""
@@ -269,7 +269,7 @@ def build_sense_response(
     lane: str,
     requires_grounding: bool,
     verdict: PolicyVerdict = "SEAL",
-    debug_data: Optional[Dict] = None,
+    debug_data: dict | None = None,
     debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for agi_sense (stage 111)."""
@@ -296,10 +296,10 @@ def build_sense_response(
 
 def build_think_response(
     session_id: str,
-    hypotheses: List[Dict],
+    hypotheses: list[dict],
     recommended_path: str,
     verdict: PolicyVerdict = "SEAL",
-    debug_data: Optional[Dict] = None,
+    debug_data: dict | None = None,
     debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for agi_think (stage 222)."""
@@ -328,7 +328,7 @@ def build_reason_response(
     truth_score: float,
     confidence: float,
     verdict: PolicyVerdict,
-    debug_data: Optional[Dict] = None,
+    debug_data: dict | None = None,
     debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for agi_reason (stage 333)."""
@@ -354,9 +354,9 @@ def build_reason_response(
 def build_empathize_response(
     session_id: str,
     empathy_kappa_r: float,
-    stakeholders: List[str],
+    stakeholders: list[str],
     verdict: PolicyVerdict = "SEAL",
-    debug_data: Optional[Dict] = None,
+    debug_data: dict | None = None,
     debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for asi_empathize (stage 555)."""
@@ -384,7 +384,7 @@ def build_align_response(
     is_reversible: bool,
     risk_level: str,
     verdict: PolicyVerdict = "SEAL",
-    debug_data: Optional[Dict] = None,
+    debug_data: dict | None = None,
     debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for asi_align (stage 666)."""
@@ -409,8 +409,8 @@ def build_verdict_response(
     query: str,
     truth_score: float,
     verdict: PolicyVerdict,
-    justification: Optional[str] = None,
-    debug_data: Optional[Dict] = None,
+    justification: str | None = None,
+    debug_data: dict | None = None,
     debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for apex_verdict (stage 888)."""
@@ -440,10 +440,10 @@ def build_verdict_response(
 
 def build_seal_response(
     session_id: str,
-    seal_id: Optional[str],
+    seal_id: str | None,
     seal_hash: str,
     verdict: Literal["SEALED", "PARTIAL"],
-    debug_data: Optional[Dict] = None,
+    debug_data: dict | None = None,
     debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for vault_seal (stage 999)."""
@@ -534,7 +534,7 @@ def build_error_response(
     stage: StageType,
     error_code: str,
     detail: str,
-    debug_data: Optional[Dict] = None,
+    debug_data: dict | None = None,
 ) -> UnifiedResponse:
     """Build standardized error response."""
     return UnifiedResponse(
@@ -554,7 +554,7 @@ def build_error_response(
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-def validate_input(params: Dict[str, Any], required: List[str]) -> Optional[UnifiedResponse]:
+def validate_input(params: dict[str, Any], required: list[str]) -> UnifiedResponse | None:
     """
     Validate input parameters.
     Returns error response if validation fails, None if OK.
@@ -577,7 +577,7 @@ def validate_input(params: Dict[str, Any], required: List[str]) -> Optional[Unif
 
 def render_user_answer(
     unified_response: UnifiedResponse, verbosity: Literal["MIN", "STD", "FULL"] = "MIN"
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Compression gate: Convert unified response to user-facing output.
 
@@ -631,7 +631,7 @@ NEXT_STEP_TEMPLATES = {
 }
 
 
-def get_next_step_template(tool_path: str) -> Optional[Dict[str, Any]]:
+def get_next_step_template(tool_path: str) -> dict[str, Any] | None:
     """Get the input template for the next tool."""
     template = NEXT_STEP_TEMPLATES.get(tool_path)
     if template:

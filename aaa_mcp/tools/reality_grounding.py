@@ -7,7 +7,7 @@ This module is intentionally lightweight: it provides the symbols exported by
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 def should_reality_check(query: str) -> bool:
@@ -22,9 +22,9 @@ def should_reality_check(query: str) -> bool:
 
 async def reality_check(
     query: str,
-    sources: Optional[List[Dict[str, Any]]] = None,
+    sources: list[dict[str, Any]] | None = None,
     **_: Any,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Read-only grounding stub.
 
@@ -41,4 +41,3 @@ async def reality_check(
 
 
 __all__ = ["reality_check", "should_reality_check"]
-

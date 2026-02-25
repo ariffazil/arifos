@@ -2,9 +2,8 @@
 # v64.1 — Multi-dimensional Uncertainty Engine with Harmonic Mean Safety
 # Q1 Verdict: HARMONIC for safety, GEOMETRIC for display
 
-from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
 import math
+from dataclasses import dataclass
 
 
 @dataclass
@@ -26,7 +25,7 @@ class UncertaintyVector:
         "model_confidence": 0.10,
     }
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         return {
             "grounding": self.grounding,
             "reasoning": self.reasoning,
@@ -105,7 +104,7 @@ class UncertaintyEngine:
             + self.weights["model_confidence"] * vector.model_confidence
         )
 
-    def calculate(self, vector: UncertaintyVector) -> Dict[str, float]:
+    def calculate(self, vector: UncertaintyVector) -> dict[str, float]:
         """
         Full uncertainty calculation per v64.1 Q1 verdict.
 
@@ -146,7 +145,7 @@ class UncertaintyEngine:
         evidence_count: int = 0,
         evidence_relevance: float = 0.0,
         reasoning_consistency: float = 0.0,
-        knowledge_gaps: List[str] = None,
+        knowledge_gaps: list[str] = None,
         model_logits_confidence: float = 0.0,
     ) -> UncertaintyVector:
         """
@@ -196,9 +195,9 @@ def calculate_uncertainty(
     evidence_count: int = 0,
     evidence_relevance: float = 0.0,
     reasoning_consistency: float = 0.0,
-    knowledge_gaps: List[str] = None,
+    knowledge_gaps: list[str] = None,
     model_logits_confidence: float = 0.0,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Convenience function for full uncertainty calculation."""
     vector = uncertainty_engine.from_evidence(
         evidence_count=evidence_count,

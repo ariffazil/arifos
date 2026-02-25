@@ -9,9 +9,9 @@ Version: 1.0.0-SEAL
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional, Set
 
 from .tool_naming import CANONICAL_PUBLIC_TO_LEGACY, MCP_VERB_TO_LEGACY, resolve_protocol_tool_name
+
 
 class ToolPosition(str, Enum):
     """Pipeline position classification."""
@@ -41,14 +41,14 @@ class ToolNode:
     name: str
     description: str
     position: ToolPosition
-    floors_enforced: List[str]
+    floors_enforced: list[str]
 
     # Dependency relationships
-    requires: List[str] = field(default_factory=list)
-    produces: List[str] = field(default_factory=list)
-    must_precede: List[str] = field(default_factory=list)
-    may_precede: List[str] = field(default_factory=list)
-    feeds_into: List[str] = field(default_factory=list)
+    requires: list[str] = field(default_factory=list)
+    produces: list[str] = field(default_factory=list)
+    must_precede: list[str] = field(default_factory=list)
+    may_precede: list[str] = field(default_factory=list)
+    feeds_into: list[str] = field(default_factory=list)
 
     # Execution properties
     parallel_safe: bool = False
@@ -61,7 +61,7 @@ class ToolNode:
     evidence_requirement: EvidenceRequirement = EvidenceRequirement.NONE
 
     # Lane affinity (which query types this tool serves best)
-    lane_affinity: List[str] = field(default_factory=list)
+    lane_affinity: list[str] = field(default_factory=list)
 
     # Success/failure semantics
     success_indicator: str = ""
@@ -72,7 +72,7 @@ class ToolNode:
 # CONSTITUTIONAL TOOL GRAPH
 # ═════════════════════════════════════════════════════════════════════════════
 
-TOOL_GRAPH: Dict[str, ToolNode] = {
+TOOL_GRAPH: dict[str, ToolNode] = {
     # ─── ENTRY POINT ─────────────────────────────────────────────────────────
     "init_gate": ToolNode(
         name="init_gate",
@@ -303,14 +303,14 @@ TOOL_GRAPH: Dict[str, ToolNode] = {
 # ═════════════════════════════════════════════════════════════════════════════
 
 # Mapping from public names/verbs to internal graph node names.
-MCP_TO_GRAPH: Dict[str, str] = {
+MCP_TO_GRAPH: dict[str, str] = {
     **MCP_VERB_TO_LEGACY,
     **CANONICAL_PUBLIC_TO_LEGACY,
     "trinity_forge": "trinity_forge",
 }
 
 
-WORKFLOW_SEQUENCES: Dict[str, List[str]] = {
+WORKFLOW_SEQUENCES: dict[str, list[str]] = {
     "fact_check": ["init_gate", "reality_search", "agi_reason", "apex_verdict", "vault_seal"],
     "safety_assessment": ["init_gate", "asi_empathize", "asi_align", "apex_verdict", "vault_seal"],
     "full_analysis": [
@@ -329,7 +329,7 @@ WORKFLOW_SEQUENCES: Dict[str, List[str]] = {
     "institutional_memory": ["vault_query"],
 }
 
-WORKFLOW_DESCRIPTIONS: Dict[str, str] = {
+WORKFLOW_DESCRIPTIONS: dict[str, str] = {
     "fact_check": "Verify factual claims with external grounding",
     "safety_assessment": "Assess stakeholder impact and ethics alignment",
     "full_analysis": "Complete constitutional pipeline with all stages",
@@ -344,12 +344,12 @@ WORKFLOW_DESCRIPTIONS: Dict[str, str] = {
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-def get_tool_node(tool_name: str) -> Optional[ToolNode]:
+def get_tool_node(tool_name: str) -> ToolNode | None:
     """Get tool node by name."""
     return TOOL_GRAPH.get(resolve_protocol_tool_name(tool_name))
 
 
-def get_valid_next_tools(current_tool: str) -> List[str]:
+def get_valid_next_tools(current_tool: str) -> list[str]:
     """Get list of tools that can legally follow the current tool."""
     node = TOOL_GRAPH.get(resolve_protocol_tool_name(current_tool))
     if not node:
@@ -360,7 +360,7 @@ def get_valid_next_tools(current_tool: str) -> List[str]:
     return list(valid)
 
 
-def get_required_predecessors(tool_name: str) -> List[str]:
+def get_required_predecessors(tool_name: str) -> list[str]:
     """Get tools that MUST be called before this tool.
 
     Note: This only returns strict requirements. In practice, many
@@ -376,7 +376,7 @@ def get_required_predecessors(tool_name: str) -> List[str]:
     return node.requires if node.requires else []
 
 
-def validate_sequence(sequence: List[str]) -> tuple[bool, str]:
+def validate_sequence(sequence: list[str]) -> tuple[bool, str]:
     """Validate a tool sequence follows constitutional order.
 
     Returns:
@@ -397,9 +397,7 @@ def validate_sequence(sequence: List[str]) -> tuple[bool, str]:
 
     # Check for multiple entry points
     entry_count = sum(
-        1
-        for tool in normalized
-        if TOOL_GRAPH.get(tool) and TOOL_GRAPH[tool].must_call_first
+        1 for tool in normalized if TOOL_GRAPH.get(tool) and TOOL_GRAPH[tool].must_call_first
     )
     if entry_count > 1:
         return False, "Multiple entry points in sequence"
@@ -433,17 +431,17 @@ def validate_sequence(sequence: List[str]) -> tuple[bool, str]:
     return True, "Valid constitutional sequence"
 
 
-def get_workflow_sequence(workflow_name: str) -> Optional[List[str]]:
+def get_workflow_sequence(workflow_name: str) -> list[str] | None:
     """Get predefined workflow sequence by name."""
     return WORKFLOW_SEQUENCES.get(workflow_name)
 
 
-def list_available_workflows() -> Dict[str, str]:
+def list_available_workflows() -> dict[str, str]:
     """List all available workflows with descriptions."""
     return WORKFLOW_DESCRIPTIONS.copy()
 
 
-def get_parallel_groups(sequence: List[str]) -> List[List[str]]:
+def get_parallel_groups(sequence: list[str]) -> list[list[str]]:
     """Group tools that can be executed in parallel.
 
     Returns list of groups where tools in same group are parallel_safe.
@@ -471,7 +469,7 @@ def get_parallel_groups(sequence: List[str]) -> List[List[str]]:
     return groups
 
 
-def suggest_sequence(intent: str, lane: str = "FACTUAL") -> List[str]:
+def suggest_sequence(intent: str, lane: str = "FACTUAL") -> list[str]:
     """Suggest optimal tool sequence based on intent and lane."""
     intent_lower = intent.lower()
 

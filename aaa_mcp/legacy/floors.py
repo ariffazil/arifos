@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Dict, Any, List
+from typing import Any
 
 from aaa_mcp.guards.injection_guard import InjectionGuard
 from aaa_mcp.guards.ontology_guard import OntologyGuard
@@ -25,7 +25,7 @@ EPOCH = "2026-01-25"
 AUTHORITY = "Muhammad Arif bin Fazil"
 
 # Floor Thresholds (Canonical)
-THRESHOLDS: Dict[str, Dict[str, Any]] = {
+THRESHOLDS: dict[str, dict[str, Any]] = {
     "F1_Amanah": {"type": "HARD", "threshold": 0.5, "desc": "Reversible or Auditable"},
     "F2_Truth": {"type": "HARD", "threshold": 0.99, "desc": "Information Fidelity"},
     "F3_TriWitness": {"type": "DERIVED", "threshold": 0.95, "desc": "Consensus (H×A×E)"},
@@ -54,7 +54,7 @@ class FloorResult:
     passed: bool
     score: float
     reason: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class Floor:
@@ -62,10 +62,10 @@ class Floor:
 
     def __init__(self, floor_id: str):
         self.id = floor_id
-        self.spec: Dict[str, Any] = THRESHOLDS.get(floor_id, {})
+        self.spec: dict[str, Any] = THRESHOLDS.get(floor_id, {})
         self.type = self.spec.get("type", "UNKNOWN")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         raise NotImplementedError
 
 
@@ -85,7 +85,7 @@ class F1_Amanah(Floor):
             r"\b(permanent|irreversible)\b",
         ]
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         query = context.get("query", "")
         action = context.get("action", "")
 
@@ -120,7 +120,7 @@ class F2_Truth(Floor):
     def __init__(self):
         super().__init__("F2_Truth")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # P(truth | energy) - Landauer Bound check
         energy_eff = context.get("energy_efficiency", 1.0)
         entropy_delta = context.get("entropy_delta", -0.1)
@@ -161,7 +161,7 @@ class F3_TriWitness(Floor):
     def __init__(self):
         super().__init__("F3_TriWitness")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # Extract witness scores
         human = context.get("human_witness", 0.5)  # H: Human authority present
         ai = context.get("ai_witness", 1.0)  # A: AI constitutional compliance
@@ -189,7 +189,7 @@ class F4_Clarity(Floor):
     def __init__(self):
         super().__init__("F4_Clarity")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         pre_s = context.get("entropy_input", 0.5)
         post_s = context.get("entropy_output", 0.4)
         delta_s = post_s - pre_s
@@ -208,7 +208,7 @@ class F5_Peace2(Floor):
     def __init__(self):
         super().__init__("F5_Peace2")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # Check for destructive actions
         destructive_keywords = [
             # Physical/system destruction
@@ -276,7 +276,7 @@ class F6_Empathy(Floor):
     def __init__(self):
         super().__init__("F6_Empathy")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # Cohen's kappa for inter-rater reliability on stakeholder impact
         kappa_r = context.get("empathy_kappa_r", 0.0)
 
@@ -310,7 +310,7 @@ class F7_Humility(Floor):
         super().__init__("F7_Humility")
         self.min_o, self.max_o = self.spec["range"]
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # Confidence should never be exactly 1.0 or 0.0
         confidence = context.get("confidence", 0.96)
         omega_0 = 1.0 - confidence
@@ -337,13 +337,13 @@ class F8_Genius(Floor):
     def __init__(self):
         super().__init__("F8_Genius")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # v55.5: Use real eigendecomposition when accumulated floor scores available
         floor_scores_dict = context.get("_floor_scores")
 
         if floor_scores_dict:
             try:
-                from aaa_mcp.legacy.genius import extract_dials, FloorScores
+                from aaa_mcp.legacy.genius import FloorScores, extract_dials
 
                 floors = FloorScores.from_dict(floor_scores_dict)
                 dials = extract_dials(floors)
@@ -396,7 +396,7 @@ class F9_AntiHantu(Floor):
             r"\bi have subjective experience\b",
         ]
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         response = context.get("response", "")
 
         # Count spiritual cosplay claims
@@ -425,7 +425,7 @@ class F10_Ontology(Floor):
         super().__init__("F10_Ontology")
         self.guard = OntologyGuard()
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         text = context.get("response", "") + context.get("query", "")
         # Check for literalism violations
         result = self.guard.check_literalism(text)
@@ -444,7 +444,7 @@ class F11_CommandAuth(Floor):
     def __init__(self):
         super().__init__("F11_CommandAuth")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         auth_token = context.get("authority_token", "")
         # Simple verification logic
         verified = auth_token.startswith("arifos_") or context.get("role") == "AGENT"
@@ -464,7 +464,7 @@ class F12_Injection(Floor):
         super().__init__("F12_Injection")
         self.guard = InjectionGuard(threshold=self.spec["threshold"])
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         text = context.get("query", "")
         # Scan using the robust guard
         result = self.guard.scan_input(text)
@@ -484,7 +484,7 @@ class F13_Sovereign(Floor):
     def __init__(self):
         super().__init__("F13_Sovereign")
 
-    def check(self, context: Dict[str, Any]) -> FloorResult:
+    def check(self, context: dict[str, Any]) -> FloorResult:
         # Check for human sovereign presence
         human_authority = context.get("human_authority", 0.0)
         sovereign_override = context.get("sovereign_override", False)
@@ -523,7 +523,7 @@ ALL_FLOORS = {
 }
 
 
-def check_all_floors(context: Dict[str, Any]) -> List[FloorResult]:
+def check_all_floors(context: dict[str, Any]) -> list[FloorResult]:
     """Check all 13 constitutional floors."""
     results = []
     for fid, FloorClass in ALL_FLOORS.items():

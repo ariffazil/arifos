@@ -11,7 +11,7 @@ Marginal effort, big UX win.
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class OutputMode(str, Enum):
@@ -27,9 +27,9 @@ class SchemaTemplate:
     """Template for structured output."""
 
     name: str
-    required_fields: List[str]
-    optional_fields: List[str]
-    format_example: Dict[str, Any]
+    required_fields: list[str]
+    optional_fields: list[str]
+    format_example: dict[str, Any]
     description: str
 
 
@@ -37,7 +37,7 @@ class SchemaTemplate:
 # SCHEMA TEMPLATES (Reduces "schema entropy")
 # ═════════════════════════════════════════════════════════════════════════════
 
-SCHEMA_TEMPLATES: Dict[str, SchemaTemplate] = {
+SCHEMA_TEMPLATES: dict[str, SchemaTemplate] = {
     "analysis": SchemaTemplate(
         name="analysis",
         required_fields=["summary", "key_points", "confidence"],
@@ -124,10 +124,10 @@ class OutputFormatter:
 
     def format(
         self,
-        result: Dict[str, Any],
+        result: dict[str, Any],
         query_type: str = "general",
-        template_name: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        template_name: str | None = None,
+    ) -> dict[str, Any]:
         """
         Format result based on mode and query type.
 
@@ -148,7 +148,7 @@ class OutputFormatter:
         else:
             return result
 
-    def _format_user(self, result: Dict[str, Any], query_type: str) -> Dict[str, Any]:
+    def _format_user(self, result: dict[str, Any], query_type: str) -> dict[str, Any]:
         """Format for human consumption—concise, readable."""
         formatted = {
             "answer": self._extract_answer(result),
@@ -175,7 +175,7 @@ class OutputFormatter:
 
         return formatted
 
-    def _format_debug(self, result: Dict[str, Any]) -> Dict[str, Any]:
+    def _format_debug(self, result: dict[str, Any]) -> dict[str, Any]:
         """Format for debugging—full technical details."""
         # Return everything, but add human-readable labels
         debug_output = {
@@ -216,7 +216,7 @@ class OutputFormatter:
 
         return debug_output
 
-    def _format_schema(self, result: Dict[str, Any], template_name: str) -> Dict[str, Any]:
+    def _format_schema(self, result: dict[str, Any], template_name: str) -> dict[str, Any]:
         """Format according to schema template."""
         template = SCHEMA_TEMPLATES.get(template_name)
         if not template:
@@ -248,7 +248,7 @@ class OutputFormatter:
     # HELPER METHODS
     # ═════════════════════════════════════════════════════════════════════════
 
-    def _extract_answer(self, result: Dict[str, Any]) -> str:
+    def _extract_answer(self, result: dict[str, Any]) -> str:
         """Extract the main answer text."""
         # Try various possible locations
         if "answer" in result:
@@ -276,7 +276,7 @@ class OutputFormatter:
 
         return "No answer available"
 
-    def _extract_confidence(self, result: Dict[str, Any]) -> float:
+    def _extract_confidence(self, result: dict[str, Any]) -> float:
         """Extract confidence score."""
         # Try W_3 first
         if "W_3" in result:
@@ -288,7 +288,7 @@ class OutputFormatter:
             return result["f2_threshold"]
         return 0.5
 
-    def _extract_principles(self, result: Dict[str, Any]) -> List[str]:
+    def _extract_principles(self, result: dict[str, Any]) -> list[str]:
         """Extract the 9 principles that were applied."""
         principles = []
 
@@ -324,7 +324,7 @@ class OutputFormatter:
 
         return principles if principles else ["Earned, not given"]
 
-    def _extract_rationale(self, result: Dict[str, Any]) -> str:
+    def _extract_rationale(self, result: dict[str, Any]) -> str:
         """Extract brief rationale for non-SEAL verdicts."""
         if "remediation" in result and result["remediation"]:
             return result["remediation"]
@@ -340,7 +340,7 @@ class OutputFormatter:
 
         return "Review output for details"
 
-    def _extract_field(self, result: Dict[str, Any], field: str) -> Any:
+    def _extract_field(self, result: dict[str, Any], field: str) -> Any:
         """Extract a specific field from nested result."""
         # Direct access
         if field in result:
@@ -360,30 +360,30 @@ class OutputFormatter:
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-def format_for_user(result: Dict[str, Any], query_type: str = "general") -> Dict[str, Any]:
+def format_for_user(result: dict[str, Any], query_type: str = "general") -> dict[str, Any]:
     """Quick format for user mode."""
     formatter = OutputFormatter(mode=OutputMode.USER)
     return formatter.format(result, query_type)
 
 
-def format_for_debug(result: Dict[str, Any]) -> Dict[str, Any]:
+def format_for_debug(result: dict[str, Any]) -> dict[str, Any]:
     """Quick format for debug mode."""
     formatter = OutputFormatter(mode=OutputMode.DEBUG)
     return formatter.format(result)
 
 
-def format_with_schema(result: Dict[str, Any], template_name: str) -> Dict[str, Any]:
+def format_with_schema(result: dict[str, Any], template_name: str) -> dict[str, Any]:
     """Quick format with schema template."""
     formatter = OutputFormatter(mode=OutputMode.SCHEMA)
     return formatter.format(result, template_name=template_name)
 
 
-def get_template(name: str) -> Optional[SchemaTemplate]:
+def get_template(name: str) -> SchemaTemplate | None:
     """Get a schema template by name."""
     return SCHEMA_TEMPLATES.get(name)
 
 
-def list_templates() -> List[str]:
+def list_templates() -> list[str]:
     """List available schema templates."""
     return list(SCHEMA_TEMPLATES.keys())
 

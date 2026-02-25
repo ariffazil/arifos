@@ -6,7 +6,6 @@ Prevents "connector not installed" confusion by providing stable identifiers.
 """
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
 
 from .tool_naming import MCP_VERB_TO_LEGACY, resolve_protocol_tool_name
 
@@ -20,14 +19,14 @@ class ToolSpec:
     stage: str  # Pipeline stage (000-999)
     trinity: str  # Δ, Ω, Ψ, or ALL
     verb: str  # Human action (anchor, reason, validate, etc.)
-    required_floors: List[str]  # Constitutional floors
-    next_tool: Optional[str]  # Next tool in pipeline (None if terminal)
+    required_floors: list[str]  # Constitutional floors
+    next_tool: str | None  # Next tool in pipeline (None if terminal)
 
     # v60: Machine-readable intent tags for agent routing
     category: str  # "entry" | "reasoning" | "safety" | "judgment" | "audit"
     risk_scope: str  # "low" | "medium" | "high"
-    hard_floors: List[str]  # Which floors are HARD at this stage
-    requires_human_for: List[str]  # Conditions requiring human (e.g., ["prod", "finance"])
+    hard_floors: list[str]  # Which floors are HARD at this stage
+    requires_human_for: list[str]  # Conditions requiring human (e.g., ["prod", "finance"])
 
     # v60: Documentation tiers (short for agents, long for humans)
     doc_short: str  # 3-6 lines, agent-friendly
@@ -35,14 +34,14 @@ class ToolSpec:
 
     # v60: Availability status
     availability: str  # "ready" | "requires_install" | "disabled"
-    install_hint: Optional[str]  # How to enable if not ready
+    install_hint: str | None  # How to enable if not ready
 
 
 # ═════════════════════════════════════════════════════════════════════════════
 # CANONICAL TOOL REGISTRY
 # ═════════════════════════════════════════════════════════════════════════════
 
-CANONICAL_TOOLS: Dict[str, ToolSpec] = {
+CANONICAL_TOOLS: dict[str, ToolSpec] = {
     # 000_INIT — Entry
     "init_gate": ToolSpec(
         name="init_gate",
@@ -209,12 +208,12 @@ CANONICAL_TOOLS: Dict[str, ToolSpec] = {
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-def get_tool_spec(tool_name: str) -> Optional[ToolSpec]:
+def get_tool_spec(tool_name: str) -> ToolSpec | None:
     """Get canonical spec for a tool by name."""
     return CANONICAL_TOOLS.get(resolve_protocol_tool_name(tool_name))
 
 
-def get_tool_by_stage(stage: str) -> Optional[ToolSpec]:
+def get_tool_by_stage(stage: str) -> ToolSpec | None:
     """Get tool specification by pipeline stage."""
     for spec in CANONICAL_TOOLS.values():
         if spec.stage == stage:
@@ -222,7 +221,7 @@ def get_tool_by_stage(stage: str) -> Optional[ToolSpec]:
     return None
 
 
-def get_next_tool(current_tool: str) -> Optional[str]:
+def get_next_tool(current_tool: str) -> str | None:
     """Get canonical path of next tool in pipeline."""
     spec = CANONICAL_TOOLS.get(resolve_protocol_tool_name(current_tool))
     if spec:
@@ -238,17 +237,17 @@ def validate_tool_path(path: str) -> bool:
     return resolve_protocol_tool_name(path) in CANONICAL_TOOLS
 
 
-def get_all_tool_paths() -> List[str]:
+def get_all_tool_paths() -> list[str]:
     """Get list of all canonical tool paths."""
     return [spec.canonical_path for spec in CANONICAL_TOOLS.values()]
 
 
 # Mapping from actual MCP tool names (verbs) to internal registry keys.
 # Uses shared source-of-truth to avoid divergence from tool_graph aliases.
-MCP_NAME_TO_REGISTRY: Dict[str, str] = MCP_VERB_TO_LEGACY.copy()
+MCP_NAME_TO_REGISTRY: dict[str, str] = MCP_VERB_TO_LEGACY.copy()
 
 
-def get_tool_by_mcp_name(mcp_name: str) -> Optional[ToolSpec]:
+def get_tool_by_mcp_name(mcp_name: str) -> ToolSpec | None:
     """Look up a tool spec by its actual MCP tool name (verb).
 
     Example: get_tool_by_mcp_name("anchor") returns the init_gate spec.
@@ -257,7 +256,7 @@ def get_tool_by_mcp_name(mcp_name: str) -> Optional[ToolSpec]:
     return CANONICAL_TOOLS.get(registry_key)
 
 
-def get_pipeline_sequence() -> List[str]:
+def get_pipeline_sequence() -> list[str]:
     """Get ordered list of canonical paths for 000-999 pipeline."""
     sequence = []
     current = "aaa.init_gate"
@@ -310,7 +309,7 @@ def build_hard_floor_block(
     threshold: float,
     reason: str,
     session_id: str,
-    remediation: Optional[dict] = None,
+    remediation: dict | None = None,
 ) -> dict:
     """
     Build standardized block envelope when a hard floor fails.

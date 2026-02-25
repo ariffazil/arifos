@@ -14,40 +14,43 @@ PHILOSOPHY: DITEMPA BUKAN DIBERI — No app runs outside constitutional law.
 
 from __future__ import annotations
 
-import json
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 
 class FloorType(Enum):
     """Constitutional floor classification."""
+
     HARD = "hard"  # Existential: VOID on failure
     SOFT = "soft"  # Performance: SABAR on failure
 
 
 class AppVerdict(Enum):
     """Application execution verdicts."""
-    SEAL = "SEAL"           # Approved, proceed
-    SABAR = "SABAR"         # Pause, retry, gather more info
-    VOID = "VOID"           # Blocked, cannot proceed
-    HOLD_888 = "888_HOLD"   # Requires sovereign approval
+
+    SEAL = "SEAL"  # Approved, proceed
+    SABAR = "SABAR"  # Pause, retry, gather more info
+    VOID = "VOID"  # Blocked, cannot proceed
+    HOLD_888 = "888_HOLD"  # Requires sovereign approval
 
 
 @dataclass
 class FloorRequirement:
     """Floor requirement for an application."""
+
     floor_id: str  # F1, F2, F4, etc.
     floor_type: FloorType
-    threshold: Optional[Any] = None
+    threshold: Any | None = None
     description: str = ""
 
 
 @dataclass
 class Telemetry:
     """Standard arifOS telemetry for app execution."""
+
     timestamp: float = field(default_factory=time.time)
     dS: float = 0.0  # Entropy reduction
     peace2: float = 1.0  # Stability metric
@@ -56,8 +59,8 @@ class Telemetry:
     shadow: float = 0.0
     confidence: float = 0.99
     psi_le: float = 1.0  # Law-energy
-    
-    def to_dict(self) -> Dict[str, Any]:
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "timestamp": self.timestamp,
             "dS": self.dS,
@@ -73,13 +76,14 @@ class Telemetry:
 @dataclass
 class AppResult:
     """Result from a metabolized application."""
+
     verdict: AppVerdict
     output: Any
     telemetry: Telemetry
     stage: str = ""
-    error: Optional[str] = None
-    
-    def to_dict(self) -> Dict[str, Any]:
+    error: str | None = None
+
+    def to_dict(self) -> dict[str, Any]:
         return {
             "verdict": self.verdict.value,
             "output": self.output,
@@ -92,27 +96,27 @@ class AppResult:
 class Metabolizer(ABC):
     """
     Abstract base class for all 333_APPS.
-    
+
     Every application in 333_APPS must inherit from Metabolizer and:
     1. Define required floors via `required_floors()`
     2. Implement `metabolize()` to process input through L0
     3. Never call LLM APIs directly — always use L0 organs
     """
-    
+
     def __init__(self, app_name: str, app_version: str = "1.0.0"):
         self.app_name = app_name
         self.app_version = app_version
-        self._floor_cache: Dict[str, FloorRequirement] = {}
+        self._floor_cache: dict[str, FloorRequirement] = {}
         self._telemetry = Telemetry()
-    
+
     @abstractmethod
-    def required_floors(self) -> List[FloorRequirement]:
+    def required_floors(self) -> list[FloorRequirement]:
         """
         Define which floors this app requires.
-        
+
         Returns:
             List of FloorRequirement objects
-            
+
         Example:
             return [
                 FloorRequirement("F1", FloorType.HARD, None, "Reversibility check"),
@@ -121,29 +125,29 @@ class Metabolizer(ABC):
             ]
         """
         pass
-    
+
     @abstractmethod
-    async def metabolize(self, input_data: Dict[str, Any]) -> AppResult:
+    async def metabolize(self, input_data: dict[str, Any]) -> AppResult:
         """
         Process input through L0 Kernel.
-        
+
         This is the ONLY authorized method to perform cognition.
         All LLM calls MUST go through:
         - agi_cognition (for reasoning)
         - asi_empathy (for impact analysis)
         - apex_verdict (for final decisions)
-        
+
         NEVER call OpenAI/Anthropic directly!
-        
+
         Args:
             input_data: Raw input to the application
-            
+
         Returns:
             AppResult with verdict and telemetry
         """
         pass
-    
-    def _check_floor_violations(self, floor_results: Dict[str, Any]) -> List[str]:
+
+    def _check_floor_violations(self, floor_results: dict[str, Any]) -> list[str]:
         """Check if any hard floors were violated."""
         violations = []
         for req in self.required_floors():
@@ -152,7 +156,7 @@ class Metabolizer(ABC):
                 if req.floor_type == FloorType.HARD and not result.get("passed", False):
                     violations.append(f"{req.floor_id} (HARD): {req.description}")
         return violations
-    
+
     def _calculate_telemetry(self, start_time: float) -> Telemetry:
         """Calculate telemetry for this execution."""
         elapsed = time.time() - start_time
@@ -168,10 +172,10 @@ class Metabolizer(ABC):
 class SovereignGate:
     """
     888_HOLD enforcement gate for irreversible actions.
-    
+
     Any application performing destructive operations (delete, send, trade)
     MUST pass through this gate. It enforces F1 Amanah and F11 Authority.
-    
+
     Usage:
         gate = SovereignGate(action_type="delete", resource_path="/data/file.txt")
         result = await gate.check_approval(context)
@@ -179,12 +183,21 @@ class SovereignGate:
             # Wait for sovereign signature
             pass
     """
-    
+
     IRREVERSIBLE_ACTIONS = {
-        "delete", "remove", "drop", "truncate", "send", "transfer", 
-        "trade", "execute", "deploy", "publish", "commit"
+        "delete",
+        "remove",
+        "drop",
+        "truncate",
+        "send",
+        "transfer",
+        "trade",
+        "execute",
+        "deploy",
+        "publish",
+        "commit",
     }
-    
+
     def __init__(
         self,
         action_type: str,
@@ -195,19 +208,19 @@ class SovereignGate:
         self.resource_path = resource_path
         self.requires_signature = requires_signature
         self.is_irreversible = self.action_type in self.IRREVERSIBLE_ACTIONS
-    
+
     async def check_approval(
         self,
-        context: Dict[str, Any],
+        context: dict[str, Any],
         proposed_verdict: str = "SEAL",
     ) -> AppResult:
         """
         Check if action is approved or requires 888_HOLD.
-        
+
         Args:
             context: Execution context including session_id, actor_id
             proposed_verdict: Expected outcome (SEAL, SABAR, VOID)
-            
+
         Returns:
             AppResult with HOLD_888 if sovereign approval needed
         """
@@ -224,7 +237,7 @@ class SovereignGate:
                 telemetry=Telemetry(confidence=0.99),
                 stage="888_HOLD",
             )
-        
+
         # Otherwise, proceed with proposed verdict
         return AppResult(
             verdict=AppVerdict(proposed_verdict),
@@ -232,17 +245,17 @@ class SovereignGate:
             telemetry=Telemetry(),
             stage="pre-flight",
         )
-    
+
     def verify_signature(self, signature: str) -> bool:
         """
         Verify sovereign cryptographic signature.
-        
+
         In production, this validates against 888_JUDGE public key.
         For now, placeholder implementation.
-        
+
         Args:
             signature: Cryptographic signature from sovereign
-            
+
         Returns:
             True if signature valid
         """
@@ -254,15 +267,15 @@ class SovereignGate:
 class L0KernelGatekeeper:
     """
     Protects L0_KERNEL from modification by L1-L7 apps.
-    
+
     Rule: No application in 333_APPS may modify:
     - 000_LAW.md (constitutional law)
     - core/enforcement/floors.py (floor thresholds)
     - Any file in L0_KERNEL/
-    
+
     These are SOVEREIGN ONLY actions.
     """
-    
+
     PROTECTED_PATHS = [
         "000_THEORY/000_LAW.md",
         "core/enforcement/floors.py",
@@ -270,15 +283,15 @@ class L0KernelGatekeeper:
         "333_APPS/L0_KERNEL/",
         "T000_VERSIONING.md",
     ]
-    
+
     @classmethod
     def check_modification_permission(cls, filepath: str) -> bool:
         """
         Check if modifying a file is allowed.
-        
+
         Args:
             filepath: Path to file being modified
-            
+
         Returns:
             False if modification requires sovereign authority
         """
@@ -286,15 +299,15 @@ class L0KernelGatekeeper:
             if protected in filepath or filepath.endswith(protected):
                 return False
         return True
-    
+
     @classmethod
     def assert_modification_allowed(cls, filepath: str) -> None:
         """
         Raise exception if trying to modify protected L0 file.
-        
+
         Args:
             filepath: Path to file being modified
-            
+
         Raises:
             PermissionError: If file is protected
         """
@@ -309,7 +322,7 @@ class L0KernelGatekeeper:
 def require_metabolizer(app_class):
     """
     Decorator to ensure a class inherits from Metabolizer.
-    
+
     Usage:
         @require_metabolizer
         class MyApp(Metabolizer):
@@ -327,39 +340,39 @@ def require_metabolizer(app_class):
 # AUDIT FUNCTIONS
 # ═══════════════════════════════════════════════════════════════════════════
 
-def audit_333_apps_for_bypass() -> List[str]:
+
+def audit_333_apps_for_bypass() -> list[str]:
     """
     Scan 333_APPS for thermal leaks (direct LLM API calls).
-    
+
     Returns:
         List of violation messages
     """
     import ast
-    import os
     from pathlib import Path
-    
+
     violations = []
     apps_dir = Path(__file__).parent.parent  # 333_APPS/
-    
+
     forbidden_patterns = [
         "openai",
-        "anthropic", 
+        "anthropic",
         "claude",
         "gpt-",
         "ChatCompletion",
         "client.chat",
     ]
-    
+
     for py_file in apps_dir.rglob("*.py"):
         # Skip the metabolizer itself
         if py_file.name == "metabolizer.py":
             continue
-            
+
         try:
-            with open(py_file, 'r', encoding='utf-8') as f:
+            with open(py_file, encoding="utf-8") as f:
                 source = f.read()
             tree = ast.parse(source)
-            
+
             for node in ast.walk(tree):
                 if isinstance(node, ast.Import):
                     for alias in node.names:
@@ -376,7 +389,7 @@ def audit_333_apps_for_bypass() -> List[str]:
                         )
         except Exception:
             pass
-    
+
     return violations
 
 
@@ -384,7 +397,7 @@ if __name__ == "__main__":
     # Run audit when executed directly
     print("🔍 AUDIT: Scanning 333_APPS for thermal leaks...")
     violations = audit_333_apps_for_bypass()
-    
+
     if violations:
         print("\n❌ THERMAL LEAKS DETECTED:")
         for v in violations:

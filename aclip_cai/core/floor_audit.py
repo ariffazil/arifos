@@ -620,8 +620,8 @@ class FloorAuditor:
             "low": {
                 "F3": 0.30,  # Relax witness for routine tasks
                 "F7": 0.70,  # Relax humility for low stakes
-                "F11": 0.50, # Relax authority
-                "F13": 0.50, # Relax curiosity
+                "F11": 0.50,  # Relax authority
+                "F13": 0.50,  # Relax curiosity
             },
             "high": {"F1": 0.98, "F11": 0.95},
             "irreversible": {"F1": 1.00, "F11": 1.00, "F12": 1.00},
