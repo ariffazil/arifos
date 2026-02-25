@@ -184,7 +184,8 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             return err
 
         tool_list = []
-        for name, fn in tool_registry.items():
+        for name, tool_obj in tool_registry.items():
+            fn = getattr(tool_obj, "fn", tool_obj)
             doc = inspect.getdoc(fn) or ""
             sig = inspect.signature(fn)
             params = {
@@ -221,7 +222,8 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         if not isinstance(body, dict):
             body = {}
 
-        tool_fn = tool_registry[canonical_name]
+        tool_obj = tool_registry[canonical_name]
+        tool_fn = getattr(tool_obj, "fn", tool_obj)
 
         try:
             # Filter body to only valid parameters
