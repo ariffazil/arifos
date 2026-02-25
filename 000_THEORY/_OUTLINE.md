@@ -34,9 +34,12 @@ The architecture of the mind.
 *   **[005_EVALS.md](./005_EVALS.md)**
     *   Testing and Validation standards.
 
-## ⚙️ II. The Metabolic Loop (111-999)
+## ⚙️ II. The Metabolic Loop (000-999)
 
 The operational stages of the Trinity.
+
+*   **[001_IGNITION.md](./001_IGNITION.md)**
+    *   Stage 000 ignition and constitutional airlock.
 
 *   **[111_MIND_GENIUS.md](./111_MIND_GENIUS.md)** (Was 020_INTELLIGENCE)
     *   The Physics of Thought: OODA, Scientific Method.

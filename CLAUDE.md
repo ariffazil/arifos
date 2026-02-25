@@ -194,8 +194,8 @@ All defined in `aaa_mcp/server.py` with `@mcp.tool()` decorators. Backend logic 
 | `recall_memory`    | Ω Omega | 555     | F4, F7, F13     | Associative memory traces             |
 | `simulate_heart`   | Ω Omega | 555     | F4, F5, F6      | Stakeholder impact & care constraints |
 | `critique_thought` | Ω Omega | 666     | F4, F7, F8      | 7-organ alignment & bias critique     |
-| `judge_soul`       | Ψ Psi   | 888     | F1-F13          | Sovereign verdict synthesis           |
-| `forge_hand`       | Ψ Psi   | 777     | F1, F11, F12    | Sandboxed action execution            |
+| `apex_judge`       | Ψ Psi   | 888     | F1-F13          | Sovereign verdict synthesis           |
+| `eureka_forge`     | Ψ Psi   | 777     | F1, F11, F12    | Sandboxed action execution            |
 | `seal_vault`       | Ψ Psi   | 999     | F1, F3, F10     | Immutable ledger persistence          |
 | `search_reality`   | Δ Delta | 111     | F2, F4, F12     | Web grounding (Perplexity/Brave)      |
 | `fetch_content`    | Δ Delta | 444     | F2, F4, F12     | Raw evidence content retrieval        |
@@ -204,6 +204,10 @@ All defined in `aaa_mcp/server.py` with `@mcp.tool()` decorators. Backend logic 
 | `check_vital`      | Ω Omega | 555     | F4, F5, F7      | System health & vital signs           |
 
 All tools return a standard envelope: `{verdict, stage, session_id, floors, truth, next_actions}`.
+
+Alias compatibility:
+- `judge_soul` -> `apex_judge`
+- `forge_hand` -> `eureka_forge`
 
 **Verdicts:** `SEAL` (pass) | `PARTIAL` (soft floor warn) | `SABAR` (hold) | `VOID` (blocked) | `888_HOLD` (needs human)
 

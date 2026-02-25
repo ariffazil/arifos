@@ -84,6 +84,31 @@ Instead of a simple "Input -> Output" flow, arifOS uses an **11-stage metabolic 
 
 **Summary:** The **11-stage pipeline** is the complete metabolic loop (000→999). The **7-step ignition** is the internal structure of Stage 000 only.
 
+### 3.3 MCP Canonical 13 Tool IDs (000-999 Aligned)
+
+The MCP runtime exposes 13 tools. The 000-999 loop is represented by the governance tools, while utility tools support grounding, inspection, and health.
+
+| Tool ID | Stage Mapping | Role |
+|---|---|---|
+| `anchor_session` | 000_INIT | Session ignition and authority gate |
+| `reason_mind` | 111/222/333/444 | AGI reasoning and synthesis chain |
+| `recall_memory` | 555_RECALL | Memory continuity retrieval |
+| `simulate_heart` | 555/666 | Empathy and alignment simulation |
+| `critique_thought` | 666_ALIGN | Constitutional critique pass |
+| `eureka_forge` | 777_EUREKA_FORGE | Constitutional forge stage |
+| `apex_judge` | 888_APEX_JUDGE | Final constitutional verdict |
+| `seal_vault` | 999_VAULT | Seal and ledger commit |
+| `search_reality` | Utility | External grounding search |
+| `fetch_content` | Utility | Retrieval by source identifier |
+| `inspect_file` | Utility | File and directory inspection |
+| `audit_rules` | Utility | Governance/rules audit |
+| `check_vital` | Utility | Runtime health status |
+
+Backward compatibility policy:
+- `forge_hand` remains a supported alias for `eureka_forge`.
+- `judge_soul` remains a supported alias for `apex_judge`.
+- Canonical IDs are preferred in docs, tests, and operator runbooks.
+
 ---
 
 ## 4. THE TRINITY ENGINES (Governance Roles)

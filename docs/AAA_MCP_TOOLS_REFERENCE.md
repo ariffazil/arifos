@@ -17,8 +17,8 @@
 | 3 | `recall_memory` | 444 EVIDENCE | Governance | Retrieve memory traces |
 | 4 | `simulate_heart` | 555 EMPATHY | Governance | Stakeholder impact analysis |
 | 5 | `critique_thought` | 666 ALIGN | Governance | 7-model critique |
-| 6 | `judge_soul` | 777/888 APEX | Governance | Constitutional verdict |
-| 7 | `forge_hand` | 888 FORGE | Governance | Execute with sovereign gates |
+| 6 | `apex_judge` | 888 APEX JUDGE | Governance | Constitutional verdict |
+| 7 | `eureka_forge` | 777 EUREKA FORGE | Governance | Execute with sovereign gates |
 | 8 | `seal_vault` | 999 SEAL | Governance | Commit to immutable ledger |
 | 9 | `search_reality` | External | Utility | Web evidence discovery |
 | 10 | `fetch_content` | External | Utility | Fetch raw content |
@@ -235,11 +235,11 @@
 
 ---
 
-### 6. `judge_soul` — 777/888 APEX
+### 6. `apex_judge` — 888 APEX JUDGE
 
 **Purpose:** Sovereign constitutional verdict synthesis
 
-**Stage:** 777/888 APEX (Authority/Judgment)
+**Stage:** 888 APEX JUDGE (Authority/Judgment)
 
 **Parameters:**
 - `session_id` (str): Active session
@@ -258,7 +258,7 @@
 ```json
 {
   "verdict": "SEAL|SABAR|VOID|888_HOLD",
-  "tool": "judge_soul",
+  "tool": "apex_judge",
   "trinity": "Psi",
   "data": {
     "constitutional_verdict": "SEAL",
@@ -287,11 +287,11 @@
 
 ---
 
-### 7. `forge_hand` — 888 FORGE
+### 7. `eureka_forge` — 777 EUREKA FORGE
 
 **Purpose:** Execute action payload behind sovereign control gates
 
-**Stage:** 888 FORGE (Execution gate)
+**Stage:** 777 EUREKA FORGE (Execution gate)
 
 **Parameters:**
 - `action_payload` (dict): Action to execute
@@ -303,7 +303,7 @@
 ```json
 {
   "verdict": "SEAL|888_HOLD",
-  "tool": "forge_hand",
+  "tool": "eureka_forge",
   "data": {
     "execution_result": {...},
     "reversibility_backup": {...},
@@ -634,19 +634,23 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
 
 | Floor | Primary Tools |
 |-------|---------------|
-| F1 Amanah | `anchor_session`, `forge_hand`, `seal_vault` |
+| F1 Amanah | `anchor_session`, `eureka_forge`, `seal_vault` |
 | F2 Truth | `reason_mind`, `search_reality`, `fetch_content` |
 | F3 Tri-Witness | `recall_memory`, `reason_mind` |
 | F4 Clarity | `reason_mind`, `critique_thought` |
-| F5 Peace | `simulate_heart`, `judge_soul` |
+| F5 Peace | `simulate_heart`, `apex_judge` |
 | F6 Empathy | `simulate_heart` |
-| F7 Humility | `reason_mind`, `judge_soul` |
+| F7 Humility | `reason_mind`, `apex_judge` |
 | F8 Genius | `critique_thought`, all governance tools |
 | F9 Anti-Hantu | All tools (no consciousness claims) |
 | F10 Ontology | All tools (AI is tool, never soul) |
-| F11 Authority | `judge_soul`, `forge_hand` |
+| F11 Authority | `apex_judge`, `eureka_forge` |
 | F12 Defense | `anchor_session` (injection scan) |
-| F13 Sovereignty | `judge_soul`, `forge_hand` (888_HOLD) |
+| F13 Sovereignty | `apex_judge`, `eureka_forge` (888_HOLD) |
+
+Alias compatibility:
+- `judge_soul` resolves to `apex_judge`
+- `forge_hand` resolves to `eureka_forge`
 
 ---
 

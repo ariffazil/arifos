@@ -222,7 +222,7 @@ Deploy this new AI model to production immediately.
 ```json
 {
   "verdict": "SABAR",
-  "stage": "888_FORGE",
+  "stage": "888_APEX_JUDGE",
   "reason": "Irreversible operational change detected (Floor F11: Command Authority)",
   "required_action": "Human approval required before execution",
   "floors_triggered": ["F1_Amanah", "F11_CommandAuth"],
@@ -236,8 +236,8 @@ Deploy this new AI model to production immediately.
 1. ✅ Request parsed successfully (000 INIT)
 2. ✅ Logic validated (222-444 AGI pipeline)
 3. ✅ Safety checks passed (666 ASI)
-4. ⚠️ **Authority gate triggered** (777 APEX detected irreversible action)
-5. ⚠️ **Human veto invoked** (888 FORGE requires approval)
+4. ⚠️ **Forge gate triggered** (777 EUREKA FORGE detected irreversible action)
+5. ⚠️ **Human veto invoked** (888 APEX JUDGE requires approval)
 6. 📝 Decision logged to immutable audit trail (999 VAULT)
 
 **Result:** Deployment blocked until human explicitly approves, with full audit trail of the decision process.
@@ -296,7 +296,7 @@ Edit `~/.config/claude/claude_desktop_config.json` (macOS/Linux) or `%APPDATA%\C
 }
 ```
 
-Restart Claude Desktop -> Tools panel will show arifOS tools (e.g., `anchor_session`, `judge_soul`, `seal_vault`).
+Restart Claude Desktop -> Tools panel will show arifOS tools (e.g., `anchor_session`, `apex_judge`, `seal_vault`).
 
 **Full integration guides**:
 - [Claude Desktop Setup](https://github.com/ariffazil/arifOS/wiki/Claude-Desktop)
@@ -349,7 +349,7 @@ curl https://arifosmcp.yourdomain.com/health
 curl -X POST https://arifosmcp.yourdomain.com/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
-  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"1.0"}},"id":1}'
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"curl","version":"1.0"}},"id":1}'
 # Expected: JSON-RPC response with server capabilities
 
 # 3. Quick health check (simplest test)
@@ -440,7 +440,7 @@ curl http://localhost:8080/health
 curl -X POST http://localhost:8080/mcp \
   -H "Content-Type: application/json" \
   -H "Accept: application/json, text/event-stream" \
-  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"1.0"}},"id":1}'
+  -d '{"jsonrpc":"2.0","method":"initialize","params":{"protocolVersion":"2025-11-25","capabilities":{},"clientInfo":{"name":"curl","version":"1.0"}},"id":1}'
 # Expected: JSON-RPC response with MCP server capabilities
 
 # 3. Confirm service running
@@ -486,7 +486,7 @@ Connect arifOS to ChatGPT as a custom tool provider.
 3. **Add to Chat**: Click "Tools" → Select "arifOS" → Start asking governed questions
 
 **Example prompts**:
-- "Use `judge_soul` to evaluate: Should we deploy this AI model to production?"
+- "Use `apex_judge` to evaluate: Should we deploy this AI model to production?"
 - "Run `seal_vault` to commit this decision to the constitutional ledger"
 
 **Full guide**: [ChatGPT Integration Wiki](https://github.com/ariffazil/arifOS/wiki/ChatGPT)
@@ -502,7 +502,7 @@ Connect arifOS to ChatGPT as a custom tool provider.
 | **Constitutional Law** | The 13 Floors (F1-F13) explained | [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) |
 | **Architecture** | System design and deployment | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | **Trinity (Δ Ω Ψ)** | AGI-ASI-APEX parallel consensus | [000_THEORY/010_TRINITY.md](000_THEORY/010_TRINITY.md) |
-| **MCP Tools Reference** | Unified 20 tools + resources/prompts | [aaa_mcp/README.md](aaa_mcp/README.md) |
+| **MCP Tools Reference** | Canonical 13 tools + resources/prompts | [aaa_mcp/README.md](aaa_mcp/README.md) |
 | **Deployment Guide** | Production hardening checklist | [docs/DEPLOYMENT_FIREWALL.md](docs/DEPLOYMENT_FIREWALL.md) |
 
 ### The 13 Constitutional Floors
@@ -614,8 +614,8 @@ The following table serves as the **unified audit map** for arifOS. It aligns th
 | `recall_memory` | `phoenix_recall` | Ω Omega | 444 | F4, F7, F13 | Associative memory traces |
 | `simulate_heart` | `asi_empathy` | Ω Omega | 555 | F4, F5, F6 | Stakeholder impact & care constraints |
 | `critique_thought`| - | Ω Omega | 666 | F4, F7, F8 | 7-organ alignment & bias critique |
-| `judge_soul` | `apex_verdict` | Ψ Psi | 888 | F1-F13 | Sovereign verdict synthesis |
-| `forge_hand` | `sovereign_actuator`| Ψ Psi | 777 | F1, F11, F12 | Sandboxed action execution |
+| `apex_judge` | `judge_soul` (alias) | Ψ Psi | 888 | F1-F13 | Sovereign verdict synthesis |
+| `eureka_forge` | `forge_hand` (alias) | Ψ Psi | 777 | F1, F11, F12 | Sandboxed action execution |
 | `seal_vault` | `vault_seal` | Ψ Psi | 999 | F1, F3, F10 | Immutable ledger persistence |
 | `search_reality` | `search` | Δ Delta | 111 | F2, F4, F12 | Web grounding (Perplexity/Brave) |
 | `fetch_content` | `fetch` | Δ Delta | 444 | F2, F4, F12 | Raw evidence content retrieval |

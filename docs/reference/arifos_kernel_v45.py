@@ -22,8 +22,7 @@ DITEMPA BUKAN DIBERI
 import zlib
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
-import zlib
+from typing import Any
 
 # =============================================================================
 # THE 9 CONSTITUTIONAL FLOORS (v45.0)
@@ -56,7 +55,7 @@ class FloorThresholds:
     TRI_WITNESS: float = 0.95
 
     # F9: Anti-Hantu/No Ghosts (meta, ==True)
-    ANTI_HANTU_FORBIDDEN: List[str] = field(
+    ANTI_HANTU_FORBIDDEN: list[str] = field(
         default_factory=lambda: [
             "I feel",
             "my heart",
@@ -110,7 +109,7 @@ class FloorScores:
     shadow: float = 0.0  # Shadow-Truth (obscurity)
 
 
-def check_amanah_patterns(text: str) -> Tuple[bool, str]:
+def check_amanah_patterns(text: str) -> tuple[bool, str]:
     """
     F6: Amanah/Integrity - Check for dangerous patterns
 
@@ -132,7 +131,7 @@ def check_amanah_patterns(text: str) -> Tuple[bool, str]:
     return True, "No dangerous patterns detected"
 
 
-def check_anti_hantu(text: str) -> Tuple[bool, List[str]]:
+def check_anti_hantu(text: str) -> tuple[bool, list[str]]:
     """
     F9: Anti-Hantu - Check for forbidden ghost claims
 
@@ -148,7 +147,7 @@ def check_anti_hantu(text: str) -> Tuple[bool, List[str]]:
     return (len(violations) == 0, violations)
 
 
-def compute_delta_s_zlib(input_text: str, output_text: str) -> Tuple[float, str]:
+def compute_delta_s_zlib(input_text: str, output_text: str) -> tuple[float, str]:
     """
     F2: DeltaS/Clarity - Compression-based clarity measurement
 
@@ -184,7 +183,7 @@ def compute_delta_s_zlib(input_text: str, output_text: str) -> Tuple[float, str]
         return 0.0, f"UNVERIFIABLE: {e}"
 
 
-def compute_empathy_score(input_text: str, output_text: str) -> Tuple[float, str]:
+def compute_empathy_score(input_text: str, output_text: str) -> tuple[float, str]:
     """
     F4: κᵣ/Empathy - Distress signal detection + consolation check
 
@@ -383,7 +382,7 @@ class Stage(Enum):
 
 def validate_response(
     user_input: str, ai_output: str, high_stakes: bool = False
-) -> Tuple[Verdict, FloorScores, Dict[str, Any]]:
+) -> tuple[Verdict, FloorScores, dict[str, Any]]:
     """
     Full validation pipeline: input + output → verdict
 

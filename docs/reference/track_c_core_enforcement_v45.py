@@ -30,12 +30,10 @@ DITEMPA, BUKAN DIBERI — Forged, not given; truth must cool before it rules.
 
 from __future__ import annotations
 
-import hashlib
-import json
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # =============================================================================
 # SECTION 1: TRACK B AUTHORITY — SPEC LOADING
@@ -146,11 +144,11 @@ class Metrics:
     amanah: bool
     tri_witness: float
     rasa: bool = True
-    psi: Optional[float] = None
-    anti_hantu: Optional[bool] = True
+    psi: float | None = None
+    anti_hantu: bool | None = True
 
     # v45Ω Patch A: Claim profile for No-Claim Mode
-    claim_profile: Optional[Dict[str, Any]] = None
+    claim_profile: dict[str, Any] | None = None
 
 
 @dataclass
@@ -172,7 +170,7 @@ class FloorsVerdict:
 
     hard_ok: bool
     soft_ok: bool
-    reasons: List[str]
+    reasons: list[str]
 
     # Core floor status
     truth_ok: bool
@@ -225,7 +223,7 @@ def check_floors(
     Real Implementation:
         from arifos_core.system.apex_prime import check_floors
     """
-    reasons: List[str] = []
+    reasons: list[str] = []
 
     # Hard floors
     truth_ok = metrics.truth >= TRUTH_THRESHOLD
@@ -437,9 +435,9 @@ class ApexVerdict:
     verdict: Verdict
     pulse: float = field(default=1.0)
     reason: str = field(default="")
-    floors: Optional[FloorsVerdict] = field(default=None)
-    genius_index: Optional[float] = field(default=None)
-    dark_cleverness: Optional[float] = field(default=None)
+    floors: FloorsVerdict | None = field(default=None)
+    genius_index: float | None = field(default=None)
+    dark_cleverness: float | None = field(default=None)
 
 
 def apex_review(
@@ -682,23 +680,23 @@ class PipelineState:
 
     # Classification
     stakes_class: StakesClass = StakesClass.CLASS_A
-    high_stakes_indicators: List[str] = field(default_factory=list)
-    applicability_lane: Optional[str] = None  # PHATIC/SOFT/HARD/REFUSE
+    high_stakes_indicators: list[str] = field(default_factory=list)
+    applicability_lane: str | None = None  # PHATIC/SOFT/HARD/REFUSE
 
     # Processing state
     current_stage: str = "000"
-    stage_trace: List[str] = field(default_factory=list)
+    stage_trace: list[str] = field(default_factory=list)
     draft_response: str = ""
 
     # Metrics & Verdict
-    metrics: Optional[Metrics] = None
-    verdict: Optional[ApexVerdict] = None
-    floor_failures: List[str] = field(default_factory=list)
+    metrics: Metrics | None = None
+    verdict: ApexVerdict | None = None
+    floor_failures: list[str] = field(default_factory=list)
 
     # v45Ω Patch B.2: LLM Audit Trail (Refusal Sovereignty)
     llm_called: bool = False
     llm_call_count: int = 0
-    llm_call_stages: List[str] = field(default_factory=list)
+    llm_call_stages: list[str] = field(default_factory=list)
 
 
 def pipeline_orchestration_overview():
@@ -828,7 +826,7 @@ class ApplicabilityLane(Enum):
 
 def classify_prompt_lane(
     prompt: str,
-    high_stakes_indicators: List[str],
+    high_stakes_indicators: list[str],
 ) -> ApplicabilityLane:
     """
     Classify prompt into governance lane using structural signals.
