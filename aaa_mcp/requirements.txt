@@ -3,7 +3,7 @@
 # Updated: 2026-02-23
 
 # MCP Framework
-fastmcp==3.0.1
+fastmcp==3.0.2
 mcp>=1.0.0
 
 # Web Framework (for SSE transport)
