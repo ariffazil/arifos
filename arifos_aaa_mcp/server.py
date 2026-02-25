@@ -67,7 +67,7 @@ async def anchor_session(
     grounding_required: bool = True,
     debug: bool = False,
 ) -> dict[str, Any]:
-    """000 INIT: ignite constitutional session and continuity token."""
+    """000 BOOTLOADER: initialize constitutional execution kernel and governance context."""
     blocked = validate_input("anchor_session", {"query": query, "actor_id": actor_id})
     if blocked:
         return wrap_tool_output("anchor_session", blocked)
@@ -190,7 +190,7 @@ async def judge_soul(
     human_approve: bool = False,
     debug: bool = False,
 ) -> dict[str, Any]:
-    """888 APEX JUDGE METABOLIC: sovereign constitutional verdict synthesis."""
+    """888 APEX JUDGMENT: synthesize final dual-layer sovereign constitutional verdict."""
     blocked = validate_input("judge_soul", {"session_id": session_id, "query": query})
     if blocked:
         return wrap_tool_output("judge_soul", blocked)

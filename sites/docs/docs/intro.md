@@ -8,9 +8,16 @@ description: arifOS is a constitutional intelligence kernel with canonical AAA M
 
 # arifOS - Forged, Not Given
 
-arifOS is a constitutional intelligence kernel that governs AI cognition through 13 floors and a staged pipeline ending in auditable verdicts.
+arifOS is a **Constitutional Kernel Bootloader** for AI systems. It governs AI cognition by loading an entire governance runtime environment (000->999) between Large Language Models and real-world actions.
 
-It features the **Eureka-Atlas Embedding Engine**, providing thermodynamic grounding for the metabolizer loop (000->999) via Energy-Based Models (EBM) and Deep Equilibrium (DEQ) principles.
+It features the **Eureka-Atlas Embedding Engine**, providing thermodynamic grounding for the metabolizer loop via Energy-Based Models (EBM) and Deep Equilibrium (DEQ) principles.
+
+## The Execution Model
+
+When you call `anchor_session`, arifOS does not just start a session; it **boots the constitutional kernel**. This process:
+1.  **Injects System Prompts**: Loads a persistent set of 13-floor instructions and thermodynamic constraints into the agent's context.
+2.  **Sets Governance State**: Transitions the environment from a passive oracle to a governed runtime.
+3.  **Binds Tool Logic**: Ensures all subsequent tool calls (`reason_mind`, `forge_hand`, etc.) are intercepted by the loaded kernel.
 
 ## How arifOS Thinks (The Cognitive Cycle)
 

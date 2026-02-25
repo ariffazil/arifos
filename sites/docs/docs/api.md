@@ -26,6 +26,36 @@ To reduce entropy (F4), use this mapping to trace symbolic concepts to code real
 | **Execution** | `forge` | 777_FORGE | `forge_hand` |
 | **Commit** | `seal` | 999_VAULT | `seal_vault` |
 
+## ⚖️ Dual-Layer Verdict Hierarchy
+
+arifOS tool outputs contain two distinct verdict layers. Clients must check both to determine operational status.
+
+| Layer | Location | Meaning |
+| :--- | :--- | :--- |
+| **Constitutional Verdict** | Top-level `verdict` | Overall governance state (SEAL/PARTIAL/VOID). |
+| **Stage Verdict** | `data.verdict` | Internal organ progression (e.g., AGI validation result). |
+
+**Note**: A Stage Verdict of `SEAL` may still be wrapped in a Constitutional Verdict of `PARTIAL` if non-critical floors (Mirrors) triggered warnings.
+
+## 📊 Governance Metrics (Thermodynamic Signals)
+
+Every tool call returns quantitative signals in the `telemetry` and `apex_dials` blocks.
+
+| Metric | Name | Meaning | Range | Target |
+| :--- | :--- | :--- | :--- | :--- |
+| **`dS`** | Entropy Delta | Information clarity/confusion change. | (-∞, +∞) | **$\le 0$** (Clarity) |
+| **`peace2`** | Stability | System safety/non-destruction score. | [0, 1.2] | **$\ge 1.0$** (Stable) |
+| **`omega0`** | Humility | Explicit uncertainty band (F7). | [0, 1] | **[0.03, 0.05]** |
+| **`G_star`** | Genius | Multiplicative coherence score. | [0, 1] | **$\ge 0.80$** |
+
+## 🛡️ Constitutional Floor Types
+
+Not all laws are equal. arifOS distinguishes between three types of gating:
+
+1.  **Floor (HARD)**: Fundamental constraints. Failure results in a `VOID` verdict.
+2.  **Mirror (DERIVED)**: Cross-check signals. Failure results in a `PARTIAL` warning.
+3.  **Wall (LOCK)**: Circuit breakers. Human intervention required (888_HOLD).
+
 ## 📜 Verdict Behavioral Contract (MANDATORY)
 
 Clients (Humans or AI Agents) **MUST** adhere to these behavioral responses based on the returned `verdict`.
