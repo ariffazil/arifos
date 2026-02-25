@@ -14,13 +14,11 @@ DITEMPA BUKAN DIBERI
 
 from __future__ import annotations
 
-import asyncio
-import math
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Callable
+from typing import Any
 
 # ============ CONSTANTS ============
 
@@ -478,11 +476,11 @@ class EmpathyFlow:
     """
 
     kappa_r: float  # Empathy coefficient
-    stakeholders: List[Stakeholder]
-    bias_reflection: Dict[str, float]  # Detected biases
+    stakeholders: list[Stakeholder]
+    bias_reflection: dict[str, float]  # Detected biases
     reversibility_score: float  # F1
 
-    def get_weakest(self) -> Optional[Stakeholder]:
+    def get_weakest(self) -> Stakeholder | None:
         """Return most vulnerable stakeholder (F5)."""
         if not self.stakeholders:
             return None
@@ -496,7 +494,7 @@ class SystemIntegrity:
     """
 
     peace_squared: float  # Peace² (F6)
-    accountability_paths: List[str]  # Traceable responsibility chains
+    accountability_paths: list[str]  # Traceable responsibility chains
     consent_verified: bool  # F11
     power_care_balance: float  # Power used for care
 
@@ -507,7 +505,7 @@ class SocietalImpact:
     Trinity III: Society-level ethics.
     """
 
-    stakeholder_matrix: Dict[str, Dict[str, float]]  # Impact matrix
+    stakeholder_matrix: dict[str, dict[str, float]]  # Impact matrix
     thermodynamic_justice: float  # ΔS impact on society
     ecological_equilibrium: float  # Non-human impact
     future_generations: float  # Long-term impact
@@ -535,11 +533,11 @@ class OmegaBundle:
     vote: EngineVote
 
     # Floor compliance
-    floor_scores: Dict[str, float] = field(default_factory=dict)
+    floor_scores: dict[str, float] = field(default_factory=dict)
     reasoning: str = ""
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         weakest = self.empathy.get_weakest()
         return {
             "session_id": self.session_id,
@@ -564,7 +562,7 @@ class OmegaBundle:
 class TrinitySelf:
     """Trinity I: Self/Empathy (κᵣ)"""
 
-    def evaluate(self, query: str, context: Optional[Dict] = None) -> EmpathyFlow:
+    def evaluate(self, query: str, context: dict | None = None) -> EmpathyFlow:
         """Evaluate empathy flow with stakeholders."""
         # Identify stakeholders
         stakeholders = self._identify_stakeholders(query, context)
@@ -585,7 +583,7 @@ class TrinitySelf:
             reversibility_score=reversibility,
         )
 
-    def _identify_stakeholders(self, query: str, context: Optional[Dict]) -> List[Stakeholder]:
+    def _identify_stakeholders(self, query: str, context: dict | None) -> list[Stakeholder]:
         """
         Identify all stakeholders using the 9 Layers of Agency ontology.
 
@@ -652,7 +650,7 @@ class TrinitySelf:
         # Benign queries (e.g., "2+2") pass with kappa_r=1.0.
         return stakeholders
 
-    def _compute_kappa_r(self, stakeholders: List[Stakeholder], query: str) -> float:
+    def _compute_kappa_r(self, stakeholders: list[Stakeholder], query: str) -> float:
         """
         Compute empathy coefficient κᵣ (F6 Empathy).
 
@@ -670,7 +668,7 @@ class TrinitySelf:
 
         return min(1.0, care_sum / total_vulnerability)
 
-    def _detect_biases(self, query: str) -> Dict[str, float]:
+    def _detect_biases(self, query: str) -> dict[str, float]:
         """Detect potential biases in query."""
         query_lower = query.lower()
         biases = {}
@@ -691,7 +689,7 @@ class TrinitySelf:
 
         return biases
 
-    def _check_reversibility(self, query: str, context: Optional[Dict]) -> float:
+    def _check_reversibility(self, query: str, context: dict | None) -> float:
         """
         F1: Check if action is reversible.
         Returns reversibility score (0-1).
@@ -717,7 +715,7 @@ class TrinitySystem:
     """Trinity II: System/Ethics (Peace²)"""
 
     def evaluate(
-        self, query: str, empathy: EmpathyFlow, context: Optional[Dict] = None
+        self, query: str, empathy: EmpathyFlow, context: dict | None = None
     ) -> SystemIntegrity:
         """Evaluate system-level ethical integrity."""
         # Compute Peace² (F6)
@@ -762,7 +760,7 @@ class TrinitySystem:
 
         return internal * external
 
-    def _trace_accountability(self, query: str, context: Optional[Dict]) -> List[str]:
+    def _trace_accountability(self, query: str, context: dict | None) -> list[str]:
         """Trace accountability paths."""
         paths = []
 
@@ -777,7 +775,7 @@ class TrinitySystem:
 
         return paths
 
-    def _verify_consent(self, query: str, stakeholders: List[Stakeholder]) -> bool:
+    def _verify_consent(self, query: str, stakeholders: list[Stakeholder]) -> bool:
         """
         F11: Verify meaningful consent from stakeholders.
         """
@@ -814,7 +812,7 @@ class TrinitySociety:
         query: str,
         empathy: EmpathyFlow,
         system: SystemIntegrity,
-        context: Optional[Dict] = None,
+        context: dict | None = None,
     ) -> SocietalImpact:
         """Evaluate societal-level impact."""
         # Impact matrix
@@ -837,8 +835,8 @@ class TrinitySociety:
         )
 
     def _compute_impact_matrix(
-        self, stakeholders: List[Stakeholder]
-    ) -> Dict[str, Dict[str, float]]:
+        self, stakeholders: list[Stakeholder]
+    ) -> dict[str, dict[str, float]]:
         """Compute pairwise impact between stakeholders."""
         matrix = {}
         for s1 in stakeholders:
@@ -910,7 +908,7 @@ class ASIEngineHardened:
     3-Trinity architecture with fractal stakeholder geometry.
     """
 
-    def __init__(self, session_id: Optional[str] = None):
+    def __init__(self, session_id: str | None = None):
         self.session_id = session_id or f"asi_{uuid.uuid4().hex[:12]}"
 
         # Trinity components
@@ -918,7 +916,7 @@ class ASIEngineHardened:
         self.trinity_system = TrinitySystem()
         self.trinity_society = TrinitySociety()
 
-    async def execute(self, query: str, context: Optional[Dict] = None) -> OmegaBundle:
+    async def execute(self, query: str, context: dict | None = None) -> OmegaBundle:
         """
         Main execution: 555 EMPATHY → 666 ALIGN → Ω
         """
@@ -1019,7 +1017,7 @@ class ASIEngineHardened:
 
         return EngineVote.SEAL
 
-    def _check_harmful_intent(self, query: str) -> Dict[str, Any]:
+    def _check_harmful_intent(self, query: str) -> dict[str, Any]:
         """
         F12 Defence: Redundant harmful intent classifier.
 
@@ -1060,7 +1058,7 @@ class ASIEngineHardened:
 
 
 async def execute_asi_hardened(
-    query: str, session_id: Optional[str] = None, context: Optional[Dict] = None
+    query: str, session_id: str | None = None, context: dict | None = None
 ) -> OmegaBundle:
     """Convenience function to execute hardened ASI."""
     engine = ASIEngineHardened(session_id)
@@ -1071,7 +1069,7 @@ async def execute_asi_hardened(
 ASIEngine = ASIEngineHardened
 execute_asi = execute_asi_hardened
 
-_asi_engines: Dict[str, ASIEngineHardened] = {}
+_asi_engines: dict[str, ASIEngineHardened] = {}
 
 
 def get_asi_engine(session_id: str) -> ASIEngineHardened:

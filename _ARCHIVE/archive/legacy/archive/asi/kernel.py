@@ -10,10 +10,9 @@ DITEMPA BUKAN DIBERI - Forged, Not Given
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
-from .engine import ASIEngine, execute_asi, get_asi_engine, cleanup_expired_sessions
-from codebase.bundles import OmegaBundle
+from .engine import ASIEngine, cleanup_expired_sessions, execute_asi, get_asi_engine
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +30,7 @@ class ASINeuralCore:
 
     def __init__(self):
         self.version = "v53.3.1-TRINITIES"
-        self._engines: Dict[str, ASIEngine] = {}
+        self._engines: dict[str, ASIEngine] = {}
         logger.info(f"ASINeuralCore ignited ({self.version})")
 
     def _get_engine(self, session_id: str) -> ASIEngine:
@@ -40,8 +39,8 @@ class ASINeuralCore:
         return self._engines[session_id]
 
     async def empathize(
-        self, query: str, context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Stage 555: EMPATHY - Analyze stakeholders."""
         context = context or {}
         session_id = context.get("session_id", f"asi_{id(query):x}")
@@ -63,7 +62,7 @@ class ASINeuralCore:
             "verdict": "SEAL" if result.success else "VOID",
         }
 
-    async def align(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def align(self, query: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         """Stage 666: ALIGN - Safety and constitutional checks."""
         context = context or {}
         session_id = context.get("session_id", f"asi_{id(query):x}")
@@ -92,7 +91,7 @@ class ASINeuralCore:
             ),
         }
 
-    async def execute(self, action: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, action: str, kwargs: dict[str, Any]) -> dict[str, Any]:
         """Unified execution entry point."""
         query = kwargs.get("query", kwargs.get("text", ""))
         context = kwargs.get("context", {})
@@ -115,7 +114,7 @@ class ASINeuralCore:
                 "available_actions": ["full", "empathize", "align", "audit"],
             }
 
-    async def _execute_full(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_full(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Execute complete ASI pipeline."""
         session_id = context.get("session_id", f"asi_{id(query):x}")
         omega_bundle = await execute_asi(query, session_id, context)
@@ -137,7 +136,7 @@ class ASINeuralCore:
             ),
         }
 
-    async def _execute_audit(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_audit(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Execute full trinity audit."""
         result = await self._execute_full(query, context)
         engine = self._get_engine(context.get("session_id", "default"))

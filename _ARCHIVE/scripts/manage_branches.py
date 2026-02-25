@@ -1,7 +1,5 @@
-import os
 import subprocess
 import sys
-
 
 
 def run_command(cmd):

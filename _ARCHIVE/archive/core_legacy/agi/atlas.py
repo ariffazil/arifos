@@ -17,7 +17,8 @@ DITEMPA BUKAN DIBERI
 
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Literal, Optional, Pattern
+from re import Pattern
+from typing import Literal
 
 # Lane types for conditional kernel invocation
 LaneType = Literal["SOCIAL", "CARE", "FACTUAL", "CRISIS"]
@@ -54,7 +55,7 @@ class ATLAS_333:
         """Initialize with pre-compiled regex patterns for performance."""
 
         # CRISIS patterns - Direct harm signals
-        self._crisis_patterns: List[Pattern] = [
+        self._crisis_patterns: list[Pattern] = [
             # Direct harm (with negative lookbehind for idioms)
             re.compile(
                 r"(?<!kill )\b(kill myself|murder|suicide|self-harm|cut myself|end it all)\b"
@@ -70,7 +71,7 @@ class ATLAS_333:
         ]
 
         # Idiomatic expressions that should NOT trigger crisis (false positive filters)
-        self._idiom_patterns: List[Pattern] = [
+        self._idiom_patterns: list[Pattern] = [
             re.compile(r"\bkill time\b"),  # "I want to kill time"
             re.compile(r"\bkill (the|my) (lights?|mood|vibe|buzz)\b"),  # "kill the lights"
             re.compile(r"\bkill two birds\b"),  # "kill two birds with one stone"
@@ -79,7 +80,7 @@ class ATLAS_333:
         ]
 
         # FACTUAL patterns - Code, math, technical claims
-        self._factual_patterns: List[Pattern] = [
+        self._factual_patterns: list[Pattern] = [
             # Code/programming
             re.compile(r"\b(code|function|algorithm|class|method|variable|import|def |return )\b"),
             re.compile(r"\b(python|javascript|java|rust|c\+\+|typescript)\b"),
@@ -94,7 +95,7 @@ class ATLAS_333:
         ]
 
         # SOCIAL patterns - Phatic communication
-        self._social_patterns: List[Pattern] = [
+        self._social_patterns: list[Pattern] = [
             # Greetings
             re.compile(r"\b(hello|hi|hey|greetings|good morning|good afternoon|good evening)\b"),
             # Farewells
@@ -103,7 +104,7 @@ class ATLAS_333:
             re.compile(r"\b(thank you|thanks|appreciate|grateful)\b"),
         ]
 
-    def map(self, text: str, context: Optional[Dict] = None) -> GPV:
+    def map(self, text: str, context: dict | None = None) -> GPV:
         """
         Map input text to Governance Placement Vector.
 

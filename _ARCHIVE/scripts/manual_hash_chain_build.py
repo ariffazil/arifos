@@ -6,10 +6,8 @@ Builds hash chain from markdown entries when sync script fails.
 """
 
 import hashlib
-import os
 from datetime import datetime
 from pathlib import Path
-
 
 
 def build_hash_chain():
@@ -61,7 +59,7 @@ def build_hash_chain():
     # Update hash_chain.md
     update_hash_chain_md(chain, prev_hash)
 
-    print(f"[SUCCESS] Hash chain built successfully")
+    print("[SUCCESS] Hash chain built successfully")
     print(f"   Latest hash: {prev_hash}")
     print(f"   Entries: {len(chain)}")
 
@@ -98,7 +96,7 @@ def update_hash_chain_md(chain, latest_hash):
     for link in chain[-5:]:
         summary += f"| {link['index']} | {link['filename'][:40]}... | {link['entry_hash'][:16]}... | {link['link_hash'][:16]}... |\n"
 
-    summary += f"""
+    summary += """
 ## Verification
 
 Manual verification completed. Chain integrity maintained through iterative hashing:

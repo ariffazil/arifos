@@ -47,8 +47,7 @@ import uuid
 
 # Import L5 agents (local SDK package)
 try:
-    from .architect import Architect
-    from .base_agent import Verdict, FloorScores
+    from .base_agent import Verdict
 
     L5_AVAILABLE = True
 except Exception:

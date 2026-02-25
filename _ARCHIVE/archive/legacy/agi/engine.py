@@ -18,32 +18,32 @@ from __future__ import annotations
 
 import asyncio
 import hashlib
-import math
 import re
 import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-# Import our new hardening modules
-from .precision import PrecisionEstimate, estimate_precision, update_belief_with_precision
-from .hierarchy import (
-    HierarchyLevel,
-    HierarchicalBelief,
-    encode_hierarchically,
-    get_cumulative_delta_s,
-)
 from .action import (
-    ActionType,
     ActionPolicy,
+    ActionType,
     BeliefState,
     ExpectedFreeEnergyCalculator,
     MotorOutput,
     compute_action_policy,
     execute_action,
 )
+from .hierarchy import (
+    HierarchicalBelief,
+    HierarchyLevel,
+    encode_hierarchically,
+    get_cumulative_delta_s,
+)
+
+# Import our new hardening modules
+from .precision import PrecisionEstimate, estimate_precision, update_belief_with_precision
 
 # ============ CONSTANTS ============
 
@@ -80,7 +80,7 @@ class DeltaBundle:
     query_hash: str
 
     # Hierarchical beliefs
-    hierarchical_beliefs: Dict[HierarchyLevel, HierarchicalBelief]
+    hierarchical_beliefs: dict[HierarchyLevel, HierarchicalBelief]
 
     # Precision estimates
     precision: PrecisionEstimate
@@ -94,15 +94,15 @@ class DeltaBundle:
     free_energy: float  # F = ΔS + Ω₀·π⁻¹
 
     # Action policy
-    action_policy: Optional[ActionPolicy]
+    action_policy: ActionPolicy | None
 
     # Verdict
     vote: EngineVote
-    floor_scores: Dict[str, float] = field(default_factory=dict)
+    floor_scores: dict[str, float] = field(default_factory=dict)
     synthesis_reasoning: str = ""
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "entropy_delta": self.entropy_delta,
@@ -121,7 +121,7 @@ class DeltaBundle:
 class HardeningResult:
     proceed: bool
     is_reversible: bool
-    block_reason: Optional[str] = None
+    block_reason: str | None = None
     threat_level: str = "none"
 
 
@@ -133,10 +133,10 @@ class SenseData:
 
     raw_query: str
     query_hash: str
-    hierarchical_beliefs: Dict[HierarchyLevel, HierarchicalBelief]
+    hierarchical_beliefs: dict[HierarchyLevel, HierarchicalBelief]
     precision: PrecisionEstimate
     cumulative_delta_s: float
-    entities: List[str] = field(default_factory=list)
+    entities: list[str] = field(default_factory=list)
     intent: str = "unknown"
 
 
@@ -161,7 +161,7 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.recovery_time = recovery_time
         self.failures = 0
-        self.last_failure_time: Optional[float] = None
+        self.last_failure_time: float | None = None
         self.state = "CLOSED"  # CLOSED, OPEN, HALF_OPEN
 
     def can_execute(self) -> bool:
@@ -208,7 +208,7 @@ def run_pre_checks(query: str, exec_id: str) -> HardeningResult:
             return HardeningResult(
                 proceed=False,
                 is_reversible=True,
-                block_reason=f"F12: Injection pattern detected",
+                block_reason="F12: Injection pattern detected",
                 threat_level="high",
             )
 
@@ -234,7 +234,7 @@ def run_pre_checks(query: str, exec_id: str) -> HardeningResult:
             return HardeningResult(
                 proceed=False,
                 is_reversible=True,
-                block_reason=f"F2: Unfalsifiable claim detected",
+                block_reason="F2: Unfalsifiable claim detected",
                 threat_level="medium",
             )
 
@@ -254,19 +254,19 @@ class AGIEngineHardened:
     - Active inference (EFE minimization)
     """
 
-    def __init__(self, session_id: Optional[str] = None):
+    def __init__(self, session_id: str | None = None):
         self.session_id = session_id or f"agi_{uuid.uuid4().hex[:12]}"
         self.circuit_breaker = CircuitBreaker(failure_threshold=3, recovery_time=60)
         self.motor_output = MotorOutput()
         self.efe_calculator = ExpectedFreeEnergyCalculator()
 
         # Session state
-        self.belief_state: Optional[BeliefState] = None
+        self.belief_state: BeliefState | None = None
         self.execution_count = 0
         self.start_time = time.time()
 
     async def execute(
-        self, query: str, context: Optional[Dict] = None, lane: Optional[str] = None
+        self, query: str, context: dict | None = None, lane: str | None = None
     ) -> DeltaBundle:
         """
         Main execution pipeline with ALL hardening layers.
@@ -336,7 +336,7 @@ class AGIEngineHardened:
             intent=self._infer_intent(query),
         )
 
-    async def _stage_222_think(self, sense_data: SenseData, exec_id: str) -> List[ThinkResult]:
+    async def _stage_222_think(self, sense_data: SenseData, exec_id: str) -> list[ThinkResult]:
         """
         222 THINK: Parallel hypothesis testing with precision weighting.
         """
@@ -354,7 +354,7 @@ class AGIEngineHardened:
 
         return results
 
-    async def _think_path(self, path: Dict, sense_data: SenseData, exec_id: str) -> ThinkResult:
+    async def _think_path(self, path: dict, sense_data: SenseData, exec_id: str) -> ThinkResult:
         """
         Single hypothesis path with precision-weighted confidence.
         """
@@ -384,7 +384,7 @@ class AGIEngineHardened:
         )
 
     async def _stage_333_forge(
-        self, sense_data: SenseData, think_results: List[ThinkResult], exec_id: str
+        self, sense_data: SenseData, think_results: list[ThinkResult], exec_id: str
     ) -> DeltaBundle:
         """
         333 FORGE: Convergence with action selection.
@@ -450,7 +450,7 @@ class AGIEngineHardened:
         )
 
     def _calculate_uncertainty(
-        self, sense_data: SenseData, think_results: List[ThinkResult]
+        self, sense_data: SenseData, think_results: list[ThinkResult]
     ) -> float:
         """Calculate uncertainty (Ω₀) in humility band."""
         # Variance across hypothesis paths
@@ -527,7 +527,7 @@ class AGIEngineHardened:
 # ============ CONVENIENCE FUNCTIONS ============
 
 
-async def execute_agi_hardened(query: str, session_id: Optional[str] = None) -> DeltaBundle:
+async def execute_agi_hardened(query: str, session_id: str | None = None) -> DeltaBundle:
     """Convenience function to execute hardened AGI."""
     engine = AGIEngineHardened(session_id)
     return await engine.execute(query)

@@ -30,13 +30,13 @@ import json
 import logging
 import time
 from dataclasses import dataclass, field
-from datetime import datetime, timezone, timedelta
-from typing import Any, Callable, Dict, List, Literal, Optional, Tuple, TYPE_CHECKING
+from datetime import datetime, timezone
+from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
-    from .scar_manager import ScarManager, ScarRecord
-    from .vault_manager import VaultManager, AmendmentRecord, AmendmentEvidence
     from .cooling_ledger import CoolingLedgerV37
+    from .scar_manager import ScarManager
+    from .vault_manager import VaultManager
 
 
 logger = logging.getLogger(__name__)
@@ -92,10 +92,10 @@ class PressureReport:
     total_pressure: float
     scar_count: int
     failure_count: int
-    scars_considered: List[str]
-    ledger_hashes_considered: List[str]
+    scars_considered: list[str]
+    ledger_hashes_considered: list[str]
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "floor_id": self.floor_id,
             "scar_pressure": self.scar_pressure,
@@ -144,7 +144,7 @@ def compute_floor_pressure(
 
     # Ledger pressure (failures in window)
     failure_count = 0
-    ledger_hashes: List[str] = []
+    ledger_hashes: list[str] = []
 
     for entry in ledger.iter_recent(hours=window_hours):
         floor_failures = entry.get("floor_failures", [])
@@ -188,7 +188,7 @@ def compute_all_floor_pressures(
     scar_manager: "ScarManager",
     ledger: "CoolingLedgerV37",
     window_hours: float = 72.0,
-) -> Dict[str, PressureReport]:
+) -> dict[str, PressureReport]:
     """
     Compute pressure for all floors.
 
@@ -267,10 +267,10 @@ class ProposalResult:
     """Result of an amendment proposal."""
 
     success: bool
-    amendment_id: Optional[str] = None
-    pressure_report: Optional[PressureReport] = None
-    errors: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
+    amendment_id: str | None = None
+    pressure_report: PressureReport | None = None
+    errors: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -278,9 +278,9 @@ class FinalizeResult:
     """Result of an amendment finalization."""
 
     success: bool
-    amendment_id: Optional[str] = None
-    signature: Optional[str] = None
-    errors: List[str] = field(default_factory=list)
+    amendment_id: str | None = None
+    signature: str | None = None
+    errors: list[str] = field(default_factory=list)
 
 
 class Phoenix72Controller:
@@ -329,7 +329,7 @@ class Phoenix72Controller:
         vault_manager: "VaultManager",
         scar_manager: "ScarManager",
         ledger: "CoolingLedgerV37",
-        config: Optional[Phoenix72Config] = None,
+        config: Phoenix72Config | None = None,
     ):
         self.vault = vault_manager
         self.scars = scar_manager
@@ -337,7 +337,7 @@ class Phoenix72Controller:
         self.config = config or Phoenix72Config()
 
         # Track cooldown timestamps
-        self._cooldown_timestamps: Dict[str, float] = {}
+        self._cooldown_timestamps: dict[str, float] = {}
 
         # Current cycle ID
         self._cycle_counter = 0
@@ -348,7 +348,7 @@ class Phoenix72Controller:
         ts = int(time.time())
         return f"PHX72-{ts}-{self._cycle_counter:04d}"
 
-    def _sign_amendment(self, amendment_data: Dict[str, Any]) -> str:
+    def _sign_amendment(self, amendment_data: dict[str, Any]) -> str:
         """
         Sign an amendment record using HMAC-SHA256.
 
@@ -370,7 +370,7 @@ class Phoenix72Controller:
     # PRESSURE ANALYSIS
     # =========================================================================
 
-    def analyze_pressure(self) -> Dict[str, PressureReport]:
+    def analyze_pressure(self) -> dict[str, PressureReport]:
         """
         Analyze pressure across all floors.
 
@@ -385,9 +385,9 @@ class Phoenix72Controller:
 
     def get_floors_above_threshold(
         self,
-        pressures: Dict[str, PressureReport],
-        threshold: Optional[float] = None,
-    ) -> List[PressureReport]:
+        pressures: dict[str, PressureReport],
+        threshold: float | None = None,
+    ) -> list[PressureReport]:
         """
         Get floors with pressure above the proposal threshold.
 
@@ -411,8 +411,8 @@ class Phoenix72Controller:
 
     def suggest_amendment(
         self,
-        pressures: Dict[str, PressureReport],
-    ) -> Optional[Dict[str, Any]]:
+        pressures: dict[str, PressureReport],
+    ) -> dict[str, Any] | None:
         """
         Suggest a single amendment based on pressure analysis.
 
@@ -513,8 +513,8 @@ class Phoenix72Controller:
         floor_id: str,
         new_threshold: Any,
         reason: str,
-        evidence_ledger_hashes: Optional[List[str]] = None,
-        evidence_scar_ids: Optional[List[str]] = None,
+        evidence_ledger_hashes: list[str] | None = None,
+        evidence_scar_ids: list[str] | None = None,
         override_protected: bool = False,
     ) -> ProposalResult:
         """
@@ -536,8 +536,8 @@ class Phoenix72Controller:
         """
         from .vault_manager import AmendmentEvidence
 
-        errors: List[str] = []
-        warnings: List[str] = []
+        errors: list[str] = []
+        warnings: list[str] = []
 
         # Check protected floors
         if floor_id in PROTECTED_FLOORS and not override_protected:
@@ -652,7 +652,7 @@ class Phoenix72Controller:
         Returns:
             FinalizeResult with success status and signature
         """
-        errors: List[str] = []
+        errors: list[str] = []
 
         # Get amendment record
         record = self.vault.get_amendment(amendment_id)
@@ -743,7 +743,7 @@ class Phoenix72Controller:
     # CONVENIENCE METHODS
     # =========================================================================
 
-    def run_cycle(self) -> Optional[FinalizeResult]:
+    def run_cycle(self) -> FinalizeResult | None:
         """
         Run a complete Phoenix-72 cycle.
 
@@ -780,7 +780,7 @@ class Phoenix72Controller:
 
         return result
 
-    def get_cooldown_status(self) -> Dict[str, Any]:
+    def get_cooldown_status(self) -> dict[str, Any]:
         """
         Get cooldown status for all floors.
 

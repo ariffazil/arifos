@@ -10,7 +10,6 @@ Options:
     --full    Sync all data including full ledger (otherwise last 50 entries)
 """
 
-import os
 import sys
 from pathlib import Path
 
@@ -20,7 +19,6 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from AAA_MCP.v49.mcp_obsidian_bridge import (
     OBSIDIAN_VAULT_PATH,
-    check_obsidian_connection,
     sync_ledger_to_obsidian,
     sync_seal_to_obsidian,
 )

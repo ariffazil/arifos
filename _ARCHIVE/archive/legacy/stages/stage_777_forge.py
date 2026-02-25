@@ -8,13 +8,14 @@ Hardening:
 - Coherence Verification
 """
 
-from typing import Dict, Any
+from typing import Any
+
 from codebase.system.apex_prime import APEXPrime
 
 APEX = APEXPrime()
 
 
-def execute_stage(context: Dict[str, Any]) -> Dict[str, Any]:
+def execute_stage(context: dict[str, Any]) -> dict[str, Any]:
     context["stage"] = "777"
 
     # Safety Veto Check (Short-circuit if 666 failed)

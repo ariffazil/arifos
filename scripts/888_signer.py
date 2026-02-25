@@ -8,13 +8,14 @@ It generates the ed25519 Sovereign Keypair and signs 888_HOLD ratification chall
 DO NOT DEPLOY THIS TO THE MCP SERVER OR ANY NETWORKED ENVIRONMENT.
 """
 
-import os
-import sys
 import argparse
 import base64
+import os
+import sys
+
 try:
-    from cryptography.hazmat.primitives.asymmetric import ed25519
     from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import ed25519
 except ImportError:
     print("[!] Error: 'cryptography' package is required.")
     print("    Install it locally via: pip install cryptography")
@@ -22,6 +23,7 @@ except ImportError:
 
 KEY_FILE = "sovereign_private_key.pem"
 PUB_KEY_FILE = "sovereign_public_key.pem"
+
 
 def generate_keys():
     """Generates a new ed25519 keypair if one does not exist."""
@@ -37,7 +39,7 @@ def generate_keys():
     private_bytes = private_key.private_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PrivateFormat.PKCS8,
-        encryption_algorithm=serialization.NoEncryption()
+        encryption_algorithm=serialization.NoEncryption(),
     )
     with open(KEY_FILE, "wb") as f:
         f.write(private_bytes)
@@ -45,14 +47,14 @@ def generate_keys():
 
     # Save Public Key (Deploy this to aclip_cai PUBLIC_KEY_APEX)
     public_bytes = public_key.public_bytes(
-        encoding=serialization.Encoding.PEM,
-        format=serialization.PublicFormat.SubjectPublicKeyInfo
+        encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
     with open(PUB_KEY_FILE, "wb") as f:
         f.write(public_bytes)
 
     print(f"[+] Sovereign Private Key saved to: {KEY_FILE} (SECURE THIS)")
     print(f"[+] Sovereign Public Key saved to:  {PUB_KEY_FILE} (DEPLOY TO arifOS)")
+
 
 def sign_challenge(challenge: str):
     """Signs a challenge string with the Sovereign Private Key."""
@@ -64,25 +66,23 @@ def sign_challenge(challenge: str):
     with open(KEY_FILE, "rb") as f:
         private_bytes = f.read()
 
-    private_key = serialization.load_pem_private_key(
-        private_bytes,
-        password=None
-    )
+    private_key = serialization.load_pem_private_key(private_bytes, password=None)
 
     # Sign the challenge
-    challenge_bytes = challenge.encode('utf-8')
+    challenge_bytes = challenge.encode("utf-8")
     signature = private_key.sign(challenge_bytes)
-    
+
     # Encode the signature as base64 for easy transport (copy-pasting into chat)
     token = base64.b64encode(signature).decode("utf-8")
 
     print("\n" + "=" * 50)
     print("⚖️  888 SOVEREIGN RATIFICATION TOKEN")
-    print("="*50)
+    print("=" * 50)
     print(f"Challenge: {challenge}")
     print(f"Token:     {token}")
-    print("="*50)
+    print("=" * 50)
     print("Copy the Token string and provide it to the AI to release the 888_HOLD.")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="888 Sovereign Offline Signer")

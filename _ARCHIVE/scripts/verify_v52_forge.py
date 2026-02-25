@@ -5,8 +5,7 @@ import sys
 os.environ["ARIFOS_LITE_MODE"] = "true"
 
 try:
-    from arifos.mcp.tools import mcp_trinity
-    from arifos.mcp.tools import v51_bridge
+    from arifos.mcp.tools import mcp_trinity, v51_bridge
 
     print("✅ Imports successful")
 except ImportError as e:

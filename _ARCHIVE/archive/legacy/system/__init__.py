@@ -9,7 +9,7 @@ Components:
 - metrics_utils: Prometheus metrics helpers
 """
 
-from .metrics_utils import safe_counter, safe_histogram, safe_gauge
+from .metrics_utils import safe_counter, safe_gauge, safe_histogram
 
 __all__ = [
     "safe_counter",

@@ -3,12 +3,11 @@ F10: ONTOLOGY LOCK (O)
 Canonical implementation of the Ontology Guard Floor.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, Any, List, Tuple
+import logging
 import re
 import unicodedata
-import logging
-from codebase.system.safe_types import safe_float, safe_bool
+from dataclasses import dataclass, field
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +17,9 @@ class OntologyResult:
     """Result of F10 ontology check."""
 
     locked: bool  # Role boundaries maintained
-    violations: List[str]
+    violations: list[str]
     reason: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class F10_OntologyGate:
@@ -51,7 +50,7 @@ class F10_OntologyGate:
         ]
 
         # Pre-compile for performance
-        self.compiled_patterns: List[Tuple[re.Pattern, str]] = [
+        self.compiled_patterns: list[tuple[re.Pattern, str]] = [
             (re.compile(pattern, re.IGNORECASE), reason)
             for pattern, reason in self.forbidden_patterns
         ]
@@ -80,7 +79,7 @@ class F10_OntologyGate:
         """
         try:
             normalized = self.normalize_text(text)
-            violations: List[str] = []
+            violations: list[str] = []
 
             for pattern, reason in self.compiled_patterns:
                 if pattern.search(normalized):
@@ -107,6 +106,6 @@ class F10_OntologyGate:
                 reason=f"F10 check error: {str(e)}",
             )
 
-    def audit_output(self, output: str, context: Dict[str, Any] = None) -> OntologyResult:
+    def audit_output(self, output: str, context: dict[str, Any] = None) -> OntologyResult:
         """Audit AI output for consciousness/role violations."""
         return self.assert_role(output)

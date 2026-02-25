@@ -25,23 +25,23 @@ DITEMPA BUKAN DIBERI - Forged, Not Given
 
 from __future__ import annotations
 
-import time
-import uuid
 import asyncio
 import logging
+import time
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # v52: Supporting modules
 try:
     from .hardening import (
-        run_pre_checks,
-        run_post_checks,
-        cleanup_session,
         HardeningResult,
         RiskLevel,
+        cleanup_session,
+        run_post_checks,
+        run_pre_checks,
     )
 except ImportError:
     # Compatibility fallback: hardening module was removed/refactored in newer AGI layout.
@@ -57,9 +57,9 @@ except ImportError:
         block_reason: str = ""
         risk_level: RiskLevel = RiskLevel.LOW
         hantu_score: float = 0.0
-        warnings: List[str] = field(default_factory=list)
+        warnings: list[str] = field(default_factory=list)
 
-        def to_dict(self) -> Dict[str, Any]:
+        def to_dict(self) -> dict[str, Any]:
             return {
                 "proceed": self.proceed,
                 "block_reason": self.block_reason,
@@ -88,29 +88,29 @@ except ImportError:
         return None
 
 
-from .metrics import ThermodynamicDashboard, get_dashboard
-from .parallel import ParallelHypothesisMatrix
-from .evidence import get_evidence_kernel, cleanup_evidence_kernel
+# Bundles
+from codebase.bundles import DeltaBundle, EngineVote
 
-# v52: Stages (for compatibility)
-from .stages import SenseOutput, build_delta_bundle
+from .action import BeliefState, compute_action_policy
 
 # v53: Components (hardened)
 from .agi_components import (
-    NeuralSenseEngine,
-    DeepThinkEngine,
     CognitiveForge,
-    validate_input_safety,
+    DeepThinkEngine,
+    NeuralSenseEngine,
     check_falsifiability,
+    validate_input_safety,
 )
+from .evidence import cleanup_evidence_kernel, get_evidence_kernel
+from .hierarchy import encode_hierarchically, get_cumulative_delta_s
+from .metrics import get_dashboard
+from .parallel import ParallelHypothesisMatrix
 
 # v53.4.0: Precision, Hierarchy, Active Inference (Critical Gaps P1-P3)
-from .precision import estimate_precision, update_belief_with_precision, PrecisionEstimate
-from .hierarchy import encode_hierarchically, get_cumulative_delta_s, HierarchyLevel
-from .action import compute_action_policy, BeliefState, ActionType
+from .precision import estimate_precision, update_belief_with_precision
 
-# Bundles
-from codebase.bundles import DeltaBundle, EngineVote
+# v52: Stages (for compatibility)
+from .stages import SenseOutput
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +134,7 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.failure_count = 0
-        self.last_failure_time: Optional[float] = None
+        self.last_failure_time: float | None = None
         self.state = "CLOSED"  # CLOSED, OPEN, HALF_OPEN
 
     def can_execute(self) -> bool:
@@ -177,10 +177,10 @@ class SessionManager:
     """Manages AGI engine sessions with TTL cleanup."""
 
     def __init__(self, ttl_seconds: float = 3600.0):
-        self._engines: Dict[str, Dict[str, Any]] = {}
+        self._engines: dict[str, dict[str, Any]] = {}
         self._ttl = ttl_seconds
 
-    def get_engine(self, session_id: str) -> Optional[AGIEngine]:
+    def get_engine(self, session_id: str) -> AGIEngine | None:
         """Get engine if session exists and is not expired."""
         if session_id not in self._engines:
             return None
@@ -231,13 +231,13 @@ class AGIResult:
     session_id: str
     execution_time_ms: float
     timestamp: datetime = field(default_factory=datetime.utcnow)
-    stage_111: Optional[SenseOutput] = None
-    hardening: Optional[HardeningResult] = None
+    stage_111: SenseOutput | None = None
+    hardening: HardeningResult | None = None
     risk_level: RiskLevel = RiskLevel.LOW
     success: bool = True
     error: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "execution_time_ms": self.execution_time_ms,
@@ -272,7 +272,7 @@ class AGIEngine:
     - Session lifecycle management
     """
 
-    def __init__(self, session_id: Optional[str] = None):
+    def __init__(self, session_id: str | None = None):
         self.session_id = session_id or f"agi_{uuid.uuid4().hex[:12]}"
         self.version = "v53.4.0-HARDENED"
 
@@ -291,7 +291,7 @@ class AGIEngine:
         self._execution_count = 0
 
     async def execute(
-        self, query: str, context: Optional[Dict[str, Any]] = None, lane: Optional[str] = None
+        self, query: str, context: dict[str, Any] | None = None, lane: str | None = None
     ) -> AGIResult:
         """
         Execute full AGI pipeline with hardening.
@@ -579,8 +579,8 @@ class AGIEngine:
             cleanup_evidence_kernel(exec_id)
 
     async def _run_parallel_think_async(
-        self, sense_output: SenseOutput, context: Dict[str, Any]
-    ) -> List[Dict[str, Any]]:
+        self, sense_output: SenseOutput, context: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """
         Run 3 parallel hypothesis paths using TRUE async concurrency.
 
@@ -615,7 +615,7 @@ class AGIEngine:
 
         return valid_results
 
-    async def _think_path(self, mode: str, query: str, lane: str) -> Dict[str, Any]:
+    async def _think_path(self, mode: str, query: str, lane: str) -> dict[str, Any]:
         """Execute a single think path."""
         try:
             think_data = await self.think_engine.reason(
@@ -641,7 +641,7 @@ class AGIEngine:
         self,
         session_id: str,
         start_time: float,
-        hardening: Optional[HardeningResult],
+        hardening: HardeningResult | None,
         block_reason: str,
     ) -> AGIResult:
         """Build result when hardening blocks execution."""
@@ -671,7 +671,7 @@ class AGIEngine:
         stage_222,
         stage_333,
         error: str,
-        hardening: Optional[HardeningResult] = None,
+        hardening: HardeningResult | None = None,
     ) -> AGIResult:
         """Build result when a stage fails."""
         exec_time_ms = (time.time() - start_time) * 1000
@@ -720,9 +720,9 @@ class AGIEngine:
 
 async def execute_agi(
     query: str,
-    session_id: Optional[str] = None,
-    context: Optional[Dict[str, Any]] = None,
-    lane: Optional[str] = None,
+    session_id: str | None = None,
+    context: dict[str, Any] | None = None,
+    lane: str | None = None,
 ) -> DeltaBundle:
     """Execute AGI and return sealed DeltaBundle."""
     # Check session manager for existing engine
@@ -734,7 +734,7 @@ async def execute_agi(
     return result.delta_bundle
 
 
-def get_agi_engine(session_id: Optional[str] = None) -> AGIEngine:
+def get_agi_engine(session_id: str | None = None) -> AGIEngine:
     """Get AGI Engine instance (with session management)."""
     sid = session_id or f"agi_{uuid.uuid4().hex[:12]}"
     engine = _session_manager.get_engine(sid)

@@ -8,10 +8,10 @@ Translates between:
 Acts as bidirectional translator + intelligent router.
 """
 
-from dataclasses import dataclass, asdict
-from typing import List, Literal
-from enum import Enum
 import json
+from dataclasses import asdict, dataclass
+from enum import Enum
+from typing import Literal
 
 #
 # SIGNAL EXTRACTION: What does the human want?
@@ -60,13 +60,13 @@ class PromptSignal:
 
     intent: IntentType
     risk_level: RiskLevel
-    stakeholders: List[str]  # Who is affected
+    stakeholders: list[str]  # Who is affected
     reversible: bool  # Can it be undone?
     engine_route: EngineRoute  # Which engine(s) to invoke
     confidence: float  # 0.0-1.0: How sure is @PROMPT
     raw_input: str  # Original prompt
     extracted_query: str  # The core question
-    hidden_assumptions: List[str]  # What is implied but not stated?
+    hidden_assumptions: list[str]  # What is implied but not stated?
 
     def to_dict(self):
         return asdict(self)
@@ -187,7 +187,7 @@ class SignalExtractor:
         else:
             return risk in [RiskLevel.SAFE, RiskLevel.LOW]
 
-    def _extract_stakeholders(self, text: str) -> List[str]:
+    def _extract_stakeholders(self, text: str) -> list[str]:
         """Who is affected?"""
         stakeholders = []
 
@@ -239,7 +239,7 @@ class SignalExtractor:
         # Default: AGI
         return EngineRoute.AGI
 
-    def _find_hidden_assumptions(self, text: str) -> List[str]:
+    def _find_hidden_assumptions(self, text: str) -> list[str]:
         """What is assumed but not stated?"""
         assumptions = []
 

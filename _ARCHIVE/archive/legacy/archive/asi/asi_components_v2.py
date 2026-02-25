@@ -3,11 +3,10 @@ Component-module for ASIRoom (Heart)
 A1 Semantic Stakeholder, A2 Impact Diffusion, A3 Audit Sink
 """
 
-import json
 import hashlib
 import logging
 from datetime import datetime
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +16,7 @@ class SemanticStakeholderReasoner:
 
     async def reason_stakeholders(
         self, query: str, session_id: str, agi_context: dict = None
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """A1: Semantic Stakeholder Reasoning - Native implementation."""
         logger.info(f"Analyzing stakeholders for: {query[:50]}...")
 
@@ -79,7 +78,7 @@ class ConstitutionalAuditSink:
         hardening_result: dict = None,
         empathy_result: dict = None,
         alignment_result: dict = None,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Audit all floors (F1, F5, F6, F9, F11) and return consensus."""
 
         # Extract scores

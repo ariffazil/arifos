@@ -1,8 +1,10 @@
-import sys
-import os
 import json
+import os
+import sys
+
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
 from arifos_aaa_mcp.server import mcp
+
 
 def get_tools_json():
     tools = []
@@ -19,11 +21,14 @@ def get_tools_json():
                 pass
     output = []
     for t in tools:
-        output.append({
-            "name": getattr(t, "name", str(t)),
-            "description": getattr(t, "description", ""),
-        })
+        output.append(
+            {
+                "name": getattr(t, "name", str(t)),
+                "description": getattr(t, "description", ""),
+            }
+        )
     print(json.dumps(output, indent=2))
+
 
 if __name__ == "__main__":
     get_tools_json()

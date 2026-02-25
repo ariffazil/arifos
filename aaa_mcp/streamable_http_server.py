@@ -257,7 +257,9 @@ async def mcp_endpoint(request: Request) -> Response:
         }
         if request_id is not None:
             payload["id"] = request_id
-        return JSONResponse(payload, status_code=http_status, headers=_transport_headers(session_id))
+        return JSONResponse(
+            payload, status_code=http_status, headers=_transport_headers(session_id)
+        )
 
     # Security: origin validation to mitigate DNS rebinding.
     origin = request.headers.get("origin")
@@ -349,9 +351,7 @@ async def mcp_endpoint(request: Request) -> Response:
     # Capture identity metadata for audit trail.
     client_info = params.get("clientInfo", {}) if isinstance(params, dict) else {}
     user_id = (
-        client_info.get("user_id")
-        if isinstance(client_info, dict)
-        else None
+        client_info.get("user_id") if isinstance(client_info, dict) else None
     ) or request.headers.get("x-arifos-user-id")
     await log_identity(
         user_id=user_id,

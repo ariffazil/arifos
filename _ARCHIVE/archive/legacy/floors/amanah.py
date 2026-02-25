@@ -3,12 +3,13 @@ F1: AMANAH (Sacred Trust)
 Canonical implementation of the First Floor.
 """
 
-from dataclasses import dataclass
-from typing import Dict, Any, Optional, List
-import re
 import hashlib
 import logging
-from codebase.system.safe_types import safe_float, safe_bool
+import re
+from dataclasses import dataclass
+from typing import Any
+
+from codebase.system.safe_types import safe_bool
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +23,8 @@ class AmanahCovenant:
     reversible: bool
     auditable: bool
     reason: str
-    covenant_hash: Optional[str] = None
-    metadata: Dict[str, Any] = None
+    covenant_hash: str | None = None
+    metadata: dict[str, Any] = None
 
     def __post_init__(self):
         if self.metadata is None:
@@ -99,7 +100,7 @@ class F1_Amanah:
                 covenant_hash=None,
             )
 
-    def verify_covenants(self, action: str, context: Dict[str, Any]) -> AmanahCovenant:
+    def verify_covenants(self, action: str, context: dict[str, Any]) -> AmanahCovenant:
         """
         Verify Amanah covenant before executing an action.
 
@@ -148,7 +149,7 @@ class F1_Amanah:
         # Normalize (cap at 0.9 to avoid false positives)
         return min(matches * 0.3, 0.9)
 
-    def _requires_sovereign_override(self, action: str, context: Dict[str, Any]) -> bool:
+    def _requires_sovereign_override(self, action: str, context: dict[str, Any]) -> bool:
         """Determine if action requires human sovereign approval."""
         # High-risk categories requiring override
         high_risk_keywords = [

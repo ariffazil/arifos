@@ -1,13 +1,10 @@
 #!/usr/bin/env python3
 
-import sys
 
-from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
-from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer
-
+from reportlab.platypus import Paragraph, SimpleDocTemplate, Spacer
 
 
 def create_apex_manifesto_pdf():

@@ -7,7 +7,7 @@ Provides SenseOutput and build_delta_bundle used by AGIEngine.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from codebase.bundles import DeltaBundle, EngineVote, Hypothesis, ReasoningTree
 
@@ -18,21 +18,21 @@ class SenseOutput:
 
     session_id: str
     raw_query: str
-    parsed_facts: List[str]
+    parsed_facts: list[str]
     detected_intent: str
     confidence: float
     f10_ontology_pass: bool = True
     f12_injection_risk: float = 0.0
     stage_pass: bool = True
-    violations: List[str] = field(default_factory=list)
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    violations: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 def build_delta_bundle(
     *,
     sense_output: SenseOutput,
-    hypotheses: Optional[List[Hypothesis]] = None,
-    reasoning: Optional[ReasoningTree] = None,
+    hypotheses: list[Hypothesis] | None = None,
+    reasoning: ReasoningTree | None = None,
     confidence_high: float = 0.95,
     confidence_low: float = 0.90,
     omega_0: float = 0.04,

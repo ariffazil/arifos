@@ -9,8 +9,6 @@ supported compatibility shim.
 
 from __future__ import annotations
 
-import sys
-
 
 def check_fastmcp_version() -> int:
     """Return the major FastMCP version (best-effort)."""
@@ -27,12 +25,12 @@ def check_fastmcp_version() -> int:
 
 def main() -> None:
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="arifOS MCP server")
     parser.add_argument("mode", nargs="?", default="sse", choices=["stdio", "sse", "http", "rest"])
     parser.add_argument("--host", default=None, help="Host to bind (for sse/http)")
     parser.add_argument("--port", type=int, default=None, help="Port to bind (for sse/http)")
-    
+
     args, _ = parser.parse_known_args()
     mode = args.mode.lower()
 

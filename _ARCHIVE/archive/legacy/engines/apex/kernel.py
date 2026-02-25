@@ -9,10 +9,9 @@ DITEMPA BUKAN DIBERI
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
 
 from codebase.engines.apex.apex_engine import get_apex_room
-from codebase.bundle_store import MergedBundle
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +28,7 @@ class APEXJudicialCore:
         self.version = "v53.2.1-CODEBASE"
         logger.info(f"APEXJudicialCore ignited ({self.version})")
 
-    async def judge(self, session_id: str, **kwargs) -> Dict[str, Any]:
+    async def judge(self, session_id: str, **kwargs) -> dict[str, Any]:
         """Stage 444/888: Judicial Review (Native)."""
         room = get_apex_room(session_id)
         merged = await room.run_trinity_sync()
@@ -45,7 +44,7 @@ class APEXJudicialCore:
             "_bundle": merged,  # For post-444 stages
         }
 
-    async def seal(self, session_id: str, **kwargs) -> Dict[str, Any]:
+    async def seal(self, session_id: str, **kwargs) -> dict[str, Any]:
         """Stage 999: Seal (Native)."""
         import hashlib
         import time
@@ -72,7 +71,7 @@ class APEXJudicialCore:
             ),
         }
 
-    async def list(self, session_id: str, **kwargs) -> Dict[str, Any]:
+    async def list(self, session_id: str, **kwargs) -> dict[str, Any]:
         """List vault entries."""
         target = kwargs.get("target", "ledger")
         return {
@@ -83,7 +82,7 @@ class APEXJudicialCore:
             "entries": [{"id": f"{session_id}_seal", "type": "seal", "status": "immutable"}],
         }
 
-    async def read(self, session_id: str, **kwargs) -> Dict[str, Any]:
+    async def read(self, session_id: str, **kwargs) -> dict[str, Any]:
         """Read vault record."""
         target = kwargs.get("target", "seal")
         return {
@@ -94,7 +93,7 @@ class APEXJudicialCore:
             "record": {"session_id": session_id, "sealed": True},
         }
 
-    async def write(self, session_id: str, **kwargs) -> Dict[str, Any]:
+    async def write(self, session_id: str, **kwargs) -> dict[str, Any]:
         """Write draft artifact."""
         decision_data = kwargs.get("decision_data", {})
         return {
@@ -105,7 +104,7 @@ class APEXJudicialCore:
             "draft_keys": list(decision_data.keys()) if isinstance(decision_data, dict) else [],
         }
 
-    async def propose(self, session_id: str, **kwargs) -> Dict[str, Any]:
+    async def propose(self, session_id: str, **kwargs) -> dict[str, Any]:
         """Propose rule change."""
         decision_data = kwargs.get("decision_data", {})
         return {
@@ -117,7 +116,7 @@ class APEXJudicialCore:
             "requires_review": True,
         }
 
-    async def execute(self, action: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, action: str, kwargs: dict[str, Any]) -> dict[str, Any]:
         """Unified APEX execution entry point."""
         session_id = kwargs.pop("session_id", "default_session")
 

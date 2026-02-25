@@ -8,18 +8,18 @@ Enforces the Trinity Dissent Law.
 Mnemonic: "Init the Genius, Act with Heart, Sync the Bridge, Judge at Apex, Seal in Vault."
 """
 
-from typing import Dict, Any, Tuple
 import logging
+from typing import Any
 
-from codebase.state import SessionState
 from codebase.bundles import (
-    DeltaBundle,
-    OmegaBundle,
-    MergedBundle,
-    EngineVote,
     AGIFloorScores,
     ASIFloorScores,
+    DeltaBundle,
+    EngineVote,
+    MergedBundle,
+    OmegaBundle,
 )
+from codebase.state import SessionState
 
 logger = logging.getLogger("STAGE_444")
 
@@ -31,7 +31,7 @@ class Stage444Sync:
     Merges AGI and ASI parallel processing streams.
     """
 
-    def execute(self, state: SessionState) -> Tuple[str, SessionState]:
+    def execute(self, state: SessionState) -> tuple[str, SessionState]:
         """
         Execute Stage 444 synchronization.
 
@@ -65,7 +65,7 @@ class Stage444Sync:
 
         return pre_verdict, new_state
 
-    def _hydrate_delta(self, data: Dict[str, Any], session_id: str) -> DeltaBundle:
+    def _hydrate_delta(self, data: dict[str, Any], session_id: str) -> DeltaBundle:
         """Reconstruct DeltaBundle from dict."""
         # Minimal hydration for MVP
         floors = data.get("floor_scores", {})
@@ -81,7 +81,7 @@ class Stage444Sync:
             ),
         )
 
-    def _hydrate_omega(self, data: Dict[str, Any], session_id: str) -> OmegaBundle:
+    def _hydrate_omega(self, data: dict[str, Any], session_id: str) -> OmegaBundle:
         """Reconstruct OmegaBundle from dict."""
         floors = data.get("floor_scores", {})
         return OmegaBundle(
@@ -103,5 +103,5 @@ class Stage444Sync:
 stage_444_sync = Stage444Sync()
 
 
-def execute_stage_444(state: SessionState) -> Tuple[str, SessionState]:
+def execute_stage_444(state: SessionState) -> tuple[str, SessionState]:
     return stage_444_sync.execute(state)

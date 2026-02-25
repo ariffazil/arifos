@@ -11,11 +11,9 @@ import os
 import sys
 import tempfile
 from pathlib import Path
-from typing import List, Optional
 
 
-
-def capture_terminal_output(lines: int = 50, output_file: Optional[str] = None) -> str:
+def capture_terminal_output(lines: int = 50, output_file: str | None = None) -> str:
     """Capture the last N lines from terminal output file."""
     if output_file is None:
         output_file = os.path.expanduser(r"~\.arifos_clip\terminal_output.log")
@@ -27,7 +25,7 @@ def capture_terminal_output(lines: int = 50, output_file: Optional[str] = None) 
         sys.exit(1)
 
     try:
-        with open(output_path, "r", encoding="utf-8") as f:
+        with open(output_path, encoding="utf-8") as f:
             all_lines = f.readlines()
 
         # Get last N lines
@@ -67,7 +65,7 @@ def display_preview(content: str, max_lines: int = 10):
     print(file=sys.stderr)
 
 
-def execute_kimi_command(command: str, temp_file: str, args: List[str]):
+def execute_kimi_command(command: str, temp_file: str, args: list[str]):
     """Execute Kimi CLI with the captured content."""
     try:
         # Try to import and use Kimi CLI directly

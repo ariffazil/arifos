@@ -4,7 +4,6 @@ codebase/mcp/fastmcp_clean.py — Legacy Adapter
 Redirects to the canonical aaa_mcp package.
 """
 
-import runpy
 import sys
 
 print("Redirecting to aaa_mcp (v55.5)...")

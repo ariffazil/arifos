@@ -37,21 +37,20 @@ import math
 from collections import Counter
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
-from enum import Enum
-
-from codebase.bundles import (
-    EngineVote,
-    DeltaBundle,
-    Hypothesis,
-    ReasoningTree,
-    AGIFloorScores,
-)
-from .sense import SenseOutput, ParsedFact
-from .think import ThinkOutput
+from typing import Any
 
 # v53: Import Precision Weighting logic
-from codebase.agi.evidence import estimate_precision, compute_precision_weighted_update
+from codebase.agi.evidence import compute_precision_weighted_update
+from codebase.bundles import (
+    AGIFloorScores,
+    DeltaBundle,
+    EngineVote,
+    Hypothesis,
+    ReasoningTree,
+)
+
+from .sense import ParsedFact, SenseOutput
+from .think import ThinkOutput
 
 # =============================================================================
 # CONSTANTS (Constitutional Thresholds)
@@ -91,7 +90,7 @@ class ReasonOutput:
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     # Reasoning synthesis
-    reasoning_tree: Optional[ReasoningTree] = None
+    reasoning_tree: ReasoningTree | None = None
 
     # Thermodynamics
     entropy_before: float = 0.0  # S_query
@@ -113,9 +112,9 @@ class ReasonOutput:
 
     # Stage verdict
     stage_pass: bool = True
-    violations: List[str] = field(default_factory=list)
+    violations: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "timestamp": self.timestamp.isoformat(),
@@ -193,7 +192,7 @@ def synthesize_reasoning_tree(sense: SenseOutput, think: ThinkOutput) -> Reasoni
     )
 
 
-def detect_contradictions(hypotheses: List[Hypothesis]) -> List[str]:
+def detect_contradictions(hypotheses: list[Hypothesis]) -> list[str]:
     """
     Detect contradictions between hypotheses.
 
@@ -223,7 +222,7 @@ def detect_contradictions(hypotheses: List[Hypothesis]) -> List[str]:
     return contradictions
 
 
-def build_conclusion(sense: SenseOutput, think: ThinkOutput, contradictions: List[str]) -> str:
+def build_conclusion(sense: SenseOutput, think: ThinkOutput, contradictions: list[str]) -> str:
     """
     Build a conclusion from the synthesis of hypotheses.
     """
@@ -277,7 +276,7 @@ def compute_shannon_entropy(text: str) -> float:
     return entropy
 
 
-def compute_delta_s(query: str, reasoning_tree: ReasoningTree) -> Tuple[float, float, float]:
+def compute_delta_s(query: str, reasoning_tree: ReasoningTree) -> tuple[float, float, float]:
     """
     Compute ΔS = S_after - S_before (thermodynamic clarity change).
 
@@ -364,7 +363,7 @@ def compute_f4_clarity_score(delta_s: float) -> float:
     return delta_s
 
 
-def compute_f7_humility_score(hypotheses: List[Hypothesis], diversity_score: float) -> float:
+def compute_f7_humility_score(hypotheses: list[Hypothesis], diversity_score: float) -> float:
     """
     Compute F7 Humility (Omega_0) score.
 
@@ -395,7 +394,7 @@ def compute_f7_humility_score(hypotheses: List[Hypothesis], diversity_score: flo
     return omega_0
 
 
-def compute_f13_curiosity_score(hypotheses: List[Hypothesis]) -> float:
+def compute_f13_curiosity_score(hypotheses: list[Hypothesis]) -> float:
     """
     Compute F13 Curiosity score.
 
@@ -429,7 +428,7 @@ def compute_all_floor_scores(
 
 def cast_agi_vote(
     floor_scores: AGIFloorScores, sense: SenseOutput, think: ThinkOutput
-) -> Tuple[EngineVote, str]:
+) -> tuple[EngineVote, str]:
     """
     Cast the independent AGI vote based on floor scores.
 
@@ -563,7 +562,7 @@ def execute_stage_333(
     return output
 
 
-def _apply_precision_updates(think: ThinkOutput, facts: List[ParsedFact]):
+def _apply_precision_updates(think: ThinkOutput, facts: list[ParsedFact]):
     """
     Apply precision weighting to update hypothesis confidence based on verified facts.
 

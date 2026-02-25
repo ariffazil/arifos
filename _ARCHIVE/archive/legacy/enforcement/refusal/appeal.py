@@ -9,11 +9,11 @@ Constitutional Compliance:
 DITEMPA BUKAN DIBERI — Forged, not given.
 """
 
-from datetime import datetime, timezone
-from typing import List, Dict, Optional, Any
-from dataclasses import dataclass, asdict
 import json
+from dataclasses import asdict, dataclass
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -25,9 +25,9 @@ class Appeal:
     user_context: str
     status: str  # PENDING, REVIEWED, OVERTURN, UPHOLD
     submitted_at: str
-    reviewed_at: Optional[str] = None
-    reviewer: Optional[str] = None
-    decision_reason: Optional[str] = None
+    reviewed_at: str | None = None
+    reviewer: str | None = None
+    decision_reason: str | None = None
 
 
 class AppealSystem:
@@ -70,7 +70,7 @@ class AppealSystem:
         self.appeal_log_path = Path(appeal_log_path)
         self.appeal_log_path.parent.mkdir(parents=True, exist_ok=True)
 
-    def submit_appeal(self, session_id: str, trace_id: str, user_context: str) -> Dict[str, str]:
+    def submit_appeal(self, session_id: str, trace_id: str, user_context: str) -> dict[str, str]:
         """
         User triggers 'REVIEW' or 'ESCALATE'.
 
@@ -102,7 +102,7 @@ class AppealSystem:
 
     def human_review(
         self, trace_id: str, decision: str, reason: str, reviewer: str = "human_operator"
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """
         Human overturns or upholds refusal.
 
@@ -140,7 +140,7 @@ class AppealSystem:
             "reviewed_at": review["reviewed_at"],
         }
 
-    def get_pending_appeals(self) -> List[Appeal]:
+    def get_pending_appeals(self) -> list[Appeal]:
         """
         Get all pending appeals (not yet reviewed).
 
@@ -175,7 +175,7 @@ class AppealSystem:
 
         return appeals
 
-    def get_appeal_history(self, trace_id: str) -> List[Dict[str, Any]]:
+    def get_appeal_history(self, trace_id: str) -> list[dict[str, Any]]:
         """
         Get full history for a specific appeal.
 
@@ -198,7 +198,7 @@ class AppealSystem:
 
         return history
 
-    def get_appeal_metrics(self) -> Dict[str, Any]:
+    def get_appeal_metrics(self) -> dict[str, Any]:
         """
         Get metrics for tuning equilibrium thresholds.
 

@@ -4,10 +4,11 @@ Math Layer — Information Geometry, Category Theory, Measure Theory
 Implements formal verification and measurement frameworks.
 """
 
-import numpy as np
-from typing import Dict, List, Callable, TypeVar, Generic, Set
-from dataclasses import dataclass
+from collections.abc import Callable
 from functools import reduce
+from typing import Generic, TypeVar
+
+import numpy as np
 
 T = TypeVar("T")
 U = TypeVar("U")
@@ -24,7 +25,7 @@ class InformationGeometry:
     - F8 Genius: G = A×P×X×E² on statistical manifold
     """
 
-    def __init__(self, constitutional_params: Dict[str, float]):
+    def __init__(self, constitutional_params: dict[str, float]):
         """
         Args:
             constitutional_params: F1-F13 thresholds as parameters θ
@@ -62,7 +63,7 @@ class InformationGeometry:
         }
         return correlations.get((floor1, floor2), 0.1)
 
-    def kl_divergence(self, other_params: Dict[str, float]) -> float:
+    def kl_divergence(self, other_params: dict[str, float]) -> float:
         """
         KL divergence: distance between distributions.
 
@@ -82,7 +83,7 @@ class InformationGeometry:
 
         return kl
 
-    def fisher_rao_distance(self, other_params: Dict[str, float]) -> float:
+    def fisher_rao_distance(self, other_params: dict[str, float]) -> float:
         """
         Fisher-Rao metric distance on statistical manifold.
 
@@ -98,7 +99,7 @@ class InformationGeometry:
         # Fisher-Rao distance
         return np.arccos(min(bc, 1.0))
 
-    def natural_gradient(self, target: Dict[str, float], lr: float = 0.01) -> Dict[str, float]:
+    def natural_gradient(self, target: dict[str, float], lr: float = 0.01) -> dict[str, float]:
         """
         Natural gradient: ∇̃ = g⁻¹∇
 
@@ -155,7 +156,7 @@ class AgentObject:
     Agent as object in Federation category.
     """
 
-    def __init__(self, agent_id: str, state: Dict):
+    def __init__(self, agent_id: str, state: dict):
         self.agent_id = agent_id
         self.state = state
         self.id_morphism = Morphism(
@@ -179,9 +180,9 @@ class FederationCategory:
     """
 
     def __init__(self):
-        self.objects: Dict[str, AgentObject] = {}
-        self.morphisms: List[Morphism] = []
-        self.composition_cache: Dict[str, Morphism] = {}
+        self.objects: dict[str, AgentObject] = {}
+        self.morphisms: list[Morphism] = []
+        self.composition_cache: dict[str, Morphism] = {}
 
     def add_agent(self, agent: AgentObject):
         """Add object to category."""
@@ -191,7 +192,7 @@ class FederationCategory:
         """Add morphism to category."""
         self.morphisms.append(morphism)
 
-    def compose_pipeline(self, morphisms: List[Morphism]) -> Morphism:
+    def compose_pipeline(self, morphisms: list[Morphism]) -> Morphism:
         """
         Compose chain of morphisms: f_n ∘ ... ∘ f_2 ∘ f_1
 
@@ -247,10 +248,10 @@ class ConstitutionalSigmaAlgebra:
     """
 
     def __init__(self):
-        self.omega: Set[str] = set()  # Sample space
-        self.sigma_algebra: Set[str] = set()  # Measurable events
-        self.measures: Dict[str, Callable[[Dict], float]] = {}
-        self.floor_thresholds: Dict[str, float] = {
+        self.omega: set[str] = set()  # Sample space
+        self.sigma_algebra: set[str] = set()  # Measurable events
+        self.measures: dict[str, Callable[[dict], float]] = {}
+        self.floor_thresholds: dict[str, float] = {
             "F2": 0.99,
             "F3": 0.95,
             "F4": 0.0,  # ΔS ≤ 0
@@ -261,7 +262,7 @@ class ConstitutionalSigmaAlgebra:
             "F12": 0.85,  # Upper bound
         }
 
-    def add_event(self, event_name: str, condition: Callable[[Dict], float]):
+    def add_event(self, event_name: str, condition: Callable[[dict], float]):
         """
         Add measurable event to σ-algebra.
 
@@ -270,7 +271,7 @@ class ConstitutionalSigmaAlgebra:
         self.sigma_algebra.add(event_name)
         self.measures[event_name] = condition
 
-    def is_measurable(self, function: Callable[[Dict], float], test_states: List[Dict]) -> bool:
+    def is_measurable(self, function: Callable[[dict], float], test_states: list[dict]) -> bool:
         """
         Check if function is F-measurable.
 
@@ -285,7 +286,7 @@ class ConstitutionalSigmaAlgebra:
                 return False
         return True
 
-    def measure(self, event: str, agent_state: Dict) -> float:
+    def measure(self, event: str, agent_state: dict) -> float:
         """
         P(event | agent_state)
 
@@ -296,7 +297,7 @@ class ConstitutionalSigmaAlgebra:
 
         return self.measures[event](agent_state)
 
-    def verify_all_floors(self, agent_state: Dict) -> Dict[str, bool]:
+    def verify_all_floors(self, agent_state: dict) -> dict[str, bool]:
         """
         Check all F1-F13 floors against agent state.
 

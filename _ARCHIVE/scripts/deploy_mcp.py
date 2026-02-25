@@ -22,8 +22,6 @@ DITEMPA BUKAN DIBERI
 
 import argparse
 import asyncio
-import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -42,8 +40,7 @@ async def validate():
 
     # Check 1: Core imports
     try:
-        from core.organs import agi, apex, asi, init, vault
-        from core.pipeline import forge, quick_check
+        from core.pipeline import forge
 
         checks.append("Core imports")
         print("  [OK] Core organs and pipeline accessible")

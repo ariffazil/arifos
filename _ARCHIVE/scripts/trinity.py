@@ -23,7 +23,7 @@ sys.path.append(os.getcwd())
 
 def get_file_content(path):
     try:
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return f.read().strip()
     except FileNotFoundError:
         return None

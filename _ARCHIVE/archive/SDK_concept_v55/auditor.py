@@ -11,7 +11,7 @@ from .base_agent import BaseAgent
 
 try:
     from core import organs as core_organs
-    from core.shared.physics import Peace2, W_3_from_tensor
+    from core.shared.physics import Peace2
 
     CORE_AVAILABLE = True
 except Exception:

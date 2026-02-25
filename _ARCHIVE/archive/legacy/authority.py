@@ -4,10 +4,9 @@ AUTHORITY VERIFICATION
 F11 Command Authority implementation.
 """
 
-from dataclasses import dataclass, field
-from typing import Optional, Dict, Any
 import logging
-from codebase.system.safe_types import safe_float
+from dataclasses import dataclass, field
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +20,7 @@ class AuthorityCheck:
     verifier: str
     reason: str
     requires_override: bool = False
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
         """Validate fields."""
@@ -38,7 +37,7 @@ class AuthorityVerifier:
         self.nonce_cache = {}
 
     def verify(
-        self, session_id: str, command: str = "", operator_id: Optional[str] = None
+        self, session_id: str, command: str = "", operator_id: str | None = None
     ) -> AuthorityCheck:
         """
         Verify operator authority (F11).
@@ -89,7 +88,7 @@ class AuthorityVerifier:
             )
 
     def check(
-        self, session_id: str, command: str = "", operator_id: Optional[str] = None
+        self, session_id: str, command: str = "", operator_id: str | None = None
     ) -> AuthorityCheck:
         """Alias for verify() to match expected interface."""
         return self.verify(session_id, command, operator_id)

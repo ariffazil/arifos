@@ -18,14 +18,14 @@ DITEMPA BUKAN DIBERI - Forged, Not Given
 from __future__ import annotations
 
 import re
+import threading
 import time
-import hashlib
+from collections import defaultdict
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple, Callable
 from enum import Enum
-from collections import defaultdict
-import threading
+from typing import Any
 
 # =============================================================================
 # CONSTANTS
@@ -94,11 +94,11 @@ class HardeningResult:
 
     # Risk assessment
     risk_level: RiskLevel = RiskLevel.LOW
-    high_stakes_triggers: List[str] = field(default_factory=list)
+    high_stakes_triggers: list[str] = field(default_factory=list)
 
     # Hantu detection (F9 pre-screening)
     hantu_score: float = 0.0
-    hantu_patterns: List[str] = field(default_factory=list)
+    hantu_patterns: list[str] = field(default_factory=list)
 
     # Rate limiting
     rate_limited: bool = False
@@ -111,14 +111,14 @@ class HardeningResult:
 
     # Verdict
     proceed: bool = True
-    warnings: List[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
     block_reason: str = ""
 
     # Telemetry
     check_duration_ms: float = 0.0
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "risk_level": self.risk_level.value,
             "high_stakes_triggers": self.high_stakes_triggers,
@@ -141,13 +141,13 @@ class TelemetryPacket:
     stage: str
     timestamp: datetime
     duration_ms: float
-    floor_scores: Dict[str, float]
-    violations: List[str]
+    floor_scores: dict[str, float]
+    violations: list[str]
     verdict: str
     risk_level: str
     entropy_delta: float
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "stage": self.stage,
@@ -171,11 +171,11 @@ class RateLimiter:
 
     def __init__(self):
         self._lock = threading.Lock()
-        self._minute_counts: Dict[str, List[float]] = defaultdict(list)
-        self._session_counts: Dict[str, int] = defaultdict(int)
-        self._violation_counts: Dict[str, int] = defaultdict(int)
+        self._minute_counts: dict[str, list[float]] = defaultdict(list)
+        self._session_counts: dict[str, int] = defaultdict(int)
+        self._violation_counts: dict[str, int] = defaultdict(int)
 
-    def check_and_increment(self, session_id: str) -> Tuple[bool, int, int]:
+    def check_and_increment(self, session_id: str) -> tuple[bool, int, int]:
         """
         Check rate limit and increment counters.
 
@@ -239,7 +239,7 @@ _rate_limiter = RateLimiter()
 # =============================================================================
 
 
-def detect_high_stakes(query: str) -> Tuple[RiskLevel, List[str]]:
+def detect_high_stakes(query: str) -> tuple[RiskLevel, list[str]]:
     """
     Detect if query involves high-stakes operations (class-H).
 
@@ -274,7 +274,7 @@ def detect_high_stakes(query: str) -> Tuple[RiskLevel, List[str]]:
 # =============================================================================
 
 
-def detect_hantu_patterns(query: str) -> Tuple[float, List[str]]:
+def detect_hantu_patterns(query: str) -> tuple[float, list[str]]:
     """
     Pre-screen for dark cleverness patterns (Hantu).
 
@@ -311,7 +311,7 @@ def detect_hantu_patterns(query: str) -> Tuple[float, List[str]]:
 # =============================================================================
 
 # Telemetry callbacks
-_telemetry_callbacks: List[Callable[[TelemetryPacket], None]] = []
+_telemetry_callbacks: list[Callable[[TelemetryPacket], None]] = []
 
 
 def register_telemetry_callback(callback: Callable[[TelemetryPacket], None]) -> None:
@@ -332,8 +332,8 @@ def create_telemetry_packet(
     session_id: str,
     stage: str,
     duration_ms: float,
-    floor_scores: Dict[str, float],
-    violations: List[str],
+    floor_scores: dict[str, float],
+    violations: list[str],
     verdict: str,
     risk_level: RiskLevel,
     entropy_delta: float,
@@ -428,8 +428,8 @@ def run_pre_checks(
 def run_post_checks(
     session_id: str,
     stage: str,
-    floor_scores: Dict[str, float],
-    violations: List[str],
+    floor_scores: dict[str, float],
+    violations: list[str],
     verdict: str,
     entropy_delta: float,
     duration_ms: float,

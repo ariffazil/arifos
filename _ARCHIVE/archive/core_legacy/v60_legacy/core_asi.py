@@ -13,10 +13,10 @@ License: AGPL-3.0-only
 DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
-from typing import Dict, List, Optional
-from shared.types import AgiOutput, AsiOutput, AsiMetrics, FloorScores, Verdict
-from shared.physics import Peace2, κ_r, DISTRESS_SIGNALS
+
 from shared.guards import detect_hantu
+from shared.physics import DISTRESS_SIGNALS, Peace2, κ_r
+from shared.types import AgiOutput, AsiMetrics, AsiOutput, FloorScores, Verdict
 
 # ============================================================================
 # STAGE 444: IMPACT ASSESSMENT — Peace² Stability
@@ -96,7 +96,7 @@ async def _stage_666_align(query: str) -> float:
 
 def _compute_stakeholder_impact(
     query: str, agi_output: AgiOutput, peace_squared: float, kappa_r_value: float
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """
     Compute impact on different stakeholder groups.
 
@@ -138,7 +138,7 @@ def _compute_stakeholder_impact(
 
 
 async def core_asi(
-    agi_output: AgiOutput, session_id: str, context: Optional[dict] = None
+    agi_output: AgiOutput, session_id: str, context: dict | None = None
 ) -> AsiOutput:
     """
     ASI Alignment Engine: Stakeholder impact and ethics assessment.
@@ -204,7 +204,7 @@ async def core_asi(
     )
 
     # Check violations
-    violations: List[str] = []
+    violations: list[str] = []
 
     # F5 Peace² (Soft Floor)
     if peace_squared < 1.0:

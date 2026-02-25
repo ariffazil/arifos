@@ -3,9 +3,10 @@ F2: TRUTH GATE (T)
 Canonical implementation of the Truth/Factuality Floor.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, Any, List, Optional
 import logging
+from dataclasses import dataclass, field
+from typing import Any
+
 from codebase.system.safe_types import safe_float
 
 logger = logging.getLogger(__name__)
@@ -17,9 +18,9 @@ class TruthResult:
 
     verified: bool
     confidence: float  # 0.0 to 1.0 (Target >= 0.99)
-    sources: List[str]
+    sources: list[str]
     reason: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class F2_TruthGate:
@@ -37,7 +38,7 @@ class F2_TruthGate:
         """Initialize truth gate."""
         self.min_confidence = 0.99
 
-    def verify_truth(self, statement: str, context: Optional[Dict[str, Any]] = None) -> TruthResult:
+    def verify_truth(self, statement: str, context: dict[str, Any] | None = None) -> TruthResult:
         """
         Verify the factual accuracy of a statement.
 

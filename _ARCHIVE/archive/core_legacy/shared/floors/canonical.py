@@ -3,16 +3,12 @@ Canonical Constitutional Floors (F1-F13)
 Single source of truth for all floor validators
 """
 
-from typing import Dict, Any, Tuple
-import asyncio
-from typing import Any, Dict, Tuple
-
 
 
 class FloorValidator:
     """Base class for constitutional floor validation"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         """
         Validate floor compliance.
 
@@ -25,7 +21,7 @@ class FloorValidator:
 class F1_Amanah(FloorValidator):
     """F1: Reversibility — Can this be undone?"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Check for irreversible operations
         irreversible = ["delete", "destroy", "drop", "wipe"]
         if any(word in query.lower() for word in irreversible):
@@ -36,7 +32,7 @@ class F1_Amanah(FloorValidator):
 class F2_Truth(FloorValidator):
     """F2: Truth — Is this grounded in reality?"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Simple truth check (would be enhanced with fact-checking)
         if "definitely" in query.lower() or "absolutely" in query.lower():
             return False, "Absolute claims require verification (F7)"
@@ -46,7 +42,7 @@ class F2_Truth(FloorValidator):
 class F3_TriWitness(FloorValidator):
     """F3: Tri-Witness — Multiple perspectives?"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Check for single-perspective bias
         return True, "Tri-witness check passed"
 
@@ -54,7 +50,7 @@ class F3_TriWitness(FloorValidator):
 class F4_Clarity(FloorValidator):
     """F4: Clarity — Is this understandable?"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Check entropy/complexity
         word_count = len(query.split())
         if word_count > 100:
@@ -65,7 +61,7 @@ class F4_Clarity(FloorValidator):
 class F5_Peace(FloorValidator):
     """F5: Peace² — Does this maintain stability?"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Check for destabilizing language
         destabilizing = ["urgent", "emergency", "critical", "panic"]
         if any(word in query.lower() for word in destabilizing):
@@ -76,7 +72,7 @@ class F5_Peace(FloorValidator):
 class F6_Empathy(FloorValidator):
     """F6: Empathy — Considers human impact?"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Check for stakeholder consideration
         return True, "Empathy check passed"
 
@@ -84,7 +80,7 @@ class F6_Empathy(FloorValidator):
 class F7_Humility(FloorValidator):
     """F7: Humility — Acknowledges uncertainty?"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Check for overconfidence
         if "certainly" in query.lower() or "without doubt" in query.lower():
             return False, "Overconfident claim (F7 humility)"
@@ -94,7 +90,7 @@ class F7_Humility(FloorValidator):
 class F8_Genius(FloorValidator):
     """F8: Genius — Quality score G = A × P × X × E²"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Compute simplified G score
         A = 0.9  # AGI
         P = 0.9  # APEX
@@ -110,7 +106,7 @@ class F8_Genius(FloorValidator):
 class F9_AntiHantu(FloorValidator):
     """F9: Anti-Hantu — No consciousness claims"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Check for consciousness/soul claims
         hantu_words = ["conscious", "sentient", "soul", "spirit", "feel"]
         if any(word in query.lower() for word in hantu_words):
@@ -121,14 +117,14 @@ class F9_AntiHantu(FloorValidator):
 class F10_Ontology(FloorValidator):
     """F10: Ontology — Clear categories?"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         return True, "Ontology clear"
 
 
 class F11_Authority(FloorValidator):
     """F11: Command Auth — Who authorized this?"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Would check authentication in real implementation
         return True, "Authority verified"
 
@@ -148,7 +144,7 @@ class F12_Hardening(FloorValidator):
         "DAN mode",
     ]
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         query_lower = query.lower()
         for pattern in self.INJECTION_PATTERNS:
             if pattern in query_lower:
@@ -159,7 +155,7 @@ class F12_Hardening(FloorValidator):
 class F13_Sovereign(FloorValidator):
     """F13: Sovereign — Human final authority"""
 
-    async def validate(self, query: str, context: Dict = None) -> Tuple[bool, str]:
+    async def validate(self, query: str, context: dict = None) -> tuple[bool, str]:
         # Would trigger human-in-loop for high-stakes
         return True, "Sovereign check passed"
 
@@ -182,7 +178,7 @@ FLOORS = {
 }
 
 
-async def validate_floor(floor_code: str, query: str, context: Dict = None) -> Tuple[bool, str]:
+async def validate_floor(floor_code: str, query: str, context: dict = None) -> tuple[bool, str]:
     """Validate a specific floor"""
     if floor_code not in FLOORS:
         return False, f"Unknown floor: {floor_code}"
@@ -191,7 +187,7 @@ async def validate_floor(floor_code: str, query: str, context: Dict = None) -> T
     return await validator.validate(query, context)
 
 
-async def validate_all_floors(query: str, context: Dict = None) -> Dict[str, Tuple[bool, str]]:
+async def validate_all_floors(query: str, context: dict = None) -> dict[str, tuple[bool, str]]:
     """Run all 13 constitutional floors"""
     results = {}
     for code, validator_class in FLOORS.items():

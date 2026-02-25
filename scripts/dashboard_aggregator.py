@@ -7,17 +7,17 @@ Provides unified JSON API for React dashboard.
 import asyncio
 import json
 import time
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, field, asdict
+from dataclasses import asdict, dataclass, field
+from typing import Any
 
 import aiohttp
 import docker
+import uvicorn
 from starlette.applications import Starlette
+from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Route, WebSocketRoute
-from starlette.requests import Request
 from starlette.websockets import WebSocket
-import uvicorn
 
 # Configuration
 NETDATA_URL = "http://localhost:19999"
@@ -57,11 +57,11 @@ SERVERS = [
 class ServerStatus:
     name: str
     type: str
-    port: Optional[int]
+    port: int | None
     online: bool = False
-    latency_ms: Optional[float] = None
+    latency_ms: float | None = None
     last_checked: float = field(default_factory=time.time)
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -71,24 +71,24 @@ class ContainerStatus:
     status: str
     image: str
     created: str
-    ports: List[str]
+    ports: list[str]
 
 
 @dataclass
 class AggregatedMetrics:
     timestamp: float
-    servers: List[ServerStatus]
-    containers: List[ContainerStatus]
-    constitutional: Dict[str, Any]
-    system: Dict[str, Any]
-    uptime_kuma: Dict[str, Any]
-    netdata: Dict[str, Any]
+    servers: list[ServerStatus]
+    containers: list[ContainerStatus]
+    constitutional: dict[str, Any]
+    system: dict[str, Any]
+    uptime_kuma: dict[str, Any]
+    netdata: dict[str, Any]
 
 
 class MetricsAggregator:
     def __init__(self):
         self.docker_client = docker.DockerClient(base_url=DOCKER_SOCKET)
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
 
     async def start(self):
         self.session = aiohttp.ClientSession()
@@ -130,7 +130,7 @@ class MetricsAggregator:
         status.last_checked = time.time()
         return status
 
-    async def get_servers_status(self) -> List[ServerStatus]:
+    async def get_servers_status(self) -> list[ServerStatus]:
         """Check status of all defined servers."""
         tasks = [self.check_server(s) for s in SERVERS]
         results = await asyncio.gather(*tasks, return_exceptions=True)
@@ -142,7 +142,7 @@ class MetricsAggregator:
             statuses.append(r)
         return statuses
 
-    async def get_containers_status(self) -> List[ContainerStatus]:
+    async def get_containers_status(self) -> list[ContainerStatus]:
         """Get Docker container status."""
         containers = []
         try:
@@ -173,7 +173,7 @@ class MetricsAggregator:
             print(f"Error fetching containers: {e}")
         return containers
 
-    async def get_constitutional_metrics(self) -> Dict[str, Any]:
+    async def get_constitutional_metrics(self) -> dict[str, Any]:
         """Fetch constitutional metrics from MCP servers."""
         metrics = {}
         # Try SSE server health
@@ -196,7 +196,7 @@ class MetricsAggregator:
 
         return metrics
 
-    async def get_netdata_metrics(self) -> Dict[str, Any]:
+    async def get_netdata_metrics(self) -> dict[str, Any]:
         """Fetch system metrics from netdata."""
         try:
             async with self.session.get(
@@ -208,7 +208,7 @@ class MetricsAggregator:
             pass
         return {}
 
-    async def get_uptime_kuma_status(self) -> Dict[str, Any]:
+    async def get_uptime_kuma_status(self) -> dict[str, Any]:
         """Fetch status page from uptime-kuma."""
         try:
             async with self.session.get(f"{UPTIME_KUMA_URL}/api/status-page", timeout=5) as resp:
@@ -218,12 +218,12 @@ class MetricsAggregator:
             pass
         return {}
 
-    async def get_system_metrics(self) -> Dict[str, Any]:
+    async def get_system_metrics(self) -> dict[str, Any]:
         """Get basic system metrics (CPU, memory, disk) via netdata or psutil."""
         # Use netdata for now
         return await self.get_netdata_metrics()
 
-    async def get_system_summary(self) -> Dict[str, Any]:
+    async def get_system_summary(self) -> dict[str, Any]:
         """Get summarized system metrics for dashboard."""
         try:
             # Try netdata first

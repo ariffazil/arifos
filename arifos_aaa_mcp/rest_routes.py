@@ -17,6 +17,7 @@ from __future__ import annotations
 import inspect
 import json
 import os
+import secrets
 import time
 import uuid
 from collections.abc import Callable
@@ -103,6 +104,38 @@ WELCOME_HTML = """\
 """
 
 
+def _env_truthy(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def _required_bearer_token() -> str | None:
+    return os.getenv("ARIFOS_API_KEY") or os.getenv("ARIFOS_API_TOKEN")
+
+
+def _auth_error_response(request: Request) -> JSONResponse | None:
+    """Enforce Bearer auth when configured."""
+    required = _required_bearer_token()
+    if not required:
+        return None
+    if _env_truthy("ARIFOS_DEV_MODE"):
+        return None
+
+    auth_header = request.headers.get("Authorization", "")
+    if not auth_header.startswith("Bearer "):
+        return JSONResponse(
+            {"error": "invalid_request", "error_description": "Bearer token required"},
+            status_code=401,
+        )
+
+    presented = auth_header[7:].strip()
+    if not presented or not secrets.compare_digest(presented, required):
+        return JSONResponse(
+            {"error": "invalid_token", "error_description": "Invalid bearer token"},
+            status_code=401,
+        )
+    return None
+
+
 def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
     """Register REST endpoints as custom routes on the FastMCP instance.
 
@@ -147,6 +180,9 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
     @mcp.custom_route("/tools", methods=["GET"])
     async def list_tools(request: Request) -> Response:
+        if err := _auth_error_response(request):
+            return err
+
         tool_list = []
         for name, fn in tool_registry.items():
             doc = inspect.getdoc(fn) or ""
@@ -164,6 +200,9 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
     @mcp.custom_route("/tools/{tool_name:path}", methods=["POST"])
     async def call_tool_rest(request: Request) -> Response:
         """REST-style tool calling for ChatGPT and other HTTP clients."""
+        if err := _auth_error_response(request):
+            return err
+
         incoming_name = request.path_params.get("tool_name", "")
         canonical_name = TOOL_ALIASES.get(incoming_name, incoming_name)
         request_id = f"req-{uuid.uuid4().hex[:12]}"

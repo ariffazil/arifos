@@ -1,7 +1,7 @@
 # Temporary fix - remove local_exec_guard wrapper
 import re
 
-with open("aaa_mcp/server.py", "r", encoding="utf-8") as f:
+with open("aaa_mcp/server.py", encoding="utf-8") as f:
     content = f.read()
 
 # Remove the local_exec_guard wrapper function

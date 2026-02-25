@@ -6,16 +6,17 @@ Reference: 000_THEORY/ROOTKEY_SPEC.md (updated to v55.5)
 """
 
 from __future__ import annotations
-import os
-import json
+
 import hashlib
-import secrets
+import json
 import logging
+import os
+import secrets
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
-from typing import Dict, Optional
-from pathlib import Path
+from datetime import datetime, timezone
 from enum import Enum
+from pathlib import Path
+
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey, Ed25519PublicKey
 from cryptography.hazmat.primitives.kdf.hkdf import HKDF
@@ -172,7 +173,7 @@ class RootKey:
     band: Band = Band.AAA_HUMAN
 
     # Class-level lock
-    _instance: Optional[RootKey] = None
+    _instance: RootKey | None = None
     _initialized: bool = False
 
     def __post_init__(self):
@@ -213,7 +214,7 @@ class RootKey:
         return rootkey
 
     @classmethod
-    def load(cls) -> Optional[RootKey]:
+    def load(cls) -> RootKey | None:
         """Load root key from AAA_HUMAN band (human-only)"""
         path = CanonicalPaths.rootkey()
 
@@ -221,7 +222,7 @@ class RootKey:
             logger.warning("No root key found - call generate() first")
             return None
 
-        with open(path, "r") as f:
+        with open(path) as f:
             data = json.load(f)
 
         # Deserialize
@@ -272,7 +273,7 @@ class RootKey:
 
         logger.info(f"RootKey saved to {path}")
 
-    def derive_session_key(self, session_id: str, context: Optional[bytes] = None) -> bytes:
+    def derive_session_key(self, session_id: str, context: bytes | None = None) -> bytes:
         """
         Derive session key from root key using HKDF.
 
@@ -371,7 +372,7 @@ class BandGuard:
         return accessor_type == "human"
 
     @staticmethod
-    def audit_access(band: Band, accessor_type: str, action: str) -> Dict:
+    def audit_access(band: Band, accessor_type: str, action: str) -> dict:
         """Create audit log entry for band access"""
         return {
             "timestamp": datetime.now(timezone.utc).isoformat(),

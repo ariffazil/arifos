@@ -17,13 +17,15 @@ from pathlib import Path
 
 def print_banner():
     """Print sovereign forge banner."""
-    print("""
+    print(
+        """
 ╔══════════════════════════════════════════════════════════════════╗
 ║  🔐 arifOS SOVEREIGN FORGE — 333_APPS HARDENING PROTOCOL        ║
 ║  Version: 2026.02.17-FORGE-VPS-SEAL (T000 Standard)             ║
 ║  Authority: 888_JUDGE                                           ║
 ╚══════════════════════════════════════════════════════════════════╝
-    """)
+    """
+    )
 
 
 def check_5_organ_membrane(arifos_root: Path) -> tuple[bool, list[str]]:

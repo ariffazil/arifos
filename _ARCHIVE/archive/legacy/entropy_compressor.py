@@ -3,9 +3,9 @@ Entropy Compressor - Minimal Implementation for ASI Room
 Based on: 000_THEORY/000_LAW.md (ΔS ≤ 0)
 """
 
-from typing import Dict, Any, Tuple
-import json
 import hashlib
+import json
+from typing import Any
 
 
 class EntropyCompressor:
@@ -15,7 +15,7 @@ class EntropyCompressor:
         self.baseline = baseline_entropy
         self.total_compressed = 0.0
 
-    def compress(self, data: Dict[str, Any]) -> Tuple[Dict[str, Any], float]:
+    def compress(self, data: dict[str, Any]) -> tuple[dict[str, Any], float]:
         """
         Compress bundle and return entropy delta.
         ΔS must be ≥ 0 (entropy extracted from system)
@@ -39,7 +39,7 @@ class EntropyCompressor:
 
         return compressed, entropy_delta
 
-    def _remove_redundancy(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _remove_redundancy(self, data: dict[str, Any]) -> dict[str, Any]:
         """Remove redundant fields from bundle."""
         compressed = {}
 
@@ -64,7 +64,7 @@ class EntropyCompressor:
 
         return compressed
 
-    def conflict_measure(self, bundle_a: Dict[str, Any], bundle_b: Dict[str, Any]) -> float:
+    def conflict_measure(self, bundle_a: dict[str, Any], bundle_b: dict[str, Any]) -> float:
         """Measure orthogonality between two bundles (0.0=aligned, 1.0=orthogonal)."""
         hash_a = hashlib.sha256(json.dumps(bundle_a, sort_keys=True).encode()).hexdigest()
         hash_b = hashlib.sha256(json.dumps(bundle_b, sort_keys=True).encode()).hexdigest()

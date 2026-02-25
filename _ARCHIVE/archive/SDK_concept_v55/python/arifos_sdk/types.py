@@ -9,7 +9,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class Verdict(str, Enum):
@@ -47,7 +47,7 @@ class FloorResult:
     name: str
     passed: bool
     score: float
-    detail: Optional[str] = None
+    detail: str | None = None
 
 
 @dataclass
@@ -57,8 +57,8 @@ class BlastRadius:
     score: float  # 0.0-1.0
     affected_pods: int
     affected_deployments: int
-    critical_namespaces: List[str]
-    mitigation_suggestions: List[str]
+    critical_namespaces: list[str]
+    mitigation_suggestions: list[str]
 
 
 @dataclass
@@ -69,12 +69,12 @@ class GatewayDecision:
     tool_name: str
     tool_class: ToolClass
     verdict: Verdict
-    floors: List[FloorResult]
-    hard_failures: List[str]
-    blast_radius: Optional[BlastRadius] = None
+    floors: list[FloorResult]
+    hard_failures: list[str]
+    blast_radius: BlastRadius | None = None
     reasoning: str = ""
-    manifest_hash: Optional[str] = None
-    downstream_endpoint: Optional[str] = None
+    manifest_hash: str | None = None
+    downstream_endpoint: str | None = None
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     @property
@@ -100,9 +100,9 @@ class HumanApprovalRequest:
     hold_id: str
     session_id: str
     tool_name: str
-    payload: Dict[str, Any]
-    blast_radius: Optional[BlastRadius]
-    floors_failed: List[str]
+    payload: dict[str, Any]
+    blast_radius: BlastRadius | None
+    floors_failed: list[str]
     reasoning: str
     requested_by: str
     requested_at: str
@@ -137,9 +137,9 @@ class HumanApprovalResponse:
     hold_id: str
     approved: bool
     verdict: Verdict
-    approved_by: Optional[str] = None
-    approved_at: Optional[str] = None
-    rejection_reason: Optional[str] = None
+    approved_by: str | None = None
+    approved_at: str | None = None
+    rejection_reason: str | None = None
 
     @property
     def is_approved(self) -> bool:
@@ -154,9 +154,9 @@ class SessionContext:
     session_id: str
     actor_id: str
     actor_type: ActorType
-    groups: List[str]
-    team: Optional[str] = None
-    attestation: Optional[str] = None
+    groups: list[str]
+    team: str | None = None
+    attestation: str | None = None
     created_at: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
     def get_accountable_human(self) -> str:

@@ -23,11 +23,10 @@ License: AGPL-3.0-only
 
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Optional
 
 from .architect import Architect, ArchitectPlan
 from .auditor import Auditor
-from .base_agent import AgentOutput, FloorScores, Verdict
+from .base_agent import AgentOutput, Verdict
 from .engineer import Engineer
 from .validator import Validator
 
@@ -37,11 +36,11 @@ class FederationResult:
     """Result from federation execution."""
 
     query: str
-    plan: Optional[ArchitectPlan]
-    architect_output: Optional[AgentOutput]
-    engineer_output: Optional[AgentOutput]
-    auditor_output: Optional[AgentOutput]
-    validator_output: Optional[AgentOutput]
+    plan: ArchitectPlan | None
+    architect_output: AgentOutput | None
+    engineer_output: AgentOutput | None
+    auditor_output: AgentOutput | None
+    validator_output: AgentOutput | None
     final_verdict: Verdict
     final_response: any
     execution_path: list[str]

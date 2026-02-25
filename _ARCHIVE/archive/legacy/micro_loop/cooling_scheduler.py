@@ -4,7 +4,6 @@ canonical_core/micro_loop/cooling_scheduler.py — Phoenix-72 Enforcement
 Manages the cooling tiers for the 999 SEAL stage.
 """
 
-from enum import IntEnum
 
 
 class CoolingTier(int, Enum):

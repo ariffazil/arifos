@@ -18,7 +18,6 @@ Solution: Lane-aware thresholds per v45Ω Patch B spec:
 DITEMPA BUKAN DIBERI — Forged, not given
 """
 
-from typing import Dict
 
 # Lane-aware truth thresholds (v45Ω Patch B)
 LANE_TRUTH_THRESHOLDS = {

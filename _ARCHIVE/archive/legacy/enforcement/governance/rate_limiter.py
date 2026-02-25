@@ -16,13 +16,12 @@ DITEMPA BUKAN DIBERI
 
 from __future__ import annotations
 
-import os
-import time
 import logging
-from dataclasses import dataclass, field
-from typing import Dict, Optional, Tuple
-from collections import defaultdict
+import os
 import threading
+import time
+from collections import defaultdict
+from dataclasses import dataclass, field
 
 logger = logging.getLogger(__name__)
 
@@ -71,7 +70,7 @@ class TokenBucket:
     refill_rate: float  # tokens per second
     last_refill: float = field(default_factory=time.time)
 
-    def consume(self, tokens: int = 1) -> Tuple[bool, float]:
+    def consume(self, tokens: int = 1) -> tuple[bool, float]:
         """
         Try to consume tokens from the bucket.
 
@@ -113,16 +112,16 @@ class RateLimiter:
             return {"status": "VOID", "reason": result.reason}
     """
 
-    def __init__(self, limits: Optional[Dict] = None):
+    def __init__(self, limits: dict | None = None):
         """Initialize rate limiter with optional custom limits."""
         self.limits = limits or DEFAULT_LIMITS
         self.enabled = RATE_LIMIT_ENABLED
 
         # Buckets: {tool_name: {session_id: TokenBucket}}
-        self._session_buckets: Dict[str, Dict[str, TokenBucket]] = defaultdict(dict)
+        self._session_buckets: dict[str, dict[str, TokenBucket]] = defaultdict(dict)
 
         # Global buckets: {tool_name: TokenBucket}
-        self._global_buckets: Dict[str, TokenBucket] = {}
+        self._global_buckets: dict[str, TokenBucket] = {}
 
         # Lock for thread safety
         self._lock = threading.Lock()
@@ -236,7 +235,7 @@ class RateLimiter:
 
         logger.debug("Rate limiter cleanup completed")
 
-    def get_stats(self) -> Dict:
+    def get_stats(self) -> dict:
         """Get rate limiter statistics."""
         with self._lock:
             return {
@@ -252,7 +251,7 @@ class RateLimiter:
 # SINGLETON
 # =============================================================================
 
-_rate_limiter: Optional[RateLimiter] = None
+_rate_limiter: RateLimiter | None = None
 
 
 def get_rate_limiter() -> RateLimiter:

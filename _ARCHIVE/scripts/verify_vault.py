@@ -40,7 +40,7 @@ async def verify(dsn: str) -> int:
             print(f"  Merkle root: {result.get('merkle_root', 'N/A')[:32]}...")
             return 0
         else:
-            print(f"[FAIL] Chain verification FAILED")
+            print("[FAIL] Chain verification FAILED")
             print(f"  Reason: {result.get('reason', 'unknown')}")
             if result.get("first_invalid_seq"):
                 print(f"  First invalid sequence: {result['first_invalid_seq']}")

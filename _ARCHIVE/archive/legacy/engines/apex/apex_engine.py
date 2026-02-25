@@ -5,11 +5,11 @@ Isolation: APEX is the ONLY layer that sees both Delta and Omega simultaneously.
 Floors: F3 (Tri-Witness ≥0.95), F8 (Genius Index ≥0.80)
 """
 
-import threading
 import logging
-from typing import Dict, Any, List, Optional
+import threading
+
 from codebase.bundle_store import BundleStore
-from codebase.bundles import DeltaBundle, OmegaBundle, MergedBundle
+from codebase.bundles import MergedBundle
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,7 @@ class APEXRoom:
 
 # ==================== GLOBAL REGISTRY ====================
 
-_APEX_ROOMS: Dict[str, APEXRoom] = {}
+_APEX_ROOMS: dict[str, APEXRoom] = {}
 _APEX_LOCK = threading.Lock()
 
 
@@ -96,7 +96,7 @@ def purge_apex_room(session_id: str) -> None:
                 del _APEX_ROOMS[session_id]
 
 
-def list_active_apex_rooms() -> List[str]:
+def list_active_apex_rooms() -> list[str]:
     """List all active APEX room session IDs."""
     with _APEX_LOCK:
         return list(_APEX_ROOMS.keys())
@@ -115,8 +115,8 @@ def test_apex_engine_initialization():
 async def test_apex_trinity_sync():
     """Test Stage 444 Trinity Sync."""
     session_id = "test_apex_002"
-    from codebase.bundle_store import get_store, DeltaBundle, OmegaBundle
-    from codebase.bundles import EngineVote, AGIFloorScores
+    from codebase.bundle_store import DeltaBundle, OmegaBundle, get_store
+    from codebase.bundles import EngineVote
 
     # 1. Setup bundles in store
     store = get_store(session_id)

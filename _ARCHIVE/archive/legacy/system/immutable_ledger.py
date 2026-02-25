@@ -14,10 +14,10 @@ Implementation: Engineer (Ω) under governance directive
 
 import hashlib
 import json
-from dataclasses import dataclass, asdict
-from typing import List, Dict, Any, Optional
+from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 
 @dataclass
@@ -44,13 +44,13 @@ class LedgerRecord:
     verdict: str
 
     # Particle verdicts
-    agi_verdict: Optional[str] = None
-    asi_verdict: Optional[str] = None
-    apex_verdict: Optional[str] = None
+    agi_verdict: str | None = None
+    asi_verdict: str | None = None
+    apex_verdict: str | None = None
 
     # Governance metrics
-    omega_ortho: Optional[float] = None
-    settlement_ms: Optional[float] = None
+    omega_ortho: float | None = None
+    settlement_ms: float | None = None
 
     # Hash chain
     prev_hash: str = "GENESIS"
@@ -81,15 +81,15 @@ class ImmutableLedger:
     MAX_RECORDS_PER_EPOCH = 1000  # Rotate after 1000 measurements
     GENESIS_HASH = "GENESIS"
 
-    def __init__(self, persist_path: Optional[Path] = None):
+    def __init__(self, persist_path: Path | None = None):
         """
         Initialize immutable ledger.
 
         Args:
             persist_path: Optional path to persist ledger (for production use)
         """
-        self.records: List[LedgerRecord] = []
-        self.hash_chain: List[str] = [self.GENESIS_HASH]
+        self.records: list[LedgerRecord] = []
+        self.hash_chain: list[str] = [self.GENESIS_HASH]
         self.current_epoch = 0
         self.persist_path = persist_path
 
@@ -100,12 +100,12 @@ class ImmutableLedger:
         self,
         query: str,
         verdict: str,
-        agi_verdict: Optional[str] = None,
-        asi_verdict: Optional[str] = None,
-        apex_verdict: Optional[str] = None,
-        omega_ortho: Optional[float] = None,
-        settlement_ms: Optional[float] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        agi_verdict: str | None = None,
+        asi_verdict: str | None = None,
+        apex_verdict: str | None = None,
+        omega_ortho: float | None = None,
+        settlement_ms: float | None = None,
+        metadata: dict[str, Any] | None = None,
     ) -> str:
         """
         Append measurement to immutable ledger.
@@ -201,7 +201,7 @@ class ImmutableLedger:
 
         return record_hash
 
-    def verify_integrity(self) -> tuple[bool, Optional[str]]:
+    def verify_integrity(self) -> tuple[bool, str | None]:
         """
         Verify ledger integrity (detect tampering).
 
@@ -321,7 +321,7 @@ class ImmutableLedger:
         with open(log_file, "a") as f:
             f.write(json.dumps(asdict(record)) + "\n")
 
-    def get_ledger_metrics(self) -> Dict[str, Any]:
+    def get_ledger_metrics(self) -> dict[str, Any]:
         """
         Return ledger governance metrics.
 

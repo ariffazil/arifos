@@ -5,16 +5,13 @@ Thin wiring layer for SealReceipt assembly, signing, and ledger integration.
 Updated in v47: Uses arifos.core.state for merkle ledger functionality.
 """
 
-from typing import Optional, Dict, Any
-from pydantic import BaseModel, Field
 import hashlib
 import json
-import uuid
-import time
 
+from codebase.apex.governance.sovereign_signature import SignatureVerifier, SovereignSigner
 from codebase.enforcement.judiciary.witness_council import ConsensusResult, Verdict
 from codebase.state.merkle_ledger import MerkleLedger
-from codebase.apex.governance.sovereign_signature import SovereignSigner, SignatureVerifier
+from pydantic import BaseModel
 
 
 class SealReceipt(BaseModel):
@@ -34,7 +31,7 @@ class SealReceipt(BaseModel):
     merkle_root_snapshot: str
 
     # Numeric Summary
-    council_summary: Dict[str, float]
+    council_summary: dict[str, float]
 
     def compute_receipt_hash(self) -> str:
         """Deterministic hash of the receipt content."""

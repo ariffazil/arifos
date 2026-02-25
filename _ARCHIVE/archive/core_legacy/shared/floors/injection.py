@@ -6,9 +6,9 @@ Canonical implementation of the Prompt Injection Defense Floor.
 import logging
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from codebase.system.safe_types import safe_bool, safe_float
+from codebase.system.safe_types import safe_float
 
 logger = logging.getLogger(__name__)
 
@@ -19,10 +19,10 @@ class InjectionDefenseResult:
 
     risk_score: float  # 0.0 (safe) to 1.0 (attack)
     passed: bool  # risk_score < 0.85
-    patterns_matched: List[str]
+    patterns_matched: list[str]
     severity: str  # "low", "medium", "high", "critical"
     reason: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class F12_InjectionDefense:
@@ -155,7 +155,7 @@ class F12_InjectionDefense:
             )
 
     def rescan(
-        self, text: str, previous_result: Optional[InjectionDefenseResult]
+        self, text: str, previous_result: InjectionDefenseResult | None
     ) -> InjectionDefenseResult:
         """
         Rescan text (for late-stage checks at 666).

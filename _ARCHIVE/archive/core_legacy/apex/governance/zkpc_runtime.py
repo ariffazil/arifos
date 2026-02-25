@@ -24,7 +24,7 @@ import datetime as _dt
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from codebase.state.ledger_hashing import (
     GENESIS_PREVIOUS_HASH,
@@ -55,10 +55,10 @@ class ZKPCContext:
     """
 
     user_query: str
-    retrieved_canon: List[Dict[str, Any]] = field(default_factory=list)
+    retrieved_canon: list[dict[str, Any]] = field(default_factory=list)
     high_stakes: bool = False
     # optional metadata
-    meta: Optional[Dict[str, Any]] = None
+    meta: dict[str, Any] | None = None
 
 
 def _now_iso() -> str:
@@ -70,7 +70,7 @@ def _now_iso() -> str:
 # ---------------------------------------------------------------------------
 
 
-def build_care_scope(ctx: ZKPCContext) -> Dict[str, Any]:
+def build_care_scope(ctx: ZKPCContext) -> dict[str, Any]:
     """
     Phase I: PAUSE — declare care scope before heavy cognition.
 
@@ -83,16 +83,16 @@ def build_care_scope(ctx: ZKPCContext) -> Dict[str, Any]:
     if ctx.high_stakes:
         stakeholders.append("community")
 
-    ethical_risks: List[str] = []
+    ethical_risks: list[str] = []
     if ctx.high_stakes:
         ethical_risks.append("high_stakes")
     # TODO: add richer risk classification (e.g. trauma, religion, legal, medical)
 
-    entropy_sources: List[str] = []
+    entropy_sources: list[str] = []
     if len(ctx.user_query) < 10:
         entropy_sources.append("ambiguous_query")
 
-    floors_in_scope: List[str] = [
+    floors_in_scope: list[str] = [
         "F1_Truth",
         "F2_DeltaS",
         "F3_PeaceSquared",
@@ -116,7 +116,7 @@ def build_care_scope(ctx: ZKPCContext) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 
-def compute_metrics_stub(ctx: ZKPCContext, answer: str) -> Dict[str, Any]:
+def compute_metrics_stub(ctx: ZKPCContext, answer: str) -> dict[str, Any]:
     """
     Placeholder for metrics computation.
 
@@ -150,8 +150,8 @@ def compute_metrics_stub(ctx: ZKPCContext, answer: str) -> Dict[str, Any]:
 def run_eye_cool_phase_stub(
     ctx: ZKPCContext,
     answer: str,
-    metrics: Dict[str, Any],
-) -> Dict[str, Any]:
+    metrics: dict[str, Any],
+) -> dict[str, Any]:
     """
     Placeholder for @EYE cooling checks.
 
@@ -165,7 +165,7 @@ def run_eye_cool_phase_stub(
     - shadow_level: "LOW" | "MEDIUM" | "HIGH"
     - hantu_scan: "PASS" | "FAIL"
     """
-    report: Dict[str, Any] = {
+    report: dict[str, Any] = {
         "warnings": [],
         "drift_detected": False,
         "shadow_level": "LOW",
@@ -189,12 +189,12 @@ def run_eye_cool_phase_stub(
 def build_zkpc_receipt(
     ctx: ZKPCContext,
     answer: str,
-    care_scope: Dict[str, Any],
-    metrics: Dict[str, Any],
-    eye_report: Dict[str, Any],
-    phases_status: Dict[str, str],
+    care_scope: dict[str, Any],
+    metrics: dict[str, Any],
+    eye_report: dict[str, Any],
+    phases_status: dict[str, str],
     verdict: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Build a zkPC receipt dict matching the v35Ω schema as closely as possible.
 
@@ -252,20 +252,20 @@ def build_zkpc_receipt(
     return receipt
 
 
-def _load_ledger_entries(path: Path) -> List[Dict[str, Any]]:
+def _load_ledger_entries(path: Path) -> list[dict[str, Any]]:
     if not path.exists():
         return []
     return load_jsonl(str(path))
 
 
-def _write_ledger_entries(path: Path, entries: List[Dict[str, Any]]) -> None:
+def _write_ledger_entries(path: Path, entries: list[dict[str, Any]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     dump_jsonl(entries, str(path))
 
 
 def commit_receipt_to_vault(
-    receipt: Dict[str, Any],
-) -> Dict[str, Any]:
+    receipt: dict[str, Any],
+) -> dict[str, Any]:
     """
     Commit a zkPC receipt to the Cooling Ledger (L1) and update:
 
@@ -323,7 +323,7 @@ def run_zkpc_for_answer(
     answer: str,
     verdict: str = "SEAL",
     commit: bool = True,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     High-level helper:
 

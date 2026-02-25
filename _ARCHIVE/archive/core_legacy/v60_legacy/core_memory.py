@@ -14,12 +14,12 @@ DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
 import json
-from pathlib import Path
-from typing import List, Literal, Optional, Dict, Any
 from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any, Literal
 
-from shared.types import VaultOutput, VaultEntry
-from shared.crypto import sha256_hash, sha256_hash_dict, merkle_root
+from shared.crypto import merkle_root, sha256_hash_dict
+from shared.types import VaultEntry, VaultOutput
 
 # ============================================================================
 # MEMORY STORAGE BACKEND
@@ -53,7 +53,7 @@ class MemoryBackend:
     def _load_index(self) -> None:
         """Load memory index from disk."""
         if self.index_file.exists():
-            with open(self.index_file, "r") as f:
+            with open(self.index_file) as f:
                 self._index = json.load(f)
         else:
             self._index = {
@@ -72,9 +72,9 @@ class MemoryBackend:
         self,
         session_id: str,
         verdict: str,
-        floor_scores: Dict[str, Any],
+        floor_scores: dict[str, Any],
         query: str = "",
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: dict[str, Any] | None = None,
     ) -> tuple[str, str]:
         """
         Write entry to constitutional memory.
@@ -137,7 +137,7 @@ class MemoryBackend:
 
         return seal_hash, new_merkle_root
 
-    def read(self, session_id: str) -> Optional[VaultEntry]:
+    def read(self, session_id: str) -> VaultEntry | None:
         """
         Read single entry by session ID.
 
@@ -152,7 +152,7 @@ class MemoryBackend:
         if not entry_file.exists():
             return None
 
-        with open(entry_file, "r") as f:
+        with open(entry_file) as f:
             data = json.load(f)
 
         # Get current Merkle root
@@ -171,8 +171,8 @@ class MemoryBackend:
         )
 
     def query(
-        self, verdict: Optional[str] = None, limit: int = 100, offset: int = 0
-    ) -> List[VaultEntry]:
+        self, verdict: str | None = None, limit: int = 100, offset: int = 0
+    ) -> list[VaultEntry]:
         """
         Query memory with filters.
 
@@ -221,8 +221,8 @@ _memory_backend = MemoryBackend()
 async def core_memory(
     action: Literal["write", "read", "query"],
     session_id: str = "",
-    payload: Optional[Dict[str, Any]] = None,
-    filters: Optional[Dict[str, Any]] = None,
+    payload: dict[str, Any] | None = None,
+    filters: dict[str, Any] | None = None,
 ) -> VaultOutput:
     """
     Constitutional Memory Engine: Immutable audit trail operations.

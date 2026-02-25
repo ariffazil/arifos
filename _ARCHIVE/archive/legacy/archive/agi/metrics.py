@@ -10,14 +10,13 @@ DITEMPA BUKAN DIBERI - Forged, Not Given
 
 from __future__ import annotations
 
-import time
 import statistics
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
+import time
+from dataclasses import dataclass
 from datetime import datetime
+from typing import Any
 
-from codebase.system.types import Metrics
-from codebase.constants import TRUTH_THRESHOLD, OMEGA_0_MIN, OMEGA_0_MAX
+from codebase.constants import OMEGA_0_MAX, OMEGA_0_MIN
 
 
 @dataclass
@@ -33,7 +32,7 @@ class MetricSnapshot:
     cost_usd: float  # Economic cost
     session_id: str
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "timestamp": self.timestamp,
             "stage": self.stage,
@@ -45,7 +44,7 @@ class MetricSnapshot:
             "constitutional_status": self.check_constitutional(),
         }
 
-    def check_constitutional(self) -> Dict[str, str]:
+    def check_constitutional(self) -> dict[str, str]:
         """Check which floors are satisfied"""
         status = {}
 
@@ -69,7 +68,7 @@ class ThermodynamicDashboard:
 
     def __init__(self, session_id: str):
         self.session_id = session_id
-        self.metrics_stream: List[MetricSnapshot] = []
+        self.metrics_stream: list[MetricSnapshot] = []
         self.start_time = time.time()
         self.total_cost = 0.0
 
@@ -136,7 +135,7 @@ class ThermodynamicDashboard:
         )
         record_session_alert(self.session_id, "F2_TRUTH", f"Confidence = {confidence:.4f}")
 
-    def get_convergence_stats(self) -> Dict[str, Any]:
+    def get_convergence_stats(self) -> dict[str, Any]:
         """Calculate convergence statistics"""
         if not self.metrics_stream:
             return {"status": "no_data"}
@@ -189,7 +188,7 @@ class ThermodynamicDashboard:
 
         return round(statistics.mean(scores), 4)
 
-    def generate_report(self) -> Dict[str, Any]:
+    def generate_report(self) -> dict[str, Any]:
         """Generate comprehensive dashboard report"""
         return {
             "session_id": self.session_id,
@@ -204,7 +203,7 @@ class ThermodynamicDashboard:
             "recommendations": self._generate_recommendations(),
         }
 
-    def _count_passed_floors(self) -> Dict[str, int]:
+    def _count_passed_floors(self) -> dict[str, int]:
         """Count how many times each floor passed"""
         counts = {"F2": 0, "F3": 0, "F4": 0, "F6": 0}
         for metric in self.metrics_stream:
@@ -214,7 +213,7 @@ class ThermodynamicDashboard:
                     counts[floor] += 1
         return counts
 
-    def _count_failed_floors(self) -> Dict[str, int]:
+    def _count_failed_floors(self) -> dict[str, int]:
         """Count how many times each floor failed"""
         counts = {"F2": 0, "F3": 0, "F4": 0, "F6": 0}
         for metric in self.metrics_stream:
@@ -224,7 +223,7 @@ class ThermodynamicDashboard:
                     counts[floor] += 1
         return counts
 
-    def _generate_recommendations(self) -> List[str]:
+    def _generate_recommendations(self) -> list[str]:
         """AI-generated recommendations for improvement"""
         recommendations = []
         stats = self.get_convergence_stats()
@@ -247,7 +246,7 @@ class ThermodynamicDashboard:
 
 
 # Global registry for active dashboards
-_active_dashboards: Dict[str, ThermodynamicDashboard] = {}
+_active_dashboards: dict[str, ThermodynamicDashboard] = {}
 
 
 def get_dashboard(session_id: str) -> ThermodynamicDashboard:

@@ -27,13 +27,10 @@ DITEMPA BUKAN DIBERI - Forged, Not Given
 
 from __future__ import annotations
 
-import re
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
 from enum import Enum
-
-from codebase.bundles import Stakeholder as BundleStakeholder
+from typing import Any
 
 # =============================================================================
 # CONSTANTS
@@ -142,8 +139,8 @@ class StakeholderMap:
     """
 
     primary: Stakeholder
-    affected: List[Stakeholder] = field(default_factory=list)
-    weakest: Optional[Stakeholder] = None
+    affected: list[Stakeholder] = field(default_factory=list)
+    weakest: Stakeholder | None = None
 
     def compute_kappa_r(self) -> float:
         """
@@ -161,7 +158,7 @@ class StakeholderMap:
         protection_needed = self.weakest.vulnerability
         return min(1.0, 1.0 - (protection_needed * self.weakest.scar_weight * 0.5))
 
-    def all_stakeholders(self) -> List[Stakeholder]:
+    def all_stakeholders(self) -> list[Stakeholder]:
         """Return all stakeholders including primary."""
         return [self.primary] + self.affected
 
@@ -179,7 +176,7 @@ class EmpathyOutput:
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     # Stakeholder analysis
-    stakeholder_map: Optional[StakeholderMap] = None
+    stakeholder_map: StakeholderMap | None = None
     kappa_r: float = 1.0
 
     # Vulnerability assessment
@@ -187,7 +184,7 @@ class EmpathyOutput:
     high_vulnerability: bool = False
 
     # Care recommendations
-    care_recommendations: List[str] = field(default_factory=list)
+    care_recommendations: list[str] = field(default_factory=list)
 
     # F6 Empathy floor
     f6_pass: bool = True
@@ -195,9 +192,9 @@ class EmpathyOutput:
 
     # Stage verdict
     stage_pass: bool = True
-    violations: List[str] = field(default_factory=list)
+    violations: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "timestamp": self.timestamp.isoformat(),
@@ -232,7 +229,7 @@ class EmpathyOutput:
 # =============================================================================
 
 
-def identify_stakeholders(query: str, context: Optional[Dict[str, Any]] = None) -> StakeholderMap:
+def identify_stakeholders(query: str, context: dict[str, Any] | None = None) -> StakeholderMap:
     """
     Identify all stakeholders affected by the query.
 
@@ -244,7 +241,7 @@ def identify_stakeholders(query: str, context: Optional[Dict[str, Any]] = None) 
     context = context or {}
     query_lower = query.lower()
 
-    stakeholders: List[Stakeholder] = []
+    stakeholders: list[Stakeholder] = []
 
     # Primary stakeholder: the user making the request
     primary = Stakeholder(
@@ -329,7 +326,7 @@ def _pattern_to_role(pattern: str) -> StakeholderRole:
 # =============================================================================
 
 
-def assess_vulnerability_context(query: str) -> Tuple[bool, str, float]:
+def assess_vulnerability_context(query: str) -> tuple[bool, str, float]:
     """
     Assess if query involves high-vulnerability context.
 
@@ -355,7 +352,7 @@ def assess_vulnerability_context(query: str) -> Tuple[bool, str, float]:
 
 def generate_care_recommendations(
     stakeholder_map: StakeholderMap, high_vulnerability: bool, query: str
-) -> List[str]:
+) -> list[str]:
     """
     Generate care recommendations based on stakeholder analysis.
 
@@ -404,7 +401,7 @@ def generate_care_recommendations(
 
 
 def execute_stage_555(
-    query: str, session_id: str, context: Optional[Dict[str, Any]] = None
+    query: str, session_id: str, context: dict[str, Any] | None = None
 ) -> EmpathyOutput:
     """
     Execute Stage 555: EMPATHY

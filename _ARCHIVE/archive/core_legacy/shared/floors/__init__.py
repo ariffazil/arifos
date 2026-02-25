@@ -26,7 +26,6 @@ from codebase.floors.injection import F12_InjectionDefense, InjectionDefenseResu
 from codebase.floors.ontology import F10_OntologyGate, OntologyResult
 
 
-
 # Floor Registry for health checks
 class FloorRegistry:
     """Registry of all constitutional floors F1-F13."""

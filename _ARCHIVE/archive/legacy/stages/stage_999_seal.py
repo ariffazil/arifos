@@ -12,19 +12,20 @@ Writes to PostgreSQL via PersistentVaultLedger (single source of truth).
 import logging
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict
+from typing import Any
+
 from codebase.bundle_store import get_store
 from codebase.vault import (
-    PersistentVaultLedger,
-    should_use_postgres,
     GENESIS_HASH,
+    PersistentVaultLedger,
     should_seal_to_vault,
+    should_use_postgres,
 )
 
 logger = logging.getLogger(__name__)
 
 
-async def execute_seal_stage(session_id: str) -> Dict[str, Any]:
+async def execute_seal_stage(session_id: str) -> dict[str, Any]:
     """
     Metabolic Stage 999: EUREKA-filtered Seal.
     Evaluates novelty via EUREKA Sieve before committing to vault.

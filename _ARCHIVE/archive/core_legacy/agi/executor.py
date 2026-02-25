@@ -53,21 +53,19 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from codebase.bundles import DeltaBundle, EngineVote
 
-from .evidence import EvidenceKernel, cleanup_evidence_kernel, get_evidence_kernel
+from .evidence import cleanup_evidence_kernel, get_evidence_kernel
 from .hardening import (
     HardeningResult,
     RiskLevel,
-    cleanup_session,
     run_post_checks,
     run_pre_checks,
 )
-from .metrics import ThermodynamicDashboard, get_dashboard, record_session_alert
-from .parallel import ParallelHypothesisMatrix, ParallelHypothesisResult
-from .evidence import EvidenceKernel, get_evidence_kernel, cleanup_evidence_kernel
+from .metrics import get_dashboard
+from .parallel import ParallelHypothesisMatrix
 
 # =============================================================================
 # DATA TYPES
@@ -92,19 +90,19 @@ class AGIRoomResult:
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     # Stage outputs (for diagnostics)
-    stage_111: Optional[SenseOutput] = None
-    stage_222: Optional[ThinkOutput] = None
-    stage_333: Optional[ReasonOutput] = None
+    stage_111: SenseOutput | None = None
+    stage_222: ThinkOutput | None = None
+    stage_333: ReasonOutput | None = None
 
     # Hardening results
-    hardening: Optional[HardeningResult] = None
+    hardening: HardeningResult | None = None
     risk_level: RiskLevel = RiskLevel.LOW
 
     # Overall verdict
     success: bool = True
     error: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "session_id": self.session_id,
@@ -144,7 +142,7 @@ class AGIRoom:
         print(result.delta_bundle.vote)  # SEAL, VOID, or UNCERTAIN
     """
 
-    def __init__(self, session_id: Optional[str] = None):
+    def __init__(self, session_id: str | None = None):
         """
         Initialize AGI Room.
 
@@ -154,7 +152,7 @@ class AGIRoom:
         self.session_id = session_id or f"agi_{uuid.uuid4().hex[:12]}"
         self._execution_count = 0
 
-    def execute(self, query: str, context: Optional[Dict[str, Any]] = None) -> AGIRoomResult:
+    def execute(self, query: str, context: dict[str, Any] | None = None) -> AGIRoomResult:
         """
         Execute the full AGI Room pipeline with hardening.
 
@@ -327,7 +325,7 @@ class AGIRoom:
                 floor_scores=final_reasoning.floor_scores,
                 delta_s=final_reasoning.delta_s,
                 vote=final_reasoning.vote,
-                vote_reason=f"Converged from Concurrent Streams (A+B)",
+                vote_reason="Converged from Concurrent Streams (A+B)",
                 reasoning_tree=final_reasoning.reasoning_tree,
                 violations=final_reasoning.violations,
                 stage_pass=True,
@@ -436,11 +434,11 @@ class AGIRoom:
         self,
         session_id: str,
         start_time: float,
-        stage_111: Optional[SenseOutput],
-        stage_222: Optional[ThinkOutput],
-        stage_333: Optional[ReasonOutput],
+        stage_111: SenseOutput | None,
+        stage_222: ThinkOutput | None,
+        stage_333: ReasonOutput | None,
         error: str,
-        hardening: Optional[HardeningResult] = None,
+        hardening: HardeningResult | None = None,
     ) -> AGIRoomResult:
         """Build a failed result with VOID bundle."""
         exec_time_ms = (time.time() - start_time) * 1000
@@ -491,7 +489,7 @@ class AGIRoom:
 
 
 def execute_agi_room(
-    query: str, session_id: Optional[str] = None, context: Optional[Dict[str, Any]] = None
+    query: str, session_id: str | None = None, context: dict[str, Any] | None = None
 ) -> DeltaBundle:
     """
     Execute the AGI Room and return the sealed DeltaBundle.

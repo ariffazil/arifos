@@ -26,7 +26,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from codebase.state.ledger_hashing import load_jsonl
 
@@ -50,12 +50,12 @@ class RetrievalQuery:
     """
 
     text: str
-    types: Optional[List[str]] = None
-    tags: Optional[List[str]] = None
+    types: list[str] | None = None
+    tags: list[str] | None = None
     high_stakes: bool = False
     limit: int = 10
     # Optional future knobs (e.g. min_score) can be added here.
-    meta: Dict[str, Any] = field(default_factory=dict)
+    meta: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -68,11 +68,11 @@ class RetrievalResult:
         debug_info: Optional diagnostics about how they were selected.
     """
 
-    entries: List[Dict[str, Any]]
-    debug_info: Dict[str, Any]
+    entries: list[dict[str, Any]]
+    debug_info: dict[str, Any]
 
 
-def _load_ledger(path: Path) -> List[Dict[str, Any]]:
+def _load_ledger(path: Path) -> list[dict[str, Any]]:
     """
     Load the Cooling Ledger (L1) from disk.
 
@@ -84,7 +84,7 @@ def _load_ledger(path: Path) -> List[Dict[str, Any]]:
     return load_jsonl(str(path))
 
 
-def _entry_text_blob(entry: Dict[str, Any]) -> str:
+def _entry_text_blob(entry: dict[str, Any]) -> str:
     """
     Build a simple text blob for keyword matching.
 
@@ -94,7 +94,7 @@ def _entry_text_blob(entry: Dict[str, Any]) -> str:
     - canon.principle / canon.law / canon.checks
     - receipt fields for zkpc_receipt entries
     """
-    parts: List[str] = []
+    parts: list[str] = []
 
     for key in ("id", "type", "source"):
         val = entry.get(key)
@@ -135,14 +135,14 @@ def _entry_text_blob(entry: Dict[str, Any]) -> str:
     return " ".join(parts).lower()
 
 
-def _entry_tags(entry: Dict[str, Any]) -> List[str]:
+def _entry_tags(entry: dict[str, Any]) -> list[str]:
     """
     Extract tags from a ledger entry if present.
 
     Convention:
     - We look for `tags` at top-level or inside `canon`.
     """
-    tags: List[str] = []
+    tags: list[str] = []
     top_tags = entry.get("tags")
     if isinstance(top_tags, list):
         tags.extend(str(t).lower() for t in top_tags)
@@ -174,14 +174,14 @@ def _simple_keyword_score(text_blob: str, query_text: str) -> int:
     return score
 
 
-def _matches_types(entry: Dict[str, Any], types: Optional[List[str]]) -> bool:
+def _matches_types(entry: dict[str, Any], types: list[str] | None) -> bool:
     if not types:
         return True
     etype = entry.get("type")
     return isinstance(etype, str) and etype in types
 
 
-def _matches_tags(entry: Dict[str, Any], tags: Optional[List[str]]) -> bool:
+def _matches_tags(entry: dict[str, Any], tags: list[str] | None) -> bool:
     if not tags:
         return True
     entry_tags = _entry_tags(entry)
@@ -210,7 +210,7 @@ def retrieve_canon_entries(
     """
     entries = _load_ledger(ledger_path)
 
-    scored: List[Tuple[int, Dict[str, Any]]] = []
+    scored: list[tuple[int, dict[str, Any]]] = []
     for entry in entries:
         if not _matches_types(entry, query.types):
             continue
@@ -224,7 +224,7 @@ def retrieve_canon_entries(
         scored.append((score, entry))
 
     # Sort by (score desc, timestamp desc if present)
-    def sort_key(item: Tuple[int, Dict[str, Any]]) -> Tuple[int, str]:
+    def sort_key(item: tuple[int, dict[str, Any]]) -> tuple[int, str]:
         score, entry = item
         ts = entry.get("timestamp") or ""
         # We want recent entries to come first if scores tie.

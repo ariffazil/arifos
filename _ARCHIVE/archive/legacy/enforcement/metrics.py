@@ -5,22 +5,19 @@ Version: v52.0.0
 """
 
 from __future__ import annotations
-import time
+
 import logging
-import threading
-from collections import defaultdict
+import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
-from prometheus_client import Counter, Histogram, Gauge
+from typing import Any
 
 # Import safe metric registration utilities
-from codebase.system.metrics_utils import safe_counter, safe_histogram, safe_gauge
+from codebase.system.metrics_utils import safe_counter, safe_gauge, safe_histogram
 
 logger = logging.getLogger(__name__)
 
 # --- 1. CONSTITUTIONAL CONSTANTS ---
 
-from .emergency_calibration_v45 import get_lane_truth_threshold
 
 # F2: Truth - factual integrity
 TRUTH_THRESHOLD: float = 0.99
@@ -56,8 +53,8 @@ class Metrics:
     amanah: bool
     tri_witness: float
     rasa: bool = True
-    psi: Optional[float] = None
-    anti_hantu: Optional[bool] = True
+    psi: float | None = None
+    anti_hantu: bool | None = True
     shadow: float = 0.0
 
     def __post_init__(self) -> None:
@@ -79,14 +76,14 @@ class FloorsVerdict:
     """Result of full constitutional scan."""
 
     all_pass: bool
-    failed_floors: List[str]
-    warnings: List[str]
+    failed_floors: list[str]
+    warnings: list[str]
     metrics: Metrics
     lane: str = "UNKNOWN"
     verdict: str = "VOID"
 
     @property
-    def reasons(self) -> List[str]:
+    def reasons(self) -> list[str]:
         """Return all failure/warning reasons (backward-compatible alias)."""
         return [*self.failed_floors, *self.warnings]
 
@@ -131,7 +128,7 @@ class FloorCheckResult:
     passed: bool
     is_hard: bool = True
     reason: str = ""
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 # --- 3. PROMETHEUS INSTRUMENTATION ---
@@ -202,8 +199,8 @@ class ConstitutionalMetrics:
     """Tracks floor results and updates Prometheus metrics."""
 
     def __init__(self):
-        self._floor_results: Dict[str, Any] = {}
-        self._verdict_history: List[Dict[str, Any]] = []
+        self._floor_results: dict[str, Any] = {}
+        self._verdict_history: list[dict[str, Any]] = []
 
     def record_floor_check(self, floor_id: str, passed: bool, score: float = 0.0, reason: str = ""):
         self._floor_results[floor_id] = {

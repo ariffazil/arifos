@@ -12,7 +12,7 @@ import hashlib
 import re
 import uuid
 from datetime import datetime, timezone
-from typing import Any, Dict, Optional
+from typing import Any
 
 # APEX: Full judicial core (777→888→889→999)
 from codebase.apex.kernel import APEXJudicialCore
@@ -35,7 +35,7 @@ class AGINeuralCore:
             self._engine = AGIEngineHardened()
         return self._engine
 
-    async def execute(self, action: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, action: str, kwargs: dict[str, Any]) -> dict[str, Any]:
         """Bridge interface: execute(action, kwargs) → dict.
 
         Supports per-stage execution:
@@ -70,7 +70,7 @@ class AGINeuralCore:
                 "session_id": session_id or "",
             }
 
-    async def _execute_sense(self, engine, query: str) -> Dict[str, Any]:
+    async def _execute_sense(self, engine, query: str) -> dict[str, Any]:
         """Stage 111 SENSE: intent classification, risk flags, ambiguity detection."""
         from codebase.agi import run_pre_checks
         from codebase.agi.hierarchy import HierarchyLevel
@@ -130,7 +130,7 @@ class AGINeuralCore:
             ),
         }
 
-    async def _execute_think(self, engine, query: str) -> Dict[str, Any]:
+    async def _execute_think(self, engine, query: str) -> dict[str, Any]:
         """Stage 111+222 THINK: hypotheses with explicit assumptions and unknowns."""
         exec_id = f"{engine.session_id}_{engine.execution_count}"
         engine.execution_count += 1
@@ -175,7 +175,7 @@ class AGINeuralCore:
 
     async def _execute_full(
         self, engine, query: str, context, lane: str, action: str, reflect: bool
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Full pipeline (sense+think+reason) with optional reflection."""
         bundle = await engine.execute(query, context=context, lane=lane)
         result = bundle.to_dict() if hasattr(bundle, "to_dict") else {}
@@ -262,7 +262,7 @@ class ASIActionCore:
             self._engine = ASINeuralCore()
         return self._engine
 
-    async def execute(self, action: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, action: str, kwargs: dict[str, Any]) -> dict[str, Any]:
         """Bridge interface: execute(action, kwargs) → dict."""
         engine = self._get_engine()
         query = str(kwargs.get("query", kwargs.get("text", "")))
@@ -315,10 +315,10 @@ except ImportError:
 async def _native_init_stub(
     action: str = "init",
     query: str = "",
-    session_id: Optional[str] = None,
-    authority_token: Optional[str] = None,
-    context: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    session_id: str | None = None,
+    authority_token: str | None = None,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     Native init stub — F11 (rate limit) + F12 (injection) only.
     Used as fallback when canonical init_000 is unavailable.
@@ -384,10 +384,10 @@ async def _native_init_stub(
 async def mcp_000_init(
     action: str = "init",
     query: str = "",
-    session_id: Optional[str] = None,
-    authority_token: Optional[str] = None,
-    context: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    session_id: str | None = None,
+    authority_token: str | None = None,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     000_INIT: Delegates to canonical 7-step ignition.
     Falls back to native stub (F11+F12 only) if canonical unavailable.

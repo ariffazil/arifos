@@ -12,7 +12,6 @@ Version: v52.5.1-SEAL
 Status: PRODUCTION
 """
 
-import os
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -214,7 +213,7 @@ Archived {len([f for f in ARCHIVE_FILES if (ROOT / f).exists()])} outdated files
         if not filename.endswith(".py") and not (ROOT / filename).exists():
             report_content += f"- {filename}\n"
 
-    report_content += f"""
+    report_content += """
 
 ### 2. canonical_core Hardening
 

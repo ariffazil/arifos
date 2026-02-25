@@ -4,8 +4,6 @@ Cryptographic non-repudiation for Tier-4 Verdicts.
 """
 
 import hashlib
-import os
-from typing import Optional, Tuple
 
 # Try to import VerifyKey/SigningKey from nacl (PyNaCl)
 # If unavailable, we provide a placeholder wrapper that fails securely or warns
@@ -24,7 +22,7 @@ class SovereignSigner:
     Wraps Ed25519 signing logic.
     """
 
-    def __init__(self, private_key_hex: Optional[str] = None):
+    def __init__(self, private_key_hex: str | None = None):
         if not HAS_NACL:
             # During development without deps, we might simulate or raise
             pass

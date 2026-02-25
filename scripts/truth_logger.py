@@ -2,7 +2,6 @@
 import datetime
 import hashlib
 import json
-import sys
 import uuid
 
 

@@ -456,14 +456,14 @@ async def forge(
         provenance={
             "engine_mode": "deterministic",
             "llm_inside_kernel": False,
-                "stage_path": [
-                    "000_INIT",
-                    "111-333_AGI",
-                    "444-666_ASI",
-                    "777_EUREKA_FORGE",
-                    "888_APEX_JUDGE",
-                    "999_VAULT",
-                ],
+            "stage_path": [
+                "000_INIT",
+                "111-333_AGI",
+                "444-666_ASI",
+                "777_EUREKA_FORGE",
+                "888_APEX_JUDGE",
+                "999_VAULT",
+            ],
             "evidence_count": (
                 len(agi_dict.get("evidence", {})) if isinstance(agi_dict, dict) else 0
             ),

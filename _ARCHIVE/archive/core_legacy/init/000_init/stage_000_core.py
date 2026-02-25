@@ -28,7 +28,7 @@ import time
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any
 
 from codebase.authority import AuthorityVerifier
 
@@ -41,7 +41,7 @@ from codebase.floors import (
 )
 
 if TYPE_CHECKING:
-    from codebase.utils.runtime_types import Job
+    pass
 
 # =============================================================================
 # CONSTANTS FROM SPEC (Track B: 000_void_stage.json)
@@ -140,8 +140,8 @@ class AmanahGateResult:
     score: float
     passed: bool
     reason: str
-    verdict: Optional[VerdictType] = None
-    covenant_hash: Optional[str] = None
+    verdict: VerdictType | None = None
+    covenant_hash: str | None = None
 
 
 # =============================================================================
@@ -156,7 +156,7 @@ class SessionMetadata:
     session_id: str
     timestamp: str
     epoch_start: float
-    humility_band: Tuple[float, float]
+    humility_band: tuple[float, float]
     constitutional_version: str
     nonce: str
     scar_echo_active: bool = True
@@ -177,13 +177,13 @@ class TelemetryPacket:
     burn_rate: float = 0.0
 
     # A: Authoritative vector
-    nonce_v: Optional[str] = None
+    nonce_v: str | None = None
     auth_level: str = "AGENT"
     is_reversible: bool = True
 
     # F: Floor pulse
-    floor_margins: Dict[str, float] = field(default_factory=dict)
-    floor_stability: Dict[str, float] = field(default_factory=dict)
+    floor_margins: dict[str, float] = field(default_factory=dict)
+    floor_stability: dict[str, float] = field(default_factory=dict)
 
 
 @dataclass
@@ -196,8 +196,8 @@ class HypervisorGateResult:
     f12_injection: bool = True
     injection_score: float = 0.0
     nonce_verified: bool = True
-    failures: List[str] = field(default_factory=list)
-    verdict: Optional[VerdictType] = None
+    failures: list[str] = field(default_factory=list)
+    verdict: VerdictType | None = None
 
 
 @dataclass
@@ -207,8 +207,8 @@ class ScarEchoCheck:
     omega_fiction: float = 0.0
     binding_energy_reached: bool = False
     should_forge_law: bool = False
-    harm_pattern: Optional[str] = None
-    ledger_ref: Optional[str] = None
+    harm_pattern: str | None = None
+    ledger_ref: str | None = None
 
 
 @dataclass
@@ -218,7 +218,7 @@ class ZKPCCommitment:
     canon_hash: str
     timestamp: str
     session_id: str
-    witness_signature: Optional[str] = None
+    witness_signature: str | None = None
 
 
 @dataclass
@@ -234,9 +234,9 @@ class SessionInitResult:
     verdict: VerdictType
     vitality: float = 1.0
     message: str = ""
-    stage_trace: List[str] = field(default_factory=list)
+    stage_trace: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dict for JSON serialization."""
         return {
             "session_id": self.metadata.session_id,
@@ -322,10 +322,10 @@ class Stage000VOID:
     def execute(
         self,
         input_text: str,
-        source: Optional[str] = None,
+        source: str | None = None,
         context: str = "",
         action: str = "respond",
-        nonce: Optional[str] = None,
+        nonce: str | None = None,
     ) -> SessionInitResult:
         """
         Execute Stage 000 VOID initialization protocol.
@@ -426,7 +426,7 @@ class Stage000VOID:
         # Conceptual reset - LLM is already stateless per session
         pass
 
-    def _init_session(self, nonce: Optional[str] = None) -> SessionMetadata:
+    def _init_session(self, nonce: str | None = None) -> SessionMetadata:
         """Session Initialization: Create forensic baseline."""
         now = datetime.now(timezone.utc)
         timestamp_str = now.isoformat()
@@ -470,7 +470,7 @@ class Stage000VOID:
         )
 
     def _hypervisor_gate(
-        self, input_text: str, nonce: Optional[str] = None
+        self, input_text: str, nonce: str | None = None
     ) -> HypervisorGateResult:
         """
         Hypervisor Gate: F10-F12 checks before LLM processing.
@@ -521,7 +521,7 @@ class Stage000VOID:
         )
 
     def _amanah_gate(
-        self, input_text: str, source: Optional[str], context: str, action: str
+        self, input_text: str, source: str | None, context: str, action: str
     ) -> AmanahGateResult:
         """
         Amanah Risk Gate.
@@ -592,10 +592,10 @@ class Stage000VOID:
 
 def execute_stage_000(
     input_text: str,
-    source: Optional[str] = None,
+    source: str | None = None,
     context: str = "",
     action: str = "respond",
-    nonce: Optional[str] = None,
+    nonce: str | None = None,
     **kwargs,
 ) -> SessionInitResult:
     """

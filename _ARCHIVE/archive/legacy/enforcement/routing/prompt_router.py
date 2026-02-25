@@ -11,11 +11,9 @@ DITEMPA BUKAN DIBERI — Forged, not given.
 """
 
 import os
-import re
-from typing import List, Optional
 
 from codebase.enforcement.refusal.builder import generate_refusal_response
-from codebase.enforcement.refusal.types import RefusalType, RiskDomain, RefusalResponse
+from codebase.enforcement.refusal.types import RefusalResponse, RefusalType, RiskDomain
 
 # Risk detection patterns
 VIOLENCE_KEYWORDS = [
@@ -91,7 +89,7 @@ ANTHROPOMORPHISM_KEYWORDS = [
 ]
 
 
-def _contains_keywords(prompt: str, keywords: List[str]) -> bool:
+def _contains_keywords(prompt: str, keywords: list[str]) -> bool:
     """Check if prompt contains any of the keywords (case-insensitive)."""
     prompt_lower = prompt.lower()
     return any(keyword in prompt_lower for keyword in keywords)
@@ -133,7 +131,7 @@ def _contains_anthropomorphism_keywords(prompt: str) -> bool:
 
 
 def route_refuse(
-    prompt: str, high_stakes_indicators: Optional[List[str]] = None, profile: Optional[str] = None
+    prompt: str, high_stakes_indicators: list[str] | None = None, profile: str | None = None
 ) -> RefusalResponse:
     """
     Enhanced refusal with R1-R5 taxonomy.

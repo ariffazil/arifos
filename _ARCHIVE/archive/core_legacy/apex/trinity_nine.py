@@ -40,7 +40,7 @@ import math
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 # ============ CONSTANTS ============
 
@@ -79,7 +79,7 @@ class NineParadox:
     score: float = 0.0
     weight: float = 1.0  # Adjustable weight for equilibrium tuning
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "id": self.id,
             "name": self.name,
@@ -107,13 +107,13 @@ class EquilibriumState:
     min_score: float  # Weakest paradox
     max_score: float  # Strongest paradox
     variance: float  # Overall variance
-    paradoxes: Dict[str, NineParadox]
+    paradoxes: dict[str, NineParadox]
 
     # Equilibrium conditions
-    conditions_met: Dict[str, bool] = field(default_factory=dict)
+    conditions_met: dict[str, bool] = field(default_factory=dict)
     convergence_delta: float = 0.0  # Distance from perfect equilibrium
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "is_equilibrium": self.is_equilibrium,
             "trinity_score": round(self.trinity_score, 4),
@@ -138,7 +138,7 @@ class NineFoldBundle:
     query_hash: str
 
     # All 9 paradoxes
-    paradoxes: Dict[str, NineParadox]
+    paradoxes: dict[str, NineParadox]
 
     # Equilibrium analysis
     equilibrium: EquilibriumState
@@ -152,14 +152,14 @@ class NineFoldBundle:
     gamma_score: float  # Trinity Gamma average
 
     # Constitutional alignment
-    constitutional_vector: Dict[str, float]  # F1-F13 alignment scores
+    constitutional_vector: dict[str, float]  # F1-F13 alignment scores
 
     # Reasoning
     synthesis_reasoning: str = ""
-    equilibrium_path: List[Dict] = field(default_factory=list)  # How equilibrium was reached
+    equilibrium_path: list[dict] = field(default_factory=list)  # How equilibrium was reached
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "final_verdict": self.final_verdict,
@@ -181,7 +181,7 @@ class NineFoldBundle:
 # ============ THE 9 PARADOXES ============
 
 
-def create_nine_paradoxes() -> Dict[str, NineParadox]:
+def create_nine_paradoxes() -> dict[str, NineParadox]:
     """
     Create the 9-paradox constitutional matrix.
     """
@@ -291,7 +291,7 @@ class EquilibriumSolver:
         self.tolerance = BALANCE_TOLERANCE
         self.threshold = EQUILIBRIUM_THRESHOLD
 
-    def solve(self, paradoxes: Dict[str, NineParadox]) -> EquilibriumState:
+    def solve(self, paradoxes: dict[str, NineParadox]) -> EquilibriumState:
         """
         Calculate equilibrium state from paradox scores.
         """
@@ -348,11 +348,11 @@ class EquilibriumSolver:
 
     def optimize_toward_equilibrium(
         self,
-        paradoxes: Dict[str, NineParadox],
-        agi_delta: Dict[str, float],
-        asi_omega: Dict[str, float],
+        paradoxes: dict[str, NineParadox],
+        agi_delta: dict[str, float],
+        asi_omega: dict[str, float],
         max_iterations: int = 100,
-    ) -> Tuple[Dict[str, NineParadox], List[Dict]]:
+    ) -> tuple[dict[str, NineParadox], list[dict]]:
         """
         Iteratively adjust paradox weights to reach equilibrium.
 
@@ -386,8 +386,8 @@ class EquilibriumSolver:
         return current, path
 
     def _recalculate_paradoxes(
-        self, paradoxes: Dict[str, NineParadox], agi: Dict[str, float], asi: Dict[str, float]
-    ) -> Dict[str, NineParadox]:
+        self, paradoxes: dict[str, NineParadox], agi: dict[str, float], asi: dict[str, float]
+    ) -> dict[str, NineParadox]:
         """Recalculate paradox scores from AGI/ASI inputs."""
         # Trinity Alpha
         paradoxes["truth_care"].score = self._synthesize(
@@ -431,8 +431,8 @@ class EquilibriumSolver:
         return math.sqrt(a * b)
 
     def _balance_weights(
-        self, paradoxes: Dict[str, NineParadox], state: EquilibriumState
-    ) -> Dict[str, NineParadox]:
+        self, paradoxes: dict[str, NineParadox], state: EquilibriumState
+    ) -> dict[str, NineParadox]:
         """Adjust weights to move toward equilibrium."""
         mean_score = state.arithmetic_mean
 
@@ -457,7 +457,7 @@ class TrinityNine:
     The complete constitutional architecture with equilibrium detection.
     """
 
-    def __init__(self, session_id: Optional[str] = None):
+    def __init__(self, session_id: str | None = None):
         self.session_id = (
             session_id or f"ninefold_{datetime.now(timezone.utc).strftime('%Y%m%d%H%M%S')}"
         )
@@ -465,7 +465,7 @@ class TrinityNine:
         self.solver = EquilibriumSolver()
 
     async def synchronize(
-        self, agi_delta: Dict[str, float], asi_omega: Dict[str, float], optimize: bool = True
+        self, agi_delta: dict[str, float], asi_omega: dict[str, float], optimize: bool = True
     ) -> NineFoldBundle:
         """
         Synchronize AGI and ASI through the 9-paradox matrix.
@@ -585,7 +585,7 @@ class TrinityNine:
 
         return "888_HOLD"
 
-    def _calculate_constitutional_alignment(self) -> Dict[str, float]:
+    def _calculate_constitutional_alignment(self) -> dict[str, float]:
         """Calculate alignment with each constitutional floor."""
         alignment = {}
 
@@ -607,7 +607,7 @@ class TrinityNine:
 
         return alignment
 
-    def _generate_reasoning(self, eq: EquilibriumState, path: List[Dict]) -> str:
+    def _generate_reasoning(self, eq: EquilibriumState, path: list[dict]) -> str:
         """Generate human-readable synthesis reasoning."""
         parts = []
 
@@ -639,9 +639,9 @@ class TrinityNine:
 
 
 async def trinity_nine_sync(
-    agi_delta: Dict[str, float],
-    asi_omega: Dict[str, float],
-    session_id: Optional[str] = None,
+    agi_delta: dict[str, float],
+    asi_omega: dict[str, float],
+    session_id: str | None = None,
     optimize: bool = True,
 ) -> NineFoldBundle:
     """Convenience function for 9-paradox Trinity sync."""
@@ -649,7 +649,7 @@ async def trinity_nine_sync(
     return await trinity.synchronize(agi_delta, asi_omega, optimize)
 
 
-def check_equilibrium(paradox_scores: List[float]) -> EquilibriumState:
+def check_equilibrium(paradox_scores: list[float]) -> EquilibriumState:
     """Check if a set of 9 scores represents equilibrium."""
     solver = EquilibriumSolver()
     paradoxes = create_nine_paradoxes()

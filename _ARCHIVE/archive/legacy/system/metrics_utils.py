@@ -3,7 +3,7 @@ Safe Metrics Registration Utility
 Prevents duplicate metric registration across architectures
 """
 
-from prometheus_client import REGISTRY, Counter, Histogram, Gauge
+from prometheus_client import REGISTRY, Counter, Gauge, Histogram
 
 
 def get_or_create_metric(metric_type, name, *args, **kwargs):

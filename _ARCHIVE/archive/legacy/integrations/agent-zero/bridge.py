@@ -9,12 +9,12 @@ Usage:
     from integrations.agent_zero.bridge import checkpoint, seal, validate_floor
 """
 
-import sys
 import os
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+import sys
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
+from typing import Any
 
 # Ensure arifOS core is importable
 ARIFOS_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -37,11 +37,11 @@ class CheckpointResult:
     """Result from constitutional checkpoint."""
 
     verdict: Verdict
-    floors: Dict[str, bool]
-    reasons: List[str]
+    floors: dict[str, bool]
+    reasons: list[str]
     ledger_id: str
-    metrics: Optional[Dict[str, float]] = None
-    warnings: Optional[List[str]] = None
+    metrics: dict[str, float] | None = None
+    warnings: list[str] | None = None
 
 
 @dataclass
@@ -77,7 +77,7 @@ HARD_FLOORS = ["F1", "F2", "F4", "F7", "F9", "F10", "F11", "F12"]
 SOFT_FLOORS = ["F3", "F5", "F6", "F8"]
 
 
-def checkpoint(action: str, context: str = "", floors_focus: List[str] = None) -> CheckpointResult:
+def checkpoint(action: str, context: str = "", floors_focus: list[str] = None) -> CheckpointResult:
     """
     Run a constitutional checkpoint against all 12 floors.
 

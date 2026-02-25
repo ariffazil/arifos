@@ -1,11 +1,10 @@
 import os
-import re
 
 TARGET_DIR = "arifos/mcp"
 
 
 def fix_imports_in_file(filepath):
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         content = f.read()
 
     # Pattern 1: from arifos_core.X import Y -> from arifos.core.X import Y OR from arifos.X import Y?

@@ -26,7 +26,7 @@ import logging
 import os
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 # ---------------------------------------------------------------------------
@@ -90,10 +90,12 @@ except ImportError:
 
 # Track B Authority: Import constitutional thresholds
 try:
-    from codebase.enforcement.metrics import OMEGA_0_MAX  # 0.05 - F7 humility max
-    from codebase.enforcement.metrics import OMEGA_0_MIN  # 0.03 - F7 humility min
-    from codebase.enforcement.metrics import PEACE_SQUARED_THRESHOLD  # 1.0  - F5 floor
-    from codebase.enforcement.metrics import TRUTH_THRESHOLD  # 0.99 - F2 floor
+    from codebase.enforcement.metrics import (
+        OMEGA_0_MAX,  # 0.05 - F7 humility max
+        OMEGA_0_MIN,  # 0.03 - F7 humility min
+        PEACE_SQUARED_THRESHOLD,  # 1.0  - F5 floor
+        TRUTH_THRESHOLD,  # 0.99 - F2 floor
+    )
 except ImportError:
     TRUTH_THRESHOLD = 0.99
     PEACE_SQUARED_THRESHOLD = 1.0
@@ -123,7 +125,6 @@ fetch_canonical_state = None
 
 try:
     # Use relative import since 000_init starts with digit
-    import sys
     from pathlib import Path
 
     _cb_path = Path(__file__).parent / "canonical_bootstrap.py"
@@ -157,8 +158,8 @@ class InitResult:
     timestamp: str = ""
 
     # Step 1: Memory Injection + Anchor
-    previous_context: Dict[str, Any] = field(default_factory=dict)
-    context_anchor: Optional[str] = None
+    previous_context: dict[str, Any] = field(default_factory=dict)
+    context_anchor: str | None = None
     chain_verified: bool = False
 
     # Environment / Ontology
@@ -172,8 +173,8 @@ class InitResult:
     # Step 3: Intent Mapping
     intent: str = ""  # explain, build, debug, discuss
     lane: str = "UNKNOWN"  # HARD, SOFT, PHATIC, REFUSE
-    contrasts: List[str] = field(default_factory=list)
-    entities: List[str] = field(default_factory=list)
+    contrasts: list[str] = field(default_factory=list)
+    entities: list[str] = field(default_factory=list)
 
     # Step 4: Thermodynamic Setup (wired to Track B via metrics.py)
     entropy_input: float = 0.0
@@ -183,15 +184,15 @@ class InitResult:
     energy_budget: float = 1.0
 
     # Step 5: Floors Loaded
-    floors_checked: List[str] = field(default_factory=list)
+    floors_checked: list[str] = field(default_factory=list)
     floors_loaded: int = 13
 
     # Step 6: Tri-Witness
-    tri_witness: Dict[str, Any] = field(default_factory=dict)
+    tri_witness: dict[str, Any] = field(default_factory=dict)
     TW: float = 0.0
 
     # Step 7: Engine Status
-    engines: Dict[str, str] = field(default_factory=dict)
+    engines: dict[str, str] = field(default_factory=dict)
 
     # Step 8: ATLAS Lane-Aware Routing
     routing: str = ""
@@ -201,7 +202,7 @@ class InitResult:
     reason: str = ""
 
     # v55.3: Canonical Bootstrap Results
-    canonical_bootstrap: Dict[str, Any] = field(default_factory=dict)
+    canonical_bootstrap: dict[str, Any] = field(default_factory=dict)
     tri_witness_sync: bool = False
 
 
@@ -401,7 +402,7 @@ def _classify_lane(text: str) -> str:
 # =============================================================================
 
 
-def _check_rate_limit(tool_name: str, session_id: str = "") -> Optional[Dict]:
+def _check_rate_limit(tool_name: str, session_id: str = "") -> dict | None:
     """
     Check rate limit before processing a tool call.
     Returns None if allowed, or a VOID response dict if rate limited.
@@ -441,7 +442,7 @@ def _check_rate_limit(tool_name: str, session_id: str = "") -> Optional[Dict]:
 # =============================================================================
 
 
-async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -> Dict[str, Any]:
+async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -> dict[str, Any]:
     """
     Step 0: ROOT KEY IGNITION - Establish cryptographic foundation.
 
@@ -463,11 +464,11 @@ async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -
             )
         except ImportError:
             from arifos.core.memory.root_key_accessor import (
-                get_root_key_info,
                 derive_session_key,
+                get_root_key_info,
                 get_root_key_status,
+                verify_genesis_block,
             )
-            from arifos.core.memory.root_key_accessor import verify_genesis_block
         from pathlib import Path
 
         result = {
@@ -596,8 +597,8 @@ async def _step_0_root_key_ignition(session_id: str, scar_weight: float = 0.0) -
 
 
 def _step_1_memory_injection(
-    scar_weight: float = 0.0, canonical_context: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    scar_weight: float = 0.0, canonical_context: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """Step 1: Read from VAULT999 - inject previous session context.
 
     v53.2.2: Now receives scar_weight from Step 2 (sovereign recognition).
@@ -696,7 +697,7 @@ def _step_1_memory_injection(
         return error_context
 
 
-def _step_2_sovereign_recognition(query: str, token: str) -> Dict[str, Any]:
+def _step_2_sovereign_recognition(query: str, token: str) -> dict[str, Any]:
     """Step 2: Recognize the 888 Judge - verify Scar-Weight."""
     query_lower = query.lower()
 
@@ -718,7 +719,7 @@ def _step_2_sovereign_recognition(query: str, token: str) -> Dict[str, Any]:
         return {"authority": "GUEST", "scar_weight": 0.0, "role": "USER", "f11_verified": False}
 
 
-def _step_3_intent_mapping(query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+def _step_3_intent_mapping(query: str, context: dict[str, Any]) -> dict[str, Any]:
     """
     Step 3: Map intent - contrast, meaning, prediction.
 
@@ -858,8 +859,8 @@ def _step_3_intent_mapping(query: str, context: Dict[str, Any]) -> Dict[str, Any
 
 
 def _step_4_thermodynamic_setup(
-    intent_map: Dict[str, Any], sovereign: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    intent_map: dict[str, Any], sovereign: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """
     Step 4: Set energy budget and entropy targets.
 
@@ -915,7 +916,7 @@ def _step_4_thermodynamic_setup(
     }
 
 
-def _step_5_floor_loading() -> Dict[str, Any]:
+def _step_5_floor_loading() -> dict[str, Any]:
     """Step 5: Load the 13 Constitutional Floors."""
     floors = [
         "F1_Amanah",
@@ -942,7 +943,7 @@ def _step_5_floor_loading() -> Dict[str, Any]:
     }
 
 
-def _step_6_tri_witness(sovereign: Dict, thermo: Dict) -> Dict[str, Any]:
+def _step_6_tri_witness(sovereign: dict, thermo: dict) -> dict[str, Any]:
     """Step 6: Establish Tri-Witness handshake."""
     human = {
         "present": sovereign["authority"] == "888_JUDGE",
@@ -968,7 +969,7 @@ def _step_6_tri_witness(sovereign: Dict, thermo: Dict) -> Dict[str, Any]:
     return {"human": human, "ai": ai, "earth": earth, "TW": TW, "consensus": TW >= 0.95}
 
 
-def _step_7_engine_ignition(intent_map: Dict[str, Any] = None) -> Dict[str, str]:
+def _step_7_engine_ignition(intent_map: dict[str, Any] = None) -> dict[str, str]:
     """
     Step 7: Selective engine activation based on ATLAS lane.
 
@@ -1014,10 +1015,10 @@ async def mcp_000_init(
     action: str = "init",
     query: str = "",
     authority_token: str = "",
-    session_id: Optional[str] = None,
-    context_anchor: Optional[str] = None,
-    context: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    session_id: str | None = None,
+    context_anchor: str | None = None,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     000 INIT: The 7-Step Thermodynamic Ignition Sequence.
 

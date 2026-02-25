@@ -4,11 +4,10 @@ SEAL-999 CANONICAL IMPLEMENTATION
 The one and only sovereign vault for constitutional memory.
 """
 
-import hashlib
 import json
 import os
-from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from datetime import datetime
+from typing import Any
 
 from .ledger import HashChain, Ledger
 from .state import SessionLedger, VaultConfig, VaultEntry
@@ -22,7 +21,7 @@ class SEAL999:
     This is the ONLY SEAL-999. All others are deprecated.
     """
 
-    def __init__(self, config: Optional[VaultConfig] = None):
+    def __init__(self, config: VaultConfig | None = None):
         """Initialize canonical SEAL-999 with configuration."""
         self.config = config or VaultConfig()
         self.hash_chain = HashChain()
@@ -68,7 +67,7 @@ class SEAL999:
         # Return Merkle root as seal
         return entry.merkle_root
 
-    def get_session_ledger(self, session_id: str) -> Optional[SessionLedger]:
+    def get_session_ledger(self, session_id: str) -> SessionLedger | None:
         """
         Retrieve complete ledger for a session.
 
@@ -108,7 +107,7 @@ class SEAL999:
 
         return entry in ledger.entries
 
-    def get_cooling_status(self, entry_id: str) -> Dict[str, Any]:
+    def get_cooling_status(self, entry_id: str) -> dict[str, Any]:
         """
         Get cooling status of an entry.
 
@@ -160,7 +159,7 @@ class SEAL999:
 
         return expired_count
 
-    def get_verdict_statistics(self) -> Dict[str, Any]:
+    def get_verdict_statistics(self) -> dict[str, Any]:
         """
         Get constitutional verdict statistics.
 
@@ -224,7 +223,7 @@ class SEAL999:
             filepath = os.path.join(tier_path, filename)
             cleanup_needed = False
 
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 entries = []
                 for line in f:
                     try:

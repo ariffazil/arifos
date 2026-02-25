@@ -14,7 +14,6 @@ from __future__ import annotations
 import math
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
 
 
 @dataclass
@@ -44,7 +43,7 @@ class PrecisionWeighter:
     """
 
     @staticmethod
-    def estimate_source_variance(sources: List[str]) -> float:
+    def estimate_source_variance(sources: list[str]) -> float:
         """
         Compute variance from source agreement.
 
@@ -65,7 +64,7 @@ class PrecisionWeighter:
         return agreement * 0.5 + 0.1  # Range: 0.1 - 0.6
 
     @staticmethod
-    def estimate_temporal_variance(timestamps: List[datetime]) -> float:
+    def estimate_temporal_variance(timestamps: list[datetime]) -> float:
         """
         Compute variance from temporal consistency.
 
@@ -88,7 +87,7 @@ class PrecisionWeighter:
         return min(1.0, (mean_age / 3600 + variance_ages / 1000) / 10)
 
     @staticmethod
-    def estimate_semantic_variance(embeddings: List[List[float]]) -> float:
+    def estimate_semantic_variance(embeddings: list[list[float]]) -> float:
         """
         Compute variance from semantic coherence.
 
@@ -114,9 +113,9 @@ class PrecisionWeighter:
 
     def estimate_precision(
         self,
-        sources: List[str],
-        timestamps: List[datetime],
-        embeddings: Optional[List[List[float]]] = None,
+        sources: list[str],
+        timestamps: list[datetime],
+        embeddings: list[list[float]] | None = None,
     ) -> PrecisionEstimate:
         """
         Full precision estimation from evidence metadata.
@@ -160,7 +159,7 @@ class PrecisionWeighter:
         return max(0.0, min(1.0, new_confidence))
 
 
-def cosine_similarity(a: List[float], b: List[float]) -> float:
+def cosine_similarity(a: list[float], b: list[float]) -> float:
     """Compute cosine similarity between two vectors."""
     if len(a) != len(b) or len(a) == 0:
         return 0.0
@@ -180,7 +179,7 @@ _precision_weighter = PrecisionWeighter()
 
 
 def estimate_precision(
-    sources: List[str], timestamps: List[datetime], embeddings: Optional[List[List[float]]] = None
+    sources: list[str], timestamps: list[datetime], embeddings: list[list[float]] | None = None
 ) -> PrecisionEstimate:
     """Convenience function for precision estimation."""
     return _precision_weighter.estimate_precision(sources, timestamps, embeddings)

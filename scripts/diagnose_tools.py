@@ -45,7 +45,7 @@ async def check_tools():
                 if hasattr(tool, "fn") and callable(tool.fn):
                     print(f"     └─ Function bound: {tool.fn.__name__}")
                 else:
-                    print(f"     ⚠️  Function binding unclear")
+                    print("     ⚠️  Function binding unclear")
             else:
                 print(f"  ❌ {name}: MISSING")
 

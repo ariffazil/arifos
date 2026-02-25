@@ -3,18 +3,15 @@ AAA Cluster Verification Script (v52.2)
 Verifies the Petronas Pattern topology: Axis, Arif, Apex, and Gateway.
 """
 
-import sys
-import os
 import asyncio
 import os
 import sys
-from typing import List
 
 # Ensure we can import from root
 sys.path.append(os.getcwd())
 
 
-async def verify_server(name: str, module_path: str, expected_tools: List[str]):
+async def verify_server(name: str, module_path: str, expected_tools: list[str]):
     print(f"\n🔍 Verifying {name} Server ({module_path})...")
     try:
         # Dynamic import
@@ -85,7 +82,7 @@ async def main():
     try:
         from arifos.mcp import gateway
 
-        print(f"✅ Gateway: Module imported")
+        print("✅ Gateway: Module imported")
         # Check mounting logic simulation
         # Cannot easily check mounts without running, but import success is good.
     except ImportError as e:

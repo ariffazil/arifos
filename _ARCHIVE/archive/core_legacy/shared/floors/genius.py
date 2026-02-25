@@ -18,12 +18,11 @@ DITEMPA BUKAN DIBERI
 """
 
 import logging
-import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-from codebase.system.safe_types import safe_bool, safe_float
+from codebase.system.safe_types import safe_float
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +67,7 @@ class FloorScores:
     f12_injection: float = 0.99  # F12: Injection defense (>=0.85)
     f13_sovereign: float = 1.0  # F13: Human presence (boolean, 0 or 1)
 
-    def to_vector(self) -> List[float]:
+    def to_vector(self) -> list[float]:
         """Return floor scores as ordered list [F1..F13]."""
         return [
             self.f1_amanah,
@@ -87,7 +86,7 @@ class FloorScores:
         ]
 
     @classmethod
-    def from_dict(cls, d: Dict[str, Any]) -> "FloorScores":
+    def from_dict(cls, d: dict[str, Any]) -> "FloorScores":
         """Create from a flat dictionary of floor scores using safe access."""
         return cls(
             f1_amanah=safe_float(d.get("F1", d.get("f1_amanah", 1.0)), default=1.0),
@@ -118,7 +117,7 @@ class FloorScores:
 #   E (Bound) = Boundary floors:   F1, F13
 
 
-def _geometric_mean(values: List[float]) -> float:
+def _geometric_mean(values: list[float]) -> float:
     """Compute geometric mean. Returns 0 if any value is 0."""
     try:
         if not values or any(v <= 0 for v in values):
@@ -137,7 +136,7 @@ def _clamp(value: float, lo: float = 0.0, hi: float = 1.0) -> float:
     return max(lo, min(hi, float(value)))
 
 
-def extract_dials(floors: FloorScores) -> Dict[str, float]:
+def extract_dials(floors: FloorScores) -> dict[str, float]:
     """
     Extract A/P/X/E dials from 13 floor scores via eigendecomposition projection.
 
@@ -264,7 +263,7 @@ class GeniusCalculator:
         self._lock_triggered = False
         self._lock_reason = None
 
-    def compute_from_floors(self, floors: FloorScores) -> Tuple[float, Dict]:
+    def compute_from_floors(self, floors: FloorScores) -> tuple[float, dict]:
         """
         CANONICAL METHOD: Compute Genius from raw floor scores.
 
@@ -295,7 +294,7 @@ class GeniusCalculator:
             logger.error(f"Genius calculation failed: {e}", exc_info=True)
             return (0.0, {"error": str(e), "verdict": Verdict.VOID.value})
 
-    def compute(self, metrics: GeniusMetrics) -> Tuple[float, Dict]:
+    def compute(self, metrics: GeniusMetrics) -> tuple[float, dict]:
         """
         Compute Genius Score with full constitutional enforcement.
 
@@ -362,7 +361,7 @@ class GeniusCalculator:
             logger.error(f"Genius compute error: {e}", exc_info=True)
             return (0.0, {"verdict": Verdict.VOID.value, "error": str(e)})
 
-    def _check_ontology_lock(self, metrics: GeniusMetrics) -> Dict:
+    def _check_ontology_lock(self, metrics: GeniusMetrics) -> dict:
         """
         F10 Ontology Wall - Prevent AGI-consciousness claims.
 

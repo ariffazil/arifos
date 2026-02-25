@@ -56,7 +56,7 @@ def test_evidence_handling():
                 ev_types.add(ev_type)
 
     print(f"  Evidence types found: {ev_types}")
-    print(f"  [OK] Proper evidence handled correctly")
+    print("  [OK] Proper evidence handled correctly")
 
     # Test 2: Malformed evidence (simulating bad data)
     print("\n[2] Testing malformed evidence handling...")
@@ -84,7 +84,7 @@ def test_evidence_handling():
     print(f"  Malformed entries skipped: {malformed_count}")
 
     if malformed_count == 3:
-        print(f"  [OK] All 3 malformed entries handled gracefully (no crash)")
+        print("  [OK] All 3 malformed entries handled gracefully (no crash)")
     else:
         print(f"  [WARNING] Expected 3 malformed, found {malformed_count}")
 
@@ -94,10 +94,10 @@ def test_evidence_handling():
         # This is the OLD code that would crash
         ev_types_old = {e["source_meta"]["type"] for e in ev}
         print(f"  Old code result: {ev_types_old}")
-        print(f"  [WARNING] Old code didn't crash (evidence was clean)")
+        print("  [WARNING] Old code didn't crash (evidence was clean)")
     except (TypeError, KeyError) as e:
         print(f"  [EXPECTED] Old code would crash: {e}")
-        print(f"  [OK] This proves the fix is necessary")
+        print("  [OK] This proves the fix is necessary")
 
     print("\n" + "=" * 70)
     print("ALL TESTS PASSED [OK]")

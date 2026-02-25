@@ -4,12 +4,9 @@ Entropy Audit Script — Measure repository chaos
 Lower entropy = cleaner codebase
 """
 
-from pathlib import Path
-from collections import defaultdict
 import json
 from collections import defaultdict
 from pathlib import Path
-
 
 
 def count_files(directory: Path) -> dict:

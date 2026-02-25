@@ -4,6 +4,7 @@ Verification Script for AGI/ASI Consolidation (v53.3.1)
 
 import asyncio
 import logging
+
 from codebase.agi import get_agi_core
 from codebase.asi import get_asi_core
 

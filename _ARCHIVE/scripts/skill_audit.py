@@ -3,7 +3,6 @@ import json
 import sys
 
 
-
 def audit_skill(skill_path):
     print(f"Auditing skill: {skill_path}")
     # Placeholder for F2/F6/F12 checks

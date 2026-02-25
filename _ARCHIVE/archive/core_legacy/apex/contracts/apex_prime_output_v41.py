@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Literal, Optional
+from typing import Any, Literal
 
 Verdict = Literal["SEAL", "SABAR", "VOID"]
 
@@ -15,7 +15,7 @@ def _round2(x: float) -> float:
     return round(x + 1e-12, 2)
 
 
-def validate_reason_code(reason_code: Optional[str]) -> Optional[str]:
+def validate_reason_code(reason_code: str | None) -> str | None:
     if reason_code is None:
         return None
     rc = reason_code.strip()
@@ -52,17 +52,17 @@ def compute_apex_pulse(psi_internal: float, verdict: Verdict) -> float:
 def serialize_public(
     *,
     verdict: Verdict,
-    psi_internal: Optional[float],
+    psi_internal: float | None,
     response: str,
-    reason_code: Optional[str] = None,
-) -> Dict[str, Any]:
+    reason_code: str | None = None,
+) -> dict[str, Any]:
     """
     Public output contract.
     If psi_internal is missing -> apex_pulse = null (Amanah-safe).
     """
     rc = validate_reason_code(reason_code)
 
-    payload: Dict[str, Any] = {
+    payload: dict[str, Any] = {
         "verdict": verdict,
         "response": response,
     }

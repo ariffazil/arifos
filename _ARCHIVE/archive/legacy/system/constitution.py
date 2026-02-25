@@ -14,7 +14,7 @@ import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 # Import Metrics (Native Codebase - NO arifos/core dependencies)
 from codebase.enforcement.metrics import FloorsVerdict, Metrics
@@ -82,7 +82,7 @@ class ConstitutionalParticle(ABC):
     async def execute(self, context: "ConstitutionalContext") -> "StateVector":
         pass
 
-    def validate_orthogonality(self, other_particles: List["ConstitutionalParticle"]) -> bool:
+    def validate_orthogonality(self, other_particles: list["ConstitutionalParticle"]) -> bool:
         """Verify dot_product(self, other) = 0 for all other particles."""
         for particle in other_particles:
             if particle.particle_id == self.particle_id:
@@ -140,7 +140,7 @@ class ConstitutionalParticle(ABC):
             f"CONSTRAINT:{self.particle_id}:{hashlib.sha256(str(result).encode()).hexdigest()[:16]}"
         )
 
-    def _generate_audit_trail(self, result: Any) -> Dict[str, Any]:
+    def _generate_audit_trail(self, result: Any) -> dict[str, Any]:
         return {
             "particle_id": self.particle_id,
             "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -159,9 +159,9 @@ class ConstitutionalContext:
     query: str
     user_id: str
     lane: str
-    constitutional_constraints: List[str]
-    audit_trail: List[Dict[str, Any]]
-    metrics: Optional[Metrics] = None
+    constitutional_constraints: list[str]
+    audit_trail: list[dict[str, Any]]
+    metrics: Metrics | None = None
 
     def with_constraint(self, constraint: str) -> "ConstitutionalContext":
         return ConstitutionalContext(
@@ -183,7 +183,7 @@ class ConstitutionalReceipt:
     action_hash: str
     constitutional_validity: bool
     feedback_constraint: str
-    audit_trail: Dict[str, Any]
+    audit_trail: dict[str, Any]
     rollback_possible: bool
 
 
@@ -191,7 +191,7 @@ class ConstitutionalReceipt:
 class StateVector:
     verdict: str
     result: Any
-    proof: Dict[str, Any]
+    proof: dict[str, Any]
     receipt: ConstitutionalReceipt
     measurement_ready: bool = False
 
@@ -310,14 +310,14 @@ class ParallelHypervisor:
     def __init__(self):
         self.particles = {"AGI": AGIParticle(), "ASI": ASIParticle(), "APEX": APEXParticle()}
 
-    async def execute_superposition(self, context: ConstitutionalContext) -> Dict[str, Any]:
+    async def execute_superposition(self, context: ConstitutionalContext) -> dict[str, Any]:
         tasks = [p.execute(context) for p in self.particles.values()]
         state_vectors = await asyncio.gather(*tasks)
         return await self._collapse_measurement(state_vectors, context)
 
     async def _collapse_measurement(
-        self, state_vectors: List[StateVector], context: ConstitutionalContext
-    ) -> Dict[str, Any]:
+        self, state_vectors: list[StateVector], context: ConstitutionalContext
+    ) -> dict[str, Any]:
         any_void = any(sv.verdict == "VOID" for sv in state_vectors)
         final_verdict = "VOID" if any_void else "SEAL"
 
@@ -334,8 +334,8 @@ class ConstitutionalViolationError(Exception):
 
 
 async def execute_constitutional_physics(
-    query: str, user_id: str, context: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    query: str, user_id: str, context: dict[str, Any] | None = None
+) -> dict[str, Any]:
     # Initialize constitutional context
     constitutional_context = ConstitutionalContext(
         session_id=f"constitutional_session_{int(time.time())}",

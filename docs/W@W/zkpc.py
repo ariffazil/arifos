@@ -16,7 +16,7 @@ import datetime as _dt
 import hashlib
 import json
 import uuid
-from typing import Any, Dict
+from typing import Any
 
 
 @dataclasses.dataclass
@@ -40,7 +40,7 @@ class ZKPCReceipt:
     issued_at: str
     hash_commitment: str
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "zkpc_version": self.zkpc_version,
             "run_id": self.run_id,
@@ -52,7 +52,7 @@ class ZKPCReceipt:
         }
 
 
-def _hash_payload(payload: Dict[str, Any]) -> str:
+def _hash_payload(payload: dict[str, Any]) -> str:
     """Hash a JSON-serializable payload using SHA-256."""
     # Ensure stable ordering
     encoded = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")

@@ -9,7 +9,7 @@ def refactor_imports(root_dir):
             if file.endswith(".py") or file.endswith(".md") or file.endswith(".json"):
                 filepath = os.path.join(subdir, file)
                 try:
-                    with open(filepath, "r", encoding="utf-8") as f:
+                    with open(filepath, encoding="utf-8") as f:
                         content = f.read()
 
                     if "arifos" in content:

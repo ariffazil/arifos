@@ -1,0 +1,65 @@
+=== SYSTEMCTL STATUS ===
+● arifos-embeddings.service - arifOS Local Embedding Server
+     Loaded: loaded (/etc/systemd/system/arifos-embeddings.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-02-25 11:25:41 UTC; 3s ago
+   Main PID: 112451 (python)
+      Tasks: 7 (limit: 19144)
+     Memory: 364.7M (peak: 364.7M)
+        CPU: 3.775s
+     CGroup: /system.slice/arifos-embeddings.service
+             └─112451 /opt/arifos-embeddings/venv/bin/python /opt/arifos-embeddings/embed_server.py
+
+Feb 25 11:25:41 vps systemd[1]: arifos-embeddings.service: Scheduled restart job, restart counter is at 241.
+Feb 25 11:25:41 vps systemd[1]: Started arifos-embeddings.service - arifOS Local Embedding Server.
+
+=== JOURNALCTL ===
+Feb 25 11:25:35 vps python[112102]: INFO:httpx:HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config.json "HTTP/1.1 200 OK"
+Feb 25 11:25:36 vps python[112102]: [48.0K blob data]
+Feb 25 11:25:36 vps python[112102]: [7.7K blob data]
+Feb 25 11:25:36 vps python[112102]: BertModel LOAD REPORT from: BAAI/bge-small-en-v1.5
+Feb 25 11:25:36 vps python[112102]: Key                     | Status     |  |
+Feb 25 11:25:36 vps python[112102]: ------------------------+------------+--+-
+Feb 25 11:25:36 vps python[112102]: embeddings.position_ids | UNEXPECTED |  |
+Feb 25 11:25:36 vps python[112102]: Notes:
+Feb 25 11:25:36 vps python[112102]: - UNEXPECTED        :can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+Feb 25 11:25:36 vps python[112102]: INFO:httpx:HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/config.json "HTTP/1.1 307 Temporary Redirect"
+Feb 25 11:25:36 vps python[112102]: INFO:httpx:HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/config.json "HTTP/1.1 200 OK"
+Feb 25 11:25:36 vps python[112102]: INFO:httpx:HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/tokenizer_config.json "HTTP/1.1 307 Temporary Redirect"
+Feb 25 11:25:36 vps python[112102]: INFO:httpx:HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/tokenizer_config.json "HTTP/1.1 200 OK"
+Feb 25 11:25:36 vps python[112102]: INFO:httpx:HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-small-en-v1.5/tree/main/additional_chat_templates?recursive=false&expand=false "HTTP/1.1 404 Not Found"
+Feb 25 11:25:37 vps python[112102]: INFO:httpx:HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-small-en-v1.5/tree/main?recursive=true&expand=false "HTTP/1.1 200 OK"
+Feb 25 11:25:37 vps python[112102]: INFO:httpx:HTTP Request: HEAD https://huggingface.co/BAAI/bge-small-en-v1.5/resolve/main/1_Pooling/config.json "HTTP/1.1 307 Temporary Redirect"
+Feb 25 11:25:37 vps python[112102]: INFO:httpx:HTTP Request: HEAD https://huggingface.co/api/resolve-cache/models/BAAI/bge-small-en-v1.5/5c38ec7c405ec4b44b94cc5a9bb96e735b38267a/1_Pooling%2Fconfig.json "HTTP/1.1 200 OK"
+Feb 25 11:25:37 vps python[112102]: INFO:httpx:HTTP Request: GET https://huggingface.co/api/models/BAAI/bge-small-en-v1.5 "HTTP/1.1 200 OK"
+Feb 25 11:25:37 vps python[112102]: INFO:__main__:Model loaded successfully.
+Feb 25 11:25:37 vps python[112102]: INFO:     Started server process [112102]
+Feb 25 11:25:37 vps python[112102]: INFO:     Waiting for application startup.
+Feb 25 11:25:37 vps python[112102]: INFO:     Application startup complete.
+Feb 25 11:25:37 vps python[112102]: ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8000): address already in use
+Feb 25 11:25:37 vps python[112102]: INFO:     Waiting for application shutdown.
+Feb 25 11:25:37 vps python[112102]: INFO:     Application shutdown complete.
+Feb 25 11:25:38 vps systemd[1]: arifos-embeddings.service: Main process exited, code=exited, status=1/FAILURE
+Feb 25 11:25:38 vps systemd[1]: arifos-embeddings.service: Failed with result 'exit-code'.
+Feb 25 11:25:38 vps systemd[1]: arifos-embeddings.service: Consumed 6.469s CPU time.
+Feb 25 11:25:41 vps systemd[1]: arifos-embeddings.service: Scheduled restart job, restart counter is at 241.
+Feb 25 11:25:41 vps systemd[1]: Started arifos-embeddings.service - arifOS Local Embedding Server.
+
+=== OPENCLAW CONFIG (MEMORY) ===
+  "memory": {
+    "provider": "local-bge",
+    "providers": {
+      "local-bge": {
+        "type": "openai",
+        "baseURL": "http://127.0.0.1:8000/v1",
+        "apiKey": "dummy_key_888"
+      }
+    }
+  },
+  "gateway": {
+    "mode": "local",
+    "bind": "lan",
+    "port": 3000,
+    "controlUi": {
+      "allowedOrigins": [
+
+=== API TEST ===

@@ -4,7 +4,6 @@ Async Compatibility Layer for Native ASI Kernel
 Ensures async/await interface for MCP tools
 """
 
-from typing import Dict, Any, Optional
 
 from codebase.engines.asi.kernel_native import ASIKernelNative
 

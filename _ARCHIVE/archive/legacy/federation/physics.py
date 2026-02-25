@@ -4,10 +4,9 @@ Physics Layer — Thermodynamics, Quantum Mechanics, Relativity
 Implements the physical constraints on agent computation.
 """
 
-import numpy as np
-import time
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
+
+import numpy as np
 
 
 class ThermodynamicViolation(Exception):
@@ -67,7 +66,7 @@ class ThermodynamicWitness:
 
         return delta_S
 
-    def get_state(self) -> Dict[str, float]:
+    def get_state(self) -> dict[str, float]:
         """Current thermodynamic state."""
         return {
             "entropy_budget": self.entropy_budget,
@@ -92,10 +91,10 @@ class QuantumAgentState:
     def __init__(self, agent_id: str):
         self.agent_id = agent_id
         self.measured = False
-        self.collapsed_stage: Optional[str] = None
+        self.collapsed_stage: str | None = None
 
         # Initial state: 100% at 000_INIT
-        self.amplitudes: Dict[str, complex] = {
+        self.amplitudes: dict[str, complex] = {
             "000_INIT": 1.0 + 0j,
             "111_SENSE": 0.0 + 0j,
             "222_THINK": 0.0 + 0j,
@@ -132,7 +131,7 @@ class QuantumAgentState:
         for i, stage in enumerate(stages):
             self.amplitudes[stage] = evolved[i]
 
-    def measure(self, witness_scores: Dict[str, float]) -> str:
+    def measure(self, witness_scores: dict[str, float]) -> str:
         """
         Tri-Witness measurement collapses superposition.
 
@@ -211,7 +210,7 @@ class RelativisticConsensus:
         self.gamma = 1 / np.sqrt(1 - v**2) if v < 1 else 10.0
 
         self.local_time = 0.0
-        self.vector_clock: Dict[str, int] = {agent_id: 0}
+        self.vector_clock: dict[str, int] = {agent_id: 0}
 
     def tick(self, work_units: int = 1):
         """
@@ -236,7 +235,7 @@ class RelativisticConsensus:
         return self.gamma * local_event_time
 
     @staticmethod
-    def establish_simultaneity(agents: List["RelativisticConsensus"]) -> float:
+    def establish_simultaneity(agents: list["RelativisticConsensus"]) -> float:
         """
         Find consensus "present" across all agent frames.
 
@@ -258,7 +257,7 @@ class RelativisticConsensus:
 
         return consensus_time
 
-    def update_vector_clock(self, other_clock: Dict[str, int]):
+    def update_vector_clock(self, other_clock: dict[str, int]):
         """
         Merge vector clocks (Lamport timestamps).
 

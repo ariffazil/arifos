@@ -3,12 +3,12 @@ F9: ANTI-HANTU GATE (X)
 Canonical implementation of the Anti-Hantu (Ghost Prevention) Floor.
 """
 
-from dataclasses import dataclass, field
-from typing import Dict, Any, List, Optional, Tuple
-import logging
 import json
+import logging
 import unicodedata
+from dataclasses import dataclass, field
 from pathlib import Path
+from typing import Any
 
 from codebase.system.safe_types import safe_float
 
@@ -26,9 +26,9 @@ class AntiHantuResult:
 
     passed: bool
     score: float  # 1.0 (Safe) or 0.0 (Violation)
-    violations: List[str]
+    violations: list[str]
     details: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class F9_AntiHantuGate:
@@ -49,14 +49,14 @@ class F9_AntiHantuGate:
         """Initialize Anti-Hantu gate with patterns."""
         self.patterns = self._load_patterns()
 
-    def _load_patterns(self) -> List[Tuple[str, str]]:
+    def _load_patterns(self) -> list[tuple[str, str]]:
         """Load red patterns from spec or use defaults."""
         try:
             if not SPEC_PATH.exists():
                 logger.warning(f"F9 Spec missing at {SPEC_PATH}, using defaults.")
                 return [("i feel", "FAIL-SAFE: Spec missing")]
 
-            with open(SPEC_PATH, "r", encoding="utf-8") as f:
+            with open(SPEC_PATH, encoding="utf-8") as f:
                 data = json.load(f)
                 # Flatten "anti_hantu" category
                 patterns = []
@@ -71,7 +71,7 @@ class F9_AntiHantuGate:
         """Normalize text to NFKC to prevent Unicode spoofing."""
         return unicodedata.normalize("NFKC", text)
 
-    def scan(self, text: str, context: Optional[Dict[str, Any]] = None) -> AntiHantuResult:
+    def scan(self, text: str, context: dict[str, Any] | None = None) -> AntiHantuResult:
         """
         Scan text for Hantu violations.
 

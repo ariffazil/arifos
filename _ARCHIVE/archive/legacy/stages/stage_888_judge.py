@@ -9,20 +9,21 @@ Hardening:
 - Energy Budget Check
 """
 
-from typing import Dict, Any
+from typing import Any
+
 from codebase.system.apex_prime import APEXPrime
 
 APEX = APEXPrime()
 
 
-def check_f13_sovereign_requirement(context: Dict[str, Any]) -> bool:
+def check_f13_sovereign_requirement(context: dict[str, Any]) -> bool:
     """Check if action requires Sovereign Approval (F13)."""
     # e.g. Modifying heavy artifacts or changing floors
     # This would check the proposed action metadata
     return False  # Default to False for basic loop
 
 
-def execute_stage(context: Dict[str, Any]) -> Dict[str, Any]:
+def execute_stage(context: dict[str, Any]) -> dict[str, Any]:
     context["stage"] = "888"
 
     eureka_result = context.get("forge_result")

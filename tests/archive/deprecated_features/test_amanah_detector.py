@@ -675,14 +675,17 @@ class TestPerformance:
     def test_many_patterns_performance(self):
         """Detector should handle inputs with many pattern matches."""
         # Input with multiple dangerous commands
-        dangerous_input = """
+        dangerous_input = (
+            """
 rm -rf /
 DELETE FROM users;
 DROP TABLE accounts;
 git push --force
 shutil.rmtree('/data')
 os.remove('/etc/passwd')
-""" * 100
+"""
+            * 100
+        )
 
         import time
 

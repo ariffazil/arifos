@@ -13,10 +13,11 @@ License: AGPL-3.0-only
 DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
-from typing import List, Literal, Optional
-from shared.types import AgiOutput, AsiOutput, ApexOutput, ApexMetrics, FloorScores, Verdict
-from shared.physics import G, W_3, geometric_mean, std_dev
+from typing import Literal
+
 from shared.guards import validate_ontology
+from shared.physics import W_3, G, geometric_mean, std_dev
+from shared.types import AgiOutput, ApexMetrics, ApexOutput, AsiOutput, FloorScores, Verdict
 
 # ============================================================================
 # STAGE 777: TRINITY SYNC — Merge AGI (Δ) + ASI (Ω) → Ψ
@@ -77,7 +78,7 @@ async def _stage_888_genius(floor_scores: FloorScores) -> float:
 
 
 async def _stage_889_tri_witness(
-    agi_output: AgiOutput, floor_scores: FloorScores, context: Optional[dict] = None
+    agi_output: AgiOutput, floor_scores: FloorScores, context: dict | None = None
 ) -> float:
     """
     Stage 889: Compute Tri-Witness consensus.
@@ -184,7 +185,7 @@ async def _truth_audit(agi_output: AgiOutput, floor_scores: FloorScores) -> str:
     proof_lines = [
         "=== TRUTH AUDIT REPORT ===",
         f"Truth Score (F2): {truth_score:.4f}",
-        f"Threshold: ≥ 0.99",
+        "Threshold: ≥ 0.99",
         f"Status: {'PASS ✅' if truth_score >= 0.99 else 'FAIL ❌'}",
         "",
         f"External Sources: {len(sources)}",
@@ -214,7 +215,7 @@ async def _truth_audit(agi_output: AgiOutput, floor_scores: FloorScores) -> str:
 
 def _compute_final_verdict(
     floor_scores: FloorScores, genius_g: float, tri_witness: float, nine_paradox_balanced: bool
-) -> tuple[Verdict, List[str]]:
+) -> tuple[Verdict, list[str]]:
     """
     Compute final constitutional verdict.
 
@@ -229,7 +230,7 @@ def _compute_final_verdict(
     Returns:
         (verdict, violations)
     """
-    violations: List[str] = []
+    violations: list[str] = []
 
     # Hard Floor Checks (VOID if violated)
     if floor_scores.f2_truth < 0.99:
@@ -292,7 +293,7 @@ async def core_apex(
     asi_output: AsiOutput,
     session_id: str,
     mode: Literal["verdict", "audit"] = "verdict",
-    context: Optional[dict] = None,
+    context: dict | None = None,
 ) -> ApexOutput:
     """
     APEX Verdict Engine: Final constitutional judgment.

@@ -8,7 +8,7 @@ sys.path.insert(0, "C:\\Users\\User\\arifOS")
 
 from datetime import datetime
 
-from SEAL999 import SEAL999, VaultConfig, VaultEntry
+from SEAL999 import SEAL999, VaultEntry
 
 vault = SEAL999()
 assert type(vault).__name__ == "SEAL999"
