@@ -1,0 +1,50 @@
+Feb 25 00:09:41 vps python[218380]: │                      Run: pip install --upgrade fastmcp                      │
+Feb 25 00:09:41 vps python[218380]: ╰──────────────────────────────────────────────────────────────────────────────╯
+Feb 25 00:09:41 vps python[218380]: [02/25/26 00:09:41] INFO     Starting MCP server                transport.py:273
+Feb 25 00:09:41 vps python[218380]:                              'arifOS_AAA_MCP' with transport
+Feb 25 00:09:41 vps python[218380]:                              'http' on
+Feb 25 00:09:41 vps python[218380]:                              http://127.0.0.1:8000/mcp
+Feb 25 00:09:41 vps python[218380]: INFO:     Started server process [218380]
+Feb 25 00:09:41 vps python[218380]: INFO:     Waiting for application startup.
+Feb 25 00:09:41 vps python[218380]: INFO:     Application startup complete.
+Feb 25 00:09:41 vps python[218380]: ERROR:    [Errno 98] error while attempting to bind on address ('127.0.0.1', 8000): address already in use
+Feb 25 00:09:41 vps python[218380]: INFO:     Waiting for application shutdown.
+Feb 25 00:09:41 vps python[218380]: INFO:     Application shutdown complete.
+Feb 25 00:09:42 vps systemd[1]: arifosmcp-mcphttp.service: Main process exited, code=exited, status=1/FAILURE
+Feb 25 00:09:42 vps systemd[1]: arifosmcp-mcphttp.service: Failed with result 'exit-code'.
+Feb 25 00:09:42 vps systemd[1]: arifosmcp-mcphttp.service: Consumed 6.172s CPU time.
+Feb 25 00:09:45 vps systemd[1]: arifosmcp-mcphttp.service: Scheduled restart job, restart counter is at 618.
+Feb 25 00:09:45 vps systemd[1]: Started arifosmcp-mcphttp.service - arifOS MCP Streamable HTTP Server (port 8090).
+Feb 25 00:09:51 vps python[218604]: ╭──────────────────────────────────────────────────────────────────────────────╮
+Feb 25 00:09:51 vps python[218604]: │                                                                              │
+Feb 25 00:09:51 vps python[218604]: │                                                                              │
+Feb 25 00:09:51 vps python[218604]: │                         ▄▀▀ ▄▀█ █▀▀ ▀█▀ █▀▄▀█ █▀▀ █▀█                        │
+Feb 25 00:09:51 vps python[218604]: │                         █▀  █▀█ ▄▄█  █  █ ▀ █ █▄▄ █▀▀                        │
+Feb 25 00:09:51 vps python[218604]: │                                                                              │
+Feb 25 00:09:51 vps python[218604]: │                                                                              │
+Feb 25 00:09:51 vps python[218604]: │                                FastMCP 3.0.1                                 │
+Feb 25 00:09:51 vps python[218604]: │                            https://gofastmcp.com                             │
+Feb 25 00:09:51 vps python[218604]: │                                                                              │
+Feb 25 00:09:51 vps python[218604]: │                    🖥  Server:      arifOS_AAA_MCP, 3.0.1                     │
+Feb 25 00:09:51 vps python[218604]: │                    🚀 Deploy free: https://fastmcp.cloud                     │
+Feb 25 00:09:51 vps python[218604]: │                                                                              │
+Feb 25 00:09:51 vps python[218604]: ╰──────────────────────────────────────────────────────────────────────────────╯
+Feb 25 00:09:51 vps python[218604]: ╭──────────────────────────────────────────────────────────────────────────────╮
+Feb 25 00:09:51 vps python[218604]: │                          🎉 Update available: 3.0.2                          │
+Feb 25 00:09:51 vps python[218604]: │                      Run: pip install --upgrade fastmcp                      │
+Feb 25 00:09:51 vps python[218604]: ╰──────────────────────────────────────────────────────────────────────────────╯
+Feb 25 00:09:51 vps python[218604]: [02/25/26 00:09:51] INFO     Starting MCP server                transport.py:273
+Feb 25 00:09:51 vps python[218604]:                              'arifOS_AAA_MCP' with transport
+Feb 25 00:09:51 vps python[218604]:                              'http' on
+Feb 25 00:09:51 vps python[218604]:                              http://127.0.0.1:8000/mcp
+Feb 25 00:09:51 vps python[218604]: INFO:     Started server process [218604]
+Feb 25 00:09:51 vps python[218604]: INFO:     Waiting for application startup.
+Feb 25 00:09:51 vps python[218604]: INFO:     Application startup complete.
+Feb 25 00:09:51 vps python[218604]: ERROR:    [Errno 98] error while attempting to bind on address ('127.0.0.1', 8000): address already in use
+Feb 25 00:09:51 vps python[218604]: INFO:     Waiting for application shutdown.
+Feb 25 00:09:51 vps python[218604]: INFO:     Application shutdown complete.
+Feb 25 00:09:52 vps systemd[1]: arifosmcp-mcphttp.service: Main process exited, code=exited, status=1/FAILURE
+Feb 25 00:09:52 vps systemd[1]: arifosmcp-mcphttp.service: Failed with result 'exit-code'.
+Feb 25 00:09:52 vps systemd[1]: arifosmcp-mcphttp.service: Consumed 6.399s CPU time.
+Feb 25 00:09:55 vps systemd[1]: arifosmcp-mcphttp.service: Scheduled restart job, restart counter is at 619.
+Feb 25 00:09:55 vps systemd[1]: Started arifosmcp-mcphttp.service - arifOS MCP Streamable HTTP Server (port 8090).

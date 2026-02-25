@@ -1,0 +1,27 @@
+● arifosmcp-mcphttp.service - arifOS MCP Streamable HTTP Server (port 8090)
+     Loaded: loaded (/etc/systemd/system/arifosmcp-mcphttp.service; enabled; preset: enabled)
+     Active: activating (auto-restart) (Result: exit-code) since Wed 2026-02-25 00:08:12 UTC; 1s ago
+    Process: 214018 ExecStart=/root/arifOS/.venv/bin/python -m aaa_mcp http --host 127.0.0.1 --port 8090 (code=exited, status=1/FAILURE)
+   Main PID: 214018 (code=exited, status=1/FAILURE)
+        CPU: 6.743s
+---
+● arifos-router.service - arifOS Router Server
+     Loaded: loaded (/etc/systemd/system/arifos-router.service; enabled; preset: enabled)
+     Active: active (running) since Tue 2026-02-24 22:27:32 UTC; 1h 40min ago
+   Main PID: 745 (python)
+      Tasks: 1 (limit: 9483)
+     Memory: 78.9M (peak: 85.2M)
+        CPU: 10.131s
+     CGroup: /system.slice/arifos-router.service
+             └─745 /root/arifOS/.venv/bin/python /root/arifOS/arifos_router.py --sse --host 0.0.0.0 --port 8080
+
+Feb 24 22:27:35 vps python[745]: │                      Run: pip install --upgrade fastmcp                      │
+Feb 24 22:27:35 vps python[745]: ╰──────────────────────────────────────────────────────────────────────────────╯
+Feb 24 22:27:35 vps python[745]: [02/24/26 22:27:35] INFO     Starting MCP server                transport.py:273
+Feb 24 22:27:35 vps python[745]:                              'arifos-router' with transport
+Feb 24 22:27:35 vps python[745]:                              'sse' on http://0.0.0.0:8080/sse
+Feb 24 22:27:35 vps python[745]: INFO:     Started server process [745]
+Feb 24 22:27:35 vps python[745]: INFO:     Waiting for application startup.
+Feb 24 22:27:35 vps python[745]: INFO:     Application startup complete.
+Feb 24 22:27:35 vps python[745]: INFO:     Uvicorn running on http://0.0.0.0:8080 (Press CTRL+C to quit)
+Feb 24 23:47:20 vps python[745]: INFO:     123.200.25.54:59746 - "GET / HTTP/1.1" 404 Not Found

@@ -7,6 +7,7 @@
   // Use the project's Python virtual environment
   "python.defaultInterpreterPath": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
   "python.terminal.activateEnvironment": true,
+  "python.languageServer": "Pylance",
 
   // Testing with pytest
   "python.testing.pytestEnabled": true,
