@@ -155,7 +155,7 @@ Jump to the section that matches your needs:
 
 ### The arifOS Solution
 
-Every AI output must pass through **constitutional checkpoints**. Furthermore, with the introduction of the 7-Organ Sovereign Stack, arifOS operates under a **Steady-State Philosophy**: it manages real-world emergence by observing anomalies, measuring their entropy impact (ΔS), and adjusting constraints while remaining thermodynamically grounded. It represents the transition from a passive oracle to an active, governed process.
+Every AI output must pass through **constitutional checkpoints**. Furthermore, with the introduction of the 7-Organ Sovereign Stack and the **[Eureka-Atlas Embedding Engine](docs/deep-research-report.md)**, arifOS operates under a **Steady-State Philosophy**: it manages real-world emergence by observing anomalies, measuring their entropy impact (ΔS), and updating state via a Deep Equilibrium (DEQ) metabolizer loop. It represents the transition from a passive oracle to an active, governed process.
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -501,8 +501,8 @@ Connect arifOS to ChatGPT as a custom tool provider.
 |----------|-------------|------|
 | **Constitutional Law** | The 13 Floors (F1-F13) explained | [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) |
 | **Architecture** | System design and deployment | [ARCHITECTURE.md](ARCHITECTURE.md) |
-| **Trinity (Δ Ω Ψ)** | AGI-ASI-APEX parallel consensus | [000_THEORY/010_TRINITY.md](000_THEORY/010_TRINITY.md) |
-| **MCP Tools Reference** | Canonical 13 tools + resources/prompts | [aaa_mcp/README.md](aaa_mcp/README.md) |
+| **Trinity (Δ Ω Ψ)** | AGI-ASI-APEX parallel consensus | [`core/organs/`](core/organs/) |
+| **MCP Tools Reference** | Canonical 13 tools (code implementation) | [`arifos_aaa_mcp/server.py`](arifos_aaa_mcp/server.py) |
 | **Deployment Guide** | Production hardening checklist | [docs/DEPLOYMENT_FIREWALL.md](docs/DEPLOYMENT_FIREWALL.md) |
 
 ### The 13 Constitutional Floors
@@ -525,6 +525,7 @@ Every AI output must pass all 13 floors before reaching the user:
 | **F12** | Injection Guard | 🛡️ | BLOCK | Reject prompt injection attacks immediately. |
 | **F13** | Sovereignty | 👑 | VETO | Human has final authority. Never bypass human veto. |
 
+**Implementation Source**: [`core/shared/floors.py`](core/shared/floors.py) (The authoritative `THRESHOLDS` dict)  
 **Deep dive**: [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) — Full constitutional specification with mathematical proofs.
 
 ---
@@ -561,31 +562,35 @@ arifOS evaluates every decision through **three parallel engines**:
 └─────────────────────────────────────────────────────────┘
 ```
 
-### System Layers
+### The 8-Layer Stack (L0-L7)
 
-```
-┌─────────────────────────────────────────────────────────┐
-│  L7: Ecosystem (ChatGPT, Claude, Gemini integrations)  │
-├─────────────────────────────────────────────────────────┤
-│  L6: Applications (333_APPS/ — Prompts, APIs, Agents)  │
-├─────────────────────────────────────────────────────────┤
-│  L5: MCP Protocol (aaa_mcp/ — Tool surface)            │
-├─────────────────────────────────────────────────────────┤
-│  L4: Governance (aclip_cai/ — 9-Sense Infrastructure)  │
-├─────────────────────────────────────────────────────────┤
-│  L3: Organs (core/organs/ — 7 decision modules)        │
-├─────────────────────────────────────────────────────────┤
-│  L2: Shared Types (core/shared/ — Constitutional types)│
-├─────────────────────────────────────────────────────────┤
-│  L1: Theory (000_THEORY/ — Mathematical foundations)   │
-├─────────────────────────────────────────────────────────┤
-│  L0: Kernel (IMMUTABLE — Constitutional invariants)    │
-└─────────────────────────────────────────────────────────┘
+arifOS is preparing for **Level 5 (Multi-Agent Federation)**. The MCP Server (L4) is just one part of the deployment.
+
+```text
+ L7: ECOSYSTEM   - Permissionless sovereignty (civilisation-scale)   Research
+ L6: INSTITUTION - Trinity consensus (organisational governance)    Stubs
+ L5: AGENTS      - Multi-agent federation (coordinated actors)      Pilot
+ L4: TOOLS       - MCP ecosystem (individual capabilities)          Production
+ L3: WORKFLOW    - 000999 sequences (structured processes)         Production
+ L2: SKILLS      - Canonical actions (behavioural primitives)       Production
+ L1: PROMPTS     - Zero-context entry (user interface)              Production
+ L0: KERNEL      - Intelligence Kernel (DeltaOmegaPsi engine)       SEALED
 ```
 
-**Key principle**: **L0 is read-only**. No amount of user input can modify constitutional floors.
+### L0: The Intelligence Kernel (Four-Layer Stack)
 
-**Architecture deep dive**: [ARCHITECTURE.md](ARCHITECTURE.md)
+The Kernel is implemented across four distinct layers with strict boundaries:
+
+| Layer | Package | Role | Source Link |
+|:--|:--|:--|:--|
+| **Surface** | `arifos_aaa_mcp/` | Canonical PyPI entry point | [`arifos_aaa_mcp/server.py`](arifos_aaa_mcp/server.py) |
+| **Transport** | `aaa_mcp/` | MCP transport adapter (stdio/HTTP) | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
+| **Intelligence** | `aclip_cai/` | Triad backend & 9-Sense tools | [`aclip_cai/triad/`](aclip_cai/triad/) |
+| **Kernel** | `core/` | Pure decision logic, 7 organs, 13 floors | [`core/organs/`](core/organs/) |
+
+**Key principle**: `core/` has **zero transport dependencies**. `aaa_mcp/` has **zero decision logic**. Constitutional floors cannot be bypassed by transport clients.
+
+**Architecture deep dive**: [CLAUDE.md](CLAUDE.md)
 
 ---
 
