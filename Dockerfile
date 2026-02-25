@@ -55,7 +55,7 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
     CMD curl -fsS --max-time 3 http://localhost:8080/health || exit 1
 
 LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"
-LABEL io.modelcontextprotocol.server.version="2026.2.23"
+LABEL io.modelcontextprotocol.server.version="2026.2.25"
 LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with 13-tool surface and F1-F13 floor enforcement."
 LABEL io.modelcontextprotocol.server.transport="streamable-http"
 LABEL io.modelcontextprotocol.server.url="https://arifosmcp.arif-fazil.com/mcp"

@@ -1,9 +1,9 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.2.23",
+  "version": "2026.2.25",
   "title": "arifOS Sovereign Governance MCP",
-  "description": "Constitutional AI governance server exposing canonical AAA MCP 13-tool surface with governed 000-999 pipeline.",
+  "description": "Constitutional AI governance server exposing governed AAA MCP 13-tool pipeline.",
   "websiteUrl": "https://arifos.arif-fazil.com/",
   "vendor": {
     "name": "arifOS",
@@ -18,7 +18,7 @@
     {
       "registryType": "pypi",
       "identifier": "arifos",
-      "version": "2026.2.23",
+      "version": "2026.2.25",
       "transport": {
         "type": "stdio"
       }
@@ -27,19 +27,19 @@
       "registryType": "oci",
       "identifier": "ghcr.io/ariffazil/arifos:latest",
       "transport": {
-        "type": "sse",
-        "url": "https://arifosmcp.arif-fazil.com/sse"
+        "type": "streamable-http",
+        "url": "https://arifosmcp.arif-fazil.com/mcp"
       }
     }
   ],
   "remotes": [
     {
-      "type": "sse",
-      "url": "https://arifosmcp.arif-fazil.com/sse"
-    },
-    {
       "type": "streamable-http",
       "url": "https://arifosmcp.arif-fazil.com/mcp"
+    },
+    {
+      "type": "sse",
+      "url": "https://arifosmcp.arif-fazil.com/sse"
     }
   ],
   "resources": [

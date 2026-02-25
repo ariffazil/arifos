@@ -1,7 +1,9 @@
 [project]
 name = "arifos"
-version = "2026.2.23"
+version = "2026.2.25"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.2.25 — v60.1 Chaos Reduction + VPS Alignment + Agent Capability Spec
+#   Gitignore hardening (5388→0 untracked), CLAUDE.md accuracy audit, version convergence
 # 2026.2.23 — Context Forge & Registry Release
 #   Unified aaa_mcp server with full-context templates, ASGI entrypoints, and Cloudflare Pages workflows
 # 2026.2.22 — Intelligence Kernel Upgrade (aclip_cai 9-Sense Console)

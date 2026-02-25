@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **Project:** arifOS — Constitutional AI Governance System
-**Package:** `arifos` v2026.2.23 (PyPI)
+**Package:** `arifos` v2026.2.25 (PyPI)
 **Python:** >=3.12 | **License:** AGPL-3.0-only
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
 

@@ -1,5 +1,5 @@
 """
-core/ — arifOS Kernel (2026.02.15-FORGE-TRINITY-SEAL)
+core/ — arifOS Kernel (2026.02.25-CHAOS-REDUCTION)
 
 Reusable governance engine containing ALL decision logic.
 Imported by: aaa_mcp (wrapper), future products
@@ -16,7 +16,7 @@ core/ = decision logic (this package)
 aaa_mcp/ = transport only (no decisions)
 """
 
-__version__ = "2026.02.15-FORGE-TRINITY-SEAL"
+__version__ = "2026.02.25-CHAOS-REDUCTION"
 
 # Expose kernel components for import
 from . import governance_kernel, judgment, organs, telemetry, uncertainty_engine
