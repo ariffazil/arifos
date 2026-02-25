@@ -240,3 +240,33 @@ ROADMAP/archive/
 
 # Backup files
 *.backup
+
+# ─── v60.1 Chaos Reduction (2026-02-25) ───
+
+# Remote inspection artifacts (cloned repos, NOT arifOS code)
+remote_inspection/
+
+# VPS deployment artifacts (server-side only)
+deploy_stack/
+arifos-embeddings.service
+embed_server.py
+
+# OpenClaw inspection artifacts
+openclaw_inspect.json
+update_openclaw_config.py
+
+# Node.js (if any node project ever lands here)
+node_modules/
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Rclone tokens (SECRETS — NEVER commit)
+rclone_token.txt
+rclone.conf
+
+# Generic secrets catch-all
+*.token
+*.secret
+*credentials*
+!**/test*credentials*
