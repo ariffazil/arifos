@@ -29,6 +29,11 @@ This directory contains the **Constitutional Canon** of arifOS. These documents 
 *   **[aaa_mcp/README.md](../aaa_mcp/README.md)** — The Model Context Protocol implementation.
 *   **[VAULT_HARDENING_v55.3.md](../VAULT999/CCC_CANON/VAULT_HARDENING_v55.3.md)** — The Vault sealing protocol.
 
+### 5. MCP Tool Canon
+*   Canonical 13-tool IDs and 000-999 stage mapping are defined in **[000_ARCHITECTURE.md](000_ARCHITECTURE.md)**, section **3.3 MCP Canonical 13 Tool IDs (000-999 Aligned)**.
+*   Canonical IDs: `eureka_forge`, `apex_judge`.
+*   Backward-compatible aliases remain supported: `forge_hand`, `judge_soul`.
+
 
 ---
 
