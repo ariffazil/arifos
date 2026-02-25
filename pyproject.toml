@@ -87,7 +87,7 @@ dependencies = [
     "pydantic>=2.0.0",
     "anyio>=4.0.0",
     "starlette>=0.30.0",
-    "fastmcp==3.0.1",
+    "fastmcp==3.0.2",
     "openapi-pydantic>=0.5.1",
     "fastapi>=0.104.1",
     "uvicorn[standard]>=0.24.0",
