@@ -12,6 +12,28 @@ arifOS is a constitutional intelligence kernel that governs AI cognition through
 
 It features the **Eureka-Atlas Embedding Engine**, providing thermodynamic grounding for the metabolizer loop (000->999) via Energy-Based Models (EBM) and Deep Equilibrium (DEQ) principles.
 
+## How arifOS Thinks (The Cognitive Cycle)
+
+arifOS is not a linear filter; it is a **thermodynamic metabolizer**. Every request flows through a 7-stage cycle:
+
+1.  **Ignition (000)**: Session creation and injection defense.
+2.  **Cognition (111-333)**: Mind (AGI) validates logical truth.
+3.  **Recall (444)**: Subconscious (PHOENIX) retrieves relevant memory.
+4.  **Empathy (555)**: Heart (ASI) models stakeholder impact.
+5.  **Critique (666)**: 7-model alignment and bias detection.
+6.  **Judgment (777-888)**: Soul (APEX) synthesizes the final law.
+7.  **Commit (999)**: Memory (VAULT) seals the immutable record.
+
+## Technical Glossary (Symbolic to Operational)
+
+| Symbolic Name | Technical Alias | Operational Meaning |
+| :--- | :--- | :--- |
+| **13 Floors** | `governance_rules` | Invariant constraints enforced at L0. |
+| **333 Axioms** | `reasoning_constraints` | Heuristics for AGI logic grounding. |
+| **APEX Dials** | `decision_parameters` | Configurable thresholds for verdict synthesis. |
+| **Eureka Forge** | `action_actuator` | The sandboxed execution environment. |
+| **Vault999** | `immutable_ledger` | The hash-chained decision database. |
+
 ## Canonical runtime
 
 - Python: `>=3.12`
