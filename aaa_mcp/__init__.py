@@ -10,7 +10,7 @@ from __future__ import annotations
 import warnings
 from typing import Any
 
-__version__ = "2026.02.23-CANONICAL-13"
+__version__ = "2026.02.25-CANONICAL-13"
 
 __all__ = ["mcp"]
 

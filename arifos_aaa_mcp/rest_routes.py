@@ -27,7 +27,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 
 BUILD_INFO = {
-    "version": "2026.02.23",
+    "version": "2026.02.25",
     "git_sha": os.environ.get("GIT_SHA", "unknown"),
     "build_time": os.environ.get("BUILD_TIME", datetime.now(timezone.utc).isoformat()),
 }
@@ -63,11 +63,24 @@ WELCOME_HTML = """\
 <head>
     <title>arifOS MCP Server</title>
     <style>
-        body { background: #050505; color: #e6c25d; font-family: 'JetBrains Mono', monospace; padding: 4rem; text-align: center; }
-        .box { border: 1px solid #e6c25d33; padding: 2rem; display: inline-block; border-radius: 8px; background: #0a0a0a; }
-        h1 { font-weight: 900; letter-spacing: -0.1rem; border-bottom: 2px solid #e6c25d; display: inline-block; padding-bottom: 0.5rem; }
+        body {
+            background: #050505; color: #e6c25d;
+            font-family: 'JetBrains Mono', monospace; padding: 4rem; text-align: center;
+        }
+        .box {
+            border: 1px solid #e6c25d33; padding: 2rem; display: inline-block;
+            border-radius: 8px; background: #0a0a0a;
+        }
+        h1 {
+            font-weight: 900; letter-spacing: -0.1rem;
+            border-bottom: 2px solid #e6c25d; display: inline-block; padding-bottom: 0.5rem;
+        }
         p { color: #888; max-width: 400px; margin: 1rem auto; }
-        .status { color: #00ff88; font-weight: bold; margin-top: 2rem; border: 1px solid #00ff8833; padding: 0.5rem 1rem; border-radius: 50px; display: inline-block; }
+        .status {
+            color: #00ff88; font-weight: bold; margin-top: 2rem;
+            border: 1px solid #00ff8833; padding: 0.5rem 1rem;
+            border-radius: 50px; display: inline-block;
+        }
         a { color: #00a2ff; text-decoration: none; }
         a:hover { text-decoration: underline; }
     </style>

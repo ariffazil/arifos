@@ -7,7 +7,7 @@
 **The System That Knows It Doesn't Know**  
 *Ditempa Bukan Diberi* — Forged, Not Given
 
-[![Version](https://img.shields.io/badge/version-2026.2.23-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
+[![Version](https://img.shields.io/badge/version-2026.2.25-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
 [![MCP Protocol](https://img.shields.io/badge/MCP-1.0-8B5CF6?style=for-the-badge&logo=shield&logoColor=white)](https://modelcontextprotocol.io)
 [![Python](https://img.shields.io/badge/python-3.12+-green?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)  
@@ -44,7 +44,7 @@ Part of the **Trinity constitutional governance ecosystem**:
 | ✅ **Health Check** | 🟢 Live | [/health](https://arifosmcp.arif-fazil.com/health) |
 | 📊 **Test Dashboard** | 🟢 Live | [Constitutional Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev) |
 
-> **Latest (2026.2.23):** Streamable HTTP transport • 13 MCP tools • Full-context resources • APEX drift tracking • Perplexity-first web grounding
+> **Latest (2026.2.25):** v60.1 Chaos Reduction • Streamable HTTP transport • 13 MCP tools • Full-context resources • CLAUDE.md accuracy audit • Version convergence with OpenClaw
 
 </div>
 

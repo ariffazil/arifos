@@ -9,6 +9,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2026.02.25-CHAOS-REDUCTION] - v60.1
+
+### Highlights
+- **v60.1 Chaos Reduction**: Eliminated 5,388 phantom untracked files (99.4% from cloned `remote_inspection/`)
+- **CLAUDE.md Accuracy Audit**: 6 fixes — Four-Layer architecture, THRESHOLDS dict, triad subdirs documented
+- **Version Convergence**: arifOS and OpenClaw both use `YYYY.M.DD` date-based versioning
+- **VPS MCP Alignment**: Verified 90%+ compliance with MCP spec 2025-11-25
+- **Agent Capability Spec**: Defined 9-dimension VPS management specification (Skills, Tools, Capabilities, Workflows, Schema, Actions, Resources, Agency, Agentic Attributes)
+- **Eureka-Atlas Blueprint**: Integrated deep research report for the 777-EUREKA-FORGE metabolizer loop and EBM/DEQ grounding.
+
+### Added
+- `.gitignore` v60.1 section: 30 new rules covering `remote_inspection/`, `deploy_stack/`, `node_modules/`, secrets (`*.token`, `*.secret`, `rclone_token.txt`)
+- 4 new gotcha warnings in CLAUDE.md: vault999.jsonl tracking, remote_inspection, rclone_token, tests/archive
+- Agent Capability Specification for VPS management (4-tier action system: read-only → reversible → destructive → forbidden)
+- `docs/deep-research-report.md`: Eureka-Atlas Embedding Engine Blueprint (777-Cube theoretical grounding)
+- `scripts/discovery_import_graph.py`: Automated codebase intelligence and import graph discovery tool.
+
+### Changed
+- Architecture description: "Three-Layer Stack" → "Four-Layer Stack: PyPI Surface → Transport → Intelligence → Kernel"
+- Floor reference: `ALL_FLOORS` → `THRESHOLDS dict` (matching actual `core/shared/floors.py`)
+- Documented triad subdirs: `delta/` (anchor, reason, integrate), `omega/` (respond, validate, align), `psi/` (forge, audit, seal)
+- Version strings unified to `2026.2.25` across all 8 files (pyproject.toml, core/__init__.py, aaa_mcp/__init__.py, rest_routes.py, README.md, CLAUDE.md, Dockerfile, server.json)
+
+### Fixed
+- 5,388 untracked files reduced to 0 via targeted `.gitignore` rules
+- CLAUDE.md inaccuracies: `sbert_floors` removed from tree (archived), transport description updated
+- Git non-fast-forward resolved with `git pull --rebase`
+
+### State
+| Component | Status | Version |
+|-----------|--------|---------|
+| VPS MCP Server | HEALTHY | 2026.02.25 |
+| Tools Loaded | 13/13 | All responding |
+| Transport | Streamable HTTP | MCP 2025-11-25 spec |
+| Untracked Files | 0 | Down from 5,388 |
+
+**Verdict:** SEAL — All 13 floors pass. Chaos reduced, truth documented.
+
+---
+
 ## [2026.02.15-FORGE-TRINITY-SEAL] - T000 Rebirth
 
 ### Highlights
