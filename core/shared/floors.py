@@ -20,11 +20,12 @@ from core.shared.guards.ontology_guard import OntologyGuard
 # CONSTANTS & SPECIFICATIONS
 # =============================================================================
 
-CONSTITUTIONAL_VERSION = "v52.5.2-SEAL"
-EPOCH = "2026-01-25"
+CONSTITUTIONAL_VERSION = "v60.1-SEAL"
+EPOCH = "2026-02-25"
 AUTHORITY = "Muhammad Arif bin Fazil"
 
-# Floor Thresholds (Canonical)
+# Floor Thresholds (Canonical Source of Truth)
+# Used by arifOS AAA Pipeline to enforce constitutional invariants.
 THRESHOLDS: dict[str, dict[str, Any]] = {
     "F1_Amanah": {"type": "HARD", "threshold": 0.5, "desc": "Reversible or Auditable"},
     "F2_Truth": {"type": "HARD", "threshold": 0.99, "desc": "Information Fidelity"},

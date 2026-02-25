@@ -360,6 +360,13 @@ def aaa_tool_schemas() -> str:
             "Psi": ["judge_soul", "forge_hand", "seal_vault"],
         },
         "axioms": ["A1_TRUTH_COST", "A2_SCAR_WEIGHT", "A3_ENTROPY_WORK"],
+        "technical_aliases": {
+            "13_floors": "governance_rules",
+            "333_axioms": "reasoning_constraints",
+            "apex_dials": "decision_parameters",
+            "eureka_forge": "action_actuator",
+            "vault999": "immutable_ledger",
+        },
         "laws_13": LAW_13_CATALOG,
         "apex_g_map": TOOL_DIALS_MAP,
         "discovery": discovery,

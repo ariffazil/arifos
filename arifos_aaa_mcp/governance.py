@@ -268,13 +268,28 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         k for k, v in law_checks.items() if v.get("required") and not bool(v.get("pass"))
     ]
     verdict = str(payload.get("verdict", "SEAL"))
-    if (failed_axioms or failed_laws) and verdict == "SEAL":
+
+    # Hardening: Hard floor failure -> VOID
+    has_hard_fail = any(
+        v.get("pass") is False and v.get("type") == "floor"
+        for k, v in law_checks.items()
+        if k in {"F1_AMANAH", "F2_TRUTH", "F7_HUMILITY", "F12_DEFENSE", "F13_SOVEREIGNTY"}
+    )
+
+    if has_hard_fail:
+        verdict = "VOID"
+    elif (failed_axioms or failed_laws) and verdict == "SEAL":
         verdict = "PARTIAL"
 
     return {
         "verdict": verdict,
         "tool": tool,
         "trinity": TRINITY_BY_TOOL.get(tool, "Delta"),
+        "technical_aliases": {
+            "governance_rules": "laws_13",
+            "reasoning_constraints": "axioms_333",
+            "decision_parameters": "apex_dials",
+        },
         "axioms_333": {
             "catalog": AXIOMS_333,
             "checks": checks,
