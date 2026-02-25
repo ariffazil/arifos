@@ -1,12 +1,12 @@
 """
-core/organs/_3_apex.py — The Soul (Stage 444-777-888)
+core/organs/_3_apex.py — The Soul (Stage 444 -> 777 -> 888)
 
 APEX Engine: Trinity Sync, Genius Verification, Constitutional Judgment
 
 Actions:
     1. sync (444)   → Merge AGI (Δ) + ASI (Ω) → Ψ
-    2. forge (777)  → Phase transition, Eureka synthesis
-    3. judge (888)  → Final verdict (SEAL/VOID/PARTIAL/SABAR)
+    2. forge (777)  → EUREKA FORGE (phase transition, synthesis)
+    3. judge (888)  → APEX Judge Metabolic Layer (final verdict)
 
 Floors:
     F3:  Tri-Witness (W_3 ≥ 0.95)
@@ -20,10 +20,10 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
-from core.shared.floors import F10_Ontology, F9_AntiHantu
-from core.shared.physics import ConstitutionalTensor, GeniusDial, TrinityTensor, W_3_from_tensor
+from core.shared.floors import F9_AntiHantu, F10_Ontology
+from core.shared.physics import ConstitutionalTensor, TrinityTensor, W_3_from_tensor
 from core.shared.types import ApexOutput, FloorScores, Verdict
 
 
@@ -38,7 +38,7 @@ def G(A: float, P: float, X: float, E: float) -> float:
 
 async def sync(
     agi_tensor: ConstitutionalTensor,
-    asi_output: Dict[str, Any] | Any,
+    asi_output: dict[str, Any] | Any,
     session_id: str,
 ) -> ApexOutput:
     """
@@ -89,12 +89,12 @@ async def sync(
 
 
 async def forge(
-    sync_output: Dict[str, Any] | ApexOutput,
+    sync_output: dict[str, Any] | ApexOutput,
     agi_tensor: ConstitutionalTensor,
     session_id: str,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
-    Stage 777: FORGE — Collapse vectors into scalar output
+    Stage 777: EUREKA FORGE — Collapse vectors into scalar output
     """
     if hasattr(sync_output, "model_dump"):
         sync_data = sync_output.model_dump()
@@ -123,13 +123,13 @@ async def forge(
     }
 
 
-def _check_coherence(agi_tensor: ConstitutionalTensor, sync_data: Dict[str, Any]) -> float:
+def _check_coherence(agi_tensor: ConstitutionalTensor, sync_data: dict[str, Any]) -> float:
     agi_truth = agi_tensor.truth_score
     asi_care = sync_data.get("floor_scores", {}).get("f6_empathy", 0.7)
     return 1.0 - abs(agi_truth - asi_care)
 
 
-def _generate_solution(agi_tensor: ConstitutionalTensor, sync_data: Dict[str, Any]) -> str:
+def _generate_solution(agi_tensor: ConstitutionalTensor, sync_data: dict[str, Any]) -> str:
     # Retrieve W_3 safely from metrics or floors
     w3 = sync_data.get("metrics", {}).get("W_3") or sync_data.get("floor_scores", {}).get(
         "f3_tri_witness", 0.0
@@ -147,15 +147,15 @@ def _generate_solution(agi_tensor: ConstitutionalTensor, sync_data: Dict[str, An
 
 
 async def judge(
-    forge_output: Dict[str, Any],
-    sync_output: Dict[str, Any] | ApexOutput,
-    asi_output: Dict[str, Any] | Any,
+    forge_output: dict[str, Any],
+    sync_output: dict[str, Any] | ApexOutput,
+    asi_output: dict[str, Any] | Any,
     session_id: str,
     require_sovereign: bool = False,
-    objective_contract: Optional[Dict[str, Any]] = None,
+    objective_contract: dict[str, Any] | None = None,
 ) -> ApexOutput:
     """
-    Stage 888: JUDGE — The Soul's Final Verdict
+    Stage 888: APEX JUDGE METABOLIC — The Soul's Final Verdict
     """
     if hasattr(sync_output, "model_dump"):
         sync_data = sync_output.model_dump()
@@ -260,7 +260,7 @@ async def apex(
     session_id: str,
     action: str = "full",
     require_sovereign: bool = False,
-    objective_contract: Optional[Dict[str, Any]] = None,
+    objective_contract: dict[str, Any] | None = None,
 ) -> Any:
     """Unified APEX interface."""
     if action == "sync":

@@ -19,9 +19,9 @@ embodying the thermodynamic principle that intelligence requires work.
 DITEMPA BUKAN DIBERI 💎🔥🧠
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # ═════════════════════════════════════════════════════════════════════════════
 # ENUMS
@@ -96,7 +96,7 @@ class ConstitutionalMotto:
 
     # Constitutional mappings
     primary_floor: str  # Main floor (F1-F13)
-    secondary_floors: List[str]  # Related floors
+    secondary_floors: list[str]  # Related floors
     paradox_cell: str  # Matrix position (e.g., "truth_care")
     trinity_tier: TrinityTier  # Which trinity
 
@@ -111,7 +111,7 @@ class ConstitutionalMotto:
         """Get the English translation."""
         return self.english
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> dict[str, str]:
         """Convert to dict for transport."""
         return {
             "malay": self.malay,
@@ -309,7 +309,7 @@ MOTTO_666_ALIGN = ConstitutionalMotto(
 MOTTO_777_FORGE = ConstitutionalMotto(
     id=6,
     stage=StageCode.ATLAS,  # Mapped to ATLAS for Genius
-    stage_name="FORGE",
+    stage_name="EUREKA FORGE",
     malay="DIUSAHAKAN, BUKAN DIHARAPI",
     english="Worked For, Not Merely Hoped For",
     positive="DIUSAHAKAN",
@@ -326,7 +326,7 @@ MOTTO_777_FORGE = ConstitutionalMotto(
 MOTTO_888_JUDGE = ConstitutionalMotto(
     id=3,
     stage=StageCode.JUDGE,
-    stage_name="JUDGE",
+    stage_name="APEX JUDGE METABOLIC",
     malay="DISEDARKAN, BUKAN DIYAKINKAN",
     english="Made Aware, Not Over-assured",
     positive="DISEDARKAN",
@@ -365,7 +365,7 @@ MOTTO_999_SEAL_HEADER = "💎🧠 SEAL — DITEMPA, BUKAN DIBERI 🔒"
 # REGISTRIES
 # ═════════════════════════════════════════════════════════════════════════════
 
-ALL_MOTTOS: Dict[StageCode, ConstitutionalMotto] = {
+ALL_MOTTOS: dict[StageCode, ConstitutionalMotto] = {
     StageCode.INIT: MOTTO_000_INIT,
     StageCode.SENSE: MOTTO_111_SENSE,
     StageCode.THINK: MOTTO_222_THINK,
@@ -378,7 +378,7 @@ ALL_MOTTOS: Dict[StageCode, ConstitutionalMotto] = {
 }
 
 # Floor-to-motto mapping for failure responses (The 9 Anthem)
-ERROR_MOTTOS: Dict[str, str] = {
+ERROR_MOTTOS: dict[str, str] = {
     "F1": "DIJAGA, BUKAN DIABAIKAN",  # Amanah: Safeguarded, not neglected
     "F2": "DIKAJI, BUKAN DISUAPI",  # Truth: Examined, not spoon-fed
     "F4": "DIJELASKAN, BUKAN DIKABURKAN",  # Clarity: Clarified, not obscured
@@ -394,7 +394,7 @@ ERROR_MOTTOS: Dict[str, str] = {
 }
 
 # Constitutional motto objects by floor
-MOTTOS_BY_FLOOR: Dict[str, ConstitutionalMotto] = {
+MOTTOS_BY_FLOOR: dict[str, ConstitutionalMotto] = {
     "F1": MOTTO_666_ALIGN,  # DIJAGA, BUKAN DIABAIKAN
     "F2": MOTTO_111_SENSE,  # DIKAJI, BUKAN DISUAPI
     "F4": MOTTO_333_REASON,  # DIJELASKAN, BUKAN DIKABURKAN
@@ -404,7 +404,7 @@ MOTTOS_BY_FLOOR: Dict[str, ConstitutionalMotto] = {
     "F8": MOTTO_777_FORGE,  # DIUSAHAKAN, BUKAN DIHARAPI
 }
 
-STAGE_MOTTO_MAP: Dict[str, StageMotto] = {
+STAGE_MOTTO_MAP: dict[str, StageMotto] = {
     "000_INIT": StageMotto("DITEMPA", "BUKAN DIBERI", "000/999", "Forged, Not Given", "F1 Amanah"),
     "111_SENSE": StageMotto(
         "DIKAJI", "BUKAN DISUAPI", "111", "Examined, Not Spoon-fed", "F2 Truth"
@@ -427,13 +427,19 @@ STAGE_MOTTO_MAP: Dict[str, StageMotto] = {
     "777_FORGE": StageMotto(
         "DIUSAHAKAN", "BUKAN DIHARAPI", "777", "Worked, Not Hoped", "F8 Genius"
     ),
+    "777_EUREKA_FORGE": StageMotto(
+        "DIUSAHAKAN", "BUKAN DIHARAPI", "777", "Worked, Not Hoped", "F8 Genius"
+    ),
     "888_JUDGE": StageMotto(
+        "DISEDARKAN", "BUKAN DIYAKINKAN", "888", "Made Aware, Not Over-assured", "F7 Humility"
+    ),
+    "888_APEX_JUDGE": StageMotto(
         "DISEDARKAN", "BUKAN DIYAKINKAN", "888", "Made Aware, Not Over-assured", "F7 Humility"
     ),
     "999_SEAL": StageMotto("DITEMPA", "BUKAN DIBERI", "000/999", "Forged, Not Given", "F1 Amanah"),
 }
 
-STAGE_MOTTO_ORDER: List[str] = [
+STAGE_MOTTO_ORDER: list[str] = [
     "000_INIT",
     "111_SENSE",
     "222_THINK",
@@ -469,7 +475,7 @@ TRINITY_MOTTOS = {
 # 3×3 PARADOX MATRIX
 # ═════════════════════════════════════════════════════════════════════════════
 
-PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
+PARADOX_MATRIX: dict[tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
     # TRUTH ROW
     (MatrixAxis.TRUTH, MatrixAxis.CARE): MatrixCell(
         row=MatrixAxis.TRUTH,
@@ -562,8 +568,14 @@ PARADOX_MATRIX: Dict[Tuple[MatrixAxis, MatrixAxis], MatrixCell] = {
 # ═════════════════════════════════════════════════════════════════════════════
 
 
-def get_motto_by_stage(stage: str) -> Optional[ConstitutionalMotto]:
+def get_motto_by_stage(stage: str) -> ConstitutionalMotto | None:
     """Get motto by stage code (000, 111, 000_INIT, etc.)."""
+    stage_aliases = {
+        "777_EUREKA_FORGE": "777_FORGE",
+        "888_APEX_JUDGE": "888_JUDGE",
+    }
+    stage = stage_aliases.get(stage, stage)
+
     # Normalize stage code
     stage_clean = stage.replace("_INIT", "").replace("_SENSE", "").replace("_THINK", "")
     stage_clean = stage_clean.replace("_REASON", "").replace("_SYNC", "").replace("_EMPATHY", "")
@@ -576,13 +588,13 @@ def get_motto_by_stage(stage: str) -> Optional[ConstitutionalMotto]:
         return None
 
 
-def get_motto_by_floor(floor: str) -> Optional[ConstitutionalMotto]:
+def get_motto_by_floor(floor: str) -> ConstitutionalMotto | None:
     """Get motto by floor (F1, F2, etc.)."""
     floor_key = floor.upper().replace("_", "").replace("FLOOR", "").replace("F", "")
     return MOTTOS_BY_FLOOR.get(f"F{floor_key}")
 
 
-def get_motto_by_paradox(paradox_cell: str) -> Optional[ConstitutionalMotto]:
+def get_motto_by_paradox(paradox_cell: str) -> ConstitutionalMotto | None:
     """Get motto by paradox cell name (truth_care, clarity_peace, etc.)."""
     for motto in ALL_MOTTOS.values():
         if motto.paradox_cell == paradox_cell:
@@ -590,12 +602,12 @@ def get_motto_by_paradox(paradox_cell: str) -> Optional[ConstitutionalMotto]:
     return None
 
 
-def get_mottos_by_tier(tier: TrinityTier) -> List[ConstitutionalMotto]:
+def get_mottos_by_tier(tier: TrinityTier) -> list[ConstitutionalMotto]:
     """Get all mottos for a trinity tier."""
     return [m for m in ALL_MOTTOS.values() if m.trinity_tier == tier]
 
 
-def get_trinity_motto(tier: TrinityTier) -> Dict[str, str]:
+def get_trinity_motto(tier: TrinityTier) -> dict[str, str]:
     """Get aggregate motto for a trinity tier."""
     return TRINITY_MOTTOS.get(tier, {})
 
@@ -605,7 +617,7 @@ def get_motto_for_stage(stage_code: str) -> StageMotto:
     return STAGE_MOTTO_MAP.get(stage_code, STAGE_MOTTO_MAP["000_INIT"])
 
 
-def get_all_stage_mottos() -> List[StageMotto]:
+def get_all_stage_mottos() -> list[StageMotto]:
     """Get all stage mottos in canonical order (000 → 999)."""
     return [STAGE_MOTTO_MAP[key] for key in STAGE_MOTTO_ORDER]
 
@@ -699,7 +711,7 @@ def get_full_pipeline_chant() -> str:
     return ", ".join(unique_pos) + "\n" + ", ".join(unique_neg)
 
 
-def get_geometry_path(start_stage: str, end_stage: str) -> List[str]:
+def get_geometry_path(start_stage: str, end_stage: str) -> list[str]:
     """Get the geometric path between two stages."""
     stage_order = [
         "000_INIT",
@@ -733,7 +745,7 @@ def get_geometry_type(stage: str) -> GeometryType:
     return motto.geometry if motto else GeometryType.ORTHOGONAL
 
 
-def get_matrix_cell(row: MatrixAxis, col: MatrixAxis) -> Optional[MatrixCell]:
+def get_matrix_cell(row: MatrixAxis, col: MatrixAxis) -> MatrixCell | None:
     """Get the matrix cell at the given intersection."""
     return PARADOX_MATRIX.get((row, col))
 
@@ -825,7 +837,7 @@ def format_failure_response(floor: str, reason: str, use_motto: bool = True) -> 
         return f"[!] {floor} Floor Breach: {reason}"
 
 
-def render_full_pipeline_output(stages_data: List[Tuple[str, str, str]] = None) -> str:
+def render_full_pipeline_output(stages_data: list[tuple[str, str, str]] = None) -> str:
     """
     Render the complete 000-999 pipeline with all mottos.
 
@@ -877,11 +889,11 @@ class PromptManifold:
         self.omega_0 = 0.04  # Uncertainty bound
         self.matrix = PARADOX_MATRIX
 
-    def get_cell(self, row: MatrixAxis, col: MatrixAxis) -> Optional[MatrixCell]:
+    def get_cell(self, row: MatrixAxis, col: MatrixAxis) -> MatrixCell | None:
         """Get the matrix cell at the given intersection."""
         return self.matrix.get((row, col))
 
-    def get_by_stage(self, stage: str) -> Optional[MatrixCell]:
+    def get_by_stage(self, stage: str) -> MatrixCell | None:
         """Get matrix cell by 000-999 stage code."""
         for cell in self.matrix.values():
             if stage in cell.stage:
@@ -907,7 +919,7 @@ class PromptManifold:
 
         return "\n".join(frame_parts)
 
-    def validate_output(self, stage: str, output: str) -> Dict[str, Any]:
+    def validate_output(self, stage: str, output: str) -> dict[str, Any]:
         """Validate that output adheres to the matrix constraints."""
         cell = self.get_by_stage(stage)
         if not cell:

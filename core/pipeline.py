@@ -10,15 +10,14 @@ Uses core.organs as the single source of truth.
 Stage mottos: 000=DITEMPA, 111=DIKAJI, 222=DIJELAJAH, ..., 999=DITEMPA
 """
 
-from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
 from core.organs import agi, apex, asi, init, vault
 from core.organs._0_init import QueryType
-from core.shared.formatter import OutputFormatter, OutputMode, format_for_debug, format_for_user
-from core.shared.mottos import format_stage_output, get_full_pipeline_chant, get_motto_for_stage
+from core.shared.formatter import OutputFormatter, OutputMode
+from core.shared.mottos import get_motto_for_stage
 
 
 class ForgeResult(BaseModel):
@@ -31,17 +30,17 @@ class ForgeResult(BaseModel):
     token_status: str = ""
 
     # Metabolic state
-    emd: Optional[Dict[str, Any]] = None
+    emd: dict[str, Any] | None = None
     landauer_risk: float = 0.0
     mode: str = "conscience"
 
     # Diagnostic information for user feedback
     query_type: str = "UNKNOWN"
     f2_threshold: float = 0.99
-    floors_failed: List[str] = Field(default_factory=list)
+    floors_failed: list[str] = Field(default_factory=list)
     remediation: str = ""
-    provenance: Dict[str, Any] = Field(default_factory=dict)
-    self_audit: Dict[str, Any] = Field(default_factory=dict)
+    provenance: dict[str, Any] = Field(default_factory=dict)
+    self_audit: dict[str, Any] = Field(default_factory=dict)
     motto_summary: str = ""
 
     # Organ outputs (for debugging/audit)
@@ -88,7 +87,7 @@ class ForgeResult(BaseModel):
 async def quick(
     query: str,
     actor_id: str = "user",
-    auth_token: Optional[str] = None,
+    auth_token: str | None = None,
 ) -> dict[str, Any]:
     """
     Fast path: 000 -> 333
@@ -114,7 +113,7 @@ async def quick(
 async def forge(
     query: str,
     actor_id: str = "user",
-    auth_token: Optional[str] = None,
+    auth_token: str | None = None,
     require_sovereign: bool = False,
     mode: str = "conscience",  # "ghost" (log only) or "conscience" (enforce)
 ) -> ForgeResult:
@@ -130,7 +129,7 @@ async def forge(
     import time
 
     from core.shared.physics import GeniusDial
-    from core.shared.types import EMD, HeartBundle, MindBundle, SoulBundle
+    from core.shared.types import EMD
 
     start_time = time.perf_counter()
 
@@ -156,9 +155,7 @@ async def forge(
     if token.is_void or token.requires_human:
         verdict = "VOID" if token.is_void else "888_HOLD"
         elapsed = (time.perf_counter() - start_time) * 1000
-        remediation = (
-            "Airlock blocked request. Verify actor/session authority (F11) and clean prompt input (F12)."
-        )
+        remediation = "Airlock blocked request. Verify actor/session authority (F11) and clean prompt input (F12)."
         return ForgeResult(
             verdict=verdict,
             session_id=token.session_id,
@@ -246,7 +243,9 @@ async def forge(
     agi_out = await agi(query, token.session_id, action="full")
     agi_tensor = agi_out.tensor
 
-    declared_weights = objective_contract.get("weights", {}) if isinstance(objective_contract, dict) else {}
+    declared_weights = (
+        objective_contract.get("weights", {}) if isinstance(objective_contract, dict) else {}
+    )
 
     # Update EMD from Δ MIND
     emd.metabolism.delta_s = agi_tensor.entropy_delta if agi_tensor else 0.0
@@ -341,9 +340,9 @@ async def forge(
         emd.metabolism.kappa_r = asi_out.floor_scores.f6_empathy
         emd.metabolism.peace2 = asi_out.floor_scores.f5_peace
 
-    # 777-888: APEX (SoulBundle)
-    stage_motto_777 = get_motto_for_stage("777_FORGE")
-    stage_motto_888 = get_motto_for_stage("888_JUDGE")
+    # 777: EUREKA FORGE + 888: APEX JUDGE METABOLIC
+    stage_motto_777 = get_motto_for_stage("777_EUREKA_FORGE")
+    stage_motto_888 = get_motto_for_stage("888_APEX_JUDGE")
 
     # Eigen-Governance: Collapse 13 floors to G index
     floor_statuses = {
@@ -365,18 +364,24 @@ async def forge(
     objective_drift = 0.0
     if declared_weights:
         axes = ["akal", "present", "energy", "exploration"]
-        objective_drift = sum(abs(observed_weights[a] - float(declared_weights.get(a, 0.0))) for a in axes) / len(axes)
+        objective_drift = sum(
+            abs(observed_weights[a] - float(declared_weights.get(a, 0.0))) for a in axes
+        ) / len(axes)
 
     objective_state = {
         "declared": declared_weights,
         "observed": observed_weights,
         "drift": round(objective_drift, 4),
-        "threshold": float(objective_contract.get("nonstationary_threshold", 0.45))
-        if isinstance(objective_contract, dict)
-        else 0.45,
-        "hold_threshold": float(objective_contract.get("hold_threshold", 0.70))
-        if isinstance(objective_contract, dict)
-        else 0.70,
+        "threshold": (
+            float(objective_contract.get("nonstationary_threshold", 0.45))
+            if isinstance(objective_contract, dict)
+            else 0.45
+        ),
+        "hold_threshold": (
+            float(objective_contract.get("hold_threshold", 0.70))
+            if isinstance(objective_contract, dict)
+            else 0.70
+        ),
     }
 
     apex_out = await apex(
@@ -451,8 +456,17 @@ async def forge(
         provenance={
             "engine_mode": "deterministic",
             "llm_inside_kernel": False,
-            "stage_path": ["000_INIT", "111-333_AGI", "444-666_ASI", "777-888_APEX", "999_VAULT"],
-            "evidence_count": len(agi_dict.get("evidence", {})) if isinstance(agi_dict, dict) else 0,
+                "stage_path": [
+                    "000_INIT",
+                    "111-333_AGI",
+                    "444-666_ASI",
+                    "777_EUREKA_FORGE",
+                    "888_APEX_JUDGE",
+                    "999_VAULT",
+                ],
+            "evidence_count": (
+                len(agi_dict.get("evidence", {})) if isinstance(agi_dict, dict) else 0
+            ),
             "objective_contract": objective_contract,
             "objective_state": objective_state,
         },
@@ -477,10 +491,10 @@ async def forge(
 async def forge_with_nudge(
     query: str,
     actor_id: str = "user",
-    auth_token: Optional[str] = None,
-    nudge_type: Optional[str] = None,
+    auth_token: str | None = None,
+    nudge_type: str | None = None,
     output_mode: OutputMode = OutputMode.USER,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Forge with a nudge - just a little push for cognitive emergence.
 
@@ -544,11 +558,11 @@ async def forge_with_nudge(
 async def forge_formatted(
     query: str,
     actor_id: str = "user",
-    auth_token: Optional[str] = None,
+    auth_token: str | None = None,
     output_mode: OutputMode = OutputMode.USER,
-    schema_template: Optional[str] = None,
+    schema_template: str | None = None,
     mode: str = "conscience",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Formatted forge with output mode selection.
 

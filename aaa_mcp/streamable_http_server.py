@@ -1,19 +1,17 @@
-"""
-arifOS StreamableHTTP MCP Server
-Dedicated POST endpoint for MCP 2024-11-05 spec
-Runs alongside main SSE server
+"""arifOS Streamable HTTP MCP transport endpoint.
 
-Identity Policy: "Guest book only, no bouncer"
-- Transport auth: none (by design)
-- Identity: mandatory to log, optional to enforce
-- Required fields: user_id, session_id (clientInfo and/or headers)
-- No request rejection if IDs missing
-- Log "null" for missing fields
+Aligns transport behavior to MCP 2025-11-25 Streamable HTTP requirements:
+- JSON-RPC 2.0 payloads over POST
+- MCP endpoint supports POST, GET, DELETE
+- Session header management via MCP-Session-Id
+- Protocol version handling via MCP-Protocol-Version
+- Origin validation guard for DNS rebinding mitigation
 """
 
 import asyncio
 import inspect
 import json
+import logging
 import os
 import sys
 import uuid
@@ -23,28 +21,36 @@ from typing import Any, get_args, get_origin
 # Force local source priority (same as rest.py)
 sys.path.insert(0, os.getcwd())
 
+import uvicorn
 from starlette.applications import Starlette
 from starlette.requests import Request
-from starlette.responses import JSONResponse
+from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
-import uvicorn
 
-# Import all 13 canonical tools from server module.
-from aaa_mcp.server import (
+# Import canonical tools from public 13-tool surface.
+from arifos_aaa_mcp.server import (
     anchor_session,
-    reason_mind,
-    recall_memory,
-    simulate_heart,
-    critique_thought,
-    judge_soul,
-    forge_hand,
-    seal_vault,
-    search_reality,
-    fetch_content,
-    inspect_file,
     audit_rules,
     check_vital,
+    critique_thought,
+    fetch_content,
+    forge_hand,
+    inspect_file,
+    judge_soul,
+    reason_mind,
+    recall_memory,
+    seal_vault,
+    search_reality,
+    simulate_heart,
 )
+
+logger = logging.getLogger(__name__)
+
+PROTOCOL_VERSION = "2025-11-25"
+SUPPORTED_PROTOCOL_VERSIONS = {"2025-11-25", "2025-03-26"}
+SESSION_HEADER = "MCP-Session-Id"
+PROTOCOL_HEADER = "MCP-Protocol-Version"
+_ACTIVE_SESSIONS: set[str] = set()
 
 # Tool registry — canonical UX names as primary keys.
 TOOLS = {
@@ -70,8 +76,8 @@ TOOL_DESCRIPTIONS = {
     "recall_memory": "[Lane: Omega] 555_RECALL — Associative memory retrieval",
     "simulate_heart": "[Lane: Omega] 555-666_ASI — Stakeholder impact + care",
     "critique_thought": "[Lane: Omega] 666_ALIGN — 7-model bias critique",
-    "judge_soul": "[Lane: Psi] 777-888_APEX — Sovereign verdict synthesis",
-    "forge_hand": "[Lane: Psi] 888_FORGE — Sandboxed action execution",
+    "judge_soul": "[Lane: Psi] 888_APEX_JUDGE — Sovereign verdict synthesis",
+    "forge_hand": "[Lane: Psi] 777_EUREKA_FORGE — Sandboxed action execution",
     "seal_vault": "[Lane: Psi] 999_VAULT — Immutable ledger seal",
     "search_reality": "[Lane: Delta] Web grounding search (Perplexity/Brave)",
     "fetch_content": "[Lane: Delta] Raw evidence content retrieval",
@@ -100,7 +106,7 @@ TOOL_ALIASES = {
     "respond": "reason_mind",
     "validate": "simulate_heart",
     "align": "simulate_heart",
-    "forge": "judge_soul",
+    "forge": "forge_hand",
     "audit": "judge_soul",
     "seal": "seal_vault",
 }
@@ -132,14 +138,13 @@ async def log_identity(
     # Simple append-only log file (cooling ledger stub)
     log_file = "/tmp/arifos-identity.log"
     try:
-        with open(log_file, "a") as f:
-            f.write(json.dumps(log_entry) + "\n")
+        with open(log_file, "a", encoding="utf-8") as f:
+            f.write(json.dumps(log_entry, ensure_ascii=True) + "\n")
     except Exception as e:
-        # Don't fail the request if logging fails
-        print(f"Identity logging failed: {e}")
+        # Never fail request due to audit logging path.
+        logger.warning("Identity logging failed: %s", e)
 
-    # Also print to console for debugging
-    print(f"IDENTITY: {json.dumps(log_entry)}")
+    logger.debug("IDENTITY %s", json.dumps(log_entry, ensure_ascii=True))
 
 
 def _resolve_tool_callable(tool: Any):
@@ -222,153 +227,241 @@ def _build_input_schema(tool: Any) -> dict:
     return schema
 
 
-async def mcp_endpoint(request: Request) -> JSONResponse:
-    """Handle MCP StreamableHTTP requests."""
-    body = await request.json()
+async def mcp_endpoint(request: Request) -> Response:
+    """Handle MCP Streamable HTTP endpoint (POST/GET/DELETE)."""
+
+    def _allowed_origins() -> set[str]:
+        raw = os.getenv(
+            "ARIFOS_ALLOWED_ORIGINS",
+            "http://localhost,http://127.0.0.1,https://localhost,https://127.0.0.1",
+        )
+        return {v.strip() for v in raw.split(",") if v.strip()}
+
+    def _transport_headers(session_id: str | None = None) -> dict[str, str]:
+        headers = {PROTOCOL_HEADER: PROTOCOL_VERSION}
+        if session_id:
+            headers[SESSION_HEADER] = session_id
+        return headers
+
+    def _jsonrpc_error(
+        *,
+        code: int,
+        message: str,
+        request_id: Any = None,
+        http_status: int = 400,
+        session_id: str | None = None,
+    ) -> JSONResponse:
+        payload: dict[str, Any] = {
+            "jsonrpc": "2.0",
+            "error": {"code": code, "message": message},
+        }
+        if request_id is not None:
+            payload["id"] = request_id
+        return JSONResponse(payload, status_code=http_status, headers=_transport_headers(session_id))
+
+    # Security: origin validation to mitigate DNS rebinding.
+    origin = request.headers.get("origin")
+    if origin and origin not in _allowed_origins():
+        return _jsonrpc_error(code=-32600, message="Forbidden origin", http_status=403)
+
+    if request.method == "GET":
+        accept = request.headers.get("accept", "")
+        if "text/event-stream" not in accept:
+            return Response(status_code=406, headers=_transport_headers())
+        # This server does not expose an unsolicited SSE stream.
+        return Response(status_code=405, headers=_transport_headers())
+
+    if request.method == "DELETE":
+        session_id = request.headers.get(SESSION_HEADER, "")
+        if not session_id:
+            return Response(status_code=400, headers=_transport_headers())
+        _ACTIVE_SESSIONS.discard(session_id)
+        return Response(status_code=204, headers=_transport_headers())
+
+    # POST rules
+    accept = request.headers.get("accept", "")
+    if "application/json" not in accept or "text/event-stream" not in accept:
+        return Response(status_code=406, headers=_transport_headers())
+
+    try:
+        body = await request.json()
+    except Exception:
+        return _jsonrpc_error(code=-32700, message="Invalid JSON", http_status=400)
+
+    if not isinstance(body, dict) or body.get("jsonrpc") != "2.0":
+        return _jsonrpc_error(code=-32600, message="Invalid JSON-RPC 2.0 payload", http_status=400)
+
+    request_id = body.get("id")
     method = body.get("method")
-    request_id = body.get("id", 1)
-    params = body.get("params", {})
+    params = body.get("params") if isinstance(body.get("params"), dict) else {}
 
-    # Capture identity metadata (Path A: guest book only)
-    client_info = params.get("clientInfo", {})
+    # Client notifications and responses are acknowledged with 202.
+    if method is None:
+        is_response = ("result" in body or "error" in body) and request_id is not None
+        if is_response:
+            return Response(status_code=202, headers=_transport_headers())
+        return _jsonrpc_error(code=-32600, message="Method is required", http_status=400)
 
-    # Extract user_id from clientInfo or headers
-    user_id = client_info.get("user_id") or request.headers.get("x-arifos-user-id")
+    # Initialization can open a new session.
+    if method == "initialize":
+        session_id = str(uuid.uuid4())
+        _ACTIVE_SESSIONS.add(session_id)
+        result = {
+            "protocolVersion": PROTOCOL_VERSION,
+            "capabilities": {"tools": {}, "resources": {}, "prompts": {}, "logging": {}},
+            "serverInfo": {
+                "name": "arifos-aaa-mcp",
+                "version": "2026.02.23-CANONICAL-13",
+            },
+        }
+        return JSONResponse(
+            {"jsonrpc": "2.0", "id": request_id, "result": result},
+            headers=_transport_headers(session_id),
+        )
 
-    # Extract session_id with fallback chain:
-    # 1. clientInfo.session_id
-    # 2. x-arifos-session-id header
-    # 3. mcp-session-id header (standard MCP)
-    # 4. Generate new UUID (last resort)
-    session_id = (
-        client_info.get("session_id")
-        or request.headers.get("x-arifos-session-id")
-        or request.headers.get("mcp-session-id")
-        or str(uuid.uuid4())
-    )
+    session_id = request.headers.get(SESSION_HEADER, "")
+    if not session_id:
+        return _jsonrpc_error(
+            code=-32600,
+            message=f"Missing {SESSION_HEADER} header",
+            request_id=request_id,
+            http_status=400,
+        )
+    if session_id not in _ACTIVE_SESSIONS:
+        return _jsonrpc_error(
+            code=-32001,
+            message="Session not found",
+            request_id=request_id,
+            http_status=404,
+            session_id=session_id,
+        )
 
-    # Log identity (guest book entry)
+    protocol_version = request.headers.get(PROTOCOL_HEADER)
+    if protocol_version and protocol_version not in SUPPORTED_PROTOCOL_VERSIONS:
+        return _jsonrpc_error(
+            code=-32600,
+            message=f"Unsupported {PROTOCOL_HEADER}: {protocol_version}",
+            request_id=request_id,
+            http_status=400,
+            session_id=session_id,
+        )
+
+    # Capture identity metadata for audit trail.
+    client_info = params.get("clientInfo", {}) if isinstance(params, dict) else {}
+    user_id = (
+        client_info.get("user_id")
+        if isinstance(client_info, dict)
+        else None
+    ) or request.headers.get("x-arifos-user-id")
     await log_identity(
         user_id=user_id,
         session_id=session_id,
-        client_name=client_info.get("name"),
-        client_version=client_info.get("version"),
+        client_name=client_info.get("name") if isinstance(client_info, dict) else None,
+        client_version=client_info.get("version") if isinstance(client_info, dict) else None,
         timestamp=datetime.now(timezone.utc),
-        method=method or "unknown",
+        method=str(method),
     )
 
-    if method == "initialize":
+    if method == "notifications/initialized":
+        return Response(status_code=202, headers=_transport_headers(session_id))
+
+    if method == "resources/list":
         return JSONResponse(
+            {"jsonrpc": "2.0", "id": request_id, "result": {"resources": []}},
+            headers=_transport_headers(session_id),
+        )
+
+    if method == "prompts/list":
+        return JSONResponse(
+            {"jsonrpc": "2.0", "id": request_id, "result": {"prompts": []}},
+            headers=_transport_headers(session_id),
+        )
+
+    if method == "tools/list":
+        tools = [
             {
+                "name": name,
+                "description": desc,
+                "inputSchema": _build_input_schema(TOOLS[name]),
+            }
+            for name, desc in TOOL_DESCRIPTIONS.items()
+        ]
+        return JSONResponse(
+            {"jsonrpc": "2.0", "id": request_id, "result": {"tools": tools}},
+            headers=_transport_headers(session_id),
+        )
+
+    if method == "tools/call":
+        if not isinstance(params, dict):
+            return _jsonrpc_error(
+                code=-32602,
+                message="Invalid params",
+                request_id=request_id,
+                session_id=session_id,
+            )
+
+        tool_name = TOOL_ALIASES.get(str(params.get("name", "")), str(params.get("name", "")))
+        tool_args = params.get("arguments", {})
+        if not isinstance(tool_args, dict):
+            return _jsonrpc_error(
+                code=-32602,
+                message="Tool arguments must be object",
+                request_id=request_id,
+                session_id=session_id,
+            )
+
+        if tool_name not in TOOLS:
+            return _jsonrpc_error(
+                code=-32601,
+                message=f"Tool not found: {tool_name}",
+                request_id=request_id,
+                session_id=session_id,
+            )
+
+        func = _resolve_tool_callable(TOOLS[tool_name])
+        if func is None:
+            return _jsonrpc_error(
+                code=-32000,
+                message=f"Tool not callable: {tool_name}",
+                request_id=request_id,
+                session_id=session_id,
+            )
+
+        try:
+            maybe_result = func(**tool_args)
+            if inspect.isawaitable(maybe_result):
+                result = await asyncio.wait_for(maybe_result, timeout=10.0)
+            else:
+                result = maybe_result
+            response_payload = {
                 "jsonrpc": "2.0",
                 "id": request_id,
                 "result": {
-                    "protocolVersion": "2024-11-05",
-                    "capabilities": {"tools": {}, "logging": {}, "prompts": {}, "resources": {}},
-                    "serverInfo": {
-                        "name": "arifos-aaa-mcp",
-                        "version": "2026.02.23-CANONICAL-13",
-                    },
+                    "content": [{"type": "text", "text": json.dumps(result, ensure_ascii=True)}]
                 },
-            },
-            headers={"Mcp-Session-Id": session_id},
-        )
-
-    elif method == "notifications/initialized":
-        # Client acknowledgment — no response needed for notifications.
-        return JSONResponse(
-            {"jsonrpc": "2.0", "id": request_id, "result": None},
-            headers={"Mcp-Session-Id": session_id},
-        )
-
-    elif method == "resources/list":
-        return JSONResponse(
-            {"jsonrpc": "2.0", "id": request_id, "result": {"resources": []}},
-            headers={"Mcp-Session-Id": session_id},
-        )
-
-    elif method == "prompts/list":
-        return JSONResponse(
-            {"jsonrpc": "2.0", "id": request_id, "result": {"prompts": []}},
-            headers={"Mcp-Session-Id": session_id},
-        )
-
-    elif method == "tools/list":
-        tools = []
-        for name, desc in TOOL_DESCRIPTIONS.items():
-            tools.append(
-                {
-                    "name": name,
-                    "description": desc,
-                    "inputSchema": _build_input_schema(TOOLS[name]),
-                }
-            )
-        return JSONResponse(
-            {"jsonrpc": "2.0", "id": request_id, "result": {"tools": tools}},
-            headers={"Mcp-Session-Id": session_id},
-        )
-
-    elif method == "tools/call":
-        tool_name = params.get("name", "")
-        tool_args = params.get("arguments", {})
-        tool_name = TOOL_ALIASES.get(tool_name, tool_name)
-
-        if tool_name not in TOOLS:
-            return JSONResponse(
-                {
-                    "jsonrpc": "2.0",
-                    "id": request_id,
-                    "error": {"code": -32601, "message": f"Tool not found: {tool_name}"},
-                },
-                headers={"Mcp-Session-Id": session_id},
-            )
-
-        tool = TOOLS[tool_name]
-
-        try:
-            # Call tool with timeout protection (10 seconds)
-            # FastMCP 2.x tools are FunctionTool objects with fn attribute
-            func = _resolve_tool_callable(tool)
-            if func is None:
-                raise ValueError(f"Tool {tool_name} is not callable")
-
-            result = await asyncio.wait_for(func(**tool_args), timeout=10.0)
-            return JSONResponse(
-                {
-                    "jsonrpc": "2.0",
-                    "id": request_id,
-                    "result": {"content": [{"type": "text", "text": json.dumps(result)}]},
-                },
-                headers={"Mcp-Session-Id": session_id},
-            )
+            }
+            return JSONResponse(response_payload, headers=_transport_headers(session_id))
         except asyncio.TimeoutError:
-            return JSONResponse(
-                {
-                    "jsonrpc": "2.0",
-                    "id": request_id,
-                    "error": {"code": -32000, "message": "Tool execution timeout"},
-                },
-                headers={"Mcp-Session-Id": session_id},
+            return _jsonrpc_error(
+                code=-32000,
+                message="Tool execution timeout",
+                request_id=request_id,
+                session_id=session_id,
             )
         except Exception as e:
-            return JSONResponse(
-                {
-                    "jsonrpc": "2.0",
-                    "id": request_id,
-                    "error": {"code": -32000, "message": f"Tool execution error: {str(e)}"},
-                },
-                headers={"Mcp-Session-Id": session_id},
+            return _jsonrpc_error(
+                code=-32000,
+                message=f"Tool execution error: {e}",
+                request_id=request_id,
+                session_id=session_id,
             )
 
-    else:
-        return JSONResponse(
-            {
-                "jsonrpc": "2.0",
-                "id": request_id,
-                "error": {"code": -32601, "message": f"Method not found: {method}"},
-            },
-            headers={"Mcp-Session-Id": session_id},
-        )
+    return _jsonrpc_error(
+        code=-32601,
+        message=f"Method not found: {method}",
+        request_id=request_id,
+        session_id=session_id,
+    )
 
 
 async def health(request: Request) -> JSONResponse:
@@ -405,7 +498,7 @@ async def well_known_mcp_server_json(request: Request) -> JSONResponse:
         if not os.path.exists(file_path):
             return JSONResponse({"error": "server.json not found"}, status_code=404)
 
-        with open(file_path, "r", encoding="utf-8") as f:
+        with open(file_path, encoding="utf-8") as f:
             payload = json.load(f)
         return JSONResponse(payload)
     except Exception as e:
@@ -413,7 +506,7 @@ async def well_known_mcp_server_json(request: Request) -> JSONResponse:
 
 
 routes = [
-    Route("/mcp", mcp_endpoint, methods=["POST"]),
+    Route("/mcp", mcp_endpoint, methods=["POST", "GET", "DELETE"]),
     Route("/messages", mcp_endpoint, methods=["POST"]),
     Route("/messages/", mcp_endpoint, methods=["POST"]),
     Route("/health", health, methods=["GET"]),

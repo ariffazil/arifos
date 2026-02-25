@@ -6,26 +6,25 @@ Legacy `aaa_mcp` and `aclip_cai` remain internal intelligence providers.
 
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional
 import json
+from typing import Any
 
 from fastmcp import FastMCP
 
 from aaa_mcp import server as legacy
+from aaa_mcp.protocol.tool_registry import export_full_context_pack
 from aclip_cai.tools.fs_inspector import fs_inspect
 from aclip_cai.tools.system_monitor import get_system_health
-from .governance import LAW_13_CATALOG, TOOL_DIALS_MAP, wrap_tool_output
+
 from .contracts import require_session, validate_input
 from .fastmcp_ext.discovery import build_surface_discovery
-
-from aaa_mcp.protocol.tool_registry import export_full_context_pack
-
+from .governance import LAW_13_CATALOG, TOOL_DIALS_MAP, wrap_tool_output
 
 mcp = FastMCP(
     "arifOS_AAA_MCP",
     instructions=(
         "Canonical 13-tool arifOS AAA MCP surface. "
-        "Use 000->333->555->666->777/888->999 governance spine."
+        "Use 000->333->555->666->777_EUREKA_FORGE->888_APEX_JUDGE->999 governance spine."
     ),
 )
 
@@ -46,7 +45,7 @@ AAA_TOOLS = [
 ]
 
 
-def _model_flags(plan: Dict[str, Any], context: str = "") -> Dict[str, Any]:
+def _model_flags(plan: dict[str, Any], context: str = "") -> dict[str, Any]:
     text = (context + " " + str(plan)).lower()
     return {
         "non_linearity": any(k in text for k in ["feedback", "cascade", "tipping"]),
@@ -63,11 +62,11 @@ def _model_flags(plan: Dict[str, Any], context: str = "") -> Dict[str, Any]:
 async def anchor_session(
     query: str,
     actor_id: str = "anonymous",
-    auth_token: Optional[str] = None,
+    auth_token: str | None = None,
     mode: str = "conscience",
     grounding_required: bool = True,
     debug: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """000 INIT: ignite constitutional session and continuity token."""
     blocked = validate_input("anchor_session", {"query": query, "actor_id": actor_id})
     if blocked:
@@ -87,10 +86,10 @@ async def anchor_session(
 async def reason_mind(
     query: str,
     session_id: str,
-    grounding: Optional[List[Dict[str, Any]]] = None,
-    capability_modules: Optional[List[str]] = None,
+    grounding: list[dict[str, Any]] | None = None,
+    capability_modules: list[str] | None = None,
     debug: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """333 REASON: run AGI cognition with grounding and budget controls."""
     blocked = validate_input("reason_mind", {"query": query, "session_id": session_id})
     if blocked:
@@ -113,10 +112,11 @@ async def recall_memory(
     current_thought_vector: str,
     session_id: str,
     debug: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """444 EVIDENCE: retrieve associative memory traces for current thought."""
     blocked = validate_input(
-        "recall_memory", {"current_thought_vector": current_thought_vector, "session_id": session_id}
+        "recall_memory",
+        {"current_thought_vector": current_thought_vector, "session_id": session_id},
     )
     if blocked:
         return wrap_tool_output("recall_memory", blocked)
@@ -135,10 +135,10 @@ async def recall_memory(
 async def simulate_heart(
     query: str,
     session_id: str,
-    stakeholders: Optional[List[str]] = None,
-    capability_modules: Optional[List[str]] = None,
+    stakeholders: list[str] | None = None,
+    capability_modules: list[str] | None = None,
     debug: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """555 EMPATHY: evaluate stakeholder impact and care constraints."""
     blocked = validate_input("simulate_heart", {"query": query, "session_id": session_id})
     if blocked:
@@ -157,7 +157,9 @@ async def simulate_heart(
 
 
 @mcp.tool(name="critique_thought")
-async def critique_thought(plan: Dict[str, Any], session_id: str, context: str = "") -> Dict[str, Any]:
+async def critique_thought(
+    plan: dict[str, Any], session_id: str, context: str = ""
+) -> dict[str, Any]:
     """666 ALIGN: run 7-model critique (inversion, framing, non-linearity, etc.)."""
     blocked = validate_input("critique_thought", {"plan": plan, "session_id": session_id})
     if blocked:
@@ -181,14 +183,14 @@ async def critique_thought(plan: Dict[str, Any], session_id: str, context: str =
 async def judge_soul(
     session_id: str,
     query: str,
-    agi_result: Optional[Dict[str, Any]] = None,
-    asi_result: Optional[Dict[str, Any]] = None,
-    critique_result: Optional[Dict[str, Any]] = None,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+    critique_result: dict[str, Any] | None = None,
     proposed_verdict: str = "SEAL",
     human_approve: bool = False,
     debug: bool = False,
-) -> Dict[str, Any]:
-    """777/888 APEX: sovereign constitutional verdict synthesis."""
+) -> dict[str, Any]:
+    """888 APEX JUDGE METABOLIC: sovereign constitutional verdict synthesis."""
     blocked = validate_input("judge_soul", {"session_id": session_id, "query": query})
     if blocked:
         return wrap_tool_output("judge_soul", blocked)
@@ -205,17 +207,23 @@ async def judge_soul(
         human_approve=human_approve,
         debug=debug,
     )
+    if isinstance(payload, dict):
+        stage_value = str(payload.get("stage", "")).upper()
+        if stage_value in {"", "777-888", "777-888_APEX", "888_AUDIT", "888_JUDGE"}:
+            payload["stage"] = "888_APEX_JUDGE"
+            if stage_value:
+                payload["stage_legacy"] = stage_value
     return wrap_tool_output("judge_soul", payload)
 
 
 @mcp.tool(name="forge_hand")
 async def forge_hand(
-    action_payload: Dict[str, Any],
+    action_payload: dict[str, Any],
     session_id: str,
     signature: str,
-    execution_context: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
-    """888 FORGE: execute action payload behind sovereign control gates."""
+    execution_context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """777 EUREKA FORGE: execute action payload behind sovereign control gates."""
     blocked = validate_input(
         "forge_hand",
         {"action_payload": action_payload, "session_id": session_id, "signature": signature},
@@ -233,11 +241,17 @@ async def forge_hand(
         session_id=session_id,
         idempotency_key=f"forge-{session_id}",
     )
+    if isinstance(payload, dict):
+        stage_value = str(payload.get("stage", "")).upper()
+        if stage_value in {"", "888_FORGE", "777_FORGE"}:
+            payload["stage"] = "777_EUREKA_FORGE"
+            if stage_value:
+                payload["stage_legacy"] = stage_value
     return wrap_tool_output("forge_hand", payload)
 
 
 @mcp.tool(name="seal_vault")
-async def seal_vault(session_id: str, summary: str, verdict: str = "SEAL") -> Dict[str, Any]:
+async def seal_vault(session_id: str, summary: str, verdict: str = "SEAL") -> dict[str, Any]:
     """999 SEAL: commit immutable session decision record."""
     blocked = validate_input("seal_vault", {"session_id": session_id, "summary": summary})
     if blocked:
@@ -250,7 +264,7 @@ async def seal_vault(session_id: str, summary: str, verdict: str = "SEAL") -> Di
 
 
 @mcp.tool(name="search_reality")
-async def search_reality(query: str, intent: str = "general") -> Dict[str, Any]:
+async def search_reality(query: str, intent: str = "general") -> dict[str, Any]:
     """External evidence discovery (read-only)."""
     blocked = validate_input("search_reality", {"query": query})
     if blocked:
@@ -260,7 +274,7 @@ async def search_reality(query: str, intent: str = "general") -> Dict[str, Any]:
 
 
 @mcp.tool(name="fetch_content")
-async def fetch_content(id: str, max_chars: int = 4000) -> Dict[str, Any]:
+async def fetch_content(id: str, max_chars: int = 4000) -> dict[str, Any]:
     """Fetch raw evidence content (read-only)."""
     blocked = validate_input("fetch_content", {"id": id})
     if blocked:
@@ -277,7 +291,7 @@ async def inspect_file(
     pattern: str = "*",
     min_size_bytes: int = 0,
     max_files: int = 100,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Inspect local filesystem structure and metadata (read-only)."""
     blocked = validate_input("inspect_file", {"path": path})
     if blocked:
@@ -294,7 +308,7 @@ async def inspect_file(
 
 
 @mcp.tool(name="audit_rules")
-async def audit_rules(audit_scope: str = "quick", verify_floors: bool = True) -> Dict[str, Any]:
+async def audit_rules(audit_scope: str = "quick", verify_floors: bool = True) -> dict[str, Any]:
     """Run constitutional/system rule audit checks (read-only)."""
     blocked = validate_input("audit_rules", {"audit_scope": audit_scope})
     if blocked:
@@ -308,7 +322,7 @@ async def check_vital(
     include_swap: bool = True,
     include_io: bool = False,
     include_temp: bool = False,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Read system health telemetry (CPU, memory, IO/thermal optional)."""
     payload = get_system_health(
         include_swap=include_swap,

@@ -45,16 +45,16 @@ def main() -> None:
     # Kept for contract tests + runtime sanity checks.
     _ = check_fastmcp_version()
 
-    from aaa_mcp.server import create_unified_mcp_server
+    from arifos_aaa_mcp.server import create_aaa_mcp_server
 
-    mcp = create_unified_mcp_server()
-    
+    mcp = create_aaa_mcp_server()
+
     run_kwargs = {"transport": mode}
     if args.host is not None:
         run_kwargs["host"] = args.host
     if args.port is not None:
         run_kwargs["port"] = args.port
-        
+
     mcp.run(**run_kwargs)
 
 

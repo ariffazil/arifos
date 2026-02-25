@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, List
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -38,8 +38,21 @@ class FullContextTemplate(BaseModel):
     template_id: str = "arifos.full_context.v1"
     schema_version: str = "1.0.0"
     intent: str = "constitutional_tool_orchestration"
-    stage_spine: List[str] = Field(default_factory=lambda: ["000", "222", "333", "444", "666", "888", "999"])
-    floors_required: List[str] = Field(
+    stage_spine: list[str] = Field(
+        default_factory=lambda: [
+            "000",
+            "111",
+            "222",
+            "333",
+            "444",
+            "555",
+            "666",
+            "777",
+            "888",
+            "999",
+        ]
+    )
+    floors_required: list[str] = Field(
         default_factory=lambda: [
             "F1",
             "F2",
@@ -56,7 +69,7 @@ class FullContextTemplate(BaseModel):
             "F13",
         ]
     )
-    required_inputs: Dict[str, ContextFieldSpec] = Field(
+    required_inputs: dict[str, ContextFieldSpec] = Field(
         default_factory=lambda: {
             "query": ContextFieldSpec(
                 type="string",
@@ -84,7 +97,7 @@ class FullContextTemplate(BaseModel):
     failure_contract: FailureContract = Field(default_factory=FailureContract)
 
 
-def build_full_context_template() -> Dict[str, Any]:
+def build_full_context_template() -> dict[str, Any]:
     """Return serialized full-context template for MCP resource exposure."""
 
     return FullContextTemplate().model_dump()

@@ -5,7 +5,7 @@ RUKUN AGI 5-Organ Kernel:
     init    → Stage 000 (Gate)
     mind    → The Mind (Stages 111-333)
     heart   → The Heart (Stages 555-666)
-    soul    → The Soul (Stages 444-777-888)
+    soul    → The Soul (Stages 444 -> 777 EUREKA FORGE -> 888 APEX JUDGE)
     memory  → The Memory (Stage 999)
 
 Usage:

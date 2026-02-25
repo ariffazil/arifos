@@ -4,24 +4,25 @@ Pure orchestration logic for constitutional stages.
 No transport/storage modules are imported directly; all side effects are injected.
 """
 
-from typing import Any, Awaitable, Callable, Dict, Optional
 import logging
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from core import organs as core_organs
 from core.shared.physics import Peace2
 
 logger = logging.getLogger("STAGE_ADAPTER")
 
-GetStageResult = Callable[[str, str], Dict[str, Any]]
-StoreStageResult = Callable[[str, str, Dict[str, Any]], None]
+GetStageResult = Callable[[str, str], dict[str, Any]]
+StoreStageResult = Callable[[str, str, dict[str, Any]], None]
 LogAsiDecision = Callable[..., Awaitable[None]]
 
 
-def _default_get_stage_result(_session_id: str, _stage: str) -> Dict[str, Any]:
+def _default_get_stage_result(_session_id: str, _stage: str) -> dict[str, Any]:
     return {}
 
 
-def _default_store_stage_result(_session_id: str, _stage: str, _payload: Dict[str, Any]) -> None:
+def _default_store_stage_result(_session_id: str, _stage: str, _payload: dict[str, Any]) -> None:
     return None
 
 
@@ -31,12 +32,12 @@ async def _default_log_asi_decision(**_kwargs: Any) -> None:
 
 async def run_stage_444_trinity_sync(
     session_id: str,
-    agi_result: Optional[Dict[str, Any]] = None,
-    asi_result: Optional[Dict[str, Any]] = None,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
     *,
     get_stage_result_fn: GetStageResult = _default_get_stage_result,
     store_stage_result_fn: StoreStageResult = _default_store_stage_result,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Stage 444: Trinity Sync - Merge AGI and ASI outputs.
 
@@ -109,7 +110,7 @@ async def run_stage_555_empathy(
     *,
     store_stage_result_fn: StoreStageResult = _default_store_stage_result,
     log_asi_decision_fn: LogAsiDecision = _default_log_asi_decision,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Stage 555: ASI Empathy - Identify stakeholders and compute κᵣ.
 
@@ -189,7 +190,7 @@ async def run_stage_666_align(
     *,
     store_stage_result_fn: StoreStageResult = _default_store_stage_result,
     log_asi_decision_fn: LogAsiDecision = _default_log_asi_decision,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Stage 666: ASI Align - Safety & reversibility check.
 
@@ -282,15 +283,15 @@ async def run_stage_666_align(
 
 async def run_stage_777_forge(
     session_id: str,
-    agi_result: Optional[Dict[str, Any]] = None,
-    asi_result: Optional[Dict[str, Any]] = None,
-    context: Optional[Dict[str, Any]] = None,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+    context: dict[str, Any] | None = None,
     *,
     get_stage_result_fn: GetStageResult = _default_get_stage_result,
     store_stage_result_fn: StoreStageResult = _default_store_stage_result,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
-    Stage 777: Forge - Phase transition / Eureka.
+    Stage 777: EUREKA FORGE - Phase transition / synthesis.
 
     Called by: apex_verdict tool (during judgment)
     """
@@ -331,6 +332,7 @@ async def run_stage_777_forge(
 
         result = {
             "stage": "777",
+            "stage_name": "EUREKA_FORGE",
             "forge_result": forge_data,
             "low_coherence_warning": forge_data.get("coherence", 1.0) < 0.7,
             "session_id": session_id,
@@ -346,15 +348,15 @@ async def run_stage_777_forge(
 
 async def run_stage_888_judge(
     session_id: str,
-    agi_result: Optional[Dict[str, Any]] = None,
-    asi_result: Optional[Dict[str, Any]] = None,
-    context: Optional[Dict[str, Any]] = None,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+    context: dict[str, Any] | None = None,
     *,
     get_stage_result_fn: GetStageResult = _default_get_stage_result,
     store_stage_result_fn: StoreStageResult = _default_store_stage_result,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
-    Stage 888: Judge - Executive veto / final judgment.
+    Stage 888: APEX Judge Metabolic Layer - Executive veto / final judgment.
 
     Called by: apex_verdict tool (final judgment)
     """
@@ -409,6 +411,7 @@ async def run_stage_888_judge(
 
         result = {
             "stage": "888",
+            "stage_name": "APEX_JUDGE_METABOLIC",
             "verdict": verdict_val,
             "judge_result": judge_data,
             "floor_violations": floors_failed,
@@ -431,14 +434,14 @@ async def run_stage_888_judge(
 
 async def run_stage_999_seal(
     session_id: str,
-    judge_result: Optional[Dict[str, Any]] = None,
-    agi_result: Optional[Dict[str, Any]] = None,
-    asi_result: Optional[Dict[str, Any]] = None,
-    summary: Optional[str] = None,
+    judge_result: dict[str, Any] | None = None,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+    summary: str | None = None,
     *,
     get_stage_result_fn: GetStageResult = _default_get_stage_result,
     store_stage_result_fn: StoreStageResult = _default_store_stage_result,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Stage 999: Seal - EUREKA-filtered immutable audit.
 
@@ -533,7 +536,7 @@ async def run_metabolic_pipeline(
     get_stage_result_fn: GetStageResult = _default_get_stage_result,
     store_stage_result_fn: StoreStageResult = _default_store_stage_result,
     log_asi_decision_fn: LogAsiDecision = _default_log_asi_decision,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Run the full metabolic pipeline (444-999) for a session.
 

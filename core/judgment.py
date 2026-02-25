@@ -7,11 +7,11 @@ No uncertainty computation, governance modification, or verdict logic in wrapper
 This is the canonical interface between kernel and wrapper.
 """
 
-from typing import Optional, List, Dict, Any
 from dataclasses import dataclass
+from typing import Any
 
-from core.uncertainty_engine import calculate_uncertainty, UncertaintyEngine
-from core.governance_kernel import GovernanceKernel, get_governance_kernel
+from core.governance_kernel import get_governance_kernel
+from core.uncertainty_engine import UncertaintyEngine, calculate_uncertainty
 
 
 @dataclass
@@ -25,11 +25,11 @@ class CognitionResult:
     safety_omega: float  # safety omega (harmonic) - for kernel use only
     genius_score: float
     grounded: bool
-    reasoning: Dict[str, Any]
-    evidence_sources: List[Dict]
-    floor_scores: Dict[str, float]
-    module_results: Dict[str, Any]
-    error: Optional[str] = None
+    reasoning: dict[str, Any]
+    evidence_sources: list[dict]
+    floor_scores: dict[str, float]
+    module_results: dict[str, Any]
+    error: str | None = None
 
 
 @dataclass
@@ -37,12 +37,12 @@ class EmpathyResult:
     """Result of ASI empathy judgment."""
 
     verdict: str
-    stakeholder_impact: Dict[str, Any]
+    stakeholder_impact: dict[str, Any]
     reversibility_score: float
     peace_squared: float
     empathy_score: float
-    floor_scores: Dict[str, float]
-    error: Optional[str] = None
+    floor_scores: dict[str, float]
+    error: str | None = None
 
 
 @dataclass
@@ -53,7 +53,7 @@ class VerdictResult:
     confidence: float
     reasoning: str
     requires_human_approval: bool
-    floor_scores: Dict[str, float]
+    floor_scores: dict[str, float]
 
 
 class JudgmentKernel:
@@ -72,10 +72,10 @@ class JudgmentKernel:
         evidence_count: int,
         evidence_relevance: float,
         reasoning_consistency: float,
-        knowledge_gaps: List[str],
+        knowledge_gaps: list[str],
         model_logits_confidence: float,
-        grounding: Optional[List[Dict]] = None,
-        module_results: Optional[Dict] = None,
+        grounding: list[dict] | None = None,
+        module_results: dict | None = None,
     ) -> CognitionResult:
         """
         Execute AGI cognition judgment (111-333_AGI).
@@ -208,12 +208,12 @@ class JudgmentKernel:
     def judge_apex(
         self,
         agi_result: CognitionResult,
-        asi_result: Optional[EmpathyResult],
+        asi_result: EmpathyResult | None,
         session_id: str,
         irreversibility_index: float = 0.5,
     ) -> VerdictResult:
         """
-        Execute APEX final judgment (888_APEX).
+        Execute APEX final judgment (888_APEX_JUDGE_METABOLIC).
 
         Weighs AGI and ASI results, issues final verdict.
         """
@@ -263,7 +263,7 @@ class JudgmentKernel:
 
 
 # Singleton instance for wrapper to use
-_judgment_kernel: Optional[JudgmentKernel] = None
+_judgment_kernel: JudgmentKernel | None = None
 
 
 def get_judgment_kernel() -> JudgmentKernel:

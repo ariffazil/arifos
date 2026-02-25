@@ -84,9 +84,9 @@ class HeartBundle(BaseModel):
 
 
 class SoulBundle(BaseModel):
-    """Ψ SOUL output (Stage 777-888)"""
+    """Psi SOUL output (777 EUREKA FORGE -> 888 APEX JUDGE)."""
 
-    verdict: "Verdict" = Field(default="VOID")
+    verdict: str = Field(default="VOID")
     vault_id: str | None = None
     scar_weight: dict[str, Any] | None = None
 
@@ -135,7 +135,7 @@ class ThoughtNode(BaseModel):
     thought_number: int = Field(ge=1)
     confidence: float = Field(ge=0.0, le=1.0, default=0.5)
     next_thought_needed: bool = True
-    stage: Literal["sense", "ground", "think", "reason", "sync", "judge", "seal"] = "think"
+    stage: Literal["sense", "ground", "think", "reason", "sync", "forge", "judge", "seal"] = "think"
     sources: list[str] = Field(default_factory=list)
     path_type: str | None = None
 

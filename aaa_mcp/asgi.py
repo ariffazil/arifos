@@ -12,14 +12,13 @@ Notes:
 from __future__ import annotations
 
 from datetime import datetime, timezone
-from typing import Any, Dict
 
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
 
-from aaa_mcp.server import create_unified_mcp_server
+from arifos_aaa_mcp.server import create_aaa_mcp_server
 
 
 async def health(_: Request) -> JSONResponse:
@@ -32,7 +31,7 @@ async def health(_: Request) -> JSONResponse:
     )
 
 
-_mcp = create_unified_mcp_server()
+_mcp = create_aaa_mcp_server()
 _mcp_app = _mcp.http_app(path="/")
 
 app = Starlette(
@@ -44,4 +43,3 @@ app = Starlette(
 )
 
 __all__ = ["app"]
-

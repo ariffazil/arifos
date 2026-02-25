@@ -27,35 +27,36 @@ import secrets
 import sys
 import time
 import uuid
-import uvicorn
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import AsyncGenerator, Dict, List, Any, Optional
+from typing import Any
 
+import uvicorn
 from starlette.applications import Starlette
-from starlette.responses import JSONResponse, StreamingResponse, HTMLResponse
-from starlette.routing import Route
 from starlette.requests import Request
+from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
+from starlette.routing import Route
+
+from aaa_mcp.integrations.self_ops import self_diagnose
 
 # Import all 13 canonical tools from server module.
 # Legacy verbs are supported via HTTP aliases only.
-from aaa_mcp.server import (
+from arifos_aaa_mcp.server import (
     anchor_session,
-    reason_mind,
-    recall_memory,
-    simulate_heart,
-    critique_thought,
-    judge_soul,
-    forge_hand,
-    seal_vault,
-    search_reality,
-    fetch_content,
-    inspect_file,
     audit_rules,
     check_vital,
+    critique_thought,
+    fetch_content,
+    forge_hand,
+    inspect_file,
+    judge_soul,
+    reason_mind,
+    recall_memory,
+    seal_vault,
+    search_reality,
+    simulate_heart,
 )
-from aaa_mcp.integrations.self_ops import self_diagnose
 
 # Build info
 BUILD_INFO = {
@@ -132,7 +133,7 @@ TOOL_SCHEMAS = {
         },
     },
     "judge_soul": {
-        "description": "[Lane: Psi] 777-888_APEX — Sovereign verdict synthesis",
+        "description": "[Lane: Psi] 888_APEX_JUDGE — Sovereign verdict synthesis",
         "args": {
             "query": {"type": "string", "required": True},
             "session_id": {"type": "string", "required": True},
@@ -148,7 +149,7 @@ TOOL_SCHEMAS = {
         },
     },
     "forge_hand": {
-        "description": "[Lane: Psi] 888_FORGE — Sandboxed action execution with sovereign gating",
+        "description": "[Lane: Psi] 777_EUREKA_FORGE — Sandboxed action execution with sovereign gating",
         "args": {
             "action_payload": {"type": "object", "required": True},
             "signed_tensor": {"type": "object", "required": True},
@@ -246,7 +247,7 @@ TOOL_ALIASES = {
     "respond": "reason_mind",
     "validate": "simulate_heart",
     "align": "simulate_heart",
-    "forge": "judge_soul",
+    "forge": "forge_hand",
     "audit": "judge_soul",
     "seal": "seal_vault",
     # Pipeline alias
@@ -262,12 +263,12 @@ def _env_truthy(name: str) -> bool:
     return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "y", "on"}
 
 
-def _required_bearer_token() -> Optional[str]:
+def _required_bearer_token() -> str | None:
     # Prefer the canonical name used in docs.
     return os.getenv("ARIFOS_API_KEY") or os.getenv("ARIFOS_API_TOKEN")
 
 
-def _auth_error_response(request: Request) -> Optional[JSONResponse]:
+def _auth_error_response(request: Request) -> JSONResponse | None:
     """
     Enforce Bearer auth when configured.
 
@@ -304,7 +305,7 @@ def _auth_error_response(request: Request) -> Optional[JSONResponse]:
 
 async def _execute_tool_call(
     incoming_tool_name: str,
-    body: Dict[str, Any],
+    body: dict[str, Any],
     *,
     request_id: str,
     start_time: float,
@@ -357,7 +358,7 @@ async def _execute_tool_call(
             else:
                 param_names.append(name)
 
-        filtered_body: Dict[str, Any]
+        filtered_body: dict[str, Any]
         if has_kwargs:
             filtered_body = body
         else:
@@ -393,8 +394,8 @@ async def _execute_tool_call(
 @dataclass
 class Metrics:
     requests_total: int = 0
-    requests_by_tool: Dict[str, int] = field(default_factory=dict)
-    latencies_ms: List[float] = field(default_factory=list)
+    requests_by_tool: dict[str, int] = field(default_factory=dict)
+    latencies_ms: list[float] = field(default_factory=list)
     timeouts: int = 0
     errors: int = 0
     active_sessions: int = 0
@@ -403,7 +404,7 @@ class Metrics:
 metrics = Metrics()
 
 # Active sessions tracking
-active_sessions: Dict[str, dict] = {}
+active_sessions: dict[str, dict] = {}
 
 
 def generate_request_id() -> str:
@@ -455,27 +456,42 @@ async def route_info(request: Request):
             "service": "arifOS MCP Server",
             "version": BUILD_INFO["version"],
             "endpoints": [
-                {"method": "GET", "path": "/", "description": "Service info (JSON) / landing page (HTML)"},
+                {
+                    "method": "GET",
+                    "path": "/",
+                    "description": "Service info (JSON) / landing page (HTML)",
+                },
                 {
                     "method": "GET",
                     "path": "/.well-known/mcp/server.json",
                     "description": "MCP discovery (optional)",
                 },
                 {"method": "GET", "path": "/health", "description": "Health check"},
-                {"method": "GET", "path": "/ready", "description": "Readiness (tools + schemas loaded)"},
+                {
+                    "method": "GET",
+                    "path": "/ready",
+                    "description": "Readiness (tools + schemas loaded)",
+                },
                 {"method": "GET", "path": "/version", "description": "Build info"},
                 {"method": "GET", "path": "/metrics", "description": "Operational metrics"},
                 {"method": "GET", "path": "/tools", "description": "List tools with schemas"},
-                {"method": "POST", "path": "/tools/{tool_name}", "description": "Call tool (canonical + aliases)"},
+                {
+                    "method": "POST",
+                    "path": "/tools/{tool_name}",
+                    "description": "Call tool (canonical + aliases)",
+                },
                 {"method": "POST", "path": "/apex_judge", "description": "Full pipeline wrapper"},
                 {"method": "GET", "path": "/sse", "description": "MCP SSE transport"},
-                {"method": "POST", "path": "/mcp", "description": "Unified MCP alias (Sovereign Connector)"},
+                {
+                    "method": "POST",
+                    "path": "/mcp",
+                    "description": "Unified MCP alias (Sovereign Connector)",
+                },
             ],
             "tools": list(TOOL_SCHEMAS.keys()),
             "aliases": TOOL_ALIASES,
         }
     )
-
 
 
 async def health(request: Request):
@@ -563,10 +579,10 @@ async def well_known_mcp_server_json(request: Request):
         root_path = os.path.join(os.path.dirname(__file__), "..", "server.json")
 
         if os.path.exists(static_path):
-            with open(static_path, "r") as f:
+            with open(static_path) as f:
                 content = json.load(f)
         elif os.path.exists(root_path):
-            with open(root_path, "r") as f:
+            with open(root_path) as f:
                 content = json.load(f)
         else:
             return JSONResponse({"error": "server.json not found"}, status_code=404)
@@ -646,6 +662,7 @@ async def sse_endpoint(request: Request):
         return auth_error
     accept = request.headers.get("Accept", "")
     if "text/event-stream" in accept:
+
         async def _stream():
             yield "event: error\ndata: REST bridge SSE not enabled; use FastMCP SSE transport\n\n"
 
@@ -767,7 +784,9 @@ async def apex_judge_wrapper(request: Request):
                 session_id=canonical_session_id,
                 idempotency_key=request_id,
             )
-            pipeline_results["pipeline"].append({"stage": "888_FORGE", "result": forge_result})
+            pipeline_results["pipeline"].append(
+                {"stage": "777_EUREKA_FORGE", "result": forge_result}
+            )
 
         # Stage 5: VAULT (999) — optional
         if auto_seal:
@@ -812,9 +831,10 @@ async def mcp_alias(request: Request):
         # If it's a GET, return tool list or SSE entry based on Accept header
         if "text/event-stream" in accept:
             from aaa_mcp.rest import sse_endpoint
+
             return await sse_endpoint(request)
         return await list_tools(request)
-    
+
     # If it's a POST, it might be an MCP message or a direct tool call
     try:
         body = await request.json()
@@ -843,6 +863,7 @@ async def mcp_alias(request: Request):
             )
         if "method" in body and "params" in body:
             from aaa_mcp.rest import messages_endpoint
+
             return await messages_endpoint(request)
     except Exception:
         pass
@@ -867,7 +888,9 @@ routes = [
     Route("/sse", sse_endpoint, methods=["GET", "POST"]),
     Route("/messages", sse_endpoint, methods=["GET"]),
     Route("/messages", messages_endpoint, methods=["POST"]),
-    Route("/{tool_name}", call_tool, methods=["POST"]),  # Root path for direct tool calls — MUST BE LAST
+    Route(
+        "/{tool_name}", call_tool, methods=["POST"]
+    ),  # Root path for direct tool calls — MUST BE LAST
 ]
 
 

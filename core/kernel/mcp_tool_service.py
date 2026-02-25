@@ -7,7 +7,8 @@ It has no transport/framework imports.
 from __future__ import annotations
 
 import uuid
-from typing import Any, Awaitable, Callable, Dict, Optional
+from collections.abc import Awaitable, Callable
+from typing import Any
 
 from core.kernel.mcp_transport_kernel import (
     build_align_error,
@@ -32,7 +33,29 @@ from core.kernel.mcp_transport_kernel import (
 )
 
 
-def _to_dict(value: Any) -> Dict[str, Any]:
+CANONICAL_TOOL_TO_LEGACY: dict[str, str] = {
+    "anchor_session": "anchor",
+    "reason_mind": "reason",
+    "recall_memory": "respond",
+    "simulate_heart": "validate",
+    "critique_thought": "align",
+    "judge_soul": "audit",
+    "forge_hand": "forge",
+    "seal_vault": "seal",
+    "search_reality": "search",
+    "fetch_content": "fetch",
+    "inspect_file": "inspect_file",
+    "audit_rules": "system_audit",
+    "check_vital": "sense_health",
+}
+
+
+def resolve_tool_alias(tool_name: str) -> str:
+    """Normalize canonical public tool names to legacy internal handlers."""
+    return CANONICAL_TOOL_TO_LEGACY.get(tool_name, tool_name)
+
+
+def _to_dict(value: Any) -> dict[str, Any]:
     if isinstance(value, dict):
         return value
     if hasattr(value, "model_dump"):
@@ -49,8 +72,8 @@ async def anchor_tool(
     auth_token: str,
     platform: str,
     init_engine: Any,
-    store_stage_result_fn: Callable[[str, str, Dict[str, Any]], None],
-) -> Dict[str, Any]:
+    store_stage_result_fn: Callable[[str, str, dict[str, Any]], None],
+) -> dict[str, Any]:
     init_result = await init_engine.ignite(
         query=query,
         actor_id=actor_id,
@@ -72,13 +95,13 @@ async def reason_tool(
     query: str,
     session_id: str,
     hypotheses: int,
-    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
-    store_stage_result_fn: Callable[[str, str, Dict[str, Any]], None],
-    sense_fn: Callable[..., Awaitable[Dict[str, Any]]],
-    think_fn: Callable[..., Awaitable[Dict[str, Any]]],
+    get_stage_result_fn: Callable[[str, str], dict[str, Any]],
+    store_stage_result_fn: Callable[[str, str, dict[str, Any]], None],
+    sense_fn: Callable[..., Awaitable[dict[str, Any]]],
+    think_fn: Callable[..., Awaitable[dict[str, Any]]],
     truth_score_placeholder: float,
     clarity_delta_placeholder: float,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     try:
         sense_result = get_stage_result_fn(session_id, "sense")
         if not sense_result:
@@ -102,14 +125,14 @@ async def integrate_tool(
     *,
     query: str,
     session_id: str,
-    grounding: Optional[list],
-    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
-    store_stage_result_fn: Callable[[str, str, Dict[str, Any]], None],
-    sense_fn: Callable[..., Awaitable[Dict[str, Any]]],
-    think_fn: Callable[..., Awaitable[Dict[str, Any]]],
-    reason_fn: Callable[..., Awaitable[Dict[str, Any]]],
+    grounding: list | None,
+    get_stage_result_fn: Callable[[str, str], dict[str, Any]],
+    store_stage_result_fn: Callable[[str, str, dict[str, Any]], None],
+    sense_fn: Callable[..., Awaitable[dict[str, Any]]],
+    think_fn: Callable[..., Awaitable[dict[str, Any]]],
+    reason_fn: Callable[..., Awaitable[dict[str, Any]]],
     humility_omega_default: float,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     try:
         think_result = get_stage_result_fn(session_id, "think")
         if not think_result:
@@ -139,10 +162,10 @@ async def integrate_tool(
 async def respond_tool(
     *,
     session_id: str,
-    plan: Optional[str],
-    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
-    run_stage_444_fn: Callable[..., Awaitable[Dict[str, Any]]],
-) -> Dict[str, Any]:
+    plan: str | None,
+    get_stage_result_fn: Callable[[str, str], dict[str, Any]],
+    run_stage_444_fn: Callable[..., Awaitable[dict[str, Any]]],
+) -> dict[str, Any]:
     try:
         agi_res = get_stage_result_fn(session_id, "think")
         asi_res = get_stage_result_fn(session_id, "empathy")
@@ -161,12 +184,12 @@ async def validate_tool(
     *,
     query: str,
     session_id: str,
-    stakeholders: Optional[list],
-    run_stage_555_fn: Callable[..., Awaitable[Dict[str, Any]]],
+    stakeholders: list | None,
+    run_stage_555_fn: Callable[..., Awaitable[dict[str, Any]]],
     peace_squared_min: float,
     empathy_kappa_r_default: float,
     safe_default: bool,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     try:
         result = await run_stage_555_fn(session_id, query)
         return normalize_validate_result(
@@ -188,9 +211,9 @@ async def align_tool(
     *,
     query: str,
     session_id: str,
-    ethical_rules: Optional[list],
-    run_stage_666_fn: Callable[..., Awaitable[Dict[str, Any]]],
-) -> Dict[str, Any]:
+    ethical_rules: list | None,
+    run_stage_666_fn: Callable[..., Awaitable[dict[str, Any]]],
+) -> dict[str, Any]:
     try:
         result = await run_stage_666_fn(session_id, query)
         return build_align_output(session_id=session_id, result=result, ethical_rules=ethical_rules)
@@ -201,10 +224,10 @@ async def align_tool(
 async def forge_tool(
     *,
     session_id: str,
-    implementation_details: Dict[str, Any],
-    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
-    run_stage_777_fn: Callable[..., Awaitable[Dict[str, Any]]],
-) -> Dict[str, Any]:
+    implementation_details: dict[str, Any],
+    get_stage_result_fn: Callable[[str, str], dict[str, Any]],
+    run_stage_777_fn: Callable[..., Awaitable[dict[str, Any]]],
+) -> dict[str, Any]:
     try:
         agi_res = get_stage_result_fn(session_id, "think")
         asi_res = get_stage_result_fn(session_id, "empathy")
@@ -224,9 +247,9 @@ async def audit_tool(
     verdict: str,
     human_approve: bool,
     tri_witness_score: float,
-    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
-    run_stage_888_fn: Callable[..., Awaitable[Dict[str, Any]]],
-) -> Dict[str, Any]:
+    get_stage_result_fn: Callable[[str, str], dict[str, Any]],
+    run_stage_888_fn: Callable[..., Awaitable[dict[str, Any]]],
+) -> dict[str, Any]:
     try:
         agi_res = get_stage_result_fn(session_id, "agi") or get_stage_result_fn(session_id, "think")
         asi_res = get_stage_result_fn(session_id, "asi") or get_stage_result_fn(
@@ -251,9 +274,9 @@ async def seal_tool(
     session_id: str,
     summary: str,
     verdict: str,
-    get_stage_result_fn: Callable[[str, str], Dict[str, Any]],
+    get_stage_result_fn: Callable[[str, str], dict[str, Any]],
     run_stage_999_fn: Callable[..., Awaitable[Any]],
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     try:
         judge_res = get_stage_result_fn(session_id, "judge") or get_stage_result_fn(
             session_id, "audit"
@@ -275,7 +298,7 @@ async def trinity_forge_tool(
     query: str,
     actor_id: str,
     forge_pipeline_fn: Callable[..., Awaitable[Any]],
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     try:
         result = await forge_pipeline_fn(query, actor_id=actor_id)
         if hasattr(result, "model_dump"):
@@ -292,6 +315,8 @@ async def trinity_forge_tool(
 
 
 __all__ = [
+    "CANONICAL_TOOL_TO_LEGACY",
+    "resolve_tool_alias",
     "anchor_tool",
     "reason_tool",
     "integrate_tool",

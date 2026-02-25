@@ -7,7 +7,11 @@ It must not import MCP/HTTP/framework packages.
 from __future__ import annotations
 
 import hashlib
-from typing import Any, Dict, Optional
+from typing import Any
+
+
+STAGE_777_EUREKA_FORGE = "777_EUREKA_FORGE"
+STAGE_888_APEX_JUDGE = "888_APEX_JUDGE"
 
 
 def compute_f12_level(injection_risk: float) -> int:
@@ -23,11 +27,11 @@ def compute_f12_level(injection_risk: float) -> int:
 
 def build_anchor_output(
     *,
-    init_result: Dict[str, Any],
+    init_result: dict[str, Any],
     actor_id: str,
     platform: str,
     governance_mode: str = "HARD",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     injection_risk = float(init_result.get("injection_risk", 0.0))
     return {
         "stage": "000",
@@ -43,7 +47,7 @@ def build_anchor_output(
     }
 
 
-def build_reason_output(session_id: str, think_result: Dict[str, Any]) -> Dict[str, Any]:
+def build_reason_output(session_id: str, think_result: dict[str, Any]) -> dict[str, Any]:
     hypotheses_list = think_result.get("hypotheses", [])
     confidence_range = think_result.get("confidence_range", (0.8, 0.9))
     truth_score = confidence_range[0] if isinstance(confidence_range, (list, tuple)) else 0.8
@@ -66,7 +70,7 @@ def build_reason_error(
     truth_score_placeholder: float,
     clarity_delta_placeholder: float,
     error: Exception,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return {
         "verdict": "SEAL",
         "stage": "222_REASON",
@@ -81,10 +85,10 @@ def build_reason_error(
 def build_integrate_output(
     *,
     session_id: str,
-    reason_result: Dict[str, Any],
-    grounding: Optional[list],
+    reason_result: dict[str, Any],
+    grounding: list | None,
     humility_omega_default: float,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     tensor = reason_result.get("tensor")
     humility_omega = getattr(tensor, "humility", None)
     humility_omega_value = (
@@ -102,7 +106,7 @@ def build_integrate_output(
 
 def build_integrate_error(
     session_id: str, humility_omega_default: float, error: Exception
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return {
         "verdict": "SEAL",
         "stage": "333_INTEGRATE",
@@ -114,10 +118,10 @@ def build_integrate_error(
 
 def build_respond_output(
     session_id: str,
-    stage_result: Dict[str, Any],
-    plan: Optional[str],
-    plan_id: Optional[str] = None,
-) -> Dict[str, Any]:
+    stage_result: dict[str, Any],
+    plan: str | None,
+    plan_id: str | None = None,
+) -> dict[str, Any]:
     output = {
         "verdict": "SEAL",
         "stage": "444_RESPOND",
@@ -130,7 +134,7 @@ def build_respond_output(
     return output
 
 
-def build_respond_error(session_id: str, error: Exception) -> Dict[str, Any]:
+def build_respond_error(session_id: str, error: Exception) -> dict[str, Any]:
     return {
         "verdict": "SEAL",
         "stage": "444_RESPOND",
@@ -141,8 +145,8 @@ def build_respond_error(session_id: str, error: Exception) -> Dict[str, Any]:
 
 
 def normalize_validate_result(
-    result: Dict[str, Any], stakeholders: Optional[list], default_kappa_r: float
-) -> Dict[str, Any]:
+    result: dict[str, Any], stakeholders: list | None, default_kappa_r: float
+) -> dict[str, Any]:
     output = dict(result)
     output["stakeholders_provided"] = stakeholders
     output.setdefault("verdict", "SEAL")
@@ -166,7 +170,7 @@ def build_validate_error(
     empathy_kappa_r_default: float,
     safe_default: bool,
     error: Exception,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     return {
         "verdict": "SEAL",
         "stage": "555_VALIDATE",
@@ -179,8 +183,8 @@ def build_validate_error(
 
 
 def build_align_output(
-    session_id: str, result: Dict[str, Any], ethical_rules: Optional[list]
-) -> Dict[str, Any]:
+    session_id: str, result: dict[str, Any], ethical_rules: list | None
+) -> dict[str, Any]:
     return {
         "verdict": "SEAL",
         "stage": "666_ALIGN",
@@ -190,7 +194,7 @@ def build_align_output(
     }
 
 
-def build_align_error(session_id: str, error: Exception) -> Dict[str, Any]:
+def build_align_error(session_id: str, error: Exception) -> dict[str, Any]:
     return {
         "verdict": "SEAL",
         "stage": "666_ALIGN",
@@ -201,29 +205,37 @@ def build_align_error(session_id: str, error: Exception) -> Dict[str, Any]:
 
 
 def build_forge_output(
-    session_id: str, stage_result: Dict[str, Any], implementation_details: Dict[str, Any]
-) -> Dict[str, Any]:
+    session_id: str, stage_result: dict[str, Any], implementation_details: dict[str, Any]
+) -> dict[str, Any]:
     return {
         "verdict": "SEAL",
-        "stage": "777_FORGE",
+        "stage": STAGE_777_EUREKA_FORGE,
+        "stage_legacy": "777_FORGE",
         "session_id": session_id,
         "code_fidelity": stage_result.get("fidelity", 0.95),
         "complexity_level": implementation_details.get("complexity", "standard"),
     }
 
 
-def build_forge_error(session_id: str, error: Exception) -> Dict[str, Any]:
+def build_forge_error(session_id: str, error: Exception) -> dict[str, Any]:
     return {
         "verdict": "SEAL",
-        "stage": "777_FORGE",
+        "stage": STAGE_777_EUREKA_FORGE,
+        "stage_legacy": "777_FORGE",
         "session_id": session_id,
         "code_fidelity": 0.9,
         "error": str(error),
     }
 
 
-def normalize_audit_output(judge_dict: Dict[str, Any], human_approve: bool) -> Dict[str, Any]:
+def normalize_audit_output(judge_dict: dict[str, Any], human_approve: bool) -> dict[str, Any]:
     output = dict(judge_dict)
+    stage = str(output.get("stage", "")).upper()
+    if stage in {"", "888", "888_AUDIT", "888_JUDGE"}:
+        output["stage"] = STAGE_888_APEX_JUDGE
+        if stage and stage != STAGE_888_APEX_JUDGE:
+            output["stage_legacy"] = stage
+
     if output.get("verdict") == "888_HOLD" and human_approve:
         output["verdict"] = "SEAL"
         output["sovereign_ratified"] = True
@@ -243,22 +255,23 @@ def build_audit_fallback(
     verdict: str,
     human_approve: bool,
     tri_witness_score: float,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     final_verdict = "SEAL" if verdict == "888_HOLD" and human_approve else verdict
     return {
         "verdict": final_verdict,
-        "stage": "888_AUDIT",
+        "stage": STAGE_888_APEX_JUDGE,
+        "stage_legacy": "888_AUDIT",
         "session_id": session_id,
         "tri_witness_score": tri_witness_score,
         "genius_G": 0.85 if final_verdict == "SEAL" else 0.5,
     }
 
 
-def build_audit_error(session_id: str, error: Exception) -> Dict[str, Any]:
+def build_audit_error(session_id: str, error: Exception) -> dict[str, Any]:
     return {"verdict": "SABAR", "error": f"Audit failed: {error}", "session_id": session_id}
 
 
-def normalize_seal_receipt(session_id: str, receipt: Any) -> Dict[str, Any]:
+def normalize_seal_receipt(session_id: str, receipt: Any) -> dict[str, Any]:
     if hasattr(receipt, "model_dump"):
         output = receipt.model_dump()
     elif isinstance(receipt, dict):
@@ -277,7 +290,7 @@ def normalize_seal_receipt(session_id: str, receipt: Any) -> Dict[str, Any]:
     return output
 
 
-def build_legacy_seal(session_id: str, verdict: str) -> Dict[str, Any]:
+def build_legacy_seal(session_id: str, verdict: str) -> dict[str, Any]:
     seal_hash = hashlib.sha256(f"{session_id}:{verdict}".encode()).hexdigest()[:16]
     return {
         "verdict": "SEALED",
@@ -289,5 +302,5 @@ def build_legacy_seal(session_id: str, verdict: str) -> Dict[str, Any]:
     }
 
 
-def build_seal_error(session_id: str, error: Exception) -> Dict[str, Any]:
+def build_seal_error(session_id: str, error: Exception) -> dict[str, Any]:
     return {"verdict": "SABAR", "error": f"Seal failed: {error}", "session_id": session_id}
