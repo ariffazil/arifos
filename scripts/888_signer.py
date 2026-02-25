@@ -74,10 +74,9 @@ def sign_challenge(challenge: str):
     signature = private_key.sign(challenge_bytes)
     
     # Encode the signature as base64 for easy transport (copy-pasting into chat)
-    token = base64.b64encode(signature).decode('utf-8')
-    
-    print("
-" + "="*50)
+    token = base64.b64encode(signature).decode("utf-8")
+
+    print("\n" + "=" * 50)
     print("⚖️  888 SOVEREIGN RATIFICATION TOKEN")
     print("="*50)
     print(f"Challenge: {challenge}")
