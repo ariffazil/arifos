@@ -10,6 +10,8 @@ description: arifOS is a constitutional intelligence kernel with canonical AAA M
 
 arifOS is a constitutional intelligence kernel that governs AI cognition through 13 floors and a staged pipeline ending in auditable verdicts.
 
+It features the **Eureka-Atlas Embedding Engine**, providing thermodynamic grounding for the metabolizer loop (000->999) via Energy-Based Models (EBM) and Deep Equilibrium (DEQ) principles.
+
 ## Canonical runtime
 
 - Python: `>=3.12`

@@ -43,14 +43,16 @@ description: The L0-L7 stack, Trinity engines (DeltaOmegaPsi), MCP transports, a
 
 ## L0: The Intelligence Kernel
 
-L0 is implemented across two packages with a hard architectural boundary:
+L0 is implemented across four distinct layers with strict architectural boundaries:
 
-| Package | Role | Rule |
-|:--|:--|:--|
-| `core/` | Pure decision logic, 7 organs, 13 floors | **Zero** transport imports |
-| `aaa_mcp/` | MCP transport adapter (stdio/streamable-HTTP) | **Zero** decision logic |
+| Layer | Package | Role | Rule |
+|:--|:--|:--|:--|
+| **Surface** | `arifos_aaa_mcp/` | Canonical PyPI entry point | Public contracts & REST routes |
+| **Transport** | `aaa_mcp/` | MCP transport adapter (stdio/HTTP) | **Zero** decision logic |
+| **Intelligence** | `aclip_cai/` | Triad backend & 9-Sense tools | Federation & sensing |
+| **Kernel** | `core/` | Pure decision logic, 7 organs, 13 floors | **Zero** transport imports |
 
-Violating this boundary is a hard rule. `core/` must never import `fastmcp`, `starlette`, `fastapi`, or any HTTP library.
+Violating these boundaries is a hard rule. `core/` must never import transport or intelligence providers.
 
 ---
 

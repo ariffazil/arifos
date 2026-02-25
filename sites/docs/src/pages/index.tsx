@@ -24,7 +24,7 @@ export default function Home() {
   useEffect(() => {
     fetch('https://arifosmcp.arif-fazil.com/health')
       .then(r => r.json())
-      .then(data => setHealth({ status: data.status || 'healthy', version: data.version || '2026.2.23' }))
+      .then(data => setHealth({ status: data.status || 'healthy', version: data.version || '2026.2.25' }))
       .catch(() => setHealth({ status: 'degraded', version: '-' }));
   }, []);
 
@@ -110,9 +110,9 @@ export default function Home() {
           <a href="https://arifos.arif-fazil.com/"><b>APPS</b></a>
         </div>
         THE TRINITY | HUMAN | THEORY | APPS<br />
-        <b>Ditempa Bukan Diberi</b> | AGPL-3.0 | 2026.2.23
+        <b>Ditempa Bukan Diberi</b> | AGPL-3.0 | 2026.2.25
         <div className="copyright-line">
-          Copyright (c) 2013 &ndash; 2026 Sovereign Records | LAST UPDATED: FEB 23, 2026
+          Copyright (c) 2013 &ndash; 2026 Sovereign Records | LAST UPDATED: FEB 25, 2026
         </div>
       </footer>
     </Layout>

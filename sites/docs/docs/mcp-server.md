@@ -10,7 +10,7 @@ description: Technical reference for the canonical arifOS AAA MCP runtime.
 > Registry ID: `io.github.ariffazil/arifos-mcp`
 > Live base URL: `https://arifosmcp.arif-fazil.com`
 > Runtime module: `arifos_aaa_mcp`
-> Version: `2026.2.23`
+> Version: `2026.2.25`
 
 ## Runtime profile
 
