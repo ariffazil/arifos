@@ -26,7 +26,15 @@ def check_fastmcp_version() -> int:
 
 
 def main() -> None:
-    mode = (sys.argv[1] if len(sys.argv) > 1 else "sse").lower()
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="arifOS MCP server")
+    parser.add_argument("mode", nargs="?", default="sse", choices=["stdio", "sse", "http", "rest"])
+    parser.add_argument("--host", default=None, help="Host to bind (for sse/http)")
+    parser.add_argument("--port", type=int, default=None, help="Port to bind (for sse/http)")
+    
+    args, _ = parser.parse_known_args()
+    mode = args.mode.lower()
 
     if mode == "rest":
         from aaa_mcp.rest import main as rest_main
@@ -34,16 +42,20 @@ def main() -> None:
         rest_main()
         return
 
-    if mode not in {"stdio", "sse", "http"}:
-        raise SystemExit(2)
-
     # Kept for contract tests + runtime sanity checks.
     _ = check_fastmcp_version()
 
     from aaa_mcp.server import create_unified_mcp_server
 
     mcp = create_unified_mcp_server()
-    mcp.run(transport=mode)
+    
+    run_kwargs = {"transport": mode}
+    if args.host is not None:
+        run_kwargs["host"] = args.host
+    if args.port is not None:
+        run_kwargs["port"] = args.port
+        
+    mcp.run(**run_kwargs)
 
 
 if __name__ == "__main__":
