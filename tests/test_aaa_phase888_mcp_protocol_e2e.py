@@ -14,7 +14,6 @@ import json
 
 from fastmcp.client.client import Client as FastMCPClient
 
-
 EXPECTED_13 = {
     "anchor_session",
     "reason_mind",
@@ -66,7 +65,9 @@ def _assert_envelope(payload: Dict[str, Any]) -> None:
     assert "data" in payload
 
 
-async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(aaa_client: FastMCPClient) -> None:
+async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
+    aaa_client: FastMCPClient,
+) -> None:
     client = aaa_client
     tools = await client.list_tools()
     tool_names = {t.name for t in tools}
@@ -186,9 +187,7 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(aaa_c
     _assert_envelope(fetch)
 
     fs = _unwrap(
-        await client.call_tool(
-            "inspect_file", arguments={"path": ".", "depth": 1, "max_files": 5}
-        )
+        await client.call_tool("inspect_file", arguments={"path": ".", "depth": 1, "max_files": 5})
     )
     _assert_envelope(fs)
 

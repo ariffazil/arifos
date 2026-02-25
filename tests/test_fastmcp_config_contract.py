@@ -12,7 +12,9 @@ def test_fastmcp_json_exists_and_is_valid_json() -> None:
 
     config = json.loads(config_path.read_text(encoding="utf-8"))
     assert isinstance(config, dict)
-    assert config.get("$schema", "").startswith("https://gofastmcp.com/public/schemas/fastmcp.json/")
+    assert config.get("$schema", "").startswith(
+        "https://gofastmcp.com/public/schemas/fastmcp.json/"
+    )
 
 
 def test_fastmcp_json_has_required_sections() -> None:

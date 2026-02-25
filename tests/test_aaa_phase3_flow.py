@@ -10,7 +10,6 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-
 ROOT = Path(__file__).resolve().parents[1]
 SERVER_FILE = ROOT / "arifos_aaa_mcp" / "server.py"
 
@@ -28,7 +27,11 @@ def test_phase3_contains_000_to_999_public_tools() -> None:
         if not isinstance(node, ast.AsyncFunctionDef):
             continue
         for dec in node.decorator_list:
-            if isinstance(dec, ast.Call) and isinstance(dec.func, ast.Attribute) and dec.func.attr == "tool":
+            if (
+                isinstance(dec, ast.Call)
+                and isinstance(dec.func, ast.Attribute)
+                and dec.func.attr == "tool"
+            ):
                 names.add(node.name)
 
     for required in ("anchor_session", "reason_mind", "simulate_heart", "judge_soul", "seal_vault"):

@@ -18,7 +18,6 @@ from aaa_mcp import (
     vault_seal,
 )
 
-
 CANONICAL_TOOLS = {
     "init_session": init_session,
     "agi_cognition": agi_cognition,

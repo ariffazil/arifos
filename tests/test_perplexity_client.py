@@ -47,7 +47,9 @@ class _FakeAsyncClient:
         return _FakeResponse(self._payload)
 
 
-async def test_perplexity_client_uses_citations_when_available(monkeypatch: pytest.MonkeyPatch) -> None:
+async def test_perplexity_client_uses_citations_when_available(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setenv("PPLX_API_KEY", "test-key")
     payload = {
         "citations": ["https://example.com/a", "https://example.com/b"],
@@ -56,7 +58,9 @@ async def test_perplexity_client_uses_citations_when_available(monkeypatch: pyte
 
     import aaa_mcp.external_gateways.perplexity_client as mod
 
-    monkeypatch.setattr(mod.httpx, "AsyncClient", lambda **kwargs: _FakeAsyncClient(payload, **kwargs))
+    monkeypatch.setattr(
+        mod.httpx, "AsyncClient", lambda **kwargs: _FakeAsyncClient(payload, **kwargs)
+    )
 
     client = PerplexitySearchClient()
     result = await client.search("arifOS")
@@ -74,7 +78,9 @@ async def test_perplexity_client_bad_json_content(monkeypatch: pytest.MonkeyPatc
 
     import aaa_mcp.external_gateways.perplexity_client as mod
 
-    monkeypatch.setattr(mod.httpx, "AsyncClient", lambda **kwargs: _FakeAsyncClient(payload, **kwargs))
+    monkeypatch.setattr(
+        mod.httpx, "AsyncClient", lambda **kwargs: _FakeAsyncClient(payload, **kwargs)
+    )
 
     client = PerplexitySearchClient()
     result = await client.search("arifOS")

@@ -30,7 +30,9 @@ async def test_phase5_chain_000_to_999_with_envelopes() -> None:
     heart = await aaa.simulate_heart(query="verify impact", session_id=session_id)
     _assert_envelope(heart)
 
-    critique = await aaa.critique_thought(plan={"query": "verify", "risk": "medium"}, session_id=session_id)
+    critique = await aaa.critique_thought(
+        plan={"query": "verify", "risk": "medium"}, session_id=session_id
+    )
     _assert_envelope(critique)
 
     judge = await aaa.judge_soul(

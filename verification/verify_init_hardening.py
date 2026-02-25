@@ -35,7 +35,7 @@ async def verify_init_hardening():
         print("❌ FAIL: 'governance' object missing from data.")
         return False
 
-    print(f"✅ Governance object found.")
+    print("✅ Governance object found.")
 
     # 2. Verify Metrics
     if gov.get("total_floors") != 13:
@@ -60,7 +60,7 @@ async def verify_init_hardening():
         print("❌ FAIL: 'pipeline' object missing from data.")
         return False
 
-    print(f"✅ Pipeline object found.")
+    print("✅ Pipeline object found.")
     print(f"   - Stage: {pipe.get('stage')}")
     print(f"   - Next: {pipe.get('next_stage')}")
 

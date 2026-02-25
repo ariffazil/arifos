@@ -3,18 +3,18 @@
 **Scope:** The Interface & Tools
 **Target:** `arifos.mcp.*`
 
-This directory tests the **5-Tool Trinity** exposed to external agents:
+This directory tests the **governance spine tools** exposed to external agents:
 
-1.  **`000_init`**:
+1.  **`anchor_session`**:
     *   Session ignition.
     *   Authority validation (F11).
     *   Injection defense (F12).
 
-2.  **`agi_genius` (Mind)**:
+2.  **`reason_mind` (Mind)**:
     *   Reasoning chains (SENSE/THINK/ATLAS).
     *   Truth threshold verification (F2).
 
-3.  **`asi_act` (Heart)**:
+3.  **`simulate_heart` (Heart)**:
     *   Empathy checks (F6).
     *   Safety gates (F5 Peace²).
 
@@ -22,7 +22,7 @@ This directory tests the **5-Tool Trinity** exposed to external agents:
     *   Final verdict rendering (SEAL/VOID).
     *   Cryptographic sealing checks.
 
-5.  **`999_vault`**:
+5.  **`seal_vault`**:
     *   Immutable ledger writing.
     *   Audit trail verification.
 
@@ -30,3 +30,7 @@ This directory tests the **5-Tool Trinity** exposed to external agents:
 ```bash
 pytest -m mcp
 ```
+
+Alias compatibility expectations:
+- `judge_soul` should resolve to `apex_judge`
+- `forge_hand` should resolve to `eureka_forge`

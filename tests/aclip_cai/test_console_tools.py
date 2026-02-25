@@ -311,10 +311,14 @@ async def test_forge_guard_low_risk():
         mock_health.return_value = {
             "status": "SEAL",
             "cpu": {"percent": 10.0},
-            "memory": {"percent": 10.0}
+            "memory": {"percent": 10.0},
         }
         result = await forge_guard(
-            action="read", target="/tmp/test", session_id="test-session", risk_level="low", dry_run=True
+            action="read",
+            target="/tmp/test",
+            session_id="test-session",
+            risk_level="low",
+            dry_run=True,
         )
 
     assert result.tool == "forge_guard"

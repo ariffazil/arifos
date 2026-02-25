@@ -95,7 +95,16 @@ async def test_mcp_response_structure():
     result = await fn()
 
     # Required fields for governed MCPResponse envelope
-    required_fields = ["tool", "verdict", "pass_rate", "data", "recommendation", "failed_floors", "timestamp", "motto"]
+    required_fields = [
+        "tool",
+        "verdict",
+        "pass_rate",
+        "data",
+        "recommendation",
+        "failed_floors",
+        "timestamp",
+        "motto",
+    ]
     for field in required_fields:
         assert field in result, f"Missing field: {field}"
 

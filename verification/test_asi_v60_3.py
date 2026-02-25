@@ -4,7 +4,7 @@ import sys
 # Add root to path
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from core.shared.physics import Stakeholder, identify_stakeholders, kappa_r
+from core.shared.physics import identify_stakeholders, kappa_r
 
 
 def test_asi():
