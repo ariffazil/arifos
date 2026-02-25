@@ -17,14 +17,9 @@ from __future__ import annotations
 import hashlib
 import json
 import math
-from dataclasses import asdict
-from typing import Any, Dict, Iterable, List, Optional, Tuple, cast
+from collections.abc import Iterable
+from typing import Any
 
-from codebase.enforcement import (
-    validate_f10_ontology,
-    validate_f12_injection_defense,
-    validate_f13_curiosity,
-)
 from codebase.constants import (
     DELTA_S_THRESHOLD,
     KAPPA_R_THRESHOLD,
@@ -32,13 +27,17 @@ from codebase.constants import (
     OMEGA_0_MIN,
     PEACE_SQUARED_THRESHOLD,
     TRI_WITNESS_THRESHOLD,
-    TRUTH_THRESHOLD,
     FloorsVerdict,
     get_lane_truth_threshold,
 )
+from codebase.enforcement import (
+    validate_f10_ontology,
+    validate_f12_injection_defense,
+    validate_f13_curiosity,
+)
+from codebase.floors import FloorScores, extract_dials
 
 from .types import ApexVerdict, FloorCheckResult, Metrics, Verdict
-from codebase.floors import FloorScores, extract_dials
 
 APEX_VERSION = "v55.5-HARDENED"
 APEX_EPOCH = 55
@@ -93,7 +92,7 @@ def _sha256_hex(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _phoenix_tier_for(verdict: Verdict, genius_index: float) -> Dict[str, Any]:
+def _phoenix_tier_for(verdict: Verdict, genius_index: float) -> dict[str, Any]:
     """Assign Phoenix-72 cooling tier (L0-L5) as metadata."""
     if verdict == Verdict.SEAL:
         if genius_index >= 0.85:
@@ -187,7 +186,7 @@ class APEXPrime:
             anti_hantu=anti_hantu,
         )
 
-    def _floor_results_from_metrics(self, metrics: Metrics, lane: str) -> List[FloorCheckResult]:
+    def _floor_results_from_metrics(self, metrics: Metrics, lane: str) -> list[FloorCheckResult]:
         truth_threshold = get_lane_truth_threshold(lane)
         return [
             FloorCheckResult(
@@ -258,8 +257,8 @@ class APEXPrime:
         """Evaluate floor pass/fail from a Metrics object."""
         truth_threshold = get_lane_truth_threshold(lane)
 
-        failed: List[str] = []
-        warnings: List[str] = []
+        failed: list[str] = []
+        warnings: list[str] = []
 
         # Hard Floors
         if float(metrics.truth) < truth_threshold:
@@ -312,8 +311,8 @@ class APEXPrime:
         lane: str = "SOFT",
         query: str = "",
         response: str = "",
-        user_id: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None,
+        user_id: str | None = None,
+        context: dict[str, Any] | None = None,
         eye_blocking: bool = False,
     ) -> ApexVerdict:
         """Issue an ApexVerdict (3-State) from Metrics."""
@@ -371,13 +370,13 @@ class APEXPrime:
         self,
         query: str,
         response: str,
-        agi_results: List[Any],
-        asi_results: List[Any],
-        user_id: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None,
+        agi_results: list[Any],
+        asi_results: list[Any],
+        user_id: str | None = None,
+        context: dict[str, Any] | None = None,
     ) -> ApexVerdict:
         """Stage 888: 3-State Verdict Logic (SEAL, SABAR, VOID)."""
-        ctx: Dict[str, Any] = dict(context or {})
+        ctx: dict[str, Any] = dict(context or {})
 
         # 1. Metrics & Hard/Soft Checks
         metrics = self._metrics_from_floor_results(agi_results, asi_results)
@@ -472,10 +471,10 @@ class APEXPrime:
         verdict: Verdict,
         query: str,
         response: str,
-        user_id: Optional[str],
+        user_id: str | None,
         metrics: Metrics,
         reason: str,
-        sub_verdict: Optional[str],
+        sub_verdict: str | None,
         is_p_truth_fail: bool,
     ) -> ApexVerdict:
         """Helper to construct ApexVerdict with proper genius calculation."""
@@ -542,11 +541,11 @@ def apex_review(
     query: str,
     response: str,
     lane: str = "SOFT",
-    user_id: Optional[str] = None,
+    user_id: str | None = None,
     metrics: Metrics,
-    context: Optional[Dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
     eye_blocking: bool = False,
-    high_stakes: Optional[bool] = None,
+    high_stakes: bool | None = None,
 ) -> ApexVerdict:
     """Legacy wrapper: judge a response using Metrics (v52-compatible signature)."""
     hs = bool(high_stakes) if high_stakes is not None else (lane.upper() == "HARD")

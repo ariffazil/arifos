@@ -4,9 +4,10 @@ Shared types to prevent circular dependencies.
 """
 
 from __future__ import annotations
+
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class Verdict(Enum):
@@ -36,7 +37,7 @@ class Metrics:
     tri_witness: float = 0.95
     rasa: bool = True
     anti_hantu: bool = True
-    psi: Optional[float] = 1.0
+    psi: float | None = 1.0
 
 
 @dataclass
@@ -50,7 +51,7 @@ class FloorCheckResult:
     passed: bool
     is_hard: bool = True
     reason: str = ""
-    details: Dict[str, Any] = field(default_factory=dict)
+    details: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -60,14 +61,14 @@ class ApexVerdict:
     verdict: Verdict
     pulse: float = 1.0
     reason: str = ""
-    violated_floors: List[str] = field(default_factory=list)
-    compass_alignment: Dict[str, bool] = field(default_factory=dict)
-    genius_stats: Dict[str, float] = field(default_factory=dict)
-    proof_hash: Optional[str] = None
-    cooling_metadata: Optional[Dict[str, Any]] = None
-    sub_verdict: Optional[str] = None  # Nuance (e.g. "CONDITIONAL", "PHOENIX_HOLD")
+    violated_floors: list[str] = field(default_factory=list)
+    compass_alignment: dict[str, bool] = field(default_factory=dict)
+    genius_stats: dict[str, float] = field(default_factory=dict)
+    proof_hash: str | None = None
+    cooling_metadata: dict[str, Any] | None = None
+    sub_verdict: str | None = None  # Nuance (e.g. "CONDITIONAL", "PHOENIX_HOLD")
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "verdict": self.verdict.value,
             "sub_verdict": self.sub_verdict,

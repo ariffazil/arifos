@@ -32,7 +32,6 @@ from core.kernel.mcp_transport_kernel import (
     normalize_validate_result,
 )
 
-
 CANONICAL_TOOL_TO_LEGACY: dict[str, str] = {
     "anchor_session": "anchor",
     "reason_mind": "reason",

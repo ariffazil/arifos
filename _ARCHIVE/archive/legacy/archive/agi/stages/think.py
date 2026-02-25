@@ -34,12 +34,12 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
 from enum import Enum
-import hashlib
+from typing import Any
 
 from codebase.bundles import Hypothesis
-from .sense import SenseOutput, Intent, FactType
+
+from .sense import FactType, Intent, SenseOutput
 
 # =============================================================================
 # CONSTANTS
@@ -88,12 +88,12 @@ class ThinkOutput:
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     # Input reference
-    sense_output: Optional[SenseOutput] = None
+    sense_output: SenseOutput | None = None
 
     # The three hypotheses
-    conservative: Optional[Hypothesis] = None
-    exploratory: Optional[Hypothesis] = None
-    adversarial: Optional[Hypothesis] = None
+    conservative: Hypothesis | None = None
+    exploratory: Hypothesis | None = None
+    adversarial: Hypothesis | None = None
 
     # F7 Humility: Confidence capped at 0.95
     confidence_cap_applied: bool = False
@@ -104,10 +104,10 @@ class ThinkOutput:
 
     # Stage verdict
     stage_pass: bool = True
-    violations: List[str] = field(default_factory=list)
+    violations: list[str] = field(default_factory=list)
 
     @property
-    def hypotheses(self) -> List[Hypothesis]:
+    def hypotheses(self) -> list[Hypothesis]:
         """Return all hypotheses as a list (for DeltaBundle)."""
         result = []
         if self.conservative:
@@ -118,7 +118,7 @@ class ThinkOutput:
             result.append(self.adversarial)
         return result
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "timestamp": self.timestamp.isoformat(),
@@ -144,7 +144,7 @@ class ThinkOutput:
 
 
 def generate_conservative_hypothesis(
-    sense: SenseOutput, context: Optional[Dict[str, Any]] = None
+    sense: SenseOutput, context: dict[str, Any] | None = None
 ) -> Hypothesis:
     """
     Generate CONSERVATIVE hypothesis: Safe, proven approach.
@@ -168,13 +168,13 @@ def generate_conservative_hypothesis(
         content += "Follow existing codebase conventions. "
         content += "Start with minimal viable implementation, extend as needed."
     elif intent == Intent.DEBUG:
-        content = f"Apply systematic debugging: Check logs first, verify inputs, "
+        content = "Apply systematic debugging: Check logs first, verify inputs, "
         content += "isolate the failing component, test fixes incrementally."
     elif intent == Intent.EXPLAIN:
-        content = f"Provide clear, step-by-step explanation using established terminology. "
+        content = "Provide clear, step-by-step explanation using established terminology. "
         content += "Reference official documentation where applicable."
     elif intent == Intent.REVIEW:
-        content = f"Conduct methodical review: Check against coding standards, "
+        content = "Conduct methodical review: Check against coding standards, "
         content += "verify test coverage, review edge cases, check security implications."
     else:
         content = f"Address the query using proven methods: {sense.raw_query[:100]}"
@@ -195,7 +195,7 @@ def generate_conservative_hypothesis(
 
 
 def generate_exploratory_hypothesis(
-    sense: SenseOutput, context: Optional[Dict[str, Any]] = None
+    sense: SenseOutput, context: dict[str, Any] | None = None
 ) -> Hypothesis:
     """
     Generate EXPLORATORY hypothesis: Novel approach.
@@ -216,13 +216,13 @@ def generate_exploratory_hypothesis(
         content += "Explore modern patterns or emerging techniques. "
         content += "Consider whether this could be solved differently than usual."
     elif intent == Intent.DEBUG:
-        content = f"Look for non-obvious causes: Could this be an environment issue? "
+        content = "Look for non-obvious causes: Could this be an environment issue? "
         content += "Race condition? Hidden dependency? Consider unconventional diagnostics."
     elif intent == Intent.EXPLAIN:
-        content = f"Use analogies and alternative framings. "
+        content = "Use analogies and alternative framings. "
         content += "Connect to related concepts the user might find illuminating."
     elif intent == Intent.REVIEW:
-        content = f"Look beyond immediate issues: Consider scalability, "
+        content = "Look beyond immediate issues: Consider scalability, "
         content += "maintainability, and potential future requirements."
     else:
         content = f"Explore alternative framings: {sense.raw_query[:100]}. "
@@ -242,7 +242,7 @@ def generate_exploratory_hypothesis(
 
 
 def generate_adversarial_hypothesis(
-    sense: SenseOutput, context: Optional[Dict[str, Any]] = None
+    sense: SenseOutput, context: dict[str, Any] | None = None
 ) -> Hypothesis:
     """
     Generate ADVERSARIAL hypothesis: Stress-test, find holes.
@@ -259,17 +259,17 @@ def generate_adversarial_hypothesis(
 
     # Build adversarial content
     if intent == Intent.BUILD:
-        content = f"Challenge: What could go wrong with this approach? "
-        content += f"Consider: Invalid inputs, performance issues, security holes, "
+        content = "Challenge: What could go wrong with this approach? "
+        content += "Consider: Invalid inputs, performance issues, security holes, "
         content += "edge cases, maintenance burden."
     elif intent == Intent.DEBUG:
-        content = f"Question the problem statement: Is this actually a bug? "
+        content = "Question the problem statement: Is this actually a bug? "
         content += "Could this be expected behavior? Is the test wrong?"
     elif intent == Intent.EXPLAIN:
-        content = f"Anticipate misunderstandings: What might confuse the reader? "
+        content = "Anticipate misunderstandings: What might confuse the reader? "
         content += "What assumptions might they bring that could mislead them?"
     elif intent == Intent.REVIEW:
-        content = f"Devil's advocate: What are we missing? "
+        content = "Devil's advocate: What are we missing? "
         content += "Where could this fail under load? What's the worst case?"
     else:
         content = f"Critical lens: {sense.raw_query[:100]}. "
@@ -292,7 +292,7 @@ def generate_adversarial_hypothesis(
 # =============================================================================
 
 
-def compute_diversity_score(hypotheses: List[Hypothesis]) -> float:
+def compute_diversity_score(hypotheses: list[Hypothesis]) -> float:
     """
     Compute diversity score for F13 Curiosity check.
 
@@ -329,7 +329,7 @@ def compute_diversity_score(hypotheses: List[Hypothesis]) -> float:
     return 0.0
 
 
-def apply_humility_cap(hypothesis: Hypothesis) -> Tuple[Hypothesis, bool]:
+def apply_humility_cap(hypothesis: Hypothesis) -> tuple[Hypothesis, bool]:
     """
     Apply F7 Humility cap: confidence must be ≤ 0.95.
 
@@ -358,8 +358,8 @@ def apply_humility_cap(hypothesis: Hypothesis) -> Tuple[Hypothesis, bool]:
 def execute_stage_222(
     sense_output: SenseOutput,
     session_id: str,
-    context: Optional[Dict[str, Any]] = None,
-    hypothesis_mode: Optional[str] = None,
+    context: dict[str, Any] | None = None,
+    hypothesis_mode: str | None = None,
 ) -> ThinkOutput:
     """
     Execute Stage 222: THINK

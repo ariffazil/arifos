@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
 
 # SHA256 hash of empty data (for padding)
 EMPTY_HASH = hashlib.sha256(b"").hexdigest()
@@ -49,7 +48,7 @@ class IncrementalMerkleTree:
     - Propagate up, updating frontier
     """
 
-    frontier: List[str] = field(default_factory=list)
+    frontier: list[str] = field(default_factory=list)
     leaf_count: int = 0
 
     def append(self, leaf_hash: str) -> str:
@@ -94,7 +93,7 @@ class IncrementalMerkleTree:
 
         return result
 
-    def get_proof(self, leaf_index: int, leaf_hash: str) -> List[Tuple[str, bool]]:
+    def get_proof(self, leaf_index: int, leaf_hash: str) -> list[tuple[str, bool]]:
         """
         ⚠️  DEV/UNSAFE: This proof method is NOT cryptographically secure.
 
@@ -148,7 +147,7 @@ class IncrementalMerkleTree:
         }
 
     @classmethod
-    def from_dict(cls, data: dict) -> "IncrementalMerkleTree":
+    def from_dict(cls, data: dict) -> IncrementalMerkleTree:
         """Deserialize from dict."""
         return cls(
             frontier=data.get("frontier", []),
@@ -184,7 +183,7 @@ class PersistentMerkleState:
         }
 
     @classmethod
-    def from_json(cls, data: dict) -> "PersistentMerkleState":
+    def from_json(cls, data: dict) -> PersistentMerkleState:
         """Deserialize from JSONB."""
         tree_data = data.get("merkle_tree", {})
         return cls(
@@ -204,7 +203,7 @@ def get_merkle_state(ledger_id: str = "default") -> PersistentMerkleState:
     return _merkle_cache[ledger_id]
 
 
-def clear_merkle_cache(ledger_id: Optional[str] = None):
+def clear_merkle_cache(ledger_id: str | None = None):
     """Clear Merkle cache (for testing or reset)."""
     global _merkle_cache
     if ledger_id:

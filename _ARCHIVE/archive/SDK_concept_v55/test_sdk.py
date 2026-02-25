@@ -8,7 +8,6 @@ Run with: pytest test_sdk.py -v
 Version: v55.3-L5-alpha
 """
 
-import asyncio
 
 import pytest
 from sdk import (
@@ -16,7 +15,6 @@ from sdk import (
     AskResponse,
     ReflectResponse,
     ResponseStatus,
-    Session,
     Verdict,
     ask,
 )

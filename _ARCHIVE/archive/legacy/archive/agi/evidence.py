@@ -22,14 +22,12 @@ DITEMPA BUKAN DIBERI - Forged, Not Given
 
 from __future__ import annotations
 
-import asyncio
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional, Tuple
-from datetime import datetime
 import re
-import math
+from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Any
 
-from codebase.agi.stages.sense import SenseOutput, ParsedFact, FactType
+from codebase.agi.stages.sense import FactType, ParsedFact, SenseOutput
 
 
 def estimate_precision(confidence: float) -> float:
@@ -74,7 +72,7 @@ class EvidenceBundle:
 
     query: str
     source: str  # "web", "arxiv", "news", "peer_review"
-    facts: List[ParsedFact]
+    facts: list[ParsedFact]
     confidence: float  # Overall confidence of this bundle
     precision: float = field(init=False)  # PRECISION: Inverse variance (v53)
     retrieved_at: datetime = field(default_factory=datetime.utcnow)
@@ -83,7 +81,7 @@ class EvidenceBundle:
         """Calculate precision from confidence on initialization"""
         self.precision = estimate_precision(self.confidence)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "query": self.query,
             "source": self.source,
@@ -109,11 +107,11 @@ class EvidenceKernel:
 
     def __init__(self, session_id: str):
         self.session_id = session_id
-        self.evidence_registry: List[EvidenceBundle] = []
+        self.evidence_registry: list[EvidenceBundle] = []
         self.total_facts_injected = 0
 
     def inject_live_evidence(
-        self, sense_output: SenseOutput, query: str, context: Optional[Dict[str, Any]] = None
+        self, sense_output: SenseOutput, query: str, context: dict[str, Any] | None = None
     ) -> SenseOutput:
         """
         Main entry point: Execute parallel searches and inject facts
@@ -156,8 +154,8 @@ class EvidenceKernel:
         return sense_output
 
     def _build_asean_biased_queries(
-        self, query: str, context: Optional[Dict]
-    ) -> List[Dict[str, Any]]:
+        self, query: str, context: dict | None
+    ) -> list[dict[str, Any]]:
         """
         Build ASEAN/Malaysia-biased search queries
 
@@ -186,7 +184,7 @@ class EvidenceKernel:
             },
         ]
 
-    def _execute_parallel_searches(self, search_queries: List[Dict]) -> List[EvidenceBundle]:
+    def _execute_parallel_searches(self, search_queries: list[dict]) -> list[EvidenceBundle]:
         """
         Execute MCP searches sequentially (simplified for v52.6.0)
 
@@ -209,7 +207,7 @@ class EvidenceKernel:
 
     def _search_and_extract(
         self, query: str, source: str, priority: float
-    ) -> Optional[EvidenceBundle]:
+    ) -> EvidenceBundle | None:
         """
         Execute MCP search and extract structured facts
 
@@ -239,7 +237,7 @@ class EvidenceKernel:
             print(f"[EvidenceKernel] Search failed for '{query}': {e}")
             return None
 
-    def _mcp_search_web(self, query: str, source: str) -> List[Dict[str, Any]]:
+    def _mcp_search_web(self, query: str, source: str) -> list[dict[str, Any]]:
         """
         Simulate MCP web search integration
 
@@ -284,8 +282,8 @@ class EvidenceKernel:
             ]
 
     def _extract_facts_from_search(
-        self, search_results: List[Dict], query: str, source: str
-    ) -> List[ParsedFact]:
+        self, search_results: list[dict], query: str, source: str
+    ) -> list[ParsedFact]:
         """Extract structured facts from search result snippets"""
         facts = []
 
@@ -324,7 +322,7 @@ class EvidenceKernel:
 
         return facts
 
-    def _compute_confidence(self, facts: List[ParsedFact], source: str, priority: float) -> float:
+    def _compute_confidence(self, facts: list[ParsedFact], source: str, priority: float) -> float:
         """Compute overall confidence for this evidence bundle"""
         if not facts:
             return 0.0
@@ -345,7 +343,7 @@ class EvidenceKernel:
 
         return min(confidence, 0.99)  # Cap at 0.99
 
-    def get_evidence_summary(self) -> Dict[str, Any]:
+    def get_evidence_summary(self) -> dict[str, Any]:
         """Get summary of all evidence injected"""
         return {
             "session_id": self.session_id,
@@ -361,7 +359,7 @@ class EvidenceKernel:
 
 
 # Global evidence kernel registry
-_evidence_kernels: Dict[str, EvidenceKernel] = {}
+_evidence_kernels: dict[str, EvidenceKernel] = {}
 
 
 def get_evidence_kernel(session_id: str) -> EvidenceKernel:

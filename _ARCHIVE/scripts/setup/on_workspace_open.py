@@ -8,7 +8,6 @@ arifOS IDE-Agnostic Auto-Bootstrap Script
 - Safe to run on every workspace/session open (idempotent)
 """
 
-import os
 import subprocess
 import sys
 from pathlib import Path

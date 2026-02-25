@@ -3,14 +3,15 @@ Stage 666: Bridge - Neuro-Symbolic Synthesis logic.
 """
 
 import logging
-from typing import Any, Dict
-from codebase.engines.bridge.neuro_symbolic_bridge import NeuroSymbolicBridgeNative
+from typing import Any
+
 from codebase.bundle_store import get_store
+from codebase.engines.bridge.neuro_symbolic_bridge import NeuroSymbolicBridgeNative
 
 logger = logging.getLogger(__name__)
 
 
-async def execute_bridge_stage(session_id: str) -> Dict[str, Any]:
+async def execute_bridge_stage(session_id: str) -> dict[str, Any]:
     """
     Metabolic Stage 666: Bridge.
     Fuses isolated AGI and ASI bundles from the store.

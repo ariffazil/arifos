@@ -70,9 +70,9 @@ def main():
     # Generate genesis hash
     genesis_hash = generate_genesis_hash()
 
-    print(f"\n✅ Genesis Hash Generated:")
+    print("\n✅ Genesis Hash Generated:")
     print(f"   {genesis_hash}")
-    print(f"\nSet in Railway environment variables:")
+    print("\nSet in Railway environment variables:")
     print(f"   ARIFOS_GENESIS_HASH={genesis_hash}")
 
     # Initialize cooling ledger
@@ -87,7 +87,7 @@ def main():
     with open(output_path, "w") as f:
         json.dump(cooling_ledger, f, indent=2)
 
-    print(f"\n✅ Cooling ledger initialized:")
+    print("\n✅ Cooling ledger initialized:")
     print(f"   {output_path}")
     print(f"   Users: {len(cooling_ledger['users'])}")
     print(f"   Tiers: {len(cooling_ledger['cooling_tiers'])}")

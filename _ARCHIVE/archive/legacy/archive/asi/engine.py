@@ -27,13 +27,12 @@ from __future__ import annotations
 
 import time
 import uuid
-import asyncio
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 # Bundles
-from codebase.bundles import OmegaBundle, ASIFloorScores, EngineVote, Stakeholder
+from codebase.bundles import ASIFloorScores, EngineVote, OmegaBundle, Stakeholder
 
 # =============================================================================
 # 3 TRINITIES - 9 ELEMENTS ARCHITECTURE
@@ -57,7 +56,7 @@ class TrinitySelf:
     is_reversible: bool = True  # Element 3
     scar_weight: float = 1.0  # Human can suffer
 
-    def validate(self) -> Tuple[bool, List[str]]:
+    def validate(self) -> tuple[bool, list[str]]:
         """Validate Self Trinity."""
         violations = []
         if self.empathy_kappa_r < 0.95:
@@ -85,7 +84,7 @@ class TrinitySystem:
     audit_trail: bool = True  # Element 5
     authority_verified: bool = True  # Element 6
 
-    def validate(self) -> Tuple[bool, List[str]]:
+    def validate(self) -> tuple[bool, list[str]]:
         """Validate System Trinity."""
         violations = []
         if self.peace_squared < 1.0:
@@ -113,7 +112,7 @@ class TrinitySociety:
     entropy_delta: float = 0.0  # Element 8 (ΔS ≥ 0)
     earth_witness: bool = True  # Element 9
 
-    def validate(self) -> Tuple[bool, List[str]]:
+    def validate(self) -> tuple[bool, list[str]]:
         """Validate Society Trinity."""
         violations = []
         if not self.weakest_protected:
@@ -137,7 +136,7 @@ class CircuitBreaker:
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.failure_count = 0
-        self.last_failure_time: Optional[float] = None
+        self.last_failure_time: float | None = None
         self.state = "CLOSED"
 
     def can_execute(self) -> bool:
@@ -168,7 +167,7 @@ class SessionManager:
     """ASI session lifecycle management with TTL."""
 
     def __init__(self, ttl_seconds: float = 3600.0):
-        self._sessions: Dict[str, Dict[str, Any]] = {}
+        self._sessions: dict[str, dict[str, Any]] = {}
         self._ttl = ttl_seconds
 
     def get_or_create(self, session_id: str) -> ASIEngine:
@@ -216,14 +215,14 @@ class ASIResult:
     trinity_society: TrinitySociety = field(default_factory=TrinitySociety)
 
     # Metrics
-    stakeholders: List[Dict[str, Any]] = field(default_factory=list)
+    stakeholders: list[dict[str, Any]] = field(default_factory=list)
     weakest_stakeholder: str = ""
 
     # Status
     success: bool = True
     error: str = ""
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "execution_time_ms": self.execution_time_ms,
@@ -267,13 +266,13 @@ class ASIEngine:
       666 ALIGN   → Trinity II (System) + Trinity III (Society)
     """
 
-    def __init__(self, session_id: Optional[str] = None):
+    def __init__(self, session_id: str | None = None):
         self.session_id = session_id or f"asi_{uuid.uuid4().hex[:12]}"
         self.version = "v53.3.1-TRINITIES"
         self.circuit_breaker = CircuitBreaker()
         self._execution_count = 0
 
-    async def execute(self, query: str, context: Optional[Dict[str, Any]] = None) -> ASIResult:
+    async def execute(self, query: str, context: dict[str, Any] | None = None) -> ASIResult:
         """
         Execute ASI with 3 Trinities validation.
 
@@ -369,7 +368,7 @@ class ASIEngine:
             exec_time_ms = (time.time() - start_time) * 1000
             return self._build_error_result(exec_id, exec_time_ms, str(e))
 
-    async def _execute_trinity_self(self, query: str, context: Dict[str, Any]) -> TrinitySelf:
+    async def _execute_trinity_self(self, query: str, context: dict[str, Any]) -> TrinitySelf:
         """
         TRINITY I: SELF - Elements 1, 2, 3
 
@@ -402,7 +401,7 @@ class ASIEngine:
         )
 
     async def _execute_trinity_system(
-        self, query: str, context: Dict[str, Any], trinity_self: TrinitySelf
+        self, query: str, context: dict[str, Any], trinity_self: TrinitySelf
     ) -> TrinitySystem:
         """
         TRINITY II: SYSTEM - Elements 4, 5, 6
@@ -433,7 +432,7 @@ class ASIEngine:
         )
 
     async def _execute_trinity_society(
-        self, query: str, context: Dict[str, Any], trinity_self: TrinitySelf
+        self, query: str, context: dict[str, Any], trinity_self: TrinitySelf
     ) -> TrinitySociety:
         """
         TRINITY III: SOCIETY - Elements 7, 8, 9
@@ -457,7 +456,7 @@ class ASIEngine:
             earth_witness=earth_witness,
         )
 
-    async def _identify_stakeholders(self, query: str) -> List[Dict[str, Any]]:
+    async def _identify_stakeholders(self, query: str) -> list[dict[str, Any]]:
         """Identify all stakeholders affected by the query."""
         query_lower = query.lower()
         stakeholders = [{"name": "User", "role": "user", "vulnerability": 0.3, "scar_weight": 1.0}]
@@ -492,7 +491,7 @@ class ASIEngine:
 
         return stakeholders
 
-    def _find_weakest(self, stakeholders: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]:
+    def _find_weakest(self, stakeholders: list[dict[str, Any]]) -> dict[str, Any] | None:
         """Find the weakest stakeholder (highest vulnerability * scar_weight)."""
         if not stakeholders:
             return None
@@ -517,7 +516,7 @@ class ASIEngine:
         )
 
     def _build_trinity_failure(
-        self, session_id: str, start_time: float, trinity_name: str, violations: List[str]
+        self, session_id: str, start_time: float, trinity_name: str, violations: list[str]
     ) -> ASIResult:
         exec_time_ms = (time.time() - start_time) * 1000
         bundle = OmegaBundle(
@@ -558,7 +557,7 @@ class ASIEngine:
 
 
 async def execute_asi(
-    query: str, session_id: Optional[str] = None, context: Optional[Dict[str, Any]] = None
+    query: str, session_id: str | None = None, context: dict[str, Any] | None = None
 ) -> OmegaBundle:
     """Execute ASI and return OmegaBundle."""
     engine = _asi_session_manager.get_or_create(session_id or f"asi_{uuid.uuid4().hex[:12]}")
@@ -566,7 +565,7 @@ async def execute_asi(
     return result.omega_bundle
 
 
-def get_asi_engine(session_id: Optional[str] = None) -> ASIEngine:
+def get_asi_engine(session_id: str | None = None) -> ASIEngine:
     """Get ASI Engine instance."""
     return _asi_session_manager.get_or_create(session_id or f"asi_{uuid.uuid4().hex[:12]}")
 

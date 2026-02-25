@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import json
-import sys
-
 
 
 def check_injection(input_data):

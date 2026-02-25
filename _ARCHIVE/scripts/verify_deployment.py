@@ -6,7 +6,6 @@ Checks all deployment files before pushing to Railway.
 
 import os
 import sys
-from pathlib import Path
 
 
 def check_file_exists(path, required=True):
@@ -47,7 +46,7 @@ def verify_deployment():
     # Verify railway.toml content
     print("\n[5] Railway.toml Validation")
     if os.path.exists("railway.toml"):
-        with open("railway.toml", "r") as f:
+        with open("railway.toml") as f:
             content = f.read()
             checks = [
                 ('builder = "DOCKERFILE"', "Builder type"),

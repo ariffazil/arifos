@@ -19,9 +19,9 @@ from __future__ import annotations
 
 import hashlib
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Tuple
 from datetime import datetime
 from enum import Enum
+from typing import Any
 
 
 class HierarchyLevel(Enum):
@@ -46,13 +46,13 @@ class HierarchicalBelief:
     entropy: float  # Local ΔS at this level
 
     # Hierarchical links
-    parent: Optional[str] = None  # Link to level+1
-    children: List[str] = field(default_factory=list)  # Links to level-1
+    parent: str | None = None  # Link to level+1
+    children: list[str] = field(default_factory=list)  # Links to level-1
 
     # Temporal
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "level": self.level.name,
             "content": self.content[:50],  # Truncate for display
@@ -81,9 +81,9 @@ class HierarchicalEncoder:
     }
 
     def __init__(self):
-        self.beliefs: Dict[str, HierarchicalBelief] = {}
+        self.beliefs: dict[str, HierarchicalBelief] = {}
 
-    def encode(self, raw_input: str) -> Dict[HierarchyLevel, HierarchicalBelief]:
+    def encode(self, raw_input: str) -> dict[HierarchyLevel, HierarchicalBelief]:
         """
         Encode raw input through all 5 hierarchical levels.
         """
@@ -202,7 +202,7 @@ class HierarchicalEncoder:
         self.beliefs[self._hash(belief)] = belief
         return belief
 
-    def _extract_phrases(self, text: str) -> List[str]:
+    def _extract_phrases(self, text: str) -> list[str]:
         """Extract syntactic phrases."""
         # Simple extraction - in production use proper NLP
         words = text.split()
@@ -214,7 +214,7 @@ class HierarchicalEncoder:
 
         return phrases
 
-    def _extract_categories(self, text: str) -> List[str]:
+    def _extract_categories(self, text: str) -> list[str]:
         """Extract categorical entities."""
         text_lower = text.lower()
         categories = []
@@ -252,7 +252,7 @@ class HierarchicalEncoder:
         content = f"{belief.level.name}:{belief.content}:{belief.timestamp.isoformat()}"
         return hashlib.sha256(content.encode()).hexdigest()[:16]
 
-    def get_cumulative_delta_s(self, results: Dict[HierarchyLevel, HierarchicalBelief]) -> float:
+    def get_cumulative_delta_s(self, results: dict[HierarchyLevel, HierarchicalBelief]) -> float:
         """Compute cumulative entropy reduction across all levels."""
         total_delta = 0.0
         for level, belief in results.items():
@@ -262,7 +262,7 @@ class HierarchicalEncoder:
         return total_delta
 
     def _get_parent_entropy(
-        self, results: Dict[HierarchyLevel, HierarchicalBelief], level: HierarchyLevel
+        self, results: dict[HierarchyLevel, HierarchicalBelief], level: HierarchyLevel
     ) -> float:
         """Get parent level entropy for delta calculation."""
         if level == HierarchyLevel.PHONETIC:
@@ -278,12 +278,12 @@ class HierarchicalEncoder:
 _hierarchical_encoder = HierarchicalEncoder()
 
 
-def encode_hierarchically(raw_input: str) -> Dict[HierarchyLevel, HierarchicalBelief]:
+def encode_hierarchically(raw_input: str) -> dict[HierarchyLevel, HierarchicalBelief]:
     """Convenience function for hierarchical encoding."""
     return _hierarchical_encoder.encode(raw_input)
 
 
-def get_cumulative_delta_s(results: Dict[HierarchyLevel, HierarchicalBelief]) -> float:
+def get_cumulative_delta_s(results: dict[HierarchyLevel, HierarchicalBelief]) -> float:
     """Convenience function for cumulative entropy calculation."""
     return _hierarchical_encoder.get_cumulative_delta_s(results)
 

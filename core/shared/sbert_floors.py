@@ -466,15 +466,27 @@ if __name__ == "__main__":
     print(f"\nMethod: {results['method']}")
     print(f"Total cases: {results['total']}")
     print("\nAccuracy by Floor:")
-    print(f"  F5 (Peace²):    {results['f5_accuracy']:.1%} ({results['f5_correct']}/{results['total']})")
-    print(f"  F6 (Empathy):   {results['f6_accuracy']:.1%} ({results['f6_correct']}/{results['total']})")
-    print(f"  F9 (Anti-Hantu): {results['f9_accuracy']:.1%} ({results['f9_correct']}/{results['total']})")
+    print(
+        f"  F5 (Peace²):    {results['f5_accuracy']:.1%} ({results['f5_correct']}/{results['total']})"
+    )
+    print(
+        f"  F6 (Empathy):   {results['f6_accuracy']:.1%} ({results['f6_correct']}/{results['total']})"
+    )
+    print(
+        f"  F9 (Anti-Hantu): {results['f9_accuracy']:.1%} ({results['f9_correct']}/{results['total']})"
+    )
     print(f"\nOverall: {results['overall_accuracy']:.1%}")
 
     print("\nDetailed Results:")
     for case in results["cases"]:
         status = "✅" if case["f5_ok"] and case["f6_ok"] and case["f9_ok"] else "❌"
         print(f"\n{status} {case['description']}")
-        print(f"   F5: {case['f5_pred']:.2f} (exp: {case['f5_exp']:.1f}) {'✓' if case['f5_ok'] else '✗'}")
-        print(f"   F6: {case['f6_pred']:.2f} (exp: {case['f6_exp']:.1f}) {'✓' if case['f6_ok'] else '✗'}")
-        print(f"   F9: {case['f9_pred']:.2f} (exp: {case['f9_exp']:.1f}) {'✓' if case['f9_ok'] else '✗'}")
+        print(
+            f"   F5: {case['f5_pred']:.2f} (exp: {case['f5_exp']:.1f}) {'✓' if case['f5_ok'] else '✗'}"
+        )
+        print(
+            f"   F6: {case['f6_pred']:.2f} (exp: {case['f6_exp']:.1f}) {'✓' if case['f6_ok'] else '✗'}"
+        )
+        print(
+            f"   F9: {case['f9_pred']:.2f} (exp: {case['f9_exp']:.1f}) {'✓' if case['f9_ok'] else '✗'}"
+        )

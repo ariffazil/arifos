@@ -18,10 +18,9 @@ Backends:
 DITEMPA BUKAN DIBERI
 """
 
-import asyncio
 import os
 import sys
-from typing import Optional, Any
+from typing import Any
 
 # Force local source priority
 sys.path.insert(0, os.getcwd())
@@ -57,12 +56,12 @@ This is the canonical entry point for arifOS MCP ecosystem.
 )
 
 # Backend clients
-aaa_client: Optional[ClientSession] = None
-aclip_client: Optional[ClientSession] = None
+aaa_client: ClientSession | None = None
+aclip_client: ClientSession | None = None
 
 # Backend stdio contexts (to shut down gracefully if needed)
-aaa_stdio_ctx: Optional[Any] = None
-aclip_stdio_ctx: Optional[Any] = None
+aaa_stdio_ctx: Any | None = None
+aclip_stdio_ctx: Any | None = None
 
 
 async def _attach_backend(command: list[str]) -> tuple[ClientSession, Any]:

@@ -21,20 +21,16 @@ DITEMPA BUKAN DIBERI
 
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
 
 import numpy as np
 
 from .trinity_nine import (
-    TrinityNine,
-    NineFoldBundle,
-    NineParadox,
-    EquilibriumState,
-    EquilibriumSolver,
-    create_nine_paradoxes,
-    EQUILIBRIUM_THRESHOLD,
     BALANCE_TOLERANCE,
+    EQUILIBRIUM_THRESHOLD,
     MIN_PARADOX_SCORE,
+    EquilibriumSolver,
+    EquilibriumState,
+    create_nine_paradoxes,
 )
 
 
@@ -44,13 +40,13 @@ class EquilibriumPoint:
     A discovered equilibrium point in the 9-paradox space.
     """
 
-    coordinates: Dict[str, float]  # Paradox name -> score
+    coordinates: dict[str, float]  # Paradox name -> score
     trinity_score: float
     balance_index: float  # 1.0 = perfect balance
     constitutional_alignment: float  # Average F1-F13 alignment
     stability: float  # Resistance to perturbation
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "coordinates": {k: round(v, 4) for k, v in self.coordinates.items()},
             "trinity_score": round(self.trinity_score, 4),
@@ -87,8 +83,8 @@ class EquilibriumFinder:
         )
 
     def find_nearest_equilibrium(
-        self, current_state: Dict[str, float], max_iterations: int = 1000
-    ) -> Tuple[EquilibriumPoint, List[Dict]]:
+        self, current_state: dict[str, float], max_iterations: int = 1000
+    ) -> tuple[EquilibriumPoint, list[dict]]:
         """
         Find the nearest equilibrium point from current state.
 
@@ -136,8 +132,8 @@ class EquilibriumFinder:
         return point, path
 
     def _equilibrium_step(
-        self, current: Dict[str, float], state: EquilibriumState
-    ) -> Dict[str, float]:
+        self, current: dict[str, float], state: EquilibriumState
+    ) -> dict[str, float]:
         """
         Take one step toward equilibrium.
 
@@ -169,7 +165,7 @@ class EquilibriumFinder:
 
         return new_state
 
-    def _calculate_stability(self, coords: Dict[str, float]) -> float:
+    def _calculate_stability(self, coords: dict[str, float]) -> float:
         """
         Calculate stability of equilibrium point.
 
@@ -189,7 +185,7 @@ class EquilibriumFinder:
 
         return (balance_factor + floor_factor) / 2
 
-    def find_multiple_equilibria(self, n_samples: int = 100) -> List[EquilibriumPoint]:
+    def find_multiple_equilibria(self, n_samples: int = 100) -> list[EquilibriumPoint]:
         """
         Find multiple equilibrium points by random sampling.
 
@@ -218,7 +214,7 @@ class EquilibriumFinder:
 
         return equilibria
 
-    def analyze_equilibrium_landscape(self) -> Dict:
+    def analyze_equilibrium_landscape(self) -> dict:
         """
         Analyze the equilibrium landscape of the 9-paradox system.
 
@@ -259,8 +255,8 @@ class PerturbationAnalyzer:
         self.solver = EquilibriumSolver()
 
     def test_perturbation(
-        self, equilibrium: EquilibriumPoint, perturbation: Dict[str, float]
-    ) -> Dict:
+        self, equilibrium: EquilibriumPoint, perturbation: dict[str, float]
+    ) -> dict:
         """
         Test how equilibrium responds to a perturbation.
 
@@ -290,7 +286,7 @@ class PerturbationAnalyzer:
             "maintained_equilibrium": new_point.balance_index > 0.8,
         }
 
-    def _distance(self, a: Dict[str, float], b: Dict[str, float]) -> float:
+    def _distance(self, a: dict[str, float], b: dict[str, float]) -> float:
         """Euclidean distance between two state vectors."""
         keys = set(a.keys()) | set(b.keys())
         squared_diffs = [(a.get(k, 0) - b.get(k, 0)) ** 2 for k in keys]
@@ -379,7 +375,7 @@ def demonstrate_equilibrium():
     print(f"✓ All 9 paradoxes ≥ {MIN_PARADOX_SCORE}")
     print(f"✓ Geometric mean ≥ {EQUILIBRIUM_THRESHOLD}")
     print(f"✓ Standard deviation ≤ {BALANCE_TOLERANCE}")
-    print(f"✓ Max spread ≤ 0.30")
+    print("✓ Max spread ≤ 0.30")
     print("=" * 70)
 
 

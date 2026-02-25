@@ -32,7 +32,7 @@ import os
 import time
 from dataclasses import asdict, dataclass, field
 from enum import Enum
-from typing import Dict, TypedDict
+from typing import TypedDict
 
 logger = logging.getLogger(__name__)
 
@@ -96,14 +96,14 @@ class DependencyGuard:
         self.max_duration_min = max_duration_min
         self.max_interactions = max_interactions
         self.persistence_path = persistence_path
-        self.sessions: Dict[str, SessionState] = {}
+        self.sessions: dict[str, SessionState] = {}
         self._load_sessions()
 
     def _load_sessions(self):
         """Load sessions from disk."""
         try:
             if os.path.exists(self.persistence_path):
-                with open(self.persistence_path, "r") as f:
+                with open(self.persistence_path) as f:
                     data = json.load(f)
                     for sid, sdata in data.items():
                         # Handle Enum conversion if needed, though string is default in JSON

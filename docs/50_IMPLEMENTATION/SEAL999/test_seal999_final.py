@@ -3,15 +3,13 @@ Final test: Verify SEAL999 works end-to-end
 """
 
 import sys
-import os
-import sys
 
 # Add root to path
 sys.path.insert(0, "C:\\Users\\User\\arifOS")
 
 try:
     # Test import
-    from SEAL999 import SEAL999, VaultEntry, VaultConfig
+    from SEAL999 import SEAL999, VaultConfig, VaultEntry
 
     print("[SUCCESS] Imported SEAL999")
 

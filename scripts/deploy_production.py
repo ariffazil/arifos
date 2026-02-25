@@ -15,7 +15,6 @@ DITEMPA BUKAN DIBERI
 import argparse
 import asyncio
 import json
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -70,9 +69,7 @@ async def validate_environment():
 
     # 2. Core imports
     try:
-        from core.organs import agi, apex, asi, init, vault
         from core.pipeline import forge
-        from core.organs import init, agi, asi, apex, vault
 
         log_ok("Core organs importable")
         checks_passed += 1
@@ -82,7 +79,6 @@ async def validate_environment():
 
     # 3. AAA MCP imports
     try:
-        from aaa_mcp.server import mcp
 
         log_ok("AAA MCP server importable")
         checks_passed += 1

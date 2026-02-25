@@ -33,7 +33,6 @@ DITEMPA BUKAN DIBERI - Forged v53.0-HARDENED
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional
 
 
 class Verdict(str, Enum):
@@ -64,8 +63,8 @@ class PsiVerdict:
     f8_genius: bool
     hypervisor_passed: bool
     passed: bool
-    failures: List[str] = field(default_factory=list)
-    metadata: Dict[str, any] = field(default_factory=dict)
+    failures: list[str] = field(default_factory=list)
+    metadata: dict[str, any] = field(default_factory=dict)
 
     @property
     def reason(self) -> str:
@@ -106,7 +105,7 @@ class PsiKernel:
         omega_verdict,  # OmegaVerdict from ASI kernel
         genius: float,
         hypervisor_passed: bool,
-        hypervisor_failures: List[str],
+        hypervisor_failures: list[str],
     ) -> PsiVerdict:
         """
         Evaluate Trinity + Genius + Hypervisor → Final verdict.
@@ -162,7 +161,7 @@ class PsiKernel:
         )
 
     def _check_f8_genius(
-        self, genius: float, failures: List[str], metadata: Dict[str, any]
+        self, genius: float, failures: list[str], metadata: dict[str, any]
     ) -> bool:
         """Check F8 (Genius)."""
         # Ensure genius is a float
@@ -190,8 +189,8 @@ class PsiKernel:
         omega_verdict,
         f8_passed: bool,
         hypervisor_passed: bool,
-        failures: List[str],
-        metadata: Dict[str, any],
+        failures: list[str],
+        metadata: dict[str, any],
     ) -> Verdict:
         """
         Render final verdict based on hierarchy.
@@ -278,7 +277,7 @@ def render_apex_verdict(
     omega_verdict,
     genius: float = 0.85,
     hypervisor_passed: bool = True,
-    hypervisor_failures: List[str] = None,
+    hypervisor_failures: list[str] = None,
 ) -> PsiVerdict:
     """
     Convenience function to render APEX verdict.
@@ -339,8 +338,8 @@ class PsiVerdict:
     f8_genius: bool
     hypervisor_passed: bool
     passed: bool
-    failures: List[str] = field(default_factory=list)
-    metadata: Dict[str, any] = field(default_factory=dict)
+    failures: list[str] = field(default_factory=list)
+    metadata: dict[str, any] = field(default_factory=dict)
 
     @property
     def reason(self) -> str:
@@ -398,7 +397,7 @@ class PsiKernel:
         omega_verdict,  # OmegaVerdict from ASI kernel
         genius: float,
         hypervisor_passed: bool,
-        hypervisor_failures: List[str],
+        hypervisor_failures: list[str],
     ) -> PsiVerdict:
         """
         Evaluate Trinity + Genius + Hypervisor → Final verdict.
@@ -454,7 +453,7 @@ class PsiKernel:
         )
 
     def _check_f8_genius(
-        self, genius: float, failures: List[str], metadata: Dict[str, any]
+        self, genius: float, failures: list[str], metadata: dict[str, any]
     ) -> bool:
         """Check F8 (Genius)."""
         metadata["f8_genius"] = genius
@@ -476,8 +475,8 @@ class PsiKernel:
         omega_verdict,
         f8_passed: bool,
         hypervisor_passed: bool,
-        failures: List[str],
-        metadata: Dict[str, any],
+        failures: list[str],
+        metadata: dict[str, any],
     ) -> Verdict:
         """
         Render final verdict based on hierarchy.
@@ -559,7 +558,7 @@ def render_apex_verdict(
     omega_verdict,
     genius: float = 0.85,
     hypervisor_passed: bool = True,
-    hypervisor_failures: List[str] = None,
+    hypervisor_failures: list[str] = None,
 ) -> PsiVerdict:
     """
     Convenience function to render APEX verdict.

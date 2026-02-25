@@ -7,13 +7,15 @@ Reference: 000_THEORY/003_GODEL_STRANGE_LOOP.md
 """
 
 from __future__ import annotations
-import logging
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from typing import Dict, Any, Optional, Callable, List
-from enum import Enum, auto
+
 import hashlib
 import json
+import logging
+from collections.abc import Callable
+from dataclasses import dataclass, field
+from datetime import datetime, timezone
+from enum import Enum, auto
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -48,8 +50,8 @@ class LoopContext:
     """Context preserved across loop iterations"""
 
     session_id: str
-    merkle_root: Optional[str] = None
-    constitutional_state: Dict[str, Any] = field(default_factory=dict)
+    merkle_root: str | None = None
+    constitutional_state: dict[str, Any] = field(default_factory=dict)
     entropy_pool: bytes = field(default_factory=lambda: b"")
     iteration_count: int = 0
 
@@ -70,7 +72,7 @@ class StageResult:
     empathy_score: float  # κᵣ
     genius_score: float  # G
     output: Any
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 class LoopManager:
@@ -82,14 +84,14 @@ class LoopManager:
     This creates a STRANGE LOOP - self-referential but not circular.
     """
 
-    def __init__(self, config: Optional[Dict] = None):
+    def __init__(self, config: dict | None = None):
         self.config = config or {}
         self.state = LoopState.IDLE
-        self.context: Optional[LoopContext] = None
-        self.stage_history: List[StageResult] = []
+        self.context: LoopContext | None = None
+        self.stage_history: list[StageResult] = []
 
         # Callbacks for stage transitions
-        self._callbacks: Dict[LoopState, List[Callable]] = {state: [] for state in LoopState}
+        self._callbacks: dict[LoopState, list[Callable]] = {state: [] for state in LoopState}
 
         # Initialize components (lazy loading)
         self._init_000 = None
@@ -109,7 +111,7 @@ class LoopManager:
                 logger.error(f"Callback error for {state}: {e}")
 
     def init_000(
-        self, session_id: Optional[str] = None, previous_context: Optional[LoopContext] = None
+        self, session_id: str | None = None, previous_context: LoopContext | None = None
     ) -> LoopContext:
         """
         Step 0: Initialize the loop.
@@ -171,7 +173,7 @@ class LoopManager:
 
         return Verdict.SEAL
 
-    def _next_state(self, current: LoopState) -> Optional[LoopState]:
+    def _next_state(self, current: LoopState) -> LoopState | None:
         """Get the next state in the metabolic sequence"""
         progression = [
             LoopState.INIT_000,
@@ -191,7 +193,7 @@ class LoopManager:
         except ValueError:
             return None
 
-    def seal_999(self, final_output: Any, zkpc_proof: Optional[bytes] = None) -> LoopContext:
+    def seal_999(self, final_output: Any, zkpc_proof: bytes | None = None) -> LoopContext:
         """
         Step 9: Seal the loop.
 
@@ -288,18 +290,18 @@ class LoopBridge:
 
     def __init__(self, loop_manager: LoopManager):
         self.loop = loop_manager
-        self._last_sealed_context: Optional[LoopContext] = None
-        self._pending_next_init: Optional[Dict] = None  # v55.5: Store params for next init
+        self._last_sealed_context: LoopContext | None = None
+        self._pending_next_init: dict | None = None  # v55.5: Store params for next init
 
         # Register callbacks
         self.loop.register_callback(LoopState.SEAL_999, self._on_seal)
 
-    def _on_seal(self, state: LoopState, data: Dict):
+    def _on_seal(self, state: LoopState, data: dict):
         """Called when SEAL_999 completes"""
         self._last_sealed_context = data.get("context")
         logger.info("LoopBridge: Captured sealed context for next iteration")
 
-    def on_seal_complete(self, seal_data: Dict):
+    def on_seal_complete(self, seal_data: dict):
         """
         v55.5 Adapter: Called by vault_tool when SEAL_999 completes.
 
@@ -332,7 +334,7 @@ class LoopBridge:
             f"LoopBridge: Prepared params for iteration {self._pending_next_init['iteration_count']}"
         )
 
-    def get_next_init_params(self) -> Optional[Dict]:
+    def get_next_init_params(self) -> dict | None:
         """
         Get parameters for next 000_INIT call.
 

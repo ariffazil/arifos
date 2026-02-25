@@ -679,13 +679,15 @@ class WebBrowser:
                     await page.goto(url, wait_until="networkidle", timeout=30000)
 
                     title = await page.title()
-                    content = await page.evaluate("""
+                    content = await page.evaluate(
+                        """
                         () => {
                             const main = document.querySelector('main, article, [role="main"], .content, #content');
                             const body = main || document.body;
                             return body.innerText;
                         }
-                    """)
+                    """
+                    )
 
                     return {
                         "status": "OK",

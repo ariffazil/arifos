@@ -3,20 +3,19 @@ Bundle Store - Constitutional bundle schemas & storage.
 Re-exports canonical schemas from codebase.bundles and provides thread-safe storage.
 """
 
-from typing import Dict, Any, Optional
 import threading
+from typing import Any
 
 # Re-export canonical bundle types from bundles.py
 from codebase.bundles import (
-    DeltaBundle,
-    OmegaBundle,
-    MergedBundle,
-    Stakeholder,
-    EngineVote,
-    Hypothesis,
-    ReasoningTree,
     AGIFloorScores,
     ASIFloorScores,
+    DeltaBundle,
+    EngineVote,
+    Hypothesis,
+    MergedBundle,
+    OmegaBundle,
+    ReasoningTree,
     TriWitnessConsensus,
 )
 
@@ -32,7 +31,7 @@ class BundleStore:
 
     def __init__(self, session_id: str):
         self.session_id = session_id
-        self._bundles: Dict[str, Any] = {}
+        self._bundles: dict[str, Any] = {}
         self._lock = threading.Lock()
         self._asi_access_blocked = False  # Once AGI stored, ASI can't read
 
@@ -52,12 +51,12 @@ class BundleStore:
                 pass  # No error, ASI can't access via this method
             self._bundles["omega"] = bundle
 
-    def get_delta(self) -> Optional[DeltaBundle]:
+    def get_delta(self) -> DeltaBundle | None:
         """Only APEX can retrieve AGI bundle (at 444)."""
         with self._lock:
             return self._bundles.get("delta")
 
-    def get_omega(self) -> Optional[OmegaBundle]:
+    def get_omega(self) -> OmegaBundle | None:
         """Only APEX can retrieve ASI bundle (at 444)."""
         with self._lock:
             return self._bundles.get("omega")
@@ -67,7 +66,7 @@ class BundleStore:
         with self._lock:
             self._bundles["merged"] = bundle
 
-    def get_merged(self) -> Optional[MergedBundle]:
+    def get_merged(self) -> MergedBundle | None:
         """Stages 777-999 read merged bundle."""
         with self._lock:
             return self._bundles.get("merged")
@@ -75,7 +74,7 @@ class BundleStore:
 
 # ==================== GLOBAL STORE FACTORY ====================
 
-_SESSION_STORES: Dict[str, BundleStore] = {}
+_SESSION_STORES: dict[str, BundleStore] = {}
 _SESSION_LOCK = threading.Lock()
 
 
@@ -94,7 +93,7 @@ def purge_store(session_id: str) -> None:
             del _SESSION_STORES[session_id]
 
 
-def store_bundle(session_id: str, bundle_type: str, bundle_data: Dict[str, Any]) -> None:
+def store_bundle(session_id: str, bundle_type: str, bundle_data: dict[str, Any]) -> None:
     """
     Store a bundle for the session.
 
@@ -114,7 +113,7 @@ def store_bundle(session_id: str, bundle_type: str, bundle_data: Dict[str, Any])
         )  # Assuming bundle_data can be unpacked into OmegaBundle
 
 
-def get_bundle(session_id: str, bundle_type: str) -> Optional[Dict[str, Any]]:
+def get_bundle(session_id: str, bundle_type: str) -> dict[str, Any] | None:
     """
     Get a bundle from the session store.
 

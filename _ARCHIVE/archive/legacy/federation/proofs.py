@@ -6,7 +6,6 @@ Enables private verification of floor compliance.
 
 import hashlib
 import json
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 
 
@@ -14,9 +13,9 @@ from dataclasses import dataclass
 class CircuitConstraint:
     """R1CS constraint: A · B = C"""
 
-    a: List[Tuple[int, int]]  # (wire_index, coefficient)
-    b: List[Tuple[int, int]]
-    c: List[Tuple[int, int]]
+    a: list[tuple[int, int]]  # (wire_index, coefficient)
+    b: list[tuple[int, int]]
+    c: list[tuple[int, int]]
 
 
 class ZKConstitutionalProof:
@@ -36,13 +35,13 @@ class ZKConstitutionalProof:
     """
 
     def __init__(self):
-        self.constraints: List[CircuitConstraint] = []
+        self.constraints: list[CircuitConstraint] = []
         self.witness_size = 0
-        self.proving_key: Optional[bytes] = None
-        self.verification_key: Optional[bytes] = None
+        self.proving_key: bytes | None = None
+        self.verification_key: bytes | None = None
         self.setup_complete = False
 
-    def setup(self, floors: List[str]) -> Tuple[bytes, bytes]:
+    def setup(self, floors: list[str]) -> tuple[bytes, bytes]:
         """
         Trusted setup phase: generate proving/verification keys.
 
@@ -119,7 +118,7 @@ class ZKConstitutionalProof:
             c=[(5, threshold)],
         )
 
-    def _compute_witness(self, private_state: Dict, public_input: Dict) -> List[float]:
+    def _compute_witness(self, private_state: dict, public_input: dict) -> list[float]:
         """
         Compute witness vector from state.
 
@@ -150,7 +149,7 @@ class ZKConstitutionalProof:
 
         return witness
 
-    def prove(self, private_state: Dict, public_input: Dict) -> Optional[str]:
+    def prove(self, private_state: dict, public_input: dict) -> str | None:
         """
         Generate zk-proof that private state satisfies floors.
 
@@ -191,7 +190,7 @@ class ZKConstitutionalProof:
 
         return proof
 
-    def _check_constraints(self, witness: List[float]) -> bool:
+    def _check_constraints(self, witness: list[float]) -> bool:
         """Verify witness satisfies all constraints."""
         # Simplified: direct floor checks
         if len(witness) < 6:
@@ -219,7 +218,7 @@ class ZKConstitutionalProof:
 
         return True
 
-    def verify(self, proof: str, public_input: Dict) -> bool:
+    def verify(self, proof: str, public_input: dict) -> bool:
         """
         Verify proof without seeing private state.
 
@@ -245,6 +244,6 @@ class ZKConstitutionalProof:
         except ValueError:
             return False
 
-    def verify_batch(self, proofs: List[str], public_inputs: List[Dict]) -> List[bool]:
+    def verify_batch(self, proofs: list[str], public_inputs: list[dict]) -> list[bool]:
         """Verify multiple proofs efficiently."""
         return [self.verify(p, pi) for p, pi in zip(proofs, public_inputs)]

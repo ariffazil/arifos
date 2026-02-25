@@ -41,7 +41,6 @@ import hashlib
 import time
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, Optional, Set
 
 
 class NonceStatus(str, Enum):
@@ -92,7 +91,7 @@ class SessionNonce:
     user_id: str
     created_at: float = field(default_factory=time.time)
     used: bool = False
-    channel_hash: Optional[str] = None
+    channel_hash: str | None = None
 
 
 class NonceManager:
@@ -118,7 +117,7 @@ class NonceManager:
             print("F11 violation: unauthenticated identity assertion")
     """
 
-    def __init__(self, nonce_expiration_seconds: Optional[int] = None) -> None:
+    def __init__(self, nonce_expiration_seconds: int | None = None) -> None:
         """
         Initialize the nonce manager.
 
@@ -126,13 +125,13 @@ class NonceManager:
             nonce_expiration_seconds: Optional expiration time for nonces.
                                       None means nonces don't expire.
         """
-        self.session_nonces: Dict[str, SessionNonce] = {}
-        self.used_nonces: Set[str] = set()  # Track used nonces to prevent replay
+        self.session_nonces: dict[str, SessionNonce] = {}
+        self.used_nonces: set[str] = set()  # Track used nonces to prevent replay
         self.counter: int = 1  # Counter for nonce generation
         self.nonce_expiration = nonce_expiration_seconds
         self.nonce_prefix = "X7K9F"  # CIV-12 standard prefix
 
-    def generate_nonce(self, user_id: str, channel_identifier: Optional[str] = None) -> str:
+    def generate_nonce(self, user_id: str, channel_identifier: str | None = None) -> str:
         """
         Generate a unique nonce for a user session.
 
@@ -162,7 +161,7 @@ class NonceManager:
         self,
         user_id: str,
         provided_nonce: str,
-        channel_identifier: Optional[str] = None,
+        channel_identifier: str | None = None,
     ) -> NonceVerificationResult:
         """
         Verify a nonce for identity reload.
@@ -249,7 +248,7 @@ class NonceManager:
             authenticated=True,
         )
 
-    def get_current_nonce(self, user_id: str) -> Optional[str]:
+    def get_current_nonce(self, user_id: str) -> str | None:
         """
         Get the current nonce for a user (if exists).
 

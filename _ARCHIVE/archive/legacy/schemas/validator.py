@@ -18,12 +18,12 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 # Schema cache
-_schema_cache: Dict[str, Dict] = {}
+_schema_cache: dict[str, dict] = {}
 
 
 class ValidationError(Exception):
@@ -32,7 +32,7 @@ class ValidationError(Exception):
     pass
 
 
-def _load_schema(schema_name: str) -> Optional[Dict]:
+def _load_schema(schema_name: str) -> dict | None:
     """Load schema from file, with caching."""
     if schema_name in _schema_cache:
         return _schema_cache[schema_name]
@@ -48,7 +48,7 @@ def _load_schema(schema_name: str) -> Optional[Dict]:
     for path in search_paths:
         if path.exists():
             try:
-                with open(path, "r", encoding="utf-8") as f:
+                with open(path, encoding="utf-8") as f:
                     schema = json.load(f)
                 _schema_cache[schema_name] = schema
                 return schema
@@ -59,7 +59,7 @@ def _load_schema(schema_name: str) -> Optional[Dict]:
     return None
 
 
-def _validate_type(value: Any, expected_type: Union[str, List], path: str = "") -> List[str]:
+def _validate_type(value: Any, expected_type: str | list, path: str = "") -> list[str]:
     """Validate a value against an expected type."""
     errors = []
 
@@ -98,7 +98,7 @@ def _validate_type(value: Any, expected_type: Union[str, List], path: str = "") 
     return errors
 
 
-def _validate_value(value: Any, schema: Dict, path: str = "") -> List[str]:
+def _validate_value(value: Any, schema: dict, path: str = "") -> list[str]:
     """Recursively validate a value against a schema."""
     errors = []
 
@@ -146,7 +146,7 @@ def _validate_value(value: Any, schema: Dict, path: str = "") -> List[str]:
     return errors
 
 
-def validate_output(output: Dict[str, Any], schema: Union[str, Dict], strict: bool = False) -> bool:
+def validate_output(output: dict[str, Any], schema: str | dict, strict: bool = False) -> bool:
     """
     Validate tool output against a schema.
 
@@ -187,30 +187,30 @@ def validate_output(output: Dict[str, Any], schema: Union[str, Dict], strict: bo
 
 
 def validate_output_async(
-    output: Dict[str, Any], schema: Union[str, Dict], strict: bool = False
+    output: dict[str, Any], schema: str | dict, strict: bool = False
 ) -> bool:
     """Async wrapper for validate_output (for consistency with async tools)."""
     return validate_output(output, schema, strict)
 
 
 # Convenience functions for common schemas
-def validate_asi_output(output: Dict, strict: bool = False) -> bool:
+def validate_asi_output(output: dict, strict: bool = False) -> bool:
     return validate_output(output, "asi_output", strict)
 
 
-def validate_apex_output(output: Dict, strict: bool = False) -> bool:
+def validate_apex_output(output: dict, strict: bool = False) -> bool:
     return validate_output(output, "apex_output", strict)
 
 
-def validate_reality_output(output: Dict, strict: bool = False) -> bool:
+def validate_reality_output(output: dict, strict: bool = False) -> bool:
     return validate_output(output, "reality_output", strict)
 
 
-def validate_vault_output(output: Dict, strict: bool = False) -> bool:
+def validate_vault_output(output: dict, strict: bool = False) -> bool:
     return validate_output(output, "vault_output", strict)
 
 
-def validate_agi_output(output: Dict, strict: bool = False) -> bool:
+def validate_agi_output(output: dict, strict: bool = False) -> bool:
     return validate_output(output, "agi_sense", strict)
 
 

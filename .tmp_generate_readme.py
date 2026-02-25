@@ -78,9 +78,7 @@ def walk_inventory(base: Path) -> list[str]:
         return out
 
     for dirpath, dirnames, filenames in os.walk(base):
-        dirnames[:] = [
-            d for d in dirnames if d not in EXCLUDE_DIR_NAMES and not d.startswith(".")
-        ]
+        dirnames[:] = [d for d in dirnames if d not in EXCLUDE_DIR_NAMES and not d.startswith(".")]
         for fn in sorted(filenames):
             p = Path(dirpath) / fn
             rel = p.relative_to(ROOT).as_posix()
@@ -315,4 +313,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-

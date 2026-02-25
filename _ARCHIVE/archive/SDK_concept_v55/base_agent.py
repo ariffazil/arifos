@@ -24,7 +24,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Optional
+from typing import Any
 
 
 class Verdict(Enum):
@@ -138,7 +138,7 @@ class AgentMessage:
     content: Any
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     message_type: str = "request"  # request, response, broadcast
-    correlation_id: Optional[str] = None
+    correlation_id: str | None = None
 
     def to_dict(self) -> dict:
         """Serialize for transmission."""

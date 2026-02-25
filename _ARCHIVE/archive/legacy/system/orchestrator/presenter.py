@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """
 arifOS Output Presenter (v52.5.1-SEAL)
 ================================
@@ -25,9 +24,8 @@ DITEMPA BUKAN DIBERI
 import json
 import os
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # --- 1. ENCODER (Machine -> Semantics) ---
 
@@ -42,18 +40,18 @@ class Semantics:
 
     status: str  # "SEAL", "PARTIAL", "VOID", "SABAR", "888_HOLD", "ERROR"
     summary: str
-    details: Dict[str, Any]
-    metrics: Dict[str, Any]  # delta_s, peace_sq, omega_0, etc.
-    warnings: List[str]
+    details: dict[str, Any]
+    metrics: dict[str, Any]  # delta_s, peace_sq, omega_0, etc.
+    warnings: list[str]
     is_emergency: bool
 
     # Phase 9 Extensions
-    floor_scores: Optional[Dict[str, Any]] = None  # F1-F13 scores
-    cooling: Optional[Dict[str, Any]] = None  # Phoenix-72 metadata
-    zkpc: Optional[Dict[str, Any]] = None  # zkPC receipt
-    memory: Optional[Dict[str, Any]] = None  # EUREKA sieve band
-    session_id: Optional[str] = None
-    stage: Optional[str] = None
+    floor_scores: dict[str, Any] | None = None  # F1-F13 scores
+    cooling: dict[str, Any] | None = None  # Phoenix-72 metadata
+    zkpc: dict[str, Any] | None = None  # zkPC receipt
+    memory: dict[str, Any] | None = None  # EUREKA sieve band
+    session_id: str | None = None
+    stage: str | None = None
     latency_ms: float = 0.0
 
 
@@ -64,7 +62,7 @@ class Encoder:
     Handles "stupid servers" with broken/null/timeout responses.
     """
 
-    def encode(self, raw_output: Dict[str, Any]) -> Semantics:
+    def encode(self, raw_output: dict[str, Any]) -> Semantics:
         """
         Encodes raw tool output into a Semantics object.
         Handles missing fields, errors, and standardizes the schema.
@@ -158,7 +156,7 @@ class Encoder:
             latency_ms=latency_ms,
         )
 
-    def _extract_cooling(self, result_data: Dict) -> Optional[Dict]:
+    def _extract_cooling(self, result_data: dict) -> dict | None:
         """Extract Phoenix-72 cooling metadata."""
         output = result_data.get("output", {})
         cooling = output.get("phoenix72_cooling") or output.get("cooling")
@@ -172,7 +170,7 @@ class Encoder:
             }
         return None
 
-    def _extract_zkpc(self, result_data: Dict) -> Optional[Dict]:
+    def _extract_zkpc(self, result_data: dict) -> dict | None:
         """Extract zkPC cryptographic receipt metadata."""
         zkpc_receipt = result_data.get("zkpc_receipt")
         output = result_data.get("output", {})
@@ -185,7 +183,7 @@ class Encoder:
             }
         return None
 
-    def _extract_memory(self, result_data: Dict) -> Optional[Dict]:
+    def _extract_memory(self, result_data: dict) -> dict | None:
         """Extract EUREKA sieve memory metadata."""
         output = result_data.get("output", {})
         memory_band = output.get("memory_band")
@@ -225,7 +223,7 @@ class PresentationStrategy:
     """How to present information to the user"""
 
     style: str  # "technical", "business", "simple"
-    visuals: List[str]  # "tables", "badges", "progress_bar"
+    visuals: list[str]  # "tables", "badges", "progress_bar"
     tone: str  # "formal", "urgent", "friendly"
     language_mix: bool  # True for Malay-English blend (Arif style)
     show_metrics: bool
@@ -385,7 +383,7 @@ class Decoder:
         if semantics.cooling and (strategy.style == "alert" or strategy.style == "technical"):
             cooling = semantics.cooling
             if cooling["tier"] >= 1:
-                lines.append(f"**Phoenix-72 Cooling:**")
+                lines.append("**Phoenix-72 Cooling:**")
                 lines.append(
                     f"- Tier {cooling['tier']} ({cooling['tier_label']}): {cooling['cooling_hours']}h"
                 )
@@ -406,7 +404,7 @@ class Decoder:
         # 3c. zkPC Receipt (for experts only)
         if semantics.zkpc and strategy.show_metrics:
             zkpc = semantics.zkpc
-            lines.append(f"**zkPC Receipt:**")
+            lines.append("**zkPC Receipt:**")
             lines.append(f"- ID: `{zkpc['receipt_id']}`")
             if zkpc.get("hash"):
                 lines.append(f"- Hash: `{zkpc['hash'][:16]}...`")
@@ -516,7 +514,7 @@ class Decoder:
                 "```bash",
                 f"> arifOS {semantics.details.get('aclip_version', 'v52.0.0')} INITIALIZED",
                 f"> Session ID: {semantics.session_id}",
-                f"> Governance: TEACH Active",
+                "> Governance: TEACH Active",
                 "> Constraints: PHYSICS Active",
                 "> Verdict: WAITING FOR INPUT...",
                 "```",
@@ -525,7 +523,7 @@ class Decoder:
 
         return "\n".join(lines)
 
-    def _render_floor_table(self, floor_scores: Dict) -> str:
+    def _render_floor_table(self, floor_scores: dict) -> str:
         """Render floor scores as table."""
         lines = ["| Floor | Pass | Score |", "|-------|------|-------|"]
         for name, score in floor_scores.items():
@@ -567,7 +565,7 @@ class AAAMetabolizer:
         self.metabolizer = Metabolizer()
         self.decoder = Decoder()
 
-    def process(self, raw_output: Dict[str, Any]) -> str:
+    def process(self, raw_output: dict[str, Any]) -> str:
         """Full pipeline: Raw -> Semantics -> Strategy -> Text"""
         semantics = self.encoder.encode(raw_output)
         strategy = self.metabolizer.metabolize(semantics)

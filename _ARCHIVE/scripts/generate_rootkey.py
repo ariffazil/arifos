@@ -18,15 +18,13 @@ Requirements:
 """
 
 import base64
-import getpass
 import hashlib
 import json
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict
-
+from typing import Any
 
 
 def check_human_authority():
@@ -74,7 +72,7 @@ def generate_entropy():
     try:
         # Get machine-specific entropy (machine ID on Linux)
         if os.path.exists("/etc/machine-id"):
-            with open("/etc/machine-id", "r") as f:
+            with open("/etc/machine-id") as f:
                 machine_id = f.read().strip()
         else:
             # Fallback for Windows
@@ -98,12 +96,12 @@ def generate_entropy():
 def generate_keypair(entropy: bytes):
     """Generate Ed25519 keypair."""
     try:
-        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-        from cryptography.hazmat.primitives import serialization
-
         # Use entropy as seed for deterministic generation
         # Note: Ed25519 doesn't accept external seeds, so we use it to influence RNG
         import secrets
+
+        from cryptography.hazmat.primitives import serialization
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
         secrets.token_bytes = lambda n: entropy[:n]
 
@@ -162,7 +160,7 @@ def create_self_signature(
         sys.exit(1)
 
 
-def save_root_key(root_key_data: Dict[str, Any]):
+def save_root_key(root_key_data: dict[str, Any]):
     """Save root key to AAA_HUMAN band."""
     aaa_path = Path("VAULT999/AAA_HUMAN")
     key_file = aaa_path / "rootkey.json"
@@ -192,7 +190,7 @@ def save_root_key(root_key_data: Dict[str, Any]):
     return key_file
 
 
-def log_generation_to_vault(root_key_data: Dict[str, Any]):
+def log_generation_to_vault(root_key_data: dict[str, Any]):
     """Log root key generation to VAULT999 ledger."""
     try:
         # Create a non-sensitive log entry (no private key)
@@ -210,7 +208,7 @@ def log_generation_to_vault(root_key_data: Dict[str, Any]):
 
         # Append to log
         if log_file.exists():
-            with open(log_file, "r") as f:
+            with open(log_file) as f:
                 logs = json.load(f)
         else:
             logs = []
@@ -276,7 +274,7 @@ def main():
     print("\n[5/5] Saving root key to AAA_HUMAN band...")
     key_file = save_root_key(root_key_data)
     print(f"    Location: {key_file}")
-    print(f"    Permissions: 400 (read-only, owner only)")
+    print("    Permissions: 400 (read-only, owner only)")
 
     # Step 6: Log to vault
     print("\n[6/5] Logging generation to VAULT999...")
@@ -289,12 +287,12 @@ def main():
     print(f"\nAuthority: {sovereign}")
     print(f"Public Key: {root_key_data['public_key'][:32]}...")
     print(f"Location: {key_file}")
-    print(f"\n⚠️  CRITICAL SECURITY NOTES:")
-    print(f"   1. Backup AAA_HUMAN/rootkey.json immediately")
-    print(f"   2. Store backup in secure, offline location")
-    print(f"   3. Never commit this file to version control")
-    print(f"   4. AI must NEVER access this file (AAA band)")
-    print(f"   5. Root key is the cryptographic foundation")
+    print("\n⚠️  CRITICAL SECURITY NOTES:")
+    print("   1. Backup AAA_HUMAN/rootkey.json immediately")
+    print("   2. Store backup in secure, offline location")
+    print("   3. Never commit this file to version control")
+    print("   4. AI must NEVER access this file (AAA band)")
+    print("   5. Root key is the cryptographic foundation")
     print("=" * 60)
 
     # Next steps

@@ -7,9 +7,10 @@ Theory: 000_FOUNDATIONS.md §3.2 — The APEX 4 Dials
 """
 
 import logging
-from typing import Dict, Any, List, Optional
-from codebase.bundles import DeltaBundle, OmegaBundle, EngineVote, TriWitnessConsensus
-from codebase.floors import FloorScores, extract_dials, GeniusCalculator
+from typing import Any
+
+from codebase.bundles import DeltaBundle, OmegaBundle, TriWitnessConsensus
+from codebase.floors import FloorScores, extract_dials
 
 logger = logging.getLogger(__name__)
 
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 class JudiciaryValidator:
     """A1: Judiciary Validator — Computes F8 Genius from floor eigendecomposition."""
 
-    def calculate_genius_index(self, delta: DeltaBundle, omega: OmegaBundle) -> Dict[str, Any]:
+    def calculate_genius_index(self, delta: DeltaBundle, omega: OmegaBundle) -> dict[str, Any]:
         """
         F8: Genius Index calculation via eigendecomposition.
 
@@ -107,7 +108,7 @@ class APEXDialFormatter:
     """
 
     @staticmethod
-    def format_dials(dials: Dict[str, float], G: float, verdict: str) -> str:
+    def format_dials(dials: dict[str, float], G: float, verdict: str) -> str:
         """
         Format 4 dials as ASCII bar chart.
 
@@ -139,7 +140,7 @@ class APEXDialFormatter:
         return "\n".join(lines)
 
     @staticmethod
-    def format_compact(floors: FloorScores, G: float, verdict: str) -> Dict[str, Any]:
+    def format_compact(floors: FloorScores, G: float, verdict: str) -> dict[str, Any]:
         """
         Return compact JSON-serializable output with 4 dials.
 

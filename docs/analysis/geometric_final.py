@@ -13,7 +13,7 @@ The Topological Trinity:
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class GeometricType(Enum):
@@ -64,7 +64,7 @@ class GeometricIntegrityAnalyzer:
             ),
         }
 
-    def analyze_unified_kernel_geometry(self) -> Dict[str, Any]:
+    def analyze_unified_kernel_geometry(self) -> dict[str, Any]:
         """Analyze geometric integrity in unified kernel"""
 
         print("*** GEOMETRIC INTEGRITY ANALYSIS ***")
@@ -80,7 +80,7 @@ class GeometricIntegrityAnalyzer:
 
         return analysis
 
-    def _analyze_agi_geometry(self) -> Dict[str, Any]:
+    def _analyze_agi_geometry(self) -> dict[str, Any]:
         """Analyze AGI (Delta) orthogonal crystal geometry preservation"""
 
         print("\n*** AGI (Delta) - ORTHOGONAL CRYSTAL ANALYSIS ***")
@@ -129,7 +129,7 @@ class GeometricIntegrityAnalyzer:
             "conclusion": "AGI geometry fully preserved in unified kernel",
         }
 
-    def _analyze_asi_geometry(self) -> Dict[str, Any]:
+    def _analyze_asi_geometry(self) -> dict[str, Any]:
         """Analyze ASI (Omega) fractal spiral geometry preservation"""
 
         print("\n*** ASI (Omega) - FRACTAL SPIRAL ANALYSIS ***")
@@ -177,7 +177,7 @@ class GeometricIntegrityAnalyzer:
             "conclusion": "ASI geometry fully preserved in unified kernel",
         }
 
-    def _analyze_apex_geometry(self) -> Dict[str, Any]:
+    def _analyze_apex_geometry(self) -> dict[str, Any]:
         """Analyze APEX (Psi) toroidal manifold geometry preservation"""
 
         print("\n*** APEX (Psi) - TOROIDAL MANIFOLD ANALYSIS ***")
@@ -345,7 +345,7 @@ class GeometricIntegrityAnalyzer:
         ]
         return 1.0 if all(resistance_checks) else 0.9
 
-    def _calculate_unified_preservation(self) -> Dict[str, Any]:
+    def _calculate_unified_preservation(self) -> dict[str, Any]:
         """Calculate overall geometric preservation in unified kernel"""
 
         agi_integrity = self._analyze_agi_geometry()["integrity_score"]
@@ -363,7 +363,7 @@ class GeometricIntegrityAnalyzer:
             "constitutional_geometry": "FULLY_PRESERVED",
         }
 
-    def _validate_constitutional_geometry(self) -> Dict[str, Any]:
+    def _validate_constitutional_geometry(self) -> dict[str, Any]:
         """Validate the constitutional geometry of the unified kernel"""
 
         # Check that the unified kernel maintains the topological trinity
@@ -408,22 +408,22 @@ def demonstrate_geometric_integrity():
         f"Integrity Score: {results['unified_preservation']['overall_integrity_score']:.3f}/1.000"
     )
 
-    print(f"\n*** DETAILED BREAKDOWN: ***")
+    print("\n*** DETAILED BREAKDOWN: ***")
     print(f"AGI (Orthogonal Crystal): {results['agi_integrity']['integrity_score']:.3f}")
     print(f"ASI (Fractal Spiral): {results['asi_integrity']['integrity_score']:.3f}")
     print(f"APEX (Toroidal Manifold): {results['apex_integrity']['integrity_score']:.3f}")
 
-    print(f"\n*** CONSTITUTIONAL VALIDATION: ***")
+    print("\n*** CONSTITUTIONAL VALIDATION: ***")
     print(f"Status: {results['constitutional_geometry']['constitutional_alignment']}")
     print(f"Efficiency: {results['constitutional_geometry']['geometric_efficiency']:.3f}")
 
-    print(f"\n*** CONCLUSION: ***")
+    print("\n*** CONCLUSION: ***")
     print("[CHECK] All three geometries (orthogonal crystal, fractal spiral, toroidal manifold)")
     print("[CHECK] Are FULLY PRESERVED in the unified constitutional kernel")
     print("[CHECK] Constitutional integrity maintained with enhanced performance")
     print("[CHECK] The topological trinity remains geometrically intact")
 
-    print(f"\n*** THE UNIFIED KERNEL MAINTAINS: ***")
+    print("\n*** THE UNIFIED KERNEL MAINTAINS: ***")
     print("• AGI: Vertical crystal structure with tyranny protection")
     print("• ASI: Horizontal fractal spiral with flood prevention")
     print("• APEX: Longitudinal toroidal manifold with collapse resistance")

@@ -8,7 +8,7 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 @dataclass
@@ -25,10 +25,10 @@ class VaultEntry:
     timestamp: datetime
     verdict: str  # SEAL, VOID, 888_HOLD, PARTIAL, SABAR
     merkle_root: str
-    floor_scores: Dict[str, float]
-    delta_bundle: Optional[Dict[str, Any]] = None
-    omega_bundle: Optional[Dict[str, Any]] = None
-    merkle_proof: Optional[Dict[str, Any]] = None
+    floor_scores: dict[str, float]
+    delta_bundle: dict[str, Any] | None = None
+    omega_bundle: dict[str, Any] | None = None
+    merkle_proof: dict[str, Any] | None = None
     cooling_tier: int = 0  # 0=L0, 1=L1, 2=L2, 3=L3, 4=L4, 5=L5
 
     def compute_hash(self) -> str:
@@ -50,7 +50,7 @@ class VaultEntry:
         sorted_data = json.dumps(data, sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(sorted_data.encode()).hexdigest()
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "entry_id": self.entry_id,
@@ -67,7 +67,7 @@ class VaultEntry:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "VaultEntry":
+    def from_dict(cls, data: dict[str, Any]) -> "VaultEntry":
         """Create VaultEntry from dictionary."""
         return cls(
             entry_id=data["entry_id"],
@@ -93,9 +93,9 @@ class SessionLedger:
     """
 
     session_id: str
-    entries: List[VaultEntry] = field(default_factory=list)
-    merkle_root: Optional[str] = None
-    final_verdict: Optional[str] = None
+    entries: list[VaultEntry] = field(default_factory=list)
+    merkle_root: str | None = None
+    final_verdict: str | None = None
 
     def add_entry(self, entry: VaultEntry) -> None:
         """Add entry to session ledger."""
@@ -114,7 +114,7 @@ class SessionLedger:
 
         return self._compute_merkle_tree(hashes)
 
-    def _compute_merkle_tree(self, hashes: List[str]) -> str:
+    def _compute_merkle_tree(self, hashes: list[str]) -> str:
         """Compute Merkle root from list of hashes."""
         if not hashes:
             return ""
@@ -136,7 +136,7 @@ class SessionLedger:
 
         return current_level[0] if current_level else ""
 
-    def get_entry(self, stage: int) -> Optional[VaultEntry]:
+    def get_entry(self, stage: int) -> VaultEntry | None:
         """Get entry for specific stage."""
         for entry in self.entries:
             if entry.stage == stage:

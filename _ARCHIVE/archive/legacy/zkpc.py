@@ -7,7 +7,7 @@ Cryptographic proofs for constitutional floors.
 import hashlib
 import json
 from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from typing import Any
 
 from .state import SessionState
 
@@ -43,7 +43,7 @@ class ZKPCPreCommitment:
         sorted_data = json.dumps(data, sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(sorted_data.encode()).hexdigest()[:16]
 
-    def generate_commitment(self, state: SessionState, merkle_root: str) -> Dict[str, Any]:
+    def generate_commitment(self, state: SessionState, merkle_root: str) -> dict[str, Any]:
         """
         Generate ZKPC proof for a stage transition.
 

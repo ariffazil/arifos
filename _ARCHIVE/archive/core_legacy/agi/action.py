@@ -15,11 +15,11 @@ DITEMPA BUKAN DIBERI
 from __future__ import annotations
 
 import math
-import random
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum, auto
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 
 class ActionType(Enum):
@@ -39,7 +39,7 @@ class ActionPolicy:
     A policy (sequence of actions) with its Expected Free Energy.
     """
 
-    actions: List[ActionType]
+    actions: list[ActionType]
     expected_free_energy: float
     epistemic_value: float  # Information gain (reduce uncertainty)
     pragmatic_value: float  # Goal achievement (exploit knowledge)
@@ -52,11 +52,11 @@ class BeliefState:
     Current belief distribution over possible world states.
     """
 
-    states: Dict[str, float]  # state_name -> probability
+    states: dict[str, float]  # state_name -> probability
     entropy: float  # Current uncertainty
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
-    def get_most_likely(self) -> Tuple[str, float]:
+    def get_most_likely(self) -> tuple[str, float]:
         """Return most likely state and its probability."""
         if not self.states:
             return ("unknown", 0.0)
@@ -72,7 +72,7 @@ class ExpectedFreeEnergyCalculator:
     Simplified: G = pragmatic_term + epistemic_term
     """
 
-    def __init__(self, prior_preferences: Optional[Dict[str, float]] = None):
+    def __init__(self, prior_preferences: dict[str, float] | None = None):
         """
         Args:
             prior_preferences: Dict mapping outcomes to preference values
@@ -92,9 +92,9 @@ class ExpectedFreeEnergyCalculator:
 
     def compute_efe(
         self,
-        policy: List[ActionType],
+        policy: list[ActionType],
         current_belief: BeliefState,
-        outcome_likelihoods: Dict[ActionType, Dict[str, float]],
+        outcome_likelihoods: dict[ActionType, dict[str, float]],
     ) -> float:
         """
         Compute Expected Free Energy for a policy.
@@ -114,7 +114,7 @@ class ExpectedFreeEnergyCalculator:
         return total_efe
 
     def _action_efe(
-        self, action: ActionType, belief: BeliefState, outcomes: Dict[str, float]
+        self, action: ActionType, belief: BeliefState, outcomes: dict[str, float]
     ) -> float:
         """
         Compute EFE for a single action.
@@ -137,9 +137,9 @@ class ExpectedFreeEnergyCalculator:
 
     def select_action(
         self,
-        available_actions: List[ActionType],
+        available_actions: list[ActionType],
         current_belief: BeliefState,
-        outcome_likelihoods: Dict[ActionType, Dict[str, float]],
+        outcome_likelihoods: dict[ActionType, dict[str, float]],
         temperature: float = 1.0,
     ) -> ActionPolicy:
         """
@@ -178,7 +178,7 @@ class ExpectedFreeEnergyCalculator:
         return best
 
     def _compute_epistemic_value(
-        self, action: ActionType, belief: BeliefState, outcomes: Dict[str, float]
+        self, action: ActionType, belief: BeliefState, outcomes: dict[str, float]
     ) -> float:
         """
         Information gain: How much will this action reduce uncertainty?
@@ -196,7 +196,7 @@ class ExpectedFreeEnergyCalculator:
 
         return entropy / max_entropy if max_entropy > 0 else 0.0
 
-    def _compute_pragmatic_value(self, action: ActionType, outcomes: Dict[str, float]) -> float:
+    def _compute_pragmatic_value(self, action: ActionType, outcomes: dict[str, float]) -> float:
         """
         Preference satisfaction: How much will this action achieve goals?
         """
@@ -218,14 +218,14 @@ class MotorOutput:
     """
 
     def __init__(self):
-        self.executed_actions: List[Dict[str, Any]] = []
-        self.callbacks: Dict[ActionType, List[Callable]] = {action: [] for action in ActionType}
+        self.executed_actions: list[dict[str, Any]] = []
+        self.callbacks: dict[ActionType, list[Callable]] = {action: [] for action in ActionType}
 
     def register_callback(self, action: ActionType, callback: Callable):
         """Register a callback for when an action is executed."""
         self.callbacks[action].append(callback)
 
-    def execute(self, policy: ActionPolicy) -> Dict[str, Any]:
+    def execute(self, policy: ActionPolicy) -> dict[str, Any]:
         """
         Execute the selected action policy.
         """
@@ -273,8 +273,8 @@ _motor_output = MotorOutput()
 
 def compute_action_policy(
     belief: BeliefState,
-    available_actions: Optional[List[ActionType]] = None,
-    outcome_likelihoods: Optional[Dict[ActionType, Dict[str, float]]] = None,
+    available_actions: list[ActionType] | None = None,
+    outcome_likelihoods: dict[ActionType, dict[str, float]] | None = None,
 ) -> ActionPolicy:
     """
     Compute optimal action policy given current belief.
@@ -295,7 +295,7 @@ def compute_action_policy(
     return _efe_calculator.select_action(actions, belief, outcome_likelihoods)
 
 
-def execute_action(policy: ActionPolicy) -> Dict[str, Any]:
+def execute_action(policy: ActionPolicy) -> dict[str, Any]:
     """Execute the selected action policy."""
     return _motor_output.execute(policy)
 

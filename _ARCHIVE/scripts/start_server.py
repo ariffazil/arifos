@@ -39,7 +39,7 @@ try:
 
     import uvicorn
     from starlette.applications import Starlette
-    from starlette.responses import JSONResponse, Response
+    from starlette.responses import JSONResponse
     from starlette.routing import Route
 
     print("[startup] Dependencies imported", file=sys.stderr, flush=True)

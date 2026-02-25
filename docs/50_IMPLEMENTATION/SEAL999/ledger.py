@@ -7,7 +7,7 @@ Hash-chain and Merkle tree for VAULT-999 integrity.
 import json
 import os
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .state import SessionLedger, VaultConfig, VaultEntry
 
@@ -17,8 +17,8 @@ class HashChain:
 
     def __init__(self):
         """Initialize empty hash chain."""
-        self.hashes: List[str] = []
-        self.current_hash: Optional[str] = None
+        self.hashes: list[str] = []
+        self.current_hash: str | None = None
 
     def append(self, data_hash: str) -> str:
         """
@@ -68,7 +68,7 @@ class HashChain:
             computed = hashlib.sha256(combined.encode()).hexdigest()
             return computed == expected_chain_hash
 
-    def get_head(self) -> Optional[str]:
+    def get_head(self) -> str | None:
         """Get current chain head hash."""
         return self.current_hash
 
@@ -124,7 +124,7 @@ class Ledger:
             print(f"Error appending to ledger: {e}")
             return False
 
-    def get_entry(self, entry_id: str) -> Optional[VaultEntry]:
+    def get_entry(self, entry_id: str) -> VaultEntry | None:
         """
         Retrieve entry by ID from ledger.
 
@@ -137,7 +137,7 @@ class Ledger:
         if not os.path.exists(self.config.get_ledger_path()):
             return None
 
-        with open(self.config.get_ledger_path(), "r") as f:
+        with open(self.config.get_ledger_path()) as f:
             for line in f:
                 try:
                     record = json.loads(line.strip())
@@ -149,7 +149,7 @@ class Ledger:
 
         return None
 
-    def get_session(self, session_id: str) -> Optional[SessionLedger]:
+    def get_session(self, session_id: str) -> SessionLedger | None:
         """
         Retrieve all entries for a session.
 
@@ -164,7 +164,7 @@ class Ledger:
 
         entries = []
 
-        with open(self.config.get_ledger_path(), "r") as f:
+        with open(self.config.get_ledger_path()) as f:
             for line in f:
                 try:
                     record = json.loads(line.strip())
@@ -192,7 +192,7 @@ class Ledger:
 
         return ledger
 
-    def get_statistics(self) -> Dict[str, Any]:
+    def get_statistics(self) -> dict[str, Any]:
         """
         Get ledger statistics (counts, averages, etc.).
 
@@ -206,7 +206,7 @@ class Ledger:
         verdict_counts = {}
         session_ids = set()
 
-        with open(self.config.get_ledger_path(), "r") as f:
+        with open(self.config.get_ledger_path()) as f:
             for line in f:
                 try:
                     record = json.loads(line.strip())
@@ -228,7 +228,7 @@ class Ledger:
             "ledger_path": self.config.get_ledger_path(),
         }
 
-    def _reconstruct_entry(self, record: Dict[str, Any]) -> Optional[VaultEntry]:
+    def _reconstruct_entry(self, record: dict[str, Any]) -> VaultEntry | None:
         """Reconstruct VaultEntry from ledger record."""
         try:
             return VaultEntry(
@@ -254,8 +254,8 @@ class MerkleTree:
 
     def __init__(self):
         """Initialize empty Merkle tree."""
-        self.leaves: List[str] = []
-        self.layers: List[List[str]] = []
+        self.leaves: list[str] = []
+        self.layers: list[list[str]] = []
 
     def add_leaf(self, data: str) -> None:
         """Add leaf to Merkle tree."""
@@ -282,13 +282,13 @@ class MerkleTree:
             self.layers.append(next_level)
             current = next_level
 
-    def get_root(self) -> Optional[str]:
+    def get_root(self) -> str | None:
         """Get Merkle root."""
         if not self.layers:
             return None
         return self.layers[-1][0] if self.layers[-1] else None
 
-    def get_proof(self, leaf_index: int) -> List[str]:
+    def get_proof(self, leaf_index: int) -> list[str]:
         """Get Merkle proof for leaf at index."""
         proof = []
 
@@ -304,7 +304,7 @@ class MerkleTree:
 
         return proof
 
-    def verify(self, leaf_data: str, proof: List[str], root: str) -> bool:
+    def verify(self, leaf_data: str, proof: list[str], root: str) -> bool:
         """Verify leaf data against root using proof."""
         current = hashlib.sha256(leaf_data.encode()).hexdigest()
 

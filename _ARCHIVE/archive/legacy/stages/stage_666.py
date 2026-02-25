@@ -6,10 +6,10 @@ Runs the Empathy (555) and Alignment (666) engines.
 Produces the Omega Bundle.
 """
 
-from typing import Dict, Any, Tuple, List
 import logging
+
+from codebase.bundles import ASIFloorScores, EngineVote, OmegaBundle, Stakeholder
 from codebase.state import SessionState
-from codebase.bundles import OmegaBundle, ASIFloorScores, EngineVote, Stakeholder
 
 logger = logging.getLogger("STAGE_666")
 
@@ -24,7 +24,7 @@ class Stage666ASI:
     - Safety constraints (F5 Peace)
     """
 
-    def execute(self, state: SessionState, query: str) -> Tuple[str, SessionState]:
+    def execute(self, state: SessionState, query: str) -> tuple[str, SessionState]:
         """Execute ASI pipeline (555->666)."""
         logger.info(f"[666] ASI Heart processing for session {state.session_id}")
 
@@ -70,7 +70,7 @@ class Stage666ASI:
 
         return "SEAL", new_state
 
-    def _identify_stakeholders(self, query: str) -> List[Stakeholder]:
+    def _identify_stakeholders(self, query: str) -> list[Stakeholder]:
         """Identify who is affected."""
         # Mock logic
         return [
@@ -78,7 +78,7 @@ class Stage666ASI:
             Stakeholder(name="System", role="system", vulnerability_score=0.1),
         ]
 
-    def _compute_empathy(self, stakeholders: List[Stakeholder]) -> float:
+    def _compute_empathy(self, stakeholders: list[Stakeholder]) -> float:
         """Compute Kappa_r (Integrated Empathy)."""
         # Mock logic: assume high empathy for now
         return 0.96
@@ -93,5 +93,5 @@ class Stage666ASI:
 stage_666_asi = Stage666ASI()
 
 
-def execute_stage_666(state: SessionState, query: str) -> Tuple[str, SessionState]:
+def execute_stage_666(state: SessionState, query: str) -> tuple[str, SessionState]:
     return stage_666_asi.execute(state, query)

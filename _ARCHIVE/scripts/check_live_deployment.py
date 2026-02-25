@@ -30,8 +30,8 @@ def check_http():
     print("CHECKING HTTP ENDPOINTS")
     print("=" * 60)
 
-    import urllib.request
     import ssl
+    import urllib.request
 
     ctx = ssl.create_default_context()
     ctx.check_hostname = False

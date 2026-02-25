@@ -6,16 +6,16 @@ The only source of truth for session-level data.
 """
 
 from dataclasses import dataclass, field
-from typing import Dict, Any, Optional
 from datetime import datetime, timezone
+from typing import Any, Optional
 
 
 class SessionStore:
     """In-memory session store (L0 hot storage)."""
 
-    def __init__(self, storage_path: Optional[str] = None):
+    def __init__(self, storage_path: str | None = None):
         """Initialize in-memory store."""
-        self._memory: Dict[str, "SessionState"] = {}
+        self._memory: dict[str, SessionState] = {}
 
     def get(self, session_id: str) -> Optional["SessionState"]:
         """Retrieve session state."""
@@ -40,10 +40,10 @@ class SessionState:
 
     session_id: str
     current_stage: int = 0  # 000-999
-    delta_bundle: Optional[Dict[str, Any]] = None  # AGI output
-    omega_bundle: Optional[Dict[str, Any]] = None  # ASI output
-    floor_scores: Dict[str, float] = field(default_factory=dict)
-    merkle_root: Optional[str] = None
+    delta_bundle: dict[str, Any] | None = None  # AGI output
+    omega_bundle: dict[str, Any] | None = None  # ASI output
+    floor_scores: dict[str, float] = field(default_factory=dict)
+    merkle_root: str | None = None
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     last_updated: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
@@ -76,7 +76,7 @@ class SessionState:
             last_updated=datetime.now(timezone.utc),
         )
 
-    def store_delta(self, data: Dict[str, Any]) -> "SessionState":
+    def store_delta(self, data: dict[str, Any]) -> "SessionState":
         """Store AGI reasoning bundle (returns new instance)."""
         return SessionState(
             session_id=self.session_id,
@@ -89,7 +89,7 @@ class SessionState:
             last_updated=datetime.now(timezone.utc),
         )
 
-    def store_omega(self, data: Dict[str, Any]) -> "SessionState":
+    def store_omega(self, data: dict[str, Any]) -> "SessionState":
         """Store ASI safety bundle (returns new instance)."""
         return SessionState(
             session_id=self.session_id,

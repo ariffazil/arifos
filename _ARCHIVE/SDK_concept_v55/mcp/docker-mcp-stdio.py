@@ -9,7 +9,6 @@ import subprocess
 import sys
 
 
-
 def send_message(msg):
     """Send JSON-RPC message"""
     data = json.dumps(msg)

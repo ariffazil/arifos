@@ -32,7 +32,8 @@ async def ensure_vault_tables():
     conn = await asyncpg.connect(dsn, ssl=ssl_context)
     try:
         # Create vault_ledger table
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS vault_ledger (
                 sequence BIGSERIAL PRIMARY KEY,
                 session_id TEXT NOT NULL,
@@ -46,20 +47,26 @@ async def ensure_vault_tables():
                 merkle_root TEXT NOT NULL,
                 created_at TIMESTAMPTZ DEFAULT now()
             )
-        """)
+        """
+        )
 
         # Create indexes
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_vault_session 
             ON vault_ledger(session_id)
-        """)
-        await conn.execute("""
+        """
+        )
+        await conn.execute(
+            """
             CREATE INDEX IF NOT EXISTS idx_vault_timestamp 
             ON vault_ledger(timestamp)
-        """)
+        """
+        )
 
         # Create vault_head table
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS vault_head (
                 id SMALLINT PRIMARY KEY DEFAULT 1,
                 head_sequence BIGINT NOT NULL DEFAULT 0,
@@ -67,16 +74,19 @@ async def ensure_vault_tables():
                 head_merkle_root TEXT NOT NULL DEFAULT '',
                 updated_at TIMESTAMPTZ DEFAULT now()
             )
-        """)
+        """
+        )
 
         # Create vault_merkle_state table
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS vault_merkle_state (
                 id SMALLINT PRIMARY KEY DEFAULT 1,
                 merkle_state JSONB,
                 updated_at TIMESTAMPTZ DEFAULT now()
             )
-        """)
+        """
+        )
 
     finally:
         await conn.close()

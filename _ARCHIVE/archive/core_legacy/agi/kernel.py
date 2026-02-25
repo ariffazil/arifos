@@ -12,9 +12,7 @@ DITEMPA BUKAN DIBERI - Forged, Not Given
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, Optional
-
-from codebase.bundles import DeltaBundle
+from typing import Any
 
 # Unified Engine (v55.5: consolidated into engine.py)
 from . import (
@@ -43,7 +41,7 @@ class AGINeuralCore:
 
     def __init__(self):
         self.version = "v53.3.0-UNIFIED"
-        self._engines: Dict[str, AGIEngine] = {}  # Session cache
+        self._engines: dict[str, AGIEngine] = {}  # Session cache
         logger.info(f"AGINeuralCore ignited ({self.version})")
 
     def _get_engine(self, session_id: str) -> AGIEngine:
@@ -52,7 +50,7 @@ class AGINeuralCore:
             self._engines[session_id] = AGIEngine(session_id=session_id)
         return self._engines[session_id]
 
-    async def sense(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def sense(self, query: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         """
         Stage 111: SENSE - Parse input, detect intent, check floors.
 
@@ -84,7 +82,7 @@ class AGINeuralCore:
             ),
         }
 
-    async def think(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def think(self, query: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         """
         Stage 222: THINK - Generate reasoning tree.
 
@@ -111,7 +109,7 @@ class AGINeuralCore:
             "lane": bundle.intent_lane if hasattr(bundle, "intent_lane") else "SOFT",
         }
 
-    async def forge(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def forge(self, query: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         """
         Stage 333/FORGE: Converge reasoning into final output.
 
@@ -139,8 +137,8 @@ class AGINeuralCore:
         }
 
     async def reflect(
-        self, thought: str, query: str, session_id: Optional[str] = None
-    ) -> Dict[str, Any]:
+        self, thought: str, query: str, session_id: str | None = None
+    ) -> dict[str, Any]:
         """
         Meta-cognition: Constitutional Critique of reasoning.
 
@@ -232,7 +230,7 @@ class AGINeuralCore:
             "next_step": "seal" if is_safe else "revise",
         }
 
-    async def physics(self, query: str, context: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    async def physics(self, query: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
         """
         Physics mode: Apply thermodynamic constraints.
 
@@ -257,7 +255,7 @@ class AGINeuralCore:
 
         return {"stage": "physics", "status": "SEAL", "delta_s": delta_s, "entropy_reduced": True}
 
-    async def execute(self, action: str, kwargs: Dict[str, Any]) -> Dict[str, Any]:
+    async def execute(self, action: str, kwargs: dict[str, Any]) -> dict[str, Any]:
         """
         Unified execution entry point.
 
@@ -313,7 +311,7 @@ class AGINeuralCore:
                 ],
             }
 
-    async def _execute_full(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_full(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Execute complete pipeline and return unified result."""
         session_id = context.get("session_id", f"agi_{id(query):x}")
 
@@ -340,7 +338,7 @@ class AGINeuralCore:
             "_bundle": delta_bundle,
         }
 
-    async def _execute_atlas(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_atlas(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Execute and return knowledge map."""
         result = await self._execute_full(query, context)
         bundle = result.get("_bundle")
@@ -364,7 +362,7 @@ class AGINeuralCore:
             "uncertainty": result.get("omega_0", 0.04),
         }
 
-    async def _execute_reason(self, query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    async def _execute_reason(self, query: str, context: dict[str, Any]) -> dict[str, Any]:
         """Execute with step-by-step reasoning output."""
         result = await self._execute_full(query, context)
         bundle = result.get("_bundle")
@@ -387,7 +385,7 @@ class AGINeuralCore:
 AGIKernel = AGINeuralCore
 
 # Singleton instance
-_core_instance: Optional[AGINeuralCore] = None
+_core_instance: AGINeuralCore | None = None
 
 
 def get_agi_core() -> AGINeuralCore:

@@ -24,12 +24,13 @@ import asyncio
 import math
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
+
+from ..asi.engine import ASIEngineHardened, OmegaBundle
 
 # Import hardened engines
 # v55.5: Consolidated imports
-from .engine import AGIEngineHardened, DeltaBundle, execute_agi_hardened
-from ..asi.engine import ASIEngineHardened, OmegaBundle, execute_asi_hardened
+from .engine import AGIEngineHardened, DeltaBundle
 
 # ============ CONSTANTS ============
 
@@ -54,7 +55,7 @@ class ParadoxScore:
     synthesis: str
     score: float  # 0-1
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "name": self.name,
             "agi": self.agi_component,
@@ -78,21 +79,21 @@ class TrinityBundle:
     asi_vote: str
 
     # 6-Paradox synthesis
-    paradoxes: Dict[str, ParadoxScore]
+    paradoxes: dict[str, ParadoxScore]
 
     # Final metrics
     trinity_score: float  # Geometric mean of paradoxes
     final_verdict: str  # SEAL, VOID, or SABAR
 
     # Component bundles (for inspection)
-    delta_bundle: Optional[Dict[str, Any]] = None
-    omega_bundle: Optional[Dict[str, Any]] = None
+    delta_bundle: dict[str, Any] | None = None
+    omega_bundle: dict[str, Any] | None = None
 
     # Reasoning
     synthesis_reasoning: str = ""
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "trinity_score": round(self.trinity_score, 4),
@@ -131,7 +132,7 @@ def synthesize_paradox(agi_value: float, asi_value: float, method: str = "geomet
         return (agi + asi) / 2
 
 
-def compute_trinity_score(paradox_scores: List[float], method: str = "geometric") -> float:
+def compute_trinity_score(paradox_scores: list[float], method: str = "geometric") -> float:
     """
     Compute overall Trinity score from paradox scores.
     """
@@ -156,12 +157,12 @@ class TrinitySyncHardened:
     Hardened Trinity Sync for AGI + ASI convergence.
     """
 
-    def __init__(self, session_id: Optional[str] = None):
+    def __init__(self, session_id: str | None = None):
         self.session_id = session_id or f"trinity_{datetime.utcnow().strftime('%Y%m%d%H%M%S')}"
         self.agi_engine = AGIEngineHardened(self.session_id)
         self.asi_engine = ASIEngineHardened(self.session_id)
 
-    async def synchronize(self, query: str, context: Optional[Dict] = None) -> TrinityBundle:
+    async def synchronize(self, query: str, context: dict | None = None) -> TrinityBundle:
         """
         Execute parallel AGI + ASI and synthesize at 333 FORGE.
         """
@@ -199,7 +200,7 @@ class TrinitySyncHardened:
 
     def _synthesize_paradoxes(
         self, delta: DeltaBundle, omega: OmegaBundle
-    ) -> Dict[str, ParadoxScore]:
+    ) -> dict[str, ParadoxScore]:
         """
         Synthesize 6 paradoxes (3 pairs of AGI↔ASI virtues).
         """
@@ -298,7 +299,7 @@ class TrinitySyncHardened:
         delta: DeltaBundle,
         omega: OmegaBundle,
         trinity_score: float,
-        paradoxes: Dict[str, ParadoxScore],
+        paradoxes: dict[str, ParadoxScore],
     ) -> str:
         """
         Determine final verdict based on all inputs.
@@ -328,7 +329,7 @@ class TrinitySyncHardened:
         self,
         delta: DeltaBundle,
         omega: OmegaBundle,
-        paradoxes: Dict[str, ParadoxScore],
+        paradoxes: dict[str, ParadoxScore],
         trinity_score: float,
     ) -> str:
         """Generate human-readable synthesis reasoning."""
@@ -358,7 +359,7 @@ class TrinitySyncHardened:
 # ============ CONVENIENCE ============
 
 
-async def trinity_sync_hardened(query: str, session_id: Optional[str] = None) -> TrinityBundle:
+async def trinity_sync_hardened(query: str, session_id: str | None = None) -> TrinityBundle:
     """Convenience function for hardened Trinity sync."""
     sync = TrinitySyncHardened(session_id)
     return await sync.synchronize(query)

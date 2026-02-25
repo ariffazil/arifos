@@ -7,21 +7,10 @@ Run: python demo_nine_paradox.py
 """
 
 import asyncio
-from typing import Dict, List
 
-from trinity_nine import (
-    TrinityNine,
-    NineFoldBundle,
-    NineParadox,
-    TrinityTier,
-    create_nine_paradoxes,
-    trinity_nine_sync,
-    EQUILIBRIUM_THRESHOLD,
-)
-from equilibrium_finder import EquilibriumFinder, demonstrate_equilibrium
+from equilibrium_finder import EquilibriumFinder
 from trinity_nine import (
     EQUILIBRIUM_THRESHOLD,
-    NineFoldBundle,
     NineParadox,
     TrinityNine,
     TrinityTier,
@@ -30,7 +19,7 @@ from trinity_nine import (
 )
 
 
-def print_matrix(paradoxes: Dict[str, NineParadox], title: str = "9-PARADOX MATRIX"):
+def print_matrix(paradoxes: dict[str, NineParadox], title: str = "9-PARADOX MATRIX"):
     """Print the 9-paradox matrix with scores."""
     print("\n" + "=" * 80)
     print(f"  {title}")
@@ -178,7 +167,7 @@ async def demo_equilibrium_convergence():
     for name, score in current_state.items():
         print(f"    {name:30s}: {score:.2f}")
 
-    print(f"\n  Initial Stats:")
+    print("\n  Initial Stats:")
     print(f"    Mean: {np.mean(list(current_state.values())):.3f}")
     print(f"    Std:  {np.std(list(current_state.values())):.3f}")
     print(f"    Min:  {min(current_state.values()):.3f}")
@@ -188,7 +177,7 @@ async def demo_equilibrium_convergence():
     point, path = finder.find_nearest_equilibrium(current_state)
 
     print(f"\n  Converged in {len(path)} iterations")
-    print(f"\n  Final State (Equilibrium):")
+    print("\n  Final State (Equilibrium):")
 
     # Recreate paradoxes with final scores
     paradoxes = create_nine_paradoxes()
@@ -197,7 +186,7 @@ async def demo_equilibrium_convergence():
 
     print_matrix(paradoxes, "CONVERGED EQUILIBRIUM")
 
-    print(f"\n  Final Stats:")
+    print("\n  Final Stats:")
     print(f"    Trinity Score: {point.trinity_score:.4f}")
     print(f"    Balance Index: {point.balance_index:.4f}")
     print(f"    Stability:     {point.stability:.4f}")

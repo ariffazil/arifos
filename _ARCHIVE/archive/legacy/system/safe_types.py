@@ -3,7 +3,7 @@ Safe type conversion utilities for constitutional metrics.
 Prevents crashes from malformed metric values.
 """
 
-from typing import Any, Union
+from typing import Any
 
 
 def safe_float(

@@ -7,9 +7,8 @@ Implements Byzantine fault tolerance and immutable state.
 import hashlib
 import json
 import time
-from typing import Dict, List, Set, Optional
-from dataclasses import dataclass, field
 from collections import defaultdict
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -17,7 +16,7 @@ class Proposal:
     """A proposal in the consensus protocol."""
 
     agent_id: str
-    value: Dict
+    value: dict
     signature: str
     digest: str
     timestamp: float = field(default_factory=time.time)
@@ -43,7 +42,7 @@ class FederatedConsensus:
     - F11 Command Auth: BLS signature verification
     """
 
-    def __init__(self, witnesses: List[str], fault_tolerance: int = 0):
+    def __init__(self, witnesses: list[str], fault_tolerance: int = 0):
         """
         Args:
             witnesses: List of witness agent IDs
@@ -55,10 +54,10 @@ class FederatedConsensus:
 
         # Consensus state
         self.sequence_number = 0
-        self.prepared_proposals: Dict[int, List[Proposal]] = defaultdict(list)
-        self.committed_values: Dict[int, Dict] = {}
+        self.prepared_proposals: dict[int, list[Proposal]] = defaultdict(list)
+        self.committed_values: dict[int, dict] = {}
 
-    def create_proposal(self, agent_id: str, value: Dict, private_key: str) -> Proposal:
+    def create_proposal(self, agent_id: str, value: dict, private_key: str) -> Proposal:
         """
         Create a signed proposal.
 
@@ -114,7 +113,7 @@ class FederatedConsensus:
 
         return True
 
-    def prepare(self, proposal: Proposal, public_keys: Dict[str, str]) -> bool:
+    def prepare(self, proposal: Proposal, public_keys: dict[str, str]) -> bool:
         """
         Phase 2: Witnesses validate and prepare.
 
@@ -129,7 +128,7 @@ class FederatedConsensus:
         # Check if we have quorum
         return len(self.prepared_proposals[seq]) >= self.quorum_size
 
-    def commit(self, sequence_number: int) -> Dict:
+    def commit(self, sequence_number: int) -> dict:
         """
         Phase 3: Commit if all witnesses agree.
 
@@ -162,7 +161,7 @@ class FederatedConsensus:
 
         return committed
 
-    def _compute_merkle_root(self, proposals: List[Proposal]) -> str:
+    def _compute_merkle_root(self, proposals: list[Proposal]) -> str:
         """
         Compute Merkle root from proposal digests.
         """
@@ -189,11 +188,11 @@ class FederatedConsensus:
 class MerkleNode:
     """Node in Merkle DAG."""
 
-    def __init__(self, cid: str, content: str, parents: List[str] = None):
+    def __init__(self, cid: str, content: str, parents: list[str] = None):
         self.cid = cid  # Content identifier (hash)
         self.content = content
         self.parents = parents or []
-        self.children: List[str] = []
+        self.children: list[str] = []
         self.timestamp = time.time()
 
 
@@ -211,14 +210,14 @@ class FederatedLedger:
 
     def __init__(self, agent_id: str):
         self.agent_id = agent_id
-        self.nodes: Dict[str, MerkleNode] = {}
-        self.head: Optional[str] = None
-        self.peers: Set[str] = set()
+        self.nodes: dict[str, MerkleNode] = {}
+        self.head: str | None = None
+        self.peers: set[str] = set()
 
         # CRDT: Last-Write-Wins Register for state
-        self.lww_register: Dict[str, tuple] = {}  # key -> (timestamp, value)
+        self.lww_register: dict[str, tuple] = {}  # key -> (timestamp, value)
 
-    def append(self, event: Dict, signatures: Dict[str, str] = None) -> str:
+    def append(self, event: dict, signatures: dict[str, str] = None) -> str:
         """
         Append event to ledger.
 
@@ -261,14 +260,14 @@ class FederatedLedger:
 
         return cid
 
-    def get(self, cid: str) -> Optional[Dict]:
+    def get(self, cid: str) -> dict | None:
         """Retrieve event by CID."""
         node = self.nodes.get(cid)
         if node:
             return json.loads(node.content)
         return None
 
-    def verify_tri_witness(self, cid: str) -> Dict:
+    def verify_tri_witness(self, cid: str) -> dict:
         """
         Verify event has all three witness signatures.
 
@@ -291,7 +290,7 @@ class FederatedLedger:
 
         return {"valid": True, "tri_witness": 1.0, "signatures": witnesses}
 
-    def get_chain(self, cid: str) -> List[str]:
+    def get_chain(self, cid: str) -> list[str]:
         """
         Get ancestry chain from cid to genesis.
         """
@@ -334,7 +333,7 @@ class FederatedLedger:
 
         return merged
 
-    def compute_merkle_root(self) -> Optional[str]:
+    def compute_merkle_root(self) -> str | None:
         """Compute Merkle root of current chain."""
         if not self.head:
             return None

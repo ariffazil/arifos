@@ -20,11 +20,11 @@ from __future__ import annotations
 import asyncio
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
-from codebase.bundles import DeltaBundle, OmegaBundle, EngineVote, MergedBundle
 from codebase.agi.engine import execute_agi
 from codebase.asi.engine import execute_asi
+from codebase.bundles import DeltaBundle, MergedBundle, OmegaBundle
 
 # =============================================================================
 # THE 6 PARADOXES (AGI 3 + ASI 3)
@@ -114,17 +114,17 @@ class ConvergenceResult:
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     # Input bundles
-    delta_bundle: Optional[DeltaBundle] = None
-    omega_bundle: Optional[OmegaBundle] = None
+    delta_bundle: DeltaBundle | None = None
+    omega_bundle: OmegaBundle | None = None
 
     # Paradox resolutions
-    paradox_scores: Dict[str, float] = field(default_factory=dict)
+    paradox_scores: dict[str, float] = field(default_factory=dict)
 
     # Synthesis — uses canonical MergedBundle
-    merged_bundle: Optional[MergedBundle] = None
+    merged_bundle: MergedBundle | None = None
     final_verdict: str = "VOID"
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "timestamp": self.timestamp.isoformat(),
@@ -157,8 +157,8 @@ class TrinitySync:
     async def converge(
         self,
         query: str,
-        agi_context: Optional[Dict[str, Any]] = None,
-        asi_context: Optional[Dict[str, Any]] = None,
+        agi_context: dict[str, Any] | None = None,
+        asi_context: dict[str, Any] | None = None,
     ) -> ConvergenceResult:
         """
         Execute AGI and ASI in PARALLEL, then converge at 333.
@@ -217,7 +217,7 @@ class TrinitySync:
 
         return result
 
-    def _resolve_paradoxes(self, delta: DeltaBundle, omega: OmegaBundle) -> Dict[str, float]:
+    def _resolve_paradoxes(self, delta: DeltaBundle, omega: OmegaBundle) -> dict[str, float]:
         """
         Resolve the 6 paradoxes through synthesis.
 
@@ -263,7 +263,7 @@ class TrinitySync:
         return scores
 
     def _build_merged_bundle(
-        self, delta: DeltaBundle, omega: OmegaBundle, paradox_scores: Dict[str, float]
+        self, delta: DeltaBundle, omega: OmegaBundle, paradox_scores: dict[str, float]
     ) -> MergedBundle:
         """Build the canonical MergedBundle from synthesis."""
 
@@ -292,9 +292,9 @@ class TrinitySync:
 
 async def trinity_sync(
     query: str,
-    session_id: Optional[str] = None,
-    agi_context: Optional[Dict[str, Any]] = None,
-    asi_context: Optional[Dict[str, Any]] = None,
+    session_id: str | None = None,
+    agi_context: dict[str, Any] | None = None,
+    asi_context: dict[str, Any] | None = None,
 ) -> ConvergenceResult:
     """
     Synchronize AGI (Mind) and ASI (Heart) at 333 FORGE.

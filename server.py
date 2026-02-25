@@ -21,7 +21,6 @@ import argparse
 import os
 import sys
 
-
 VALID_MODES = {"rest", "sse", "http", "stdio"}
 DEFAULT_MODE = "sse"
 DEFAULT_HOST = "0.0.0.0"

@@ -11,7 +11,6 @@ Falls back to hardcoded defaults only if ARIFOS_ALLOW_LEGACY_SPEC=1.
 import json
 import os
 from pathlib import Path
-from typing import Optional
 
 from codebase.spec.manifest_verifier import verify_manifest
 
@@ -78,24 +77,24 @@ def _load_session_physics_spec() -> dict:
                 )
 
         try:
-            with open(env_path, "r", encoding="utf-8") as f:
+            with open(env_path, encoding="utf-8") as f:
                 spec_data = json.load(f)
             # Schema validation (Track B authority enforcement)
             validate_spec_against_schema(spec_data, schema_path, allow_legacy=allow_legacy)
             return spec_data
-        except (json.JSONDecodeError, IOError):
+        except (OSError, json.JSONDecodeError):
             pass
 
     # Priority B: spec/v45/session_physics.json (AUTHORITATIVE)
     v45_path = pkg_dir / "spec" / "v45" / "session_physics.json"
     if v45_path.exists():
         try:
-            with open(v45_path, "r", encoding="utf-8") as f:
+            with open(v45_path, encoding="utf-8") as f:
                 spec_data = json.load(f)
             # Schema validation (Track B authority enforcement)
             validate_spec_against_schema(spec_data, schema_path, allow_legacy=allow_legacy)
             return spec_data
-        except (json.JSONDecodeError, IOError):
+        except (OSError, json.JSONDecodeError):
             pass
 
     # Priority C: spec/v44/session_physics.json (FALLBACK with deprecation warning)
@@ -110,12 +109,12 @@ def _load_session_physics_spec() -> dict:
             stacklevel=2,
         )
         try:
-            with open(v44_path, "r", encoding="utf-8") as f:
+            with open(v44_path, encoding="utf-8") as f:
                 spec_data = json.load(f)
             # Schema validation (Track B authority enforcement)
             validate_spec_against_schema(spec_data, schema_path, allow_legacy=allow_legacy)
             return spec_data
-        except (json.JSONDecodeError, IOError):
+        except (OSError, json.JSONDecodeError):
             pass
 
     # Priority D: Hardcoded defaults (only if legacy enabled)
@@ -151,7 +150,7 @@ BURST_VAR_DT_THRESHOLD = _PHYSICS_SPEC["burst_detection"]["variance_dt_threshold
 STREAK_THRESHOLD = _PHYSICS_SPEC["streak_thresholds"]["max_consecutive_failures"]
 
 
-def evaluate_physics_floors(attrs: SessionAttributes) -> Optional[Verdict]:
+def evaluate_physics_floors(attrs: SessionAttributes) -> Verdict | None:
     """
     Evaluate physics floors on session attributes.
     Returns a Verdict if a floor is tripped, else None.

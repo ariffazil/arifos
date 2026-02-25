@@ -5,11 +5,8 @@ arifOS Docker MCP Server
 Provides Docker container management via Model Context Protocol
 """
 
-import asyncio
 import json
-import os
 import subprocess
-from typing import Any, Optional
 
 import uvicorn
 from mcp.server import Server

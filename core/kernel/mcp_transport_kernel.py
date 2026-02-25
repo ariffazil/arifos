@@ -9,7 +9,6 @@ from __future__ import annotations
 import hashlib
 from typing import Any
 
-
 STAGE_777_EUREKA_FORGE = "777_EUREKA_FORGE"
 STAGE_888_APEX_JUDGE = "888_APEX_JUDGE"
 

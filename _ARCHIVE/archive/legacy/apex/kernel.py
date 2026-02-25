@@ -26,14 +26,14 @@ import uuid
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
+from codebase.system.apex_prime import APEXPrime
+from codebase.vault import should_seal_to_vault
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 from aaa_mcp.services.constitutional_metrics import get_stage_result, store_stage_result
 from aaa_mcp.sessions.session_ledger import seal_memory
-from codebase.system.apex_prime import APEXPrime
-from codebase.vault import should_seal_to_vault
 
 _apex_logger = _apex_logging.getLogger("codebase.apex.kernel")
 
@@ -53,7 +53,7 @@ class ConstitutionalEntropyProfiler:
     def _calc_entropy(text: str) -> float:
         if not text:
             return 0.0
-        counts: Dict[str, int] = {}
+        counts: dict[str, int] = {}
         for ch in text:
             counts[ch] = counts.get(ch, 0) + 1
         length = len(text)
@@ -78,7 +78,7 @@ def _sha256_hex(payload: bytes) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _compute_merkle_root(items: List[str]) -> str:
+def _compute_merkle_root(items: list[str]) -> str:
     """Compute a Merkle root from hex leaf hashes."""
     if not items:
         return _sha256_hex(b"EMPTY_MERKLE")
@@ -86,7 +86,7 @@ def _compute_merkle_root(items: List[str]) -> str:
     while len(level) > 1:
         if len(level) % 2 == 1:
             level.append(level[-1])
-        next_level: List[str] = []
+        next_level: list[str] = []
         for i in range(0, len(level), 2):
             next_level.append(_sha256_hex((level[i] + level[i + 1]).encode("utf-8")))
         level = next_level
@@ -146,8 +146,8 @@ class APEXJudicialCore:
 
     @staticmethod
     async def forge_777(
-        response: str, merged_bundle: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        response: str, merged_bundle: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Stage 777: Prepare response without changing reasoning."""
         draft = response or (merged_bundle or {}).get("draft", "")
         return {
@@ -163,8 +163,8 @@ class APEXJudicialCore:
 
     @staticmethod
     def _extract_votes(
-        agi_result: Optional[Dict[str, Any]], asi_result: Optional[Dict[str, Any]]
-    ) -> Dict[str, float]:
+        agi_result: dict[str, Any] | None, asi_result: dict[str, Any] | None
+    ) -> dict[str, float]:
         """Extract tri-witness votes from mixed AGI/ASI result shapes."""
         agi = agi_result or {}
         asi = asi_result or {}
@@ -194,11 +194,11 @@ class APEXJudicialCore:
         session_id: str,
         query: str,
         response: str,
-        agi_result: Optional[Dict[str, Any]],
-        asi_result: Optional[Dict[str, Any]],
+        agi_result: dict[str, Any] | None,
+        asi_result: dict[str, Any] | None,
         user_id: str,
         lane: str,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Stage 888: full floor validation with p(truth)."""
         from codebase.floors.amanah import F1_Amanah
         from codebase.floors.injection import F12_InjectionDefense
@@ -391,7 +391,6 @@ class APEXJudicialCore:
             # TrinityNine.synchronize is async but judge_888 is sync —
             # use the solver directly for the equilibrium calculation
             import numpy as np
-
             from codebase.apex.trinity_nine import EquilibriumSolver, create_nine_paradoxes
 
             paradoxes = create_nine_paradoxes()
@@ -572,7 +571,7 @@ class APEXJudicialCore:
     # 889 PROOF
     # -------------------------------------------------------------------------
 
-    def proof_889(self, *, session_id: str, verdict_struct: Dict[str, Any]) -> Dict[str, Any]:
+    def proof_889(self, *, session_id: str, verdict_struct: dict[str, Any]) -> dict[str, Any]:
         """Stage 889: Merkle tree + Ed25519 signature."""
         floors = verdict_struct.get("metrics") or {}
         # Leaf hashes include floor summary + verdict fields for immutability.
@@ -606,7 +605,7 @@ class APEXJudicialCore:
     # -------------------------------------------------------------------------
 
     @staticmethod
-    def _summarize(verdict_struct: Dict[str, Any]) -> str:
+    def _summarize(verdict_struct: dict[str, Any]) -> str:
         verdict = verdict_struct.get("verdict", "UNKNOWN")
         reason = verdict_struct.get("reason", "")
         return f"{verdict}: {reason}".strip()
@@ -615,11 +614,11 @@ class APEXJudicialCore:
         self,
         *,
         session_id: str,
-        verdict_struct: Dict[str, Any],
-        init_result: Optional[Dict[str, Any]],
-        agi_result: Optional[Dict[str, Any]],
-        asi_result: Optional[Dict[str, Any]],
-    ) -> Dict[str, Any]:
+        verdict_struct: dict[str, Any],
+        init_result: dict[str, Any] | None,
+        agi_result: dict[str, Any] | None,
+        asi_result: dict[str, Any] | None,
+    ) -> dict[str, Any]:
         """Stage 999: EUREKA-filtered seal to ledger with Phoenix metadata.
 
         Theory of Anomalous Contrast (888_SOUL_VERDICT.md):
@@ -811,14 +810,14 @@ class APEXJudicialCore:
 
         return SESSION_PATH
 
-    def _list_session_entries(self, limit: int = 10) -> List[Dict[str, Any]]:
+    def _list_session_entries(self, limit: int = 10) -> list[dict[str, Any]]:
         path = self._sessions_dir()
         if not path.exists():
             return []
         files = sorted(path.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)[
             : max(1, limit)
         ]
-        entries: List[Dict[str, Any]] = []
+        entries: list[dict[str, Any]] = []
         for f in files:
             try:
                 data = json.loads(f.read_text(encoding="utf-8", errors="replace"))
@@ -836,7 +835,7 @@ class APEXJudicialCore:
                 continue
         return entries
 
-    def _read_entry(self, entry_hash_prefix: str) -> Optional[Dict[str, Any]]:
+    def _read_entry(self, entry_hash_prefix: str) -> dict[str, Any] | None:
         path = self._sessions_dir()
         if not path.exists():
             return None

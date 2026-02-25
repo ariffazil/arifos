@@ -4,10 +4,10 @@ v55.5 - Metabolic Loop (000↔999)
 """
 
 from .manager import (
-    LoopManager,
     LoopBridge,
-    LoopState,
     LoopContext,
+    LoopManager,
+    LoopState,
     StageResult,
     Verdict,
 )

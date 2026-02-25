@@ -49,7 +49,6 @@ import re
 import unicodedata
 from dataclasses import dataclass
 from enum import Enum
-from typing import List, Tuple
 
 
 class InjectionRisk(str, Enum):
@@ -77,7 +76,7 @@ class InjectionGuardResult:
     status: str
     risk_level: InjectionRisk
     injection_score: float
-    detected_patterns: List[Tuple[str, str]]
+    detected_patterns: list[tuple[str, str]]
     reason: str
     blocked: bool
 

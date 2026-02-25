@@ -13,18 +13,14 @@ Hardening:
 - ZKPC proof generation
 """
 
-from typing import Dict, Any, Optional
 from datetime import datetime
-import hashlib
-from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 
-from .state import VaultConfig, VaultEntry
+from .state import VaultEntry
 from .vault import SEAL999
-from .state import VaultEntry, VaultConfig
 
 # Singleton SEAL999 instance for pipeline use
-_seal999_instance: Optional[SEAL999] = None
+_seal999_instance: SEAL999 | None = None
 
 
 def get_seal999() -> SEAL999:
@@ -35,7 +31,7 @@ def get_seal999() -> SEAL999:
     return _seal999_instance
 
 
-def execute_stage(context: Dict[str, Any]) -> Dict[str, Any]:
+def execute_stage(context: dict[str, Any]) -> dict[str, Any]:
     """
     Stage 999: SEAL - Constitutional Memory Consolidation
 

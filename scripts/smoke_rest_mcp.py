@@ -2,23 +2,25 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Any, Dict, Optional
+from typing import Any
 
 import httpx
 
 
-def _auth_headers() -> Dict[str, str]:
+def _auth_headers() -> dict[str, str]:
     token = os.getenv("ARIFOS_API_KEY") or os.getenv("ARIFOS_API_TOKEN")
     if not token:
         return {}
     return {"Authorization": f"Bearer {token}"}
 
 
-def _call(base_url: str, tool: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
+def _call(base_url: str, tool: str, arguments: dict[str, Any]) -> dict[str, Any]:
     url = f"{base_url.rstrip('/')}/mcp"
     payload = {"tool": tool, "arguments": arguments}
     with httpx.Client(timeout=30.0) as client:
-        r = client.post(url, json=payload, headers={"Content-Type": "application/json", **_auth_headers()})
+        r = client.post(
+            url, json=payload, headers={"Content-Type": "application/json", **_auth_headers()}
+        )
         r.raise_for_status()
         return r.json()
 
@@ -33,7 +35,7 @@ def main(argv: list[str]) -> int:
         "init_session",
         {"query": query, "actor_id": actor_id, "debug": True},
     )
-    session_id: Optional[str] = None
+    session_id: str | None = None
     if isinstance(init, dict):
         session_id = (init.get("result") or {}).get("session_id")
 
@@ -42,7 +44,11 @@ def main(argv: list[str]) -> int:
         return 2
 
     _call(base_url, "agi_cognition", {"query": query, "session_id": session_id, "debug": True})
-    _call(base_url, "asi_empathy", {"query": query, "session_id": session_id, "stakeholders": ["all"], "debug": True})
+    _call(
+        base_url,
+        "asi_empathy",
+        {"query": query, "session_id": session_id, "stakeholders": ["all"], "debug": True},
+    )
     _call(
         base_url,
         "apex_verdict",
@@ -73,4 +79,3 @@ def main(argv: list[str]) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main(sys.argv[1:]))
-

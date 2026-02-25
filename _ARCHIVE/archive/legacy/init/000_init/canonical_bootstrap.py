@@ -26,7 +26,7 @@ import logging
 import os
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 # Optional HTTP clients - graceful degradation if not available
 AIOHTTP_AVAILABLE = False
@@ -109,7 +109,7 @@ class CanonicalSourceResult:
     source_id: str
     band: str  # AAA, BBB, CCC
     success: bool
-    data: Dict[str, Any] = field(default_factory=dict)
+    data: dict[str, Any] = field(default_factory=dict)
     hash: str = ""
     error: str = ""
     fetch_time_ms: float = 0.0
@@ -125,9 +125,9 @@ class CanonicalBootstrapResult:
     mode: str  # web_first, local_only, web_only
 
     # Source results
-    ccc_canon: Optional[CanonicalSourceResult] = None
-    bbb_ledger: Optional[CanonicalSourceResult] = None
-    aaa_human: Optional[CanonicalSourceResult] = None
+    ccc_canon: CanonicalSourceResult | None = None
+    bbb_ledger: CanonicalSourceResult | None = None
+    aaa_human: CanonicalSourceResult | None = None
 
     # Aggregate metrics
     sources_fetched: int = 0
@@ -135,13 +135,13 @@ class CanonicalBootstrapResult:
     tri_witness_sync: bool = False
 
     # Constitutional state
-    constitutional_floors: Dict[str, Any] = field(default_factory=dict)
-    implementation_state: Dict[str, Any] = field(default_factory=dict)
-    sovereign_authority: Dict[str, Any] = field(default_factory=dict)
+    constitutional_floors: dict[str, Any] = field(default_factory=dict)
+    implementation_state: dict[str, Any] = field(default_factory=dict)
+    sovereign_authority: dict[str, Any] = field(default_factory=dict)
 
     # Local fallback
     local_fallback_used: bool = False
-    local_config: Dict[str, Any] = field(default_factory=dict)
+    local_config: dict[str, Any] = field(default_factory=dict)
 
     # Metadata
     session_id: str = ""
@@ -157,9 +157,9 @@ class CanonicalBootstrapResult:
 class CanonicalConfigLoader:
     """Load and validate canonical bootstrap configuration."""
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: str | None = None):
         self.config_path = config_path or self._find_config_path()
-        self._config: Optional[Dict[str, Any]] = None
+        self._config: dict[str, Any] | None = None
 
     def _find_config_path(self) -> str:
         """Find config file in standard locations."""
@@ -174,14 +174,14 @@ class CanonicalConfigLoader:
                 return path
         return ""  # Use defaults
 
-    def load(self) -> Dict[str, Any]:
+    def load(self) -> dict[str, Any]:
         """Load configuration with fallback to defaults."""
         if self._config is not None:
             return self._config
 
         if self.config_path and Path(self.config_path).exists():
             try:
-                with open(self.config_path, "r", encoding="utf-8") as f:
+                with open(self.config_path, encoding="utf-8") as f:
                     user_config = json.load(f)
                 # Merge with defaults
                 self._config = self._merge_config(DEFAULT_CANONICAL_CONFIG, user_config)
@@ -199,7 +199,7 @@ class CanonicalConfigLoader:
 
         return self._config
 
-    def _merge_config(self, default: Dict, user: Dict) -> Dict:
+    def _merge_config(self, default: dict, user: dict) -> dict:
         """Deep merge user config with defaults."""
         result = default.copy()
         for key, value in user.items():
@@ -218,7 +218,7 @@ class CanonicalConfigLoader:
 class CanonicalFetchEngine:
     """Fetch canonical sources from web with retry and fallback logic."""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.sources_config = config.get("canonical_sources", {})
         self.verification = config.get("verification", {})
@@ -361,7 +361,7 @@ class CanonicalFetchEngine:
             error="No HTTP client available (install aiohttp or requests)",
         )
 
-    def _parse_content(self, content: str) -> Dict[str, Any]:
+    def _parse_content(self, content: str) -> dict[str, Any]:
         """Parse content as JSON or return as text wrapper."""
         try:
             return json.loads(content)
@@ -373,14 +373,14 @@ class CanonicalFetchEngine:
         """Compute SHA256 hash of content."""
         return hashlib.sha256(content.encode()).hexdigest()[:16]
 
-    def _check_cache(self, source_id: str) -> Optional[Dict[str, Any]]:
+    def _check_cache(self, source_id: str) -> dict[str, Any] | None:
         """Check if valid cached result exists."""
         cache_file = self.cache_dir / f"{source_id}.json"
         if not cache_file.exists():
             return None
 
         try:
-            with open(cache_file, "r", encoding="utf-8") as f:
+            with open(cache_file, encoding="utf-8") as f:
                 cached = json.load(f)
 
             # Check age
@@ -393,7 +393,7 @@ class CanonicalFetchEngine:
             pass
         return None
 
-    def _cache_result(self, source_id: str, data: Dict[str, Any]):
+    def _cache_result(self, source_id: str, data: dict[str, Any]):
         """Cache successful fetch result."""
         cache_file = self.cache_dir / f"{source_id}.json"
         try:
@@ -419,13 +419,13 @@ class CanonicalBootstrap:
         result = await bootstrap.initialize(scar_weight=1.0, session_id="xyz")
     """
 
-    def __init__(self, config_path: Optional[str] = None):
+    def __init__(self, config_path: str | None = None):
         self.config_loader = CanonicalConfigLoader(config_path)
         self.config = self.config_loader.load()
         self.fetch_engine = CanonicalFetchEngine(self.config)
 
     async def initialize(
-        self, scar_weight: float = 0.0, session_id: str = "", mode: Optional[str] = None
+        self, scar_weight: float = 0.0, session_id: str = "", mode: str | None = None
     ) -> CanonicalBootstrapResult:
         """
         Initialize constitutional state from canonical web sources.
@@ -508,7 +508,7 @@ class CanonicalBootstrap:
             reason=reason,
         )
 
-    def _extract_floors(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_floors(self, data: dict[str, Any]) -> dict[str, Any]:
         """Extract constitutional floors from CCC data."""
         # Handle both JSON and text formats
         if "floors" in data:
@@ -517,7 +517,7 @@ class CanonicalBootstrap:
             return data["constitutional_floors"]
         return {"raw": data}
 
-    def _extract_implementation(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_implementation(self, data: dict[str, Any]) -> dict[str, Any]:
         """Extract implementation state from BBB data."""
         if "implementation" in data:
             return data["implementation"]
@@ -525,7 +525,7 @@ class CanonicalBootstrap:
             return data["mcp_tools"]
         return {"raw": data}
 
-    def _extract_authority(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def _extract_authority(self, data: dict[str, Any]) -> dict[str, Any]:
         """Extract sovereign authority from AAA data."""
         if "authority" in data:
             return data["authority"]
@@ -549,12 +549,12 @@ class CanonicalBootstrap:
             reason=f"Local fallback: {reason}",
         )
 
-    def _load_local_config(self) -> Dict[str, Any]:
+    def _load_local_config(self) -> dict[str, Any]:
         """Load local constitutional configuration."""
         local_path = self.config.get("fallback", {}).get("local_config_path", "")
         if local_path and Path(local_path).exists():
             try:
-                with open(local_path, "r", encoding="utf-8") as f:
+                with open(local_path, encoding="utf-8") as f:
                     return json.load(f)
             except Exception as e:
                 logger.warning(f"Failed to load local config: {e}")
@@ -586,7 +586,7 @@ class CanonicalBootstrap:
 
 
 async def fetch_canonical_state(
-    scar_weight: float = 0.0, session_id: str = "", mode: Optional[str] = None
+    scar_weight: float = 0.0, session_id: str = "", mode: str | None = None
 ) -> CanonicalBootstrapResult:
     """
     Convenience function to fetch canonical state.
@@ -601,7 +601,7 @@ async def fetch_canonical_state(
     return await bootstrap.initialize(scar_weight=scar_weight, session_id=session_id, mode=mode)
 
 
-def get_bootstrap_config() -> Dict[str, Any]:
+def get_bootstrap_config() -> dict[str, Any]:
     """Get current bootstrap configuration."""
     loader = CanonicalConfigLoader()
     return loader.load()

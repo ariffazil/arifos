@@ -26,7 +26,7 @@ import json
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -39,14 +39,14 @@ class TestResult:
     name: str
     passed: bool
     message: str
-    details: Optional[Dict[str, Any]] = None
+    details: dict[str, Any] | None = None
 
 
 @dataclass
 class ComplianceReport:
     """Full compliance report."""
 
-    tests: List[TestResult] = field(default_factory=list)
+    tests: list[TestResult] = field(default_factory=list)
     passed: int = 0
     failed: int = 0
 
@@ -61,7 +61,7 @@ class ComplianceReport:
     def all_passed(self) -> bool:
         return self.failed == 0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "passed": self.passed,
             "failed": self.failed,
@@ -79,7 +79,7 @@ class ComplianceReport:
 # =============================================================================
 
 
-def validate_jsonrpc_request(req: Dict[str, Any]) -> TestResult:
+def validate_jsonrpc_request(req: dict[str, Any]) -> TestResult:
     """Validate JSON-RPC 2.0 request structure."""
     errors = []
 
@@ -118,7 +118,7 @@ def validate_jsonrpc_request(req: Dict[str, Any]) -> TestResult:
     )
 
 
-def validate_jsonrpc_response(resp: Dict[str, Any]) -> TestResult:
+def validate_jsonrpc_response(resp: dict[str, Any]) -> TestResult:
     """Validate JSON-RPC 2.0 response structure."""
     errors = []
 
@@ -170,7 +170,7 @@ def validate_jsonrpc_response(resp: Dict[str, Any]) -> TestResult:
 # =============================================================================
 
 
-def validate_initialize_response(resp: Dict[str, Any]) -> TestResult:
+def validate_initialize_response(resp: dict[str, Any]) -> TestResult:
     """Validate MCP initialize response."""
     errors = []
     result = resp.get("result", {})
@@ -214,7 +214,7 @@ def validate_initialize_response(resp: Dict[str, Any]) -> TestResult:
     )
 
 
-def validate_tools_list(resp: Dict[str, Any], expected_count: int = 5) -> TestResult:
+def validate_tools_list(resp: dict[str, Any], expected_count: int = 5) -> TestResult:
     """Validate MCP tools/list response."""
     errors = []
     result = resp.get("result", {})
@@ -273,7 +273,7 @@ def validate_tools_list(resp: Dict[str, Any], expected_count: int = 5) -> TestRe
     )
 
 
-def validate_tools_call_response(resp: Dict[str, Any]) -> TestResult:
+def validate_tools_call_response(resp: dict[str, Any]) -> TestResult:
     """Validate MCP tools/call response format."""
     errors = []
     result = resp.get("result", {})
@@ -326,7 +326,7 @@ MCP_ERROR_CODES = {
 }
 
 
-def validate_error_code(error: Dict[str, Any], expected_code: int) -> TestResult:
+def validate_error_code(error: dict[str, Any], expected_code: int) -> TestResult:
     """Validate MCP error response uses correct error code."""
     code = error.get("code")
 
@@ -400,7 +400,7 @@ async def test_server_directly() -> ComplianceReport:
                 TestResult(
                     name=f"Tool Definition: {name}",
                     passed=True,
-                    message=f"Valid tool definition with JSON Schema",
+                    message="Valid tool definition with JSON Schema",
                 )
             )
         else:

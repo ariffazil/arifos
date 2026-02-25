@@ -2,7 +2,6 @@
 Final cleanup - test SEAL999 works and remove temp files
 """
 
-import os
 import sys
 
 # Test import
@@ -10,7 +9,7 @@ sys.path.insert(0, "C:\\Users\\User\\arifOS")
 
 from datetime import datetime
 
-from SEAL999 import SEAL999, VaultConfig, VaultEntry
+from SEAL999 import SEAL999, VaultEntry
 
 print("=== SEAL999 Final Verification ===\n")
 

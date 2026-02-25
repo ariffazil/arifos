@@ -7,7 +7,7 @@ Cryptographic proofs for VAULT-999 entries.
 import hashlib
 import json
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .state import VaultEntry
 
@@ -19,7 +19,7 @@ class ZKPCProof:
     commitment_hash: str
     merkle_root: str
     witness_signature: str
-    floors_validated: Dict[str, float]
+    floors_validated: dict[str, float]
     stage: int
     session_id: str
 
@@ -27,11 +27,11 @@ class ZKPCProof:
 class ZKPCGenerator:
     """Generate ZKPC proofs for constitutional entries."""
 
-    def __init__(self, sovereign_key: Optional[str] = None):
+    def __init__(self, sovereign_key: str | None = None):
         """Initialize ZKPC generator with sovereign key."""
         self.sovereign_key = sovereign_key or "888_JUDGE"
 
-    def generate_proof(self, entry: VaultEntry, hash_chain) -> Dict[str, Any]:
+    def generate_proof(self, entry: VaultEntry, hash_chain) -> dict[str, Any]:
         """
         Generate ZKPC proof for a vault entry.
 
@@ -67,7 +67,7 @@ class ZKPCGenerator:
             "type": "zkpc_constitutional_proof_v1",
         }
 
-    def verify_proof(self, entry: VaultEntry, proof: Dict[str, Any]) -> bool:
+    def verify_proof(self, entry: VaultEntry, proof: dict[str, Any]) -> bool:
         """
         Verify ZKPC proof for a vault entry.
 

@@ -8,7 +8,7 @@ for developers.
 Authority: F4 (Clarity) - Errors must be clear and actionable.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 
 class ConstitutionalError(Exception):
@@ -26,10 +26,10 @@ class ConstitutionalError(Exception):
     def __init__(
         self,
         message: str,
-        hint: Optional[str] = None,
-        recovery: Optional[str] = None,
-        github_link: Optional[str] = None,
-        context: Optional[Dict[str, Any]] = None,
+        hint: str | None = None,
+        recovery: str | None = None,
+        github_link: str | None = None,
+        context: dict[str, Any] | None = None,
     ):
         self.message = message
         self.hint = hint

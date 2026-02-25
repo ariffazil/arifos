@@ -4,15 +4,13 @@ Reality Oracle — Tri-Witness Reality Instantiation
 The central engine that collapses agent superposition into reality.
 """
 
-import numpy as np
 import time
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
 from enum import Enum
 
-from .physics import ThermodynamicWitness, QuantumAgentState
-from .math import InformationGeometry, ConstitutionalSigmaAlgebra
 from .consensus import FederatedConsensus, FederatedLedger
+from .math import ConstitutionalSigmaAlgebra, InformationGeometry
+from .physics import ThermodynamicWitness
 from .proofs import ZKConstitutionalProof
 
 
@@ -32,8 +30,8 @@ class RealityInstantiation:
     verdict: Verdict
     tri_witness: float
     genius: float
-    floor_results: Dict[str, bool]
-    merkle_root: Optional[str]
+    floor_results: dict[str, bool]
+    merkle_root: str | None
     timestamp: float
     reasoning: str
 
@@ -68,11 +66,11 @@ class RealityOracle:
         self.zk = zk_system
 
         # Witness registry
-        self.human_witness: Optional[Dict] = None
-        self.ai_witness: Optional[Dict] = None
-        self.earth_witness: Optional[Dict] = None
+        self.human_witness: dict | None = None
+        self.ai_witness: dict | None = None
+        self.earth_witness: dict | None = None
 
-    def register_witness(self, witness_type: str, witness_data: Dict):
+    def register_witness(self, witness_type: str, witness_data: dict):
         """
         Register a witness for Tri-Witness consensus.
 
@@ -108,7 +106,7 @@ class RealityOracle:
         W3 = (H * A * E) ** (1 / 3)
         return W3
 
-    def calculate_genius(self, bundles: Dict) -> float:
+    def calculate_genius(self, bundles: dict) -> float:
         """
         Calculate Genius Index.
 
@@ -124,7 +122,7 @@ class RealityOracle:
         G = A * P * X * (E**2)
         return G
 
-    def verify_floors(self, agent_state: Dict) -> Tuple[Dict[str, bool], bool]:
+    def verify_floors(self, agent_state: dict) -> tuple[dict[str, bool], bool]:
         """
         Verify all constitutional floors.
 
@@ -144,7 +142,7 @@ class RealityOracle:
             return False
 
     def instantiate(
-        self, agent_state: Dict, bundles: Dict, operation_cost: float = 1.0
+        self, agent_state: dict, bundles: dict, operation_cost: float = 1.0
     ) -> RealityInstantiation:
         """
         Attempt to instantiate reality through Tri-Witness.
@@ -200,8 +198,8 @@ class RealityOracle:
         )
 
     def _render_verdict(
-        self, W3: float, G: float, floors_pass: bool, floor_results: Dict[str, bool]
-    ) -> Tuple[Verdict, str]:
+        self, W3: float, G: float, floors_pass: bool, floor_results: dict[str, bool]
+    ) -> tuple[Verdict, str]:
         """
         Render constitutional verdict.
 
@@ -244,7 +242,7 @@ class RealityOracle:
         return Verdict.SEAL, "All constitutional requirements satisfied"
 
     def _commit_to_ledger(
-        self, verdict: Verdict, W3: float, G: float, floor_results: Dict[str, bool]
+        self, verdict: Verdict, W3: float, G: float, floor_results: dict[str, bool]
     ) -> str:
         """Commit instantiated reality to immutable ledger."""
         # Collect signatures from witnesses
@@ -275,11 +273,11 @@ class RealityOracle:
         # Return Merkle root
         return self.ledger.compute_merkle_root() or cid
 
-    def query_reality(self, cid: str) -> Optional[Dict]:
+    def query_reality(self, cid: str) -> dict | None:
         """Query instantiated reality by CID."""
         return self.ledger.get(cid)
 
-    def verify_chain(self, cid: str) -> Dict:
+    def verify_chain(self, cid: str) -> dict:
         """Verify integrity of reality chain."""
         chain = self.ledger.get_chain(cid)
 

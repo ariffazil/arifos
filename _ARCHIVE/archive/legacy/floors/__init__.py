@@ -5,26 +5,25 @@ v55.5: Exports Canonical Floors, Metrics, and Eigendecomposition
 """
 
 # Genius Calculator with Eigendecomposition (v55.5)
+# F1: Amanah (Sacred Trust)
+from codebase.floors.amanah import AmanahCovenant, F1_Amanah
+
+# F11: Command Authority
+from codebase.floors.authority import AuthorityVerifier, verify_authority
 from codebase.floors.genius import (
+    FloorScores,
     GeniusCalculator,
     GeniusMetrics,
-    FloorScores,
-    extract_dials,
-    Verdict,
     OntologyLock,
+    Verdict,
+    extract_dials,
 )
-
-# F1: Amanah (Sacred Trust)
-from codebase.floors.amanah import F1_Amanah, AmanahCovenant
-
-# F10: Ontology (Category Lock)
-from codebase.floors.ontology import F10_OntologyGate, OntologyResult
 
 # F12: Injection Defense
 from codebase.floors.injection import F12_InjectionDefense, InjectionDefenseResult
 
-# F11: Command Authority
-from codebase.floors.authority import AuthorityVerifier, verify_authority
+# F10: Ontology (Category Lock)
+from codebase.floors.ontology import F10_OntologyGate, OntologyResult
 
 
 # Floor Registry for health checks

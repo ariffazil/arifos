@@ -11,14 +11,17 @@ DITEMPA BUKAN DIBERI - Forged, Not Given
 from __future__ import annotations
 
 # import asyncio  # Removed for v52.6.0 sync compatibility
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional, Tuple
+from dataclasses import dataclass
 from enum import Enum
+from typing import Any
 
-from codebase.bundles import Hypothesis, ReasoningTree, DeltaBundle
-from codebase.agi.stages import SenseOutput
-from codebase.agi.stages import execute_stage_222, ThinkOutput
-from codebase.agi.stages import execute_stage_333, ReasonOutput
+from codebase.agi.stages import (
+    ReasonOutput,
+    SenseOutput,
+    ThinkOutput,
+    execute_stage_222,
+    execute_stage_333,
+)
 
 
 class HypothesisMode(str, Enum):
@@ -41,7 +44,7 @@ class ParallelHypothesisResult:
     entropy_delta: float
     execution_time_ms: float
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "mode": self.mode.value,
             "confidence": round(self.confidence, 4),
@@ -84,8 +87,8 @@ class ParallelHypothesisMatrix:
         ]
 
     def generate_parallel_hypotheses(
-        self, sense_output: SenseOutput, context: Optional[Dict[str, Any]] = None
-    ) -> List[ParallelHypothesisResult]:
+        self, sense_output: SenseOutput, context: dict[str, Any] | None = None
+    ) -> list[ParallelHypothesisResult]:
         """
         Generate multiple hypothesis paths in parallel.
 
@@ -122,7 +125,7 @@ class ParallelHypothesisMatrix:
         return successful_results
 
     def _execute_hypothesis_path(
-        self, mode: HypothesisMode, sense_output: SenseOutput, context: Optional[Dict[str, Any]]
+        self, mode: HypothesisMode, sense_output: SenseOutput, context: dict[str, Any] | None
     ) -> ParallelHypothesisResult:
         """Execute a single hypothesis path: THINK → REASON"""
         import time
@@ -209,8 +212,8 @@ class ParallelHypothesisMatrix:
             )
 
     def converge_hypotheses(
-        self, parallel_results: List[ParallelHypothesisResult], sense_output: SenseOutput
-    ) -> Tuple[ReasonOutput, Dict[str, Any]]:
+        self, parallel_results: list[ParallelHypothesisResult], sense_output: SenseOutput
+    ) -> tuple[ReasonOutput, dict[str, Any]]:
         """
         Converge parallel hypotheses into best synthesis.
 
@@ -248,8 +251,8 @@ class ParallelHypothesisMatrix:
         return best_result.reason_output, debug_info
 
     def _rank_hypotheses(
-        self, results: List[ParallelHypothesisResult]
-    ) -> List[ParallelHypothesisResult]:
+        self, results: list[ParallelHypothesisResult]
+    ) -> list[ParallelHypothesisResult]:
         """
         Rank hypotheses by composite score:
         Score = Confidence × |Entropy_Delta|
@@ -267,9 +270,9 @@ class ParallelHypothesisMatrix:
     def generate_convergence_report(
         self,
         sense_output: SenseOutput,
-        parallel_results: List[ParallelHypothesisResult],
+        parallel_results: list[ParallelHypothesisResult],
         final_reasoning: ReasonOutput,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Generate human-readable convergence report"""
 
         ranking = self._rank_hypotheses(parallel_results)
@@ -289,7 +292,7 @@ class ParallelHypothesisMatrix:
             "speedup_vs_sequential": self._calculate_speedup(parallel_results),
         }
 
-    def _calculate_speedup(self, results: List[ParallelHypothesisResult]) -> float:
+    def _calculate_speedup(self, results: list[ParallelHypothesisResult]) -> float:
         """Calculate approximate speedup vs sequential execution"""
         if not results:
             return 1.0

@@ -71,10 +71,11 @@ import os
 import re
 import uuid
 from collections import deque
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, Callable, Deque, Dict, List, Literal, Optional, Tuple
+from typing import Any, Literal
 
 from ...enforcement.metrics import Metrics
 
@@ -207,10 +208,10 @@ class FAGReadResult:
 
     verdict: ApexVerdict
     path: str
-    content: Optional[str] = None
-    reason: Optional[str] = None
-    floor_scores: Optional[Dict[str, float]] = None
-    ledger_entry_id: Optional[str] = None
+    content: str | None = None
+    reason: str | None = None
+    floor_scores: dict[str, float] | None = None
+    ledger_entry_id: str | None = None
 
 
 @dataclass
@@ -224,12 +225,12 @@ class FAGWritePlan:
     target_path: str
     operation: Literal["create", "patch", "delete"]
     justification: str
-    diff: Optional[str] = None  # Unified diff for patches
+    diff: str | None = None  # Unified diff for patches
     # Verifiable read proof (anti-fake)
-    read_sha256: Optional[str] = None
-    read_bytes: Optional[int] = None
-    read_mtime_ns: Optional[int] = None
-    read_excerpt: Optional[str] = None  # First/last 64 bytes
+    read_sha256: str | None = None
+    read_bytes: int | None = None
+    read_mtime_ns: int | None = None
+    read_excerpt: str | None = None  # First/last 64 bytes
 
 
 @dataclass
@@ -239,8 +240,8 @@ class FAGWriteResult:
     verdict: str  # SEAL, HOLD, VOID
     path: str
     reason: str
-    floor_violations: Optional[List[str]] = None
-    rollback_id: Optional[str] = None  # v45.0.3: UUID for snapshot rollback
+    floor_violations: list[str] | None = None
+    rollback_id: str | None = None  # v45.0.3: UUID for snapshot rollback
 
 
 # Sandbox zones where unlimited writes are allowed
@@ -272,7 +273,7 @@ class MutationEvent:
     path: str
     timestamp: datetime
     diff_size: int = 0
-    previous_path: Optional[str] = None  # For rename tracking
+    previous_path: str | None = None  # For rename tracking
 
 
 @dataclass
@@ -283,7 +284,7 @@ class OperatorAlert:
     code: str  # e.g., "HIGH_ENTROPY", "CONSECUTIVE_FAILURES"
     message: str
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    context: Optional[Dict[str, Any]] = None
+    context: dict[str, Any] | None = None
 
 
 class MutationWatchdog:
@@ -306,8 +307,8 @@ class MutationWatchdog:
     ):
         self.burst_threshold = burst_threshold
         self.time_window = timedelta(seconds=time_window_seconds)
-        self.events: Deque[MutationEvent] = deque(maxlen=max_history)
-        self.rename_pending: Dict[str, MutationEvent] = {}  # Track renamed files
+        self.events: deque[MutationEvent] = deque(maxlen=max_history)
+        self.rename_pending: dict[str, MutationEvent] = {}  # Track renamed files
 
     def record(self, event: MutationEvent) -> None:
         """Record a mutation event."""
@@ -321,7 +322,7 @@ class MutationWatchdog:
             if event.path in self.rename_pending:
                 del self.rename_pending[event.path]
 
-    def detect_anomalies(self, root: Path) -> List[str]:
+    def detect_anomalies(self, root: Path) -> list[str]:
         """
         Detect suspicious patterns.
 
@@ -398,17 +399,17 @@ class FAG:
         enable_ledger: bool = True,
         job_id: str = "fag-session",
         enable_audit_file: bool = False,
-        audit_file_path: Optional[str] = None,
-        alert_thresholds: Optional[Dict[str, int]] = None,
+        audit_file_path: str | None = None,
+        alert_thresholds: dict[str, int] | None = None,
         persist_stats: bool = False,
         audit_rotation_size_mb: int = 10,
         audit_retention_days: int = 90,
         # v45.0.3 Hardening Parameters
-        human_seal_token: Optional[str] = None,
+        human_seal_token: str | None = None,
         enable_snapshots: bool = True,
         enable_watchdog: bool = True,
         enable_alerts: bool = True,
-        alert_callback: Optional[Callable[[OperatorAlert], None]] = None,
+        alert_callback: Callable[[OperatorAlert], None] | None = None,
         watchdog_burst_threshold: int = 10,
         watchdog_time_window: int = 60,
     ):
@@ -453,7 +454,7 @@ class FAG:
         self.alert_callback = alert_callback
 
         # v45.0.3 Snapshot storage (in-memory)
-        self.snapshots: Dict[str, FAGSnapshot] = {}
+        self.snapshots: dict[str, FAGSnapshot] = {}
         self.max_snapshots = 100
 
         # v45.0.3 Mutation Watchdog
@@ -479,7 +480,7 @@ class FAG:
         self.stats_file_path = self.root / "fag_stats.json"
 
         # Initialize access statistics (in-memory)
-        self.access_stats: Dict[str, int] = {
+        self.access_stats: dict[str, int] = {
             "total_denied": 0,
             "f1_amanah_fail": 0,
             "f2_truth_fail": 0,
@@ -501,7 +502,7 @@ class FAG:
         # Rate limiting: Track recent denials with timestamps
         # Format: deque[(timestamp, denial_type), ...]
         # Window: last 60 seconds
-        self.denial_history: Deque[Tuple[datetime, str]] = deque(maxlen=200)
+        self.denial_history: deque[tuple[datetime, str]] = deque(maxlen=200)
 
         # Security alert thresholds (denials per 60 seconds)
         if alert_thresholds is None:
@@ -625,7 +626,7 @@ class FAG:
             size=len(content),
         )
 
-    def list_dir(self, path: str = ".") -> List[Dict[str, Any]]:
+    def list_dir(self, path: str = ".") -> list[dict[str, Any]]:
         """
         List directory contents with constitutional filtering.
 
@@ -680,9 +681,9 @@ class FAG:
 
     def write_validate(
         self,
-        plan: "FAGWritePlan",
-        session_allowlist: Optional[List[str]] = None,
-    ) -> "FAGWriteResult":
+        plan: FAGWritePlan,
+        session_allowlist: list[str] | None = None,
+    ) -> FAGWriteResult:
         """
         Validate a write plan against FAG Write Contract v42.2.
 
@@ -702,7 +703,7 @@ class FAG:
             FAGWriteResult with verdict (SEAL/HOLD/VOID) and reason
         """
         target_path = plan.target_path
-        violations: List[str] = []
+        violations: list[str] = []
 
         # v45.0.3: Check watchdog for anomalies before proceeding
         watchdog_error = self._check_watchdog_anomalies()
@@ -715,7 +716,7 @@ class FAG:
             )
 
         # v45.0.3: Create pre-mutate snapshot for rollback
-        snapshot: Optional[FAGSnapshot] = None
+        snapshot: FAGSnapshot | None = None
         if plan.operation in ("patch", "delete"):
             try:
                 resolved_path = self._resolve_path(target_path)
@@ -783,7 +784,7 @@ class FAG:
 
                         if actual_sha256 != plan.read_sha256:
                             violations.append(
-                                f"Read Before Write: File changed since read (sha256 mismatch)"
+                                "Read Before Write: File changed since read (sha256 mismatch)"
                             )
                         if actual_bytes != plan.read_bytes:
                             violations.append(
@@ -847,9 +848,9 @@ class FAG:
 
     def _log_write_validation(
         self,
-        plan: "FAGWritePlan",
+        plan: FAGWritePlan,
         verdict: str,
-        violations: List[str],
+        violations: list[str],
     ) -> None:
         """Log write validation to Cooling Ledger."""
         metrics = Metrics(
@@ -1025,7 +1026,7 @@ class FAG:
 
         result.ledger_entry_id = entry.get("timestamp", "unknown")
 
-    def get_access_statistics(self) -> Dict[str, Any]:
+    def get_access_statistics(self) -> dict[str, Any]:
         """
         Get statistics on file access attempts.
 
@@ -1075,7 +1076,7 @@ class FAG:
             # Append to JSONL file (one JSON object per line)
             with open(self.audit_file_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(audit_entry) + "\n")
-        except Exception as e:
+        except Exception:
             # Fail silently - audit logging should not break FAG operations
             # Could optionally log to stderr or application logger here
             pass
@@ -1125,7 +1126,7 @@ class FAG:
             # Cleanup old rotated files
             self._cleanup_old_audit_files()
 
-        except Exception as e:
+        except Exception:
             # Fail silently - rotation should not break FAG
             pass
 
@@ -1182,7 +1183,7 @@ class FAG:
     # v45.0.3 HARDENING METHODS
     # =========================================================================
 
-    def _create_snapshot(self, path: Path) -> Optional[FAGSnapshot]:
+    def _create_snapshot(self, path: Path) -> FAGSnapshot | None:
         """
         Create pre-mutate snapshot for F1 Amanah rollback contract (v45.0.3).
 
@@ -1223,7 +1224,7 @@ class FAG:
 
             return snapshot
 
-        except Exception as e:
+        except Exception:
             # Snapshot creation failure should not block operations
             return None
 
@@ -1283,7 +1284,7 @@ class FAG:
         # Token must be non-empty string
         return isinstance(self.human_seal_token, str) and len(self.human_seal_token) > 0
 
-    def _check_watchdog_anomalies(self) -> Optional[str]:
+    def _check_watchdog_anomalies(self) -> str | None:
         """
         Check mutation watchdog for anomalies (v45.0.3).
 
@@ -1360,7 +1361,7 @@ class FAG:
         """Reset consecutive failure counter on successful operation."""
         self.consecutive_failures = 0
 
-    def health_check(self) -> Dict[str, Any]:
+    def health_check(self) -> dict[str, Any]:
         """
         Run repository integrity health check (v45.0.3).
 
@@ -1444,7 +1445,7 @@ class FAG:
         """
         try:
             if self.stats_file_path.exists():
-                with open(self.stats_file_path, "r", encoding="utf-8") as f:
+                with open(self.stats_file_path, encoding="utf-8") as f:
                     stats_data = json.load(f)
 
                 # Restore stats

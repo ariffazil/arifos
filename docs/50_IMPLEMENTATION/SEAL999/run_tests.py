@@ -8,7 +8,6 @@ import subprocess
 import sys
 
 
-
 def run_tests():
     """Run pytest for vault tests."""
     os.chdir("C:\\Users\\User\\arifOS\\SEAL999_CANONICAL")

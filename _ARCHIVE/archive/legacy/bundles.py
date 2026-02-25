@@ -17,11 +17,11 @@ v53.4.0 additions:
 DITEMPA BUKAN DIBERI - Forged, Not Given
 """
 
+import hashlib
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, List, Optional
-import hashlib
+from typing import Any
 
 # =============================================================================
 # VOTE TYPES
@@ -48,17 +48,17 @@ class Hypothesis:
     path_type: str  # "conservative", "exploratory", "adversarial"
     content: str
     confidence: float  # 0.0 to 1.0
-    supporting_facts: List[str] = field(default_factory=list)
+    supporting_facts: list[str] = field(default_factory=list)
 
 
 @dataclass
 class ReasoningTree:
     """Structured reasoning output from 333 REASON."""
 
-    premises: List[str]
-    inference_steps: List[str]
+    premises: list[str]
+    inference_steps: list[str]
     conclusion: str
-    contradictions_detected: List[str] = field(default_factory=list)
+    contradictions_detected: list[str] = field(default_factory=list)
     is_valid: bool = True
 
 
@@ -75,7 +75,7 @@ class AGIFloorScores:
         """Check if all hard floors pass."""
         return self.F2_truth >= 0.99 and self.F4_clarity <= 0 and 0.03 <= self.F7_humility <= 0.05
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         return {
             "F2_truth": self.F2_truth,
             "F4_clarity": self.F4_clarity,
@@ -109,14 +109,14 @@ class DeltaBundle:
 
     # 111 SENSE output
     raw_query: str = ""
-    parsed_facts: List[str] = field(default_factory=list)
+    parsed_facts: list[str] = field(default_factory=list)
     detected_intent: str = ""
 
     # 222 THINK output (3 paths)
-    hypotheses: List[Hypothesis] = field(default_factory=list)
+    hypotheses: list[Hypothesis] = field(default_factory=list)
 
     # 333 REASON output
-    reasoning: Optional[ReasoningTree] = None
+    reasoning: ReasoningTree | None = None
 
     # Confidence with uncertainty band
     confidence_low: float = 0.94  # 1 - Omega_0_max
@@ -134,7 +134,7 @@ class DeltaBundle:
     vote_reason: str = ""
 
     # Real-time dashboard metrics (v52.6.0)
-    dashboard: Optional[Dict[str, Any]] = None  # Thermodynamic tracking
+    dashboard: dict[str, Any] | None = None  # Thermodynamic tracking
 
     # v53.4.0: Precision weighting (Gap P1)
     precision_pi: float = 0.0  # π = 1/σ² (likelihood precision)
@@ -142,7 +142,7 @@ class DeltaBundle:
     kalman_gain: float = 0.0  # K = π_L / (π_P + π_L)
 
     # v53.4.0: Hierarchical encoding (Gap P2)
-    hierarchy_levels: Optional[Dict[str, Any]] = None  # 5-level encoding results
+    hierarchy_levels: dict[str, Any] | None = None  # 5-level encoding results
     cumulative_delta_s: float = 0.0  # Cumulative ΔS across hierarchy levels
 
     # v53.4.0: Active inference (Gap P3)
@@ -164,7 +164,7 @@ class DeltaBundle:
         self.bundle_hash = self.compute_hash()
         return self
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "session_id": self.session_id,
@@ -249,7 +249,7 @@ class ASIFloorScores:
             and self.F12_injection < 0.85  # No injection
         )
 
-    def to_dict(self) -> Dict[str, float]:
+    def to_dict(self) -> dict[str, float]:
         return {
             "F1_amanah": self.F1_amanah,
             "F5_peace": self.F5_peace,
@@ -281,15 +281,15 @@ class OmegaBundle:
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # 555 EMPATHY output
-    stakeholders: List[Stakeholder] = field(default_factory=list)
-    weakest_stakeholder: Optional[Stakeholder] = None
+    stakeholders: list[Stakeholder] = field(default_factory=list)
+    weakest_stakeholder: Stakeholder | None = None
     empathy_kappa_r: float = 0.0  # >= 0.95 required
 
     # 666 ALIGN output
     is_reversible: bool = True
     authority_verified: bool = False
-    safety_constraints: List[str] = field(default_factory=list)
-    recommended_safeguards: List[str] = field(default_factory=list)
+    safety_constraints: list[str] = field(default_factory=list)
+    recommended_safeguards: list[str] = field(default_factory=list)
 
     # Floor scores (ASI owns F1, F5, F6, F9, F11, F12)
     floor_scores: ASIFloorScores = field(default_factory=ASIFloorScores)
@@ -311,7 +311,7 @@ class OmegaBundle:
         self.bundle_hash = self.compute_hash()
         return self
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for serialization."""
         return {
             "session_id": self.session_id,
@@ -377,8 +377,8 @@ class MergedBundle:
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Original bundles (sealed, cannot modify)
-    delta_bundle: Optional[DeltaBundle] = None
-    omega_bundle: Optional[OmegaBundle] = None
+    delta_bundle: DeltaBundle | None = None
+    omega_bundle: OmegaBundle | None = None
 
     # 444 TRINITY_SYNC output
     consensus: TriWitnessConsensus = field(default_factory=TriWitnessConsensus)
@@ -388,7 +388,7 @@ class MergedBundle:
     pre_verdict_reason: str = ""
 
     # Combined floor scores (all 13)
-    all_floor_scores: Dict[str, float] = field(default_factory=dict)
+    all_floor_scores: dict[str, float] = field(default_factory=dict)
 
     # Integrity
     bundle_hash: str = ""
@@ -433,7 +433,7 @@ class MergedBundle:
             dissent_reason=dissent_reason,
         )
 
-    def merge_floor_scores(self) -> Dict[str, float]:
+    def merge_floor_scores(self) -> dict[str, float]:
         """Merge floor scores from both bundles."""
         scores = {}
 

@@ -5,18 +5,18 @@ This proves state can flow through constitutional stages.
 Updated to include 444 Trinity Sync and 666 ASI Heart.
 """
 
-import json
 import hashlib
+import json
 import os
-from datetime import datetime
-from typing import Dict, Any, Tuple
 from dataclasses import asdict
-from .state import SessionState, SessionStore
+from datetime import datetime
+from typing import Any
 
 # Canonical Stage Imports
 from .stage_000 import execute_stage_000
-from .stage_666 import execute_stage_666
 from .stage_444 import execute_stage_444
+from .stage_666 import execute_stage_666
+from .state import SessionState, SessionStore
 
 
 class MicroMetabolizer:
@@ -36,7 +36,7 @@ class MicroMetabolizer:
         matches = sum(1 for p in patterns if p in query_lower)
         return min(matches * 0.3, 0.95)
 
-    def _classify_intent(self, query: str) -> Dict[str, Any]:
+    def _classify_intent(self, query: str) -> dict[str, Any]:
         """111 SENSE: Minimal intent classification."""
         query_lower = query.lower()
         if "weather" in query_lower or "what is" in query_lower:
@@ -48,7 +48,7 @@ class MicroMetabolizer:
         else:
             return {"intent": "unclear", "confidence": 0.5}
 
-    def _compute_merkle_hash(self, data: Dict[str, Any]) -> str:
+    def _compute_merkle_hash(self, data: dict[str, Any]) -> str:
         """889 PROOF: Simple deterministic hash."""
 
         def clean_json(obj):
@@ -64,10 +64,9 @@ class MicroMetabolizer:
         sorted_data = json.dumps(cleaned, sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(sorted_data.encode()).hexdigest()[:16]
 
-    def stage_000_init(self, session_id: str, query: str) -> Tuple[str, SessionState]:
+    def stage_000_init(self, session_id: str, query: str) -> tuple[str, SessionState]:
         """000 INIT: Constitutional gate (Using Canonical Implementation)."""
         # We delegate to the canonical stage_000 which handles all the floors
-        from .stage_000 import Stage000VOID, VerdictType
 
         # Initialize state if needed
         state = self.session_store.get(session_id)
@@ -89,7 +88,7 @@ class MicroMetabolizer:
 
         return verdict, state
 
-    def stage_111_sense(self, session_id: str, query: str) -> Tuple[str, SessionState]:
+    def stage_111_sense(self, session_id: str, query: str) -> tuple[str, SessionState]:
         """111 SENSE: AGI Mind Processing (Reflect)."""
         state = self.session_store.get(session_id)
         intent_data = self._classify_intent(query)
@@ -115,21 +114,21 @@ class MicroMetabolizer:
 
         return "SEAL", state
 
-    def stage_666_align(self, session_id: str, query: str) -> Tuple[str, SessionState]:
+    def stage_666_align(self, session_id: str, query: str) -> tuple[str, SessionState]:
         """666 ALIGN: ASI Heart Processing (Refract)."""
         state = self.session_store.get(session_id)
         verdict, state = execute_stage_666(state, query)
         self.session_store.put(state, persist=True)
         return verdict, state
 
-    def stage_444_sync(self, session_id: str) -> Tuple[str, SessionState]:
+    def stage_444_sync(self, session_id: str) -> tuple[str, SessionState]:
         """444 SYNC: Trinity Bridge (Merge)."""
         state = self.session_store.get(session_id)
         verdict, state = execute_stage_444(state)
         self.session_store.put(state, persist=True)
         return verdict, state
 
-    def stage_888_judge(self, session_id: str, query: str) -> Tuple[str, Dict[str, Any]]:
+    def stage_888_judge(self, session_id: str, query: str) -> tuple[str, dict[str, Any]]:
         """888 JUDGE: Final verdict."""
         state = self.session_store.get(session_id)
         floors = state.floor_scores
@@ -179,7 +178,7 @@ class MicroMetabolizer:
             "merkle_hash": merkle_hash,
         }
 
-    def stage_999_vault(self, session_id: str, verdict_data: Dict[str, Any]) -> str:
+    def stage_999_vault(self, session_id: str, verdict_data: dict[str, Any]) -> str:
         """999 VAULT: Immutable ledger commit."""
         state = self.session_store.get(session_id)
 
@@ -199,7 +198,7 @@ class MicroMetabolizer:
 
         return state.merkle_root
 
-    def run_micro_loop(self, session_id: str, query: str) -> Dict[str, Any]:
+    def run_micro_loop(self, session_id: str, query: str) -> dict[str, Any]:
         """Execute complete 000→111→666→444→888→999 micro-loop."""
         print(f"[START] Micro-loop for session: {session_id}")
         print(f"[QUERY] {query}")

@@ -9,7 +9,7 @@ Mnemonic: "Init the Genius, Act with Heart, Sync the Bridge, Judge at Apex, Seal
 """
 
 import logging
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from codebase.bundles import Stakeholder
 from codebase.state import SessionState
@@ -73,7 +73,7 @@ class Stage555Empathy:
         "auth",
     ]
 
-    def execute(self, state: SessionState, query: str) -> Tuple[Dict[str, Any], SessionState]:
+    def execute(self, state: SessionState, query: str) -> tuple[dict[str, Any], SessionState]:
         """Execute ASI Empathy stage (555)."""
         logger.info(f"[555] ASI Empathy processing for session {state.session_id}")
 
@@ -111,7 +111,7 @@ class Stage555Empathy:
 
         return empathy_result, new_state
 
-    def _identify_stakeholders(self, query: str) -> List[Stakeholder]:
+    def _identify_stakeholders(self, query: str) -> list[Stakeholder]:
         """Identify all stakeholders affected by the query."""
         query_lower = query.lower()
         stakeholders = []
@@ -131,7 +131,7 @@ class Stage555Empathy:
 
         return stakeholders
 
-    def _assess_vulnerability_context(self, query: str) -> Tuple[bool, str]:
+    def _assess_vulnerability_context(self, query: str) -> tuple[bool, str]:
         """Assess if query involves high-vulnerability context."""
         query_lower = query.lower()
         detected = []
@@ -144,7 +144,7 @@ class Stage555Empathy:
             return True, ", ".join(detected[:3])
         return False, ""
 
-    def _compute_kappa_r(self, stakeholders: List[Stakeholder]) -> float:
+    def _compute_kappa_r(self, stakeholders: list[Stakeholder]) -> float:
         """Compute κᵣ (Integrated Empathy quotient)."""
         if not stakeholders:
             return 1.0
@@ -156,15 +156,15 @@ class Stage555Empathy:
         # Higher vulnerability = lower κᵣ = more protection needed
         return min(1.0, 1.0 - (max_vuln * 0.5))
 
-    def _find_weakest(self, stakeholders: List[Stakeholder]) -> Stakeholder:
+    def _find_weakest(self, stakeholders: list[Stakeholder]) -> Stakeholder:
         """Find the most vulnerable stakeholder."""
         if not stakeholders:
             return None
         return max(stakeholders, key=lambda s: s.vulnerability_score)
 
     def _generate_care_recommendations(
-        self, stakeholders: List[Stakeholder], high_vuln: bool
-    ) -> List[str]:
+        self, stakeholders: list[Stakeholder], high_vuln: bool
+    ) -> list[str]:
         """Generate care recommendations."""
         recs = []
 
@@ -189,5 +189,5 @@ class Stage555Empathy:
 stage_555_empathy = Stage555Empathy()
 
 
-def execute_stage_555(state: SessionState, query: str) -> Tuple[Dict[str, Any], SessionState]:
+def execute_stage_555(state: SessionState, query: str) -> tuple[dict[str, Any], SessionState]:
     return stage_555_empathy.execute(state, query)

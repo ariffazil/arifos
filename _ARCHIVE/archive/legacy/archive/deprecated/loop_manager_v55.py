@@ -29,10 +29,10 @@ warnings.warn(
 
 # Forward imports to new canonical location
 from codebase.loop.manager import (
-    LoopManager,
     LoopBridge,
-    LoopState,
     LoopContext,
+    LoopManager,
+    LoopState,
     StageResult,
     Verdict,
 )

@@ -8,8 +8,9 @@ import sys
 
 sys.path.insert(0, "/root/arifOS")
 
-from aaa_mcp.server import mcp
 from aaa_mcp.constitutional_config import CONFIG, announce_startup
+
+from aaa_mcp.server import mcp
 
 
 async def test_mcp_protocol():
@@ -46,7 +47,7 @@ async def test_mcp_protocol():
             grounding_required=False,
         )
 
-        print(f"✓ init_session SUCCESS")
+        print("✓ init_session SUCCESS")
         print(f"  Response type: {type(result)}")
 
         if isinstance(result, dict):
@@ -76,7 +77,7 @@ async def test_mcp_protocol():
             query="What is the capital of France?", session_id="test-session-001", grounding=[]
         )
 
-        print(f"✓ agi_cognition SUCCESS")
+        print("✓ agi_cognition SUCCESS")
         if isinstance(result, dict):
             print(f"  verdict: {result.get('verdict')}")
             print(f"  truth_score: {result.get('truth_score')}")

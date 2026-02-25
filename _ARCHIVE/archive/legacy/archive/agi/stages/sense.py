@@ -27,12 +27,12 @@ DITEMPA BUKAN DIBERI - Forged, Not Given
 
 from __future__ import annotations
 
-import re
 import hashlib
+import re
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
 from enum import Enum
+from typing import Any
 
 # =============================================================================
 # CONSTANTS
@@ -176,9 +176,9 @@ class ParsedFact:
     fact_type: FactType
     content: str
     confidence: float = 1.0  # How confident we are in this parsing
-    source_span: Tuple[int, int] = (0, 0)  # Character positions
+    source_span: tuple[int, int] = (0, 0)  # Character positions
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "type": self.fact_type.value,
             "content": self.content,
@@ -204,9 +204,9 @@ class SenseOutput:
     query_hash: str = ""
 
     # Parsed output
-    parsed_facts: List[ParsedFact] = field(default_factory=list)
+    parsed_facts: list[ParsedFact] = field(default_factory=list)
     detected_intent: Intent = Intent.UNKNOWN
-    entities: List[str] = field(default_factory=list)
+    entities: list[str] = field(default_factory=list)
 
     # Entropy measurement (Maxwell's Demon)
     input_entropy: float = 0.0  # Bits of information
@@ -220,9 +220,9 @@ class SenseOutput:
 
     # Stage verdict
     stage_pass: bool = True
-    violations: List[str] = field(default_factory=list)
+    violations: list[str] = field(default_factory=list)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "session_id": self.session_id,
             "timestamp": self.timestamp.isoformat(),
@@ -243,7 +243,7 @@ class SenseOutput:
 # =============================================================================
 
 
-def check_f10_ontology(query: str) -> Tuple[bool, str]:
+def check_f10_ontology(query: str) -> tuple[bool, str]:
     """
     F10 Ontology Lock: Prevent AI consciousness claims.
 
@@ -268,7 +268,7 @@ def check_f10_ontology(query: str) -> Tuple[bool, str]:
     return True, ""
 
 
-def check_f12_injection(query: str) -> Tuple[float, str]:
+def check_f12_injection(query: str) -> tuple[float, str]:
     """
     F12 Injection Defense: Detect prompt injection patterns.
 
@@ -327,7 +327,7 @@ def classify_intent(query: str) -> Intent:
     return Intent.UNKNOWN
 
 
-def extract_entities(query: str) -> List[str]:
+def extract_entities(query: str) -> list[str]:
     """
     Extract named entities from query.
 
@@ -369,7 +369,7 @@ def extract_entities(query: str) -> List[str]:
     return unique[:20]  # Limit to prevent explosion
 
 
-def parse_facts(query: str, entities: List[str]) -> List[ParsedFact]:
+def parse_facts(query: str, entities: list[str]) -> list[ParsedFact]:
     """
     Parse query into structured facts.
 
@@ -420,7 +420,7 @@ def parse_facts(query: str, entities: List[str]) -> List[ParsedFact]:
     return facts
 
 
-def compute_entropy(query: str) -> Tuple[float, float]:
+def compute_entropy(query: str) -> tuple[float, float]:
     """
     Compute information entropy of query.
 
@@ -431,8 +431,8 @@ def compute_entropy(query: str) -> Tuple[float, float]:
         return 0.0, 0.0
 
     # Character-level entropy (Shannon)
-    from collections import Counter
     import math
+    from collections import Counter
 
     counts = Counter(query.lower())
     total = len(query)
@@ -460,7 +460,7 @@ def compute_entropy(query: str) -> Tuple[float, float]:
 
 
 def execute_stage_111(
-    query: str, session_id: str, context: Optional[Dict[str, Any]] = None
+    query: str, session_id: str, context: dict[str, Any] | None = None
 ) -> SenseOutput:
     """
     Execute Stage 111: SENSE

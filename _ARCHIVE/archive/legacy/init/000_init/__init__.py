@@ -14,14 +14,14 @@ Or use the parent package:
 
 # Export canonical_bootstrap (valid Python name)
 from .canonical_bootstrap import (
+    DEFAULT_CANONICAL_CONFIG,
     CanonicalBootstrap,
-    fetch_canonical_state,
     CanonicalBootstrapResult,
-    CanonicalSourceResult,
     CanonicalConfigLoader,
     CanonicalFetchEngine,
+    CanonicalSourceResult,
+    fetch_canonical_state,
     get_bootstrap_config,
-    DEFAULT_CANONICAL_CONFIG,
 )
 
 __all__ = [

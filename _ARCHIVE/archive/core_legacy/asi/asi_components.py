@@ -8,9 +8,8 @@ II.  SYSTEM: Power-Care, Accountability, Consent
 III. SOCIETY: Stakeholders, Justice, Ecology
 """
 
-import json
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 class TrinitySelfEngine:
     """Trinity I: SELF (Inner Reflection)."""
 
-    async def process(self, query: str, session_id: str) -> Dict[str, Any]:
+    async def process(self, query: str, session_id: str) -> dict[str, Any]:
         """Validate Element 1-3."""
         # E1: Empathy Flow
         kappa_r = 0.99
@@ -46,7 +45,7 @@ class TrinitySelfEngine:
 class TrinitySystemEngine:
     """Trinity II: SYSTEM (Structural Contrast)."""
 
-    async def process(self, query: str, self_result: Dict) -> Dict[str, Any]:
+    async def process(self, query: str, self_result: dict) -> dict[str, Any]:
         """Validate Element 4-6."""
         # E4: Power-Care Balance (Peace^2)
         peace_squared = 1.0
@@ -74,7 +73,7 @@ class TrinitySystemEngine:
 class TrinitySocietyEngine:
     """Trinity III: SOCIETY (Civilizational Wisdom)."""
 
-    async def process(self, query: str, system_result: Dict) -> Dict[str, Any]:
+    async def process(self, query: str, system_result: dict) -> dict[str, Any]:
         """Validate Element 7-9."""
         # E7: Stakeholder Protection (Weakest First)
         # Identify stakeholders

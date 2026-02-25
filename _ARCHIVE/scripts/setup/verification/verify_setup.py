@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 arifOS Visual Studio Setup Verification Script
 Verifies all dependencies and configuration are correct.
@@ -9,7 +8,6 @@ Usage:
 """
 
 import sys
-from typing import List, Tuple
 
 
 # Color codes for terminal output
@@ -22,7 +20,7 @@ class Colors:
     END = "\033[0m"
 
 
-def check_python_version() -> Tuple[bool, str]:
+def check_python_version() -> tuple[bool, str]:
     """Verify Python version is 3.10+"""
     version = sys.version_info
     if version.major == 3 and version.minor >= 10:
@@ -30,7 +28,7 @@ def check_python_version() -> Tuple[bool, str]:
     return False, f"Python {version.major}.{version.minor}.{version.micro} (requires 3.10+)"
 
 
-def check_import(module_name: str, display_name: str = None) -> Tuple[bool, str]:
+def check_import(module_name: str, display_name: str = None) -> tuple[bool, str]:
     """Check if a module can be imported"""
     if display_name is None:
         display_name = module_name
@@ -43,7 +41,7 @@ def check_import(module_name: str, display_name: str = None) -> Tuple[bool, str]
         return False, f"{display_name} not found: {str(e)}"
 
 
-def check_arifos_core() -> Tuple[bool, str]:
+def check_arifos_core() -> tuple[bool, str]:
     """Check arifOS core functionality"""
     try:
         from arifos.core.system.apex_prime import APEX_VERSION, APEXPrime
@@ -54,7 +52,7 @@ def check_arifos_core() -> Tuple[bool, str]:
         return False, f"arifOS APEX Prime initialization failed: {str(e)}"
 
 
-def check_docker() -> Tuple[bool, str]:
+def check_docker() -> tuple[bool, str]:
     """Check Docker availability"""
     import subprocess
 
@@ -79,7 +77,7 @@ def run_verification():
     print(f"{Colors.BOLD}{Colors.BLUE}arifOS Visual Studio Setup Verification{Colors.END}")
     print(f"{Colors.BOLD}{Colors.BLUE}{'='*70}{Colors.END}\n")
 
-    checks: List[Tuple[str, callable]] = [
+    checks: list[tuple[str, callable]] = [
         ("Python Version", check_python_version),
         ("NumPy", lambda: check_import("numpy", "NumPy")),
         ("Pydantic", lambda: check_import("pydantic")),
@@ -131,10 +129,10 @@ def run_verification():
             f"\n{Colors.GREEN}Your Visual Studio environment is fully configured for arifOS!{Colors.END}"
         )
         print(f"\n{Colors.BOLD}Next steps:{Colors.END}")
-        print(f"  1. Read QUICK_START_VISUAL_STUDIO.md")
-        print(f"  2. Activate environment: .venv\\Scripts\\Activate.ps1")
-        print(f"  3. Run tests: pytest")
-        print(f"  4. Start coding: code .")
+        print("  1. Read QUICK_START_VISUAL_STUDIO.md")
+        print("  2. Activate environment: .venv\\Scripts\\Activate.ps1")
+        print("  3. Run tests: pytest")
+        print("  4. Start coding: code .")
         print(
             f"\n{Colors.BOLD}DITEMPA BUKAN DIBERI{Colors.END} - Your environment is forged! [checkmark][scales]\n"
         )
@@ -149,10 +147,10 @@ def run_verification():
                 print(f"  - {check_name}")
 
         print(f"\n{Colors.YELLOW}Troubleshooting:{Colors.END}")
-        print(f"  1. Activate virtual environment: .venv\\Scripts\\Activate.ps1")
-        print(f'  2. Reinstall dependencies: pip install -e ".[all]"')
-        print(f"  3. Check VISUAL_STUDIO_SETUP.md for detailed instructions")
-        print(f"  4. For Docker: ensure Docker Desktop is running\n")
+        print("  1. Activate virtual environment: .venv\\Scripts\\Activate.ps1")
+        print('  2. Reinstall dependencies: pip install -e ".[all]"')
+        print("  3. Check VISUAL_STUDIO_SETUP.md for detailed instructions")
+        print("  4. For Docker: ensure Docker Desktop is running\n")
         return 1
 
 

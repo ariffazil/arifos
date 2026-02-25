@@ -21,7 +21,7 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 # Add repo root to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -46,13 +46,13 @@ def parse_iso_timestamp(ts: str) -> datetime:
         return datetime(2026, 1, 1)
 
 
-def load_jsonl_entries(path: Path) -> List[Dict[str, Any]]:
+def load_jsonl_entries(path: Path) -> list[dict[str, Any]]:
     """Load entries from JSONL file."""
     entries = []
     if not path.exists():
         return entries
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
@@ -68,7 +68,7 @@ def load_jsonl_entries(path: Path) -> List[Dict[str, Any]]:
     return entries
 
 
-def load_json_entries(path: Path) -> List[Dict[str, Any]]:
+def load_json_entries(path: Path) -> list[dict[str, Any]]:
     """Load entries from individual JSON files in directory."""
     entries = []
     if not path.exists():
@@ -76,17 +76,17 @@ def load_json_entries(path: Path) -> List[Dict[str, Any]]:
 
     for json_file in path.glob("*.json"):
         try:
-            with open(json_file, "r", encoding="utf-8") as f:
+            with open(json_file, encoding="utf-8") as f:
                 entry = json.load(f)
                 entry["_source_file"] = str(json_file)
                 entries.append(entry)
-        except (json.JSONDecodeError, IOError) as e:
+        except (OSError, json.JSONDecodeError) as e:
             print(f"  Warning: Failed to read {json_file}: {e}")
 
     return entries
 
 
-def normalize_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
+def normalize_entry(entry: dict[str, Any]) -> dict[str, Any]:
     """Convert legacy entry format to standardized format for import."""
 
     # Handle various timestamp formats
@@ -144,7 +144,7 @@ def normalize_entry(entry: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-async def scan_legacy_entries() -> List[Dict[str, Any]]:
+async def scan_legacy_entries() -> list[dict[str, Any]]:
     """Scan all legacy locations and return normalized entries."""
     all_entries = []
 
@@ -174,8 +174,8 @@ async def scan_legacy_entries() -> List[Dict[str, Any]]:
 
 
 async def import_entries(
-    entries: List[Dict[str, Any]], dry_run: bool = True, verbose: bool = False
-) -> Dict[str, Any]:
+    entries: list[dict[str, Any]], dry_run: bool = True, verbose: bool = False
+) -> dict[str, Any]:
     """Import entries to PostgreSQL."""
 
     stats = {

@@ -15,24 +15,27 @@ DITEMPA BUKAN DIBERI
 """
 
 from __future__ import annotations
-from typing import Dict, Any, Optional
+
 import asyncio
 import logging
 import time
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
 # Stage imports
+from codebase import (
+    stage_444,
+    stage_666,
+    stage_777_forge,
+    stage_889_proof,
+)
 from codebase.agi_room import stage_111_sense, stage_222_think, stage_333_reason
 from codebase.asi_room import stage_555_empathy
-from codebase import stage_444, stage_555, stage_666
-from codebase import stage_777_forge, stage_888_judge, stage_889_proof
-from codebase.system.apex_prime import APEXPrime
-from codebase.types import Verdict
 
 # Foundation imports
-from codebase.bundle_store import store_bundle, get_bundle
-from codebase.state import SessionState
+from codebase.bundle_store import store_bundle
+from codebase.system.apex_prime import APEXPrime
 
 
 class MetabolicLoop:
@@ -78,8 +81,8 @@ class MetabolicLoop:
         self._loop = None
 
     async def execute_async(
-        self, session_id: str, query: str, context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, session_id: str, query: str, context: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """
         Execute complete 000-999 metabolic loop with Trinity Parallel architecture.
 
@@ -175,8 +178,8 @@ class MetabolicLoop:
             }
 
     def execute(
-        self, session_id: str, query: str, context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, session_id: str, query: str, context: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """
         Synchronous wrapper for async metabolic loop execution.
 
@@ -199,8 +202,8 @@ class MetabolicLoop:
         return loop.run_until_complete(self.execute_async(session_id, query, context))
 
     async def _execute_agi_async(
-        self, session_id: str, query: str, context: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, session_id: str, query: str, context: dict[str, Any] | None
+    ) -> dict[str, Any]:
         """
         Execute AGI quantum branch: 111 → 222 → 333 → DELTA_BUNDLE.
 
@@ -225,8 +228,8 @@ class MetabolicLoop:
         }
 
     async def _execute_asi_async(
-        self, session_id: str, query: str, context: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, session_id: str, query: str, context: dict[str, Any] | None
+    ) -> dict[str, Any]:
         """
         Execute ASI quantum branch: 555 → 666 → OMEGA_BUNDLE.
 
@@ -271,8 +274,8 @@ get_pipeline = get_metabolic_loop
 
 
 def execute_metabolic_loop(
-    session_id: str, query: str, context: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+    session_id: str, query: str, context: dict[str, Any] | None = None
+) -> dict[str, Any]:
     """
     Convenience function to execute metabolic loop.
 

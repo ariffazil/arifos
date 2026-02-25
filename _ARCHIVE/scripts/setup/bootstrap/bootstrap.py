@@ -20,12 +20,10 @@ This script:
 DITEMPA BUKAN DIBERI - Your environment will be forged!
 """
 
-import os
 import platform
 import subprocess
 import sys
 from pathlib import Path
-from typing import Optional, Tuple
 
 
 # Color codes for terminal output
@@ -68,7 +66,7 @@ def print_warning(text: str):
     print(f"{Colors.YELLOW}? {text}{Colors.END}")
 
 
-def run_command(cmd: str, check: bool = True, capture: bool = False) -> Tuple[bool, Optional[str]]:
+def run_command(cmd: str, check: bool = True, capture: bool = False) -> tuple[bool, str | None]:
     """Run shell command and return success status"""
     try:
         if capture:
@@ -303,20 +301,20 @@ def show_next_steps():
 
     print(f"{Colors.BOLD}Next steps:{Colors.END}\n")
 
-    print(f"1. Activate the virtual environment:")
+    print("1. Activate the virtual environment:")
     print(f"   {Colors.CYAN}{activation_cmd}{Colors.END}\n")
 
-    print(f"2. Edit .env file with your API keys:")
+    print("2. Edit .env file with your API keys:")
     print(f"   {Colors.CYAN}notepad .env  # Windows{Colors.END}")
     print(f"   {Colors.CYAN}nano .env    # Linux/macOS{Colors.END}\n")
 
-    print(f"3. Run tests:")
+    print("3. Run tests:")
     print(f"   {Colors.CYAN}pytest{Colors.END}\n")
 
-    print(f"4. Read the documentation:")
+    print("4. Read the documentation:")
     print(f"   {Colors.CYAN}docs/setup/QUICK_START.md{Colors.END}\n")
 
-    print(f"5. Start coding!")
+    print("5. Start coding!")
     print(f"   {Colors.CYAN}code .  # VS Code{Colors.END}")
     print(f"   {Colors.CYAN}# Or use your preferred editor{Colors.END}\n")
 

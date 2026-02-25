@@ -19,9 +19,7 @@ import json
 import os
 import shutil
 import sys
-from datetime import datetime
 from pathlib import Path
-
 
 
 def check_prerequisites():
@@ -39,7 +37,6 @@ def check_prerequisites():
     # Check 2: Can access root key (authority check)
     try:
         sys.path.insert(0, str(Path.cwd()))
-        from arifos.core.memory.root_key_accessor import create_genesis_block, verify_genesis_block
 
         print("✓ Root key accessible (authority verified)")
     except Exception as e:
@@ -56,7 +53,7 @@ def check_prerequisites():
     # Check 4: CCC_CANON exists
     canon_path = Path("VAULT999/CCC_CANON")
     if not canon_path.exists():
-        print(f"⚠️  CCC_CANON doesn't exist, creating...")
+        print("⚠️  CCC_CANON doesn't exist, creating...")
         canon_path.mkdir(parents=True, exist_ok=True)
     print("✓ CCC_CANON exists")
 
@@ -97,9 +94,7 @@ def create_genesis():
         # Import accessor
         from arifos.core.memory.root_key_accessor import (
             create_genesis_block,
-            get_root_key_info,
             verify_genesis_block,
-            get_root_key_info,
         )
 
         # Create genesis block
@@ -183,7 +178,6 @@ It is signed with the root key and establishes the chain of trust.
 def add_genesis_to_ledger(genesis: dict):
     """Add genesis block reference to session ledger."""
     try:
-        from arifos.mcp.session_ledger import get_ledger
 
         ledger_dir = Path("arifos/mcp/sessions")
         genesis_json = ledger_dir / "0000000000_genesis.json"
@@ -227,8 +221,8 @@ def post_creation_summary():
             print(f"\nRoot Key: {root_info['public_key'][:32]}...")
             print(f"Generated: {root_info['generated_at']}")
 
-        print(f"\nGenesis Location: VAULT999/CCC_CANON/genesis.json")
-        print(f"Ledger Marker: VAULT999/BBB_LEDGER/0000000000_genesis.md")
+        print("\nGenesis Location: VAULT999/CCC_CANON/genesis.json")
+        print("Ledger Marker: VAULT999/BBB_LEDGER/0000000000_genesis.md")
 
         print("\n💡 NEXT STEPS:")
         print("1. Test constitutional initialization")

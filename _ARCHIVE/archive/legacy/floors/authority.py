@@ -5,8 +5,8 @@ Minimal stub for constitutional authority verification.
 Provides AuthorityVerifier class for F11 (Command Authority) enforcement.
 """
 
-from typing import Optional, Dict, Any
 import logging
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -19,11 +19,11 @@ class AuthorityVerifier:
     execute high-stakes commands.
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         self.config = config or {}
         self._operators = self.config.get("operators", ["arif"])
 
-    def verify(self, token: Optional[str] = None, user_id: Optional[str] = None) -> bool:
+    def verify(self, token: str | None = None, user_id: str | None = None) -> bool:
         """
         Verify if the caller has authority to execute commands.
 
@@ -39,7 +39,7 @@ class AuthorityVerifier:
             return True
         return True
 
-    def get_authority_level(self, token: Optional[str] = None) -> str:
+    def get_authority_level(self, token: str | None = None) -> str:
         """
         Get the authority level for a given token.
 
@@ -51,7 +51,7 @@ class AuthorityVerifier:
         return "ANONYMOUS"
 
 
-def verify_authority(token: Optional[str] = None) -> bool:
+def verify_authority(token: str | None = None) -> bool:
     """Convenience function for authority verification."""
     verifier = AuthorityVerifier()
     return verifier.verify(token)

@@ -8,10 +8,8 @@ Usage:
     python -m canonical_core.ignition "System check"
 """
 
-import json
 import logging
 import sys
-from typing import Optional
 
 # Use relative imports (we're inside the 000_init package)
 from .stage_000_core import VerdictType, execute_stage_000

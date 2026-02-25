@@ -10,12 +10,11 @@ import asyncio
 import os
 import uuid
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 import httpx
 
 from .exceptions import (
-    ArifOSError,
     FloorViolationError,
     GatewayConnectionError,
     HumanApprovalTimeoutError,
@@ -53,8 +52,8 @@ class ArifOSClient:
 
     def __init__(
         self,
-        gateway_url: Optional[str] = None,
-        api_key: Optional[str] = None,
+        gateway_url: str | None = None,
+        api_key: str | None = None,
         timeout: float = 30.0,
     ):
         self.gateway_url = gateway_url or os.environ.get("ARIFOS_GATEWAY_URL", self.DEFAULT_URL)
@@ -69,9 +68,9 @@ class ArifOSClient:
     async def check_action(
         self,
         tool_name: str,
-        payload: Dict[str, Any],
-        session_id: Optional[str] = None,
-        actor_id: Optional[str] = None,
+        payload: dict[str, Any],
+        session_id: str | None = None,
+        actor_id: str | None = None,
     ) -> GatewayDecision:
         """
         Check if an action passes constitutional floors.
@@ -116,7 +115,7 @@ class ArifOSClient:
     async def request_human_approval(
         self,
         decision: GatewayDecision,
-        notify_channels: Optional[List[str]] = None,
+        notify_channels: list[str] | None = None,
     ) -> HumanApprovalRequest:
         """
         Request human approval for 888_HOLD.
@@ -155,7 +154,7 @@ class ArifOSClient:
     async def await_human_approval(
         self,
         hold_id: str,
-        timeout: Optional[float] = None,
+        timeout: float | None = None,
         poll_interval: float = 5.0,
     ) -> HumanApprovalResponse:
         """
@@ -207,10 +206,10 @@ class ArifOSClient:
         self,
         session_id: str,
         verdict: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         query_summary: str,
         category: str = "sdk",
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Seal operation result to VAULT999."""
         response = await self._client.post(
             "/vault/seal",
@@ -229,8 +228,8 @@ class ArifOSClient:
         self,
         actor_id: str,
         actor_type: str = "human",
-        groups: Optional[List[str]] = None,
-        team: Optional[str] = None,
+        groups: list[str] | None = None,
+        team: str | None = None,
     ) -> Session:
         """Create a new SDK session."""
         return Session(
@@ -244,7 +243,7 @@ class ArifOSClient:
     async def _notify_channels(
         self,
         request: HumanApprovalRequest,
-        channels: List[str],
+        channels: list[str],
     ):
         """Send notifications to approval channels."""
         # Placeholder: actual implementation would integrate with
@@ -253,12 +252,12 @@ class ArifOSClient:
 
     def _parse_decision(
         self,
-        data: Dict[str, Any],
+        data: dict[str, Any],
         session_id: str,
         tool_name: str,
     ) -> GatewayDecision:
         """Parse gateway response into GatewayDecision."""
-        from .types import FloorResult, BlastRadius
+        from .types import BlastRadius, FloorResult
 
         floors = [
             FloorResult(
@@ -315,8 +314,8 @@ class Session:
         client: ArifOSClient,
         actor_id: str,
         actor_type: ActorType,
-        groups: List[str],
-        team: Optional[str] = None,
+        groups: list[str],
+        team: str | None = None,
     ):
         self.client = client
         self.actor_id = actor_id
@@ -335,7 +334,7 @@ class Session:
     async def check_action(
         self,
         tool: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
     ) -> GatewayDecision:
         """Check action constitutionally."""
         return await self.client.check_action(
@@ -379,7 +378,7 @@ class Session:
     async def request_approval(
         self,
         decision: GatewayDecision,
-        notify: Optional[List[str]] = None,
+        notify: list[str] | None = None,
     ) -> HumanApprovalRequest:
         """Request human approval for 888_HOLD."""
         return await self.client.request_human_approval(decision, notify)
@@ -387,7 +386,7 @@ class Session:
     async def await_approval(
         self,
         hold_id: str,
-        timeout: Optional[float] = None,
+        timeout: float | None = None,
     ) -> HumanApprovalResponse:
         """Wait for human approval."""
         return await self.client.await_human_approval(hold_id, timeout)
@@ -395,7 +394,7 @@ class Session:
     async def seal(
         self,
         verdict: str,
-        payload: Dict[str, Any],
+        payload: dict[str, Any],
         summary: str,
     ):
         """Seal to VAULT999."""

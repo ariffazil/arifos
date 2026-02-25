@@ -9,18 +9,15 @@ Implements the "Modular-Orthogonal-Fractal" Architecture.
 DITEMPA BUKAN DIBERI - Forged, Not Given
 """
 
-import logging
 import concurrent.futures
-from typing import Dict, Any, Tuple, Optional
-from dataclasses import asdict
-
-from codebase.state import SessionState, SessionStore
-from codebase.stages.stage_444_trinity_sync import execute_trinity_sync_stage
+import logging
+from typing import Any
 
 # Native AGI/ASI/APEX Engines (v53)
-from codebase.engines.agi import AGIRoom, get_agi_room
-from codebase.engines.asi import ASIRoom, get_asi_room
-from codebase.engines.bridge.neuro_symbolic_bridge import NeuroSymbolicBridgeNative
+from codebase.engines.agi import get_agi_room
+from codebase.engines.asi import get_asi_room
+from codebase.stages.stage_444_trinity_sync import execute_trinity_sync_stage
+from codebase.state import SessionStore
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +33,8 @@ class MicroLoopExecutor:
         self.session_store = SessionStore(storage_path)
 
     async def run(
-        self, session_id: str, query: str, context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, session_id: str, query: str, context: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """
         Run the complete 000-999 loop natively.
         Uses parallel execution for AGI/ASI (HOT PHASE).
@@ -66,8 +63,8 @@ class MicroLoopExecutor:
         }
 
     async def run_hot_phase(
-        self, session_id: str, query: str, context: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, session_id: str, query: str, context: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
         """Parallel execution of AGI (Mind) and ASI (Heart)."""
         logger.info(f"Session {session_id}: Entering HOT PHASE (Δ||Ω)")
 
@@ -95,13 +92,13 @@ class MicroLoopExecutor:
                 logger.error(f"Session {session_id}: HOT PHASE Exception: {e}")
                 return {"success": False, "error": str(e)}
 
-    async def run_sync_phase(self, session_id: str) -> Dict[str, Any]:
+    async def run_sync_phase(self, session_id: str) -> dict[str, Any]:
         """Execute 444 TRINITY SYNC."""
         logger.info(f"Session {session_id}: Entering SYNC PHASE")
         result = await execute_trinity_sync_stage(session_id)
         return result
 
-    async def run_cool_phase(self, session_id: str, query: str) -> Dict[str, Any]:
+    async def run_cool_phase(self, session_id: str, query: str) -> dict[str, Any]:
         """Execute COOL PHASE (777-999)."""
         logger.info(f"Session {session_id}: Entering COOL PHASE")
 

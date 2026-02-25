@@ -4,11 +4,10 @@ Unifies AGI logic (Delta) and ASI care (Omega) into a coherent output.
 """
 
 import logging
-from typing import Dict, Any, List, Optional
 from enum import Enum
-from dataclasses import dataclass, field
+from typing import Any
 
-from codebase.bundles import DeltaBundle, OmegaBundle, EngineVote
+from codebase.bundles import DeltaBundle, OmegaBundle
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +24,7 @@ class NeuroSymbolicBridgeNative:
     Fuses DeltaBundle (Mind) and OmegaBundle (Heart).
     """
 
-    def synthesize(self, delta: DeltaBundle, omega: OmegaBundle) -> Dict[str, Any]:
+    def synthesize(self, delta: DeltaBundle, omega: OmegaBundle) -> dict[str, Any]:
         """
         Synthesize AGI and ASI bundles.
 

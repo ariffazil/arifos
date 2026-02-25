@@ -9,11 +9,11 @@ Specification: spec/PHOENIX_72.md
 from __future__ import annotations
 
 import time
-from dataclasses import dataclass, asdict
-from typing import Any, Dict, List, Optional
+from dataclasses import asdict, dataclass
+from typing import Any
 
-from ..vault.vault999 import Vault999
 from ..ledger.cooling_ledger import CoolingLedger
+from ..vault.vault999 import Vault999
 
 # -------------------------
 # Phoenix Entities
@@ -23,9 +23,9 @@ from ..ledger.cooling_ledger import CoolingLedger
 @dataclass
 class Scar:
     timestamp: float
-    floor_failures: List[str]
+    floor_failures: list[str]
     reason: str
-    ledger_ref: Dict[str, Any]
+    ledger_ref: dict[str, Any]
 
 
 @dataclass
@@ -36,8 +36,8 @@ class PhoenixAmendment:
     tri_witness: float
     delta_s_gain: float
     peace2: float
-    changes: Dict[str, Any]
-    evidence: List[Dict[str, Any]]
+    changes: dict[str, Any]
+    evidence: list[dict[str, Any]]
 
 
 # -------------------------
@@ -65,8 +65,8 @@ class Phoenix72:
     # Phase 1 — SCAR CAPTURE
     # ------------------------------------------------------------
 
-    def collect_scars(self, hours: float = 72.0) -> List[Scar]:
-        scars: List[Scar] = []
+    def collect_scars(self, hours: float = 72.0) -> list[Scar]:
+        scars: list[Scar] = []
 
         for entry in self.ledger.iter_recent(hours=hours):
             failures = entry.get("floor_failures", [])
@@ -86,7 +86,7 @@ class Phoenix72:
     # Phase 2 — PATTERN SYNTHESIS
     # ------------------------------------------------------------
 
-    def synthesize_pattern(self, scars: List[Scar]) -> Optional[Dict[str, Any]]:
+    def synthesize_pattern(self, scars: list[Scar]) -> dict[str, Any] | None:
         if not scars:
             return None
 
@@ -108,7 +108,7 @@ class Phoenix72:
     # Phase 3 — DRAFT AMENDMENT
     # ------------------------------------------------------------
 
-    def draft_amendment(self, pattern: Dict[str, Any]) -> PhoenixAmendment:
+    def draft_amendment(self, pattern: dict[str, Any]) -> PhoenixAmendment:
         failure = pattern["dominant_failure"]
 
         # Example policy: tighten truth_min by +0.005 if Truth floor failing

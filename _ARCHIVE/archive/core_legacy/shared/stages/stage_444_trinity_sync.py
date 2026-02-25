@@ -3,14 +3,14 @@ Stage 444: Trinity Sync - Sovereign Consensus logic.
 """
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from codebase.engines.apex.apex_engine import get_apex_room
 
 logger = logging.getLogger(__name__)
 
 
-async def execute_trinity_sync_stage(session_id: str) -> Dict[str, Any]:
+async def execute_trinity_sync_stage(session_id: str) -> dict[str, Any]:
     """
     Metabolic Stage 444: Trinity Sync.
     Independent consensus between AGI and ASI.

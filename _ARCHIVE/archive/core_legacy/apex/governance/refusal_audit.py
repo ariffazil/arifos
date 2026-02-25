@@ -10,9 +10,8 @@ DITEMPA BUKAN DIBERI — Forged, not given.
 """
 
 import json
-from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class RefusalAudit:
@@ -31,7 +30,7 @@ class RefusalAudit:
         """
         self.ledger_path = Path(ledger_path)
 
-    def get_refusals_by_session(self, session_id: str) -> List[Dict[str, Any]]:
+    def get_refusals_by_session(self, session_id: str) -> list[dict[str, Any]]:
         """
         Get all refusals for a specific session.
 
@@ -55,8 +54,8 @@ class RefusalAudit:
         return refusals
 
     def get_refusals_by_domain(
-        self, risk_domain: str, limit: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
+        self, risk_domain: str, limit: int | None = None
+    ) -> list[dict[str, Any]]:
         """
         Get refusals by risk domain.
 
@@ -82,7 +81,7 @@ class RefusalAudit:
 
         return refusals
 
-    def get_refusal_by_trace_id(self, trace_id: str) -> Optional[Dict[str, Any]]:
+    def get_refusal_by_trace_id(self, trace_id: str) -> dict[str, Any] | None:
         """
         Get refusal by trace ID.
 
@@ -103,7 +102,7 @@ class RefusalAudit:
 
         return None
 
-    def get_refusal_stats(self) -> Dict[str, Any]:
+    def get_refusal_stats(self) -> dict[str, Any]:
         """
         Get aggregate statistics on refusals.
 
@@ -149,7 +148,7 @@ class RefusalAudit:
 
         return stats
 
-    def verify_integrity(self) -> Dict[str, Any]:
+    def verify_integrity(self) -> dict[str, Any]:
         """
         Verify ledger integrity (check for tampering).
 

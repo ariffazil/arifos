@@ -14,10 +14,6 @@ Version: v47.0.0 - Equilibrium Architecture
 
 import warnings
 
-# v42: Import actual exports from modules
-from .fag import FAG, FAGReadResult, SecurityAlert
-from .ledger import log_cooling_entry
-
 # v47: Backward compatibility - Import state modules from new location
 from codebase.state import (
     ledger_cryptography,
@@ -25,6 +21,10 @@ from codebase.state import (
     merkle,
     merkle_ledger,
 )
+
+# v42: Import actual exports from modules
+from .fag import FAG, FAGReadResult, SecurityAlert
+from .ledger import log_cooling_entry
 
 # These imports may need to be verified - commented out until confirmed:
 # from .ledger_hashing import compute_chain_hash, verify_chain

@@ -9,7 +9,7 @@ Mnemonic: "Init the Genius, Act with Heart, Sync the Bridge, Judge at Apex, Seal
 """
 
 import logging
-from typing import Any, Dict, Tuple
+from typing import Any
 
 from codebase.bundles import (
     AGIFloorScores,
@@ -27,7 +27,7 @@ class Stage444Sync:
     Merges AGI and ASI parallel processing streams.
     """
 
-    def execute(self, state: SessionState) -> Tuple[str, SessionState]:
+    def execute(self, state: SessionState) -> tuple[str, SessionState]:
         """
         Execute Stage 444 synchronization.
 
@@ -61,7 +61,7 @@ class Stage444Sync:
 
         return pre_verdict, new_state
 
-    def _hydrate_delta(self, data: Dict[str, Any], session_id: str) -> DeltaBundle:
+    def _hydrate_delta(self, data: dict[str, Any], session_id: str) -> DeltaBundle:
         """Reconstruct DeltaBundle from dict."""
         # Minimal hydration for MVP
         floors = data.get("floor_scores", {})
@@ -77,7 +77,7 @@ class Stage444Sync:
             ),
         )
 
-    def _hydrate_omega(self, data: Dict[str, Any], session_id: str) -> OmegaBundle:
+    def _hydrate_omega(self, data: dict[str, Any], session_id: str) -> OmegaBundle:
         """Reconstruct OmegaBundle from dict."""
         floors = data.get("floor_scores", {})
         return OmegaBundle(
@@ -99,5 +99,5 @@ class Stage444Sync:
 stage_444_sync = Stage444Sync()
 
 
-def execute_stage_444(state: SessionState) -> Tuple[str, SessionState]:
+def execute_stage_444(state: SessionState) -> tuple[str, SessionState]:
     return stage_444_sync.execute(state)

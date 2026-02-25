@@ -10,18 +10,19 @@ from __future__ import annotations
 
 import functools
 import inspect
-from typing import Any, Callable, Optional, TypeVar
+from collections.abc import Callable
+from typing import Any, TypeVar
 
-from .client import ArifOSClient, Session
-from .exceptions import FloorViolationError, HumanApprovalRequiredError
-from .types import GatewayDecision, Verdict
+from .client import Session
+from .exceptions import FloorViolationError
+from .types import GatewayDecision
 
 F = TypeVar("F", bound=Callable[..., Any])
 
 
 def requires_f13(
-    timeout: Optional[float] = 3600.0,
-    notify_channels: Optional[list] = None,
+    timeout: float | None = 3600.0,
+    notify_channels: list | None = None,
 ):
     """
     Decorator: Require F13 Sovereign (human approval) for function.
@@ -48,8 +49,8 @@ def requires_f13(
             session = _extract_session(args, kwargs)
             if not session:
                 raise ValueError(
-                    f"@requires_f13 requires a Session argument. "
-                    f"Use: async def func(session: Session, ...)"
+                    "@requires_f13 requires a Session argument. "
+                    "Use: async def func(session: Session, ...)"
                 )
 
             # The function itself should call check_action
@@ -154,7 +155,7 @@ def constitutional_read_only():
 
 def human_as_tool(
     contact_method: str = "slack",
-    contact_id: Optional[str] = None,
+    contact_id: str | None = None,
 ):
     """
     Decorator: Treat human as a tool in the workflow.
@@ -196,7 +197,7 @@ def human_as_tool(
     return decorator
 
 
-def _extract_session(args: tuple, kwargs: dict) -> Optional[Session]:
+def _extract_session(args: tuple, kwargs: dict) -> Session | None:
     """Extract Session from function arguments."""
     # Check kwargs first
     if "session" in kwargs:

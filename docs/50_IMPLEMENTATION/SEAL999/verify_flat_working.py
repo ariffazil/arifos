@@ -2,7 +2,6 @@
 Verify VAULT_999 flat structure works - working version
 """
 
-import sys
 import os
 import sys
 
@@ -10,14 +9,14 @@ import sys
 sys.path.insert(0, "C:\\Users\\User\\arifOS")
 
 try:
-    from VAULT_999 import VAULT999, VaultEntry, VaultConfig
+    from VAULT_999 import VAULT999, VaultConfig, VaultEntry
 
     print("[SUCCESS] Imported VAULT999 from flat VAULT_999/")
 
     # Test instantiation
     config = VaultConfig(base_path=os.path.join(os.path.dirname(__file__), "test_vault"))
     vault = VAULT999(config=config)
-    print(f"[SUCCESS] Created VAULT999 instance")
+    print("[SUCCESS] Created VAULT999 instance")
 
     # Create a test entry
     from datetime import datetime

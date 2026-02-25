@@ -54,7 +54,7 @@ async def commission_cluster():
     session_token = init_result.get("session_token")
 
     if session_id and session_token:
-        print(f"✅ Ignition Successful")
+        print("✅ Ignition Successful")
         print(f"   Session ID: {session_id}")
         print(f"   Token: {session_token[:8]}...")
     else:
@@ -68,7 +68,7 @@ async def commission_cluster():
     agi_result = await arif_agi_genius(action="sense", query="Hello World", session_id=session_id)
 
     if agi_result.get("status") == "SEAL":
-        print(f"✅ Cognition Successful (SENSE)")
+        print("✅ Cognition Successful (SENSE)")
         # print(f"   Result: {agi_result}")
     else:
         print(f"❌ Cognition Failed: {agi_result}")
@@ -87,7 +87,7 @@ async def commission_cluster():
     )
 
     verdict = judge_result.get("verdict")
-    print(f"✅ Judgment Successful")
+    print("✅ Judgment Successful")
     print(f"   Verdict: {verdict}")
 
     # -------------------------------------------------------------------------
@@ -111,7 +111,7 @@ async def commission_cluster():
     )
 
     if vault_result.get("status") == "SEAL":
-        print(f"✅ Seal Successful")
+        print("✅ Seal Successful")
         print(f"   Merkle Root: {vault_result.get('merkle_root', 'N/A')[:16]}...")
     else:
         print(f"❌ Seal Failed: {vault_result}")

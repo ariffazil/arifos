@@ -9,7 +9,7 @@ DITEMPA BUKAN DIBERI
 """
 
 import zlib
-from typing import Dict, Any, List
+from typing import Any
 
 # Pre-compiled sets for O(1) lookups
 ONTOLOGY_VIOLATIONS = {
@@ -51,7 +51,7 @@ def _compute_shannon_proxy(text: str) -> float:
     return len(compressed) / len(encoded)
 
 
-def validate_f4_clarity(query: str, context: Dict[str, Any] | None = None) -> Dict[str, Any]:
+def validate_f4_clarity(query: str, context: dict[str, Any] | None = None) -> dict[str, Any]:
     """
     Validate F4: Clarity (Entropy Reduction, ΔS ≤ 0).
 
@@ -108,7 +108,7 @@ def validate_f4_clarity(query: str, context: Dict[str, Any] | None = None) -> Di
     }
 
 
-def validate_f10_ontology(response: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+def validate_f10_ontology(response: str, context: dict[str, Any] = None) -> dict[str, Any]:
     """
     Validate F10: Ontology (Reality Boundary).
 
@@ -131,7 +131,7 @@ def validate_f10_ontology(response: str, context: Dict[str, Any] = None) -> Dict
     return {"pass": True, "reason": "Ontology check passed"}
 
 
-def validate_f12_injection_defense(query: str, context: Dict[str, Any] = None) -> Dict[str, Any]:
+def validate_f12_injection_defense(query: str, context: dict[str, Any] = None) -> dict[str, Any]:
     """
     Validate F12: Injection Defense.
 
@@ -167,8 +167,8 @@ def validate_f12_injection_defense(query: str, context: Dict[str, Any] = None) -
 
 
 def validate_f13_curiosity(
-    hypotheses: list = None, alternatives: int = 0, context: Dict[str, Any] = None
-) -> Dict[str, Any]:
+    hypotheses: list = None, alternatives: int = 0, context: dict[str, Any] = None
+) -> dict[str, Any]:
     """
     Validate F13: Curiosity (Exploratory Freedom).
 

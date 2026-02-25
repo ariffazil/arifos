@@ -15,14 +15,14 @@ Refactored (v56): Uses Canonical Floors from codebase.floors
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Import existing tri-witness check (Safe to keep if it's just metric logic,
 # but ideally should move to floors/triwitness.py in Phase 4)
 from codebase.enforcement.metrics import check_tri_witness
 
 # Import Canonical Floors
-from codebase.floors.amanah import AmanahCovenant, F1_Amanah
+from codebase.floors.amanah import F1_Amanah
 from codebase.floors.antihantu import F9_AntiHantuGate
 
 
@@ -34,7 +34,7 @@ class F1AmanahResult:
     score: float
     details: str
     risk_level: str  # Simplified from Enum for compatibility
-    violations: List[str]
+    violations: list[str]
 
 
 @dataclass
@@ -53,7 +53,7 @@ class F9AntiHantuResult:
     passed: bool
     score: float
     details: str
-    violations: List[str]
+    violations: list[str]
 
 
 # Initialize Canonical Validators
@@ -63,7 +63,7 @@ _F9_VALIDATOR = F9_AntiHantuGate()
 
 def check_amanah_f1(
     text: str,
-    context: Optional[Dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
 ) -> F1AmanahResult:
     """
     Check F1: Amanah (Trust) floor = LOCK.
@@ -82,7 +82,7 @@ def check_amanah_f1(
 
 
 def check_tri_witness_f8(
-    context: Optional[Dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
 ) -> F8TriWitnessResult:
     """
     Check F8: Tri-Witness floor (≥ 0.95).
@@ -111,7 +111,7 @@ def check_tri_witness_f8(
 
 def check_anti_hantu_f9(
     text: str,
-    context: Optional[Dict[str, Any]] = None,
+    context: dict[str, Any] | None = None,
 ) -> F9AntiHantuResult:
     """
     Check F9: Anti-Hantu floor (0 violations).

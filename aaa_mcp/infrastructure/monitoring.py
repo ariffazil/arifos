@@ -372,12 +372,14 @@ async def init_monitoring():
             # Try a simple query to verify connection and calculate vault lag
             if ledger._pool:
                 async with ledger._pool.acquire() as conn:
-                    row = await conn.fetchrow("""
+                    row = await conn.fetchrow(
+                        """
                         SELECT EXTRACT(EPOCH FROM (created_at - timestamp)) * 1000 as lag_ms
                         FROM vault999
                         ORDER BY id DESC
                         LIMIT 1
-                    """)
+                    """
+                    )
                     lag = row["lag_ms"] if row else 0.0
                     return {"status": "connected", "lag_ms": lag}
             return False

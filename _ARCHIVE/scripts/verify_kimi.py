@@ -1,7 +1,6 @@
 import asyncio
 import json
 import os
-import subprocess
 import sys
 
 PYTHON_EXE = r"C:\Users\User\arifOS\.venv313\Scripts\python.exe"

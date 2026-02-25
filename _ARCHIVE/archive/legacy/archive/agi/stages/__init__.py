@@ -3,12 +3,10 @@ AGI Metabolic Stages (111 → 222 → 333)
 """
 
 # Execution functions
-from .sense import execute_stage_111, SenseOutput, ParsedFact, FactType
-from .think import execute_stage_222, ThinkOutput
-from .reason import execute_stage_333, ReasonOutput
-
 # Build delta bundle function
-from .reason import build_delta_bundle
+from .reason import ReasonOutput, build_delta_bundle, execute_stage_333
+from .sense import FactType, ParsedFact, SenseOutput, execute_stage_111
+from .think import ThinkOutput, execute_stage_222
 
 __all__ = [
     "execute_stage_111",

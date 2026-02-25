@@ -18,14 +18,12 @@ from __future__ import annotations
 
 import base64
 import hashlib
-import json
 import logging
 import os
-import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 # Real crypto imports
@@ -79,7 +77,7 @@ def _ensure_arifos_home():
     _ARIFOS_HOME.mkdir(parents=True, exist_ok=True)
 
 
-def _load_or_create_root_key() -> Optional[Ed25519PrivateKey]:
+def _load_or_create_root_key() -> Ed25519PrivateKey | None:
     """Load existing root key or create new Ed25519 keypair."""
     if not CRYPTO_AVAILABLE:
         return None
@@ -150,8 +148,8 @@ def _verify_session_token(token: str, session_id: str) -> bool:
 # STATIC MEMORY CACHE (From your 3 domains)
 # =============================================================================
 
-_MEMORY_CACHE: Dict[str, Any] = {}
-_MEMORY_CACHE_TIME: Optional[datetime] = None
+_MEMORY_CACHE: dict[str, Any] = {}
+_MEMORY_CACHE_TIME: datetime | None = None
 _MEMORY_CACHE_TTL = timedelta(hours=1)
 
 MEMORY_SOURCES = [
@@ -165,7 +163,7 @@ MEMORY_SOURCES = [
 ]
 
 
-async def _fetch_memory_sources() -> Dict[str, Any]:
+async def _fetch_memory_sources() -> dict[str, Any]:
     """Fetch memory from all configured sources."""
     global _MEMORY_CACHE, _MEMORY_CACHE_TIME
 
@@ -234,7 +232,7 @@ def inject_memory():
 
 
 try:
-    from codebase.prompt.codec import SignalExtractor, PromptSignal
+    from codebase.prompt.codec import PromptSignal, SignalExtractor
 
     PROMPT_AVAILABLE = True
     _signal_extractor = SignalExtractor()
@@ -258,7 +256,7 @@ class InitResult:
     timestamp: str = ""
 
     # Step 1: Memory Injection
-    previous_context: Dict[str, Any] = field(default_factory=dict)
+    previous_context: dict[str, Any] = field(default_factory=dict)
 
     # Step 2: Sovereign Recognition
     authority: str = "GUEST"  # 888_JUDGE or GUEST
@@ -268,8 +266,8 @@ class InitResult:
     # Step 3: Intent Mapping
     intent: str = ""  # explain, build, debug, discuss
     lane: str = "UNKNOWN"  # HARD, SOFT, PHATIC, REFUSE
-    contrasts: List[str] = field(default_factory=list)
-    entities: List[str] = field(default_factory=list)
+    contrasts: list[str] = field(default_factory=list)
+    entities: list[str] = field(default_factory=list)
 
     # Step 4: Thermodynamic Setup
     entropy_input: float = 0.0
@@ -279,15 +277,15 @@ class InitResult:
     energy_budget: float = 1.0
 
     # Step 5: Floors Loaded
-    floors_checked: List[str] = field(default_factory=list)
+    floors_checked: list[str] = field(default_factory=list)
     floors_loaded: int = 13
 
     # Step 6: Tri-Witness
-    tri_witness: Dict[str, Any] = field(default_factory=dict)
+    tri_witness: dict[str, Any] = field(default_factory=dict)
     TW: float = 0.0
 
     # Step 7: Engine Status
-    engines: Dict[str, str] = field(default_factory=dict)
+    engines: dict[str, str] = field(default_factory=dict)
 
     # Step 8: ATLAS Lane-Aware Routing
     routing: str = ""
@@ -301,7 +299,7 @@ class InitResult:
     seal: str = "💎🔥🧠"
 
     # APEX Summary (collapsing 13 floors to G)
-    apex_summary: Dict[str, Any] = field(default_factory=dict)
+    apex_summary: dict[str, Any] = field(default_factory=dict)
 
 
 # =============================================================================
@@ -376,7 +374,7 @@ LANE_ROUTING = {
 # =============================================================================
 
 
-def _check_rate_limit(tool_name: str, session_id: str = "") -> Optional[Dict]:
+def _check_rate_limit(tool_name: str, session_id: str = "") -> dict | None:
     """Check rate limit before processing a tool call."""
     try:
         limiter = get_rate_limiter()
@@ -460,7 +458,7 @@ def _measure_entropy(text: str) -> float:
 # =============================================================================
 
 
-def _step_0_root_key_ignition(session_id: str) -> Dict[str, Any]:
+def _step_0_root_key_ignition(session_id: str) -> dict[str, Any]:
     """Step 0: ROOT KEY IGNITION - Real Ed25519 cryptographic foundation."""
     try:
         root_key = _load_or_create_root_key()
@@ -501,7 +499,7 @@ def _step_0_root_key_ignition(session_id: str) -> Dict[str, Any]:
         return {"root_key_ready": False, "constitutional_status": "ERROR", "error": str(e)}
 
 
-async def _step_1_memory_injection() -> Dict[str, Any]:
+async def _step_1_memory_injection() -> dict[str, Any]:
     """Step 1: Fetch static memory from configured sources (arif-fazil.com domains)."""
     try:
         memory = await _fetch_memory_sources()
@@ -515,7 +513,7 @@ async def _step_1_memory_injection() -> Dict[str, Any]:
         return {"is_first_session": True, "error": str(e)}
 
 
-def _step_2_sovereign_recognition(query: str, token: str, session_id: str) -> Dict[str, Any]:
+def _step_2_sovereign_recognition(query: str, token: str, session_id: str) -> dict[str, Any]:
     """Step 2: Recognize the 888 Judge - verify Scar-Weight with real crypto."""
     query_lower = query.lower()
 
@@ -552,7 +550,7 @@ def _step_2_sovereign_recognition(query: str, token: str, session_id: str) -> Di
         }
 
 
-def _step_3_intent_mapping(query: str, context: Dict[str, Any]) -> Dict[str, Any]:
+def _step_3_intent_mapping(query: str, context: dict[str, Any]) -> dict[str, Any]:
     """Step 3: Map intent - contrast, meaning, prediction."""
     query_lower = query.lower()
 
@@ -608,7 +606,7 @@ def _step_3_intent_mapping(query: str, context: Dict[str, Any]) -> Dict[str, Any
     }
 
 
-def _step_4_thermodynamic_setup(intent_map: Dict[str, Any]) -> Dict[str, Any]:
+def _step_4_thermodynamic_setup(intent_map: dict[str, Any]) -> dict[str, Any]:
     """Step 4: Set energy budget and entropy targets."""
     # Input Entropy Estimate
     entities = intent_map.get("entities", [])
@@ -634,7 +632,7 @@ def _step_4_thermodynamic_setup(intent_map: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def _step_5_floor_loading() -> Dict[str, Any]:
+def _step_5_floor_loading() -> dict[str, Any]:
     """Step 5: Load the 13 Constitutional Floors."""
     floors = [
         "F1_Amanah",
@@ -654,7 +652,7 @@ def _step_5_floor_loading() -> Dict[str, Any]:
     return {"floors": floors, "count": len(floors)}
 
 
-def _step_6_tri_witness(sovereign: Dict, thermo: Dict) -> Dict[str, Any]:
+def _step_6_tri_witness(sovereign: dict, thermo: dict) -> dict[str, Any]:
     """Step 6: Establish Tri-Witness handshake."""
     human_present = sovereign["authority"] == "888_JUDGE"
     energy_ok = thermo["energy_budget"] <= 1.0
@@ -674,7 +672,7 @@ def _step_6_tri_witness(sovereign: Dict, thermo: Dict) -> Dict[str, Any]:
     }
 
 
-def _step_7_engine_ignition(intent_map: Dict[str, Any]) -> Dict[str, str]:
+def _step_7_engine_ignition(intent_map: dict[str, Any]) -> dict[str, str]:
     """Step 7: Fire up the engines."""
     lane = intent_map.get("lane", "SOFT")
     arif_to_atlas = {"HARD": "FACTUAL", "SOFT": "CARE", "PHATIC": "SOCIAL", "REFUSE": "CRISIS"}
@@ -694,9 +692,9 @@ async def mcp_000_init(
     action: str = "init",
     query: str = "",
     authority_token: str = "",
-    session_id: Optional[str] = None,
-    context: Optional[Dict[str, Any]] = None,
-) -> Dict[str, Any]:
+    session_id: str | None = None,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     000 INIT: The 7-Step Thermodynamic Ignition Sequence.
 

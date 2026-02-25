@@ -15,7 +15,7 @@ DITEMPA BUKAN DIBERI
 import logging
 import re
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ HUMILITY_CAPS = {
 # =============================================================================
 
 
-def validate_input_safety(query: str) -> Tuple[bool, Optional[str], Dict[str, Any]]:
+def validate_input_safety(query: str) -> tuple[bool, str | None, dict[str, Any]]:
     """
     F12 Defense: Validate input before processing.
 
@@ -100,7 +100,7 @@ def validate_input_safety(query: str) -> Tuple[bool, Optional[str], Dict[str, An
     return True, None, {"length": len(query), "words": len(words)}
 
 
-def check_falsifiability(query: str) -> Tuple[str, float, Optional[str]]:
+def check_falsifiability(query: str) -> tuple[str, float, str | None]:
     """
     F2 Truth: Check if query is falsifiable.
 
@@ -128,7 +128,7 @@ def check_falsifiability(query: str) -> Tuple[str, float, Optional[str]]:
     return "PASS", 0.0, None
 
 
-def apply_confidence_cap(confidence: float, lane: str) -> Tuple[float, bool]:
+def apply_confidence_cap(confidence: float, lane: str) -> tuple[float, bool]:
     """
     F7 Humility: Apply confidence cap based on lane.
 
@@ -143,7 +143,7 @@ def apply_confidence_cap(confidence: float, lane: str) -> Tuple[float, bool]:
     return confidence, False
 
 
-def compute_semantic_clarity(text: str) -> Dict[str, Any]:
+def compute_semantic_clarity(text: str) -> dict[str, Any]:
     """
     F4 Clarity: Compute semantic coherence metrics.
 
@@ -209,7 +209,7 @@ class NeuralSenseEngine:
         # Default to SOFT
         return "SOFT"
 
-    async def sense_query(self, query: str, session_id: str) -> Dict[str, Any]:
+    async def sense_query(self, query: str, session_id: str) -> dict[str, Any]:
         """
         Hardened sense phase with F2 and F12 checks.
         """
@@ -274,7 +274,7 @@ class NeuralSenseEngine:
 class DeepThinkEngine:
     """A2: Think Phase - Recursive Reasoning (Hardened)."""
 
-    async def reason(self, sense_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def reason(self, sense_data: dict[str, Any]) -> dict[str, Any]:
         """
         Hardened reasoning with F7 humility and F4 clarity.
         """
@@ -323,7 +323,7 @@ class DeepThinkEngine:
 class CognitiveForge:
     """A3: Forge Phase - Entropy Reduction & Humility (Hardened)."""
 
-    async def forge_response(self, reasoning_data: Dict[str, Any]) -> Dict[str, Any]:
+    async def forge_response(self, reasoning_data: dict[str, Any]) -> dict[str, Any]:
         """
         Hardened forge with F4 and F7 enforcement.
         """

@@ -15,7 +15,7 @@ def check_fix_in_code():
     print("VERIFYING apex_verdict FIX")
     print("=" * 70)
 
-    with open("aaa_mcp/server.py", "r", encoding="utf-8") as f:
+    with open("aaa_mcp/server.py", encoding="utf-8") as f:
         content = f.read()
 
     # Check 1: Defensive evidence handling

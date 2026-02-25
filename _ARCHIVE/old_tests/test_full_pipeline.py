@@ -79,7 +79,7 @@ async def test_pipeline():
     print("\n[3/5] agi_reason...")
     try:
         reason_result = await agi_reason(query, session_id)
-        print(f"  [OK] Reasoning complete")
+        print("  [OK] Reasoning complete")
         conclusion = reason_result.get("conclusion", "unknown")
         print(
             f"      Conclusion: {conclusion[:50]}..."
@@ -127,7 +127,7 @@ async def test_pipeline():
             category="test",
             intent="pipeline_test",
         )
-        print(f"  [OK] Sealed to VAULT999")
+        print("  [OK] Sealed to VAULT999")
         print(f"      Content hash: {seal_result.get('content_hash', 'unknown')[:16]}...")
         print(f"      Timestamp: {seal_result.get('timestamp', 'unknown')}")
     except Exception as e:

@@ -20,15 +20,15 @@ Usage:
 """
 
 from .bridge import (
-    checkpoint,
-    validate_floor,
-    seal,
-    Verdict,
-    CheckpointResult,
-    FloorDefinition,
     FLOORS,
     HARD_FLOORS,
     SOFT_FLOORS,
+    CheckpointResult,
+    FloorDefinition,
+    Verdict,
+    checkpoint,
+    seal,
+    validate_floor,
 )
 
 __all__ = [

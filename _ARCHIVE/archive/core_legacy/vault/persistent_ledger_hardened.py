@@ -14,14 +14,12 @@ Doctrine: Theory of Anomalous Contrast (888_SOUL_VERDICT.md)
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
 import json
 import os
-import ssl
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any
 from uuid import UUID, uuid4
 
 # Import incremental Merkle
@@ -52,7 +50,7 @@ class SealContractViolation(Exception):
     pass
 
 
-def enforce_seal_contract(seal_data: Dict[str, Any], verdict: str) -> None:
+def enforce_seal_contract(seal_data: dict[str, Any], verdict: str) -> None:
     """
     HARDENED: Enforce pre-vault seal contract.
 
@@ -124,7 +122,7 @@ def enforce_seal_contract(seal_data: Dict[str, Any], verdict: str) -> None:
 # =============================================================================
 
 
-def _merkle_root(hashes: List[str]) -> str:
+def _merkle_root(hashes: list[str]) -> str:
     """Compute Merkle root from a list of hashes (O(N) fallback)."""
     if not hashes:
         return hashlib.sha256(b"EMPTY_LEDGER").hexdigest()
@@ -132,14 +130,14 @@ def _merkle_root(hashes: List[str]) -> str:
     while len(level) > 1:
         if len(level) % 2 == 1:
             level.append(level[-1])
-        next_level: List[str] = []
+        next_level: list[str] = []
         for i in range(0, len(level), 2):
             next_level.append(hashlib.sha256((level[i] + level[i + 1]).encode("utf-8")).hexdigest())
         level = next_level
     return level[0]
 
 
-def _parse_seal_data(seal_data_val: Union[str, Dict[str, Any], Any]) -> Dict[str, Any]:
+def _parse_seal_data(seal_data_val: str | dict[str, Any] | Any) -> dict[str, Any]:
     """
     Parse seal_data from database row.
     Handles both JSONB (returns dict) and TEXT (returns str) column types.
@@ -192,12 +190,12 @@ class SealRow:
     timestamp: datetime
     authority: str
     verdict: str
-    seal_data: Dict[str, Any]
+    seal_data: dict[str, Any]
     entry_hash: str
-    prev_hash: Optional[str]
+    prev_hash: str | None
     merkle_root: str
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "sequence": self.sequence,
             "session_id": self.session_id,
@@ -227,10 +225,10 @@ class HardenedPersistentVaultLedger:
     - Proper JSONB handling (pass dict, not string)
     """
 
-    def __init__(self, dsn: Optional[str] = None):
+    def __init__(self, dsn: str | None = None):
         self.dsn = dsn or get_vault_dsn()
-        self._pool: Optional[asyncpg.Pool] = None
-        self._merkle_state: Optional[PersistentMerkleState] = None
+        self._pool: asyncpg.Pool | None = None
+        self._merkle_state: PersistentMerkleState | None = None
 
     async def connect(self):
         if asyncpg is None:
@@ -297,11 +295,11 @@ class HardenedPersistentVaultLedger:
         self,
         session_id: str,
         verdict: str,
-        seal_data: Dict[str, Any],
+        seal_data: dict[str, Any],
         authority: str,
-        seal_id: Optional[UUID] = None,
+        seal_id: UUID | None = None,
         skip_contract: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         HARDENED: Concurrency-safe append with seal contract enforcement.
 
@@ -398,7 +396,7 @@ class HardenedPersistentVaultLedger:
         return (row["max_seq"] or 0) + 1
 
     # ------------------------------------------------------------------ query methods
-    async def get_entries_by_session(self, session_id: str) -> List[Dict[str, Any]]:
+    async def get_entries_by_session(self, session_id: str) -> list[dict[str, Any]]:
         await self.connect()
         async with self._pool.acquire() as conn:
             rows = await conn.fetch(
@@ -413,7 +411,7 @@ class HardenedPersistentVaultLedger:
             )
             return [self._row_to_entry(r).to_dict() for r in rows]
 
-    async def get_entry_by_sequence(self, sequence: int) -> Optional[Dict[str, Any]]:
+    async def get_entry_by_sequence(self, sequence: int) -> dict[str, Any] | None:
         await self.connect()
         async with self._pool.acquire() as conn:
             row = await conn.fetchrow(
@@ -427,7 +425,7 @@ class HardenedPersistentVaultLedger:
             )
             return self._row_to_entry(row).to_dict() if row else None
 
-    async def list_entries(self, cursor: Optional[int] = None, limit: int = 50) -> Dict[str, Any]:
+    async def list_entries(self, cursor: int | None = None, limit: int = 50) -> dict[str, Any]:
         limit = max(1, min(limit, 1000))
         await self.connect()
         async with self._pool.acquire() as conn:
@@ -464,15 +462,15 @@ class HardenedPersistentVaultLedger:
     async def query_by_verdict(
         self,
         verdict: str,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        cursor: Optional[int] = None,
+        start_time: datetime | None = None,
+        end_time: datetime | None = None,
+        cursor: int | None = None,
         limit: int = 100,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         limit = max(1, min(limit, 1000))
         await self.connect()
         clauses = ["verdict = $1"]
-        params: List[Any] = [verdict]
+        params: list[Any] = [verdict]
         idx = 2
         if start_time:
             clauses.append(f"timestamp >= ${idx}")
@@ -504,17 +502,19 @@ class HardenedPersistentVaultLedger:
             next_cursor = entries[-1]["sequence"] if entries and has_more else None
             return {"entries": entries, "next_cursor": next_cursor, "has_more": has_more}
 
-    async def verify_chain(self) -> Dict[str, Any]:
+    async def verify_chain(self) -> dict[str, Any]:
         """Verify full chain integrity."""
         await self.connect()
         async with self._pool.acquire() as conn:
-            rows = await conn.fetch("""
+            rows = await conn.fetch(
+                """
                 SELECT sequence, session_id, seal_id, timestamp, authority, verdict,
                        seal_data, entry_hash, prev_hash
                 FROM vault_ledger
                 ORDER BY sequence ASC
-                """)
-            hashes: List[str] = []
+                """
+            )
+            hashes: list[str] = []
             prev = GENESIS_HASH
             for row in rows:
                 seq = row["sequence"]
@@ -558,7 +558,7 @@ class HardenedPersistentVaultLedger:
                 return {"valid": False, "first_invalid_seq": None, "reason": "merkle-mismatch"}
             return {"valid": True, "merkle_root": root, "entries": len(hashes)}
 
-    async def get_merkle_proof(self, sequence: int) -> Optional[Dict[str, Any]]:
+    async def get_merkle_proof(self, sequence: int) -> dict[str, Any] | None:
         """Get Merkle inclusion proof for a specific entry."""
         await self.connect()
         async with self._pool.acquire() as conn:
@@ -600,8 +600,8 @@ class HardenedPersistentVaultLedger:
         timestamp: datetime,
         authority: str,
         verdict: str,
-        seal_data: Dict[str, Any],
-        prev_hash: Optional[str],
+        seal_data: dict[str, Any],
+        prev_hash: str | None,
         seal_id: UUID,
     ) -> str:
         canonical = {
@@ -657,7 +657,7 @@ class HardenedPersistentVaultLedger:
 
 
 # Singleton
-_ledger_singleton: Optional[HardenedPersistentVaultLedger] = None
+_ledger_singleton: HardenedPersistentVaultLedger | None = None
 
 
 def get_hardened_vault_ledger() -> HardenedPersistentVaultLedger:

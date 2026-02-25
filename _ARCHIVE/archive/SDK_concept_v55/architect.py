@@ -24,9 +24,8 @@ License: AGPL-3.0-only
 import json
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import Any, Optional
 
-from .base_agent import AgentOutput, BaseAgent, FloorScores, Verdict
+from .base_agent import BaseAgent
 
 
 @dataclass
@@ -404,12 +403,12 @@ class Architect(BaseAgent):
         For display purposes.
         """
         lines = [
-            f"═══ ARCHITECT PLAN ═══",
+            "═══ ARCHITECT PLAN ═══",
             f"Goal: {plan.goal_summary}",
             f"Approach: {plan.approach}",
             f"Complexity: {plan.estimated_total_complexity.upper()}",
             f"Human Review: {'REQUIRED' if plan.requires_human_review else 'Not required'}",
-            f"",
+            "",
             f"Steps ({len(plan.steps)}):",
         ]
 
@@ -419,14 +418,14 @@ class Architect(BaseAgent):
             )
 
         if plan.risks:
-            lines.append(f"")
+            lines.append("")
             lines.append(f"Risks ({len(plan.risks)}):")
             for risk in plan.risks:
                 lines.append(f"  ⚠️ {risk}")
 
         if plan.constitutional_notes:
-            lines.append(f"")
-            lines.append(f"Constitutional Notes:")
+            lines.append("")
+            lines.append("Constitutional Notes:")
             for note in plan.constitutional_notes:
                 lines.append(f"  📋 {note}")
 
