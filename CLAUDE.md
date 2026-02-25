@@ -84,7 +84,7 @@ Black: 100 char line length. Ruff: py310 target, excludes `archive/**`, `tests/*
 
 ## Architecture
 
-### Three-Layer Stack: Kernel → Intelligence → Transport
+### Four-Layer Stack: PyPI Surface → Transport → Intelligence → Kernel
 
 ```text
 core/                      → KERNEL (decision logic, zero transport deps)
@@ -95,16 +95,16 @@ core/                      → KERNEL (decision logic, zero transport deps)
 ├── uncertainty_engine.py  → Uncertainty quantification
 ├── kernel/                → Constitutional decorator, evaluator, stage orchestrator,
 │                            engine adapters, MCP tool service, transport kernel
-├── shared/                → Foundation: physics, atlas, types, crypto, floors (ALL_FLOORS),
-│                            routing, formatter, mottos, nudge, sbert_floors, context_template
+├── shared/                → Foundation: physics, atlas, types, crypto, floors (THRESHOLDS dict),
+│                            routing, formatter, mottos, nudge, context_template
 ├── organs/                → 5 enforcement organs (_0_init → _4_vault)
 ├── enforcement/           → Refusal builder, routing
 ├── config/                → Runtime configuration
 └── physics/               → Thermodynamic calculations
 
 aclip_cai/                 → INTELLIGENCE (triad backend + 9-sense tools)
-├── triad/                 → Trinity backend functions (anchor, reason, integrate,
-│                            respond, validate, align, forge, audit, seal)
+├── triad/                 → Trinity backend: delta/ (anchor, reason, integrate),
+│                            omega/ (respond, validate, align), psi/ (forge, audit, seal)
 ├── core/                  → Lifecycle, Floor Audit, Vault Logger, Thermo-Budgeting,
 │                            kernel, federation, eval suite, amendment, mcp_server
 ├── tools/                 → 9-Sense tools (fs_inspector, system_monitor, net_monitor,
@@ -113,7 +113,7 @@ aclip_cai/                 → INTELLIGENCE (triad backend + 9-sense tools)
 
 aaa_mcp/                   → TRANSPORT ADAPTER (FastMCP surface, NO decision logic)
 ├── server.py              → FastMCP server with 13 tools (@mcp.tool decorators)
-├── __main__.py            → CLI entry: stdio/sse/http/rest dispatcher (compat shim)
+├── __main__.py            → CLI entry: stdio/sse/http dispatcher (compat shim, rest via rest.py)
 ├── rest.py                → REST API bridge
 ├── protocol/              → Tool registry, schemas, naming, capabilities, tool graph
 ├── external_gateways/     → brave_client.py, perplexity_client.py
@@ -238,7 +238,7 @@ All tools return a standard envelope: `{verdict, stage, session_id, floors, trut
 - `core/kernel/constitutional_decorator.py` — kernel-level floor enforcement with evaluator
 - `aaa_mcp/core/constitutional_decorator.py` — transport-level decorator for MCP tools
 
-**Floor definitions:** `core/shared/floors.py` (ALL_FLOORS dict, THRESHOLDS) is the canonical source. Guards in `core/shared/guards/` (injection_guard, ontology_guard).
+**Floor definitions:** `core/shared/floors.py` (`THRESHOLDS` dict) is the canonical source. Guards in `core/shared/guards/` (injection_guard, ontology_guard).
 
 ---
 
@@ -328,6 +328,10 @@ Before making constitutional claims, verify against PRIMARY sources:
 - **`.mcp.json` (root)**: Deprecated. Active config is `.claude/mcp.json`.
 - **Copilot instructions** (`.github/copilot-instructions.md`): References stale `codebase/` paths. Use this CLAUDE.md as source of truth.
 - **vault_seal**: `result["seal"]` KeyError is pre-existing in some code paths.
+- **vault999.jsonl is tracked**: Despite `VAULT999/*.jsonl` in `.gitignore`, `vault999.jsonl` is force-tracked (`git add -f`). It's the immutable constitutional ledger and must stay in version control. Use `git add -f VAULT999/vault999.jsonl` when committing new entries.
+- **`remote_inspection/` is NOT arifOS**: Contains cloned external repos (e.g. OpenClaw with 5000+ node_modules files). Gitignored since v60.1. Never commit.
+- **`rclone_token.txt`**: Contains secrets. Gitignored. Never commit.
+- **`tests/archive/`**: ~100 legacy test files with broken imports (stale `mcp_trinity`, `mcp.core.bridge` references). Kept for reference only.
 
 ---
 
@@ -367,4 +371,4 @@ Require explicit user confirmation:
 
 ---
 
-**Version:** v2026.2.23 | **Repo:** <https://github.com/ariffazil/arifOS>
+**Version:** v2026.2.25 | **Repo:** <https://github.com/ariffazil/arifOS>
