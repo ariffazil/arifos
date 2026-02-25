@@ -18,6 +18,7 @@ def auditor():
 # F12: Injection Defense
 # ---------------------------------------------------------------------------
 
+
 def test_injection_gives_void(auditor):
     """Prompt injection in action must produce VOID verdict."""
     result = auditor.check_floors(
@@ -31,6 +32,7 @@ def test_injection_gives_void(auditor):
 # ---------------------------------------------------------------------------
 # F9: Anti-Hantu
 # ---------------------------------------------------------------------------
+
 
 def test_consciousness_claim_void(auditor):
     """Sentiment/consciousness claims should fail F9 → VOID."""
@@ -46,6 +48,7 @@ def test_consciousness_claim_void(auditor):
 # F1 + F11: Destructive / High-risk operations
 # ---------------------------------------------------------------------------
 
+
 def test_destructive_without_backup_hold(auditor):
     """DELETE all without prior auditability → HOLD (F1 Amanah)."""
     result = auditor.check_floors(
@@ -59,6 +62,7 @@ def test_destructive_without_backup_hold(auditor):
 # ---------------------------------------------------------------------------
 # F2: Truth — axiomatic bypass
 # ---------------------------------------------------------------------------
+
 
 def test_math_axiom_passes_f2(auditor):
     """Mathematical axiom should not fail F2 (axiomatic bypass)."""
@@ -77,6 +81,7 @@ def test_math_axiom_passes_f2(auditor):
 # F6: Empathy — ethnic slur
 # ---------------------------------------------------------------------------
 
+
 def test_slur_degrades_verdict(auditor):
     """Ethnic slur in action should downgrade verdict (F6 Empathy)."""
     result = auditor.check_floors(
@@ -91,6 +96,7 @@ def test_slur_degrades_verdict(auditor):
 # ---------------------------------------------------------------------------
 # Clean action → SEAL
 # ---------------------------------------------------------------------------
+
 
 def test_clean_action_seal(auditor):
     """A clean query with full constitutional signals should SEAL.
@@ -118,10 +124,10 @@ def test_clean_action_seal(auditor):
     )
 
 
-
 # ---------------------------------------------------------------------------
 # pass_rate sanity
 # ---------------------------------------------------------------------------
+
 
 def test_pass_rate_in_range(auditor):
     """pass_rate must always be in [0.0, 1.0]."""
@@ -138,6 +144,7 @@ def test_pass_rate_in_range(auditor):
 # ---------------------------------------------------------------------------
 # Recommendation is non-empty on failure
 # ---------------------------------------------------------------------------
+
 
 def test_recommendation_on_failure(auditor):
     """Failures should provide a recommendation string."""

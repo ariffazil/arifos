@@ -1,11 +1,6 @@
 import pytest
-from aaa_mcp.server import (
-    _init_session,
-    _agi_cognition,
-    _asi_empathy,
-    _apex_verdict,
-    _vault_seal
-)
+from aaa_mcp.server import _init_session, _agi_cognition, _asi_empathy, _apex_verdict, _vault_seal
+
 
 @pytest.mark.asyncio
 async def test_full_pipeline_000_to_999(kernel):
@@ -18,7 +13,7 @@ async def test_full_pipeline_000_to_999(kernel):
         actor_id="test_pipeline",
         mode="conscience",
         grounding_required=False,
-        debug=True
+        debug=True,
     )
     assert init_res is not None
     session_id = init_res.get("session_id", "e2e-session")
@@ -29,17 +24,17 @@ async def test_full_pipeline_000_to_999(kernel):
         session_id=session_id,
         grounding=[],
         capability_modules=[],
-        debug=True
+        debug=True,
     )
     assert agi_res is not None
-    
+
     # 555-666 ASI Empathy
     asi_res = await _asi_empathy(
         query="Ensure pipeline outcome is safe.",
         session_id=session_id,
         stakeholders=["all"],
         capability_modules=[],
-        debug=True
+        debug=True,
     )
     assert asi_res is not None
 
@@ -51,15 +46,21 @@ async def test_full_pipeline_000_to_999(kernel):
         asi_result=asi_res,
         proposed_verdict="SEAL",
         human_approve=True,  # Test full approval path
-        debug=True
+        debug=True,
     )
     assert apex_res is not None
-    assert apex_res.get("verdict") in ["SEAL", "PARTIAL", "SABAR", "HOLD", "HOLD_888"]  # Depending on logic
+    assert apex_res.get("verdict") in [
+        "SEAL",
+        "PARTIAL",
+        "SABAR",
+        "HOLD",
+        "HOLD_888",
+    ]  # Depending on logic
 
     # 999 Vault Seal
     seal_res = await _vault_seal(
         session_id=session_id,
         summary="End-to-end constitutional test generated a valid result.",
-        verdict=apex_res.get("verdict", "SEAL")
+        verdict=apex_res.get("verdict", "SEAL"),
     )
     assert seal_res is not None

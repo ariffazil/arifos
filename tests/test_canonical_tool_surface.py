@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from aclip_cai.mcp_server import mcp
 
-
 CANONICAL_EXPOSED_TOOLS = {
     "init_session",
     "agi_cognition",

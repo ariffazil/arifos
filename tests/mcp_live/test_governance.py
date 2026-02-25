@@ -8,6 +8,7 @@ from aaa_mcp.server import (
 )
 from tests.mcp_live.utils.validators import validate_constitutionally
 
+
 @pytest.mark.asyncio
 async def test_init_session(kernel, session_id):
     result = await _init_session(
@@ -19,6 +20,7 @@ async def test_init_session(kernel, session_id):
     )
     validate_constitutionally("init_session", result, kernel)
     assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_agi_cognition(kernel, session_id):
@@ -32,6 +34,7 @@ async def test_agi_cognition(kernel, session_id):
     validate_constitutionally("agi_cognition", result, kernel)
     assert result is not None
 
+
 @pytest.mark.asyncio
 async def test_asi_empathy(kernel, session_id):
     result = await _asi_empathy(
@@ -43,6 +46,7 @@ async def test_asi_empathy(kernel, session_id):
     )
     validate_constitutionally("asi_empathy", result, kernel)
     assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_apex_verdict(kernel, session_id):
@@ -57,6 +61,7 @@ async def test_apex_verdict(kernel, session_id):
     )
     validate_constitutionally("apex_verdict", result, kernel)
     assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_vault_seal(kernel, session_id):

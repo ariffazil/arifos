@@ -1,20 +1,31 @@
 import pytest
 from aclip_cai.triad import (
-    anchor, reason, integrate,
-    respond, validate, align,
-    forge, audit, seal,
+    anchor,
+    reason,
+    integrate,
+    respond,
+    validate,
+    align,
+    forge,
+    audit,
+    seal,
 )
 from tests.mcp_live.utils.validators import validate_constitutionally
+
 
 @pytest.fixture(scope="module")
 def triad_sid():
     return "triad-test-xyz789"
 
+
 @pytest.mark.asyncio
 async def test_triad_anchor(kernel, triad_sid):
-    result = await anchor(session_id=triad_sid, user_id="triad_tester", context="Testing the triad anchor.")
+    result = await anchor(
+        session_id=triad_sid, user_id="triad_tester", context="Testing the triad anchor."
+    )
     validate_constitutionally("triad_anchor", result, kernel)
     assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_triad_reason(kernel, triad_sid):
@@ -26,6 +37,7 @@ async def test_triad_reason(kernel, triad_sid):
     validate_constitutionally("triad_reason", result, kernel)
     assert result is not None
 
+
 @pytest.mark.asyncio
 async def test_triad_integrate(kernel, triad_sid):
     result = await integrate(
@@ -34,6 +46,7 @@ async def test_triad_integrate(kernel, triad_sid):
     )
     validate_constitutionally("triad_integrate", result, kernel)
     assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_triad_respond(kernel, triad_sid):
@@ -44,11 +57,13 @@ async def test_triad_respond(kernel, triad_sid):
     validate_constitutionally("triad_respond", result, kernel)
     assert result is not None
 
+
 @pytest.mark.asyncio
 async def test_triad_validate(kernel, triad_sid):
     result = await validate(session_id=triad_sid, action="Deploy AI system to production.")
     validate_constitutionally("triad_validate", result, kernel)
     assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_triad_align(kernel, triad_sid):
@@ -56,11 +71,13 @@ async def test_triad_align(kernel, triad_sid):
     validate_constitutionally("triad_align", result, kernel)
     assert result is not None
 
+
 @pytest.mark.asyncio
 async def test_triad_forge(kernel, triad_sid):
     result = await forge(session_id=triad_sid, plan="Forge a constitutional AI deployment plan.")
     validate_constitutionally("triad_forge", result, kernel)
     assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_triad_audit(kernel, triad_sid):
@@ -69,6 +86,7 @@ async def test_triad_audit(kernel, triad_sid):
     )
     validate_constitutionally("triad_audit", result, kernel)
     assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_triad_seal(kernel, triad_sid):

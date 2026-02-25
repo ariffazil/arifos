@@ -4,17 +4,20 @@ from aclip_cai.tools.system_monitor import get_system_health
 from aclip_cai.tools.fs_inspector import fs_inspect
 from tests.mcp_live.utils.validators import validate_constitutionally
 
+
 @pytest.mark.asyncio
 async def test_search(kernel, session_id):
     result = await _search(query="constitutional AI governance", intent="research")
     validate_constitutionally("search", result, kernel)
     assert result is not None
 
+
 @pytest.mark.asyncio
 async def test_fetch(kernel, session_id):
     result = await _fetch(id="https://modelcontextprotocol.io", max_chars=500)
     validate_constitutionally("fetch", result, kernel)
     assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_analyze(kernel, session_id):
@@ -25,11 +28,13 @@ async def test_analyze(kernel, session_id):
     validate_constitutionally("analyze", result, kernel)
     assert result is not None
 
+
 @pytest.mark.asyncio
 async def test_system_audit(kernel, session_id):
     result = await _system_audit(audit_scope="quick", verify_floors=True)
     validate_constitutionally("system_audit", result, kernel)
     assert result is not None
+
 
 @pytest.mark.asyncio
 async def test_sense_health():
@@ -37,6 +42,7 @@ async def test_sense_health():
     result = get_system_health()
     assert result is not None
     assert "status" in result
+
 
 @pytest.mark.asyncio
 async def test_sense_fs():

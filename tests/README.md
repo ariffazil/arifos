@@ -75,7 +75,7 @@ The suite is split into two domains:
 | `integration/` | 8 | All | Full 000→999 pipeline scenarios |
 | `judiciary/` | 3 | F8, F11, F12 | Semantic firewall, witness council |
 | `legacy/` | 4 | N/A | Deprecated pre-v49 tests (migration pending) |
-| `mcp/` | 172 | All | Trinity Tools (000_init, agi_genius, asi_act, apex_judge, 999_vault) |
+| `mcp/` | 172 | All | Canonical MCP tools (anchor_session, reason_mind, simulate_heart, apex_judge, seal_vault) |
 | `memory/` | 6 | F1 | 5-layer memory hierarchy, cooling ledger |
 | `spec/` | 4 | F2, F10 | Spec loading, Sealion bindings |
 | `temporal/` | 3 | F2 | Freshness decay, temporal intelligence |
