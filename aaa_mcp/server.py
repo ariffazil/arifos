@@ -358,13 +358,16 @@ async def _phoenix_recall(
             "all": None,
         }
         source_filter = source_filter_map.get(domain, "000_THEORY")
-        rag = _ensure_rag()
-        contexts = rag.retrieve(
-            query=current_thought_vector,
-            top_k=max(1, min(int(depth), 10)),
-            source_filter=source_filter,
-            min_score=0.15,
-        )
+        try:
+            rag = _ensure_rag()
+            contexts = rag.retrieve(
+                query=current_thought_vector,
+                top_k=max(1, min(int(depth), 10)),
+                source_filter=source_filter,
+                min_score=0.15,
+            )
+        except Exception:
+            contexts = []
 
         result = {
             "status": "RECALL_SUCCESS",
