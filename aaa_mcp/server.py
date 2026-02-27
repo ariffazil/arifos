@@ -44,10 +44,17 @@ from aaa_mcp.protocol.schemas import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOO
 from core.shared.context_template import build_full_context_template
 
 
-# Deprecated alias — use arifos_aaa_mcp.server.create_aaa_mcp_server() instead.
-# Kept only for direct internal unit tests that import from aaa_mcp.server directly.
 def create_unified_mcp_server() -> Any:
-    """Internal FastMCP instance for aaa_mcp layer. Clients should use arifos_aaa_mcp."""
+    """Return the internal (aaa_mcp layer) FastMCP instance.
+
+    Called by:
+    - server.py (root entrypoint: `python server.py`)
+    - tests that monkeypatch aaa_mcp.server.create_unified_mcp_server
+
+    aaa_mcp/__main__.py uses arifos_aaa_mcp.server.create_aaa_mcp_server() instead,
+    which wraps this layer with governance contracts. Do NOT remove without
+    updating server.py and its test suite.
+    """
     return mcp
 
 
