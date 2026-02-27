@@ -1,6 +1,6 @@
 # arifOS Unification Matrix
 **Status:** CANONICAL REFERENCE
-**Version:** v2026.2.27 | MANIFEST_VERSION=2
+**Version:** v2026.2.27 | MANIFEST_VERSION=3
 **Motto:** *DITEMPA BUKAN DIBERI — before refactoring, map the terrain*
 
 ---
@@ -36,7 +36,7 @@ Four generations of naming exist. Gen-4 is current canon.
 | `phoenix_recall` | `phoenix_recall` | `recall_memory` | `recall_memory` ← same | 444 |
 | `asi_empathize` | `asi_empathy` | `simulate_heart` | `simulate_heart` ← same | 555 |
 | `asi_align` | `asi_align` | `critique_thought` | `critique_thought` ← same | 666 |
-| `apex_verdict` | `apex_verdict` | `apex_judge` | **`judge_soul`** ← renamed v2026.2 | 888 |
+| `apex_verdict` | `apex_verdict` | `apex_judge` | **`apex_judge`** ← current canon | 888 |
 | `sovereign_actuator` | `sovereign_actuator` | `eureka_forge` | `eureka_forge` ← same | 777 |
 | `vault_seal` | `vault_seal` | `seal_vault` | `seal_vault` ← same | 999 |
 | `reality_search` | `search` | `search_reality` | `search_reality` ← same | 111 |
@@ -45,7 +45,7 @@ Four generations of naming exist. Gen-4 is current canon.
 | `system_audit` | `system_audit` | `audit_rules` | `audit_rules` ← same | 333 |
 | `sense_health` | `sense_health` | `check_vital` | `check_vital` ← same | 555 |
 
-**Key rename**: `apex_verdict` → `apex_judge` → `judge_soul`. Backward-compat aliases exist at all layers.
+**Key rule**: `apex_judge` is the current canon. `judge_soul` is backward-compat only.
 
 ---
 
@@ -54,19 +54,19 @@ Four generations of naming exist. Gen-4 is current canon.
 ```
 Client call: "apex_verdict"  (gen-1 or gen-2)
      ↓
-REST TOOL_ALIASES (rest_routes.py):  apex_verdict → judge_soul
+REST TOOL_ALIASES (rest_routes.py):  apex_verdict → apex_judge
      ↓
-_TOOL_REGISTRY (arifos_aaa_mcp/server.py): judge_soul → apex_judge callable
+_TOOL_REGISTRY (arifos_aaa_mcp/server.py): apex_judge → apex_judge callable
      ↓
-FastMCP dispatcher: name="judge_soul" → _apex_verdict() handler
+FastMCP dispatcher: name="apex_judge" → _apex_verdict() handler
 
-Client call: "apex_judge"  (gen-3)
+Client call: "apex_judge"  (current canon)
      ↓
-REST TOOL_ALIASES: apex_judge → judge_soul → same handler
+FastMCP dispatcher: name="apex_judge" → _apex_verdict() handler
 
-Client call: "judge_soul"  (gen-4, direct)
+Client call: "judge_soul"  (compat alias)
      ↓
-FastMCP dispatcher: name="judge_soul" → _apex_verdict() handler ✅
+FastMCP dispatcher: name="apex_judge" → _apex_verdict() handler ✅
 ```
 
 ---
@@ -96,8 +96,8 @@ serves the same URIs as the canonical path.
 | `reason_mind` | `aclip_cai.triad.reason()` | Full triad path |
 | `recall_memory` | `aclip_cai.triad.integrate()` | Full triad path |
 | `simulate_heart` | `aclip_cai.triad.align()` | Full triad path |
-| `critique_thought` | **Local heuristics only** | 7 keyword-regex flags, no triad call — Phase 4 |
-| `judge_soul` | `aclip_cai.triad.forge()` + `audit()` | Full triad path |
+| `critique_thought` | `aclip_cai.triad.align()` + heuristic lens fallback | Triad-backed verdict path with mental-model metadata |
+| `apex_judge` | `aclip_cai.triad.forge()` + `audit()` | Full triad path |
 | `eureka_forge` | `aclip_cai.triad.forge()` | Full triad path |
 | `seal_vault` | `aclip_cai.triad.seal()` | Full triad path |
 | `search_reality` | `aaa_mcp.external_gateways` (Perplexity/Brave) | External APIs |
@@ -133,9 +133,9 @@ Single source of truth for:
 - Alias map → `arifos_aaa_mcp/rest_routes.py:TOOL_ALIASES`
 - Resource URIs → add URI constants to `aaa_mcp/protocol/`
 
-### Phase 4 — Wire critique_thought to triad
-Replace local heuristics with `aclip_cai.triad.align()` call.
-Keep heuristics as fallback when triad is unavailable.
+### Phase 4 — Wire critique_thought to triad ✅ DONE
+- `critique_thought` now uses `aclip_cai.triad.align()` as the primary backend
+- Mental-model heuristics remain as explanatory metadata and fallback behavior
 
 ### Phase 5 — Test lane cleanup
 ```

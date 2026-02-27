@@ -95,6 +95,7 @@ async def test_get_prompt_and_get_prompt_mcp(aaa_client: FastMCPClient) -> None:
     first_text = prompt.messages[0].content.text
     assert "anchor_session" in first_text
     assert "seal_vault" in first_text
+    assert "apex_judge" in first_text
 
     raw = await aaa_client.get_prompt_mcp(
         "arifos.prompt.aaa_chain",
