@@ -16,7 +16,8 @@ import os
 import sys
 import uuid
 from datetime import datetime, timezone
-from typing import Any, get_args, get_origin
+from types import UnionType
+from typing import Any, Union, get_args, get_origin, get_type_hints
 
 # Force local source priority (same as rest.py)
 sys.path.insert(0, os.getcwd())
@@ -27,7 +28,11 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 
-from aaa_mcp.protocol.public_surface import PUBLIC_PROMPT_NAMES, PUBLIC_RESOURCE_URIS, PUBLIC_TOOL_ALIASES
+from aaa_mcp.protocol.public_surface import (
+    PUBLIC_PROMPT_NAMES,
+    PUBLIC_RESOURCE_URIS,
+    PUBLIC_TOOL_ALIASES,
+)
 
 # Import canonical tools from public 13-tool surface.
 from arifos_aaa_mcp.server import (
@@ -83,6 +88,12 @@ PROMPT_DESCRIPTORS = [
         ],
     }
 ]
+
+PROMPT_ARGUMENT_COMPLETIONS: dict[str, dict[str, list[str]]] = {
+    PUBLIC_PROMPT_NAMES["aaa_chain"]: {
+        "actor_id": ["user", "ops", "anonymous"],
+    }
+}
 
 # Tool registry — canonical UX names as primary keys.
 TOOLS = {
@@ -195,7 +206,7 @@ def _annotation_to_json_type(annotation: Any) -> str:
         return "object"
 
     # Optional[T] / Union[T, None]
-    if str(origin).endswith("Union") and args:
+    if origin in (Union, UnionType) and args:
         non_none = [a for a in args if a is not type(None)]
         if non_none:
             return _annotation_to_json_type(non_none[0])
@@ -211,6 +222,10 @@ def _build_input_schema(tool: Any) -> dict:
         return {"type": "object", "properties": {}, "additionalProperties": True}
 
     sig = inspect.signature(func)
+    try:
+        type_hints = get_type_hints(func)
+    except Exception:
+        type_hints = {}
     properties: dict[str, dict] = {}
     required: list[str] = []
 
@@ -220,7 +235,8 @@ def _build_input_schema(tool: Any) -> dict:
         if param.kind in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD):
             continue
 
-        prop = {"type": _annotation_to_json_type(param.annotation)}
+        annotation = type_hints.get(name, param.annotation)
+        prop = {"type": _annotation_to_json_type(annotation)}
         if param.default is not inspect._empty:
             prop["default"] = param.default
         else:
@@ -235,6 +251,19 @@ def _build_input_schema(tool: Any) -> dict:
     if required:
         schema["required"] = required
     return schema
+
+
+def _complete_prompt_argument(prompt_name: str, arg_name: str, value: str) -> list[str]:
+    """Return deterministic completion values for known prompt arguments."""
+    args = PROMPT_ARGUMENT_COMPLETIONS.get(prompt_name, {})
+    candidates = args.get(arg_name, [])
+    if not candidates:
+        return []
+
+    needle = value.lower().strip()
+    if not needle:
+        return candidates
+    return [candidate for candidate in candidates if candidate.lower().startswith(needle)]
 
 
 async def mcp_endpoint(request: Request) -> Response:
@@ -338,7 +367,13 @@ async def mcp_endpoint(request: Request) -> Response:
         _ACTIVE_SESSIONS[session_id] = negotiated_version
         result = {
             "protocolVersion": negotiated_version,
-            "capabilities": {"tools": {}, "resources": {}, "prompts": {}, "logging": {}},
+            "capabilities": {
+                "tools": {"listChanged": False},
+                "resources": {"subscribe": False, "listChanged": False},
+                "prompts": {"listChanged": False},
+                "completion": {},
+                "logging": {},
+            },
             "serverInfo": {
                 "name": "arifos-aaa-mcp",
                 "version": "2026.02.27-CANONICAL-13",
@@ -406,6 +441,13 @@ async def mcp_endpoint(request: Request) -> Response:
     if method == "notifications/initialized":
         return Response(status_code=202, headers=_transport_headers(session_id))
 
+    if method in {
+        "notifications/tools/list_changed",
+        "notifications/resources/list_changed",
+        "notifications/prompts/list_changed",
+    }:
+        return Response(status_code=202, headers=_transport_headers(session_id))
+
     if method == "resources/list":
         return JSONResponse(
             {"jsonrpc": "2.0", "id": request_id, "result": {"resources": RESOURCE_DESCRIPTORS}},
@@ -416,6 +458,14 @@ async def mcp_endpoint(request: Request) -> Response:
         return JSONResponse(
             {"jsonrpc": "2.0", "id": request_id, "result": {"resourceTemplates": []}},
             headers=_transport_headers(session_id),
+        )
+
+    if method in {"resources/subscribe", "resources/unsubscribe"}:
+        return _jsonrpc_error(
+            code=-32601,
+            message="Resource subscriptions are not supported by this transport",
+            request_id=request_id,
+            session_id=session_id,
         )
 
     if method == "resources/read":
@@ -488,6 +538,71 @@ async def mcp_endpoint(request: Request) -> Response:
                 },
             },
             headers=_transport_headers(session_id),
+        )
+
+    if method == "completion/complete":
+        ref = params.get("ref", {}) if isinstance(params, dict) else {}
+        argument = params.get("argument", {}) if isinstance(params, dict) else {}
+
+        if not isinstance(ref, dict) or not isinstance(argument, dict):
+            return _jsonrpc_error(
+                code=-32602,
+                message="Invalid completion params",
+                request_id=request_id,
+                session_id=session_id,
+            )
+
+        ref_type = str(ref.get("type", "")).strip()
+        if ref_type == "prompt":
+            prompt_name = str(ref.get("name", "")).strip()
+            arg_name = str(argument.get("name", "")).strip()
+            arg_value = str(argument.get("value", ""))
+
+            if prompt_name != PUBLIC_PROMPT_NAMES["aaa_chain"]:
+                return _jsonrpc_error(
+                    code=-32602,
+                    message=f"Unknown prompt for completion: {prompt_name}",
+                    request_id=request_id,
+                    session_id=session_id,
+                )
+
+            values = _complete_prompt_argument(prompt_name, arg_name, arg_value)
+            return JSONResponse(
+                {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {
+                        "completion": {
+                            "values": values,
+                            "total": len(values),
+                            "hasMore": False,
+                        }
+                    },
+                },
+                headers=_transport_headers(session_id),
+            )
+
+        if ref_type == "resource":
+            return JSONResponse(
+                {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {
+                        "completion": {
+                            "values": [],
+                            "total": 0,
+                            "hasMore": False,
+                        }
+                    },
+                },
+                headers=_transport_headers(session_id),
+            )
+
+        return _jsonrpc_error(
+            code=-32602,
+            message=f"Unsupported completion ref type: {ref_type}",
+            request_id=request_id,
+            session_id=session_id,
         )
 
     if method == "tools/list":

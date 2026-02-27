@@ -266,3 +266,84 @@ def test_streamable_session_rejects_protocol_mismatch_after_initialize() -> None
     payload = tools_list_resp.json()
     assert payload["error"]["code"] == -32600
     assert "Protocol version mismatch" in payload["error"]["message"]
+
+
+def test_streamable_initialize_advertises_capabilities() -> None:
+    client = TestClient(streamable_app)
+    resp = client.post(
+        "/mcp",
+        json=_jsonrpc_initialize_payload("2025-11-25"),
+        headers={"accept": "application/json"},
+    )
+    assert resp.status_code == 200
+    capabilities = resp.json()["result"]["capabilities"]
+    assert capabilities["completion"] == {}
+    assert capabilities["tools"]["listChanged"] is False
+    assert capabilities["resources"]["listChanged"] is False
+    assert capabilities["resources"]["subscribe"] is False
+    assert capabilities["prompts"]["listChanged"] is False
+
+
+def test_streamable_completion_complete_prompt_actor_id() -> None:
+    client = TestClient(streamable_app)
+    init_resp = client.post(
+        "/mcp",
+        json=_jsonrpc_initialize_payload("2025-11-25"),
+        headers={"accept": "application/json"},
+    )
+    assert init_resp.status_code == 200
+    session_id = init_resp.headers.get(SESSION_HEADER)
+    assert session_id
+
+    complete_resp = client.post(
+        "/mcp",
+        json={
+            "jsonrpc": "2.0",
+            "id": 2,
+            "method": "completion/complete",
+            "params": {
+                "ref": {"type": "prompt", "name": "arifos.prompt.aaa_chain"},
+                "argument": {"name": "actor_id", "value": "o"},
+            },
+        },
+        headers={
+            "accept": "application/json",
+            SESSION_HEADER: session_id,
+            PROTOCOL_HEADER: "2025-11-25",
+        },
+    )
+    assert complete_resp.status_code == 200
+    completion = complete_resp.json()["result"]["completion"]
+    assert completion["values"] == ["ops"]
+    assert completion["total"] == 1
+    assert completion["hasMore"] is False
+
+
+def test_streamable_resources_subscribe_returns_method_not_found() -> None:
+    client = TestClient(streamable_app)
+    init_resp = client.post(
+        "/mcp",
+        json=_jsonrpc_initialize_payload("2025-11-25"),
+        headers={"accept": "application/json"},
+    )
+    assert init_resp.status_code == 200
+    session_id = init_resp.headers.get(SESSION_HEADER)
+    assert session_id
+
+    subscribe_resp = client.post(
+        "/mcp",
+        json={
+            "jsonrpc": "2.0",
+            "id": 3,
+            "method": "resources/subscribe",
+            "params": {"uri": "arifos://aaa/schemas"},
+        },
+        headers={
+            "accept": "application/json",
+            SESSION_HEADER: session_id,
+            PROTOCOL_HEADER: "2025-11-25",
+        },
+    )
+    assert subscribe_resp.status_code == 400
+    payload = subscribe_resp.json()
+    assert payload["error"]["code"] == -32601
