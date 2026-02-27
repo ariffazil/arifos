@@ -12,6 +12,8 @@ All tools must be async and must not write to stdout (stdio transport safety).
 
 from __future__ import annotations
 
+import hashlib
+import hmac as _hmac
 import sys
 import json
 import uuid
@@ -19,9 +21,54 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+# ─── Amanah Handshake — Governance Token ────────────────────────────────────
+# HMAC signs the judge's final verdict so seal_vault can verify it without
+# trusting the caller to report the correct verdict.
+#
+# Ω₀ Humility note: This secret is hardcoded for local/dev deployments.
+# In production, load from env var ARIFOS_GOVERNANCE_SECRET or a key store.
+# A hardcoded secret provides replay protection but NOT secret-key security
+# if source code is exposed. Architecture limitation — acknowledged.
+_GOVERNANCE_TOKEN_SECRET = "arifos-governance-token-v1"
+
+
+def _build_governance_token(session_id: str, verdict: str) -> str:
+    """Return HMAC-signed token encoding the judge's verdict.
+
+    Format: ``{verdict}:{sha256_hmac}``
+    The verdict prefix lets seal_vault decode what was signed while the
+    HMAC prevents a caller from forging a SEAL for a VOID judgment.
+    """
+    sig = _hmac.new(
+        _GOVERNANCE_TOKEN_SECRET.encode(),
+        f"{session_id}:{verdict}".encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    return f"{verdict}:{sig}"
+
+
+def _verify_governance_token(session_id: str, token: str) -> tuple[bool, str]:
+    """Verify a governance token and return (valid, verdict).
+
+    Returns (False, "VOID") on any malformation or signature mismatch.
+    Uses hmac.compare_digest for constant-time comparison (timing-safe).
+    """
+    parts = token.split(":", 1)
+    if len(parts) != 2:
+        return False, "VOID"
+    verdict, sig = parts
+    expected_sig = _hmac.new(
+        _GOVERNANCE_TOKEN_SECRET.encode(),
+        f"{session_id}:{verdict}".encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    if _hmac.compare_digest(sig, expected_sig):
+        return True, verdict
+    return False, "VOID"
+
 from fastmcp import FastMCP
 
-from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, validate
+from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, think, validate
 
 # Isolated FastMCP instance — canonical 13-tool surface ONLY.
 # Previously shared aclip_cai's instance which leaked triad_*/sense_* tools.
@@ -29,8 +76,9 @@ mcp = FastMCP(
     "arifOS_AAA_MCP",
     instructions=(
         "Canonical 13-tool arifOS AAA MCP surface. "
-        "Governance spine: 000->222->333->444->555->666->777->888->999. "
-        "All tools return {verdict, stage, session_id} envelope."
+        "Governance spine: 000->333->444->555->666->777->888->999. "
+        "Stage 222 (THINK) is an internal thermodynamic chamber inside reason_mind — "
+        "not a public tool. All tools return {verdict, stage, session_id} envelope."
     ),
 )
 
@@ -293,13 +341,46 @@ async def _agi_cognition(
             rag_contexts = rag.query_with_metadata(query=query, top_k=3).get("contexts", [])
         except Exception:
             rag_contexts = []
+
+        # ── Stage 222 THINK (internal — not exposed as public tool) ──────────
+        # Runs before Stage 333. Consumes Stage 111 evidence and produces a
+        # Delta Draft (provisional, unsealed) that is injected as context into
+        # reason() and integrate() below. Enforces F2/F4/F13 internally.
+        stage_111_context = "; ".join(evidence) if evidence else ""
+        think_draft = await think(session_id=session_id, query=query, context=stage_111_context)
+        # If 222 returns VOID the chain halts — a hard floor was breached.
+        if think_draft.get("verdict") == "VOID":
+            return {
+                "verdict": "VOID",
+                "stage": "222_THINK",
+                "session_id": session_id,
+                "blocked_by": "Stage 222 THINK — constitutional floor violation",
+                "floor_checks": think_draft.get("floor_checks", {}),
+            }
+        delta_draft_confidence = think_draft.get("delta_draft", {}).get("confidence", 0.0)
+        # ─────────────────────────────────────────────────────────────────────
+
+        # ── Stage 333 ATLAS — humility audit on the Delta Draft ───────────────
         r = await reason(session_id=session_id, hypothesis=query, evidence=evidence)
         i = await integrate(
-            session_id=session_id, context_bundle={"query": query, "grounding": grounding or {}}
+            session_id=session_id,
+            context_bundle={
+                "query": query,
+                "grounding": grounding or {},
+                "delta_draft_confidence": delta_draft_confidence,
+                "think_alternatives": think_draft.get("delta_draft", {}).get(
+                    "alternatives_generated", 0
+                ),
+            },
         )
         d = await respond(session_id=session_id, draft_response=f"Draft response for: {query}")
         verdict = _fold_verdict(
-            [str(r.get("verdict", "")), str(i.get("verdict", "")), str(d.get("verdict", ""))]
+            [
+                str(think_draft.get("verdict", "")),
+                str(r.get("verdict", "")),
+                str(i.get("verdict", "")),
+                str(d.get("verdict", "")),
+            ]
         )
         merged = {
             "truth_score": r.get("truth_score"),
@@ -318,7 +399,14 @@ async def _agi_cognition(
             "inference_budget": max(0, min(3, int(inference_budget))),
             "risk_mode": risk_mode,
             "debug": debug,
-            "data": {"reason": r, "integrate": i, "respond": d} if debug else {},
+            "data": {
+                "think": think_draft,
+                "reason": r,
+                "integrate": i,
+                "respond": d,
+            }
+            if debug
+            else {},
         }
         result.update(
             envelope_builder.build_envelope(
@@ -461,7 +549,7 @@ async def _apex_verdict(
     asi_result: dict[str, Any] | None = None,
     capability_modules: list[str] | None = None,
     implementation_details: dict[str, Any] | None = None,
-    proposed_verdict: str = "SEAL",
+    proposed_verdict: str = "VOID",
     human_approve: bool = False,
     debug: bool = False,
     actor_id: str = "anonymous",
@@ -501,7 +589,10 @@ async def _apex_verdict(
             ]
         except Exception:
             precedents = []
+        # Fail-closed: if audit engine returned no verdict, default to VOID.
         verdict = str(judged.get("verdict", proposed_verdict))
+        # Amanah Handshake: sign the verdict so seal_vault can verify it.
+        governance_token = _build_governance_token(session_id, verdict)
         merged = {
             "truth_score": judged.get("truth_score"),
             "f2_threshold": judged.get("f2_threshold"),
@@ -511,6 +602,7 @@ async def _apex_verdict(
         }
         result = {
             "authority": {"human_approve": human_approve},
+            "governance_token": governance_token,
             "capability_modules": capability_modules or [],
             "actor_id": actor_id,
             "token_status": "AUTHENTICATED" if auth_token else "ANONYMOUS",
@@ -582,16 +674,38 @@ eureka_forge = ToolHandle(_sovereign_actuator)
 async def _vault_seal(
     session_id: str,
     summary: str,
-    verdict: str = "SEAL",
+    governance_token: str,
 ) -> dict[str, Any]:
+    """
+    Amanah Handshake: the vault only commits what the Judge actually signed.
+    ``governance_token`` must be the value returned by ``apex_judge``.
+    No token → no entry. Tampered token → VOID, no entry.
+    """
     try:
         if not session_id:
             return _build_floor_block("999_VAULT", "Missing session_id")
-        res = await seal(session_id=session_id, task_summary=summary, was_modified=True)
-        result = {"data": res, "status": verdict}
+
+        # Verify the Judge's signature before touching the ledger.
+        token_valid, verified_verdict = _verify_governance_token(session_id, governance_token)
+        if not token_valid:
+            return {
+                "verdict": "VOID",
+                "stage": "999_VAULT",
+                "session_id": session_id,
+                "blocked_by": "F1 Amanah — governance_token invalid or tampered",
+                "remediation": "Call apex_judge first and pass its governance_token here.",
+            }
+
+        res = await seal(
+            session_id=session_id,
+            task_summary=summary,
+            was_modified=True,
+            verdict=verified_verdict,
+        )
+        result = {"data": res, "status": verified_verdict}
         result.update(
             envelope_builder.build_envelope(
-                stage="999_VAULT", session_id=session_id, verdict=verdict, payload=res
+                stage="999_VAULT", session_id=session_id, verdict=verified_verdict, payload=res
             )
         )
         return result

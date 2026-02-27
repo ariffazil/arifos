@@ -25,10 +25,11 @@ PRE_FLOORS: set[str] = {"F1", "F5", "F6", "F11", "F12", "F13"}
 POST_FLOORS: set[str] = {"F2", "F3", "F4", "F7", "F8", "F9", "F10"}
 
 # Hard floors: failure -> VOID (block)
-HARD_FLOORS: set[str] = {"F1", "F2", "F7", "F10", "F11", "F12", "F13"}
+# F4 (Clarity/ΔS) is hard: entropy must decrease. Confusion increase = hard fail.
+HARD_FLOORS: set[str] = {"F1", "F2", "F4", "F7", "F10", "F11", "F12", "F13"}
 
 # Soft/Derived floors: failure -> PARTIAL (warn)
-SOFT_FLOORS: set[str] = {"F3", "F4", "F5", "F6", "F8", "F9"}
+SOFT_FLOORS: set[str] = {"F3", "F5", "F6", "F8", "F9"}
 
 
 class ConstitutionalEvaluator:

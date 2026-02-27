@@ -190,13 +190,13 @@ All defined in `aaa_mcp/server.py` with `@mcp.tool()` decorators. Backend logic 
 | Tool (UX Verb)     | Lane    | Stage   | Floors          | Purpose                               |
 | ------------------ | ------- | ------- | --------------- | ------------------------------------- |
 | `anchor_session`   | Δ Delta | 000     | F11, F12, F13   | Session ignition & injection defense  |
-| `reason_mind`      | Δ Delta | 111-444 | F2, F4, F7, F8  | AGI cognition & logic grounding       |
+| `reason_mind`      | Δ Delta | 333     | F2, F4, F7, F8  | AGI cognition (Stage 222 THINK runs internally before Stage 333) |
 | `recall_memory`    | Ω Omega | 555     | F4, F7, F13     | Associative memory traces             |
 | `simulate_heart`   | Ω Omega | 555     | F4, F5, F6      | Stakeholder impact & care constraints |
 | `critique_thought` | Ω Omega | 666     | F4, F7, F8      | 7-organ alignment & bias critique     |
 | `apex_judge`       | Ψ Psi   | 888     | F1-F13          | Sovereign verdict synthesis           |
 | `eureka_forge`     | Ψ Psi   | 777     | F1, F11, F12    | Sandboxed action execution            |
-| `seal_vault`       | Ψ Psi   | 999     | F1, F3, F10     | Immutable ledger persistence          |
+| `seal_vault`       | Ψ Psi   | 999     | F1, F3, F10     | Immutable ledger — requires `governance_token` from `apex_judge` |
 | `search_reality`   | Δ Delta | 111     | F2, F4, F12     | Web grounding (Perplexity/Brave)      |
 | `fetch_content`    | Δ Delta | 444     | F2, F4, F12     | Raw evidence content retrieval        |
 | `inspect_file`     | Δ Delta | 111     | F1, F4, F11     | Filesystem inspection (read-only)     |
@@ -323,6 +323,9 @@ Before making constitutional claims, verify against PRIMARY sources:
 
 ## Known Gotchas
 
+- **Stage 222 THINK is internal-only**: `think()` is NOT an `@mcp.tool()`. It runs inside `reason_mind` before Stage 333. External callers cannot call it directly. Raw delta drafts (sealed=False) must pass Stage 333 humility audit before they become valid output.
+- **seal_vault is token-locked (Amanah Handshake)**: `seal_vault` no longer accepts a `verdict` parameter. Pass `governance_token` from `apex_judge`'s response. A missing or tampered token returns VOID — no ledger entry is written. `_GOVERNANCE_TOKEN_SECRET` in `aaa_mcp/server.py` is hardcoded for dev; must be env-var-sourced in production.
+- **F4 (Clarity) is now a Hard floor**: Moved from SOFT_FLOORS to HARD_FLOORS in `core/kernel/evaluator.py`. Responses that increase entropy (ΔS > 0) now return VOID, not PARTIAL. This may cause new test failures in suites that relied on PARTIAL for high-entropy outputs.
 - **Namespace collision**: Never name a local package `mcp`. Local code is `aaa_mcp/`. The `mcp/` directory at repo root (if present) is Docker configs, NOT the SDK.
 - **Dual entry points**: `arifos_aaa_mcp` (canonical, default SSE) vs `aaa_mcp` (compat shim, default SSE). Both call `aaa_mcp/server.py` but `arifos_aaa_mcp` adds governance wrappers.
 - **`codebase/` removed**: Was deleted in v2026.2.15 consolidation. All logic now lives in `core/`, `aclip_cai/`, and `aaa_mcp/`. Some docs/comments still reference it.
