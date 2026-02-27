@@ -9,10 +9,14 @@ Verifies via FastMCP Client (MCP protocol path):
 
 from __future__ import annotations
 
-from typing import Any, Dict
 import json
+from typing import Any
 
 from fastmcp.client.client import Client as FastMCPClient
+from starlette.testclient import TestClient
+
+from aaa_mcp.streamable_http_server import PROTOCOL_HEADER, SESSION_HEADER
+from aaa_mcp.streamable_http_server import app as streamable_app
 
 EXPECTED_13 = {
     "anchor_session",
@@ -20,8 +24,8 @@ EXPECTED_13 = {
     "recall_memory",
     "simulate_heart",
     "critique_thought",
-    "judge_soul",
-    "forge_hand",
+    "apex_judge",
+    "eureka_forge",
     "seal_vault",
     "search_reality",
     "fetch_content",
@@ -33,7 +37,7 @@ EXPECTED_13 = {
 
 def _unwrap(obj: Any) -> Any:
     if hasattr(obj, "data"):
-        return getattr(obj, "data")
+        return obj.data
     return obj
 
 
@@ -42,9 +46,9 @@ def _resource_text(contents: Any) -> str:
     if isinstance(contents, list) and contents:
         first = contents[0]
         if hasattr(first, "text"):
-            return str(getattr(first, "text"))
+            return str(first.text)
         if hasattr(first, "blob"):
-            blob = getattr(first, "blob")
+            blob = first.blob
             if isinstance(blob, (bytes, bytearray)):
                 return blob.decode("utf-8", errors="replace")
     if isinstance(contents, bytes):
@@ -54,7 +58,7 @@ def _resource_text(contents: Any) -> str:
     raise AssertionError(f"Unexpected resource contents type: {type(contents)}")
 
 
-def _assert_envelope(payload: Dict[str, Any]) -> None:
+def _assert_envelope(payload: dict[str, Any]) -> None:
     assert isinstance(payload, dict)
     assert "verdict" in payload
     assert "tool" in payload
@@ -97,10 +101,10 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
     )
     # FastMCP returns GetPromptResult with `messages`.
     assert hasattr(prompt_obj, "messages")
-    messages = getattr(prompt_obj, "messages")
+    messages = prompt_obj.messages
     assert messages
-    content = getattr(messages[0], "content")
-    text = getattr(content, "text")
+    content = messages[0].content
+    text = content.text
     assert "anchor_session" in text
     assert "seal_vault" in text
 
@@ -144,7 +148,7 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
 
     judge = _unwrap(
         await client.call_tool(
-            "judge_soul",
+            "apex_judge",
             arguments={
                 "session_id": session_id,
                 "query": "verdict",
@@ -158,7 +162,7 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
 
     forge = _unwrap(
         await client.call_tool(
-            "forge_hand",
+            "eureka_forge",
             arguments={
                 "action_payload": {"action": "noop"},
                 "session_id": session_id,
@@ -196,3 +200,69 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
 
     vital = _unwrap(await client.call_tool("check_vital", arguments={"include_swap": False}))
     _assert_envelope(vital)
+
+
+def _jsonrpc_initialize_payload(protocol_version: str) -> dict[str, Any]:
+    return {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "initialize",
+        "params": {
+            "protocolVersion": protocol_version,
+            "capabilities": {},
+            "clientInfo": {"name": "pytest", "version": "1.0"},
+        },
+    }
+
+
+def test_streamable_initialize_negotiates_supported_older_version() -> None:
+    client = TestClient(streamable_app)
+    resp = client.post(
+        "/mcp",
+        json=_jsonrpc_initialize_payload("2025-03-26"),
+        headers={"accept": "application/json"},
+    )
+    assert resp.status_code == 200
+    body = resp.json()
+    assert body["result"]["protocolVersion"] == "2025-03-26"
+    assert resp.headers.get(PROTOCOL_HEADER) == "2025-03-26"
+    assert resp.headers.get(SESSION_HEADER)
+
+
+def test_streamable_initialize_rejects_unsupported_version() -> None:
+    client = TestClient(streamable_app)
+    resp = client.post(
+        "/mcp",
+        json=_jsonrpc_initialize_payload("2099-01-01"),
+        headers={"accept": "application/json"},
+    )
+    assert resp.status_code == 400
+    body = resp.json()
+    assert body["error"]["code"] == -32602
+    assert "Unsupported protocolVersion" in body["error"]["message"]
+
+
+def test_streamable_session_rejects_protocol_mismatch_after_initialize() -> None:
+    client = TestClient(streamable_app)
+    init_resp = client.post(
+        "/mcp",
+        json=_jsonrpc_initialize_payload("2025-03-26"),
+        headers={"accept": "application/json"},
+    )
+    assert init_resp.status_code == 200
+    session_id = init_resp.headers.get(SESSION_HEADER)
+    assert session_id
+
+    tools_list_resp = client.post(
+        "/mcp",
+        json={"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
+        headers={
+            "accept": "application/json",
+            SESSION_HEADER: session_id,
+            PROTOCOL_HEADER: "2025-11-25",
+        },
+    )
+    assert tools_list_resp.status_code == 400
+    payload = tools_list_resp.json()
+    assert payload["error"]["code"] == -32600
+    assert "Protocol version mismatch" in payload["error"]["message"]

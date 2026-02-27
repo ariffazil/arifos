@@ -8,6 +8,7 @@ Enforces the immutable laws of the agentic environment.
 
 import asyncio
 import time
+from collections.abc import Awaitable
 from typing import Any
 
 
@@ -29,6 +30,9 @@ class TokenPhysics:
         Returns accumulated cost.
         Raises StarvationError if budget exceeded.
         """
+        if input_tokens < 0 or output_tokens < 0:
+            raise ValueError("Token counts must be non-negative")
+
         cost = ((input_tokens + output_tokens) / 1000) * self.COST_PER_1K_TOKENS
         self.session_cost += cost
 
@@ -48,7 +52,7 @@ class TimePhysics:
 
     MAX_LATENCY_MS = 30000  # 30s hard limit
 
-    async def measure(self, coro):
+    async def measure(self, coro: Awaitable[Any]) -> Any:
         """
         Execute coroutine within time bounds.
         Raises TimeoutError if execution is too slow.
@@ -59,7 +63,7 @@ class TimePhysics:
             return await asyncio.wait_for(coro, timeout=self.MAX_LATENCY_MS / 1000)
         finally:
             end = time.perf_counter_ns()
-            duration_ms = (end - start) / 1e6
+            _duration_ms = (end - start) / 1e6
             # TODO: Log metrics
 
 
@@ -74,6 +78,8 @@ class ConstitutionalLaw:
         """
         Check if an action violates a Constitutional Floor.
         """
+        if not floor_id:
+            return False
         # STUB: Connect to codebase.floors.*
         if floor_id == "F1":  # Amanah (Reversibility)
             # Default to blocking irreversible actions by default

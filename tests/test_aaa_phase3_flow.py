@@ -34,5 +34,5 @@ def test_phase3_contains_000_to_999_public_tools() -> None:
             ):
                 names.add(node.name)
 
-    for required in ("anchor_session", "reason_mind", "simulate_heart", "judge_soul", "seal_vault"):
+    for required in ("anchor_session", "reason_mind", "simulate_heart", "apex_judge", "seal_vault"):
         assert required in names

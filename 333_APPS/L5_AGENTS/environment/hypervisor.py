@@ -10,10 +10,6 @@ from typing import Any
 
 from .physics import PHYSICS
 
-# Set up logging
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
 logger = logging.getLogger("L5_HYPERVISOR")
 
 
@@ -23,7 +19,7 @@ class Hypervisor:
     Orchestrates the continuous 000-999 loop.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.running = False
         self.cycle_count = 0
 
@@ -35,15 +31,20 @@ class Hypervisor:
         return {
             "epoch": self.cycle_count,
             "entropy": 0.0,
-            "budget_remaining": PHYSICS["token"].MAX_SESSION_BUDGET - PHYSICS["token"].session_cost,
+            "budget_remaining": max(
+                0.0, PHYSICS["token"].MAX_SESSION_BUDGET - PHYSICS["token"].session_cost
+            ),
         }
 
-    async def cycle(self, agent_instance, input_data: dict[str, Any]):
+    async def cycle(self, agent_instance: Any, input_data: dict[str, Any]) -> dict[str, Any] | Any:
         """
         Execute one metabolic cycle with Physics enforcement.
         """
         self.cycle_count += 1
-        logger.info(f"CYCLE {self.cycle_count}: IGNITION")
+        logger.info("CYCLE %s: IGNITION", self.cycle_count)
+
+        if not isinstance(input_data, dict):
+            return {"verdict": "VOID", "reason": "Input data must be a dictionary"}
 
         try:
             # 1. Enforce Time Physics (Latency Budget)
@@ -53,24 +54,28 @@ class Hypervisor:
             # 2. Enforce Token Physics (Energy Budget)
             # STUB: Assume 100 tokens in, 100 tokens out for now
             cost = PHYSICS["token"].consume(100, 100)
-            logger.info(f"CYCLE {self.cycle_count}: COMPLETE | Cost: ${cost:.4f}")
+            logger.info("CYCLE %s: COMPLETE | Cost: $%.4f", self.cycle_count, cost)
 
             return result
 
         except TimeoutError:
-            logger.error(f"CYCLE {self.cycle_count}: TIMEOUT (Sabotage Protocol)")
+            logger.error("CYCLE %s: TIMEOUT (Sabotage Protocol)", self.cycle_count)
             return {"verdict": "SABAR", "reason": "Timeout"}
 
         except PermissionError as e:
-            logger.error(f"CYCLE {self.cycle_count}: STARVATION ({e})")
+            logger.error("CYCLE %s: STARVATION (%s)", self.cycle_count, e)
             return {"verdict": "VOID", "reason": "Budget Exceeded"}
 
-    async def ignition(self, agent_class, query: str):
+        except Exception as e:
+            logger.exception("CYCLE %s: UNEXPECTED ERROR", self.cycle_count)
+            return {"verdict": "VOID", "reason": str(e)}
+
+    async def ignition(self, agent_class: Any, query: str) -> dict[str, Any] | Any:
         """
         The Spark.
         Starts the loop for a specific agent.
         """
-        logger.info(f"IGNITING {agent_class.name}...")
+        logger.info("IGNITING %s...", getattr(agent_class, "name", "unknown_agent"))
         self.running = True
 
         # Instantiate Agent

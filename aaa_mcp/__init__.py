@@ -10,7 +10,7 @@ from __future__ import annotations
 import warnings
 from typing import Any
 
-__version__ = "2026.02.25-CANONICAL-13"
+__version__ = "2026.02.27-CANONICAL-13"
 
 __all__ = ["mcp"]
 
@@ -22,8 +22,8 @@ _OLD_TO_NEW = {
     "agi_cognition": "reason_mind",
     "phoenix_recall": "recall_memory",
     "asi_empathy": "simulate_heart",
-    "apex_verdict": "judge_soul",
-    "sovereign_actuator": "forge_hand",
+    "apex_verdict": "apex_judge",
+    "sovereign_actuator": "eureka_forge",
     "vault_seal": "seal_vault",
     "search": "search_reality",
     "fetch": "fetch_content",
@@ -36,8 +36,8 @@ _OLD_TO_NEW = {
     "respond": "reason_mind",
     "validate": "simulate_heart",
     "align": "simulate_heart",
-    "forge": "judge_soul",
-    "audit": "judge_soul",
+    "forge": "apex_judge",
+    "audit": "apex_judge",
     "seal": "seal_vault",
     # Canonical names → self (for pass-through)
     "anchor_session": "anchor_session",
@@ -45,8 +45,8 @@ _OLD_TO_NEW = {
     "recall_memory": "recall_memory",
     "simulate_heart": "simulate_heart",
     "critique_thought": "critique_thought",
-    "judge_soul": "judge_soul",
-    "forge_hand": "forge_hand",
+    "apex_judge": "apex_judge",
+    "eureka_forge": "eureka_forge",
     "seal_vault": "seal_vault",
     "search_reality": "search_reality",
     "fetch_content": "fetch_content",

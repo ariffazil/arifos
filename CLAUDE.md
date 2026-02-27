@@ -206,8 +206,8 @@ All defined in `aaa_mcp/server.py` with `@mcp.tool()` decorators. Backend logic 
 All tools return a standard envelope: `{verdict, stage, session_id, floors, truth, next_actions}`.
 
 Alias compatibility:
-- `judge_soul` -> `apex_judge`
-- `forge_hand` -> `eureka_forge`
+- `apex_judge` -> `apex_judge`
+- `eureka_forge` -> `eureka_forge`
 
 **Verdicts:** `SEAL` (pass) | `PARTIAL` (soft floor warn) | `SABAR` (hold) | `VOID` (blocked) | `888_HOLD` (needs human)
 

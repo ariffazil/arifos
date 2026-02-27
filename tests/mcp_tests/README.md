@@ -32,5 +32,5 @@ pytest -m mcp
 ```
 
 Alias compatibility expectations:
-- `judge_soul` should resolve to `apex_judge`
-- `forge_hand` should resolve to `eureka_forge`
+- `apex_judge` should resolve to `apex_judge`
+- `eureka_forge` should resolve to `eureka_forge`

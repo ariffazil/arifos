@@ -29,14 +29,17 @@ from starlette.routing import Route
 
 # Import canonical tools from public 13-tool surface.
 from arifos_aaa_mcp.server import (
+    aaa_chain_prompt,
+    aaa_full_context_pack,
+    aaa_tool_schemas,
     anchor_session,
+    apex_judge,
     audit_rules,
     check_vital,
     critique_thought,
+    eureka_forge,
     fetch_content,
-    forge_hand,
     inspect_file,
-    judge_soul,
     reason_mind,
     recall_memory,
     seal_vault,
@@ -50,7 +53,34 @@ PROTOCOL_VERSION = "2025-11-25"
 SUPPORTED_PROTOCOL_VERSIONS = {"2025-11-25", "2025-03-26"}
 SESSION_HEADER = "MCP-Session-Id"
 PROTOCOL_HEADER = "MCP-Protocol-Version"
-_ACTIVE_SESSIONS: set[str] = set()
+_ACTIVE_SESSIONS: dict[str, str] = {}
+
+RESOURCE_DESCRIPTORS = [
+    {
+        "uri": "arifos://aaa/schemas",
+        "name": "arifos_aaa_tool_schemas",
+        "description": "Canonical AAA MCP 13-tool schema/contract overview.",
+        "mimeType": "application/json",
+    },
+    {
+        "uri": "arifos://aaa/full-context-pack",
+        "name": "arifos_aaa_full_context_pack",
+        "description": "Full-context orchestration metadata (stage spine, prompts, resources).",
+        "mimeType": "application/json",
+    },
+]
+
+PROMPT_DESCRIPTORS = [
+    {
+        "name": "arifos.prompt.aaa_chain",
+        "title": "AAA Chain Prompt",
+        "description": "Run canonical 13-tool continuity chain from anchor to seal.",
+        "arguments": [
+            {"name": "query", "required": True},
+            {"name": "actor_id", "required": False},
+        ],
+    }
+]
 
 # Tool registry — canonical UX names as primary keys.
 TOOLS = {
@@ -59,8 +89,8 @@ TOOLS = {
     "recall_memory": recall_memory,
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
-    "judge_soul": judge_soul,
-    "forge_hand": forge_hand,
+    "apex_judge": apex_judge,
+    "eureka_forge": eureka_forge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,
     "fetch_content": fetch_content,
@@ -76,8 +106,8 @@ TOOL_DESCRIPTIONS = {
     "recall_memory": "[Lane: Omega] 555_RECALL — Associative memory retrieval",
     "simulate_heart": "[Lane: Omega] 555-666_ASI — Stakeholder impact + care",
     "critique_thought": "[Lane: Omega] 666_ALIGN — 7-model bias critique",
-    "judge_soul": "[Lane: Psi] 888_APEX_JUDGE — Sovereign verdict synthesis",
-    "forge_hand": "[Lane: Psi] 777_EUREKA_FORGE — Sandboxed action execution",
+    "apex_judge": "[Lane: Psi] 888_APEX_JUDGE — Sovereign verdict synthesis",
+    "eureka_forge": "[Lane: Psi] 777_EUREKA_FORGE — Sandboxed action execution",
     "seal_vault": "[Lane: Psi] 999_VAULT — Immutable ledger seal",
     "search_reality": "[Lane: Delta] Web grounding search (Perplexity/Brave)",
     "fetch_content": "[Lane: Delta] Raw evidence content retrieval",
@@ -93,8 +123,8 @@ TOOL_ALIASES = {
     "agi_cognition": "reason_mind",
     "phoenix_recall": "recall_memory",
     "asi_empathy": "simulate_heart",
-    "apex_verdict": "judge_soul",
-    "sovereign_actuator": "forge_hand",
+    "apex_verdict": "apex_judge",
+    "sovereign_actuator": "eureka_forge",
     "vault_seal": "seal_vault",
     "search": "search_reality",
     "fetch": "fetch_content",
@@ -106,8 +136,8 @@ TOOL_ALIASES = {
     "respond": "reason_mind",
     "validate": "simulate_heart",
     "align": "simulate_heart",
-    "forge": "forge_hand",
-    "audit": "judge_soul",
+    "forge": "eureka_forge",
+    "audit": "apex_judge",
     "seal": "seal_vault",
 }
 
@@ -237,8 +267,14 @@ async def mcp_endpoint(request: Request) -> Response:
         )
         return {v.strip() for v in raw.split(",") if v.strip()}
 
-    def _transport_headers(session_id: str | None = None) -> dict[str, str]:
-        headers = {PROTOCOL_HEADER: PROTOCOL_VERSION}
+    def _transport_headers(
+        session_id: str | None = None,
+        protocol_version: str | None = None,
+    ) -> dict[str, str]:
+        negotiated = protocol_version
+        if negotiated is None and session_id:
+            negotiated = _ACTIVE_SESSIONS.get(session_id)
+        headers = {PROTOCOL_HEADER: negotiated or PROTOCOL_VERSION}
         if session_id:
             headers[SESSION_HEADER] = session_id
         return headers
@@ -277,12 +313,12 @@ async def mcp_endpoint(request: Request) -> Response:
         session_id = request.headers.get(SESSION_HEADER, "")
         if not session_id:
             return Response(status_code=400, headers=_transport_headers())
-        _ACTIVE_SESSIONS.discard(session_id)
+        _ACTIVE_SESSIONS.pop(session_id, None)
         return Response(status_code=204, headers=_transport_headers())
 
     # POST rules
     accept = request.headers.get("accept", "")
-    if "application/json" not in accept or "text/event-stream" not in accept:
+    if "application/json" not in accept and "text/event-stream" not in accept:
         return Response(status_code=406, headers=_transport_headers())
 
     try:
@@ -295,7 +331,8 @@ async def mcp_endpoint(request: Request) -> Response:
 
     request_id = body.get("id")
     method = body.get("method")
-    params = body.get("params") if isinstance(body.get("params"), dict) else {}
+    raw_params: Any = body.get("params")
+    params: dict[str, Any] = raw_params if isinstance(raw_params, dict) else {}
 
     # Client notifications and responses are acknowledged with 202.
     if method is None:
@@ -306,19 +343,30 @@ async def mcp_endpoint(request: Request) -> Response:
 
     # Initialization can open a new session.
     if method == "initialize":
+        requested_version = str(params.get("protocolVersion", "")).strip()
+        if requested_version and requested_version not in SUPPORTED_PROTOCOL_VERSIONS:
+            supported = ", ".join(sorted(SUPPORTED_PROTOCOL_VERSIONS))
+            return _jsonrpc_error(
+                code=-32602,
+                message=f"Unsupported protocolVersion: {requested_version}. Supported: {supported}",
+                request_id=request_id,
+                http_status=400,
+            )
+
+        negotiated_version = requested_version or PROTOCOL_VERSION
         session_id = str(uuid.uuid4())
-        _ACTIVE_SESSIONS.add(session_id)
+        _ACTIVE_SESSIONS[session_id] = negotiated_version
         result = {
-            "protocolVersion": PROTOCOL_VERSION,
+            "protocolVersion": negotiated_version,
             "capabilities": {"tools": {}, "resources": {}, "prompts": {}, "logging": {}},
             "serverInfo": {
                 "name": "arifos-aaa-mcp",
-                "version": "2026.02.23-CANONICAL-13",
+                "version": "2026.02.27-CANONICAL-13",
             },
         }
         return JSONResponse(
             {"jsonrpc": "2.0", "id": request_id, "result": result},
-            headers=_transport_headers(session_id),
+            headers=_transport_headers(session_id, negotiated_version),
         )
 
     session_id = request.headers.get(SESSION_HEADER, "")
@@ -338,11 +386,24 @@ async def mcp_endpoint(request: Request) -> Response:
             session_id=session_id,
         )
 
+    negotiated_version = _ACTIVE_SESSIONS[session_id]
+
     protocol_version = request.headers.get(PROTOCOL_HEADER)
     if protocol_version and protocol_version not in SUPPORTED_PROTOCOL_VERSIONS:
         return _jsonrpc_error(
             code=-32600,
             message=f"Unsupported {PROTOCOL_HEADER}: {protocol_version}",
+            request_id=request_id,
+            http_status=400,
+            session_id=session_id,
+        )
+    if protocol_version and protocol_version != negotiated_version:
+        return _jsonrpc_error(
+            code=-32600,
+            message=(
+                f"Protocol version mismatch for session. "
+                f"Expected: {negotiated_version}, got: {protocol_version}"
+            ),
             request_id=request_id,
             http_status=400,
             session_id=session_id,
@@ -367,13 +428,85 @@ async def mcp_endpoint(request: Request) -> Response:
 
     if method == "resources/list":
         return JSONResponse(
-            {"jsonrpc": "2.0", "id": request_id, "result": {"resources": []}},
+            {"jsonrpc": "2.0", "id": request_id, "result": {"resources": RESOURCE_DESCRIPTORS}},
+            headers=_transport_headers(session_id),
+        )
+
+    if method == "resources/templates/list":
+        return JSONResponse(
+            {"jsonrpc": "2.0", "id": request_id, "result": {"resourceTemplates": []}},
+            headers=_transport_headers(session_id),
+        )
+
+    if method == "resources/read":
+        uri = str(params.get("uri", "")).strip()
+        if uri == "arifos://aaa/schemas":
+            content_text = aaa_tool_schemas()
+        elif uri == "arifos://aaa/full-context-pack":
+            content_text = aaa_full_context_pack()
+        else:
+            return _jsonrpc_error(
+                code=-32602,
+                message=f"Unknown resource URI: {uri}",
+                request_id=request_id,
+                session_id=session_id,
+            )
+        return JSONResponse(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "contents": [
+                        {
+                            "uri": uri,
+                            "mimeType": "application/json",
+                            "text": content_text,
+                        }
+                    ]
+                },
+            },
             headers=_transport_headers(session_id),
         )
 
     if method == "prompts/list":
         return JSONResponse(
-            {"jsonrpc": "2.0", "id": request_id, "result": {"prompts": []}},
+            {"jsonrpc": "2.0", "id": request_id, "result": {"prompts": PROMPT_DESCRIPTORS}},
+            headers=_transport_headers(session_id),
+        )
+
+    if method == "prompts/get":
+        prompt_name = str(params.get("name", "")).strip()
+        if prompt_name != "arifos.prompt.aaa_chain":
+            return _jsonrpc_error(
+                code=-32602,
+                message=f"Unknown prompt: {prompt_name}",
+                request_id=request_id,
+                session_id=session_id,
+            )
+
+        raw_arguments: Any = params.get("arguments")
+        arguments: dict[str, Any] = raw_arguments if isinstance(raw_arguments, dict) else {}
+        query = str(arguments.get("query", "")).strip() or ""
+        actor_id = str(arguments.get("actor_id", "user")).strip() or "user"
+        prompt_text = aaa_chain_prompt(query=query, actor_id=actor_id)
+        return JSONResponse(
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "name": "arifos.prompt.aaa_chain",
+                    "description": "Run canonical 13-tool continuity chain from anchor to seal.",
+                    "messages": [
+                        {
+                            "role": "user",
+                            "content": {
+                                "type": "text",
+                                "text": prompt_text,
+                            },
+                        }
+                    ],
+                },
+            },
             headers=_transport_headers(session_id),
         )
 
@@ -478,7 +611,7 @@ async def health(request: Request) -> JSONResponse:
         {
             "status": "healthy" if monitor.is_healthy() else "degraded",
             "transport": "streamable-http",
-            "version": "2026.02.23-CANONICAL-13",
+            "version": "2026.02.27-CANONICAL-13",
             "governance_metrics": stats,
             "health_checks": health_results,
             "endpoints": ["/mcp", "/health"],

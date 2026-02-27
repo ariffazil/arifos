@@ -69,7 +69,7 @@
         "E": 0.4
       }
     },
-    "judge_soul": {
+    "apex_judge": {
       "contribution": [
         "P",
         "A"
@@ -81,7 +81,7 @@
         "E": 0.5
       }
     },
-    "forge_hand": {
+    "eureka_forge": {
       "contribution": [
         "E",
         "P"

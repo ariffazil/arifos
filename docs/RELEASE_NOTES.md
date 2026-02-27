@@ -1,3 +1,38 @@
+# Release Notes — arifOS 2026.02.27-FORGE-PROTOCOL-NEGOTIATION-CONSISTENCY-SEAL
+
+**T000:** 2026.02.27-FORGE-PROTOCOL-NEGOTIATION-CONSISTENCY-SEAL  
+**Date:** 2026-02-27  
+**Authority:** 888_JUDGE — Muhammad Arif bin Fazil  
+**Creed:** DITEMPA BUKAN DIBERI — Forged, Not Given
+
+---
+
+## What This Release Delivers
+
+This release hardens MCP protocol behavior and aligns runtime/docs to canonical AAA naming and versioning.
+
+| Area | Before | After |
+|------|--------|-------|
+| Version negotiation | Initialize accepted fixed protocol response | Session-level negotiated protocol version (`2025-11-25` / `2025-03-26`) |
+| Version mismatch handling | Weak/no per-session enforcement | Explicit mismatch rejection with JSON-RPC error |
+| Resources/prompts over streamable HTTP | list/read parity gaps | `resources/list`, `resources/read`, `prompts/list`, `prompts/get` parity implemented |
+| Canonical tool names | Mixed naming in some docs/tests | Unified: `apex_judge`, `eureka_forge` |
+| Discovery metadata | Partial protocol metadata | `protocolVersion` + `supportedProtocolVersions` published |
+
+## Verification Summary
+
+- `pytest tests/test_aaa_phase888_mcp_protocol_e2e.py -q` -> pass
+- `pytest tests/test_aaa_mcp_contract.py -q` -> pass
+- `pytest tests/test_aaa_mcp_constitutional.py -q` -> pass
+
+## Compatibility Notes
+
+- Current protocol: `2025-11-25`
+- Supported protocol versions: `2025-11-25`, `2025-03-26`
+- A negotiated protocol version is fixed for each session and validated on subsequent calls.
+
+---
+
 # Release Notes — arifOS 2026.02.18-FORGE-MCP-PROTOCOL-SEAL
 
 **T000:** 2026.02.18-FORGE-MCP-PROTOCOL-SEAL  

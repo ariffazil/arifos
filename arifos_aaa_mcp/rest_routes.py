@@ -28,10 +28,12 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 
 BUILD_INFO = {
-    "version": "2026.02.25",
+    "version": "2026.02.27",
     "git_sha": os.environ.get("GIT_SHA", "unknown"),
     "build_time": os.environ.get("BUILD_TIME", datetime.now(timezone.utc).isoformat()),
 }
+MCP_PROTOCOL_VERSION = "2025-11-25"
+MCP_SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25", "2025-03-26"]
 
 # Canonical aliases — legacy and mid-gen names → current UX names.
 TOOL_ALIASES: dict[str, str] = {
@@ -39,8 +41,8 @@ TOOL_ALIASES: dict[str, str] = {
     "agi_cognition": "reason_mind",
     "phoenix_recall": "recall_memory",
     "asi_empathy": "simulate_heart",
-    "apex_verdict": "judge_soul",
-    "sovereign_actuator": "forge_hand",
+    "apex_verdict": "apex_judge",
+    "sovereign_actuator": "eureka_forge",
     "vault_seal": "seal_vault",
     "search": "search_reality",
     "fetch": "fetch_content",
@@ -53,8 +55,8 @@ TOOL_ALIASES: dict[str, str] = {
     "respond": "reason_mind",
     "validate": "simulate_heart",
     "align": "simulate_heart",
-    "forge": "judge_soul",
-    "audit": "judge_soul",
+    "forge": "apex_judge",
+    "audit": "apex_judge",
     "seal": "seal_vault",
 }
 
@@ -153,6 +155,8 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             {
                 "service": "arifOS AAA MCP Server",
                 "version": BUILD_INFO["version"],
+                "protocol_version": MCP_PROTOCOL_VERSION,
+                "supported_protocol_versions": MCP_SUPPORTED_PROTOCOL_VERSIONS,
                 "mcp_endpoint": "/mcp",
                 "tools_endpoint": "/tools",
                 "health_endpoint": "/health",
@@ -266,12 +270,17 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         static_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "server.json")
         if os.path.exists(static_path):
             with open(static_path) as f:
-                return JSONResponse(json.load(f))
+                payload = json.load(f)
+                payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
+                payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
+                return JSONResponse(payload)
         # Fallback: generate minimal discovery
         return JSONResponse(
             {
                 "name": "arifOS AAA MCP",
                 "version": BUILD_INFO["version"],
+                "protocolVersion": MCP_PROTOCOL_VERSION,
+                "supportedProtocolVersions": MCP_SUPPORTED_PROTOCOL_VERSIONS,
                 "transport": {"type": "streamable-http", "url": "/mcp"},
                 "tools": list(tool_registry.keys()),
             }

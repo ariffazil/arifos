@@ -13,8 +13,8 @@ REQUIRES_SESSION = {
     "recall_memory",
     "simulate_heart",
     "critique_thought",
-    "judge_soul",
-    "forge_hand",
+    "apex_judge",
+    "eureka_forge",
     "seal_vault",
 }
 
@@ -25,8 +25,8 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "recall_memory": {"current_thought_vector": "str", "session_id": "str"},
     "simulate_heart": {"query": "str", "session_id": "str"},
     "critique_thought": {"plan": "dict", "session_id": "str"},
-    "judge_soul": {"session_id": "str", "query": "str"},
-    "forge_hand": {"action_payload": "dict", "session_id": "str", "signature": "str"},
+    "apex_judge": {"session_id": "str", "query": "str"},
+    "eureka_forge": {"action_payload": "dict", "session_id": "str", "signature": "str"},
     "seal_vault": {"session_id": "str", "summary": "str"},
     "search_reality": {"query": "str"},
     "fetch_content": {"id": "str"},

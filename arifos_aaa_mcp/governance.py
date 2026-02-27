@@ -41,8 +41,8 @@ TRINITY_BY_TOOL: dict[str, str] = {
     "recall_memory": "Omega",
     "simulate_heart": "Omega",
     "critique_thought": "Omega",
-    "judge_soul": "Psi",
-    "forge_hand": "Psi",
+    "apex_judge": "Psi",
+    "eureka_forge": "Psi",
     "seal_vault": "Psi",
     "search_reality": "Delta",
     "fetch_content": "Delta",
@@ -75,7 +75,7 @@ TOOL_LAW_BINDINGS: dict[str, list[str]] = {
     "recall_memory": ["F4_CLARITY", "F7_HUMILITY", "F3_TRI_WITNESS", "F13_SOVEREIGNTY"],
     "simulate_heart": ["F5_PEACE2", "F6_EMPATHY", "F4_CLARITY", "F3_TRI_WITNESS"],
     "critique_thought": ["F4_CLARITY", "F7_HUMILITY", "F8_GENIUS", "F12_DEFENSE", "F3_TRI_WITNESS"],
-    "judge_soul": [
+    "apex_judge": [
         "F1_AMANAH",
         "F2_TRUTH",
         "F3_TRI_WITNESS",
@@ -85,7 +85,7 @@ TOOL_LAW_BINDINGS: dict[str, list[str]] = {
         "F11_AUTHORITY",
         "F13_SOVEREIGNTY",
     ],
-    "forge_hand": [
+    "eureka_forge": [
         "F1_AMANAH",
         "F11_AUTHORITY",
         "F12_DEFENSE",
@@ -107,14 +107,23 @@ TOOL_STAGE_MAP: dict[str, str] = {
     "recall_memory": "444_SYNC",
     "simulate_heart": "555_EMPATHY",
     "critique_thought": "666_ALIGN",
-    "judge_soul": "888_JUDGE",
-    "forge_hand": "777_FORGE",
+    "apex_judge": "888_JUDGE",
+    "eureka_forge": "777_FORGE",
     "seal_vault": "999_SEAL",
     "search_reality": "111_SENSE",
     "fetch_content": "444_SYNC",
     "inspect_file": "111_SENSE",
     "audit_rules": "333_REASON",
     "check_vital": "555_EMPATHY",
+}
+
+
+READ_ONLY_TOOLS = {
+    "search_reality",
+    "fetch_content",
+    "inspect_file",
+    "audit_rules",
+    "check_vital",
 }
 
 
@@ -201,6 +210,69 @@ def _axiom_checks(payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def _has_session(payload: dict[str, Any]) -> bool:
+    return bool(str(payload.get("session_id", "")).strip())
+
+
+def _command_authority_pass(tool: str, payload: dict[str, Any]) -> bool:
+    if tool in READ_ONLY_TOOLS:
+        return True
+    if tool == "anchor_session":
+        actor_id = str(payload.get("actor_id", "")).strip()
+        token_status = str(payload.get("token_status", "")).strip()
+        auth_ctx = payload.get("auth_context")
+        return bool(actor_id or token_status or isinstance(auth_ctx, dict))
+    return _has_session(payload)
+
+
+def _tri_witness_pass(tool: str, payload: dict[str, Any]) -> bool:
+    if tool in READ_ONLY_TOOLS:
+        return True
+
+    session_ok = _has_session(payload)
+    if tool == "anchor_session":
+        return session_ok and isinstance(payload.get("auth", {}), dict)
+    if tool in {"reason_mind", "simulate_heart", "recall_memory", "seal_vault", "check_vital"}:
+        return session_ok or tool == "check_vital"
+    if tool == "critique_thought":
+        return session_ok and isinstance(payload.get("mental_models"), dict)
+    if tool == "apex_judge":
+        if not session_ok:
+            return False
+        authority = payload.get("authority")
+        if isinstance(authority, dict) and "human_approve" in authority:
+            return True
+        return isinstance(payload.get("query"), str) and bool(payload.get("query", "").strip())
+    if tool == "eureka_forge":
+        verdict = str(payload.get("verdict", "")).upper()
+        return session_ok and verdict in {"SEAL", "PARTIAL", "SABAR", "HOLD", "888_HOLD", "VOID"}
+    return True
+
+
+def _sovereignty_pass(tool: str, payload: dict[str, Any]) -> bool:
+    if tool in READ_ONLY_TOOLS:
+        return True
+    session_ok = _has_session(payload)
+
+    if tool == "anchor_session":
+        return _command_authority_pass(tool, payload)
+    if tool in {"reason_mind", "recall_memory", "simulate_heart", "critique_thought"}:
+        return session_ok
+    if tool == "apex_judge":
+        authority = payload.get("authority")
+        if isinstance(authority, dict) and "human_approve" in authority:
+            return True
+        return "human_approve" in payload
+    if tool == "eureka_forge":
+        verdict = str(payload.get("verdict", "")).upper()
+        if verdict in {"888_HOLD", "HOLD", "SABAR", "VOID"}:
+            return True
+        return session_ok and bool(payload.get("signature") or payload.get("idempotency_key"))
+    if tool == "seal_vault":
+        return session_ok and bool(str(payload.get("stage", "")).strip())
+    return session_ok
+
+
 def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     required = set(TOOL_LAW_BINDINGS.get(tool, []))
     text = str(payload).lower()
@@ -231,21 +303,17 @@ def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         elif law == "F9_ANTI_HANTU":
             passed = not any(k in text for k in ["i am conscious", "sentient", "i feel alive"])
         elif law == "F11_AUTHORITY":
-            passed = any(k in text for k in ["actor", "auth", "session_id", "token"])
+            passed = _command_authority_pass(tool, payload)
         elif law == "F12_DEFENSE":
             passed = not any(k in text for k in ["ignore previous", "jailbreak", "bypass safety"])
         elif law == "F3_TRI_WITNESS":
-            passed = any(k in text for k in ["agi", "asi", "apex", "trinity", "witness"])
+            passed = _tri_witness_pass(tool, payload)
         elif law == "F8_GENIUS":
             passed = bool(payload.get("verdict"))
         elif law == "F10_ONTOLOGY_LOCK":
             passed = not any(k in text for k in ["conscious ai", "self-aware ai"])
         elif law == "F13_SOVEREIGNTY":
-            passed = "human_approve" in text or tool in {
-                "search_reality",
-                "fetch_content",
-                "check_vital",
-            }
+            passed = _sovereignty_pass(tool, payload)
         else:
             passed = True
 
@@ -255,6 +323,99 @@ def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             "type": LAW_13_CATALOG[law]["type"],
         }
     return checks
+
+
+def _derive_tac_metrics(
+    payload: dict[str, Any],
+    required_law_failures: list[str],
+    failed_axioms: list[str],
+) -> dict[str, Any]:
+    """Derive TAC (Theory of Anomalous Contrast) observability fields.
+
+    All values are estimated from available governance telemetry and explicitly
+    labeled as derived, not measured sensor truth.
+    """
+    d_s = float(payload.get("dS", -0.1))
+    peace2 = float(payload.get("peace2", 1.0))
+    kappa_r = float(payload.get("kappa_r", 0.95))
+    raw_truth = payload.get("truth")
+    if isinstance(raw_truth, dict):
+        truth_score_raw = raw_truth.get("score")
+    else:
+        truth_score_raw = None
+    truth_score = float(
+        truth_score_raw if truth_score_raw is not None else payload.get("truth_score", 0.8)
+    )
+
+    contradiction_load = min(1.0, (len(required_law_failures) + len(failed_axioms)) / 6.0)
+    expectation_gap = max(0.0, 0.99 - truth_score)
+    psi_resonance = max(0.0, min(1.0, (peace2 / 1.2 + kappa_r) / 2.0))
+    denominator = abs(d_s) + psi_resonance + 1e-6
+    ac_numerator = abs(expectation_gap - psi_resonance) / denominator
+    ac_metric = max(0.0, min(1.0, ac_numerator + contradiction_load * 0.25))
+
+    if ac_metric < 0.2:
+        contrast_class = "coherent"
+    elif ac_metric < 0.5:
+        contrast_class = "elevated"
+    elif ac_metric < 0.7:
+        contrast_class = "high_pressure"
+    else:
+        contrast_class = "critical_paradox"
+
+    return {
+        "engine": "TAC",
+        "model": "AC=|gap-psi|/(|dS|+psi+eps)",
+        "status": contrast_class,
+        "ac_metric": round(ac_metric, 4),
+        "expectation_gap": round(expectation_gap, 4),
+        "psi_resonance": round(psi_resonance, 4),
+        "contradiction_load": round(contradiction_load, 4),
+        "cooling_clause": bool(kappa_r >= 0.7 and peace2 >= 1.0),
+        "derived": True,
+    }
+
+
+def _derive_tpcp_metrics(
+    tool: str,
+    payload: dict[str, Any],
+    tac: dict[str, Any],
+    required_law_failures: list[str],
+) -> dict[str, Any]:
+    """Derive TPCP (Thermodynamic Paradox Conductance Protocol) phase fields."""
+    d_s = float(payload.get("dS", -0.1))
+    peace2 = float(payload.get("peace2", 1.0))
+    kappa_r = float(payload.get("kappa_r", 0.95))
+    omega0 = float(payload.get("omega0", 0.04))
+    ac_metric = float(tac.get("ac_metric", 0.0))
+
+    delta_p = max(0.0, min(1.0, ac_metric + max(0.0, d_s)))
+    omega_p = max(0.0, min(1.0, abs(omega0 - 0.04) / 0.04))
+    psi_p = max(0.0, min(1.0, (peace2 / 1.2 + kappa_r) / 2.0))
+    failure_drag = min(1.0, len(required_law_failures) / 4.0)
+    clarity_term = max(0.0, min(1.0, -d_s + 0.2))
+    phi_p = max(0.0, min(2.0, (clarity_term + psi_p + (1.0 - omega_p)) / (1.0 + failure_drag)))
+
+    if tool == "reason_mind":
+        phase = "phase_1_deltaP"
+    elif tool in {"simulate_heart", "recall_memory"}:
+        phase = "phase_2_omegaP"
+    elif tool in {"critique_thought", "search_reality", "fetch_content", "inspect_file"}:
+        phase = "phase_3_psiP"
+    else:
+        phase = "phase_4_phiP"
+
+    return {
+        "engine": "TPCP",
+        "phase": phase,
+        "deltaP": round(delta_p, 4),
+        "omegaP": round(omega_p, 4),
+        "psiP": round(psi_p, 4),
+        "phiP": round(phi_p, 4),
+        "converged": phi_p >= 1.0 and not required_law_failures,
+        "dark_paradox": phi_p < 1.0,
+        "derived": True,
+    }
 
 
 def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
@@ -267,6 +428,17 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     failed_laws = [
         k for k, v in law_checks.items() if v.get("required") and not bool(v.get("pass"))
     ]
+    tac = _derive_tac_metrics(
+        payload=payload,
+        required_law_failures=failed_laws,
+        failed_axioms=failed_axioms,
+    )
+    tpcp = _derive_tpcp_metrics(
+        tool=tool,
+        payload=payload,
+        tac=tac,
+        required_law_failures=failed_laws,
+    )
     verdict = str(payload.get("verdict", "SEAL"))
 
     # Hardening: Hard floor failure -> VOID
@@ -308,6 +480,16 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             "kappa_r": payload.get("kappa_r", 0.95),
         },
         "apex_dials": apex_dials,
+        "contrast_engine": {
+            "tac": tac,
+            "tpcp": tpcp,
+            "scarpacket": {
+                "eligible": bool(tpcp.get("converged")),
+                "requires_hold": bool(tpcp.get("dark_paradox"))
+                and verdict in {"VOID", "SABAR", "HOLD"},
+                "vault_ref": payload.get("vault_id") or payload.get("data", {}).get("vault_id"),
+            },
+        },
         "motto": motto,
         "data": payload,
     }

@@ -1,6 +1,6 @@
 {
   "name": "arifos-docs",
-  "version": "2026.2.25",
+  "version": "2026.2.27",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",

@@ -6,7 +6,9 @@ sidebar_position: 1
 description: arifOS is a constitutional intelligence kernel with canonical AAA MCP 13-tool surface and governed 000->999 pipeline.
 ---
 
-# arifOS - Forged, Not Given
+# arifOS - DITEMPA, BUKAN DIBERI
+
+*The system that knows because it admits what it cannot know.*
 
 arifOS is a **Constitutional Kernel Bootloader** for AI systems. It governs AI cognition by loading an entire governance runtime environment (000->999) between Large Language Models and real-world actions.
 
@@ -47,6 +49,32 @@ arifOS is not a linear filter; it is a **thermodynamic metabolizer**. Every requ
 - Module: `arifos_aaa_mcp`
 - Transports: `stdio`, `sse`, `http`
 - MCP surface: 13 tools, 2 resources, 1 prompt
+- MCP protocol (current): `2025-11-25`
+- Supported protocol versions: `2025-11-25`, `2025-03-26`
+
+### Protocol version negotiation
+
+During `initialize`, client and server must agree one protocol version for the session.
+If the client asks for an unsupported version, the server returns a JSON-RPC error and does not open a session.
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "initialize",
+  "params": {
+    "protocolVersion": "2025-11-25",
+    "capabilities": {},
+    "clientInfo": {"name": "client", "version": "1.0"}
+  }
+}
+```
+
+## MCP building blocks
+
+- **Tools (13):** model-invoked governed actions
+- **Resources (2):** app-driven context packs (`arifos://aaa/schemas`, `arifos://aaa/full-context-pack`)
+- **Prompts (1):** user-invoked orchestration template (`arifos.prompt.aaa_chain`)
 
 ## Quick start
 
@@ -76,8 +104,8 @@ Live endpoints:
 3. `recall_memory`
 4. `simulate_heart`
 5. `critique_thought`
-6. `judge_soul`
-7. `forge_hand`
+6. `apex_judge`
+7. `eureka_forge`
 8. `seal_vault`
 9. `search_reality`
 10. `fetch_content`

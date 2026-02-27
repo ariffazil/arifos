@@ -105,8 +105,8 @@ The MCP runtime exposes 13 tools. The 000-999 loop is represented by the governa
 | `check_vital` | Utility | Runtime health status |
 
 Backward compatibility policy:
-- `forge_hand` remains a supported alias for `eureka_forge`.
-- `judge_soul` remains a supported alias for `apex_judge`.
+- `eureka_forge` remains a supported alias for `eureka_forge`.
+- `apex_judge` remains a supported alias for `apex_judge`.
 - Canonical IDs are preferred in docs, tests, and operator runbooks.
 
 ---

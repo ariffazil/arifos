@@ -59,8 +59,8 @@ Unlike prompt-based guardrails that can be bypassed, **AAA MCP enforces constrai
 | `check_vital` | utility | Internal | F4, F5, F7 | Runtime health telemetry |
 
 Alias compatibility:
-- `forge_hand` -> `eureka_forge`
-- `judge_soul` -> `apex_judge`
+- `eureka_forge` -> `eureka_forge`
+- `apex_judge` -> `apex_judge`
 
 **Verdicts:** `SEAL` | `VOID` | `PARTIAL` | `SABAR` | `888_HOLD`
 

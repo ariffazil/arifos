@@ -72,8 +72,8 @@ arifOS is an **AI Control Plane** — a constitutional governance kernel that wr
 3. `recall_memory` — 444 EVIDENCE: Memory retrieval
 4. `simulate_heart` — 555 EMPATHY: Impact analysis
 5. `critique_thought` — 666 ALIGN: Multi-model critique
-6. `judge_soul` — 777/888 APEX: Constitutional verdict
-7. `forge_hand` — 888 FORGE: Execute with gates
+6. `apex_judge` — 777/888 APEX: Constitutional verdict
+7. `eureka_forge` — 888 FORGE: Execute with gates
 8. `seal_vault` — 999 SEAL: Commit to ledger
 9. `search_reality` — Web evidence discovery
 10. `fetch_content` — Fetch raw content

@@ -6,7 +6,7 @@ Public MCP surface uses canonical UX verb names (13-tool surface).
 Three naming generations exist:
   1. Legacy protocol: init_gate, agi_sense, agi_reason, asi_empathize, ...
   2. Mid-gen kernel:  init_session, agi_cognition, asi_empathy, apex_verdict, ...
-  3. Canonical UX:    anchor_session, reason_mind, simulate_heart, judge_soul, ...
+  3. Canonical UX:    anchor_session, reason_mind, simulate_heart, apex_judge, ...
 
 All public APIs should use generation 3. Generations 1-2 are internal/compat only.
 """
@@ -46,8 +46,8 @@ CANONICAL_PUBLIC_TO_LEGACY: dict[str, str] = {
     "recall_memory": "phoenix_recall",
     "simulate_heart": "asi_empathize",
     "critique_thought": "asi_align",
-    "judge_soul": "apex_verdict",
-    "forge_hand": "sovereign_actuator",
+    "apex_judge": "apex_verdict",
+    "eureka_forge": "sovereign_actuator",
     "seal_vault": "vault_seal",
     "search_reality": "reality_search",
     "fetch_content": "fetch",

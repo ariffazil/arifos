@@ -32,7 +32,7 @@ This directory contains the **Constitutional Canon** of arifOS. These documents 
 ### 5. MCP Tool Canon
 *   Canonical 13-tool IDs and 000-999 stage mapping are defined in **[000_ARCHITECTURE.md](000_ARCHITECTURE.md)**, section **3.3 MCP Canonical 13 Tool IDs (000-999 Aligned)**.
 *   Canonical IDs: `eureka_forge`, `apex_judge`.
-*   Backward-compatible aliases remain supported: `forge_hand`, `judge_soul`.
+*   Backward-compatible aliases remain supported: `eureka_forge`, `apex_judge`.
 
 
 ---

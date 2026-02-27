@@ -3,7 +3,7 @@ aaa_mcp/server.py — Canonical 13-Tool FastMCP Surface
 
 Contract — 13 canonical tools with UX verb names:
   Governance (7):  anchor_session, reason_mind, recall_memory, simulate_heart,
-                   critique_thought, judge_soul, forge_hand, seal_vault
+                   critique_thought, apex_judge, eureka_forge, seal_vault
   Utilities (5):   search_reality, fetch_content, inspect_file, audit_rules, check_vital
 
 This module owns its own FastMCP instance (isolated from aclip_cai triad tools).
@@ -401,7 +401,7 @@ simulate_heart = ToolHandle(_asi_empathy)
 
 
 @mcp.tool(
-    name="judge_soul", description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis."
+    name="apex_judge", description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis."
 )
 async def _apex_verdict(
     session_id: str,
@@ -464,11 +464,11 @@ async def _apex_verdict(
         return {"verdict": "VOID", "error": str(e), "stage": "777-888", "session_id": session_id}
 
 
-judge_soul = ToolHandle(_apex_verdict)
+apex_judge = ToolHandle(_apex_verdict)
 
 
 @mcp.tool(
-    name="forge_hand",
+    name="eureka_forge",
     description="[Lane: Ψ Psi] [Floors: F1, F11, F12] Sandboxed action execution.",
 )
 async def _sovereign_actuator(
@@ -504,7 +504,7 @@ async def _sovereign_actuator(
         return {"verdict": "VOID", "error": str(e), "stage": "888_FORGE", "session_id": session_id}
 
 
-forge_hand = ToolHandle(_sovereign_actuator)
+eureka_forge = ToolHandle(_sovereign_actuator)
 
 
 @mcp.tool(
@@ -715,8 +715,8 @@ async def _arifos_info_resource() -> dict[str, Any]:
             "recall_memory",
             "simulate_heart",
             "critique_thought",
-            "judge_soul",
-            "forge_hand",
+            "apex_judge",
+            "eureka_forge",
             "seal_vault",
             "search_reality",
             "fetch_content",
@@ -840,8 +840,8 @@ __all__ = [
     "recall_memory",
     "simulate_heart",
     "critique_thought",
-    "judge_soul",
-    "forge_hand",
+    "apex_judge",
+    "eureka_forge",
     "seal_vault",
     "search_reality",
     "fetch_content",

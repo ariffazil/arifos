@@ -9,6 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2026.02.27-PROTOCOL-NEGOTIATION-CONSISTENCY] - v60.2
+
+### Highlights
+- **Protocol Negotiation Hardened**: Streamable HTTP now negotiates MCP protocol version per session at `initialize`.
+- **Canonical Naming Convergence**: Public tool IDs standardized to `apex_judge` and `eureka_forge`.
+- **Server Concepts Parity**: Resources/prompts methods now align with MCP server concepts on streamable transport.
+- **Docs + Branding Sync**: Intro and README aligned to trademark line and epistemic-humility message.
+
+### Added
+- Protocol regression tests covering:
+  - supported older version negotiation,
+  - unsupported version rejection,
+  - per-session protocol mismatch rejection.
+
+### Changed
+- `server.json` now includes `protocolVersion` and `supportedProtocolVersions`.
+- `/.well-known/mcp/server.json` discovery output now includes protocol metadata consistently.
+- README/docs now consistently document current protocol (`2025-11-25`) and supported versions (`2025-11-25`, `2025-03-26`).
+- Project/package versions aligned to `2026.2.27`.
+
+### Verification
+- `pytest tests/test_aaa_phase888_mcp_protocol_e2e.py -q` -> pass
+- `pytest tests/test_aaa_mcp_contract.py -q` -> pass
+- `pytest tests/test_aaa_mcp_constitutional.py -q` -> pass
+
+**Verdict:** SEAL — Protocol truth, naming truth, and docs truth are converged.
+
+---
+
 ## [2026.02.25-CHAOS-REDUCTION] - v60.1
 
 ### Highlights

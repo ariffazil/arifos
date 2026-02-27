@@ -5,6 +5,29 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.2.27] — 2026-02-27 — FORGE-PROTOCOL-NEGOTIATION-CONSISTENCY-SEAL
+
+**T000:** 2026.02.27-FORGE-PROTOCOL-NEGOTIATION-CONSISTENCY-SEAL  
+**Theme:** MCP version negotiation hardening, canonical tool naming convergence, and docs/runtime alignment.
+
+### Added
+- Streamable HTTP protocol negotiation tests for supported, unsupported, and mismatch session flows.
+- MCP method parity for `resources/list`, `resources/read`, `prompts/list`, and `prompts/get` in streamable transport.
+
+### Changed
+- Canonical tool names converged to `apex_judge` and `eureka_forge` across runtime/tests/docs.
+- Streamable HTTP handshake now negotiates `protocolVersion` per session and enforces header consistency.
+- Discovery metadata now publishes `protocolVersion` and `supportedProtocolVersions` in `server.json` and well-known routes.
+- Intro/docs trademark messaging aligned: "DITEMPA, BUKAN DIBERI" + epistemic humility subtitle.
+- Package/release versions aligned to `2026.2.27`.
+
+### Verification
+- `pytest tests/test_aaa_phase888_mcp_protocol_e2e.py -q` -> pass
+- `pytest tests/test_aaa_mcp_contract.py -q` -> pass
+- `pytest tests/test_aaa_mcp_constitutional.py -q` -> pass
+
+---
+
 ## [2026.2.23-2] — 2026-02-23 — FORGE-APEX-OBJECTIVE-ALIGNMENT-PHASE2-SEAL
 
 **T000:** 2026.02.23-FORGE-APEX-OBJECTIVE-ALIGNMENT-PHASE2-SEAL  

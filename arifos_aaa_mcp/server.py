@@ -34,8 +34,8 @@ AAA_TOOLS = [
     "recall_memory",
     "simulate_heart",
     "critique_thought",
-    "judge_soul",
-    "forge_hand",
+    "apex_judge",
+    "eureka_forge",
     "seal_vault",
     "search_reality",
     "fetch_content",
@@ -179,8 +179,8 @@ async def critique_thought(
     return wrap_tool_output("critique_thought", payload)
 
 
-@mcp.tool(name="judge_soul")
-async def judge_soul(
+@mcp.tool(name="apex_judge")
+async def apex_judge(
     session_id: str,
     query: str,
     agi_result: dict[str, Any] | None = None,
@@ -190,14 +190,14 @@ async def judge_soul(
     human_approve: bool = False,
     debug: bool = False,
 ) -> dict[str, Any]:
-    """888 APEX JUDGMENT: synthesize final dual-layer sovereign constitutional verdict."""
-    blocked = validate_input("judge_soul", {"session_id": session_id, "query": query})
+    """888 APEX JUDGE METABOLIC: sovereign constitutional verdict synthesis."""
+    blocked = validate_input("apex_judge", {"session_id": session_id, "query": query})
     if blocked:
-        return wrap_tool_output("judge_soul", blocked)
-    missing = require_session("judge_soul", session_id)
+        return wrap_tool_output("apex_judge", blocked)
+    missing = require_session("apex_judge", session_id)
     if missing:
-        return wrap_tool_output("judge_soul", missing)
-    payload = await legacy.judge_soul.fn(
+        return wrap_tool_output("apex_judge", missing)
+    payload = await legacy.apex_judge.fn(
         session_id=session_id,
         query=query,
         agi_result=agi_result,
@@ -213,11 +213,11 @@ async def judge_soul(
             payload["stage"] = "888_APEX_JUDGE"
             if stage_value:
                 payload["stage_legacy"] = stage_value
-    return wrap_tool_output("judge_soul", payload)
+    return wrap_tool_output("apex_judge", payload)
 
 
-@mcp.tool(name="forge_hand")
-async def forge_hand(
+@mcp.tool(name="eureka_forge")
+async def eureka_forge(
     action_payload: dict[str, Any],
     session_id: str,
     signature: str,
@@ -225,15 +225,15 @@ async def forge_hand(
 ) -> dict[str, Any]:
     """777 EUREKA FORGE: execute action payload behind sovereign control gates."""
     blocked = validate_input(
-        "forge_hand",
+        "eureka_forge",
         {"action_payload": action_payload, "session_id": session_id, "signature": signature},
     )
     if blocked:
-        return wrap_tool_output("forge_hand", blocked)
-    missing = require_session("forge_hand", session_id)
+        return wrap_tool_output("eureka_forge", blocked)
+    missing = require_session("eureka_forge", session_id)
     if missing:
-        return wrap_tool_output("forge_hand", missing)
-    payload = await legacy.forge_hand.fn(
+        return wrap_tool_output("eureka_forge", missing)
+    payload = await legacy.eureka_forge.fn(
         action_payload=action_payload,
         signed_tensor={},
         execution_context=execution_context or {},
@@ -247,7 +247,7 @@ async def forge_hand(
             payload["stage"] = "777_EUREKA_FORGE"
             if stage_value:
                 payload["stage_legacy"] = stage_value
-    return wrap_tool_output("forge_hand", payload)
+    return wrap_tool_output("eureka_forge", payload)
 
 
 @mcp.tool(name="seal_vault")
@@ -357,7 +357,7 @@ def aaa_tool_schemas() -> str:
                 "audit_rules",
             ],
             "Omega": ["recall_memory", "simulate_heart", "critique_thought", "check_vital"],
-            "Psi": ["judge_soul", "forge_hand", "seal_vault"],
+            "Psi": ["apex_judge", "eureka_forge", "seal_vault"],
         },
         "axioms": ["A1_TRUTH_COST", "A2_SCAR_WEIGHT", "A3_ENTROPY_WORK"],
         "technical_aliases": {
@@ -390,7 +390,7 @@ def aaa_chain_prompt(query: str, actor_id: str = "user") -> str:
     return (
         "Use AAA 13-tool chain with continuity: "
         "anchor_session -> reason_mind -> simulate_heart -> critique_thought -> "
-        "judge_soul -> seal_vault. "
+        "apex_judge -> seal_vault. "
         f"query={query!r}; actor_id={actor_id!r}."
     )
 
@@ -407,8 +407,8 @@ _TOOL_REGISTRY = {
     "recall_memory": recall_memory,
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
-    "judge_soul": judge_soul,
-    "forge_hand": forge_hand,
+    "apex_judge": apex_judge,
+    "eureka_forge": eureka_forge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,
     "fetch_content": fetch_content,

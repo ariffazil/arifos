@@ -1,7 +1,7 @@
 # AGENTS.md — arifOS Development Guide
 
 **Project:** arifOS — Constitutional AI Governance System (Python MCP Server)
-**Python:** >=3.12 (runtime) | tooling targets py310+ | **Version:** 2026.2.23
+**Python:** >=3.12 (runtime) | tooling targets py310+ | **Version:** 2026.2.27
 **Motto:** *Ditempa Bukan Diberi* — Forged, Not Given
 
 This file is the PRIMARY guidance document for agentic coding tools in this repository.

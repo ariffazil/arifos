@@ -10,7 +10,7 @@ description: Technical reference for the canonical arifOS AAA MCP runtime.
 > Registry ID: `io.github.ariffazil/arifos-mcp`
 > Live base URL: `https://arifosmcp.arif-fazil.com`
 > Runtime module: `arifos_aaa_mcp`
-> Version: `2026.2.25`
+> Version: `2026.2.27`
 
 ## Runtime profile
 
@@ -18,6 +18,13 @@ description: Technical reference for the canonical arifOS AAA MCP runtime.
 - **Local transport:** stdio — For Claude Desktop, Cursor IDE
 - **Constitutional envelope:** 333 axioms + 13 laws + APEX dials
 - **Port:** 8080 (default)
+- **Current protocol version:** `2025-11-25`
+- **Supported protocol versions:** `2025-11-25`, `2025-03-26`
+
+## Version negotiation
+
+Protocol version is negotiated during `initialize` and fixed per session.
+If a client sends an unsupported version, the server returns a JSON-RPC error and no session is created.
 
 ## Launch commands
 
@@ -46,8 +53,8 @@ HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
 | `recall_memory` | 444 EVIDENCE: Memory retrieval |
 | `simulate_heart` | 555 EMPATHY: Impact analysis |
 | `critique_thought` | 666 ALIGN: 7-model critique |
-| `judge_soul` | 777/888 APEX: Constitutional verdict |
-| `forge_hand` | 888 FORGE: Execute with gates |
+| `apex_judge` | 777/888 APEX: Constitutional verdict |
+| `eureka_forge` | 888 FORGE: Execute with gates |
 | `seal_vault` | 999 SEAL: Commit to ledger |
 | `search_reality` | Web evidence discovery |
 | `fetch_content` | Fetch raw content |

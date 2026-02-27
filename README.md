@@ -4,10 +4,10 @@
 
 # arifOS — Constitutional Intelligence Kernel
 
-**The System That Knows It Doesn't Know**  
+**The system that knows because it admits what it cannot know.**  
 *Ditempa Bukan Diberi* — Forged, Not Given
 
-[![Version](https://img.shields.io/badge/version-2026.2.25-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
+[![Version](https://img.shields.io/badge/version-2026.2.27-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
 [![License](https://img.shields.io/badge/license-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
 [![MCP Protocol](https://img.shields.io/badge/MCP-1.0-8B5CF6?style=for-the-badge&logo=shield&logoColor=white)](https://modelcontextprotocol.io)
 [![Python](https://img.shields.io/badge/python-3.12+-green?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)  
@@ -44,7 +44,7 @@ Part of the **Trinity constitutional governance ecosystem**:
 | ✅ **Health Check** | 🟢 Live | [/health](https://arifosmcp.arif-fazil.com/health) |
 | 📊 **Test Dashboard** | 🟢 Live | [Constitutional Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev) |
 
-> **Latest (2026.2.25):** v60.1 Chaos Reduction • Streamable HTTP transport • 13 MCP tools • Full-context resources • CLAUDE.md accuracy audit • Version convergence with OpenClaw
+> **Latest (2026.2.27):** v60.2 MCP protocol negotiation hardening • Canonical `apex_judge`/`eureka_forge` naming • Streamable HTTP resources/prompts parity • Intro/docs trademark alignment
 
 </div>
 
@@ -183,14 +183,14 @@ Every AI output must pass through **constitutional checkpoints**. Furthermore, w
         └────────┬───────┘  [Safety validation]
                  ▼
         ┌────────────────┐
-        │  777 — APEX    │  Authority / Policy validation (Ψ)
-        │  (Soul)        │  Is it lawful? (F1-F13 check)
-        └────────┬───────┘  [Constitutional compliance]
-                 ▼
-        ┌────────────────┐
-        │  888 — FORGE   │  Sandboxed execution gate (ΔS external)
+        │  777 — FORGE   │  Sandboxed execution gate (ΔS external)
         │  (Hands)       │  Human veto for irreversible actions
         └────────┬───────┘  [888_HOLD checkpoint]
+                 ▼
+        ┌────────────────┐
+        │  888 — APEX    │  Authority / Policy validation (Ψ)
+        │  (Soul)        │  Is it lawful? (F1-F13 check)
+        └────────┬───────┘  [Constitutional compliance]
                  ▼
         ┌────────────────┐
         │  999 — VAULT   │  Immutable audit ledger
@@ -607,6 +607,8 @@ Current canonical AAA MCP server exposes:
 - **13 tools**
 - **2 resources** (`arifos://aaa/schemas`, `arifos://aaa/full-context-pack`)
 - **1 prompt** (`arifos.prompt.aaa_chain`)
+- **MCP protocol (current):** `2025-11-25`
+- **Supported protocol versions:** `2025-11-25`, `2025-03-26`
 
 ### Canonical Tool Taxonomy (13) 🏛️
 
@@ -619,14 +621,14 @@ The following table serves as the **unified audit map** for arifOS. It aligns th
 | `recall_memory` | `phoenix_recall` | Ω Omega | 444 | F4, F7, F13 | Associative memory traces |
 | `simulate_heart` | `asi_empathy` | Ω Omega | 555 | F4, F5, F6 | Stakeholder impact & care constraints |
 | `critique_thought`| - | Ω Omega | 666 | F4, F7, F8 | 7-organ alignment & bias critique |
-| `apex_judge` | `judge_soul` (alias) | Ψ Psi | 888 | F1-F13 | Sovereign verdict synthesis |
-| `eureka_forge` | `forge_hand` (alias) | Ψ Psi | 777 | F1, F11, F12 | Sandboxed action execution |
+| `apex_judge` | `apex_verdict` | Ψ Psi | 888 | F1-F13 | Sovereign verdict synthesis |
+| `eureka_forge` | `sovereign_actuator` | Ψ Psi | 777 | F1, F11, F12 | Sandboxed action execution |
 | `seal_vault` | `vault_seal` | Ψ Psi | 999 | F1, F3, F10 | Immutable ledger persistence |
 | `search_reality` | `search` | Δ Delta | 111 | F2, F4, F12 | Web grounding (Perplexity/Brave) |
 | `fetch_content` | `fetch` | Δ Delta | 444 | F2, F4, F12 | Raw evidence content retrieval |
-| `inspect_file` | `fs_inspect` | Δ Delta | 111 | F1, F4, F11 | Filesystem inspection (read-only) |
+| `inspect_file` | `analyze` | Δ Delta | 111 | F1, F4, F11 | Filesystem inspection (read-only) |
 | `audit_rules` | `system_audit` | Δ Delta | 333 | F2, F8, F10 | Rule & governance audit checks |
-| `check_vital` | `get_health` | Ω Omega | 555 | F4, F5, F7 | System health & vital signs |
+| `check_vital` | - | Ω Omega | 555 | F4, F5, F7 | System health & vital signs |
 
 > **Note on Telemetry:** The `verdict` field in telemetry records (e.g., `SEAL`, `SABAR`, `VOID`) is a **governance outcome**. System status indicators (e.g., `status: "ALIVE"`) are strictly **operational telemetry** and do not satisfy constitutional requirements.
 
@@ -639,28 +641,24 @@ The following table serves as the **unified audit map** for arifOS. It aligns th
 arifOS includes **production-grade testing** with **constitutional validation**:
 
 ```bash
-# Run all tests
-python test_all_tools_live.py
+# Canonical MCP contract and constitutional checks
+pytest tests/test_aaa_mcp_contract.py -q
+pytest tests/test_aaa_mcp_constitutional.py -q
+pytest tests/test_aaa_phase888_mcp_protocol_e2e.py -q
 
-# Run specific test block
-python test_all_tools_live.py --block governance
-
-# Run edge case tests (F12 injection, F9 consciousness claims)
-python test_all_tools_live.py --block edge_cases
-
-# Run in CI mode (JSON output)
-python test_all_tools_live.py --ci
+# Marker-based constitutional suite
+pytest -m constitutional -q
 ```
 
 **Test coverage focus**:
-- ✅ Constitutional floor validation suites (`tests/constitutional/`)
+- ✅ Constitutional floor validation (`tests/test_aaa_mcp_constitutional.py`)
 - ✅ Injection and anti-hantu guard checks
-- ✅ Transport and entrypoint contract tests
+- ✅ Transport and protocol negotiation tests (`tests/test_aaa_phase888_mcp_protocol_e2e.py`)
 - ✅ Integration and workflow-level tests
 
 **Test dashboard**: [Live Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev)
 
-**Test suite guide**: [tests/mcp_live/README.md](tests/mcp_live/README.md)
+**Test suite guide**: [tests/mcp_tests/README.md](tests/mcp_tests/README.md)
 
 ---
 

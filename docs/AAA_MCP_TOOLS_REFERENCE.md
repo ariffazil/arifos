@@ -1,9 +1,9 @@
 # arifOS AAA MCP Tools — Complete Reference
 
-**Version:** 2026.2.23  
+**Version:** 2026.2.27  
 **Authority:** ARIF FAZIL (888 Judge)  
 **Total Tools:** 13  
-**Protocol:** MCP JSON-RPC 2.0  
+**Protocol:** MCP 2025-11-25 (JSON-RPC 2.0)  
 **Endpoint:** https://arifosmcp.arif-fazil.com/mcp
 
 ---
@@ -649,12 +649,12 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
 | F13 Sovereignty | `apex_judge`, `eureka_forge` (888_HOLD) |
 
 Alias compatibility:
-- `judge_soul` resolves to `apex_judge`
-- `forge_hand` resolves to `eureka_forge`
+- `apex_judge` resolves to `apex_judge`
+- `eureka_forge` resolves to `eureka_forge`
 
 ---
 
-**Version:** 2026.2.23  
+**Version:** 2026.2.27  
 **Sealed By:** ARIF FAZIL (888 Judge)  
 **Contact:** arifos@arif-fazil.com
 

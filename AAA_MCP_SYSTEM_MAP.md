@@ -37,8 +37,8 @@ Host -> transport (__main__/asgi/rest/streamable_http)
 | 555 RECALL | `recall_memory` | `aaa_mcp/server.py` placeholder | stage present, stub payload |
 | 555/666 | `simulate_heart` | `aaa_mcp/server.py` -> `validate()` + `align()` | empathy + alignment merge |
 | 666 ALIGN | `critique_thought` | `arifos_aaa_mcp/server.py` native logic | model-flag critique; legacy side is stub |
-| 777 EUREKA FORGE (target canon) | `forge_hand` | `aaa_mcp/server.py` placeholder | currently mislabeled as `888_FORGE` in runtime payload |
-| 888 APEX Judge Metabolic (target canon) | `judge_soul` | `aaa_mcp/server.py` -> `forge()` + `audit()` | currently emits `777-888`; needs split/rename hardening |
+| 777 EUREKA FORGE (target canon) | `eureka_forge` | `aaa_mcp/server.py` placeholder | currently mislabeled as `888_FORGE` in runtime payload |
+| 888 APEX Judge Metabolic (target canon) | `apex_judge` | `aaa_mcp/server.py` -> `forge()` + `audit()` | currently emits `777-888`; needs split/rename hardening |
 | 999 SEAL | `seal_vault` | `aaa_mcp/server.py` -> `aclip_cai/triad/psi/seal.py` | final seal + vault write |
 | Utility (Delta) | `search_reality`, `fetch_content`, `inspect_file`, `audit_rules` | `aaa_mcp/server.py`, `arifos_aaa_mcp/server.py` | evidence, retrieval, fs inspect, governance audit |
 | Utility (Omega) | `check_vital` | `arifos_aaa_mcp/server.py` -> `aclip_cai.tools.system_monitor` | health telemetry |
@@ -67,12 +67,12 @@ Canonical directive override (Arif):
 - `888` = **APEX Judge Metabolic Layer**
 
 Current runtime divergence at baseline:
-- `judge_soul` returns stage `777-888` (collapsed)
-- `forge_hand` returns stage `888_FORGE`
+- `apex_judge` returns stage `777-888` (collapsed)
+- `eureka_forge` returns stage `888_FORGE`
 
 Alignment target:
-- `forge_hand` -> stage `777_EUREKA_FORGE`
-- `judge_soul` -> stage `888_APEX_JUDGE`
+- `eureka_forge` -> stage `777_EUREKA_FORGE`
+- `apex_judge` -> stage `888_APEX_JUDGE`
 
 Canonical envelope pattern (from `aaa_mcp/server.py`):
 - Required output keys (common): `verdict`, `stage`, `session_id`
@@ -82,7 +82,7 @@ Per-stage callable chain (high-level):
 1. `anchor_session(query, actor_id, auth_token, ...) -> {verdict, stage="000_INIT", session_id, ...}`
 2. `reason_mind(query, session_id, grounding, ...) -> {verdict, stage="111-444", ...}`
 3. `simulate_heart(query, session_id, ...) -> {verdict, stage="555-666", ...}`
-4. `judge_soul(session_id, query, ...) -> {verdict, stage="777-888", ...}`
+4. `apex_judge(session_id, query, ...) -> {verdict, stage="777-888", ...}`
 5. `seal_vault(session_id, summary, verdict?) -> {verdict, stage="999_VAULT", ...}`
 
 Schema source-of-truth artifacts:
@@ -107,7 +107,7 @@ Audit chain quality at baseline:
 Failure behavior:
 - Tool-level catch-all returns structured `{"verdict":"VOID","error":...,"stage":...}`
 - Missing session continuity returns F11 block via `_build_floor_block(...)`
-- High-risk execution path (`forge_hand`) currently defaults to `888_HOLD` placeholder.
+- High-risk execution path (`eureka_forge`) currently defaults to `888_HOLD` placeholder.
 
 Rollback behavior:
 - No global transaction manager across multi-stage calls.

@@ -48,9 +48,9 @@ from arifos_aaa_mcp.server import (
     check_vital,
     critique_thought,
     fetch_content,
-    forge_hand,
+    eureka_forge,
     inspect_file,
-    judge_soul,
+    apex_judge,
     reason_mind,
     recall_memory,
     seal_vault,
@@ -73,8 +73,8 @@ TOOLS = {
     "recall_memory": recall_memory,
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
-    "judge_soul": judge_soul,
-    "forge_hand": forge_hand,
+    "apex_judge": apex_judge,
+    "eureka_forge": eureka_forge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,
     "fetch_content": fetch_content,
@@ -132,7 +132,7 @@ TOOL_SCHEMAS = {
             "query": {"type": "string", "required": True},
         },
     },
-    "judge_soul": {
+    "apex_judge": {
         "description": "[Lane: Psi] 888_APEX_JUDGE — Sovereign verdict synthesis",
         "args": {
             "query": {"type": "string", "required": True},
@@ -148,7 +148,7 @@ TOOL_SCHEMAS = {
             "debug": {"type": "boolean", "default": False},
         },
     },
-    "forge_hand": {
+    "eureka_forge": {
         "description": "[Lane: Psi] 777_EUREKA_FORGE — Sandboxed action execution with sovereign gating",
         "args": {
             "action_payload": {"type": "object", "required": True},
@@ -233,8 +233,8 @@ TOOL_ALIASES = {
     "agi_cognition": "reason_mind",
     "phoenix_recall": "recall_memory",
     "asi_empathy": "simulate_heart",
-    "apex_verdict": "judge_soul",
-    "sovereign_actuator": "forge_hand",
+    "apex_verdict": "apex_judge",
+    "sovereign_actuator": "eureka_forge",
     "vault_seal": "seal_vault",
     "search": "search_reality",
     "fetch": "fetch_content",
@@ -247,11 +247,11 @@ TOOL_ALIASES = {
     "respond": "reason_mind",
     "validate": "simulate_heart",
     "align": "simulate_heart",
-    "forge": "forge_hand",
-    "audit": "judge_soul",
+    "forge": "eureka_forge",
+    "audit": "apex_judge",
     "seal": "seal_vault",
     # Pipeline alias
-    "apex_judge": "judge_soul",
+    "apex_judge": "apex_judge",
 }
 
 # ═══════════════════════════════════════════════════════
@@ -757,7 +757,7 @@ async def apex_judge_wrapper(request: Request):
         pipeline_results["pipeline"].append({"stage": "666_ASI", "result": asi_result})
 
         # Stage 4: APEX (888)
-        apex_tool = TOOLS["judge_soul"]
+        apex_tool = TOOLS["apex_judge"]
         apex_fn = getattr(apex_tool, "fn", apex_tool)
         apex_result = await apex_fn(
             session_id=canonical_session_id,
@@ -774,7 +774,7 @@ async def apex_judge_wrapper(request: Request):
 
         # Stage 4.5: FORGE (888_ACTUATE)
         if apex_result.get("verdict") == "SEAL":
-            forge_tool = TOOLS["forge_hand"]
+            forge_tool = TOOLS["eureka_forge"]
             forge_fn = getattr(forge_tool, "fn", forge_tool)
             forge_result = await forge_fn(
                 action_payload=body.get("action_payload", {}),

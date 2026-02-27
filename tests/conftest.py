@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import os
+import re
 import sys
 import warnings
 from pathlib import Path
@@ -92,7 +93,9 @@ def pytest_ignore_collect(collection_path, config):
 
     try:
         text = collection_path.read_text(encoding="utf-8", errors="ignore")
-        if "from arifos" in text or "import arifos" in text:
+        if re.search(r"(^|\n)\s*from\s+arifos\s+import\s+", text) or re.search(
+            r"(^|\n)\s*import\s+arifos(\s|$)", text
+        ):
             return True
         if "import codebase" in text or "from codebase" in text:
             return True

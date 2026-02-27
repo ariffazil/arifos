@@ -35,7 +35,7 @@ async def test_phase5_chain_000_to_999_with_envelopes() -> None:
     )
     _assert_envelope(critique)
 
-    judge = await aaa.judge_soul(
+    judge = await aaa.apex_judge(
         session_id=session_id,
         query="finalize verification",
         agi_result=reason.get("data", {}),

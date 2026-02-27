@@ -11,8 +11,8 @@ Source basis: `aaa_mcp/server.py`, `arifos_aaa_mcp/server.py`, `arifos_aaa_mcp/c
 | `recall_memory` | active (stubbed payload) | `555_RECALL` | `current_thought_vector, session_id` | `verdict, stage, session_id` | `{"name":"recall_memory","arguments":{"current_thought_vector":"x","session_id":"S1"}}` |
 | `simulate_heart` | active | `555-666` (merged) | `query, session_id` | `verdict, stage, session_id` | `{"name":"simulate_heart","arguments":{"query":"impact","session_id":"S1"}}` |
 | `critique_thought` | active (native in `arifos_aaa_mcp`) | `666_ALIGN` | `plan, session_id` | `verdict, stage, session_id` | `{"name":"critique_thought","arguments":{"plan":{"step":"a"},"session_id":"S1"}}` |
-| `judge_soul` | active (needs stage relabel) | `888_APEX_JUDGE` (target canon) | `session_id, query` | `verdict, stage, session_id` | `{"name":"judge_soul","arguments":{"session_id":"S1","query":"decide"}}` |
-| `forge_hand` | active (hold-gated, needs stage relabel) | `777_EUREKA_FORGE` (target canon) | `action_payload, session_id, signature` | `verdict, stage, session_id` | `{"name":"forge_hand","arguments":{"action_payload":{},"session_id":"S1","signature":"sig"}}` |
+| `apex_judge` | active (needs stage relabel) | `888_APEX_JUDGE` (target canon) | `session_id, query` | `verdict, stage, session_id` | `{"name":"apex_judge","arguments":{"session_id":"S1","query":"decide"}}` |
+| `eureka_forge` | active (hold-gated, needs stage relabel) | `777_EUREKA_FORGE` (target canon) | `action_payload, session_id, signature` | `verdict, stage, session_id` | `{"name":"eureka_forge","arguments":{"action_payload":{},"session_id":"S1","signature":"sig"}}` |
 | `seal_vault` | active | `999_VAULT` | `session_id, summary` | `verdict, stage, session_id` | `{"name":"seal_vault","arguments":{"session_id":"S1","summary":"done"}}` |
 | `search_reality` | active | utility (Delta) | `query` | `status, results` | `{"name":"search_reality","arguments":{"query":"MCP spec"}}` |
 | `fetch_content` | active | utility (Delta) | `id` | `status, content|error` | `{"name":"fetch_content","arguments":{"id":"https://example.com"}}` |
@@ -27,17 +27,17 @@ Source basis: `aaa_mcp/server.py`, `arifos_aaa_mcp/server.py`, `arifos_aaa_mcp/c
 - `888` = APEX Judge Metabolic Layer
 
 Baseline divergence:
-- runtime currently presents `forge_hand` as `888_FORGE`
-- runtime currently presents `judge_soul` as `777-888`
+- runtime currently presents `eureka_forge` as `888_FORGE`
+- runtime currently presents `apex_judge` as `777-888`
 
 AGENTS-listed verbs (11):
 - `anchor, reason, integrate, respond, validate, align, forge, audit, seal, search, fetch`
 
 Runtime canonical public tools (13):
-- `anchor_session, reason_mind, recall_memory, simulate_heart, critique_thought, judge_soul, forge_hand, seal_vault, search_reality, fetch_content, inspect_file, audit_rules, check_vital`
+- `anchor_session, reason_mind, recall_memory, simulate_heart, critique_thought, apex_judge, eureka_forge, seal_vault, search_reality, fetch_content, inspect_file, audit_rules, check_vital`
 
 Observed mapping drift:
-- many legacy verbs are now aliases or folded flows (`integrate/respond` folded into `reason_mind`; `forge/audit` folded into `judge_soul` path)
+- many legacy verbs are now aliases or folded flows (`integrate/respond` folded into `reason_mind`; `forge/audit` folded into `apex_judge` path)
 - utility surface expanded beyond AGENTS 11-list
 
 Missing-2 request tracking (from AGENTS baseline):
@@ -51,7 +51,7 @@ From `aaa_mcp/protocol/tool_naming.py`:
   - `anchor_session -> init_gate`
   - `reason_mind -> agi_reason`
   - `simulate_heart -> asi_empathize`
-  - `judge_soul -> apex_verdict`
+  - `apex_judge -> apex_verdict`
   - `seal_vault -> vault_seal`
 - legacy 9-verb aliases still resolved:
   - `anchor/reason/integrate/respond/validate/align/forge/audit/seal`

@@ -89,7 +89,7 @@ AGENTS reference surface (11):
 - utility verbs: `search`, `fetch`
 
 Runtime canonical surface (13):
-- `anchor_session`, `reason_mind`, `recall_memory`, `simulate_heart`, `critique_thought`, `judge_soul`, `forge_hand`, `seal_vault`, `search_reality`, `fetch_content`, `inspect_file`, `audit_rules`, `check_vital`
+- `anchor_session`, `reason_mind`, `recall_memory`, `simulate_heart`, `critique_thought`, `apex_judge`, `eureka_forge`, `seal_vault`, `search_reality`, `fetch_content`, `inspect_file`, `audit_rules`, `check_vital`
 
 Gap classes:
 - naming drift across generations (legacy -> mid-gen -> canonical)

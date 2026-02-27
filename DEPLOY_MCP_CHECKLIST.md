@@ -51,14 +51,14 @@ npx -y @modelcontextprotocol/inspector --cli "http://127.0.0.1:8088/mcp" --trans
 Alias compatibility checks:
 
 ```bash
-npx -y @modelcontextprotocol/inspector --cli "http://127.0.0.1:8088/mcp" --transport http --method tools/call --tool-name forge_hand --tool-arg 'action_payload={}' --tool-arg 'session_id="deploy-check"' --tool-arg 'signature="sig"'
-npx -y @modelcontextprotocol/inspector --cli "http://127.0.0.1:8088/mcp" --transport http --method tools/call --tool-name judge_soul --tool-arg 'session_id="deploy-check"' --tool-arg 'query="judge check"'
+npx -y @modelcontextprotocol/inspector --cli "http://127.0.0.1:8088/mcp" --transport http --method tools/call --tool-name eureka_forge --tool-arg 'action_payload={}' --tool-arg 'session_id="deploy-check"' --tool-arg 'signature="sig"'
+npx -y @modelcontextprotocol/inspector --cli "http://127.0.0.1:8088/mcp" --transport http --method tools/call --tool-name apex_judge --tool-arg 'session_id="deploy-check"' --tool-arg 'query="judge check"'
 ```
 
 ## Canonical ID Migration Gate
 
 - [ ] canonical ID migration for 777/888 completed
-- [ ] aliases verified via `tools/call` for deprecated IDs (`forge_hand`, `judge_soul`)
+- [ ] aliases verified via `tools/call` for deprecated IDs (`eureka_forge`, `apex_judge`)
 - [ ] operator runbooks and docs reference canonical IDs first
 
 ## Rollback Readiness
