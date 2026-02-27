@@ -46,8 +46,8 @@ CANONICAL_PUBLIC_TO_LEGACY: dict[str, str] = {
     "recall_memory": "phoenix_recall",
     "simulate_heart": "asi_empathize",
     "critique_thought": "asi_align",
-    "judge_soul": "apex_verdict",   # generation 4 (current canonical)
-    "apex_judge": "apex_verdict",   # generation 3 (compat alias)
+    "apex_judge": "apex_verdict",   # current canonical public name
+    "judge_soul": "apex_verdict",   # backward-compat alias
     "eureka_forge": "sovereign_actuator",
     "seal_vault": "vault_seal",
     "search_reality": "reality_search",

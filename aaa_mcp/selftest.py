@@ -34,13 +34,12 @@ def check_floors() -> tuple[bool, list[str]]:
             issues.append("WARN: No constitutional floors defined")
         else:
             floor_count = len(FLOOR_ENFORCEMENT)
-            # v2026.x enforces floors on canonical 13-tool surface
-            # Gen-4 names: judge_soul (was apex_judge/apex_verdict), etc.
+            # v2026.x enforces floors on canonical 13-tool surface.
             required_floor_tools = [
                 "anchor_session",
                 "reason_mind",
                 "simulate_heart",
-                "judge_soul",
+                "apex_judge",
                 "seal_vault",
             ]
             missing_floors = [t for t in required_floor_tools if t not in FLOOR_ENFORCEMENT]
@@ -84,14 +83,14 @@ async def check_tools() -> tuple[bool, list[str]]:
         if not tool_names:
             issues.append("WARN: Could not inspect tools list")
 
-        # Verify canonical 13-tool surface (gen-4 names, MANIFEST_VERSION=2)
+        # Verify canonical 13-tool surface (apex_judge canon, MANIFEST_VERSION=3)
         required_tools = [
             "anchor_session",
             "reason_mind",
             "recall_memory",
             "simulate_heart",
             "critique_thought",
-            "judge_soul",
+            "apex_judge",
             "eureka_forge",
             "seal_vault",
             "search_reality",
@@ -105,7 +104,7 @@ async def check_tools() -> tuple[bool, list[str]]:
         if missing:
             issues.append(f"FAIL: Missing canonical tools: {missing}")
         else:
-            print(f"✓ All {len(required_tools)} canonical tools present (gen-4, MANIFEST_VERSION=2)")
+            print(f"✓ All {len(required_tools)} canonical tools present (MANIFEST_VERSION=3)")
 
         print("✓ MCP server module loaded successfully")
 

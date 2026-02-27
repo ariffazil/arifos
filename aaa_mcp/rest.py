@@ -39,6 +39,7 @@ from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
 from starlette.routing import Route
 
 from aaa_mcp.integrations.self_ops import self_diagnose
+from aaa_mcp.protocol.public_surface import PUBLIC_TOOL_ALIASES
 
 # Import all 13 canonical tools from server module.
 # Legacy verbs are supported via HTTP aliases only.
@@ -74,6 +75,7 @@ TOOLS = {
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
     "apex_judge": apex_judge,
+    "judge_soul": apex_judge,  # backward-compat alias to apex_judge
     "eureka_forge": eureka_forge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,
@@ -129,7 +131,25 @@ TOOL_SCHEMAS = {
         "description": "[Lane: Omega] 666_ALIGN — 7-model bias critique",
         "args": {
             "session_id": {"type": "string", "required": True},
+            "plan": {"type": "object", "required": True},
+            "context": {"type": "string", "required": False, "default": ""},
+        },
+    },
+    "judge_soul": {
+        "description": "[Compat Alias] Routes to apex_judge (888 APEX JUDGE)",
+        "args": {
             "query": {"type": "string", "required": True},
+            "session_id": {"type": "string", "required": True},
+            "agi_result": {"type": "object|null", "default": None},
+            "asi_result": {"type": "object|null", "default": None},
+            "critique_result": {"type": "object|null", "default": None},
+            "proposed_verdict": {
+                "type": "enum",
+                "values": ["SEAL", "VOID", "PARTIAL", "SABAR", "888_HOLD"],
+                "default": "SEAL",
+            },
+            "human_approve": {"type": "boolean", "default": False},
+            "debug": {"type": "boolean", "default": False},
         },
     },
     "apex_judge": {
@@ -206,18 +226,6 @@ TOOL_SCHEMAS = {
             "session_id": {"type": "string", "required": True},
         },
     },
-    "apex_judge": {
-        "description": "Full pipeline wrapper — 000→333→555→666→888→999",
-        "args": {
-            "query": {"type": "string", "required": True},
-            "actor_id": {"type": "string", "required": False, "default": "user"},
-            "auth_token": {"type": "string|null", "default": None},
-            "stakeholders": {"type": "array|null", "default": None},
-            "grounding": {"type": "array|null", "default": None},
-            "auto_seal": {"type": "boolean", "default": False},
-            "debug": {"type": "boolean", "default": False},
-        },
-    },
     "self_diagnose": {
         "description": "SELF_OPS — Infrastructure health check (non-constitutional)",
         "args": {
@@ -226,33 +234,7 @@ TOOL_SCHEMAS = {
     },
 }
 
-# Tool name aliases — all map to canonical UX names.
-TOOL_ALIASES = {
-    # Mid-gen kernel names → canonical
-    "init_session": "anchor_session",
-    "agi_cognition": "reason_mind",
-    "phoenix_recall": "recall_memory",
-    "asi_empathy": "simulate_heart",
-    "apex_verdict": "apex_judge",
-    "sovereign_actuator": "eureka_forge",
-    "vault_seal": "seal_vault",
-    "search": "search_reality",
-    "fetch": "fetch_content",
-    "analyze": "inspect_file",
-    "system_audit": "audit_rules",
-    # Legacy 9-verb surface → canonical
-    "anchor": "anchor_session",
-    "reason": "reason_mind",
-    "integrate": "reason_mind",
-    "respond": "reason_mind",
-    "validate": "simulate_heart",
-    "align": "simulate_heart",
-    "forge": "eureka_forge",
-    "audit": "apex_judge",
-    "seal": "seal_vault",
-    # Pipeline alias
-    "apex_judge": "apex_judge",
-}
+TOOL_ALIASES = dict(PUBLIC_TOOL_ALIASES)
 
 # ═══════════════════════════════════════════════════════
 # AUTH (OPTIONAL) — Bearer token gate for REST bridge

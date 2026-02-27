@@ -27,6 +27,8 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 
+from aaa_mcp.protocol.public_surface import PUBLIC_PROMPT_NAMES, PUBLIC_RESOURCE_URIS, PUBLIC_TOOL_ALIASES
+
 # Import canonical tools from public 13-tool surface.
 from arifos_aaa_mcp.server import (
     aaa_chain_prompt,
@@ -57,13 +59,13 @@ _ACTIVE_SESSIONS: dict[str, str] = {}
 
 RESOURCE_DESCRIPTORS = [
     {
-        "uri": "arifos://aaa/schemas",
+        "uri": PUBLIC_RESOURCE_URIS["schemas"],
         "name": "arifos_aaa_tool_schemas",
         "description": "Canonical AAA MCP 13-tool schema/contract overview.",
         "mimeType": "application/json",
     },
     {
-        "uri": "arifos://aaa/full-context-pack",
+        "uri": PUBLIC_RESOURCE_URIS["full_context_pack"],
         "name": "arifos_aaa_full_context_pack",
         "description": "Full-context orchestration metadata (stage spine, prompts, resources).",
         "mimeType": "application/json",
@@ -72,7 +74,7 @@ RESOURCE_DESCRIPTORS = [
 
 PROMPT_DESCRIPTORS = [
     {
-        "name": "arifos.prompt.aaa_chain",
+        "name": PUBLIC_PROMPT_NAMES["aaa_chain"],
         "title": "AAA Chain Prompt",
         "description": "Run canonical 13-tool continuity chain from anchor to seal.",
         "arguments": [
@@ -117,29 +119,7 @@ TOOL_DESCRIPTIONS = {
 }
 
 # All aliases resolve to canonical names.
-TOOL_ALIASES = {
-    # Mid-gen kernel names
-    "init_session": "anchor_session",
-    "agi_cognition": "reason_mind",
-    "phoenix_recall": "recall_memory",
-    "asi_empathy": "simulate_heart",
-    "apex_verdict": "apex_judge",
-    "sovereign_actuator": "eureka_forge",
-    "vault_seal": "seal_vault",
-    "search": "search_reality",
-    "fetch": "fetch_content",
-    "system_audit": "audit_rules",
-    # Legacy 9-verb surface
-    "anchor": "anchor_session",
-    "reason": "reason_mind",
-    "integrate": "reason_mind",
-    "respond": "reason_mind",
-    "validate": "simulate_heart",
-    "align": "simulate_heart",
-    "forge": "eureka_forge",
-    "audit": "apex_judge",
-    "seal": "seal_vault",
-}
+TOOL_ALIASES = dict(PUBLIC_TOOL_ALIASES)
 
 
 async def log_identity(
@@ -440,9 +420,9 @@ async def mcp_endpoint(request: Request) -> Response:
 
     if method == "resources/read":
         uri = str(params.get("uri", "")).strip()
-        if uri == "arifos://aaa/schemas":
+        if uri == PUBLIC_RESOURCE_URIS["schemas"]:
             content_text = aaa_tool_schemas()
-        elif uri == "arifos://aaa/full-context-pack":
+        elif uri == PUBLIC_RESOURCE_URIS["full_context_pack"]:
             content_text = aaa_full_context_pack()
         else:
             return _jsonrpc_error(
@@ -476,7 +456,7 @@ async def mcp_endpoint(request: Request) -> Response:
 
     if method == "prompts/get":
         prompt_name = str(params.get("name", "")).strip()
-        if prompt_name != "arifos.prompt.aaa_chain":
+        if prompt_name != PUBLIC_PROMPT_NAMES["aaa_chain"]:
             return _jsonrpc_error(
                 code=-32602,
                 message=f"Unknown prompt: {prompt_name}",
@@ -494,7 +474,7 @@ async def mcp_endpoint(request: Request) -> Response:
                 "jsonrpc": "2.0",
                 "id": request_id,
                 "result": {
-                    "name": "arifos.prompt.aaa_chain",
+                    "name": PUBLIC_PROMPT_NAMES["aaa_chain"],
                     "description": "Run canonical 13-tool continuity chain from anchor to seal.",
                     "messages": [
                         {
