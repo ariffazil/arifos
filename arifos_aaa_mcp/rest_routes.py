@@ -41,7 +41,8 @@ TOOL_ALIASES: dict[str, str] = {
     "agi_cognition": "reason_mind",
     "phoenix_recall": "recall_memory",
     "asi_empathy": "simulate_heart",
-    "apex_verdict": "apex_judge",
+    "apex_verdict": "judge_soul",
+    "apex_judge": "judge_soul",  # backward-compat: old name routes to new
     "sovereign_actuator": "eureka_forge",
     "vault_seal": "seal_vault",
     "search": "search_reality",

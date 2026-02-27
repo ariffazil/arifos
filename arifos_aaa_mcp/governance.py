@@ -41,7 +41,8 @@ TRINITY_BY_TOOL: dict[str, str] = {
     "recall_memory": "Omega",
     "simulate_heart": "Omega",
     "critique_thought": "Omega",
-    "apex_judge": "Psi",
+    "judge_soul": "Psi",
+    "apex_judge": "Psi",  # compat alias
     "eureka_forge": "Psi",
     "seal_vault": "Psi",
     "search_reality": "Delta",
@@ -75,7 +76,17 @@ TOOL_LAW_BINDINGS: dict[str, list[str]] = {
     "recall_memory": ["F4_CLARITY", "F7_HUMILITY", "F3_TRI_WITNESS", "F13_SOVEREIGNTY"],
     "simulate_heart": ["F5_PEACE2", "F6_EMPATHY", "F4_CLARITY", "F3_TRI_WITNESS"],
     "critique_thought": ["F4_CLARITY", "F7_HUMILITY", "F8_GENIUS", "F12_DEFENSE", "F3_TRI_WITNESS"],
-    "apex_judge": [
+    "judge_soul": [
+        "F1_AMANAH",
+        "F2_TRUTH",
+        "F3_TRI_WITNESS",
+        "F8_GENIUS",
+        "F9_ANTI_HANTU",
+        "F10_ONTOLOGY_LOCK",
+        "F11_AUTHORITY",
+        "F13_SOVEREIGNTY",
+    ],
+    "apex_judge": [  # compat alias — same floors as judge_soul
         "F1_AMANAH",
         "F2_TRUTH",
         "F3_TRI_WITNESS",
@@ -107,7 +118,8 @@ TOOL_STAGE_MAP: dict[str, str] = {
     "recall_memory": "444_SYNC",
     "simulate_heart": "555_EMPATHY",
     "critique_thought": "666_ALIGN",
-    "apex_judge": "888_JUDGE",
+    "judge_soul": "888_JUDGE",
+    "apex_judge": "888_JUDGE",  # compat alias
     "eureka_forge": "777_FORGE",
     "seal_vault": "999_SEAL",
     "search_reality": "111_SENSE",

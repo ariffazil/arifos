@@ -20,6 +20,10 @@ from fastmcp import FastMCP
 
 from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, validate
 
+# ABI contract: bump whenever tool names/signatures change.
+# Router refuses to start if this mismatches arifos_aaa_mcp.MANIFEST_VERSION.
+MANIFEST_VERSION: int = 2  # v2: apex_judge → judge_soul
+
 # Isolated FastMCP instance — canonical 13-tool surface ONLY.
 # Previously shared aclip_cai's instance which leaked triad_*/sense_* tools.
 mcp = FastMCP(
@@ -401,7 +405,7 @@ simulate_heart = ToolHandle(_asi_empathy)
 
 
 @mcp.tool(
-    name="apex_judge", description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis."
+    name="judge_soul", description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis."
 )
 async def _apex_verdict(
     session_id: str,
@@ -465,6 +469,8 @@ async def _apex_verdict(
 
 
 apex_judge = ToolHandle(_apex_verdict)
+# Backward-compat alias so existing clients calling "apex_judge" still work.
+judge_soul = apex_judge
 
 
 @mcp.tool(
@@ -715,7 +721,7 @@ async def _arifos_info_resource() -> dict[str, Any]:
             "recall_memory",
             "simulate_heart",
             "critique_thought",
-            "apex_judge",
+            "judge_soul",
             "eureka_forge",
             "seal_vault",
             "search_reality",
@@ -724,6 +730,7 @@ async def _arifos_info_resource() -> dict[str, Any]:
             "audit_rules",
             "check_vital",
         ],
+        "tool_aliases": {"apex_judge": "judge_soul"},
     }
 
 

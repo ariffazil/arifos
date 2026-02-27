@@ -20,11 +20,13 @@ from .contracts import require_session, validate_input
 from .fastmcp_ext.discovery import build_surface_discovery
 from .governance import LAW_13_CATALOG, TOOL_DIALS_MAP, wrap_tool_output
 
+MANIFEST_VERSION: int = 2  # v2: apex_judge → judge_soul (must match aaa_mcp.MANIFEST_VERSION)
+
 mcp = FastMCP(
     "arifOS_AAA_MCP",
     instructions=(
         "Canonical 13-tool arifOS AAA MCP surface. "
-        "Use 000->333->555->666->777_EUREKA_FORGE->888_APEX_JUDGE->999 governance spine."
+        "Use 000->333->555->666->777_EUREKA_FORGE->888_JUDGE_SOUL->999 governance spine."
     ),
 )
 
@@ -34,7 +36,7 @@ AAA_TOOLS = [
     "recall_memory",
     "simulate_heart",
     "critique_thought",
-    "apex_judge",
+    "judge_soul",
     "eureka_forge",
     "seal_vault",
     "search_reality",
@@ -179,7 +181,7 @@ async def critique_thought(
     return wrap_tool_output("critique_thought", payload)
 
 
-@mcp.tool(name="apex_judge")
+@mcp.tool(name="judge_soul")
 async def apex_judge(
     session_id: str,
     query: str,
@@ -333,6 +335,19 @@ async def check_vital(
 
 
 def create_aaa_mcp_server() -> Any:
+    # ABI version guard: prevent silent half-upgrades between transport and kernel layers.
+    try:
+        from aaa_mcp.server import MANIFEST_VERSION as inner_version  # type: ignore[attr-defined]
+        if inner_version != MANIFEST_VERSION:
+            import sys
+            print(
+                f"[arifOS] MANIFEST_VERSION MISMATCH: "
+                f"aaa_mcp={inner_version} vs arifos_aaa_mcp={MANIFEST_VERSION}. "
+                "Restart the server after updating both layers.",
+                file=sys.stderr,
+            )
+    except ImportError:
+        pass  # aaa_mcp not installed — ignore guard in test isolation
     return mcp
 
 
@@ -357,7 +372,7 @@ def aaa_tool_schemas() -> str:
                 "audit_rules",
             ],
             "Omega": ["recall_memory", "simulate_heart", "critique_thought", "check_vital"],
-            "Psi": ["apex_judge", "eureka_forge", "seal_vault"],
+            "Psi": ["judge_soul", "eureka_forge", "seal_vault"],
         },
         "axioms": ["A1_TRUTH_COST", "A2_SCAR_WEIGHT", "A3_ENTROPY_WORK"],
         "technical_aliases": {
@@ -390,7 +405,7 @@ def aaa_chain_prompt(query: str, actor_id: str = "user") -> str:
     return (
         "Use AAA 13-tool chain with continuity: "
         "anchor_session -> reason_mind -> simulate_heart -> critique_thought -> "
-        "apex_judge -> seal_vault. "
+        "judge_soul -> seal_vault. "
         f"query={query!r}; actor_id={actor_id!r}."
     )
 
@@ -407,7 +422,8 @@ _TOOL_REGISTRY = {
     "recall_memory": recall_memory,
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
-    "apex_judge": apex_judge,
+    "judge_soul": apex_judge,
+    "apex_judge": apex_judge,  # backward-compat alias
     "eureka_forge": eureka_forge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,
