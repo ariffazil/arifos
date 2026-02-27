@@ -79,7 +79,13 @@ def pytest_ignore_collect(collection_path, config):
     """Avoid collecting archived/legacy tests.
 
     This repo contains multiple historical MCP surfaces. For the arifOS AAA MCP
-    13-tool surface, we only collect tests that target `arifos_aaa_mcp`.
+    13-tool surface, the active lanes are:
+    - tests/canonical: current public contract
+    - tests/compat: backward-compat and entrypoint behavior
+    - tests/archive and tests/legacy: historical surfaces excluded by default
+
+    We only collect tests that target `arifos_aaa_mcp` or the supported
+    compatibility entrypoints.
     """
 
     path_str = str(collection_path)

@@ -21,10 +21,6 @@ from fastmcp import FastMCP
 
 from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, validate
 
-# ABI contract: bump whenever tool names/signatures change.
-# Router refuses to start if this mismatches arifos_aaa_mcp.MANIFEST_VERSION.
-MANIFEST_VERSION: int = 3  # v3: apex_judge restored as public canon; judge_soul kept as compat
-
 # Isolated FastMCP instance — canonical 13-tool surface ONLY.
 # Previously shared aclip_cai's instance which leaked triad_*/sense_* tools.
 mcp = FastMCP(
@@ -40,6 +36,7 @@ from fastmcp.resources.template import ResourceTemplate
 
 from aaa_mcp.external_gateways.brave_client import BraveSearchClient
 from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
+from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.protocol.l0_kernel_prompt import inject_l0_into_session
 from aaa_mcp.protocol.public_surface import PUBLIC_PROMPT_NAMES, PUBLIC_RESOURCE_URIS
 from aaa_mcp.protocol.tool_registry import export_full_context_pack
@@ -803,6 +800,15 @@ def _resource_full_context_template() -> dict[str, Any]:
     return build_full_context_template()
 
 
+def _tool_schemas_payload() -> dict[str, Any]:
+    """Shared implementation for both schema resource handlers."""
+    return {
+        "schema_version": "2026.02.23-context-forge",
+        "inputs": CANONICAL_TOOL_INPUT_SCHEMAS,
+        "outputs": CANONICAL_TOOL_OUTPUT_SCHEMAS,
+    }
+
+
 @mcp.resource(
     "arifos://schemas/tooling",
     name="arifos_tool_schemas",
@@ -810,11 +816,7 @@ def _resource_full_context_template() -> dict[str, Any]:
     description="Canonical tool input/output schemas for AAA MCP tools.",
 )
 def _resource_tool_schemas() -> dict[str, Any]:
-    return {
-        "schema_version": "2026.02.23-context-forge",
-        "inputs": CANONICAL_TOOL_INPUT_SCHEMAS,
-        "outputs": CANONICAL_TOOL_OUTPUT_SCHEMAS,
-    }
+    return _tool_schemas_payload()
 
 
 @mcp.resource(
@@ -824,7 +826,7 @@ def _resource_tool_schemas() -> dict[str, Any]:
     description="Public canonical tool schema alias served by internal aaa_mcp layer.",
 )
 def _resource_public_tool_schemas() -> str:
-    return json.dumps(_resource_tool_schemas(), ensure_ascii=True)
+    return json.dumps(_tool_schemas_payload(), ensure_ascii=True)
 
 
 @mcp.resource(

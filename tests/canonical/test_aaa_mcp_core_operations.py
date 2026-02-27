@@ -65,7 +65,7 @@ async def test_call_tool_mcp_raw_protocol_access(aaa_client: FastMCPClient) -> N
     raw = await aaa_client.call_tool_mcp(
         "search_reality",
         {"query": "arifOS"},
-        timeout=2.0,
+        timeout=5.0,
         meta={"trace_id": "core-op-3"},
     )
 

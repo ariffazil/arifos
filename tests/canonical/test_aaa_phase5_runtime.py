@@ -10,6 +10,11 @@ from __future__ import annotations
 from arifos_aaa_mcp import server as aaa
 
 
+def _fn(tool):
+    """Unwrap FastMCP FunctionTool to get the underlying callable."""
+    return getattr(tool, "fn", tool)
+
+
 def _assert_envelope(payload: dict) -> None:
     assert "axioms_333" in payload
     assert "laws_13" in payload
@@ -18,24 +23,24 @@ def _assert_envelope(payload: dict) -> None:
 
 
 async def test_phase5_chain_000_to_999_with_envelopes() -> None:
-    init = await aaa.anchor_session(query="Phase 5 verification", actor_id="ops")
+    init = await _fn(aaa.anchor_session)(query="Phase 5 verification", actor_id="ops")
     _assert_envelope(init)
     assert "DITEMPA" in init["motto"]["line"]
     session_id = init["data"].get("session_id", "")
     assert session_id
 
-    reason = await aaa.reason_mind(query="verify pipeline", session_id=session_id)
+    reason = await _fn(aaa.reason_mind)(query="verify pipeline", session_id=session_id)
     _assert_envelope(reason)
 
-    heart = await aaa.simulate_heart(query="verify impact", session_id=session_id)
+    heart = await _fn(aaa.simulate_heart)(query="verify impact", session_id=session_id)
     _assert_envelope(heart)
 
-    critique = await aaa.critique_thought(
+    critique = await _fn(aaa.critique_thought)(
         plan={"query": "verify", "risk": "medium"}, session_id=session_id
     )
     _assert_envelope(critique)
 
-    judge = await aaa.apex_judge(
+    judge = await _fn(aaa.apex_judge)(
         session_id=session_id,
         query="finalize verification",
         agi_result=reason.get("data", {}),
@@ -44,18 +49,18 @@ async def test_phase5_chain_000_to_999_with_envelopes() -> None:
     )
     _assert_envelope(judge)
 
-    seal = await aaa.seal_vault(session_id=session_id, summary="Phase 5 verified", verdict="SEAL")
+    seal = await _fn(aaa.seal_vault)(session_id=session_id, summary="Phase 5 verified", verdict="SEAL")
     _assert_envelope(seal)
     assert "DITEMPA" in seal["motto"]["line"]
 
 
 async def test_phase5_auxiliary_tools_have_governed_envelope() -> None:
     tools = [
-        await aaa.search_reality(query="arifOS"),
-        await aaa.fetch_content(id="https://example.com", max_chars=200),
-        await aaa.inspect_file(path=".", depth=1, max_files=10),
-        await aaa.audit_rules(audit_scope="quick", verify_floors=True),
-        await aaa.check_vital(include_swap=False, include_io=False, include_temp=False),
+        await _fn(aaa.search_reality)(query="arifOS"),
+        await _fn(aaa.fetch_content)(id="https://example.com", max_chars=200),
+        await _fn(aaa.inspect_file)(path=".", depth=1, max_files=10),
+        await _fn(aaa.audit_rules)(audit_scope="quick", verify_floors=True),
+        await _fn(aaa.check_vital)(include_swap=False, include_io=False, include_temp=False),
     ]
 
     for payload in tools:

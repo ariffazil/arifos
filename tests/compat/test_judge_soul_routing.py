@@ -7,7 +7,7 @@ Acceptance criteria from the kernel ABI mismatch diagnosis:
   4. MANIFEST_VERSION is consistent between layers.
 
 Run:
-    pytest tests/test_judge_soul_routing.py -v
+    pytest tests/compat/test_judge_soul_routing.py -v
 """
 
 from __future__ import annotations

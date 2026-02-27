@@ -12,6 +12,7 @@ from typing import Any
 from fastmcp import FastMCP
 
 from aaa_mcp import server as legacy
+from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.protocol.public_surface import (
     PUBLIC_CANONICAL_TOOLS,
     PUBLIC_PROMPT_NAMES,
@@ -25,8 +26,6 @@ from aclip_cai.tools.system_monitor import get_system_health
 from .contracts import require_session, validate_input
 from .fastmcp_ext.discovery import build_surface_discovery
 from .governance import LAW_13_CATALOG, TOOL_DIALS_MAP, wrap_tool_output
-
-MANIFEST_VERSION: int = 3  # v3: apex_judge restored as public canon (must match aaa_mcp)
 
 mcp = FastMCP(
     "arifOS_AAA_MCP",
