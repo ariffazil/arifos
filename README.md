@@ -45,7 +45,7 @@ Part of the **Trinity constitutional governance ecosystem**:
 | ✅ **Health Check** | 🟢 Live | [/health](https://arifosmcp.arif-fazil.com/health) |
 | 📊 **Test Dashboard** | 🟢 Live | [Constitutional Dashboard](https://674a01a3.arifosmcp-truth-claim.pages.dev) |
 
-> **Latest (2026.2.27):** v60.2 MCP protocol negotiation hardening • Canonical `apex_judge`/`eureka_forge` naming • Streamable HTTP resources/prompts parity • Intro/docs trademark alignment
+> **Latest (2026.2.27):** RAG-backed [`recall_memory`](aaa_mcp/server.py), [`reason_mind`](aaa_mcp/server.py), [`apex_judge`](aaa_mcp/server.py) • Streamable HTTP capabilities/version negotiation + `completion/complete` • E2E protocol test suite ([`tests/canonical/`](tests/canonical/)) • CI modernised to 13-tool canonical contract ([`constitutional_alignment.yaml`](.github/workflows/constitutional_alignment.yaml))
 
 </div>
 
@@ -503,7 +503,7 @@ Connect arifOS to ChatGPT as a custom tool provider.
 | **Constitutional Law** | The 13 Floors (F1-F13) explained | [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) |
 | **Architecture** | System design and deployment | [ARCHITECTURE.md](ARCHITECTURE.md) |
 | **Trinity (Δ Ω Ψ)** | AGI-ASI-APEX parallel consensus | [`core/organs/`](core/organs/) |
-| **MCP Tools Reference** | Canonical 13 tools (code implementation) | [`arifos_aaa_mcp/server.py`](arifos_aaa_mcp/server.py) |
+| **MCP Tools Reference** | Canonical 13 tools (code implementation) | [`aaa_mcp/server.py`](aaa_mcp/server.py) (definitions) · [`arifos_aaa_mcp/server.py`](arifos_aaa_mcp/server.py) (PyPI surface) |
 | **Deployment Guide** | Production hardening checklist | [docs/DEPLOYMENT_FIREWALL.md](docs/DEPLOYMENT_FIREWALL.md) |
 
 ### The 13 Constitutional Floors
@@ -512,19 +512,19 @@ Every AI output must pass all 13 floors before reaching the user:
 
 | Floor | Name | Symbol | Threshold | What It Enforces |
 |-------|------|--------|-----------|------------------|
-| **F1** | Amanah (Trust) | 🔒 | Reversibility | All actions must be reversible. Sacred trust preserved. |
+| **F1** | Amanah (Trust) | 🔒 | LOCK | All actions must be reversible. Sacred trust preserved. |
 | **F2** | Truth | τ | ≥ 0.99 | Factual accuracy. Evidence-based claims only. |
-| **F3** | Tri-Witness | Δ Ω Ψ | Consensus | AGI-ASI-APEX must agree in parallel. |
+| **F3** | Tri-Witness | Δ Ω Ψ | ≥ 0.95 | AGI-ASI-APEX must agree in parallel. |
 | **F4** | Clarity | ΔS | ≤ 0 | Reduce confusion (entropy). No jargon without definition. |
 | **F5** | Peace² | κ² | ≥ 1.0 | Safety for all stakeholders. De-escalation mandatory. |
-| **F6** | Empathy | κᵣ | ≥ 0.7 | Care for the weakest stakeholder. |
+| **F6** | Empathy | κᵣ | ≥ 0.70 | Care for the weakest stakeholder. |
 | **F7** | Humility | Ω₀ | [0.03, 0.05] | Admit uncertainty (3-5%). Never claim 100% certainty. |
-| **F8** | Genius (Coherence) | Ψ | ≥ 0.80 | Output must be internally consistent. |
-| **F9** | Anti-Hantu | 👻 | VOID | No consciousness claims. No "I feel" statements. |
+| **F8** | Genius (Coherence) | G | ≥ 0.80 | Output must be internally consistent (A×P×X×E²). |
+| **F9** | Anti-Hantu | C_dark | < 0.30 | No consciousness claims. No "I feel" statements. |
 | **F10** | Ontology Lock | 🔐 | LOCK | Reality is grounded. No invented physics. |
-| **F11** | Authority (SABAR) | ⏳ | 72h | High-risk changes require 72-hour cooling period. |
-| **F12** | Injection Guard | 🛡️ | BLOCK | Reject prompt injection attacks immediately. |
-| **F13** | Sovereignty | 👑 | VETO | Human has final authority. Never bypass human veto. |
+| **F11** | Command Auth | 🔑 | LOCK | Nonce-verified identity. No unauthorized commands. |
+| **F12** | Injection Guard | 🛡️ | < 0.85 | Reject prompt injection attacks immediately. |
+| **F13** | Sovereignty | 👑 | HUMAN | Human has final authority. Never bypass human veto. |
 
 **Implementation Source**: [`core/shared/floors.py`](core/shared/floors.py) (The authoritative `THRESHOLDS` dict)  
 **Deep dive**: [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md) — Full constitutional specification with mathematical proofs.
@@ -587,7 +587,7 @@ The Kernel is implemented across four distinct layers with strict boundaries:
 | **Surface** | `arifos_aaa_mcp/` | Canonical PyPI entry point | [`arifos_aaa_mcp/server.py`](arifos_aaa_mcp/server.py) |
 | **Transport** | `aaa_mcp/` | MCP transport adapter (stdio/HTTP) | [`aaa_mcp/server.py`](aaa_mcp/server.py) |
 | **Intelligence** | `aclip_cai/` | Triad backend & 9-Sense tools | [`aclip_cai/triad/`](aclip_cai/triad/) |
-| **Kernel** | `core/` | Pure decision logic, 7 organs, 13 floors | [`core/organs/`](core/organs/) |
+| **Kernel** | `core/` | Pure decision logic, 5 organs, 13 floors | [`core/organs/`](core/organs/) |
 
 **Key principle**: `core/` has **zero transport dependencies**. `aaa_mcp/` has **zero decision logic**. Constitutional floors cannot be bypassed by transport clients.
 
@@ -600,7 +600,7 @@ The Kernel is implemented across four distinct layers with strict boundaries:
 ### Canonical Source of Truth 🧰
 To prevent documentation drift, please note:
 - **The live `tools/list` output is the absolute canonical source of truth** for all available MCP tools.
-- The tables below are generated from it and represent stable UX verbs (`anchor_session`, `reason_mind`, etc.). Legacy internal names (`init_gate`, `agi_sense`, etc.) may still exist in older documentation or fallbacks but are superseded by the 13 canonical verbs on the primary surface.
+- The tables below are generated from it and represent stable UX verbs (`anchor_session`, `reason_mind`, etc.). Backward-compat aliases (`init_session`, `agi_cognition`, `asi_empathy`, `apex_verdict`, `vault_seal`) are defined in [`AAA_TOOL_ALIASES`](aaa_mcp/protocol/aaa_contract.py) and route to the current canonical names — but are superseded by the 13 UX verbs on the primary surface.
 - The telemetry schema is versioned; all system health statuses (e.g., `status: "ALIVE"`) are structurally distinct from governance verdicts (`verdict: "SEAL"`, `SABAR`, `VOID`).
 
 Current canonical AAA MCP server exposes:
@@ -619,7 +619,7 @@ The following table serves as the **unified audit map** for arifOS. It aligns th
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | `anchor_session` | `init_session` | Δ Delta | 000 | F11, F12, F13 | Session ignition & injection defense |
 | `reason_mind` | `agi_cognition` | Δ Delta | 333 | F2, F4, F7, F8 | AGI cognition & logic grounding |
-| `recall_memory` | `phoenix_recall` | Ω Omega | 444 | F4, F7, F13 | Associative memory traces |
+| `recall_memory` | `phoenix_recall` | Ω Omega | 555 | F4, F7, F13 | Associative memory traces |
 | `simulate_heart` | `asi_empathy` | Ω Omega | 555 | F4, F5, F6 | Stakeholder impact & care constraints |
 | `critique_thought`| - | Ω Omega | 666 | F4, F7, F8 | 7-organ alignment & bias critique |
 | `apex_judge` | `apex_verdict` | Ψ Psi | 888 | F1-F13 | Sovereign verdict synthesis |
@@ -645,7 +645,7 @@ arifOS includes **production-grade testing** with **constitutional validation**:
 # Canonical MCP contract and constitutional checks
 pytest tests/test_aaa_mcp_contract.py -q
 pytest tests/test_aaa_mcp_constitutional.py -q
-pytest tests/test_aaa_phase888_mcp_protocol_e2e.py -q
+pytest tests/canonical/test_aaa_phase888_mcp_protocol_e2e.py -q
 
 # Marker-based constitutional suite
 pytest -m constitutional -q
