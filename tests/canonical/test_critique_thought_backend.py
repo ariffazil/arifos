@@ -3,13 +3,17 @@
 from __future__ import annotations
 
 
+def _fn(tool):
+    return getattr(tool, "fn", tool)
+
+
 async def test_critique_thought_prefers_triad_align_and_keeps_heuristics() -> None:
     from arifos_aaa_mcp import server as aaa
 
-    anchored = await aaa.anchor_session(query="Assess impact of config change", actor_id="ops")
+    anchored = await _fn(aaa.anchor_session)(query="Assess impact of config change", actor_id="ops")
     session_id = anchored["data"]["session_id"]
 
-    critique = await aaa.critique_thought(
+    critique = await _fn(aaa.critique_thought)(
         plan={"goal": "Assess impact", "steps": ["validate", "align"]},
         session_id=session_id,
         context="Assess impact of config change with mitigation and review",

@@ -8,7 +8,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path(__file__).resolve().parents[2]
 SERVER_FILE = ROOT / "arifos_aaa_mcp" / "server.py"
 GOV_FILE = ROOT / "arifos_aaa_mcp" / "governance.py"
 

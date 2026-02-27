@@ -16,6 +16,8 @@ Usage:
 import os
 import sys
 
+from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
+
 # Target bands
 OMEGA_TARGET_MIN = 0.03
 OMEGA_TARGET_MAX = 0.05
@@ -83,7 +85,7 @@ async def check_tools() -> tuple[bool, list[str]]:
         if not tool_names:
             issues.append("WARN: Could not inspect tools list")
 
-        # Verify canonical 13-tool surface (apex_judge canon, MANIFEST_VERSION=3)
+        # Verify canonical 13-tool surface against the shared contract manifest.
         required_tools = [
             "anchor_session",
             "reason_mind",
@@ -104,7 +106,7 @@ async def check_tools() -> tuple[bool, list[str]]:
         if missing:
             issues.append(f"FAIL: Missing canonical tools: {missing}")
         else:
-            print(f"✓ All {len(required_tools)} canonical tools present (MANIFEST_VERSION=3)")
+            print(f"✓ All {len(required_tools)} canonical tools present (MANIFEST_VERSION={MANIFEST_VERSION})")
 
         print("✓ MCP server module loaded successfully")
 
@@ -222,7 +224,7 @@ def run_selftest(strict: bool = False) -> bool:
     import asyncio
 
     print("=" * 60)
-    print("  arifOS MCP Self-Test (v2026.2 — MANIFEST_VERSION=2)")
+    print(f"  arifOS MCP Self-Test (v2026.2 — MANIFEST_VERSION={MANIFEST_VERSION})")
     print("=" * 60)
     print()
 
