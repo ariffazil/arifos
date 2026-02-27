@@ -34,13 +34,14 @@ def check_floors() -> tuple[bool, list[str]]:
             issues.append("WARN: No constitutional floors defined")
         else:
             floor_count = len(FLOOR_ENFORCEMENT)
-            # v64.1 enforces floors on the 5 canonical tools
+            # v2026.x enforces floors on canonical 13-tool surface
+            # Gen-4 names: judge_soul (was apex_judge/apex_verdict), etc.
             required_floor_tools = [
-                "init_session",
-                "agi_cognition",
-                "asi_empathy",
-                "apex_verdict",
-                "vault_seal",
+                "anchor_session",
+                "reason_mind",
+                "simulate_heart",
+                "judge_soul",
+                "seal_vault",
             ]
             missing_floors = [t for t in required_floor_tools if t not in FLOOR_ENFORCEMENT]
 
@@ -83,20 +84,28 @@ async def check_tools() -> tuple[bool, list[str]]:
         if not tool_names:
             issues.append("WARN: Could not inspect tools list")
 
-        # Verify 5 Canonical Tools (v64.1-GAGI)
+        # Verify canonical 13-tool surface (gen-4 names, MANIFEST_VERSION=2)
         required_tools = [
-            "init_session",
-            "agi_cognition",
-            "asi_empathy",
-            "apex_verdict",
-            "vault_seal",
+            "anchor_session",
+            "reason_mind",
+            "recall_memory",
+            "simulate_heart",
+            "critique_thought",
+            "judge_soul",
+            "eureka_forge",
+            "seal_vault",
+            "search_reality",
+            "fetch_content",
+            "inspect_file",
+            "audit_rules",
+            "check_vital",
         ]
 
         missing = [t for t in required_tools if t not in tool_names]
         if missing:
             issues.append(f"FAIL: Missing canonical tools: {missing}")
         else:
-            print(f"✓ All {len(required_tools)} canonical tools present (v64.1-GAGI)")
+            print(f"✓ All {len(required_tools)} canonical tools present (gen-4, MANIFEST_VERSION=2)")
 
         print("✓ MCP server module loaded successfully")
 
@@ -214,7 +223,7 @@ def run_selftest(strict: bool = False) -> bool:
     import asyncio
 
     print("=" * 60)
-    print("  arifOS MCP Self-Test (v55.5-HARDENED)")
+    print("  arifOS MCP Self-Test (v2026.2 — MANIFEST_VERSION=2)")
     print("=" * 60)
     print()
 
