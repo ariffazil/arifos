@@ -117,7 +117,7 @@ def test_canonical_signatures_are_stable() -> None:
         "vault_seal": ["session_id", "summary", "verdict"],
         "search": ["query", "intent"],
         "fetch": ["id", "max_chars"],
-        "analyze": ["data", "analysis_type"],
+        "analyze": ["session_id", "path"],
         "system_audit": ["audit_scope", "verify_floors"],
     }
 

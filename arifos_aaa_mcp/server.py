@@ -12,7 +12,14 @@ from typing import Any
 from fastmcp import FastMCP
 
 from aaa_mcp import server as legacy
+from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
+from aaa_mcp.protocol.public_surface import (
+    PUBLIC_CANONICAL_TOOLS,
+    PUBLIC_PROMPT_NAMES,
+    PUBLIC_RESOURCE_URIS,
+)
 from aaa_mcp.protocol.tool_registry import export_full_context_pack
+from aclip_cai.triad import align
 from aclip_cai.tools.fs_inspector import fs_inspect
 from aclip_cai.tools.system_monitor import get_system_health
 
@@ -20,31 +27,15 @@ from .contracts import require_session, validate_input
 from .fastmcp_ext.discovery import build_surface_discovery
 from .governance import LAW_13_CATALOG, TOOL_DIALS_MAP, wrap_tool_output
 
-MANIFEST_VERSION: int = 2  # v2: apex_judge → judge_soul (must match aaa_mcp.MANIFEST_VERSION)
-
 mcp = FastMCP(
     "arifOS_AAA_MCP",
     instructions=(
         "Canonical 13-tool arifOS AAA MCP surface. "
-        "Use 000->333->555->666->777_EUREKA_FORGE->888_JUDGE_SOUL->999 governance spine."
+        "Use 000->333->555->666->777_EUREKA_FORGE->888_APEX_JUDGE->999 governance spine."
     ),
 )
 
-AAA_TOOLS = [
-    "anchor_session",
-    "reason_mind",
-    "recall_memory",
-    "simulate_heart",
-    "critique_thought",
-    "judge_soul",
-    "eureka_forge",
-    "seal_vault",
-    "search_reality",
-    "fetch_content",
-    "inspect_file",
-    "audit_rules",
-    "check_vital",
-]
+AAA_TOOLS = list(PUBLIC_CANONICAL_TOOLS)
 
 
 def _model_flags(plan: dict[str, Any], context: str = "") -> dict[str, Any]:
@@ -171,17 +162,35 @@ async def critique_thought(
         return wrap_tool_output("critique_thought", missing)
     flags = _model_flags(plan, context=context)
     failed = [k for k, v in flags.items() if not v]
-    payload = {
+    critique_text = context.strip() or json.dumps(plan, ensure_ascii=True, sort_keys=True)
+    payload: dict[str, Any] = {
         "verdict": "SEAL" if not failed else "SABAR",
         "session_id": session_id,
         "stage": "666_ALIGN",
         "mental_models": flags,
         "failed_models": failed,
+        "critique_backend": "heuristic_fallback",
     }
+    try:
+        align_result = await align(session_id=session_id, action=critique_text)
+        if isinstance(align_result, dict):
+            payload.update(
+                {
+                    "verdict": str(align_result.get("verdict", payload["verdict"])),
+                    "recommendation": align_result.get("recommendation"),
+                    "alignment_status": align_result.get("status"),
+                    "alignment_backend_result": align_result,
+                    "critique_backend": "triad_align",
+                }
+            )
+            if failed and payload["verdict"] == "SEAL":
+                payload["verdict"] = "PARTIAL"
+    except Exception as exc:
+        payload["critique_backend_error"] = str(exc)
     return wrap_tool_output("critique_thought", payload)
 
 
-@mcp.tool(name="judge_soul")
+@mcp.tool(name="apex_judge")
 async def apex_judge(
     session_id: str,
     query: str,
@@ -352,7 +361,7 @@ def create_aaa_mcp_server() -> Any:
 
 
 @mcp.resource(
-    "arifos://aaa/schemas",
+    PUBLIC_RESOURCE_URIS["schemas"],
     name="arifos_aaa_tool_schemas",
     mime_type="application/json",
     description="Canonical AAA MCP 13-tool schema/contract overview.",
@@ -372,7 +381,7 @@ def aaa_tool_schemas() -> str:
                 "audit_rules",
             ],
             "Omega": ["recall_memory", "simulate_heart", "critique_thought", "check_vital"],
-            "Psi": ["judge_soul", "eureka_forge", "seal_vault"],
+            "Psi": ["apex_judge", "eureka_forge", "seal_vault"],
         },
         "axioms": ["A1_TRUTH_COST", "A2_SCAR_WEIGHT", "A3_ENTROPY_WORK"],
         "technical_aliases": {
@@ -391,7 +400,7 @@ def aaa_tool_schemas() -> str:
 
 
 @mcp.resource(
-    "arifos://aaa/full-context-pack",
+    PUBLIC_RESOURCE_URIS["full_context_pack"],
     name="arifos_aaa_full_context_pack",
     mime_type="application/json",
     description="Full-context orchestration metadata (stage spine, prompts, resources).",
@@ -400,12 +409,12 @@ def aaa_full_context_pack() -> str:
     return json.dumps(export_full_context_pack(), ensure_ascii=True)
 
 
-@mcp.prompt(name="arifos.prompt.aaa_chain")
+@mcp.prompt(name=PUBLIC_PROMPT_NAMES["aaa_chain"])
 def aaa_chain_prompt(query: str, actor_id: str = "user") -> str:
     return (
         "Use AAA 13-tool chain with continuity: "
         "anchor_session -> reason_mind -> simulate_heart -> critique_thought -> "
-        "judge_soul -> seal_vault. "
+        "apex_judge -> seal_vault. "
         f"query={query!r}; actor_id={actor_id!r}."
     )
 
@@ -422,8 +431,8 @@ _TOOL_REGISTRY = {
     "recall_memory": recall_memory,
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
-    "judge_soul": apex_judge,
-    "apex_judge": apex_judge,  # backward-compat alias
+    "apex_judge": apex_judge,
+    "judge_soul": apex_judge,  # backward-compat alias
     "eureka_forge": eureka_forge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,

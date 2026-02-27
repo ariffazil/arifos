@@ -13,130 +13,21 @@ import time
 from pathlib import Path
 from typing import Any
 
+from aaa_mcp.protocol.aaa_contract import (
+    AAA_TOOL_LAW_BINDINGS,
+    AAA_TOOL_STAGE_MAP,
+    AXIOMS_333,
+    LAW_13_CATALOG,
+    READ_ONLY_TOOLS,
+    TRINITY_BY_TOOL,
+)
 from core.shared.mottos import (
     MOTTO_000_INIT_HEADER,
     MOTTO_999_SEAL_HEADER,
     get_motto_for_stage,
 )
-
-AXIOMS_333: dict[str, dict[str, Any]] = {
-    "A1_TRUTH_COST": {
-        "statement": "Truth has thermodynamic cost; evidence must be explicit for claims.",
-        "source": "000_THEORY/000_LAW.md#Axiom-1",
-    },
-    "A2_SCAR_WEIGHT": {
-        "statement": "Authority requires accountability; AI proposes, human disposes.",
-        "source": "000_THEORY/000_LAW.md#Axiom-2",
-    },
-    "A3_ENTROPY_WORK": {
-        "statement": "Clarity requires work; governance must reduce confusion entropy.",
-        "source": "000_THEORY/000_LAW.md#Axiom-3",
-    },
-}
-
-
-TRINITY_BY_TOOL: dict[str, str] = {
-    "anchor_session": "Delta",
-    "reason_mind": "Delta",
-    "recall_memory": "Omega",
-    "simulate_heart": "Omega",
-    "critique_thought": "Omega",
-    "judge_soul": "Psi",
-    "apex_judge": "Psi",  # compat alias
-    "eureka_forge": "Psi",
-    "seal_vault": "Psi",
-    "search_reality": "Delta",
-    "fetch_content": "Delta",
-    "inspect_file": "Delta",
-    "audit_rules": "Delta",
-    "check_vital": "Omega",
-}
-
-
-LAW_13_CATALOG: dict[str, dict[str, str]] = {
-    "F1_AMANAH": {"type": "floor", "threshold": "reversible"},
-    "F2_TRUTH": {"type": "floor", "threshold": ">=0.99 (adaptive)"},
-    "F4_CLARITY": {"type": "floor", "threshold": "dS<=0"},
-    "F5_PEACE2": {"type": "floor", "threshold": ">=1.0"},
-    "F6_EMPATHY": {"type": "floor", "threshold": ">=0.95"},
-    "F7_HUMILITY": {"type": "floor", "threshold": "omega0 in [0.03,0.05]"},
-    "F9_ANTI_HANTU": {"type": "floor", "threshold": "c_dark<0.30"},
-    "F11_AUTHORITY": {"type": "floor", "threshold": "valid auth continuity"},
-    "F12_DEFENSE": {"type": "floor", "threshold": "risk<0.85"},
-    "F3_TRI_WITNESS": {"type": "mirror", "threshold": "cross-check present"},
-    "F8_GENIUS": {"type": "mirror", "threshold": "coherence >= 0.80"},
-    "F10_ONTOLOGY_LOCK": {"type": "wall", "threshold": "lock engaged"},
-    "F13_SOVEREIGNTY": {"type": "wall", "threshold": "human veto preserved"},
-}
-
-
-TOOL_LAW_BINDINGS: dict[str, list[str]] = {
-    "anchor_session": ["F11_AUTHORITY", "F12_DEFENSE", "F13_SOVEREIGNTY", "F3_TRI_WITNESS"],
-    "reason_mind": ["F2_TRUTH", "F4_CLARITY", "F7_HUMILITY", "F8_GENIUS", "F3_TRI_WITNESS"],
-    "recall_memory": ["F4_CLARITY", "F7_HUMILITY", "F3_TRI_WITNESS", "F13_SOVEREIGNTY"],
-    "simulate_heart": ["F5_PEACE2", "F6_EMPATHY", "F4_CLARITY", "F3_TRI_WITNESS"],
-    "critique_thought": ["F4_CLARITY", "F7_HUMILITY", "F8_GENIUS", "F12_DEFENSE", "F3_TRI_WITNESS"],
-    "judge_soul": [
-        "F1_AMANAH",
-        "F2_TRUTH",
-        "F3_TRI_WITNESS",
-        "F8_GENIUS",
-        "F9_ANTI_HANTU",
-        "F10_ONTOLOGY_LOCK",
-        "F11_AUTHORITY",
-        "F13_SOVEREIGNTY",
-    ],
-    "apex_judge": [  # compat alias — same floors as judge_soul
-        "F1_AMANAH",
-        "F2_TRUTH",
-        "F3_TRI_WITNESS",
-        "F8_GENIUS",
-        "F9_ANTI_HANTU",
-        "F10_ONTOLOGY_LOCK",
-        "F11_AUTHORITY",
-        "F13_SOVEREIGNTY",
-    ],
-    "eureka_forge": [
-        "F1_AMANAH",
-        "F11_AUTHORITY",
-        "F12_DEFENSE",
-        "F13_SOVEREIGNTY",
-        "F10_ONTOLOGY_LOCK",
-    ],
-    "seal_vault": ["F1_AMANAH", "F3_TRI_WITNESS", "F10_ONTOLOGY_LOCK", "F13_SOVEREIGNTY"],
-    "search_reality": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
-    "fetch_content": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
-    "inspect_file": ["F1_AMANAH", "F4_CLARITY", "F11_AUTHORITY", "F12_DEFENSE"],
-    "audit_rules": ["F2_TRUTH", "F8_GENIUS", "F10_ONTOLOGY_LOCK", "F12_DEFENSE"],
-    "check_vital": ["F4_CLARITY", "F5_PEACE2", "F7_HUMILITY", "F3_TRI_WITNESS"],
-}
-
-
-TOOL_STAGE_MAP: dict[str, str] = {
-    "anchor_session": "000_INIT",
-    "reason_mind": "333_REASON",
-    "recall_memory": "444_SYNC",
-    "simulate_heart": "555_EMPATHY",
-    "critique_thought": "666_ALIGN",
-    "judge_soul": "888_JUDGE",
-    "apex_judge": "888_JUDGE",  # compat alias
-    "eureka_forge": "777_FORGE",
-    "seal_vault": "999_SEAL",
-    "search_reality": "111_SENSE",
-    "fetch_content": "444_SYNC",
-    "inspect_file": "111_SENSE",
-    "audit_rules": "333_REASON",
-    "check_vital": "555_EMPATHY",
-}
-
-
-READ_ONLY_TOOLS = {
-    "search_reality",
-    "fetch_content",
-    "inspect_file",
-    "audit_rules",
-    "check_vital",
-}
+TOOL_LAW_BINDINGS = AAA_TOOL_LAW_BINDINGS
+TOOL_STAGE_MAP = AAA_TOOL_STAGE_MAP
 
 
 def _motto_for_tool(tool: str) -> dict[str, str]:

@@ -12,6 +12,7 @@ All tools must be async and must not write to stdout (stdio transport safety).
 
 from __future__ import annotations
 
+import json
 import uuid
 from datetime import datetime, timezone
 from typing import Any
@@ -19,10 +20,6 @@ from typing import Any
 from fastmcp import FastMCP
 
 from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, validate
-
-# ABI contract: bump whenever tool names/signatures change.
-# Router refuses to start if this mismatches arifos_aaa_mcp.MANIFEST_VERSION.
-MANIFEST_VERSION: int = 2  # v2: apex_judge → judge_soul
 
 # Isolated FastMCP instance — canonical 13-tool surface ONLY.
 # Previously shared aclip_cai's instance which leaked triad_*/sense_* tools.
@@ -39,7 +36,10 @@ from fastmcp.resources.template import ResourceTemplate
 
 from aaa_mcp.external_gateways.brave_client import BraveSearchClient
 from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
+from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.protocol.l0_kernel_prompt import inject_l0_into_session
+from aaa_mcp.protocol.public_surface import PUBLIC_PROMPT_NAMES, PUBLIC_RESOURCE_URIS
+from aaa_mcp.protocol.tool_registry import export_full_context_pack
 from aaa_mcp.protocol.schemas import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOOL_OUTPUT_SCHEMAS
 from core.shared.context_template import build_full_context_template
 
@@ -414,7 +414,7 @@ simulate_heart = ToolHandle(_asi_empathy)
 
 
 @mcp.tool(
-    name="judge_soul", description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis."
+    name="apex_judge", description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis."
 )
 async def _apex_verdict(
     session_id: str,
@@ -478,7 +478,7 @@ async def _apex_verdict(
 
 
 apex_judge = ToolHandle(_apex_verdict)
-# Backward-compat alias so existing clients calling "apex_judge" still work.
+# Backward-compat alias so existing clients calling "judge_soul" still work.
 judge_soul = apex_judge
 
 
@@ -730,7 +730,7 @@ async def _arifos_info_resource() -> dict[str, Any]:
             "recall_memory",
             "simulate_heart",
             "critique_thought",
-            "judge_soul",
+            "apex_judge",
             "eureka_forge",
             "seal_vault",
             "search_reality",
@@ -739,7 +739,7 @@ async def _arifos_info_resource() -> dict[str, Any]:
             "audit_rules",
             "check_vital",
         ],
-        "tool_aliases": {"apex_judge": "judge_soul"},
+        "tool_aliases": {"judge_soul": "apex_judge"},
     }
 
 
@@ -800,6 +800,15 @@ def _resource_full_context_template() -> dict[str, Any]:
     return build_full_context_template()
 
 
+def _tool_schemas_payload() -> dict[str, Any]:
+    """Shared implementation for both schema resource handlers."""
+    return {
+        "schema_version": "2026.02.23-context-forge",
+        "inputs": CANONICAL_TOOL_INPUT_SCHEMAS,
+        "outputs": CANONICAL_TOOL_OUTPUT_SCHEMAS,
+    }
+
+
 @mcp.resource(
     "arifos://schemas/tooling",
     name="arifos_tool_schemas",
@@ -807,11 +816,27 @@ def _resource_full_context_template() -> dict[str, Any]:
     description="Canonical tool input/output schemas for AAA MCP tools.",
 )
 def _resource_tool_schemas() -> dict[str, Any]:
-    return {
-        "schema_version": "2026.02.23-context-forge",
-        "inputs": CANONICAL_TOOL_INPUT_SCHEMAS,
-        "outputs": CANONICAL_TOOL_OUTPUT_SCHEMAS,
-    }
+    return _tool_schemas_payload()
+
+
+@mcp.resource(
+    PUBLIC_RESOURCE_URIS["schemas"],
+    name="arifos_aaa_tool_schemas",
+    mime_type="application/json",
+    description="Public canonical tool schema alias served by internal aaa_mcp layer.",
+)
+def _resource_public_tool_schemas() -> str:
+    return json.dumps(_tool_schemas_payload(), ensure_ascii=True)
+
+
+@mcp.resource(
+    PUBLIC_RESOURCE_URIS["full_context_pack"],
+    name="arifos_aaa_full_context_pack",
+    mime_type="application/json",
+    description="Public canonical full-context alias served by internal aaa_mcp layer.",
+)
+def _resource_public_full_context_pack() -> str:
+    return json.dumps(export_full_context_pack(), ensure_ascii=True)
 
 
 @mcp.prompt(name="arifos.prompt.trinity_forge")
@@ -848,6 +873,16 @@ def _prompt_audit_then_seal(session_id: str, summary: str, proposed_verdict: str
     )
 
 
+@mcp.prompt(name=PUBLIC_PROMPT_NAMES["aaa_chain"])
+def _prompt_aaa_chain(query: str, actor_id: str = "user") -> str:
+    return (
+        "Use AAA 13-tool chain with continuity: "
+        "anchor_session -> reason_mind -> simulate_heart -> critique_thought -> "
+        "apex_judge -> seal_vault. "
+        f"query={query!r}; actor_id={actor_id!r}."
+    )
+
+
 __all__ = [
     "create_unified_mcp_server",
     "mcp",
@@ -866,7 +901,10 @@ __all__ = [
     "check_vital",
     "_resource_full_context_template",
     "_resource_tool_schemas",
+    "_resource_public_tool_schemas",
+    "_resource_public_full_context_pack",
     "_prompt_trinity_forge",
     "_prompt_anchor_reason",
     "_prompt_audit_then_seal",
+    "_prompt_aaa_chain",
 ]
