@@ -78,25 +78,23 @@ jobs:
       - name: Validate canonical tool names and aliases
         run: |
           python - <<'PY'
+          from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS
           from aaa_mcp.rest import TOOL_ALIASES, TOOLS
 
-          required = {"init_session", "agi_cognition", "asi_empathy", "apex_verdict", "vault_seal"}
+          # All 13 canonical UX-verb tools must be registered
+          required = set(AAA_CANONICAL_TOOLS)
           missing = sorted(required - set(TOOLS.keys()))
           assert not missing, f"F3 violation: missing canonical tools: {missing}"
 
-          expected_aliases = {
-              "anchor": "init_session",
-              "reason": "agi_cognition",
-              "validate": "asi_empathy",
-              "audit": "apex_verdict",
-              "seal": "vault_seal",
-          }
-          for alias, target in expected_aliases.items():
-              assert TOOL_ALIASES.get(alias) == target, (
-                  f"F3 violation: alias {alias} -> {TOOL_ALIASES.get(alias)} (expected {target})"
-              )
+          # Every backward-compat alias must resolve to a registered tool
+          broken = [
+              f"{alias} -> {target}"
+              for alias, target in TOOL_ALIASES.items()
+              if target not in TOOLS
+          ]
+          assert not broken, f"F3 violation: broken aliases: {broken}"
 
-          print("OK: canonical tools + aliases aligned")
+          print(f"OK: {len(required)} canonical tools + {len(TOOL_ALIASES)} aliases aligned")
           PY
 
   f10_ontology:
@@ -138,7 +136,7 @@ jobs:
       - name: Run gitleaks
         uses: zricethezav/gitleaks-action@v2
         with:
-          args: detect --source . --no-git -v
+          args: detect --source . -v
 
   seal_verdict:
     name: SEAL Verdict (F1-F13)

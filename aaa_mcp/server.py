@@ -12,9 +12,11 @@ All tools must be async and must not write to stdout (stdio transport safety).
 
 from __future__ import annotations
 
+import sys
 import json
 import uuid
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 from fastmcp import FastMCP
@@ -34,13 +36,12 @@ mcp = FastMCP(
 
 from fastmcp.resources.template import ResourceTemplate
 
+from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.external_gateways.brave_client import BraveSearchClient
 from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
-from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.protocol.l0_kernel_prompt import inject_l0_into_session
-from aaa_mcp.protocol.public_surface import PUBLIC_PROMPT_NAMES, PUBLIC_RESOURCE_URIS
-from aaa_mcp.protocol.tool_registry import export_full_context_pack
 from aaa_mcp.protocol.schemas import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOOL_OUTPUT_SCHEMAS
+from aaa_mcp.protocol.public_surface import PUBLIC_PROMPT_NAMES, PUBLIC_RESOURCE_URIS
 from core.shared.context_template import build_full_context_template
 
 
@@ -286,6 +287,12 @@ async def _agi_cognition(
             return _build_floor_block("111-444", "Missing session_id")
 
         evidence = [str(x) for x in (grounding or [])]
+        rag_contexts: list[dict[str, Any]] = []
+        try:
+            rag = _ensure_rag()
+            rag_contexts = rag.query_with_metadata(query=query, top_k=3).get("contexts", [])
+        except Exception:
+            rag_contexts = []
         r = await reason(session_id=session_id, hypothesis=query, evidence=evidence)
         i = await integrate(
             session_id=session_id, context_bundle={"query": query, "grounding": grounding or {}}
@@ -300,6 +307,7 @@ async def _agi_cognition(
             "floors_failed": list(r.get("floors_failed", []))
             + list(i.get("floors_failed", []))
             + list(d.get("floors_failed", [])),
+            "retrieved_contexts": rag_contexts,
         }
         result = {
             "capability_modules": capability_modules or [],
@@ -332,6 +340,8 @@ reason_mind = ToolHandle(_agi_cognition)
 async def _phoenix_recall(
     current_thought_vector: str,
     session_id: str,
+    depth: int = 3,
+    domain: str = "canon",
     debug: bool = False,
 ) -> dict[str, Any]:
     """
@@ -341,16 +351,44 @@ async def _phoenix_recall(
         if not session_id:
             return _build_floor_block("555_RECALL", "Missing session_id")
 
-        # Implementation will call core.organs._5_phoenix.phoenix_recall
-        # For now, return a placeholder that confirms the stage
+        source_filter_map = {
+            "canon": "000_THEORY",
+            "manifesto": "APEX-THEORY",
+            "docs": "docs",
+            "all": None,
+        }
+        source_filter = source_filter_map.get(domain, "000_THEORY")
+        try:
+            rag = _ensure_rag()
+            contexts = rag.retrieve(
+                query=current_thought_vector,
+                top_k=max(1, min(int(depth), 10)),
+                source_filter=source_filter,
+                min_score=0.15,
+            )
+        except Exception:
+            contexts = []
+
         result = {
             "status": "RECALL_SUCCESS",
-            "memories": [],
+            "memories": [
+                {
+                    "source": f"{ctx.source}/{ctx.path}",
+                    "score": ctx.score,
+                    "content": ctx.content[:800],
+                    "metadata": ctx.metadata,
+                }
+                for ctx in contexts
+            ],
+            "domain": domain,
             "metrics": {"jaccard_max": 0.0, "delta_s_actual": 0.0, "w_scar_applied": 0.5},
         }
         result.update(
             envelope_builder.build_envelope(
-                stage="555_RECALL", session_id=session_id, verdict="SEAL", payload={}
+                stage="555_RECALL",
+                session_id=session_id,
+                verdict="SEAL" if contexts else "PARTIAL",
+                payload={"memory_count": len(contexts), "domain": domain},
             )
         )
         return result
@@ -449,12 +487,27 @@ async def _apex_verdict(
         judged = await audit(
             session_id=session_id, action=str(plan), sovereign_token=sovereign_token
         )
+        precedents: list[dict[str, Any]] = []
+        try:
+            rag = _ensure_rag()
+            precedent_contexts = rag.retrieve(query=query, top_k=3, min_score=0.25)
+            precedents = [
+                {
+                    "source": f"{ctx.source}/{ctx.path}",
+                    "score": ctx.score,
+                    "content": ctx.content[:500],
+                }
+                for ctx in precedent_contexts
+            ]
+        except Exception:
+            precedents = []
         verdict = str(judged.get("verdict", proposed_verdict))
         merged = {
             "truth_score": judged.get("truth_score"),
             "f2_threshold": judged.get("f2_threshold"),
             "floors_failed": list(forged.get("floors_failed", []))
             + list(judged.get("floors_failed", [])),
+            "precedents": precedents,
         }
         result = {
             "authority": {"human_approve": human_approve},
@@ -478,7 +531,7 @@ async def _apex_verdict(
 
 
 apex_judge = ToolHandle(_apex_verdict)
-# Backward-compat alias so existing clients calling "judge_soul" still work.
+# Backward-compat alias for older callers.
 judge_soul = apex_judge
 
 
@@ -800,8 +853,13 @@ def _resource_full_context_template() -> dict[str, Any]:
     return build_full_context_template()
 
 
-def _tool_schemas_payload() -> dict[str, Any]:
-    """Shared implementation for both schema resource handlers."""
+@mcp.resource(
+    "arifos://schemas/tooling",
+    name="arifos_tool_schemas",
+    mime_type="application/json",
+    description="Canonical tool input/output schemas for AAA MCP tools.",
+)
+def _resource_tool_schemas() -> dict[str, Any]:
     return {
         "schema_version": "2026.02.23-context-forge",
         "inputs": CANONICAL_TOOL_INPUT_SCHEMAS,
@@ -810,33 +868,38 @@ def _tool_schemas_payload() -> dict[str, Any]:
 
 
 @mcp.resource(
-    "arifos://schemas/tooling",
-    name="arifos_tool_schemas",
-    mime_type="application/json",
-    description="Canonical tool input/output schemas for AAA MCP tools.",
-)
-def _resource_tool_schemas() -> dict[str, Any]:
-    return _tool_schemas_payload()
-
-
-@mcp.resource(
     PUBLIC_RESOURCE_URIS["schemas"],
     name="arifos_aaa_tool_schemas",
     mime_type="application/json",
-    description="Public canonical tool schema alias served by internal aaa_mcp layer.",
+    description="Canonical AAA MCP 13-tool schema/contract overview.",
 )
-def _resource_public_tool_schemas() -> str:
-    return json.dumps(_tool_schemas_payload(), ensure_ascii=True)
+def _resource_tool_schemas_public() -> str:
+    return json.dumps(_resource_tool_schemas())
 
 
 @mcp.resource(
     PUBLIC_RESOURCE_URIS["full_context_pack"],
     name="arifos_aaa_full_context_pack",
     mime_type="application/json",
-    description="Public canonical full-context alias served by internal aaa_mcp layer.",
+    description="Full-context orchestration metadata (stage spine, prompts, resources).",
 )
-def _resource_public_full_context_pack() -> str:
-    return json.dumps(export_full_context_pack(), ensure_ascii=True)
+def _resource_full_context_pack_public() -> str:
+    payload = {
+        "template_id": "arifos.full_context.v1",
+        "schema_version": "1.0.0",
+        "stage_spine": ["000", "222", "333", "444", "666", "888", "999"],
+        "entrypoint": "anchor_session",
+        "continuity": {
+            "required_after_entry": ["session_id"],
+            "recommended": ["actor_id", "auth_token"],
+        },
+        "resources": [
+            PUBLIC_RESOURCE_URIS["full_context_pack"],
+            PUBLIC_RESOURCE_URIS["schemas"],
+        ],
+        "prompts": [PUBLIC_PROMPT_NAMES["aaa_chain"]],
+    }
+    return json.dumps(payload)
 
 
 @mcp.prompt(name="arifos.prompt.trinity_forge")
@@ -873,14 +936,39 @@ def _prompt_audit_then_seal(session_id: str, summary: str, proposed_verdict: str
     )
 
 
-@mcp.prompt(name=PUBLIC_PROMPT_NAMES["aaa_chain"])
+@mcp.prompt(
+    name=PUBLIC_PROMPT_NAMES["aaa_chain"],
+    description="Run canonical 13-tool continuity chain from anchor to seal.",
+)
 def _prompt_aaa_chain(query: str, actor_id: str = "user") -> str:
     return (
-        "Use AAA 13-tool chain with continuity: "
-        "anchor_session -> reason_mind -> simulate_heart -> critique_thought -> "
-        "apex_judge -> seal_vault. "
-        f"query={query!r}; actor_id={actor_id!r}."
+        "Run canonical AAA chain with session continuity.\n"
+        "1) anchor_session(query, actor_id) -> session_id\n"
+        "2) reason_mind(query, session_id)\n"
+        "3) simulate_heart(query, session_id)\n"
+        "4) apex_judge(session_id, query, agi_result, asi_result)\n"
+        "5) seal_vault(session_id, summary)\n"
+        "Query=%s; actor_id=%s" % (query, actor_id)
     )
+
+
+_rag_instance: Any = None
+
+
+def _ensure_rag() -> Any:
+    global _rag_instance
+    if _rag_instance is not None:
+        return _rag_instance
+
+    scripts_dir = Path(__file__).resolve().parents[1] / "scripts"
+    scripts_dir_str = str(scripts_dir)
+    if scripts_dir_str not in sys.path:
+        sys.path.insert(0, scripts_dir_str)
+
+    from arifos_rag import ConstitutionalRAG
+
+    _rag_instance = ConstitutionalRAG()
+    return _rag_instance
 
 
 __all__ = [
@@ -901,10 +989,7 @@ __all__ = [
     "check_vital",
     "_resource_full_context_template",
     "_resource_tool_schemas",
-    "_resource_public_tool_schemas",
-    "_resource_public_full_context_pack",
     "_prompt_trinity_forge",
     "_prompt_anchor_reason",
     "_prompt_audit_then_seal",
-    "_prompt_aaa_chain",
 ]

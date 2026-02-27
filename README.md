@@ -1,3 +1,4 @@
+<!-- mcp-name: io.github.ariffazil/arifos-mcp -->
 <div align="center">
 
 ![arifOS Banner](docs/forged_page_1.png)
