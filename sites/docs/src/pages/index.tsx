@@ -42,6 +42,9 @@ export default function Home() {
             The System That Knows It Doesn't Know<br />
             <strong>Ditempa Bukan Diberi</strong> &mdash; Forged, Not Given
           </p>
+          <div style={{ maxWidth: '600px', margin: '0 auto 1.5rem', opacity: 0.9 }}>
+            arifOS is an open-source constitutional AI kernel that acts as a rigorous lie detector and safety firewall between language models and tools. It enforces 13 strict rules (Floors) to ensure truthfulness and protect against harmful actions.
+          </div>
           <div style={{ marginTop: '1rem' }}>
             <img src="https://img.shields.io/pypi/v/arifos?color=3b82f6&label=version&style=flat-square" alt="PyPI version" />
           </div>
@@ -64,6 +67,13 @@ export default function Home() {
             <span className={`status-text ${health.status === 'healthy' || health.status === 'loading' ? 'status-healthy' : 'status-degraded'}`}>
               {health.status.toUpperCase()}{health.version && ` | v${health.version}`}
             </span>
+          </div>
+
+          <div style={{ marginTop: '1rem', fontSize: '0.9rem', opacity: 0.8 }}>
+            <span style={{ marginRight: '8px' }}>🔍 How do we prove it is safe?</span>
+            <a href="https://arifosmcp-truth-claim.pages.dev" target="_blank" rel="noopener noreferrer" style={{ color: '#3b82f6', textDecoration: 'underline' }}>
+              View the Live Constitutional Audit Dashboard
+            </a>
           </div>
         </div>
       </div>
