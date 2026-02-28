@@ -1,10 +1,11 @@
-"""Router parity test: apex_judge is canonical and judge_soul remains callable.
+"""Router parity test: apex_judge is canonical and judge_soul is alias-only.
 
 Acceptance criteria from the kernel ABI mismatch diagnosis:
   1. 'apex_judge' appears in the FastMCP tool names at runtime.
   2. 'judge_soul' still works as a backward-compat alias.
-  3. Calling apex_judge returns a structured verdict (not "Unknown tool").
-  4. MANIFEST_VERSION is consistent between layers.
+  3. Alias names do not leak into public tool discovery.
+  4. Calling apex_judge returns a structured verdict (not "Unknown tool").
+  5. MANIFEST_VERSION is consistent between layers.
 
 Run:
     pytest tests/compat/test_judge_soul_routing.py -v
@@ -63,17 +64,15 @@ def test_arifos_aaa_tool_list_contains_apex_judge() -> None:
     )
 
 
-def test_tool_registry_has_apex_judge_and_judge_soul_alias() -> None:
-    """_TOOL_REGISTRY must expose apex_judge canon and judge_soul alias."""
+def test_tool_registry_has_only_canonical_apex_judge() -> None:
+    """_TOOL_REGISTRY must expose only the canonical public tool name."""
     from arifos_aaa_mcp.server import _TOOL_REGISTRY
 
     assert "apex_judge" in _TOOL_REGISTRY, (
         f"'apex_judge' not in _TOOL_REGISTRY. Keys: {sorted(_TOOL_REGISTRY)}"
     )
-    assert "judge_soul" in _TOOL_REGISTRY, "'judge_soul' compat alias missing from _TOOL_REGISTRY"
-    # Both must point to the same callable
-    assert _TOOL_REGISTRY["apex_judge"] is _TOOL_REGISTRY["judge_soul"], (
-        "apex_judge and judge_soul must point to the same handler"
+    assert "judge_soul" not in _TOOL_REGISTRY, (
+        "judge_soul alias leaked into the public tool registry"
     )
 
 
@@ -87,6 +86,21 @@ def test_rest_aliases_route_legacy_names_to_apex_judge() -> None:
     assert TOOL_ALIASES.get("apex_verdict") == "apex_judge", (
         f"REST alias apex_verdict -> apex_judge missing. Got: {TOOL_ALIASES.get('apex_verdict')!r}"
     )
+
+
+@pytest.mark.anyio
+async def test_public_tool_listing_hides_judge_soul_alias() -> None:
+    """FastMCP public discovery must list only the canonical apex_judge name."""
+    from fastmcp import Client
+
+    from arifos_aaa_mcp.server import create_aaa_mcp_server
+
+    async with Client(create_aaa_mcp_server()) as client:
+        tools = await client.list_tools()
+    tool_names = {tool.name for tool in tools}
+
+    assert "apex_judge" in tool_names
+    assert "judge_soul" not in tool_names
 
 
 # ---------------------------------------------------------------------------

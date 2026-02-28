@@ -481,7 +481,6 @@ _TOOL_REGISTRY = {
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
     "apex_judge": apex_judge,
-    "judge_soul": apex_judge,  # backward-compat alias
     "eureka_forge": eureka_forge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,

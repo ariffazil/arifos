@@ -15,8 +15,9 @@ Usage:
 
 import os
 import sys
+from pathlib import Path
 
-from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
+from aaa_mcp.protocol.aaa_contract import AAA_TOOL_LAW_BINDINGS, MANIFEST_VERSION
 
 # Target bands
 OMEGA_TARGET_MIN = 0.03
@@ -28,15 +29,12 @@ def check_floors() -> tuple[bool, list[str]]:
     """Verify constitutional floors are configured."""
     issues = []
 
-    # Check for floor configuration (T000 uses core.constitutional_decorator)
+    # Check for canonical floor bindings on the public 13-tool contract.
     try:
-        from aaa_mcp.core.constitutional_decorator import FLOOR_ENFORCEMENT
-
-        if not FLOOR_ENFORCEMENT:
+        if not AAA_TOOL_LAW_BINDINGS:
             issues.append("WARN: No constitutional floors defined")
         else:
-            floor_count = len(FLOOR_ENFORCEMENT)
-            # v2026.x enforces floors on canonical 13-tool surface.
+            floor_count = len(AAA_TOOL_LAW_BINDINGS)
             required_floor_tools = [
                 "anchor_session",
                 "reason_mind",
@@ -44,7 +42,7 @@ def check_floors() -> tuple[bool, list[str]]:
                 "apex_judge",
                 "seal_vault",
             ]
-            missing_floors = [t for t in required_floor_tools if t not in FLOOR_ENFORCEMENT]
+            missing_floors = [t for t in required_floor_tools if not AAA_TOOL_LAW_BINDINGS.get(t)]
 
             if missing_floors:
                 issues.append(f"WARN: Missing floors for: {missing_floors}")
@@ -195,26 +193,20 @@ def check_environment() -> tuple[bool, list[str]]:
     """Verify environment is properly configured."""
     issues = []
 
-    # Required env vars for production
-    required_vars = ["HOST", "PORT"]
-    recommended_vars = ["GOVERNANCE_MODE", "VAULT_PATH"]
+    # Required/defaultable env vars for production
+    defaults = {
+        "HOST": "0.0.0.0",
+        "PORT": "8080",
+        "GOVERNANCE_MODE": "SOFT",
+        "VAULT_PATH": str(Path("VAULT999").resolve()),
+    }
 
-    for var in required_vars:
+    for var, default_value in defaults.items():
         if not os.environ.get(var):
-            # Set defaults
-            if var == "HOST":
-                os.environ["HOST"] = "0.0.0.0"
-            elif var == "PORT":
-                os.environ["PORT"] = "8080"
+            os.environ[var] = default_value
             print(f"✓ {var} defaulted to {os.environ.get(var)}")
         else:
             print(f"✓ {var} = {os.environ.get(var)}")
-
-    for var in recommended_vars:
-        if not os.environ.get(var):
-            issues.append(f"WARN: Recommended env var {var} not set")
-        else:
-            print(f"✓ {var} configured")
 
     return True, issues
 

@@ -75,7 +75,6 @@ TOOLS = {
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
     "apex_judge": apex_judge,
-    "judge_soul": apex_judge,  # backward-compat alias to apex_judge
     "eureka_forge": eureka_forge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,
@@ -133,23 +132,6 @@ TOOL_SCHEMAS = {
             "session_id": {"type": "string", "required": True},
             "plan": {"type": "object", "required": True},
             "context": {"type": "string", "required": False, "default": ""},
-        },
-    },
-    "judge_soul": {
-        "description": "[Compat Alias] Routes to apex_judge (888 APEX JUDGE)",
-        "args": {
-            "query": {"type": "string", "required": True},
-            "session_id": {"type": "string", "required": True},
-            "agi_result": {"type": "object|null", "default": None},
-            "asi_result": {"type": "object|null", "default": None},
-            "critique_result": {"type": "object|null", "default": None},
-            "proposed_verdict": {
-                "type": "enum",
-                "values": ["SEAL", "VOID", "PARTIAL", "SABAR", "888_HOLD"],
-                "default": "SEAL",
-            },
-            "human_approve": {"type": "boolean", "default": False},
-            "debug": {"type": "boolean", "default": False},
         },
     },
     "apex_judge": {
