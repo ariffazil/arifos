@@ -1,10 +1,14 @@
 """
 core/physics/thermodynamics.py — Thermodynamic State Management
-T000 Version: 2026.02.15-FORGE-TRINITY-SEAL
+T000 Version: 2026.02.28-HARDENED-P2
 
 F4 Clarity: Hardware-level entropy reduction via ZRAM/compression
 F11 Command: CPU sovereignty enforcement (prevent Wallet Assassin loops)
 F7 Humility: Environmental uncertainty measurement (Ω₀)
+
+P2 HARDENING:
+- Landauer Bound: E >= n * k_B * T * ln(2) — prevents "cheap truth"
+- Orthogonality Check: Ω_ortho >= 0.95 — prevents AGI/ASI mode collapse
 
 This module lives in core/ (kernel), NOT aaa_mcp/ (adapter).
 Constitutional Boundary: All thermodynamic constraints enforced here.
@@ -17,12 +21,41 @@ Linux‑only dependencies:
 - psutil (cross‑platform but used for Linux‑specific metrics)
 """
 
+import math
 import subprocess
 import time
 from dataclasses import dataclass
 from typing import Any
 
 import psutil
+
+
+# ═══════════════════════════════════════════════════════
+# P2 HARDENING: Thermodynamic Exceptions
+# ═══════════════════════════════════════════════════════
+
+class ThermodynamicViolation(Exception):
+    """
+    P2: Hard exception for thermodynamic boundary violations.
+    
+    Thrown when:
+    - Landauer Bound violated (cheap truth detected)
+    - Orthogonality check failed (mode collapse)
+    - Entropy reduction claims exceed compute effort
+    
+    This exception cannot be bypassed - it forces VOID verdict.
+    """
+    pass
+
+
+class ModeCollapseError(ThermodynamicViolation):
+    """P2: AGI and ASI vectors are not sufficiently independent (Ω_ortho < 0.95)."""
+    pass
+
+
+class CheapTruthError(ThermodynamicViolation):
+    """P2: Output claims massive clarity without thermodynamic cost (Landauer violation)."""
+    pass
 
 
 @dataclass
@@ -272,9 +305,154 @@ def get_entropy_manager() -> EntropyManager:
     return _entropy_manager
 
 
+# ═══════════════════════════════════════════════════════
+# P2 HARDENING: Landauer Bound & Orthogonality
+# ═══════════════════════════════════════════════════════
+
+def check_landauer_bound(
+    compute_ms: float,
+    tokens_generated: int,
+    entropy_reduction: float,
+    k_B_proxy: float = 1.38e-2,
+    T_proxy: float = 300.0,
+) -> dict[str, Any]:
+    """
+    P2 HARDENING: Landauer Bound - Thermodynamic Cost Check
+    
+    Landauer's principle: E >= n * k_B * T * ln(2)
+    
+    Prevents 'Cheap Truth' — hallucinating massive clarity without spending compute.
+    If output claims large entropy reduction (ΔS << 0) but spent minimal 
+    compute time/tokens, it's a mathematical anomaly (hallucination).
+    
+    Args:
+        compute_ms: Actual compute time in milliseconds
+        tokens_generated: Number of tokens in output
+        entropy_reduction: ΔS value (must be <= 0 for valid reduction)
+        k_B_proxy: Boltzmann constant proxy for LLM compute
+        T_proxy: System 'temperature' baseline
+    
+    Returns:
+        Dictionary with landauer_ratio, passed status, violation flag
+    
+    Raises:
+        CheapTruthError: If violation is severe (ratio < 0.5)
+    """
+    # Information bits theoretically processed (from entropy reduction)
+    # Use absolute value since d_s must be <= 0 (reduction)
+    bits_processed = abs(entropy_reduction) * 100
+    
+    # Minimum theoretical cost to generate this clarity
+    min_cost = bits_processed * k_B_proxy * T_proxy * math.log(2)
+    
+    # Actual effort spent (compute time + token weight)
+    actual_effort = (compute_ms * 0.5) + (tokens_generated * 1.5)
+    
+    # Landauer Ratio: If effort < min_cost, output is suspiciously 'cheap'
+    landauer_ratio = actual_effort / (min_cost + 1e-5)
+    
+    passed = landauer_ratio >= 1.0
+    violation = not passed and (entropy_reduction < 0)
+    
+    result = {
+        "engine": "LANDAUER_BOUND",
+        "formula": "E >= n * k_B * T * ln(2)",
+        "landauer_ratio": round(landauer_ratio, 4),
+        "min_theoretical_cost": round(min_cost, 4),
+        "actual_effort": round(actual_effort, 4),
+        "passed": passed,
+        "violation": violation,
+        "bits_processed": round(bits_processed, 4),
+        "k_B_proxy": k_B_proxy,
+        "T_proxy": T_proxy,
+    }
+    
+    # Hard violation: ratio < 0.5 is clearly hallucinated
+    if landauer_ratio < 0.5 and entropy_reduction < 0:
+        raise CheapTruthError(
+            f"Landauer Bound violated: ratio={landauer_ratio:.3f} < 0.5. "
+            f"Claims massive clarity (ΔS={entropy_reduction}) but spent "
+            f"only {actual_effort:.1f} effort vs {min_cost:.1f} required."
+        )
+    
+    return result
+
+
+def derive_orthogonality(agi_vector: list[float], asi_vector: list[float]) -> float:
+    """
+    P2 HARDENING: AGI/ASI Vector Orthogonality Check
+    
+    Calculates independence between Mind (AGI) and Heart (ASI).
+    High orthogonality means they're not suffering from mode collapse.
+    
+    Formula: Ω_ortho = 1 - |cos(θ)|
+    
+    Args:
+        agi_vector: Mind (AGI) reasoning embedding vector
+        asi_vector: Heart (ASI) empathy/context embedding vector
+    
+    Returns:
+        Orthogonality score [0.0, 1.0]: 1.0 = perfectly orthogonal (independent)
+    
+    Raises:
+        ModeCollapseError: If vectors are too similar (Ω_ortho < 0.5)
+    """
+    if not agi_vector or not asi_vector or len(agi_vector) != len(asi_vector):
+        return 1.0  # Fail-open: assume independent if data missing
+    
+    dot_product = sum(a * b for a, b in zip(agi_vector, asi_vector))
+    norm_a = math.sqrt(sum(a * a for a in agi_vector))
+    norm_b = math.sqrt(sum(b * b for b in asi_vector))
+    
+    if norm_a == 0 or norm_b == 0:
+        return 0.0  # Failed vector generation
+    
+    cos_sim = dot_product / (norm_a * norm_b)
+    
+    # Omega_ortho: 1.0 = perfectly orthogonal, 0.0 = parallel (echo chamber)
+    omega_ortho = 1.0 - abs(cos_sim)
+    
+    # Hard violation: completely parallel vectors (mode collapse)
+    if omega_ortho < 0.5:
+        raise ModeCollapseError(
+            f"AGI/ASI mode collapse detected: Ω_ortho={omega_ortho:.3f} < 0.5. "
+            f"Mind and Heart are echoing each other (cos_sim={cos_sim:.3f})."
+        )
+    
+    return omega_ortho
+
+
+def check_orthogonality_pass(omega_ortho: float, threshold: float = 0.95) -> bool:
+    """
+    P2: Check if orthogonality meets constitutional threshold.
+    
+    Args:
+        omega_ortho: Orthogonality score from derive_orthogonality()
+        threshold: Minimum required independence (default: 0.95)
+    
+    Returns:
+        True if orthogonality >= threshold
+    
+    Raises:
+        ModeCollapseError: If omega_ortho < 0.5 (severe mode collapse)
+    """
+    if omega_ortho < 0.5:
+        raise ModeCollapseError(
+            f"Constitutional mode collapse: Ω_ortho={omega_ortho:.3f} < 0.5"
+        )
+    return omega_ortho >= threshold
+
+
 # Constitutional exports
 __all__ = [
     "ThermodynamicState",
     "EntropyManager",
     "get_entropy_manager",
+    # P2 Exports
+    "ThermodynamicViolation",
+    "ModeCollapseError",
+    "CheapTruthError",
+    "check_landauer_bound",
+    "derive_orthogonality",
+    "check_orthogonality_pass",
 ]

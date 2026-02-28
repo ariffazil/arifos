@@ -1,12 +1,18 @@
 """
-core/judgment.py — Kernel Judgment Interface (v64.1-GAGI)
+core/judgment.py — Kernel Judgment Interface (v64.2-HARDENED)
 
 All decision logic lives here. Wrapper calls these functions.
 No uncertainty computation, governance modification, or verdict logic in wrapper.
 
+P0/P1 HARDENING:
+- Ψ (Vitality Index) Master Equation
+- W₃ (Tri-Witness) geometric mean consensus
+- Φₚ (Paradox Conductance) resolution check
+
 This is the canonical interface between kernel and wrapper.
 """
 
+import math
 from dataclasses import dataclass
 from typing import Any
 
@@ -54,6 +60,92 @@ class VerdictResult:
     reasoning: str
     requires_human_approval: bool
     floor_scores: dict[str, float]
+    # P0/P1 HARDENING: Thermodynamic metrics
+    vitality_index: float | None = None  # Ψ
+    tri_witness: float | None = None  # W₃
+    paradox_conductance: float | None = None  # Φₚ
+
+
+# ═══════════════════════════════════════════════════════
+# P0/P1 HARDENING: Thermodynamic Equations
+# ═══════════════════════════════════════════════════════
+
+def _calculate_vitality_index(
+    delta_s: float,
+    peace2: float,
+    kappa_r: float,
+    rasa: float,
+    amanah: float,
+    entropy: float,
+    shadow: float,
+) -> float:
+    """
+    P0: Ψ (Vitality Index) Master Equation
+    
+    Ψ = (|ΔS| · Peace² · κᵣ · RASA · Amanah) / (Entropy + Shadow + ε)
+    
+    Threshold: Ψ >= 1.0 required for homeostatic equilibrium (SEAL)
+    
+    Returns:
+        Vitality index score
+    """
+    epsilon = 1e-6
+    numerator = abs(delta_s) * peace2 * kappa_r * rasa * amanah
+    denominator = entropy + shadow + epsilon
+    psi = numerator / denominator
+    return min(10.0, max(0.0, psi))  # Clamp to [0, 10]
+
+
+def _calculate_tri_witness(
+    human_score: float,
+    ai_score: float,
+    earth_score: float,
+) -> float:
+    """
+    P1: W₃ (Tri-Witness Consensus) - Geometric Mean
+    
+    W₃ = ∛(H × A × E)
+    
+    Where:
+    - H (Human): Intent / Sovereign authority
+    - A (AI): Internal logic / Constitutional compliance
+    - E (Earth): Empirical grounding / Evidence
+    
+    Dynamic Thresholds:
+    - UTILITY: W₃ >= 0.95
+    - SPINE: W₃ >= 0.99
+    - CRITICAL: W₃ >= 0.995
+    
+    Returns:
+        Tri-witness consensus score
+    """
+    return (human_score * ai_score * earth_score) ** (1/3)
+
+
+def _calculate_paradox_conductance(
+    delta_p: float,
+    omega_p: float,
+    psi_p: float,
+    kappa_r: float,
+    amanah: float,
+    failure_drag: float,
+) -> float:
+    """
+    P1: Φₚ (Paradox Conductance)
+    
+    Φₚ = (Δₚ · Ωₚ · Ψₚ · κᵣ · Amanah) / (Lₚ + Rₘₐ + Λ + ε)
+    
+    Simplified for implementation:
+    Φₚ = (clarity_term + psi_p + (1 - omega_p)) / (1 + failure_drag)
+    
+    Threshold: Φₚ >= 1.0 for paradox resolution (SEAL)
+    
+    Returns:
+        Paradox conductance score
+    """
+    clarity_term = max(0.0, min(1.0, -delta_p + 0.2))
+    phi_p = (clarity_term + psi_p + (1.0 - omega_p)) / (1.0 + failure_drag)
+    return min(2.0, max(0.0, phi_p))
 
 
 class JudgmentKernel:
@@ -211,11 +303,14 @@ class JudgmentKernel:
         asi_result: EmpathyResult | None,
         session_id: str,
         irreversibility_index: float = 0.5,
+        tool_class: str = "SPINE",  # UTILITY, SPINE, CRITICAL
     ) -> VerdictResult:
         """
         Execute APEX final judgment (888_APEX_JUDGE_METABOLIC).
 
         Weighs AGI and ASI results, issues final verdict.
+        
+        P0/P1 HARDENING: Applies Ψ, W₃, and Φₚ equations for thermodynamic verdict.
         """
         # Get governance kernel
         gov = get_governance_kernel(session_id)
@@ -226,6 +321,62 @@ class JudgmentKernel:
 
         combined_confidence = (agi_confidence * asi_confidence) ** 0.5
 
+        # ═══════════════════════════════════════════════════════
+        # P0/P1 HARDENING: Thermodynamic Master Equations
+        # ═══════════════════════════════════════════════════════
+        
+        # 1. Ψ (Vitality Index)
+        delta_s = agi_result.clarity_delta
+        peace2 = asi_result.peace_squared if asi_result else 1.0
+        kappa_r = asi_result.empathy_score if asi_result else 0.95
+        rasa = 0.5 * agi_result.truth_score + 0.5 * (kappa_r / 0.95)
+        amanah = 1.0 if irreversibility_index < 0.5 else 0.0  # Binary F1 check
+        entropy = max(0.0, delta_s) if delta_s > 0 else 0.0
+        shadow = 0.1 if agi_result.verdict == "VOID" else 0.0
+        
+        psi = _calculate_vitality_index(
+            delta_s=delta_s,
+            peace2=peace2,
+            kappa_r=kappa_r,
+            rasa=rasa,
+            amanah=amanah,
+            entropy=entropy,
+            shadow=shadow,
+        )
+        
+        # 2. W₃ (Tri-Witness Consensus) - Geometric Mean
+        human_score = 1.0 if irreversibility_index < 0.5 else 0.7  # Sovereign intent
+        ai_score = combined_confidence  # AI internal logic
+        earth_score = agi_result.truth_score  # Empirical grounding
+        
+        w3 = _calculate_tri_witness(
+            human_score=human_score,
+            ai_score=ai_score,
+            earth_score=earth_score,
+        )
+        
+        # Dynamic threshold based on tool class
+        w3_threshold = {
+            "UTILITY": 0.95,
+            "SPINE": 0.99,
+            "CRITICAL": 0.995,
+        }.get(tool_class, 0.99)
+        
+        # 3. Φₚ (Paradox Conductance)
+        delta_p = max(0.0, -delta_s)  # Paradox heat from entropy
+        omega_p = abs(agi_result.humility_omega - 0.04) / 0.04
+        psi_p = (peace2 / 1.2 + kappa_r) / 2.0
+        failure_drag = 0.2 if agi_result.verdict == "VOID" else 0.0
+        
+        phi_p = _calculate_paradox_conductance(
+            delta_p=delta_p,
+            omega_p=omega_p,
+            psi_p=psi_p,
+            kappa_r=kappa_r,
+            amanah=amanah,
+            failure_drag=failure_drag,
+        )
+        
         # Check for 888_HOLD conditions
         requires_human = (
             irreversibility_index > 0.8
@@ -233,13 +384,41 @@ class JudgmentKernel:
             or (asi_result and asi_result.verdict == "888_HOLD")
         )
 
-        # Determine final verdict
+        # ═══════════════════════════════════════════════════════
+        # P0/P1 HARDENING: Verdict Determination Cascade
+        # Priority: Hard Fail → Ψ → W₃ → Φₚ → Legacy checks
+        # ═══════════════════════════════════════════════════════
+        
         if requires_human:
             verdict = "888_HOLD"
             reasoning = "F1_IRREVERSIBILITY or F3_TRI_WITNESS requires human confirmation"
         elif agi_result.verdict == "VOID" or (asi_result and asi_result.verdict == "VOID"):
             verdict = "VOID"
             reasoning = "Constitutional floor violation detected"
+        # P0: Ψ (Vitality) check
+        elif psi < 1.0:
+            if psi < 0.5:
+                verdict = "VOID"
+                reasoning = f"P0_VITALITY_CRITICAL: Ψ={psi:.3f} < 0.5 (system unstable)"
+            else:
+                verdict = "SABAR"
+                reasoning = f"P0_VITALITY_LOW: Ψ={psi:.3f} < 1.0 (cooling required)"
+        # P1: W₃ (Tri-Witness) check
+        elif w3 < w3_threshold:
+            if min(human_score, ai_score, earth_score) < 0.90:
+                verdict = "VOID"
+                reasoning = f"P1_WITNESS_SHATTER: W₃={w3:.3f}, min witness < 0.90"
+            else:
+                verdict = "SABAR"
+                reasoning = f"P1_WITNESS_LOW: W₃={w3:.3f} < {w3_threshold}"
+        # P1: Φₚ (Paradox) check
+        elif phi_p < 1.0:
+            if phi_p < 0.5:
+                verdict = "VOID"
+                reasoning = f"P1_PARADOX_CRITICAL: Φₚ={phi_p:.3f} < 0.5 (unresolvable)"
+            else:
+                verdict = "SABAR"
+                reasoning = f"P1_PARADOX_UNRESOLVED: Φₚ={phi_p:.3f} < 1.0"
         elif agi_result.verdict == "SABAR" or (asi_result and asi_result.verdict == "SABAR"):
             verdict = "SABAR"
             reasoning = "Additional evidence or clarification needed"
@@ -248,7 +427,7 @@ class JudgmentKernel:
             reasoning = "Approved with caveats"
         else:
             verdict = "SEAL"
-            reasoning = "All constitutional floors satisfied"
+            reasoning = "All constitutional floors and thermodynamic constraints satisfied"
 
         return VerdictResult(
             verdict=verdict,
@@ -259,6 +438,10 @@ class JudgmentKernel:
                 **agi_result.floor_scores,
                 **(asi_result.floor_scores if asi_result else {}),
             },
+            # P0/P1 HARDENING: Thermodynamic metrics
+            vitality_index=round(psi, 4),
+            tri_witness=round(w3, 4),
+            paradox_conductance=round(phi_p, 4),
         )
 
 
