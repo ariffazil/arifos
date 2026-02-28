@@ -173,7 +173,12 @@ def _sovereignty_pass(tool: str, payload: dict[str, Any]) -> bool:
         verdict = str(payload.get("verdict", "")).upper()
         if verdict in {"888_HOLD", "HOLD", "SABAR", "VOID"}:
             return True
-        return session_ok and bool(payload.get("signature") or payload.get("idempotency_key"))
+        # New execution model: sovereignty = session + agent_id + execution_log
+        execution_log = payload.get("execution_log", {})
+        has_agent = bool(execution_log.get("agent_id"))
+        has_purpose = bool(execution_log.get("purpose"))
+        has_session = bool(payload.get("session_id"))
+        return has_session and has_agent and has_purpose
     if tool == "seal_vault":
         return session_ok and bool(str(payload.get("stage", "")).strip())
     return session_ok
