@@ -318,6 +318,8 @@ async def _init_session(
             "verdict": "SABAR",
             "status": "partial",
             "holding_reason": "Internal Engine Fracture",
+            "error_class": e.__class__.__name__,
+            "blast_radius": "kernel",
             "error": str(e), 
             "trace": traceback.format_exc(),
             "stage": "000_INIT"
@@ -434,6 +436,8 @@ async def _agi_cognition(
             "verdict": "SABAR",
             "status": "partial",
             "holding_reason": "Internal Engine Fracture",
+            "error_class": e.__class__.__name__,
+            "blast_radius": "kernel",
             "error": str(e), 
             "trace": traceback.format_exc(),
             "stage": "111-444",
@@ -509,6 +513,8 @@ async def _phoenix_recall(
             "verdict": "SABAR",
             "status": "partial",
             "holding_reason": "Internal Engine Fracture",
+            "error_class": e.__class__.__name__,
+            "blast_radius": "kernel",
             "error": str(e), 
             "trace": traceback.format_exc(),
             "stage": "555_RECALL",
@@ -570,6 +576,8 @@ async def _asi_empathy(
             "verdict": "SABAR",
             "status": "partial",
             "holding_reason": "Internal Engine Fracture",
+            "error_class": e.__class__.__name__,
+            "blast_radius": "kernel",
             "error": str(e), 
             "trace": traceback.format_exc(),
             "stage": "555-666",
@@ -665,6 +673,8 @@ async def _apex_verdict(
             "verdict": "SABAR",
             "status": "partial",
             "holding_reason": "Internal Engine Fracture",
+            "error_class": e.__class__.__name__,
+            "blast_radius": "kernel",
             "error": str(e), 
             "trace": traceback.format_exc(),
             "stage": "777-888",
@@ -699,17 +709,30 @@ async def _sovereign_actuator(
 
         # Provide concrete cryptographic guidance for the 888_HOLD state
         import hashlib
+        import secrets
+        import time
         payload_hash = hashlib.sha256(json.dumps(action_payload, sort_keys=True).encode()).hexdigest()
+        challenge_id = f"CHALLENGE_{secrets.token_hex(4).upper()}"
+        nonce = secrets.token_hex(16)
         
         result = {
             "status": "888_HOLD",
             "message": "FORGE YIELDED. Sovereign ratification required.",
+            "ratification_challenge": {
+                "challenge_id": challenge_id,
+                "payload_canonical_sha256": payload_hash,
+                "canonicalization_scheme": "json-c14n/v1",
+                "nonce": nonce,
+                "expiry_epoch": int(time.time() + 3600),
+                "tool_name": "eureka_forge",
+                "execution_context": execution_context.get("env", "unknown") if execution_context else "unknown",
+                "required_signer": "888_signer"
+            },
             "instruction": (
                 f"ACTION BLOCKED BY L0 KERNEL (F1 Amanah). To proceed, the Sovereign must out-of-band sign "
-                f"this payload hash: '{payload_hash}'. Use the `888_signer` utility to generate the "
+                f"this payload_canonical_sha256: '{payload_hash}'. Use the `888_signer` utility to generate the "
                 f"`ratification_token` and pass it back to `eureka_forge`."
-            ),
-            "payload_hash": payload_hash
+            )
         }
         result.update(
             envelope_builder.build_envelope(
@@ -723,6 +746,8 @@ async def _sovereign_actuator(
             "verdict": "SABAR",
             "status": "partial",
             "holding_reason": "Internal Engine Fracture",
+            "error_class": e.__class__.__name__,
+            "blast_radius": "kernel",
             "error": str(e), 
             "trace": traceback.format_exc(),
             "stage": "888_FORGE",
@@ -781,6 +806,8 @@ async def _vault_seal(
             "verdict": "SABAR",
             "status": "partial",
             "holding_reason": "Internal Engine Fracture",
+            "error_class": e.__class__.__name__,
+            "blast_radius": "kernel",
             "error": str(e), 
             "trace": traceback.format_exc(),
             "stage": "999_VAULT",
@@ -850,14 +877,29 @@ async def _fetch(id: str, max_chars: int = 4000) -> dict[str, Any]:
             f"</untrusted_external_data>"
         )
         
+        import hashlib
+        content_hash = hashlib.sha256(text[:max_chars].encode('utf-8')).hexdigest()
+        
         return {
             "id": id,
             "status": "OK",
             "content": bounded_content,
             "truncated": len(text) > max_chars,
+            "taint_lineage": {
+                "taint": True,
+                "source_type": "web",
+                "source_url": id,
+                "content_hash": content_hash,
+                "boundary_wrapper_version": "untrusted_envelope_v1"
+            }
         }
     except Exception as e:
-        return {"id": id, "error": str(e), "status": "ERROR"}
+        return {
+            "id": id, 
+            "error": str(e), 
+            "error_class": e.__class__.__name__,
+            "status": "ERROR"
+        }
 
 
 fetch_content = ToolHandle(_fetch)
