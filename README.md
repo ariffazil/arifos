@@ -118,7 +118,21 @@ arifOS acts as an **MCP Server** (`arifos_aaa_mcp`). Rather than trusting an LLM
 
 The server exposes **13 governed tools**. When an AI attempts to use a tool like `eureka_forge` to write code, it doesn't just execute. It is physically routed backward through the L0 Kernel, passed through the 13 Floors, and then granted a `governance_token` by the Apex Judge. Only if that token exists can the `seal_vault` finalize the action.
 
-**(View the full list of tools and their descriptions here: [`docs/api.md`](https://arifos.arif-fazil.com/api))**
+| Tool | Plain English Function | Constitutional Stage |
+|:--|:--|:--|
+| `anchor_session` | 🚪 Starts a new session and checks security clearance. | 000 INIT |
+| `reason_mind` | 🧠 Asks the AI to logically think through a problem. | 333 AGI Mind |
+| `recall_memory` | 📚 Searches past sessions for similar problems. | 444 PHOENIX Subconscious |
+| `simulate_heart` | ❤️ Checks if a decision will harm any stakeholders. | 555 ASI Heart |
+| `critique_thought` | ⚖️ Forces the AI to argue against its own idea to find flaws. | 666 ASI Heart |
+| `eureka_forge` | ⚒️ Executes code or material actions in a sandbox. | 777 FORGE Actuator |
+| `apex_judge` | 👑 Makes the final pass/fail ruling on whether an action is safe. | 888 APEX Soul |
+| `seal_vault` | 🔒 Cryptographically saves the decision to an un-editable log. | 999 VAULT Memory |
+| `search_reality` | 🔍 Searches the web to verify facts against hallucinations. | Read-Only |
+| `fetch_content` | 📄 Reads a specific webpage or document. | Read-Only |
+| `inspect_file` | 📁 Looks at files on your hard drive securely. | Read-Only |
+| `audit_rules` | 📋 Checks the system's own safety rules. | Read-Only |
+| `check_vital` | 📈 Checks if the server CPU/RAM is healthy. | Read-Only |
 
 ---
 
@@ -145,7 +159,10 @@ export ARIFOS_ML_FLOORS=1
 python -m arifos_aaa_mcp stdio
 ```
 
-To connect Claude Desktop, add to `~/.config/claude/claude_desktop_config.json`:
+#### Hooking it up to AI Clients
+
+**For Claude Desktop:**
+Add this to your `~/.config/claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 ```json
 {
   "mcpServers": {
@@ -160,6 +177,19 @@ To connect Claude Desktop, add to `~/.config/claude/claude_desktop_config.json`:
   }
 }
 ```
+
+**For Cursor IDE:**
+Navigate to `Cursor Settings -> Features -> MCP`. Add a new server:
+- **Type**: `command`
+- **Name**: `arifOS`
+- **Command**: `python -m arifos_aaa_mcp stdio`
+*(Ensure Cursor's environment has access to the required environment variables).*
+
+**For ChatGPT (Developer Mode):**
+If you are building your own custom GPT or using ChatGPT Developer Mode, you can connect the streamable HTTP or SSE endpoints directly:
+- **Start arifOS in HTTP mode:** `HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http`
+- **In ChatGPT Developer Settings:** Add a new Action/Endpoint pointing to `http://localhost:8080/mcp`.
+*(If deploying remotely, point to your VPS domain and include the `ARIFOS_API_KEY` header for authentication).*
 
 ### 2. Production Execution (`http` streamable mode for VPS / Cloud)
 Instead of two-channel SSE, arifOS uses the modern **Streamable HTTP** standard for robust cloud scalability behind Nginx proxies.
