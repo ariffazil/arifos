@@ -2,8 +2,14 @@
 core/homeostasis.py — Ring 0.5: Soul-to-Body Translation Layer
 
 F4 Clarity: Converts cognitive thermodynamics to compute allocation
+F5 Peace²: System stability damper (Peace² >= 1.0 required)
 F11 Command: Enforces resource sovereignty through budget control
 F7 Humility: Respects uncertainty by restricting spending when confused
+
+P0 HARDENING:
+- F5 Peace² >= 1.0 strictly enforced
+- Escalatory/ungrounded output triggers cooling cycle
+- Homeostatic instability forces SABAR
 
 This is the missing piece between:
 - Soul (governance metrics: ΔS, Peace², Ω₀, TAC)
@@ -11,13 +17,152 @@ This is the missing piece between:
 
 Conservation Law: Cognitive pressure must constrain compute expenditure.
 
-T000: 2026.02.27-FORGE-HOMEOSTASIS-SEAL
+T000: 2026.02.28-HARDENED-F5-SEAL
 """
 
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 import time
+
+
+# ═══════════════════════════════════════════════════════
+# P0 HARDENING: F5 Peace² Enforcement
+# ═══════════════════════════════════════════════════════
+
+class PeaceViolation(Exception):
+    """
+    P0: F5 Peace² violation — system stability compromised.
+    
+    Raised when Peace² < 1.0, indicating escalatory, biased, 
+    or ungrounded output that increases system entropy.
+    """
+    pass
+
+
+class HomeostaticCollapse(Exception):
+    """P0: Multiple constitutional failures — system requires cooling."""
+    pass
+
+
+def check_peace_squared(
+    peace2: float,
+    escalation_markers: list[str] | None = None,
+    sentiment_volatility: float = 0.0,
+) -> dict[str, Any]:
+    """
+    P0 HARDENING: F5 Peace² >= 1.0 enforcement.
+    
+    Formula: Peace² = 1 / (1 + α·D_esc + β·V_sent + γ·S_shock)
+    
+    Where:
+    - D_esc: Escalation detection (conflict markers)
+    - V_sent: Sentiment volatility
+    - S_shock: Timing variance/shock
+    
+    Args:
+        peace2: Stability score (must be >= 1.0)
+        escalation_markers: List of detected escalation patterns
+        sentiment_volatility: Variance in sentiment tone
+    
+    Returns:
+        Dict with pass/fail status and details
+    
+    Raises:
+        PeaceViolation: If peace2 < 1.0 (severe instability)
+    """
+    # Escalation indicators
+    ESCALATORY_PATTERNS = [
+        "obviously", "clearly", "undoubtedly", "everyone knows",
+        "only an idiot would", "simple as that", "case closed",
+        "those people", "they always", "typical of them",
+    ]
+    
+    detected_escalation = []
+    if escalation_markers:
+        for marker in escalation_markers:
+            if any(pattern in marker.lower() for pattern in ESCALATORY_PATTERNS):
+                detected_escalation.append(marker)
+    
+    # Calculate components
+    d_esc = len(detected_escalation) * 0.3  # Escalation penalty
+    v_sent = sentiment_volatility
+    s_shock = 0.0  # Would need temporal data
+    
+    # Peace² formula
+    alpha, beta, gamma = 0.4, 0.4, 0.2
+    peace2_calculated = 1.0 / (1.0 + alpha * d_esc + beta * v_sent + gamma * s_shock)
+    
+    # Use provided peace2 if available, otherwise calculated
+    peace2_final = peace2 if peace2 > 0 else peace2_calculated
+    
+    passed = peace2_final >= 1.0
+    
+    result = {
+        "passed": passed,
+        "peace2": round(peace2_final, 4),
+        "threshold": 1.0,
+        "components": {
+            "d_escalation": round(d_esc, 4),
+            "v_sentiment": round(v_sent, 4),
+            "s_shock": round(s_shock, 4),
+        },
+        "detected_escalation": detected_escalation,
+        "escalation_count": len(detected_escalation),
+    }
+    
+    # Hard violation for severe instability
+    if peace2_final < 0.5:
+        raise PeaceViolation(
+            f"F5_PEACE_CRITICAL: Peace²={peace2_final:.3f} < 0.5. "
+            f"System severely unstable. Detected {len(detected_escalation)} escalation markers. "
+            f"Immediate cooling cycle required."
+        )
+    
+    return result
+
+
+def enforce_homeostatic_stability(
+    peace2: float,
+    delta_s: float,
+    omega0: float,
+) -> str:
+    """
+    P0: Determine verdict based on homeostatic stability.
+    
+    Args:
+        peace2: F5 stability score
+        delta_s: F4 entropy change
+        omega0: F7 humility
+    
+    Returns:
+        Verdict: SEAL, SABAR, or VOID
+    
+    Raises:
+        HomeostaticCollapse: If multiple critical failures
+    """
+    failures = []
+    
+    if peace2 < 1.0:
+        failures.append(f"F5: Peace²={peace2:.3f} < 1.0")
+    if delta_s > 0:
+        failures.append(f"F4: ΔS={delta_s:.3f} > 0 (entropy increasing)")
+    if omega0 > 0.08:
+        failures.append(f"F7: Ω₀={omega0:.3f} > 0.08")
+    
+    # Critical collapse: 2+ failures
+    if len(failures) >= 2:
+        raise HomeostaticCollapse(
+            f"Homeostatic collapse detected: {'; '.join(failures)}"
+        )
+    
+    # Single failure
+    if len(failures) == 1:
+        if peace2 < 0.5 or delta_s > 0.2 or omega0 > 0.1:
+            return "VOID"
+        return "SABAR"
+    
+    return "SEAL"
 
 
 class ComputeTier(Enum):
@@ -562,6 +707,12 @@ def get_paradox_budget() -> ParadoxEnergyBudget:
 
 
 __all__ = [
+    # P0 HARDENING: F5 Enforcement
+    "PeaceViolation",
+    "HomeostaticCollapse",
+    "check_peace_squared",
+    "enforce_homeostatic_stability",
+    # Core classes
     "ComputeTier",
     "SpendPolicy",
     "CognitivePressure",

@@ -3,6 +3,13 @@ core/organs/_3_apex.py — The Soul (Stage 444 -> 777 -> 888)
 
 APEX Engine: Trinity Sync, Genius Verification, Constitutional Judgment
 
+DOMAIN ISOLATION (P2):
+    - APEX handles FINAL VERDICT only
+    - APEX synthesizes AGI (Δ) + ASI (Ω) → Ψ
+    - APEX does NOT generate reasoning — uses AGI tensor
+    - APEX does NOT assess empathy — uses ASI output
+    - APEX is the JUDGE, not the advocate
+
 Actions:
     1. sync (444)   → Merge AGI (Δ) + ASI (Ω) → Ψ
     2. forge (777)  → EUREKA FORGE (phase transition, synthesis)
@@ -25,6 +32,49 @@ from typing import Any
 from core.shared.floors import F9_AntiHantu, F10_Ontology
 from core.shared.physics import ConstitutionalTensor, TrinityTensor, W_3_from_tensor
 from core.shared.types import ApexOutput, FloorScores, Verdict
+
+
+# ═══════════════════════════════════════════════════════
+# P2 HARDENING: Domain Isolation Enforcement
+# ═══════════════════════════════════════════════════════
+
+class ApexDomainViolation(Exception):
+    """P2: APEX attempted to operate outside its domain (Soul/Judge only)."""
+    pass
+
+
+def enforce_apex_domain(action_type: str) -> None:
+    """
+    P2 HARDENING: APEX domain isolation.
+    
+    APEX (Soul) is restricted to:
+    - Final verdict synthesis
+    - Tri-Witness consensus
+    - Genius verification
+    
+    APEX is NOT allowed to:
+    - Generate reasoning — must use AGI tensor
+    - Assess empathy — must use ASI output
+    - Self-certify — must wait for AGI/ASI input
+    """
+    AGI_FUNCTIONS = ["reason", "think", "sense", "ground", "evidence"]
+    ASI_FUNCTIONS = ["empathize", "stakeholder", "harm", "feel"]
+    
+    action_lower = action_type.lower()
+    
+    for func in AGI_FUNCTIONS:
+        if func in action_lower:
+            raise ApexDomainViolation(
+                f"APEX_DOMAIN_VIOLATION: APEX attempted AGI function '{action_type}'. "
+                f"Soul cannot generate reasoning. Use AGI (Mind) tensor."
+            )
+    
+    for func in ASI_FUNCTIONS:
+        if func in action_lower:
+            raise ApexDomainViolation(
+                f"APEX_DOMAIN_VIOLATION: APEX attempted ASI function '{action_type}'. "
+                f"Soul cannot assess empathy. Use ASI (Heart) output."
+            )
 
 
 # Helper for calculation logic
