@@ -30,12 +30,18 @@ ARG ARIFOS_VERSION=unknown
 ARG GIT_SHA=unknown
 ARG BUILD_TIME=unknown
 
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=build /usr/local /usr/local
 COPY . .
+
+# Install a deterministic Chromium runtime for Playwright-based search/fetch paths.
+RUN python -m playwright install --with-deps chromium
 
 # Writable directories for runtime data
 RUN mkdir -p /usr/src/app/telemetry \
