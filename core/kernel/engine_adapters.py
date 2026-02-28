@@ -13,7 +13,6 @@ from typing import Any
 from uuid import uuid4
 
 from core import organs as core_organs
-from core.kernel.init_000_anchor import init_000_anchor
 from core.shared.physics import (
     ConstitutionalTensor,
     GeniusDial,
@@ -217,31 +216,24 @@ class InitEngine:
         # --- END BYPASS ---
 
         try:
-            token = await init_000_anchor(query, actor_id=actor_id, auth_token=auth_token)
-            # InitOutput is a Pydantic model inheriting from BaseOrganOutput
+            token = await core_organs.init(query, actor_id=actor_id, auth_token=auth_token)
+            
+            query_type = token.query_type
             query_type_str = (
-                token.query_type
-                if isinstance(token.query_type, str)
-                else (
-                    token.query_type.value
-                    if hasattr(token.query_type, "value")
-                    else str(token.query_type)
-                )
+                query_type.value if hasattr(query_type, "value") else str(query_type)
             )
 
             return {
                 "status": token.status,
                 "session_id": token.session_id,
                 "engine_mode": "core",
-                "authority": (
-                    token.metrics.get("authority_level", "none") if token.metrics else "none"
-                ),
-                "floors_passed": [],  # Not explicitly tracked in new anchor yet
-                "floors_failed": token.violations,
-                "violations": token.violations,
-                "injection_risk": token.injection_score,
-                "injection_score": token.injection_score,
-                "reason": token.error_message,
+                "authority": token.authority.value if hasattr(token.authority, "value") else "none",
+                "floors_passed": token.floors_passed,
+                "floors_failed": token.floors_failed,
+                "violations": token.floors_failed,
+                "injection_risk": token.injection_risk,
+                "injection_score": token.injection_risk,
+                "reason": token.reason,
                 "actor_id": actor_id,
                 "query_type": query_type_str,
                 "f2_threshold": getattr(token, "f2_threshold", 0.99),

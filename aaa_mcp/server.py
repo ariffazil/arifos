@@ -75,6 +75,8 @@ def _verify_governance_token(session_id: str, token: str) -> tuple[bool, str]:
 from fastmcp import FastMCP
 
 from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, think, validate
+from aclip_cai.tools.fs_inspector import fs_inspect
+from aclip_cai.tools.system_monitor import get_system_health
 
 # Isolated FastMCP instance — canonical 13-tool surface ONLY.
 # Previously shared aclip_cai's instance which leaked triad_*/sense_* tools.
@@ -962,12 +964,14 @@ audit_rules = ToolHandle(_system_audit)
     name="critique_thought",
     description="[Lane: Ω Omega] [Floors: F4, F7, F8] 7-organ alignment & bias critique.",
 )
-async def _critique_thought(session_id: str, query: str) -> dict[str, Any]:
+async def _critique_thought(session_id: str, plan: dict[str, Any]) -> dict[str, Any]:
+    critique_text = json.dumps(plan, ensure_ascii=True, sort_keys=True)
+    payload = await align(session_id=session_id, action=critique_text)
     return envelope_builder.build_envelope(
         stage="666_CRITIQUE",
         session_id=session_id,
         verdict="SEAL",
-        payload={"status": "STUB_IMPLEMENTATION"},
+        payload=payload,
     )
 
 
@@ -978,12 +982,28 @@ critique_thought = ToolHandle(_critique_thought)
     name="inspect_file",
     description="[Lane: Δ Delta] [Floors: F1, F4, F11] Filesystem inspection (read-only).",
 )
-async def _inspect_file(session_id: str, path: str) -> dict[str, Any]:
+async def _inspect_file(
+    session_id: str, 
+    path: str = ".",
+    depth: int = 1,
+    include_hidden: bool = False,
+    pattern: str = "*",
+    min_size_bytes: int = 0,
+    max_files: int = 100,
+) -> dict[str, Any]:
+    payload = fs_inspect(
+        path=path,
+        depth=depth,
+        include_hidden=include_hidden,
+        pattern=pattern,
+        min_size_bytes=min_size_bytes,
+        max_files=max_files,
+    )
     return envelope_builder.build_envelope(
         stage="111_INSPECT",
         session_id=session_id,
         verdict="SEAL",
-        payload={"status": "STUB_IMPLEMENTATION"},
+        payload=payload,
     )
 
 
@@ -994,12 +1014,22 @@ inspect_file = ToolHandle(_inspect_file)
     name="check_vital",
     description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.",
 )
-async def _check_vital(session_id: str) -> dict[str, Any]:
+async def _check_vital(
+    session_id: str,
+    include_swap: bool = True,
+    include_io: bool = False,
+    include_temp: bool = False,
+) -> dict[str, Any]:
+    payload = get_system_health(
+        include_swap=include_swap,
+        include_io=include_io,
+        include_temp=include_temp,
+    )
     return envelope_builder.build_envelope(
         stage="555_HEALTH",
         session_id=session_id,
         verdict="SEAL",
-        payload={"status": "STUB_IMPLEMENTATION"},
+        payload=payload,
     )
 
 

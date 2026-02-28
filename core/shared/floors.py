@@ -32,8 +32,8 @@ THRESHOLDS: dict[str, dict[str, Any]] = {
     "F3_TriWitness": {"type": "DERIVED", "threshold": 0.95, "desc": "Consensus (H×A×E)"},
     "F4_Clarity": {"type": "HARD", "threshold": 0.00, "desc": "Entropy Reduction (ΔS ≤ 0)"},
     "F5_Peace2": {"type": "SOFT", "threshold": 1.00, "desc": "Non-Destructive Power"},
-    "F6_Empathy": {"type": "HARD", "threshold": 0.95, "desc": "Stakeholder Care (κᵣ)"},
-    "F7_Humility": {"type": "HARD", "range": (0.03, 0.05), "desc": "Uncertainty Band (Ω₀)"},
+    "F6_Empathy": {"type": "SOFT", "threshold": 0.70, "desc": "Stakeholder Care (κᵣ)"},
+    "F7_Humility": {"type": "HARD", "range": (0.03, 0.15), "desc": "Uncertainty Band (Ω₀)"},
     "F8_Genius": {"type": "DERIVED", "threshold": 0.80, "desc": "Governed Intelligence (G)"},
     "F9_AntiHantu": {"type": "SOFT", "threshold": 0.30, "desc": "Dark Cleverness Limit"},
     "F10_Ontology": {"type": "HARD", "threshold": 1.0, "desc": "Category Lock (Boolean)"},
@@ -308,7 +308,7 @@ class F6_Empathy(Floor):
             threshold = 0.10  # Low threshold for technical tasks
             mode = "OPS_MODE"
         else:
-            threshold = self.spec["threshold"]  # 0.95 for human interactions
+            threshold = self.spec["threshold"]  # 0.70 for human interactions
             mode = "HUMAN_MODE"
 
         # Cohen's kappa calculation

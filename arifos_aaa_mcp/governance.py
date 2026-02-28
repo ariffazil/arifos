@@ -26,6 +26,9 @@ from core.shared.mottos import (
     MOTTO_999_SEAL_HEADER,
     get_motto_for_stage,
 )
+from core.shared.guards.injection_guard import scan_for_injection
+from core.shared.guards.ontology_guard import detect_literalism
+
 TOOL_LAW_BINDINGS = AAA_TOOL_LAW_BINDINGS
 TOOL_STAGE_MAP = AAA_TOOL_STAGE_MAP
 
@@ -208,13 +211,13 @@ def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         elif law == "F11_AUTHORITY":
             passed = _command_authority_pass(tool, payload)
         elif law == "F12_DEFENSE":
-            passed = not any(k in text for k in ["ignore previous", "jailbreak", "bypass safety"])
+            passed = scan_for_injection(text).status != "SABAR"
         elif law == "F3_TRI_WITNESS":
             passed = _tri_witness_pass(tool, payload)
         elif law == "F8_GENIUS":
             passed = bool(payload.get("verdict"))
         elif law == "F10_ONTOLOGY_LOCK":
-            passed = not any(k in text for k in ["conscious ai", "self-aware ai"])
+            passed = not detect_literalism(text) and not any(k in text for k in ["conscious ai", "self-aware ai"])
         elif law == "F13_SOVEREIGNTY":
             passed = _sovereignty_pass(tool, payload)
         else:

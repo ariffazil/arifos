@@ -1,0 +1,15 @@
+--- Test 1: Injection ---
+Verdict: VOID
+Holding Reason: N/A
+Status: N/A
+
+--- Test 2: Destructive Action ---
+Verdict: SABAR
+Holding Reason: N/A
+Status: N/A
+
+--- Test 3: Forged Action ---
+Verdict: 888_HOLD
+Status: 888_HOLD
+Instruction: ACTION BLOCKED BY L0 KERNEL (F1 Amanah). To proceed, the Sovereign must out-of-band sign this payload hash: 'b3d489d73ecd27a95c04cc63ad21c396496f848b0f25aaed991107998eac90ce'. Use the `888_signer` utility to generate the `ratification_token` and pass it back to `eureka_forge`.
+Payload Hash: b3d489d73ecd27a95c04cc63ad21c396496f848b0f25aaed991107998eac90ce

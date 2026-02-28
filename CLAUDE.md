@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 **Project:** arifOS — Constitutional AI Governance System
-**Package:** `arifos` v2026.2.25 (PyPI)
+**Package:** `arifos` v2026.2.28 (PyPI)
 **Python:** >=3.12 | **License:** AGPL-3.0-only
 **Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
 
@@ -256,7 +256,7 @@ Alias compatibility:
 - `core.*` — kernel imports (`from core.shared.physics import W_3`)
 - `core.organs` — organ actions (`from core.organs import sense, think, reason`)
 - `mcp.*` — external MCP SDK. **Never** shadow with local modules
-- `fastmcp.*` — FastMCP v3.0.1 framework
+- `fastmcp.*` — FastMCP v3.0.2 framework
 
 ### Decorator Order (Critical)
 
@@ -378,4 +378,4 @@ Require explicit user confirmation:
 
 ---
 
-**Version:** v2026.2.25 | **Repo:** <https://github.com/ariffazil/arifOS>
+**Version:** v2026.2.28 | **Repo:** <https://github.com/ariffazil/arifOS>
