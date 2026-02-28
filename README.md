@@ -18,6 +18,26 @@
 
 <br/>
 
+## 🌐 The arifOS Web Ecosystem (Official Links)
+
+Below are the Godel-locked official instances, endpoints, and resources currently backing the system:
+
+| Layer | URL | Purpose / Description |
+|:---|:---|:---|
+| **HUMAN** | [https://arif-fazil.com/](https://arif-fazil.com/) | Identity & Authority Anchor (The Sovereign). |
+| **THEORY** | [https://apex.arif-fazil.com/](https://apex.arif-fazil.com/) | Constitutional Canon & Theory (The 13 Floors). |
+| **APPS** | [https://arifos.arif-fazil.com/](https://arifos.arif-fazil.com/) | Official Documentation and implementation guides. |
+| **INTRO** | [https://arifos.arif-fazil.com/intro](https://arifos.arif-fazil.com/intro) | Beginner-friendly explanation of the Constitutional AI Kernel. |
+| **MCP API** | [https://arifos.arif-fazil.com/api](https://arifos.arif-fazil.com/api) | Full MCP Protocol JSON-RPC API & 13 Tools Reference. |
+| **LIVE SERVER**| [https://arifosmcp.arif-fazil.com/](https://arifosmcp.arif-fazil.com/) | The production active MCP deployment. |
+| **HEALTH** | [https://arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)| Live `{"status":"healthy"}` JSON endpoint reflecting system pulses. |
+| **VERDICT** | [Truth Claim Dashboard](https://arifosmcp-truth-claim.pages.dev)| Live Constitutional Audit Dashboard. |
+| **REGISTRY** | [MCP Registry Listing](https://registry.modelcontextprotocol.io/io.github.ariffazil/aaa-mcp) | The official verified listing on the global MCP registry. |
+| **CODE** | [arifOS on GitHub](https://github.com/ariffazil/arifOS) | Core framework repository. |
+| **PACKAGE** | [arifOS on PyPI](https://pypi.org/project/arifos/) | Python package library `pip install arifos`. |
+
+---
+
 ## 🏛️ Foundational Canonical Texts (Core Reading)
 *To understand arifOS, you must read the source material. These are the godel-locked technical papers defining the framework.*
 
