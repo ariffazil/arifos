@@ -30,6 +30,8 @@ flowchart LR
     D --> E[LIVE SERVER<br/>arifosmcp.arif-fazil.com]
     E --> F[HEALTH<br/>/health]
     E --> G[VERDICT DASHBOARD<br/>arifosmcp-truth-claim.pages.dev]
+    C --> H[PYPI<br/>pip install arifos]
+    C --> I[npm<br/>npm install @arifos/mcp]
 ```
 
 | Layer | URL | Purpose / Description |
@@ -44,7 +46,8 @@ flowchart LR
 | **VERDICT** | [Truth Claim Dashboard](https://arifosmcp-truth-claim.pages.dev)| Live Constitutional Audit Dashboard. |
 | **REGISTRY** | [MCP Registry Listing](https://registry.modelcontextprotocol.io/io.github.ariffazil/aaa-mcp) | The official verified listing on the global MCP registry. |
 | **CODE** | [arifOS on GitHub](https://github.com/ariffazil/arifOS) | Core framework repository. |
-| **PACKAGE** | [arifOS on PyPI](https://pypi.org/project/arifos/) | Python package library `pip install arifos`. |
+| **PACKAGE (PyPI)** | [arifOS on PyPI](https://pypi.org/project/arifos/) | Python package library `pip install arifos` — The Kernel & Court. |
+| **PACKAGE (npm)** | [@arifos/mcp](https://www.npmjs.com/package/@arifos/mcp) | JavaScript/TypeScript client `npm install @arifos/mcp` — The Cable.
 
 ---
 
