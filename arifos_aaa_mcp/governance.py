@@ -138,28 +138,103 @@ def _command_authority_pass(tool: str, payload: dict[str, Any]) -> bool:
     return _has_session(payload)
 
 
+def _classify_tool_for_consensus(tool: str) -> dict[str, Any]:
+    """
+    Classify tool for dynamic Tri-Witness thresholding.
+    
+    Tool Classes:
+    - UTILITY: Read-only tools (search, fetch, inspect)
+    - SPINE: Governance tools (reason, simulate, critique)
+    - CRITICAL: Final authority tools (apex_judge, seal_vault)
+    """
+    if tool in READ_ONLY_TOOLS:
+        return {"class": "UTILITY", "threshold": 0.95, "witness_floor": 0.90}
+    if tool in {"apex_judge", "seal_vault", "eureka_forge"}:
+        return {"class": "CRITICAL", "threshold": 0.995, "witness_floor": 0.95}
+    # All other governance tools
+    return {"class": "SPINE", "threshold": 0.99, "witness_floor": 0.90}
+
+
+def _calculate_tri_witness_consensus(
+    tool: str,
+    payload: dict[str, Any]
+) -> dict[str, Any]:
+    """
+    P1 HARDENING: Calculate Tri-Witness consensus with geometric mean.
+    
+    Formula: W₃ = ∛(H × A × E)
+    
+    Where:
+    - H (Human): Intent / Sovereign authority score
+    - A (AI): Internal logic / Constitutional compliance score  
+    - E (Earth): Empirical grounding / Evidence score
+    
+    Dynamic Thresholds:
+    - UTILITY tools: W₃ ≥ 0.95
+    - SPINE tools: W₃ ≥ 0.99
+    - CRITICAL tools: W₃ ≥ 0.995
+    
+    Per-Witness Minimum: Any witness < floor shatters consensus.
+    """
+    # Extract witness scores from payload
+    # Default values assume partial consensus if not provided
+    human_score = float(payload.get("human_witness", payload.get("authority", {}).get("score", 0.95)))
+    ai_score = float(payload.get("ai_witness", payload.get("truth", {}).get("score", 0.90)))
+    earth_score = float(payload.get("earth_witness", payload.get("grounding", 0.90)))
+    
+    # Get tool classification and thresholds
+    tool_class = _classify_tool_for_consensus(tool)
+    consensus_threshold = tool_class["threshold"]
+    witness_floor = tool_class["witness_floor"]
+    
+    # P1 HARDENING: Per-witness minimum check (consensus shatter)
+    witnesses = {
+        "human": human_score,
+        "ai": ai_score,
+        "earth": earth_score
+    }
+    
+    for witness_name, score in witnesses.items():
+        if score < witness_floor:
+            return {
+                "pass": False,
+                "verdict": "VOID",
+                "w3": 0.0,
+                "threshold": consensus_threshold,
+                "shattered_by": witness_name,
+                "shatter_reason": f"{witness_name}_witness score {score:.4f} < floor {witness_floor}",
+                "witnesses": witnesses,
+                "tool_class": tool_class["class"]
+            }
+    
+    # Calculate geometric mean: W₃ = ∛(H × A × E)
+    w3 = (human_score * ai_score * earth_score) ** (1/3)
+    
+    # Check consensus threshold
+    passes = w3 >= consensus_threshold
+    
+    return {
+        "pass": passes,
+        "verdict": "SEAL" if passes else "VOID",
+        "w3": round(w3, 4),
+        "threshold": consensus_threshold,
+        "witnesses": witnesses,
+        "tool_class": tool_class["class"],
+        "shattered_by": None
+    }
+
+
 def _tri_witness_pass(tool: str, payload: dict[str, Any]) -> bool:
+    """
+    P1 HARDENING: Tri-Witness with geometric mean and dynamic thresholds.
+    """
+    # Read-only tools get simplified check
     if tool in READ_ONLY_TOOLS:
         return True
-
-    session_ok = _has_session(payload)
-    if tool == "anchor_session":
-        return session_ok and isinstance(payload.get("auth", {}), dict)
-    if tool in {"reason_mind", "simulate_heart", "recall_memory", "seal_vault", "check_vital"}:
-        return session_ok or tool == "check_vital"
-    if tool == "critique_thought":
-        return session_ok and isinstance(payload.get("mental_models"), dict)
-    if tool == "apex_judge":
-        if not session_ok:
-            return False
-        authority = payload.get("authority")
-        if isinstance(authority, dict) and "human_approve" in authority:
-            return True
-        return isinstance(payload.get("query"), str) and bool(payload.get("query", "").strip())
-    if tool == "eureka_forge":
-        verdict = str(payload.get("verdict", "")).upper()
-        return session_ok and verdict in {"SEAL", "PARTIAL", "SABAR", "HOLD", "888_HOLD", "VOID"}
-    return True
+    
+    # Calculate full consensus for governance tools
+    consensus = _calculate_tri_witness_consensus(tool, payload)
+    return consensus.get("pass", False)
 
 
 def _sovereignty_pass(tool: str, payload: dict[str, Any]) -> bool:
@@ -450,13 +525,33 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         if k in {"F1_AMANAH", "F2_TRUTH", "F7_HUMILITY", "F12_DEFENSE", "F13_SOVEREIGNTY"}
     )
 
-    # P0 HARDENING: Ψ (Vitality Index) is the master SEAL/VOID determinant
-    # Ψ ≥ 1.0 required for homeostatic equilibrium
+    # P1 HARDENING: Calculate Tri-Witness consensus with geometric mean
+    tri_witness = _calculate_tri_witness_consensus(tool, payload)
+    w3_score = tri_witness.get("w3", 0.0)
+    
+    # P1 HARDENING: Φₚ (Paradox Conductance) - connect to verdict logic
+    phi_p = tpcp.get("phiP", 0.0)
+    paradox_resolved = phi_p >= 1.0
+    
+    # P0/P1 HARDENING: Master verdict determination cascade
+    # Priority: Hard Fail → Ψ → W₃ → Φₚ → Partial
     if has_hard_fail:
         verdict = "VOID"
     elif psi_score < 1.0:
         # System lacks vitality - cannot SEAL
         if psi_score < 0.5:
+            verdict = "VOID"
+        else:
+            verdict = "SABAR"
+    elif not tri_witness.get("pass", False):
+        # P1: Tri-Witness consensus failed
+        if tri_witness.get("shattered_by"):
+            verdict = "VOID"  # Witness shattered
+        else:
+            verdict = "SABAR"  # Below threshold but not shattered
+    elif not paradox_resolved and tool in {"critique_thought", "apex_judge"}:
+        # P1: Paradox not resolved for high-cognition tools
+        if phi_p < 0.5:
             verdict = "VOID"
         else:
             verdict = "SABAR"
@@ -502,6 +597,14 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         },
         # P0 HARDENING: Vitality Index (Ψ) - Master Equation for constitutional homeostasis
         "vitality_index": vitality,
+        # P1 HARDENING: Tri-Witness consensus with geometric mean
+        "tri_witness": tri_witness,
+        # P1 HARDENING: Paradox resolution status
+        "paradox_resolution": {
+            "phi_p": phi_p,
+            "resolved": paradox_resolved,
+            "threshold": 1.0,
+        },
         "motto": motto,
         "data": payload,
     }
