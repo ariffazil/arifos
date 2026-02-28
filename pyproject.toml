@@ -1,9 +1,9 @@
 [project]
 name = "arifos"
-version = "2026.2.27"
+version = "2026.2.28"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
-# 2026.2.27 — v60.2 Protocol Negotiation + Canonical Naming + Docs Alignment
-#   MCP protocol negotiation tests, canonical apex_judge/eureka_forge naming, intro/docs sync
+# 2026.2.28 — F1/F7/F12 Hardening + Evidence Appendix
+#   888_HOLD explicit hash signing, stack traces un-swallowed, fetch_content data fencing.
 # 2026.2.25 — v60.1 Chaos Reduction + VPS Alignment + Agent Capability Spec
 #   Gitignore hardening (5388→0 untracked), CLAUDE.md accuracy audit, version convergence
 # 2026.2.23 — Context Forge & Registry Release
