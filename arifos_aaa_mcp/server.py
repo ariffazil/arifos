@@ -233,6 +233,7 @@ async def eureka_forge(
     session_id: str,
     signature: str,
     execution_context: dict[str, Any] | None = None,
+    ratification_token: str | None = None,
 ) -> dict[str, Any]:
     """777 EUREKA FORGE: execute action payload behind sovereign control gates."""
     blocked = validate_input(
@@ -251,6 +252,7 @@ async def eureka_forge(
         signature=signature,
         session_id=session_id,
         idempotency_key=f"forge-{session_id}",
+        ratification_token=ratification_token,
     )
     if isinstance(payload, dict):
         stage_value = str(payload.get("stage", "")).upper()
