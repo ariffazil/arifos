@@ -774,10 +774,11 @@ async def apex_judge_wrapper(request: Request):
         if auto_seal:
             seal_tool = TOOLS["seal_vault"]
             seal_fn = getattr(seal_tool, "fn", seal_tool)
+            governance_token = str(apex_result.get("governance_token", ""))
             seal_result = await seal_fn(
                 session_id=canonical_session_id,
                 summary=query[:100],
-                verdict=apex_result.get("verdict", "SEAL"),
+                governance_token=governance_token,
             )
             pipeline_results["pipeline"].append({"stage": "999_VAULT", "result": seal_result})
         latency_ms = (time.time() - start_time) * 1000

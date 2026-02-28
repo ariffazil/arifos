@@ -36,6 +36,7 @@ mcp = FastMCP(
 )
 
 AAA_TOOLS = list(PUBLIC_CANONICAL_TOOLS)
+_SESSION_GOVERNANCE_TOKENS: dict[str, str] = {}
 
 
 def _model_flags(plan: dict[str, Any], context: str = "") -> dict[str, Any]:
@@ -219,6 +220,9 @@ async def apex_judge(
         debug=debug,
     )
     if isinstance(payload, dict):
+        token = payload.get("governance_token")
+        if isinstance(token, str) and token.strip():
+            _SESSION_GOVERNANCE_TOKENS[session_id] = token.strip()
         stage_value = str(payload.get("stage", "")).upper()
         if stage_value in {"", "777-888", "777-888_APEX", "888_AUDIT", "888_JUDGE"}:
             payload["stage"] = "888_APEX_JUDGE"
@@ -264,7 +268,12 @@ async def eureka_forge(
 
 
 @mcp.tool(name="seal_vault")
-async def seal_vault(session_id: str, summary: str, verdict: str = "SEAL") -> dict[str, Any]:
+async def seal_vault(
+    session_id: str,
+    summary: str,
+    verdict: str = "SEAL",
+    governance_token: str | None = None,
+) -> dict[str, Any]:
     """999 SEAL: commit immutable session decision record."""
     blocked = validate_input("seal_vault", {"session_id": session_id, "summary": summary})
     if blocked:
@@ -272,7 +281,43 @@ async def seal_vault(session_id: str, summary: str, verdict: str = "SEAL") -> di
     missing = require_session("seal_vault", session_id)
     if missing:
         return wrap_tool_output("seal_vault", missing)
-    payload = await legacy.seal_vault.fn(session_id=session_id, summary=summary, verdict=verdict)
+
+    resolved_token = ""
+    if isinstance(governance_token, str) and governance_token.strip():
+        resolved_token = governance_token.strip()
+    elif session_id in _SESSION_GOVERNANCE_TOKENS:
+        resolved_token = _SESSION_GOVERNANCE_TOKENS[session_id]
+    else:
+        # Backend convenience path: mint token from APEX so humans never copy opaque strings.
+        auto_judge = await legacy.apex_judge.fn(
+            session_id=session_id,
+            query=summary,
+            proposed_verdict=verdict,
+            human_approve=False,
+            implementation_details={"source": "seal_vault_auto_token"},
+        )
+        auto_token = auto_judge.get("governance_token") if isinstance(auto_judge, dict) else ""
+        if isinstance(auto_token, str) and auto_token.strip():
+            resolved_token = auto_token.strip()
+            _SESSION_GOVERNANCE_TOKENS[session_id] = resolved_token
+
+    if not resolved_token:
+        return wrap_tool_output(
+            "seal_vault",
+            {
+                "verdict": "VOID",
+                "stage": "999_SEAL",
+                "session_id": session_id,
+                "error": "Missing governance_token for seal_vault",
+                "remediation": "Call apex_judge first in this session, then retry seal_vault.",
+            },
+        )
+
+    payload = await legacy.seal_vault.fn(
+        session_id=session_id,
+        summary=summary,
+        governance_token=resolved_token,
+    )
     return wrap_tool_output("seal_vault", payload)
 
 
@@ -349,8 +394,10 @@ def create_aaa_mcp_server() -> Any:
     # ABI version guard: prevent silent half-upgrades between transport and kernel layers.
     try:
         from aaa_mcp.server import MANIFEST_VERSION as inner_version  # type: ignore[attr-defined]
+
         if inner_version != MANIFEST_VERSION:
             import sys
+
             print(
                 f"[arifOS] MANIFEST_VERSION MISMATCH: "
                 f"aaa_mcp={inner_version} vs arifos_aaa_mcp={MANIFEST_VERSION}. "
@@ -416,7 +463,7 @@ def aaa_chain_prompt(query: str, actor_id: str = "user") -> str:
     return (
         "Use AAA 13-tool chain with continuity: "
         "anchor_session -> reason_mind -> simulate_heart -> critique_thought -> "
-        "apex_judge -> seal_vault. "
+        "apex_judge -> seal_vault (token is handled by backend). "
         f"query={query!r}; actor_id={actor_id!r}."
     )
 
