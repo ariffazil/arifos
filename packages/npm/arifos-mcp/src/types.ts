@@ -24,7 +24,8 @@ export type Verdict =
   | 'PARTIAL'   // 🟡 Soft floor failures — proceed with warnings
   | 'SABAR'     // ⚠️ Entropy too high — refine and retry
   | 'VOID'      // ❌ Hard floor violation — halt immediately
-  | '888_HOLD'; // 🛑 Irreversible action — awaiting human signature
+  | '888_HOLD'  // 🛑 Irreversible action — awaiting human signature
+  | 'HOLD';     // 🛑 Legacy/Transition: Awaiting human signature
 
 /**
  * Verdict with metadata returned by apex_judge tool.
@@ -135,6 +136,7 @@ export type Stage =
   | '777-888'           // SOUL: Synthesis range
   | '777_FORGE'          // Actuator: Sandboxed execution
   | '888_APEX'           // Soul: Sovereign judgment
+  | '888_APEX_JUDGE'     // Soul: Actual string from some server versions
   | '888_FORGE'          // Soul: Actual string for actuator
   | '999_VAULT';         // Memory: Immutable ledger commit
 
@@ -163,6 +165,7 @@ export const STAGE_METADATA: Record<Stage, StageMeta> = {
   '777-888': { stage: '777-888', name: 'APEX_SOUL', organ: 'APEX', trinity: 'Ψ', description: 'Composite Sovereign judgment range' },
   '777_FORGE': { stage: '777_FORGE', name: 'FORGE', organ: 'FORGE', trinity: '-', description: 'Sandboxed execution' },
   '888_APEX': { stage: '888_APEX', name: 'APEX', organ: 'APEX', trinity: 'Ψ', description: 'Sovereign judgment' },
+  '888_APEX_JUDGE': { stage: '888_APEX_JUDGE', name: 'APEX_JUDGE', organ: 'APEX', trinity: 'Ψ', description: 'Sovereign judgment (legacy)' },
   '888_FORGE': { stage: '888_FORGE', name: 'FORGE', organ: 'FORGE', trinity: '-', description: 'World interaction actuator' },
   '999_VAULT': { stage: '999_VAULT', name: 'VAULT', organ: 'VAULT', trinity: '-', description: 'Immutable ledger commit' },
 };
