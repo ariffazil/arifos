@@ -221,3 +221,18 @@ AGPL-3.0-only — Same as arifOS kernel.
 - **MCP Protocol:** https://modelcontextprotocol.io
 
 *Ditempa Bukan Diberi* — Forged, Not Given
+
+---
+
+## Compatibility Matrix
+
+| @arifos/mcp | Node.js | arifOS (PyPI) | Transport | Status |
+|-------------|---------|---------------|-----------|--------|
+| 0.1.0 | ≥18 | 2026.2.17 | HTTP/SSE | ✅ Tested |
+| 0.1.0 | ≥18 | 2026.2.17 | stdio | ⏳ Pending |
+| 0.1.0 | ≥18 | 2026.2.28 | HTTP/SSE | ⏳ Awaiting PyPI release |
+
+**Notes:**
+- Version 0.1.0 tested against production VPS endpoint (`arifosmcp.arif-fazil.com`)
+- All 6 integration tests pass
+- Verdicts observed: `SEAL`, `PARTIAL`, `SABAR`, `VOID`, `HOLD`, `888_HOLD`

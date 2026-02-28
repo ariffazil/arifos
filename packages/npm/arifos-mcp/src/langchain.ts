@@ -39,7 +39,9 @@ import type { ArifOSToolName } from './types.js';
  * ```
  */
 export class ArifOSToolset {
-  constructor(private readonly client: ArifOSMCPClient) {}
+  // Client reserved for future implementation
+  // @ts-expect-error Unused in stub phase
+  constructor(private readonly _client: ArifOSMCPClient) {}
   
   /**
    * Get list of available tool names.

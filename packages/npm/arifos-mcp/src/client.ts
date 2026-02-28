@@ -16,7 +16,6 @@ import type {
   ArifOSMetadata, 
   VerdictEnvelope,
   ArifOSToolName,
-  ArifOSErrorCode,
   Stage 
 } from './types.js';
 import { ArifOSError } from './types.js';
@@ -73,6 +72,9 @@ function createTransport(config: ArifOSClientConfig): Transport {
   }
 }
 
+// Type for text content items
+type TextContent = { type: string; text: string };
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // ArifOS MCP Client Interface
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -90,6 +92,9 @@ export interface ArifOSMCPClient {
   /** Current session metadata (from last response) */
   readonly metadata: ArifOSMetadata | null;
   
+  /** Current session ID (from last anchor_session) */
+  readonly sessionId: string | null;
+  
   /** Initialize connection */
   connect(): Promise<void>;
   
@@ -97,22 +102,66 @@ export interface ArifOSMCPClient {
   disconnect(): Promise<void>;
   
   /** Call any arifOS tool with type-safe parameters */
-  callTool<T = unknown>(
+  callTool(
     name: ArifOSToolName, 
     params: Record<string, unknown>
-  ): Promise<{ content: Array<{ type: string; text: string }>; metadata?: ArifOSMetadata }>;
+  ): Promise<{ content: Array<{ type: string; text: string }>; metadata?: ArifOSMetadata; response?: unknown }>;
   
   /** Convenience: Start a new session */
-  anchorSession(context?: string): Promise<{ session_id: string; metadata: ArifOSMetadata }>;
+  anchorSession(query: string, actor_id?: string): Promise<{ session_id: string; metadata: ArifOSMetadata; raw: unknown }>;
   
   /** Convenience: Execute reasoning */
-  reasonMind(query: string, context?: string): Promise<VerdictEnvelope>;
+  reasonMind(query: string): Promise<VerdictEnvelope>;
   
   /** Convenience: Get final judgment */
-  apexJudge(action: string, risk_level?: 'LOW' | 'MODERATE' | 'CRITICAL'): Promise<VerdictEnvelope>;
+  apexJudge(query: string): Promise<VerdictEnvelope>;
   
   /** List available tools */
   listTools(): Promise<Array<{ name: string; description?: string; inputSchema?: unknown }>>;
+}
+
+// Helper to safely extract text from MCP content
+function extractTextContent(content: unknown): TextContent[] {
+  if (!Array.isArray(content)) return [];
+  return content.filter((c): c is TextContent => 
+    typeof c === 'object' && c !== null && 
+    'type' in c && typeof c.type === 'string' &&
+    'text' in c && typeof c.text === 'string'
+  );
+}
+
+// Helper to parse arifOS response
+type ArifOSResponse = {
+  verdict: string;
+  stage?: string;
+  session_id?: string;
+  data?: {
+    session_id?: string;
+    stage?: string;
+    verdict?: string;
+    floors?: unknown[];
+    truth?: unknown;
+    next_actions?: string[];
+    governance_token?: string;
+    [key: string]: unknown;
+  };
+  floors?: unknown[];
+  truth?: unknown;
+  next_actions?: string[];
+  governance_token?: string;
+  [key: string]: unknown;
+};
+
+function parseArifOSResponse(text: string): { parsed: ArifOSResponse; textContent: string } {
+  const trimmed = text.trim();
+  
+  // Check if response starts with validation error
+  if (trimmed.startsWith('1 validation error') || trimmed.startsWith('2 validation error')) {
+    throw new Error(`MCP validation error: ${trimmed.substring(0, 200)}`);
+  }
+  
+  const parsed = JSON.parse(trimmed) as ArifOSResponse;
+  return { parsed, textContent: trimmed };
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -144,6 +193,7 @@ export interface ArifOSMCPClient {
  * 
  * // Use it
  * await client.connect();
+ * const { session_id } = await client.anchorSession('test session');
  * const result = await client.reasonMind('What is the capital of France?');
  * console.log(result.verdict); // 'SEAL' | 'PARTIAL' | 'SABAR' | 'VOID' | '888_HOLD'
  * await client.disconnect();
@@ -163,10 +213,12 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
   );
   
   let currentMetadata: ArifOSMetadata | null = null;
+  let currentSessionId: string | null = null;
   
   const client: ArifOSMCPClient = {
     mcp,
     get metadata() { return currentMetadata; },
+    get sessionId() { return currentSessionId; },
     
     async connect(): Promise<void> {
       try {
@@ -186,42 +238,52 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
       await mcp.close();
     },
     
-    async callTool<T>(
+    async callTool(
       name: ArifOSToolName,
       params: Record<string, unknown>
-    ): Promise<{ content: Array<{ type: string; text: string }>; metadata?: ArifOSMetadata }> {
+    ): Promise<{ content: TextContent[]; metadata?: ArifOSMetadata; response?: unknown }> {
       try {
         const result = await mcp.callTool(
           { name, arguments: params },
-          undefined,  // No progress token for now
+          undefined,
           { timeout: config.timeout ?? 60000 }
         );
         
-        // Extract metadata from response if present
-        const textContent = result.content
-          .filter(c => c.type === 'text')
-          .map(c => c.text)
-          .join('');
+        const contentItems = extractTextContent(result.content);
         
+        // Join all text content for parsing
+        const fullText = contentItems.map(c => c.text).join('');
+        
+        // Try to parse as arifOS response
+        let response: ArifOSResponse | undefined;
         try {
-          const parsed = JSON.parse(textContent);
-          if (parsed.session_id && parsed.stage && parsed.verdict) {
+          const { parsed } = parseArifOSResponse(fullText);
+          response = parsed;
+          
+          // Extract metadata if this looks like a verdict envelope
+          const sessionId = parsed.data?.session_id || parsed.session_id;
+          const stage = parsed.data?.stage || parsed.stage;
+          const verdict = parsed.data?.verdict || parsed.verdict;
+          
+          if (sessionId && stage && verdict) {
+            currentSessionId = sessionId;
             currentMetadata = {
-              session_id: parsed.session_id,
-              version: parsed.version || 'unknown',
-              stage: parsed.stage as Stage,
-              verdict: parsed.verdict,
-              floors_evaluated: parsed.floors || [],
-              timestamp: parsed.timestamp || new Date().toISOString(),
-              governance_token: parsed.governance_token,
+              session_id: sessionId,
+              version: parsed.kernel_version as string || 'unknown',
+              stage: stage as Stage,
+              verdict: verdict as ArifOSMetadata['verdict'],
+              floors_evaluated: (parsed.data?.floors || parsed.floors || []) as ArifOSMetadata['floors_evaluated'],
+              timestamp: new Date().toISOString(),
+              governance_token: parsed.data?.governance_token || parsed.governance_token,
             };
           }
         } catch {
-          // Not JSON or missing fields—ignore
+          // Not a parseable arifOS response—ignore
         }
         
-        return { content: result.content as Array<{ type: string; text: string }>, metadata: currentMetadata ?? undefined };
+        return { content: contentItems, metadata: currentMetadata ?? undefined, response };
       } catch (cause) {
+        if (cause instanceof ArifOSError) throw cause;
         throw new ArifOSError(
           `Tool call failed: ${name}`,
           'INVALID_RESPONSE',
@@ -232,56 +294,89 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
       }
     },
     
-    async anchorSession(context?: string): Promise<{ session_id: string; metadata: ArifOSMetadata }> {
-      const result = await client.callTool('anchor_session', { context: context ?? '' });
-      const text = result.content.find(c => c.type === 'text')?.text ?? '{}';
+    async anchorSession(query: string, actor_id?: string): Promise<{ session_id: string; metadata: ArifOSMetadata; raw: unknown }> {
+      const params: Record<string, unknown> = { query };
+      if (actor_id) params.actor_id = actor_id;
       
-      try {
-        const parsed = JSON.parse(text);
-        if (!parsed.session_id) {
-          throw new ArifOSError('anchor_session returned no session_id', 'INVALID_RESPONSE');
-        }
-        return { 
-          session_id: parsed.session_id,
-          metadata: result.metadata ?? {
-            session_id: parsed.session_id,
-            version: 'unknown',
-            stage: '000_INIT',
-            verdict: 'SEAL',
-            floors_evaluated: ['F11', 'F12', 'F13'],
-            timestamp: new Date().toISOString(),
-          }
-        };
-      } catch (cause) {
-        if (cause instanceof ArifOSError) throw cause;
-        throw new ArifOSError('Failed to parse anchor_session response', 'INVALID_RESPONSE', undefined, undefined, cause);
+      const result = await client.callTool('anchor_session', params);
+      
+      if (!result.response) {
+        throw new ArifOSError('anchor_session returned no parseable response', 'INVALID_RESPONSE');
       }
+      
+      const parsed = result.response as ArifOSResponse;
+      const sessionId = parsed.data?.session_id;
+      
+      if (!sessionId) {
+        throw new ArifOSError('anchor_session returned no session_id', 'INVALID_RESPONSE');
+      }
+      
+      const metadata: ArifOSMetadata = {
+        session_id: sessionId,
+        version: parsed.kernel_version as string || 'unknown',
+        stage: (parsed.data?.stage || '000_INIT') as Stage,
+        verdict: (parsed.data?.verdict || parsed.verdict || 'SEAL') as ArifOSMetadata['verdict'],
+        floors_evaluated: (parsed.data?.floors || []) as ArifOSMetadata['floors_evaluated'],
+        timestamp: new Date().toISOString(),
+        governance_token: parsed.data?.governance_token,
+      };
+      
+      return { session_id: sessionId, metadata, raw: parsed };
     },
     
-    async reasonMind(query: string, context?: string): Promise<VerdictEnvelope> {
-      const result = await client.callTool('reason_mind', { query, context: context ?? '' });
-      const text = result.content.find(c => c.type === 'text')?.text ?? '{}';
-      
-      try {
-        return JSON.parse(text) as VerdictEnvelope;
-      } catch (cause) {
-        throw new ArifOSError('Failed to parse reason_mind response', 'INVALID_RESPONSE', '333_MIND', undefined, cause);
+    async reasonMind(query: string): Promise<VerdictEnvelope> {
+      if (!currentSessionId) {
+        throw new ArifOSError('No active session. Call anchorSession() first.', 'INVALID_RESPONSE');
       }
-    },
-    
-    async apexJudge(action: string, risk_level?: 'LOW' | 'MODERATE' | 'CRITICAL'): Promise<VerdictEnvelope> {
-      const result = await client.callTool('apex_judge', { 
-        action, 
-        risk_level: risk_level ?? 'LOW',
-        require_human: risk_level === 'CRITICAL'
+      
+      const result = await client.callTool('reason_mind', { 
+        query, 
+        session_id: currentSessionId 
       });
-      const text = result.content.find(c => c.type === 'text')?.text ?? '{}';
       
-      try {
-        return JSON.parse(text) as VerdictEnvelope;
-      } catch (cause) {
-        throw new ArifOSError('Failed to parse apex_judge response', 'INVALID_RESPONSE', '888_APEX', undefined, cause);
+      if (!result.response) {
+        throw new ArifOSError('reason_mind returned no parseable response', 'INVALID_RESPONSE', '333_MIND');
       }
+      
+      const parsed = result.response as ArifOSResponse;
+      
+      // Map arifOS response to VerdictEnvelope
+      return {
+        verdict: (parsed.data?.verdict || parsed.verdict) as VerdictEnvelope['verdict'],
+        stage: (parsed.data?.stage || parsed.stage || '333_MIND') as Stage,
+        session_id: currentSessionId,
+        floors: (parsed.data?.floors || parsed.floors || []) as unknown as VerdictEnvelope['floors'],
+        truth: (parsed.data?.truth || parsed.truth) as VerdictEnvelope['truth'],
+        next_actions: (parsed.data?.next_actions || parsed.next_actions) as string[],
+        governance_token: (parsed.data?.governance_token || parsed.governance_token) as string,
+      };
+    },
+    
+    async apexJudge(query: string): Promise<VerdictEnvelope> {
+      if (!currentSessionId) {
+        throw new ArifOSError('No active session. Call anchorSession() first.', 'INVALID_RESPONSE');
+      }
+      
+      const result = await client.callTool('apex_judge', { 
+        query,
+        session_id: currentSessionId
+      });
+      
+      if (!result.response) {
+        throw new ArifOSError('apex_judge returned no parseable response', 'INVALID_RESPONSE', '888_APEX');
+      }
+      
+      const parsed = result.response as ArifOSResponse;
+      
+      return {
+        verdict: (parsed.data?.verdict || parsed.verdict) as VerdictEnvelope['verdict'],
+        stage: (parsed.data?.stage || parsed.stage || '888_APEX') as Stage,
+        session_id: currentSessionId,
+        floors: (parsed.data?.floors || parsed.floors || []) as unknown as VerdictEnvelope['floors'],
+        truth: (parsed.data?.truth || parsed.truth) as VerdictEnvelope['truth'],
+        next_actions: (parsed.data?.next_actions || parsed.next_actions) as string[],
+        governance_token: (parsed.data?.governance_token || parsed.governance_token) as string,
+      };
     },
     
     async listTools(): Promise<Array<{ name: string; description?: string; inputSchema?: unknown }>> {
