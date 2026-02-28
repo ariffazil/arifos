@@ -164,9 +164,10 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
         await client.call_tool(
             "eureka_forge",
             arguments={
-                "action_payload": {"action": "noop"},
+                "command": "noop",
+                    "purpose": "demo",
                 "session_id": session_id,
-                "signature": "phase888",
+                "agent_id": "phase888",
             },
         )
     )
