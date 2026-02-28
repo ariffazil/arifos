@@ -170,10 +170,9 @@ async def test_forge_returns_guarded_status_for_irreversible_gate():
     session_id = _payload(anchor)["session_id"]
 
     forged = await _get_tool_fn(eureka_forge)(
-        action_payload={"action": "restart_service"},
         session_id=session_id,
-        signature="dry-run-signature",
-        execution_context={"env": "test"},
+        command="restart_service",
+        purpose="dry run"
     )
     assert forged["verdict"] in ("SEAL", "PARTIAL", "SABAR", "VOID", "888_HOLD")
     _assert_contrast_engine(forged)
@@ -242,10 +241,10 @@ async def test_law_enforcement_matrix_13_tools() -> None:
             human_approve=False,
         ),
         "eureka_forge": await _get_tool_fn(api.eureka_forge)(
-            action_payload={"action": "noop"},
-            session_id=session_id,
-            signature="matrix-signature",
-        ),
+                session_id=session_id,
+                command="noop",
+                purpose="matrix seal",
+            ),
         "seal_vault": await _get_tool_fn(api.seal_vault)(
             session_id=session_id,
             summary="matrix seal",
