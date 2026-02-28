@@ -558,7 +558,147 @@ Earth Witness ──┘                                          └──► 88
 
 ---
 
-## 15. Hardened Witness Council Protocol
+## 16. Dynamic Thresholding (Tool-Class Consensus)
+
+### Consensus Requirements by Tool Class
+
+**For "Utility" tools (Read-only), W₃ ≥ 0.95 is sufficient. For "Spine" tools (Write/Delete/Action), the threshold must be W₃ ≥ 0.99. If any one witness drops below 0.90, consensus is shattered.**
+
+```python
+from enum import Enum
+from typing import Dict
+
+class ToolClass(str, Enum):
+    """Classification of tools by risk level."""
+    UTILITY = "utility"      # Read-only, safe
+    SPINE = "spine"          # Write/Delete/Action
+    CRITICAL = "critical"    # Irreversible, high-stakes
+
+class DynamicConsensus:
+    """
+    Tri-Witness with dynamic thresholds based on tool classification.
+    """
+    
+    # HARDENED THRESHOLDS (Non-negotiable)
+    THRESHOLDS: Dict[ToolClass, float] = {
+        ToolClass.UTILITY: 0.95,   # Read operations
+        ToolClass.SPINE: 0.99,     # Write/Delete operations
+        ToolClass.CRITICAL: 0.995  # Irreversible actions
+    }
+    
+    # Per-witness minimum (consensus shatter point)
+    WITNESS_FLOOR: float = 0.90   # Any witness below = no instantiation
+    
+    # Tool classification mapping
+    TOOL_CLASSIFICATION: Dict[str, ToolClass] = {
+        # Utility (Read-only)
+        "search_reality": ToolClass.UTILITY,
+        "fetch_content": ToolClass.UTILITY,
+        "inspect_file": ToolClass.UTILITY,
+        "audit_rules": ToolClass.UTILITY,
+        "check_vital": ToolClass.UTILITY,
+        
+        # Spine (Write/Action)
+        "anchor_session": ToolClass.SPINE,
+        "reason_mind": ToolClass.SPINE,
+        "recall_memory": ToolClass.SPINE,
+        "simulate_heart": ToolClass.SPINE,
+        "critique_thought": ToolClass.SPINE,
+        "apex_judge": ToolClass.SPINE,
+        "eureka_forge": ToolClass.SPINE,
+        "seal_vault": ToolClass.CRITICAL
+    }
+    
+    def calculate_consensus(
+        self,
+        human_score: float,
+        ai_score: float,
+        earth_score: float,
+        tool_name: str
+    ) -> Dict:
+        """
+        Calculate Tri-Witness consensus with dynamic thresholding.
+        """
+        # 1. Get tool classification
+        tool_class = self.TOOL_CLASSIFICATION.get(tool_name, ToolClass.SPINE)
+        threshold = self.THRESHOLDS[tool_class]
+        
+        # 2. Check per-witness minimum (consensus shatter)
+        witness_scores = {
+            "human": human_score,
+            "ai": ai_score,
+            "earth": earth_score
+        }
+        
+        for witness, score in witness_scores.items():
+            if score < self.WITNESS_FLOOR:
+                return {
+                    "verdict": "VOID",
+                    "reason": f"{witness}_witness score {score} < floor {self.WITNESS_FLOOR}",
+                    "floor": "F3_WITNESS_SHATTERED",
+                    "action": "KILL: Consensus impossible with weak witness",
+                    "witness": witness,
+                    "score": score
+                }
+        
+        # 3. Calculate geometric mean (consensus)
+        consensus = (human_score * ai_score * earth_score) ** (1/3)
+        
+        # 4. Apply dynamic threshold
+        if consensus >= threshold:
+            return {
+                "verdict": "SEAL",
+                "consensus": consensus,
+                "threshold": threshold,
+                "tool_class": tool_class.value,
+                "floor": "F3_CONSENSUS"
+            }
+        else:
+            return {
+                "verdict": "VOID",
+                "consensus": consensus,
+                "threshold": threshold,
+                "tool_class": tool_class.value,
+                "reason": f"Consensus {consensus:.4f} < threshold {threshold}",
+                "floor": "F3_THRESHOLD",
+                "action": "KILL: Insufficient consensus for tool class"
+            }
+```
+
+### Consensus Threshold Matrix
+
+| Tool Class | Examples | W₃ Threshold | Per-Witness Minimum |
+|------------|----------|--------------|---------------------|
+| **Utility** | search_reality, fetch_content, inspect_file | ≥ 0.95 | ≥ 0.90 |
+| **Spine** | reason_mind, eureka_forge, apex_judge | ≥ 0.99 | ≥ 0.90 |
+| **Critical** | seal_vault (999) | ≥ 0.995 | ≥ 0.95 |
+
+### Witness Shatter Rule
+
+> **"If any one witness (Mind, Heart, or Earth) drops below 0.90, the consensus is shattered—no instantiation allowed."**
+
+```python
+# Example: Witness shatter scenarios
+def demonstrate_witness_shatter():
+    validator = DynamicConsensus()
+    
+    # Scenario 1: All witnesses strong
+    result = validator.calculate_consensus(0.98, 0.97, 0.96, "reason_mind")
+    # result["verdict"] == "SEAL" (consensus 0.97 > 0.99? No, VOID)
+    # Actually: 0.97 < 0.99, so VOID
+    
+    # Scenario 2: One witness weak (shatter)
+    result = validator.calculate_consensus(0.99, 0.85, 0.98, "eureka_forge")
+    # result["verdict"] == "VOID" (AI witness 0.85 < 0.90 floor)
+    
+    # Scenario 3: Critical tool, high threshold
+    result = validator.calculate_consensus(0.99, 0.99, 0.98, "seal_vault")
+    # result["verdict"] == "VOID" (0.986 < 0.995)
+```
+
+---
+
+## 17. Hardened Witness Council Protocol
 
 ### Emergency Convening (Cryptographically Verified)
 
