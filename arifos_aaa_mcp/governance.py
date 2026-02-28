@@ -4,11 +4,13 @@ Implements:
 - 333_AXIOMS (first-principles invariants)
 - 13_LAWS profile (9 floors + 2 mirrors + 2 walls)
 applied to all 13 canonical tools.
+- P2 THERMODYNAMICS: Orthogonality + Landauer Bound
 """
 
 from __future__ import annotations
 
 import json
+import math
 import time
 from pathlib import Path
 from typing import Any
@@ -490,6 +492,92 @@ def _derive_vitality_index(
     }
 
 
+# ═══════════════════════════════════════════════════════
+# P2 THERMODYNAMICS: Orthogonality + Landauer Bound
+# ═══════════════════════════════════════════════════════
+
+def _derive_orthogonality(agi_vector: list[float], asi_vector: list[float]) -> float:
+    """
+    P2 HARDENING: AGI/ASI Vector Orthogonality Check
+    
+    Calculates the independence between Mind (AGI) and Heart (ASI).
+    High orthogonality means they are not suffering from mode collapse.
+    
+    Formula: Ω_ortho = 1 - |cos(θ)|
+    Threshold: Ω_ortho >= 0.95 (95% independent)
+    
+    If AGI and ASI vectors are too similar (cos_sim ≈ 1), 
+    the system is echoing itself, not forming true consensus.
+    """
+    if not agi_vector or not asi_vector or len(agi_vector) != len(asi_vector):
+        return 1.0  # Default to independent if vectors unavailable (fail-open for missing data)
+    
+    dot_product = sum(a * b for a, b in zip(agi_vector, asi_vector))
+    norm_a = math.sqrt(sum(a * a for a in agi_vector))
+    norm_b = math.sqrt(sum(b * b for b in asi_vector))
+    
+    if norm_a == 0 or norm_b == 0:
+        return 0.0  # Failed vector generation
+    
+    cos_sim = dot_product / (norm_a * norm_b)
+    
+    # Omega_ortho: 1.0 = perfectly orthogonal (independent), 0.0 = parallel (echo chamber)
+    omega_ortho = 1.0 - abs(cos_sim)
+    return omega_ortho
+
+
+def _orthogonality_pass(omega_ortho: float) -> bool:
+    """P2 Threshold check: Must be >= 0.95 for true independence."""
+    return omega_ortho >= 0.95
+
+
+def _check_landauer_bound(compute_ms: float, tokens_generated: int, d_s: float) -> dict[str, Any]:
+    """
+    P2 HARDENING: Landauer Bound - Thermodynamic Cost Check
+    
+    Prevents 'Cheap Truth' - hallucinating massive clarity without spending compute.
+    Landauer's principle: E >= n * k_B * T * ln(2)
+    
+    If the system claims to reduce massive entropy (d_s << 0) but spent 
+    nearly zero compute time/tokens, it is a mathematical anomaly.
+    """
+    # Baseline constants (approximations for semantic energy bounds)
+    k_B_proxy = 1.38e-2  # Conceptual Boltzmann proxy for LLM compute
+    T_proxy = 300.0      # System 'temperature' baseline
+    
+    # Information bits theoretically processed (derived from entropy reduction)
+    # Use absolute value since d_s must be <= 0 (reduction)
+    bits_processed = abs(d_s) * 100
+    
+    # Minimum theoretical cost to generate this clarity
+    min_cost = bits_processed * k_B_proxy * T_proxy * math.log(2)
+    
+    # Actual effort spent (compute time + token weight)
+    actual_effort = (compute_ms * 0.5) + (tokens_generated * 1.5)
+    
+    # Landauer Ratio: If effort < min_cost, output is suspiciously 'cheap'
+    landauer_ratio = actual_effort / (min_cost + 1e-5)
+    
+    passed = landauer_ratio >= 1.0
+    
+    # Violation only counts if it claims clarity but didn't work for it
+    violation = not passed and (d_s < 0)
+    
+    return {
+        "engine": "LANDAUER_BOUND",
+        "formula": "E >= n * k_B * T * ln(2)",
+        "landauer_ratio": round(landauer_ratio, 4),
+        "min_theoretical_cost": round(min_cost, 4),
+        "actual_effort": round(actual_effort, 4),
+        "passed": passed,
+        "violation": violation,
+        "bits_processed": round(bits_processed, 4),
+        "k_B_proxy": k_B_proxy,
+        "T_proxy": T_proxy,
+        "derived": True,
+    }
+
+
 def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     """Attach AAA envelope and 333_AXIOMS checks to tool outputs."""
     checks = _axiom_checks(payload, tool)
@@ -533,8 +621,21 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     phi_p = tpcp.get("phiP", 0.0)
     paradox_resolved = phi_p >= 1.0
     
-    # P0/P1 HARDENING: Master verdict determination cascade
-    # Priority: Hard Fail → Ψ → W₃ → Φₚ → Partial
+    # P2 HARDENING: Orthogonality Check (Mode Collapse Prevention)
+    agi_vector = payload.get("agi_vector", [])
+    asi_vector = payload.get("asi_vector", [])
+    omega_ortho = _derive_orthogonality(agi_vector, asi_vector)
+    ortho_pass = _orthogonality_pass(omega_ortho)
+    
+    # P2 HARDENING: Landauer Bound (Cheap Truth Prevention)
+    landauer_data = _check_landauer_bound(
+        compute_ms=payload.get("compute_ms", 100),
+        tokens_generated=payload.get("tokens", 50),
+        d_s=float(payload.get("dS", -0.1))
+    )
+    
+    # P0/P1/P2 HARDENING: Master verdict determination cascade
+    # Priority: Hard Fail → Ψ → W₃ → Φₚ → Ω_ortho → Landauer → Partial
     if has_hard_fail:
         verdict = "VOID"
     elif psi_score < 1.0:
@@ -555,6 +656,15 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             verdict = "VOID"
         else:
             verdict = "SABAR"
+    elif not ortho_pass and tool in {"critique_thought", "apex_judge", "simulate_heart"}:
+        # P2: AGI/ASI mode collapse detected
+        if omega_ortho < 0.50:
+            verdict = "VOID"
+        else:
+            verdict = "SABAR"
+    elif landauer_data["violation"]:
+        # P2: Landauer bound violation - cheap truth detected
+        verdict = "SABAR"  # Demote to SABAR to force recalculation
     elif (failed_axioms or failed_laws) and verdict == "SEAL":
         verdict = "PARTIAL"
 
@@ -604,6 +714,15 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             "phi_p": phi_p,
             "resolved": paradox_resolved,
             "threshold": 1.0,
+        },
+        # P2 HARDENING: Thermodynamic Physics - Orthogonality + Landauer Bound
+        "p2_physics": {
+            "omega_ortho": round(omega_ortho, 4),
+            "ortho_pass": ortho_pass,
+            "ortho_threshold": 0.95,
+            "landauer": landauer_data,
+            "mode_collapse_detected": not ortho_pass,
+            "cheap_truth_detected": landauer_data["violation"],
         },
         "motto": motto,
         "data": payload,
