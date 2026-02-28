@@ -233,16 +233,26 @@ async def apex_judge(
 
 @mcp.tool(name="eureka_forge")
 async def eureka_forge(
-    action_payload: dict[str, Any],
     session_id: str,
-    signature: str,
-    execution_context: dict[str, Any] | None = None,
-    ratification_token: str | None = None,
+    command: str,
+    working_dir: str = "/root",
+    timeout: int = 60,
+    confirm_dangerous: bool = False,
+    agent_id: str = "unknown",
+    purpose: str = "",
 ) -> dict[str, Any]:
-    """777 EUREKA FORGE: execute action payload behind sovereign control gates."""
+    """777 EUREKA FORGE: execute shell commands with audit logging and confirmation for dangerous operations.
+    
+    F5: Safe defaults (validates working_dir)
+    F6: Comprehensive error handling
+    F7: Risk classification (LOW/MODERATE/CRITICAL)
+    F9: Transparent logging with agent_id and purpose
+    
+    Dangerous commands (rm -rf, mkfs, dd, etc.) require confirm_dangerous=True
+    """
     blocked = validate_input(
         "eureka_forge",
-        {"action_payload": action_payload, "session_id": session_id, "signature": signature},
+        {"session_id": session_id, "command": command, "agent_id": agent_id},
     )
     if blocked:
         return wrap_tool_output("eureka_forge", blocked)
@@ -250,17 +260,17 @@ async def eureka_forge(
     if missing:
         return wrap_tool_output("eureka_forge", missing)
     payload = await legacy.eureka_forge.fn(
-        action_payload=action_payload,
-        signed_tensor={},
-        execution_context=execution_context or {},
-        signature=signature,
         session_id=session_id,
-        idempotency_key=f"forge-{session_id}",
-        ratification_token=ratification_token,
+        command=command,
+        working_dir=working_dir,
+        timeout=timeout,
+        confirm_dangerous=confirm_dangerous,
+        agent_id=agent_id,
+        purpose=purpose,
     )
     if isinstance(payload, dict):
         stage_value = str(payload.get("stage", "")).upper()
-        if stage_value in {"", "888_FORGE", "777_FORGE"}:
+        if stage_value in {"", "888_FORGE", "777_FORGE", "777_EXECUTE"}:
             payload["stage"] = "777_EUREKA_FORGE"
             if stage_value:
                 payload["stage_legacy"] = stage_value
