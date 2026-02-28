@@ -75,8 +75,9 @@ export const VERSION = '0.1.1';
  * Compatible arifOS PyPI versions.
  */
 export const ARIFOS_COMPATIBILITY = [
-  '2026.2.17',  // Current PyPI
-  '2026.2.28',  // Pending release
+  '2026.2.17',  // Canonical stable
+  '2026.2.28',  // Published
+  '2026.3.1',   // Current Dev/Sync
 ] as const;
 
 /**
