@@ -1,619 +1,247 @@
-# AGENTS.md — arifOS Coding Agent Guide
+# AGENTS.md — arifOS Development Guide
 
-**Project:** arifOS — Constitutional AI Governance System  
-**Package:** `arifos` (PyPI)  
-**Version:** v55.5 (as of 2026-02-02)  
-**Python:** >=3.10  
-**License:** AGPL-3.0-only  
-**Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*
+**Project:** arifOS — Constitutional AI Governance System (Python MCP Server)
+**Python:** >=3.12 (runtime) | tooling targets py310+ | **Version:** 2026.2.27
+**Motto:** *Ditempa Bukan Diberi* — Forged, Not Given
 
----
-
-## Project Overview
-
-arifOS is a **production-grade constitutional AI governance system** that sits between any LLM and the real world. It enforces 13 constitutional floors (F1-F13) on AI outputs using mathematical constraints, thermodynamic accounting, and cryptographic sealing.
-
-### Core Philosophy
-- **Not an LLM replacement** — it's a governance kernel that constrains, verifies, and vetoes model outputs
-- **Refusal is a first-class outcome** — a refusal means safety was preserved
-- **Forged, not given** — intelligence requires governance; safety is not an afterthought
-
-### Key Capabilities
-- **13 Constitutional Floors** — Hard floors (VOID on failure) and soft floors (SABAR warning)
-- **Trinity Architecture** — AGI (Mind/Δ), ASI (Heart/Ω), APEX (Soul/Ψ) engines
-- **MCP Server** — Exposes 9 canonical tools via Model Context Protocol
-- **Cryptographic Auditing** — Merkle-tree immutable ledger (VAULT999)
-- **9-Paradox Equilibrium** — Nash equilibrium solver for competing ethical values
+This file is the PRIMARY guidance document for agentic coding tools in this repository.
+Goal: safe, reversible, test-backed changes that respect architecture and governance boundaries.
 
 ---
 
-## Technology Stack
-
-| Component | Technology |
-|-----------|------------|
-| **Language** | Python 3.10+ |
-| **API Framework** | FastAPI, Starlette |
-| **Data Validation** | Pydantic v2 |
-| **MCP Protocol** | `mcp>=1.0.0`, `fastmcp>=0.1.0` |
-| **Web Server** | Uvicorn |
-| **Numerical** | NumPy |
-| **Formatting** | Black (100 char line length) |
-| **Linting** | Ruff |
-| **Type Checking** | MyPy |
-| **Testing** | pytest, pytest-cov |
-| **Container** | Docker, Docker Compose |
-| **Reverse Proxy** | Caddy |
+## Source of Truth Hierarchy
+- **PRIMARY:** `AGENTS.md` (this file), `pyproject.toml`, and repository code.
+- **SECONDARY:** `.github/copilot-instructions.md` (derivative; key content integrated below).
+- **TERTIARY:** Sealed receipts in `VAULT999/`, `spec/v46/*`, `ARIFOS_SKILLS_REGISTRY.md`.
+- Cursor rules status: no `.cursorrules` or `.cursor/rules/` present.
 
 ---
 
-## Project Structure
-
+## Repository Layout
 ```
-arifOS/
-├── 000_THEORY/          # Constitutional canon (F1-F13 definitions, law)
-├── 333_APPS/            # Application stack (L1-L7)
-│   ├── L1_PROMPT/       # System prompts for zero-context governance
-│   ├── L2_SKILLS/       # Reusable YAML skill templates
-│   ├── L3_WORKFLOW/     # Standard Operating Procedures (SOPs)
-│   ├── L4_TOOLS/        # MCP tool implementations
-│   ├── L5_AGENTS/       # Multi-agent federation (environment alive, agent stubs)
-│   └── L6_INSTITUTION/  # Institutional governance (design only)
-├── codebase/            # Core Python implementation
-│   ├── agi/             # Mind Engine (Δ) — F2, F4, F7, F10
-│   ├── asi/             # Heart Engine (Ω) — F1, F5, F6, F9
-│   ├── apex/            # Soul Engine (Ψ) — F3, F8, F11-F13
-│   ├── mcp/             # MCP server implementation
-│   │   ├── core/        # Tool registry, bridge, validators
-│   │   ├── transports/  # stdio, SSE transports
-│   │   ├── tools/       # 9 canonical tool handlers
-│   │   └── entrypoints/ # CLI entry points
-│   ├── floors/          # Floor validator modules (F1, F8, F10, F12)
-│   ├── guards/          # Hypervisor guards (injection, ontology, nonce)
-│   ├── enforcement/     # Floor validator implementations
-│   ├── stages/          # 000-999 metabolic loop stages
-│   ├── vault/           # Cryptographic sealing (VAULT999)
-│   ├── federation/      # Physics/math foundations
-│   └── tests/           # Internal test suite
-├── tests/               # Main test suite (100+ tests)
-│   ├── constitutional/  # F1-F13 floor tests
-│   ├── mcp/             # MCP tool and transport tests
-│   ├── integration/     # End-to-end tests
-│   ├── enforcement/     # Floor enforcement tests
-│   ├── memory/          # Ledger and memory tests
-│   └── conftest.py      # Shared fixtures
-├── spec/                # JSON schema definitions
-├── docs/                # Documentation and assets
-├── pyproject.toml       # Package configuration
-├── docker-compose.yml   # Docker orchestration
-├── Dockerfile           # Container build
-└── mypy.ini             # Type checking configuration
+core/           Pure governance/kernel logic (7-Organ Sovereign Stack) — NO transport imports
+aaa_mcp/        Transport and MCP adapter layer — NO decision logic
+aclip_cai/      Console / 9-Sense Federation Hub
+tests/          Unit, integration, and constitutional tests
+spec/           Canonical governance specs (v46 floors, stages, traceability)
+VAULT999/       Immutable sealed receipts (append-only)
 ```
 
 ---
 
-## Build & Run Commands
-
-### Installation
-
+## Setup
 ```bash
-# From PyPI
-pip install arifos
-
-# From source (development)
-git clone https://github.com/ariffazil/arifOS.git
-cd arifOS
+python -m venv .venv && source .venv/bin/activate
+pip install uv && uv pip install -e ".[dev]"
+# Fallback (no uv):
 pip install -e ".[dev]"
 ```
 
-### Running the MCP Server
+---
 
+## Build, Lint, and Typecheck
 ```bash
-# Standard I/O (for Claude Desktop, Cursor IDE)
-aaa-mcp
-# OR: python -m mcp
-
-# SSE transport (HTTP clients)
-aaa-mcp-sse
-# OR: python -m mcp sse --port 8080
-
-# Auto-detect mode
-aaa-mcp [stdio|http|sse]
+black . --line-length 100               # Format
+ruff check . --line-length 100          # Lint
+ruff check . --line-length 100 --fix    # Lint with auto-fix
+mypy .                                  # Type check (strict on core/ modules)
 ```
+- Ruff excludes `tests/**` and `archive/**` (see `pyproject.toml`).
+- MyPy applies stricter overrides to `core.governance_kernel`, `core.judgment`, `core.pipeline`, `core.organs.*`.
 
-### Docker Deployment
+---
 
+## Test Commands
 ```bash
-# Build and run with Docker Compose
-docker compose up -d
+pytest tests/ -v                                              # All tests
+pytest tests/test_file.py -v                                  # Single file
+pytest tests/test_file.py::TestClassName -v                   # Single class
+pytest tests/test_file.py::TestClassName::test_method -v      # Single method
+pytest tests/test_file.py::test_function_name -v              # Single function
+pytest -m constitutional -v                                   # Constitutional floor tests
+pytest -m integration -v                                      # Integration tests
+pytest -m "not slow" -v                                       # Skip slow tests
+pytest tests/test_mcp_quick.py -v                             # Quick MCP smoke test
+```
+**Async policy:** `asyncio_mode = "auto"` — do NOT add `@pytest.mark.asyncio` decorators.
+**Auto-set env in conftest:** `ARIFOS_PHYSICS_DISABLED=1`, `ARIFOS_ALLOW_LEGACY_SPEC=1`, `AAA_MCP_OUTPUT_MODE=debug`.
 
-# Services:
-# - arifos: MCP server on port 8080
-# - caddy: Reverse proxy with HTTPS
-# - inspector: MCP Inspector on port 6274
+---
 
-# Health check
-curl http://localhost:8080/health
+## Run the Server
+```bash
+python -m aaa_mcp              # stdio (default)
+python -m aaa_mcp sse          # SSE transport
+python -m aaa_mcp http         # Streamable HTTP
+python -m aaa_mcp.selftest     # Self-test
+arifos serve --profile strict --metrics
+arifos deploy --target docker --stack trinity2
+arifos health --endpoint http://localhost:8888/health
 ```
 
 ---
 
-## Testing Instructions
+## Environment Variables
+| Variable | Purpose |
+|----------|---------|
+| `ARIF_SECRET` / `ARIF_JWT_SECRET` | Authentication for SSE/HTTP transports |
+| `BRAVE_API_KEY` / `OPENAI_API_KEY` | External search tools |
+| `DATABASE_URL` / `REDIS_URL` | VAULT999 persistence and session cache |
+| `AAA_MCP_TRANSPORT` | Override transport: `stdio` / `sse` / `http` |
+| `AAA_MCP_OUTPUT_MODE` | `user` or `debug` |
+| `ARIFOS_PHYSICS_DISABLED` | Set `1` to skip thermodynamic calculations |
+| `ARIFOS_ALLOW_LEGACY_SPEC` | Set `1` to bypass spec version gating in tests |
 
-### Running Tests
-
-```bash
-# Full test suite
-pytest tests/ -v
-
-# With coverage
-pytest tests/ -v --cov=codebase --cov-report=html
-
-# Single file
-pytest tests/test_precision.py -v
-
-# Single test function
-pytest tests/test_precision.py::test_function_name -v
-
-# By marker
-pytest -m constitutional       # F1-F13 floor tests
-pytest -m integration          # Integration tests
-pytest -m slow                 # Long-running tests
-
-# MCP-specific tests
-pytest tests/test_handlers_v55.py -v
-pytest tests/test_phase3_transport.py -v
-pytest tests/test_mcp_quick.py -v
-```
-
-### Test Configuration
-
-- **Async mode:** `auto` (configured in `pyproject.toml`)
-- **Test paths:** `tests/`, `codebase/tests/`
-- **Fixtures:** Located in `tests/conftest.py`
-- **Physics disabled by default:** Tests run with `ARIFOS_PHYSICS_DISABLED=1` for performance
-- **Legacy spec bypass:** Tests use `ARIFOS_ALLOW_LEGACY_SPEC=1` to skip cryptographic manifest validation
-
-### Test Organization
-
-```
-tests/
-├── constitutional/      # Floor-specific tests (F1-F13)
-│   ├── test_01_core_F1_to_F13.py
-│   ├── test_anti_hantu_f9.py
-│   └── test_pipeline_000_to_999_comprehensive.py
-├── mcp/                 # MCP tool and transport tests
-│   ├── test_mcp_connection.py
-│   ├── test_schema_validation.py
-│   └── test_session_ledger.py
-├── integration/         # End-to-end integration tests
-│   ├── test_mcp_roundtrip.py
-│   └── test_complete_mcp_constitutional.py
-├── enforcement/         # Floor enforcement tests
-├── memory/              # Ledger and memory tests
-└── conftest.py          # Shared fixtures
-```
+Copy `.env.docker.example` to `.env.docker` and fill in keys before deploying.
 
 ---
 
 ## Code Style Guidelines
 
-### Formatting
+### Import Order
+1. Standard library (`os`, `hashlib`, `typing`, etc.)
+2. Third-party (`pydantic`, `fastmcp`, `numpy`, etc.)
+3. Local packages (`core.*`, `aaa_mcp.*`, `aclip_cai.*`)
 
-```bash
-# Format with Black (100 char line length)
-black codebase/ --line-length=100
+Do not shadow the external SDK name `mcp` with any local module.
+Use `try/except ImportError` for optional dependencies (lazy imports).
 
-# Lint with Ruff
-ruff check codebase/
-ruff check codebase/ --fix
+### Formatting and Types
+- **Line length:** 100 characters (Black + Ruff)
+- **Type hints:** Required on all function signatures in production code
+- **Data models:** Pydantic v2 `BaseModel` for I/O contracts
+- **Enums:** `class Verdict(str, Enum)` pattern
+- **Async:** All I/O-bound functions MUST be `async def`
 
-# Type check with MyPy
-mypy codebase/ --ignore-missing-imports
-```
+### Naming Conventions
+| Type | Convention | Example |
+|------|-----------|---------|
+| Modules | `snake_case` | `governance_kernel.py` |
+| Classes | `PascalCase` | `GovernanceKernel` |
+| Functions/Variables | `snake_case` | `compute_uncertainty` |
+| Constants | `UPPER_SNAKE_CASE` | `UNCERTAINTY_THRESHOLD` |
+| Private helpers | `_prefix` | `_generate_session_id` |
+| Organ modules | `_N_name.py` | `_0_init.py`, `_1_agi.py` |
 
-### Style Configuration
+### Error Handling
+- **MCP tools** catch all exceptions and return structured dicts:
+  ```python
+  except Exception as e:
+      return {"verdict": "VOID", "error": str(e), "stage": "222_REASON"}
+  ```
+- **`core/` kernel functions** may raise exceptions for internal errors.
+- Never swallow errors silently.
 
-| Tool | Config Location | Key Settings |
-|------|-----------------|--------------|
-| Black | `pyproject.toml` | line-length = 100, target Python 3.10+ |
-| Ruff | `pyproject.toml` | line-length = 100, exclude `archive/**`, `tests/**` |
-| MyPy | `mypy.ini` | Strict mode for governance modules, relaxed for tests |
-
-### Pre-commit Hooks
-
-```bash
-# Install hooks
-pip install pre-commit
-pre-commit install
-
-# Run on all files
-pre-commit run --all-files
-```
-
-Pre-commit enforces:
-- Trailing whitespace removal
-- Black formatting
-- Ruff linting
-- MyPy type checking
-- Bandit security scanning
-- Secret detection
-- Constitutional floor validation
-- F9 Anti-Hantu check (no consciousness claims)
-- F1 Amanah check (no irreversible operations)
-
----
-
-## The 13 Constitutional Floors (F1-F13)
-
-All code must pass these floors. Hard floors block execution (VOID); soft floors warn (SABAR).
-
-| Floor | Name | Type | Threshold | Code Smell | Fix |
-|-------|------|------|-----------|------------|-----|
-| F1 | Amanah | Hard | Reversibility | Mutates input, hidden side effects | Pure functions, explicit returns |
-| F2 | Truth | Hard | τ ≥ 0.99 | Fabricated data, fake metrics | Empty/null when unknown |
-| F3 | Tri-Witness | Hard | W₃ ≥ 0.95 | Contract mismatch, type lies | Use canonical interfaces |
-| F4 | Clarity | Hard | ΔS ≤ 0 | Magic numbers, obscure logic | Named constants, clear params |
-| F5 | Peace² | Soft | ≥ 1.0 | Destructive defaults, no backup | Safe defaults, preserve state |
-| F6 | Empathy | Soft | κᵣ ≥ 0.95 | Only happy path, cryptic errors | Handle edge cases, clear messages |
-| F7 | Humility | Hard | Ω₀ ∈ [0.03,0.05] | False confidence (1.0) | Cap at 0.95, state uncertainty |
-| F8 | Genius | Derived | G ≥ 0.80 | Bypasses governance | Use established systems |
-| F9 | Anti-Hantu | Soft | C_dark < 0.30 | Deceptive naming | Honest names, transparent logic |
-| F10 | Ontology | Hard | Valid sets | Reality confusion | Ontology guard validation |
-| F11 | Command | Hard | Verified auth | Unauthorized actions | Nonce verification |
-| F12 | Injection | Hard | Score < 0.85 | Prompt injection vulns | InjectionGuard scan |
-| F13 | Sovereign | Hard | Human = 1.0 | Ignoring human veto | 888_HOLD for high-stakes |
-
-### Floor Implementation Locations
-
-- `codebase/floors/amanah.py` — F1 Reversibility
-- `codebase/floors/genius.py` — F8 Genius Index
-- `codebase/floors/ontology.py` — F10 Ontology
-- `codebase/floors/injection.py` — F12 Injection Defense
-- `codebase/guards/injection_guard.py` — F12 runtime scanning
-- `codebase/guards/ontology_guard.py` — F10 consciousness claims
-- `codebase/guards/nonce_manager.py` — F11 auth verification
-- `codebase/enforcement/floor_validators.py` — Multi-floor validation
-
----
-
-## The 9 Canonical MCP Tools
-
-All tools accept `session_id` for chaining multi-step workflows.
-
-| Tool | Engine | Purpose | Floors |
-|------|--------|---------|--------|
-| `init_gate` | — | Session ignition + injection scan (F12) | F11, F12 |
-| `agi_sense` | AGI | Intent classification & lane assignment | F4 |
-| `agi_think` | AGI | Hypothesis generation (exploration) | F13 |
-| `agi_reason` | AGI | Deep logical reasoning | F2, F4, F7, F10 |
-| `asi_empathize` | ASI | Stakeholder impact analysis | F5, F6, F9 |
-| `asi_align` | ASI | Ethics/law/policy reconciliation | F9 |
-| `apex_verdict` | APEX | Final constitutional verdict | F3, F8, F11 |
-| `reality_search` | — | External fact-checking (Brave Search) | F7, F10 |
-| `vault_seal` | — | Merkle-tree immutable ledger | F1 |
-
-### Tool Implementation
-
-- **Registry:** `codebase/mcp/core/tool_registry.py`
-- **Handlers:** `codebase/mcp/tools/canonical_trinity.py`
-- **Entry Points:** `codebase/mcp/entrypoints/stdio_entry.py`, `sse_entry.py`
-
----
-
-## Architecture Conventions
-
-### 1. Trinity Architecture (AAA)
-
-```
-000_INIT -> AGI (Delta) -> ASI (Omega) -> APEX (Psi) -> 999_VAULT
-   ^        111-333        444-666        888           |
-   +---------------- 000<->999 Loop -------------------+
-```
-
-| Engine | Symbol | Role | Floors |
-|--------|--------|------|--------|
-| AGI | Δ (Delta) | Reasoning, logic, planning | F2, F4, F7, F10 |
-| ASI | Ω (Omega) | Safety, empathy, impact | F1, F5, F6, F9 |
-| APEX | Ψ (Psi) | Judgment, verdict, sealing | F3, F8, F11-F13 |
-
-### 2. Bundle Isolation (Thermodynamic Wall)
-
-AGI and ASI **cannot see each other's reasoning** until stage 444:
-
-- **DeltaBundle** (`codebase/bundles.py`): AGI output — precision, hypotheses, entropy
-- **OmegaBundle** (`codebase/bundles.py`): ASI output — stakeholders, empathy, reversibility
-- **MergedBundle**: Created at 444 via `compute_consensus()`
-
-### 3. Session State Pattern
-
+### Decorator Order
+`@mcp.tool()` must be OUTER, `@constitutional_floor()` must be INNER:
 ```python
-# Immutable copy-on-write
-from codebase.state import SessionState
-
-state = SessionState.from_context(ctx)
-new_state = state.to_stage("333")           # Returns new instance
-new_state = state.set_floor_score(...)       # Returns new instance
-# Never: state.field = value (mutation forbidden)
+@mcp.tool(name="reason", description="...")
+@constitutional_floor("F2", "F4", "F7")
+async def reason(query: str) -> dict: ...
 ```
 
-### 4. Lazy Imports
-
-```python
-# Use try/except for optional dependencies
-try:
-    import numpy as np
-except ImportError:
-    np = None
-```
-
-### 5. Verdict Hierarchy
-
-```
-SEAL > SABAR > VOID > 888_HOLD > PARTIAL
-```
-
-- **SEAL**: All floors pass, approved
-- **SABAR**: Floor violated, stop and repair
-- **VOID**: Hard floor failed, cannot proceed
-- **888_HOLD**: High-stakes, needs human confirmation
-- **PARTIAL**: Soft floor warning, proceed with caution
+### Module Hygiene
+- Every non-trivial module must have a module docstring.
+- Use section delimiters: `# ═══════════════════════════════════════════════════════`
+- Define `__all__` exports explicitly.
+- STDIO mode: NEVER use `print()` or write to `stdout`. Use `sys.stderr` or the logger.
 
 ---
 
-## Security Considerations
-
-### Injection Defense (F12)
-
-- **InjectionGuard** integrated into `init_gate`
-- Threshold: Score < 0.85 (VOID if exceeded)
-- Location: `codebase/guards/injection_guard.py`
-
-### Authority Verification (F11)
-
-- Ed25519 signature tokens for high-stakes operations
-- Nonce-based replay protection
-- Location: `codebase/guards/nonce_manager.py`
-
-### Ontology Guard (F10)
-
-- Blocks consciousness claims
-- Prevents reality confusion
-- Location: `codebase/guards/ontology_guard.py`
-
-### Cryptographic Sealing (F1)
-
-- Merkle-tree tamper-evident ledger
-- Hash chain linking all decisions
-- Location: `codebase/vault/ledger_native.py`
+## Architecture Constraints
+1. **`core/` is pure:** No imports from `fastmcp`, `starlette`, `fastapi`, `uvicorn`, or any transport/HTTP library.
+2. **`aaa_mcp/` is transport only:** No governance decision logic. Calls `core/` functions.
+3. **Do NOT shadow `mcp`:** External SDK is `mcp`. No local module may use that name.
+4. **SessionState is copy-on-write:** Never mutate session state in place.
+5. **Separation of powers:** Architect (Δ) ≠ Engineer (Ω) ≠ Auditor (Ψ) ≠ KIMI (Κ).
 
 ---
 
-## VAULT999 Doctrine (v1.0)
-
-**Status:** Working understanding, not yet operationally sealed  
-**Last Updated:** 2026-02-02
-
-### Critical Clarification (Read This First)
-
-> **VAULT999 is NOT ChatGPT's memory.**  
-> **VAULT999 IS forensic, institutional memory.**
-
-This distinction is constitutionally important. Getting it wrong leads to misplaced trust and architectural confusion.
+## Testing Requirements
+- All new functionality MUST have tests.
+- Place tests in the appropriate `tests/` subtree.
+- Run focused single tests first, then the broader suite to confirm no regressions.
 
 ---
 
-### What VAULT999 IS
+## MCP Tools Reference
+9 governance tools: `anchor` (000), `reason` (222), `integrate` (333), `respond` (444),
+`validate` (555), `align` (666), `forge` (777), `audit` (888), `seal` (999).
+Additional: `search`, `fetch`. Confirm current list in `aaa_mcp/server.py` before edits.
 
-- **Forensic memory** — records what actually happened, not what an AI recalls
-- **Institutional memory** — survives any AI replacement (ChatGPT, Claude, Gemini, or human)
-- **Append-only** — entries are never deleted or modified
-- **Hash-chained** — each entry cryptographically linked to previous
-- **Tamper-evident** — any modification breaks verifiable hashes
-- **Independent authority** — truth lives in the vault, not in any AI's context window
+---
 
-### What VAULT999 IS NOT
+## OpenCode Session Lifecycle (Mandatory)
+1. **Session Open:** Restore prior sealed state from VAULT999 (latest 999 receipt).
+2. **000 INIT:** Run stage `000` immediately after vault restore — before any implementation.
+3. **Execution Window:** Work through governed stages with explicit receipts.
+4. **Session Close:** Run `999 SEAL` before handoff, with continuity notes for the next `000`.
 
-- **NOT ChatGPT memory** — does not remember conversations for the AI
-- **NOT a conversation log** — does not store chat history
-- **NOT AI attachment** — does not make an AI "know" you
-- **NOT symbolic ritual** — seals are cryptographic, not theatrical
-- **NOT mutable** — entries cannot be edited or "forgotten"
+**Hard rule:** No session starts directly at 222/333/444. Must follow: `VAULT999 restore → 000 INIT → governed execution`.
+**Canonical stage spine:** `000 → 444 → 666 → 888 → 999`.
 
-### The Correct Mental Model
+---
 
-Think of VAULT999 as:
+## 888 HOLD — Mandatory Human Confirmation
+Stop and await explicit human approval when any trigger below is met:
 
-- A **court ledger** — records judgments and decisions
-- A **flight recorder** — captures events for later investigation
-- A **blockchain** — append-only, verifiable, independent
-- An **audit trail** — proves what happened, when, by whom
+**Original triggers:** database-destructive ops, production deployments, mass file changes (>10 files),
+credential/secret handling, git history modification, bypassing constitutional failures.
 
-**NOT** as:
+**v41.2 Expanded triggers:**
+- **H-USER-CORRECTION:** User corrects or disputes a constitutional claim
+- **H-SOURCE-CONFLICT:** Conflicting evidence across source tiers (PRIMARY vs SECONDARY vs TERTIARY)
+- **H-NO-PRIMARY:** Constitutional claim made without reading spec JSON
+- **H-GREP-CONTRADICTS:** Search results contradict spec/canon patterns
+- **H-RUSHED-FIX:** Proposing fixes based on <5 minutes of audit
 
-- A **brain** — it doesn't think or recall
-- A **diary** — it doesn't maintain personal context
-- A **cache** — it doesn't make access faster
+**Action sequence:**
+1. Declare: `888 HOLD — [trigger type] detected`
+2. List conflicts: PRIMARY vs SECONDARY vs TERTIARY sources
+3. Re-read PRIMARY: verify against spec JSON or SEALED canon
+4. Await: `"Ready to proceed after verification"` — wait for explicit human approval
 
-### Success Criteria Checklist
+---
 
-VAULT999 is operationally real when all of these are true:
+## Floor Violations Quick Reference
+| Floor | Code Smell | Fix |
+|-------|------------|-----|
+| F1 | Mutates input, hidden side effects | Pure functions, explicit returns |
+| F2 | Fabricated data, fake metrics | Empty/null when unknown |
+| F3 | Contract mismatch, type lies | Use canonical interfaces |
+| F4 | Magic numbers, obscure logic | Named constants, clear params |
+| F5 | Destructive defaults, no backup | Safe defaults, preserve state |
+| F6 | Only happy path, cryptic errors | Handle edge cases, clear messages |
+| F7 | False confidence, fake computation | Admit uncertainty, cap confidence |
+| F8 | Bypasses governance, invents patterns | Use established systems |
+| F9 | Deceptive naming, hidden behavior | Honest names, transparent logic |
+| F10–F13 | See `spec/v46/constitutional_floors.json` | Symbolic Guard, Command Auth, Injection Defense |
 
-| Criterion | Test | Required |
-|-----------|------|----------|
-| Survives container restart | Stop/start Railway container, query vault | ✅ Yes |
-| Survives AI replacement | Query from ChatGPT, then Claude, same data | ✅ Yes |
-| Independently verifiable | Human queries Postgres directly, sees entries | ✅ Yes |
-| Tamper-evident | Edit DB row, `verify_chain()` fails | ✅ Yes |
-| Append-only | No DELETE or UPDATE operations exposed | ✅ Yes |
+---
 
-### Authority Notice (For All MCP Responses)
-
-All `vault_seal` and retrieval responses include:
-
-```json
-{
-  "authority_notice": "This seal is generated by arifOS infrastructure. ChatGPT/LLM is only the caller, not the authority."
-}
+## Output Format for Governed Stages
 ```
-
-This is **documentation clarity**, not security theater. The AI does not seal things. The infrastructure seals things. The AI merely requests.
-
-### Design Note (For Contributors)
-
-```python
-# Near vault_seal implementation:
-# Vault999 records events regardless of approval. 
-# Verdict is a field. VOID entries are still recorded for audit truth.
-```
-
-A VOID verdict means "this was rejected" — but the rejection itself is recorded. Nothing is forgotten. Nothing is hidden.
-
-### The Final Test
-
-If ChatGPT disappeared tomorrow, could you still:
-
-1. Query the vault? → **YES** = It's real
-2. Verify the chain? → **YES** = It's real
-3. Prove what happened? → **YES** = It's real
-
-If yes to all three: VAULT999 is sovereign infrastructure, not AI ornamentation.
-
----
-
-## Common Development Tasks
-
-### Add a New MCP Tool
-
-1. Add `ToolDefinition` in `codebase/mcp/core/tool_registry.py`
-2. Create handler in `codebase/mcp/tools/canonical_trinity.py`
-3. Add tests in `tests/test_all_mcp_tools.py`
-4. Update documentation
-
-### Add a New Floor Validator
-
-1. Create module in `codebase/floors/fX_name.py`
-2. Export from `codebase/floors/__init__.py`
-3. Wire into `codebase/enforcement/floor_validators.py`
-4. Add tests in `tests/constitutional/`
-
-### Extend Verdict Logic
-
-1. Modify `codebase/apex/kernel.py`
-2. Update floor checks in `codebase/apex/floor_checks.py`
-3. Ensure Tri-Witness calculation remains valid
-
----
-
-## Environment Variables
-
-| Variable | Purpose | Default |
-|----------|---------|---------|
-| `ARIFOS_PHYSICS_DISABLED` | Disable thermodynamic calculations | `0` |
-| `ARIFOS_ALLOW_LEGACY_SPEC` | Bypass cryptographic manifest | `0` (test-only) |
-| `ARIFOS_ENV` | Environment mode | `development` |
-| `ARIFOS_LOG_LEVEL` | Logging level | `INFO` |
-| `GOVERNANCE_MODE` | HARD/SOFT lane | `SOFT` |
-| `VAULT_PATH` | Ledger storage path | `./VAULT999` |
-
----
-
-## Integration Points
-
-### MCP Clients
-
-Configure in `claude_desktop_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "arifos": {
-      "command": "aaa-mcp",
-      "args": []
-    }
-  }
-}
-```
-
-### Python API
-
-```python
-import asyncio
-from mcp.tools.canonical_trinity import mcp_init, mcp_agi, mcp_apex
-
-async def main():
-    # Initialize session
-    init = await mcp_init(query="Evaluate deployment safety")
-    session_id = init["session_id"]
-    
-    # Reason through query
-    agi = await mcp_agi(action="reason", query="Deploy?", session_id=session_id)
-    
-    # Get final verdict
-    verdict = await mcp_apex(action="judge", query="Deploy?", session_id=session_id)
-    print(f"Verdict: {verdict['final_verdict']}")
-
-asyncio.run(main())
+[STAGE NNN] Stage Name
+Status: [IN_PROGRESS | COMPLETE]
+Floor Scores: F1=X F2=X ... F9=X
+Verdict: [SEAL | PARTIAL | SABAR | VOID | 888_HOLD]
 ```
 
 ---
 
-## Verdict: SEAL / SABAR / VOID
-
-### SEAL
-All floors passed. Decision is approved and cryptographically sealed.
-
-### SABAR
-A floor was violated but may be repairable. Stop and reflect before proceeding.
-
-### VOID
-A hard floor failed. The decision is rejected and cannot proceed.
+## v46 Alignment (from `.github/copilot-instructions.md`)
+- Canonical sources: `AGENTS.md`, `spec/v46/*`, `L2_GOVERNANCE/skills/ARIFOS_SKILLS_REGISTRY.md`.
+- 12 constitutional floors in `spec/v46/constitutional_floors.json` (F1–F12: Truth through Injection Defense).
+- Drift check: `rg --hidden -n "v45" .agent .codex .claude .kimi .cursor .gemini .github`
+- Skills sync: `python scripts/sync_skills.py --check`
+- Human veto power is ABSOLUTE. AI role is to propose, not decide.
 
 ---
 
-## VAULT999 Doctrine (v1.0)
-Status: Working understanding — not operationally sealed.
+## Practical Agent Workflow
+1. Read target files and nearby tests first.
+2. Implement the smallest safe change that solves the request.
+3. Run a focused single test, then the broader suite to confirm no regressions.
+4. Report what changed and what was actually verified — never fabricate steps.
 
-What VAULT999 **is**:
-- Forensic, institutional memory
-- Survives any AI replacement
-- Append-only, hash-chained, tamper-evident
-
-What VAULT999 is **not**:
-- ChatGPT memory
-- Conversation log
-- AI attachment
-- Symbolic ritual
-
-Success criteria checklist:
-- Survives container restart
-- Survives AI replacement
-- Independently verifiable
-- Tamper-evident
-
----
-
-## Resources
-
-- **Live Demo:** https://arif-fazil.com
-- **Documentation:** https://arifos.arif-fazil.com
-- **Health Check:** https://aaamcp.arif-fazil.com/health
-- **PyPI:** https://pypi.org/project/arifos/
-- **Repository:** https://github.com/ariffazil/arifOS
-
----
-
-## Pull Request Checklist
-
-Before submitting code:
-
-- [ ] All tests pass (`pytest tests/ -v`)
-- [ ] No constitutional floor regressions
-- [ ] Code formatted with `black codebase/ --line-length=100`
-- [ ] Ruff linting passes (`ruff check codebase/`)
-- [ ] New code has tests
-- [ ] No secrets or credentials committed
-- [ ] Pre-commit hooks pass
-
----
-
-**DITEMPA BUKAN DIBERI — Forged, Not Given**
+*Last Updated: 2026-02-23*
