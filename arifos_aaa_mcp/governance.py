@@ -203,6 +203,7 @@ def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             ) or tool in {
                 "anchor_session",
                 "check_vital",
+                "eureka_forge",  # Command execution truth is in exit_code/output
             }
         elif law == "F4_CLARITY":
             passed = d_s <= 0.2
