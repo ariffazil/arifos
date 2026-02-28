@@ -239,6 +239,7 @@ class EnvelopeBuilder:
             "truth": self._extract_truth(payload),
             "next_actions": actions,
             "sabar_requirements": self._generate_sabar_requirements(verdict, payload),
+            "payload": payload,
         }
 
 
