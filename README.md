@@ -242,7 +242,7 @@ We continuously pipe live tests through the framework to prove its reliability. 
 ## 🔮 State of the Forge (The "When")
 
 **Current Status:** Active Development / Production Ready L4.
-- **Version:** v66.0-SOVEREIGN-ACTUATOR (The 7-Organ Stack is SEALED and `dry_run=False` actuation is live).
+- **Version:** 2026.02.28 (The 7-Organ Stack is SEALED and `dry_run=False` actuation is live).
 - **Testing:** 90%+ pass rate on regression and CI/CD pipelines.
 - **ML Capabilities:** Optional SentenceTransformer capabilities (SBERT) for advanced contextual semantic scoring over keyword-heuristics for F5/F6/F9 currently rolling out.
 
