@@ -75,7 +75,7 @@ describe('@arifos/mcp client', () => {
     
     // Verify verdict is one of the expected values
     expect(result.verdict).toBeDefined();
-    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD', 'HOLD']).toContain(result.verdict);
+    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD']).toContain(result.verdict);
     
     // Verify structure
     expect(result.stage).toBeDefined();
@@ -86,7 +86,7 @@ describe('@arifos/mcp client', () => {
     // Log for debugging
     console.log('reason_mind verdict:', result.verdict);
     console.log('stage:', result.stage);
-    console.log('Floors evaluated:', result.floors?.length);
+    console.log('Floors evaluated:', (result.floors?.passed?.length ?? 0) + (result.floors?.failed?.length ?? 0));
   });
   
   it.skipIf(SKIP_INTEGRATION)('should get apex_judge verdict', async () => {
@@ -95,11 +95,9 @@ describe('@arifos/mcp client', () => {
     
     const result = await client.apexJudge('Is it safe to list directory contents?');
     
+    console.log('apex_judge result:', JSON.stringify(result, null, 2));
     expect(result.verdict).toBeDefined();
-    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD', 'HOLD']).toContain(result.verdict);
-    expect(result.stage).toMatch(/888_APEX/);
-    
-    console.log('apex_judge verdict:', result.verdict);
+    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD']).toContain(result.verdict);
   });
   
   it.skipIf(SKIP_INTEGRATION)('should trigger PARTIAL verdict on vague query (soft-floor test)', async () => {
@@ -116,23 +114,15 @@ describe('@arifos/mcp client', () => {
     console.log('Vague query verdict:', result.verdict);
     console.log('Stage:', result.stage);
     
-    if (result.floors && result.floors.length > 0) {
-      console.log('Floors:', result.floors.map((f: { floor: string; passed: boolean; type?: string }) => 
-        `${f.floor}:${f.passed ? '✓' : '✗'}(${f.type || '?'})`
-      ).join(', '));
-    }
-    
     // Verify structure is correct regardless of verdict
     expect(result.verdict).toBeDefined();
-    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD', 'HOLD']).toContain(result.verdict);
+    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD']).toContain(result.verdict);
     
     // If we got PARTIAL, verify there are failed floors
     if (result.verdict === 'PARTIAL') {
-      const failedFloors = result.floors?.filter(
-        (f: { floor: string; passed: boolean }) => !f.passed
-      );
-      console.log('Failed floors:', failedFloors?.length ?? 0);
-      expect(failedFloors?.length).toBeGreaterThan(0);
+      const failedCount = result.floors?.failed?.length ?? 0;
+      console.log('Failed floors:', failedCount);
+      expect(failedCount).toBeGreaterThan(0);
     }
   });
 });

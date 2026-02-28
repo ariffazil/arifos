@@ -16,7 +16,8 @@ import type {
   ArifOSMetadata, 
   VerdictEnvelope,
   ArifOSToolName,
-  Stage 
+  Stage,
+  Verdict
 } from './types.js';
 import { ArifOSError } from './types.js';
 
@@ -271,8 +272,8 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
               session_id: sessionId,
               version: parsed.kernel_version as string || 'unknown',
               stage: stage as Stage,
-              verdict: verdict as ArifOSMetadata['verdict'],
-              floors_evaluated: (parsed.data?.floors || parsed.floors || []) as ArifOSMetadata['floors_evaluated'],
+              verdict: verdict as Verdict,
+              floors: (parsed.data?.floors || parsed.floors || { passed: [], failed: [] }) as ArifOSMetadata['floors'],
               timestamp: new Date().toISOString(),
               governance_token: parsed.data?.governance_token || parsed.governance_token,
             };
@@ -315,8 +316,8 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
         session_id: sessionId,
         version: parsed.kernel_version as string || 'unknown',
         stage: (parsed.data?.stage || '000_INIT') as Stage,
-        verdict: (parsed.data?.verdict || parsed.verdict || 'SEAL') as ArifOSMetadata['verdict'],
-        floors_evaluated: (parsed.data?.floors || []) as ArifOSMetadata['floors_evaluated'],
+        verdict: (parsed.data?.verdict || parsed.verdict || 'SEAL') as Verdict,
+        floors: (parsed.data?.floors || { passed: [], failed: [] }) as ArifOSMetadata['floors'],
         timestamp: new Date().toISOString(),
         governance_token: parsed.data?.governance_token,
       };
@@ -345,7 +346,7 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
         verdict: (parsed.data?.verdict || parsed.verdict) as VerdictEnvelope['verdict'],
         stage: (parsed.data?.stage || parsed.stage || '333_MIND') as Stage,
         session_id: currentSessionId,
-        floors: (parsed.data?.floors || parsed.floors || []) as unknown as VerdictEnvelope['floors'],
+        floors: (parsed.data?.floors || parsed.floors || { passed: [], failed: [] }) as unknown as VerdictEnvelope['floors'],
         truth: (parsed.data?.truth || parsed.truth) as VerdictEnvelope['truth'],
         next_actions: (parsed.data?.next_actions || parsed.next_actions) as string[],
         governance_token: (parsed.data?.governance_token || parsed.governance_token) as string,
@@ -372,7 +373,7 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
         verdict: (parsed.data?.verdict || parsed.verdict) as VerdictEnvelope['verdict'],
         stage: (parsed.data?.stage || parsed.stage || '888_APEX') as Stage,
         session_id: currentSessionId,
-        floors: (parsed.data?.floors || parsed.floors || []) as unknown as VerdictEnvelope['floors'],
+        floors: (parsed.data?.floors || parsed.floors || { passed: [], failed: [] }) as unknown as VerdictEnvelope['floors'],
         truth: (parsed.data?.truth || parsed.truth) as VerdictEnvelope['truth'],
         next_actions: (parsed.data?.next_actions || parsed.next_actions) as string[],
         governance_token: (parsed.data?.governance_token || parsed.governance_token) as string,
