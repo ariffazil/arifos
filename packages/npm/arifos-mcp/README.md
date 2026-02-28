@@ -41,7 +41,7 @@ console.log('Session:', session_id);
 // Execute governed reasoning
 const result = await client.reasonMind('What is quantum computing?');
 console.log('Verdict:', result.verdict);  // SEAL | PARTIAL | SABAR | VOID | 888_HOLD
-console.log('Floors passed:', result.floors.filter(f => f.passed).length);
+console.log('Floors passed:', result.floors.passed.length);
 
 await client.disconnect();
 ```
