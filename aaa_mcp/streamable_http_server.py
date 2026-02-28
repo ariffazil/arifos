@@ -385,21 +385,37 @@ async def mcp_endpoint(request: Request) -> Response:
         )
 
     session_id = request.headers.get(SESSION_HEADER, "")
+
+    is_anchor = False
+    if method == "tools/call" and isinstance(params, dict):
+        tool_n = str(params.get("name", ""))
+        # Resolve alias if used
+        target_tool = TOOL_ALIASES.get(tool_n, tool_n)
+        if target_tool == "anchor_session":
+            is_anchor = True
+
     if not session_id:
-        return _jsonrpc_error(
-            code=-32600,
-            message=f"Missing {SESSION_HEADER} header",
-            request_id=request_id,
-            http_status=400,
-        )
+        if is_anchor:
+            session_id = str(uuid.uuid4())
+            _ACTIVE_SESSIONS[session_id] = PROTOCOL_VERSION
+        else:
+            return _jsonrpc_error(
+                code=-32600,
+                message=f"Missing {SESSION_HEADER} header",
+                request_id=request_id,
+                http_status=400,
+            )
     if session_id not in _ACTIVE_SESSIONS:
-        return _jsonrpc_error(
-            code=-32001,
-            message="Session not found",
-            request_id=request_id,
-            http_status=404,
-            session_id=session_id,
-        )
+        if is_anchor:
+            _ACTIVE_SESSIONS[session_id] = PROTOCOL_VERSION
+        else:
+            return _jsonrpc_error(
+                code=-32001,
+                message="Session not found",
+                request_id=request_id,
+                http_status=404,
+                session_id=session_id,
+            )
 
     negotiated_version = _ACTIVE_SESSIONS[session_id]
 

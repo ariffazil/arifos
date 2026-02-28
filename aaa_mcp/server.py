@@ -793,8 +793,19 @@ async def _sovereign_actuator(
     
     # Execute the command
     try:
-        process = await asyncio.create_subprocess_shell(
-            command,
+        # F12: Robust Injection Defense
+        args = shlex.split(command)
+        if not args:
+            result = envelope_builder.build_envelope(
+                stage="888_FORGE",
+                session_id=session_id,
+                verdict="VOID",
+                payload={"error": "Empty command provided"},
+            )
+            return result
+            
+        process = await asyncio.create_subprocess_exec(
+            *args,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=working_dir,

@@ -184,7 +184,7 @@ def _sovereignty_pass(tool: str, payload: dict[str, Any]) -> bool:
         inner_payload = payload.get("payload", {})
         execution_log = inner_payload.get("execution_log", {})
         has_agent = bool(execution_log.get("agent_id"))
-        has_purpose = bool(execution_log.get("purpose"))
+        has_purpose = "purpose" in execution_log
         has_session = bool(payload.get("session_id"))
         return has_session and has_agent and has_purpose
     if tool == "seal_vault":

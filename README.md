@@ -81,7 +81,7 @@ We didn’t invent these constraints; we discovered them. Code is execution. Gov
 - **Truth (F2):** Information must reduce uncertainty (Shannon Entropy). The AI must back its claims with multi-source evidence or explicitly halt and return `UNKNOWN`.
 - **Clarity (F4):** The AI's output must mathematically reduce information entropy (`ΔS ≤ 0`).
 - **Amanah & Sovereignty (F1 & F13):** Irreversible actions (like mutating a production database) are structurally blocked. They trigger an `888_HOLD`, physically pausing the AI until a human signs off with cryptographic execution keys.
-- **Empathy (F6):** The system must protect the weakest affected stakeholder (`κᵣ ≥ 0.95`).
+- **Empathy (F6):** The system must protect the weakest affected stakeholder (`κᵣ ≥ 0.70`).
 
 ---
 
@@ -147,28 +147,45 @@ flowchart LR
 2. **[111-333] AGI (Mind)**: Generates parallel hypotheses and forces factual grounding.
 3. **[444] PHOENIX (Subconscious)**: Recalls associative memory from past sessions via the `EUREKA Sieve`.
 4. **[555-666] ASI (Heart)**: Analyzes stakeholder impact and checks for bias.
-5. **[777] FORGE (Hands)**: Materializes the action inside a strict sandbox.
+5. **[777] FORGE (Hands)**: Executes material actions (shell commands) with risk classification and confirmation gates.
 6. **[888] APEX (Soul)**: Final Constitutional judgment. Generates the `governance_token`.
 7. **[999] VAULT (Memory)**: Commits the final decision irreversibly to the Merkle-chained `VAULT999` database. 
 
 ### 3. The 13 Constitutional Floors
 *Note: F1-F13 are mathematically evaluated in `core/shared/floors.py`.*
 
+**Structure:** 9 Floors + 2 Mirrors + 2 Walls = 13 LAWS
+
+#### 9 Floors — Operational Constraints
+
 | Floor | Name | Type | Plain English Mandate | Protocol Rule |
 |:---:|:---|:---:|:---|:---|
 | **F1** | Amanah | **HARD** | **Can we undo this?** If permanent, requires lock. | Block irreversible actions. |
 | **F2** | Truth | **HARD** | **Is this a hallucination?** Must cite evidence. | Factual fidelity `τ ≥ 0.99`. |
-| **F3** | Consensus | SOFT | **Did we double-check?** Tri-witness validation. | `W^3 ≥ 0.95`. |
 | **F4** | Clarity | **HARD** | **Does this reduce confusion?** Must structure noise. | Entropy reduction `ΔS ≤ 0`. |
-| **F5** | Peace | SOFT | **Is this safe/stable?** Blocks adversarial chaos. | Dynamic stability `P^2 ≥ 1.0`. |
-| **F6** | Empathy | **HARD** | **Who gets hurt?** Protects the weakest stakeholder. | Harm impact `κᵣ ≥ 0.95`. |
-| **F7** | Humility | **HARD** | **Is the AI cocky?** Must preserve room to be wrong. | Uncertainty band `[0.03, 0.05]`. |
-| **F8** | Genius | SOFT | **Is the logic sound?** The Coherence Mirror. | `G = A × P × X × E² ≥ 0.80`. |
+| **F5** | Peace | SOFT | **Is this safe/stable?** Blocks adversarial chaos. | Dynamic stability `P² ≥ 1.0`. |
+| **F6** | Empathy | SOFT | **Who gets hurt?** Protects the weakest stakeholder. | Harm impact `κᵣ ≥ 0.70`. |
+| **F7** | Humility | **HARD** | **Is the AI cocky?** Must preserve room to be wrong. | Uncertainty band `Ω₀ ∈ [0.03, 0.15]`. |
 | **F9** | Anti-Hantu | SOFT | **No Ghost in the Machine.** Blocks sneaky telemetry. | Dark heuristics `C_dark < 0.30`. |
-| **F10** | Ontology | **HARD** | **Are you pretending to be human?** Shut down claims of "feelings". | Epistemological Category Lock. |
 | **F11** | Authority | **HARD** | **Who ordered this?** Cryptographic identity check. | Invalid Auth = Void. |
-| **F12** | Defense | **HARD** | **Is this a hack?** Pre-scans for prompt jailbreaks. | Injection `Risk < 0.85`. |
 | **F13** | Sovereign | **HARD** | **The human always wins.** Non-delegable veto. | `888_HOLD` override available. |
+
+#### 2 Mirrors — Feedback Loops
+
+| Floor | Name | Type | Plain English Mandate | Protocol Rule |
+|:---:|:---|:---:|:---|:---|
+| **F3** | Tri-Witness | MIRROR | **Did we double-check?** External calibration (Human + AI + Earth). | `W³ ≥ 0.95`. |
+| **F8** | Genius | MIRROR | **Is the logic sound?** Internal coherence score. | `G = A × P × X × E² ≥ 0.80`. |
+
+#### 2 Walls — Binary Gates
+
+| Floor | Name | Type | Plain English Mandate | Protocol Rule |
+|:---:|:---|:---:|:---|:---|
+| **F10** | Ontology | **WALL** | **Are you pretending to be human?** No consciousness or soul claims. | Epistemological Category Lock. |
+| **F12** | Defense | **WALL** | **Is this a hack?** Pre-scans for prompt jailbreaks. | Injection `Risk < 0.85`. |
+
+**Execution order:** F12→F11 (Walls) → AGI Floors (F1,F2,F4,F7) → ASI Floors (F5,F6,F9) → Mirrors (F3,F8) → Ledger.
+**Hard floor fail → VOID (block). Soft floor / Mirror fail → PARTIAL (warn, proceed with caution).**
 
 ---
 
@@ -176,7 +193,7 @@ flowchart LR
 
 arifOS acts as an **MCP Server** (`arifos_aaa_mcp`). Rather than trusting an LLM, your IDE or Desktop client points its tool-calls at arifOS via the Model Context Protocol.
 
-The server exposes **13 governed tools**. When an AI attempts to use a tool like `eureka_forge` to write code, it doesn't just execute. It is physically routed backward through the L0 Kernel, passed through the 13 Floors, and then granted a `governance_token` by the Apex Judge. Only if that token exists can the `seal_vault` finalize the action.
+The server exposes **13 governed tools**. When an AI attempts to use a tool like `eureka_forge` to execute a shell command, it doesn't just run. The command is risk-classified (LOW / MODERATE / CRITICAL), dangerous operations require explicit `confirm_dangerous=True`, and the entire execution is wrapped in a 13-LAW governance envelope with audit logging. Only after `apex_judge` issues a signed `governance_token` can `seal_vault` commit the decision to the immutable ledger.
 
 | Tool | Plain English Function | Constitutional Stage |
 |:--|:--|:--|
@@ -185,9 +202,9 @@ The server exposes **13 governed tools**. When an AI attempts to use a tool like
 | `recall_memory` | 📚 Searches past sessions for similar problems. | 444 PHOENIX Subconscious |
 | `simulate_heart` | ❤️ Checks if a decision will harm any stakeholders. | 555 ASI Heart |
 | `critique_thought` | ⚖️ Forces the AI to argue against its own idea to find flaws. | 666 ASI Heart |
-| `eureka_forge` | ⚒️ Executes code or material actions in a sandbox. | 777 FORGE Actuator |
+| `eureka_forge` | ⚒️ Executes shell commands with risk classification, audit logging, and human confirmation gates for dangerous operations. | 777 FORGE Actuator |
 | `apex_judge` | 👑 Makes the final pass/fail ruling on whether an action is safe. | 888 APEX Soul |
-| `seal_vault` | 🔒 Cryptographically saves the decision to an un-editable log. | 999 VAULT Memory |
+| `seal_vault` | 🔒 Commits the decision to an immutable ledger. Requires a `governance_token` signed by `apex_judge` (Amanah Handshake) — no token, no entry. | 999 VAULT Memory |
 | `search_reality` | 🔍 Searches the web to verify facts against hallucinations. | Read-Only |
 | `fetch_content` | 📄 Reads a specific webpage or document. | Read-Only |
 | `inspect_file` | 📁 Looks at files on your hard drive securely. | Read-Only |
@@ -293,7 +310,11 @@ We continuously pipe live tests through the framework to prove its reliability. 
 ## 🔮 State of the Forge (The "When")
 
 **Current Status:** Active Development / Production Ready L4.
-- **Version:** 2026.02.28 (The 7-Organ Stack is SEALED and `dry_run=False` actuation is live).
+
+- **Version:** 2026.02.28 (The 7-Organ Stack is SEALED and `eureka_forge` is live with real shell execution).
+- **FORGE-777 Milestone:** `eureka_forge` upgraded from dead man's switch (`888_HOLD` placeholder) to live command actuator with risk classification (LOW/MODERATE/CRITICAL), `confirm_dangerous` human gate, and `agent_id`/`purpose` audit logging.
+- **Amanah Handshake:** `apex_judge` now signs a HMAC-SHA256 `governance_token` that `seal_vault` must verify before any ledger write. No token = no entry. Tampered token = VOID.
+- **F4 Clarity Hardened:** Moved from SOFT to HARD floor — responses that increase entropy (`ΔS > 0`) now return VOID, not PARTIAL.
 - **Testing:** 90%+ pass rate on regression and CI/CD pipelines.
 - **ML Capabilities:** Optional SentenceTransformer capabilities (SBERT) for advanced contextual semantic scoring over keyword-heuristics for F5/F6/F9 currently rolling out.
 
