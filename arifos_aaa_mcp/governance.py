@@ -174,7 +174,8 @@ def _sovereignty_pass(tool: str, payload: dict[str, Any]) -> bool:
         if verdict in {"888_HOLD", "HOLD", "SABAR", "VOID"}:
             return True
         # New execution model: sovereignty = session + agent_id + execution_log
-        execution_log = payload.get("execution_log", {})
+        inner_payload = payload.get("payload", {})
+        execution_log = inner_payload.get("execution_log", {})
         has_agent = bool(execution_log.get("agent_id"))
         has_purpose = bool(execution_log.get("purpose"))
         has_session = bool(payload.get("session_id"))
