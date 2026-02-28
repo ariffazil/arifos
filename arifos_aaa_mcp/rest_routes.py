@@ -27,13 +27,10 @@ from typing import Any
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 
+from aaa_mcp.build_info import get_build_info
 from aaa_mcp.protocol.public_surface import PUBLIC_TOOL_ALIASES
 
-BUILD_INFO = {
-    "version": "2026.02.27",
-    "git_sha": os.environ.get("GIT_SHA", "unknown"),
-    "build_time": os.environ.get("BUILD_TIME", datetime.now(timezone.utc).isoformat()),
-}
+BUILD_INFO = get_build_info()
 MCP_PROTOCOL_VERSION = "2025-11-25"
 MCP_SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25", "2025-03-26"]
 

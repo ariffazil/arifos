@@ -38,6 +38,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
 from starlette.routing import Route
 
+from aaa_mcp.build_info import get_build_info
 from aaa_mcp.integrations.self_ops import self_diagnose
 from aaa_mcp.protocol.public_surface import PUBLIC_TOOL_ALIASES
 
@@ -60,12 +61,7 @@ from arifos_aaa_mcp.server import (
 )
 
 # Build info
-BUILD_INFO = {
-    "version": "2026.02.23-CANONICAL-13",
-    "schema_version": "2026.02.23-CANONICAL-13",
-    "git_sha": os.environ.get("GIT_SHA", "unknown"),
-    "build_time": os.environ.get("BUILD_TIME", datetime.now(timezone.utc).isoformat()),
-}
+BUILD_INFO = get_build_info()
 
 # Tool registry — canonical UX names as primary keys.
 TOOLS = {

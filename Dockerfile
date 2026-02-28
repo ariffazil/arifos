@@ -26,6 +26,10 @@ FROM python:3.12-slim AS runtime
 
 WORKDIR /usr/src/app
 
+ARG ARIFOS_VERSION=unknown
+ARG GIT_SHA=unknown
+ARG BUILD_TIME=unknown
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && rm -rf /var/lib/apt/lists/*
@@ -47,6 +51,9 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PORT=8080
 ENV HOST=0.0.0.0
+ENV ARIFOS_VERSION=${ARIFOS_VERSION}
+ENV GIT_SHA=${GIT_SHA}
+ENV BUILD_TIME=${BUILD_TIME}
 
 EXPOSE 8080
 
@@ -55,7 +62,7 @@ HEALTHCHECK --interval=15s --timeout=5s --start-period=20s --retries=3 \
     CMD curl -fsS --max-time 3 http://localhost:8080/health || exit 1
 
 LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"
-LABEL io.modelcontextprotocol.server.version="2026.2.25"
+LABEL io.modelcontextprotocol.server.version="${ARIFOS_VERSION}"
 LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with 13-tool surface and F1-F13 floor enforcement."
 LABEL io.modelcontextprotocol.server.transport="streamable-http"
 LABEL io.modelcontextprotocol.server.url="https://arifosmcp.arif-fazil.com/mcp"
