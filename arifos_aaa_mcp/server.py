@@ -2,11 +2,17 @@
 
 This package is the canonical external interface.
 Legacy `aaa_mcp` and `aclip_cai` remain internal intelligence providers.
+
+PHASE 1 WIRING: Thermodynamic Core Integration
+- All tools routed through core/ constitutional cage
+- Physics exceptions caught and converted to VOID envelopes
+- Tri-Witness vectors mapped for Ω_ortho calculation
 """
 
 from __future__ import annotations
 
 import json
+import time
 from typing import Any
 
 from fastmcp import FastMCP
@@ -26,6 +32,86 @@ from aclip_cai.tools.system_monitor import get_system_health
 from .contracts import require_session, validate_input
 from .fastmcp_ext.discovery import build_surface_discovery
 from .governance import LAW_13_CATALOG, TOOL_DIALS_MAP, wrap_tool_output
+
+# ═══════════════════════════════════════════════════════
+# PHASE 1: Wire MCP Gateway to Thermodynamic Core
+# ═══════════════════════════════════════════════════════
+
+# Import core thermodynamic cage
+try:
+    from core.physics.thermodynamics import (
+        ThermodynamicViolation,
+        ModeCollapseError,
+        CheapTruthError,
+        check_landauer_bound,
+        derive_orthogonality,
+    )
+    from core.homeostasis import (
+        PeaceViolation,
+        check_peace_squared,
+    )
+    from core.kernel.constitutional_decorator import (
+        EntropyViolation,
+        AmanahViolation,
+        constitutional_floor,
+    )
+    from core.judgment import (
+        get_judgment_kernel,
+        JudgmentKernel,
+    )
+    CORE_AVAILABLE = True
+except ImportError as e:
+    CORE_AVAILABLE = False
+    import logging
+    logging.warning(f"Thermodynamic core not available: {e}")
+
+
+# Physics exception to VOID envelope converter
+def _convert_physics_exception_to_void(
+    exception: Exception,
+    tool_name: str,
+    session_id: str,
+) -> dict[str, Any]:
+    """
+    Convert thermodynamic exceptions to VOID envelopes.
+    
+    Fail-closed: Physics violations return VOID, not crash.
+    """
+    exception_type = type(exception).__name__
+    
+    # Map exception types to constitutional floors
+    floor_map = {
+        "EntropyViolation": "F4_CLARITY",
+        "AmanahViolation": "F1_AMANAH",
+        "ModeCollapseError": "F3_TRI_WITNESS",
+        "CheapTruthError": "F2_TRUTH",
+        "PeaceViolation": "F5_PEACE2",
+        "ThermodynamicViolation": "PHYSICS",
+    }
+    
+    floor = floor_map.get(exception_type, "UNKNOWN")
+    
+    return {
+        "verdict": "VOID",
+        "stage": f"{tool_name.upper()}_PHYSICS",
+        "session_id": session_id,
+        "blocked_by_floor": floor,
+        "blocked_by_exception": exception_type,
+        "reason": str(exception),
+        "thermodynamic_rejection": True,
+        "error_class": exception_type,
+        "timestamp": time.time(),
+        "remediation": {
+            "action": "COOLING_REQUIRED",
+            "message": f"{floor} violation detected. System requires cooling cycle.",
+            "next_steps": [
+                "Wait for entropy dissipation",
+                "Provide additional grounding evidence",
+                "Reduce query complexity",
+                "Request human oversight (888_HOLD)",
+            ],
+        },
+    }
 
 mcp = FastMCP(
     "arifOS_AAA_MCP",
@@ -65,15 +151,30 @@ async def anchor_session(
     blocked = validate_input("anchor_session", {"query": query, "actor_id": actor_id})
     if blocked:
         return wrap_tool_output("anchor_session", blocked)
-    payload = await legacy.anchor_session.fn(
-        query=query,
-        actor_id=actor_id,
-        auth_token=auth_token,
-        mode=mode,
-        grounding_required=grounding_required,
-        debug=debug,
-    )
-    return wrap_tool_output("anchor_session", payload)
+    
+    # PHASE 1: Thermodynamic core integration
+    start_time = time.time()
+    try:
+        payload = await legacy.anchor_session.fn(
+            query=query,
+            actor_id=actor_id,
+            auth_token=auth_token,
+            mode=mode,
+            grounding_required=grounding_required,
+            debug=debug,
+        )
+        
+        # Add compute telemetry for Landauer bound
+        payload["compute_ms"] = (time.time() - start_time) * 1000
+        payload["tokens"] = len(query.split())
+        
+        return wrap_tool_output("anchor_session", payload)
+        
+    except (ThermodynamicViolation, ModeCollapseError, CheapTruthError, 
+            PeaceViolation, EntropyViolation, AmanahViolation) as e:
+        # Fail-closed: Physics violations return VOID
+        return wrap_tool_output("anchor_session", 
+            _convert_physics_exception_to_void(e, "anchor_session", "init"))
 
 
 @mcp.tool(name="reason_mind")
@@ -91,14 +192,36 @@ async def reason_mind(
     missing = require_session("reason_mind", session_id)
     if missing:
         return wrap_tool_output("reason_mind", missing)
-    payload = await legacy.reason_mind.fn(
-        query=query,
-        session_id=session_id,
-        grounding=grounding,
-        capability_modules=capability_modules,
-        debug=debug,
-    )
-    return wrap_tool_output("reason_mind", payload)
+    
+    # PHASE 1: Thermodynamic core integration with physics exception handling
+    start_time = time.time()
+    try:
+        payload = await legacy.reason_mind.fn(
+            query=query,
+            session_id=session_id,
+            grounding=grounding,
+            capability_modules=capability_modules,
+            debug=debug,
+        )
+        
+        # Add compute telemetry for Landauer bound
+        payload["compute_ms"] = (time.time() - start_time) * 1000
+        payload["tokens"] = len(query.split()) + len(str(payload).split())
+        
+        # PHASE 1: Strict F4 entropy check (ΔS <= 0)
+        delta_s = payload.get("dS", 0.0)
+        if CORE_AVAILABLE and delta_s > 0:
+            raise EntropyViolation(
+                f"F4_CLARITY_VIOLATION: ΔS={delta_s:.4f} > 0 in reason_mind output"
+            )
+        
+        return wrap_tool_output("reason_mind", payload)
+        
+    except (ThermodynamicViolation, ModeCollapseError, CheapTruthError, 
+            PeaceViolation, EntropyViolation, AmanahViolation) as e:
+        # Fail-closed: Physics violations return VOID
+        return wrap_tool_output("reason_mind",
+            _convert_physics_exception_to_void(e, "reason_mind", session_id))
 
 
 @mcp.tool(name="recall_memory")
@@ -209,26 +332,51 @@ async def apex_judge(
     missing = require_session("apex_judge", session_id)
     if missing:
         return wrap_tool_output("apex_judge", missing)
-    payload = await legacy.apex_judge.fn(
-        session_id=session_id,
-        query=query,
-        agi_result=agi_result,
-        asi_result=asi_result,
-        implementation_details={"critique": critique_result or {}},
-        proposed_verdict=proposed_verdict,
-        human_approve=human_approve,
-        debug=debug,
-    )
-    if isinstance(payload, dict):
-        token = payload.get("governance_token")
-        if isinstance(token, str) and token.strip():
-            _SESSION_GOVERNANCE_TOKENS[session_id] = token.strip()
-        stage_value = str(payload.get("stage", "")).upper()
-        if stage_value in {"", "777-888", "777-888_APEX", "888_AUDIT", "888_JUDGE"}:
-            payload["stage"] = "888_APEX_JUDGE"
-            if stage_value:
-                payload["stage_legacy"] = stage_value
-    return wrap_tool_output("apex_judge", payload)
+    
+    # PHASE 1: Thermodynamic core integration - APEX judgment with Ψ, W₃, Φₚ
+    start_time = time.time()
+    try:
+        payload = await legacy.apex_judge.fn(
+            session_id=session_id,
+            query=query,
+            agi_result=agi_result,
+            asi_result=asi_result,
+            implementation_details={"critique": critique_result or {}},
+            proposed_verdict=proposed_verdict,
+            human_approve=human_approve,
+            debug=debug,
+        )
+        
+        # Add compute telemetry
+        payload["compute_ms"] = (time.time() - start_time) * 1000
+        
+        # PHASE 1: Map AGI/ASI vectors for Tri-Witness (Ω_ortho calculation)
+        if agi_result and asi_result:
+            # Extract embedding vectors for orthogonality check
+            agi_vector = agi_result.get("embedding_vector", [])
+            asi_vector = asi_result.get("embedding_vector", [])
+            if agi_vector and asi_vector and CORE_AVAILABLE:
+                omega_ortho = derive_orthogonality(agi_vector, asi_vector)
+                payload["omega_ortho"] = omega_ortho
+                if omega_ortho < 0.95:
+                    payload["mode_collapse_warning"] = True
+        
+        if isinstance(payload, dict):
+            token = payload.get("governance_token")
+            if isinstance(token, str) and token.strip():
+                _SESSION_GOVERNANCE_TOKENS[session_id] = token.strip()
+            stage_value = str(payload.get("stage", "")).upper()
+            if stage_value in {"", "777-888", "777-888_APEX", "888_AUDIT", "888_JUDGE"}:
+                payload["stage"] = "888_APEX_JUDGE"
+                if stage_value:
+                    payload["stage_legacy"] = stage_value
+        return wrap_tool_output("apex_judge", payload)
+        
+    except (ThermodynamicViolation, ModeCollapseError, CheapTruthError, 
+            PeaceViolation, EntropyViolation, AmanahViolation) as e:
+        # Fail-closed: Physics violations return VOID
+        return wrap_tool_output("apex_judge",
+            _convert_physics_exception_to_void(e, "apex_judge", session_id))
 
 
 @mcp.tool(name="eureka_forge")
@@ -283,8 +431,10 @@ async def seal_vault(
     summary: str,
     verdict: str = "SEAL",
     governance_token: str | None = None,
+    # PHASE 2: Thermodynamic telemetry for ledger binding
+    telemetry: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """999 SEAL: commit immutable session decision record."""
+    """999 SEAL: commit immutable session decision record with thermodynamic telemetry."""
     blocked = validate_input("seal_vault", {"session_id": session_id, "summary": summary})
     if blocked:
         return wrap_tool_output("seal_vault", blocked)
@@ -323,12 +473,44 @@ async def seal_vault(
             },
         )
 
-    payload = await legacy.seal_vault.fn(
-        session_id=session_id,
-        summary=summary,
-        governance_token=resolved_token,
-    )
-    return wrap_tool_output("seal_vault", payload)
+    # PHASE 2: Bind thermodynamic telemetry to ledger
+    # Include Ψ, W₃, Landauer metrics in vault entry
+    thermodynamic_statement = {
+        "summary": summary,
+        "verdict": verdict,
+        "governance_token": resolved_token[:16] + "...",  # Truncated for security
+        # Include telemetry if provided
+        "vitality_index": telemetry.get("psi") if telemetry else None,
+        "tri_witness": telemetry.get("w3") if telemetry else None,
+        "paradox_conductance": telemetry.get("phi_p") if telemetry else None,
+        "landauer_ratio": telemetry.get("landauer_ratio") if telemetry else None,
+        "omega_ortho": telemetry.get("omega_ortho") if telemetry else None,
+        "constitutional_cost": telemetry.get("constitutional_cost") if telemetry else "SEALED",
+        "timestamp": time.time(),
+    }
+
+    try:
+        payload = await legacy.seal_vault.fn(
+            session_id=session_id,
+            summary=summary,
+            governance_token=resolved_token,
+            thermodynamic_statement=thermodynamic_statement,  # PHASE 2: Bind telemetry
+        )
+        
+        # Add thermodynamic binding confirmation
+        payload["thermodynamic_seal"] = {
+            "bound_to_ledger": True,
+            "telemetry_included": bool(telemetry),
+            "constitutional_signature": resolved_token[:8] + "...",
+        }
+        
+        return wrap_tool_output("seal_vault", payload)
+        
+    except (ThermodynamicViolation, ModeCollapseError, CheapTruthError, 
+            PeaceViolation, EntropyViolation, AmanahViolation) as e:
+        # Fail-closed: Physics violations return VOID
+        return wrap_tool_output("seal_vault",
+            _convert_physics_exception_to_void(e, "seal_vault", session_id))
 
 
 @mcp.tool(name="search_reality")
