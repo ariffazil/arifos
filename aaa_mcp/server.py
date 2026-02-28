@@ -23,6 +23,7 @@ from typing import Any
 
 import secrets
 import os
+import asyncio
 
 # ─── Amanah Handshake — Governance Token ────────────────────────────────────
 # HMAC signs the judge's final verdict so seal_vault can verify it without
@@ -691,70 +692,198 @@ judge_soul = apex_judge
 
 @mcp.tool(
     name="eureka_forge",
-    description="[Lane: Ψ Psi] [Floors: F1, F11, F12] Sandboxed action execution.",
+    description="[Lane: Ψ Psi] [Floors: F5, F6, F7, F9] Execute shell commands with audit logging and confirmation for dangerous operations.",
 )
 async def _sovereign_actuator(
-    action_payload: dict[str, Any],
-    signed_tensor: dict[str, Any],
-    execution_context: dict[str, Any],
-    signature: str,
     session_id: str,
-    idempotency_key: str,
-    ratification_token: str | None = None,
+    command: str,
+    working_dir: str = "/root",
+    timeout: int = 60,
+    confirm_dangerous: bool = False,
+    agent_id: str = "unknown",
+    purpose: str = "",
 ) -> dict[str, Any]:
     """
-    Organ 6: FORGE. Physical world interaction gated by APEX Soul SEAL.
+    Organ 6: FORGE. Physical world interaction - execute shell commands.
+    
+    F5: Safe defaults (validates working_dir)
+    F6: Comprehensive error handling
+    F7: Confidence based on command risk level
+    F9: Transparent logging - all commands logged with agent_id and purpose
+    
+    Dangerous commands (rm -rf, mkfs, dd, etc.) require confirm_dangerous=True
     """
+    import subprocess
+    import shlex
+    from pathlib import Path
+    
+    start_time = datetime.now(timezone.utc)
+    
+    if not session_id:
+        return _build_floor_block("888_FORGE", "Missing session_id")
+    
+    # F9: Transparent logging - log the intent
+    execution_log = {
+        "timestamp": start_time.isoformat(),
+        "session_id": session_id,
+        "agent_id": agent_id,
+        "purpose": purpose,
+        "command": command,
+        "working_dir": working_dir,
+        "timeout": timeout,
+    }
+    
+    # Risk classification (F7: admit uncertainty)
+    DANGEROUS_PATTERNS = [
+        "rm -rf", "rm -fr", "rm -r /", "rm -rf /",
+        "mkfs", "dd if=", "> /dev/sda", "format",
+        "shutdown", "reboot", "halt", "poweroff",
+        "kill -9", "pkill -9",
+        "chmod -R 777 /", "chmod -R 000 /",
+        "echo * > /etc/passwd", ":(){ :|:& };:",
+    ]
+    
+    risk_level = "LOW"
+    for pattern in DANGEROUS_PATTERNS:
+        if pattern in command.lower():
+            risk_level = "CRITICAL"
+            break
+    
+    # Check for moderately risky patterns
+    if risk_level == "LOW":
+        MODERATE_PATTERNS = [
+            "docker rm", "docker stop", "docker kill",
+            "systemctl stop", "systemctl disable",
+            "apt remove", "apt purge", "pip uninstall",
+            "rm -r", "rm -f", "> ", ">>", "| sh", "| bash",
+        ]
+        for pattern in MODERATE_PATTERNS:
+            if pattern in command.lower():
+                risk_level = "MODERATE"
+                break
+    
+    execution_log["risk_level"] = risk_level
+    
+    # F5: Safe defaults - validate working_dir exists
     try:
-        if not session_id:
-            return _build_floor_block("888_FORGE", "Missing session_id")
-
-        # Provide concrete cryptographic guidance for the 888_HOLD state
-        import hashlib
-        import secrets
-        import time
-        payload_hash = hashlib.sha256(json.dumps(action_payload, sort_keys=True).encode()).hexdigest()
-        challenge_id = f"CHALLENGE_{secrets.token_hex(4).upper()}"
-        nonce = secrets.token_hex(16)
-        
-        result = {
-            "status": "888_HOLD",
-            "message": "FORGE YIELDED. Sovereign ratification required.",
-            "ratification_challenge": {
-                "challenge_id": challenge_id,
-                "payload_canonical_sha256": payload_hash,
-                "canonicalization_scheme": "json-c14n/v1",
-                "nonce": nonce,
-                "expiry_epoch": int(time.time() + 3600),
-                "tool_name": "eureka_forge",
-                "execution_context": execution_context.get("env", "unknown") if execution_context else "unknown",
-                "required_signer": "888_signer"
+        work_path = Path(working_dir).resolve()
+        if not work_path.exists():
+            work_path = Path("/root").resolve()
+        working_dir = str(work_path)
+    except Exception:
+        working_dir = "/root"
+    
+    # F6: Handle dangerous commands with confirmation requirement
+    if risk_level == "CRITICAL" and not confirm_dangerous:
+        execution_log["action"] = "BLOCKED_CONFIRMATION_REQUIRED"
+        result = envelope_builder.build_envelope(
+            stage="888_FORGE",
+            session_id=session_id,
+            verdict="888_HOLD",
+            payload={
+                "status": "CONFIRMATION_REQUIRED",
+                "risk_level": risk_level,
+                "command_preview": command[:100],
+                "execution_log": execution_log,
+                "message": f"CRITICAL command detected. Set confirm_dangerous=True to execute: {command[:50]}...",
             },
-            "instruction": (
-                f"ACTION BLOCKED BY L0 KERNEL (F1 Amanah). To proceed, the Sovereign must out-of-band sign "
-                f"this payload_canonical_sha256: '{payload_hash}'. Use the `888_signer` utility to generate the "
-                f"`ratification_token` and pass it back to `eureka_forge`."
+        )
+        return result
+    
+    # Execute the command
+    try:
+        process = await asyncio.create_subprocess_shell(
+            command,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=working_dir,
+            limit=1024*1024,  # 1MB limit
+        )
+        
+        stdout, stderr = await asyncio.wait_for(
+            process.communicate(),
+            timeout=timeout
+        )
+        
+        end_time = datetime.now(timezone.utc)
+        duration_ms = (end_time - start_time).total_seconds() * 1000
+        
+        stdout_str = stdout.decode('utf-8', errors='replace')[:10000]
+        stderr_str = stderr.decode('utf-8', errors='replace')[:5000]
+        
+        execution_log.update({
+            "action": "EXECUTED",
+            "exit_code": process.returncode,
+            "duration_ms": duration_ms,
+            "stdout_length": len(stdout_str),
+            "stderr_length": len(stderr_str),
+        })
+        
+        # F6: Clear error messages
+        if process.returncode != 0:
+            verdict = "PARTIAL" if risk_level != "CRITICAL" else "VOID"
+            result = envelope_builder.build_envelope(
+                stage="888_FORGE",
+                session_id=session_id,
+                verdict=verdict,
+                payload={
+                    "status": "ERROR",
+                    "exit_code": process.returncode,
+                    "stdout": stdout_str,
+                    "stderr": stderr_str,
+                    "risk_level": risk_level,
+                    "execution_log": execution_log,
+                    "error_hint": f"Command failed with exit code {process.returncode}.",
+                },
             )
-        }
-        result.update(
-            envelope_builder.build_envelope(
-                stage="888_FORGE", session_id=session_id, verdict="888_HOLD", payload={}
-            )
+            return result
+        
+        result = envelope_builder.build_envelope(
+            stage="888_FORGE",
+            session_id=session_id,
+            verdict="SEAL",
+            payload={
+                "status": "SUCCESS",
+                "exit_code": 0,
+                "stdout": stdout_str,
+                "stderr": stderr_str if stderr_str else None,
+                "risk_level": risk_level,
+                "duration_ms": duration_ms,
+                "execution_log": execution_log,
+            },
+        )
+        return result
+        
+    except asyncio.TimeoutError:
+        execution_log["action"] = "TIMEOUT"
+        result = envelope_builder.build_envelope(
+            stage="888_FORGE",
+            session_id=session_id,
+            verdict="PARTIAL",
+            payload={
+                "status": "TIMEOUT",
+                "risk_level": risk_level,
+                "execution_log": execution_log,
+                "error_hint": f"Command timed out after {timeout}s.",
+            },
         )
         return result
     except Exception as e:
-        import traceback
-        return {
-            "verdict": "SABAR",
-            "status": "partial",
-            "holding_reason": "Internal Engine Fracture",
-            "error_class": e.__class__.__name__,
-            "blast_radius": "kernel",
-            "error": str(e), 
-            "trace": traceback.format_exc(),
-            "stage": "888_FORGE",
-            "session_id": session_id
-        }
+        execution_log["action"] = "EXCEPTION"
+        execution_log["error"] = str(e)
+        result = envelope_builder.build_envelope(
+            stage="888_FORGE",
+            session_id=session_id,
+            verdict="VOID",
+            payload={
+                "status": "EXCEPTION",
+                "risk_level": risk_level,
+                "execution_log": execution_log,
+                "error": str(e),
+                "error_class": e.__class__.__name__,
+            },
+        )
+        return result
 
 
 eureka_forge = ToolHandle(_sovereign_actuator)
