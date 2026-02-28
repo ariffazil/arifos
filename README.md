@@ -4,12 +4,11 @@
 ![arifOS Banner](docs/forged_page_1.png)
 
 # arifOS — Constitutional Intelligence Kernel
-
 **The system that knows because it admits what it cannot know.**  
 *Ditempa Bukan Diberi* — Forged, Not Given
 
 [![Version](https://img.shields.io/badge/version-2026.2.28-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
-[![License](https://img.shields.io/badge/license-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
+[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
 [![MCP Protocol](https://img.shields.io/badge/MCP-1.0-8B5CF6?style=for-the-badge&logo=shield&logoColor=white)](https://modelcontextprotocol.io)
 [![Python](https://img.shields.io/badge/python-3.12+-green?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)  
 [![Dashboard](https://img.shields.io/badge/Dashboard-Live-FF6600?style=for-the-badge&logo=cloudflare&logoColor=white)](https://arifosmcp-truth-claim.pages.dev)
@@ -17,75 +16,140 @@
 
 </div>
 
----
+<br/>
 
-## 🧭 What is arifOS?
+## 🏛️ Foundational Canonical Texts (Core Reading)
+*To understand arifOS, you must read the source material. These are the godel-locked technical papers defining the framework.*
 
-**arifOS is a Constitutional Intelligence Kernel and AI Control Plane.** It sits locally or hosted in the cloud between language models (like Claude, GPT, Gemini) and real-world actions. 
-
-By running an AI through its rigorous 000-999 mathematical "metabolic loop", it acts as a **lie detector and safety firewall**. It forces every interaction, code execution, or response to adhere to **13 strict constitutional rules (Floors)** before it hits the internet or ends up on your screen.
-
----
-
-## ⚖️ Why does it exist?
-
-Unconstrained AI models calculate statistical probability, not truth. Left unchecked, they will hallucinate facts, write dangerous code, and act without considering human consequences. **arifOS solves this.**
-
-Code is execution. Governance is survival. arifOS ensures that:
-- **Truth is grounded (F2 Truth):** The AI must physically back its claims with verifiable evidence, or explicitly admit `UNKNOWN`.
-- **Entropy is reduced (F4 Clarity):** Outputs must reduce confusion, not add noise.
-- **Destruction is prevented (F1 Amanah & F13 Sovereignty):** Irreversible actions are blocked and require cryptographically signed human ratification (`888_HOLD`).
+| Domain | Canonical Text | Description |
+|:---:|:---|:---|
+| 🏗️ **Design** | [`ARCHITECTURE.md`](ARCHITECTURE.md) | **The Blueprint:** Trinity Logic (ΔΩΨ), 7-Organ Stack, and EMD Physics. |
+| ⚖️ **Law** | [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md) | **The Constitution:** The mathematical thresholds for the 13 Floors. |
+| 🛡️ **Defense** | [`SECURITY.md`](SECURITY.md) | **The Firewall:** Injection handling, Auth models, and Threat vectors. |
+| 🧰 **Tools** | [`MCP_TOOLS.md`](MCP_TOOLS.md) | **The Surface:** The 13 canonical tools bridging the LLM to the Kernel. |
+| 🚀 **Deploy** | [`DEPLOYMENT.md`](DEPLOYMENT.md) | **The Vanguard:** VPS setups, Docker, and Streamable HTTP scaling. |
 
 ---
 
-## 🧠 The 8-Layer Architecture (`333_APPS`)
+## 🧭 What is arifOS? (The "What")
 
-arifOS is not just a prompt; it is an entire **Intelligence Stack (Level 0 to Level 7)**. Swapping an AI model never bypasses the core governance kernel.
+**arifOS is the world's first production-grade implementation of thermodynamic AI safety.** 
 
-| Level | Name | Scope | Role in arifOS |
+It is a Constitutional AI Governance System—an **Intelligence Kernel** and **AI Control Plane**. It sits locally or hosted in the cloud between raw reasoning engines (Language Models like Claude, GPT, or Gemini) and real-world actions. 
+
+By forcing the AI through a mathematically constrained `000 -> 999` metabolic loop, arifOS acts as a rigorous **lie detector and safety firewall**. It intercepts every thought, code execution, or tool call, evaluating it against 13 invariable constitutional rules (Floors) before deciding whether to execute it or block it. 
+
+*It is not an AI model; it is the constitutional law that governs them.*
+
+---
+
+## ⚖️ Why does it exist? (The "Why")
+
+Unconstrained AI models calculate statistical probabilities—they do not understand truth or physics. Left unchecked, they will hallucinate facts, execute dangerous system commands, generate unethical outputs, and act without considering human consequence. **arifOS solves this by encoding the laws of nature and ethics into software.**
+
+We didn’t invent these constraints; we discovered them. Code is execution. Governance is survival.
+- **Truth (F2):** Information must reduce uncertainty (Shannon Entropy). The AI must back its claims with multi-source evidence or explicitly halt and return `UNKNOWN`.
+- **Clarity (F4):** The AI's output must mathematically reduce information entropy (`ΔS ≤ 0`).
+- **Amanah & Sovereignty (F1 & F13):** Irreversible actions (like mutating a production database) are structurally blocked. They trigger an `888_HOLD`, physically pausing the AI until a human signs off with cryptographic execution keys.
+- **Empathy (F6):** The system must protect the weakest affected stakeholder (`κᵣ ≥ 0.95`).
+
+---
+
+## 🧠 The 8-Layer Architecture (`333_APPS` Stack)
+
+arifOS is an entire ecosystem stack designed to scale from a zero-context chat prompt all the way up to a permissionless society of federated AI agents. **Crucially, the L0 Kernel is physically separated from all upper layers.** Swapping models or changing agents does not bypass the L0 Constitution.
+
+| Level | Name | Scope | Operational Role in the arifOS Stack |
 |:---:|:---|:---|:---|
-| **L7** | **AGI / Ecosystem** | Civilisation-Scale | Permissionless sovereignty and recursive self-healing research. |
-| **L6** | **Institution** | Organisational | Trinity consensus frameworks and organizational governance (Stubs/Pilots). |
-| **L5** | **Agents** | Federation | Multi-agent coordination (the Hypervisor managing diverse AI actors). |
-| **L4** | **Tools (MCP)** | Production | The Model Context Protocol (MCP) surface. 13 canonical tools bridging the AI to the Kernel. |
-| **L3** | **Workflow** | Production | The `000 -> 999` stage constitutional metabolic sequences (Ignition to Commit). |
-| **L2** | **Skills** | Production | Sensory systems (A-CLIP primitives) measuring environment, health, and network telemetry. |
-| **L1** | **Prompts** | Production | The zero-context user entry layer where intents are caught and parsed. |
-| **L0** | **KERNEL** | **SEALED** | **The Immutable Core.** 3 Engines (Mind, Heart, Soul), 13 Floors, and `VAULT999` ledger. No transport logic exists here. |
+| **L7** | **AGI / Ecosystem** | Civilisation-Scale | *[Research]* The frontier. Permissionless sovereignty, recursive self-amendment, and self-healing. |
+| **L6** | **Institution** | Organisational | *[Stub]* Trinity consensus frameworks for governing entire corporations via AI. |
+| **L5** | **Agents** | Federation | *[Active]* Multi-agent coordination. The Hypervisor managing the "Quartet" (Architect, Engineer, Auditor, Validator). |
+| **L4** | **Tools (MCP)** | Production | *[Active]* The Model Context Protocol (MCP) exterior. 13 canonical tools bridging the AI to the Kernel safely. |
+| **L3** | **Workflow** | Production | *[Active]* The orchestrated Sequences (`000 -> 999` stage constitutional metabolic flow). |
+| **L2** | **Skills** | Production | *[Active]* Sensory systems (9 A-CLIP primitives) measuring filesystem, network telemetry, and environment. |
+| **L1** | **Prompts** | Production | *[Active]* The zero-context user entry layer where intents are caught, classified, and parsed. |
+| **L0** | **KERNEL** | **SEALED** | *[Active]* The Immutable Core. Pure decision logic. Transport-agnostic. Holds the 13 Floors, 7 Organs, and `VAULT999` ledger. |
 
 ---
 
-## 🚀 How do I run it in 2 minutes?
+## ⚙️ The Intelligence Kernel (Deep Dive into L0)
 
-**arifOS exposes a 13-tool Model Context Protocol (MCP) server.** You can connect it directly to your favorite MCP-compatible AI clients (Claude Desktop, Cursor, ChatGPT).
+The L0 Kernel is built around **Thermodynamic Isolation** and the **Trinity Engines**. The reasoning engine is physically blocked from seeing the safety engine until the very end, preventing "rubber-stamping" bias.
+
+### 1. The Trinity Engines
+- **Δ Delta (The Mind / AGI)**: Focuses entirely on Truth, Logic, and Causal tracing (`F2, F4, F7, F8`).
+- **Ω Omega (The Heart / ASI)**: Focuses entirely on Safety, Empathy, and Anti-Deception (`F1, F5, F6, F9`).
+- **Ψ Psi (The Soul / APEX)**: Synthesizes the final verdict, enforces human consensus, and seals the ledger.
+
+### 2. The 7-Organ Sovereign Stack (`000 -> 999`)
+Every request flows through this strict, pipeline (the "metabolic loop"):
+1. **[000] INIT (Airlock)**: Ignites the session and parses for prompt injections.
+2. **[111-333] AGI (Mind)**: Generates parallel hypotheses and forces factual grounding.
+3. **[444] PHOENIX (Subconscious)**: Recalls associative memory from past sessions via the `EUREKA Sieve`.
+4. **[555-666] ASI (Heart)**: Analyzes stakeholder impact and checks for bias.
+5. **[777] FORGE (Hands)**: Materializes the action inside a strict sandbox.
+6. **[888] APEX (Soul)**: Final Constitutional judgment. Generates the `governance_token`.
+7. **[999] VAULT (Memory)**: Commits the final decision irreversibly to the Merkle-chained `VAULT999` database. 
+
+### 3. The 13 Constitutional Floors
+*Note: F1-F13 are mathematically evaluated in `core/shared/floors.py`.*
+
+| Floor | Name | Type | Plain English Mandate | Protocol Rule |
+|:---:|:---|:---:|:---|:---|
+| **F1** | Amanah | **HARD** | **Can we undo this?** If permanent, requires lock. | Block irreversible actions. |
+| **F2** | Truth | **HARD** | **Is this a hallucination?** Must cite evidence. | Factual fidelity `τ ≥ 0.99`. |
+| **F3** | Consensus | SOFT | **Did we double-check?** Tri-witness validation. | `W^3 ≥ 0.95`. |
+| **F4** | Clarity | **HARD** | **Does this reduce confusion?** Must structure noise. | Entropy reduction `ΔS ≤ 0`. |
+| **F5** | Peace | SOFT | **Is this safe/stable?** Blocks adversarial chaos. | Dynamic stability `P^2 ≥ 1.0`. |
+| **F6** | Empathy | **HARD** | **Who gets hurt?** Protects the weakest stakeholder. | Harm impact `κᵣ ≥ 0.95`. |
+| **F7** | Humility | **HARD** | **Is the AI cocky?** Must preserve room to be wrong. | Uncertainty band `[0.03, 0.05]`. |
+| **F8** | Genius | SOFT | **Is the logic sound?** The Coherence Mirror. | `G = A × P × X × E² ≥ 0.80`. |
+| **F9** | Anti-Hantu | SOFT | **No Ghost in the Machine.** Blocks sneaky telemetry. | Dark heuristics `C_dark < 0.30`. |
+| **F10** | Ontology | **HARD** | **Are you pretending to be human?** Shut down claims of "feelings". | Epistemological Category Lock. |
+| **F11** | Authority | **HARD** | **Who ordered this?** Cryptographic identity check. | Invalid Auth = Void. |
+| **F12** | Defense | **HARD** | **Is this a hack?** Pre-scans for prompt jailbreaks. | Injection `Risk < 0.85`. |
+| **F13** | Sovereign | **HARD** | **The human always wins.** Non-delegable veto. | `888_HOLD` override available. |
+
+---
+
+## 🔌 The MCP Protocol & 13 Canonical Tools (L4)
+
+arifOS acts as an **MCP Server** (`arifos_aaa_mcp`). Rather than trusting an LLM, your IDE or Desktop client points its tool-calls at arifOS via the Model Context Protocol.
+
+The server exposes **13 governed tools**. When an AI attempts to use a tool like `eureka_forge` to write code, it doesn't just execute. It is physically routed backward through the L0 Kernel, passed through the 13 Floors, and then granted a `governance_token` by the Apex Judge. Only if that token exists can the `seal_vault` finalize the action.
+
+**(View the full list of tools and their descriptions here: [`docs/api.md`](https://arifos.arif-fazil.com/api))**
+
+---
+
+## 🚀 How to Run It (The "How")
 
 ### Prerequisites
-- **Python**: 3.12+ 
+- **Python**: 3.12+ (We recommend `uv` as the package manager).
 - **Environment**: Linux, macOS, or Windows WSL.
+- **Database**: PostgreSQL is required for the `VAULT999` Immutable Ledger.
 
+### 1. Local execution (`stdio` mode for Claude Desktop / Cursor)
 ```bash
 # 1. Install arifOS
 pip install arifos
 
-# 2. Export required safety environment variables (Use a .env file for production!)
+# 2. Export required safety environment variables (Use a .env file!)
 export ARIFOS_GOVERNANCE_SECRET=$(openssl rand -hex 32)
 export DB_PASSWORD="your-strong-secret-here"
 export DATABASE_URL="postgresql://arifos:${DB_PASSWORD}@localhost:5432/vault999"
+# Optional: Enable ML SentenceTransformers for Empathy scoring (F5/F6/F9)
+export ARIFOS_ML_FLOORS=1 
 
-# 3. Start local MCP server for desktop IDE clients (stdio mode)
+# 3. Start local MCP server
 python -m arifos_aaa_mcp stdio
 ```
 
-*For production Cloud/VPS deployment with Streamable HTTP, see [`DEPLOYMENT.md`](DEPLOYMENT.md).*
-
-⚠️ **Warning:** Do not expose the HTTP `/mcp` transport over the open network without explicit auth. See [`SECURITY.md`](SECURITY.md).
-
-#### Hooking it up to Claude Desktop
-Simply add this to your `~/.config/claude/claude_desktop_config.json`:
+To connect Claude Desktop, add to `~/.config/claude/claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "arifOS_AAA": {
+    "arifOS": {
       "command": "python",
       "args": ["-m", "arifos_aaa_mcp", "stdio"],
       "env": {
@@ -97,51 +161,56 @@ Simply add this to your `~/.config/claude/claude_desktop_config.json`:
 }
 ```
 
----
-
-## 🔍 How do I verify and trust it?
-
-You don't have to blindly trust arifOS; you can verify its work. Every decision made by the AI is cryptographically sealed in an immutable ledger (**VAULT999**) with a Merkle hash chain.
-
-When a query is processed, arifOS provides a structured verdict envelope:
-- ✅ **SEAL**: Passed all 13 constitutional floors. The action is authorized and logged.
-- 🟡 **PARTIAL**: Approved with warnings.
-- ⚠️ **SABAR**: Refine and retry. Entropy or risk was too high; the AI was hallucinating or unsafe. *(Sabar = Patience)*
-- ❌ **VOID**: Blocked. A hard rule (Truth or Security) was violated.
-- 🛑 **888_HOLD**: Irreversible action requested. The system stops and waits for human sovereign cryptographic ratification.
-
-**See it in action:** Check out the **[Live Constitutional Audit Dashboard](https://arifosmcp-truth-claim.pages.dev)** to see real-time integrity sweeps of the framework.
+### 2. Production Execution (`http` streamable mode for VPS / Cloud)
+Instead of two-channel SSE, arifOS uses the modern **Streamable HTTP** standard for robust cloud scalability behind Nginx proxies.
+```bash
+HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
+```
+*For complete VPS, Nginx, Docker, and Cloudflare scaling instructions, see [`DEPLOYMENT.md`](DEPLOYMENT.md).*
 
 ---
 
-## 📚 Where do I go next?
+## 🛡️ Verification & Audit (The "Whatever/Proof")
 
-To dig deeper into the mechanics, deployment, and security of arifOS, refer to our specialized documentation sites.
+**You don't have to blindly trust arifOS; you can independently verify it.**
 
-- **[arifOS Documentation Site](https://arifos.arif-fazil.com/)**
-- **[Constitutional Audit Dashboard](https://arifosmcp-truth-claim.pages.dev/)**
-- **[Live Status Page](https://arifosmcp.arif-fazil.com/health)**
+Every single thought, action, or tool call processed by arifOS is mathematically evaluated and cryptographically hashed into an append-only PostgreSQL database (**`VAULT999`**). 
 
-| Domain | Guide | What's Inside |
-|---|---|---|
-| 🏗️ **Design** | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Trinity Logic (ΔΩΨ), 7-Organ Stack, and EMD Physics |
-| 🛡️ **Defense** | [`SECURITY.md`](SECURITY.md) | Injection handling, Auth models, and Threat vectors |
-| ⚖️ **Law** | [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md) | The 13 Constitutional Floors and Genius Engine |
-| 🚀 **Deploy** | [`DEPLOYMENT.md`](DEPLOYMENT.md) | VPS setups, Docker, and Cloudflare scaling |
-| 🧰 **Tools** | [`MCP_TOOLS.md`](MCP_TOOLS.md) | The 13 canonical tools exposed to the LLM |
+The query will result in one of these Governance Envelopes:
+- ✅ **SEAL**: Passed all 13 constitutional floors. Synthesized and executed.
+- 🟡 **PARTIAL**: Approved with documented safety warnings.
+- ⚠️ **SABAR**: Refine and Retry. The AI's entropy was too high or logic was flawed. *(Sabar translates to 'Patience')*.
+- ❌ **VOID**: Hard Failure. A structural law (like lying or jailbreaking) was violated. System halted.
+- 🛑 **888_HOLD**: Irreversible action requested. Waiting for the Human Sovereign to sign off with a cryptographic key.
+
+### 📊 The Truth Claim Dashboard
+We continuously pipe live tests through the framework to prove its reliability. To see real-time integrity sweeps, anomalies, and structural proofs of the system:
+**[View the Live Constitutional Audit Dashboard](https://arifosmcp-truth-claim.pages.dev)**
 
 ---
 
-## 🤝 Contributing & License
-We welcome contributions! Have ideas on improving AI empathy scoring using Machine Learning? Find a bug in the injection defenses? Fork, code, and submit a PR. See `CONTRIBUTING.md` for guidelines.
+## 🔮 State of the Forge (The "When")
 
-- **License:** AGPL-3.0 (Free to use, modify, and distribute, but modifications must be shared under the same license).
+**Current Status:** Active Development / Production Ready L4.
+- **Version:** v66.0-SOVEREIGN-ACTUATOR (The 7-Organ Stack is SEALED and `dry_run=False` actuation is live).
+- **Testing:** 90%+ pass rate on regression and CI/CD pipelines.
+- **ML Capabilities:** Optional SentenceTransformer capabilities (SBERT) for advanced contextual semantic scoring over keyword-heuristics for F5/F6/F9 currently rolling out.
+
+For a detailed multi-year roadmap spanning to interplanetary delayed-autonomy federations, see [`ROADMAP.md`](ROADMAP.md).
+
+---
+
+## 🤝 Contributing
+We welcome contributions at all layers of the `333_APPS` stack. Have ideas on improving AI empathy scoring using PyTorch? Found a flaw in the prompt injection guards? Fork, code, and submit a PR! 
+Check out our `CONTRIBUTING.md` guidelines, and if it sparkles for you, **star the repo! 🌟**
+
+**License:** AGPL-3.0 (You are free to use, modify, and distribute this, but any modifications to the governance kernel must be shared openly).
 
 ---
 
 <div align="center">
 
-**Made with 🔥 by [ARIF FAZIL](https://arif-fazil.com)**
+**Built and forged by [Muhammad Arif bin Fazil](https://arif-fazil.com)**
 
 📧 [arifos@arif-fazil.com](mailto:arifos@arif-fazil.com) • 🐙 [GitHub](https://github.com/ariffazil) • 𝕏 [@ArifFazil90](https://x.com/ArifFazil90)
 
