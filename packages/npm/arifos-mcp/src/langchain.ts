@@ -10,7 +10,6 @@
  * Canonical Source: https://pypi.org/project/arifos/
  */
 
-import type { ArifOSMCPClient } from './client.js';
 import type { ArifOSToolName } from './types.js';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -39,7 +38,7 @@ import type { ArifOSToolName } from './types.js';
  * ```
  */
 export class ArifOSToolset {
-  constructor(private readonly client: ArifOSMCPClient) {}
+  constructor() {}
   
   /**
    * Get list of available tool names.

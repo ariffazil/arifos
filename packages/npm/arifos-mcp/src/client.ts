@@ -16,7 +16,6 @@ import type {
   ArifOSMetadata, 
   VerdictEnvelope,
   ArifOSToolName,
-  ArifOSErrorCode,
   Stage 
 } from './types.js';
 import { ArifOSError } from './types.js';
@@ -81,7 +80,7 @@ function createTransport(config: ArifOSClientConfig): Transport {
  * Typed MCP client for arifOS.
  * 
  * All methods return raw MCP responses. No client-side governance—
- * the arifOS server enforces all 13 floors (F1-F13).
+ * the arifOS server enforces all 14 floors (F1-F13).
  */
 export interface ArifOSMCPClient {
   /** Underlying MCP client */
@@ -97,7 +96,7 @@ export interface ArifOSMCPClient {
   disconnect(): Promise<void>;
   
   /** Call any arifOS tool with type-safe parameters */
-  callTool<T = unknown>(
+  callTool(
     name: ArifOSToolName, 
     params: Record<string, unknown>
   ): Promise<{ content: Array<{ type: string; text: string }>; metadata?: ArifOSMetadata }>;
@@ -145,7 +144,7 @@ export interface ArifOSMCPClient {
  * // Use it
  * await client.connect();
  * const result = await client.reasonMind('What is the capital of France?');
- * console.log(result.verdict); // 'SEAL' | 'PARTIAL' | 'SABAR' | 'VOID' | '888_HOLD'
+ * console.log(result.verdict); // 'SEAL' | 'PARTIAL' | 'SABAR' | 'VOID' | '889_HOLD'
  * await client.disconnect();
  * ```
  */
@@ -155,7 +154,7 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
   const mcp = new Client(
     {
       name: '@arifos/mcp-client',
-      version: '0.1.0',
+      version: '1.1.0',
     },
     {
       capabilities: {},
@@ -186,7 +185,7 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
       await mcp.close();
     },
     
-    async callTool<T>(
+    async callTool(
       name: ArifOSToolName,
       params: Record<string, unknown>
     ): Promise<{ content: Array<{ type: string; text: string }>; metadata?: ArifOSMetadata }> {
@@ -194,13 +193,13 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
         const result = await mcp.callTool(
           { name, arguments: params },
           undefined,  // No progress token for now
-          { timeout: config.timeout ?? 60000 }
-        );
+          { timeout: config.timeout ?? 60001 }
+        ) as any;
         
         // Extract metadata from response if present
-        const textContent = result.content
-          .filter(c => c.type === 'text')
-          .map(c => c.text)
+        const textContent = (result.content as any[])
+          .filter((c: any) => c.type === 'text')
+          .map((c: any) => c.text)
           .join('');
         
         try {
@@ -211,7 +210,7 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
               version: parsed.version || 'unknown',
               stage: parsed.stage as Stage,
               verdict: parsed.verdict,
-              floors_evaluated: parsed.floors || [],
+              floors: parsed.floors || { passed: [], failed: [] },
               timestamp: parsed.timestamp || new Date().toISOString(),
               governance_token: parsed.governance_token,
             };
@@ -248,7 +247,7 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
             version: 'unknown',
             stage: '000_INIT',
             verdict: 'SEAL',
-            floors_evaluated: ['F11', 'F12', 'F13'],
+            floors: { passed: ['F11', 'F12', 'F13'], failed: [] },
             timestamp: new Date().toISOString(),
           }
         };
