@@ -41,6 +41,7 @@ from starlette.routing import Route
 from aaa_mcp.build_info import get_build_info
 from aaa_mcp.integrations.self_ops import self_diagnose
 from aaa_mcp.protocol.public_surface import PUBLIC_TOOL_ALIASES
+from core.shared.floor_audit import get_ml_floor_runtime
 
 # Import all 13 canonical tools from server module.
 # Legacy verbs are supported via HTTP aliases only.
@@ -469,6 +470,7 @@ async def health(request: Request):
             "status": "healthy" if monitor.is_healthy() else "degraded",
             "service": "aaa-mcp-rest",
             "version": BUILD_INFO["version"],
+            "ml_floors": get_ml_floor_runtime(),
             "governance_metrics": stats,
             "health_checks": health_results,
         }

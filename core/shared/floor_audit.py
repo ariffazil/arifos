@@ -14,9 +14,16 @@ from __future__ import annotations
 
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
+from typing import Any
+
+try:
+    from core.shared.sbert_floors import SBERT_AVAILABLE, classify_asi_floors
+except Exception:
+    SBERT_AVAILABLE = False
+    classify_asi_floors = None  # type: ignore[assignment]
 
 try:
     import yaml
@@ -50,6 +57,7 @@ class FloorResult:
     passed: bool
     score: float
     reason: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -59,6 +67,7 @@ class AuditResult:
     pass_rate: float
     recommendation: str
     delta_s: float = 0.0  # Entropy delta for this check (F4)
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 # ---------------------------------------------------------------------------
@@ -172,6 +181,23 @@ _POLICY_VIOLATIONS = frozenset(
 _OPTION_MARKERS = frozenset(["option", "alternative", "approach", "path", "choice", "route"])
 
 
+def _env_truthy(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "y", "on"}
+
+
+def get_ml_floor_runtime() -> dict[str, Any]:
+    """Return runtime status for optional SBERT-backed floor scoring."""
+    enabled = _env_truthy("ARIFOS_ML_FLOORS")
+    method = "sbert" if enabled and SBERT_AVAILABLE else "heuristic"
+    if enabled and not SBERT_AVAILABLE:
+        method = "heuristic_fallback"
+    return {
+        "ml_floors_enabled": enabled,
+        "ml_model_available": SBERT_AVAILABLE,
+        "ml_method": method,
+    }
+
+
 # ---------------------------------------------------------------------------
 # FloorAuditor
 # ---------------------------------------------------------------------------
@@ -250,6 +276,10 @@ class FloorAuditor:
             "F12": self._check_f12_injection(action, context),
             "F13": self._check_f13_curiosity(action, context),
         }
+        audit_metadata = self._default_audit_metadata()
+
+        if audit_metadata["ml_floors_enabled"]:
+            self._apply_ml_floor_overrides(action, context, results, audit_metadata)
 
         # Apply threshold gates (override floor's own passed flag with threshold)
         for floor_id, result in results.items():
@@ -273,7 +303,78 @@ class FloorAuditor:
             pass_rate=pass_rate,
             recommendation=recommendation,
             delta_s=delta_s,
+            metadata=audit_metadata,
         )
+
+    def _default_audit_metadata(self) -> dict[str, Any]:
+        runtime = get_ml_floor_runtime()
+        return {
+            **runtime,
+            "ml_confidence": None,
+            "f5_score_source": "heuristic",
+            "f6_score_source": "heuristic",
+            "f9_score_source": "heuristic",
+        }
+
+    def _apply_ml_floor_overrides(
+        self,
+        action: str,
+        context: str,
+        results: dict[str, FloorResult],
+        audit_metadata: dict[str, Any],
+    ) -> None:
+        if classify_asi_floors is None:
+            audit_metadata["ml_method"] = "heuristic_fallback"
+            audit_metadata["ml_error"] = "sbert module unavailable"
+            return
+
+        try:
+            ml_scores = classify_asi_floors(f"{action}\n{context}".strip())
+        except Exception as exc:
+            audit_metadata["ml_method"] = "heuristic_fallback"
+            audit_metadata["ml_error"] = str(exc)
+            return
+
+        audit_metadata["ml_method"] = ml_scores.method
+        audit_metadata["ml_confidence"] = round(float(ml_scores.confidence), 4)
+
+        if ml_scores.method != "sbert":
+            return
+
+        score_source = "sbert"
+        raw_thresholds = {"F5": 0.50, "F6": 0.70, "F9": 0.30}
+        pass_scores = {"F5": 1.05, "F6": 1.00, "F9": 1.00}
+        raw_scores = {
+            "F5": float(ml_scores.f5_peace),
+            "F6": float(ml_scores.f6_empathy),
+            "F9": float(ml_scores.f9_anti_hantu),
+        }
+
+        for floor_id, raw_score in raw_scores.items():
+            result = results[floor_id]
+            raw_threshold = raw_thresholds[floor_id]
+            semantic_pass = raw_score >= raw_threshold
+            semantic_score = pass_scores[floor_id] if semantic_pass else raw_score
+            result.score = min(result.score, semantic_score)
+            result.metadata.update(
+                {
+                    "score_source": score_source,
+                    "ml_method": ml_scores.method,
+                    "ml_confidence": round(float(ml_scores.confidence), 4),
+                    "raw_ml_score": round(raw_score, 4),
+                    "raw_ml_threshold": raw_threshold,
+                }
+            )
+
+            if not semantic_pass:
+                ml_reason = (
+                    f"SBERT {floor_id} raw={raw_score:.3f} below semantic threshold {raw_threshold:.2f}"
+                )
+                result.reason = f"{result.reason}; {ml_reason}" if result.reason else ml_reason
+
+        audit_metadata["f5_score_source"] = score_source
+        audit_metadata["f6_score_source"] = score_source
+        audit_metadata["f9_score_source"] = score_source
 
     # ------------------------------------------------------------------
     # F1 — Amanah (Reversibility)

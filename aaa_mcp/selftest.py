@@ -18,6 +18,7 @@ import sys
 from pathlib import Path
 
 from aaa_mcp.protocol.aaa_contract import AAA_TOOL_LAW_BINDINGS, MANIFEST_VERSION
+from core.shared.floor_audit import get_ml_floor_runtime
 
 # Target bands
 OMEGA_TARGET_MIN = 0.03
@@ -28,6 +29,7 @@ OMEGA_CRITICAL = 0.08
 def check_floors() -> tuple[bool, list[str]]:
     """Verify constitutional floors are configured."""
     issues = []
+    runtime = get_ml_floor_runtime()
 
     # Check for canonical floor bindings on the public 13-tool contract.
     try:
@@ -48,6 +50,11 @@ def check_floors() -> tuple[bool, list[str]]:
                 issues.append(f"WARN: Missing floors for: {missing_floors}")
 
             print(f"✓ Constitutional floors loaded: {floor_count} definitions")
+            print(
+                "✓ ML floor mode: "
+                f"{runtime['ml_method']} (enabled={runtime['ml_floors_enabled']}, "
+                f"available={runtime['ml_model_available']})"
+            )
     except ImportError as e:
         issues.append(f"ERROR: Cannot load constitutional floors: {e}")
 
@@ -160,7 +167,7 @@ def check_health_contract() -> tuple[bool, list[str]]:
 
     # Check required fields for health response
     required_fields = ["status"]
-    optional_fields = ["version", "tools", "mode", "cluster", "floors"]
+    optional_fields = ["version", "tools", "mode", "cluster", "floors", "ml_floors"]
 
     try:
         # Try to import health handler
@@ -173,6 +180,7 @@ def check_health_contract() -> tuple[bool, list[str]]:
             "version": os.environ.get("ARIFOS_VERSION", "unknown"),
             "mode": os.environ.get("GOVERNANCE_MODE", "SOFT"),
             "cluster": os.environ.get("CLUSTER_LEVEL", "1"),
+            "ml_floors": get_ml_floor_runtime(),
         }
 
         for field in required_fields:
@@ -199,6 +207,7 @@ def check_environment() -> tuple[bool, list[str]]:
         "PORT": "8080",
         "GOVERNANCE_MODE": "SOFT",
         "VAULT_PATH": str(Path("VAULT999").resolve()),
+        "ARIFOS_ML_FLOORS": "0",
     }
 
     for var, default_value in defaults.items():

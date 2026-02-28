@@ -29,6 +29,7 @@ from starlette.responses import HTMLResponse, JSONResponse, Response
 
 from aaa_mcp.build_info import get_build_info
 from aaa_mcp.protocol.public_surface import PUBLIC_TOOL_ALIASES
+from core.shared.floor_audit import get_ml_floor_runtime
 
 BUILD_INFO = get_build_info()
 MCP_PROTOCOL_VERSION = "2025-11-25"
@@ -150,6 +151,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "version": BUILD_INFO["version"],
                 "transport": "streamable-http",
                 "tools_loaded": len(tool_registry),
+                "ml_floors": get_ml_floor_runtime(),
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         )
