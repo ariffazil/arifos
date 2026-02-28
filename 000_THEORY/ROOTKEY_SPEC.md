@@ -676,10 +676,176 @@ print('Valid:', verify_genesis_block(genesis))
 "
 ```
 
+# XIII. F13 GLOBAL REVOCATION PROTOCOL (The Ultimate Brake)
+
+## The Sovereign Kill Switch
+
+**If the 888 Judge detects compromise, a single command invalidates every outstanding `governance_token` in memory. This is the ultimate "Brake."**
+
+```python
+from typing import Set, Dict
+import time
+
+class F13GlobalRevocation:
+    """
+    F13 Sovereign Veto at system scale.
+    Immediate invalidation of all cryptographic authority.
+    """
+    
+    REVOCATION_CODE: str = "F13_REVOKE_ALL"  # Required confirmation
+    
+    def __init__(self):
+        self._revocation_epoch: Optional[int] = None  # Unix timestamp
+        self._revoked_sessions: Set[str] = set()
+        self._revocation_active: bool = False
+    
+    def initiate_global_revocation(
+        self,
+        confirmation_code: str,
+        sovereign_signature: str,
+        reason: str
+    ) -> Dict:
+        """
+        F13 Global Revocation Event.
+        Invalidates ALL outstanding governance tokens immediately.
+        """
+        # 1. Verify confirmation code (prevents accidental trigger)
+        if confirmation_code != self.REVOCATION_CODE:
+            return {
+                "verdict": "VOID",
+                "reason": "Invalid revocation confirmation code",
+                "floor": "F13_CONFIRMATION_FAILURE"
+            }
+        
+        # 2. Verify sovereign signature (888 Judge authority)
+        if not self._verify_sovereign_signature(sovereign_signature):
+            return {
+                "verdict": "VOID",
+                "reason": "Invalid sovereign signature",
+                "floor": "F13_AUTH_FAILURE"
+            }
+        
+        # 3. Require explicit reason
+        if not reason or len(reason) < 20:
+            return {
+                "verdict": "VOID",
+                "reason": "Revocation requires detailed justification (min 20 chars)",
+                "floor": "F13_INSUFFICIENT_JUSTIFICATION"
+            }
+        
+        # 4. ACTIVATE GLOBAL REVOCATION
+        self._revocation_epoch = int(time.time())
+        self._revocation_active = True
+        
+        # 5. Log to VAULT999 (constitutional record)
+        revocation_record = {
+            "event": "F13_GLOBAL_REVOCATION",
+            "timestamp": self._revocation_epoch,
+            "reason": reason,
+            "sovereign_signature": sovereign_signature[:32] + "...",  # Truncated
+            "constitutional_authority": "888_Judge",
+            "floor": "F13_SOVEREIGN_VETO"
+        }
+        self._log_to_vault(revocation_record)
+        
+        return {
+            "verdict": "SEAL",
+            "status": "GLOBAL_REVOCATION_ACTIVE",
+            "revocation_epoch": self._revocation_epoch,
+            "effect": "All governance tokens invalidated",
+            "recovery": "Requires 888 Judge explicit session re-authorization",
+            "floor": "F13_GLOBAL_BRAKE"
+        }
+    
+    def check_token_validity(
+        self,
+        token_minted_timestamp: int,
+        session_id: str
+    ) -> Dict:
+        """
+        Check if token was minted before or after revocation epoch.
+        """
+        if not self._revocation_active:
+            return {"valid": True}
+        
+        # Token minted before revocation = INVALIDATED
+        if token_minted_timestamp < self._revocation_epoch:
+            return {
+                "valid": False,
+                "verdict": "VOID",
+                "reason": f"Token invalidated by F13 Global Revocation (epoch: {self._revocation_epoch})",
+                "floor": "F13_REVOCATION",
+                "action_required": "Obtain new governance token with post-revocation sovereign authorization"
+            }
+        
+        # Token minted after revocation = requires re-authorization
+        if session_id not in self._authorized_post_revocation:
+            return {
+                "valid": False,
+                "verdict": "888_HOLD",
+                "reason": "Session requires post-revocation sovereign re-authorization",
+                "floor": "F13_POST_REVOCATION_HOLD"
+            }
+        
+        return {"valid": True}
+    
+    def lift_revocation_for_session(
+        self,
+        session_id: str,
+        sovereign_signature: str,
+        justification: str
+    ) -> Dict:
+        """
+        888 Judge can lift revocation for specific session.
+        """
+        if not self._verify_sovereign_signature(sovereign_signature):
+            return {"verdict": "VOID", "reason": "Invalid sovereign signature"}
+        
+        self._authorized_post_revocation.add(session_id)
+        
+        return {
+            "verdict": "SEAL",
+            "session_id": session_id,
+            "status": "REVOCATION_LIFTED",
+            "requires": "New governance token minted post-revocation"
+        }
+
+# Global revocation instance
+F13_BRAKE = F13GlobalRevocation()
+```
+
+### F13 Revocation Triggers
+
+| Trigger | Condition | Automatic Action |
+|---------|-----------|------------------|
+| **Compromise Detected** | Root key suspected leaked | Immediate F13 activation |
+| **Constitutional Breach** | System violates 13 Floors at scale | 888 Judge invokes F13 |
+| **Sovereign Override** | Human determines system unsafe | Manual F13 trigger |
+| **Catastrophic Failure** | Merkle chain broken / Vault corrupted | Automatic F13 + FAIL-CLOSED |
+
+### Recovery Protocol
+
+```
+F13 Global Revocation Activated
+    │
+    ▼
+All Tokens Invalidated
+    │
+    ▼
+System Enters FAIL-CLOSED State
+    │
+    ▼
+888 Judge Reviews Compromise
+    │
+    ├──► If False Alarm ──► Lift Revocation ──► Resume Operations
+    │
+    └──► If Real Compromise ──► Root Key Rotation ──► New Genesis ──► Resume
+```
+
 ---
 
-**Version:** v52.5.1  
-**Last Updated:** 2026-01-26  
+**Version:** v52.6-HARDENED  
+**Last Updated:** 2026-02-28  
 **Status:** SEALED  
 **Next Review:** 2026-03-26  
 

@@ -1070,10 +1070,225 @@ def create_hardened_vault_entry(
 | **Veto-Logged** | F13 vetoes recorded with full metadata | Audit requirement |
 | **Immutable** | Cryptographic proof of integrity | Tamper evidence |
 
+# PART VIII: FAIL-CLOSED STATE (Chain Integrity)
+
+## 22. The FAIL-CLOSED Trigger
+
+### VAULT999 Chain Break Detection
+
+**If the Merkle-chain is broken (an entry is deleted or altered), the entire arifOS kernel enters a FAIL-CLOSED state. No tools will run until the chain is repaired.**
+
+```python
+class FailClosedState:
+    """
+    FAIL-CLOSED state: Complete system halt on chain integrity failure.
+    """
+    
+    def __init__(self):
+        self._chain_broken: bool = False
+        self._failure_reason: Optional[str] = None
+        self._broken_at_sequence: Optional[int] = None
+        self._lockdown_timestamp: Optional[float] = None
+    
+    def enter_fail_closed(self, reason: str, broken_at: int) -> Dict:
+        """
+        Enter FAIL-CLOSED state - all tool execution blocked.
+        """
+        self._chain_broken = True
+        self._failure_reason = reason
+        self._broken_at_sequence = broken_at
+        self._lockdown_timestamp = time.time()
+        
+        # Log the catastrophic failure
+        failure_record = {
+            "event": "FAIL_CLOSED_TRIGGERED",
+            "timestamp": self._lockdown_timestamp,
+            "reason": reason,
+            "broken_at_sequence": broken_at,
+            "severity": "CRITICAL",
+            "floor": "VAULT_CHAIN_INTEGRITY"
+        }
+        self._log_emergency(failure_record)
+        
+        return {
+            "verdict": "FAIL_CLOSED",
+            "system_status": "HALTED",
+            "reason": reason,
+            "broken_at": broken_at,
+            "all_tools_blocked": True,
+            "recovery_requires": "888 Judge + Chain Repair + Root Key Verification"
+        }
+    
+    def check_chain_integrity(self, vault: MerkleVault) -> Dict:
+        """
+        Verify chain before any tool execution.
+        """
+        # If already in FAIL-CLOSED, block everything
+        if self._chain_broken:
+            return {
+                "valid": False,
+                "verdict": "FAIL_CLOSED",
+                "reason": self._failure_reason,
+                "system_halted_since": self._lockdown_timestamp,
+                "action": "BLOCKED: System in FAIL-CLOSED state"
+            }
+        
+        # Verify chain
+        verification = vault.verify_chain()
+        
+        if not verification["valid"]:
+            # Chain broken - enter FAIL-CLOSED
+            return self.enter_fail_closed(
+                reason=verification.get("reason", "Chain integrity check failed"),
+                broken_at=verification.get("broken_at", 0)
+            )
+        
+        return {"valid": True, "verdict": "PASS"}
+    
+    def can_execute_tool(self, tool_name: str) -> Dict:
+        """
+        Gate all tool execution through FAIL-CLOSED check.
+        """
+        if self._chain_broken:
+            return {
+                "can_execute": False,
+                "verdict": "FAIL_CLOSED",
+                "tool": tool_name,
+                "reason": f"Chain broken at sequence {self._broken_at_sequence}: {self._failure_reason}",
+                "action": "BLOCKED",
+                "escalation": "888 Judge required for recovery"
+            }
+        
+        return {"can_execute": True, "verdict": "PASS"}
+    
+    def recover_from_fail_closed(
+        self,
+        sovereign_signature: str,
+        repair_action: str,
+        root_key_verification: str
+    ) -> Dict:
+        """
+        Recovery from FAIL-CLOSED requires 888 Judge + Root Key.
+        """
+        if not self._chain_broken:
+            return {"verdict": "VOID", "reason": "System not in FAIL-CLOSED state"}
+        
+        # Verify sovereign authority
+        if not self._verify_sovereign_authority(sovereign_signature):
+            return {
+                "verdict": "VOID",
+                "reason": "Invalid sovereign signature for recovery",
+                "floor": "F11_AUTH_FAILURE"
+            }
+        
+        # Verify root key
+        if not self._verify_root_key(root_key_verification):
+            return {
+                "verdict": "VOID",
+                "reason": "Root key verification failed",
+                "floor": "ROOTKEY_VERIFICATION_FAILURE"
+            }
+        
+        # Perform chain repair
+        repair_result = self._repair_chain(repair_action)
+        
+        if repair_result["success"]:
+            self._chain_broken = False
+            self._failure_reason = None
+            
+            return {
+                "verdict": "SEAL",
+                "status": "RECOVERED",
+                "recovery_action": repair_action,
+                "previous_failure": self._failure_reason,
+                "system_resumed": True
+            }
+        
+        return {
+            "verdict": "FAIL_CLOSED",
+            "status": "REPAIR_FAILED",
+            "reason": repair_result.get("error"),
+            "system_halted": True
+        }
+
+# Global FAIL-CLOSED state
+FAIL_CLOSED_GATE = FailClosedState()
+```
+
+### FAIL-CLOSED Enforcement
+
+```python
+# Wrapper for ALL tool execution
+@require_chain_integrity
+def execute_any_tool(tool_name: str, params: Dict, vault: MerkleVault) -> Dict:
+    """
+    All tool execution gated by FAIL-CLOSED check.
+    """
+    # Check 1: Chain integrity
+    integrity = FAIL_CLOSED_GATE.check_chain_integrity(vault)
+    if not integrity["valid"]:
+        return integrity
+    
+    # Check 2: Tool execution permission
+    permission = FAIL_CLOSED_GATE.can_execute_tool(tool_name)
+    if not permission["can_execute"]:
+        return permission
+    
+    # Execute tool
+    return run_tool(tool_name, params)
+```
+
+### FAIL-CLOSED Triggers
+
+| Trigger | Detection | Result |
+|---------|-----------|--------|
+| **Entry Deleted** | Sequence gap detected | FAIL-CLOSED |
+| **Entry Modified** | Hash mismatch | FAIL-CLOSED |
+| **Head Corruption** | Merkle root invalid | FAIL-CLOSED |
+| **Genesis Tampering** | Genesis signature invalid | FAIL-CLOSED + F13 Revocation |
+
+### Recovery Protocol
+
+```
+FAIL-CLOSED Triggered
+    │
+    ▼
+All Tool Execution BLOCKED
+    │
+    ▼
+888 Judge Notified
+    │
+    ▼
+Chain Repair Required
+    │
+    ├──► Identify Break Point
+    ├──► Restore from Backup (if available)
+    ├──► Recompute Hashes
+    └──► Verify Root Key Signature
+    │
+    ▼
+Sovereign Authorization
+    │
+    ▼
+System Resume
+```
+
+---
+
+## 23. Non-Negotiable Finality Rules
+
+| Rule | Enforcement | Violation Result |
+|------|-------------|------------------|
+| **Append-Only** | Write-once storage | FAIL-CLOSED on delete |
+| **Hash-Chain** | Each entry includes previous hash | FAIL-CLOSED on break |
+| **Cryptographic** | All entries signed by 888 Judge | VOID if unsigned |
+| **Immutable** | No modification after seal | FAIL-CLOSED on tamper |
+| **Recoverable** | 888 Judge + Root Key for repair | System halt until fixed |
+
 ---
 
 **DITEMPA BUKAN DIBERI** — Forged, Not Given.
 
 > *"The paradox is complete. The machine is human. The artificial is authentic. The code is a lineage. And the 100th legacy is whoever reads this next."*
 > 
-> **Hardened**: Merkle-chain integrity and F13 Sovereign Veto now enforce immutable finality with human-only override capability.
+> **Hardened**: Merkle-chain integrity, F13 Sovereign Veto, and FAIL-CLOSED state now enforce immutable finality with human-only override capability. Any chain break halts the system completely.*

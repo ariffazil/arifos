@@ -74,18 +74,236 @@ If the **COP** detects a state it cannot govern (A "Strange Loop" or "Gödel Loc
 
 ---
 
+## 7. Hardened Token Security (Nonce + Action Binding)
+
+### One-Time Use with Action-ID Binding
+
+**Each `governance_token` is cryptographically bound to a specific Action-ID and Timestamp. A token issued for `read_file` cannot be repurposed for `delete_file`.**
+
+```python
+import hmac
+import hashlib
+import time
+from typing import Dict, Optional
+
+class GovernanceToken:
+    """
+    Hardened governance token with nonce and action binding.
+    Token = HMAC(secret, action_id + timestamp + nonce + context)
+    """
+    
+    TOKEN_TTL_SECONDS: int = 300  # 5 minute expiration
+    NONCE_BYTES: int = 16  # 128-bit nonce
+    
+    def __init__(self, sovereign_secret: bytes):
+        self._secret = sovereign_secret
+        self._used_nonces: set = set()  # Prevent replay attacks
+    
+    def mint_token(
+        self,
+        session_id: str,
+        action_id: str,  # e.g., "read_file", "delete_file"
+        tool_context: Dict
+    ) -> str:
+        """
+        Mint a new governance token bound to specific action.
+        """
+        timestamp = int(time.time())
+        nonce = secrets.token_hex(self.NONCE_BYTES)
+        
+        # Canonical action context
+        context = {
+            "session_id": session_id,
+            "action_id": action_id,
+            "timestamp": timestamp,
+            "nonce": nonce,
+            "tool_params_hash": self._hash_tool_params(tool_context)
+        }
+        
+        # HMAC-SHA256 signature
+        canonical = json.dumps(context, sort_keys=True, separators=(',', ':'))
+        signature = hmac.new(
+            self._secret,
+            canonical.encode(),
+            hashlib.sha256
+        ).hexdigest()
+        
+        token = f"{action_id}:{timestamp}:{nonce}:{signature}"
+        return token
+    
+    def verify_token(
+        self,
+        token: str,
+        expected_action_id: str,
+        session_id: str,
+        tool_context: Dict
+    ) -> Dict:
+        """
+        Verify token with action binding and anti-replay.
+        """
+        try:
+            action_id, timestamp, nonce, provided_sig = token.split(":")
+        except ValueError:
+            return {"valid": False, "reason": "Malformed token format"}
+        
+        # 1. Check action binding (CRITICAL: token for read cannot delete)
+        if action_id != expected_action_id:
+            return {
+                "valid": False,
+                "reason": f"Action mismatch: token for '{action_id}', expected '{expected_action_id}'",
+                "verdict": "888_HOLD",
+                "floor": "COP_ACTION_BINDING_FAILURE"
+            }
+        
+        # 2. Check timestamp (prevent stale tokens)
+        age = int(time.time()) - int(timestamp)
+        if age > self.TOKEN_TTL_SECONDS:
+            return {
+                "valid": False,
+                "reason": f"Token expired: {age}s > {self.TOKEN_TTL_SECONDS}s TTL",
+                "verdict": "VOID",
+                "floor": "COP_TOKEN_EXPIRED"
+            }
+        
+        # 3. Check nonce replay
+        if nonce in self._used_nonces:
+            return {
+                "valid": False,
+                "reason": "Token replay detected (nonce reused)",
+                "verdict": "VOID",
+                "floor": "COP_REPLAY_ATTACK"
+            }
+        
+        # 4. Recompute and verify signature
+        context = {
+            "session_id": session_id,
+            "action_id": action_id,
+            "timestamp": int(timestamp),
+            "nonce": nonce,
+            "tool_params_hash": self._hash_tool_params(tool_context)
+        }
+        canonical = json.dumps(context, sort_keys=True, separators=(',', ':'))
+        expected_sig = hmac.new(
+            self._secret,
+            canonical.encode(),
+            hashlib.sha256
+        ).hexdigest()
+        
+        if not hmac.compare_digest(provided_sig, expected_sig):
+            return {
+                "valid": False,
+                "reason": "Invalid HMAC signature",
+                "verdict": "VOID",
+                "floor": "COP_SIGNATURE_FAILURE"
+            }
+        
+        # Mark nonce as used
+        self._used_nonces.add(nonce)
+        
+        return {
+            "valid": True,
+            "action_id": action_id,
+            "session_id": session_id,
+            "verdict": "PASS"
+        }
+    
+    def _hash_tool_params(self, tool_context: Dict) -> str:
+        """Deterministic hash of tool parameters."""
+        canonical = json.dumps(tool_context, sort_keys=True, separators=(',', ':'))
+        return hashlib.sha256(canonical.encode()).hexdigest()[:16]
+
+# Example: Token binding enforcement
+def execute_tool_hardened(
+    session_id: str,
+    tool_name: str,
+    governance_token: str,
+    tool_params: Dict
+) -> Dict:
+    """
+    Hardened tool execution with action-bound tokens.
+    """
+    token_validator = GovernanceToken(sovereign_secret=SOVEREIGN_SECRET)
+    
+    # Verify token is bound to THIS specific action
+    verification = token_validator.verify_token(
+        token=governance_token,
+        expected_action_id=tool_name,  # Token must match tool name
+        session_id=session_id,
+        tool_context=tool_params
+    )
+    
+    if not verification["valid"]:
+        # Action context mismatch = 888_HOLD (potential attack)
+        if "Action mismatch" in verification.get("reason", ""):
+            return {
+                "verdict": "888_HOLD",
+                "reason": verification["reason"],
+                "warning": "Potential token misuse attack detected",
+                "escalation": "Human sovereign review required"
+            }
+        return {
+            "verdict": "VOID",
+            "reason": verification["reason"]
+        }
+    
+    # Token valid and properly bound - execute
+    return run_tool(tool_name, tool_params)
+```
+
+### Token Security Rules (Non-Negotiable)
+
+| Rule | Enforcement | Violation Result |
+|------|-------------|------------------|
+| **Action Binding** | Token minted for specific action_id | `888_HOLD` if mismatched |
+| **One-Time Use** | Nonce tracked and invalidated after use | `VOID` if replay detected |
+| **Temporal Validity** | 5-minute TTL from minting | `VOID` if expired |
+| **Parameter Binding** | Tool params hashed into token | `VOID` if params changed |
+| **Session Binding** | Token bound to specific session_id | `VOID` if session mismatch |
+
+### Attack Mitigation
+
+```
+Attack: Token for "read_file" used for "delete_file"
+  └── Blocked by: Action-ID binding check
+  └── Result: 888_HOLD (potential attack)
+
+Attack: Replay same token twice
+  └── Blocked by: Nonce tracking
+  └── Result: VOID
+
+Attack: Modify tool params after token minted
+  └── Blocked by: Parameter hash verification
+  └── Result: VOID
+
+Attack: Use stale token from previous session
+  └── Blocked by: Timestamp TTL
+  └── Result: VOID
+```
+
+---
+
 ## 🚀 Implementation (The "Phython" Way)
 
 ```python
-# The COP Gatekeeper
-@constitutional_floor("F11")
-def execute_tool(session_id, tool_name, governance_token):
-    # Deterministic HMAC Verification
-    if not verify_token(session_id, governance_token):
-        return "VOID: Amanah Handshake Failed."
+# The COP Gatekeeper (Hardened)
+@constitutional_floor("F11", "F12", "F13")
+def execute_tool(session_id, tool_name, governance_token, tool_params):
+    # 1. Action-Bound HMAC Verification
+    validator = GovernanceToken(SOVEREIGN_SECRET)
+    result = validator.verify_token(
+        token=governance_token,
+        expected_action_id=tool_name,
+        session_id=session_id,
+        tool_context=tool_params
+    )
     
-    # Tool execution only happens in this protected space
-    return run_tool(tool_name)
+    if not result["valid"]:
+        if "Action mismatch" in result.get("reason", ""):
+            return "888_HOLD: Token action binding violated."
+        return f"VOID: {result['reason']}"
+    
+    # 2. Tool execution only happens in this protected space
+    return run_tool(tool_name, tool_params)
 
 ```
 
@@ -96,4 +314,4 @@ def execute_tool(session_id, tool_name, governance_token):
 
 ---
 
-*Last Updated: 2026-02-28*
+*Last Updated: 2026-02-28 | Hardened: Token Nonce + Action Binding*
