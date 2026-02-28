@@ -101,6 +101,15 @@ dependencies = [
     "asyncpg>=0.29.0",  # VAULT999 PostgreSQL backend
     "sentence-transformers>=2.2.0",  # H1.2: SBERT-based ASI floors (F5, F6, F9)
     "scikit-learn>=1.3.0",  # H1.2: Cosine similarity for SBERT embeddings
+    "chromadb>=0.5.0",  # Vector memory backend for ACLIP semantic recall
+    "duckduckgo-search>=5.0.0",  # Search fallback for reality grounding
+    "playwright>=1.40.0",  # Browser-based fetch/search fallback
+    "beautifulsoup4>=4.12.0",  # HTML parsing for fetch/reality tools
+    "requests>=2.31.0",  # HTTP client used by CLI and fetch wrappers
+    "redis>=5.0.0",  # Session persistence backend
+    "psutil>=5.9.0",  # System health and thermo instrumentation
+    "python-dotenv>=1.0.0",  # Environment file loading
+    "pyyaml>=6.0.0",  # Rule/config parsing for floors and wrappers
 ]
 
 [project.optional-dependencies]
@@ -111,9 +120,6 @@ dev = [
     "ruff>=0.1.0",
     "mypy>=1.0.0",
     "httpx>=0.28.0",
-    "beautifulsoup4>=4.12.0",
-    "redis>=5.0.0",
-    "psutil>=5.9.0",
 ]
 yaml = ["pyyaml>=6.0.0"]
 api = [
@@ -154,6 +160,7 @@ all = [
     "opentelemetry-sdk>=1.25.0",
     "opentelemetry-exporter-otlp>=1.25.0",
     "prometheus-client>=0.19.0",
+    "chromadb>=0.5.0",
 ]
 
 [project.scripts]
