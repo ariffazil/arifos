@@ -97,10 +97,17 @@ def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def _axiom_checks(payload: dict[str, Any]) -> dict[str, Any]:
+def _axiom_checks(payload: dict[str, Any], tool: str = "") -> dict[str, Any]:
     text = str(payload).lower()
-    has_evidence = any(k in text for k in ["evidence", "grounding", "results", "citations", "ids"])
-    has_authority = any(k in text for k in ["actor", "auth", "human_approve", "token"])
+    # For eureka_forge, evidence is in execution_log, authority is in agent_id
+    if tool == "eureka_forge":
+        inner = payload.get("payload", {})
+        execution_log = inner.get("execution_log", {})
+        has_evidence = bool(execution_log.get("stdout") or execution_log.get("action"))
+        has_authority = bool(execution_log.get("agent_id"))
+    else:
+        has_evidence = any(k in text for k in ["evidence", "grounding", "results", "citations", "ids"])
+        has_authority = any(k in text for k in ["actor", "auth", "human_approve", "token"])
     entropy_signal = payload.get("telemetry", {}).get("dS")
     if entropy_signal is None:
         entropy_signal = payload.get("dS", -0.1)
@@ -333,7 +340,7 @@ def _derive_tpcp_metrics(
 
 def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     """Attach AAA envelope and 333_AXIOMS checks to tool outputs."""
-    checks = _axiom_checks(payload)
+    checks = _axiom_checks(payload, tool)
     law_checks = _law13_checks(tool, payload)
     apex_dials = _derive_apex_dials(tool, payload)
     motto = _motto_for_tool(tool)
