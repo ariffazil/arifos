@@ -213,7 +213,10 @@ def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
                 "eureka_forge",  # Command execution truth is in exit_code/output
             }
         elif law == "F4_CLARITY":
-            passed = d_s <= 0.2
+            # HARDENED: Strict entropy reduction - ΔS must be ≤ 0
+            # Previous: d_s <= 0.2 (too permissive - allowed 20% entropy increase)
+            # Now: d_s <= 0 (strict - must reduce or maintain entropy)
+            passed = d_s <= 0.0
         elif law == "F5_PEACE2":
             passed = peace2 >= 1.0
         elif law == "F6_EMPATHY":
@@ -338,6 +341,80 @@ def _derive_tpcp_metrics(
     }
 
 
+def _derive_vitality_index(
+    payload: dict[str, Any],
+    law_checks: dict[str, Any],
+    apex_dials: dict[str, Any],
+) -> dict[str, Any]:
+    """
+    Calculate Ψ (Vitality Index) - the master equation for constitutional homeostasis.
+    
+    Ψ = (ΔS · Peace² · κᵣ · RASA · Amanah) / (Entropy + Shadow + ε)
+    
+    Threshold: Ψ ≥ 1.0 required for SEAL verdict.
+    If Ψ < 1.0, system is unstable → SABAR or VOID.
+    """
+    # Numerator components (constructive forces)
+    d_s = float(payload.get("dS", -0.1))
+    peace2 = float(payload.get("peace2", 1.0))
+    kappa_r = float(payload.get("kappa_r", 0.95))
+    
+    # RASA (Receive, Appreciate, Summarize, Ask) - active listening metric
+    # Derived from truth score and engagement signals
+    truth_score = float(apex_dials.get("G_star", 0.8))
+    rasa = _clamp(0.5 * truth_score + 0.5 * (kappa_r / 0.95))
+    
+    # Amanah ( binary integrity lock - F1)
+    amanah_pass = law_checks.get("F1_AMANAH", {}).get("pass", True)
+    amanah = 1.0 if amanah_pass else 0.0  # Binary: 1 if passed, 0 if failed
+    
+    # Numerator: Product of all constructive forces
+    # Note: d_s is typically negative (entropy reduction), so we use |d_s| for magnitude
+    # but preserve the sign effect - more negative = more clarity = higher vitality
+    numerator = abs(d_s) * peace2 * kappa_r * rasa * amanah
+    
+    # Denominator components (destructive forces)
+    entropy = max(0.0, d_s) if d_s > 0 else 0.0  # Only positive entropy adds disorder
+    
+    # Shadow: latent bias/unverified assumptions
+    # Derived from failed floors and axiom violations
+    failed_count = sum(
+        1 for v in law_checks.values() 
+        if v.get("required") and not v.get("pass", True)
+    )
+    shadow = _clamp(failed_count / 5.0)  # Normalize: 5 failures = full shadow
+    
+    # Epsilon: numerical stabilizer to prevent division by zero
+    epsilon = 1e-6
+    
+    # Calculate Ψ (Vitality Index)
+    denominator = entropy + shadow + epsilon
+    psi = numerator / denominator
+    
+    # Clamp to reasonable range
+    psi = _clamp(psi, 0.0, 10.0)
+    
+    return {
+        "engine": "VITALITY_INDEX",
+        "formula": "Ψ = (|ΔS| · Peace² · κᵣ · RASA · Amanah) / (Entropy + Shadow + ε)",
+        "psi": round(psi, 4),
+        "threshold": 1.0,
+        "status": "HEALTHY" if psi >= 1.0 else "UNSTABLE",
+        "components": {
+            "delta_s": round(d_s, 4),
+            "peace2": round(peace2, 4),
+            "kappa_r": round(kappa_r, 4),
+            "rasa": round(rasa, 4),
+            "amanah": amanah,
+            "numerator": round(numerator, 4),
+            "entropy": round(entropy, 4),
+            "shadow": round(shadow, 4),
+            "denominator": round(denominator, 4),
+        },
+        "derived": True,
+    }
+
+
 def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     """Attach AAA envelope and 333_AXIOMS checks to tool outputs."""
     checks = _axiom_checks(payload, tool)
@@ -359,6 +436,11 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         tac=tac,
         required_law_failures=failed_laws,
     )
+    
+    # P0 HARDENING: Calculate Ψ (Vitality Index) - Master Equation
+    vitality = _derive_vitality_index(payload, law_checks, apex_dials)
+    psi_score = vitality.get("psi", 0.0)
+    
     verdict = str(payload.get("verdict", "SEAL"))
 
     # Hardening: Hard floor failure -> VOID
@@ -368,8 +450,16 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         if k in {"F1_AMANAH", "F2_TRUTH", "F7_HUMILITY", "F12_DEFENSE", "F13_SOVEREIGNTY"}
     )
 
+    # P0 HARDENING: Ψ (Vitality Index) is the master SEAL/VOID determinant
+    # Ψ ≥ 1.0 required for homeostatic equilibrium
     if has_hard_fail:
         verdict = "VOID"
+    elif psi_score < 1.0:
+        # System lacks vitality - cannot SEAL
+        if psi_score < 0.5:
+            verdict = "VOID"
+        else:
+            verdict = "SABAR"
     elif (failed_axioms or failed_laws) and verdict == "SEAL":
         verdict = "PARTIAL"
 
@@ -410,6 +500,8 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
                 "vault_ref": payload.get("vault_id") or payload.get("data", {}).get("vault_id"),
             },
         },
+        # P0 HARDENING: Vitality Index (Ψ) - Master Equation for constitutional homeostasis
+        "vitality_index": vitality,
         "motto": motto,
         "data": payload,
     }
