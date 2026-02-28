@@ -68,7 +68,7 @@ await client.disconnect();
 
 ## Architecture
 
-```
+```text
 ┌─────────────────────────────────────┐
 │  Your Application (JS/TS)           │
 │  ┌─────────────────────────────┐    │
@@ -110,7 +110,7 @@ interface ArifOSClientConfig {
 ### Client Methods
 
 | Method | Description |
-|--------|-------------|
+| :--- | :--- |
 | `client.connect()` | Establish MCP connection |
 | `client.disconnect()` | Close connection |
 | `client.anchorSession(context?)` | Start new governed session |
@@ -136,7 +136,7 @@ import type {
 ## Compatibility
 
 | @arifos/mcp | arifos (PyPI) | Status |
-|-------------|---------------|--------|
+| :--- | :--- | :--- |
 | 0.1.0 | 2026.2.17 | ✅ Current PyPI |
 | 0.1.0 | 2026.2.28 | ⏳ Pending release |
 
@@ -149,7 +149,7 @@ All tools return a `VerdictEnvelope` with `{ verdict, stage, session_id, floors,
 ### Governance Spine (8 tools)
 
 | Tool | Stage | Purpose |
-|------|-------|---------|
+| :--- | :--- | :--- |
 | `anchor_session` | 000_INIT | Session ignition & injection defense |
 | `reason_mind` | 333_MIND | AGI cognition & causal tracing |
 | `recall_memory` | 444_PHOENIX | Associative memory recall |
@@ -162,7 +162,7 @@ All tools return a `VerdictEnvelope` with `{ verdict, stage, session_id, floors,
 ### Utility Tools (5 tools, read-only)
 
 | Tool | Purpose |
-|------|---------|
+| :--- | :--- |
 | `search_reality` | Web grounding |
 | `fetch_content` | URL retrieval |
 | `inspect_file` | Filesystem inspection |
@@ -215,10 +215,10 @@ AGPL-3.0-only — Same as arifOS kernel.
 
 ## Links
 
-- **arifOS Kernel:** https://pypi.org/project/arifos/
-- **Documentation:** https://arifos.arif-fazil.com
-- **Repository:** https://github.com/ariffazil/arifOS
-- **MCP Protocol:** https://modelcontextprotocol.io
+- **arifOS Kernel:** <https://pypi.org/project/arifos/>
+- **Documentation:** <https://arifos.arif-fazil.com>
+- **Repository:** <https://github.com/ariffazil/arifOS>
+- **MCP Protocol:** <https://modelcontextprotocol.io>
 
 *Ditempa Bukan Diberi* — Forged, Not Given
 
@@ -227,12 +227,13 @@ AGPL-3.0-only — Same as arifOS kernel.
 ## Compatibility Matrix
 
 | @arifos/mcp | Node.js | arifOS (PyPI) | Transport | Status |
-|-------------|---------|---------------|-----------|--------|
-| 0.1.0 | ≥18 | 2026.2.17 | HTTP/SSE | ✅ Tested |
-| 0.1.0 | ≥18 | 2026.2.17 | stdio | ⏳ Pending |
-| 0.1.0 | ≥18 | 2026.2.28 | HTTP/SSE | ⏳ Awaiting PyPI release |
+| :--- | :--- | :--- | :--- | :--- |
+| 0.1.0 | ≥18 | 2026.2.28 | HTTP/SSE | ✅ Verified |
+| 0.1.0 | ≥18 | 2026.3.1 | HTTP/SSE | ✅ Verified |
+| 0.1.0 | ≥18 | 2026.2.28 | stdio | ✅ Verified |
 
 **Notes:**
+
 - Version 0.1.0 tested against production VPS endpoint (`arifosmcp.arif-fazil.com`)
-- All 6 integration tests pass
+- All 13 canonical tools discovered and functional
 - Verdicts observed: `SEAL`, `PARTIAL`, `SABAR`, `VOID`, `HOLD`, `888_HOLD`
