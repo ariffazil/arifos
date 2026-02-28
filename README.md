@@ -22,6 +22,16 @@
 
 Below are the Godel-locked official instances, endpoints, and resources currently backing the system:
 
+```mermaid
+flowchart LR
+    A[HUMAN<br/>arif-fazil.com] --> B[THEORY<br/>apex.arif-fazil.com]
+    B --> C[APPS<br/>arifos.arif-fazil.com]
+    C --> D[MCP API<br/>/api]
+    D --> E[LIVE SERVER<br/>arifosmcp.arif-fazil.com]
+    E --> F[HEALTH<br/>/health]
+    E --> G[VERDICT DASHBOARD<br/>arifosmcp-truth-claim.pages.dev]
+```
+
 | Layer | URL | Purpose / Description |
 |:---|:---|:---|
 | **HUMAN** | [https://arif-fazil.com/](https://arif-fazil.com/) | Identity & Authority Anchor (The Sovereign). |
@@ -79,6 +89,22 @@ We didn’t invent these constraints; we discovered them. Code is execution. Gov
 
 arifOS is an entire ecosystem stack designed to scale from a zero-context chat prompt all the way up to a permissionless society of federated AI agents. **Crucially, the L0 Kernel is physically separated from all upper layers.** Swapping models or changing agents does not bypass the L0 Constitution.
 
+```mermaid
+flowchart TD
+    L7[L7 AGI / Ecosystem]
+    L6[L6 Institution]
+    L5[L5 Agents]
+    L4[L4 Tools MCP]
+    L3[L3 Workflow]
+    L2[L2 Skills]
+    L1[L1 Prompts]
+    L0[L0 KERNEL SEALED]
+
+    L7 --> L6 --> L5 --> L4 --> L3 --> L2 --> L1 --> L0
+
+    style L0 fill:#0f172a,stroke:#22c55e,color:#ffffff,stroke-width:2px
+```
+
 | Level | Name | Scope | Operational Role in the arifOS Stack |
 |:---:|:---|:---|:---|
 | **L7** | **AGI / Ecosystem** | Civilisation-Scale | *[Research]* The frontier. Permissionless sovereignty, recursive self-amendment, and self-healing. |
@@ -103,6 +129,20 @@ The L0 Kernel is built around **Thermodynamic Isolation** and the **Trinity Engi
 
 ### 2. The 7-Organ Sovereign Stack (`000 -> 999`)
 Every request flows through this strict, pipeline (the "metabolic loop"):
+
+```mermaid
+flowchart LR
+    I[000 INIT] --> M[111-333 AGI Mind]
+    M --> P[444 PHOENIX Memory]
+    P --> H[555-666 ASI Heart]
+    H --> F[777 FORGE]
+    F --> A[888 APEX]
+    A -->|SEAL| V[999 VAULT]
+    A -->|PARTIAL| V
+    A -->|SABAR or VOID| R[Refine or Halt]
+    A -->|Irreversible action| HOLD[888 HOLD Human approval]
+    HOLD --> V
+```
 1. **[000] INIT (Airlock)**: Ignites the session and parses for prompt injections.
 2. **[111-333] AGI (Mind)**: Generates parallel hypotheses and forces factual grounding.
 3. **[444] PHOENIX (Subconscious)**: Recalls associative memory from past sessions via the `EUREKA Sieve`.
@@ -227,6 +267,17 @@ HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
 Every single thought, action, or tool call processed by arifOS is mathematically evaluated and cryptographically hashed into an append-only PostgreSQL database (**`VAULT999`**). 
 
 The query will result in one of these Governance Envelopes:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Evaluate
+    Evaluate --> SEAL
+    Evaluate --> PARTIAL
+    Evaluate --> SABAR
+    Evaluate --> VOID
+    Evaluate --> HOLD_888
+```
+
 - ✅ **SEAL**: Passed all 13 constitutional floors. Synthesized and executed.
 - 🟡 **PARTIAL**: Approved with documented safety warnings.
 - ⚠️ **SABAR**: Refine and Retry. The AI's entropy was too high or logic was flawed. *(Sabar translates to 'Patience')*.
