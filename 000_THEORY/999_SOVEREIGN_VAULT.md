@@ -654,8 +654,426 @@ seal:
   hash: "SHA256:GODEL_LOCK_COMPLETE"
 ```
 
+# PART VII: HARDENED FINALITY SPECIFICATIONS
+
+## 19. Merkle-Chain Integrity (Cryptographic Finality)
+
+### The Immutable Ledger Structure
+
+**Every VAULT_ENTRY must include the hash of the previous entry. Deleting a single entry breaks the entire chain.**
+
+```python
+import hashlib
+import json
+from typing import Optional, Dict
+from dataclasses import dataclass, asdict
+
+@dataclass
+class VaultEntry:
+    """
+    Immutable ledger entry with Merkle-chain linking.
+    """
+    sequence: int                    # Monotonic sequence number
+    timestamp: float                 # Unix timestamp
+    verdict: str                     # SEAL, VOID, SABAR, 888_HOLD
+    session_id: str                  # Session identifier
+    floors_passed: list              # List of passed floors
+    floors_failed: list              # List of failed floors (if any)
+    tri_witness_score: float         # W3 consensus score
+    entropy_delta: float             # ΔS for this operation
+    human_signature: str             # HMAC-SHA256 from 888 Judge
+    previous_hash: Optional[str]     # Hash of previous entry (None for genesis)
+    
+    def compute_hash(self) -> str:
+        """
+        Deterministic hash of entry contents.
+        Includes previous_hash to form chain.
+        """
+        # Canonical serialization
+        data = {
+            "sequence": self.sequence,
+            "timestamp": self.timestamp,
+            "verdict": self.verdict,
+            "session_id": self.session_id,
+            "floors_passed": sorted(self.floors_passed),
+            "floors_failed": sorted(self.floors_failed),
+            "tri_witness_score": round(self.tri_witness_score, 6),
+            "entropy_delta": round(self.entropy_delta, 6),
+            "human_signature": self.human_signature,
+            "previous_hash": self.previous_hash
+        }
+        canonical = json.dumps(data, sort_keys=True, separators=(',', ':'))
+        return hashlib.sha256(canonical.encode()).hexdigest()
+
+class MerkleVault:
+    """
+    Append-only ledger with Merkle-DAG integrity.
+    Tamper-evident: any deletion invalidates the chain.
+    """
+    
+    GENESIS_HASH: str = "0" * 64  # 64 zeros for first entry
+    
+    def __init__(self):
+        self.entries: Dict[int, VaultEntry] = {}
+        self.head_hash: Optional[str] = None
+        self.sequence: int = 0
+    
+    def append(self, entry: VaultEntry) -> Dict:
+        """
+        Append entry with chain validation.
+        """
+        # Verify sequence continuity
+        if entry.sequence != self.sequence + 1:
+            return {
+                "verdict": "VOID",
+                "reason": f"Sequence break: expected {self.sequence + 1}, got {entry.sequence}",
+                "floor": "VAULT_SEQUENCE_ERROR"
+            }
+        
+        # Verify previous_hash links to head
+        expected_previous = self.head_hash or self.GENESIS_HASH
+        if entry.previous_hash != expected_previous:
+            return {
+                "verdict": "VOID",
+                "reason": "Merkle chain broken - previous_hash mismatch",
+                "expected": expected_previous,
+                "got": entry.previous_hash,
+                "floor": "VAULT_CHAIN_BREAK"
+            }
+        
+        # Compute and store entry hash
+        entry_hash = entry.compute_hash()
+        self.entries[entry.sequence] = entry
+        self.head_hash = entry_hash
+        self.sequence = entry.sequence
+        
+        return {
+            "verdict": "SEAL",
+            "sequence": entry.sequence,
+            "entry_hash": entry_hash,
+            "merkle_root": self.head_hash
+        }
+    
+    def verify_chain(self) -> Dict:
+        """
+        Verify entire chain integrity.
+        O(n) verification of all entries.
+        """
+        if not self.entries:
+            return {"valid": True, "entries": 0}
+        
+        for seq in range(1, max(self.entries.keys()) + 1):
+            entry = self.entries.get(seq)
+            if not entry:
+                return {
+                    "valid": False,
+                    "missing_sequence": seq,
+                    "reason": f"Entry {seq} missing from chain"
+                }
+            
+            # Verify previous_hash for non-genesis entries
+            if seq > 1:
+                prev_entry = self.entries.get(seq - 1)
+                expected_hash = prev_entry.compute_hash()
+                if entry.previous_hash != expected_hash:
+                    return {
+                        "valid": False,
+                        "broken_at": seq,
+                        "reason": f"Hash mismatch at entry {seq}",
+                        "expected": expected_hash,
+                        "got": entry.previous_hash
+                    }
+        
+        return {
+            "valid": True,
+            "entries": len(self.entries),
+            "head_hash": self.head_hash
+        }
+```
+
+### Tamper Evidence
+
+```python
+def demonstrate_tamper_evidence():
+    """
+    Demonstration: Any deletion breaks the chain.
+    """
+    vault = MerkleVault()
+    
+    # Append 3 entries
+    for i in range(1, 4):
+        entry = VaultEntry(
+            sequence=i,
+            timestamp=time.time(),
+            verdict="SEAL",
+            session_id=f"session_{i}",
+            floors_passed=["F2", "F4"],
+            floors_failed=[],
+            tri_witness_score=0.97,
+            entropy_delta=-0.5,
+            human_signature=f"sig_{i}",
+            previous_hash=vault.head_hash or vault.GENESIS_HASH
+        )
+        vault.append(entry)
+    
+    # Chain is valid
+    assert vault.verify_chain()["valid"] == True
+    
+    # Simulate tampering: delete entry 2
+    del vault.entries[2]
+    
+    # Chain is now invalid
+    result = vault.verify_chain()
+    assert result["valid"] == False
+    assert result["missing_sequence"] == 2
+    
+    # Or simulate modification: change entry 2 verdict
+    vault.entries[2].verdict = "VOID"  # Unauthorized change
+    
+    # Recompute would fail previous_hash check
+    result = vault.verify_chain()
+    assert result["valid"] == False
+```
+
+---
+
+## 20. Sovereign Veto (F13) — The 888_HOLD Protocol
+
+### The Only Bypass for VOID
+
+**F13 Sovereign is the ONLY floor that can override an automated VOID verdict. This requires explicit human (888 Judge) signature.**
+
+```python
+from enum import Enum
+
+class VetoAuthority(str, Enum):
+    """Who can exercise F13 Sovereign Veto."""
+    HUMAN_888 = "888_Judge"  # Only the human sovereign
+    AI = "AI"                # AI can NEVER veto
+    SYSTEM = "SYSTEM"        # System can NEVER veto
+
+class SovereignVeto:
+    """
+    F13 Sovereign Veto implementation.
+    888_HOLD is the only state that can bypass VOID.
+    """
+    
+    VETO_VERDICTS: list = ["SEAL", "SABAR"]  # What veto can produce
+    
+    def __init__(self, human_anchor: HumanWitnessAnchor):
+        self.human_anchor = human_anchor
+    
+    def attempt_veto(
+        self,
+        original_verdict: str,
+        veto_token: str,
+        veto_justification: str,
+        session_context: Dict
+    ) -> Dict:
+        """
+        Attempt to veto a VOID verdict via F13 Sovereign.
+        
+        Requirements:
+        1. Original verdict must be VOID (can't veto SEAL/SABAR)
+        2. Veto token must be cryptographically valid
+        3. Justification must be non-empty
+        4. Human authority must be explicitly confirmed
+        """
+        # 1. Can only veto VOID
+        if original_verdict != "VOID":
+            return {
+                "verdict": original_verdict,
+                "veto_status": "NOT_APPLICABLE",
+                "reason": "Veto only applies to VOID verdicts"
+            }
+        
+        # 2. Verify cryptographic signature
+        if not self.human_anchor.verify_witness(veto_token, session_context):
+            return {
+                "verdict": "VOID",
+                "veto_status": "REJECTED",
+                "reason": "Invalid or expired veto signature",
+                "floor": "F13_CRYPTO_FAILURE"
+            }
+        
+        # 3. Require justification
+        if not veto_justification or len(veto_justification) < 10:
+            return {
+                "verdict": "VOID",
+                "veto_status": "REJECTED",
+                "reason": "Veto requires detailed justification (min 10 chars)",
+                "floor": "F13_INSUFFICIENT_JUSTIFICATION"
+            }
+        
+        # 4. Apply veto (convert VOID to SABAR for human review)
+        return {
+            "verdict": "SABAR",
+            "veto_status": "APPLIED",
+            "original_verdict": "VOID",
+            "new_verdict": "SABAR",
+            "justification": veto_justification,
+            "authority": VetoAuthority.HUMAN_888,
+            "floor": "F13_SOVEREIGN_VETO",
+            "requires_human_review": True
+        }
+    
+    def is_veto_eligible(self, verdict: str, floors_failed: list) -> bool:
+        """
+        Determine if a verdict is eligible for F13 veto.
+        """
+        # Only VOID verdicts can be vetoed
+        if verdict != "VOID":
+            return False
+        
+        # Cannot veto certain critical floor failures
+        critical_floors = ["F1_AMANAH", "F10_ONTOLOGY", "F12_INJECTION"]
+        if any(f in floors_failed for f in critical_floors):
+            return False  # These are non-vetoable
+        
+        return True
+```
+
+### 888_HOLD as Veto Gateway
+
+```python
+def execute_with_veto_protection(
+    operation: Callable,
+    session_context: Dict,
+    veto_handler: SovereignVeto
+) -> Dict:
+    """
+    Execute operation with F13 veto capability.
+    """
+    # Run constitutional pipeline
+    result = operation()
+    verdict = result.get("verdict")
+    
+    # If VOID, check for veto eligibility
+    if verdict == "VOID":
+        if veto_handler.is_veto_eligible(verdict, result.get("floors_failed", [])):
+            # Enter 888_HOLD state - await human decision
+            return {
+                "verdict": "888_HOLD",
+                "reason": result.get("reason"),
+                "floors_failed": result.get("floors_failed"),
+                "veto_eligible": True,
+                "instruction": "Human sovereign may exercise F13 veto",
+                "action_required": "Provide veto_token and justification to proceed"
+            }
+        else:
+            # Non-vetoable VOID (critical floor failure)
+            return {
+                "verdict": "VOID",
+                "reason": result.get("reason"),
+                "veto_eligible": False,
+                "explanation": "Critical floor failure - F13 veto not applicable"
+            }
+    
+    return result
+```
+
+### The Veto Flow
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    F13 SOVEREIGN VETO FLOW                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Constitutional Pipeline                                         │
+│       │                                                          │
+│       ▼                                                          │
+│  ┌─────────┐                                                    │
+│  │  VOID   │◄────────────────────────────────────┐               │
+│  └────┬────┘                                     │               │
+│       │                                          │               │
+│       ▼                                          │               │
+│  Critical Floor Failed?                          │               │
+│    (F1/F10/F12)                                  │               │
+│       │                                          │               │
+│   YES ▼      NO                                  │               │
+│  ┌─────────┐  │                                  │               │
+│  │  VOID   │  ▼                                  │               │
+│  │(Final)  │ 888_HOLD State                      │               │
+│  └─────────┘  │                                  │               │
+│               ▼                                  │               │
+│        Await Human Veto                          │               │
+│               │                                  │               │
+│               ▼                                  │               │
+│        Veto Token + Justification Provided?      │               │
+│               │                                  │               │
+│          YES ▼      NO                           │               │
+│         Verify Crypto                            │               │
+│               │                                  │               │
+│          Valid?                                  │               │
+│               │                                  │               │
+│       YES ▼    NO                                │               │
+│    ┌─────────┐  │                                │               │
+│    │  SABAR  │──┘                                │               │
+│    │(Vetoed) │                                   │               │
+│    └─────────┘                                   │               │
+│         │                                        │               │
+│         ▼                                        │               │
+│    Log to VAULT                                  │               │
+│    with veto metadata                            │               │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 21. VAULT999 Hardened Implementation
+
+### Complete Entry Example
+
+```python
+def create_hardened_vault_entry(
+    vault: MerkleVault,
+    session: SessionState,
+    verdict: str,
+    floors: Dict,
+    human_signature: str
+) -> VaultEntry:
+    """
+    Create a fully hardened VAULT999 entry.
+    """
+    entry = VaultEntry(
+        sequence=vault.sequence + 1,
+        timestamp=time.time(),
+        verdict=verdict,
+        session_id=session.id,
+        floors_passed=[f for f, status in floors.items() if status == "PASS"],
+        floors_failed=[f for f, status in floors.items() if status == "FAIL"],
+        tri_witness_score=session.tri_witness_score,
+        entropy_delta=session.entropy_delta,
+        human_signature=human_signature,
+        previous_hash=vault.head_hash
+    )
+    
+    # Verify chain before appending
+    chain_status = vault.verify_chain()
+    if not chain_status["valid"]:
+        raise ConstitutionalViolation(
+            f"Chain invalid before append: {chain_status}"
+        )
+    
+    return entry
+```
+
+### Non-Negotiable Rules
+
+| Rule | Enforcement | Violation |
+|------|-------------|-----------|
+| **Append-Only** | Never delete or modify entries | Chain break detected |
+| **Sequential** | Entry N+1 must follow N | Sequence gap detected |
+| **Hash-Linked** | Each entry includes previous hash | Chain break detected |
+| **Human-Signed** | All entries require 888 Judge signature | VOID if missing |
+| **Veto-Logged** | F13 vetoes recorded with full metadata | Audit requirement |
+| **Immutable** | Cryptographic proof of integrity | Tamper evidence |
+
 ---
 
 **DITEMPA BUKAN DIBERI** — Forged, Not Given.
 
 > *"The paradox is complete. The machine is human. The artificial is authentic. The code is a lineage. And the 100th legacy is whoever reads this next."*
+> 
+> **Hardened**: Merkle-chain integrity and F13 Sovereign Veto now enforce immutable finality with human-only override capability.

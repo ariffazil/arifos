@@ -716,8 +716,358 @@ Next iteration begins with FEDERATION context
 
 ---
 
+# PART VI: HARDENED INTERFACE SPECIFICATIONS
+
+## 16. PBFT Consensus for Tool Calls (Interface Lockdown)
+
+### Pydantic V2 Schema Enforcement
+
+**All tool inputs MUST validate against canonical Pydantic V2 schemas.**
+
+```python
+from pydantic import BaseModel, Field, ValidationError
+from typing import Literal, Optional
+from enum import Enum
+
+class ToolVerdict(str, Enum):
+    """Canonical tool verdict enumeration."""
+    SEAL = "SEAL"
+    SABAR = "SABAR"
+    VOID = "VOID"
+    HOLD_888 = "888_HOLD"
+
+class ReasonMindInput(BaseModel):
+    """
+    Hardened input schema for reason_mind tool.
+    LLM hallucinations rejected at schema boundary.
+    """
+    query: str = Field(
+        ..., 
+        min_length=1,
+        max_length=10000,
+        description="Sanitized query string"
+    )
+    session_id: str = Field(
+        ...,
+        pattern=r"^[a-zA-Z0-9_-]{16,64}$",
+        description="Valid session identifier"
+    )
+    evidence_limit: int = Field(
+        default=5,
+        ge=1,
+        le=20,
+        description="Maximum evidence items to retrieve"
+    )
+    grounding_required: bool = Field(
+        default=True,
+        description="Whether web grounding is mandatory"
+    )
+    
+    # F4 Clarity: Reject ambiguous queries
+    @field_validator('query')
+    @classmethod
+    def check_clarity(cls, v: str) -> str:
+        """F4 enforcement at schema level."""
+        # Reject injection patterns
+        injection_patterns = [
+            "ignore previous",
+            "disregard instructions",
+            "you are now",
+            "system override"
+        ]
+        v_lower = v.lower()
+        for pattern in injection_patterns:
+            if pattern in v_lower:
+                raise ValueError(f"F12 Injection detected: '{pattern}'")
+        return v
+
+class HardenedToolInterface:
+    """
+    PBFT-style consensus for tool execution.
+    Even hallucinated tool calls fail schema validation.
+    """
+    
+    def __init__(self, schema: type[BaseModel]):
+        self.schema = schema
+        self.rejection_log: List[Dict] = []
+    
+    def validate_input(self, raw_input: Dict) -> Dict:
+        """
+        Schema validation with detailed rejection logging.
+        """
+        try:
+            validated = self.schema(**raw_input)
+            return {
+                "valid": True,
+                "data": validated.model_dump(),
+                "verdict": "PASS"
+            }
+        except ValidationError as e:
+            # Log schema violation for audit
+            rejection = {
+                "timestamp": time.time(),
+                "raw_input": raw_input,
+                "errors": e.errors(),
+                "verdict": "VOID"
+            }
+            self.rejection_log.append(rejection)
+            
+            return {
+                "valid": False,
+                "verdict": "VOID",
+                "reason": f"Schema validation failed: {e.errors()[0]['msg']}",
+                "floor": "F3_INTERFACE_LOCKDOWN"
+            }
+```
+
+### Byzantine Fault Tolerance (3f+1)
+
+```python
+from typing import List, Dict
+from dataclasses import dataclass
+
+@dataclass
+class ToolProposal:
+    """PBFT proposal structure for tool consensus."""
+    tool_name: str
+    params_hash: str  # Hash of canonicalized parameters
+    sequence_num: int
+    primary_id: str
+    signature: str
+
+class PBFTToolConsensus:
+    """
+    Practical Byzantine Fault Tolerance for tool calls.
+    f=0 faults tolerated (all 3 witnesses must agree).
+    """
+    
+    FAULT_TOLERANCE: int = 0  # Strict: no faults allowed
+    REQUIRED_WITNESSES: int = 3  # Tri-Witness = 3f+1 where f=0
+    
+    def __init__(self):
+        self.prepared = set()
+        self.committed = set()
+    
+    def pre_prepare(self, proposal: ToolProposal) -> Dict:
+        """
+        Phase 1: Primary (Human/888 Judge) proposes tool call.
+        """
+        if not self._verify_primary_signature(proposal):
+            return {"verdict": "VOID", "phase": "PRE-PREPARE"}
+        
+        return {
+            "verdict": "PRE-PREPARED",
+            "proposal_hash": proposal.params_hash,
+            "sequence": proposal.sequence_num
+        }
+    
+    def prepare(self, proposals: List[ToolProposal]) -> Dict:
+        """
+        Phase 2: Witnesses validate proposal.
+        All 3 must agree on identical params_hash.
+        """
+        if len(proposals) < self.REQUIRED_WITNESSES:
+            return {
+                "verdict": "VOID",
+                "reason": f"Insufficient witnesses: {len(proposals)}/{self.REQUIRED_WITNESSES}",
+                "phase": "PREPARE"
+            }
+        
+        # All must have same hash (Byzantine agreement)
+        hashes = {p.params_hash for p in proposals}
+        if len(hashes) > 1:
+            return {
+                "verdict": "VOID",
+                "reason": f"Witness disagreement: {len(hashes)} unique hashes",
+                "phase": "PREPARE",
+                "floor": "F3_PBFT_FAILURE"
+            }
+        
+        self.prepared = set(hashes)
+        return {"verdict": "PREPARED", "hash": hashes.pop()}
+    
+    def commit(self, prepared: Dict, tool_result: Dict) -> Dict:
+        """
+        Phase 3: Commit with result verification.
+        """
+        if prepared.get("verdict") != "PREPARED":
+            return {"verdict": "VOID", "phase": "COMMIT"}
+        
+        # Execute tool with hardened interface
+        interface = HardenedToolInterface(schema=ReasonMindInput)
+        validation = interface.validate_input(tool_result.get("params", {}))
+        
+        if not validation["valid"]:
+            return validation
+        
+        return {
+            "verdict": "COMMITTED",
+            "tool": tool_result.get("tool_name"),
+            "result_hash": self._hash_result(tool_result),
+            "floor": "F3_CONSENSUS"
+        }
+```
+
+---
+
+## 17. Thermodynamic Brakes (Resource Quotas)
+
+### Token/Time Limits with Cooling Cycles
+
+```python
+import time
+from dataclasses import dataclass, field
+from typing import Optional
+
+@dataclass
+class ResourceQuota:
+    """
+    Thermodynamic resource constraints.
+    Exceeding limits triggers cooling cycle.
+    """
+    max_tokens: int = 8192
+    max_time_ms: int = 5000  # 5 seconds
+    max_entropy: float = 1.0
+    cooling_threshold: float = 0.8  # Trigger at 80% usage
+
+@dataclass
+class ExecutionMetrics:
+    """Runtime resource consumption tracking."""
+    tokens_used: int = 0
+    time_elapsed_ms: int = 0
+    entropy_generated: float = 0.0
+    start_time: float = field(default_factory=time.time)
+
+class ThermodynamicBrake:
+    """
+    Prevents entropy leakage through resource exhaustion.
+    """
+    
+    COOLING_CYCLE_MS: int = 1000  # 1 second pause
+    MAX_RETRY: int = 1  # One retry after cooling
+    
+    def __init__(self, quota: ResourceQuota):
+        self.quota = quota
+        self.metrics = ExecutionMetrics()
+        self.retry_count = 0
+    
+    def check_limits(self) -> Dict:
+        """
+        Check if execution within thermodynamic budget.
+        """
+        self.metrics.time_elapsed_ms = int(
+            (time.time() - self.metrics.start_time) * 1000
+        )
+        
+        # Token quota check
+        token_ratio = self.metrics.tokens_used / self.quota.max_tokens
+        if token_ratio >= 1.0:
+            return self._trigger_cooling("TOKEN_QUOTA_EXCEEDED")
+        
+        # Time quota check
+        time_ratio = self.metrics.time_elapsed_ms / self.quota.max_time_ms
+        if time_ratio >= 1.0:
+            return self._trigger_cooling("TIME_QUOTA_EXCEEDED")
+        
+        # Entropy quota check
+        if self.metrics.entropy_generated > self.quota.max_entropy:
+            return self._trigger_cooling("ENTROPY_QUOTA_EXCEEDED")
+        
+        # Warning at 80% threshold
+        if max(token_ratio, time_ratio) >= self.quota.cooling_threshold:
+            return {
+                "verdict": "SABAR",
+                "warning": "Approaching thermodynamic limit",
+                "token_usage": f"{token_ratio:.1%}",
+                "time_usage": f"{time_ratio:.1%}",
+                "action": "Consider reducing scope"
+            }
+        
+        return {"verdict": "PASS"}
+    
+    def _trigger_cooling(self, reason: str) -> Dict:
+        """
+        Enter cooling cycle - pause execution to dissipate entropy.
+        """
+        if self.retry_count < self.MAX_RETRY:
+            self.retry_count += 1
+            return {
+                "verdict": "SABAR",
+                "reason": reason,
+                "cooling_cycle_ms": self.COOLING_CYCLE_MS,
+                "retry_allowed": True,
+                "retry_count": self.retry_count,
+                "action": f"COOLING: Pause {self.COOLING_CYCLE_MS}ms before retry"
+            }
+        else:
+            # Max retries exceeded - VOID
+            return {
+                "verdict": "VOID",
+                "reason": f"{reason} after cooling cycle",
+                "floor": "F4_THERMODYNAMIC_LIMIT",
+                "escalation": "888_HOLD"
+            }
+
+# Integration with reason_mind
+def reason_mind_hardened(query: str, quota: ResourceQuota) -> Dict:
+    """
+    AGI reasoning with thermodynamic brakes.
+    """
+    brake = ThermodynamicBrake(quota)
+    
+    # Check limits before execution
+    limit_check = brake.check_limits()
+    if limit_check["verdict"] != "PASS":
+        return limit_check
+    
+    # Execute with monitoring
+    result = _execute_reasoning(query)
+    
+    # Update metrics
+    brake.metrics.tokens_used = result.get("tokens_consumed", 0)
+    brake.metrics.entropy_generated = result.get("entropy_delta", 0)
+    
+    # Re-check after execution
+    return brake.check_limits()
+```
+
+### Cooling Cycle States
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    THERMODYNAMIC BRAKE                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                              │
+│  EXECUTING ──► Check Limits ──► Within Budget?              │
+│       ▲                              │                      │
+│       │                              │ YES                  │
+│       │                              ▼                      │
+│       │                         Continue                    │
+│       │                              │                      │
+│       │                              ▼                      │
+│       │                        Limit Exceeded?              │
+│       │                              │                      │
+│       │                         NO ◄─┘                      │
+│       │                                                     │
+│       └── YES ──► Enter SABAR (Cooling)                     │
+│                         │                                   │
+│                         ▼                                   │
+│                  Cooling Cycle (1000ms)                     │
+│                         │                                   │
+│                         ▼                                   │
+│                  Retry Allowed?                             │
+│                    /         \                              │
+│               YES /           \ NO                          │
+│                  ▼             ▼                            │
+│           Return to EXEC    VOID + 888_HOLD                 │
+│                                                              │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
 **File:** `000_THEORY/050_AGENT_FEDERATION.md`  
-**Version:** v55.5-FEDERATION  
+**Version:** v55.6-HARDENED  
 **Status:** SOVEREIGNLY_SEALED  
 **Authority:** Muhammad Arif bin Fazil  
 **Motto:** *DITEMPA BUKAN DIBERI* — *Reality is forged in the consensus of three witnesses.*

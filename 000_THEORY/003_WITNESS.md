@@ -341,6 +341,284 @@ def validate_constitutional_compliance(operation):
 
 ---
 
+---
+
+## 13. Cryptographic Anchoring (HMAC-SHA256)
+
+### The Human Witness (888 Judge) Verification
+
+**All Tri-Witness consensus requires cryptographically verified Human witness signatures.**
+
+```python
+import hmac
+import hashlib
+import secrets
+
+# Sovereign secret - rotated via Phoenix-72 protocol
+SOVEREIGN_SECRET: bytes = secrets.token_bytes(32)  # 256-bit key
+
+class HumanWitnessAnchor:
+    """
+    HMAC-SHA256 verification for Human (888 Judge) witness.
+    No signature = No consensus.
+    """
+    
+    WITNESS_WINDOW_MS: int = 250  # Temporal consensus window
+    
+    def __init__(self, sovereign_secret: bytes):
+        self._secret = sovereign_secret
+    
+    def sign_witness(self, witness_data: Dict) -> str:
+        """
+        888 Judge signs witness data with HMAC-SHA256.
+        """
+        canonical = self._canonicalize(witness_data)
+        signature = hmac.new(
+            self._secret,
+            canonical.encode(),
+            hashlib.sha256
+        ).hexdigest()
+        return f"{witness_data['timestamp']}:{signature}"
+    
+    def verify_witness(self, witness_token: str, witness_data: Dict) -> bool:
+        """
+        Verify Human witness signature.
+        Returns False if signature invalid, expired, or malformed.
+        """
+        try:
+            timestamp, provided_sig = witness_token.split(":")
+            
+            # Check temporal freshness (prevent replay attacks)
+            token_age_ms = self._current_time_ms() - int(timestamp)
+            if token_age_ms > self.WITNESS_WINDOW_MS:
+                return False  # Expired witness
+            
+            # Recompute signature
+            expected = self.sign_witness(witness_data)
+            _, expected_sig = expected.split(":")
+            
+            # Constant-time comparison (prevent timing attacks)
+            return hmac.compare_digest(provided_sig, expected_sig)
+            
+        except (ValueError, TypeError):
+            return False  # Malformed token
+    
+    def _canonicalize(self, data: Dict) -> str:
+        """Deterministic serialization for signing."""
+        import json
+        return json.dumps(data, sort_keys=True, separators=(',', ':'))
+```
+
+### Tri-Witness Consensus with Crypto Anchoring
+
+```python
+def validate_tri_witness_consensus(
+    human_token: str,
+    ai_score: float,
+    earth_score: float,
+    anchor: HumanWitnessAnchor,
+    witness_data: Dict
+) -> Dict:
+    """
+    F3: Tri-witness consensus with cryptographic verification.
+    """
+    # 1. Verify Human witness cryptographically
+    if not anchor.verify_witness(human_token, witness_data):
+        return {
+            "verdict": "VOID",
+            "reason": "Human witness signature invalid or expired",
+            "floor": "F3_CRYPTO_FAILURE"
+        }
+    
+    # 2. Extract human score from verified token
+    human_score = witness_data.get("human_score", 0.0)
+    
+    # 3. Check all witnesses present
+    if any(s is None for s in [human_score, ai_score, earth_score]):
+        return {
+            "verdict": "888_HOLD",
+            "reason": "Missing witness input",
+            "floor": "F3_INCOMPLETE"
+        }
+    
+    # 4. Calculate consensus (geometric mean)
+    consensus = (human_score * ai_score * earth_score) ** (1/3)
+    
+    # 5. Threshold check
+    if consensus >= 0.95:
+        return {
+            "verdict": "SEAL",
+            "consensus": consensus,
+            "floor": "F3_PASS",
+            "crypto_verified": True
+        }
+    else:
+        return {
+            "verdict": "VOID",
+            "consensus": consensus,
+            "reason": f"Insufficient consensus: {consensus} < 0.95",
+            "floor": "F3_THRESHOLD"
+        }
+```
+
+---
+
+## 14. Temporal Hardening (Consensus Window)
+
+### The 250ms Synchronization Rule
+
+**All three witnesses must align within a 250ms execution window.**
+
+```python
+import time
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class WitnessTimestamp:
+    """Temporal marker for witness alignment."""
+    witness_id: str
+    timestamp_ms: int
+    score: float
+
+class TemporalConsensus:
+    """
+    Enforces 250ms consensus window to prevent race conditions.
+    """
+    
+    CONSENSUS_WINDOW_MS: int = 250  # Maximum temporal spread
+    
+    def check_alignment(
+        self,
+        human: WitnessTimestamp,
+        ai: WitnessTimestamp,
+        earth: WitnessTimestamp
+    ) -> Dict:
+        """
+        Check if all witnesses align within temporal window.
+        """
+        timestamps = [human.timestamp_ms, ai.timestamp_ms, earth.timestamp_ms]
+        spread = max(timestamps) - min(timestamps)
+        
+        if spread > self.CONSENSUS_WINDOW_MS:
+            # Witnesses too far apart in time = superposition collapse risk
+            return {
+                "verdict": "SABAR",
+                "reason": f"Temporal spread {spread}ms exceeds {self.CONSENSUS_WINDOW_MS}ms",
+                "action": "Wait for synchronization",
+                "floor": "F3_TEMPORAL_MISALIGN"
+            }
+        
+        return {
+            "verdict": "PASS",
+            "temporal_spread_ms": spread,
+            "floor": "F3_TEMPORAL_ALIGN"
+        }
+```
+
+### SABAR Protocol for Misalignment
+
+When witnesses don't align within the window:
+
+```python
+def handle_temporal_misalignment(
+    human: WitnessTimestamp,
+    ai: WitnessTimestamp,
+    earth: WitnessTimestamp
+) -> Dict:
+    """
+    SABAR (صبر) - Patience protocol for temporal misalignment.
+    """
+    oldest = min(human.timestamp_ms, ai.timestamp_ms, earth.timestamp_ms)
+    current = time.time() * 1000
+    
+    return {
+        "verdict": "SABAR",
+        "reason": "Tri-Witness temporal misalignment detected",
+        "instruction": "WAIT - Do not proceed until witnesses synchronize",
+        "retry_after_ms": 100,  # Retry interval
+        "max_wait_ms": 500,     # Maximum wait before 888_HOLD
+        "stale_witnesses": [
+            w.witness_id for w in [human, ai, earth]
+            if (current - w.timestamp_ms) > 250
+        ],
+        "floor": "F3_SABAR"
+    }
+```
+
+### Temporal Enforcement Flow
+
+```
+Human Witness ──┐
+                ├──► Temporal Check ──► Within 250ms? ──► YES ──► Proceed to Consensus
+AI Witness ─────┤                                    │
+                │                                    └──► NO ──► SABAR (Wait)
+Earth Witness ──┘                                          └──► 888_HOLD (if max wait exceeded)
+```
+
+---
+
+## 15. Hardened Witness Council Protocol
+
+### Emergency Convening (Cryptographically Verified)
+
+```python
+class HardenedWitnessCouncil:
+    """
+    Witness council with crypto-verified consensus.
+    """
+    
+    def convene_emergency(
+        self,
+        violation: Dict,
+        witnesses: List[Dict],
+        human_anchor: HumanWitnessAnchor
+    ) -> Dict:
+        """
+        Emergency council requires 4/4 witness agreement + human signature.
+        """
+        # Verify all witness signatures
+        verified = []
+        for w in witnesses:
+            if w.get("type") == "HUMAN":
+                if human_anchor.verify_witness(
+                    w.get("token"), 
+                    w.get("data")
+                ):
+                    verified.append(w)
+            else:
+                # AI/Earth witnesses use merkle proofs
+                if self._verify_merkle_proof(w.get("proof")):
+                    verified.append(w)
+        
+        if len(verified) < 4:
+            return {
+                "verdict": "888_HOLD",
+                "reason": f"Only {len(verified)}/4 witnesses cryptographically verified",
+                "action": "Escalate to human sovereign"
+            }
+        
+        # Check unanimous agreement
+        verdicts = [w.get("verdict") for w in verified]
+        if len(set(verdicts)) == 1:
+            return {
+                "verdict": verdicts[0],
+                "witnesses": [w.get("id") for w in verified],
+                "crypto_verified": True
+            }
+        
+        # Disagreement = HOLD
+        return {
+            "verdict": "888_HOLD",
+            "reason": f"Witness disagreement: {set(verdicts)}",
+            "witnesses": [w.get("id") for w in verified]
+        }
+```
+
+---
+
 **DITEMPA BUKAN DIBERI** — Witnessed by the Federation through canonical specification, not hidden in scattered logs.
 
 > **Migration Complete**: The witness system is now fully canonical in `000_THEORY/`, providing programmatic access to constitutional monitoring with complete transparency and automated recording.
+> 
+> **Hardened**: Cryptographic anchoring (HMAC-SHA256) and temporal enforcement (250ms window) now required for all Tri-Witness consensus.
