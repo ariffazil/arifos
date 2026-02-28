@@ -48,12 +48,15 @@ await client.disconnect();
 
 ### stdio Mode (Local)
 
+> **⚠️ SECURITY:** Never hardcode secrets. Load from `.env` or a secrets manager.
+
 ```typescript
 import { createClient } from '@arifos/mcp';
 
 const client = await createClient({
   transport: 'stdio',
   env: {
+    // Load from environment — never commit these values
     ARIFOS_GOVERNANCE_SECRET: process.env.ARIFOS_GOVERNANCE_SECRET!,
     DATABASE_URL: process.env.DATABASE_URL!,
   },
@@ -87,7 +90,7 @@ await client.disconnect();
 └─────────────────────────────────────┘
 ```
 
-**Key Principle:** This package has **ZERO governance logic**. All constitutional enforcement (F1-F13) happens server-side in the Python kernel. The npm client is a faithful cable that passes through whatever the kernel decides.
+**Key Principle:** This package has **ZERO governance logic**. All constitutional enforcement (F1-F13) happens server-side in the Python kernel. The npm client is a transport client that passes through whatever the kernel decides.
 
 ---
 
@@ -133,21 +136,26 @@ import type {
 
 ---
 
-## Compatibility
+## Compatibility Matrix
 
-| @arifos/mcp | arifos (PyPI) | Status |
-| :--- | :--- | :--- |
-| @arifos/mcp | arifOS (PyPI) | Node | Transport | Status |
-|-------------|---------------|------|-----------|--------|
-| 0.1.0 | 2026.2.17 | ≥18 | HTTP/SSE | ✅ Stable |
-| 0.1.1 | 2026.2.22 | ≥18 | HTTP/SSE | ✅ Tested |
-| **0.2.0** | **≥2026.3.1** | ≥18 | HTTP/SSE | 🔄 **Current** |
+| @arifos/mcp | Node.js | arifOS (PyPI) | Transport | Status |
+| :--- | :--- | :--- | :--- | :--- |
+| 0.2.0 | ≥18 | ≥2026.3.1 | HTTP/SSE | 🔄 **Current** |
+| 0.1.1 | ≥18 | 2026.2.22 | HTTP/SSE | ✅ Tested |
+| 0.1.0 | ≥18 | 2026.2.17 | HTTP/SSE | ✅ Stable |
+
+**Notes:**
+- All versions tested against production VPS endpoint (`arifosmcp.arif-fazil.com`)
+- `stdio` transport tested locally with `arifos>=2026.2.17`
+- Verdicts observed: `SEAL`, `PARTIAL`, `SABAR`, `VOID`, `HOLD`, `888_HOLD`
 
 ---
 
 ## The 13 Canonical Tools
 
 All tools return a `VerdictEnvelope` with `{ verdict, stage, session_id, floors, ... }`.
+
+> **Note on 888_HOLD:** This verdict indicates an irreversible action requiring human approval. The call may remain pending until a human sovereign signs off. Handle this as an async event, not a timeout.
 
 ### Governance Spine (8 tools)
 
@@ -224,19 +232,3 @@ AGPL-3.0-only — Same as arifOS kernel.
 - **MCP Protocol:** <https://modelcontextprotocol.io>
 
 *Ditempa Bukan Diberi* — Forged, Not Given
-
----
-
-## Compatibility Matrix
-
-| @arifos/mcp | Node.js | arifOS (PyPI) | Transport | Status |
-| :--- | :--- | :--- | :--- | :--- |
-| 0.1.0 | ≥18 | 2026.2.28 | HTTP/SSE | ✅ Verified |
-| 0.1.0 | ≥18 | 2026.3.1 | HTTP/SSE | ✅ Verified |
-| 0.1.0 | ≥18 | 2026.2.28 | stdio | ✅ Verified |
-
-**Notes:**
-
-- Version 0.1.0 tested against production VPS endpoint (`arifosmcp.arif-fazil.com`)
-- All 13 canonical tools discovered and functional
-- Verdicts observed: `SEAL`, `PARTIAL`, `SABAR`, `VOID`, `HOLD`, `888_HOLD`
