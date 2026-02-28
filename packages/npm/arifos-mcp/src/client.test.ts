@@ -98,6 +98,7 @@ describe('@arifos/mcp client', () => {
     console.log('apex_judge result:', JSON.stringify(result, null, 2));
     expect(result.verdict).toBeDefined();
     expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD', 'HOLD']).toContain(result.verdict);
+    expect(result.stage).toMatch(/888_APEX/);
   });
   
   it.skipIf(SKIP_INTEGRATION)('should trigger PARTIAL verdict on vague query (soft-floor test)', async () => {
