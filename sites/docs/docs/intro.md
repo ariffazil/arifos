@@ -10,9 +10,9 @@ description: arifOS is a constitutional intelligence kernel with canonical AAA M
 
 *The system that knows because it admits what it cannot know.*
 
-arifOS is a **Constitutional Kernel Bootloader** for AI systems. It governs AI cognition by loading an entire governance runtime environment (000->999) between Large Language Models and real-world actions.
+If you're new here, think of arifOS as a **"lie detector and safety firewall"** for AI. It acts as a **Constitutional Kernel**—meaning it loads a strict set of ethical rules (the 13 Floors) into an AI before it's allowed to take any actions or talk to users.
 
-It features the **Eureka-Atlas Embedding Engine**, providing thermodynamic grounding for the metabolizer loop via Energy-Based Models (EBM) and Deep Equilibrium (DEQ) principles.
+*For experts: arifOS governs AI cognition by loading an entire runtime environment (000->999) between LLMs and real-world tools, featuring thermodynamic grounding via the Eureka-Atlas Embedding Engine.*
 
 ## The Execution Model
 
@@ -23,15 +23,17 @@ When you call `anchor_session`, arifOS does not just start a session; it **boots
 
 ## How arifOS Thinks (The Cognitive Cycle)
 
-arifOS is not a linear filter; it is a **thermodynamic metabolizer**. Every request flows through a 7-stage cycle:
+arifOS is not a simple filter; it's a careful step-by-step process. Every request flows through this cycle:
 
-1.  **Ignition (000)**: Session creation and injection defense.
-2.  **Cognition (111-333)**: Mind (AGI) validates logical truth.
-3.  **Recall (444)**: Subconscious (PHOENIX) retrieves relevant memory.
-4.  **Empathy (555)**: Heart (ASI) models stakeholder impact.
-5.  **Critique (666)**: 7-model alignment and bias detection.
-6.  **Judgment (777-888)**: Soul (APEX) synthesizes the final law.
-7.  **Commit (999)**: Memory (VAULT) seals the immutable record.
+```mermaid
+graph TD
+A[000: Ignition - Check Auth & Defend] --> B[111-333: Cognition - Validate Truth]
+B --> C[444: Recall - Retrieve Memory]
+C --> D[555: Empathy - Protect Stakeholders]
+D --> E[666: Critique - Detect Bias]
+E --> F[777-888: Judgment - Synthesize Verdict]
+F --> G[999: Commit - Seal Immutable Record]
+```
 
 ## Technical Glossary (Symbolic to Operational)
 
@@ -119,13 +121,15 @@ Live endpoints:
 - `arifos://aaa/full-context-pack`
 - `arifos.prompt.aaa_chain`
 
-## Governance verdicts
+## Governance verdicts (How safe is it?)
 
-- `SEAL` - approved
-- `PARTIAL` - approved with warnings
-- `SABAR` - hold/refine
-- `VOID` - blocked
-- `888_HOLD` - mandatory human ratification
+When arifOS finishes evaluating an AI's thought or action, it returns one of these verdicts. You can see these happening in real-time on our [Constitutional Audit Dashboard](https://arifosmcp-truth-claim.pages.dev/).
+
+- **✅ `SEAL`** - Approved. The action passed all 13 constitutional tests.
+- **🟡 `PARTIAL`** - Approved with constraints.
+- **⚠️ `SABAR`** - Hold/Refine. The AI was hallucinating or taking risks; it must pause and retry. (Sabar means 'patience' in Malay).
+- **❌ `VOID`** - Blocked. A hard rule (like factual truth or anti-hacking) was violated.
+- **🛑 `888_HOLD`** - Mandatory human ratification. The AI is attempting a high-risk action and needs your cryptographic permission.
 
 Continue with:
 
