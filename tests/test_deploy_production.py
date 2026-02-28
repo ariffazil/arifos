@@ -29,7 +29,7 @@ def test_build_overlay_image_tag_uses_normalized_version_and_short_sha():
     assert tag == "arifos/arifosmcp:2026.02.28-527f8e18"
 
 
-def test_build_vps_overlay_script_contains_overlay_build_and_mount_check():
+def test_build_vps_overlay_script_contains_full_build_and_mount_check():
     module = _load_module()
     script = module.build_vps_overlay_script(
         host="root@example.com",
@@ -46,13 +46,14 @@ def test_build_vps_overlay_script_contains_overlay_build_and_mount_check():
         public_base_url="https://arifosmcp.arif-fazil.com",
     )
 
-    assert "FROM arifos/arifosmcp:latest" in script
-    assert "cat > \"$DOCKERFILE_NAME\" <<'EOF'" in script
-    assert "COPY . /usr/src/app" in script
+    assert "docker build \\" in script
+    assert "-t \"$IMAGE_TAG\" \\" in script
+    assert "--build-arg ARIFOS_VERSION=\"$VERSION\" \\" in script
     assert 'docker inspect "$CONTAINER_NAME" --format' in script
     assert "candidate tool count mismatch" in script
     assert "public tool count mismatch" in script
     assert "curl -fsS \"$PUBLIC_HEALTH_URL\"" in script
+    assert "Dockerfile.deploy-overlay" not in script
 
 
 def test_run_remote_bash_normalizes_crlf_and_uses_bytes(monkeypatch):

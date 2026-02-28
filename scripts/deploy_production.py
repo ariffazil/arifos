@@ -113,8 +113,7 @@ def build_vps_overlay_script(
     public_base_url: str,
     expected_tools: int = 13,
 ) -> str:
-    """Render the remote bash script for immutable overlay deployment."""
-    dockerfile_name = "Dockerfile.deploy-overlay"
+    """Render the remote bash script for immutable VPS image deployment."""
     public_health_url = f"{public_base_url.rstrip('/')}/health"
     public_tools_url = f"{public_base_url.rstrip('/')}/tools"
 
@@ -126,7 +125,6 @@ def build_vps_overlay_script(
         IMAGE_TAG={shlex.quote(image_tag)}
         VERSION={shlex.quote(version)}
         GIT_SHA={shlex.quote(git_sha[:8])}
-        BASE_IMAGE={shlex.quote(base_image)}
         CONTAINER_NAME={shlex.quote(container_name)}
         CANDIDATE_NAME={shlex.quote(candidate_name)}
         CANDIDATE_PORT={candidate_port}
@@ -134,36 +132,18 @@ def build_vps_overlay_script(
         PROD_BIND={shlex.quote(prod_bind)}
         PUBLIC_HEALTH_URL={shlex.quote(public_health_url)}
         PUBLIC_TOOLS_URL={shlex.quote(public_tools_url)}
-        DOCKERFILE_NAME={shlex.quote(dockerfile_name)}
 
         cd "$APP_DIR"
         git fetch origin
         git checkout main
         git pull --ff-only origin main
 
-        trap 'rm -f "$DOCKERFILE_NAME"; docker rm -f "$CANDIDATE_NAME" >/dev/null 2>&1 || true' EXIT
-
-        cat > "$DOCKERFILE_NAME" <<'EOF'
-        FROM {base_image}
-        ARG ARIFOS_VERSION=unknown
-        ARG GIT_SHA=unknown
-        ARG BUILD_TIME=unknown
-        WORKDIR /usr/src/app
-        COPY . /usr/src/app
-        ENV PYTHONUNBUFFERED=1
-        ENV PYTHONDONTWRITEBYTECODE=1
-        ENV PORT=8080
-        ENV HOST=0.0.0.0
-        ENV ARIFOS_VERSION=${{ARIFOS_VERSION}}
-        ENV GIT_SHA=${{GIT_SHA}}
-        ENV BUILD_TIME=${{BUILD_TIME}}
-        EOF
+        trap 'docker rm -f "$CANDIDATE_NAME" >/dev/null 2>&1 || true' EXIT
 
         BUILD_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
 
         docker rm -f "$CANDIDATE_NAME" >/dev/null 2>&1 || true
         docker build \\
-          -f "$DOCKERFILE_NAME" \\
           -t "$IMAGE_TAG" \\
           --build-arg ARIFOS_VERSION="$VERSION" \\
           --build-arg GIT_SHA="$GIT_SHA" \\
