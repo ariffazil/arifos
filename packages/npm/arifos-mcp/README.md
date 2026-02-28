@@ -137,8 +137,11 @@ import type {
 
 | @arifos/mcp | arifos (PyPI) | Status |
 | :--- | :--- | :--- |
-| 0.1.0 | 2026.2.17 | ✅ Current PyPI |
-| 0.1.0 | 2026.2.28 | ⏳ Pending release |
+| @arifos/mcp | arifOS (PyPI) | Node | Transport | Status |
+|-------------|---------------|------|-----------|--------|
+| 0.1.0 | 2026.2.17 | ≥18 | HTTP/SSE | ✅ Stable |
+| 0.1.1 | 2026.2.22 | ≥18 | HTTP/SSE | ✅ Tested |
+| **0.2.0** | **≥2026.3.1** | ≥18 | HTTP/SSE | 🔄 **Current** |
 
 ---
 
