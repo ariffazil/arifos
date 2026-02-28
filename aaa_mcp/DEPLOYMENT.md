@@ -14,6 +14,47 @@
 | **Local** | stdio | Desktop agents (Claude, Kimi) | F11/F12 only |
 | **Railway** | Streamable HTTP | Staging/production cloud | Full OAuth 2.1 |
 | **Cloudflare** | Streamable HTTP | Global edge, lowest latency | Full OAuth 2.1 + KV |
+| **Hostinger VPS Overlay** | Streamable HTTP | Current production image refresh | Immutable overlay image |
+
+## Current Production Path
+
+Current production is a standalone Docker container behind Nginx:
+
+- Host: `root@72.62.71.199`
+- Repo path: `/root/arifOS`
+- Container: `arifosmcp_server`
+- Private bind: `127.0.0.1:8088:8080`
+- Public base URL: `https://arifosmcp.arif-fazil.com`
+
+## One-Command VPS Overlay Deploy
+
+This is the canonical production deploy command for the current VPS.
+It builds a thin immutable overlay image from `arifos/arifosmcp:latest`,
+copies the current repo checkout into the image, validates a private candidate,
+then swaps the live container with no bind mount.
+
+```bash
+python scripts/deploy_production.py --platform vps-overlay
+```
+
+What it does:
+
+- SSH to the production VPS
+- `git pull --ff-only` in `/root/arifOS`
+- Build overlay image tag `arifos/arifosmcp:<version>-<sha>`
+- Start a candidate container on `127.0.0.1:18089`
+- Verify `/health` and `/tools` before cutover
+- Replace `arifosmcp_server`
+- Verify public `/health` and `/tools`
+- Assert the live container has no bind mounts
+
+Useful overrides:
+
+```bash
+python scripts/deploy_production.py --platform vps-overlay --dry-run
+python scripts/deploy_production.py --platform vps-overlay --host root@your-vps
+python scripts/deploy_production.py --platform vps-overlay --public-base-url https://your-domain
+```
 
 ---
 

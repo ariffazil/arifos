@@ -1,0 +1,452 @@
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	﻿2026-02-28T03:56:06.9695280Z Current runner version: '2.331.0'
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9720104Z ##[group]Runner Image Provisioner
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9721003Z Hosted Compute Agent
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9721592Z Version: 20260213.493
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9722220Z Commit: 5c115507f6dd24b8de37d8bbe0bb4509d0cc0fa3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9723000Z Build Date: 2026-02-13T00:28:41Z
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9723683Z Worker ID: {905a9814-57ea-4e8e-bce3-74d2c96ac674}
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9724391Z Azure Region: westus3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9724981Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9726338Z ##[group]Operating System
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9727067Z Ubuntu
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9727907Z 24.04.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9728354Z LTS
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9728878Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9729446Z ##[group]Runner Image
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9729993Z Image: ubuntu-24.04
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9730595Z Version: 20260224.36.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9731793Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20260224.36/images/ubuntu/Ubuntu2404-Readme.md
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9733563Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20260224.36
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9734521Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9735633Z ##[group]GITHUB_TOKEN Permissions
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9737786Z Contents: read
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9738389Z Deployments: write
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9738885Z Metadata: read
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9739522Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9741714Z Secret source: Actions
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:06.9742421Z Prepare workflow directory
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:07.0078463Z Prepare all required actions
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:07.0117467Z Getting action download info
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:07.4470394Z Download action repository 'actions/checkout@v6' (SHA:de0fac2e4500dabe0009e67214ff5f5447ce83dd)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:07.5838040Z Download action repository 'astral-sh/setup-uv@v3' (SHA:caf0cab7a618c569241d31dcd442f54681755d39)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:08.5881362Z Download action repository 'actions/setup-python@v6' (SHA:a309ff8b426b58ec0e2a45f0f869d46889d02405)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:08.7432126Z Download action repository 'cloudflare/pages-action@v1' (SHA:f0a1cd58cd66095dee69bfa18fa5efd1dde93bca)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.5614731Z Complete job name: Build & Deploy Constitutional Dashboard
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6456803Z ##[group]Run actions/checkout@v6
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6458314Z with:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6459014Z   repository: ariffazil/arifOS
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6460123Z   token: ***
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6460805Z   ssh-strict: true
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6461500Z   ssh-user: git
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6462234Z   persist-credentials: true
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6463062Z   clean: true
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6463785Z   sparse-checkout-cone-mode: true
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6464689Z   fetch-depth: 1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6465391Z   fetch-tags: false
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6466124Z   show-progress: true
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6466864Z   lfs: false
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6467672Z   submodules: false
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6468418Z   set-safe-directory: true
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.6469474Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7435865Z Syncing repository: ariffazil/arifOS
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7438796Z ##[group]Getting Git version info
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7439990Z Working directory is '/home/runner/work/arifOS/arifOS'
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7441743Z [command]/usr/bin/git version
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7480878Z git version 2.53.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7505371Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7522707Z Temporarily overriding HOME='/home/runner/work/_temp/01cef96d-547c-40a1-bcfe-bd789e07519f' before making global git config changes
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7527580Z Adding repository directory to the temporary git global config as a safe directory
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7531144Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/arifOS/arifOS
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7570469Z Deleting the contents of '/home/runner/work/arifOS/arifOS'
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7574462Z ##[group]Initializing the repository
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7579819Z [command]/usr/bin/git init /home/runner/work/arifOS/arifOS
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7664427Z hint: Using 'master' as the name for the initial branch. This default branch name
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7667095Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7669842Z hint: to use in all of your new repositories, which will suppress this warning,
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7672289Z hint: call:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7673611Z hint:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7675069Z hint: 	git config --global init.defaultBranch <name>
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7676893Z hint:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7678908Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7682003Z hint: 'development'. The just-created branch can be renamed via this command:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7684308Z hint:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7685373Z hint: 	git branch -m <name>
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7686966Z hint:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7688379Z hint: Disable this message with "git config set advice.defaultBranchName false"
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7690249Z Initialized empty Git repository in /home/runner/work/arifOS/arifOS/.git/
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7693678Z [command]/usr/bin/git remote add origin https://github.com/ariffazil/arifOS
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7716987Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7719476Z ##[group]Disabling automatic garbage collection
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7721625Z [command]/usr/bin/git config --local gc.auto 0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7750594Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7752688Z ##[group]Setting up auth
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7754202Z Removing SSH command configuration
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7758792Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.7794649Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8130172Z Removing HTTP extra header
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8137552Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8171775Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8399159Z Removing includeIf entries pointing to credentials config files
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8405406Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8440051Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8683085Z [command]/usr/bin/git config --file /home/runner/work/_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config http.https://github.com/.extraheader AUTHORIZATION: basic ***
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8723988Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/arifOS/arifOS/.git.path /home/runner/work/_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8754874Z [command]/usr/bin/git config --local includeIf.gitdir:/home/runner/work/arifOS/arifOS/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8786137Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8817796Z [command]/usr/bin/git config --local includeIf.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8845202Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8846415Z ##[group]Fetching the repository
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:09.8855292Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +31eb42356b34423d8e3d9ea63b7a1a98aa3a7989:refs/remotes/origin/main
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9271486Z From https://github.com/ariffazil/arifOS
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9272280Z  * [new ref]         31eb42356b34423d8e3d9ea63b7a1a98aa3a7989 -> origin/main
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9311960Z [command]/usr/bin/git branch --list --remote origin/main
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9344265Z   origin/main
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9353363Z [command]/usr/bin/git rev-parse refs/remotes/origin/main
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9378856Z 31eb42356b34423d8e3d9ea63b7a1a98aa3a7989
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9383519Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9383908Z ##[group]Determining the checkout info
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9385368Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9390374Z [command]/usr/bin/git sparse-checkout disable
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9430272Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9457699Z ##[group]Checking out the ref
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:13.9462367Z [command]/usr/bin/git checkout --progress --force -B main refs/remotes/origin/main
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.4969022Z Switched to a new branch 'main'
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.4969688Z branch 'main' set up to track 'origin/main'.
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5020788Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5064149Z [command]/usr/bin/git log -1 --format=%H
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5090413Z 31eb42356b34423d8e3d9ea63b7a1a98aa3a7989
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5309679Z ##[group]Run astral-sh/setup-uv@v3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5309986Z with:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5310162Z   version: latest
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5310508Z   github-token: ***
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5310711Z   enable-cache: false
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5310928Z   cache-dependency-glob: **/uv.lock
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5311167Z   prune-cache: true
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.5311359Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:14.6965034Z Downloading uv from "https://github.com/astral-sh/uv/releases/latest/download/uv-x86_64-unknown-linux-gnu.tar.gz" ...
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.2780429Z [command]/usr/bin/tar xz --warning=no-unknown-keyword --overwrite -C /home/runner/work/_temp/2d7f2d29-759a-4cc3-a5b8-8368545a1b7d -f /home/runner/work/_temp/a46fa942-bf3b-4c97-becd-6c3bc98e0945
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7305035Z Added /opt/hostedtoolcache/uv/0.10.7/x86_64 to the path
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7306321Z Added /home/runner/.local/bin to the path
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7311400Z Successfully installed uv version 0.10.7
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7342728Z Set UV_CACHE_DIR to /home/runner/work/_temp/setup-uv-cache
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7557657Z ##[group]Run actions/setup-python@v6
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7557967Z with:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7558144Z   python-version: 3.12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7558359Z   check-latest: false
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7558672Z   token: ***
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7558858Z   update-environment: true
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7559081Z   allow-prereleases: false
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7559282Z   freethreaded: false
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7559472Z env:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7559684Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.7559955Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.8816279Z ##[group]Installed versions
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.8910688Z Successfully set up CPython (3.12.12)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.8911406Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9010474Z ##[group]Run uv pip install --system -e ".[dev]"
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9010881Z [36;1muv pip install --system -e ".[dev]"[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9156085Z shell: /usr/bin/bash -e {0}
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9156341Z env:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9156568Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9156936Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9157527Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9157933Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9158284Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9158640Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9158998Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:15.9159298Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.3805532Z Using Python 3.12.12 environment at: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9363381Z Resolved 132 packages in 550ms
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9411271Z    Building arifos @ file:///home/runner/work/arifOS/arifOS
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9557645Z Downloading cuda-bindings (11.6MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9562836Z Downloading nvidia-cuda-nvrtc-cu12 (84.0MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9564222Z Downloading nvidia-cuda-cupti-cu12 (9.8MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9566104Z Downloading cryptography (4.3MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9568643Z Downloading tokenizers (3.1MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9569171Z Downloading pygments (1.2MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9569656Z Downloading nvidia-cufile-cu12 (1.1MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9585062Z Downloading nvidia-cusparselt-cu12 (273.9MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9594187Z Downloading numpy (15.8MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9595140Z Downloading pydantic-core (2.0MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9597482Z Downloading scikit-learn (8.5MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9599466Z Downloading nvidia-cufft-cu12 (184.2MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9601035Z Downloading nvidia-nvjitlink-cu12 (37.4MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9603020Z Downloading ruff (10.7MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9605057Z Downloading networkx (2.0MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9606950Z Downloading beartype (1.3MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9609090Z Downloading mypy (13.0MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9612178Z Downloading nvidia-cusolver-cu12 (255.1MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9615315Z Downloading nvidia-curand-cu12 (60.7MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9617520Z Downloading nvidia-nccl-cu12 (307.4MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9619733Z Downloading sympy (6.0MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9621933Z Downloading nvidia-cudnn-cu12 (674.0MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9624053Z Downloading nvidia-cusparse-cu12 (274.9MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9626355Z Downloading triton (179.5MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9630141Z Downloading nvidia-nvshmem-cu12 (132.7MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9632177Z Downloading uvloop (4.2MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9634428Z Downloading transformers (9.9MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9660978Z Downloading scipy (33.6MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9698712Z Downloading hf-xet (4.0MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9701877Z Downloading nvidia-cublas-cu12 (566.8MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9740470Z Downloading asyncpg (3.4MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:16.9854499Z Downloading torch (873.3MiB)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:17.5652731Z  Downloaded nvidia-cufile-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:17.8574264Z  Downloaded pydantic-core
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:17.9815336Z  Downloaded pygments
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:18.1301013Z  Downloaded beartype
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:18.2389019Z  Downloaded tokenizers
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:18.3243691Z  Downloaded asyncpg
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:18.3715868Z  Downloaded networkx
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:18.4619501Z  Downloaded hf-xet
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:18.5345172Z  Downloaded uvloop
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:18.5644640Z  Downloaded cryptography
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:19.5506389Z  Downloaded scikit-learn
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:19.6374492Z  Downloaded sympy
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:19.6423952Z  Downloaded nvidia-cuda-cupti-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:19.7984018Z  Downloaded ruff
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:19.8509394Z       Built arifos @ file:///home/runner/work/arifOS/arifOS
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:19.9293240Z  Downloaded cuda-bindings
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:20.2467904Z  Downloaded transformers
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:20.6005612Z  Downloaded numpy
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:22.5120694Z  Downloaded mypy
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:22.7483077Z  Downloaded nvidia-nvjitlink-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:22.9859294Z  Downloaded scipy
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:24.5996227Z  Downloaded nvidia-curand-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:26.3629522Z  Downloaded nvidia-cuda-nvrtc-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:29.3070501Z  Downloaded nvidia-nvshmem-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:32.0403476Z  Downloaded nvidia-cufft-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:32.4090531Z  Downloaded triton
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:34.5631593Z  Downloaded nvidia-cusolver-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:35.1782555Z  Downloaded nvidia-cusparse-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:35.1877453Z  Downloaded nvidia-cusparselt-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:35.8657653Z  Downloaded nvidia-nccl-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:38.7382337Z  Downloaded nvidia-cublas-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:39.6649770Z  Downloaded nvidia-cudnn-cu12
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.4728954Z  Downloaded torch
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.4731653Z Prepared 132 packages in 30.53s
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8076428Z Installed 132 packages in 333ms
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8079313Z  + aiofile==3.9.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8082455Z  + annotated-doc==0.0.4
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8083078Z  + annotated-types==0.7.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8083603Z  + anyio==4.12.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8084214Z  + arifos==2026.2.28 (from file:///home/runner/work/arifOS/arifOS)
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8084934Z  + asyncpg==0.31.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8085348Z  + attrs==25.4.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8085689Z  + authlib==1.6.8
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8086015Z  + beartype==0.22.9
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8086364Z  + beautifulsoup4==4.14.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8086746Z  + cachetools==7.0.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8087068Z  + caio==0.9.25
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8087632Z  + certifi==2026.2.25
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8087965Z  + cffi==2.0.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8088273Z  + click==8.3.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8088585Z  + coverage==7.13.4
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8088934Z  + cryptography==46.0.5
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8089309Z  + cuda-bindings==12.9.4
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8089721Z  + cuda-pathfinder==1.4.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8090094Z  + cyclopts==4.6.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8090426Z  + dnspython==2.8.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8090776Z  + docstring-parser==0.17.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8091149Z  + docutils==0.22.4
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8091490Z  + email-validator==2.3.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8091988Z  + exceptiongroup==1.3.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8092355Z  + fastapi==0.134.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8093591Z  + fastmcp==3.0.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8093900Z  + filelock==3.24.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8094325Z  + fsspec==2026.2.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8094637Z  + h11==0.16.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8094936Z  + hf-xet==1.3.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8095246Z  + httpcore==1.0.9
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8095615Z  + httptools==0.7.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8096079Z  + httpx==0.28.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8096531Z  + httpx-sse==0.4.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8096993Z  + huggingface-hub==1.5.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8097624Z  + idna==3.11
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8098061Z  + importlib-metadata==8.7.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8098529Z  + iniconfig==2.3.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8098962Z  + jaraco-classes==3.4.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8099399Z  + jaraco-context==6.1.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8099947Z  + jaraco-functools==4.4.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8100381Z  + jeepney==0.9.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8100807Z  + jinja2==3.1.6
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8101337Z  + joblib==1.5.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8101776Z  + jsonref==1.1.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8102160Z  + jsonschema==4.26.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8102746Z  + jsonschema-path==0.4.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8103183Z  + jsonschema-specifications==2025.9.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8103634Z  + keyring==25.7.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8104202Z  + librt==0.8.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8104570Z  + markdown-it-py==4.0.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8104948Z  + markupsafe==3.0.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8105441Z  + mcp==1.26.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8105922Z  + mdurl==0.1.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8106401Z  + more-itertools==10.8.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8106865Z  + mpmath==1.3.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8107389Z  + mypy==1.19.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8107884Z  + mypy-extensions==1.1.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8108534Z  + networkx==3.6.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8108834Z  + numpy==2.4.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8109281Z  + nvidia-cublas-cu12==12.8.4.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8109762Z  + nvidia-cuda-cupti-cu12==12.8.90
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8110223Z  + nvidia-cuda-nvrtc-cu12==12.8.93
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8110785Z  + nvidia-cuda-runtime-cu12==12.8.90
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8111237Z  + nvidia-cudnn-cu12==9.10.2.21
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8111814Z  + nvidia-cufft-cu12==11.3.3.83
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8112272Z  + nvidia-cufile-cu12==1.13.1.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8112729Z  + nvidia-curand-cu12==10.3.9.90
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8113370Z  + nvidia-cusolver-cu12==11.7.3.90
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8113808Z  + nvidia-cusparse-cu12==12.5.8.93
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8114212Z  + nvidia-cusparselt-cu12==0.7.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8114672Z  + nvidia-nccl-cu12==2.27.5
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8115183Z  + nvidia-nvjitlink-cu12==12.8.93
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8115591Z  + nvidia-nvshmem-cu12==3.4.5
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8116059Z  + nvidia-nvtx-cu12==12.8.90
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8116439Z  + openapi-pydantic==0.5.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8117060Z  + opentelemetry-api==1.39.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8117583Z  + packaging==26.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8120458Z  + pathable==0.5.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8120741Z  + pathspec==1.0.4
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8121031Z  + platformdirs==4.9.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8121347Z  + pluggy==1.6.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8121647Z  + prometheus-client==0.24.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8121983Z  + psutil==7.2.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8122337Z  + py-key-value-aio==0.4.4
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8122672Z  + pycparser==3.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8122952Z  + pydantic==2.12.5
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8123406Z  + pydantic-core==2.41.5
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8123878Z  + pydantic-settings==2.13.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8124291Z  + pygments==2.19.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8124495Z  + pyjwt==2.11.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8124685Z  + pyperclip==1.11.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8124880Z  + pytest==9.0.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8125071Z  + pytest-asyncio==1.3.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8125509Z  + pytest-cov==7.0.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8125987Z  + python-dotenv==1.2.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8126535Z  + python-multipart==0.0.22
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8127938Z  + pyyaml==6.0.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8128253Z  + redis==7.2.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8128563Z  + referencing==0.37.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8128879Z  + regex==2026.2.28
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8129210Z  + rich==14.3.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8129701Z  + rich-rst==1.3.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8130158Z  + rpds-py==0.30.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8130732Z  + ruff==0.15.4
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8131183Z  + safetensors==0.7.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8131680Z  + scikit-learn==1.8.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8132189Z  + scipy==1.17.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8132697Z  + secretstorage==3.5.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8133344Z  + sentence-transformers==5.2.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8133781Z  + setuptools==82.0.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8134252Z  + shellingham==1.5.4
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8134846Z  + soupsieve==2.8.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8135407Z  + sse-starlette==3.2.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8135830Z  + starlette==0.52.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8136421Z  + sympy==1.14.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8136861Z  + threadpoolctl==3.6.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8137531Z  + tokenizers==0.22.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8138000Z  + torch==2.10.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8138643Z  + tqdm==4.67.3
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8139073Z  + transformers==5.2.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8139554Z  + triton==3.6.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8140159Z  + typer==0.24.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8140668Z  + typer-slim==0.24.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8141122Z  + typing-extensions==4.15.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8141725Z  + typing-inspection==0.4.2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8142146Z  + uvicorn==0.41.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8142655Z  + uvloop==0.22.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8143203Z  + watchfiles==1.1.1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8143712Z  + websockets==16.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8144228Z  + zipp==3.23.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8357130Z ##[group]Run python run_evals.py
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8357737Z [36;1mpython run_evals.py[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8406943Z shell: /usr/bin/bash -e {0}
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8407176Z env:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8407637Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8408000Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8408397Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8408806Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8409151Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8409550Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8409913Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8410216Z   ARIFOS_PHYSICS_DISABLED: 1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8410436Z   ARIFOS_ALLOW_LEGACY_SPEC: 1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8410649Z   PYTHONUNBUFFERED: 1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:56:47.8410870Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:03.7164794Z 🔥 Forging Constitutional Eval Suite v2...
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:03.7165311Z Loading datasets from tests/mcp_live/golden...
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:03.7649880Z Generating living constitutional dashboard: test-reports/index.html
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:03.7655448Z ✅ Completed Eval Suite. Dashboard generated!
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6930575Z ##[group]Run if [ ! -f test-reports/index.html ]; then
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6931174Z [36;1mif [ ! -f test-reports/index.html ]; then[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6931526Z [36;1m  echo "❌ ERROR: test-reports/index.html not found!"[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6931864Z [36;1m  echo "Contents of test-reports/:"[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6932184Z [36;1m  ls -la test-reports/[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6932417Z [36;1m  exit 1[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6932593Z [36;1mfi[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6932837Z [36;1mecho "✅ index.html exists at test-reports/index.html"[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6933241Z [36;1mecho "📦 File size: $(du -h test-reports/index.html | cut -f1)"[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6933685Z [36;1mecho "📊 Total assets: $(find test-reports -type f | wc -l) files"[0m
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6984325Z shell: /usr/bin/bash -e {0}
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6984549Z env:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6984777Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6985174Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6985582Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6985981Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6986336Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6986684Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6987042Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.6987573Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7056601Z ✅ index.html exists at test-reports/index.html
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7086088Z 📦 File size: 56K
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7114928Z 📊 Total assets: 4 files
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7154015Z ##[group]Run cloudflare/pages-action@v1
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7154273Z with:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7154686Z   apiToken: ***
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7154906Z   projectName: arifosmcp-truth-claim
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7155149Z   directory: test-reports
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7155347Z   branch: main
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7155655Z   gitHubToken: ***
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7155855Z   wranglerVersion: 2
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7156036Z env:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7156239Z   UV_CACHE_DIR: /home/runner/work/_temp/setup-uv-cache
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7156589Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7156990Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib/pkgconfig
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7157622Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7157971Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7158311Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.12/x64
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7158686Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.12/x64/lib
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7158980Z ##[endgroup]
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.7898753Z ##[error]Input required and not supplied: accountId
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.8040618Z Post job cleanup.
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.8841916Z [command]/usr/bin/git version
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.8879173Z git version 2.53.0
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.8919874Z Temporarily overriding HOME='/home/runner/work/_temp/b36bc69e-c616-4d2f-b230-82be34ebaf8b' before making global git config changes
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.8921229Z Adding repository directory to the temporary git global config as a safe directory
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.8926774Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/arifOS/arifOS
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.8958318Z Removing SSH command configuration
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.8965089Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9001409Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9247023Z Removing HTTP extra header
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9251844Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9285660Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9523486Z Removing includeIf entries pointing to credentials config files
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9529977Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9554108Z includeif.gitdir:/home/runner/work/arifOS/arifOS/.git.path
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9554860Z includeif.gitdir:/home/runner/work/arifOS/arifOS/.git/worktrees/*.path
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9555454Z includeif.gitdir:/github/workspace/.git.path
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9555801Z includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9566259Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/arifOS/arifOS/.git.path
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9589600Z /home/runner/work/_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9601300Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/arifOS/arifOS/.git.path /home/runner/work/_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9636800Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/home/runner/work/arifOS/arifOS/.git/worktrees/*.path
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9659990Z /home/runner/work/_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9669543Z [command]/usr/bin/git config --local --unset includeif.gitdir:/home/runner/work/arifOS/arifOS/.git/worktrees/*.path /home/runner/work/_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9701862Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git.path
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9723748Z /github/runner_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9732378Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git.path /github/runner_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9765128Z [command]/usr/bin/git config --local --get-all includeif.gitdir:/github/workspace/.git/worktrees/*.path
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9787023Z /github/runner_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9797536Z [command]/usr/bin/git config --local --unset includeif.gitdir:/github/workspace/.git/worktrees/*.path /github/runner_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:04.9831632Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:05.0065744Z Removing credentials config '/home/runner/work/_temp/git-credentials-dabc6e54-7967-4824-9fa4-6b8a9f7a40ad.config'
+Build & Deploy Constitutional Dashboard	UNKNOWN STEP	2026-02-28T03:57:05.0188605Z Cleaning up orphan processes
