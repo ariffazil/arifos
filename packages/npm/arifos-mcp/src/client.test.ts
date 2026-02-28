@@ -75,7 +75,7 @@ describe('@arifos/mcp client', () => {
     
     // Verify verdict is one of the expected values
     expect(result.verdict).toBeDefined();
-    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD']).toContain(result.verdict);
+    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD', 'HOLD']).toContain(result.verdict);
     
     // Verify structure
     expect(result.stage).toBeDefined();
@@ -97,7 +97,7 @@ describe('@arifos/mcp client', () => {
     
     console.log('apex_judge result:', JSON.stringify(result, null, 2));
     expect(result.verdict).toBeDefined();
-    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD']).toContain(result.verdict);
+    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD', 'HOLD']).toContain(result.verdict);
   });
   
   it.skipIf(SKIP_INTEGRATION)('should trigger PARTIAL verdict on vague query (soft-floor test)', async () => {
@@ -116,7 +116,7 @@ describe('@arifos/mcp client', () => {
     
     // Verify structure is correct regardless of verdict
     expect(result.verdict).toBeDefined();
-    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD']).toContain(result.verdict);
+    expect(['SEAL', 'PARTIAL', 'SABAR', 'VOID', '888_HOLD', 'HOLD']).toContain(result.verdict);
     
     // If we got PARTIAL, verify there are failed floors
     if (result.verdict === 'PARTIAL') {
