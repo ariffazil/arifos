@@ -56,6 +56,19 @@
     "**/.venv": true
   },
 
+  // Ignore heavy folders like .venv from watchers and search to prevent crashes
+  "files.watcherExclude": {
+    "**/.venv/**": true,
+    "**/.git/objects/**": true,
+    "**/.git/subtree-cache/**": true,
+    "**/node_modules/**": true,
+    "**/__pycache__/**": true
+  },
+  "search.exclude": {
+    "**/.venv": true,
+    "**/*.pyc": true
+  },
+
   // -- TERMINAL --
   // Use PowerShell on Windows (works better with arifOS)
   "terminal.integrated.defaultProfile.windows": "PowerShell",
