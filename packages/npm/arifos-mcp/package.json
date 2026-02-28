@@ -1,6 +1,6 @@
 {
   "name": "@arifos/mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "arifOS MCP Client — TypeScript types and minimal client for Constitutional AI Governance (L2 Skills Adapter)",
   "keywords": [
     "mcp",
@@ -24,23 +24,23 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
     "./types": {
-      "import": "./dist/types.js",
-      "require": "./dist/types.cjs",
+      "import": "./dist/types.mjs",
+      "require": "./dist/types.js",
       "types": "./dist/types.d.ts"
     },
     "./client": {
-      "import": "./dist/client.js",
-      "require": "./dist/client.cjs",
+      "import": "./dist/client.mjs",
+      "require": "./dist/client.js",
       "types": "./dist/client.d.ts"
     },
     "./langchain": {
-      "import": "./dist/langchain.js",
-      "require": "./dist/langchain.cjs",
+      "import": "./dist/langchain.mjs",
+      "require": "./dist/langchain.js",
       "types": "./dist/langchain.d.ts"
     }
   },
