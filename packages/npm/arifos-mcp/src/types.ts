@@ -33,10 +33,19 @@ export interface VerdictEnvelope {
   verdict: Verdict;
   stage: Stage;
   session_id: string;
-  floors: FloorResult[];
-  truth?: TruthClaim;
+  floors: {
+    passed: FloorCode[];
+    failed: FloorCode[];
+  };
+  truth?: {
+    score: number | null;
+    threshold: number | null;
+    drivers: string[];
+  };
   next_actions?: string[];
+  sabar_requirements?: any;
   governance_token?: string;  // HMAC-SHA256 signed by apex_judge
+  payload?: any;
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -114,14 +123,19 @@ export interface FloorResult {
  */
 export type Stage =
   | '000_INIT'           // Airlock: Session ignition, injection defense
+  | '111-444'           // Broad range for AGI reasoning
   | '111_SENSE'          // AGI: Perception grounding
   | '222_REASON'         // AGI: Hypothesis generation
   | '333_MIND'           // AGI: Causal tracing
   | '444_PHOENIX'        // Subconscious: Memory recall (EUREKA sieve)
+  | '555_RECALL'         // Subconscious: Actual string returned by server
+  | '555-666'           // ASI: Broad range for Empathy
   | '555_HEART'          // ASI: Stakeholder impact analysis
   | '666_CRITIQUE'       // ASI: Self-critique, bias detection
+  | '777-888'           // SOUL: Synthesis range
   | '777_FORGE'          // Actuator: Sandboxed execution
   | '888_APEX'           // Soul: Sovereign judgment
+  | '888_FORGE'          // Soul: Actual string for actuator
   | '999_VAULT';         // Memory: Immutable ledger commit
 
 /**
@@ -137,14 +151,19 @@ export interface StageMeta {
 
 export const STAGE_METADATA: Record<Stage, StageMeta> = {
   '000_INIT': { stage: '000_INIT', name: 'INIT', organ: 'INIT', trinity: '-', description: 'Session ignition & injection defense' },
+  '111-444': { stage: '111-444', name: 'AGI_MIND', organ: 'AGI', trinity: 'Δ', description: 'Composite AGI reasoning range' },
   '111_SENSE': { stage: '111_SENSE', name: 'SENSE', organ: 'AGI', trinity: 'Δ', description: 'Perception grounding' },
   '222_REASON': { stage: '222_REASON', name: 'REASON', organ: 'AGI', trinity: 'Δ', description: 'Hypothesis generation' },
   '333_MIND': { stage: '333_MIND', name: 'MIND', organ: 'AGI', trinity: 'Δ', description: 'Causal tracing' },
   '444_PHOENIX': { stage: '444_PHOENIX', name: 'PHOENIX', organ: 'PHOENIX', trinity: '-', description: 'Memory recall via EUREKA sieve' },
+  '555_RECALL': { stage: '555_RECALL', name: 'RECALL', organ: 'PHOENIX', trinity: '-', description: 'Associative memory retrieval' },
+  '555-666': { stage: '555-666', name: 'ASI_HEART', organ: 'ASI', trinity: 'Ω', description: 'Composite ASI alignment range' },
   '555_HEART': { stage: '555_HEART', name: 'HEART', organ: 'ASI', trinity: 'Ω', description: 'Stakeholder impact analysis' },
   '666_CRITIQUE': { stage: '666_CRITIQUE', name: 'CRITIQUE', organ: 'ASI', trinity: 'Ω', description: 'Self-critique & bias detection' },
+  '777-888': { stage: '777-888', name: 'APEX_SOUL', organ: 'APEX', trinity: 'Ψ', description: 'Composite Sovereign judgment range' },
   '777_FORGE': { stage: '777_FORGE', name: 'FORGE', organ: 'FORGE', trinity: '-', description: 'Sandboxed execution' },
   '888_APEX': { stage: '888_APEX', name: 'APEX', organ: 'APEX', trinity: 'Ψ', description: 'Sovereign judgment' },
+  '888_FORGE': { stage: '888_FORGE', name: 'FORGE', organ: 'FORGE', trinity: '-', description: 'World interaction actuator' },
   '999_VAULT': { stage: '999_VAULT', name: 'VAULT', organ: 'VAULT', trinity: '-', description: 'Immutable ledger commit' },
 };
 
@@ -197,7 +216,10 @@ export interface ArifOSMetadata {
   version: string;
   stage: Stage;
   verdict: Verdict;
-  floors_evaluated: FloorCode[];
+  floors: {
+    passed: FloorCode[];
+    failed: FloorCode[];
+  };
   timestamp: string;
   governance_token?: string;
 }
