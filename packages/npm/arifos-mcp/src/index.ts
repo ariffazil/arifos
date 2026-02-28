@@ -69,7 +69,7 @@ export {
  * Package version.
  * Follows arifOS versioning: 0.1.0 maps to arifos 2026.2.17 (PyPI)
  */
-export const VERSION = '0.1.1';
+export const VERSION = '0.1.2';
 
 /**
  * Compatible arifOS PyPI versions.
