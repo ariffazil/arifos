@@ -10,7 +10,9 @@ description: arifOS is a constitutional intelligence kernel with canonical AAA M
 
 *The system that knows because it admits what it cannot know.*
 
-If you're new here, think of arifOS as a **"lie detector and safety firewall"** for AI. It acts as a **Constitutional Kernel**—meaning it loads a strict set of ethical rules (the 13 Floors) into an AI before it's allowed to take any actions or talk to users.
+If you're new here, think of arifOS as a **constitutional safety system** for AI. It acts as a **Constitutional Kernel**—meaning it loads a strict set of ethical rules (the 13 Floors) into an AI before it's allowed to take any actions or talk to users.
+
+> **F7 Humility Notice:** arifOS minimizes hallucination and unsafe actions via F2 Truth (τ≥0.99) and F4 Clarity constraints. It does not guarantee perfect detection—see [known limitations](./governance#limitations).
 
 *For experts: arifOS governs AI cognition by loading an entire runtime environment (000->999) between LLMs and real-world tools, featuring thermodynamic grounding via the Eureka-Atlas Embedding Engine.*
 
@@ -43,7 +45,7 @@ F --> G[999: Commit - Seal Immutable Record]
 | **333 Axioms** | `reasoning_constraints` | Heuristics for AGI logic grounding. |
 | **APEX Dials** | `decision_parameters` | Configurable thresholds for verdict synthesis. |
 | **Eureka Forge** | `action_actuator` | The sandboxed execution environment. |
-| **Vault999** | `immutable_ledger` | The hash-chained decision database. |
+| **Vault999** | `tamper_evident_ledger` | Hash-chained decision database with application-level integrity. Does not protect against root compromise or key theft—see [threat model](./governance#vault-security). |
 
 ## Canonical runtime
 
