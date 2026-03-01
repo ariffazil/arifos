@@ -11,6 +11,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 from ...core.kernel import kernel
+from .._utils import serialize_floor_concerns
 
 if TYPE_CHECKING:
     from fastmcp import Context
@@ -75,15 +76,7 @@ async def _reason_with_sampling(
             "sampling_mode": True,
             "recommendation": result.recommendation,
             "status": "metabolized",
-            "floor_concerns": [
-                {
-                    "floor_id": fc.floor_id,
-                    "passed": fc.passed,
-                    "score": fc.score,
-                    "reason": fc.reason,
-                }
-                for fc in result.floor_concerns
-            ],
+            "floor_concerns": serialize_floor_concerns(result.floor_concerns),
         }
     except Exception:
         return await _reason_with_kernel(session_id, hypothesis, evidence)
