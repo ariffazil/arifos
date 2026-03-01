@@ -1,6 +1,7 @@
 # ── arifOS AAA MCP — Production Compose ──────────────────────────
 # ONE service, ONE port, ONE process.
 # FastMCP streamable-HTTP on 8080 with REST custom routes.
+# Connected to all VPS compartments: qdrant, ollama, openclaw, agent-zero
 # ─────────────────────────────────────────────────────────────────
 
 services:
@@ -19,6 +20,11 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
+      # VPS compartment connections
+      QDRANT_URL: http://10.0.0.5:6333
+      OLLAMA_URL: http://10.0.4.2:11434
+      OPENCLAW_URL: http://10.0.1.2:18789
+      AGENT_ZERO_URL: http://10.0.2.3:80
     healthcheck:
       test: ["CMD", "curl", "-fsS", "--max-time", "3", "http://localhost:8080/health"]
       interval: 15s
@@ -43,10 +49,19 @@ services:
       - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
     networks:
       - coolify
+      - ai-net
+      - trinity_network
+      - bridge
 
 networks:
   coolify:
     external: true
+  ai-net:
+    external: true
+  trinity_network:
+    external: true
+  bridge:
+    driver: bridge
 
 volumes:
   arifos_data:
