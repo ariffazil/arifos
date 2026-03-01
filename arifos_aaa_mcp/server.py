@@ -17,7 +17,6 @@ from typing import Any
 
 from fastmcp import FastMCP
 
-from aaa_mcp import server as legacy
 from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.protocol.public_surface import (
     PUBLIC_CANONICAL_TOOLS,
@@ -583,21 +582,9 @@ async def check_vital(
 
 
 def create_aaa_mcp_server() -> Any:
-    # ABI version guard: prevent silent half-upgrades between transport and kernel layers.
-    try:
-        from aaa_mcp.server import MANIFEST_VERSION as inner_version  # type: ignore[attr-defined]
-
-        if inner_version != MANIFEST_VERSION:
-            import sys
-
-            print(
-                f"[arifOS] MANIFEST_VERSION MISMATCH: "
-                f"aaa_mcp={inner_version} vs arifos_aaa_mcp={MANIFEST_VERSION}. "
-                "Restart the server after updating both layers.",
-                file=sys.stderr,
-            )
-    except ImportError:
-        pass  # aaa_mcp not installed — ignore guard in test isolation
+    """Create and return the canonical AAA MCP server instance."""
+    # Note: MANIFEST_VERSION is imported from aaa_mcp.protocol.aaa_contract
+    # which is the shared source of truth (not circular).
     return mcp
 
 
@@ -660,6 +647,80 @@ def aaa_chain_prompt(query: str, actor_id: str = "user") -> str:
     )
 
 
+@mcp.prompt(
+    name="arifos_governance_brief",
+    description="Reusable prompt: arifOS governance constraints and usage.",
+)
+def arifos_governance_brief_prompt() -> str:
+    return (
+        "You are operating under arifOS constitutional governance.\n"
+        "Use tools for actions; prefer reversible steps; avoid secrets leakage.\n"
+        "If an operation is high-stakes or irreversible, request explicit human approval.\n"
+    )
+
+
+@mcp.prompt(name="arifos.prompt.trinity_forge")
+def prompt_trinity_forge(query: str, actor_id: str = "user", mode: str = "conscience") -> str:
+    return (
+        "Use trinity_forge for full constitutional orchestration with session continuity.\n"
+        "Stage spine: 000 -> 222 -> 333 -> 444 -> 666 -> 888 -> 999.\n"
+        "Require truthful grounding; fail closed on F2/F11/F12 with remediation.\n"
+        '{"name":"trinity_forge","arguments":{"query":%r,"actor_id":%r,"mode":%r}}'
+        % (query, actor_id, mode)
+    )
+
+
+@mcp.prompt(name="arifos.prompt.anchor_reason")
+def prompt_anchor_reason(query: str, actor_id: str = "user") -> str:
+    return (
+        "Run two-step constitutional flow with explicit session continuity.\n"
+        "1) anchor/init_session to obtain session_id.\n"
+        "2) reason/agi_cognition using same session_id.\n"
+        "If VOID on F11: request auth_token or corrected actor_id.\n"
+        "If VOID on F2: request external evidence before retry.\n"
+        "Input query: %s\nActor: %s" % (query, actor_id)
+    )
+
+
+@mcp.prompt(name="arifos.prompt.audit_then_seal")
+def prompt_audit_then_seal(session_id: str, summary: str, proposed_verdict: str = "SEAL") -> str:
+    return (
+        "Finalize governed decision in two steps.\n"
+        "1) apex_verdict/audit with session_id and explicit proposed_verdict.\n"
+        "2) vault_seal with same session_id and immutable summary.\n"
+        "If verdict is 888_HOLD, stop and request human ratification before seal.\n"
+        "session_id=%s; proposed_verdict=%s; summary=%s" % (session_id, proposed_verdict, summary)
+    )
+
+
+@mcp.resource(
+    "arifos://templates/full-context-v2",
+    name="arifos_full_context_template_v2",
+    mime_type="application/json",
+    description="Extended full-context template with governance brief.",
+)
+def full_context_template_v2() -> dict[str, Any]:
+    return {
+        "template_id": "arifos.full_context.v2",
+        "schema_version": "2026.3.1",
+        "stage_spine": ["000", "222", "333", "444", "666", "888", "999"],
+        "entrypoint": "anchor_session",
+        "continuity": {
+            "required_after_entry": ["session_id"],
+            "recommended": ["actor_id", "auth_token"],
+        },
+        "resources": [
+            PUBLIC_RESOURCE_URIS["full_context_pack"],
+            PUBLIC_RESOURCE_URIS["schemas"],
+        ],
+        "prompts": [
+            PUBLIC_PROMPT_NAMES["aaa_chain"],
+            "arifos_governance_brief",
+            "arifos.prompt.trinity_forge",
+        ],
+    }
+
+
 # ── REST routes (custom HTTP endpoints alongside MCP at /mcp) ──────────
 # Registered here so they're available when mcp.run(transport="http") creates
 # the Starlette app.  Each route is added via mcp.custom_route() which appends
@@ -691,4 +752,9 @@ __all__ = [
     "aaa_tool_schemas",
     "aaa_full_context_pack",
     "aaa_chain_prompt",
+    "arifos_governance_brief_prompt",
+    "prompt_trinity_forge",
+    "prompt_anchor_reason",
+    "prompt_audit_then_seal",
+    "full_context_template_v2",
 ]

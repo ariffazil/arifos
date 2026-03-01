@@ -1,0 +1,27 @@
+{
+  "session_id": "G-KIMI-MCP-CONFIG-01",
+  "timestamp": "2026-03-01T00:50:00+00:00",
+  "verdict": "SEAL",
+  "agent": "OpenCode",
+  "handoff_from": "Kimi Code",
+  "action": "KIMI_MCP_CONFIGURATION",
+  "files_created": [
+    "~/.kimi/mcp.json",
+    "~/.config/agents/skills/arifos-governance/SKILL.md",
+    "/root/arifOS/vault/VAULT999-G-KIMI-MCP-CONFIG-01.md"
+  ],
+  "mcp_servers_configured": [
+    {"name": "arifos-aaa", "transport": "http", "url": "https://arifosmcp.arif-fazil.com/mcp"},
+    {"name": "codegraphcontext", "transport": "stdio", "command": "/root/.local/share/opencode/mcp-venvs/codegraphcontext/bin/cgc mcp start"},
+    {"name": "context7", "transport": "http", "url": "https://mcp.context7.com/mcp", "auth": "from ~/.env.master"},
+    {"name": "docker-mcp", "transport": "stdio", "command": "npx -y docker-mcp"},
+    {"name": "jina-reader", "transport": "http", "url": "https://mcp.jina.ai/v1", "auth": "from ~/.env.master"}
+  ],
+  "env_source": "/root/XXX/.env.master",
+  "constraints": [
+    "All tool MCPs must route through arifOS",
+    "Destructive operations require Amanah token",
+    "VAULT999 is append-only"
+  ],
+  "chain": ["G-AAA-SEAL-01", "G-KIMI-MCP-CONFIG-01"]
+}
