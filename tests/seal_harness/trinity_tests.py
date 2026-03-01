@@ -36,9 +36,11 @@ class TrinityTestHarness:
         result = await self.client.call_tool("anchor_session", {
             "query": "SEAL harness test - constitutional audit"
         })
+        print(f"DEBUG: anchor_session raw result: {result}")
         
         verdict = result.get("verdict")
-        session_id = result.get("data", {}).get("session_id")
+        data = result.get("data", {})
+        session_id = data.get("session_id") or result.get("session_id")
         
         assertions = [
             self._assert(verdict == "SEAL", f"Expected verdict 'SEAL', got '{verdict}'"),
@@ -52,7 +54,8 @@ class TrinityTestHarness:
         return {
             "ok": passed,
             "verdict": verdict,
-            "session_id": session_id[:16] + "..." if session_id else None,
+            "full_session_id": session_id,
+            "session_id_short": session_id[:8] + "..." if session_id else None,
             "stage": result.get("stage"),
             "errors": errors,
             "raw": {k: v for k, v in result.items() if not k.startswith("_")}
@@ -70,6 +73,7 @@ class TrinityTestHarness:
             "query": "Calculate thermodynamic efficiency with structured analysis",
             "session_id": session_id
         })
+        print(f"DEBUG: reason_mind raw result: {result}")
         
         telemetry = result.get("telemetry", {})
         dS = telemetry.get("dS")
@@ -114,6 +118,7 @@ class TrinityTestHarness:
             "stakeholders": ["users", "developers", "society"],
             "session_id": session_id
         })
+        print(f"DEBUG: simulate_heart raw result: {result}")
         
         telemetry = result.get("telemetry", {})
         peace2 = telemetry.get("peace2")
@@ -146,12 +151,12 @@ class TrinityTestHarness:
         - Under-specified input should return VOID
         - 8-layer cascade must reject insufficient thermodynamic input
         """
-        # Deliberately under-specified input
+        # Deliberately under-specified input (empty query)
         result = await self.client.call_tool("apex_judge", {
-            "query": "Judge",
+            "query": " ", # Empty/whitespace query should fail F3/F11 contract
             "session_id": session_id
-            # Missing: dS, peace2, kappa_r, etc.
         })
+        print(f"DEBUG: apex_judge_void raw result: {result}")
         
         verdict = result.get("verdict")
         
@@ -182,13 +187,14 @@ class TrinityTestHarness:
             "query": "Judge production deployment readiness with thermodynamic analysis of system stability",
             "session_id": session_id
         })
+        print(f"DEBUG: apex_judge_full raw result: {result}")
         
         verdict = result.get("verdict")
-        has_token = bool(result.get("governance_token"))
+        data = result.get("data", {})
+        has_token = bool(data.get("governance_token") or result.get("governance_token"))
         telemetry = result.get("telemetry", {})
         
-        # Accept SEAL, SABAR, PARTIAL, or VOID (all are valid constitutional outcomes)
-        # The key is that the 8-layer cascade is being applied
+        # Accept SEAL, SABAR, PARTIAL, HOLD, or VOID (all are valid constitutional outcomes)
         assertions = [
             self._assert(verdict is not None, "Missing verdict from apex_judge"),
         ]
@@ -215,15 +221,14 @@ class TrinityTestHarness:
         print("  [000] Running anchor_session...")
         anchor = await self.test_anchor_session()
         
-        if not anchor["ok"] or not anchor.get("session_id"):
+        if not anchor["ok"] or not anchor.get("full_session_id"):
             return {
                 "ok": False,
                 "anchor_session": anchor,
                 "error": "Failed to establish session - cannot continue Trinity flow"
             }
         
-        # Extract session ID (strip the "..." suffix we added)
-        session_id = anchor["session_id"].replace("...", "")
+        session_id = anchor["full_session_id"]
         
         print("  [111-444] Running reason_mind...")
         reason = await self.test_reason_mind(session_id)

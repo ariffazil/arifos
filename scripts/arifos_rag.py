@@ -19,11 +19,13 @@ API Endpoints (via FastAPI):
 """
 
 import os
-from typing import Optional
+import re
+import uuid
+from typing import Optional, Any
 from dataclasses import dataclass
 
 from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue
+from qdrant_client.models import Filter, FieldCondition, MatchValue, PointStruct
 from sentence_transformers import SentenceTransformer
 
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
@@ -66,13 +68,37 @@ class ConstitutionalRAG:
         self.model = SentenceTransformer(embedding_model)
         self.model_name = embedding_model
 
+    def _jaccard_similarity(self, query: str, document: str) -> float:
+        """
+        Simple Jaccard similarity between two strings based on lowercase word tokens.
+        """
+        def get_tokens(text: str) -> set[str]:
+            tokens = re.findall(r'\w+', text.lower())
+            return set(tokens)
+
+        query_tokens = get_tokens(query)
+        doc_tokens = get_tokens(document)
+        
+        if not query_tokens and not doc_tokens:
+            return 1.0
+        if not query_tokens or not doc_tokens:
+            return 0.0
+            
+        intersection = len(query_tokens.intersection(doc_tokens))
+        union = len(query_tokens.union(doc_tokens))
+        return intersection / union
+
     def retrieve(
         self,
         query: str,
         top_k: int = DEFAULT_TOP_K,
         source_filter: Optional[str] = None,
         min_score: float = 0.0,
+        hybrid_alpha: float = 0.3, # Weight for Jaccard (0.0 = embeddings only)
     ) -> list[RetrievedContext]:
+        """
+        Hybrid retrieval: Jaccard (Tokens) + Cosine (Embeddings).
+        """
         embedding = self.model.encode(query, normalize_embeddings=True)
 
         query_filter = None
@@ -81,28 +107,86 @@ class ConstitutionalRAG:
                 must=[FieldCondition(key="source", match=MatchValue(value=source_filter))]
             )
 
-        results = self.client.query_points(
-            collection_name=self.collection,
-            query=embedding.tolist(),
-            query_filter=query_filter,
-            limit=top_k,
-            score_threshold=min_score,
-            with_payload=True,
-        )
+        # We query more than top_k to allow reranking by Jaccard
+        try:
+            results = self.client.query_points(
+                collection_name=self.collection,
+                query=embedding.tolist(),
+                query_filter=query_filter,
+                limit=top_k * 2, # Oversample for reranking
+                score_threshold=min_score,
+                with_payload=True,
+            )
+        except Exception as e:
+            print(f"RAG Retrieval Error: {e}")
+            return []
 
         contexts = []
         for point in results.points:
             payload = point.payload or {}
+            content = payload.get("content", "")
+            
+            # Compute Jaccard
+            jaccard = self._jaccard_similarity(query, content)
+            
+            # Combine scores
+            # Cosine similarity from Qdrant is in [0, 1] for normalized embeddings
+            cosine = point.score
+            hybrid_score = (hybrid_alpha * jaccard) + ((1 - hybrid_alpha) * cosine)
+            
             ctx = RetrievedContext(
                 source=payload.get("source", "unknown"),
                 path=payload.get("path", "unknown"),
-                content=payload.get("content", ""),
-                score=point.score,
-                metadata=payload.get("metadata", {}),
+                content=content,
+                score=hybrid_score,
+                metadata={
+                    **(payload.get("metadata", {})),
+                    "cosine_score": cosine,
+                    "jaccard_score": jaccard
+                },
             )
             contexts.append(ctx)
 
-        return contexts
+        # Sort by hybrid score and return top_k
+        contexts.sort(key=lambda x: x.score, reverse=True)
+        return contexts[:top_k]
+
+    def index_memory(
+        self,
+        session_id: str,
+        content: str,
+        source: str = "session_history",
+        metadata: dict | None = None,
+    ) -> bool:
+        """
+        Index a new memory into the constitutional RAG.
+        """
+        try:
+            embedding = self.model.encode(content, normalize_embeddings=True)
+            
+            point_id = str(uuid.uuid4())
+            payload = {
+                "source": source,
+                "path": session_id,
+                "content": content,
+                "metadata": metadata or {},
+                "timestamp": datetime.now().isoformat() if 'datetime' in globals() else "",
+            }
+            
+            self.client.upsert(
+                collection_name=self.collection,
+                points=[
+                    PointStruct(
+                        id=point_id,
+                        vector=embedding.tolist(),
+                        payload=payload
+                    )
+                ]
+            )
+            return True
+        except Exception as e:
+            print(f"Error indexing memory: {e}")
+            return False
 
     def retrieve_as_text(
         self,
@@ -191,6 +275,9 @@ Answer based on the context above, citing sources when appropriate."""
                 "embedding_model": self.model_name,
             }
 
+
+# Add datetime import for index_memory
+from datetime import datetime
 
 rag = ConstitutionalRAG()
 
