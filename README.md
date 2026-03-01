@@ -60,7 +60,7 @@ flowchart LR
 | ⚖️ **Law** | [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md) | **The Constitution:** The mathematical thresholds for the 13 Floors. |
 | 🛡️ **Defense** | [`SECURITY.md`](SECURITY.md) | **The Firewall:** Injection handling, Auth models, and Threat vectors. |
 | 🧰 **Tools** | [`MCP_TOOLS.md`](MCP_TOOLS.md) | **The Surface:** The 13 canonical tools bridging the LLM to the Kernel. |
-| 🚀 **Deploy** | [`DEPLOYMENT.md`](DEPLOYMENT.md) | **The Vanguard:** VPS setups, Docker, and Streamable HTTP scaling. |
+| 🚀 **Deploy** | [`DEPLOYMENT.md`](docs/60_REFERENCE/DEPLOYMENT.md) | **The Vanguard:** VPS setups, Docker, and Streamable HTTP scaling. |
 
 ---
 
@@ -276,7 +276,7 @@ Instead of two-channel SSE, arifOS uses the modern **Streamable HTTP** standard 
 ```bash
 HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
 ```
-*For complete VPS, Nginx, Docker, and Cloudflare scaling instructions, see [`DEPLOYMENT.md`](DEPLOYMENT.md).*
+*For complete VPS, Nginx, Docker, and Cloudflare scaling instructions, see [`DEPLOYMENT.md`](docs/60_REFERENCE/DEPLOYMENT.md).*
 
 ---
 
