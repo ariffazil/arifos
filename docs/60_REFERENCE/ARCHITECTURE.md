@@ -173,7 +173,7 @@ All defined in `aaa_mcp/server.py` with `@mcp.tool()` decorators. Backend logic 
 
 | Tool | Lane | Stage | Floors | Purpose |
 |------|------|-------|--------|---------|
-| `search_reality` | Delta | 111 | F2, F4, F12 | Web grounding (Perplexity/Brave) |
+| `search_reality` | Delta | 111 | F2, F4, F12 | Web grounding (Jina Reader primary → Perplexity → Brave) |
 | `fetch_content` | Delta | 444 | F2, F4, F12 | URL content retrieval + taint lineage |
 | `inspect_file` | Delta | 111 | F1, F4, F11 | Filesystem read-only inspection |
 | `audit_rules` | Delta | 333 | F2, F8, F10 | Governance rule audits |
@@ -329,9 +329,10 @@ aaa_mcp/
  |   |-- injection_guard.py        F12 preprocessing
  |   `-- ontology_guard.py         F10 postprocessing
  |
- |-- external_gateways/            Web search integrations
- |   |-- brave_client.py           Brave Search API
- |   `-- perplexity_client.py      Perplexity API (preferred)
+ |-- external_gateways/            Web search & content extraction
+ |   |-- jina_reader_client.py     Jina Reader API (PRIMARY — clean Markdown)
+ |   |-- perplexity_client.py      Perplexity API (fallback)
+ |   `-- brave_client.py           Brave Search API (fallback)
  |
  |-- sessions/                     Session management
  |   |-- session_ledger.py         VAULT999 Merkle-chained audit trail
@@ -488,8 +489,9 @@ docker-compose up -d                               # Traefik + Coolify routing
 | `AAA_MCP_OUTPUT_MODE` | `user` | Output mode (user/debug) |
 | `ARIFOS_PHYSICS_DISABLED` | `0` | Disable thermodynamic calcs |
 | `ARIFOS_GOVERNANCE_SECRET` | (random) | HMAC key for governance tokens |
-| `PPLX_API_KEY` | - | Perplexity search |
-| `BRAVE_API_KEY` | - | Brave search fallback |
+| `JINA_API_KEY` | - | Jina Reader (primary search/content) |
+| `PPLX_API_KEY` | - | Perplexity search (fallback) |
+| `BRAVE_API_KEY` | - | Brave search (fallback) |
 | `VAULT999_DSN` | - | PostgreSQL connection string |
 | `REDIS_URL` | - | Redis session cache |
 

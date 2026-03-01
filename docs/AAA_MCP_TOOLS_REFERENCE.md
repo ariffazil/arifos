@@ -1,10 +1,11 @@
 # arifOS AAA MCP Tools — Complete Reference
 
-**Version:** 2026.2.27  
+**Version:** 2026.3.1-jina  
 **Authority:** ARIF FAZIL (888 Judge)  
-**Total Tools:** 13  
+**Total Tools:** 13 (+ 1 unified)  
 **Protocol:** MCP 2025-11-25 (JSON-RPC 2.0)  
-**Endpoint:** https://arifosmcp.arif-fazil.com/mcp
+**Endpoint:** https://arifosmcp.arif-fazil.com/mcp  
+**Last Updated:** 2026-03-01 — Jina Reader Integration
 
 ---
 
@@ -20,7 +21,7 @@
 | 6 | `apex_judge` | 888 APEX JUDGE | Governance | Constitutional verdict |
 | 7 | `eureka_forge` | 777 EUREKA FORGE | Governance | Execute with sovereign gates |
 | 8 | `seal_vault` | 999 SEAL | Governance | Commit to immutable ledger |
-| 9 | `search_reality` | External | Utility | Web evidence discovery |
+| 9 | `search_reality` | External | Utility | Web evidence discovery (Jina Reader primary) |
 | 10 | `fetch_content` | External | Utility | Fetch raw content |
 | 11 | `inspect_file` | External | Utility | Filesystem inspection |
 | 12 | `audit_rules` | External | Utility | Rule compliance check |
@@ -363,11 +364,18 @@
 
 ### 9. `search_reality` — External Evidence
 
-**Purpose:** Web evidence discovery (read-only)
+**Purpose:** Web evidence discovery with clean Markdown extraction (read-only)
+
+**Backend Priority:**
+1. **Jina Reader** (PRIMARY) — Clean Markdown extraction, superior content quality
+2. Perplexity AI (fallback)
+3. Brave Search (fallback)
+4. Local knowledge base (final fallback)
 
 **Parameters:**
 - `query` (str): Search query
-- `max_results` (int, optional): Result limit
+- `intent` (str, optional): Search intent (`research`, `news`, `general`)
+- `max_results` (int, optional): Result limit (default: 5)
 
 **Returns:**
 ```json
@@ -375,32 +383,47 @@
   "verdict": "SEAL",
   "tool": "search_reality",
   "data": {
+    "query": "quantum computing advances 2025",
     "results": [
       {
-        "title": "...",
-        "url": "...",
-        "snippet": "...",
-        "source": "perplexity|brave"
+        "title": "Quantum Computing Breakthrough 2025",
+        "url": "https://example.com/article",
+        "description": "Summary...",
+        "content": "Full Markdown content..."
       }
     ],
-    "sources": ["Perplexity AI", "Brave Search"]
+    "intent": "research",
+    "status": "OK"
   }
 }
 ```
 
-**API Keys:**
-- Primary: `PPLX_API_KEY` or `PERPLEXITY_API_KEY`
+**API Keys (Optional but recommended for higher rate limits):**
+- **Primary:** `JINA_API_KEY` — https://jina.ai (free tier: 10M tokens)
+- Fallback: `PERPLEXITY_API_KEY` or `PPLX_API_KEY`
 - Fallback: `BRAVE_API_KEY`
+
+**Constitutional Protection:**
+- **F2 Truth:** All results include evidence URLs
+- **F4 Clarity:** Jina extracts clean Markdown (vs raw HTML noise)
+- **F12 Defense:** External content marked as untrusted
 
 ---
 
 ### 10. `fetch_content` — Content Retrieval
 
-**Purpose:** Fetch raw evidence content (read-only)
+**Purpose:** Fetch clean Markdown content from URLs with F12 Defense (read-only)
+
+**Backend Priority:**
+1. **Jina Reader** (PRIMARY) — Extracts clean Markdown from any URL
+2. Playwright/Chromium (fallback for dynamic content)
+3. Direct HTTP (fallback)
 
 **Parameters:**
 - `url` (str): URL to fetch
-- `format` (str, optional): Response format
+- `max_chars` (int, optional): Maximum characters to return (default: 8000)
+- `with_images` (bool, optional): Include image extraction metadata
+- `with_links` (bool, optional): Include link extraction metadata
 
 **Returns:**
 ```json
@@ -408,12 +431,29 @@
   "verdict": "SEAL",
   "tool": "fetch_content",
   "data": {
-    "content": "...",
-    "content_type": "text/html",
-    "status_code": 200
+    "url": "https://example.com/article",
+    "title": "Article Title",
+    "content": "<untrusted_external_data>\n[F12 DEFENSE: UNTRUSTED DATA]\nClean Markdown content...\n</untrusted_external_data>",
+    "status": "OK",
+    "truncated": false,
+    "char_count": 5420,
+    "taint_lineage": {
+      "taint": true,
+      "source_type": "jina-reader",
+      "source_url": "https://example.com/article",
+      "content_hash": "sha256:..."
+    }
   }
 }
 ```
+
+**API Keys (Optional):**
+- `JINA_API_KEY` — Enables higher rate limits for Jina Reader
+
+**Constitutional Protection:**
+- **F12 Defense:** All external content wrapped in `<untrusted_external_data>` envelope
+- **Taint Lineage:** Cryptographic hash and source tracking for audit trails
+- **Boundary Wrapper:** Prevents prompt injection from fetched content
 
 ---
 

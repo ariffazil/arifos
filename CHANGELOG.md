@@ -5,6 +5,42 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.1-JINA] — 2026-03-01 — JINA-READER-INTEGRATION-SEARCH-REALITY
+
+**T000:** 2026.03.01-JINA-READER-INTEGRATION-SEARCH-REALITY  
+**Theme:** Jina Reader as PRIMARY search backend for superior content extraction and constitutional grounding
+
+### Added
+- **Jina Reader Client** (`aaa_mcp/external_gateways/jina_reader_client.py`):
+  - `JinaReaderClient` class with `search()`, `read_url()`, `search_arxiv()` methods
+  - `JinaReranker` class for semantic relevance-based result sorting
+  - Clean Markdown extraction from URLs via `r.jina.ai`
+  - Web search with extracted content via `s.jina.ai`
+  - F12 Defense: External content wrapped in untrusted envelope with taint lineage
+  - User-Agent header to avoid 403 Forbidden errors
+- **`search_reality` tool enhancement**: Now uses Jina Reader as PRIMARY backend
+  - Superior content extraction vs traditional SERP APIs
+  - Fallback chain: Jina → Perplexity → Brave → Local knowledge
+- **`fetch_content` tool enhancement**: Uses Jina Reader for URL-to-Markdown extraction
+  - Returns clean, LLM-ready Markdown instead of raw HTML
+  - Optional image and link extraction metadata
+- **Environment variable**: `JINA_API_KEY` for higher rate limits (optional but recommended)
+
+### Changed
+- **External Gateways** (`aaa_mcp/external_gateways/__init__.py`): Exports `JinaReaderClient`, `JinaReranker`
+- **Server** (`aaa_mcp/server.py`): `search_reality` and `fetch_content` now prioritize Jina Reader
+- **Dockerfile**: Added embedding model directory setup (preparation for future embedding work)
+- **`.env.docker.example`**: Added `JINA_API_KEY` placeholder
+- **`.gitignore`**: Exclude embedding model files (*.safetensors, *.bin, *.pt, *.pth)
+
+### Constitutional Compliance
+- **F2 Truth**: Multi-source grounding with evidence URLs
+- **F4 Clarity**: Clean Markdown output reduces entropy vs raw HTML
+- **F12 Defense**: Untrusted envelope prevents prompt injection from external content
+- **F7 Humility**: Graceful degradation when API key unavailable (NO_API_KEY status)
+
+---
+
 ## [2026.3.1-FORGE] — 2026-03-01 — VAULT999-UNIFIED-TELEMETRY-TRINITY-FORGE-SEAL
 
 **T000:** 2026.03.01-FORGE-VAULT999-UNIFIED-TELEMETRY-TRINITY  
