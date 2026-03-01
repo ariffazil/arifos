@@ -334,7 +334,7 @@ Output: "888_HOLD triggered. Human sovereign ratification required."
 
 ## Further Reading
 
-- [Trinity & 5 Organs](./trinity-organs) - Detailed organ architecture
+- [Trinity & 5 Organs](/canon/canon-trinity-organs) - Detailed organ architecture
 - [Governance & Floors](../governance) - Constitutional floors reference
 - [000_THEORY/010_TRINITY.md](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/010_TRINITY.md) - Canonical theory
 - [333_APPS/L1_PROMPT/](https://github.com/ariffazil/arifOS/tree/main/333_APPS/L1_PROMPT) - PromptsAsTools implementation

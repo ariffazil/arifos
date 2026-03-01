@@ -143,11 +143,11 @@ Real-world emergence is managed by observing anomalies, measuring their entropy 
 |:--|:--|:--|:--|
 | F1 | Amanah | LOCKED | Reversible? Within mandate? |
 | F2 | Truth | tau >= 0.99 | Factually accurate? |
-| F4 | Clarity (delta-S) | delta-S <= 0 | Reduces confusion? |
+| F4 | Clarity (delta-S) | `delta-S <= 0` | Reduces confusion? |
 | F7 | Humility (Omega-0) | 0.03-0.05 | States uncertainty? |
 | F10 | Ontology | LOCKED | No consciousness/soul claims |
 | F11 | Command Auth | LOCKED | Nonce-verified identity? |
-| F12 | Injection Defense | < 0.85 | Block adversarial control |
+| F12 | Injection Defense | `< 0.85` | Block adversarial control |
 | F13 | Sovereign | HUMAN | Human final authority? |
 
 ### Soft Floors (fail to PARTIAL)
@@ -156,7 +156,7 @@ Real-world emergence is managed by observing anomalies, measuring their entropy 
 |:--|:--|:--|:--|
 | F5 | Peace-squared | >= 1.0 | Non-destructive? |
 | F6 | Empathy (kappa-r) | >= 0.70 | Serves weakest stakeholder? |
-| F9 | Anti-Hantu (C_dark) | < 0.30 | Dark cleverness contained? |
+| F9 | Anti-Hantu (C_dark) | `< 0.30` | Dark cleverness contained? |
 
 ### Mirrors (feedback loops)
 
@@ -295,7 +295,7 @@ Backend priority:
 |:--|:--|:--|
 | >= 0.75 | EUREKA moment | Permanent storage |
 | 0.50-0.75 | SABAR (cooling) | Intermediate ledger |
-| < 0.50 | TRANSIENT | Not stored |
+| `< 0.50` | TRANSIENT | Not stored |
 
 ---
 
