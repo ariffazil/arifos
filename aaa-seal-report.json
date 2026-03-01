@@ -1,25 +1,25 @@
 {
-  "server_endpoint": "https://arifosmcp.arif-fazil.com/mcp",
-  "timestamp": "2026-03-01T00:13:09.338931+00:00",
-  "commit": "b42a1343",
+  "server_endpoint": "http://127.0.0.1:8080/mcp",
+  "timestamp": "2026-03-01T02:53:10.413849+00:00",
+  "commit": "5cbcef05",
   "harness_version": "2026.3.1",
   "trinity": {
     "anchor_session": {
       "ok": true,
       "verdict": "SEAL",
-      "session_id": "anonymous-a5ec41...",
+      "session_id": null,
       "errors": []
     },
     "reason_mind": {
       "ok": true,
-      "verdict": "SABAR",
+      "verdict": "VOID",
       "dS": -0.1,
       "confidence": null,
       "errors": []
     },
     "simulate_heart": {
       "ok": true,
-      "verdict": "SABAR",
+      "verdict": "VOID",
       "peace2": 1.0,
       "errors": []
     },
@@ -32,16 +32,18 @@
     "apex_judge_full": {
       "ok": true,
       "verdict": "VOID",
-      "has_amanah_token": false,
+      "has_amanah_token": true,
       "psi": null,
       "errors": []
     }
   },
   "schema": {
-    "ok": true,
+    "ok": false,
     "added_tools": [],
     "removed_tools": [],
-    "changed_tools": [],
+    "changed_tools": [
+      "seal_vault"
+    ],
     "unauthorized_new_tools": []
   },
   "thermodynamic_summary": {
@@ -49,5 +51,5 @@
     "min_peace2": 1.0,
     "all_confidence_below_1_0": true
   },
-  "verdict": "PASS"
+  "verdict": "FAIL"
 }

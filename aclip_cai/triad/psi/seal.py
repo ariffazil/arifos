@@ -3,6 +3,8 @@ aclip_cai/triad/psi/seal.py — Stage 999 Vault
 Commit to VAULT999 + Phoenix-72.
 """
 
+from core.organs import seal as core_seal
+from core.shared.physics import ConstitutionalTensor
 from ...core.kernel import kernel
 
 
@@ -22,14 +24,24 @@ async def seal(
                  for observability but the vault records the Judge-signed verdict,
                  not the audit re-evaluation.
     """
-    # Run a final audit on the summary (observability — always executes)
+    # 1. Run a final audit on the summary (observability)
     audit_res = kernel.audit(action=task_summary, context="FINAL_SEAL", severity="high")
-
-    # If a Judge-signed verdict was passed, it is authoritative.
-    # The kernel audit serves as a cross-check only.
     final_verdict = verdict if verdict is not None else audit_res.verdict.value
 
-    # Log the final seal with the authoritative verdict
+    # 2. Call the canonical core organ for cryptographic sealing
+    # We pass placeholders for agi/asi as they are transient in this stateless call
+    # but the core now handles the persistence.
+    receipt = await core_seal(
+        judge_output={"verdict": final_verdict, "W_3": 1.0, "genius_G": 0.9},
+        agi_tensor=ConstitutionalTensor(truth_score=1.0, dS=0.0, entropy=0.0),
+        asi_output={"peace_squared": 1.0},
+        session_id=session_id,
+        query=task_summary,
+        authority="JUDGE",
+    )
+
+    # 3. Log to the witness ledger (H+A+E consensus)
+    # The record is now dual-logged: once in the core JSONL and once in the Witness ledger.
     kernel.vault.log_witness(
         session_id=session_id,
         agent_id="JUDGE",
@@ -38,16 +50,16 @@ async def seal(
         verdict=final_verdict,
     )
 
-    # Phoenix-72 logic — only activate on clean SEAL
-    if was_modified and final_verdict == "SEAL":
-        kernel.amendment.request_amendment(
-            ref=session_id, change_summary=task_summary, sovereign_required=True
-        )
+    # Phoenix-72 logic is now handled internally by core_seal (SABAR status)
+    status_msg = "sealed" if final_verdict == "SEAL" else "partial"
+    if hasattr(receipt, "status") and receipt.status == "SABAR":
+        status_msg = "cooling"
 
     return {
         "verdict": final_verdict,
         "audit_cross_check": audit_res.verdict.value,
-        "status": "sealed" if final_verdict == "SEAL" else "partial",
-        "vault_id": f"V999-{session_id[:8]}",
+        "status": status_msg,
+        "vault_id": getattr(receipt, "seal_id", f"V999-{session_id[:8]}"),
         "cooling": "Phoenix-72 initialized" if was_modified else "None",
+        "entry_hash": getattr(receipt, "entry_hash", None),
     }

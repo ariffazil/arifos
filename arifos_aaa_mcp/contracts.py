@@ -22,12 +22,22 @@ REQUIRES_SESSION = {
 TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "anchor_session": {"query": "str", "actor_id": "str"},
     "reason_mind": {"query": "str", "session_id": "str"},
-    "recall_memory": {"current_thought_vector": "str", "session_id": "str"},
+    "recall_memory": {
+        "current_thought_vector": "str",
+        "session_id": "str",
+        "depth": "int",
+        "domain": "str",
+    },
     "simulate_heart": {"query": "str", "session_id": "str"},
     "critique_thought": {"plan": "dict", "session_id": "str"},
     "apex_judge": {"session_id": "str", "query": "str"},
-    "eureka_forge": {"session_id": "str", "command": "str"},
-    "seal_vault": {"session_id": "str", "summary": "str"},
+    "eureka_forge": {
+        "session_id": "str",
+        "command": "str",
+        "agent_id": "str",
+        "purpose": "str",
+    },
+    "seal_vault": {"session_id": "str", "summary": "str", "governance_token": "str"},
     "search_reality": {"query": "str"},
     "fetch_content": {"id": "str"},
     "inspect_file": {"path": "str"},
@@ -62,12 +72,12 @@ def validate_input(tool: str, payload: dict[str, Any]) -> dict[str, Any] | None:
                 "error": f"Missing required field: {key}",
             }
         value = payload[key]
-        if type_name == "str" and not isinstance(value, str):
+        if type_name == "str" and (not isinstance(value, str) or not str(value).strip()):
             return {
                 "verdict": "VOID",
                 "stage": "F3_CONTRACT",
                 "floors_failed": ["F3"],
-                "error": f"Field '{key}' must be string",
+                "error": f"Field '{key}' must be non-empty string",
             }
         if type_name == "dict" and not isinstance(value, dict):
             return {

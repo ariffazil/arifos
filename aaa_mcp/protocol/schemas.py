@@ -201,19 +201,15 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
         "properties": {
             "session_id": {"type": "string"},
             "summary": {
-                "type": ["string", "null"],
-                "description": "Human-readable immutable summary for canonical vault_seal tool",
-            },
-            "verdict": VERDICT_ENUM,
-            "payload": {"type": "object"},
-            "query_summary": {"type": ["string", "null"]},
-            "risk_level": {"type": "string", "enum": ["low", "medium", "high", "critical"]},
-            "category": {
                 "type": "string",
-                "enum": ["finance", "safety", "content", "code", "governance"],
+                "description": "Human-readable immutable summary of the session work.",
+            },
+            "governance_token": {
+                "type": "string",
+                "description": "Evidence from apex_judge that this session is ratified.",
             },
         },
-        "required": ["session_id", "verdict"],
+        "required": ["session_id", "summary", "governance_token"],
     },
     "vault_query": {
         "type": "object",
@@ -251,6 +247,12 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
         "properties": {
             "current_thought_vector": {"type": "string", "minLength": 1},
             "session_id": {"type": "string"},
+            "depth": {"type": "integer", "default": 3},
+            "domain": {
+                "type": "string",
+                "enum": ["canon", "manifesto", "docs", "all"],
+                "default": "canon",
+            },
             "debug": {"type": "boolean", "default": False},
         },
         "required": ["current_thought_vector", "session_id"],
@@ -258,22 +260,40 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
     "sovereign_actuator": {
         "type": "object",
         "properties": {
-            "action_payload": {"type": "object"},
-            "signed_tensor": {"type": "object"},
-            "execution_context": {"type": "object"},
-            "signature": {"type": "string"},
             "session_id": {"type": "string"},
-            "idempotency_key": {"type": "string"},
-            "ratification_token": {"type": ["string", "null"]},
+            "command": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Shell command to execute in the sandbox.",
+            },
+            "working_dir": {
+                "type": "string",
+                "default": "/root",
+                "description": "Current working directory for the command.",
+            },
+            "timeout": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 60,
+                "description": "Execution timeout in seconds.",
+            },
+            "confirm_dangerous": {
+                "type": "boolean",
+                "default": False,
+                "description": "Mandatory 'True' for dangerous commands (rm, mkfs, etc).",
+            },
+            "agent_id": {
+                "type": "string",
+                "default": "unknown",
+                "description": "Deterministic ID of the agent requesting the forge.",
+            },
+            "purpose": {
+                "type": "string",
+                "default": "",
+                "description": "Human-readable intent for constitutional logging (F9).",
+            },
         },
-        "required": [
-            "action_payload",
-            "signed_tensor",
-            "execution_context",
-            "signature",
-            "session_id",
-            "idempotency_key",
-        ],
+        "required": ["session_id", "command"],
     },
     "fetch": {
         "type": "object",
