@@ -174,7 +174,7 @@ def _build_floor_block(stage: str, reason: str) -> dict[str, Any]:
     }
 
 
-def _fracture_response(stage: str, e: Exception, session_id: str = "") -> dict[str, Any]:
+def _fracture_response(stage: str, e: Exception, session_id: str | None = None) -> dict[str, Any]:
     """Standardized SABAR envelope for unhandled internal exceptions (kernel fractures)."""
     result: dict[str, Any] = {
         "verdict": "SABAR",

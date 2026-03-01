@@ -6,10 +6,19 @@ Internal helpers shared across delta/omega/psi triad modules.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Protocol
 
 
-def serialize_floor_concerns(floor_concerns: list[Any]) -> list[dict[str, Any]]:
+class _FloorConcernLike(Protocol):
+    """Structural protocol for FloorConcern-compatible objects."""
+
+    floor_id: str
+    passed: bool
+    score: float
+    reason: str
+
+
+def serialize_floor_concerns(floor_concerns: list[_FloorConcernLike]) -> list[dict[str, Any]]:
     """Serialize a list of FloorConcern objects to plain dicts for JSON output."""
     return [
         {
