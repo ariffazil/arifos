@@ -47,43 +47,21 @@ jobs:
           ARIFOS_ALLOW_LEGACY_SPEC: "1"
 
   deploy:
-    name: Deploy to VPS
+    name: Deploy to VPS via Coolify Webhook
     needs: selftest
     runs-on: ubuntu-latest
     steps:
-      - name: Pull and rebuild on VPS
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            set -e
-            cd /root/arifOS
-            git fetch origin main
-            git reset --hard origin/main
-            docker compose up -d --build --remove-orphans
-            echo "Container started. Waiting for /health..."
-
-      - name: Smoke check — /health on VPS
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USERNAME }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            set -e
-            for i in 1 2 3 4 5 6; do
-              if curl -fsSL --max-time 5 http://localhost:8088/health > /dev/null; then
-                echo "Health check passed on attempt $i"
-                exit 0
-              fi
-              echo "Attempt $i/6 — waiting 10s..."
-              sleep 10
-            done
-            echo "FAILED: /health unreachable after 60s"
-            docker logs arifosmcp_server --tail 50
-            exit 1
+      - name: Trigger Coolify Deployment
+        run: |
+          if [ -z "${{ secrets.COOLIFY_WEBHOOK_URL }}" ]; then
+            echo "⚠️ COOLIFY_WEBHOOK_URL not set. Skipping webhook deploy."
+            echo "Set this secret in GitHub: https://coolify.io/docs/api/webhooks"
+            exit 0
+          fi
+          curl -X POST "${{ secrets.COOLIFY_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{"trigger":"manual"}'
+          echo "✅ Coolify deployment triggered"
 
   verify:
     name: Verify Public Endpoint
