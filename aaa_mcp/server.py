@@ -488,19 +488,21 @@ async def _phoenix_recall(
         except Exception:
             contexts = []
 
+        jaccard_max = max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
+        
         result = {
             "status": "RECALL_SUCCESS",
             "memories": [
                 {
                     "source": f"{ctx.source}/{ctx.path}",
-                    "score": ctx.score,
+                    "score": round(ctx.score, 4),
                     "content": ctx.content[:800],
                     "metadata": ctx.metadata,
                 }
                 for ctx in contexts
             ],
             "domain": domain,
-            "metrics": {"jaccard_max": 0.0, "delta_s_actual": 0.0, "w_scar_applied": 0.5},
+            "metrics": {"jaccard_max": round(jaccard_max, 4), "delta_s_actual": 0.0, "w_scar_applied": 0.5},
         }
         result.update(
             envelope_builder.build_envelope(
@@ -624,10 +626,6 @@ async def _apex_verdict(
             "implementation_details": implementation_details or {},
         }
         forged = await forge(session_id=session_id, plan=str(plan))
-        sovereign_token = "888_APPROVED" if human_approve else ""
-        judged = await audit(
-            session_id=session_id, action=str(plan), sovereign_token=sovereign_token
-        )
         precedents: list[dict[str, Any]] = []
         try:
             rag = _ensure_rag()
@@ -942,6 +940,24 @@ async def _vault_seal(
                 stage="999_VAULT", session_id=session_id, verdict=verified_verdict, payload=res
             )
         )
+
+        # Index the memory if it's a successful seal
+        if verified_verdict == "SEAL":
+            try:
+                rag = _ensure_rag()
+                rag.index_memory(
+                    session_id=session_id,
+                    content=summary,
+                    metadata={
+                        "verdict": verified_verdict, 
+                        "stage": "999_SEAL",
+                        "timestamp": datetime.now(timezone.utc).isoformat()
+                    }
+                )
+            except Exception as index_error:
+                # Memory indexing is non-blocking for the vault seal itself
+                print(f"[arifOS] Memory indexing failed: {index_error}", file=sys.stderr)
+
         return result
     except Exception as e:
         import traceback

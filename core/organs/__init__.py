@@ -40,7 +40,7 @@ from ._0_init import (
 from ._1_agi import agi, reason, sense, think
 from ._2_asi import align, asi, empathize
 from ._3_apex import apex, forge, judge, sync
-from ._4_vault import SealReceipt, query, seal, vault, verify
+from ._4_vault import SealReceipt, seal, vault
 
 # Humanized aliases
 anchor = init
@@ -74,8 +74,7 @@ __all__ = [
     "forge",  # Stage 777
     "judge",  # Stage 888
     "seal",  # Stage 999
-    "query",  # Vault read
-    "verify",  # Vault verify
+    "vault",  # Unified vault interface
     # Types
     "SessionToken",
     "AuthorityLevel",

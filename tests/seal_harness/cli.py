@@ -124,36 +124,36 @@ async def run_seal_check(
             "harness_version": "2026.3.1",
             "trinity": {
                 "anchor_session": {
-                    "ok": trinity_result["anchor_session"]["ok"],
-                    "verdict": trinity_result["anchor_session"].get("verdict"),
-                    "session_id": trinity_result["anchor_session"].get("session_id"),
-                    "errors": trinity_result["anchor_session"].get("errors", [])
+                    "ok": trinity_result.get("anchor_session", {}).get("ok", False),
+                    "verdict": trinity_result.get("anchor_session", {}).get("verdict"),
+                    "session_id": trinity_result.get("anchor_session", {}).get("session_id"),
+                    "errors": trinity_result.get("anchor_session", {}).get("errors", [])
                 },
                 "reason_mind": {
-                    "ok": trinity_result["reason_mind"]["ok"],
-                    "verdict": trinity_result["reason_mind"].get("verdict"),
-                    "dS": trinity_result["reason_mind"].get("dS"),
-                    "confidence": trinity_result["reason_mind"].get("confidence"),
-                    "errors": trinity_result["reason_mind"].get("errors", [])
+                    "ok": trinity_result.get("reason_mind", {}).get("ok", False),
+                    "verdict": trinity_result.get("reason_mind", {}).get("verdict"),
+                    "dS": trinity_result.get("reason_mind", {}).get("dS"),
+                    "confidence": trinity_result.get("reason_mind", {}).get("confidence"),
+                    "errors": trinity_result.get("reason_mind", {}).get("errors", [])
                 },
                 "simulate_heart": {
-                    "ok": trinity_result["simulate_heart"]["ok"],
-                    "verdict": trinity_result["simulate_heart"].get("verdict"),
-                    "peace2": trinity_result["simulate_heart"].get("peace2"),
-                    "errors": trinity_result["simulate_heart"].get("errors", [])
+                    "ok": trinity_result.get("simulate_heart", {}).get("ok", False),
+                    "verdict": trinity_result.get("simulate_heart", {}).get("verdict"),
+                    "peace2": trinity_result.get("simulate_heart", {}).get("peace2"),
+                    "errors": trinity_result.get("simulate_heart", {}).get("errors", [])
                 },
                 "apex_judge_void": {
-                    "ok": trinity_result["apex_judge_void"]["ok"],
-                    "verdict": trinity_result["apex_judge_void"].get("verdict"),
-                    "expected": trinity_result["apex_judge_void"].get("expected"),
-                    "errors": trinity_result["apex_judge_void"].get("errors", [])
+                    "ok": trinity_result.get("apex_judge_void", {}).get("ok", False),
+                    "verdict": trinity_result.get("apex_judge_void", {}).get("verdict"),
+                    "expected": trinity_result.get("apex_judge_void", {}).get("expected"),
+                    "errors": trinity_result.get("apex_judge_void", {}).get("errors", [])
                 },
                 "apex_judge_full": {
-                    "ok": trinity_result["apex_judge_full"]["ok"],
-                    "verdict": trinity_result["apex_judge_full"].get("verdict"),
-                    "has_amanah_token": trinity_result["apex_judge_full"].get("has_amanah_token"),
-                    "psi": trinity_result["apex_judge_full"].get("psi"),
-                    "errors": trinity_result["apex_judge_full"].get("errors", [])
+                    "ok": trinity_result.get("apex_judge_full", {}).get("ok", False),
+                    "verdict": trinity_result.get("apex_judge_full", {}).get("verdict"),
+                    "has_amanah_token": trinity_result.get("apex_judge_full", {}).get("has_amanah_token"),
+                    "psi": trinity_result.get("apex_judge_full", {}).get("psi"),
+                    "errors": trinity_result.get("apex_judge_full", {}).get("errors", [])
                 }
             },
             "schema": {
@@ -164,13 +164,13 @@ async def run_seal_check(
                 "unauthorized_new_tools": schema_result.get("unauthorized_new_tools", [])
             },
             "thermodynamic_summary": {
-                "avg_dS": trinity_result["reason_mind"].get("dS"),
+                "avg_dS": trinity_result.get("reason_mind", {}).get("dS"),
                 "min_peace2": min(
-                    trinity_result["reason_mind"].get("peace2") or 1.0,
-                    trinity_result["simulate_heart"].get("peace2") or 1.0
+                    trinity_result.get("reason_mind", {}).get("peace2") or 1.0,
+                    trinity_result.get("simulate_heart", {}).get("peace2") or 1.0
                 ),
                 "all_confidence_below_1_0": (
-                    (trinity_result["reason_mind"].get("confidence") or 0.5) < 1.0
+                    (trinity_result.get("reason_mind", {}).get("confidence") or 0.5) < 1.0
                 )
             }
         }
@@ -178,7 +178,7 @@ async def run_seal_check(
         # Determine final verdict
         all_ok = (
             schema_result.get("ok") and
-            trinity_result["ok"]
+            trinity_result.get("ok", False)
         )
         
         report["verdict"] = "PASS" if all_ok else "FAIL"
@@ -203,15 +203,15 @@ async def run_seal_check(
             print(f"    Changed: {schema_result['changed_tools']}")
         
         print(f"\n  Trinity E2E:")
-        print(f"    anchor_session: {'✅' if trinity_result['anchor_session']['ok'] else '❌'}")
-        print(f"    reason_mind: {'✅' if trinity_result['reason_mind']['ok'] else '❌'}")
-        print(f"    simulate_heart: {'✅' if trinity_result['simulate_heart']['ok'] else '❌'}")
-        print(f"    apex_judge (VOID): {'✅' if trinity_result['apex_judge_void']['ok'] else '❌'}")
-        print(f"    apex_judge (full): {'✅' if trinity_result['apex_judge_full']['ok'] else '❌'}")
+        print(f"    anchor_session: {'✅' if trinity_result.get('anchor_session', {}).get('ok') else '❌'}")
+        print(f"    reason_mind: {'✅' if trinity_result.get('reason_mind', {}).get('ok') else '❌'}")
+        print(f"    simulate_heart: {'✅' if trinity_result.get('simulate_heart', {}).get('ok') else '❌'}")
+        print(f"    apex_judge (VOID): {'✅' if trinity_result.get('apex_judge_void', {}).get('ok') else '❌'}")
+        print(f"    apex_judge (full): {'✅' if trinity_result.get('apex_judge_full', {}).get('ok') else '❌'}")
         
         print(f"\n  Thermodynamic:")
-        print(f"    dS: {trinity_result['reason_mind'].get('dS')} (F4 Clarity)")
-        print(f"    peace²: {trinity_result['simulate_heart'].get('peace2')} (F5 Peace)")
+        print(f"    dS: {trinity_result.get('reason_mind', {}).get('dS')} (F4 Clarity)")
+        print(f"    peace²: {trinity_result.get('simulate_heart', {}).get('peace2')} (F5 Peace)")
         
         print("\n" + "═" * 70)
         if all_ok:

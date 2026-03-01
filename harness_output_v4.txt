@@ -1,0 +1,43 @@
+Traceback (most recent call last):
+  File "C:\Users\User\arifOS\tests\seal_harness\cli.py", line 117, in run_seal_check
+    trinity_result = await harness.run_trinity_flow()
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\arifOS\tests\seal_harness\trinity_tests.py", line 222, in run_trinity_flow
+    anchor = await self.test_anchor_session()
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\arifOS\tests\seal_harness\trinity_tests.py", line 48, in test_anchor_session
+    self._assert("anonymous" in session_id or "-" in session_id, "Malformed session_id")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: argument of type 'NoneType' is not iterable
+╔════════════════════════════════════════════════════════════════════╗
+║                arifOS AAA MCP SEAL Check v2026.3.1                 ║
+╚════════════════════════════════════════════════════════════════════╝
+
+📅 2026-03-01T02:20:26.302831+00:00
+🌐 Endpoint: http://127.0.0.1:8080/mcp
+💾 Snapshot: aaa-schema-snapshot.json
+📄 Output: aaa-seal-report.json
+
+──────────────────────────────────────────────────────────────────────
+🔌 Connecting to MCP server...
+✅ Connected (session: d5f5f0e2b8a744788b44...)
+
+══════════════════════════════════════════════════════════════════════
+
+📋 Schema Validation
+──────────────────────────────────────────────────
+  Discovering tools...
+  Discovering resources...
+  Discovering prompts...
+
+  🔍 Comparing against existing snapshot
+    ❌ Changed tools: ['seal_vault']
+    ❌ Breaking changes detected!
+
+══════════════════════════════════════════════════════════════════════
+🧠 Trinity E2E Flow
+══════════════════════════════════════════════════════════════════════
+  [000] Running anchor_session...
+DEBUG: anchor_session raw result: {'_error': "Error calling tool 'anchor_session': float() argument must be a string or a real number, not 'NoneType'"}
+
+❌ Error: argument of type 'NoneType' is not iterable
