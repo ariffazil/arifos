@@ -71,7 +71,7 @@ def _verify_governance_token(session_id: str, token: str) -> tuple[bool, str]:
     return False, "VOID"
 
 
-from fastmcp import FastMCP, Context
+from fastmcp import FastMCP
 
 from aclip_cai.triad import (
     align,
@@ -87,7 +87,6 @@ from aclip_cai.triad import (
 )
 from aclip_cai.tools.fs_inspector import fs_inspect
 from aclip_cai.tools.system_monitor import get_system_health
-
 
 # Isolated FastMCP instance — canonical 13-tool surface ONLY.
 # Previously shared aclip_cai's instance which leaked triad_*/sense_* tools.
@@ -110,19 +109,6 @@ from aaa_mcp.protocol.l0_kernel_prompt import inject_l0_into_session
 from aaa_mcp.protocol.schemas import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOOL_OUTPUT_SCHEMAS
 from aaa_mcp.protocol.public_surface import PUBLIC_PROMPT_NAMES, PUBLIC_RESOURCE_URIS
 from core.shared.context_template import build_full_context_template
-
-# ═══ UNIFIED VAULT999 Ledger Integration ═══
-from aaa_mcp.sessions.session_ledger import get_ledger, VaultEntry
-
-# ═══ Hardened Telemetry Integration ═══
-# FastMCP-native OpenTelemetry with constitutional floor awareness
-from aaa_mcp.telemetry import (
-    instrument_tool,
-    constitutional_span,
-    record_pipeline_metrics,
-    FASTMCP_TELEMETRY_AVAILABLE,
-    OTEL_AVAILABLE,
-)
 
 
 def create_unified_mcp_server() -> Any:
@@ -288,7 +274,6 @@ async def _init_session(
     compact_kernel: bool = False,
     template_id: str = "arifos.full_context.v1",
     auth_context: dict[str, Any] | None = None,
-    ctx=None,  # FastMCP Context for logging
 ) -> dict[str, Any]:
     """
     Initialize a new constitutional session with L0 Kernel enforcement.
@@ -302,15 +287,11 @@ async def _init_session(
         debug: Include detailed internal data
         inject_kernel: Inject L0 constitutional prompt (default: True)
         compact_kernel: Use compact L0 prompt to save tokens (default: False)
-        ctx: FastMCP Context for client logging
 
     Returns:
         Session data with constitutional system prompt
     """
     try:
-        # FastMCP Context logging for client visibility
-        if ctx:
-            await ctx.info(f"[000_INIT] Anchoring session for actor: {actor_id}")
         session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
         anch = await anchor(session_id=session_id, user_id=actor_id, context=query)
         verdict = str(anch.get("verdict", "SEAL"))
@@ -378,8 +359,6 @@ async def _agi_cognition(
     auth_context: dict[str, Any] | None = None,
     inference_budget: int = 1,
     risk_mode: str = "medium",
-    use_sampling: bool = True,
-    ctx: Context = None,
 ) -> dict[str, Any]:
     try:
         if not session_id:
@@ -397,15 +376,8 @@ async def _agi_cognition(
         # Runs before Stage 333. Consumes Stage 111 evidence and produces a
         # Delta Draft (provisional, unsealed) that is injected as context into
         # reason() and integrate() below. Enforces F2/F4/F13 internally.
-        # SAMPLING: Passes ctx for governed LLM reasoning when available.
         stage_111_context = "; ".join(evidence) if evidence else ""
-        think_draft = await think(
-            session_id=session_id,
-            query=query,
-            context=stage_111_context,
-            ctx=ctx,
-            use_sampling=use_sampling,
-        )
+        think_draft = await think(session_id=session_id, query=query, context=stage_111_context)
         # If 222 returns VOID the chain halts — a hard floor was breached.
         if think_draft.get("verdict") == "VOID":
             return {
@@ -419,14 +391,7 @@ async def _agi_cognition(
         # ─────────────────────────────────────────────────────────────────────
 
         # ── Stage 333 ATLAS — humility audit on the Delta Draft ───────────────
-        # SAMPLING: Passes ctx for governed LLM reasoning when available.
-        r = await reason(
-            session_id=session_id,
-            hypothesis=query,
-            evidence=evidence,
-            ctx=ctx,
-            use_sampling=use_sampling,
-        )
+        r = await reason(session_id=session_id, hypothesis=query, evidence=evidence)
         i = await integrate(
             session_id=session_id,
             context_bundle={
@@ -979,7 +944,6 @@ async def _vault_seal(
     session_id: str,
     summary: str,
     governance_token: str,
-    ctx=None,  # FastMCP Context for logging
 ) -> dict[str, Any]:
     """
     Amanah Handshake: the vault only commits what the Judge actually signed.
@@ -987,19 +951,11 @@ async def _vault_seal(
     No token → no entry. Tampered token → VOID, no entry.
     """
     try:
-        # FastMCP Context logging for client visibility
-        if ctx:
-            await ctx.info(f"[999_SEAL] Initiating vault seal for session: {session_id[:16]}...")
-
         if not session_id:
             return _build_floor_block("999_VAULT", "Missing session_id")
 
         # Verify the Judge's signature before touching the ledger.
         token_valid, verified_verdict = _verify_governance_token(session_id, governance_token)
-        if ctx:
-            await ctx.debug(
-                f"[999_SEAL] Token verification: {token_valid}, verdict: {verified_verdict}"
-            )
         if not token_valid:
             return {
                 "verdict": "VOID",
@@ -1009,39 +965,12 @@ async def _vault_seal(
                 "remediation": "Call apex_judge first and pass its governance_token here.",
             }
 
-        # UNIFIED: Use SessionLedger with Merkle + Redis + EUREKA
-        ledger = await get_ledger()
-
-        # Build payload with full governance context
-        payload = {
-            "task_summary": summary,
-            "verified_verdict": verified_verdict,
-            "governance_token_prefix": governance_token[:20] + "...",
-            "seal_type": "VAULT999_UNIFIED",
-        }
-
-        # Seal to unified ledger (PostgreSQL + Redis + Merkle)
-        entry = await ledger.seal(
+        res = await seal(
             session_id=session_id,
-            verdict_type=verified_verdict,
-            payload=payload,
-            query_summary=summary[:200],
-            risk_level="HIGH" if verified_verdict == "VOID" else "MEDIUM",
-            category="governance_seal",
-            floors_checked=["F1", "F3", "F10", "F11"],  # Floors verified by token
+            task_summary=summary,
+            was_modified=True,
+            verdict=verified_verdict,
         )
-
-        # Build response with Merkle proof info
-        res = {
-            "seal_id": entry.entry_id,
-            "entry_hash": entry.entry_hash,
-            "merkle_root": entry.merkle_root,
-            "prev_hash": entry.prev_hash,
-            "timestamp": entry.timestamp,
-            "eureka_verdict": entry.eureka_verdict,
-            "eureka_score": entry.eureka_score,
-        }
-
         result = {"data": res, "status": verified_verdict}
         result.update(
             envelope_builder.build_envelope(
@@ -1227,6 +1156,7 @@ critique_thought = ToolHandle(_critique_thought)
     description="[Lane: Δ Delta] [Floors: F1, F4, F11] Filesystem inspection (read-only).",
 )
 async def _inspect_file(
+    session_id: str,
     path: str = ".",
     depth: int = 1,
     include_hidden: bool = False,
@@ -1244,7 +1174,7 @@ async def _inspect_file(
     )
     return envelope_builder.build_envelope(
         stage="111_INSPECT",
-        session_id="inspect",
+        session_id=session_id,
         verdict="SEAL",
         payload=payload,
     )
@@ -1258,6 +1188,7 @@ inspect_file = ToolHandle(_inspect_file)
     description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.",
 )
 async def _check_vital(
+    session_id: str,
     include_swap: bool = True,
     include_io: bool = False,
     include_temp: bool = False,
@@ -1269,7 +1200,7 @@ async def _check_vital(
     )
     return envelope_builder.build_envelope(
         stage="555_HEALTH",
-        session_id="health-check",
+        session_id=session_id,
         verdict="SEAL",
         payload=payload,
     )
@@ -1345,330 +1276,9 @@ mcp.add_template(
 )
 
 
-@mcp.prompt(
-    name="arifos_governance_brief",
-    description="Reusable prompt: arifOS governance constraints and usage.",
-)
-async def _arifos_governance_brief_prompt() -> str:
-    return (
-        "You are operating under arifOS constitutional governance.\n"
-        "Use tools for actions; prefer reversible steps; avoid secrets leakage.\n"
-        "If an operation is high-stakes or irreversible, request explicit human approval.\n"
-    )
-
-
-@mcp.resource(
-    "arifos://templates/full-context",
-    name="arifos_full_context_template",
-    mime_type="application/json",
-    description="Canonical full-context template for AAA constitutional orchestration.",
-)
-def _resource_full_context_template() -> dict[str, Any]:
-    return build_full_context_template()
-
-
-@mcp.resource(
-    "arifos://schemas/tooling",
-    name="arifos_tool_schemas",
-    mime_type="application/json",
-    description="Canonical tool input/output schemas for AAA MCP tools.",
-)
-def _resource_tool_schemas() -> dict[str, Any]:
-    return {
-        "schema_version": "2026.02.23-context-forge",
-        "inputs": CANONICAL_TOOL_INPUT_SCHEMAS,
-        "outputs": CANONICAL_TOOL_OUTPUT_SCHEMAS,
-    }
-
-
-@mcp.resource(
-    PUBLIC_RESOURCE_URIS["schemas"],
-    name="arifos_aaa_tool_schemas",
-    mime_type="application/json",
-    description="Canonical AAA MCP 13-tool schema/contract overview.",
-)
-def _resource_tool_schemas_public() -> str:
-    return json.dumps(_resource_tool_schemas())
-
-
-@mcp.resource(
-    PUBLIC_RESOURCE_URIS["full_context_pack"],
-    name="arifos_aaa_full_context_pack",
-    mime_type="application/json",
-    description="Full-context orchestration metadata (stage spine, prompts, resources).",
-)
-def _resource_full_context_pack_public() -> str:
-    payload = {
-        "template_id": "arifos.full_context.v1",
-        "schema_version": "1.0.0",
-        "stage_spine": ["000", "222", "333", "444", "666", "888", "999"],
-        "entrypoint": "anchor_session",
-        "continuity": {
-            "required_after_entry": ["session_id"],
-            "recommended": ["actor_id", "auth_token"],
-        },
-        "resources": [
-            PUBLIC_RESOURCE_URIS["full_context_pack"],
-            PUBLIC_RESOURCE_URIS["schemas"],
-        ],
-        "prompts": [PUBLIC_PROMPT_NAMES["aaa_chain"]],
-    }
-    return json.dumps(payload)
-
-
-@mcp.prompt(name="arifos.prompt.trinity_forge")
-def _prompt_trinity_forge(query: str, actor_id: str = "user", mode: str = "conscience") -> str:
-    return (
-        "Use trinity_forge for full constitutional orchestration with session continuity.\n"
-        "Stage spine: 000 -> 222 -> 333 -> 444 -> 666 -> 888 -> 999.\n"
-        "Require truthful grounding; fail closed on F2/F11/F12 with remediation.\n"
-        'Call shape: {"name":"trinity_forge","arguments":{"query":%r,"actor_id":%r,"mode":%r}}'
-        % (query, actor_id, mode)
-    )
-
-
-@mcp.prompt(name="arifos.prompt.anchor_reason")
-def _prompt_anchor_reason(query: str, actor_id: str = "user") -> str:
-    return (
-        "Run two-step constitutional flow with explicit session continuity.\n"
-        "1) anchor/init_session to obtain session_id.\n"
-        "2) reason/agi_cognition using same session_id.\n"
-        "If VOID on F11: request auth_token or corrected actor_id.\n"
-        "If VOID on F2: request external evidence before retry.\n"
-        "Input query: %s\nActor: %s" % (query, actor_id)
-    )
-
-
-@mcp.prompt(name="arifos.prompt.audit_then_seal")
-def _prompt_audit_then_seal(session_id: str, summary: str, proposed_verdict: str = "SEAL") -> str:
-    return (
-        "Finalize governed decision in two steps.\n"
-        "1) apex_verdict/audit with session_id and explicit proposed_verdict.\n"
-        "2) vault_seal with same session_id and immutable summary.\n"
-        "If verdict is 888_HOLD, stop and request human ratification before seal.\n"
-        "session_id=%s; proposed_verdict=%s; summary=%s" % (session_id, proposed_verdict, summary)
-    )
-
-
-@mcp.prompt(
-    name=PUBLIC_PROMPT_NAMES["aaa_chain"],
-    description="Run canonical 13-tool continuity chain from anchor to seal.",
-)
-def _prompt_aaa_chain(query: str, actor_id: str = "user") -> str:
-    return (
-        "Run canonical AAA chain with session continuity.\n"
-        "1) anchor_session(query, actor_id) -> session_id\n"
-        "2) reason_mind(query, session_id)\n"
-        "3) simulate_heart(query, session_id)\n"
-        "4) apex_judge(session_id, query, agi_result, asi_result)\n"
-        "5) seal_vault(session_id, summary)\n"
-        "Query=%s; actor_id=%s" % (query, actor_id)
-    )
-
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# UNIFIED PIPELINE TOOL (trinity_forge) — Merges 000→999 into single call
-# ═══════════════════════════════════════════════════════════════════════════════
-
-
-@mcp.tool(
-    name="trinity_forge",
-    description="[Lane: ΔΩΨ Trinity] [Floors: F1-F13] UNIFIED 000-999 pipeline. Single call runs full constitutional metabolism.",
-)
-async def _trinity_forge_unified(
-    query: str,
-    actor_id: str = "anonymous",
-    mode: str = "conscience",
-    stakeholders: list[str] | None = None,
-    debug: bool = False,
-) -> dict[str, Any]:
-    """
-    UNIFIED CONSTITUTIONAL PIPELINE — Runs 000→999 in single invocation.
-
-    Internally executes the full metabolic chain:
-      000_INIT → 111-444 REASON → 555-666 HEART → 777-888 JUDGE → 999 SEAL
-
-    This merges 5 separate tool calls into one for ChatGPT/stateless clients.
-    Session continuity is handled internally; no manual session_id management needed.
-
-    Args:
-        query: The query/action to validate
-        actor_id: Actor identifier (e.g., "Arif Fazil")
-        mode: Constitutional mode (conscience, exploration, etc.)
-        stakeholders: Optional list of affected stakeholders for empathy analysis
-        debug: Include detailed internal stage data
-
-    Returns:
-        Unified verdict with full constitutional envelope:
-        {
-            "verdict": "SEAL|SABAR|VOID",
-            "session_id": "...",
-            "governance_token": "...",
-            "stage": "999_SEAL",
-            "floors": {"passed": [...], "failed": [...]},
-            "truth": {"score": ..., "threshold": ...},
-            "summary": "Human-readable verdict explanation"
-        }
-    """
-    execution_log: list[dict] = []
-    start_time = datetime.now(timezone.utc)
-
-    try:
-        # ═══ STAGE 000: INIT ═══
-        init_result = await _init_session(
-            query=query,
-            actor_id=actor_id,
-            mode=mode,
-            grounding_required=True,
-            debug=debug,
-        )
-
-        if init_result.get("verdict") == "VOID":
-            return {
-                "verdict": "VOID",
-                "stage": "000_INIT",
-                "blocked_by": "Session initialization failed",
-                "init_details": init_result if debug else None,
-            }
-
-        session_id = init_result.get("session_id", "")
-        execution_log.append({"stage": "000_INIT", "verdict": init_result.get("verdict")})
-
-        # ═══ STAGE 111-444: REASON (AGI cognition) ═══
-        reason_result = await _agi_cognition(
-            query=query,
-            session_id=session_id,
-            actor_id=actor_id,
-            debug=debug,
-        )
-
-        if reason_result.get("verdict") == "VOID":
-            return {
-                "verdict": "VOID",
-                "stage": "111-444",
-                "session_id": session_id,
-                "blocked_by": "AGI cognition failed constitutional floors",
-                "reason_details": reason_result if debug else None,
-            }
-
-        execution_log.append({"stage": "111-444", "verdict": reason_result.get("verdict")})
-
-        # ═══ STAGE 555-666: HEART (ASI empathy/safety) ═══
-        heart_result = await _asi_empathy(
-            query=query,
-            session_id=session_id,
-            stakeholders=stakeholders or ["user"],
-            debug=debug,
-        )
-
-        if heart_result.get("verdict") == "VOID":
-            return {
-                "verdict": "VOID",
-                "stage": "555-666",
-                "session_id": session_id,
-                "blocked_by": "ASI safety/empathy check failed",
-                "heart_details": heart_result if debug else None,
-            }
-
-        execution_log.append({"stage": "555-666", "verdict": heart_result.get("verdict")})
-
-        # ═══ STAGE 777-888: JUDGE (Sovereign verdict) ═══
-        judge_result = await _apex_judge(
-            query=query,
-            session_id=session_id,
-            agi_result=reason_result,
-            asi_result=heart_result,
-            proposed_verdict="SEAL",  # Default; Judge may override
-            debug=debug,
-        )
-
-        governance_token = judge_result.get("governance_token", "")
-        final_verdict = judge_result.get("verdict", "VOID")
-
-        execution_log.append(
-            {
-                "stage": "777-888",
-                "verdict": final_verdict,
-                "governance_token_prefix": governance_token[:20] + "..."
-                if governance_token
-                else None,
-            }
-        )
-
-        # ═══ STAGE 999: SEAL (if SEAL verdict) ═══
-        if final_verdict == "SEAL":
-            seal_result = await _vault_seal(
-                session_id=session_id,
-                summary=f"trinity_forge unified pipeline: {query[:100]}...",
-                governance_token=governance_token,
-            )
-            execution_log.append({"stage": "999_SEAL", "verdict": seal_result.get("verdict")})
-
-        # ═══ Build unified response ═══
-        end_time = datetime.now(timezone.utc)
-        duration_ms = (end_time - start_time).total_seconds() * 1000
-
-        summary = _generate_trinity_summary(final_verdict, execution_log)
-
-        unified_payload = {
-            "verdict": final_verdict,
-            "session_id": session_id,
-            "governance_token": governance_token,
-            "stage": "999_SEAL" if final_verdict == "SEAL" else "888_JUDGE",
-            "floors": judge_result.get("floors", {"passed": [], "failed": []}),
-            "truth": judge_result.get("truth", {}),
-            "summary": summary,
-            "execution": {
-                "stages_completed": len(execution_log),
-                "duration_ms": duration_ms,
-                "log": execution_log if debug else None,
-            },
-        }
-
-        # Merge with constitutional envelope
-        unified_payload.update(
-            envelope_builder.build_envelope(
-                stage="000-999",
-                session_id=session_id,
-                verdict=final_verdict,
-                payload=unified_payload,
-            )
-        )
-
-        return unified_payload
-
-    except Exception as e:
-        import traceback
-
-        return {
-            "verdict": "SABAR",
-            "status": "partial",
-            "holding_reason": "Unified pipeline fracture",
-            "error_class": e.__class__.__name__,
-            "error": str(e),
-            "trace": traceback.format_exc() if debug else None,
-            "stage": "000-999",
-            "execution_log": execution_log,
-        }
-
-
-def _generate_trinity_summary(verdict: str, execution_log: list[dict]) -> str:
-    """Generate human-readable summary of unified pipeline execution."""
-    stage_count = len(execution_log)
-
-    if verdict == "SEAL":
-        return f"✅ All {stage_count} constitutional stages passed. Full 000-999 metabolism complete. Response is SEALed."
-    elif verdict == "SABAR":
-        return f"⚠️ Pipeline completed with soft warnings. Review stage log before proceeding."
-    elif verdict == "VOID":
-        failed_stage = execution_log[-1].get("stage", "UNKNOWN") if execution_log else "UNKNOWN"
-        return f"❌ Pipeline VOIDed at {failed_stage}. Constitutional floor violation detected. Do not proceed."
-    else:
-        return f"🔒 Pipeline status: {verdict}. Stages executed: {stage_count}."
-
-
-trinity_forge = ToolHandle(_trinity_forge_unified)
-
+# NOTE: Prompts and resources moved to arifos_aaa_mcp/server.py (canonical surface)
+# This file remains as implementation layer for the 13 tools.
+# See arifos_aaa_mcp/server.py for all prompts and public resources.
 
 _rag_instance: Any = None
 
@@ -1705,10 +1315,5 @@ __all__ = [
     "inspect_file",
     "audit_rules",
     "check_vital",
-    "trinity_forge",  # Unified 000-999 pipeline
-    "_resource_full_context_template",
-    "_resource_tool_schemas",
-    "_prompt_trinity_forge",
-    "_prompt_anchor_reason",
-    "_prompt_audit_then_seal",
+    "_ensure_rag",
 ]
