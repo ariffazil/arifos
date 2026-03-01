@@ -24,6 +24,24 @@ from typing import Any
 import secrets
 import os
 import asyncio
+import logging
+
+# Setup logger early for BGE integration logging
+logger = logging.getLogger(__name__)
+
+# BGE Embeddings Integration from aclip_cai (Senses Layer - STATIC)
+import sys
+
+sys.path.insert(0, "/root/arifOS")
+try:
+    from aclip_cai.embeddings import embed, get_embedder
+
+    BGE_AVAILABLE = True
+    logger.info("BGE embeddings loaded from aclip_cai")
+except ImportError as e:
+    BGE_AVAILABLE = False
+    logger.warning(f"BGE not available: {e}")
+
 import traceback
 
 # ─── Amanah Handshake — Governance Token ────────────────────────────────────
