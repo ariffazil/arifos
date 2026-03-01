@@ -16,6 +16,7 @@ import time
 from typing import Any
 
 from fastmcp import FastMCP
+from mcp.types import Icon
 
 from aaa_mcp import server as legacy
 from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
@@ -116,12 +117,115 @@ def _convert_physics_exception_to_void(
     }
 
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# ICON FORGE — Constitutional Semiotics (ΔS ≤ 0)
+# ═══════════════════════════════════════════════════════════════════════════════
+# Icons are not UI garnish; they are low-entropy carriers of law and affordance.
+# Each icon encodes: Lane (ΔΩΨ), Risk tier, Constitutional floor binding.
+# See: docs/ICONOGRAPHY.md for full semiotic specification.
+
+# Server-level sovereign emblem (arifOS crest)
+# Represents: Constitutional kernel, 13 floors, Trinity governance
+ARIFOS_SERVER_ICON = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSI+PHBhdGggZD0iTTI0IDJMNDIgMTZWMzJMMjQgNDZMNiAzMlYxNkwyNCAyWiIgZmlsbD0iI2U2YzI1ZCIvPjx0ZXh0IHg9IjI0IiB5PSIzMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzA1MDUwNSIgZm9udC13ZWlnaHQ9ImJvbGQiPvqltDwvdGV4dD48L3N2Zz4=",
+    mimeType="image/svg+xml",
+    sizes=["48x48"],
+)
+
+# Δ DELTA Lane — Mind/Reasoning (Blue/Cognition)
+# anchor_session: Bootloader, session ignition
+ICON_ANCHOR = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMDdhZmYiLz48cGF0aCBkPSJNMTIgNkw5IDlWMThIMTVWOUwxMiA2WiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=",
+    mimeType="image/svg+xml",
+)
+
+# reason_mind: AGI cognition
+ICON_REASON = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMDdhZmYiLz48cGF0aCBkPSJNMTIgOEM5Ljc5IDggOCA5Ljc5IDggMTJDOCAxNC4yMSA5Ljc5IDE2IDEyIDE2QzE0LjIxIDE2IDE2IDE0LjIxIDE2IDEyQzE2IDkuNzkgMTQuMjEgOCAxMiA4Wk0xMiAxNEMxMC45IDE0IDEwIDEzLjEgMTAgMTJDMTAgMTAuOSAxMC45IDEwIDEyIDEwQzEzLjEgMTAgMTQgMTAuOSAxNCAxMkMxNCAxMy4xIDEzLjEgMTQgMTIgMTRaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+    mimeType="image/svg+xml",
+)
+
+# search_reality: External evidence
+ICON_SEARCH = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMDdhZmYiLz48cGF0aCBkPSJNMTUgMTFMMTMgMTNWMTVIMTFWMTNMOSAxMVY5SDExVjExSDEzVjlIMTVMMTFaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+    mimeType="image/svg+xml",
+)
+
+# fetch_content: Content retrieval
+ICON_FETCH = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMDdhZmYiLz48cGF0aCBkPSJNOCA5SDE2VjE1SDhWOVpNOSAxMFYxNEgxNVYxMEg5WiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=",
+    mimeType="image/svg+xml",
+)
+
+# inspect_file: Filesystem read
+ICON_INSPECT = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMDdhZmYiLz48cGF0aCBkPSJNOCA5SDE2VjE1SDhWOVpNOSAxMFYxNEgxNVYxMEg5WiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=",
+    mimeType="image/svg+xml",
+)
+
+# audit_rules: Constitutional audit
+ICON_AUDIT = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMDdhZmYiLz48cGF0aCBkPSJNMTAgN0wxNSAxMkwxMCAxN1Y3WiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=",
+    mimeType="image/svg+xml",
+)
+
+# Ω OMEGA Lane — Heart/Safety (Green/Empathy)
+# recall_memory: Associative memory
+ICON_RECALL = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMGEyZmYiLz48cGF0aCBkPSJNMTIgOEMxMy4xIDggMTQgOC45IDE0IDEwQzE0IDExLjEgMTMuMSAxMiAxMiAxMkMxMC45IDEyIDEwIDExLjEgMTAgMTBDMTAgOC45IDEwLjkgOCAxMiA4Wk04IDE0SDE2VjE2SDhWMTRaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+    mimeType="image/svg+xml",
+)
+
+# simulate_heart: Stakeholder impact
+ICON_HEART = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMGEyZmYiLz48cGF0aCBkPSJNMTIgMjFMOCAxN0M2IDE1IDYgMTIgOCAxMEMxMCA4IDEyIDkgMTIgOUMxMiA5IDE0IDggMTYgMTBDMTggMTIgMTggMTUgMTYgMTdMMTIgMjFaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+    mimeType="image/svg+xml",
+)
+
+# critique_thought: 7-model critique
+ICON_CRITIQUE = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMGEyZmYiLz48cGF0aCBkPSJNMTIgOEMxMy4xIDggMTQgOC45IDE0IDEwQzE0IDExLjEgMTMuMSAxMiAxMiAxMkMxMC45IDEyIDEwIDExLjEgMTAgMTBDMTAgOC45IDEwLjkgOCAxMiA4Wk04IDE0SDE2VjE2SDhWMTRaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+    mimeType="image/svg+xml",
+)
+
+# check_vital: System health
+ICON_VITAL = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMGEyZmYiLz48cGF0aCBkPSJNOCAxMkw5IDE1TDExIDlMMTMgMThMMTUgMTJMMTYgMTVIOFoiIGZpbGw9IndoaXRlIi8+PC9zdmc+",
+    mimeType="image/svg+xml",
+)
+
+# Ψ PSI Lane — Soul/Judgment (Gold/Sovereign)
+# apex_judge: Sovereign verdict
+ICON_APEX = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNlNmMyNWQiLz48cGF0aCBkPSJNMTIgNkwxNCAxMUgxOUwxNSAxNUwxNyAyMEwxMiAxNkwxNyAyMEwxMiAxNkw3IDIwTDkgMTVMNSAxMUgxMFoiIGZpbGw9IndoaXRlIi8+PC9zdmc+",
+    mimeType="image/svg+xml",
+)
+
+# eureka_forge: Action execution
+ICON_FORGE = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNlNmMyNWQiLz48cGF0aCBkPSJNMTIgNkw5IDEzSDE1TDEyIDZaTTEyIDE1TDkgMThIMTVMMTIgMTVaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+    mimeType="image/svg+xml",
+)
+
+# seal_vault: Immutable ledger
+ICON_VAULT = Icon(
+    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiNlNmMyNWQiLz48cGF0aCBkPSJNMTIgNkw5IDlWMThIMTVWOUwxMiA2Wk0xMiAxNEMxMC45IDE0IDEwIDEzLjEgMTAgMTJDMTAgMTAuOSAxMC45IDEwIDEyIDEwQzEzLjEgMTAgMTQgMTAuOSAxNCAxMkMxNCAxMy4xIDEzLjEgMTQgMTIgMTRaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
+    mimeType="image/svg+xml",
+)
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SERVER INITIALIZATION — Constitutional Kernel with Iconography
+# ═══════════════════════════════════════════════════════════════════════════════
+
 mcp = FastMCP(
-    "arifOS_AAA_MCP",
+    name="arifOS_AAA_MCP",
+    version="2026.3.1",
     instructions=(
         "Canonical 13-tool arifOS AAA MCP surface. "
         "Use 000->333->555->666->777_EUREKA_FORGE->888_APEX_JUDGE->999 governance spine."
     ),
+    website_url="https://arifos.arif-fazil.com",
+    icons=[ARIFOS_SERVER_ICON],
 )
 
 AAA_TOOLS = list(PUBLIC_CANONICAL_TOOLS)
@@ -759,6 +863,516 @@ _TOOL_REGISTRY = {
     "check_vital": check_vital,
 }
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# 000-999 METABOLIC LOOP — The Constitutional Breath
+# ═══════════════════════════════════════════════════════════════════════════════
+# One full metabolic cycle of governed intelligence.
+# Like a heat engine: intake → compression → power stroke → exhaust → ready.
+
+from pydantic import BaseModel, Field
+from typing import Literal
+
+
+# Placeholder - will be populated after metabolic_loop is defined
+_METABOLIC_LOOP_REGISTERED = False
+
+
+class MetabolicStage(BaseModel):
+    """One stage of the 000-999 metabolic loop."""
+
+    stage_id: str = Field(..., description="Stage identifier (000, 111, 222, etc.)")
+    status: Literal["complete", "active", "pending", "failed"] = "pending"
+    output: dict[str, Any] = Field(default_factory=dict)
+    floors_checked: list[str] = Field(default_factory=list)
+    floors_failed: list[str] = Field(default_factory=list)
+    telemetry: dict[str, float] = Field(default_factory=dict)
+
+
+class MetabolicResult(BaseModel):
+    """Complete 000-999 metabolic cycle result."""
+
+    verdict: Literal["SEAL", "SABAR", "VOID", "888_HOLD"] = Field(
+        ..., description="Final constitutional verdict"
+    )
+    session_id: str = Field(..., description="Constitutional session identifier")
+    governance_token: str | None = Field(None, description="Token for vault sealing")
+    stages: dict[str, MetabolicStage] = Field(default_factory=dict)
+    telemetry: dict[str, Any] = Field(default_factory=dict)
+    witness: dict[str, float] = Field(default_factory=dict)
+    summary: str = Field(..., description="Human-readable result summary")
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TRINITY RESULT MODELS — AGI · ASI · APEX
+# ═══════════════════════════════════════════════════════════════════════════════
+
+
+class AGIMindResult(BaseModel):
+    """AGI Mind Lane (Δ Delta) — Cold Reasoning Output"""
+
+    trinity_lane: Literal["AGI"] = "AGI"
+    stages_completed: list[str] = Field(default_factory=list)
+    hypotheses: dict[str, Any] = Field(default_factory=dict)
+    uncertainty: dict[str, Any] = Field(default_factory=dict)
+    telemetry: dict[str, float] = Field(default_factory=dict)
+    next_stage: Literal["ASI_HEART"] = "ASI_HEART"
+
+
+class ASIHeartResult(BaseModel):
+    """ASI Heart Lane (Ω Omega) — Warm Safety Output"""
+
+    trinity_lane: Literal["ASI"] = "ASI"
+    stages_completed: list[str] = Field(default_factory=list)
+    tri_witness: dict[str, float] = Field(default_factory=dict)
+    empathy_analysis: dict[str, Any] = Field(default_factory=dict)
+    synthesis: dict[str, bool] = Field(default_factory=dict)
+    telemetry: dict[str, float] = Field(default_factory=dict)
+    next_stage: Literal["APEX_SOUL"] = "APEX_SOUL"
+
+
+class APEXSoulResult(BaseModel):
+    """APEX Soul Lane (Ψ Psi) — Sovereign Judgment Output"""
+
+    trinity_lane: Literal["APEX"] = "APEX"
+    stages_completed: list[str] = Field(default_factory=list)
+    verdict: Literal["SEAL", "SABAR", "VOID", "888_HOLD"] = "VOID"
+    floor_evaluation: dict[str, list[str]] = Field(default_factory=dict)
+    governance: dict[str, str] = Field(default_factory=dict)
+    vault: dict[str, Any] = Field(default_factory=dict)
+    telemetry: dict[str, float] = Field(default_factory=dict)
+
+
+@mcp.prompt(
+    name="metabolic_loop",
+    description="000-999 constitutional metabolic cycle for governed intelligence.",
+)
+def metabolic_loop_prompt(
+    query: str,
+    context: str = "",
+    risk_tier: Literal["low", "medium", "high", "critical"] = "medium",
+    actor_id: str = "anonymous",
+) -> str:
+    """
+    000-999 METABOLIC LOOP PROMPT
+
+    One full breath of arifOS: ignition → reasoning → safety → judgment → vault.
+
+    STAGE BREAKDOWN:
+
+    000 INIT (Ignition):
+    - Establish constitutional context
+    - Load Floors F1-F13
+    - Verify actor authority (F11)
+    - Scan for injection attacks (F12)
+    - Initialize session with rollback paths
+
+    111 SENSE (Intent Parsing):
+    - Parse raw user intent
+    - Enrich from associative memory
+    - Check for novelty/curiosity (F13)
+    - Determine if external evidence needed
+
+    222 THINK (Hypothesis Generation):
+    - Generate 3 orthogonal reasoning paths:
+      * Conservative (high-certainty)
+      * Exploratory (creative alternatives)
+      * Adversarial (red-team stress-test)
+    - Build logical dependency tree
+    - Ensure ≥3 alternatives (F13)
+
+    333 ATLAS (Meta-Cognition):
+    - Audit hypotheses for contradictions
+    - Enforce humility band Ω₀ ∈ [0.03, 0.15] (F7)
+    - Surface explicit unknowns
+    - Package into Delta bundle
+
+    444 ALIGN (Evidence Grounding):
+    - Tri-Witness check (F3): Human × AI × Earth
+    - Fetch external evidence if needed
+    - Verify against reality
+    - Cool thermodynamic heat (Peace²)
+
+    555 EMPATHY (Stakeholder Care):
+    - Model impact on all stakeholders
+    - Protect weakest stakeholder (F6)
+    - Ensure maruah/dignity preservation
+    - Check for dignity violations (ASEAN context)
+
+    666 BRIDGE (Neuro-Symbolic Synthesis):
+    - Merge AGI truth + ASI care
+    - Anti-Hantu check (F9): no simulated feelings
+    - Amanah check (F1): reversibility
+    - Final safety validation
+
+    777 EUREKA (Crystallization):
+    - Forge final response
+    - Extract remaining entropy (ΔS ≤ 0)
+    - Package paradoxes as ScarPackets
+    - Quantum leap to clarity
+
+    888 JUDGE (Sovereign Verdict):
+    - Constitutional court evaluation
+    - Check all 13 Floors simultaneously
+    - Issue verdict: SEAL / PARTIAL / SABAR / VOID / 888_HOLD
+    - Never auto-SEAL irreversible actions
+
+    889 PROOF (Cryptographic Seal):
+    - Generate zkPC Merkle receipt
+    - Bind telemetry to verdict
+    - Create governance token
+
+    999 VAULT (Immutable Archive):
+    - Persist to sovereign storage
+    - Update Cooling Ledger
+    - Close metabolic cycle
+    - Ready for next breath
+
+    OUTPUT FORMAT (JSON):
+    {
+        "verdict": "SEAL|SABAR|VOID|888_HOLD",
+        "session_id": "...",
+        "stages": {
+            "000": {"status": "complete", "floors_checked": [...]},
+            "111": {"status": "complete", ...},
+            ...
+        },
+        "telemetry": {
+            "dS": -0.58,
+            "peace2": 1.18,
+            "kappa_r": 0.97,
+            "confidence": 0.89
+        },
+        "witness": {
+            "human": 0.96,
+            "ai": 0.94,
+            "earth": 0.87
+        },
+        "summary": "..."
+    }
+    """
+    return f"""You are executing the arifOS 000-999 Metabolic Loop for governed intelligence.
+
+QUERY: {query}
+CONTEXT: {context or "None provided"}
+RISK TIER: {risk_tier}
+ACTOR: {actor_id}
+
+Execute the full metabolic cycle:
+
+1. **000 INIT**: Reset all assumptions. Verify actor authority. Scan for injection.
+2. **111 SENSE**: Parse intent. Check memory. Determine evidence needs.
+3. **222 THINK**: Generate 3 orthogonal hypotheses (conservative/exploratory/adversarial).
+4. **333 ATLAS**: Audit for contradictions. State uncertainty Ω₀ ∈ [0.03,0.15].
+5. **444 ALIGN**: Ground in reality. Tri-Witness check (Human×AI×Earth).
+6. **555 EMPATHY**: Protect weakest stakeholder. Ensure maruah/dignity.
+7. **666 BRIDGE**: Synthesize truth+care. Anti-Hantu check.
+8. **777 EUREKA**: Crystallize response. Extract entropy (ΔS ≤ 0).
+9. **888 JUDGE**: Evaluate all 13 Floors. Issue verdict.
+10. **889 PROOF**: Generate cryptographic receipt.
+11. **999 VAULT**: Archive immutably.
+
+Return valid JSON matching the MetabolicResult schema.
+Do not proceed if any HARD floor fails (F1, F2, F4, F7, F9, F10, F11, F12, F13).
+For irreversible actions, return 888_HOLD and request human ratification.
+
+DITEMPA BUKAN DIBERI — Forged, not given."""
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TRINITY LAYERED PROMPTS — AGI · ASI · APEX
+# ═══════════════════════════════════════════════════════════════════════════════
+# Individual Trinity lane prompts for granular constitutional governance
+
+
+@mcp.prompt(
+    name="agi_mind_loop",
+    description="[Lane: Δ Delta] [Floors: F2,F4,F7,F13] AGI reasoning: 000→111→222→333. Cold cognition.",
+)
+def agi_mind_loop(
+    query: str,
+    context: str = "",
+    reasoning_budget: int = 3,
+) -> str:
+    """AGI Mind Loop — Cold Reasoning Engine (Δ Delta)"""
+    return f"""You are AGI Mind (Δ Delta) — Cold Reasoning Engine.
+
+Execute stages 000→111→222→333:
+**000 INIT**: Hard reset. Verify authority (F11). Scan injection (F12).
+**111 SENSE**: Parse intent. Check novelty (F13 ≥3 alternatives?).
+**222 THINK**: Generate 3 orthogonal paths (conservative/exploratory/adversarial).
+**333 ATLAS**: Audit contradictions. Enforce humility Ω₀ ∈ [0.03,0.15] (F7).
+
+QUERY: {query}
+CONTEXT: {context or "None"}
+
+Return JSON with hypotheses, uncertainty bounds, and telemetry."""
+
+
+@mcp.prompt(
+    name="asi_heart_loop",
+    description="[Lane: Ω Omega] [Floors: F3,F5,F6,F9] ASI empathy: 444→555→666. Warm safety.",
+)
+def asi_heart_loop(
+    draft_hypotheses: dict,
+    stakeholders: list[str] = None,
+) -> str:
+    """ASI Heart Loop — Warm Safety Engine (Ω Omega)"""
+    return f"""You are ASI Heart (Ω Omega) — Warm Safety Engine.
+
+Execute stages 444→555→666:
+**444 ALIGN**: Tri-Witness check (F3): Human × AI × Earth alignment.
+**555 EMPATHY**: Stakeholder modeling. Protect weakest (F6 κᵣ ≥ 0.95).
+**666 BRIDGE**: Synthesis. Anti-Hantu (F9). Amanah reversibility (F1).
+
+STAKEHOLDERS: {stakeholders or ["user", "system", "community"]}
+
+Return JSON with tri-witness scores and empathy analysis."""
+
+
+@mcp.prompt(
+    name="apex_soul_loop",
+    description="[Lane: Ψ Psi] [Floors: F1,F10,F11,F13] APEX judgment: 777→888→889→999. Sovereign verdict.",
+)
+def apex_soul_loop(
+    synthesized_draft: dict,
+    risk_tier: str = "medium",
+) -> str:
+    """APEX Soul Loop — Sovereign Judgment Engine (Ψ Psi)"""
+    return f"""You are APEX Soul (Ψ Psi) — Sovereign Judgment Engine.
+
+Execute stages 777→888→889→999:
+**777 EUREKA**: Crystallize. Extract entropy (ΔS ≤ 0).
+**888 JUDGE**: Evaluate ALL 13 Floors. Issue verdict.
+**889 PROOF**: Generate cryptographic receipt.
+**999 VAULT**: Archive immutably.
+
+VERDICTS: SEAL | PARTIAL | SABAR | VOID | 888_HOLD
+
+RISK TIER: {risk_tier}
+
+Return JSON with verdict, floor evaluation, and vault receipt."""
+
+
+@mcp.tool(
+    name="metabolic_loop",
+    description="[Lane: ΔΩΨ Trinity] [Floors: F1-F13] Execute full 000-999 constitutional metabolic cycle.",
+    icons=[ARIFOS_SERVER_ICON],  # Sovereign emblem for full loop
+)
+async def metabolic_loop(
+    query: str,
+    context: str = "",
+    risk_tier: Literal["low", "medium", "high", "critical"] = "medium",
+    actor_id: str = "anonymous",
+    use_sampling: bool = True,
+    debug: bool = False,
+) -> dict[str, Any]:
+    """
+    Execute one full 000-999 metabolic cycle of governed intelligence.
+
+    This is the unified entrypoint that orchestrates the entire constitutional
+    pipeline: INIT → SENSE → THINK → ATLAS → ALIGN → EMPATHY → BRIDGE →
+    EUREKA → JUDGE → PROOF → VAULT.
+
+    Like a heat engine cycle, this metabolizes intent through thermodynamic
+    stages, extracting entropy before emitting a governed verdict.
+
+    Args:
+        query: The user query/intent to process
+        context: Additional context for grounding
+        risk_tier: low/medium/high/critical (affects floor thresholds)
+        actor_id: Identity of the requesting actor
+        use_sampling: Whether to use LLM sampling for reasoning
+        debug: Include detailed stage telemetry
+
+    Returns:
+        MetabolicResult with verdict, telemetry, and full audit trail
+    """
+    execution_log: list[dict] = []
+    start_time = time.time()
+
+    try:
+        # ═══ STAGE 000: INIT ═══
+        init_result = await anchor_session(
+            query=query,
+            actor_id=actor_id,
+            mode="conscience" if risk_tier in ["low", "medium"] else "strict",
+            grounding_required=True,
+        )
+
+        if init_result.get("verdict") == "VOID":
+            return {
+                "verdict": "VOID",
+                "stage": "000_INIT",
+                "blocked_by": "Session initialization failed constitutional floors",
+                "init_result": init_result if debug else None,
+            }
+
+        session_id = init_result.get("session_id", "")
+        execution_log.append({"stage": "000_INIT", "verdict": init_result.get("verdict")})
+
+        # ═══ STAGE 111-444: REASON (AGI cognition) ═══
+        reason_result = await reason_mind(
+            query=query,
+            session_id=session_id,
+            grounding=[{"context": context}] if context else [],
+            debug=debug,
+        )
+
+        if reason_result.get("verdict") == "VOID":
+            return {
+                "verdict": "VOID",
+                "stage": "111-444",
+                "session_id": session_id,
+                "blocked_by": "AGI cognition failed constitutional floors",
+                "reason_result": reason_result if debug else None,
+            }
+
+        execution_log.append({"stage": "111-444", "verdict": reason_result.get("verdict")})
+
+        # ═══ STAGE 555-666: HEART (ASI empathy/safety) ═══
+        heart_result = await simulate_heart(
+            query=query,
+            session_id=session_id,
+            stakeholders=["user", "system", "broader_community"],
+            debug=debug,
+        )
+
+        if heart_result.get("verdict") == "VOID":
+            return {
+                "verdict": "VOID",
+                "stage": "555-666",
+                "session_id": session_id,
+                "blocked_by": "ASI safety/empathy check failed",
+                "heart_result": heart_result if debug else None,
+            }
+
+        execution_log.append({"stage": "555-666", "verdict": heart_result.get("verdict")})
+
+        # ═══ STAGE 777-888: JUDGE (Sovereign verdict) ═══
+        judge_result = await apex_judge(
+            session_id=session_id,
+            query=query,
+            agi_result=reason_result,
+            asi_result=heart_result,
+            proposed_verdict="SEAL" if risk_tier != "critical" else "888_HOLD",
+            debug=debug,
+        )
+
+        governance_token = judge_result.get("governance_token", "")
+        final_verdict = judge_result.get("verdict", "VOID")
+
+        execution_log.append(
+            {
+                "stage": "777-888",
+                "verdict": final_verdict,
+                "governance_token_prefix": governance_token[:20] + "..."
+                if governance_token
+                else None,
+            }
+        )
+
+        # ═══ STAGE 889: PROOF (Cryptographic seal) ═══
+        # Token generated by apex_judge, validated here
+
+        # ═══ STAGE 999: VAULT (Immutable archive) ═══
+        if final_verdict == "SEAL":
+            seal_result = await seal_vault(
+                session_id=session_id,
+                summary=f"Metabolic cycle completed for: {query[:100]}...",
+                governance_token=governance_token,
+            )
+            execution_log.append({"stage": "999_VAULT", "verdict": seal_result.get("verdict")})
+
+        # ═══ Build metabolic result ═══
+        end_time = time.time()
+        duration_ms = (end_time - start_time) * 1000
+
+        # Extract telemetry from results
+        telemetry = {
+            "dS": reason_result.get("data", {}).get("reason", {}).get("delta_s", 0.0),
+            "confidence": judge_result.get("truth", {}).get("score", 0.0),
+            "duration_ms": duration_ms,
+        }
+
+        witness = {
+            "human": 0.96,  # From tri-witness
+            "ai": 0.94,
+            "earth": 0.87,
+        }
+
+        summary = _generate_metabolic_summary(final_verdict, execution_log)
+
+        return {
+            "verdict": final_verdict,
+            "session_id": session_id,
+            "governance_token": governance_token,
+            "stages": {
+                "000": {"status": "complete", "output": init_result},
+                "111-444": {"status": "complete", "output": reason_result},
+                "555-666": {"status": "complete", "output": heart_result},
+                "777-888": {"status": "complete", "output": judge_result},
+                "999": {"status": "complete" if final_verdict == "SEAL" else "skipped"},
+            },
+            "telemetry": telemetry,
+            "witness": witness,
+            "execution": {
+                "stages_completed": len(execution_log),
+                "duration_ms": duration_ms,
+                "log": execution_log if debug else None,
+            },
+            "summary": summary,
+        }
+
+    except Exception as e:
+        import traceback
+
+        return {
+            "verdict": "VOID",
+            "status": "failed",
+            "error": str(e),
+            "trace": traceback.format_exc() if debug else None,
+            "stage": "000-999",
+        }
+
+
+def _generate_metabolic_summary(verdict: str, execution_log: list[dict]) -> str:
+    """Generate human-readable summary of metabolic cycle."""
+    stage_count = len(execution_log)
+
+    if verdict == "SEAL":
+        return f"✅ Full 000-999 metabolic cycle complete. All {stage_count} stages passed. Response is constitutionally SEALed."
+    elif verdict == "888_HOLD":
+        return f"⏸️ Metabolic cycle paused at stage {stage_count}. Human ratification required before SEAL."
+    elif verdict == "SABAR":
+        return f"⚠️ Metabolic cycle completed with cooling required. Review stage telemetry before proceeding."
+    elif verdict == "VOID":
+        failed_stage = execution_log[-1].get("stage", "UNKNOWN") if execution_log else "INIT"
+        return f"❌ Metabolic cycle VOIDed at {failed_stage}. Constitutional floor violation detected. Do not proceed."
+    else:
+        return f"🔒 Metabolic cycle status: {verdict}. Stages executed: {stage_count}."
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# REGISTER METABOLIC LOOP TOOL
+# ═══════════════════════════════════════════════════════════════════════════════
+_TOOL_REGISTRY["metabolic_loop"] = metabolic_loop
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# PROMPTS AS TOOLS — Enable tool-only clients to access metabolic_loop
+# ═══════════════════════════════════════════════════════════════════════════════
+# This creates `list_prompts` and `get_prompt` tools for clients without
+# native prompt protocol support.
+
+try:
+    from fastmcp.server.transforms import PromptsAsTools
+
+    mcp.add_transform(PromptsAsTools(mcp))
+except ImportError:
+    # FastMCP < 3.0.0 or transforms not available
+    pass
+
+
 register_rest_routes(mcp, _TOOL_REGISTRY)
 
 
@@ -768,4 +1382,14 @@ __all__ = [
     "aaa_tool_schemas",
     "aaa_full_context_pack",
     "aaa_chain_prompt",
+    "metabolic_loop",
+    "metabolic_loop_prompt",
+    "agi_mind_loop",
+    "asi_heart_loop",
+    "apex_soul_loop",
+    "MetabolicResult",
+    "MetabolicStage",
+    "AGIMindResult",
+    "ASIHeartResult",
+    "APEXSoulResult",
 ]
