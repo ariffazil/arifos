@@ -1124,7 +1124,6 @@ critique_thought = ToolHandle(_critique_thought)
     description="[Lane: Δ Delta] [Floors: F1, F4, F11] Filesystem inspection (read-only).",
 )
 async def _inspect_file(
-    session_id: str, 
     path: str = ".",
     depth: int = 1,
     include_hidden: bool = False,
@@ -1142,7 +1141,7 @@ async def _inspect_file(
     )
     return envelope_builder.build_envelope(
         stage="111_INSPECT",
-        session_id=session_id,
+        session_id="inspect",
         verdict="SEAL",
         payload=payload,
     )
@@ -1156,7 +1155,6 @@ inspect_file = ToolHandle(_inspect_file)
     description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.",
 )
 async def _check_vital(
-    session_id: str,
     include_swap: bool = True,
     include_io: bool = False,
     include_temp: bool = False,
@@ -1168,7 +1166,7 @@ async def _check_vital(
     )
     return envelope_builder.build_envelope(
         stage="555_HEALTH",
-        session_id=session_id,
+        session_id="health-check",
         verdict="SEAL",
         payload=payload,
     )
