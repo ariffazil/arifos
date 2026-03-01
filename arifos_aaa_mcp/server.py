@@ -32,6 +32,9 @@ from .contracts import require_session, validate_input
 from .fastmcp_ext.discovery import build_surface_discovery
 from .governance import LAW_13_CATALOG, TOOL_DIALS_MAP, wrap_tool_output
 
+# Import legacy aaa_mcp for tool function access
+import aaa_mcp as legacy
+
 # ═══════════════════════════════════════════════════════
 # PHASE 1: Wire MCP Gateway to Thermodynamic Core
 # ═══════════════════════════════════════════════════════
