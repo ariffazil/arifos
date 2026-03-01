@@ -16,7 +16,8 @@ import os
 import sys
 import uuid
 from datetime import datetime, timezone
-from typing import Any, get_args, get_origin
+from types import UnionType
+from typing import Any, Union, get_args, get_origin, get_type_hints
 
 # Force local source priority (same as rest.py)
 sys.path.insert(0, os.getcwd())
@@ -26,6 +27,12 @@ from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
+
+from aaa_mcp.protocol.public_surface import (
+    PUBLIC_PROMPT_NAMES,
+    PUBLIC_RESOURCE_URIS,
+    PUBLIC_TOOL_ALIASES,
+)
 
 # Import canonical tools from public 13-tool surface.
 from arifos_aaa_mcp.server import (
@@ -57,13 +64,13 @@ _ACTIVE_SESSIONS: dict[str, str] = {}
 
 RESOURCE_DESCRIPTORS = [
     {
-        "uri": "arifos://aaa/schemas",
+        "uri": PUBLIC_RESOURCE_URIS["schemas"],
         "name": "arifos_aaa_tool_schemas",
         "description": "Canonical AAA MCP 13-tool schema/contract overview.",
         "mimeType": "application/json",
     },
     {
-        "uri": "arifos://aaa/full-context-pack",
+        "uri": PUBLIC_RESOURCE_URIS["full_context_pack"],
         "name": "arifos_aaa_full_context_pack",
         "description": "Full-context orchestration metadata (stage spine, prompts, resources).",
         "mimeType": "application/json",
@@ -72,7 +79,7 @@ RESOURCE_DESCRIPTORS = [
 
 PROMPT_DESCRIPTORS = [
     {
-        "name": "arifos.prompt.aaa_chain",
+        "name": PUBLIC_PROMPT_NAMES["aaa_chain"],
         "title": "AAA Chain Prompt",
         "description": "Run canonical 13-tool continuity chain from anchor to seal.",
         "arguments": [
@@ -81,6 +88,12 @@ PROMPT_DESCRIPTORS = [
         ],
     }
 ]
+
+PROMPT_ARGUMENT_COMPLETIONS: dict[str, dict[str, list[str]]] = {
+    PUBLIC_PROMPT_NAMES["aaa_chain"]: {
+        "actor_id": ["user", "ops", "anonymous"],
+    }
+}
 
 # Tool registry — canonical UX names as primary keys.
 TOOLS = {
@@ -117,29 +130,7 @@ TOOL_DESCRIPTIONS = {
 }
 
 # All aliases resolve to canonical names.
-TOOL_ALIASES = {
-    # Mid-gen kernel names
-    "init_session": "anchor_session",
-    "agi_cognition": "reason_mind",
-    "phoenix_recall": "recall_memory",
-    "asi_empathy": "simulate_heart",
-    "apex_verdict": "apex_judge",
-    "sovereign_actuator": "eureka_forge",
-    "vault_seal": "seal_vault",
-    "search": "search_reality",
-    "fetch": "fetch_content",
-    "system_audit": "audit_rules",
-    # Legacy 9-verb surface
-    "anchor": "anchor_session",
-    "reason": "reason_mind",
-    "integrate": "reason_mind",
-    "respond": "reason_mind",
-    "validate": "simulate_heart",
-    "align": "simulate_heart",
-    "forge": "eureka_forge",
-    "audit": "apex_judge",
-    "seal": "seal_vault",
-}
+TOOL_ALIASES = dict(PUBLIC_TOOL_ALIASES)
 
 
 async def log_identity(
@@ -215,7 +206,7 @@ def _annotation_to_json_type(annotation: Any) -> str:
         return "object"
 
     # Optional[T] / Union[T, None]
-    if str(origin).endswith("Union") and args:
+    if origin in (Union, UnionType) and args:
         non_none = [a for a in args if a is not type(None)]
         if non_none:
             return _annotation_to_json_type(non_none[0])
@@ -231,6 +222,10 @@ def _build_input_schema(tool: Any) -> dict:
         return {"type": "object", "properties": {}, "additionalProperties": True}
 
     sig = inspect.signature(func)
+    try:
+        type_hints = get_type_hints(func)
+    except Exception:
+        type_hints = {}
     properties: dict[str, dict] = {}
     required: list[str] = []
 
@@ -240,7 +235,8 @@ def _build_input_schema(tool: Any) -> dict:
         if param.kind in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD):
             continue
 
-        prop = {"type": _annotation_to_json_type(param.annotation)}
+        annotation = type_hints.get(name, param.annotation)
+        prop = {"type": _annotation_to_json_type(annotation)}
         if param.default is not inspect._empty:
             prop["default"] = param.default
         else:
@@ -255,6 +251,19 @@ def _build_input_schema(tool: Any) -> dict:
     if required:
         schema["required"] = required
     return schema
+
+
+def _complete_prompt_argument(prompt_name: str, arg_name: str, value: str) -> list[str]:
+    """Return deterministic completion values for known prompt arguments."""
+    args = PROMPT_ARGUMENT_COMPLETIONS.get(prompt_name, {})
+    candidates = args.get(arg_name, [])
+    if not candidates:
+        return []
+
+    needle = value.lower().strip()
+    if not needle:
+        return candidates
+    return [candidate for candidate in candidates if candidate.lower().startswith(needle)]
 
 
 async def mcp_endpoint(request: Request) -> Response:
@@ -358,7 +367,13 @@ async def mcp_endpoint(request: Request) -> Response:
         _ACTIVE_SESSIONS[session_id] = negotiated_version
         result = {
             "protocolVersion": negotiated_version,
-            "capabilities": {"tools": {}, "resources": {}, "prompts": {}, "logging": {}},
+            "capabilities": {
+                "tools": {"listChanged": False},
+                "resources": {"subscribe": False, "listChanged": False},
+                "prompts": {"listChanged": False},
+                "completion": {},
+                "logging": {},
+            },
             "serverInfo": {
                 "name": "arifos-aaa-mcp",
                 "version": "2026.02.27-CANONICAL-13",
@@ -370,21 +385,37 @@ async def mcp_endpoint(request: Request) -> Response:
         )
 
     session_id = request.headers.get(SESSION_HEADER, "")
+
+    is_anchor = False
+    if method == "tools/call" and isinstance(params, dict):
+        tool_n = str(params.get("name", ""))
+        # Resolve alias if used
+        target_tool = TOOL_ALIASES.get(tool_n, tool_n)
+        if target_tool == "anchor_session":
+            is_anchor = True
+
     if not session_id:
-        return _jsonrpc_error(
-            code=-32600,
-            message=f"Missing {SESSION_HEADER} header",
-            request_id=request_id,
-            http_status=400,
-        )
+        if is_anchor:
+            session_id = str(uuid.uuid4())
+            _ACTIVE_SESSIONS[session_id] = PROTOCOL_VERSION
+        else:
+            return _jsonrpc_error(
+                code=-32600,
+                message=f"Missing {SESSION_HEADER} header",
+                request_id=request_id,
+                http_status=400,
+            )
     if session_id not in _ACTIVE_SESSIONS:
-        return _jsonrpc_error(
-            code=-32001,
-            message="Session not found",
-            request_id=request_id,
-            http_status=404,
-            session_id=session_id,
-        )
+        if is_anchor:
+            _ACTIVE_SESSIONS[session_id] = PROTOCOL_VERSION
+        else:
+            return _jsonrpc_error(
+                code=-32001,
+                message="Session not found",
+                request_id=request_id,
+                http_status=404,
+                session_id=session_id,
+            )
 
     negotiated_version = _ACTIVE_SESSIONS[session_id]
 
@@ -426,6 +457,13 @@ async def mcp_endpoint(request: Request) -> Response:
     if method == "notifications/initialized":
         return Response(status_code=202, headers=_transport_headers(session_id))
 
+    if method in {
+        "notifications/tools/list_changed",
+        "notifications/resources/list_changed",
+        "notifications/prompts/list_changed",
+    }:
+        return Response(status_code=202, headers=_transport_headers(session_id))
+
     if method == "resources/list":
         return JSONResponse(
             {"jsonrpc": "2.0", "id": request_id, "result": {"resources": RESOURCE_DESCRIPTORS}},
@@ -438,11 +476,19 @@ async def mcp_endpoint(request: Request) -> Response:
             headers=_transport_headers(session_id),
         )
 
+    if method in {"resources/subscribe", "resources/unsubscribe"}:
+        return _jsonrpc_error(
+            code=-32601,
+            message="Resource subscriptions are not supported by this transport",
+            request_id=request_id,
+            session_id=session_id,
+        )
+
     if method == "resources/read":
         uri = str(params.get("uri", "")).strip()
-        if uri == "arifos://aaa/schemas":
+        if uri == PUBLIC_RESOURCE_URIS["schemas"]:
             content_text = aaa_tool_schemas()
-        elif uri == "arifos://aaa/full-context-pack":
+        elif uri == PUBLIC_RESOURCE_URIS["full_context_pack"]:
             content_text = aaa_full_context_pack()
         else:
             return _jsonrpc_error(
@@ -476,7 +522,7 @@ async def mcp_endpoint(request: Request) -> Response:
 
     if method == "prompts/get":
         prompt_name = str(params.get("name", "")).strip()
-        if prompt_name != "arifos.prompt.aaa_chain":
+        if prompt_name != PUBLIC_PROMPT_NAMES["aaa_chain"]:
             return _jsonrpc_error(
                 code=-32602,
                 message=f"Unknown prompt: {prompt_name}",
@@ -494,7 +540,7 @@ async def mcp_endpoint(request: Request) -> Response:
                 "jsonrpc": "2.0",
                 "id": request_id,
                 "result": {
-                    "name": "arifos.prompt.aaa_chain",
+                    "name": PUBLIC_PROMPT_NAMES["aaa_chain"],
                     "description": "Run canonical 13-tool continuity chain from anchor to seal.",
                     "messages": [
                         {
@@ -508,6 +554,71 @@ async def mcp_endpoint(request: Request) -> Response:
                 },
             },
             headers=_transport_headers(session_id),
+        )
+
+    if method == "completion/complete":
+        ref = params.get("ref", {}) if isinstance(params, dict) else {}
+        argument = params.get("argument", {}) if isinstance(params, dict) else {}
+
+        if not isinstance(ref, dict) or not isinstance(argument, dict):
+            return _jsonrpc_error(
+                code=-32602,
+                message="Invalid completion params",
+                request_id=request_id,
+                session_id=session_id,
+            )
+
+        ref_type = str(ref.get("type", "")).strip()
+        if ref_type == "prompt":
+            prompt_name = str(ref.get("name", "")).strip()
+            arg_name = str(argument.get("name", "")).strip()
+            arg_value = str(argument.get("value", ""))
+
+            if prompt_name != PUBLIC_PROMPT_NAMES["aaa_chain"]:
+                return _jsonrpc_error(
+                    code=-32602,
+                    message=f"Unknown prompt for completion: {prompt_name}",
+                    request_id=request_id,
+                    session_id=session_id,
+                )
+
+            values = _complete_prompt_argument(prompt_name, arg_name, arg_value)
+            return JSONResponse(
+                {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {
+                        "completion": {
+                            "values": values,
+                            "total": len(values),
+                            "hasMore": False,
+                        }
+                    },
+                },
+                headers=_transport_headers(session_id),
+            )
+
+        if ref_type == "resource":
+            return JSONResponse(
+                {
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {
+                        "completion": {
+                            "values": [],
+                            "total": 0,
+                            "hasMore": False,
+                        }
+                    },
+                },
+                headers=_transport_headers(session_id),
+            )
+
+        return _jsonrpc_error(
+            code=-32602,
+            message=f"Unsupported completion ref type: {ref_type}",
+            request_id=request_id,
+            session_id=session_id,
         )
 
     if method == "tools/list":

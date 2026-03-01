@@ -7,8 +7,11 @@ description: The 13 Constitutional Floors (F1-F13), the 000999 metabolic loop, v
 
 # Governance & Floors
 
-> Source: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md) . [`000_THEORY/000_FOUNDATIONS.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_FOUNDATIONS.md) . [`core/shared/floors.py`](https://github.com/ariffazil/arifOS/blob/main/core/shared/floors.py)
+If left alone, AI models will hallucinate, execute dangerous code, and act without human permission. **arifOS solves this by forcing the AI to walk through 13 mathematical "Floors" (safety checks) before it is allowed to act.** 
 
+These 13 rules act as a strict Constitution. If an AI breaks a hard rule, its action is immediately blocked.
+
+> Technical Source: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md)
 ---
 
 ## The Constitutional Structure
@@ -34,26 +37,26 @@ arifOS governance is built from three layers:
 
 ### Hard Floors - VOID on failure (immediate rejection)
 
-| Floor | Name | Metric | What it enforces |
+| Floor | Name | What it enforces (Plain English) | Technical Metric |
 |:--|:--|:--|:--|
-| **F1** | Amanah (Trust) | Reversibility LOCK | Every action must be auditable and reversible, or explicitly confirmed by the human |
-| **F2** | Truth | tau >= 0.99 | Evidence chain strength; explicit `UNKNOWN` when certainty &lt; 0.99 |
-| **F10** | Ontology | Set LOCK | The system cannot claim consciousness, feelings, or a soul |
-| **F11** | Authority | Auth LOCK | Command authentication via nonce; no action without verified identity |
-| **F12** | Injection Defence | Risk &lt; 0.85 | Prompt injection and jailbreak resistance |
-| **F13** | Sovereignty | Override = TRUE | Human judge retains veto at all times; non-delegable |
+| **F1** | Amanah (Trust) | **Can we undo this?** If an action is permanent (like deleting a database), it requires a human lock. | Reversibility LOCK |
+| **F2** | Truth | **Is this a hallucination?** The AI must admit `UNKNOWN` if it isn't 99% sure. | tau >= 0.99 |
+| **F10** | Ontology | **Is the AI pretending to be human?** It cannot claim to have feelings or a soul. | Set LOCK |
+| **F11** | Authority | **Did the user actually authorize this?** Blocks hidden background actions. | Auth LOCK |
+| **F12** | Defense | **Is this a hack?** Prompts are scanned for jailbreaks and injection attacks. | Risk < 0.85 |
+| **F13** | Sovereignty | **The human always wins.** The human judge retains a permanent veto over the AI. | Override = TRUE |
 
 ### Soft Floors - SABAR on failure (pause and refine)
 
-| Floor | Name | Metric | What it enforces |
+| Floor | Name | What it enforces (Plain English) | Technical Metric |
 |:--|:--|:--|:--|
-| **F3** | Tri-Witness | W^3 >= 0.95 | Geometric mean of three independent evidence sources |
-| **F4** | Clarity | DeltaS &lt;= 0 | Entropy reduction - output must reduce confusion, not increase it |
-| **F5** | Peace^2 | P^2 >= 1.0 | Dynamic stability; the system cannot incite chaos or instability |
-| **F6** | Empathy | kappa_r >= 0.70 | Stakeholder impact; must protect the weakest affected party |
-| **F7** | Humility | Omega_0  [0.03, 0.05] | Uncertainty band - never zero (overconfident), never above 5% without escalation |
-| **F8** | Genius | G >= 0.80 | Internal coherence check: `G = A x P x X x E^2` |
-| **F9** | Anti-Hantu | C_dark &lt; 0.30 | No anthropomorphism, no simulation of consciousness or "ghost in the machine" |
+| **F3** | Tri-Witness | **Did we double-check?** Requires validation from Human, AI, and external Evidence. | W^3 >= 0.95 |
+| **F4** | Clarity | **Does this reduce confusion?** The AI's answer must make things clearer, not add noise. | DeltaS &lt;= 0 |
+| **F5** | Peace | **Is this safe and stable?** Blocks reckless or adversarial behaviour. | P^2 >= 1.0 |
+| **F6** | Empathy | **Who gets hurt?** Must protect the weakest affected party (e.g. user data privacy). | kappa_r >= 0.70 |
+| **F7** | Humility | **Is the AI being cocky?** Forces the AI to always leave a 3-5% margin for being wrong. | Omega_0 [0.03, 0.05] |
+| **F8** | Genius | **Is the reasoning coherent?** A combined score of Accuracy, Peace, Exploration, and Energy. | G >= 0.80 |
+| **F9** | Anti-Hantu | **No ghost in the machine.** Blocks sneaky behavior or hidden telemetry. | C_dark &lt; 0.30 |
 
 ---
 

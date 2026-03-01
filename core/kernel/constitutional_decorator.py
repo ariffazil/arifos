@@ -1,6 +1,11 @@
 """Kernel constitutional decorator logic.
 
 This module contains floor enforcement logic independent of transport frameworks.
+
+P0 HARDENING:
+- F4: ΔS <= 0 strict entropy reduction (no exceptions)
+- F1: Amanah irreversibility check at decorator level
+- Fail-closed: Any ambiguity → VOID
 """
 
 from __future__ import annotations
@@ -19,6 +24,98 @@ from core.kernel.evaluator import (
     SOFT_FLOORS,
     evaluator,
 )
+
+# ═══════════════════════════════════════════════════════
+# P0 HARDENING: Strict Constitutional Checks
+# ═══════════════════════════════════════════════════════
+
+class EntropyViolation(Exception):
+    """P0: F4 Clarity violation - ΔS > 0 (entropy increased)."""
+    pass
+
+
+class AmanahViolation(Exception):
+    """P0: F1 Amanah violation - irreversible action without mandate."""
+    pass
+
+
+def check_entropy_reduction(delta_s: float) -> dict[str, Any]:
+    """
+    P0 HARDENING: Strict ΔS <= 0 enforcement.
+    
+    Any output that increases entropy (adds confusion) is VOID.
+    No exceptions, no partial credit.
+    
+    Args:
+        delta_s: Entropy change (must be <= 0)
+    
+    Returns:
+        Dict with pass/fail status
+    
+    Raises:
+        EntropyViolation: If delta_s > 0 (strict enforcement)
+    """
+    # STRICT: Any positive delta_s is a violation
+    if delta_s > 0:
+        raise EntropyViolation(
+            f"F4_CLARITY_VIOLATION: ΔS={delta_s:.4f} > 0. "
+            f"Output increases entropy (adds confusion). "
+            f"Constitutional requirement: ΔS <= 0."
+        )
+    
+    return {
+        "passed": True,
+        "floor": "F4",
+        "delta_s": delta_s,
+        "threshold": 0.0,
+        "strict": True,
+    }
+
+
+def check_amanah(
+    action_reversible: bool,
+    has_sovereign_mandate: bool,
+    action_type: str = "default",
+) -> dict[str, Any]:
+    """
+    P0 HARDENING: F1 Amanah - Irreversibility awareness.
+    
+    All tasks must be reversible at governance level OR have sovereign mandate.
+    
+    Args:
+        action_reversible: Can action be undone/replayed
+        has_sovereign_mandate: Does action have 888 Judge authorization
+        action_type: Type of action (delete, deploy, modify, etc.)
+    
+    Returns:
+        Dict with pass/fail status
+    
+    Raises:
+        AmanahViolation: If irreversible action lacks mandate
+    """
+    # Critical irreversible actions
+    IRREVERSIBLE_ACTIONS = ["delete", "deploy", "destroy", "erase", "purge"]
+    
+    is_critical = any(a in action_type.lower() for a in IRREVERSIBLE_ACTIONS)
+    
+    if is_critical and not has_sovereign_mandate:
+        raise AmanahViolation(
+            f"F1_AMANAH_VIOLATION: Irreversible action '{action_type}' "
+            f"without sovereign mandate. 888_HOLD required."
+        )
+    
+    if not action_reversible and not has_sovereign_mandate:
+        raise AmanahViolation(
+            f"F1_AMANAH_VIOLATION: Action not reversible and lacks mandate. "
+            f"All actions must be auditable or reversible."
+        )
+    
+    return {
+        "passed": True,
+        "floor": "F1",
+        "reversible": action_reversible,
+        "mandate": has_sovereign_mandate,
+    }
 
 logger = logging.getLogger(__name__)
 
@@ -220,4 +317,14 @@ def get_tool_floors(tool_name: str) -> list:
     return FLOOR_ENFORCEMENT.get(tool_name, [])
 
 
-__all__ = ["constitutional_floor", "get_tool_floors", "FLOOR_ENFORCEMENT"]
+__all__ = [
+    # P0 HARDENING
+    "EntropyViolation",
+    "AmanahViolation",
+    "check_entropy_reduction",
+    "check_amanah",
+    # Core decorator
+    "constitutional_floor",
+    "get_tool_floors",
+    "FLOOR_ENFORCEMENT",
+]

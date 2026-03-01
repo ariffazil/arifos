@@ -121,7 +121,7 @@ Multi-agent federation (Architect, Engineer, Auditor, Validator).
 Collective governance and Tri-Witness organizational structures.
 - **Status:** 🔴 Stubs
 - **Location:** `L6_INSTITUTION/`
-- **Target:** v66.0+
+- **Target:** 2026.02.28+
 
 ---
 

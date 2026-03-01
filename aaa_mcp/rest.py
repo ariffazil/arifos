@@ -38,7 +38,10 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
 from starlette.routing import Route
 
+from aaa_mcp.build_info import get_build_info
 from aaa_mcp.integrations.self_ops import self_diagnose
+from aaa_mcp.protocol.public_surface import PUBLIC_TOOL_ALIASES
+from core.shared.floor_audit import get_ml_floor_runtime
 
 # Import all 13 canonical tools from server module.
 # Legacy verbs are supported via HTTP aliases only.
@@ -59,12 +62,7 @@ from arifos_aaa_mcp.server import (
 )
 
 # Build info
-BUILD_INFO = {
-    "version": "2026.02.23-CANONICAL-13",
-    "schema_version": "2026.02.23-CANONICAL-13",
-    "git_sha": os.environ.get("GIT_SHA", "unknown"),
-    "build_time": os.environ.get("BUILD_TIME", datetime.now(timezone.utc).isoformat()),
-}
+BUILD_INFO = get_build_info()
 
 # Tool registry — canonical UX names as primary keys.
 TOOLS = {
@@ -129,7 +127,8 @@ TOOL_SCHEMAS = {
         "description": "[Lane: Omega] 666_ALIGN — 7-model bias critique",
         "args": {
             "session_id": {"type": "string", "required": True},
-            "query": {"type": "string", "required": True},
+            "plan": {"type": "object", "required": True},
+            "context": {"type": "string", "required": False, "default": ""},
         },
     },
     "apex_judge": {
@@ -206,18 +205,6 @@ TOOL_SCHEMAS = {
             "session_id": {"type": "string", "required": True},
         },
     },
-    "apex_judge": {
-        "description": "Full pipeline wrapper — 000→333→555→666→888→999",
-        "args": {
-            "query": {"type": "string", "required": True},
-            "actor_id": {"type": "string", "required": False, "default": "user"},
-            "auth_token": {"type": "string|null", "default": None},
-            "stakeholders": {"type": "array|null", "default": None},
-            "grounding": {"type": "array|null", "default": None},
-            "auto_seal": {"type": "boolean", "default": False},
-            "debug": {"type": "boolean", "default": False},
-        },
-    },
     "self_diagnose": {
         "description": "SELF_OPS — Infrastructure health check (non-constitutional)",
         "args": {
@@ -226,33 +213,7 @@ TOOL_SCHEMAS = {
     },
 }
 
-# Tool name aliases — all map to canonical UX names.
-TOOL_ALIASES = {
-    # Mid-gen kernel names → canonical
-    "init_session": "anchor_session",
-    "agi_cognition": "reason_mind",
-    "phoenix_recall": "recall_memory",
-    "asi_empathy": "simulate_heart",
-    "apex_verdict": "apex_judge",
-    "sovereign_actuator": "eureka_forge",
-    "vault_seal": "seal_vault",
-    "search": "search_reality",
-    "fetch": "fetch_content",
-    "analyze": "inspect_file",
-    "system_audit": "audit_rules",
-    # Legacy 9-verb surface → canonical
-    "anchor": "anchor_session",
-    "reason": "reason_mind",
-    "integrate": "reason_mind",
-    "respond": "reason_mind",
-    "validate": "simulate_heart",
-    "align": "simulate_heart",
-    "forge": "eureka_forge",
-    "audit": "apex_judge",
-    "seal": "seal_vault",
-    # Pipeline alias
-    "apex_judge": "apex_judge",
-}
+TOOL_ALIASES = dict(PUBLIC_TOOL_ALIASES)
 
 # ═══════════════════════════════════════════════════════
 # AUTH (OPTIONAL) — Bearer token gate for REST bridge
@@ -509,6 +470,7 @@ async def health(request: Request):
             "status": "healthy" if monitor.is_healthy() else "degraded",
             "service": "aaa-mcp-rest",
             "version": BUILD_INFO["version"],
+            "ml_floors": get_ml_floor_runtime(),
             "governance_metrics": stats,
             "health_checks": health_results,
         }
@@ -792,10 +754,11 @@ async def apex_judge_wrapper(request: Request):
         if auto_seal:
             seal_tool = TOOLS["seal_vault"]
             seal_fn = getattr(seal_tool, "fn", seal_tool)
+            governance_token = str(apex_result.get("governance_token", ""))
             seal_result = await seal_fn(
                 session_id=canonical_session_id,
                 summary=query[:100],
-                verdict=apex_result.get("verdict", "SEAL"),
+                governance_token=governance_token,
             )
             pipeline_results["pipeline"].append({"stage": "999_VAULT", "result": seal_result})
         latency_ms = (time.time() - start_time) * 1000

@@ -12,6 +12,10 @@ description: Technical reference for the canonical arifOS AAA MCP runtime.
 > Runtime module: `arifos_aaa_mcp`
 > Version: `2026.2.27`
 
+If you're wondering what an "MCP Server" is: **It's the bridge that connects an AI (like Claude or Cursor) to arifOS.** 
+
+The Model Context Protocol (MCP) is a standard that lets AI models securely use external tools. arifOS runs its own MCP server so that any AI can connect to it and instantly be bound by the 13 constitutional floors.
+
 ## Runtime profile
 
 - **Production transport:** Streamable HTTP (`/mcp`) — Current MCP standard
@@ -26,7 +30,9 @@ description: Technical reference for the canonical arifOS AAA MCP runtime.
 Protocol version is negotiated during `initialize` and fixed per session.
 If a client sends an unsupported version, the server returns a JSON-RPC error and no session is created.
 
-## Launch commands
+## Launch commands (How to run it)
+
+Depending on where you are running the AI, you start the server differently:
 
 ```bash
 # Local stdio (for Claude Desktop, Cursor)
@@ -36,11 +42,8 @@ python -m arifos_aaa_mcp stdio
 HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
 ```
 
-**Why streamable HTTP?**
-- Single endpoint (vs legacy SSE two-channel model)
-- Cloud-native scaling
-- Better firewall/proxy compatibility
-- Current MCP standard (2024+)
+**Why streamable HTTP for production?**
+Instead of complicated two-way communication channels, streamable HTTP means the AI and the server can talk securely over a standard web connection, which is much easier to scale in the cloud and protects against firewall blocks.
 
 ## Canonical MCP surface
 

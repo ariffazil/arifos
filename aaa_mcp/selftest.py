@@ -15,6 +15,10 @@ Usage:
 
 import os
 import sys
+from pathlib import Path
+
+from aaa_mcp.protocol.aaa_contract import AAA_TOOL_LAW_BINDINGS, MANIFEST_VERSION
+from core.shared.floor_audit import get_ml_floor_runtime
 
 # Target bands
 OMEGA_TARGET_MIN = 0.03
@@ -25,29 +29,32 @@ OMEGA_CRITICAL = 0.08
 def check_floors() -> tuple[bool, list[str]]:
     """Verify constitutional floors are configured."""
     issues = []
+    runtime = get_ml_floor_runtime()
 
-    # Check for floor configuration (T000 uses core.constitutional_decorator)
+    # Check for canonical floor bindings on the public 13-tool contract.
     try:
-        from aaa_mcp.core.constitutional_decorator import FLOOR_ENFORCEMENT
-
-        if not FLOOR_ENFORCEMENT:
+        if not AAA_TOOL_LAW_BINDINGS:
             issues.append("WARN: No constitutional floors defined")
         else:
-            floor_count = len(FLOOR_ENFORCEMENT)
-            # v64.1 enforces floors on the 5 canonical tools
+            floor_count = len(AAA_TOOL_LAW_BINDINGS)
             required_floor_tools = [
-                "init_session",
-                "agi_cognition",
-                "asi_empathy",
-                "apex_verdict",
-                "vault_seal",
+                "anchor_session",
+                "reason_mind",
+                "simulate_heart",
+                "apex_judge",
+                "seal_vault",
             ]
-            missing_floors = [t for t in required_floor_tools if t not in FLOOR_ENFORCEMENT]
+            missing_floors = [t for t in required_floor_tools if not AAA_TOOL_LAW_BINDINGS.get(t)]
 
             if missing_floors:
                 issues.append(f"WARN: Missing floors for: {missing_floors}")
 
             print(f"✓ Constitutional floors loaded: {floor_count} definitions")
+            print(
+                "✓ ML floor mode: "
+                f"{runtime['ml_method']} (enabled={runtime['ml_floors_enabled']}, "
+                f"available={runtime['ml_model_available']})"
+            )
     except ImportError as e:
         issues.append(f"ERROR: Cannot load constitutional floors: {e}")
 
@@ -83,20 +90,28 @@ async def check_tools() -> tuple[bool, list[str]]:
         if not tool_names:
             issues.append("WARN: Could not inspect tools list")
 
-        # Verify 5 Canonical Tools (v64.1-GAGI)
+        # Verify canonical 13-tool surface against the shared contract manifest.
         required_tools = [
-            "init_session",
-            "agi_cognition",
-            "asi_empathy",
-            "apex_verdict",
-            "vault_seal",
+            "anchor_session",
+            "reason_mind",
+            "recall_memory",
+            "simulate_heart",
+            "critique_thought",
+            "apex_judge",
+            "eureka_forge",
+            "seal_vault",
+            "search_reality",
+            "fetch_content",
+            "inspect_file",
+            "audit_rules",
+            "check_vital",
         ]
 
         missing = [t for t in required_tools if t not in tool_names]
         if missing:
             issues.append(f"FAIL: Missing canonical tools: {missing}")
         else:
-            print(f"✓ All {len(required_tools)} canonical tools present (v64.1-GAGI)")
+            print(f"✓ All {len(required_tools)} canonical tools present (MANIFEST_VERSION={MANIFEST_VERSION})")
 
         print("✓ MCP server module loaded successfully")
 
@@ -152,7 +167,7 @@ def check_health_contract() -> tuple[bool, list[str]]:
 
     # Check required fields for health response
     required_fields = ["status"]
-    optional_fields = ["version", "tools", "mode", "cluster", "floors"]
+    optional_fields = ["version", "tools", "mode", "cluster", "floors", "ml_floors"]
 
     try:
         # Try to import health handler
@@ -165,6 +180,7 @@ def check_health_contract() -> tuple[bool, list[str]]:
             "version": os.environ.get("ARIFOS_VERSION", "unknown"),
             "mode": os.environ.get("GOVERNANCE_MODE", "SOFT"),
             "cluster": os.environ.get("CLUSTER_LEVEL", "1"),
+            "ml_floors": get_ml_floor_runtime(),
         }
 
         for field in required_fields:
@@ -185,26 +201,21 @@ def check_environment() -> tuple[bool, list[str]]:
     """Verify environment is properly configured."""
     issues = []
 
-    # Required env vars for production
-    required_vars = ["HOST", "PORT"]
-    recommended_vars = ["GOVERNANCE_MODE", "VAULT_PATH"]
+    # Required/defaultable env vars for production
+    defaults = {
+        "HOST": "0.0.0.0",
+        "PORT": "8080",
+        "GOVERNANCE_MODE": "SOFT",
+        "VAULT_PATH": str(Path("VAULT999").resolve()),
+        "ARIFOS_ML_FLOORS": "0",
+    }
 
-    for var in required_vars:
+    for var, default_value in defaults.items():
         if not os.environ.get(var):
-            # Set defaults
-            if var == "HOST":
-                os.environ["HOST"] = "0.0.0.0"
-            elif var == "PORT":
-                os.environ["PORT"] = "8080"
+            os.environ[var] = default_value
             print(f"✓ {var} defaulted to {os.environ.get(var)}")
         else:
             print(f"✓ {var} = {os.environ.get(var)}")
-
-    for var in recommended_vars:
-        if not os.environ.get(var):
-            issues.append(f"WARN: Recommended env var {var} not set")
-        else:
-            print(f"✓ {var} configured")
 
     return True, issues
 
@@ -214,7 +225,7 @@ def run_selftest(strict: bool = False) -> bool:
     import asyncio
 
     print("=" * 60)
-    print("  arifOS MCP Self-Test (v55.5-HARDENED)")
+    print(f"  arifOS MCP Self-Test (v2026.2 — MANIFEST_VERSION={MANIFEST_VERSION})")
     print("=" * 60)
     print()
 

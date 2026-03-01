@@ -3,6 +3,12 @@ core/organs/_1_agi.py — The Mind (Stage 111-222-333)
 
 AGI Engine: Sequential Thinking with Constitutional Physics
 
+DOMAIN ISOLATION (P2): 
+    - AGI handles LOGIC, TRUTH, REASONING only
+    - AGI does NOT assess empathy, stakeholders, or harm
+    - AGI does NOT issue final verdicts
+    - AGI passes tensor to ASI for care evaluation
+
 Actions:
     1. sense (111)   → Parse intent, classify lane (Λ)
     2. think (222)   → Generate hypotheses (3 paths)
@@ -25,6 +31,55 @@ from typing import Any
 from core.shared.atlas import GPV, Lane, Phi, QueryType
 from core.shared.physics import ConstitutionalTensor, GeniusDial, Omega_0, TrinityTensor, delta_S
 from core.shared.types import AgiOutput, FloorScores, ThoughtNode, Verdict
+
+# ═══════════════════════════════════════════════════════
+# P2 HARDENING: Domain Isolation Enforcement
+# ═══════════════════════════════════════════════════════
+
+class AgiDomainViolation(Exception):
+    """P2: AGI attempted to operate outside its domain (Mind only)."""
+    pass
+
+
+def enforce_agi_domain(action_type: str) -> None:
+    """
+    P2 HARDENING: AGI domain isolation.
+    
+    AGI (Mind) is restricted to:
+    - Logic, reasoning, truth assessment
+    - Hypothesis generation
+    - Evidence evaluation
+    
+    AGI is NOT allowed to:
+    - Assess empathy (F6) — that's ASI
+    - Evaluate stakeholders — that's ASI
+    - Issue final verdicts — that's APEX
+    
+    Args:
+        action_type: Type of action attempted
+    
+    Raises:
+        AgiDomainViolation: If AGI attempts ASI/APEX functions
+    """
+    ASI_FUNCTIONS = ["empathize", "stakeholder", "harm", "care", "feel"]
+    APEX_FUNCTIONS = ["judge", "verdict", "seal", "forge", "audit"]
+    
+    action_lower = action_type.lower()
+    
+    for func in ASI_FUNCTIONS:
+        if func in action_lower:
+            raise AgiDomainViolation(
+                f"AGI_DOMAIN_VIOLATION: AGI attempted ASI function '{action_type}'. "
+                f"Mind cannot assess empathy/care. Pass to ASI (Heart)."
+            )
+    
+    for func in APEX_FUNCTIONS:
+        if func in action_lower:
+            raise AgiDomainViolation(
+                f"AGI_DOMAIN_VIOLATION: AGI attempted APEX function '{action_type}'. "
+                f"Mind cannot issue verdicts. Pass to APEX (Soul)."
+            )
+
 
 # =============================================================================
 

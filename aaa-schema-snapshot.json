@@ -1,0 +1,71 @@
+{
+  "version": "2026.3.1",
+  "tools": {
+    "anchor_session": {
+      "hash": "8cfeeb87a5ad40a0",
+      "description_hash": "9402c15b627170fe"
+    },
+    "reason_mind": {
+      "hash": "79de200c33e90108",
+      "description_hash": "950e5dd2bf13d7a7"
+    },
+    "recall_memory": {
+      "hash": "30a1af3364edf025",
+      "description_hash": "4841c1ced24d2791"
+    },
+    "simulate_heart": {
+      "hash": "9ae47e97155fe02a",
+      "description_hash": "db78fedb08cb1ee6"
+    },
+    "critique_thought": {
+      "hash": "8b3ff363c9ef08fb",
+      "description_hash": "f641915e28fc9448"
+    },
+    "apex_judge": {
+      "hash": "5ccfa72fe25b0b47",
+      "description_hash": "df2fbbda938fa600"
+    },
+    "eureka_forge": {
+      "hash": "84ed741d4ffe8eb2",
+      "description_hash": "3b24182380b346dc"
+    },
+    "seal_vault": {
+      "hash": "b4af0933a9030b71",
+      "description_hash": "99398527ca7a9705"
+    },
+    "search_reality": {
+      "hash": "a695cd4f1f3ff6d6",
+      "description_hash": "eab5bc0c2f92b44b"
+    },
+    "fetch_content": {
+      "hash": "7f678e3972b5350e",
+      "description_hash": "81f87a76c8dc1ff5"
+    },
+    "inspect_file": {
+      "hash": "005e6a580a2db4f0",
+      "description_hash": "1e90748ababe3977"
+    },
+    "audit_rules": {
+      "hash": "2d0749c960d44fe6",
+      "description_hash": "e0e44cbda0be1d70"
+    },
+    "check_vital": {
+      "hash": "3885511e3834de6e",
+      "description_hash": "000586f2309e1e3c"
+    }
+  },
+  "resources": {
+    "arifos://aaa/schemas": {
+      "hash": "6c2d39d21568e4f3"
+    },
+    "arifos://aaa/full-context-pack": {
+      "hash": "cceb16b4c9dc54d2"
+    }
+  },
+  "prompts": {
+    "arifos.prompt.aaa_chain": {
+      "hash": "dad2c1db2e91ec28"
+    }
+  },
+  "allow_new_tools": []
+}

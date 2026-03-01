@@ -5,9 +5,11 @@ sidebar_position: 3
 description: JSON-RPC contracts, protocol negotiation, and canonical arifOS AAA MCP tool surface.
 ---
 
-# MCP API Reference (L4 Tools)
+# MCP API Reference (The "Tools Menu")
 
-arifOS exposes a governed MCP surface through `arifos_aaa_mcp`. Every `tools/call` is evaluated through constitutional gates before execution.
+If you are building an AI agent or connecting arifOS to an app like Claude Desktop, this page lists the 13 specific tools the AI is allowed to use. 
+
+Unlike a normal API where tools just execute blindly, arifOS exposes a **"governed"** surface using the Model Context Protocol (MCP). This means every time the AI tries to use a tool, arifOS intercepts the request and runs it through the 13 constitutional safety gates before letting the action happen.
 
 ## Protocol versioning
 
@@ -47,21 +49,21 @@ arifOS exposes a governed MCP surface through `arifos_aaa_mcp`. Every `tools/cal
 
 ## Canonical 13 tools
 
-| Tool | Description |
-|:--|:--|
-| `anchor_session` | 000 INIT: ignite constitutional session and continuity token. |
-| `reason_mind` | 333 REASON: run AGI cognition with grounding and budget controls. |
-| `recall_memory` | 444 EVIDENCE: retrieve associative memory traces for current thought. |
-| `simulate_heart` | 555 EMPATHY: evaluate stakeholder impact and care constraints. |
-| `critique_thought` | 666 ALIGN: run 7-model critique (inversion, framing, non-linearity, etc.). |
-| `apex_judge` | 888 APEX: sovereign constitutional verdict synthesis. |
-| `eureka_forge` | 777 FORGE: execute action payload behind sovereign control gates. |
-| `seal_vault` | 999 SEAL: commit immutable session decision record. |
-| `search_reality` | External evidence discovery (read-only). |
-| `fetch_content` | Fetch raw evidence content (read-only). |
-| `inspect_file` | Inspect local filesystem structure and metadata (read-only). |
-| `audit_rules` | Run constitutional/system rule audit checks (read-only). |
-| `check_vital` | Read system health telemetry (CPU, memory, IO/thermal optional). |
+| Tool | Plain English | Technical Purpose |
+|:--|:--|:--|
+| `anchor_session` | 🚪 Starts a new session and checks security clearance. | 000 INIT: ignite constitutional session and continuity token. |
+| `reason_mind` | 🧠 Asks the AI to logically think through a problem. | 333 REASON: run AGI cognition with grounding and budget controls. |
+| `recall_memory` | 📚 Searches past sessions for similar problems. | 444 EVIDENCE: retrieve associative memory traces. |
+| `simulate_heart` | ❤️ Checks if a decision will harm any stakeholders. | 555 EMPATHY: evaluate stakeholder impact and care constraints. |
+| `critique_thought` | ⚖️ Forces the AI to argue against its own idea to find flaws. | 666 ALIGN: run 7-model critique (inversion, framing, non-linearity). |
+| `eureka_forge` | ⚒️ Executes code or material actions in a sandbox. | 777 FORGE: execute action payload behind sovereign control gates. |
+| `apex_judge` | 👑 Makes the final pass/fail ruling on whether an action is safe. | 888 APEX: sovereign constitutional verdict synthesis. |
+| `seal_vault` | 🔒 Cryptographically saves the decision to an un-editable log. | 999 SEAL: commit immutable session decision record. |
+| `search_reality` | 🔍 Searches the web to verify facts. | External evidence discovery (read-only). |
+| `fetch_content` | 📄 Reads a specific webpage or document. | Fetch raw evidence content (read-only). |
+| `inspect_file` | 📁 Looks at files on your hard drive. | Inspect local filesystem structure and metadata (read-only). |
+| `audit_rules` | 📋 Checks the system's own safety rules. | Run constitutional/system rule audit checks (read-only). |
+| `check_vital` | 📈 Checks if the server CPU/RAM is healthy. | Read system health telemetry (CPU, memory, IO). |
 
 ## Resources and prompt
 
@@ -85,8 +87,10 @@ Tool responses include governed fields:
 
 Verdict behavior:
 
-- `SEAL` -> continue
-- `PARTIAL` -> continue with caution
-- `SABAR` -> refine/retry
-- `VOID` -> blocked
-- `888_HOLD` -> human ratification required
+*(Curious how these look in practice? [View the live Audit Dashboard](https://arifosmcp-truth-claim.pages.dev/))*
+
+- **✅ `SEAL`** -> Approved (Continue)
+- **🟡 `PARTIAL`** -> Approved with warnings
+- **⚠️ `SABAR`** -> Blocked temporarily (AI must refine/retry)
+- **❌ `VOID`** -> Blocked entirely (Rule violation)
+- **🛑 `888_HOLD`** -> Blocked until a human cryptographically signs it

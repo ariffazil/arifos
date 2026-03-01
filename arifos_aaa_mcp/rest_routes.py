@@ -27,38 +27,15 @@ from typing import Any
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 
-BUILD_INFO = {
-    "version": "2026.02.27",
-    "git_sha": os.environ.get("GIT_SHA", "unknown"),
-    "build_time": os.environ.get("BUILD_TIME", datetime.now(timezone.utc).isoformat()),
-}
+from aaa_mcp.build_info import get_build_info
+from aaa_mcp.protocol.public_surface import PUBLIC_TOOL_ALIASES
+from core.shared.floor_audit import get_ml_floor_runtime
+
+BUILD_INFO = get_build_info()
 MCP_PROTOCOL_VERSION = "2025-11-25"
 MCP_SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25", "2025-03-26"]
 
-# Canonical aliases — legacy and mid-gen names → current UX names.
-TOOL_ALIASES: dict[str, str] = {
-    "init_session": "anchor_session",
-    "agi_cognition": "reason_mind",
-    "phoenix_recall": "recall_memory",
-    "asi_empathy": "simulate_heart",
-    "apex_verdict": "apex_judge",
-    "sovereign_actuator": "eureka_forge",
-    "vault_seal": "seal_vault",
-    "search": "search_reality",
-    "fetch": "fetch_content",
-    "analyze": "inspect_file",
-    "system_audit": "audit_rules",
-    # Legacy 9-verb surface
-    "anchor": "anchor_session",
-    "reason": "reason_mind",
-    "integrate": "reason_mind",
-    "respond": "reason_mind",
-    "validate": "simulate_heart",
-    "align": "simulate_heart",
-    "forge": "apex_judge",
-    "audit": "apex_judge",
-    "seal": "seal_vault",
-}
+TOOL_ALIASES: dict[str, str] = dict(PUBLIC_TOOL_ALIASES)
 
 WELCOME_HTML = """\
 <!DOCTYPE html>
@@ -174,6 +151,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "version": BUILD_INFO["version"],
                 "transport": "streamable-http",
                 "tools_loaded": len(tool_registry),
+                "ml_floors": get_ml_floor_runtime(),
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         )

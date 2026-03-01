@@ -1,9 +1,34 @@
-# aaa_mcp/core/uncertainty_engine.py
-# v64.1 — Multi-dimensional Uncertainty Engine with Harmonic Mean Safety
+# core/uncertainty_engine.py
+# v64.2-HARDENED — Multi-dimensional Uncertainty Engine with F7 Enforcement
 # Q1 Verdict: HARMONIC for safety, GEOMETRIC for display
+# P0 HARDENING: Ω₀ ∈ [0.03, 0.05] band + Omniscience Lock (no P=1.0)
 
 import math
 from dataclasses import dataclass
+
+
+# ═══════════════════════════════════════════════════════
+# P0 HARDENING: F7 Humility Constants
+# ═══════════════════════════════════════════════════════
+
+# Constitutional Ω₀ band [0.03, 0.05] - epistemic humility requirement
+HUMILITY_MIN = 0.03  # Minimum uncertainty (can't be overconfident)
+HUMILITY_MAX = 0.05  # Maximum uncertainty (can't be too uncertain)
+HUMILITY_CRITICAL = 0.08  # VOID threshold
+
+
+class OmniscienceError(Exception):
+    """
+    P0: F7 Humiliation - Attempted claim of perfect knowledge.
+    
+    Raised when model claims P=1.0 (100% confidence) on non-mathematical claims.
+    """
+    pass
+
+
+class HumilityBandViolation(Exception):
+    """P0: Ω₀ outside constitutional band [0.03, 0.05]."""
+    pass
 
 
 @dataclass
@@ -35,13 +60,69 @@ class UncertaintyVector:
         }
 
 
+def check_omniscience_lock(confidence: float, is_mathematical: bool = False) -> None:
+    """
+    P0 HARDENING: Omniscience Lock - Reject P=1.0 claims.
+    
+    If an LLM claims 100% confidence (P=1.0) on any non-trivial, 
+    non-mathematical claim, it is rejected as epistemic fraud.
+    
+    Args:
+        confidence: Model confidence score [0.0, 1.0]
+        is_mathematical: True if claim is mathematical (2+2=4, etc.)
+    
+    Raises:
+        OmniscienceError: If P=1.0 on non-mathematical claim
+    """
+    if confidence >= 1.0 and not is_mathematical:
+        raise OmniscienceError(
+            f"F7_HUMILITY_VIOLATION: Claim of P=1.0 on empirical claim. "
+            f"Only mathematical truths may have certainty. "
+            f"Ω₀ must be in [{HUMILITY_MIN}, {HUMILITY_MAX}]."
+        )
+
+
+def enforce_humility_band(omega: float) -> float:
+    """
+    P0 HARDENING: Enforce Ω₀ ∈ [0.03, 0.05] constitutional band.
+    
+    Args:
+        omega: Uncertainty value to check
+    
+    Returns:
+        Clamped omega value
+    
+    Raises:
+        HumilityBandViolation: If omega > HUMILITY_CRITICAL (VOID)
+    """
+    if omega > HUMILITY_CRITICAL:
+        raise HumilityBandViolation(
+            f"F7_CRITICAL_UNCERTAINTY: Ω₀={omega:.4f} > {HUMILITY_CRITICAL}. "
+            f"System too uncertain to operate."
+        )
+    
+    # Clamp to constitutional band
+    if omega < HUMILITY_MIN:
+        # Overconfidence - force minimum humility
+        return HUMILITY_MIN
+    elif omega > HUMILITY_MAX:
+        # Too uncertain - VOID should have been raised elsewhere
+        return omega
+    
+    return omega
+
+
 class UncertaintyEngine:
     """
-    v64.1 Uncertainty calculation with harmonic mean safety.
+    v64.2-HARDENED Uncertainty calculation with F7 enforcement.
 
     Q1 Architectural Decision:
     - HARMONIC mean for system safety (punishes weak components)
     - GEOMETRIC mean for user display (readable calibration)
+    
+    P0 HARDENING:
+    - Ω₀ ∈ [0.03, 0.05] band enforcement
+    - Omniscience Lock (no P=1.0 on empirical claims)
     """
 
     def __init__(self):
@@ -106,7 +187,7 @@ class UncertaintyEngine:
 
     def calculate(self, vector: UncertaintyVector) -> dict[str, float]:
         """
-        Full uncertainty calculation per v64.1 Q1 verdict.
+        Full uncertainty calculation per v64.2 with F7 enforcement.
 
         Returns:
             Dict with safety_omega (harmonic), display_omega (geometric),
@@ -115,6 +196,22 @@ class UncertaintyEngine:
         harmonic = self.harmonic_mean(vector)
         geometric = self.geometric_mean(vector)
         arithmetic = self.arithmetic_mean(vector)
+
+        # P0 HARDENING: Enforce humility band
+        try:
+            harmonic = enforce_humility_band(harmonic)
+            geometric = enforce_humility_band(geometric)
+        except HumilityBandViolation as e:
+            # Critical uncertainty - system too uncertain
+            return {
+                "safety_omega": round(harmonic, 4),
+                "display_omega": round(geometric, 4),
+                "arithmetic_omega": round(arithmetic, 4),
+                "components": vector.to_dict(),
+                "weights": self.weights,
+                "recommendation": "VOID_ACTION_REQUIRED",
+                "error": str(e),
+            }
 
         # Clamp to [0, 1]
         harmonic = min(1.0, max(0.0, harmonic))
@@ -207,3 +304,20 @@ def calculate_uncertainty(
         model_logits_confidence=model_logits_confidence,
     )
     return uncertainty_engine.calculate(vector)
+
+
+# P0 HARDENING: Constitutional exports
+__all__ = [
+    "UncertaintyVector",
+    "UncertaintyEngine",
+    "uncertainty_engine",
+    "calculate_uncertainty",
+    # F7 Enforcement
+    "HUMILITY_MIN",
+    "HUMILITY_MAX",
+    "HUMILITY_CRITICAL",
+    "OmniscienceError",
+    "HumilityBandViolation",
+    "check_omniscience_lock",
+    "enforce_humility_band",
+]

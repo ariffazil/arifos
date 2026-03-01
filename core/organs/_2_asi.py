@@ -1,3 +1,20 @@
+"""
+core/organs/_2_asi.py — The Heart (Stage 555-666)
+
+ASI Engine: Empathy, Stakeholder Care, Peace Preservation
+
+DOMAIN ISOLATION (P2):
+    - ASI handles EMPATHY, STAKEHOLDERS, HARM only
+    - ASI does NOT assess truth (F2) — that's AGI
+    - ASI does NOT issue final verdicts — that's APEX
+    - ASI passes care assessment to APEX for synthesis
+
+Floors:
+    F5: Peace² (stability)
+    F6: Empathy (κᵣ ≥ 0.95)
+    F9: Anti-Hantu (no consciousness claims)
+"""
+
 from __future__ import annotations
 
 from typing import Any
@@ -11,6 +28,49 @@ from core.shared.physics import (
 )
 from core.shared.sbert_floors import classify_asi_floors
 from core.shared.types import AsiOutput, FloorScores, Verdict
+
+
+# ═══════════════════════════════════════════════════════
+# P2 HARDENING: Domain Isolation Enforcement
+# ═══════════════════════════════════════════════════════
+
+class AsiDomainViolation(Exception):
+    """P2: ASI attempted to operate outside its domain (Heart only)."""
+    pass
+
+
+def enforce_asi_domain(action_type: str) -> None:
+    """
+    P2 HARDENING: ASI domain isolation.
+    
+    ASI (Heart) is restricted to:
+    - Empathy, stakeholder impact
+    - Peace preservation
+    - Harm assessment
+    
+    ASI is NOT allowed to:
+    - Assess truth (F2) — that's AGI
+    - Evaluate evidence — that's AGI
+    - Issue final verdicts — that's APEX
+    """
+    AGI_FUNCTIONS = ["truth", "evidence", "reason", "logic", "ground"]
+    APEX_FUNCTIONS = ["judge", "verdict", "seal", "forge", "audit", "sync"]
+    
+    action_lower = action_type.lower()
+    
+    for func in AGI_FUNCTIONS:
+        if func in action_lower:
+            raise AsiDomainViolation(
+                f"ASI_DOMAIN_VIOLATION: ASI attempted AGI function '{action_type}'. "
+                f"Heart cannot assess truth/evidence. Pass to AGI (Mind)."
+            )
+    
+    for func in APEX_FUNCTIONS:
+        if func in action_lower:
+            raise AsiDomainViolation(
+                f"ASI_DOMAIN_VIOLATION: ASI attempted APEX function '{action_type}'. "
+                f"Heart cannot issue verdicts. Pass to APEX (Soul)."
+            )
 
 
 async def empathize(
