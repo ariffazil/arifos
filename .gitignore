@@ -289,3 +289,8 @@ openclaw_fixed.json
 
 # Gemini / AI session exports at root
 *_C.md
+
+# Prevent future archive accumulation (FORGE 2026-03-01)
+_ARCHIVE/
+*/archive/
+*/legacy/
