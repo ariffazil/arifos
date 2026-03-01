@@ -522,6 +522,15 @@ async def _phoenix_recall(
             max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
         )
 
+        # Build BGE metrics
+        bge_metrics = {
+            "bge_available": BGE_AVAILABLE,
+            "bge_used": BGE_AVAILABLE and len(contexts) > 0,
+            "embedding_dims": 768 if BGE_AVAILABLE else None,
+            "semantic_search_active": BGE_AVAILABLE and len(contexts) > 0,
+            "memory_count": len(contexts),
+        }
+
         result = {
             "status": "RECALL_SUCCESS",
             "memories": [
@@ -538,6 +547,7 @@ async def _phoenix_recall(
                 "jaccard_max": round(jaccard_max, 4),
                 "delta_s_actual": 0.0,
                 "w_scar_applied": 0.5,
+                **bge_metrics,
             },
         }
         result.update(
