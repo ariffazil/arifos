@@ -17,6 +17,8 @@ services:
       - "8080:8080"
     volumes:
       - arifos_data:/usr/src/app/data
+      # Mount fixed server.py to avoid rebuild (logger fix)
+      - /root/arifOS/aaa_mcp/server.py:/usr/src/app/aaa_mcp/server.py:ro
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
