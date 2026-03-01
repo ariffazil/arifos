@@ -25,6 +25,7 @@ Environment:
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import json
 import os
@@ -217,12 +218,20 @@ class JinaReaderClient:
     async def _fetch(self, url: str) -> str:
         """Fetch content from Jina Reader endpoint.
 
+        Uses asyncio.to_thread to avoid blocking the event loop with
+        synchronous urllib I/O. This prevents TaskGroup errors in ASGI
+        environments (FastMCP / Starlette).
+
         Args:
             url: Full Jina Reader URL
 
         Returns:
             Raw text content (Markdown format)
         """
+        return await asyncio.to_thread(self._fetch_sync, url)
+
+    def _fetch_sync(self, url: str) -> str:
+        """Synchronous HTTP fetch (runs in thread pool via asyncio.to_thread)."""
         req = urllib.request.Request(url)
         req.add_header("Accept", "text/markdown")
         req.add_header("User-Agent", "arifOS/2026.3.1 JinaReaderClient/1.0")
@@ -333,6 +342,10 @@ class JinaReranker:
         if not self.api_key:
             return [{"index": i, "relevance_score": 1.0} for i in range(min(top_n, len(documents)))]
 
+        return await asyncio.to_thread(self._rerank_sync, query, documents, top_n)
+
+    def _rerank_sync(self, query: str, documents: list[str], top_n: int) -> list[dict]:
+        """Synchronous rerank (runs in thread pool via asyncio.to_thread)."""
         payload = {
             "model": "jina-reranker-v2-base-multilingual",
             "query": query,
