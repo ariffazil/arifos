@@ -33,7 +33,7 @@ description: The L0-L7 stack, four-layer kernel, Trinity engines (DeltaOmegaPsi)
       7 Organs (constitutional pipeline)
       13 Floors (existential enforcement)
       9 System Calls (A-CLIP sensory tools)
-      VAULT999 (immutable audit filesystem)
+      VAULT999 (tamper-evident audit ledger with Merkle integrity)
 
 ```
 
@@ -115,7 +115,7 @@ Implemented in `core/organs/`. arifOS has evolved from a passive oracle into an 
 | **ASI** | `_2_asi.py` | 555-666 | Heart -- empathize, align (SBERT scoring for F5/F6/F9) |
 | **APEX** | `_3_apex.py` | 444, 777-888 | Soul -- trinity sync, eureka forge, final judgment |
 | **FORGE** | (in _3_apex) | 777 | Hands -- sandboxed execution (requires signed ConstitutionalTensor) |
-| **VAULT** | `_4_vault.py` | 999 | Memory -- immutable VAULT999 ledger, EUREKA sieve, Merkle integrity |
+| **VAULT** | `_4_vault.py` | 999 | Memory -- tamper-evident VAULT999 ledger with Merkle integrity |
 
 ### Stage Sequencing
 

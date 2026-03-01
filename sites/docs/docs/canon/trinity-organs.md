@@ -141,7 +141,7 @@ The public MCP interface exposes **4 utility tools** that map onto the 5-organ a
 | `_init_` | Organ 0 (000) | Constitutional airlock - authorise and begin session |
 | `_agi_` | Organs 1+2 (111-666) | Full reasoning and safety pipeline |
 | `_apex_` | Organ 3 (888) | Final verdict and tri-witness consensus |
-| `_vault_` | Organ 4 (999) | Seal decision to immutable ledger |
+| `_vault_` | Organ 4 (999) | Seal decision to tamper-evident ledger |
 
 Plus two supporting tools:
 - **`reality_search`** - raises S (external witness) via Brave Search API
