@@ -41,8 +41,20 @@
 |-------|-------|
 | **Endpoint** | `https://arifosmcp.arif-fazil.com/mcp` |
 | **Transport** | Streamable HTTP MCP |
-| **Test Time** | 2026-03-01T00:18:44Z |
-| **Report** | `vault/G-AAA-SEAL-01-20260301-001844.json` |
+| **Pre-Deploy** | `vault/G-AAA-SEAL-01-20260301-001844.json` |
+| **Post-Deploy** | `vault/G-AAA-SEAL-01-POSTDEPLOY-20260301-002818.json` |
+| **Deploy Time** | 2026-03-01T00:27:30Z |
+
+### Post-Deploy Confirmation
+
+After restarting MCP server from sealed build `v2026.3.1-aaa-seal.0` (commit `5cbcef05`):
+
+```
+✅ Schema: PASS (no drift)
+✅ Trinity: 5/5 PASS
+✅ Thermodynamic: dS=-0.1, peace²=1.0
+✅ FINAL VERDICT: PASS - SEAL APPROVED
+```
 
 ---
 

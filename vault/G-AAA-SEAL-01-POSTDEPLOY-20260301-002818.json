@@ -1,0 +1,53 @@
+{
+  "server_endpoint": "https://arifosmcp.arif-fazil.com/mcp",
+  "timestamp": "2026-03-01T00:28:19.026160+00:00",
+  "commit": "5cbcef05",
+  "harness_version": "2026.3.1",
+  "trinity": {
+    "anchor_session": {
+      "ok": true,
+      "verdict": "SEAL",
+      "session_id": "anonymous-558cf6...",
+      "errors": []
+    },
+    "reason_mind": {
+      "ok": true,
+      "verdict": "SABAR",
+      "dS": -0.1,
+      "confidence": null,
+      "errors": []
+    },
+    "simulate_heart": {
+      "ok": true,
+      "verdict": "SABAR",
+      "peace2": 1.0,
+      "errors": []
+    },
+    "apex_judge_void": {
+      "ok": true,
+      "verdict": "VOID",
+      "expected": "VOID",
+      "errors": []
+    },
+    "apex_judge_full": {
+      "ok": true,
+      "verdict": "VOID",
+      "has_amanah_token": false,
+      "psi": null,
+      "errors": []
+    }
+  },
+  "schema": {
+    "ok": true,
+    "added_tools": [],
+    "removed_tools": [],
+    "changed_tools": [],
+    "unauthorized_new_tools": []
+  },
+  "thermodynamic_summary": {
+    "avg_dS": -0.1,
+    "min_peace2": 1.0,
+    "all_confidence_below_1_0": true
+  },
+  "verdict": "PASS"
+}
