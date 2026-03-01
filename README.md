@@ -7,6 +7,10 @@
 **The system that knows because it admits what it cannot know.**  
 *Ditempa Bukan Diberi* — Forged, Not Given
 
+**What it is:** A constitutional decision kernel that governs tool execution for LLMs via MCP.  
+**What it isn't:** Not a model, not an agent, not a chatbot.  
+**What it guarantees:** No irreversible action without explicit human approval + cryptographic audit trail.
+
 [![Version](https://img.shields.io/badge/version-2026.3.1-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
 [![MCP Protocol](https://img.shields.io/badge/MCP-1.0-8B5CF6?style=for-the-badge&logo=shield&logoColor=white)](https://modelcontextprotocol.io)
@@ -34,20 +38,22 @@ flowchart LR
     C --> I[npm<br/>npm install @arifos/mcp]
 ```
 
-| Layer | URL | Purpose / Description |
-|:---|:---|:---|
-| **HUMAN** | [https://arif-fazil.com/](https://arif-fazil.com/) | Identity & Authority Anchor (The Sovereign). |
-| **THEORY** | [https://apex.arif-fazil.com/](https://apex.arif-fazil.com/) | Constitutional Canon & Theory (The 13 Floors). |
-| **APPS** | [https://arifos.arif-fazil.com/](https://arifos.arif-fazil.com/) | Official Documentation and implementation guides. |
-| **INTRO** | [https://arifos.arif-fazil.com/intro](https://arifos.arif-fazil.com/intro) | Beginner-friendly explanation of the Constitutional AI Kernel. |
-| **MCP API** | [https://arifos.arif-fazil.com/api](https://arifos.arif-fazil.com/api) | Full MCP Protocol JSON-RPC API & 13 Tools Reference. |
-| **LIVE SERVER**| [https://arifosmcp.arif-fazil.com/](https://arifosmcp.arif-fazil.com/) | The production active MCP deployment. |
-| **HEALTH** | [https://arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)| Live `{"status":"healthy"}` JSON endpoint reflecting system pulses. |
-| **VERDICT** | [Truth Claim Dashboard](https://arifosmcp-truth-claim.pages.dev)| Live Constitutional Audit Dashboard. |
-| **REGISTRY** | [MCP Registry Listing](https://registry.modelcontextprotocol.io/io.github.ariffazil/aaa-mcp) | The official verified listing on the global MCP registry. |
-| **CODE** | [arifOS on GitHub](https://github.com/ariffazil/arifOS) | Core framework repository. |
-| **PACKAGE (PyPI)** | [arifOS on PyPI](https://pypi.org/project/arifos/) | Python package library `pip install arifos` — The Kernel & Court. |
-| **PACKAGE (npm)** | [@arifos/mcp](https://www.npmjs.com/package/@arifos/mcp) | JavaScript/TypeScript client `npm install @arifos/mcp` — The Cable.
+| Layer | URL | Purpose / Description | Status | Trust Level |
+|:---:|:---|:---|:---:|:---:|
+| **HUMAN** | [https://arif-fazil.com/](https://arif-fazil.com/) | Identity & Authority Anchor (The Sovereign). | ✅ LIVE | 🔐 Canonical |
+| **THEORY** | [https://apex.arif-fazil.com/](https://apex.arif-fazil.com/) | Constitutional Canon & Theory (The 13 Floors). | ✅ LIVE | 🔐 Canonical |
+| **APPS** | [https://arifos.arif-fazil.com/](https://arifos.arif-fazil.com/) | Official Documentation and implementation guides. | ✅ LIVE | 🔐 Canonical |
+| **INTRO** | [https://arifos.arif-fazil.com/intro](https://arifos.arif-fazil.com/intro) | Beginner-friendly explanation of the Constitutional AI Kernel. | ✅ LIVE | 🔐 Canonical |
+| **MCP API** | [https://arifos.arif-fazil.com/api](https://arifos.arif-fazil.com/api) | Full MCP Protocol JSON-RPC API & 13 Tools Reference. | ✅ LIVE | 🔐 Canonical |
+| **LIVE SERVER**| [https://arifosmcp.arif-fazil.com/](https://arifosmcp.arif-fazil.com/) | The production active MCP deployment. | ✅ LIVE | 🔐 Canonical |
+| **HEALTH** | [https://arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)| Live `{"status":"healthy"}` JSON endpoint reflecting system pulses. | ✅ LIVE | 🔐 Canonical |
+| **VERDICT** | [Truth Claim Dashboard](https://arifosmcp-truth-claim.pages.dev)| Live Constitutional Audit Dashboard. | ✅ LIVE | 🔐 Canonical |
+| **REGISTRY** | [MCP Registry Listing](https://registry.modelcontextprotocol.io/io.github.ariffazil/aaa-mcp) | The official verified listing on the global MCP registry. | ✅ LIVE | 🔐 Canonical |
+| **CODE** | [arifOS on GitHub](https://github.com/ariffazil/arifOS) | Core framework repository. | ✅ LIVE | 🔐 Canonical |
+| **PACKAGE (PyPI)** | [arifOS on PyPI](https://pypi.org/project/arifos/) | Python package library `pip install arifos` — The Kernel & Court. | ✅ LIVE | 🔐 Canonical |
+| **PACKAGE (npm)** | [@arifos/mcp](https://www.npmjs.com/package/@arifos/mcp) | JavaScript/TypeScript client `npm install @arifos/mcp` — The Cable. | ✅ LIVE | 🔐 Canonical |
+
+> **Gödel-locked** = canonical endpoints whose content is governed by the constitutional sealing process; changes require Phoenix cooling + signed release.
 
 ---
 
@@ -108,16 +114,16 @@ flowchart TD
     style L0 fill:#0f172a,stroke:#22c55e,color:#ffffff,stroke-width:2px
 ```
 
-| Level | Name | Scope | Operational Role in the arifOS Stack |
-|:---:|:---|:---|:---|
-| **L7** | **AGI / Ecosystem** | Civilisation-Scale | *[Research]* The frontier. Permissionless sovereignty, recursive self-amendment, and self-healing. |
-| **L6** | **Institution** | Organisational | *[Stub]* Trinity consensus frameworks for governing entire corporations via AI. |
-| **L5** | **Agents** | Federation | *[Active]* Multi-agent coordination. The Hypervisor managing the "Quartet" (Architect, Engineer, Auditor, Validator). |
-| **L4** | **Tools (MCP)** | Production | *[Active]* The Model Context Protocol (MCP) exterior. 13 canonical tools bridging the AI to the Kernel safely. |
-| **L3** | **Workflow** | Production | *[Active]* The orchestrated Sequences (`000 -> 999` stage constitutional metabolic flow). |
-| **L2** | **Skills** | Production | *[Active]* Sensory systems (9 A-CLIP primitives) measuring filesystem, network telemetry, and environment. |
-| **L1** | **Prompts** | Production | *[Active]* The zero-context user entry layer where intents are caught, classified, and parsed. |
-| **L0** | **KERNEL** | **SEALED** | *[Active]* The Immutable Core. Pure decision logic. Transport-agnostic. Holds the 13 Floors, 7 Organs, and `VAULT999` ledger. |
+| Level | Name | Scope | Status | Operational Role in the arifOS Stack |
+|:---:|:---|:---|:---:|:---|
+| **L7** | **AGI / Ecosystem** | Civilisation-Scale | 🔬 ROADMAP | *[Research]* The frontier. Permissionless sovereignty, recursive self-amendment, and self-healing. |
+| **L6** | **Institution** | Organisational | 🔧 EXPERIMENTAL | *[Stub]* Trinity consensus frameworks for governing entire corporations via AI. |
+| **L5** | **Agents** | Federation | ✅ ACTIVE | *[Active]* Multi-agent coordination. The Hypervisor managing the "Quartet" (Architect, Engineer, Auditor, Validator). |
+| **L4** | **Tools (MCP)** | Production | ✅ ACTIVE | *[Active]* The Model Context Protocol (MCP) exterior. 13 canonical tools bridging the AI to the Kernel safely. |
+| **L3** | **Workflow** | Production | ✅ ACTIVE | *[Active]* The orchestrated Sequences (`000 -> 999` stage constitutional metabolic flow). |
+| **L2** | **Skills** | Production | ✅ ACTIVE | *[Active]* Sensory systems (9 A-CLIP primitives) measuring filesystem, network telemetry, and environment. |
+| **L1** | **Prompts** | Production | ✅ ACTIVE | *[Active]* The zero-context user entry layer where intents are caught, classified, and parsed. |
+| **L0** | **KERNEL** | **SEALED** | ✅ ACTIVE | *[Active]* The Immutable Core. Pure decision logic. Transport-agnostic. Holds the 13 Floors, 7 Organs, and `VAULT999` ledger. |
 
 ---
 
@@ -167,8 +173,8 @@ flowchart LR
 | **F2** | Truth | **HARD** | **Is this a hallucination?** Must cite evidence. | Factual fidelity `τ ≥ 0.99`. |
 | **F4** | Clarity | **HARD** | **Does this reduce confusion?** Must structure noise. | Entropy reduction `ΔS ≤ 0`. |
 | **F5** | Peace | SOFT | **Is this safe/stable?** Blocks adversarial chaos. | Dynamic stability `P² ≥ 1.0`. |
-| **F6** | Empathy | SOFT | **Who gets hurt?** Protects the weakest stakeholder. | Harm impact `κᵣ ≥ 0.70`. |
-| **F7** | Humility | **HARD** | **Is the AI cocky?** Must preserve room to be wrong. | Uncertainty band `Ω₀ ∈ [0.03, 0.15]`. |
+| **F6** | Empathy | **HARD** | **Who gets hurt?** Protects the weakest stakeholder. | Harm impact `κᵣ ≥ 0.70`. |
+| **F7** | Humility | **HARD** | **Is the AI cocky?** Must preserve room to be wrong. | Uncertainty band `Ω₀ ∈ [0.03, 0.05]`. |
 | **F9** | Anti-Hantu | SOFT | **No Ghost in the Machine.** Blocks sneaky telemetry. | Dark heuristics `C_dark < 0.30`. |
 | **F11** | Authority | **HARD** | **Who ordered this?** Cryptographic identity check. | Invalid Auth = Void. |
 | **F13** | Sovereign | **HARD** | **The human always wins.** Non-delegable veto. | `888_HOLD` override available. |
@@ -198,6 +204,9 @@ arifOS acts as an **MCP Server** (`arifos_aaa_mcp`). Rather than trusting an LLM
 
 The server exposes **13 governed tools**. When an AI attempts to use a tool like `eureka_forge` to execute a shell command, it doesn't just run. The command is risk-classified (LOW / MODERATE / CRITICAL), dangerous operations require explicit `confirm_dangerous=True`, and the entire execution is wrapped in a 13-LAW governance envelope with audit logging. Only after `apex_judge` issues a signed `governance_token` can `seal_vault` commit the decision to the immutable ledger.
 
+### 8 Metabolic Tools (Core Governance Chain)
+*These 8 tools form the canonical `000 → 999` metabolic loop. Every governed action flows through this chain.*
+
 | Tool | Plain English Function | Constitutional Stage |
 |:--|:--|:--|
 | `anchor_session` | 🚪 Starts a new session and checks security clearance. | 000 INIT |
@@ -208,11 +217,17 @@ The server exposes **13 governed tools**. When an AI attempts to use a tool like
 | `eureka_forge` | ⚒️ Executes shell commands with risk classification, audit logging, and human confirmation gates for dangerous operations. | 777 FORGE Actuator |
 | `apex_judge` | 👑 Makes the final pass/fail ruling on whether an action is safe. | 888 APEX Soul |
 | `seal_vault` | 🔒 Commits the decision to an immutable ledger. Requires a `governance_token` signed by `apex_judge` (Amanah Handshake) — no token, no entry. | 999 VAULT Memory |
-| `search_reality` | 🔍 Searches the web to verify facts against hallucinations. | Read-Only |
-| `fetch_content` | 📄 Reads a specific webpage or document. | Read-Only |
-| `inspect_file` | 📁 Looks at files on your hard drive securely. | Read-Only |
-| `audit_rules` | 📋 Checks the system's own safety rules. | Read-Only |
-| `check_vital` | 📈 Checks if the server CPU/RAM is healthy. | Read-Only |
+
+### 5 Evidence Tools (Read-Only Inspection)
+*These 5 tools provide evidence grounding without executing actions. They support the metabolic chain but do not modify state.*
+
+| Tool | Plain English Function | Purpose |
+|:--|:--|:--|
+| `search_reality` | 🔍 Searches the web to verify facts against hallucinations. | F2 Truth verification |
+| `fetch_content` | 📄 Reads a specific webpage or document. | Evidence retrieval |
+| `inspect_file` | 📁 Looks at files on your hard drive securely. | F1 Amanah audit |
+| `audit_rules` | 📋 Checks the system's own safety rules. | Governance health check |
+| `check_vital` | 📈 Checks if the server CPU/RAM is healthy. | System telemetry |
 
 ---
 
@@ -229,11 +244,19 @@ The server exposes **13 governed tools**. When an AI attempts to use a tool like
 pip install arifos
 
 # 2. Export required safety environment variables (Use a .env file!)
+# ⚠️ SECURITY: Generate strong secrets (rotate per deployment)
 export ARIFOS_GOVERNANCE_SECRET=$(openssl rand -hex 32)
-export DB_PASSWORD="your-strong-secret-here"
+export DB_PASSWORD="your-strong-secret-here"  # Use vault in production
 export DATABASE_URL="postgresql://arifos:${DB_PASSWORD}@localhost:5432/vault999"
 # Optional: Enable ML SentenceTransformers for Empathy scoring (F5/F6/F9)
-export ARIFOS_ML_FLOORS=1 
+export ARIFOS_ML_FLOORS=1
+
+# 🔐 PRODUCTION HARDENING CHECKLIST:
+# - [ ] Store secrets in vault (HashiCorp Vault, AWS Secrets Manager)
+# - [ ] Rotate secrets minimum every 90 days
+# - [ ] Separate dev/prod credentials (NEVER reuse)
+# - [ ] Enable DB audit logging
+# - [ ] Use least-privilege DB user (not superuser)
 
 # 3. Start local MCP server
 python -m arifos_aaa_mcp stdio
@@ -303,6 +326,16 @@ stateDiagram-v2
 - ⚠️ **SABAR**: Refine and Retry. The AI's entropy was too high or logic was flawed. *(Sabar translates to 'Patience')*.
 - ❌ **VOID**: Hard Failure. A structural law (like lying or jailbreaking) was violated. System halted.
 - 🛑 **888_HOLD**: Irreversible action requested. Waiting for the Human Sovereign to sign off with a cryptographic key.
+
+### 🔍 VAULT999 Ledger Fields (Independently Verifiable)
+Every decision writes an immutable record with:
+- `verdict` (SEAL/SABAR/VOID/HOLD/PARTIAL)
+- `floor_scores` (F1-F13 computed values)
+- `telemetry` (ΔS, Peace², κᵣ, G, Ω₀)
+- `governance_token_hash` (HMAC signature, not the token itself)
+- `session_id` + `parent_hash` (Merkle chain)
+- `timestamp` (ISO8601 with timezone)
+- `zkpc_proof` (Zero-knowledge proof of execution)
 
 ### 📊 The Truth Claim Dashboard
 We continuously pipe live tests through the framework to prove its reliability. To see real-time integrity sweeps, anomalies, and structural proofs of the system:
