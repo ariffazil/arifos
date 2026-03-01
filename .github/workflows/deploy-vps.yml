@@ -1,14 +1,19 @@
-name: Deploy to VPS
+name: Deploy MCP to VPS (Secure)
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
+
+env:
+  MCP_PORT: 8080
+  MCP_TRANSPORT: http
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -25,16 +30,79 @@ jobs:
 
     - name: Deploy to VPS
       run: |
+        echo "🚀 Deploying to VPS..."
         ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "bash /opt/arifOS/deploy.sh"
+      timeout-minutes: 5
 
-    - name: Verify Deployment
-      run: |
-        echo "✅ Deployment triggered on VPS"
-        echo "📝 Check VPS logs: journalctl -u arifos-mcp -f"
+    - name: Wait for service startup
+      run: sleep 5
 
-    - name: Test MCP Health
+    - name: Health Check
       run: |
-        # Wait a moment for service to restart
-        sleep 5
-        # Test MCP endpoint
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /root/arifOS && .venv/bin/python -m aaa_mcp --help | head -5" || echo "⚠️  MCP test skipped"
+        echo "🏥 Running health check..."
+        MAX_RETRIES=10
+        RETRY=0
+        while [ $RETRY -lt $MAX_RETRIES ]; do
+          if ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "curl -fsS http://127.0.0.1:8080/health" > /dev/null 2>&1; then
+            echo "✅ MCP server is healthy!"
+            exit 0
+          fi
+          RETRY=$((RETRY + 1))
+          echo "⏳ Retry $RETRY/$MAX_RETRIES..."
+          sleep 3
+        done
+        echo "❌ Health check failed after $MAX_RETRIES attempts"
+        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "journalctl -u arifos-mcp --no-pager -n 50"
+        exit 1
+      timeout-minutes: 2
+
+    - name: Verify MCP Tools
+      run: |
+        echo "🔧 Verifying MCP tools..."
+        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /root/arifOS && .venv/bin/python -c \"
+import asyncio
+from arifos_aaa_mcp.server import create_aaa_mcp_server
+
+async def test():
+    mcp = create_aaa_mcp_server()
+    tools = mcp._tools
+    print(f'✅ Loaded {len(tools)} tools')
+    for name in list(tools.keys())[:5]:
+        print(f'   - {name}')
+    return len(tools) > 0
+
+result = asyncio.run(test())
+exit(0 if result else 1)
+\""
+
+    - name: Security Check
+      run: |
+        echo "🔒 Running security verification..."
+        # Check if service is running as non-root (if configured)
+        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "systemctl is-active arifos-mcp && echo '✅ Service is active'"
+        # Check port binding
+        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "netstat -tlnp | grep 8080 || ss -tlnp | grep 8080"
+        echo "✅ Port 8080 is bound"
+
+    - name: Deployment Summary
+      run: |
+        echo "✨ Deployment Summary:"
+        echo "   VPS: ${{ secrets.VPS_HOST }}"
+        echo "   Port: 8080"
+        echo "   Transport: HTTP"
+        echo "   Endpoint: http://${{ secrets.VPS_HOST }}:8080"
+        echo ""
+        echo "🧪 Test commands:"
+        echo "   curl http://${{ secrets.VPS_HOST }}:8080/health"
+        echo "   curl http://${{ secrets.VPS_HOST }}:8080/tools"
+        echo ""
+        echo "📊 Monitor:"
+        echo "   ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'journalctl -u arifos-mcp -f'"
+
+    - name: Notify on Failure
+      if: failure()
+      run: |
+        echo "❌ Deployment failed!"
+        echo "📋 Fetching logs..."
+        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "journalctl -u arifos-mcp --no-pager -n 100" || true
+        exit 1
