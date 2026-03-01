@@ -223,11 +223,38 @@ The server exposes **13 governed tools**. When an AI attempts to use a tool like
 
 | Tool | Plain English Function | Purpose |
 |:--|:--|:--|
-| `search_reality` | 🔍 Searches the web to verify facts against hallucinations. | F2 Truth verification |
-| `fetch_content` | 📄 Reads a specific webpage or document. | Evidence retrieval |
+| `search_reality` | 🔍 Searches the web via Jina Reader (primary) to verify facts with clean Markdown extraction. Falls back to Perplexity → Brave. | F2 Truth verification |
+| `fetch_content` | 📄 Extracts clean Markdown from URLs via Jina Reader (primary). F12 Defense: wraps content in untrusted envelope. | Evidence retrieval |
 | `inspect_file` | 📁 Looks at files on your hard drive securely. | F1 Amanah audit |
 | `audit_rules` | 📋 Checks the system's own safety rules. | Governance health check |
 | `check_vital` | 📈 Checks if the server CPU/RAM is healthy. | System telemetry |
+
+---
+
+## 🔗 External Integrations
+
+arifOS integrates with external services for **grounding, search, and content extraction** — always wrapped in constitutional enforcement (F2 Truth, F4 Clarity, F12 Defense).
+
+### Search & Content Extraction (Priority Chain)
+
+| Priority | Service | Purpose | API Key | Fallback |
+|:---:|:---|:---|:---:|:---:|
+| **1** | **Jina Reader** | Clean Markdown extraction from web pages. Superior content quality vs raw HTML. | `JINA_API_KEY` | — |
+| **2** | **Perplexity AI** | Conversational search with citations. | `PERPLEXITY_API_KEY` | Jina |
+| **3** | **Brave Search** | Privacy-focused web search. | `BRAVE_API_KEY` | Perplexity |
+
+**Usage:**
+```bash
+# Optional: Set API keys for higher rate limits
+export JINA_API_KEY="your-jina-key"        # https://jina.ai
+export PERPLEXITY_API_KEY="your-px-key"    # https://perplexity.ai
+export BRAVE_API_KEY="your-brave-key"      # https://brave.com/search/api/
+```
+
+**Constitutional Protection:**
+- **F2 Truth**: All external content must have evidence URLs
+- **F4 Clarity**: Jina Reader extracts clean Markdown (reduces entropy vs HTML)
+- **F12 Defense**: External content wrapped in `<untrusted_external_data>` envelope with taint lineage
 
 ---
 
