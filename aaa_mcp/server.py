@@ -24,6 +24,7 @@ from typing import Any
 import secrets
 import os
 import asyncio
+import traceback
 
 # ─── Amanah Handshake — Governance Token ────────────────────────────────────
 # HMAC signs the judge's final verdict so seal_vault can verify it without
@@ -173,6 +174,28 @@ def _build_floor_block(stage: str, reason: str) -> dict[str, Any]:
     }
 
 
+def _fracture_response(stage: str, e: Exception, session_id: str | None = None) -> dict[str, Any]:
+    """Standardized SABAR envelope for unhandled internal exceptions (kernel fractures)."""
+    result: dict[str, Any] = {
+        "verdict": "SABAR",
+        "status": "partial",
+        "holding_reason": "Internal Engine Fracture",
+        "error_class": e.__class__.__name__,
+        "blast_radius": "kernel",
+        "error": str(e),
+        "trace": traceback.format_exc(),
+        "stage": stage,
+    }
+    if session_id:
+        result["session_id"] = session_id
+    return result
+
+
+def _token_status(auth_token: str | None) -> str:
+    """Return authentication status string from an optional token."""
+    return "AUTHENTICATED" if auth_token else "ANONYMOUS"
+
+
 class EnvelopeBuilder:
     def __init__(self):
         pass
@@ -303,7 +326,7 @@ async def _init_session(
             "template_id": template_id,
             "mode": mode,
             "grounding_required": grounding_required,
-            "token_status": "AUTHENTICATED" if auth_token else "ANONYMOUS",
+            "token_status": _token_status(auth_token),
             "auth": {"present": bool(auth_token)},
             "auth_context": auth_context or {},
             "debug": debug,
@@ -326,19 +349,7 @@ async def _init_session(
         return result
 
     except Exception as e:
-        import traceback
-
-        return {
-            "verdict": "SABAR",
-            "status": "partial",
-            "holding_reason": "Internal Engine Fracture",
-            "error_class": e.__class__.__name__,
-            "blast_radius": "kernel",
-            "error": str(e),
-            "trace": traceback.format_exc(),
-            "stage": "000_INIT",
-        }
-
+        return _fracture_response("000_INIT", e)
 
 anchor_session = ToolHandle(_init_session)
 
@@ -423,7 +434,7 @@ async def _agi_cognition(
         result = {
             "capability_modules": capability_modules or [],
             "actor_id": actor_id,
-            "token_status": "AUTHENTICATED" if auth_token else "ANONYMOUS",
+            "token_status": _token_status(auth_token),
             "parent_session_id": parent_session_id,
             "auth_context": auth_context or {},
             "inference_budget": max(0, min(3, int(inference_budget))),
@@ -445,20 +456,7 @@ async def _agi_cognition(
         )
         return result
     except Exception as e:
-        import traceback
-
-        return {
-            "verdict": "SABAR",
-            "status": "partial",
-            "holding_reason": "Internal Engine Fracture",
-            "error_class": e.__class__.__name__,
-            "blast_radius": "kernel",
-            "error": str(e),
-            "trace": traceback.format_exc(),
-            "stage": "111-444",
-            "session_id": session_id,
-        }
-
+        return _fracture_response("111-444", e, session_id)
 
 reason_mind = ToolHandle(_agi_cognition)
 
@@ -525,20 +523,7 @@ async def _phoenix_recall(
         )
         return result
     except Exception as e:
-        import traceback
-
-        return {
-            "verdict": "SABAR",
-            "status": "partial",
-            "holding_reason": "Internal Engine Fracture",
-            "error_class": e.__class__.__name__,
-            "blast_radius": "kernel",
-            "error": str(e),
-            "trace": traceback.format_exc(),
-            "stage": "555_RECALL",
-            "session_id": session_id,
-        }
-
+        return _fracture_response("555_RECALL", e, session_id)
 
 recall_memory = ToolHandle(_phoenix_recall)
 
@@ -575,7 +560,7 @@ async def _asi_empathy(
             "stakeholders": stakeholders or [],
             "capability_modules": capability_modules or [],
             "actor_id": actor_id,
-            "token_status": "AUTHENTICATED" if auth_token else "ANONYMOUS",
+            "token_status": _token_status(auth_token),
             "parent_session_id": parent_session_id,
             "auth_context": auth_context or {},
             "risk_mode": risk_mode,
@@ -589,20 +574,7 @@ async def _asi_empathy(
         )
         return result
     except Exception as e:
-        import traceback
-
-        return {
-            "verdict": "SABAR",
-            "status": "partial",
-            "holding_reason": "Internal Engine Fracture",
-            "error_class": e.__class__.__name__,
-            "blast_radius": "kernel",
-            "error": str(e),
-            "trace": traceback.format_exc(),
-            "stage": "555-666",
-            "session_id": session_id,
-        }
-
+        return _fracture_response("555-666", e, session_id)
 
 simulate_heart = ToolHandle(_asi_empathy)
 
@@ -669,7 +641,7 @@ async def _apex_verdict(
             "governance_token": governance_token,
             "capability_modules": capability_modules or [],
             "actor_id": actor_id,
-            "token_status": "AUTHENTICATED" if auth_token else "ANONYMOUS",
+            "token_status": _token_status(auth_token),
             "parent_session_id": parent_session_id,
             "auth_context": auth_context or {},
             "risk_mode": risk_mode,
@@ -683,20 +655,7 @@ async def _apex_verdict(
         )
         return result
     except Exception as e:
-        import traceback
-
-        return {
-            "verdict": "SABAR",
-            "status": "partial",
-            "holding_reason": "Internal Engine Fracture",
-            "error_class": e.__class__.__name__,
-            "blast_radius": "kernel",
-            "error": str(e),
-            "trace": traceback.format_exc(),
-            "stage": "777-888",
-            "session_id": session_id,
-        }
-
+        return _fracture_response("777-888", e, session_id)
 
 apex_judge = ToolHandle(_apex_verdict)
 # Backward-compat alias for older callers.
@@ -995,20 +954,7 @@ async def _vault_seal(
 
         return result
     except Exception as e:
-        import traceback
-
-        return {
-            "verdict": "SABAR",
-            "status": "partial",
-            "holding_reason": "Internal Engine Fracture",
-            "error_class": e.__class__.__name__,
-            "blast_radius": "kernel",
-            "error": str(e),
-            "trace": traceback.format_exc(),
-            "stage": "999_VAULT",
-            "session_id": session_id,
-        }
-
+        return _fracture_response("999_VAULT", e, session_id)
 
 seal_vault = ToolHandle(_vault_seal)
 
