@@ -74,11 +74,26 @@ If the **COP** detects a state it cannot govern (A "Strange Loop" or "Gödel Loc
 
 ---
 
-## 7. Hardened Token Security (Nonce + Action Binding)
+## 7. Hardened Token Security (Nonce + Action Binding + Reasoning Hash)
 
 ### One-Time Use with Action-ID Binding
 
 **Each `governance_token` is cryptographically bound to a specific Action-ID and Timestamp. A token issued for `read_file` cannot be repurposed for `delete_file`.**
+
+### ⚠️ Context Drift Prevention (Reasoning Hash Binding)
+
+**Token validity proves authorization, NOT intent continuity.** Attack class: valid token + changed reasoning context = legally valid but constitutionally misaligned action.
+
+**HARDENING:** Governance token MUST bind to:
+- `action_id` (what)
+- `parameters` (how)  
+- `reasoning_hash` (why — causal trace)
+
+```
+Full Binding: token = HMAC(secret, action_id + params_hash + reasoning_hash + timestamp + nonce)
+```
+
+This ensures: **same decision → same reasoning → same execution.** Context drift authorization impossible.
 
 ```python
 import hmac
@@ -102,22 +117,26 @@ class GovernanceToken:
     def mint_token(
         self,
         session_id: str,
-        action_id: str,  # e.g., "read_file", "delete_file"
-        tool_context: Dict
+        action_id: str,  # e.g. "read_file", "delete_file"
+        tool_context: Dict,
+        reasoning_trace: str  # ⚠️ HARDENED: Causal trace for context drift prevention
     ) -> str:
         """
-        Mint a new governance token bound to specific action.
+        Mint a new governance token bound to specific action + reasoning.
+        Token proves: same decision → same reasoning → same execution.
         """
         timestamp = int(time.time())
         nonce = secrets.token_hex(self.NONCE_BYTES)
         
-        # Canonical action context
+        # ⚠️ HARDENED: Canonical action context with reasoning_hash
+        # Prevents context drift authorization attacks
         context = {
             "session_id": session_id,
             "action_id": action_id,
             "timestamp": timestamp,
             "nonce": nonce,
-            "tool_params_hash": self._hash_tool_params(tool_context)
+            "tool_params_hash": self._hash_tool_params(tool_context),
+            "reasoning_hash": hashlib.sha256(reasoning_trace.encode()).hexdigest()[:16]  # Context drift prevention
         }
         
         # HMAC-SHA256 signature
@@ -136,10 +155,11 @@ class GovernanceToken:
         token: str,
         expected_action_id: str,
         session_id: str,
-        tool_context: Dict
+        tool_context: Dict,
+        expected_reasoning: str  # ⚠️ HARDENED: Causal trace for context drift check
     ) -> Dict:
         """
-        Verify token with action binding and anti-replay.
+        Verify token with action binding, reasoning binding, and anti-replay.
         """
         try:
             action_id, timestamp, nonce, provided_sig = token.split(":")
@@ -174,13 +194,15 @@ class GovernanceToken:
                 "floor": "COP_REPLAY_ATTACK"
             }
         
-        # 4. Recompute and verify signature
+        # 4. Recompute and verify signature with reasoning_hash
+        # ⚠️ HARDENED: Context drift prevention via reasoning binding
         context = {
             "session_id": session_id,
             "action_id": action_id,
             "timestamp": int(timestamp),
             "nonce": nonce,
-            "tool_params_hash": self._hash_tool_params(tool_context)
+            "tool_params_hash": self._hash_tool_params(tool_context),
+            "reasoning_hash": hashlib.sha256(expected_reasoning.encode()).hexdigest()[:16]
         }
         canonical = json.dumps(context, sort_keys=True, separators=(',', ':'))
         expected_sig = hmac.new(
