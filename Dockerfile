@@ -16,6 +16,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY . .
+COPY aclip_cai/embeddings /app/models/bge
 
 RUN python -m pip install --upgrade pip && \
     if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi && \
@@ -39,6 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=build /usr/local /usr/local
 COPY . .
+COPY aclip_cai/embeddings /app/models/bge
 
 # Install a deterministic Chromium runtime for Playwright-based search/fetch paths.
 RUN python -m playwright install --with-deps chromium

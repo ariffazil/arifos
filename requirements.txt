@@ -37,3 +37,4 @@ pyyaml>=6.0.0                 # YAML configuration parsing
 
 # Note: For ChatGPT Deep Research integration, ensure playwright browsers are installed:
 # playwright install chromium
+sentence-transformers>=2.2.0
