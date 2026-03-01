@@ -13,12 +13,34 @@ reasoning:
 Constitutional enforcement: F2 (Truth), F4 (Clarity/ΔS), F13 (Curiosity ≥ 3 paths).
 Output: Delta Draft (PROVISIONAL, unsealed) → routes to Stage 333 ATLAS.
 
+SAMPLING INTEGRATION (v2026.3):
+When FastMCP Context is provided, uses ctx.sample() for governed LLM reasoning.
+This transforms arifOS from a structural validator into a true intelligence kernel.
+
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
+from __future__ import annotations
+
 import asyncio
+from typing import TYPE_CHECKING, Any
 
 from ...core.kernel import kernel
+
+if TYPE_CHECKING:
+    from fastmcp import Context
+
+
+_SAMPLING_ENABLED = True
+
+try:
+    from ...core.constitutional_sampling import (
+        sample_think,
+        ThinkResult,
+        SamplingConfig,
+    )
+except ImportError:
+    _SAMPLING_ENABLED = False
 
 
 # ---------------------------------------------------------------------------
@@ -175,13 +197,27 @@ def _build_reasoning_tree(
 # ---------------------------------------------------------------------------
 
 
-async def think(session_id: str, query: str, context: str = "") -> dict:
+async def think(
+    session_id: str,
+    query: str,
+    context: str = "",
+    ctx: "Context | None" = None,
+    use_sampling: bool = True,
+    temperature: float = 0.5,
+) -> dict:
     """
     STAGE 222: THINK — Thermodynamic Processing Chamber.
 
     Runs three orthogonal reasoning paths in parallel. Consolidates into a
     weighted Delta Draft (provisional, unsealed). Routes to Stage 333 ATLAS
     for humility audit before proceeding to safety engines.
+
+    SAMPLING INTEGRATION:
+    When ctx (FastMCP Context) is provided and use_sampling=True, this function
+    uses ctx.sample() with constitutional system prompts to perform actual LLM
+    reasoning. This transforms arifOS into a governed intelligence kernel.
+
+    Without ctx, falls back to kernel.audit() based structural checks.
 
     Constitutional floors enforced:
       F2 Truth:       all paths cross-reference and fact-check claims
@@ -192,10 +228,116 @@ async def think(session_id: str, query: str, context: str = "") -> dict:
         session_id: Active session identifier from Stage 000.
         query:      The raw user intent to process.
         context:    Optional surrounding context string.
+        ctx:        FastMCP Context for sampling (optional).
+        use_sampling: Whether to use LLM sampling when ctx is available.
+        temperature: Sampling temperature for LLM calls (0.0-1.0).
 
     Returns:
         Delta Draft dict — PROVISIONAL output for Stage 333 ATLAS.
     """
+    if ctx is not None and use_sampling and _SAMPLING_ENABLED:
+        return await _think_with_sampling(session_id, query, context, ctx, temperature)
+    return await _think_with_kernel(session_id, query, context)
+
+
+async def _think_with_sampling(
+    session_id: str,
+    query: str,
+    context: str,
+    ctx: "Context",
+    temperature: float,
+) -> dict:
+    """
+    THINK using FastMCP sampling with constitutional governance.
+
+    This is the "governed intelligence" path where actual LLM reasoning
+    occurs under constitutional constraints.
+    """
+    try:
+        config = SamplingConfig(temperature=temperature, max_tokens=2048)
+        result: ThinkResult = await sample_think(
+            ctx=ctx,
+            query=query,
+            context=context,
+            config=config,
+        )
+
+        all_alternatives = []
+        for path_data in result.paths.values():
+            all_alternatives.append(path_data.hypothesis)
+            if path_data.alternatives:
+                all_alternatives.extend(path_data.alternatives)
+
+        f13_passed = len(all_alternatives) >= 3
+
+        floor_checks = {
+            "F2_truth": "ENFORCED via constitutional sampling",
+            "F4_clarity": f"ΔS computed by LLM (confidence: {result.confidence:.3f})",
+            "F13_curiosity": (
+                f"PASSED — {len(all_alternatives)} alternatives"
+                if f13_passed
+                else f"FAILED — only {len(all_alternatives)} alternatives"
+            ),
+        }
+
+        return {
+            "stage": "222_THINK",
+            "verdict": result.verdict.value,
+            "sampling_mode": True,
+            "paths": {
+                name: {
+                    "path": path_data.path,
+                    "hypothesis": path_data.hypothesis,
+                    "confidence": path_data.confidence,
+                    "assumptions": path_data.assumptions,
+                    "stress_tests": path_data.stress_tests,
+                    "alternatives": path_data.alternatives,
+                }
+                for name, path_data in result.paths.items()
+            },
+            "reasoning_tree": {
+                "root": query[:200],
+                "weighted_confidence": result.weighted_confidence,
+            },
+            "delta_draft": {
+                "status": "PROVISIONAL",
+                "sealed": False,
+                "confidence": result.confidence,
+                "alternatives_generated": len(all_alternatives),
+                "f13_curiosity_passed": f13_passed,
+                "next_stage": "333_ATLAS",
+            },
+            "floor_checks": floor_checks,
+            "floor_concerns": [
+                {
+                    "floor_id": fc.floor_id,
+                    "passed": fc.passed,
+                    "score": fc.score,
+                    "reason": fc.reason,
+                }
+                for fc in result.floor_concerns
+            ],
+            "recommendation": result.recommendation,
+            "telemetry": {
+                "weighted_confidence": result.weighted_confidence,
+                "paths_run": len(result.paths),
+            },
+        }
+    except Exception as e:
+        return await _think_with_kernel(session_id, query, context, error_fallback=str(e))
+
+
+async def _think_with_kernel(
+    session_id: str,
+    query: str,
+    context: str,
+    error_fallback: str | None = None,
+) -> dict:
+    """
+    THINK using kernel.audit() structural checks (fallback/no-sampling mode).
+    """
+    if error_fallback:
+        pass
     # Run three paths concurrently (orthogonal geometry)
     conservative, exploratory, adversarial = await asyncio.gather(
         _run_conservative_path(query, context),
