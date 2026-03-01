@@ -251,6 +251,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 payload = json.load(f)
                 payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
                 payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
+                payload.setdefault("authentication", {"type": "none", "description": "No authentication required. actor_id is used for logging only."})
                 return JSONResponse(payload)
         # Fallback: generate minimal discovery
         return JSONResponse(
@@ -260,6 +261,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "protocolVersion": MCP_PROTOCOL_VERSION,
                 "supportedProtocolVersions": MCP_SUPPORTED_PROTOCOL_VERSIONS,
                 "transport": {"type": "streamable-http", "url": "/mcp"},
+                "authentication": {"type": "none", "description": "No authentication required. actor_id is used for logging only."},
                 "tools": list(tool_registry.keys()),
             }
         )

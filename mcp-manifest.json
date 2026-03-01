@@ -39,7 +39,8 @@
     },
     {
       "type": "streamable-http",
-      "url": "https://arifosmcp.arif-fazil.com/mcp"
+      "url": "https://arifosmcp.arif-fazil.com/mcp",
+      "authentication": {"type": "none"}
     }
   ],
   "tools": {
