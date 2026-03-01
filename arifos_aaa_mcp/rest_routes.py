@@ -165,19 +165,15 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         if err := _auth_error_response(request):
             return err
 
+        # Get tools from mcp instance
+        mcp_tools = await mcp.list_tools()
         tool_list = []
-        for name, tool_obj in tool_registry.items():
-            fn = getattr(tool_obj, "fn", tool_obj)
-            doc = inspect.getdoc(fn) or ""
-            sig = inspect.signature(fn)
-            params = {
-                p_name: {
-                    "required": p.default is inspect.Parameter.empty,
-                    "default": None if p.default is inspect.Parameter.empty else repr(p.default),
-                }
-                for p_name, p in sig.parameters.items()
-            }
-            tool_list.append({"name": name, "description": doc, "parameters": params})
+        for tool in mcp_tools:
+            tool_list.append({
+                "name": tool.name,
+                "description": tool.description or "",
+                "parameters": tool.parameters or {}
+            })
         return JSONResponse({"tools": tool_list, "count": len(tool_list)})
 
     @mcp.custom_route("/tools/{tool_name:path}", methods=["POST"])
@@ -251,6 +247,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 payload = json.load(f)
                 payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
                 payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
+                payload.setdefault("authentication", {"type": "none", "description": "No authentication required. actor_id is used for logging only."})
                 return JSONResponse(payload)
         # Fallback: generate minimal discovery
         return JSONResponse(
@@ -260,6 +257,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "protocolVersion": MCP_PROTOCOL_VERSION,
                 "supportedProtocolVersions": MCP_SUPPORTED_PROTOCOL_VERSIONS,
                 "transport": {"type": "streamable-http", "url": "/mcp"},
+                "authentication": {"type": "none", "description": "No authentication required. actor_id is used for logging only."},
                 "tools": list(tool_registry.keys()),
             }
         )

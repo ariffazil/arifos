@@ -1,8 +1,9 @@
 """
-SessionLedger — VAULT999 Postgres Persistence Layer
+SessionLedger — VAULT999 Unified Ledger
 
-Provides Merkle-chained audit trail for constitutional verdicts.
-Schema: VAULT999 v3 (hybrid)
+UNIFIED: PostgreSQL + Redis + Merkle Tree + EUREKA Sieve
+Provides Merkle-chained, EUREKA-filtered, multi-backend audit trail.
+Schema: VAULT999 v3 UNIFIED
 
 DITEMPA BUKAN DIBERI
 """
@@ -10,22 +11,36 @@ DITEMPA BUKAN DIBERI
 import hashlib
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
 # Try to import asyncpg for Postgres support
 try:
     import asyncpg
-
     ASYNCPG_AVAILABLE = True
 except ImportError:
     ASYNCPG_AVAILABLE = False
 
+# ═══ WIRE EXISTING COMPONENTS ═══
+# Merkle tree from core.shared.crypto
+from core.shared.crypto import merkle_root, merkle_hash_pair
+
+# Redis MindVault from aaa_mcp.services.redis_client  
+from aaa_mcp.services.redis_client import MindVault
+
+# EUREKA Sieve from aaa_mcp.vault.hardened
+from aaa_mcp.vault.hardened import (
+    HardenedEUREKASieve,
+    should_seal_to_vault_hardened,
+    EUREKA_THRESHOLD,
+    SABAR_THRESHOLD,
+)
+
 
 @dataclass
 class VaultEntry:
-    """VAULT999 v3 entry schema."""
+    """VAULT999 v3 UNIFIED entry schema with Merkle root."""
 
     entry_id: str
     session_id: str
@@ -41,12 +56,19 @@ class VaultEntry:
     schema_version: str = "3.0"
     floors_checked: list[str] = None
     floors_failed: list[str] = None
+    # UNIFIED: Merkle root for tamper-evident chain
+    merkle_root: str = ""
+    # UNIFIED: EUREKA score metadata
+    eureka_score: float = 0.0
+    eureka_verdict: str = "TRANSIENT"  # SEAL | SABAR | TRANSIENT
 
     def __post_init__(self):
         if self.floors_checked is None:
             self.floors_checked = []
         if self.floors_failed is None:
             self.floors_failed = []
+        if not self.merkle_root:
+            self.merkle_root = self.entry_hash  # Fallback
 
 
 # Compatibility alias for legacy code
@@ -55,14 +77,16 @@ SessionEntry = VaultEntry
 
 class SessionLedger:
     """
-    VAULT999 Ledger — Immutable Merkle-chained audit trail.
-
-    Supports:
-    - Postgres backend (production)
-    - In-memory fallback (development/testing)
+    VAULT999 UNIFIED Ledger — PostgreSQL + Redis + Merkle + EUREKA
+    
+    Unified backends:
+    - PostgreSQL: Authoritative persistent ledger
+    - Redis: Hot cache via MindVault
+    - Merkle tree: Tamper-evident cryptographic chain
+    - EUREKA sieve: Anomalous contrast filtering
     """
 
-    # SQL for creating the vault table
+    # SQL for creating the vault table (UNIFIED with Merkle)
     CREATE_TABLE_SQL = """
     CREATE TABLE IF NOT EXISTS vault999 (
         id SERIAL PRIMARY KEY,
@@ -77,6 +101,9 @@ class SessionLedger:
         query_summary TEXT,
         prev_hash VARCHAR(64),
         entry_hash VARCHAR(64) NOT NULL,
+        merkle_root VARCHAR(64),  -- UNIFIED: Merkle tree root
+        eureka_score FLOAT DEFAULT 0.0,  -- UNIFIED: EUREKA evaluation
+        eureka_verdict VARCHAR(20) DEFAULT 'TRANSIENT',
         schema_version VARCHAR(10) DEFAULT '3.0',
         floors_checked TEXT[],
         floors_failed TEXT[],
@@ -86,6 +113,7 @@ class SessionLedger:
     CREATE INDEX IF NOT EXISTS idx_vault999_session ON vault999(session_id);
     CREATE INDEX IF NOT EXISTS idx_vault999_verdict ON vault999(verdict_type);
     CREATE INDEX IF NOT EXISTS idx_vault999_timestamp ON vault999(timestamp DESC);
+    CREATE INDEX IF NOT EXISTS idx_vault999_merkle ON vault999(merkle_root);
     """
 
     def __init__(self, database_url: str | None = None):
@@ -94,6 +122,12 @@ class SessionLedger:
         self._memory_ledger: list[VaultEntry] = []
         self._last_hash = "GENESIS"
         self._initialized = False
+        # UNIFIED: Redis cache
+        self._redis = MindVault()
+        # UNIFIED: EUREKA sieve for filtering
+        self._eureka = HardenedEUREKASieve(vault_ledger=self)
+        # UNIFIED: Merkle history (entry hashes for tree computation)
+        self._merkle_history: list[str] = []
 
     @property
     def is_postgres_available(self) -> bool:
@@ -101,30 +135,40 @@ class SessionLedger:
         return ASYNCPG_AVAILABLE and bool(self.database_url)
 
     async def initialize(self) -> bool:
-        """Initialize the ledger (create table if needed)."""
+        """Initialize the ledger (create table if needed, load Merkle history)."""
         if self._initialized:
             return True
 
-        if not self.is_postgres_available:
-            self._initialized = True
-            return False  # Using memory fallback
-
+        # Always try to initialize (Redis + EUREKA work even without Postgres)
         try:
-            self._pool = await asyncpg.create_pool(
-                self.database_url, min_size=1, max_size=5, command_timeout=30
-            )
-            async with self._pool.acquire() as conn:
-                await conn.execute(self.CREATE_TABLE_SQL)
-                # Get last hash for chain continuity
-                row = await conn.fetchrow(
-                    "SELECT entry_hash FROM vault999 ORDER BY id DESC LIMIT 1"
+            if self.is_postgres_available:
+                self._pool = await asyncpg.create_pool(
+                    self.database_url, min_size=1, max_size=5, command_timeout=30
                 )
-                if row:
-                    self._last_hash = row["entry_hash"]
+                async with self._pool.acquire() as conn:
+                    await conn.execute(self.CREATE_TABLE_SQL)
+                    # UNIFIED: Load last hash AND Merkle history
+                    rows = await conn.fetch(
+                        "SELECT entry_hash, merkle_root FROM vault999 ORDER BY id ASC LIMIT 1000"
+                    )
+                    if rows:
+                        self._last_hash = rows[-1]["entry_hash"]
+                        # Rebuild Merkle history from chain
+                        self._merkle_history = [row["entry_hash"] for row in rows]
+                        print(f"[VAULT999] Loaded {len(rows)} entries, Merkle root: {rows[-1]['merkle_root'][:16]}...")
+            
+            # UNIFIED: Also load recent entries from Redis cache
+            redis_state = self._redis.load("vault999_chain")
+            if redis_state and not self._merkle_history:
+                # Use Redis as warm cache if Postgres empty
+                self._merkle_history = redis_state.get("history", [])
+                self._last_hash = redis_state.get("last_hash", "GENESIS")
+                
             self._initialized = True
             return True
+            
         except Exception as e:
-            print(f"[SessionLedger] Postgres init failed: {e}, using memory fallback")
+            print(f"[SessionLedger] Init warning: {e}, using memory fallback")
             self._initialized = True
             return False
 
@@ -150,13 +194,35 @@ class SessionLedger:
         environment: str = "prod",
         floors_checked: list[str] | None = None,
         floors_failed: list[str] | None = None,
+        query: str = "",  # For EUREKA evaluation
+        response: str = "",  # For EUREKA evaluation
+        trinity_bundle: dict[str, Any] | None = None,  # For EUREKA evaluation
     ) -> VaultEntry:
         """
-        Seal a new entry into the VAULT999 ledger.
+        UNIFIED: Seal a new entry into VAULT999 with Merkle + EUREKA + Redis.
 
-        Returns the sealed VaultEntry with computed hash.
+        Returns the sealed VaultEntry with computed hash and Merkle root.
         """
         await self.initialize()
+
+        # UNIFIED: Run EUREKA sieve evaluation if query/response provided
+        eureka_score = 0.0
+        eureka_verdict = "TRANSIENT"
+        if query and trinity_bundle:
+            try:
+                should_seal, eureka_meta = await should_seal_to_vault_hardened(
+                    query=query,
+                    response=response or json.dumps(payload),
+                    trinity_bundle=trinity_bundle,
+                    vault_ledger=self,
+                )
+                eureka_score = eureka_meta.get("eureka_score", 0.0)
+                eureka_verdict = eureka_meta.get("verdict", "TRANSIENT")
+                # Override verdict_type if EUREKA says TRANSIENT
+                if eureka_verdict == "TRANSIENT" and verdict_type == "SEAL":
+                    verdict_type = "SABAR"  # Downgrade to cooling
+            except Exception as e:
+                print(f"[VAULT999] EUREKA evaluation error: {e}, proceeding without filter")
 
         entry = VaultEntry(
             entry_id=self._generate_entry_id(),
@@ -172,12 +238,44 @@ class SessionLedger:
             entry_hash="",  # Computed below
             floors_checked=floors_checked or [],
             floors_failed=floors_failed or [],
+            eureka_score=eureka_score,
+            eureka_verdict=eureka_verdict,
         )
 
         entry.entry_hash = self._compute_hash(entry)
+        
+        # UNIFIED: Compute Merkle root
+        self._merkle_history.append(entry.entry_hash)
+        entry.merkle_root = merkle_root(self._merkle_history)
         self._last_hash = entry.entry_hash
 
-        # Persist to Postgres or memory
+        # UNIFIED: Persist to Redis (hot cache)
+        try:
+            self._redis.save(
+                f"vault:{entry.entry_id}",
+                {
+                    "entry_id": entry.entry_id,
+                    "session_id": entry.session_id,
+                    "verdict": entry.verdict_type,
+                    "hash": entry.entry_hash,
+                    "merkle_root": entry.merkle_root,
+                    "timestamp": entry.timestamp,
+                },
+                ttl=86400 * 7,  # 7 days
+            )
+            # Update chain state in Redis
+            self._redis.save(
+                "vault999_chain",
+                {
+                    "last_hash": self._last_hash,
+                    "history_length": len(self._merkle_history),
+                    "merkle_root": entry.merkle_root,
+                },
+            )
+        except Exception as e:
+            print(f"[VAULT999] Redis cache warning: {e}")
+
+        # UNIFIED: Persist to Postgres (authoritative)
         if self._pool:
             try:
                 async with self._pool.acquire() as conn:
@@ -186,8 +284,9 @@ class SessionLedger:
                         INSERT INTO vault999 (
                             entry_id, session_id, timestamp, verdict_type, risk_level,
                             category, environment, payload, query_summary,
-                            prev_hash, entry_hash, schema_version, floors_checked, floors_failed
-                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
+                            prev_hash, entry_hash, merkle_root, eureka_score, eureka_verdict,
+                            schema_version, floors_checked, floors_failed
+                        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
                         """,
                         entry.entry_id,
                         entry.session_id,
@@ -200,6 +299,9 @@ class SessionLedger:
                         entry.query_summary,
                         entry.prev_hash,
                         entry.entry_hash,
+                        entry.merkle_root,
+                        entry.eureka_score,
+                        entry.eureka_verdict,
                         entry.schema_version,
                         entry.floors_checked,
                         entry.floors_failed,
@@ -269,6 +371,10 @@ class SessionLedger:
                             schema_version=row["schema_version"] or "3.0",
                             floors_checked=list(row["floors_checked"] or []),
                             floors_failed=list(row["floors_failed"] or []),
+                            # UNIFIED: New fields
+                            merkle_root=row.get("merkle_root", ""),
+                            eureka_score=row.get("eureka_score", 0.0),
+                            eureka_verdict=row.get("eureka_verdict", "TRANSIENT"),
                         )
                         for row in rows
                     ]
@@ -282,6 +388,44 @@ class SessionLedger:
         if verdict_type:
             entries = [e for e in entries if e.verdict_type == verdict_type]
         return entries[offset : offset + limit]
+
+    async def verify_chain(self, limit: int = 100) -> dict[str, Any]:
+        """
+        UNIFIED: Verify Merkle chain integrity.
+        
+        Returns verification report with tamper detection.
+        """
+        await self.initialize()
+        
+        entries = await self.query(limit=limit)
+        if not entries:
+            return {"valid": True, "entries_checked": 0, "tampered": []}
+        
+        tampered = []
+        for i, entry in enumerate(entries):
+            # Verify entry hash
+            computed_hash = self._compute_hash(entry)
+            if computed_hash != entry.entry_hash:
+                tampered.append({"entry_id": entry.entry_id, "field": "entry_hash"})
+                continue
+            
+            # Verify chain continuity
+            if i > 0:
+                if entry.prev_hash != entries[i-1].entry_hash:
+                    tampered.append({"entry_id": entry.entry_id, "field": "chain_break"})
+        
+        # Verify Merkle root
+        hashes = [e.entry_hash for e in entries]
+        computed_root = merkle_root(hashes)
+        latest_root = entries[-1].merkle_root if entries else ""
+        
+        return {
+            "valid": len(tampered) == 0 and computed_root == latest_root,
+            "entries_checked": len(entries),
+            "tampered": tampered,
+            "merkle_root": computed_root[:16] + "...",
+            "latest_stored_root": latest_root[:16] + "..." if latest_root else "N/A",
+        }
 
     async def close(self):
         """Close the database connection pool."""
