@@ -9,8 +9,29 @@ from __future__ import annotations
 
 from typing import Any
 
-MANIFEST_VERSION: int = 3
+MANIFEST_VERSION: int = 4
 
+# ═══════════════════════════════════════════════════════════════════════════════
+# TOOL SURFACE TAXONOMY — L1 / L4 / L5
+# ═══════════════════════════════════════════════════════════════════════════════
+#
+#   L1_PROMPTS     Transport scaffolding injected by FastMCP PromptsAsTools
+#                  transform.  "Call in, call out" — NOT constitutional tools.
+#                  They let tool-only clients (Copilot, etc.) access MCP prompts.
+#
+#   L4_TOOLS       The 13 canonical constitutional syscalls — the kernel surface.
+#                  Each maps 1-to-1 to a governance stage (000-999).
+#                  THIS IS THE SACRED COUNT: 13.
+#
+#   L5_COMPOSITE   Orchestration tools that sequence L4_TOOLS.
+#                  Like a shell calling syscalls — real tools, but not atoms.
+#
+# ═══════════════════════════════════════════════════════════════════════════════
+
+# L1: Transport-layer plumbing (auto-injected by FastMCP PromptsAsTools)
+L1_PROMPTS: frozenset[str] = frozenset({"list_prompts", "get_prompt"})
+
+# L4: The 13 canonical constitutional tool surface
 AAA_CANONICAL_TOOLS: tuple[str, ...] = (
     "anchor_session",
     "reason_mind",
@@ -26,6 +47,17 @@ AAA_CANONICAL_TOOLS: tuple[str, ...] = (
     "audit_rules",
     "check_vital",
 )
+L4_TOOLS: frozenset[str] = frozenset(AAA_CANONICAL_TOOLS)
+
+# L5: Composite orchestration (sequences L4 tools)
+L5_COMPOSITE: frozenset[str] = frozenset({"metabolic_loop"})
+
+# Full MCP tools/list surface = L1 + L4 + L5 (but canonical count stays 13)
+MCP_FULL_SURFACE: frozenset[str] = L1_PROMPTS | L4_TOOLS | L5_COMPOSITE
+
+# Test assertion helpers
+CANONICAL_TOOL_COUNT: int = 13  # Sacred count — L4 only
+MCP_GOVERNED_TOOLS: frozenset[str] = L4_TOOLS | L5_COMPOSITE  # Tools with envelopes
 
 AAA_TOOL_ALIASES: dict[str, str] = {
     "init_session": "anchor_session",
@@ -182,8 +214,14 @@ __all__ = [
     "AAA_TOOL_LAW_BINDINGS",
     "AAA_TOOL_STAGE_MAP",
     "AXIOMS_333",
+    "CANONICAL_TOOL_COUNT",
+    "L1_PROMPTS",
+    "L4_TOOLS",
+    "L5_COMPOSITE",
     "LAW_13_CATALOG",
     "MANIFEST_VERSION",
+    "MCP_FULL_SURFACE",
+    "MCP_GOVERNED_TOOLS",
     "READ_ONLY_TOOLS",
     "TRINITY_BY_TOOL",
 ]

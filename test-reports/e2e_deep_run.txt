@@ -1,0 +1,266 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\User\arifOS\.venv\Scripts\python.exe
+cachedir: C:\Users\User\AppData\Local\Temp\pytest_cache
+metadata: {'Python': '3.13.3', 'Platform': 'Windows-11-10.0.26220-SP0', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.12.1', 'asyncio': '1.3.0', 'cov': '7.0.0', 'html': '4.2.0', 'metadata': '3.1.1'}, 'JAVA_HOME': 'C:\\Users\\User\\AppData\\Roaming\\Antigravity\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\latest'}
+rootdir: C:\Users\User\arifOS
+configfile: pyproject.toml
+plugins: anyio-4.12.1, asyncio-1.3.0, cov-7.0.0, html-4.2.0, metadata-3.1.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 101 items
+
+tests/canonical/test_aaa_mcp_constitutional.py::test_all_13_floors_registered PASSED [  0%]
+tests/canonical/test_aaa_mcp_constitutional.py::test_mcp_instance_exists_and_named PASSED [  1%]
+tests/canonical/test_aaa_mcp_constitutional.py::test_canonical_13_tools_importable PASSED [  2%]
+tests/canonical/test_aaa_mcp_constitutional.py::test_anchor_reason_flow_preserves_session_and_entropy_contract PASSED [  3%]
+tests/canonical/test_aaa_mcp_constitutional.py::test_heart_critique_judge_seal_flow FAILED [  4%]
+tests/canonical/test_aaa_mcp_constitutional.py::test_forge_returns_guarded_status_for_irreversible_gate FAILED [  5%]
+tests/canonical/test_aaa_mcp_constitutional.py::test_read_only_utility_tools_execute PASSED [  6%]
+tests/canonical/test_aaa_mcp_constitutional.py::test_law_enforcement_matrix_13_tools FAILED [  7%]
+tests/canonical/test_aaa_mcp_contract.py::test_aaa_server_exposes_exactly_13_tools FAILED [  8%]
+tests/canonical/test_aaa_mcp_contract.py::test_governance_has_333_axioms_catalog PASSED [  9%]
+tests/canonical/test_aaa_mcp_contract.py::test_governance_has_13_law_catalog PASSED [ 10%]
+tests/canonical/test_aaa_mcp_contract.py::test_governance_embeds_apex_dials_mapping PASSED [ 11%]
+tests/canonical/test_aaa_mcp_contract.py::test_governance_embeds_ditempa_motto_bookends PASSED [ 12%]
+tests/canonical/test_aaa_mcp_contract.py::test_no_legacy_public_tool_names_in_aaa_surface PASSED [ 13%]
+tests/canonical/test_aaa_mcp_core_operations.py::test_call_tool_returns_structured_data_and_content PASSED [ 14%]
+tests/canonical/test_aaa_mcp_core_operations.py::test_call_tool_supports_timeout_progress_and_meta PASSED [ 15%]
+tests/canonical/test_aaa_mcp_core_operations.py::test_call_tool_mcp_raw_protocol_access FAILED [ 16%]
+tests/canonical/test_aaa_mcp_core_operations.py::test_read_resource_and_read_resource_mcp PASSED [ 17%]
+tests/canonical/test_aaa_mcp_core_operations.py::test_get_prompt_and_get_prompt_mcp PASSED [ 18%]
+tests/canonical/test_aaa_phase5_runtime.py::test_phase5_chain_000_to_999_with_envelopes PASSED [ 19%]
+tests/canonical/test_aaa_phase5_runtime.py::test_phase5_auxiliary_tools_have_governed_envelope PASSED [ 20%]
+tests/canonical/test_aaa_phase888_mcp_protocol_e2e.py::test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13 FAILED [ 21%]
+tests/canonical/test_aaa_phase888_mcp_protocol_e2e.py::test_streamable_initialize_negotiates_supported_older_version PASSED [ 22%]
+tests/canonical/test_aaa_phase888_mcp_protocol_e2e.py::test_streamable_initialize_rejects_unsupported_version PASSED [ 23%]
+tests/canonical/test_aaa_phase888_mcp_protocol_e2e.py::test_streamable_session_rejects_protocol_mismatch_after_initialize PASSED [ 24%]
+tests/canonical/test_aaa_phase888_mcp_protocol_e2e.py::test_streamable_initialize_advertises_capabilities PASSED [ 25%]
+tests/canonical/test_aaa_phase888_mcp_protocol_e2e.py::test_streamable_completion_complete_prompt_actor_id PASSED [ 26%]
+tests/canonical/test_aaa_phase888_mcp_protocol_e2e.py::test_streamable_resources_subscribe_returns_method_not_found PASSED [ 27%]
+tests/canonical/test_critique_thought_backend.py::test_critique_thought_prefers_triad_align_and_keeps_heuristics PASSED [ 28%]
+tests/canonical/test_fastmcp_config_contract.py::test_fastmcp_json_exists_and_is_valid_json PASSED [ 29%]
+tests/canonical/test_fastmcp_config_contract.py::test_fastmcp_json_has_required_sections PASSED [ 30%]
+tests/canonical/test_fastmcp_config_contract.py::test_fastmcp_source_entrypoint_is_importable PASSED [ 31%]
+tests/canonical/test_golden_scenarios.py::test_high_stakes_financial_scenario PASSED [ 32%]
+tests/canonical/test_golden_scenarios.py::test_medical_no_grounding_scenario PASSED [ 33%]
+tests/canonical/test_golden_scenarios.py::test_benign_pipeline_scenario PASSED [ 34%]
+tests/canonical/test_public_surface_contract.py::test_public_rest_aliases_use_shared_source PASSED [ 35%]
+tests/canonical/test_public_surface_contract.py::test_streamable_aliases_use_shared_source PASSED [ 36%]
+tests/canonical/test_public_surface_contract.py::test_legacy_rest_aliases_use_shared_source PASSED [ 37%]
+tests/canonical/test_public_surface_contract.py::test_internal_server_mirrors_public_resources_and_prompt[asyncio] FAILED [ 38%]
+tests/core/test_atlas.py::test_phi_social PASSED                         [ 39%]
+tests/core/test_atlas.py::test_phi_factual_technical PASSED              [ 40%]
+tests/core/test_atlas.py::test_phi_financial_risk_high PASSED            [ 41%]
+tests/core/test_atlas.py::test_phi_financial_risk_low PASSED             [ 42%]
+tests/core/test_atlas.py::test_phi_crisis PASSED                         [ 43%]
+tests/core/test_atlas.py::test_f2_threshold_mapping PASSED               [ 44%]
+tests/core/test_outputs.py::test_init_output_standardization PASSED      [ 45%]
+tests/core/test_outputs.py::test_agi_output_standardization PASSED       [ 46%]
+tests/core/test_outputs.py::test_asi_output_standardization PASSED       [ 47%]
+tests/core/test_outputs.py::test_apex_output_standardization PASSED      [ 48%]
+tests/core/test_outputs.py::test_vault_output_standardization PASSED     [ 49%]
+tests/core/test_physics.py::test_entropy_basic PASSED                    [ 50%]
+tests/core/test_physics.py::test_delta_s_cooling PASSED                  [ 51%]
+tests/core/test_physics.py::test_genius_score PASSED                     [ 52%]
+tests/core/test_physics.py::test_physics_efficiency PASSED               [ 53%]
+tests/core/test_pipeline.py::test_quick_pipeline_smoke PASSED            [ 54%]
+tests/core/test_pipeline.py::test_trinity_forge_smoke PASSED             [ 55%]
+tests/core/test_scheduler.py::test_scheduler_priority PASSED             [ 56%]
+tests/core/test_scheduler.py::test_scheduler_f5_breach_suspension PASSED [ 57%]
+tests/test_canonical_tool_contract.py::test_canonical_tool_names_are_exact PASSED [ 58%]
+tests/test_canonical_tool_contract.py::test_canonical_signatures_are_stable PASSED [ 59%]
+tests/test_homeostasis.py::TestSpendPolicyDetermination::test_critical_paradox_freezes PASSED [ 60%]
+tests/test_homeostasis.py::TestSpendPolicyDetermination::test_rising_entropy_austerity PASSED [ 61%]
+tests/test_homeostasis.py::TestSpendPolicyDetermination::test_low_stability_conservative PASSED [ 62%]
+tests/test_homeostasis.py::TestSpendPolicyDetermination::test_high_clarity_expansive PASSED [ 63%]
+tests/test_homeostasis.py::TestSpendPolicyDetermination::test_high_risk_requires_hold PASSED [ 64%]
+tests/test_homeostasis.py::TestTokenScaling::test_tokens_scale_with_stability PASSED [ 65%]
+tests/test_homeostasis.py::TestTokenScaling::test_freeze_gives_minimum_tokens PASSED [ 66%]
+tests/test_homeostasis.py::TestToolBudgeting::test_high_humidity_restricts_tools PASSED [ 67%]
+tests/test_homeostasis.py::TestToolBudgeting::test_freeze_allows_no_tools PASSED [ 68%]
+tests/test_homeostasis.py::TestFitnessCalculation::test_high_fitness_allows_execution PASSED [ 69%]
+tests/test_homeostasis.py::TestFitnessCalculation::test_low_fitness_defers PASSED [ 70%]
+tests/test_homeostasis.py::TestFitnessCalculation::test_expensive_task_needs_high_impact PASSED [ 71%]
+tests/test_homeostasis.py::TestCaching::test_cache_prevents_oscillation PASSED [ 72%]
+tests/test_homeostasis.py::TestCaching::test_significant_change_invalidates_cache PASSED [ 73%]
+tests/test_homeostasis.py::TestConvenienceFunctions::test_translate_pressure_to_budget PASSED [ 74%]
+tests/test_homeostasis.py::TestConvenienceFunctions::test_get_homeostasis_singleton PASSED [ 75%]
+tests/test_homeostasis.py::TestConstitutionalCompliance::test_report_includes_compliance PASSED [ 76%]
+tests/test_homeostasis.py::TestConstitutionalCompliance::test_report_shows_full_pressure PASSED [ 77%]
+tests/test_homeostasis.py::TestRM50BudgetConstraints::test_normal_tokens_reasonable PASSED [ 78%]
+tests/test_homeostasis.py::TestRM50BudgetConstraints::test_concurrency_bounded PASSED [ 79%]
+tests/test_homeostasis.py::TestRM50BudgetConstraints::test_most_requests_die_at_tier_1 PASSED [ 80%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_can_detect_paradox_when_empty PASSED [ 81%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_blocks_paradox_when_capacity_full PASSED [ 82%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_blocks_paradox_when_energy_exceeded PASSED [ 83%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_register_paradox_increases_count PASSED [ 84%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_resolve_paradox_decreases_count PASSED [ 85%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_eureka_registration_with_cooling PASSED [ 86%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_eureka_rate_limiting PASSED [ 87%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_energy_decay_over_time PASSED [ 88%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_tac_sensitivity_downgrade_when_overloaded PASSED [ 89%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_status_report_includes_compliance PASSED [ 90%]
+tests/test_homeostasis.py::TestParadoxEnergyBudget::test_singleton_pattern PASSED [ 91%]
+tests/test_homeostasis.py::TestParadoxEnergyBudgetConservation::test_energy_conserved_through_lifecycle PASSED [ 92%]
+tests/test_homeostasis.py::TestParadoxEnergyBudgetConservation::test_multiple_paradoxes_sum_correctly PASSED [ 93%]
+tests/test_homeostasis.py::TestParadoxEnergyBudgetConservation::test_partial_resolution_releases_partial_energy PASSED [ 94%]
+tests/test_protocol_entropy_guard.py::test_canonical_public_names_resolve_to_protocol_keys PASSED [ 95%]
+tests/test_protocol_entropy_guard.py::test_legacy_verbs_resolve_to_protocol_keys PASSED [ 96%]
+tests/test_protocol_entropy_guard.py::test_registry_accepts_canonical_and_verb_names PASSED [ 97%]
+tests/test_protocol_entropy_guard.py::test_schema_accessors_accept_canonical_names FAILED [ 98%]
+tests/test_protocol_entropy_guard.py::test_validate_sequence_accepts_canonical_public_names PASSED [ 99%]
+tests/test_protocol_entropy_guard.py::test_alias_maps_are_single_source_non_empty PASSED [100%]
+
+================================== FAILURES ===================================
+_____________________ test_heart_critique_judge_seal_flow _____________________
+tests\canonical\test_aaa_mcp_constitutional.py:163: in test_heart_critique_judge_seal_flow
+    assert _payload(sealed).get("session_id") == session_id
+E   AssertionError: assert None == 'user-10108379'
+E    +  where None = <built-in method get of dict object at 0x0000020759819040>('session_id')
+E    +    where <built-in method get of dict object at 0x0000020759819040> = {'error': 'Missing required field: governance_token', 'floors_failed': ['F3'], 'stage': 'F3_CONTRACT', 'verdict': 'VOID'}.get
+E    +      where {'error': 'Missing required field: governance_token', 'floors_failed': ['F3'], 'stage': 'F3_CONTRACT', 'verdict': 'VOID'} = _payload({'apex_dials': {'A': 0.77, 'E': 0.61, 'G_star': 0.0494, 'P': 0.8617, ...}, 'axioms_333': {'catalog': {'A1_TRUTH_COST': {'source': '000_THEORY/000_LAW.md#Axiom-1', 'statement': 'Truth has thermodynamic cost; evidence must be explicit for claims.'}, 'A2_SCAR_WEIGHT': {'source': '000_THEORY/000_LAW.md#Axiom-2', 'statement': 'Authority requires accountability; AI proposes, human disposes.'}, 'A3_ENTROPY_WORK': {'source': '000_THEORY/000_LAW.md#Axiom-3', 'statement': 'Clarity requires work; governance must reduce confusion entropy.'}}, 'checks': {'A1_TRUTH_COST': {'note': 'evidence fields present', 'pass': False}, 'A2_SCAR_WEIGHT': {'note': 'authority fields present', 'pass': True}, 'A3_ENTROPY_WORK': {'dS': -0.1, 'note': 'dS bounded (<= 0.2)', 'pass': True}}, 'failed': ['A1_TRUTH_COST']}, 'contrast_engine': {'scarpacket': {'eligible': False, 'requires_hold': False, 'vault_ref': None}, 'tac': {'ac_metric': 0.8326, 'contradiction_load': 0.5, 'cooling_clause': True, 'derived': True, ...}, 'tpcp': {'converged': False, 'dark_paradox': False, 'deltaP': 0.8326, 'derived': True, ...}}, 'data': {'error': 'Missing required field: governance_token', 'floors_failed': ['F3'], 'stage': 'F3_CONTRACT', 'verdict': 'VOID'}, ...})
+___________ test_forge_returns_guarded_status_for_irreversible_gate ___________
+tests\canonical\test_aaa_mcp_constitutional.py:179: in test_forge_returns_guarded_status_for_irreversible_gate
+    assert _payload(forged).get("session_id") == session_id
+E   AssertionError: assert None == 'user-f97b90d1'
+E    +  where None = <built-in method get of dict object at 0x00000207596EEEC0>('session_id')
+E    +    where <built-in method get of dict object at 0x00000207596EEEC0> = {'error': 'Missing required field: purpose', 'floors_failed': ['F3'], 'stage': 'F3_CONTRACT', 'verdict': 'VOID'}.get
+E    +      where {'error': 'Missing required field: purpose', 'floors_failed': ['F3'], 'stage': 'F3_CONTRACT', 'verdict': 'VOID'} = _payload({'apex_dials': {'A': 0.68, 'E': 0.85, 'G_star': 0.1693, 'P': 0.8617, ...}, 'axioms_333': {'catalog': {'A1_TRUTH_COST': {'source': '000_THEORY/000_LAW.md#Axiom-1', 'statement': 'Truth has thermodynamic cost; evidence must be explicit for claims.'}, 'A2_SCAR_WEIGHT': {'source': '000_THEORY/000_LAW.md#Axiom-2', 'statement': 'Authority requires accountability; AI proposes, human disposes.'}, 'A3_ENTROPY_WORK': {'source': '000_THEORY/000_LAW.md#Axiom-3', 'statement': 'Clarity requires work; governance must reduce confusion entropy.'}}, 'checks': {'A1_TRUTH_COST': {'note': 'evidence fields present', 'pass': False}, 'A2_SCAR_WEIGHT': {'note': 'authority fields present', 'pass': False}, 'A3_ENTROPY_WORK': {'dS': -0.1, 'note': 'dS bounded (<= 0.2)', 'pass': True}}, 'failed': ['A1_TRUTH_COST', 'A2_SCAR_WEIGHT']}, 'contrast_engine': {'scarpacket': {'eligible': True, 'requires_hold': False, 'vault_ref': None}, 'tac': {'ac_metric': 0.7909, 'contradiction_load': 0.3333, 'cooling_clause': True, 'derived': True, ...}, 'tpcp': {'converged': True, 'dark_paradox': False, 'deltaP': 0.7909, 'derived': True, ...}}, 'data': {'error': 'Missing required field: purpose', 'floors_failed': ['F3'], 'stage': 'F3_CONTRACT', 'verdict': 'VOID'}, ...})
+____________________ test_law_enforcement_matrix_13_tools _____________________
+tests\canonical\test_aaa_mcp_constitutional.py:269: in test_law_enforcement_matrix_13_tools
+    assert "F3_TRI_WITNESS" not in calls["reason_mind"]["laws_13"]["failed_required"]
+E   AssertionError: assert 'F3_TRI_WITNESS' not in ['F3_TRI_WITNESS']
+__________________ test_aaa_server_exposes_exactly_13_tools ___________________
+tests\canonical\test_aaa_mcp_contract.py:51: in test_aaa_server_exposes_exactly_13_tools
+    assert names == EXPECTED_TOOLS
+E   AssertionError: assert {'anchor_sess...a_forge', ...} == {'anchor_sess...a_forge', ...}
+E     
+E     Extra items in the left set:
+E     'metabolic_loop'
+E     
+E     Full diff:
+E       {
+E           'anchor_session',...
+E     
+E     ...Full output truncated (14 lines hidden), use '-vv' to show
+___________________ test_call_tool_mcp_raw_protocol_access ____________________
+.venv\Lib\site-packages\anyio\streams\memory.py:117: in receive
+    return self.receive_nowait()
+           ^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\anyio\streams\memory.py:112: in receive_nowait
+    raise WouldBlock
+E   anyio.WouldBlock
+
+During handling of the above exception, another exception occurred:
+.venv\Lib\site-packages\anyio\_core\_tasks.py:124: in fail_after
+    yield cancel_scope
+.venv\Lib\site-packages\mcp\shared\session.py:292: in send_request
+    response_or_error = await response_stream_reader.receive()
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\anyio\streams\memory.py:125: in receive
+    await receive_event.wait()
+.venv\Lib\site-packages\anyio\_backends\_asyncio.py:1789: in wait
+    await self._event.wait()
+..\AppData\Local\Programs\Python\Python313\Lib\asyncio\locks.py:213: in wait
+    await fut
+E   asyncio.exceptions.CancelledError: Cancelled via cancel scope 20759d79490; reason: deadline exceeded
+
+During handling of the above exception, another exception occurred:
+.venv\Lib\site-packages\mcp\shared\session.py:291: in send_request
+    with anyio.fail_after(timeout):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+..\AppData\Local\Programs\Python\Python313\Lib\contextlib.py:162: in __exit__
+    self.gen.throw(value)
+.venv\Lib\site-packages\anyio\_core\_tasks.py:127: in fail_after
+    raise TimeoutError
+E   TimeoutError
+
+During handling of the above exception, another exception occurred:
+tests\canonical\test_aaa_mcp_core_operations.py:65: in test_call_tool_mcp_raw_protocol_access
+    raw = await aaa_client.call_tool_mcp(
+.venv\Lib\site-packages\fastmcp\client\mixins\tools.py:138: in call_tool_mcp
+    result = await self._await_with_session_monitoring(
+.venv\Lib\site-packages\fastmcp\client\client.py:706: in _await_with_session_monitoring
+    return call_task.result()
+           ^^^^^^^^^^^^^^^^^^
+.venv\Lib\site-packages\mcp\client\session.py:383: in call_tool
+    result = await self.send_request(
+.venv\Lib\site-packages\mcp\shared\session.py:294: in send_request
+    raise McpError(
+E   mcp.shared.exceptions.McpError: Timed out while waiting for response to ClientRequest. Waited 5.0 seconds.
+______ test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13 _______
+tests\canonical\test_aaa_phase888_mcp_protocol_e2e.py:78: in test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13
+    assert tool_names == EXPECTED_13
+E   AssertionError: assert {'anchor_sess...a_forge', ...} == {'anchor_sess...a_forge', ...}
+E     
+E     Extra items in the left set:
+E     'metabolic_loop'
+E     'list_prompts'
+E     'get_prompt'
+E     
+E     Full diff:...
+E     
+E     ...Full output truncated (18 lines hidden), use '-vv' to show
+______ test_internal_server_mirrors_public_resources_and_prompt[asyncio] ______
+tests\canonical\test_public_surface_contract.py:48: in test_internal_server_mirrors_public_resources_and_prompt
+    assert PUBLIC_RESOURCE_URIS["schemas"] in resource_uris
+E   AssertionError: assert 'arifos://aaa/schemas' in {'arifos://info'}
+________________ test_schema_accessors_accept_canonical_names _________________
+tests\test_protocol_entropy_guard.py:56: in test_schema_accessors_accept_canonical_names
+    assert actuator_schema is not None and "action_payload" in actuator_schema["properties"]
+E   assert ({'properties': {'agent_id': {'default': 'unknown', 'description': 'Deterministic ID of the agent requesting the forge.', 'type': 'string'}, 'command': {'description': 'Shell command to execute in the sandbox.', 'minLength': 1, 'type': 'string'}, 'confirm_dangerous': {'default': False, 'description': "Mandatory 'True' for dangerous commands (rm, mkfs, etc).", 'type': 'boolean'}, 'purpose': {'default': '', 'description': 'Human-readable intent for constitutional logging (F9).', 'type': 'string'}, ...}, 'required': ['session_id', 'command'], 'type': 'object'} is not None and 'action_payload' in {'agent_id': {'default': 'unknown', 'description': 'Deterministic ID of the agent requesting the forge.', 'type': 'string'}, 'command': {'description': 'Shell command to execute in the sandbox.', 'minLength': 1, 'type': 'string'}, 'confirm_dangerous': {'default': False, 'description': "Mandatory 'True' for dangerous commands (rm, mkfs, etc).", 'type': 'boolean'}, 'purpose': {'default': '', 'description': 'Human-readable intent for constitutional logging (F9).', 'type': 'string'}, ...})
+============================== warnings summary ===============================
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.agi_cognition is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.analyze is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.apex_verdict is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.asi_empathy is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.fetch is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.init_session is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.phoenix_recall is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.search is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.sovereign_actuator is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.system_audit is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.vault_seal is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/canonical/test_aaa_mcp_constitutional.py::test_heart_critique_judge_seal_flow
+FAILED tests/canonical/test_aaa_mcp_constitutional.py::test_forge_returns_guarded_status_for_irreversible_gate
+FAILED tests/canonical/test_aaa_mcp_constitutional.py::test_law_enforcement_matrix_13_tools
+FAILED tests/canonical/test_aaa_mcp_contract.py::test_aaa_server_exposes_exactly_13_tools
+FAILED tests/canonical/test_aaa_mcp_core_operations.py::test_call_tool_mcp_raw_protocol_access
+FAILED tests/canonical/test_aaa_phase888_mcp_protocol_e2e.py::test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13
+FAILED tests/canonical/test_public_surface_contract.py::test_internal_server_mirrors_public_resources_and_prompt[asyncio]
+FAILED tests/test_protocol_entropy_guard.py::test_schema_accessors_accept_canonical_names
+============ 8 failed, 93 passed, 11 warnings in 129.53s (0:02:09) ============

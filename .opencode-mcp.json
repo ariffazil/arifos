@@ -1,0 +1,23 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "jina-reader": {
+      "type": "remote",
+      "url": "https://mcp.jina.ai/v1",
+      "headers": {
+        "Authorization": "Bearer jina_12378eede622453f9d29d6ff5d8e5b42XRz1S_JMS1Fsh0gihX8CN24yNqTd"
+      },
+      "enabled": true,
+      "timeout": 8000
+    },
+    "context7": {
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ctx7sk-dc885552-6344-421d-bfc1-50fc9613225e"
+      },
+      "enabled": true,
+      "timeout": 8000
+    }
+  }
+}

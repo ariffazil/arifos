@@ -34,10 +34,8 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "eureka_forge": {
         "session_id": "str",
         "command": "str",
-        "agent_id": "str",
-        "purpose": "str",
     },
-    "seal_vault": {"session_id": "str", "summary": "str", "governance_token": "str"},
+    "seal_vault": {"session_id": "str", "summary": "str"},
     "search_reality": {"query": "str"},
     "fetch_content": {"id": "str"},
     "inspect_file": {"path": "str"},

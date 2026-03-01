@@ -1,7 +1,8 @@
 """888 APEX TEST — MCP protocol E2E for arifOS AAA MCP.
 
 Verifies via FastMCP Client (MCP protocol path):
-- tools list includes canonical 13
+- tools list includes canonical 13 (L4) + composite (L5)
+- L1_PROMPTS (list_prompts, get_prompt) are transport plumbing, NOT counted
 - prompts/resources are discoverable and readable
 - each tool is callable with minimal arguments
 - responses contain governance envelope fields
@@ -15,24 +16,12 @@ from typing import Any
 from fastmcp.client.client import Client as FastMCPClient
 from starlette.testclient import TestClient
 
+from aaa_mcp.protocol.aaa_contract import L1_PROMPTS, L4_TOOLS, L5_COMPOSITE
 from aaa_mcp.streamable_http_server import PROTOCOL_HEADER, SESSION_HEADER
 from aaa_mcp.streamable_http_server import app as streamable_app
 
-EXPECTED_13 = {
-    "anchor_session",
-    "reason_mind",
-    "recall_memory",
-    "simulate_heart",
-    "critique_thought",
-    "apex_judge",
-    "eureka_forge",
-    "seal_vault",
-    "search_reality",
-    "fetch_content",
-    "inspect_file",
-    "audit_rules",
-    "check_vital",
-}
+# L4 + L5 = tools with governance envelopes
+EXPECTED_GOVERNED_TOOLS = L4_TOOLS | L5_COMPOSITE
 
 
 def _unwrap(obj: Any) -> Any:
@@ -75,7 +64,10 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
     client = aaa_client
     tools = await client.list_tools()
     tool_names = {t.name for t in tools}
-    assert tool_names == EXPECTED_13
+
+    # Filter out L1 transport plumbing — these are NOT constitutional tools
+    governed_tools = tool_names - L1_PROMPTS
+    assert governed_tools == EXPECTED_GOVERNED_TOOLS
 
     prompts = await client.list_prompts()
     prompt_names = {p.name for p in prompts}
@@ -89,7 +81,7 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
     schemas_contents = _unwrap(await client.read_resource("arifos://aaa/schemas"))
     schemas = json.loads(_resource_text(schemas_contents))
     assert schemas.get("tool_count") == 13
-    assert set(schemas.get("surface", [])) == EXPECTED_13
+    assert set(schemas.get("surface", [])) == set(L4_TOOLS)
 
     full_context_contents = _unwrap(await client.read_resource("arifos://aaa/full-context-pack"))
     full_context = json.loads(_resource_text(full_context_contents))
@@ -165,7 +157,7 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
             "eureka_forge",
             arguments={
                 "command": "noop",
-                    "purpose": "demo",
+                "purpose": "demo",
                 "session_id": session_id,
                 "agent_id": "phase888",
             },
