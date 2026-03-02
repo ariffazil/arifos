@@ -337,7 +337,7 @@ See [Configuration Reference](../README.md#configuration-reference) for full opt
 | **MCP SSE** | `https://arifosmcp.arif-fazil.com/sse` |
 | **MCP Messages** | `https://arifosmcp.arif-fazil.com/messages` |
 | **Health Check** | [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) |
-| **Registry Entry** | [registry.modelcontextprotocol.io](https://registry.modelcontextprotocol.io) |
+| **Registry Entry** | [registry.modelcontextprotocol.io/?q=arif](https://registry.modelcontextprotocol.io/?q=arif) |
 | **Source Code** | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) |
 
 ---

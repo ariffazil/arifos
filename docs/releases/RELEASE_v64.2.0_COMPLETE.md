@@ -28,7 +28,7 @@
 
 ## 📋 What the Registry Will Auto-Update:
 
-The MCP registry at `registry.modelcontextprotocol.io` will automatically pick up:
+The MCP registry at [`registry.modelcontextprotocol.io/?q=arif`](https://registry.modelcontextprotocol.io/?q=arif) will automatically pick up:
 
 ### Version:
 ```
@@ -70,12 +70,12 @@ Check the MCP registry in ~10 minutes:
 
 ```bash
 # Check current version
-curl -s https://registry.modelcontextprotocol.io/io.github.ariffazil/aaa-mcp | jq '.server.version'
+curl -s https://registry.modelcontextprotocol.io/?q=arif | jq '.server.version'
 
 # Should return: "64.2.0"
 ```
 
-Or visit: https://registry.modelcontextprotocol.io/io.github.ariffazil/aaa-mcp
+Or visit: [registry.modelcontextprotocol.io/?q=arif](https://registry.modelcontextprotocol.io/?q=arif)
 
 ---
 

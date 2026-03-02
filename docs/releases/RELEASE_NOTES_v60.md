@@ -4,7 +4,7 @@
 
 **Full Release:** [v60.0-FORGE](https://github.com/ariffazil/arifOS/releases/tag/v60.0-FORGE)  
 **PyPI:** `pip install arifos==60.0.0`  
-**MCP Registry:** `io.github.ariffazil/aaa-mcp`
+**MCP Registry:** [`io.github.ariffazil/aaa-mcp`](https://registry.modelcontextprotocol.io/?q=arif)
 
 ---
 
@@ -16,7 +16,7 @@ arifOS is now officially submitted to the **MCP Registry** — the app store for
 
 | Detail | Value |
 |--------|-------|
-| **Namespace** | `io.github.ariffazil/aaa-mcp` |
+| **Namespace** | [`io.github.ariffazil/aaa-mcp`](https://registry.modelcontextprotocol.io/?q=arif) |
 | **Package** | `pip install arifos` |
 | **Docker** | `ariffazil/arifos:v60.0` |
 | **Live Endpoint** | https://aaamcp.arif-fazil.com/mcp |
@@ -191,7 +191,7 @@ arifOS/
 | **MCP Endpoint** | https://aaamcp.arif-fazil.com/mcp |
 | **Health Check** | https://aaamcp.arif-fazil.com/health |
 | **PyPI** | https://pypi.org/project/arifos/ |
-| **MCP Registry** | https://registry.modelcontextprotocol.io |
+| **MCP Registry** | [registry.modelcontextprotocol.io/?q=arif](https://registry.modelcontextprotocol.io/?q=arif) |
 | **GitHub Discussions** | https://github.com/ariffazil/arifOS/discussions |
 
 ---

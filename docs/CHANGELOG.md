@@ -136,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Multi-Agent Governance**: 5 registered agents (OpenCode, Claude, Gemini, Codex, Kimi)
 - **ACLIP-CAI**: Console for AI with 8 sensing/gating tools
 - **Complete Reference**: 1,526-line comprehensive documentation
-- **MCP Registry**: Published as `io.github.ariffazil/aaa-mcp`
+- **MCP Registry**: Published as [`io.github.ariffazil/aaa-mcp`](https://registry.modelcontextprotocol.io/?q=arif)
 
 ### Added
 - `AGENTS.md` — Unified multi-agent playbook (571 lines)
@@ -173,12 +173,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [60.0.0] - 2026-02-10
 
 ### Highlights
-- **MCP Registry Publication**: First Constitutional AI in MCP Registry
+- **MCP Registry Publication**: First Constitutional AI in [MCP Registry](https://registry.modelcontextprotocol.io/?q=arif)
 - **25 Canonical Tools**: Full constitutional governance toolset
 - **Production Deployment**: Railway + Cloudflare live
 
 ### Added
-- MCP Registry publication (`io.github.ariffazil/aaa-mcp`)
+- MCP Registry publication ([`io.github.ariffazil/aaa-mcp`](https://registry.modelcontextprotocol.io/?q=arif))
 - `forge` tool — Unified 000-999 constitutional pipeline
 - `forge_pipeline` — Alias for backward compatibility
 - `get_tools_manifest` — Tool metadata endpoint
@@ -412,7 +412,7 @@ Each release is assessed against the 13 Constitutional Floors:
 ## Links
 
 - **Repository**: https://github.com/ariffazil/arifOS
-- **MCP Registry**: `io.github.ariffazil/aaa-mcp`
+- **MCP Registry**: [`io.github.ariffazil/aaa-mcp`](https://registry.modelcontextprotocol.io/?q=arif)
 - **Documentation**: https://arifos.arif-fazil.com
 - **Live Server**: https://aaamcp.arif-fazil.com
 

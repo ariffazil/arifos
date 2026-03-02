@@ -48,7 +48,7 @@ flowchart LR
 | **LIVE SERVER**| [https://arifosmcp.arif-fazil.com/](https://arifosmcp.arif-fazil.com/) | The production active MCP deployment. | ✅ LIVE | 🔐 Canonical |
 | **HEALTH** | [https://arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)| Live `{"status":"healthy"}` JSON endpoint reflecting system pulses. | ✅ LIVE | 🔐 Canonical |
 | **VERDICT** | [Truth Claim Dashboard](https://arifosmcp-truth-claim.pages.dev)| Live Constitutional Audit Dashboard. | ✅ LIVE | 🔐 Canonical |
-| **REGISTRY** | [MCP Registry Listing](https://registry.modelcontextprotocol.io/io.github.ariffazil/aaa-mcp) | The official verified listing on the global MCP registry. | ✅ LIVE | 🔐 Canonical |
+| **REGISTRY** | [MCP Registry Listing](https://registry.modelcontextprotocol.io/?q=arif) | The official verified listing on the global MCP registry. | ✅ LIVE | 🔐 Canonical |
 | **CODE** | [arifOS on GitHub](https://github.com/ariffazil/arifOS) | Core framework repository. | ✅ LIVE | 🔐 Canonical |
 | **PACKAGE (PyPI)** | [arifOS on PyPI](https://pypi.org/project/arifos/) | Python package library `pip install arifos` — The Kernel & Court. | ✅ LIVE | 🔐 Canonical |
 | **PACKAGE (npm)** | [@arifos/mcp](https://www.npmjs.com/package/@arifos/mcp) | JavaScript/TypeScript client `npm install @arifos/mcp` — The Cable. | ✅ LIVE | 🔐 Canonical |

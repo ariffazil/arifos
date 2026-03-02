@@ -21,7 +21,7 @@ arifOS is a **Constitutional AI Governance System** — the world's first produc
 |-----------|--------|-------|
 | **Version** | ✅ 2026.03.1 | 7-Organ Stack active, arXiv research integrated |
 | **PyPI** | ✅ Live | `pip install arifos` |
-| **MCP Registry** | ✅ Published | `io.github.ariffazil/aaa-mcp` |
+| **MCP Registry** | ✅ Published | [`io.github.ariffazil/aaa-mcp`](https://registry.modelcontextprotocol.io/?q=arif) |
 | **VPS Deploy** | ✅ **PRIMARY** | Hardened Ubuntu VPS (T000 alignment) |
 | **7-Organ Stack** | ✅ SEALED | phoenix_recall + sovereign_actuator live |
 | **888_signer** | ✅ SEALED | Offline Sovereign ratification utility |
@@ -588,7 +588,7 @@ arifOS didn't invent these constraints. We *encoded* them.
 - **Live Instance**: https://arifosmcp.arif-fazil.com
 - **Health Check**: https://arifosmcp.arif-fazil.com/health
 - **Documentation**: https://arifos.arif-fazil.com
-- **MCP Registry**: `io.github.ariffazil/aaa-mcp`
+- **MCP Registry**: [`io.github.ariffazil/aaa-mcp`](https://registry.modelcontextprotocol.io/?q=arif)
 - **PyPI**: `pip install arifos`
 - **Research Repository**: 150+ arXiv papers synthesized (Feb-Mar 2026)
 
