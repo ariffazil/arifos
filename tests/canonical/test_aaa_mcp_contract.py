@@ -1,6 +1,11 @@
-"""Contract checks for arifOS AAA MCP 13-tool surface.
+"""Contract checks for arifOS AAA MCP tool surface.
 
 These tests are static (AST/text) to avoid requiring runtime MCP dependencies.
+
+Tool Surface Taxonomy:
+  L1_PROMPTS    → FastMCP PromptsAsTools transport plumbing (NOT counted)
+  L4_TOOLS      → 13 canonical constitutional syscalls (THE sacred count)
+  L5_COMPOSITE  → Orchestration tools (metabolic_loop)
 """
 
 from __future__ import annotations
@@ -8,26 +13,14 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+from aaa_mcp.protocol.aaa_contract import L4_TOOLS, L5_COMPOSITE
+
 ROOT = Path(__file__).resolve().parents[2]
 SERVER_FILE = ROOT / "arifos_aaa_mcp" / "server.py"
 GOV_FILE = ROOT / "arifos_aaa_mcp" / "governance.py"
 
-
-EXPECTED_TOOLS = {
-    "anchor_session",
-    "reason_mind",
-    "recall_memory",
-    "simulate_heart",
-    "critique_thought",
-    "apex_judge",
-    "eureka_forge",
-    "seal_vault",
-    "search_reality",
-    "fetch_content",
-    "inspect_file",
-    "audit_rules",
-    "check_vital",
-}
+# All @mcp.tool-decorated functions in server.py = L4 + L5
+EXPECTED_MCP_TOOLS = L4_TOOLS | L5_COMPOSITE
 
 
 def _tool_names_from_server(path: Path) -> set[str]:
@@ -46,9 +39,12 @@ def _tool_names_from_server(path: Path) -> set[str]:
     return names
 
 
-def test_aaa_server_exposes_exactly_13_tools() -> None:
+def test_aaa_server_exposes_exactly_13_plus_composite_tools() -> None:
+    """L4 (13 canonical) + L5 (metabolic_loop) = 14 @mcp.tool decorators."""
     names = _tool_names_from_server(SERVER_FILE)
-    assert names == EXPECTED_TOOLS
+    assert names == EXPECTED_MCP_TOOLS
+    # The sacred 13 count is L4 only
+    assert len(names & L4_TOOLS) == 13
 
 
 def test_governance_has_333_axioms_catalog() -> None:

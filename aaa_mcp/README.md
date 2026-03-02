@@ -319,8 +319,12 @@ session = await anchor_session(
 # Required
 DATABASE_URL=postgresql://...  # VAULT999 persistence
 
-# Optional
-BRAVE_API_KEY=              # Web search grounding
+# Optional - Search & Content Extraction (priority order)
+JINA_API_KEY=               # Jina Reader (PRIMARY) - https://jina.ai
+PERPLEXITY_API_KEY=         # Perplexity AI (fallback)
+BRAVE_API_KEY=              # Brave Search (fallback)
+
+# Governance
 GOVERNANCE_MODE=HARD        # HARD (strict) or SOFT (advisory)
 REQUIRE_SOVEREIGN=false     # Force F13 human override
 ```

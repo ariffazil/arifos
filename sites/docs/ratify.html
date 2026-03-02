@@ -3,6 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 🔐 CSP: Strict security for sovereign key handling -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'none';">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
     <title>arifOS — Sovereign Ratification Vault (888_HOLD)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Use a minimal noble-ed25519 bundled script or fallback to sjcl for demo, but tweetnacl is best for ed25519 in browser -->
@@ -106,9 +111,17 @@
                     <div id="hash-display" class="text-xs text-blue-300 font-mono break-all leading-tight">...</div>
                 </div>
 
-                <textarea id="private-key" class="w-full h-32 bg-slate-900/80 border border-slate-700 rounded-lg p-4 font-mono text-xs text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none" placeholder="-----BEGIN PRIVATE KEY-----
+                <textarea id="private-key" 
+                          class="w-full h-32 bg-slate-900/80 border border-slate-700 rounded-lg p-4 font-mono text-xs text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all resize-none" 
+                          placeholder="-----BEGIN PRIVATE KEY-----
 MC4CAQAwBQYDK2VwBCIEIHf...
------END PRIVATE KEY-----"></textarea>
+-----END PRIVATE KEY-----"
+                          autocomplete="off" 
+                          autocorrect="off" 
+                          autocapitalize="off" 
+                          spellcheck="false"
+                          data-lpignore="true"
+                          data-form-type="other"></textarea>
                 
                 <button onclick="generateSignature()" class="mt-4 w-full bg-blue-600 hover:bg-blue-500 text-white py-2 px-4 rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20 disabled:opacity-50 flex justify-center items-center">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
@@ -223,6 +236,13 @@ MC4CAQAwBQYDK2VwBCIEIHf...
 
                 // Generate KeyPair from seed (nacl requires seed for signing)
                 const keyPair = nacl.sign.keyPair.fromSeed(seed);
+                
+                // 🔐 MEMORY SECURITY: Clear seed immediately after use
+                // Fill with zeros to prevent memory inspection
+                seed.fill(0);
+                for (let i = 0; i < seed.length; i++) {
+                    seed[i] = 0;
+                }
                 
                 // Convert challenge text to Uint8Array
                 const messageUint8 = nacl.util.decodeUTF8(parsedChallengeString);

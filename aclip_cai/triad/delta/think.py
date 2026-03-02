@@ -26,6 +26,7 @@ import asyncio
 from typing import TYPE_CHECKING, Any
 
 from ...core.kernel import kernel
+from .._utils import serialize_floor_concerns
 
 if TYPE_CHECKING:
     from fastmcp import Context
@@ -308,15 +309,7 @@ async def _think_with_sampling(
                 "next_stage": "333_ATLAS",
             },
             "floor_checks": floor_checks,
-            "floor_concerns": [
-                {
-                    "floor_id": fc.floor_id,
-                    "passed": fc.passed,
-                    "score": fc.score,
-                    "reason": fc.reason,
-                }
-                for fc in result.floor_concerns
-            ],
+            "floor_concerns": serialize_floor_concerns(result.floor_concerns),
             "recommendation": result.recommendation,
             "telemetry": {
                 "weighted_confidence": result.weighted_confidence,

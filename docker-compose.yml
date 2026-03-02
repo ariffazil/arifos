@@ -17,14 +17,19 @@ services:
       - "8080:8080"
     volumes:
       - arifos_data:/usr/src/app/data
+      # Mount fixed server.py to avoid rebuild (logger fix)
+      - /root/arifOS/aaa_mcp/server.py:/usr/src/app/aaa_mcp/server.py:ro
+      # Mount constitutional decorator for FLOOR_ENFORCEMENT fix (CRITICAL)
+      - /root/arifOS/core/kernel/constitutional_decorator.py:/usr/src/app/core/kernel/constitutional_decorator.py:ro
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
-      # VPS compartment connections
-      QDRANT_URL: http://10.0.0.5:6333
-      OLLAMA_URL: http://10.0.4.2:11434
-      OPENCLAW_URL: http://10.0.1.2:18789
-      AGENT_ZERO_URL: http://10.0.2.3:80
+      # VPS compartment connections (IP-based - DNS fails across networks)
+      # See: /root/docs/VPS_AGENT_ARCHITECT_GUIDE.md
+      QDRANT_URL: http://10.0.0.2:6333      # bridge network (verified)
+      OLLAMA_URL: http://10.0.0.3:11434     # bridge network (verified)
+      OPENCLAW_URL: http://10.0.4.2:18789   # ai-net network (verified)
+      AGENT_ZERO_URL: http://10.0.2.2:80    # trinity_network (verified)
     healthcheck:
       test: ["CMD", "curl", "-fsS", "--max-time", "3", "http://localhost:8080/health"]
       interval: 15s

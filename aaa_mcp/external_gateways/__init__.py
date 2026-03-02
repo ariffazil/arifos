@@ -2,47 +2,34 @@
 aaa_mcp/external_gateways — External data gateways for arifOS
 
 Provides:
-- brave_client: Brave Search API client (requires API key)
-- web_search_noapi: Web search without API keys (DuckDuckGo)
-- web_browser: Web page fetching and content extraction
+- jina_reader_client: Jina Reader API client (PRIMARY for search_reality)
+- brave_client: Brave Search API client (fallback)
+- perplexity_client: Perplexity API client (fallback)
 """
 
 from __future__ import annotations
 
 __all__ = [
+    "JinaReaderClient",
+    "JinaReranker",
     "BraveSearchClient",
-    "WebSearchNoAPI",
-    "WebBrowser",
-    "DuckDuckGoSearcher",
-    "PlaywrightSearcher",
-    "SimpleHTTPFetcher",
-    "PlaywrightBrowser",
+    "PerplexitySearchClient",
 ]
 
-# Try to import each module - some may have optional dependencies
+MAX_PRIORITY_BACKENDS = ["jina", "perplexity", "brave", "duckduckgo"]
+
+try:
+    from .jina_reader_client import JinaReaderClient, JinaReranker
+except ImportError:
+    JinaReaderClient = None  # type: ignore
+    JinaReranker = None  # type: ignore
+
 try:
     from .brave_client import BraveSearchClient
 except ImportError:
     BraveSearchClient = None  # type: ignore
 
 try:
-    from .web_search_noapi import (
-        DuckDuckGoSearcher,
-        PlaywrightSearcher,
-        WebSearchNoAPI,
-    )
+    from .perplexity_client import PerplexitySearchClient
 except ImportError:
-    WebSearchNoAPI = None  # type: ignore
-    DuckDuckGoSearcher = None  # type: ignore
-    PlaywrightSearcher = None  # type: ignore
-
-try:
-    from .web_browser import (
-        PlaywrightBrowser,
-        SimpleHTTPFetcher,
-        WebBrowser,
-    )
-except ImportError:
-    WebBrowser = None  # type: ignore
-    SimpleHTTPFetcher = None  # type: ignore
-    PlaywrightBrowser = None  # type: ignore
+    PerplexitySearchClient = None  # type: ignore

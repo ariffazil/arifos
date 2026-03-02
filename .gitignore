@@ -294,3 +294,9 @@ openclaw_fixed.json
 _ARCHIVE/
 */archive/
 */legacy/
+
+# Embedding models (large files, download at runtime)
+aclip_cai/embeddings/*.safetensors
+aclip_cai/embeddings/*.bin
+aclip_cai/embeddings/*.pt
+aclip_cai/embeddings/*.pth

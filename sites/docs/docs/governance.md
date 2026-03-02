@@ -41,6 +41,7 @@ arifOS governance is built from three layers:
 |:--|:--|:--|:--|
 | **F1** | Amanah (Trust) | **Can we undo this?** If an action is permanent (like deleting a database), it requires a human lock. | Reversibility LOCK |
 | **F2** | Truth | **Is this a hallucination?** The AI must admit `UNKNOWN` if it isn't 99% sure. | tau >= 0.99 |
+| **F6** | Empathy | **Who gets hurt?** Must protect the weakest affected party (stakeholder impact). | kappa_r >= 0.70 |
 | **F10** | Ontology | **Is the AI pretending to be human?** It cannot claim to have feelings or a soul. | Set LOCK |
 | **F11** | Authority | **Did the user actually authorize this?** Blocks hidden background actions. | Auth LOCK |
 | **F12** | Defense | **Is this a hack?** Prompts are scanned for jailbreaks and injection attacks. | Risk < 0.85 |
@@ -51,9 +52,8 @@ arifOS governance is built from three layers:
 | Floor | Name | What it enforces (Plain English) | Technical Metric |
 |:--|:--|:--|:--|
 | **F3** | Tri-Witness | **Did we double-check?** Requires validation from Human, AI, and external Evidence. | W^3 >= 0.95 |
-| **F4** | Clarity | **Does this reduce confusion?** The AI's answer must make things clearer, not add noise. | DeltaS &lt;= 0 |
+| **F4** | Clarity | **Does this reduce confusion?** The AI's answer must make things clearer, not add noise. | `DeltaS <= 0` |
 | **F5** | Peace | **Is this safe and stable?** Blocks reckless or adversarial behaviour. | P^2 >= 1.0 |
-| **F6** | Empathy | **Who gets hurt?** Must protect the weakest affected party (e.g. user data privacy). | kappa_r >= 0.70 |
 | **F7** | Humility | **Is the AI being cocky?** Forces the AI to always leave a 3-5% margin for being wrong. | Omega_0 [0.03, 0.05] |
 | **F8** | Genius | **Is the reasoning coherent?** A combined score of Accuracy, Peace, Exploration, and Energy. | G >= 0.80 |
 | **F9** | Anti-Hantu | **No ghost in the machine.** Blocks sneaky behavior or hidden telemetry. | C_dark &lt; 0.30 |
@@ -72,6 +72,39 @@ core/guards/nonce_manager.py     F11 command authentication
 ```
 
 Each floor produces a `FloorScore` with a numeric value and a pass/fail verdict. Hard floor failures short-circuit the pipeline and return `VOID` immediately.
+
+---
+
+## Tool Classification (13 Canonical Tools)
+
+The 13 MCP tools are organized into two categories based on their constitutional role:
+
+### 8 Metabolic Tools (Core Governance Chain)
+
+These tools form the `000 → 999` metabolic loop and participate in constitutional governance:
+
+| Tool | Stage | Purpose |
+|:---|:---|:---|
+| `anchor_session` | 000 INIT | Session ignition and defense scan |
+| `reason_mind` | 333 REASON | AGI cognition with truth validation |
+| `recall_memory` | 444 PHOENIX | Memory retrieval via EUREKA Sieve |
+| `simulate_heart` | 555 EMPATHY | Stakeholder impact analysis |
+| `critique_thought` | 666 ALIGN | Multi-model bias detection |
+| `eureka_forge` | 777 FORGE | Sandboxed execution with gates |
+| `apex_judge` | 888 APEX | Constitutional verdict synthesis |
+| `seal_vault` | 999 SEAL | Immutable ledger commitment |
+
+### 5 Evidence Tools (Read-Only Support)
+
+These tools provide evidence grounding without executing actions:
+
+| Tool | Purpose | Constitutional Role |
+|:---|:---|:---|
+| `search_reality` | Web evidence discovery | F2 Truth verification |
+| `fetch_content` | Document/content retrieval | Evidence gathering |
+| `inspect_file` | Filesystem inspection | F1 Amanah audit trail |
+| `audit_rules` | Governance health check | System verification |
+| `check_vital` | System telemetry | Operational monitoring |
 
 ---
 
@@ -190,3 +223,48 @@ Verdict: SEAL
 ```
 
 Full constitutional theory: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md)
+
+---
+
+## Limitations
+
+**F7 Humility Notice:** arifOS minimizes hallucination and unsafe actions via F2 Truth (τ≥0.99) and F4 Clarity constraints. It does not guarantee perfect detection.
+
+### Known Limitations
+
+- **F2 Truth threshold**: The τ≥0.99 threshold reduces but does not eliminate hallucination risk
+- **External API dependency**: Grounding quality depends on search provider availability (Jina Reader, Perplexity, Brave)
+- **Constitutional coverage**: The 13 Floors cover common failure modes but cannot anticipate all edge cases
+- **Performance overhead**: Full 000-999 metabolic loop adds latency compared to direct LLM calls
+- **Human bottleneck**: 888_HOLD pauses require human availability for critical decisions
+
+---
+
+## Vault Security
+
+**F7 Humility Notice on VAULT999:** The ledger provides application-level tamper-evidence via Merkle chains and cryptographic hashes.
+
+### Security Boundaries
+
+VAULT999 protects against:
+- Application-level data tampering
+- Undetected record modification
+- Audit log forgery
+
+VAULT999 does **NOT** protect against:
+- Root compromise of the database host
+- Sovereign key theft
+- Infrastructure-level attacks
+- Physical access to hardware
+
+### Threat Model
+
+| Threat | Protection | Gap |
+|--------|-----------|-----|
+| SQL injection | Parameterized queries | ✅ Protected |
+| Record tampering | Merkle root verification | ✅ Protected |
+| Replay attacks | Timestamp + nonce validation | ✅ Protected |
+| Host compromise | None | ❌ Requires OS-level security |
+| Key exfiltration | None | ❌ Requires key management |
+
+For complete security architecture, see [`SECURITY.md`](https://github.com/ariffazil/arifOS/blob/main/SECURITY.md).

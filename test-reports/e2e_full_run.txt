@@ -1,0 +1,159 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-9.0.2, pluggy-1.6.0 -- C:\Users\User\arifOS\.venv\Scripts\python.exe
+cachedir: C:\Users\User\AppData\Local\Temp\pytest_cache
+metadata: {'Python': '3.13.3', 'Platform': 'Windows-11-10.0.26220-SP0', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.12.1', 'asyncio': '1.3.0', 'cov': '7.0.0', 'html': '4.2.0', 'metadata': '3.1.1'}, 'JAVA_HOME': 'C:\\Users\\User\\AppData\\Roaming\\Antigravity\\User\\globalStorage\\pleiades.java-extension-pack-jdk\\java\\latest'}
+rootdir: C:\Users\User\arifOS
+configfile: pyproject.toml
+plugins: anyio-4.12.1, asyncio-1.3.0, cov-7.0.0, html-4.2.0, metadata-3.1.1
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 22 items
+
+tests/test_e2e_core_to_aaa_mcp.py::TestConstitutionalPipeline::test_init_session_has_motto_with_fire_emoji PASSED [  4%]
+tests/test_e2e_core_to_aaa_mcp.py::TestConstitutionalPipeline::test_vault_seal_has_motto_with_diamond_brain_lock PASSED [  9%]
+tests/test_e2e_core_to_aaa_mcp.py::TestConstitutionalPipeline::test_emojis_are_different_for_init_vs_seal PASSED [ 13%]
+tests/test_e2e_core_to_aaa_mcp.py::TestConstitutionalPipeline::test_workflow_sequences_are_valid PASSED [ 18%]
+tests/test_e2e_core_to_aaa_mcp.py::TestConstitutionalPipeline::test_all_tools_have_capability_descriptions PASSED [ 22%]
+tests/test_e2e_core_to_aaa_mcp.py::TestConstitutionalPipeline::test_apex_verdict_path_has_unified_entrypoint PASSED [ 27%]
+tests/test_e2e_core_to_aaa_mcp.py::TestConstitutionalPipeline::test_schema_versions_are_current PASSED [ 31%]
+tests/test_e2e_core_to_aaa_mcp.py::TestAuthenticationRelaxed::test_auth_token_is_optional PASSED [ 36%]
+tests/test_e2e_core_to_aaa_mcp.py::TestAuthenticationRelaxed::test_init_session_no_strict_auth SKIPPED [ 40%]
+tests/test_e2e_core_to_aaa_mcp.py::TestEndToEndFlow::test_full_pipeline_flow[asyncio] PASSED [ 45%]
+tests/test_e2e_core_to_aaa_mcp.py::TestEndToEndFlow::test_bookend_mottos_match PASSED [ 50%]
+tests/test_canonical_tool_contract.py::test_canonical_tool_names_are_exact PASSED [ 54%]
+tests/test_canonical_tool_contract.py::test_canonical_signatures_are_stable PASSED [ 59%]
+tests/test_canonical_tool_surface.py::test_external_mcp_surface_exposes_only_canonical_and_aux_tools FAILED [ 63%]
+tests/test_canonical_tool_surface.py::test_legacy_triad_tool_aliases_not_externally_exposed FAILED [ 68%]
+tests/test_imports_smoke.py::test_import_aaa_mcp_package PASSED          [ 72%]
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package PASSED [ 77%]
+tests/test_core_foundation.py::test_physics_module PASSED                [ 81%]
+tests/test_core_foundation.py::test_atlas_module PASSED                  [ 86%]
+tests/test_core_foundation.py::test_types_module PASSED                  [ 90%]
+tests/test_core_foundation.py::test_crypto_module PASSED                 [ 95%]
+tests/test_core_foundation.py::test_airlock_organ PASSED                 [100%]
+
+================================== FAILURES ===================================
+_______ test_external_mcp_surface_exposes_only_canonical_and_aux_tools ________
+tests\test_canonical_tool_surface.py:43: in test_external_mcp_surface_exposes_only_canonical_and_aux_tools
+    assert names == CANONICAL_EXPOSED_TOOLS
+E   AssertionError: assert {'sense_fs', ...d_forge', ...} == {'agi_cogniti...session', ...}
+E     
+E     Extra items in the left set:
+E     'triad_reason'
+E     'triad_validate'
+E     'triad_forge'
+E     'triad_audit'
+E     'triad_anchor'...
+E     
+E     ...Full output truncated (46 lines hidden), use '-vv' to show
+____________ test_legacy_triad_tool_aliases_not_externally_exposed ____________
+tests\test_canonical_tool_surface.py:52: in test_legacy_triad_tool_aliases_not_externally_exposed
+    assert LEGACY_TRIAD_TOOLS.isdisjoint(names)
+E   AssertionError: assert False
+E    +  where False = <built-in method isdisjoint of set object at 0x000001E3DA069380>({'sense_fs', 'sense_health', 'triad_align', 'triad_anchor', 'triad_audit', 'triad_forge', ...})
+E    +    where <built-in method isdisjoint of set object at 0x000001E3DA069380> = {'triad_align', 'triad_anchor', 'triad_audit', 'triad_forge', 'triad_integrate', 'triad_reason', ...}.isdisjoint
+============================== warnings summary ===============================
+tests\test_canonical_tool_contract.py:7
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.agi_cognition is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.analyze is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.apex_verdict is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.asi_empathy is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.fetch is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.init_session is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.phoenix_recall is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.search is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.sovereign_actuator is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.system_audit is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests\test_canonical_tool_contract.py:7
+  C:\Users\User\arifOS\tests\test_canonical_tool_contract.py:7: DeprecationWarning: aaa_mcp.vault_seal is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.agi_cognition is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.analyze is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.apex_verdict is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.asi_empathy is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.fetch is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.init_session is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.phoenix_recall is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.search is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.sovereign_actuator is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.system_audit is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+tests/test_imports_smoke.py::test_import_canonical_tools_from_package
+  C:\Users\User\arifOS\tests\test_imports_smoke.py:14: DeprecationWarning: aaa_mcp.vault_seal is deprecated; use arifos_aaa_mcp canonical tools instead
+    from aaa_mcp import (
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_canonical_tool_surface.py::test_external_mcp_surface_exposes_only_canonical_and_aux_tools
+FAILED tests/test_canonical_tool_surface.py::test_legacy_triad_tool_aliases_not_externally_exposed
+============ 2 failed, 19 passed, 1 skipped, 34 warnings in 18.62s ============

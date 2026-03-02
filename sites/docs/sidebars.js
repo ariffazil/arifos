@@ -58,6 +58,16 @@ const sidebars = {
         'crawlers',
       ],
     },
+    {
+      type: 'category',
+      label: '🤖 Platform Integrations',
+      collapsed: false,
+      items: [
+        'integration-claude',
+        'integration-gemini',
+        'integration-chatgpt',
+      ],
+    },
   ],
 };
 

@@ -29,29 +29,32 @@ from core.kernel.evaluator import (
 # P0 HARDENING: Strict Constitutional Checks
 # ═══════════════════════════════════════════════════════
 
+
 class EntropyViolation(Exception):
     """P0: F4 Clarity violation - ΔS > 0 (entropy increased)."""
+
     pass
 
 
 class AmanahViolation(Exception):
     """P0: F1 Amanah violation - irreversible action without mandate."""
+
     pass
 
 
 def check_entropy_reduction(delta_s: float) -> dict[str, Any]:
     """
     P0 HARDENING: Strict ΔS <= 0 enforcement.
-    
+
     Any output that increases entropy (adds confusion) is VOID.
     No exceptions, no partial credit.
-    
+
     Args:
         delta_s: Entropy change (must be <= 0)
-    
+
     Returns:
         Dict with pass/fail status
-    
+
     Raises:
         EntropyViolation: If delta_s > 0 (strict enforcement)
     """
@@ -62,7 +65,7 @@ def check_entropy_reduction(delta_s: float) -> dict[str, Any]:
             f"Output increases entropy (adds confusion). "
             f"Constitutional requirement: ΔS <= 0."
         )
-    
+
     return {
         "passed": True,
         "floor": "F4",
@@ -79,43 +82,44 @@ def check_amanah(
 ) -> dict[str, Any]:
     """
     P0 HARDENING: F1 Amanah - Irreversibility awareness.
-    
+
     All tasks must be reversible at governance level OR have sovereign mandate.
-    
+
     Args:
         action_reversible: Can action be undone/replayed
         has_sovereign_mandate: Does action have 888 Judge authorization
         action_type: Type of action (delete, deploy, modify, etc.)
-    
+
     Returns:
         Dict with pass/fail status
-    
+
     Raises:
         AmanahViolation: If irreversible action lacks mandate
     """
     # Critical irreversible actions
     IRREVERSIBLE_ACTIONS = ["delete", "deploy", "destroy", "erase", "purge"]
-    
+
     is_critical = any(a in action_type.lower() for a in IRREVERSIBLE_ACTIONS)
-    
+
     if is_critical and not has_sovereign_mandate:
         raise AmanahViolation(
             f"F1_AMANAH_VIOLATION: Irreversible action '{action_type}' "
             f"without sovereign mandate. 888_HOLD required."
         )
-    
+
     if not action_reversible and not has_sovereign_mandate:
         raise AmanahViolation(
             f"F1_AMANAH_VIOLATION: Action not reversible and lacks mandate. "
             f"All actions must be auditable or reversible."
         )
-    
+
     return {
         "passed": True,
         "floor": "F1",
         "reversible": action_reversible,
         "mandate": has_sovereign_mandate,
     }
+
 
 logger = logging.getLogger(__name__)
 
@@ -129,6 +133,12 @@ FLOOR_ENFORCEMENT = {
     "forge": ["F2", "F4", "F7"],
     "audit": ["F3", "F11", "F13"],
     "seal": ["F1", "F3"],
+    "phoenix_recall": ["F4", "F7", "F13"],  # recall_memory - Omega Lane
+    "reality_search": ["F2", "F4", "F12"],  # search_reality - Delta Lane
+    "fetch": ["F2", "F4", "F12"],  # fetch_content - Delta Lane
+    "system_audit": ["F2", "F8", "F10"],  # audit_rules - Delta Lane
+    "analyze": ["F1", "F4", "F11"],  # inspect_file - Delta Lane
+    "sense_health": ["F4", "F5", "F7"],  # check_vital - Omega Lane
     "trinity_forge": [
         "F1",
         "F2",

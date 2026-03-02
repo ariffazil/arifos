@@ -9,6 +9,7 @@ Constitutional Compliance:
 
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import urllib.parse
@@ -41,18 +42,8 @@ class BraveSearchClient:
         if not self.api_key:
             return {"query": query, "results": [], "intent": intent, "status": "NO_API_KEY"}
 
-        # Brave Search API (web search)
-        endpoint = "https://api.search.brave.com/res/v1/web/search"
-        params = urllib.parse.urlencode({"q": query})
-        url = f"{endpoint}?{params}"
-
-        req = urllib.request.Request(url)
-        req.add_header("Accept", "application/json")
-        req.add_header("X-Subscription-Token", self.api_key)
-
         try:
-            with urllib.request.urlopen(req, timeout=8) as resp:
-                payload = json.loads(resp.read().decode("utf-8"))
+            payload = await asyncio.to_thread(self._search_sync, query)
         except Exception as e:
             return {"query": query, "results": [], "intent": intent, "status": f"ERROR: {e}"}
 
@@ -67,3 +58,16 @@ class BraveSearchClient:
             )
 
         return {"query": query, "results": results, "intent": intent, "status": "OK"}
+
+    def _search_sync(self, query: str) -> dict:
+        """Synchronous HTTP fetch (runs in thread pool via asyncio.to_thread)."""
+        endpoint = "https://api.search.brave.com/res/v1/web/search"
+        params = urllib.parse.urlencode({"q": query})
+        url = f"{endpoint}?{params}"
+
+        req = urllib.request.Request(url)
+        req.add_header("Accept", "application/json")
+        req.add_header("X-Subscription-Token", self.api_key)
+
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            return json.loads(resp.read().decode("utf-8"))

@@ -53,7 +53,7 @@ def test_schema_accessors_accept_canonical_names() -> None:
     assert empathy_schema is not None and "session_id" in empathy_schema["properties"]
     assert verdict_schema is not None and "verdict" in verdict_schema["properties"]
     assert phoenix_schema is not None and "current_thought_vector" in phoenix_schema["properties"]
-    assert actuator_schema is not None and "action_payload" in actuator_schema["properties"]
+    assert actuator_schema is not None and "command" in actuator_schema["properties"]
     assert audit_schema is not None and "audit_scope" in audit_schema["properties"]
 
 
