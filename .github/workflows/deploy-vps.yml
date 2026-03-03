@@ -1,14 +1,17 @@
-name: Deploy MCP to VPS (Secure)
+name: Deploy arifOS to VPS
 
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
   workflow_dispatch:
 
 env:
-  MCP_PORT: 8080
-  MCP_TRANSPORT: http
+  VPS_PATH: /srv/arifOS
 
 jobs:
   deploy:
@@ -30,79 +33,68 @@ jobs:
 
     - name: Deploy to VPS
       run: |
-        echo "🚀 Deploying to VPS..."
+        echo "🚀 Deploying arifOS to VPS..."
         ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "bash /opt/arifOS/deploy.sh"
-      timeout-minutes: 5
+      timeout-minutes: 10
 
-    - name: Wait for service startup
-      run: sleep 5
+    - name: Wait for services
+      run: sleep 10
 
-    - name: Health Check
+    - name: Health Check - Phase 1
       run: |
-        echo "🏥 Running health check..."
-        MAX_RETRIES=10
+        echo "🏥 Checking Phase 1 services..."
+        # Check Postgres
+        if ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker exec arifos-postgres pg_isready -U arifos_admin -d arifos_vault" > /dev/null 2>&1; then
+          echo "✅ PostgreSQL is healthy"
+        else
+          echo "⚠️ PostgreSQL may still be starting..."
+        fi
+        
+        # Check Redis
+        if ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker exec arifos-redis redis-cli ping" > /dev/null 2>&1; then
+          echo "✅ Redis is healthy"
+        else
+          echo "⚠️ Redis may still be starting..."
+        fi
+
+    - name: Health Check - Phase 2
+      run: |
+        echo "🏥 Checking arifOS MCP server..."
+        MAX_RETRIES=15
         RETRY=0
         while [ $RETRY -lt $MAX_RETRIES ]; do
           if ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "curl -fsS http://127.0.0.1:8080/health" > /dev/null 2>&1; then
-            echo "✅ MCP server is healthy!"
+            echo "✅ arifOS MCP server is healthy!"
             exit 0
           fi
           RETRY=$((RETRY + 1))
           echo "⏳ Retry $RETRY/$MAX_RETRIES..."
-          sleep 3
+          sleep 5
         done
-        echo "❌ Health check failed after $MAX_RETRIES attempts"
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "journalctl -u arifos-mcp --no-pager -n 50"
+        echo "❌ Health check failed"
         exit 1
-      timeout-minutes: 2
+      timeout-minutes: 3
 
-    - name: Verify MCP Tools
+    - name: Verify Deployment
       run: |
-        echo "🔧 Verifying MCP tools..."
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "cd /root/arifOS && .venv/bin/python -c \"
-import asyncio
-from arifos_aaa_mcp.server import create_aaa_mcp_server
-
-async def test():
-    mcp = create_aaa_mcp_server()
-    tools = mcp._tools
-    print(f'✅ Loaded {len(tools)} tools')
-    for name in list(tools.keys())[:5]:
-        print(f'   - {name}')
-    return len(tools) > 0
-
-result = asyncio.run(test())
-exit(0 if result else 1)
-\""
-
-    - name: Security Check
-      run: |
-        echo "🔒 Running security verification..."
-        # Check if service is running as non-root (if configured)
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "systemctl is-active arifos-mcp && echo '✅ Service is active'"
-        # Check port binding
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "netstat -tlnp | grep 8080 || ss -tlnp | grep 8080"
-        echo "✅ Port 8080 is bound"
+        echo "🔍 Deployment verification..."
+        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker ps --format 'table {{.Names}}\t{{.Status}}'"
 
     - name: Deployment Summary
+      if: success()
       run: |
-        echo "✨ Deployment Summary:"
+        echo "✨ Deployment Successful!"
         echo "   VPS: ${{ secrets.VPS_HOST }}"
-        echo "   Port: 8080"
-        echo "   Transport: HTTP"
-        echo "   Endpoint: http://${{ secrets.VPS_HOST }}:8080"
-        echo ""
-        echo "🧪 Test commands:"
-        echo "   curl http://${{ secrets.VPS_HOST }}:8080/health"
-        echo "   curl http://${{ secrets.VPS_HOST }}:8080/tools"
-        echo ""
-        echo "📊 Monitor:"
-        echo "   ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'journalctl -u arifos-mcp -f'"
+        echo "   Endpoints:"
+        echo "     - Health: http://${{ secrets.VPS_HOST }}:8080/health"
+        echo "     - SSE: http://${{ secrets.VPS_HOST }}:8080/sse"
+        echo "   PostgreSQL: 127.0.0.1:5432"
+        echo "   Redis: 127.0.0.1:6379"
 
     - name: Notify on Failure
       if: failure()
       run: |
         echo "❌ Deployment failed!"
-        echo "📋 Fetching logs..."
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "journalctl -u arifos-mcp --no-pager -n 100" || true
+        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker ps -a" || true
+        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker logs arifosmcp_server --tail 50" || true
         exit 1

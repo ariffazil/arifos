@@ -1,0 +1,23 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "instructions": [
+    "/srv/arifOS/AGENTS.md",
+    "/srv/arifOS/docs/VPS_AGI_DOSSIER.md"
+  ],
+  "skills": {
+    "paths": [
+      "/srv/arifOS/.opencode/skills"
+    ]
+  },
+  "permission": {
+    "read": "allow",
+    "edit": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "bash": "ask",
+    "task": "ask",
+    "external_directory": "ask",
+    "question": "allow"
+  }
+}
