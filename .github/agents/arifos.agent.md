@@ -49,7 +49,7 @@ tools:
   - read
   - write
   - terminal
-  - @git/*
+  - git
 ---
 
 
