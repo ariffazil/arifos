@@ -52,7 +52,6 @@ tools:
   - @git/*
 ---
 
-# arifOS Governor Agent
 
 This agent:
 - Reviews and edits code, specs, and docs in this repository.
