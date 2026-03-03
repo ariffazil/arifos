@@ -428,3 +428,120 @@ OpenClaw ──────→ arifOS MCP ──────→ Decision
 **Status:** OPERATIONAL - All Systems Verified
 
 *Ditempa Bukan Diberi* 🔥💎
+
+---
+
+## FIELD NOTES FOR FUTURE AGENTS
+
+**Version:** 2026.03.03-FINAL-v3  
+**Added by:** Resident arifOS VPS Agent  
+
+### First Things to Check When Something is "Slow or Weird"
+
+1. **CPU/RAM pressure:** `htop` or `docker stats --no-stream` - LLM inference eats RAM
+2. **Disk I/O:** `iotop` or `df -h` - Qdrant/Ollama models need space
+3. **Docker restart cascade:** `docker ps -a | grep -E "Restarting|Exited"` - one dead container can trigger chain
+4. **Network connectivity:** `docker exec openclaw curl -s http://10.0.4.2:11434/api/tags | head -c 5` - should show `{"mod`
+5. **arifOS MCP:** `curl -s http://localhost:8080/sse | head -c 20` - should show `event: endpoint`
+
+### DO NOT TOUCH Without 888_HOLD
+
+| Action | Why |
+|--------|-----|
+| `docker system prune -f` | Destroys unused containers/images - may kill coolify apps |
+| `ufw allow/deny` changes | May lock you out |
+| `docker network disconnect` | Breaks connectivity - hard to recover |
+| `rm -rf /root/*` | Data loss - no recovery |
+| `systemctl restart docker` | Downtime for ALL containers |
+| Database schema changes | Data integrity risk |
+
+### Golden Commands - "Is the Cathedral Alive?"
+
+**Single script check (copy-paste):**
+```bash
+echo "=== CONTAINERS ===" && \
+docker ps --format "{{.Names}}: {{.Status}}" | grep -E "openclaw|qdrant|ollama|agent" && \
+echo "" && echo "=== arifOS MCP ===" && \
+timeout 3 curl -s http://localhost:8080/sse 2>&1 | head -c 50 && \
+echo "" && echo "=== CONNECTIVITY ===" && \
+docker exec openclaw bash -c 'curl -s --max-time 2 http://10.0.4.2:11434/api/tags | head -c 5 && echo " Ollama OK" || echo " Ollama FAIL"' && \
+docker exec openclaw bash -c 'curl -s --max-time 2 http://10.0.4.4:6333 | head -c 5 && echo " Qdrant OK" || echo " Qdrant FAIL"'
+```
+
+**Expected output:**
+```
+=== CONTAINERS ===
+openclaw: Up X minutes (healthy)
+qdrant: Up X hours
+ollama: Up X hours
+agent-zero: Up X hours (healthy)
+
+=== arifOS MCP ===
+event: endpoint
+data: /messages/?session_id=...
+
+=== CONNECTIVITY ===
+{"mod Ollama OK
+{"ti Qdrant OK
+```
+
+### Quick Recovery
+
+| Problem | Fix |
+|---------|-----|
+| OpenClaw can't reach Ollama | `docker network connect ai-net openclaw && docker restart openclaw` |
+| arifOS MCP down | `cd /root/arifOS && nohup .venv/bin/python arifos_router.py --sse --host 0.0.0.0 --port 8080 > /var/log/arifos/router.log 2>&1 &` |
+| Disk full | `docker image prune -f --filter "dangling=true" && docker builder prune -f --filter "until=24h"` |
+| Memory pressure | `docker restart ollama qdrant` (releases cached memory) |
+
+### Known Quirks
+
+- **Traefik errors:** Coolify proxy logs show "unable to find IP" - this is normal, Traefik tries to self-reference
+- **Qdrant auth:** Requires API key in header - `curl -H "api-key: arifos_qdrant_2026" ...`
+- **host.docker.internal:** Requires `extra_hosts` in docker-compose - already configured for openclaw
+- **Kimi MCP:** Uses stdio mode (not HTTPS) - more reliable for local CLI
+
+---
+
+**End of Field Notes**  
+*Ditempa Bukan Diberi* 🔥
+
+---
+
+## Gödel Boundary - Known Uncertainties
+
+**See:** `/root/arifOS/docs/GODEL_BOUNDARY.md`
+
+### Critical Uncertainties (2026-03-03)
+
+| Uncertainty | Severity | Document |
+|-------------|----------|----------|
+| docker-mcp RCE channel | 🔴 CRITICAL | npx docker-mcp has unrestricted docker.sock, bypasses arifOS |
+| UFW bypass by Docker | 🔴 HIGH | Published ports (0.0.0.0:PORT) bypass UFW |
+| IP drift risk | 🟠 MEDIUM | IPs are DHCP, can change on container restart |
+| MCP trust policy | 🟠 MEDIUM | No formal trust classification for MCP servers |
+
+### Confidence Score
+
+| Category | Score | Notes |
+|----------|-------|-------|
+| Topology accuracy | 8.5/10 | Strong mapping, risk if IPs drift |
+| Plane separation | 9/10 | Very good conceptual split |
+| Security posture | 6/10 | docker-mcp + UFW bypass = significant gaps |
+| MCP governance | 6/10 | Servers listed but not classified by trust |
+
+**Overall Dossier Confidence:** 0.74 (Moderate - significant gaps documented)
+
+### 888_HOLD Required For
+
+1. **docker-mcp** - Disable or route through arifOS eureka_forge
+2. **UFW bypass** - Install ufw-docker or bind to localhost
+3. **Static IPs** - Configure IPAM static allocations
+
+---
+
+**TRINITY SEALED WITH CAVEATS** - System is operational but not fully hardened.
+
+*See `/root/arifOS/docs/GODEL_BOUNDARY.md` for full details.*
+
+*Ditempa Bukan Diberi* 🔥
