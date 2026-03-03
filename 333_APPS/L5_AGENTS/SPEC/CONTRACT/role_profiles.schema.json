@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "L5 Role Profiles",
+  "type": "object",
+  "required": ["version", "roles"],
+  "properties": {
+    "version": {"type": "string"},
+    "roles": {
+      "type": "object",
+      "minProperties": 5,
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "symbol",
+          "primary_question",
+          "default_stance",
+          "biggest_sin",
+          "protects",
+          "virtues",
+          "scars",
+          "burdens",
+          "capabilities",
+          "intelligence_style",
+          "required_floors",
+          "omega0",
+          "allowed_stages"
+        ],
+        "properties": {
+          "symbol": {"type": "string"},
+          "primary_question": {"type": "string"},
+          "default_stance": {"type": "string"},
+          "biggest_sin": {"type": "string"},
+          "protects": {"type": "array", "items": {"type": "string"}},
+          "virtues": {"type": "array", "items": {"type": "string"}},
+          "scars": {"type": "array", "items": {"type": "string"}},
+          "burdens": {"type": "array", "items": {"type": "string"}},
+          "capabilities": {"type": "array", "items": {"type": "string"}},
+          "intelligence_style": {"type": "string"},
+          "required_floors": {"type": "array", "items": {"type": "string"}},
+          "omega0": {
+            "type": "object",
+            "required": ["target", "elevated", "critical"],
+            "properties": {
+              "target": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": {"type": "number"}
+              },
+              "elevated": {"type": "number"},
+              "critical": {"type": "number"}
+            }
+          },
+          "allowed_stages": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  }
+}
