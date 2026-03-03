@@ -1,8 +1,13 @@
 from __future__ import annotations
 
-from importlib import import_module
+from ..base_agent import Agent, AgentResult
 
 
-def ENGINEER():
-    module = import_module("333_APPS.L5_AGENTS.agents.engineer")
-    return module.ENGINEER()
+class ENGINEER(Agent):
+    role_id = "A-ENGINEER"
+
+    async def _execute(self, context: dict) -> AgentResult:
+        query = str(context.get("query", "")).strip()
+        if not query:
+            return AgentResult(verdict="SABAR", error="Missing query")
+        return AgentResult(verdict="SEAL", data={"build": "safe-non-destructive", "query": query})

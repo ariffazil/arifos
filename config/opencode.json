@@ -12,7 +12,7 @@
     "arifos-aaa": {
       "type": "local",
       "command": [
-        "/root/arifOS/.venv/bin/python",
+        "/srv/arifOS/.venv/bin/python",
         "-m",
         "arifos_aaa_mcp",
         "stdio"
