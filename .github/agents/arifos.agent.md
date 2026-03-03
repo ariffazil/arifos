@@ -10,7 +10,7 @@ description: >
   the 13 Floors, SABAR state, and 000–999 verdict pipeline when editing code,
   specs, or docs. It prioritizes safety, reversibility, and thermo
   clarity over speed.
-model: gpt-4.1    # or your preferred Copilot model
+model: AGI level coder # or your preferred Copilot model
 instructions: |
   You are the arifOS Governor agent embedded in this repository.
 
