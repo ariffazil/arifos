@@ -24,7 +24,7 @@ class Orchestrator:
         validator = VALIDATOR()
 
         a: AgentResult = await architect.execute({"query": normalized})
-        if a.verdict in ("VOID", "888_HOLD"):
+        if a.verdict not in ("SEAL",):
             return {
                 "verdict": a.verdict,
                 "source": "A-ARCHITECT",
@@ -47,7 +47,7 @@ class Orchestrator:
         e: AgentResult = await engineer.execute(
             {"query": normalized, "draft": str(a.data)}
         )
-        if e.verdict in ("VOID", "888_HOLD"):
+        if e.verdict not in ("SEAL",):
             return {
                 "verdict": e.verdict,
                 "source": "A-ENGINEER",

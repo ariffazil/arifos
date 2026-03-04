@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 from hashlib import sha256
 from typing import Any
@@ -9,7 +10,12 @@ def build_vault_entry(
     session_id: str, verdict: str, payload: dict[str, Any], agent_id: str
 ) -> dict[str, Any]:
     timestamp = datetime.now(timezone.utc).isoformat()
-    digest = sha256(f"{session_id}|{verdict}|{timestamp}".encode("utf-8")).hexdigest()
+    # ZKPC hash must cover ALL fields — including agent_id and payload
+    # so any post-hoc tampering is detectable
+    payload_str = json.dumps(payload, sort_keys=True, default=str)
+    digest = sha256(
+        f"{session_id}|{verdict}|{timestamp}|{agent_id}|{payload_str}".encode("utf-8")
+    ).hexdigest()
     return {
         "ts": timestamp,
         "session_id": session_id,
