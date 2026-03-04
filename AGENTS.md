@@ -109,8 +109,6 @@ async def reason(query: str) -> dict: ...
 2. **`aaa_mcp/` is transport only:** No governance logic. Calls `core/` functions.
 3. **SessionState is copy-on-write:** Never mutate in place.
 4. **Do NOT shadow `mcp`:** External SDK is `mcp`. No local module uses that name.
-5. **L5 is strict 3-plane only:** `333_APPS/L5_AGENTS/{ROLE,CONTRACT,POWER}` are canonical.
-6. **No legacy L5 paths:** do not reintroduce `333_APPS/L5_AGENTS/SPEC`, `agents`, or `environment`.
 
 ---
 
@@ -212,10 +210,6 @@ All agents operating in this repo (local or VPS) must track progress with a SEAL
 - No new symlinks unless user explicitly asks
 - Master secrets file on VPS: `/home/ariffazil/xxx/.env`
 - If duplicate app path appears, stop and consolidate before any new deploy
-- L5 source of truth is only:
-  - `333_APPS/L5_AGENTS/ROLE` (md)
-  - `333_APPS/L5_AGENTS/CONTRACT` (json schema + env)
-  - `333_APPS/L5_AGENTS/POWER` (py)
 
 ---
 
@@ -226,9 +220,6 @@ All agents operating in this repo (local or VPS) must track progress with a SEAL
 - `sse` and `http` are allowed for VPS/public routing, but validate health before production traffic.
 - Canonical hold verdict spelling is `888_HOLD`.
 - Injection defense includes prompt override patterns, system-tag smuggling, and destructive command patterns.
-- OpenCode on VPS uses project config at `/srv/arifOS/.opencode/opencode.json`.
-- OpenCode A-role projections live in `/srv/arifOS/.opencode/agents/A-*.md` and should reference `333_APPS/L5_AGENTS/ROLE/*.md`.
-- Keep OpenCode config schema-compatible with installed CLI; avoid unsupported keys like top-level `agents` or `mcp.servers` unless version explicitly supports them.
 
 ### Required First-Step Check
 

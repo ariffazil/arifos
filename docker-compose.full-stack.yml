@@ -82,6 +82,13 @@ volumes:
       - "arifos.volume.purpose=audit-logs"
       - "arifos.retention.days=365"
 
+  # AgentZero: Model cache
+  agentzero_cache:
+    driver: local
+    labels:
+      - "arifos.volume.purpose=model-cache"
+      - "arifos.backup.required=false"
+
 # =============================================================================
 # SERVICES
 # =============================================================================
@@ -105,15 +112,11 @@ services:
     
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # Schema initialization - F1 COMPLIANT: Idempotent migrations
-      - ./scripts/init-vault-999.sql:/docker-entrypoint-initdb.d/01-vault-schema.sql:ro
-      # Backup scripts
-      - ./scripts/backup-postgres.sh:/backup/backup.sh:ro
     
     ports:
-      # F11: Bind to localhost only in development
-      - "${POSTGRES_HOST:-127.0.0.1}:${POSTGRES_PORT:-5432}:5432"
-    
+      # F11: Bind to localhost only
+      - "127.0.0.1:5432:5432"
+
     networks:
       arifos-internal:
         aliases:
@@ -171,11 +174,11 @@ services:
     
     volumes:
       - redis_data:/data
-      - ./config/redis.conf:/usr/local/etc/redis/redis.conf:ro
     
     ports:
-      - "${REDIS_HOST:-127.0.0.1}:${REDIS_PORT:-6379}:6379"
-    
+      # F11: Bind to localhost only
+      - "127.0.0.1:6379:6379"
+
     networks:
       arifos-internal:
         aliases:
@@ -723,8 +726,6 @@ services:
         max-file: "3"
 
 # =============================================================================
-# ADDITIONAL VOLUMES (declared inline for optional services)
+# NOTE: Volumes declared at line 45 (postgres_data, redis_data, qdrant_data, etc.)
+# agentzero_cache can be added to the main volumes section if needed
 # =============================================================================
-volumes:
-  agentzero_cache:
-    driver: local

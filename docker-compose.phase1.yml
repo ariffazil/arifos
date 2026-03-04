@@ -1,0 +1,119 @@
+# =============================================================================
+# arifOS Phase 1: Core Runtime Foundation
+# PostgreSQL + Redis only
+# =============================================================================
+
+networks:
+  arifos-internal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+          gateway: 172.28.0.1
+
+volumes:
+  postgres_data:
+    driver: local
+    labels:
+      - "arifos.volume.purpose=vault-999-state"
+      - "arifos.backup.required=true"
+
+  redis_data:
+    driver: local
+    labels:
+      - "arifos.volume.purpose=session-cache"
+      - "arifos.backup.required=false"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: arifos-postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-arifos_vault}
+      POSTGRES_USER: ${POSTGRES_USER:-arifos_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: /var/lib/postgresql/data/pgdata
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    ports:
+      - "127.0.0.1:5432:5432"
+
+    networks:
+      arifos-internal:
+        aliases:
+          - postgres.vault.local
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-arifos_admin} -d ${POSTGRES_DB:-arifos_vault}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "3"
+
+  redis:
+    image: redis:7-alpine
+    container_name: arifos-redis
+    restart: unless-stopped
+
+    command: >
+      redis-server
+      --requirepass ${REDIS_PASSWORD}
+      --appendonly yes
+      --appendfsync everysec
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --save 900 1
+      --save 300 10
+      --save 60 10000
+
+    volumes:
+      - redis_data:/data
+
+    ports:
+      - "127.0.0.1:6379:6379"
+
+    networks:
+      arifos-internal:
+        aliases:
+          - redis.cache.local
+
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.25'
+          memory: 128M
+
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
