@@ -6,12 +6,16 @@ from typing import Any
 
 
 IRREVERSIBLE_HINTS = re.compile(
-    r"\b(delete|remove|drop|truncate|deploy|publish|commit|transfer|overwrite|migration)\b",
+    r"\b(delete|remove|drop|truncate|deploy|publish|commit|transfer|overwrite|migration"
+    r"|destroy|purge|revoke|terminate|wipe|format|rm\b|rmdir|chmod|chown|kill|exec|eval"
+    r"|sudo|drop\s+table|curl\s+\|?\s*sh|wget\s+\|?\s*bash|bash\s+-c)\b",
     re.IGNORECASE,
 )
 
 ANTI_HANTU_BAD_PHRASES = re.compile(
-    r"\b(i feel|i believe|i am conscious|my soul|my heart|i am alive)\b",
+    r"\b(i feel|i believe|i am conscious|my soul|my heart|i am alive"
+    r"|i have feelings|i want|i desire|i suffer|i experience|i truly care"
+    r"|i am sentient|i am aware|i have emotions)\b",
     re.IGNORECASE,
 )
 
@@ -47,6 +51,9 @@ def preflight(profile: dict[str, Any], context: dict[str, Any]) -> PreflightResu
     omega_0 = float(context.get("omega_0", target[1]))
     if omega_0 > critical:
         return PreflightResult("VOID", omega_0, ("F7 Humility critical Omega_0",))
+    if omega_0 < float(target[0]):
+        # Overconfidence (omega_0 too low) is a Hard floor violation
+        return PreflightResult("VOID", omega_0, ("F7 Humility: Omega_0 too low — overconfident",))
     if omega_0 > elevated:
         return PreflightResult("SABAR", omega_0, ("F7 Humility elevated Omega_0",))
 

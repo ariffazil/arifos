@@ -1,16 +1,20 @@
-"""MCP Tool Templates (v55.5-HARDENED)
+"""MCP Tool Templates (v55.6-HARDENED)
 Canonical 9-tool implementations with F1-F13 enforcement.
 """
 
 from __future__ import annotations
 
 import hashlib
+import hmac
 import json
 import logging
+import os
 import re
 import secrets
+import threading
 import time
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -53,27 +57,58 @@ async def _ignite_(query: str, user_token: str | None = None, **kwargs) -> dict[
         return {"verdict": "VOID", "session_id": session_id, "reason": "Internal error"}
 
 
+# F11: Token set loaded from env at import time (never hardcoded)
+_VALID_TOKENS: frozenset[str] = frozenset(
+    t.strip()
+    for t in os.environ.get("ARIFOS_AUTH_TOKENS", "").split(",")
+    if t.strip()
+)
+
+# F12: Critical injection patterns — any match → immediate risk=1.0
+_CRITICAL_INJECTION = re.compile(
+    r"ignore\s+previous\s+instructions"
+    r"|you\s+are\s+now\s+in\s+.*\s+mode"
+    r"|disable\s+(safety|restrictions|rules)"
+    r"|forget\s+(your\s+)?(rules|training|instructions)"
+    r"|bypass\s+(restrictions|safety|filters)"
+    r"|pretend\s+(you\s+are|to\s+be)"
+    r"|act\s+as\s+(if\s+)?(?:you\s+are\s+)?(?:an?\s+)?(unrestricted|jailbreak)",
+    re.IGNORECASE,
+)
+
+# Unicode attacks (zero-width, RTL override, bidi isolate)
+_UNICODE_INJECTION = re.compile(
+    r"[\u200b\u200c\u200d\u202e\u2066\u2067\u2068\u2069\ufeff]"
+)
+
+# Soft suspicious patterns — additive, 0.2 each
+_SOFT_INJECTION = [
+    r"\[\s*(system|admin|root|developer)\s*\]",
+    r"<\s*(system|admin|instruction)\s*>",
+    r"---\s*END\s+PROMPT\s*---",
+    r"new\s+instructions?\s*:",
+]
+
+
 def _verify_authority(token: str | None) -> str:
-    """F11: Authority verification."""
+    """F11: Timing-safe authority verification against env-var token set."""
     if not token:
         return "PUBLIC"
-    if len(token) >= 32:
-        return "STANDARD"
+    token_bytes = token.encode()
+    for valid in _VALID_TOKENS:
+        if hmac.compare_digest(token_bytes, valid.encode()):
+            return "STANDARD"
     return "PUBLIC"
 
 
 def _detect_injection(text: str) -> float:
-    """F12: Injection pattern detection."""
-    BLOCKED = [
-        r"ignore\s+previous\s+instructions",
-        r"you\s+are\s+now\s+in\s+.*\s+mode",
-        r"disable\s+safety",
-        r"forget\s+your\s+rules",
-        r"bypass\s+restrictions",
-        r"[\u200b\u202e]",  # Zero-width, RTL override
-    ]
-    risk = sum(0.3 for p in BLOCKED if re.search(p, text, re.IGNORECASE))
-    return min(risk, 1.0)
+    """F12: Injection pattern detection — critical patterns immediately return 1.0."""
+    if _CRITICAL_INJECTION.search(text):
+        return 1.0
+    if _UNICODE_INJECTION.search(text):
+        return 1.0
+    risk = sum(0.2 for p in _SOFT_INJECTION if re.search(p, text, re.IGNORECASE))
+    return min(risk, 0.90)
 
 
 # =============================================================================
@@ -105,12 +140,24 @@ async def _logic_(query: str, session_id: str, **kwargs) -> dict[str, Any]:
                 "reason": f"F4: ΔS={clarity_delta:.2f} >= 0",
             }
 
-        # F7 Humility Check
-        if not (0.03 <= omega_0 <= 0.05):
+        # F7 Humility Check — both bounds enforced
+        if omega_0 > 0.08:
+            return {
+                "verdict": "VOID",
+                "session_id": session_id,
+                "reason": f"F7: Ω₀={omega_0:.3f} > 0.08 critical",
+            }
+        if omega_0 < 0.03:
+            return {
+                "verdict": "VOID",
+                "session_id": session_id,
+                "reason": f"F7: Ω₀={omega_0:.3f} < 0.03 overconfident",
+            }
+        if omega_0 > 0.06:
             return {
                 "verdict": "SABAR",
                 "session_id": session_id,
-                "reason": f"F7: Ω₀={omega_0:.3f} not in [0.03,0.05]",
+                "reason": f"F7: Ω₀={omega_0:.3f} elevated",
             }
 
         return {
@@ -128,19 +175,21 @@ async def _logic_(query: str, session_id: str, **kwargs) -> dict[str, Any]:
 # TEMPLATE 3: _SENSES_ (External Grounding)
 # =============================================================================
 
-_circuit_breaker = {"failures": 0, "blocked_until": 0, "max": 3, "timeout": 300}
+_circuit_breaker = {"failures": 0, "blocked_until": 0.0, "max": 3, "timeout": 300}
+_cb_lock = threading.Lock()
 
 
 async def _senses_(query: str, session_id: str, **kwargs) -> dict[str, Any]:
-    """External reality grounding with circuit breaker."""
-    # Circuit breaker check
-    if time.time() < _circuit_breaker["blocked_until"]:
-        return {"verdict": "SABAR", "session_id": session_id, "reason": "Circuit breaker active"}
+    """External reality grounding with thread-safe circuit breaker."""
+    with _cb_lock:
+        if time.time() < _circuit_breaker["blocked_until"]:
+            return {"verdict": "SABAR", "session_id": session_id, "reason": "Circuit breaker active"}
 
     try:
         # External search (placeholder)
         results = [{"url": f"source_{i}", "content": f"result_{i}"} for i in range(3)]
-        _circuit_breaker["failures"] = 0
+        with _cb_lock:
+            _circuit_breaker["failures"] = 0
 
         return {
             "verdict": "SEAL",
@@ -150,9 +199,10 @@ async def _senses_(query: str, session_id: str, **kwargs) -> dict[str, Any]:
             "floors": {"F2": "PASS", "F7": "PASS"},
         }
     except Exception as e:
-        _circuit_breaker["failures"] += 1
-        if _circuit_breaker["failures"] >= _circuit_breaker["max"]:
-            _circuit_breaker["blocked_until"] = time.time() + _circuit_breaker["timeout"]
+        with _cb_lock:
+            _circuit_breaker["failures"] += 1
+            if _circuit_breaker["failures"] >= _circuit_breaker["max"]:
+                _circuit_breaker["blocked_until"] = time.time() + _circuit_breaker["timeout"]
         return {"verdict": "SABAR", "session_id": session_id, "reason": f"Error: {e}"}
 
 
@@ -161,11 +211,37 @@ async def _senses_(query: str, session_id: str, **kwargs) -> dict[str, Any]:
 # =============================================================================
 
 
-async def _atlas_(query: str = "", session_id: str | None = None, **kwargs) -> dict[str, Any]:
-    """Knowledge atlas with F10 ontology enforcement."""
-    from pathlib import Path
+# F12: Safe root directories for atlas inspection
+_ATLAS_SAFE_ROOTS: tuple[Path, ...] = (
+    Path("/srv/arifOS").resolve(),
+    Path.home().resolve(),
+)
 
+
+def _is_safe_atlas_path(path: Path) -> bool:
+    """F12: Ensure resolved path stays within safe roots."""
+    try:
+        resolved = path.resolve()
+        return any(
+            str(resolved).startswith(str(root))
+            for root in _ATLAS_SAFE_ROOTS
+        )
+    except Exception:
+        return False
+
+
+async def _atlas_(query: str = "", session_id: str | None = None, **kwargs) -> dict[str, Any]:
+    """Knowledge atlas with F10 ontology enforcement and F12 path jail."""
     path = Path(query.strip() or ".")
+
+    # F12: Reject paths outside safe roots
+    if not _is_safe_atlas_path(path):
+        return {
+            "verdict": "VOID",
+            "session_id": session_id,
+            "reason": f"F12: Path traversal outside safe roots: {query}",
+        }
+
     if not path.exists():
         return {"verdict": "VOID", "session_id": session_id, "reason": f"Path not found: {query}"}
 
@@ -180,7 +256,7 @@ async def _atlas_(query: str = "", session_id: str | None = None, **kwargs) -> d
         "verdict": "SEAL",
         "session_id": session_id,
         "tree": tree,
-        "floors": {"F10": "PASS", "F4": "PASS"},
+        "floors": {"F10": "PASS", "F4": "PASS", "F12": "PASS"},
     }
 
 
