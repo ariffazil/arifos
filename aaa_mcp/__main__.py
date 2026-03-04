@@ -9,6 +9,8 @@ supported compatibility shim.
 
 from __future__ import annotations
 
+from aaa_mcp.env_bootstrap import bootstrap_environment
+
 
 def check_fastmcp_version() -> int:
     """Return the major FastMCP version (best-effort)."""
@@ -25,6 +27,8 @@ def check_fastmcp_version() -> int:
 
 def main() -> None:
     import argparse
+
+    bootstrap_environment()
 
     parser = argparse.ArgumentParser(description="arifOS MCP server")
     parser.add_argument("mode", nargs="?", default="sse", choices=["stdio", "sse", "http", "rest"])

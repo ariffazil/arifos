@@ -270,7 +270,9 @@ export BRAVE_API_KEY="your-brave-key"      # https://brave.com/search/api/
 # 1. Install arifOS
 pip install arifos
 
-# 2. Export required safety environment variables (Use a .env file!)
+# 2. Export required safety environment variables
+# Preferred: single global profile at ~/.arifos/env (loaded automatically by runtime entrypoints)
+# Fallback: local .env compatibility stub in repo root
 # ⚠️ SECURITY: Generate strong secrets (rotate per deployment)
 export ARIFOS_GOVERNANCE_SECRET=$(openssl rand -hex 32)
 export DB_PASSWORD="your-strong-secret-here"  # Use vault in production

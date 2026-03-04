@@ -22,6 +22,8 @@ import sys
 import webbrowser
 from enum import Enum
 
+from aaa_mcp.env_bootstrap import bootstrap_environment
+
 
 class Profile(str, Enum):
     STRICT = "strict"
@@ -322,6 +324,8 @@ Examples:
 
 def main():
     """Main CLI entry point."""
+    bootstrap_environment()
+
     parser = create_parser()
     args = parser.parse_args()
 

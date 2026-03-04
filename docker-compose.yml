@@ -1,72 +1,177 @@
-# ── arifOS AAA MCP — Production Compose ──────────────────────────
-# ONE service, ONE port, ONE process.
-# FastMCP streamable-HTTP on 8080 with REST custom routes.
-# Connected to all VPS compartments: qdrant, ollama, openclaw, agent-zero
+# ── arifOS AI-First Unified Trinity Stack ──────────────────────────
+# Replaces fragmented networks and deprecated GUI abstractions.
+# All components run on the 'arifos_trinity' network.
+# Traefik acts as the dynamic edge router.
 # ─────────────────────────────────────────────────────────────────
 
 services:
+  # --- Edge Router ---
+  traefik:
+    image: traefik:v3.0
+    container_name: traefik_router
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=ariffazil@gmail.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/arifos/letsencrypt:/letsencrypt
+    networks:
+      - arifos_trinity
+    restart: unless-stopped
+
+  # --- Internal Memory Layers ---
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant_memory
+    volumes:
+      - /opt/arifos/data/qdrant:/qdrant/storage
+    networks:
+      - arifos_trinity
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres_core
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-arifos}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-arifos_secure}
+      POSTGRES_DB: ${POSTGRES_DB:-arifos_core}
+    volumes:
+      - /opt/arifos/data/postgres:/var/lib/postgresql/data
+    networks:
+      - arifos_trinity
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis_broker
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - /opt/arifos/data/redis:/data
+    networks:
+      - arifos_trinity
+    restart: unless-stopped
+
+  # --- LLM Engine ---
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_engine
+    volumes:
+      - /opt/arifos/data/ollama:/root/.ollama
+    networks:
+      - arifos_trinity
+    restart: unless-stopped
+
+  # --- Gateways & Reasoning ---
+  openclaw:
+    # Requires /root/openclaw to exist on the host or use pre-built image
+    image: openclaw:local
+    container_name: openclaw_gateway
+    volumes:
+      - /root/openclaw_data:/app/workspace
+      - /root/arifOS:/mnt/arifos:rw
+      - /root/APEX-THEORY:/mnt/apex:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - /root/XXX/.env.master
+    environment:
+      - REDIS_URL=redis://redis:6379
+      - POSTGRES_URL=postgresql://${POSTGRES_USER:-arifos}:${POSTGRES_PASSWORD:-arifos_secure}@postgres:5432/${POSTGRES_DB:-arifos_core}
+      - OLLAMA_URL=http://ollama:11434
+    networks:
+      - arifos_trinity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.openclaw.rule=Host(`claw.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.openclaw.entrypoints=websecure"
+      - "traefik.http.routers.openclaw.tls.certresolver=letsencrypt"
+      - "traefik.http.services.openclaw.loadbalancer.server.port=3000"
+    restart: unless-stopped
+
+  agent-zero:
+    image: agent0ai/agent-zero:latest
+    container_name: agent_zero_reasoner
+    volumes:
+      - /root/agent_zero_data:/app/work_dir
+      - /root/arifOS:/mnt/arifos:rw
+      - /root/APEX-THEORY:/mnt/apex:rw
+    env_file:
+      - /root/XXX/.env.master
+    environment:
+      - OPENCLAW_URL=http://openclaw:3000
+    networks:
+      - arifos_trinity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.agent-zero.rule=Host(`brain.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.agent-zero.entrypoints=websecure"
+      - "traefik.http.routers.agent-zero.tls.certresolver=letsencrypt"
+      - "traefik.http.services.agent-zero.loadbalancer.server.port=80"
+    restart: unless-stopped
+
+  # --- Constitutional Kernel ---
   arifosmcp:
     build: .
     image: arifos/arifosmcp:latest
     container_name: arifosmcp_server
-    restart: unless-stopped
     env_file:
       - path: .env.docker
         required: false
-    ports:
-      - "8080:8080"
     volumes:
-      - arifos_data:/usr/src/app/data
-      # Mount fixed server.py to avoid rebuild (logger fix)
+      - /opt/arifos/data/core:/usr/src/app/data
       - /root/arifOS/aaa_mcp/server.py:/usr/src/app/aaa_mcp/server.py:ro
-      # Mount constitutional decorator for FLOOR_ENFORCEMENT fix (CRITICAL)
       - /root/arifOS/core/kernel/constitutional_decorator.py:/usr/src/app/core/kernel/constitutional_decorator.py:ro
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
-      # VPS compartment connections (IP-based - DNS fails across networks)
-      # See: /root/docs/VPS_AGENT_ARCHITECT_GUIDE.md
-      QDRANT_URL: http://10.0.0.2:6333      # bridge network (verified)
-      OLLAMA_URL: http://10.0.0.3:11434     # bridge network (verified)
-      OPENCLAW_URL: http://10.0.4.2:18789   # ai-net network (verified)
-      AGENT_ZERO_URL: http://10.0.2.2:80    # trinity_network (verified)
-    healthcheck:
-      test: ["CMD", "curl", "-fsS", "--max-time", "3", "http://localhost:8080/health"]
-      interval: 15s
-      timeout: 5s
-      start_period: 20s
-      retries: 3
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
+      QDRANT_URL: http://qdrant:6333
+      OLLAMA_URL: http://ollama:11434
+      OPENCLAW_URL: http://openclaw:3000
+      AGENT_ZERO_URL: http://agent-zero:80
+    networks:
+      - arifos_trinity
     labels:
-      # Traefik / Coolify — all traffic to single port
       - "traefik.enable=true"
       - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`)"
-      - "traefik.http.routers.arifosmcp.entrypoints=https"
+      - "traefik.http.routers.arifosmcp.entrypoints=websecure"
       - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
       - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
+    restart: unless-stopped
+
+  # --- Autonomous CI/CD ---
+  webhook-listener:
+    image: almir/webhook:latest
+    container_name: arifos_webhook
+    volumes:
+      - /root/arifOS:/usr/src/app:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
+      - /root/arifOS/deployment/deploy_from_git.sh:/opt/arifos/deploy_from_git.sh:ro
+    command: -verbose -hooks=/etc/webhook/hooks.json -hotreload
     networks:
-      - coolify
-      - ai-net
-      - trinity_network
-      - bridge
+      - arifos_trinity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.webhook.rule=Host(`hook.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.webhook.entrypoints=websecure"
+      - "traefik.http.routers.webhook.tls.certresolver=letsencrypt"
+      - "traefik.http.services.webhook.loadbalancer.server.port=9000"
+    restart: unless-stopped
 
 networks:
-  coolify:
-    external: true
-  ai-net:
-    external: true
-  trinity_network:
-    external: true
-  bridge:
+  arifos_trinity:
     driver: bridge
-
-volumes:
-  arifos_data:
+    ipam:
+      config:
+        - subnet: 10.0.10.0/24
