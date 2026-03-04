@@ -1,8 +1,23 @@
-# L5_AGENTS
+# L5_AGENTS — The 5-Role Constitutional Hypervisor
 
-This layer is strictly the **5-role hypervisor layer** sitting under the arifOS constitution. It is organized into 3 non-overlapping planes. 
+> *"Emergence is no longer random; it is patterned into 5 disciplined civil servants sitting under the constitution."*
 
-## 1. Planes & One-Way Architecture
+**Level 5 | 7-Organ Sovereign Stack | High Complexity | Governance**
+
+---
+
+## 🎯 Purpose
+
+**L5_AGENTS** is strictly the **5-role hypervisor layer** sitting under the arifOS constitution. This layer completely isolates constitutional intelligence across five distinct officers, deliberately injecting friction to eradicate single points of failure. 
+
+It does **not** contain independent environmental physics, arbitrary knowledge (theory), or unmapped tools. L5 only routes the 000-999 metabolic loops into structured, accountable responsibilities.
+
+---
+
+## 🧬 Architecture: 3 Planes of Enforcement
+
+L5 enforces lowest entropy by dividing all structure into **Three One-Way Planes**:
+
 ```
 ROLE (md)  ─┐
             ├──> POWER (py)  ───> runtime
@@ -13,21 +28,89 @@ ENV (json) ─┘
 3. **POWER (`POWER/`)**: The physical execution. The only layer that interacts with tools, reality, or the file system. Enforces gates, roles, and vault writes. 
 
 *Rules:*
-- POWER reads CONTRACT
-- POWER strictly ignores ROLE (md is for humans)
-- CONTRACT never executes logic. 
-- All external actions must be initiated by POWER. 
+- **POWER may read CONTRACT**, but **never reads ROLE md**.
+- **ROLE never contains numbers/thresholds/tool names**.
+- **CONTRACT never contains executable code** (schema-validated).
+- **Only POWER can touch reality** (MCP/tools/fs/net/vault).
 
-## 2. The 5 Agents
-The 5 roles enforce a "mini constitutional parliament", each guarding against specific failure modes and exhibiting unique emergent characteristics.
+---
 
-- **A‑ARCHITECT**: Asks "Should this exist?". Designs options, enforces constraints, but never touches code / reality. Emergent behavior is cautious and design-heavy.
-- **A‑ENGINEER**: Asks "Can we make it work?". Writes code, modifies systems. Execution-biased, but forced to respect the Vault and HOLD patterns.
-- **A‑AUDITOR**: Asks "What could break / be abused?". Reads logs, assumes breach. Raises objections without creating new designs.
-- **A‑VALIDATOR**: Scientific truth verifier. Epistemic intelligence ensuring evidence matches claims. 
-- **A‑ORCHESTRATOR**: The disciplined conductor routing tasks in the strict sequence (Architect -> Engineer -> Auditor -> Validator), enforcing gates and no-bypass constraints.
+## 🏛️ The 5 Agents (The Constitutional Parliament)
 
-## 3. No-Bypass Rules
-- Auditor without `SEAL` forces Orchestrator `HALT`
-- Validator will not `SEAL` while there are open objections
-- Irreversible changes without `HOLD` mandate `VOID` 
+The 5 roles enforce emergence natively aligned with the **7-Organ Sovereign Stack**:
+
+| Agent | Symbol | Emergence Focus | No-Bypass Brakes |
+|:---:|:---:|:---|:---|
+| **A‑ARCHITECT** | Δ | Design & Plan | Cannot execute code or edit reality |
+| **A‑ENGINEER** | Ω | Build & Implement | Must respect `888_HOLD` and Vault gates |
+| **A‑AUDITOR** | 👁 | Review & Red-Team | Assumes breach, blocks irreversible actions |
+| **A‑VALIDATOR** | Ψ | Truth & Evidence | Cannot `SEAL` without zero open objections |
+| **A‑ORCHESTRATOR** | 🎛️ | Flow & Conductor | Cannot proceed without consensus gates passed |
+
+### Emergence Under Load
+Under stress (incidents, ambiguous tasks), instead of emergent chaos, the system yields **emergent negotiation**.
+- Architect slows scope
+- Engineer proposes safe patches
+- Auditor yanks the brake
+- Validator won’t certify
+- Orchestrator routes to `HOLD`.
+
+---
+
+## 📂 Canonical Directory Structure
+
+```
+L5_AGENTS/
+├── README.md               # This thin index
+├── AAA_MCP_L5_EUREKA_PLAN.md # L5 Runbook notes
+│
+├── SPEC/ROLE/              # The Human Meaning (Markdown)
+│   ├── A-ARCHITECT.md      
+│   ├── A-ENGINEER.md       
+│   ├── A-AUDITOR.md        
+│   ├── A-VALIDATOR.md      
+│   ├── A-ORCHESTRATOR.md   
+│   ├── FLOORS.md           # The Constitution's human translation
+│   └── GLOSSARY.md         # Terms mapping (SABAR, VOID, OP-CODE)
+│
+├── SPEC/CONTRACT/          # The Machine Dials (JSON)
+│   ├── role_profiles.schema.json
+│   ├── role_profiles.json
+│   ├── env.schema.json
+│   └── env.*.json          # Dev/Prod thresholds mapping F3/F12 logic
+│
+└── power/                  # The Execution Machinery (Python)
+    ├── __init__.py         
+    ├── base_agent.py       
+    ├── orchestrator.py     
+    ├── roles/              # Agent logic mappings
+    │   ├── architect.py    
+    │   ├── engineer.py     
+    │   ├── auditor.py      
+    │   └── validator.py    
+    ├── enforcement/        # Brakes
+    │   ├── preflight.py    
+    │   ├── gates.py        
+    │   └── policy.py       
+    └── io/                 # Reality contact 
+        ├── vault.py        
+        └── tools.py        
+```
+
+---
+
+## 💼 Connecting L5 to External CLIs (OpenCode)
+
+External CLIs (such as Cursor or **OpenCode**) never access the `power` plane directly. They strictly project the roles using simple constraints mapping to the internal constitution. 
+
+*(e.g., OpenCode dynamically loads the markdown prompts without loading any Python environment, while tool calls route downwards into the MCP protocol enforcing `preflight` and `gates` before execution).*
+
+---
+
+## 👑 Authority & Status
+
+**Sovereign:** Muhammad Arif bin Fazil
+**Version:** 2026.02.28 (FORGE-777 Milestone)
+**Architecture:** 7-Organ Stack `[INIT, AGI, PHOENIX, ASI, FORGE, APEX, VAULT]`
+**Status:** SEALED
+**Creed:** DITEMPA BUKAN DIBERI
