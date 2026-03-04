@@ -1,103 +1,116 @@
-# L5_AGENTS — Autonomous Federation (Multi-Agent System)
+# L5_AGENTS — The 5-Role Constitutional Hypervisor
 
-**Level 5 | 85% Readiness | High Complexity | Experimental**
+> *"Emergence is no longer random; it is patterned into 5 disciplined civil servants sitting under the constitution."*
 
-> *"Agents are tools with autonomy — they need an Environment to live."*
+**Level 5 | 7-Organ Sovereign Stack | High Complexity | Governance**
 
 ---
 
 ## 🎯 Purpose
 
-L5_AGENTS wraps the 000-999 metabolic loop in **autonomous entities** that can plan, execute, retry, and self-correct.
+**L5_AGENTS** is strictly the **5-role hypervisor layer** sitting under the arifOS constitution. This layer completely isolates constitutional intelligence across five distinct officers, deliberately injecting friction to eradicate single points of failure. 
 
-**Status:** The **Environment (Physical Layer)** is ALIVE. The **Agents (Social Layer)** are currently STUBS awaiting full wiring to L4 Tools (`aaa_mcp`).
-
----
-
-## 📈 Effectiveness Spectrum
-
-```
-Coverage:  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░░░░ 85% (Capability Readiness)
-Cost:      $0.002 per 1K Tokens (Enforced by Physics Kernel)
-Ignition:  ✅ ACTIVE (Hypervisor Loop Running)
-Autonomy:  Medium (Environment drives execution)
-```
+It does **not** contain independent environmental physics, arbitrary knowledge (theory), or unmapped tools. L5 only routes the 000-999 metabolic loops into structured, accountable responsibilities.
 
 ---
 
-## 🧬 The "Sleeping Giant" Architecture
+## 🧬 Architecture: 3 Planes of Enforcement
 
-We distinguish between the **Social Layer** (The Agents) and the **Physical Layer** (The Environment).
+L5 enforces lowest entropy by dividing all structure into **Three One-Way Planes**:
 
-### 1. The Social Layer (The Organisms)
-*Status: Stubs (Logic needs wiring to `aaa_mcp`)*
+```
+ROLE (md)  ─┐
+            ├──> POWER (py)  ───> runtime
+ENV (json) ─┘
+```
+1. **ROLE (`ROLE/`)**: Human-readable intent and constraints. Job descriptions, virtues, scars. 
+2. **CONTRACT / ENV (`CONTRACT/`)**: Machine-readable tuning dials. Thresholds, permissions, risk ratings.
+3. **POWER (`POWER/`)**: The physical execution. The only layer that interacts with tools, reality, or the file system. Enforces gates, roles, and vault writes. 
 
-| Agent | Symbol | Role | Maps to L4 Tool |
+*Rules:*
+- **POWER may read CONTRACT**, but **never reads ROLE md**.
+- **ROLE never contains numbers/thresholds/tool names**.
+- **CONTRACT never contains executable code** (schema-validated).
+- **Only POWER can touch reality** (MCP/tools/fs/net/vault).
+
+---
+
+## 🏛️ The 5 Agents (The Constitutional Parliament)
+
+The 5 roles enforce emergence natively aligned with the **7-Organ Sovereign Stack**:
+
+| Agent | Symbol | Emergence Focus | No-Bypass Brakes |
 |:---:|:---:|:---|:---|
-| **ARCHITECT** | Δ | Design & Plan | `agi_sense` / `agi_reason` |
-| **ENGINEER** | Ω | Build & Safety | `asi_empathize` / `asi_align` |
-| **AUDITOR** | 👁 | Verify & Truth | `reality_search` |
-| **VALIDATOR** | Ψ | Judge & Seal | `apex_judge` / `seal_vault` |
+| **A‑ARCHITECT** | Δ | Design & Plan | Cannot execute code or edit reality |
+| **A‑ENGINEER** | Ω | Build & Implement | Must respect `888_HOLD` and Vault gates |
+| **A‑AUDITOR** | 👁 | Review & Red-Team | Assumes breach, blocks irreversible actions |
+| **A‑VALIDATOR** | Ψ | Truth & Evidence | Cannot `SEAL` without zero open objections |
+| **A‑ORCHESTRATOR** | 🎛️ | Flow & Conductor | Cannot proceed without consensus gates passed |
 
-### 2. The Physical Layer (The Habitat)
-*Status: ALIVE (100% Functional)*
-
-| Component | File | Function | Status |
-|:---|:---|:---|:---|
-| **Hypervisor** | `environment/hypervisor.py` | The Heartbeat (Ignition Loop) | ✅ **ACTIVE** |
-| **TokenPhysics** | `environment/physics.py` | Energy Cost (Landauer Limit) | ✅ **ENFORCED** |
-| **TimePhysics** | `environment/physics.py` | Time Dilation (Latency Limit) | ✅ **ENFORCED** |
-| **LawEnforcer** | `environment/physics.py` | Constitutional Middleware | ✅ **READY** |
+### Emergence Under Load
+Under stress (incidents, ambiguous tasks), instead of emergent chaos, the system yields **emergent negotiation**.
+- Architect slows scope
+- Engineer proposes safe patches
+- Auditor yanks the brake
+- Validator won’t certify
+- Orchestrator routes to `HOLD`.
 
 ---
 
-## 📂 Directory Structure (v55.5-HARDENED)
+## 📂 Canonical Directory Structure
 
 ```
 L5_AGENTS/
-├── README.md             # This file
-├── SPEC/                 # ✅ NEW - Constitutional Spec & Identity
-│   ├── IDENTITY.md       # Who Am I?
-│   ├── SOUL.md           # Constitutional Executor Identity
-│   ├── USER.md           # Human Sovereign Identity (888 Judge)
-│   ├── MEMORY.md         # Epistemic Grounding
-│   ├── AGENTS.md         # Agent Guidelines
-│   └── TOOLS.md          # Local Environment Notes
-├── agents/               # The Social Layer (Stubs)
-│   ├── architect.py      # Δ Mind Agent
-│   ├── engineer.py       # Ω Heart Agent
-│   ├── auditor.py        # 👁 Witness Agent
-│   ├── validator.py      # Ψ Soul Agent
-│   └── orchestrator.py   # Federation Router
+├── README.md               # This thin index
+├── AAA_MCP_L5_EUREKA_PLAN.md # L5 Runbook notes
 │
-└── environment/          # The Physical Layer (ALIVE)
-    ├── hypervisor.py     # The Ignition Engine
-    ├── physics.py        # The Laws of Nature
-    └── __init__.py
+├── SPEC/ROLE/              # The Human Meaning (Markdown)
+│   ├── A-ARCHITECT.md      
+│   ├── A-ENGINEER.md       
+│   ├── A-AUDITOR.md        
+│   ├── A-VALIDATOR.md      
+│   ├── A-ORCHESTRATOR.md   
+│   ├── FLOORS.md           # The Constitution's human translation
+│   └── GLOSSARY.md         # Terms mapping (SABAR, VOID, OP-CODE)
+│
+├── SPEC/CONTRACT/          # The Machine Dials (JSON)
+│   ├── role_profiles.schema.json
+│   ├── role_profiles.json
+│   ├── env.schema.json
+│   └── env.*.json          # Dev/Prod thresholds mapping F3/F12 logic
+│
+└── power/                  # The Execution Machinery (Python)
+    ├── __init__.py         
+    ├── base_agent.py       
+    ├── orchestrator.py     
+    ├── roles/              # Agent logic mappings
+    │   ├── architect.py    
+    │   ├── engineer.py     
+    │   ├── auditor.py      
+    │   └── validator.py    
+    ├── enforcement/        # Brakes
+    │   ├── preflight.py    
+    │   ├── gates.py        
+    │   └── policy.py       
+    └── io/                 # Reality contact 
+        ├── vault.py        
+        └── tools.py        
 ```
 
 ---
 
-## 🚀 Deployment Timeline
+## 💼 Connecting L5 to External CLIs (OpenCode)
 
-### v55.5 (Current) — The Spark
-- ✅ **Physical Layer:** Hypervisor and Physics Kernel implemented.
-- ✅ **Ignition:** Loop proven working.
-- ✅ **Context:** Moved `IDENTITY`, `SOUL`, `USER`, `MEMORY`, `AGENTS`, `TOOLS` to `SPEC/`.
-- 🟡 **Social Layer:** Agents reference legacy `mcp_server`. Needs update to `aaa_mcp`.
+External CLIs (such as Cursor or **OpenCode**) never access the `power` plane directly. They strictly project the roles using simple constraints mapping to the internal constitution. 
 
-### v56.0 (Future) — The Awakening
-- [ ] Connect `ARCHITECT` to `aaa_mcp.tools.agi`
-- [ ] Connect `ENGINEER` to `aaa_mcp.tools.asi`
-- [ ] Connect `VALIDATOR` to `aaa_mcp.tools.apex`
-- [ ] Wire Agents to load `SPEC/` context on session init.
-- [ ] Enable full autonomous cycles.
+*(e.g., OpenCode dynamically loads the markdown prompts without loading any Python environment, while tool calls route downwards into the MCP protocol enforcing `preflight` and `gates` before execution).*
 
 ---
 
-## 👑 Authority
+## 👑 Authority & Status
 
 **Sovereign:** Muhammad Arif bin Fazil
-**Version:** v55.5-HARDENED
-**Status:** 🟡 **GOVERNED PILOTS LIVE** (Runtime active via OpenClaw / agents constrained)
+**Version:** 2026.02.28 (FORGE-777 Milestone)
+**Architecture:** 7-Organ Stack `[INIT, AGI, PHOENIX, ASI, FORGE, APEX, VAULT]`
+**Status:** SEALED
 **Creed:** DITEMPA BUKAN DIBERI
