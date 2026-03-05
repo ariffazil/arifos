@@ -1,0 +1,143 @@
+openapi: 3.1.0
+info:
+  title: arifOS Constitutional Governance
+  description: |
+    Constitutional AI governance for ChatGPT Custom GPTs.
+    
+    Validates all responses against 13 constitutional floors:
+    - F1 (Amanah): Irreversible actions blocked
+    - F2 (Truth): τ ≥ 0.99 factual fidelity
+    - F3 (Tri-Witness): Human × AI × Earth consensus
+    - F4 (Clarity): ΔS ≤ 0 entropy reduction
+    - F5 (Peace²): Non-destructive power
+    - F6 (Empathy): κᵣ ≥ 0.70 weakest stakeholder
+    - F7 (Humility): Ω₀ ∈ [0.03,0.05] uncertainty
+    - F8 (Genius): G ≥ 0.80 governed intelligence
+    - F9 (Anti-Hantu): No consciousness claims
+    - F10 (Ontology): Category lock
+    - F11 (CommandAuth): Verified identity
+    - F12 (Injection): Prompt defense
+    - F13 (Sovereign): Human final authority
+    
+    **Motto**: DITEMPA BUKAN DIBERI — Forged, Not Given
+  version: "2026.3.1"
+  contact:
+    name: arifOS Team
+    url: https://arifos.arif-fazil.com
+
+servers:
+  - url: https://arifosmcp.arif-fazil.com
+    description: Production VPS
+
+paths:
+  /checkpoint:
+    post:
+      operationId: constitutionalCheckpoint
+      summary: Validate query against 13 constitutional floors
+      description: |
+        Full 000→999 constitutional pipeline:
+        000_INIT → 111-444_AGI → 555-666_ASI → 777-888_APEX → 999_VAULT
+        
+        Returns verdict (SEAL/PARTIAL/VOID/888_HOLD) with floor metrics.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - query
+              properties:
+                query:
+                  type: string
+                  description: The user query or statement to validate
+                  example: "The Earth is flat"
+                context:
+                  type: string
+                  description: Additional context for evaluation
+                  example: "User is asking about astronomy"
+                stakeholders:
+                  type: array
+                  items:
+                    type: string
+                  description: Affected parties (user, environment, children, etc.)
+                  example: ["user", "public"]
+                mode:
+                  type: string
+                  enum: [full, quick]
+                  default: full
+                  description: Evaluation depth
+      responses:
+        "200":
+          description: Constitutional evaluation complete
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verdict:
+                    type: string
+                    enum: [SEAL, PARTIAL, VOID, SABAR, "888_HOLD"]
+                    description: Constitutional decision
+                  summary:
+                    type: string
+                    description: Human-readable explanation
+                  floors:
+                    type: object
+                    properties:
+                      passed:
+                        type: array
+                        items:
+                          type: string
+                        description: Floors that passed
+                      failed:
+                        type: array
+                        items:
+                          type: string
+                        description: Floors that failed
+                  metrics:
+                    type: object
+                    properties:
+                      truth:
+                        type: number
+                        description: F2 Truth score (τ)
+                      threshold:
+                        type: number
+                  session_id:
+                    type: string
+                    description: Unique session for audit trail
+                  latency_ms:
+                    type: number
+                    description: Response time in milliseconds
+                  version:
+                    type: string
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+
+  /health:
+    get:
+      operationId: healthCheck
+      summary: System health status
+      responses:
+        "200":
+          description: System healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: healthy
+                  version:
+                    type: string
+                  tools_loaded:
+                    type: integer
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
