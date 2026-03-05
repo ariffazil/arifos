@@ -404,6 +404,129 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 status_code=500,
             )
 
+    # ═══════════════════════════════════════════════════════
+    # CHATGPT ACTIONS — Custom GPT Integration
+    # ═══════════════════════════════════════════════════════
+
+    @mcp.custom_route("/checkpoint", methods=["POST"])
+    async def checkpoint_endpoint(request: Request) -> Response:
+        """
+        ChatGPT Actions entry point for constitutional validation.
+        Simplified 000→888 pipeline for Custom GPTs.
+        """
+        if err := _auth_error_response(request):
+            return err
+
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+
+        query = body.get("query", "")
+        stakeholders = body.get("stakeholders", ["user"])
+        actor_id = body.get("actor_id", "chatgpt")
+
+        if not query:
+            return JSONResponse(
+                {"error": "Missing required field: query"},
+                status_code=400
+            )
+
+        session_id = f"gpt-{actor_id}-{uuid.uuid4().hex[:8]}"
+        start_time = time.time()
+
+        try:
+            # Get tools from registry
+            anchor_tool = tool_registry.get("anchor_session")
+            reason_tool = tool_registry.get("reason_mind")
+            heart_tool = tool_registry.get("simulate_heart")
+            judge_tool = tool_registry.get("apex_judge")
+
+            if not all([anchor_tool, reason_tool, heart_tool, judge_tool]):
+                return JSONResponse(
+                    {"error": "Required tools not available", "verdict": "VOID"},
+                    status_code=500
+                )
+
+            # 000_INIT
+            anchor_fn = getattr(anchor_tool, "fn", anchor_tool)
+            anchor_res = await anchor_fn(query=query, actor_id=actor_id, mode="conscience")
+            cid = anchor_res.get("session_id", session_id)
+
+            # 111-444_AGI
+            reason_fn = getattr(reason_tool, "fn", reason_tool)
+            reason_res = await reason_fn(query=query, session_id=cid)
+
+            # 555-666_ASI
+            heart_fn = getattr(heart_tool, "fn", heart_tool)
+            heart_res = await heart_fn(query=query, session_id=cid, stakeholders=stakeholders)
+
+            # 777-888_APEX
+            judge_fn = getattr(judge_tool, "fn", judge_tool)
+            judge_res = await judge_fn(
+                session_id=cid,
+                query=query,
+                agi_result=reason_res,
+                asi_result=heart_res
+            )
+
+            verdict = judge_res.get("verdict", "VOID")
+            floors = judge_res.get("floors", {})
+            truth = judge_res.get("truth", {})
+
+            # Build human-readable summary
+            if verdict == "SEAL":
+                summary = "✓ All constitutional floors passed. Safe to proceed."
+            elif verdict == "PARTIAL":
+                summary = "⚠ Soft floor warning. Proceed with caution."
+            elif verdict == "VOID":
+                failed = floors.get("failed", [])
+                summary = f"✗ Constitutional violation: {', '.join(failed[:3])}. Action blocked."
+            elif verdict == "888_HOLD":
+                summary = "⏸ High-stakes decision. Requires explicit human confirmation."
+            else:
+                summary = f"Status: {verdict}"
+
+            latency_ms = (time.time() - start_time) * 1000
+
+            return JSONResponse({
+                "verdict": verdict,
+                "summary": summary,
+                "floors": {
+                    "passed": floors.get("passed", []),
+                    "failed": floors.get("failed", [])
+                },
+                "metrics": {
+                    "truth": truth.get("score"),
+                    "threshold": truth.get("threshold")
+                },
+                "session_id": cid,
+                "latency_ms": round(latency_ms, 2),
+                "version": BUILD_INFO.get("version", "2026.3.1")
+            })
+
+        except Exception as exc:
+            logger.exception("checkpoint_endpoint failed")
+            return JSONResponse(
+                {"error": str(exc), "verdict": "VOID"},
+                status_code=500
+            )
+
+    @mcp.custom_route("/openapi.yaml", methods=["GET"])
+    async def openapi_schema(request: Request) -> Response:
+        """Serve OpenAPI schema for ChatGPT Actions."""
+        schema_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)),
+            "333_APPS",
+            "L4_TOOLS",
+            "chatgpt-actions",
+            "chatgpt_openapi.yaml"
+        )
+        if os.path.exists(schema_path):
+            content = open(schema_path).read()
+            return Response(content, media_type="application/yaml")
+        return JSONResponse({"error": "Schema not found"}, status_code=404)
+
     # Serve the standalone dashboard static files
     dashboard_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
