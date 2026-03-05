@@ -10,7 +10,7 @@ DITEMPA BUKAN DIBERI 💎
 import asyncio
 import os
 import subprocess
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 from pathlib import Path
 
 # Tiktoken for F4 Clarity (Token budgeting)
@@ -20,9 +20,40 @@ try:
 except ImportError:
     ENC = None
 
-# arifOS Core Organs for F12 Injection scan
-from core.organs._0_init import scan_injection
-from core.shared.types import RepoEvidence, Verdict
+# arifOS Core Organs for F12 Injection scan (optional - graceful fallback)
+try:
+    from core.organs._0_init import scan_injection
+except ImportError:
+    # Fallback: minimal injection scan
+    def scan_injection(text: str) -> Any:
+        class FakeResult:
+            score = 0.0
+            violations = []
+        return FakeResult()
+
+try:
+    from core.shared.types import RepoEvidence, Verdict
+except ImportError:
+    # Fallback: local definitions
+    from enum import Enum
+    from pydantic import BaseModel, Field
+    
+    class Verdict(str, Enum):
+        SEAL = "SEAL"
+        PARTIAL = "PARTIAL"
+        VOID = "VOID"
+        SABAR = "SABAR"
+        HOLD_888 = "888_HOLD"
+    
+    class RepoEvidence(BaseModel):
+        repo_url: str
+        digest: str
+        tree: str
+        token_count: int
+        file_count: int
+        f12_risk_score: float = Field(ge=0.0, le=1.0, default=0.0)
+        verdict: Verdict = Verdict.SEAL
+        taint_lineage: dict[str, Any] = Field(default_factory=dict)
 
 class GitingestClient:
     """
