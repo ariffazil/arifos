@@ -134,6 +134,7 @@ services:
       - /srv/arifOS/aaa_mcp/rest_routes.py:/usr/src/app/aaa_mcp/rest_routes.py:ro
       - /srv/arifOS/core/kernel/constitutional_decorator.py:/usr/src/app/core/kernel/constitutional_decorator.py:ro
       - /srv/arifOS/333_APPS/constitutional-visualizer/dist-web:/usr/src/app/333_APPS/constitutional-visualizer/dist-web:ro
+      - ./333_APPS/constitutional-visualizer/dist:/usr/src/app/static/dashboard:ro
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
@@ -141,6 +142,7 @@ services:
       OLLAMA_URL: http://ollama:11434
       OPENCLAW_URL: http://openclaw:3000
       AGENT_ZERO_URL: http://agent-zero:80
+      DASHBOARD_ENABLED: "true"
     networks:
       - arifos_trinity
     labels:
@@ -149,6 +151,10 @@ services:
       - "traefik.http.routers.arifosmcp.entrypoints=websecure"
       - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
       - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.arifos.arif-fazil.com`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.service=arifosmcp"
     restart: unless-stopped
 
   # --- Monitoring Stack ---
