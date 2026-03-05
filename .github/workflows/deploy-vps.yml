@@ -49,7 +49,13 @@ jobs:
     - name: Deploy to VPS
       run: |
         echo "🚀 Deploying arifOS to VPS..."
-        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "bash /opt/arifOS/deploy.sh"
+        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "
+          if [ -f '${VPS_PATH}/deployment/deploy_from_git.sh' ]; then
+            cd '${VPS_PATH}' && bash deployment/deploy_from_git.sh '${GITHUB_SHA}'
+          else
+            bash /opt/arifOS/deploy.sh
+          fi
+        "
       timeout-minutes: 35
 
     - name: Wait for services
