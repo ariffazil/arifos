@@ -19,6 +19,7 @@ COPY . .
 COPY aclip_cai/embeddings /app/models/bge
 
 RUN python -m pip install --upgrade pip && \
+    pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && \
     if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi && \
     pip install --no-cache-dir .
 
