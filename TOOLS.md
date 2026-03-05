@@ -62,3 +62,17 @@ This agent runs on:
 5. **Prometheus and Grafana are read-only for the agent.** Never modify scrape configs or dashboards without 888_HOLD.
 
 6. **Qdrant is long-term memory.** Write to it only via `recall_memory` and `seal_vault` MCP tools — not direct HTTP.
+
+---
+
+## Related Repos
+
+| Repo | Role | Use when |
+|------|------|----------|
+| [ariffazil/arifOS](https://github.com/ariffazil/arifOS) | Kernel, MCP server, Docker infra, VAULT999 | Server-side changes, floor logic, CI/CD |
+| [ariffazil/AGI_ASI_bot](https://github.com/ariffazil/AGI_ASI_bot) | Client configs (Claude, OpenCode, Kimi, Codex), Trinity persona, skills, hooks | Client-side MCP configs, skill authoring, hooks |
+| [ariffazil/APEX-THEORY](https://github.com/ariffazil/APEX-THEORY) | Thermodynamic theory of intelligence (Δ·Ω·Ψ) | Reference for physics analogies and constitutional theory |
+
+**Client MCP configs live in `AGI_ASI_bot`.** For any new client tool (Claude Desktop, Cursor, Codex, etc.), add its MCP config there — not here and not in arifOS.
+
+**This workspace (`openclaw-workspace`) is OpenClaw-specific.** It governs what the OpenClaw agent running on this VPS knows about itself. It is not the source of truth for kernel logic (that's arifOS) or client configs (that's AGI_ASI_bot).
