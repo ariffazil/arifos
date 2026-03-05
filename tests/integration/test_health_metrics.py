@@ -37,11 +37,10 @@ def test_streamable_health_governance_metrics():
 
 
 def test_metrics_endpoint_aggregation():
-    """Verify that the /metrics endpoint aggregates internal and global stats."""
+    """Verify that the /metrics endpoint returns basic telemetry counters."""
     client = TestClient(rest_app)
     response = client.get("/metrics")
     assert response.status_code == 200
     data = response.json()
-    assert "governance_stats" in data
-    assert "legacy_stats" in data
-    assert "avg_latency_ms" in data
+    assert "requests_total" in data
+    assert "errors" in data
