@@ -23,7 +23,7 @@ import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 # Setup logger early for BGE integration logging
 logger = logging.getLogger(__name__)
