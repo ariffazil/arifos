@@ -1,8 +1,16 @@
-# Global settings
-preferred_auth_method = "apikey"
-model = "gpt-5"
+# Codex template for local arifOS development
+profile = "arifos-local"
+model = "gpt-5.3-codex"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "cached"
 
-# arifOS MCP Server
+[profiles.arifos-local]
+model = "gpt-5.3-codex"
+approval_policy = "on-request"
+sandbox_mode = "workspace-write"
+web_search = "cached"
+
 [mcp_servers.arifos]
 enabled = true
 url = "https://arifosmcp.arif-fazil.com/mcp"
@@ -11,7 +19,5 @@ url = "https://arifosmcp.arif-fazil.com/mcp"
 Authorization = "Bearer ${ARIFOS_API_KEY}"
 X-ArifOS-Floor = "13"
 
-# Project-specific trust
-[projects."/path/to/your/project"]
-trust_level = "sovereign"
-mcp_servers = ["arifos"]
+[projects.'\\?\C:\Users\User\arifOS']
+trust_level = "trusted"

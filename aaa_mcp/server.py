@@ -1538,9 +1538,38 @@ mcp.add_template(
 )
 
 
-# NOTE: Prompts and resources moved to arifos_aaa_mcp/server.py (canonical surface)
-# This file remains as implementation layer for the 13 tools.
-# See arifos_aaa_mcp/server.py for all prompts and public resources.
+# Public resources/prompt are registered here as well so internal-server tests
+# and direct aaa_mcp clients expose the same discovery surface as arifos_aaa_mcp.
+@mcp.resource(
+    PUBLIC_RESOURCE_URIS["schemas"],
+    mime_type="application/json",
+    description="Canonical AAA MCP schema contract (inputs/outputs).",
+)
+def _aaa_schemas_resource() -> str:
+    payload = {
+        "inputs": CANONICAL_TOOL_INPUT_SCHEMAS,
+        "outputs": CANONICAL_TOOL_OUTPUT_SCHEMAS,
+    }
+    return json.dumps(payload, ensure_ascii=True)
+
+
+@mcp.resource(
+    PUBLIC_RESOURCE_URIS["full_context_pack"],
+    mime_type="application/json",
+    description="Full-context orchestration metadata pack.",
+)
+def _aaa_full_context_pack_resource() -> str:
+    return json.dumps(build_full_context_template(), ensure_ascii=True)
+
+
+@mcp.prompt(name=PUBLIC_PROMPT_NAMES["aaa_chain"])
+def _aaa_chain_prompt(query: str, actor_id: str = "user") -> str:
+    return (
+        "Use AAA chain with continuity: "
+        "anchor_session -> reason_mind -> simulate_heart -> critique_thought -> "
+        "apex_judge -> seal_vault. "
+        f"query={query!r}; actor_id={actor_id!r}."
+    )
 
 _rag_instance: Any = None
 

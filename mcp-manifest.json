@@ -15,9 +15,9 @@
     "source": "github"
   },
   "runtime": {
-    "python": ">=3.10",
-    "entrypoint": "arifos_aaa_mcp/server.py",
-    "dependencies": ["fastmcp==3.0.1"]
+    "python": ">=3.12",
+    "entrypoint": "python -m arifos_aaa_mcp",
+    "dependencies": ["fastmcp==3.0.2"]
   },
   "deployment": {
     "default_transport": "http",
