@@ -15,7 +15,7 @@
         {
           "match": {
             "type": "payload-hmac-sha256",
-            "secret": "ARIFOS_WEBHOOK_SECRET_REPLACE_ME",
+            "secret": "075f26a5dd81eb568f98cbaf68e24b4e2703b673136a86b56b5757fdf5881dfc",
             "parameter": {
               "source": "header",
               "name": "X-Hub-Signature-256"

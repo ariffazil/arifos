@@ -286,6 +286,7 @@ openclaw_fixed.json
 *.sh
 !scripts/**/*.ps1
 !scripts/**/*.sh
+!deployment/**/*.sh
 
 # Gemini / AI session exports at root
 *_C.md
