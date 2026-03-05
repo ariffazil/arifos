@@ -1272,6 +1272,53 @@ async def _check_vital(
 check_vital = ToolHandle(_check_vital)
 
 
+# ─── query_openclaw — OpenClaw gateway diagnostics (read-only) ───────────────
+from aaa_mcp.integrations.openclaw_gateway_client import (
+    openclaw_get_health,
+    openclaw_get_status,
+)
+
+
+@mcp.tool(
+    name="query_openclaw",
+    description=(
+        "[Lane: Δ Delta] [Floors: F2, F4, F7] "
+        "Read-only OpenClaw gateway diagnostics. "
+        "Returns liveness (HTTP /healthz probe), container state, and config metadata. "
+        "action='health' → HTTP probe + container status. "
+        "action='status' → health + config snapshot (model, bind, version). "
+        "Does NOT expose API keys or gateway auth tokens."
+    ),
+)
+async def _query_openclaw(
+    session_id: str,
+    action: str = "health",
+) -> dict[str, Any]:
+    """
+    Floors: F2 (truth — only reports what is directly observable),
+            F4 (clarity — structured response, no noise),
+            F7 (humility — unknown fields explicitly marked UNAVAILABLE).
+    """
+    if action == "health":
+        payload = openclaw_get_health()
+    elif action == "status":
+        payload = openclaw_get_status()
+    else:
+        payload = {
+            "error": f"Unknown action '{action}'. Valid: 'health', 'status'.",
+            "valid_actions": ["health", "status"],
+        }
+
+    return envelope_builder.build_envelope(
+        stage="333_OPENCLAW_PROBE",
+        session_id=session_id,
+        verdict="SEAL" if payload.get("http_probe", {}).get("ok") else "PARTIAL",
+        payload=payload,
+    )
+
+
+query_openclaw = ToolHandle(_query_openclaw)
+
 
 # ═══════════════════════════════════════════════════════
 # RESOURCES, TEMPLATES, PROMPTS (Full-context orchestration + Inspector completeness)
