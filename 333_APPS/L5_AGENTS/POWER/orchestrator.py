@@ -32,9 +32,7 @@ class Orchestrator:
                 "error": a.error,
             }
 
-        u: AgentResult = await auditor.execute(
-            {"query": normalized, "claim": str(a.data)}
-        )
+        u: AgentResult = await auditor.execute({"query": normalized, "architect": a.data})
         if should_halt_on_auditor(u.verdict):
             return {
                 "verdict": u.verdict,
@@ -44,9 +42,7 @@ class Orchestrator:
                 "error": u.error,
             }
 
-        e: AgentResult = await engineer.execute(
-            {"query": normalized, "draft": str(a.data)}
-        )
+        e: AgentResult = await engineer.execute({"query": normalized, "architect": a.data})
         if e.verdict not in ("SEAL",):
             return {
                 "verdict": e.verdict,
@@ -56,7 +52,12 @@ class Orchestrator:
             }
 
         v: AgentResult = await validator.execute(
-            {"query": normalized, "audit": u.data, "build": e.data}
+            {
+                "query": normalized,
+                "architect": a.data,
+                "audit": u.data,
+                "build": e.data,
+            }
         )
         return {
             "verdict": v.verdict,

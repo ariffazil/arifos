@@ -3,8 +3,8 @@
   "$comment": "arifOS AAA MCP v65.1 — Codex Config (aligned with global)",
   "mcpServers": {
     "aaa-mcp": {
-      "command": "C:\\Users\\User\\arifOS\\.venv313\\Scripts\\python.exe",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
+      "args": ["-m", "arifos_aaa_mcp", "stdio"],
       "cwd": "C:/Users/User/arifOS",
       "env": {
         "PYTHONPATH": "C:/Users/User/arifOS",
@@ -14,16 +14,20 @@
       },
       "disabled": false,
       "alwaysAllow": [
-        "anchor",
-        "reason",
-        "integrate",
-        "respond",
-        "validate",
-        "align",
-        "forge",
-        "audit",
-        "seal",
-        "trinity_forge"
+        "anchor_session",
+        "reason_mind",
+        "recall_memory",
+        "simulate_heart",
+        "critique_thought",
+        "apex_judge",
+        "eureka_forge",
+        "seal_vault",
+        "search_reality",
+        "fetch_content",
+        "inspect_file",
+        "audit_rules",
+        "check_vital",
+        "metabolic_loop"
       ]
     }
   }
