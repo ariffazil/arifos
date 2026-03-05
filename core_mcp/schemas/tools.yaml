@@ -1,0 +1,119 @@
+version: 0.2.0
+status: baseline_contract
+generated_at_utc: "2026-03-06T00:00:00Z"
+generated_from:
+  code:
+    - C:/Users/User/arifOS/arifos_aaa_mcp/server.py
+notes:
+  - "Canonical 13 tools plus 2 auxiliary tools."
+  - "Floor sets indicate primary emphasis and are not exhaustive."
+
+canonical_tools:
+  - name: anchor_session
+    intent: Initialise/govern a session and attach jurisdiction, context, and telemetry.
+    io:
+      reads: [config]
+      writes: [session_state]
+    floors_primary: [F1, F2, F7, F11, F12]
+
+  - name: reason_mind
+    intent: Main structured reasoning engine for plans and arguments.
+    io:
+      reads: [inputs, memory]
+      writes: [reasoning_traces]
+    floors_primary: [F2, F3, F4, F7]
+
+  - name: recall_memory
+    intent: Retrieve prior traces, notes, and summaries from witness/memory layers.
+    io:
+      reads: [memory]
+      writes: []
+    floors_primary: [F2, F5, F6, F7]
+
+  - name: simulate_heart
+    intent: Simulate human impact, empathy, and maruah cost using Heart lens.
+    io:
+      reads: [scenario]
+      writes: [impact_assessment]
+    floors_primary: [F5, F6, F7]
+
+  - name: critique_thought
+    intent: Adversarially review prior reasoning outputs for error and risk.
+    io:
+      reads: [reasoning_traces]
+      writes: [critiques]
+    floors_primary: [F2, F3, F4, F7]
+
+  - name: apex_judge
+    intent: Synthesize final verdict and recommend action or HOLD.
+    io:
+      reads: [reasoning, critiques]
+      writes: [verdict_object]
+    floors_primary: [F1, F2, F3, F7, F8, F11]
+
+  - name: eureka_forge
+    intent: Propose hypotheses, designs, and governance options.
+    io:
+      reads: [context]
+      writes: [candidate_options]
+    floors_primary: [F2, F4, F7, F13]
+
+  - name: seal_vault
+    intent: Persist decisions and records to vault/logs with governance metadata.
+    io:
+      reads: [consistency_checks]
+      writes: [vault_records]
+    floors_primary: [F1, F2, F3, F9, F11]
+
+  - name: search_reality
+    intent: Structured external search with explicit uncertainty handling.
+    io:
+      reads: [external_sources]
+      writes: [search_results]
+    floors_primary: [F2, F4, F7]
+
+  - name: fetch_content
+    intent: Fetch concrete documents or payloads from URL/path/API.
+    io:
+      reads: [external_resources]
+      writes: [raw_or_parsed_content]
+    floors_primary: [F2, F5, F7]
+
+  - name: inspect_file
+    intent: Inspect and summarize provided or fetched files for structure and risk.
+    io:
+      reads: [files]
+      writes: [inspection_summary]
+    floors_primary: [F2, F5, F6, F7]
+
+  - name: audit_rules
+    intent: Introspect constitutional floor state, policy status, and evaluation results.
+    io:
+      reads: [governance_config]
+      writes: [audit_findings]
+    floors_primary: [F2, F3, F4, F8, F12]
+
+  - name: check_vital
+    intent: Health and runtime vital checks for MCP service.
+    io:
+      reads: [runtime_state]
+      writes: [health_report]
+    floors_primary: [F1, F4, F8]
+
+auxiliary_tools:
+  - name: visualize_governance
+    intent: Render governance/trinity/floor state into visual artifacts or UI references.
+    io:
+      reads: [governance_state]
+      writes: [visual_spec_or_reference]
+    floors_primary: [F4, F5, F6]
+    exposure: resource_preferred
+
+  - name: metabolic_loop
+    intent: Orchestrate think-check-act loops by composing multiple tools.
+    io:
+      reads: [composite_state]
+      writes: [composite_state]
+      orchestrates: true
+    floors_primary: [F1, F2, F3, F4, F5, F6, F7, F8, F11, F13]
+    exposure: internal_preferred
