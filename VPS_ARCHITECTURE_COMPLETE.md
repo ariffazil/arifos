@@ -1,444 +1,270 @@
 # VPS Architecture & Component Reference
 ## arifOS Constitutional AI Governance System
 
-**Document Generated:** 2026-03-05 UTC  
-**VPS Host:** srv1325122.hstgr.cloud  
-**Public IP:** 72.62.71.199  
-**Owner:** Arif Fazil
+**Last Updated:** 2026-03-05
+**VPS Host:** srv1325122.hstgr.cloud
+**Public IP:** 72.62.71.199
+**Owner:** Arif Fazil — *Ditempa Bukan Diberi*
 
 ---
 
-## 1. Executive Summary
-
-This document details the complete architecture of the VPS hosting the arifOS Constitutional AI Governance System. The infrastructure follows a phased deployment model with strict separation of concerns between the Control Plane (agent brains), Runtime Plane (service execution), and Data Plane (persistence).
-
-**Core Philosophy:** *Ditempa Bukan Diberi* — Forged, Not Given
-
----
-
-## 2. Hardware Specifications
+## 1. Hardware
 
 | Component | Specification |
 |-----------|---------------|
-| **Provider** | Hostinger (KVM VPS) |
-| **Hostname** | srv1325122.hstgr.cloud |
-| **Public IP** | 72.62.71.199 |
-| **OS** | Ubuntu 25.10 (non-LTS) |
-| **Kernel** | Linux (x86_64) |
-| **CPU** | 4 vCPU Cores |
-| **Memory** | 16 GB RAM |
-| **Disk** | 193 GB SSD |
-| **Disk Usage** | ~72 GB used, 121 GB available |
-| **Architecture** | x86_64 |
+| Provider | Hostinger KVM VPS |
+| OS | Ubuntu 25.10 (non-LTS) |
+| Kernel | Linux 6.17.0-14-generic x86_64 |
+| CPU | 4 vCPU |
+| Memory | 16 GB RAM |
+| Disk | 193 GB SSD — 125G used / 69G free (65%) |
 
 ---
 
-## 3. Network Architecture
+## 2. Network
 
-### 3.1 Public Access
-- **SSH Access:** Port 22 ( hardened )
-- **HTTP:** Port 80 (future Traefik)
-- **HTTPS:** Port 443 (future Traefik)
-- **arifOS MCP:** Port 8080 (localhost only, bound to 127.0.0.1)
+### Public Access
+| Port | Service |
+|------|---------|
+| 22 | SSH (key-only, Fail2Ban active) |
+| 80 | Traefik → redirects to HTTPS |
+| 443 | Traefik → routes to services |
 
-### 3.2 Security Hardening
-```
-SSH Configuration:
-- PermitRootLogin: no
-- PasswordAuthentication: no
-- PubkeyAuthentication: yes
-- Fail2Ban: Active
-- UFW Firewall: Active (SSH only)
-```
+### Tailscale Mesh (Private)
+| Node | Tailscale IP | Status |
+|------|-------------|--------|
+| VPS (srv1325122) | 100.111.84.52 | Online |
+| You (ARIFFAZIL) | 100.109.203.23 | Online |
+| GHA deploy runners | 100.x.x.x (ephemeral) | Active on push |
 
-### 3.3 Docker Networks
-| Network | Subnet | Purpose |
+### Domain Routing (via Traefik + Let's Encrypt)
+| Domain | Backend | Status |
+|--------|---------|--------|
+| `arifosmcp.arif-fazil.com` | arifosmcp_server:8080 | LIVE |
+| `brain.arifosmcp.arif-fazil.com` | agent-zero:80 | NOT DEPLOYED |
+| `claw.arifosmcp.arif-fazil.com` | openclaw:3000 | NOT DEPLOYED |
+| `hook.arifosmcp.arif-fazil.com` | arifos_webhook:9000 | LIVE |
+
+### Docker Networks
+| Network | Subnet | Used By |
 |---------|--------|---------|
-| `arifos_arifos-internal` | 172.18.0.0/16 | Internal service mesh (Phase 1) |
-| `bridge` | 172.17.0.0/16 | Default Docker bridge |
-| `host` | — | Host network access |
+| `arifos_trinity` | 10.0.10.0/24 | All current services |
+| `arifos-internal` | 172.18.x.x | Phase1 legacy (still attached) |
 
 ---
 
-## 4. Service Architecture
+## 3. Services — Current State
 
-### 4.1 Layer 0: Infrastructure (Deployed)
+### RUNNING (6 containers)
 
-#### PostgreSQL (arifos-postgres)
-- **Image:** postgres:16-alpine
-- **Container:** arifos-postgres
-- **Network:** arifos_arifos-internal
-- **Port:** 127.0.0.1:5432
-- **Database:** arifos_vault
-- **User:** arifos_admin
-- **Data Volume:** arifos_postgres_data
-- **Status:** ✅ Healthy (6+ hours uptime)
-- **Purpose:** Vault-999 state, audit logs, relational data
+| Container | Image | Status | Port | Purpose |
+|-----------|-------|--------|------|---------|
+| `arifosmcp_server` | arifos/arifosmcp:latest | **HEALTHY** | :8080 | Constitutional AI kernel — 13 MCP tools |
+| `traefik_router` | traefik:v3.0 | **UP** | :80/:443 | Edge router, TLS termination |
+| `arifos-postgres` | postgres:16-alpine | **HEALTHY** | localhost:5432 | Vault state, audit logs |
+| `arifos-redis` | redis:7-alpine | **HEALTHY** | localhost:6379 | Session cache, broker |
+| `qdrant_memory` | qdrant/qdrant:latest | **UP** | (internal :6333) | Vector memory for recall_memory tool |
+| `arifos_webhook` | almir/webhook:latest | **UP** | (internal :9000) | CI/CD auto-deploy on git push |
 
-#### Redis (arifos-redis)
-- **Image:** redis:7-alpine
-- **Container:** arifos-redis
-- **Network:** arifos_arifos-internal
-- **Port:** 127.0.0.1:6379
-- **Auth:** Password protected
-- **Persistence:** AOF enabled
-- **Status:** ✅ Healthy (6+ hours uptime)
-- **Purpose:** Session cache, queue, real-time state
+### NOT RUNNING (defined in docker-compose.yml)
 
-### 4.2 Layer 1: Constitutional Kernel (Deployed)
-
-#### arifOS MCP Server (arifosmcp_server)
-- **Image:** arifos/mcp-server:latest (4.94 GB)
-- **Container:** arifosmcp_server
-- **Network:** arifos_arifos-internal
-- **Port:** 127.0.0.1:8080
-- **Transport:** Streamable HTTP
-- **Status:** ✅ Healthy
-- **Tools:** 16 constitutional tools loaded
-- **Purpose:** Constitutional AI governance engine
-
-**Available Endpoints:**
-```
-GET  /health     → Health status
-GET  /tools      → List 16 available tools
-GET  /version    → Version info
-POST /mcp        → MCP protocol endpoint
-```
-
-**Constitutional Tools (000-999):**
-| Tool | Stage | Purpose |
-|------|-------|---------|
-| anchor_session | 000 | Bootloader & context init |
-| reason_mind | 333 | AGI cognition |
-| recall_memory | 444 | Evidence retrieval |
-| simulate_heart | 555 | Empathy evaluation |
-| critique_thought | 666 | 7-model critique |
-| eureka_forge | 777 | Shell execution |
-| apex_judge | 888 | Sovereign verdict |
-| seal_vault | 999 | Immutable records |
-| metabolic_loop | ΔΩΨ | Full 000-999 cycle |
-| search_reality | — | External search |
-| fetch_content | — | Content fetch |
-| inspect_file | — | Filesystem inspect |
-| audit_rules | — | Constitutional audit |
-| check_vital | — | System telemetry |
-| list_prompts | — | Prompt registry |
-| get_prompt | — | Prompt retrieval |
-
-### 4.3 Layer 2: Future Services (Not Deployed)
-
-| Service | Phase | Purpose |
-|---------|-------|---------|
-| Qdrant | Phase 3 | Vector embeddings |
-| Ollama | Phase 4 | Local LLM engine |
-| OpenClaw | Phase 4 | Multi-channel IO |
-| AgentZero | Phase 4 | RAG reasoning |
-| Traefik | Phase 3 | Edge router/ingress |
-| n8n | Phase 3 | Workflow automation |
-| Webhook Listener | Phase 3 | CI/CD automation |
+| Container | Image | Blocker | Phase |
+|-----------|-------|---------|-------|
+| `ollama_engine` | ollama/ollama:latest | Image not pulled (~4GB) | 3 |
+| `agent_zero_reasoner` | agent0ai/agent-zero:latest | Image not pulled + `/opt/arifos/APEX-THEORY` dir missing | 4 |
+| `openclaw_gateway` | openclaw:local | No image — needs source build from `/root/openclaw` | 4 |
 
 ---
 
-## 5. Directory Structure
+## 4. Agent Control Plane (Host-Level CLIs)
 
-### 5.1 Source of Truth
-```
-/srv/arifOS/                    # arifOS repository (37 dirs, canonical)
-├── 000_THEORY/                 # Constitutional theory
-├── 333_APPS/                   # Application layers (L0-L7)
-│   ├── L0_KERNEL/              # Core kernel
-│   ├── L2_SKILLS/              # MCP skills
-│   ├── L5_AGENTS/              # Agent specs
-│   └── L6_CIVILIZATION/        # Civilization layer
-├── aaa_mcp/                    # MCP server implementation
-├── aclip_cai/                  # ACLIP CAI layer
-├── core/                       # Constitutional core
-│   ├── governance_kernel.py
-│   ├── judgment.py
-│   ├── pipeline.py
-│   └── organs/
-├── VAULT999/                   # Constitutional vault
-│   ├── AAA_HUMAN/              # Human authority
-│   ├── BBB_LEDGER/             # Audit ledger
-│   ├── CCC_CANON/              # Canonical law
-│   ├── sessions/               # Session records
-│   └── vault999.jsonl          # Immutable log
-├── docker-compose.yml          # Main compose (fixed paths)
-├── docker-compose.arifos.yml   # arifOS-only compose
-├── docker-compose.phase1.yml   # Phase 1 services
-├── Dockerfile                  # MCP server image
-├── .env                        # Production environment
-└── .venv/                      # Python virtual env
-```
+All installed at `/home/ariffazil/.local/bin/` and `/usr/local/bin/`:
 
-### 5.2 Data Volumes
+| CLI | Version | AGI Wrapper | Purpose |
+|-----|---------|-------------|---------|
+| `claude` (Claude Code) | 2.1.69 | `agi-claude` | Primary dev + ops agent |
+| `opencode` | 1.2.16 | `agi-opencode` | Alternative coding agent |
+| `codex` | 0.107.0 | `agi-codex` | OpenAI Codex CLI |
+| `gemini` | 0.31.0 | `agi-gemini` | Google Gemini CLI |
+| `kimi` | 1.17.0 | `agi-kimi` | Moonshot Kimi CLI |
+
+All 5 CLIs have `agi-*` and `ai-*` wrapper variants pre-configured with arifOS AGI context.
+
+---
+
+## 5. arifOS MCP Server — Tool Surface
+
+**Transport:** Streamable HTTP at `https://arifosmcp.arif-fazil.com/mcp`
+**Tools:** 13 canonical tools across 3 Trinity lanes
+
+### Metabolic Chain (000→999)
+| Tool | Stage | Lane | Floor(s) |
+|------|-------|------|---------|
+| `anchor_session` | 000 | Δ Delta | F11, F12 |
+| `reason_mind` | 111-333 | Δ Delta | F2, F4, F7, F13 |
+| `recall_memory` | 444 | Ψ Psi | F3, F7 → **Qdrant live** |
+| `simulate_heart` | 555 | Ω Omega | F5, F6 |
+| `critique_thought` | 666 | Ω Omega | F4, F7, F8 |
+| `eureka_forge` | 777 | Ψ Psi | F1, F4 |
+| `apex_judge` | 888 | Ψ Psi | F1-F13 |
+| `seal_vault` | 999 | Ψ Psi | F1, F3, F10 |
+
+### Evidence Tools (read-only)
+| Tool | Purpose | Backend |
+|------|---------|---------|
+| `search_reality` | Web search | Perplexity / Brave (keys set) |
+| `fetch_content` | Content extraction | Jina Reader (key set) |
+| `inspect_file` | Filesystem read | Host-level |
+| `audit_rules` | Constitutional audit | core/shared/floors.py |
+| `check_vital` | System health | Docker + host |
+
+---
+
+## 6. Data Volumes & Paths
+
 ```
-/opt/arifos/                    # Docker data (sudo created)
+/srv/arifOS/                    # Git repo — canonical source of truth
+/opt/arifos/
 ├── data/
-│   ├── core/                   # arifOS data
-│   ├── qdrant/                 # Vector storage (future)
-│   └── ollama/                 # LLM models (future)
-└── letsencrypt/                # SSL certificates (future)
+│   ├── core/                   # arifOS runtime data
+│   ├── qdrant/                 # Vector storage (LIVE)
+│   ├── ollama/                 # LLM models (Phase 3, dir exists)
+│   ├── postgres/               # (Phase 3 full-stack only)
+│   ├── redis/                  # (Phase 3 full-stack only)
+│   └── agent_zero/             # (Phase 4, not created yet)
+├── traefik/
+│   ├── acme.json               # Let's Encrypt certs
+│   ├── dynamic.yml             # Static routing rules
+│   └── traefik.yml             # Entry points config
+└── APEX-THEORY/                # MISSING — needed for openclaw + agent-zero
 
-/var/lib/docker/volumes/        # Docker managed volumes
-├── arifos_postgres_data/       # PostgreSQL data
-└── (redis uses bind mount)
-```
-
-### 5.3 Secrets
-```
-/home/ariffazil/xxx/.env        # Master secrets file
-/srv/arifOS/.env                # Production env (deployed)
-/srv/arifOS/.env.docker         # Docker env template
-```
-
----
-
-## 6. Agent Control Plane
-
-### 6.1 Installed CLI Tools
-| Tool | Path | Purpose |
-|------|------|---------|
-| opencode | /usr/local/bin | OpenCode agent |
-| agi-opencode | ~/.local/bin | AGI wrapper |
-| claude | ~/.local/bin | Claude Code |
-| agi-claude | ~/.local/bin | AGI wrapper |
-| codex | ~/.local/bin | Codex CLI |
-| agi-codex | ~/.local/bin | AGI wrapper |
-| gemini | ~/.local/bin | Gemini CLI |
-| agi-gemini | ~/.local/bin | AGI wrapper |
-| kimi | ~/.local/bin | Kimi CLI |
-| agi-kimi | ~/.local/bin | AGI wrapper |
-
-### 6.2 Agent Access Patterns
-```
-SSH:        ssh ariffazil@72.62.71.199
-Local MCP:  opencode mcp list
-VPS Agent:  agi-opencode (wrapped with AGI context)
+/var/lib/docker/volumes/
+├── arifos_postgres_data/       # PostgreSQL data (phase1 compose)
+└── arifos_redis_data/          # Redis data (phase1 compose)
 ```
 
 ---
 
-## 7. Constitutional Governance
+## 7. CI/CD Pipeline
 
-### 7.1 F1-F13 Floors
-| Floor | Name | Status |
+### Webhook Auto-Deploy
+- **Endpoint:** `https://hook.arifosmcp.arif-fazil.com/hooks/deploy-arifos`
+- **Trigger:** GitHub push to `main`
+- **Auth:** HMAC-SHA256 signature (secret set in GitHub webhook settings)
+- **Script:** `/srv/arifOS/deployment/deploy_from_git.sh`
+- **Action:** `git pull` → `docker compose --build arifosmcp` → health check
+
+### GitHub Actions
+- **Workflow:** `.github/workflows/deploy-vps.yml`
+- **Tailscale VPN:** Connects GHA runner to VPS for SSH deploy
+- **Symlink:** Creates `/root/arifOS → /srv/arifOS` if missing
+
+---
+
+## 8. API Reference
+
+```bash
+# Health
+curl https://arifosmcp.arif-fazil.com/health
+
+# MCP endpoint (Streamable HTTP)
+POST https://arifosmcp.arif-fazil.com/mcp
+
+# Webhook deploy trigger (GitHub handles this)
+POST https://hook.arifosmcp.arif-fazil.com/hooks/deploy-arifos
+
+# Qdrant (internal only)
+curl http://localhost:6333/healthz     # from VPS host
+# or from any container:
+curl http://qdrant:6333/healthz
+```
+
+---
+
+## 9. Security
+
+| Layer | Tool | Status |
 |-------|------|--------|
-| F1 | Amanah (Reversibility) | ✅ Active |
-| F2 | Truth (τ ≥ 0.99) | ✅ Active |
-| F4 | Clarity (ΔS ≤ 0) | ✅ Active |
-| F5 | Peace² | ✅ Active |
-| F6 | Empathy (κᵣ ≥ 0.70) | ✅ Active |
-| F7 | Humility (Ω₀ = 0.04) | ✅ Active |
-| F8 | Genius (G ≥ 0.80) | ✅ Active |
-| F9 | Anti-Hantu | ✅ Active |
-| F11 | Authority | ✅ Active |
-| F12 | Injection Defense | ✅ Active |
-| F13 | Sovereignty | ✅ Active |
-
-### 7.2 888_HOLD Gates
-- Database mutations (DROP, TRUNCATE)
-- Production deployments
-- Mass file changes (>10)
-- Secret handling
-- Git history rewrite
-- Destructive volume operations
+| SSH hardening | Key-only auth, no root login | Active |
+| Brute-force protection | Fail2Ban | Active |
+| TLS termination | Traefik + Let's Encrypt | Active |
+| VPN mesh | Tailscale | Active |
+| Webhook auth | HMAC-SHA256 | Active |
+| Constitutional floors | F1-F13 on all MCP tools | Active |
 
 ---
 
-## 8. Docker Compose Stack
+## 10. Phased Deployment Roadmap
 
-### 8.1 Phase 1 (Active)
-```yaml
-# docker-compose.phase1.yml
-Services:
-  - postgres:5432      (healthy)
-  - redis:6379         (healthy)
-Networks:
-  - arifos-internal:172.18.0.0/16
-Volumes:
-  - postgres_data
-  - redis_data
-```
+### Phase 1 — Core Runtime ✅ COMPLETE
+- PostgreSQL 16, Redis 7, Traefik v3, arifOS MCP (13 tools)
 
-### 8.2 arifOS Layer (Active)
-```yaml
-# docker-compose.arifos.yml
-Services:
-  - arifosmcp:8080     (healthy)
-Networks:
-  - arifos-internal (external)
-Volumes:
-  - /opt/arifos/data/core
-  - /srv/arifOS/VAULT999
-```
+### Phase 2 — Memory & Automation ✅ COMPLETE (2026-03-05)
+- **2A:** Qdrant vector DB — `recall_memory` tool now has live backend
+- **2B:** Webhook CI/CD listener — auto-deploy on git push to main
+
+### Phase 3 — Agent Workbench (NEXT)
+- [ ] Ollama (local LLM engine) — `docker compose up -d ollama` + model pull
+- [ ] Prometheus + Grafana monitoring — configs ready in `deployment/`, need compose services
+- [ ] n8n workflow automation — needs compose service + domain (`flow.arifosmcp.arif-fazil.com`)
+
+### Phase 4 — Multi-Agent Runtime
+- [ ] Agent Zero — autonomous agent web UI at `brain.arifosmcp.arif-fazil.com`
+  - Requires: create `/opt/arifos/APEX-THEORY`, pull image
+- [ ] OpenClaw gateway — `claw.arifosmcp.arif-fazil.com`
+  - Requires: clone source → build `openclaw:local` image
+
+### Phase 5 — Production Hardening
+- [ ] Verify SSL cert issuance via `acme.json` + test HTTPS end-to-end
+- [ ] Consolidate Traefik routing (remove duplicate `dynamic.yml` file provider)
+- [ ] Backup automation — Postgres dump cron + Vault999 archive
+- [ ] Monitoring alerts — Grafana → Telegram (TELEGRAM_BOT_TOKEN set)
+- [ ] `/opt/arifos/APEX-THEORY` — create shared theory volume
 
 ---
 
-## 9. API Endpoints
+## 11. Full Stack Vision (When All Phases Complete)
 
-### 9.1 arifOS MCP (localhost:8080)
-```bash
-# Health check
-curl http://localhost:8080/health
-
-# List tools
-curl http://localhost:8080/tools
-
-# Constitutional session
-POST http://localhost:8080/mcp
-Body: {
-  tool: metabolic_loop,
-  args: {query: ...}
-}
 ```
+Human
+  ├── Claude Code / SSH (direct VPS control)
+  ├── Agent Zero → brain.arifosmcp.arif-fazil.com  (autonomous agent UI)
+  └── n8n → flow.arifosmcp.arif-fazil.com          (workflow automation)
 
-### 9.2 PostgreSQL (localhost:5432)
-```bash
-psql -h localhost -U arifos_admin -d arifos_vault
-```
+AI Agents (via MCP)
+  └── arifOS MCP → arifosmcp.arif-fazil.com
+        ├── recall_memory    → Qdrant          (vector memory)     ← LIVE
+        ├── search_reality   → Perplexity/Brave (web search)       ← LIVE
+        ├── fetch_content    → Jina             (content extract)  ← LIVE
+        └── eureka_forge     → Ollama           (local LLM)        ← Phase 3
 
-### 9.3 Redis (localhost:6379)
-```bash
-redis-cli -h localhost -a \$REDIS_PASSWORD ping
+Infrastructure
+  ├── Traefik    (TLS + routing)                                   ← LIVE
+  ├── PostgreSQL (constitutional vault + state)                    ← LIVE
+  ├── Redis      (cache + message broker)                          ← LIVE
+  ├── Qdrant     (semantic vector memory)                          ← LIVE
+  ├── Webhook    (CI/CD auto-deploy)                               ← LIVE
+  ├── Ollama     (local LLM, no API key needed)                    ← Phase 3
+  ├── Prometheus + Grafana (monitoring + alerts)                   ← Phase 3
+  └── n8n        (workflow orchestration)                          ← Phase 3
 ```
 
 ---
 
-## 10. Maintenance Commands
-
-### 10.1 Docker Operations
-```bash
-# View all containers
-docker ps
-
-# View logs
-docker logs arifosmcp_server
-docker logs arifos-postgres
-docker logs arifos-redis
-
-# Restart services
-docker compose -f docker-compose.arifos.yml restart
-
-# Full Phase 1 + arifOS
-docker compose -f docker-compose.phase1.yml -f docker-compose.arifos.yml up -d
-```
-
-### 10.2 Health Checks
-```bash
-# arifOS health
-curl -s http://localhost:8080/health | jq
-
-# PostgreSQL health
-docker exec arifos-postgres pg_isready -U arifos_admin
-
-# Redis health
-docker exec arifos-redis redis-cli ping
-```
-
-### 10.3 Backup Locations
-```
-PostgreSQL: /var/lib/docker/volumes/arifos_postgres_data/_data
-Redis:      /var/lib/docker/volumes/arifos_redis_data/_data
-Vault999:   /srv/arifOS/VAULT999/
-Data:       /opt/arifos/data/
-```
-
----
-
-## 11. Phased Deployment Roadmap
-
-### Phase 1: Core Runtime ✅ COMPLETE
-- [x] PostgreSQL 16
-- [x] Redis 7
-- [x] Network: arifos-internal
-- [x] Health checks
-
-### Phase 2: arifOS Kernel ✅ COMPLETE
-- [x] MCP Server deployed
-- [x] 16 tools operational
-- [x] Constitutional governance active
-- [x] Health endpoint responding
-
-### Phase 3: Agent Workbench (Planned)
-- [ ] Qdrant vector DB
-- [ ] Playwright + Chromium
-- [ ] PDF/OCR tools
-- [ ] n8n automation
-- [ ] File sharing endpoint
-
-### Phase 4: Multi-Agent Runtime (Planned)
-- [ ] OpenClaw gateway
-- [ ] AgentZero reasoner
-- [ ] Ollama local LLM
-- [ ] Network segmentation
-
-### Phase 5: Production (Planned)
-- [ ] Traefik reverse proxy
-- [ ] SSL certificates
-- [ ] Cloudflare tunnel
-- [ ] Backup automation
-- [ ] Monitoring/alerts
-
----
-
-## 12. Key Configuration Files
+## 12. Key Files Reference
 
 | File | Purpose |
 |------|---------|
-| `/srv/arifOS/.env` | Production environment |
-| `/srv/arifOS/docker-compose.yml` | Main orchestration |
-| `/srv/arifOS/docker-compose.arifos.yml` | arifOS service |
-| `/home/ariffazil/xxx/.env` | Master secrets |
-| `/srv/arifOS/Dockerfile` | MCP server image |
-| `/srv/arifOS/AGENTS.md` | Agent guidelines |
+| `/srv/arifOS/docker-compose.yml` | Primary compose — all services |
+| `/srv/arifOS/docker-compose.phase1.yml` | Legacy infra layer (postgres, redis via old network) |
+| `/srv/arifOS/deployment/hooks.json` | Webhook trigger config |
+| `/srv/arifOS/deployment/deploy_from_git.sh` | Auto-deploy script |
+| `/srv/arifOS/deployment/prometheus/prometheus.yml` | Prometheus scrape config (ready) |
+| `/srv/arifOS/deployment/grafana/` | Grafana datasource + dashboards (ready) |
+| `/srv/arifOS/.env.docker` | API keys for MCP tools (20 keys set) |
+| `/opt/arifos/traefik/acme.json` | Let's Encrypt certificate store |
+| `/opt/arifos/traefik/dynamic.yml` | Static Traefik routing rules |
 
 ---
 
-## 13. Troubleshooting
-
-### Issue: arifOS container unhealthy
-```bash
-# Check logs
-docker logs arifosmcp_server --tail 50
-
-# Restart
-docker compose -f docker-compose.arifos.yml restart
-```
-
-### Issue: Database connection failed
-```bash
-# Verify postgres is running
-docker ps | grep postgres
-
-# Check network
-docker network inspect arifos_arifos-internal
-```
-
-### Issue: Redis auth failed
-```bash
-# Verify password in env
-grep REDIS_PASSWORD /srv/arifOS/.env
-```
-
----
-
-## 14. Constitutional Compliance
-
-This architecture enforces:
-- **F1 Amanah:** All ops reversible, backups required
-- **F2 Truth:** τ ≥ 0.99 threshold on all claims
-- **F5 Safety:** 888_HOLD on destructive actions
-- **F9 Anti-Hantu:** No consciousness claims by AI
-- **F13 Sovereignty:** Human veto always preserved
-
----
-
-## 15. Document Metadata
-
-- **Version:** 2026.3.1
-- **Generated By:** AGI-Opencode (arifOS constitutional agent)
-- **Session:** arch-doc
-- **SEAL Status:** 100% Complete
-
-**DITEMPA BUKAN DIBERI** — Forged, Not Given 🔥
+**DITEMPA BUKAN DIBERI** — Forged, Not Given.

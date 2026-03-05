@@ -1,78 +1,102 @@
-# 🌍 arifOS AAA MCP - WORLD DEPLOYMENT STATUS
-**Date:** 2026-03-01  
-**Status:** ✅ **DEPLOYED AND OPERATIONAL**
+# arifOS VPS — Deployment Status
+
+**Last Updated:** 2026-03-05
+**Version:** v2026.3.1
+**Phase:** 2B Complete — Phase 3 Next
 
 ---
 
-## ✅ DEPLOYMENT VERIFIED
+## Live Services
 
-### Server Status
-- **URL:** https://arifosmcp.arif-fazil.com/ ✅
-- **Health:** HEALTHY ✅
-- **Tools Loaded:** 14
-- **Transport:** streamable-http
-
-### Network Connectivity
-- ✅ Qdrant (10.0.0.2:6333) - REACHABLE
-- ✅ Ollama (10.0.0.3:11434) - REACHABLE
-- ✅ Agent-Zero (10.0.2.2:80) - REACHABLE
-- ✅ OpenClaw (10.0.4.2:18789) - REACHABLE
-
-### BGE Integration
-- ✅ BGE_AVAILABLE: True
-- ✅ Vector Dimensions: 768
-- ✅ BGE metrics code deployed in recall_memory
+| Service | Status | URL / Access |
+|---------|--------|--------------|
+| arifOS MCP Server | HEALTHY | `https://arifosmcp.arif-fazil.com/mcp` |
+| Traefik Router | UP | `:80` → `:443` (auto-redirect) |
+| PostgreSQL 16 | HEALTHY | `localhost:5432` |
+| Redis 7 | HEALTHY | `localhost:6379` |
+| Qdrant | UP | `http://qdrant:6333` (internal) |
+| Webhook CI/CD | UP | `https://hook.arifosmcp.arif-fazil.com/hooks/deploy-arifos` |
 
 ---
 
-## 📋 CONSTITUTIONAL GOVERNANCE ACTIVE
+## arifOS MCP — Tool Status
 
-All tools are protected by the 13-floor constitutional framework:
+**Endpoint:** `https://arifosmcp.arif-fazil.com/mcp`
+**Transport:** Streamable HTTP
+**Tools loaded:** 13
 
-### recall_memory Tool
-**Status:** Registered with FLOOR_ENFORCEMENT ✅
-
-**Required Floors:**
-- ✅ F4_CLARITY - dS bounded
-- ✅ F7_HUMILITY - omega0 in range
-- ✅ F3_TRI_WITNESS - Cross-check present
-- ⚠️ F13_SOVEREIGNTY - Requires auth/session
-
-**F13_SOVEREIGNTY** enforces "human veto preserved" - this is a **security feature**, not a bug.
-
----
-
-## 🔐 AUTHENTICATION REQUIRED
-
-Some tools (including recall_memory) require proper session authentication to pass F13_SOVEREIGNTY.
-
-**Without auth:** Tool returns VOID (constitutional protection working)
-**With auth:** Tool executes with full BGE metrics
-
-This is the constitutional governance at work - protecting the system from unauthorized access.
+| Tool | Status | Notes |
+|------|--------|-------|
+| `anchor_session` | LIVE | |
+| `reason_mind` | LIVE | |
+| `recall_memory` | LIVE | Qdrant backend active (Phase 2A) |
+| `simulate_heart` | LIVE | |
+| `critique_thought` | LIVE | |
+| `eureka_forge` | LIVE | |
+| `apex_judge` | LIVE | |
+| `seal_vault` | LIVE | Token-locked |
+| `search_reality` | LIVE | Perplexity + Brave keys set |
+| `fetch_content` | LIVE | Jina key set |
+| `inspect_file` | LIVE | |
+| `audit_rules` | LIVE | |
+| `check_vital` | LIVE | |
 
 ---
 
-## 📦 COMMITS DEPLOYED
+## Constitutional Governance
 
-```
-42a56a0a fix(constitutional): Add missing tools to FLOOR_ENFORCEMENT
-672c68bf docs: Add CRITICAL_FIX_STATUS report
-988c5e13 feat(metrics): Add BGE metrics to recall_memory
-ea7af398 fix(deploy): Mount fixed server.py via volume
-```
+All 13 tools protected by F1-F13 constitutional floors.
+
+| Floor | Name | Status |
+|-------|------|--------|
+| F1 | Amanah (Reversibility) | Active |
+| F2 | Truth (τ ≥ 0.99) | Active |
+| F3 | Tri-Witness | Active |
+| F4 | Clarity (ΔS ≤ 0) | Active |
+| F5 | Peace² | Active |
+| F6 | Empathy (κᵣ ≥ 0.70) | Active |
+| F7 | Humility (Ω₀ = 0.04) | Active |
+| F8 | Genius (G ≥ 0.80) | Active |
+| F9 | Anti-Hantu | Active |
+| F10 | Ontology | Active |
+| F11 | Command Auth | Active |
+| F12 | Injection Defense | Active |
+| F13 | Sovereign | Active — human veto always preserved |
 
 ---
 
-## 🎯 READY FOR THE WORLD
+## CI/CD Pipeline
 
-✅ **Infrastructure:** All services connected and healthy  
-✅ **BGE Integration:** Active and functional  
-✅ **Constitutional Governance:** All 13 floors enforcing  
-✅ **Public Access:** https://arifosmcp.arif-fazil.com/  
-
-⚠️ **Security Note:** Constitutional governance requires authentication for sensitive tools. This is by design.
+- **GitHub → VPS:** Push to `main` triggers webhook at `hook.arifosmcp.arif-fazil.com`
+- **Auth:** HMAC-SHA256 verified
+- **Deploy:** `git pull` → rebuild arifosmcp image → restart → health check
+- **Fallback:** GitHub Actions via Tailscale SSH (`.github/workflows/deploy-vps.yml`)
 
 ---
 
-**DITEMPA BUKAN DIBERI** — Forged and deployed. The digital cathedral stands. 🏛️
+## Not Yet Deployed
+
+| Service | Phase | Reason |
+|---------|-------|--------|
+| Ollama (local LLM) | 3 | Image not pulled |
+| Prometheus + Grafana | 3 | Configs ready, not in compose yet |
+| n8n (workflow automation) | 3 | Not in compose yet |
+| Agent Zero | 4 | Image not pulled, APEX-THEORY dir missing |
+| OpenClaw | 4 | Image needs source build |
+
+---
+
+## Phase Log
+
+| Phase | Scope | Status | Date |
+|-------|-------|--------|------|
+| 1 | PostgreSQL, Redis, Traefik, arifOS MCP | COMPLETE | — |
+| 2A | Qdrant vector memory | COMPLETE | 2026-03-05 |
+| 2B | Webhook CI/CD listener | COMPLETE | 2026-03-05 |
+| 3 | Ollama, Prometheus, Grafana, n8n | NEXT | — |
+| 4 | Agent Zero, OpenClaw | PLANNED | — |
+| 5 | Production hardening, monitoring alerts | PLANNED | — |
+
+---
+
+**DITEMPA BUKAN DIBERI**
