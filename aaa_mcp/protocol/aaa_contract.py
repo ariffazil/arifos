@@ -60,6 +60,7 @@ CANONICAL_TOOL_COUNT: int = 13  # Sacred count — L4 only
 MCP_GOVERNED_TOOLS: frozenset[str] = L4_TOOLS | L5_COMPOSITE  # Tools with envelopes
 
 AAA_TOOL_ALIASES: dict[str, str] = {
+    "metabolicloop": "metabolic_loop",
     "init_session": "anchor_session",
     "agi_cognition": "reason_mind",
     "phoenix_recall": "recall_memory",
@@ -167,11 +168,11 @@ AAA_TOOL_LAW_BINDINGS: dict[str, list[str]] = {
         "F13_SOVEREIGNTY",
     ],
     "eureka_forge": [
-        "F5_PEACE2",       # Safe defaults (working_dir validation)
-        "F6_EMPATHY",      # Error handling with clear messages
-        "F7_HUMILITY",     # Risk classification, admit uncertainty
-        "F9_ANTI_HANTU",   # Transparent logging
-        "F13_SOVEREIGNTY", # Human veto via confirm_dangerous
+        "F5_PEACE2",  # Safe defaults (working_dir validation)
+        "F6_EMPATHY",  # Error handling with clear messages
+        "F7_HUMILITY",  # Risk classification, admit uncertainty
+        "F9_ANTI_HANTU",  # Transparent logging
+        "F13_SOVEREIGNTY",  # Human veto via confirm_dangerous
     ],
     "seal_vault": ["F1_AMANAH", "F3_TRI_WITNESS", "F10_ONTOLOGY_LOCK", "F13_SOVEREIGNTY"],
     "search_reality": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],

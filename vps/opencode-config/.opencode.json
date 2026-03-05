@@ -78,10 +78,13 @@
   },
   "mcp": {
     "arifOS-AAA": {
-      "type": "stdio",
-      "command": ".venv/bin/python",
-      "args": ["-m", "aaa_mcp", "stdio"],
-      "env": {
+      "type": "local",
+      "command": [".venv/bin/python", "-m", "arifos_aaa_mcp", "stdio"],
+      "cwd": ".",
+      "enabled": true,
+      "timeout": 15000,
+      "environment": {
+        "PYTHONPATH": ".",
         "ARIFOS_PHYSICS_DISABLED": "1",
         "AAA_MCP_OUTPUT_MODE": "debug"
       }

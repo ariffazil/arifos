@@ -718,19 +718,6 @@ async def check_vital(
     return wrap_tool_output("check_vital", payload)
 
 
-@mcp.tool(
-    name="visualize_governance",
-    description=(
-        "Opens the Constitutional Decision Visualizer UI\n\n"
-        "Shows real-time governance metrics:\n"
-        "- 13 Constitutional Floor scores (F1-F13)\n"
-        "- Tri-Witness consensus (Human, AI, Earth)\n"
-        "- Thermodynamic status (ΔS, Peace², κᵣ, Ψ)\n"
-        "- Metabolic flow visualization (000→999)\n"
-        "- Verdict history from VAULT999"
-    ),
-    icons=[ARIFOS_SERVER_ICON],
-)
 async def visualize_governance(
     session_id: str | None = None,
 ) -> dict[str, Any]:
@@ -815,7 +802,13 @@ def aaa_tool_schemas() -> str:
     description="Interactive MCP App visualizing real-time constitutional floor evaluations.",
 )
 def get_visualizer() -> str:
-    path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "333_APPS", "constitutional-visualizer", "dist", "mcp-app.html")
+    path = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)),
+        "333_APPS",
+        "constitutional-visualizer",
+        "dist",
+        "mcp-app.html",
+    )
     if os.path.exists(path):
         with open(path, "r", encoding="utf-8") as f:
             return f.read()
