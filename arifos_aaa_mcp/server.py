@@ -718,6 +718,38 @@ async def check_vital(
     return wrap_tool_output("check_vital", payload)
 
 
+@mcp.tool(
+    name="visualize_governance",
+    description=(
+        "Opens the Constitutional Decision Visualizer UI\n\n"
+        "Shows real-time governance metrics:\n"
+        "- 13 Constitutional Floor scores (F1-F13)\n"
+        "- Tri-Witness consensus (Human, AI, Earth)\n"
+        "- Thermodynamic status (ΔS, Peace², κᵣ, Ψ)\n"
+        "- Metabolic flow visualization (000→999)\n"
+        "- Verdict history from VAULT999"
+    ),
+    icons=[ARIFOS_SERVER_ICON],
+)
+async def visualize_governance(
+    session_id: str | None = None,
+) -> dict[str, Any]:
+    """Return metadata pointing the MCP client to the Constitutional Visualizer UI."""
+    return {
+        "verdict": "SEAL",
+        "stage": "UI_LAUNCH",
+        "session_id": session_id or "ui_session",
+        "message": "Constitutional Decision Visualizer ready",
+        "_meta": {
+            "ui": {
+                "resourceUri": "ui://constitutional-visualizer/mcp-app.html",
+                "title": "Constitutional Decision Visualizer",
+                "description": "Real-time governance metrics dashboard",
+            }
+        },
+    }
+
+
 def create_aaa_mcp_server() -> Any:
     # ABI version guard: prevent silent half-upgrades between transport and kernel layers.
     try:
