@@ -301,6 +301,17 @@ class TestResources:
         assert info is not None
         assert info.mimeType == "application/json"
 
+    async def test_arifos_info_resource_readable(self, arifos_server):
+        """Resource returns valid JSON string (not dict) per FastMCP 3.0.2 spec."""
+        import json
+        async with Client(arifos_server) as client:
+            result = await client.read_resource("arifos://info")
+        assert len(result) > 0
+        content = result[0]
+        data = json.loads(content.text)
+        assert data["name"] == "arifOS"
+        assert "tools" in data
+
     async def test_constitutional_floor_template_registered(self, arifos_server):
         """Floor resource template is registered."""
         async with Client(arifos_server) as client:

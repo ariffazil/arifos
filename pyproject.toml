@@ -387,3 +387,18 @@ ignore_missing_imports = true
 # Bridge files have optional imports - suppress unused-ignore warnings
 module = ["aaa_mcp.core.*"]
 warn_unused_ignores = false
+
+[tool.coverage.run]
+omit = [
+    "core/tests/*",          # kernel-level test files are not production code
+    "*/test_*.py",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+    "\\.\\.\\.",
+]
