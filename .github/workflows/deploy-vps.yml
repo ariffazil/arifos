@@ -54,6 +54,10 @@ jobs:
           cd '${VPS_PATH}'
           git fetch origin main
           git reset --hard origin/main
+          # Legacy compose files on VPS may still bind-mount /root/arifOS paths
+          if [ ! -e /root/arifOS ]; then
+            sudo ln -s '${VPS_PATH}' /root/arifOS || true
+          fi
           docker build -t arifos/arifosmcp:latest .
           docker compose -f docker-compose.yml up -d --no-deps --build arifosmcp
         "
