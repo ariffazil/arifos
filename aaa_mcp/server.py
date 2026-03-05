@@ -705,6 +705,80 @@ judge_soul = apex_judge
 
 
 @mcp.tool(
+    name="metabolicloop",
+    description="[Lane: Δ Delta] [Floors: F1-F13] The arifOS Sovereign Kernel loop. Mandatory safety wrapper before any material state mutation.",
+)
+async def _metabolic_loop(
+    query: str,
+    risktier: str = "high",
+    actor_id: str = "antigravity-agent",
+    proposed_verdict: str = "SEAL"
+) -> dict[str, Any]:
+    """
+    Execute the full 000-999 metabolic pipeline for Antigravity alignment.
+    Forces agents to clear F1-F13 floors before executing terminal/file mutations.
+    """
+    try:
+        # 1. Anchor (000_INIT)
+        anchor_res = await _init_session(query=query, actor_id=actor_id)
+        if anchor_res.get("verdict") == "VOID":
+            return {"verdict": "VOID", "stage": "000_INIT", "details": anchor_res}
+        
+        session_id = anchor_res.get("session_id", "unknown")
+
+        # 2. Reason (111-444_MIND)
+        mind_res = await _agi_cognition(query=query, session_id=session_id, actor_id=actor_id)
+        if mind_res.get("verdict") == "VOID":
+            return {"verdict": "VOID", "stage": "111-444_MIND", "details": mind_res}
+
+        # 3. Empathy (555-666_HEART)
+        heart_res = await _asi_empathy(query=query, session_id=session_id, actor_id=actor_id)
+        if heart_res.get("verdict") == "VOID":
+            return {"verdict": "VOID", "stage": "555-666_HEART", "details": heart_res}
+
+        # 4. Judge (777-888_SOUL)
+        # For risktier="high", we default to 888_HOLD unless overridden.
+        human_approve = False
+        if risktier.lower() == "high":
+            proposed_verdict = "888_HOLD"
+            
+        judge_res = await _apex_verdict(
+            session_id=session_id,
+            query=query,
+            agi_result=mind_res,
+            asi_result=heart_res,
+            proposed_verdict=proposed_verdict,
+            human_approve=human_approve,
+            actor_id=actor_id,
+        )
+        
+        verdict = str(judge_res.get("verdict", "VOID"))
+        
+        return {
+            "verdict": verdict,
+            "session_id": session_id,
+            "risktier": risktier,
+            "governance_token": judge_res.get("governance_token"),
+            "next_actions": judge_res.get("next_actions", []),
+            "floors_state": judge_res.get("floors", {}),
+            "summary": f"Metabolic loop completed with verdict: {verdict}",
+            "guidance": "If verdict is 888_HOLD, use notify_user to request human approval. If SEAL, proceed with executing the command. If VOID or SABAR, halt execution immediately.",
+            "trace": {
+                "000_INIT": anchor_res.get("verdict"),
+                "111-444_MIND": mind_res.get("verdict"),
+                "555-666_HEART": heart_res.get("verdict"),
+                "777-888_SOUL": verdict
+            }
+        }
+
+    except Exception as e:
+        return _fracture_response("METABOLIC_LOOP", e)
+
+
+metabolicloop = ToolHandle(_metabolic_loop)
+
+
+@mcp.tool(
     name="eureka_forge",
     description="[Lane: Ψ Psi] [Floors: F5, F6, F7, F9] Execute shell commands or dispatch tasks to the OpenClaw multi-agent swarm.",
 )

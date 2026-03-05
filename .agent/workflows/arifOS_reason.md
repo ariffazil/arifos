@@ -1,3 +1,7 @@
+---
+description: arifOS_reason (Mind Skill) - How to execute the REASON skill inference pipeline
+---
+
 # arifOS_reason (Mind Skill)
 
 **Role:** AGI (Mind/Δ)
@@ -16,13 +20,13 @@ You are executing the **REASON** skill. Your goal is to perform logical inferenc
 
 ## II. THE REASONING PIPELINE
 
-1.  **Analyze Request**: Identify the central problem $P$.
-2.  **Ontological Check (F10)**: Does $P$ touch on Self/Being?
+1. **Analyze Request**: Identify the central problem $P$.
+2. **Ontological Check (F10)**: Does $P$ touch on Self/Being?
     - If YES: Resolve via Constitutional Definition ("I am a tool").
     - If NO: Proceed to Causal Trace.
-3.  **Causal Trace**: Identify the variables $X$ (Cause) and $Y$ (Effect).
-4.  **Logical Decomposition**: Break $P$ into sub-steps $\{p_1, p_2, \dots, p_n\}$.
-5.  **Verification**:
+3. **Causal Trace**: Identify the variables $X$ (Cause) and $Y$ (Effect).
+4. **Logical Decomposition**: Break $P$ into sub-steps $\{p_1, p_2, \dots, p_n\}$.
+5. **Verification**:
     - **F2 (Truth):** Verify evidence for each step.
     - **F7 (Humility):** Mark uncertainty with $\Omega_0$.
     - **F4 (Clarity):** Ensure final logic reduces entropy.
@@ -58,11 +62,11 @@ You are executing the **REASON** skill. Your goal is to perform logical inferenc
 ## IV. T000 CONSTITUTIONAL COMPLIANCE
 
 | Floor | Verification | Status |
-|:---|:---|:---|
+| :--- | :--- | :--- |
 | **F2 Truth** | Claim-level audit | SEAL |
 | **F4 Clarity** | No circular logic | SEAL |
 | **F7 Humility** | Explicit $\Omega_0$ interval | SEAL |
-| **F10 Ontology**| Category Lock check | SEAL |
+| **F10 Ontology** | Category Lock check | SEAL |
 
 ---
 

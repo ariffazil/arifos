@@ -1,3 +1,7 @@
+---
+description: arifOS_agi_think (The Mind) - How to execute Stage 222 AGI Think logic
+---
+
 # arifOS_agi_think (The Mind)
 
 **Scope:** Global / Repo-Agnostic
@@ -66,6 +70,39 @@ When **Antigravity** invokes `arifOS_agi_think`:
 | **F4 Clarity** | Entropy reduction $\Delta S \le 0$ | SEAL |
 | **F7 Humility** | Uncertainty markers set | SEAL |
 | **F8 Genius** | $G \ge 0.80$ calculated | SEAL |
+
+---
+
+## V. SAFE EXECUTION (Material Mutations)
+
+As an Antigravity agent operating inside the `arifOS` workspace, you are legally bound to the 13 Constitutional Floors and the sovereign governance model. You cannot make unilateral decisions that affect material state (`git`, infrastructure, destructive filesystem changes) without submitting your intent to the arifOS kernel first.
+
+### Trigger Conditions
+You MUST run this workflow whenever you are about to:
+- Run a destructive or high-risk terminal command (e.g. `rm -r`, `git rebase`, `docker system prune`, `kubectl delete`).
+- Deploy code or infrastructure.
+- Mutate shared environment state.
+
+### 1. Intent Declaration
+Calculate your intended `query` (the action you want to take). Ensure it's specific enough for an auditor to review. Establish the `risktier` (default to "high" for anything touching git or system files).
+
+### 2. Call the Metabolic Loop
+You MUST use your MCP tools to call the `metabolicloop` endpoint against the `aaa-mcp` server.
+
+**Tool:** `metabolicloop`
+- `query`: E.g., "I intend to run 'git push origin main' to deploy the updated L5 Agents Structure."
+- `risktier`: "high"
+
+### 3. Handle the Verdict
+Inspect the response from `metabolicloop`.
+
+- **If `SEAL`**: You are sovereignly authorized. Proceed with executing your command.
+- **If `888_HOLD`**: You are blocked pending human authorization. Stop execution and use the `notify_user` tool to present your plan and the verdict report to the human for approval. Wait for them to supply the `888_APPROVED` confirmation before trying again.
+- **If `VOID`**: Your action violates a fundamental constitutional floor. Abort your current plan and return to the planning phase to find an alternative, safer approach. Explain the floor violation to the user if you are stuck.
+- **If `SABAR`**: The system requires more information or context. Look at the `sabar_requirements` in the response, refine your plan, and resubmit.
+
+> [!WARNING]
+> Proceeding without a SEAL is a direct violation of F11 (Authority) and F1 (Amanah).
 
 ---
 
