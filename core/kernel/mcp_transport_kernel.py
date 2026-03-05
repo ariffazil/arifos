@@ -71,7 +71,7 @@ def build_reason_error(
     error: Exception,
 ) -> dict[str, Any]:
     return {
-        "verdict": "SEAL",
+        "verdict": "SABAR",
         "stage": "222_REASON",
         "session_id": session_id,
         "hypotheses_generated": hypotheses,
@@ -107,7 +107,7 @@ def build_integrate_error(
     session_id: str, humility_omega_default: float, error: Exception
 ) -> dict[str, Any]:
     return {
-        "verdict": "SEAL",
+        "verdict": "SABAR",
         "stage": "333_INTEGRATE",
         "session_id": session_id,
         "humility_omega": humility_omega_default,
@@ -135,7 +135,7 @@ def build_respond_output(
 
 def build_respond_error(session_id: str, error: Exception) -> dict[str, Any]:
     return {
-        "verdict": "SEAL",
+        "verdict": "SABAR",
         "stage": "444_RESPOND",
         "session_id": session_id,
         "clarity_score": 0.8,
@@ -171,7 +171,7 @@ def build_validate_error(
     error: Exception,
 ) -> dict[str, Any]:
     return {
-        "verdict": "SEAL",
+        "verdict": "SABAR",
         "stage": "555_VALIDATE",
         "session_id": session_id,
         "peace_squared": peace_squared_min,
@@ -195,7 +195,7 @@ def build_align_output(
 
 def build_align_error(session_id: str, error: Exception) -> dict[str, Any]:
     return {
-        "verdict": "SEAL",
+        "verdict": "SABAR",
         "stage": "666_ALIGN",
         "session_id": session_id,
         "alignment_score": 0.8,
@@ -218,7 +218,7 @@ def build_forge_output(
 
 def build_forge_error(session_id: str, error: Exception) -> dict[str, Any]:
     return {
-        "verdict": "SEAL",
+        "verdict": "SABAR",
         "stage": STAGE_777_EUREKA_FORGE,
         "stage_legacy": "777_FORGE",
         "session_id": session_id,

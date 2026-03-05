@@ -30,6 +30,28 @@ async def _default_log_asi_decision(**_kwargs: Any) -> None:
     return None
 
 
+def _get_first_stage_result(
+    get_stage_result_fn: GetStageResult,
+    session_id: str,
+    *stage_names: str,
+) -> dict[str, Any]:
+    for stage_name in stage_names:
+        result = get_stage_result_fn(session_id, stage_name)
+        if result:
+            return result
+    return {}
+
+
+def _store_stage_with_aliases(
+    store_stage_result_fn: StoreStageResult,
+    session_id: str,
+    result: dict[str, Any],
+    *stage_names: str,
+) -> None:
+    for stage_name in stage_names:
+        store_stage_result_fn(session_id, stage_name, result)
+
+
 async def run_stage_444_trinity_sync(
     session_id: str,
     agi_result: dict[str, Any] | None = None,
@@ -44,8 +66,17 @@ async def run_stage_444_trinity_sync(
     Called by: apex_verdict tool (before judgment)
     """
     try:
-        agi_result = agi_result or get_stage_result_fn(session_id, "agi") or {}
-        asi_result = asi_result or get_stage_result_fn(session_id, "asi_empathize") or {}
+        agi_result = agi_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "agi", "think"
+        )
+        asi_result = asi_result or _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "asi_empathize",
+            "stage_555",
+            "empathy",
+            "asi",
+        )
         query = agi_result.get("query") or asi_result.get("query") or ""
 
         if not query:
@@ -90,7 +121,7 @@ async def run_stage_444_trinity_sync(
             "session_id": session_id,
             "status": "completed",
         }
-        store_stage_result_fn(session_id, "stage_444", result)
+        _store_stage_with_aliases(store_stage_result_fn, session_id, result, "stage_444", "sync")
         return result
 
     except Exception as e:
@@ -147,7 +178,15 @@ async def run_stage_555_empathy(
             "session_id": session_id,
             "status": "completed",
         }
-        store_stage_result_fn(session_id, "stage_555", result)
+        _store_stage_with_aliases(
+            store_stage_result_fn,
+            session_id,
+            result,
+            "stage_555",
+            "asi_empathize",
+            "empathy",
+            "asi",
+        )
         # Ω Incident Logging
         try:
             floor_scores = emp_data.get("floor_scores", {})
@@ -227,7 +266,14 @@ async def run_stage_666_align(
             "session_id": session_id,
             "status": "completed",
         }
-        store_stage_result_fn(session_id, "stage_666", result)
+        _store_stage_with_aliases(
+            store_stage_result_fn,
+            session_id,
+            result,
+            "stage_666",
+            "asi_align",
+            "align",
+        )
         # Ω Incident Logging
         try:
             floors_checked = ["F1", "F5", "F6", "F9"]
@@ -299,8 +345,17 @@ async def run_stage_777_forge(
         context = {}
 
     try:
-        agi_result = agi_result or get_stage_result_fn(session_id, "agi") or {}
-        asi_result = asi_result or get_stage_result_fn(session_id, "asi_empathize") or {}
+        agi_result = agi_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "agi", "think"
+        )
+        asi_result = asi_result or _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "asi_empathize",
+            "stage_555",
+            "empathy",
+            "asi",
+        )
         query = agi_result.get("query") or asi_result.get("query") or ""
 
         if not query:
@@ -338,7 +393,9 @@ async def run_stage_777_forge(
             "session_id": session_id,
             "status": "completed",
         }
-        store_stage_result_fn(session_id, "stage_777", result)
+        _store_stage_with_aliases(
+            store_stage_result_fn, session_id, result, "stage_777", "forge", "eureka_forge"
+        )
         return result
 
     except Exception as e:
@@ -364,8 +421,17 @@ async def run_stage_888_judge(
         context = {}
 
     try:
-        agi_result = agi_result or get_stage_result_fn(session_id, "agi") or {}
-        asi_result = asi_result or get_stage_result_fn(session_id, "asi_empathize") or {}
+        agi_result = agi_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "agi", "think"
+        )
+        asi_result = asi_result or _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "asi_empathize",
+            "stage_555",
+            "empathy",
+            "asi",
+        )
         query = agi_result.get("query") or asi_result.get("query") or ""
 
         if not query:
@@ -418,7 +484,15 @@ async def run_stage_888_judge(
             "session_id": session_id,
             "status": "completed",
         }
-        store_stage_result_fn(session_id, "stage_888", result)
+        _store_stage_with_aliases(
+            store_stage_result_fn,
+            session_id,
+            result,
+            "stage_888",
+            "judge",
+            "audit",
+            "apex_verdict",
+        )
         return result
 
     except Exception as e:
@@ -448,11 +522,19 @@ async def run_stage_999_seal(
     Called by: vault_seal tool
     """
     try:
-        agi_result = agi_result or get_stage_result_fn(session_id, "agi") or {}
-        asi_result = asi_result or (
-            get_stage_result_fn(session_id, "asi_align")
-            or get_stage_result_fn(session_id, "asi_empathize")
-            or {}
+        agi_result = agi_result or _get_first_stage_result(
+            get_stage_result_fn, session_id, "agi", "think"
+        )
+        asi_result = asi_result or _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "asi_align",
+            "stage_666",
+            "align",
+            "asi_empathize",
+            "stage_555",
+            "empathy",
+            "asi",
         )
         query = agi_result.get("query") or asi_result.get("query") or ""
 
@@ -515,7 +597,7 @@ async def run_stage_999_seal(
             "seal_id": receipt.seal_id,
             "session_id": session_id,
         }
-        store_stage_result_fn(session_id, "stage_999", result)
+        _store_stage_with_aliases(store_stage_result_fn, session_id, result, "stage_999", "seal")
         return result
 
     except Exception as e:

@@ -25,7 +25,7 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /opt/arifos/letsencrypt:/letsencrypt
+      - /opt/arifos/traefik/acme.json:/letsencrypt/acme.json
     networks:
       - arifos_trinity
     restart: unless-stopped
@@ -79,12 +79,12 @@ services:
     image: openclaw:local
     container_name: openclaw_gateway
     volumes:
-      - /root/openclaw_data:/app/workspace
-      - /root/arifOS:/mnt/arifos:rw
-      - /root/APEX-THEORY:/mnt/apex:rw
+      - /opt/arifos/data/openclaw:/app/workspace
+      - /srv/arifOS:/mnt/arifos:rw
+      - /opt/arifos/APEX-THEORY:/mnt/apex:rw
       - /var/run/docker.sock:/var/run/docker.sock
-    env_file:
-      - /root/XXX/.env.master
+    # env_file:
+    #   - /opt/arifos/XXX/.env.master
     environment:
       - REDIS_URL=redis://redis:6379
       - POSTGRES_URL=postgresql://${POSTGRES_USER:-arifos}:${POSTGRES_PASSWORD:-arifos_secure}@postgres:5432/${POSTGRES_DB:-arifos_core}
@@ -103,11 +103,11 @@ services:
     image: agent0ai/agent-zero:latest
     container_name: agent_zero_reasoner
     volumes:
-      - /root/agent_zero_data:/app/work_dir
-      - /root/arifOS:/mnt/arifos:rw
-      - /root/APEX-THEORY:/mnt/apex:rw
-    env_file:
-      - /root/XXX/.env.master
+      - /opt/arifos/data/agent_zero:/app/work_dir
+      - /srv/arifOS:/mnt/arifos:rw
+      - /opt/arifos/APEX-THEORY:/mnt/apex:rw
+    # env_file:
+    #   - /opt/arifos/XXX/.env.master
     environment:
       - OPENCLAW_URL=http://openclaw:3000
     networks:
@@ -130,8 +130,8 @@ services:
         required: false
     volumes:
       - /opt/arifos/data/core:/usr/src/app/data
-      - /root/arifOS/aaa_mcp/server.py:/usr/src/app/aaa_mcp/server.py:ro
-      - /root/arifOS/core/kernel/constitutional_decorator.py:/usr/src/app/core/kernel/constitutional_decorator.py:ro
+      - /srv/arifOS/aaa_mcp/server.py:/usr/src/app/aaa_mcp/server.py:ro
+      - /srv/arifOS/core/kernel/constitutional_decorator.py:/usr/src/app/core/kernel/constitutional_decorator.py:ro
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
@@ -154,10 +154,10 @@ services:
     image: almir/webhook:latest
     container_name: arifos_webhook
     volumes:
-      - /root/arifOS:/usr/src/app:rw
+      - /srv/arifOS:/usr/src/app:rw
       - /var/run/docker.sock:/var/run/docker.sock
-      - /root/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
-      - /root/arifOS/deployment/deploy_from_git.sh:/opt/arifos/deploy_from_git.sh:ro
+      - /srv/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
+      - /srv/arifOS/deployment/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
     command: -verbose -hooks=/etc/webhook/hooks.json -hotreload
     networks:
       - arifos_trinity

@@ -1,7 +1,7 @@
 [
   {
     "id": "deploy-arifos",
-    "execute-command": "/opt/arifos/deploy_from_git.sh",
+    "execute-command": "/var/scripts/deploy_from_git.sh",
     "command-working-directory": "/usr/src/app",
     "pass-arguments-to-command": [
       {

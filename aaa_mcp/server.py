@@ -650,6 +650,13 @@ async def _apex_verdict(
             "implementation_details": implementation_details or {},
         }
         forged = await forge(session_id=session_id, plan=str(plan))
+        judged = await audit(
+            session_id=session_id,
+            action=str(plan),
+            sovereign_token="888_APPROVED" if human_approve else "",
+            agi_result=agi_result,
+            asi_result=asi_result,
+        )
         precedents: list[dict[str, Any]] = []
         try:
             rag = _ensure_rag()
@@ -665,7 +672,7 @@ async def _apex_verdict(
         except Exception:
             precedents = []
         # Fail-closed: if audit engine returned no verdict, default to VOID.
-        verdict = str(judged.get("verdict", proposed_verdict))
+        verdict = str(judged.get("verdict", "VOID"))
         # Amanah Handshake: sign the verdict so seal_vault can verify it.
         governance_token = _build_governance_token(session_id, verdict)
         merged = {
@@ -941,6 +948,7 @@ async def _vault_seal(
     session_id: str,
     summary: str,
     governance_token: str,
+    thermodynamic_statement: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Amanah Handshake: the vault only commits what the Judge actually signed.
@@ -969,6 +977,8 @@ async def _vault_seal(
             verdict=verified_verdict,
         )
         result = {"data": res, "status": verified_verdict}
+        if thermodynamic_statement is not None:
+            result["thermodynamic_statement"] = thermodynamic_statement
         result.update(
             envelope_builder.build_envelope(
                 stage="999_VAULT", session_id=session_id, verdict=verified_verdict, payload=res
@@ -1155,7 +1165,7 @@ async def _analyze(data: dict[str, Any], analysis_type: str = "structure") -> di
         return {"verdict": "VOID", "error": str(e), "analysis_type": analysis_type}
 
 
-# analyze = ToolHandle(_analyze)
+# # analyze = ToolHandle(_analyze)
 
 
 @mcp.tool(
@@ -1261,9 +1271,29 @@ async def _check_vital(
 
 check_vital = ToolHandle(_check_vital)
 
+
+@mcp.tool(name="critique_thought", description="[Lane: Ω Omega] [Floors: F4, F7, F8] 7-organ alignment & bias critique.")
+async def _critique_thought(session_id: str, query: str) -> Dict[str, Any]:
+    return _envelope(stage="666_CRITIQUE", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
+
+critique_thought = ToolHandle(_critique_thought)
+
+@mcp.tool(name="inspect_file", description="[Lane: Δ Delta] [Floors: F1, F4, F11] Filesystem inspection (read-only).")
+async def _inspect_file(session_id: str, path: str) -> Dict[str, Any]:
+    return _envelope(stage="111_INSPECT", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
+
+inspect_file = ToolHandle(_inspect_file)
+
+@mcp.tool(name="check_vital", description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.")
+async def _check_vital(session_id: str) -> Dict[str, Any]:
+    return _envelope(stage="555_HEALTH", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
+
+check_vital = ToolHandle(_check_vital)
+
 # ═══════════════════════════════════════════════════════
 # RESOURCES, TEMPLATES, PROMPTS (Full-context orchestration + Inspector completeness)
 # ═══════════════════════════════════════════════════════
+
 
 
 @mcp.resource(

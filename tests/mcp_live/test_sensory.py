@@ -1,5 +1,5 @@
 import pytest
-from aaa_mcp.server import _search, _fetch, _analyze, _system_audit
+from aaa_mcp.server import _analyze, audit_rules, fetch_content, search_reality
 from aclip_cai.tools.system_monitor import get_system_health
 from aclip_cai.tools.fs_inspector import fs_inspect
 from tests.mcp_live.utils.validators import validate_constitutionally
@@ -7,14 +7,14 @@ from tests.mcp_live.utils.validators import validate_constitutionally
 
 @pytest.mark.asyncio
 async def test_search(kernel, session_id):
-    result = await _search(query="constitutional AI governance", intent="research")
+    result = await search_reality.fn(query="constitutional AI governance", intent="research")
     validate_constitutionally("search", result, kernel)
     assert result is not None
 
 
 @pytest.mark.asyncio
 async def test_fetch(kernel, session_id):
-    result = await _fetch(id="https://modelcontextprotocol.io", max_chars=500)
+    result = await fetch_content.fn(id="https://modelcontextprotocol.io", max_chars=500)
     validate_constitutionally("fetch", result, kernel)
     assert result is not None
 
@@ -31,7 +31,7 @@ async def test_analyze(kernel, session_id):
 
 @pytest.mark.asyncio
 async def test_system_audit(kernel, session_id):
-    result = await _system_audit(audit_scope="quick", verify_floors=True)
+    result = await audit_rules.fn(audit_scope="quick", verify_floors=True)
     validate_constitutionally("system_audit", result, kernel)
     assert result is not None
 

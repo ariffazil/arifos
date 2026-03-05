@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 
 from core.organs import agi, apex, asi, init, vault
 from core.organs._0_init import QueryType
+from core.shared.floors import update_floor_status
 from core.shared.formatter import OutputFormatter, OutputMode
 from core.shared.mottos import get_motto_for_stage
 
@@ -156,6 +157,17 @@ async def forge(
         verdict = "VOID" if token.is_void else "888_HOLD"
         elapsed = (time.perf_counter() - start_time) * 1000
         remediation = "Airlock blocked request. Verify actor/session authority (F11) and clean prompt input (F12)."
+        
+        # Persist early violations
+        current_violations = list(getattr(token, "floors_failed", []))
+        if hasattr(token, "violations"):
+            current_violations = list(set(current_violations + token.violations))
+        
+        if verdict == "888_HOLD" and "F13" not in current_violations:
+             # HOLD implies sovereign intervention or F11
+             pass
+        update_floor_status(current_violations)
+
         return ForgeResult(
             verdict=verdict,
             session_id=token.session_id,
@@ -439,6 +451,17 @@ async def forge(
             f"999: {getattr(seal_out, 'motto', 'DITEMPA, BUKAN DIBERI') if seal_out else 'DITEMPA, BUKAN DIBERI'}",
         ]
     )
+
+    # Persist the final floor evaluation for the constitution_lint (E-Populate)
+    final_violations = list(floors_violated)
+    if isinstance(apex_dict, dict):
+        # Merge all possible failure lists
+        for key in ("floors_failed", "violations"):
+            if key in apex_dict and apex_dict[key]:
+                final_violations.extend(apex_dict[key])
+    
+    final_violations = list(set(final_violations))
+    update_floor_status(final_violations)
 
     return ForgeResult(
         verdict=verdict,

@@ -1,130 +1,86 @@
-# L4_TOOLS — MCP Tool Layer (v2026.02.22-FORGE)
+# L4_TOOLS — MCP Tool Layer (v2026.03.04-ARIF)
 
-**Level 4 | 100% Coverage | 18 Tools (13 Canonical + 5 Container)**
+**Level 4 | 100% Coverage | 13 Canonical Tools grouped into 4 ARIF Bands**
 
-> *"7-Organ Sovereign Stack public contract + utility and container tools, exposed via MCP with constitutional floor enforcement."*
+> *"7-Organ Sovereign Stack public contract + utility tools, bound by cognitive bands and constitutional floors."*
 
 ---
 
-## 🚀 Quick Start
+## 🚀 The 4 ARIF Tool Bands
 
+ARIF bands represent cognitive boundaries. Tools are grouped by their effect on the system state and their floor requirements.
+
+### Band A – Anchor (Reality & Ignition)
+*Ground system, authority, entropy budget, and health.*
+- **`anchor_session`**: [Ψ Init] session ignition + defense scan.
+- **`check_vital`**: [Internal] runtime health telemetry (CPU/MEM/IO).
+- **Primary Floors**: **F4, F11, F12, F13**.
+
+### Band R – Reflect (Mind & Heart)
+*Think, read, feel; gather evidence, model stakeholders, scan for bias.*
+- **`reason_mind`**: [Δ Mind] AGI logic & hypothesis testing.
+- **`search_reality`**: [External] web search grounding (Jina Reader).
+- **`fetch_content`**: [External] evidence content retrieval.
+- **`recall_memory`**: [PHOENIX] associative memory traces.
+- **`simulate_heart`**: [Ω Heart] stakeholder impact evaluation.
+- **`critique_thought`**: [Ω Heart] constitutional critique (7-model).
+- **Primary Floors**: **F2, F4, F5, F6, F7, F8**.
+
+### Band I – Integrate (Atlas & Law)
+*Build context atlas (code/docs) and map constraints/legal markers.*
+- **`inspect_file`**: [Internal] read-only filesystem inspection.
+- **`audit_rules`**: [Internal] constitutional system verification.
+- **Primary Floors**: **F1, F2, F7, F8, F10, F11**.
+
+### Band F – Forge (Action, Verdict & Vault)
+*Synthesize solutions, render verdicts, and seal to immutable ledger.*
+- **`eureka_forge`**: [Ψ Soul] sandboxed action execution.
+- **`apex_judge`**: [Ψ Soul] sovereign constitutional judgment (W₃).
+- **`seal_vault`**: [VAULT] immutable audit record with Phoenix-72.
+- **Primary Floors**: **F1-F3, F5-F9, F11-F13**.
+
+---
+
+## 📋 The 13 Canonical MCP Tools (ARIF Lattice)
+
+| Tool | Band | Stage | Trinity | Floors | Description |
+|---|:---:|---|---|---|---|
+| `anchor_session` | **A** | 000 | Ψ Init | F11, F12 | Session ignition & defense. |
+| `check_vital` | **A** | 000 | Ω Heart | F4, F5, F7 | Runtime health telemetry. |
+| `reason_mind` | **R** | 222 | Δ Mind | F2, F4, F7 | AGI cognition & logic. |
+| `search_reality` | **R** | 333 | Δ Mind | F2, F7 | Web grounding (External). |
+| `fetch_content` | **R** | 333 | Δ Mind | F2, F12 | Content retrieval (External). |
+| `recall_memory` | **R** | 444 | Ω Heart | F4, F7, F13 | Memory traces (Internal). |
+| `simulate_heart` | **R** | 555 | Ω Heart | F5, F6 | Stakeholder impacts. |
+| `critique_thought`| **R** | 666 | Ω Heart | F4, F7, F8 | Bias & alignment scan. |
+| `inspect_file` | **I** | 333 | Δ Mind | F1, F4, F11 | FS Atlas Discovery. |
+| `audit_rules` | **I** | 888 | Δ Mind | F2, F3, F10 | Law & Rule auditing. |
+| `eureka_forge` | **F** | 777 | Ψ Soul | F5, F8, F12 | Execution of solutions. |
+| `apex_judge` | **F** | 888 | Ψ Soul | F1-F13 | Final Verdict (W₃). |
+| `seal_vault` | **F** | 999 | Ψ Soul | F1, F3, F10 | Vault Seal & Proof. |
+
+---
+
+## 🛡️ Band Contracts
+- **A Band must run first** in any metabolic loop to establish authority.
+- **R Band tools may READ** but never mutate external systems.
+- **I Band tools map context** and verify constraints without side effects.
+- **F Band tools execute actions and seal records**, gated by F1/F3/F13.
+
+---
+
+## 🚀 Deployment Mode
 ```powershell
-# stdio (Claude, Cursor, Kimi)
-python -m aaa_mcp
-
-# SSE (VPS/Remote)
-python -m aaa_mcp sse
-
-# HTTP (Streamable HTTP)
-python -m aaa_mcp http
+# Default: stdio (ARIF hardened)
+python -m arifos_aaa_mcp stdio
 ```
-
----
-
-## The 13 Canonical MCP Tools
-
-| # | Tool | Stage | Trinity | Floors | Description |
-|---|------|-------|---------|--------|-------------|
-| 1 | `anchor_session` | 000 | Ψ Init | F11, F12, F13 | Session ignition + defense scan |
-| 2 | `reason_mind` | 111-444 | Δ Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
-| 3 | `recall_memory` | 555 | PHOENIX | F4, F7, F8 | Memory continuity retrieval |
-| 4 | `simulate_heart` | 555-666 | Ω Heart | F5, F6, F9 | Stakeholder and ethics alignment |
-| 5 | `critique_thought` | 666 | Ω Heart | F4, F7, F8 | Constitutional critique |
-| 6 | `eureka_forge` | 777 | Ψ Soul | F1, F11, F12 | Sandboxed forge execution |
-| 7 | `apex_judge` | 888 | Ψ Soul | F1-F13 | Sovereign constitutional judgment |
-| 8 | `seal_vault` | 999 | VAULT | F1, F3, F10 | Immutable audit record |
-| 9 | `search_reality` | utility | External | F2, F7 | Web search grounding |
-| 10 | `fetch_content` | utility | External | F2, F7 | Evidence content retrieval |
-| 11 | `inspect_file` | utility | Internal | F1, F4, F11 | Filesystem inspection |
-| 12 | `audit_rules` | utility | Internal | F2, F3, F10 | Constitutional system verification |
-| 13 | `check_vital` | utility | Internal | F4, F5, F7 | Runtime health telemetry |
-
-Alias compatibility:
-- `eureka_forge` -> `eureka_forge`
-- `apex_judge` -> `apex_judge`
-
-## The 5 Container Management Tools
-
-| Tool | Floors | Description |
-|------|--------|-------------|
-| `container_list` | F11, F2 | List sovereign stack containers (cached) |
-| `container_restart` | F11, F1, F5 | Restart containers with 888_HOLD protection |
-| `container_logs` | F11, F2 | Get container logs (qdrant, openclaw, agentzero) |
-| `sovereign_health` | F2, F7 | Full health check of sovereign stack |
-| `container_exec` | F11, F12 | Execute commands with F12 injection defense |
-
-**Performance:** All container operations cached (5s TTL) for <1ms response times.
-
-**Protocol:** MCP 2025-11-25 (Streamable HTTP, SSE, stdio)  
-**FastMCP:** 2.14+  
-**Auth:** OAuth 2.1
-
----
-
-## Internal Pipeline Flow
-
-```
-000_INIT → 222_REASON → 333_INTEGRATE → 444_RESPOND → 555_VALIDATE → 666_ALIGN → 777_FORGE → 888_AUDIT → 999_SEAL
-  F11/F12      F2/F4/F8       F7/F10         F4/F6         F5/F6/F1       F9         F2/F4/F7      F3/F11/F13      F1/F3
-```
-
-The 11-stage sequence above is internalized behind the 7-organ public API to prevent abstraction leaks.
 
 **Verdicts:** `SEAL` | `VOID` | `PARTIAL` | `SABAR` | `888_HOLD`
 
 ---
 
-## Client Configuration
-
-See [`mcp-configs/`](./mcp-configs/) for copy-paste configs:
-
-| Platform | Config |
-|----------|--------|
-| Claude Desktop | `mcp-configs/claude/mcp.json` |
-| Kimi | `mcp-configs/kimi/mcp.json` |
-| Codex | `mcp-configs/codex/mcp.json` |
-| Antigravity | `mcp-configs/antigravity/mcp_config.json` |
-
-### Claude Desktop Example
-```json
-{
-  "mcpServers": {
-    "aaa-mcp": {
-      "command": "python",
-      "args": ["-m", "aaa_mcp"],
-      "env": {"ARIFOS_MODE": "PROD"}
-    }
-  }
-}
-```
-
----
-
-## Implementation
-
-| Component | Location | Status |
-|-----------|----------|--------|
-| MCP Server | [`arifos_aaa_mcp/server.py`](../../arifos_aaa_mcp/server.py) | ✅ 13 canonical tools operational |
-| Constants | [`aaa_mcp/config/constants.py`](../../aaa_mcp/config/constants.py) | ✅ Centralized thresholds |
-| Container Tools | [`aaa_mcp/integrations/`](../../aaa_mcp/integrations/) | ✅ 5 tools + caching |
-| 7-Organs | [`core/organs/`](../../core/organs/) | ✅ Kernel logic |
-| Floors | [`core/shared/floors.py`](../../core/shared/floors.py) | ✅ 13 floors enforced |
-| Governance Kernel | [`core/governance_kernel.py`](../../core/governance_kernel.py) | ✅ Unified Ψ state |
-| Telemetry | [`core/telemetry.py`](../../core/telemetry.py) | ✅ 30-day adaptation |
-
-## Recent Improvements (v2026.02.22)
-
-- ✅ **Caching:** Config loading 13,725x faster with LRU cache
-- ✅ **Caching:** Container listing 16,022x faster with 5s TTL
-- ✅ **Constants:** Centralized thresholds in `config/constants.py`
-- ✅ **Error Handling:** Specific exceptions (FileNotFoundError, yaml.YAMLError)
-- ✅ **Surface:** canonical 13-tool public MCP surface + alias compatibility
-- ✅ **Compatibility:** Legacy 9-subroutine flow internalized behind organ boundaries
-
----
-
-**Version:** v2026.02.22-FORGE  
-**Last Updated:** 2026-02-22  
-**Protocol:** MCP 2025-11-25  
-**Performance:** <1ms cached responses  
+**Version:** 60.1-FORGE-ARIF  
+**Reality Index:** 0.99  
+**Entropy:** ΔS = -0.60  
 **Creed:** DITEMPA BUKAN DIBERI
+

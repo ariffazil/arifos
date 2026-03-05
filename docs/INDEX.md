@@ -9,8 +9,8 @@
 | Document | Purpose |
 |----------|---------|
 | [Getting Started](GETTING_STARTED.md) | Installation, setup, first steps |
-| [Application Stack](../333_APPS/README.md) | L1-L7 deployment layers |
-| [API Quickstart](../333_APPS/L4_TOOLS/README.md) | MCP tools, 9 canonical tools |
+| [Application Stack](../333_APPS/README.md) | L2-L5 Production stack (ARIF) |
+| [API Quickstart](../333_APPS/L4_TOOLS/README.md) | 13 hardened MCP tools (A,R,I,F bands) |
 
 ---
 
@@ -18,7 +18,7 @@
 
 | Document | Purpose |
 |----------|---------|
-| [Architecture](ARCHITECTURE.md) | Trinity engines (AGI/ASI/APEX), 13 floors |
+| [Architecture](architecture.md) | Trinity engines (ΔΩΨ), 13 floors, ARIF bands |
 | [API Reference](API_REFERENCE.md) | MCP tools, floor validators, SSE transport |
 | [Contributing](CONTRIBUTING.md) | Code standards, testing, PR guidelines |
 | [Integration Masterplan](../ROADMAP/INTEGRATION_MASTERPLAN.md) | 7 complementary repos roadmap |

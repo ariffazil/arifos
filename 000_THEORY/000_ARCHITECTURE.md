@@ -35,13 +35,16 @@ graph TD
     User -->|Input| API[FastAPI Gateway]
     API -->|aCLIP| ROUTER[ATLAS Router]
     
-    subgraph "Constitutional Kernel"
-        ROUTER -->|Route| TRINITY[Trinity Engines]
-        TRINITY -->|Validate| FLOORS[13 Floor Validators]
-        FLOORS -->|Process| PIPELINE[11-Stage Pipeline]
+    subgraph "Constitutional Kernel [ARIF Bands]"
+        ROUTER -->|A-Band| ANCHOR[000-Anchor]
+        ANCHOR -->|R-Band| REASON[222-Reason]
+        REASON -->|R-Band| RESPOND[444-Respond]
+        RESPOND -->|I-Band| INTEGRATE[333-Integrate]
+        INTEGRATE -->|F-Band| AUDIT[888-Audit]
+        AUDIT -->|F-Band| FORGE[777-Forge]
     end
     
-    PIPELINE -->|Verdict| VAULT[Immutable Ledger]
+    FORGE -->|Verdict| VAULT[999-Seal Immutable Ledger]
     VAULT -->|Output| User
 ```
 
@@ -49,23 +52,19 @@ graph TD
 
 ## 3. THE PROCESSING PIPELINE (000-999)
 
-Instead of a simple "Input -> Output" flow, arifOS uses an **11-stage metabolic loop** to ensure safety and quality.
+### 3.1 The 9-Step Metabolic loop (ARIF-Aligned)
 
-### 3.1 The 11-Stage Metabolic Loop
-
-| Stage | Name | Engine | Function | Key Check |
-|-------|------|--------|----------|-----------|
-| **000** | **INIT** | Gate | Initialize session, verify authority. | F11 Auth |
-| **111** | **SENSE** | AGI | Parse input, detect injection attacks. | F12 Injection |
-| **222** | **THINK** | AGI | Generate reasoning, fact-check. | F2 Truth |
-| **333** | **ATLAS** | AGI | Check for contradictions and humility. | F7 Humility |
-| **444** | **ALIGN** | APEX | Prepare for multi-model consensus. | - |
-| **555** | **EMPATHY** | ASI | Check stakeholder impact and safety. | F6 Empathy |
-| **666** | **BRIDGE** | ASI | Synthesize logic and safety. | F5 Safety |
-| **777** | **EUREKA** | APEX | Detect novel insights. | F13 Curiosity |
-| **888** | **JUDGE** | APEX | Final constitutional verdict. | F3 Consensus |
-| **889** | **PROOF** | APEX | Generate cryptographic receipt. | - |
-| **999** | **VAULT** | Seal | Commit to immutable ledger. | F1 Amanah |
+| Stage | Name | Band | Engine | Function | Key Verbs |
+|-------|------|:---:|--------|----------|-----------|
+| **000** | **anchor** | **A** | Gate | Initialize session, verify authority, injection scan. | anchor, vital |
+| **222** | **reason** | **R** | AGI | Logical inference, hypotheses, truth scoring. | reason, reality |
+| **444** | **respond** | **R** | ASI | Evidence-based draft with empathy & clarity. | respond, sync |
+| **333** | **integrate** | **I** | AGI | Context mapping, ATLAS auditing, paradox check. | integrate, atlas |
+| **555** | **validate** | **R** | ASI | Stakeholder impact, reversibility, safety audit. | validate, heart |
+| **666** | **align** | **R** | ASI | Ethics & Anti-Hantu scan, command alignment. | align, bridge |
+| **777** | **forge** | **F** | APEX | Breakthrough detection, F8 Genius synthesis. | forge, eureka |
+| **888** | **audit** | **F** | APEX | Final F1-F13 verdict, 8-direction compass. | audit, judge |
+| **999** | **seal** | **F** | Seal | Vault commitment, Merkle proof, 72h cooling. | seal, vault |
 
 ### 3.2 The 7-Step Ignition (Inside Stage 000)
 
@@ -88,21 +87,21 @@ Instead of a simple "Input -> Output" flow, arifOS uses an **11-stage metabolic 
 
 The MCP runtime exposes 13 tools. The 000-999 loop is represented by the governance tools, while utility tools support grounding, inspection, and health.
 
-| Tool ID | Stage Mapping | Role |
-|---|---|---|
-| `anchor_session` | 000_INIT | Session ignition and authority gate |
-| `reason_mind` | 111/222/333/444 | AGI reasoning and synthesis chain |
-| `recall_memory` | 555_RECALL | Memory continuity retrieval |
-| `simulate_heart` | 555/666 | Empathy and alignment simulation |
-| `critique_thought` | 666_ALIGN | Constitutional critique pass |
-| `eureka_forge` | 777_EUREKA_FORGE | Constitutional forge stage |
-| `apex_judge` | 888_APEX_JUDGE | Final constitutional verdict |
-| `seal_vault` | 999_VAULT | Seal and ledger commit |
-| `search_reality` | Utility | External grounding search |
-| `fetch_content` | Utility | Retrieval by source identifier |
-| `inspect_file` | Utility | File and directory inspection |
-| `audit_rules` | Utility | Governance/rules audit |
-| `check_vital` | Utility | Runtime health status |
+| Tool ID | ARIF Band | Role |
+|---|:---:|---|
+| `anchor_session` | **A** | Session ignition and authority gate |
+| `check_vital` | **A** | Runtime health & engine telemetry |
+| `reason_mind` | **R** | AGI reasoning and logic chain |
+| `search_reality` | **R** | External grounding & evidence gathering |
+| `fetch_content` | **R** | Targeted retrieval by source ID |
+| `recall_memory` | **R** | Session continuity and context recall |
+| `simulate_heart` | **R** | Empathy & stakeholder impact simulation |
+| `critique_thought` | **R** | Constitutional alignment pass |
+| `inspect_file` | **I** | Deep file/repository metadata inspection |
+| `audit_rules` | **I** | Real-time governance policy audit |
+| `eureka_forge` | **F** | Logic synthesis & breakthrough detection |
+| `apex_judge` | **F** | Final 13-Floor constitutional verdict |
+| `seal_vault` | **F** | Immutable commit & Merkle sealing |
 
 Backward compatibility policy:
 - `eureka_forge` remains a supported alias for `eureka_forge`.

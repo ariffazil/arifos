@@ -3,13 +3,13 @@
 
 ![arifOS Banner](docs/forged_page_1.png)
 
-# arifOS — Constitutional Intelligence Kernel
+# arifOS — Constitutional Intelligence Kernel (ARIF)
 **The system that knows because it admits what it cannot know.**  
-*Ditempa Bukan Diberi* — Forged, Not Given
+*Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 
 **What it is:** A constitutional decision kernel that governs tool execution for LLMs via MCP.  
 **What it isn't:** Not a model, not an agent, not a chatbot.  
-**What it guarantees:** No irreversible action without explicit human approval + cryptographic audit trail.
+**What it guarantees:** A hardened L2–L5 stack with no irreversible action without explicit human approval.
 
 [![Version](https://img.shields.io/badge/version-2026.3.1-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
@@ -67,6 +67,7 @@ flowchart LR
 | 🛡️ **Defense** | [`SECURITY.md`](SECURITY.md) | **The Firewall:** Injection handling, Auth models, and Threat vectors. |
 | 🧰 **Tools** | [`MCP_TOOLS.md`](MCP_TOOLS.md) | **The Surface:** The 13 canonical tools bridging the LLM to the Kernel. |
 | 🚀 **Deploy** | [`DEPLOYMENT.md`](docs/60_REFERENCE/DEPLOYMENT.md) | **The Vanguard:** VPS setups, Docker, and Streamable HTTP scaling. |
+| 🗺️ **Deploy Map** | [`DEPLOYMENT_MAP.md`](DEPLOYMENT_MAP.md) | **The Traffic Control:** Which workflow deploys which public surface. |
 
 ---
 
@@ -114,16 +115,16 @@ flowchart TD
     style L0 fill:#0f172a,stroke:#22c55e,color:#ffffff,stroke-width:2px
 ```
 
-| Level | Name | Scope | Status | Operational Role in the arifOS Stack |
+| Level | Name | Scope | ARIF Band | Operational Role in the arifOS Stack |
 |:---:|:---|:---|:---:|:---|
-| **L7** | **AGI / Ecosystem** | Civilisation-Scale | 🔬 ROADMAP | *[Research]* The frontier. Permissionless sovereignty, recursive self-amendment, and self-healing. |
-| **L6** | **Institution** | Organisational | 🔧 EXPERIMENTAL | *[Stub]* Trinity consensus frameworks for governing entire corporations via AI. |
-| **L5** | **Agents** | Federation | ✅ ACTIVE | *[Active]* Multi-agent coordination. The Hypervisor managing the "Quartet" (Architect, Engineer, Auditor, Validator). |
-| **L4** | **Tools (MCP)** | Production | ✅ ACTIVE | *[Active]* The Model Context Protocol (MCP) exterior. 13 canonical tools bridging the AI to the Kernel safely. |
-| **L3** | **Workflow** | Production | ✅ ACTIVE | *[Active]* The orchestrated Sequences (`000 -> 999` stage constitutional metabolic flow). |
-| **L2** | **Skills** | Production | ✅ ACTIVE | *[Active]* Sensory systems (9 A-CLIP primitives) measuring filesystem, network telemetry, and environment. |
-| **L1** | **Prompts** | Production | ✅ ACTIVE | *[Active]* The zero-context user entry layer where intents are caught, classified, and parsed. |
-| **L0** | **KERNEL** | **SEALED** | ✅ ACTIVE | *[Active]* The Immutable Core. Pure decision logic. Transport-agnostic. Holds the 13 Floors, 7 Organs, and `VAULT999` ledger. |
+| **L7** | **AGI / Ecosystem** | Civilisation-Scale | — | *[Research]* Permissionless sovereignty and self-healing. |
+| **L6** | **Institution** | Organisational | — | *[Experimental]* Trinity consensus for governing societies. |
+| **L5** | **Agents** | Federation | **A R I F** | *[Active]* 5-role constitutional hypervisor enforcing no-bypass gates. |
+| **L4** | **Tools (MCP)** | Production | **A R I F** | *[Active]* 13 canonical MCP tools grouped into 4 ARIF cognitive bands. |
+| **L3** | **Workflow** | Production | **A R I F** | *[Active]* 9 metabolic workflows assembling ARIF verbs into loops. |
+| **L2** | **Skills** | Production | **A R I F** | *[Active]* 9 canonical verbs (A-CLIP) for behavioural primitives. |
+| **L1** | **Prompts** | Production | — | *[Active]* Intent classification and reality centering. |
+| **L0** | **KERNEL** | **SEALED** | — | *[Active]* The Immutable Core holding the 13 Floors and VAULT999. |
 
 ---
 
@@ -141,16 +142,17 @@ Every request flows through this strict, pipeline (the "metabolic loop"):
 
 ```mermaid
 flowchart LR
-    I[000 INIT] --> M[111-333 AGI Mind]
-    M --> P[444 PHOENIX Memory]
-    P --> H[555-666 ASI Heart]
-    H --> F[777 FORGE]
-    F --> A[888 APEX]
-    A -->|SEAL| V[999 VAULT]
-    A -->|PARTIAL| V
-    A -->|SABAR or VOID| R[Refine or Halt]
-    A -->|Irreversible action| HOLD[888 HOLD Human approval]
-    HOLD --> V
+    A[A - ANCHOR] -- ignition --> R[R - REFLECT]
+    R -- reasoning --> I[I - INTEGRATE]
+    I -- context --> F[F - FORGE]
+    F -- execute --> V[999 VAULT]
+    
+    subgraph 000-999 Loop
+        A --> INIT[000]
+        R --> THINK[333]
+        I --> MAP[555]
+        F --> SEAL[999]
+    end
 ```
 1. **[000] INIT (Airlock)**: Ignites the session and parses for prompt injections.
 2. **[111-333] AGI (Mind)**: Generates parallel hypotheses and forces factual grounding.
@@ -198,7 +200,26 @@ flowchart LR
 
 ---
 
-## 🔌 The MCP Protocol & 13 Canonical Tools (L4)
+### 1. ARIF Bands at L4 (Tools)
+L4_TOOLS exposes the Trinity kernel as 13 MCP tools, hardened into 4 bands. Clients only see tools; arifOS enforces bands and Floors behind the scenes.
+
+| Band | Meaning | Tools (examples) | Primary Floors |
+|:---:|---|---|---|
+| **A** | **Anchor** | anchor_session, check_vital | F4, F11–F13 |
+| **R** | **Reflect** | reason_mind, search_reality, recall_memory | F2, F4–F8 |
+| **I** | **Integrate** | inspect_file, audit_rules | F1, F7, F10 |
+| **F** | **Forge** | eureka_forge, apex_judge, seal_vault | F1, F8, F9, F13 |
+
+### 2. The 5-Role Hypervisor (L5 Agents)
+The constitutional parliament routes ARIF bands to specific roles:
+- **Orchestrator**: Band A + Flow Routing.
+- **Architect/Auditor**: Band R (Reflection) + Band I (Context Mapping).
+- **Engineer**: Band R + Band F (Implementation - Non-destructive).
+- **Validator**: Band F Apex (Final Judgment & Sealing).
+
+---
+
+## 🔌 The MCP Protocol & ARIF Tools (L4)
 
 arifOS acts as an **MCP Server** (`arifos_aaa_mcp`). Rather than trusting an LLM, your IDE or Desktop client points its tool-calls at arifOS via the Model Context Protocol.
 
@@ -255,6 +276,15 @@ export BRAVE_API_KEY="your-brave-key"      # https://brave.com/search/api/
 - **F2 Truth**: All external content must have evidence URLs
 - **F4 Clarity**: Jina Reader extracts clean Markdown (reduces entropy vs HTML)
 - **F12 Defense**: External content wrapped in `<untrusted_external_data>` envelope with taint lineage
+
+---
+
+## 🚀 Developer Mental Model
+When you call arifOS from an MCP client (Claude Desktop, Cursor, etc.):
+1. **L1 Prompts**: Your intent is captured and classified.
+2. **L2-L3 (Skills/Workflows)**: Decision on *what cognitive steps* to run.
+3. **L4 (ARIF Tools)**: Actual MCP calls (search, fetch, forge, judge, seal).
+4. **L5 Agents**: Enforce roles, preflight, and `888_HOLD` before any irreversible action.
 
 ---
 

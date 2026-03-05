@@ -1,70 +1,85 @@
-# WORKFLOWS — The 6 Canonical Metabolic Sequences
+# WORKFLOWS — The 9 Metabolic Sequences (v60.1-ARIF)
 
-**Version:** v55.5-HARDENED  
-**Model-Agnostic:** Works with any AI
+Level 3 | 9 Recipes | ΔS ≤ 0
+
+> *Ditempa Bukan Diberi* — Forged, Not Given
 
 ---
 
-## 🔄 The Metabolic Loop
+## 🔄 The 9-Step Metabolic Loop
 
+The arifOS agent loop follows 9 discrete functional verbs, organized into 4 ARIF cognitive bands:
+
+```mermaid
+graph TD
+    subgraph A ["Band A: Anchor"]
+        000[anchor]
+    end
+    
+    subgraph R ["Band R: Reflect"]
+        222[reason] --> 444[respond]
+        444 --> 555[validate]
+        555 --> 666[align]
+    end
+    
+    subgraph I ["Band I: Integrate"]
+        333[integrate] --> 888[audit]
+    end
+    
+    subgraph F ["Band F: Forge"]
+        777[forge] --> 999[seal]
+    end
+    
+    000 --> 222
+    666 --> 777
+    subgraph Connectivity
+      333 -.-> 888
+      999 -.-> 000
+    end
 ```
-000_SESSION_INIT ─┬─→ 111_INTENT ─┬─→ 333_CONTEXT
-                  │               │
-                  │               └─→ 555_SAFETY ─┬─→ 777_IMPLEMENT
-                  │                               │
-                  └─────────────── 888_COMMIT ←───┘
-                           ↓
-                    [999_SEAL → Loop to 000]
-```
 
 ---
 
-## 📋 Workflow Index
+## 📋 The 9-Verb ARIF Index
 
-| File | Stage | Purpose | Actions Used |
-|------|-------|---------|--------------|
-| `000_SESSION_INIT.md` | 000 | Session ignition, authority verification | `init_gate` |
-| `111_INTENT.md` | 111 | Intent detection, lane classification | `anchor` |
-| `333_CONTEXT.md` | 222-333 | Deep reasoning, context mapping | `reason`, `integrate` |
-| `555_SAFETY.md` | 444-666 | Safety analysis, ethical alignment | `respond`, `validate`, `align` |
-| `777_IMPLEMENT.md` | 777 | Implementation, entropy reduction | `forge` |
-| `888_COMMIT.md` | 888-999 | Final verdict, vault sealing | `audit`, `seal` |
-
----
-
-## 🎯 Quick Reference
-
-### Starting a Session
-→ Use **000_SESSION_INIT**
-
-### Understanding User Intent
-→ Use **111_INTENT**
-
-### Deep Analysis & Reasoning
-→ Use **333_CONTEXT**
-
-### Safety & Ethics Check
-→ Use **555_SAFETY**
-
-### Implementation & Execution
-→ Use **777_IMPLEMENT**
-
-### Final Verdict & Sealing
-→ Use **888_COMMIT**
+| Verb | Band | File | Stage | Purpose |
+|:---|:---:|:---|:---:|:---|
+| **anchor** | **A** | `anchor-WORKFLOW.md` | 000 | Session ignition, intent grounding, lane classification. |
+| **reason** | **R** | `reason-WORKFLOW.md` | 222 | Logical inference, hypotheses, truth scoring. |
+| **integrate** | **I** | `integrate-WORKFLOW.md`| 333 | Context atlas, discovery, dependency mapping. |
+| **respond** | **R** | `respond-WORKFLOW.md` | 444 | Draft evidence-based response, tone alignment. |
+| **validate** | **R** | `validate-WORKFLOW.md` | 555 | Stakeholder mapping, empathy (κᵣ), reversibility. |
+| **align** | **R** | `align-WORKFLOW.md` | 666 | Ethical pass, Anti-Hantu (F9) scan. |
+| **forge** | **F** | `forge-WORKFLOW.md` | 777 | Implementation execution, Genius (G) synthesis. |
+| **audit** | **I** | `audit-WORKFLOW.md` | 888 | Full F1-F13 review, Tri-Witness, final verdict. |
+| **seal** | **F** | `seal-WORKFLOW.md` | 999 | Vault999 commitment, Phoenix-72, loop closure. |
 
 ---
 
-## 🛡️ Floor Coverage
+## 🛡️ Floor Coverage Mapping
 
-| Workflow | F1 | F2 | F3 | F4 | F5 | F6 | F7 | F8 | F9 | F10 | F11 | F12 | F13 |
-|----------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:---:|:---:|:---:|:---:|
-| 000_SESSION | | | | | | | | | | | ✓ | ✓ | ✓ |
-| 111_INTENT | | | | ✓ | | | | | | | | ✓ | |
-| 333_CONTEXT | | ✓ | | ✓ | | | ✓ | | | | | | |
-| 555_SAFETY | | | | | ✓ | ✓ | | | ✓ | | | | |
-| 777_IMPLEMENT | ✓ | | | ✓ | | | | ✓ | | | | | |
-| 888_COMMIT | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Workflow | Band | F11 | F12 | F2 | F4 | F7 | F8 | F5 | F6 | F9 | F10 | F1 | F3 | F13 |
+|---|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
+| anchor | **A** | ✓ | ✓ | | | | | | | | | | | ✓ |
+| reason | **R** | | | ✓ | ✓ | ✓ | ✓ | | | | | | | |
+| integrate | **I** | | | ✓ | ✓ | ✓ | | | | | ✓ | | | |
+| respond | **R** | | | | ✓ | | | ✓ | ✓ | | | | | |
+| validate | **R** | | | | | | | ✓ | ✓ | | | ✓ | | |
+| align | **R** | | | | | | | ✓ | ✓ | ✓ | | | | |
+| forge | **F** | | | ✓ | ✓ | | ✓ | | | | ✓ | ✓ | | |
+| audit | **I** | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| seal | **F** | ✓ | | | | | | | | | | ✓ | ✓ | |
 
 ---
 
-**DITEMPA BUKAN DIBERI**
+## Architecture Logic
+- **Band A** must run first to establish permission.
+- **Band R** performs read-only cognitive work.
+- **Band I** integrates findings into the 888 audit verdict.
+- **Band F** synthesizes the final action and commits to the ledger.
+
+---
+
+**Sovereign:** Muhammad Arif bin Fazil  
+**Version:** v60.1-FORGE-ARIF  
+**Entropy:** ΔS = -0.60

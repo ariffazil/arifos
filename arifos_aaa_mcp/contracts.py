@@ -25,8 +25,6 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "recall_memory": {
         "current_thought_vector": "str",
         "session_id": "str",
-        "depth": "int",
-        "domain": "str",
     },
     "simulate_heart": {"query": "str", "session_id": "str"},
     "critique_thought": {"plan": "dict", "session_id": "str"},

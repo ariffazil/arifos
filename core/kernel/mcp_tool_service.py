@@ -64,6 +64,18 @@ def _to_dict(value: Any) -> dict[str, Any]:
     return {}
 
 
+def _get_first_stage_result(
+    get_stage_result_fn: Callable[[str, str], dict[str, Any]],
+    session_id: str,
+    *stage_names: str,
+) -> dict[str, Any]:
+    for stage_name in stage_names:
+        result = get_stage_result_fn(session_id, stage_name)
+        if result:
+            return result
+    return {}
+
+
 async def anchor_tool(
     *,
     query: str,
@@ -166,8 +178,15 @@ async def respond_tool(
     run_stage_444_fn: Callable[..., Awaitable[dict[str, Any]]],
 ) -> dict[str, Any]:
     try:
-        agi_res = get_stage_result_fn(session_id, "think")
-        asi_res = get_stage_result_fn(session_id, "empathy")
+        agi_res = _get_first_stage_result(get_stage_result_fn, session_id, "think", "agi")
+        asi_res = _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "empathy",
+            "asi_empathize",
+            "stage_555",
+            "asi",
+        )
         stage_result = await run_stage_444_fn(session_id, agi_res, asi_res)
         return build_respond_output(
             session_id=session_id,
@@ -228,8 +247,15 @@ async def forge_tool(
     run_stage_777_fn: Callable[..., Awaitable[dict[str, Any]]],
 ) -> dict[str, Any]:
     try:
-        agi_res = get_stage_result_fn(session_id, "think")
-        asi_res = get_stage_result_fn(session_id, "empathy")
+        agi_res = _get_first_stage_result(get_stage_result_fn, session_id, "think", "agi")
+        asi_res = _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "empathy",
+            "asi_empathize",
+            "stage_555",
+            "asi",
+        )
         stage_result = await run_stage_777_fn(session_id, agi_res, asi_res)
         return build_forge_output(
             session_id=session_id,
@@ -250,9 +276,14 @@ async def audit_tool(
     run_stage_888_fn: Callable[..., Awaitable[dict[str, Any]]],
 ) -> dict[str, Any]:
     try:
-        agi_res = get_stage_result_fn(session_id, "agi") or get_stage_result_fn(session_id, "think")
-        asi_res = get_stage_result_fn(session_id, "asi") or get_stage_result_fn(
-            session_id, "empathy"
+        agi_res = _get_first_stage_result(get_stage_result_fn, session_id, "agi", "think")
+        asi_res = _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "asi",
+            "empathy",
+            "asi_empathize",
+            "stage_555",
         )
         if agi_res and asi_res:
             judge_out = await run_stage_888_fn(session_id, agi_res, asi_res)
@@ -277,12 +308,23 @@ async def seal_tool(
     run_stage_999_fn: Callable[..., Awaitable[Any]],
 ) -> dict[str, Any]:
     try:
-        judge_res = get_stage_result_fn(session_id, "judge") or get_stage_result_fn(
-            session_id, "audit"
+        judge_res = _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "judge",
+            "audit",
+            "stage_888",
+            "apex_verdict",
         )
-        agi_res = get_stage_result_fn(session_id, "think") or get_stage_result_fn(session_id, "agi")
-        asi_res = get_stage_result_fn(session_id, "empathy") or get_stage_result_fn(
-            session_id, "asi"
+        agi_res = _get_first_stage_result(get_stage_result_fn, session_id, "think", "agi")
+        asi_res = _get_first_stage_result(
+            get_stage_result_fn,
+            session_id,
+            "empathy",
+            "asi",
+            "asi_empathize",
+            "stage_555",
+            "stage_666",
         )
         if judge_res and agi_res and asi_res:
             receipt = await run_stage_999_fn(session_id, judge_res, agi_res, asi_res, summary)

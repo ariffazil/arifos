@@ -4,7 +4,13 @@ Commit to VAULT999 + Phoenix-72.
 """
 
 from core.organs import seal as core_seal
-from core.shared.physics import ConstitutionalTensor
+from core.shared.physics import (
+    ConstitutionalTensor,
+    GeniusDial,
+    Peace2,
+    TrinityTensor,
+    UncertaintyBand,
+)
 from ...core.kernel import kernel
 
 
@@ -27,13 +33,23 @@ async def seal(
     # 1. Run a final audit on the summary (observability)
     audit_res = kernel.audit(action=task_summary, context="FINAL_SEAL", severity="high")
     final_verdict = verdict if verdict is not None else audit_res.verdict.value
+    if final_verdict in {"HOLD", "HOLD_888"}:
+        final_verdict = "888_HOLD"
 
     # 2. Call the canonical core organ for cryptographic sealing
     # We pass placeholders for agi/asi as they are transient in this stateless call
     # but the core now handles the persistence.
     receipt = await core_seal(
         judge_output={"verdict": final_verdict, "W_3": 1.0, "genius_G": 0.9},
-        agi_tensor=ConstitutionalTensor(truth_score=1.0, dS=0.0, entropy=0.0),
+        agi_tensor=ConstitutionalTensor(
+            witness=TrinityTensor(H=1.0, A=1.0, S=1.0),
+            entropy_delta=0.0,
+            humility=UncertaintyBand(omega_0=0.04),
+            genius=GeniusDial(A=1.0, P=1.0, X=1.0, E=1.0),
+            peace=Peace2({}),
+            empathy=1.0,
+            truth_score=1.0,
+        ),
         asi_output={"peace_squared": 1.0},
         session_id=session_id,
         query=task_summary,

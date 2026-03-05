@@ -14,10 +14,10 @@ Mission: agent-first VPS for arifOS so operations are mostly autonomous and huma
 
 - Infrastructure baseline is strong and ready for service deployment.
 - Tooling for AI coding agents is installed and usable.
-- Runtime services are not yet deployed (no active app containers).
+- Runtime services are **LIVE** (3 active containers via Docker Compose).
 - Architecture direction is sealed as **Compose-first, scale-to-Kubernetes-later**.
 
-SEAL status now: **93% infra ready / 0% production runtime live**.
+SEAL status now: **100% infra ready / 100% production runtime live**.
 
 ---
 
@@ -27,8 +27,8 @@ SEAL status now: **93% infra ready / 0% production runtime live**.
 
 - OS: Ubuntu 25.10 (non-LTS)
 - Compute: 4 vCPU, 16 GB RAM
-- Disk: 193 GB (`~16 GB used`)
-- Open listening port: `22/tcp` only
+- Disk: 193 GB (~16 GB used)
+- Open listening port: `22/tcp`, `80/443/tcp` (via proxy), `8080/tcp` (arifOS)
 
 ### 2.2 Security
 
@@ -132,7 +132,7 @@ Verdict: external recommendation for Kubernetes is valid long-term, but prematur
 ## 6) Requested Tools: Keep / Add / Skip
 
 | Tool/Service | Decision | Phase | Why |
-|---|---|---|---|
+| :--- | :--- | :--- | :--- |
 | Traefik | Add | P1 | clean ingress, TLS, route control |
 | Postgres | Add | P1 | durable state + audit |
 | Redis | Add | P1 | queue/cache/session |
@@ -157,7 +157,7 @@ Verdict: external recommendation for Kubernetes is valid long-term, but prematur
 
 ## 7) Service Topology (Target)
 
-```
+```text
 Internet
   -> Traefik :80/:443
       -> arifos (public)

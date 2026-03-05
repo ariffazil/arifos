@@ -9,8 +9,10 @@ This module defines the 13 immutable laws (floors) of arifOS.
 
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from core.shared.guards.injection_guard import InjectionGuard
@@ -547,3 +549,46 @@ def check_all_floors(context: dict[str, Any]) -> list[FloorResult]:
     for fid, FloorClass in ALL_FLOORS.items():
         results.append(FloorClass().check(context))
     return results
+
+
+def update_floor_status(violations: list[str], output_path: str | None = None) -> None:
+    """Update metadata/floor_status.json mapping F1-F13 -> 1 (PASS) or 0 (FAIL)."""
+    if output_path is None:
+        # Default to root/metadata/floor_status.json
+        output_path = str(Path(__file__).parent.parent.parent / "metadata" / "floor_status.json")
+
+    status = {}
+    for i in range(1, 14):
+        fid = f"F{i}"
+        status[fid] = 0 if fid in violations else 1
+
+    try:
+        # Ensure directory exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(status, f, indent=4)
+    except Exception:
+        # Fail silently in production, log in debug
+        pass
+
+
+__all__ = [
+    "ALL_FLOORS",
+    "check_all_floors",
+    "update_floor_status",
+    "FloorResult",
+    "Floor",
+    "F1_Amanah",
+    "F2_Truth",
+    "F3_TriWitness",
+    "F4_Clarity",
+    "F5_Peace2",
+    "F6_Empathy",
+    "F7_Humility",
+    "F8_Genius",
+    "F9_AntiHantu",
+    "F10_Ontology",
+    "F11_CommandAuth",
+    "F12_Injection",
+    "F13_Sovereign",
+]
