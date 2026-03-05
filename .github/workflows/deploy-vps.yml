@@ -12,6 +12,7 @@ on:
 
 env:
   VPS_PATH: /srv/arifOS
+  SSH_PORT: ${{ secrets.VPS_SSH_PORT || '22' }}
 
 jobs:
   deploy:
@@ -29,12 +30,18 @@ jobs:
     - name: Add VPS to known_hosts
       run: |
         mkdir -p ~/.ssh
-        ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+        echo "🔎 Checking SSH reachability to ${{ secrets.VPS_HOST }}:${SSH_PORT}"
+        if ! timeout 12 bash -c "</dev/tcp/${{ secrets.VPS_HOST }}/${SSH_PORT}" 2>/dev/null; then
+          echo "❌ Cannot reach ${{ secrets.VPS_HOST }}:${SSH_PORT} from GitHub runner"
+          echo "Check VPS firewall/security-group, public IP, and SSH port"
+          exit 1
+        fi
+        ssh-keyscan -p ${SSH_PORT} -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
 
     - name: Deploy to VPS
       run: |
         echo "🚀 Deploying arifOS to VPS..."
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "bash /opt/arifOS/deploy.sh"
+        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "bash /opt/arifOS/deploy.sh"
       timeout-minutes: 10
 
     - name: Wait for services
@@ -44,14 +51,14 @@ jobs:
       run: |
         echo "🏥 Checking Phase 1 services..."
         # Check Postgres
-        if ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker exec arifos-postgres pg_isready -U arifos_admin -d arifos_vault" > /dev/null 2>&1; then
+        if ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker exec arifos-postgres pg_isready -U arifos_admin -d arifos_vault" > /dev/null 2>&1; then
           echo "✅ PostgreSQL is healthy"
         else
           echo "⚠️ PostgreSQL may still be starting..."
         fi
         
         # Check Redis
-        if ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker exec arifos-redis redis-cli ping" > /dev/null 2>&1; then
+        if ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker exec arifos-redis redis-cli ping" > /dev/null 2>&1; then
           echo "✅ Redis is healthy"
         else
           echo "⚠️ Redis may still be starting..."
@@ -63,7 +70,7 @@ jobs:
         MAX_RETRIES=15
         RETRY=0
         while [ $RETRY -lt $MAX_RETRIES ]; do
-          if ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "curl -fsS http://127.0.0.1:8080/health" > /dev/null 2>&1; then
+          if ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "curl -fsS http://127.0.0.1:8080/health" > /dev/null 2>&1; then
             echo "✅ arifOS MCP server is healthy!"
             exit 0
           fi
@@ -78,7 +85,7 @@ jobs:
     - name: Verify Deployment
       run: |
         echo "🔍 Deployment verification..."
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker ps --format 'table {{.Names}}\t{{.Status}}'"
+        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker ps --format 'table {{.Names}}\t{{.Status}}'"
 
     - name: Deployment Summary
       if: success()
@@ -95,6 +102,6 @@ jobs:
       if: failure()
       run: |
         echo "❌ Deployment failed!"
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker ps -a" || true
-        ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker logs arifosmcp_server --tail 50" || true
+        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker ps -a" || true
+        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "sudo docker logs arifosmcp_server --tail 50" || true
         exit 1
