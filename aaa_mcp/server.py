@@ -12,25 +12,23 @@ All tools must be async and must not write to stdout (stdio transport safety).
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac as _hmac
-import sys
 import json
+import logging
+import os
+import secrets
+import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import secrets
-import os
-import asyncio
-import logging
-
 # Setup logger early for BGE integration logging
 logger = logging.getLogger(__name__)
 
 # BGE Embeddings Integration from aclip_cai (Senses Layer - STATIC)
-import sys
 
 sys.path.insert(0, "/root/arifOS")
 try:
@@ -92,6 +90,8 @@ def _verify_governance_token(session_id: str, token: str) -> tuple[bool, str]:
 
 from fastmcp import FastMCP
 
+from aclip_cai.tools.fs_inspector import fs_inspect
+from aclip_cai.tools.system_monitor import get_system_health
 from aclip_cai.triad import (
     align,
     anchor,
@@ -104,8 +104,6 @@ from aclip_cai.triad import (
     think,
     validate,
 )
-from aclip_cai.tools.fs_inspector import fs_inspect
-from aclip_cai.tools.system_monitor import get_system_health
 
 # Isolated FastMCP instance — canonical 13-tool surface ONLY.
 # Previously shared aclip_cai's instance which leaked triad_*/sense_* tools.
@@ -121,14 +119,10 @@ mcp = FastMCP(
 
 from fastmcp.resources.template import ResourceTemplate
 
-from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.external_gateways.brave_client import BraveSearchClient
-from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
 from aaa_mcp.external_gateways.jina_reader_client import JinaReaderClient
+from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
 from aaa_mcp.protocol.l0_kernel_prompt import inject_l0_into_session
-from aaa_mcp.protocol.schemas import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOOL_OUTPUT_SCHEMAS
-from aaa_mcp.protocol.public_surface import PUBLIC_PROMPT_NAMES, PUBLIC_RESOURCE_URIS
-from core.shared.context_template import build_full_context_template
 
 
 def create_unified_mcp_server() -> Any:
@@ -732,7 +726,6 @@ async def _sovereign_actuator(
 
     Dangerous commands (rm -rf, mkfs, dd, etc.) require confirm_dangerous=True
     """
-    import subprocess
     import shlex
     from pathlib import Path
 
@@ -1331,8 +1324,9 @@ query_openclaw = ToolHandle(_query_openclaw)
     mime_type="application/json",
     description="Static server metadata and surface summary.",
 )
-async def _arifos_info_resource() -> dict[str, Any]:
-    return {
+async def _arifos_info_resource() -> str:
+    import json
+    return json.dumps({
         "name": "arifOS",
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "tools": [
@@ -1349,16 +1343,18 @@ async def _arifos_info_resource() -> dict[str, Any]:
             "inspect_file",
             "audit_rules",
             "check_vital",
+            "query_openclaw",
         ],
         "tool_aliases": {"judge_soul": "apex_judge"},
-    }
+    })
 
 
-async def _constitutional_floor_resource(floor_id: str) -> dict[str, Any]:
+async def _constitutional_floor_resource(floor_id: str) -> str:
     """
     Lightweight floor lookup for MCP Resource Templates.
     If YAML config is available, returns threshold and hold-on-fail metadata.
     """
+    import json
     floor_id = (floor_id or "").strip().upper()
     payload: dict[str, Any] = {"floor": floor_id}
 
@@ -1375,7 +1371,7 @@ async def _constitutional_floor_resource(floor_id: str) -> dict[str, Any]:
     except Exception:
         payload["floor_threshold"] = None
 
-    return payload
+    return json.dumps(payload)
 
 
 mcp.add_template(
