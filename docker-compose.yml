@@ -149,6 +149,66 @@ services:
       - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
     restart: unless-stopped
 
+  # --- Monitoring Stack ---
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: arifos_prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    volumes:
+      - /srv/arifOS/deployment/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /opt/arifos/data/prometheus:/prometheus
+    networks:
+      - arifos_trinity
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: arifos_grafana
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-arifos_grafana}
+      GF_SERVER_ROOT_URL: https://monitor.arifosmcp.arif-fazil.com
+      GF_SERVER_DOMAIN: monitor.arifosmcp.arif-fazil.com
+    volumes:
+      - /opt/arifos/data/grafana:/var/lib/grafana
+      - /srv/arifOS/deployment/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+      - /srv/arifOS/deployment/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
+    networks:
+      - arifos_trinity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`monitor.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    restart: unless-stopped
+
+  # --- Workflow Automation ---
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: arifos_n8n
+    environment:
+      N8N_HOST: flow.arifosmcp.arif-fazil.com
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: https
+      WEBHOOK_URL: https://flow.arifosmcp.arif-fazil.com/
+      N8N_EDITOR_BASE_URL: https://flow.arifosmcp.arif-fazil.com/
+      GENERIC_TIMEZONE: Asia/Kuala_Lumpur
+    volumes:
+      - /opt/arifos/data/n8n:/home/node/.n8n
+    networks:
+      - arifos_trinity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`flow.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+    restart: unless-stopped
+
   # --- Autonomous CI/CD ---
   webhook-listener:
     image: almir/webhook:latest

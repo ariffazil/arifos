@@ -10,6 +10,8 @@ networks:
       config:
         - subnet: 172.28.0.0/16
           gateway: 172.28.0.1
+  arifos_trinity:
+    external: true
 
 volumes:
   postgres_data:
@@ -46,6 +48,9 @@ services:
       arifos-internal:
         aliases:
           - postgres.vault.local
+      arifos_trinity:
+        aliases:
+          - postgres
 
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-arifos_admin} -d ${POSTGRES_DB:-arifos_vault}"]
@@ -95,6 +100,9 @@ services:
       arifos-internal:
         aliases:
           - redis.cache.local
+      arifos_trinity:
+        aliases:
+          - redis
 
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
