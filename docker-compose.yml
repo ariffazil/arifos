@@ -67,6 +67,9 @@ services:
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-8eb24ba06e138bf7affe6f128fdecc2e80a9290d107d83585540ae6ba541ae54}
       - OLLAMA_URL=http://ollama:11434
       - REDIS_URL=redis://redis:6379
+      - KIMI_API_KEY=${KIMI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     networks:
       - arifos_trinity
     labels:
