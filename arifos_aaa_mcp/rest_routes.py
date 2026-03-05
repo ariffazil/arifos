@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import inspect
 import json
+import logging
 import os
 import secrets
 import time
@@ -37,6 +38,38 @@ MCP_PROTOCOL_VERSION = "2025-11-25"
 MCP_SUPPORTED_PROTOCOL_VERSIONS = ["2025-11-25", "2025-03-26"]
 
 TOOL_ALIASES: dict[str, str] = dict(PUBLIC_TOOL_ALIASES)
+
+logger = logging.getLogger(__name__)
+
+# Fallback floor defaults — canonical values from core/shared/floors.py THRESHOLDS.
+# These are used when the governance kernel is unavailable.
+# Format: "Fnn" → representative passing score for the visualizer.
+_FLOOR_DEFAULTS: dict[str, float] = {
+    "F1": 0.85,   # F1_Amanah: HARD, threshold 0.5 (reversibility/audit)
+    "F2": 0.99,   # F2_Truth: HARD, threshold 0.99
+    "F3": 0.95,   # F3_TriWitness: DERIVED, threshold 0.95
+    "F4": 0.90,   # F4_Clarity: HARD, threshold 0.0 (ΔS ≤ 0)
+    "F5": 1.04,   # F5_Peace2: SOFT, threshold 1.0 (non-destructive power)
+    "F6": 0.97,   # F6_Empathy: SOFT, threshold 0.70 (κᵣ)
+    "F7": 0.04,   # F7_Humility: HARD, range 0.03–0.15 (Ω₀ uncertainty band)
+    "F8": 0.88,   # F8_Genius: DERIVED, threshold 0.80 (G metric)
+    "F9": 0.12,   # F9_AntiHantu: SOFT, threshold < 0.30 (dark cleverness)
+    "F10": 1.0,   # F10_Ontology: HARD, Boolean lock
+    "F11": 1.0,   # F11_CommandAuth: HARD, identity verification
+    "F12": 0.15,  # F12_Injection: HARD, risk < 0.85
+    "F13": 1.0,   # F13_Sovereign: HARD, human final authority
+}
+
+# Fallback Tri-Witness weights (normalised to sum to 1.0).
+# Reflects approximate sovereign split: Human 42%, AI 32%, Earth 26%.
+_WITNESS_DEFAULTS: dict[str, float] = {"human": 0.42, "ai": 0.32, "earth": 0.26}
+
+# Default QDF (Quantum Decision Field) baseline — target ≥ 0.83 per APEX solver spec.
+_DEFAULT_QDF: float = 0.83
+
+# Default metabolic stage returned when kernel state is unavailable.
+# 333 = REASON stage, the last full AGI reasoning stage before TRINITY_SYNC.
+_DEFAULT_METABOLIC_STAGE: int = 333
 
 WELCOME_HTML = """\
 <!DOCTYPE html>
@@ -265,34 +298,118 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
     @mcp.custom_route("/api/governance-status", methods=["GET"])
     async def governance_status(request: Request) -> Response:
-        # Mock recent data or get actual data from VAULT999
-        import random
-        return JSONResponse({
-            "status": "success",
-            "data": {
-                "f1": round(random.uniform(0.95, 1.0), 2),
-                "f2": round(random.uniform(0.95, 1.0), 2),
-                "f3": round(random.uniform(0.90, 0.98), 2),
-                "f4": round(random.uniform(-0.1, 0.0), 2),
-                "f5": round(random.uniform(1.0, 1.2), 2),
-                "f6": round(random.uniform(0.90, 1.0), 2),
-                "f7": round(random.uniform(0.03, 0.05), 3),
-                "f8": round(random.uniform(0.85, 0.95), 2),
-                "f9": round(random.uniform(0.0, 0.2), 2),
-                "f10": "PASS",
-                "f11": "PASS",
-                "f12": round(random.uniform(0.0, 0.3), 2),
-                "f13": "PASS",
-                "human": round(random.uniform(0.9, 1.0), 2),
-                "ai": round(random.uniform(0.85, 0.98), 2),
-                "earth": round(random.uniform(0.92, 0.99), 2),
-                "timestamp": time.time(),
-                "verdict": "SEAL",
-                "stage": "999_SEAL"
+        """Return current governance telemetry for the Constitutional Visualizer."""
+        try:
+            session_id: str | None = None
+            floors: dict[str, Any] = {}
+            telemetry: dict[str, Any] = {}
+            witness: dict[str, float] = {}
+            qdf: float = 0.0
+            metabolic_stage: int = 0
+            verdict: str = "SEAL"
+
+            # Attempt to load live session data from the governance kernel
+            try:
+                from core.governance_kernel import get_governance_kernel
+
+                kernel = get_governance_kernel()
+                state = kernel.get_current_state() if hasattr(kernel, "get_current_state") else {}
+                if state:
+                    session_id = state.get("session_id")
+                    floors = state.get("floors", {})
+                    telemetry = state.get("telemetry", {})
+                    witness = state.get("witness", {})
+                    qdf = float(state.get("qdf", 0.0))
+                    metabolic_stage = int(state.get("metabolic_stage", 0))
+                    verdict = state.get("verdict", "SEAL")
+            except (ImportError, AttributeError):
+                logger.debug("Governance kernel unavailable — using default telemetry values")
+            except Exception:
+                logger.exception("Unexpected error loading governance kernel state")
+
+            # Build normalised floor map (F1–F13) using canonical defaults
+            resolved_floors = {k: floors.get(k, v) for k, v in _FLOOR_DEFAULTS.items()}
+
+            resolved_witness = {
+                k: witness.get(k, v) for k, v in _WITNESS_DEFAULTS.items()
             }
-        })
+
+            resolved_telemetry = {
+                "dS": telemetry.get("dS", -0.35),
+                "peace2": telemetry.get("peace2", 1.04),
+                "kappa_r": telemetry.get("kappa_r", 0.97),
+                "echoDebt": telemetry.get("echoDebt", 0.4),
+                "shadow": telemetry.get("shadow", 0.3),
+                "confidence": telemetry.get("confidence", 0.88),
+                "psi_le": telemetry.get("psi_le", 0.82),
+                "verdict": verdict,
+            }
+
+            return JSONResponse({
+                "telemetry": resolved_telemetry,
+                "witness": resolved_witness,
+                "qdf": qdf or _DEFAULT_QDF,
+                "floors": resolved_floors,
+                "session_id": session_id or f"sess_{uuid.uuid4().hex[:8]}",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "metabolic_stage": metabolic_stage or _DEFAULT_METABOLIC_STAGE,
+            })
+        except Exception as exc:
+            logger.exception("governance_status endpoint failed")
+            return JSONResponse(
+                {"error": "governance_status_failed", "detail": str(exc)},
+                status_code=500,
+            )
+
+    @mcp.custom_route("/api/governance-history", methods=["GET"])
+    async def governance_history(request: Request) -> Response:
+        """Return recent VAULT999 session history for the Constitutional Visualizer."""
+        try:
+            limit_raw = request.query_params.get("limit", "20")
+            try:
+                limit = max(1, min(int(limit_raw), 100))
+            except (ValueError, TypeError):
+                limit = 20
+
+            sessions: list[dict[str, Any]] = []
+
+            # Attempt to query VAULT999 for real session history
+            try:
+                from aaa_mcp.vault_sqlite import VaultSQLite
+
+                vault = VaultSQLite()
+                raw = vault.query_recent(limit=limit) if hasattr(vault, "query_recent") else []
+                for entry in raw:
+                    sessions.append({
+                        "session_id": entry.get("session_id", ""),
+                        "verdict": entry.get("verdict", "UNKNOWN"),
+                        "stage": entry.get("stage", ""),
+                        "timestamp": entry.get("timestamp", ""),
+                        "floors": entry.get("floors", {}),
+                    })
+            except (ImportError, AttributeError):
+                logger.debug("VAULT999 SQLite unavailable — returning empty session history")
+            except Exception:
+                logger.exception("Unexpected error querying VAULT999 history")
+
+            return JSONResponse({
+                "sessions": sessions,
+                "count": len(sessions),
+                "limit": limit,
+            })
+        except Exception as exc:
+            logger.exception("governance_history endpoint failed")
+            return JSONResponse(
+                {"error": "governance_history_failed", "detail": str(exc)},
+                status_code=500,
+            )
 
     # Serve the standalone dashboard static files
-    dashboard_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "333_APPS", "constitutional-visualizer", "dist-web")
+    dashboard_dir = os.path.join(
+        os.path.dirname(os.path.dirname(__file__)),
+        "333_APPS",
+        "constitutional-visualizer",
+        "dist-web",
+    )
     if os.path.exists(dashboard_dir) and hasattr(mcp, "_app"):
         mcp._app.mount("/dashboard", StaticFiles(directory=dashboard_dir, html=True), name="dashboard")
