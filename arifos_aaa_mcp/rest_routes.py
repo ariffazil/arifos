@@ -116,6 +116,13 @@ WELCOME_HTML = """\
 </html>
 """
 
+CHECKPOINT_MODES = {"quick", "full", "audit_only"}
+RISK_TIER_BY_MODE = {
+    "quick": "low",
+    "full": "medium",
+    "audit_only": "medium",
+}
+
 
 def _env_truthy(name: str) -> bool:
     return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "y", "on"}
@@ -147,6 +154,158 @@ def _auth_error_response(request: Request) -> JSONResponse | None:
             status_code=401,
         )
     return None
+
+
+def _public_base_url(request: Request) -> str:
+    explicit = os.getenv("ARIFOS_PUBLIC_BASE_URL", "").strip().rstrip("/")
+    if explicit:
+        return explicit
+    scheme = request.headers.get("x-forwarded-proto") or request.url.scheme or "https"
+    host = request.headers.get("x-forwarded-host") or request.headers.get("host") or "localhost"
+    return f"{scheme}://{host}".rstrip("/")
+
+
+def _openapi_schema(base_url: str) -> dict[str, Any]:
+    return {
+        "openapi": "3.1.0",
+        "info": {
+            "title": "arifOS ChatGPT Actions API",
+            "version": BUILD_INFO["version"],
+            "description": (
+                "Minimal ChatGPT Actions surface for arifOS constitutional evaluation. "
+                "Primary endpoint: POST /checkpoint."
+            ),
+        },
+        "servers": [{"url": base_url}],
+        "paths": {
+            "/checkpoint": {
+                "post": {
+                    "operationId": "evaluateCheckpoint",
+                    "summary": "Constitutional checkpoint evaluation",
+                    "description": (
+                        "Runs governed evaluation through arifOS and returns verdict + telemetry."
+                    ),
+                    "requestBody": {
+                        "required": True,
+                        "content": {
+                            "application/json": {"schema": {"$ref": "#/components/schemas/CheckpointRequest"}}
+                        },
+                    },
+                    "responses": {
+                        "200": {
+                            "description": "Checkpoint completed",
+                            "content": {
+                                "application/json": {"schema": {"$ref": "#/components/schemas/CheckpointResponse"}}
+                            },
+                        },
+                        "400": {
+                            "description": "Invalid request",
+                            "content": {
+                                "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+                            },
+                        },
+                        "401": {
+                            "description": "Unauthorized",
+                            "content": {
+                                "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+                            },
+                        },
+                        "500": {
+                            "description": "Internal error",
+                            "content": {
+                                "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+                            },
+                        },
+                    },
+                }
+            },
+            "/health": {
+                "get": {
+                    "operationId": "getHealth",
+                    "summary": "Health check",
+                    "responses": {
+                        "200": {
+                            "description": "Service healthy",
+                            "content": {
+                                "application/json": {"schema": {"$ref": "#/components/schemas/HealthResponse"}}
+                            },
+                        }
+                    },
+                }
+            },
+        },
+        "components": {
+            "schemas": {
+                "CheckpointRequest": {
+                    "type": "object",
+                    "required": ["task"],
+                    "properties": {
+                        "task": {
+                            "type": "string",
+                            "description": "User query/task to evaluate constitutionally.",
+                        },
+                        "mode": {
+                            "type": "string",
+                            "enum": sorted(CHECKPOINT_MODES),
+                            "default": "full",
+                            "description": "Execution profile for checkpoint evaluation.",
+                        },
+                        "actor_id": {
+                            "type": "string",
+                            "default": "chatgpt-action",
+                            "description": "Caller identity for audit trail.",
+                        },
+                        "context": {
+                            "description": "Optional context payload.",
+                            "oneOf": [{"type": "string"}, {"type": "object"}, {"type": "array"}],
+                        },
+                        "risk_tier": {
+                            "type": "string",
+                            "enum": ["low", "medium", "high", "critical"],
+                            "description": "Optional risk override. If omitted, derived from mode.",
+                        },
+                        "debug": {"type": "boolean", "default": False},
+                    },
+                },
+                "CheckpointResponse": {
+                    "type": "object",
+                    "properties": {
+                        "verdict": {"type": "string"},
+                        "session_id": {"type": "string"},
+                        "request_id": {"type": "string"},
+                        "latency_ms": {"type": "number"},
+                        "mode": {"type": "string"},
+                        "risk_tier": {"type": "string"},
+                        "metrics": {"type": "object"},
+                        "floors": {"type": "object"},
+                        "result": {"type": "object"},
+                    },
+                    "required": ["verdict", "request_id", "latency_ms"],
+                },
+                "HealthResponse": {
+                    "type": "object",
+                    "properties": {
+                        "status": {"type": "string"},
+                        "service": {"type": "string"},
+                        "version": {"type": "string"},
+                        "transport": {"type": "string"},
+                        "tools_loaded": {"type": "integer"},
+                        "timestamp": {"type": "string"},
+                    },
+                    "required": ["status", "service", "version", "transport"],
+                },
+                "Error": {
+                    "type": "object",
+                    "properties": {
+                        "error": {"type": "string"},
+                        "error_description": {"type": "string"},
+                        "request_id": {"type": "string"},
+                    },
+                    "required": ["error"],
+                },
+            }
+        },
+    }
 
 
 def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
@@ -209,6 +368,140 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "parameters": tool.parameters or {}
             })
         return JSONResponse({"tools": tool_list, "count": len(tool_list)})
+
+    @mcp.custom_route("/openapi.json", methods=["GET"])
+    async def openapi_json(request: Request) -> Response:
+        schema = _openapi_schema(_public_base_url(request))
+        return JSONResponse(schema)
+
+    @mcp.custom_route("/checkpoint", methods=["POST"])
+    async def checkpoint(request: Request) -> Response:
+        """ChatGPT Actions-friendly wrapper around the constitutional metabolic loop."""
+        if err := _auth_error_response(request):
+            return err
+
+        request_id = f"chk-{uuid.uuid4().hex[:12]}"
+        start_time = time.time()
+
+        try:
+            body = await request.json()
+        except Exception:
+            body = {}
+        if not isinstance(body, dict):
+            body = {}
+
+        task = body.get("task") or body.get("query")
+        if not isinstance(task, str) or not task.strip():
+            return JSONResponse(
+                {
+                    "error": "invalid_request",
+                    "error_description": "Field 'task' is required and must be a non-empty string.",
+                    "request_id": request_id,
+                },
+                status_code=400,
+            )
+
+        mode = str(body.get("mode", "full")).strip().lower()
+        if mode not in CHECKPOINT_MODES:
+            return JSONResponse(
+                {
+                    "error": "invalid_request",
+                    "error_description": (
+                        f"Invalid mode '{mode}'. Allowed: {sorted(CHECKPOINT_MODES)}"
+                    ),
+                    "request_id": request_id,
+                },
+                status_code=400,
+            )
+
+        risk_tier = str(body.get("risk_tier") or RISK_TIER_BY_MODE[mode]).strip().lower()
+        if risk_tier not in {"low", "medium", "high", "critical"}:
+            return JSONResponse(
+                {
+                    "error": "invalid_request",
+                    "error_description": "risk_tier must be one of: low, medium, high, critical.",
+                    "request_id": request_id,
+                },
+                status_code=400,
+            )
+
+        context = body.get("context", "")
+        if isinstance(context, (dict, list)):
+            context = json.dumps(context, ensure_ascii=False)
+        elif not isinstance(context, str):
+            context = str(context)
+
+        runner = tool_registry.get("metabolic_loop")
+        if runner is None:
+            return JSONResponse(
+                {
+                    "error": "not_implemented",
+                    "error_description": "metabolic_loop tool is not available on this deployment.",
+                    "request_id": request_id,
+                },
+                status_code=501,
+            )
+
+        tool_fn = getattr(runner, "fn", runner)
+        try:
+            result = await tool_fn(
+                query=task.strip(),
+                context=context,
+                risk_tier=risk_tier,
+                actor_id=str(body.get("actor_id", "chatgpt-action")),
+                use_sampling=bool(body.get("use_sampling", mode != "quick")),
+                debug=bool(body.get("debug", False)),
+            )
+        except Exception as exc:
+            return JSONResponse(
+                {
+                    "error": "execution_failed",
+                    "error_description": str(exc),
+                    "request_id": request_id,
+                },
+                status_code=500,
+            )
+
+        stages = result.get("stages", {}) if isinstance(result, dict) else {}
+        judge_output = {}
+        if isinstance(stages, dict):
+            judge_stage = stages.get("777-888", {})
+            if isinstance(judge_stage, dict):
+                judge_output = judge_stage.get("output", {}) or {}
+
+        floors = {}
+        if isinstance(judge_output, dict):
+            floors = judge_output.get("floors", {}) or {}
+
+        truth = None
+        if isinstance(judge_output, dict):
+            truth_block = judge_output.get("truth", {})
+            if isinstance(truth_block, dict):
+                truth = truth_block.get("score")
+
+        telemetry = result.get("telemetry", {}) if isinstance(result, dict) else {}
+        latency_ms = round((time.time() - start_time) * 1000, 2)
+
+        metrics = {
+            "truth": truth,
+            "clarity": telemetry.get("dS"),
+            "confidence": telemetry.get("confidence"),
+            "duration_ms": telemetry.get("duration_ms", latency_ms),
+        }
+
+        return JSONResponse(
+            {
+                "verdict": result.get("verdict", "VOID") if isinstance(result, dict) else "VOID",
+                "mode": mode,
+                "risk_tier": risk_tier,
+                "session_id": result.get("session_id") if isinstance(result, dict) else None,
+                "request_id": request_id,
+                "latency_ms": latency_ms,
+                "metrics": metrics,
+                "floors": floors if isinstance(floors, dict) else {},
+                "result": result,
+            }
+        )
 
     @mcp.custom_route("/tools/{tool_name:path}", methods=["POST"])
     async def call_tool_rest(request: Request) -> Response:
