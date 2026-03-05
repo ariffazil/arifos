@@ -1,0 +1,113 @@
+.metabolic-flow-container {
+  padding: 1rem 0;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.pipeline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 600px;
+  padding: 1rem;
+}
+
+.stage-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 2;
+}
+
+.node-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 0 rgba(0, 163, 255, 0);
+}
+
+.node-id {
+  font-size: 0.7rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.stage-node.active .node-circle {
+  border-color: var(--neon-blue);
+  background: rgba(0, 163, 255, 0.1);
+}
+
+.stage-node.active .node-id {
+  color: var(--neon-blue);
+}
+
+.stage-node.current .node-circle {
+  background: var(--neon-blue);
+  box-shadow: 0 0 15px var(--neon-blue);
+}
+
+.stage-node.current .node-id {
+  color: white;
+  font-weight: bold;
+}
+
+.node-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.node-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: white;
+}
+
+.node-desc {
+  font-size: 0.65rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-transform: uppercase;
+}
+
+.stage-connector {
+  flex-grow: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 0 -10px;
+  margin-top: -2.5rem; /* Align with circle center */
+  z-index: 1;
+  position: relative;
+}
+
+.connector-line {
+  width: 0%;
+  height: 100%;
+  background: var(--neon-blue);
+  transition: width 0.5s ease;
+}
+
+.stage-connector.active .connector-line {
+  width: 100%;
+}
+
+/* Custom scrollbar for horizontal flow if needed */
+.metabolic-flow-container::-webkit-scrollbar {
+  height: 4px;
+}
+
+.metabolic-flow-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.metabolic-flow-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}

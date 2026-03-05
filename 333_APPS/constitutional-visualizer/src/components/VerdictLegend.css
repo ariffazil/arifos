@@ -1,0 +1,46 @@
+.verdict-legend {
+  padding: 1rem;
+}
+
+.verdict-legend h3 {
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.verdict-desc {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.4;
+}
+
+/* Verdict Badge Base Styling (should match App.tsx/global) */
+.verdict-badge {
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  font-family: 'JetBrains Mono', monospace;
+  min-width: 70px;
+  text-align: center;
+}
+
+.verdict-seal { background: rgba(0, 163, 255, 0.2); color: #00a3ff; border: 1px solid rgba(0, 163, 255, 0.3); }
+.verdict-sabar { background: rgba(255, 200, 0, 0.2); color: #ffc800; border: 1px solid rgba(255, 200, 0, 0.3); }
+.verdict-void { background: rgba(255, 50, 50, 0.2); color: #ff3232; border: 1px solid rgba(255, 50, 50, 0.3); }
+.verdict-hold { background: rgba(200, 100, 255, 0.2); color: #c864ff; border: 1px solid rgba(200, 100, 255, 0.3); }

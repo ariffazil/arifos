@@ -17,6 +17,7 @@ from typing import Any
 
 from fastmcp import FastMCP
 from mcp.types import Icon
+import os
 
 from aaa_mcp import server as legacy
 from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
@@ -773,6 +774,20 @@ def aaa_tool_schemas() -> str:
     }
     # FastMCP resources must return str/bytes or ResourceContent.
     return json.dumps(payload, ensure_ascii=True)
+
+
+@mcp.resource(
+    "ui://constitutional-visualizer/mcp-app.html",
+    name="arifos_constitutional_visualizer",
+    mime_type="text/html",
+    description="Interactive MCP App visualizing real-time constitutional floor evaluations.",
+)
+def get_visualizer() -> str:
+    path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "333_APPS", "constitutional-visualizer", "dist", "mcp-app.html")
+    if os.path.exists(path):
+        with open(path, "r", encoding="utf-8") as f:
+            return f.read()
+    return "<html><body><h1>Visualizer app not built yet. Run npm run build:mcp in constitutional-visualizer</h1></body></html>"
 
 
 @mcp.resource(

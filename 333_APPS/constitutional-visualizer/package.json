@@ -1,0 +1,31 @@
+{
+  "name": "constitutional-visualizer",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev:web": "vite --config vite.web.config.ts",
+    "dev:mcp": "vite",
+    "build:mcp": "cross-env NODE_ENV=production vite build",
+    "build:web": "cross-env NODE_ENV=production vite build --config vite.web.config.ts",
+    "build": "npm run build:mcp && npm run build:web",
+    "preview": "vite preview",
+    "serve": "node server.js"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "lucide-react": "^0.446.0",
+    "recharts": "^2.12.7",
+    "@modelcontextprotocol/ext-apps": "^1.1.2"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.2",
+    "cross-env": "^7.0.3",
+    "vite-plugin-singlefile": "^2.0.1"
+  }
+}

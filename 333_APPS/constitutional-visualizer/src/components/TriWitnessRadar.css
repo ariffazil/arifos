@@ -1,0 +1,37 @@
+.tri-witness-radar {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.radar-container {
+  margin: 1rem 0;
+}
+
+.radar-legend {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend-item .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.legend-item .dot-human { background: var(--neon-cyan); }
+.legend-item .dot-ai { background: var(--neon-blue); }
+.legend-item .dot-earth { background: var(--neon-indigo); }
+
+.legend-item .label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}

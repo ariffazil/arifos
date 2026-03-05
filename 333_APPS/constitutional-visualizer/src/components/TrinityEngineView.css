@@ -1,0 +1,54 @@
+.trinity-view {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.engine-node {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.engine-icon {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.engine-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.engine-name {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 600;
+}
+
+.engine-status {
+  font-size: 0.8rem;
+  font-weight: bold;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+/* Status Colors */
+.engine-node.active.mind { border-color: var(--neon-blue); box-shadow: 0 0 10px rgba(0, 163, 255, 0.2); }
+.engine-node.active.mind .engine-icon, .engine-node.active.mind .engine-status { color: var(--neon-blue); }
+
+.engine-node.active.heart { border-color: var(--neon-cyan); box-shadow: 0 0 10px rgba(0, 240, 255, 0.2); }
+.engine-node.active.heart .engine-icon, .engine-node.active.heart .engine-status { color: var(--neon-cyan); }
+
+.engine-node.active.soul { border-color: var(--neon-indigo); box-shadow: 0 0 10px rgba(100, 100, 255, 0.2); }
+.engine-node.active.soul .engine-icon, .engine-node.active.soul .engine-status { color: var(--neon-indigo); }
+
+.engine-node.idle { opacity: 0.5; }
+.engine-node.error { border-color: var(--neon-red); }
+.engine-node.error .engine-icon, .engine-node.error .engine-status { color: var(--neon-red); }
