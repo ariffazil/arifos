@@ -29,10 +29,10 @@
 
 | Domain | Canonical Text | Description |
 |:---:|:---|:---|
-| 🏗️ **Design** | [`ARCHITECTURE.md`](ARCHITECTURE.md) | **The Blueprint:** Trinity Logic (ΔΩΨ), 7-Organ Stack, and EMD Physics. |
+| 🏗️ **Design** | [`ARCHITECTURE.md`](docs/60_REFERENCE/ARCHITECTURE.md) | **The Blueprint:** Trinity Logic (ΔΩΨ), 7-Organ Stack, and EMD Physics. |
 | ⚖️ **Law** | [`000_THEORY/000_LAW.md`](000_THEORY/000_LAW.md) | **The Constitution:** The mathematical thresholds for the 13 Floors. |
-| 🛡️ **Defense** | [`SECURITY.md`](SECURITY.md) | **The Firewall:** Injection handling, Auth models, and Threat vectors. |
-| 🧰 **Tools** | [`MCP_TOOLS.md`](MCP_TOOLS.md) | **The Surface:** The 13 canonical tools bridging the LLM to the Kernel. |
+| 🛡️ **Defense** | [`SECURITY.md`](docs/00_META/SECURITY.md) | **The Firewall:** Injection handling, Auth models, and Threat vectors. |
+| 🧰 **Tools** | [`TOOLS_CANONICAL_13.md`](docs/60_REFERENCE/TOOLS_CANONICAL_13.md) | **The Surface:** The 14 canonical tools bridging the LLM to the Kernel. |
 | 🚀 **Deploy** | [`DEPLOYMENT.md`](docs/60_REFERENCE/DEPLOYMENT.md) | **The Vanguard:** VPS setups, Docker, and Streamable HTTP scaling. |
 | 🗺️ **Deploy Map** | [`DEPLOYMENT_MAP.md`](DEPLOYMENT_MAP.md) | **The Traffic Control:** Which workflow deploys which public surface. |
 
@@ -87,7 +87,7 @@ flowchart TD
 | **L7** | **AGI / Ecosystem** | Civilisation-Scale | — | *[Research]* Permissionless sovereignty and self-healing. |
 | **L6** | **Institution** | Organisational | — | *[Experimental]* Trinity consensus for governing societies. |
 | **L5** | **Agents** | Federation | **A R I F** | *[Active]* 5-role constitutional hypervisor enforcing no-bypass gates. |
-| **L4** | **Tools (MCP)** | Production | **A R I F** | *[Active]* 13 canonical MCP tools grouped into 4 ARIF cognitive bands. |
+| **L4** | **Tools (MCP)** | Production | **A R I F** | *[Active]* 14 MCP tools grouped into 4 ARIF cognitive bands. |
 | **L3** | **Workflow** | Production | **A R I F** | *[Active]* 9 metabolic workflows assembling ARIF verbs into loops. |
 | **L2** | **Skills** | Production | **A R I F** | *[Active]* 9 canonical verbs (A-CLIP) for behavioural primitives. |
 | **L1** | **Prompts** | Production | — | *[Active]* Intent classification and reality centering. |
@@ -190,7 +190,7 @@ The constitutional parliament routes ARIF bands to specific roles:
 
 arifOS acts as an **MCP Server** (`arifos_aaa_mcp`). Rather than trusting an LLM, your IDE or Desktop client points its tool-calls at arifOS via the Model Context Protocol.
 
-The server exposes **13 governed tools**. When an AI attempts to use a tool like `eureka_forge` to execute a shell command, it doesn't just run. The command is risk-classified (LOW / MODERATE / CRITICAL), dangerous operations require explicit `confirm_dangerous=True`, and the entire execution is wrapped in a 13-LAW governance envelope with audit logging. Only after `apex_judge` issues a signed `governance_token` can `seal_vault` commit the decision to the immutable ledger.
+The server exposes **14 governed tools**. When an AI attempts to use a tool like `eureka_forge` to execute a shell command, it doesn't just run. The command is risk-classified (LOW / MODERATE / CRITICAL), dangerous operations require explicit `confirm_dangerous=True`, and the entire execution is wrapped in a 13-LAW governance envelope with audit logging. Only after `apex_judge` issues a signed `governance_token` can `seal_vault` commit the decision to the immutable ledger.
 
 ### 8 Metabolic Tools (Core Governance Chain)
 *These 8 tools form the canonical `000 → 999` metabolic loop. Every governed action flows through this chain.*
@@ -216,6 +216,11 @@ The server exposes **13 governed tools**. When an AI attempts to use a tool like
 | `inspect_file` | 📁 Looks at files on your hard drive securely. | F1 Amanah audit |
 | `audit_rules` | 📋 Checks the system's own safety rules. | Governance health check |
 | `check_vital` | 📈 Checks if the server CPU/RAM is healthy. | System telemetry |
+
+### 1 Governance UI Tool
+| Tool | Plain English Function | Purpose |
+|:--|:--|:--|
+| `visualize_governance` | 🖥️ Opens the Constitutional Decision Visualizer — real-time dashboard for all 13 Floor scores, Tri-Witness consensus, thermodynamic telemetry, and VAULT999 verdict history. | Governance observability |
 
 ---
 
@@ -361,7 +366,7 @@ The visualizer consumes these production REST endpoints:
 - `GET /api/governance-status` - Current session telemetry (ΔS, floors, verdict)
 - `GET /api/governance-history` - Recent VAULT999 sessions
 
-**Deployment Status**: ✅ **LIVE** (Deployed commit: [`eaf9f01`](https://github.com/ariffazil/arifOS/commit/eaf9f015c58aa15b8968ecaf73796b82c2425463))
+**Deployment Status**: ✅ **LIVE**
 
 ---
 
@@ -409,14 +414,15 @@ We continuously pipe live tests through the framework to prove its reliability. 
 
 **Current Status:** Active Development / Production Ready L4.
 
-- **Version:** 2026.02.28 (The 7-Organ Stack is SEALED and `eureka_forge` is live with real shell execution).
-- **FORGE-777 Milestone:** `eureka_forge` upgraded from dead man's switch (`888_HOLD` placeholder) to live command actuator with risk classification (LOW/MODERATE/CRITICAL), `confirm_dangerous` human gate, and `agent_id`/`purpose` audit logging.
-- **Amanah Handshake:** `apex_judge` now signs a HMAC-SHA256 `governance_token` that `seal_vault` must verify before any ledger write. No token = no entry. Tampered token = VOID.
-- **F4 Clarity Hardened:** Moved from SOFT to HARD floor — responses that increase entropy (`ΔS > 0`) now return VOID, not PARTIAL.
+- **Version:** 2026.3.1 (14 MCP tools live — Jina Reader integration, npm client verified, visualize_governance deployed).
+- **Jina Reader Integration:** `search_reality` and `fetch_content` now use Jina Reader as primary backend for clean Markdown extraction — superior content quality vs raw SERP APIs. Fallback chain: Jina → Perplexity → Brave.
+- **npm/JS Client:** `@arifos/mcp` v0.1.0 verified across HTTP and stdio transports (see `packages/npm/arifos-mcp/`).
+- **Constitutional Visualizer:** `visualize_governance` tool live — real-time dashboard for all 13 Floors, Tri-Witness, thermodynamic telemetry, and VAULT999 history.
+- **Amanah Handshake:** `apex_judge` signs an HMAC-SHA256 `governance_token` that `seal_vault` must verify before any ledger write. No token = no entry. Tampered token = VOID.
+- **F4 Clarity Hardened:** Hard floor — responses that increase entropy (`ΔS > 0`) return VOID, not PARTIAL.
 - **Testing:** 90%+ pass rate on regression and CI/CD pipelines.
-- **ML Capabilities:** Optional SentenceTransformer capabilities (SBERT) for advanced contextual semantic scoring over keyword-heuristics for F5/F6/F9 currently rolling out.
 
-For a detailed multi-year roadmap spanning to interplanetary delayed-autonomy federations, see [`ROADMAP.md`](ROADMAP.md).
+For a detailed multi-year roadmap, see [`ROADMAP.md`](docs/ROADMAP.md).
 
 ---
 
