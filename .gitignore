@@ -305,3 +305,5 @@ aclip_cai/embeddings/*.pth
 # Tools data output (generated artefacts, not source)
 tools/*.csv
 *.xlsx
+coverage.json
+*.xml
