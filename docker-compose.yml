@@ -75,20 +75,17 @@ services:
 
   # --- Gateways & Reasoning ---
   openclaw:
-    # Requires /root/openclaw to exist on the host or use pre-built image
-    image: openclaw:local
+    image: ghcr.io/openclaw/openclaw:latest
     container_name: openclaw_gateway
     volumes:
-      - /opt/arifos/data/openclaw:/app/workspace
+      - /opt/arifos/data/openclaw:/home/node/.openclaw
       - /srv/arifOS:/mnt/arifos:rw
       - /opt/arifos/APEX-THEORY:/mnt/apex:rw
       - /var/run/docker.sock:/var/run/docker.sock
-    # env_file:
-    #   - /opt/arifos/XXX/.env.master
     environment:
-      - REDIS_URL=redis://redis:6379
-      - POSTGRES_URL=postgresql://${POSTGRES_USER:-arifos}:${POSTGRES_PASSWORD:-arifos_secure}@postgres:5432/${POSTGRES_DB:-arifos_core}
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-8eb24ba06e138bf7affe6f128fdecc2e80a9290d107d83585540ae6ba541ae54}
       - OLLAMA_URL=http://ollama:11434
+      - REDIS_URL=redis://redis:6379
     networks:
       - arifos_trinity
     labels:
@@ -96,7 +93,13 @@ services:
       - "traefik.http.routers.openclaw.rule=Host(`claw.arifosmcp.arif-fazil.com`)"
       - "traefik.http.routers.openclaw.entrypoints=websecure"
       - "traefik.http.routers.openclaw.tls.certresolver=letsencrypt"
-      - "traefik.http.services.openclaw.loadbalancer.server.port=3000"
+      - "traefik.http.services.openclaw.loadbalancer.server.port=18789"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:18789/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     restart: unless-stopped
 
   agent-zero:
@@ -109,7 +112,7 @@ services:
     # env_file:
     #   - /opt/arifos/XXX/.env.master
     environment:
-      - OPENCLAW_URL=http://openclaw:3000
+      - OPENCLAW_URL=http://openclaw:18789
     networks:
       - arifos_trinity
     labels:
@@ -139,7 +142,7 @@ services:
       PYTHONDONTWRITEBYTECODE: 1
       QDRANT_URL: http://qdrant:6333
       OLLAMA_URL: http://ollama:11434
-      OPENCLAW_URL: http://openclaw:3000
+      OPENCLAW_URL: http://openclaw:18789
       AGENT_ZERO_URL: http://agent-zero:80
       DASHBOARD_ENABLED: "true"
     networks:
