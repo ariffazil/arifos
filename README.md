@@ -20,39 +20,6 @@
 
 </div>
 
-<br/>
-
-## 🌐 The arifOS Web Ecosystem (Official Links)
-
-Below are the Godel-locked official instances, endpoints, and resources currently backing the system:
-
-```mermaid
-flowchart LR
-    A[HUMAN<br/>arif-fazil.com] --> B[THEORY<br/>apex.arif-fazil.com]
-    B --> C[APPS<br/>arifos.arif-fazil.com]
-    C --> D[MCP API<br/>/api]
-    D --> E[LIVE SERVER<br/>arifosmcp.arif-fazil.com]
-    E --> F[HEALTH<br/>/health]
-    E --> G[VERDICT DASHBOARD<br/>arifosmcp-truth-claim.pages.dev]
-    C --> H[PYPI<br/>pip install arifos]
-    C --> I[npm<br/>npm install @arifos/mcp]
-```
-
-| Layer | URL | Purpose / Description | Status | Trust Level |
-|:---:|:---|:---|:---:|:---:|
-| **HUMAN** | [https://arif-fazil.com/](https://arif-fazil.com/) | Identity & Authority Anchor (The Sovereign). | ✅ LIVE | 🔐 Canonical |
-| **THEORY** | [https://apex.arif-fazil.com/](https://apex.arif-fazil.com/) | Constitutional Canon & Theory (The 13 Floors). | ✅ LIVE | 🔐 Canonical |
-| **APPS** | [https://arifos.arif-fazil.com/](https://arifos.arif-fazil.com/) | Official Documentation and implementation guides. | ✅ LIVE | 🔐 Canonical |
-| **INTRO** | [https://arifos.arif-fazil.com/intro](https://arifos.arif-fazil.com/intro) | Beginner-friendly explanation of the Constitutional AI Kernel. | ✅ LIVE | 🔐 Canonical |
-| **MCP API** | [https://arifos.arif-fazil.com/api](https://arifos.arif-fazil.com/api) | Full MCP Protocol JSON-RPC API & 13 Tools Reference. | ✅ LIVE | 🔐 Canonical |
-| **LIVE SERVER**| [https://arifosmcp.arif-fazil.com/](https://arifosmcp.arif-fazil.com/) | The production active MCP deployment. | ✅ LIVE | 🔐 Canonical |
-| **HEALTH** | [https://arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)| Live `{"status":"healthy"}` JSON endpoint reflecting system pulses. | ✅ LIVE | 🔐 Canonical |
-| **VERDICT** | [Truth Claim Dashboard](https://arifosmcp-truth-claim.pages.dev)| Live Constitutional Audit Dashboard. | ✅ LIVE | 🔐 Canonical |
-| **REGISTRY** | [MCP Registry Listing](https://registry.modelcontextprotocol.io/?q=arif) | The official verified listing on the global MCP registry. | ✅ LIVE | 🔐 Canonical |
-| **CODE** | [arifOS on GitHub](https://github.com/ariffazil/arifOS) | Core framework repository. | ✅ LIVE | 🔐 Canonical |
-| **PACKAGE (PyPI)** | [arifOS on PyPI](https://pypi.org/project/arifos/) | Python package library `pip install arifos` — The Kernel & Court. | ✅ LIVE | 🔐 Canonical |
-| **PACKAGE (npm)** | [@arifos/mcp](https://www.npmjs.com/package/@arifos/mcp) | JavaScript/TypeScript client `npm install @arifos/mcp` — The Cable. | ✅ LIVE | 🔐 Canonical |
-
 > **Gödel-locked** = canonical endpoints whose content is governed by the constitutional sealing process; changes require Phoenix cooling + signed release.
 
 ---
@@ -359,6 +326,21 @@ Instead of two-channel SSE, arifOS uses the modern **Streamable HTTP** standard 
 HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
 ```
 *For complete VPS, Nginx, Docker, and Cloudflare scaling instructions, see [`DEPLOYMENT.md`](docs/60_REFERENCE/DEPLOYMENT.md).*
+
+---
+
+## 🎮 Constitutional Decision Visualizer (The Control Room)
+
+arifOS features a built-in, real-time "Constitutional Control Room" to monitor the 13 Floors, Tri-Witness consensus, and Vitality metrics during decision processing.
+
+It is built with a **Dual-Approach Architecture**:
+1. **Standalone Web Dashboard:** A pure browser experience. Access it locally at `http://localhost:8080/dashboard` or in production at `https://dashboard.arifos.arif-fazil.com`.
+2. **Integrated MCP App:** An embedded interactive UI for host platforms like Claude Desktop. Registered as the tool resource `ui://constitutional-visualizer/mcp-app.html`.
+
+**Features:**
+- **Live Floor Gauges:** Real-time visualization of the 13 Constitutional Floors with thermodynamic visual language (Negative Entropy reduction, Truth lock warnings, Amanah gates).
+- **Tri-Witness Radar (W³):** A geometric mean radar showing the consensus fragmentation between Human, AI, and Earth layers.
+- **Metabolic Flow & Vitality:** Trace the `000 -> 999` metabolic pipeline in real-time.
 
 ---
 
