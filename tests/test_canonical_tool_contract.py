@@ -114,7 +114,7 @@ def test_canonical_signatures_are_stable() -> None:
             "agent_id",
             "purpose",
         ],
-        "vault_seal": ["session_id", "summary", "governance_token"],
+        "vault_seal": ["session_id", "summary", "governance_token", "thermodynamic_statement"],
         "search": ["query", "intent"],
         "fetch": ["id", "max_chars"],
         "analyze": ["session_id", "path", "depth", "include_hidden", "pattern", "min_size_bytes", "max_files"],
