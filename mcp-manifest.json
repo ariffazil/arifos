@@ -14,14 +14,24 @@
     "url": "https://github.com/ariffazil/arifOS",
     "source": "github"
   },
+  "runtime": {
+    "python": ">=3.10",
+    "entrypoint": "arifos_aaa_mcp/server.py",
+    "dependencies": ["fastmcp==3.0.1"]
+  },
+  "deployment": {
+    "default_transport": "http",
+    "host": "0.0.0.0",
+    "port": 8080,
+    "path": "/mcp/",
+    "log_level": "INFO"
+  },
   "packages": [
     {
       "registryType": "pypi",
       "identifier": "arifos",
       "version": "2026.3.1",
-      "transport": {
-        "type": "stdio"
-      }
+      "transport": { "type": "stdio" }
     },
     {
       "registryType": "oci",
@@ -34,13 +44,25 @@
   ],
   "remotes": [
     {
+      "name": "jina-reader",
+      "type": "remote",
+      "url": "https://mcp.jina.ai/v1",
+      "headers": { "Authorization": "Bearer ${JINA_API_KEY}" }
+    },
+    {
+      "name": "context7",
+      "type": "remote",
+      "url": "https://mcp.context7.com/mcp",
+      "headers": { "Authorization": "Bearer ${CONTEXT7_API_KEY}" }
+    },
+    {
       "type": "sse",
       "url": "https://arifosmcp.arif-fazil.com/sse"
     },
     {
       "type": "streamable-http",
       "url": "https://arifosmcp.arif-fazil.com/mcp",
-      "authentication": {"type": "none"}
+      "authentication": { "type": "none" }
     }
   ],
   "tools": {
@@ -77,7 +99,7 @@
     "apex_judge": {
       "stage": "888",
       "trinity": "Ψ Psi",
-      "floors": ["F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "F13"],
+      "floors": ["F1-F13"],
       "description": "Sovereign verdict synthesis + governance_token"
     },
     "eureka_forge": {
@@ -129,41 +151,8 @@
     }
   },
   "trinity": {
-    "delta": {
-      "symbol": "Δ",
-      "name": "Mind",
-      "role": "AGI Reasoning",
-      "stages": ["000", "111", "333"],
-      "floors": ["F2", "F4", "F7", "F8"]
-    },
-    "omega": {
-      "symbol": "Ω",
-      "name": "Heart",
-      "role": "ASI Safety",
-      "stages": ["444", "555", "666"],
-      "floors": ["F5", "F6", "F9"]
-    },
-    "psi": {
-      "symbol": "Ψ",
-      "name": "Soul",
-      "role": "APEX Judgment",
-      "stages": ["777", "888", "999"],
-      "floors": ["F1", "F10", "F11", "F12", "F13"]
-    }
-  },
-  "constitutional_floors": {
-    "F1": {"name": "Amanah", "type": "hard", "threshold": "reversible"},
-    "F2": {"name": "Truth", "type": "hard", "threshold": "τ ≥ 0.99"},
-    "F3": {"name": "Tri-Witness", "type": "mirror", "threshold": "W³ ≥ 0.95"},
-    "F4": {"name": "Clarity", "type": "hard", "threshold": "ΔS ≤ 0"},
-    "F5": {"name": "Peace", "type": "soft", "threshold": "P² ≥ 1.0"},
-    "F6": {"name": "Empathy", "type": "soft", "threshold": "κᵣ ≥ 0.70"},
-    "F7": {"name": "Humility", "type": "hard", "threshold": "Ω₀ ∈ [0.03, 0.05]"},
-    "F8": {"name": "Genius", "type": "mirror", "threshold": "G ≥ 0.80"},
-    "F9": {"name": "Anti-Hantu", "type": "soft", "threshold": "C_dark < 0.30"},
-    "F10": {"name": "Ontology", "type": "wall", "threshold": "category_lock"},
-    "F11": {"name": "Authority", "type": "hard", "threshold": "valid_auth"},
-    "F12": {"name": "Defense", "type": "wall", "threshold": "injection_risk < 0.85"},
-    "F13": {"name": "Sovereignty", "type": "wall", "threshold": "human_veto"}
+    "delta": { "symbol": "Δ", "name": "Mind", "role": "AGI Reasoning", "stages": ["000", "111", "333"], "floors": ["F2", "F4", "F7", "F8"] },
+    "omega": { "symbol": "Ω", "name": "Heart", "role": "ASI Safety", "stages": ["444", "555", "666"], "floors": ["F5", "F6", "F9"] },
+    "psi": { "symbol": "Ψ", "name": "Soul", "role": "APEX Judgment", "stages": ["777", "888", "999"], "floors": ["F1", "F10", "F11", "F12", "F13"] }
   }
 }

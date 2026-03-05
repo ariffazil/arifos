@@ -1,3 +1,0 @@
-CONTAINER ID   IMAGE                COMMAND                  CREATED       STATUS                    PORTS                      NAMES
-f1bfa897fc04   postgres:16-alpine   "docker-entrypoint.s…"   3 hours ago   Up 16 minutes (healthy)   127.0.0.1:5432->5432/tcp   arifos-postgres
-61d976900ba5   redis:7-alpine       "docker-entrypoint.s…"   3 hours ago   Up 16 minutes (healthy)   127.0.0.1:6379->6379/tcp   arifos-redis
