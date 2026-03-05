@@ -84,6 +84,12 @@ jobs:
             tests/test_core_foundation.py \
             tests/test_imports_smoke.py \
             tests/test_constitutional_core.py \
+            tests/test_formatter_nudge_routing.py \
+            tests/test_uncertainty_telemetry.py \
+            tests/test_governance_kernel_extended.py \
+            tests/test_physics_extended.py \
+            tests/test_homeostasis.py \
+            tests/test_build_info.py \
             -k "not test_all_tools_latency" \
             --cov=core --cov=aaa_mcp --cov=aclip_cai \
             --cov-report=term \
