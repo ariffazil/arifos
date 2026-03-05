@@ -1,0 +1,78 @@
+1. What the VPS agent should actually do
+On your Hostinger/Coolify VPS, your “agent” (whatever is orchestrating deploys) just needs to:
+
+Pull latest code from GitHub (with your new contracts/adapters).
+
+Rebuild the arifOS MCP Docker image.
+
+Restart the compose stack.
+
+Run a quick health check on /health and optionally /mcp.
+
+Everything else (MCP protocol, tools, contracts) is already inside the image.
+
+2. Minimal deploy script the agent can run
+Assuming:
+
+Repo directory: /srv/arifOS (adapt if different).
+
+Compose file: /srv/arifOS/docker-compose.yml.
+
+Service name: arifos-mcp (adapt to your actual service label in compose).
+
+Your agent can run a shell script like:
+
+bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd /srv/arifOS
+
+echo "[arifOS] Pulling latest main..."
+git fetch origin main
+git reset --hard origin/main
+
+echo "[arifOS] Rebuilding MCP image..."
+docker compose build arifos-mcp
+
+echo "[arifOS] Restarting stack..."
+docker compose up -d arifos-mcp
+
+echo "[arifOS] Health check..."
+curl -fsS http://localhost:8080/health || {
+  echo "[arifOS] Health check FAILED"
+  exit 1
+}
+
+echo "[arifOS] Deploy OK."
+Your “agent at VPS” can:
+
+either call this script directly (SSH + command),
+
+or use Coolify’s “Run command after deploy” hook to execute these steps.
+
+3. How to plug this into an agentic flow
+Depending on what “agent” means in your setup:
+
+If it’s an LLM Ops agent (e.g. n8n / custom runner):
+
+Give it SSH access (key) to the VPS.
+
+Define a fixed command it’s allowed to run, e.g. sudo /usr/local/bin/deploy_arifos.sh.
+
+Wrap that with a hard F1 guard: the agent can only trigger this script, not arbitrary shell.
+
+If it’s Coolify’s internal agent:
+
+Configure the arifOS app’s “Deploy” to auto‑pull from GitHub and rebuild when you push.
+
+Your agent then only needs to trigger a “deploy” action via Coolify’s API, not touch Docker directly.
+
+4. Governance guard (F1/F11)
+To stay within arifOS principles:
+
+Keep a manual “big red switch”: the agent should not be able to delete data volumes or change env secrets, only redeploy the app image.
+
+Log each agent‑triggered deploy in your Vault/Witness (time, git SHA, who/what triggered), so if a deploy misbehaves you can roll back by SHA.
+
+Do you want a version of that bash deploy script trimmed specifically for Coolify’s default path (service name and port you’re actually using)?
