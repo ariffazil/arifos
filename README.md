@@ -17,7 +17,7 @@
 [![Python](https://img.shields.io/badge/python-3.12+-green?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)  
 [![Dashboard](https://img.shields.io/badge/Dashboard-Live-FF6600?style=for-the-badge&logo=cloudflare&logoColor=white)](https://arifosmcp-truth-claim.pages.dev)
 [![Live Tests](https://img.shields.io/github/actions/workflow/status/ariffazil/arifOS/live_tests.yml?branch=main&style=for-the-badge&label=Live%20Tests&logo=github)](https://github.com/ariffazil/arifOS/actions/workflows/live_tests.yml)
-[![Coverage](https://codecov.io/gh/ariffazil/arifOS/branch/main/graph/badge.svg)](https://codecov.io/gh/ariffazil/arifOS)
+[![Coverage](https://codecov.io/gh/ariffazil/arifOS/graph/badge.svg?token=b458f4ac-fb08-4554-baf3-dc3967fafb79)](https://codecov.io/gh/ariffazil/arifOS)
 
 **[→ QUICKSTART: Run in 5 minutes](QUICKSTART.md)**
 
