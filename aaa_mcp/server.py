@@ -19,7 +19,7 @@ import json
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict
+from typing import Any
 
 import secrets
 import os
@@ -1272,23 +1272,6 @@ async def _check_vital(
 check_vital = ToolHandle(_check_vital)
 
 
-@mcp.tool(name="critique_thought", description="[Lane: Ω Omega] [Floors: F4, F7, F8] 7-organ alignment & bias critique.")
-async def _critique_thought(session_id: str, query: str) -> Dict[str, Any]:
-    return _envelope(stage="666_CRITIQUE", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
-
-critique_thought = ToolHandle(_critique_thought)
-
-@mcp.tool(name="inspect_file", description="[Lane: Δ Delta] [Floors: F1, F4, F11] Filesystem inspection (read-only).")
-async def _inspect_file(session_id: str, path: str) -> Dict[str, Any]:
-    return _envelope(stage="111_INSPECT", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
-
-inspect_file = ToolHandle(_inspect_file)
-
-@mcp.tool(name="check_vital", description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.")
-async def _check_vital(session_id: str) -> Dict[str, Any]:
-    return _envelope(stage="555_HEALTH", session_id=session_id, verdict="SEAL", payload={"status": "STUB_IMPLEMENTATION"})
-
-check_vital = ToolHandle(_check_vital)
 
 # ═══════════════════════════════════════════════════════
 # RESOURCES, TEMPLATES, PROMPTS (Full-context orchestration + Inspector completeness)

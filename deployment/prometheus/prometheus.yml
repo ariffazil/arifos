@@ -6,43 +6,23 @@ global:
     cluster: 'arifos'
     environment: 'production'
 
-rule_files:
-  - 'alerts.yml'
-
 scrape_configs:
-  # arifOS MCP Server metrics
+  # arifOS MCP Server — /health used until /metrics is implemented
   - job_name: 'arifos-mcp'
     static_configs:
-      - targets: ['arifosmcp:8080']
+      - targets: ['arifosmcp_server:8080']
         labels:
           service: 'arifos-mcp'
           component: 'governance'
-    metrics_path: '/metrics'
-    scrape_interval: 10s
+    metrics_path: '/health'
+    scrape_interval: 30s
     scrape_timeout: 5s
 
-  # Node exporter (optional)
-  - job_name: 'node'
+  # Qdrant vector store
+  - job_name: 'qdrant'
     static_configs:
-      - targets: ['node-exporter:9100']
-    scrape_interval: 30s
-
-  # Docker daemon metrics
-  - job_name: 'docker'
-    static_configs:
-      - targets: ['docker-daemon:9323']
-    scrape_interval: 30s
-
-  # PostgreSQL metrics
-  - job_name: 'postgres'
-    static_configs:
-      - targets: ['postgres-exporter:9187']
-    scrape_interval: 30s
-
-  # Redis metrics
-  - job_name: 'redis'
-    static_configs:
-      - targets: ['redis-exporter:9121']
+      - targets: ['qdrant_memory:6333']
+    metrics_path: '/metrics'
     scrape_interval: 30s
 
   # Prometheus self-metrics
@@ -50,8 +30,3 @@ scrape_configs:
     static_configs:
       - targets: ['localhost:9090']
     scrape_interval: 30s
-
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets: ['alertmanager:9093']

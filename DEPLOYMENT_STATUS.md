@@ -2,7 +2,7 @@
 
 **Last Updated:** 2026-03-05
 **Version:** v2026.3.1
-**Phase:** 2B Complete — Phase 3 Next
+**Phase:** 3 Complete — Phase 4 Next
 
 ---
 
@@ -12,9 +12,13 @@
 |---------|--------|--------------|
 | arifOS MCP Server | HEALTHY | `https://arifosmcp.arif-fazil.com/mcp` |
 | Traefik Router | UP | `:80` → `:443` (auto-redirect) |
-| PostgreSQL 16 | HEALTHY | `localhost:5432` |
-| Redis 7 | HEALTHY | `localhost:6379` |
-| Qdrant | UP | `http://qdrant:6333` (internal) |
+| PostgreSQL 16 | HEALTHY | `localhost:5432` (arifos-internal) |
+| Redis 7 | HEALTHY | `localhost:6379` (arifos-internal) |
+| Qdrant | UP | `http://qdrant_memory:6333` (internal) |
+| Ollama | UP | `http://ollama_engine:11434` (internal) |
+| Prometheus | UP | `http://arifos_prometheus:9090` (internal) |
+| Grafana | UP | `https://monitor.arifosmcp.arif-fazil.com` (DNS pending) |
+| n8n | UP | `https://flow.arifosmcp.arif-fazil.com` (DNS pending) |
 | Webhook CI/CD | UP | `https://hook.arifosmcp.arif-fazil.com/hooks/deploy-arifos` |
 
 ---
@@ -23,13 +27,13 @@
 
 **Endpoint:** `https://arifosmcp.arif-fazil.com/mcp`
 **Transport:** Streamable HTTP
-**Tools loaded:** 13
+**Tools loaded:** 14
 
 | Tool | Status | Notes |
 |------|--------|-------|
 | `anchor_session` | LIVE | |
 | `reason_mind` | LIVE | |
-| `recall_memory` | LIVE | Qdrant backend active (Phase 2A) |
+| `recall_memory` | LIVE | Qdrant backend active |
 | `simulate_heart` | LIVE | |
 | `critique_thought` | LIVE | |
 | `eureka_forge` | LIVE | |
@@ -40,12 +44,13 @@
 | `inspect_file` | LIVE | |
 | `audit_rules` | LIVE | |
 | `check_vital` | LIVE | |
+| `visualize_governance` | LIVE | Constitutional Visualizer UI |
 
 ---
 
 ## Constitutional Governance
 
-All 13 tools protected by F1-F13 constitutional floors.
+All 14 tools protected by F1-F13 constitutional floors.
 
 | Floor | Name | Status |
 |-------|------|--------|
@@ -76,13 +81,10 @@ All 13 tools protected by F1-F13 constitutional floors.
 
 ## Not Yet Deployed
 
-| Service | Phase | Reason |
-|---------|-------|--------|
-| Ollama (local LLM) | 3 | Image not pulled |
-| Prometheus + Grafana | 3 | Configs ready, not in compose yet |
-| n8n (workflow automation) | 3 | Not in compose yet |
-| Agent Zero | 4 | Image not pulled, APEX-THEORY dir missing |
-| OpenClaw | 4 | Image needs source build |
+| Service | Phase | Notes |
+|---------|-------|-------|
+| Agent Zero | 4 | Image not pulled — `agent0ai/agent-zero:latest` |
+| OpenClaw | 4 | Image needs source build at `/root/openclaw` |
 
 ---
 
@@ -93,8 +95,8 @@ All 13 tools protected by F1-F13 constitutional floors.
 | 1 | PostgreSQL, Redis, Traefik, arifOS MCP | COMPLETE | — |
 | 2A | Qdrant vector memory | COMPLETE | 2026-03-05 |
 | 2B | Webhook CI/CD listener | COMPLETE | 2026-03-05 |
-| 3 | Ollama, Prometheus, Grafana, n8n | NEXT | — |
-| 4 | Agent Zero, OpenClaw | PLANNED | — |
+| 3 | Ollama, Prometheus, Grafana, n8n | COMPLETE | 2026-03-05 |
+| 4 | Agent Zero, OpenClaw | NEXT | — |
 | 5 | Production hardening, monitoring alerts | PLANNED | — |
 
 ---
