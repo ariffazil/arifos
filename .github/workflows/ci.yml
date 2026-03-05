@@ -90,6 +90,7 @@ jobs:
             tests/test_physics_extended.py \
             tests/test_homeostasis.py \
             tests/test_build_info.py \
+            tests/test_fastmcp_server.py \
             -k "not test_all_tools_latency" \
             --cov=core --cov=aaa_mcp --cov=aclip_cai \
             --cov-report=term \

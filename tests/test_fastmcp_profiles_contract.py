@@ -19,7 +19,7 @@ def test_profiles_pin_fastmcp_exact_version() -> None:
     for file_name in ("fastmcp.json", "dev.fastmcp.json", "prod.fastmcp.json"):
         config = _load(file_name)
         deps = config.get("environment", {}).get("dependencies", [])
-        assert "fastmcp==3.0.1" in deps
+        assert "fastmcp==3.0.2" in deps
 
 
 def test_dev_and_prod_transports() -> None:

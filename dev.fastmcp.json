@@ -7,8 +7,8 @@
   },
   "environment": {
     "type": "uv",
-    "python": ">=3.10",
-    "dependencies": ["fastmcp==3.0.1"],
+    "python": ">=3.12",
+    "dependencies": ["fastmcp==3.0.2"],
     "editable": ["."]
   },
   "deployment": {

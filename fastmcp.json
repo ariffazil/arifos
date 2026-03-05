@@ -7,8 +7,9 @@
   },
   "environment": {
     "type": "uv",
-    "python": ">=3.10",
-    "dependencies": ["fastmcp==3.0.1"]
+    "python": ">=3.12",
+    "dependencies": ["fastmcp==3.0.2", "arifos"],
+    "editable": ["."]
   },
   "deployment": {
     "transport": "http",
@@ -18,7 +19,8 @@
     "log_level": "INFO",
     "env": {
       "HOST": "0.0.0.0",
-      "PORT": "8080"
+      "PORT": "8080",
+      "ARIFOS_GOVERNANCE_SECRET": "${ARIFOS_GOVERNANCE_SECRET}"
     }
   }
 }
