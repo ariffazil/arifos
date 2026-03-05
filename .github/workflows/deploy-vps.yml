@@ -29,7 +29,6 @@ jobs:
         ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
     - name: Connect GitHub runner to Tailscale (optional)
-      if: ${{ secrets.TS_AUTHKEY != '' }}
       uses: tailscale/github-action@v3
       with:
         authkey: ${{ secrets.TS_AUTHKEY }}
