@@ -401,10 +401,36 @@ class SystemState(BaseModel):
 
 
 # ============================================================================
+# SENSORY EVIDENCE — L4 Tool Ingest
+# ============================================================================
+
+
+class RepoEvidence(BaseModel):
+    """
+    Δ Delta Sensory: GitIngest Codebase Digest.
+    
+    Hardened with F12 (Injection) and F4 (Thermodynamic) budget.
+    """
+
+    repo_url: str = Field(description="Remote URL or local directory path")
+    digest: str = Field(description="The primary codebase text digest")
+    tree: str = Field(description="Directory structure representation")
+    token_count: int = Field(description="F4: Calculated token usage")
+    file_count: int = Field(description="Number of files ingested")
+    f12_risk_score: float = Field(ge=0.0, le=1.0, description="F12: Injection risk score")
+    verdict: Verdict = Verdict.SEAL
+    taint_lineage: dict[str, Any] = Field(default_factory=dict)
+
+    model_config = ConfigDict(extra="allow")
+
+
+# ============================================================================
 # EXPORT PUBLIC API
 # ============================================================================
 
 __all__ = [
+    # Evidence
+    "RepoEvidence",
     # Enums
     "Verdict",
     # Thought Structures
