@@ -8,7 +8,9 @@
   "environment": {
     "type": "uv",
     "python": ">=3.12",
-    "dependencies": ["fastmcp==3.0.2", "arifos"],`r`n    "editable": ["."]`r`n  },
+    "dependencies": ["fastmcp==3.0.2", "arifos"],
+    "editable": ["."]
+  },
   "deployment": {
     "transport": "http",
     "host": "0.0.0.0",
