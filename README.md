@@ -329,18 +329,39 @@ HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
 
 ---
 
-## 🎮 Constitutional Decision Visualizer (The Control Room)
+## 🎮 Constitutional Decision Visualizer (Production Deployed)
 
-arifOS features a built-in, real-time "Constitutional Control Room" to monitor the 13 Floors, Tri-Witness consensus, and Vitality metrics during decision processing.
+**Live MCP App + Standalone Dashboard for Real-Time Governance Monitoring**
 
-It is built with a **Dual-Approach Architecture**:
-1. **Standalone Web Dashboard:** A pure browser experience. Access it locally at `http://localhost:8080/dashboard` or in production at `https://dashboard.arifos.arif-fazil.com`.
-2. **Integrated MCP App:** An embedded interactive UI for host platforms like Claude Desktop. Registered as the tool resource `ui://constitutional-visualizer/mcp-app.html`.
+The Constitutional Decision Visualizer is arifOS's **real-time control room** for monitoring the 13 Floors, Tri-Witness consensus, and thermodynamic vitality during decision processing. It is **production-deployed** and accessible via multiple platforms.
 
-**Features:**
-- **Live Floor Gauges:** Real-time visualization of the 13 Constitutional Floors with thermodynamic visual language (Negative Entropy reduction, Truth lock warnings, Amanah gates).
-- **Tri-Witness Radar (W³):** A geometric mean radar showing the consensus fragmentation between Human, AI, and Earth layers.
-- **Metabolic Flow & Vitality:** Trace the `000 -> 999` metabolic pipeline in real-time.
+### Access Methods
+
+1. **MCP App (Claude Web/Desktop)**  
+   - Call the `visualize_governance` tool from any MCP client
+   - Renders an interactive UI showing live governance telemetry
+   - Resource URI: `ui://constitutional-visualizer/mcp-app.html`
+
+2. **Standalone Dashboard (Web Browser)**  
+   - **Local**: `http://localhost:8080/dashboard`  
+   - **Production**: `https://dashboard.arifos.arif-fazil.com`
+   - No MCP client required - pure browser experience
+
+### Real-Time Features
+
+- **Live Floor Gauges**: Real-time visualization of all 13 Constitutional Floors (F1-F13) with thermodynamic visual language
+- **Tri-Witness Radar (W³)**: Geometric consensus visualization between Human, AI, and Earth layers  
+- **Thermodynamic Telemetry**: Live ΔS (entropy), Peace², κᵣ (empathy), and Ψ (vitality) monitoring
+- **Metabolic Flow Trace**: Watch the `000 → 999` pipeline execute in real-time
+- **Verdict History**: Browse past governance decisions from VAULT999
+
+### API Endpoints
+
+The visualizer consumes these production REST endpoints:
+- `GET /api/governance-status` - Current session telemetry (ΔS, floors, verdict)
+- `GET /api/governance-history` - Recent VAULT999 sessions
+
+**Deployment Status**: ✅ **LIVE** (Deployed commit: [`eaf9f01`](https://github.com/ariffazil/arifOS/commit/eaf9f015c58aa15b8968ecaf73796b82c2425463))
 
 ---
 
