@@ -19,6 +19,8 @@
 [![Live Tests](https://img.shields.io/github/actions/workflow/status/ariffazil/arifOS/live_tests.yml?branch=main&style=for-the-badge&label=Live%20Tests&logo=github)](https://github.com/ariffazil/arifOS/actions/workflows/live_tests.yml)
 [![Coverage](https://codecov.io/gh/ariffazil/arifOS/branch/main/graph/badge.svg)](https://codecov.io/gh/ariffazil/arifOS)
 
+**[→ QUICKSTART: Run in 5 minutes](QUICKSTART.md)**
+
 </div>
 
 > **Gödel-locked** = canonical endpoints whose content is governed by the constitutional sealing process; changes require Phoenix cooling + signed release.
