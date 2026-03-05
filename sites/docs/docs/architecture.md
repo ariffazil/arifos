@@ -2,7 +2,7 @@
 id: architecture
 title: Architecture
 sidebar_position: 6
-description: The L0-L7 stack, four-layer kernel, Trinity engines (DeltaOmegaPsi), 13 MCP tools, 13 constitutional floors, and the 000-999 metabolic loop.
+description: The L0-L7 stack, ARIF-banded L2-L5 architecture, Trinity engines (DeltaOmegaPsi), 13 MCP tools, 13 constitutional floors, and the 000-999 metabolic loop.
 ---
 
 # Architecture
@@ -19,13 +19,13 @@ description: The L0-L7 stack, four-layer kernel, Trinity engines (DeltaOmegaPsi)
 
  L6: INSTITUTION - Trinity consensus (organisational governance)    Stubs
 
- L5: AGENTS      - Multi-agent federation (coordinated actors)      Pilot
+ L5: AGENTS      - 5-role constitutional hypervisor (no-bypass)     Production
 
- L4: TOOLS       - MCP ecosystem (13 canonical + sensory tools)     Production
+ L4: TOOLS       - 13 canonical MCP tools grouped as ARIF bands      Production
 
- L3: WORKFLOW    - 000-999 constitutional sequences                 Production
+ L3: WORKFLOW    - 9 metabolic workflows over 000-999 sequences      Production
 
- L2: SKILLS      - 9 A-CLIP behavioural primitives                  Production
+ L2: SKILLS      - 9 canonical verbs (anchor..seal), ARIF-aligned    Production
 
  L1: PROMPTS     - Zero-context entry (user interface)              Production
 
@@ -38,6 +38,63 @@ description: The L0-L7 stack, four-layer kernel, Trinity engines (DeltaOmegaPsi)
 ```
 
 **Key rule:** L0 is invariant, transport-agnostic constitutional law. L1-L7 are applications that run on it. Swapping models or agents does not bypass L0.
+
+---
+
+## L2-L5 Deep Dive (333_APPS)
+
+This is the governed application spine in `333_APPS/`:
+
+| Layer | What it is | Operational role |
+|:--|:--|:--|
+| **L2 SKILLS** | 9 canonical verbs | Behavioral primitives (`anchor`, `reason`, `integrate`, `respond`, `validate`, `align`, `forge`, `audit`, `seal`) |
+| **L3 WORKFLOW** | 9 metabolic workflows | Multi-step recipes that map verbs into 000-999 stage paths |
+| **L4 TOOLS** | 13 canonical MCP tools | Runtime instrument surface, grouped into ARIF bands |
+| **L5 AGENTS** | 5-role hypervisor | Architect, Engineer, Auditor, Validator, Orchestrator routing with no-bypass gates |
+
+### L5 role-to-band routing
+
+- **A-ORCHESTRATOR**: Anchor band + flow routing
+- **A-ARCHITECT**: Reflect + Integrate bands
+- **A-ENGINEER**: Reflect + Forge bands (policy-gated)
+- **A-AUDITOR**: Reflect + Integrate bands
+- **A-VALIDATOR**: Forge band (`apex_judge`, `seal_vault`)
+
+### L3 workflow map (v60+ direction)
+
+`anchor -> reason -> integrate -> respond -> validate -> align -> forge -> audit -> seal`
+
+These workflows align directly with L2 verbs and are executed as 000-999 constitutional sequences.
+
+### ARIF + L2-L5 visual map
+
+```mermaid
+flowchart TD
+    U[Client Prompt\nL1 PROMPT] --> S[L2 SKILLS\n9 verbs]
+    S --> W[L3 WORKFLOW\n9 metabolic workflows]
+    W --> T[L4 TOOLS\n13 canonical MCP tools]
+    T --> A[L5 AGENTS\n5-role constitutional hypervisor]
+    A --> K[L0 KERNEL\nDelta/Omega/Psi + F1-F13]
+
+    subgraph ARIF_BANDS[ARIF bands at L4]
+      TA[A: Anchor\nanchor_session, check_vital]
+      TR[R: Reflect\nreason/search/fetch/recall/heart/critique]
+      TI[I: Integrate\ninspect_file, audit_rules]
+      TF[F: Forge\neureka_forge, apex_judge, seal_vault]
+    end
+
+    T --> TA
+    T --> TR
+    T --> TI
+    T --> TF
+
+    A -. routes .-> TA
+    A -. routes .-> TR
+    A -. routes .-> TI
+    A -. routes .-> TF
+
+    K --> V[VAULT999\nimmutable ledger]
+```
 
 ---
 
@@ -169,36 +226,26 @@ Real-world emergence is managed by observing anomalies, measuring their entropy 
 
 ---
 
-## 13 Canonical MCP Tools
+## 13 Canonical MCP Tools (ARIF-banded)
 
-All defined in `aaa_mcp/server.py` with `@mcp.tool()` decorators. Backend logic in `aclip_cai/triad/`.
+All tools are defined in `aaa_mcp/server.py` with `@mcp.tool()` decorators. Runtime logic lives in `aclip_cai/triad/` and is policy-gated by constitutional floors.
 
-### Governance Spine (8 tools)
+### ARIF bands at L4 (tools)
 
-| Tool | Lane | Stage | Floors | Purpose |
-|:--|:--|:--|:--|:--|
-| `anchor_session` | Delta | 000 | F11, F12, F13 | Session ignition and injection defense |
-| `reason_mind` | Delta | 111-444 | F2, F4, F7, F8 | AGI cognition (Stage 222 THINK runs internally) |
-| `recall_memory` | Omega | 555 | F4, F7, F13 | Associative memory via EUREKA sieve |
-| `simulate_heart` | Omega | 555-666 | F4, F5, F6 | Stakeholder impact and care constraints |
-| `critique_thought` | Omega | 666 | F4, F7, F8 | 7-organ alignment and bias critique |
-| `apex_judge` | Psi | 777-888 | F1-F13 | Sovereign verdict + governance_token |
-| `eureka_forge` | Psi | 888 | F1, F11, F12 | Sandboxed action execution |
-| `seal_vault` | Psi | 999 | F1, F3, F10 | Immutable ledger (token-locked) |
+`L4_TOOLS` exposes 13 canonical MCP tools, hardened into 4 bands:
 
-### Utility Tools (5 tools, read-only)
+| Band | Meaning | Tools (examples) | Primary Floors |
+|:--|:--|:--|:--|
+| **A** | Anchor | `anchor_session`, `check_vital` | F4, F11-F13 |
+| **R** | Reflect | `reason_mind`, `search_reality`, `fetch_content`, `recall_memory`, `simulate_heart`, `critique_thought` | F2, F4-F8 |
+| **I** | Integrate | `inspect_file`, `audit_rules` | F1, F2, F7, F8, F10, F11 |
+| **F** | Forge | `eureka_forge`, `apex_judge`, `seal_vault` | F1-F3, F5-F9, F11-F13 |
 
-| Tool | Lane | Stage | Floors | Purpose |
-|:--|:--|:--|:--|:--|
-| `search_reality` | Delta | 111 | F2, F4, F12 | Web grounding (Perplexity / Brave) |
-| `fetch_content` | Delta | 444 | F2, F4, F12 | URL content retrieval with taint lineage |
-| `inspect_file` | Delta | 111 | F1, F4, F11 | Filesystem read-only inspection |
-| `audit_rules` | Delta | 333 | F2, F8, F10 | Governance rule audits |
-| `check_vital` | Omega | 555 | F4, F5, F7 | System health and vital signs |
+Clients call tools directly; arifOS enforces band sequencing, role permissions, and hold gates behind the scenes.
 
-All tools return a standard envelope: `{verdict, stage, session_id, floors, truth, next_actions}`
+All tools return a standard envelope: `{verdict, stage, session_id, floors, truth, next_actions}`.
 
-**Verdicts:** `SEAL` (pass) | `PARTIAL` (soft floor warn) | `SABAR` (hold) | `VOID` (blocked) | `888_HOLD` (needs human)
+**Verdicts:** `SEAL` | `PARTIAL` | `SABAR` | `VOID` | `888_HOLD`
 
 ### Amanah Handshake (Token-Locked Sealing)
 
@@ -259,10 +306,10 @@ arifos_aaa_mcp/      (Canonical PyPI Surface)
 
 333_APPS/            (Application Stack L1-L7)
   L1_PROMPT/         System prompt and examples
-  L2_SKILLS/         9 A-CLIP actions + utility skills
-  L3_WORKFLOW/       000-999 workflow definitions
-  L4_TOOLS/          MCP client configs (Claude, Kimi, Codex, OpenCode)
-  L5_AGENTS/         Multi-agent federation (pilot)
+  L2_SKILLS/         9 canonical verbs + utilities
+  L3_WORKFLOW/       9 metabolic workflow definitions
+  L4_TOOLS/          13-tool MCP surface grouped by ARIF bands
+  L5_AGENTS/         5-role constitutional hypervisor
   L6_INSTITUTION/    Trinity consensus (stubs)
   L7_AGI/            Recursive self-healing (research)
 ```

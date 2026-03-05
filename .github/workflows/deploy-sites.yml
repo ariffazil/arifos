@@ -5,9 +5,6 @@ name: Deploy APPS site to GitHub Pages
 on:
   push:
     branches: [main, master]
-    paths:
-      - 'sites/docs/**'
-      - '.github/workflows/deploy-sites.yml'
   workflow_dispatch:
 
 # GitHub Pages permissions
@@ -39,6 +36,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
         working-directory: sites/docs
+
+      - name: Validate canonical docs source
+        run: |
+          test -f sites/docs/docs/intro.md
+          test -f sites/docs/docs/architecture.md
+          test -f sites/docs/docs/governance.md
+          echo "✅ Canonical docs source is present at sites/docs/docs"
 
       - name: Build docs
         run: npm run build
@@ -77,3 +81,16 @@ jobs:
           echo "========================================"
           echo "  DITEMPA BUKAN DIBERI 🔥"
           echo "========================================"
+
+      - name: Smoke test public docs URLs
+        run: |
+          for i in 1 2 3 4 5; do
+            if curl -fsSL "https://arifos.arif-fazil.com/intro" >/dev/null && curl -fsSL "https://arifos.arif-fazil.com/architecture" >/dev/null; then
+              echo "✅ Public docs are reachable"
+              exit 0
+            fi
+            echo "⏳ Waiting for propagation ($i/5)..."
+            sleep 10
+          done
+          echo "❌ Public docs smoke test failed"
+          exit 1

@@ -3,18 +3,27 @@ id: intro
 title: Introduction
 slug: /intro
 sidebar_position: 1
-description: arifOS is a constitutional intelligence kernel with canonical AAA MCP 13-tool surface and governed 000->999 pipeline.
+description: arifOS is a constitutional intelligence kernel with ARIF bands, canonical AAA MCP 13-tool surface, and governed 000->999 pipeline.
 ---
 
 # arifOS - DITEMPA, BUKAN DIBERI
 
 *The system that knows because it admits what it cannot know.*
 
+**ARIF mnemonic:** **A**nchor -> **R**eflect -> **I**ntegrate -> **F**orge. This 4-band kernel runs alongside Trinity engines (Delta/Omega/Psi) and the 13 constitutional Floors (F1-F13).
+
 If you're new here, think of arifOS as a **constitutional safety system** for AI. It acts as a **Constitutional Kernel**—meaning it loads a strict set of ethical rules (the 13 Floors) into an AI before it's allowed to take any actions or talk to users.
 
 > **F7 Humility Notice:** arifOS minimizes hallucination and unsafe actions via F2 Truth (τ≥0.99) and F4 Clarity constraints. It does not guarantee perfect detection—see [known limitations](./governance#limitations).
 
 *For experts: arifOS governs AI cognition by loading an entire runtime environment (000->999) between LLMs and real-world tools, featuring thermodynamic grounding via the Eureka-Atlas Embedding Engine.*
+
+## 333_APPS L2-L5 (production-governed stack)
+
+- **L2 SKILLS**: 9 canonical verbs (anchor, reason, integrate, respond, validate, align, forge, audit, seal)
+- **L3 WORKFLOW**: metabolic runbooks mapping verbs into 000->999 sequences
+- **L4 TOOLS**: 13 canonical MCP tools grouped into ARIF bands (A/R/I/F)
+- **L5 AGENTS**: 5-role constitutional hypervisor enforcing no-bypass gates
 
 ## The Execution Model
 
@@ -80,6 +89,15 @@ If the client asks for an unsupported version, the server returns a JSON-RPC err
 - **Resources (2):** app-driven context packs (`arifos://aaa/schemas`, `arifos://aaa/full-context-pack`)
 - **Prompts (1):** user-invoked orchestration template (`arifos.prompt.aaa_chain`)
 
+## Developer mental model
+
+When you call arifOS from an MCP client (Claude Desktop, Cursor, ChatGPT, etc.):
+
+- **L1 PROMPT**: your message enters the system
+- **L2-L3**: skills + workflows decide which cognitive steps must run
+- **L4 (ARIF tools)**: MCP calls execute evidence, reflection, forge, judge, and seal actions
+- **L5 agents**: role gates, preflight, and `888_HOLD` protect irreversible operations
+
 ## Quick start
 
 ```bash
@@ -116,6 +134,13 @@ Live endpoints:
 11. `inspect_file`
 12. `audit_rules`
 13. `check_vital`
+
+### ARIF band grouping (same 13 tools)
+
+- **A - Anchor**: `anchor_session`, `check_vital`
+- **R - Reflect**: `reason_mind`, `search_reality`, `fetch_content`, `recall_memory`, `simulate_heart`, `critique_thought`
+- **I - Integrate**: `inspect_file`, `audit_rules`
+- **F - Forge**: `eureka_forge`, `apex_judge`, `seal_vault`
 
 ## Resources and prompt
 

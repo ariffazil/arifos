@@ -11,6 +11,15 @@ If left alone, AI models will hallucinate, execute dangerous code, and act witho
 
 These 13 rules act as a strict Constitution. If an AI breaks a hard rule, its action is immediately blocked.
 
+Governance is operationalized through the `333_APPS` stack:
+
+- **L2 SKILLS** turns floors into verbs (`anchor`, `validate`, `audit`, etc.)
+- **L3 WORKFLOW** composes those verbs into 000-999 loops
+- **L4 TOOLS** exposes the Trinity MCP surface, grouped into ARIF bands
+- **L5 AGENTS** decides which flows are allowed to run via constitutional parliament gates
+
+See [Architecture](./architecture) for the full L2-L5 mapping.
+
 > Technical Source: [`000_THEORY/000_LAW.md`](https://github.com/ariffazil/arifOS/blob/main/000_THEORY/000_LAW.md)
 ---
 
@@ -75,36 +84,18 @@ Each floor produces a `FloorScore` with a numeric value and a pass/fail verdict.
 
 ---
 
-## Tool Classification (13 Canonical Tools)
+## Tool Classification (13 Canonical Tools, ARIF Bands)
 
-The 13 MCP tools are organized into two categories based on their constitutional role:
+The 13 MCP tools are grouped into 4 ARIF runtime bands:
 
-### 8 Metabolic Tools (Core Governance Chain)
+| Band | Meaning | Tools | Constitutional focus |
+|:---|:---|:---|:---|
+| **A** | Anchor | `anchor_session`, `check_vital` | F4, F11-F13 |
+| **R** | Reflect | `reason_mind`, `search_reality`, `fetch_content`, `recall_memory`, `simulate_heart`, `critique_thought` | F2, F4-F8 |
+| **I** | Integrate | `inspect_file`, `audit_rules` | F1, F2, F7, F8, F10, F11 |
+| **F** | Forge | `eureka_forge`, `apex_judge`, `seal_vault` | F1-F3, F5-F9, F11-F13 |
 
-These tools form the `000 → 999` metabolic loop and participate in constitutional governance:
-
-| Tool | Stage | Purpose |
-|:---|:---|:---|
-| `anchor_session` | 000 INIT | Session ignition and defense scan |
-| `reason_mind` | 333 REASON | AGI cognition with truth validation |
-| `recall_memory` | 444 PHOENIX | Memory retrieval via EUREKA Sieve |
-| `simulate_heart` | 555 EMPATHY | Stakeholder impact analysis |
-| `critique_thought` | 666 ALIGN | Multi-model bias detection |
-| `eureka_forge` | 777 FORGE | Sandboxed execution with gates |
-| `apex_judge` | 888 APEX | Constitutional verdict synthesis |
-| `seal_vault` | 999 SEAL | Immutable ledger commitment |
-
-### 5 Evidence Tools (Read-Only Support)
-
-These tools provide evidence grounding without executing actions:
-
-| Tool | Purpose | Constitutional Role |
-|:---|:---|:---|
-| `search_reality` | Web evidence discovery | F2 Truth verification |
-| `fetch_content` | Document/content retrieval | Evidence gathering |
-| `inspect_file` | Filesystem inspection | F1 Amanah audit trail |
-| `audit_rules` | Governance health check | System verification |
-| `check_vital` | System telemetry | Operational monitoring |
+In policy terms: A must anchor first, R and I gather and structure evidence, F executes final forge/judge/seal steps under constitutional gates.
 
 ---
 
@@ -119,14 +110,14 @@ Every query runs through a numbered pipeline. Stages can be traced in the audit 
 222  REASON    - Hypothesis generation (F2, F8)
 333  INTEGRATE - Reality grounding, tri-witness (F3, F7, F10)
      
-444  RESPOND   - Draft response, plan (F4, F6)       AGI/ASI merge point
-555  VALIDATE  - Stakeholder impact (F5, F6)
-666  ALIGN     - Ethics check (F9)
+444  RESPOND   - Draft response, plan (L2 skill: respond, F4/F6)    AGI/ASI merge point
+555  VALIDATE  - Stakeholder impact (L2 skill: validate, F5/F6)
+666  ALIGN     - Ethics check (L2 skill: align, F9)
      
-777  FORGE     - Code synthesis / action (F2, F4)
-888  AUDIT     - Final verdict, tri-witness consensus (F3, F11)
+777  FORGE     - Code synthesis / action (L2 skill: forge, F2/F4)
+888  AUDIT     - Final verdict, tri-witness consensus (L2 skill: audit, F3/F11)
      
-999  SEAL      - Commit to VAULT999 (F1, F3)
+999  SEAL      - Commit to VAULT999 (L2 skill: seal, F1/F3)
 ```
 
 Stages 111-333 are the **AGI Delta (Mind) engine**; stages 444-666 are the **ASI Omega (Heart) engine**. They run in thermodynamic isolation - neither can see the other's reasoning until the 444 merge point (`compute_consensus()`).
