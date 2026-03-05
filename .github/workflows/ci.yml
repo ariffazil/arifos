@@ -73,25 +73,21 @@ jobs:
 
       - name: Run tests with coverage (pytest)
         run: |
-          if python -m pip show pytest >/dev/null 2>&1; then
-            pytest \
-              tests/aclip_cai \
-              tests/test_entrypoint_contract.py \
-              tests/test_fastmcp_config_contract.py \
-              tests/test_fastmcp_profiles_contract.py \
-              tests/test_e2e_core_to_aaa_mcp.py \
-              tests/integration/test_health_metrics.py \
-              tests/test_canonical_tool_contract.py \
-              tests/test_core_foundation.py \
-              tests/test_imports_smoke.py \
-              -k "not test_all_tools_latency" \
-              --cov=core --cov=aaa_mcp --cov=aclip_cai \
-              --cov-report=term \
-              --cov-report=xml:coverage.xml \
-              -q
-          else
-            echo "pytest not installed; skipping."
-          fi
+          pytest \
+            tests/aclip_cai \
+            tests/test_entrypoint_contract.py \
+            tests/test_fastmcp_config_contract.py \
+            tests/test_fastmcp_profiles_contract.py \
+            tests/test_e2e_core_to_aaa_mcp.py \
+            tests/integration/test_health_metrics.py \
+            tests/test_canonical_tool_contract.py \
+            tests/test_core_foundation.py \
+            tests/test_imports_smoke.py \
+            -k "not test_all_tools_latency" \
+            --cov=core --cov=aaa_mcp --cov=aclip_cai \
+            --cov-report=term \
+            --cov-report=xml:coverage.xml \
+            -q
 
       - name: Upload coverage to Codecov
         if: success() || failure()
