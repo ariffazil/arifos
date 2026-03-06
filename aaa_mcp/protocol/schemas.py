@@ -295,6 +295,32 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
         },
         "required": ["session_id", "command"],
     },
+    "ingest_evidence": {
+        "type": "object",
+        "properties": {
+            "source_type": {"type": "string", "enum": ["url", "file"]},
+            "target": {"type": "string", "minLength": 1},
+            "mode": {"type": "string", "enum": ["raw", "summary", "chunks"], "default": "raw"},
+            "max_chars": {"type": "integer", "default": 4000},
+            "session_id": {"type": ["string", "null"]},
+            "depth": {"type": "integer", "default": 1},
+            "include_hidden": {"type": "boolean", "default": False},
+            "pattern": {"type": "string", "default": "*"},
+            "min_size_bytes": {"type": "integer", "default": 0},
+            "max_files": {"type": "integer", "default": 100},
+        },
+        "required": ["source_type", "target"],
+    },
+    "metabolic_loop": {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string", "minLength": 1},
+            "risktier": {"type": "string", "default": "high"},
+            "actor_id": {"type": "string", "default": "antigravity-agent"},
+            "proposed_verdict": {"type": "string", "default": "SEAL"},
+        },
+        "required": ["query"],
+    },
     "fetch": {
         "type": "object",
         "properties": {
@@ -541,6 +567,32 @@ TOOL_OUTPUT_SCHEMAS: dict[str, dict[str, Any]] = {
             "instruction": {"type": "string"},
         },
         "required": ["verdict", "stage", "session_id"],
+    },
+    "ingest_evidence": {
+        "type": "object",
+        "properties": {
+            "target": {"type": "string"},
+            "status": {"type": "string"},
+            "content": {"type": "string"},
+            "metadata": {"type": "object"},
+            "error": {"type": "string"},
+        },
+        "required": ["target", "status"],
+    },
+    "metabolic_loop": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "session_id": {"type": "string"},
+            "risktier": {"type": "string"},
+            "governance_token": {"type": ["string", "null"]},
+            "next_actions": {"type": "array"},
+            "floors_state": {"type": "object"},
+            "summary": {"type": "string"},
+            "guidance": {"type": "string"},
+            "trace": {"type": "object"},
+        },
+        "required": ["verdict", "session_id"],
     },
     "fetch": {
         "type": "object",
