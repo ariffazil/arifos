@@ -245,8 +245,10 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
     "vector_memory": {
         "type": "object",
         "properties": {
-            "query": {"type": "string", "minLength": 1},
-            "session_id": {"type": "string"},
+            "query": {"type": "string", "minLength": 1, "description": "Legacy alias for current_thought_vector"},
+            "current_thought_vector": {"type": "string", "minLength": 1, "description": "The semantic shape/state of current reasoning to retrieve against."},
+            "session_id": {"type": "string", "description": "Legacy alias for session_token"},
+            "session_token": {"type": "string", "description": "The active session identifier for context grouping."},
             "depth": {"type": "integer", "minimum": 1, "maximum": 10, "default": 3},
             "domain": {
                 "type": "string",
@@ -255,13 +257,20 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
             },
             "debug": {"type": "boolean", "default": False},
         },
-        "required": ["query", "session_id"],
+        "anyOf": [
+            {"required": ["query", "session_id"]},
+            {"required": ["current_thought_vector", "session_token"]},
+            {"required": ["current_thought_vector", "session_id"]},
+            {"required": ["query", "session_token"]}
+        ],
     },
     "phoenix_recall": {
         "type": "object",
         "properties": {
             "query": {"type": "string", "minLength": 1},
+            "current_thought_vector": {"type": "string", "minLength": 1},
             "session_id": {"type": "string"},
+            "session_token": {"type": "string"},
             "depth": {"type": "integer", "minimum": 1, "maximum": 10, "default": 3},
             "domain": {
                 "type": "string",
@@ -270,7 +279,12 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
             },
             "debug": {"type": "boolean", "default": False},
         },
-        "required": ["query", "session_id"],
+        "anyOf": [
+            {"required": ["query", "session_id"]},
+            {"required": ["current_thought_vector", "session_token"]},
+            {"required": ["current_thought_vector", "session_id"]},
+            {"required": ["query", "session_token"]}
+        ],
     },
     "sovereign_actuator": {
         "type": "object",
