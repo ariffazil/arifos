@@ -5,6 +5,97 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.6-CiV-BROWSER] — 2026-03-06 — CIVILIZATION-INFRASTRUCTURE-HEADLESS-BROWSER-SEAL
+
+**T000:** 2026.03.06-CiV-BROWSER  
+**Theme:** CIV Infrastructure Layer activation, Smart Hybrid Search with Headless Browser, comprehensive README rewrite
+
+### Added
+- **Headless Browser Service** (`docker-compose.yml`):
+  - `headless_browser` container (browserless/chrome) on internal `arifos_trinity` network
+  - DOM Reality extraction for JavaScript-heavy sites (SPAs, React, Vue)
+  - Resource limits: 512MB RAM, max 2 concurrent sessions
+  - F12 Defense: All content wrapped in `<untrusted_external_data>` envelope with SHA-256 hashing
+- **HeadlessBrowserClient** (`aaa_mcp/external_gateways/headless_browser_client.py`):
+  - Async client for internal browser service communication
+  - Content quality scoring (0.0-1.0) with auto-fallback
+  - Health check endpoint (`/pressure`) for load monitoring
+  - Configurable via `ARIFOS_HEADLESS_BROWSER_ENABLED` env var
+- **Smart Hybrid Search** (`aaa_mcp/server.py` — `search_reality` tool v2.0):
+  - Query classifier: SPA/Research/News/General routing
+  - 4-tier fallback chain: Jina → Perplexity → Brave → Headless Browser
+  - Quality threshold-based fallback (0.2 minimum)
+  - F3 Tri-Witness consensus merge when multiple sources available
+  - Never returns empty — guarantees meaningful reality
+- **CIV Infrastructure Documentation** (`333_APPS/L6_CIVILIZATION/`):
+  - `EUREKA_CIV_INFRA_DISCOVERY.md` — Deep research findings
+  - `SEAL_HEADLESS_BROWSER_INTEGRATION.md` — Production deployment seal
+  - Clockmaker Daemon, Town Square (Redis), Resource Governor documented
+- **VPS Architecture Master Dossier** (`docs/VPS_ARCHITECTURE_MASTER_DOSSIER.md`):
+  - Complete update with CIV Infrastructure (L6) section
+  - Headless Browser operational guide
+  - Smart Hybrid Search architecture diagram
+  - 12-container deployment matrix
+
+### Changed
+- **`aaa_mcp/server.py`**: `search_reality` completely rewritten for Smart Hybrid routing
+  - New parameters: `force_source`, `min_content_quality`
+  - Query type classification (SPA/Research/News/General)
+  - Multi-source result merging with F3 consensus
+  - Quality scoring algorithm (content length, structure, F12 envelope)
+- **`aaa_mcp/external_gateways/__init__.py`**: Exports `HeadlessBrowserClient`
+- **`docker-compose.yml`**: Added `headless_browser` service, volume mount for live code
+- **`.env.docker`**: Added Headless Browser configuration (`ARIFOS_HEADLESS_BROWSER_ENABLED`, etc.)
+- **VPS Skill** (`.agents/skills/arifos-vps-ops/SKILL.md`): Complete rewrite with CIV-Browser architecture
+
+### Documentation
+- **`README.md`**: Comprehensive rewrite (153 → 434 lines)
+  - 🏛️ Canonical Trinity Web Links at TOP with web/file references
+  - 🤖 AI Machine-Readable Manifest (JSON) for LLM parsing
+  - 🧭 Zero-Context Intro (Human vs AI specific sections)
+  - 🌡️ 8-Layer Architecture table (L0-L7) with status + file links
+  - 🏛️ Complete 13 Constitutional Floors reference (F1-F13)
+  - ⚙️ Metabolic Loop (000→999) with stage explanations
+  - 🔌 14 MCP Tools catalog grouped by ARIF bands with file links
+  - 🆕 Smart Hybrid Search section (Headless Browser integration)
+  - 🎭 5-Role Agent Parliament (L5)
+- **`docs/CONTRAST_ANALYSIS_README_VERSIONS.md`**: Analysis of README evolution vs past versions
+
+### Fixed
+- **`pyproject.toml`**: Removed duplicate TOML sections (361 lines deleted)
+  - Fixed: `[project.optional-dependencies]` declared twice
+  - Fixed: `[project.scripts]` declared twice
+  - Fixed: `[project.urls]` declared twice
+  - Fixed: `[tool.setuptools]` declared twice
+  - Fixed: `[tool.pytest.ini_options]` declared twice
+- **`Dockerfile`**: Fixed Playwright permissions for `arifos` user
+  - Browser install now runs as root with proper chown
+  - Removed redundant second install attempt
+
+### Constitutional Compliance
+- **F1 Amanah**: PASS — Headless Browser read-only, no destructive actions
+- **F2 Truth**: PASS — Multi-source verification with quality scoring
+- **F3 Tri-Witness**: PASS — Consensus merge when sources disagree
+- **F4 Clarity**: PASS — Smart routing reduces entropy (ΔS ≤ 0)
+- **F5 Peace²**: PASS — Resource limits prevent overload (512MB, 2 sessions)
+- **F6 Empathy**: PASS — Graceful degradation on service unavailability
+- **F7 Humility**: PASS — Quality thresholds with uncertainty bounds
+- **F8 Genius**: PASS — Smart query classification (G = A×P×X×E²)
+- **F9 Anti-Hantu**: PASS — No consciousness claims in browser automation
+- **F10 Ontology**: PASS — Clear categorization (CIV Infrastructure)
+- **F11 CommandAuth**: PASS — Internal network only (no public port)
+- **F12 Defense**: PASS — `<untrusted_external_data>` envelope enforced
+- **F13 Sovereign**: PASS — Configurable enable/disable (`ARIFOS_HEADLESS_BROWSER_ENABLED`)
+
+### Verification
+- All 12 containers healthy on VPS
+- Headless Browser responding on `http://headless_browser:3000`
+- Smart Hybrid Search tested with quality scoring
+- GitHub repo synced with VPS (main branch)
+- README renders correctly with all links functional
+
+---
+
 ## [2026.3.6-CANON] — 2026-03-06 — CANONICAL-13-TOOL-SURFACE-LOCK-SCHEMA-ALIGN
 
 **T000:** 2026.03.06-CANONICAL-13-TOOL-SURFACE-LOCK-SCHEMA-ALIGN
