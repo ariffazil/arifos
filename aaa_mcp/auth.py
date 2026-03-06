@@ -25,7 +25,9 @@ Usage:
         ...
 """
 
+import logging
 import os
+import sys
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -35,6 +37,8 @@ from typing import Any
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.requests import Request
 from starlette.responses import JSONResponse
+
+logger = logging.getLogger(__name__)
 
 try:
     import jwt
@@ -98,7 +102,7 @@ def decode_jwt(token: str, config: JWTConfig) -> dict[str, Any] | None:
         )
         return payload
     except jwt.InvalidTokenError as e:
-        print(f"JWT validation failed: {e}")
+        logger.error(f"JWT validation failed: {e}")
         return None
 
 

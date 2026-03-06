@@ -15,18 +15,24 @@ PHASE 1 WIRING: Thermodynamic Core Integration
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac as _hmac
+import json
 import logging
+import os
 import secrets
 import sys
+import time
 import traceback
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from fastmcp import FastMCP
 from mcp.types import Icon
-import os
+import aaa_mcp as legacy
 
 from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.protocol.public_surface import (
@@ -1696,4 +1702,4 @@ __all__ = [
     "APEXSoulResult",
 ]
 
-# DEPLOY_TRIGGER: 2026-03-06T01:34:38+00:00
+# DEPLOY_TRIGGER: 2026-03-06T03:30:00+00:00

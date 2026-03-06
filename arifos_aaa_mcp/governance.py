@@ -44,9 +44,6 @@ def _motto_for_tool(tool: str) -> dict[str, str]:
     elif tool == "seal_vault":
         header = MOTTO_999_SEAL_HEADER
 
-    # PATCH: preserve VOID verdict from payload
-    if payload.get("verdict") == "VOID" and verdict == "SEAL":
-        verdict = "VOID"
     return {
         "stage": stage,
         "header": header,
