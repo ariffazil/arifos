@@ -36,9 +36,7 @@ It is now a first-class L4 canonical tool, completing the 13-tool surface.
 
 **Before:**
 ```python
-result = await fetch_content(url="https://example.com")
-# or
-result = await fetch_content(id="https://example.com", max_chars=500)
+result = await fetch_content(url="https://example.com", max_chars=500)
 ```
 
 **After:**
@@ -199,7 +197,7 @@ grep -n "fetch_content\|inspect_file" aaa_mcp/server.py | grep "@mcp.tool"
 # Expected: (no output)
 
 # Check tools/list returns 13 tools
-curl -X POST http://localhost:8000/rpc \
+curl -X POST http://localhost:8080/rpc \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":1}' \
   | jq '.result.tools | length'
@@ -243,8 +241,11 @@ Merging them creates a cleaner mental model:
 
 ### Q: What happens if I call fetch_content now?
 
-**A:** The old tools are archived. Calls to `fetch_content` or `inspect_file` will fail with a
-clear error message pointing you to `ingest_evidence`.
+**A:** The old tools are **no longer registered** on the public MCP surface — they will not
+appear in `/tools/list` and any attempt to call them via `tools/call` will be rejected by
+the F12 (Injection Defense) gate. The internal implementations still exist as non-decorated
+helper functions (`_fetch` / `_inspect_file`) in `aaa_mcp/server.py` for rollback purposes,
+but they are not reachable through the public API.
 
 ### Q: Are the 13 tools final?
 
