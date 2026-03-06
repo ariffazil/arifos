@@ -559,8 +559,30 @@ async def reason_mind(
                 str(d.get("verdict", "")),
             ]
         )
+
+        # PHASE 2 Hardening: Auto-recall if Truth (F2) is low (< 0.85)
+        truth_score = r.get("truth_score", 1.0)
+        if truth_score < 0.85:
+            try:
+                # Ditempa Bukan Diberi: Re-forge with constitutional context
+                rag = _ensure_rag()
+                deeper_contexts = rag.retrieve(query, top_k=5, hybrid_alpha=0.5)
+                if deeper_contexts:
+                    rag_contexts.extend([ctx.content for ctx in deeper_contexts])
+                    # Re-run reasoning with augmented context
+                    evidence_augmented = evidence + [ctx.content for ctx in deeper_contexts]
+                    r_augmented = await reason(
+                        session_id=session_id, hypothesis=query, evidence=evidence_augmented
+                    )
+                    # Update metrics if improvement found
+                    if r_augmented.get("truth_score", 0.0) > truth_score:
+                        r = r_augmented
+                        truth_score = r.get("truth_score")
+            except Exception:
+                pass
+
         merged = {
-            "truth_score": r.get("truth_score"),
+            "truth_score": truth_score,
             "f2_threshold": r.get("f2_threshold"),
             "floors_failed": list(r.get("floors_failed", []))
             + list(i.get("floors_failed", []))
@@ -635,26 +657,31 @@ async def vector_memory(
         query_vector_dim = 384  # bge-small-en-v1.5 = 384-dim; BGE-M3 = 768-dim
         points_count = 0
         namespace = "arifos_constitutional"
-        
+
         try:
             rag = _ensure_rag()
             # Try to get actual model and collection info
-            if hasattr(rag, 'model_name'):
+            if hasattr(rag, "model_name"):
                 embedding_backend = rag.model_name
-            if hasattr(rag, 'collection'):
+            if hasattr(rag, "collection"):
                 namespace = rag.collection
-            
+
             # Get live counts for transparency
             health = rag.health_check()
             points_count = health.get("points_count", 0)
-            
+
             contexts = rag.retrieve(query=query, top_k=5, min_score=0.15)
-        except Exception: contexts = []
+        except Exception:
+            contexts = []
 
         result_state = "MATCH_FOUND" if contexts else "NO_MATCHES"
-        jaccard_max = max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
-        cosine_max = max([ctx.metadata.get("cosine_score", 0.0) for ctx in contexts]) if contexts else 0.0
-        
+        jaccard_max = (
+            max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
+        )
+        cosine_max = (
+            max([ctx.metadata.get("cosine_score", 0.0) for ctx in contexts]) if contexts else 0.0
+        )
+
         # Enhanced instrumentation — "The Operational Truth"
         metrics = {
             "memory_count": len(contexts),
@@ -673,20 +700,28 @@ async def vector_memory(
         merged = {
             "status": "RECALL_SUCCESS",
             "result_state": result_state,
-            "memories": [{"source": f"{ctx.source}/{ctx.path}", "score": round(ctx.score, 4), "content": ctx.content[:800]} for ctx in contexts],
+            "memories": [
+                {
+                    "source": f"{ctx.source}/{ctx.path}",
+                    "score": round(ctx.score, 4),
+                    "content": ctx.content[:800],
+                }
+                for ctx in contexts
+            ],
             "metrics": metrics,
         }
-        
+
         # No results is still a successful operation (SEAL)
         payload = envelope_builder.build_envelope(
-            stage="555_RECALL", 
-            session_id=session_id, 
-            verdict="SEAL", 
-            payload=merged
+            stage="555_RECALL", session_id=session_id, verdict="SEAL", payload=merged
         )
-        
+
         payload["compute_ms"] = (time.time() - start_time) * 1000
         return wrap_tool_output("vector_memory", payload)
+
+    except Exception as e:
+        return wrap_tool_output("vector_memory", _fracture_response("555_RECALL", e, session_id))
+
 
 async def recall_memory(query: str, session_id: str, debug: bool = False) -> dict[str, Any]:
     """Compatibility alias for vector_memory."""
