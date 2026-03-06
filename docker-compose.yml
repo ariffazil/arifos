@@ -291,31 +291,6 @@ services:
           memory: 512M
     restart: unless-stopped
 
-  # --- Autonomous CI/CD ---
-  webhook-listener:
-    image: almir/webhook:latest
-    container_name: arifos_webhook
-    init: true
-    volumes:
-      - /srv/arifOS:/usr/src/app:rw
-      - /var/run/docker.sock:/var/run/docker.sock
-      - /srv/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
-      - /srv/arifOS/deployment/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
-    command: -verbose -hooks=/etc/webhook/hooks.json -hotreload
-    networks:
-      - arifos_trinity
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.webhook.rule=Host(`hook.arifosmcp.arif-fazil.com`)"
-      - "traefik.http.routers.webhook.entrypoints=websecure"
-      - "traefik.http.routers.webhook.tls.certresolver=letsencrypt"
-      - "traefik.http.services.webhook.loadbalancer.server.port=9000"
-    deploy:
-      resources:
-        limits:
-          memory: 64M
-    restart: unless-stopped
-
 networks:
   arifos_trinity:
     driver: bridge

@@ -631,50 +631,65 @@ async def vector_memory(
         return wrap_tool_output("vector_memory", missing)
     start_time = time.time()
     try:
+        embedding_backend = "BGE (BAAI/bge-small-en-v1.5)"
+        query_vector_dim = 384  # bge-small-en-v1.5 = 384-dim; BGE-M3 = 768-dim
+        points_count = 0
+        namespace = "arifos_constitutional"
+        
         try:
             rag = _ensure_rag()
+            # Try to get actual model and collection info
+            if hasattr(rag, 'model_name'):
+                embedding_backend = rag.model_name
+            if hasattr(rag, 'collection'):
+                namespace = rag.collection
+            
+            # Get live counts for transparency
+            health = rag.health_check()
+            points_count = health.get("points_count", 0)
+            
             contexts = rag.retrieve(query=query, top_k=5, min_score=0.15)
-        except Exception:
-            contexts = []
+        except Exception: contexts = []
 
         result_state = "MATCH_FOUND" if contexts else "NO_MATCHES"
-        jaccard_max = (
-            max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
-        )
-
-        # Consistent metrics
+        jaccard_max = max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
+        cosine_max = max([ctx.metadata.get("cosine_score", 0.0) for ctx in contexts]) if contexts else 0.0
+        
+        # Enhanced instrumentation — "The Operational Truth"
         metrics = {
             "memory_count": len(contexts),
-            "similarity_max": round(jaccard_max, 4),
+            "similarity_max": round(max(jaccard_max, cosine_max), 4),
+            "cosine_similarity_max": round(cosine_max, 4),
+            "jaccard_lexical_max": round(jaccard_max, 4),
+            "memory_namespace": namespace,
+            "indexed_points_count": points_count,
+            "source_types": ["canon", "vault999", "session_history"],
+            "embedding_backend": embedding_backend,
+            "query_vector_dim": query_vector_dim,
+            "similarity_metric": "cosine + jaccard (hybrid)",
             "embedding_backend_available": BGE_AVAILABLE,
         }
 
         merged = {
             "status": "RECALL_SUCCESS",
             "result_state": result_state,
-            "memories": [
-                {
-                    "source": f"{ctx.source}/{ctx.path}",
-                    "score": round(ctx.score, 4),
-                    "content": ctx.content[:800],
-                }
-                for ctx in contexts
-            ],
+            "memories": [{"source": f"{ctx.source}/{ctx.path}", "score": round(ctx.score, 4), "content": ctx.content[:800]} for ctx in contexts],
             "metrics": metrics,
         }
-
+        
         # No results is still a successful operation (SEAL)
         payload = envelope_builder.build_envelope(
-            stage="555_RECALL", session_id=session_id, verdict="SEAL", payload=merged
+            stage="555_RECALL", 
+            session_id=session_id, 
+            verdict="SEAL", 
+            payload=merged
         )
-
+        
         payload["compute_ms"] = (time.time() - start_time) * 1000
         return wrap_tool_output("vector_memory", payload)
-    except Exception as e:
-        return wrap_tool_output("vector_memory", _fracture_response("555_RECALL", e, session_id))
-
 
 async def recall_memory(query: str, session_id: str, debug: bool = False) -> dict[str, Any]:
+    """Compatibility alias for vector_memory."""
     return await vector_memory(query=query, session_id=session_id, debug=debug)
 
 

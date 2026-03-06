@@ -1,0 +1,24 @@
+openai_to_canonical:
+  anchor_session: anchor_session
+  reason_mind: reason_mind
+  vector_memory: vector_memory
+  simulate_heart: simulate_heart
+  critique_thought: critique_thought
+  eureka_forge: eureka_forge
+  apex_judge: apex_judge
+  seal_vault: seal_vault
+  search: search_reality
+  fetch: fetch_content
+  health_check: check_vital
+
+exposure_policy:
+  public_default:
+    - anchor_session
+    - reason_mind
+    - vector_memory
+    - simulate_heart
+    - critique_thought
+    - apex_judge
+    - seal_vault
+    - search
+    - health_check

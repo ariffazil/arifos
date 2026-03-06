@@ -1,0 +1,20 @@
+canonical_tools:
+  - name: anchor_session
+  - name: reason_mind
+  - name: vector_memory
+  - name: simulate_heart
+  - name: critique_thought
+  - name: eureka_forge
+  - name: apex_judge
+  - name: seal_vault
+  - name: search_reality
+  - name: ingest_evidence
+  - name: audit_rules
+  - name: check_vital
+  - name: metabolic_loop
+
+auxiliary_tools:
+  - name: visualize_governance
+    exposure: resource_preferred
+  - name: metabolic_loop
+    exposure: internal_preferred
