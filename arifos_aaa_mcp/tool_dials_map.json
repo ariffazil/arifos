@@ -117,27 +117,16 @@
         "E": 0.3
       }
     },
-    "fetch_content": {
-      "contribution": [
-        "A"
-      ],
-      "weights": {
-        "A": 0.9,
-        "P": 0.2,
-        "X": 0.3,
-        "E": 0.3
-      }
-    },
-    "inspect_file": {
+    "ingest_evidence": {
       "contribution": [
         "A",
         "E"
       ],
       "weights": {
-        "A": 0.7,
-        "P": 0.4,
-        "X": 0.3,
-        "E": 0.7
+        "A": 0.85,
+        "P": 0.3,
+        "X": 0.4,
+        "E": 0.6
       }
     },
     "audit_rules": {

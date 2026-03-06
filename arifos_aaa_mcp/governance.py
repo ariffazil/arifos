@@ -423,7 +423,7 @@ def _derive_tpcp_metrics(
         phase = "phase_1_deltaP"
     elif tool in {"simulate_heart", "recall_memory"}:
         phase = "phase_2_omegaP"
-    elif tool in {"critique_thought", "search_reality", "fetch_content", "inspect_file"}:
+    elif tool in {"critique_thought", "search_reality", "ingest_evidence"}:
         phase = "phase_3_psiP"
     else:
         phase = "phase_4_phiP"
