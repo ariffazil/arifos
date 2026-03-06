@@ -1,13 +1,14 @@
 """
-aaa_mcp/server.py — Canonical 13-Tool FastMCP Surface
+aaa_mcp/server.py — INTERNAL 13-Tool FastMCP Surface
 
-Contract — 13 canonical tools with UX verb names:
-  Governance (7):  anchor_session, reason_mind, recall_memory, simulate_heart,
-                   critique_thought, apex_judge, eureka_forge, seal_vault
-  Utilities (5):   search_reality, fetch_content, inspect_file, audit_rules, check_vital
+**DO NOT call this directly.** Use `python -m arifos_aaa_mcp` instead.
 
-This module owns its own FastMCP instance (isolated from aclip_cai triad tools).
-All tools must be async and must not write to stdout (stdio transport safety).
+This module owns the FastMCP instance that implements the 13 canonical tools:
+- Governance (8): anchor_session, reason_mind, recall_memory, simulate_heart,
+                  critique_thought, apex_judge, eureka_forge, seal_vault
+- Utilities (5): search_reality, fetch_content, inspect_file, audit_rules, check_vital
+
+Called by: arifos_aaa_mcp.server (public wrapper with governance contracts)
 """
 
 from __future__ import annotations

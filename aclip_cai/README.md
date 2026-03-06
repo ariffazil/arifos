@@ -48,11 +48,17 @@ python aclip_cai/cli.py pipeline reason --hypothesis "CPU is hot" --evidence "te
 
 ## Deployment
 
-Deploy via Docker:
+**Use the root Dockerfile** for production deployment — `aclip_cai` runs inside the main arifOS container:
+
 ```bash
-cd aclip_cai
-docker compose up -d
+# From repo root
+docker build -t arifos .
+docker run -p 8080:8080 arifos
 ```
+
+The standalone `aclip_cai/Dockerfile` has been archived to
+`_ARCHIVE/2026_03_06_pre_hardening/aclip_cai_Dockerfile_standalone`
+(no longer needed).
 
 ## Constitutional Compliance
 Every tool call in `aclip_cai` is audited by the **Internal Intelligence Kernel**, enforcing:

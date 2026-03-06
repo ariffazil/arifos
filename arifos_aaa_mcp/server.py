@@ -1,12 +1,15 @@
-"""arifOS AAA MCP public 13-tool surface.
+"""
+arifOS AAA MCP public 13-tool surface.
 
-This package is the canonical external interface.
-Legacy `aaa_mcp` and `aclip_cai` remain internal intelligence providers.
+This is the CANONICAL EXTERNAL ENTRYPOINT for all MCP clients.
 
-PHASE 1 WIRING: Thermodynamic Core Integration
-- All tools routed through core/ constitutional cage
-- Physics exceptions caught and converted to VOID envelopes
-- Tri-Witness vectors mapped for Ω_ortho calculation
+Runtime Flow:
+- Entry: python -m arifos_aaa_mcp {stdio|http|sse}
+- OR: python server.py --mode {stdio|http|sse}
+- Wraps: aaa_mcp.server (internal FastMCP instance)
+- Routes to: aclip_cai.triad/* → core/* (000-999 kernel)
+
+**Stage 222 (THINK) is INTERNAL** — not exposed as MCP tool.
 """
 
 from __future__ import annotations

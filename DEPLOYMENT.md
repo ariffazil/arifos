@@ -1,89 +1,140 @@
-# arifOS Sovereign Infrastructure & Deployment (Unified)
+# arifOS Deployment Guide
 
+**Version**: 2026-03-06 · VPS-HARDENED  
 **Motto:** *Ditempa Bukan Diberi — Forged, Not Given*  
-**Sovereign:** Muhammad Arif bin Fazil  
-**Host:** `srv1325122.hstgr.cloud` (72.62.71.199)
+**Sovereign:** Muhammad Arif bin Fazil
 
 ---
 
-## 000_PLAN: Hardware & Network Specification
+## 🚀 $15 VPS Production Deployment (Recommended)
 
-### 1. Hardware (Hostinger KVM VPS)
-- **OS:** Ubuntu 25.10 (non-LTS) | **Kernel:** 6.17.0-14-generic
-- **CPU:** 4 vCPU | **RAM:** 16 GB | **Disk:** 193 GB SSD
+### Prerequisites
+- Ubuntu 22.04+ VPS ($5–15/month: DigitalOcean, Hetzner, Vultr, Hostinger)
+- Docker + Docker Compose installed
+- Domain pointed to VPS IP (optional, for TLS via Traefik)
 
-### 2. Networking & Routing
-| Port | Service | Purpose |
-|:---|:---|:---|
-| 22 | SSH | Key-only auth, Fail2Ban active |
-| 80/443 | Traefik | Edge router, TLS termination (Let's Encrypt) |
-
-### 3. Domain Routing Matrix
-| Domain | Backend | Status |
-|:---|:---|:---|
-| `arifosmcp.arif-fazil.com` | `arifosmcp_server:8080` | **LIVE** |
-| `hook.arifosmcp.arif-fazil.com` | `arifos_webhook:9000` | **LIVE** |
-| `arifos.arif-fazil.com` | GitHub Pages | **LIVE** |
-| `brain.arifosmcp.arif-fazil.com`| `agent-zero:80` | *PLANNED* |
-
----
-
-## 333_MAP: Ownership & CI/CD Pipelines
-
-### 1. Workflow Ownership Rules
-- **Docs (`arifos.arif-fazil.com`):** Owned by `.github/workflows/deploy-sites.yml`. Builds from `sites/docs/`.
-- **MCP Server (`arifosmcp.arif-fazil.com`):** Owned by GitHub Push -> Webhook (`deploy.sh`).
-- **Dashboard:** Owned by `.github/workflows/deploy-cloudflare.yml`.
-
-### 2. Deployment Triggers
-- **Docs:** Every push to `main` (builds Docusaurus).
-- **MCP Backend:** Push to `main` (triggers VPS webhook).
-- **Legacy Fallback:** GitHub Actions via Tailscale SSH (`deploy-vps.yml`).
-
----
-
-## 777_FORGE: Deployment & Migration
-
-### 1. Quick Start (Rebuild/Deploy)
+### One-Command Deploy
 ```bash
-# Local Validation
-cd sites/docs && npm ci && npm run build
+# Clone repo
+git clone https://github.com/ariffazil/arifOS.git
+cd arifOS
 
-# VPS Rebuild (from repo root)
-docker compose -f docker-compose.yml up -d --build
+# Deploy (full stack — Traefik, Qdrant, Prometheus, etc.)
+docker compose up -d
+
+# Verify
+curl http://localhost:8080/health
+# Expected: {"status": "healthy", ...}
 ```
 
-### 2. Automated VPS Migration Script (Scorched Earth)
-*Warning: Destroys legacy Coolify/Native services. Requires 888_HOLD.*
+### MCP Endpoints
+- **HTTP**: `http://your-vps-ip:8080/mcp`  (or `https://arifosmcp.arif-fazil.com/mcp` with Traefik)
+- **Health**: `http://your-vps-ip:8080/health`
+
+### Troubleshooting
 ```bash
-#!/bin/bash
-set -e
-echo "arifOS: Initializing VPS AI-First Trinity..."
-systemctl stop arifos-embeddings || true
-# Tear down legacy containers
-docker ps -a --filter "name=coolify" -q | xargs -r docker rm -f
-# Setup unified directories
-mkdir -p /opt/arifos/data/{core,qdrant,postgres,redis,ollama}
-# Deploy Trinity Stack
+# View logs
+docker compose logs -f arifosmcp
+
+# Restart MCP server
+docker compose restart arifosmcp
+
+# Rebuild after code changes
 cd /srv/arifOS && git pull origin main
 docker compose up -d --build
 ```
 
 ---
 
-## 999_STATUS: Live Service & Roadmap
+## 🔧 Local Development
 
-### 1. Active Services
-- **`arifosmcp_server`**: HEALTHY (13 Tools LIVE)
-- **`traefik_router`**: UP (SSL active)
-- **`qdrant_memory`**: UP (recall_memory backend)
-- **`arifos_webhook`**: UP (CI/CD listener)
+### stdio (Claude Desktop, Cursor)
+```bash
+pip install -e .
+python -m arifos_aaa_mcp stdio
+```
 
-### 2. Phased Roadmap
-- **Phase 1 (Core):** Traefik, MCP, Postgres, Redis. [DONE]
-- **Phase 2 (Memory):** Qdrant, Webhook CI/CD. [DONE]
-- **Phase 3 (Workbench):** Ollama, Prometheus, Grafana, n8n. [NEXT]
-- **Phase 4 (Agents):** Agent Zero, OpenClaw. [PLANNED]
+### http (Testing VPS mode locally)
+```bash
+python -m arifos_aaa_mcp http
+# OR
+python server.py --mode http
+curl http://localhost:8080/health
+```
+
+---
+
+## 📂 MCP Client Configuration
+
+**Claude Desktop** (`claude_desktop_config.json`):
+```json
+{
+  "mcpServers": {
+    "arifos": {
+      "command": "python",
+      "args": ["-m", "arifos_aaa_mcp", "stdio"],
+      "cwd": "/path/to/arifOS"
+    }
+  }
+}
+```
+
+**Cursor** (`cursor_mcp_config.json`):
+```json
+{
+  "servers": {
+    "arifos": {
+      "command": "python",
+      "args": ["-m", "arifos_aaa_mcp", "stdio"],
+      "cwd": "/path/to/arifOS"
+    }
+  }
+}
+```
+
+---
+
+## 🔒 Environment Variables (Production)
+
+Create `.env` file (never commit to git):
+```env
+ARIFOS_GOVERNANCE_SECRET=your_secret_here_32_chars_min
+VAULT_PATH=/usr/src/app/VAULT999/BBB_LEDGER/vault.jsonl
+LOG_LEVEL=INFO
+PORT=8080
+HOST=0.0.0.0
+```
+
+---
+
+## 🏗️ Infrastructure Overview (Live VPS)
+
+**Host:** `srv1325122.hstgr.cloud` (72.62.71.199)
+
+### Network Routing
+| Port | Service | Purpose |
+|:---|:---|:---|
+| 22 | SSH | Key-only auth, Fail2Ban active |
+| 80/443 | Traefik | Edge router, TLS termination (Let's Encrypt) |
+
+### Domain Routing Matrix
+| Domain | Backend | Status |
+|:---|:---|:---|
+| `arifosmcp.arif-fazil.com` | `arifosmcp_server:8080` | **LIVE** |
+| `hook.arifosmcp.arif-fazil.com` | `arifos_webhook:9000` | **LIVE** |
+| `arifos.arif-fazil.com` | GitHub Pages | **LIVE** |
+
+### Workflow Ownership
+- **Docs (`arifos.arif-fazil.com`):** `.github/workflows/deploy-sites.yml`
+- **MCP Server (`arifosmcp.arif-fazil.com`):** GitHub Push → Webhook (`deploy.sh`)
+- **Dashboard:** `.github/workflows/deploy-cloudflare.yml`
+
+---
+
+## 📊 Monitoring (Optional)
+
+Monitor `http://your-vps:8080/health` via Uptime Kuma or similar.
+Prometheus + Grafana are included in `docker-compose.yml` for the full stack.
 
 ---
 
