@@ -198,6 +198,8 @@ services:
       OPENCLAW_URL: http://openclaw:18789
       AGENT_ZERO_URL: http://agent-zero:80
       DASHBOARD_ENABLED: "true"
+    ports:
+      - "8080:8080"
     networks:
       - arifos_trinity
     labels:
@@ -213,7 +215,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 512M
     restart: unless-stopped
 
   # --- Monitoring Stack ---
