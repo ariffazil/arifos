@@ -11,7 +11,7 @@
 **What it isn't:** Not a model, not an agent, not a chatbot.  
 **What it guarantees:** A hardened L2–L5 stack with no irreversible action without explicit human approval.
 
-[![Version](https://img.shields.io/badge/version-2026.3.1-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
+[![Version](https://img.shields.io/badge/version-2026.3.6-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
 [![MCP Protocol](https://img.shields.io/badge/MCP-1.0-8B5CF6?style=for-the-badge&logo=shield&logoColor=white)](https://modelcontextprotocol.io)
 [![Python](https://img.shields.io/badge/python-3.12+-green?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)  
@@ -90,7 +90,7 @@ flowchart TD
 | **L7** | **AGI / Ecosystem** | Civilisation-Scale | — | *[Research]* Permissionless sovereignty and self-healing. |
 | **L6** | **Institution** | Organisational | — | *[Experimental]* Trinity consensus for governing societies. |
 | **L5** | **Agents** | Federation | **A R I F** | *[Active]* 5-role constitutional hypervisor enforcing no-bypass gates. |
-| **L4** | **Tools (MCP)** | Production | **A R I F** | *[Active]* 14 MCP tools grouped into 4 ARIF cognitive bands. |
+| **L4** | **Tools (MCP)** | Production | **A R I F** | *[Active]* 13 MCP tools grouped into 4 ARIF cognitive bands. |
 | **L3** | **Workflow** | Production | **A R I F** | *[Active]* 9 metabolic workflows assembling ARIF verbs into loops. |
 | **L2** | **Skills** | Production | **A R I F** | *[Active]* 9 canonical verbs (A-CLIP) for behavioural primitives. |
 | **L1** | **Prompts** | Production | — | *[Active]* Intent classification and reality centering. |
@@ -171,14 +171,15 @@ flowchart LR
 ---
 
 ### 1. ARIF Bands at L4 (Tools)
-L4_TOOLS exposes the Trinity kernel as 13 MCP tools, hardened into 4 bands. Clients only see tools; arifOS enforces bands and Floors behind the scenes.
+L4_TOOLS exposes the Trinity kernel as 13 MCP tools, hardened into 4 bands + 1 Orchestration layer. Clients only see tools; arifOS enforces bands and Floors behind the scenes.
 
-| Band | Meaning | Tools (examples) | Primary Floors |
+| Band | Meaning | Tools | Primary Floors |
 |:---:|---|---|---|
-| **A** | **Anchor** | anchor_session, check_vital | F4, F11–F13 |
-| **R** | **Reflect** | reason_mind, search_reality, vector_memory | F2, F4–F8 |
-| **I** | **Integrate** | inspect_file, audit_rules | F1, F7, F10 |
-| **F** | **Forge** | eureka_forge, apex_judge, seal_vault | F1, F8, F9, F13 |
+| **A** | **Anchor** | `anchor_session`, `check_vital` | F4, F11–F13 |
+| **R** | **Reflect** | `reason_mind`, `search_reality`, `vector_memory`, `simulate_heart`, `critique_thought` | F2, F4–F8 |
+| **I** | **Integrate** | `ingest_evidence`, `audit_rules` | F1, F2, F7, F10, F11 |
+| **F** | **Forge** | `eureka_forge`, `apex_judge`, `seal_vault` | F1, F3, F5–F9, F11–F13 |
+| **O** | **Orchestrate** | `metabolic_loop` | F1–F13 (full scan) |
 
 ### 2. The 5-Role Hypervisor (L5 Agents)
 The constitutional parliament routes ARIF bands to specific roles:
@@ -193,37 +194,38 @@ The constitutional parliament routes ARIF bands to specific roles:
 
 arifOS acts as an **MCP Server** (`arifos_aaa_mcp`). Rather than trusting an LLM, your IDE or Desktop client points its tool-calls at arifOS via the Model Context Protocol.
 
-The server exposes **14 governed tools**. When an AI attempts to use a tool like `eureka_forge` to execute a shell command, it doesn't just run. The command is risk-classified (LOW / MODERATE / CRITICAL), dangerous operations require explicit `confirm_dangerous=True`, and the entire execution is wrapped in a 13-LAW governance envelope with audit logging. Only after `apex_judge` issues a signed `governance_token` can `seal_vault` commit the decision to the immutable ledger.
+The server exposes exactly **13 canonical tools** across 3 layers. When an AI attempts to use a tool like `eureka_forge` to execute a shell command, it doesn't just run. The command is risk-classified (LOW / MODERATE / CRITICAL), dangerous operations require explicit `confirm_dangerous=True`, and the entire execution is wrapped in a 13-LAW governance envelope with audit logging. Only after `apex_judge` issues a signed `governance_token` can `seal_vault` commit the decision to the immutable ledger.
 
-### 8 Metabolic Tools (Core Governance Chain)
-*These 8 tools form the canonical `000 → 999` metabolic loop. Every governed action flows through this chain.*
+### 8 Governance Tools (Core Metabolic Chain)
+*These 8 tools form the canonical `000 → 999` metabolic loop. Every governed action flows through this chain in order.*
 
-| Tool | Plain English Function | Constitutional Stage |
-|:--|:--|:--|
-| `anchor_session` | 🚪 Starts a new session and checks security clearance. | 000 INIT |
-| `reason_mind` | 🧠 Asks the AI to logically think through a problem. | 333 AGI Mind |
-| `vector_memory` | 📚 BBB Vector Memory — geometric semantic retrieval (BGE + Qdrant). | 444-555 PHOENIX RECALL |
-| `simulate_heart` | ❤️ Checks if a decision will harm any stakeholders. | 555 ASI Heart |
-| `critique_thought` | ⚖️ Forces the AI to argue against its own idea to find flaws. | 666 ASI Heart |
-| `eureka_forge` | ⚒️ Executes shell commands with risk classification, audit logging, and human confirmation gates for dangerous operations. | 777 FORGE Actuator |
-| `apex_judge` | 👑 Makes the final pass/fail ruling on whether an action is safe. | 888 APEX Soul |
-| `seal_vault` | 🔒 Commits the decision to an immutable ledger. Requires a `governance_token` signed by `apex_judge` (Amanah Handshake) — no token, no entry. | 999 VAULT Memory |
+| Tool | Band | Stage | Plain English Function | Key Floors |
+|:--|:--:|:--|:--|:--|
+| `anchor_session` | A | 000 INIT | Session ignition. Defends against injection, verifies authority, embeds L0 Kernel prompt. | F11, F12, F13 |
+| `reason_mind` | R | 222–333 AGI Mind | AGI cognition. Runs parallel hypotheses (conservative / exploratory / adversarial), then reasons. | F2, F4, F7, F8 |
+| `vector_memory` | R | 444–555 RECALL | BBB Vector Memory. Semantic associative recall via BGE embeddings + EUREKA sieve from VAULT999. | F3, F4, F7, F13 |
+| `simulate_heart` | R | 555–666 ASI Heart | Stakeholder impact analysis. Runs validate + align to protect weakest stakeholder. | F4, F5, F6 |
+| `critique_thought` | R | 666 ASI Heart | 7-organ bias critique. Forces the AI to argue against its own plan and surface floor violations. | F4, F7, F8 |
+| `eureka_forge` | F | 777 FORGE | Secure shell executor. Risk-classifies commands; dangerous ops require `confirm_dangerous=True` (888_HOLD). | F5, F6, F7, F9 |
+| `apex_judge` | F | 777–888 APEX Soul | Sovereign verdict synthesis. Full F1–F13 scan. Returns HMAC-signed `governance_token`. Alias: `judge_soul`. | F1–F13 |
+| `seal_vault` | F | 999 VAULT | Immutable ledger commit. Requires `governance_token` from `apex_judge` — tampered/missing token → VOID. | F1, F3, F10 |
 
-### 5 Evidence Tools (Read-Only Inspection)
-*These 5 tools provide evidence grounding without executing actions. They support the metabolic chain but do not modify state.*
+### 4 Utility Tools (Evidence & Health — Read-Only)
+*These tools provide grounding and diagnostics without mutating state.*
 
-| Tool | Plain English Function | Purpose |
-|:--|:--|:--|
-| `search_reality` | 🔍 Searches the web via Jina Reader (primary) to verify facts with clean Markdown extraction. Falls back to Perplexity → Brave. | F2 Truth verification |
-| `fetch_content` | 📄 Extracts clean Markdown from URLs via Jina Reader (primary). F12 Defense: wraps content in untrusted envelope. | Evidence retrieval |
-| `inspect_file` | 📁 Looks at files on your hard drive securely. | F1 Amanah audit |
-| `audit_rules` | 📋 Checks the system's own safety rules. | Governance health check |
-| `check_vital` | 📈 Checks if the server CPU/RAM is healthy. | System telemetry |
+| Tool | Band | Plain English Function | Key Floors |
+|:--|:--:|:--|:--|
+| `search_reality` | R | Web grounding via Jina Reader → Perplexity → Brave fallback. Content wrapped in untrusted envelope. | F2, F4, F12 |
+| `ingest_evidence` | I | Unified evidence ingestion. `source_type="url"` fetches URLs; `source_type="file"` inspects local filesystem (read-only). Replaces archived `fetch_content` + `inspect_file`. | F1, F2, F4, F11, F12 |
+| `audit_rules` | I | Constitutional system audit. Verifies all 13 Floors are loaded and enforced. | F2, F8, F10 |
+| `check_vital` | A | System health telemetry — CPU, RAM, IO, swap. Non-destructive. | F4, F5, F7 |
 
-### 1 Governance UI Tool
-| Tool | Plain English Function | Purpose |
-|:--|:--|:--|
-| `visualize_governance` | 🖥️ Opens the Constitutional Decision Visualizer — real-time dashboard for all 13 Floor scores, Tri-Witness consensus, thermodynamic telemetry, and VAULT999 verdict history. | Governance observability |
+### 1 Orchestration Tool
+*The sovereign kernel loop — runs the full 000→999 pipeline as a single governed call.*
+
+| Tool | Band | Plain English Function | Key Floors |
+|:--|:--:|:--|:--|
+| `metabolic_loop` | O | Full 11-stage constitutional metabolic cycle. Mandatory safety wrapper before any state mutation. High `risktier` defaults to `888_HOLD`. | F1–F13 |
 
 ---
 
@@ -428,7 +430,7 @@ We continuously pipe live tests through the framework to prove its reliability. 
 
 **Current Status:** Active Development / Production Ready L4.
 
-- **Version:** 2026.3.1 (14 MCP tools live — Jina Reader integration, npm client verified, visualize_governance deployed).
+- **Version:** 2026.3.6 (13 canonical MCP tools — `recall_memory` retired → `vector_memory` (BGE + Qdrant); `fetch_content` + `inspect_file` consolidated → `ingest_evidence`; `metabolic_loop` promoted to first-class Orchestration tool; `query_openclaw` archived).
 - **ChatGPT Actions Surface:** `GET /openapi.json` + `POST /checkpoint` now live in runtime for Custom GPT Actions integration.
 - **ChatGPT MCP Surface:** `POST /mcp` remains the protocol-native endpoint for MCP-capable hosts.
 - **Jina Reader Integration:** `search_reality` and `fetch_content` now use Jina Reader as primary backend for clean Markdown extraction — superior content quality vs raw SERP APIs. Fallback chain: Jina → Perplexity → Brave.

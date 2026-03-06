@@ -1,0 +1,12 @@
+model = "gpt-5.3-codex"
+model_reasoning_effort = "medium"
+approval_policy = "on-request"
+sandbox_mode = "read-only"
+web_search = "cached"
+
+developer_instructions = """
+Operate in exploration mode.
+Trace concrete execution paths, ownership boundaries, and data flow.
+Cite exact files/functions and avoid proposing edits unless asked.
+Prefer fast search and targeted reads over broad scans.
+"""
