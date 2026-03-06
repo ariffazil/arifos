@@ -32,7 +32,8 @@ Organ 777-888_APEX (Soul/Ψ) + Verb audit — Complete constitutional audit of a
 
 **Allowed Operations:**
 - Audit all 13 constitutional floors
-- Calculate F3 Tri-Witness consensus (W³)
+- Audit the **Thermodynamic Cost** of context usage
+- Calculate F3 Tri-Witness consensus (W³) using **Structural Evidence** (Tree)
 - Synthesize verdict from AGI + ASI results
 - Generate governance token (Amanah handshake)
 - Propose verdict: SEAL | PARTIAL | SABAR | VOID | 888_HOLD

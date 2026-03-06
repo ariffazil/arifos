@@ -58,6 +58,7 @@ description: 14 canonical MCP tools — response envelopes, transport adapters, 
 
 **Allowed Operations:**
 - Tool registration and discovery
+- Standardize tool output to **Atomic File Representation**
 - Response envelope generation
 - Session lifecycle management
 

@@ -30,6 +30,8 @@ Organ 555-666_ASI (Heart/Ω) + Verb validate — Defense validation, F1 reversib
 
 **Allowed Operations:**
 - Check reversibility of proposed actions (F1)
+- Verify that all file reads used the **Context Governor** filters
+- Audit the **Token Density** (Signal-to-Noise ratio) of context
 - Calculate risk tier and classify operations
 - Verify weakest stakeholder protection (F6)
 - Ensure peace metrics (F5)

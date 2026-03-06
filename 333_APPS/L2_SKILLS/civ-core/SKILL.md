@@ -43,6 +43,7 @@ Consolidated infrastructure layer — VPS operations, Docker Compose orchestrati
 
 **Allowed Operations:**
 - Deploy core services (Traefik, Postgres, Redis)
+- Monitor **Token Consumption** and **Context Efficiency** metrics
 - Check container health status
 - Manage Docker networks and volumes
 - Rotate TLS certificates

@@ -31,6 +31,8 @@ Organ 777-888_APEX (Soul/Ψ) + Verb forge — Execution crystallization, shell c
 
 **Allowed Operations:**
 - Execute shell commands with timeout
+- Record output as **Atomic Context Units** (with delimiters)
+- Filter noisy output (build logs) using **Context Governor** patterns
 - Working directory validation (F5 safe defaults)
 - Comprehensive error handling (F6)
 - Risk classification (LOW/MODERATE/CRITICAL)

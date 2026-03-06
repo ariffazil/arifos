@@ -30,6 +30,8 @@ Organ 000_INIT + Verb anchor — Session initialization, F12 injection defense, 
 
 **Allowed Operations:**
 - Initialize session with UUID generation
+- Establish **Thermodynamic Boundary** (Metadata Summary) on session start
+- Initialize **Context Governor** for pattern-based file filtering (GitIngest pattern)
 - Scan for prompt injection, jailbreak attempts, delimiter attacks
 - Verify authority level (SOVEREIGN | ADMIN | USER | PUBLIC)
 - Set session grounding parameters
