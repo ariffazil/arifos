@@ -70,6 +70,7 @@ async def ingest_evidence(
 # URL path (formerly fetch_content)
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 async def _ingest_url(target: str, mode: str, max_chars: int) -> dict[str, Any]:
     """Fetch remote URL content via Jina Reader with urllib fallback."""
     if not (target.startswith("http://") or target.startswith("https://")):
@@ -77,7 +78,7 @@ async def _ingest_url(target: str, mode: str, max_chars: int) -> dict[str, Any]:
             "source_type": "url",
             "target": target,
             "error": "Unsupported target — expected http:// or https:// URL",
-            "status": "BAD_TARGET",
+            "status": "BAD_ID",
         }
     try:
         from aaa_mcp.external_gateways.jina_reader_client import JinaReaderClient
@@ -150,6 +151,7 @@ async def _ingest_url(target: str, mode: str, max_chars: int) -> dict[str, Any]:
 # File path (formerly inspect_file)
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 async def _ingest_file(
     target: str,
     mode: str,
@@ -205,6 +207,7 @@ async def _ingest_file(
 # ─────────────────────────────────────────────────────────────────────────────
 # Mode helpers
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 def _apply_mode(base: dict[str, Any], raw_content: str, mode: str) -> dict[str, Any]:
     """Reshape a URL result according to the requested mode (pure — does not mutate input)."""

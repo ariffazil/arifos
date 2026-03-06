@@ -12,11 +12,11 @@
     "editable": ["."]
   },
   "deployment": {
-    "transport": "${FASTMCP_TRANSPORT:-http}",
+    "transport": "http",
     "host": "${HOST:-0.0.0.0}",
     "port": 8080,
-    "path": "${FASTMCP_PATH:-/mcp}",
-    "log_level": "${LOG_LEVEL:-INFO}",
+    "path": "/mcp/",
+    "log_level": "INFO",
     "env": {
       "HOST": "${HOST:-0.0.0.0}",
       "PORT": "${PORT:-8080}",

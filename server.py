@@ -92,9 +92,9 @@ def main(argv: list[str] | None = None) -> None:
         rest_main()
         return
 
-    from arifos_aaa_mcp.server import create_aaa_mcp_server
+    from aaa_mcp.server import create_unified_mcp_server
 
-    mcp = create_aaa_mcp_server()
+    mcp = create_unified_mcp_server()
 
     if mode == "stdio":
         logger.info("[arifOS] FastMCP STDIO transport")

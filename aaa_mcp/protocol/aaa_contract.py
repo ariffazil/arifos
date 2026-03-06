@@ -28,8 +28,10 @@ MANIFEST_VERSION: int = 4
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# L1: Transport-layer plumbing (auto-injected by FastMCP PromptsAsTools)
-L1_PROMPTS: frozenset[str] = frozenset({"list_prompts", "get_prompt"})
+# L1: Transport-layer plumbing and legacy compatibility shims
+L1_PROMPTS: frozenset[str] = frozenset(
+    {"list_prompts", "get_prompt", "fetch_content", "inspect_file", "system_audit"}
+)
 
 # L4: The 13 canonical constitutional tool surface
 AAA_CANONICAL_TOOLS: tuple[str, ...] = (
@@ -50,13 +52,15 @@ AAA_CANONICAL_TOOLS: tuple[str, ...] = (
 L4_TOOLS: frozenset[str] = frozenset(AAA_CANONICAL_TOOLS)
 
 # Deprecated/archived tools (DO NOT USE — archived for reference only)
-ARCHIVED_TOOLS: frozenset[str] = frozenset({
-    "fetch_content",  # → Merged into ingest_evidence(source_type="url", ...)
-    "inspect_file",   # → Merged into ingest_evidence(source_type="file", ...)
-})
+ARCHIVED_TOOLS: frozenset[str] = frozenset(
+    {
+        "fetch_content",  # → Merged into ingest_evidence(source_type="url", ...)
+        "inspect_file",  # → Merged into ingest_evidence(source_type="file", ...)
+    }
+)
 
-# L5: Composite orchestration (sequences L4 tools) — metabolic_loop promoted to L4
-L5_COMPOSITE: frozenset[str] = frozenset()
+# L5: Composite orchestration (sequences L4 tools)
+L5_COMPOSITE: frozenset[str] = frozenset({"metabolic_loop"})
 
 # Full MCP tools/list surface = L1 + L4 (but canonical count stays 13)
 MCP_FULL_SURFACE: frozenset[str] = L1_PROMPTS | L4_TOOLS
@@ -154,7 +158,7 @@ LAW_13_CATALOG: dict[str, dict[str, str]] = {
 
 AAA_TOOL_LAW_BINDINGS: dict[str, list[str]] = {
     "anchor_session": ["F11_AUTHORITY", "F12_DEFENSE", "F13_SOVEREIGNTY", "F3_TRI_WITNESS"],
-    "reason_mind": ["F2_TRUTH", "F4_CLARITY", "F7_HUMILITY", "F8_GENIUS"],
+    "reason_mind": ["F2_TRUTH", "F4_CLARITY", "F7_HUMILITY", "F8_GENIUS", "F3_TRI_WITNESS"],
     "vector_memory": ["F4_CLARITY", "F7_HUMILITY", "F3_TRI_WITNESS", "F13_SOVEREIGNTY"],
     "simulate_heart": ["F5_PEACE2", "F6_EMPATHY", "F4_CLARITY", "F3_TRI_WITNESS"],
     "critique_thought": ["F4_CLARITY", "F7_HUMILITY", "F8_GENIUS", "F12_DEFENSE", "F3_TRI_WITNESS"],

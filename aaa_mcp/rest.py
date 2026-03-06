@@ -51,6 +51,8 @@ from arifos_aaa_mcp.server import (
     check_vital,
     critique_thought,
     ingest_evidence,
+    fetch_content,
+    inspect_file,
     eureka_forge,
     metabolic_loop,
     apex_judge,
@@ -76,6 +78,8 @@ TOOLS = {
     "seal_vault": seal_vault,
     "search_reality": search_reality,
     "ingest_evidence": ingest_evidence,
+    "fetch_content": fetch_content,
+    "inspect_file": inspect_file,
     "audit_rules": audit_rules,
     "check_vital": check_vital,
     "metabolic_loop": metabolic_loop,
@@ -111,7 +115,11 @@ TOOL_SCHEMAS = {
             "query": {"type": "string", "required": True},
             "session_id": {"type": "string", "required": True},
             "depth": {"type": "integer", "default": 3},
-            "domain": {"type": "enum", "values": ["canon", "manifesto", "docs", "all"], "default": "canon"},
+            "domain": {
+                "type": "enum",
+                "values": ["canon", "manifesto", "docs", "all"],
+                "default": "canon",
+            },
             "debug": {"type": "boolean", "default": False},
         },
     },
@@ -191,6 +199,24 @@ TOOL_SCHEMAS = {
             "max_files": {"type": "integer", "required": False, "default": 100},
         },
     },
+    "fetch_content": {
+        "description": "[Lane: Delta] Fetch URL content (legacy alias of ingest_evidence)",
+        "args": {
+            "id": {"type": "string", "required": True},
+            "max_chars": {"type": "integer", "required": False, "default": 4000},
+        },
+    },
+    "inspect_file": {
+        "description": "[Lane: Delta] Inspect local files (legacy alias of ingest_evidence)",
+        "args": {
+            "path": {"type": "string", "required": False, "default": "."},
+            "depth": {"type": "integer", "required": False, "default": 1},
+            "include_hidden": {"type": "boolean", "required": False, "default": False},
+            "pattern": {"type": "string", "required": False, "default": "*"},
+            "min_size_bytes": {"type": "integer", "required": False, "default": 0},
+            "max_files": {"type": "integer", "required": False, "default": 100},
+        },
+    },
     "audit_rules": {
         "description": "[Lane: Delta] Rule & governance audit checks",
         "args": {
@@ -220,12 +246,15 @@ TOOL_ALIASES = dict(PUBLIC_TOOL_ALIASES)
 # AUTH (OPTIONAL) — Bearer token gate for REST bridge
 # ═══════════════════════════════════════════════════════
 
+
 def _env_truthy(name: str) -> bool:
     return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "y", "on"}
+
 
 def _required_bearer_token() -> str | None:
     # Prefer the canonical name used in docs.
     return os.getenv("ARIFOS_API_KEY") or os.getenv("ARIFOS_API_TOKEN")
+
 
 def _auth_error_response(request: Request) -> JSONResponse | None:
     """
@@ -252,6 +281,7 @@ def _auth_error_response(request: Request) -> JSONResponse | None:
         )
     return None
 
+
 # ═══════════════════════════════════════════════════════
 # TOOL DISPATCH
 # ═══════════════════════════════════════════════════════
@@ -260,6 +290,7 @@ def _auth_error_response(request: Request) -> JSONResponse | None:
 def _normalize_tool_name(raw_name: str | None) -> str:
     """Normalize tool path names to tolerate trailing slashes."""
     return (raw_name or "").strip().strip("/")
+
 
 async def _execute_tool_call(
     incoming_tool_name: str,
@@ -282,7 +313,7 @@ async def _execute_tool_call(
     if tool_name == "init_session" and body.get("fast_ack", False):
         session_id = body.get("actor_id", "anon") + "-" + uuid.uuid4().hex[:8]
         active_sessions[session_id] = {
-            "started": datetime.utcnow(timezone.utc).isoformat(),
+            "started": datetime.now(timezone.utc).isoformat(),
             "request_id": request_id,
             "status": "initializing",
         }
@@ -347,6 +378,7 @@ async def _execute_tool_call(
         }
     )
 
+
 @dataclass
 class Metrics:
     requests_total: int = 0
@@ -356,11 +388,14 @@ class Metrics:
     errors: int = 0
     active_sessions: int = 0
 
+
 metrics = Metrics()
 active_sessions: dict[str, dict] = {}
 
+
 def generate_request_id() -> str:
     return f"req-{uuid.uuid4().hex[:12]}"
+
 
 WELCOME_HTML = """
 <!DOCTYPE html>
@@ -393,6 +428,7 @@ WELCOME_HTML = """
 </html>
 """
 
+
 async def route_info(request: Request):
     accept = request.headers.get("Accept", "")
     if "text/html" in accept:
@@ -414,9 +450,15 @@ async def route_info(request: Request):
         }
     )
 
+
 async def health(request: Request):
     from aaa_mcp.infrastructure.monitoring import get_health_monitor, get_metrics_collector
-    from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS, ARCHIVED_TOOLS, CANONICAL_TOOL_COUNT
+    from aaa_mcp.protocol.aaa_contract import (
+        AAA_CANONICAL_TOOLS,
+        ARCHIVED_TOOLS,
+        CANONICAL_TOOL_COUNT,
+    )
+
     monitor = get_health_monitor()
     collector = get_metrics_collector()
     health_results = await monitor.check_all()
@@ -436,14 +478,18 @@ async def health(request: Request):
         }
     )
 
+
 async def ready(request: Request):
     return JSONResponse({"ready": len(TOOLS) > 0})
+
 
 async def version(request: Request):
     return JSONResponse(BUILD_INFO)
 
+
 async def metrics_endpoint(request: Request):
     return JSONResponse({"requests_total": metrics.requests_total, "errors": metrics.errors})
+
 
 async def well_known_mcp_server_json(request: Request):
     root_path = os.path.join(os.path.dirname(__file__), "..", "server.json")
@@ -452,15 +498,22 @@ async def well_known_mcp_server_json(request: Request):
             return JSONResponse(json.load(f))
     return JSONResponse({"error": "server.json not found"}, status_code=404)
 
+
 async def list_tools(request: Request):
     auth_error = _auth_error_response(request)
-    if auth_error: return auth_error
-    tool_list = [{"name": n, "description": s["description"], "args": s["args"]} for n, s in TOOL_SCHEMAS.items()]
+    if auth_error:
+        return auth_error
+    tool_list = [
+        {"name": n, "description": s["description"], "args": s["args"]}
+        for n, s in TOOL_SCHEMAS.items()
+    ]
     return JSONResponse({"tools": tool_list, "count": len(tool_list)})
+
 
 async def call_tool(request: Request):
     auth_error = _auth_error_response(request)
-    if auth_error: return auth_error
+    if auth_error:
+        return auth_error
     request_id = generate_request_id()
     tool_name = _normalize_tool_name(request.path_params.get("tool_name"))
     start_time = time.time()
@@ -470,22 +523,26 @@ async def call_tool(request: Request):
         body = {}
     return await _execute_tool_call(tool_name, body, request_id=request_id, start_time=start_time)
 
+
 async def sse_endpoint(request: Request):
     return JSONResponse({"error": "SSE_NOT_ENABLED"}, status_code=501)
+
 
 async def messages_endpoint(request: Request):
     return JSONResponse({"error": "MESSAGES_NOT_ENABLED"}, status_code=501)
 
+
 async def apex_judge_wrapper(request: Request):
     auth_error = _auth_error_response(request)
-    if auth_error: return auth_error
+    if auth_error:
+        return auth_error
     request_id = generate_request_id()
     start_time = time.time()
     try:
         body = await request.json()
     except:
         body = {}
-    
+
     query = body.get("query", "")
     actor_id = body.get("actor_id", "user")
     session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
@@ -496,26 +553,33 @@ async def apex_judge_wrapper(request: Request):
         cid = res0.get("session_id", session_id)
         res1 = await TOOLS["reason_mind"](query=query, session_id=cid)
         res2 = await TOOLS["simulate_heart"](query=query, session_id=cid)
-        res3 = await TOOLS["apex_judge"](session_id=cid, query=query, agi_result=res1, asi_result=res2)
-        
-        return JSONResponse({
-            "status": "success",
-            "request_id": request_id,
-            "session_id": cid,
-            "verdict": res3.get("verdict"),
-            "pipeline": [
-                {"stage": "000_INIT", "result": res0},
-                {"stage": "111-333_AGI", "result": res1},
-                {"stage": "555-666_ASI", "result": res2},
-                {"stage": "888_APEX", "result": res3}
-            ]
-        })
+        res3 = await TOOLS["apex_judge"](
+            session_id=cid, query=query, agi_result=res1, asi_result=res2
+        )
+
+        return JSONResponse(
+            {
+                "status": "success",
+                "request_id": request_id,
+                "session_id": cid,
+                "verdict": res3.get("verdict"),
+                "pipeline": [
+                    {"stage": "000_INIT", "result": res0},
+                    {"stage": "111-333_AGI", "result": res1},
+                    {"stage": "555-666_ASI", "result": res2},
+                    {"stage": "888_APEX", "result": res3},
+                ],
+            }
+        )
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
 
+
 async def mcp_alias(request: Request):
-    if request.method == "GET": return await list_tools(request)
+    if request.method == "GET":
+        return await list_tools(request)
     return await call_tool(request)
+
 
 routes = [
     Route("/", route_info, methods=["GET"]),
@@ -536,17 +600,21 @@ routes = [
     Route("/{tool_name}", call_tool, methods=["POST"]),
 ]
 
+
 @asynccontextmanager
 async def lifespan(app):
     yield
 
+
 app = Starlette(routes=routes, debug=False, lifespan=lifespan)
+
 
 def main():
     port = int(os.getenv("PORT", 8080))
     host = os.getenv("HOST", "0.0.0.0")
     print(f"[rest] AAA MCP REST Bridge starting on {host}:{port}", file=sys.stderr)
     uvicorn.run(app, host=host, port=port, log_level="info")
+
 
 if __name__ == "__main__":
     main()

@@ -27,6 +27,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
 
+from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
+
 # Setup logger early for BGE integration logging
 logger = logging.getLogger(__name__)
 
@@ -556,7 +558,11 @@ async def _phoenix_recall(
                 stage="555_RECALL",
                 session_id=session_id,
                 verdict="SEAL",  # Normal search success even if 0 results
-                payload={"memory_count": len(contexts), "domain": domain, "result_state": result_state},
+                payload={
+                    "memory_count": len(contexts),
+                    "domain": domain,
+                    "result_state": result_state,
+                },
             )
         )
         return result
@@ -565,6 +571,7 @@ async def _phoenix_recall(
 
 
 vector_memory = ToolHandle(_phoenix_recall)
+
 
 @mcp.tool(
     name="recall_memory",

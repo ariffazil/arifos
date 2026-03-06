@@ -1,6 +1,6 @@
 {
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.3.1",
+  "version": "2026.3.6",
   "description": "Constitutional AI governance server — 14 MCP tools with F1-F13 floor enforcement, Trinity architecture (ΔΩΨ), and VAULT999 immutable ledger.",
   "vendor": {
     "name": "Muhammad Arif bin Fazil",
@@ -18,15 +18,14 @@
   "tools": [
     {"name": "anchor_session"},
     {"name": "reason_mind"},
-    {"name": "recall_memory"},
+    {"name": "vector_memory"},
     {"name": "simulate_heart"},
     {"name": "critique_thought"},
     {"name": "apex_judge"},
     {"name": "eureka_forge"},
     {"name": "seal_vault"},
     {"name": "search_reality"},
-    {"name": "fetch_content"},
-    {"name": "inspect_file"},
+    {"name": "ingest_evidence"},
     {"name": "audit_rules"},
     {"name": "check_vital"},
     {"name": "visualize_governance"}

@@ -257,7 +257,21 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
         },
         "required": ["query", "session_id"],
     },
-
+    "phoenix_recall": {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string", "minLength": 1},
+            "session_id": {"type": "string"},
+            "depth": {"type": "integer", "minimum": 1, "maximum": 10, "default": 3},
+            "domain": {
+                "type": "string",
+                "enum": ["canon", "manifesto", "docs", "all"],
+                "default": "canon",
+            },
+            "debug": {"type": "boolean", "default": False},
+        },
+        "required": ["query", "session_id"],
+    },
     "sovereign_actuator": {
         "type": "object",
         "properties": {

@@ -66,12 +66,14 @@ logger = logging.getLogger(__name__)
 # BGE Embeddings Integration from aclip_cai
 try:
     from aclip_cai.embeddings import embed, get_embedder
+
     BGE_AVAILABLE = True
 except ImportError:
     BGE_AVAILABLE = False
 
 # ─── Amanah Handshake — Governance Token ────────────────────────────────────
 _GOVERNANCE_TOKEN_SECRET = os.environ.get("ARIFOS_GOVERNANCE_SECRET", secrets.token_hex(32))
+
 
 def _build_governance_token(session_id: str, verdict: str) -> str:
     sig = _hmac.new(
@@ -80,6 +82,7 @@ def _build_governance_token(session_id: str, verdict: str) -> str:
         hashlib.sha256,
     ).hexdigest()
     return f"{verdict}:{sig}"
+
 
 def _verify_governance_token(session_id: str, token: str) -> tuple[bool, str]:
     parts = token.split(":", 1)
@@ -95,6 +98,7 @@ def _verify_governance_token(session_id: str, token: str) -> tuple[bool, str]:
         return True, verdict
     return False, "VOID"
 
+
 def _fold_verdict(verdicts: list[str]) -> str:
     if any(v.upper() == "VOID" for v in verdicts):
         return "VOID"
@@ -104,8 +108,10 @@ def _fold_verdict(verdicts: list[str]) -> str:
         return "PARTIAL"
     return "SEAL"
 
+
 def _token_status(auth_token: str | None) -> str:
     return "AUTHENTICATED" if auth_token else "ANONYMOUS"
+
 
 class EnvelopeBuilder:
     def _extract_truth(self, payload: dict[str, Any]) -> dict[str, Any]:
@@ -114,32 +120,60 @@ class EnvelopeBuilder:
         drivers = payload.get("truth_drivers") or []
         return {"score": score, "threshold": threshold, "drivers": drivers}
 
-    def _generate_sabar_requirements(self, verdict: str, payload: dict[str, Any]) -> dict[str, Any] | None:
-        if verdict not in {"SABAR", "PARTIAL"}: return None
+    def _generate_sabar_requirements(
+        self, verdict: str, payload: dict[str, Any]
+    ) -> dict[str, Any] | None:
+        if verdict not in {"SABAR", "PARTIAL"}:
+            return None
         failed_floors = payload.get("floors_failed", [])
         missing_fields = []
         template_fields = {}
         for floor in failed_floors:
-            missing_fields.append({"field": f"input_for_{floor.lower()}", "needed_for": [floor], "example": "<FILL_REQUIRED_DATA>"})
+            missing_fields.append(
+                {
+                    "field": f"input_for_{floor.lower()}",
+                    "needed_for": [floor],
+                    "example": "<FILL_REQUIRED_DATA>",
+                }
+            )
             template_fields[f"input_for_{floor.lower()}"] = "<FILL_REQUIRED_DATA>"
         if not missing_fields:
-            missing_fields.append({"field": "contextual_data", "needed_for": ["F_UNKNOWN"], "example": "<PROVIDE_MORE_CONTEXT>"})
+            missing_fields.append(
+                {
+                    "field": "contextual_data",
+                    "needed_for": ["F_UNKNOWN"],
+                    "example": "<PROVIDE_MORE_CONTEXT>",
+                }
+            )
             template_fields["contextual_data"] = "<PROVIDE_MORE_CONTEXT>"
-        return {"missing_grounding": [f for f in failed_floors if f.startswith("F2")], "missing_fields": missing_fields, "minimum_next_payload_template": template_fields}
+        return {
+            "missing_grounding": [f for f in failed_floors if f.startswith("F2")],
+            "missing_fields": missing_fields,
+            "minimum_next_payload_template": template_fields,
+        }
 
-    def build_envelope(self, stage: str, session_id: str, verdict: str, payload: dict[str, Any]) -> dict[str, Any]:
+    def build_envelope(
+        self, stage: str, session_id: str, verdict: str, payload: dict[str, Any]
+    ) -> dict[str, Any]:
         floors_failed = payload.get("floors_failed", [])
         actions = []
-        if "F2" in floors_failed: actions.append("Provide stronger evidence and retry with grounded claims.")
-        if "F11" in floors_failed: actions.append("Restore session/auth continuity and retry.")
-        if not actions: actions.append("Continue to next constitutional stage.")
+        if "F2" in floors_failed:
+            actions.append("Provide stronger evidence and retry with grounded claims.")
+        if "F11" in floors_failed:
+            actions.append("Restore session/auth continuity and retry.")
+        if not actions:
+            actions.append("Continue to next constitutional stage.")
         return {
-            "verdict": verdict, "stage": stage, "session_id": session_id,
+            "verdict": verdict,
+            "stage": stage,
+            "session_id": session_id,
             "floors": {"passed": [], "failed": floors_failed},
-            "truth": self._extract_truth(payload), "next_actions": actions,
+            "truth": self._extract_truth(payload),
+            "next_actions": actions,
             "sabar_requirements": self._generate_sabar_requirements(verdict, payload),
             "payload": payload,
         }
+
 
 envelope_builder = EnvelopeBuilder()
 
@@ -189,12 +223,17 @@ def _fracture_response(stage: str, e: Exception, session_id: str | None = None) 
         "trace": traceback.format_exc(),
         "stage": stage,
     }
-    if session_id: result["session_id"] = session_id
+    if session_id:
+        result["session_id"] = session_id
     return result
+
 
 def _build_floor_block(stage: str, reason: str) -> dict[str, Any]:
     return {
-        "verdict": "VOID", "stage": stage, "session_id": "", "token_status": "ERROR",
+        "verdict": "VOID",
+        "stage": stage,
+        "session_id": "",
+        "token_status": "ERROR",
         "floors": {"passed": [], "failed": ["F11"]},
         "truth": {"score": None, "threshold": None, "drivers": []},
         "next_actions": [
@@ -204,16 +243,22 @@ def _build_floor_block(stage: str, reason: str) -> dict[str, Any]:
         "error": reason,
     }
 
+
 _rag_instance: Any = None
+
 
 def _ensure_rag() -> Any:
     global _rag_instance
-    if _rag_instance is not None: return _rag_instance
+    if _rag_instance is not None:
+        return _rag_instance
     scripts_dir = Path(__file__).resolve().parents[1] / "scripts"
-    if str(scripts_dir) not in sys.path: sys.path.insert(0, str(scripts_dir))
+    if str(scripts_dir) not in sys.path:
+        sys.path.insert(0, str(scripts_dir))
     from arifos_rag import ConstitutionalRAG
+
     _rag_instance = ConstitutionalRAG()
     return _rag_instance
+
 
 # Physics exception to VOID envelope converter
 def _convert_physics_exception_to_void(
@@ -400,9 +445,11 @@ async def anchor_session(
     # Generate session_id FIRST if not provided — janji hakiki dibawa ke mati sampai vault seal
     if not session_id:
         session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
-    
+
     # Now validate with guaranteed session_id for F3_CONTRACT continuity check
-    blocked = validate_input("anchor_session", {"query": query, "actor_id": actor_id, "session_id": session_id})
+    blocked = validate_input(
+        "anchor_session", {"query": query, "actor_id": actor_id, "session_id": session_id}
+    )
     if blocked:
         return wrap_tool_output("anchor_session", blocked)
 
@@ -425,7 +472,14 @@ async def anchor_session(
             "debug": debug,
             "data": {"anchor": anch} if debug else {},
         }
-        payload.update(envelope_builder.build_envelope(stage="000_INIT", session_id=payload["session_id"], verdict=verdict, payload=anch if isinstance(anch, dict) else {}))
+        payload.update(
+            envelope_builder.build_envelope(
+                stage="000_INIT",
+                session_id=payload["session_id"],
+                verdict=verdict,
+                payload=anch if isinstance(anch, dict) else {},
+            )
+        )
 
         # Add compute telemetry for Landauer bound
         payload["compute_ms"] = (time.time() - start_time) * 1000
@@ -433,8 +487,20 @@ async def anchor_session(
 
         return wrap_tool_output("anchor_session", payload)
     except Exception as e:
-        if isinstance(e, (ThermodynamicViolation, ModeCollapseError, CheapTruthError, PeaceViolation, EntropyViolation, AmanahViolation)):
-             return wrap_tool_output("anchor_session", _convert_physics_exception_to_void(e, "anchor_session", "init"))
+        if isinstance(
+            e,
+            (
+                ThermodynamicViolation,
+                ModeCollapseError,
+                CheapTruthError,
+                PeaceViolation,
+                EntropyViolation,
+                AmanahViolation,
+            ),
+        ):
+            return wrap_tool_output(
+                "anchor_session", _convert_physics_exception_to_void(e, "anchor_session", "init")
+            )
         return wrap_tool_output("anchor_session", _fracture_response("000_INIT", e))
 
 
@@ -464,27 +530,58 @@ async def reason_mind(
         try:
             rag = _ensure_rag()
             rag_contexts = rag.query_with_metadata(query=query, top_k=3).get("contexts", [])
-        except Exception: pass
+        except Exception:
+            pass
 
         think_draft = await think(session_id=session_id, query=query, context="; ".join(evidence))
         if think_draft.get("verdict") == "VOID":
-            return wrap_tool_output("reason_mind", {"verdict": "VOID", "stage": "222_THINK", "session_id": session_id, "blocked_by": "Stage 222 THINK — constitutional floor violation"})
+            return wrap_tool_output(
+                "reason_mind",
+                {
+                    "verdict": "VOID",
+                    "stage": "222_THINK",
+                    "session_id": session_id,
+                    "blocked_by": "Stage 222 THINK — constitutional floor violation",
+                },
+            )
 
         r = await reason(session_id=session_id, hypothesis=query, evidence=evidence)
-        i = await integrate(session_id=session_id, context_bundle={"query": query, "grounding": grounding or {}})
+        i = await integrate(
+            session_id=session_id, context_bundle={"query": query, "grounding": grounding or {}}
+        )
         d = await respond(session_id=session_id, draft_response=f"Draft response for: {query}")
-        
-        verdict = _fold_verdict([str(think_draft.get("verdict", "")), str(r.get("verdict", "")), str(i.get("verdict", "")), str(d.get("verdict", ""))])
-        merged = {"truth_score": r.get("truth_score"), "f2_threshold": r.get("f2_threshold"), "floors_failed": list(r.get("floors_failed", [])) + list(i.get("floors_failed", [])) + list(d.get("floors_failed", [])), "retrieved_contexts": rag_contexts}
-        
+
+        verdict = _fold_verdict(
+            [
+                str(think_draft.get("verdict", "")),
+                str(r.get("verdict", "")),
+                str(i.get("verdict", "")),
+                str(d.get("verdict", "")),
+            ]
+        )
+        merged = {
+            "truth_score": r.get("truth_score"),
+            "f2_threshold": r.get("f2_threshold"),
+            "floors_failed": list(r.get("floors_failed", []))
+            + list(i.get("floors_failed", []))
+            + list(d.get("floors_failed", [])),
+            "retrieved_contexts": rag_contexts,
+        }
+
         payload = {
             "capability_modules": capability_modules or [],
             "actor_id": actor_id,
             "token_status": _token_status(auth_token),
             "debug": debug,
-            "data": {"think": think_draft, "reason": r, "integrate": i, "respond": d} if debug else {},
+            "data": {"think": think_draft, "reason": r, "integrate": i, "respond": d}
+            if debug
+            else {},
         }
-        payload.update(envelope_builder.build_envelope(stage="111-444", session_id=session_id, verdict=verdict, payload=merged))
+        payload.update(
+            envelope_builder.build_envelope(
+                stage="111-444", session_id=session_id, verdict=verdict, payload=merged
+            )
+        )
 
         # Add compute telemetry for Landauer bound
         payload["compute_ms"] = (time.time() - start_time) * 1000
@@ -493,12 +590,26 @@ async def reason_mind(
         # PHASE 1: Strict F4 entropy check (ΔS <= 0)
         delta_s = payload.get("payload", {}).get("dS", 0.0)
         if CORE_AVAILABLE and delta_s > 0:
-            raise EntropyViolation(f"F4_CLARITY_VIOLATION: ΔS={delta_s:.4f} > 0 in reason_mind output")
+            raise EntropyViolation(
+                f"F4_CLARITY_VIOLATION: ΔS={delta_s:.4f} > 0 in reason_mind output"
+            )
 
         return wrap_tool_output("reason_mind", payload)
     except Exception as e:
-        if isinstance(e, (ThermodynamicViolation, ModeCollapseError, CheapTruthError, PeaceViolation, EntropyViolation, AmanahViolation)):
-            return wrap_tool_output("reason_mind", _convert_physics_exception_to_void(e, "reason_mind", session_id))
+        if isinstance(
+            e,
+            (
+                ThermodynamicViolation,
+                ModeCollapseError,
+                CheapTruthError,
+                PeaceViolation,
+                EntropyViolation,
+                AmanahViolation,
+            ),
+        ):
+            return wrap_tool_output(
+                "reason_mind", _convert_physics_exception_to_void(e, "reason_mind", session_id)
+            )
         return wrap_tool_output("reason_mind", _fracture_response("111-444", e, session_id))
 
 
@@ -523,11 +634,14 @@ async def vector_memory(
         try:
             rag = _ensure_rag()
             contexts = rag.retrieve(query=query, top_k=5, min_score=0.15)
-        except Exception: contexts = []
+        except Exception:
+            contexts = []
 
         result_state = "MATCH_FOUND" if contexts else "NO_MATCHES"
-        jaccard_max = max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
-        
+        jaccard_max = (
+            max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
+        )
+
         # Consistent metrics
         metrics = {
             "memory_count": len(contexts),
@@ -538,25 +652,28 @@ async def vector_memory(
         merged = {
             "status": "RECALL_SUCCESS",
             "result_state": result_state,
-            "memories": [{"source": f"{ctx.source}/{ctx.path}", "score": round(ctx.score, 4), "content": ctx.content[:800]} for ctx in contexts],
+            "memories": [
+                {
+                    "source": f"{ctx.source}/{ctx.path}",
+                    "score": round(ctx.score, 4),
+                    "content": ctx.content[:800],
+                }
+                for ctx in contexts
+            ],
             "metrics": metrics,
         }
-        
+
         # No results is still a successful operation (SEAL)
         payload = envelope_builder.build_envelope(
-            stage="555_RECALL", 
-            session_id=session_id, 
-            verdict="SEAL", 
-            payload=merged
+            stage="555_RECALL", session_id=session_id, verdict="SEAL", payload=merged
         )
-        
+
         payload["compute_ms"] = (time.time() - start_time) * 1000
         return wrap_tool_output("vector_memory", payload)
     except Exception as e:
         return wrap_tool_output("vector_memory", _fracture_response("555_RECALL", e, session_id))
 
 
-@mcp.tool(name="recall_memory", description="[DEPRECATED] Use vector_memory instead. [Lane: Ω] Semantic retrieval.")
 async def recall_memory(query: str, session_id: str, debug: bool = False) -> dict[str, Any]:
     return await vector_memory(query=query, session_id=session_id, debug=debug)
 
@@ -581,16 +698,23 @@ async def simulate_heart(
         v = await validate(session_id=session_id, action=query)
         a = await align(session_id=session_id, action=query)
         verdict = _fold_verdict([str(v.get("verdict", "")), str(a.get("verdict", ""))])
-        merged = {"truth_score": v.get("truth_score"), "floors_failed": list(v.get("floors_failed", [])) + list(a.get("floors_failed", []))}
-        
+        merged = {
+            "truth_score": v.get("truth_score"),
+            "floors_failed": list(v.get("floors_failed", [])) + list(a.get("floors_failed", [])),
+        }
+
         payload = {
             "stakeholders": stakeholders or [],
             "capability_modules": capability_modules or [],
             "debug": debug,
             "data": {"validate": v, "align": a} if debug else {},
         }
-        payload.update(envelope_builder.build_envelope(stage="555-666", session_id=session_id, verdict=verdict, payload=merged))
-        
+        payload.update(
+            envelope_builder.build_envelope(
+                stage="555-666", session_id=session_id, verdict=verdict, payload=merged
+            )
+        )
+
         payload["compute_ms"] = (time.time() - start_time) * 1000
         return wrap_tool_output("simulate_heart", payload)
     except Exception as e:
@@ -660,28 +784,58 @@ async def apex_judge(
     # PHASE 1: Thermodynamic core integration - APEX judgment with Ψ, W₃, Φₚ
     start_time = time.time()
     try:
-        plan = {"query": query, "proposed_verdict": proposed_verdict, "human_approve": human_approve, "agi": agi_result or {}, "asi": asi_result or {}}
+        plan = {
+            "query": query,
+            "proposed_verdict": proposed_verdict,
+            "human_approve": human_approve,
+            "agi": agi_result or {},
+            "asi": asi_result or {},
+        }
         forged = await forge(session_id=session_id, plan=str(plan))
-        judged = await audit(session_id=session_id, action=str(plan), sovereign_token="888_APPROVED" if human_approve else "", agi_result=agi_result, asi_result=asi_result)
-        
+        judged = await audit(
+            session_id=session_id,
+            action=str(plan),
+            sovereign_token="888_APPROVED" if human_approve else "",
+            agi_result=agi_result,
+            asi_result=asi_result,
+        )
+
         precedents = []
         try:
             rag = _ensure_rag()
             precedent_contexts = rag.retrieve(query=query, top_k=3, min_score=0.25)
-            precedents = [{"source": f"{ctx.source}/{ctx.path}", "score": ctx.score, "content": ctx.content[:500]} for ctx in precedent_contexts]
-        except Exception: pass
+            precedents = [
+                {
+                    "source": f"{ctx.source}/{ctx.path}",
+                    "score": ctx.score,
+                    "content": ctx.content[:500],
+                }
+                for ctx in precedent_contexts
+            ]
+        except Exception:
+            pass
 
         verdict = str(judged.get("verdict", "VOID"))
         governance_token = _build_governance_token(session_id, verdict)
-        merged = {"truth_score": judged.get("truth_score"), "f2_threshold": judged.get("f2_threshold"), "floors_failed": list(forged.get("floors_failed", [])) + list(judged.get("floors_failed", [])), "precedents": precedents}
-        
+        merged = {
+            "truth_score": judged.get("truth_score"),
+            "f2_threshold": judged.get("f2_threshold"),
+            "floors_failed": list(forged.get("floors_failed", []))
+            + list(judged.get("floors_failed", [])),
+            "precedents": precedents,
+        }
+
         payload = {
             "authority": {"human_approve": human_approve},
             "governance_token": governance_token,
             "debug": debug,
             "data": {"forge": forged, "audit": judged} if debug else {},
         }
-        payload.update(envelope_builder.build_envelope(stage="888_APEX_JUDGE", session_id=session_id, verdict=verdict, payload=merged))
+        payload.update(
+            envelope_builder.build_envelope(
+                stage="888_APEX_JUDGE", session_id=session_id, verdict=verdict, payload=merged
+            )
+        )
 
         # Add compute telemetry
         payload["compute_ms"] = (time.time() - start_time) * 1000
@@ -754,23 +908,72 @@ async def eureka_forge(
     try:
         from aaa_mcp.sessions.session_ledger import get_session_manager
         import shlex
-        
-        DANGEROUS_PATTERNS = ["rm -rf", "rm -fr", "rm -r /", "rm -rf /", "mkfs", "dd if=", "> /dev/sda", "format", "shutdown", "reboot", "halt", "poweroff", "kill -9"]
+
+        DANGEROUS_PATTERNS = [
+            "rm -rf",
+            "rm -fr",
+            "rm -r /",
+            "rm -rf /",
+            "mkfs",
+            "dd if=",
+            "> /dev/sda",
+            "format",
+            "shutdown",
+            "reboot",
+            "halt",
+            "poweroff",
+            "kill -9",
+        ]
         risk_level = "LOW"
         for pattern in DANGEROUS_PATTERNS:
-            if pattern in command.lower(): risk_level = "CRITICAL"; break
+            if pattern in command.lower():
+                risk_level = "CRITICAL"
+                break
         if risk_level == "LOW":
-            MODERATE_PATTERNS = ["docker rm", "docker stop", "docker kill", "systemctl stop", "apt remove", "pip uninstall", "rm -r", "rm -f", "> ", ">>", "| sh", "| bash"]
+            MODERATE_PATTERNS = [
+                "docker rm",
+                "docker stop",
+                "docker kill",
+                "systemctl stop",
+                "apt remove",
+                "pip uninstall",
+                "rm -r",
+                "rm -f",
+                "> ",
+                ">>",
+                "| sh",
+                "| bash",
+            ]
             for pattern in MODERATE_PATTERNS:
-                if pattern in command.lower(): risk_level = "MODERATE"; break
-        
+                if pattern in command.lower():
+                    risk_level = "MODERATE"
+                    break
+
         if risk_level == "CRITICAL" and not confirm_dangerous:
-             return wrap_tool_output("eureka_forge", envelope_builder.build_envelope(stage="888_FORGE", session_id=session_id, verdict="888_HOLD", payload={"status": "CONFIRMATION_REQUIRED", "risk_level": risk_level, "message": f"CRITICAL command detected. Set confirm_dangerous=True to execute."}))
+            return wrap_tool_output(
+                "eureka_forge",
+                envelope_builder.build_envelope(
+                    stage="888_FORGE",
+                    session_id=session_id,
+                    verdict="888_HOLD",
+                    payload={
+                        "status": "CONFIRMATION_REQUIRED",
+                        "risk_level": risk_level,
+                        "message": f"CRITICAL command detected. Set confirm_dangerous=True to execute.",
+                    },
+                ),
+            )
 
         args = shlex.split(command)
-        process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=working_dir, limit=1024*1024)
+        process = await asyncio.create_subprocess_exec(
+            *args,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+            cwd=working_dir,
+            limit=1024 * 1024,
+        )
         stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
-        
+
         res_payload = {
             "status": "SUCCESS" if process.returncode == 0 else "ERROR",
             "exit_code": process.returncode,
@@ -778,11 +981,18 @@ async def eureka_forge(
             "stderr": stderr.decode("utf-8", errors="replace")[:5000],
             "risk_level": risk_level,
         }
-        payload = envelope_builder.build_envelope(stage="777_EUREKA_FORGE", session_id=session_id, verdict="SEAL" if process.returncode == 0 else "VOID", payload=res_payload)
+        payload = envelope_builder.build_envelope(
+            stage="777_EUREKA_FORGE",
+            session_id=session_id,
+            verdict="SEAL" if process.returncode == 0 else "VOID",
+            payload=res_payload,
+        )
         payload["compute_ms"] = (time.time() - start_time) * 1000
         return wrap_tool_output("eureka_forge", payload)
     except Exception as e:
-        return wrap_tool_output("eureka_forge", _fracture_response("777_EUREKA_FORGE", e, session_id))
+        return wrap_tool_output(
+            "eureka_forge", _fracture_response("777_EUREKA_FORGE", e, session_id)
+        )
 
 
 @mcp.tool(name="seal_vault")
@@ -855,18 +1065,41 @@ async def seal_vault(
     try:
         token_valid, verified_verdict = _verify_governance_token(session_id, resolved_token)
         if not token_valid:
-            return wrap_tool_output("seal_vault", {"verdict": "VOID", "stage": "999_SEAL", "session_id": session_id, "error": "F1 Amanah — governance_token invalid"})
+            return wrap_tool_output(
+                "seal_vault",
+                {
+                    "verdict": "VOID",
+                    "stage": "999_SEAL",
+                    "session_id": session_id,
+                    "error": "F1 Amanah — governance_token invalid",
+                },
+            )
 
-        res = await seal(session_id=session_id, task_summary=summary, was_modified=True, verdict=verified_verdict)
+        res = await seal(
+            session_id=session_id, task_summary=summary, was_modified=True, verdict=verified_verdict
+        )
         payload = {"data": res, "status": verified_verdict}
-        if thermodynamic_statement is not None: payload["thermodynamic_statement"] = thermodynamic_statement
-        payload.update(envelope_builder.build_envelope(stage="999_SEAL", session_id=session_id, verdict=verified_verdict, payload=res))
+        if thermodynamic_statement is not None:
+            payload["thermodynamic_statement"] = thermodynamic_statement
+        payload.update(
+            envelope_builder.build_envelope(
+                stage="999_SEAL", session_id=session_id, verdict=verified_verdict, payload=res
+            )
+        )
 
         if verified_verdict == "SEAL":
             try:
                 rag = _ensure_rag()
-                rag.index_memory(session_id=session_id, content=summary, metadata={"verdict": verified_verdict, "timestamp": datetime.now(timezone.utc).isoformat()})
-            except Exception: pass
+                rag.index_memory(
+                    session_id=session_id,
+                    content=summary,
+                    metadata={
+                        "verdict": verified_verdict,
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    },
+                )
+            except Exception:
+                pass
 
         # Add thermodynamic binding confirmation
         payload["thermodynamic_seal"] = {
@@ -877,8 +1110,20 @@ async def seal_vault(
 
         return wrap_tool_output("seal_vault", payload)
     except Exception as e:
-        if isinstance(e, (ThermodynamicViolation, ModeCollapseError, CheapTruthError, PeaceViolation, EntropyViolation, AmanahViolation)):
-             return wrap_tool_output("seal_vault", _convert_physics_exception_to_void(e, "seal_vault", session_id))
+        if isinstance(
+            e,
+            (
+                ThermodynamicViolation,
+                ModeCollapseError,
+                CheapTruthError,
+                PeaceViolation,
+                EntropyViolation,
+                AmanahViolation,
+            ),
+        ):
+            return wrap_tool_output(
+                "seal_vault", _convert_physics_exception_to_void(e, "seal_vault", session_id)
+            )
         return wrap_tool_output("seal_vault", _fracture_response("999_SEAL", e, session_id))
 
 
@@ -896,7 +1141,7 @@ async def search_reality(
         from aaa_mcp.external_gateways.brave_client import BraveSearchClient
         from aaa_mcp.external_gateways.jina_reader_client import JinaReaderClient
         from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
-        
+
         primary = JinaReaderClient()
         payload = await primary.search(query=query, intent=intent)
         if payload.get("status") not in {"OK"}:
@@ -909,11 +1154,15 @@ async def search_reality(
         urls = [r.get("url") for r in payload.get("results", []) if r.get("url")]
         results = payload.get("results", [])
         res_payload = {
-            "query": query, "status": payload.get("status", "OK"), "ids": urls, "results": results,
+            "query": query,
+            "status": payload.get("status", "OK"),
+            "ids": urls,
+            "results": results,
             "evidence_count": len(results),
             "f2_truth": {"grounded": len(results) > 0, "sources": urls[:3]},
         }
-        if session_id: res_payload["session_id"] = session_id
+        if session_id:
+            res_payload["session_id"] = session_id
         return wrap_tool_output("search_reality", res_payload)
     except Exception as e:
         return wrap_tool_output("search_reality", {"query": query, "status": f"ERROR: {e}"})
@@ -991,6 +1240,11 @@ async def inspect_file(
     return wrap_tool_output("inspect_file", result)
 
 
+async def system_audit(audit_scope: str = "quick", verify_floors: bool = True) -> dict[str, Any]:
+    """Legacy alias for audit_rules, kept for MCP compatibility."""
+    return await audit_rules(audit_scope=audit_scope, verify_floors=verify_floors)
+
+
 @mcp.tool(name="audit_rules")
 async def audit_rules(
     audit_scope: str = "quick",
@@ -1004,9 +1258,10 @@ async def audit_rules(
     try:
         details = {"scope": audit_scope}
         if verify_floors:
-             details["floors_loaded"] = True # Heuristic for now
+            details["floors_loaded"] = True  # Heuristic for now
         res_payload = {"verdict": "SEAL", "scope": audit_scope, "details": details}
-        if session_id: res_payload["session_id"] = session_id
+        if session_id:
+            res_payload["session_id"] = session_id
         return wrap_tool_output("audit_rules", res_payload)
     except Exception as e:
         return wrap_tool_output("audit_rules", {"verdict": "VOID", "error": str(e)})
@@ -1026,18 +1281,35 @@ async def check_vital(
     )
     return wrap_tool_output("check_vital", payload)
 
+
 # INTERNAL: query_openclaw — NOT a public MCP tool; removed from canonical 13-tool surface.
 async def query_openclaw(session_id: str, action: str = "health") -> dict[str, Any]:
     """Internal OpenClaw gateway diagnostics — not exposed via /tools/list."""
     try:
-        from aaa_mcp.integrations.openclaw_gateway_client import openclaw_get_health, openclaw_get_status
-        if action == "health": payload = openclaw_get_health()
-        elif action == "status": payload = openclaw_get_status()
-        else: payload = {"error": f"Unknown action '{action}'"}
-        
-        return wrap_tool_output("query_openclaw", envelope_builder.build_envelope(stage="333_OPENCLAW_PROBE", session_id=session_id, verdict="SEAL" if payload.get("http_probe", {}).get("ok") else "PARTIAL", payload=payload))
+        from aaa_mcp.integrations.openclaw_gateway_client import (
+            openclaw_get_health,
+            openclaw_get_status,
+        )
+
+        if action == "health":
+            payload = openclaw_get_health()
+        elif action == "status":
+            payload = openclaw_get_status()
+        else:
+            payload = {"error": f"Unknown action '{action}'"}
+
+        return wrap_tool_output(
+            "query_openclaw",
+            envelope_builder.build_envelope(
+                stage="333_OPENCLAW_PROBE",
+                session_id=session_id,
+                verdict="SEAL" if payload.get("http_probe", {}).get("ok") else "PARTIAL",
+                payload=payload,
+            ),
+        )
     except Exception as e:
         return wrap_tool_output("query_openclaw", {"verdict": "VOID", "error": str(e)})
+
 
 async def visualize_governance(
     session_id: str | None = None,
@@ -1345,46 +1617,71 @@ Execute the 11 stages in order.
 Return valid JSON matching the MetabolicResult schema.
 """
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # PUBLIC WORKFLOW PROMPTS (11-STAGE)
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @mcp.prompt(name="workflow.000_init", description="Stage 000: Session ignition and defense.")
-def workflow_000_init(query: str) -> str: return f"Execute 000_INIT for: {query}"
+def workflow_000_init(query: str) -> str:
+    return f"Execute 000_INIT for: {query}"
+
 
 @mcp.prompt(name="workflow.100_explore", description="Stage 100: Read-only context gathering.")
-def workflow_100_explore(query: str) -> str: return f"Execute 100_EXPLORE for: {query}"
+def workflow_100_explore(query: str) -> str:
+    return f"Execute 100_EXPLORE for: {query}"
+
 
 @mcp.prompt(name="workflow.200_discover", description="Stage 200: Deep reasoning and recall.")
-def workflow_200_discover(query: str) -> str: return f"Execute 200_DISCOVER for: {query}"
+def workflow_200_discover(query: str) -> str:
+    return f"Execute 200_DISCOVER for: {query}"
+
 
 @mcp.prompt(name="workflow.300_appraise", description="Stage 300: Initial safety assessment.")
-def workflow_300_appraise(query: str) -> str: return f"Execute 300_APPRAISE for: {query}"
+def workflow_300_appraise(query: str) -> str:
+    return f"Execute 300_APPRAISE for: {query}"
+
 
 @mcp.prompt(name="workflow.400_design", description="Stage 400: Architecture and invariants.")
-def workflow_400_design(query: str) -> str: return f"Execute 400_DESIGN for: {query}"
+def workflow_400_design(query: str) -> str:
+    return f"Execute 400_DESIGN for: {query}"
+
 
 @mcp.prompt(name="workflow.500_plan", description="Stage 500: Action planning with empathy.")
-def workflow_500_plan(query: str) -> str: return f"Execute 500_PLAN for: {query}"
+def workflow_500_plan(query: str) -> str:
+    return f"Execute 500_PLAN for: {query}"
+
 
 @mcp.prompt(name="workflow.600_prepare", description="Stage 600: Environment readiness.")
-def workflow_600_prepare(query: str) -> str: return f"Execute 600_PREPARE for: {query}"
+def workflow_600_prepare(query: str) -> str:
+    return f"Execute 600_PREPARE for: {query}"
+
 
 @mcp.prompt(name="workflow.700_prototype", description="Stage 700: Sandbox execution.")
-def workflow_700_prototype(query: str) -> str: return f"Execute 700_PROTOTYPE for: {query}"
+def workflow_700_prototype(query: str) -> str:
+    return f"Execute 700_PROTOTYPE for: {query}"
+
 
 @mcp.prompt(name="workflow.800_verify", description="Stage 800: Final rules audit.")
-def workflow_800_verify(query: str) -> str: return f"Execute 800_VERIFY for: {query}"
+def workflow_800_verify(query: str) -> str:
+    return f"Execute 800_VERIFY for: {query}"
+
 
 @mcp.prompt(name="workflow.888_judge", description="Stage 888: Full 13 Floor evaluation.")
-def workflow_888_judge(query: str) -> str: return f"Execute 888_JUDGE for: {query}"
+def workflow_888_judge(query: str) -> str:
+    return f"Execute 888_JUDGE for: {query}"
+
 
 @mcp.prompt(name="workflow.999_vault", description="Stage 999: Immutable seal.")
-def workflow_999_vault(query: str) -> str: return f"Execute 999_VAULT for: {query}"
+def workflow_999_vault(query: str) -> str:
+    return f"Execute 999_VAULT for: {query}"
+
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # TRINITY LAYERED PROMPTS — INTERNAL ONLY
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @mcp.prompt(
     name="internal.agi_mind_loop",
@@ -1393,12 +1690,14 @@ def workflow_999_vault(query: str) -> str: return f"Execute 999_VAULT for: {quer
 def agi_mind_loop(query: str, context: str = "", reasoning_budget: int = 3) -> str:
     return f"INTERNAL AGI Mind Loop. QUERY: {query}"
 
+
 @mcp.prompt(
     name="internal.asi_heart_loop",
     description="[INTERNAL_ONLY] ASI empathy: 444→555→666.",
 )
 def asi_heart_loop(draft_hypotheses: dict, stakeholders: list[str] = None) -> str:
     return "INTERNAL ASI Heart Loop."
+
 
 @mcp.prompt(
     name="internal.apex_soul_loop",
@@ -1407,9 +1706,11 @@ def asi_heart_loop(draft_hypotheses: dict, stakeholders: list[str] = None) -> st
 def apex_soul_loop(synthesized_draft: dict, risk_tier: str = "medium") -> str:
     return "INTERNAL APEX Soul Loop."
 
+
 # ═══════════════════════════════════════════════════════════════════════════════
 # METABOLIC LOOP TOOL
 # ═══════════════════════════════════════════════════════════════════════════════
+
 
 @mcp.tool(
     name="metabolic_loop",
@@ -1430,16 +1731,21 @@ async def metabolic_loop(
     execution_log: list[dict] = []
     stages_out: dict[str, Any] = {}
     start_time = time.time()
-    
+
     def record_stage(name, status, result):
         execution_log.append({"stage": name, "status": status})
         stages_out[name] = {"status": status, "output": result}
 
     try:
         # 000_INIT
-        init_result = await anchor_session(query=query, actor_id=actor_id, mode="conscience", grounding_required=True)
+        init_result = await anchor_session(
+            query=query, actor_id=actor_id, mode="conscience", grounding_required=True
+        )
         record_stage("000_INIT", init_result.get("verdict", "VOID"), init_result)
-        if init_result.get("verdict") == "VOID": return _build_metabolic_result("VOID", stages_out, start_time)
+        if init_result.get("verdict") == "VOID":
+            return wrap_tool_output(
+                "metabolic_loop", _build_metabolic_result("VOID", stages_out, start_time)
+            )
         session_id = init_result.get("session_id", "sess_000")
 
         # 100_EXPLORE
@@ -1469,9 +1775,14 @@ async def metabolic_loop(
         # 700_PROTOTYPE (Hard check: non-prod only)
         is_prod = "prod" in context.lower() or "prod" in query.lower()
         if is_prod or risk_tier in ["high", "critical"]:
-            prototype_res = {"verdict": "888_HOLD", "reason": "Cannot prototype in prod or high-risk context."}
+            prototype_res = {
+                "verdict": "888_HOLD",
+                "reason": "Cannot prototype in prod or high-risk context.",
+            }
             record_stage("700_PROTOTYPE", "888_HOLD", prototype_res)
-            return _build_metabolic_result("888_HOLD", stages_out, start_time)
+            return wrap_tool_output(
+                "metabolic_loop", _build_metabolic_result("888_HOLD", stages_out, start_time)
+            )
         else:
             prototype_res = await eureka_forge(command="prototype", session_id=session_id)
             record_stage("700_PROTOTYPE", prototype_res.get("verdict", "SEAL"), prototype_res)
@@ -1481,9 +1792,16 @@ async def metabolic_loop(
         record_stage("800_VERIFY", verify_res.get("verdict", "SEAL"), verify_res)
 
         # 888_JUDGE
-        judge_res = await apex_judge(session_id=session_id, query=query, agi_result=design_res, asi_result=plan_res, proposed_verdict="SEAL" if risk_tier not in ["high", "critical"] else "888_HOLD")
+        judge_res = await apex_judge(
+            session_id=session_id,
+            query=query,
+            agi_result=design_res,
+            asi_result=plan_res,
+            proposed_verdict="SEAL" if risk_tier not in ["high", "critical"] else "888_HOLD",
+        )
         final_verdict = judge_res.get("verdict", "VOID")
-        if risk_tier in ["high", "critical"]: final_verdict = "888_HOLD"
+        if risk_tier in ["high", "critical"]:
+            final_verdict = "888_HOLD"
         record_stage("888_JUDGE", final_verdict, judge_res)
 
         # 999_VAULT (Hard check: human approval)
@@ -1492,32 +1810,48 @@ async def metabolic_loop(
             has_approval = "approved_by" in context or "approval_reference" in context
             if not has_approval:
                 final_verdict = "888_HOLD"
-                stages_out["999_VAULT"] = {"status": "888_HOLD", "reason": "Missing human approval evidence for VAULT sealing."}
+                stages_out["999_VAULT"] = {
+                    "status": "888_HOLD",
+                    "reason": "Missing human approval evidence for VAULT sealing.",
+                }
             else:
-                vault_res = await seal_vault(session_id=session_id, summary=query, governance_token=governance_token)
+                vault_res = await seal_vault(
+                    session_id=session_id, summary=query, governance_token=governance_token
+                )
                 record_stage("999_VAULT", vault_res.get("verdict", "SEAL"), vault_res)
 
-        return _build_metabolic_result(final_verdict, stages_out, start_time)
+        return wrap_tool_output(
+            "metabolic_loop", _build_metabolic_result(final_verdict, stages_out, start_time)
+        )
 
     except Exception as e:
         import traceback
-        return _build_metabolic_result("VOID", stages_out, start_time, error=str(e), trace=traceback.format_exc())
 
-def _build_metabolic_result(verdict: str, stages: dict, start_time: float, error: str = None, trace: str = None) -> dict:
+        return wrap_tool_output(
+            "metabolic_loop",
+            _build_metabolic_result(
+                "VOID", stages_out, start_time, error=str(e), trace=traceback.format_exc()
+            ),
+        )
+
+
+def _build_metabolic_result(
+    verdict: str, stages: dict, start_time: float, error: str = None, trace: str = None
+) -> dict:
     duration_ms = (time.time() - start_time) * 1000
     res = {
         "verdict": verdict,
         "floors": {
             "passed": ["F2", "F4"] if verdict in ["SEAL", "PARTIAL", "888_HOLD"] else [],
             "failed": ["F1"] if verdict == "VOID" else [],
-            "notes": "Normalized gate format"
+            "notes": "Normalized gate format",
         },
         "gates": {
             "raw_status": "OK" if verdict == "SEAL" else "WARN",
             "decision_status": "PROCEED" if verdict == "SEAL" else "HOLD",
             "human_override_required": verdict == "888_HOLD",
             "contradictions": [],
-            "unresolved_risks": []
+            "unresolved_risks": [],
         },
         "telemetry": {
             "dS": -0.5,
@@ -1525,15 +1859,14 @@ def _build_metabolic_result(verdict: str, stages: dict, start_time: float, error
             "kappar": 0.96,
             "confidence": 0.95,
             "omega0": 0.04,
-            "duration_ms": duration_ms
+            "duration_ms": duration_ms,
         },
-        "stages": stages
+        "stages": stages,
     }
     if error:
         res["error"] = error
         res["trace"] = trace
     return res
-
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1549,6 +1882,11 @@ _TOOL_REGISTRY["metabolic_loop"] = metabolic_loop
 # native prompt protocol support.
 
 try:
+    # Legacy compatibility aliases (intentionally registered without decorators)
+    mcp.add_tool(fetch_content)
+    mcp.add_tool(inspect_file)
+    mcp.add_tool(system_audit)
+
     from fastmcp.server.transforms import PromptsAsTools
 
     mcp.add_transform(PromptsAsTools(mcp))

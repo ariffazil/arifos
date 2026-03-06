@@ -67,10 +67,10 @@ RUN mkdir -p models/bge && (cp -r aclip_cai/embeddings/* models/bge/ || true) &&
     mkdir -p /ms-playwright && \
     chown -R arifos:arifos /usr/src/app /ms-playwright
 
-# Install Playwright dependencies (as root)
-RUN python -m playwright install-deps chromium
+# Install Playwright browser deterministically
+RUN python -m playwright install --with-deps chromium
 
-# Final browser installation (as non-root for security floor)
+# Final browser installation (as non-root for security floor/cache warmup)
 USER arifos
 RUN python -m playwright install chromium
 

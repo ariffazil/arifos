@@ -16,7 +16,34 @@ env:
   TARGET_HOST: ${{ secrets.VPS_TAILSCALE_IP || secrets.VPS_HOST }}
 
 jobs:
+  selftest:
+    name: Constitutional Self-Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]" || pip install -r requirements.txt
+
+      - name: Run self-test
+        run: python -m aaa_mcp.selftest
+        env:
+          GOVERNANCE_MODE: HARD
+          ARIFOS_PHYSICS_DISABLED: "1"
+          ARIFOS_ALLOW_LEGACY_SPEC: "1"
+
   deploy:
+    name: Rebuild and Deploy to VPS
+    needs: selftest
     runs-on: ubuntu-latest
     
     steps:
@@ -29,6 +56,7 @@ jobs:
         ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
 
     - name: Connect GitHub runner to Tailscale (optional)
+      if: secrets.TS_AUTHKEY != ''
       uses: tailscale/github-action@v3
       with:
         authkey: ${{ secrets.TS_AUTHKEY }}
@@ -38,58 +66,65 @@ jobs:
       run: |
         mkdir -p ~/.ssh
         echo "🔎 Checking SSH reachability to ${TARGET_HOST}:${SSH_PORT}"
-        if ! timeout 12 bash -c "</dev/tcp/${TARGET_HOST}/${SSH_PORT}" 2>/dev/null; then
+        if ! timeout 15 bash -c "</dev/tcp/${TARGET_HOST}/${SSH_PORT}" 2>/dev/null; then
           echo "❌ Cannot reach ${TARGET_HOST}:${SSH_PORT} from GitHub runner"
-          echo "Check VPS firewall/security-group, public IP, and SSH port"
-          echo "If using Tailscale, set TS_AUTHKEY + VPS_TAILSCALE_IP secrets"
+          echo "Check VPS firewall, IP, and SSH port"
           exit 1
         fi
         ssh-keyscan -p ${SSH_PORT} -H ${TARGET_HOST} >> ~/.ssh/known_hosts
 
     - name: Deploy to VPS
       run: |
-        echo "🚀 Deploying arifOS to VPS..."
-        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "
+        echo "🚀 Starting VPS rebuild and deployment..."
+        ssh -o ConnectTimeout=15 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "
           set -e
           cd '${VPS_PATH}'
+          
+          echo '📥 Syncing code from GitHub...'
           git fetch origin main
           git reset --hard origin/main
-          # Legacy compose files on VPS may still bind-mount /root/arifOS paths
+          
           if [ ! -e /root/arifOS ]; then
             sudo ln -s '${VPS_PATH}' /root/arifOS || true
           fi
-          docker build -t arifos/arifosmcp:latest .
-          docker compose -f docker-compose.yml up -d --no-deps --build arifosmcp
+          
+          echo '🧹 Cleaning up old Docker artifacts...'
+          sudo docker system prune -f
+          
+          echo '🏗️ Rebuilding and restarting arifosmcp container...'
+          # Use sudo for docker compose to ensure permissions
+          sudo docker compose -f docker-compose.yml up -d --build arifosmcp
         "
       timeout-minutes: 35
 
     - name: Wait for services
-      run: sleep 10
+      run: sleep 15
 
-    - name: Health Check - Phase 1
+    - name: Health Check - Phase 1 (Core Services)
       run: |
-        echo "🏥 Checking Phase 1 services..."
-        # Check Postgres
-        if ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "sudo docker exec arifos-postgres pg_isready -U arifos_admin -d arifos_vault" > /dev/null 2>&1; then
-          echo "✅ PostgreSQL is healthy"
-        else
-          echo "⚠️ PostgreSQL may still be starting..."
-        fi
-        
-        # Check Redis
-        if ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "sudo docker exec arifos-redis redis-cli ping" > /dev/null 2>&1; then
-          echo "✅ Redis is healthy"
-        else
-          echo "⚠️ Redis may still be starting..."
-        fi
+        echo "🏥 Checking Phase 1 services (Postgres & Redis)..."
+        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "
+          if sudo docker exec arifos_postgres pg_isready -U arifos_admin -d arifos_vault > /dev/null 2>&1; then
+            echo '✅ PostgreSQL is healthy'
+          else
+            echo '⚠️ PostgreSQL check failed'
+          fi
+          
+          if sudo docker exec arifos_redis redis-cli ping | grep -q PONG; then
+            echo '✅ Redis is healthy'
+          else
+            echo '⚠️ Redis check failed'
+          fi
+        "
 
-    - name: Health Check - Phase 2
+    - name: Health Check - Phase 2 (MCP Server)
       run: |
-        echo "🏥 Checking arifOS MCP server..."
+        echo "🏥 Checking arifOS MCP server via internal container health..."
         MAX_RETRIES=15
         RETRY=0
         while [ $RETRY -lt $MAX_RETRIES ]; do
-          if ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "curl -fsS http://127.0.0.1:8080/health" > /dev/null 2>&1; then
+          # We check the health internal to the container to bypass Traefik/Host port issues
+          if ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "sudo docker exec arifosmcp_server curl -fsS http://localhost:8080/health" > /dev/null 2>&1; then
             echo "✅ arifOS MCP server is healthy!"
             exit 0
           fi
@@ -99,12 +134,12 @@ jobs:
         done
         echo "❌ Health check failed"
         exit 1
-      timeout-minutes: 3
+      timeout-minutes: 5
 
     - name: Verify Deployment
       run: |
         echo "🔍 Deployment verification..."
-        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "sudo docker ps --format 'table {{.Names}}\t{{.Status}}'"
+        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "sudo docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'"
 
     - name: Deployment Summary
       if: success()
@@ -112,15 +147,15 @@ jobs:
         echo "✨ Deployment Successful!"
         echo "   VPS: ${TARGET_HOST}"
         echo "   Endpoints:"
-        echo "     - Health: http://${TARGET_HOST}:8080/health"
-        echo "     - SSE: http://${TARGET_HOST}:8080/sse"
-        echo "   PostgreSQL: 127.0.0.1:5432"
-        echo "   Redis: 127.0.0.1:6379"
+        echo "     - Health: https://arifosmcp.arif-fazil.com/health"
+        echo "     - Dashboard: https://dashboard.arifosmcp.arif-fazil.com"
 
     - name: Notify on Failure
       if: failure()
       run: |
-        echo "❌ Deployment failed!"
-        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "sudo docker ps -a" || true
-        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "sudo docker logs arifosmcp_server --tail 50" || true
+        echo "❌ Deployment failed! Inspecting logs..."
+        ssh -o ConnectTimeout=12 -p ${SSH_PORT} ${{ secrets.VPS_USER }}@${TARGET_HOST} "
+          sudo docker ps -a | grep arifos || true
+          sudo docker logs arifosmcp_server --tail 100 || true
+        "
         exit 1
