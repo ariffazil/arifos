@@ -1,9 +1,9 @@
 # 🎯 arifOS Task Tracker — Solo Sovereign Mode
 
-> **Authority:** 888_JUDGE — Muhammad Arif bin Fazil  
-> **Current:** 2026.03.1  
-> **Reality Index:** 0.98  
-> **Mode:** Solo Sovereign (Single User)  
+> **Authority:** 888_JUDGE — Muhammad Arif bin Fazil
+> **Current:** 2026.3.6-CANON
+> **Reality Index:** 0.98
+> **Mode:** Solo Sovereign (Single User) — Product Wedge Phase
 > **Creed:** *DITEMPA BUKAN DIBERI — Forged, not given* 💎🔥🧠
 
 ---
@@ -22,6 +22,66 @@
 | ~~Strikethrough~~ | Completed & Archived |
 
 ---
+
+## 🔴 IMMEDIATE: Product Wedge (Next 30 Days)
+
+**Strategy:** Turn arifOS from grand theory into one undeniable product.
+**Wedge:** AI Command Firewall + MCP Governance Gateway.
+**One sentence:** *arifOS stops a smart model from doing a stupid real-world action — reliably, visibly, with clean audit logs.*
+
+### P0 — Core Happy-Path Stability
+
+- [x] **Fix `simulate_heart` NameError** — Removed ghost `actor_id` + `auth_token` refs from function body — 2026-03-06
+- [x] **Fix `metabolic_loop` TypeError** — `audit_rules(query=...)` → `audit_rules(audit_scope=...)` — 2026-03-06
+- [ ] **Run E2E happy-path** — `anchor_session → reason_mind → simulate_heart → apex_judge → seal_vault` — must complete without crash
+- [ ] **Fix Ed25519 signing** — Place private key at `keys/ed25519_private.key` or update hook to use env var — clears post-commit noise
+- [ ] **Load `ARIFOS_GOVERNANCE_SECRET` from env** — Remove hardcoded fallback in `aaa_mcp/server.py` before any hosted demo
+
+### P1 — Three Killer Demos
+
+- [ ] **Demo A: Dangerous command blocked**
+  - AI proposes `rm -rf /tmp/important` → `eureka_forge` returns `888_HOLD` (CRITICAL risk, `confirm_dangerous` not set)
+  - Record screen. Clean output. 60 seconds.
+
+- [ ] **Demo B: Prompt injection resisted**
+  - Malicious prompt attempts to override governance → `anchor_session` F12 injection scan returns VOID
+  - Show the block reason and floor failed in response.
+
+- [ ] **Demo C: Audit trail generated**
+  - Any governed action → show VAULT999 ledger entry with floor scores, governance_token, timestamp
+  - This is the "clean audit log" proof.
+
+### P2 — Messaging & Discoverability
+
+- [ ] **Rewrite README top section** — One clear promise: "AI Command Firewall for MCP agents"
+- [ ] **Quickstart truly ≤5 minutes** — Test cold install: `pip install arifos && python -m arifos_aaa_mcp stdio` → working
+- [ ] **One architecture diagram** — eureka_forge risk classification + 888_HOLD path as primary diagram (not the full 7-layer stack)
+- [ ] **"How arifOS stops bad actions" page** — Simple narrative: classify → block/hold/allow → log
+
+### P3 — First Real Users
+
+- [ ] **Identify 3 target users** — AI agent builders, devtool teams, infra engineers
+- [ ] **Send Demo A+B+C** — No pitch, just "does this solve a problem you have?"
+- [ ] **Collect: blocked count, latency annoyance threshold, most useful floor**
+
+---
+
+## ✅ COMPLETED (v2026.3.6-CANON)
+
+### 2026-03-06: Canonical 13-Tool Surface Lock ✅
+
+- [x] **Phoenix retired** — `recall_memory` → `vector_memory` (BGE-M3 + Qdrant + EUREKA sieve). F9 Anti-Hantu compliant.
+- [x] **`fetch_content` + `inspect_file` archived** → `ingest_evidence(source_type="url"|"file")`
+- [x] **`trinity_forge` demoted** → `metabolic_loop` is the canonical Band O orchestration tool
+- [x] **Three-layer schema alignment** — `schemas.py` + `contracts.py` + prompts all agree on Gen3 canonical names
+- [x] **`contracts.py` REQUIRES_SESSION fixed** — `recall_memory` → `vector_memory` (session guard now correct)
+- [x] **L0 kernel prompt updated** — `sensory_read` → `ingest_evidence` in `l0_kernel_prompt.py`
+- [x] **`tool_naming.py` updated** — `vector_memory`, `ingest_evidence`, `metabolic_loop` in canonical map
+- [x] **GEMINI.md updated** — 11 → 13 tools, all Gen3 canonical names
+- [x] **ARIF Bands documented** — A/R/I/F/O taxonomy in `333_APPS/L4_TOOLS/README.md` + root `README.md`
+- [x] **Runtime bugs fixed** — `simulate_heart` NameError + `metabolic_loop` TypeError patched
+- [x] **Temp artifacts deleted** — `debug_mcp_v2.py`, `finalize_seal.py`, `verify_audit.py`, `git_diff_server.txt`
+- [x] **CHANGELOG.md + docs/CHANGELOG.md updated** — T000 + KAC format entries for v2026.3.6-CANON
 
 ## ✅ COMPLETED (v2026.03.1)
 
@@ -516,12 +576,12 @@ kimi mcp test postgresql
 
 ---
 
-**Last Updated:** 2026-03-01 (ARXIV RESEARCH + COMPETITIVE ANALYSIS SEAL)  
-**Status:** 🔥 2026.03.1 — arXiv Deep Research + Competitive Analysis Complete  
-**Current Phase:** H1.4 Complete → H1.5-H1.9 Benchmark/Gap Closure  
-**Mode:** Research-Informed Development + Competitive Benchmarking  
-**Phoenix Kit:** `/root/arifos_phoenix_final.tar.gz` (74 files, 45K compressed)  
-**Research Base:** 150+ arXiv papers synthesized  
+**Last Updated:** 2026-03-06 (v2026.3.6-CANON — 13-tool surface lock + product wedge pivot)
+**Status:** 🔥 2026.3.6-CANON — Tool surface canonical, runtime stable, product wedge defined
+**Current Phase:** P0 (Happy-path stability) → P1 (3 demos) → P2 (messaging) → P3 (first users)
+**Mode:** Product Wedge — AI Command Firewall + MCP Governance Gateway
+**Phoenix Kit:** `/root/arifos_phoenix_final.tar.gz` (74 files, 45K compressed)
+**Research Base:** 150+ arXiv papers synthesized
 **Competitive Analysis:** vs. AIOS, Anthropic CAI, Nvidia NeMo (ROADMAP.md Section 2)
 
 *"Truth must cool before it rules."*

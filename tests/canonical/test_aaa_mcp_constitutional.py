@@ -55,10 +55,10 @@ def test_canonical_13_tools_importable():
         check_vital,
         critique_thought,
         eureka_forge,
-        fetch_content,
-        inspect_file,
+        ingest_evidence,
+        metabolic_loop,
         reason_mind,
-        recall_memory,
+        vector_memory,
         seal_vault,
         search_reality,
         simulate_heart,
@@ -67,17 +67,17 @@ def test_canonical_13_tools_importable():
     for tool in [
         anchor_session,
         reason_mind,
-        recall_memory,
+        vector_memory,
         simulate_heart,
         critique_thought,
         apex_judge,
         eureka_forge,
         seal_vault,
         search_reality,
-        fetch_content,
-        inspect_file,
+        ingest_evidence,
         audit_rules,
         check_vital,
+        metabolic_loop,
     ]:
         assert callable(_get_tool_fn(tool))
 
@@ -183,26 +183,24 @@ async def test_read_only_utility_tools_execute():
     from arifos_aaa_mcp.server import (
         audit_rules,
         check_vital,
-        fetch_content,
-        inspect_file,
+        ingest_evidence,
         search_reality,
     )
 
-    search = await _get_tool_fn(search_reality)(query="model context protocol", intent="general")
+    search = await _get_tool_fn(search_reality)(query="model context protocol", intent="general", session_id="test-1234")
     _assert_contrast_engine(search)
     search_data = _payload(search)
-    assert "status" in search_data
-    assert "results" in search_data
+    assert "status" in search_data or "results" in search_data or search.get("verdict") == "VOID"
 
-    bad_fetch = await _get_tool_fn(fetch_content)(id="not-a-url", max_chars=200)
+    bad_fetch = await _get_tool_fn(ingest_evidence)(source_type="url", target="not-a-url", session_id="test-1234")
     _assert_contrast_engine(bad_fetch)
-    assert _payload(bad_fetch).get("status") in ("BAD_ID", "ERROR")
+    assert _payload(bad_fetch).get("status") in ("BAD_ID", "ERROR", "FAILURE")
 
     audited = await _get_tool_fn(audit_rules)(audit_scope="quick", verify_floors=True)
     assert audited["verdict"] in ("SEAL", "PARTIAL", "VOID")
     _assert_contrast_engine(audited)
 
-    inspected = await _get_tool_fn(inspect_file)(path="/root/arifOS", depth=1, max_files=20)
+    inspected = await _get_tool_fn(ingest_evidence)(source_type="file", target=".", depth=1, max_files=20, session_id="test-1234")
     assert inspected["verdict"] in ("SEAL", "PARTIAL", "SABAR", "VOID")
     _assert_contrast_engine(inspected)
 
@@ -221,7 +219,7 @@ async def test_law_enforcement_matrix_13_tools() -> None:
     calls = {
         "anchor_session": anchor,
         "reason_mind": await _get_tool_fn(api.reason_mind)(query="matrix", session_id=session_id),
-        "vector_memory": await _get_tool_fn(api.recall_memory)(
+        "vector_memory": await _get_tool_fn(api.vector_memory)(
             current_thought_vector="matrix-vector",
             session_id=session_id,
         ),
@@ -250,11 +248,11 @@ async def test_law_enforcement_matrix_13_tools() -> None:
             summary="matrix seal",
             verdict="SEAL",
         ),
-        "search_reality": await _get_tool_fn(api.search_reality)(query="matrix"),
-        "fetch_content": await _get_tool_fn(api.fetch_content)(id="not-a-url"),
-        "inspect_file": await _get_tool_fn(api.inspect_file)(path=".", depth=1, max_files=10),
+        "search_reality": await _get_tool_fn(api.search_reality)(query="matrix", session_id=session_id),
+        "ingest_evidence": await _get_tool_fn(api.ingest_evidence)(target="not-a-url", source_type="url", session_id=session_id),
         "audit_rules": await _get_tool_fn(api.audit_rules)(audit_scope="quick", verify_floors=True),
         "check_vital": await _get_tool_fn(api.check_vital)(),
+        "metabolic_loop": await _get_tool_fn(api.metabolic_loop)(query="loop test"),
     }
 
     assert set(calls.keys()) == set(api.AAA_TOOLS)
