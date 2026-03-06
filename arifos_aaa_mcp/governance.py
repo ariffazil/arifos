@@ -669,13 +669,13 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             verdict = "SEAL"
         else:
             verdict = "VOID"
-    elif psi_score < 1.0:
+    elif psi_score < 1.0 and payload.get("status") not in {"RECALL_PARTIAL_FAILURE", "SEARCH_PARTIAL_FAILURE"}:
         # System lacks vitality - cannot SEAL
         if psi_score < 0.5:
             verdict = "VOID"
         else:
             verdict = "SABAR"
-    elif not tri_witness.get("pass", False):
+    elif not tri_witness.get("pass", False) and payload.get("status") not in {"RECALL_PARTIAL_FAILURE", "SEARCH_PARTIAL_FAILURE"}:
         # P1: Tri-Witness consensus failed
         if tri_witness.get("shattered_by"):
             verdict = "VOID"  # Witness shattered
