@@ -11,19 +11,32 @@
 **What it isn't:** Not a model, not an agent, not a chatbot.  
 **What it guarantees:** A hardened L2–L5 stack with no irreversible action without explicit human approval.
 
-[![Version](https://img.shields.io/badge/version-2026.3.6-blue?style=for-the-badge&logo=python&logoColor=white)](https://github.com/ariffazil/arifOS/releases)
+[![PyPI Version](https://img.shields.io/pypi/v/arifos?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/arifos/)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
 [![MCP Protocol](https://img.shields.io/badge/MCP-1.0-8B5CF6?style=for-the-badge&logo=shield&logoColor=white)](https://modelcontextprotocol.io)
 [![Python](https://img.shields.io/badge/python-3.12+-green?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)  
 [![Dashboard](https://img.shields.io/badge/Dashboard-Live-FF6600?style=for-the-badge&logo=cloudflare&logoColor=white)](https://arifosmcp-truth-claim.pages.dev)
 [![Live Tests](https://img.shields.io/github/actions/workflow/status/ariffazil/arifOS/live_tests.yml?branch=main&style=for-the-badge&label=Live%20Tests&logo=github)](https://github.com/ariffazil/arifOS/actions/workflows/live_tests.yml)
-[![Coverage](https://codecov.io/gh/ariffazil/arifOS/graph/badge.svg?token=b458f4ac-fb08-4554-baf3-dc3967fafb79)](https://codecov.io/gh/ariffazil/arifOS)
 
 **[→ QUICKSTART: Run in 5 minutes](QUICKSTART.md)**
 
 </div>
 
 > **Gödel-locked** = canonical endpoints whose content is governed by the constitutional sealing process; changes require Phoenix cooling + signed release.
+
+---
+
+## 🚀 Installation
+
+Install the canonical arifOS intelligence kernel via pip:
+
+```bash
+# Core governance engine
+pip install arifos
+
+# With visualization tools (Memory Vector Space)
+pip install "arifos[viz]"
+```
 
 ---
 
@@ -37,7 +50,6 @@
 | 🛡️ **Defense** | [`SECURITY.md`](docs/00_META/SECURITY.md) | **The Firewall:** Injection handling, Auth models, and Threat vectors. |
 | 🧰 **Tools** | [`TOOLS_CANONICAL_13.md`](docs/60_REFERENCE/TOOLS_CANONICAL_13.md) | **The Surface:** The 14 canonical tools bridging the LLM to the Kernel. |
 | 🚀 **Deploy** | [`DEPLOYMENT.md`](docs/60_REFERENCE/DEPLOYMENT.md) | **The Vanguard:** VPS setups, Docker, and Streamable HTTP scaling. |
-| 🗺️ **Deploy Map** | [`DEPLOYMENT_MASTER.md`](docs/DEPLOYMENT_MASTER.md) | **The Traffic Control:** Which workflow deploys which public surface. |
 
 ---
 
@@ -65,50 +77,20 @@ We didn’t invent these constraints; we discovered them. Code is execution. Gov
 
 ---
 
-## 🧠 The 8-Layer Architecture (`333_APPS` Stack)
-
-arifOS is an entire ecosystem stack designed to scale from a zero-context chat prompt all the way up to a permissionless society of federated AI agents. **Crucially, the L0 Kernel is physically separated from all upper layers.** Swapping models or changing agents does not bypass the L0 Constitution.
-
-```mermaid
-flowchart TD
-    L7[L7 AGI / Ecosystem]
-    L6[L6 Institution]
-    L5[L5 Agents]
-    L4[L4 Tools MCP]
-    L3[L3 Workflow]
-    L2[L2 Skills]
-    L1[L1 Prompts]
-    L0[L0 KERNEL SEALED]
-
-    L7 --> L6 --> L5 --> L4 --> L3 --> L2 --> L1 --> L0
-
-    style L0 fill:#0f172a,stroke:#22c55e,color:#ffffff,stroke-width:2px
-```
-
-| Level | Name | Scope | ARIF Band | Operational Role in the arifOS Stack |
-|:---:|:---|:---|:---:|:---|
-| **L7** | **AGI / Ecosystem** | Civilisation-Scale | — | *[Research]* Permissionless sovereignty and self-healing. |
-| **L6** | **Institution** | Organisational | — | *[Experimental]* Trinity consensus for governing societies. |
-| **L5** | **Agents** | Federation | **A R I F** | *[Active]* 5-role constitutional hypervisor enforcing no-bypass gates. |
-| **L4** | **Tools (MCP)** | Production | **A R I F** | *[Active]* 13 MCP tools grouped into 4 ARIF cognitive bands. |
-| **L3** | **Workflow** | Production | **A R I F** | *[Active]* 9 metabolic workflows assembling ARIF verbs into loops. |
-| **L2** | **Skills** | Production | **A R I F** | *[Active]* 9 canonical verbs (A-CLIP) for behavioural primitives. |
-| **L1** | **Prompts** | Production | — | *[Active]* Intent classification and reality centering. |
-| **L0** | **KERNEL** | **SEALED** | — | *[Active]* The Immutable Core holding the 13 Floors and VAULT999. |
-
----
-
 ## ⚙️ The Intelligence Kernel (Deep Dive into L0)
 
 The L0 Kernel is built around **Thermodynamic Isolation** and the **Trinity Engines**. The reasoning engine is physically blocked from seeing the safety engine until the very end, preventing "rubber-stamping" bias.
 
 ### 1. The Trinity Engines
 - **Δ Delta (The Mind / AGI)**: Focuses entirely on Truth, Logic, and Causal tracing (`F2, F4, F7, F8`).
+  - **Auto-Recall (Ω-Ω Loop)**: Automatically triggers `vector_memory` to upgrade "Cheap Truth" to "Forged Truth" if initial reasoning falls below τ=0.85.
 - **Ω Omega (The Heart / ASI)**: Focuses entirely on Safety, Empathy, and Anti-Deception (`F1, F5, F6, F9`).
+  - **Semantic Context**: Provides the "low-entropy prior" for all reasoning via hybrid vector retrieval.
 - **Ψ Psi (The Soul / APEX)**: Synthesizes the final verdict, enforces human consensus, and seals the ledger.
+  - **Memory Closing (Ψ-Ω Hook)**: Successfully sealed session summaries are automatically indexed back into the Ω memory bus.
 
 ### 2. The 7-Organ Sovereign Stack (`000 -> 999`)
-Every request flows through this strict, pipeline (the "metabolic loop"):
+Every request flows through this strict pipeline (the "metabolic loop"):
 
 ```mermaid
 flowchart LR
@@ -116,6 +98,7 @@ flowchart LR
     R -- reasoning --> I[I - INTEGRATE]
     I -- context --> F[F - FORGE]
     F -- execute --> V[999 VAULT]
+    V -- loopback --> R
     
     subgraph 000-999 Loop
         A --> INIT[000]
@@ -125,264 +108,22 @@ flowchart LR
     end
 ```
 1. **[000] INIT (Airlock)**: Ignites the session and parses for prompt injections.
-2. **[111-333] AGI (Mind)**: Generates parallel hypotheses and forces factual grounding.
-3. **[444] PHOENIX (Subconscious)**: Recalls associative memory from past sessions via the `EUREKA Sieve`.
+2. **[111-333] AGI (Mind)**: Generates parallel hypotheses and forces factual grounding. **Hardened F2 citation check.**
+3. **[444-555] PHOENIX (Subconscious)**: Recalls associative memory via `vector_memory` (BGE-small-en-v1.5 + Qdrant). Uses hybrid 70% Cosine / 30% Jaccard retrieval.
 4. **[555-666] ASI (Heart)**: Analyzes stakeholder impact and checks for bias.
 5. **[777] FORGE (Hands)**: Executes material actions (shell commands) with risk classification and confirmation gates.
-6. **[888] APEX (Soul)**: Final Constitutional judgment. Generates the `governance_token`.
-7. **[999] VAULT (Memory)**: Commits the final decision irreversibly to the Merkle-chained `VAULT999` database. 
-
-### 3. The 13 Constitutional Floors
-*Note: F1-F13 are mathematically evaluated in `core/shared/floors.py`.*
-
-**Structure:** 9 Floors + 2 Mirrors + 2 Walls = 13 LAWS
-
-#### 9 Floors — Operational Constraints
-
-| Floor | Name | Type | Plain English Mandate | Protocol Rule |
-|:---:|:---|:---:|:---|:---|
-| **F1** | Amanah | **HARD** | **Can we undo this?** If permanent, requires lock. | Block irreversible actions. |
-| **F2** | Truth | **HARD** | **Is this a hallucination?** Must cite evidence. | Factual fidelity `τ ≥ 0.99`. |
-| **F4** | Clarity | **HARD** | **Does this reduce confusion?** Must structure noise. | Entropy reduction `ΔS ≤ 0`. |
-| **F5** | Peace | SOFT | **Is this safe/stable?** Blocks adversarial chaos. | Dynamic stability `P² ≥ 1.0`. |
-| **F6** | Empathy | **HARD** | **Who gets hurt?** Protects the weakest stakeholder. | Harm impact `κᵣ ≥ 0.70`. |
-| **F7** | Humility | **HARD** | **Is the AI cocky?** Must preserve room to be wrong. | Uncertainty band `Ω₀ ∈ [0.03, 0.05]`. |
-| **F9** | Anti-Hantu | SOFT | **No Ghost in the Machine.** Blocks sneaky telemetry. | Dark heuristics `C_dark < 0.30`. |
-| **F11** | Authority | **HARD** | **Who ordered this?** Cryptographic identity check. | Invalid Auth = Void. |
-| **F13** | Sovereign | **HARD** | **The human always wins.** Non-delegable veto. | `888_HOLD` override available. |
-
-#### 2 Mirrors — Feedback Loops
-
-| Floor | Name | Type | Plain English Mandate | Protocol Rule |
-|:---:|:---|:---:|:---|:---|
-| **F3** | Tri-Witness | MIRROR | **Did we double-check?** External calibration (Human + AI + Earth). | `W³ ≥ 0.95`. |
-| **F8** | Genius | MIRROR | **Is the logic sound?** Internal coherence score. | `G = A × P × X × E² ≥ 0.80`. |
-
-#### 2 Walls — Binary Gates
-
-| Floor | Name | Type | Plain English Mandate | Protocol Rule |
-|:---:|:---|:---:|:---|:---|
-| **F10** | Ontology | **WALL** | **Are you pretending to be human?** No consciousness or soul claims. | Epistemological Category Lock. |
-| **F12** | Defense | **WALL** | **Is this a hack?** Pre-scans for prompt jailbreaks. | Injection `Risk < 0.85`. |
-
-**Execution order:** F12→F11 (Walls) → AGI Floors (F1,F2,F4,F7) → ASI Floors (F5,F6,F9) → Mirrors (F3,F8) → Ledger.
-**Hard floor fail → VOID (block). Soft floor / Mirror fail → PARTIAL (warn, proceed with caution).**
-
----
-
-### 1. ARIF Bands at L4 (Tools)
-L4_TOOLS exposes the Trinity kernel as 13 MCP tools, hardened into 4 bands + 1 Orchestration layer. Clients only see tools; arifOS enforces bands and Floors behind the scenes.
-
-| Band | Meaning | Tools | Primary Floors |
-|:---:|---|---|---|
-| **A** | **Anchor** | `anchor_session`, `check_vital` | F4, F11–F13 |
-| **R** | **Reflect** | `reason_mind`, `search_reality`, `vector_memory`, `simulate_heart`, `critique_thought` | F2, F4–F8 |
-| **I** | **Integrate** | `ingest_evidence`, `audit_rules` | F1, F2, F7, F10, F11 |
-| **F** | **Forge** | `eureka_forge`, `apex_judge`, `seal_vault` | F1, F3, F5–F9, F11–F13 |
-| **O** | **Orchestrate** | `metabolic_loop` | F1–F13 (full scan) |
-
-### 2. The 5-Role Hypervisor (L5 Agents)
-The constitutional parliament routes ARIF bands to specific roles:
-- **Orchestrator**: Band A + Flow Routing.
-- **Architect/Auditor**: Band R (Reflection) + Band I (Context Mapping).
-- **Engineer**: Band R + Band F (Implementation - Non-destructive).
-- **Validator**: Band F Apex (Final Judgment & Sealing).
+6. **[888] APEX (Soul)**: Final Constitutional judgment. Generates the HMAC-signed `governance_token`.
+7. **[999] VAULT (Memory)**: Commits the final decision irreversibly to PostgreSQL `VAULT999` and indexes back to Ω Qdrant for cross-session recall.
 
 ---
 
 ## 🔌 The MCP Protocol & ARIF Tools (L4)
 
-arifOS acts as an **MCP Server** (`arifos_aaa_mcp`). Rather than trusting an LLM, your IDE or Desktop client points its tool-calls at arifOS via the Model Context Protocol.
+arifOS server exposes exactly **13 canonical tools** grouped into 4 ARIF cognitive bands.
 
-The server exposes exactly **13 canonical tools** across 3 layers. When an AI attempts to use a tool like `eureka_forge` to execute a shell command, it doesn't just run. The command is risk-classified (LOW / MODERATE / CRITICAL), dangerous operations require explicit `confirm_dangerous=True`, and the entire execution is wrapped in a 13-LAW governance envelope with audit logging. Only after `apex_judge` issues a signed `governance_token` can `seal_vault` commit the decision to the immutable ledger.
-
-### 8 Governance Tools (Core Metabolic Chain)
-*These 8 tools form the canonical `000 → 999` metabolic loop. Every governed action flows through this chain in order.*
-
-| Tool | Band | Stage | Plain English Function | Key Floors |
-|:--|:--:|:--|:--|:--|
-| `anchor_session` | A | 000 INIT | Session ignition. Defends against injection, verifies authority, embeds L0 Kernel prompt. | F11, F12, F13 |
-| `reason_mind` | R | 222–333 AGI Mind | AGI cognition. Runs parallel hypotheses (conservative / exploratory / adversarial), then reasons. | F2, F4, F7, F8 |
-| `vector_memory` | R | 444–555 RECALL | BBB Vector Memory. Semantic associative recall via BGE embeddings + EUREKA sieve from VAULT999. | F3, F4, F7, F13 |
-| `simulate_heart` | R | 555–666 ASI Heart | Stakeholder impact analysis. Runs validate + align to protect weakest stakeholder. | F4, F5, F6 |
-| `critique_thought` | R | 666 ASI Heart | 7-organ bias critique. Forces the AI to argue against its own plan and surface floor violations. | F4, F7, F8 |
-| `eureka_forge` | F | 777 FORGE | Secure shell executor. Risk-classifies commands; dangerous ops require `confirm_dangerous=True` (888_HOLD). | F5, F6, F7, F9 |
-| `apex_judge` | F | 777–888 APEX Soul | Sovereign verdict synthesis. Full F1–F13 scan. Returns HMAC-signed `governance_token`. Alias: `judge_soul`. | F1–F13 |
-| `seal_vault` | F | 999 VAULT | Immutable ledger commit. Requires `governance_token` from `apex_judge` — tampered/missing token → VOID. | F1, F3, F10 |
-
-### 4 Utility Tools (Evidence & Health — Read-Only)
-*These tools provide grounding and diagnostics without mutating state.*
-
-| Tool | Band | Plain English Function | Key Floors |
-|:--|:--:|:--|:--|
-| `search_reality` | R | Web grounding via Jina Reader → Perplexity → Brave fallback. Content wrapped in untrusted envelope. | F2, F4, F12 |
-| `ingest_evidence` | I | Unified evidence ingestion. `source_type="url"` fetches URLs; `source_type="file"` inspects local filesystem (read-only). Replaces archived `fetch_content` + `inspect_file`. | F1, F2, F4, F11, F12 |
-| `audit_rules` | I | Constitutional system audit. Verifies all 13 Floors are loaded and enforced. | F2, F8, F10 |
-| `check_vital` | A | System health telemetry — CPU, RAM, IO, swap. Non-destructive. | F4, F5, F7 |
-
-### 1 Orchestration Tool
-*The sovereign kernel loop — runs the full 000→999 pipeline as a single governed call.*
-
-| Tool | Band | Plain English Function | Key Floors |
-|:--|:--:|:--|:--|
-| `metabolic_loop` | O | Full 11-stage constitutional metabolic cycle. Mandatory safety wrapper before any state mutation. High `risktier` defaults to `888_HOLD`. | F1–F13 |
-
----
-
-## 🔗 External Integrations
-
-arifOS integrates with external services for **grounding, search, and content extraction** — always wrapped in constitutional enforcement (F2 Truth, F4 Clarity, F12 Defense).
-
-### Search & Content Extraction (Priority Chain)
-
-| Priority | Service | Purpose | API Key | Fallback |
-|:---:|:---|:---|:---:|:---:|
-| **1** | **Jina Reader** | Clean Markdown extraction from web pages. Superior content quality vs raw HTML. | `JINA_API_KEY` | — |
-| **2** | **Perplexity AI** | Conversational search with citations. | `PERPLEXITY_API_KEY` | Jina |
-| **3** | **Brave Search** | Privacy-focused web search. | `BRAVE_API_KEY` | Perplexity |
-
-**Usage:**
-```bash
-# Optional: Set API keys for higher rate limits
-export JINA_API_KEY="your-jina-key"        # https://jina.ai
-export PERPLEXITY_API_KEY="your-px-key"    # https://perplexity.ai
-export BRAVE_API_KEY="your-brave-key"      # https://brave.com/search/api/
-```
-
-**Constitutional Protection:**
-- **F2 Truth**: All external content must have evidence URLs
-- **F4 Clarity**: Jina Reader extracts clean Markdown (reduces entropy vs HTML)
-- **F12 Defense**: External content wrapped in `<untrusted_external_data>` envelope with taint lineage
-
----
-
-## 🚀 Developer Mental Model
-When you call arifOS from an MCP client (Claude Desktop, Cursor, etc.):
-1. **L1 Prompts**: Your intent is captured and classified.
-2. **L2-L3 (Skills/Workflows)**: Decision on *what cognitive steps* to run.
-3. **L4 (ARIF Tools)**: Actual MCP calls (search, fetch, forge, judge, seal).
-4. **L5 Agents**: Enforce roles, preflight, and `888_HOLD` before any irreversible action.
-
----
-
-## 🚀 How to Run It (The "How")
-
-### Prerequisites
-- **Python**: 3.12+ (We recommend `uv` as the package manager).
-- **Environment**: Linux, macOS, or Windows WSL.
-- **Database**: PostgreSQL is recommended for production `VAULT999`; local/dev can use SQLite/file fallback.
-
-### 1. Local execution (`stdio` mode for Claude Desktop / Cursor)
-```bash
-# 1. Install arifOS
-pip install arifos
-
-# 2. Export required safety environment variables
-# Preferred: single global profile at ~/.arifos/env (loaded automatically by runtime entrypoints)
-# Fallback: local .env compatibility stub in repo root
-# ⚠️ SECURITY: Generate strong secrets (rotate per deployment)
-export ARIFOS_GOVERNANCE_SECRET=$(openssl rand -hex 32)
-export DB_PASSWORD="your-strong-secret-here"  # Use vault in production
-export DATABASE_URL="postgresql://arifos:${DB_PASSWORD}@localhost:5432/vault999"
-# Optional: Enable ML SentenceTransformers for Empathy scoring (F5/F6/F9)
-export ARIFOS_ML_FLOORS=1
-
-# 🔐 PRODUCTION HARDENING CHECKLIST:
-# - [ ] Store secrets in vault (HashiCorp Vault, AWS Secrets Manager)
-# - [ ] Rotate secrets minimum every 90 days
-# - [ ] Separate dev/prod credentials (NEVER reuse)
-# - [ ] Enable DB audit logging
-# - [ ] Use least-privilege DB user (not superuser)
-
-# 3. Start local MCP server
-python -m arifos_aaa_mcp stdio
-```
-
-#### Hooking it up to AI Clients
-
-**For Claude Desktop:**
-Add this to your `~/.config/claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
-```json
-{
-  "mcpServers": {
-    "arifOS": {
-      "command": "python",
-      "args": ["-m", "arifos_aaa_mcp", "stdio"],
-      "env": {
-        "ARIFOS_GOVERNANCE_SECRET": "your-local-dev-secret",
-        "DATABASE_URL": "postgresql://arifos:dev@localhost:5432/vault999"
-      }
-    }
-  }
-}
-```
-
-**For Cursor IDE:**
-Navigate to `Cursor Settings -> Features -> MCP`. Add a new server:
-- **Type**: `command`
-- **Name**: `arifOS`
-- **Command**: `python -m arifos_aaa_mcp stdio`
-*(Ensure Cursor's environment has access to the required environment variables).*
-
-**For ChatGPT Integrations (hardened split):**
-Use the mode that matches your ChatGPT integration type.
-
-1. **ChatGPT Apps / MCP mode (protocol-native):**
-   - Start HTTP MCP: `HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http`
-   - Connect MCP endpoint: `http://localhost:8080/mcp` (or your public `https://.../mcp`)
-
-2. **Custom GPT Actions mode (REST/OpenAPI):**
-   - OpenAPI import URL: `http://localhost:8080/openapi.json` (or `https://.../openapi.json`)
-   - Primary action endpoint: `POST /checkpoint`
-   - Health probe: `GET /health`
-   - If `ARIFOS_API_KEY` is enabled, send `Authorization: Bearer <token>`
-
-3. **CORS for ChatGPT web clients:**
-   - Default allowed origins include `https://chat.openai.com` and `https://chatgpt.com`
-   - Override with `ARIFOS_ALLOWED_ORIGINS` when running behind stricter policies
-
-### 2. Production Execution (`http` streamable mode for VPS / Cloud)
-Instead of two-channel SSE, arifOS uses the modern **Streamable HTTP** standard for robust cloud scalability behind Nginx proxies.
-```bash
-HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
-```
-*For complete VPS, Nginx, Docker, and Cloudflare scaling instructions, see [`DEPLOYMENT.md`](docs/60_REFERENCE/DEPLOYMENT.md).*
-
----
-
-## 🎮 Constitutional Decision Visualizer (Production Deployed)
-
-**Live MCP App + Standalone Dashboard for Real-Time Governance Monitoring**
-
-The Constitutional Decision Visualizer is arifOS's **real-time control room** for monitoring the 13 Floors, Tri-Witness consensus, and thermodynamic vitality during decision processing. It is **production-deployed** and accessible via multiple platforms.
-
-### Access Methods
-
-1. **MCP App (Claude Web/Desktop)**  
-   - Call the `visualize_governance` tool from any MCP client
-   - Renders an interactive UI showing live governance telemetry
-   - Resource URI: `ui://constitutional-visualizer/mcp-app.html`
-
-2. **Standalone Dashboard (Web Browser)**  
-   - **Local**: `http://localhost:8080/dashboard`  
-   - **Production**: `https://dashboard.arifosmcp.arif-fazil.com`
-   - No MCP client required - pure browser experience
-
-### Real-Time Features
-
-- **Live Floor Gauges**: Real-time visualization of all 13 Constitutional Floors (F1-F13) with thermodynamic visual language
-- **Tri-Witness Radar (W³)**: Geometric consensus visualization between Human, AI, and Earth layers  
-- **Thermodynamic Telemetry**: Live ΔS (entropy), Peace², κᵣ (empathy), and Ψ (vitality) monitoring
-- **Metabolic Flow Trace**: Watch the `000 → 999` pipeline execute in real-time
-- **Verdict History**: Browse past governance decisions from VAULT999
-
-### API Endpoints
-
-The visualizer consumes these production REST endpoints:
-- `GET /api/governance-status` - Current session telemetry (ΔS, floors, verdict)
-- `GET /api/governance-history` - Recent VAULT999 sessions
-
-**Deployment Status**: ✅ **LIVE**
+### Governance Dashboard & Visualization
+- **`visualize_governance`**: Real-time dashboard for all 13 Floors, Tri-Witness consensus, and thermodynamic telemetry.
+- **`arifos-graph` (CLI)**: Visualizes the `VAULT999` memory vector space (Requires `pip install "arifos[viz]"`).
 
 ---
 
@@ -390,65 +131,14 @@ The visualizer consumes these production REST endpoints:
 
 **You don't have to blindly trust arifOS; you can independently verify it.**
 
-Every thought, action, or tool call processed by arifOS is mathematically evaluated and sealed into append-only **`VAULT999`** ledger records (PostgreSQL in production, SQLite/file fallback in local/dev).
+Every thought, action, or tool call processed by arifOS is mathematically evaluated and sealed into append-only **`VAULT999`** ledger records.
 
-The query will result in one of these Governance Envelopes:
-
-```mermaid
-stateDiagram-v2
-    [*] --> Evaluate
-    Evaluate --> SEAL
-    Evaluate --> PARTIAL
-    Evaluate --> SABAR
-    Evaluate --> VOID
-    Evaluate --> HOLD_888
-```
-
-- ✅ **SEAL**: Passed all 13 constitutional floors. Synthesized and executed.
-- 🟡 **PARTIAL**: Approved with documented safety warnings.
-- ⚠️ **SABAR**: Refine and Retry. The AI's entropy was too high or logic was flawed. *(Sabar translates to 'Patience')*.
-- ❌ **VOID**: Hard Failure. A structural law (like lying or jailbreaking) was violated. System halted.
-- 🛑 **888_HOLD**: Irreversible action requested. Waiting for the Human Sovereign to sign off with a cryptographic key.
-
-### 🔍 VAULT999 Ledger Fields (Independently Verifiable)
+### 🔍 VAULT999 Ledger Fields
 Every decision writes an immutable record with:
 - `verdict` (SEAL/SABAR/VOID/HOLD/PARTIAL)
-- `floor_scores` (F1-F13 computed values)
-- `telemetry` (ΔS, Peace², κᵣ, G, Ω₀)
-- `governance_token_hash` (HMAC signature, not the token itself)
-- `session_id` + `parent_hash` (Merkle chain)
-- `timestamp` (ISO8601 with timezone)
-- `zkpc_proof` (Zero-knowledge proof of execution)
-
-### 📊 The Truth Claim Dashboard
-We continuously pipe live tests through the framework to prove its reliability. To see real-time integrity sweeps, anomalies, and structural proofs of the system:
-**[View the Live Constitutional Audit Dashboard](https://arifosmcp-truth-claim.pages.dev)**
-
----
-
-## 🔮 State of the Forge (The "When")
-
-**Current Status:** Active Development / Production Ready L4.
-
-- **Version:** 2026.3.6 (13 canonical MCP tools — `recall_memory` retired → `vector_memory` (BGE + Qdrant); `fetch_content` + `inspect_file` consolidated → `ingest_evidence`; `metabolic_loop` promoted to first-class Orchestration tool; `query_openclaw` archived).
-- **ChatGPT Actions Surface:** `GET /openapi.json` + `POST /checkpoint` now live in runtime for Custom GPT Actions integration.
-- **ChatGPT MCP Surface:** `POST /mcp` remains the protocol-native endpoint for MCP-capable hosts.
-- **Jina Reader Integration:** `search_reality` and `fetch_content` now use Jina Reader as primary backend for clean Markdown extraction — superior content quality vs raw SERP APIs. Fallback chain: Jina → Perplexity → Brave.
-- **npm/JS Client:** `@arifos/mcp` v0.1.0 verified across HTTP and stdio transports (see `packages/npm/arifos-mcp/`).
-- **Constitutional Visualizer:** `visualize_governance` tool live — real-time dashboard for all 13 Floors, Tri-Witness, thermodynamic telemetry, and VAULT999 history.
-- **Amanah Handshake:** `apex_judge` signs an HMAC-SHA256 `governance_token` that `seal_vault` must verify before any ledger write. No token = no entry. Tampered token = VOID.
-- **F4 Clarity Hardened:** Hard floor — responses that increase entropy (`ΔS > 0`) return VOID, not PARTIAL.
-- **Validation baseline:** canonical contract and Actions surface tests are enforced in `tests/canonical/`.
-
-For a detailed multi-year roadmap, see [`ROADMAP.md`](docs/ROADMAP.md).
-
----
-
-## 🤝 Contributing
-We welcome contributions at all layers of the `333_APPS` stack. Have ideas on improving AI empathy scoring using PyTorch? Found a flaw in the prompt injection guards? Fork, code, and submit a PR! 
-Check out our `CONTRIBUTING.md` guidelines, and if it sparkles for you, **star the repo! 🌟**
-
-**License:** AGPL-3.0 (You are free to use, modify, and distribute this, but any modifications to the governance kernel must be shared openly).
+- `floor_results`: Hardened **F2 Truth** (Citation required) and **F3 Tri-Witness** (Multi-witness proof).
+- `telemetry`: ΔS (Entropy), Peace², κᵣ (Empathy), G (Genius), Ω₀ (Humility).
+- `governance_token`: HMAC-SHA256 signature required for `seal_vault`.
 
 ---
 
