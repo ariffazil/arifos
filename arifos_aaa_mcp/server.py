@@ -15,26 +15,32 @@ PHASE 1 WIRING: Thermodynamic Core Integration
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 import hmac as _hmac
+import json
 import logging
+import os
 import secrets
 import sys
+import time
 import traceback
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 from fastmcp import FastMCP
 from mcp.types import Icon
-import os
 
-from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.protocol.public_surface import (
     PUBLIC_CANONICAL_TOOLS,
     PUBLIC_PROMPT_NAMES,
     PUBLIC_RESOURCE_URIS,
 )
 from aaa_mcp.protocol.tool_registry import export_full_context_pack
+from aclip_cai.tools.fs_inspector import fs_inspect
+from aclip_cai.tools.system_monitor import get_system_health
 from aclip_cai.triad import (
     align,
     anchor,
@@ -47,8 +53,6 @@ from aclip_cai.triad import (
     think,
     validate,
 )
-from aclip_cai.tools.fs_inspector import fs_inspect
-from aclip_cai.tools.system_monitor import get_system_health
 
 from .contracts import require_session, validate_input
 from .fastmcp_ext.discovery import build_surface_discovery
@@ -143,25 +147,25 @@ envelope_builder = EnvelopeBuilder()
 
 # Import core thermodynamic cage
 try:
-    from core.physics.thermodynamics import (
-        ThermodynamicViolation,
-        ModeCollapseError,
-        CheapTruthError,
-        check_landauer_bound,
-        derive_orthogonality,
-    )
     from core.homeostasis import (
         PeaceViolation,
         check_peace_squared,
     )
+    from core.judgment import (
+        JudgmentKernel,
+        get_judgment_kernel,
+    )
     from core.kernel.constitutional_decorator import (
-        EntropyViolation,
         AmanahViolation,
+        EntropyViolation,
         constitutional_floor,
     )
-    from core.judgment import (
-        get_judgment_kernel,
-        JudgmentKernel,
+    from core.physics.thermodynamics import (
+        CheapTruthError,
+        ModeCollapseError,
+        ThermodynamicViolation,
+        check_landauer_bound,
+        derive_orthogonality,
     )
 
     CORE_AVAILABLE = True
@@ -734,7 +738,6 @@ async def eureka_forge(
         return wrap_tool_output("eureka_forge", missing)
     start_time = time.time()
     try:
-        from aaa_mcp.sessions.session_ledger import get_session_manager
         import shlex
         
         DANGEROUS_PATTERNS = ["rm -rf", "rm -fr", "rm -r /", "rm -rf /", "mkfs", "dd if=", "> /dev/sda", "format", "shutdown", "reboot", "halt", "poweroff", "kill -9"]
@@ -747,7 +750,7 @@ async def eureka_forge(
                 if pattern in command.lower(): risk_level = "MODERATE"; break
         
         if risk_level == "CRITICAL" and not confirm_dangerous:
-             return wrap_tool_output("eureka_forge", envelope_builder.build_envelope(stage="888_FORGE", session_id=session_id, verdict="888_HOLD", payload={"status": "CONFIRMATION_REQUIRED", "risk_level": risk_level, "message": f"CRITICAL command detected. Set confirm_dangerous=True to execute."}))
+             return wrap_tool_output("eureka_forge", envelope_builder.build_envelope(stage="888_FORGE", session_id=session_id, verdict="888_HOLD", payload={"status": "CONFIRMATION_REQUIRED", "risk_level": risk_level, "message": "CRITICAL command detected. Set confirm_dangerous=True to execute."}))
 
         args = shlex.split(command)
         process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=working_dir, limit=1024*1024)
@@ -985,7 +988,10 @@ async def check_vital(
 async def query_openclaw(session_id: str, action: str = "health") -> dict[str, Any]:
     """Read-only OpenClaw gateway diagnostics (HTTP probe + container status)."""
     try:
-        from aaa_mcp.integrations.openclaw_gateway_client import openclaw_get_health, openclaw_get_status
+        from aaa_mcp.integrations.openclaw_gateway_client import (
+            openclaw_get_health,
+            openclaw_get_status,
+        )
         if action == "health": payload = openclaw_get_health()
         elif action == "status": payload = openclaw_get_status()
         else: payload = {"error": f"Unknown action '{action}'"}
@@ -1072,7 +1078,7 @@ def get_visualizer() -> str:
         "mcp-app.html",
     )
     if os.path.exists(path):
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return f.read()
     return "<html><body><h1>Visualizer app not built yet. Run npm run build:mcp in constitutional-visualizer</h1></body></html>"
 
@@ -1171,9 +1177,9 @@ _TOOL_REGISTRY = {
 # One full metabolic cycle of governed intelligence.
 # Like a heat engine: intake → compression → power stroke → exhaust → ready.
 
-from pydantic import BaseModel, Field
 from typing import Literal
 
+from pydantic import BaseModel, Field
 
 # Placeholder - will be populated after metabolic_loop is defined
 _METABOLIC_LOOP_REGISTERED = False
@@ -1646,7 +1652,7 @@ def _generate_metabolic_summary(verdict: str, execution_log: list[dict]) -> str:
     elif verdict == "888_HOLD":
         return f"⏸️ Metabolic cycle paused at stage {stage_count}. Human ratification required before SEAL."
     elif verdict == "SABAR":
-        return f"⚠️ Metabolic cycle completed with cooling required. Review stage telemetry before proceeding."
+        return "⚠️ Metabolic cycle completed with cooling required. Review stage telemetry before proceeding."
     elif verdict == "VOID":
         failed_stage = execution_log[-1].get("stage", "UNKNOWN") if execution_log else "INIT"
         return f"❌ Metabolic cycle VOIDed at {failed_stage}. Constitutional floor violation detected. Do not proceed."
