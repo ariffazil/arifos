@@ -359,7 +359,7 @@ ICON_VAULT = Icon(
 
 mcp = FastMCP(
     name="arifOS_AAA_MCP",
-    version="2026.3.1",
+    version="2026.3.6",
     instructions=(
         "Canonical 13-tool arifOS AAA MCP surface. "
         "Use 000->333->555->666->777_EUREKA_FORGE->888_APEX_JUDGE->999 governance spine."
@@ -773,6 +773,8 @@ async def seal_vault(
     summary: str,
     verdict: str = "SEAL",
     governance_token: str | None = None,
+    approved_by: str | None = None,
+    approval_reference: str | None = None,
     # PHASE 2: Thermodynamic telemetry for ledger binding
     telemetry: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
