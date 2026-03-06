@@ -99,6 +99,15 @@ def _verify_governance_token(session_id: str, token: str) -> tuple[bool, str]:
     return False, "VOID"
 
 
+def _get_zkpc_witness(session_id: str, digest: str) -> str:
+    """Generate a zkPC-style witness signature for a vault entry."""
+    return _hmac.new(
+        _GOVERNANCE_TOKEN_SECRET.encode(),
+        f"{session_id}:{digest}".encode(),
+        hashlib.sha256,
+    ).hexdigest()[:16]
+
+
 def _fold_verdict(verdicts: list[str]) -> str:
     if any(v.upper() == "VOID" for v in verdicts):
         return "VOID"
@@ -1139,14 +1148,21 @@ async def seal_vault(
 
         if verified_verdict == "SEAL":
             try:
+                # 🔱 zkPC-ready Qdrant Indexing: Link back to Forensic Ledger
+                entry_hash = res.get("entry_hash")
+                metadata = {
+                    "verdict": verified_verdict,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+                if entry_hash:
+                    metadata["vault_digest"] = entry_hash
+                    metadata["witness_signature"] = _get_zkpc_witness(session_id, entry_hash)
+
                 rag = _ensure_rag()
                 rag.index_memory(
                     session_id=session_id,
                     content=summary,
-                    metadata={
-                        "verdict": verified_verdict,
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
-                    },
+                    metadata=metadata,
                 )
             except Exception:
                 pass
