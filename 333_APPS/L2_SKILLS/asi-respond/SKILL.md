@@ -29,7 +29,8 @@ Organ 555-666_ASI (Heart/Ω) + Verb respond — Compassionate response generatio
 - Clarifying ambiguous results
 
 **Allowed Operations:**
-- Generate stakeholder-aware responses
+- Generate stakeholder-aware responses following **Hierarchical Aggregation** (Summary first)
+- Use markdown structures that mirror **Atomic File Representation**
 - Ensure F5 Peace² ≥ 1.0 in output
 - Apply F6 Empathy (κᵣ ≥ 0.70)
 - Reduce entropy in communication (F4)

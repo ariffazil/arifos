@@ -14,7 +14,7 @@ F1-F13 floor definitions, thresholds, enforcement order, and constitutional law 
 | F1 | Amanah | HARD | LOCKED |
 | F2 | Truth | HARD | τ ≥ 0.99 |
 | F3 | Tri-Witness | MIRROR | W³ ≥ 0.95 |
-| F4 | Clarity | HARD | ΔS ≤ 0 |
+| F4 | Clarity | HARD | ΔS ≤ 0 (Atomic Context required) |
 | F5 | Peace² | SOFT | P² ≥ 1.0 |
 | F6 | Empathy | SOFT | κᵣ ≥ 0.70 |
 | F7 | Humility | HARD | Ω₀ ∈ [0.03, 0.05] |

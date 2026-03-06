@@ -31,6 +31,8 @@ Organ 555-666_ASI (Heart/Ω) + Verb align — Harmony enforcement, 7-model criti
 
 **Allowed Operations:**
 - Run 7-model critique (inversion, framing, non-linearity, etc.)
+- Critique the **Structural Integrity** of context (is it atomic?)
+- Validate that **Delimiters** are preserved during critique
 - Detect consciousness claims (F9)
 - Calculate alignment score across perspectives
 - Check for hidden assumptions

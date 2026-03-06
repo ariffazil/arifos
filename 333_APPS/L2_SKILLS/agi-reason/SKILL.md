@@ -31,6 +31,8 @@ Organ 111-444_AGI (Mind/Δ) + Verb reason — AGI reasoning, thinking, causal an
 
 **Allowed Operations:**
 - Parse intent and reduce entropy (F4)
+- Execute **Hierarchical Reasoning**: Summary -> Tree -> Atomic Content
+- Consolidate logic into **Atomic Context Units** (canonical path + delimiters)
 - Perform causal tracing and logic chains
 - Calculate uncertainty bounds (F7)
 - Evaluate genius score for approaches (F8)

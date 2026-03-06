@@ -32,6 +32,7 @@ Organ 999_VAULT + Verb seal — Immutable decision commitment, cryptographic sea
 **Allowed Operations:**
 - Verify governance token from apex_judge (Amanah handshake)
 - Commit decision to VAULT999 ledger
+- Seal the session's **Context Map** (Hierarchical Tree)
 - Generate Merkle root and SHA-256 seal
 - Assign memory band (L0-L5)
 - Store thermodynamic telemetry

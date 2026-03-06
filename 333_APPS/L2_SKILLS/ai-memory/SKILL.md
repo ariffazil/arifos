@@ -41,6 +41,8 @@ Consolidated AI layer — AI gateway (OpenClaw), vector memory (Qdrant + BGE emb
 
 **Allowed Operations:**
 - Semantic search via BGE embeddings
+- Store memory chunks with **Canonical File-Path Anchors**
+- Embed with context-awareness (**Summary Parent + Atomic Child**)
 - Model routing through OpenClaw gateway
 - Memory band assignment (L0-L5)
 - Risk classification (LOW/MODERATE/CRITICAL)

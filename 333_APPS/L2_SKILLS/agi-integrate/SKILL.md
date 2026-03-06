@@ -30,8 +30,9 @@ Organ 111-444_AGI (Mind/Δ) + Verb integrate — Context mapping, atlas construc
 - Memory band assignment for context
 
 **Allowed Operations:**
-- Map context files and dependencies
+- Map context files and dependencies using **Hierarchical Tree Representation**
 - Classify boundaries (INTERNAL, EXTERNAL, MISSING)
+- Use **Atomic File Representation** with high-entropy delimiters for aggregation
 - Verify symbols exist in vocabulary (F10)
 - Calculate context uncertainty (F7)
 - Query vector memory for semantic context
