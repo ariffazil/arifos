@@ -1,10 +1,9 @@
-# 🎯 Migration Guide: 17+ Tools → 13 Canonical Tools
+# 🎯 Migration Guide: Consolidated 13 Canonical Tools
 
 ## Overview
 
-arifOS has consolidated from 17+ scattered tools to **exactly 13 canonical constitutional tools** for MCP deployment.
-
-This guide explains the changes and how to migrate your code.
+arifOS has consolidated from a fragmented 17+ tool surface to **exactly 13 canonical
+constitutional tools** aligned with the MCP 2025-11-25 specification.
 
 ---
 
@@ -14,47 +13,69 @@ This guide explains the changes and how to migrate your code.
 
 **Replaces:** `fetch_content` + `inspect_file`
 
-**Why:** These two tools were semantically identical (retrieve and examine objects). Merging them creates a clean mental model:
-- `search_reality` = **EXPLORE** (find candidates)
-- `ingest_evidence` = **EXAMINE** (open/parse chosen object)
+**Why:** Both tools performed the same cognitive act — retrieving and examining an
+object from the environment. Merging them into one entry point:
+- Reduces conceptual overhead for agents and humans
+- Creates a clean "discovery vs. retrieval" split:
+  - `search_reality` → **EXPLORE** (find candidates)
+  - `ingest_evidence` → **EXAMINE** (open/parse a chosen object)
+- Produces cleaner audit trails (one tool name, two input paths)
 
-**Usage:**
+### ✅ Promoted: `metabolic_loop`
 
+`metabolic_loop` was previously classified as an L5 composite orchestration tool.
+It is now a first-class L4 canonical tool, completing the 13-tool surface.
+
+---
+
+## Migration Examples
+
+### From `fetch_content` (URL retrieval)
+
+**Before:**
 ```python
-# Old way (fetch_content)
-result = await fetch_content(url="https://example.com")
+result = await fetch_content(id="https://example.com", max_chars=500)
+```
 
-# New way (ingest_evidence)
+**After:**
+```python
 result = await ingest_evidence(
     source_type="url",
     target="https://example.com",
-    mode="raw"
+    mode="raw",
+    max_chars=500,
 )
 ```
 
-```python
-# Old way (inspect_file)
-result = await inspect_file(path="/path/to/file.txt")
+### From `inspect_file` (filesystem inspection)
 
-# New way (ingest_evidence)
+**Before:**
+```python
+result = await inspect_file(path="/path/to/dir", depth=2, max_files=50)
+```
+
+**After:**
+```python
 result = await ingest_evidence(
     source_type="file",
-    target="/path/to/file.txt",
-    mode="raw"
+    target="/path/to/dir",
+    depth=2,
+    max_files=50,
 )
 ```
 
-### 🗄️ Archived Tools
+### Processing Modes
 
-These tools are **no longer available** in the public MCP surface:
+```python
+# Raw content (default)
+result = await ingest_evidence(source_type="url", target="https://example.com", mode="raw")
 
-| Tool | Status | Replacement |
-|------|--------|-------------|
-| `fetch_content` | Archived | `ingest_evidence(source_type="url", ...)` |
-| `inspect_file` | Archived | `ingest_evidence(source_type="file", ...)` |
-| `list_prompts` | Internal | Use MCP `prompts/list` endpoint |
-| `get_prompt` | Internal | Use MCP `prompts/get` endpoint |
-| `query_openclaw` | Internal | Dev-only (not in public API) |
+# Quick summary (first 500 chars)
+result = await ingest_evidence(source_type="url", target="https://example.com", mode="summary")
+
+# Chunked (list of 1000-char segments)
+result = await ingest_evidence(source_type="url", target="https://example.com", mode="chunks")
+```
 
 ---
 
@@ -62,28 +83,54 @@ These tools are **no longer available** in the public MCP surface:
 
 ### Core Constitutional Spine (8)
 
-1. **anchor_session** — 000_INIT: Session initialization
-2. **reason_mind** — 111-444_AGI: Logical reasoning
-3. **recall_memory** — 555_RECALL: Memory retrieval
-4. **simulate_heart** — 555-666_ASI: Stakeholder empathy
-5. **critique_thought** — Self-critique layer
-6. **eureka_forge** — Sovereign actuator
-7. **apex_judge** — 777_JUDGE: Constitutional judgment
-8. **seal_vault** — 999_SEAL: Immutable ledger
+| # | Tool | Stage | Floor |
+|---|------|-------|-------|
+| 1 | `anchor_session` | 000_INIT | F11, F12 |
+| 2 | `reason_mind` | 333_REASON | F2, F4, F7 |
+| 3 | `recall_memory` | 444_SYNC | F4, F7 |
+| 4 | `simulate_heart` | 555_EMPATHY | F5, F6 |
+| 5 | `critique_thought` | 666_ALIGN | F4, F7, F8 |
+| 6 | `eureka_forge` | 777_FORGE | F5, F6, F9 |
+| 7 | `apex_judge` | 888_JUDGE | F1–F13 |
+| 8 | `seal_vault` | 999_SEAL | F1, F3 |
 
-### Evidence / Observability (2)
+### Evidence / Observability (4)
 
-9. **search_reality** — Discovery (exploration)
-10. **ingest_evidence** — Retrieval/inspection (examination) ✨ **NEW**
-
-### Governance / Health (2)
-
-11. **audit_rules** — Constitutional audit
-12. **check_vital** — System health check
+| # | Tool | Purpose |
+|---|------|---------|
+| 9 | `search_reality` | Discovery — find evidence candidates |
+| 10 | `ingest_evidence` | Retrieval — fetch URL or inspect file (**NEW**) |
+| 11 | `audit_rules` | Constitutional audit + rule validation |
+| 12 | `check_vital` | System health diagnostics |
 
 ### Orchestration (1)
 
-13. **metabolic_loop** — Full-cycle macro convenience
+| # | Tool | Purpose |
+|---|------|---------|
+| 13 | `metabolic_loop` | Full 000→999 macro cycle |
+
+---
+
+## Archived Tools
+
+| Tool | Archived In | Replacement |
+|------|-------------|-------------|
+| `fetch_content` | `ARCHIVED_TOOLS/README.md` | `ingest_evidence(source_type="url", ...)` |
+| `inspect_file` | `ARCHIVED_TOOLS/README.md` | `ingest_evidence(source_type="file", ...)` |
+
+The internal implementations remain in `aaa_mcp/server.py` as **non-decorated** helper
+functions (`_fetch` / `_inspect_file`) and will not appear in `/tools/list`.
+
+---
+
+## Breaking Changes
+
+| Change | Impact | Fix |
+|--------|--------|-----|
+| `fetch_content` removed from public surface | Calls will fail | Migrate to `ingest_evidence(source_type="url", ...)` |
+| `inspect_file` removed from public surface | Calls will fail | Migrate to `ingest_evidence(source_type="file", ...)` |
+| `/tools/list` now returns exactly 13 tools | Health checks expecting 15+ will fail | Update count assertions to 13 |
+| `_ALLOWED_TOOLS` frozenset updated | Calls to old names denied at F12 layer | Update tool name to `ingest_evidence` |
 
 ---
 
@@ -93,14 +140,14 @@ arifOS now implements the full MCP specification:
 
 ### Endpoints
 
-- ✅ `tools/list` - List all 13 public tools
-- ✅ `tools/call` - Execute a tool
-- ✅ `prompts/list` - List available prompt templates
-- ✅ `prompts/get` - Get a specific prompt
-- ✅ `resources/list` - List available resources
-- ✅ `resources/read` - Read a resource
-- ✅ `logging/setLevel` - Set logging level
-- ✅ `completion/complete` - Autocomplete support
+- ✅ `tools/list` — List all 13 public tools
+- ✅ `tools/call` — Execute a tool
+- ✅ `prompts/list` — List available prompt templates
+- ✅ `prompts/get` — Get a specific prompt
+- ✅ `resources/list` — List available resources
+- ✅ `resources/read` — Read a resource
+- ✅ `logging/setLevel` — Set logging level
+- ✅ `completion/complete` — Autocomplete support
 
 ### Features
 
@@ -124,168 +171,48 @@ arifOS now implements the full MCP specification:
 
 ---
 
-## Code Examples
-
-### Example 1: Fetching URL Content
-
-**Before:**
-```python
-from aaa_mcp.server import fetch_content
-
-result = await fetch_content(
-    url="https://api.example.com/data",
-    session_id="sess_123"
-)
-```
-
-**After:**
-```python
-from aaa_mcp.server import ingest_evidence
-
-result = await ingest_evidence(
-    source_type="url",
-    target="https://api.example.com/data",
-    mode="raw",
-    session_id="sess_123"
-)
-```
-
-### Example 2: Reading a File
-
-**Before:**
-```python
-from aaa_mcp.server import inspect_file
-
-result = await inspect_file(
-    path="/etc/config.json",
-    session_id="sess_123"
-)
-```
-
-**After:**
-```python
-from aaa_mcp.server import ingest_evidence
-
-result = await ingest_evidence(
-    source_type="file",
-    target="/etc/config.json",
-    mode="raw",
-    session_id="sess_123"
-)
-```
-
-### Example 3: Processing Modes
-
-The new `ingest_evidence` tool supports multiple processing modes:
-
-```python
-# Raw mode (no processing)
-result = await ingest_evidence(
-    source_type="url",
-    target="https://example.com",
-    mode="raw"
-)
-
-# Summary mode (extract key info)
-result = await ingest_evidence(
-    source_type="file",
-    target="/long/document.txt",
-    mode="summary"  # Returns condensed version
-)
-
-# Chunks mode (split into semantic chunks)
-result = await ingest_evidence(
-    source_type="url",
-    target="https://example.com/article",
-    mode="chunks"  # Returns content split into chunks
-)
-```
-
----
-
-## Testing Your Migration
-
-### 1. Verify Tool Count
-
-```python
-from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS, CANONICAL_TOOL_COUNT
-
-assert len(AAA_CANONICAL_TOOLS) == 13
-assert CANONICAL_TOOL_COUNT == 13
-print("✅ Tool count is correct")
-```
-
-### 2. Check MCP Endpoint
+## Compliance Verification
 
 ```bash
+# Run 13-tool compliance tests
+pytest tests/test_13_tools_compliance.py -v
+
+# Verify canonical count
+python -c "from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS; print(len(AAA_CANONICAL_TOOLS))"
+# Expected: 13
+
+# Verify no ghost imports
+grep -n "fetch_content\|inspect_file" aaa_mcp/server.py | grep "@mcp.tool"
+# Expected: (no output)
+
 # Check tools/list returns 13 tools
 curl -X POST http://localhost:8000/rpc \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":1}' \
   | jq '.result.tools | length'
-
-# Should output: 13
-```
-
-### 3. Test ingest_evidence
-
-```python
-from aaa_mcp.tools.ingest_evidence import ingest_evidence
-
-# Test URL mode
-result = await ingest_evidence(
-    source_type="url",
-    target="https://example.com",
-    mode="raw"
-)
-assert result["verdict"] in ["SEAL", "PARTIAL"]
-print("✅ URL mode works")
-
-# Test file mode
-result = await ingest_evidence(
-    source_type="file",
-    target="/etc/hosts",
-    mode="raw"
-)
-assert result["verdict"] in ["SEAL", "PARTIAL", "VOID"]
-print("✅ File mode works")
+# Expected: 13
 ```
 
 ---
 
 ## Rollback Instructions
 
-If you need to rollback:
-
-1. **Revert the commit:**
-   ```bash
-   git revert <commit-hash>
-   ```
-
-2. **Restore old tools from ARCHIVED_TOOLS/:**
-   ```bash
-   cp ARCHIVED_TOOLS/fetch_content.py.archived aaa_mcp/tools/fetch_content.py
-   cp ARCHIVED_TOOLS/inspect_file.py.archived aaa_mcp/tools/inspect_file.py
-   ```
-
-3. **Update aaa_contract.py** to include old tools
+```bash
+git revert HEAD
+git push
+```
 
 ---
 
 ## FAQ
 
-### Q: Why merge fetch_content and inspect_file?
+### Q: Why merge `fetch_content` and `inspect_file`?
 
-**A:** They're semantically identical operations:
-- Both retrieve and examine a specific object
-- Both apply the same floors (F2, F4, F12)
-- The only difference is the source type (URL vs file)
-
-Merging them creates a cleaner mental model:
+**A:** They're semantically identical operations — both retrieve and examine a specific object, and both apply the same floors (F2, F4, F12). Merging them creates a cleaner mental model:
 - `search_reality` = find things (exploration)
 - `ingest_evidence` = examine things (retrieval)
 
-### Q: What happens if I call fetch_content now?
+### Q: What happens if I call `fetch_content` now?
 
 **A:** The old tools are archived. Calls to `fetch_content` or `inspect_file` will fail with a clear error message pointing you to `ingest_evidence`.
 
@@ -293,20 +220,21 @@ Merging them creates a cleaner mental model:
 
 **A:** Yes. This is the **canonical 13-tool surface** for MCP deployment. Any changes require constitutional review.
 
-### Q: How do I access internal tools like query_openclaw?
+### Q: How do I access internal tools like `query_openclaw`?
 
-**A:** Internal tools are moved to `aaa_mcp/tools/internal/` and are not exposed via MCP `/tools/list`. They're available for dev/ops use but not part of the public API.
+**A:** Internal tools are not exposed via MCP `/tools/list`. They're available for dev/ops use via direct import but not part of the public API.
 
 ---
 
-## Questions?
+## References
 
-See:
-- `ARCHIVED_TOOLS/README.md` for migration examples
-- `tests/test_13_tools_compliance.py` for usage examples
-- `aaa_mcp/tools/ingest_evidence.py` for implementation details
+- `ARCHIVED_TOOLS/README.md` — migration examples
+- `tests/test_13_tools_compliance.py` — usage examples and compliance tests
+- `aaa_mcp/tools/ingest_evidence.py` — implementation details
 - MCP spec: https://modelcontextprotocol.io/specification/2025-11-25/
 
 ---
 
-**Ready to deploy the 13-tool arifOS MCP surface. 🔥**
+*Migration effective: 2026-03-06*
+*Target MCP Spec: 2025-11-25*
+*arifOS Version: v60.0-FORGE*
