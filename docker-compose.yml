@@ -120,10 +120,6 @@ services:
         required: false
     volumes:
       - /opt/arifos/data/core:/usr/src/app/data
-      - /srv/arifOS/aaa_mcp/server.py:/usr/src/app/aaa_mcp/server.py:ro
-      - /srv/arifOS/aaa_mcp/integrations:/usr/src/app/aaa_mcp/integrations:ro
-      - /srv/arifOS/aaa_mcp/external_gateways:/usr/src/app/aaa_mcp/external_gateways:ro
-      - /srv/arifOS/core/kernel/constitutional_decorator.py:/usr/src/app/core/kernel/constitutional_decorator.py:ro
       - /srv/arifOS/333_APPS/constitutional-visualizer/dist-web:/usr/src/app/333_APPS/constitutional-visualizer/dist-web:ro
       - ./333_APPS/constitutional-visualizer/dist:/usr/src/app/static/dashboard:ro
     environment:

@@ -1,66 +1,74 @@
-# arifOS Deployment Guide
+# arifOS — Deployment & Operations Guide
 
-**Version**: 2026-03-06 · VPS-HARDENED  
-**Motto:** *Ditempa Bukan Diberi — Forged, Not Given*  
-**Sovereign:** Muhammad Arif bin Fazil
+This guide provides the canonical instructions for deploying and operating the arifOS AAA MCP server.
+
+## 🚀 Quickstart (Local Development)
+
+### CLI Mode (stdio)
+Use this mode for local testing or integration with Claude Desktop.
+
+```bash
+# Install dependencies
+uv pip install -e .
+
+# Run the server in stdio mode
+python -m arifos_aaa_mcp stdio
+```
+
+### FastMCP Mode
+Use the FastMCP CLI for hot-reloading and automatic UI discovery.
+
+```bash
+# Run with FastMCP
+fastmcp run arifos_aaa_mcp/server.py:mcp
+```
 
 ---
 
-## 🚀 $15 VPS Production Deployment (Recommended)
+## 🏗️ Production Deployment (VPS)
+
+The recommended production stack uses **Docker Compose** with **Traefik** as a reverse proxy.
 
 ### Prerequisites
-- Ubuntu 22.04+ VPS ($5–15/month: DigitalOcean, Hetzner, Vultr, Hostinger)
-- Docker + Docker Compose installed
-- Domain pointed to VPS IP (optional, for TLS via Traefik)
+- Docker & Docker Compose (v2.20+)
+- Domain pointed to your VPS IP
+- Port 80 and 443 open
 
-### One-Command Deploy
+### Deployment Steps
+1. Clone the repository to `/srv/arifOS`.
+2. Configure your `.env.docker` (see [Environment Variables](#-environment-variables)).
+3. Start the stack:
+   ```bash
+   docker compose up -d --build
+   ```
+
+### Verify the deployment
 ```bash
-# Clone repo
-git clone https://github.com/ariffazil/arifOS.git
-cd arifOS
-
-# Deploy (full stack — Traefik, Qdrant, Prometheus, etc.)
-docker compose up -d
-
-# Verify
 curl http://localhost:8080/health
 # Expected: {"status": "healthy", ...}
 ```
 
-### MCP Endpoints
-- **HTTP**: `http://your-vps-ip:8080/mcp`  (or `https://arifosmcp.arif-fazil.com/mcp` with Traefik)
-- **Health**: `http://your-vps-ip:8080/health`
-
-### Troubleshooting
-```bash
-# View logs
-docker compose logs -f arifosmcp
-
-# Restart MCP server
-docker compose restart arifosmcp
-
-# Rebuild after code changes
-cd /srv/arifOS && git pull origin main
-docker compose up -d --build
-```
+### service: arifosmcp
+- Internal Port: `8080`
+- Transport: `streamable-http` (SSE/HTTP)
+- Custom Routes:
+  - `/health`: Live health status
+  - `/tools`: Tool discovery
+  - `/dashboard`: Constitutional Visualizer
 
 ---
 
-## 🔧 Local Development
+## 🔑 Environment Variables
 
-### stdio (Claude Desktop, Cursor)
-```bash
-pip install -e .
-python -m arifos_aaa_mcp stdio
-```
-
-### http (Testing VPS mode locally)
-```bash
-python -m arifos_aaa_mcp http
-# OR
-python server.py --mode http
-curl http://localhost:8080/health
-```
+| Variable | Description | Default |
+|:---|:---|:---|
+| `ARIFOS_GOVERNANCE_SECRET` | Used for HMAC signing of verdicts. | *Required* |
+| `VAULT_PATH` | Path to the VAULT999 JSONL ledger. | `VAULT999/BBB_LEDGER/vault.jsonl` |
+| `LOG_LEVEL` | Logging verbosity. | `INFO` |
+| `ANTHROPIC_API_KEY` | For Claude/Reasoning tasks. | - |
+| `OPENCLAW_URL` | OpenClaw gateway endpoint. | `http://openclaw:18789` |
+| `OLLAMA_URL` | Local LLM engine. | `http://ollama:11434` |
+| `DATABASE_URL` | Vault999 persistence (PostgreSQL). | - |
 
 ---
 
@@ -94,48 +102,16 @@ curl http://localhost:8080/health
 
 ---
 
-## 🔒 Environment Variables (Production)
+## 🛠️ Troubleshooting
 
-Create `.env` file (never commit to git):
-```env
-ARIFOS_GOVERNANCE_SECRET=your_secret_here_32_chars_min
-VAULT_PATH=/usr/src/app/VAULT999/BBB_LEDGER/vault.jsonl
-LOG_LEVEL=INFO
-PORT=8080
-HOST=0.0.0.0
-```
+- **Check logs**: `docker compose logs -f arifosmcp`
+- **Restart service**: `docker compose restart arifosmcp`
+- **Verify health**: `curl http://localhost:8080/health`
+- **VAULT integrity**: `python scripts/verify_vault_integrity.py --vault-path VAULT999/BBB_LEDGER/vault.jsonl`
 
----
-
-## 🏗️ Infrastructure Overview (Live VPS)
-
-**Host:** `srv1325122.hstgr.cloud` (72.62.71.199)
-
-### Network Routing
-| Port | Service | Purpose |
-|:---|:---|:---|
-| 22 | SSH | Key-only auth, Fail2Ban active |
-| 80/443 | Traefik | Edge router, TLS termination (Let's Encrypt) |
-
-### Domain Routing Matrix
-| Domain | Backend | Status |
-|:---|:---|:---|
-| `arifosmcp.arif-fazil.com` | `arifosmcp_server:8080` | **LIVE** |
-| `hook.arifosmcp.arif-fazil.com` | `arifos_webhook:9000` | **LIVE** |
-| `arifos.arif-fazil.com` | GitHub Pages | **LIVE** |
-
-### Workflow Ownership
-- **Docs (`arifos.arif-fazil.com`):** `.github/workflows/deploy-sites.yml`
-- **MCP Server (`arifosmcp.arif-fazil.com`):** GitHub Push → Webhook (`deploy.sh`)
-- **Dashboard:** `.github/workflows/deploy-cloudflare.yml`
+## ⚖️ Governance
+All material actions must pass the **13 Constitutional Floors**. View the live status at your domain's `/dashboard` endpoint.
 
 ---
+*DITEMPA BUKAN DIBERI — Forged, Not Given*
 
-## 📊 Monitoring (Optional)
-
-Monitor `http://your-vps:8080/health` via Uptime Kuma or similar.
-Prometheus + Grafana are included in `docker-compose.yml` for the full stack.
-
----
-
-**Akal memerintah, amanah mengunci.**
