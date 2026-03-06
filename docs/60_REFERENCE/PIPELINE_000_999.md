@@ -37,8 +37,8 @@ User → python -m arifos_aaa_mcp {stdio|http|sse}
 | **444** | `_3_apex.py` | `sync()` | — | AGI + ASI tensor merge |
 | **555** | `_2_asi.py` | `empathize()` | F5, F6 | Stakeholder impact |
 | **666** | `_2_asi.py` | `align()` | F9, F10 | Ethics + anti-deception alignment |
-| **777** | `_3_apex.py` | `forge()` | F8, F11 | Solution synthesis (Genius score) |
-| **888** | `_3_apex.py` | `judge()` | F1–F13 | Sovereign verdict → `governance_token` |
+| **777** | `_3_apex.py` | `forge()` | F8 | Solution synthesis (Genius score) |
+| **888** | `_3_apex.py` | `judge()` | F3, F8, F9, F10, F13 | Sovereign verdict → `governance_token` |
 | **999** | `_4_vault.py` | `seal()` | F1, F3 | Immutable ledger write |
 
 ---

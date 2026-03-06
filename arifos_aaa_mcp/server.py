@@ -17,17 +17,15 @@ from __future__ import annotations
 import hashlib
 import hmac as _hmac
 import logging
+import os
 import secrets
 import sys
 import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
-logger = logging.getLogger(__name__)
-
 from fastmcp import FastMCP
 from mcp.types import Icon
-import os
 
 from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.protocol.public_surface import (
