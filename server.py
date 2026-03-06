@@ -18,8 +18,11 @@ Capabilities exposed by unified server:
 from __future__ import annotations
 
 import argparse
+import logging
 import os
 import sys
+
+logger = logging.getLogger(__name__)
 
 VALID_MODES = {"rest", "sse", "http", "stdio"}
 DEFAULT_MODE = "sse"
@@ -30,9 +33,10 @@ DEFAULT_PORT = 8080
 def _normalize_mode(mode: str | None) -> str:
     normalized = (mode or DEFAULT_MODE).strip().lower()
     if normalized not in VALID_MODES:
-        print(
-            f"[arifOS] invalid ARIFOS_MODE '{mode}', falling back to '{DEFAULT_MODE}'",
-            file=sys.stderr,
+        logger.warning(
+            "[arifOS] invalid ARIFOS_MODE '%s', falling back to '%s'",
+            mode,
+            DEFAULT_MODE,
         )
         return DEFAULT_MODE
     return normalized
@@ -43,9 +47,10 @@ def _safe_env_port() -> int:
     try:
         port = int(raw_port)
     except ValueError:
-        print(
-            f"[arifOS] invalid PORT '{raw_port}', falling back to {DEFAULT_PORT}",
-            file=sys.stderr,
+        logger.warning(
+            "[arifOS] invalid PORT '%s', falling back to %d",
+            raw_port,
+            DEFAULT_PORT,
         )
         return DEFAULT_PORT
     return port
@@ -96,7 +101,7 @@ def main(argv: list[str] | None = None) -> None:
 
         os.environ["HOST"] = host
         os.environ["PORT"] = str(port)
-        print(f"[arifOS] REST bridge on {host}:{port}", file=sys.stderr)
+        logger.info("[arifOS] REST bridge on %s:%d", host, port)
         rest_main()
         return
 
@@ -105,17 +110,17 @@ def main(argv: list[str] | None = None) -> None:
     mcp = create_aaa_mcp_server()
 
     if mode == "stdio":
-        print("[arifOS] FastMCP STDIO transport", file=sys.stderr)
+        logger.info("[arifOS] FastMCP STDIO transport")
         mcp.run(transport="stdio")
         return
 
     if mode == "sse":
-        print(f"[arifOS] FastMCP SSE transport on {host}:{port}", file=sys.stderr)
+        logger.info("[arifOS] FastMCP SSE transport on %s:%d", host, port)
         mcp.run(transport="sse", host=host, port=port)
         return
 
     if mode == "http":
-        print(f"[arifOS] FastMCP HTTP transport on {host}:{port}", file=sys.stderr)
+        logger.info("[arifOS] FastMCP HTTP transport on %s:%d", host, port)
         mcp.run(transport="http", host=host, port=port)
         return
 

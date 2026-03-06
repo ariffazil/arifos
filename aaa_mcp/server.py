@@ -1075,7 +1075,7 @@ async def _vault_seal(
                 )
             except Exception as index_error:
                 # Memory indexing is non-blocking for the vault seal itself
-                print(f"[arifOS] Memory indexing failed: {index_error}", file=sys.stderr)
+                logger.warning("[arifOS] Memory indexing failed: %s", index_error)
 
         return result
     except Exception as e:

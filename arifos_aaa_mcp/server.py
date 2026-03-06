@@ -15,9 +15,12 @@ Runtime Flow:
 from __future__ import annotations
 
 import json
+import logging
 import time
 import uuid
 from typing import Any
+
+logger = logging.getLogger(__name__)
 
 from fastmcp import FastMCP
 from mcp.types import Icon
@@ -767,13 +770,12 @@ def create_aaa_mcp_server() -> Any:
         from aaa_mcp.server import MANIFEST_VERSION as inner_version  # type: ignore[attr-defined]
 
         if inner_version != MANIFEST_VERSION:
-            import sys
-
-            print(
-                f"[arifOS] MANIFEST_VERSION MISMATCH: "
-                f"aaa_mcp={inner_version} vs arifos_aaa_mcp={MANIFEST_VERSION}. "
+            logger.warning(
+                "[arifOS] MANIFEST_VERSION MISMATCH: "
+                "aaa_mcp=%s vs arifos_aaa_mcp=%s. "
                 "Restart the server after updating both layers.",
-                file=sys.stderr,
+                inner_version,
+                MANIFEST_VERSION,
             )
     except ImportError:
         pass  # aaa_mcp not installed — ignore guard in test isolation

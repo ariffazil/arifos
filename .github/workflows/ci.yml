@@ -1,4 +1,4 @@
-name: arifOS CI
+name: arifOS CI — $15 VPS Hardening
 
 on:
   push:
@@ -16,10 +16,10 @@ jobs:
 
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "pip"
@@ -100,14 +100,45 @@ jobs:
             --cov-report=xml:coverage.xml \
             -q
 
+      - name: VAULT integrity check
+        run: |
+          python scripts/verify_vault_integrity.py \
+            --vault-path VAULT999/BBB_LEDGER/vault.jsonl
+
       - name: Upload coverage to Codecov
         if: success() || failure()
+        continue-on-error: true
         uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           slug: ariffazil/arifOS
           files: coverage.xml
           fail_ci_if_error: false
+
+  # --- Docker Build & Health Check ---
+  docker:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t arifos-test .
+
+      - name: Test Docker container health
+        run: |
+          docker run -d --name arifos-test -p 8080:8080 \
+            -e ARIFOS_PHYSICS_DISABLED=1 \
+            arifos-test
+          sleep 20
+          curl -f http://localhost:8080/health || exit 1
+          docker stop arifos-test
+          docker rm arifos-test
 
   # --- Security Scanning (Snyk) ---
   security:
@@ -119,10 +150,10 @@ jobs:
     
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
