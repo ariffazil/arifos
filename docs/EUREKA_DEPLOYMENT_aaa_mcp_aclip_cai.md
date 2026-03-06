@@ -22,7 +22,7 @@ Expose the following tools to the MCP client. The `aclip_cai` runtime must handl
 
 * **Description:** "Dynamic associative memory retrieval. Queries VAULT999 and SABAR ledgers mid-thought to compound intelligence without spiking internal entropy."
 * **Parameters:**
-  * `current_thought_vector` (string, required): The current reasoning state to map via the Hardened EUREKA Sieve.
+  * `query` (string, required): Plain-text retrieval query; vectorized internally via the embedding backend.
   * `session_token` (string, required): The active session identifier.
 
 * **aclip_cai Runtime Note:** The runtime must internally apply the Humility Band (Ω₀) to soften the Jaccard threshold, and apply W_scar (the human's scar-weight) as a relevance multiplier for the retrieved memories. Do **not** expose W_scar or Ω₀ as client-side parameters; they are architectural constants.

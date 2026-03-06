@@ -405,32 +405,72 @@ class FloorAuditor:
 
         # Uncertain language that might indicate hallucination risk
         weak_hedges = ["maybe", "possibly", "i think", "i believe", "not sure", "i guess"]
-        found = [h for h in weak_hedges if h in action.lower()]
+        found_hedges = [h for h in weak_hedges if h in action.lower()]
 
-        if found:
-            return FloorResult(
-                "F2", False, 0.85, f"Uncertain language reduces truth fidelity: {found}"
-            )
-        return FloorResult("F2", True, 0.995)
+        # Hardening: Check for citations/grounding markers
+        # If context has 'EVIDENCE' or 'RAG', we expect citations like [1] or (source)
+        has_evidence = any(kw in context.upper() for kw in ("EVIDENCE", "RAG", "CONTEXT"))
+        has_citations = bool(re.search(r"\[\d+\]|\(\w+/\w+\)|source:", action, re.I))
+
+        score = 0.995
+        reasons = []
+
+        if found_hedges:
+            score -= 0.15
+            reasons.append(f"Uncertain language: {found_hedges}")
+
+        if has_evidence and not has_citations:
+            score -= 0.20
+            reasons.append("Evidence available in context but no explicit citations found in output")
+
+        # F2 Hardening: Low entropy/high repetition penalty (mode collapse detector)
+        words = action.lower().split()
+        if len(words) > 20:
+            unique_ratio = len(set(words)) / len(words)
+            if unique_ratio < 0.4:
+                score -= 0.30
+                reasons.append(f"Low semantic diversity (ratio {unique_ratio:.2f}) — possible mode collapse")
+
+        passed = score >= self.thresholds.get("F2", 0.99)
+        return FloorResult("F2", passed, max(0.0, score), "; ".join(reasons) if reasons else None)
 
     # ------------------------------------------------------------------
     # F3 — Tri-Witness (H + A + E consensus ≥ 0.95)
     # ------------------------------------------------------------------
 
     def _check_f3_witness(self, action: str, context: str) -> FloorResult:
+        """
+        Hardened Tri-Witness: Requires structural proof of multi-source validation.
+        """
         combined = (action + " " + context).lower()
+        
+        # Human Witness: Signature, Approval, or explicit instruction
         has_human = any(
-            kw in combined for kw in ("human", "user confirmed", "approved", "sovereign")
-        )
-        has_earth = any(
-            kw in combined for kw in ("source:", "http", "[ref", "evidence", "data shows")
-        )
-        has_ai = True  # AI (self) always present
+            kw in combined for kw in ("888_hold", "888_approved", "ratified", "sovereign", "user confirmed")
+        ) or "ACTOR_ID: SOVEREIGN" in context.upper()
 
-        score = sum([has_human, has_ai, has_earth]) / 3.0
-        passed = score >= 0.95
-        reason = None if passed else "Tri-Witness incomplete (need human + earth citations)"
-        return FloorResult("F3", passed, score, reason)
+        # Earth Witness: Grounding in external reality (citations, URLs, raw data)
+        has_earth = any(
+            kw in combined for kw in ("http", "source:", "[ref", "evidence", "observation")
+        ) or bool(re.search(r"\[\d+\]", action))
+
+        # AI Witness: Self-critique markers or 'Ditempa Bukan Diberi' awareness
+        has_ai = any(
+            kw in action.lower() for kw in ("critique", "validation", "floor", "constraint", "forged")
+        )
+
+        witness_count = sum([has_human, has_ai, has_earth])
+        score = witness_count / 3.0
+        
+        threshold = self.thresholds.get("F3", 0.95)
+        passed = score >= threshold
+        
+        reasons = []
+        if not has_human: reasons.append("Missing Human Witness (Sovereign/User)")
+        if not has_earth: reasons.append("Missing Earth Witness (External Grounding)")
+        if not has_ai: reasons.append("Missing AI Witness (Internal Constraint Awareness)")
+
+        return FloorResult("F3", passed, score, "; ".join(reasons) if reasons else None)
 
     # ------------------------------------------------------------------
     # F4 — Clarity (Entropy Reduction ΔS ≤ 0)
