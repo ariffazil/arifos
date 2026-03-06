@@ -188,6 +188,7 @@ services:
     volumes:
       - /opt/arifos/data/core:/usr/src/app/data
       - /srv/arifOS/333_APPS/constitutional-visualizer/dist:/usr/src/app/static/dashboard:ro
+      - /srv/arifOS/aaa_mcp:/usr/src/app/aaa_mcp:ro
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
@@ -318,6 +319,34 @@ services:
       resources:
         limits:
           memory: 128M
+    restart: unless-stopped
+
+  # --- Headless Browser (DOM Reality) ---
+  headless_browser:
+    image: ghcr.io/browserless/chromium:latest
+    container_name: headless_browser
+    init: true
+    environment:
+      - MAX_CONCURRENT_SESSIONS=2
+      - CONNECTION_TIMEOUT=20000
+      - PREBOOT_CHROME=true
+      - TOKEN=${BROWSERLESS_TOKEN:-}
+      - DEBUG=browserless:*
+      - ENABLE_CORS=true
+      - DEFAULT_BLOCK_ADS=true
+      - DEFAULT_IGNORE_HTTPS_ERRORS=true
+    networks:
+      - arifos_trinity
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/pressure || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
     restart: unless-stopped
 
 networks:

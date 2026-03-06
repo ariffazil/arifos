@@ -5,6 +5,7 @@ Provides:
 - jina_reader_client: Jina Reader API client (PRIMARY for search_reality)
 - brave_client: Brave Search API client (fallback)
 - perplexity_client: Perplexity API client (fallback)
+- headless_browser_client: Internal headless browser (DOM fallback)
 """
 
 from __future__ import annotations
@@ -14,6 +15,7 @@ __all__ = [
     "JinaReranker",
     "BraveSearchClient",
     "PerplexitySearchClient",
+    "HeadlessBrowserClient",
 ]
 
 MAX_PRIORITY_BACKENDS = ["jina", "perplexity", "brave", "duckduckgo"]
@@ -33,3 +35,8 @@ try:
     from .perplexity_client import PerplexitySearchClient
 except ImportError:
     PerplexitySearchClient = None  # type: ignore
+
+try:
+    from .headless_browser_client import HeadlessBrowserClient
+except ImportError:
+    HeadlessBrowserClient = None  # type: ignore
