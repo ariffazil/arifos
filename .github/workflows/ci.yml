@@ -132,13 +132,18 @@ jobs:
 
       - name: Test Docker container health
         run: |
+          set -euo pipefail
+          cleanup() {
+            docker stop arifos-test >/dev/null 2>&1 || true
+            docker rm arifos-test >/dev/null 2>&1 || true
+          }
+          trap cleanup EXIT
+
           docker run -d --name arifos-test -p 8080:8080 \
             -e ARIFOS_PHYSICS_DISABLED=1 \
             arifos-test
           sleep 20
           curl -f http://localhost:8080/health || exit 1
-          docker stop arifos-test
-          docker rm arifos-test
 
   # --- Security Scanning (Snyk) ---
   security:
