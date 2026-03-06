@@ -1,4 +1,0 @@
-# DEPRECATED — use the root docker-compose.yml instead.
-# This file is kept only as a reference stub.
-# Deploy command: docker compose up -d --build
-# (run from /root/arifOS)

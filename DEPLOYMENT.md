@@ -5,6 +5,7 @@ This guide provides the canonical instructions for deploying and operating the a
 ## 🚀 Quickstart (Local Development)
 
 ### CLI Mode (stdio)
+
 Use this mode for local testing or integration with Claude Desktop.
 
 ```bash
@@ -16,6 +17,7 @@ python -m arifos_aaa_mcp stdio
 ```
 
 ### FastMCP Mode
+
 Use the FastMCP CLI for hot-reloading and automatic UI discovery.
 
 ```bash
@@ -30,19 +32,23 @@ fastmcp run arifos_aaa_mcp/server.py:mcp
 The recommended production stack uses **Docker Compose** with **Traefik** as a reverse proxy.
 
 ### Prerequisites
+
 - Docker & Docker Compose (v2.20+)
 - Domain pointed to your VPS IP
 - Port 80 and 443 open
 
 ### Deployment Steps
+
 1. Clone the repository to `/srv/arifOS`.
-2. Configure your `.env.docker` (see [Environment Variables](#environment-variables)).
+2. Configure your `.env.docker` (see [Environment Variables](#-environment-variables)).
 3. Start the stack:
+
    ```bash
    docker compose up -d --build
    ```
 
 ### service: arifosmcp
+
 - Internal Port: `8080`
 - Transport: `streamable-http` (SSE/HTTP)
 - Custom Routes:
@@ -55,12 +61,35 @@ The recommended production stack uses **Docker Compose** with **Traefik** as a r
 ## 🔑 Environment Variables
 
 | Variable | Description | Default |
-|:---|:---|:---|
+| :--- | :--- | :--- |
 | `ARIFOS_GOVERNANCE_SECRET` | Used for HMAC signing of verdicts. | *Required* |
 | `ANTHROPIC_API_KEY` | For Claude/Reasoning tasks. | - |
 | `OPENCLAW_URL` | OpenClaw gateway endpoint. | `http://openclaw:18789` |
 | `OLLAMA_URL` | Local LLM engine. | `http://ollama:11434` |
 | `DATABASE_URL` | Vault999 persistence (PostgreSQL). | - |
+
+---
+
+## 🏎️ VPS Optimization ($15 / 4GB Target)
+
+The `docker-compose.yml` is tuned for a 4GB RAM VPS. To ensure stability:
+
+1.  **Enable Swap**: If your VPS has 4GB RAM, add at least 2GB of swap (4GB recommended).
+
+    ```bash
+    fallocate -l 4G /swapfile
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    ```
+
+2.  **Memory Limits**: Services are capped at ~3.5GB total to leave room for the OS and Docker overhead:
+    - `arifosmcp`: 512MB
+    - `ollama`: 1.5GB (tuned for small Llama/Mistral models)
+    - `qdrant`: 256MB
+    - `openclaw`: 256MB
+
+3.  **Cleanup**: Periodically run `docker system prune` to reclaim disk space.
 
 ---
 
@@ -71,7 +100,9 @@ The recommended production stack uses **Docker Compose** with **Traefik** as a r
 - **Verify health**: `curl http://localhost:8080/health`
 
 ## ⚖️ Governance
+
 All material actions must pass the **13 Constitutional Floors**. View the live status at your domain's `/dashboard` endpoint.
 
 ---
+
 *DITEMPA BUKAN DIBERI — Forged, Not Given*

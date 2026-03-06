@@ -1,7 +1,7 @@
 # AGENTS.md — arifOS Agent Playbook
 
 **Project:** `arifOS` — Constitutional AI Governance System  
-**Package:** `arifos` | **Version:** 2026.3.1 | **Python:** >=3.12 | **License:** AGPL-3.0-only
+**Package:** `arifos` | **Version:** 2026.3.6 | **Python:** >=3.12 | **License:** AGPL-3.0-only
 
 > *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 

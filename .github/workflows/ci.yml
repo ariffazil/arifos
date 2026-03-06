@@ -38,27 +38,22 @@ jobs:
       - name: Compile critical runtime modules
         run: |
           python -m py_compile \
-            aaa_mcp/server.py \
-            server.py \
+            arifos_aaa_mcp/server.py \
+            arifos_aaa_mcp/__main__.py \
             core/pipeline.py \
-            core/organs/_1_agi.py \
-            aaa_mcp/core/engine_adapters.py
+            core/organs/_1_agi.py
 
       - name: Lint (ruff or flake8)
         run: |
           if python -m pip show ruff >/dev/null 2>&1; then
             ruff check \
+              arifos_aaa_mcp \
               aaa_mcp \
               aclip_cai \
               core \
-              tests/aclip_cai \
-              tests/test_entrypoint_contract.py \
-              tests/test_fastmcp_config_contract.py \
-              tests/test_fastmcp_profiles_contract.py \
-              tests/test_e2e_core_to_aaa_mcp.py \
-              tests/integration/test_health_metrics.py
+              tests/
           elif python -m pip show flake8 >/dev/null 2>&1; then
-            flake8 aaa_mcp aclip_cai core tests/aclip_cai
+            flake8 arifos_aaa_mcp aaa_mcp aclip_cai core tests/
           else
             echo "No linter installed; skipping."
           fi

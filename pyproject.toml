@@ -1,7 +1,9 @@
 [project]
 name = "arifos"
-version = "2026.3.1"
+version = "2026.3.6"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.3.6 — Hardened Trinity Forge Release
+#   Consolidated Dockerfile, unified 11-service compose, strict memory limits ($15 VPS), and canonical server entrypoint.
 # 2026.3.1 — JS/npm Client Matrix Verified & Dogfooded
 #   Verified 0.1.0 @arifos/mcp across HTTP/stdio; updated canonical tool response schema.
 # 2026.2.28 — F1/F7/F12 Hardening + Evidence Appendix
