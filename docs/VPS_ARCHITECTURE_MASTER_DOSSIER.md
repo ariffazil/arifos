@@ -1,7 +1,7 @@
 # arifOS VPS Architecture - Master Dossier
 ## Complete Reference for Future Agents
 
-**Version:** 2026.03.01-FINAL  
+**Version:** 2026.03.06-SEALED-COMPREHENSIVE  
 **Classification:** TRINITY SEALED - Agent Reference  
 **Authority:** Claude (Ω) Trinity + Codex (Ψ) Auditor  
 **Motto:** *Ditempa Bukan Diberi* — Forged, Not Given
@@ -236,40 +236,128 @@ docker compose up -d
 
 ---
 
-### EUREKA #4: BGE Integration Pattern
+### EUREKA #4: Comprehensive Embedding System (SEALED 2026.03.06)
 
-**BGE (BAAI General Embeddings) Architecture:**
+**Complete Constitutional Memory Architecture:**
 
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                    EMBEDDING SYSTEM WIRING                          │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│   User Query: "What does Floor F2 enforce?"                        │
+│          ↓                                                          │
+│   ┌─────────────────────────────────────────────────────────┐      │
+│   │  recall_memory (MCP Tool)                               │      │
+│   │  Stage: 444 PHOENIX → 555 RECALL                        │      │
+│   └─────────────────────────────────────────────────────────┘      │
+│          ↓                                                          │
+│   ┌─────────────────────────────────────────────────────────┐      │
+│   │  BGE Embedding (aclip_cai/embeddings/__init__.py)       │      │
+│   │  Model: BAAI/bge-small-en-v1.5                          │      │
+│   │  Output: 384-dimensional float vector                   │      │
+│   └─────────────────────────────────────────────────────────┘      │
+│          ↓                                                          │
+│   ┌─────────────────────────────────────────────────────────┐      │
+│   │  Qdrant Vector Search (scripts/arifos_rag.py)          │      │
+│   │  Collection: arifos_constitutional                      │      │
+│   │  Points: 7,706 (515 documents chunked)                  │      │
+│   │  Distance: Cosine similarity                            │      │
+│   └─────────────────────────────────────────────────────────┘      │
+│          ↓                                                          │
+│   ┌─────────────────────────────────────────────────────────┐      │
+│   │  Hybrid Scoring (Jaccard + Cosine)                      │      │
+│   │  score = (0.3 × jaccard) + (0.7 × cosine)               │      │
+│   └─────────────────────────────────────────────────────────┘      │
+│          ↓                                                          │
+│   Return: Top-K memories with source, score, content               │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Knowledge Base Composition:**
+| Source | Documents | Chunks | Content Type |
+|--------|-----------|--------|--------------|
+| 000_THEORY/ | 29 | 694 | Constitutional Law (F1-F13) |
+| docs/ | 486 | 7,012 | Implementation, Architecture, Guides |
+| **TOTAL** | **515** | **7,706** | **Comprehensive Knowledge** |
+
+**Code Integration Points:**
 ```python
-# Integration pattern (aclip_cai/embeddings/__init__.py)
+# 1. Embedding Generation (aclip_cai/embeddings/__init__.py)
 from sentence_transformers import SentenceTransformer
+_model = None  # Singleton
 
-# Singleton pattern - load once
-_model = None
-
-def get_embedder():
+def embed(text: str) -> list[float]:
     global _model
     if _model is None:
         _model = SentenceTransformer("BAAI/bge-small-en-v1.5")
-    return _model
+    return _model.encode(text).tolist()  # 384 dims
 
-def embed(text: str) -> list[float]:
-    model = get_embedder()
-    return model.encode(text).tolist()
+# 2. RAG Pipeline (scripts/arifos_rag.py)
+from qdrant_client import QdrantClient
+from sentence_transformers import SentenceTransformer
 
-# 768-dimensional vectors for semantic search
+class ConstitutionalRAG:
+    def retrieve(self, query: str, top_k: int = 5):
+        embedding = self.model.encode(query, normalize_embeddings=True)
+        return self.client.query_points(
+            collection_name="arifos_constitutional",
+            query=embedding.tolist(),
+            limit=top_k
+        )
+
+# 3. MCP Tool (arifos_aaa_mcp/server.py)
+@mcp.tool(name="recall_memory")
+async def recall_memory(current_thought_vector: str, session_id: str):
+    rag = _ensure_rag()  # Loads ConstitutionalRAG
+    contexts = rag.retrieve(query=current_thought_vector, top_k=5)
+    return {
+        "status": "RECALL_SUCCESS",
+        "memories": [...],
+        "metrics": {
+            "bge_available": True,
+            "embedding_dims": 384,
+            "memory_count": len(contexts),
+            "jaccard_max": 0.72
+        }
+    }
 ```
 
-**Constitutional Metrics:**
-```python
-# In recall_memory tool response
-"metrics": {
-    "bge_available": True,
-    "bge_used": True,
-    "embedding_dims": 768,
-    "semantic_search_active": True,
-    "memory_count": len(contexts),
-}
+**Current Status (2026.03.06-SEALED):**
+| Component | Status | Details |
+|-----------|--------|---------|
+| BGE Model | ✅ Active | BAAI/bge-small-en-v1.5 |
+| Dimensions | 384 | Embedding vector size |
+| Qdrant | ✅ Running | Container: qdrant_memory |
+| Collection | ✅ Created | arifos_constitutional |
+| Documents | 515 | 29 (000_THEORY/) + 486 (docs/) |
+| Chunks | 7,706 | Semantic chunks indexed |
+| Query Latency | ~50ms | Embedding + search |
+| Coverage | ✅ Complete | Constitutional + Implementation |
+
+**Test Command:**
+```bash
+# Verify comprehensive embedding system
+docker exec arifosmcp_server python3 -c "
+import sys; sys.path.insert(0, '/usr/src/app/scripts')
+from arifos_rag import ConstitutionalRAG
+rag = ConstitutionalRAG()
+
+# Test constitutional query
+results = rag.retrieve('What does F2 enforce?', top_k=3)
+print(f'Constitutional: {len(results)} results')
+
+# Test implementation query  
+results = rag.retrieve('How to deploy on VPS?', top_k=3)
+print(f'Implementation: {len(results)} results')
+"
+```
+
+**Expected Output:**
+```
+Constitutional: 3 results (from 000_THEORY/)
+Implementation: 3 results (from docs/)
 ```
 
 ---

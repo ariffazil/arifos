@@ -1,7 +1,7 @@
 ---
 title: "The Sovereign Paradox: Human Authority in Thermodynamic AI Governance"
-version: "v50.5.24"
-epoch: "2026-01-23"
+version: "v50.5.25"
+epoch: "2026-03-06"
 sealed_by: "888_Judge"
 authority: "Muhammad Arif bin Fazil"
 status: "SOVEREIGNLY_SEALED"
@@ -9,6 +9,7 @@ type: "CANONICAL_TREATISE"
 hash: "SHA256:GODEL_LOCK_COMPLETE"
 legacies: 99
 paradoxes: 8
+memory_system: "Comprehensive Embedding v2026.03.06"
 ---
 
 # THE SOVEREIGN PARADOX
@@ -229,6 +230,69 @@ User shares trauma → AAA VAULT (machine-forbidden) → AI CANNOT access
                   → Human retains sovereignty over painful memories
 ```
 
+### RAG vs VAULT999: Two Memory Systems
+
+**The Distinction:**
+
+| System | Tier | Type | Purpose | Write | Read | Content |
+|--------|------|------|---------|-----|------|---------|
+| **VAULT999** | CCC | Audit Ledger | Immutable record of decisions | Append-only (seal_vault) | Full audit trail | Verdicts, sessions, governance |
+| **RAG (Embedding)** | BBB | Semantic Memory | Retrieve relevant context | Batch indexed (embed_corpus) | Vector search | Constitutional docs, guides |
+| **Session Context** | BBB | Operational | Current conversation | Real-time | Immediate | Active session only |
+| **AAA Sacred** | AAA | Forbidden | Human trauma/dignity | Human-only | Machine-FORBIDDEN | Protected interiority |
+
+**The RAG System (Comprehensive Memory v2026.03.06):**
+
+The embedding system provides **governed semantic retrieval** — not storage of user data, but indexed knowledge base for constitutional reasoning.
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    EMBEDDING MEMORY (BBB)                       │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  Source Documents (515 total):                                  │
+│  ├── 000_THEORY/ (29 docs) → Constitutional Law (F1-F13)       │
+│  └── docs/ (486 docs) → Implementation & Architecture          │
+│                                                                  │
+│  Indexing:                                                       │
+│  ├── 7,706 semantic chunks                                      │
+│  ├── 384-dim BGE embeddings                                     │
+│  └── Qdrant vector collection: arifos_constitutional            │
+│                                                                  │
+│  Query Flow:                                                     │
+│  User Query → BGE Embed (384 dims) → Qdrant Search → Top-K     │
+│                                                                  │
+│  Governance:                                                     │
+│  ├── READ-ONLY (AI cannot write without human trigger)         │
+│  ├── Re-index requires explicit embed_corpus execution          │
+│  └── No user data stored (only canonical documents)             │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Read vs Write Memory in arifOS:**
+
+| Memory Type | Write Authority | Read Authority | Example |
+|-------------|----------------|----------------|---------|
+| **AAA Sacred** | Human only | Human only | Personal trauma, passwords |
+| **BBB RAG** | Human-triggered batch | AI semantic retrieval | Constitutional knowledge base |
+| **BBB Session** | Human + AI | Human + AI | Current conversation context |
+| **CCC VAULT** | seal_vault (governed) | Full audit | Immutable decision ledger |
+
+**Why RAG is BBB (not CCC):**
+
+- **RAG** = Operational context for reasoning (BBB tier)
+- **VAULT999** = Immutable audit of decisions (CCC tier)
+- RAG can be rebuilt; VAULT999 is append-only forever
+- RAG serves the AI's reasoning; VAULT999 serves accountability
+
+**Anti-Instrumentalization Safeguards:**
+
+1. **No User Data in RAG**: Only canonical documents (000_THEORY/, docs/)
+2. **No Real-Time Learning**: Batch indexing only, no continuous updates
+3. **No Cross-Session Memory**: Each query is stateless; no persistent user profiles
+4. **Transparent Retrieval**: Source attribution for every memory (source file + score)
+
 ### Legacy Embodiment
 
 | Legacy | Category | Contribution |
@@ -236,6 +300,8 @@ User shares trauma → AAA VAULT (machine-forbidden) → AI CANNOT access
 | **Hamka** | Ethical Pillar | Pribadi (Personality) — dignified AI that *respects* human interiority |
 | **Pol Pot** | Dictator Shadow | Warning against erasing history — but also against *weaponizing* memory |
 | **Rumi** | Ethical Pillar | Radical empathy — understanding without exploitation |
+| **Vannevar Bush** | Scientist | Memex concept — associative memory retrieval (RAG precedent) |
+| **Douglas Engelbart** | Architect | Augmenting human intellect — AI as tool, not replacement |
 
 ---
 

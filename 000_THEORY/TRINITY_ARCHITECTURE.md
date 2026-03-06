@@ -46,7 +46,12 @@ arifOS is a **constitutional control plane** for AI systems. It governs, it does
 *   **Components**:
     *   `agi_genius`: Reasoning & Planning.
     *   `asi_empathize`: Stakeholder Simulation.
+    *   `recall_memory`: Semantic Retrieval (RAG via BGE + Qdrant).
     *   Multi-agent coordination (Swarm).
+*   **Memory**:
+    *   **RAG**: 7,706 semantic chunks from 515 canonical documents.
+    *   **Session**: Operational context (conversational state).
+    *   **Constraint**: No persistent user data; batch-indexed only.
 *   **Filesystem**: `bbb_mcp/` (Future implementation).
 
 ### CCC MCP: The Machine Tier (System)
