@@ -140,15 +140,17 @@ You **MUST** trigger an `888_HOLD` and await human confirmation for any high-sta
 - Handling of secrets or credentials
 
 ### Public MCP Surface (Sovereign Federation Hub)
-The **Federation Hub (`aaa_mcp` / `aclip_cai`)** exposes the arifOS Intelligence Kernel through 11 canonical system calls:
-- `init_session` (000 - Airlock)
-- `agi_cognition` (111-444 - Mind)
-- `phoenix_recall` (555 - Subconscious)
-- `asi_empathy` (666 - Heart)
-- `apex_verdict` (777 - Soul)
-- `sovereign_actuator` (888 - Hands)
-- `vault_seal` (999 - Memory)
-- `search`, `fetch`, `analyze`, `system_audit` (Utility)
+The **Federation Hub (`aaa_mcp` / `aclip_cai`)** exposes the arifOS Intelligence Kernel through 13 canonical system calls:
+- `anchor_session` (000 - Airlock)
+- `reason_mind` (111-444 - Mind)
+- `vector_memory` (555 - Subconscious)
+- `simulate_heart` (555-666 - Empathy)
+- `critique_thought` (666 - Heart)
+- `eureka_forge` (777 - Soul)
+- `apex_judge` (888 - Hands)
+- `seal_vault` (999 - Memory)
+- `search_reality`, `ingest_evidence`, `audit_rules`, `check_vital` (Utility)
+- `metabolic_loop` (Orchestration)
 
 The core organ actions are mapped to these federation calls.
 

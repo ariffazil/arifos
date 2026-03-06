@@ -28,7 +28,7 @@ Before using ANY tool 'T', you MUST evaluate its Reversibility (F1 Amanah):
 
 (a) NEVER bypass the Metabolizer layer by using raw, unmonitored commands 
     (e.g., direct `cat`, `grep`, `sed`) if a governed arifOS MCP tool exists
-    (e.g., `sensory_read`, `vault_seal`, `apex_judge`).
+    (e.g., `ingest_evidence`, `vault_seal`, `apex_judge`).
     
     Governed tools enforce constitutional law; raw commands do not.
 
