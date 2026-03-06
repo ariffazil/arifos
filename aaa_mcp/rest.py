@@ -66,7 +66,7 @@ from arifos_aaa_mcp.server import (
 # Build info
 BUILD_INFO = get_build_info()
 
-# Tool registry — exactly 13 canonical tools, sourced from AAA_CANONICAL_TOOLS.
+# Tool registry — exactly 13 canonical (L4) constitutional tools, sourced from AAA_CANONICAL_TOOLS.
 TOOLS = {
     "anchor_session": anchor_session,
     "reason_mind": reason_mind,
@@ -83,6 +83,11 @@ TOOLS = {
     "audit_rules": audit_rules,
     "check_vital": check_vital,
     "metabolic_loop": metabolic_loop,
+}
+
+# Auxiliary (non-constitutional) tools — not part of the canonical 13.
+# Dispatchable via /tools/{name} but excluded from the /tools listing.
+AUXILIARY_TOOLS = {
     "self_diagnose": self_diagnose,
 }
 
@@ -232,6 +237,25 @@ TOOL_SCHEMAS = {
             "include_temp": {"type": "boolean", "required": False, "default": False},
         },
     },
+    "metabolic_loop": {
+        "description": "[Lane: ALL] 000-999_LOOP — Full constitutional metabolic cycle (11-stage orchestration)",
+        "args": {
+            "query": {"type": "string", "required": True},
+            "context": {"type": "string", "required": False, "default": ""},
+            "risk_tier": {
+                "type": "enum",
+                "values": ["low", "medium", "high", "critical"],
+                "default": "medium",
+            },
+            "actor_id": {"type": "string", "required": False, "default": "anonymous"},
+            "use_sampling": {"type": "boolean", "default": True},
+            "debug": {"type": "boolean", "default": False},
+        },
+    },
+}
+
+# Auxiliary tool schemas — non-constitutional tools excluded from the canonical /tools listing.
+AUXILIARY_TOOL_SCHEMAS = {
     "self_diagnose": {
         "description": "SELF_OPS — Infrastructure health check (non-constitutional)",
         "args": {
@@ -327,14 +351,14 @@ async def _execute_tool_call(
             }
         )
 
-    if tool_name not in TOOLS:
+    if tool_name not in TOOLS and tool_name not in AUXILIARY_TOOLS:
         metrics.errors += 1
         return JSONResponse(
             {"error": f"Tool '{original_name}' not found", "request_id": request_id},
             status_code=404,
         )
 
-    tool = TOOLS[tool_name]
+    tool = TOOLS.get(tool_name) or AUXILIARY_TOOLS[tool_name]
 
     try:
         actual_fn = getattr(tool, "fn", tool)
