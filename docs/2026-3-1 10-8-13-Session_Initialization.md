@@ -226,7 +226,7 @@ In the response we got:
 - It reported **`jaccard_max = 0.0`**  
   ✅ **Jaccard** is a *set-overlap* metric (tokens/words), not a neural embedding similarity score.
 - It returned **`memories: []`** and **`memory_count: 0`**
-- It labeled the input as **`current_thought_vector`**, but you passed a **string** (not an actual numeric vector)
+- It labeled the input as **`query`**, a plain-text retrieval query that is vectorized internally
 
 So it’s totally plausible that:
 - **“vector” is conceptual naming** (semantic pointer), and the current implementation is using **lexical overlap (Jaccard)** or a lightweight matcher; **or**
@@ -1092,4 +1092,3 @@ You’ll need to implement the real `phoenix_recall` path (the comment says it�
 Right now the public surface is **behaving exactly like the code**: recall is stubbed.
 
 If you point me to the exact file where you implemented “embedding after lexical gate” (or paste it here), I can verify it line-by-line and tell you where it’s wired (or not wired) into the MCP surface. 🔥
-

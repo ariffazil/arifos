@@ -155,7 +155,7 @@ curl -s http://localhost:8080/health | python3 -m json.tool
 curl -s -X POST http://localhost:8080/tools/recall_memory \
   -H "Content-Type: application/json" \
   -d '{
-    "current_thought_vector": "test semantic query",
+    "query": "test semantic query",
     "session_id": "vps-test-001",
     "depth": 3
   }' | python3 -c "import sys,json; d=json.load(sys.stdin); print(f\"BGE Available: {d.get('result',{}).get('metrics',{}).get('bge_available',False)}\")"
@@ -316,7 +316,7 @@ services:
 # Test 1: recall_memory with BGE
 curl -s -X POST http://localhost:8080/tools/recall_memory \
   -d '{
-    "current_thought_vector": "constitutional governance principles",
+    "query": "constitutional governance principles",
     "session_id": "verify-001",
     "depth": 5
   }' | jq '.result.metrics'
@@ -503,7 +503,7 @@ PYTEST
 echo "🧪 Phase 6: E2E Testing..."
 curl -s -X POST http://localhost:8080/tools/recall_memory \
   -H "Content-Type: application/json" \
-  -d '{"current_thought_vector":"test","session_id":"verify","depth":3}' \
+  -d '{"query":"test","session_id":"verify","depth":3}' \
   -o /tmp/test_result.json
 
 if grep -q '"bge_available": true' /tmp/test_result.json; then

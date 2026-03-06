@@ -187,7 +187,7 @@ from arifos_aaa_mcp.server import recall_memory
 
 async def test():
     result = await recall_memory(
-        current_thought_vector='How does Trinity architecture work?',
+        query='How does Trinity architecture work?',
         session_id='vault-test'
     )
     data = result.get('data', {}).get('payload', {})

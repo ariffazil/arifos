@@ -309,9 +309,9 @@ class ConstitutionalRAG:
 
 # 3. MCP Tool (arifos_aaa_mcp/server.py)
 @mcp.tool(name="recall_memory")
-async def recall_memory(current_thought_vector: str, session_id: str):
+async def recall_memory(query: str, session_id: str):
     rag = _ensure_rag()  # Loads ConstitutionalRAG
-    contexts = rag.retrieve(query=current_thought_vector, top_k=5)
+    contexts = rag.retrieve(query=query, top_k=5)
     return {
         "status": "RECALL_SUCCESS",
         "memories": [...],

@@ -94,7 +94,7 @@ docker logs arifosmcp_server 2>&1 | grep -i "BGE"
 curl -s -X POST http://localhost:8080/tools/recall_memory \
   -H "Content-Type: application/json" \
   -d '{
-    "current_thought_vector": "test BGE integration",
+    "query": "test BGE integration",
     "session_id": "verify-bge-001",
     "depth": 3
   }' | python3 -m json.tool | grep -E 'bge_available|embedding_dims|semantic'
@@ -219,7 +219,7 @@ Tool returns `VOID` verdict and **NO BGE metrics**.
 ```bash
 # TEST COMMAND:
 curl -s -X POST http://localhost:8080/tools/recall_memory \
-  -d '{"current_thought_vector":"test","session_id":"test","depth":3}'
+  -d '{"query":"test","session_id":"test","depth":3}'
 
 # RESULT:
 {
@@ -237,7 +237,7 @@ curl -s -X POST http://localhost:8080/tools/recall_memory \
 curl -s -X POST http://localhost:8080/tools/recall_memory \
   -H "Content-Type: application/json" \
   -d '{
-    "current_thought_vector": "constitutional governance test",
+    "query": "constitutional governance test",
     "session_id": "comprehensive-test-001",
     "depth": 5
   }' | python3 -m json.tool
