@@ -79,6 +79,91 @@ result = await ingest_evidence(source_type="url", target="https://example.com", 
 
 ---
 
+## SSRF Protection (F12 — Injection Defense)
+
+`ingest_evidence` performs a **server-side HTTP request** when `source_type="url"`. To prevent
+Server-Side Request Forgery (SSRF) attacks, the following restrictions are enforced before any
+network call is made:
+
+### 1. HTTPS-only scheme
+
+Only `https://` URLs are accepted. Requests using `http://`, `ftp://`, `file://`, or any other
+scheme are rejected with `status: "BLOCKED_SSRF"`.
+
+```python
+# ✅ Allowed
+result = await ingest_evidence(source_type="url", target="https://example.com")
+
+# ❌ Blocked — http scheme
+result = await ingest_evidence(source_type="url", target="http://example.com")
+# → {"status": "BLOCKED_SSRF", "error": "Only https:// URLs are permitted ..."}
+```
+
+### 2. Private and internal address ranges blocked
+
+The target hostname is resolved via DNS before the HTTP call. If **any** returned address falls
+within a private, loopback, or link-local range, the request is rejected:
+
+| Range | Description |
+|-------|-------------|
+| `127.0.0.0/8` | IPv4 loopback |
+| `10.0.0.0/8` | Private class A |
+| `172.16.0.0/12` | Private class B |
+| `192.168.0.0/16` | Private class C |
+| `169.254.0.0/16` | Link-local (incl. cloud metadata `169.254.169.254`) |
+| `100.64.0.0/10` | CGNAT / shared address space (RFC 6598) |
+| `::1/128` | IPv6 loopback |
+| `fc00::/7` | IPv6 unique local |
+| `fe80::/10` | IPv6 link-local |
+
+```python
+# ❌ Blocked — resolves to loopback
+result = await ingest_evidence(source_type="url", target="https://localhost/admin")
+# → {"status": "BLOCKED_SSRF", "error": "Access to private/internal address '127.0.0.1' ..."}
+
+# ❌ Blocked — AWS instance metadata endpoint
+result = await ingest_evidence(source_type="url", target="https://169.254.169.254/latest/meta-data/")
+# → {"status": "BLOCKED_SSRF", "error": "Access to private/internal address '169.254.169.254' ..."}
+```
+
+### 3. Optional domain allowlist
+
+Set the `INGEST_EVIDENCE_ALLOWED_DOMAINS` environment variable to a comma-separated list of
+approved hostnames. When set, requests to any domain not in the list (or not a subdomain of
+a listed domain) are rejected.
+
+```bash
+# Allow only specific trusted domains
+export INGEST_EVIDENCE_ALLOWED_DOMAINS="example.com,trusted.org,docs.mycompany.com"
+```
+
+```python
+# ✅ Allowed — exact match or subdomain match
+result = await ingest_evidence(source_type="url", target="https://docs.example.com/api")
+
+# ❌ Blocked — not in allowlist
+result = await ingest_evidence(source_type="url", target="https://untrusted.net/data")
+# → {"status": "BLOCKED_SSRF", "error": "Domain 'untrusted.net' is not in the configured allowlist ..."}
+```
+
+If `INGEST_EVIDENCE_ALLOWED_DOMAINS` is **not set**, all non-private public URLs are permitted
+(the IP-range check still applies).
+
+### BLOCKED_SSRF response envelope
+
+All SSRF violations return the same envelope shape:
+
+```json
+{
+  "source_type": "url",
+  "target": "<the rejected URL>",
+  "error": "<human-readable reason>",
+  "status": "BLOCKED_SSRF"
+}
+```
+
+---
+
 ## Final 13 Public Tools
 
 ### Core Constitutional Spine (8)

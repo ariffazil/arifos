@@ -7,12 +7,50 @@ inspection) into one constitutional entry point.
     source_type="url"   → fetches via Jina Reader / urllib fallback
     source_type="file"  → reads local filesystem structure (read-only)
     mode                → "raw" | "summary" | "chunks"  (default: "raw")
+
+SSRF Protection (F12 — Injection Defense):
+    - Only https:// scheme is permitted.
+    - Private, loopback, and link-local address ranges are blocked.
+    - Optional domain allowlist via INGEST_EVIDENCE_ALLOWED_DOMAINS env var
+      (comma-separated, e.g. "example.com,trusted.org").
 """
 
 from __future__ import annotations
 
 import hashlib
+import ipaddress
+import os
+import socket
+import urllib.parse
 from typing import Any, Literal
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SSRF Protection — blocked network ranges (F12)
+# ─────────────────────────────────────────────────────────────────────────────
+
+# IPv4 and IPv6 network ranges that must never be reached via server-side HTTP.
+# These cover loopback, private RFC-1918 space, link-local (incl. AWS metadata
+# endpoint 169.254.169.254), shared address space, and documentation ranges.
+_BLOCKED_NETWORKS: list[ipaddress.IPv4Network | ipaddress.IPv6Network] = [
+    # IPv4 — loopback
+    ipaddress.ip_network("127.0.0.0/8"),
+    # IPv4 — private class A/B/C
+    ipaddress.ip_network("10.0.0.0/8"),
+    ipaddress.ip_network("172.16.0.0/12"),
+    ipaddress.ip_network("192.168.0.0/16"),
+    # IPv4 — link-local (includes cloud metadata 169.254.169.254)
+    ipaddress.ip_network("169.254.0.0/16"),
+    # IPv4 — CGNAT / shared address space (RFC 6598)
+    ipaddress.ip_network("100.64.0.0/10"),
+    # IPv4 — "this network"
+    ipaddress.ip_network("0.0.0.0/8"),
+    # IPv6 — loopback
+    ipaddress.ip_network("::1/128"),
+    # IPv6 — unique local
+    ipaddress.ip_network("fc00::/7"),
+    # IPv6 — link-local
+    ipaddress.ip_network("fe80::/10"),
+]
 
 
 async def ingest_evidence(
@@ -67,17 +105,97 @@ async def ingest_evidence(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# SSRF validation helper (F12 — Injection Defense)
+# ─────────────────────────────────────────────────────────────────────────────
+
+
+def _validate_url_ssrf(url: str) -> str | None:
+    """Check a URL for SSRF risks.
+
+    Enforces:
+    1. ``https://`` scheme only (no http, ftp, file, etc.)
+    2. Optional domain allowlist via ``INGEST_EVIDENCE_ALLOWED_DOMAINS``
+       environment variable (comma-separated list of approved hostnames).
+    3. Hostname resolves to a publicly routable IP — private, loopback, and
+       link-local ranges are blocked.
+
+    Returns:
+        ``None`` when the URL passes all checks, or an error string describing
+        the violation.
+    """
+    parsed = urllib.parse.urlparse(url)
+
+    # 1. Scheme must be https
+    if parsed.scheme != "https":
+        return (
+            f"Only https:// URLs are permitted (got '{parsed.scheme}://'). "
+            "http and other schemes are blocked for security."
+        )
+
+    # 2. Hostname must be present
+    hostname = parsed.hostname
+    if not hostname:
+        return "URL has no hostname."
+
+    # 3. Optional domain allowlist
+    allowed_domains_env = os.environ.get("INGEST_EVIDENCE_ALLOWED_DOMAINS", "")
+    if allowed_domains_env:
+        allowed = {d.strip().lower() for d in allowed_domains_env.split(",") if d.strip()}
+        hostname_lower = hostname.lower()
+        if not any(
+            hostname_lower == d or hostname_lower.endswith("." + d) for d in allowed
+        ):
+            return (
+                f"Domain '{hostname}' is not in the configured allowlist "
+                "(INGEST_EVIDENCE_ALLOWED_DOMAINS)."
+            )
+
+    # 4. Resolve hostname and check all returned addresses
+    try:
+        addr_infos = socket.getaddrinfo(hostname, None)
+    except socket.gaierror as exc:
+        return f"Cannot resolve hostname '{hostname}': {exc}"
+
+    if not addr_infos:
+        return f"Hostname '{hostname}' resolved to no addresses."
+
+    for addr_info in addr_infos:
+        ip_str = addr_info[4][0]
+        try:
+            ip = ipaddress.ip_address(ip_str)
+        except ValueError:
+            continue
+        # ipaddress built-ins cover the most common cases quickly
+        if ip.is_loopback or ip.is_link_local or ip.is_private or ip.is_reserved:
+            return (
+                f"Access to private/internal address '{ip_str}' is forbidden "
+                "(SSRF protection — F12)."
+            )
+        # Belt-and-suspenders: explicit network check for any edge cases
+        for network in _BLOCKED_NETWORKS:
+            if ip in network:
+                return (
+                    f"Access to private/internal address '{ip_str}' is forbidden "
+                    "(SSRF protection — F12)."
+                )
+
+    return None
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # URL path (formerly fetch_content)
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 async def _ingest_url(target: str, mode: str, max_chars: int) -> dict[str, Any]:
     """Fetch remote URL content via Jina Reader with urllib fallback."""
-    if not (target.startswith("http://") or target.startswith("https://")):
+    ssrf_error = _validate_url_ssrf(target)
+    if ssrf_error:
         return {
             "source_type": "url",
             "target": target,
-            "error": "Unsupported target — expected http:// or https:// URL",
-            "status": "BAD_TARGET",
+            "error": ssrf_error,
+            "status": "BLOCKED_SSRF",
         }
     try:
         from aaa_mcp.external_gateways.jina_reader_client import JinaReaderClient
