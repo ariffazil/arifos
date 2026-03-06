@@ -1,0 +1,35 @@
+{
+    // ==========================================
+    // arifOS Debug Configurations
+    // Use F5 to run these
+    // ==========================================
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": "Python: Run Tests",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "pytest",
+            "args": ["tests", "-v"],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "arifOS: Main Server",
+            "type": "debugpy",
+            "request": "launch",
+            "module": "codebase.kernel",
+            "console": "integratedTerminal",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            }
+        }
+    ]
+}
