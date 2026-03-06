@@ -189,12 +189,19 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
     "reality_search": {
         "type": "object",
         "properties": {
-            "query": {"type": "string", "minLength": 1},
-            "session_id": {"type": "string"},
+            "query": {"type": "string", "minLength": 1, "description": "Legacy alias for grounding_query"},
+            "grounding_query": {"type": "string", "minLength": 1, "description": "The external query for web grounding discovery."},
+            "session_id": {"type": "string", "description": "Legacy alias for session_token"},
+            "session_token": {"type": "string", "description": "The active session identifier for context grouping."},
             "region": {"type": "string", "default": "wt-wt"},
             "timelimit": {"type": ["string", "null"], "enum": [None, "d", "w", "m", "y"]},
         },
-        "required": ["query", "session_id"],
+        "anyOf": [
+            {"required": ["query", "session_id"]},
+            {"required": ["grounding_query", "session_token"]},
+            {"required": ["grounding_query", "session_id"]},
+            {"required": ["query", "session_token"]}
+        ],
     },
     "vault_seal": {
         "type": "object",

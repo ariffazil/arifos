@@ -1195,12 +1195,22 @@ async def seal_vault(
 
 @mcp.tool(name="search_reality")
 async def search_reality(
-    query: str,
+    query: str = "",
+    grounding_query: str = "",
     intent: str = "general",
     session_id: str = "",
+    session_token: str = "",
 ) -> dict[str, Any]:
     """External evidence discovery (read-only)."""
-    blocked = validate_input("search_reality", {"query": query, "session_id": session_id})
+    # grounding_query takes precedence as the EUREKA-prescribed semantic name.
+    effective_query = (grounding_query or query or "").strip()
+    # session_token takes precedence.
+    effective_session = (session_token or session_id or "").strip()
+
+    if not effective_query:
+        return wrap_tool_output("search_reality", {"verdict": "VOID", "error": "Missing query or grounding_query"})
+
+    blocked = validate_input("search_reality", {"query": effective_query, "session_id": effective_session})
     if blocked:
         return wrap_tool_output("search_reality", blocked)
     try:
@@ -1209,29 +1219,29 @@ async def search_reality(
         from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
 
         primary = JinaReaderClient()
-        payload = await primary.search(query=query, intent=intent)
+        payload = await primary.search(query=effective_query, intent=intent)
         if payload.get("status") not in {"OK"}:
             fallback1 = PerplexitySearchClient()
-            payload = await fallback1.search(query=query, intent=intent)
+            payload = await fallback1.search(query=effective_query, intent=intent)
             if payload.get("status") in {"NO_API_KEY", "BAD_RESPONSE", "BAD_JSON"}:
                 fallback2 = BraveSearchClient()
-                payload = await fallback2.search(query=query, intent=intent)
+                payload = await fallback2.search(query=effective_query, intent=intent)
 
         urls = [r.get("url") for r in payload.get("results", []) if r.get("url")]
         results = payload.get("results", [])
         res_payload = {
-            "query": query,
+            "query": effective_query,
             "status": payload.get("status", "OK"),
             "ids": urls,
             "results": results,
             "evidence_count": len(results),
             "f2_truth": {"grounded": len(results) > 0, "sources": urls[:3]},
         }
-        if session_id:
-            res_payload["session_id"] = session_id
+        if effective_session:
+            res_payload["session_id"] = effective_session
         return wrap_tool_output("search_reality", res_payload)
     except Exception as e:
-        return wrap_tool_output("search_reality", {"query": query, "status": f"ERROR: {e}"})
+        return wrap_tool_output("search_reality", {"query": effective_query, "status": f"ERROR: {e}"})
 
 
 @mcp.tool(name="ingest_evidence")
