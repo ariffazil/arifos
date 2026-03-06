@@ -37,7 +37,7 @@
 | 🛡️ **Defense** | [`SECURITY.md`](docs/00_META/SECURITY.md) | **The Firewall:** Injection handling, Auth models, and Threat vectors. |
 | 🧰 **Tools** | [`TOOLS_CANONICAL_13.md`](docs/60_REFERENCE/TOOLS_CANONICAL_13.md) | **The Surface:** The 14 canonical tools bridging the LLM to the Kernel. |
 | 🚀 **Deploy** | [`DEPLOYMENT.md`](docs/60_REFERENCE/DEPLOYMENT.md) | **The Vanguard:** VPS setups, Docker, and Streamable HTTP scaling. |
-| 🗺️ **Deploy Map** | [`DEPLOYMENT_MAP.md`](DEPLOYMENT_MAP.md) | **The Traffic Control:** Which workflow deploys which public surface. |
+| 🗺️ **Deploy Map** | [`DEPLOYMENT_MASTER.md`](docs/DEPLOYMENT_MASTER.md) | **The Traffic Control:** Which workflow deploys which public surface. |
 
 ---
 
@@ -268,7 +268,7 @@ When you call arifOS from an MCP client (Claude Desktop, Cursor, etc.):
 ### Prerequisites
 - **Python**: 3.12+ (We recommend `uv` as the package manager).
 - **Environment**: Linux, macOS, or Windows WSL.
-- **Database**: PostgreSQL is required for the `VAULT999` Immutable Ledger.
+- **Database**: PostgreSQL is recommended for production `VAULT999`; local/dev can use SQLite/file fallback.
 
 ### 1. Local execution (`stdio` mode for Claude Desktop / Cursor)
 ```bash
@@ -322,11 +322,22 @@ Navigate to `Cursor Settings -> Features -> MCP`. Add a new server:
 - **Command**: `python -m arifos_aaa_mcp stdio`
 *(Ensure Cursor's environment has access to the required environment variables).*
 
-**For ChatGPT (Developer Mode):**
-If you are building your own custom GPT or using ChatGPT Developer Mode, you can connect the streamable HTTP or SSE endpoints directly:
-- **Start arifOS in HTTP mode:** `HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http`
-- **In ChatGPT Developer Settings:** Add a new Action/Endpoint pointing to `http://localhost:8080/mcp`.
-*(If deploying remotely, point to your VPS domain and include the `ARIFOS_API_KEY` header for authentication).*
+**For ChatGPT Integrations (hardened split):**
+Use the mode that matches your ChatGPT integration type.
+
+1. **ChatGPT Apps / MCP mode (protocol-native):**
+   - Start HTTP MCP: `HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http`
+   - Connect MCP endpoint: `http://localhost:8080/mcp` (or your public `https://.../mcp`)
+
+2. **Custom GPT Actions mode (REST/OpenAPI):**
+   - OpenAPI import URL: `http://localhost:8080/openapi.json` (or `https://.../openapi.json`)
+   - Primary action endpoint: `POST /checkpoint`
+   - Health probe: `GET /health`
+   - If `ARIFOS_API_KEY` is enabled, send `Authorization: Bearer <token>`
+
+3. **CORS for ChatGPT web clients:**
+   - Default allowed origins include `https://chat.openai.com` and `https://chatgpt.com`
+   - Override with `ARIFOS_ALLOWED_ORIGINS` when running behind stricter policies
 
 ### 2. Production Execution (`http` streamable mode for VPS / Cloud)
 Instead of two-channel SSE, arifOS uses the modern **Streamable HTTP** standard for robust cloud scalability behind Nginx proxies.
@@ -352,7 +363,7 @@ The Constitutional Decision Visualizer is arifOS's **real-time control room** fo
 
 2. **Standalone Dashboard (Web Browser)**  
    - **Local**: `http://localhost:8080/dashboard`  
-   - **Production**: `https://dashboard.arifos.arif-fazil.com`
+   - **Production**: `https://dashboard.arifosmcp.arif-fazil.com`
    - No MCP client required - pure browser experience
 
 ### Real-Time Features
@@ -377,7 +388,7 @@ The visualizer consumes these production REST endpoints:
 
 **You don't have to blindly trust arifOS; you can independently verify it.**
 
-Every single thought, action, or tool call processed by arifOS is mathematically evaluated and cryptographically hashed into an append-only PostgreSQL database (**`VAULT999`**). 
+Every thought, action, or tool call processed by arifOS is mathematically evaluated and sealed into append-only **`VAULT999`** ledger records (PostgreSQL in production, SQLite/file fallback in local/dev).
 
 The query will result in one of these Governance Envelopes:
 
@@ -418,12 +429,14 @@ We continuously pipe live tests through the framework to prove its reliability. 
 **Current Status:** Active Development / Production Ready L4.
 
 - **Version:** 2026.3.1 (14 MCP tools live — Jina Reader integration, npm client verified, visualize_governance deployed).
+- **ChatGPT Actions Surface:** `GET /openapi.json` + `POST /checkpoint` now live in runtime for Custom GPT Actions integration.
+- **ChatGPT MCP Surface:** `POST /mcp` remains the protocol-native endpoint for MCP-capable hosts.
 - **Jina Reader Integration:** `search_reality` and `fetch_content` now use Jina Reader as primary backend for clean Markdown extraction — superior content quality vs raw SERP APIs. Fallback chain: Jina → Perplexity → Brave.
 - **npm/JS Client:** `@arifos/mcp` v0.1.0 verified across HTTP and stdio transports (see `packages/npm/arifos-mcp/`).
 - **Constitutional Visualizer:** `visualize_governance` tool live — real-time dashboard for all 13 Floors, Tri-Witness, thermodynamic telemetry, and VAULT999 history.
 - **Amanah Handshake:** `apex_judge` signs an HMAC-SHA256 `governance_token` that `seal_vault` must verify before any ledger write. No token = no entry. Tampered token = VOID.
 - **F4 Clarity Hardened:** Hard floor — responses that increase entropy (`ΔS > 0`) return VOID, not PARTIAL.
-- **Testing:** 90%+ pass rate on regression and CI/CD pipelines.
+- **Validation baseline:** canonical contract and Actions surface tests are enforced in `tests/canonical/`.
 
 For a detailed multi-year roadmap, see [`ROADMAP.md`](docs/ROADMAP.md).
 
