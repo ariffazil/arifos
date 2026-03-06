@@ -160,9 +160,7 @@ def _validate_url_ssrf(url: str) -> str | None:
     if allowed_domains_env:
         allowed = {d.strip().lower() for d in allowed_domains_env.split(",") if d.strip()}
         hostname_lower = hostname.lower()
-        if not any(
-            hostname_lower == d or hostname_lower.endswith("." + d) for d in allowed
-        ):
+        if not any(hostname_lower == d or hostname_lower.endswith("." + d) for d in allowed):
             return (
                 f"Domain '{hostname}' is not in the configured allowlist "
                 "(INGEST_EVIDENCE_ALLOWED_DOMAINS)."
@@ -207,6 +205,14 @@ def _validate_url_ssrf(url: str) -> str | None:
 
 async def _ingest_url(target: str, mode: str, max_chars: int) -> dict[str, Any]:
     """Fetch remote URL content via Jina Reader with urllib fallback."""
+    if not (target.startswith("http://") or target.startswith("https://")):
+        return {
+            "source_type": "url",
+            "target": target,
+            "error": "Unsupported target - expected http:// or https:// URL",
+            "status": "BAD_ID",
+        }
+
     ssrf_error = _validate_url_ssrf(target)
     if ssrf_error:
         return {

@@ -1,8 +1,10 @@
 """
-aclip_cai/tools/chroma_query.py — Chroma Vector Store Query
+aclip_cai/tools/chroma_query.py — Qdrant Vector Store Query
 
 ACLIP Console tool: lets AI agents query persistent memory
-at C:\\Users\\User\\chroma_memory without re-reading files.
+via the qdrant_memory container (QDRANT_URL env var).
+API-compatible with the former ChromaDB interface — same signatures,
+same return shape — so callers (console_tools, mcp_bridge) need no changes.
 """
 
 from __future__ import annotations
@@ -12,7 +14,7 @@ from typing import Any
 
 from aclip_cai.tools.aclip_base import ok, partial, void
 
-_DEFAULT_CHROMA_PATH = os.path.join(os.path.expanduser("~"), "chroma_memory")
+_DEFAULT_QDRANT_URL = "http://localhost:6333"
 
 
 def query_memory(
@@ -21,60 +23,68 @@ def query_memory(
     n_results: int = 5,
     where: dict[str, Any] | None = None,
     include_embeddings: bool = False,
-    chroma_path: str | None = None,
+    _chroma_path: str | None = None,  # kept for API compat — unused
 ) -> dict[str, Any]:
-    """Query the Chroma vector store with a natural language query."""
-    path = chroma_path or os.environ.get("ARIFOS_CHROMA_PATH", _DEFAULT_CHROMA_PATH)
+    """Query the Qdrant vector store with a natural language query."""
+    qdrant_url = os.environ.get("QDRANT_URL", _DEFAULT_QDRANT_URL)
 
     try:
-        import chromadb
-
-        client = chromadb.PersistentClient(path=path)
+        from qdrant_client import QdrantClient
+        from qdrant_client.models import FieldCondition, Filter, MatchValue
     except ImportError:
-        return void("chromadb not installed", hint="uv pip install chromadb")
-    except Exception as e:
-        return void(f"Failed to open Chroma at {path}: {e}")
+        return void("qdrant-client not installed", hint="pip install qdrant-client>=1.7.0")
 
     try:
-        col = client.get_collection(collection)
-    except Exception:
-        available = [c.name for c in client.list_collections()]
+        client = QdrantClient(url=qdrant_url)
+    except Exception as e:
+        return void(f"Failed to connect to Qdrant at {qdrant_url}: {e}")
+
+    try:
+        from aclip_cai.embeddings import embed
+
+        query_vector = embed(query)
+    except Exception as e:
+        return void(f"Failed to embed query: {e}")
+
+    qdrant_filter = None
+    if where:
+        try:
+            qdrant_filter = Filter(
+                must=[FieldCondition(key=k, match=MatchValue(value=v)) for k, v in where.items()]
+            )
+        except Exception:
+            pass  # skip malformed filter rather than hard-fail
+
+    try:
+        results = client.search(
+            collection_name=collection,
+            query_vector=query_vector,
+            limit=n_results,
+            query_filter=qdrant_filter,
+            with_payload=True,
+            with_vectors=include_embeddings,
+        )
+    except Exception as e:
+        try:
+            cols = [c.name for c in client.get_collections().collections]
+        except Exception:
+            cols = []
         return partial(
-            {"available_collections": available},
-            error=f"Collection '{collection}' not found",
-            hint=f"Use one of: {available}" if available else "No collections found",
+            {"available_collections": cols},
+            error=f"Query failed: {e}",
+            hint=f"Available collections: {cols}" if cols else "No collections found",
         )
-
-    try:
-        include = ["metadatas", "documents", "distances"]
-        if include_embeddings:
-            include.append("embeddings")
-
-        results = col.query(
-            query_texts=[query],
-            n_results=min(n_results, col.count()) if col.count() > 0 else n_results,
-            where=where,
-            include=include,
-        )
-    except Exception as e:
-        return void(f"Query failed: {e}")
-
-    docs = results.get("documents", [[]])[0]
-    metas = results.get("metadatas", [[]])[0]
-    dists = results.get("distances", [[]])[0]
-    ids = results.get("ids", [[]])[0]
-    embs = results.get("embeddings", [[]])[0] if include_embeddings else []
 
     hits = []
-    for i, doc in enumerate(docs):
+    for point in results:
         hit = {
-            "id": ids[i] if i < len(ids) else f"doc_{i}",
-            "document": doc,
-            "distance": round(dists[i], 4) if i < len(dists) else None,
-            "metadata": metas[i] if i < len(metas) else {},
+            "id": str(point.id),
+            "document": point.payload.get("content", str(point.payload)),
+            "distance": round(1.0 - point.score, 4),  # cosine sim → distance
+            "metadata": {k: v for k, v in point.payload.items() if k != "content"},
         }
-        if include_embeddings and i < len(embs):
-            hit["embedding"] = embs[i]
+        if include_embeddings and point.vector is not None:
+            hit["embedding"] = point.vector
         hits.append(hit)
 
     return ok(
@@ -87,26 +97,27 @@ def query_memory(
     )
 
 
-def list_collections(chroma_path: str | None = None) -> dict[str, Any]:
-    """List all available Chroma collections and their document counts."""
-    path = chroma_path or os.environ.get("ARIFOS_CHROMA_PATH", _DEFAULT_CHROMA_PATH)
+def list_collections(_chroma_path: str | None = None) -> dict[str, Any]:
+    """List all available Qdrant collections."""
+    qdrant_url = os.environ.get("QDRANT_URL", _DEFAULT_QDRANT_URL)
 
     try:
-        import chromadb
-
-        client = chromadb.PersistentClient(path=path)
+        from qdrant_client import QdrantClient
     except ImportError:
-        return void("chromadb not installed", hint="uv pip install chromadb")
+        return void("qdrant-client not installed", hint="pip install qdrant-client>=1.7.0")
+
+    try:
+        client = QdrantClient(url=qdrant_url)
     except Exception as e:
         return void(str(e))
 
     try:
-        cols = client.list_collections()
+        cols = client.get_collections().collections
         return ok(
             {
-                "chroma_path": path,
+                "qdrant_url": qdrant_url,
                 "count": len(cols),
-                "collections": [{"name": c.name, "documents": c.count()} for c in cols],
+                "collections": [{"name": c.name} for c in cols],
             }
         )
     except Exception as e:

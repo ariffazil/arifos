@@ -207,13 +207,13 @@ MAX_COGNITIVE_INJECTIONS = 5
 OMEGA_0 = 0.04  # Ω₀ ∈ [0.03, 0.05]: The Humility Band for Gödel's Incompleteness
 
 async def phoenix_recall(
-    current_thought_vector: str,
+    query: str,
     session: SessionToken
 ) -> Dict[str, Any]:
     sieve = HardenedEurekaSieve()
     
     # 1. GENERATE FINGERPRINT
-    thought_fingerprint = sieve.generate_ngram_fingerprint(current_thought_vector)
+    thought_fingerprint = sieve.generate_ngram_fingerprint(query)
     
     # 2. QUERY LEDGERS (Associative Resonance with Ω₀ Softener)
     # Subtracting Ω₀ acknowledges systemic incompleteness, allowing fuzzy associations
