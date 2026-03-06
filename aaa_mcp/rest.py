@@ -55,7 +55,7 @@ from arifos_aaa_mcp.server import (
     metabolic_loop,
     apex_judge,
     reason_mind,
-    recall_memory,
+    vector_memory,
     seal_vault,
     search_reality,
     simulate_heart,
@@ -68,7 +68,7 @@ BUILD_INFO = get_build_info()
 TOOLS = {
     "anchor_session": anchor_session,
     "reason_mind": reason_mind,
-    "recall_memory": recall_memory,
+    "vector_memory": vector_memory,
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
     "eureka_forge": eureka_forge,
@@ -105,7 +105,7 @@ TOOL_SCHEMAS = {
             "debug": {"type": "boolean", "default": False},
         },
     },
-    "recall_memory": {
+    "vector_memory": {
         "description": "[Lane: Omega] 555_RECALL — Associative hybrid memory retrieval",
         "args": {
             "current_thought_vector": {"type": "string", "required": True},
