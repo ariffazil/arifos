@@ -86,7 +86,7 @@ AAA_TOOL_ALIASES: dict[str, str] = {
     "fetch": "ingest_evidence",
     "fetch_content": "ingest_evidence",
     "inspect_file": "ingest_evidence",
-    "analyze": "audit_rules",
+    "analyze": "ingest_evidence",
     "system_audit": "audit_rules",
     "anchor": "anchor_session",
     "reason": "reason_mind",

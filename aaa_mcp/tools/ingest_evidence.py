@@ -11,14 +11,15 @@ inspection) into one constitutional entry point.
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
-from typing import Any, Literal
+from typing import Any
 
 
 async def ingest_evidence(
-    source_type: Literal["url", "file"],
-    target: str,
-    mode: Literal["raw", "summary", "chunks"] = "raw",
+    source_type: str = "",
+    target: str = "",
+    mode: str = "raw",
     # URL-specific
     max_chars: int = 4000,
     # File-specific
@@ -28,6 +29,10 @@ async def ingest_evidence(
     pattern: str = "*",
     min_size_bytes: int = 0,
     max_files: int = 100,
+    # Backward-compatible aliases from archived tools
+    # fetch_content used `id` for the URL; inspect_file used `path` for the path
+    id: str | None = None,  # noqa: A002 — intentional legacy kwarg
+    path: str | None = None,
 ) -> dict[str, Any]:
     """
     ingest_evidence — Constitutional evidence ingestion.
@@ -44,7 +49,20 @@ async def ingest_evidence(
         session_id:  Optional session identifier threaded into the envelope.
         depth/include_hidden/pattern/min_size_bytes/max_files:
                      File-inspection options (ignored for url source).
+        id:   Legacy alias for ``target`` from archived ``fetch_content`` tool.
+        path: Legacy alias for ``target`` from archived ``inspect_file`` tool.
     """
+    # Backward-compatible argument translation for archived tool callers.
+    # fetch_content callers pass `id=<url>`; inspect_file callers pass `path=<path>`.
+    if id is not None and not target:
+        target = id
+        if not source_type:
+            source_type = "url"
+    if path is not None and not target:
+        target = path
+        if not source_type:
+            source_type = "file"
+
     if source_type == "url":
         return await _ingest_url(target=target, mode=mode, max_chars=max_chars)
     if source_type == "file":
@@ -103,12 +121,16 @@ async def _ingest_url(target: str, mode: str, max_chars: int) -> dict[str, Any]:
                 mode,
             )
 
-        # Fallback: raw urllib
+        # Fallback: raw urllib — run in thread to avoid blocking the event loop
         import urllib.request
 
         req = urllib.request.Request(target, headers={"User-Agent": "arifOS/ingest_evidence"})
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            raw = resp.read()
+
+        def _do_fetch() -> bytes:
+            with urllib.request.urlopen(req, timeout=8) as resp:
+                return resp.read()
+
+        raw = await asyncio.to_thread(_do_fetch)
         text = raw.decode("utf-8", errors="replace")
         content_hash = hashlib.sha256(text[:max_chars].encode("utf-8")).hexdigest()
         bounded = (
@@ -166,7 +188,10 @@ async def _ingest_file(
     try:
         from aclip_cai.tools.fs_inspector import fs_inspect
 
-        payload = fs_inspect(
+        # fs_inspect performs a synchronous filesystem walk; run in a thread
+        # to avoid blocking the event loop under deep traversals.
+        payload = await asyncio.to_thread(
+            fs_inspect,
             path=target,
             depth=depth,
             include_hidden=include_hidden,
