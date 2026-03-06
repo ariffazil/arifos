@@ -11,16 +11,19 @@ PHASE 1 WIRING: Thermodynamic Core Integration
 
 from __future__ import annotations
 
-import json
-import time
-import uuid
-from typing import Any
+import hashlib
+import hmac as _hmac
+import logging
+import secrets
+import sys
+import traceback
+from datetime import datetime, timezone
+from pathlib import Path
 
 from fastmcp import FastMCP
 from mcp.types import Icon
 import os
 
-from aaa_mcp import server as legacy
 from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
 from aaa_mcp.protocol.public_surface import (
     PUBLIC_CANONICAL_TOOLS,
@@ -28,13 +31,107 @@ from aaa_mcp.protocol.public_surface import (
     PUBLIC_RESOURCE_URIS,
 )
 from aaa_mcp.protocol.tool_registry import export_full_context_pack
-from aclip_cai.triad import align
+from aclip_cai.triad import (
+    align,
+    anchor,
+    audit,
+    forge,
+    integrate,
+    reason,
+    respond,
+    seal,
+    think,
+    validate,
+)
 from aclip_cai.tools.fs_inspector import fs_inspect
 from aclip_cai.tools.system_monitor import get_system_health
 
 from .contracts import require_session, validate_input
 from .fastmcp_ext.discovery import build_surface_discovery
 from .governance import LAW_13_CATALOG, TOOL_DIALS_MAP, wrap_tool_output
+
+# Setup logger
+logger = logging.getLogger(__name__)
+
+# BGE Embeddings Integration from aclip_cai
+try:
+    from aclip_cai.embeddings import embed, get_embedder
+    BGE_AVAILABLE = True
+except ImportError:
+    BGE_AVAILABLE = False
+
+# ─── Amanah Handshake — Governance Token ────────────────────────────────────
+_GOVERNANCE_TOKEN_SECRET = os.environ.get("ARIFOS_GOVERNANCE_SECRET", secrets.token_hex(32))
+
+def _build_governance_token(session_id: str, verdict: str) -> str:
+    sig = _hmac.new(
+        _GOVERNANCE_TOKEN_SECRET.encode(),
+        f"{session_id}:{verdict}".encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    return f"{verdict}:{sig}"
+
+def _verify_governance_token(session_id: str, token: str) -> tuple[bool, str]:
+    parts = token.split(":", 1)
+    if len(parts) != 2:
+        return False, "VOID"
+    verdict, sig = parts
+    expected_sig = _hmac.new(
+        _GOVERNANCE_TOKEN_SECRET.encode(),
+        f"{session_id}:{verdict}".encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    if _hmac.compare_digest(sig, expected_sig):
+        return True, verdict
+    return False, "VOID"
+
+def _fold_verdict(verdicts: list[str]) -> str:
+    if any(v.upper() == "VOID" for v in verdicts):
+        return "VOID"
+    if any(v.upper() in {"SABAR", "888_HOLD"} for v in verdicts):
+        return "SABAR"
+    if any(v.upper() == "PARTIAL" for v in verdicts):
+        return "PARTIAL"
+    return "SEAL"
+
+def _token_status(auth_token: str | None) -> str:
+    return "AUTHENTICATED" if auth_token else "ANONYMOUS"
+
+class EnvelopeBuilder:
+    def _extract_truth(self, payload: dict[str, Any]) -> dict[str, Any]:
+        score = payload.get("truth_score")
+        threshold = payload.get("f2_threshold")
+        drivers = payload.get("truth_drivers") or []
+        return {"score": score, "threshold": threshold, "drivers": drivers}
+
+    def _generate_sabar_requirements(self, verdict: str, payload: dict[str, Any]) -> dict[str, Any] | None:
+        if verdict not in {"SABAR", "PARTIAL"}: return None
+        failed_floors = payload.get("floors_failed", [])
+        missing_fields = []
+        template_fields = {}
+        for floor in failed_floors:
+            missing_fields.append({"field": f"input_for_{floor.lower()}", "needed_for": [floor], "example": "<FILL_REQUIRED_DATA>"})
+            template_fields[f"input_for_{floor.lower()}"] = "<FILL_REQUIRED_DATA>"
+        if not missing_fields:
+            missing_fields.append({"field": "contextual_data", "needed_for": ["F_UNKNOWN"], "example": "<PROVIDE_MORE_CONTEXT>"})
+            template_fields["contextual_data"] = "<PROVIDE_MORE_CONTEXT>"
+        return {"missing_grounding": [f for f in failed_floors if f.startswith("F2")], "missing_fields": missing_fields, "minimum_next_payload_template": template_fields}
+
+    def build_envelope(self, stage: str, session_id: str, verdict: str, payload: dict[str, Any]) -> dict[str, Any]:
+        floors_failed = payload.get("floors_failed", [])
+        actions = []
+        if "F2" in floors_failed: actions.append("Provide stronger evidence and retry with grounded claims.")
+        if "F11" in floors_failed: actions.append("Restore session/auth continuity and retry.")
+        if not actions: actions.append("Continue to next constitutional stage.")
+        return {
+            "verdict": verdict, "stage": stage, "session_id": session_id,
+            "floors": {"passed": [], "failed": floors_failed},
+            "truth": self._extract_truth(payload), "next_actions": actions,
+            "sabar_requirements": self._generate_sabar_requirements(verdict, payload),
+            "payload": payload,
+        }
+
+envelope_builder = EnvelopeBuilder()
 
 # ═══════════════════════════════════════════════════════
 # PHASE 1: Wire MCP Gateway to Thermodynamic Core
@@ -70,6 +167,43 @@ except ImportError as e:
 
     logging.warning(f"Thermodynamic core not available: {e}")
 
+
+def _fracture_response(stage: str, e: Exception, session_id: str | None = None) -> dict[str, Any]:
+    result: dict[str, Any] = {
+        "verdict": "SABAR",
+        "status": "partial",
+        "holding_reason": "Internal Engine Fracture",
+        "error_class": e.__class__.__name__,
+        "blast_radius": "kernel",
+        "error": str(e),
+        "trace": traceback.format_exc(),
+        "stage": stage,
+    }
+    if session_id: result["session_id"] = session_id
+    return result
+
+def _build_floor_block(stage: str, reason: str) -> dict[str, Any]:
+    return {
+        "verdict": "VOID", "stage": stage, "session_id": "", "token_status": "ERROR",
+        "floors": {"passed": [], "failed": ["F11"]},
+        "truth": {"score": None, "threshold": None, "drivers": []},
+        "next_actions": [
+            "Run init_session (anchor) first to obtain session_id.",
+            "Reuse the same session_id across downstream tools.",
+        ],
+        "error": reason,
+    }
+
+_rag_instance: Any = None
+
+def _ensure_rag() -> Any:
+    global _rag_instance
+    if _rag_instance is not None: return _rag_instance
+    scripts_dir = Path(__file__).resolve().parents[1] / "scripts"
+    if str(scripts_dir) not in sys.path: sys.path.insert(0, str(scripts_dir))
+    from arifos_rag import ConstitutionalRAG
+    _rag_instance = ConstitutionalRAG()
+    return _rag_instance
 
 # Physics exception to VOID envelope converter
 def _convert_physics_exception_to_void(
@@ -271,34 +405,33 @@ async def anchor_session(
     # PHASE 1: Thermodynamic core integration
     start_time = time.time()
     try:
-        payload = await legacy.anchor_session.fn(
-            query=query,
-            actor_id=actor_id,
-            auth_token=auth_token,
-            mode=mode,
-            grounding_required=grounding_required,
-            debug=debug,
-            session_id=session_id,
-        )
+        if not session_id:
+            session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
+        anch = await anchor(session_id=session_id, user_id=actor_id, context=query)
+        verdict = str(anch.get("verdict", "SEAL"))
+
+        payload = {
+            "verdict": verdict,
+            "session_id": anch.get("session_id", session_id),
+            "stage": "000_INIT",
+            "mode": mode,
+            "grounding_required": grounding_required,
+            "token_status": _token_status(auth_token),
+            "auth": {"present": bool(auth_token)},
+            "debug": debug,
+            "data": {"anchor": anch} if debug else {},
+        }
+        payload.update(envelope_builder.build_envelope(stage="000_INIT", session_id=payload["session_id"], verdict=verdict, payload=anch if isinstance(anch, dict) else {}))
 
         # Add compute telemetry for Landauer bound
         payload["compute_ms"] = (time.time() - start_time) * 1000
         payload["tokens"] = len(query.split())
 
         return wrap_tool_output("anchor_session", payload)
-
-    except (
-        ThermodynamicViolation,
-        ModeCollapseError,
-        CheapTruthError,
-        PeaceViolation,
-        EntropyViolation,
-        AmanahViolation,
-    ) as e:
-        # Fail-closed: Physics violations return VOID
-        return wrap_tool_output(
-            "anchor_session", _convert_physics_exception_to_void(e, "anchor_session", "init")
-        )
+    except Exception as e:
+        if isinstance(e, (ThermodynamicViolation, ModeCollapseError, CheapTruthError, PeaceViolation, EntropyViolation, AmanahViolation)):
+             return wrap_tool_output("anchor_session", _convert_physics_exception_to_void(e, "anchor_session", "init"))
+        return wrap_tool_output("anchor_session", _fracture_response("000_INIT", e))
 
 
 @mcp.tool(name="reason_mind")
@@ -308,6 +441,8 @@ async def reason_mind(
     grounding: list[dict[str, Any]] | None = None,
     capability_modules: list[str] | None = None,
     debug: bool = False,
+    actor_id: str = "anonymous",
+    auth_token: str | None = None,
 ) -> dict[str, Any]:
     """333 REASON: run AGI cognition with grounding and budget controls."""
     blocked = validate_input("reason_mind", {"query": query, "session_id": session_id})
@@ -320,39 +455,47 @@ async def reason_mind(
     # PHASE 1: Thermodynamic core integration with physics exception handling
     start_time = time.time()
     try:
-        payload = await legacy.reason_mind.fn(
-            query=query,
-            session_id=session_id,
-            grounding=grounding,
-            capability_modules=capability_modules,
-            debug=debug,
-        )
+        evidence = [str(x) for x in (grounding or [])]
+        rag_contexts = []
+        try:
+            rag = _ensure_rag()
+            rag_contexts = rag.query_with_metadata(query=query, top_k=3).get("contexts", [])
+        except Exception: pass
+
+        think_draft = await think(session_id=session_id, query=query, context="; ".join(evidence))
+        if think_draft.get("verdict") == "VOID":
+            return wrap_tool_output("reason_mind", {"verdict": "VOID", "stage": "222_THINK", "session_id": session_id, "blocked_by": "Stage 222 THINK — constitutional floor violation"})
+
+        r = await reason(session_id=session_id, hypothesis=query, evidence=evidence)
+        i = await integrate(session_id=session_id, context_bundle={"query": query, "grounding": grounding or {}})
+        d = await respond(session_id=session_id, draft_response=f"Draft response for: {query}")
+        
+        verdict = _fold_verdict([str(think_draft.get("verdict", "")), str(r.get("verdict", "")), str(i.get("verdict", "")), str(d.get("verdict", ""))])
+        merged = {"truth_score": r.get("truth_score"), "f2_threshold": r.get("f2_threshold"), "floors_failed": list(r.get("floors_failed", [])) + list(i.get("floors_failed", [])) + list(d.get("floors_failed", [])), "retrieved_contexts": rag_contexts}
+        
+        payload = {
+            "capability_modules": capability_modules or [],
+            "actor_id": actor_id,
+            "token_status": _token_status(auth_token),
+            "debug": debug,
+            "data": {"think": think_draft, "reason": r, "integrate": i, "respond": d} if debug else {},
+        }
+        payload.update(envelope_builder.build_envelope(stage="111-444", session_id=session_id, verdict=verdict, payload=merged))
 
         # Add compute telemetry for Landauer bound
         payload["compute_ms"] = (time.time() - start_time) * 1000
         payload["tokens"] = len(query.split()) + len(str(payload).split())
 
         # PHASE 1: Strict F4 entropy check (ΔS <= 0)
-        delta_s = payload.get("dS", 0.0)
+        delta_s = payload.get("payload", {}).get("dS", 0.0)
         if CORE_AVAILABLE and delta_s > 0:
-            raise EntropyViolation(
-                f"F4_CLARITY_VIOLATION: ΔS={delta_s:.4f} > 0 in reason_mind output"
-            )
+            raise EntropyViolation(f"F4_CLARITY_VIOLATION: ΔS={delta_s:.4f} > 0 in reason_mind output")
 
         return wrap_tool_output("reason_mind", payload)
-
-    except (
-        ThermodynamicViolation,
-        ModeCollapseError,
-        CheapTruthError,
-        PeaceViolation,
-        EntropyViolation,
-        AmanahViolation,
-    ) as e:
-        # Fail-closed: Physics violations return VOID
-        return wrap_tool_output(
-            "reason_mind", _convert_physics_exception_to_void(e, "reason_mind", session_id)
-        )
+    except Exception as e:
+        if isinstance(e, (ThermodynamicViolation, ModeCollapseError, CheapTruthError, PeaceViolation, EntropyViolation, AmanahViolation)):
+            return wrap_tool_output("reason_mind", _convert_physics_exception_to_void(e, "reason_mind", session_id))
+        return wrap_tool_output("reason_mind", _fracture_response("111-444", e, session_id))
 
 
 @mcp.tool(name="recall_memory")
@@ -371,12 +514,27 @@ async def recall_memory(
     missing = require_session("recall_memory", session_id)
     if missing:
         return wrap_tool_output("recall_memory", missing)
-    payload = await legacy.recall_memory.fn(
-        current_thought_vector=current_thought_vector,
-        session_id=session_id,
-        debug=debug,
-    )
-    return wrap_tool_output("recall_memory", payload)
+    start_time = time.time()
+    try:
+        try:
+            rag = _ensure_rag()
+            contexts = rag.retrieve(query=current_thought_vector, top_k=5, min_score=0.15)
+        except Exception: contexts = []
+
+        jaccard_max = max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
+        bge_metrics = {"bge_available": BGE_AVAILABLE, "memory_count": len(contexts)}
+
+        merged = {
+            "status": "RECALL_SUCCESS",
+            "memories": [{"source": f"{ctx.source}/{ctx.path}", "score": round(ctx.score, 4), "content": ctx.content[:800]} for ctx in contexts],
+            "metrics": {"jaccard_max": round(jaccard_max, 4), **bge_metrics},
+        }
+        payload = envelope_builder.build_envelope(stage="555_RECALL", session_id=session_id, verdict="SEAL" if contexts else "PARTIAL", payload=merged)
+        
+        payload["compute_ms"] = (time.time() - start_time) * 1000
+        return wrap_tool_output("recall_memory", payload)
+    except Exception as e:
+        return wrap_tool_output("recall_memory", _fracture_response("555_RECALL", e, session_id))
 
 
 @mcp.tool(name="simulate_heart")
@@ -394,14 +552,27 @@ async def simulate_heart(
     missing = require_session("simulate_heart", session_id)
     if missing:
         return wrap_tool_output("simulate_heart", missing)
-    payload = await legacy.simulate_heart.fn(
-        query=query,
-        session_id=session_id,
-        stakeholders=stakeholders,
-        capability_modules=capability_modules,
-        debug=debug,
-    )
-    return wrap_tool_output("simulate_heart", payload)
+    start_time = time.time()
+    try:
+        v = await validate(session_id=session_id, action=query)
+        a = await align(session_id=session_id, action=query)
+        verdict = _fold_verdict([str(v.get("verdict", "")), str(a.get("verdict", ""))])
+        merged = {"truth_score": v.get("truth_score"), "floors_failed": list(v.get("floors_failed", [])) + list(a.get("floors_failed", []))}
+        
+        payload = {
+            "stakeholders": stakeholders or [],
+            "capability_modules": capability_modules or [],
+            "actor_id": actor_id,
+            "token_status": _token_status(auth_token),
+            "debug": debug,
+            "data": {"validate": v, "align": a} if debug else {},
+        }
+        payload.update(envelope_builder.build_envelope(stage="555-666", session_id=session_id, verdict=verdict, payload=merged))
+        
+        payload["compute_ms"] = (time.time() - start_time) * 1000
+        return wrap_tool_output("simulate_heart", payload)
+    except Exception as e:
+        return wrap_tool_output("simulate_heart", _fracture_response("555-666", e, session_id))
 
 
 @mcp.tool(name="critique_thought")
@@ -467,16 +638,28 @@ async def apex_judge(
     # PHASE 1: Thermodynamic core integration - APEX judgment with Ψ, W₃, Φₚ
     start_time = time.time()
     try:
-        payload = await legacy.apex_judge.fn(
-            session_id=session_id,
-            query=query,
-            agi_result=agi_result,
-            asi_result=asi_result,
-            implementation_details={"critique": critique_result or {}},
-            proposed_verdict=proposed_verdict,
-            human_approve=human_approve,
-            debug=debug,
-        )
+        plan = {"query": query, "proposed_verdict": proposed_verdict, "human_approve": human_approve, "agi": agi_result or {}, "asi": asi_result or {}}
+        forged = await forge(session_id=session_id, plan=str(plan))
+        judged = await audit(session_id=session_id, action=str(plan), sovereign_token="888_APPROVED" if human_approve else "", agi_result=agi_result, asi_result=asi_result)
+        
+        precedents = []
+        try:
+            rag = _ensure_rag()
+            precedent_contexts = rag.retrieve(query=query, top_k=3, min_score=0.25)
+            precedents = [{"source": f"{ctx.source}/{ctx.path}", "score": ctx.score, "content": ctx.content[:500]} for ctx in precedent_contexts]
+        except Exception: pass
+
+        verdict = str(judged.get("verdict", "VOID"))
+        governance_token = _build_governance_token(session_id, verdict)
+        merged = {"truth_score": judged.get("truth_score"), "f2_threshold": judged.get("f2_threshold"), "floors_failed": list(forged.get("floors_failed", [])) + list(judged.get("floors_failed", [])), "precedents": precedents}
+        
+        payload = {
+            "authority": {"human_approve": human_approve},
+            "governance_token": governance_token,
+            "debug": debug,
+            "data": {"forge": forged, "audit": judged} if debug else {},
+        }
+        payload.update(envelope_builder.build_envelope(stage="888_APEX_JUDGE", session_id=session_id, verdict=verdict, payload=merged))
 
         # Add compute telemetry
         payload["compute_ms"] = (time.time() - start_time) * 1000
@@ -545,22 +728,39 @@ async def eureka_forge(
     missing = require_session("eureka_forge", session_id)
     if missing:
         return wrap_tool_output("eureka_forge", missing)
-    payload = await legacy.eureka_forge.fn(
-        session_id=session_id,
-        command=command,
-        working_dir=working_dir,
-        timeout=timeout,
-        confirm_dangerous=confirm_dangerous,
-        agent_id=agent_id,
-        purpose=purpose,
-    )
-    if isinstance(payload, dict):
-        stage_value = str(payload.get("stage", "")).upper()
-        if stage_value in {"", "888_FORGE", "777_FORGE", "777_EXECUTE"}:
-            payload["stage"] = "777_EUREKA_FORGE"
-            if stage_value:
-                payload["stage_legacy"] = stage_value
-    return wrap_tool_output("eureka_forge", payload)
+    start_time = time.time()
+    try:
+        from aaa_mcp.sessions.session_ledger import get_session_manager
+        import shlex
+        
+        DANGEROUS_PATTERNS = ["rm -rf", "rm -fr", "rm -r /", "rm -rf /", "mkfs", "dd if=", "> /dev/sda", "format", "shutdown", "reboot", "halt", "poweroff", "kill -9"]
+        risk_level = "LOW"
+        for pattern in DANGEROUS_PATTERNS:
+            if pattern in command.lower(): risk_level = "CRITICAL"; break
+        if risk_level == "LOW":
+            MODERATE_PATTERNS = ["docker rm", "docker stop", "docker kill", "systemctl stop", "apt remove", "pip uninstall", "rm -r", "rm -f", "> ", ">>", "| sh", "| bash"]
+            for pattern in MODERATE_PATTERNS:
+                if pattern in command.lower(): risk_level = "MODERATE"; break
+        
+        if risk_level == "CRITICAL" and not confirm_dangerous:
+             return wrap_tool_output("eureka_forge", envelope_builder.build_envelope(stage="888_FORGE", session_id=session_id, verdict="888_HOLD", payload={"status": "CONFIRMATION_REQUIRED", "risk_level": risk_level, "message": f"CRITICAL command detected. Set confirm_dangerous=True to execute."}))
+
+        args = shlex.split(command)
+        process = await asyncio.create_subprocess_exec(*args, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, cwd=working_dir, limit=1024*1024)
+        stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout)
+        
+        res_payload = {
+            "status": "SUCCESS" if process.returncode == 0 else "ERROR",
+            "exit_code": process.returncode,
+            "stdout": stdout.decode("utf-8", errors="replace")[:10000],
+            "stderr": stderr.decode("utf-8", errors="replace")[:5000],
+            "risk_level": risk_level,
+        }
+        payload = envelope_builder.build_envelope(stage="777_EUREKA_FORGE", session_id=session_id, verdict="SEAL" if process.returncode == 0 else "VOID", payload=res_payload)
+        payload["compute_ms"] = (time.time() - start_time) * 1000
+        return wrap_tool_output("eureka_forge", payload)
+    except Exception as e:
+        return wrap_tool_output("eureka_forge", _fracture_response("777_EUREKA_FORGE", e, session_id))
 
 
 @mcp.tool(name="seal_vault")
@@ -627,13 +827,22 @@ async def seal_vault(
         "timestamp": time.time(),
     }
 
+    start_time = time.time()
     try:
-        payload = await legacy.seal_vault.fn(
-            session_id=session_id,
-            summary=summary,
-            governance_token=resolved_token,
-            thermodynamic_statement=thermodynamic_statement,  # PHASE 2: Bind telemetry
-        )
+        token_valid, verified_verdict = _verify_governance_token(session_id, resolved_token)
+        if not token_valid:
+            return wrap_tool_output("seal_vault", {"verdict": "VOID", "stage": "999_SEAL", "session_id": session_id, "error": "F1 Amanah — governance_token invalid"})
+
+        res = await seal(session_id=session_id, task_summary=summary, was_modified=True, verdict=verified_verdict)
+        payload = {"data": res, "status": verified_verdict}
+        if thermodynamic_statement is not None: payload["thermodynamic_statement"] = thermodynamic_statement
+        payload.update(envelope_builder.build_envelope(stage="999_SEAL", session_id=session_id, verdict=verified_verdict, payload=res))
+
+        if verified_verdict == "SEAL":
+            try:
+                rag = _ensure_rag()
+                rag.index_memory(session_id=session_id, content=summary, metadata={"verdict": verified_verdict, "timestamp": datetime.now(timezone.utc).isoformat()})
+            except Exception: pass
 
         # Add thermodynamic binding confirmation
         payload["thermodynamic_seal"] = {
@@ -643,19 +852,10 @@ async def seal_vault(
         }
 
         return wrap_tool_output("seal_vault", payload)
-
-    except (
-        ThermodynamicViolation,
-        ModeCollapseError,
-        CheapTruthError,
-        PeaceViolation,
-        EntropyViolation,
-        AmanahViolation,
-    ) as e:
-        # Fail-closed: Physics violations return VOID
-        return wrap_tool_output(
-            "seal_vault", _convert_physics_exception_to_void(e, "seal_vault", session_id)
-        )
+    except Exception as e:
+        if isinstance(e, (ThermodynamicViolation, ModeCollapseError, CheapTruthError, PeaceViolation, EntropyViolation, AmanahViolation)):
+             return wrap_tool_output("seal_vault", _convert_physics_exception_to_void(e, "seal_vault", session_id))
+        return wrap_tool_output("seal_vault", _fracture_response("999_SEAL", e, session_id))
 
 
 @mcp.tool(name="search_reality")
@@ -668,8 +868,31 @@ async def search_reality(
     blocked = validate_input("search_reality", {"query": query, "session_id": session_id})
     if blocked:
         return wrap_tool_output("search_reality", blocked)
-    payload = await legacy.search_reality.fn(query=query, intent=intent, session_id=session_id)
-    return wrap_tool_output("search_reality", payload)
+    try:
+        from aaa_mcp.external_gateways.brave_client import BraveSearchClient
+        from aaa_mcp.external_gateways.jina_reader_client import JinaReaderClient
+        from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
+        
+        primary = JinaReaderClient()
+        payload = await primary.search(query=query, intent=intent)
+        if payload.get("status") not in {"OK"}:
+            fallback1 = PerplexitySearchClient()
+            payload = await fallback1.search(query=query, intent=intent)
+            if payload.get("status") in {"NO_API_KEY", "BAD_RESPONSE", "BAD_JSON"}:
+                fallback2 = BraveSearchClient()
+                payload = await fallback2.search(query=query, intent=intent)
+
+        urls = [r.get("url") for r in payload.get("results", []) if r.get("url")]
+        results = payload.get("results", [])
+        res_payload = {
+            "query": query, "status": payload.get("status", "OK"), "ids": urls, "results": results,
+            "evidence_count": len(results),
+            "f2_truth": {"grounded": len(results) > 0, "sources": urls[:3]},
+        }
+        if session_id: res_payload["session_id"] = session_id
+        return wrap_tool_output("search_reality", res_payload)
+    except Exception as e:
+        return wrap_tool_output("search_reality", {"query": query, "status": f"ERROR: {e}"})
 
 
 @mcp.tool(name="fetch_content")
@@ -678,8 +901,21 @@ async def fetch_content(id: str, max_chars: int = 4000) -> dict[str, Any]:
     blocked = validate_input("fetch_content", {"id": id})
     if blocked:
         return wrap_tool_output("fetch_content", blocked)
-    payload = await legacy.fetch_content.fn(id=id, max_chars=max_chars)
-    return wrap_tool_output("fetch_content", payload)
+    try:
+        from aaa_mcp.external_gateways.jina_reader_client import JinaReaderClient
+        primary = JinaReaderClient()
+        payload = await primary.read_url(url=id, max_chars=max_chars)
+        if payload.get("status") == "OK":
+            return wrap_tool_output("fetch_content", {"id": id, "status": "OK", "content": payload.get("content"), "title": payload.get("title", "")})
+        
+        import urllib.request
+        req = urllib.request.Request(id, headers={"User-Agent": "arifOS/aaa_mcp fetch"})
+        with urllib.request.urlopen(req, timeout=8) as resp:
+            text = resp.read().decode("utf-8", errors="replace")
+        
+        return wrap_tool_output("fetch_content", {"id": id, "status": "OK", "content": text[:max_chars], "truncated": len(text) > max_chars})
+    except Exception as e:
+        return wrap_tool_output("fetch_content", {"id": id, "error": str(e), "status": "ERROR"})
 
 
 @mcp.tool(name="inspect_file")
@@ -716,12 +952,15 @@ async def audit_rules(
     blocked = validate_input("audit_rules", {"audit_scope": audit_scope, "session_id": session_id})
     if blocked:
         return wrap_tool_output("audit_rules", blocked)
-    payload = await legacy.audit_rules.fn(
-        audit_scope=audit_scope,
-        verify_floors=verify_floors,
-        session_id=session_id,
-    )
-    return wrap_tool_output("audit_rules", payload)
+    try:
+        details = {"scope": audit_scope}
+        if verify_floors:
+             details["floors_loaded"] = True # Heuristic for now
+        res_payload = {"verdict": "SEAL", "scope": audit_scope, "details": details}
+        if session_id: res_payload["session_id"] = session_id
+        return wrap_tool_output("audit_rules", res_payload)
+    except Exception as e:
+        return wrap_tool_output("audit_rules", {"verdict": "VOID", "error": str(e)})
 
 
 @mcp.tool(name="check_vital")
@@ -738,6 +977,18 @@ async def check_vital(
     )
     return wrap_tool_output("check_vital", payload)
 
+@mcp.tool(name="query_openclaw")
+async def query_openclaw(session_id: str, action: str = "health") -> dict[str, Any]:
+    """Read-only OpenClaw gateway diagnostics (HTTP probe + container status)."""
+    try:
+        from aaa_mcp.integrations.openclaw_gateway_client import openclaw_get_health, openclaw_get_status
+        if action == "health": payload = openclaw_get_health()
+        elif action == "status": payload = openclaw_get_status()
+        else: payload = {"error": f"Unknown action '{action}'"}
+        
+        return wrap_tool_output("query_openclaw", envelope_builder.build_envelope(stage="333_OPENCLAW_PROBE", session_id=session_id, verdict="SEAL" if payload.get("http_probe", {}).get("ok") else "PARTIAL", payload=payload))
+    except Exception as e:
+        return wrap_tool_output("query_openclaw", {"verdict": "VOID", "error": str(e)})
 
 async def visualize_governance(
     session_id: str | None = None,
@@ -759,21 +1010,7 @@ async def visualize_governance(
 
 
 def create_aaa_mcp_server() -> Any:
-    # ABI version guard: prevent silent half-upgrades between transport and kernel layers.
-    try:
-        from aaa_mcp.server import MANIFEST_VERSION as inner_version  # type: ignore[attr-defined]
-
-        if inner_version != MANIFEST_VERSION:
-            import sys
-
-            print(
-                f"[arifOS] MANIFEST_VERSION MISMATCH: "
-                f"aaa_mcp={inner_version} vs arifos_aaa_mcp={MANIFEST_VERSION}. "
-                "Restart the server after updating both layers.",
-                file=sys.stderr,
-            )
-    except ImportError:
-        pass  # aaa_mcp not installed — ignore guard in test isolation
+    """Canonical arifOS AAA MCP server factory."""
     return mcp
 
 

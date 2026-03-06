@@ -12,16 +12,15 @@
     "editable": ["."]
   },
   "deployment": {
-    "transport": "http",
-    "host": "0.0.0.0",
+    "transport": "${FASTMCP_TRANSPORT:-http}",
+    "host": "${HOST:-0.0.0.0}",
     "port": 8080,
-    "path": "/mcp",
-    "log_level": "INFO",
+    "path": "${FASTMCP_PATH:-/mcp}",
+    "log_level": "${LOG_LEVEL:-INFO}",
     "env": {
-      "HOST": "0.0.0.0",
-      "PORT": "8080",
+      "HOST": "${HOST:-0.0.0.0}",
+      "PORT": "${PORT:-8080}",
       "ARIFOS_GOVERNANCE_SECRET": "${ARIFOS_GOVERNANCE_SECRET}"
     }
   }
 }
-
