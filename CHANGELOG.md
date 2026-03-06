@@ -5,6 +5,50 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.6-CANON] — 2026-03-06 — CANONICAL-13-TOOL-SURFACE-LOCK-SCHEMA-ALIGN
+
+**T000:** 2026.03.06-CANONICAL-13-TOOL-SURFACE-LOCK-SCHEMA-ALIGN
+**Theme:** Phoenix retirement, three-layer schema alignment, ARIF Bands documentation, tool surface sealed at exactly 13
+
+### Archived (Removed from Public Surface)
+- **`recall_memory` (Phoenix)**: Retired → replaced by `vector_memory` (BGE-M3 768-dim embeddings + Qdrant + EUREKA sieve). F9 Anti-Hantu compliance — no ghost names on public surface.
+- **`fetch_content`** + **`inspect_file`**: Consolidated → `ingest_evidence(source_type="url"|"file")`. Reduces surface entropy.
+- **`trinity_forge`**: Demoted to internal orchestration alias. `metabolic_loop` is the canonical Band O tool.
+- **`query_openclaw`**: Archived — internal diagnostic only, never part of 13-tool canon.
+
+### Changed
+- **Three-layer schema alignment** (all layers now agree on 13 canonical tool names):
+  - `aaa_mcp/protocol/schemas.py` — added `ingest_evidence` + `metabolic_loop` to `TOOL_INPUT_SCHEMAS` + `TOOL_OUTPUT_SCHEMAS`
+  - `arifos_aaa_mcp/contracts.py` — `REQUIRES_SESSION`: `recall_memory` → `vector_memory`; `metabolic_loop` contract added
+  - `arifos_aaa_mcp/server.py` — 4 MCP prompts updated: `aaa_chain`, `trinity_forge`, `anchor_reason`, `audit_then_seal` now use Gen3 canonical names
+- **`aaa_mcp/protocol/tool_naming.py`**: `vector_memory`, `ingest_evidence`, `metabolic_loop` added to `CANONICAL_PUBLIC_TO_LEGACY` map + `LEGACY_TOOL_NAMES`
+- **`aaa_mcp/protocol/l0_kernel_prompt.py`**: Replaced stale `sensory_read` → `ingest_evidence` in the L0 constitutional kernel prompt
+- **`aaa_mcp/server.py`**: Error message updated — `init_session (anchor)` → `anchor_session`
+- **`aaa_mcp/README.md`**: `recall_memory` → `vector_memory`; `fetch_content` + `inspect_file` → `ingest_evidence`; `metabolic_loop` row added
+- **`docs/00_META/GEMINI.md`**: 11 → 13 canonical tools; all Gen1 aliases replaced with Gen3 canonical names
+- **ARIF Bands taxonomy** documented in `333_APPS/L4_TOOLS/README.md` (full dossier rewrite) and root `README.md`
+
+### Documentation
+- **`333_APPS/L4_TOOLS/README.md`**: Full dossier rewrite — Trinity Lanes table, per-tool Band/Stage/Floor/Description matrix, complete 13-tool ARIF lattice, metabolic chain ASCII diagram, archived tool table, A-CLIP alias map, verdict reference
+- **`333_APPS/L4_TOOLS/MANIFEST.md`**: Version `v55.5.0` → `v2026.3.6-CANON`; entry point updated to `python -m arifos_aaa_mcp`
+- **`README.md`**: 14 → 13 canonical tools; Band O (Orchestrate / `metabolic_loop`) added; MCP section restructured into 8+4+1 layers
+
+### Removed
+- Temp artifacts deleted: `debug_mcp_v2.py`, `finalize_seal.py`, `verify_audit.py`, `git_diff_server.txt`
+
+### Constitutional Compliance
+- **F9 Anti-Hantu**: PASS — No archived tool names (`recall_memory`, `phoenix_recall`, `fetch_content`, `inspect_file`, `init_session`, `agi_cognition`, `apex_verdict`, `vault_seal`) survive on any public-facing layer
+- **F4 Clarity**: PASS — Tool count reduced 14 → 13; three-layer schema alignment eliminates mismatch entropy
+- **F1 Amanah**: PASS — `aaa_mcp/protocol/aaa_contract.py` runtime assertion `assert len(AAA_CANONICAL_TOOLS) == 13` guards the sacred count
+- **F10 Ontology**: PASS — `trinity_forge` never existed as a public tool; `metabolic_loop` is the canonical orchestration surface
+
+### Verification
+- `aaa_mcp/protocol/aaa_contract.py`: Runtime assertion passes — 13 tools confirmed
+- All commits lint-passed `constitution_lint` (all floors satisfied)
+- Working tree clean, pushed to `origin/main`
+
+---
+
 ## [2026.3.1-JINA] — 2026-03-01 — JINA-READER-INTEGRATION-SEARCH-REALITY
 
 **T000:** 2026.03.01-JINA-READER-INTEGRATION-SEARCH-REALITY  

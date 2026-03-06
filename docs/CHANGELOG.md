@@ -9,6 +9,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2026.3.6-CANON] — 2026-03-06
+
+### Highlights
+
+- **Canonical 13-Tool Surface Locked**: Sacred count enforced by runtime assertion in `aaa_mcp/protocol/aaa_contract.py`. 13 exactly — no more, no less.
+- **Phoenix (recall_memory) Retired**: Replaced by `vector_memory` (BGE-M3 768-dim embeddings + Qdrant + EUREKA sieve). F9 Anti-Hantu compliant.
+- **Three-Layer Schema Alignment**: `schemas.py` (JSON Schema) + `contracts.py` (Python runtime guards) + prompts now all agree on Gen3 canonical tool names.
+- **ARIF Bands Documented**: A (Anchor) / R (Reflect) / I (Integrate) / F (Forge) / O (Orchestrate) taxonomy written into `333_APPS/L4_TOOLS/README.md` and root `README.md`.
+- **L0 Kernel Prompt Aligned**: `l0_kernel_prompt.py` updated — stale `sensory_read` replaced with canonical `ingest_evidence`.
+
+### Added
+
+- `ingest_evidence` + `metabolic_loop` JSON schemas in `aaa_mcp/protocol/schemas.py` (TOOL_INPUT_SCHEMAS + TOOL_OUTPUT_SCHEMAS)
+- `metabolic_loop` Python contract in `arifos_aaa_mcp/contracts.py`
+- `vector_memory`, `ingest_evidence`, `metabolic_loop` entries in `aaa_mcp/protocol/tool_naming.py`
+
+### Changed
+
+- `arifos_aaa_mcp/contracts.py`: `REQUIRES_SESSION` — `recall_memory` → `vector_memory` (session guard now correctly targets the canonical tool)
+- `arifos_aaa_mcp/server.py`: All 4 MCP prompts updated to Gen3 canonical names — `anchor_session`, `reason_mind`, `vector_memory`, `apex_judge`, `seal_vault`; Amanah Handshake (`governance_token`) documented in `audit_then_seal` prompt
+- `aaa_mcp/server.py`: Error message updated — `init_session (anchor)` → `anchor_session`
+- `aaa_mcp/protocol/l0_kernel_prompt.py`: `sensory_read` → `ingest_evidence`
+- `aaa_mcp/README.md`, `docs/00_META/GEMINI.md`: Gen3 canonical names throughout; 11 → 13 tool count
+
+### Removed
+
+- **Archived from public surface**: `recall_memory` (→ `vector_memory`), `fetch_content` (→ `ingest_evidence` url), `inspect_file` (→ `ingest_evidence` file), `trinity_forge` (internal alias only), `query_openclaw` (internal diagnostic)
+- Temp artifacts: `debug_mcp_v2.py`, `finalize_seal.py`, `verify_audit.py`, `git_diff_server.txt`
+
+### Fixed
+
+- `contracts.py` REQUIRES_SESSION had `recall_memory` instead of `vector_memory` — `vector_memory` calls were bypassing session validation
+
+**Verdict:** SEAL — F9 (Anti-Hantu) + F4 (Clarity) + F1 (Amanah assertion) all pass. 13-tool surface is canonical and aligned across all layers.
+
+---
+
 ## [2026.02.27-PROTOCOL-NEGOTIATION-CONSISTENCY] - v60.2
 
 ### Highlights
