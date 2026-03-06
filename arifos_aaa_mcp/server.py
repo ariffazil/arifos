@@ -257,7 +257,13 @@ async def anchor_session(
     session_id: str | None = None,
 ) -> dict[str, Any]:
     """000 BOOTLOADER: initialize constitutional execution kernel and governance context."""
-    blocked = validate_input("anchor_session", {"query": query, "actor_id": actor_id})
+    # 000_INIT Sacred Contract: Guarantee session continuity from ignition to vault seal
+    # Generate session_id FIRST if not provided — janji hakiki dibawa ke mati sampai vault seal
+    if not session_id:
+        session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
+    
+    # Now validate with guaranteed session_id for F3_CONTRACT continuity check
+    blocked = validate_input("anchor_session", {"query": query, "actor_id": actor_id, "session_id": session_id})
     if blocked:
         return wrap_tool_output("anchor_session", blocked)
 
