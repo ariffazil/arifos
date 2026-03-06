@@ -41,6 +41,8 @@ arifOS is the world's first production-grade Constitutional AI Governance System
 
 **Execution Order:** F12→F11 (Walls) → AGI Floors (F1,F2,F4,F7) → ASI Floors (F5,F6,F9) → Mirrors (F3,F8) → Ledger
 
+Canonical floor definitions are in `core/shared/floors.py` (`THRESHOLDS` dict).
+
 ### Trinity Architecture (ΔΩΨ)
 
 The kernel processes decisions through three isolated engines:
@@ -52,6 +54,35 @@ The kernel processes decisions through three isolated engines:
 - **Δ Delta (The Mind / AGI):** Truth, Logic, Causal tracing (F2, F4, F7, F8)
 - **Ω Omega (The Heart / ASI):** Safety, Empathy, Anti-Deception (F1, F5, F6, F9)
 - **Ψ Psi (The Soul / APEX):** Final verdict, human consensus, ledger sealing
+
+---
+
+## Technology Stack
+
+### Core Technologies
+- **Python:** 3.12+ (strict requirement)
+- **Package Manager:** `uv` (recommended) or `pip`
+- **MCP Framework:** `fastmcp==3.0.2`
+- **Web Framework:** `fastapi>=0.104.1` with `uvicorn`
+- **Data Validation:** `pydantic>=2.0.0`
+
+### Key Dependencies
+| Category | Libraries |
+|----------|-----------|
+| ML/Embeddings | `sentence-transformers>=2.2.0`, `scikit-learn>=1.3.0` |
+| Vector DB | `chromadb>=0.5.0` |
+| Database | `asyncpg>=0.29.0` (PostgreSQL) |
+| Cache | `redis>=5.0.0` |
+| Web Search | `playwright>=1.40.0`, `duckduckgo-search>=5.0.0` |
+| HTTP Client | `httpx>=0.25.0` |
+| Monitoring | `prometheus-client>=0.19.0`, `psutil>=5.9.0` |
+
+### Infrastructure
+- **Container:** Docker with multi-stage builds
+- **Orchestration:** Docker Compose with Traefik reverse proxy
+- **Monitoring:** Prometheus + Grafana
+- **CI/CD:** GitHub Actions
+- **Deployment:** VPS (Hostinger), Cloudflare Pages for dashboard
 
 ---
 
@@ -81,6 +112,7 @@ arifos_aaa_mcp/    → CANONICAL PyPI PACKAGE: External entry points
 | `aaa_mcp/server.py` | 13 MCP tools with `@mcp.tool()` decorators |
 | `aclip_cai/triad/` | Backend functions: anchor, reason, integrate, respond, validate, align, forge, audit, seal |
 | `arifos_aaa_mcp/governance.py` | 13-LAW catalog, tool-to-dial mappings |
+| `arifos_aaa_mcp/server.py` | Canonical 13-tool MCP surface (public entry point) |
 | `core/kernel/constitutional_decorator.py` | Kernel-level floor enforcement |
 
 ### Directory Layout
@@ -100,7 +132,7 @@ arifos_aaa_mcp/    → CANONICAL PyPI PACKAGE: External entry points
 │   ├── tools/               # Concrete tool implementations
 │   └── embeddings/          # BGE semantic embeddings
 ├── aaa_mcp/                 # Transport adapter (FastMCP)
-│   ├── server.py            # 13 canonical MCP tools
+│   ├── server.py            # Internal 13 canonical MCP tools
 │   ├── external_gateways/   # Jina, Perplexity, Brave clients
 │   ├── protocol/            # Response schemas, contracts
 │   ├── sessions/            # Session management
@@ -162,8 +194,8 @@ arifos http
 # Build and run
 docker build -t arifos . && docker run -p 8080:8080 arifos
 
-# Docker Compose (full stack with PostgreSQL, Redis)
-docker compose -f docker-compose.quickstart.yml up -d
+# Docker Compose (full stack with PostgreSQL, Redis, Traefik)
+docker compose up -d
 ```
 
 ---
@@ -334,11 +366,11 @@ if not token_valid:
 
 ## Adding a New MCP Tool
 
-1. Add `@mcp.tool()` in `aaa_mcp/server.py`
+1. Add `@mcp.tool()` in `arifos_aaa_mcp/server.py` (canonical surface)
 2. Create backend in `aclip_cai/triad/` (delta/, omega/, or psi/)
 3. Wire kernel logic via `core/` imports
 4. Register floor mapping in `core/kernel/constitutional_decorator.py` `FLOOR_ENFORCEMENT` dict
-5. Mirror in `arifos_aaa_mcp/server.py` and add to `AAA_TOOLS`
+5. Mirror in `aaa_mcp/server.py` if needed for backward compatibility
 6. Add tests in `tests/`
 
 ---
@@ -364,24 +396,13 @@ Require explicit human confirmation before:
 |----------|----------|---------|---------|
 | `ARIFOS_GOVERNANCE_SECRET` | Recommended | auto-generated | Signs `governance_token` (HMAC-SHA256) |
 | `DATABASE_URL` | Optional | SQLite fallback | PostgreSQL for VAULT999 ledger |
+| `REDIS_URL` | Optional | — | Session persistence backend |
 | `JINA_API_KEY` | Optional | — | Clean Markdown extraction |
 | `PERPLEXITY_API_KEY` | Optional | — | Web search fallback |
 | `BRAVE_API_KEY` | Optional | — | Web search fallback |
 | `ARIFOS_ML_FLOORS` | Optional | `0` | Enable SBERT semantic scoring for F5/F6/F9 |
 | `ARIFOS_PHYSICS_DISABLED` | Optional | `0` | Disable thermodynamic calculations |
 | `AAA_MCP_OUTPUT_MODE` | Optional | `user` | `user` or `debug` output verbosity |
-
----
-
-## Key Gotchas
-
-1. **Stage 222 THINK is internal-only**: Runs inside `reason_mind` — no external `@mcp.tool()`
-2. **`seal_vault` is token-locked**: Requires `governance_token` from `apex_judge`
-3. **F4 (Clarity) is a Hard floor**: `ΔS > 0` → VOID (not PARTIAL)
-4. **Two floor decorator layers exist**: `core/kernel/constitutional_decorator.py` (kernel) AND `aaa_mcp/core/constitutional_decorator.py` (transport)
-5. **`codebase/` is removed**: Deleted in v2026.2.15 — all code is in `core/`, `aclip_cai/`, `aaa_mcp/`
-6. **`tests/archive/`**: ~100 legacy files with broken imports — reference only
-7. **APEX Solver**: Uses geometric mean (not arithmetic) for 9-paradox synthesis — target GM ≥ 0.85
 
 ---
 
@@ -415,12 +436,24 @@ Hooks include: Black, Ruff, MyPy, Bandit, detect-secrets, and custom constitutio
 
 ## Security Considerations
 
-- **F12 Injection Defense**: All inputs scanned via `InjectionGuard`
-- **F11 Command Auth**: Cryptographic identity verification
-- **F1 Amanah**: Irreversible operations require explicit `confirm_dangerous=True`
-- **Secret Management**: Use vault in production (HashiCorp Vault, AWS Secrets Manager)
-- **Rotation**: Secrets must rotate minimum every 90 days
-- **Least Privilege**: DB user should not be superuser
+- **F12 Injection Defense:** All inputs scanned via `InjectionGuard`
+- **F11 Command Auth:** Cryptographic identity verification
+- **F1 Amanah:** Irreversible operations require explicit `confirm_dangerous=True`
+- **Secret Management:** Use vault in production (HashiCorp Vault, AWS Secrets Manager)
+- **Rotation:** Secrets must rotate minimum every 90 days
+- **Least Privilege:** DB user should not be superuser
+
+---
+
+## Key Gotchas
+
+1. **Stage 222 THINK is internal-only**: Runs inside `reason_mind` — no external `@mcp.tool()`
+2. **`seal_vault` is token-locked**: Requires `governance_token` from `apex_judge`
+3. **F4 (Clarity) is a Hard floor**: `ΔS > 0` → VOID (not PARTIAL)
+4. **Two floor decorator layers exist**: `core/kernel/constitutional_decorator.py` (kernel) AND `aaa_mcp/core/constitutional_decorator.py` (transport)
+5. **`codebase/` is removed**: Deleted in v2026.2.15 — all code is in `core/`, `aclip_cai/`, `aaa_mcp/`
+6. **`tests/archive/`**: ~100 legacy files with broken imports — reference only
+7. **APEX Solver**: Uses geometric mean (not arithmetic) for 9-paradox synthesis — target GM ≥ 0.85
 
 ---
 
