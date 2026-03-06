@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 """arifOS Unified Server (root entrypoint).
 
 LEGACY WRAPPER around `python -m arifos_aaa_mcp`.
@@ -9,16 +11,13 @@ USAGE:
     python server.py --mode stdio     # stdio (Claude Desktop)
 """
 
+import argparse
 import logging
+import os
+import sys
 
 logger = logging.getLogger("arifOS")
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s", stream=sys.stderr)
-
-from __future__ import annotations
-
-import argparse
-import os
-import sys
 
 VALID_MODES = {"rest", "sse", "http", "stdio"}
 DEFAULT_MODE = "sse"
