@@ -36,6 +36,8 @@ LEGACY_TOOL_NAMES = {
     "system_audit",
     "sense_health",
     "sense_fs",
+    "ingest_evidence",
+    "metabolic_loop",
 }
 
 # Canonical UX names → legacy protocol names (for schema lookups).
@@ -43,6 +45,7 @@ CANONICAL_PUBLIC_TO_LEGACY: dict[str, str] = {
     # Canonical UX (generation 3) → legacy protocol (generation 1)
     "anchor_session": "init_gate",
     "reason_mind": "agi_reason",
+    "vector_memory": "phoenix_recall",
     "recall_memory": "phoenix_recall",
     "simulate_heart": "asi_empathize",
     "critique_thought": "asi_align",
@@ -51,10 +54,12 @@ CANONICAL_PUBLIC_TO_LEGACY: dict[str, str] = {
     "eureka_forge": "sovereign_actuator",
     "seal_vault": "vault_seal",
     "search_reality": "reality_search",
+    "ingest_evidence": "ingest_evidence",
     "fetch_content": "fetch",
     "inspect_file": "analyze",
     "audit_rules": "system_audit",
     "check_vital": "sense_health",
+    "metabolic_loop": "metabolic_loop",
     # Mid-gen compat (generation 2) → legacy protocol (generation 1)
     "init_session": "init_gate",
     "agi_cognition": "agi_reason",

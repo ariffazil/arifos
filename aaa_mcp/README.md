@@ -46,17 +46,17 @@ Unlike prompt-based guardrails that can be bypassed, **AAA MCP enforces constrai
 |------|-------|---------|--------|---------|
 | `anchor_session` | 000 | Ψ Init | F11, F12, F13 | Session ignition + defense scan |
 | `reason_mind` | 111-444 | Δ Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
-| `recall_memory` | 555 | PHOENIX | F4, F7, F8 | Dynamic associative memory retrieval |
+| `vector_memory` | 555 | PHOENIX | F4, F7, F8 | Vector semantic associative memory retrieval |
 | `simulate_heart` | 555-666 | Ω Heart | F5, F6, F9 | Empathy + alignment simulation |
 | `critique_thought` | 666 | Ω Heart | F4, F7, F8 | Constitutional critique + bias checks |
 | `eureka_forge` | 777 | Ψ Soul | F1, F11, F12 | Sandboxed forge execution |
 | `apex_judge` | 888 | Ψ Soul | F1-F13 | Sovereign verdict synthesis |
 | `seal_vault` | 999 | VAULT | F1, F3, F10 | Immutable audit seal |
 | `search_reality` | utility | External | F2, F7 | Web grounding search |
-| `fetch_content` | utility | External | F2, F7 | Evidence/content retrieval |
-| `inspect_file` | utility | Internal | F1, F4, F11 | Filesystem inspection (read-only) |
+| `ingest_evidence` | utility | External | F1, F2, F4, F11, F12 | Unified evidence ingestion (url/file) |
 | `audit_rules` | utility | Internal | F2, F3, F10 | Constitutional health verification |
 | `check_vital` | utility | Internal | F4, F5, F7 | Runtime health telemetry |
+| `metabolic_loop` | orchestration | ALL | F1, F2, F3, F4, F13 | Orchestration wrapping of internal states |
 
 Alias compatibility:
 - `eureka_forge` -> `eureka_forge`
