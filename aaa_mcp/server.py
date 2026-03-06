@@ -491,8 +491,10 @@ reason_mind = ToolHandle(_agi_cognition)
     description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory (VM) – semantic retrieval (BGE + Qdrant).",
 )
 async def _phoenix_recall(
-    query: str,
-    session_id: str,
+    query: str | None = None,
+    session_id: str | None = None,
+    current_thought_vector: str | None = None,
+    session_token: str | None = None,
     depth: int = 3,
     domain: str = "canon",
     debug: bool = False,
@@ -501,8 +503,11 @@ async def _phoenix_recall(
     Organ 5: PHOENIX. Associative memory retrieval via EUREKA sieve.
     """
     try:
-        if not session_id:
-            return _build_floor_block("555_RECALL", "Missing session_id")
+        effective_query = current_thought_vector or query or ""
+        effective_session = session_token or session_id or ""
+
+        if not effective_session:
+            return _build_floor_block("555_RECALL", "Missing session_id / session_token")
 
         source_filter_map = {
             "canon": "000_THEORY",
@@ -514,7 +519,7 @@ async def _phoenix_recall(
         try:
             rag = _ensure_rag()
             contexts = rag.retrieve(
-                query=query,
+                query=effective_query,
                 top_k=max(1, min(int(depth), 10)),
                 source_filter=source_filter,
                 min_score=0.15,
@@ -557,7 +562,7 @@ async def _phoenix_recall(
         result.update(
             envelope_builder.build_envelope(
                 stage="555_RECALL",
-                session_id=session_id,
+                session_id=effective_session,
                 verdict="SEAL",  # Normal search success even if 0 results
                 payload={
                     "memory_count": len(contexts),
@@ -568,7 +573,7 @@ async def _phoenix_recall(
         )
         return result
     except Exception as e:
-        return _fracture_response("555_RECALL", e, session_id)
+        return _fracture_response("555_RECALL", e, effective_session)
 
 
 vector_memory = ToolHandle(_phoenix_recall)
@@ -579,13 +584,23 @@ vector_memory = ToolHandle(_phoenix_recall)
     description="[DEPRECATED] Use vector_memory instead. [Lane: Ω] Semantic retrieval.",
 )
 async def _phoenix_recall_deprecated(
-    query: str,
-    session_id: str,
+    query: str | None = None,
+    session_id: str | None = None,
+    current_thought_vector: str | None = None,
+    session_token: str | None = None,
     depth: int = 3,
     domain: str = "canon",
     debug: bool = False,
 ) -> dict[str, Any]:
-    return await _phoenix_recall(query, session_id, depth, domain, debug)
+    return await _phoenix_recall(
+        query=query,
+        session_id=session_id,
+        current_thought_vector=current_thought_vector,
+        session_token=session_token,
+        depth=depth,
+        domain=domain,
+        debug=debug
+    )
 
 
 @mcp.tool(
