@@ -220,7 +220,7 @@ async def test_law_enforcement_matrix_13_tools() -> None:
         "anchor_session": anchor,
         "reason_mind": await _get_tool_fn(api.reason_mind)(query="matrix", session_id=session_id),
         "vector_memory": await _get_tool_fn(api.vector_memory)(
-            current_thought_vector="matrix-vector",
+            query="matrix-vector",
             session_id=session_id,
         ),
         "simulate_heart": await _get_tool_fn(api.simulate_heart)(

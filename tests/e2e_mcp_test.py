@@ -174,7 +174,7 @@ tools_to_test = [
     ),
     (
         "vector_memory",
-        {"current_thought_vector": "constitutional patterns", "session_id": session_id, "depth": 2},
+        {"query": "constitutional patterns", "session_id": session_id, "depth": 2},
         "F4,F7,F13",
     ),
     (

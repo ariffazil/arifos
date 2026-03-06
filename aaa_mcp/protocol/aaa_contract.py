@@ -72,6 +72,7 @@ AAA_TOOL_ALIASES: dict[str, str] = {
     "agi_cognition": "reason_mind",
     "phoenix_recall": "vector_memory",
     "recall_memory": "vector_memory",
+    "memory_search": "vector_memory",
     "asi_empathy": "simulate_heart",
     "apex_verdict": "apex_judge",
     "judge_soul": "apex_judge",

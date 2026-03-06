@@ -155,7 +155,7 @@ def openclaw_get_status() -> dict[str, Any]:
         "limitations": {
             "models_list": "UNAVAILABLE — requires openclaw WS protocol or docker exec",
             "channels_status": "UNAVAILABLE — requires openclaw WS protocol or docker exec",
-            "memory_search": "UNAVAILABLE — requires openclaw WS protocol or docker exec",
+            "vector_memory": "UNAVAILABLE — requires openclaw WS protocol or docker exec",
             "workaround": "Run `docker exec openclaw_gateway openclaw <cmd> --json` from VPS host",
         },
     }

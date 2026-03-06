@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """
-Test recall_memory via MCP stdio protocol
+Test vector_memory via MCP stdio protocol
 Usage: python test_recall_memory.py
 """
 
 import json
 import subprocess
 import sys
+import re
 
 
 def send_request(process, request):
@@ -22,17 +23,16 @@ def send_request(process, request):
 
 def main():
     print("=" * 60)
-    print("TESTING recall_memory MCP TOOL")
+    print("TESTING vector_memory MCP TOOL")
     print("=" * 60)
     
     # Start MCP server
     process = subprocess.Popen(
-        ["python3", "-m", "arifos_aaa_mcp", "stdio"],
+        [sys.executable, "-m", "arifos_aaa_mcp", "stdio"],
         stdin=subprocess.PIPE,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
-        cwd="/srv/arifOS"
     )
     
     try:
@@ -47,10 +47,10 @@ def main():
         tools = [t["name"] for t in response.get("result", {}).get("tools", [])]
         print(f"   Found {len(tools)} tools")
         
-        if "recall_memory" in tools:
-            print("   ✅ recall_memory is available")
+        if "vector_memory" in tools:
+            print("   ✅ vector_memory is available")
         else:
-            print("   ❌ recall_memory NOT found")
+            print("   ❌ vector_memory NOT found")
             return
         
         # 2. Anchor session
@@ -61,7 +61,7 @@ def main():
             "method": "tools/call",
             "params": {
                 "name": "anchor_session",
-                "arguments": {}
+                "arguments": {"query": "test"}
             }
         })
         
@@ -69,7 +69,6 @@ def main():
         content = result.get("content", [{}])[0]
         
         # Extract session_id from response
-        import re
         text = content.get("text", "")
         match = re.search(r'"session_id": "([^"]+)"', text)
         
@@ -81,8 +80,8 @@ def main():
             print(f"   Response: {text[:200]}")
             return
         
-        # 3. Test recall_memory
-        print("\n[3] Testing recall_memory...")
+        # 3. Test vector_memory
+        print("\n[3] Testing vector_memory...")
         print(f"   Query: 'What does Floor F2 enforce?'")
         
         response = send_request(process, {
@@ -90,10 +89,10 @@ def main():
             "id": 3,
             "method": "tools/call",
             "params": {
-                "name": "recall_memory",
+                "name": "vector_memory",
                 "arguments": {
                     "session_id": session_id,
-                    "current_thought_vector": "What does Floor F2 enforce?"
+                    "query": "What does Floor F2 enforce?"
                 }
             }
         })
@@ -112,25 +111,29 @@ def main():
             if json_match:
                 data = json.loads(json_match.group())
                 
-                status = data.get("status", "UNKNOWN")
-                memories = data.get("memories", [])
-                metrics = data.get("metrics", {})
+                verdict = data.get("verdict")
+                payload = data.get("payload", {})
+                status = payload.get("status", "UNKNOWN")
+                result_state = payload.get("result_state", "UNKNOWN")
+                memories = payload.get("memories", [])
+                metrics = payload.get("metrics", {})
                 
+                print(f"   Verdict: {verdict}")
                 print(f"   Status: {status}")
+                print(f"   Result State: {result_state}")
                 print(f"   Memories found: {metrics.get('memory_count', 0)}")
-                print(f"   BGE Available: {metrics.get('bge_available', False)}")
-                print(f"   Jaccard Max: {metrics.get('jaccard_max', 0)}")
+                print(f"   Similarity Max: {metrics.get('similarity_max', 0)}")
                 
                 print("\n   Top Results:")
                 for i, mem in enumerate(memories[:3], 1):
                     print(f"   {i}. {mem.get('source')} (score: {mem.get('score')})")
-                    content = mem.get('content', '')[:100]
-                    print(f"      {content}...")
+                    content_text = mem.get('content', '')[:100].replace('\n', ' ')
+                    print(f"      {content_text}...")
                 
-                if memories:
+                if result_state == "MATCH_FOUND":
                     print("\n   ✅ EMBEDDING SYSTEM IS WORKING!")
                 else:
-                    print("\n   ⚠️  No memories returned (check Qdrant)")
+                    print("\n   ℹ️  No matches found (valid execution)")
             else:
                 print(f"   Raw response: {text[:500]}")
         

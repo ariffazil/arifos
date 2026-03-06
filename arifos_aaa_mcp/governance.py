@@ -269,7 +269,7 @@ def _sovereignty_pass(tool: str, payload: dict[str, Any]) -> bool:
 
     if tool == "anchor_session":
         return _command_authority_pass(tool, payload)
-    if tool in {"reason_mind", "recall_memory", "simulate_heart", "critique_thought"}:
+    if tool in {"reason_mind", "recall_memory", "vector_memory", "simulate_heart", "critique_thought"}:
         return session_ok
     if tool == "apex_judge":
         authority = payload.get("authority")
@@ -421,7 +421,7 @@ def _derive_tpcp_metrics(
 
     if tool == "reason_mind":
         phase = "phase_1_deltaP"
-    elif tool in {"simulate_heart", "recall_memory"}:
+    elif tool in {"simulate_heart", "recall_memory", "vector_memory"}:
         phase = "phase_2_omegaP"
     elif tool in {"critique_thought", "search_reality", "ingest_evidence"}:
         phase = "phase_3_psiP"

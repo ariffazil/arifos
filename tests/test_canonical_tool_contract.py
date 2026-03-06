@@ -76,7 +76,7 @@ def test_canonical_signatures_are_stable() -> None:
             "inference_budget",
             "risk_mode",
         ],
-        "phoenix_recall": ["current_thought_vector", "session_id", "depth", "domain", "debug"],
+        "phoenix_recall": ["query", "session_id", "depth", "domain", "debug"],
         "asi_empathy": [
             "query",
             "session_id",

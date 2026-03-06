@@ -242,12 +242,12 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
         },
         "required": ["text"],
     },
-    "phoenix_recall": {
+    "vector_memory": {
         "type": "object",
         "properties": {
-            "current_thought_vector": {"type": "string", "minLength": 1},
+            "query": {"type": "string", "minLength": 1},
             "session_id": {"type": "string"},
-            "depth": {"type": "integer", "default": 3},
+            "depth": {"type": "integer", "minimum": 1, "maximum": 10, "default": 3},
             "domain": {
                 "type": "string",
                 "enum": ["canon", "manifesto", "docs", "all"],
@@ -255,8 +255,9 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
             },
             "debug": {"type": "boolean", "default": False},
         },
-        "required": ["current_thought_vector", "session_id"],
+        "required": ["query", "session_id"],
     },
+
     "sovereign_actuator": {
         "type": "object",
         "properties": {

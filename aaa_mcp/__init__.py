@@ -15,6 +15,14 @@ __version__ = "2026.02.27-CANONICAL-13"
 __all__ = ["mcp"]
 
 
+class _CompatTool:
+    def __init__(self, fn: Any) -> None:
+        self.fn = fn
+
+    async def __call__(self, *args: Any, **kwargs: Any) -> Any:
+        return await self.fn(*args, **kwargs)
+
+
 # All legacy/mid-gen names resolve to canonical UX names.
 _OLD_TO_NEW = {
     # Mid-gen kernel names → canonical
@@ -22,15 +30,16 @@ _OLD_TO_NEW = {
     "agi_cognition": "reason_mind",
     "phoenix_recall": "vector_memory",
     "recall_memory": "vector_memory",
+    "memory_search": "vector_memory",
     "asi_empathy": "simulate_heart",
     "apex_verdict": "apex_judge",
     "sovereign_actuator": "eureka_forge",
     "vault_seal": "seal_vault",
     "search": "search_reality",
-    "fetch": "ingest_evidence",
-    "fetch_content": "ingest_evidence",
-    "analyze": "ingest_evidence",
-    "inspect_file": "ingest_evidence",
+    "fetch": "fetch_content",
+    "fetch_content": "fetch_content",
+    "analyze": "inspect_file",
+    "inspect_file": "inspect_file",
     "system_audit": "audit_rules",
     # Legacy 9-verb surface → canonical
     "anchor": "anchor_session",
@@ -74,5 +83,54 @@ def __getattr__(name: str) -> Any:
         import importlib
 
         legacy = importlib.import_module("aaa_mcp.server")
+        if name == "init_session":
+
+            async def _init_session_compat(
+                query: str,
+                actor_id: str = "anonymous",
+                auth_token: str | None = None,
+                mode: str = "conscience",
+                grounding_required: bool = True,
+                debug: bool = False,
+                inject_kernel: bool = False,
+                compact_kernel: bool = True,
+                template_id: str | None = None,
+                auth_context: dict[str, Any] | None = None,
+            ) -> Any:
+                return await legacy.anchor_session.fn(
+                    query=query,
+                    actor_id=actor_id,
+                    auth_token=auth_token,
+                    mode=mode,
+                    grounding_required=grounding_required,
+                    debug=debug,
+                    inject_kernel=inject_kernel,
+                    compact_kernel=compact_kernel,
+                    template_id=template_id,
+                    auth_context=auth_context,
+                )
+
+            return _CompatTool(_init_session_compat)
+
+        if name == "system_audit":
+
+            async def _system_audit_compat(
+                audit_scope: str = "quick",
+                verify_floors: bool = True,
+            ) -> Any:
+                return await legacy.audit_rules.fn(
+                    audit_scope=audit_scope,
+                    verify_floors=verify_floors,
+                )
+
+            return _CompatTool(_system_audit_compat)
+
+        if name == "search":
+
+            async def _search_compat(query: str, intent: str = "general") -> Any:
+                return await legacy.search_reality.fn(query=query, intent=intent)
+
+            return _CompatTool(_search_compat)
+
         return getattr(legacy, _OLD_TO_NEW[name])
     raise AttributeError(name)

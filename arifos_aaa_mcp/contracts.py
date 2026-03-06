@@ -23,7 +23,7 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "anchor_session": {"query": "str", "actor_id": "str", "session_id": "str"},
     "reason_mind": {"query": "str", "session_id": "str"},
     "vector_memory": {
-        "current_thought_vector": "str",
+        "query": "str",
         "session_id": "str",
     },
     "simulate_heart": {"query": "str", "session_id": "str"},

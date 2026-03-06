@@ -504,14 +504,14 @@ async def reason_mind(
 
 @mcp.tool(name="vector_memory")
 async def vector_memory(
-    current_thought_vector: str,
+    query: str,
     session_id: str,
     debug: bool = False,
 ) -> dict[str, Any]:
-    """444 EVIDENCE: retrieve associative memory traces for current thought."""
+    """555 RECALL: retrieve associative memory traces from VAULT999."""
     blocked = validate_input(
         "vector_memory",
-        {"current_thought_vector": current_thought_vector, "session_id": session_id},
+        {"query": query, "session_id": session_id},
     )
     if blocked:
         return wrap_tool_output("vector_memory", blocked)
@@ -522,23 +522,43 @@ async def vector_memory(
     try:
         try:
             rag = _ensure_rag()
-            contexts = rag.retrieve(query=current_thought_vector, top_k=5, min_score=0.15)
+            contexts = rag.retrieve(query=query, top_k=5, min_score=0.15)
         except Exception: contexts = []
 
+        result_state = "MATCH_FOUND" if contexts else "NO_MATCHES"
         jaccard_max = max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
-        bge_metrics = {"bge_available": BGE_AVAILABLE, "memory_count": len(contexts)}
+        
+        # Consistent metrics
+        metrics = {
+            "memory_count": len(contexts),
+            "similarity_max": round(jaccard_max, 4),
+            "embedding_backend_available": BGE_AVAILABLE,
+        }
 
         merged = {
             "status": "RECALL_SUCCESS",
+            "result_state": result_state,
             "memories": [{"source": f"{ctx.source}/{ctx.path}", "score": round(ctx.score, 4), "content": ctx.content[:800]} for ctx in contexts],
-            "metrics": {"jaccard_max": round(jaccard_max, 4), **bge_metrics},
+            "metrics": metrics,
         }
-        payload = envelope_builder.build_envelope(stage="555_RECALL", session_id=session_id, verdict="SEAL" if contexts else "PARTIAL", payload=merged)
+        
+        # No results is still a successful operation (SEAL)
+        payload = envelope_builder.build_envelope(
+            stage="555_RECALL", 
+            session_id=session_id, 
+            verdict="SEAL", 
+            payload=merged
+        )
         
         payload["compute_ms"] = (time.time() - start_time) * 1000
         return wrap_tool_output("vector_memory", payload)
     except Exception as e:
         return wrap_tool_output("vector_memory", _fracture_response("555_RECALL", e, session_id))
+
+
+@mcp.tool(name="recall_memory", description="[DEPRECATED] Use vector_memory instead. [Lane: Ω] Semantic retrieval.")
+async def recall_memory(query: str, session_id: str, debug: bool = False) -> dict[str, Any]:
+    return await vector_memory(query=query, session_id=session_id, debug=debug)
 
 
 @mcp.tool(name="simulate_heart")

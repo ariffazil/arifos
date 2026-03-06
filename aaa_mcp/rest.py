@@ -108,7 +108,7 @@ TOOL_SCHEMAS = {
     "vector_memory": {
         "description": "[Lane: Omega] 555_RECALL — Associative hybrid memory retrieval",
         "args": {
-            "current_thought_vector": {"type": "string", "required": True},
+            "query": {"type": "string", "required": True},
             "session_id": {"type": "string", "required": True},
             "depth": {"type": "integer", "default": 3},
             "domain": {"type": "enum", "values": ["canon", "manifesto", "docs", "all"], "default": "canon"},

@@ -488,7 +488,7 @@ reason_mind = ToolHandle(_agi_cognition)
     description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory (VM) – semantic retrieval (BGE + Qdrant).",
 )
 async def _phoenix_recall(
-    current_thought_vector: str,
+    query: str,
     session_id: str,
     depth: int = 3,
     domain: str = "canon",
@@ -511,7 +511,7 @@ async def _phoenix_recall(
         try:
             rag = _ensure_rag()
             contexts = rag.retrieve(
-                query=current_thought_vector,
+                query=query,
                 top_k=max(1, min(int(depth), 10)),
                 source_filter=source_filter,
                 min_score=0.15,
@@ -519,21 +519,26 @@ async def _phoenix_recall(
         except Exception:
             contexts = []
 
+        result_state = "MATCH_FOUND" if contexts else "NO_MATCHES"
         jaccard_max = (
             max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
         )
 
         # Build BGE metrics
-        bge_metrics = {
+        metrics = {
+            "memory_count": len(contexts),
+            "similarity_max": round(jaccard_max, 4),
             "bge_available": BGE_AVAILABLE,
             "bge_used": BGE_AVAILABLE and len(contexts) > 0,
             "embedding_dims": 768 if BGE_AVAILABLE else None,
             "semantic_search_active": BGE_AVAILABLE and len(contexts) > 0,
-            "memory_count": len(contexts),
+            "delta_s_actual": 0.0,
+            "w_scar_applied": 0.5,
         }
 
         result = {
             "status": "RECALL_SUCCESS",
+            "result_state": result_state,
             "memories": [
                 {
                     "source": f"{ctx.source}/{ctx.path}",
@@ -544,19 +549,14 @@ async def _phoenix_recall(
                 for ctx in contexts
             ],
             "domain": domain,
-            "metrics": {
-                "jaccard_max": round(jaccard_max, 4),
-                "delta_s_actual": 0.0,
-                "w_scar_applied": 0.5,
-                **bge_metrics,
-            },
+            "metrics": metrics,
         }
         result.update(
             envelope_builder.build_envelope(
                 stage="555_RECALL",
                 session_id=session_id,
-                verdict="SEAL" if contexts else "PARTIAL",
-                payload={"memory_count": len(contexts), "domain": domain},
+                verdict="SEAL",  # Normal search success even if 0 results
+                payload={"memory_count": len(contexts), "domain": domain, "result_state": result_state},
             )
         )
         return result
@@ -565,6 +565,19 @@ async def _phoenix_recall(
 
 
 vector_memory = ToolHandle(_phoenix_recall)
+
+@mcp.tool(
+    name="recall_memory",
+    description="[DEPRECATED] Use vector_memory instead. [Lane: Ω] Semantic retrieval.",
+)
+async def _phoenix_recall_deprecated(
+    query: str,
+    session_id: str,
+    depth: int = 3,
+    domain: str = "canon",
+    debug: bool = False,
+) -> dict[str, Any]:
+    return await _phoenix_recall(query, session_id, depth, domain, debug)
 
 
 @mcp.tool(

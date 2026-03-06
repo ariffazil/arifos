@@ -75,7 +75,7 @@ Consolidated AI layer — AI gateway (OpenClaw), vector memory (Qdrant + BGE emb
 
 # Via MCP tool call:
 # tool: vector_memory
-# arguments: { "current_thought_vector": "your query", "session_id": "..." }
+# arguments: { "query": "your query", "session_id": "..." }
 
 # AI Gateway
 from aaa_mcp.external_gateways.openclaw_client import route_request

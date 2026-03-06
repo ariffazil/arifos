@@ -53,7 +53,7 @@ atlas = await integrate.build_atlas(parsed_intent, session_id)
 
 # Via MCP tool call:
 # tool: vector_memory
-# arguments: { "current_thought_vector": "context query", "session_id": "..." }
+# arguments: { "query": "context query", "session_id": "..." }
 ```
 
 ## Verification

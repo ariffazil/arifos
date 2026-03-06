@@ -8,7 +8,7 @@ Source basis: `aaa_mcp/server.py`, `arifos_aaa_mcp/server.py`, `arifos_aaa_mcp/c
 |---|---|---|---|---|---|
 | `anchor_session` | active | `000_INIT` | `query` | `verdict, stage, session_id` | `{"name":"anchor_session","arguments":{"query":"start","actor_id":"ops"}}` |
 | `reason_mind` | active | `111-444` (collapsed) | `query, session_id` | `verdict, stage, session_id` | `{"name":"reason_mind","arguments":{"query":"analyze","session_id":"S1"}}` |
-| `recall_memory` | active (stubbed payload) | `555_RECALL` | `current_thought_vector, session_id` | `verdict, stage, session_id` | `{"name":"recall_memory","arguments":{"current_thought_vector":"x","session_id":"S1"}}` |
+| `vector_memory` | active | `555_RECALL` | `query, session_id` | `verdict, stage, session_id` | `{"name":"vector_memory","arguments":{"query":"x","session_id":"S1"}}` |
 | `simulate_heart` | active | `555-666` (merged) | `query, session_id` | `verdict, stage, session_id` | `{"name":"simulate_heart","arguments":{"query":"impact","session_id":"S1"}}` |
 | `critique_thought` | active (native in `arifos_aaa_mcp`) | `666_ALIGN` | `plan, session_id` | `verdict, stage, session_id` | `{"name":"critique_thought","arguments":{"plan":{"step":"a"},"session_id":"S1"}}` |
 | `apex_judge` | active (needs stage relabel) | `888_APEX_JUDGE` (target canon) | `session_id, query` | `verdict, stage, session_id` | `{"name":"apex_judge","arguments":{"session_id":"S1","query":"decide"}}` |

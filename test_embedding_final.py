@@ -15,11 +15,11 @@ import sys
 sys.path.insert(0, '/usr/src/app')
 import asyncio
 import json
-from arifos_aaa_mcp.server import recall_memory
+from arifos_aaa_mcp.server import vector_memory
 
 async def test():
-    result = await recall_memory(
-        current_thought_vector='What does Floor F2 enforce?',
+    result = await vector_memory(
+        query='What does Floor F2 enforce?',
         session_id='test-session'
     )
     data = result.get('data', {}).get('payload', {})
@@ -37,7 +37,7 @@ asyncio.run(test())
     try:
         data = json.loads(result.stdout.strip())
         
-        print(f"\n✅ recall_memory responded")
+        print(f"\n✅ vector_memory responded")
         print(f"   Status: {data.get('status')}")
         print(f"   Memories: {data.get('memories')}")
         print(f"   Top result: {data.get('top_result')}")

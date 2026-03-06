@@ -78,7 +78,7 @@
       "floors": ["F2", "F4", "F7", "F8"],
       "description": "AGI cognition & logic grounding"
     },
-    "recall_memory": {
+    "vector_memory": {
       "stage": "444",
       "trinity": "Ω Omega",
       "floors": ["F4", "F7", "F13"],
@@ -121,19 +121,18 @@
       "description": "Web grounding (Perplexity/Brave)",
       "readonly": true
     },
-    "fetch_content": {
-      "stage": "444",
-      "trinity": "Δ Delta",
-      "floors": ["F2", "F4", "F12"],
-      "description": "Raw evidence content retrieval + taint lineage",
-      "readonly": true
-    },
-    "inspect_file": {
+    "ingest_evidence": {
       "stage": "111",
       "trinity": "Δ Delta",
-      "floors": ["F1", "F4", "F11"],
-      "description": "Filesystem inspection (read-only)",
+      "floors": ["F1", "F2", "F4", "F11", "F12"],
+      "description": "Content retrieval & filesystem inspection (URL/file)",
       "readonly": true
+    },
+    "metabolic_loop": {
+      "stage": "000-999",
+      "trinity": "ALL",
+      "floors": ["F1-F13"],
+      "description": "The arifOS Sovereign Kernel loop. Mandatory safety wrapper."
     },
     "audit_rules": {
       "stage": "333",
