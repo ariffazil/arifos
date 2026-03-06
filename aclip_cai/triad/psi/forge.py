@@ -15,7 +15,8 @@ async def forge(session_id: str, plan: str) -> dict:
 
     # Calculate Genius Score G
     # G = A * P * X * E^2
-    f5_score = audit_res.floor_results.get("F5").score if "F5" in audit_res.floor_results else 1.0
+    f5_result = audit_res.floor_results.get("F5")
+    f5_score = f5_result.score if f5_result is not None else 1.0
     genius_score = audit_res.pass_rate * (f5_score / 1.05)
 
     return {
