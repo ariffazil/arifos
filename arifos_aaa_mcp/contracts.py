@@ -34,7 +34,9 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
         "command": "str",
     },
     "seal_vault": {"session_id": "str", "summary": "str"},
-    "search_reality": {"query": "str", "session_id": "str"},
+    "search_reality": {
+        # Flexible contract: accepts (query OR grounding_query) AND (session_id OR session_token)
+    },
     "ingest_evidence": {"source_type": "str", "target": "str"},
     "audit_rules": {"audit_scope": "str", "session_id": "str"},
     "check_vital": {},

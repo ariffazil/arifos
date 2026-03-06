@@ -702,6 +702,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     return {
         "verdict": verdict,
         "tool": tool,
+        "session_id": payload.get("session_id", ""),
         "trinity": TRINITY_BY_TOOL.get(tool, "Delta"),
         "technical_aliases": {
             "governance_rules": "laws_13",
