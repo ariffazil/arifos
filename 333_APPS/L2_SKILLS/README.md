@@ -161,8 +161,9 @@ await skills.mcp_protocol.call("arifos_aaa_metabolic_loop")
 await skills.civ_core.health_check()
 await skills.civ_core.deploy()
 
-# 13 — AI + Memory
-await skills.ai_memory.recall(embedding)
+# 13 — AI + Vector Memory (VM)
+# You do not "remember" anything biologically. You query Vector Memory.
+await skills.ai_memory.query_vector_memory(query, session_id)  # MCP tool: vector_memory
 await skills.ai_memory.route_model("claude")
 await skills.ai_memory.hold("888_HOLD")
 ```
@@ -195,7 +196,7 @@ await skills.ai_memory.hold("888_HOLD")
 - Individual floor guardians (f1-amanah, f3-tri-witness, etc.)
 - Separate organ directories (delta-mind, omega-heart, psi-soul)
 - Infrastructure fragmentation (vps-civ-core, observability, deploy-pipeline)
-- AI/memory fragmentation (ai-gateway, memory-vectors, thermo-ops)
+- AI/Vector Memory fragmentation (ai-gateway, memory-vectors, thermo-ops)
 - Redundant flow control (trinity-flow, trinity-governance-core)
 
 **After:** 13 unified skills (crystal clarity)

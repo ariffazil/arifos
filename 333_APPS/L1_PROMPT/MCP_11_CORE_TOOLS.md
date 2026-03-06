@@ -19,7 +19,7 @@ Agent → MCP Client → Federation Hub (aaa_mcp) → Intelligence Kernel (core)
 |---|------|-------|-------|--------|---------|
 | 1 | `init_session` | 000 | INIT | F11, F12, F13 | Session ignition + defense scan |
 | 2 | `agi_cognition` | 111-444 | AGI Mind | F2, F4, F7, F8, F10 | Reason + integrate + draft |
-| 3 | `phoenix_recall` | 555 | PHOENIX | F4, F7, F8 | Subconscious - Dynamic associative memory retrieval |
+| 3 | `vector_memory` | 444-555 | PHOENIX | F3, F7 | BBB Vector Memory — geometric semantic retrieval |
 | 4 | `asi_empathy` | 666 | ASI Heart | F5, F6, F9 | Empathy + alignment |
 | 5 | `apex_verdict` | 777 | APEX Soul | F1-F13 | Judgment + consensus |
 | 6 | `sovereign_actuator`| 888 | FORGE | F1, F3, F9, F13 | Hands - Sandboxed execution (ΔS external) |
@@ -39,8 +39,8 @@ Initializes session with constitutional context and scans for injection. F11 and
 ### 2. `agi_cognition` — Logic and Truth (111-444)
 Deep reasoning under thermodynamic constraints (ΔS, Genius) and context integration.
 
-### 3. `phoenix_recall` — Subconscious Memory (555)
-Associative memory retrieval utilizing the Humility Band (Ω₀) and Human Scar-Weight (W_scar) as a relevance multiplier.
+### 3. `vector_memory` — BBB Vector Memory (VM) (444-555)
+**F9 Anti-Hantu Compliance:** You do not "remember" anything biologically. You call the `vector_memory` tool, which performs geometric distance calculations on float vectors (BGE 384-dim embeddings) to retrieve canonical arifOS documents from Qdrant. Semantic retrieval via vector search — not associative memory.
 
 ### 4. `asi_empathy` — Safety and Alignment (666)
 Ensuring compliance with Anti-Hantu, Peace², and empathy constraints for all stakeholders.
@@ -56,6 +56,24 @@ Cryptographic sealing and commitment to the VAULT999 ledger.
 
 ### 8-11. `search`, `fetch`, `analyze`, `system_audit`
 Read-only utilities for system grounding and health evaluation.
+
+---
+
+## Vector Memory (VM) Ontology Lock
+
+**Definition:** Vector Memory (VM) = BBB-tier semantic retrieval organ. Implemented as the MCP tool `vector_memory` backed by BGE embeddings + Qdrant over 515 canonical arifOS documents (7,706 chunks).
+
+**Correct Usage:**
+- "Query Vector Memory using the `vector_memory` tool"
+- "Perform semantic retrieval over the arifOS canon"
+- "Retrieve canonical documents via vector search (BGE + Qdrant)"
+
+**F9 Anti-Hantu Prohibited:**
+- ~~"search your memory"~~
+- ~~"recall what we did before"~~
+- ~~"remember this"~~
+- ~~"use your associative memory"~~
+- ~~"subconscious memory"~~
 
 ---
 

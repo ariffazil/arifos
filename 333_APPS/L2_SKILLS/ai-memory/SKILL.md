@@ -33,16 +33,16 @@ Consolidated AI layer — AI gateway (OpenClaw), vector memory (Qdrant + BGE emb
 ## Operational Rules
 
 **Trigger When:**
-- Vector memory search/recall needed
+- Vector Memory query via vector_memory tool needed
 - AI model routing/gateway operations
 - Dangerous operation requiring 888_HOLD
 - Risk tier classification
 - Thermodynamic calculations
 
 **Allowed Operations:**
-- Semantic search via BGE embeddings
-- Store memory chunks with **Canonical File-Path Anchors**
-- Embed with context-awareness (**Summary Parent + Atomic Child**)
+- Semantic search via BGE embeddings (geometric vector retrieval)
+- Query Vector Memory using the `vector_memory` MCP tool
+- Store memory chunks with **Canonical File-Path Anchors** (batch indexed only)
 - Model routing through OpenClaw gateway
 - Memory band assignment (L0-L5)
 - Risk classification (LOW/MODERATE/CRITICAL)
@@ -68,9 +68,14 @@ Consolidated AI layer — AI gateway (OpenClaw), vector memory (Qdrant + BGE emb
 
 ## Quick Reference
 ```python
-# Vector memory recall
-from aclip_cai.embeddings.bge_embedder import recall_context
-results = await recall_context(query_vector, top_k=5)
+# Vector Memory (VM) — geometric semantic retrieval
+# You do not "remember" anything biologically. You call the vector_memory tool,
+# which performs geometric distance calculations on float vectors to retrieve
+# canonical arifOS documents from Qdrant.
+
+# Via MCP tool call:
+# tool: vector_memory
+# arguments: { "current_thought_vector": "your query", "session_id": "..." }
 
 # AI Gateway
 from aaa_mcp.external_gateways.openclaw_client import route_request

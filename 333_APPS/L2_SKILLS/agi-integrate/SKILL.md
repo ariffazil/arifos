@@ -35,7 +35,7 @@ Organ 111-444_AGI (Mind/Δ) + Verb integrate — Context mapping, atlas construc
 - Use **Atomic File Representation** with high-entropy delimiters for aggregation
 - Verify symbols exist in vocabulary (F10)
 - Calculate context uncertainty (F7)
-- Query vector memory for semantic context
+- Query Vector Memory (VM) using vector_memory MCP tool for semantic context
 
 **888_HOLD Required:**
 - Ontology bypass (F10 violation)
@@ -48,9 +48,12 @@ Organ 111-444_AGI (Mind/Δ) + Verb integrate — Context mapping, atlas construc
 from aclip_cai.triad.delta import integrate
 atlas = await integrate.build_atlas(parsed_intent, session_id)
 
-# Vector memory recall
-from aclip_cai.embeddings.bge_embedder import recall_context
-context = await recall_context(query_vector, top_k=5)
+# Vector Memory (VM) — geometric semantic retrieval
+# You do not "remember" anything biologically. You call the vector_memory tool.
+
+# Via MCP tool call:
+# tool: vector_memory
+# arguments: { "current_thought_vector": "context query", "session_id": "..." }
 ```
 
 ## Verification
