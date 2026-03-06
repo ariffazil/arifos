@@ -559,8 +559,30 @@ async def reason_mind(
                 str(d.get("verdict", "")),
             ]
         )
+
+        # PHASE 2 Hardening: Auto-recall if Truth (F2) is low (< 0.85)
+        truth_score = r.get("truth_score", 1.0)
+        if truth_score < 0.85:
+            try:
+                # Ditempa Bukan Diberi: Re-forge with constitutional context
+                rag = _ensure_rag()
+                deeper_contexts = rag.retrieve(query, top_k=5, hybrid_alpha=0.5)
+                if deeper_contexts:
+                    rag_contexts.extend([ctx.content for ctx in deeper_contexts])
+                    # Re-run reasoning with augmented context
+                    evidence_augmented = evidence + [ctx.content for ctx in deeper_contexts]
+                    r_augmented = await reason(
+                        session_id=session_id, hypothesis=query, evidence=evidence_augmented
+                    )
+                    # Update metrics if improvement found
+                    if r_augmented.get("truth_score", 0.0) > truth_score:
+                        r = r_augmented
+                        truth_score = r.get("truth_score")
+            except Exception:
+                pass
+
         merged = {
-            "truth_score": r.get("truth_score"),
+            "truth_score": truth_score,
             "f2_threshold": r.get("f2_threshold"),
             "floors_failed": list(r.get("floors_failed", []))
             + list(i.get("floors_failed", []))
