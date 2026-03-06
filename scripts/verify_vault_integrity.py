@@ -42,18 +42,57 @@ def verify(vault_path: Path) -> bool:
     # Verify hash chain continuity
     for i, entry in enumerate(entries):
         if i == 0:
+            # Genesis entry: no previous link to validate
             continue
+
         prev = entries[i - 1]
-        expected_prev = prev.get("entry_hash") or prev.get("current_hash", "")
-        actual_prev = entry.get("prev_hash") or entry.get("previous_hash", "")
-        if expected_prev and actual_prev and expected_prev != actual_prev:
+
+        # Use consistent hash pairs only:
+        #   - prev["entry_hash"]     ↔ entry["prev_hash"]
+        #   - prev["current_hash"]   ↔ entry["previous_hash"]
+        # For non-genesis entries, missing fields that prevent forming at least one
+        # complete pair are treated as integrity failures.
+        prev_entry_hash = prev.get("entry_hash")
+        prev_current_hash = prev.get("current_hash")
+        entry_prev_hash = entry.get("prev_hash")
+        entry_previous_hash = entry.get("previous_hash")
+
+        sequence = entry.get("sequence", i + 1)
+
+        pair_entry_prev_possible = prev_entry_hash is not None and entry_prev_hash is not None
+        pair_current_previous_possible = (
+            prev_current_hash is not None and entry_previous_hash is not None
+        )
+
+        # If we cannot form at least one complete pair, the chain link is invalid.
+        if not pair_entry_prev_possible and not pair_current_previous_possible:
             print(
-                f"VAULT ERROR: chain break at sequence {entry.get('sequence', i + 1)}: "
-                f"expected prev_hash={expected_prev!r}, got {actual_prev!r}",
+                "VAULT ERROR: missing hash fields at sequence "
+                f"{sequence}: cannot verify previous link "
+                f"(prev_entry_hash={prev_entry_hash!r}, prev_current_hash={prev_current_hash!r}, "
+                f"entry_prev_hash={entry_prev_hash!r}, entry_previous_hash={entry_previous_hash!r})",
                 file=sys.stderr,
             )
             return False
 
+        # Validate any possible pairs. All present pairs must match.
+        if pair_entry_prev_possible and prev_entry_hash != entry_prev_hash:
+            print(
+                f"VAULT ERROR: chain break at sequence {sequence}: "
+                f"expected prev_hash (from entry_hash)={prev_entry_hash!r}, "
+                f"got {entry_prev_hash!r}",
+                file=sys.stderr,
+            )
+            return False
+
+        if pair_current_previous_possible and prev_current_hash != entry_previous_hash:
+            print(
+                f"VAULT ERROR: chain break at sequence {sequence}: "
+                f"expected previous_hash (from current_hash)={prev_current_hash!r}, "
+                f"got {entry_previous_hash!r}",
+                file=sys.stderr,
+            )
+            return False
     print(
         f"VAULT OK: {len(entries)} entries, chain continuous ({vault_path})",
         file=sys.stderr,
