@@ -29,6 +29,18 @@ def _split_csv(name: str, default: str) -> list[str]:
     return [item.strip() for item in raw.split(",") if item.strip()]
 
 
+def _normalize_path(raw: str | None, default: str) -> str:
+    """Normalize endpoint paths to stable, slash-safe values."""
+    value = (raw or default).strip()
+    if not value:
+        value = default
+    if not value.startswith("/"):
+        value = f"/{value}"
+    if value != "/" and value.endswith("/"):
+        value = value.rstrip("/")
+    return value
+
+
 class SecurityHeadersMiddleware:
     """Attach baseline HTTP hardening headers to every HTTP response."""
 
@@ -326,7 +338,7 @@ def run_server(mcp: Any, mode: str, host: str, port: int) -> None:
         mcp.run(transport="stdio")
         return
     if normalized == "sse":
-        sse_path = os.getenv("ARIFOS_SSE_PATH", "/sse")
+        sse_path = _normalize_path(os.getenv("ARIFOS_SSE_PATH"), "/sse")
         mcp.run(
             transport="sse",
             host=host,
@@ -337,7 +349,7 @@ def run_server(mcp: Any, mode: str, host: str, port: int) -> None:
         )
         return
     if normalized in ("http", "streamable-http"):
-        mcp_path = os.getenv("ARIFOS_MCP_PATH", "/mcp")
+        mcp_path = _normalize_path(os.getenv("ARIFOS_MCP_PATH"), "/mcp")
         mcp.run(
             transport="http",
             host=host,
