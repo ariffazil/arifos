@@ -374,135 +374,6 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         schema = _openapi_schema(_public_base_url(request))
         return JSONResponse(schema)
 
-    @mcp.custom_route("/checkpoint", methods=["POST"])
-    async def checkpoint(request: Request) -> Response:
-        """ChatGPT Actions-friendly wrapper around the constitutional metabolic loop."""
-        if err := _auth_error_response(request):
-            return err
-
-        request_id = f"chk-{uuid.uuid4().hex[:12]}"
-        start_time = time.time()
-
-        try:
-            body = await request.json()
-        except Exception:
-            body = {}
-        if not isinstance(body, dict):
-            body = {}
-
-        task = body.get("task") or body.get("query")
-        if not isinstance(task, str) or not task.strip():
-            return JSONResponse(
-                {
-                    "error": "invalid_request",
-                    "error_description": "Field 'task' is required and must be a non-empty string.",
-                    "request_id": request_id,
-                },
-                status_code=400,
-            )
-
-        mode = str(body.get("mode", "full")).strip().lower()
-        if mode not in CHECKPOINT_MODES:
-            return JSONResponse(
-                {
-                    "error": "invalid_request",
-                    "error_description": (
-                        f"Invalid mode '{mode}'. Allowed: {sorted(CHECKPOINT_MODES)}"
-                    ),
-                    "request_id": request_id,
-                },
-                status_code=400,
-            )
-
-        risk_tier = str(body.get("risk_tier") or RISK_TIER_BY_MODE[mode]).strip().lower()
-        if risk_tier not in {"low", "medium", "high", "critical"}:
-            return JSONResponse(
-                {
-                    "error": "invalid_request",
-                    "error_description": "risk_tier must be one of: low, medium, high, critical.",
-                    "request_id": request_id,
-                },
-                status_code=400,
-            )
-
-        context = body.get("context", "")
-        if isinstance(context, (dict, list)):
-            context = json.dumps(context, ensure_ascii=False)
-        elif not isinstance(context, str):
-            context = str(context)
-
-        runner = tool_registry.get("metabolic_loop")
-        if runner is None:
-            return JSONResponse(
-                {
-                    "error": "not_implemented",
-                    "error_description": "metabolic_loop tool is not available on this deployment.",
-                    "request_id": request_id,
-                },
-                status_code=501,
-            )
-
-        tool_fn = getattr(runner, "fn", runner)
-        try:
-            result = await tool_fn(
-                query=task.strip(),
-                context=context,
-                risk_tier=risk_tier,
-                actor_id=str(body.get("actor_id", "chatgpt-action")),
-                use_sampling=bool(body.get("use_sampling", mode != "quick")),
-                debug=bool(body.get("debug", False)),
-            )
-        except Exception as exc:
-            return JSONResponse(
-                {
-                    "error": "execution_failed",
-                    "error_description": str(exc),
-                    "request_id": request_id,
-                },
-                status_code=500,
-            )
-
-        stages = result.get("stages", {}) if isinstance(result, dict) else {}
-        judge_output = {}
-        if isinstance(stages, dict):
-            judge_stage = stages.get("777-888", {})
-            if isinstance(judge_stage, dict):
-                judge_output = judge_stage.get("output", {}) or {}
-
-        floors = {}
-        if isinstance(judge_output, dict):
-            floors = judge_output.get("floors", {}) or {}
-
-        truth = None
-        if isinstance(judge_output, dict):
-            truth_block = judge_output.get("truth", {})
-            if isinstance(truth_block, dict):
-                truth = truth_block.get("score")
-
-        telemetry = result.get("telemetry", {}) if isinstance(result, dict) else {}
-        latency_ms = round((time.time() - start_time) * 1000, 2)
-
-        metrics = {
-            "truth": truth,
-            "clarity": telemetry.get("dS"),
-            "confidence": telemetry.get("confidence"),
-            "duration_ms": telemetry.get("duration_ms", latency_ms),
-        }
-
-        return JSONResponse(
-            {
-                "verdict": result.get("verdict", "VOID") if isinstance(result, dict) else "VOID",
-                "mode": mode,
-                "risk_tier": risk_tier,
-                "session_id": result.get("session_id") if isinstance(result, dict) else None,
-                "request_id": request_id,
-                "latency_ms": latency_ms,
-                "metrics": metrics,
-                "floors": floors if isinstance(floors, dict) else {},
-                "result": result,
-            }
-        )
-
     @mcp.custom_route("/tools/{tool_name:path}", methods=["POST"])
     async def call_tool_rest(request: Request) -> Response:
         """REST-style tool calling for ChatGPT and other HTTP clients."""
@@ -715,13 +586,15 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         except Exception:
             body = {}
 
-        query = body.get("query", "")
+        # Support both 'query' and 'task' parameters for compatibility
+        query = body.get("query") or body.get("task", "")
         stakeholders = body.get("stakeholders", ["user"])
         actor_id = body.get("actor_id", "chatgpt")
+        mode = body.get("mode", "full")
 
-        if not query:
+        if not query or not isinstance(query, str):
             return JSONResponse(
-                {"error": "Missing required field: query"},
+                {"error": "Missing required field: query (or task)"},
                 status_code=400
             )
 
@@ -785,6 +658,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             return JSONResponse({
                 "verdict": verdict,
                 "summary": summary,
+                "mode": mode,
                 "floors": {
                     "passed": floors.get("passed", []),
                     "failed": floors.get("failed", [])
