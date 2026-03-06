@@ -20,14 +20,17 @@ _OLD_TO_NEW = {
     # Mid-gen kernel names → canonical
     "init_session": "anchor_session",
     "agi_cognition": "reason_mind",
-    "phoenix_recall": "recall_memory",
+    "phoenix_recall": "vector_memory",
+    "recall_memory": "vector_memory",
     "asi_empathy": "simulate_heart",
     "apex_verdict": "apex_judge",
     "sovereign_actuator": "eureka_forge",
     "vault_seal": "seal_vault",
     "search": "search_reality",
-    "fetch": "fetch_content",
-    "analyze": "inspect_file",
+    "fetch": "ingest_evidence",
+    "fetch_content": "ingest_evidence",
+    "analyze": "ingest_evidence",
+    "inspect_file": "ingest_evidence",
     "system_audit": "audit_rules",
     # Legacy 9-verb surface → canonical
     "anchor": "anchor_session",
@@ -42,17 +45,17 @@ _OLD_TO_NEW = {
     # Canonical names → self (for pass-through)
     "anchor_session": "anchor_session",
     "reason_mind": "reason_mind",
-    "recall_memory": "recall_memory",
+    "vector_memory": "vector_memory",
     "simulate_heart": "simulate_heart",
     "critique_thought": "critique_thought",
     "apex_judge": "apex_judge",
     "eureka_forge": "eureka_forge",
     "seal_vault": "seal_vault",
     "search_reality": "search_reality",
-    "fetch_content": "fetch_content",
-    "inspect_file": "inspect_file",
+    "ingest_evidence": "ingest_evidence",
     "audit_rules": "audit_rules",
     "check_vital": "check_vital",
+    "metabolic_loop": "metabolic_loop",
 }
 
 
