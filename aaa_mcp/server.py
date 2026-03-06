@@ -4,9 +4,10 @@ DO NOT CALL DIRECTLY for public MCP interactions. Use `arifos_aaa_mcp.server` in
 This module remains for legacy and internal provision only.
 
 Contract — 13 canonical tools with UX verb names:
-  Governance (7):  anchor_session, reason_mind, recall_memory, simulate_heart,
+  Governance (8):  anchor_session, reason_mind, recall_memory, simulate_heart,
                    critique_thought, apex_judge, eureka_forge, seal_vault
-  Utilities (5):   search_reality, fetch_content, inspect_file, audit_rules, check_vital
+  Utilities (4):   search_reality, ingest_evidence, audit_rules, check_vital
+  Orchestration (1): metabolic_loop
 
 All tools must be async and must not write to stdout (stdio transport safety).
 """
@@ -1156,9 +1157,53 @@ search_reality = ToolHandle(_search)
 
 
 @mcp.tool(
-    name="fetch_content",
-    description="[Lane: Δ Delta] [Floors: F2, F4, F12] Raw evidence content retrieval via Jina Reader.",
+    name="ingest_evidence",
+    description=(
+        "[Lane: Δ Delta] [Floors: F1, F2, F4, F11, F12] "
+        "Unified evidence ingestion — fetch URL content or inspect local filesystem."
+    ),
 )
+async def _ingest_evidence(
+    source_type: str,
+    target: str,
+    mode: str = "raw",
+    max_chars: int = 4000,
+    session_id: str | None = None,
+    depth: int = 1,
+    include_hidden: bool = False,
+    pattern: str = "*",
+    min_size_bytes: int = 0,
+    max_files: int = 100,
+) -> dict[str, Any]:
+    """
+    ingest_evidence — Unified evidence ingestion (F1, F2, F4, F11, F12)
+
+    Replaces the archived fetch_content and inspect_file tools.
+
+    source_type="url"  → fetch remote URL via Jina Reader / urllib fallback
+    source_type="file" → read-only local filesystem inspection
+    mode               → "raw" | "summary" | "chunks"  (default: "raw")
+    """
+    from aaa_mcp.tools.ingest_evidence import ingest_evidence as _ingest
+
+    return await _ingest(
+        source_type=source_type,
+        target=target,
+        mode=mode,
+        max_chars=max_chars,
+        session_id=session_id,
+        depth=depth,
+        include_hidden=include_hidden,
+        pattern=pattern,
+        min_size_bytes=min_size_bytes,
+        max_files=max_files,
+    )
+
+
+ingest_evidence = ToolHandle(_ingest_evidence)
+
+
+# ARCHIVED: fetch_content — use ingest_evidence(source_type="url", ...) instead
 async def _fetch(id: str, max_chars: int = 4000) -> dict[str, Any]:
     """
     fetch_content — Evidence Content Retrieval (F2 Truth + F12 Defense)
@@ -1311,10 +1356,7 @@ async def _critique_thought(session_id: str, plan: dict[str, Any]) -> dict[str, 
 critique_thought = ToolHandle(_critique_thought)
 
 
-@mcp.tool(
-    name="inspect_file",
-    description="[Lane: Δ Delta] [Floors: F1, F4, F11] Filesystem inspection (read-only).",
-)
+# ARCHIVED: inspect_file — use ingest_evidence(source_type="file", ...) instead
 async def _inspect_file(
     session_id: str,
     path: str = ".",
@@ -1369,24 +1411,14 @@ async def _check_vital(
 check_vital = ToolHandle(_check_vital)
 
 
-# ─── query_openclaw — OpenClaw gateway diagnostics (read-only) ───────────────
+# INTERNAL: query_openclaw — OpenClaw gateway diagnostics (NOT a public MCP tool)
+# Relocated to internal dev path; not in canonical 13-tool surface.
 from aaa_mcp.integrations.openclaw_gateway_client import (
     openclaw_get_health,
     openclaw_get_status,
 )
 
 
-@mcp.tool(
-    name="query_openclaw",
-    description=(
-        "[Lane: Δ Delta] [Floors: F2, F4, F7] "
-        "Read-only OpenClaw gateway diagnostics. "
-        "Returns liveness (HTTP /healthz probe), container state, and config metadata. "
-        "action='health' → HTTP probe + container status. "
-        "action='status' → health + config snapshot (model, bind, version). "
-        "Does NOT expose API keys or gateway auth tokens."
-    ),
-)
 async def _query_openclaw(
     session_id: str,
     action: str = "health",
@@ -1444,11 +1476,10 @@ async def _arifos_info_resource() -> str:
                 "eureka_forge",
                 "seal_vault",
                 "search_reality",
-                "fetch_content",
-                "inspect_file",
+                "ingest_evidence",
                 "audit_rules",
                 "check_vital",
-                "query_openclaw",
+                "metabolic_loop",
             ],
             "tool_aliases": {"judge_soul": "apex_judge"},
         }
@@ -1557,9 +1588,9 @@ __all__ = [
     "eureka_forge",
     "seal_vault",
     "search_reality",
-    "fetch_content",
-    "inspect_file",
+    "ingest_evidence",
     "audit_rules",
     "check_vital",
+    "metabolic_loop",
     "_ensure_rag",
 ]

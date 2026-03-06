@@ -14,10 +14,10 @@ _ALLOWED_TOOLS: frozenset[str] = frozenset({
     "apex_judge",
     "seal_vault",
     "search_reality",
-    "fetch_content",
-    "inspect_file",
+    "ingest_evidence",
     "audit_rules",
     "check_vital",
+    "metabolic_loop",
 })
 
 

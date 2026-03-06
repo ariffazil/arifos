@@ -38,26 +38,33 @@ AAA_CANONICAL_TOOLS: tuple[str, ...] = (
     "recall_memory",
     "simulate_heart",
     "critique_thought",
-    "apex_judge",
     "eureka_forge",
+    "apex_judge",
     "seal_vault",
     "search_reality",
-    "fetch_content",
-    "inspect_file",
+    "ingest_evidence",
     "audit_rules",
     "check_vital",
+    "metabolic_loop",
 )
 L4_TOOLS: frozenset[str] = frozenset(AAA_CANONICAL_TOOLS)
 
-# L5: Composite orchestration (sequences L4 tools)
-L5_COMPOSITE: frozenset[str] = frozenset({"metabolic_loop"})
+# Deprecated/archived tools (DO NOT USE — archived for reference only)
+ARCHIVED_TOOLS: frozenset[str] = frozenset({
+    "fetch_content",  # → Merged into ingest_evidence(source_type="url", ...)
+    "inspect_file",   # → Merged into ingest_evidence(source_type="file", ...)
+})
 
-# Full MCP tools/list surface = L1 + L4 + L5 (but canonical count stays 13)
-MCP_FULL_SURFACE: frozenset[str] = L1_PROMPTS | L4_TOOLS | L5_COMPOSITE
+# L5: Composite orchestration (sequences L4 tools) — metabolic_loop promoted to L4
+L5_COMPOSITE: frozenset[str] = frozenset()
+
+# Full MCP tools/list surface = L1 + L4 (but canonical count stays 13)
+MCP_FULL_SURFACE: frozenset[str] = L1_PROMPTS | L4_TOOLS
 
 # Test assertion helpers
 CANONICAL_TOOL_COUNT: int = 13  # Sacred count — L4 only
-MCP_GOVERNED_TOOLS: frozenset[str] = L4_TOOLS | L5_COMPOSITE  # Tools with envelopes
+assert len(AAA_CANONICAL_TOOLS) == CANONICAL_TOOL_COUNT, "Tool count must be exactly 13"
+MCP_GOVERNED_TOOLS: frozenset[str] = L4_TOOLS  # Tools with envelopes
 
 AAA_TOOL_ALIASES: dict[str, str] = {
     "metabolicloop": "metabolic_loop",
@@ -70,8 +77,10 @@ AAA_TOOL_ALIASES: dict[str, str] = {
     "sovereign_actuator": "eureka_forge",
     "vault_seal": "seal_vault",
     "search": "search_reality",
-    "fetch": "fetch_content",
-    "analyze": "inspect_file",
+    "fetch": "ingest_evidence",
+    "fetch_content": "ingest_evidence",
+    "inspect_file": "ingest_evidence",
+    "analyze": "audit_rules",
     "system_audit": "audit_rules",
     "anchor": "anchor_session",
     "reason": "reason_mind",
@@ -119,10 +128,10 @@ TRINITY_BY_TOOL: dict[str, str] = {
     "eureka_forge": "Psi",
     "seal_vault": "Psi",
     "search_reality": "Delta",
-    "fetch_content": "Delta",
-    "inspect_file": "Delta",
+    "ingest_evidence": "Delta",
     "audit_rules": "Delta",
     "check_vital": "Omega",
+    "metabolic_loop": "ALL",
 }
 
 LAW_13_CATALOG: dict[str, dict[str, str]] = {
@@ -176,10 +185,10 @@ AAA_TOOL_LAW_BINDINGS: dict[str, list[str]] = {
     ],
     "seal_vault": ["F1_AMANAH", "F3_TRI_WITNESS", "F10_ONTOLOGY_LOCK", "F13_SOVEREIGNTY"],
     "search_reality": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
-    "fetch_content": ["F2_TRUTH", "F4_CLARITY", "F12_DEFENSE"],
-    "inspect_file": ["F1_AMANAH", "F4_CLARITY", "F11_AUTHORITY", "F12_DEFENSE"],
+    "ingest_evidence": ["F1_AMANAH", "F2_TRUTH", "F4_CLARITY", "F11_AUTHORITY", "F12_DEFENSE"],
     "audit_rules": ["F2_TRUTH", "F8_GENIUS", "F10_ONTOLOGY_LOCK", "F12_DEFENSE"],
     "check_vital": ["F4_CLARITY", "F5_PEACE2", "F7_HUMILITY", "F3_TRI_WITNESS"],
+    "metabolic_loop": ["F1_AMANAH", "F2_TRUTH", "F3_TRI_WITNESS", "F4_CLARITY", "F13_SOVEREIGNTY"],
 }
 
 AAA_TOOL_STAGE_MAP: dict[str, str] = {
@@ -193,16 +202,15 @@ AAA_TOOL_STAGE_MAP: dict[str, str] = {
     "eureka_forge": "777_FORGE",
     "seal_vault": "999_SEAL",
     "search_reality": "111_SENSE",
-    "fetch_content": "444_SYNC",
-    "inspect_file": "111_SENSE",
+    "ingest_evidence": "111_SENSE",
     "audit_rules": "333_REASON",
     "check_vital": "555_EMPATHY",
+    "metabolic_loop": "000_999_LOOP",
 }
 
 READ_ONLY_TOOLS: set[str] = {
     "search_reality",
-    "fetch_content",
-    "inspect_file",
+    "ingest_evidence",
     "audit_rules",
     "check_vital",
 }
@@ -214,6 +222,7 @@ __all__ = [
     "AAA_TOOL_ALIASES",
     "AAA_TOOL_LAW_BINDINGS",
     "AAA_TOOL_STAGE_MAP",
+    "ARCHIVED_TOOLS",
     "AXIOMS_333",
     "CANONICAL_TOOL_COUNT",
     "L1_PROMPTS",

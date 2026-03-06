@@ -297,14 +297,8 @@ ICON_SEARCH = Icon(
     mimeType="image/svg+xml",
 )
 
-# fetch_content: Content retrieval
+# ingest_evidence: Content retrieval (replaces fetch_content + inspect_file)
 ICON_FETCH = Icon(
-    src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMDdhZmYiLz48cGF0aCBkPSJNOCA5SDE2VjE1SDhWOVpNOSAxMFYxNEgxNVYxMEg5WiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=",
-    mimeType="image/svg+xml",
-)
-
-# inspect_file: Filesystem read
-ICON_INSPECT = Icon(
     src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMDdhZmYiLz48cGF0aCBkPSJNOCA5SDE2VjE1SDhWOVpNOSAxMFYxNEgxNVYxMEg5WiIgZmlsbD0id2hpdGUiLz48L3N2Zz4=",
     mimeType="image/svg+xml",
 )
@@ -905,30 +899,55 @@ async def search_reality(
         return wrap_tool_output("search_reality", {"query": query, "status": f"ERROR: {e}"})
 
 
-@mcp.tool(name="fetch_content")
-async def fetch_content(id: str, max_chars: int = 4000) -> dict[str, Any]:
-    """Fetch raw evidence content (read-only)."""
-    blocked = validate_input("fetch_content", {"id": id})
+@mcp.tool(name="ingest_evidence")
+async def ingest_evidence(
+    source_type: str,
+    target: str,
+    mode: str = "raw",
+    max_chars: int = 4000,
+    session_id: str | None = None,
+    depth: int = 1,
+    include_hidden: bool = False,
+    pattern: str = "*",
+    min_size_bytes: int = 0,
+    max_files: int = 100,
+) -> dict[str, Any]:
+    """Unified evidence ingestion — fetch URL content or inspect local filesystem (read-only).
+
+    source_type="url"  → fetch remote URL via Jina Reader / urllib fallback
+    source_type="file" → read-only local filesystem inspection
+    mode               → "raw" | "summary" | "chunks"  (default: "raw")
+    """
+    blocked = validate_input("ingest_evidence", {"source_type": source_type, "target": target})
     if blocked:
-        return wrap_tool_output("fetch_content", blocked)
-    try:
-        from aaa_mcp.external_gateways.jina_reader_client import JinaReaderClient
-        primary = JinaReaderClient()
-        payload = await primary.read_url(url=id, max_chars=max_chars)
-        if payload.get("status") == "OK":
-            return wrap_tool_output("fetch_content", {"id": id, "status": "OK", "content": payload.get("content"), "title": payload.get("title", "")})
-        
-        import urllib.request
-        req = urllib.request.Request(id, headers={"User-Agent": "arifOS/aaa_mcp fetch"})
-        with urllib.request.urlopen(req, timeout=8) as resp:
-            text = resp.read().decode("utf-8", errors="replace")
-        
-        return wrap_tool_output("fetch_content", {"id": id, "status": "OK", "content": text[:max_chars], "truncated": len(text) > max_chars})
-    except Exception as e:
-        return wrap_tool_output("fetch_content", {"id": id, "error": str(e), "status": "ERROR"})
+        return wrap_tool_output("ingest_evidence", blocked)
+    from aaa_mcp.tools.ingest_evidence import ingest_evidence as _ingest
+
+    result = await _ingest(
+        source_type=source_type,
+        target=target,
+        mode=mode,
+        max_chars=max_chars,
+        session_id=session_id,
+        depth=depth,
+        include_hidden=include_hidden,
+        pattern=pattern,
+        min_size_bytes=min_size_bytes,
+        max_files=max_files,
+    )
+    return wrap_tool_output("ingest_evidence", result)
 
 
-@mcp.tool(name="inspect_file")
+# ARCHIVED: fetch_content — use ingest_evidence(source_type="url", ...) instead
+async def fetch_content(id: str, max_chars: int = 4000) -> dict[str, Any]:
+    """Archived — delegates to ingest_evidence."""
+    from aaa_mcp.tools.ingest_evidence import ingest_evidence as _ingest
+
+    result = await _ingest(source_type="url", target=id, mode="raw", max_chars=max_chars)
+    return wrap_tool_output("fetch_content", result)
+
+
+# ARCHIVED: inspect_file — use ingest_evidence(source_type="file", ...) instead
 async def inspect_file(
     path: str = ".",
     depth: int = 1,
@@ -937,19 +956,19 @@ async def inspect_file(
     min_size_bytes: int = 0,
     max_files: int = 100,
 ) -> dict[str, Any]:
-    """Inspect local filesystem structure and metadata (read-only)."""
-    blocked = validate_input("inspect_file", {"path": path})
-    if blocked:
-        return wrap_tool_output("inspect_file", blocked)
-    payload = fs_inspect(
-        path=path,
+    """Archived — delegates to ingest_evidence."""
+    from aaa_mcp.tools.ingest_evidence import ingest_evidence as _ingest
+
+    result = await _ingest(
+        source_type="file",
+        target=path,
         depth=depth,
         include_hidden=include_hidden,
         pattern=pattern,
         min_size_bytes=min_size_bytes,
         max_files=max_files,
     )
-    return wrap_tool_output("inspect_file", payload)
+    return wrap_tool_output("inspect_file", result)
 
 
 @mcp.tool(name="audit_rules")
@@ -987,9 +1006,9 @@ async def check_vital(
     )
     return wrap_tool_output("check_vital", payload)
 
-@mcp.tool(name="query_openclaw")
+# INTERNAL: query_openclaw — NOT a public MCP tool; removed from canonical 13-tool surface.
 async def query_openclaw(session_id: str, action: str = "health") -> dict[str, Any]:
-    """Read-only OpenClaw gateway diagnostics (HTTP probe + container status)."""
+    """Internal OpenClaw gateway diagnostics — not exposed via /tools/list."""
     try:
         from aaa_mcp.integrations.openclaw_gateway_client import openclaw_get_health, openclaw_get_status
         if action == "health": payload = openclaw_get_health()
@@ -1040,12 +1059,12 @@ def aaa_tool_schemas() -> str:
                 "anchor_session",
                 "reason_mind",
                 "search_reality",
-                "fetch_content",
-                "inspect_file",
+                "ingest_evidence",
                 "audit_rules",
             ],
             "Omega": ["recall_memory", "simulate_heart", "critique_thought", "check_vital"],
             "Psi": ["apex_judge", "eureka_forge", "seal_vault"],
+            "ALL": ["metabolic_loop"],
         },
         "axioms": ["A1_TRUTH_COST", "A2_SCAR_WEIGHT", "A3_ENTROPY_WORK"],
         "technical_aliases": {
@@ -1165,8 +1184,7 @@ _TOOL_REGISTRY = {
     "eureka_forge": eureka_forge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,
-    "fetch_content": fetch_content,
-    "inspect_file": inspect_file,
+    "ingest_evidence": ingest_evidence,
     "audit_rules": audit_rules,
     "check_vital": check_vital,
 }

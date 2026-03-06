@@ -35,8 +35,7 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     },
     "seal_vault": {"session_id": "str", "summary": "str"},
     "search_reality": {"query": "str", "session_id": "str"},
-    "fetch_content": {"id": "str"},
-    "inspect_file": {"path": "str"},
+    "ingest_evidence": {"source_type": "str", "target": "str"},
     "audit_rules": {"audit_scope": "str", "session_id": "str"},
     "check_vital": {},
 }
