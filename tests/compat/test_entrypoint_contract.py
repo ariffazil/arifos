@@ -84,7 +84,7 @@ def test_rest_aliases_map_legacy_names_to_public_canon() -> None:
     canonical = {
         "anchor_session",
         "reason_mind",
-        "recall_memory",
+        "vector_memory",
         "simulate_heart",
         "critique_thought",
         "apex_judge",

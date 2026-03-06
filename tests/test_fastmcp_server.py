@@ -43,7 +43,7 @@ class TestServerMetadata:
             tools = await client.list_tools()
         names = {t.name for t in tools}
         expected = {
-            "anchor_session", "reason_mind", "recall_memory", "simulate_heart",
+            "anchor_session", "reason_mind", "vector_memory", "simulate_heart",
             "critique_thought", "eureka_forge", "apex_judge", "seal_vault",
             "search_reality", "fetch_content", "inspect_file", "audit_rules",
             "check_vital", "query_openclaw",
@@ -332,7 +332,7 @@ class TestInspectContract:
     async def test_all_tools_have_descriptions(self, arifos_server):
         """All 14 canonical tools have descriptions with [Lane:] tags."""
         canonical = {
-            "anchor_session", "reason_mind", "recall_memory", "simulate_heart",
+            "anchor_session", "reason_mind", "vector_memory", "simulate_heart",
             "critique_thought", "eureka_forge", "apex_judge", "seal_vault",
             "search_reality", "fetch_content", "inspect_file", "audit_rules",
             "check_vital", "query_openclaw",

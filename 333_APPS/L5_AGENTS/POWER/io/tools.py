@@ -7,7 +7,7 @@ from typing import Any
 _ALLOWED_TOOLS: frozenset[str] = frozenset({
     "anchor_session",
     "reason_mind",
-    "recall_memory",
+    "vector_memory",
     "simulate_heart",
     "critique_thought",
     "eureka_forge",

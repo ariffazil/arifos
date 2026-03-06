@@ -32,7 +32,7 @@ const McpAppWrapper = () => {
       // Fetch initial state
       try {
         const history = await mcpAppSdk.callServerTool({
-          name: "recall_memory",
+          name: "vector_memory",
           arguments: { limit: 1 }
         }) as any;
         

@@ -310,7 +310,7 @@ ICON_AUDIT = Icon(
 )
 
 # Ω OMEGA Lane — Heart/Safety (Green/Empathy)
-# recall_memory: Associative memory
+# vector_memory: BBB Vector Memory (VM) - semantic retrieval (BGE + Qdrant)
 ICON_RECALL = Icon(
     src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiMwMGEyZmYiLz48cGF0aCBkPSJNMTIgOEMxMy4xIDggMTQgOC45IDE0IDEwQzE0IDExLjEgMTMuMSAxMiAxMiAxMkMxMC45IDEyIDEwIDExLjEgMTAgMTBDMTAgOC45IDEwLjkgOCAxMiA4Wk04IDE0SDE2VjE2SDhWMTRaIiBmaWxsPSJ3aGl0ZSIvPjwvc3ZnPg==",
     mimeType="image/svg+xml",
@@ -502,22 +502,22 @@ async def reason_mind(
         return wrap_tool_output("reason_mind", _fracture_response("111-444", e, session_id))
 
 
-@mcp.tool(name="recall_memory")
-async def recall_memory(
+@mcp.tool(name="vector_memory")
+async def vector_memory(
     current_thought_vector: str,
     session_id: str,
     debug: bool = False,
 ) -> dict[str, Any]:
     """444 EVIDENCE: retrieve associative memory traces for current thought."""
     blocked = validate_input(
-        "recall_memory",
+        "vector_memory",
         {"current_thought_vector": current_thought_vector, "session_id": session_id},
     )
     if blocked:
-        return wrap_tool_output("recall_memory", blocked)
-    missing = require_session("recall_memory", session_id)
+        return wrap_tool_output("vector_memory", blocked)
+    missing = require_session("vector_memory", session_id)
     if missing:
-        return wrap_tool_output("recall_memory", missing)
+        return wrap_tool_output("vector_memory", missing)
     start_time = time.time()
     try:
         try:
@@ -536,9 +536,9 @@ async def recall_memory(
         payload = envelope_builder.build_envelope(stage="555_RECALL", session_id=session_id, verdict="SEAL" if contexts else "PARTIAL", payload=merged)
         
         payload["compute_ms"] = (time.time() - start_time) * 1000
-        return wrap_tool_output("recall_memory", payload)
+        return wrap_tool_output("vector_memory", payload)
     except Exception as e:
-        return wrap_tool_output("recall_memory", _fracture_response("555_RECALL", e, session_id))
+        return wrap_tool_output("vector_memory", _fracture_response("555_RECALL", e, session_id))
 
 
 @mcp.tool(name="simulate_heart")
@@ -1062,7 +1062,7 @@ def aaa_tool_schemas() -> str:
                 "ingest_evidence",
                 "audit_rules",
             ],
-            "Omega": ["recall_memory", "simulate_heart", "critique_thought", "check_vital"],
+            "Omega": ["vector_memory", "simulate_heart", "critique_thought", "check_vital"],
             "Psi": ["apex_judge", "eureka_forge", "seal_vault"],
             "ALL": ["metabolic_loop"],
         },
@@ -1177,7 +1177,7 @@ from .rest_routes import register_rest_routes
 _TOOL_REGISTRY = {
     "anchor_session": anchor_session,
     "reason_mind": reason_mind,
-    "recall_memory": recall_memory,
+    "vector_memory": vector_memory,
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
     "apex_judge": apex_judge,

@@ -49,7 +49,7 @@ from arifos_aaa_mcp.server import (
     ingest_evidence,
     metabolic_loop,
     reason_mind,
-    recall_memory,
+    vector_memory,
     seal_vault,
     search_reality,
     simulate_heart,
@@ -101,7 +101,7 @@ PROMPT_ARGUMENT_COMPLETIONS: dict[str, dict[str, list[str]]] = {
 TOOLS = {
     "anchor_session": anchor_session,
     "reason_mind": reason_mind,
-    "recall_memory": recall_memory,
+    "vector_memory": vector_memory,
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
     "eureka_forge": eureka_forge,
@@ -118,7 +118,7 @@ TOOLS = {
 TOOL_DESCRIPTIONS = {
     "anchor_session": "[Lane: Delta] 000_INIT — Session ignition + injection scan",
     "reason_mind": "[Lane: Delta] 111-444_AGI — SENSE→THINK→REASON with grounding",
-    "recall_memory": "[Lane: Omega] 555_RECALL — Associative memory retrieval",
+    "vector_memory": "[Lane: Ω] [Floors: F3, F7] BBB Vector Memory (VM) – semantic retrieval (BGE + Qdrant).",
     "simulate_heart": "[Lane: Omega] 555-666_ASI — Stakeholder impact + care",
     "critique_thought": "[Lane: Omega] 666_ALIGN — 7-model bias critique",
     "eureka_forge": "[Lane: Psi] 777_EUREKA_FORGE — Sandboxed action execution",

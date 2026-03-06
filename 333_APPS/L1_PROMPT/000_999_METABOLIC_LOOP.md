@@ -44,7 +44,7 @@ Each stage extracts entropy (ΔS ≤ 0) before emitting the final answer.
 | **111** | `111_MIND.md#Sense` | `111_SENSE.md` | `reason_mind` (init) | Δ Delta | F13 |
 | **222** | `222_THINK.md#Parallel` | `222_THINK.md` | Internal | Δ Delta | F2, F4, F13 |
 | **333** | `333_ATLAS.md#Meta` | `333_ATLAS.md` | `reason_mind` (audit) | Δ Delta | F7, F3 |
-| **444** | `444_ALIGN.md#Witness` | `444_ALIGN.md` | `recall_memory` | Ω Omega | F3, F4 |
+| **444** | `444_ALIGN.md#Witness` | `444_ALIGN.md` | `vector_memory` | Ω Omega | F3, F7 |
 | **555** | `555_HEART.md#Empathy` | `555_EMPATHY.md` | `simulate_heart` | Ω Omega | F6, F5 |
 | **666** | `666_BRIDGE.md#Synthesis` | `666_BRIDGE.md` | `critique_thought` | Ω Omega | F9, F1 |
 | **777** | `777_EUREKA.md#Forge` | `777_EUREKA.md` | `eureka_forge` | Ψ Psi | F4, F7 |

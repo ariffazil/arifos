@@ -221,7 +221,7 @@ async def test_law_enforcement_matrix_13_tools() -> None:
     calls = {
         "anchor_session": anchor,
         "reason_mind": await _get_tool_fn(api.reason_mind)(query="matrix", session_id=session_id),
-        "recall_memory": await _get_tool_fn(api.recall_memory)(
+        "vector_memory": await _get_tool_fn(api.recall_memory)(
             current_thought_vector="matrix-vector",
             session_id=session_id,
         ),

@@ -117,7 +117,7 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
 
     recall = _unwrap(
         await client.call_tool(
-            "recall_memory",
+            "vector_memory",
             arguments={"current_thought_vector": "vector", "session_id": session_id},
         )
     )

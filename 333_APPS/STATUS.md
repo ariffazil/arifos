@@ -40,7 +40,7 @@
 - ✅ **Public canonical surface:** 13 governed tools via `arifos_aaa_mcp/server.py`
   1. `anchor_session`
   2. `reason_mind`
-  3. `recall_memory`
+  3. `vector_memory`
   4. `simulate_heart`
   5. `critique_thought`
   6. `apex_judge`

@@ -21,7 +21,7 @@ ARIF bands represent cognitive boundaries. Tools are grouped by their effect on 
 - **`reason_mind`**: [Δ Mind] AGI logic & hypothesis testing.
 - **`search_reality`**: [External] web search grounding (Jina Reader).
 - **`fetch_content`**: [External] evidence content retrieval.
-- **`recall_memory`**: [PHOENIX] associative memory traces.
+- **`vector_memory`**: [PHOENIX] BBB Vector Memory – semantic retrieval.
 - **`simulate_heart`**: [Ω Heart] stakeholder impact evaluation.
 - **`critique_thought`**: [Ω Heart] constitutional critique (7-model).
 - **Primary Floors**: **F2, F4, F5, F6, F7, F8**.
@@ -50,7 +50,7 @@ ARIF bands represent cognitive boundaries. Tools are grouped by their effect on 
 | `reason_mind` | **R** | 222 | Δ Mind | F2, F4, F7 | AGI cognition & logic. |
 | `search_reality` | **R** | 333 | Δ Mind | F2, F7 | Web grounding (External). |
 | `fetch_content` | **R** | 333 | Δ Mind | F2, F12 | Content retrieval (External). |
-| `recall_memory` | **R** | 444 | Ω Heart | F4, F7, F13 | Memory traces (Internal). |
+| `vector_memory` | **R** | 444 | Ω Heart | F3, F7 | BBB Vector Memory (BGE + Qdrant). |
 | `simulate_heart` | **R** | 555 | Ω Heart | F5, F6 | Stakeholder impacts. |
 | `critique_thought`| **R** | 666 | Ω Heart | F4, F7, F8 | Bias & alignment scan. |
 | `inspect_file` | **I** | 333 | Δ Mind | F1, F4, F11 | FS Atlas Discovery. |
