@@ -566,8 +566,6 @@ async def simulate_heart(
         payload = {
             "stakeholders": stakeholders or [],
             "capability_modules": capability_modules or [],
-            "actor_id": actor_id,
-            "token_status": _token_status(auth_token),
             "debug": debug,
             "data": {"validate": v, "align": a} if debug else {},
         }
@@ -1445,7 +1443,7 @@ async def metabolic_loop(
         record_stage("500_PLAN", plan_res.get("verdict", "SEAL"), plan_res)
 
         # 600_PREPARE
-        prepare_res = await audit_rules(query=f"PREPARE env", session_id=session_id)
+        prepare_res = await audit_rules(audit_scope="prepare", session_id=session_id)
         record_stage("600_PREPARE", prepare_res.get("verdict", "SEAL"), prepare_res)
 
         # 700_PROTOTYPE (Hard check: non-prod only)
@@ -1459,7 +1457,7 @@ async def metabolic_loop(
             record_stage("700_PROTOTYPE", prototype_res.get("verdict", "SEAL"), prototype_res)
 
         # 800_VERIFY
-        verify_res = await audit_rules(query=f"VERIFY: {query}", session_id=session_id)
+        verify_res = await audit_rules(audit_scope="verify", session_id=session_id)
         record_stage("800_VERIFY", verify_res.get("verdict", "SEAL"), verify_res)
 
         # 888_JUDGE
