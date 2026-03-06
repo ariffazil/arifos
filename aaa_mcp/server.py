@@ -180,7 +180,7 @@ def _build_floor_block(stage: str, reason: str) -> dict[str, Any]:
         "floors": {"passed": [], "failed": ["F11"]},
         "truth": {"score": None, "threshold": None, "drivers": []},
         "next_actions": [
-            "Run init_session (anchor) first to obtain session_id.",
+            "Run anchor_session first to obtain session_id.",
             "Reuse the same session_id across downstream tools.",
             "Include actor_id/auth_token when available for continuity.",
         ],

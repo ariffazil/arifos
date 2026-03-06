@@ -1117,9 +1117,16 @@ def aaa_full_context_pack() -> str:
 @mcp.prompt(name=PUBLIC_PROMPT_NAMES["aaa_chain"])
 def aaa_chain_prompt(query: str, actor_id: str = "user") -> str:
     return (
-        "Use AAA 13-tool chain with continuity: "
-        "anchor_session -> reason_mind -> simulate_heart -> critique_thought -> "
-        "apex_judge -> seal_vault (token is handled by backend). "
+        "Use the canonical AAA 13-tool metabolic chain with session continuity:\n"
+        "1) anchor_session          — 000 INIT: ignite session, get session_id\n"
+        "2) reason_mind             — 222-333: AGI cognition and hypothesis grounding\n"
+        "3) vector_memory           — 444-555: semantic recall from VAULT999\n"
+        "4) simulate_heart          — 555-666: stakeholder impact and empathy check\n"
+        "5) critique_thought        — 666: bias critique and alignment scan\n"
+        "6) eureka_forge            — 777: execute material action (if needed)\n"
+        "7) apex_judge              — 777-888: sovereign verdict, returns governance_token\n"
+        "8) seal_vault              — 999: immutable ledger commit with governance_token\n"
+        "Pass session_id from anchor_session to all downstream tools.\n"
         f"query={query!r}; actor_id={actor_id!r}."
     )
 
@@ -1139,11 +1146,20 @@ async def arifos_governance_brief_prompt() -> str:
 @mcp.prompt(name="arifos.prompt.trinity_forge")
 def trinity_forge_prompt(query: str, actor_id: str = "user", mode: str = "conscience") -> str:
     return (
-        "Use trinity_forge for full constitutional orchest with session continuity.\n"
-        "Stage spine: 000 -> 222 -> 333 -> 444 -> 666 -> 888 -> 999.\n"
-        "Require truthful grounding; fail closed on F2/F11/F12 with remediation.\n"
-        'Call shape: {"name":"trinity_forge","arguments":{"query":%r,"actor_id":%r,"mode":%r}}'
-        % (query, actor_id, mode)
+        "Execute full constitutional Trinity orchestration with session continuity.\n"
+        "Canonical stage spine: 000 -> 222-333 -> 444-555 -> 555-666 -> 666 -> 777 -> 777-888 -> 999.\n"
+        "Tool mapping:\n"
+        "  000       = anchor_session\n"
+        "  222-333   = reason_mind\n"
+        "  444-555   = vector_memory\n"
+        "  555-666   = simulate_heart\n"
+        "  666       = critique_thought\n"
+        "  777       = eureka_forge (if material action required)\n"
+        "  777-888   = apex_judge  -> returns governance_token\n"
+        "  999       = seal_vault  <- requires governance_token\n"
+        "Fail closed on F2 (truth), F11 (auth), F12 (injection) with remediation.\n"
+        "Alternatively call metabolic_loop for a single-call full-cycle execution.\n"
+        f"query={query!r}; actor_id={actor_id!r}; mode={mode!r}"
     )
 
 
@@ -1151,10 +1167,11 @@ def trinity_forge_prompt(query: str, actor_id: str = "user", mode: str = "consci
 def anchor_reason_prompt(query: str, actor_id: str = "user") -> str:
     return (
         "Run two-step constitutional flow with explicit session continuity.\n"
-        "1) anchor/init_session to obtain session_id.\n"
-        "2) reason/agi_cognition using same session_id.\n"
+        "1) anchor_session  — obtain session_id (000 INIT).\n"
+        "2) reason_mind     — pass same session_id (222-333 AGI Mind).\n"
         "If VOID on F11: request auth_token or corrected actor_id.\n"
-        "If VOID on F2: request external evidence before retry.\n"
+        "If VOID on F12: check for injection patterns in query.\n"
+        "If VOID on F2: request external evidence via search_reality before retry.\n"
         "Input query: %s\nActor: %s" % (query, actor_id)
     )
 
@@ -1162,10 +1179,11 @@ def anchor_reason_prompt(query: str, actor_id: str = "user") -> str:
 @mcp.prompt(name="arifos.prompt.audit_then_seal")
 def audit_then_seal_prompt(session_id: str, summary: str, proposed_verdict: str = "SEAL") -> str:
     return (
-        "Finalize governed decision in two steps.\n"
-        "1) apex_verdict/audit with session_id and explicit proposed_verdict.\n"
-        "2) vault_seal with same session_id and immutable summary.\n"
-        "If verdict is 888_HOLD, stop and request human ratification before seal.\n"
+        "Finalize governed decision in two steps (Amanah Handshake).\n"
+        "1) apex_judge  — pass session_id and proposed_verdict. Returns governance_token.\n"
+        "2) seal_vault  — pass same session_id, summary, and governance_token from apex_judge.\n"
+        "If verdict is 888_HOLD: stop. Request explicit human ratification before calling seal_vault.\n"
+        "If governance_token is missing or tampered: seal_vault returns VOID with no ledger write.\n"
         "session_id=%s; proposed_verdict=%s; summary=%s" % (session_id, proposed_verdict, summary)
     )
 
@@ -1189,6 +1207,7 @@ _TOOL_REGISTRY = {
     "ingest_evidence": ingest_evidence,
     "audit_rules": audit_rules,
     "check_vital": check_vital,
+    # metabolic_loop added after its definition below (forward-ref safety)
 }
 
 # ═══════════════════════════════════════════════════════════════════════════════

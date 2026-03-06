@@ -10,7 +10,7 @@ from typing import Any
 
 REQUIRES_SESSION = {
     "reason_mind",
-    "recall_memory",
+    "vector_memory",
     "simulate_heart",
     "critique_thought",
     "apex_judge",
@@ -22,7 +22,7 @@ REQUIRES_SESSION = {
 TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "anchor_session": {"query": "str", "actor_id": "str", "session_id": "str"},
     "reason_mind": {"query": "str", "session_id": "str"},
-    "recall_memory": {
+    "vector_memory": {
         "current_thought_vector": "str",
         "session_id": "str",
     },
@@ -38,6 +38,7 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "ingest_evidence": {"source_type": "str", "target": "str"},
     "audit_rules": {"audit_scope": "str", "session_id": "str"},
     "check_vital": {},
+    "metabolic_loop": {"query": "str"},
 }
 
 
