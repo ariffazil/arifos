@@ -1,211 +1,209 @@
-# WORKFLOWS — The 9 Metabolic Sequences (v60.1-ARIF)
+# WORKFLOWS — Unified Metabolic Loop (v2026.3.6-CANON)
 
-Level 3 | 9 Recipes | ΔS ≤ 0
+**Level 3 | 11 Stages | 000→999 | ΔS ≤ 0**
 
 > *Ditempa Bukan Diberi* — Forged, Not Given
 
 ---
 
-## 🆕 NEW: Exploration-First Architecture (v2026.3.6)
-
-### Two-Phase Workflow System
+## 🔄 Unified 11-Stage Metabolic Loop
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    PRE-DEVELOPMENT (Laptop/Kimi)                             │
-│                         EXPLORATION → DECISION                               │
+│                    PRE-DEVELOPMENT (Exploration & Design)                    │
+│                        000 → 100 → 200 → 300 → 400                          │
 ├─────────────────────────────────────────────────────────────────────────────┤
 │                                                                              │
-│   000_INIT → 100_EXPLORE → 200_DISCOVER → 300_APPRAISE → 400_DESIGN        │
-│       ↓                                                                      │
-│   [Session]   [Broad]      [Deep]        [Evaluate]     [Plan]             │
-│       ↓                                                                      │
-│       └──────────────────────┬────────────────────────────────┘             │
-│                              ↓                                               │
-│                        888_PRE_DEV_JUDGE                                     │
-│                              ↓                                               │
-│                    [Go/No-Go Decision]                                       │
-│                              ↓                                               │
-│                    SEAL / SABAR / VOID / 888_HOLD                           │
-│                              ↓                                               │
-└──────────────────────────────┼─────────────────────────────────────────────┘
-                               │
-                               ↓ HANDOFF
-┌──────────────────────────────┼─────────────────────────────────────────────┐
-│                    PRODUCTION (VPS Agents)                                   │
-│                      IMPLEMENTATION → DEPLOYMENT                             │
-├──────────────────────────────┼─────────────────────────────────────────────┤
-│                              ↓                                               │
-│   000_RE_INIT → 111_SENSE → 222_THINK → 333_ATLAS → 777_FORGE              │
-│       ↓           ↓           ↓           ↓           ↓                     │
-│   [Context]    [Gather]   [Analyze]   [Map]      [Build]                   │
-│       ↓           ↓           ↓           ↓           ↓                     │
-│       └───────────┴───────────┴───────────┴───────────┘                     │
-│                       ↓                                                      │
-│                  888_JUDGE → 999_VAULT                                      │
-│                       ↓           ↓                                          │
-│                  [Verify]    [Commit]                                       │
-│                       ↓                                                      │
-└───────────────────────┴──────────────────────────────────────────────────────┘
+│   000_INIT ──→ 100_EXPLORE ──→ 200_DISCOVER ──→ 300_APPRAISE ──→ 400_DESIGN │
+│      [Φ]           [E]              [D]              [A]             [D]     │
+│       │              │                │                │               │     │
+│       │          Broad            Deep          Evaluate          Plan       │
+│       │          Domain           Pattern       Value/Effort      Architecture│
+│       │                                                              │       │
+│       └──────────────────────────────┬───────────────────────────────┘       │
+│                                      ↓                                       │
+│                            500_PLAN (Execution Strategy)                     │
+│                                      [Σ]                                     │
+│                               Safety Validation                              │
+└──────────────────────────────────────┼───────────────────────────────────────┘
+                                       ↓
+┌──────────────────────────────────────┼───────────────────────────────────────┐
+│                  PRODUCTION (Implementation & Deployment)                    │
+│                    600 → 700 → 800 → 888 → 999                              │
+├──────────────────────────────────────┼───────────────────────────────────────┤
+│                                      ↓                                       │
+│   600_PREPARE ──→ 700_PROTOTYPE ──→ 800_VERIFY ──→ 888_JUDGE ──→ 999_VAULT  │
+│       [Ρ]             [Φ]               [Υ]            [Ψ]           [Ω]     │
+│        │               │                 │              │             │      │
+│    Environment      Build/            Final        Final        Commit       │
+│    Setup            Implement       Testing      Verdict        to Vault     │
+│                                                                              │
+└──────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 📁 Workflow Inventory
+## 📋 The 11 Canonical Workflows
 
-### Pre-Development Workflows (Exploration Phase)
+### Pre-Development Phase (Exploration → Decision)
 
-| Workflow | Stage | Band | Purpose | Floors |
-|----------|-------|------|---------|--------|
-| **[100-EXPLORE](100-EXPLORE-WORKFLOW.md)** | 100 | E | Domain reconnaissance, broad exploration | F2, F4, F7, F8 |
-| **[200-DISCOVER](200-DISCOVER-WORKFLOW.md)** | 200 | D | Deep pattern recognition, hypothesis testing | F2, F3, F4, F7, F8 |
-| **[300-APPRAISE](300-APPRAISE-WORKFLOW.md)** | 300 | A | Value/effort assessment, Go/No-Go input | F5, F6, F7, F9 |
-| **[400-DESIGN](400-DESIGN-WORKFLOW.md)** | 400 | D | Architecture blueprint, implementation plan | F2, F4, F5, F6, F7, F8, F10 |
-| **[888-PRE-DEV-JUDGE](888-PRE-DEV-JUDGE-WORKFLOW.md)** | 888 | Ψ | Final verdict, production handoff | ALL |
+| # | Workflow | Stage | Band | Purpose | Floors |
+|---|----------|-------|------|---------|--------|
+| 1 | **[000-INIT](000-INIT-WORKFLOW.md)** | 000 | Φ | Session ignition, authority, intent | F11, F12, F13 |
+| 2 | **[100-EXPLORE](100-EXPLORE-WORKFLOW.md)** | 100 | E | Domain reconnaissance, broad exploration | F2, F4, F7, F8 |
+| 3 | **[200-DISCOVER](200-DISCOVER-WORKFLOW.md)** | 200 | D | Deep pattern recognition, hypothesis testing | F2, F3, F4, F7, F8 |
+| 4 | **[300-APPRAISE](300-APPRAISE-WORKFLOW.md)** | 300 | A | Value/effort assessment, Go/No-Go input | F5, F6, F7, F9 |
+| 5 | **[400-DESIGN](400-DESIGN-WORKFLOW.md)** | 400 | D | Architecture blueprint, implementation plan | F2, F4, F5, F6, F7, F8, F10 |
 
-### Production Workflows (Implementation Phase)
+### Transition Phase (Strategy & Validation)
 
-| Workflow | Stage | Band | Purpose | Floors |
-|----------|-------|------|---------|--------|
-| **[anchor](anchor-WORKFLOW.md)** | 000 | A | Session ignition | F11, F12, F13 |
-| **[reason](reason-WORKFLOW.md)** | 222 | R | Logical inference | F2, F4, F7, F8 |
-| **[integrate](integrate-WORKFLOW.md)** | 333 | I | Context atlas | F2, F4, F7, F10 |
-| **[respond](respond-WORKFLOW.md)** | 444 | R | Draft response | F4, F5, F6 |
-| **[validate](validate-WORKFLOW.md)** | 555 | R | Safety validation | F5, F6, F1 |
-| **[align](align-WORKFLOW.md)** | 666 | R | Ethical alignment | F5, F6, F9 |
-| **[forge](forge-WORKFLOW.md)** | 777 | F | Implementation | F1, F2, F4, F8 |
-| **[audit](audit-WORKFLOW.md)** | 888 | I | Full F1-F13 review | ALL |
-| **[seal](seal-WORKFLOW.md)** | 999 | F | Vault commitment | F1, F3 |
+| # | Workflow | Stage | Band | Purpose | Floors |
+|---|----------|-------|------|---------|--------|
+| 6 | **[500-PLAN](500-PLAN-WORKFLOW.md)** | 500 | Σ | Execution planning, safety validation | F1, F5, F6, F9 |
 
-### Architecture Documentation
+### Production Phase (Implementation → Deployment)
 
-| Document | Purpose |
-|----------|---------|
-| **[EXPLORATION-APPRAISAL-ARCHITECTURE](EXPLORATION-APPRAISAL-ARCHITECTURE.md)** | Complete architecture guide for exploration-first development |
+| # | Workflow | Stage | Band | Purpose | Floors |
+|---|----------|-------|------|---------|--------|
+| 7 | **[600-PREPARE](600-PREPARE-WORKFLOW.md)** | 600 | Ρ | Environment setup, access provisioning | F11, F12 |
+| 8 | **[700-PROTOTYPE](700-PROTOTYPE-WORKFLOW.md)** | 700 | Φ | Implementation execution, building | F1, F2, F4, F8 |
+| 9 | **[800-VERIFY](800-VERIFY-WORKFLOW.md)** | 800 | Υ | Final testing, quality assurance | F2, F4, F6 |
+| 10 | **[888-JUDGE](888-JUDGE-WORKFLOW.md)** | 888 | Ψ | Final verdict, Go/No-Go decision | **ALL F1-F13** |
+| 11 | **[999-VAULT](999-VAULT-WORKFLOW.md)** | 999 | Ω | Immutable commitment, loop closure | F1, F3 |
 
 ---
 
-## 🔄 The Dual-Loop Architecture
+## 🗺️ Workflow Navigation Guide
 
-### Why Two Phases?
+### When to Use Each Workflow
 
-| Aspect | Pre-Development | Production |
-|--------|----------------|------------|
-| **Agent** | You + Kimi (Laptop) | VPS Agents |
-| **Focus** | Exploration, creativity, judgment | Implementation, precision, consistency |
-| **Cost** | Lower (local compute) | Higher (VPS resources) |
-| **Iteration** | Fast, exploratory | Measured, deliberate |
-| **Uncertainty** | High (discovering) | Low (executing known plan) |
-| **Reversibility** | Easy (ideas are cheap) | Hard (code is committed) |
+| Situation | Starting Workflow | Path |
+|-----------|-------------------|------|
+| **New project idea** | 000-INIT → 100-EXPLORE | 000 → 100 → 200 → 300 → 400 → 500 → [handoff] |
+| **Known domain, new feature** | 000-INIT → 200-DISCOVER | 000 → 200 → 300 → 400 → 500 → [handoff] |
+| **Architecture approved, build now** | 500-PLAN | 500 → 600 → 700 → 800 → 888 → 999 |
+| **Production bug fix** | 000-INIT → 700-PROTOTYPE | 000 → 700 → 800 → 888 → 999 (expedited) |
+| **Emergency deployment** | 000-INIT → 600-PREPARE | 000 → 600 → 700 → 888 → 999 (hotfix) |
+| **Read-only inquiry** | 000-INIT → 100-EXPLORE | 000 → 100 → [report] |
 
-### Separation of Concerns
+### Decision Points
 
-**Pre-Development (You Decide)**:
-- Should we build this?
-- What should we build?
-- How should it work?
-- What's the architecture?
-
-**Production (Agents Execute)**:
-- Write the code
-- Run the tests
-- Deploy the service
-- Monitor the system
-
----
-
-## 📋 When to Use Which Workflow
-
-### Starting a New Project
 ```
-100-EXPLORE → 200-DISCOVER → 300-APPRAISE → 400-DESIGN → 888-PRE-DEV-JUDGE
+100-EXPLORE
      ↓
-["I have an idea"] → ["Let's verify it"] → ["Should we build?"] → 
+[Continue exploration?] ──NO──→ Terminate
+     ↓ YES
+200-DISCOVER
      ↓
-["How exactly?"] → ["Your decision, Arif"]
-```
-
-### Evaluating Technology
-```
-100-EXPLORE → 200-DISCOVER → 300-APPRAISE → 888-PRE-DEV-JUDGE
+[Patterns validated?] ──NO──→ Return to EXPLORE
+     ↓ YES
+300-APPRAISE
      ↓
-["Should we use X or Y?"] → ["Test both"] → ["Compare"] → 
+[Proceed with build?] ──NO──→ Terminate or redesign
+     ↓ YES
+400-DESIGN
      ↓
-["Recommend: Use X"]
-```
-
-### Ready-to-Implement Feature
-```
-400-DESIGN → 888-PRE-DEV-JUDGE → [Handoff] → 111_SENSE → 777_FORGE
+[Design approved?] ──NO──→ Return to APPRAISE
+     ↓ YES
+500-PLAN
      ↓
-["Architecture ready"] → ["Approve"] → ["VPS takes over"] → 
+[Plan validated?] ──NO──→ Return to DESIGN
+     ↓ YES
+[Handoff to Production]
      ↓
-["Implement"] → ["Ship"]
+600-PREPARE → 700-PROTOTYPE → 800-VERIFY
+     ↓
+888-JUDGE
+     ↓
+[SEAL?] ──YES──→ 999-VAULT
+     ↓ NO
+[SABAR?] ──YES──→ Return to indicated stage
+     ↓ NO
+[VOID?] ──YES──→ Archive and terminate
+     ↓ NO
+[888_HOLD] ──→ Pause and review
 ```
 
 ---
 
-## 🛡️ Floor Coverage by Phase
+## 🛡️ Floor Coverage Matrix
 
-### Pre-Development Floors
+### Pre-Development (000-500)
 
-| Workflow | F2 | F4 | F5 | F6 | F7 | F8 | F9 | F10 | F11 | F12 | F13 |
-|----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| 100-EXPLORE | ✓ | ✓ | | | ✓ | ✓ | | | | | |
-| 200-DISCOVER | ✓ | ✓ | | | ✓ | ✓ | | | | | |
-| 300-APPRAISE | | | ✓ | ✓ | ✓ | | ✓ | | | | |
-| 400-DESIGN | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | | ✓ | | | |
-| 888-PRE-DEV-JUDGE | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| Workflow | F1 | F2 | F3 | F4 | F5 | F6 | F7 | F8 | F9 | F10 | F11 | F12 | F13 |
+|----------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:---:|:---:|:---:|:---:|
+| 000-INIT | | | | | | | | | | | ✓ | ✓ | ✓ |
+| 100-EXPLORE | | ✓ | | ✓ | | | ✓ | ✓ | | | | | |
+| 200-DISCOVER | | ✓ | ✓ | ✓ | | | ✓ | ✓ | | | | | |
+| 300-APPRAISE | | | | | ✓ | ✓ | ✓ | | ✓ | | | | |
+| 400-DESIGN | | ✓ | | ✓ | ✓ | ✓ | ✓ | ✓ | | ✓ | | | |
+| 500-PLAN | ✓ | | | | ✓ | ✓ | | | ✓ | | | | |
 
-### Production Floors
+### Production (600-999)
 
 | Workflow | F1 | F2 | F4 | F5 | F6 | F7 | F8 | F9 | F10 | F11 | F12 | F13 |
-|----------|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---:|
-| anchor | | | | | | | | | | ✓ | ✓ | ✓ |
-| reason | | ✓ | ✓ | | | ✓ | ✓ | | | | | |
-| integrate | | ✓ | ✓ | | | ✓ | | | ✓ | | | |
-| respond | | | ✓ | ✓ | ✓ | | | | | | | |
-| validate | ✓ | | | ✓ | ✓ | | | | | | | |
-| align | | | | ✓ | ✓ | | | ✓ | | | | |
-| forge | ✓ | ✓ | ✓ | | | | ✓ | | ✓ | | | |
-| audit | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
-| seal | ✓ | | | | | | | | | | | ✓ |
+|----------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:---:|:---:|:---:|:---:|
+| 600-PREPARE | | | | | | | | | | ✓ | ✓ | |
+| 700-PROTOTYPE | ✓ | ✓ | ✓ | | | | ✓ | | | | | |
+| 800-VERIFY | | ✓ | ✓ | | ✓ | | | | | | | |
+| 888-JUDGE | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| 999-VAULT | ✓ | | | | | | | | | | | ✓ |
 
 ---
 
-## 📊 Workflow Relationship Matrix
+## 📊 Stage Summary
 
-### Pre-Development Chain
-
-```
-EXPLORE ──(if PROCEED)──→ DISCOVER ──(if VALIDATED)──→ APPRAISE ──(if GO)──→ DESIGN ──→ JUDGE
-   ↓                          ↓                          ↓                      ↓
-CONTINUE                  REJECT                  NO-GO               SABAR/VOID
-(explore more)         (hypothesis false)      (not worth it)        (revise)
-```
-
-### Production Chain
-
-```
-anchor ──→ reason ──→ integrate ──→ respond ──→ validate ──→ align ──→ forge ──→ audit ──→ seal
-  ↓          ↓           ↓                                    ↓         ↓         ↓
-000        222         333                                  555       666       777       888   999
-```
+| Stage | Name | Greek | Focus | Key Output |
+|-------|------|-------|-------|------------|
+| 000 | INIT | Φ (Phi) | Foundation | Ignited session |
+| 100 | EXPLORE | E (Eta) | Expansion | Territory map |
+| 200 | DISCOVER | D (Delta) | Depth | Validated insights |
+| 300 | APPRAISE | A (Alpha) | Assessment | Value matrix |
+| 400 | DESIGN | D (Delta) | Definition | Architecture blueprint |
+| 500 | PLAN | Σ (Sigma) | Strategy | Execution plan |
+| 600 | PREPARE | Ρ (Rho) | Readiness | Ready environment |
+| 700 | PROTOTYPE | Φ (Phi) | Forge | Working implementation |
+| 800 | VERIFY | Υ (Upsilon) | Validation | Verified system |
+| 888 | JUDGE | Ψ (Psi) | Soul | Final verdict |
+| 999 | VAULT | Ω (Omega) | Completion | Immutable record |
 
 ---
 
 ## 🎯 Workflow vs Skill vs Tool
 
-| Layer | What | Example | State | Constitutional |
-|-------|------|---------|-------|----------------|
-| **Tool** | Atomic capability | `reason_mind()` | Stateless | Floor-enforced |
-| **Skill** | Behavioral prompt | "You are a refactoring agent..." | Stateless | Guidance-only |
-| **Workflow** | Multi-step recipe | `EXPLORE → DISCOVER → APPRAISE` | Stateful | Loop-governed |
+| Layer | Abstraction | Example | State |
+|-------|-------------|---------|-------|
+| **L1** | Primitives | `git clone`, `docker ps` | Stateless |
+| **L2** | Tools | `reason_mind()`, `vps_git_ingest()` | Stateless |
+| **L3** | Skills | "You are a refactoring agent..." | Stateless |
+| **L4** | **Workflows** | `000-INIT → 100-EXPLORE → ...` | **Stateful** |
+| **L5** | Agents | Autonomous systems | Persistent |
 
-**Key Insight**: 
-- Tools are **called**; they execute and return
-- Skills **guide**; they shape behavior  
-- Workflows **orchestrate**; they maintain state across stages
+**Key Insight**: Workflows maintain state across stages; tools and skills do not.
+
+---
+
+## 📁 File Organization
+
+```
+333_APPS/L3_WORKFLOW/WORKFLOWS/
+├── README.md                                    (This file)
+├── EXPLORATION-APPRAISAL-ARCHITECTURE.md       (Architecture guide)
+│
+├── 000-INIT-WORKFLOW.md                         (Foundation)
+├── 100-EXPLORE-WORKFLOW.md                      (Expansion)
+├── 200-DISCOVER-WORKFLOW.md                     (Depth)
+├── 300-APPRAISE-WORKFLOW.md                     (Assessment)
+├── 400-DESIGN-WORKFLOW.md                       (Definition)
+├── 500-PLAN-WORKFLOW.md                         (Strategy)
+├── 600-PREPARE-WORKFLOW.md                      (Readiness)
+├── 700-PROTOTYPE-WORKFLOW.md                    (Forge)
+├── 800-VERIFY-WORKFLOW.md                       (Validation)
+├── 888-JUDGE-WORKFLOW.md                        (Soul)
+└── 999-VAULT-WORKFLOW.md                        (Omega)
+
+_ARCHIVE/                                        (Old workflows archived)
+```
 
 ---
 
@@ -213,24 +211,21 @@ anchor ──→ reason ──→ integrate ──→ respond ──→ validate
 
 ### For Exploration (Laptop)
 ```bash
-# Start with exploration
 kimi skill use arifos-agi-plan
 
-# Follow 100-EXPLORE workflow
-> "I want to explore building an AI code review tool"
+# "I want to explore building X"
 
-# Continue through the chain
-[EXPLORE] → [DISCOVER] → [APPRAISE] → [DESIGN] → [JUDGE]
+[000-INIT] → [100-EXPLORE] → [200-DISCOVER] → [300-APPRAISE] → [400-DESIGN]
+     ↓
+[Your decision at 500-PLAN]
 ```
 
 ### For Production (VPS)
 ```bash
-# After SEAL verdict, VPS agents take over
+# After SEAL verdict
 ssh root@srv1325122.hstgr.cloud
-./scripts/vps_production_workflow.sh
 
-# Follow production workflows
-[anchor] → [reason] → [integrate] → [forge] → [audit] → [seal]
+[600-PREPARE] → [700-PROTOTYPE] → [800-VERIFY] → [888-JUDGE] → [999-VAULT]
 ```
 
 ---
@@ -240,18 +235,20 @@ ssh root@srv1325122.hstgr.cloud
 | Document | Purpose |
 |----------|---------|
 | [EXPLORATION-APPRAISAL-ARCHITECTURE](EXPLORATION-APPRAISAL-ARCHITECTURE.md) | Complete architecture guide |
-| [SKILLS_ALIGNMENT_REPORT](../../SKILLS_ALIGNMENT_REPORT.md) | Skills inventory and sync status |
-| [UNIFIED_SKILLS_ARCHITECTURE](../../docs/60_REFERENCE/UNIFIED_SKILLS_ARCHITECTURE.md) | L1-L3 stack architecture |
-| [AGENTS.md](../../AGENTS.md) | Canonical agent guidance |
+| [AGENTS.md](../../../AGENTS.md) | Canonical agent guidance |
+| [UNIFIED_SKILLS_ARCHITECTURE](../../../docs/60_REFERENCE/UNIFIED_SKILLS_ARCHITECTURE.md) | L1-L3 stack |
 
 ---
 
 ## 👑 Authority
 
 **Sovereign:** Muhammad Arif bin Fazil  
-**Version:** v60.1-FORGE-ARIF + v2026.3.6-EXPLORATION  
-**Entropy:** ΔS = -0.65
+**Version:** v2026.3.6-CANON  
+**Status:** UNIFIED — CHAOS REDUCED  
+**Entropy:** ΔS = -0.72
 
 ---
 
-**DITEMPA BUKAN DIBERI** — Forged through exploration, validated through judgment, executed with precision. 🔥
+**11 Stages. 13 Floors. 1 Constitution.**
+
+**DITEMPA BUKAN DIBERI** — Unified, canonical, forged. 🔥
