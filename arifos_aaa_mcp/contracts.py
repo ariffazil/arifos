@@ -20,7 +20,7 @@ REQUIRES_SESSION = {
 
 
 TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
-    "anchor_session": {"query": "str", "actor_id": "str"},
+    "anchor_session": {"query": "str", "actor_id": "str", "session_id": "str"},
     "reason_mind": {"query": "str", "session_id": "str"},
     "recall_memory": {
         "current_thought_vector": "str",
@@ -34,10 +34,10 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
         "command": "str",
     },
     "seal_vault": {"session_id": "str", "summary": "str"},
-    "search_reality": {"query": "str"},
+    "search_reality": {"query": "str", "session_id": "str"},
     "fetch_content": {"id": "str"},
     "inspect_file": {"path": "str"},
-    "audit_rules": {"audit_scope": "str"},
+    "audit_rules": {"audit_scope": "str", "session_id": "str"},
     "check_vital": {},
 }
 

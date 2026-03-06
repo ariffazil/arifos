@@ -313,6 +313,7 @@ async def _init_session(
     compact_kernel: bool = False,
     template_id: str = "arifos.full_context.v1",
     auth_context: dict[str, Any] | None = None,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """
     Initialize a new constitutional session with L0 Kernel enforcement.
@@ -331,7 +332,8 @@ async def _init_session(
         Session data with constitutional system prompt
     """
     try:
-        session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
+        if not session_id:
+            session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
         anch = await anchor(session_id=session_id, user_id=actor_id, context=query)
         verdict = str(anch.get("verdict", "SEAL"))
 
@@ -1090,7 +1092,7 @@ seal_vault = ToolHandle(_vault_seal)
     name="search_reality",
     description="[Lane: Δ Delta] [Floors: F2, F4, F12] Web grounding via Jina Reader (primary) with Perplexity/Brave fallback.",
 )
-async def _search(query: str, intent: str = "general") -> dict[str, Any]:
+async def _search(query: str, intent: str = "general", session_id: str = "") -> dict[str, Any]:
     """
     search_reality — External Evidence Discovery (F2 Truth Verification)
 
@@ -1120,7 +1122,7 @@ async def _search(query: str, intent: str = "general") -> dict[str, Any]:
         urls = [r.get("url") for r in payload.get("results", []) if r.get("url")]
         results = payload.get("results", [])
 
-        return {
+        result = {
             "query": query,
             "intent": intent,
             "status": payload.get("status", "OK"),
@@ -1133,8 +1135,20 @@ async def _search(query: str, intent: str = "general") -> dict[str, Any]:
                 "sources": urls[:3],
             },
         }
+        if session_id:
+            result["session_id"] = session_id
+        return result
     except Exception as e:
-        return {"query": query, "intent": intent, "ids": [], "results": [], "status": f"ERROR: {e}"}
+        error_result = {
+            "query": query,
+            "intent": intent,
+            "ids": [],
+            "results": [],
+            "status": f"ERROR: {e}",
+        }
+        if session_id:
+            error_result["session_id"] = session_id
+        return error_result
 
 
 search_reality = ToolHandle(_search)
@@ -1244,7 +1258,11 @@ async def _analyze(data: dict[str, Any], analysis_type: str = "structure") -> di
     name="audit_rules",
     description="[Lane: Δ Delta] [Floors: F2, F8, F10] Rule & governance audit checks.",
 )
-async def _system_audit(audit_scope: str = "quick", verify_floors: bool = True) -> dict[str, Any]:
+async def _system_audit(
+    audit_scope: str = "quick",
+    verify_floors: bool = True,
+    session_id: str | None = None,
+) -> dict[str, Any]:
     try:
         details: dict[str, Any] = {"scope": audit_scope}
         if verify_floors:
@@ -1256,13 +1274,19 @@ async def _system_audit(audit_scope: str = "quick", verify_floors: bool = True) 
             except Exception as e:
                 details["floors_loaded"] = False
                 details["floor_error"] = str(e)
-        return {
+        result = {
             "verdict": "SEAL" if details.get("floors_loaded", True) else "PARTIAL",
             "scope": audit_scope,
             "details": details,
         }
+        if session_id:
+            result["session_id"] = session_id
+        return result
     except Exception as e:
-        return {"verdict": "VOID", "error": str(e), "scope": audit_scope}
+        error_result = {"verdict": "VOID", "error": str(e), "scope": audit_scope}
+        if session_id:
+            error_result["session_id"] = session_id
+        return error_result
 
 
 audit_rules = ToolHandle(_system_audit)
@@ -1538,4 +1562,3 @@ __all__ = [
     "check_vital",
     "_ensure_rag",
 ]
-

@@ -254,6 +254,7 @@ async def anchor_session(
     mode: str = "conscience",
     grounding_required: bool = True,
     debug: bool = False,
+    session_id: str | None = None,
 ) -> dict[str, Any]:
     """000 BOOTLOADER: initialize constitutional execution kernel and governance context."""
     blocked = validate_input("anchor_session", {"query": query, "actor_id": actor_id})
@@ -270,6 +271,7 @@ async def anchor_session(
             mode=mode,
             grounding_required=grounding_required,
             debug=debug,
+            session_id=session_id,
         )
 
         # Add compute telemetry for Landauer bound
@@ -650,12 +652,16 @@ async def seal_vault(
 
 
 @mcp.tool(name="search_reality")
-async def search_reality(query: str, intent: str = "general") -> dict[str, Any]:
+async def search_reality(
+    query: str,
+    intent: str = "general",
+    session_id: str = "",
+) -> dict[str, Any]:
     """External evidence discovery (read-only)."""
-    blocked = validate_input("search_reality", {"query": query})
+    blocked = validate_input("search_reality", {"query": query, "session_id": session_id})
     if blocked:
         return wrap_tool_output("search_reality", blocked)
-    payload = await legacy.search_reality.fn(query=query, intent=intent)
+    payload = await legacy.search_reality.fn(query=query, intent=intent, session_id=session_id)
     return wrap_tool_output("search_reality", payload)
 
 
@@ -694,12 +700,20 @@ async def inspect_file(
 
 
 @mcp.tool(name="audit_rules")
-async def audit_rules(audit_scope: str = "quick", verify_floors: bool = True) -> dict[str, Any]:
+async def audit_rules(
+    audit_scope: str = "quick",
+    verify_floors: bool = True,
+    session_id: str = "",
+) -> dict[str, Any]:
     """Run constitutional/system rule audit checks (read-only)."""
-    blocked = validate_input("audit_rules", {"audit_scope": audit_scope})
+    blocked = validate_input("audit_rules", {"audit_scope": audit_scope, "session_id": session_id})
     if blocked:
         return wrap_tool_output("audit_rules", blocked)
-    payload = await legacy.audit_rules.fn(audit_scope=audit_scope, verify_floors=verify_floors)
+    payload = await legacy.audit_rules.fn(
+        audit_scope=audit_scope,
+        verify_floors=verify_floors,
+        session_id=session_id,
+    )
     return wrap_tool_output("audit_rules", payload)
 
 
