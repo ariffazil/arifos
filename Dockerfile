@@ -68,11 +68,11 @@ RUN mkdir -p models/bge && (cp -r aclip_cai/embeddings/* models/bge/ || true) &&
     chown -R arifos:arifos /usr/src/app /ms-playwright
 
 # Install Playwright browser deterministically
-RUN python -m playwright install --with-deps chromium
+RUN python -m playwright install --with-deps chromium && \
+    chown -R arifos:arifos /ms-playwright
 
-# Final browser installation (as non-root for security floor/cache warmup)
+# Switch to non-root user for runtime (F11 Authority / F1 Law)
 USER arifos
-RUN python -m playwright install chromium
 
 # Expose canonical MCP port
 EXPOSE 8080
