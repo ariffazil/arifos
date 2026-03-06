@@ -156,6 +156,11 @@ def _auth_error_response(request: Request) -> JSONResponse | None:
     return None
 
 
+def _normalize_tool_name(raw_name: str) -> str:
+    """Normalize tool path params so trailing slashes do not break alias resolution."""
+    return (raw_name or "").strip().strip("/")
+
+
 def _public_base_url(request: Request) -> str:
     explicit = os.getenv("ARIFOS_PUBLIC_BASE_URL", "").strip().rstrip("/")
     if explicit:
@@ -369,6 +374,10 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             })
         return JSONResponse({"tools": tool_list, "count": len(tool_list)})
 
+    @mcp.custom_route("/tools/", methods=["GET"])
+    async def list_tools_slash(request: Request) -> Response:
+        return await list_tools(request)
+
     @mcp.custom_route("/openapi.json", methods=["GET"])
     async def openapi_json(request: Request) -> Response:
         schema = _openapi_schema(_public_base_url(request))
@@ -380,7 +389,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         if err := _auth_error_response(request):
             return err
 
-        incoming_name = request.path_params.get("tool_name", "")
+        incoming_name = _normalize_tool_name(request.path_params.get("tool_name", ""))
         canonical_name = TOOL_ALIASES.get(incoming_name, incoming_name)
         request_id = f"req-{uuid.uuid4().hex[:12]}"
         start_time = time.time()

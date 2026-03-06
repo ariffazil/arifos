@@ -1,8 +1,8 @@
 # 333_APPS Implementation Status
 
 > **Ground Truth for arifOS Application Stack**  
-> **Last Updated:** 2026-02-14  
-> **Version:** v64.1.1-GAGI (Performance Release)
+> **Last Updated:** 2026-03-06  
+> **Version:** v2026.3.1 (Canonical AAA Surface)
 
 ---
 
@@ -15,7 +15,7 @@
 | **L1_PROMPT** | 100% Core | ✅ **HARDENED** (`SYSTEM_PROMPT.md` is canonical) | **Production** |
 | **L2_SKILLS** | 100% Core | ✅ **HARDENED** (9 actions in `ACTIONS/` mapped to organs) | **Production** |
 | **L3_WORKFLOW** | 100% Core | ✅ **HARDENED** (Unified sequences in `WORKFLOWS/`) | **Production** |
-| **L4_TOOLS** | 100% Core | ✅ **HARDENED** (9 A-CLIP + 5 Container tools) | **Production** |
+| **L4_TOOLS** | 100% Core | ✅ **HARDENED** (13 canonical AAA tools + 1 composite loop) | **Production** |
 | **L5_AGENTS** | Pilot | 🟡 **PILOT** (OpenClaw active; logic migration to `core/` in progress) | **Experimental** |
 | **L6_INSTITUTION**| Planning | 🔴 **STUBS** (Targeted for v56.0-EIGEN) | **Planned** |
 | **L7_AGI** | Concept | 📋 **RESEARCH** (Recursive self-healing theory) | **Theoretical** |
@@ -37,29 +37,24 @@
 - ✅ **Model-Agnostic:** Verified on Claude 3.5 Sonnet and Gemini 1.5 Pro.
 
 ### L4_TOOLS — Production MCP ✅
-- ✅ **Active:** 14 tools served via `aaa_mcp/server.py`:
-  
-  **9 A-CLIP Constitutional Tools:**
-  1. `anchor` (000) — Session initiation
-  2. `reason` (222) — Hypothesize & analyze
-  3. `integrate` (333) — Map & ground
-  4. `respond` (444) — Draft plan
-  5. `validate` (555) — Stakeholder impact
-  6. `align` (666) — Ethics check
-  7. `forge` (777) — Synthesize solution
-  8. `audit` (888) — Final verdict
-  9. `seal` (999) — Cryptographic seal
-  
-  **5 Container Management Tools:**
-  10. `container_list` — List containers (cached)
-  11. `container_restart` — Restart with 888_HOLD
-  12. `container_logs` — Fetch logs
-  13. `sovereign_health` — Full stack health
-  14. `container_exec` — Execute with F12 defense
-  
-- ✅ **Performance:** Config caching (13,725x faster), Container caching (16,022x faster)
-- ✅ **Transports:** SSE, HTTP, and stdio fully supported.
-- ✅ **Governance:** v64.1.1 Uncertainty Engine + Telemetry + Centralized Constants
+- ✅ **Public canonical surface:** 13 governed tools via `arifos_aaa_mcp/server.py`
+  1. `anchor_session`
+  2. `reason_mind`
+  3. `recall_memory`
+  4. `simulate_heart`
+  5. `critique_thought`
+  6. `apex_judge`
+  7. `eureka_forge`
+  8. `seal_vault`
+  9. `search_reality`
+  10. `fetch_content`
+  11. `inspect_file`
+  12. `audit_rules`
+  13. `check_vital`
+- ✅ **Composite orchestration tool:** `metabolic_loop` (L5 composite, not part of sacred 13 count)
+- ✅ **Alias support:** A-CLIP verbs (`anchor`, `reason`, `integrate`, `respond`, `validate`, `align`, `forge`, `audit`, `seal`) resolve to canonical tools via alias mapping.
+- ✅ **Transports:** stdio, SSE (`/sse`), Streamable HTTP (`/mcp`), REST compatibility routes (`/tools/{name}`).
+- ✅ **Governance hardening:** token-locked `seal_vault`, F11 continuity checks, and floor-aware error envelopes.
 
 ### L5_AGENTS — Federation Pilot 🟡
 - 🟡 **Status:** Federation stubs exist; primary logic is being centralized in `core/organs`.

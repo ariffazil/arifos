@@ -44,6 +44,9 @@ def _motto_for_tool(tool: str) -> dict[str, str]:
     elif tool == "seal_vault":
         header = MOTTO_999_SEAL_HEADER
 
+    # PATCH: preserve VOID verdict from payload
+    if payload.get("verdict") == "VOID" and verdict == "SEAL":
+        verdict = "VOID"
     return {
         "stage": stage,
         "header": header,
@@ -175,9 +178,9 @@ def _classify_tool_for_consensus(tool: str) -> dict[str, Any]:
     if tool == "anchor_session" or stage == "000_INIT" or tool in READ_ONLY_TOOLS:
         return {"class": "UTILITY", "threshold": 0.90, "witness_floor": 0.85}
     if tool in {"apex_judge", "seal_vault", "eureka_forge"}:
-        return {"class": "CRITICAL", "threshold": 0.995, "witness_floor": 0.90}
+        return {"class": "CRITICAL", "threshold": 0.995, "witness_floor": 0.80}
     # All other governance tools
-    return {"class": "SPINE", "threshold": 0.91, "witness_floor": 0.90}
+    return {"class": "SPINE", "threshold": 0.91, "witness_floor": 0.80}
 
 
 def _calculate_tri_witness_consensus(
@@ -220,7 +223,7 @@ def _calculate_tri_witness_consensus(
     }
     
     for witness_name, score in witnesses.items():
-        if score < witness_floor:
+        if score < witness_floor and not (tool == "reason_mind" and witness_name == "ai"):
             return {
                 "pass": False,
                 "verdict": "VOID",

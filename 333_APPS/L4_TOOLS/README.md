@@ -61,6 +61,25 @@ ARIF bands represent cognitive boundaries. Tools are grouped by their effect on 
 
 ---
 
+## 🔁 A-CLIP Compatibility Mapping
+
+The public contract is the 13 canonical tools above.  
+For operator ergonomics, A-CLIP aliases are accepted and resolved to canonical tool names:
+
+| A-CLIP Alias | Canonical Tool |
+|---|---|
+| `anchor` | `anchor_session` |
+| `reason` | `reason_mind` |
+| `integrate` | `reason_mind` |
+| `respond` | `reason_mind` |
+| `validate` | `simulate_heart` |
+| `align` | `simulate_heart` |
+| `forge` | `apex_judge` |
+| `audit` | `apex_judge` |
+| `seal` | `seal_vault` |
+
+---
+
 ## 🛡️ Band Contracts
 - **A Band must run first** in any metabolic loop to establish authority.
 - **R Band tools may READ** but never mutate external systems.

@@ -186,8 +186,12 @@ TOOL_SCHEMAS = {
     "inspect_file": {
         "description": "[Lane: Delta] Filesystem inspection (read-only)",
         "args": {
-            "session_id": {"type": "string", "required": True},
-            "path": {"type": "string", "required": True},
+            "path": {"type": "string", "required": False, "default": "."},
+            "depth": {"type": "integer", "required": False, "default": 1},
+            "include_hidden": {"type": "boolean", "required": False, "default": False},
+            "pattern": {"type": "string", "required": False, "default": "*"},
+            "min_size_bytes": {"type": "integer", "required": False, "default": 0},
+            "max_files": {"type": "integer", "required": False, "default": 100},
         },
     },
     "audit_rules": {
@@ -200,7 +204,9 @@ TOOL_SCHEMAS = {
     "check_vital": {
         "description": "[Lane: Omega] System health & vital signs",
         "args": {
-            "session_id": {"type": "string", "required": True},
+            "include_swap": {"type": "boolean", "required": False, "default": True},
+            "include_io": {"type": "boolean", "required": False, "default": False},
+            "include_temp": {"type": "boolean", "required": False, "default": False},
         },
     },
     "self_diagnose": {
@@ -252,6 +258,11 @@ def _auth_error_response(request: Request) -> JSONResponse | None:
 # ═══════════════════════════════════════════════════════
 # TOOL DISPATCH
 # ═══════════════════════════════════════════════════════
+
+
+def _normalize_tool_name(raw_name: str | None) -> str:
+    """Normalize tool path names to tolerate trailing slashes."""
+    return (raw_name or "").strip().strip("/")
 
 async def _execute_tool_call(
     incoming_tool_name: str,
@@ -448,7 +459,7 @@ async def call_tool(request: Request):
     auth_error = _auth_error_response(request)
     if auth_error: return auth_error
     request_id = generate_request_id()
-    tool_name = request.path_params.get("tool_name")
+    tool_name = _normalize_tool_name(request.path_params.get("tool_name"))
     start_time = time.time()
     try:
         body = await request.json()
@@ -507,14 +518,17 @@ routes = [
     Route("/", route_info, methods=["GET"]),
     Route("/.well-known/mcp/server.json", well_known_mcp_server_json, methods=["GET"]),
     Route("/mcp", mcp_alias, methods=["GET", "POST"]),
+    Route("/mcp/", mcp_alias, methods=["GET", "POST"]),
     Route("/health", health, methods=["GET"]),
     Route("/ready", ready, methods=["GET"]),
     Route("/version", version, methods=["GET"]),
     Route("/metrics", metrics_endpoint, methods=["GET"]),
     Route("/tools", list_tools, methods=["GET"]),
-    Route("/tools/{tool_name}", call_tool, methods=["POST"]),
+    Route("/tools/", list_tools, methods=["GET"]),
+    Route("/tools/{tool_name:path}", call_tool, methods=["POST"]),
     Route("/apex_judge", apex_judge_wrapper, methods=["POST"]),
     Route("/sse", sse_endpoint, methods=["GET", "POST"]),
+    Route("/sse/", sse_endpoint, methods=["GET", "POST"]),
     Route("/messages", messages_endpoint, methods=["POST"]),
     Route("/{tool_name}", call_tool, methods=["POST"]),
 ]
