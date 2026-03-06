@@ -35,7 +35,7 @@ L1_PROMPTS: frozenset[str] = frozenset({"list_prompts", "get_prompt"})
 AAA_CANONICAL_TOOLS: tuple[str, ...] = (
     "anchor_session",
     "reason_mind",
-    "recall_memory",
+    "vector_memory",
     "simulate_heart",
     "critique_thought",
     "eureka_forge",
@@ -70,7 +70,8 @@ AAA_TOOL_ALIASES: dict[str, str] = {
     "metabolicloop": "metabolic_loop",
     "init_session": "anchor_session",
     "agi_cognition": "reason_mind",
-    "phoenix_recall": "recall_memory",
+    "phoenix_recall": "vector_memory",
+    "recall_memory": "vector_memory",
     "asi_empathy": "simulate_heart",
     "apex_verdict": "apex_judge",
     "judge_soul": "apex_judge",
@@ -120,7 +121,7 @@ AXIOMS_333: dict[str, dict[str, Any]] = {
 TRINITY_BY_TOOL: dict[str, str] = {
     "anchor_session": "Delta",
     "reason_mind": "Delta",
-    "recall_memory": "Omega",
+    "vector_memory": "Omega",
     "simulate_heart": "Omega",
     "critique_thought": "Omega",
     "apex_judge": "Psi",
@@ -153,7 +154,7 @@ LAW_13_CATALOG: dict[str, dict[str, str]] = {
 AAA_TOOL_LAW_BINDINGS: dict[str, list[str]] = {
     "anchor_session": ["F11_AUTHORITY", "F12_DEFENSE", "F13_SOVEREIGNTY", "F3_TRI_WITNESS"],
     "reason_mind": ["F2_TRUTH", "F4_CLARITY", "F7_HUMILITY", "F8_GENIUS"],
-    "recall_memory": ["F4_CLARITY", "F7_HUMILITY", "F3_TRI_WITNESS", "F13_SOVEREIGNTY"],
+    "vector_memory": ["F4_CLARITY", "F7_HUMILITY", "F3_TRI_WITNESS", "F13_SOVEREIGNTY"],
     "simulate_heart": ["F5_PEACE2", "F6_EMPATHY", "F4_CLARITY", "F3_TRI_WITNESS"],
     "critique_thought": ["F4_CLARITY", "F7_HUMILITY", "F8_GENIUS", "F12_DEFENSE", "F3_TRI_WITNESS"],
     "apex_judge": [
@@ -194,7 +195,7 @@ AAA_TOOL_LAW_BINDINGS: dict[str, list[str]] = {
 AAA_TOOL_STAGE_MAP: dict[str, str] = {
     "anchor_session": "000_INIT",
     "reason_mind": "333_REASON",
-    "recall_memory": "444_SYNC",
+    "vector_memory": "444_SYNC",
     "simulate_heart": "555_EMPATHY",
     "critique_thought": "666_ALIGN",
     "apex_judge": "888_JUDGE",

@@ -9,7 +9,7 @@ from aaa_mcp.server import mcp
 CANONICAL_EXPOSED_TOOLS = {
     "anchor_session",
     "reason_mind",
-    "recall_memory",
+    "vector_memory",
     "simulate_heart",
     "critique_thought",
     "apex_judge",

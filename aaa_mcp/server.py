@@ -4,7 +4,7 @@ DO NOT CALL DIRECTLY for public MCP interactions. Use `arifos_aaa_mcp.server` in
 This module remains for legacy and internal provision only.
 
 Contract — 13 canonical tools with UX verb names:
-  Governance (8):  anchor_session, reason_mind, recall_memory, simulate_heart,
+  Governance (8):  anchor_session, reason_mind, vector_memory, simulate_heart,
                    critique_thought, apex_judge, eureka_forge, seal_vault
   Utilities (4):   search_reality, ingest_evidence, audit_rules, check_vital
   Orchestration (1): metabolic_loop
@@ -484,8 +484,8 @@ reason_mind = ToolHandle(_agi_cognition)
 
 
 @mcp.tool(
-    name="recall_memory",
-    description="[Lane: Ω Omega] [Floors: F4, F7, F13] Associative memory traces.",
+    name="vector_memory",
+    description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory (VM) – semantic retrieval (BGE + Qdrant).",
 )
 async def _phoenix_recall(
     current_thought_vector: str,
@@ -564,7 +564,7 @@ async def _phoenix_recall(
         return _fracture_response("555_RECALL", e, session_id)
 
 
-recall_memory = ToolHandle(_phoenix_recall)
+vector_memory = ToolHandle(_phoenix_recall)
 
 
 @mcp.tool(
@@ -1469,7 +1469,7 @@ async def _arifos_info_resource() -> str:
             "tools": [
                 "anchor_session",
                 "reason_mind",
-                "recall_memory",
+                "vector_memory",
                 "simulate_heart",
                 "critique_thought",
                 "apex_judge",
@@ -1581,7 +1581,7 @@ __all__ = [
     "mcp",
     "anchor_session",
     "reason_mind",
-    "recall_memory",
+    "vector_memory",
     "simulate_heart",
     "critique_thought",
     "apex_judge",

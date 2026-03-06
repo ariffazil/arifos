@@ -45,7 +45,7 @@ class TestToolCount:
 EXPECTED_13_TOOLS = {
     "anchor_session",
     "reason_mind",
-    "recall_memory",
+    "vector_memory",
     "simulate_heart",
     "critique_thought",
     "eureka_forge",

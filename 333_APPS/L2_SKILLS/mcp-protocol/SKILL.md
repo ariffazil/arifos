@@ -24,7 +24,7 @@ description: 14 canonical MCP tools — response envelopes, transport adapters, 
 |---|------|-------|-------------|
 | 1 | `arifos-aaa_anchor_session` | 000/111 | Session initialization |
 | 2 | `arifos-aaa_reason_mind` | 333 | AGI reasoning |
-| 3 | `arifos-aaa_recall_memory` | 444 | Memory evidence |
+| 3 | `arifos-aaa_vector_memory` | 444 | BBB Vector Memory |
 | 4 | `arifos-aaa_simulate_heart` | 555 | Empathy simulation |
 | 5 | `arifos-aaa_critique_thought` | 666 | 7-model critique |
 | 6 | `arifos-aaa_eureka_forge` | 777 | Shell execution |
