@@ -50,9 +50,9 @@ from arifos_aaa_mcp.server import (
     audit_rules,
     check_vital,
     critique_thought,
-    fetch_content,
+    ingest_evidence,
     eureka_forge,
-    inspect_file,
+    metabolic_loop,
     apex_judge,
     reason_mind,
     recall_memory,
@@ -64,21 +64,21 @@ from arifos_aaa_mcp.server import (
 # Build info
 BUILD_INFO = get_build_info()
 
-# Tool registry — canonical UX names as primary keys.
+# Tool registry — exactly 13 canonical tools, sourced from AAA_CANONICAL_TOOLS.
 TOOLS = {
     "anchor_session": anchor_session,
     "reason_mind": reason_mind,
     "recall_memory": recall_memory,
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
-    "apex_judge": apex_judge,
     "eureka_forge": eureka_forge,
+    "apex_judge": apex_judge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,
-    "fetch_content": fetch_content,
-    "inspect_file": inspect_file,
+    "ingest_evidence": ingest_evidence,
     "audit_rules": audit_rules,
     "check_vital": check_vital,
+    "metabolic_loop": metabolic_loop,
     "self_diagnose": self_diagnose,
 }
 
@@ -176,17 +176,14 @@ TOOL_SCHEMAS = {
             "intent": {"type": "string", "default": "general"},
         },
     },
-    "fetch_content": {
-        "description": "[Lane: Delta] Raw evidence content retrieval by URL",
+    "ingest_evidence": {
+        "description": "[Lane: Delta] Unified evidence ingestion — URL fetch or file inspect",
         "args": {
-            "id": {"type": "string", "required": True},
-            "max_chars": {"type": "integer", "default": 4000},
-        },
-    },
-    "inspect_file": {
-        "description": "[Lane: Delta] Filesystem inspection (read-only)",
-        "args": {
-            "path": {"type": "string", "required": False, "default": "."},
+            "source_type": {"type": "enum", "values": ["url", "file"], "required": True},
+            "target": {"type": "string", "required": True},
+            "mode": {"type": "enum", "values": ["raw", "summary", "chunks"], "default": "raw"},
+            "max_chars": {"type": "integer", "required": False, "default": 4000},
+            "session_id": {"type": "string|null", "required": False, "default": None},
             "depth": {"type": "integer", "required": False, "default": 1},
             "include_hidden": {"type": "boolean", "required": False, "default": False},
             "pattern": {"type": "string", "required": False, "default": "*"},
@@ -419,6 +416,7 @@ async def route_info(request: Request):
 
 async def health(request: Request):
     from aaa_mcp.infrastructure.monitoring import get_health_monitor, get_metrics_collector
+    from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS, ARCHIVED_TOOLS, CANONICAL_TOOL_COUNT
     monitor = get_health_monitor()
     collector = get_metrics_collector()
     health_results = await monitor.check_all()
@@ -427,6 +425,11 @@ async def health(request: Request):
         {
             "status": "healthy" if monitor.is_healthy() else "degraded",
             "version": BUILD_INFO["version"],
+            "tools": {
+                "canonical_tools_count": CANONICAL_TOOL_COUNT,
+                "public": list(AAA_CANONICAL_TOOLS),
+                "archived": sorted(ARCHIVED_TOOLS),
+            },
             "ml_floors": get_ml_floor_runtime(),
             "governance_metrics": stats,
             "health_checks": health_results,

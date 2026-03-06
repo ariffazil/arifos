@@ -33,6 +33,7 @@ from aaa_mcp.protocol.public_surface import (
     PUBLIC_RESOURCE_URIS,
     PUBLIC_TOOL_ALIASES,
 )
+from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS, CANONICAL_TOOL_COUNT
 
 # Import canonical tools from public 13-tool surface.
 from arifos_aaa_mcp.server import (
@@ -45,8 +46,8 @@ from arifos_aaa_mcp.server import (
     check_vital,
     critique_thought,
     eureka_forge,
-    fetch_content,
-    inspect_file,
+    ingest_evidence,
+    metabolic_loop,
     reason_mind,
     recall_memory,
     seal_vault,
@@ -95,38 +96,39 @@ PROMPT_ARGUMENT_COMPLETIONS: dict[str, dict[str, list[str]]] = {
     }
 }
 
-# Tool registry — canonical UX names as primary keys.
+# Tool registry — exactly 13 canonical tools, keyed by canonical name.
+# Sourced from AAA_CANONICAL_TOOLS; no archived or internal tools present.
 TOOLS = {
     "anchor_session": anchor_session,
     "reason_mind": reason_mind,
     "recall_memory": recall_memory,
     "simulate_heart": simulate_heart,
     "critique_thought": critique_thought,
-    "apex_judge": apex_judge,
     "eureka_forge": eureka_forge,
+    "apex_judge": apex_judge,
     "seal_vault": seal_vault,
     "search_reality": search_reality,
-    "fetch_content": fetch_content,
-    "inspect_file": inspect_file,
+    "ingest_evidence": ingest_evidence,
     "audit_rules": audit_rules,
     "check_vital": check_vital,
+    "metabolic_loop": metabolic_loop,
 }
 
-# Tool descriptions for MCP tools/list.
+# Tool descriptions for MCP tools/list — 13 canonical tools only.
 TOOL_DESCRIPTIONS = {
     "anchor_session": "[Lane: Delta] 000_INIT — Session ignition + injection scan",
     "reason_mind": "[Lane: Delta] 111-444_AGI — SENSE→THINK→REASON with grounding",
     "recall_memory": "[Lane: Omega] 555_RECALL — Associative memory retrieval",
     "simulate_heart": "[Lane: Omega] 555-666_ASI — Stakeholder impact + care",
     "critique_thought": "[Lane: Omega] 666_ALIGN — 7-model bias critique",
-    "apex_judge": "[Lane: Psi] 888_APEX_JUDGE — Sovereign verdict synthesis",
     "eureka_forge": "[Lane: Psi] 777_EUREKA_FORGE — Sandboxed action execution",
+    "apex_judge": "[Lane: Psi] 888_APEX_JUDGE — Sovereign verdict synthesis",
     "seal_vault": "[Lane: Psi] 999_VAULT — Immutable ledger seal",
     "search_reality": "[Lane: Delta] Web grounding search (Perplexity/Brave)",
-    "fetch_content": "[Lane: Delta] Raw evidence content retrieval",
-    "inspect_file": "[Lane: Delta] Filesystem inspection (read-only)",
+    "ingest_evidence": "[Lane: Delta] Unified evidence ingestion — URL fetch or file inspect",
     "audit_rules": "[Lane: Delta] Rule & governance audit checks",
     "check_vital": "[Lane: Omega] System health & vital signs",
+    "metabolic_loop": "[Lane: ALL] 000→999 full constitutional cycle orchestration",
 }
 
 # All aliases resolve to canonical names.
@@ -622,16 +624,31 @@ async def mcp_endpoint(request: Request) -> Response:
         )
 
     if method == "tools/list":
+        # MCP 2025-11-25: tools/list supports cursor-based pagination.
+        # All 13 canonical tools fit in one page, so nextCursor is omitted.
+        # Null/missing cursor is treated as "first page" per spec §3.3.
         tools = [
             {
                 "name": name,
-                "description": desc,
+                "description": TOOL_DESCRIPTIONS[name],
                 "inputSchema": _build_input_schema(TOOLS[name]),
             }
-            for name, desc in TOOL_DESCRIPTIONS.items()
+            for name in AAA_CANONICAL_TOOLS
+            if name in TOOLS and name in TOOL_DESCRIPTIONS
         ]
+        # Invariant check — surface must never exceed the sacred 13.
+        assert len(tools) == CANONICAL_TOOL_COUNT, (
+            f"tools/list surface violation: got {len(tools)}, expected {CANONICAL_TOOL_COUNT}"
+        )
         return JSONResponse(
-            {"jsonrpc": "2.0", "id": request_id, "result": {"tools": tools}},
+            {
+                "jsonrpc": "2.0",
+                "id": request_id,
+                "result": {
+                    "tools": tools,
+                    # nextCursor omitted when all tools fit on one page (MCP 2025-11-25 §3.3)
+                },
+            },
             headers=_transport_headers(session_id),
         )
 
@@ -709,8 +726,9 @@ async def mcp_endpoint(request: Request) -> Response:
 
 
 async def health(request: Request) -> JSONResponse:
-    """Health check with governance metrics."""
+    """Health check with governance metrics — reports exactly 13 canonical tools."""
     from aaa_mcp.infrastructure.monitoring import get_health_monitor, get_metrics_collector
+    from aaa_mcp.protocol.aaa_contract import ARCHIVED_TOOLS
 
     monitor = get_health_monitor()
     collector = get_metrics_collector()
@@ -723,6 +741,11 @@ async def health(request: Request) -> JSONResponse:
             "status": "healthy" if monitor.is_healthy() else "degraded",
             "transport": "streamable-http",
             "version": "2026.02.27-CANONICAL-13",
+            "tools": {
+                "canonical_tools_count": CANONICAL_TOOL_COUNT,
+                "public": list(AAA_CANONICAL_TOOLS),
+                "archived": sorted(ARCHIVED_TOOLS),
+            },
             "governance_metrics": stats,
             "health_checks": health_results,
             "endpoints": ["/mcp", "/health"],
