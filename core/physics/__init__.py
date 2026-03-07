@@ -10,8 +10,8 @@ Constitutional Boundary: All thermodynamic constraints enforced here.
 """
 
 from .thermodynamics import (
-    ThermodynamicState,
     EntropyManager,
+    ThermodynamicState,
     get_entropy_manager,
 )
 

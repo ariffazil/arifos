@@ -111,7 +111,9 @@ async def check_tools() -> tuple[bool, list[str]]:
         if missing:
             issues.append(f"FAIL: Missing canonical tools: {missing}")
         else:
-            print(f"✓ All {len(required_tools)} canonical tools present (MANIFEST_VERSION={MANIFEST_VERSION})")
+            print(
+                f"✓ All {len(required_tools)} canonical tools present (MANIFEST_VERSION={MANIFEST_VERSION})"
+            )
 
         print("✓ MCP server module loaded successfully")
 

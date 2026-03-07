@@ -32,15 +32,15 @@ from typing import Any
 
 from fastmcp import FastMCP
 from mcp.types import Icon
-import aaa_mcp as legacy
 
-from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
+import aaa_mcp as legacy
 from aaa_mcp.protocol.public_surface import (
     PUBLIC_CANONICAL_TOOLS,
     PUBLIC_PROMPT_NAMES,
     PUBLIC_RESOURCE_URIS,
 )
 from aaa_mcp.protocol.tool_registry import export_full_context_pack
+from aclip_cai.tools.system_monitor import get_system_health
 from aclip_cai.triad import (
     align,
     anchor,
@@ -53,8 +53,6 @@ from aclip_cai.triad import (
     think,
     validate,
 )
-from aclip_cai.tools.fs_inspector import fs_inspect
-from aclip_cai.tools.system_monitor import get_system_health
 
 from .contracts import require_session, validate_input
 from .fastmcp_ext.discovery import build_surface_discovery
@@ -192,25 +190,25 @@ envelope_builder = EnvelopeBuilder()
 
 # Import core thermodynamic cage
 try:
-    from core.physics.thermodynamics import (
-        ThermodynamicViolation,
-        ModeCollapseError,
-        CheapTruthError,
-        check_landauer_bound,
-        derive_orthogonality,
-    )
     from core.homeostasis import (
         PeaceViolation,
         check_peace_squared,
     )
+    from core.judgment import (
+        JudgmentKernel,
+        get_judgment_kernel,
+    )
     from core.kernel.constitutional_decorator import (
-        EntropyViolation,
         AmanahViolation,
+        EntropyViolation,
         constitutional_floor,
     )
-    from core.judgment import (
-        get_judgment_kernel,
-        JudgmentKernel,
+    from core.physics.thermodynamics import (
+        CheapTruthError,
+        ModeCollapseError,
+        ThermodynamicViolation,
+        check_landauer_bound,
+        derive_orthogonality,
     )
 
     CORE_AVAILABLE = True
@@ -604,9 +602,9 @@ async def reason_mind(
             "actor_id": actor_id,
             "token_status": _token_status(auth_token),
             "debug": debug,
-            "data": {"think": think_draft, "reason": r, "integrate": i, "respond": d}
-            if debug
-            else {},
+            "data": (
+                {"think": think_draft, "reason": r, "integrate": i, "respond": d} if debug else {}
+            ),
         }
         payload.update(
             envelope_builder.build_envelope(
@@ -965,7 +963,6 @@ async def eureka_forge(
         return wrap_tool_output("eureka_forge", missing)
     start_time = time.time()
     try:
-        from aaa_mcp.sessions.session_ledger import get_session_manager
         import shlex
 
         DANGEROUS_PATTERNS = [
@@ -1018,7 +1015,7 @@ async def eureka_forge(
                     payload={
                         "status": "CONFIRMATION_REQUIRED",
                         "risk_level": risk_level,
-                        "message": f"CRITICAL command detected. Set confirm_dangerous=True to execute.",
+                        "message": "CRITICAL command detected. Set confirm_dangerous=True to execute.",
                     },
                 ),
             )
@@ -1208,9 +1205,13 @@ async def search_reality(
     effective_session = (session_token or session_id or "").strip()
 
     if not effective_query:
-        return wrap_tool_output("search_reality", {"verdict": "VOID", "error": "Missing query or grounding_query"})
+        return wrap_tool_output(
+            "search_reality", {"verdict": "VOID", "error": "Missing query or grounding_query"}
+        )
 
-    blocked = validate_input("search_reality", {"query": effective_query, "session_id": effective_session})
+    blocked = validate_input(
+        "search_reality", {"query": effective_query, "session_id": effective_session}
+    )
     if blocked:
         return wrap_tool_output("search_reality", blocked)
     try:
@@ -1241,7 +1242,9 @@ async def search_reality(
             res_payload["session_id"] = effective_session
         return wrap_tool_output("search_reality", res_payload)
     except Exception as e:
-        return wrap_tool_output("search_reality", {"query": effective_query, "status": f"ERROR: {e}"})
+        return wrap_tool_output(
+            "search_reality", {"query": effective_query, "status": f"ERROR: {e}"}
+        )
 
 
 @mcp.tool(name="ingest_evidence")
@@ -1465,7 +1468,7 @@ def get_visualizer() -> str:
         "mcp-app.html",
     )
     if os.path.exists(path):
-        with open(path, "r", encoding="utf-8") as f:
+        with open(path, encoding="utf-8") as f:
             return f.read()
     return "<html><body><h1>Visualizer app not built yet. Run npm run build:mcp in constitutional-visualizer</h1></body></html>"
 
@@ -1582,9 +1585,9 @@ _TOOL_REGISTRY = {
 # One full metabolic cycle of governed intelligence.
 # Like a heat engine: intake → compression → power stroke → exhaust → ready.
 
-from pydantic import BaseModel, Field
 from typing import Literal
 
+from pydantic import BaseModel, Field
 
 # Placeholder - will be populated after metabolic_loop is defined
 _METABOLIC_LOOP_REGISTERED = False

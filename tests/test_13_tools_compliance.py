@@ -25,6 +25,7 @@ from aaa_mcp.protocol.aaa_contract import (
 # 1. Tool Count
 # ─────────────────────────────────────────────────────────────────────────────
 
+
 class TestToolCount:
     """Verify CANONICAL_TOOL_COUNT is exactly 13."""
 
@@ -72,19 +73,20 @@ class TestExactToolNames:
         assert "metabolic_loop" in L4_TOOLS
 
     def test_no_ghost_fetch_content(self):
-        assert "fetch_content" not in L4_TOOLS, (
-            "fetch_content must not appear in canonical surface — it is archived"
-        )
+        assert (
+            "fetch_content" not in L4_TOOLS
+        ), "fetch_content must not appear in canonical surface — it is archived"
 
     def test_no_ghost_inspect_file(self):
-        assert "inspect_file" not in L4_TOOLS, (
-            "inspect_file must not appear in canonical surface — it is archived"
-        )
+        assert (
+            "inspect_file" not in L4_TOOLS
+        ), "inspect_file must not appear in canonical surface — it is archived"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 3. Archived Tools Isolation
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class TestArchivedToolsIsolation:
     """Verify archived tools are tracked but not exposed."""
@@ -100,14 +102,13 @@ class TestArchivedToolsIsolation:
 
     def test_archived_tools_disjoint_from_canonical(self):
         overlap = ARCHIVED_TOOLS & L4_TOOLS
-        assert not overlap, (
-            f"Archived tools must not appear in canonical surface: {overlap}"
-        )
+        assert not overlap, f"Archived tools must not appear in canonical surface: {overlap}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 4. Read-Only Tool Classification
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class TestReadOnlyTools:
     def test_ingest_evidence_is_read_only(self):
@@ -120,14 +121,15 @@ class TestReadOnlyTools:
         assert "inspect_file" not in READ_ONLY_TOOLS
 
     def test_read_only_tools_subset_of_canonical(self):
-        assert READ_ONLY_TOOLS.issubset(L4_TOOLS), (
-            f"All READ_ONLY_TOOLS must be in L4_TOOLS. Extras: {READ_ONLY_TOOLS - L4_TOOLS}"
-        )
+        assert READ_ONLY_TOOLS.issubset(
+            L4_TOOLS
+        ), f"All READ_ONLY_TOOLS must be in L4_TOOLS. Extras: {READ_ONLY_TOOLS - L4_TOOLS}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 5. Allowlist Parity
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class TestAllowlistParity:
     """Verify 333_APPS allowlist matches canonical 13."""
@@ -137,14 +139,15 @@ class TestAllowlistParity:
 
         mod = import_module("333_APPS.L5_AGENTS.POWER.io.tools")
         allowed: frozenset[str] = getattr(mod, "_ALLOWED_TOOLS")
-        assert allowed == EXPECTED_13_TOOLS, (
-            f"Allowlist mismatch.\n  Extra: {allowed - EXPECTED_13_TOOLS}\n  Missing: {EXPECTED_13_TOOLS - allowed}"
-        )
+        assert (
+            allowed == EXPECTED_13_TOOLS
+        ), f"Allowlist mismatch.\n  Extra: {allowed - EXPECTED_13_TOOLS}\n  Missing: {EXPECTED_13_TOOLS - allowed}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────
 # 6. ingest_evidence callable smoke test
 # ─────────────────────────────────────────────────────────────────────────────
+
 
 class TestIngestEvidenceCallable:
     """Verify ingest_evidence can be imported and called."""
@@ -164,8 +167,6 @@ class TestIngestEvidenceCallable:
     async def test_ingest_evidence_file_mode_nonexistent(self):
         from aaa_mcp.tools.ingest_evidence import ingest_evidence
 
-        result = await ingest_evidence(
-            source_type="file", target="/nonexistent_path_arifos_test"
-        )
+        result = await ingest_evidence(source_type="file", target="/nonexistent_path_arifos_test")
         # Should return an error envelope, not raise
         assert "status" in result

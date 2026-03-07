@@ -19,8 +19,8 @@ from __future__ import annotations
 import json
 import os
 import subprocess
-import urllib.request
 import urllib.error
+import urllib.request
 from datetime import datetime, timezone
 from typing import Any
 
@@ -47,9 +47,7 @@ def _http_probe(path: str) -> dict[str, Any]:
         req = urllib.request.Request(url, headers={"X-OpenClaw-Token": _GATEWAY_TOKEN})
         with urllib.request.urlopen(req, timeout=_TIMEOUT_S) as resp:
             status = resp.status
-            latency_ms = round(
-                (datetime.now(timezone.utc) - t0).total_seconds() * 1000, 1
-            )
+            latency_ms = round((datetime.now(timezone.utc) - t0).total_seconds() * 1000, 1)
             return {"ok": True, "status_code": status, "latency_ms": latency_ms, "url": url}
     except urllib.error.HTTPError as e:
         return {"ok": False, "status_code": e.code, "error": str(e), "url": url}
@@ -61,9 +59,11 @@ def _docker_inspect(container: str = "openclaw_gateway") -> dict[str, Any]:
     """docker inspect <container> — returns selected fields only. No-op if docker unavailable."""
     try:
         result = subprocess.run(
-            ["docker", "inspect", "--format",
-             "{{json .State}}", container],
-            capture_output=True, text=True, check=False, timeout=5
+            ["docker", "inspect", "--format", "{{json .State}}", container],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=5,
         )
         if result.returncode != 0:
             return {"available": False, "error": result.stderr.strip()}
@@ -118,17 +118,18 @@ def openclaw_get_status() -> dict[str, Any]:
     )
     try:
         import json5  # type: ignore
+
         with open(config_path) as f:
             raw = json5.load(f)
         config_snapshot = {
             "primary_model": raw.get("agents", {})
-                                 .get("defaults", {})
-                                 .get("model", {})
-                                 .get("primary", "unknown"),
+            .get("defaults", {})
+            .get("model", {})
+            .get("primary", "unknown"),
             "fallbacks": raw.get("agents", {})
-                             .get("defaults", {})
-                             .get("model", {})
-                             .get("fallbacks", []),
+            .get("defaults", {})
+            .get("model", {})
+            .get("fallbacks", []),
             "gateway_bind": raw.get("gateway", {}).get("bind", "unknown"),
             "gateway_port": raw.get("gateway", {}).get("port", "unknown"),
             "version": raw.get("meta", {}).get("lastTouchedVersion", "unknown"),

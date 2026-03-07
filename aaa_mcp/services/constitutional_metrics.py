@@ -208,7 +208,7 @@ def store_stage_result(session_id: str, stage: str, result: dict[str, Any]):
 
     # Merkle Chain Addition (F1 Amanah) — Triple-Hash Enhancement
     previous_hash = _SESSION_LEDGER_HASHES.get(session_id, "0" * 64)
-    
+
     # 1. Decision Hash: Specifics of the action/result
     decision_data = {
         "stage": stage,
@@ -216,13 +216,16 @@ def store_stage_result(session_id: str, stage: str, result: dict[str, Any]):
         "transition": f"Completed {stage}",
         "ambiguity_reduction": result.get("ambiguity_reduction", 0.0),
     }
-    decision_hash = hashlib.sha256(json.dumps(decision_data, sort_keys=True).encode('utf-8')).hexdigest()
+    decision_hash = hashlib.sha256(
+        json.dumps(decision_data, sort_keys=True).encode("utf-8")
+    ).hexdigest()
 
     # 2. State Hash: Snapshot of the Ψ State Field
     from core.governance_kernel import get_governance_kernel
+
     kernel = get_governance_kernel(session_id)
     state_field = kernel.to_dict().get("state_field", {})
-    state_hash = hashlib.sha256(json.dumps(state_field, sort_keys=True).encode('utf-8')).hexdigest()
+    state_hash = hashlib.sha256(json.dumps(state_field, sort_keys=True).encode("utf-8")).hexdigest()
 
     event = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
@@ -232,12 +235,12 @@ def store_stage_result(session_id: str, stage: str, result: dict[str, Any]):
         "decision": decision_data,
         "state_snapshot": state_field,
     }
-    
+
     # 3. Final Merkle Hash (Link)
     event_str = json.dumps(event, sort_keys=True)
-    new_hash = hashlib.sha256(event_str.encode('utf-8')).hexdigest()
+    new_hash = hashlib.sha256(event_str.encode("utf-8")).hexdigest()
     event["merkle_hash"] = new_hash
-    
+
     _SESSION_EVENT_LOG[session_id].append(event)
     _SESSION_LEDGER_HASHES[session_id] = new_hash
 
@@ -273,6 +276,7 @@ def get_stage_result(session_id: str, stage: str) -> dict[str, Any] | None:
 def get_flight_recorder(session_id: str) -> list[dict[str, Any]]:
     """Retrieve the event log for a session."""
     return _SESSION_EVENT_LOG.get(session_id, [])
+
 
 def get_last_seal_hash(session_id: str) -> str:
     """Retrieve the latest Merkle hash for the session."""

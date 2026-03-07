@@ -28,18 +28,17 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
 from starlette.routing import Route
 
+from aaa_mcp.protocol import CANONICAL_TOOL_INPUT_SCHEMAS, CANONICAL_TOOL_OUTPUT_SCHEMAS
+from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS, CANONICAL_TOOL_COUNT
 from aaa_mcp.protocol.public_surface import (
     PUBLIC_PROMPT_NAMES,
     PUBLIC_RESOURCE_URIS,
     PUBLIC_TOOL_ALIASES,
 )
-from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS, CANONICAL_TOOL_COUNT
+from aaa_mcp.protocol.tool_registry import export_full_context_pack
 
-# Import canonical tools from public 13-tool surface.
-from arifos_aaa_mcp.server import (
-    aaa_chain_prompt,
-    aaa_full_context_pack,
-    aaa_tool_schemas,
+# Import canonical tools directly from transport layer to avoid adapter back-edge.
+from aaa_mcp.server import (
     anchor_session,
     apex_judge,
     audit_rules,
@@ -49,10 +48,10 @@ from arifos_aaa_mcp.server import (
     ingest_evidence,
     metabolic_loop,
     reason_mind,
-    vector_memory,
     seal_vault,
     search_reality,
     simulate_heart,
+    vector_memory,
 )
 
 logger = logging.getLogger(__name__)
@@ -133,6 +132,27 @@ TOOL_DESCRIPTIONS = {
 
 # All aliases resolve to canonical names.
 TOOL_ALIASES = dict(PUBLIC_TOOL_ALIASES)
+
+
+def aaa_tool_schemas() -> str:
+    payload = {
+        "inputs": CANONICAL_TOOL_INPUT_SCHEMAS,
+        "outputs": CANONICAL_TOOL_OUTPUT_SCHEMAS,
+    }
+    return json.dumps(payload, ensure_ascii=True)
+
+
+def aaa_full_context_pack() -> str:
+    return json.dumps(export_full_context_pack(), ensure_ascii=True)
+
+
+def aaa_chain_prompt(query: str, actor_id: str = "user") -> str:
+    return (
+        "Use AAA chain with continuity: "
+        "anchor_session -> reason_mind -> simulate_heart -> critique_thought -> "
+        "apex_judge -> seal_vault. "
+        f"query={query!r}; actor_id={actor_id!r}."
+    )
 
 
 async def log_identity(
@@ -637,9 +657,9 @@ async def mcp_endpoint(request: Request) -> Response:
             if name in TOOLS and name in TOOL_DESCRIPTIONS
         ]
         # Invariant check — surface must never exceed the sacred 13.
-        assert len(tools) == CANONICAL_TOOL_COUNT, (
-            f"tools/list surface violation: got {len(tools)}, expected {CANONICAL_TOOL_COUNT}"
-        )
+        assert (
+            len(tools) == CANONICAL_TOOL_COUNT
+        ), f"tools/list surface violation: got {len(tools)}, expected {CANONICAL_TOOL_COUNT}"
         return JSONResponse(
             {
                 "jsonrpc": "2.0",

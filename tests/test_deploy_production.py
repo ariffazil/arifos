@@ -47,12 +47,12 @@ def test_build_vps_overlay_script_contains_full_build_and_mount_check():
     )
 
     assert "docker build \\" in script
-    assert "-t \"$IMAGE_TAG\" \\" in script
-    assert "--build-arg ARIFOS_VERSION=\"$VERSION\" \\" in script
+    assert '-t "$IMAGE_TAG" \\' in script
+    assert '--build-arg ARIFOS_VERSION="$VERSION" \\' in script
     assert 'docker inspect "$CONTAINER_NAME" --format' in script
     assert "candidate tool count mismatch" in script
     assert "public tool count mismatch" in script
-    assert "curl -fsS \"$PUBLIC_HEALTH_URL\"" in script
+    assert 'curl -fsS "$PUBLIC_HEALTH_URL"' in script
     assert "Dockerfile.deploy-overlay" not in script
 
 

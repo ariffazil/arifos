@@ -9,25 +9,27 @@ import threading
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Dict, Optional
 
 from core.governance_kernel import GovernanceKernel
+
 
 @dataclass
 class SessionMetadata:
     """Active session telemetry and constraints."""
+
     session_id: str
     owner: str
     created_at: datetime = field(default_factory=datetime.now)
     last_activity: datetime = field(default_factory=datetime.now)
     kernel: GovernanceKernel = field(init=False)
 
+
 class SessionManager:
     """
     The Central State Authority for arifOS.
     Governs session ignition, isolation, and termination.
     """
-    
+
     _instance = None
     _lock = threading.Lock()
 
@@ -45,18 +47,15 @@ class SessionManager:
         """
         session_id = str(uuid.uuid4())
         metadata = SessionMetadata(session_id=session_id, owner=owner)
-        
+
         # Initialize the Kernel for this session
-        kernel = GovernanceKernel(
-            decision_owner=owner,
-            session_id=session_id
-        )
+        kernel = GovernanceKernel(decision_owner=owner, session_id=session_id)
         metadata.kernel = kernel
-        
+
         self._sessions[session_id] = metadata
         return session_id
 
-    def get_kernel(self, session_id: str) -> Optional[GovernanceKernel]:
+    def get_kernel(self, session_id: str) -> GovernanceKernel | None:
         """Retrieve the Ψ state for a specific session."""
         metadata = self._sessions.get(session_id)
         if metadata:
@@ -69,9 +68,10 @@ class SessionManager:
         if session_id in self._sessions:
             del self._sessions[session_id]
 
-    def list_active_sessions(self) -> Dict[str, str]:
+    def list_active_sessions(self) -> dict[str, str]:
         """Returns a map of session_id to owner."""
         return {sid: meta.owner for sid, meta in self._sessions.items()}
+
 
 # Global singleton
 session_manager = SessionManager()

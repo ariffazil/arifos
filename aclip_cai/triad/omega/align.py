@@ -21,9 +21,9 @@ _SAMPLING_ENABLED = True
 
 try:
     from ...core.constitutional_sampling import (
-        sample_align,
         AlignResult,
         SamplingConfig,
+        sample_align,
     )
 except ImportError:
     _SAMPLING_ENABLED = False
@@ -32,7 +32,7 @@ except ImportError:
 async def align(
     session_id: str,
     action: str,
-    ctx: "Context | None" = None,
+    ctx: Context | None = None,
     use_sampling: bool = True,
     stakeholders: list[str] | None = None,
     temperature: float = 0.4,
@@ -52,7 +52,7 @@ async def align(
 async def _align_with_sampling(
     session_id: str,
     action: str,
-    ctx: "Context",
+    ctx: Context,
     stakeholders: list[str] | None,
     temperature: float,
 ) -> dict[str, Any]:

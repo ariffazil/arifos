@@ -1,22 +1,23 @@
 """
 manifesto.py — Constitutional Manifesto for 333_APPS (FORWARDING STUB)
 
-This file now acts as a forward-compatibility stub. 
-All architectural definitions have been moved to `core.governance_kernel` 
+This file now acts as a forward-compatibility stub.
+All architectural definitions have been moved to `core.governance_kernel`
 to centralize the L0-L3 taxonomy inside the core kernel.
 """
 
 from core.governance_kernel import (
     AppLayer,
-    FloorClassification,
-    FloorManifesto,
     AppManifesto,
     AppRegistry,
+    FloorClassification,
+    FloorManifesto,
 )
 
 # ═══════════════════════════════════════════════════════════════════════════
 # EXAMPLE MANIFESTOS (Template for new apps)
 # ═══════════════════════════════════════════════════════════════════════════
+
 
 def create_example_manifestos():
     """Create example manifestos for reference."""
@@ -45,7 +46,9 @@ def create_example_manifestos():
         description="Executes L2 operational skills",
         floors=[
             FloorManifesto("F11", FloorClassification.HARD, None, "Must verify authority token"),
-            FloorManifesto("F13", FloorClassification.HARD, None, "Cannot execute irreversible without gate"),
+            FloorManifesto(
+                "F13", FloorClassification.HARD, None, "Cannot execute irreversible without gate"
+            ),
         ],
         requires_sovereign_gate=True,
         irreversible_actions=["delete", "modify_system"],
@@ -68,5 +71,5 @@ if __name__ == "__main__":
     print(f"By Layer: {audit['by_layer']}")
     print(f"Sovereign Gates: {audit['sovereign_gates_required']}")
     print("Registered Apps:")
-    for app_name in audit['apps'].keys():
+    for app_name in audit["apps"].keys():
         print(f"  - {app_name}")

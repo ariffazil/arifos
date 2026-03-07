@@ -11,31 +11,29 @@ DITEMPA BUKAN DIBERI
 import hashlib
 import json
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any
 
 # Try to import asyncpg for Postgres support
 try:
     import asyncpg
+
     ASYNCPG_AVAILABLE = True
 except ImportError:
     ASYNCPG_AVAILABLE = False
 
 # ═══ WIRE EXISTING COMPONENTS ═══
 # Merkle tree from core.shared.crypto
-from core.shared.crypto import merkle_root, merkle_hash_pair
-
-# Redis MindVault from aaa_mcp.services.redis_client  
+# Redis MindVault from aaa_mcp.services.redis_client
 from aaa_mcp.services.redis_client import MindVault
 
 # EUREKA Sieve from aaa_mcp.vault.hardened
 from aaa_mcp.vault.hardened import (
     HardenedEUREKASieve,
     should_seal_to_vault_hardened,
-    EUREKA_THRESHOLD,
-    SABAR_THRESHOLD,
 )
+from core.shared.crypto import merkle_root
 
 
 @dataclass
@@ -78,7 +76,7 @@ SessionEntry = VaultEntry
 class SessionLedger:
     """
     VAULT999 UNIFIED Ledger — PostgreSQL + Redis + Merkle + EUREKA
-    
+
     Unified backends:
     - PostgreSQL: Authoritative persistent ledger
     - Redis: Hot cache via MindVault
@@ -155,18 +153,20 @@ class SessionLedger:
                         self._last_hash = rows[-1]["entry_hash"]
                         # Rebuild Merkle history from chain
                         self._merkle_history = [row["entry_hash"] for row in rows]
-                        print(f"[VAULT999] Loaded {len(rows)} entries, Merkle root: {rows[-1]['merkle_root'][:16]}...")
-            
+                        print(
+                            f"[VAULT999] Loaded {len(rows)} entries, Merkle root: {rows[-1]['merkle_root'][:16]}..."
+                        )
+
             # UNIFIED: Also load recent entries from Redis cache
             redis_state = self._redis.load("vault999_chain")
             if redis_state and not self._merkle_history:
                 # Use Redis as warm cache if Postgres empty
                 self._merkle_history = redis_state.get("history", [])
                 self._last_hash = redis_state.get("last_hash", "GENESIS")
-                
+
             self._initialized = True
             return True
-            
+
         except Exception as e:
             print(f"[SessionLedger] Init warning: {e}, using memory fallback")
             self._initialized = True
@@ -243,7 +243,7 @@ class SessionLedger:
         )
 
         entry.entry_hash = self._compute_hash(entry)
-        
+
         # UNIFIED: Compute Merkle root
         self._merkle_history.append(entry.entry_hash)
         entry.merkle_root = merkle_root(self._merkle_history)
@@ -392,15 +392,15 @@ class SessionLedger:
     async def verify_chain(self, limit: int = 100) -> dict[str, Any]:
         """
         UNIFIED: Verify Merkle chain integrity.
-        
+
         Returns verification report with tamper detection.
         """
         await self.initialize()
-        
+
         entries = await self.query(limit=limit)
         if not entries:
             return {"valid": True, "entries_checked": 0, "tampered": []}
-        
+
         tampered = []
         for i, entry in enumerate(entries):
             # Verify entry hash
@@ -408,17 +408,17 @@ class SessionLedger:
             if computed_hash != entry.entry_hash:
                 tampered.append({"entry_id": entry.entry_id, "field": "entry_hash"})
                 continue
-            
+
             # Verify chain continuity
             if i > 0:
-                if entry.prev_hash != entries[i-1].entry_hash:
+                if entry.prev_hash != entries[i - 1].entry_hash:
                     tampered.append({"entry_id": entry.entry_id, "field": "chain_break"})
-        
+
         # Verify Merkle root
         hashes = [e.entry_hash for e in entries]
         computed_root = merkle_root(hashes)
         latest_root = entries[-1].merkle_root if entries else ""
-        
+
         return {
             "valid": len(tampered) == 0 and computed_root == latest_root,
             "entries_checked": len(entries),

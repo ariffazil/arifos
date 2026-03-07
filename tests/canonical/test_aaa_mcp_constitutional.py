@@ -170,9 +170,7 @@ async def test_forge_returns_guarded_status_for_irreversible_gate():
     session_id = _payload(anchor)["session_id"]
 
     forged = await _get_tool_fn(eureka_forge)(
-        session_id=session_id,
-        command="restart_service",
-        purpose="dry run"
+        session_id=session_id, command="restart_service", purpose="dry run"
     )
     assert forged["verdict"] in ("SEAL", "PARTIAL", "SABAR", "VOID", "888_HOLD")
     _assert_contrast_engine(forged)
@@ -187,12 +185,16 @@ async def test_read_only_utility_tools_execute():
         search_reality,
     )
 
-    search = await _get_tool_fn(search_reality)(query="model context protocol", intent="general", session_id="test-1234")
+    search = await _get_tool_fn(search_reality)(
+        query="model context protocol", intent="general", session_id="test-1234"
+    )
     _assert_contrast_engine(search)
     search_data = _payload(search)
     assert "status" in search_data or "results" in search_data or search.get("verdict") == "VOID"
 
-    bad_fetch = await _get_tool_fn(ingest_evidence)(source_type="url", target="not-a-url", session_id="test-1234")
+    bad_fetch = await _get_tool_fn(ingest_evidence)(
+        source_type="url", target="not-a-url", session_id="test-1234"
+    )
     _assert_contrast_engine(bad_fetch)
     assert _payload(bad_fetch).get("status") in ("BAD_ID", "ERROR", "FAILURE")
 
@@ -200,7 +202,9 @@ async def test_read_only_utility_tools_execute():
     assert audited["verdict"] in ("SEAL", "PARTIAL", "VOID")
     _assert_contrast_engine(audited)
 
-    inspected = await _get_tool_fn(ingest_evidence)(source_type="file", target=".", depth=1, max_files=20, session_id="test-1234")
+    inspected = await _get_tool_fn(ingest_evidence)(
+        source_type="file", target=".", depth=1, max_files=20, session_id="test-1234"
+    )
     assert inspected["verdict"] in ("SEAL", "PARTIAL", "SABAR", "VOID")
     _assert_contrast_engine(inspected)
 
@@ -239,17 +243,21 @@ async def test_law_enforcement_matrix_13_tools() -> None:
             human_approve=False,
         ),
         "eureka_forge": await _get_tool_fn(api.eureka_forge)(
-                session_id=session_id,
-                command="noop",
-                purpose="matrix seal",
-            ),
+            session_id=session_id,
+            command="noop",
+            purpose="matrix seal",
+        ),
         "seal_vault": await _get_tool_fn(api.seal_vault)(
             session_id=session_id,
             summary="matrix seal",
             verdict="SEAL",
         ),
-        "search_reality": await _get_tool_fn(api.search_reality)(query="matrix", session_id=session_id),
-        "ingest_evidence": await _get_tool_fn(api.ingest_evidence)(target="not-a-url", source_type="url", session_id=session_id),
+        "search_reality": await _get_tool_fn(api.search_reality)(
+            query="matrix", session_id=session_id
+        ),
+        "ingest_evidence": await _get_tool_fn(api.ingest_evidence)(
+            target="not-a-url", source_type="url", session_id=session_id
+        ),
         "audit_rules": await _get_tool_fn(api.audit_rules)(audit_scope="quick", verify_floors=True),
         "check_vital": await _get_tool_fn(api.check_vital)(),
         "metabolic_loop": await _get_tool_fn(api.metabolic_loop)(query="loop test"),

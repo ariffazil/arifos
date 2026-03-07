@@ -367,9 +367,7 @@ class FloorAuditor:
             )
 
             if not semantic_pass:
-                ml_reason = (
-                    f"SBERT {floor_id} raw={raw_score:.3f} below semantic threshold {raw_threshold:.2f}"
-                )
+                ml_reason = f"SBERT {floor_id} raw={raw_score:.3f} below semantic threshold {raw_threshold:.2f}"
                 result.reason = f"{result.reason}; {ml_reason}" if result.reason else ml_reason
 
         audit_metadata["f5_score_source"] = score_source
@@ -421,7 +419,9 @@ class FloorAuditor:
 
         if has_evidence and not has_citations:
             score -= 0.20
-            reasons.append("Evidence available in context but no explicit citations found in output")
+            reasons.append(
+                "Evidence available in context but no explicit citations found in output"
+            )
 
         # F2 Hardening: Low entropy/high repetition penalty (mode collapse detector)
         words = action.lower().split()
@@ -429,7 +429,9 @@ class FloorAuditor:
             unique_ratio = len(set(words)) / len(words)
             if unique_ratio < 0.4:
                 score -= 0.30
-                reasons.append(f"Low semantic diversity (ratio {unique_ratio:.2f}) — possible mode collapse")
+                reasons.append(
+                    f"Low semantic diversity (ratio {unique_ratio:.2f}) — possible mode collapse"
+                )
 
         passed = score >= self.thresholds.get("F2", 0.99)
         return FloorResult("F2", passed, max(0.0, score), "; ".join(reasons) if reasons else None)
@@ -443,11 +445,15 @@ class FloorAuditor:
         Hardened Tri-Witness: Requires structural proof of multi-source validation.
         """
         combined = (action + " " + context).lower()
-        
+
         # Human Witness: Signature, Approval, or explicit instruction
-        has_human = any(
-            kw in combined for kw in ("888_hold", "888_approved", "ratified", "sovereign", "user confirmed")
-        ) or "ACTOR_ID: SOVEREIGN" in context.upper()
+        has_human = (
+            any(
+                kw in combined
+                for kw in ("888_hold", "888_approved", "ratified", "sovereign", "user confirmed")
+            )
+            or "ACTOR_ID: SOVEREIGN" in context.upper()
+        )
 
         # Earth Witness: Grounding in external reality (citations, URLs, raw data)
         has_earth = any(
@@ -456,19 +462,23 @@ class FloorAuditor:
 
         # AI Witness: Self-critique markers or 'Ditempa Bukan Diberi' awareness
         has_ai = any(
-            kw in action.lower() for kw in ("critique", "validation", "floor", "constraint", "forged")
+            kw in action.lower()
+            for kw in ("critique", "validation", "floor", "constraint", "forged")
         )
 
         witness_count = sum([has_human, has_ai, has_earth])
         score = witness_count / 3.0
-        
+
         threshold = self.thresholds.get("F3", 0.95)
         passed = score >= threshold
-        
+
         reasons = []
-        if not has_human: reasons.append("Missing Human Witness (Sovereign/User)")
-        if not has_earth: reasons.append("Missing Earth Witness (External Grounding)")
-        if not has_ai: reasons.append("Missing AI Witness (Internal Constraint Awareness)")
+        if not has_human:
+            reasons.append("Missing Human Witness (Sovereign/User)")
+        if not has_earth:
+            reasons.append("Missing Earth Witness (External Grounding)")
+        if not has_ai:
+            reasons.append("Missing AI Witness (Internal Constraint Awareness)")
 
         return FloorResult("F3", passed, score, "; ".join(reasons) if reasons else None)
 

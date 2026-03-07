@@ -110,6 +110,24 @@ arifos_aaa_mcp/    → CANONICAL PyPI PACKAGE: External entry points
 - `aaa_mcp/` has **zero** decision logic — protocol only
 - **Never** name a local module `mcp` — this shadows the external SDK
 
+### Layer Ownership Matrix (Chaos Control)
+
+| Layer | Owns | Must Not Own |
+|---|---|---|
+| `core/` | Floors, verdict logic, state transitions, canonical thresholds | Transport protocol/server surfaces |
+| `aclip_cai/` | Compute engines, tools, retrieval/grounding implementations | Final constitutional authority, transport registry ownership |
+| `aaa_mcp/` | MCP transport/protocol adaptation, request/response contracts | Independent floor truth source (must consume `core`) |
+| `arifos_aaa_mcp/` | Public package entrypoints and compatibility surface | Divergent governance constants from `core` |
+| `333_APPS/` | Operational guidance, skills/workflow docs, command-center assets | Canonical floor thresholds or kernel transition truth |
+
+### Coupling Guardrails
+
+- Canonical floor definitions are in `core/shared/floors.py` only.
+- Any fallback/visual defaults in non-core layers must be derived from `core`, not hardcoded copies.
+- Preferred dependency direction:
+  - `arifos_aaa_mcp` → `aaa_mcp` → `aclip_cai` → `core`
+- Avoid reverse edges (`aclip_cai` importing `aaa_mcp`, `aaa_mcp` importing `arifos_aaa_mcp`) unless explicitly documented for compatibility and reviewed.
+
 ### Key Modules
 
 | Module | Role |

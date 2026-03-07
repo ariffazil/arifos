@@ -408,7 +408,7 @@ class SystemState(BaseModel):
 class RepoEvidence(BaseModel):
     """
     Δ Delta Sensory: GitIngest Codebase Digest.
-    
+
     Hardened with F12 (Injection) and F4 (Thermodynamic) budget.
     """
 

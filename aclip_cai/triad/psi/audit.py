@@ -21,9 +21,9 @@ _SAMPLING_ENABLED = True
 
 try:
     from ...core.constitutional_sampling import (
-        sample_audit,
         AuditResult,
         SamplingConfig,
+        sample_audit,
     )
 except ImportError:
     _SAMPLING_ENABLED = False
@@ -33,7 +33,7 @@ async def audit(
     session_id: str,
     action: str,
     sovereign_token: str = "",
-    ctx: "Context | None" = None,
+    ctx: Context | None = None,
     use_sampling: bool = True,
     agi_result: dict[str, Any] | None = None,
     asi_result: dict[str, Any] | None = None,
@@ -57,7 +57,7 @@ async def _audit_with_sampling(
     session_id: str,
     action: str,
     sovereign_token: str,
-    ctx: "Context",
+    ctx: Context,
     agi_result: dict[str, Any] | None,
     asi_result: dict[str, Any] | None,
     temperature: float,

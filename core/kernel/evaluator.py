@@ -30,6 +30,7 @@ except Exception:
     def get_floor_comparator(_floor_id: str) -> str:
         return ">="
 
+
 # ─── Floor Classification ───────────────────────────────────────────────────
 
 # Mandatory floors run on EVERY evaluation (the "immune system").

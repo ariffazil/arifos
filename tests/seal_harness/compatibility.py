@@ -35,6 +35,7 @@ from tests.seal_harness.client import (
 # Data Structures
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 @dataclass
 class CompatibilityResult:
     """Result of a compatibility probe."""
@@ -81,12 +82,13 @@ class BehaviorComparison:
 # Compatibility Probe
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
 class CompatibilityProbe:
     """
-    Multi-client compatibility verification for arifOS MCP.
+        Multi-client compatibility verification for arifOS MCP.
 
-    Tests various client configurations against the same endpoint
-to ensure consistent behavior.
+        Tests various client configurations against the same endpoint
+    to ensure consistent behavior.
     """
 
     def __init__(
@@ -198,17 +200,21 @@ to ensure consistent behavior.
                     init_data = await client.initialize()
                     negotiated = init_data.get("protocolVersion", "unknown")
 
-                    negotiation_results.append({
-                        "requested": version,
-                        "negotiated": negotiated,
-                        "success": True,
-                    })
+                    negotiation_results.append(
+                        {
+                            "requested": version,
+                            "negotiated": negotiated,
+                            "success": True,
+                        }
+                    )
             except Exception as e:
-                negotiation_results.append({
-                    "requested": version,
-                    "error": str(e),
-                    "success": False,
-                })
+                negotiation_results.append(
+                    {
+                        "requested": version,
+                        "error": str(e),
+                        "success": False,
+                    }
+                )
 
         result.details = {"negotiations": negotiation_results}
 
@@ -463,19 +469,20 @@ to ensure consistent behavior.
 
         # Check for differences
         successful_results = [
-            r for r in comparison.client_results.values()
-            if r.get("success") and "verdict" in r
+            r for r in comparison.client_results.values() if r.get("success") and "verdict" in r
         ]
 
         if len(successful_results) > 1:
             verdicts = {r["verdict"] for r in successful_results}
             if len(verdicts) > 1:
                 comparison.results_match = False
-                comparison.differences.append({
-                    "field": "verdict",
-                    "values": list(verdicts),
-                    "severity": "WARNING",
-                })
+                comparison.differences.append(
+                    {
+                        "field": "verdict",
+                        "values": list(verdicts),
+                        "severity": "WARNING",
+                    }
+                )
             else:
                 comparison.results_match = True
         else:

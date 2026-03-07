@@ -32,6 +32,12 @@ from starlette.staticfiles import StaticFiles
 from aaa_mcp.build_info import get_build_info
 from aaa_mcp.protocol.public_surface import PUBLIC_TOOL_ALIASES
 from core.shared.floor_audit import get_ml_floor_runtime
+from core.shared.floors import (
+    FLOOR_SPEC_KEYS,
+    get_floor_comparator,
+    get_floor_spec,
+    get_floor_threshold,
+)
 
 BUILD_INFO = get_build_info()
 MCP_PROTOCOL_VERSION = "2025-11-25"
@@ -41,24 +47,35 @@ TOOL_ALIASES: dict[str, str] = dict(PUBLIC_TOOL_ALIASES)
 
 logger = logging.getLogger(__name__)
 
-# Fallback floor defaults — canonical values from core/shared/floors.py THRESHOLDS.
-# These are used when the governance kernel is unavailable.
-# Format: "Fnn" → representative passing score for the visualizer.
-_FLOOR_DEFAULTS: dict[str, float] = {
-    "F1": 0.85,   # F1_Amanah: HARD, threshold 0.5 (reversibility/audit)
-    "F2": 0.99,   # F2_Truth: HARD, threshold 0.99
-    "F3": 0.95,   # F3_TriWitness: DERIVED, threshold 0.95
-    "F4": 0.90,   # F4_Clarity: HARD, threshold 0.0 (ΔS ≤ 0)
-    "F5": 1.04,   # F5_Peace2: SOFT, threshold 1.0 (non-destructive power)
-    "F6": 0.97,   # F6_Empathy: SOFT, threshold 0.70 (κᵣ)
-    "F7": 0.04,   # F7_Humility: HARD, range 0.03–0.15 (Ω₀ uncertainty band)
-    "F8": 0.88,   # F8_Genius: DERIVED, threshold 0.80 (G metric)
-    "F9": 0.12,   # F9_AntiHantu: SOFT, threshold < 0.30 (dark cleverness)
-    "F10": 1.0,   # F10_Ontology: HARD, Boolean lock
-    "F11": 1.0,   # F11_CommandAuth: HARD, identity verification
-    "F12": 0.15,  # F12_Injection: HARD, risk < 0.85
-    "F13": 1.0,   # F13_Sovereign: HARD, human final authority
-}
+
+def _representative_floor_score(floor_id: str) -> float:
+    """
+    Build a visualizer-friendly fallback score from canonical core floor specs.
+
+    This intentionally stays transport-agnostic by deriving from core as source-of-truth.
+    """
+    comparator = get_floor_comparator(floor_id)
+    threshold = float(get_floor_threshold(floor_id))
+    spec = get_floor_spec(floor_id)
+
+    if floor_id == "F7" and "range" in spec:
+        low, _high = spec["range"]
+        return float(low) + 0.01  # representative in-band humility value
+
+    if comparator in {">", ">="}:
+        return threshold
+    if comparator == "<=":
+        return threshold
+    # "<" comparators (e.g., risk-style floors) — choose conservative passing value
+    return threshold * 0.5
+
+
+def _canonical_floor_defaults() -> dict[str, float]:
+    return {fid: _representative_floor_score(fid) for fid in FLOOR_SPEC_KEYS}
+
+
+# Fallback floor defaults used only when live governance kernel state is unavailable.
+_FLOOR_DEFAULTS: dict[str, float] = _canonical_floor_defaults()
 
 # Fallback Tri-Witness weights (normalised to sum to 1.0).
 # Reflects approximate sovereign split: Human 42%, AI 32%, Earth 26%.
@@ -193,32 +210,42 @@ def _openapi_schema(base_url: str) -> dict[str, Any]:
                     "requestBody": {
                         "required": True,
                         "content": {
-                            "application/json": {"schema": {"$ref": "#/components/schemas/CheckpointRequest"}}
+                            "application/json": {
+                                "schema": {"$ref": "#/components/schemas/CheckpointRequest"}
+                            }
                         },
                     },
                     "responses": {
                         "200": {
                             "description": "Checkpoint completed",
                             "content": {
-                                "application/json": {"schema": {"$ref": "#/components/schemas/CheckpointResponse"}}
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/CheckpointResponse"}
+                                }
                             },
                         },
                         "400": {
                             "description": "Invalid request",
                             "content": {
-                                "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/Error"}
+                                }
                             },
                         },
                         "401": {
                             "description": "Unauthorized",
                             "content": {
-                                "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/Error"}
+                                }
                             },
                         },
                         "500": {
                             "description": "Internal error",
                             "content": {
-                                "application/json": {"schema": {"$ref": "#/components/schemas/Error"}}
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/Error"}
+                                }
                             },
                         },
                     },
@@ -232,7 +259,9 @@ def _openapi_schema(base_url: str) -> dict[str, Any]:
                         "200": {
                             "description": "Service healthy",
                             "content": {
-                                "application/json": {"schema": {"$ref": "#/components/schemas/HealthResponse"}}
+                                "application/json": {
+                                    "schema": {"$ref": "#/components/schemas/HealthResponse"}
+                                }
                             },
                         }
                     },
@@ -367,11 +396,13 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         mcp_tools = await mcp.list_tools()
         tool_list = []
         for tool in mcp_tools:
-            tool_list.append({
-                "name": tool.name,
-                "description": tool.description or "",
-                "parameters": tool.parameters or {}
-            })
+            tool_list.append(
+                {
+                    "name": tool.name,
+                    "description": tool.description or "",
+                    "parameters": tool.parameters or {},
+                }
+            )
         return JSONResponse({"tools": tool_list, "count": len(tool_list)})
 
     @mcp.custom_route("/tools/", methods=["GET"])
@@ -454,7 +485,13 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 payload = json.load(f)
                 payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
                 payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)
-                payload.setdefault("authentication", {"type": "none", "description": "No authentication required. actor_id is used for logging only."})
+                payload.setdefault(
+                    "authentication",
+                    {
+                        "type": "none",
+                        "description": "No authentication required. actor_id is used for logging only.",
+                    },
+                )
                 return JSONResponse(payload)
         # Fallback: generate minimal discovery
         return JSONResponse(
@@ -464,7 +501,10 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "protocolVersion": MCP_PROTOCOL_VERSION,
                 "supportedProtocolVersions": MCP_SUPPORTED_PROTOCOL_VERSIONS,
                 "transport": {"type": "streamable-http", "url": "/mcp"},
-                "authentication": {"type": "none", "description": "No authentication required. actor_id is used for logging only."},
+                "authentication": {
+                    "type": "none",
+                    "description": "No authentication required. actor_id is used for logging only.",
+                },
                 "tools": list(tool_registry.keys()),
             }
         )
@@ -503,9 +543,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             # Build normalised floor map (F1–F13) using canonical defaults
             resolved_floors = {k: floors.get(k, v) for k, v in _FLOOR_DEFAULTS.items()}
 
-            resolved_witness = {
-                k: witness.get(k, v) for k, v in _WITNESS_DEFAULTS.items()
-            }
+            resolved_witness = {k: witness.get(k, v) for k, v in _WITNESS_DEFAULTS.items()}
 
             resolved_telemetry = {
                 "dS": telemetry.get("dS", -0.35),
@@ -518,15 +556,17 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 "verdict": verdict,
             }
 
-            return JSONResponse({
-                "telemetry": resolved_telemetry,
-                "witness": resolved_witness,
-                "qdf": qdf or _DEFAULT_QDF,
-                "floors": resolved_floors,
-                "session_id": session_id or f"sess_{uuid.uuid4().hex[:8]}",
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-                "metabolic_stage": metabolic_stage or _DEFAULT_METABOLIC_STAGE,
-            })
+            return JSONResponse(
+                {
+                    "telemetry": resolved_telemetry,
+                    "witness": resolved_witness,
+                    "qdf": qdf or _DEFAULT_QDF,
+                    "floors": resolved_floors,
+                    "session_id": session_id or f"sess_{uuid.uuid4().hex[:8]}",
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "metabolic_stage": metabolic_stage or _DEFAULT_METABOLIC_STAGE,
+                }
+            )
         except Exception as exc:
             logger.exception("governance_status endpoint failed")
             return JSONResponse(
@@ -553,23 +593,27 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                 vault = VaultSQLite()
                 raw = vault.query_recent(limit=limit) if hasattr(vault, "query_recent") else []
                 for entry in raw:
-                    sessions.append({
-                        "session_id": entry.get("session_id", ""),
-                        "verdict": entry.get("verdict", "UNKNOWN"),
-                        "stage": entry.get("stage", ""),
-                        "timestamp": entry.get("timestamp", ""),
-                        "floors": entry.get("floors", {}),
-                    })
+                    sessions.append(
+                        {
+                            "session_id": entry.get("session_id", ""),
+                            "verdict": entry.get("verdict", "UNKNOWN"),
+                            "stage": entry.get("stage", ""),
+                            "timestamp": entry.get("timestamp", ""),
+                            "floors": entry.get("floors", {}),
+                        }
+                    )
             except (ImportError, AttributeError):
                 logger.debug("VAULT999 SQLite unavailable — returning empty session history")
             except Exception:
                 logger.exception("Unexpected error querying VAULT999 history")
 
-            return JSONResponse({
-                "sessions": sessions,
-                "count": len(sessions),
-                "limit": limit,
-            })
+            return JSONResponse(
+                {
+                    "sessions": sessions,
+                    "count": len(sessions),
+                    "limit": limit,
+                }
+            )
         except Exception as exc:
             logger.exception("governance_history endpoint failed")
             return JSONResponse(
@@ -603,8 +647,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
         if not query or not isinstance(query, str):
             return JSONResponse(
-                {"error": "Missing required field: query (or task)"},
-                status_code=400
+                {"error": "Missing required field: query (or task)"}, status_code=400
             )
 
         session_id = f"gpt-{actor_id}-{uuid.uuid4().hex[:8]}"
@@ -619,8 +662,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
             if not all([anchor_tool, reason_tool, heart_tool, judge_tool]):
                 return JSONResponse(
-                    {"error": "Required tools not available", "verdict": "VOID"},
-                    status_code=500
+                    {"error": "Required tools not available", "verdict": "VOID"}, status_code=500
                 )
 
             # 000_INIT
@@ -639,10 +681,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             # 777-888_APEX
             judge_fn = getattr(judge_tool, "fn", judge_tool)
             judge_res = await judge_fn(
-                session_id=cid,
-                query=query,
-                agi_result=reason_res,
-                asi_result=heart_res
+                session_id=cid, query=query, agi_result=reason_res, asi_result=heart_res
             )
 
             verdict = judge_res.get("verdict", "VOID")
@@ -664,29 +703,25 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
             latency_ms = (time.time() - start_time) * 1000
 
-            return JSONResponse({
-                "verdict": verdict,
-                "summary": summary,
-                "mode": mode,
-                "floors": {
-                    "passed": floors.get("passed", []),
-                    "failed": floors.get("failed", [])
-                },
-                "metrics": {
-                    "truth": truth.get("score"),
-                    "threshold": truth.get("threshold")
-                },
-                "session_id": cid,
-                "latency_ms": round(latency_ms, 2),
-                "version": BUILD_INFO.get("version", "2026.3.1")
-            })
+            return JSONResponse(
+                {
+                    "verdict": verdict,
+                    "summary": summary,
+                    "mode": mode,
+                    "floors": {
+                        "passed": floors.get("passed", []),
+                        "failed": floors.get("failed", []),
+                    },
+                    "metrics": {"truth": truth.get("score"), "threshold": truth.get("threshold")},
+                    "session_id": cid,
+                    "latency_ms": round(latency_ms, 2),
+                    "version": BUILD_INFO.get("version", "2026.3.1"),
+                }
+            )
 
         except Exception as exc:
             logger.exception("checkpoint_endpoint failed")
-            return JSONResponse(
-                {"error": str(exc), "verdict": "VOID"},
-                status_code=500
-            )
+            return JSONResponse({"error": str(exc), "verdict": "VOID"}, status_code=500)
 
     @mcp.custom_route("/openapi.yaml", methods=["GET"])
     async def openapi_schema(request: Request) -> Response:
@@ -696,7 +731,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             "333_APPS",
             "L4_TOOLS",
             "chatgpt-actions",
-            "chatgpt_openapi.yaml"
+            "chatgpt_openapi.yaml",
         )
         if os.path.exists(schema_path):
             content = open(schema_path).read()
@@ -711,4 +746,6 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
         "dist-web",
     )
     if os.path.exists(dashboard_dir) and hasattr(mcp, "_app"):
-        mcp._app.mount("/dashboard", StaticFiles(directory=dashboard_dir, html=True), name="dashboard")
+        mcp._app.mount(
+            "/dashboard", StaticFiles(directory=dashboard_dir, html=True), name="dashboard"
+        )

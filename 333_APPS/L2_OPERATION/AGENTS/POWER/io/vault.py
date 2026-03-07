@@ -14,7 +14,7 @@ def build_vault_entry(
     # so any post-hoc tampering is detectable
     payload_str = json.dumps(payload, sort_keys=True, default=str)
     digest = sha256(
-        f"{session_id}|{verdict}|{timestamp}|{agent_id}|{payload_str}".encode("utf-8")
+        f"{session_id}|{verdict}|{timestamp}|{agent_id}|{payload_str}".encode()
     ).hexdigest()
     return {
         "ts": timestamp,

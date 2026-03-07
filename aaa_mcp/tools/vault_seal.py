@@ -1,4 +1,4 @@
-from aaa_mcp.services.constitutional_metrics import store_stage_result, get_last_seal_hash
+from aaa_mcp.services.constitutional_metrics import get_last_seal_hash, store_stage_result
 
 
 async def vault_seal(

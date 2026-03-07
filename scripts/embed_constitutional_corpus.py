@@ -7,19 +7,17 @@ Usage:
     python scripts/embed_constitutional_corpus.py
 """
 
-import os
-import sys
 import re
+import sys
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from sentence_transformers import SentenceTransformer
 from qdrant_client import QdrantClient
-from qdrant_client.models import Distance, VectorParams, PointStruct
 from qdrant_client.http.exceptions import UnexpectedResponse
-import requests
+from qdrant_client.models import Distance, PointStruct, VectorParams
+from sentence_transformers import SentenceTransformer
 
 COLLECTION_NAME = "arifos_constitutional"
 EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
@@ -41,7 +39,7 @@ EXCLUDE_PATTERNS = [
 ]
 
 
-def load_markdown_files(repo_paths: List[str]) -> List[Dict[str, Any]]:
+def load_markdown_files(repo_paths: list[str]) -> list[dict[str, Any]]:
     """Load all markdown files from repositories."""
     documents = []
 
@@ -74,8 +72,8 @@ def load_markdown_files(repo_paths: List[str]) -> List[Dict[str, Any]]:
 
 
 def chunk_document(
-    doc: Dict[str, Any], chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP
-) -> List[Dict[str, Any]]:
+    doc: dict[str, Any], chunk_size: int = CHUNK_SIZE, overlap: int = CHUNK_OVERLAP
+) -> list[dict[str, Any]]:
     """Split document into overlapping chunks by sections and paragraphs."""
     chunks = []
     content = doc["content"]
@@ -115,7 +113,7 @@ def chunk_document(
     return chunks
 
 
-def extract_metadata(content: str) -> Dict[str, Any]:
+def extract_metadata(content: str) -> dict[str, Any]:
     """Extract constitutional metadata from content."""
     metadata = {}
 
@@ -218,7 +216,7 @@ def main():
     print(f"  Documents:  {len(documents)}")
     print(f"  Chunks:     {len(all_chunks)}")
     print(f"  Model:      {EMBEDDING_MODEL}")
-    print(f"  Qdrant:     http://localhost:6333")
+    print("  Qdrant:     http://localhost:6333")
     print()
 
     print("Test query:")

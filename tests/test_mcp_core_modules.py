@@ -6,6 +6,7 @@ Tests for aaa_mcp/core pure modules:
 
 And core/pipeline.py ForgeResult model methods.
 """
+
 from __future__ import annotations
 
 # =============================================================================
@@ -16,6 +17,7 @@ from __future__ import annotations
 class TestMCPMode:
     def test_enum_values(self):
         from aaa_mcp.core.mode_selector import MCPMode
+
         assert MCPMode.STDIO.value == "stdio"
         assert MCPMode.SSE.value == "sse"
 
@@ -23,17 +25,20 @@ class TestMCPMode:
 class TestDetectEnvironment:
     def test_railway(self, monkeypatch):
         from aaa_mcp.core.mode_selector import detect_environment
+
         monkeypatch.setenv("RAILWAY_ENVIRONMENT", "production")
         assert detect_environment() == "railway"
 
     def test_cloudflare(self, monkeypatch):
         from aaa_mcp.core.mode_selector import detect_environment
+
         monkeypatch.delenv("RAILWAY_ENVIRONMENT", raising=False)
         monkeypatch.setenv("CF_WORKER", "true")
         assert detect_environment() == "cloudflare"
 
     def test_development_debug(self, monkeypatch):
         from aaa_mcp.core.mode_selector import detect_environment
+
         monkeypatch.delenv("RAILWAY_ENVIRONMENT", raising=False)
         monkeypatch.delenv("CF_WORKER", raising=False)
         monkeypatch.setenv("DEBUG", "1")
@@ -41,6 +46,7 @@ class TestDetectEnvironment:
 
     def test_development_dev(self, monkeypatch):
         from aaa_mcp.core.mode_selector import detect_environment
+
         monkeypatch.delenv("RAILWAY_ENVIRONMENT", raising=False)
         monkeypatch.delenv("CF_WORKER", raising=False)
         monkeypatch.delenv("DEBUG", raising=False)
@@ -49,6 +55,7 @@ class TestDetectEnvironment:
 
     def test_production_env(self, monkeypatch):
         from aaa_mcp.core.mode_selector import detect_environment
+
         monkeypatch.delenv("RAILWAY_ENVIRONMENT", raising=False)
         monkeypatch.delenv("CF_WORKER", raising=False)
         monkeypatch.delenv("DEBUG", raising=False)
@@ -60,16 +67,19 @@ class TestDetectEnvironment:
 class TestGetMCPMode:
     def test_explicit_override_stdio(self, monkeypatch):
         from aaa_mcp.core.mode_selector import MCPMode, get_mcp_mode
+
         monkeypatch.setenv("ARIF_MCP_MODE", "STDIO")
         assert get_mcp_mode() == MCPMode.STDIO
 
     def test_explicit_override_sse(self, monkeypatch):
         from aaa_mcp.core.mode_selector import MCPMode, get_mcp_mode
+
         monkeypatch.setenv("ARIF_MCP_MODE", "SSE")
         assert get_mcp_mode() == MCPMode.SSE
 
     def test_invalid_override_falls_through(self, monkeypatch):
         from aaa_mcp.core.mode_selector import MCPMode, get_mcp_mode
+
         monkeypatch.setenv("ARIF_MCP_MODE", "INVALID")
         monkeypatch.setenv("RAILWAY_ENVIRONMENT", "production")
         result = get_mcp_mode()
@@ -77,12 +87,14 @@ class TestGetMCPMode:
 
     def test_auto_detect_railway(self, monkeypatch):
         from aaa_mcp.core.mode_selector import MCPMode, get_mcp_mode
+
         monkeypatch.delenv("ARIF_MCP_MODE", raising=False)
         monkeypatch.setenv("RAILWAY_ENVIRONMENT", "production")
         assert get_mcp_mode() == MCPMode.SSE
 
     def test_auto_detect_local(self, monkeypatch):
         from aaa_mcp.core.mode_selector import MCPMode, get_mcp_mode
+
         monkeypatch.delenv("ARIF_MCP_MODE", raising=False)
         monkeypatch.delenv("RAILWAY_ENVIRONMENT", raising=False)
         monkeypatch.delenv("CF_WORKER", raising=False)
@@ -98,11 +110,13 @@ class TestGetMCPMode:
 class TestGetPort:
     def test_default_port(self, monkeypatch):
         from aaa_mcp.core.mode_selector import get_port
+
         monkeypatch.delenv("PORT", raising=False)
         assert get_port() == 6274
 
     def test_custom_port(self, monkeypatch):
         from aaa_mcp.core.mode_selector import get_port
+
         monkeypatch.setenv("PORT", "8080")
         assert get_port() == 8080
 
@@ -110,12 +124,14 @@ class TestGetPort:
 class TestGetHost:
     def test_default_production_host(self, monkeypatch):
         from aaa_mcp.core.mode_selector import get_host
+
         monkeypatch.delenv("HOST", raising=False)
         monkeypatch.setenv("RAILWAY_ENVIRONMENT", "production")
         assert get_host() == "0.0.0.0"
 
     def test_custom_host(self, monkeypatch):
         from aaa_mcp.core.mode_selector import get_host
+
         monkeypatch.setenv("HOST", "127.0.0.1")
         assert get_host() == "127.0.0.1"
 
@@ -123,6 +139,7 @@ class TestGetHost:
 class TestGetModeConfig:
     def test_returns_dict_with_keys(self, monkeypatch):
         from aaa_mcp.core.mode_selector import get_mode_config
+
         monkeypatch.setenv("ARIF_MCP_MODE", "SSE")
         cfg = get_mode_config()
         assert "mode" in cfg
@@ -133,6 +150,7 @@ class TestGetModeConfig:
 
     def test_mode_value_is_string(self, monkeypatch):
         from aaa_mcp.core.mode_selector import get_mode_config
+
         monkeypatch.setenv("ARIF_MCP_MODE", "SSE")
         cfg = get_mode_config()
         assert cfg["mode"] == "sse"
@@ -146,6 +164,7 @@ class TestGetModeConfig:
 class TestMottoSchema:
     def test_get_mottos_resource_structure(self):
         from aaa_mcp.core.motto_schema import get_mottos_resource
+
         result = get_mottos_resource()
         assert result["uri"] == "constitutional://mottos"
         assert result["mimeType"] == "application/json"
@@ -156,6 +175,7 @@ class TestMottoSchema:
 
     def test_get_mottos_resource_bookends(self):
         from aaa_mcp.core.motto_schema import get_mottos_resource
+
         result = get_mottos_resource()
         bookends = result["text"]["bookends"]
         assert "init" in bookends
@@ -163,12 +183,14 @@ class TestMottoSchema:
 
     def test_format_failure_known_floor(self):
         from aaa_mcp.core.motto_schema import format_failure_with_motto
+
         msg = format_failure_with_motto("F2", "truth score too low")
         assert "F2" in msg
         assert "truth score too low" in msg
 
     def test_format_failure_unknown_floor(self):
         from aaa_mcp.core.motto_schema import format_failure_with_motto
+
         msg = format_failure_with_motto("F99", "unknown reason")
         assert "F99" in msg
         assert "unknown reason" in msg
@@ -176,12 +198,14 @@ class TestMottoSchema:
 
     def test_get_init_gate_message(self):
         from aaa_mcp.core.motto_schema import get_init_gate_message
+
         msg = get_init_gate_message()
         assert "000_INIT" in msg
         assert isinstance(msg, str)
 
     def test_get_seal_gate_message(self):
         from aaa_mcp.core.motto_schema import get_seal_gate_message
+
         msg = get_seal_gate_message()
         assert "999_SEAL" in msg
         assert isinstance(msg, str)
@@ -200,6 +224,7 @@ class TestEngineAdapters:
             ASIEngine,
             InitEngine,
         )
+
         assert AGIEngine is not None
         assert ASIEngine is not None
         assert APEXEngine is not None
@@ -207,11 +232,13 @@ class TestEngineAdapters:
 
     def test_agi_engine_instantiates(self):
         from aaa_mcp.core.engine_adapters import AGIEngine
+
         engine = AGIEngine()
         assert engine is not None
 
     def test_agi_engine_with_explicit_none(self):
         from aaa_mcp.core.engine_adapters import AGIEngine
+
         engine = AGIEngine(eureka_engine=None)
         assert engine is not None
 
@@ -224,6 +251,7 @@ class TestEngineAdapters:
 class TestForgeResult:
     def _make(self, verdict: str) -> object:
         from core.pipeline import ForgeResult
+
         return ForgeResult(verdict=verdict, session_id="test-session")
 
     def test_is_success_seal(self):
@@ -261,12 +289,14 @@ class TestForgeResult:
 
     def test_to_user_message_partial(self):
         from core.pipeline import ForgeResult
+
         r = ForgeResult(verdict="PARTIAL", session_id="s", remediation="Retry with evidence.")
         msg = r.to_user_message()
         assert "Retry" in msg or "partial" in msg.lower() or "constraint" in msg.lower()
 
     def test_to_user_message_void_with_floors(self):
         from core.pipeline import ForgeResult
+
         r = ForgeResult(verdict="VOID", session_id="s", floors_failed=["F2", "F4"])
         msg = r.to_user_message()
         assert "F2" in msg or "blocked" in msg.lower()
@@ -283,6 +313,7 @@ class TestForgeResult:
 
     def test_defaults(self):
         from core.pipeline import ForgeResult
+
         r = ForgeResult(verdict="SEAL", session_id="abc")
         assert r.landauer_risk == 0.0
         assert r.mode == "conscience"

@@ -49,7 +49,9 @@ async def test_phase5_chain_000_to_999_with_envelopes() -> None:
     )
     _assert_envelope(judge)
 
-    seal = await _fn(aaa.seal_vault)(session_id=session_id, summary="Phase 5 verified", verdict="SEAL")
+    seal = await _fn(aaa.seal_vault)(
+        session_id=session_id, summary="Phase 5 verified", verdict="SEAL"
+    )
     _assert_envelope(seal)
     assert "DITEMPA" in seal["motto"]["line"]
 

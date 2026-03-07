@@ -21,11 +21,10 @@ API Endpoints (via FastAPI):
 import os
 import re
 import uuid
-from typing import Optional, Any
 from dataclasses import dataclass
 
 from qdrant_client import QdrantClient
-from qdrant_client.models import Filter, FieldCondition, MatchValue, PointStruct
+from qdrant_client.models import FieldCondition, Filter, MatchValue, PointStruct
 from sentence_transformers import SentenceTransformer
 
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
@@ -52,7 +51,7 @@ class RAGResponse:
     query: str
     contexts: list[RetrievedContext]
     total_chunks: int
-    augmented_prompt: Optional[str] = None
+    augmented_prompt: str | None = None
 
 
 class ConstitutionalRAG:
@@ -72,18 +71,19 @@ class ConstitutionalRAG:
         """
         Simple Jaccard similarity between two strings based on lowercase word tokens.
         """
+
         def get_tokens(text: str) -> set[str]:
-            tokens = re.findall(r'\w+', text.lower())
+            tokens = re.findall(r"\w+", text.lower())
             return set(tokens)
 
         query_tokens = get_tokens(query)
         doc_tokens = get_tokens(document)
-        
+
         if not query_tokens and not doc_tokens:
             return 1.0
         if not query_tokens or not doc_tokens:
             return 0.0
-            
+
         intersection = len(query_tokens.intersection(doc_tokens))
         union = len(query_tokens.union(doc_tokens))
         return intersection / union
@@ -92,9 +92,9 @@ class ConstitutionalRAG:
         self,
         query: str,
         top_k: int = DEFAULT_TOP_K,
-        source_filter: Optional[str] = None,
+        source_filter: str | None = None,
         min_score: float = 0.0,
-        hybrid_alpha: float = 0.3, # Weight for Jaccard (0.0 = embeddings only)
+        hybrid_alpha: float = 0.3,  # Weight for Jaccard (0.0 = embeddings only)
     ) -> list[RetrievedContext]:
         """
         Hybrid retrieval: Jaccard (Tokens) + Cosine (Embeddings).
@@ -113,7 +113,7 @@ class ConstitutionalRAG:
                 collection_name=self.collection,
                 query=embedding.tolist(),
                 query_filter=query_filter,
-                limit=top_k * 2, # Oversample for reranking
+                limit=top_k * 2,  # Oversample for reranking
                 score_threshold=min_score,
                 with_payload=True,
             )
@@ -125,15 +125,15 @@ class ConstitutionalRAG:
         for point in results.points:
             payload = point.payload or {}
             content = payload.get("content", "")
-            
+
             # Compute Jaccard
             jaccard = self._jaccard_similarity(query, content)
-            
+
             # Combine scores
             # Cosine similarity from Qdrant is in [0, 1] for normalized embeddings
             cosine = point.score
             hybrid_score = (hybrid_alpha * jaccard) + ((1 - hybrid_alpha) * cosine)
-            
+
             ctx = RetrievedContext(
                 source=payload.get("source", "unknown"),
                 path=payload.get("path", "unknown"),
@@ -142,7 +142,7 @@ class ConstitutionalRAG:
                 metadata={
                     **(payload.get("metadata", {})),
                     "cosine_score": cosine,
-                    "jaccard_score": jaccard
+                    "jaccard_score": jaccard,
                 },
             )
             contexts.append(ctx)
@@ -163,25 +163,19 @@ class ConstitutionalRAG:
         """
         try:
             embedding = self.model.encode(content, normalize_embeddings=True)
-            
+
             point_id = str(uuid.uuid4())
             payload = {
                 "source": source,
                 "path": session_id,
                 "content": content,
                 "metadata": metadata or {},
-                "timestamp": datetime.now().isoformat() if 'datetime' in globals() else "",
+                "timestamp": datetime.now().isoformat() if "datetime" in globals() else "",
             }
-            
+
             self.client.upsert(
                 collection_name=self.collection,
-                points=[
-                    PointStruct(
-                        id=point_id,
-                        vector=embedding.tolist(),
-                        payload=payload
-                    )
-                ]
+                points=[PointStruct(id=point_id, vector=embedding.tolist(), payload=payload)],
             )
             return True
         except Exception as e:
@@ -192,7 +186,7 @@ class ConstitutionalRAG:
         self,
         query: str,
         top_k: int = DEFAULT_TOP_K,
-        source_filter: Optional[str] = None,
+        source_filter: str | None = None,
         min_score: float = 0.0,
     ) -> str:
         contexts = self.retrieve(query, top_k, source_filter, min_score)
@@ -208,7 +202,7 @@ class ConstitutionalRAG:
         query: str,
         top_k: int = DEFAULT_TOP_K,
         context_prefix: str = "Relevant context from arifOS constitutional knowledge base:",
-        source_filter: Optional[str] = None,
+        source_filter: str | None = None,
     ) -> str:
         context = self.retrieve_as_text(query, top_k, source_filter)
 

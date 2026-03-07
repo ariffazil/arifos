@@ -59,9 +59,7 @@ async def _ignite_(query: str, user_token: str | None = None, **kwargs) -> dict[
 
 # F11: Token set loaded from env at import time (never hardcoded)
 _VALID_TOKENS: frozenset[str] = frozenset(
-    t.strip()
-    for t in os.environ.get("ARIFOS_AUTH_TOKENS", "").split(",")
-    if t.strip()
+    t.strip() for t in os.environ.get("ARIFOS_AUTH_TOKENS", "").split(",") if t.strip()
 )
 
 # F12: Critical injection patterns — any match → immediate risk=1.0
@@ -77,9 +75,7 @@ _CRITICAL_INJECTION = re.compile(
 )
 
 # Unicode attacks (zero-width, RTL override, bidi isolate)
-_UNICODE_INJECTION = re.compile(
-    r"[\u200b\u200c\u200d\u202e\u2066\u2067\u2068\u2069\ufeff]"
-)
+_UNICODE_INJECTION = re.compile(r"[\u200b\u200c\u200d\u202e\u2066\u2067\u2068\u2069\ufeff]")
 
 # Soft suspicious patterns — additive, 0.2 each
 _SOFT_INJECTION = [
@@ -183,7 +179,11 @@ async def _senses_(query: str, session_id: str, **kwargs) -> dict[str, Any]:
     """External reality grounding with thread-safe circuit breaker."""
     with _cb_lock:
         if time.time() < _circuit_breaker["blocked_until"]:
-            return {"verdict": "SABAR", "session_id": session_id, "reason": "Circuit breaker active"}
+            return {
+                "verdict": "SABAR",
+                "session_id": session_id,
+                "reason": "Circuit breaker active",
+            }
 
     try:
         # External search (placeholder)
@@ -222,10 +222,7 @@ def _is_safe_atlas_path(path: Path) -> bool:
     """F12: Ensure resolved path stays within safe roots."""
     try:
         resolved = path.resolve()
-        return any(
-            str(resolved).startswith(str(root))
-            for root in _ATLAS_SAFE_ROOTS
-        )
+        return any(str(resolved).startswith(str(root)) for root in _ATLAS_SAFE_ROOTS)
     except Exception:
         return False
 
