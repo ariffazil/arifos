@@ -2,7 +2,7 @@
 vault_precedent_memory — Constitutional Precedent Vector Store
 
 Dual-layer memory: Ledger (truth) + Vectors (interpretation)
-- Collection: vault_precedent_memory (768-dim, Cosine)
+- Collection: vault_precedent_memory (1024-dim, Cosine)
 - Model: BAAI/bge-m3 (multilingual — Malay, English, Manglish)
 - Purpose: Semantic retrieval of governance decisions
 
@@ -38,8 +38,8 @@ except ImportError:
     EMBEDDING_AVAILABLE = False
 
 
-# F2 Truth + F6 Empathy: BGE-M3 supports Malay, English, Manglish (768-dim)
-VECTOR_DIM = 768
+# F2 Truth + F6 Empathy: BGE-M3 supports Malay, English, Manglish (1024-dim)
+VECTOR_DIM = 1024
 COLLECTION_NAME = "vault_precedent_memory"
 EMBEDDING_MODEL = "BAAI/bge-m3"
 
@@ -99,7 +99,7 @@ class VaultPrecedentMemory:
             exists = any(c.name == COLLECTION_NAME for c in collections)
             
             if not exists:
-                # F2 Truth: 768-dim BGE-M3 (multilingual — Malay, English, Manglish)
+                # F2 Truth: 1024-dim BGE-M3 (multilingual — Malay, English, Manglish)
                 self._client.create_collection(
                     collection_name=COLLECTION_NAME,
                     vectors_config=VectorParams(

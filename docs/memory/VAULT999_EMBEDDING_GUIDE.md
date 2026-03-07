@@ -6,7 +6,7 @@ version: "2026.03.07-QUADWITNESS-SEAL"
 status: CANONICAL
 scope: "VAULT999 + Qdrant vector memory"
 model: "BAAI/bge-m3"
-dimensions: 768
+dimensions: 1024
 language: "multilingual — Malay, English, Manglish"
 motto: "Ditempa Bukan Diberi"
 ```
@@ -57,7 +57,7 @@ identical English precedents.
 
 | Property | BGE-M3 | BGE-small (retired) |
 |---|---|---|
-| Dimensions | **768** | 384 |
+| Dimensions | **1024** | 384 |
 | Languages | **100+ (Malay, English, Manglish)** | English only |
 | Model size | ~570MB | ~30MB |
 | RAM (loaded) | ~1.2GB | ~200MB |
@@ -76,16 +76,16 @@ VAULT999
 ├── ledger/               # immutable constitutional records (PostgreSQL)
 │
 └── vector_memory/        # semantic precedent memory (Qdrant)
-     ├── arifos_constitutional     # constitutional knowledge base — 768-dim BGE-M3
-     └── vault_precedent_memory    # governance decisions + scars — 768-dim BGE-M3
+     ├── arifos_constitutional     # constitutional knowledge base — 1024-dim BGE-M3
+     └── vault_precedent_memory    # governance decisions + scars — 1024-dim BGE-M3
 ```
 
 | Collection | Contents | Dim | Purpose |
 |---|---|---|---|
-| `arifos_constitutional` | chunked spec/canon docs | 768 | `vector_memory` tool knowledge retrieval |
-| `vault_precedent_memory` | sealed governance decisions, scars, lessons | 768 | post-seal precedent accumulation |
+| `arifos_constitutional` | chunked spec/canon docs | 1024 | `vector_memory` tool knowledge retrieval |
+| `vault_precedent_memory` | sealed governance decisions, scars, lessons | 1024 | post-seal precedent accumulation |
 
-**Both collections use 768-dim BGE-M3. Mixing dimensions is prohibited.**
+**Both collections use 1024-dim BGE-M3. Mixing dimensions is prohibited.**
 
 ---
 
@@ -109,7 +109,7 @@ VAULT999 ledger write  ← ALWAYS FIRST
    ↓
 Generate governance_explanation
    ↓
-Embed with BGE-M3 (768-dim)
+Embed with BGE-M3 (1024-dim)
    ↓
 Store in vault_precedent_memory (Qdrant)
 ```
@@ -219,7 +219,7 @@ retrieve past decisions involving F3_QUAD_WITNESS failures
 
 ```
 collection:  vault_precedent_memory
-vector_size: 768
+vector_size: 1024
 distance:    Cosine
 
 Payload fields:
@@ -237,7 +237,7 @@ Payload fields:
 
 ```
 collection:  arifos_constitutional
-vector_size: 768
+vector_size: 1024
 distance:    Cosine
 
 Payload fields:
@@ -249,7 +249,7 @@ Payload fields:
 ```
 
 **Note:** `arifos_constitutional` was previously at 384-dim (BGE-small). It must be
-recreated at 768-dim and re-embedded with BGE-M3 for consistent retrieval.
+recreated at 1024-dim and re-embedded with BGE-M3 for consistent retrieval.
 
 ---
 
@@ -322,7 +322,7 @@ Cross-language retrieval works because BGE-M3 maps Malay and English to the same
 VAULT999      = Immutable Truth
 Qdrant        = Searchable Wisdom
 
-BGE-M3 768-dim = The bridge between languages and precedents
+BGE-M3 1024-dim = The bridge between languages and precedents
 ```
 
 Violating the VAULT999/Qdrant separation breaks constitutional guarantees.

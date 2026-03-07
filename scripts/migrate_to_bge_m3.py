@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """
-Migrate arifOS embeddings from BGE-small (384-dim) to BGE-M3 (768-dim).
+Migrate arifOS embeddings from BGE-small (384-dim) to BGE-M3 (1024-dim).
 
 This script:
-1. Re-creates arifos_constitutional collection at 768-dim
+1. Re-creates arifos_constitutional collection at 1024-dim
 2. Re-embeds all 7,706 constitutional documents
-3. Creates vault_precedent_memory collection at 768-dim
+3. Creates vault_precedent_memory collection at 1024-dim
 
 F2 Truth + F6 Empathy: Enables Malay, English, and Manglish precedent retrieval.
 
@@ -41,7 +41,7 @@ except ImportError as e:
 # Configuration
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
 OLD_DIM = 384
-NEW_DIM = 768
+NEW_DIM = 1024
 OLD_MODEL = "BAAI/bge-small-en-v1.5"
 NEW_MODEL = "BAAI/bge-m3"
 
