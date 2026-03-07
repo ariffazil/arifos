@@ -44,6 +44,26 @@ def test_hold_888_transition(lifecycle):
     assert "HOLD_888" in result.violation_reason
 
 
+def test_ratify_rejects_invalid_sovereign_token(lifecycle):
+    """ratify() must fail closed unless the sovereign token is valid."""
+    sess = lifecycle.init_session("test-003b", "arif", "MY", "normal context")
+    lifecycle.hold_888(sess.session_id, action="Production deploy approval")
+
+    with pytest.raises(PermissionError):
+        lifecycle.ratify(sess.session_id, sovereign_token="not-approved")
+
+
+def test_ratify_releases_hold_with_valid_sovereign_token(lifecycle):
+    """ratify() should release HOLD_888 only for the canonical token."""
+    sess = lifecycle.init_session("test-003c", "arif", "MY", "normal context")
+    lifecycle.hold_888(sess.session_id, action="Production deploy approval")
+
+    result = lifecycle.ratify(sess.session_id, sovereign_token="888_APPROVED")
+
+    assert result.state == KernelState.ACTIVE
+    assert result.violation_reason is None
+
+
 def test_sabar_transition(lifecycle):
     """sabar_hold() should transition an ACTIVE session to SABAR_72 (F1)."""
     sess = lifecycle.init_session("test-004", "arif", "MY", "context")

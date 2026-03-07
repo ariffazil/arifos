@@ -881,12 +881,12 @@ def create_unified_mcp_server() -> Any:
     """Return the internal (aaa_mcp layer) FastMCP instance.
 
     Called by:
-    - server.py (root entrypoint: `python server.py`)
+    - transport adapters under `aaa_mcp` / `arifos_aaa_mcp`
     - tests that monkeypatch aaa_mcp.server.create_unified_mcp_server
 
-    aaa_mcp/__main__.py uses arifos_aaa_mcp.server.create_aaa_mcp_server() instead,
+    `aaa_mcp.__main__` uses `arifos_aaa_mcp.server.create_aaa_mcp_server()`,
     which wraps this layer with governance contracts. Do NOT remove without
-    updating server.py and its test suite.
+    updating the supported entrypoints and their test suite.
     """
     return mcp
 
@@ -1578,7 +1578,11 @@ async def _agi_cognition(
                 "compute_ms": actual_ms,
                 "expected_ms": expected_ms,
                 "landauer_efficiency": expected_ms / max(0.1, actual_ms)
-            }
+            },
+            # QT Quad Integration
+            "qt_quad": getattr(formal_cognition, "qt_proof", {}),
+            "W_four": getattr(formal_cognition, "qt_proof", {}).get("W_four") if hasattr(formal_cognition, "qt_proof") else None,
+            "witnesses": getattr(formal_cognition, "qt_proof", {}).get("witnesses") if hasattr(formal_cognition, "qt_proof") else None,
         }
         result = {
             "capability_modules": capability_modules or [],
@@ -1789,9 +1793,19 @@ async def _asi_empathy(
             "truth_score": v.get("truth_score"),
             "f2_threshold": v.get("f2_threshold"),
             "floors_failed": list(v.get("floors_failed", [])) + list(a.get("floors_failed", [])),
+            # QT Quad: Include stakeholder count
+            "stakeholder_count": len(stakeholders) if stakeholders else 0,
         }
+        
+        # QT Quad: Ensure stakeholders are populated
+        effective_stakeholders = stakeholders or []
+        if not effective_stakeholders:
+            # Fallback stakeholders from ASI output
+            asi_impact = a.get("stakeholder_impact", {})
+            effective_stakeholders = list(asi_impact.keys()) if asi_impact else ["User", "System"]
+        
         result = {
-            "stakeholders": stakeholders or [],
+            "stakeholders": effective_stakeholders,
             "capability_modules": capability_modules or [],
             "actor_id": continuity_binding["actor_id"] if continuity_binding else actor_id,
             "token_status": _token_status(auth_token),

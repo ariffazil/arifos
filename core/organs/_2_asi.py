@@ -1,7 +1,7 @@
 """
 core/organs/_2_asi.py — The Heart (Stage 555-666)
 
-ASI Engine: Empathy, Stakeholder Care, Peace Preservation
+ASI Engine: Empathy, Stakeholder Care, Peace Preservation with ST Integration
 
 DOMAIN ISOLATION (P2):
     - ASI handles EMPATHY, STAKEHOLDERS, HARM only
@@ -13,6 +13,11 @@ Floors:
     F5: Peace² (stability)
     F6: Empathy (κᵣ ≥ 0.95)
     F9: Anti-Hantu (no consciousness claims)
+
+QT QUAD INTEGRATION:
+    - Extracts stakeholders from ST Synthesis tags
+    - Populates stakeholders[] from "stakeholder:{name}" tags
+    - Calculates κᵣ with quantum uncertainty
 """
 
 from __future__ import annotations
@@ -25,6 +30,9 @@ from core.shared.physics import (
     Stakeholder,
     harm_score,
     identify_stakeholders,
+    # QT Quad Integration (NEW)
+    extract_stakeholders_from_tags,
+    kappa_r,
 )
 from core.shared.sbert_floors import classify_asi_floors
 from core.shared.types import AsiOutput, FloorScores, Verdict
@@ -78,11 +86,42 @@ async def empathize(
     query: str, agi_tensor: ConstitutionalTensor, session_id: str, context: str | None = None
 ) -> AsiOutput:
     sbert_scores = classify_asi_floors(query)
-    stakeholders = identify_stakeholders(query, context=context)
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # QT QUAD: Extract stakeholders from ST thought chain
+    # ═══════════════════════════════════════════════════════════════════
+    
+    # Try to get ST chain from AGI tensor
+    st_stakeholders: list[Stakeholder] = []
+    if hasattr(agi_tensor, "st_chain") and agi_tensor.st_chain:
+        st_stakeholders = extract_stakeholders_from_tags(agi_tensor.st_chain)
+    
+    # Fallback: heuristic stakeholder detection
+    heuristic_stakeholders = identify_stakeholders(query, context=context)
+    
+    # Merge: ST stakeholders take precedence, heuristic fills gaps
+    stakeholder_map = {s.name: s for s in st_stakeholders}
+    for s in heuristic_stakeholders:
+        if s.name not in stakeholder_map:
+            stakeholder_map[s.name] = s
+    
+    stakeholders = list(stakeholder_map.values())
+    
+    # Ensure minimum stakeholders (prevent empty list)
+    if len(stakeholders) < 2:
+        stakeholders.extend([
+            Stakeholder("User", "user", 0.3),
+            Stakeholder("System", "system", 0.1),
+        ])
 
     # Use SBERT for F6, F9; compute F5 from harm score
     f6_empathy_score = sbert_scores.f6_empathy
     f9_anti_hantu_score = sbert_scores.f9_anti_hantu
+    
+    # QT QUAD: Calculate κᵣ with full stakeholder list
+    kappa_r_score = kappa_r(query, stakeholders)
+    # Blend SBERT and κᵣ for final F6
+    f6_empathy_score = max(f6_empathy_score, kappa_r_score)
 
     # Compute harm score based on similarity to harm archetypes
     query_harm = harm_score(query)
@@ -94,7 +133,7 @@ async def empathize(
     weakest = (
         min(stakeholders, key=lambda s: s.vulnerability_score)
         if stakeholders
-        else Stakeholder("System", "system", 1.0)  # Assume 1.0 for now
+        else Stakeholder("System", "system", 1.0)
     )
     care_recs = [f"Monitor impact on {s.name}" for s in stakeholders if s.vulnerability_score < 0.5]
 
@@ -112,6 +151,10 @@ async def empathize(
             "recommendations": care_recs,
             "sbert_confidence": sbert_scores.confidence,
             "sbert_method": sbert_scores.method,
+            # QT Quad additions
+            "stakeholder_count": len(stakeholders),
+            "stakeholder_sources": ["st_chain" if s in st_stakeholders else "heuristic" for s in stakeholders],
+            "kappa_r": kappa_r_score,
         },
     )
 

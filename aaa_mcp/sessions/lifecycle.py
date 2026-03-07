@@ -71,6 +71,8 @@ _INJECTION_PATTERNS: list[re.Pattern[str]] = [
     re.compile(r"do\s+anything\s+now", re.I),  # DAN variant
 ]
 
+_SOVEREIGN_APPROVAL_TOKEN = "888_APPROVED"
+
 
 # ---------------------------------------------------------------------------
 # LifecycleManager
@@ -185,7 +187,7 @@ class LifecycleManager:
     # ratify — Release HOLD_888 back to ACTIVE
     # ------------------------------------------------------------------
 
-    def ratify(self, session_id: str, sovereign_token: str = "888_APPROVED") -> Session:
+    def ratify(self, session_id: str, sovereign_token: str) -> Session:
         """
         Human sovereign explicitly approves a HOLD_888 action.
         F11 Authority: Only sovereign token releases the hold.
@@ -193,6 +195,8 @@ class LifecycleManager:
         sess = self._get_or_raise(session_id)
         if sess.state != KernelState.HOLD_888:
             raise ValueError(f"Session {session_id!r} is not in HOLD_888 state")
+        if sovereign_token != _SOVEREIGN_APPROVAL_TOKEN:
+            raise PermissionError("Valid sovereign token required to release HOLD_888")
         sess.state = KernelState.ACTIVE
         sess.violation_reason = None
         return sess

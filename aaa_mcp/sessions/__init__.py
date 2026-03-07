@@ -14,8 +14,6 @@ DITEMPA BUKAN DIBERI
 """
 
 from .lifecycle import KernelState, LifecycleManager, Session
-from .session_dependency import get_session_ledger
-from .session_ledger import SessionLedger
 
 __all__ = [
     # Session Lifecycle (moved from aclip_cai per spec)
@@ -26,3 +24,16 @@ __all__ = [
     "SessionLedger",
     "get_session_ledger",
 ]
+
+
+def __getattr__(name: str):
+    """Avoid importing ledger backends unless callers actually need them."""
+    if name == "SessionLedger":
+        from .session_ledger import SessionLedger
+
+        return SessionLedger
+    if name == "get_session_ledger":
+        from .session_dependency import get_session_ledger
+
+        return get_session_ledger
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

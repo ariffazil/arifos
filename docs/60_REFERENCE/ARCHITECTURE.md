@@ -459,7 +459,7 @@ Novelty measured by: Jaccard n-gram similarity, fingerprint dedup, entropy reduc
 | **stdio** | `python -m arifos_aaa_mcp stdio` | Claude Desktop, Cursor IDE |
 | **SSE** (default) | `python -m arifos_aaa_mcp` | VPS deployment (Coolify/Hostinger) |
 | **HTTP** | `python -m arifos_aaa_mcp http` | Streamable HTTP, ChatGPT, cloud |
-| **REST** | `python server.py --mode rest` | FastAPI bridge with OpenAPI |
+| **REST** | `python -m aaa_mcp rest` | FastAPI bridge with OpenAPI |
 
 ### Live Endpoints
 

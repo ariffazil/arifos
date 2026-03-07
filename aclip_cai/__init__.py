@@ -11,7 +11,8 @@ Protocol:  MCP (transport detail, not the identity)
 Identity:  ACLIP CAI — Console for AI on arifOS
 Relation:  Ops layer. aaa-mcp is the Constitution. This is the Console.
 
-Entry: python -m aclip_cai [stdio|sse|http]
+Entry: python -m aaa_mcp [stdio|sse|http|rest]
+Legacy transport alias: python -m aclip_cai [stdio|sse|http]
 """
 
 __version__ = "1.0.0"

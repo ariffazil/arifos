@@ -14,7 +14,7 @@ resources, or prompts must be applied to **both** or the two entrypoints will di
 |---|---|---|
 | **Module** | `aaa_mcp/server.py` | `arifos_aaa_mcp/server.py` |
 | **Constructor** | `create_unified_mcp_server()` | `create_aaa_mcp_server()` |
-| **Entrypoint** | `python server.py` | `python -m aaa_mcp` or `python -m arifos_aaa_mcp` |
+| **Entrypoint** | internal module only | `python -m aaa_mcp` or `python -m arifos_aaa_mcp` |
 | **Tool source** | `@mcp.tool()` decorators (13 tools, direct) | Wrapper functions calling `legacy.*` from `aaa_mcp` |
 | **Governance** | None (raw FastMCP) | `validate_input()` + `require_session()` contracts |
 | **Resource URIs** | `arifos://info`, `arifos://templates/*`, `arifos://schemas/tooling` | `arifos://aaa/schemas`, `arifos://aaa/full-context-pack` |

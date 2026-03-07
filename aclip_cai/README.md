@@ -75,15 +75,19 @@ Every sensory input and model response is audited to prevent hallucinations and 
 
 ## VI. Quick Start & Deployment
 
-### Running the MCP Server (STDIO/SSE/HTTP)
+### Running the MCP Server (Canonical)
 
 ```bash
 # Default (STDIO)
-python aclip_cai/mcp_server.py
+python -m aaa_mcp stdio
 
 # SSE Mode
-python aclip_cai/mcp_server.py sse
+python -m aaa_mcp sse
 ```
+
+`aclip_cai` no longer exposes its own top-level `mcp_server.py`. If you still run
+`python -m aclip_cai stdio|sse|http`, it delegates to `aaa_mcp` and should be
+treated as a legacy alias.
 
 ### CLI Access
 

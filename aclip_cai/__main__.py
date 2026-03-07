@@ -2,54 +2,49 @@
 aclip_cai CLI Entry Point — Triple Transport Support
 
 Usage:
-    python -m aclip_cai                # stdio (default — MCP server)
-    python -m aclip_cai stdio          # stdio (explicit)
-    python -m aclip_cai sse            # SSE (Remote — VPS/Network)
-    python -m aclip_cai http           # HTTP (Streamable HTTP at /mcp)
+    python -m aclip_cai                # stdio (delegates to aaa_mcp)
+    python -m aclip_cai stdio          # stdio (delegates to aaa_mcp)
+    python -m aclip_cai sse            # SSE (delegates to aaa_mcp)
+    python -m aclip_cai http           # HTTP (delegates to aaa_mcp)
     python -m aclip_cai health         # CLI subcommand (legacy)
 
 DITEMPA BUKAN DIBERI
 """
 
-import os
 import sys
 
-TRANSPORT_MODES = {"stdio", "sse", "http", "streamable-http"}
+TRANSPORT_MODES = {"stdio", "sse", "http", "streamable-http", "rest"}
 
 
 def main():
     mode = (sys.argv[1] if len(sys.argv) > 1 else "stdio").strip().lower()
 
-    # DEPRECATED: aclip_cai standalone server is superseded by unified server at root.
-    # Using unified server (combines AAA-MCP and ACLIP-CAI tools).
-    import warnings
+    # Transport now lives in the canonical aaa_mcp entrypoint.
+    if mode in TRANSPORT_MODES or mode in {"", "-h", "--help"}:
+        import warnings
 
-    warnings.warn(
-        "aclip_cai standalone server is deprecated. "
-        "Use 'python -m aaa_mcp' or 'python server.py' for unified server.",
-        DeprecationWarning,
-        stacklevel=2,
-    )
+        from aaa_mcp.__main__ import main as aaa_main
 
-    # Route to FastMCP server for transport modes
-    if mode in TRANSPORT_MODES or mode == "":
-        from server import mcp
+        warnings.warn(
+            "aclip_cai transport modes are deprecated; use 'python -m aaa_mcp' directly.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        forwarded_mode = mode
+        forwarded_args = sys.argv[2:]
+        if mode == "streamable-http":
+            forwarded_mode = "http"
+        elif mode in {"", "-h", "--help"}:
+            forwarded_mode = None
+            forwarded_args = sys.argv[1:]
 
-        if mode in ("", "stdio"):
-            mcp.run(transport="stdio")
-            return
-
-        if mode == "sse":
-            port = int(os.getenv("PORT", 8080))
-            host = os.getenv("HOST", "0.0.0.0")
-            mcp.run(transport="sse", host=host, port=port)
-            return
-
-        if mode in ("http", "streamable-http"):
-            port = int(os.getenv("PORT", 8080))
-            host = os.getenv("HOST", "0.0.0.0")
-            mcp.run(transport="http", host=host, port=port)
-            return
+        forwarded_argv = ["aaa_mcp"]
+        if forwarded_mode is not None:
+            forwarded_argv.append(forwarded_mode)
+        forwarded_argv.extend(forwarded_args)
+        sys.argv = forwarded_argv
+        aaa_main()
+        return
 
     # Fall through to CLI for subcommands (health, processes, fs, etc.)
     from .cli import main as cli_main

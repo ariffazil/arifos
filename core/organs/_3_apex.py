@@ -94,7 +94,7 @@ async def sync(
 ) -> ApexOutput:
     """
     Stage 444: SYNC — The Bridge between Mind and Heart
-    UPGRADE: Quad-Witness Byzantine Consensus
+    UPGRADE: Quad-Witness Byzantine Consensus with ST Integration
     """
     # Merge witnesses
     agi_witness = agi_tensor.witness
@@ -107,24 +107,40 @@ async def sync(
 
     asi_care = asi_data.get("floor_scores", {}).get("f6_empathy", 0.7)
     
-    # Ψ-Shadow (Adversarial Verifier) Score
-    # In a full pipeline, this would be computed by a dedicated shadow agent.
-    # Here we derive it from the delta between Truth and Empathy.
-    truth = agi_tensor.truth_score
-    shadow_score = 1.0 - abs(truth - asi_care)
-
-    merged_witness = QuadTensor(
-        H=min(agi_witness.H, asi_care),
-        A=agi_witness.A,
-        E=agi_witness.E if hasattr(agi_witness, "E") else getattr(agi_witness, "S", 0.7),
-        V=shadow_score
-    )
-
-    w4_score = W_4_from_tensor(merged_witness)
+    # ═══════════════════════════════════════════════════════════════════
+    # QT QUAD: Use ST-derived witnesses if available
+    # ═══════════════════════════════════════════════════════════════════
+    
+    # Extract QT Quad proof from AGI tensor
+    qt_proof = getattr(agi_tensor, "qt_proof", None)
+    
+    if qt_proof and "W_four" in qt_proof:
+        # Use pre-calculated QT Quad from ST chain
+        w4_score = qt_proof["W_four"]
+        w_ai = qt_proof.get("witnesses", {}).get("W_ai", agi_witness.A)
+        w_adversarial = qt_proof.get("witnesses", {}).get("W_adversarial", 0.5)
+        shadow_score = w_adversarial
+    else:
+        # Fallback: Ψ-Shadow derived from delta between Truth and Empathy
+        truth = agi_tensor.truth_score
+        shadow_score = 1.0 - abs(truth - asi_care)
+        
+        merged_witness = QuadTensor(
+            H=min(agi_witness.H, asi_care),
+            A=agi_witness.A,
+            E=agi_witness.E if hasattr(agi_witness, "E") else getattr(agi_witness, "S", 0.7),
+            V=shadow_score
+        )
+        w4_score = W_4_from_tensor(merged_witness)
+        w_ai = agi_witness.A
 
     # BFT Threshold: n=4, f=1 => 3/4 = 0.75
+    # QT QUAD: Use SABAR_QUANTUM if available, otherwise standard verdicts
     if w4_score >= 0.75:
-        pre_verdict = "SEAL"
+        if qt_proof and qt_proof.get("verdict") == "SABAR_QUANTUM":
+            pre_verdict = "SABAR"
+        else:
+            pre_verdict = "SEAL"
     elif w4_score >= 0.60:
         pre_verdict = "PARTIAL"
     else:
@@ -139,7 +155,16 @@ async def sync(
             f8_genius=agi_tensor.genius.G(),
         ),
         verdict=Verdict(pre_verdict),
-        metrics={"stage": 444, "action": "sync", "W_4": w4_score, "shadow_V": shadow_score},
+        metrics={
+            "stage": 444, 
+            "action": "sync", 
+            "W_4": w4_score, 
+            "shadow_V": shadow_score,
+            "W_ai": w_ai,
+            # QT Quad additions
+            "qt_quad_available": qt_proof is not None,
+            "thought_count": qt_proof.get("thought_metrics", {}).get("total_thoughts", 0) if qt_proof else 0,
+        },
     )
 
 
@@ -278,11 +303,17 @@ async def judge(
         "f3_tri_witness", 0.0
     )
     w3 = w4  # Legacy alias
+    
+    # QT QUAD: Check for SABAR_QUANTUM guidance from AGI
+    agi_qt_proof = (agi_tensor.qt_proof if hasattr(agi_tensor, "qt_proof") else None) or {}
+    extend_guidance = agi_qt_proof.get("extend_guidance", []) if isinstance(agi_qt_proof, dict) else []
 
     # BFT Quorum: 0.75
     if w4 < 0.75:
         violations.append("F3")
         justifications.append(f"Quad-Witness {w4:.3f} < 0.75 (Byzantine Quorum Failed)")
+        if extend_guidance:
+            justifications.append(f"Extension guidance: {'; '.join(extend_guidance)}")
 
     g_score = forge_output["genius_G"]
     h_pen = forge_output.get("hysteresis_h", 0.0)
@@ -346,6 +377,12 @@ async def judge(
     if require_sovereign:
         verdict = "888_HOLD"
 
+    # QT QUAD: Include full proof in metrics
+    qt_quad_data = (agi_tensor.qt_proof if hasattr(agi_tensor, "qt_proof") else None) or {}
+    if isinstance(qt_quad_data, dict):
+        qt_quad_data["W_four"] = w4
+        qt_quad_data["verdict"] = verdict
+    
     return ApexOutput(
         session_id=session_id,
         floor_scores=FloorScores(
@@ -369,6 +406,8 @@ async def judge(
             },
             "objective_alignment": objective_alignment,
             "thermodynamics": thermo_metrics,  # P3: Include thermodynamic data
+            "qt_quad": qt_quad_data,  # QT Quad proof
+            "extend_guidance": extend_guidance,  # SABAR guidance
         },
     )
 

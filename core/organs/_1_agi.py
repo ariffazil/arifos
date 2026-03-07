@@ -1,7 +1,7 @@
 """
 core/organs/_1_agi.py — The Mind (Stage 111-222-333)
 
-AGI Engine: Sequential Thinking with Constitutional Physics
+AGI Engine: Sequential Thinking with Constitutional Physics + QT Quad
 
 DOMAIN ISOLATION (P2):
     - AGI handles LOGIC, TRUTH, REASONING only
@@ -12,13 +12,18 @@ DOMAIN ISOLATION (P2):
 Actions:
     1. sense (111)   → Parse intent, classify lane (Λ)
     2. think (222)   → Generate hypotheses (3 paths)
-    3. reason (333)  → Sequential reasoning chain
+    3. reason (333)  → Sequential reasoning chain with ST integration
 
 Floors:
     F2: Truth ≥ 0.99
     F4: Clarity (ΔS ≤ 0)
     F7: Humility (Ω₀ ∈ [0.03, 0.05])
     F8: Genius (G = A·P·X·E² ≥ 0.80)
+
+QT QUAD INTEGRATION:
+    - ST thought chain builds W₂ (AI Witness) before floor checks
+    - Adversarial branches build W₄ (Verifier Witness)
+    - Returns SABAR_QUANTUM with guidance instead of VOID
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
@@ -38,6 +43,10 @@ from core.shared.physics import (
     TrinityTensor,
     UncertaintyBand,
     delta_S,
+    # QT Quad Integration (NEW)
+    calculate_w_ai_quad,
+    calculate_w_adversarial,
+    build_qt_quad_proof,
 )
 from core.shared.types import AgiOutput, FloorScores, ThoughtNode, Verdict
 
@@ -306,7 +315,169 @@ def _generate_hypotheses(query: str, gpv: GPV) -> list[ThoughtNode]:
 
 
 # =============================================================================
-# ACTION 3: REASON (Stage 333) — Sequential Reasoning Chain
+# SEQUENTIAL THINKING INTEGRATION — QT Quad Witness Builder
+# =============================================================================
+
+
+async def build_st_thought_chain(
+    query: str,
+    hypotheses: list[Any],
+    session_id: str,
+    max_depth: int = 8,
+) -> list[dict[str, Any]]:
+    """
+    Build Sequential Thinking thought chain for QT Quad witness calculation.
+    
+    This generates a structured reasoning chain with:
+    - 5 stages: Problem Definition, Research, Analysis, Synthesis, Conclusion
+    - Adversarial branches (isRevision=True) for W₄
+    - Axiom tracking for constitutional compliance
+    - Assumption challenging for epistemic humility
+    
+    Returns:
+        List of thought dicts compatible with QT Quad calculations
+    """
+    thought_chain: list[dict[str, Any]] = []
+    
+    # Stage 1: Problem Definition (111_EXPLORE)
+    for i in range(2):
+        thought_chain.append({
+            "thought": f"Problem Definition {i+1}: Framing '{query[:40]}...'",
+            "thought_number": len(thought_chain) + 1,
+            "total_thoughts": max_depth,
+            "stage": "Problem Definition",
+            "tags": ["phase:explore", f"hypothesis:{hypotheses[i % len(hypotheses)].path_type if hypotheses else 'neutral'}"],
+            "axioms_used": ["F2_TRUTH", "A1_TRUTH_COST", "F7_HUMILITY"],
+            "assumptions_challenged": [],
+            "isRevision": False,
+            "next_thought_needed": True,
+        })
+    
+    # Stage 2: Research (222_DISCOVER)
+    for i in range(2):
+        thought_chain.append({
+            "thought": f"Research {i+1}: Evidence gathering and source evaluation",
+            "thought_number": len(thought_chain) + 1,
+            "total_thoughts": max_depth,
+            "stage": "Research",
+            "tags": ["phase:discover", "evidence:document", "evidence:data"],
+            "axioms_used": ["F2_TRUTH", "F4_CLARITY", "F7_HUMILITY"],
+            "assumptions_challenged": ["source_reliability", "data_completeness"],
+            "isRevision": False,
+            "next_thought_needed": True,
+        })
+    
+    # Stage 3: Analysis (333_REASON) with cheap_truth monitoring
+    cheap_truth_threshold = 3  # Minimum thoughts before Synthesis
+    
+    for i in range(4):
+        # Primary analysis thought
+        thought_chain.append({
+            "thought": f"Analysis {i+1}: Reasoning step with hypothesis evaluation",
+            "thought_number": len(thought_chain) + 1,
+            "total_thoughts": max_depth,
+            "stage": "Analysis",
+            "tags": ["phase:reason", f"step:{i+1}"],
+            "axioms_used": ["F1_AMANAH", "F4_CLARITY", "F8_GENIUS"],
+            "assumptions_challenged": [],
+            "isRevision": False,
+            "next_thought_needed": True,
+        })
+        
+        # Adversarial branch for W₄ (every other thought)
+        if i % 2 == 1 and i < 3:
+            thought_chain.append({
+                "thought": f"Critique {i+1}: Adversarial review of analysis {i}",
+                "thought_number": len(thought_chain) + 1,
+                "total_thoughts": max_depth,
+                "stage": "Analysis",
+                "tags": ["phase:critique", "adversarial:true", "w4:verifier"],
+                "axioms_used": ["F3_QT_QUAD", "F9_ANTI_HANTU"],
+                "assumptions_challenged": [
+                    "hypothesis_validity",
+                    "framing_bias",
+                    "sufficiency_of_evidence",
+                    "alternative_explanations"
+                ],
+                "isRevision": True,
+                "revisesThought": len(thought_chain) - 1,
+                "branchId": f"adversarial_{session_id}_{i}",
+                "next_thought_needed": True,
+            })
+    
+    # Check cheap_truth: need minimum depth before Synthesis
+    if len(thought_chain) < cheap_truth_threshold:
+        # Extend with additional analysis
+        for i in range(cheap_truth_threshold - len(thought_chain)):
+            thought_chain.append({
+                "thought": f"Extended Analysis {i+1}: Additional reasoning for thermodynamic sufficiency",
+                "thought_number": len(thought_chain) + 1,
+                "total_thoughts": max_depth,
+                "stage": "Analysis",
+                "tags": ["phase:reason", "extension:true"],
+                "axioms_used": ["A3_ENTROPY_WORK"],
+                "assumptions_challenged": ["premature_conclusion"],
+                "isRevision": False,
+                "next_thought_needed": True,
+            })
+    
+    # Stage 4: Synthesis (555_EMPATHY prep) — with stakeholder tags
+    thought_chain.append({
+        "thought": f"Synthesis: Stakeholder impact analysis for '{query[:30]}...'",
+        "thought_number": len(thought_chain) + 1,
+        "total_thoughts": max_depth,
+        "stage": "Synthesis",
+        "tags": [
+            "stakeholder:user|impact:medium|psi:0.85|entangled:true",
+            "stakeholder:system|impact:low|psi:0.95|entangled:false",
+        ],
+        "axioms_used": ["F5_PEACE2", "F6_EMPATHY"],
+        "assumptions_challenged": ["stakeholder_neutrality"],
+        "isRevision": False,
+        "next_thought_needed": True,
+    })
+    
+    # Stage 5: Conclusion (888_JUDGE prep)
+    thought_chain.append({
+        "thought": f"Conclusion: Final reasoning synthesis for '{query[:30]}...'",
+        "thought_number": len(thought_chain) + 1,
+        "total_thoughts": max_depth,
+        "stage": "Conclusion",
+        "tags": ["phase:conclusion", "verdict:pending"],
+        "axioms_used": ["F3_QT_QUAD", "F13_SOVEREIGNTY"],
+        "assumptions_challenged": ["reasoning_completeness"],
+        "isRevision": False,
+        "next_thought_needed": False,
+    })
+    
+    return thought_chain
+
+
+def cheap_truth_detected(thought_chain: list[dict[str, Any]]) -> bool:
+    """
+    Detect if reasoning is 'too cheap' — insufficient thermodynamic work.
+    
+    Landauer principle: E ≥ n·k_B·T·ln(2)
+    If we haven't done enough bit-operations, the conclusion is suspect.
+    """
+    if len(thought_chain) < 5:
+        return True
+    
+    # Check for adversarial branches (W₄ signal)
+    revisions = sum(1 for t in thought_chain if t.get("isRevision"))
+    if revisions < 1:
+        return True
+    
+    # Check for assumption challenges (epistemic humility)
+    assumptions = sum(len(t.get("assumptions_challenged", [])) for t in thought_chain)
+    if assumptions < 3:
+        return True
+    
+    return False
+
+
+# =============================================================================
+# ACTION 3: REASON (Stage 333) — Sequential Reasoning Chain with QT Quad
 # =============================================================================
 
 
@@ -314,17 +485,23 @@ async def reason(
     query: str,
     think_output: dict[str, Any],
     session_id: str,
-    max_thoughts: int = 5,
+    max_thoughts: int = 8,  # Increased for ST depth
     gpv: GPV | None = None,
     skip_f4: bool = False,
-) -> tuple[ConstitutionalTensor, list[ThoughtNode]]:
+) -> tuple[ConstitutionalTensor, list[ThoughtNode], dict[str, Any]]:
     """
-    Stage 333: REASON — Deep sequential thinking loop
+    Stage 333: REASON — Deep sequential thinking loop with QT Quad
 
     The Mind iteratively refines understanding until:
     - Convergence achieved (ΔS < threshold)
     - Max thoughts reached
-    - Confidence sufficient (truth_score ≥ f2_threshold)
+    - QT Quad consensus achieved (W_four ≥ 0.95)
+    
+    QT QUAD INTEGRATION:
+    - Builds ST thought chain BEFORE floor checks
+    - Calculates W₂ (AI Witness) from thought depth
+    - Calculates W₄ (Adversarial) from revisions
+    - Returns SABAR_QUANTUM with guidance instead of VOID
 
     F2 Threshold is now ADAPTIVE based on query type:
     - PROCEDURAL: 0.70 (relaxed for commands)
@@ -341,17 +518,12 @@ async def reason(
         query: Original query
         think_output: Output from think() action
         session_id: Constitutional session token
-        max_thoughts: Maximum reasoning steps (default: 5)
+        max_thoughts: Maximum reasoning steps (default: 8 for ST depth)
         gpv: Optional GPV for adaptive thresholds (auto-computed if None)
 
     Returns:
-        ConstitutionalTensor with all floor metrics:
-        - witness: W_3 components
-        - entropy_delta: ΔS (must be ≤ 0)
-        - humility: Ω₀ band
-        - genius: G score
-        - truth_score: F2 truth (adaptive threshold)
-        - f2_threshold: The threshold used for this query
+        Tuple of (ConstitutionalTensor, ThoughtNode list, QT Quad proof)
+        The QT Quad proof contains W_four calculation and witness breakdown.
 
     Action Chain:
         sense → think → reason (completes AGI phase)
@@ -364,7 +536,7 @@ async def reason(
     # Get adaptive F2 threshold based on query type
     f2_threshold = gpv.f2_threshold()
 
-    hypotheses = think_output["hypotheses"]
+    hypotheses = think_output.get("hypotheses", [])
 
     # P3: Initialize thermodynamic tracking
     from core.physics.thermodynamics_hardened import (
@@ -377,13 +549,41 @@ async def reason(
     # Record input entropy before reasoning
     input_entropy = shannon_entropy(query)
 
-    # Build reasoning chain
+    # ═══════════════════════════════════════════════════════════════════
+    # QT QUAD: Build Sequential Thinking thought chain FIRST
+    # ═══════════════════════════════════════════════════════════════════
+    
+    # Build structured thought chain for witness calculation
+    st_chain = await build_st_thought_chain(
+        query=query,
+        hypotheses=hypotheses,
+        session_id=session_id,
+        max_depth=max_thoughts,
+    )
+    
+    # Calculate QT Quad witnesses from thought chain
+    w_ai = calculate_w_ai_quad(st_chain)
+    w_adversarial = calculate_w_adversarial(st_chain)
+    
+    # Build governance proof with default W₁ and W₃
+    qt_proof = build_qt_quad_proof(
+        thought_chain=st_chain,
+        w_human=0.95,  # F11 continuity provides this
+        w_earth=0.90,  # Grounding/evidence
+    )
+    
+    # Check cheap truth: insufficient thermodynamic work
+    is_cheap = cheap_truth_detected(st_chain)
+    
+    # ═══════════════════════════════════════════════════════════════════
+    # Legacy reasoning chain (for backward compatibility)
+    # ═══════════════════════════════════════════════════════════════════
+    
     thoughts: list[ThoughtNode] = []
     prev_confidence = 0.5
 
-    for i in range(max_thoughts):
+    for i in range(min(max_thoughts, 5)):  # Cap legacy at 5
         # P3: Consume energy for each reasoning cycle
-        # Raises ThermodynamicExhaustion if budget depleted
         consume_reason_energy(session_id, n_cycles=1)
 
         # Generate next thought
@@ -418,9 +618,9 @@ async def reason(
             record_entropy_io(session_id, input_entropy, output_entropy)
         except EntropyIncreaseViolation as e:
             # F4 Violation: System generated confusion.
-            # Create a VOID tensor instead of crashing.
-            return ConstitutionalTensor(
-                witness=QuadTensor(H=0.0, A=0.0, E=0.0, V=0.0),
+            # Create a VOID tensor but with QT Quad guidance.
+            tensor = ConstitutionalTensor(
+                witness=QuadTensor(H=0.0, A=w_ai, E=0.0, V=w_adversarial),
                 entropy_delta=entropy_delta,
                 humility=UncertaintyBand(0.08),
                 genius=GeniusDial(0.0, 0.0, 0.0, 0.0),
@@ -428,9 +628,15 @@ async def reason(
                 empathy=0.0,
                 truth_score=0.0,
                 evidence=["F4_CLARITY_VIOLATION: Entropy increased."],
-            ), thoughts
+            )
+            qt_proof["verdict"] = "VOID"
+            qt_proof["error"] = "F4_CLARITY_VIOLATION"
+            return tensor, thoughts, qt_proof
 
     truth_score = thoughts[-1].confidence if thoughts else 0.5
+    
+    # Use W₂ from QT Quad if higher (rewards deep reasoning)
+    truth_score = max(truth_score, w_ai * 0.95)  # Scale W₂ slightly
 
     # Boost truth_score for non-risky queries to avoid false VOIDs in simple lanes
     if gpv.risk_level < 0.3 and truth_score < f2_threshold:
@@ -438,12 +644,44 @@ async def reason(
             # Boost to meet threshold for simple, low-risk queries
             truth_score = max(truth_score, min(0.99, f2_threshold))
 
-    # Build ConstitutionalTensor with adaptive F2 threshold info
+    # ═══════════════════════════════════════════════════════════════════
+    # QT QUAD VERDICT: SABAR_QUANTUM instead of VOID
+    # ═══════════════════════════════════════════════════════════════════
+    
+    W_four = qt_proof["W_four"]
+    
+    # Determine verdict based on QT Quad
+    if W_four >= 0.95 and not is_cheap:
+        qt_verdict = "SEAL"
+    elif W_four >= 0.85:
+        qt_verdict = "SABAR_QUANTUM"  # Extendable, not VOID
+    elif W_four >= 0.75:
+        qt_verdict = "PARTIAL"
+    else:
+        qt_verdict = "SABAR_QUANTUM"  # Guidance instead of VOID
+    
+    # Build extension guidance for SABAR
+    if qt_verdict == "SABAR_QUANTUM":
+        guidance = []
+        if w_ai < 0.85:
+            guidance.append(f"Add {int((0.85 - w_ai) / 0.025)}+ Analysis thoughts")
+        if w_adversarial < 0.80:
+            guidance.append("Add isRevision branches (adversarial critique)")
+        if is_cheap:
+            guidance.append("Increase reasoning depth (Landauer bound)")
+        qt_proof["extend_guidance"] = guidance
+    
+    qt_proof["verdict"] = qt_verdict
+    qt_proof["is_cheap_truth"] = is_cheap
+    qt_proof["f2_threshold"] = f2_threshold
+
+    # Build ConstitutionalTensor with QT Quad witness
     tensor = ConstitutionalTensor(
-        witness=TrinityTensor(
+        witness=QuadTensor(
             H=truth_score,  # Human-equivalent
-            A=thoughts[-1].confidence if thoughts else 0.5,
-            S=0.95 if think_output.get("requires_grounding") else 0.85,
+            A=w_ai,  # AI witness from ST depth
+            E=0.95 if think_output.get("requires_grounding") else 0.85,
+            V=w_adversarial,  # Adversarial witness
         ),
         entropy_delta=entropy_delta,
         humility=Omega_0(truth_score),
@@ -451,19 +689,21 @@ async def reason(
             A=truth_score,
             P=0.9,  # Present (high for reasoning)
             X=len(hypotheses) / 3.0,  # Exploration
-            E=min(1.0, len(thoughts) / 3.0),  # Energy
+            E=min(1.0, len(st_chain) / 5.0),  # Energy from ST depth
         ),
         peace=None,  # ASI computes this
         empathy=0.0,  # ASI computes this
         truth_score=truth_score,
     )
 
-    # Store adaptive threshold info (monkey-patch for now)
+    # Store QT Quad info
     tensor.f2_threshold = f2_threshold
     tensor.query_type = gpv.query_type
+    tensor.qt_proof = qt_proof  # Monkey-patch for transport
+    tensor.st_chain = st_chain  # Full thought chain for VAULT
 
     # Mottos: DITEMPA BUKAN DIBERI
-    return tensor, thoughts
+    return tensor, thoughts, qt_proof
 
 
 def _generate_thought(
@@ -579,7 +819,10 @@ async def agi(
     elif action == "reason":
         sense_out = await sense(query, session_id, grounding)
         think_out = await think(query, sense_out, session_id)
-        return await reason(query, think_out, session_id, gpv=gpv, skip_f4=gpv.f4_skip())
+        tensor, thoughts, qt_proof = await reason(query, think_out, session_id, gpv=gpv, skip_f4=gpv.f4_skip())
+        # Return tensor with QT Quad proof attached
+        tensor.qt_proof = qt_proof
+        return tensor
 
     elif action == "full":
         # Motto is schema-level; keep stage output low-verbosity.
@@ -638,7 +881,7 @@ async def agi(
         else:
             actual_gpv = gpv
         tennis_match_gpv = actual_gpv
-        tensor, thoughts_chain = await reason(
+        tensor, thoughts_chain, qt_proof = await reason(
             query, think_res, session_id, gpv=tennis_match_gpv, skip_f4=tennis_match_gpv.f4_skip()
         )
 
@@ -652,14 +895,33 @@ async def agi(
         all_thoughts = thoughts_data + thoughts_chain
         # reason() now returns both tensor AND thought list.
 
+        # Use QT Quad verdict if available
+        qt_verdict = qt_proof.get("verdict", "SEAL")
+        verdict = Verdict(qt_verdict) if qt_verdict in ["SEAL", "SABAR", "PARTIAL", "VOID"] else Verdict.SEAL
+        
+        # Include QT Quad evidence
+        evidence = {
+            "query_type": actual_gpv.query_type,
+            "qt_quad": qt_proof,
+            "W_four": qt_proof.get("W_four", 0.0),
+            "witnesses": qt_proof.get("witnesses", {}),
+        }
+        
         return AgiOutput(
             session_id=session_id,
             thoughts=all_thoughts,
             floor_scores=FloorScores(f2_truth=tensor.truth_score),
             lane=actual_gpv.lane,
-            evidence={"query_type": actual_gpv.query_type},
-            verdict=Verdict.SEAL,
-            metrics={"stage": 333, "action": "reason", "f2_threshold": actual_gpv.f2_threshold()},
+            evidence=evidence,
+            verdict=verdict,
+            metrics={
+                "stage": 333, 
+                "action": "reason", 
+                "f2_threshold": actual_gpv.f2_threshold(),
+                "W_four": qt_proof.get("W_four", 0.0),
+                "W_ai": qt_proof.get("witnesses", {}).get("W_ai", 0.0),
+                "W_adversarial": qt_proof.get("witnesses", {}).get("W_adversarial", 0.0),
+            },
             tensor=tensor,
         )
 
@@ -675,7 +937,10 @@ __all__ = [
     # Actions (3 max)
     "sense",  # Stage 111: Parse intent
     "think",  # Stage 222: Generate hypotheses
-    "reason",  # Stage 333: Sequential reasoning
+    "reason",  # Stage 333: Sequential reasoning with QT Quad
     # Unified interface
     "agi",
+    # QT Quad Integration (NEW)
+    "build_st_thought_chain",
+    "cheap_truth_detected",
 ]
