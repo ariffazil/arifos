@@ -28,7 +28,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - /usr/libexec/docker:/usr/libexec/docker:ro:ro
       - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
       - /opt/arifos/data/triggers:/shared/triggers
       - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
@@ -122,6 +124,7 @@ services:
     image: ghcr.io/openclaw/openclaw:latest
     container_name: openclaw_gateway
     init: true
+    user: root  # AGI-level executive power
     volumes:
       - /opt/arifos/data/openclaw:/home/node/.openclaw
       - /opt/arifos/data/openclaw/bin:/home/node/.local/bin
@@ -129,6 +132,8 @@ services:
       - /srv/arifOS:/mnt/arifos:rw
       - /opt/arifos/APEX-THEORY:/mnt/apex:rw
       - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - /usr/libexec/docker:/usr/libexec/docker:ro
       - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
       # Host CLI tools for coding-agent skill
       - /home/ariffazil/.local/bin:/host/bin:ro
@@ -155,6 +160,8 @@ services:
       - BROWSERLESS_URL=http://headless_browser:3000
     networks:
       - arifos_trinity
+    ports:
+      - "18789:18789"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.openclaw.rule=Host(`claw.arifosmcp.arif-fazil.com`)"
@@ -327,7 +334,9 @@ services:
       - /srv/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
       - /srv/arifOS/deployment/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
       - /srv/arifOS:/usr/src/app:rw
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - /usr/libexec/docker:/usr/libexec/docker:ro:ro
       - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
       - /opt/arifos/data/triggers:/shared/triggers
       - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
