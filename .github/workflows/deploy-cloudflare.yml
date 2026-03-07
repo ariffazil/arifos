@@ -53,17 +53,9 @@ jobs:
           ARIFOS_ALLOW_LEGACY_SPEC: 1
           PYTHONUNBUFFERED: 1
 
-      - name: ✅ Verify index.html Exists
+      - name: 🛡️ Pre-deploy Artifact Validation
         run: |
-          if [ ! -f test-reports/index.html ]; then
-            echo "❌ ERROR: test-reports/index.html not found!"
-            echo "Contents of test-reports/:"
-            ls -la test-reports/
-            exit 1
-          fi
-          echo "✅ index.html exists at test-reports/index.html"
-          echo "📦 File size: $(du -h test-reports/index.html | cut -f1)"
-          echo "📊 Total assets: $(find test-reports -type f | wc -l) files"
+          python scripts/precheck_dashboard.py
 
       - name: 🚀 Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
