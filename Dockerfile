@@ -27,6 +27,11 @@ RUN python -m pip install --upgrade pip && \
     if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi && \
     pip install --no-cache-dir .
 
+# Pre-bake BGE-M3 model (~570MB) — multilingual Malay+English+Manglish support
+# HF_HOME set to /usr/src/app/models so it's copyable to runtime stage
+ENV HF_HOME=/usr/src/app/models
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3'); print('BGE-M3 baked in')"
+
 
 FROM python:3.12-slim AS runtime
 
@@ -57,13 +62,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy artifacts from build stage
+# Copy artifacts from build stage (includes pre-baked BGE-M3 in /usr/src/app/models)
 COPY --from=build /usr/local /usr/local
+COPY --from=build /usr/src/app/models /usr/src/app/models
 COPY . .
 
-# Setup model directories and correct ownership
-RUN mkdir -p models/bge && (cp -r aclip_cai/embeddings/* models/bge/ || true) && \
-    mkdir -p telemetry data VAULT999 memory static/dashboard && \
+# Setup dirs, set HF_HOME so arifos user finds baked models, fix ownership
+ENV HF_HOME=/usr/src/app/models
+RUN mkdir -p telemetry data VAULT999 memory static/dashboard && \
     mkdir -p /ms-playwright && \
     chown -R arifos:arifos /usr/src/app /ms-playwright
 
