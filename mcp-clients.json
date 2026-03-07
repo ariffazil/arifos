@@ -29,6 +29,19 @@
       }
     },
 
+    "arifos-npm": {
+      "_comment": "Node/npm — TypeScript client SDK + MCP transport. Run: npm install @arifos/mcp",
+      "_use_when": "You're in a JS/TS project and want typed arifOS client methods (anchorSession, reasonMind, etc.).",
+      "_note": "@arifos/mcp is a CABLE (L2 adapter), not the kernel. All governance runs server-side in Python.",
+      "_sdk_usage": "import { createClient, ENDPOINTS } from '@arifos/mcp'; const client = await createClient({ transport: 'http', endpoint: ENDPOINTS.VPS });",
+      "_npm": "https://www.npmjs.com/package/@arifos/mcp",
+      "command": "npx",
+      "args": ["-y", "@arifos/mcp"],
+      "env": {
+        "ARIFOS_ENDPOINT": "https://arifosmcp.arif-fazil.com/mcp"
+      }
+    },
+
     "arifos-docker": {
       "_comment": "Docker container. Run the official image locally.",
       "_use_when": "You want isolated execution without polluting your Python environment.",

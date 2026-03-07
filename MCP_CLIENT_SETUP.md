@@ -83,8 +83,39 @@ https://arifosmcp.arif-fazil.com/mcp
 |--------|---------|---------|----------|
 | **`arifos-remote`** | None | HTTPS to arifosmcp.arif-fazil.com | Most users — just works |
 | **`arifos-local`** | `pip install arifos` | Localhost only | Privacy, offline use |
+| **`arifos-npm`** | `npm install @arifos/mcp` | HTTPS or localhost | JS/TS projects, typed SDK |
 | **`arifos-docker`** | Docker installed | Localhost only | Isolation, no Python setup |
 | **`arifos-dev`** | Clone repo + venv | Localhost only | Contributors, hacking |
+
+### npm / TypeScript SDK
+
+```bash
+npm install @arifos/mcp
+```
+
+```typescript
+import { createClient, ENDPOINTS } from '@arifos/mcp';
+
+const client = await createClient({
+  transport: 'http',
+  endpoint: ENDPOINTS.VPS,  // https://arifosmcp.arif-fazil.com/mcp
+});
+
+await client.connect();
+
+// Start a governed session
+const { session_id } = await client.anchorSession('My research task');
+
+// Execute governed reasoning
+const result = await client.reasonMind('What is quantum computing?');
+console.log('Verdict:', result.verdict);  // SEAL | PARTIAL | SABAR | VOID | 888_HOLD
+
+await client.disconnect();
+```
+
+> **Note:** `@arifos/mcp` is a **cable** (L2 adapter), not the kernel. All constitutional enforcement (F1–F13) runs server-side in the Python kernel. The npm package provides TypeScript types and a thin MCP transport client.
+> 
+> See: https://www.npmjs.com/package/@arifos/mcp
 
 ---
 
@@ -173,7 +204,9 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
 - **Docs**: https://arifos.arif-fazil.com
 - **API Reference**: https://arifos.arif-fazil.com/api
 - **GitHub**: https://github.com/ariffazil/arifOS
-- **PyPI**: https://pypi.org/project/arifos/
+- **PyPI**: https://pypi.org/project/arifos/ (Python kernel)
+- **npm**: https://www.npmjs.com/package/@arifos/mcp (TypeScript client SDK)
+- **Railway**: https://railway.com/deploy/arifos-mcp-server (one-click deploy)
 - **Canonical Manifest**: https://arif-fazil.com/.well-known/arifos.json
 
 ---
