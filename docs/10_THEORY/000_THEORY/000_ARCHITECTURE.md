@@ -110,30 +110,40 @@ The system uses three distinct "modes of thought" (Engines) to evaluate every re
 
 ---
 
-## 5. REPOSITORY STRUCTURE (Memory Layout)
+## 5. EVOLUTIONARY ARCHITECTURE & REPOSITORY STRUCTURE
 
-The codebase mirrors the architecture.
+**arifOS was not designed top-down. It evolved layer by layer in response to historical systemic pressures.** 
+The architecture reflects an organic **Artificial Organism** comprising:
+1. **Layer 1 — System:** `arifOS` (Governance Framework conceptually created first)
+2. **Layer 2 — Trinity:** `AAA` (The Mind: APEX → AGI → ASI built sequentially, then integrated back)
+3. **Layer 3 — Lifecycle:** `000–999` (The Universal Metabolic Execution Loop wrapping all components)
 
-```
+### 5.1 The 4-Phase Evolution
+
+| Era Phase | Historical Pressure | New Subsystem | Repository Path | Role |
+|-----------|--------------------|---------------|-----------------|------|
+| **1. AAA (The Mind)** | Chatbot/Text Reasoning | Trinity Governance | `core/` | Sovereign logic, the 13 Floors, and constitutional judgment. |
+| **2. aclip (The Hands)** | AI Coding Operations | Internal Ops Protocol | `aclip_cai/` | C0-C9 Sensory infrastructure. File logic, read/write ops, perception. |
+| **3. arifOS MCP (Bridge)** | Tool Interoperability | External Tool Contract | `aaa_mcp/` & `arifos_aaa_mcp` | Transport standard. Escorts governed MCP tool calls across the wire. |
+| **4. CIV VPS (Runtime)** | Agentic Deployment | Infra/Hosting Env | `vps/` | Persistent server ops, execution environment, civilization runtime. |
+
+### 5.2 Canonical Memory Layout
+
+The physical codebase precisely mirrors this evolutionary stack.
+
+```text
 arifOS/
-├── arifos/                # SOURCE CODE (The Body)
-│   ├── protocol/          # aCLIP Protocol Definitions
-│   ├── core/              # Constitutional Kernel (CCC)
-│   │   ├── engines/       # AGI/ASI/APEX Logic
-│   │   └── floors/        # F1-F13 Validators
-│   ├── mcp/               # Protocol Bridge (BBB)
-│   └── integration/       # Application Layer (AAA)
-│
-├── 000_THEORY/            # DOCUMENTATION (The Mind)
-│   ├── 000_FOUNDATIONS.md # Principles & Glossary
-│   ├── 000_LAW.md         # Rules & Floors
-│   ├── 000_ARCHITECTURE.md# This File
-│   ├── 111_MIND_GENIUS.md # Physics of Thought
-│   ├── 555_HEART_EMPATHY.md # Physics of Care
-│   └── 777_SOUL_APEX.md   # Physics of Law
-│
-├── tests/                 # VALIDATION
-└── vault_999/             # STORAGE (Immutable Ledger)
+├── core/                  # Phase 1: The Law & The Mind (L0 Kernel)
+│   ├── ...                # 13 Floors, Triad Definitions, Law Enforcement
+├── aclip_cai/             # Phase 2: The Senses (L2 Internal Ops)
+│   ├── ...                # C0-C9 Reality Grounding, Internal logic
+├── aaa_mcp/               # Phase 3: The Transport Bridge (L2 Gateway)
+│   └── mcp_server.py      # Governed FastMCP tool endpoints
+├── arifos_aaa_mcp/        # Phase 3: Public package entrypoint
+├── vps/                   # Phase 4: Deployments (Civilization Infra)
+├── docs/10_THEORY/        # The Canon (Foundations, Laws, Architecture)
+├── tests/                 # VALIDATION (Adversarial & Flow)
+└── VAULT999/              # STORAGE (Immutable Ledger)
 ```
 
 ---

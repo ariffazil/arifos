@@ -15,7 +15,7 @@
 [![Live Tests](https://img.shields.io/github/actions/workflow/status/ariffazil/arifOS/live_tests.yml?branch=main&style=for-the-badge&label=Live%20Tests&logo=github)](https://github.com/ariffazil/arifOS/actions/workflows/live_tests.yml)
 [![Dashboard](https://img.shields.io/badge/Dashboard-Live-FF6600?style=for-the-badge&logo=cloudflare&logoColor=white)](https://arifosmcp-truth-claim.pages.dev)
 
-**[→ QUICKSTART: Run in 5 minutes](QUICKSTART.md)** | **[→ Architecture Deep Dive](000_THEORY/000_ARCHITECTURE.md)** | **[→ 13 Floors Constitution](000_THEORY/000_LAW.md)** | **[→ npm @arifos/mcp](https://www.npmjs.com/package/@arifos/mcp)**
+**[→ QUICKSTART: Run in 5 minutes](QUICKSTART.md)** | **[→ The 7-Organ Canon](docs/10_THEORY/000_THEORY/_OUTLINE.md)** | **[→ 13 Floors Constitution](docs/10_THEORY/000_THEORY/000_LAW.md)** | **[→ npm @arifos/mcp](https://www.npmjs.com/package/@arifos/mcp)**
 
 </div>
 
@@ -57,15 +57,30 @@ Just as you don't rebuild TCP for every application, you shouldn't rebuild AI go
 ## 🌐 Canonical Links
 
 ### The Creator
+ 
 - **Muhammad Arif bin Fazil:** [arif-fazil.com](https://arif-fazil.com) | [GitHub @ariffazil](https://github.com/ariffazil) | [X @ArifFazil90](https://x.com/ArifFazil90)
 - **APEX Theory:** [apex.arif-fazil.com](https://apex.arif-fazil.com) | [github.com/ariffazil/APEX-THEORY](https://github.com/ariffazil/APEX-THEORY)
 
-### arifOS Canonical Docs
-- **Constitutional Manifesto:** [000_THEORY/MANIFESTO.md](000_THEORY/MANIFESTO.md)
-- **The 13 Floors:** [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md)
-- **Architecture:** [000_THEORY/000_ARCHITECTURE.md](000_THEORY/000_ARCHITECTURE.md)
+### 🏛️ The 7-Organ Canon (v55.5)
+
+The definitive intelligence kernel is governed by these 7 core documents:
+
+1. **[000_FOUNDATIONS](docs/10_THEORY/000_THEORY/000_FOUNDATIONS.md)** — **Philosophy**: *Ditempa Bukan Diberi*.
+2. **[000_LAW](docs/10_THEORY/000_THEORY/000_LAW.md)** — **Constitution**: The 13 Constitutional Floors (F1-F13).
+3. **[111_MIND_GENIUS](docs/10_THEORY/000_THEORY/111_MIND_GENIUS.md)** — **Logic**: The Physics of Thought (Δ).
+4. **[555_HEART_EMPATHY](docs/10_THEORY/000_THEORY/555_HEART_EMPATHY.md)** — **Ethics**: The Physics of Empathy (Ω).
+5. **[777_SOUL_APEX](docs/10_THEORY/000_THEORY/777_SOUL_APEX.md)** — **Judgment**: Constitutional Physics (Ψ).
+6. **[010_FEDERATION](docs/10_THEORY/000_THEORY/010_FEDERATION.md)** — **Action**: The Reality Protocol (Senses).
+7. **[999_SOVEREIGN_VAULT](docs/10_THEORY/000_THEORY/999_SOVEREIGN_VAULT.md)** — **Memory**: The Immutable Ledger.
+
+> [!TIP]
+> Use the **[_OUTLINE.md](docs/10_THEORY/000_THEORY/_OUTLINE.md)** for a complete map of all theory files.
+
+### 🔌 Technical Reference
+
 - **13 Tools Reference:** [docs/AAA_MCP_TOOLS_REFERENCE.md](docs/AAA_MCP_TOOLS_REFERENCE.md)
-- **Complete Deployment Guide:** [docs/COMPLETE_DEPLOYMENT_GUIDE.md](docs/COMPLETE_DEPLOYMENT_GUIDE.md)
+- **MCP Implementation:** [aaa_mcp/README.md](aaa_mcp/README.md)
+- **Deployment Guide:** [docs/COMPLETE_DEPLOYMENT_GUIDE.md](docs/COMPLETE_DEPLOYMENT_GUIDE.md)
 
 ### Live Infrastructure (Production)
 - **MCP Server Health:** [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)
