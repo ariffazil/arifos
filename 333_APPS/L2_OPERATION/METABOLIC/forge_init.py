@@ -16,7 +16,7 @@ def print_banner():
         """
 ╔══════════════════════════════════════════════════════════════════╗
 ║  🔐 arifOS SOVEREIGN FORGE — 333_APPS HARDENING PROTOCOL        ║
-║  Version: 2026.02.17-FORGE-VPS-SEAL (T000 Standard)             ║
+║  Version: v65.1-ARCH-SEAL (T000 Standard)                       ║
 ║  Authority: 888_JUDGE                                           ║
 ╚══════════════════════════════════════════════════════════════════╝
     """
@@ -24,7 +24,8 @@ def print_banner():
 
 def main():
     print_banner()
-    arifos_root = Path(__file__).resolve().parent.parent
+    # Path is now 333_APPS/L2_OPERATION/METABOLIC/forge_init.py
+    arifos_root = Path(__file__).resolve().parent.parent.parent.parent
     apps_dir = arifos_root / "333_APPS"
 
     print("1. Checking 5-Organ Sovereign Membrane... ", end="")

@@ -37,7 +37,7 @@ RUN groupadd -g 1000 arifos && \
 WORKDIR /usr/src/app
 
 # Build arguments for metadata
-ARG ARIFOS_VERSION=unknown
+ARG ARIFOS_VERSION=v65.1-ARCH-SEAL
 ARG GIT_SHA=unknown
 ARG BUILD_TIME=unknown
 
@@ -83,7 +83,7 @@ HEALTHCHECK --interval=20s --timeout=5s --start-period=30s --retries=3 \
 
 # Metadata Labels
 LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"
-LABEL io.modelcontextprotocol.server.version="${ARIFOS_VERSION}"
+LABEL io.modelcontextprotocol.server.version="v65.1-ARCH-SEAL"
 LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with 13-tool surface and F1-F13 floor enforcement."
 
 # Execute consolidated entrypoint

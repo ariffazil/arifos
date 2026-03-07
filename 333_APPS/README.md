@@ -23,9 +23,9 @@ arifOS has transitioned from an 8-layer stack to a cleaner, more scalable 4-laye
 | Layer | Name | Role | Contents |
 | :--- | :--- | :--- | :--- |
 | **L0** | **CONSTITUTION** | **Law** | Kernel, 13 Floors, Manifesto, Ontology Lock, Sovereignty Doctrine. |
-| **L1** | **INSTRUCTION** | **Knowledge** | Prompts, Code, Theory, Axioms, Mathematical Models. |
-| **L2** | **OPERATION** | **Execution** | Agents, Workflows, Skills (ARIF metabolic loops). |
-| **L3** | **CIVILIZATION** | **World** | Tools (MCP), Infrastructure, Ecosystems, Multi-agent coordination. |
+| **L1** | **INSTRUCTION** | **Cognition** | Prompts, Code, Theory, Axioms, Mathematical Models. |
+| **L2** | **OPERATION** | **Execution** | Agents, Workflows, Skills, **Tools (MCP)**, Metabolic Loops. |
+| **L3** | **CIVILIZATION** | **Infra** | External APIs, Databases, Ecosystems, Multi-agent coordination. |
 
 ---
 
@@ -33,21 +33,21 @@ arifOS has transitioned from an 8-layer stack to a cleaner, more scalable 4-laye
 
 The architecture forms a clean cascade from law to reality:
 
-**CONSTITUTION** (What must never be violated?)  
+**CONSTITUTION** (L0: What must never be violated?)  
       ↓  
-**INSTRUCTION** (How should intelligence reason?)  
+**INSTRUCTION** (L1: How should intelligence reason?)  
       ↓  
-**OPERATION** (How is intelligence executed?)  
+**OPERATION** (L2: How is intelligence executed with Tools?)  
       ↓  
 **AKI boundary** (Is the execution permitted?)  
       ↓  
-**CIVILIZATION** (Where does intelligence operate in the world?)
+**CIVILIZATION** (L3: Where does intelligence act in the world?)
 
 ---
 
-## 🛠️ L3 TOOL Banding (Civilization Interface)
+## 🛠️ L2 TOOL Banding (Operational Interface)
 
-The 13 AAA MCP tools are grouped into ARIF bands, serving as the interface between the internal Operation (L2) and the external Civilization (L3):
+The 13 AAA MCP tools are grouped into ARIF bands, serving as the operational primitives within L2:
 
 - **A_ANCHOR**: Wraps `anchor_session` and `check_vital`. Enforces **F12 Injection Defense**.
 - **R_REFLECT**: Wraps `reason_mind`, `search_reality`, and `simulate_heart`. Enforces **F2 Truth** and **F7 Humility**.
@@ -60,8 +60,8 @@ The 13 AAA MCP tools are grouped into ARIF bands, serving as the interface betwe
 
 The system operates within a **State Field** (Ψ) composed of three fundamental variables:
 
-- **Environment**: Context, memory, and surroundings.
-- **Energy**: Compute capacity, authority tokens, and execution power.
+- **Environment**: Context, memory, and surroundings (L1-L3).
+- **Energy**: Compute capacity, metabolic budgets, and execution power.
 - **Void**: Unknowns, potential, and exploration space (Uncertainty).
 
 **ARIF Chain of Custody (Metabolism):**
@@ -87,10 +87,10 @@ Applications (Chrome, VS Code)
 ### arifOS Refined Stack
 
 ```text
-L3: Civilization (Ecosystem/Tools)
-├─ L2: Operation (Agents/Workflows/Skills)
-├─ L1: Instruction (Prompts/Logic)
-└─ L0: Constitution (Kernel/Floors) ◄ Ring 0
+L3: Civilization (Infra/Ecosystem)
+├─ L2: Operation (Agents/Workflows/Skills/Tools) ◄ Execution
+├─ L1: Instruction (Prompts/Logic)                ◄ Cognition
+└─ L0: Constitution (Kernel/Floors)               ◄ Law (Ring 0)
 ```
 
 ### Note on Privilege
@@ -99,17 +99,18 @@ L3: Civilization (Ecosystem/Tools)
 
 ---
 
-## Recent Improvements (v60.1-FORGE-ARIF)
+## Recent Improvements (v65.1-ARCH-SEAL)
 
-- ✅ **ARIF Mnemonic Integrated:** Unified cognitive bands (Anchor, Reflect, Integrate, Forge).
-- ✅ **9×9×5 Lattice:** 9 Skills, 9 Workflows, 5 Agents.
-- ✅ **L4 Banding:** 13 tools mapped to cognitive bands with floor enforcement.
-- ✅ **Performance:** <1ms cached responses.
+- ✅ **L0-L3 Formalization**: Standardized 4-layer taxonomy (Law, Cognition, Execution, Infra).
+- ✅ **Metabolic Scheduler**: Hard energy constraints and cognitive pressure logic.
+- ✅ **Triple-Hash Vault**: Merkle-chained Previous/State/Decision hashes.
+- ✅ **AKI Syscall Gate**: Hardened L2-L3 boundary airlock.
+- ✅ **Phoenix Protocol**: Defined RECOVERING, DEGRADED, and QUARANTINED states.
 
 ---
 
 **DITEMPA BUKAN DIBERI — Forged, Not Given** 🔥💎🧠
 
-**Version:** 60.1-FORGE-ARIF  
+**Version:** 65.1-ARCH-SEAL  
 **Stack:** 4 Layers (L0-L3)  
-**Reality Index:** 0.99
+**Reality Index:** 1.0 (Sealed)

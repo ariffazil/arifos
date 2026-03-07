@@ -187,7 +187,7 @@ services:
         required: false
     volumes:
       - /opt/arifos/data/core:/usr/src/app/data
-      - /srv/arifOS/333_APPS/constitutional-visualizer/dist:/usr/src/app/static/dashboard:ro
+      - /srv/arifOS/333_APPS/L2_OPERATION/TOOLS/constitutional-visualizer/dist:/usr/src/app/static/dashboard:ro
       - /srv/arifOS/aaa_mcp:/usr/src/app/aaa_mcp:ro
     environment:
       PYTHONUNBUFFERED: 1

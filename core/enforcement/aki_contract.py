@@ -43,6 +43,18 @@ class AKIContract:
         # 4. F5: Peace (Stability)
         # We don't act if the system is 'heated' (Peace² < 1.0 logic)
         
+        # 5. L2-L3 Boundary Enforcement (Phoenix Protocol States)
+        from core.governance_kernel import GovernanceState
+        if self.kernel.governance_state == GovernanceState.QUARANTINED:
+            logger.error(f"AKI QUARANTINE: Tool {tool_id} blocked. System is in QUARANTINED state.")
+            return False
+            
+        if self.kernel.governance_state == GovernanceState.DEGRADED:
+            # Degraded mode might only allow 'read' tools or specific safe tools
+            if "read" not in tool_id and "search" not in tool_id:
+                logger.warning(f"AKI DEGRADED: Non-safe tool {tool_id} blocked in DEGRADED mode.")
+                return False
+
         logger.info(f"AKI SEAL: Tool {tool_id} signed as lawful.")
         return True
 
@@ -115,7 +127,7 @@ class L0KernelGatekeeper:
         "000_THEORY/000_LAW.md",
         "core/enforcement/floors.py",
         "core/shared/floors.py",
-        "333_APPS/L0_KERNEL/",
+        "333_APPS/L0_CONSTITUTION/",
         "T000_VERSIONING.md",
     ]
 

@@ -1,16 +1,16 @@
-# L0: KERNEL — Constitutional Operating System
+# L0: CONSTITUTION — The Governance substrate
 
-> **The Substrate of Governed Intelligence**  
-> *Where AI cognition runs, not just what it uses*
+> **The Invariant Law of AI Cognition**  
+> *Where AI law is forged, not just where it is checked*
 
 ---
 
-## 🎯 What is L0 KERNEL?
+## 🎯 What is L0 CONSTITUTION?
 
 **L0 is the constitutional substrate** — the foundational layer that all AI cognition runs on within arifOS.
 
 Traditional OS: `Hardware → Kernel → Applications`  
-arifOS: `AI Models → L0 KERNEL → Governed Cognition`
+arifOS: `AI Models → L0 CONSTITUTION → Governed Cognition`
 
 ### The Shift
 

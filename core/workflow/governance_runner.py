@@ -295,7 +295,17 @@ class WorkflowConfig:
     def get_tool_permissions(self, stage_id: str) -> Dict[str, Any]:
         """Get tool permissions for a stage."""
         perms = self.config.get("tool_permissions", {})
-        return perms.get(stage_id, {})
+        stage_perms = dict(perms.get(stage_id, {}))
+        allowed = list(stage_perms.get("allowed", []))
+        forbidden = list(stage_perms.get("forbidden", []))
+
+        # Hard safety default: only 999-vault may use seal_vault.
+        if stage_id != "999-vault" and "seal_vault" not in allowed and "seal_vault" not in forbidden:
+            forbidden.append("seal_vault")
+
+        stage_perms["allowed"] = allowed
+        stage_perms["forbidden"] = forbidden
+        return stage_perms
     
     def get_validation_rules(self) -> Dict[str, Any]:
         """Get validation rules."""
@@ -397,19 +407,23 @@ class GovernanceRunner:
                     f"Allowed: {allowed}"
                 )
         
-        # Check human approval requirements
-        approval_errors = self._check_approval_requirements(
-            stage_id, proposed_decision, human_approval
-        )
-        if approval_errors:
-            raise GovernanceError(f"Approval validation failed: {approval_errors}")
-        
         # Special stage validations
         special_errors = self._check_stage_specific_rules(
             stage_id, proposed_decision, floor_checks
         )
         if special_errors:
             raise GovernanceError(f"Stage-specific validation failed: {special_errors}")
+
+        # Check human approval requirements
+        approval_errors = self._check_approval_requirements(
+            stage_id,
+            proposed_decision,
+            human_approval,
+            proposed_transition=proposed_transition,
+            floor_results=floor_results,
+        )
+        if approval_errors:
+            raise GovernanceError(f"Approval validation failed: {approval_errors}")
         
         # Create transition gate
         transition = None
@@ -470,6 +484,8 @@ class GovernanceRunner:
         stage_id: str,
         decision: DecisionStatus,
         approval: Optional[ApprovalRecord],
+        proposed_transition: Optional[str] = None,
+        floor_results: Optional[Dict[str, Dict[str, Any]]] = None,
     ) -> List[str]:
         """Check if human approval is required and valid."""
         errors = []
@@ -479,6 +495,15 @@ class GovernanceRunner:
         
         for req in required_approvals:
             if req["stage"] == stage_id:
+                if not self._approval_triggered(
+                    req=req,
+                    stage_id=stage_id,
+                    decision=decision,
+                    proposed_transition=proposed_transition,
+                    floor_results=floor_results or {},
+                ):
+                    continue
+
                 if approval is None:
                     errors.append(f"Stage '{stage_id}' requires human approval but none provided")
                 else:
@@ -490,6 +515,40 @@ class GovernanceRunner:
                         )
         
         return errors
+
+    def _approval_triggered(
+        self,
+        req: Dict[str, Any],
+        stage_id: str,
+        decision: DecisionStatus,
+        proposed_transition: Optional[str],
+        floor_results: Dict[str, Dict[str, Any]],
+    ) -> bool:
+        """Evaluate trigger conditions for stage-level human approval."""
+        trigger = str(req.get("trigger", "")).strip().lower()
+
+        if trigger in {"before_verdict_rendering", "before_seal"}:
+            return True
+
+        if trigger == "irreversible_action_detected":
+            # Treat deployment/seal transition as irreversible by default.
+            if proposed_transition in {"999-vault", "COMPLETE"}:
+                return True
+
+            # If F1 indicates failure/risk, approval is required.
+            f1_result = floor_results.get("F1", {})
+            if str(f1_result.get("raw_status", "")).upper() == "FAIL":
+                return True
+
+            metric = f1_result.get("metric_value")
+            threshold = f1_result.get("threshold_value")
+            if isinstance(metric, (int, float)) and isinstance(threshold, (int, float)):
+                return float(metric) < float(threshold)
+
+            return False
+
+        # Unknown trigger defaults to strict behavior only for finalization stages.
+        return stage_id in {"888-judge", "999-vault"}
     
     def _check_stage_specific_rules(
         self,

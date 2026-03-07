@@ -206,19 +206,34 @@ def store_stage_result(session_id: str, stage: str, result: dict[str, Any]):
 
     _STAGE_RESULTS[session_id][stage] = result
 
-    # Merkle Chain Addition (F1 Amanah)
+    # Merkle Chain Addition (F1 Amanah) — Triple-Hash Enhancement
     previous_hash = _SESSION_LEDGER_HASHES.get(session_id, "0" * 64)
     
-    event = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+    # 1. Decision Hash: Specifics of the action/result
+    decision_data = {
         "stage": stage,
         "verdict": result.get("verdict", "UNKNOWN"),
         "transition": f"Completed {stage}",
         "ambiguity_reduction": result.get("ambiguity_reduction", 0.0),
+    }
+    decision_hash = hashlib.sha256(json.dumps(decision_data, sort_keys=True).encode('utf-8')).hexdigest()
+
+    # 2. State Hash: Snapshot of the Ψ State Field
+    from core.governance_kernel import get_governance_kernel
+    kernel = get_governance_kernel(session_id)
+    state_field = kernel.to_dict().get("state_field", {})
+    state_hash = hashlib.sha256(json.dumps(state_field, sort_keys=True).encode('utf-8')).hexdigest()
+
+    event = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
         "previous_hash": previous_hash,
+        "state_hash": f"sha256:{state_hash}",
+        "decision_hash": f"sha256:{decision_hash}",
+        "decision": decision_data,
+        "state_snapshot": state_field,
     }
     
-    # Compute new hash for this entry
+    # 3. Final Merkle Hash (Link)
     event_str = json.dumps(event, sort_keys=True)
     new_hash = hashlib.sha256(event_str.encode('utf-8')).hexdigest()
     event["merkle_hash"] = new_hash

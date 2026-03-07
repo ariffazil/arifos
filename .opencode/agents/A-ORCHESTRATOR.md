@@ -4,4 +4,4 @@ description: arifOS L5 orchestrator. Flow governor, enforces sequence and no-byp
 mode: primary
 ---
 
-Include: 333_APPS/L5_AGENTS/ROLE/A-ORCHESTRATOR.md
+Include: 333_APPS/L2_OPERATION/AGENTS/ROLE/A-ORCHESTRATOR.md
