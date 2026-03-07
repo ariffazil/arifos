@@ -262,7 +262,7 @@ AAA-MCP exposes transports for different deployment scenarios. They serve the sa
 | **stdio** | `python -m arifos_aaa_mcp stdio` | Claude Desktop, Cursor, local IDE integration |
 | **SSE** (default) | `python -m arifos_aaa_mcp` | VPS deployment (Coolify, Hostinger) |
 | **Streamable HTTP** | `python -m arifos_aaa_mcp http` | Production, cloud, ChatGPT Deep Research |
-| **REST** | `python server.py --mode rest` | FastAPI bridge with OpenAPI |
+| **REST** | `python -m aaa_mcp rest` | FastAPI bridge with OpenAPI |
 
 The unified `server.py` at repo root bundles governance pipeline tools plus additional observability/sensory tools into one server. The canonical entry point is `python -m arifos_aaa_mcp`.
 

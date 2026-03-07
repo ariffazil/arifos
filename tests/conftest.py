@@ -4,19 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import os
-import re
 import sys
 import warnings
 from pathlib import Path
 
 import pytest
-
-try:
-    import asyncpg
-    import redis
-except ImportError:  # pragma: no cover
-    asyncpg = None
-    redis = None
 
 
 # Add project root to sys.path for imports when running from repo checkout.
@@ -84,8 +76,8 @@ def pytest_ignore_collect(collection_path, config):
     - tests/compat: backward-compat and entrypoint behavior
     - tests/archive and tests/legacy: historical surfaces excluded by default
 
-    We only collect tests that target `arifos_aaa_mcp` or the supported
-    compatibility entrypoints.
+    Active suites are selected by directory, not by scanning file contents for
+    old import strings.
     """
 
     path_str = str(collection_path)
@@ -97,32 +89,6 @@ def pytest_ignore_collect(collection_path, config):
     if collection_path.suffix != ".py":
         return False
 
-    try:
-        text = collection_path.read_text(encoding="utf-8", errors="ignore")
-        if re.search(r"(^|\n)\s*from\s+arifos\s+import\s+", text) or re.search(
-            r"(^|\n)\s*import\s+arifos(\s|$)", text
-        ):
-            return True
-        if "import codebase" in text or "from codebase" in text:
-            return True
-
-        # Focus on the canonical 13-tool surface (`arifos_aaa_mcp`).
-        legacy_markers = (
-            "import aaa_mcp.server",
-            "from aaa_mcp.server import",
-            "import aaa_mcp.tools",
-            "from aaa_mcp.tools import",
-            "from aaa_mcp.tools.",
-            "import aclip_cai.mcp_server",
-            "from aclip_cai.mcp_server import",
-            "import aaa_mcp.__main__",
-            "from aaa_mcp.__main__ import",
-        )
-        if any(m in text for m in legacy_markers) and "arifos_aaa_mcp" not in text:
-            return True
-    except Exception:
-        return False
-
     return False
 
 
@@ -130,10 +96,13 @@ def is_postgres_running() -> bool:
     """Check if PostgreSQL is running and accessible."""
 
     db_url = os.environ.get("DATABASE_URL")
-    if not db_url or asyncpg is None:
+    if not db_url:
         return False
 
-    import asyncpg as asyncpg_mod
+    try:
+        import asyncpg as asyncpg_mod
+    except ImportError:
+        return False
 
     async def check_pg() -> bool:
         try:
@@ -153,29 +122,40 @@ def is_redis_running() -> bool:
     """Check if Redis is running and accessible."""
 
     redis_url = os.environ.get("REDIS_URL")
-    if not redis_url or redis is None:
+    if not redis_url:
         return False
 
-    import redis as redis_mod
-    from redis import exceptions as redis_exceptions
+    try:
+        import redis as redis_mod
+        from redis import exceptions as redis_exceptions
+    except ImportError:
+        return False
 
     try:
-        r = redis_mod.from_url(redis_url, socket_connect_timeout=2)
+        r = redis_mod.from_url(redis_url, socket_connect_timeout=2, socket_timeout=2)
         return bool(r.ping())
     except (redis_exceptions.ConnectionError, redis_exceptions.TimeoutError):
         return False
 
 
-postgres_required = pytest.mark.skipif(
-    not is_postgres_running(),
-    reason="PostgreSQL service not running or configured via DATABASE_URL",
-)
+@pytest.fixture
+def require_postgres():
+    """Skip only when a test explicitly needs a live PostgreSQL service."""
+
+    if not is_postgres_running():
+        pytest.skip("PostgreSQL service not running or configured via DATABASE_URL")
 
 
-redis_required = pytest.mark.skipif(
-    not is_redis_running(),
-    reason="Redis service not running or configured via REDIS_URL",
-)
+@pytest.fixture
+def require_redis():
+    """Skip only when a test explicitly needs a live Redis service."""
+
+    if not is_redis_running():
+        pytest.skip("Redis service not running or configured via REDIS_URL")
+
+
+postgres_required = pytest.mark.usefixtures("require_postgres")
+redis_required = pytest.mark.usefixtures("require_redis")
 
 
 @pytest.fixture

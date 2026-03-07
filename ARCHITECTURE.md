@@ -67,7 +67,7 @@ Implements the **9-Sense model (C0–C9)** and the **Triad reasoning substrate**
 | B3 | No final constitutional verdict (888_JUDGE) | Governance bypass |
 | B4 | No VAULT999 write access | Ledger integrity breach |
 
-> ⚠️ **Observed deviation:** `aclip_cai/mcp_server.py` and `aclip_cai/core/mcp_server.py` exist. These are legacy/internal bridge files — they MUST NOT serve as public transport endpoints. If they accept external connections, refactor to `aaa_mcp`.
+> ℹ️ **Boundary update:** `aclip_cai/mcp_server.py` has been removed. `aclip_cai/core/mcp_server.py` remains an internal bridge and MUST NOT serve as a public transport endpoint. Public transport belongs in `aaa_mcp`.
 
 > **Analogy:** Eyes, Ears, Hands — perceives reality, does not decide policy.
 
@@ -338,9 +338,8 @@ grep -rn "FastAPI\|Starlette\|uvicorn\|StreamableHTTP" core/ --include="*.py" | 
 
 | # | Deviation | Location | Risk | Action |
 |---|-----------|----------|------|--------|
-| D1 | `aclip_cai/mcp_server.py` exists | `aclip_cai/` | Medium — could serve as rogue transport | Verify it's internal bridge only; refactor if it accepts external connections |
-| D2 | `aclip_cai/core/mcp_server.py` exists | `aclip_cai/core/` | Medium — same risk | Same action |
-| D3 | `aaa_mcp/tools/reality_grounding.py` exists | `aaa_mcp/tools/` | Low if it delegates | Verify it delegates to `aclip_cai`, not reimplements |
+| D1 | `aclip_cai/core/mcp_server.py` exists | `aclip_cai/core/` | Medium — internal bridge could drift into rogue transport | Keep it internal-only; do not document it as a public entrypoint |
+| D2 | `aaa_mcp/tools/reality_grounding.py` exists | `aaa_mcp/tools/` | Low if it delegates | Verify it delegates to `aclip_cai`, not reimplements |
 
 ---
 
