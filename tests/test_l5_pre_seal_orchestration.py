@@ -5,8 +5,11 @@ import sys
 from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 
+import pytest
 
 PACKAGE_ALIAS = "l5_power_testpkg"
+_L5_POWER_PATH = Path(__file__).resolve().parents[1] / "333_APPS" / "L5_AGENTS" / "POWER"
+_L5_MISSING = not _L5_POWER_PATH.exists()
 
 
 def _load_power_package():
@@ -34,6 +37,7 @@ def _load_orchestrator_module():
     return importlib.import_module(f"{PACKAGE_ALIAS}.orchestrator")
 
 
+@pytest.mark.skipif(_L5_MISSING, reason="L5_AGENTS/POWER not present")
 async def test_l5_pre_seal_happy_path_returns_seal_and_cycle_complete_true() -> None:
     orchestrator_module = _load_orchestrator_module()
 
@@ -46,6 +50,7 @@ async def test_l5_pre_seal_happy_path_returns_seal_and_cycle_complete_true() -> 
     assert result["artifacts"]["validator"]["validated"] is True
 
 
+@pytest.mark.skipif(_L5_MISSING, reason="L5_AGENTS/POWER not present")
 async def test_l5_pre_seal_halts_at_auditor_when_evidence_marker_missing(monkeypatch) -> None:
     orchestrator_module = _load_orchestrator_module()
     agent_result = importlib.import_module(f"{PACKAGE_ALIAS}.base_agent").AgentResult
@@ -77,6 +82,7 @@ async def test_l5_pre_seal_halts_at_auditor_when_evidence_marker_missing(monkeyp
     assert "Missing evidence marker: source: user_query" in str(result.get("error", ""))
 
 
+@pytest.mark.skipif(_L5_MISSING, reason="L5_AGENTS/POWER not present")
 async def test_l5_pre_seal_validator_rejects_engineer_objective_mismatch(monkeypatch) -> None:
     orchestrator_module = _load_orchestrator_module()
     agent_result = importlib.import_module(f"{PACKAGE_ALIAS}.base_agent").AgentResult

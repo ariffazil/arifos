@@ -34,6 +34,8 @@ from core.shared.types import ActorIdentity, SignedIntentEnvelope, EvidenceRecor
 from core.judgment import judge_cognition, judge_empathy, judge_apex, CognitionResult, EmpathyResult
 from core.risk_engine import risk_engine
 
+MANIFEST_VERSION = "2026.03.07"
+
 # Setup logger early for BGE integration logging
 logger = logging.getLogger(__name__)
 

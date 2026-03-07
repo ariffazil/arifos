@@ -8,6 +8,7 @@ from core.shared.physics import (
     UncertaintyBand,
     TrinityTensor,
 )
+from core.state.session_manager import session_manager
 
 
 @pytest.fixture
@@ -15,8 +16,14 @@ def scheduler():
     return ConstitutionalScheduler(quantum_ms=50.0)
 
 
+@pytest.fixture
+def test_session_id():
+    sid = session_manager.create_session("test-owner")
+    yield sid
+
+
 @pytest.mark.asyncio
-async def test_scheduler_priority(scheduler):
+async def test_scheduler_priority(scheduler, test_session_id):
     """Test that Priority 0 processes execute before Priority 1."""
     execution_order = []
 
@@ -25,8 +32,8 @@ async def test_scheduler_priority(scheduler):
         return name
 
     # Submit standard first, then critical
-    await scheduler.submit("standard_1", "ARCHITECT", mock_workload, priority=1, name="standard_1")
-    await scheduler.submit("critical_1", "AUDITOR", mock_workload, priority=0, name="critical_1")
+    await scheduler.submit("standard_1", test_session_id, "ARCHITECT", mock_workload, priority=1, name="standard_1")
+    await scheduler.submit("critical_1", test_session_id, "AUDITOR", mock_workload, priority=0, name="critical_1")
 
     # Run loop manually for two cycles to avoid hanging tests
     await scheduler._execute_quantum(await scheduler._get_next_process())
@@ -37,7 +44,7 @@ async def test_scheduler_priority(scheduler):
 
 
 @pytest.mark.asyncio
-async def test_scheduler_f5_breach_suspension(scheduler):
+async def test_scheduler_f5_breach_suspension(scheduler, test_session_id):
     """Test that a workflow breaching Peace² is suspended."""
 
     async def unsafe_workload():
@@ -54,7 +61,7 @@ async def test_scheduler_f5_breach_suspension(scheduler):
         )
         return "unsafe_output", tensor
 
-    await scheduler.submit("rogue_agent", "ENGINEER", unsafe_workload)
+    await scheduler.submit("rogue_agent", test_session_id, "ENGINEER", unsafe_workload)
 
     process = await scheduler._get_next_process()
     await scheduler._execute_quantum(process)
