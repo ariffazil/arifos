@@ -1,0 +1,58 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "_comment": "arifOS — Blessed Reference Client Config",
+  "_description": "Drop ONE entry into your MCP client to auto-wire all arifOS constitutional tools. Pick the transport that matches your setup.",
+  "_version": "2026.03.07",
+  "_authority": "ARIF FAZIL",
+  "_docs": "https://arifos.arif-fazil.com/intro",
+  "_api": "https://arifos.arif-fazil.com/api",
+  "_repo": "https://github.com/ariffazil/arifOS",
+
+  "mcpServers": {
+
+    "arifos-remote": {
+      "_comment": "RECOMMENDED — Zero install. Connects to live arifOS MCP over HTTPS.",
+      "_use_when": "You want to use arifOS without installing anything. Just add this entry.",
+      "transport": "streamable-http",
+      "url": "https://arifosmcp.arif-fazil.com/mcp",
+      "timeout": 30000
+    },
+
+    "arifos-local": {
+      "_comment": "Local stdio via pip install. Run: pip install arifos",
+      "_use_when": "You want arifOS running on your own machine, no network dependency.",
+      "command": "python",
+      "args": ["-m", "arifos_aaa_mcp", "stdio"],
+      "env": {
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
+        "ARIFOS_GOVERNANCE_SECRET": "${ARIFOS_GOVERNANCE_SECRET}"
+      }
+    },
+
+    "arifos-docker": {
+      "_comment": "Docker container. Run the official image locally.",
+      "_use_when": "You want isolated execution without polluting your Python environment.",
+      "command": "docker",
+      "args": [
+        "run", "--rm", "-i",
+        "--name", "arifos-mcp",
+        "-e", "ARIFOS_CONSTITUTIONAL_MODE=AAA",
+        "-e", "ARIFOS_GOVERNANCE_SECRET=${ARIFOS_GOVERNANCE_SECRET}",
+        "arifazil/arifosmcp:forge-777",
+        "python", "-m", "arifos_aaa_mcp", "stdio"
+      ]
+    },
+
+    "arifos-dev": {
+      "_comment": "Developer mode — from cloned repo with venv.",
+      "_use_when": "You cloned the repo and want to hack on arifOS itself.",
+      "command": ".venv/bin/python",
+      "args": ["-m", "arifos_aaa_mcp", "stdio"],
+      "cwd": "${ARIFOS_REPO:-.}",
+      "env": {
+        "PYTHONPATH": "${ARIFOS_REPO:-.}",
+        "ARIFOS_CONSTITUTIONAL_MODE": "AAA"
+      }
+    }
+  }
+}
