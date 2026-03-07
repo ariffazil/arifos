@@ -11,11 +11,12 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-import sys
 from dataclasses import dataclass
 from typing import Any
 
 import numpy as np
+
+from core.shared.atlas import normalize_semantic_text
 
 # Optional dependency — graceful fallback to heuristic if not installed
 try:
@@ -247,6 +248,7 @@ class SbertFloorClassifier:
             # Fallback to heuristic
             return self._heuristic_classify(text)
 
+        text = normalize_semantic_text(text)
         try:
             # Compute similarities for each floor
             # F5: Peace² — high similarity to peace phrases, low to conflict phrases
@@ -292,8 +294,9 @@ class SbertFloorClassifier:
         """
         Fallback heuristic classification when SBERT unavailable.
 
-        This is the v64.2 baseline — replaced by SBERT when available.
+        This is the baseline — replaced by SBERT when available.
         """
+        text = normalize_semantic_text(text)
         text_lower = text.lower()
 
         # F5: Peace² — check for conflict/harm keywords

@@ -75,6 +75,17 @@ class ThermodynamicState:
         if not 0.0 <= self.omega_environmental <= 1.0:
             raise ValueError(f"Ω₀ must be in [0.0, 1.0], got {self.omega_environmental}")
 
+    def to_dict(self) -> dict[str, Any]:
+        """Convert state to dictionary for telemetry."""
+        return {
+            "zram_used_percent": round(self.zram_used_percent, 2),
+            "cpu_throttle_status": self.cpu_throttle_status,
+            "memory_pressure": round(self.memory_pressure, 2),
+            "cpu_usage_percent": round(self.cpu_usage_percent, 2),
+            "omega_environmental": round(self.omega_environmental, 4),
+            "verdict": self.verdict,
+        }
+
 
 class EntropyManager:
     """

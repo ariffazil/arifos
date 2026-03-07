@@ -1,5 +1,27 @@
 # core/ — 2026.02.17 RUKUN AGI Foundation
 
+## Current Kernel Architecture Map (2026-03 hardening)
+
+```text
+INPUT
+  -> core/organs/_0_init.py               (000, F11/F12)
+  -> core/organs/_1_agi.py                (111-333, F2/F4/F7/F8)
+  -> core/organs/_2_asi.py                (444-666, F1/F5/F6)
+  -> core/organs/_3_apex.py               (777-888, F3/F9/F10/F13)
+  -> core/organs/_4_vault.py              (999 seal path)
+
+Cross-cut kernel state:
+  core/governance_kernel.py               (state machine + hold/void gates)
+  core/state/session_manager.py           (session ownership + kernel lifecycle)
+  core/kernel/constitutional_decorator.py (tool-level floor enforcement)
+  core/shared/floors.py                   (canonical floor definitions)
+```
+
+Boundary rule:
+- `core/` owns decision logic and state transitions.
+- `aaa_mcp/` is transport/protocol only and must consume `core` outputs.
+- `aclip_cai/` provides intelligence engines but must not own constitutional state.
+
 > **RUKUN AGI** — The Five Pillars of Constitutional AI
 > **Version:** 2026.02.17-FORGE-UVX-SEAL
 > **Philosophy:** 555 is sacred — just as Islam has 5 pillars, AGI needs 5 pillars to stand

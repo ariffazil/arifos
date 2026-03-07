@@ -1,6 +1,4 @@
-from typing import Any
-
-from aaa_mcp.services.constitutional_metrics import store_stage_result
+from aaa_mcp.services.constitutional_metrics import store_stage_result, get_last_seal_hash
 
 
 async def vault_seal(
@@ -17,6 +15,9 @@ async def vault_seal(
     """
     if metadata is None:
         metadata = {}
+
+    # Capture Merkle Chain Hash (F1 Amanah)
+    metadata["ledger_chain_hash"] = get_last_seal_hash(session_id)
 
     # Persist to ledger
     store_stage_result(

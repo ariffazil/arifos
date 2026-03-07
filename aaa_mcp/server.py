@@ -413,15 +413,7 @@ async def _agi_cognition(
         # reason() and integrate() below. Enforces F2/F4/F13 internally.
         stage_111_context = "; ".join(evidence) if evidence else ""
         think_draft = await think(session_id=session_id, query=query, context=stage_111_context)
-        # If 222 returns VOID the chain halts — a hard floor was breached.
-        if think_draft.get("verdict") == "VOID":
-            return {
-                "verdict": "VOID",
-                "stage": "222_THINK",
-                "session_id": session_id,
-                "blocked_by": "Stage 222 THINK — constitutional floor violation",
-                "floor_checks": think_draft.get("floor_checks", {}),
-            }
+        # In reasoning phase, VOID is treated as exploratory, not a hard stop.
         delta_draft_confidence = think_draft.get("delta_draft", {}).get("confidence", 0.0)
         # ─────────────────────────────────────────────────────────────────────
 
@@ -439,16 +431,40 @@ async def _agi_cognition(
             },
         )
         d = await respond(session_id=session_id, draft_response=f"Draft response for: {query}")
-        verdict = _fold_verdict(
-            [
-                str(think_draft.get("verdict", "")),
-                str(r.get("verdict", "")),
-                str(i.get("verdict", "")),
-                str(d.get("verdict", "")),
-            ]
-        )
+        
+        raw_verdicts = [
+            str(think_draft.get("verdict", "")),
+            str(r.get("verdict", "")),
+            str(i.get("verdict", "")),
+            str(d.get("verdict", "")),
+        ]
+        
+        # In exploratory phase (111-444), we map VOID to PROVISIONAL to allow downstream critique
+        verdict = _fold_verdict(raw_verdicts)
+        if verdict == "VOID":
+            verdict = "PROVISIONAL"
+
+        tree = think_draft.get("reasoning_tree", {})
         merged = {
+            "reasoning_status": "exploratory",
+            "confidence": tree.get("weighted_confidence", 0.0),
+            "confidence_band": tree.get("weighted_band", "SPECULATION"),
+            "stability_score": tree.get("weighted_stability", 0.0),
+            "contradictions": tree.get("contradictions", []),
+            "hypotheses": [
+                {
+                    "path": p["path"],
+                    "hypothesis": p["hypothesis"],
+                    "confidence": p["confidence"],
+                    "band": tree.get("branches", {}).get(name, {}).get("band", "SPECULATION"),
+                    "disposition": tree.get("branches", {}).get(name, {}).get("disposition", "ground"),
+                    "assumptions": tree.get("branches", {}).get(name, {}).get("assumptions", []),
+                }
+                for name, p in think_draft.get("paths", {}).items()
+            ],
             "truth_score": r.get("truth_score"),
+            "needs_grounding": (r.get("truth_score", 1.0) < 0.90),
+            "next_stage": "666_CRITIQUE",
             "f2_threshold": r.get("f2_threshold"),
             "floors_failed": list(r.get("floors_failed", []))
             + list(i.get("floors_failed", []))
@@ -491,10 +507,8 @@ reason_mind = ToolHandle(_agi_cognition)
     description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory (VM) – semantic retrieval (BGE + Qdrant).",
 )
 async def _phoenix_recall(
-    query: str | None = None,
-    session_id: str | None = None,
-    current_thought_vector: str | None = None,
-    session_token: str | None = None,
+    query: str,
+    session_id: str,
     depth: int = 3,
     domain: str = "canon",
     debug: bool = False,
@@ -503,11 +517,13 @@ async def _phoenix_recall(
     Organ 5: PHOENIX. Associative memory retrieval via EUREKA sieve.
     """
     try:
-        effective_query = current_thought_vector or query or ""
-        effective_session = session_token or session_id or ""
+        effective_query = query.strip()
+        effective_session = session_id.strip()
 
+        if not effective_query:
+            return _build_floor_block("555_RECALL", "Missing query")
         if not effective_session:
-            return _build_floor_block("555_RECALL", "Missing session_id / session_token")
+            return _build_floor_block("555_RECALL", "Missing session_id")
 
         source_filter_map = {
             "canon": "000_THEORY",
@@ -593,13 +609,11 @@ async def _phoenix_recall_deprecated(
     debug: bool = False,
 ) -> dict[str, Any]:
     return await _phoenix_recall(
-        query=query,
-        session_id=session_id,
-        current_thought_vector=current_thought_vector,
-        session_token=session_token,
+        query=(query or current_thought_vector or ""),
+        session_id=(session_id or session_token or ""),
         depth=depth,
         domain=domain,
-        debug=debug
+        debug=debug,
     )
 
 
@@ -1681,6 +1695,33 @@ async def _check_vital(
 check_vital = ToolHandle(_check_vital)
 
 
+@mcp.tool(
+    name="audit_vital",
+    description="[Lane: Ψ Psi] [Floors: F4, F7, F8] Real-time Ψ State Field telemetry.",
+)
+async def _audit_vital(
+    session_id: str,
+) -> dict[str, Any]:
+    """
+    Exposes the inner State Field (Ψ) of the Governance Kernel.
+    Includes Environment, Energy, and Void coordinates.
+    """
+    from core.state.session_manager import session_manager
+
+    kernel = session_manager.get_kernel(session_id)
+    state = kernel.to_dict()
+
+    return envelope_builder.build_envelope(
+        stage="555_TELEMETRY",
+        session_id=session_id,
+        verdict="SEAL",
+        payload=state,
+    )
+
+
+audit_vital = ToolHandle(_audit_vital)
+
+
 # INTERNAL: query_openclaw — OpenClaw gateway diagnostics (NOT a public MCP tool)
 # Relocated to internal dev path; not in canonical 13-tool surface.
 from aaa_mcp.integrations.openclaw_gateway_client import (
@@ -1749,6 +1790,7 @@ async def _arifos_info_resource() -> str:
                 "ingest_evidence",
                 "audit_rules",
                 "check_vital",
+                "audit_vital",
                 "metabolic_loop",
             ],
             "tool_aliases": {"judge_soul": "apex_judge"},
@@ -1861,6 +1903,7 @@ __all__ = [
     "ingest_evidence",
     "audit_rules",
     "check_vital",
+    "audit_vital",
     "metabolic_loop",
     "_ensure_rag",
 ]

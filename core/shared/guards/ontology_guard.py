@@ -29,6 +29,7 @@ Motto:
 from __future__ import annotations
 
 import re
+import unicodedata
 from dataclasses import dataclass
 from enum import Enum
 
@@ -134,9 +135,12 @@ class OntologyGuard:
         """
         detected = []
 
+        # P0 HARDENING: Unicode Normalization (NFKC)
+        normalized_output = unicodedata.normalize("NFKC", output).lower()
+
         # Scan for literalism patterns
         for pattern, compiled in zip(self.literalism_patterns, self.compiled_patterns):
-            if compiled.search(output):
+            if compiled.search(normalized_output):
                 detected.append(pattern)
 
         # If literalism detected and symbolic mode not set, this is a violation

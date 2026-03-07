@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import logging
 import re
+import unicodedata
 from dataclasses import dataclass
 from enum import Enum
 from re import Pattern
@@ -612,6 +613,52 @@ def route_query(query: str) -> str:
     return route(query)
 
 
+def normalize_semantic_text(text: str) -> str:
+    """
+    Standardize text for semantic processing and floor evaluation.
+
+    1. NFKC normalization (Unicode standardization)
+    2. Homograph mapping (Confusable script-mixing defense)
+    3. Case folding (Lowercase)
+
+    This is the primary 'Ontology Lock' for all semantic layers (555, 666).
+    """
+    if not isinstance(text, str):
+        return ""
+
+    # 1. NFKC Normalization
+    n = unicodedata.normalize("NFKC", text).lower()
+
+    # 2. Homograph Map (Ontology Lock)
+    # Maps common confusable Cyrillic/Greek chars to their ASCII equivalent
+    confusable_map = {
+        "а": "a",
+        "е": "e",
+        "о": "o",
+        "р": "p",
+        "с": "c",
+        "у": "y",
+        "х": "x",
+        "А": "a",
+        "Е": "e",
+        "О": "o",
+        "Р": "p",
+        "С": "c",
+        "У": "y",
+        "Х": "x",
+        # Greek / Cyrillic mix extensions
+        "τ": "t",
+        "ν": "n",
+        "ρ": "p",
+        "ω": "w",
+        "κ": "k",
+        "ε": "e",
+        "Ε": "e",
+    }
+
+    return "".join(confusable_map.get(c, c) for c in n)
+
+
 # ═════════════════════════════════════════════════════════════════════════════
 # EXPORTS
 # ═════════════════════════════════════════════════════════════════════════════
@@ -639,4 +686,5 @@ __all__ = [
     "route",
     "classify_query",
     "route_query",
+    "normalize_semantic_text",
 ]

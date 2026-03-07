@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any, TypedDict
@@ -103,6 +104,7 @@ _VERDICT_LOG: list[dict] = []
 _METABOLIC_STATE: dict[str, dict[str, Any]] = {}
 _EVIDENCE_VAULT: dict[str, list[EvidenceObject]] = {}
 _SESSION_EVENT_LOG: dict[str, list[dict[str, Any]]] = {}  # The "Flight Recorder"
+_SESSION_LEDGER_HASHES: dict[str, str] = {}  # Merkle chain roots per session
 
 
 def generate_content_hash(text: str) -> str:
@@ -204,16 +206,25 @@ def store_stage_result(session_id: str, stage: str, result: dict[str, Any]):
 
     _STAGE_RESULTS[session_id][stage] = result
 
-    # Flight Recorder Addition: Record the transition
-    _SESSION_EVENT_LOG[session_id].append(
-        {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "stage": stage,
-            "verdict": result.get("verdict", "UNKNOWN"),
-            "transition": f"Completed {stage}",
-            "ambiguity_reduction": result.get("ambiguity_reduction", 0.0),
-        }
-    )
+    # Merkle Chain Addition (F1 Amanah)
+    previous_hash = _SESSION_LEDGER_HASHES.get(session_id, "0" * 64)
+    
+    event = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "stage": stage,
+        "verdict": result.get("verdict", "UNKNOWN"),
+        "transition": f"Completed {stage}",
+        "ambiguity_reduction": result.get("ambiguity_reduction", 0.0),
+        "previous_hash": previous_hash,
+    }
+    
+    # Compute new hash for this entry
+    event_str = json.dumps(event, sort_keys=True)
+    new_hash = hashlib.sha256(event_str.encode('utf-8')).hexdigest()
+    event["merkle_hash"] = new_hash
+    
+    _SESSION_EVENT_LOG[session_id].append(event)
+    _SESSION_LEDGER_HASHES[session_id] = new_hash
 
     # Universal Evidence Tracking (v2 awareness)
     evidence = result.get("evidence", [])
@@ -247,3 +258,7 @@ def get_stage_result(session_id: str, stage: str) -> dict[str, Any] | None:
 def get_flight_recorder(session_id: str) -> list[dict[str, Any]]:
     """Retrieve the event log for a session."""
     return _SESSION_EVENT_LOG.get(session_id, [])
+
+def get_last_seal_hash(session_id: str) -> str:
+    """Retrieve the latest Merkle hash for the session."""
+    return _SESSION_LEDGER_HASHES.get(session_id, "0" * 64)

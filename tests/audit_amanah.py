@@ -14,7 +14,7 @@ async def audit_amanah():
     
     # 2. Link a simulated thought
     print("\nStep 2: Vector Memory (Phoenix Organ)")
-    vm = await vector_memory(current_thought_vector="Amanah audit trace", session_token=session_token)
+    vm = await vector_memory(query="Amanah audit trace", session_id=session_token)
     print(f"VM Tool session_id: {vm.get('session_id')}")
     assert vm.get("session_id") == session_token
     

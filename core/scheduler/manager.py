@@ -15,6 +15,8 @@ from typing import Any, Awaitable, Callable, Optional
 
 from core.shared.physics import PeaceSquared, W_3_from_tensor, ConstitutionalTensor
 from core.shared.types import FloorScores
+from core.homeostasis import get_homeostasis, CognitivePressure
+from core.state.session_manager import session_manager
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +26,7 @@ class AgentProcess:
     """Represents an active agent requesting cognition time in the scheduler."""
 
     pid: str  # e.g., "architect_delta_01"
+    session_id: str  # The owner session (Ψ)
     role: str  # e.g., "ARCHITECT", "ENGINEER", "AUDITOR"
     priority: int = 1  # 0=Critical (Auditor), 1=Standard (Architect/Engineer)
     
@@ -65,6 +68,7 @@ class ConstitutionalScheduler:
     async def submit(
         self, 
         pid: str, 
+        session_id: str,
         role: str,
         coro_func: Callable[..., Awaitable[Any]], 
         priority: int = 1,
@@ -76,6 +80,7 @@ class ConstitutionalScheduler:
             
         process = AgentProcess(
             pid=pid,
+            session_id=session_id,
             role=role,
             priority=priority,
             coroutine_func=coro_func,
@@ -130,22 +135,45 @@ class ConstitutionalScheduler:
         return None
 
     async def _execute_quantum(self, process: AgentProcess):
-        """Execute a portion of the agent's workload and evaluate physics."""
+        """Execute a portion of the agent's workload with Metabolic Governance."""
         process.status = "RUNNING"
         process.last_run_at = datetime.now()
         
+        # 1. Retrieve Governance Kernel (Ψ) for this session
+        kernel = session_manager.get_kernel(process.session_id)
+        if not kernel:
+            logger.error(f"Process {process.pid} has no valid session {process.session_id}. Terminating.")
+            process.status = "COMPLETED"
+            return
+
+        # 2. Translate State Field (Ψ) -> Compute Budget (Homeostasis)
+        homeostasis = get_homeostasis()
+        pressure = CognitivePressure(
+            dS=0.0, # This would ideally come from the kernel's real metrics
+            peace2=1.0, # Placeholder, should be derived from kernel.energy
+            omega0=kernel.safety_omega,
+            risk_score=kernel.irreversibility_index
+        )
+        budget = homeostasis.translate(pressure)
+
+        # 3. Enforce Spending Policy
+        if budget.spend_policy.value == "freeze":
+            logger.warning(f"Metabolic Freeze: Process {process.pid} suspended due to cognitive pressure.")
+            process.status = "SUSPENDED"
+            await self.standard_queue.put(process) # Re-queue for later
+            return
+
         try:
-            # We enforce a timeout based on the quantum, however 
-            # for IO bound LLM calls, we must allow completion to return control.
-            # A true OS scheduler would preempt, but Python async relies on cooperative yield.
+            logger.debug(f"Executing quantum for {process.pid} (Budget: {budget.spend_policy.value})")
             
-            logger.debug(f"Executing quantum for {process.pid}")
-            
+            # Adjust quantum based on priority and budget
+            adjusted_timeout = (self.quantum_ms / 1000.0) * (budget.priority / 5.0)
+
             # Execute the coroutine workload
             if process.coroutine_func:
                 result = await asyncio.wait_for(
                     process.coroutine_func(**process.kwargs), 
-                    timeout=self.quantum_ms / 1000.0 * 10  # Give 10x multiplier for LLM latency
+                    timeout=adjusted_timeout * 10
                 )
                 
                 # Check constitutional state if the process returned a tensor

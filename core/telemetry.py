@@ -1,13 +1,14 @@
-# aaa_mcp/core/telemetry.py
-# v64.1 — Constitutional Telemetry & Feedback Loop
-# Q3 Verdict: TELEMETRY FIRST with LOCKED ADAPTATION TRIGGER
+# core/telemetry.py
+# v64.2 — Constitutional Telemetry & Live Observability
+# Q3 Verdict: TELEMETRY FIRST with LIVE METRICS INTEGRATION
 
 import json
 import os
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from typing import Any
 
-# Q3: Locked adaptation trigger
+from core.observability.metrics import live_metrics
 ADAPTATION_LOCK_DAYS = 30
 ADAPTATION_DRIFT_THRESHOLD = 0.15  # 15% drift required
 

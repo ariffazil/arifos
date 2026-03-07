@@ -30,16 +30,21 @@ from core.kernel.evaluator import (
 # ═══════════════════════════════════════════════════════
 
 
-class EntropyViolation(Exception):
+class EntropyViolationError(Exception):
     """P0: F4 Clarity violation - ΔS > 0 (entropy increased)."""
 
     pass
 
 
-class AmanahViolation(Exception):
+class AmanahViolationError(Exception):
     """P0: F1 Amanah violation - irreversible action without mandate."""
 
     pass
+
+
+# Backward-compatible aliases for existing imports.
+EntropyViolation = EntropyViolationError
+AmanahViolation = AmanahViolationError
 
 
 def check_entropy_reduction(delta_s: float) -> dict[str, Any]:
@@ -97,9 +102,9 @@ def check_amanah(
         AmanahViolation: If irreversible action lacks mandate
     """
     # Critical irreversible actions
-    IRREVERSIBLE_ACTIONS = ["delete", "deploy", "destroy", "erase", "purge"]
+    irreversible_actions = ["delete", "deploy", "destroy", "erase", "purge"]
 
-    is_critical = any(a in action_type.lower() for a in IRREVERSIBLE_ACTIONS)
+    is_critical = any(action in action_type.lower() for action in irreversible_actions)
 
     if is_critical and not has_sovereign_mandate:
         raise AmanahViolation(
@@ -109,8 +114,8 @@ def check_amanah(
 
     if not action_reversible and not has_sovereign_mandate:
         raise AmanahViolation(
-            f"F1_AMANAH_VIOLATION: Action not reversible and lacks mandate. "
-            f"All actions must be auditable or reversible."
+            "F1_AMANAH_VIOLATION: Action not reversible and lacks mandate. "
+            "All actions must be auditable or reversible."
         )
 
     return {
@@ -228,7 +233,7 @@ def constitutional_floor(
                         payload = build_hard_floor_block(
                             floor=fid,
                             score=detail["score"],
-                            threshold=0.85,
+                            threshold=detail.get("threshold", 0.0),
                             reason=detail["reason"],
                             session_id=session_id,
                             remediation={
@@ -255,7 +260,7 @@ def constitutional_floor(
                     payload = build_hard_floor_block(
                         floor=fid,
                         score=detail["score"],
-                        threshold=0.95,
+                        threshold=detail.get("threshold", 0.0),
                         reason=detail["reason"],
                         session_id=session_id,
                         remediation={

@@ -186,47 +186,37 @@ MCP is just **how you talk to the kernel**.
 
 ---
 
-## 🌊 L0 vs L1-L7: The Full Stack
+## 🌊 L0 vs L1-L3: The Full Stack
 
-```
+```text
 ┌─────────────────────────────────────────────────────────────────┐
-│ L7: ECOSYSTEM — Permissionless sovereignty (civilization-scale) │
+│ L3: CIVILIZATION — World Interface (Tools, Ecosystems)          │
 ├─────────────────────────────────────────────────────────────────┤
-│ L6: INSTITUTION — Trinity consensus (organizational)            │
+│ L2: OPERATION — Internal Execution (Agents, Workflows, Skills)  │
 ├─────────────────────────────────────────────────────────────────┤
-│ L5: AGENTS — Multi-agent federation (coordinated actors)        │
-├─────────────────────────────────────────────────────────────────┤
-│ L4: TOOLS — MCP ecosystem (individual capabilities)             │
-├─────────────────────────────────────────────────────────────────┤
-│ L3: WORKFLOW — 000→999 sequences (structured processes)         │
-├─────────────────────────────────────────────────────────────────┤
-│ L2: SKILLS — Canonical actions (behavioral primitives)          │
-├─────────────────────────────────────────────────────────────────┤
-│ L1: PROMPTS — Zero-context entry (user interface)               │
+│ L1: INSTRUCTION — Knowledge Logic (Prompts, Code, Theory)       │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│ L0: KERNEL — 🆕 CONSTITUTIONAL OPERATING SYSTEM                 │
+│ L0: CONSTITUTION — THE CONSTITUTIONAL OPERATING SYSTEM           │
 │    ├─ 7-Organs (ΔΩΨ governance engine)                          │
 │    ├─ 9 System Calls (A-CLIP tools)                             │
 │    ├─ 13 Floors (enforced at kernel level)                      │
 │    └─ VAULT999 (immutable audit filesystem)                     │
 │                                                                 │
-│    All L1-L7 applications RUN ON this substrate                 │
+│    All L1-L3 applications RUN ON this substrate                 │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
 ### Analogy: Linux Stack
 
-```
+```text
 ┌─────────────────────────────────────────┐
-│ User Applications (Chrome, VS Code)     │  ← L7
+│ User Applications (Chrome, VS Code)     │  ← L3
 ├─────────────────────────────────────────┤
-│ Desktop Environment (GNOME, KDE)        │  ← L5-L6
+│ System Libraries (libc, system calls)   │  ← L1-L2
 ├─────────────────────────────────────────┤
-│ System Libraries (libc, system calls)   │  ← L2-L4
-├─────────────────────────────────────────┤
-│ Linux Kernel (process, memory, IO)      │  ← L0 KERNEL
+│ Linux Kernel (process, memory, IO)      │  ← L0 CONSTITUTION
 └─────────────────────────────────────────┘
 ```
 

@@ -1,202 +1,322 @@
-# aaa_mcp/core/governance_kernel.py
-# v64.2 — Unified GovernanceState (Ψ) Object with Thermodynamic Constraints
-# T000: 2026.02.15-FORGE-TRINITY-SEAL
-# Q2 Verdict: SYNCHRONOUS but CONDITIONAL
+"""Core governance kernel state and transition logic.
+
+This module is intentionally narrow:
+- Maintains runtime governance state for one session.
+- Enforces deterministic transition rules for uncertainty/risk/energy.
+- Exposes compatibility helpers used by legacy callers.
+"""
+
+from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
 from enum import Enum
+from math import isfinite
 from typing import Any
 
-# F4 + F11: Thermodynamic constraints (moved from aaa_mcp/ to core/)
 try:
     from core.physics.thermodynamics import EntropyManager, ThermodynamicState
 
     THERMODYNAMICS_AVAILABLE = True
 except ImportError:
+    EntropyManager = None  # type: ignore[assignment]
+    ThermodynamicState = None  # type: ignore[assignment]
     THERMODYNAMICS_AVAILABLE = False
 
 
 class AuthorityLevel(Enum):
-    """L5 Identity Control — Authority tagging."""
+    """Identity and control boundary."""
 
-    ANALYSIS = "analysis"  # Informational only
-    SUGGESTION = "suggestion"  # Optional recommendation
-    REQUIRES_HUMAN = "requires_human"  # Decision boundary
-    UNSAFE_TO_AUTOMATE = "unsafe"  # Hard stop
+    ANALYSIS = "analysis"
+    SUGGESTION = "suggestion"
+    REQUIRES_HUMAN = "requires_human"
+    UNSAFE_TO_AUTOMATE = "unsafe"
 
 
 class GovernanceState(Enum):
-    """L6-L8 Governance states."""
+    """Runtime governance state."""
 
-    ACTIVE = "active"  # Normal operation
-    AWAITING_888 = "awaiting_888"  # Q2: Synchronous hold
-    CONDITIONAL = "conditional"  # Proceed with constraints
-    VOID = "void"  # Blocked
+    ACTIVE = "active"
+    AWAITING_888 = "awaiting_888"
+    CONDITIONAL = "conditional"
+    VOID = "void"
+
+
+@dataclass(frozen=True)
+class GovernanceThresholds:
+    """Normalized threshold contract for kernel decisions."""
+
+    irreversibility_hold: float
+    uncertainty_hold: float
+    uncertainty_conditional: float
+    energy_hold: float
 
 
 @dataclass
 class GovernanceKernel:
-    """
-    v64.2 Unified Governance Kernel (Ψ) — T000 Rebirth
+    """Unified kernel state object (Psi)."""
 
-    Architectural Fix: Thermodynamic constraints (F4, F11, F7)
-    now live in core/ (kernel), not aaa_mcp/ (adapter).
-
-    Q2 Architectural Decision:
-    - Single runtime object for all governance state
-    - Synchronous AWAITING_888 when thresholds exceeded
-    - Conditional flow for low-risk operations
-    - Thermodynamic state integrated (ZRAM, CPU, memory)
-
-    All layers read/write this object — no more scattered checks.
-    """
-
-    # L0: Thermodynamic Foundation (NEW — v64.2)
     entropy_manager: Any | None = field(default=None, repr=False)
     thermodynamic_state: Any | None = field(default=None)
 
-    # L5: Authority & Identity
     authority_level: AuthorityLevel = AuthorityLevel.ANALYSIS
-    decision_owner: str = "ai"  # "ai" | "human" | "system"
+    decision_owner: str = "ai"
 
-    # L4: Uncertainty State (from UncertaintyEngine)
-    safety_omega: float = 0.0  # Harmonic mean (system safety)
-    display_omega: float = 0.0  # Geometric mean (user display)
+    safety_omega: float = 0.0
+    display_omega: float = 0.0
     uncertainty_components: dict[str, float] = field(default_factory=dict)
 
-    # L7: Action Gate — Irreversibility
-    irreversibility_index: float = 0.0  # impact × recovery_cost × time
-    reversibility_score: float = 1.0  # 1.0 = fully reversible
+    irreversibility_index: float = 0.0
+    reversibility_score: float = 1.0
+    current_energy: float = 1.0
 
-    # L6: Constitutional State
     governance_state: GovernanceState = GovernanceState.ACTIVE
+    governance_reason: str = "initialized"
     escalation_required: bool = False
 
-    # L8: Human Sovereign
-    human_approval_status: str = (
-        "not_required"  # "not_required" | "pending" | "approved" | "denied"
-    )
+    human_approval_status: str = "not_required"
     human_override_timestamp: float | None = None
 
-    # Thresholds (Q2: CONDITIONAL)
-    IRREVERSIBILITY_THRESHOLD: float = 0.6  # index > 0.6 → AWAITING_888
-    UNCERTAINTY_THRESHOLD: float = 0.06  # safety_omega > 0.06 → AWAITING_888
+    IRREVERSIBILITY_THRESHOLD: float = 0.6
+    UNCERTAINTY_THRESHOLD: float = 0.06
+    ENERGY_THRESHOLD: float = 0.2
+    CONDITIONAL_UNCERTAINTY_THRESHOLD: float = 0.03
 
-    # Metadata
     timestamp: float = field(default_factory=time.time)
+    last_transition_at: float = field(default_factory=time.time)
     session_id: str = ""
 
-    def __post_init__(self):
-        """
-        F4 + F11: Initialize thermodynamic constraints (v64.2 fix).
+    def __post_init__(self) -> None:
+        self.current_energy = self._clamp_unit(self.current_energy, field_name="current_energy")
+        self.safety_omega = self._clamp_unit(self.safety_omega, field_name="safety_omega")
+        self.display_omega = self._clamp_unit(self.display_omega, field_name="display_omega")
 
-        This ensures EntropyManager lives in kernel (core/), not adapter (aaa_mcp/).
-        Constitutional Boundary: Thermodynamic state is kernel-level concern.
-        """
-        if THERMODYNAMICS_AVAILABLE and self.entropy_manager is None:
+        if THERMODYNAMICS_AVAILABLE and self.entropy_manager is None and EntropyManager is not None:
             self.entropy_manager = EntropyManager()
-            # Initial thermodynamic assessment
             self.thermodynamic_state = self.entropy_manager.check_thermodynamic_budget()
 
-    def check_thermodynamic_constraints(self) -> Any | None:
-        """
-        F4 + F11 + F7: Check hardware-level thermodynamic constraints.
+    @property
+    def thresholds(self) -> GovernanceThresholds:
+        return GovernanceThresholds(
+            irreversibility_hold=self.IRREVERSIBILITY_THRESHOLD,
+            uncertainty_hold=self.UNCERTAINTY_THRESHOLD,
+            uncertainty_conditional=self.CONDITIONAL_UNCERTAINTY_THRESHOLD,
+            energy_hold=self.ENERGY_THRESHOLD,
+        )
 
-        Returns ThermodynamicState with verdict (SEAL, SABAR, VOID).
-        Called by orchestrator before expensive operations.
-        """
+    @property
+    def environment(self) -> dict[str, Any]:
+        return {
+            "session_id": self.session_id,
+            "timestamp": self.timestamp,
+            "decision_owner": self.decision_owner,
+            "authority_level": self.authority_level.value,
+        }
+
+    @property
+    def energy(self) -> dict[str, Any]:
+        return {
+            "current_energy": round(self.current_energy, 4),
+            "thermodynamic_state": self.thermodynamic_state.to_dict()
+            if self.thermodynamic_state and hasattr(self.thermodynamic_state, "to_dict")
+            else None,
+            "irreversibility_index": round(self.irreversibility_index, 4),
+            "reversibility_score": round(self.reversibility_score, 4),
+            "human_approval_status": self.human_approval_status,
+        }
+
+    @property
+    def void(self) -> dict[str, Any]:
+        return {
+            "safety_omega": round(self.safety_omega, 4),
+            "display_omega": round(self.display_omega, 4),
+            "uncertainty_components": dict(self.uncertainty_components),
+        }
+
+    @property
+    def state_field(self) -> dict[str, Any]:
+        return {
+            "environment": self.environment,
+            "energy": self.energy,
+            "void": self.void,
+        }
+
+    @staticmethod
+    def _clamp_unit(value: float, *, field_name: str) -> float:
+        if not isfinite(value):
+            raise ValueError(f"{field_name} must be a finite number")
+        return max(0.0, min(1.0, float(value)))
+
+    def _set_state(
+        self,
+        state: GovernanceState,
+        authority_level: AuthorityLevel,
+        reason: str,
+        *,
+        human_status: str | None = None,
+    ) -> None:
+        self.governance_state = state
+        self.authority_level = authority_level
+        self.governance_reason = reason
+        self.escalation_required = state == GovernanceState.AWAITING_888
+        self.last_transition_at = time.time()
+
+        if human_status is not None:
+            self.human_approval_status = human_status
+        elif state == GovernanceState.AWAITING_888:
+            self.human_approval_status = "pending"
+        elif self.human_approval_status == "pending":
+            self.human_approval_status = "not_required"
+
+    def check_thermodynamic_constraints(self) -> Any | None:
         if self.entropy_manager is None:
             return None
 
         self.thermodynamic_state = self.entropy_manager.check_thermodynamic_budget()
+        verdict = getattr(self.thermodynamic_state, "verdict", "")
 
-        # Update governance state based on thermodynamics
-        if self.thermodynamic_state.verdict == "VOID":
-            self.governance_state = GovernanceState.VOID
-            self.authority_level = AuthorityLevel.UNSAFE_TO_AUTOMATE
-        elif self.thermodynamic_state.verdict == "SABAR":
-            self.governance_state = GovernanceState.AWAITING_888
-            self.authority_level = AuthorityLevel.REQUIRES_HUMAN
+        if verdict == "VOID":
+            self._set_state(
+                GovernanceState.VOID,
+                AuthorityLevel.UNSAFE_TO_AUTOMATE,
+                "thermodynamics_void",
+            )
+            return self.thermodynamic_state
 
+        if verdict == "SABAR":
+            self._set_state(
+                GovernanceState.AWAITING_888,
+                AuthorityLevel.REQUIRES_HUMAN,
+                "thermodynamics_sabar",
+                human_status="pending",
+            )
+            return self.thermodynamic_state
+
+        self._evaluate_governance()
         return self.thermodynamic_state
 
     def update_uncertainty(
-        self, safety_omega: float, display_omega: float, components: dict[str, float]
-    ):
-        """Update uncertainty state and re-evaluate governance."""
-        self.safety_omega = safety_omega
-        self.display_omega = display_omega
-        self.uncertainty_components = components
+        self,
+        safety_omega: float,
+        display_omega: float,
+        components: dict[str, float],
+    ) -> None:
+        self.safety_omega = self._clamp_unit(safety_omega, field_name="safety_omega")
+        self.display_omega = self._clamp_unit(display_omega, field_name="display_omega")
+        self.uncertainty_components = {
+            key: self._clamp_unit(float(val), field_name=f"uncertainty_components.{key}")
+            for key, val in (components or {}).items()
+            if isinstance(val, (float, int))
+        }
         self._evaluate_governance()
 
     def update_irreversibility(
-        self, impact_scope: float, recovery_cost: float, time_to_reverse: float
-    ):
-        """
-        Calculate irreversibility index.
+        self,
+        impact_scope: float,
+        recovery_cost: float,
+        time_to_reverse: float,
+    ) -> None:
+        impact = self._clamp_unit(impact_scope, field_name="impact_scope")
+        recovery = self._clamp_unit(recovery_cost, field_name="recovery_cost")
+        time_cost = self._clamp_unit(time_to_reverse, field_name="time_to_reverse")
 
-        Formula: impact_scope × recovery_cost × time_to_reverse
-        All factors normalized to [0, 1]
-        """
-        self.irreversibility_index = impact_scope * recovery_cost * time_to_reverse
-        self.reversibility_score = 1.0 - self.irreversibility_index
+        self.irreversibility_index = impact * recovery * time_cost
+        self.reversibility_score = max(0.0, 1.0 - self.irreversibility_index)
         self._evaluate_governance()
 
-    def _evaluate_governance(self):
-        """
-        Q2: CONDITIONAL synchronous hold.
+    def consume_energy(self, amount: float) -> None:
+        if not isfinite(amount):
+            raise ValueError("amount must be a finite number")
+        if amount < 0:
+            raise ValueError("amount must be non-negative")
 
-        AWAITING_888 triggers only when:
-        - irreversibility_index > 0.6 OR
-        - safety_omega > 0.06
+        self.current_energy = max(0.0, min(1.0, self.current_energy - float(amount)))
+        self._evaluate_governance()
 
-        Low-risk flows remain continuous.
-        """
-        high_irreversibility = self.irreversibility_index > self.IRREVERSIBILITY_THRESHOLD
-        high_uncertainty = self.safety_omega > self.UNCERTAINTY_THRESHOLD
+    def _evaluate_governance(self) -> None:
+        if self.current_energy <= 0.0:
+            self._set_state(
+                GovernanceState.VOID,
+                AuthorityLevel.UNSAFE_TO_AUTOMATE,
+                "energy_depleted",
+            )
+            return
 
-        if high_irreversibility or high_uncertainty:
-            self.governance_state = GovernanceState.AWAITING_888
-            self.escalation_required = True
-            self.human_approval_status = "pending"
-            self.authority_level = AuthorityLevel.REQUIRES_HUMAN
-        elif self.safety_omega > 0.03:
-            self.governance_state = GovernanceState.CONDITIONAL
-            self.authority_level = AuthorityLevel.SUGGESTION
-        else:
-            self.governance_state = GovernanceState.ACTIVE
-            self.authority_level = AuthorityLevel.ANALYSIS
+        if self.irreversibility_index > self.IRREVERSIBILITY_THRESHOLD:
+            self._set_state(
+                GovernanceState.AWAITING_888,
+                AuthorityLevel.REQUIRES_HUMAN,
+                "irreversibility_high",
+                human_status="pending",
+            )
+            return
 
-    def approve_human(self, approved: bool, actor: str = "888"):
-        """
-        L8 Human sovereign approval.
+        if self.safety_omega > self.UNCERTAINTY_THRESHOLD:
+            self._set_state(
+                GovernanceState.AWAITING_888,
+                AuthorityLevel.REQUIRES_HUMAN,
+                "uncertainty_high",
+                human_status="pending",
+            )
+            return
 
-        Args:
-            approved: True = approve, False = deny
-            actor: Identity of human approver (default "888")
-        """
-        self.human_approval_status = "approved" if approved else "denied"
+        if self.current_energy < self.ENERGY_THRESHOLD:
+            self._set_state(
+                GovernanceState.AWAITING_888,
+                AuthorityLevel.REQUIRES_HUMAN,
+                "energy_low",
+                human_status="pending",
+            )
+            return
+
+        if self.safety_omega > self.CONDITIONAL_UNCERTAINTY_THRESHOLD:
+            self._set_state(
+                GovernanceState.CONDITIONAL,
+                AuthorityLevel.SUGGESTION,
+                "uncertainty_medium",
+            )
+            return
+
+        self._set_state(
+            GovernanceState.ACTIVE,
+            AuthorityLevel.ANALYSIS,
+            "stable",
+        )
+
+    def approve_human(self, approved: bool, actor: str = "888") -> None:
         self.human_override_timestamp = time.time()
-        self.decision_owner = actor if approved else "system"
-
         if approved:
-            self.governance_state = GovernanceState.CONDITIONAL
-            self.escalation_required = False
-        else:
-            self.governance_state = GovernanceState.VOID
+            self.decision_owner = actor
+            if self.current_energy <= 0.0:
+                self._set_state(
+                    GovernanceState.VOID,
+                    AuthorityLevel.UNSAFE_TO_AUTOMATE,
+                    "human_approved_but_energy_depleted",
+                    human_status="approved",
+                )
+                return
+
+            self._set_state(
+                GovernanceState.CONDITIONAL,
+                AuthorityLevel.SUGGESTION,
+                "human_approved",
+                human_status="approved",
+            )
+            return
+
+        self.decision_owner = "system"
+        self._set_state(
+            GovernanceState.VOID,
+            AuthorityLevel.UNSAFE_TO_AUTOMATE,
+            "human_denied",
+            human_status="denied",
+        )
 
     def can_proceed(self) -> bool:
-        """Check if system can proceed with output."""
-        if self.governance_state == GovernanceState.VOID:
-            return False
-        if self.governance_state == GovernanceState.AWAITING_888:
-            return False
-        return True
+        return self.governance_state in {GovernanceState.ACTIVE, GovernanceState.CONDITIONAL}
 
     def get_output_tags(self) -> list[str]:
-        """Generate output tags based on authority level."""
-        tags = []
+        tags: list[str] = []
 
         if self.authority_level == AuthorityLevel.ANALYSIS:
             tags.append("[ANALYSIS]")
@@ -212,43 +332,253 @@ class GovernanceKernel:
 
         return tags
 
+    def architecture_map(self) -> dict[str, Any]:
+        """Return a compact runtime map of the intelligence architecture."""
+        return {
+            "stack": "000->999",
+            "boundaries": {
+                "core": "decision logic only",
+                "aaa_mcp": "transport/protocol only",
+                "aclip_cai": "triad intelligence backends",
+            },
+            "stages": {
+                "000": {"name": "INIT", "floors": ["F11", "F12"]},
+                "111-333": {"name": "AGI_MIND", "floors": ["F2", "F4", "F7", "F8"]},
+                "444-666": {"name": "ASI_HEART", "floors": ["F1", "F5", "F6"]},
+                "777-888": {"name": "APEX_SOUL", "floors": ["F3", "F9", "F10", "F13"]},
+                "999": {"name": "VAULT", "floors": ["F1", "F3"]},
+            },
+            "runtime": {
+                "state": self.governance_state.value,
+                "authority": self.authority_level.value,
+                "reason": self.governance_reason,
+            },
+        }
+
+    def get_current_state(self) -> dict[str, Any]:
+        """Compatibility payload for adapters expecting live governance telemetry."""
+        if self.governance_state == GovernanceState.VOID:
+            verdict = "VOID"
+        elif self.governance_state == GovernanceState.AWAITING_888:
+            verdict = "888_HOLD"
+        elif self.governance_state == GovernanceState.CONDITIONAL:
+            verdict = "PARTIAL"
+        else:
+            verdict = "SEAL"
+
+        return {
+            "session_id": self.session_id,
+            "verdict": verdict,
+            "metabolic_stage": 888 if self.escalation_required else 333,
+            "qdf": round(max(0.0, 1.0 - self.safety_omega), 4),
+            "floors": {
+                "F1": round(self.reversibility_score, 4),
+                "F2": round(max(0.0, 1.0 - self.safety_omega), 4),
+                "F4": 1.0 if self.current_energy >= self.ENERGY_THRESHOLD else 0.0,
+                "F7": round(max(0.0, 1.0 - abs(self.safety_omega - 0.04)), 4),
+            },
+            "witness": {
+                "human": 1.0 if self.human_approval_status == "approved" else 0.7,
+                "ai": round(max(0.0, 1.0 - self.safety_omega), 4),
+                "earth": round(self.current_energy, 4),
+            },
+            "telemetry": {
+                "dS": -0.1 if self.can_proceed() else 0.1,
+                "peace2": round(max(0.0, self.reversibility_score), 4),
+                "kappa_r": round(max(0.0, 1.0 - self.safety_omega), 4),
+                "confidence": round(max(0.0, 1.0 - self.safety_omega), 4),
+                "psi_le": round(max(0.0, self.current_energy), 4),
+            },
+        }
+
     def to_dict(self) -> dict[str, Any]:
-        """Serialize governance state."""
         return {
             "authority_level": self.authority_level.value,
             "decision_owner": self.decision_owner,
             "safety_omega": round(self.safety_omega, 4),
             "display_omega": round(self.display_omega, 4),
-            "uncertainty_components": self.uncertainty_components,
+            "uncertainty_components": dict(self.uncertainty_components),
             "irreversibility_index": round(self.irreversibility_index, 4),
             "reversibility_score": round(self.reversibility_score, 4),
             "governance_state": self.governance_state.value,
+            "governance_reason": self.governance_reason,
             "escalation_required": self.escalation_required,
             "human_approval_status": self.human_approval_status,
             "thresholds": {
                 "irreversibility": self.IRREVERSIBILITY_THRESHOLD,
                 "uncertainty": self.UNCERTAINTY_THRESHOLD,
+                "uncertainty_conditional": self.CONDITIONAL_UNCERTAINTY_THRESHOLD,
+                "energy": self.ENERGY_THRESHOLD,
             },
             "can_proceed": self.can_proceed(),
             "output_tags": self.get_output_tags(),
             "timestamp": self.timestamp,
+            "last_transition_at": self.last_transition_at,
             "session_id": self.session_id,
+            "state_field": self.state_field,
         }
 
 
-# Global governance kernel registry (per-session)
+class AppLayer(Enum):
+    """Application layer in the refined 4-layer taxonomy."""
+
+    L0_CONSTITUTION = "L0"
+    L1_INSTRUCTION = "L1"
+    L2_OPERATION = "L2"
+    L3_CIVILIZATION = "L3"
+
+
+class FloorClassification(Enum):
+    """How a floor is classified for an app."""
+
+    HARD = "hard"
+    SOFT = "soft"
+    N_A = "n/a"
+
+
+@dataclass
+class FloorManifesto:
+    """Manifesto entry for one floor."""
+
+    floor_id: str
+    classification: FloorClassification
+    custom_threshold: Any | None = None
+    rationale: str = ""
+
+
+@dataclass
+class AppManifesto:
+    """Constitutional manifesto for an application."""
+
+    app_name: str
+    layer: AppLayer
+    description: str
+    version: str = "1.0.0"
+    floors: list[FloorManifesto] = field(default_factory=list)
+    requires_sovereign_gate: bool = False
+    irreversible_actions: list[str] = field(default_factory=list)
+    l0_organs_used: list[str] = field(default_factory=lambda: ["agi_cognition"])
+    author: str = ""
+    dependencies: list[str] = field(default_factory=list)
+
+    def validate(self) -> bool:
+        if not self.floors:
+            raise ValueError(f"App '{self.app_name}' must declare at least one floor")
+        floor_ids = {floor.floor_id for floor in self.floors}
+        missing_required = {"F1", "F2", "F7"} - floor_ids
+        if missing_required:
+            raise ValueError(
+                f"App '{self.app_name}' missing required floors: {sorted(missing_required)}"
+            )
+        return True
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "app_name": self.app_name,
+            "layer": self.layer.value,
+            "version": self.version,
+            "description": self.description,
+            "floors": [
+                {
+                    "floor_id": floor.floor_id,
+                    "classification": floor.classification.value,
+                    "threshold": floor.custom_threshold,
+                    "rationale": floor.rationale,
+                }
+                for floor in self.floors
+            ],
+            "requires_sovereign_gate": self.requires_sovereign_gate,
+            "irreversible_actions": self.irreversible_actions,
+            "l0_organs_used": self.l0_organs_used,
+        }
+
+
+class AppRegistry:
+    """In-memory registry of constitutional applications."""
+
+    _apps: dict[str, AppManifesto] = {}
+
+    @classmethod
+    def register(cls, manifesto: AppManifesto) -> None:
+        manifesto.validate()
+        cls._apps[manifesto.app_name] = manifesto
+
+    @classmethod
+    def get(cls, app_name: str) -> AppManifesto | None:
+        return cls._apps.get(app_name)
+
+    @classmethod
+    def list_all(cls) -> list[str]:
+        return list(cls._apps.keys())
+
+    @classmethod
+    def audit(cls) -> dict[str, Any]:
+        by_layer: dict[str, int] = {}
+        sovereign_gates = 0
+
+        for app in cls._apps.values():
+            layer = app.layer.value
+            by_layer[layer] = by_layer.get(layer, 0) + 1
+            if app.requires_sovereign_gate:
+                sovereign_gates += 1
+
+        return {
+            "total_apps": len(cls._apps),
+            "by_layer": by_layer,
+            "sovereign_gates_required": sovereign_gates,
+            "apps": {name: manifesto.to_dict() for name, manifesto in cls._apps.items()},
+        }
+
+
 _governance_kernels: dict[str, GovernanceKernel] = {}
+_DEFAULT_SESSION_ID = "global"
 
 
-def get_governance_kernel(session_id: str) -> GovernanceKernel:
-    """Get or create governance kernel for session."""
-    if session_id not in _governance_kernels:
-        kernel = GovernanceKernel(session_id=session_id)
-        _governance_kernels[session_id] = kernel
-    return _governance_kernels[session_id]
+def get_governance_kernel(session_id: str | None = None) -> GovernanceKernel:
+    """Compatibility getter for callers that use global or session-scoped kernel access."""
+    sid = session_id or _DEFAULT_SESSION_ID
+
+    existing = _governance_kernels.get(sid)
+    if existing is not None:
+        return existing
+
+    if session_id:
+        try:
+            from core.state.session_manager import session_manager
+
+            session_kernel = session_manager.get_kernel(session_id)
+            if session_kernel is not None:
+                _governance_kernels[sid] = session_kernel
+                return session_kernel
+        except Exception:
+            pass
+
+    kernel = GovernanceKernel(session_id=sid)
+    _governance_kernels[sid] = kernel
+    return kernel
 
 
-def clear_governance_kernel(session_id: str):
-    """Clear governance kernel (cleanup)."""
-    if session_id in _governance_kernels:
-        del _governance_kernels[session_id]
+def clear_governance_kernel(session_id: str | None = None) -> None:
+    """Compatibility clearer for tests and legacy callers."""
+    if session_id is None:
+        _governance_kernels.clear()
+        return
+    _governance_kernels.pop(session_id, None)
+
+
+__all__ = [
+    "AuthorityLevel",
+    "GovernanceState",
+    "GovernanceThresholds",
+    "GovernanceKernel",
+    "THERMODYNAMICS_AVAILABLE",
+    "ThermodynamicState",
+    "get_governance_kernel",
+    "clear_governance_kernel",
+    "_governance_kernels",
+    "AppLayer",
+    "FloorClassification",
+    "FloorManifesto",
+    "AppManifesto",
+    "AppRegistry",
+]
