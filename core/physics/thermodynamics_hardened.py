@@ -552,7 +552,7 @@ def check_landauer_bound(
     # Threshold: At least 1.0 (Physical Law)
     # Practical Threshold: 10.0 (Reasonable safety margin)
     passed = ratio >= 1.0
-    violation = ratio < 0.5  # Critical violation
+    violation = ratio < 1.0  # Impossible logic is a critical violation
 
     result = {
         "passed": passed,

@@ -1652,14 +1652,8 @@ async def vector_memory(
 
         payload["compute_ms"] = (time.time() - start_time) * 1000
         return wrap_tool_output("vector_memory", payload)
-
     except Exception as e:
         return wrap_tool_output("vector_memory", _fracture_response("555_RECALL", e, session_id))
-
-
-async def recall_memory(query: str, session_id: str, debug: bool = False) -> dict[str, Any]:
-    """Compatibility alias for vector_memory."""
-    return await vector_memory(query=query, session_id=session_id, debug=debug)
 
 
 @mcp.tool(name="simulate_heart")
@@ -3494,13 +3488,7 @@ _TOOL_REGISTRY["metabolic_loop"] = metabolic_loop
 # native prompt protocol support.
 
 try:
-    # Legacy compatibility aliases (intentionally registered without decorators)
-    mcp.add_tool(fetch_content)
-    mcp.add_tool(inspect_file)
-    mcp.add_tool(system_audit)
-
     from fastmcp.server.transforms import PromptsAsTools
-
     mcp.add_transform(PromptsAsTools(mcp))
 except (ImportError, AttributeError, TypeError):
     # FastMCP < 3.0.0, transforms not available, or add_tool() requires Tool objects

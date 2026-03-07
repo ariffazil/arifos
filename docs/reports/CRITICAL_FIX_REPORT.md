@@ -275,10 +275,10 @@ curl -s -X POST http://localhost:8080/tools/recall_memory \
 - [ ] Postgres reachable: `docker exec arifosmcp_server nc -zv <postgres-ip> 5432` ✅
 
 ### Tool Functionality:
-- [ ] recall_memory returns `"verdict": "SEAL"` (not VOID)
-- [ ] recall_memory returns 5+ memories
-- [ ] All 14 tools respond via `curl http://localhost:8080/tools`
-- [ ] Health endpoint shows `{"status": "healthy", "tools_loaded": 14}`
+- [ ] vector_memory returns `"verdict": "SEAL"` (not VOID)
+- [ ] vector_memory returns 5+ memories
+- [ ] All 13 canonical tools respond via `curl http://localhost:8080/tools`
+- [ ] Health endpoint shows `{"status": "healthy", "tools_loaded": 13}`
 
 ---
 
