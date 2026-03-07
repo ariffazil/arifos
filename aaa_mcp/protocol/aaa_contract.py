@@ -102,10 +102,15 @@ AAA_TOOL_ALIASES: dict[str, str] = {
 AAA_RESOURCE_URIS: dict[str, str] = {
     "schemas": "arifos://aaa/schemas",
     "full_context_pack": "arifos://aaa/full-context-pack",
+    "mcp_transport_profile": "arifos://aaa/mcp-transport-profile",
+    "tool_operating_manual": "arifos://aaa/tool-operating-manual",
+    "governance_gate_profile": "arifos://aaa/governance-gate-profile",
 }
 
 AAA_PROMPT_NAMES: dict[str, str] = {
     "aaa_chain": "arifos.prompt.aaa_chain",
+    "mcp_transport_bootstrap": "arifos.prompt.mcp_transport_bootstrap",
+    "tool_routing_policy": "arifos.prompt.tool_routing_policy",
 }
 
 AXIOMS_333: dict[str, dict[str, Any]] = {

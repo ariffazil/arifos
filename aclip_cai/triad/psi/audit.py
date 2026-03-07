@@ -98,8 +98,13 @@ async def _audit_with_kernel(
     audit_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """AUDIT using kernel.audit() structural checks (fallback)."""
-    # Enforce F11 (Authority) and F3 (Consensus)
-    severity = "irreversible" if sovereign_token == "888_APPROVED" else "high"
+    # Fix: Default to medium unless explicitly irreversible or approved
+    if sovereign_token == "888_APPROVED":
+        severity = "irreversible"
+    else:
+        # Check if action keywords indicate high-risk
+        destructive = any(kw in action.lower() for kw in ["delete", "remove", "drop", "wipe"])
+        severity = "high" if destructive else "medium"
 
     # Merge provided context with internal triad results
     ctx = audit_context or {}

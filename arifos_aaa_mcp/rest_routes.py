@@ -30,6 +30,7 @@ from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.staticfiles import StaticFiles
 
 from aaa_mcp.build_info import get_build_info
+from aaa_mcp.protocol.aaa_contract import AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL
 from aaa_mcp.protocol.public_surface import PUBLIC_TOOL_ALIASES
 from core.shared.floor_audit import get_ml_floor_runtime
 from core.shared.floors import (
@@ -401,6 +402,8 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
                     "name": tool.name,
                     "description": tool.description or "",
                     "parameters": tool.parameters or {},
+                    "stage": AAA_TOOL_STAGE_MAP.get(tool.name),
+                    "lane": TRINITY_BY_TOOL.get(tool.name),
                 }
             )
         return JSONResponse({"tools": tool_list, "count": len(tool_list)})

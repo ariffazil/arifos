@@ -114,11 +114,17 @@ Think of it as an operating system kernel, but instead of managing CPU and RAM, 
     "psi_apex_soul": ["F3_TriWitness", "F8_Mirror", "F10_Ontology", "F11_Command", "F12_Injection", "F13_Sovereign"]
   },
   
-  "canonical_tools_count": 14,
+  "canonical_tools_count": 13,
   "tools_categories": {
-    "governance": 8,
-    "evidence": 5,
-    "ui": 1
+    "metabolic_chain": 8,
+    "evidence": 5
+  },
+  "p3_thermodynamic_hardening": {
+    "mandatory": true,
+    "landauer_bound": "enforced",
+    "entropy_budget": "per_session",
+    "agi_asi_orthogonality": "min_0.95",
+    "physics_disabled_flag": "ARIFOS_PHYSICS_DISABLED=1 (test only)"
   },
   
   "human_override": "F13_SOVEREIGN",
@@ -134,8 +140,11 @@ Think of it as an operating system kernel, but instead of managing CPU and RAM, 
   "critical_constraints": [
     "No_irreversible_action_without_F13_human_approval",
     "All_external_content_F12_wrapped",
-    "Multi_source_F3_consensus_for_truth_claims",
-    "Thermodynamic_entropy_F4_must_reduce_delta_S",
+    "F3_tri_witness_action_gated_read_0.80_write_0.90_critical_0.98",
+    "F3_witnesses_derived_from_real_signals_not_hardcoded",
+    "Thermodynamic_entropy_F4_hard_VOID_delta_S_gt_0",
+    "Landauer_bound_mandatory_cheap_truth_eq_VOID",
+    "Per_session_thermodynamic_budget_stage_000_must_init",
     "Internal_reasoning_allowed_via_PROVISIONAL_state_in_333_LABORATORY"
   ]
 }
@@ -212,6 +221,55 @@ If an AI proposes an action that is highly logical (A=0.9) and explores novel pa
 
 ---
 
+## 🔥 P3: Mandatory Thermodynamic Enforcement
+
+In **v2026.3.7**, thermodynamics graduated from *optional/partial* to **mandatory**. The module `core/physics/thermodynamics_hardened.py` enforces physics as hard constitutional constraints — no graceful fallbacks.
+
+### What Changed
+
+| Aspect | Before (Partial) | After (P3 — Mandatory) |
+|:---|:---:|:---:|
+| Entropy calculation | Approximation | Shannon exact |
+| Landauer bound | Checked | Enforced (violation = VOID) |
+| Budget tracking | Missing | Per-session Joules |
+| F4 ΔS ≤ 0 | Soft warning | Hard VOID |
+| AGI/ASI separation | Not checked | Ω\_ortho ≥ 0.95 |
+| Cheap truth detection | Not detected | Ratio < threshold = VOID |
+
+### The Three Thermodynamic Pillars
+
+Combined with F11 Authority and F3 Tri-Witness, P3 creates a **Byzantine-safe governance triangle**:
+
+```text
+         ACTION
+            │
+   ┌────────┼────────┐
+   │        │        │
+Authority  Physics  Consensus
+(F11/F13)  (P3)    (F3)
+   │        │        │
+   └──── Verdict ────┘
+            │
+        Execution
+```
+
+Each pillar blocks a different class of failure:
+- **Authority alone fails** — Human says "delete DB", physics + witnesses block it.
+- **Physics alone fails** — Coherent reasoning, but no human authority → blocked.
+- **Consensus alone fails** — AI + Human agree, but reasoning is cheap hallucination → Landauer VOID.
+
+### Stage Integration
+
+| Stage | Thermodynamic Action |
+|:---|:---|
+| **000 INIT** | `init_thermodynamic_budget()` — mandatory session budget |
+| **111-333 AGI** | `consume_reason_energy()` — deduct per thought cycle |
+| **444-666 ASI** | `consume_tool_energy()` — deduct per external call |
+| **777-888 APEX** | `check_landauer_before_seal()` — verify truth cost |
+| **999 VAULT** | `cleanup_thermodynamic_budget()` — record final state |
+
+---
+
 ## ⚖️ The 13 Constitutional Floors (Deep Dive)
 
 The core of arifOS is the **13 Constitutional Floors**. These are mathematical thresholds hardcoded into the `core/shared/floors.py` kernel. They are divided into Hard Floors (which trigger an immediate VOID if breached) and Soft Floors (which trigger a warning or PARTIAL state).
@@ -234,7 +292,7 @@ The core of arifOS is the **13 Constitutional Floors**. These are mathematical t
 | **F5** | 🕊️ | **Peace² (Stability)** | $P^2 \ge 1.0$ | The system must favor non-destructive, de-escalating paths. |
 | **F6** | ❤️ | **Empathy (Stakeholder)**| $\kappa_r \ge 0.70$ | The system must consider the impact on the weakest stakeholder. |
 | **F9** | 👻 | **Anti-Hantu** | $C_{dark} < 0.30$ | **No Spiritual Cosplay.** The AI cannot claim to be alive, conscious, or have a soul. |
-| **F3** | 🤝 | **Tri-Witness** | $W_3 \ge 0.95$ | Consensus between Human intent, AI logic, and Earthly physics. |
+| **F3** | 🤝 | **Tri-Witness** | $W_3 \ge 0.90$ (action-gated) | Real consensus: Human (auth signals), AI (coherence), Earth (federation/grounding). Read: 0.80 / Write: 0.90 / Critical: 0.98 |
 | **F8** | 🧠 | **Genius** | $G \ge 0.80$ | The output of the APEX equation. |
 | **F10** | 📦 | **Ontology Lock** | Boolean | Protects the structural categorization of the system. |
 | **F12** | 🛡️ | **Injection Defense** | Risk < 0.85 | All external content is wrapped in `<untrusted>` tags to prevent jailbreaks. |

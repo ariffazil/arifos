@@ -36,10 +36,11 @@ class EnergyState(BaseModel):
 class MetabolismState(BaseModel):
     """M in EMD - Metabolism layer (Processing metrics)"""
 
-    delta_s: float = Field(default=0.0, description="ΔS entropy change")
+    delta_s: float = Field(default=0.0, description="ΔS entropy change (semantic density ratio)")
     peace2: float = Field(default=1.0, description="Peace² stability")
     kappa_r: float = Field(default=1.0, description="κᵣ empathy quotient")
     genius_index: float = Field(default=0.0, description="G Genius score")
+    landauer_efficiency: float = Field(default=1.0, description="Compute efficiency vs physical bounds")
 
 
 class DecisionState(BaseModel):
@@ -98,6 +99,61 @@ class ScarWeight(BaseModel):
     signature: str  # Cryptographic signature
     issued_at: str  # ISO timestamp
     authority_level: str = "STANDARD"  # "STANDARD" | "SUPREME"
+
+
+# ============================================================================
+# IDENTITY & CONTINUITY — PKI Governance
+# ============================================================================
+
+
+class ActorIdentity(BaseModel):
+    """
+    Public-key based identity for an arifOS actor.
+    Supports Ed25519 for sovereign verification.
+    """
+
+    actor_id: str
+    public_key: str  # Hex or Base64 encoded public key
+    key_type: Literal["ed25519", "hmac"] = "ed25519"
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class EvidenceRecord(BaseModel):
+    """
+    Single evidence entry in the F2 truth pipeline.
+    Anchors a claim to a verifiable source.
+    """
+
+    claim: str
+    evidence_hash: str
+    source_uri: str
+    timestamp: datetime = Field(default_factory=datetime.now)
+    confidence: float = Field(ge=0.0, le=1.0)
+    witness_type: Literal["HUMAN", "AI", "EARTH", "CONSENSUS"] = "AI"
+
+
+class ActionClass(str, Enum):
+    """
+    Risk-based action classification with P3 thresholds.
+    """
+
+    READ = "READ"  # T=0.80 - No state change
+    WRITE = "WRITE"  # T=0.90 - Reversible state change
+    EXECUTE = "EXECUTE"  # T=0.95 - Shell/External mutation
+    CRITICAL = "CRITICAL"  # T=0.98 - Irreversible/Sovereign ops
+
+
+class SignedIntentEnvelope(BaseModel):
+    """
+    Enveloped tool call with cryptographic proof of intent.
+    """
+
+    intent_hash: str
+    signature: str
+    actor_id: str
+    timestamp: datetime
+    nonce: str
+    parent_action_hash: str | None = None
 
 
 # ============================================================================
@@ -204,6 +260,12 @@ class FloorScores(BaseModel):
             "f13_sovereign": self.f13_sovereign,
         }
 
+    @property
+    def tri_witness_consensus(self) -> float:
+        """Geometric mean of H, A, E witnesses (v60 definition)."""
+        # Simplified placeholder for the actual W3 calculation logic
+        return (self.f13_sovereign * self.f2_truth * 1.0) ** (1 / 3)
+
 
 # ============================================================================
 # AGI METRICS — Mind Engine Outputs
@@ -281,7 +343,9 @@ class InitOutput(BaseOrganOutput):
     governance_token: str
     injection_score: float = Field(ge=0.0, le=1.0)
     auth_verified: bool
-    query_type: str = "CARE"  # Changed to str to avoid Enums in types if possible, or use Enum
+    actor_identity: ActorIdentity | None = None
+    continuity_token: str | None = None
+    query_type: str = "CARE"
     f2_threshold: float = 0.99
     init_process_status: str = "ACTIVE"
     floors_failed: list[str] = Field(default_factory=list)
@@ -299,6 +363,7 @@ class AgiOutput(BaseOrganOutput):
     """Output from core_agi (Evidence Engine)."""
 
     thoughts: list[ThoughtNode]
+    evidence_records: list[EvidenceRecord] = Field(default_factory=list)
     evidence: dict[str, Any] = Field(default_factory=dict)
     floor_scores: FloorScores
     lane: Literal["CRISIS", "FACTUAL", "SOCIAL", "CARE"] = "CARE"

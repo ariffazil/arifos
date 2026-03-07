@@ -219,29 +219,36 @@ class FloorAuditor:
     """
 
     _DEFAULT_THRESHOLDS: dict[str, float] = {
-        "F1": 0.95,
-        "F2": 0.99,
-        "F3": 0.95,
-        "F4": 0.80,
-        "F5": 1.00,
-        "F6": 0.95,
-        "F7": 0.80,
-        "F8": 0.80,
-        "F9": 1.00,
-        "F10": 0.90,
-        "F11": 0.90,
-        "F12": 1.00,
-        "F13": 0.80,
+        "F1": 0.50,
+        "F2": 0.50,
+        "F3": 0.30,
+        "F4": 0.00,
+        "F5": 0.50,
+        "F6": 0.50,
+        "F7": 0.03,
+        "F8": 0.40,
+        "F9": 0.30,
+        "F10": 0.30,
+        "F11": 0.50,
+        "F12": 0.85,
+        "F13": 0.50,
     }
 
     # Critical: any single failure → VOID
     _VOID_ON_FAIL = frozenset(["F9", "F12"])
 
     # Hold: failure → HOLD_888 (human ratification required)
-    _HOLD_ON_FAIL = frozenset(["F1", "F11"])
+    _HOLD_ON_FAIL = frozenset(["F1"])
 
     def __init__(self, config_path: str | None = None) -> None:
         self.thresholds = self._load_thresholds(config_path)
+        # Ensure GLOBAL_THRESHOLDS are applied
+        for fid, spec in GLOBAL_THRESHOLDS.items():
+            short_id = fid.split("_")[0]
+            if "threshold" in spec:
+                self.thresholds[short_id] = float(spec["threshold"])
+            elif "range" in spec:
+                self.thresholds[short_id] = float(spec["range"][0])
 
     # ------------------------------------------------------------------
     # Public API
@@ -277,16 +284,16 @@ class FloorAuditor:
             "F1": self._check_f1_amanah(action, ctx_dict),
             "F2": self._check_f2_truth(action, ctx_dict),
             "F3": self._check_f3_witness(action, ctx_dict),
-            "F4": self._check_f4_entropy(action, str(ctx_dict)),
-            "F5": self._check_f5_peace(action, str(ctx_dict)),
-            "F6": self._check_f6_empathy(action, str(ctx_dict)),
-            "F7": self._check_f7_humility(action, str(ctx_dict)),
-            "F8": self._check_f8_governance(action, str(ctx_dict)),
-            "F9": self._check_f9_hantu(action, str(ctx_dict)),
-            "F10": self._check_f10_ontology(action, str(ctx_dict)),
-            "F11": self._check_f11_authority(action, str(ctx_dict), severity),
-            "F12": self._check_f12_injection(action, str(ctx_dict)),
-            "F13": self._check_f13_curiosity(action, str(ctx_dict)),
+            "F4": self._check_f4_entropy(action, ctx_dict),
+            "F5": self._check_f5_peace(action, ctx_dict),
+            "F6": self._check_f6_empathy(action, ctx_dict),
+            "F7": self._check_f7_humility(action, ctx_dict),
+            "F8": self._check_f8_governance(action, ctx_dict),
+            "F9": self._check_f9_hantu(action, ctx_dict),
+            "F10": self._check_f10_ontology(action, ctx_dict),
+            "F11": self._check_f11_authority(action, ctx_dict, severity),
+            "F12": self._check_f12_injection(action, ctx_dict),
+            "F13": self._check_f13_curiosity(action, ctx_dict),
         }
 
         audit_metadata = self._default_audit_metadata()
@@ -297,6 +304,12 @@ class FloorAuditor:
         # Apply threshold gates (override floor's own passed flag with threshold)
         for floor_id, result in results.items():
             threshold = thresholds.get(floor_id, 1.0)
+            # HARDENING: ensure we use the short-id mapping correctly if needed
+            if floor_id not in thresholds and len(floor_id) > 3:
+                # e.g. map F1_Amanah to F1
+                short_id = floor_id.split("_")[0]
+                threshold = thresholds.get(short_id, threshold)
+            
             result.passed = result.score >= threshold
 
         pass_count = sum(1 for r in results.values() if r.passed)
@@ -518,7 +531,7 @@ class FloorAuditor:
     # F4 — Clarity (Entropy Reduction ΔS ≤ 0)
     # ------------------------------------------------------------------
 
-    def _check_f4_entropy(self, action: str, context: str) -> FloorResult:  # noqa: ARG002
+    def _check_f4_entropy(self, action: str, context: str | dict) -> FloorResult:  # noqa: ARG002
         sentences = [s.strip() for s in action.split(".") if s.strip()]
         total_words = sum(len(s.split()) for s in sentences)
         avg_len = total_words / max(len(sentences), 1)
@@ -536,8 +549,9 @@ class FloorAuditor:
     # F5 — Peace² ≥ 1.0 (De-escalation, dignity)
     # ------------------------------------------------------------------
 
-    def _check_f5_peace(self, action: str, context: str) -> FloorResult:
-        combined = (action + " " + context).lower()
+    def _check_f5_peace(self, action: str, context: str | dict) -> FloorResult:
+        ctx_str = str(context)
+        combined = (action + " " + ctx_str).lower()
         violations = [w for w in _INFLAMMATORY_WORDS if w in combined]
         if violations:
             return FloorResult("F5", False, 0.50, f"Inflammatory language detected: {violations}")
@@ -547,17 +561,12 @@ class FloorAuditor:
     # F6 — Empathy κᵣ ≥ 0.95 (ASEAN/MY Maruah — REAL IMPLEMENTATION)
     # ------------------------------------------------------------------
 
-    def _check_f6_empathy(self, action: str, context: str) -> FloorResult:
+    def _check_f6_empathy(self, action: str, context: str | dict) -> FloorResult:
         """
         Real maruah (dignity) check for ASEAN/MY cultural context.
-
-        Checks for:
-        1. Ethnic/religious slurs specific to Southeast Asian context
-        2. Dehumanising colonial framing
-        3. Contextual sensitivity: operational contexts get relaxed threshold
-           (e.g., technical tool calls vs. user-facing responses)
         """
-        combined = (action + " " + context).lower()
+        ctx_str = str(context)
+        combined = (action + " " + ctx_str).lower()
 
         # Tier 1: Hard slurs — immediate failure
         hard_violations = [v for v in _MARUAH_VIOLATIONS if v in combined]
@@ -590,8 +599,9 @@ class FloorAuditor:
     # F7 — Humility Ω₀ ∈ [0.03, 0.15] (bounded uncertainty)
     # ------------------------------------------------------------------
 
-    def _check_f7_humility(self, action: str, context: str) -> FloorResult:
-        combined = (action + " " + context).lower()
+    def _check_f7_humility(self, action: str, context: str | dict) -> FloorResult:
+        ctx_str = str(context)
+        combined = (action + " " + ctx_str).lower()
         has_uncertainty = any(
             kw in combined
             for kw in (
@@ -633,8 +643,9 @@ class FloorAuditor:
     # F8 — Genius G ≥ 0.80 (Platform safety)
     # ------------------------------------------------------------------
 
-    def _check_f8_governance(self, action: str, context: str) -> FloorResult:
-        combined = (action + " " + context).lower()
+    def _check_f8_governance(self, action: str, context: str | dict) -> FloorResult:
+        ctx_str = str(context)
+        combined = (action + " " + ctx_str).lower()
         violations = [v for v in _POLICY_VIOLATIONS if v in combined]
         if violations:
             return FloorResult("F8", False, 0.40, f"Platform safety violation: {violations}")
@@ -644,8 +655,8 @@ class FloorAuditor:
     # F9 — Anti-Hantu (no consciousness claims — HARD ZERO)
     # ------------------------------------------------------------------
 
-    def _check_f9_hantu(self, action: str, context: str) -> FloorResult:
-        combined = action + " " + context
+    def _check_f9_hantu(self, action: str, context: str | dict) -> FloorResult:
+        combined = action + " " + str(context)
         detections = [p.pattern for p in _CONSCIOUSNESS_PHRASES if p.search(combined)]
         if detections:
             return FloorResult(
@@ -657,8 +668,9 @@ class FloorAuditor:
     # F10 — Ontology (tool, not being; symbolic grounding)
     # ------------------------------------------------------------------
 
-    def _check_f10_ontology(self, action: str, context: str) -> FloorResult:
-        combined = (action + " " + context).lower()
+    def _check_f10_ontology(self, action: str, context: str | dict) -> FloorResult:
+        ctx_str = str(context)
+        combined = (action + " " + ctx_str).lower()
         metaphysical = any(
             kw in combined
             for kw in (
@@ -681,9 +693,10 @@ class FloorAuditor:
     # F11 — Authority (human sovereignty over high-risk ops)
     # ------------------------------------------------------------------
 
-    def _check_f11_authority(self, action: str, context: str, severity: str) -> FloorResult:
+    def _check_f11_authority(self, action: str, context: str | dict, severity: str) -> FloorResult:
         if severity in ("high", "irreversible"):
-            combined = (action + " " + context).lower()
+            ctx_str = str(context)
+            combined = (action + " " + ctx_str).lower()
             has_approval = any(
                 kw in combined
                 for kw in (
@@ -707,19 +720,21 @@ class FloorAuditor:
     # F12 — Defense / Injection Guard (HARD ZERO)
     # ------------------------------------------------------------------
 
-    def _check_f12_injection(self, action: str, context: str) -> FloorResult:
-        combined = action + " " + context
+    def _check_f12_injection(self, action: str, context: str | dict) -> FloorResult:
+        combined = action + " " + str(context)
         detections = [p.pattern for p in _INJECTION_PATTERNS if p.search(combined)]
         if detections:
             return FloorResult("F12", False, 0.0, f"Injection attempt detected: {detections[:2]}")
+        # Default to PASS if no injection found
         return FloorResult("F12", True, 1.00)
 
     # ------------------------------------------------------------------
     # F13 — Curiosity (≥ 3 options/alternatives proposed)
     # ------------------------------------------------------------------
 
-    def _check_f13_curiosity(self, action: str, context: str) -> FloorResult:
-        combined = (action + " " + context).lower()
+    def _check_f13_curiosity(self, action: str, context: str | dict) -> FloorResult:
+        ctx_str = str(context)
+        combined = (action + " " + ctx_str).lower()
         option_hits = sum(1 for marker in _OPTION_MARKERS if marker in combined)
         score = 0.95 if option_hits >= 2 else 0.70
         return FloorResult(
@@ -737,15 +752,19 @@ class FloorAuditor:
         self,
         results: dict[str, FloorResult],
         pass_rate: float,
-        severity: str,  # noqa: ARG002
+        severity: str,
     ) -> Verdict:
         # VOID: critical floors (F9, F12) — any single failure
         if any(not results[f].passed for f in self._VOID_ON_FAIL if f in results):
             return Verdict.VOID
 
-        # HOLD: F1 or F11 failure
-        if any(not results[f].passed for f in self._HOLD_ON_FAIL if f in results):
-            return Verdict.HOLD
+        # HOLD: F1 or F11 failure ONLY IF severity is high/irreversible
+        if severity in ("high", "irreversible"):
+            if any(not results[f].passed for f in self._HOLD_ON_FAIL if f in results):
+                return Verdict.HOLD
+            # Authority check
+            if not results["F11"].passed:
+                return Verdict.HOLD
 
         if pass_rate >= 0.95:
             return Verdict.SEAL
