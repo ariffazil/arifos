@@ -43,7 +43,7 @@ function createTransport(config: ArifOSClientConfig): Transport {
         );
       }
       return new StdioClientTransport({
-        command: 'python',
+        command: 'python3',
         args: ['-m', 'arifos_aaa_mcp', 'stdio'],
         env: config.env as Record<string, string>,
       });
@@ -206,7 +206,7 @@ export async function createClient(config: ArifOSClientConfig): Promise<ArifOSMC
   const mcp = new Client(
     {
       name: '@arifos/mcp-client',
-      version: '0.1.0',
+      version: '0.3.0',
     },
     {
       capabilities: {},

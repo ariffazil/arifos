@@ -67,17 +67,18 @@ export {
 
 /**
  * Package version.
- * Follows arifOS versioning: 0.1.0 maps to arifos 2026.2.17 (PyPI)
+ * 0.3.0 — sync to arifos 2026.3.7: correct 13 tool names, python3, metabolic_loop added
  */
-export const VERSION = '0.2.1';
+export const VERSION = '0.3.0';
 
 /**
  * Compatible arifOS PyPI versions.
  */
 export const ARIFOS_COMPATIBILITY = [
-  '2026.2.17',  // Canonical stable
-  '2026.2.28',  // Published
-  '2026.3.1',   // Current Dev/Sync
+  '2026.2.17',    // Canonical stable
+  '2026.2.28',    // Published
+  '2026.3.1',     // Dev/Sync
+  '2026.3.7',     // Current — ARCH-SEAL (13 tools verified)
 ] as const;
 
 /**
