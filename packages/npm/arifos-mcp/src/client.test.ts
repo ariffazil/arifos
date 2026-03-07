@@ -136,7 +136,7 @@ describe('types', () => {
   it('should export version constants', async () => {
     const { VERSION, ARIFOS_COMPATIBILITY, ENDPOINTS } = await import('./index.js');
     
-    expect(VERSION).toBe('0.1.0');
+    expect(VERSION).toBe('0.3.0');
     expect(ARIFOS_COMPATIBILITY).toContain('2026.2.17');
     expect(ENDPOINTS.VPS).toBe('https://arifosmcp.arif-fazil.com/mcp');
   });
