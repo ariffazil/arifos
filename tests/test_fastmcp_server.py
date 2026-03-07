@@ -6,7 +6,7 @@ Per https://gofastmcp.com/development/tests:
   - Don't open clients in fixtures (event loop issues)
   - Each test verifies one behavior
 
-Tests the 14 canonical tools, 1 resource, 1 template, and server metadata.
+Tests the 13 canonical tools, 1 resource, 1 template, and server metadata.
 """
 
 from __future__ import annotations
@@ -35,11 +35,11 @@ class TestServerMetadata:
     async def test_server_name(self, arifos_server):
         assert arifos_server.name == "arifOS_AAA_MCP"
 
-    async def test_tool_count_is_14(self, arifos_server):
-        """At least the 14 canonical tools are registered (mcp_bridge may add more)."""
+    async def test_tool_count_is_13(self, arifos_server):
+        """Exactly the 13 canonical tools are registered on the public MCP surface."""
         async with Client(arifos_server) as client:
             tools = await client.list_tools()
-        assert len(tools) >= 14
+        assert len(tools) == 13
 
     async def test_all_canonical_tools_present(self, arifos_server):
         async with Client(arifos_server) as client:
@@ -55,14 +55,12 @@ class TestServerMetadata:
             "apex_judge",
             "seal_vault",
             "search_reality",
-            "fetch_content",
-            "inspect_file",
+            "ingest_evidence",
             "audit_rules",
             "check_vital",
-            "query_openclaw",
+            "metabolic_loop",
         }
-        # mcp_bridge may register additional aclip_* tools on the same singleton
-        assert expected.issubset(names)
+        assert names == expected
 
     async def test_resource_listed(self, arifos_server):
         async with Client(arifos_server) as client:
@@ -145,48 +143,49 @@ class TestCheckVital:
 
 
 # =============================================================================
-# inspect_file — filesystem read (uses real cwd)
+# ingest_evidence — unified URL/file evidence ingestion
 # =============================================================================
 
 
-class TestInspectFile:
-    async def test_inspect_file_cwd(self, arifos_server):
+class TestIngestEvidence:
+    async def test_ingest_evidence_file_cwd(self, arifos_server):
         async with Client(arifos_server) as client:
             result = await client.call_tool(
-                "inspect_file",
+                "ingest_evidence",
                 {
-                    "session_id": "inspect-sess-001",
-                    "path": ".",
+                    "source_type": "file",
+                    "target": ".",
                     "depth": 1,
                 },
             )
         data = result.data if hasattr(result, "data") else {}
-        assert "verdict" in data
+        assert data.get("source_type") == "file"
+        assert "status" in data
 
-    async def test_inspect_file_returns_session_id(self, arifos_server):
+    async def test_ingest_evidence_file_returns_session_id(self, arifos_server):
         async with Client(arifos_server) as client:
             result = await client.call_tool(
-                "inspect_file",
+                "ingest_evidence",
                 {
                     "session_id": "inspect-sess-002",
+                    "source_type": "file",
+                    "target": ".",
                 },
             )
         data = result.data if hasattr(result, "data") else {}
         assert data.get("session_id") == "inspect-sess-002"
 
-    async def test_inspect_file_nonexistent_path(self, arifos_server):
-        """Should return SEAL or VOID without raising."""
+    async def test_ingest_evidence_bad_source_type(self, arifos_server):
         async with Client(arifos_server) as client:
             result = await client.call_tool(
-                "inspect_file",
+                "ingest_evidence",
                 {
-                    "session_id": "inspect-sess-003",
-                    "path": "/nonexistent/path/xyz",
+                    "source_type": "ftp",
+                    "target": "ftp://not-supported",
                 },
             )
         data = result.data if hasattr(result, "data") else {}
-        # Should handle gracefully
-        assert "verdict" in data
+        assert data.get("status") == "BAD_SOURCE_TYPE"
 
 
 # =============================================================================
@@ -291,47 +290,48 @@ class TestCritiqueThought:
 
 
 # =============================================================================
-# query_openclaw — health check (may fail if OpenClaw not running)
+# metabolic_loop — full 000→999 governed orchestration
 # =============================================================================
 
 
-class TestQueryOpenclaw:
-    async def test_query_openclaw_health_returns_verdict(self, arifos_server):
-        """Returns SEAL or PARTIAL depending on OpenClaw container state."""
+class TestMetabolicLoop:
+    async def test_metabolic_loop_returns_verdict(self, arifos_server):
         async with Client(arifos_server) as client:
             result = await client.call_tool(
-                "query_openclaw",
+                "metabolic_loop",
                 {
-                    "session_id": "openclaw-sess-001",
-                    "action": "health",
+                    "query": "Run a safe constitutional check.",
+                    "actor_id": "test-loop-001",
                 },
             )
         data = result.data if hasattr(result, "data") else {}
-        assert data.get("verdict") in ("SEAL", "PARTIAL", "VOID", "SABAR")
+        assert data.get("verdict") in ("SEAL", "PARTIAL", "VOID", "SABAR", "888_HOLD")
 
-    async def test_query_openclaw_status(self, arifos_server):
+    async def test_metabolic_loop_has_session_id(self, arifos_server):
         async with Client(arifos_server) as client:
             result = await client.call_tool(
-                "query_openclaw",
+                "metabolic_loop",
                 {
-                    "session_id": "openclaw-sess-002",
-                    "action": "status",
+                    "query": "Run low-risk check.",
+                    "risktier": "low",
+                    "actor_id": "test-loop-002",
+                    "proposed_verdict": "SEAL",
                 },
             )
         data = result.data if hasattr(result, "data") else {}
-        assert "verdict" in data
+        assert "session_id" in data
 
-    async def test_query_openclaw_invalid_action(self, arifos_server):
+    async def test_metabolic_loop_has_trace(self, arifos_server):
         async with Client(arifos_server) as client:
             result = await client.call_tool(
-                "query_openclaw",
+                "metabolic_loop",
                 {
-                    "session_id": "openclaw-sess-003",
-                    "action": "invalid_action",
+                    "query": "Trace pipeline stages.",
+                    "actor_id": "test-loop-003",
                 },
             )
         data = result.data if hasattr(result, "data") else {}
-        assert "verdict" in data
+        assert "trace" in data
 
 
 # =============================================================================
@@ -387,7 +387,7 @@ class TestResources:
 
 class TestInspectContract:
     async def test_all_tools_have_descriptions(self, arifos_server):
-        """All 14 canonical tools have descriptions with [Lane:] tags."""
+        """All 13 canonical tools have descriptions with [Lane:] tags."""
         canonical = {
             "anchor_session",
             "reason_mind",
@@ -398,11 +398,10 @@ class TestInspectContract:
             "apex_judge",
             "seal_vault",
             "search_reality",
-            "fetch_content",
-            "inspect_file",
+            "ingest_evidence",
             "audit_rules",
             "check_vital",
-            "query_openclaw",
+            "metabolic_loop",
         }
         async with Client(arifos_server) as client:
             tools = await client.list_tools()

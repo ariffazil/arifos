@@ -137,7 +137,7 @@ class TestAllowlistParity:
     def test_l5_agent_allowlist_matches_canonical(self):
         from importlib import import_module
 
-        mod = import_module("333_APPS.L5_AGENTS.POWER.io.tools")
+        mod = import_module("333_APPS.L2_OPERATION.AGENTS.POWER.io.tools")
         allowed: frozenset[str] = getattr(mod, "_ALLOWED_TOOLS")
         assert (
             allowed == EXPECTED_13_TOOLS
@@ -162,7 +162,7 @@ class TestIngestEvidenceCallable:
         from aaa_mcp.tools.ingest_evidence import ingest_evidence
 
         result = await ingest_evidence(source_type="url", target="not-a-url")
-        assert result["status"] == "BAD_TARGET"
+        assert result["status"] == "BAD_ID"
 
     async def test_ingest_evidence_file_mode_nonexistent(self):
         from aaa_mcp.tools.ingest_evidence import ingest_evidence

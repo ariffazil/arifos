@@ -1451,6 +1451,9 @@ async def _search(
         "taint_lineage": final.get("taint_lineage", {"source": "search_reality"}),
     }
 
+    # Backward-compat: legacy callers expect `ids` for follow-up fetch_content calls.
+    response["ids"] = [r.get("url") for r in response["results"] if r.get("url")]
+
     # Include alternative views if consensus was low
     if "alternative_results" in final:
         response["alternative_views"] = final["alternative_results"]
