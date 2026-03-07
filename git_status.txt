@@ -1,0 +1,54 @@
+On branch main
+Your branch is behind 'origin/main' by 4 commits, and can be fast-forwarded.
+  (use "git pull" to update your local branch)
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+	modified:   README.md
+	modified:   VAULT999/vault999.jsonl
+	modified:   aaa_mcp/sessions/__init__.py
+	new file:   aaa_mcp/sessions/lifecycle.py
+	modified:   aclip_cai/core/__init__.py
+	modified:   aclip_cai/core/eval_suite.py
+	modified:   aclip_cai/core/kernel.py
+	modified:   aclip_cai/triad/__init__.py
+	modified:   aclip_cai/triad/delta/anchor.py
+	modified:   aclip_cai/triad/psi/__init__.py
+	modified:   aclip_cai/triad/psi/audit.py
+	modified:   docs/10_THEORY/000_THEORY/000_ARCHITECTURE.md
+	modified:   docs/10_THEORY/000_THEORY/000_FOUNDATIONS.md
+	modified:   docs/10_THEORY/000_THEORY/000_LAW.md
+	modified:   docs/10_THEORY/000_THEORY/010_FEDERATION.md
+	modified:   docs/10_THEORY/000_THEORY/111_MIND_GENIUS.md
+	modified:   docs/10_THEORY/000_THEORY/555_HEART_EMPATHY.md
+	modified:   docs/10_THEORY/000_THEORY/777_SOUL_APEX.md
+	modified:   docs/10_THEORY/000_THEORY/999_SOVEREIGN_VAULT.md
+	modified:   docs/10_THEORY/000_THEORY/_OUTLINE.md
+	new file:   docs/reports/HARDENING_FINAL_REPORT.md
+	modified:   tests/aclip_cai/test_lifecycle.py
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git restore <file>..." to discard changes in working directory)
+	modified:   VAULT999/vault999.jsonl
+	deleted:    aclip_cai/core/lifecycle.py
+	deleted:    aclip_cai/core/mcp_server.py
+	deleted:    aclip_cai/mcp_server.py
+	modified:   metadata/floor_status.json
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	${SQLITE_DB_PATH}
+	000_THEORY/
+	ARCHITECTURAL_ALIGNMENT.md
+	aclip_cai/observability/
+	aclip_cai/protocol_bus/
+	aclip_cai/senses/
+	aclip_cai/sensor_bus/
+	aclip_cai/tools/lsp_sense.py
+	diff.txt
+	full_diff.txt
+	git_diff.txt
+	git_status.txt
+	status.txt
+

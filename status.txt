@@ -1,0 +1,27 @@
+ M README.md
+MM VAULT999/vault999.jsonl
+ M aclip_cai/__init__.py
+ M aclip_cai/core/kernel.py
+ M aclip_cai/mcp_server.py
+ M aclip_cai/tools/__init__.py
+ M aclip_cai/triad/__init__.py
+ M aclip_cai/triad/delta/reason.py
+ M aclip_cai/triad/psi/audit.py
+ M docs/10_THEORY/000_THEORY/000_FOUNDATIONS.md
+ M docs/10_THEORY/000_THEORY/000_LAW.md
+ M docs/10_THEORY/000_THEORY/010_FEDERATION.md
+ M docs/10_THEORY/000_THEORY/111_MIND_GENIUS.md
+ M docs/10_THEORY/000_THEORY/555_HEART_EMPATHY.md
+ M docs/10_THEORY/000_THEORY/777_SOUL_APEX.md
+ M docs/10_THEORY/000_THEORY/999_SOVEREIGN_VAULT.md
+ M docs/10_THEORY/000_THEORY/_OUTLINE.md
+A  docs/reports/HARDENING_FINAL_REPORT.md
+ M metadata/floor_status.json
+ M tests/test_13_tools_compliance.py
+?? ${SQLITE_DB_PATH}
+?? 000_THEORY/
+?? aclip_cai/observability/
+?? aclip_cai/protocol_bus/
+?? aclip_cai/senses/
+?? aclip_cai/tools/lsp_sense.py
+?? status.txt
