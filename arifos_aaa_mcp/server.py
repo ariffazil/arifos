@@ -257,9 +257,9 @@ def _f11_continuity_failure(
     critical: bool,
 ) -> dict[str, Any]:
     actions = [
-        "Run anchor_session to mint a fresh auth_context for this session.",
-        "Pass the latest auth_context from each response into the next tool call.",
-        "Keep actor_id/auth_token stable for the full session chain.",
+        "Run anchor_session to mint a fresh server-side continuity chain for this session.",
+        "Reuse the same session_id and keep actor_id/auth_token stable for the full chain.",
+        "Optionally pass auth_context for replay resistance across transport boundaries.",
     ]
     if critical:
         actions.append("Critical tool blocked until F11 continuity is valid.")
@@ -286,11 +286,25 @@ def _enforce_auth_continuity(
     critical: bool,
 ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
     state = _SESSION_CONTINUITY_STATE.get(session_id)
-    strict_required = _CONTINUITY_STRICT or (critical and state is not None)
+    strict_required = _CONTINUITY_STRICT
     if not isinstance(auth_context, dict):
         auth_context = None
-    if auth_context is None and not strict_required:
+    if auth_context is None:
+        if strict_required:
+            return None, _f11_continuity_failure(
+                stage,
+                session_id,
+                "missing auth_context (strict mode)",
+                critical=critical,
+            )
         if state is None:
+            if critical:
+                return None, _f11_continuity_failure(
+                    stage,
+                    session_id,
+                    "missing server continuity state; run anchor_session first",
+                    critical=critical,
+                )
             return {
                 "actor_id": actor_id,
                 "token_fingerprint": _token_fingerprint(auth_token),
@@ -303,13 +317,6 @@ def _enforce_auth_continuity(
             "approval_scope": list(_DEFAULT_APPROVAL_SCOPE),
             "parent_signature": str(state.get("last_signature", "")),
         }, None
-    if auth_context is None:
-        return None, _f11_continuity_failure(
-            stage,
-            session_id,
-            "missing auth_context",
-            critical=critical,
-        )
 
     valid, reason = _verify_signed_auth_context(session_id, auth_context)
     if not valid:

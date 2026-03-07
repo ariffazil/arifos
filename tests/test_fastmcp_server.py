@@ -758,3 +758,54 @@ class TestFusedGovernanceGate:
         proof = result.get("governance_proof", {})
         assert proof.get("gate_verdict") == "VOID"
         assert result.get("verdict") == "VOID"
+
+
+class TestF11ServerContinuityMode:
+    async def test_critical_tool_requires_server_chain_when_missing(self, monkeypatch):
+        import arifos_aaa_mcp.server as server
+
+        monkeypatch.setattr(server, "_CONTINUITY_STRICT", False)
+        server._SESSION_CONTINUITY_STATE.clear()
+
+        binding, error = server._enforce_auth_continuity(
+            tool_name="seal_vault",
+            stage="999_SEAL",
+            session_id="sess-f11-missing",
+            actor_id="qa",
+            auth_token=None,
+            auth_context=None,
+            critical=True,
+        )
+
+        assert binding is None
+        assert isinstance(error, dict)
+        assert error.get("verdict") == "VOID"
+        assert "F11 continuity failure" in str(error.get("error", ""))
+        assert "missing server continuity state" in str(error.get("error", ""))
+
+    async def test_critical_tool_accepts_server_chain_without_client_context(self, monkeypatch):
+        import arifos_aaa_mcp.server as server
+
+        monkeypatch.setattr(server, "_CONTINUITY_STRICT", False)
+        server._SESSION_CONTINUITY_STATE.clear()
+        server._SESSION_CONTINUITY_STATE["sess-f11-present"] = {
+            "actor_id": "qa",
+            "token_fingerprint": "",
+            "last_signature": "sig-prev",
+            "nonces": set(),
+        }
+
+        binding, error = server._enforce_auth_continuity(
+            tool_name="seal_vault",
+            stage="999_SEAL",
+            session_id="sess-f11-present",
+            actor_id="qa",
+            auth_token=None,
+            auth_context=None,
+            critical=True,
+        )
+
+        assert error is None
+        assert isinstance(binding, dict)
+        assert binding.get("actor_id") == "qa"
+        assert binding.get("parent_signature") == "sig-prev"
