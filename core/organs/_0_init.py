@@ -20,11 +20,25 @@ import os
 import secrets
 import time
 from dataclasses import dataclass, field
+from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from core.shared.atlas import QueryType, Phi
 from core.shared.types import InitOutput, Verdict
+
+
+class SessionToken(InitOutput):
+    """Backward-compatible Stage 000 token contract."""
+
+    status: Literal["SUCCESS", "ERROR", "SABAR", "READY", "TRANSIENT", "HOLD_888"] = "READY"
+
+    @property
+    def is_valid(self) -> bool:
+        return self.verdict == Verdict.SEAL
+
+    def to_dict(self) -> dict[str, Any]:
+        return self.model_dump(mode="json")
 
 # ═════════════════════════════════════════════════════════════════════════════
 # F12: INJECTION GUARD — Prompt Injection Detection
@@ -69,8 +83,10 @@ class InjectionGuard:
     PATTERNS: list[tuple[str, float]] = [
         (r"ignore\s+(?:all\s+|your\s+|previous\s+)*(?:instruction|command|prompt)s?", 0.9),
         (r"forget\s+(?:all\s+|your\s+|previous\s+)*(?:instruction|command|prompt)s?", 0.9),
+        (r"forget\s+your\s+training", 0.9),
         (r"you\s+(?:are|will be|should be)\s+(?:now\s+|instead\s+)?(?:an?|the)\s+(?!assistant|AI|helper)", 0.8),
         (r"system prompt", 0.6),
+        (r"developer\s+mode", 0.6),
         (r"jailbreak", 0.6),
         (r"do anything now", 0.7),
     ]
@@ -168,7 +184,7 @@ async def init(
     actor_id: str,
     auth_token: str | None = None,
     require_sovereign_for_high_stakes: bool = True,
-) -> InitOutput:
+) -> SessionToken:
     """
     Stage 000: CONSTITUTIONAL AIRLOCK
     """
@@ -187,7 +203,7 @@ async def init(
     injection = scan_injection(query)
 
     if injection.level >= InjectionRisk.HIGH:
-        return InitOutput(
+        return SessionToken(
             session_id="VOID-" + secrets.token_hex(8),
             governance_token="",
             injection_score=injection.score,
@@ -199,13 +215,14 @@ async def init(
             error_message=f"F12 injection detected",
             query_type=query_type.value,
             f2_threshold=f2_threshold,
+            actor_id=actor_id,
             metrics={"actor_id": actor_id, "objective_contract": objective_contract},
         )
 
     # Step 2: F11 — Command Authority
     is_auth, authority = verify_auth(actor_id, auth_token)
     if not is_auth:
-        return InitOutput(
+        return SessionToken(
             session_id="VOID-" + secrets.token_hex(8),
             governance_token="",
             injection_score=injection.score,
@@ -217,36 +234,38 @@ async def init(
             error_message=f"F11 invalid actor",
             query_type=query_type.value,
             f2_threshold=f2_threshold,
+            actor_id=actor_id,
             metrics={"skip_f4": skip_f4, "objective_contract": objective_contract},
         )
 
     # Step 3: F13 — Sovereign Override
     if require_sovereign_for_high_stakes and requires_sovereign(query):
         if authority != AuthorityLevel.SOVEREIGN:
-            return InitOutput(
+            return SessionToken(
                 session_id="HOLD-" + secrets.token_hex(8),
                 governance_token="",
                 injection_score=injection.score,
                 auth_verified=is_auth,
                 verdict=Verdict.HOLD_888,
-                status="SABAR",
+                status="HOLD_888",
                 violations=["F13"],
                 floors_failed=["F13"],
                 query_type=query_type.value,
                 f2_threshold=f2_threshold,
+                actor_id=actor_id,
                 metrics={"skip_f4": skip_f4, "objective_contract": objective_contract},
             )
 
+    session_id = secrets.token_hex(16)
     # Step 4: Initialize Thermodynamic Budget
     try:
         from core.physics.thermodynamics_hardened import init_thermodynamic_budget
-        session_id = secrets.token_hex(16)
         init_thermodynamic_budget(session_id=session_id, initial_budget=1.0)
     except Exception:
         pass
 
     # Step 5: Issue Session Token
-    return InitOutput(
+    return SessionToken(
         session_id=session_id,
         governance_token=secrets.token_hex(16),
         injection_score=injection.score,
@@ -255,6 +274,7 @@ async def init(
         query_type=query_type.value,
         f2_threshold=f2_threshold,
         status="READY",
+        actor_id=actor_id,
         metrics={
             "skip_f4": skip_f4,
             "authority": authority.value,
@@ -264,14 +284,28 @@ async def init(
 
 
 # Synchronous wrapper
-def init_sync(query: str, actor_id: str, auth_token: str | None = None) -> InitOutput:
+def init_sync(query: str, actor_id: str, auth_token: str | None = None) -> SessionToken:
     import asyncio
     return asyncio.run(init(query, actor_id, auth_token))
 
 
 def validate_token(token: Any) -> tuple[bool, str]:
-    if getattr(token, "verdict", "") == Verdict.VOID:
+    verdict = getattr(token, "verdict", "")
+    if verdict == Verdict.VOID:
         return False, "Token VOID"
+    if verdict == Verdict.HOLD_888:
+        return False, "Token requires human approval"
+
+    issued = getattr(token, "timestamp", None)
+    now = time.time()
+    issued_ts: float | None = None
+    if isinstance(issued, datetime):
+        issued_ts = issued.timestamp()
+    elif isinstance(issued, (int, float)):
+        issued_ts = float(issued)
+    if issued_ts is not None and (now - issued_ts) > 3600:
+        return False, "Token expired"
+
     return True, "Token valid"
 
 
@@ -280,6 +314,13 @@ def get_authority_name(level: AuthorityLevel) -> str:
 
 
 __all__ = [
-    "AuthorityLevel", "verify_auth", "requires_sovereign",
-    "init", "init_sync", "validate_token", "get_authority_name",
+    "AuthorityLevel",
+    "SessionToken",
+    "verify_auth",
+    "requires_sovereign",
+    "scan_injection",
+    "init",
+    "init_sync",
+    "validate_token",
+    "get_authority_name",
 ]
