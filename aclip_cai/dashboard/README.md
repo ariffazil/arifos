@@ -1,73 +1,77 @@
-# React + TypeScript + Vite
+# ACLIP_CAI Dashboard — The Senses Visualization
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> **The Observer Interface for arifOS**  
+> *Where governance becomes visible*
+> **Motto:** DITEMPA BUKAN DIBERI — Forged, Not Given 🔥💎🧠
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## I. Banner & Hook
 
-## React Compiler
+The `aclip_cai` Dashboard is the frontend interface for the arifOS infrastructure console. It provides real-time observability into the metabolic loops, the 13 constitutional floors, and the state of the intelligence kernel.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## II. Mnemonic & Banding (L3 Layer)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+The dashboard sits at the **L3 Civilization** layer, providing a human-centric window into the internal operations of the kernel.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+| Feature | Role | Band |
+| :---: | :--- | :--- |
+| **Telemetry** | Health Check | **A_ANCHOR** |
+| **Audit Logs** | Reality Check | **R_REFLECT** |
+| **Verdicts** | Judgment View | **F_FORGE** |
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## III. Architecture Map (Frontend Stack)
+
+```text
+USER ➔ React/TypeScript (Vite) ➔ aclip_cai (Backend) ➔ arifOS Kernel
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+**Key Technologies:**
+- **Vite**: Rapid development and building.
+- **React + TypeScript**: Type-safe component architecture.
+- **Tailwind CSS**: Premium, responsive styling.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## IV. Operational Interface (Dev Scripts)
+
+Control the dashboard via standard npm commands:
+- **`npm run dev`**: Start the development server.
+- **`npm run build`**: Create the production bundle.
+- **`npm run preview`**: Test the production build locally.
+
+---
+
+## V. Constitutional Alignment (Observability)
+
+The dashboard enables visual auditing of:
+- **F12 Reality**: Visualization of untrusted data envelopes.
+- **F4 Clarity**: Entropy reduction monitoring (ΔS graph).
+- **F8 Genius**: Real-time performance scoring.
+
+---
+
+## VI. Quick Start & Deployment
+
+### Installation
+```bash
+cd aclip_cai/dashboard
+npm install
 ```
+
+### Development
+```bash
+npm run dev
+```
+
+---
+
+## VII. Authority & Version
+
+**Sovereign:** Muhammad Arif bin Fazil (888 Judge)  
+**Version:** 2026.03.07-FORGE-SEAL  
+**Motto:** Ditempa Bukan Diberi — Forged, Not Given 🔥💎🧠

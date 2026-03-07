@@ -5,12 +5,17 @@
 import json
 import os
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from core.observability.metrics import live_metrics
 ADAPTATION_LOCK_DAYS = 30
 ADAPTATION_DRIFT_THRESHOLD = 0.15  # 15% drift required
+
+
+def _utcnow() -> datetime:
+    """Timezone-aware UTC timestamp."""
+    return datetime.now(timezone.utc)
 
 
 @dataclass
@@ -27,7 +32,7 @@ class ConstitutionalTelemetry:
     """
 
     session_id: str
-    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+    timestamp: str = field(default_factory=lambda: _utcnow().isoformat())
 
     # L7: Gate activations
     omega_0: float = 0.0
@@ -71,11 +76,17 @@ class TelemetryStore:
         if os.path.exists(self.first_telemetry_file):
             with open(self.first_telemetry_file) as f:
                 date_str = f.read().strip()
-                return datetime.fromisoformat(date_str)
+                parsed = datetime.fromisoformat(date_str)
+                if parsed.tzinfo is None:
+                    # Backward compatibility for legacy naive timestamps.
+                    parsed = parsed.replace(tzinfo=timezone.utc)
+                return parsed
         return None
 
     def _save_first_date(self, date: datetime):
         """Save first telemetry date."""
+        if date.tzinfo is None:
+            date = date.replace(tzinfo=timezone.utc)
         with open(self.first_telemetry_file, "w") as f:
             f.write(date.isoformat())
 
@@ -83,11 +94,11 @@ class TelemetryStore:
         """Log telemetry event."""
         # Set first date if not set
         if self.first_telemetry_date is None:
-            self.first_telemetry_date = datetime.utcnow()
+            self.first_telemetry_date = _utcnow()
             self._save_first_date(self.first_telemetry_date)
 
         # Append to daily log
-        date_str = datetime.utcnow().strftime("%Y-%m-%d")
+        date_str = _utcnow().strftime("%Y-%m-%d")
         log_file = os.path.join(self.storage_path, f"telemetry-{date_str}.jsonl")
 
         with open(log_file, "a") as f:
@@ -120,7 +131,7 @@ class TelemetryStore:
         """Q3: Days since first telemetry (adaptation lock check)."""
         if self.first_telemetry_date is None:
             return 0
-        return (datetime.utcnow() - self.first_telemetry_date).days
+        return (_utcnow() - self.first_telemetry_date).days
 
     def can_adapt(self) -> dict[str, any]:
         """
@@ -158,7 +169,7 @@ class TelemetryStore:
         drift_scores = []
 
         for i in range(7):
-            date = datetime.utcnow() - timedelta(days=i)
+            date = _utcnow() - timedelta(days=i)
             date_str = date.strftime("%Y-%m-%d")
             log_file = os.path.join(self.storage_path, f"telemetry-{date_str}.jsonl")
 
@@ -180,7 +191,7 @@ class TelemetryStore:
         adaptation_status = self.can_adapt()
 
         return {
-            "report_date": datetime.utcnow().isoformat(),
+            "report_date": _utcnow().isoformat(),
             "telemetry_days": days,
             "adaptation_lock_status": "LOCKED" if days < ADAPTATION_LOCK_DAYS else "UNLOCKED",
             "weekly_drift": round(drift, 4),

@@ -8,6 +8,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ---
 
+## Version Identity Rule (Persistent)
+
+- arifOS naming in active docs/configs is **date-based**: `YYYY.MM.DD[-SUFFIX]`.
+- Do not introduce software-style semantic tags (`vX.Y`, `vX.Y.Z`) in active architecture/seal labels.
+- Historical sealed/archive records may retain their original labels.
+
+---
+
 ## CRITICAL: No stdout in Tool Code
 
 **NEVER** use `print()` or write to `stdout` in any tool implementation — it corrupts JSON-RPC/MCP streams.

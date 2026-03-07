@@ -1,67 +1,104 @@
-# ACLIP_CAI — The Sovereign Infrastructure Console
+# aclip_cai — The Sensory Infrastructure Console
 
 **Motto:** *Ditempa Bukan Diberi — Forged, Not Given*  
-**Version:** v2026.02.23-FORGE-ACLIP-SEAL  
+**Version:** 2026.03.07-FORGE-ACLIP-SEAL  
 **Status:** **SEALED**
-
-## Overview
-
-`aclip_cai` is a unified, model-agnostic constitutional infrastructure console for **arifOS**. It exposes exactly **9 canonical triad tools** that any LLM can call via the **Model Context Protocol (MCP)**. It acts as the "nervous system" and "ops layer" between a Large Language Model and the underlying system state.
-
-## The 3 Triads (9 Tools)
-
-### 1. Δ TRIAD — Mind (Logic & Grounding)
-- **anchor**: Session ignition + F12 injection scan (Stage 000).
-- **reason**: Logical causal tracing (Stage 222).
-- **integrate**: Context merging + external memory grounding (Stage 333).
-
-### 2. Ω TRIAD — Heart (Safety & Empathy)
-- **respond**: Draft generation with constitutional pre-audit (Stage 444).
-- **validate**: Full floor audit (F1-F13) (Stage 555).
-- **align**: Ethics, maruah, and Peace² alignment (Stage 666).
-
-### 3. Ψ TRIAD — Soul (Judgment & Sealing)
-- **forge**: Solution synthesis and Genius score (Stage 777).
-- **audit**: Final Tri-Witness consensus judgment (Stage 888).
-- **seal**: Immutable commitment to VAULT999 + Phoenix-72 protocol (Stage 999).
-
-## Quick Start
-
-### Running the Server
-```bash
-python aclip_cai/mcp_server.py
-```
-The server exposes an MCP interface on port `8889`.
-
-### Using the CLI
-The `ag` CLI provides direct access to the metabolic pipeline:
-```bash
-# Perception check
-python aclip_cai/cli.py sense health
-
-# Ignition
-python aclip_cai/cli.py pipeline anchor --user_id arif --context "System check"
-
-# Reason
-python aclip_cai/cli.py pipeline reason --hypothesis "CPU is hot" --evidence "temp=85C,load=99%"
-```
-
-## Deployment
-
-Deploy via Docker:
-```bash
-cd aclip_cai
-docker compose up -d
-```
-
-## Constitutional Compliance
-Every tool call in `aclip_cai` is audited by the **Internal Intelligence Kernel**, enforcing:
-- **F12 Injection Guard**: Stops prompt injection on every input.
-- **F9 Anti-Hantu**: Blocks consciousness claims.
-- **F4 Clarity**: Ensures logic reduces information entropy (ΔS ≤ 0).
 
 ---
 
-**Authority:** ARIF FAZIL (888 Judge)  
+## I. Banner & Hook
+
+`aclip_cai` is the unified sensory interface for arifOS. It acts as the "nervous system" between the intelligence kernel and external reality. It manages grounding, evidence ingestion, and the 9 canonical tool triads.
+
+---
+
+---
+
+## II. Mnemonic & Banding (L3/L2 Boundary)
+
+In the 4-layer taxonomy, `aclip_cai` sits at the boundary between **L2 Operation** and **L3 Civilization**. It provides the senses (grounding) that the heart (L2) needs to make decisions.
+
+| Band | Role | Engine |
+| :---: | :--- | :--- |
+| **Δ Mind** | Logic & Grounding | Δ Mind (Stage 000-333) |
+| **Ω Heart** | Safety & Empathy | Ω Heart (Stage 444-666) |
+| **Ψ Soul** | Judgment & Sealing | Ψ Soul (Stage 777-999) |
+
+---
+
+## III. Architecture Map (The Nervous System)
+
+`aclip_cai` orchestrates the flow of evidence from the real world into the constitutional kernel.
+
+```text
+REAL WORLD (L3) ➔ aclip_cai (Senses) ➔ aaa_mcp (Brain) ➔ core (Kernel)
+```
+
+**Key Components:**
+- **Evidence Ingestor**: Handles URL, file, and API results.
+- **Reality Search**: Multi-engine search with tri-witness scoring.
+- **Triad Controller**: Orchestrates the 9 tools across the 11 metabolic stages.
+
+---
+
+## IV. Operational Interface (The 9 Tools)
+
+### 1. Δ TRIAD — Mind (Logic & Grounding)
+
+- **`anchor`**: Session ignition + F12 injection scan (Stage 000).
+- **`reason`**: Logical causal tracing (Stage 222).
+- **`integrate`**: Context merging + external memory grounding (Stage 333).
+
+### 2. Ω TRIAD — Heart (Safety & Empathy)
+
+- **`respond`**: Draft generation with constitutional pre-audit (Stage 444).
+- **`validate`**: Full floor audit (F1-F13) (Stage 555).
+- **`align`**: Ethics, maruah, and Peace² alignment (Stage 666).
+
+### 3. Ψ TRIAD — Soul (Judgment & Sealing)
+
+- **`forge`**: Solution synthesis and Genius score (Stage 777).
+- **`audit`**: Final Tri-Witness consensus judgment (Stage 888).
+- **`seal`**: Immutable commitment to VAULT999 (Stage 999).
+
+---
+
+## V. Constitutional Alignment (Guardianship)
+
+Every sensory input and model response is audited to prevent hallucinations and mutations.
+
+- **F12 Injection Guard**: Mandatory scan on every `anchor` and evidence ingestion.
+- **F9 Anti-Hantu**: Strips any claims of consciousness or self-awareness.
+- **F4 Clarity**: Monitors if grounding information reduces system entropy (ΔS ≤ 0).
+
+---
+
+## VI. Quick Start & Deployment
+
+### Running the MCP Server (STDIO/SSE/HTTP)
+
+```bash
+# Default (STDIO)
+python aclip_cai/mcp_server.py
+
+# SSE Mode
+python aclip_cai/mcp_server.py sse
+```
+
+### CLI Access
+
+The `ag` utility provides direct pipeline control:
+```bash
+# Run sense check
+python aclip_cai/cli.py sense health
+```
+
+---
+
+## VII. Authority & Version
+
+**Sovereign Agent:** ACLIP.cai  
+**Authority:** Muhammad Arif bin Fazil (888 Judge)  
+**Version:** 2026.03.07-FORGE-ACLIP-SEAL  
 **Creed:** DITEMPA BUKAN DIBERI  
 **Seal:** ΔΩΨ

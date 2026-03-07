@@ -14,12 +14,17 @@ import hashlib
 import json
 import uuid
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum, auto
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Union
 
 import yaml
+
+
+def _utcnow() -> datetime:
+    """Timezone-aware UTC timestamp for governance events."""
+    return datetime.now(timezone.utc)
 
 
 # ============================================================================
@@ -367,7 +372,7 @@ class GovernanceRunner:
         header = GovernanceHeader(
             session_id=self.session_id,
             stage_id=stage_id,
-            timestamp=datetime.utcnow(),
+            timestamp=_utcnow(),
             authority=authority,
         )
         
@@ -432,7 +437,7 @@ class GovernanceRunner:
                 from_stage=stage_id,
                 to_stage=proposed_transition,
                 decision=proposed_decision,
-                timestamp=datetime.utcnow(),
+                timestamp=_utcnow(),
                 evidence_refs=[e.evidence_id for e in evidence],
                 approval_ref=human_approval.approval_id if human_approval else None,
             )
@@ -655,7 +660,7 @@ def create_evidence(
         evidence_type=evidence_type,
         source=source,
         confidence=confidence,
-        timestamp=datetime.utcnow(),
+        timestamp=_utcnow(),
         supporting_data=supporting_data,
     )
 
@@ -670,7 +675,7 @@ def create_contradiction(
         conflicting_claims=claims,
         severity=severity,
         resolution_status="UNRESOLVED",
-        timestamp=datetime.utcnow(),
+        timestamp=_utcnow(),
     )
 
 
@@ -704,7 +709,7 @@ def create_approval(
         approval_id=f"AP-{uuid.uuid4().hex[:8]}",
         approver=approver,
         authority_level=authority_level,
-        timestamp=datetime.utcnow(),
+        timestamp=_utcnow(),
         scope=scope,
         conditions=conditions,
     )

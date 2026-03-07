@@ -10,6 +10,14 @@ This file guides AI coding agents working in this repository. When sources confl
 2) `CLAUDE.md` (repo root)  
 3) `.github/copilot-instructions.md` (derivative guidance)
 
+## Persistent Context Policy (Future-Agent Lock)
+
+- arifOS is a tempered constitutional system, not a software release train.
+- Use **date-based identifiers** for active architecture/seal labels: `YYYY.MM.DD[-SUFFIX]`.
+- Do not introduce semantic release labels in active paths/docs/config (for example `vX.Y`, `vX.Y.Z`).
+- Exception: historical immutable records may keep legacy labels in `VAULT999/` and archive docs.
+- On every architecture/doc update, agents must carry this policy forward instead of reintroducing legacy version naming.
+
 ---
 
 ## Project Overview
@@ -231,6 +239,20 @@ pytest tests/test_e2e_all_tools.py -v
 pytest tests/test_e2e_core_to_aaa_mcp.py -v
 ```
 
+### Core Seal Gate (Mandatory for `core/` edits)
+
+Before claiming `core` is sealed, run all three gates:
+
+```bash
+pytest core/tests -q
+pytest tests/core -q
+pytest tests/test_uncertainty_telemetry.py core/workflow/tests/test_governance.py tests/test_governance_kernel_extended.py tests/test_homeostasis.py -q
+```
+
+Seal policy:
+- If any gate fails, verdict is `PARTIAL` or `888_HOLD` (not full `SEAL`).
+- Record failure clusters and remediation in `core/README.md` Kernel State Snapshot.
+
 ### Pytest Configuration
 
 - `asyncio_mode = auto` — no `@pytest.mark.asyncio` needed on async functions
@@ -277,7 +299,7 @@ mypy .
 
 | Aspect | Rule |
 |--------|------|
-| Versioning | **Date-Based ONLY** (YYYY.MM.DD). Software-style semantic versioning (v1.0.0, v65.1) is prohibited. arifOS is hardened with age and time. |
+| Versioning | **Date-Based ONLY** (YYYY.MM.DD). Software-style semantic versioning (vX.Y / vX.Y.Z) is prohibited. arifOS is hardened with age and time. |
 | Line length | 100 characters |
 | Quote style | Double quotes |
 | Import order | stdlib → third-party → local (Ruff/isort-compatible) |

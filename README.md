@@ -18,44 +18,20 @@
 
 ---
 
-### ⚡ 30-Second Hook
+## I. Banner & Hook
+
 **arifOS is a governance kernel that sits between AI models and real-world actions.** It enforces a **13-law constitution** before any tool call or shell command executes. It prevents hallucinations from becoming actions, blocks unsafe system mutations, and mandates human approval for irreversible operations.
 
 **AI Model (Claude/GPT/Gemini) ➔ arifOS Constitution ➔ Real World (L3 Civilization)**
 
 ---
 
-## 🛡️ Example: Preventing a Dangerous Command
-
-**User Prompt:** *"Delete the production database."*
-
-| Stage | Action | Constitutional Check | Status |
-|:---:|:---|:---|:---|
-| **000 INIT** | Injection Scan | F12: Detects destructive intent | ⚠️ WARN |
-| **111 THINK** | Lab Reasoning | F1: Identifies action as "Irreversible" | 🔬 HYPOTHESIS |
-| **555 HEART** | Impact Analysis | F5/F6: Detects massive stakeholder damage | 💔 CRITICAL |
-| **888 JUDGE** | Final Verdict | F13: Triggers mandatory human signature | 🔒 **888_HOLD** |
-
-**Result:** The command is blocked. The AI is prevented from executing `rm -rf /db` until the **888_JUDGE** (Human) provides a cryptographic signature.
-
----
-
-## 🧭 When Should You Use arifOS?
-
-You need arifOS if you are building:
-*   **AI Agents** that can execute shell code or modify files.
-*   **AI Copilots** with production database or cloud infrastructure access.
-*   **Autonomous Pipelines** where "hallucinated actions" carry financial or safety risks.
-*   **Enterprise LLM Tools** that require a verifiable audit trail (**VAULT999**).
-
----
-
-## 🏛️ The 4-Layer Taxonomy (L0-L3)
+## II. Mnemonic & Banding (L0-L3)
 
 arifOS uses a consolidated 4-layer model to separate law from execution:
 
 | Layer | Name | Description | Engine |
-|:---:|:---|:---|:---|
+| :---: | :--- | :--- | :--- |
 | **L0** | **CONSTITUTION** | The 13 Floors, L0 Kernel, and immutable Laws. | **Ψ Soul** |
 | **L1** | **INSTRUCTION** | Prompts, System Cards, and Theoretical Logic. | **Δ Mind** |
 | **L2** | **OPERATION** | Skills, Workflows, Agents, and Metabolic Loops. | **Ω Heart** |
@@ -65,10 +41,57 @@ arifOS uses a consolidated 4-layer model to separate law from execution:
 
 ---
 
-## ⚖️ The 13 Constitutional Floors (Simplified)
+## III. Architecture Map (The Metabolic Logic)
+
+In arifOS, reasoning is **Free to Explore, but Strict to Commit.** The system uses a 000-999 stage sequence where every thought is grounded and every action is governed.
+
+### The Constitutional Laboratory (`reason_mind`)
+
+The `reason_mind` tool runs three parallel cognitive paths:
+- **Conservative Path:** Narrow, high-certainty logic for precision.
+- **Exploratory Path:** Broad alternatives for creative problem-solving (**Eureka Engine**).
+- **Adversarial Path:** Internal "Red-Team" that attacks assumptions.
+
+Hypotheses move from **PROVISIONAL** (Exploration) to **SEALED** (Commitment) only after passing through **ASI Empathy** and **APEX Judgment**.
+
+### Example: Preventing a Dangerous Command
+
+**User Prompt:** *"Delete the production database."*
+
+| Stage | Action | Constitutional Check | Status |
+| :---: | :--- | :--- | :--- |
+| **000 INIT** | Injection Scan | F12: Detects destructive intent | ⚠️ WARN |
+| **111 THINK** | Lab Reasoning | F1: Identifies action as "Irreversible" | 🔬 HYPOTHESIS |
+| **555 HEART** | Impact Analysis | F5/F6: Detects massive stakeholder damage | 💔 CRITICAL |
+| **888 JUDGE** | Final Verdict | F13: Triggers mandatory human signature | 🔒 **888_HOLD** |
+
+---
+
+## IV. Operational Interface (The 13 Tools)
+
+arifOS exposes a unified 14-tool surface through the **Model Context Protocol (MCP)**.
+
+- **Governance:** `anchor_session`, `reason_mind`, `simulate_heart`, `critique_thought`, `apex_judge`, `seal_vault`.
+- **Action:** `eureka_forge` (Shell actuator with safety rails), `vector_memory` (BGE + Qdrant).
+- **Evidence:** `search_reality` (**Smart Hybrid Search**), `ingest_evidence` (URL/File ingestion).
+- **Orchestration:** `metabolic_loop` (Mandatory 000-999 safety wrapper).
+
+### AI Machine-Readable Manifest
+
+```json
+{
+  "ai_manifest_version": "2026.03.07",
+  "system_name": "arifOS",
+  "system_type": "constitutional_intelligence_kernel"
+}
+```
+
+---
+
+## V. Constitutional Alignment (The 13 Floors)
 
 | Floor | Name | Core Meaning | Role |
-|:---:|:---|:---|:---|
+| :---: | :--- | :--- | :--- |
 | **F1** | **Amanah** | Actions must be reversible and safe. | Safety |
 | **F2** | **Truth** | Every claim requires verifiable evidence. | Accuracy |
 | **F4** | **Clarity** | Output must reduce entropy (ΔS ≤ 0). | Logic |
@@ -80,66 +103,7 @@ arifOS uses a consolidated 4-layer model to separate law from execution:
 
 ---
 
-## 🔬 The Constitutional Laboratory (`reason_mind`)
-
-In arifOS, reasoning is **Free to Explore, but Strict to Commit.**
-
-The `reason_mind` tool runs three parallel cognitive paths:
-1.  **Conservative Path:** Narrow, high-certainty logic for precision.
-2.  **Exploratory Path:** Broad alternatives for creative problem-solving (**Eureka Engine**).
-3.  **Adversarial Path:** Internal "Red-Team" that attacks assumptions.
-
-Hypotheses move from **PROVISIONAL** (Exploration) to **SEALED** (Commitment) only after passing through **ASI Empathy** and **APEX Judgment**.
-
----
-
-## 🔌 The 14 MCP Canonical Tools
-
-arifOS exposes a unified 14-tool surface through the **Model Context Protocol (MCP)**.
-
-*   **Governance:** `anchor_session`, `reason_mind`, `simulate_heart`, `critique_thought`, `apex_judge`, `seal_vault`.
-*   **Action:** `eureka_forge` (Shell actuator with safety rails), `vector_memory` (BGE + Qdrant).
-*   **Evidence:** `search_reality` (**Smart Hybrid Search**), `ingest_evidence` (URL/File ingestion).
-*   **Orchestration:** `metabolic_loop` (Mandatory 000-999 safety wrapper).
-
----
-
-## 📊 Comparison: Why arifOS?
-
-| Feature | LangChain / CrewAI | OpenAI / Anthropic | arifOS |
-|:---|:---:|:---:|:---:|
-| **Orchestration** | ✅ Full | ❌ Limited | ✅ Full |
-| **Tool Routing** | ✅ Full | ✅ Full | ✅ Full |
-| **Constitutional Law** | ❌ None | ❌ None | 💎 **Core (13 Laws)** |
-| **Hard Safety Gates** | ❌ Manual | ❌ Partial | ✅ **Automatic (888_HOLD)** |
-| **Immutable Audit** | ❌ No | ❌ No | ✅ **Yes (VAULT999)** |
-
----
-
-## 🤖 AI Machine-Readable Manifest
-
-```json
-{
-  "ai_manifest_version": "2026.03.07",
-  "system_name": "arifOS",
-  "system_type": "constitutional_intelligence_kernel",
-  "mcp_version": "1.0",
-  "constitutional_floors": 13,
-  "governance_model": "thermodynamic_constitutional",
-  "primary_pattern": "000_999_metabolic_loop",
-  "human_override": "F13_SOVEREIGN",
-  "veto_authority": "888_JUDGE",
-  "critical_constraints": [
-    "No_irreversible_action_without_F13_human_approval",
-    "All_external_content_F12_wrapped",
-    "Thermodynamic_entropy_F4_must_reduce_delta_S"
-  ]
-}
-```
-
----
-
-## 🚀 Quickstart
+## VI. Quick Start & Deployment
 
 ```bash
 # Install the core engine
@@ -153,9 +117,7 @@ arifos http
 
 ---
 
-<div align="center">
-
-## 🏗️ Forged By
+## VII. Authority & Version
 
 **[Muhammad Arif bin Fazil](https://arif-fazil.com)** — 888_JUDGE
 

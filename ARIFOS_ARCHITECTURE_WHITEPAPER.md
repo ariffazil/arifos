@@ -1,4 +1,4 @@
-# arifOS Architecture Whitepaper (v65.1)
+# arifOS Architecture Whitepaper (2026.03.07-ARCH-SEAL)
 
 **Status**: SEALED | **Layer**: L0 | **Authority**: ARIF FAZIL
 

@@ -182,16 +182,20 @@ async def forge(
     if token.is_void or token.requires_human:
         verdict = "VOID" if token.is_void else "888_HOLD"
         elapsed = (time.perf_counter() - start_time) * 1000
-        remediation = "Airlock blocked request. Verify actor/session authority (F11) and clean prompt input (F12)."
+        if verdict == "888_HOLD":
+            remediation = "Sovereign approval required before high-stakes execution (F13)."
+        else:
+            remediation = (
+                "Airlock blocked request. Verify actor/session authority (F11) and clean prompt input (F12)."
+            )
         
         # Persist early violations
         current_violations = list(getattr(token, "floors_failed", []))
         if hasattr(token, "violations"):
-            current_violations = list(set(current_violations + token.violations))
+            current_violations = list(dict.fromkeys(current_violations + list(token.violations)))
         
         if verdict == "888_HOLD" and "F13" not in current_violations:
-             # HOLD implies sovereign intervention or F11
-             pass
+            current_violations.append("F13")
         update_floor_status(current_violations)
 
         return ForgeResult(
@@ -205,7 +209,7 @@ async def forge(
             processing_time_ms=elapsed,
             query_type=query_type_value,
             f2_threshold=f2_threshold,
-            floors_failed=getattr(token, "floors_failed", []),
+            floors_failed=current_violations,
             remediation=remediation,
             provenance={
                 "engine_mode": "deterministic",

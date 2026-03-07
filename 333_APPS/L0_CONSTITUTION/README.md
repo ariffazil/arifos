@@ -1,446 +1,89 @@
-# L0: CONSTITUTION — The Governance substrate
+# L0: CONSTITUTION — The Governance Substrate
 
 > **The Invariant Law of AI Cognition**  
 > *Where AI law is forged, not just where it is checked*
+> **Motto:** DITEMPA BUKAN DIBERI — Forged, Not Given 🔥💎🧠
 
 ---
 
-## 🎯 What is L0 CONSTITUTION?
+## I. Banner & Hook
 
-**L0 is the constitutional substrate** — the foundational layer that all AI cognition runs on within arifOS.
-
-Traditional OS: `Hardware → Kernel → Applications`  
-arifOS: `AI Models → L0 CONSTITUTION → Governed Cognition`
-
-### The Shift
-
-| Old View | L0 View |
-|----------|---------|
-| arifOS = middleware/tool | arifOS = **execution boundary** |
-| Governance = optional check | Governance = **mandatory substrate** |
-| AI "uses" arifOS | AI **"runs on"** arifOS |
+**L0 is the constitutional substrate** — the foundational layer that all AI cognition runs on within arifOS. It acts as an unbypassable execution boundary, ensuring that no model response reaches the real world without a verified constitutional verdict.
 
 ---
 
-## 🏛️ Architecture: L0 as Kernel
+## II. Mnemonic & Banding (Ring 0 Governance)
+
+In arifOS, L0 represents the highest privilege level for AI governance.
+
+| Ring | Layer | Role | Contents |
+| :---: | :--- | :--- | :--- |
+| **Ring 0** | **L0** | **Governor** | The Kernel, 13 Floors, 7-Organs. |
+| **Ring 1** | **L1** | **Cognition** | Knowledge Axioms, Reasoning Logic. |
+| **Ring 2** | **L2** | **Executor** | Agents, Workflows, MCP Tools. |
+| **Ring 3** | **L3** | **World** | External Infrastructure (Civilization). |
+
+**Note:** L0 runs at **Ring 0** — the kernel space of artificial intelligence.
+
+---
+
+## III. Architecture Map (The Kernel as Sovereign)
 
 ### Physical Mapping
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         L0: KERNEL                               │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────────┐ │
-│  │   Hardware  │  │  Traditional│  │      arifOS L0          │ │
-│  │     OS      │  │     AI      │  │   (This Layer)          │ │
-│  │  (Linux)    │  │   (Models)  │  │                         │ │
-│  └──────┬──────┘  └──────┬──────┘  └───────────┬─────────────┘ │
-│         │                │                     │               │
-│         ▼                ▼                     ▼               │
-│    ┌─────────┐      ┌─────────┐      ┌─────────────────┐     │
-│    │  CPU    │      │  GPT-4  │      │ 7-Organ Sovereign Stack │     │
-│    │ Memory  │      │ Claude  │◄────►│ 9 System Calls  │     │
-│    │   IO    │      │ Gemini  │      │ 13 Floors       │     │
-│    └─────────┘      └─────────┘      └─────────────────┘     │
-│                                              │                 │
-└──────────────────────────────────────────────┼─────────────────┘
-                                               │
-                    ┌──────────────────────────┼──────────┐
-                    │                          ▼          │
-                    │  ┌─────────────────────────────────┐│
-                    │  │      L1-L7: Applications        ││
-                    │  │  (Prompts, Skills, Agents...)   ││
-                    │  └─────────────────────────────────┘│
-                    └─────────────────────────────────────┘
-```
-
-### Kernel Components
-
-| Component | Location | Kernel Function |
-|-----------|----------|-----------------|
-| **7-Organs** | `core/organs/` | Governance subsystems (like Linux kernel modules) |
-| **11 Tools** | `aaa_mcp/tools/` | System calls for governed cognition |
-| **13 Floors** | `core/shared/floors.py` | Enforcement policies (like kernel security modules) |
-| **VAULT999** | `aaa_mcp/sessions/` | Audit filesystem (like kernel audit log) |
-
----
-
-## 🔧 The 9 System Calls
-
-In traditional OS: `open()`, `read()`, `write()`, `fork()`...  
-In arifOS L0:
-
-| System Call | Kernel Function | Unix Equivalent |
-|-------------|-----------------|-----------------|
-| `anchor` (000) | Process initialization | `fork()` + identity check |
-| `reason` (222) | Logical analysis | CPU computation |
-| `integrate` (333) | Context grounding | Memory mapping |
-| `respond` (444) | Draft generation | Buffer preparation |
-| `validate` (555) | Safety checking | Security policy enforcement |
-| `align` (666) | Ethics verification | SELinux/AppArmor check |
-| `forge` (777) | Solution synthesis | Process execution |
-| `audit` (888) | Final judgment | System call validation |
-| `seal` (999) | Immutable commit | `sync()` + audit log |
-
-### How It Works
-
-```python
-# Traditional OS: Process makes system call
-pid = fork()  # Kernel creates process
-
-# arifOS L0: AI cognition makes system call
-result = await kernel.call("reason", {
-    "query": "Should I invest?",
-    "session_id": "sess-001"
-})  # Kernel governs cognition
-
-# Kernel returns verdict (like OS returns status)
-# SEAL = success, VOID = permission denied, 888_HOLD = blocking wait
-```
-
----
-
-## 🛡️ Why This IS a Kernel
-
-### 1. Unbypassable Execution Boundary
-
-**Traditional OS:**
-- User program **cannot** access hardware directly
-- Must go through kernel system calls
-- Kernel enforces memory protection, scheduling
-
-**arifOS L0:**
-- AI model **cannot** produce output directly  
-- Must go through 9-tool system call sequence
-- L0 enforces 13 constitutional floors
-
-### 2. Privilege Separation
-
-| Ring | Traditional OS | arifOS L0 |
-|------|----------------|-----------|
-| Ring 0 | Kernel (hardware control) | **L0 KERNEL** (governance control) |
-| Ring 1 | Device drivers | Transport adapters (MCP, HTTP) |
-| Ring 2 | System services | Tool implementations |
-| Ring 3 | User applications | AI models, agents, applications |
-
-**L0 runs at Ring 0** — the highest privilege level for AI governance.
-
-### 3. Mandatory Access Control
-
-**Traditional OS:**
-- SELinux/AppArmor: mandatory security policies
-- Cannot be bypassed by user programs
-
-**arifOS L0:**
-- 13 Floors: mandatory governance policies
-- Cannot be bypassed by AI models
-- `@constitutional_floor` decorator = kernel enforcement
-
-### 4. System Call Interface
-
-**Traditional OS:**
-- Programs use `libc` → kernel syscalls
-- `printf()` → `write()` syscall
-
-**arifOS L0:**
-- Agents use MCP → L0 tools
-- `generate_text()` → `reason()` → `forge()` → `audit()` → `seal()`
-
----
-
-## 🔌 MCP: The Driver Interface
-
-**MCP is not the kernel.** MCP is the **driver interface** — how external systems talk to the kernel.
-
-```
-┌─────────────────────────────────────────┐
-│  External Systems (any language)        │
-│  - Claude Desktop                       │
-│  - Kimi CLI                             │
-│  - Custom agents                        │
-└────────────┬────────────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────────────┐
-│  MCP Protocol (driver interface)        │  ◄─── Like USB/PCIe
-│  - stdio                                │       Transport layer
-│  - SSE                                  │       Not the kernel
-│  - HTTP                                 │
-└────────────┬────────────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────────────┐
-│  L0 KERNEL (core/ + organs/)            │  ◄─── Like Linux kernel
-│  - 7-Organ Sovereign Stack                      │       The actual governance
-│  - 13 Floor enforcement                 │
-│  - VAULT999 persistence                 │
-└─────────────────────────────────────────┘
-```
-
-### MCP is the Wire Format
-
-Like HTTP is the wire format for web servers:  
-- **HTTP** ≠ Apache/Nginx (the server)  
-- **MCP** ≠ arifOS L0 (the kernel)
-
-MCP is just **how you talk to the kernel**.
-
----
-
-## 🌊 L0 vs L1-L3: The Full Stack
-
 ```text
-┌─────────────────────────────────────────────────────────────────┐
-│ L3: CIVILIZATION — World Interface (Tools, Ecosystems)          │
-├─────────────────────────────────────────────────────────────────┤
-│ L2: OPERATION — Internal Execution (Agents, Workflows, Skills)  │
-├─────────────────────────────────────────────────────────────────┤
-│ L1: INSTRUCTION — Knowledge Logic (Prompts, Code, Theory)       │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│ L0: CONSTITUTION — THE CONSTITUTIONAL OPERATING SYSTEM           │
-│    ├─ 7-Organs (ΔΩΨ governance engine)                          │
-│    ├─ 9 System Calls (A-CLIP tools)                             │
-│    ├─ 13 Floors (enforced at kernel level)                      │
-│    └─ VAULT999 (immutable audit filesystem)                     │
-│                                                                 │
-│    All L1-L3 applications RUN ON this substrate                 │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+AI MODELS (L3) ➔ L0 KERNEL (13 Floors + 7 Organs) ➔ GOVERNED COGNITION
 ```
 
-### Analogy: Linux Stack
-
-```text
-┌─────────────────────────────────────────┐
-│ User Applications (Chrome, VS Code)     │  ← L3
-├─────────────────────────────────────────┤
-│ System Libraries (libc, system calls)   │  ← L1-L2
-├─────────────────────────────────────────┤
-│ Linux Kernel (process, memory, IO)      │  ← L0 CONSTITUTION
-└─────────────────────────────────────────┘
-```
-
-**arifOS L0 = The Linux of AI governance**
+**Kernel Components:**
+- **7-Organs**: Core governance subsystems (Airlock, Mind, Heart, Soul, Memory).
+- **13 Floors**: The immutable laws governing safety, truth, and clarity.
+- **AKI Gate**: The hard airlock between internal thought and external action.
 
 ---
 
-## 🧠 Cognitive System Calls
+## IV. Operational Interface (The 9 System Calls)
 
-Traditional OS manages **hardware resources**:  
-`open()` → allocate file descriptor  
-`malloc()` → allocate memory  
-`fork()` → allocate process
+L0 defines exactly **9 canonical system calls** that all arifOS applications must use to reach maturity:
 
-arifOS L0 manages **cognitive resources**:  
-`anchor()` → allocate session + identity  
-`reason()` → allocate cognition + truth check  
-`forge()` → allocate synthesis + enforcement
-
-**L0 is a resource manager for AI cognition.**
+- **`anchor` (000)**: Process initialization + Injection check.
+- **`reason` (222)**: Logical causal tracing.
+- **`integrate` (333)**: Context grounding & Memory mapping.
+- **`respond` (444)**: Draft generation.
+- **`validate` (555)**: Constitutional floor audit.
+- **`align` (666)**: Ethical & Empathy alignment.
+- **`forge` (777)**: Solution synthesis.
+- **`audit` (888)**: Final Judgment (Consensus).
+- **`seal` (999)**: Immutable vault commit.
 
 ---
 
-## 🎯 L0 Design Principles
+## V. Constitutional Alignment (The 13 Floors)
 
-### 1. Kernel Space Is Sacred
+The kernel enforces the **13 Constitutional Floors** through the `@constitutional_floor` decorator, ensuring that safety is structural, not optional.
 
-`core/` has **zero dependencies** on:
-- MCP (transport)
-- HTTP (network)
-- External APIs
+- **F1 Amanah**: Accountability & Reversibility.
+- **F2 Truth**: Verifiability & Evidence.
+- **F11 Authority**: Actor verification.
+- **F12 Reality**: Injection and reality grounding.
+- **F13 Sovereign**: Human final veto.
 
-Just like Linux kernel doesn't depend on browsers.
+---
 
-### 2. User Space Is Unprivileged
+## VI. Quick Start & Deployment
 
-`333_APPS/` (L1-L7) runs **on top of** L0:
-- Cannot bypass 13 floors
-- Must use 9 system calls
-- Subject to governance policies
+### Run Constitutional Tests
+```bash
+# Verify the 13 Floors
+pytest tests/canonical/test_floors.py
 
-### 3. System Calls Are The Interface
-
-No direct access to kernel internals:
-```python
-# ❌ NOT ALLOWED (bypasses governance)
-result = core.organs._1_agi.agi_cognition(query)
-
-# ✅ REQUIRED (goes through L0)
-result = await kernel.call("agi_cognition", {"query": query})
-```
-
-### 4. Floors Are Kernel Policy
-
-Like SELinux policies:
-```python
-# Kernel enforces before execution
-@constitutional_floor("F6", "F7")  # Kernel policy check
-def asi_empathize(...):
-    # Only runs if floors pass
+# Verify Kernel system calls
+pytest tests/test_governance_kernel.py
 ```
 
 ---
 
-## 🏛️ What L0 Is / Is Not
+## VII. Authority & Version
 
-### L0 IS:
-- **A constitutional governance kernel** that controls whether thoughts/actions are permitted
-- **Mandatory execution boundary** — cannot be bypassed by any model
-- **System call interface** — 9 A-CLIP tools that all cognition must flow through
-- **Model-agnostic substrate** — wraps any LLM via MCP, does not care which model
-
-### L0 IS NOT:
-- **A model trainer** — does not train or modify model weights
-- **A specific model** — works with Qwen, GPT, Claude, Gemini interchangeably
-- **Hardware OS** — doesn't replace Linux; runs alongside it
-- **AI itself** — it's law *over* cognition, not intelligence itself
-
-### The Stack (ASCII)
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  Layer 7: Applications (L1-L7) — Prompts, Skills, Agents, AGI   │
-├─────────────────────────────────────────────────────────────────┤
-│  Layer 0: arifOS KERNEL — Governance substrate (THIS LAYER)     │
-│  ├─ 7-Organs (ΔΩΨ governance engine)                            │
-│  ├─ 9 System Calls (A-CLIP tools)                               │
-│  ├─ 13 Floors (constitutional enforcement)                      │
-│  └─ VAULT999 (immutable audit)                                  │
-├─────────────────────────────────────────────────────────────────┤
-│  AIOS / Agent Runtime (n8n, OpenClaw, etc.)                     │
-├─────────────────────────────────────────────────────────────────┤
-│  LLM Engines (Qwen, GPT-4, Claude, Gemini — interchangeable)   │
-├─────────────────────────────────────────────────────────────────┤
-│  OS Kernel (Linux) — Hardware abstraction                       │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Key insight:** Changing from Qwen → GPT → Claude does **NOT** bypass L0. The kernel sits between the AIOS/runtime and the models, enforcing governance regardless of which engine is used.
-
-### Models vs System vs Kernel
-
-| Layer | Examples | Who Builds It | What Changes Here? |
-|-------|----------|---------------|-------------------|
-| **Model** | Qwen, GPT-4, Claude, Gemini, BGE | External labs (Alibaba, OpenAI, Anthropic) | Weights, training data, capabilities |
-| **System** | Qdrant, RAG pipelines, n8n, OpenClaw, tools | You + infrastructure | Topology, routing, memory, orchestration |
-| **Kernel** | **arifOS L0** (Floors + 9 tools + 7 Organs) | **You (arifOS)** | Law, verdicts, constitutional enforcement, audit |
-
-**The Kernel is invariant.** While models swap and systems evolve, L0's 13 Floors and 9 system calls remain constant — the stable substrate of governed intelligence.
-
----
-
-## 🔥 The "Forged, Not Given" Principle
-
-L0 exists because **cognitive governance cannot be optional**.
-
-Traditional AI:
-> "Please be safe" (hope)
-
-arifOS L0:
-> ```python
-> @constitutional_floor("F1", "F2", "F6", "F7", "F13")  # ENFORCED
-> def generate_output(query):
->     # Cannot execute unless floors pass
-> ```
-
-**L0 is the forge that makes safety structural, not optional.**
-
----
-
-## 📁 File Locations (L0 in Repo)
-
-| Component | Path | Description |
-|-----------|------|-------------|
-| **Kernel Core** | `core/` | Pure governance logic, zero transport deps |
-| **Control Plane** | `core/governance_kernel.py` | Central cognition controller — the "kernel main" |
-| **MCP Syscalls** | `core/kernel/mcp_transport_kernel.py` | MCP-facing syscall surface (tools/call handler) |
-| **7-Organs** | `core/organs/` | ΔΩΨ subsystems (governance modules) |
-| **System Calls** | `aaa_mcp/tools/` | 9 A-CLIP tool implementations |
-| **Floor Enforcement** | `core/shared/floors.py` | 13 constitutional policies (kernel security module) |
-| **Audit Log** | `aaa_mcp/sessions/` | VAULT999 persistence |
-| **Driver Interface** | `aaa_mcp/server.py` | MCP transport adapter |
-
-### Core References
-
-```python
-# The three core files that define L0:
-
-core/governance_kernel.py
-    └─ Control plane for all cognition
-    └─ Orchestrates 7-Organs, en verdicts
-    └─ Pure Python, no MCP/HTTP deps
-
-core/kernel/mcp_transport_kernel.py
-    └─ MCP-facing syscall surface
-    └─ Handles tools/call from any MCP client
-    └─ Bridges transport → governance
-
-core/shared/floors.py
-    └─ 13-Floor enforcement (F1-F13)
-    └─ @constitutional_floor decorator
-    └─ Like SELinux for AI cognition
-```
-
-**Note:** No training APIs or model weight modification. L0 is strictly governance/metabolizer layer.
-
----
-
-## 🌐 L0 + MCP: The Complete Picture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         AI MODEL                                │
-│              (GPT-4, Claude, Gemini, etc.)                      │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      L0: KERNEL                                  │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────────────────────┐│
-│  │   anchor    │ │   reason    │ │         forge               ││
-│  │  (000_INIT) │ │ (111-333)   │ │       (777)                 ││
-│  └─────────────┘ └─────────────┘ └─────────────────────────────┘│
-│         │              │                    │                   │
-│         ▼              ▼                    ▼                   │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ 13 FLOOR ENFORCEMENT (F1-F13) — Kernel Policy Module        ││
-│  └─────────────────────────────────────────────────────────────┘│
-│                              │                                  │
-│                              ▼                                  │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ VAULT999 — Immutable Audit Filesystem                       ││
-│  └─────────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  MCP DRIVER INTERFACE (stdio / SSE / HTTP)                      │
-│  — How external agents talk to the kernel —                     │
-└─────────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🎯 Summary
-
-**L0 KERNEL is the constitutional substrate of arifOS.**
-
-It is:
-- ✅ A **kernel** (enforces execution boundary)
-- ✅ An **OS** (manages cognitive resources)
-- ✅ **Ring 0** (highest governance privilege)
-- ✅ **Unbypassable** (mandatory floor enforcement)
-
-It is NOT:
-- ❌ A hardware OS (runs alongside Linux, not replacing it)
-- ❌ A traditional kernel (manages cognition, not CPU)
-
-**It is the first operating system for governed artificial intelligence.**
-
----
-
-**Authority:** 888 Judge — Muhammad Arif bin Fazil  
-**T000:** 2026.03.07-FORGE-UVX-SEAL  
-**Status:** L0 KERNEL DEFINED — Foundation of the 8-Layer Stack
-
-*DITEMPA BUKAN DIBERI — The substrate is forged, not the application* 🔥💎🧠
+**Sovereign:** Muhammad Arif bin Fazil (888 Judge)  
+**Version:** 2026.03.07-FORGE-SEAL  
+**Motto:** Ditempa Bukan Diberi — Forged, Not Given 🔥💎🧠

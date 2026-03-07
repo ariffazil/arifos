@@ -5,6 +5,54 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.7-LABORATORY] — 2026-03-07 — CONSTITUTIONAL-LABORATORY-L0-L3-REARCHITECTURE-SEAL
+
+**T000:** 2026.03.07-LABORATORY  
+**Theme:** Transformation of `reason_mind` into an Epistemic Laboratory, consolidated L0-L3 4-layer architecture, and AKI Boundary formalization.
+
+### Added
+- **Constitutional Laboratory** (`reason_mind` tool v3.0):
+  - **Epistemic Staging:** `VOID` verdicts during exploration are now downgraded to `PROVISIONAL` to allow speculative reasoning without early termination.
+  - **Confidence Bands:** Numeric confidence mapped to human-readable tiers: `CLAIM` (≥0.90), `PLAUSIBLE` (0.70-0.89), `HYPOTHESIS` (0.40-0.69), `SPECULATION` (<0.40).
+  - **Orthogonal Hypothesis Tracking:** Primary hypotheses from all three paths (Conservative, Exploratory, Adversarial) are now explicitly tracked and exposed in the main payload.
+  - **Stability Scoring:** New `weighted_stability` metric (0.05-1.0) measures logic robustness based on contradiction count and severity.
+  - **Contradiction Detection ("Scars"):** Automated detection of conflicts between reasoning branches (Conclusivity and Robustness scars).
+  - **Operational Dispositions:** Each hypothesis is tagged with actions: `advance`, `ground`, `critique`, or `discard`.
+- **AKI Contract Formalization** (`core/enforcement/aki_contract.py`):
+  - Formalized the **Arif Kernel Interface (AKI)** as the hard airlock between L2 (Operation) and L3 (Civilization).
+  - Integrated `SovereignGate` (888_HOLD logic) and `L0KernelGatekeeper` (protected paths) directly into the AKI boundary.
+
+### Changed
+- **L0-L3 Architectural Consolidation**:
+  - Refactored fragmented 8-layer model into a consolidated 4-layer taxonomy:
+    - **L0 CONSTITUTION:** Law, Kernel, Floors.
+    - **L1 INSTRUCTION:** Prompts, Atlas, System Cards.
+    - **L2 OPERATION:** Skills, Workflows, Agents.
+    - **L3 CIVILIZATION:** Tools, Infrastructure, External World.
+  - **Directory Rearchitecture:** Consolidated `333_APPS` into 4 clean tiers (`L0_KERNEL`, `L1_INSTRUCTION`, `L2_OPERATION`, `L3_CIVILIZATION`).
+  - **Core Logic Migration:** Moved core architectural definitions (`Metabolizer`, `AppManifesto`, `SovereignGate`, `SystemAuditor`) from `333_APPS` into the `core/` package.
+  - **Forwarding Stubs:** Converted original files in `333_APPS` (`manifesto.py`, `metabolizer.py`, `forge_init.py`) into forwarding stubs to maintain zero-breakage for downstream tools.
+- **`aaa_mcp/server.py`**:
+  - Updated `_agi_cognition` to expose the new Laboratory metrics (stability, scars, hypotheses, dispositions).
+  - Integrated the consolidated L0-L3 taxonomy into the tool documentation.
+- **`README.md`**: Comprehensive overhaul for human accessibility.
+  - Added 30-second high-impact hook and safety mental model.
+  - Added real-world "Dangerous Command" prevention example.
+  - Simplified 13 Floors table and move JSON manifest to the footer.
+
+### Constitutional Compliance
+- **F4 Clarity**: PASS — Consolidated 8 layers into 4 clean tiers (ΔS ≤ 0).
+- **F7 Humility**: PASS — Reasoning engine now explicitly scores logic stability and flags internal contradictions.
+- **F13 Sovereign**: PASS — AKI boundary ensures no irreversible action bypasses the 888 Judge.
+
+### Verification
+- `python 333_APPS/manifesto.py`: Passed (Audit report verified).
+- `python 333_APPS/metabolizer.py`: Passed (Zero bypass verified).
+- `python 333_APPS/forge_init.py`: Passed (Membrane integrity verified).
+- Directory consolidation confirmed via `ls -R 333_APPS`.
+
+---
+
 ## [2026.3.6-CiV-BROWSER] — 2026-03-06 — CIVILIZATION-INFRASTRUCTURE-HEADLESS-BROWSER-SEAL
 
 **T000:** 2026.03.06-CiV-BROWSER  
