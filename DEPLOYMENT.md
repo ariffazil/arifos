@@ -2,6 +2,15 @@
 
 This guide provides the canonical instructions for deploying and operating the arifOS AAA MCP server.
 
+## 🚀 CURRENT STATUS (v65.1-ARCH-SEAL)
+
+**Architecture Update:** arifOS has transitioned to a strict 4-layer taxonomy (L0-L3).
+**Metabolic Governance:** Enforced energy budgets and metabolic pressure logic (Ω) are active.
+**Hardened Boundary:** AKI (Arif Kernel Interface) airlock is enforced for all L2-L3 transitions.
+**Audit Trace:** Triple-Hash Merkle Vault is active, signing every action with the Ψ State Field.
+
+*VPS AGENT NOTICE:* On pull, check `ARIFOS_ARCHITECTURE_WHITEPAPER.md` and `333_APPS/README.md` for context on reorganized paths.
+
 ## 🚀 Quickstart (Local Development)
 
 ### CLI Mode (stdio)

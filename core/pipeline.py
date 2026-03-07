@@ -112,6 +112,20 @@ async def quick(
     }
 
 
+async def quick_check(
+    query: str,
+    actor_id: str = "user",
+    auth_token: str | None = None,
+) -> str:
+    """
+    Backward-compatible verdict helper.
+
+    Legacy tests and callers expect `quick_check()` to return only a verdict string.
+    """
+    result = await quick(query=query, actor_id=actor_id, auth_token=auth_token)
+    return str(result.get("verdict", "VOID"))
+
+
 async def forge(
     query: str,
     actor_id: str = "user",
@@ -157,8 +171,13 @@ async def forge(
     # Connect to the Governance Kernel (Ψ)
     kernel = session_manager.get_kernel(token.session_id)
     if kernel:
+        # Metabolic Scheduler: Determine pressure
+        complexity = min(1.0, len(query) / 500)  # Heuristic complexity
+        pressure = kernel.calculate_pressure(complexity)
+        
         kernel.consume_energy(0.05)  # Cost of Ignition
         emd.energy.e_eff = kernel.current_energy
+        emd.metabolism.pressure = pressure # Track pressure in EMD
 
     if token.is_void or token.requires_human:
         verdict = "VOID" if token.is_void else "888_HOLD"
@@ -752,6 +771,7 @@ __all__ = [
     "ForgeResult",
     "forge",
     "quick",
+    "quick_check",
     "forge_with_nudge",
     "forge_formatted",
     "OutputMode",

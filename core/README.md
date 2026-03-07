@@ -1,6 +1,10 @@
 # core/ — 2026.02.17 RUKUN AGI Foundation
 
-## Current Kernel Architecture Map (2026-03 hardening)
+## Kernel State Snapshot (2026-03-07)
+
+This section is the live constitutional status for `core/`.
+
+### 1) Current core architecture map
 
 ```text
 INPUT
@@ -8,19 +12,50 @@ INPUT
   -> core/organs/_1_agi.py                (111-333, F2/F4/F7/F8)
   -> core/organs/_2_asi.py                (444-666, F1/F5/F6)
   -> core/organs/_3_apex.py               (777-888, F3/F9/F10/F13)
-  -> core/organs/_4_vault.py              (999 seal path)
+  -> core/organs/_4_vault.py              (999, sealing)
 
-Cross-cut kernel state:
-  core/governance_kernel.py               (state machine + hold/void gates)
+Cross-cut kernel control:
+  core/governance_kernel.py               (state transitions + hold/void gating)
   core/state/session_manager.py           (session ownership + kernel lifecycle)
+  core/pipeline.py                        (forge/quick/quick_check entry points)
+  core/judgment.py                        (verdict synthesis)
+  core/homeostasis.py                     (stability/cooling control)
+  core/uncertainty_engine.py              (confidence + ambiguity handling)
+  core/telemetry.py                       (operational signals)
   core/kernel/constitutional_decorator.py (tool-level floor enforcement)
-  core/shared/floors.py                   (canonical floor definitions)
+  core/shared/floors.py                   (canonical thresholds/classes/comparators)
 ```
 
-Boundary rule:
+Boundary rules:
 - `core/` owns decision logic and state transitions.
 - `aaa_mcp/` is transport/protocol only and must consume `core` outputs.
 - `aclip_cai/` provides intelligence engines but must not own constitutional state.
+
+### 2) Validation evidence (executed 2026-03-07)
+
+- `pytest tests/test_governance_kernel_extended.py tests/test_homeostasis.py -q` -> `71 passed`
+- `pytest tests/test_uncertainty_telemetry.py core/workflow/tests/test_governance.py -q` -> `68 passed` (warnings only)
+- `pytest core/tests/test_pipeline.py tests/core/test_pipeline.py -q` -> `9 passed`
+- Compatibility restored: `core.pipeline.quick_check()` now exists (legacy callers/tests connected).
+
+### 3) Drift, entropy, chaos, intelligence assessment
+
+| Axis | Core kernel state | Repo-wide state |
+|---|---|---|
+| Drift | Low-moderate (`4` changed paths in `core`) | High (`120` changed paths total; `113` under `333_APPS`) |
+| Entropy | Lower than prior state (deduped orchestration paths, unified floor thresholds, restored pipeline compatibility) | Elevated outside core due large structural churn in app layer |
+| Chaos risk | Controlled in kernel execution path; no failing core pipeline tests in current snapshot | Still present at system boundary while non-core reorg is active |
+| Intelligence quality | Improved traceability and determinism inside `core` with explicit stage boundaries and compatibility shims | Global intelligence posture depends on stabilizing integration with changed app surface |
+
+Kernel verdict (2026-03-07):
+- Core is trending toward lower entropy and higher operational intelligence.
+- arifOS as a whole is not yet fully stabilized because external (`333_APPS`) churn remains high.
+
+### 4) Next cooling actions
+
+1. Replace `datetime.utcnow()` usages in `core/telemetry.py` and `core/workflow/governance_runner.py` with timezone-aware UTC.
+2. Keep `core/` API compatibility aliases during transition windows (`quick_check`) to prevent connector drift.
+3. Freeze core-to-app interfaces during `333_APPS` reorg and validate with end-to-end MCP tests before widening changes.
 
 > **RUKUN AGI** — The Five Pillars of Constitutional AI
 > **Version:** 2026.02.17-FORGE-UVX-SEAL

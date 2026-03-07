@@ -40,6 +40,9 @@ class GovernanceState(Enum):
     AWAITING_888 = "awaiting_888"
     CONDITIONAL = "conditional"
     VOID = "void"
+    RECOVERING = "recovering"
+    DEGRADED = "degraded"
+    QUARANTINED = "quarantined"
 
 
 @dataclass(frozen=True)
@@ -50,6 +53,9 @@ class GovernanceThresholds:
     uncertainty_hold: float
     uncertainty_conditional: float
     energy_hold: float
+    max_tokens: int = 100000
+    max_reason_cycles: int = 10
+    max_tool_calls: int = 50
 
 
 @dataclass
@@ -69,6 +75,11 @@ class GovernanceKernel:
     irreversibility_index: float = 0.0
     reversibility_score: float = 1.0
     current_energy: float = 1.0
+    
+    # Granular life energy (Metabolic counters)
+    tokens_consumed: int = 0
+    reason_cycles: int = 0
+    tool_calls: int = 0
 
     governance_state: GovernanceState = GovernanceState.ACTIVE
     governance_reason: str = "initialized"
@@ -102,6 +113,9 @@ class GovernanceKernel:
             uncertainty_hold=self.UNCERTAINTY_THRESHOLD,
             uncertainty_conditional=self.CONDITIONAL_UNCERTAINTY_THRESHOLD,
             energy_hold=self.ENERGY_THRESHOLD,
+            max_tokens=100000,
+            max_reason_cycles=10,
+            max_tool_calls=50,
         )
 
     @property
@@ -123,6 +137,11 @@ class GovernanceKernel:
             "irreversibility_index": round(self.irreversibility_index, 4),
             "reversibility_score": round(self.reversibility_score, 4),
             "human_approval_status": self.human_approval_status,
+            "metabolic_usage": {
+                "tokens": self.tokens_consumed,
+                "reason_cycles": self.reason_cycles,
+                "tool_calls": self.tool_calls,
+            },
         }
 
     @property
@@ -233,6 +252,27 @@ class GovernanceKernel:
         self.current_energy = max(0.0, min(1.0, self.current_energy - float(amount)))
         self._evaluate_governance()
 
+    def consume_tokens(self, count: int) -> None:
+        """Consume LLM tokens and reduce energy proportionally."""
+        self.tokens_consumed += count
+        # Heuristic: 100k tokens = 0.5 energy
+        self.current_energy = max(0.0, self.current_energy - (count / 200000))
+        self._evaluate_governance()
+
+    def consume_reason_cycle(self) -> None:
+        """Consume one internal reasoning cycle."""
+        self.reason_cycles += 1
+        # Heuristic: 10 cycles = 0.2 energy
+        self.current_energy = max(0.0, self.current_energy - 0.02)
+        self._evaluate_governance()
+
+    def consume_tool_call(self) -> None:
+        """Consume one external tool call."""
+        self.tool_calls += 1
+        # Heuristic: 50 calls = 0.3 energy
+        self.current_energy = max(0.0, self.current_energy - 0.006)
+        self._evaluate_governance()
+
     def _evaluate_governance(self) -> None:
         if self.current_energy <= 0.0:
             self._set_state(
@@ -269,6 +309,18 @@ class GovernanceKernel:
             )
             return
 
+        # Hard Metabolic Constraints
+        t = self.thresholds
+        if self.tokens_consumed > t.max_tokens:
+            self._set_state(GovernanceState.VOID, AuthorityLevel.UNSAFE_TO_AUTOMATE, "token_budget_exceeded")
+            return
+        if self.reason_cycles > t.max_reason_cycles:
+            self._set_state(GovernanceState.AWAITING_888, AuthorityLevel.REQUIRES_HUMAN, "reason_cycle_budget_exceeded")
+            return
+        if self.tool_calls > t.max_tool_calls:
+            self._set_state(GovernanceState.AWAITING_888, AuthorityLevel.REQUIRES_HUMAN, "tool_call_budget_exceeded")
+            return
+
         if self.safety_omega > self.CONDITIONAL_UNCERTAINTY_THRESHOLD:
             self._set_state(
                 GovernanceState.CONDITIONAL,
@@ -282,6 +334,30 @@ class GovernanceKernel:
             AuthorityLevel.ANALYSIS,
             "stable",
         )
+
+    def calculate_pressure(self, task_complexity: float) -> float:
+        """Calculate cognitive pressure based on complexity and available energy."""
+        if self.current_energy <= 0:
+            return float('inf')
+        pressure = task_complexity / self.current_energy
+        
+        if pressure > 2.0:  # Threshold for 'Critical'
+            self._set_state(GovernanceState.DEGRADED, AuthorityLevel.SUGGESTION, "critical_pressure")
+        elif pressure > 1.0: # Threshold for 'High'
+            self._set_state(GovernanceState.CONDITIONAL, AuthorityLevel.ANALYSIS, "high_pressure")
+            
+        return pressure
+
+    def phoenix_recovery(self, mode: str = "recover") -> None:
+        """Execute Phoenix Protocol recovery transition."""
+        if mode == "quarantine":
+            self._set_state(GovernanceState.QUARANTINED, AuthorityLevel.REQUIRES_HUMAN, "phoenix_quarantine")
+        elif mode == "degrade":
+            self._set_state(GovernanceState.DEGRADED, AuthorityLevel.SUGGESTION, "phoenix_degraded")
+        elif mode == "recover":
+            self.current_energy = min(1.0, self.current_energy + 0.2) # Infuse energy
+            self._set_state(GovernanceState.RECOVERING, AuthorityLevel.ANALYSIS, "phoenix_recovering")
+            # Clear critical flags here if any
 
     def approve_human(self, approved: bool, actor: str = "888") -> None:
         self.human_override_timestamp = time.time()
