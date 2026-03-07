@@ -11,7 +11,7 @@ def get_embedder():
     global _model
     if _model is None:
         # Default model name
-        model_name = "BAAI/bge-small-en-v1.5"
+        model_name = "BAAI/bge-m3"
         # Check if baked-in model exists
         baked_in_path = "/app/models/bge/bge-arifOS"
         if os.path.exists(baked_in_path):

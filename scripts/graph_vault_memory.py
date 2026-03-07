@@ -34,7 +34,7 @@ def main():
     df = pd.DataFrame(random.sample(data, sample_size))
 
     print(f"Embedding {sample_size} queries...")
-    model = SentenceTransformer("BAAI/bge-small-en-v1.5")
+    model = SentenceTransformer("BAAI/bge-m3")
     embeddings = model.encode(df["query"].tolist(), show_progress_bar=True)
 
     print("Performing dimensionality reduction...")

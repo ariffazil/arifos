@@ -15,7 +15,7 @@ from sentence_transformers import InputExample, SentenceTransformer, losses
 from torch.utils.data import DataLoader
 
 DATASET_PATH = "embedding_finetune_data.jsonl"
-MODEL_NAME = "BAAI/bge-small-en-v1.5"
+MODEL_NAME = "BAAI/bge-m3"
 OUTPUT_DIR = "bge-arifOS"
 
 

@@ -20,7 +20,7 @@ from qdrant_client.models import Distance, PointStruct, VectorParams
 from sentence_transformers import SentenceTransformer
 
 COLLECTION_NAME = "arifos_constitutional"
-EMBEDDING_MODEL = "BAAI/bge-small-en-v1.5"
+EMBEDDING_MODEL = "BAAI/bge-m3"
 CHUNK_SIZE = 512
 CHUNK_OVERLAP = 50
 QDRANT_URL = "http://localhost:6333"

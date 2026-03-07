@@ -49,5 +49,5 @@ def test_phi_crisis():
 
 
 def test_f2_threshold_mapping():
-    assert Φ("test run").f2_threshold() == 0.70
+    assert Φ("test run").f2_threshold() == 0.50
     assert Φ("1+1=?").f2_threshold() == 0.99

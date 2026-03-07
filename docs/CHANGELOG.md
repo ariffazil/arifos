@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Highlights
 
 - **Canonical 13-Tool Surface Locked**: Sacred count enforced by runtime assertion in `aaa_mcp/protocol/aaa_contract.py`. 13 exactly — no more, no less.
-- **Phoenix (recall_memory) Retired**: Replaced by `vector_memory` (BGE-M3 768-dim embeddings + Qdrant + EUREKA sieve). F9 Anti-Hantu compliant.
+- **Phoenix (recall_memory) Retired**: Replaced by `vector_memory` (BGE-M3 768-dim multilingual embeddings + Qdrant + EUREKA sieve). F9 Anti-Hantu compliant.
 - **Three-Layer Schema Alignment**: `schemas.py` (JSON Schema) + `contracts.py` (Python runtime guards) + prompts now all agree on Gen3 canonical tool names.
 - **ARIF Bands Documented**: A (Anchor) / R (Reflect) / I (Integrate) / F (Forge) / O (Orchestrate) taxonomy written into `333_APPS/L4_TOOLS/README.md` and root `README.md`.
 - **L0 Kernel Prompt Aligned**: `l0_kernel_prompt.py` updated — stale `sensory_read` replaced with canonical `ingest_evidence`.

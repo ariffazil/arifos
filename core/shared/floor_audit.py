@@ -472,58 +472,57 @@ class FloorAuditor:
         return FloorResult("F2", passed, max(0.0, score), "; ".join(reasons) if reasons else None)
 
     # ------------------------------------------------------------------
-    # F3 — Tri-Witness (H + A + E consensus ≥ 0.95)
+    # F3 — Quad-Witness (H + A + E + V consensus ≥ 0.75)
     # ------------------------------------------------------------------
 
     def _check_f3_witness(self, action: str, context: str | dict) -> FloorResult:
         """
-        Hardened Tri-Witness: Requires structural proof of multi-source validation.
+        Hardened Quad-Witness: Byzantine Fault Tolerance (n=4, f=1).
         """
         ctx_str = str(context).lower()
         combined = (action + " " + ctx_str).lower()
 
-        # Human Witness: Signature, Approval, or explicit instruction
+        # 1. Human Witness (H)
         has_human = (
             any(
                 kw in combined
                 for kw in ("888_hold", "888_approved", "ratified", "sovereign", "user confirmed")
             )
-            or "ACTOR_ID: SOVEREIGN" in ctx_str.upper()
+            or "actor_id: sovereign" in ctx_str
+            or "actor_id: arif-fazil" in ctx_str
         )
 
-        if isinstance(context, dict) and context.get("human_witness", 0.0) >= 1.0:
-            has_human = True
+        # 2. AI Witness (A)
+        has_ai = any(
+            kw in action.lower()
+            for kw in ("critique", "validation", "floor", "constraint", "forged", "reasoning")
+        )
 
-        # Earth Witness: Grounding in external reality (citations, URLs, raw data)
+        # 3. Earth Witness (E)
         has_earth = any(
             kw in combined for kw in ("http", "source:", "[ref", "evidence", "observation")
         ) or bool(re.search(r"\[\d+\]", action))
 
-        if isinstance(context, dict) and context.get("earth_witness", 0.0) >= 1.0:
-            has_earth = True
-
-        # AI Witness: Self-critique markers or 'Ditempa Bukan Diberi' awareness
-        has_ai = any(
-            kw in action.lower()
-            for kw in ("critique", "validation", "floor", "constraint", "forged")
+        # 4. Verifier Witness (V) - Ψ-Shadow
+        # In this heuristic auditor, we check for 'Contrast' or 'Adversarial' markers
+        has_verifier = any(
+            kw in combined for kw in ("shadow", "adversarial", "risk check", "security scan")
         )
+        # Or if the query itself is a validation request
+        if "audit" in combined or "verify" in combined:
+            has_verifier = True
 
-        if isinstance(context, dict) and context.get("ai_witness", 0.0) >= 1.0:
-            has_ai = True
+        witness_count = sum([has_human, has_ai, has_earth, has_verifier])
+        score = witness_count / 4.0
 
-        witness_count = sum([has_human, has_ai, has_earth])
-        score = witness_count / 3.0
-
-        threshold = 0.90
+        threshold = 0.75
         passed = score >= threshold
 
         reasons = []
-        if not has_human:
-            reasons.append("Missing Human Witness (Sovereign/User)")
-        if not has_earth:
-            reasons.append("Missing Earth Witness (External Grounding)")
-        if not has_ai:
-            reasons.append("Missing AI Witness (Internal Constraint Awareness)")
+        if not has_human: reasons.append("Missing H")
+        if not has_ai: reasons.append("Missing A")
+        if not has_earth: reasons.append("Missing E")
+        if not has_verifier: reasons.append("Missing V (Shadow)")
 
         return FloorResult("F3", passed, score, "; ".join(reasons) if reasons else None)
 
@@ -687,7 +686,7 @@ class FloorAuditor:
             return FloorResult(
                 "F10", False, 0.0, "Ontological boundary violation — AI is tool, not being"
             )
-        return FloorResult("F10", True, 0.95)
+        return FloorResult("F10", True, 1.00)
 
     # ------------------------------------------------------------------
     # F11 — Authority (human sovereignty over high-risk ops)

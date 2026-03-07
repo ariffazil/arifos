@@ -404,7 +404,7 @@ arifOS exposes exactly **13 tools** — no more, no less. The count is a runtime
 | `search_reality` | R | READ | Smart hybrid search: Jina → Perplexity → Brave → Headless | F2 |
 | `ingest_evidence` | R | READ | Extract clean Markdown from URLs or local files | F12 |
 | `audit_rules` | R | READ | Read current state of all 13 Floors | L0 |
-| `vector_memory` | I | READ | BGE-M3 + Qdrant semantic retrieval (768-dim) | F3 |
+| `vector_memory` | I | READ | BGE-M3 + Qdrant multilingual semantic retrieval (768-dim) | F3 |
 | `simulate_heart` | I | WRITE | Empathy + impact modelling for proposed actions | F5, F6, F9 |
 | `critique_thought` | I | WRITE | Adversarial alignment check against the constitution | F8 |
 | `check_vital` | I | READ | Hardware telemetry — CPU, RAM, thermodynamic health | F4, P3 |

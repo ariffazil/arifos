@@ -30,7 +30,7 @@ from sentence_transformers import SentenceTransformer
 QDRANT_URL = os.environ.get("QDRANT_URL", "http://localhost:6333")
 QDRANT_API_KEY = os.environ.get("QDRANT_API_KEY", "arifos_qdrant_2026")
 COLLECTION_NAME = os.environ.get("RAG_COLLECTION", "arifos_constitutional")
-EMBEDDING_MODEL = os.environ.get("RAG_EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
+EMBEDDING_MODEL = os.environ.get("RAG_EMBEDDING_MODEL", "BAAI/bge-m3")
 DEFAULT_TOP_K = int(os.environ.get("RAG_TOP_K", "5"))
 
 

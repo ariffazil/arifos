@@ -1585,8 +1585,8 @@ async def vector_memory(
         return wrap_tool_output("vector_memory", missing)
     start_time = time.time()
     try:
-        embedding_backend = "BGE (BAAI/bge-small-en-v1.5)"
-        query_vector_dim = 384  # bge-small-en-v1.5 = 384-dim; BGE-M3 = 768-dim
+        embedding_backend = "BGE (BAAI/bge-m3)"
+        query_vector_dim = 768  # BGE-M3 = 768-dim multilingual (BM, EN, Manglish)
         points_count = 0
         namespace = "arifos_constitutional"
 
