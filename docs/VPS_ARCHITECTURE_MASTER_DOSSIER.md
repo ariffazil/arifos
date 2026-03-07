@@ -1,12 +1,15 @@
 # arifOS VPS Architecture - Master Dossier
 ## Complete Reference for Future Agents
 
-**Version:** 2026.03.07-MULTI-MODEL-SEALED
+**Version:** 2026.03.07-OPENCLAW-EXECUTIVE-SEALED
 **Classification:** TRINITY SEALED - Agent Reference
 **Authority:** Claude (Ω) Trinity + Codex (Ψ) Auditor
 **Motto:** *Ditempa Bukan Diberi* — Forged, Not Given
 
-**What's New (2026-03-07, rev MULTI-MODEL):**
+**What's New (2026-03-07, rev OPENCLAW-EXECUTIVE):**
+- ✅ **OpenClaw Docker Executive Power** — Root user + Docker socket mount, full container management capability
+- ✅ **OpenClaw Telegram Bot Fixed** — @arifOS_bot now running via polling, config symlinked to persisted volume
+- ✅ **OpenClaw Non-Redundant Config** — `/root/.openclaw → /home/node/.openclaw` symlink prevents split-brain
 - ✅ **Hardware Snapshot** — VPS spec, RAM baseline, 888_HOLD resource telemetry gate documented
 - ✅ **Multi-Model Ollama** — qwen2.5:14b (9GB, tool-capable) + qwen2.5:3b live; llama3.3:70b rejected (disk/RAM infeasible)
 - ✅ **12-Tier Model Fallback** — kimi → claude-opus-4-6 → gemini-2.5-pro → ... → ollama/qwen2.5:14b → ollama/qwen2.5:3b
@@ -71,7 +74,7 @@ This dossier contains **all wisdom, lessons, and operational knowledge** gained 
 ║  │ Container           │ Port  │ Network        │ Status  │ Role    │   ║
 ║  ├─────────────────────────────────────────────────────────────┤   ║
 ║  │ arifosmcp_server    │ 8080  │ arifos_trinity │ healthy │ Kernel  │   ║
-║  │ openclaw_gateway    │ 18789 │ arifos_trinity │ healthy │ AGI GW  │   ║
+║  │ openclaw_gateway    │ 18789 │ arifos_trinity │ healthy │ AGI GW + Docker Exec │   ║
 ║  │ traefik_router      │ 80/443│ arifos-internal│ up      │ Proxy   │   ║
 ║  │ headless_browser    │ int.  │ arifos_trinity │ healthy │ DOM     │   ║
 ║  │ qdrant_memory       │ 6333  │ arifos_trinity │ up      │ Vectors │   ║
@@ -666,6 +669,85 @@ OpenClaw (kimi-k2)
     → SEAL / VOID / PARTIAL
 ```
 
+
+---
+
+### EUREKA #8: OpenClaw Docker Executive Power + Telegram Config (SEALED 2026-03-07)
+
+**The Problem:** OpenClaw needed Docker CLI access to manage containers, but the container ran as `node` (uid=1000) without Docker permissions.
+
+**Attempted Fix (Created Chaos):**
+```yaml
+# docker-compose.yml - FIRST ATTEMPT (WRONG)
+services:
+  openclaw:
+    user: root  # Changed from node
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Already had this
+```
+This broke Telegram because OpenClaw switched from `/home/node/.openclaw` → `/root/.openclaw`, losing all config.
+
+**Root Cause:**
+- OpenClaw uses `$HOME/.openclaw` for state
+- When `user: root`, HOME=/root, so it looked in `/root/.openclaw`
+- Original config was in `/home/node/.openclaw` (persisted to host)
+- New `/root/.openclaw` was empty (container-only, not persisted)
+
+**The Fix (Two Parts):**
+
+**Part A: Docker Executive Power**
+```yaml
+# docker-compose.yml - FINAL (CORRECT)
+services:
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:latest
+    user: root  # AGI-level executive power
+    volumes:
+      - /opt/arifos/data/openclaw:/home/node/.openclaw  # Persisted state
+      - /var/run/docker.sock:/var/run/docker.sock:rw    # Docker API
+      - /usr/bin/docker:/usr/bin/docker:ro              # Docker CLI binary
+      - /usr/libexec/docker:/usr/libexec/docker:ro      # Docker CLI deps
+    environment:
+      - PATH=/home/node/.local/bin:...:/usr/bin:/bin  # Include docker binary path
+```
+
+**Part B: Symlink Config (Prevents Split-Brain)**
+```bash
+# Inside container, after it starts as root:
+rm -rf /root/.openclaw  # Remove empty container-only directory
+ln -s /home/node/.openclaw /root/.openclaw  # Symlink to persisted location
+
+# Now:
+# /root/.openclaw -> /home/node/.openclaw -> /opt/arifos/data/openclaw (host)
+```
+
+**Verification:**
+```bash
+# Check symlink
+docker exec openclaw_gateway ls -la /root/.openclaw
+# lrwxrwxrwx 1 root root 20 Mar  7 20:52 /root/.openclaw -> /home/node/.openclaw
+
+# Check Docker access
+docker exec openclaw_gateway docker ps
+# Lists all containers (executive power confirmed)
+
+# Check Telegram
+docker exec openclaw_gateway openclaw channels status
+# - Telegram default: enabled, configured, running, mode:polling, token:config
+```
+
+**Current Status:**
+| Component | Status | Details |
+|-----------|--------|---------|
+| Docker CLI | ✅ Available | Mounted from host |
+| Docker Socket | ✅ Accessible | Root user has permissions |
+| Container Management | ✅ Working | Can restart/stop any container |
+| Telegram Bot | ✅ Running | @arifOS_bot polling active |
+| Config Persistence | ✅ Fixed | Symlinked to host volume |
+| Data Redundancy | ✅ None | Single source of truth |
+
+**Lesson:** Changing container user requires understanding ALL paths that software uses. Symlinks are the cleanest solution for backward compatibility.
+
 ---
 
 ## 📸 REPO SNAPSHOT — 2026-03-07
@@ -1162,9 +1244,9 @@ Verdict: 888_HOLD → Human confirmation required
 
 **Classification:** TRINITY SEALED
 **Authority:** Arif (Sovereign) + Claude Code (AGI on VPS)
-**Date:** 2026-03-07 (P3 Hardening + OpenClaw Bridge Sealed)
+**Date:** 2026-03-07 (P3 Hardening + OpenClaw Bridge + Docker Executive Power + Telegram Fixed)
 **Status:** OPERATIONAL - Master Reference
-**Version:** 2026.03.07-P3-SEALED
+**Version:** 2026.03.07-OPENCLAW-EXECUTIVE-SEALED
 
 *This dossier is the accumulated wisdom of the arifOS VPS deployment. Future agents: learn from our discoveries, respect the architecture, and forge onward.*
 
