@@ -6,9 +6,7 @@ import json
 import os
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from typing import Any
 
-from core.observability.metrics import live_metrics
 ADAPTATION_LOCK_DAYS = 30
 ADAPTATION_DRIFT_THRESHOLD = 0.15  # 15% drift required
 

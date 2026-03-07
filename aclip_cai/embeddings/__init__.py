@@ -1,9 +1,11 @@
-from sentence_transformers import SentenceTransformer
-import os
 import logging
+import os
+
+from sentence_transformers import SentenceTransformer
 
 logger = logging.getLogger(__name__)
 _model = None
+
 
 def get_embedder():
     global _model
@@ -17,9 +19,10 @@ def get_embedder():
             logger.info(f"Using baked-in BGE model at {baked_in_path}")
         else:
             logger.info(f"Downloading BGE model: {model_name}")
-        
+
         _model = SentenceTransformer(model_name)
     return _model
+
 
 def embed(text: str) -> list[float]:
     model = get_embedder()

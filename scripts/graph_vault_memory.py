@@ -1,12 +1,12 @@
 import json
 import os
 import random
+
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 from sentence_transformers import SentenceTransformer
-from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
+
 
 def main():
     vault_path = r"C:\Users\User\arifOS\VAULT999\vault999.jsonl"
@@ -16,7 +16,7 @@ def main():
 
     print(f"Reading {vault_path}...")
     data = []
-    with open(vault_path, "r", encoding="utf-8") as f:
+    with open(vault_path, encoding="utf-8") as f:
         for line in f:
             try:
                 data.append(json.loads(line))
@@ -40,7 +40,7 @@ def main():
     print("Performing dimensionality reduction...")
     # PCA to reduce to 50 dims first if needed, then TSNE
     # But since bge-small is 384 dims, we can go straight to 2D
-    tsne = TSNE(n_components=2, random_state=42, perplexity=min(30, sample_size-1))
+    tsne = TSNE(n_components=2, random_state=42, perplexity=min(30, sample_size - 1))
     reduced = tsne.fit_transform(embeddings)
 
     df["x"] = reduced[:, 0]
@@ -48,11 +48,11 @@ def main():
 
     print("Generating plot...")
     plt.figure(figsize=(12, 8))
-    
+
     # Map verdicts to colors
     verdicts = df["verdict"].unique()
     colors = plt.cm.get_cmap("tab10", len(verdicts))
-    
+
     for i, verdict in enumerate(verdicts):
         subset = df[df["verdict"] == verdict]
         plt.scatter(subset["x"], subset["y"], label=verdict, alpha=0.7)
@@ -75,6 +75,7 @@ def main():
         f.write("|-------|---------|------------|\n")
         for _, row in df.head(10).iterrows():
             f.write(f"| {row['query'][:100]} | {row['verdict']} | {row['session_id']} |\n")
+
 
 if __name__ == "__main__":
     main()

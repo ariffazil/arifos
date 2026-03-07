@@ -6,7 +6,6 @@
 import math
 from dataclasses import dataclass
 
-
 # ═══════════════════════════════════════════════════════
 # P0 HARDENING: F7 Humility Constants
 # ═══════════════════════════════════════════════════════
@@ -20,14 +19,16 @@ HUMILITY_CRITICAL = 0.08  # VOID threshold
 class OmniscienceError(Exception):
     """
     P0: F7 Humiliation - Attempted claim of perfect knowledge.
-    
+
     Raised when model claims P=1.0 (100% confidence) on non-mathematical claims.
     """
+
     pass
 
 
 class HumilityBandViolation(Exception):
     """P0: Ω₀ outside constitutional band [0.03, 0.05]."""
+
     pass
 
 
@@ -63,14 +64,14 @@ class UncertaintyVector:
 def check_omniscience_lock(confidence: float, is_mathematical: bool = False) -> None:
     """
     P0 HARDENING: Omniscience Lock - Reject P=1.0 claims.
-    
-    If an LLM claims 100% confidence (P=1.0) on any non-trivial, 
+
+    If an LLM claims 100% confidence (P=1.0) on any non-trivial,
     non-mathematical claim, it is rejected as epistemic fraud.
-    
+
     Args:
         confidence: Model confidence score [0.0, 1.0]
         is_mathematical: True if claim is mathematical (2+2=4, etc.)
-    
+
     Raises:
         OmniscienceError: If P=1.0 on non-mathematical claim
     """
@@ -85,13 +86,13 @@ def check_omniscience_lock(confidence: float, is_mathematical: bool = False) -> 
 def enforce_humility_band(omega: float) -> float:
     """
     P0 HARDENING: Enforce Ω₀ ∈ [0.03, 0.05] constitutional band.
-    
+
     Args:
         omega: Uncertainty value to check
-    
+
     Returns:
         Clamped omega value
-    
+
     Raises:
         HumilityBandViolation: If omega > HUMILITY_CRITICAL (VOID)
     """
@@ -100,7 +101,7 @@ def enforce_humility_band(omega: float) -> float:
             f"F7_CRITICAL_UNCERTAINTY: Ω₀={omega:.4f} > {HUMILITY_CRITICAL}. "
             f"System too uncertain to operate."
         )
-    
+
     # Clamp to constitutional band
     if omega < HUMILITY_MIN:
         # Overconfidence - force minimum humility
@@ -108,7 +109,7 @@ def enforce_humility_band(omega: float) -> float:
     elif omega > HUMILITY_MAX:
         # Too uncertain - VOID should have been raised elsewhere
         return omega
-    
+
     return omega
 
 
@@ -119,7 +120,7 @@ class UncertaintyEngine:
     Q1 Architectural Decision:
     - HARMONIC mean for system safety (punishes weak components)
     - GEOMETRIC mean for user display (readable calibration)
-    
+
     P0 HARDENING:
     - Ω₀ ∈ [0.03, 0.05] band enforcement
     - Omniscience Lock (no P=1.0 on empirical claims)

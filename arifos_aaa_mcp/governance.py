@@ -23,13 +23,13 @@ from aaa_mcp.protocol.aaa_contract import (
     READ_ONLY_TOOLS,
     TRINITY_BY_TOOL,
 )
+from core.shared.guards.injection_guard import scan_for_injection
+from core.shared.guards.ontology_guard import detect_literalism
 from core.shared.mottos import (
     MOTTO_000_INIT_HEADER,
     MOTTO_999_SEAL_HEADER,
     get_motto_for_stage,
 )
-from core.shared.guards.injection_guard import scan_for_injection
-from core.shared.guards.ontology_guard import detect_literalism
 
 TOOL_LAW_BINDINGS = AAA_TOOL_LAW_BINDINGS
 TOOL_STAGE_MAP = AAA_TOOL_STAGE_MAP
@@ -84,7 +84,7 @@ def _safe_float(p: dict[str, Any], key: str, default: float) -> float:
         val = p.get("data", {}).get(key)
         if isinstance(val, dict):
             val = val.get(key)
-    
+
     if val is None:
         return default
     try:
@@ -98,7 +98,9 @@ def _derive_apex_dials(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     tool_cfg = TOOL_DIALS_MAP.get("tools", {}).get(tool, {})
     weights = tool_cfg.get("weights", {})
 
-    truth_score = _safe_float(payload.get("truth", {}), "score", _safe_float(payload, "truth_score", 0.8))
+    truth_score = _safe_float(
+        payload.get("truth", {}), "score", _safe_float(payload, "truth_score", 0.8)
+    )
     peace2 = _safe_float(payload, "peace2", 1.0)
     kappa_r = _safe_float(payload, "kappa_r", 0.95)
     omega0 = _safe_float(payload, "omega0", 0.04)
@@ -132,7 +134,9 @@ def _axiom_checks(payload: dict[str, Any], tool: str = "") -> dict[str, Any]:
         has_evidence = bool(execution_log.get("stdout") or execution_log.get("action"))
         has_authority = bool(execution_log.get("agent_id"))
     else:
-        has_evidence = any(k in text for k in ["evidence", "grounding", "results", "citations", "ids"])
+        has_evidence = any(
+            k in text for k in ["evidence", "grounding", "results", "citations", "ids"]
+        )
         has_authority = any(k in text for k in ["actor", "auth", "human_approve", "token"])
     dS_val = _safe_float(payload, "dS", -0.1)
 
@@ -165,7 +169,7 @@ def _command_authority_pass(tool: str, payload: dict[str, Any]) -> bool:
 def _classify_tool_for_consensus(tool: str) -> dict[str, Any]:
     """
     Classify tool for dynamic Tri-Witness thresholding.
-    
+
     Tool Classes:
     - UTILITY: Read-only tools (search, fetch, inspect)
     - SPINE: Governance tools (reason, simulate, critique)
@@ -180,45 +184,42 @@ def _classify_tool_for_consensus(tool: str) -> dict[str, Any]:
     return {"class": "SPINE", "threshold": 0.91, "witness_floor": 0.80}
 
 
-def _calculate_tri_witness_consensus(
-    tool: str,
-    payload: dict[str, Any]
-) -> dict[str, Any]:
+def _calculate_tri_witness_consensus(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     """
     P1 HARDENING: Calculate Tri-Witness consensus with geometric mean.
-    
+
     Formula: W₃ = ∛(H × A × E)
-    
+
     Where:
     - H (Human): Intent / Sovereign authority score
-    - A (AI): Internal logic / Constitutional compliance score  
+    - A (AI): Internal logic / Constitutional compliance score
     - E (Earth): Empirical grounding / Evidence score
-    
+
     Dynamic Thresholds:
     - UTILITY tools: W₃ ≥ 0.95
     - SPINE tools: W₃ ≥ 0.99
     - CRITICAL tools: W₃ ≥ 0.995
-    
+
     Per-Witness Minimum: Any witness < floor shatters consensus.
     """
     # Extract witness scores from payload
     # Default values assume partial consensus if not provided
-    human_score = _safe_float(payload, "human_witness", _safe_float(payload.get("authority", {}), "score", 0.95))
-    ai_score = _safe_float(payload, "ai_witness", _safe_float(payload.get("truth", {}), "score", 0.90))
+    human_score = _safe_float(
+        payload, "human_witness", _safe_float(payload.get("authority", {}), "score", 0.95)
+    )
+    ai_score = _safe_float(
+        payload, "ai_witness", _safe_float(payload.get("truth", {}), "score", 0.90)
+    )
     earth_score = _safe_float(payload, "earth_witness", _safe_float(payload, "grounding", 0.90))
-    
+
     # Get tool classification and thresholds
     tool_class = _classify_tool_for_consensus(tool)
     consensus_threshold = tool_class["threshold"]
     witness_floor = tool_class["witness_floor"]
-    
+
     # P1 HARDENING: Per-witness minimum check (consensus shatter)
-    witnesses = {
-        "human": human_score,
-        "ai": ai_score,
-        "earth": earth_score
-    }
-    
+    witnesses = {"human": human_score, "ai": ai_score, "earth": earth_score}
+
     for witness_name, score in witnesses.items():
         if score < witness_floor and not (tool == "reason_mind" and witness_name == "ai"):
             return {
@@ -229,15 +230,15 @@ def _calculate_tri_witness_consensus(
                 "shattered_by": witness_name,
                 "shatter_reason": f"{witness_name}_witness score {score:.4f} < floor {witness_floor}",
                 "witnesses": witnesses,
-                "tool_class": tool_class["class"]
+                "tool_class": tool_class["class"],
             }
-    
+
     # Calculate geometric mean: W₃ = ∛(H × A × E)
-    w3 = (human_score * ai_score * earth_score) ** (1/3)
-    
+    w3 = (human_score * ai_score * earth_score) ** (1 / 3)
+
     # Check consensus threshold
     passes = w3 >= consensus_threshold
-    
+
     return {
         "pass": passes,
         "verdict": "SEAL" if passes else "VOID",
@@ -245,7 +246,7 @@ def _calculate_tri_witness_consensus(
         "threshold": consensus_threshold,
         "witnesses": witnesses,
         "tool_class": tool_class["class"],
-        "shattered_by": None
+        "shattered_by": None,
     }
 
 
@@ -256,7 +257,7 @@ def _tri_witness_pass(tool: str, payload: dict[str, Any]) -> bool:
     # Read-only tools get simplified check
     if tool in READ_ONLY_TOOLS:
         return True
-    
+
     # Calculate full consensus for governance tools
     consensus = _calculate_tri_witness_consensus(tool, payload)
     return consensus.get("pass", False)
@@ -269,7 +270,13 @@ def _sovereignty_pass(tool: str, payload: dict[str, Any]) -> bool:
 
     if tool == "anchor_session":
         return _command_authority_pass(tool, payload)
-    if tool in {"reason_mind", "recall_memory", "vector_memory", "simulate_heart", "critique_thought"}:
+    if tool in {
+        "reason_mind",
+        "recall_memory",
+        "vector_memory",
+        "simulate_heart",
+        "critique_thought",
+    }:
         return session_ok
     if tool == "apex_judge":
         authority = payload.get("authority")
@@ -334,7 +341,9 @@ def _law13_checks(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         elif law == "F8_GENIUS":
             passed = bool(payload.get("verdict"))
         elif law == "F10_ONTOLOGY_LOCK":
-            passed = not detect_literalism(text) and not any(k in text for k in ["conscious ai", "self-aware ai"])
+            passed = not detect_literalism(text) and not any(
+                k in text for k in ["conscious ai", "self-aware ai"]
+            )
         elif law == "F13_SOVEREIGNTY":
             passed = _sovereignty_pass(tool, payload)
         else:
@@ -448,9 +457,9 @@ def _derive_vitality_index(
 ) -> dict[str, Any]:
     """
     Calculate Ψ (Vitality Index) - the master equation for constitutional homeostasis.
-    
+
     Ψ = (ΔS · Peace² · κᵣ · RASA · Amanah) / (Entropy + Shadow + ε)
-    
+
     Threshold: Ψ ≥ 1.0 required for SEAL verdict.
     If Ψ < 1.0, system is unstable → SABAR or VOID.
     """
@@ -458,42 +467,41 @@ def _derive_vitality_index(
     d_s = _safe_float(payload, "dS", -0.1)
     peace2 = _safe_float(payload, "peace2", 1.0)
     kappa_r = _safe_float(payload, "kappa_r", 0.95)
-    
+
     # RASA (Receive, Appreciate, Summarize, Ask) - active listening metric
     # Derived from truth score and engagement signals
     truth_score = _safe_float(apex_dials, "G_star", 0.8)
     rasa = _clamp(0.5 * truth_score + 0.5 * (kappa_r / 0.95))
-    
+
     # Amanah ( binary integrity lock - F1)
     amanah_pass = law_checks.get("F1_AMANAH", {}).get("pass", True)
     amanah = 1.0 if amanah_pass else 0.0  # Binary: 1 if passed, 0 if failed
-    
+
     # Numerator: Product of all constructive forces
     # Note: d_s is typically negative (entropy reduction), so we use |d_s| for magnitude
     # but preserve the sign effect - more negative = more clarity = higher vitality
     numerator = abs(d_s) * peace2 * kappa_r * rasa * amanah
-    
+
     # Denominator components (destructive forces)
     entropy = max(0.0, d_s) if d_s > 0 else 0.0  # Only positive entropy adds disorder
-    
+
     # Shadow: latent bias/unverified assumptions
     # Derived from failed floors and axiom violations
     failed_count = sum(
-        1 for v in law_checks.values() 
-        if v.get("required") and not v.get("pass", True)
+        1 for v in law_checks.values() if v.get("required") and not v.get("pass", True)
     )
     shadow = _clamp(failed_count / 5.0)  # Normalize: 5 failures = full shadow
-    
+
     # Epsilon: numerical stabilizer to prevent division by zero
     epsilon = 1e-6
-    
+
     # Calculate Ψ (Vitality Index)
     denominator = entropy + shadow + epsilon
     psi = numerator / denominator
-    
+
     # Clamp to reasonable range
     psi = _clamp(psi, 0.0, 10.0)
-    
+
     return {
         "engine": "VITALITY_INDEX",
         "formula": "Ψ = (|ΔS| · Peace² · κᵣ · RASA · Amanah) / (Entropy + Shadow + ε)",
@@ -519,31 +527,32 @@ def _derive_vitality_index(
 # P2 THERMODYNAMICS: Orthogonality + Landauer Bound
 # ═══════════════════════════════════════════════════════
 
+
 def _derive_orthogonality(agi_vector: list[float], asi_vector: list[float]) -> float:
     """
     P2 HARDENING: AGI/ASI Vector Orthogonality Check
-    
+
     Calculates the independence between Mind (AGI) and Heart (ASI).
     High orthogonality means they are not suffering from mode collapse.
-    
+
     Formula: Ω_ortho = 1 - |cos(θ)|
     Threshold: Ω_ortho >= 0.95 (95% independent)
-    
-    If AGI and ASI vectors are too similar (cos_sim ≈ 1), 
+
+    If AGI and ASI vectors are too similar (cos_sim ≈ 1),
     the system is echoing itself, not forming true consensus.
     """
     if not agi_vector or not asi_vector or len(agi_vector) != len(asi_vector):
         return 1.0  # Default to independent if vectors unavailable (fail-open for missing data)
-    
+
     dot_product = sum(a * b for a, b in zip(agi_vector, asi_vector))
     norm_a = math.sqrt(sum(a * a for a in agi_vector))
     norm_b = math.sqrt(sum(b * b for b in asi_vector))
-    
+
     if norm_a == 0 or norm_b == 0:
         return 0.0  # Failed vector generation
-    
+
     cos_sim = dot_product / (norm_a * norm_b)
-    
+
     # Omega_ortho: 1.0 = perfectly orthogonal (independent), 0.0 = parallel (echo chamber)
     omega_ortho = 1.0 - abs(cos_sim)
     return omega_ortho
@@ -557,35 +566,35 @@ def _orthogonality_pass(omega_ortho: float) -> bool:
 def _check_landauer_bound(compute_ms: float, tokens_generated: int, d_s: float) -> dict[str, Any]:
     """
     P2 HARDENING: Landauer Bound - Thermodynamic Cost Check
-    
+
     Prevents 'Cheap Truth' - hallucinating massive clarity without spending compute.
     Landauer's principle: E >= n * k_B * T * ln(2)
-    
-    If the system claims to reduce massive entropy (d_s << 0) but spent 
+
+    If the system claims to reduce massive entropy (d_s << 0) but spent
     nearly zero compute time/tokens, it is a mathematical anomaly.
     """
     # Baseline constants (approximations for semantic energy bounds)
     k_B_proxy = 1.38e-2  # Conceptual Boltzmann proxy for LLM compute
-    T_proxy = 300.0      # System 'temperature' baseline
-    
+    T_proxy = 300.0  # System 'temperature' baseline
+
     # Information bits theoretically processed (derived from entropy reduction)
     # Use absolute value since d_s must be <= 0 (reduction)
     bits_processed = abs(d_s) * 100
-    
+
     # Minimum theoretical cost to generate this clarity
     min_cost = bits_processed * k_B_proxy * T_proxy * math.log(2)
-    
+
     # Actual effort spent (compute time + token weight)
     actual_effort = (compute_ms * 0.5) + (tokens_generated * 1.5)
-    
+
     # Landauer Ratio: If effort < min_cost, output is suspiciously 'cheap'
     landauer_ratio = actual_effort / (min_cost + 1e-5)
-    
+
     passed = landauer_ratio >= 1.0
-    
+
     # Violation only counts if it claims clarity but didn't work for it
     violation = not passed and (d_s < 0)
-    
+
     return {
         "engine": "LANDAUER_BOUND",
         "formula": "E >= n * k_B * T * ln(2)",
@@ -622,11 +631,11 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         tac=tac,
         required_law_failures=failed_laws,
     )
-    
+
     # P0 HARDENING: Calculate Ψ (Vitality Index) - Master Equation
     vitality = _derive_vitality_index(payload, law_checks, apex_dials)
     psi_score = vitality.get("psi", 0.0)
-    
+
     verdict = str(payload.get("verdict", "SEAL"))
 
     # Hardening: Hard floor failure -> VOID
@@ -639,24 +648,24 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     # P1 HARDENING: Calculate Tri-Witness consensus with geometric mean
     tri_witness = _calculate_tri_witness_consensus(tool, payload)
     w3_score = tri_witness.get("w3", 0.0)
-    
+
     # P1 HARDENING: Φₚ (Paradox Conductance) - connect to verdict logic
     phi_p = tpcp.get("phiP", 0.0)
     paradox_resolved = phi_p >= 1.0
-    
+
     # P2 HARDENING: Orthogonality Check (Mode Collapse Prevention)
     agi_vector = payload.get("agi_vector", [])
     asi_vector = payload.get("asi_vector", [])
     omega_ortho = _derive_orthogonality(agi_vector, asi_vector)
     ortho_pass = _orthogonality_pass(omega_ortho)
-    
+
     # P2 HARDENING: Landauer Bound (Cheap Truth Prevention)
     landauer_data = _check_landauer_bound(
         compute_ms=payload.get("compute_ms", 100),
         tokens_generated=payload.get("tokens", 50),
-        d_s=_safe_float(payload, "dS", -0.1)
+        d_s=_safe_float(payload, "dS", -0.1),
     )
-    
+
     stage = TOOL_STAGE_MAP.get(tool, "000_INIT")
 
     # P0/P1/P2 HARDENING: Master verdict determination cascade
@@ -669,13 +678,19 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
             verdict = "SEAL"
         else:
             verdict = "VOID"
-    elif psi_score < 1.0 and payload.get("status") not in {"RECALL_PARTIAL_FAILURE", "SEARCH_PARTIAL_FAILURE"}:
+    elif psi_score < 1.0 and payload.get("status") not in {
+        "RECALL_PARTIAL_FAILURE",
+        "SEARCH_PARTIAL_FAILURE",
+    }:
         # System lacks vitality - cannot SEAL
         if psi_score < 0.5:
             verdict = "VOID"
         else:
             verdict = "SABAR"
-    elif not tri_witness.get("pass", False) and payload.get("status") not in {"RECALL_PARTIAL_FAILURE", "SEARCH_PARTIAL_FAILURE"}:
+    elif not tri_witness.get("pass", False) and payload.get("status") not in {
+        "RECALL_PARTIAL_FAILURE",
+        "SEARCH_PARTIAL_FAILURE",
+    }:
         # P1: Tri-Witness consensus failed
         if tri_witness.get("shattered_by"):
             verdict = "VOID"  # Witness shattered

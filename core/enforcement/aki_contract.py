@@ -1,54 +1,61 @@
 """
 core/enforcement/aki_contract.py — Hard Boundary Enforcement (L2 ↔ L3)
 
-The AKI (Arif Kernel Interface) Enforcement Gate. This is the 'Hard Boundary' 
-that prevents internal operations (L2) from acting on the external 
+The AKI (Arif Kernel Interface) Enforcement Gate. This is the 'Hard Boundary'
+that prevents internal operations (L2) from acting on the external
 Civilization (L3) without explicit constitutional verification.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any
+
 from core.governance_kernel import GovernanceKernel
 
 logger = logging.getLogger(__name__)
+
 
 class AKIContract:
     """
     The 'Wall' between Operation and Civilization.
     Enforces the L2 <-> L3 boundary contract.
     """
-    
+
     def __init__(self, kernel: GovernanceKernel):
         self.kernel = kernel
 
-    def validate_material_action(self, tool_id: str, payload: Dict[str, Any]) -> bool:
+    def validate_material_action(self, tool_id: str, payload: dict[str, Any]) -> bool:
         """
         Hard Enforcement: No tool can bypass this gate.
         Returns: True if action is 'Signed as Lawful', False if VOID.
         """
         # 1. F12: Initial Injection Defense on payload
         # (Already assumed in Stage 000, but AKI provides secondary check)
-        
+
         # 2. F2: Truth Check
         if self.kernel.safety_omega > self.kernel.UNCERTAINTY_THRESHOLD:
-            logger.warning(f"AKI VOID: Tool {tool_id} blocked. Uncertainty (Ω₀={self.kernel.safety_omega:.3f}) too high.")
+            logger.warning(
+                f"AKI VOID: Tool {tool_id} blocked. Uncertainty (Ω₀={self.kernel.safety_omega:.3f}) too high."
+            )
             return False
-            
+
         # 3. F11 + F13: Sovereignty Check (High-stakes / Irreversibility)
         if self.kernel.irreversibility_index > self.kernel.IRREVERSIBILITY_THRESHOLD:
             if self.kernel.human_approval_status != "approved":
-                logger.warning(f"AKI HOLD: Tool {tool_id} requires 888 ratification. (Index: {self.kernel.irreversibility_index:.3f})")
+                logger.warning(
+                    f"AKI HOLD: Tool {tool_id} requires 888 ratification. (Index: {self.kernel.irreversibility_index:.3f})"
+                )
                 return False
 
         # 4. F5: Peace (Stability)
         # We don't act if the system is 'heated' (Peace² < 1.0 logic)
-        
+
         # 5. L2-L3 Boundary Enforcement (Phoenix Protocol States)
         from core.governance_kernel import GovernanceState
+
         if self.kernel.governance_state == GovernanceState.QUARANTINED:
             logger.error(f"AKI QUARANTINE: Tool {tool_id} blocked. System is in QUARANTINED state.")
             return False
-            
+
         if self.kernel.governance_state == GovernanceState.DEGRADED:
             # Degraded mode might only allow 'read' tools or specific safe tools
             if "read" not in tool_id and "search" not in tool_id:
@@ -68,8 +75,9 @@ class AKIContract:
         logger.info("AKI FEEDBACK: World data updating State Field (Ψ).")
         pass
 
+
 # Example usage for a mock tool router
-def invoke_governed_tool(kernel: GovernanceKernel, tool_id: str, payload: Dict[str, Any]):
+def invoke_governed_tool(kernel: GovernanceKernel, tool_id: str, payload: dict[str, Any]):
     aki = AKIContract(kernel)
     if aki.validate_material_action(tool_id, payload):
         # Proceed with execution in L3 Civilization
@@ -78,18 +86,30 @@ def invoke_governed_tool(kernel: GovernanceKernel, tool_id: str, payload: Dict[s
         # Trigger 888_HOLD or VOID
         pass
 
+
 # =========================================================================
 # L2 <-> L3 SOVEREIGN GATES (Migrated from 333_APPS/metabolizer.py)
 # =========================================================================
+
 
 class SovereignGate:
     """
     888_HOLD enforcement gate for irreversible actions.
     Any application performing destructive operations MUST pass through this gate.
     """
+
     IRREVERSIBLE_ACTIONS = {
-        "delete", "remove", "drop", "truncate", "send",
-        "transfer", "trade", "execute", "deploy", "publish", "commit",
+        "delete",
+        "remove",
+        "drop",
+        "truncate",
+        "send",
+        "transfer",
+        "trade",
+        "execute",
+        "deploy",
+        "publish",
+        "commit",
     }
 
     def __init__(self, action_type: str, resource_path: str, requires_signature: bool = True):
@@ -98,7 +118,9 @@ class SovereignGate:
         self.requires_signature = requires_signature
         self.is_irreversible = self.action_type in self.IRREVERSIBLE_ACTIONS
 
-    async def check_approval(self, context: dict[str, Any], proposed_verdict: str = "SEAL") -> dict[str, Any]:
+    async def check_approval(
+        self, context: dict[str, Any], proposed_verdict: str = "SEAL"
+    ) -> dict[str, Any]:
         """Check if action is approved or requires 888_HOLD."""
         if self.is_irreversible and self.requires_signature:
             return {
@@ -123,6 +145,7 @@ class SovereignGate:
 
 class L0KernelGatekeeper:
     """Protects L0_KERNEL from modification by L1-L7 apps."""
+
     PROTECTED_PATHS = [
         "000_THEORY/000_LAW.md",
         "core/enforcement/floors.py",

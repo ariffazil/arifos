@@ -29,7 +29,11 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from typing import Any
 
-from aaa_mcp.server import mcp
+from fastmcp import FastMCP
+
+# Local MCP surface for ACLIP bridge tools.
+# This avoids a hard reverse dependency on aaa_mcp.server.
+mcp = FastMCP("ACLIP_CAI_Bridge")
 
 from .console_tools import (
     chroma_query,

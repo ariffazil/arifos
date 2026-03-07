@@ -6,10 +6,11 @@ All verification logic has been migrated to `core.observability.metrics.SystemAu
 """
 
 from __future__ import annotations
-import sys
+
 from pathlib import Path
 
 from core.observability.metrics import SystemAuditor
+
 
 def print_banner():
     print(
@@ -21,6 +22,7 @@ def print_banner():
 ╚══════════════════════════════════════════════════════════════════╝
     """
     )
+
 
 def main():
     print_banner()
@@ -56,6 +58,7 @@ def main():
         print("❌ VOID")
         for v in violations:
             print(f"  -> {v}")
+
 
 if __name__ == "__main__":
     main()

@@ -18,7 +18,12 @@ from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.routing import Mount, Route
 
-from arifos_aaa_mcp.server import create_aaa_mcp_server
+from aaa_mcp.server import create_unified_mcp_server
+
+
+def create_aaa_mcp_server():
+    """Compatibility shim preserving old factory name in aaa_mcp transport."""
+    return create_unified_mcp_server()
 
 
 async def health(_: Request) -> JSONResponse:

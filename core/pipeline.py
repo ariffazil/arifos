@@ -174,10 +174,10 @@ async def forge(
         # Metabolic Scheduler: Determine pressure
         complexity = min(1.0, len(query) / 500)  # Heuristic complexity
         pressure = kernel.calculate_pressure(complexity)
-        
+
         kernel.consume_energy(0.05)  # Cost of Ignition
         emd.energy.e_eff = kernel.current_energy
-        emd.metabolism.pressure = pressure # Track pressure in EMD
+        emd.metabolism.pressure = pressure  # Track pressure in EMD
 
     if token.is_void or token.requires_human:
         verdict = "VOID" if token.is_void else "888_HOLD"
@@ -185,15 +185,13 @@ async def forge(
         if verdict == "888_HOLD":
             remediation = "Sovereign approval required before high-stakes execution (F13)."
         else:
-            remediation = (
-                "Airlock blocked request. Verify actor/session authority (F11) and clean prompt input (F12)."
-            )
-        
+            remediation = "Airlock blocked request. Verify actor/session authority (F11) and clean prompt input (F12)."
+
         # Persist early violations
         current_violations = list(getattr(token, "floors_failed", []))
         if hasattr(token, "violations"):
             current_violations = list(dict.fromkeys(current_violations + list(token.violations)))
-        
+
         if verdict == "888_HOLD" and "F13" not in current_violations:
             current_violations.append("F13")
         update_floor_status(current_violations)
@@ -285,8 +283,8 @@ async def forge(
     if kernel:
         kernel.consume_energy(0.15)  # Cost of AGI reasoning
         if not kernel.can_proceed():
-             # Energy depletion or threshold reached
-             pass # Will be handled by floors check if kernel state updated
+            # Energy depletion or threshold reached
+            pass  # Will be handled by floors check if kernel state updated
         emd.energy.e_eff = kernel.current_energy
 
     agi_out = await agi(query, token.session_id, action="full")
@@ -504,7 +502,7 @@ async def forge(
         for key in ("floors_failed", "violations"):
             if key in apex_dict and apex_dict[key]:
                 final_violations.extend(apex_dict[key])
-    
+
     final_violations = list(set(final_violations))
     update_floor_status(final_violations)
 
@@ -692,6 +690,7 @@ async def forge_formatted(
 
     return formatted
 
+
 # =========================================================================
 # METABOLIC MEMBRANE (Migrated from 333_APPS/metabolizer.py)
 # =========================================================================
@@ -700,27 +699,35 @@ import time
 from abc import ABC, abstractmethod
 from enum import Enum
 
+
 class FloorType(Enum):
     """Constitutional floor classification."""
+
     HARD = "hard"  # Existential: VOID on failure
     SOFT = "soft"  # Performance: SABAR on failure
 
+
 class AppVerdict(Enum):
     """Application execution verdicts."""
+
     SEAL = "SEAL"
     SABAR = "SABAR"
     VOID = "VOID"
     HOLD_888 = "888_HOLD"
 
+
 class FloorRequirement(BaseModel):
     """Floor requirement for an application."""
+
     floor_id: str
     floor_type: FloorType
     threshold: Any | None = None
     description: str = ""
 
+
 class Telemetry(BaseModel):
     """Standard arifOS telemetry for app execution."""
+
     timestamp: float = Field(default_factory=time.time)
     dS: float = 0.0
     peace2: float = 1.0
@@ -730,19 +737,23 @@ class Telemetry(BaseModel):
     confidence: float = 0.99
     psi_le: float = 1.0
 
+
 class AppResult(BaseModel):
     """Result from a metabolized application."""
+
     verdict: AppVerdict
     output: Any
     telemetry: Telemetry
     stage: str = ""
     error: str | None = None
 
+
 class Metabolizer(ABC):
     """
     Abstract base class for all governed applications.
     Every high-level application must inherit from Metabolizer to ensure it routes through L0 Kernel.
     """
+
     def __init__(self, app_name: str, app_version: str = "1.0.0"):
         self.app_name = app_name
         self.app_version = app_version
@@ -763,6 +774,7 @@ class Metabolizer(ABC):
                 if req.floor_type == FloorType.HARD and not res.get("passed", False):
                     violations.append(f"{req.floor_id} (HARD): {req.description}")
         return violations
+
 
 def require_metabolizer(app_class):
     """Decorator to ensure a class inherits from Metabolizer."""
@@ -785,5 +797,5 @@ __all__ = [
     "FloorRequirement",
     "FloorType",
     "Telemetry",
-    "require_metabolizer"
+    "require_metabolizer",
 ]

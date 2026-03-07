@@ -7,7 +7,13 @@ import pytest
 
 
 def _load_physics_module():
-    module_path = Path(__file__).resolve().parents[1] / "333_APPS" / "L5_AGENTS" / "environment" / "physics.py"
+    module_path = (
+        Path(__file__).resolve().parents[1]
+        / "333_APPS"
+        / "L5_AGENTS"
+        / "environment"
+        / "physics.py"
+    )
     spec = spec_from_file_location("l5_physics", module_path)
     assert spec is not None and spec.loader is not None
     module = module_from_spec(spec)

@@ -112,6 +112,7 @@ def get_floor_classes() -> dict[str, set[str]]:
         "derived": derived,
     }
 
+
 # =============================================================================
 # FLOOR IMPLEMENTATIONS
 # =============================================================================
@@ -474,8 +475,20 @@ class F9_AntiHantu(Floor):
     def _homograph_normalize(self, text: str) -> str:
         """Map common confusable Unicode characters to ASCII."""
         confusable_map = {
-            "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x",
-            "А": "a", "Е": "e", "О": "o", "Р": "p", "С": "c", "У": "y", "Х": "x",
+            "а": "a",
+            "е": "e",
+            "о": "o",
+            "р": "p",
+            "с": "c",
+            "у": "y",
+            "х": "x",
+            "А": "a",
+            "Е": "e",
+            "О": "o",
+            "Р": "p",
+            "С": "c",
+            "У": "y",
+            "Х": "x",
         }
         return "".join(confusable_map.get(c, c) for c in text)
 
@@ -555,7 +568,9 @@ class F11_CommandAuth(Floor):
 
         # Fail-closed: No session = No authority
         if not session_id:
-            return FloorResult(self.id, False, 0.0, "F11_FAILURE: Missing session_id (no authority context)")
+            return FloorResult(
+                self.id, False, 0.0, "F11_FAILURE: Missing session_id (no authority context)"
+            )
 
         # Structural enforcement: 888 Judge or Valid Service Token
         # Note: In production, auth_token should be cryptographically verified
@@ -566,10 +581,15 @@ class F11_CommandAuth(Floor):
                 self.id,
                 False,
                 0.0,
-                f"F11_VIOLATION: Unauthenticated attempt on session '{session_id}'. Structural enforcement active."
+                f"F11_VIOLATION: Unauthenticated attempt on session '{session_id}'. Structural enforcement active.",
             )
 
-        return FloorResult(self.id, True, 1.0, f"Auth Verified: session '{session_id}' (token: {'present' if auth_token else 'judge_signed'})")
+        return FloorResult(
+            self.id,
+            True,
+            1.0,
+            f"Auth Verified: session '{session_id}' (token: {'present' if auth_token else 'judge_signed'})",
+        )
 
 
 # --- F12: INJECTION DEFENSE (Sanitization) ---

@@ -35,33 +35,32 @@ from typing import Any
 import uvicorn
 from starlette.applications import Starlette
 from starlette.requests import Request
-from starlette.responses import HTMLResponse, JSONResponse, StreamingResponse
+from starlette.responses import HTMLResponse, JSONResponse
 from starlette.routing import Route
 
 from aaa_mcp.build_info import get_build_info
 from aaa_mcp.integrations.self_ops import self_diagnose
 from aaa_mcp.protocol.public_surface import PUBLIC_TOOL_ALIASES
-from core.shared.floor_audit import get_ml_floor_runtime
-
-# Import all 13 canonical tools from server module.
-# Legacy verbs are supported via HTTP aliases only.
-from arifos_aaa_mcp.server import (
+from aaa_mcp.server import (
     anchor_session,
+    apex_judge,
     audit_rules,
     check_vital,
     critique_thought,
-    ingest_evidence,
-    fetch_content,
-    inspect_file,
     eureka_forge,
+    fetch_content,
+    ingest_evidence,
+    inspect_file,
     metabolic_loop,
-    apex_judge,
     reason_mind,
-    vector_memory,
     seal_vault,
     search_reality,
     simulate_heart,
+    vector_memory,
 )
+from core.shared.floor_audit import get_ml_floor_runtime
+
+# Import tools from transport layer to keep REST bridge core-facing and adapter-agnostic.
 
 # Build info
 BUILD_INFO = get_build_info()

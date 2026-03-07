@@ -3,6 +3,7 @@ Tests for core/uncertainty_engine.py and core/telemetry.py.
 
 Covers: UncertaintyVector, UncertaintyEngine, TelemetryStore, log_telemetry.
 """
+
 from __future__ import annotations
 
 import os
@@ -19,6 +20,7 @@ import pytest
 class TestUncertaintyVector:
     def test_default_values(self):
         from core.uncertainty_engine import UncertaintyVector
+
         v = UncertaintyVector()
         assert v.grounding == 0.0
         assert v.reasoning == 0.0
@@ -28,6 +30,7 @@ class TestUncertaintyVector:
 
     def test_to_dict(self):
         from core.uncertainty_engine import UncertaintyVector
+
         v = UncertaintyVector(grounding=0.2, reasoning=0.3, epistemic=0.1)
         d = v.to_dict()
         assert d["grounding"] == 0.2
@@ -36,6 +39,7 @@ class TestUncertaintyVector:
 
     def test_weights_sum_to_one(self):
         from core.uncertainty_engine import UncertaintyVector
+
         total = sum(UncertaintyVector.WEIGHTS.values())
         assert abs(total - 1.0) < 0.01
 
@@ -43,37 +47,44 @@ class TestUncertaintyVector:
 class TestOmniscienceLock:
     def test_high_confidence_raises(self):
         from core.uncertainty_engine import check_omniscience_lock, OmniscienceError
+
         with pytest.raises(OmniscienceError):
             check_omniscience_lock(1.0, is_mathematical=False)
 
     def test_high_confidence_math_ok(self):
         from core.uncertainty_engine import check_omniscience_lock
+
         # Should not raise for mathematical claims
         check_omniscience_lock(1.0, is_mathematical=True)
 
     def test_normal_confidence_ok(self):
         from core.uncertainty_engine import check_omniscience_lock
+
         check_omniscience_lock(0.95, is_mathematical=False)
 
 
 class TestHumilityBand:
     def test_below_min_clamped(self):
         from core.uncertainty_engine import enforce_humility_band, HUMILITY_MIN
+
         result = enforce_humility_band(0.0)
         assert result == HUMILITY_MIN
 
     def test_in_band_unchanged(self):
         from core.uncertainty_engine import enforce_humility_band
+
         result = enforce_humility_band(0.04)
         assert result == 0.04
 
     def test_above_max_but_below_critical(self):
         from core.uncertainty_engine import enforce_humility_band
+
         result = enforce_humility_band(0.06)
         assert result == 0.06  # Returned as-is (above max but below critical)
 
     def test_critical_raises(self):
         from core.uncertainty_engine import enforce_humility_band, HumilityBandViolation
+
         with pytest.raises(HumilityBandViolation):
             enforce_humility_band(0.09)
 
@@ -81,44 +92,56 @@ class TestHumilityBand:
 class TestUncertaintyEngine:
     def setup_method(self):
         from core.uncertainty_engine import UncertaintyEngine
+
         self.engine = UncertaintyEngine()
 
     def test_harmonic_mean_returns_float(self):
         from core.uncertainty_engine import UncertaintyVector
-        v = UncertaintyVector(grounding=0.3, reasoning=0.2, epistemic=0.1,
-                               aleatoric=0.1, model_confidence=0.1)
+
+        v = UncertaintyVector(
+            grounding=0.3, reasoning=0.2, epistemic=0.1, aleatoric=0.1, model_confidence=0.1
+        )
         result = self.engine.harmonic_mean(v)
         assert isinstance(result, float)
         assert 0.0 <= result <= 1.0
 
     def test_harmonic_mean_boosts_high_uncertainty(self):
         from core.uncertainty_engine import UncertaintyVector
+
         # High grounding uncertainty should be boosted
-        v_high = UncertaintyVector(grounding=0.8, reasoning=0.1, epistemic=0.1,
-                                    aleatoric=0.1, model_confidence=0.1)
-        v_low = UncertaintyVector(grounding=0.2, reasoning=0.1, epistemic=0.1,
-                                   aleatoric=0.1, model_confidence=0.1)
+        v_high = UncertaintyVector(
+            grounding=0.8, reasoning=0.1, epistemic=0.1, aleatoric=0.1, model_confidence=0.1
+        )
+        v_low = UncertaintyVector(
+            grounding=0.2, reasoning=0.1, epistemic=0.1, aleatoric=0.1, model_confidence=0.1
+        )
         assert self.engine.harmonic_mean(v_high) > self.engine.harmonic_mean(v_low)
 
     def test_geometric_mean_returns_float(self):
         from core.uncertainty_engine import UncertaintyVector
-        v = UncertaintyVector(grounding=0.3, reasoning=0.3, epistemic=0.3,
-                               aleatoric=0.3, model_confidence=0.3)
+
+        v = UncertaintyVector(
+            grounding=0.3, reasoning=0.3, epistemic=0.3, aleatoric=0.3, model_confidence=0.3
+        )
         result = self.engine.geometric_mean(v)
         assert isinstance(result, float)
 
     def test_arithmetic_mean_returns_float(self):
         from core.uncertainty_engine import UncertaintyVector
-        v = UncertaintyVector(grounding=0.4, reasoning=0.3, epistemic=0.2,
-                               aleatoric=0.1, model_confidence=0.1)
+
+        v = UncertaintyVector(
+            grounding=0.4, reasoning=0.3, epistemic=0.2, aleatoric=0.1, model_confidence=0.1
+        )
         result = self.engine.arithmetic_mean(v)
         assert isinstance(result, float)
         assert 0.0 <= result <= 1.0
 
     def test_calculate_returns_dict(self):
         from core.uncertainty_engine import UncertaintyVector
-        v = UncertaintyVector(grounding=0.04, reasoning=0.04, epistemic=0.04,
-                               aleatoric=0.04, model_confidence=0.04)
+
+        v = UncertaintyVector(
+            grounding=0.04, reasoning=0.04, epistemic=0.04, aleatoric=0.04, model_confidence=0.04
+        )
         result = self.engine.calculate(v)
         assert "safety_omega" in result
         assert "display_omega" in result
@@ -126,27 +149,34 @@ class TestUncertaintyEngine:
 
     def test_calculate_low_uncertainty_proceed(self):
         from core.uncertainty_engine import UncertaintyVector
+
         # Very low uncertainty → clamped to HUMILITY_MIN (0.03) by band enforcement
         # so minimum possible recommendation is PROCEED_WITH_CAUTION
-        v = UncertaintyVector(grounding=0.01, reasoning=0.01, epistemic=0.01,
-                               aleatoric=0.01, model_confidence=0.01)
+        v = UncertaintyVector(
+            grounding=0.01, reasoning=0.01, epistemic=0.01, aleatoric=0.01, model_confidence=0.01
+        )
         result = self.engine.calculate(v)
         assert result["recommendation"] in ("PROCEED", "PROCEED_WITH_CAUTION")
 
     def test_calculate_high_uncertainty_void(self):
         from core.uncertainty_engine import UncertaintyVector
+
         # Very high uncertainty → VOID or HumilityBandViolation caught
-        v = UncertaintyVector(grounding=0.9, reasoning=0.9, epistemic=0.9,
-                               aleatoric=0.9, model_confidence=0.9)
+        v = UncertaintyVector(
+            grounding=0.9, reasoning=0.9, epistemic=0.9, aleatoric=0.9, model_confidence=0.9
+        )
         result = self.engine.calculate(v)
         assert "recommendation" in result
         # Either VOID_ACTION_REQUIRED from band violation or from threshold
         assert result["recommendation"] in (
-            "VOID_ACTION_REQUIRED", "HUMAN_REVIEW_RECOMMENDED", "PROCEED_WITH_CAUTION"
+            "VOID_ACTION_REQUIRED",
+            "HUMAN_REVIEW_RECOMMENDED",
+            "PROCEED_WITH_CAUTION",
         )
 
     def test_from_evidence_creates_vector(self):
         from core.uncertainty_engine import UncertaintyVector
+
         v = self.engine.from_evidence(
             evidence_count=5,
             evidence_relevance=0.9,
@@ -179,6 +209,7 @@ class TestUncertaintyEngine:
 class TestCalculateUncertainty:
     def test_returns_dict(self):
         from core.uncertainty_engine import calculate_uncertainty
+
         result = calculate_uncertainty(
             evidence_count=3,
             evidence_relevance=0.8,
@@ -192,6 +223,7 @@ class TestCalculateUncertainty:
 
     def test_no_args(self):
         from core.uncertainty_engine import calculate_uncertainty
+
         result = calculate_uncertainty()
         assert isinstance(result, dict)
 
@@ -204,6 +236,7 @@ class TestCalculateUncertainty:
 class TestConstitutionalTelemetry:
     def test_creation(self):
         from core.telemetry import ConstitutionalTelemetry
+
         t = ConstitutionalTelemetry(session_id="sess-1")
         assert t.session_id == "sess-1"
         assert t.omega_0 == 0.0
@@ -211,6 +244,7 @@ class TestConstitutionalTelemetry:
 
     def test_timestamp_set(self):
         from core.telemetry import ConstitutionalTelemetry
+
         t = ConstitutionalTelemetry(session_id="sess-2")
         assert isinstance(t.timestamp, str)
         assert len(t.timestamp) > 10
@@ -220,25 +254,30 @@ class TestTelemetryStore:
     def setup_method(self):
         import tempfile
         from core.telemetry import TelemetryStore
+
         self.tmpdir = tempfile.mkdtemp()
         self.store = TelemetryStore(storage_path=self.tmpdir)
 
     def teardown_method(self):
         import shutil
+
         shutil.rmtree(self.tmpdir, ignore_errors=True)
 
     def test_first_date_none_initially(self):
         import tempfile
         from core.telemetry import TelemetryStore
+
         # Fresh store with empty dir
         d = tempfile.mkdtemp()
         store = TelemetryStore(storage_path=d)
         import shutil
+
         shutil.rmtree(d, ignore_errors=True)
         assert store.first_telemetry_date is None
 
     def test_log_creates_file(self):
         from core.telemetry import ConstitutionalTelemetry
+
         t = ConstitutionalTelemetry(session_id="test-sess")
         self.store.log(t)
         # After logging, first date should be set
@@ -249,6 +288,7 @@ class TestTelemetryStore:
 
     def test_log_second_time_keeps_first_date(self):
         from core.telemetry import ConstitutionalTelemetry
+
         t1 = ConstitutionalTelemetry(session_id="s1")
         self.store.log(t1)
         first_date = self.store.first_telemetry_date
@@ -261,6 +301,7 @@ class TestTelemetryStore:
 
     def test_get_telemetry_days_after_log(self):
         from core.telemetry import ConstitutionalTelemetry
+
         t = ConstitutionalTelemetry(session_id="s")
         self.store.log(t)
         days = self.store.get_telemetry_days()
@@ -283,6 +324,7 @@ class TestTelemetryStore:
 
     def test_calculate_weekly_drift_with_data(self):
         from core.telemetry import ConstitutionalTelemetry
+
         t = ConstitutionalTelemetry(
             session_id="s",
             predicted_risk=0.3,
@@ -302,6 +344,7 @@ class TestTelemetryStore:
 
     def test_first_date_persisted(self):
         from core.telemetry import TelemetryStore, ConstitutionalTelemetry
+
         t = ConstitutionalTelemetry(session_id="persist-test")
         self.store.log(t)
         # Reload from same path
@@ -313,6 +356,7 @@ class TestLogTelemetryFunction:
     def test_log_telemetry_void(self, tmp_path):
         from core.telemetry import TelemetryStore, ConstitutionalTelemetry
         import core.telemetry as tel_module
+
         # Temporarily override the global store
         old_store = tel_module.telemetry_store
         tel_module.telemetry_store = TelemetryStore(storage_path=str(tmp_path))
@@ -328,6 +372,7 @@ class TestLogTelemetryFunction:
 
     def test_log_telemetry_seal(self, tmp_path):
         import core.telemetry as tel_module
+
         old_store = tel_module.telemetry_store
         tel_module.telemetry_store = tel_module.TelemetryStore(storage_path=str(tmp_path))
         try:
@@ -337,6 +382,7 @@ class TestLogTelemetryFunction:
 
     def test_log_telemetry_sabar(self, tmp_path):
         import core.telemetry as tel_module
+
         old_store = tel_module.telemetry_store
         tel_module.telemetry_store = tel_module.TelemetryStore(storage_path=str(tmp_path))
         try:
@@ -346,16 +392,17 @@ class TestLogTelemetryFunction:
 
     def test_log_telemetry_888_hold(self, tmp_path):
         import core.telemetry as tel_module
+
         old_store = tel_module.telemetry_store
         tel_module.telemetry_store = tel_module.TelemetryStore(storage_path=str(tmp_path))
         try:
-            tel_module.log_telemetry("sess", 0.04, 0.1, verdict="888_HOLD",
-                                     gate_activated=True)
+            tel_module.log_telemetry("sess", 0.04, 0.1, verdict="888_HOLD", gate_activated=True)
         finally:
             tel_module.telemetry_store = old_store
 
     def test_log_telemetry_gate_reason_omega(self, tmp_path):
         import core.telemetry as tel_module
+
         old_store = tel_module.telemetry_store
         tel_module.telemetry_store = tel_module.TelemetryStore(storage_path=str(tmp_path))
         try:
@@ -366,6 +413,7 @@ class TestLogTelemetryFunction:
 
     def test_log_telemetry_gate_reason_irreversibility(self, tmp_path):
         import core.telemetry as tel_module
+
         old_store = tel_module.telemetry_store
         tel_module.telemetry_store = tel_module.TelemetryStore(storage_path=str(tmp_path))
         try:
@@ -376,6 +424,7 @@ class TestLogTelemetryFunction:
 
     def test_check_adaptation_status(self, tmp_path):
         import core.telemetry as tel_module
+
         old_store = tel_module.telemetry_store
         tel_module.telemetry_store = tel_module.TelemetryStore(storage_path=str(tmp_path))
         try:

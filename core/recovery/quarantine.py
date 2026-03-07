@@ -1,27 +1,28 @@
 """
 core/recovery/quarantine.py — Agent Isolation & Cooling
 
-Integrates with AgentRegistry to isolate agents that breach 
+Integrates with AgentRegistry to isolate agents that breach
 critical constitutional floors (F2, F5, F11).
 """
 
 import logging
-from typing import Dict, List, Optional
-from core.state.agent_registry import agent_registry, AgentStatus
+
+from core.state.agent_registry import AgentStatus, agent_registry
 
 logger = logging.getLogger(__name__)
 
 # P0: Violation thresholds-based recovery
 VIOLATION_QUARANTINE_THRESHOLD = 3
 
+
 class QuarantineManager:
     """
     Active Enforcement & Recovery.
     Protects the kernel from repeated constitutional violations.
     """
-    
+
     def __init__(self):
-        self._quarantined_agents: List[str] = []
+        self._quarantined_agents: list[str] = []
 
     def check_and_isolate(self, pid: str) -> bool:
         """
@@ -31,7 +32,7 @@ class QuarantineManager:
         agent = agent_registry.get_agent(pid)
         if not agent:
             return False
-            
+
         if agent.violation_count >= VIOLATION_QUARANTINE_THRESHOLD:
             logger.warning(f"CRITICAL: Agent {pid} reached violation threshold. ISOLATING.")
             agent_registry.update_status(pid, AgentStatus.QUARANTINED)
@@ -48,6 +49,7 @@ class QuarantineManager:
             agent_registry.update_status(pid, AgentStatus.READY)
             self._quarantined_agents.remove(pid)
             logger.info(f"Agent {pid} released from quarantine by manual override.")
+
 
 # Global singleton
 quarantine_manager = QuarantineManager()

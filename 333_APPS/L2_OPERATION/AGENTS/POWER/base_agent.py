@@ -30,9 +30,7 @@ class Agent:
         profiles = load_role_profiles()
         profile = profiles.get(self.role_id)
         if profile is None:
-            return AgentResult(
-                verdict="VOID", error=f"Missing role profile for {self.role_id}"
-            )
+            return AgentResult(verdict="VOID", error=f"Missing role profile for {self.role_id}")
 
         gate = preflight(profile, context)
         context["preflight"] = {

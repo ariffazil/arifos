@@ -21,9 +21,9 @@ _SAMPLING_ENABLED = True
 
 try:
     from ...core.constitutional_sampling import (
-        sample_reason,
         ReasonResult,
         SamplingConfig,
+        sample_reason,
     )
 except ImportError:
     _SAMPLING_ENABLED = False
@@ -33,7 +33,7 @@ async def reason(
     session_id: str,
     hypothesis: str,
     evidence: list[str],
-    ctx: "Context | None" = None,
+    ctx: Context | None = None,
     use_sampling: bool = True,
     temperature: float = 0.3,
 ) -> dict[str, Any]:
@@ -53,7 +53,7 @@ async def _reason_with_sampling(
     session_id: str,
     hypothesis: str,
     evidence: list[str],
-    ctx: "Context",
+    ctx: Context,
     temperature: float,
 ) -> dict[str, Any]:
     """REASON using FastMCP sampling with constitutional governance."""

@@ -24,9 +24,9 @@ def test_syscall_anchor():
 
 def test_syscall_reason():
     payload = {
-        "name": "reason", 
-        "arguments": {"query": "mathematically, 2+2=4 [ref: ario]. human-approved validation."}, 
-        "session_id": "test-sess-001"
+        "name": "reason",
+        "arguments": {"query": "mathematically, 2+2=4 [ref: ario]. human-approved validation."},
+        "session_id": "test-sess-001",
     }
     response = client.post("/mcp/reason", json=payload)
     assert response.status_code == 200

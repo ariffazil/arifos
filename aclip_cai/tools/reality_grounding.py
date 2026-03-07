@@ -25,7 +25,8 @@ import time
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
-from typing import Any, List, Dict
+from typing import Any
+
 from aclip_cai.tools.logic.consensus_arbitrator import ConsensusArbitrator
 
 logger = logging.getLogger(__name__)
@@ -532,8 +533,8 @@ class RealityGroundingCascade:
                     engines_used_map[engine.NAME] = results
                     engines_used.append(engine.NAME)
                     logger.info(f"Success with {engine.NAME}: {len(results)} results")
-                    
-                    # If we found enough results from a high-quality engine (Brave/DDGS), 
+
+                    # If we found enough results from a high-quality engine (Brave/DDGS),
                     # we can stop for efficiency, unless 'consensus_depth' is requested.
                     # For now, let's allow up to 2 engines for 'consensus'.
                     if len(engines_used) >= 2:
@@ -554,7 +555,7 @@ class RealityGroundingCascade:
             status = "OK" if len(engines_failed) == 0 else "PARTIAL"
             audit_trail_consensus = {
                 "consensus_variance": arbitration["consensus_variance"],
-                "witness_count": arbitration["witness_count"]
+                "witness_count": arbitration["witness_count"],
             }
         else:
             all_results = []

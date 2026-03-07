@@ -21,10 +21,7 @@ from datetime import datetime, timezone
 sys.path.insert(0, "/srv/arifOS")
 
 from aaa_mcp.external_gateways import (
-    BraveSearchClient,
     HeadlessBrowserClient,
-    JinaReaderClient,
-    PerplexitySearchClient,
 )
 
 
@@ -48,7 +45,7 @@ async def test_headless_client():
     print(f"[Health] Status: {health.get('status')}")
     print(f"[Health] Details: {health}")
 
-    if health.get('status') != 'HEALTHY':
+    if health.get("status") != "HEALTHY":
         print("⚠️  SKIP: Headless browser not healthy")
         return None
 
@@ -65,14 +62,14 @@ async def test_headless_client():
     print(f"[Result] Render time: {result.get('render_time_ms')}ms")
 
     # Verify F12 envelope
-    content = result.get('content', '')
-    if '<untrusted_external_data' in content and 'f12_defense' in content:
+    content = result.get("content", "")
+    if "<untrusted_external_data" in content and "f12_defense" in content:
         print("✅ PASS: F12 envelope present")
     else:
         print("❌ FAIL: F12 envelope missing")
 
     # Verify content hash
-    if result.get('content_hash') and len(result.get('content_hash')) == 16:
+    if result.get("content_hash") and len(result.get("content_hash")) == 16:
         print("✅ PASS: Content hash valid (SHA-256 truncated)")
     else:
         print("❌ FAIL: Content hash invalid")
@@ -100,17 +97,41 @@ async def test_query_classification():
     def classify(q: str) -> str:
         q_lower = q.lower()
         spa_indicators = [
-            "site:github.io", "site:vercel.app", "site:netlify.app",
-            "react", "vue", "angular", "spa", "dashboard", "webapp",
-            "interactive", "dynamic", "real-time"
+            "site:github.io",
+            "site:vercel.app",
+            "site:netlify.app",
+            "react",
+            "vue",
+            "angular",
+            "spa",
+            "dashboard",
+            "webapp",
+            "interactive",
+            "dynamic",
+            "real-time",
         ]
         research_indicators = [
-            "research", "paper", "study", "analysis", "whitepaper",
-            "arxiv", "academic", "journal", "survey", "report"
+            "research",
+            "paper",
+            "study",
+            "analysis",
+            "whitepaper",
+            "arxiv",
+            "academic",
+            "journal",
+            "survey",
+            "report",
         ]
         news_indicators = [
-            "news", "latest", "today", "breaking", "update",
-            "current", "2025", "2026", "recent"
+            "news",
+            "latest",
+            "today",
+            "breaking",
+            "update",
+            "current",
+            "2025",
+            "2026",
+            "recent",
         ]
 
         if any(i in q_lower for i in spa_indicators):
@@ -166,9 +187,9 @@ async def test_search_reality_api():
         print(f"[Elapsed] {elapsed:.0f}ms")
 
         # Validation
-        if result.get('status') not in ['ERROR', 'NO_VALID_SOURCES', 'REALITY_FALLBACK']:
+        if result.get("status") not in ["ERROR", "NO_VALID_SOURCES", "REALITY_FALLBACK"]:
             print("✅ PASS: Got meaningful results")
-        elif result.get('status') == 'REALITY_FALLBACK':
+        elif result.get("status") == "REALITY_FALLBACK":
             print("⚠️  WARN: Reality fallback used (all sources failed)")
         else:
             print("❌ FAIL: Error status")
@@ -215,7 +236,9 @@ async def test_quality_scoring():
 
     for i, tc in enumerate(test_cases):
         score = score_quality(tc)
-        print(f"Test case {i+1}: score = {score:.2f} (status: {tc['status']}, content_len: {len(tc['content'])})")
+        print(
+            f"Test case {i+1}: score = {score:.2f} (status: {tc['status']}, content_len: {len(tc['content'])})"
+        )
 
 
 async def main():

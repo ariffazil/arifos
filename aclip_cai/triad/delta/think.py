@@ -23,7 +23,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from ...core.kernel import kernel
 from .._utils import serialize_floor_concerns
@@ -36,9 +36,9 @@ _SAMPLING_ENABLED = True
 
 try:
     from ...core.constitutional_sampling import (
-        sample_think,
-        ThinkResult,
         SamplingConfig,
+        ThinkResult,
+        sample_think,
     )
 except ImportError:
     _SAMPLING_ENABLED = False
@@ -94,7 +94,7 @@ async def _run_exploratory_path(action: str, context: str) -> dict:
         "alternatives": [
             f"Option A — direct approach: {action[:80]}",
             f"Option B — inversion: reconsider assumptions behind '{action[:50]}'",
-            f"Option C — systemic view: what upstream factors drive this?",
+            "Option C — systemic view: what upstream factors drive this?",
         ],
         "assumptions": [
             {"type": "speculative", "text": "novel territory possible"},
@@ -194,7 +194,7 @@ def _build_reasoning_tree(
                 "note": "Conservative and Exploratory paths disagree on verdict",
             }
         )
-    
+
     # Large confidence delta between conservative and adversarial indicates fragility
     if abs(conservative["confidence"] - adversarial["confidence"]) > 0.4:
         contradictions.append(
@@ -212,9 +212,15 @@ def _build_reasoning_tree(
     for c in contradictions:
         penalty = 0.2 if c["severity"] == "medium" else 0.4
         base_stability -= penalty
-    
+
     # Floor at 0.05 (F7 humility requirement)
-    weighted_stability = round(max(0.05, base_stability * (1.0 - abs(conservative["confidence"] - exploratory["confidence"]))), 3)
+    weighted_stability = round(
+        max(
+            0.05,
+            base_stability * (1.0 - abs(conservative["confidence"] - exploratory["confidence"])),
+        ),
+        3,
+    )
 
     return {
         "root": query[:200],
@@ -252,9 +258,24 @@ def _build_reasoning_tree(
         "weighted_stability": weighted_stability,
         "contradictions": contradictions,
         "assumption_classifications": {
-            "verifiable": [a["text"] for p in [conservative, exploratory, adversarial] for a in p["assumptions"] if a["type"] == "verifiable"],
-            "speculative": [a["text"] for p in [conservative, exploratory, adversarial] for a in p["assumptions"] if a["type"] == "speculative"],
-            "canonical": [a["text"] for p in [conservative, exploratory, adversarial] for a in p["assumptions"] if a["type"] == "canonical"],
+            "verifiable": [
+                a["text"]
+                for p in [conservative, exploratory, adversarial]
+                for a in p["assumptions"]
+                if a["type"] == "verifiable"
+            ],
+            "speculative": [
+                a["text"]
+                for p in [conservative, exploratory, adversarial]
+                for a in p["assumptions"]
+                if a["type"] == "speculative"
+            ],
+            "canonical": [
+                a["text"]
+                for p in [conservative, exploratory, adversarial]
+                for a in p["assumptions"]
+                if a["type"] == "canonical"
+            ],
         },
     }
 
@@ -268,7 +289,7 @@ async def think(
     session_id: str,
     query: str,
     context: str = "",
-    ctx: "Context | None" = None,
+    ctx: Context | None = None,
     use_sampling: bool = True,
     temperature: float = 0.5,
 ) -> dict:
@@ -311,7 +332,7 @@ async def _think_with_sampling(
     session_id: str,
     query: str,
     context: str,
-    ctx: "Context",
+    ctx: Context,
     temperature: float,
 ) -> dict:
     """

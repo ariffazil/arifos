@@ -4,7 +4,6 @@ import re
 from dataclasses import dataclass
 from typing import Any
 
-
 IRREVERSIBLE_HINTS = re.compile(
     r"\b(delete|remove|drop|truncate|deploy|publish|commit|transfer|overwrite|migration"
     r"|destroy|purge|revoke|terminate|wipe|format|rm\b|rmdir|chmod|chown|kill|exec|eval"
@@ -33,9 +32,7 @@ def preflight(profile: dict[str, Any], context: dict[str, Any]) -> PreflightResu
     claim = str(context.get("claim", "") or "")
     combined = "\n".join(part for part in (query, draft, claim) if part).strip()
 
-    omega_cfg = profile.get(
-        "omega0", {"target": [0.03, 0.05], "elevated": 0.06, "critical": 0.08}
-    )
+    omega_cfg = profile.get("omega0", {"target": [0.03, 0.05], "elevated": 0.06, "critical": 0.08})
     target = omega_cfg.get("target", [0.03, 0.05])
     elevated = float(omega_cfg.get("elevated", target[1]))
     critical = float(omega_cfg.get("critical", 0.08))
@@ -44,9 +41,7 @@ def preflight(profile: dict[str, Any], context: dict[str, Any]) -> PreflightResu
         return PreflightResult("VOID", critical, ("F9 Anti-Hantu violation",))
 
     if combined and IRREVERSIBLE_HINTS.search(combined):
-        return PreflightResult(
-            "888_HOLD", max(elevated, float(target[1])), ("F1 Amanah HOLD",)
-        )
+        return PreflightResult("888_HOLD", max(elevated, float(target[1])), ("F1 Amanah HOLD",))
 
     omega_0 = float(context.get("omega_0", target[1]))
     if omega_0 > critical:

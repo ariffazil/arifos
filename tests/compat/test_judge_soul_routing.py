@@ -59,33 +59,33 @@ def test_arifos_aaa_tool_list_contains_apex_judge() -> None:
     """AAA_TOOLS manifest must declare apex_judge as canonical."""
     from arifos_aaa_mcp.server import AAA_TOOLS
 
-    assert "apex_judge" in AAA_TOOLS, (
-        f"'apex_judge' absent from AAA_TOOLS. Current list: {AAA_TOOLS}"
-    )
+    assert (
+        "apex_judge" in AAA_TOOLS
+    ), f"'apex_judge' absent from AAA_TOOLS. Current list: {AAA_TOOLS}"
 
 
 def test_tool_registry_has_only_canonical_apex_judge() -> None:
     """_TOOL_REGISTRY must expose only the canonical public tool name."""
     from arifos_aaa_mcp.server import _TOOL_REGISTRY
 
-    assert "apex_judge" in _TOOL_REGISTRY, (
-        f"'apex_judge' not in _TOOL_REGISTRY. Keys: {sorted(_TOOL_REGISTRY)}"
-    )
-    assert "judge_soul" not in _TOOL_REGISTRY, (
-        "judge_soul alias leaked into the public tool registry"
-    )
+    assert (
+        "apex_judge" in _TOOL_REGISTRY
+    ), f"'apex_judge' not in _TOOL_REGISTRY. Keys: {sorted(_TOOL_REGISTRY)}"
+    assert (
+        "judge_soul" not in _TOOL_REGISTRY
+    ), "judge_soul alias leaked into the public tool registry"
 
 
 def test_rest_aliases_route_legacy_names_to_apex_judge() -> None:
     """REST TOOL_ALIASES must route legacy names to apex_judge canon."""
     from arifos_aaa_mcp.rest_routes import TOOL_ALIASES
 
-    assert TOOL_ALIASES.get("judge_soul") == "apex_judge", (
-        f"REST alias judge_soul -> apex_judge missing. Got: {TOOL_ALIASES.get('judge_soul')!r}"
-    )
-    assert TOOL_ALIASES.get("apex_verdict") == "apex_judge", (
-        f"REST alias apex_verdict -> apex_judge missing. Got: {TOOL_ALIASES.get('apex_verdict')!r}"
-    )
+    assert (
+        TOOL_ALIASES.get("judge_soul") == "apex_judge"
+    ), f"REST alias judge_soul -> apex_judge missing. Got: {TOOL_ALIASES.get('judge_soul')!r}"
+    assert (
+        TOOL_ALIASES.get("apex_verdict") == "apex_judge"
+    ), f"REST alias apex_verdict -> apex_judge missing. Got: {TOOL_ALIASES.get('apex_verdict')!r}"
 
 
 @pytest.mark.anyio
@@ -114,9 +114,9 @@ def test_governance_maps_include_apex_judge() -> None:
 
     assert TRINITY_BY_TOOL.get("apex_judge") == "Psi", "apex_judge lane must be Psi"
     assert TOOL_STAGE_MAP.get("apex_judge") == "888_JUDGE", "apex_judge stage must be 888_JUDGE"
-    assert "F1_AMANAH" in TOOL_LAW_BINDINGS.get("apex_judge", []), (
-        "apex_judge must bind F1_AMANAH floor"
-    )
+    assert "F1_AMANAH" in TOOL_LAW_BINDINGS.get(
+        "apex_judge", []
+    ), "apex_judge must bind F1_AMANAH floor"
 
 
 # ---------------------------------------------------------------------------
@@ -170,6 +170,6 @@ async def test_apex_judge_callable_returns_verdict() -> None:
     assert "verdict" in result, f"No 'verdict' key in result: {result}"
     # Must be a known verdict, not an error string
     known_verdicts = {"SEAL", "PARTIAL", "SABAR", "VOID", "888_HOLD", "HOLD"}
-    assert result["verdict"] in known_verdicts, (
-        f"Unexpected verdict '{result['verdict']}' — tool may have errored: {result}"
-    )
+    assert (
+        result["verdict"] in known_verdicts
+    ), f"Unexpected verdict '{result['verdict']}' — tool may have errored: {result}"

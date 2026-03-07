@@ -1,12 +1,12 @@
+import json
 import os
 import re
-import json
 
 
 def parse_tools(filepath):
     if not os.path.exists(filepath):
         return {}
-    with open(filepath, "r", encoding="utf-8") as f:
+    with open(filepath, encoding="utf-8") as f:
         content = f.read()
     tools = {}
     pattern = r"@mcp\.tool\(\s*name=[\"\'\']([^\"\']+?)[\"\'\'],\s*description=[\"\'\']([^\"\']+?)[\"\'\']"

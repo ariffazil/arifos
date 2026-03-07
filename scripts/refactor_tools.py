@@ -1,4 +1,3 @@
-
 file_path = r"c:\Users\User\arifOS\aaa_mcp\server.py"
 
 with open(file_path, encoding="utf-8") as f:

@@ -22,7 +22,7 @@ def main() -> None:
     parser.add_argument("--config", required=True)
     args = parser.parse_args()
 
-    with open(args.config, "r", encoding="utf-8") as handle:
+    with open(args.config, encoding="utf-8") as handle:
         config = json.load(handle)
 
     task, model = _pick_route(args.prompt, config)

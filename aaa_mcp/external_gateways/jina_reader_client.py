@@ -31,7 +31,6 @@ import json
 import os
 import urllib.parse
 import urllib.request
-from typing import Any
 
 # Environment variable name for API key (optional, increases rate limits)
 JINA_API_KEY_ENV = "JINA_API_KEY"

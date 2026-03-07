@@ -15,6 +15,4 @@ def load_runtime_env(profile: str = "dev") -> dict[str, Any]:
 
 
 def load_role_profiles() -> dict[str, dict[str, Any]]:
-    return json.loads(
-        (_contract_dir() / "role_profiles.json").read_text(encoding="utf-8")
-    )["roles"]
+    return json.loads((_contract_dir() / "role_profiles.json").read_text(encoding="utf-8"))["roles"]

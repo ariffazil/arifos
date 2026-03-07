@@ -10,7 +10,9 @@ from arifos_aaa_mcp.server import create_aaa_mcp_server
 def test_actions_routes_are_registered() -> None:
     mcp = create_aaa_mcp_server()
     routes = getattr(mcp, "_additional_http_routes", [])
-    route_map = {getattr(route, "path", ""): set(getattr(route, "methods", set())) for route in routes}
+    route_map = {
+        getattr(route, "path", ""): set(getattr(route, "methods", set())) for route in routes
+    }
 
     assert "/openapi.json" in route_map
     assert "GET" in route_map["/openapi.json"]
@@ -39,4 +41,3 @@ def test_default_cors_allows_chatgpt_origins() -> None:
     allow_origins = cors_layers[0].kwargs.get("allow_origins", [])
     assert "https://chat.openai.com" in allow_origins
     assert "https://chatgpt.com" in allow_origins
-

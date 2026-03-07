@@ -25,9 +25,7 @@ import sys
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Literal
-
-from aaa_mcp.protocol.aaa_contract import MANIFEST_VERSION
+from typing import Any
 
 # Setup logger early for BGE integration logging
 logger = logging.getLogger(__name__)
@@ -431,14 +429,14 @@ async def _agi_cognition(
             },
         )
         d = await respond(session_id=session_id, draft_response=f"Draft response for: {query}")
-        
+
         raw_verdicts = [
             str(think_draft.get("verdict", "")),
             str(r.get("verdict", "")),
             str(i.get("verdict", "")),
             str(d.get("verdict", "")),
         ]
-        
+
         # In exploratory phase (111-444), we map VOID to PROVISIONAL to allow downstream critique
         verdict = _fold_verdict(raw_verdicts)
         if verdict == "VOID":
@@ -457,7 +455,9 @@ async def _agi_cognition(
                     "hypothesis": p["hypothesis"],
                     "confidence": p["confidence"],
                     "band": tree.get("branches", {}).get(name, {}).get("band", "SPECULATION"),
-                    "disposition": tree.get("branches", {}).get(name, {}).get("disposition", "ground"),
+                    "disposition": tree.get("branches", {})
+                    .get(name, {})
+                    .get("disposition", "ground"),
                     "assumptions": tree.get("branches", {}).get(name, {}).get("assumptions", []),
                 }
                 for name, p in think_draft.get("paths", {}).items()
@@ -480,14 +480,16 @@ async def _agi_cognition(
             "inference_budget": max(0, min(3, int(inference_budget))),
             "risk_mode": risk_mode,
             "debug": debug,
-            "data": {
-                "think": think_draft,
-                "reason": r,
-                "integrate": i,
-                "respond": d,
-            }
-            if debug
-            else {},
+            "data": (
+                {
+                    "think": think_draft,
+                    "reason": r,
+                    "integrate": i,
+                    "respond": d,
+                }
+                if debug
+                else {}
+            ),
         }
         result.update(
             envelope_builder.build_envelope(
@@ -1174,7 +1176,6 @@ async def _search(
     - F4 Clarity: Cleanest source selected by entropy reduction
     - F12 Defense: All external content F12-enveloped
     """
-    import asyncio
     from datetime import datetime, timezone
 
     start_time = datetime.now(timezone.utc)
@@ -1186,19 +1187,43 @@ async def _search(
         q_lower = q.lower()
         # SPA/JS-heavy indicators
         spa_indicators = [
-            "site:github.io", "site:vercel.app", "site:netlify.app",
-            "react", "vue", "angular", "spa", "dashboard", "webapp",
-            "interactive", "dynamic", "real-time"
+            "site:github.io",
+            "site:vercel.app",
+            "site:netlify.app",
+            "react",
+            "vue",
+            "angular",
+            "spa",
+            "dashboard",
+            "webapp",
+            "interactive",
+            "dynamic",
+            "real-time",
         ]
         # Research/deep indicators
         research_indicators = [
-            "research", "paper", "study", "analysis", "whitepaper",
-            "arxiv", "academic", "journal", "survey", "report"
+            "research",
+            "paper",
+            "study",
+            "analysis",
+            "whitepaper",
+            "arxiv",
+            "academic",
+            "journal",
+            "survey",
+            "report",
         ]
         # News/current indicators
         news_indicators = [
-            "news", "latest", "today", "breaking", "update",
-            "current", "2025", "2026", "recent"
+            "news",
+            "latest",
+            "today",
+            "breaking",
+            "update",
+            "current",
+            "2025",
+            "2026",
+            "recent",
         ]
 
         if any(i in q_lower for i in spa_indicators):
@@ -1801,7 +1826,7 @@ async def _arifos_info_resource() -> str:
 async def _constitutional_floor_resource(floor_id: str) -> str:
     """
     Lightweight floor lookup for MCP Resource Templates.
-    If YAML config is available, returns threshold and hold-on-fail metadata.
+    Uses canonical core floor definitions as source-of-truth.
     """
     import json
 
@@ -1809,15 +1834,12 @@ async def _constitutional_floor_resource(floor_id: str) -> str:
     payload: dict[str, Any] = {"floor": floor_id}
 
     try:
-        from pathlib import Path
+        from core.shared.floors import FLOOR_SPEC_KEYS, get_floor_spec, get_floor_threshold
 
-        import yaml  # type: ignore[import-not-found]
-
-        cfg_path = Path(__file__).resolve().parents[1] / "aclip_cai" / "config" / "floors.yaml"
-        data = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
-        payload["thresholds"] = data.get("thresholds", {})
-        payload["hold_on_fail"] = data.get("hold_on_fail", [])
-        payload["floor_threshold"] = payload["thresholds"].get(floor_id)
+        threshold_map = {fid: float(get_floor_threshold(fid)) for fid in FLOOR_SPEC_KEYS}
+        payload["thresholds"] = threshold_map
+        payload["floor_spec"] = get_floor_spec(floor_id)
+        payload["floor_threshold"] = threshold_map.get(floor_id)
     except Exception:
         payload["floor_threshold"] = None
 

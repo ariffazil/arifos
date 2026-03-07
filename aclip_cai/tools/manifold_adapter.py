@@ -1,11 +1,11 @@
 """
-aaa_mcp/tools/manifold_adapter.py — Prompt Manifold MCP Integration
+aclip_cai/tools/manifold_adapter.py — Prompt Manifold Integration
 
 Integrates the 3×3 paradox-motto matrix with MCP tools for empirical testing.
 
 Usage:
     # In any MCP tool, wrap output with manifold framing
-    from aaa_mcp.tools.manifold_adapter import ManifoldMCPAdapter
+    from aclip_cai.tools.manifold_adapter import ManifoldMCPAdapter
 
     adapter = ManifoldMCPAdapter()
     result = adapter.wrap_output("333_REASON", raw_result, task="Explain X")

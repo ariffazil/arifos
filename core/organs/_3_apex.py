@@ -33,25 +33,26 @@ from core.shared.floors import F9_AntiHantu, F10_Ontology
 from core.shared.physics import ConstitutionalTensor, TrinityTensor, W_3_from_tensor
 from core.shared.types import ApexOutput, FloorScores, Verdict
 
-
 # ═══════════════════════════════════════════════════════
 # P2 HARDENING: Domain Isolation Enforcement
 # ═══════════════════════════════════════════════════════
 
+
 class ApexDomainViolation(Exception):
     """P2: APEX attempted to operate outside its domain (Soul/Judge only)."""
+
     pass
 
 
 def enforce_apex_domain(action_type: str) -> None:
     """
     P2 HARDENING: APEX domain isolation.
-    
+
     APEX (Soul) is restricted to:
     - Final verdict synthesis
     - Tri-Witness consensus
     - Genius verification
-    
+
     APEX is NOT allowed to:
     - Generate reasoning — must use AGI tensor
     - Assess empathy — must use ASI output
@@ -59,16 +60,16 @@ def enforce_apex_domain(action_type: str) -> None:
     """
     AGI_FUNCTIONS = ["reason", "think", "sense", "ground", "evidence"]
     ASI_FUNCTIONS = ["empathize", "stakeholder", "harm", "feel"]
-    
+
     action_lower = action_type.lower()
-    
+
     for func in AGI_FUNCTIONS:
         if func in action_lower:
             raise ApexDomainViolation(
                 f"APEX_DOMAIN_VIOLATION: APEX attempted AGI function '{action_type}'. "
                 f"Soul cannot generate reasoning. Use AGI (Mind) tensor."
             )
-    
+
     for func in ASI_FUNCTIONS:
         if func in action_lower:
             raise ApexDomainViolation(

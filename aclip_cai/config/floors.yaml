@@ -2,6 +2,12 @@
 # F1-F13 Constitutional Floor Threshold Configuration
 # Authority: ARIF FAZIL (Sovereign)
 # Version: 2026.02.22-FORGE-KERNEL-SEAL
+#
+# NOTE (Entropy Control):
+# - This file is a compatibility profile for ACLIP compute workflows.
+# - Canonical constitutional thresholds and floor classes live in:
+#   core/shared/floors.py
+# - If values differ, core is authoritative.
 
 thresholds:
   F1: 0.95   # Amanah — reversibility

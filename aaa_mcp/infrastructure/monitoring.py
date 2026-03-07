@@ -403,11 +403,12 @@ async def init_monitoring():
             # Dynamic import to avoid circular dependency with arifos_aaa_mcp.server
             import sys
             from pathlib import Path
+
             scripts_dir = str(Path(__file__).resolve().parents[2] / "scripts")
             if scripts_dir not in sys.path:
                 sys.path.insert(0, scripts_dir)
             from arifos_rag import ConstitutionalRAG
-            
+
             rag = ConstitutionalRAG()
             health = rag.health_check()
             return health

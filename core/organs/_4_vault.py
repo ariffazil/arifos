@@ -22,9 +22,8 @@ from __future__ import annotations
 
 import hashlib
 import json
-import os
 import secrets
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Protocol
@@ -59,7 +58,7 @@ class JSONLVaultStorage:
     async def read(self, seal_id: str) -> dict[str, Any] | None:
         if not self.path.exists():
             return None
-        with open(self.path, "r", encoding="utf-8") as f:
+        with open(self.path, encoding="utf-8") as f:
             for line in f:
                 try:
                     data = json.loads(line)

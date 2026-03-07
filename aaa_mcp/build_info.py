@@ -4,7 +4,8 @@ from __future__ import annotations
 
 import os
 from datetime import datetime, timezone
-from importlib.metadata import PackageNotFoundError, version as package_version
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as package_version
 
 
 def _package_version() -> str:

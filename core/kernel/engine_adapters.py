@@ -217,11 +217,9 @@ class InitEngine:
 
         try:
             token = await core_organs.init(query, actor_id=actor_id, auth_token=auth_token)
-            
+
             query_type = token.query_type
-            query_type_str = (
-                query_type.value if hasattr(query_type, "value") else str(query_type)
-            )
+            query_type_str = query_type.value if hasattr(query_type, "value") else str(query_type)
 
             return {
                 "status": token.status,

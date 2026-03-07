@@ -15,6 +15,7 @@ import tempfile
 from datetime import datetime
 
 from state import VaultConfig
+
 from vault import SEAL999, VaultEntry
 
 

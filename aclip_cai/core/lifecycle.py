@@ -242,8 +242,8 @@ class LifecycleManager:
 
     def _load_floors(self, session_id: str) -> bool:  # noqa: ARG002
         """
-        Load F1-F13 thresholds from config/floors.yaml.
-        Returns True on success. Extend this to actually parse YAML in production.
+        Load F1-F13 from canonical core floor source.
+        Returns True on success. Extend this to perform concrete boot-time validation.
         """
         return True  # Config loaded via FloorAuditor at call time
 

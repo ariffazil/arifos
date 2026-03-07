@@ -4,6 +4,7 @@ Extended GovernanceKernel tests.
 Covers: AuthorityLevel, GovernanceState, GovernanceKernel (all methods),
         get_governance_kernel, clear_governance_kernel.
 """
+
 from __future__ import annotations
 
 import pytest
@@ -17,6 +18,7 @@ import pytest
 class TestAuthorityLevel:
     def test_values_exist(self):
         from core.governance_kernel import AuthorityLevel
+
         assert AuthorityLevel.ANALYSIS.value == "analysis"
         assert AuthorityLevel.SUGGESTION.value == "suggestion"
         assert AuthorityLevel.REQUIRES_HUMAN.value == "requires_human"
@@ -26,6 +28,7 @@ class TestAuthorityLevel:
 class TestGovernanceStateEnum:
     def test_values_exist(self):
         from core.governance_kernel import GovernanceState
+
         assert GovernanceState.ACTIVE.value == "active"
         assert GovernanceState.AWAITING_888.value == "awaiting_888"
         assert GovernanceState.CONDITIONAL.value == "conditional"
@@ -40,14 +43,17 @@ class TestGovernanceStateEnum:
 class TestGovernanceKernelDefaults:
     def setup_method(self):
         from core.governance_kernel import GovernanceKernel
+
         self.kernel = GovernanceKernel(session_id="test-session")
 
     def test_default_authority_level(self):
         from core.governance_kernel import AuthorityLevel
+
         assert self.kernel.authority_level == AuthorityLevel.ANALYSIS
 
     def test_default_governance_state(self):
         from core.governance_kernel import GovernanceState
+
         assert self.kernel.governance_state == GovernanceState.ACTIVE
 
     def test_default_can_proceed(self):
@@ -71,20 +77,24 @@ class TestGovernanceKernelDefaults:
 class TestUpdateUncertainty:
     def setup_method(self):
         from core.governance_kernel import GovernanceKernel
+
         self.kernel = GovernanceKernel()
 
     def test_low_uncertainty_stays_active(self):
         from core.governance_kernel import GovernanceState
+
         self.kernel.update_uncertainty(0.02, 0.02, {"grounding": 0.02})
         assert self.kernel.governance_state == GovernanceState.ACTIVE
 
     def test_medium_uncertainty_becomes_conditional(self):
         from core.governance_kernel import GovernanceState
+
         self.kernel.update_uncertainty(0.04, 0.04, {"grounding": 0.04})
         assert self.kernel.governance_state == GovernanceState.CONDITIONAL
 
     def test_high_uncertainty_triggers_888(self):
         from core.governance_kernel import GovernanceState
+
         self.kernel.update_uncertainty(0.07, 0.07, {"grounding": 0.07})
         assert self.kernel.governance_state == GovernanceState.AWAITING_888
         assert self.kernel.escalation_required is True
@@ -104,15 +114,18 @@ class TestUpdateUncertainty:
 class TestUpdateIrreversibility:
     def setup_method(self):
         from core.governance_kernel import GovernanceKernel
+
         self.kernel = GovernanceKernel()
 
     def test_low_irreversibility_stays_active(self):
         from core.governance_kernel import GovernanceState
+
         self.kernel.update_irreversibility(0.1, 0.1, 0.1)
         assert self.kernel.governance_state == GovernanceState.ACTIVE
 
     def test_high_irreversibility_triggers_888(self):
         from core.governance_kernel import GovernanceState
+
         # 0.9 × 0.9 × 0.9 = 0.729 > 0.6
         self.kernel.update_irreversibility(0.9, 0.9, 0.9)
         assert self.kernel.governance_state == GovernanceState.AWAITING_888
@@ -125,7 +138,9 @@ class TestUpdateIrreversibility:
     def test_reversibility_score_complement(self):
         self.kernel.update_irreversibility(0.5, 0.5, 0.4)
         # reversibility_score = 1 - irreversibility_index
-        assert abs(self.kernel.reversibility_score - (1.0 - self.kernel.irreversibility_index)) < 0.001
+        assert (
+            abs(self.kernel.reversibility_score - (1.0 - self.kernel.irreversibility_index)) < 0.001
+        )
 
 
 # =============================================================================
@@ -136,11 +151,13 @@ class TestUpdateIrreversibility:
 class TestApproveHuman:
     def setup_method(self):
         from core.governance_kernel import GovernanceKernel
+
         self.kernel = GovernanceKernel()
         self.kernel.update_uncertainty(0.07, 0.07, {})  # trigger AWAITING_888
 
     def test_approve_true_becomes_conditional(self):
         from core.governance_kernel import GovernanceState
+
         self.kernel.approve_human(True, actor="888_sovereign")
         assert self.kernel.governance_state == GovernanceState.CONDITIONAL
         assert self.kernel.escalation_required is False
@@ -149,6 +166,7 @@ class TestApproveHuman:
 
     def test_approve_false_becomes_void(self):
         from core.governance_kernel import GovernanceState
+
         self.kernel.approve_human(False)
         assert self.kernel.governance_state == GovernanceState.VOID
         assert self.kernel.human_approval_status == "denied"
@@ -167,23 +185,27 @@ class TestApproveHuman:
 class TestCanProceed:
     def test_active_can_proceed(self):
         from core.governance_kernel import GovernanceKernel, GovernanceState
+
         kernel = GovernanceKernel()
         assert kernel.can_proceed() is True
 
     def test_conditional_can_proceed(self):
         from core.governance_kernel import GovernanceKernel, GovernanceState
+
         kernel = GovernanceKernel()
         kernel.update_uncertainty(0.04, 0.04, {})  # → CONDITIONAL
         assert kernel.can_proceed() is True
 
     def test_awaiting_888_cannot_proceed(self):
         from core.governance_kernel import GovernanceKernel
+
         kernel = GovernanceKernel()
         kernel.update_uncertainty(0.07, 0.07, {})  # → AWAITING_888
         assert kernel.can_proceed() is False
 
     def test_void_cannot_proceed(self):
         from core.governance_kernel import GovernanceKernel
+
         kernel = GovernanceKernel()
         kernel.approve_human(False)
         assert kernel.can_proceed() is False
@@ -197,12 +219,14 @@ class TestCanProceed:
 class TestGetOutputTags:
     def test_analysis_tag(self):
         from core.governance_kernel import GovernanceKernel
+
         kernel = GovernanceKernel()
         tags = kernel.get_output_tags()
         assert "[ANALYSIS]" in tags
 
     def test_suggestion_tag(self):
         from core.governance_kernel import GovernanceKernel
+
         kernel = GovernanceKernel()
         kernel.update_uncertainty(0.04, 0.04, {})
         tags = kernel.get_output_tags()
@@ -210,6 +234,7 @@ class TestGetOutputTags:
 
     def test_requires_human_tag(self):
         from core.governance_kernel import GovernanceKernel
+
         kernel = GovernanceKernel()
         kernel.update_uncertainty(0.07, 0.07, {})
         tags = kernel.get_output_tags()
@@ -218,6 +243,7 @@ class TestGetOutputTags:
 
     def test_unsafe_tag(self):
         from core.governance_kernel import GovernanceKernel, AuthorityLevel
+
         kernel = GovernanceKernel()
         kernel.authority_level = AuthorityLevel.UNSAFE_TO_AUTOMATE
         tags = kernel.get_output_tags()
@@ -232,15 +258,24 @@ class TestGetOutputTags:
 class TestToDict:
     def test_to_dict_has_all_keys(self):
         from core.governance_kernel import GovernanceKernel
+
         kernel = GovernanceKernel(session_id="dict-test")
         d = kernel.to_dict()
-        for key in ("authority_level", "decision_owner", "safety_omega",
-                    "governance_state", "can_proceed", "output_tags",
-                    "session_id", "timestamp"):
+        for key in (
+            "authority_level",
+            "decision_owner",
+            "safety_omega",
+            "governance_state",
+            "can_proceed",
+            "output_tags",
+            "session_id",
+            "timestamp",
+        ):
             assert key in d
 
     def test_to_dict_can_proceed_reflected(self):
         from core.governance_kernel import GovernanceKernel
+
         kernel = GovernanceKernel()
         kernel.update_uncertainty(0.07, 0.07, {})
         d = kernel.to_dict()
@@ -248,6 +283,7 @@ class TestToDict:
 
     def test_to_dict_thresholds_present(self):
         from core.governance_kernel import GovernanceKernel
+
         kernel = GovernanceKernel()
         d = kernel.to_dict()
         assert "thresholds" in d
@@ -262,6 +298,7 @@ class TestToDict:
 class TestGovernanceRegistry:
     def test_get_creates_new_kernel(self):
         from core.governance_kernel import get_governance_kernel, clear_governance_kernel
+
         sid = "registry-test-session"
         clear_governance_kernel(sid)
         kernel = get_governance_kernel(sid)
@@ -271,6 +308,7 @@ class TestGovernanceRegistry:
 
     def test_get_returns_same_kernel(self):
         from core.governance_kernel import get_governance_kernel, clear_governance_kernel
+
         sid = "same-kernel-session"
         clear_governance_kernel(sid)
         k1 = get_governance_kernel(sid)
@@ -279,7 +317,12 @@ class TestGovernanceRegistry:
         clear_governance_kernel(sid)
 
     def test_clear_removes_kernel(self):
-        from core.governance_kernel import get_governance_kernel, clear_governance_kernel, _governance_kernels
+        from core.governance_kernel import (
+            get_governance_kernel,
+            clear_governance_kernel,
+            _governance_kernels,
+        )
+
         sid = "clear-test"
         get_governance_kernel(sid)
         assert sid in _governance_kernels
@@ -288,6 +331,7 @@ class TestGovernanceRegistry:
 
     def test_clear_nonexistent_is_safe(self):
         from core.governance_kernel import clear_governance_kernel
+
         # Should not raise
         clear_governance_kernel("nonexistent-session-xyz")
 
@@ -300,6 +344,7 @@ class TestGovernanceRegistry:
 class TestThermodynamicConstraints:
     def test_check_returns_or_none(self):
         from core.governance_kernel import GovernanceKernel
+
         kernel = GovernanceKernel()
         # Either returns ThermodynamicState or None (if THERMODYNAMICS_AVAILABLE=False)
         result = kernel.check_thermodynamic_constraints()
@@ -308,6 +353,7 @@ class TestThermodynamicConstraints:
 
     def test_no_entropy_manager_returns_none(self):
         from core.governance_kernel import GovernanceKernel
+
         kernel = GovernanceKernel()
         kernel.entropy_manager = None
         result = kernel.check_thermodynamic_constraints()

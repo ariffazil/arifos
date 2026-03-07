@@ -189,10 +189,21 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
     "reality_search": {
         "type": "object",
         "properties": {
-            "query": {"type": "string", "minLength": 1, "description": "Legacy alias for grounding_query"},
-            "grounding_query": {"type": "string", "minLength": 1, "description": "The external query for web grounding discovery."},
+            "query": {
+                "type": "string",
+                "minLength": 1,
+                "description": "Legacy alias for grounding_query",
+            },
+            "grounding_query": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The external query for web grounding discovery.",
+            },
             "session_id": {"type": "string", "description": "Legacy alias for session_token"},
-            "session_token": {"type": "string", "description": "The active session identifier for context grouping."},
+            "session_token": {
+                "type": "string",
+                "description": "The active session identifier for context grouping.",
+            },
             "region": {"type": "string", "default": "wt-wt"},
             "timelimit": {"type": ["string", "null"], "enum": [None, "d", "w", "m", "y"]},
         },
@@ -200,7 +211,7 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
             {"required": ["query", "session_id"]},
             {"required": ["grounding_query", "session_token"]},
             {"required": ["grounding_query", "session_id"]},
-            {"required": ["query", "session_token"]}
+            {"required": ["query", "session_token"]},
         ],
     },
     "vault_seal": {
@@ -252,8 +263,15 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
     "vector_memory": {
         "type": "object",
         "properties": {
-            "query": {"type": "string", "minLength": 1, "description": "The retrieval query to embed and match semantically."},
-            "session_id": {"type": "string", "description": "The active session identifier for context grouping."},
+            "query": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The retrieval query to embed and match semantically.",
+            },
+            "session_id": {
+                "type": "string",
+                "description": "The active session identifier for context grouping.",
+            },
             "depth": {"type": "integer", "minimum": 1, "maximum": 10, "default": 3},
             "domain": {
                 "type": "string",

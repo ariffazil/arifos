@@ -20,28 +20,30 @@ Conservation Law: Cognitive pressure must constrain compute expenditure.
 T000: 2026.02.28-HARDENED-F5-SEAL
 """
 
+import time
 from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
-import time
-
 
 # ═══════════════════════════════════════════════════════
 # P0 HARDENING: F5 Peace² Enforcement
 # ═══════════════════════════════════════════════════════
 
+
 class PeaceViolation(Exception):
     """
     P0: F5 Peace² violation — system stability compromised.
-    
-    Raised when Peace² < 1.0, indicating escalatory, biased, 
+
+    Raised when Peace² < 1.0, indicating escalatory, biased,
     or ungrounded output that increases system entropy.
     """
+
     pass
 
 
 class HomeostaticCollapse(Exception):
     """P0: Multiple constitutional failures — system requires cooling."""
+
     pass
 
 
@@ -52,52 +54,59 @@ def check_peace_squared(
 ) -> dict[str, Any]:
     """
     P0 HARDENING: F5 Peace² >= 1.0 enforcement.
-    
+
     Formula: Peace² = 1 / (1 + α·D_esc + β·V_sent + γ·S_shock)
-    
+
     Where:
     - D_esc: Escalation detection (conflict markers)
     - V_sent: Sentiment volatility
     - S_shock: Timing variance/shock
-    
+
     Args:
         peace2: Stability score (must be >= 1.0)
         escalation_markers: List of detected escalation patterns
         sentiment_volatility: Variance in sentiment tone
-    
+
     Returns:
         Dict with pass/fail status and details
-    
+
     Raises:
         PeaceViolation: If peace2 < 1.0 (severe instability)
     """
     # Escalation indicators
     ESCALATORY_PATTERNS = [
-        "obviously", "clearly", "undoubtedly", "everyone knows",
-        "only an idiot would", "simple as that", "case closed",
-        "those people", "they always", "typical of them",
+        "obviously",
+        "clearly",
+        "undoubtedly",
+        "everyone knows",
+        "only an idiot would",
+        "simple as that",
+        "case closed",
+        "those people",
+        "they always",
+        "typical of them",
     ]
-    
+
     detected_escalation = []
     if escalation_markers:
         for marker in escalation_markers:
             if any(pattern in marker.lower() for pattern in ESCALATORY_PATTERNS):
                 detected_escalation.append(marker)
-    
+
     # Calculate components
     d_esc = len(detected_escalation) * 0.3  # Escalation penalty
     v_sent = sentiment_volatility
     s_shock = 0.0  # Would need temporal data
-    
+
     # Peace² formula
     alpha, beta, gamma = 0.4, 0.4, 0.2
     peace2_calculated = 1.0 / (1.0 + alpha * d_esc + beta * v_sent + gamma * s_shock)
-    
+
     # Use provided peace2 if available, otherwise calculated
     peace2_final = peace2 if peace2 > 0 else peace2_calculated
-    
+
     passed = peace2_final >= 1.0
-    
+
     result = {
         "passed": passed,
         "peace2": round(peace2_final, 4),
@@ -110,7 +119,7 @@ def check_peace_squared(
         "detected_escalation": detected_escalation,
         "escalation_count": len(detected_escalation),
     }
-    
+
     # Hard violation for severe instability
     if peace2_final < 0.5:
         raise PeaceViolation(
@@ -118,7 +127,7 @@ def check_peace_squared(
             f"System severely unstable. Detected {len(detected_escalation)} escalation markers. "
             f"Immediate cooling cycle required."
         )
-    
+
     return result
 
 
@@ -129,39 +138,37 @@ def enforce_homeostatic_stability(
 ) -> str:
     """
     P0: Determine verdict based on homeostatic stability.
-    
+
     Args:
         peace2: F5 stability score
         delta_s: F4 entropy change
         omega0: F7 humility
-    
+
     Returns:
         Verdict: SEAL, SABAR, or VOID
-    
+
     Raises:
         HomeostaticCollapse: If multiple critical failures
     """
     failures = []
-    
+
     if peace2 < 1.0:
         failures.append(f"F5: Peace²={peace2:.3f} < 1.0")
     if delta_s > 0:
         failures.append(f"F4: ΔS={delta_s:.3f} > 0 (entropy increasing)")
     if omega0 > 0.08:
         failures.append(f"F7: Ω₀={omega0:.3f} > 0.08")
-    
+
     # Critical collapse: 2+ failures
     if len(failures) >= 2:
-        raise HomeostaticCollapse(
-            f"Homeostatic collapse detected: {'; '.join(failures)}"
-        )
-    
+        raise HomeostaticCollapse(f"Homeostatic collapse detected: {'; '.join(failures)}")
+
     # Single failure
     if len(failures) == 1:
         if peace2 < 0.5 or delta_s > 0.2 or omega0 > 0.1:
             return "VOID"
         return "SABAR"
-    
+
     return "SEAL"
 
 
@@ -665,9 +672,9 @@ class ParadoxEnergyBudget:
             "energy_utilization": round(self.current_paradox_energy / self.max_paradox_energy, 2),
             "capacity_available": self.max_active_paradoxes - self.active_paradox_count,
             "eurekas_in_window": self.eurekas_in_window,
-            "last_eureka_ago": round(time.time() - self.last_eureka_time, 1)
-            if self.last_eureka_time > 0
-            else None,
+            "last_eureka_ago": (
+                round(time.time() - self.last_eureka_time, 1) if self.last_eureka_time > 0 else None
+            ),
             "constitutional_compliance": {
                 "not_overloaded": self.current_paradox_energy < self.max_paradox_energy,
                 "capacity_available": self.active_paradox_count < self.max_active_paradoxes,

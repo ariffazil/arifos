@@ -75,7 +75,7 @@ class GovernanceKernel:
     irreversibility_index: float = 0.0
     reversibility_score: float = 1.0
     current_energy: float = 1.0
-    
+
     # Granular life energy (Metabolic counters)
     tokens_consumed: int = 0
     reason_cycles: int = 0
@@ -131,9 +131,11 @@ class GovernanceKernel:
     def energy(self) -> dict[str, Any]:
         return {
             "current_energy": round(self.current_energy, 4),
-            "thermodynamic_state": self.thermodynamic_state.to_dict()
-            if self.thermodynamic_state and hasattr(self.thermodynamic_state, "to_dict")
-            else None,
+            "thermodynamic_state": (
+                self.thermodynamic_state.to_dict()
+                if self.thermodynamic_state and hasattr(self.thermodynamic_state, "to_dict")
+                else None
+            ),
             "irreversibility_index": round(self.irreversibility_index, 4),
             "reversibility_score": round(self.reversibility_score, 4),
             "human_approval_status": self.human_approval_status,
@@ -312,13 +314,23 @@ class GovernanceKernel:
         # Hard Metabolic Constraints
         t = self.thresholds
         if self.tokens_consumed > t.max_tokens:
-            self._set_state(GovernanceState.VOID, AuthorityLevel.UNSAFE_TO_AUTOMATE, "token_budget_exceeded")
+            self._set_state(
+                GovernanceState.VOID, AuthorityLevel.UNSAFE_TO_AUTOMATE, "token_budget_exceeded"
+            )
             return
         if self.reason_cycles > t.max_reason_cycles:
-            self._set_state(GovernanceState.AWAITING_888, AuthorityLevel.REQUIRES_HUMAN, "reason_cycle_budget_exceeded")
+            self._set_state(
+                GovernanceState.AWAITING_888,
+                AuthorityLevel.REQUIRES_HUMAN,
+                "reason_cycle_budget_exceeded",
+            )
             return
         if self.tool_calls > t.max_tool_calls:
-            self._set_state(GovernanceState.AWAITING_888, AuthorityLevel.REQUIRES_HUMAN, "tool_call_budget_exceeded")
+            self._set_state(
+                GovernanceState.AWAITING_888,
+                AuthorityLevel.REQUIRES_HUMAN,
+                "tool_call_budget_exceeded",
+            )
             return
 
         if self.safety_omega > self.CONDITIONAL_UNCERTAINTY_THRESHOLD:
@@ -338,25 +350,31 @@ class GovernanceKernel:
     def calculate_pressure(self, task_complexity: float) -> float:
         """Calculate cognitive pressure based on complexity and available energy."""
         if self.current_energy <= 0:
-            return float('inf')
+            return float("inf")
         pressure = task_complexity / self.current_energy
-        
+
         if pressure > 2.0:  # Threshold for 'Critical'
-            self._set_state(GovernanceState.DEGRADED, AuthorityLevel.SUGGESTION, "critical_pressure")
-        elif pressure > 1.0: # Threshold for 'High'
+            self._set_state(
+                GovernanceState.DEGRADED, AuthorityLevel.SUGGESTION, "critical_pressure"
+            )
+        elif pressure > 1.0:  # Threshold for 'High'
             self._set_state(GovernanceState.CONDITIONAL, AuthorityLevel.ANALYSIS, "high_pressure")
-            
+
         return pressure
 
     def phoenix_recovery(self, mode: str = "recover") -> None:
         """Execute Phoenix Protocol recovery transition."""
         if mode == "quarantine":
-            self._set_state(GovernanceState.QUARANTINED, AuthorityLevel.REQUIRES_HUMAN, "phoenix_quarantine")
+            self._set_state(
+                GovernanceState.QUARANTINED, AuthorityLevel.REQUIRES_HUMAN, "phoenix_quarantine"
+            )
         elif mode == "degrade":
             self._set_state(GovernanceState.DEGRADED, AuthorityLevel.SUGGESTION, "phoenix_degraded")
         elif mode == "recover":
-            self.current_energy = min(1.0, self.current_energy + 0.2) # Infuse energy
-            self._set_state(GovernanceState.RECOVERING, AuthorityLevel.ANALYSIS, "phoenix_recovering")
+            self.current_energy = min(1.0, self.current_energy + 0.2)  # Infuse energy
+            self._set_state(
+                GovernanceState.RECOVERING, AuthorityLevel.ANALYSIS, "phoenix_recovering"
+            )
             # Clear critical flags here if any
 
     def approve_human(self, approved: bool, actor: str = "888") -> None:

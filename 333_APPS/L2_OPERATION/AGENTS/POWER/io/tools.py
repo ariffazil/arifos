@@ -4,21 +4,23 @@ from importlib import import_module
 from typing import Any
 
 # F12: Hard allowlist — only canonical 13 MCP tools may be resolved
-_ALLOWED_TOOLS: frozenset[str] = frozenset({
-    "anchor_session",
-    "reason_mind",
-    "vector_memory",
-    "simulate_heart",
-    "critique_thought",
-    "eureka_forge",
-    "apex_judge",
-    "seal_vault",
-    "search_reality",
-    "ingest_evidence",
-    "audit_rules",
-    "check_vital",
-    "metabolic_loop",
-})
+_ALLOWED_TOOLS: frozenset[str] = frozenset(
+    {
+        "anchor_session",
+        "reason_mind",
+        "vector_memory",
+        "simulate_heart",
+        "critique_thought",
+        "eureka_forge",
+        "apex_judge",
+        "seal_vault",
+        "search_reality",
+        "ingest_evidence",
+        "audit_rules",
+        "check_vital",
+        "metabolic_loop",
+    }
+)
 
 
 def get_tool_adapter(name: str) -> Any:

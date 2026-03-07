@@ -23,8 +23,9 @@ import shlex
 import subprocess
 import sys
 import textwrap
-import tomllib
 from pathlib import Path
+
+import tomllib
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -90,9 +91,7 @@ def read_git_sha(root: Path = ROOT) -> str:
     return result.stdout.strip()
 
 
-def build_overlay_image_tag(
-    version: str, git_sha: str, base_repo: str = "arifos/arifosmcp"
-) -> str:
+def build_overlay_image_tag(version: str, git_sha: str, base_repo: str = "arifos/arifosmcp") -> str:
     """Build the immutable image tag used by the VPS overlay deploy."""
     return f"{base_repo}:{normalize_release_version(version)}-{git_sha[:8]}"
 
@@ -522,7 +521,9 @@ def main() -> None:
     parser.add_argument(
         "--candidate-name", default="arifosmcp_candidate_overlay", help="Candidate container name"
     )
-    parser.add_argument("--candidate-port", type=int, default=18089, help="Candidate localhost port")
+    parser.add_argument(
+        "--candidate-port", type=int, default=18089, help="Candidate localhost port"
+    )
     parser.add_argument("--env-file", default=".env.docker", help="Remote env file path")
     parser.add_argument("--prod-bind", default="127.0.0.1:8088:8080", help="Prod bind mapping")
     parser.add_argument(

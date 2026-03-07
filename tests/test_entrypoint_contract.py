@@ -25,9 +25,9 @@ def test_server_json_version_matches_pyproject() -> None:
     pyproject = tomllib.loads(Path("pyproject.toml").read_text(encoding="utf-8"))
     py_ver = pyproject["project"]["version"]
     server = json.loads(Path("server.json").read_text(encoding="utf-8"))
-    assert py_ver == server["version"], (
-        f"Version mismatch: pyproject={py_ver}, server.json={server['version']}"
-    )
+    assert (
+        py_ver == server["version"]
+    ), f"Version mismatch: pyproject={py_ver}, server.json={server['version']}"
     assert server["name"] == "io.github.ariffazil/arifos-mcp"
 
 
@@ -51,6 +51,6 @@ def test_aaa_mcp_streamable_http_importable() -> None:
 
 def test_dockerfile_has_oci_label() -> None:
     content = Path("Dockerfile").read_text(encoding="utf-8")
-    assert 'io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"' in content, (
-        "Dockerfile missing required OCI label"
-    )
+    assert (
+        'io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"' in content
+    ), "Dockerfile missing required OCI label"
