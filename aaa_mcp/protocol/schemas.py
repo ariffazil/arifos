@@ -4,7 +4,10 @@ JSON Schema Definitions for All 13 Tools
 Formal, deterministic, zero-ambiguity schemas.
 Every field has explicit type, range, and semantics.
 
-Version: 2026.02.22-LOW_ENTROPY
+Version: 2026.03.07-QUADWITNESS-SEAL
+Changes: apex_verdict output updated tri_witness -> quad_witness (W4).
+         PsiShadow verifier witness fields added.
+         critique_thought output schema reflects Psi-Shadow adversarial fields.
 """
 
 from typing import Any
@@ -520,10 +523,61 @@ TOOL_OUTPUT_SCHEMAS: dict[str, dict[str, Any]] = {
             "truth_score": {"type": "number", "minimum": 0, "maximum": 1},
             "session_id": {"type": "string"},
             "query": {"type": "string"},
-            "tri_witness": {"type": "number"},
+            # Quad-Witness (W4) — replaces tri_witness (W3)
+            "quad_witness_valid": {"type": "boolean"},
+            "witness": {
+                "type": "object",
+                "properties": {
+                    "w4": {"type": "number", "minimum": 0, "maximum": 1,
+                           "description": "Quad-Witness geometric mean (H*A*E*V)^(1/4) >= 0.75"},
+                    "w3": {"type": "number", "minimum": 0, "maximum": 1,
+                           "description": "Tri-Witness (backward compat, deprecated)"},
+                    "human": {
+                        "type": "object",
+                        "properties": {
+                            "valid": {"type": "boolean"},
+                            "score": {"type": "number", "minimum": 0, "maximum": 1},
+                        },
+                    },
+                    "ai": {
+                        "type": "object",
+                        "properties": {
+                            "valid": {"type": "boolean"},
+                            "score": {"type": "number", "minimum": 0, "maximum": 1},
+                        },
+                    },
+                    "earth": {
+                        "type": "object",
+                        "properties": {
+                            "valid": {"type": "boolean"},
+                            "score": {"type": "number", "minimum": 0, "maximum": 1},
+                        },
+                    },
+                    "verifier": {
+                        "type": "object",
+                        "description": "Psi-Shadow adversarial witness (4th witness, V)",
+                        "properties": {
+                            "valid": {"type": "boolean"},
+                            "score": {"type": "number", "minimum": 0, "maximum": 1},
+                            "signals": {
+                                "type": "object",
+                                "properties": {
+                                    "attacks_found": {"type": "boolean"},
+                                    "contradictions": {"type": "array"},
+                                    "harm_scenarios": {"type": "array"},
+                                    "injection_vectors": {"type": "array"},
+                                    "critique_verdict": {"type": "string", "enum": ["APPROVE", "REJECT"]},
+                                },
+                            },
+                        },
+                    },
+                },
+            },
             "votes": {"type": "object"},
             "justification": {"type": "string"},
             "stages": {"type": "object"},
+            # Keep tri_witness for backward compatibility during transition
+            "tri_witness": {"type": "number", "description": "Deprecated — use witness.w4"},
         },
         "required": ["stage", "verdict", "truth_score", "session_id"],
     },

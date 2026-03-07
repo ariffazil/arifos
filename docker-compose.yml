@@ -145,7 +145,7 @@ services:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - VENICE_API_KEY=${VENICE_API_KEY:-}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
-      - NODE_OPTIONS=--max-old-space-size=768
+      - NODE_OPTIONS=--max-old-space-size=1536
       # PATH includes custom CLI tools: gh, op, mcporter
       - PATH=/home/node/.local/bin:/home/node/.npm-global/bin:/host/clis:/host/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       - GH_TOKEN=${GITHUB_TOKEN:-}
@@ -169,7 +169,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1024M
+          memory: 2048M
     restart: unless-stopped
 
   agent-zero:

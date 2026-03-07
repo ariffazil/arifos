@@ -1,7 +1,7 @@
 {
   "name": "io.github.ariffazil/arifos-mcp",
-  "version": "2026.03.07",
-  "description": "Constitutional AI governance server — 14 MCP tools with F1-F13 floor enforcement, Trinity architecture (ΔΩΨ), and VAULT999 immutable ledger.",
+  "version": "2026.03.07-QUADWITNESS-SEAL",
+  "description": "Constitutional AI governance server — 13 MCP tools with F1-F13 floor enforcement, Quad-Witness BFT consensus (W4 = H×A×E×V, n=4 f=1), Ψ-Shadow adversarial verifier, P3 thermodynamic enforcement, Trinity architecture (ΔΩΨ), and VAULT999 immutable ledger.",
   "vendor": {
     "name": "Muhammad Arif bin Fazil",
     "url": "https://arif-fazil.com"
@@ -13,21 +13,40 @@
     {
       "type": "http",
       "url": "https://arifosmcp.arif-fazil.com/mcp"
+    },
+    {
+      "type": "sse",
+      "url": "https://arifosmcp.arif-fazil.com/sse"
+    },
+    {
+      "type": "stdio",
+      "command": "python3 -m arifos_aaa_mcp stdio"
     }
   ],
+  "capabilities": {
+    "constitutional_floors": 13,
+    "witness_protocol": "quad-witness-bft",
+    "witness_formula": "W4 = (H × A × E × V)^(1/4) >= 0.75",
+    "bft_tolerance": "n=4 f=1",
+    "psi_shadow": true,
+    "p3_thermodynamics": true,
+    "vault999": "postgresql+redis+merkle",
+    "vector_memory": "qdrant+bge-m3-768dim",
+    "spec_compliance": "95%"
+  },
   "tools": [
-    {"name": "anchor_session"},
-    {"name": "reason_mind"},
-    {"name": "vector_memory"},
-    {"name": "simulate_heart"},
-    {"name": "critique_thought"},
-    {"name": "apex_judge"},
-    {"name": "eureka_forge"},
-    {"name": "seal_vault"},
-    {"name": "search_reality"},
-    {"name": "ingest_evidence"},
-    {"name": "audit_rules"},
-    {"name": "check_vital"},
-    {"name": "visualize_governance"}
+    {"name": "anchor_session",   "band": "A", "stage": "000", "action": "CRITICAL"},
+    {"name": "reason_mind",      "band": "R", "stage": "111-333", "action": "READ"},
+    {"name": "search_reality",   "band": "R", "stage": "222", "action": "READ"},
+    {"name": "ingest_evidence",  "band": "R", "stage": "222", "action": "READ"},
+    {"name": "audit_rules",      "band": "R", "stage": "000", "action": "READ"},
+    {"name": "vector_memory",    "band": "I", "stage": "555", "action": "READ"},
+    {"name": "simulate_heart",   "band": "I", "stage": "555-666", "action": "WRITE"},
+    {"name": "critique_thought", "band": "I", "stage": "666", "action": "WRITE"},
+    {"name": "check_vital",      "band": "I", "stage": "000", "action": "READ"},
+    {"name": "apex_judge",       "band": "F", "stage": "888", "action": "CRITICAL"},
+    {"name": "eureka_forge",     "band": "F", "stage": "777", "action": "WRITE"},
+    {"name": "seal_vault",       "band": "F", "stage": "999", "action": "CRITICAL"},
+    {"name": "metabolic_loop",   "band": "O", "stage": "000-999", "action": "READ"}
   ]
 }
