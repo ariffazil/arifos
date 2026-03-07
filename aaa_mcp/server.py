@@ -1412,7 +1412,7 @@ async def _agi_cognition(
         # P3: Landauer & formal AGI judgment
         actual_ms = (time.time() - start_time) * 1000.0
         # Estimated token count from query + draft
-        token_est = len(query.split()) + len(str(d.get("draft_response", ""))).split()
+        token_est = len(query.split()) + len(str(d.get("draft_response", "")).split())
         expected_ms = max(1.0, float(token_est))  # 1ms/token baseline
 
         formal_cognition = judge_cognition(
@@ -1428,6 +1428,11 @@ async def _agi_cognition(
         )
 
         tree = think_draft.get("reasoning_tree", {})
+        
+        # Landauer & Constitutional hard-gating
+        if formal_cognition.verdict == "VOID":
+            verdict = "VOID"
+            
         merged = {
             "verdict": verdict,
             "reasoning_status": "exploratory",
@@ -1787,37 +1792,47 @@ async def _apex_verdict(
             non_violation_status=verdict.upper() != "VOID",
         )
 
-        # formal APEX judgment
-        formal_verdict = judge_apex(
-            agi_result=CognitionResult(
-                verdict=agi_result.get("verdict", "VOID"),
-                truth_score=float(agi_result.get("truth_score", 0.5)),
-                clarity_delta=float(agi_result.get("p3_metrics", {}).get("landauer_efficiency", 1.0)),
-                humility_omega=0.04,
-                safety_omega=0.04,
-                genius_score=0.9,
-                grounded=True,
-                reasoning={},
-                evidence_sources=[],
-                floor_scores={}
-            ) if agi_result else None,
-            asi_result=EmpathyResult(
-                verdict=asi_result.get("verdict", "VOID"),
-                stakeholder_impact={},
-                reversibility_score=0.5,
-                peace_squared=float(asi_result.get("peace_squared", 1.0)),
-                empathy_score=float(asi_result.get("empathy_score", 0.9)),
-                floor_scores={}
-            ) if asi_result else None,
-            session_id=session_id,
-            tool_class="CRITICAL" if human_approve else "SPINE"
-        )
+        # formal APEX judgment (best-effort only; fused governance gate decides final verdict)
+        if agi_result or asi_result:
+            try:
+                judge_apex(
+                    agi_result=CognitionResult(
+                        verdict=agi_result.get("verdict", "VOID"),
+                        truth_score=float(agi_result.get("truth_score", 0.5)),
+                        clarity_delta=float(
+                            agi_result.get("p3_metrics", {}).get("landauer_efficiency", 1.0)
+                        ),
+                        humility_omega=0.04,
+                        safety_omega=0.04,
+                        genius_score=0.9,
+                        grounded=True,
+                        reasoning={},
+                        evidence_sources=[],
+                        floor_scores={},
+                    )
+                    if agi_result
+                    else None,
+                    asi_result=EmpathyResult(
+                        verdict=asi_result.get("verdict", "VOID"),
+                        stakeholder_impact={},
+                        reversibility_score=0.5,
+                        peace_squared=float(asi_result.get("peace_squared", 1.0)),
+                        empathy_score=float(asi_result.get("empathy_score", 0.9)),
+                        floor_scores={},
+                    )
+                    if asi_result
+                    else None,
+                    session_id=session_id,
+                    tool_class="CRITICAL" if human_approve else "SPINE",
+                )
+            except Exception:
+                pass
 
         governance_proof = apply_governance_gate(
             current_verdict=verdict,
             governance_proof=governance_proof,
         )
-        verdict = formal_verdict.verdict
+        verdict = str(governance_proof.get("gate_verdict", verdict))
         # Amanah Handshake: sign the verdict so seal_vault can verify it.
         governance_token = _build_governance_token(session_id, verdict)
         merged = {

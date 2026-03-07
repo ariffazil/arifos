@@ -111,6 +111,7 @@ AAA_PROMPT_NAMES: dict[str, str] = {
     "aaa_chain": "arifos.prompt.aaa_chain",
     "mcp_transport_bootstrap": "arifos.prompt.mcp_transport_bootstrap",
     "tool_routing_policy": "arifos.prompt.tool_routing_policy",
+    "chatgpt_connector_bootstrap": "arifos.prompt.chatgpt_connector_bootstrap",
 }
 
 AXIOMS_333: dict[str, dict[str, Any]] = {

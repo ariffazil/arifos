@@ -2618,7 +2618,7 @@ _TOOL_REQUIRED_ARGS: dict[str, list[str]] = {
     "reason_mind": ["query", "session_id"],
     "vector_memory": ["query", "session_id"],
     "simulate_heart": ["query", "session_id"],
-    "critique_thought": ["session_id", "context"],
+    "critique_thought": ["plan", "session_id"],
     "eureka_forge": ["session_id", "command"],
     "apex_judge": ["session_id", "query"],
     "seal_vault": ["session_id", "summary", "governance_token"],
@@ -2966,6 +2966,33 @@ def tool_routing_policy_prompt(goal: str = "general task") -> str:
         "- Session terminated or missing session_id: rerun anchor_session and replay with new chain\n"
         "- Scope mismatch or approval mismatch: mint fresh approval bundle for exact action hash\n"
         "- Tri-witness hold (888_HOLD): request explicit human confirmation, then retry apex_judge\n"
+    )
+
+
+@mcp.prompt(name=PUBLIC_PROMPT_NAMES["chatgpt_connector_bootstrap"])
+def chatgpt_connector_bootstrap_prompt() -> str:
+    return (
+        "ChatGPT connector bootstrap policy. Follow exactly.\n"
+        "1) Required first reads (in order, via resources/read):\n"
+        "   - arifos://aaa/mcp-transport-profile\n"
+        "   - arifos://aaa/tool-operating-manual\n"
+        "   - arifos://aaa/governance-gate-profile\n"
+        "   - arifos://aaa/schemas\n"
+        "2) Endpoint policy: pick one surface per session. Prefer /mcp.\n"
+        "   Do not mix / and /tools aliases in the same session.\n"
+        "3) Standard call order: anchor_session -> reason_mind -> simulate_heart -> "
+        "critique_thought -> apex_judge -> seal_vault.\n"
+        "4) Error handling:\n"
+        "   - If error contains 'Session terminated', restart with anchor_session and begin a new chain.\n"
+        "   - If session_id is missing, do not call downstream tools; call anchor_session first.\n"
+        "5) Critical action policy:\n"
+        "   - apex_judge: include approval_bundle when required by environment or human_approve path.\n"
+        "   - eureka_forge: include approval_bundle for elevated/dangerous actions; set "
+        "confirm_dangerous=true only when explicitly approved.\n"
+        "   - seal_vault: require same-session governance_token from apex_judge and approval evidence "
+        "when policy requires it.\n"
+        "6) Output policy: always include verdict, stage, session_id, and governance_proof when "
+        "available.\n"
     )
 
 
@@ -3459,6 +3486,7 @@ __all__ = [
     "aaa_chain_prompt",
     "mcp_transport_bootstrap_prompt",
     "tool_routing_policy_prompt",
+    "chatgpt_connector_bootstrap_prompt",
     "metabolic_loop",
     "metabolic_loop_prompt",
     "agi_mind_loop",

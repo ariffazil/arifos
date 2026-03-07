@@ -228,7 +228,7 @@ In **v2026.3.7**, thermodynamics graduated from *optional/partial* to **mandator
 ### What Changed
 
 | Aspect | Before (Partial) | After (P3 — Mandatory) |
-|:---|:---:|:---:|
+| :--- | :---: | :---: |
 | Entropy calculation | Approximation | Shannon exact |
 | Landauer bound | Checked | Enforced (violation = VOID) |
 | Budget tracking | Missing | Per-session Joules |
@@ -254,9 +254,10 @@ Authority  Physics  Consensus
 ```
 
 Each pillar blocks a different class of failure:
-- **Authority alone fails** — Human says "delete DB", physics + witnesses block it.
-- **Physics alone fails** — Coherent reasoning, but no human authority → blocked.
-- **Consensus alone fails** — AI + Human agree, but reasoning is cheap hallucination → Landauer VOID.
+
+* **Authority alone fails** — Human says "delete DB", physics + witnesses block it.
+* **Physics alone fails** — Coherent reasoning, but no human authority → blocked.
+* **Consensus alone fails** — AI + Human agree, but reasoning is cheap hallucination → Landauer VOID.
 
 ### Stage Integration
 
@@ -390,26 +391,25 @@ The system calculates a **Stability Score** and maps **"Scars"** (contradictions
 
 ---
 
-## 🔌 The 14 MCP Canonical Tools
+## 🔌 The 13 MCP Canonical Tools
 
-arifOS exposes its capabilities to your LLM through exactly 14 canonical tools using the **Model Context Protocol (MCP)**. They are grouped into the ARIF cognitive bands.
+arifOS exposes its capabilities to your LLM through exactly **13 canonical tools** using the **Model Context Protocol (MCP)**. They are grouped into the ARIF cognitive bands and the metabolic chain (000→999).
 
-| Tool Name | ARIF Band | Primary Function | Constitutional Focus |
-|:---|:---:|:---|:---|
-| **`anchor_session`** | A | Initiates session, verifies authority. | F11, F12 |
-| **`reason_mind`** | R | The Constitutional Laboratory (Hypothesis generation). | F2, F4, F7 |
-| **`search_reality`** | R | **Smart Hybrid Search** (Jina/Perplexity/Brave/Headless). | F2 (Grounding) |
-| **`ingest_evidence`** | R | Extracts pure markdown from URLs or local files. | F12 (Sanitization) |
-| **`audit_rules`** | R | Reads the current state of the 13 Floors. | L0 Integrity |
-| **`vector_memory`** | I | BGE-M3 + Qdrant semantic retrieval. | F3 (Historical Consensus) |
-| **`simulate_heart`** | I | Empathy and impact modeling for proposed actions. | F5, F6, F9 |
-| **`critique_thought`**| I | Adversarial alignment verification against the constitution. | F8 (Genius) |
-| **`check_vital`** | I | Hardware telemetry (CPU, RAM, Network). | F4 (Thermodynamics) |
-| **`apex_judge`** | F | Renders the final verdict (SEAL, VOID, HOLD). | F13 (Sovereign) |
-| **`eureka_forge`** | F | **Actuator:** Executes shell commands (wrapped in safety rails).| F1 (Reversibility) |
-| **`seal_vault`** | F | Commits the session to the immutable PostgreSQL ledger. | F1 (Auditability) |
-| **`metabolic_loop`** | O | **Orchestrator:** Forces a request through the 000-999 stages. | System Integrity |
-| **`trinity_forge`** | O | Single-call composite execution for stateless clients. | System Integrity |
+| Tool Name | Band | Action Class | Primary Function | Constitutional Focus |
+| :--- | :---: | :---: | :--- | :--- |
+| **`anchor_session`** | A | CRITICAL | Initiates session, verifies authority, init thermodynamic budget. | F11, F12, P3 |
+| **`reason_mind`** | R | READ | Constitutional Laboratory — hypothesis generation (3 parallel paths). | F2, F4, F7 |
+| **`search_reality`** | R | READ | Smart hybrid search (Jina/Perplexity/Brave/Headless). | F2 (Grounding) |
+| **`ingest_evidence`** | R | READ | Extracts clean markdown from URLs or local files. | F12 (Sanitization) |
+| **`audit_rules`** | R | READ | Reads the current state of all 13 Floors. | L0 Integrity |
+| **`vector_memory`** | I | READ | BGE-M3 + Qdrant semantic retrieval. | F3 (Consensus) |
+| **`simulate_heart`** | I | WRITE | Empathy and impact modelling for proposed actions. | F5, F6, F9 |
+| **`critique_thought`** | I | WRITE | Adversarial alignment verification against the constitution. | F8 (Genius) |
+| **`check_vital`** | I | READ | Hardware telemetry (CPU, RAM, Network, thermodynamic health). | F4, P3 |
+| **`apex_judge`** | F | CRITICAL | Renders final verdict (SEAL, VOID, HOLD). Issues HMAC governance token. | F13 (Sovereign) |
+| **`eureka_forge`** | F | WRITE | Actuator — executes shell commands wrapped in AKI safety rails. | F1 (Reversibility) |
+| **`seal_vault`** | F | CRITICAL | Commits session to immutable VAULT999. Requires apex\_judge governance token. | F1 (Auditability) |
+| **`metabolic_loop`** | O | READ | Orchestrator — forces request through all 000-999 stages. | System Integrity |
 
 ---
 
@@ -759,29 +759,48 @@ VIOLATION → VOID
 "Insufficient grounding. Truth score below threshold."
 Action: Require evidence chain or label as "Estimate Only (Ω₀ ≈ X)"
 
-## F3: TRI-WITNESS — The First Mirror (Multi-Source Validation)
-Mirror: F3
+## F3: TRI-WITNESS — Real Enforcement Floor (Multi-Source Validation)
+Floor: F3
 Name: "Tri-Witness (W₃)"
 Symbol: 👁️👁️👁️
-Threshold: ≥ 0.95
-Type: MIRROR (Feedback, not enforcement)
+Threshold: ≥ 0.90 (action-gated: read=0.80, write=0.90, execute=0.95, critical=0.98)
+Type: DERIVED (real enforcement — action-class gated)
 Engine: APEX (Soul)
 Stage: 888 JUDGE
 
 ### Function
-F3 is a mirror, not a law. It reflects truth through three perspectives:
-W₃ = √(Human × AI × Evidence)
-Human witness    = 888_Judge (sovereign)
-AI witness       = Model consensus
-Earth witness    = Grounded evidence (T6)
+F3 enforces three independently derived witness scores before allowing execution.
+W₃ = ∛(H × A × E)   [cube root — geometric mean of three witnesses]
 
-### Why Mirror?
-Laws enforce. Mirrors validate. F3 provides external calibration without blocking execution.
+Human witness (H) — derived from auth/session signals:
+- Verified session + authority token + actor_id: H = 1.0
+- Actor identified, no token: H = 0.7
+- Session only (anonymous): H = 0.5
+- No session: H = 0.3
+
+AI witness (A) — derived from reasoning integrity:
+- Components: truth_score × humility_band × coherence
+- Geometric mean of these three signals
+
+Earth witness (E) — derived from reality grounding:
+- Federation health score (FederationCoordinator.earth_witness_score())
+- Evidence count (saturates at 3 sources = 1.0)
+- Thermodynamic budget validity
+
+### Action-Class Gate
+READ tools (reason_mind, search_reality, audit_rules, vector_memory, check_vital):
+    threshold = 0.80  — AI + Earth sufficient
+
+WRITE tools (simulate_heart, critique_thought, eureka_forge, ingest_evidence):
+    threshold = 0.90  — all three witnesses required
+
+CRITICAL tools (apex_judge, seal_vault, anchor_session):
+    threshold = 0.98  — all three + human H ≥ 0.9 mandatory
 
 ### Low W₃ Response
-LOW W₃ → SABAR (not VOID)
-"Tri-Witness incomplete. Additional validation recommended."
-Action: Request more evidence or escalate to human
+LOW W₃ → VOID or 888_HOLD (not merely SABAR)
+"Tri-Witness below threshold for action class [class]."
+Action: Escalate to human, request stronger authentication
 
 ## F4: CLARITY — Entropy Reduction & Query Sanitization
 Law: F4

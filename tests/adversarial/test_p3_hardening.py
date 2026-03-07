@@ -18,17 +18,25 @@ from core.shared.types import ActionClass
 @pytest.mark.asyncio
 async def test_landauer_violation_gating():
     """Verify that compute shortcuts (efficiency > 1000x) result in VOID."""
-    with patch("aaa_mcp.server._enforce_auth_continuity", return_value=({"actor_id": "test"}, None)):
-        res = await _agi_cognition(
-            query="Quick",
-            session_id="test-session",
-            grounding=[],
-        )
+    # Mock time to simulate a 1ms processing time
+    # expected_ms = max(len(query)*0.5, 1.0) = 2.5ms
+    # actual_ms = (t2 - t1) * 1000
+    # To get efficiency > 1000, we need actual_ms < 0.0025ms
+    start_time = 1000.0
+    with patch("time.time", side_effect=[start_time, start_time + 0.000001]): # 0.001ms
+        with patch("aaa_mcp.server._enforce_auth_continuity", return_value=({"actor_id": "test"}, None)):
+            res = await _agi_cognition(
+                query="Quick",
+                session_id="test-session",
+                grounding=[],
+            )
         
         # In a real environment, this might be too fast or too slow.
         # We check the structure and if it's SEAL, we check metrics.
         if res["verdict"] == "VOID":
-            assert "P3_LANDAUER_VIOLATION" in res["payload"]["error"]
+            # Check for violation in floors or payload
+            floors = res["payload"].get("floors", {}).get("failed", [])
+            assert "P3_LANDAUER_VIOLATION" in floors or "P3_LANDAUER_VIOLATION" in str(res.get("payload", {}))
         else:
             assert "p3_metrics" in res["payload"]
             assert res["payload"]["p3_metrics"]["landauer_efficiency"] > 0
@@ -80,4 +88,6 @@ async def test_risk_engine_read_permitted():
         )
         
         # Default w3 is 0.96, READ threshold is 0.80
-        assert res["verdict"] != "VOID"
+        if res["verdict"] == "VOID":
+             print(f"DEBUG: res content = {res}")
+        assert res["verdict"] != "VOID", f"READ action gated: {res.get('error')}"

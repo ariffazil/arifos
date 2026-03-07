@@ -68,6 +68,7 @@ class RiskEngine:
         Returns: (permitted, reason)
         """
         threshold = RISK_THRESHOLDS.get(action_class, 0.99)
+        # print(f"DEBUG evaluate_gate: class={action_class}, score={w3_score}, thresh={threshold}")
         
         if verdict == "VOID":
             return False, "Action VOIDed by constitutional floor violation."
