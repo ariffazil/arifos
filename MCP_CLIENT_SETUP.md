@@ -1,7 +1,7 @@
 # MCP Client Setup — One-File arifOS Integration
 
 > **Pick ONE config block from `mcp-clients.json` and drop it into your MCP client.**
-> All 13 constitutional tools + utility tools auto-connect. No manual wiring.
+> All 13 constitutional tools auto-connect. No manual wiring.
 
 ---
 
@@ -119,7 +119,7 @@ await client.disconnect();
 
 ---
 
-## What You Get (18 Tools)
+## What You Get (13 Tools)
 
 ### Core Metabolic Loop (000 → 999)
 
@@ -139,15 +139,10 @@ await client.disconnect();
 | `seal_vault` | 999 | Ψ Soul | Immutable ledger commit |
 | `metabolic_loop` | 000-999 | ALL | Full constitutional cycle (one call) |
 
-### Utility Tools
+### Prompt Templates
 
-| Tool | Description |
-|------|-------------|
-| `fetch_content` | Legacy alias → ingest_evidence |
-| `inspect_file` | Legacy alias → ingest_evidence |
-| `system_audit` | Legacy alias → audit_rules |
-| `list_prompts` | List available prompt templates |
-| `get_prompt` | Get a prompt by name with arguments |
+Accessible via MCP protocol (`prompts/list`, `prompts/get`) — not tools.
+Use `get_prompt` MCP method to retrieve the `aaa_chain` template for guided metabolic loops.
 
 ### Verdicts
 
