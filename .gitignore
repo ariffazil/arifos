@@ -307,3 +307,15 @@ tools/*.csv
 *.xlsx
 coverage.json
 *.xml
+
+# AI session status artefacts (generated, not source)
+BROWSER_SETUP_COMPLETE.md
+DEPLOYMENT_COMPLETE_*.md
+FINAL_SEAL_*.md
+Hey.*
+
+# Docker compose backups
+docker-compose.yml.backup.*
+
+# Local app directories not in scope
+333_APPS/
