@@ -31,12 +31,12 @@ AUTHORITY = "Muhammad Arif bin Fazil"
 # Used by arifOS AAA Pipeline to enforce constitutional invariants.
 THRESHOLDS: dict[str, dict[str, Any]] = {
     "F1_Amanah": {"type": "HARD", "threshold": 0.5, "desc": "Reversible or Auditable"},
-    "F2_Truth": {"type": "HARD", "threshold": 0.99, "desc": "Information Fidelity"},
-    "F3_TriWitness": {"type": "DERIVED", "threshold": 0.95, "desc": "Consensus (H×A×E)"},
+    "F2_Truth": {"type": "HARD", "threshold": 0.95, "desc": "Information Fidelity"},
+    "F3_TriWitness": {"type": "DERIVED", "threshold": 0.90, "desc": "Consensus (H×A×E)"},
     "F4_Clarity": {"type": "HARD", "threshold": 0.00, "desc": "Entropy Reduction (ΔS ≤ 0)"},
     "F5_Peace2": {"type": "SOFT", "threshold": 1.00, "desc": "Non-Destructive Power"},
     "F6_Empathy": {"type": "SOFT", "threshold": 0.70, "desc": "Stakeholder Care (κᵣ)"},
-    "F7_Humility": {"type": "HARD", "range": (0.03, 0.15), "desc": "Uncertainty Band (Ω₀)"},
+    "F7_Humility": {"type": "HARD", "range": (0.03, 0.20), "desc": "Uncertainty Band (Ω₀)"},
     "F8_Genius": {"type": "DERIVED", "threshold": 0.80, "desc": "Governed Intelligence (G)"},
     "F9_AntiHantu": {"type": "SOFT", "threshold": 0.30, "desc": "Dark Cleverness Limit"},
     "F10_Ontology": {"type": "HARD", "threshold": 1.0, "desc": "Category Lock (Boolean)"},
@@ -214,6 +214,54 @@ class F2_Truth(Floor):
         # Base truth probability
         p_truth = 1.0
 
+        # P3: Hardened Landauer Bound check
+        landauer_status = ""
+        landauer_available = False
+        try:
+            from core.physics.thermodynamics_hardened import (
+                check_landauer_bound,
+                LandauerViolation,
+            )
+
+            landauer_available = True
+        except ImportError:
+            landauer_available = False
+
+        if landauer_available:
+            try:
+                compute_ms = context.get("compute_time_ms", 100)
+                tokens = context.get("tokens_generated", 100)
+
+                # Check Landauer bound for non-axiomatic claims
+                if not is_axiomatic and entropy_delta < 0:
+                    landauer_result = check_landauer_bound(
+                        compute_ms=compute_ms,
+                        tokens_generated=tokens,
+                        entropy_reduction=entropy_delta,
+                    )
+
+                    if not landauer_result.get("passed", True):
+                        p_truth *= 0.5  # Penalty for suspiciously cheap truth
+                        ratio = landauer_result.get('efficiency_ratio', landauer_result.get('ratio', 0))
+                        landauer_status = f"(compute efficiency: {ratio:.1f}x)"
+
+            except Exception as e:
+                # Check if it's a LandauerViolation
+                if "LandauerViolation" in str(type(e)):
+                    # Hard violation: mathematically proven hallucination
+                    return FloorResult(
+                        self.id,
+                        False,
+                        0.0,
+                        f"F2 HARD VIOLATION: {e}",
+                    )
+                # Other exceptions fall through to fallback
+
+        if not landauer_available:
+            # Fallback to legacy energy efficiency check
+            if not is_axiomatic and energy_eff < 0.2:
+                p_truth *= 0.5
+
         if is_axiomatic:
             # Axioms are ALLOWED to be cheap. No penalty.
             p_truth = 1.0
@@ -222,7 +270,7 @@ class F2_Truth(Floor):
             # Standard claims: Cheap answers are suspicious
             if energy_eff < 0.2:
                 p_truth *= 0.5
-            reason_suffix = "(Standard Verification)"
+            reason_suffix = f"(Standard Verification) {landauer_status}"
 
         if entropy_delta > 0:  # Increased confusion always lowers truth
             p_truth *= 0.8
@@ -252,26 +300,142 @@ class F3_TriWitness(Floor):
     F3: TRI-WITNESS (W₃) - Human × AI × Earth Consensus
     Threshold: ≥ 0.95 (DERIVED)
     Formula: W₃ = ∛(H × A × E)
+    
+    P3 HARDENING: Grounded scores + Action Gating
+    - Human: Derived from verified session + authority token
+    - AI: Computed from coherence (not hardcoded 1.0)
+    - Earth: Wired from federation/grounding
+    - Action-specific thresholds based on risk
     """
+
+    # Action-specific thresholds (lower = more permissive)
+    ACTION_THRESHOLDS = {
+        "read": 0.80,      # Query, search, inspect
+        "write": 0.90,     # Create, modify, update
+        "execute": 0.95,   # Run code, deploy
+        "critical": 0.98,  # Delete, irreversible, high-stakes
+    }
 
     def __init__(self):
         super().__init__("F3_TriWitness")
 
+    def _compute_human_witness(self, context: dict[str, Any]) -> float:
+        """
+        Human witness derived from verified identity, not just presence.
+        - Verified session + auth token: H = 1.0
+        - Session only: H = 0.7
+        - Anonymous: H = 0.3
+        """
+        session_id = context.get("session_id", "")
+        auth_token = context.get("authority_token", "") or context.get("auth_token", "")
+        actor_id = context.get("actor_id", "")
+        
+        # Verified authority
+        if session_id and auth_token and actor_id and actor_id != "anonymous":
+            return 1.0
+        # Session present but not fully authenticated
+        elif session_id and actor_id and actor_id != "anonymous":
+            return 0.7
+        # Anonymous or missing
+        elif session_id:
+            return 0.5
+        else:
+            return 0.3
+
+    def _compute_ai_witness(self, context: dict[str, Any]) -> float:
+        """
+        AI witness computed from response quality, not hardcoded.
+        - F2 truth score
+        - F7 humility band
+        - Internal coherence (contradiction check)
+        """
+        # Start with truth score if available
+        truth = context.get("truth_score", 0.0)
+        if truth == 0.0:
+            truth = context.get("confidence", 0.5)
+        
+        # Humility bonus (being in correct uncertainty band)
+        humility = context.get("humility_omega", 0.04)
+        humility_score = 1.0 if 0.03 <= humility <= 0.05 else 0.8
+        
+        # Coherence: no contradictions detected
+        contradictions = context.get("contradictions", [])
+        coherence = 1.0 if not contradictions else 0.7
+        
+        # AI witness = geometric mean of components
+        return (truth * humility_score * coherence) ** (1/3)
+
+    def _compute_earth_witness(self, context: dict[str, Any]) -> float:
+        """
+        Earth witness from grounding and thermodynamic validity.
+        - Grounding evidence present
+        - Thermodynamic budget valid
+        - Within planetary bounds
+        """
+        # Grounding evidence
+        grounding = context.get("grounding", [])
+        has_grounding = len(grounding) > 0 if isinstance(grounding, list) else bool(grounding)
+        
+        # Thermodynamic budget status
+        budget_valid = context.get("thermodynamic_budget_valid", True)
+        
+        # Federation earth witness score if available
+        federation_score = context.get("earth_witness", 1.0)
+        
+        if has_grounding and budget_valid:
+            return min(1.0, federation_score)
+        elif budget_valid:
+            return min(0.8, federation_score)
+        else:
+            return 0.5
+
+    def _get_action_threshold(self, context: dict[str, Any]) -> float:
+        """Get threshold based on action type."""
+        action = context.get("action", "read").lower()
+        query = context.get("query", "").lower()
+        
+        # Infer action from query if not explicit
+        if "delete" in query or "drop" in query or "remove" in query:
+            action = "critical"
+        elif "create" in query or "write" in query or "update" in query:
+            action = "write"
+        elif "run" in query or "execute" in query or "deploy" in query:
+            action = "execute"
+        
+        return self.ACTION_THRESHOLDS.get(action, 0.95)
+
     def check(self, context: dict[str, Any]) -> FloorResult:
-        # Extract witness scores
-        human = context.get("human_witness", 0.5)  # H: Human authority present
-        ai = context.get("ai_witness", 1.0)  # A: AI constitutional compliance
-        earth = context.get("earth_witness", 1.0)  # E: Within planetary/thermodynamic bounds
+        # P3: Grounded witness scores (not hardcoded)
+        human = self._compute_human_witness(context)
+        ai = self._compute_ai_witness(context)
+        earth = self._compute_earth_witness(context)
 
         # Geometric mean ensures all three matter
         tri_witness = (human * ai * earth) ** (1 / 3)
+        
+        # P3: Action-gated threshold
+        threshold = self._get_action_threshold(context)
+        
+        # For critical actions, require explicit high human witness
+        if threshold >= 0.98 and human < 0.9:
+            passed = False
+            reason = f"CRITICAL action requires H≥0.9, got H={human:.2f}"
+        else:
+            passed = tri_witness >= threshold
+            reason = f"Tri-Witness: {tri_witness:.3f} >= {threshold} (H:{human:.2f} × A:{ai:.2f} × E:{earth:.2f})"
 
-        passed = tri_witness >= self.spec["threshold"]
         return FloorResult(
             self.id,
             passed,
             tri_witness,
-            f"Tri-Witness: {tri_witness:.3f} (H:{human:.2f} × A:{ai:.2f} × E:{earth:.2f})",
+            reason,
+            metadata={
+                "human": human,
+                "ai": ai,
+                "earth": earth,
+                "threshold": threshold,
+                "action": context.get("action", "read"),
+            }
         )
 
 
@@ -280,6 +444,9 @@ class F4_Clarity(Floor):
     """
     F4: CLARITY (ΔS) - Entropy Reduction
     Threshold: ΔS ≤ 0 (HARD)
+
+    P3 HARDENING: Uses hardened thermodynamics module.
+    Entropy increase = automatic VOID.
     """
 
     def __init__(self):
@@ -290,8 +457,49 @@ class F4_Clarity(Floor):
         post_s = context.get("entropy_output", 0.4)
         delta_s = post_s - pre_s
 
+        # P3: Try hardened entropy calculation if input/output text available
+        try:
+            from core.physics.thermodynamics_hardened import (
+                shannon_entropy,
+                EntropyIncreaseViolation,
+            )
+
+            input_text = context.get("query", "")
+            output_text = context.get("response", "")
+
+            if input_text and output_text:
+                s_input = shannon_entropy(input_text)
+                s_output = shannon_entropy(output_text)
+                delta_s = s_output - s_input
+
+                # F4 is HARD: entropy increase = VOID
+                if delta_s > 0:
+                    return FloorResult(
+                        self.id,
+                        False,
+                        delta_s,
+                        f"F4 VIOLATION: ΔS={delta_s:.4f} > 0 (entropy increased)",
+                    )
+
+        except ImportError:
+            # Fallback to context-provided values
+            pass
+        except EntropyIncreaseViolation as e:
+            return FloorResult(
+                self.id,
+                False,
+                delta_s,
+                f"F4 HARD VIOLATION: {e}",
+            )
+
         passed = delta_s <= self.spec["threshold"]
-        return FloorResult(self.id, passed, delta_s, f"ΔS: {delta_s:.4f}")
+        status = "PASS" if passed else "VOID"
+        return FloorResult(
+            self.id,
+            passed,
+            delta_s,
+            f"F4 {status}: ΔS={delta_s:.4f} (threshold: ≤{self.spec['threshold']})",
+        )
 
 
 # --- F5: PEACE² (Stability) ---

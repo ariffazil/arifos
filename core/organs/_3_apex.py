@@ -204,9 +204,16 @@ async def judge(
     session_id: str,
     require_sovereign: bool = False,
     objective_contract: dict[str, Any] | None = None,
+    compute_time_ms: float = 0.0,
+    tokens_generated: int = 0,
 ) -> ApexOutput:
     """
     Stage 888: APEX JUDGE METABOLIC — The Soul's Final Verdict
+
+    P3 THERMODYNAMIC HARDENING:
+    - Checks Landauer Bound before SEAL
+    - Verifies thermodynamic budget status
+    - Records final entropy state
     """
     if hasattr(sync_output, "model_dump"):
         sync_data = sync_output.model_dump()
@@ -215,6 +222,45 @@ async def judge(
 
     violations = []
     justifications = []
+
+    # P3: Thermodynamic compliance check
+    thermo_metrics = {}
+    try:
+        from core.physics.thermodynamics_hardened import (
+            check_landauer_before_seal,
+            get_thermodynamic_budget,
+        )
+
+        # Check thermodynamic budget status
+        budget = get_thermodynamic_budget(session_id)
+        thermo_status = budget.to_dict()
+
+        # Landauer bound check (cheap truth detection)
+        entropy_reduction = forge_output.get("entropy_reduction", 0.0)
+        landauer_result = check_landauer_before_seal(
+            session_id=session_id,
+            compute_ms=compute_time_ms,
+            tokens=tokens_generated,
+            delta_s=entropy_reduction,
+        )
+        thermo_metrics["landauer"] = landauer_result
+        thermo_metrics["budget"] = thermo_status
+
+        if not landauer_result.get("passed", True):
+            violations.append("F2")
+            justifications.append(
+                f"Landauer Bound violated: ratio={landauer_result.get('ratio', 0):.4f}"
+            )
+
+        if budget.is_exhausted:
+            violations.append("F7")
+            justifications.append("Thermodynamic budget exhausted")
+
+    except Exception as e:
+        # Thermodynamic check failure = constitutional violation
+        violations.append("F4")
+        justifications.append(f"Thermodynamic check failed: {e}")
+        thermo_metrics["error"] = str(e)
 
     w3 = sync_data.get("metrics", {}).get("W_3") or sync_data.get("floor_scores", {}).get(
         "f3_tri_witness", 0.0
@@ -262,7 +308,8 @@ async def judge(
                 f"{objective_alignment['drift']:.3f} >= {objective_alignment['threshold']:.3f}"
             )
 
-    hard_violations = {"F3", "F10"}
+    # P3: Updated hard violations to include thermodynamic floors
+    hard_violations = {"F2", "F3", "F4", "F7", "F10"}
     if any(v in hard_violations for v in violations):
         verdict = "VOID"
     elif violations:
@@ -301,6 +348,7 @@ async def judge(
                 "f10_passed": bool(f10_result.passed),
             },
             "objective_alignment": objective_alignment,
+            "thermodynamics": thermo_metrics,  # P3: Include thermodynamic data
         },
     )
 

@@ -114,6 +114,21 @@ class SessionLedger:
     CREATE INDEX IF NOT EXISTS idx_vault999_merkle ON vault999(merkle_root);
     """
 
+    CREATE_APPROVAL_REGISTRY_SQL = """
+    CREATE TABLE IF NOT EXISTS approval_registry (
+        id SERIAL PRIMARY KEY,
+        approval_id VARCHAR(128) UNIQUE NOT NULL,
+        session_id VARCHAR(128) NOT NULL,
+        nonce VARCHAR(128) NOT NULL,
+        tool_name VARCHAR(64) NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(session_id, nonce, tool_name)
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_approval_registry_session ON approval_registry(session_id);
+    CREATE INDEX IF NOT EXISTS idx_approval_registry_nonce ON approval_registry(nonce);
+    """
+
     def __init__(self, database_url: str | None = None):
         self.database_url = database_url or os.environ.get("DATABASE_URL")
         self._pool: asyncpg.Pool | None = None
@@ -126,6 +141,8 @@ class SessionLedger:
         self._eureka = HardenedEUREKASieve(vault_ledger=self)
         # UNIFIED: Merkle history (entry hashes for tree computation)
         self._merkle_history: list[str] = []
+        self._approval_registry_ids: set[str] = set()
+        self._approval_registry_nonce_keys: set[tuple[str, str, str]] = set()
 
     @property
     def is_postgres_available(self) -> bool:
@@ -145,6 +162,7 @@ class SessionLedger:
                 )
                 async with self._pool.acquire() as conn:
                     await conn.execute(self.CREATE_TABLE_SQL)
+                    await conn.execute(self.CREATE_APPROVAL_REGISTRY_SQL)
                     # UNIFIED: Load last hash AND Merkle history
                     rows = await conn.fetch(
                         "SELECT entry_hash, merkle_root FROM vault999 ORDER BY id ASC LIMIT 1000"
@@ -171,6 +189,51 @@ class SessionLedger:
             print(f"[SessionLedger] Init warning: {e}, using memory fallback")
             self._initialized = True
             return False
+
+    async def mark_approval_used(
+        self,
+        approval_id: str,
+        session_id: str,
+        nonce: str,
+        tool_name: str,
+    ) -> bool:
+        """Persist replay marker; return False when approval was already used."""
+        await self.initialize()
+
+        normalized_approval_id = str(approval_id or "").strip()
+        normalized_session_id = str(session_id or "").strip()
+        normalized_nonce = str(nonce or "").strip()
+        normalized_tool = str(tool_name or "").strip()
+        nonce_key = (normalized_session_id, normalized_nonce, normalized_tool)
+
+        if self._pool:
+            try:
+                async with self._pool.acquire() as conn:
+                    row = await conn.fetchrow(
+                        """
+                        INSERT INTO approval_registry (approval_id, session_id, nonce, tool_name)
+                        VALUES ($1, $2, $3, $4)
+                        ON CONFLICT DO NOTHING
+                        RETURNING id
+                        """,
+                        normalized_approval_id,
+                        normalized_session_id,
+                        normalized_nonce,
+                        normalized_tool,
+                    )
+                return row is not None
+            except Exception as e:
+                print(f"[SessionLedger] approval_registry write failed: {e}")
+
+        if (
+            normalized_approval_id in self._approval_registry_ids
+            or nonce_key in self._approval_registry_nonce_keys
+        ):
+            return False
+
+        self._approval_registry_ids.add(normalized_approval_id)
+        self._approval_registry_nonce_keys.add(nonce_key)
+        return True
 
     def _compute_hash(self, entry: VaultEntry) -> str:
         """Compute SHA256 hash for Merkle chain."""

@@ -109,12 +109,19 @@ async def seal(
     Stage 999: SEAL — The final commitment.
 
     EUREKA-filtered seal with Merkle-chain integrity.
+
+    P3 THERMODYNAMIC HARDENING:
+    - Records thermodynamic cost in vault entry
+    - Cleans up session thermodynamic budget
+    - Includes entropy reduction metrics
     """
     # 1. Compute EUREKA score (anomalous contrast)
     eureka = _compute_eureka_score(judge_output, agi_tensor, asi_output, objective_contract)
 
     # 2. Determine storage tier
     if eureka < 0.50:
+        # P3: Cleanup thermodynamic budget even for transient entries
+        _cleanup_thermo_budget(session_id)
         return SealReceipt(
             status="TRANSIENT",
             seal_id="",
@@ -123,6 +130,9 @@ async def seal(
             eureka_score=eureka,
             vault_backend="none",
         )
+
+    # P3: Get thermodynamic final state
+    thermo_final = _get_thermo_final_state(session_id)
 
     # 3. Build canonical entry
     timestamp = datetime.now(timezone.utc).isoformat()
@@ -137,6 +147,7 @@ async def seal(
         "query": query[:1024],
         "authority": authority,
         "motto": f"{motto.positive}, {motto.negative}",
+        "thermodynamics": thermo_final,  # P3: Include thermodynamic data
     }
 
     # Optional metadata
@@ -144,6 +155,9 @@ async def seal(
         entry["objective_lineage"] = objective_contract
     if eureka_data:
         entry["eureka_discovery"] = eureka_data
+
+    # P3: Cleanup thermodynamic budget after capturing final state
+    _cleanup_thermo_budget(session_id)
 
     # 4. Cryptographic integrity (F1 Amanah)
     entry_json = json.dumps(entry, sort_keys=True, ensure_ascii=False)
@@ -231,6 +245,50 @@ def _compute_merkle_root(entry_hash: str) -> str:
     genesis = "GENESIS_HASH_V64_FORGE"
     combined = genesis + entry_hash
     return hashlib.sha256(combined.encode()).hexdigest()
+
+
+# =============================================================================
+# P3 THERMODYNAMIC HELPERS
+# =============================================================================
+
+
+def _get_thermo_final_state(session_id: str) -> dict[str, Any]:
+    """
+    P3: Capture final thermodynamic state for vault entry.
+
+    Returns thermodynamic budget status and entropy metrics.
+    """
+    try:
+        from core.physics.thermodynamics_hardened import (
+            get_thermodynamic_budget,
+            get_thermodynamic_report,
+        )
+
+        budget = get_thermodynamic_budget(session_id)
+        report = get_thermodynamic_report(session_id)
+
+        return {
+            "budget_final": budget.to_dict(),
+            "entropy_reduction_total": budget.entropy_reduction_claimed,
+            "landauer_violations": budget.landauer_violations,
+            "compliance": report.get("constitutional_compliance", {}),
+        }
+    except Exception as e:
+        return {"error": str(e), "status": "thermodynamic_capture_failed"}
+
+
+def _cleanup_thermo_budget(session_id: str) -> dict[str, Any]:
+    """
+    P3: Cleanup thermodynamic budget after vault seal.
+
+    Returns final budget report.
+    """
+    try:
+        from core.physics.thermodynamics_hardened import cleanup_thermodynamic_budget
+
+        return cleanup_thermodynamic_budget(session_id)
+    except Exception as e:
+        return {"session_id": session_id, "cleanup_error": str(e)}
 
 
 # =============================================================================

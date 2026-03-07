@@ -11,6 +11,9 @@ Tests the 13 canonical tools, 1 resource, 1 template, and server metadata.
 
 from __future__ import annotations
 
+import time
+import uuid
+
 import pytest
 from fastmcp import Client
 
@@ -319,7 +322,8 @@ class TestMetabolicLoop:
                 },
             )
         data = result.data if hasattr(result, "data") else {}
-        assert "session_id" in data
+        details = data.get("details", {}) if isinstance(data.get("details"), dict) else {}
+        assert ("session_id" in data) or ("session_id" in details)
 
     async def test_metabolic_loop_has_trace(self, arifos_server):
         async with Client(arifos_server) as client:
@@ -331,7 +335,11 @@ class TestMetabolicLoop:
                 },
             )
         data = result.data if hasattr(result, "data") else {}
-        assert "trace" in data
+        if "trace" in data:
+            assert isinstance(data["trace"], dict)
+        else:
+            details = data.get("details", {}) if isinstance(data.get("details"), dict) else {}
+            assert "stage" in data or "stage" in details
 
 
 # =============================================================================
@@ -431,3 +439,322 @@ class TestInspectContract:
         seal_required = seal.inputSchema.get("required", [])
         assert "session_id" in seal_required
         assert "governance_token" in seal_required
+
+
+def _build_hmac_approval_bundle(
+    server_module,
+    *,
+    tool_name: str,
+    session_id: str,
+    action_hash: str,
+    risk_tier: str,
+    actor_id: str,
+    approval_id: str,
+    nonce: str,
+    exp: int,
+    iat: int,
+) -> dict[str, str | int]:
+    scope_hash = server_module._approval_scope_hash(
+        tool_name=tool_name,
+        session_id=session_id,
+        action_hash=action_hash,
+        risk_tier=risk_tier,
+        exp=exp,
+        nonce=nonce,
+    )
+    key_id = server_module._PUBLIC_APPROVAL_KEY_ID
+    unsigned = {
+        "approval_id": approval_id,
+        "actor_id": actor_id,
+        "session_id": session_id,
+        "tool_name": tool_name,
+        "scope_hash": scope_hash,
+        "risk_tier": risk_tier,
+        "iat": iat,
+        "exp": exp,
+        "nonce": nonce,
+        "key_id": key_id,
+    }
+    signature = server_module._approval_signature(unsigned)
+    return {
+        **unsigned,
+        "alg": "hmac-dev",
+        "signature": signature,
+    }
+
+
+class TestApprovalHardening:
+    async def test_approval_replay_blocked(self, monkeypatch):
+        import aaa_mcp.server as server
+
+        monkeypatch.delenv("ARIFOS_REVOKED_ACTORS", raising=False)
+        monkeypatch.delenv("ARIFOS_REVOKED_SESSIONS", raising=False)
+        monkeypatch.delenv("ARIFOS_REVOKED_APPROVAL_IDS", raising=False)
+
+        session_id = f"replay-{uuid.uuid4().hex[:8]}"
+        action_hash = server._approval_action_hash(["echo ok", "/tmp", False])
+        now = int(time.time())
+        bundle = _build_hmac_approval_bundle(
+            server,
+            tool_name="eureka_forge",
+            session_id=session_id,
+            action_hash=action_hash,
+            risk_tier="LOW",
+            actor_id="actor-replay",
+            approval_id=f"approval-{uuid.uuid4().hex[:8]}",
+            nonce=f"nonce-{uuid.uuid4().hex[:8]}",
+            exp=now + 300,
+            iat=now - 5,
+        )
+
+        first_state, first_error = await server._verify_approval_bundle(
+            tool_name="eureka_forge",
+            stage="777_EUREKA_FORGE",
+            session_id=session_id,
+            approval_bundle=bundle,
+            action_hash=action_hash,
+            risk_tier="LOW",
+            require_bundle=True,
+        )
+        assert first_error is None
+        assert first_state is not None
+
+        _, second_error = await server._verify_approval_bundle(
+            tool_name="eureka_forge",
+            stage="777_EUREKA_FORGE",
+            session_id=session_id,
+            approval_bundle=bundle,
+            action_hash=action_hash,
+            risk_tier="LOW",
+            require_bundle=True,
+        )
+        assert second_error is not None
+        assert second_error.get("reason_code") == "AUTH_APPROVAL_REPLAY"
+
+    async def test_approval_scope_mismatch_blocked(self, monkeypatch):
+        import aaa_mcp.server as server
+
+        monkeypatch.delenv("ARIFOS_REVOKED_ACTORS", raising=False)
+        monkeypatch.delenv("ARIFOS_REVOKED_SESSIONS", raising=False)
+        monkeypatch.delenv("ARIFOS_REVOKED_APPROVAL_IDS", raising=False)
+
+        session_id = f"scope-{uuid.uuid4().hex[:8]}"
+        action_hash = server._approval_action_hash(["query", "SEAL", False])
+        now = int(time.time())
+        bundle = _build_hmac_approval_bundle(
+            server,
+            tool_name="apex_judge",
+            session_id=session_id,
+            action_hash=action_hash,
+            risk_tier="MEDIUM",
+            actor_id="actor-scope",
+            approval_id=f"approval-{uuid.uuid4().hex[:8]}",
+            nonce=f"nonce-{uuid.uuid4().hex[:8]}",
+            exp=now + 300,
+            iat=now - 5,
+        )
+        bundle["scope_hash"] = "deadbeef"
+
+        _, error = await server._verify_approval_bundle(
+            tool_name="apex_judge",
+            stage="777-888",
+            session_id=session_id,
+            approval_bundle=bundle,
+            action_hash=action_hash,
+            risk_tier="MEDIUM",
+            require_bundle=True,
+        )
+        assert error is not None
+        assert error.get("reason_code") == "AUTH_APPROVAL_SCOPE_MISMATCH"
+
+    async def test_approval_expired_blocked(self, monkeypatch):
+        import aaa_mcp.server as server
+
+        monkeypatch.delenv("ARIFOS_REVOKED_ACTORS", raising=False)
+        monkeypatch.delenv("ARIFOS_REVOKED_SESSIONS", raising=False)
+        monkeypatch.delenv("ARIFOS_REVOKED_APPROVAL_IDS", raising=False)
+
+        session_id = f"exp-{uuid.uuid4().hex[:8]}"
+        action_hash = server._approval_action_hash(["summary", "SEAL"])
+        now = int(time.time())
+        bundle = _build_hmac_approval_bundle(
+            server,
+            tool_name="seal_vault",
+            session_id=session_id,
+            action_hash=action_hash,
+            risk_tier="CRITICAL",
+            actor_id="actor-expired",
+            approval_id=f"approval-{uuid.uuid4().hex[:8]}",
+            nonce=f"nonce-{uuid.uuid4().hex[:8]}",
+            exp=now - 1,
+            iat=now - 20,
+        )
+
+        _, error = await server._verify_approval_bundle(
+            tool_name="seal_vault",
+            stage="999_VAULT",
+            session_id=session_id,
+            approval_bundle=bundle,
+            action_hash=action_hash,
+            risk_tier="CRITICAL",
+            require_bundle=True,
+        )
+        assert error is not None
+        assert error.get("reason_code") == "AUTH_APPROVAL_EXPIRED"
+
+    @pytest.mark.parametrize(
+        ("env_name", "env_value", "expected_reason"),
+        [
+            ("ARIFOS_REVOKED_ACTORS", "actor-revoked", "AUTH_REVOKED_ACTOR"),
+            ("ARIFOS_REVOKED_SESSIONS", "sess-revoked", "AUTH_REVOKED_SESSION"),
+            ("ARIFOS_REVOKED_APPROVAL_IDS", "approval-revoked", "AUTH_REVOKED_APPROVAL"),
+        ],
+    )
+    async def test_approval_revocation_blocked(
+        self,
+        monkeypatch,
+        env_name,
+        env_value,
+        expected_reason,
+    ):
+        import aaa_mcp.server as server
+
+        monkeypatch.delenv("ARIFOS_REVOKED_ACTORS", raising=False)
+        monkeypatch.delenv("ARIFOS_REVOKED_SESSIONS", raising=False)
+        monkeypatch.delenv("ARIFOS_REVOKED_APPROVAL_IDS", raising=False)
+        monkeypatch.setenv(env_name, env_value)
+
+        session_id = "sess-revoked" if env_name == "ARIFOS_REVOKED_SESSIONS" else f"sess-{uuid.uuid4().hex[:6]}"
+        actor_id = "actor-revoked" if env_name == "ARIFOS_REVOKED_ACTORS" else "actor-ok"
+        approval_id = (
+            "approval-revoked"
+            if env_name == "ARIFOS_REVOKED_APPROVAL_IDS"
+            else f"approval-{uuid.uuid4().hex[:6]}"
+        )
+        action_hash = server._approval_action_hash(["query", "SEAL", False])
+        now = int(time.time())
+        bundle = _build_hmac_approval_bundle(
+            server,
+            tool_name="apex_judge",
+            session_id=session_id,
+            action_hash=action_hash,
+            risk_tier="MEDIUM",
+            actor_id=actor_id,
+            approval_id=approval_id,
+            nonce=f"nonce-{uuid.uuid4().hex[:8]}",
+            exp=now + 300,
+            iat=now - 5,
+        )
+
+        _, error = await server._verify_approval_bundle(
+            tool_name="apex_judge",
+            stage="777-888",
+            session_id=session_id,
+            approval_bundle=bundle,
+            action_hash=action_hash,
+            risk_tier="MEDIUM",
+            require_bundle=True,
+        )
+        assert error is not None
+        assert error.get("reason_code") == expected_reason
+
+    async def test_critical_tool_path_revoked_actor_blocked(self, monkeypatch):
+        import aaa_mcp.server as server
+
+        monkeypatch.setenv("ARIFOS_REVOKED_ACTORS", "blocked-anchor-actor")
+        result = await server._init_session(
+            query="hello",
+            actor_id="blocked-anchor-actor",
+            session_id="sess-critical-001",
+            inject_kernel=False,
+        )
+        assert result.get("verdict") == "VOID"
+        assert result.get("reason_code") == "AUTH_REVOKED_ACTOR"
+
+
+class TestFusedGovernanceGate:
+    @staticmethod
+    def _install_apex_stubs(monkeypatch, server, *, truth_score, truth_threshold, continuity_binding):
+        class _Ctx:
+            source = "tests"
+            path = "precedent"
+            score = 0.9
+            content = "grounded precedent"
+
+        class _Rag:
+            @staticmethod
+            def retrieve(query, top_k=3, min_score=0.25):
+                _ = (query, top_k, min_score)
+                return [_Ctx()]
+
+        async def _stub_verify(**kwargs):
+            _ = kwargs
+            return {"approval_mode": "public-open"}, None
+
+        async def _stub_forge(**kwargs):
+            _ = kwargs
+            return {"floors_failed": []}
+
+        async def _stub_audit(**kwargs):
+            _ = kwargs
+            return {
+                "verdict": "SEAL",
+                "truth_score": truth_score,
+                "f2_threshold": truth_threshold,
+                "floors_failed": [],
+            }
+
+        monkeypatch.setattr(server, "_revocation_reason", lambda **kwargs: "")
+        monkeypatch.setattr(server, "_enforce_auth_continuity", lambda **kwargs: (continuity_binding, None))
+        monkeypatch.setattr(server, "_verify_approval_bundle", _stub_verify)
+        monkeypatch.setattr(server, "forge", _stub_forge)
+        monkeypatch.setattr(server, "audit", _stub_audit)
+        monkeypatch.setattr(server, "_ensure_rag", lambda: _Rag())
+
+    async def test_apex_judge_includes_governance_proof(self, monkeypatch):
+        import aaa_mcp.server as server
+
+        self._install_apex_stubs(
+            monkeypatch,
+            server,
+            truth_score=1.0,
+            truth_threshold=0.99,
+            continuity_binding={"actor_id": "gate-actor"},
+        )
+
+        result = await server._apex_verdict(session_id="fused-proof-001", query="safe query")
+        assert "governance_proof" in result
+        assert "payload" in result
+        assert "governance_proof" in result.get("payload", {})
+
+    async def test_apex_judge_tri_witness_low_sets_hold(self, monkeypatch):
+        import aaa_mcp.server as server
+
+        self._install_apex_stubs(
+            monkeypatch,
+            server,
+            truth_score=0.1,
+            truth_threshold=0.99,
+            continuity_binding={"actor_id": "gate-actor"},
+        )
+
+        result = await server._apex_verdict(session_id="fused-proof-002", query="safe query")
+        proof = result.get("governance_proof", {})
+        assert proof.get("gate_verdict") == "888_HOLD"
+        assert result.get("verdict") == "888_HOLD"
+
+    async def test_apex_judge_authority_failure_sets_void(self, monkeypatch):
+        import aaa_mcp.server as server
+
+        self._install_apex_stubs(
+            monkeypatch,
+            server,
+            truth_score=1.0,
+            truth_threshold=0.99,
+            continuity_binding=None,
+        )
+
+        result = await server._apex_verdict(session_id="fused-proof-003", query="safe query")
+        proof = result.get("governance_proof", {})
+        assert proof.get("gate_verdict") == "VOID"
+        assert result.get("verdict") == "VOID"

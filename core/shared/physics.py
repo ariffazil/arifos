@@ -669,10 +669,16 @@ def G_from_dial(dial: GeniusDial) -> float:
 @dataclass
 class ConstitutionalTensor:
     """
-    The Unified State Object for arifOS v60.
+    The Unified State Object for arifOS v60 + P3 Thermodynamics.
 
     Aggregates all 7 physics primitives into a single tensor
     passed between organs (Mind -> Heart -> Soul).
+
+    P3 HARDENING: Added thermodynamic tracking fields:
+    - thermodynamic_cost: Energy consumed (Joules)
+    - landauer_ratio: Truth cost / theoretical minimum
+    - orthogonality: AGI/ASI separation (Ω_ortho)
+    - budget_depletion: Session energy consumed ratio
     """
 
     witness: TrinityTensor  # F3 (H, A, S)
@@ -684,13 +690,36 @@ class ConstitutionalTensor:
     truth_score: float  # F2 (tau >= 0.99)
     evidence: list[str] = None  # Supporting facts
 
+    # P3: Thermodynamic tracking fields
+    thermodynamic_cost: float = field(default=0.0)  # Joules consumed
+    landauer_ratio: float = field(default=1.0)  # Cost / theoretical minimum
+    orthogonality: float = field(default=1.0)  # AGI/ASI separation [0,1]
+    budget_depletion: float = field(default=0.0)  # [0,1] energy consumed ratio
+
     def __post_init__(self):
         if self.evidence is None:
             object.__setattr__(self, "evidence", [])
 
+    def is_thermodynamically_valid(self) -> bool:
+        """
+        P3: Check thermodynamic validity.
+
+        Returns True if:
+        - Landauer ratio >= 0.5 (not suspiciously cheap)
+        - Orthogonality >= 0.95 (no mode collapse)
+        - Budget not depleted
+        """
+        if self.landauer_ratio < 0.5:
+            return False
+        if self.orthogonality < 0.95:
+            return False
+        if self.budget_depletion >= 1.0:
+            return False
+        return True
+
     def constitutional_check(self) -> tuple[bool, list[str]]:
         """
-        Verify all hard floors.
+        Verify all hard floors including P3 thermodynamics.
         Returns (passed, list_of_violations).
         """
         violations = []
@@ -703,12 +732,22 @@ class ConstitutionalTensor:
         if W_3_from_tensor(self.witness) < 0.95:
             pass
 
-        # F4 Clarity (Soft floor, but tracked)
+        # F4 Clarity (HARD in P3)
         if self.entropy_delta > 0:
             violations.append(f"F4: Entropy increased by {self.entropy_delta}")
 
         # F7 Humility
         if not self.humility.is_locked():
             violations.append(f"F7: Humility {self.humility.omega_0} outside [0.03, 0.05]")
+
+        # P3: Thermodynamic checks
+        if self.landauer_ratio < 0.5:
+            violations.append(f"F2-Landauer: Ratio {self.landauer_ratio:.4f} < 0.5 (cheap truth)")
+
+        if self.orthogonality < 0.95:
+            violations.append(f"F8-Orthogonality: {self.orthogonality:.4f} < 0.95 (mode collapse)")
+
+        if self.budget_depletion >= 1.0:
+            violations.append(f"F7-Budget: Depleted ({self.budget_depletion:.2%})")
 
         return len(violations) == 0, violations

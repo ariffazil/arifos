@@ -809,8 +809,39 @@ async def init(
                 },
             )
 
-    # Step 4: Issue Session Token
-    session_id = _generate_session_id()
+    # Step 4: Initialize Thermodynamic Budget (P3 HARDENING)
+    # No budget = no execution. Thermodynamics is mandatory.
+    try:
+        from core.physics.thermodynamics_hardened import init_thermodynamic_budget
+
+        session_id = _generate_session_id()
+        thermo_budget = init_thermodynamic_budget(
+            session_id=session_id,
+            initial_budget=1.0,  # 1 Joule normalized budget
+        )
+        thermo_initialized = True
+    except Exception as e:
+        # Thermodynamic initialization failure = VOID
+        return InitOutput(
+            session_id="VOID-" + secrets.token_hex(8),
+            governance_token="",
+            injection_score=injection.score,
+            auth_verified=is_auth,
+            verdict=Verdict.VOID,
+            status="ERROR",
+            violations=["F4", "F7"],
+            floors_failed=["F4"],
+            query_type=query_type.value,
+            f2_threshold=f2_threshold,
+            error_message=f"F4 Thermodynamic initialization failed: {e}",
+            metrics={
+                "skip_f4": False,  # Force F4 check on failure
+                "authority": authority.value,
+                "thermodynamic_status": "FAILED",
+            },
+        )
+
+    # Step 5: Issue Session Token
     timestamp = time.time()
     query_hash = _hash_query(query)
 
@@ -833,6 +864,8 @@ async def init(
             "skip_f4": skip_f4,
             "authority": authority.value,
             "objective_contract": objective_contract,
+            "thermodynamic_status": "INITIALIZED",
+            "thermodynamic_budget": thermo_budget.to_dict() if thermo_initialized else None,
         },
     )
 

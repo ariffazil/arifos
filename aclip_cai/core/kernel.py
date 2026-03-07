@@ -28,7 +28,7 @@ class ConstitutionalKernel:
             cls._instance.eval_suite = EvalSuite()
         return cls._instance
 
-    def audit(self, action: str, context: str = "", severity: str = "medium"):
+    def audit(self, action: str, context: str | dict = "", severity: str = "medium"):
         """Centralized audit gate for all triad tools."""
         return self.auditor.check_floors(action, context=context, severity=severity)
 

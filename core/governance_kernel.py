@@ -190,28 +190,66 @@ class GovernanceKernel:
             self.human_approval_status = "not_required"
 
     def check_thermodynamic_constraints(self) -> Any | None:
-        if self.entropy_manager is None:
-            return None
+        """
+        P3: Check thermodynamic budget from hardened physics module.
 
-        self.thermodynamic_state = self.entropy_manager.check_thermodynamic_budget()
-        verdict = getattr(self.thermodynamic_state, "verdict", "")
+        Integrates with core.physics.thermodynamics_hardened for
+        mandatory thermodynamic enforcement.
+        """
+        # First check legacy entropy manager if available
+        if self.entropy_manager is not None:
+            self.thermodynamic_state = self.entropy_manager.check_thermodynamic_budget()
+            verdict = getattr(self.thermodynamic_state, "verdict", "")
 
-        if verdict == "VOID":
-            self._set_state(
-                GovernanceState.VOID,
-                AuthorityLevel.UNSAFE_TO_AUTOMATE,
-                "thermodynamics_void",
+            if verdict == "VOID":
+                self._set_state(
+                    GovernanceState.VOID,
+                    AuthorityLevel.UNSAFE_TO_AUTOMATE,
+                    "thermodynamics_void",
+                )
+                return self.thermodynamic_state
+
+            if verdict == "SABAR":
+                self._set_state(
+                    GovernanceState.AWAITING_888,
+                    AuthorityLevel.REQUIRES_HUMAN,
+                    "thermodynamics_sabar",
+                    human_status="pending",
+                )
+                return self.thermodynamic_state
+
+        # P3: Check hardened thermodynamic budget
+        try:
+            from core.physics.thermodynamics_hardened import (
+                get_thermodynamic_budget,
+                ThermodynamicExhaustion,
             )
-            return self.thermodynamic_state
 
-        if verdict == "SABAR":
+            budget = get_thermodynamic_budget(self.session_id)
+
+            if budget.is_exhausted:
+                self._set_state(
+                    GovernanceState.AWAITING_888,
+                    AuthorityLevel.REQUIRES_HUMAN,
+                    "thermodynamic_budget_exhausted",
+                    human_status="pending",
+                )
+                return budget.to_dict()
+
+            # Update energy based on thermodynamic budget depletion
+            depletion = budget.depletion_ratio
+            self.current_energy = max(0.0, 1.0 - depletion)
+
+        except ThermodynamicExhaustion:
             self._set_state(
                 GovernanceState.AWAITING_888,
                 AuthorityLevel.REQUIRES_HUMAN,
-                "thermodynamics_sabar",
+                "thermodynamic_exhaustion",
                 human_status="pending",
             )
-            return self.thermodynamic_state
+        except Exception:
+            # Budget not initialized yet - skip hardened check
+            pass
 
         self._evaluate_governance()
         return self.thermodynamic_state

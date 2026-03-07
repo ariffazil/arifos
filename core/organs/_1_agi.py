@@ -322,6 +322,11 @@ async def reason(
     - COMPARATIVE: 0.85 (medium for comparisons)
     - FACTUAL: 0.99 (strict for facts)
 
+    P3 THERMODYNAMIC HARDENING:
+    - Consumes energy per reasoning cycle
+    - Tracks entropy reduction (F4 Clarity)
+    - Raises ThermodynamicExhaustion if budget depleted
+
     Args:
         query: Original query
         think_output: Output from think() action
@@ -351,11 +356,25 @@ async def reason(
 
     hypotheses = think_output["hypotheses"]
 
+    # P3: Initialize thermodynamic tracking
+    from core.physics.thermodynamics_hardened import (
+        consume_reason_energy,
+        shannon_entropy,
+        record_entropy_io,
+    )
+
+    # Record input entropy before reasoning
+    input_entropy = shannon_entropy(query)
+
     # Build reasoning chain
     thoughts: list[ThoughtNode] = []
     prev_confidence = 0.5
 
     for i in range(max_thoughts):
+        # P3: Consume energy for each reasoning cycle
+        # Raises ThermodynamicExhaustion if budget depleted
+        consume_reason_energy(session_id, n_cycles=1)
+
         # Generate next thought
         thought = _generate_thought(query, hypotheses, thoughts, i)
         thoughts.append(thought)
@@ -370,7 +389,21 @@ async def reason(
     chain_text = " ".join([t.thought for t in thoughts])
     query_text = query
 
-    entropy_delta = delta_S(query_text, chain_text)
+    # P3: Calculate entropy delta with mandatory F4 enforcement
+    output_entropy = shannon_entropy(chain_text)
+
+    # Use physics module for entropy delta (enforces F4)
+    from core.physics.thermodynamics_hardened import entropy_delta as thermo_delta_s
+
+    try:
+        entropy_delta = thermo_delta_s(query_text, chain_text)
+    except Exception:
+        # If physics module unavailable, fallback to shared physics
+        entropy_delta = delta_S(query_text, chain_text)
+
+    # Record entropy I/O for budget tracking
+    record_entropy_io(session_id, input_entropy, output_entropy)
+
     truth_score = thoughts[-1].confidence if thoughts else 0.5
 
     # Boost truth_score for simple factual queries without risk signals

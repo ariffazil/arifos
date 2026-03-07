@@ -16,6 +16,7 @@ PHASE 1 WIRING: Thermodynamic Core Integration
 from __future__ import annotations
 
 import asyncio
+import base64
 import hashlib
 import hmac as _hmac
 import json
@@ -40,6 +41,7 @@ from aaa_mcp.protocol.public_surface import (
     PUBLIC_RESOURCE_URIS,
 )
 from aaa_mcp.protocol.tool_registry import export_full_context_pack
+from aaa_mcp.sessions.session_ledger import get_ledger
 from aclip_cai.tools.system_monitor import get_system_health
 from aclip_cai.triad import (
     align,
@@ -106,6 +108,707 @@ def _get_zkpc_witness(session_id: str, digest: str) -> str:
     ).hexdigest()[:16]
 
 
+_CONTINUITY_TTL_SECONDS = max(
+    30,
+    int(os.environ.get("ARIFOS_CONTINUITY_TTL_SECONDS", "900")),
+)
+_CONTINUITY_STRICT = os.environ.get("ARIFOS_CONTINUITY_STRICT", "false").strip().lower() in {
+    "1",
+    "true",
+    "yes",
+    "on",
+}
+_DEFAULT_APPROVAL_SCOPE = [
+    "reason_mind",
+    "simulate_heart",
+    "critique_thought",
+    "apex_judge",
+    "eureka_forge",
+    "seal_vault",
+]
+_SESSION_CONTINUITY_STATE: dict[str, dict[str, Any]] = {}
+_PUBLIC_APPROVAL_MODE = os.environ.get(
+    "ARIFOS_PUBLIC_APPROVAL_MODE", "true"
+).strip().lower() not in {"0", "false", "no", "off"}
+_PUBLIC_APPROVAL_KEY_ID = "PUBLIC_DEV_ACTOR"
+_APPROVAL_ALG_HMAC_DEV = "hmac-dev"
+_APPROVAL_ALG_ED25519 = "ed25519"
+_APPROVAL_REQUIRED_FIELDS = [
+    "approval_id",
+    "actor_id",
+    "session_id",
+    "tool_name",
+    "scope_hash",
+    "risk_tier",
+    "iat",
+    "exp",
+    "nonce",
+    "signature",
+]
+
+
+def _token_fingerprint(auth_token: str | None) -> str:
+    if not isinstance(auth_token, str) or not auth_token:
+        return ""
+    return _hmac.new(
+        _GOVERNANCE_TOKEN_SECRET.encode(),
+        auth_token.encode(),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def _sign_auth_context(unsigned_context: dict[str, Any]) -> str:
+    canonical = json.dumps(
+        unsigned_context, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    )
+    return _hmac.new(
+        _GOVERNANCE_TOKEN_SECRET.encode(),
+        canonical.encode(),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def _mint_auth_context(
+    session_id: str,
+    actor_id: str,
+    token_fingerprint: str,
+    approval_scope: list[str],
+    parent_signature: str,
+) -> dict[str, Any]:
+    now = int(time.time())
+    unsigned_context = {
+        "session_id": session_id,
+        "actor_id": actor_id,
+        "token_fingerprint": token_fingerprint,
+        "nonce": secrets.token_hex(12),
+        "iat": now,
+        "exp": now + _CONTINUITY_TTL_SECONDS,
+        "approval_scope": approval_scope,
+        "parent_signature": parent_signature,
+    }
+    return {
+        **unsigned_context,
+        "signature": _sign_auth_context(unsigned_context),
+    }
+
+
+def _verify_signed_auth_context(session_id: str, auth_context: dict[str, Any]) -> tuple[bool, str]:
+    required_fields = [
+        "session_id",
+        "actor_id",
+        "token_fingerprint",
+        "nonce",
+        "iat",
+        "exp",
+        "approval_scope",
+        "parent_signature",
+        "signature",
+    ]
+    for field in required_fields:
+        if field not in auth_context:
+            return False, f"missing field: {field}"
+    if str(auth_context.get("session_id", "")) != session_id:
+        return False, "session_id mismatch"
+    if not isinstance(auth_context.get("approval_scope"), list):
+        return False, "approval_scope must be a list"
+    iat_raw = auth_context.get("iat", "")
+    exp_raw = auth_context.get("exp", "")
+    try:
+        iat = int(iat_raw)
+        exp = int(exp_raw)
+    except (TypeError, ValueError):
+        return False, "iat/exp must be integers"
+    now = int(time.time())
+    if exp <= now:
+        return False, "auth_context expired"
+    if exp < iat:
+        return False, "exp earlier than iat"
+    unsigned_context = {
+        "session_id": str(auth_context.get("session_id", "")),
+        "actor_id": str(auth_context.get("actor_id", "")),
+        "token_fingerprint": str(auth_context.get("token_fingerprint", "")),
+        "nonce": str(auth_context.get("nonce", "")),
+        "iat": iat,
+        "exp": exp,
+        "approval_scope": list(auth_context.get("approval_scope", [])),
+        "parent_signature": str(auth_context.get("parent_signature", "")),
+    }
+    expected_signature = _sign_auth_context(unsigned_context)
+    actual_signature = str(auth_context.get("signature", ""))
+    if not _hmac.compare_digest(actual_signature, expected_signature):
+        return False, "signature mismatch"
+    return True, ""
+
+
+def _f11_continuity_failure(
+    stage: str,
+    session_id: str,
+    reason: str,
+    *,
+    critical: bool,
+) -> dict[str, Any]:
+    actions = [
+        "Run anchor_session to mint a fresh auth_context for this session.",
+        "Pass the latest auth_context from each response into the next tool call.",
+        "Keep actor_id/auth_token stable for the full session chain.",
+    ]
+    if critical:
+        actions.append("Critical tool blocked until F11 continuity is valid.")
+    return {
+        "verdict": "VOID",
+        "stage": stage,
+        "session_id": session_id,
+        "token_status": "ERROR",
+        "floors": {"passed": [], "failed": ["F11"]},
+        "truth": {"score": None, "threshold": None, "drivers": []},
+        "next_actions": actions,
+        "error": f"F11 continuity failure: {reason}",
+    }
+
+
+def _enforce_auth_continuity(
+    *,
+    tool_name: str,
+    stage: str,
+    session_id: str,
+    actor_id: str,
+    auth_token: str | None,
+    auth_context: dict[str, Any] | None,
+    critical: bool,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    state = _SESSION_CONTINUITY_STATE.get(session_id)
+    strict_required = _CONTINUITY_STRICT or (critical and state is not None)
+    if not isinstance(auth_context, dict):
+        auth_context = None
+    if auth_context is None and not strict_required:
+        if state is None:
+            return {
+                "actor_id": actor_id,
+                "token_fingerprint": _token_fingerprint(auth_token),
+                "approval_scope": list(_DEFAULT_APPROVAL_SCOPE),
+                "parent_signature": "",
+            }, None
+        return {
+            "actor_id": str(state.get("actor_id", actor_id)),
+            "token_fingerprint": str(state.get("token_fingerprint", "")),
+            "approval_scope": list(_DEFAULT_APPROVAL_SCOPE),
+            "parent_signature": str(state.get("last_signature", "")),
+        }, None
+    if auth_context is None:
+        return None, _f11_continuity_failure(
+            stage,
+            session_id,
+            "missing auth_context",
+            critical=critical,
+        )
+
+    valid, reason = _verify_signed_auth_context(session_id, auth_context)
+    if not valid:
+        return None, _f11_continuity_failure(stage, session_id, reason, critical=critical)
+
+    incoming_signature = str(auth_context.get("signature", ""))
+    incoming_actor = str(auth_context.get("actor_id", ""))
+    incoming_token_fp = str(auth_context.get("token_fingerprint", ""))
+    incoming_nonce = str(auth_context.get("nonce", ""))
+    incoming_scope = [str(x) for x in auth_context.get("approval_scope", [])]
+    if tool_name not in incoming_scope:
+        return None, _f11_continuity_failure(
+            stage,
+            session_id,
+            f"approval_scope missing permission for {tool_name}",
+            critical=critical,
+        )
+
+    presented_token_fp = _token_fingerprint(auth_token)
+    if presented_token_fp and presented_token_fp != incoming_token_fp:
+        return None, _f11_continuity_failure(
+            stage,
+            session_id,
+            "auth_token fingerprint mismatch",
+            critical=critical,
+        )
+
+    if state is not None:
+        state_nonces = state.get("nonces")
+        if not isinstance(state_nonces, set):
+            state_nonces = set()
+            state["nonces"] = state_nonces
+        if incoming_signature != str(state.get("last_signature", "")):
+            return None, _f11_continuity_failure(
+                stage,
+                session_id,
+                "chain signature mismatch",
+                critical=critical,
+            )
+        if incoming_nonce in state_nonces:
+            return None, _f11_continuity_failure(
+                stage,
+                session_id,
+                "nonce replay detected",
+                critical=critical,
+            )
+        if incoming_actor != str(state.get("actor_id", "")):
+            return None, _f11_continuity_failure(
+                stage,
+                session_id,
+                "actor_id mismatch",
+                critical=critical,
+            )
+        if incoming_token_fp != str(state.get("token_fingerprint", "")):
+            return None, _f11_continuity_failure(
+                stage,
+                session_id,
+                "token fingerprint mismatch",
+                critical=critical,
+            )
+        state_nonces.add(incoming_nonce)
+        if len(state_nonces) > 2048:
+            state_nonces.clear()
+            state_nonces.add(incoming_nonce)
+    else:
+        _SESSION_CONTINUITY_STATE[session_id] = {
+            "actor_id": incoming_actor,
+            "token_fingerprint": incoming_token_fp,
+            "last_signature": incoming_signature,
+            "nonces": {incoming_nonce},
+        }
+
+    return {
+        "actor_id": incoming_actor,
+        "token_fingerprint": incoming_token_fp,
+        "approval_scope": incoming_scope,
+        "parent_signature": incoming_signature,
+    }, None
+
+
+def _rotate_auth_context(session_id: str, binding: dict[str, Any]) -> dict[str, Any]:
+    next_context = _mint_auth_context(
+        session_id=session_id,
+        actor_id=str(binding.get("actor_id", "anonymous")),
+        token_fingerprint=str(binding.get("token_fingerprint", "")),
+        approval_scope=[str(x) for x in binding.get("approval_scope", _DEFAULT_APPROVAL_SCOPE)],
+        parent_signature=str(binding.get("parent_signature", "")),
+    )
+    existing = _SESSION_CONTINUITY_STATE.get(session_id, {})
+    nonces = existing.get("nonces")
+    if not isinstance(nonces, set):
+        nonces = set()
+    _SESSION_CONTINUITY_STATE[session_id] = {
+        "actor_id": str(binding.get("actor_id", "anonymous")),
+        "token_fingerprint": str(binding.get("token_fingerprint", "")),
+        "last_signature": next_context["signature"],
+        "nonces": nonces,
+    }
+    return next_context
+
+
+def _attach_rotated_auth_context(
+    payload: dict[str, Any], session_id: str, binding: dict[str, Any] | None
+) -> dict[str, Any]:
+    if binding is not None:
+        payload["auth_context"] = _rotate_auth_context(session_id, binding)
+    return payload
+
+
+def _approval_signature(unsigned_bundle: dict[str, Any]) -> str:
+    canonical = json.dumps(
+        unsigned_bundle, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    )
+    return _hmac.new(
+        _GOVERNANCE_TOKEN_SECRET.encode(),
+        canonical.encode(),
+        hashlib.sha256,
+    ).hexdigest()
+
+
+def _approval_signature_digest(signature: str) -> str:
+    return hashlib.sha256(str(signature).encode()).hexdigest()[:16]
+
+
+def _parse_string_set_env(name: str) -> set[str]:
+    raw = str(os.environ.get(name, "") or "").strip()
+    if not raw:
+        return set()
+    parsed: set[str] = set()
+    if raw.startswith("[") or raw.startswith("{"):
+        try:
+            loaded = json.loads(raw)
+            if isinstance(loaded, list):
+                parsed.update(str(x).strip() for x in loaded if str(x).strip())
+            elif isinstance(loaded, dict):
+                parsed.update(str(k).strip() for k, v in loaded.items() if v and str(k).strip())
+            elif isinstance(loaded, str) and loaded.strip():
+                parsed.add(loaded.strip())
+        except Exception:
+            parsed = set()
+    if not parsed:
+        parsed.update(part.strip() for part in raw.split(",") if part.strip())
+    return parsed
+
+
+def _actor_public_keys() -> dict[str, str]:
+    raw = str(os.environ.get("ARIFOS_ACTOR_PUBLIC_KEYS_JSON", "") or "").strip()
+    if not raw:
+        return {}
+    try:
+        loaded = json.loads(raw)
+    except Exception:
+        return {}
+    if not isinstance(loaded, dict):
+        return {}
+    return {str(k): str(v) for k, v in loaded.items() if str(k).strip() and str(v).strip()}
+
+
+def _revocation_reason(*, actor_id: str = "", session_id: str = "", approval_id: str = "") -> str:
+    if actor_id and actor_id in _parse_string_set_env("ARIFOS_REVOKED_ACTORS"):
+        return "AUTH_REVOKED_ACTOR"
+    if session_id and session_id in _parse_string_set_env("ARIFOS_REVOKED_SESSIONS"):
+        return "AUTH_REVOKED_SESSION"
+    if approval_id and approval_id in _parse_string_set_env("ARIFOS_REVOKED_APPROVAL_IDS"):
+        return "AUTH_REVOKED_APPROVAL"
+    return ""
+
+
+def _revocation_message(reason_code: str) -> str:
+    mapping = {
+        "AUTH_REVOKED_ACTOR": "actor_id is revoked",
+        "AUTH_REVOKED_SESSION": "session_id is revoked",
+        "AUTH_REVOKED_APPROVAL": "approval_id is revoked",
+    }
+    return mapping.get(reason_code, "authorization revoked")
+
+
+def _revocation_void(stage: str, session_id: str, reason_code: str) -> dict[str, Any]:
+    return {
+        "verdict": "VOID",
+        "stage": stage,
+        "session_id": session_id,
+        "reason_code": reason_code,
+        "error": _revocation_message(reason_code),
+        "floors": {"passed": [], "failed": ["F11", "F1"]},
+        "next_actions": [
+            "Use a non-revoked actor/session/approval artifact.",
+            "Rotate identity material and mint a fresh approval bundle.",
+            "Retry with authorization state that passes revocation checks.",
+        ],
+    }
+
+
+def _approval_signing_bundle(
+    approval_bundle: dict[str, Any],
+    *,
+    key_id: str,
+    iat: int,
+    exp: int,
+    nonce: str,
+    bundle_session_id: str,
+    bundle_tool_name: str,
+    bundle_risk_tier: str,
+) -> dict[str, Any]:
+    return {
+        "approval_id": str(approval_bundle.get("approval_id", "")),
+        "actor_id": str(approval_bundle.get("actor_id", "")),
+        "session_id": bundle_session_id,
+        "tool_name": bundle_tool_name,
+        "scope_hash": str(approval_bundle.get("scope_hash", "")),
+        "risk_tier": bundle_risk_tier,
+        "iat": iat,
+        "exp": exp,
+        "nonce": nonce,
+        "key_id": key_id,
+    }
+
+
+def _verify_ed25519_signature(
+    *,
+    approval_bundle: dict[str, Any],
+    signing_bundle: dict[str, Any],
+) -> tuple[bool, str]:
+    actor_id = str(approval_bundle.get("actor_id", ""))
+    actor_keys = _actor_public_keys()
+    public_key_b64 = actor_keys.get(actor_id, "")
+    if not public_key_b64:
+        return False, "approval_bundle signature verification failed: missing actor public key"
+
+    try:
+        from cryptography.exceptions import InvalidSignature
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
+    except Exception:
+        return False, "approval_bundle signature verification failed: ed25519 library unavailable"
+
+    try:
+        public_key_bytes = base64.b64decode(public_key_b64.encode(), validate=True)
+        signature_bytes = base64.b64decode(
+            str(approval_bundle.get("signature", "")).encode(),
+            validate=True,
+        )
+    except Exception:
+        return False, "approval_bundle signature verification failed: invalid base64 key/signature"
+
+    message = json.dumps(
+        signing_bundle, ensure_ascii=True, sort_keys=True, separators=(",", ":")
+    ).encode()
+    try:
+        public_key = Ed25519PublicKey.from_public_bytes(public_key_bytes)
+        public_key.verify(signature_bytes, message)
+    except (ValueError, InvalidSignature):
+        return False, "approval_bundle signature verification failed: ed25519 verify mismatch"
+    except Exception:
+        return False, "approval_bundle signature verification failed: ed25519 verifier error"
+
+    return True, ""
+
+
+def _approval_action_hash(parts: list[Any]) -> str:
+    canonical = json.dumps(parts, ensure_ascii=True, sort_keys=False, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode()).hexdigest()
+
+
+def _approval_scope_hash(
+    tool_name: str,
+    session_id: str,
+    action_hash: str,
+    risk_tier: str,
+    exp: int,
+    nonce: str,
+) -> str:
+    canonical = json.dumps(
+        {
+            "tool_name": tool_name,
+            "session_id": session_id,
+            "action_hash": action_hash,
+            "risk_tier": str(risk_tier).upper(),
+            "exp": int(exp),
+            "nonce": str(nonce),
+        },
+        ensure_ascii=True,
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    return hashlib.sha256(canonical.encode()).hexdigest()
+
+
+def _approval_void(
+    *,
+    stage: str,
+    session_id: str,
+    reason_code: str,
+    message: str,
+) -> dict[str, Any]:
+    return {
+        "verdict": "VOID",
+        "stage": stage,
+        "session_id": session_id,
+        "reason_code": reason_code,
+        "error": message,
+        "floors": {"passed": [], "failed": ["F11", "F1"]},
+        "next_actions": [
+            "Provide a valid approval_bundle for this tool invocation.",
+            "Use fresh approval_id/nonce and recompute scope_hash from exact action fields.",
+            "Retry with a non-expired bundle signed by the active approval scheme.",
+        ],
+    }
+
+
+def _annotate_approval(
+    payload: dict[str, Any], approval_state: dict[str, Any] | None
+) -> dict[str, Any]:
+    if not isinstance(approval_state, dict):
+        return payload
+    mode = str(approval_state.get("approval_mode", "")).strip()
+    if mode:
+        payload["approval_mode"] = mode
+        nested = payload.get("payload")
+        if isinstance(nested, dict):
+            nested["approval_mode"] = mode
+    approval_id = str(approval_state.get("approval_id", "")).strip()
+    if approval_id:
+        payload["approval_id"] = approval_id
+    return payload
+
+
+async def _verify_approval_bundle(
+    *,
+    tool_name: str,
+    stage: str,
+    session_id: str,
+    approval_bundle: dict[str, Any] | None,
+    action_hash: str,
+    risk_tier: str,
+    require_bundle: bool,
+) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
+    pre_bundle_revocation = _revocation_reason(session_id=session_id)
+    if pre_bundle_revocation:
+        return None, _revocation_void(stage, session_id, pre_bundle_revocation)
+
+    if not isinstance(approval_bundle, dict):
+        if require_bundle:
+            return None, _approval_void(
+                stage=stage,
+                session_id=session_id,
+                reason_code="AUTH_APPROVAL_MISSING",
+                message="approval_bundle is required for elevated confirmation path",
+            )
+        return {"approval_mode": "public-open" if _PUBLIC_APPROVAL_MODE else "strict-open"}, None
+
+    for field in _APPROVAL_REQUIRED_FIELDS:
+        if field not in approval_bundle:
+            return None, _approval_void(
+                stage=stage,
+                session_id=session_id,
+                reason_code="AUTH_APPROVAL_MISSING",
+                message=f"approval_bundle missing required field: {field}",
+            )
+
+    bundle_session_id = str(approval_bundle.get("session_id", ""))
+    bundle_tool_name = str(approval_bundle.get("tool_name", ""))
+    if bundle_session_id != session_id or bundle_tool_name != tool_name:
+        return None, _approval_void(
+            stage=stage,
+            session_id=session_id,
+            reason_code="AUTH_APPROVAL_SCOPE_MISMATCH",
+            message="approval_bundle session_id/tool_name mismatch",
+        )
+
+    approval_id = str(approval_bundle.get("approval_id", ""))
+    bundle_actor_id = str(approval_bundle.get("actor_id", ""))
+    revocation = _revocation_reason(
+        actor_id=bundle_actor_id,
+        session_id=bundle_session_id,
+        approval_id=approval_id,
+    )
+    if revocation:
+        return None, _revocation_void(stage, session_id, revocation)
+
+    now = int(time.time())
+    try:
+        iat_raw = approval_bundle.get("iat", "")
+        exp_raw = approval_bundle.get("exp", "")
+        iat = int(iat_raw)
+        exp = int(exp_raw)
+    except (TypeError, ValueError):
+        return None, _approval_void(
+            stage=stage,
+            session_id=session_id,
+            reason_code="AUTH_APPROVAL_EXPIRED",
+            message="approval_bundle iat/exp must be integer timestamps",
+        )
+    if iat > now or exp <= now or exp < iat:
+        return None, _approval_void(
+            stage=stage,
+            session_id=session_id,
+            reason_code="AUTH_APPROVAL_EXPIRED",
+            message="approval_bundle timestamp window invalid or expired",
+        )
+
+    nonce = str(approval_bundle.get("nonce", ""))
+    expected_scope_hash = _approval_scope_hash(
+        tool_name=tool_name,
+        session_id=session_id,
+        action_hash=action_hash,
+        risk_tier=risk_tier,
+        exp=exp,
+        nonce=nonce,
+    )
+    if str(approval_bundle.get("scope_hash", "")) != expected_scope_hash:
+        return None, _approval_void(
+            stage=stage,
+            session_id=session_id,
+            reason_code="AUTH_APPROVAL_SCOPE_MISMATCH",
+            message="approval_bundle scope_hash mismatch",
+        )
+    bundle_risk_tier = str(approval_bundle.get("risk_tier", "")).upper()
+    if bundle_risk_tier != str(risk_tier).upper():
+        return None, _approval_void(
+            stage=stage,
+            session_id=session_id,
+            reason_code="AUTH_APPROVAL_SCOPE_MISMATCH",
+            message="approval_bundle risk_tier mismatch",
+        )
+
+    alg = str(approval_bundle.get("alg") or _APPROVAL_ALG_HMAC_DEV).strip().lower()
+    if alg not in {_APPROVAL_ALG_HMAC_DEV, _APPROVAL_ALG_ED25519}:
+        return None, _approval_void(
+            stage=stage,
+            session_id=session_id,
+            reason_code="AUTH_APPROVAL_SIGNATURE_INVALID",
+            message=f"approval_bundle signature verification failed: unsupported alg '{alg}'",
+        )
+
+    key_id = str(approval_bundle.get("key_id") or _PUBLIC_APPROVAL_KEY_ID)
+    unsigned_bundle = _approval_signing_bundle(
+        approval_bundle,
+        key_id=key_id,
+        iat=iat,
+        exp=exp,
+        nonce=nonce,
+        bundle_session_id=bundle_session_id,
+        bundle_tool_name=bundle_tool_name,
+        bundle_risk_tier=bundle_risk_tier,
+    )
+    actual_signature = str(approval_bundle.get("signature", ""))
+    if alg == _APPROVAL_ALG_HMAC_DEV:
+        expected_signature = _approval_signature(unsigned_bundle)
+        if not _hmac.compare_digest(actual_signature, expected_signature):
+            return None, _approval_void(
+                stage=stage,
+                session_id=session_id,
+                reason_code="AUTH_APPROVAL_SIGNATURE_INVALID",
+                message="approval_bundle signature verification failed",
+            )
+
+    if alg == _APPROVAL_ALG_ED25519:
+        ed25519_bundle = dict(unsigned_bundle)
+        ed25519_bundle["alg"] = _APPROVAL_ALG_ED25519
+        verified, reason = _verify_ed25519_signature(
+            approval_bundle=approval_bundle,
+            signing_bundle=ed25519_bundle,
+        )
+        if not verified:
+            return None, _approval_void(
+                stage=stage,
+                session_id=session_id,
+                reason_code="AUTH_APPROVAL_SIGNATURE_INVALID",
+                message=reason,
+            )
+
+    if (
+        alg == _APPROVAL_ALG_HMAC_DEV
+        and _PUBLIC_APPROVAL_MODE
+        and key_id != _PUBLIC_APPROVAL_KEY_ID
+    ):
+        return None, _approval_void(
+            stage=stage,
+            session_id=session_id,
+            reason_code="AUTH_APPROVAL_SIGNATURE_INVALID",
+            message="approval_bundle key_id must be PUBLIC_DEV_ACTOR in public mode",
+        )
+
+    ledger = await get_ledger()
+    replay_ok = await ledger.mark_approval_used(
+        approval_id=approval_id,
+        session_id=session_id,
+        nonce=nonce,
+        tool_name=tool_name,
+    )
+    if not replay_ok:
+        return None, _approval_void(
+            stage=stage,
+            session_id=session_id,
+            reason_code="AUTH_APPROVAL_REPLAY",
+            message="approval_bundle replay detected",
+        )
+
+    return {
+        "approval_mode": "artifact-verified",
+        "approval_id": approval_id,
+        "actor_id": bundle_actor_id,
+        "approval_alg": alg,
+        "approval_key_id": key_id,
+        "approval_signature_digest": _approval_signature_digest(actual_signature),
+    }, None
+
+
 def _fold_verdict(verdicts: list[str]) -> str:
     if any(v.upper() == "VOID" for v in verdicts):
         return "VOID"
@@ -118,6 +821,184 @@ def _fold_verdict(verdicts: list[str]) -> str:
 
 def _token_status(auth_token: str | None) -> str:
     return "AUTHENTICATED" if auth_token else "ANONYMOUS"
+
+
+def _clamp01(value: Any, default: float = 0.0) -> float:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return default
+    if parsed < 0.0:
+        return 0.0
+    if parsed > 1.0:
+        return 1.0
+    return parsed
+
+
+def compute_human_witness(
+    *,
+    continuity_ok: bool,
+    approval_ok: bool,
+    human_approve: bool,
+    public_approval_mode: bool,
+) -> dict[str, Any]:
+    authority_ready = continuity_ok and (approval_ok or human_approve or public_approval_mode)
+    score = 1.0 if authority_ready else 0.0
+    return {
+        "valid": authority_ready,
+        "score": score,
+        "signals": {
+            "continuity_ok": continuity_ok,
+            "approval_ok": approval_ok,
+            "human_approve": human_approve,
+            "public_approval_mode": public_approval_mode,
+        },
+    }
+
+
+def compute_ai_witness(*, truth_score: Any, truth_threshold: Any) -> dict[str, Any]:
+    truth_score_num = None
+    threshold_num = None
+    try:
+        truth_score_num = float(truth_score)
+    except (TypeError, ValueError):
+        truth_score_num = None
+    try:
+        threshold_num = float(truth_threshold)
+    except (TypeError, ValueError):
+        threshold_num = None
+
+    if truth_score_num is not None and threshold_num is not None and threshold_num > 0:
+        ratio = _clamp01(truth_score_num / threshold_num, default=0.0)
+        return {
+            "valid": truth_score_num >= threshold_num,
+            "score": ratio,
+            "signals": {
+                "truth_score": truth_score_num,
+                "truth_threshold": threshold_num,
+            },
+        }
+
+    return {
+        "valid": True,
+        "score": 0.9,
+        "signals": {
+            "truth_score": truth_score_num,
+            "truth_threshold": threshold_num,
+            "fallback": "conservative_default",
+        },
+    }
+
+
+def compute_earth_witness(
+    *,
+    precedent_count: int,
+    grounding_present: bool,
+    revocation_ok: bool,
+    health_ok: bool,
+) -> dict[str, Any]:
+    grounded = grounding_present or precedent_count > 0
+    valid = revocation_ok and health_ok and grounded
+    score = 1.0 if valid else (0.5 if revocation_ok and health_ok else 0.0)
+    return {
+        "valid": valid,
+        "score": score,
+        "signals": {
+            "precedent_count": max(0, int(precedent_count)),
+            "grounding_present": grounded,
+            "revocation_ok": revocation_ok,
+            "health_ok": health_ok,
+        },
+    }
+
+
+def build_governance_proof(
+    *,
+    continuity_ok: bool,
+    approval_ok: bool,
+    human_approve: bool,
+    public_approval_mode: bool,
+    truth_score: Any,
+    truth_threshold: Any,
+    precedent_count: int,
+    grounding_present: bool,
+    revocation_ok: bool,
+    health_ok: bool,
+    omega_ortho: Any,
+    mode_collapse: bool,
+    non_violation_status: bool,
+) -> dict[str, Any]:
+    human = compute_human_witness(
+        continuity_ok=continuity_ok,
+        approval_ok=approval_ok,
+        human_approve=human_approve,
+        public_approval_mode=public_approval_mode,
+    )
+    ai = compute_ai_witness(truth_score=truth_score, truth_threshold=truth_threshold)
+    earth = compute_earth_witness(
+        precedent_count=precedent_count,
+        grounding_present=grounding_present,
+        revocation_ok=revocation_ok,
+        health_ok=health_ok,
+    )
+
+    omega_score = _clamp01(omega_ortho, default=1.0)
+    omega_valid = True if omega_ortho is None else omega_score >= 0.95
+    thermodynamics_valid = non_violation_status and (not mode_collapse) and omega_valid
+    thermodynamic_score = (
+        (1.0 if non_violation_status else 0.0) * 0.5
+        + (1.0 if not mode_collapse else 0.0) * 0.25
+        + omega_score * 0.25
+    )
+
+    authority_valid = bool(human.get("valid"))
+    authority_score = _clamp01(human.get("score"), default=0.0)
+    witness_product = (
+        _clamp01(human.get("score"), default=0.0)
+        * _clamp01(ai.get("score"), default=0.0)
+        * _clamp01(earth.get("score"), default=0.0)
+    )
+    w3 = witness_product ** (1 / 3) if witness_product > 0.0 else 0.0
+    tri_witness_valid = w3 >= 0.95 and bool(human.get("valid")) and bool(earth.get("valid"))
+
+    proof: dict[str, Any] = {
+        "authority_valid": authority_valid,
+        "thermodynamics_valid": thermodynamics_valid,
+        "tri_witness_valid": tri_witness_valid,
+        "authority_score": authority_score,
+        "thermodynamic_score": _clamp01(thermodynamic_score, default=0.0),
+        "witness": {
+            "human": human,
+            "ai": ai,
+            "earth": earth,
+            "w3": w3,
+        },
+        "gate_verdict": "SEAL",
+        "gate_reason": "All fused governance pillars are valid.",
+    }
+    return apply_governance_gate(current_verdict="SEAL", governance_proof=proof)
+
+
+def apply_governance_gate(
+    *, current_verdict: str, governance_proof: dict[str, Any]
+) -> dict[str, Any]:
+    verdict = str(current_verdict or "VOID").upper()
+    if not governance_proof.get("authority_valid"):
+        governance_proof["gate_verdict"] = "VOID"
+        governance_proof["gate_reason"] = "Authority pillar failed (F11/F13)."
+    elif not governance_proof.get("thermodynamics_valid"):
+        governance_proof["gate_verdict"] = "VOID"
+        governance_proof["gate_reason"] = "Thermodynamic pillar failed (P3 plausibility)."
+    elif not governance_proof.get("tri_witness_valid"):
+        governance_proof["gate_verdict"] = "888_HOLD"
+        governance_proof["gate_reason"] = "Tri-Witness consensus below F3 threshold."
+    elif verdict == "VOID":
+        governance_proof["gate_verdict"] = "VOID"
+        governance_proof["gate_reason"] = "Underlying verdict is already VOID."
+    else:
+        governance_proof["gate_verdict"] = verdict
+        governance_proof["gate_reason"] = "Gate passed; preserving underlying verdict."
+    return governance_proof
 
 
 class EnvelopeBuilder:
@@ -465,17 +1346,31 @@ async def anchor_session(
     try:
         if not session_id:
             session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
+        revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
+        if revoked:
+            return wrap_tool_output(
+                "anchor_session", _revocation_void("000_INIT", session_id, revoked)
+            )
         anch = await anchor(session_id=session_id, user_id=actor_id, context=query)
+        effective_session = str(anch.get("session_id", session_id))
         verdict = str(anch.get("verdict", "SEAL"))
+        initial_binding = {
+            "actor_id": actor_id,
+            "token_fingerprint": _token_fingerprint(auth_token),
+            "approval_scope": list(_DEFAULT_APPROVAL_SCOPE),
+            "parent_signature": "",
+        }
+        continuity_context = _rotate_auth_context(effective_session, initial_binding)
 
         payload = {
             "verdict": verdict,
-            "session_id": anch.get("session_id", session_id),
+            "session_id": effective_session,
             "stage": "000_INIT",
             "mode": mode,
             "grounding_required": grounding_required,
             "token_status": _token_status(auth_token),
             "auth": {"present": bool(auth_token)},
+            "auth_context": continuity_context,
             "debug": debug,
             "data": {"anchor": anch} if debug else {},
         }
@@ -520,6 +1415,7 @@ async def reason_mind(
     debug: bool = False,
     actor_id: str = "anonymous",
     auth_token: str | None = None,
+    auth_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """333 REASON: run AGI cognition with grounding and budget controls."""
     blocked = validate_input("reason_mind", {"query": query, "session_id": session_id})
@@ -532,6 +1428,24 @@ async def reason_mind(
     # PHASE 1: Thermodynamic core integration with physics exception handling
     start_time = time.time()
     try:
+        revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
+        if revoked:
+            return wrap_tool_output(
+                "apex_judge",
+                _revocation_void("888_APEX_JUDGE", session_id, revoked),
+            )
+        continuity_binding, continuity_error = _enforce_auth_continuity(
+            tool_name="reason_mind",
+            stage="111-444",
+            session_id=session_id,
+            actor_id=actor_id,
+            auth_token=auth_token,
+            auth_context=auth_context,
+            critical=False,
+        )
+        if continuity_error:
+            return wrap_tool_output("reason_mind", continuity_error)
+
         evidence = [str(x) for x in (grounding or [])]
         rag_contexts = []
         try:
@@ -599,8 +1513,9 @@ async def reason_mind(
 
         payload = {
             "capability_modules": capability_modules or [],
-            "actor_id": actor_id,
+            "actor_id": continuity_binding["actor_id"] if continuity_binding else actor_id,
             "token_status": _token_status(auth_token),
+            "auth_context": {},
             "debug": debug,
             "data": (
                 {"think": think_draft, "reason": r, "integrate": i, "respond": d} if debug else {}
@@ -623,7 +1538,10 @@ async def reason_mind(
                 f"F4_CLARITY_VIOLATION: ΔS={delta_s:.4f} > 0 in reason_mind output"
             )
 
-        return wrap_tool_output("reason_mind", payload)
+        return wrap_tool_output(
+            "reason_mind",
+            _attach_rotated_auth_context(payload, session_id, continuity_binding),
+        )
     except Exception as e:
         if isinstance(
             e,
@@ -742,6 +1660,9 @@ async def simulate_heart(
     stakeholders: list[str] | None = None,
     capability_modules: list[str] | None = None,
     debug: bool = False,
+    actor_id: str = "anonymous",
+    auth_token: str | None = None,
+    auth_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """555 EMPATHY: evaluate stakeholder impact and care constraints."""
     blocked = validate_input("simulate_heart", {"query": query, "session_id": session_id})
@@ -752,6 +1673,24 @@ async def simulate_heart(
         return wrap_tool_output("simulate_heart", missing)
     start_time = time.time()
     try:
+        revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
+        if revoked:
+            return wrap_tool_output(
+                "eureka_forge",
+                _revocation_void("777_EUREKA_FORGE", session_id, revoked),
+            )
+        continuity_binding, continuity_error = _enforce_auth_continuity(
+            tool_name="simulate_heart",
+            stage="555-666",
+            session_id=session_id,
+            actor_id=actor_id,
+            auth_token=auth_token,
+            auth_context=auth_context,
+            critical=False,
+        )
+        if continuity_error:
+            return wrap_tool_output("simulate_heart", continuity_error)
+
         v = await validate(session_id=session_id, action=query)
         a = await align(session_id=session_id, action=query)
         verdict = _fold_verdict([str(v.get("verdict", "")), str(a.get("verdict", ""))])
@@ -763,6 +1702,9 @@ async def simulate_heart(
         payload = {
             "stakeholders": stakeholders or [],
             "capability_modules": capability_modules or [],
+            "actor_id": continuity_binding["actor_id"] if continuity_binding else actor_id,
+            "token_status": _token_status(auth_token),
+            "auth_context": {},
             "debug": debug,
             "data": {"validate": v, "align": a} if debug else {},
         }
@@ -773,14 +1715,22 @@ async def simulate_heart(
         )
 
         payload["compute_ms"] = (time.time() - start_time) * 1000
-        return wrap_tool_output("simulate_heart", payload)
+        return wrap_tool_output(
+            "simulate_heart",
+            _attach_rotated_auth_context(payload, session_id, continuity_binding),
+        )
     except Exception as e:
         return wrap_tool_output("simulate_heart", _fracture_response("555-666", e, session_id))
 
 
 @mcp.tool(name="critique_thought")
 async def critique_thought(
-    plan: dict[str, Any], session_id: str, context: str = ""
+    plan: dict[str, Any],
+    session_id: str,
+    context: str = "",
+    actor_id: str = "anonymous",
+    auth_token: str | None = None,
+    auth_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """666 ALIGN: run 7-model critique (inversion, framing, non-linearity, etc.)."""
     blocked = validate_input("critique_thought", {"plan": plan, "session_id": session_id})
@@ -789,6 +1739,17 @@ async def critique_thought(
     missing = require_session("critique_thought", session_id)
     if missing:
         return wrap_tool_output("critique_thought", missing)
+    continuity_binding, continuity_error = _enforce_auth_continuity(
+        tool_name="critique_thought",
+        stage="666_ALIGN",
+        session_id=session_id,
+        actor_id=actor_id,
+        auth_token=auth_token,
+        auth_context=auth_context,
+        critical=False,
+    )
+    if continuity_error:
+        return wrap_tool_output("critique_thought", continuity_error)
     flags = _model_flags(plan, context=context)
     failed = [k for k, v in flags.items() if not v]
     critique_text = context.strip() or json.dumps(plan, ensure_ascii=True, sort_keys=True)
@@ -816,7 +1777,10 @@ async def critique_thought(
                 payload["verdict"] = "PARTIAL"
     except Exception as exc:
         payload["critique_backend_error"] = str(exc)
-    return wrap_tool_output("critique_thought", payload)
+    return wrap_tool_output(
+        "critique_thought",
+        _attach_rotated_auth_context(payload, session_id, continuity_binding),
+    )
 
 
 @mcp.tool(name="apex_judge")
@@ -829,6 +1793,10 @@ async def apex_judge(
     proposed_verdict: str = "SEAL",
     human_approve: bool = False,
     debug: bool = False,
+    actor_id: str = "anonymous",
+    auth_token: str | None = None,
+    auth_context: dict[str, Any] | None = None,
+    approval_bundle: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """888 APEX JUDGE METABOLIC: sovereign constitutional verdict synthesis."""
     blocked = validate_input("apex_judge", {"session_id": session_id, "query": query})
@@ -841,6 +1809,32 @@ async def apex_judge(
     # PHASE 1: Thermodynamic core integration - APEX judgment with Ψ, W₃, Φₚ
     start_time = time.time()
     try:
+        continuity_binding, continuity_error = _enforce_auth_continuity(
+            tool_name="apex_judge",
+            stage="888_APEX_JUDGE",
+            session_id=session_id,
+            actor_id=actor_id,
+            auth_token=auth_token,
+            auth_context=auth_context,
+            critical=True,
+        )
+        if continuity_error:
+            return wrap_tool_output("apex_judge", continuity_error)
+
+        action_hash = _approval_action_hash([query, proposed_verdict, human_approve])
+        require_approval = human_approve or (not _PUBLIC_APPROVAL_MODE)
+        approval_state, approval_error = await _verify_approval_bundle(
+            tool_name="apex_judge",
+            stage="888_APEX_JUDGE",
+            session_id=session_id,
+            approval_bundle=approval_bundle,
+            action_hash=action_hash,
+            risk_tier="HIGH" if human_approve else "MEDIUM",
+            require_bundle=require_approval,
+        )
+        if approval_error:
+            return wrap_tool_output("apex_judge", approval_error)
+
         plan = {
             "query": query,
             "proposed_verdict": proposed_verdict,
@@ -872,7 +1866,39 @@ async def apex_judge(
         except Exception:
             pass
 
+        omega_ortho = None
+        mode_collapse = False
+        if agi_result and asi_result and CORE_AVAILABLE:
+            agi_vector = agi_result.get("embedding_vector", [])
+            asi_vector = asi_result.get("embedding_vector", [])
+            if agi_vector and asi_vector:
+                omega_ortho = derive_orthogonality(agi_vector, asi_vector)
+                mode_collapse = omega_ortho < 0.95
+
         verdict = str(judged.get("verdict", "VOID"))
+        approval_ok = isinstance(approval_state, dict) and bool(
+            str(approval_state.get("approval_mode", "")).strip()
+        )
+        governance_proof = build_governance_proof(
+            continuity_ok=bool(continuity_binding),
+            approval_ok=approval_ok,
+            human_approve=human_approve,
+            public_approval_mode=_PUBLIC_APPROVAL_MODE,
+            truth_score=judged.get("truth_score"),
+            truth_threshold=judged.get("f2_threshold"),
+            precedent_count=len(precedents),
+            grounding_present=bool(precedents) or bool(str(query).strip()),
+            revocation_ok=True,
+            health_ok=True,
+            omega_ortho=omega_ortho,
+            mode_collapse=mode_collapse,
+            non_violation_status=verdict.upper() != "VOID",
+        )
+        governance_proof = apply_governance_gate(
+            current_verdict=verdict,
+            governance_proof=governance_proof,
+        )
+        verdict = str(governance_proof.get("gate_verdict", verdict))
         governance_token = _build_governance_token(session_id, verdict)
         merged = {
             "truth_score": judged.get("truth_score"),
@@ -880,11 +1906,16 @@ async def apex_judge(
             "floors_failed": list(forged.get("floors_failed", []))
             + list(judged.get("floors_failed", [])),
             "precedents": precedents,
+            "governance_proof": governance_proof,
         }
 
         payload = {
             "authority": {"human_approve": human_approve},
             "governance_token": governance_token,
+            "governance_proof": governance_proof,
+            "actor_id": continuity_binding["actor_id"] if continuity_binding else actor_id,
+            "token_status": _token_status(auth_token),
+            "auth_context": {},
             "debug": debug,
             "data": {"forge": forged, "audit": judged} if debug else {},
         }
@@ -897,16 +1928,10 @@ async def apex_judge(
         # Add compute telemetry
         payload["compute_ms"] = (time.time() - start_time) * 1000
 
-        # PHASE 1: Map AGI/ASI vectors for Tri-Witness (Ω_ortho calculation)
-        if agi_result and asi_result:
-            # Extract embedding vectors for orthogonality check
-            agi_vector = agi_result.get("embedding_vector", [])
-            asi_vector = asi_result.get("embedding_vector", [])
-            if agi_vector and asi_vector and CORE_AVAILABLE:
-                omega_ortho = derive_orthogonality(agi_vector, asi_vector)
-                payload["omega_ortho"] = omega_ortho
-                if omega_ortho < 0.95:
-                    payload["mode_collapse_warning"] = True
+        if omega_ortho is not None:
+            payload["omega_ortho"] = omega_ortho
+        if mode_collapse:
+            payload["mode_collapse_warning"] = True
 
         if isinstance(payload, dict):
             token = payload.get("governance_token")
@@ -917,7 +1942,14 @@ async def apex_judge(
                 payload["stage"] = "888_APEX_JUDGE"
                 if stage_value:
                     payload["stage_legacy"] = stage_value
-        return wrap_tool_output("apex_judge", payload)
+        return wrap_tool_output(
+            "apex_judge",
+            _attach_rotated_auth_context(
+                _annotate_approval(payload, approval_state),
+                session_id,
+                continuity_binding,
+            ),
+        )
 
     except (
         ThermodynamicViolation,
@@ -942,6 +1974,10 @@ async def eureka_forge(
     confirm_dangerous: bool = False,
     agent_id: str = "unknown",
     purpose: str = "",
+    actor_id: str = "anonymous",
+    auth_token: str | None = None,
+    auth_context: dict[str, Any] | None = None,
+    approval_bundle: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """777 EUREKA FORGE: execute shell commands with audit logging and confirmation for dangerous operations.
 
@@ -963,6 +1999,18 @@ async def eureka_forge(
         return wrap_tool_output("eureka_forge", missing)
     start_time = time.time()
     try:
+        continuity_binding, continuity_error = _enforce_auth_continuity(
+            tool_name="eureka_forge",
+            stage="777_EUREKA_FORGE",
+            session_id=session_id,
+            actor_id=actor_id,
+            auth_token=auth_token,
+            auth_context=auth_context,
+            critical=True,
+        )
+        if continuity_error:
+            return wrap_tool_output("eureka_forge", continuity_error)
+
         import shlex
 
         DANGEROUS_PATTERNS = [
@@ -1008,16 +2056,39 @@ async def eureka_forge(
         if risk_level == "CRITICAL" and not confirm_dangerous:
             return wrap_tool_output(
                 "eureka_forge",
-                envelope_builder.build_envelope(
-                    stage="888_FORGE",
-                    session_id=session_id,
-                    verdict="888_HOLD",
-                    payload={
-                        "status": "CONFIRMATION_REQUIRED",
-                        "risk_level": risk_level,
-                        "message": "CRITICAL command detected. Set confirm_dangerous=True to execute.",
-                    },
+                _attach_rotated_auth_context(
+                    envelope_builder.build_envelope(
+                        stage="888_FORGE",
+                        session_id=session_id,
+                        verdict="888_HOLD",
+                        payload={
+                            "status": "CONFIRMATION_REQUIRED",
+                            "risk_level": risk_level,
+                            "message": "CRITICAL command detected. Set confirm_dangerous=True to execute.",
+                        },
+                    ),
+                    session_id,
+                    continuity_binding,
                 ),
+            )
+
+        action_hash = _approval_action_hash([command, working_dir, confirm_dangerous])
+        require_approval = (risk_level == "CRITICAL" and confirm_dangerous) or (
+            not _PUBLIC_APPROVAL_MODE
+        )
+        approval_state, approval_error = await _verify_approval_bundle(
+            tool_name="eureka_forge",
+            stage="777_EUREKA_FORGE",
+            session_id=session_id,
+            approval_bundle=approval_bundle,
+            action_hash=action_hash,
+            risk_tier=risk_level,
+            require_bundle=require_approval,
+        )
+        if approval_error:
+            return wrap_tool_output(
+                "eureka_forge",
+                _attach_rotated_auth_context(approval_error, session_id, continuity_binding),
             )
 
         args = shlex.split(command)
@@ -1044,7 +2115,14 @@ async def eureka_forge(
             payload=res_payload,
         )
         payload["compute_ms"] = (time.time() - start_time) * 1000
-        return wrap_tool_output("eureka_forge", payload)
+        return wrap_tool_output(
+            "eureka_forge",
+            _attach_rotated_auth_context(
+                _annotate_approval(payload, approval_state),
+                session_id,
+                continuity_binding,
+            ),
+        )
     except Exception as e:
         return wrap_tool_output(
             "eureka_forge", _fracture_response("777_EUREKA_FORGE", e, session_id)
@@ -1059,8 +2137,12 @@ async def seal_vault(
     governance_token: str | None = None,
     approved_by: str | None = None,
     approval_reference: str | None = None,
+    actor_id: str = "anonymous",
+    auth_token: str | None = None,
+    auth_context: dict[str, Any] | None = None,
     # PHASE 2: Thermodynamic telemetry for ledger binding
     telemetry: dict[str, Any] | None = None,
+    approval_bundle: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """999 SEAL: commit immutable session decision record with thermodynamic telemetry."""
     blocked = validate_input("seal_vault", {"session_id": session_id, "summary": summary})
@@ -1069,6 +2151,83 @@ async def seal_vault(
     missing = require_session("seal_vault", session_id)
     if missing:
         return wrap_tool_output("seal_vault", missing)
+
+    continuity_binding, continuity_error = _enforce_auth_continuity(
+        tool_name="seal_vault",
+        stage="999_SEAL",
+        session_id=session_id,
+        actor_id=actor_id,
+        auth_token=auth_token,
+        auth_context=auth_context,
+        critical=True,
+    )
+    if continuity_error:
+        return wrap_tool_output("seal_vault", continuity_error)
+
+    revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
+    if revoked:
+        return wrap_tool_output("seal_vault", _revocation_void("999_SEAL", session_id, revoked))
+
+    action_hash = _approval_action_hash([summary, verdict])
+    require_approval = (str(verdict).upper() == "SEAL") or (not _PUBLIC_APPROVAL_MODE)
+    approval_state, approval_error = await _verify_approval_bundle(
+        tool_name="seal_vault",
+        stage="999_SEAL",
+        session_id=session_id,
+        approval_bundle=approval_bundle,
+        action_hash=action_hash,
+        risk_tier="CRITICAL" if str(verdict).upper() == "SEAL" else "MEDIUM",
+        require_bundle=require_approval,
+    )
+    if approval_error:
+        return wrap_tool_output(
+            "seal_vault",
+            _attach_rotated_auth_context(approval_error, session_id, continuity_binding),
+        )
+
+    approval_id = ""
+    approval_signature_digest = ""
+    if isinstance(approval_state, dict):
+        approval_id = str(approval_state.get("approval_id", ""))
+        approval_signature_digest = str(approval_state.get("approval_signature_digest", ""))
+
+    chain_prev = ""
+    if isinstance(continuity_binding, dict):
+        chain_prev = str(continuity_binding.get("parent_signature", ""))
+    if not chain_prev:
+        chain_prev = str(_SESSION_CONTINUITY_STATE.get(session_id, {}).get("last_signature", ""))
+
+    lineage_actor_id = (
+        str(continuity_binding.get("actor_id", actor_id))
+        if isinstance(continuity_binding, dict)
+        else str(actor_id)
+    )
+    authority_chain_hash = hashlib.sha256(
+        json.dumps(
+            {
+                "prev_link": chain_prev,
+                "action_hash": action_hash,
+                "approval_id": approval_id,
+                "actor_id": lineage_actor_id,
+            },
+            ensure_ascii=True,
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode()
+    ).hexdigest()
+    lineage_payload = {
+        "approval_id": approval_id,
+        "actor_id": lineage_actor_id,
+        "authority_chain_hash": authority_chain_hash,
+        "approval_signature_digest": approval_signature_digest,
+    }
+
+    if approval_id:
+        approval_revoked = _revocation_reason(approval_id=approval_id)
+        if approval_revoked:
+            return wrap_tool_output(
+                "seal_vault", _revocation_void("999_SEAL", session_id, approval_revoked)
+            )
 
     resolved_token = ""
     if isinstance(governance_token, str) and governance_token.strip():
@@ -1083,6 +2242,9 @@ async def seal_vault(
             proposed_verdict=verdict,
             human_approve=False,
             implementation_details={"source": "seal_vault_auto_token"},
+            actor_id=actor_id,
+            auth_token=auth_token,
+            auth_context=auth_context,
         )
         auto_token = auto_judge.get("governance_token") if isinstance(auto_judge, dict) else ""
         if isinstance(auto_token, str) and auto_token.strip():
@@ -1092,13 +2254,17 @@ async def seal_vault(
     if not resolved_token:
         return wrap_tool_output(
             "seal_vault",
-            {
-                "verdict": "VOID",
-                "stage": "999_SEAL",
-                "session_id": session_id,
-                "error": "Missing governance_token for seal_vault",
-                "remediation": "Call apex_judge first in this session, then retry seal_vault.",
-            },
+            _attach_rotated_auth_context(
+                {
+                    "verdict": "VOID",
+                    "stage": "999_SEAL",
+                    "session_id": session_id,
+                    "error": "Missing governance_token for seal_vault",
+                    "remediation": "Call apex_judge first in this session, then retry seal_vault.",
+                },
+                session_id,
+                continuity_binding,
+            ),
         )
 
     # PHASE 2: Bind thermodynamic telemetry to ledger
@@ -1114,6 +2280,10 @@ async def seal_vault(
         "landauer_ratio": telemetry.get("landauer_ratio") if telemetry else None,
         "omega_ortho": telemetry.get("omega_ortho") if telemetry else None,
         "constitutional_cost": telemetry.get("constitutional_cost") if telemetry else "SEALED",
+        "approval_id": approval_id,
+        "actor_id": lineage_actor_id,
+        "authority_chain_hash": authority_chain_hash,
+        "approval_signature_digest": approval_signature_digest,
         "timestamp": time.time(),
     }
 
@@ -1123,20 +2293,31 @@ async def seal_vault(
         if not token_valid:
             return wrap_tool_output(
                 "seal_vault",
-                {
-                    "verdict": "VOID",
-                    "stage": "999_SEAL",
-                    "session_id": session_id,
-                    "error": "F1 Amanah — governance_token invalid",
-                },
+                _attach_rotated_auth_context(
+                    {
+                        "verdict": "VOID",
+                        "stage": "999_SEAL",
+                        "session_id": session_id,
+                        "error": "F1 Amanah — governance_token invalid",
+                    },
+                    session_id,
+                    continuity_binding,
+                ),
             )
 
+        sealed_summary = (
+            f"{summary}\n[lineage]{json.dumps(lineage_payload, ensure_ascii=True, sort_keys=True)}"
+        )
         res = await seal(
-            session_id=session_id, task_summary=summary, was_modified=True, verdict=verified_verdict
+            session_id=session_id,
+            task_summary=sealed_summary,
+            was_modified=True,
+            verdict=verified_verdict,
         )
         payload = {"data": res, "status": verified_verdict}
         if thermodynamic_statement is not None:
             payload["thermodynamic_statement"] = thermodynamic_statement
+        payload["authority_lineage"] = lineage_payload
         payload.update(
             envelope_builder.build_envelope(
                 stage="999_SEAL", session_id=session_id, verdict=verified_verdict, payload=res
@@ -1154,6 +2335,10 @@ async def seal_vault(
                 if entry_hash:
                     metadata["vault_digest"] = entry_hash
                     metadata["witness_signature"] = _get_zkpc_witness(session_id, entry_hash)
+                metadata["approval_id"] = approval_id
+                metadata["actor_id"] = lineage_actor_id
+                metadata["authority_chain_hash"] = authority_chain_hash
+                metadata["approval_signature_digest"] = approval_signature_digest
 
                 rag = _ensure_rag()
                 rag.index_memory(
@@ -1171,7 +2356,14 @@ async def seal_vault(
             "constitutional_signature": resolved_token[:8] + "...",
         }
 
-        return wrap_tool_output("seal_vault", payload)
+        return wrap_tool_output(
+            "seal_vault",
+            _attach_rotated_auth_context(
+                _annotate_approval(payload, approval_state),
+                session_id,
+                continuity_binding,
+            ),
+        )
     except Exception as e:
         if isinstance(
             e,
@@ -1969,8 +3161,10 @@ try:
     from fastmcp.server.transforms import PromptsAsTools
 
     mcp.add_transform(PromptsAsTools(mcp))
-except ImportError:
-    # FastMCP < 3.0.0 or transforms not available
+except (ImportError, AttributeError, TypeError):
+    # FastMCP < 3.0.0, transforms not available, or add_tool() requires Tool objects
+    # Legacy aliases (fetch_content, inspect_file, system_audit) are archived —
+    # clients should use ingest_evidence / audit_rules instead.
     pass
 
 

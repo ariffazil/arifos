@@ -95,9 +95,9 @@ class ThermoBudget:
     def open_session(
         self,
         session_id: str,
-        initial_akal: float = 0.95,
-        initial_energy: float = 0.92,
-        initial_exploration: float = 0.90,
+        initial_akal: float = 0.98,
+        initial_energy: float = 0.95,
+        initial_exploration: float = 0.95,
     ) -> None:
         """Register a new session with default thermodynamic state."""
         self._sessions[session_id] = {

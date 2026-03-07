@@ -38,19 +38,19 @@ async def audit(
     agi_result: dict[str, Any] | None = None,
     asi_result: dict[str, Any] | None = None,
     temperature: float = 0.2,
+    audit_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     STAGE 888: Final Judgment.
     Invoke the Apex Judge for final constitutional verdict.
-
-    SAMPLING INTEGRATION:
-    When ctx is provided, uses constitutional sampling for LLM judgment.
     """
     if ctx is not None and use_sampling and _SAMPLING_ENABLED:
         return await _audit_with_sampling(
             session_id, action, sovereign_token, ctx, agi_result, asi_result, temperature
         )
-    return await _audit_with_kernel(session_id, action, sovereign_token)
+    return await _audit_with_kernel(
+        session_id, action, sovereign_token, agi_result, asi_result, audit_context
+    )
 
 
 async def _audit_with_sampling(
@@ -93,14 +93,22 @@ async def _audit_with_kernel(
     session_id: str,
     action: str,
     sovereign_token: str,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+    audit_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """AUDIT using kernel.audit() structural checks (fallback)."""
     # Enforce F11 (Authority) and F3 (Consensus)
     severity = "irreversible" if sovereign_token == "888_APPROVED" else "high"
 
-    audit_res = kernel.audit(
-        action=action, context=f"SOVEREIGN_TOKEN={sovereign_token}", severity=severity
-    )
+    # Merge provided context with internal triad results
+    ctx = audit_context or {}
+    if agi_result:
+        ctx["truth_score"] = agi_result.get("truth_score", ctx.get("truth_score", 0.0))
+    if sovereign_token == "888_APPROVED":
+        ctx["human_witness"] = 1.0
+
+    audit_res = kernel.audit(action=action, context=ctx, severity=severity)
 
     # Log to Vault
     kernel.vault.log_witness(
@@ -114,6 +122,17 @@ async def _audit_with_kernel(
     return {
         "verdict": audit_res.verdict.value,
         "pass_rate": audit_res.pass_rate,
+        "truth_score": (
+            audit_res.floor_results.get("F2").score
+            if hasattr(audit_res, "floor_results") and "F2" in audit_res.floor_results
+            else 0.0
+        ),
+        "f2_threshold": 0.95,
         "recommendation": audit_res.recommendation,
         "status": "judged",
+        "floors_failed": (
+            [f for f, r in audit_res.floor_results.items() if not r.passed]
+            if hasattr(audit_res, "floor_results")
+            else []
+        ),
     }
