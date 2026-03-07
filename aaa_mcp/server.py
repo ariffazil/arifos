@@ -597,10 +597,6 @@ async def _phoenix_recall(
 vector_memory = ToolHandle(_phoenix_recall)
 
 
-@mcp.tool(
-    name="recall_memory",
-    description="[DEPRECATED] Use vector_memory instead. [Lane: Ω] Semantic retrieval.",
-)
 async def _phoenix_recall_deprecated(
     query: str | None = None,
     session_id: str | None = None,
@@ -1720,10 +1716,6 @@ async def _check_vital(
 check_vital = ToolHandle(_check_vital)
 
 
-@mcp.tool(
-    name="audit_vital",
-    description="[Lane: Ψ Psi] [Floors: F4, F7, F8] Real-time Ψ State Field telemetry.",
-)
 async def _audit_vital(
     session_id: str,
 ) -> dict[str, Any]:
@@ -1815,7 +1807,6 @@ async def _arifos_info_resource() -> str:
                 "ingest_evidence",
                 "audit_rules",
                 "check_vital",
-                "audit_vital",
                 "metabolic_loop",
             ],
             "tool_aliases": {"judge_soul": "apex_judge"},
