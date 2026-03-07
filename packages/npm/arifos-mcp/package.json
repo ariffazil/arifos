@@ -1,7 +1,7 @@
 {
   "name": "@arifos/mcp",
   "version": "0.3.0",
-  "description": "arifOS MCP Client — TypeScript types and minimal client for Constitutional AI Governance (L2 Skills Adapter)",
+  "description": "arifOS MCP Client \u2014 TypeScript types and minimal client for Constitutional AI Governance (L2 Skills Adapter)",
   "keywords": [
     "mcp",
     "arifos",
@@ -74,5 +74,6 @@
   "publishConfig": {
     "access": "public",
     "tag": "latest"
-  }
+  },
+  "_updated": "2026.03.07"
 }

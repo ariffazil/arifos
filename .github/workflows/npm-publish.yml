@@ -6,6 +6,12 @@ on:
       - main
     paths:
       - 'packages/npm/arifos-mcp/**'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'npm dist-tag (latest or next)'
+        required: false
+        default: 'latest'
 
 jobs:
   publish:
@@ -38,9 +44,9 @@ jobs:
         env:
           SKIP_INTEGRATION_TESTS: 'true'
 
-      - name: Publish to npm (@next)
+      - name: Publish to npm
         working-directory: packages/npm/arifos-mcp
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: 'true'
-        run: npm publish --tag next --access public
+        run: npm publish --access public --tag ${{ github.event.inputs.tag || 'latest' }}
