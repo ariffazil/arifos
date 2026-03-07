@@ -13,6 +13,10 @@ on:
         required: false
         default: 'latest'
 
+permissions:
+  contents: read
+  id-token: write  # required for npm provenance
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -48,5 +52,4 @@ jobs:
         working-directory: packages/npm/arifos-mcp
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: 'true'
-        run: npm publish --access public --tag ${{ github.event.inputs.tag || 'latest' }}
+        run: npm publish --access public --tag ${{ github.event.inputs.tag || 'latest' }} --provenance
