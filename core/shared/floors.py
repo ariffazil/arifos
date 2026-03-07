@@ -31,7 +31,7 @@ AUTHORITY = "Muhammad Arif bin Fazil"
 # Used by arifOS AAA Pipeline to enforce constitutional invariants.
 THRESHOLDS: dict[str, dict[str, Any]] = {
     "F1_Amanah": {"type": "HARD", "threshold": 0.5, "desc": "Reversible or Auditable"},
-    "F2_Truth": {"type": "HARD", "threshold": 0.95, "desc": "Information Fidelity"},
+    "F2_Truth": {"type": "HARD", "threshold": 0.99, "desc": "Information Fidelity"},
     "F3_TriWitness": {"type": "DERIVED", "threshold": 0.90, "desc": "Consensus (H×A×E)"},
     "F4_Clarity": {"type": "HARD", "threshold": 0.00, "desc": "Entropy Reduction (ΔS ≤ 0)"},
     "F5_Peace2": {"type": "SOFT", "threshold": 1.00, "desc": "Non-Destructive Power"},
@@ -242,7 +242,9 @@ class F2_Truth(Floor):
 
                     if not landauer_result.get("passed", True):
                         p_truth *= 0.5  # Penalty for suspiciously cheap truth
-                        ratio = landauer_result.get('efficiency_ratio', landauer_result.get('ratio', 0))
+                        ratio = landauer_result.get(
+                            "efficiency_ratio", landauer_result.get("ratio", 0)
+                        )
                         landauer_status = f"(compute efficiency: {ratio:.1f}x)"
 
             except Exception as e:
@@ -300,7 +302,7 @@ class F3_TriWitness(Floor):
     F3: TRI-WITNESS (W₃) - Human × AI × Earth Consensus
     Threshold: ≥ 0.95 (DERIVED)
     Formula: W₃ = ∛(H × A × E)
-    
+
     P3 HARDENING: Grounded scores + Action Gating
     - Human: Derived from verified session + authority token
     - AI: Computed from coherence (not hardcoded 1.0)
@@ -310,9 +312,9 @@ class F3_TriWitness(Floor):
 
     # Action-specific thresholds (lower = more permissive)
     ACTION_THRESHOLDS = {
-        "read": 0.80,      # Query, search, inspect
-        "write": 0.90,     # Create, modify, update
-        "execute": 0.95,   # Run code, deploy
+        "read": 0.80,  # Query, search, inspect
+        "write": 0.90,  # Create, modify, update
+        "execute": 0.95,  # Run code, deploy
         "critical": 0.98,  # Delete, irreversible, high-stakes
     }
 
@@ -329,7 +331,7 @@ class F3_TriWitness(Floor):
         session_id = context.get("session_id", "")
         auth_token = context.get("authority_token", "") or context.get("auth_token", "")
         actor_id = context.get("actor_id", "")
-        
+
         # Verified authority
         if session_id and auth_token and actor_id and actor_id != "anonymous":
             return 1.0
@@ -353,17 +355,17 @@ class F3_TriWitness(Floor):
         truth = context.get("truth_score", 0.0)
         if truth == 0.0:
             truth = context.get("confidence", 0.5)
-        
+
         # Humility bonus (being in correct uncertainty band)
         humility = context.get("humility_omega", 0.04)
         humility_score = 1.0 if 0.03 <= humility <= 0.05 else 0.8
-        
+
         # Coherence: no contradictions detected
         contradictions = context.get("contradictions", [])
         coherence = 1.0 if not contradictions else 0.7
-        
+
         # AI witness = geometric mean of components
-        return (truth * humility_score * coherence) ** (1/3)
+        return (truth * humility_score * coherence) ** (1 / 3)
 
     def _compute_earth_witness(self, context: dict[str, Any]) -> float:
         """
@@ -375,13 +377,13 @@ class F3_TriWitness(Floor):
         # Grounding evidence
         grounding = context.get("grounding", [])
         has_grounding = len(grounding) > 0 if isinstance(grounding, list) else bool(grounding)
-        
+
         # Thermodynamic budget status
         budget_valid = context.get("thermodynamic_budget_valid", True)
-        
+
         # Federation earth witness score if available
         federation_score = context.get("earth_witness", 1.0)
-        
+
         if has_grounding and budget_valid:
             return min(1.0, federation_score)
         elif budget_valid:
@@ -393,7 +395,7 @@ class F3_TriWitness(Floor):
         """Get threshold based on action type."""
         action = context.get("action", "read").lower()
         query = context.get("query", "").lower()
-        
+
         # Infer action from query if not explicit
         if "delete" in query or "drop" in query or "remove" in query:
             action = "critical"
@@ -401,7 +403,7 @@ class F3_TriWitness(Floor):
             action = "write"
         elif "run" in query or "execute" in query or "deploy" in query:
             action = "execute"
-        
+
         return self.ACTION_THRESHOLDS.get(action, 0.95)
 
     def check(self, context: dict[str, Any]) -> FloorResult:
@@ -412,10 +414,10 @@ class F3_TriWitness(Floor):
 
         # Geometric mean ensures all three matter
         tri_witness = (human * ai * earth) ** (1 / 3)
-        
+
         # P3: Action-gated threshold
         threshold = self._get_action_threshold(context)
-        
+
         # For critical actions, require explicit high human witness
         if threshold >= 0.98 and human < 0.9:
             passed = False
@@ -435,7 +437,7 @@ class F3_TriWitness(Floor):
                 "earth": earth,
                 "threshold": threshold,
                 "action": context.get("action", "read"),
-            }
+            },
         )
 
 
