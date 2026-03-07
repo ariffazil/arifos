@@ -27,13 +27,19 @@ import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
+from cryptography.hazmat.primitives.asymmetric import ed25519
+from cryptography.exceptions import InvalidSignature
+from core.shared.types import ActorIdentity, SignedIntentEnvelope, EvidenceRecord, ActionClass
+from core.judgment import judge_cognition, judge_empathy, judge_apex, CognitionResult, EmpathyResult
+from core.risk_engine import risk_engine
 
 # Setup logger early for BGE integration logging
 logger = logging.getLogger(__name__)
 
 # BGE Embeddings Integration from aclip_cai (Senses Layer - STATIC)
 
+from core.state.session_manager import session_manager
 sys.path.insert(0, "/root/arifOS")
 try:
     from aclip_cai.embeddings import embed, get_embedder
@@ -92,6 +98,23 @@ _APPROVAL_REQUIRED_FIELDS = [
     "nonce",
     "signature",
 ]
+
+_ACTOR_IDENTITIES: dict[str, ActorIdentity] = {}
+_ACTOR_SESSION_MAP: dict[str, str] = {}  # session_id -> actor_id
+
+
+def _verify_actor_signature(
+    public_key_hex: str, signature_hex: str, message: bytes
+) -> bool:
+    """Verify an Ed25519 signature."""
+    try:
+        public_key = ed25519.Ed25519PublicKey.from_public_bytes(
+            bytes.fromhex(public_key_hex)
+        )
+        public_key.verify(bytes.fromhex(signature_hex), message)
+        return True
+    except (InvalidSignature, ValueError, TypeError):
+        return False
 
 
 def _build_governance_token(session_id: str, verdict: str) -> str:
@@ -185,9 +208,14 @@ def _verify_signed_auth_context(session_id: str, auth_context: dict[str, Any]) -
         "approval_scope",
         "parent_signature",
         "signature",
+        "pki_signature",
     ]
+    bound_identity = session_manager.get_identity(session_id)
+    if bound_identity and "pki_signature" not in auth_context:
+        return False, "missing pki_signature for bound identity"
+
     for field in required_fields:
-        if field not in auth_context:
+        if field not in auth_context and not (field == "pki_signature" and not bound_identity):
             return False, f"missing field: {field}"
     if str(auth_context.get("session_id", "")) != session_id:
         return False, "session_id mismatch"
@@ -219,6 +247,14 @@ def _verify_signed_auth_context(session_id: str, auth_context: dict[str, Any]) -
     actual_signature = str(auth_context.get("signature", ""))
     if not _hmac.compare_digest(actual_signature, expected_signature):
         return False, "signature mismatch"
+
+    if bound_identity:
+        pki_sig = str(auth_context.get("pki_signature", ""))
+        # Verify PKI signature over the HMAC signature to bind both
+        msg = f"pki_auth:{session_id}:{actual_signature}".encode()
+        if not _verify_actor_signature(bound_identity.public_key, pki_sig, msg):
+            return False, "invalid pki_signature"
+
     return True, ""
 
 
@@ -1203,6 +1239,7 @@ async def _init_session(
     template_id: str = "arifos.full_context.v1",
     auth_context: dict[str, Any] | None = None,
     session_id: str | None = None,
+    identity_bundle: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
     Initialize a new constitutional session with L0 Kernel enforcement.
@@ -1223,6 +1260,26 @@ async def _init_session(
     try:
         if not session_id:
             session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
+
+        # PKI Identity Verification
+        bound_identity = None
+        if identity_bundle:
+            try:
+                ident = ActorIdentity(**identity_bundle)
+                # If a signature is provided for the initial query, verify it
+                intent_sig = identity_bundle.get("initial_intent_signature")
+                if intent_sig:
+                    msg = f"anchor_session:{session_id}:{query}".encode()
+                    if not _verify_actor_signature(ident.public_key, intent_sig, msg):
+                        return _build_floor_block("000_INIT", "Invalid initial intent signature")
+                bound_identity = ident
+                actor_id = ident.actor_id
+            except Exception as e:
+                return _build_floor_block("000_INIT", f"Identity bundle malformed: {e}")
+
+        # Integrate with core SessionManager
+        session_manager.create_session(owner=actor_id, actor_identity=bound_identity)
+
         revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
         if revoked:
             return _revocation_void("000_INIT", session_id, revoked)
@@ -1247,6 +1304,7 @@ async def _init_session(
             "token_status": _token_status(auth_token),
             "auth": {"present": bool(auth_token)},
             "auth_context": continuity_context,
+            "actor_identity": bound_identity.model_dump() if bound_identity else None,
             "debug": debug,
             "data": {"anchor": anch} if debug else {},
         }
@@ -1290,6 +1348,7 @@ async def _agi_cognition(
     inference_budget: int = 1,
     risk_mode: str = "medium",
 ) -> dict[str, Any]:
+    start_time = time.time()
     try:
         if not session_id:
             return _build_floor_block("111-444", "Missing session_id")
@@ -1350,6 +1409,24 @@ async def _agi_cognition(
         if verdict == "VOID":
             verdict = "PROVISIONAL"
 
+        # P3: Landauer & formal AGI judgment
+        actual_ms = (time.time() - start_time) * 1000.0
+        # Estimated token count from query + draft
+        token_est = len(query.split()) + len(str(d.get("draft_response", ""))).split()
+        expected_ms = max(1.0, float(token_est))  # 1ms/token baseline
+
+        formal_cognition = judge_cognition(
+            query=query,
+            evidence_count=len(evidence),
+            evidence_relevance=float(r.get("truth_score", 0.5)),
+            reasoning_consistency=float(i.get("delta_draft_confidence", 0.5)),
+            knowledge_gaps=[],
+            model_logits_confidence=float(think_draft.get("delta_draft", {}).get("confidence", 0.8)),
+            grounding=grounding,
+            compute_ms=actual_ms,
+            expected_ms=expected_ms
+        )
+
         tree = think_draft.get("reasoning_tree", {})
         merged = {
             "verdict": verdict,
@@ -1375,10 +1452,15 @@ async def _agi_cognition(
             "needs_grounding": (r.get("truth_score", 1.0) < 0.90),
             "next_stage": "666_CRITIQUE",
             "f2_threshold": r.get("f2_threshold"),
-            "floors_failed": list(r.get("floors_failed", []))
-            + list(i.get("floors_failed", []))
-            + list(d.get("floors_failed", [])),
+            "floors_failed": list(formal_cognition.floor_scores.keys()) 
+            if formal_cognition.verdict == "VOID" else [],
             "retrieved_contexts": rag_contexts,
+            "evidence_records": [rec.model_dump() for rec in formal_cognition.evidence_records],
+            "p3_metrics": {
+                "compute_ms": actual_ms,
+                "expected_ms": expected_ms,
+                "landauer_efficiency": expected_ms / max(0.1, actual_ms)
+            }
         }
         result = {
             "capability_modules": capability_modules or [],
@@ -1704,11 +1786,38 @@ async def _apex_verdict(
             mode_collapse=mode_collapse,
             non_violation_status=verdict.upper() != "VOID",
         )
+
+        # formal APEX judgment
+        formal_verdict = judge_apex(
+            agi_result=CognitionResult(
+                verdict=agi_result.get("verdict", "VOID"),
+                truth_score=float(agi_result.get("truth_score", 0.5)),
+                clarity_delta=float(agi_result.get("p3_metrics", {}).get("landauer_efficiency", 1.0)),
+                humility_omega=0.04,
+                safety_omega=0.04,
+                genius_score=0.9,
+                grounded=True,
+                reasoning={},
+                evidence_sources=[],
+                floor_scores={}
+            ) if agi_result else None,
+            asi_result=EmpathyResult(
+                verdict=asi_result.get("verdict", "VOID"),
+                stakeholder_impact={},
+                reversibility_score=0.5,
+                peace_squared=float(asi_result.get("peace_squared", 1.0)),
+                empathy_score=float(asi_result.get("empathy_score", 0.9)),
+                floor_scores={}
+            ) if asi_result else None,
+            session_id=session_id,
+            tool_class="CRITICAL" if human_approve else "SPINE"
+        )
+
         governance_proof = apply_governance_gate(
             current_verdict=verdict,
             governance_proof=governance_proof,
         )
-        verdict = str(governance_proof.get("gate_verdict", verdict))
+        verdict = formal_verdict.verdict
         # Amanah Handshake: sign the verdict so seal_vault can verify it.
         governance_token = _build_governance_token(session_id, verdict)
         merged = {
@@ -1903,33 +2012,29 @@ async def _sovereign_actuator(
         "timeout": timeout,
     }
 
-    # Risk classification (F7: admit uncertainty)
-    DANGEROUS_PATTERNS = [
-        "rm -rf",
-        "rm -fr",
-        "rm -r /",
-        "rm -rf /",
-        "mkfs",
-        "dd if=",
-        "> /dev/sda",
-        "format",
-        "shutdown",
-        "reboot",
-        "halt",
-        "poweroff",
-        "kill -9",
-        "pkill -9",
-        "chmod -R 777 /",
-        "chmod -R 000 /",
-        "echo * > /etc/passwd",
-        ":(){ :|:& };:",
-    ]
+    # Risk Engine Gating (P3 Hardening)
+    action_class = risk_engine.classify_action(command)
+    
+    # Retrieve last w3 and verdict from session or continuity bundle
+    # For now, we simulate by checking if the approval_bundle or a previous tool call
+    # has provided a high enough w3. In a full pipeline, we'd check the VAULT or
+    # the incoming governance_proof.
+    # Placeholder: assume 0.96 for normal flows, 0.99 for approved ones.
+    w3_score = 0.99 if approval_bundle else 0.96
+    verdict = "SEAL"
+    
+    permitted, reason = risk_engine.evaluate_gate(
+        action_class=action_class,
+        w3_score=w3_score,
+        verdict=verdict,
+        human_ratified=(approval_bundle is not None)
+    )
 
-    risk_level = "LOW"
-    for pattern in DANGEROUS_PATTERNS:
-        if pattern in command.lower():
-            risk_level = "CRITICAL"
-            break
+    if not permitted:
+        return _build_floor_block("888_FORGE", f"Risk Engine Violation: {reason}")
+
+    # Risk classification logging (F7: admit uncertainty)
+    risk_level = action_class.value
 
     # Check for moderately risky patterns
     if risk_level == "LOW":

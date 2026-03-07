@@ -12,10 +12,12 @@ P0/P1 HARDENING:
 This is the canonical interface between kernel and wrapper.
 """
 
-from dataclasses import dataclass
+import hashlib
+from dataclasses import dataclass, field
 from typing import Any
 
 from core.governance_kernel import get_governance_kernel
+from core.shared.types import EvidenceRecord, Verdict
 from core.uncertainty_engine import UncertaintyEngine, calculate_uncertainty
 
 
@@ -34,6 +36,7 @@ class CognitionResult:
     evidence_sources: list[dict]
     floor_scores: dict[str, float]
     module_results: dict[str, Any]
+    evidence_records: list[EvidenceRecord] = field(default_factory=list)
     error: str | None = None
 
 
@@ -167,7 +170,9 @@ class JudgmentKernel:
         knowledge_gaps: list[str],
         model_logits_confidence: float,
         grounding: list[dict] | None = None,
-        module_results: dict | None = None,
+        module_results: dict[str, Any] | None = None,
+        compute_ms: float = 0.0,
+        expected_ms: float = 1.0,  # Baseline 1ms/token
     ) -> CognitionResult:
         """
         Execute AGI cognition judgment (111-333_AGI).
@@ -206,8 +211,29 @@ class JudgmentKernel:
         # F10: Ontology - grounding check
         grounded = bool(grounding and len(grounding) > 0)
 
+        # Evidence Records (F2 Hardening)
+        records: list[EvidenceRecord] = []
+        if grounding:
+            for g in grounding:
+                records.append(
+                    EvidenceRecord(
+                        claim=g.get("claim", query),
+                        evidence_hash=hashlib.sha256(str(g.get("content", "")).encode()).hexdigest(),
+                        source_uri=g.get("source", "unknown"),
+                        confidence=g.get("relevance", 0.9),
+                        witness_type="AI"
+                    )
+                )
+
+        # P3: Landauer Efficiency Check
+        efficiency = expected_ms / max(0.1, compute_ms)
+        landauer_violation = efficiency > 1000.0  # Cached/hallucinated shortcut
+
         # Determine verdict
-        if safety_omega > 0.08:
+        if landauer_violation:
+            verdict = "VOID"
+            error = f"P3_LANDAUER_VIOLATION: efficiency={efficiency:.1f}x > 1000x"
+        elif safety_omega > 0.08:
             verdict = "VOID"
             error = f"F7_HUMILITY_EXCEEDED: Ω₀={safety_omega:.4f} > 0.08"
         elif truth_score < 0.5:
@@ -233,6 +259,7 @@ class JudgmentKernel:
                 "evidence_assessment": f"{evidence_count} sources, avg_relevance={evidence_relevance:.2f}",
             },
             evidence_sources=grounding or [],
+            evidence_records=records,
             floor_scores={
                 "F2": truth_score,
                 "F4": 0.9 + clarity_delta,

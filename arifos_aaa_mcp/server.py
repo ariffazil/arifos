@@ -58,7 +58,14 @@ from aclip_cai.triad import (
 
 from .contracts import require_session, validate_input
 from .fastmcp_ext.discovery import build_surface_discovery
-from .governance import LAW_13_CATALOG, TOOL_DIALS_MAP, wrap_tool_output
+from .governance import (
+    LAW_13_CATALOG,
+    TOOL_DIALS_MAP,
+    TOOL_LAW_BINDINGS,
+    TOOL_STAGE_MAP,
+    TRINITY_BY_TOOL,
+    wrap_tool_output,
+)
 
 # Setup logger
 logger = logging.getLogger(__name__)
@@ -2606,6 +2613,182 @@ def create_aaa_mcp_server() -> Any:
     return mcp
 
 
+_TOOL_REQUIRED_ARGS: dict[str, list[str]] = {
+    "anchor_session": ["query"],
+    "reason_mind": ["query", "session_id"],
+    "vector_memory": ["query", "session_id"],
+    "simulate_heart": ["query", "session_id"],
+    "critique_thought": ["session_id", "context"],
+    "eureka_forge": ["session_id", "command"],
+    "apex_judge": ["session_id", "query"],
+    "seal_vault": ["session_id", "summary", "governance_token"],
+    "search_reality": [],
+    "ingest_evidence": ["source_type", "target"],
+    "audit_rules": [],
+    "check_vital": [],
+    "metabolic_loop": ["query"],
+}
+
+_TOOL_CRITICALITY: dict[str, str] = {
+    "anchor_session": "foundation",
+    "reason_mind": "normal",
+    "vector_memory": "normal",
+    "simulate_heart": "normal",
+    "critique_thought": "normal",
+    "eureka_forge": "critical",
+    "apex_judge": "critical",
+    "seal_vault": "critical",
+    "search_reality": "read_only",
+    "ingest_evidence": "read_only",
+    "audit_rules": "read_only",
+    "check_vital": "read_only",
+    "metabolic_loop": "critical",
+}
+
+
+def _transport_profile_payload() -> dict[str, Any]:
+    return {
+        "protocol_revision_target": "2025-11-25",
+        "supported_transports": ["stdio", "streamable-http", "sse-compat"],
+        "canonical_endpoints": {
+            "/": "Contract and service profile entrypoint.",
+            "/mcp": "Runtime MCP transport endpoint.",
+            "/tools": "Compatibility listing for REST-style clients.",
+        },
+        "required_headers": [
+            "Accept: application/json, text/event-stream",
+            "Content-Type: application/json",
+            "MCP-Protocol-Version: 2025-11-25",
+            "Mcp-Session-Id: <session_id after initialize>",
+        ],
+        "session_continuity": {
+            "rules": [
+                "Create or recover session with anchor_session before critical stages.",
+                "Reuse the same session_id across all chained calls.",
+                "Pass returned auth_context into the next call for F11 continuity.",
+                "Keep actor_id and auth_token stable within one session chain.",
+            ],
+            "ttl_seconds_default": _CONTINUITY_TTL_SECONDS,
+            "strict_mode": _CONTINUITY_STRICT,
+        },
+        "call_order_template": [
+            "anchor_session",
+            "reason_mind",
+            "simulate_heart",
+            "critique_thought",
+            "apex_judge",
+            "seal_vault",
+        ],
+        "failure_modes": [
+            {
+                "code": "SESSION_TERMINATED",
+                "symptom": "chain signature mismatch, nonce replay, or expired auth_context",
+                "remediation": "re-run anchor_session and continue using only the newest auth_context",
+            },
+            {
+                "code": "MISSING_SESSION",
+                "symptom": "required session_id absent on stateful tools",
+                "remediation": "start with anchor_session and propagate returned session_id",
+            },
+            {
+                "code": "SCOPE_MISMATCH",
+                "symptom": "approval_scope or approval_bundle does not match tool/action hash",
+                "remediation": "mint a fresh approval artifact for the exact tool and payload",
+            },
+        ],
+    }
+
+
+def _tool_operating_manual_payload() -> dict[str, Any]:
+    tools: list[dict[str, Any]] = []
+    for tool_name in AAA_TOOLS:
+        tools.append(
+            {
+                "name": tool_name,
+                "stage": TOOL_STAGE_MAP.get(tool_name, "000_INIT"),
+                "trinity_lane": TRINITY_BY_TOOL.get(tool_name, "Delta"),
+                "floor_bindings": TOOL_LAW_BINDINGS.get(tool_name, []),
+                "required_args": _TOOL_REQUIRED_ARGS.get(tool_name, []),
+                "criticality": _TOOL_CRITICALITY.get(tool_name, "normal"),
+                "read_only": tool_name in {"search_reality", "ingest_evidence", "audit_rules", "check_vital"},
+            }
+        )
+
+    return {
+        "tools": tools,
+        "approval_requirements": {
+            "apex_judge": [
+                "requires valid auth_context continuity",
+                "requires approval_bundle when public mode is disabled or human_approve is true",
+                "returns governance_token required by seal_vault",
+            ],
+            "eureka_forge": [
+                "requires valid auth_context continuity",
+                "requires approval_bundle for elevated or dangerous execution paths",
+                "dangerous command classes require explicit confirm_dangerous=true",
+            ],
+            "seal_vault": [
+                "requires valid auth_context continuity",
+                "requires governance_token signed by apex_judge for same session_id",
+                "requires approval_bundle for strict/elevated confirmation path",
+            ],
+        },
+        "revocation": {
+            "env_sets": [
+                "ARIFOS_REVOKED_ACTORS",
+                "ARIFOS_REVOKED_SESSIONS",
+                "ARIFOS_REVOKED_APPROVAL_IDS",
+            ],
+            "effect": "returns VOID with AUTH_REVOKED_* reason codes on critical paths",
+        },
+        "continuity_notes": [
+            "auth_context rotates after each accepted call",
+            "approval_scope is checked per tool before execution",
+            "nonce replay and signature drift terminate the chain",
+        ],
+    }
+
+
+def _governance_gate_profile_payload() -> dict[str, Any]:
+    return {
+        "source_tool": "apex_judge",
+        "version": "fused-3-pillar-gate",
+        "pillars": {
+            "authority": {
+                "fields": ["authority_valid", "authority_score", "witness.human"],
+                "pass_condition": "authority_valid == true",
+                "floors": ["F11", "F13"],
+            },
+            "thermodynamics": {
+                "fields": ["thermodynamics_valid", "thermodynamic_score"],
+                "pass_condition": "thermodynamics_valid == true",
+                "signals": ["non_violation_status", "mode_collapse", "omega_ortho"],
+            },
+            "tri_witness": {
+                "fields": ["tri_witness_valid", "witness.w3", "witness.human", "witness.ai", "witness.earth"],
+                "pass_condition": "tri_witness_valid == true and witness.w3 >= 0.95",
+                "floors": ["F3"],
+            },
+        },
+        "verdict_resolution": {
+            "authority_fail": "VOID",
+            "thermodynamics_fail": "VOID",
+            "tri_witness_fail": "888_HOLD",
+            "all_pass": "preserve underlying verdict unless already VOID",
+        },
+        "output_fields": [
+            "authority_valid",
+            "thermodynamics_valid",
+            "tri_witness_valid",
+            "authority_score",
+            "thermodynamic_score",
+            "witness",
+            "gate_verdict",
+            "gate_reason",
+        ],
+    }
+
+
 @mcp.resource(
     PUBLIC_RESOURCE_URIS["schemas"],
     name="arifos_aaa_tool_schemas",
@@ -2614,6 +2797,8 @@ def create_aaa_mcp_server() -> Any:
 )
 def aaa_tool_schemas() -> str:
     discovery = build_surface_discovery(AAA_TOOLS)
+    transport_profile = _transport_profile_payload()
+    governance_gate = _governance_gate_profile_payload()
     payload = {
         "tool_count": 13,
         "surface": AAA_TOOLS,
@@ -2639,10 +2824,62 @@ def aaa_tool_schemas() -> str:
         },
         "laws_13": LAW_13_CATALOG,
         "apex_g_map": TOOL_DIALS_MAP,
+        "transport_profile": {
+            "protocol_revision_target": transport_profile["protocol_revision_target"],
+            "supported_transports": transport_profile["supported_transports"],
+            "canonical_endpoints": transport_profile["canonical_endpoints"],
+            "required_headers": transport_profile["required_headers"],
+            "call_order_template": transport_profile["call_order_template"],
+        },
+        "session_contract": {
+            "continuity_ttl_seconds": transport_profile["session_continuity"]["ttl_seconds_default"],
+            "strict_mode": transport_profile["session_continuity"]["strict_mode"],
+            "rules": transport_profile["session_continuity"]["rules"],
+            "failure_modes": transport_profile["failure_modes"],
+        },
+        "governance_gate": {
+            "profile": governance_gate,
+            "resource_uri": PUBLIC_RESOURCE_URIS["governance_gate_profile"],
+        },
+        "resource_links": {
+            "transport_profile": PUBLIC_RESOURCE_URIS["mcp_transport_profile"],
+            "tool_operating_manual": PUBLIC_RESOURCE_URIS["tool_operating_manual"],
+            "governance_gate_profile": PUBLIC_RESOURCE_URIS["governance_gate_profile"],
+        },
         "discovery": discovery,
     }
     # FastMCP resources must return str/bytes or ResourceContent.
     return json.dumps(payload, ensure_ascii=True)
+
+
+@mcp.resource(
+    PUBLIC_RESOURCE_URIS["mcp_transport_profile"],
+    name="arifos_mcp_transport_profile",
+    mime_type="application/json",
+    description="Transport contract profile for MCP runtime clients.",
+)
+def mcp_transport_profile_resource() -> str:
+    return json.dumps(_transport_profile_payload(), ensure_ascii=True)
+
+
+@mcp.resource(
+    PUBLIC_RESOURCE_URIS["tool_operating_manual"],
+    name="arifos_tool_operating_manual",
+    mime_type="application/json",
+    description="Canonical tool operating manual with floor and approval guidance.",
+)
+def tool_operating_manual_resource() -> str:
+    return json.dumps(_tool_operating_manual_payload(), ensure_ascii=True)
+
+
+@mcp.resource(
+    PUBLIC_RESOURCE_URIS["governance_gate_profile"],
+    name="arifos_governance_gate_profile",
+    mime_type="application/json",
+    description="Fused authority/thermodynamics/tri-witness gate schema for apex_judge.",
+)
+def governance_gate_profile_resource() -> str:
+    return json.dumps(_governance_gate_profile_payload(), ensure_ascii=True)
 
 
 @mcp.resource(
@@ -2689,6 +2926,46 @@ def aaa_chain_prompt(query: str, actor_id: str = "user") -> str:
         "8) seal_vault              — 999: immutable ledger commit with governance_token\n"
         "Pass session_id from anchor_session to all downstream tools.\n"
         f"query={query!r}; actor_id={actor_id!r}."
+    )
+
+
+@mcp.prompt(name=PUBLIC_PROMPT_NAMES["mcp_transport_bootstrap"])
+def mcp_transport_bootstrap_prompt(base_url: str = "https://<host>") -> str:
+    return (
+        "Bootstrap arifOS MCP over streamable HTTP.\n"
+        "1) Read contract: GET {base_url}/ and GET {base_url}/.well-known/mcp/server.json\n"
+        "2) Initialize MCP session against {base_url}/mcp using protocol 2025-11-25\n"
+        "3) Send headers on MCP requests:\n"
+        "   - Accept: application/json, text/event-stream\n"
+        "   - Content-Type: application/json\n"
+        "   - MCP-Protocol-Version: 2025-11-25\n"
+        "   - Mcp-Session-Id: <session_id from initialize>\n"
+        "4) Start chain with anchor_session, then propagate session_id and auth_context each call\n"
+        "5) For compatibility-only clients, inspect /tools (do not treat as canonical runtime)\n"
+        "6) On continuity errors, restart at anchor_session and use latest auth_context only\n"
+    ).replace("{base_url}", base_url.rstrip("/"))
+
+
+@mcp.prompt(name=PUBLIC_PROMPT_NAMES["tool_routing_policy"])
+def tool_routing_policy_prompt(goal: str = "general task") -> str:
+    return (
+        "Tool routing policy for safe execution.\n"
+        "Goal: "
+        + goal
+        + "\n"
+        "Order of operations:\n"
+        "- Prefer read-only discovery first: search_reality, ingest_evidence, audit_rules, check_vital\n"
+        "- Open session with anchor_session before stateful chains\n"
+        "- Use reason_mind -> simulate_heart -> critique_thought before judgment\n"
+        "- Call apex_judge before any irreversible/logging finalization\n"
+        "Critical approval paths:\n"
+        "- eureka_forge: require explicit approval artifact for elevated or dangerous actions\n"
+        "- apex_judge: require approval artifact when human_approve=true or public mode is disabled\n"
+        "- seal_vault: requires valid governance_token from apex_judge for same session_id\n"
+        "Retry strategy:\n"
+        "- Session terminated or missing session_id: rerun anchor_session and replay with new chain\n"
+        "- Scope mismatch or approval mismatch: mint fresh approval bundle for exact action hash\n"
+        "- Tri-witness hold (888_HOLD): request explicit human confirmation, then retry apex_judge\n"
     )
 
 
@@ -3176,7 +3453,12 @@ __all__ = [
     "create_aaa_mcp_server",
     "aaa_tool_schemas",
     "aaa_full_context_pack",
+    "mcp_transport_profile_resource",
+    "tool_operating_manual_resource",
+    "governance_gate_profile_resource",
     "aaa_chain_prompt",
+    "mcp_transport_bootstrap_prompt",
+    "tool_routing_policy_prompt",
     "metabolic_loop",
     "metabolic_loop_prompt",
     "agi_mind_loop",

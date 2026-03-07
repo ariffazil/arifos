@@ -11,6 +11,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from core.governance_kernel import GovernanceKernel
+from core.shared.types import ActorIdentity
 
 
 @dataclass
@@ -19,6 +20,7 @@ class SessionMetadata:
 
     session_id: str
     owner: str
+    actor_identity: ActorIdentity | None = None
     created_at: datetime = field(default_factory=datetime.now)
     last_activity: datetime = field(default_factory=datetime.now)
     kernel: GovernanceKernel = field(init=False)
@@ -40,13 +42,13 @@ class SessionManager:
                 cls._instance._sessions = {}
             return cls._instance
 
-    def create_session(self, owner: str) -> str:
+    def create_session(self, owner: str, actor_identity: ActorIdentity | None = None) -> str:
         """
         Ignite a new governance session.
         F11: Establishes a unique authority boundary.
         """
         session_id = str(uuid.uuid4())
-        metadata = SessionMetadata(session_id=session_id, owner=owner)
+        metadata = SessionMetadata(session_id=session_id, owner=owner, actor_identity=actor_identity)
 
         # Initialize the Kernel for this session
         kernel = GovernanceKernel(decision_owner=owner, session_id=session_id)
@@ -62,6 +64,11 @@ class SessionManager:
             metadata.last_activity = datetime.now()
             return metadata.kernel
         return None
+
+    def get_identity(self, session_id: str) -> ActorIdentity | None:
+        """Retrieve the ActorIdentity for a specific session."""
+        metadata = self._sessions.get(session_id)
+        return metadata.actor_identity if metadata else None
 
     def terminate_session(self, session_id: str):
         """Standard termination. Vault persistence should happen before this."""
