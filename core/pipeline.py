@@ -215,7 +215,7 @@ async def forge(
             emd.decision.confidence = 0.85 # Improved default
 
         return ForgeResult(
-            verdict="SABAR",
+            verdict="SEAL",
             session_id=token.session_id,
             token_status=token.status,
             agi=agi_out.model_dump() if hasattr(agi_out, "model_dump") else agi_out,
@@ -226,7 +226,7 @@ async def forge(
             query_type=query_type_value,
             f2_threshold=f2_threshold,
             floors_failed=[],
-            remediation="Fast path executed for low-stakes query.",
+            remediation="Fast path executed successfully.",
             emd=emd.model_dump(),
             mode=mode,
         )

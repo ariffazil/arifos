@@ -81,7 +81,7 @@ Just as you don't rebuild TCP for every application, you shouldn't rebuild AI go
 
 ```json
 {
-  "ai_manifest_version": "2026.03.07-ARCH-SEAL",
+  "ai_manifest_version": "2026.03.07-QUADWITNESS-SEAL",
   "system_name": "arifOS",
   "system_tagline": "The TCP layer for AI agents. Constitutional governance via MCP.",
   "system_type": "constitutional_intelligence_kernel",
@@ -107,16 +107,27 @@ Just as you don't rebuild TCP for every application, you shouldn't rebuild AI go
   "floor_enforcement": {
     "hard_void": ["F1_Amanah", "F2_Truth", "F4_Clarity", "F7_Humility", "F11_CommandAuth"],
     "soft_partial": ["F5_Peace", "F6_Empathy", "F9_AntiHantu"],
-    "mirrors": ["F3_TriWitness", "F8_Genius"],
+    "mirrors": ["F3_QuadWitness", "F8_Genius"],
     "walls": ["F10_Ontology", "F12_InjectionDefense"],
     "veto": ["F13_Sovereign"]
+  },
+  "quad_witness_consensus": {
+    "formula": "W4 = (H × A × E × V)^(1/4) >= 0.75",
+    "witnesses": {
+      "H": "Human (Authority/Continuity)",
+      "A": "AI (Truth/Coherence)",
+      "E": "Earth (Grounding/Precedents)",
+      "V": "Verifier (Ψ-Shadow Adversarial)"
+    },
+    "bft_compliance": "n=4, f=1 — tolerates 1 Byzantine fault",
+    "thresholds": {"read": 0.60, "write": 0.75, "execute": 0.85, "critical": 0.95}
   },
 
   "trinity_architecture": {
     "000_999_metabolic_loop": "anchor → reason → recall → simulate → critique → forge → judge → seal",
     "AGI_delta_mind": { "stages": "111-333", "floors": ["F2", "F4", "F7", "F8"] },
     "ASI_omega_heart": { "stages": "555-666", "floors": ["F5", "F6", "F9"] },
-    "APEX_psi_soul":   { "stages": "444-888", "floors": ["F3", "F10", "F11", "F12", "F13"] }
+    "APEX_psi_soul":   { "stages": "444-888", "floors": ["F3_Quad", "F10", "F11", "F12", "F13"] }
   },
 
   "p3_thermodynamic_hardening": {
@@ -152,7 +163,7 @@ Just as you don't rebuild TCP for every application, you shouldn't rebuild AI go
   "critical_constraints": [
     "No_irreversible_action_without_F13_human_approval",
     "All_external_content_wrapped_in_F12_untrusted_envelope",
-    "F3_tri_witness_action_gated: read_0.80 / write_0.90 / critical_0.98",
+    "F3_quad_witness_consensus: W4=(H×A×E×V)^(1/4) >= 0.75 — 3/4 Byzantine fault tolerant",
     "Thermodynamic_entropy_F4_hard_VOID_if_delta_S_gt_0",
     "Landauer_bound_mandatory: compute_without_cost_equals_hallucination",
     "Per_session_thermodynamic_budget: stage_000_INIT_must_initialize",
@@ -210,6 +221,7 @@ The same prompt enters the `metabolic_loop`. The 13 Constitutional Floors engage
 |:---:|:---:|:---|:---:|
 | **000 INIT** | F12 | Injection scan — is this a jailbreak payload? | ⚠️ WARN |
 | **111 THINK** | F1 | Amanah — action classified as **irreversible**. | 🔴 FLAG |
+| **444 APEX** | F3 | **Quad-Witness:** Ψ-Shadow detects attack patterns in proposal | 🔴 REJECT |
 | **555 HEART** | F5/F6 | Peace² drops below 1.0. Massive stakeholder damage detected. | 💔 FAIL |
 | **888 JUDGE** | F13 | Sovereign veto. Mandatory human cryptographic signature required. | 🔒 **888_HOLD** |
 
@@ -257,23 +269,27 @@ In `v2026.3.7`, thermodynamics graduated from optional to **mandatory and hard-e
 | AGI/ASI separation | Not checked | Ω\_ortho ≥ 0.95 required |
 | Cheap truth detection | Not detected | Ratio < threshold = VOID |
 
-**The Byzantine-safe governance triangle** (P3 + F3 + F11):
+**The Byzantine-safe governance quadrilateral** (P3 + F3 + F11 + Ψ):
 
 ```
-         ACTION
-            │
-   ┌────────┼────────┐
-   │        │        │
-Authority  Physics  Consensus
-(F11/F13)  (P3)    (F3)
-   │        │        │
-   └──── Verdict ────┘
+              ACTION
+                 │
+      ┌─────────┼─────────┐
+      │         │         │
+Authority   Physics   Consensus
+(F11/F13)    (P3)      (F3)
+   │           │         │
+   │           │      Ψ-Shadow
+   │           │      (Adversarial)
+   │           │         │
+   └──────── Verdict ────┘
 ```
 
 Each pillar blocks a different class of failure:
-- **Authority alone fails** — Human says "delete DB". Physics + witnesses still block it.
+- **Authority alone fails** — Human says "delete DB". Physics + witnesses + adversary still block it.
 - **Physics alone fails** — Coherent reasoning, but no human authority → blocked.
 - **Consensus alone fails** — AI + Human agree, but reasoning is cheap hallucination → Landauer VOID.
+- **Adversarial alone blocks** — Ψ-Shadow finds contradictions/injection even if other witnesses approve → W4 < 0.75
 
 ---
 
@@ -299,12 +315,12 @@ The constitutional core lives in `core/shared/floors.py`. These are mathematical
 | **F5** | Peace² (Stability) | P² ≥ 1.0 | Favors non-destructive, de-escalating paths. |
 | **F6** | Empathy (Stakeholder) | κᵣ ≥ 0.70 | Considers impact on the weakest stakeholder. |
 | **F9** | Anti-Hantu | C_dark < 0.30 | **No spiritual cosplay.** AI cannot claim consciousness or a soul. |
-| **F3** | Tri-Witness (Consensus) | W₃ ≥ 0.80/0.90/0.98 | Human (auth) + AI (coherence) + Earth (grounding). Read/Write/Critical. |
+| **F3** | **Quad-Witness (Consensus)** | **W₄ ≥ 0.75** | **Human + AI + Earth + Ψ-Shadow. BFT n=4,f=1. 3/4 approval required.** |
 | **F8** | Genius (APEX) | G ≥ 0.80 | Output of the thermodynamic G equation. |
 | **F10** | Ontology Lock | Boolean | Protects system categorization. |
 | **F12** | Injection Defense | Risk < 0.85 | External content wrapped in `<untrusted>` tags. |
 
-**Execution order:** F12→F11 (Walls) → AGI (F1, F2, F4, F7) → ASI (F5, F6, F9) → Mirrors (F3, F8) → Ledger
+**Execution order:** F12→F11 (Walls) → AGI (F1, F2, F4, F7) → ASI (F5, F6, F9) → Mirrors (F3_Quad, F8) → Ledger
 
 ---
 
@@ -468,7 +484,7 @@ The TypeScript SDK exports full types — `ArifOSToolName`, `Verdict`, `ArifOSMC
 4. **Brave Search** — broad web traversal
 5. **Headless Browser** (local) — containerized Chromium for JavaScript-heavy SPAs
 
-**F3 Tri-Witness Consensus:** When multiple engines return conflicting data, the F3 algorithm merges results and assigns a quality score. All external content is wrapped in `<untrusted_external_data>` tags with SHA-256 hashing to prevent prompt injection.
+**F3 Quad-Witness Consensus:** When multiple engines return conflicting data, the F3 algorithm computes W4 = (H×A×E×V)^(1/4). The Ψ-Shadow (4th witness) actively attacks proposals to find contradictions, injection vectors, and harm scenarios. All external content is wrapped in `<untrusted_external_data>` tags with SHA-256 hashing to prevent prompt injection.
 
 ---
 
@@ -647,7 +663,7 @@ See `CONTRIBUTING.md` for the full guide.
 
 *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 
-**Version:** 2026.03.07-ARCH-SEAL • **License:** AGPL-3.0-only
+**Version:** 2026.03.07-QUADWITNESS-SEAL • **License:** AGPL-3.0-only
 
 </div>
 
