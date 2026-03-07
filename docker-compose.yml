@@ -29,6 +29,9 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
+      - /opt/arifos/data/triggers:/shared/triggers
+      - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
       - /opt/arifos/traefik/acme.json:/letsencrypt/acme.json
     networks:
       - arifos_trinity
@@ -61,7 +64,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1024M
     restart: unless-stopped
 
   redis:
@@ -96,7 +99,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1024M
     restart: unless-stopped
 
   # --- LLM Engine ---
@@ -121,18 +124,35 @@ services:
     init: true
     volumes:
       - /opt/arifos/data/openclaw:/home/node/.openclaw
+      - /opt/arifos/data/openclaw/bin:/home/node/.local/bin
+      - /opt/arifos/data/openclaw/npm-global:/home/node/.npm-global
       - /srv/arifOS:/mnt/arifos:rw
       - /opt/arifos/APEX-THEORY:/mnt/apex:rw
       - /var/run/docker.sock:/var/run/docker.sock
+      - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
+      # Host CLI tools for coding-agent skill
+      - /home/ariffazil/.local/bin:/host/bin:ro
+      - /home/ariffazil/.local/share:/host/share:ro
+      - /home/ariffazil/.local/lib:/host/lib:ro
+      - /usr/local/bin/opencode:/usr/local/bin/opencode:ro
+      - /usr/local/lib/node_modules/opencode-ai:/usr/local/lib/node_modules/opencode-ai:ro
+      - /opt/arifos/data/openclaw/bin-wrappers:/host/clis:ro
     environment:
       - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-8eb24ba06e138bf7affe6f128fdecc2e80a9290d107d83585540ae6ba541ae54}
       - OLLAMA_URL=http://ollama:11434
       - REDIS_URL=redis://redis:6379
       - KIMI_API_KEY=${KIMI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
       - VENICE_API_KEY=${VENICE_API_KEY:-}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - NODE_OPTIONS=--max-old-space-size=768
+      # PATH includes custom CLI tools: gh, op, mcporter
+      - PATH=/home/node/.local/bin:/home/node/.npm-global/bin:/host/clis:/host/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - GH_TOKEN=${GITHUB_TOKEN:-}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
+      - X_BEARER_TOKEN=${X_BEARER_TOKEN:-}
+      - APIFY_API_TOKEN=${APIFY_API_TOKEN:-}
+      - BROWSERLESS_URL=http://headless_browser:3000
     networks:
       - arifos_trinity
     labels:
@@ -149,7 +169,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 1024M
     restart: unless-stopped
 
   agent-zero:
@@ -173,7 +193,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 1024M
     restart: unless-stopped
 
   # --- Constitutional Kernel ---
@@ -199,6 +219,7 @@ services:
       OPENCLAW_URL: http://openclaw:18789
       AGENT_ZERO_URL: http://agent-zero:80
       DASHBOARD_ENABLED: "true"
+      AAA_MCP_TRANSPORT: http
     ports:
       - "8080:8080"
     networks:
@@ -216,7 +237,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1024M
     restart: unless-stopped
 
   # --- Monitoring Stack ---
@@ -236,7 +257,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 1024M
     restart: unless-stopped
 
   grafana:
@@ -263,7 +284,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 256M
+          memory: 1024M
     restart: unless-stopped
 
   # --- Workflow Automation ---
@@ -291,7 +312,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 512M
+          memory: 1024M
     restart: unless-stopped
 
   # --- Webhook Auto-Deploy ---
@@ -305,8 +326,12 @@ services:
       - /srv/arifOS/deployment/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
       - /srv/arifOS:/usr/src/app:rw
       - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
+      - /opt/arifos/data/triggers:/shared/triggers
+      - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
     environment:
       - WEBHOOK_SECRET=${WEBHOOK_SECRET:-changeme}
+      - OPENCLAW_RESTART_TOKEN=${OPENCLAW_RESTART_TOKEN:-openclaw-restart-888}
     networks:
       - arifos_trinity
     labels:
@@ -341,7 +366,7 @@ services:
       resources:
         limits:
           cpus: '1.0'
-          memory: 512M
+          memory: 1024M
     healthcheck:
       test: ["CMD-SHELL", "curl -fsS http://localhost:3000/pressure || exit 1"]
       interval: 30s

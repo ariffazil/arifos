@@ -28,5 +28,21 @@
         }
       ]
     }
+  },
+  {
+    "id": "restart-openclaw",
+    "execute-command": "/var/scripts/restart_openclaw.sh",
+    "command-working-directory": "/",
+    "response-message": "Restarting OpenClaw Gateway...",
+    "trigger-rule": {
+      "match": {
+        "type": "value",
+        "value": "openclaw-restart-888",
+        "parameter": {
+          "source": "header",
+          "name": "X-Restart-Token"
+        }
+      }
+    }
   }
 ]
