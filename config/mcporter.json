@@ -1,0 +1,20 @@
+{
+  "mcpServers": {
+    "context7": {
+      "_comment": "Context7 — Up-to-date library docs for LLMs. Remote HTTP, no API key needed for free tier.",
+      "url": "https://mcp.context7.com/mcp",
+      "transport": "streamable-http"
+    },
+    "codegraphcontext": {
+      "_comment": "CodeGraphContext — Codebase graph analysis. Local stdio via pip-installed cgc.",
+      "command": "cgc",
+      "args": ["mcp", "start"],
+      "transport": "stdio"
+    },
+    "arifos": {
+      "_comment": "arifOS MCP kernel — 13 constitutional tools. Internal Docker network.",
+      "url": "http://arifosmcp_server:8080/mcp",
+      "transport": "streamable-http"
+    }
+  }
+}
