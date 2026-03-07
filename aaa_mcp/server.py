@@ -1504,7 +1504,7 @@ reason_mind = ToolHandle(_agi_cognition)
 
 @mcp.tool(
     name="vector_memory",
-    description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory (VM) – semantic retrieval (BGE + Qdrant).",
+    description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory (VM) – semantic retrieval (BGE + Qdrant). Searches constitutional corpus AND Google Drive (if synced). Domains: canon, manifesto, gdrive, all.",
 )
 async def _phoenix_recall(
     query: str,
@@ -1529,19 +1529,44 @@ async def _phoenix_recall(
             "canon": "000_THEORY",
             "manifesto": "APEX-THEORY",
             "docs": "docs",
+            "gdrive": "gdrive",
             "all": None,
         }
         source_filter = source_filter_map.get(domain, "000_THEORY")
-        try:
-            rag = _ensure_rag()
-            contexts = rag.retrieve(
-                query=effective_query,
-                top_k=max(1, min(int(depth), 10)),
-                source_filter=source_filter,
-                min_score=0.15,
-            )
-        except Exception:
-            contexts = []
+        
+        contexts = []
+        gdrive_results = []
+        
+        # Search constitutional corpus (unless gdrive-only)
+        if domain != "gdrive":
+            try:
+                rag = _ensure_rag()
+                contexts = rag.retrieve(
+                    query=effective_query,
+                    top_k=max(1, min(int(depth), 10)),
+                    source_filter=source_filter,
+                    min_score=0.15,
+                )
+            except Exception:
+                contexts = []
+        
+        # Search Google Drive (if domain is "all", "gdrive", or "docs")
+        if domain in ("all", "gdrive", "docs"):
+            try:
+                from aaa_mcp.unified_memory import get_unified_memory
+                unified = get_unified_memory()
+                gdrive_results = unified.search_gdrive(effective_query, top_k=min(int(depth), 5))
+                # Convert to same format as contexts
+                for r in gdrive_results:
+                    contexts.append(type('obj', (object,), {
+                        'source': 'gdrive',
+                        'path': r.path,
+                        'content': r.content,
+                        'score': r.score,
+                        'metadata': r.metadata
+                    })())
+            except Exception:
+                pass
 
         result_state = "MATCH_FOUND" if contexts else "NO_MATCHES"
         jaccard_max = (

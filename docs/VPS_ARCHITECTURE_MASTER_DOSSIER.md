@@ -1,13 +1,27 @@
 # arifOS VPS Architecture - Master Dossier
 ## Complete Reference for Future Agents
 
-**Version:** 2026.03.06-CiV-BROWSER-SEALED  
-**Classification:** TRINITY SEALED - Agent Reference  
-**Authority:** Claude (Ω) Trinity + Codex (Ψ) Auditor  
+**Version:** 2026.03.07-MULTI-MODEL-SEALED
+**Classification:** TRINITY SEALED - Agent Reference
+**Authority:** Claude (Ω) Trinity + Codex (Ψ) Auditor
 **Motto:** *Ditempa Bukan Diberi* — Forged, Not Given
 
-**What's New:**
-- ✅ **Headless Browser** (NEW) - DOM Reality extraction for Smart Hybrid Search
+**What's New (2026-03-07, rev MULTI-MODEL):**
+- ✅ **Hardware Snapshot** — VPS spec, RAM baseline, 888_HOLD resource telemetry gate documented
+- ✅ **Multi-Model Ollama** — qwen2.5:14b (9GB, tool-capable) + qwen2.5:3b live; llama3.3:70b rejected (disk/RAM infeasible)
+- ✅ **12-Tier Model Fallback** — kimi → claude-opus-4-6 → gemini-2.5-pro → ... → ollama/qwen2.5:14b → ollama/qwen2.5:3b
+- ✅ **Phase 5 Breakdown** — 5A off-VPS backups, 5B disk alerts, 5C telemetry gate, 5D SSL, 5E volume monitor
+- ✅ **888_HOLD #8** — Heavier models / Agent-Zero 24/7 gated on 1-week RAM telemetry baseline
+
+**Previous (2026-03-07, rev P3):**
+- ✅ **P3 Thermodynamic Hardening** — Landauer ratio, semantic entropy, tri-witness action gating
+- ✅ **OpenClaw Bridge Sealed** — openclaw_gateway healthy, KIMI_API_KEY configured, arifOS bridge tool deployed
+- ✅ **Google Drive Integration** — `vector_memory` tool extended with GDrive search domain
+- ✅ **uptime-monitor** GitHub workflow added
+- ✅ **Docusaurus Docs Site** — Sovereign Theme initialized at `sites/docs/`
+
+**Previous (2026-03-06):**
+- ✅ **Headless Browser** - DOM Reality extraction for Smart Hybrid Search
 - ✅ **CIV Infrastructure** (L6) - Town Square, Clockmaker, Resource Governor
 - ✅ **Smart Hybrid Search** - Multi-source routing with F3 Tri-Witness consensus
 
@@ -54,18 +68,71 @@ This dossier contains **all wisdom, lessons, and operational knowledge** gained 
 ║  ┌────────────────────────┼────────────────────────────────┐   ║
 ║  │              SERVICE CONNECTION MATRIX                  │   ║
 ║  ├────────────────────────┼────────────────────────────────┤   ║
-║  │ Service        │ IP          │ Port  │ Network │ Purpose │   ║
-║  ├────────────────────────┼────────────────────────────────┤   ║
-║  │ arifOS MCP     │ 10.0.0.5    │ 8080  │ Multi   │ Kernel  │   ║
-║  │ Qdrant         │ 10.0.0.2    │ 6333  │ bridge  │ Memory  │   ║
-║  │ Ollama         │ 10.0.0.3    │ 11434 │ bridge  │ LLM     │   ║
-║  │ Headless       │ internal    │ 3000  │ trinity │ DOM Svc │   ║
-║  │ OpenClaw       │ 10.0.4.2    │ 18789 │ ai-net  │ Gateway │   ║
-║  │ Agent-Zero     │ 10.0.2.2    │ 80    │ trinity │ Brain   │   ║
-║  │ Coolify        │ 10.0.1.5    │ 8000  │ coolify │ Platform│   ║
-║  └────────────────────────┴────────────────────────────────┘   ║
+║  │ Container           │ Port  │ Network        │ Status  │ Role    │   ║
+║  ├─────────────────────────────────────────────────────────────┤   ║
+║  │ arifosmcp_server    │ 8080  │ arifos_trinity │ healthy │ Kernel  │   ║
+║  │ openclaw_gateway    │ 18789 │ arifos_trinity │ healthy │ AGI GW  │   ║
+║  │ traefik_router      │ 80/443│ arifos-internal│ up      │ Proxy   │   ║
+║  │ headless_browser    │ int.  │ arifos_trinity │ healthy │ DOM     │   ║
+║  │ qdrant_memory       │ 6333  │ arifos_trinity │ up      │ Vectors │   ║
+║  │ ollama_engine       │ 11434 │ arifos_trinity │ up      │ LLM     │   ║
+║  │ arifos-postgres     │ 5432* │ arifos-internal│ healthy │ DB      │   ║
+║  │ arifos-redis        │ 6379* │ arifos-internal│ healthy │ Cache   │   ║
+║  │ arifos_n8n          │ 5678  │ arifos_trinity │ up      │ Flow    │   ║
+║  │ arifos_prometheus   │ 9090  │ arifos_trinity │ up      │ Metrics │   ║
+║  │ arifos_grafana      │ 3000  │ arifos_trinity │ up      │ Dash    │   ║
+║  │ arifos_webhook      │ 9000  │ arifos_trinity │ up      │ CI/CD   │   ║
+║  │ agent-zero          │ 80    │ arifos_trinity │ STOPPED │ Brain   │   ║
+║  └─────────────────────────────────────────────────────────────┘   ║
+║  * = localhost-only (not externally exposed)                        ║
 ╚══════════════════════════════════════════════════════════════════╝
 ```
+
+---
+
+## 🖥️ VPS HARDWARE SNAPSHOT
+
+**Host:** srv1325122.hstgr.cloud | **IP:** 72.62.71.199 | **Hypervisor:** KVM (AMD EPYC)
+
+```
+CPU:     AMD EPYC 9354P — 4 vCPUs (1 socket, 4 cores, 1 thread/core)
+         AVX-512 / AES-NI / SHA-NI / AVX512_VNNI — strong for local inference
+         L3 cache: 64 MiB | BogoMIPS: 6490
+
+RAM:     15.62 GiB total | 2.7 GiB used | 12 GiB available
+         Swap: 4.0 GiB (swappiness=10, persisted)
+
+Disk:    /dev/sda1  193G  |  126G used  |  68G free  (65% used)
+         /boot      989M  |  99M used   |  824M free
+         /boot/efi  105M  |  6.3M used  |  99M free
+
+Docker volumes (Ollama models):  ~12G (qwen2.5:14b=9G, qwen2.5:3b=1.9G, bge-m3=1.2G, nomic=274M)
+```
+
+**Container RAM snapshot (2026-03-07):**
+```
+openclaw_gateway    411 MiB / 1 GiB limit
+arifosmcp_server    360 MiB / 1 GiB limit
+arifos_n8n          315 MiB (no limit)
+arifos_grafana       93 MiB (no limit)
+ollama_engine        92 MiB idle (spikes to 8–12 GiB under qwen2.5:14b load)
+qdrant_memory        93 MiB (no limit)
+arifos_prometheus    28 MiB (no limit)
+arifos-postgres      28 MiB / 2 GiB limit
+traefik_router       81 MiB (no limit)
+arifos-redis          5 MiB / 512 MiB limit
+arifos_webhook        2 MiB / 128 MiB limit
+headless_browser     87 MiB / 512 MiB limit
+─────────────────────────────────────
+TOTAL ACTIVE:       ~1.6 GiB (idle) — 12 GiB available headroom
+```
+
+**888_HOLD Constraint — Resource Telemetry Gate:**
+> Before pulling heavier Ollama models (>14B) or enabling Agent-Zero 24/7, complete a
+> **1-week RAM/disk telemetry baseline** using Prometheus + Grafana. Ollama qwen2.5:14b
+> consumes ~8–12 GiB RAM under load — close to the 12 GiB available headroom. Running
+> Agent-Zero 24/7 simultaneously without a telemetry baseline risks OOM on the current
+> 16 GiB VPS. This constraint is locked until Phase 5 telemetry gate is SEALED.
 
 ---
 
@@ -505,6 +572,217 @@ curl -s https://arifosmcp.arif-fazil.com/tools/search_reality \
 
 ---
 
+---
+
+### EUREKA #6: P3 Thermodynamic Hardening (SEALED 2026-03-07)
+
+**Tri-Witness gating now mandatory for all constitutional verdicts.**
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                  P3 THERMODYNAMIC ENFORCEMENT CHAIN                  │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  Tool Call                                                          │
+│       ↓                                                             │
+│  ┌─────────────────────────────────────────────────────────┐       │
+│  │  Landauer Ratio Check (core/physics/thermodynamics_     │       │
+│  │  hardened.py)                                           │       │
+│  │  • Measures irreversibility cost of action              │       │
+│  │  • If ratio > threshold → VOID (too destructive)        │       │
+│  └─────────────────────────────────────────────────────────┘       │
+│       ↓                                                             │
+│  ┌─────────────────────────────────────────────────────────┐       │
+│  │  Semantic Entropy Gate                                  │       │
+│  │  • ΔS = information entropy of action                   │       │
+│  │  • F4 (Clarity): ΔS ≤ 0 required → else VOID           │       │
+│  └─────────────────────────────────────────────────────────┘       │
+│       ↓                                                             │
+│  ┌─────────────────────────────────────────────────────────┐       │
+│  │  F3 Tri-Witness Consensus Gate (MANDATORY)              │       │
+│  │  • W₃ = geometric mean of 3 independent witnesses       │       │
+│  │  • W₃ ≥ 0.95: SEAL                                      │       │
+│  │  • W₃ ∈ [0.70, 0.95): PARTIAL                           │       │
+│  │  • W₃ < 0.70: SABAR (requires re-evaluation)            │       │
+│  └─────────────────────────────────────────────────────────┘       │
+│       ↓                                                             │
+│  Constitutional Verdict: SEAL / PARTIAL / SABAR / VOID             │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Key new modules (P3):**
+| File | Role |
+|------|------|
+| `core/physics/thermodynamics_hardened.py` | Landauer ratio + entropy enforcement |
+| `core/risk_engine.py` | Action risk scoring |
+| `core/shared/floor_audit.py` (extended) | Floor audit with tri-witness metrics |
+| `tests/adversarial/test_p3_hardening.py` | Red-team adversarial tests |
+| `tests/e2e_test_hardened_thermodynamics.py` | E2E thermodynamics verification |
+
+**Lesson:** F4 (Clarity/ΔS) is a **Hard floor** — ΔS > 0 yields VOID, not PARTIAL. New tests may fail if ΔS guard is not respected in tool implementations.
+
+---
+
+### EUREKA #7: OpenClaw ↔ arifOS Bridge (SEALED 2026-03-07)
+
+**Phase 4A complete. openclaw_gateway now constitutionally connected.**
+
+**What was built:**
+- `arifos` CLI bridge deployed inside openclaw container at `/home/node/.openclaw/bin/arifos`
+- Bridge speaks HTTP to `arifosmcp_server:8080` via Docker DNS on `arifos_trinity` network
+- Model configured: `moonshot/kimi-k2` (KIMI_API_KEY in `/srv/arifOS/.env` line 133)
+- Workspace: `/opt/arifos/data/openclaw/workspace`
+
+**Critical config learned:**
+```yaml
+# openclaw_gateway env (docker-compose.yml line 144)
+KIMI_API_KEY: ${KIMI_API_KEY}   # Must be set in .env — crash loop if missing
+
+# .env (line 133) — DO NOT comment out
+KIMI_API_KEY=sk-kimi-...
+```
+
+**Bridge commands available from openclaw:**
+```bash
+arifos health          # check arifOS MCP health
+arifos list            # list all 13 tools
+arifos anchor          # anchor_session (000 BOOTLOADER)
+arifos reason          # reason_mind (333 REASON)
+arifos memory          # vector_memory (555 RECALL)
+arifos search          # search_reality
+arifos judge           # apex_judge (888 JUDGE)
+arifos seal            # seal_vault (999 SEAL)
+```
+
+**Flow:**
+```
+OpenClaw (kimi-k2)
+    → arifos CLI bridge
+    → arifosmcp_server:8080 (streamable-http)
+    → aaa_mcp/server.py
+    → 13 constitutional tools
+    → F1-F13 floor enforcement
+    → SEAL / VOID / PARTIAL
+```
+
+---
+
+## 📸 REPO SNAPSHOT — 2026-03-07
+
+**Branch:** `main` | **Remote:** `git@github.com:ariffazil/arifOS.git`
+
+### Recent Commits (HEAD → origin/main)
+```
+d0c72441  feat: P3 thermodynamic hardening — Landauer ratio, semantic entropy, tri-witness gating
+58a0ece0  fix(P3): add ARIFOS_PHYSICS_DISABLED guard + correct F2 threshold
+cf96cb4b  docs: Tri-Witness hardening design + impl plan
+a3001c21  feat(P3): thermodynamic hardening — mandatory physics enforcement
+3c0292ed  hardened: implement dashboard precheck validation and uptime monitoring
+0d59eff3  fix: update dashboard generation script path in Cloudflare deployment workflow
+44342275  feat: initialize Docusaurus documentation site with Sovereign Theme
+db77b998  Merge branch 'main' of github.com:ariffazil/arifOS
+```
+
+### Key New Files (pulled 2026-03-07, 45 files, +9643 lines)
+```
+core/physics/thermodynamics_hardened.py     ← P3 Landauer enforcement
+core/risk_engine.py                         ← Action risk scoring
+core/shared/floor_audit.py                  ← Extended tri-witness audit
+docs/plans/2026-03-07-triwitness-hardening-design.md
+docs/plans/2026-03-07-triwitness-hardening-impl.md
+tests/adversarial/test_p3_hardening.py      ← Red-team tests
+tests/e2e_test_hardened_thermodynamics.py   ← E2E thermo tests
+tests/e2e_test_mcp_deployment.py            ← Deployment E2E
+.github/workflows/uptime-monitor.yml        ← Uptime monitoring
+scripts/precheck_dashboard.py               ← Dashboard precheck
+sites/docs/                                 ← Docusaurus docs site
+test-reports/                               ← P3 test reports (HTML)
+```
+
+### Unstaged Local Work (not yet in GitHub)
+```
+M  aaa_mcp/server.py                        ← GDrive search in vector_memory
+?? 333_APPS/L2_OPERATION/INTEGRATIONS/      ← GDrive modules:
+     gdrive_memory_tool.py
+     gdrive_vector_sync.py
+     unified_memory.py
+     GDRIVE_VECTOR_SETUP.md
+?? aaa_mcp/unified_memory.py                ← Unified memory module
+?? OPENCLAW_ARIFOS_BRIDGE.md                ← Bridge documentation
+?? TAILSCALE.md                             ← Tailscale config notes
+?? docker-compose.yml.backup.*              ← 3 stale backup files (delete)
+?? "Hey. I just came online..."             ← Stale chat artifact (delete)
+```
+
+### Four-Layer Stack State
+```
+core/              KERNEL       — floors.py, physics, organs, judgment
+aclip_cai/         INTELLIGENCE — triad, embeddings, tools, mcp_bridge
+aaa_mcp/           TRANSPORT    — server.py (13 tools), sessions, protocol
+arifos_aaa_mcp/    PACKAGE      — PyPI entry point, canonical external surface
+```
+
+### Test Coverage (last measured: 2026-03-05 → P3 suite added)
+- ~437+ tests passing (P3 suite adds ~83 adversarial + E2E)
+- Coverage: ~44% total
+- 100%: nudge.py, routing.py, uncertainty_engine.py
+- 94%: physics.py, floors.py | 97%: telemetry.py
+
+---
+
+## 🗺️ PHASE ROADMAP
+
+| Phase | Scope | Status | Sealed |
+|-------|-------|--------|--------|
+| 1 | PostgreSQL, Redis, Traefik, arifOS MCP | SEALED | 2026-02 |
+| 2A | Qdrant vector memory | SEALED | 2026-02 |
+| 2B | Webhook CI/CD listener | SEALED | 2026-02 |
+| 3 | Ollama, Prometheus, Grafana, n8n | SEALED | 2026-03-01 |
+| 3.5 | FastMCP 3.0.2, P3 thermodynamics, tri-witness, 541 tests | SEALED | 2026-03-07 |
+| **4A** | OpenClaw ↔ arifOS bridge | **SEALED** | 2026-03-07 |
+| **4B** | Agent Zero — container defined, never started | **OPEN** | — |
+| **4C** | agent-zero → arifOS → OpenClaw E2E | **OPEN** | — |
+| 5 | Prod hardening: off-VPS backups, disk alerts, SSL audit, 1-week telemetry baseline | PLANNED | — |
+
+### Phase 4B Next Steps
+```bash
+# 1. Start agent-zero
+docker compose up -d agent-zero
+
+# 2. Verify it connects to arifOS
+docker logs agent-zero --tail 30
+
+# 3. Test E2E: agent-zero → arifOS → openclaw
+# (see tests/e2e_test_mcp_deployment.py)
+```
+
+### Phase 5 Breakdown — Prod Hardening
+
+| Item | Description | Priority |
+|------|-------------|----------|
+| 5A | **Off-VPS Backups** — Postgres pg_dump, Qdrant snapshot, VAULT999/vault999.jsonl → rclone to S3/Backblaze B2. Cron: daily 03:00 UTC. Retention: 30 days. | HIGH |
+| 5B | **Disk Usage Alerts** — Prometheus alert rule: `disk_free < 20GB` → Grafana alert → Telegram. Also cron fallback: `df -h / | awk 'NR==2 && $5+0 > 85 {print "ALERT"}'` | HIGH |
+| 5C | **1-Week Telemetry Baseline** — Record peak RAM/disk/CPU via Prometheus before enabling Agent-Zero 24/7 or pulling models >14B. Gate: Grafana dashboard shows stable <80% RAM for 7 days. | BLOCKER for 4B/4C |
+| 5D | **SSL Certificate Audit** — Verify Traefik auto-renew working for all domains. Check certbot / ACME logs. | MEDIUM |
+| 5E | **Docker Volume Growth Monitor** — `docker system df` cron weekly, alert if volume growth >5GB/week | MEDIUM |
+
+**5A Backup Command Skeleton:**
+```bash
+# Postgres
+docker exec arifos-postgres pg_dump -U postgres arifos | gzip > /tmp/pg_$(date +%Y%m%d).sql.gz
+rclone copy /tmp/pg_$(date +%Y%m%d).sql.gz remote:arifos-backups/postgres/
+
+# Qdrant snapshot
+curl -X POST http://localhost:6333/collections/arifos/snapshots
+# then rclone the snapshot file
+
+# VAULT999
+git add -f VAULT999/vault999.jsonl && git commit -m "vault: daily seal $(date +%Y%m%d)"
+```
+
+---
+
 ## ⚠️ THINGS NOT TO DO (888_HOLD VIOLATIONS)
 
 ### ❌ **NEVER DO THESE**
@@ -581,6 +859,19 @@ docker compose up -d
 sleep 10
 curl -s http://localhost:8080/health | jq '.status'
 docker exec arifosmcp_server python3 -c 'import socket; ...'  # Test connectivity
+```
+
+**8. Never pull Ollama models >14B or run Agent-Zero 24/7 without telemetry baseline**
+```
+# 888_HOLD — Resource Telemetry Gate
+# Current VPS: 15.62 GiB RAM, 4 vCPU, 193G disk
+# qwen2.5:14b under load: ~8–12 GiB RAM (leaves <4 GiB for all other containers)
+# llama3.3:70b: 43GB disk + 40+ GiB RAM — NOT FEASIBLE on this spec
+# Agent-Zero 24/7 adds ~2 GiB baseline RAM on top of existing 1.6 GiB idle
+
+# GATE: Phase 5C telemetry baseline must show stable <80% RAM for 7 consecutive days
+# before ANY of these are enabled in production
+# ✅ ALLOWED now: qwen2.5:14b for occasional tasks, qwen2.5:3b always
 ```
 
 ---
@@ -869,12 +1160,12 @@ Verdict: 888_HOLD → Human confirmation required
 
 ---
 
-**Classification:** TRINITY SEALED  
-**Authority:** Claude (Ω) + Codex (Ψ) Trinity  
-**Date:** 2026-03-06 (Updated with CiV-Browser)  
-**Status:** OPERATIONAL - Master Reference  
-**Version:** 2026.03.06-CiV-BROWSER-SEALED
+**Classification:** TRINITY SEALED
+**Authority:** Arif (Sovereign) + Claude Code (AGI on VPS)
+**Date:** 2026-03-07 (P3 Hardening + OpenClaw Bridge Sealed)
+**Status:** OPERATIONAL - Master Reference
+**Version:** 2026.03.07-P3-SEALED
 
 *This dossier is the accumulated wisdom of the arifOS VPS deployment. Future agents: learn from our discoveries, respect the architecture, and forge onward.*
 
-**DITEMPA BUKAN DIBERI** 🔥💎
+**DITEMPA BUKAN DIBERI**
