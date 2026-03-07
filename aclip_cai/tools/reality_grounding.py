@@ -25,7 +25,8 @@ import time
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, List, Dict
+from aclip_cai.tools.logic.consensus_arbitrator import ConsensusArbitrator
 
 logger = logging.getLogger(__name__)
 
@@ -451,6 +452,7 @@ class RealityGroundingCascade:
     def __init__(self):
         self.engines: list[Any] = []
         self._init_engines()
+        self.arbitrator = ConsensusArbitrator(asean_sites=ASEAN_SITES)
 
     def _init_engines(self):
         """Initialize available engines in priority order."""
@@ -509,8 +511,7 @@ class RealityGroundingCascade:
             )
 
         all_results: list[SearchResult] = []
-        engines_used: list[str] = []
-        engines_failed: list[str] = []
+        engines_used_map = {}
 
         for engine in self.engines:
             try:
@@ -528,10 +529,15 @@ class RealityGroundingCascade:
                     continue
 
                 if results:
-                    all_results = results
+                    engines_used_map[engine.NAME] = results
                     engines_used.append(engine.NAME)
                     logger.info(f"Success with {engine.NAME}: {len(results)} results")
-                    break
+                    
+                    # If we found enough results from a high-quality engine (Brave/DDGS), 
+                    # we can stop for efficiency, unless 'consensus_depth' is requested.
+                    # For now, let's allow up to 2 engines for 'consensus'.
+                    if len(engines_used) >= 2:
+                        break
                 else:
                     engines_failed.append(f"{engine.NAME}: no_results")
             except Exception as e:
@@ -540,13 +546,21 @@ class RealityGroundingCascade:
                 logger.error(f"Engine {engine.NAME} crashed: {e}")
                 continue
 
-        if all_results:
-            uncertainties = [r.uncertainty for r in all_results]
-            avg_uncertainty = sum(uncertainties) / len(uncertainties)
+        # Arbitrate results (F3 Consensus)
+        if engines_used_map:
+            arbitration = self.arbitrator.arbitrate(query, engines_used_map)
+            all_results = arbitration["results"]
+            avg_uncertainty = arbitration["uncertainty_aggregate"]
             status = "OK" if len(engines_failed) == 0 else "PARTIAL"
+            audit_trail_consensus = {
+                "consensus_variance": arbitration["consensus_variance"],
+                "witness_count": arbitration["witness_count"]
+            }
         else:
+            all_results = []
             avg_uncertainty = 1.0
             status = "ERROR"
+            audit_trail_consensus = {}
 
         audit_trail = {
             "query_original": query,
@@ -558,6 +572,7 @@ class RealityGroundingCascade:
             "engines_attempted": [e.NAME for e in self.engines],
             "engines_used": engines_used,
             "engines_failed": engines_failed,
+            "consensus_metrics": audit_trail_consensus,
             "throttle_applied": True,
             "constitutional_notes": [
                 "F1 Amanah: Rate limiting applied",

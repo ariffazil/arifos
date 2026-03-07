@@ -1,7 +1,6 @@
 
 import asyncio
 import json
-import sys
 from arifos_aaa_mcp.server import vector_memory, search_reality, anchor_session
 
 async def test_modern_params():
@@ -16,8 +15,8 @@ async def test_modern_params():
     # 2. Test Vector Memory with modern params
     print("\n--- 555 VECTOR MEMORY (Modern) ---")
     vm_res = await vector_memory(
-        current_thought_vector="Constitutional AI Governance",
-        session_token=session_token
+        query="Constitutional AI Governance",
+        session_id=session_token
     )
     print(f"Full VM Response: {json.dumps(vm_res, indent=2)}")
     print(f"Verdict: {vm_res.get('verdict')}")
@@ -33,14 +32,6 @@ async def test_modern_params():
     )
     print(f"Full SR Response: {json.dumps(sr_res, indent=2)}")
     assert sr_res.get("session_id") == session_token
-    
-    print("\n--- BACKWARD COMPATIBILITY CHECK ---")
-    vm_legacy = await vector_memory(
-        query="Legacy query",
-        session_id=session_token
-    )
-    print(f"Legacy VM Verdict: {vm_legacy.get('verdict')}")
-    assert vm_legacy.get("session_id") == session_token
     
     print("\n✨ ALL MODERN PARAMETERS VERIFIED SUCCESSFULLY.")
 

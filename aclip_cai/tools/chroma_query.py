@@ -13,6 +13,7 @@ import os
 from typing import Any
 
 from aclip_cai.tools.aclip_base import ok, partial, void
+from core.shared.atlas import normalize_semantic_text
 
 _DEFAULT_QDRANT_URL = "http://localhost:6333"
 
@@ -26,6 +27,7 @@ def query_memory(
     _chroma_path: str | None = None,  # kept for API compat — unused
 ) -> dict[str, Any]:
     """Query the Qdrant vector store with a natural language query."""
+    query = normalize_semantic_text(query)
     qdrant_url = os.environ.get("QDRANT_URL", _DEFAULT_QDRANT_URL)
 
     try:

@@ -19,6 +19,7 @@ from core.organs._0_init import QueryType
 from core.shared.floors import update_floor_status
 from core.shared.formatter import OutputFormatter, OutputMode
 from core.shared.mottos import get_motto_for_stage
+from core.state.session_manager import session_manager
 
 
 class ForgeResult(BaseModel):
@@ -153,6 +154,12 @@ async def forge(
     objective_contract = token_metrics.get("objective_contract", {})
     stage_motto_000 = get_motto_for_stage("000_INIT")
 
+    # Connect to the Governance Kernel (Ψ)
+    kernel = session_manager.get_kernel(token.session_id)
+    if kernel:
+        kernel.consume_energy(0.05)  # Cost of Ignition
+        emd.energy.e_eff = kernel.current_energy
+
     if token.is_void or token.requires_human:
         verdict = "VOID" if token.is_void else "888_HOLD"
         elapsed = (time.perf_counter() - start_time) * 1000
@@ -252,6 +259,13 @@ async def forge(
     stage_motto_222 = get_motto_for_stage("222_THINK")
     stage_motto_333 = get_motto_for_stage("333_REASON")
 
+    if kernel:
+        kernel.consume_energy(0.15)  # Cost of AGI reasoning
+        if not kernel.can_proceed():
+             # Energy depletion or threshold reached
+             pass # Will be handled by floors check if kernel state updated
+        emd.energy.e_eff = kernel.current_energy
+
     agi_out = await agi(query, token.session_id, action="full")
     agi_tensor = agi_out.tensor
 
@@ -340,6 +354,10 @@ async def forge(
     stage_motto_555 = get_motto_for_stage("555_EMPATHY")
     stage_motto_666 = get_motto_for_stage("666_ALIGN")
 
+    if kernel:
+        kernel.consume_energy(0.10)  # Cost of ASI empathy
+        emd.energy.e_eff = kernel.current_energy
+
     asi_out = await asi(
         action="full",
         agi_tensor=agi_tensor,
@@ -364,7 +382,7 @@ async def forge(
         A=agi_tensor.truth_score if agi_tensor else 0.5,
         P=asi_out.floor_scores.f5_peace if hasattr(asi_out, "floor_scores") else 0.5,
         X=len(agi_out.thoughts) / 10.0 if hasattr(agi_out, "thoughts") else 0.5,
-        E=1.0,  # Placeholder for energy
+        E=kernel.current_energy if kernel else 1.0,
     )
     emd.metabolism.genius_index = genius_dials.G()
     observed_weights = {
@@ -433,6 +451,10 @@ async def forge(
         query=query,
         objective_contract=objective_state,
     )
+
+    if kernel:
+        kernel.consume_energy(0.10)  # Cost of Apex + Vault
+        emd.energy.e_eff = kernel.current_energy
 
     verdict = apex_dict.get("verdict") or apex_dict.get("judge", {}).get("verdict", "SEAL")
     elapsed = (time.perf_counter() - start_time) * 1000
@@ -647,6 +669,84 @@ async def forge_formatted(
 
     return formatted
 
+# =========================================================================
+# METABOLIC MEMBRANE (Migrated from 333_APPS/metabolizer.py)
+# =========================================================================
+
+import time
+from abc import ABC, abstractmethod
+from enum import Enum
+
+class FloorType(Enum):
+    """Constitutional floor classification."""
+    HARD = "hard"  # Existential: VOID on failure
+    SOFT = "soft"  # Performance: SABAR on failure
+
+class AppVerdict(Enum):
+    """Application execution verdicts."""
+    SEAL = "SEAL"
+    SABAR = "SABAR"
+    VOID = "VOID"
+    HOLD_888 = "888_HOLD"
+
+class FloorRequirement(BaseModel):
+    """Floor requirement for an application."""
+    floor_id: str
+    floor_type: FloorType
+    threshold: Any | None = None
+    description: str = ""
+
+class Telemetry(BaseModel):
+    """Standard arifOS telemetry for app execution."""
+    timestamp: float = Field(default_factory=time.time)
+    dS: float = 0.0
+    peace2: float = 1.0
+    kappa_r: float = 1.0
+    echo_debt: float = 0.0
+    shadow: float = 0.0
+    confidence: float = 0.99
+    psi_le: float = 1.0
+
+class AppResult(BaseModel):
+    """Result from a metabolized application."""
+    verdict: AppVerdict
+    output: Any
+    telemetry: Telemetry
+    stage: str = ""
+    error: str | None = None
+
+class Metabolizer(ABC):
+    """
+    Abstract base class for all governed applications.
+    Every high-level application must inherit from Metabolizer to ensure it routes through L0 Kernel.
+    """
+    def __init__(self, app_name: str, app_version: str = "1.0.0"):
+        self.app_name = app_name
+        self.app_version = app_version
+
+    @abstractmethod
+    def required_floors(self) -> list[FloorRequirement]:
+        pass
+
+    @abstractmethod
+    async def metabolize(self, input_data: dict[str, Any]) -> AppResult:
+        pass
+
+    def _check_floor_violations(self, floor_results: dict[str, Any]) -> list[str]:
+        violations = []
+        for req in self.required_floors():
+            if req.floor_id in floor_results:
+                res = floor_results[req.floor_id]
+                if req.floor_type == FloorType.HARD and not res.get("passed", False):
+                    violations.append(f"{req.floor_id} (HARD): {req.description}")
+        return violations
+
+def require_metabolizer(app_class):
+    """Decorator to ensure a class inherits from Metabolizer."""
+    if not issubclass(app_class, Metabolizer):
+        raise TypeError(f"Class '{app_class.__name__}' must inherit from Metabolizer.")
+    return app_class
+
 
 __all__ = [
     "ForgeResult",
@@ -655,4 +755,11 @@ __all__ = [
     "forge_with_nudge",
     "forge_formatted",
     "OutputMode",
+    "Metabolizer",
+    "AppResult",
+    "AppVerdict",
+    "FloorRequirement",
+    "FloorType",
+    "Telemetry",
+    "require_metabolizer"
 ]

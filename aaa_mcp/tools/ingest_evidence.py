@@ -25,6 +25,8 @@ import socket
 import urllib.parse
 from typing import Any
 
+from core.shared.atlas import normalize_semantic_text
+
 # ─────────────────────────────────────────────────────────────────────────────
 # SSRF Protection — blocked network ranges (F12)
 # ─────────────────────────────────────────────────────────────────────────────
@@ -229,6 +231,7 @@ async def _ingest_url(target: str, mode: str, max_chars: int) -> dict[str, Any]:
 
         if payload.get("status") == "OK":
             raw_content = payload.get("content", "")
+            raw_content = normalize_semantic_text(raw_content)
             return _apply_mode(
                 {
                     "source_type": "url",
@@ -255,6 +258,7 @@ async def _ingest_url(target: str, mode: str, max_chars: int) -> dict[str, Any]:
 
         raw = await asyncio.to_thread(_do_fetch)
         text = raw.decode("utf-8", errors="replace")
+        text = normalize_semantic_text(text)
         content_hash = hashlib.sha256(text[:max_chars].encode("utf-8")).hexdigest()
         bounded = (
             f'<untrusted_external_data source="{target}">\n'

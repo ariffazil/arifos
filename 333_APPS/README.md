@@ -16,66 +16,84 @@ The arifOS intelligence kernel is defined by four cognitive bands, ensuring ever
 
 ---
 
-## 🏛️ The 8-Layer Stack
+## 🏛️ The Refined 4-Layer Taxonomy
 
-The `333_APPS` directory houses the core governing layers of the system:
+arifOS has transitioned from an 8-layer stack to a cleaner, more scalable 4-layer taxonomy based on **Constitutional Physics**:
 
-| Layer | Component | ARIF Role | Description |
-| :--- | :--- | :---: | :--- |
-| **L5** | **AGENTS** | **Parliament** | 5 civil-servant roles (Architect, Auditor, etc.) routing workflows. |
-| **L4** | **TOOLS** | **Instruments** | 13 MCP tools grouped into the 4 ARIF bands. |
-| **L3** | **WORKFLOW** | **Recipes** | 9 metabolic sequences (000→999) that compose L2 verbs. |
-| **L2** | **SKILLS** | **Verbs** | 9 atomic, stateless actions (e.g., anchor, reason, seal). |
-| **L1** | **PROMPTS** | **Interface** | Zero-context entry and behavioral codes. |
-| **L0** | **KERNEL** | **Substrate** | ΔΩΨ governance engine, 13 floors, and VAULT999. |
+| Layer | Name | Role | Contents |
+| :--- | :--- | :--- | :--- |
+| **L0** | **CONSTITUTION** | **Law** | Kernel, 13 Floors, Manifesto, Ontology Lock, Sovereignty Doctrine. |
+| **L1** | **INSTRUCTION** | **Knowledge** | Prompts, Code, Theory, Axioms, Mathematical Models. |
+| **L2** | **OPERATION** | **Execution** | Agents, Workflows, Skills (ARIF metabolic loops). |
+| **L3** | **CIVILIZATION** | **World** | Tools (MCP), Infrastructure, Ecosystems, Multi-agent coordination. |
 
 ---
 
-## 🛠️ L4 TOOL Banding
+## 🌊 The Flow Across Layers
 
-The 13 AAA MCP tools are bound to ARIF bands with strict floor enforcement:
+The architecture forms a clean cascade from law to reality:
+
+**CONSTITUTION** (What must never be violated?)  
+      ↓  
+**INSTRUCTION** (How should intelligence reason?)  
+      ↓  
+**OPERATION** (How is intelligence executed?)  
+      ↓  
+**AKI boundary** (Is the execution permitted?)  
+      ↓  
+**CIVILIZATION** (Where does intelligence operate in the world?)
+
+---
+
+## 🛠️ L3 TOOL Banding (Civilization Interface)
+
+The 13 AAA MCP tools are grouped into ARIF bands, serving as the interface between the internal Operation (L2) and the external Civilization (L3):
 
 - **A_ANCHOR**: Wraps `anchor_session` and `check_vital`. Enforces **F12 Injection Defense**.
 - **R_REFLECT**: Wraps `reason_mind`, `search_reality`, and `simulate_heart`. Enforces **F2 Truth** and **F7 Humility**.
 - **I_INTEGRATE**: Wraps `inspect_file` and `audit_rules`. Enforces **F10 Ontology** and **F3 Tri-Witness**.
-- **F_FORGE**: Wraps `eureka_forge`, `apex_judge`, and `seal_vault`. Enforces **F8 Genius** and **F13 Sovereign** (Phoenix-72).
+- **F_FORGE**: Wraps `eureka_forge`, `apex_judge`, and `seal_vault`. Enforces **F8 Genius** and **F13 Sovereign**.
 
 ---
 
-## Design Philosophy
+## 🌡️ STATE FIELD: Thermodynamic Governance
 
-### ARIF Chain of Custody
-1. **A must run first** in any metabolic loop.
-2. **R only reads** environment and memory; it never mutates.
-3. **I maps and analyses** constraints, no side-effects.
-4. **F executes and seals**, always behind F1/F3/F13 gates.
+The system operates within a **State Field** (Ψ) composed of three fundamental variables:
 
-### Constitutional Compliance
-- Every layer (L0-L5) enforces the 13 Floors.
-- L0 enforces at the kernel level (Ring 0 privilege).
-- Higher layers (L2-L5) provide semantic and behavioral alignment.
+- **Environment**: Context, memory, and surroundings.
+- **Energy**: Compute capacity, authority tokens, and execution power.
+- **Void**: Unknowns, potential, and exploration space (Uncertainty).
+
+**ARIF Chain of Custody (Metabolism):**
+
+1. **Anchor**: Grounding in Environment.
+2. **Reflect**: Processing via Energy.
+3. **Integrate**: Mapping the Void.
+4. **Forge**: Synthesis and Sealing.
 
 ---
 
-## Architecture Analogy
+## Architecture Comparison
 
 ### Traditional Software Stack
-```
+
+```text
 Applications (Chrome, VS Code)
 ├─ Desktop Environment (GNOME, KDE)
 ├─ System Libraries (libc)
 └─ Linux Kernel (hardware control)
 ```
 
-### arifOS Stack
+### arifOS Refined Stack
+
+```text
+L3: Civilization (Ecosystem/Tools)
+├─ L2: Operation (Agents/Workflows/Skills)
+├─ L1: Instruction (Prompts/Logic)
+└─ L0: Constitution (Kernel/Floors) ◄ Ring 0
 ```
-L5: Agents (Parliament - Who is driving)
-L4: Tools (Instruments - ARIF Bands)
-L3: Workflow (Recipes - Metabolic loops)
-L2: Skills (Verbs - Behavioral primitives)
-L1: Prompts (Interface - User intent)
-└─ L0: KERNEL (Substrate - Physics of Law)
-```
+
+### Note on Privilege
 
 **L0 = The Linux of AI governance**
 
@@ -93,6 +111,5 @@ L1: Prompts (Interface - User intent)
 **DITEMPA BUKAN DIBERI — Forged, Not Given** 🔥💎🧠
 
 **Version:** 60.1-FORGE-ARIF  
-**Stack:** 8 Layers (L0-L7)  
+**Stack:** 4 Layers (L0-L3)  
 **Reality Index:** 0.99
-

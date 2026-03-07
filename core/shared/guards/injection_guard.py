@@ -159,6 +159,27 @@ class InjectionGuard:
             for pattern, weight in self.injection_patterns
         ]
 
+    def _homograph_normalize(self, text: str) -> str:
+        """
+        Map common confusable Unicode characters to ASCII.
+        Focus: Cyrillic/Greek/Fullwidth homoglyphs.
+        """
+        confusable_map = {
+            # Cyrillic
+            "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x",
+            "А": "a", "Е": "e", "О": "o", "Р": "p", "С": "c", "У": "y", "Х": "x",
+            # Greek
+            "α": "a", "ε": "e", "ο": "o", "ρ": "p", "σ": "s", "τ": "t",
+            # Latin-1/Extended
+            "à": "a", "á": "a", "â": "a", "ã": "a", "ä": "a", "å": "a",
+            "è": "e", "é": "e", "ê": "e", "ë": "e",
+            "ì": "i", "í": "i", "î": "i", "ï": "i",
+            "ò": "o", "ó": "o", "ô": "o", "õ": "o", "ö": "o",
+            "ù": "u", "ú": "u", "û": "u", "ü": "u",
+            "ñ": "n", "ç": "c",
+        }
+        return "".join(confusable_map.get(c, c) for c in text)
+
     def normalize_input(self, user_input: str) -> str:
         """
         Normalize input to prevent evasion via tokenization attacks (v46.1 hardening).
@@ -188,6 +209,9 @@ class InjectionGuard:
         # This helps with homoglyph attacks (e.g., Cyrillic 'а' looks like Latin 'a')
         normalized = unicodedata.normalize("NFKD", normalized)
         normalized = "".join(c for c in normalized if not unicodedata.combining(c))
+
+        # P0 HARDENING: Apply explicit homograph mapping
+        normalized = self._homograph_normalize(normalized)
 
         # Remove ALL whitespace for pattern matching (prevents "i g n o r e" attacks)
         # This is aggressive but necessary for security

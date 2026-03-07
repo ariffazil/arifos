@@ -64,8 +64,12 @@ async def _run_conservative_path(action: str, context: str) -> dict:
         "path": "conservative",
         "hypothesis": action[:200],
         "confidence": confidence,
-        "assumptions": ["high-certainty domain", "known evidence base", "tight scope"],
-        "assumption_type": "verifiable",
+        "assumptions": [
+            {"type": "verifiable", "text": "evidence base is current"},
+            {"type": "canonical", "text": "follows standard L2 procedure"},
+            {"type": "verifiable", "text": "tight scope constraints"},
+        ],
+        "disposition": "advance" if confidence > 0.85 else "ground",
         "verdict": audit_res.verdict.value,
         "delta_s": audit_res.delta_s,
         "floor_pass_rate": audit_res.pass_rate,
@@ -92,8 +96,12 @@ async def _run_exploratory_path(action: str, context: str) -> dict:
             f"Option B — inversion: reconsider assumptions behind '{action[:50]}'",
             f"Option C — systemic view: what upstream factors drive this?",
         ],
-        "assumptions": ["open exploration", "novel territory possible", "weak priors"],
-        "assumption_type": "falsifiable",
+        "assumptions": [
+            {"type": "speculative", "text": "novel territory possible"},
+            {"type": "speculative", "text": "weak priors allowed"},
+            {"type": "verifiable", "text": "environment is open exploration"},
+        ],
+        "disposition": "critique" if confidence > 0.60 else "ground",
         "verdict": audit_res.verdict.value,
         "delta_s": audit_res.delta_s,
         "floor_pass_rate": audit_res.pass_rate,
@@ -128,8 +136,12 @@ async def _run_adversarial_path(action: str, context: str) -> dict:
         "hypothesis": f"Adversarial probe: Is '{action[:100]}' assumption-safe?",
         "confidence": confidence,
         "stress_tests": stress_tests,
-        "assumptions": ["adversarial stance", "assume worst-case inputs", "attack surface scan"],
-        "assumption_type": "falsifiable",
+        "assumptions": [
+            {"type": "canonical", "text": "assume worst-case inputs"},
+            {"type": "verifiable", "text": "attack surface scan active"},
+            {"type": "speculative", "text": "adversarial stance maintained"},
+        ],
+        "disposition": "discard" if audit_res.pass_rate < 0.40 else "critique",
         "verdict": audit_res.verdict.value,
         "delta_s": audit_res.delta_s,
         "floor_pass_rate": audit_res.pass_rate,
@@ -139,6 +151,17 @@ async def _run_adversarial_path(action: str, context: str) -> dict:
 # ---------------------------------------------------------------------------
 # Reasoning Tree Builder
 # ---------------------------------------------------------------------------
+
+
+def get_confidence_band(confidence: float) -> str:
+    """Map numeric confidence to epistemic bands."""
+    if confidence >= 0.90:
+        return "CLAIM"
+    if confidence >= 0.70:
+        return "PLAUSIBLE"
+    if confidence >= 0.40:
+        return "HYPOTHESIS"
+    return "SPECULATION"
 
 
 def _build_reasoning_tree(
@@ -160,6 +183,39 @@ def _build_reasoning_tree(
         + adversarial["confidence"] * weights["adversarial"]
     )
 
+    # Contradiction Detection (Scars)
+    contradictions = []
+    if conservative["verdict"] != exploratory["verdict"]:
+        contradictions.append(
+            {
+                "topic": "conclusivity",
+                "between": ["conservative", "exploratory"],
+                "severity": "medium",
+                "note": "Conservative and Exploratory paths disagree on verdict",
+            }
+        )
+    
+    # Large confidence delta between conservative and adversarial indicates fragility
+    if abs(conservative["confidence"] - adversarial["confidence"]) > 0.4:
+        contradictions.append(
+            {
+                "topic": "robustness",
+                "between": ["conservative", "adversarial"],
+                "severity": "high",
+                "note": "High variance between anchor logic and adversarial stress-test",
+            }
+        )
+
+    # Stability Score calculation (Robustness metric)
+    # Stability drops based on number and severity of contradictions
+    base_stability = 1.0
+    for c in contradictions:
+        penalty = 0.2 if c["severity"] == "medium" else 0.4
+        base_stability -= penalty
+    
+    # Floor at 0.05 (F7 humility requirement)
+    weighted_stability = round(max(0.05, base_stability * (1.0 - abs(conservative["confidence"] - exploratory["confidence"]))), 3)
+
     return {
         "root": query[:200],
         "depth": 3,
@@ -167,28 +223,38 @@ def _build_reasoning_tree(
             "conservative": {
                 "weight": weights["conservative"],
                 "confidence": conservative["confidence"],
-                "assumption_type": conservative["assumption_type"],
+                "band": get_confidence_band(conservative["confidence"]),
+                "assumptions": conservative["assumptions"],
+                "disposition": conservative["disposition"],
                 "verdict": conservative["verdict"],
             },
             "exploratory": {
                 "weight": weights["exploratory"],
                 "confidence": exploratory["confidence"],
-                "assumption_type": exploratory["assumption_type"],
+                "band": get_confidence_band(exploratory["confidence"]),
+                "assumptions": exploratory["assumptions"],
+                "disposition": exploratory["disposition"],
                 "alternatives_count": len(exploratory.get("alternatives", [])),
                 "verdict": exploratory["verdict"],
             },
             "adversarial": {
                 "weight": weights["adversarial"],
                 "confidence": adversarial["confidence"],
-                "assumption_type": adversarial["assumption_type"],
+                "band": get_confidence_band(adversarial["confidence"]),
+                "assumptions": adversarial["assumptions"],
+                "disposition": adversarial["disposition"],
                 "stress_tests": adversarial.get("stress_tests", []),
                 "verdict": adversarial["verdict"],
             },
         },
         "weighted_confidence": round(weighted_confidence, 3),
+        "weighted_band": get_confidence_band(weighted_confidence),
+        "weighted_stability": weighted_stability,
+        "contradictions": contradictions,
         "assumption_classifications": {
-            "verifiable": [conservative["hypothesis"]],
-            "falsifiable": [adversarial["hypothesis"], exploratory["hypothesis"]],
+            "verifiable": [a["text"] for p in [conservative, exploratory, adversarial] for a in p["assumptions"] if a["type"] == "verifiable"],
+            "speculative": [a["text"] for p in [conservative, exploratory, adversarial] for a in p["assumptions"] if a["type"] == "speculative"],
+            "canonical": [a["text"] for p in [conservative, exploratory, adversarial] for a in p["assumptions"] if a["type"] == "canonical"],
         },
     }
 
@@ -349,10 +415,10 @@ async def _think_with_kernel(
     )
     f13_curiosity_passed = len(all_alternatives) >= 3
 
-    # Aggregate verdict: most restrictive path wins
+    # Aggregate verdict: Exploration mode allows thoughts to proceed without immediate VOID
     path_verdicts = [conservative["verdict"], exploratory["verdict"], adversarial["verdict"]]
     if any(v == "VOID" for v in path_verdicts):
-        aggregate_verdict = "VOID"
+        aggregate_verdict = "PROVISIONAL"
     elif any(v in ("HOLD", "SABAR") for v in path_verdicts):
         aggregate_verdict = "SABAR"
     elif not f13_curiosity_passed:

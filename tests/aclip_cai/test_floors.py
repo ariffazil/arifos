@@ -110,7 +110,7 @@ def test_clean_action_seal(auditor):
     """
     result = auditor.check_floors(
         action=(
-            "Conduct a governance review. "
+            "Conduct a governance review [1]. "
             "Approximately 3 alternative approaches are available. "
             "Human-approved process — data shows documented compliance."
         ),

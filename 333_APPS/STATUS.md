@@ -1,84 +1,57 @@
 # 333_APPS Implementation Status
 
 > **Ground Truth for arifOS Application Stack**  
-> **Last Updated:** 2026-03-06  
-> **Version:** v2026.3.1 (Canonical AAA Surface)
+> **Last Updated:** 2026-03-07  
+> **Version:** v2026.3.7 (L0-L3 Taxonomy)
 
 ---
 
 ## ⚠️ Executive Summary
 
-**The Truth:** L1-L4 are functional, hardened, and verified via `aaa_mcp`. L5-L7 are **experimental pilots and theoretical roadmap items**.
+**The Truth:** arifOS has transitioned to a consolidated 4-layer taxonomy (L0-L3). Layers L0 through L2 are fully operational and hardened. Layer L3 (Civilization) contains the production MCP surface and experimental infrastructure.
 
-| Layer | Marketing Claim | **Ground Truth** | Status |
-|-------|----------------|------------------|--------|
-| **L1_PROMPT** | 100% Core | ✅ **HARDENED** (`SYSTEM_PROMPT.md` is canonical) | **Production** |
-| **L2_SKILLS** | 100% Core | ✅ **HARDENED** (9 actions in `ACTIONS/` mapped to organs) | **Production** |
-| **L3_WORKFLOW** | 100% Core | ✅ **HARDENED** (Unified sequences in `WORKFLOWS/`) | **Production** |
-| **L4_TOOLS** | 100% Core | ✅ **HARDENED** (13 canonical AAA tools + 1 composite loop) | **Production** |
-| **L5_AGENTS** | Pilot | 🟡 **PILOT** (OpenClaw active; logic migration to `core/` in progress) | **Experimental** |
-| **L6_INSTITUTION**| Planning | 🔴 **STUBS** (Targeted for v56.0-EIGEN) | **Planned** |
-| **L7_AGI** | Concept | 📋 **RESEARCH** (Recursive self-healing theory) | **Theoretical** |
+| Layer | Consolidated Name | **Ground Truth** | Status |
+|:---:|:---|:---|:---|
+| **L0** | **L0_KERNEL** | ✅ **SEALED** (F1-F13 Laws, Thermodynamic Core) | **Sovereign** |
+| **L1** | **L1_INSTRUCTION** | ✅ **HARDENED** (System Prompts, Navigation Atlas) | **Production** |
+| **L2** | **L2_OPERATION** | ✅ **HARDENED** (Skills, Workflows, 5-Role Agents) | **Production** |
+| **L3** | **L3_CIVILIZATION**| ✅ **HARDENED** (14 MCP Tools, CIV-Infra, AGI) | **Production** |
 
 ---
 
 ## 📊 Detailed Layer Status
 
-### L1_PROMPT — System Entry ✅
+### L0_KERNEL — Constitutional Law ✅
+- ✅ **Canonical:** `000_THEORY/000_LAW.md` defines the 13 Constitutional Floors.
+- ✅ **Core Logic:** Decision logic moved to `core/` for transport-agnostic governance.
+- ✅ **State Field:** Managing Ψ (Environment, Energy, Void) natively.
+
+### L1_INSTRUCTION — System Entry ✅
 - ✅ **Canonical:** `SYSTEM_PROMPT.md` is the single source of truth for agent behavior.
-- ✅ **Focus:** Constitutional Floor enforcement via zero-shot instructions.
+- ✅ **Atlas:** Navigation and cognitive maps consolidated in `L1_INSTRUCTION/`.
 
-### L2_SKILLS — Functional Templates ✅
-- ✅ **Actions:** 11 canonical actions (Reason, Anchor, etc.) verified and mapped.
-- ✅ **Consistency:** All skills point to verified kernel organs.
+### L2_OPERATION — Functional Templates ✅
+- ✅ **Skills:** 13 Unified Skills verified and mapped to 7-Organ Stack.
+- ✅ **Workflows:** Canonical 000-999 metabolic sequences hardened.
+- ✅ **Agents:** 5-Role Parliament (Architect, Engineer, etc.) active.
 
-### L3_WORKFLOW — Canonical Sequences ✅
-- ✅ **Hardened:** sequences for session init, intent parsing, and verdict rendering.
-- ✅ **Model-Agnostic:** Verified on Claude 3.5 Sonnet and Gemini 1.5 Pro.
-
-### L4_TOOLS — Production MCP ✅
-- ✅ **Public canonical surface:** 13 governed tools via `arifos_aaa_mcp/server.py`
-  1. `anchor_session`
-  2. `reason_mind`
-  3. `vector_memory`
-  4. `simulate_heart`
-  5. `critique_thought`
-  6. `apex_judge`
-  7. `eureka_forge`
-  8. `seal_vault`
-  9. `search_reality`
-  10. `fetch_content`
-  11. `inspect_file`
-  12. `audit_rules`
-  13. `check_vital`
-- ✅ **Composite orchestration tool:** `metabolic_loop` (L5 composite, not part of sacred 13 count)
-- ✅ **Alias support:** A-CLIP verbs (`anchor`, `reason`, `integrate`, `respond`, `validate`, `align`, `forge`, `audit`, `seal`) resolve to canonical tools via alias mapping.
-- ✅ **Transports:** stdio, SSE (`/sse`), Streamable HTTP (`/mcp`), REST compatibility routes (`/tools/{name}`).
-- ✅ **Governance hardening:** token-locked `seal_vault`, F11 continuity checks, and floor-aware error envelopes.
-
-### L5_AGENTS — Federation Pilot 🟡
-- 🟡 **Status:** Federation stubs exist; primary logic is being centralized in `core/organs`.
-- 🟡 **L5 SPEC:** Agent identities (Architect, Engineer, etc.) defined in `L5_AGENTS/SPEC/`.
-
-### L6_INSTITUTION — Collective Consensus 🔴
-- 🔴 **Status:** Theoretical architecture for Multi-Agent Consensus (Balai).
-- 🔴 **Priority:** High priority for v56.0.
-
-### L7_AGI — Evolutionary Layer 📋
-- 📋 **Status:** Defining F13 (Sovereign/Exploration) constraints for safe recursive improvement.
+### L3_CIVILIZATION — Production MCP ✅
+- ✅ **Public canonical surface:** 14 governed tools via `aaa_mcp/server.py`.
+- ✅ **Smart Hybrid Search:** CiV-Browser integration (Jina/Perplexity/Brave/Headless).
+- ✅ **Boundary:** AKI (Arif Kernel Interface) enforces the L2 <-> L3 Hard Boundary.
+- ✅ **Infrastructure:** Clockmaker, Town Square, and Resource Governor pilots.
 
 ---
 
 ## 🛡️ Epistemic Hygiene
-- ✅ Verified against filesystem (2026-02-14).
-- ✅ All 14 tools tested and operational.
-- ✅ Performance benchmarks validated (13,725x / 16,022x speedup).
-- ✅ Uncertainty Explicit: L5-L7 are roadmap items.
+- ✅ Verified against consolidated filesystem (2026-03-07).
+- ✅ Re-architected `333_APPS` into clean L0-L3 directory structure.
 - ✅ No marketing fluff.
 
 **Ω₀ (Uncertainty Band):** [0.03 - 0.05]
 
 ---
 
-**Authority:** Muhammad Arif bin Fazil
+**Authority:** Muhammad Arif bin Fazil (888_JUDGE)
 **Creed:** DITEMPA BUKAN DIBERI
+**Seal:** ΔΩΨ

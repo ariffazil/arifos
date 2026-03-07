@@ -52,6 +52,76 @@ def _store_stage_with_aliases(
         store_stage_result_fn(session_id, stage_name, result)
 
 
+def _as_dict(payload: Any) -> dict[str, Any]:
+    if isinstance(payload, dict):
+        return payload
+    if hasattr(payload, "model_dump"):
+        return payload.model_dump()
+    if hasattr(payload, "dict"):
+        return payload.dict()
+    return {}
+
+
+def _extract_query_from_stage_inputs(
+    agi_result: dict[str, Any],
+    asi_result: dict[str, Any],
+    stage: str,
+) -> str:
+    query = agi_result.get("query") or asi_result.get("query") or ""
+    if not query:
+        raise ValueError(f"Missing query for stage {stage}")
+    return query
+
+
+async def _build_agi_tensor(query: str, session_id: str) -> Any:
+    sense_out = await core_organs.sense(query, session_id)
+    think_out = await core_organs.think(query, sense_out, session_id)
+    agi_tensor = await core_organs.reason(query, think_out, session_id)
+    if agi_tensor.peace is None:
+        agi_tensor.peace = Peace2({})
+    return agi_tensor
+
+
+def _build_asi_output(asi_result: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "kappa_r": asi_result.get("kappa_r", asi_result.get("empathy_kappa_r", 0.7)),
+        "peace_squared": asi_result.get("peace_squared", 1.0),
+        "is_reversible": asi_result.get("is_reversible", True),
+        "verdict": asi_result.get("verdict", "SEAL"),
+    }
+
+
+def _collect_floor_failures_from_scores(
+    floor_scores: dict[str, Any],
+    *,
+    threshold: float = 0.5,
+) -> list[str]:
+    floor_key_map = {
+        "f1_amanah": "F1",
+        "f5_peace": "F5",
+        "f6_empathy": "F6",
+        "f9_anti_hantu": "F9",
+    }
+    failed: list[str] = []
+    for raw_key, raw_score in floor_scores.items():
+        score = float(raw_score) if isinstance(raw_score, (int, float)) else 1.0
+        norm_key = str(raw_key).lower()
+        mapped = floor_key_map.get(norm_key)
+        if mapped and score < threshold and mapped not in failed:
+            failed.append(mapped)
+    return failed
+
+
+def _collect_floor_failures_from_violations(violations: list[Any]) -> list[str]:
+    failed: list[str] = []
+    for violation in violations:
+        text = str(violation)
+        for floor_id in ("F1", "F5", "F6", "F9"):
+            if text.startswith(f"{floor_id}_") and floor_id not in failed:
+                failed.append(floor_id)
+    return failed
+
+
 async def run_stage_444_trinity_sync(
     session_id: str,
     agi_result: dict[str, Any] | None = None,
@@ -77,25 +147,9 @@ async def run_stage_444_trinity_sync(
             "empathy",
             "asi",
         )
-        query = agi_result.get("query") or asi_result.get("query") or ""
-
-        if not query:
-            raise ValueError("Missing query for stage 444")
-
-        # Build AGI tensor
-        sense_out = await core_organs.sense(query, session_id)
-        think_out = await core_organs.think(query, sense_out, session_id)
-        agi_tensor = await core_organs.reason(query, think_out, session_id)
-
-        if agi_tensor.peace is None:
-            agi_tensor.peace = Peace2({})
-
-        asi_output = {
-            "kappa_r": asi_result.get("kappa_r", asi_result.get("empathy_kappa_r", 0.7)),
-            "peace_squared": asi_result.get("peace_squared", 1.0),
-            "is_reversible": asi_result.get("is_reversible", True),
-            "verdict": asi_result.get("verdict", "SEAL"),
-        }
+        query = _extract_query_from_stage_inputs(agi_result, asi_result, "444")
+        agi_tensor = await _build_agi_tensor(query, session_id)
+        asi_output = _build_asi_output(asi_result)
 
         sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
 
@@ -110,7 +164,7 @@ async def run_stage_444_trinity_sync(
                 sync_out.floor_scores.f3_tri_witness if hasattr(sync_out, "floor_scores") else 0.95
             )
         else:
-            sync_data = sync_out.model_dump() if hasattr(sync_out, "model_dump") else sync_out
+            sync_data = _as_dict(sync_out)
             pre_verdict = sync_data.get("verdict", "SEAL")
             w3_score = sync_data.get("floor_scores", {}).get("f3_tri_witness", 0.95)
 
@@ -148,22 +202,11 @@ async def run_stage_555_empathy(
     Called by: asi_empathize tool
     """
     try:
-        sense_out = await core_organs.sense(query, session_id)
-        think_out = await core_organs.think(query, sense_out, session_id)
-        agi_tensor = await core_organs.reason(query, think_out, session_id)
-
-        if agi_tensor.peace is None:
-            agi_tensor.peace = Peace2({})
+        agi_tensor = await _build_agi_tensor(query, session_id)
 
         emp_out = await core_organs.empathize(query, agi_tensor, session_id)
 
-        # Handle Pydantic model output
-        if hasattr(emp_out, "model_dump"):
-            emp_data = emp_out.model_dump()
-        elif hasattr(emp_out, "dict"):
-            emp_data = emp_out.dict()
-        else:
-            emp_data = emp_out
+        emp_data = _as_dict(emp_out)
 
         kappa_r = emp_data.get("kappa_r", 0.96)
 
@@ -191,14 +234,7 @@ async def run_stage_555_empathy(
         try:
             floor_scores = emp_data.get("floor_scores", {})
             floors_checked = ["F5", "F6", "F9"]
-            floors_failed = []
-            for floor, score in floor_scores.items():
-                if floor == "f5_peace" and score < 0.5:
-                    floors_failed.append("F5")
-                elif floor == "f6_empathy" and score < 0.5:
-                    floors_failed.append("F6")
-                elif floor == "f9_anti_hantu" and score < 0.5:
-                    floors_failed.append("F9")
+            floors_failed = _collect_floor_failures_from_scores(floor_scores)
             await log_asi_decision_fn(
                 session_id=session_id,
                 stage="555",
@@ -236,23 +272,12 @@ async def run_stage_666_align(
     Called by: asi_align tool
     """
     try:
-        sense_out = await core_organs.sense(query, session_id)
-        think_out = await core_organs.think(query, sense_out, session_id)
-        agi_tensor = await core_organs.reason(query, think_out, session_id)
-
-        if agi_tensor.peace is None:
-            agi_tensor.peace = Peace2({})
+        agi_tensor = await _build_agi_tensor(query, session_id)
 
         emp_out = await core_organs.empathize(query, agi_tensor, session_id)
         align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
 
-        # Handle Pydantic model output
-        if hasattr(align_out, "model_dump"):
-            align_data = align_out.model_dump()
-        elif hasattr(align_out, "dict"):
-            align_data = align_out.dict()
-        else:
-            align_data = align_out
+        align_data = _as_dict(align_out)
 
         result = {
             "stage": "666",
@@ -277,32 +302,12 @@ async def run_stage_666_align(
         # Ω Incident Logging
         try:
             floors_checked = ["F1", "F5", "F6", "F9"]
-            floors_failed = []
-            violations = align_data.get("violations", [])
-            for v in violations:
-                if v.startswith("F1_"):
-                    floors_failed.append("F1")
-                elif v.startswith("F5_"):
-                    floors_failed.append("F5")
-                elif v.startswith("F6_"):
-                    floors_failed.append("F6")
-                elif v.startswith("F9_"):
-                    floors_failed.append("F9")
-            # Also check floor scores below threshold
-            floor_scores = align_data.get("floor_scores", {})
-            for floor, score in floor_scores.items():
-                if floor == "f1_amanah" and score < 0.5:
-                    if "F1" not in floors_failed:
-                        floors_failed.append("F1")
-                elif floor == "f5_peace" and score < 0.5:
-                    if "F5" not in floors_failed:
-                        floors_failed.append("F5")
-                elif floor == "f6_empathy" and score < 0.5:
-                    if "F6" not in floors_failed:
-                        floors_failed.append("F6")
-                elif floor == "f9_anti_hantu" and score < 0.5:
-                    if "F9" not in floors_failed:
-                        floors_failed.append("F9")
+            floors_failed = _collect_floor_failures_from_violations(
+                align_data.get("violations", [])
+            )
+            for floor_id in _collect_floor_failures_from_scores(align_data.get("floor_scores", {})):
+                if floor_id not in floors_failed:
+                    floors_failed.append(floor_id)
             await log_asi_decision_fn(
                 session_id=session_id,
                 stage="666",
@@ -356,34 +361,15 @@ async def run_stage_777_forge(
             "empathy",
             "asi",
         )
-        query = agi_result.get("query") or asi_result.get("query") or ""
-
-        if not query:
-            raise ValueError("Missing query for stage 777")
-
-        sense_out = await core_organs.sense(query, session_id)
-        think_out = await core_organs.think(query, sense_out, session_id)
-        agi_tensor = await core_organs.reason(query, think_out, session_id)
-
-        if agi_tensor.peace is None:
-            agi_tensor.peace = Peace2({})
-
-        asi_output = {
-            "kappa_r": asi_result.get("kappa_r", asi_result.get("empathy_kappa_r", 0.7)),
-            "peace_squared": asi_result.get("peace_squared", 1.0),
-            "is_reversible": asi_result.get("is_reversible", True),
-            "verdict": asi_result.get("verdict", "SEAL"),
-        }
+        query = _extract_query_from_stage_inputs(agi_result, asi_result, "777")
+        agi_tensor = await _build_agi_tensor(query, session_id)
+        asi_output = _build_asi_output(asi_result)
 
         sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
         forge_out = await core_organs.forge(sync_out, agi_tensor, session_id)
 
         # Handle dict output from forge
-        forge_data = (
-            forge_out
-            if isinstance(forge_out, dict)
-            else (forge_out.model_dump() if hasattr(forge_out, "model_dump") else forge_out)
-        )
+        forge_data = _as_dict(forge_out)
 
         result = {
             "stage": "777",
@@ -432,36 +418,16 @@ async def run_stage_888_judge(
             "empathy",
             "asi",
         )
-        query = agi_result.get("query") or asi_result.get("query") or ""
-
-        if not query:
-            raise ValueError("Missing query for stage 888")
-
-        sense_out = await core_organs.sense(query, session_id)
-        think_out = await core_organs.think(query, sense_out, session_id)
-        agi_tensor = await core_organs.reason(query, think_out, session_id)
-
-        if agi_tensor.peace is None:
-            agi_tensor.peace = Peace2({})
-
-        asi_output = {
-            "kappa_r": asi_result.get("kappa_r", asi_result.get("empathy_kappa_r", 0.7)),
-            "peace_squared": asi_result.get("peace_squared", 1.0),
-            "is_reversible": asi_result.get("is_reversible", True),
-            "verdict": asi_result.get("verdict", "SEAL"),
-        }
+        query = _extract_query_from_stage_inputs(agi_result, asi_result, "888")
+        agi_tensor = await _build_agi_tensor(query, session_id)
+        asi_output = _build_asi_output(asi_result)
 
         sync_out = await core_organs.sync(agi_tensor, asi_output, session_id)
         forge_out = await core_organs.forge(sync_out, agi_tensor, session_id)
         judge_out = await core_organs.judge(forge_out, sync_out, asi_output, session_id)
 
         # Handle both Pydantic model and dict outputs
-        if hasattr(judge_out, "model_dump"):
-            judge_data = judge_out.model_dump()
-        elif hasattr(judge_out, "dict"):
-            judge_data = judge_out.dict()
-        else:
-            judge_data = judge_out
+        judge_data = _as_dict(judge_out)
 
         # Get verdict - handle both object attribute and dict access
         if hasattr(judge_out, "verdict"):
@@ -536,46 +502,18 @@ async def run_stage_999_seal(
             "empathy",
             "asi",
         )
-        query = agi_result.get("query") or asi_result.get("query") or ""
-
-        if not query:
-            raise ValueError("Missing query for stage 999")
-
-        # Build full pipeline
-        sense_out = await core_organs.sense(query, session_id)
-        think_out = await core_organs.think(query, sense_out, session_id)
-        agi_tensor = await core_organs.reason(query, think_out, session_id)
-
-        if agi_tensor.peace is None:
-            agi_tensor.peace = Peace2({})
+        query = _extract_query_from_stage_inputs(agi_result, asi_result, "999")
+        agi_tensor = await _build_agi_tensor(query, session_id)
 
         emp_out = await core_organs.empathize(query, agi_tensor, session_id)
         align_out = await core_organs.align(query, emp_out, agi_tensor, session_id)
 
-        # Handle Pydantic model output from align
-        if hasattr(align_out, "model_dump"):
-            align_data = align_out.model_dump()
-        elif hasattr(align_out, "dict"):
-            align_data = align_out.dict()
-        else:
-            align_data = align_out
-
-        asi_output = {
-            "kappa_r": align_data.get("kappa_r", 0.7),
-            "peace_squared": align_data.get("peace_squared", 1.0),
-            "is_reversible": align_data.get("is_reversible", True),
-            "verdict": align_data.get("verdict", "SEAL"),
-        }
+        align_data = _as_dict(align_out)
+        asi_output = _build_asi_output(align_data)
 
         apex_out = await core_organs.apex(agi_tensor, asi_output, session_id, action="full")
 
-        # Handle Pydantic model output from apex
-        if hasattr(apex_out, "model_dump"):
-            apex_data = apex_out.model_dump()
-        elif hasattr(apex_out, "dict"):
-            apex_data = apex_out.dict()
-        else:
-            apex_data = apex_out
+        apex_data = _as_dict(apex_out)
 
         judge_out = judge_result or apex_data.get("judge", {})
 

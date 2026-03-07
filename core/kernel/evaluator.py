@@ -13,6 +13,23 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+try:
+    from core.shared.floors import get_floor_classes, get_floor_comparator, get_floor_threshold
+
+    _FLOOR_CLASSES = get_floor_classes()
+except Exception:
+    _FLOOR_CLASSES = {
+        "hard": {"F1", "F2", "F4", "F7", "F10", "F11", "F12", "F13"},
+        "soft": {"F3", "F5", "F6", "F8", "F9"},
+        "derived": {"F3", "F8"},
+    }
+
+    def get_floor_threshold(_floor_id: str) -> float:
+        return 0.0
+
+    def get_floor_comparator(_floor_id: str) -> str:
+        return ">="
+
 # ─── Floor Classification ───────────────────────────────────────────────────
 
 # Mandatory floors run on EVERY evaluation (the "immune system").
@@ -26,10 +43,10 @@ POST_FLOORS: set[str] = {"F2", "F3", "F4", "F7", "F8", "F9", "F10"}
 
 # Hard floors: failure -> VOID (block)
 # F4 (Clarity/ΔS) is hard: entropy must decrease. Confusion increase = hard fail.
-HARD_FLOORS: set[str] = {"F1", "F2", "F4", "F7", "F10", "F11", "F12", "F13"}
+HARD_FLOORS: set[str] = set(_FLOOR_CLASSES.get("hard", set()))
 
 # Soft/Derived floors: failure -> PARTIAL (warn)
-SOFT_FLOORS: set[str] = {"F3", "F5", "F6", "F8", "F9"}
+SOFT_FLOORS: set[str] = set(_FLOOR_CLASSES.get("soft", set()))
 
 
 class ConstitutionalEvaluator:
@@ -80,6 +97,10 @@ class ConstitutionalEvaluator:
 
     def check_floor(self, floor_id: str, context: dict[str, Any]) -> dict[str, Any]:
         """Run a single floor check."""
+        threshold = get_floor_threshold(floor_id)
+        comparator = get_floor_comparator(floor_id)
+        floor_type = "HARD" if floor_id in HARD_FLOORS else "SOFT"
+
         floor = self._get_floor(floor_id)
         if floor is None:
             return {
@@ -87,6 +108,9 @@ class ConstitutionalEvaluator:
                 "passed": False,
                 "score": 0.0,
                 "reason": "Floor unavailable (fail-closed)",
+                "threshold": threshold,
+                "comparator": comparator,
+                "type": floor_type,
             }
 
         try:
@@ -96,6 +120,9 @@ class ConstitutionalEvaluator:
                 "passed": result.passed,
                 "score": result.score,
                 "reason": result.reason,
+                "threshold": threshold,
+                "comparator": comparator,
+                "type": floor_type,
             }
         except Exception as e:
             logger.error(f"Floor {floor_id} check error: {e}")
@@ -104,6 +131,9 @@ class ConstitutionalEvaluator:
                 "passed": False,
                 "score": 0.0,
                 "reason": f"Floor check error (fail-closed): {e}",
+                "threshold": threshold,
+                "comparator": comparator,
+                "type": floor_type,
             }
 
     def build_pre_context(

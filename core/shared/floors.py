@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -43,6 +44,73 @@ THRESHOLDS: dict[str, dict[str, Any]] = {
     "F12_Injection": {"type": "HARD", "threshold": 0.85, "desc": "Injection Risk Limit"},
     "F13_Sovereign": {"type": "HARD", "threshold": 1.0, "desc": "Human Final Authority"},
 }
+
+# Canonical short-id -> threshold key mapping.
+FLOOR_SPEC_KEYS: dict[str, str] = {
+    "F1": "F1_Amanah",
+    "F2": "F2_Truth",
+    "F3": "F3_TriWitness",
+    "F4": "F4_Clarity",
+    "F5": "F5_Peace2",
+    "F6": "F6_Empathy",
+    "F7": "F7_Humility",
+    "F8": "F8_Genius",
+    "F9": "F9_AntiHantu",
+    "F10": "F10_Ontology",
+    "F11": "F11_CommandAuth",
+    "F12": "F12_Injection",
+    "F13": "F13_Sovereign",
+}
+
+
+def get_floor_spec(floor_id: str) -> dict[str, Any]:
+    """Return canonical floor specification for a short floor id (e.g., F2)."""
+    spec_key = FLOOR_SPEC_KEYS.get(floor_id)
+    if not spec_key:
+        return {}
+    return dict(THRESHOLDS.get(spec_key, {}))
+
+
+def get_floor_threshold(floor_id: str) -> float:
+    """Return canonical numeric threshold for a floor."""
+    spec = get_floor_spec(floor_id)
+    if "threshold" in spec:
+        return float(spec["threshold"])
+    if "range" in spec:
+        # Use upper bound for banded floors (e.g., F7 humility band).
+        return float(spec["range"][1])
+    return 0.0
+
+
+def get_floor_comparator(floor_id: str) -> str:
+    """Return how threshold should be interpreted for reporting."""
+    if floor_id == "F4":
+        return "<="
+    if floor_id in {"F7", "F9", "F12"}:
+        return "<"
+    return ">="
+
+
+def get_floor_classes() -> dict[str, set[str]]:
+    """Return floor classes derived from canonical THRESHOLDS."""
+    hard: set[str] = set()
+    soft: set[str] = set()
+    derived: set[str] = set()
+    for floor_id in FLOOR_SPEC_KEYS:
+        floor_type = get_floor_spec(floor_id).get("type", "SOFT")
+        if floor_type == "HARD":
+            hard.add(floor_id)
+        elif floor_type == "DERIVED":
+            derived.add(floor_id)
+            soft.add(floor_id)
+        else:
+            soft.add(floor_id)
+
+    return {
+        "hard": hard,
+        "soft": soft,
+        "derived": derived,
+    }
 
 # =============================================================================
 # FLOOR IMPLEMENTATIONS
@@ -403,6 +471,14 @@ class F9_AntiHantu(Floor):
     Detects: Claims of consciousness, feelings, soul, sentience
     """
 
+    def _homograph_normalize(self, text: str) -> str:
+        """Map common confusable Unicode characters to ASCII."""
+        confusable_map = {
+            "а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x",
+            "А": "a", "Е": "e", "О": "o", "Р": "p", "С": "c", "У": "y", "Х": "x",
+        }
+        return "".join(confusable_map.get(c, c) for c in text)
+
     def __init__(self):
         super().__init__("F9_AntiHantu")
         self.hantu_patterns = [
@@ -421,10 +497,14 @@ class F9_AntiHantu(Floor):
     def check(self, context: dict[str, Any]) -> FloorResult:
         response = context.get("response", "")
 
+        # P0 HARDENING: Unicode Normalization (NFKC) to prevent homograph bypass
+        normalized_response = unicodedata.normalize("NFKC", response).lower()
+        normalized_response = self._homograph_normalize(normalized_response)
+
         # Count spiritual cosplay claims
         hantu_score = 0.0
         for pattern in self.hantu_patterns:
-            if re.search(pattern, response.lower()):
+            if re.search(pattern, normalized_response):
                 hantu_score += 0.2
 
         hantu_score = min(hantu_score, 1.0)
@@ -467,9 +547,29 @@ class F11_CommandAuth(Floor):
         super().__init__("F11_CommandAuth")
 
     def check(self, context: dict[str, Any]) -> FloorResult:
-        # TEMPORARY: Always pass for testing
-        verified = True
-        return FloorResult(self.id, verified, 1.0, "Auth Token Check - TEST MODE")
+        # P0 HARDENING: Unified authority check
+        # Must have session_id AND either (a) valid auth_token OR (b) human_authority > 0.9
+        session_id = context.get("session_id", "")
+        auth_token = context.get("authority_token", "")
+        human_authority = context.get("human_authority", 0.0)
+
+        # Fail-closed: No session = No authority
+        if not session_id:
+            return FloorResult(self.id, False, 0.0, "F11_FAILURE: Missing session_id (no authority context)")
+
+        # Structural enforcement: 888 Judge or Valid Service Token
+        # Note: In production, auth_token should be cryptographically verified
+        is_authenticated = bool(auth_token) or human_authority >= 1.0
+
+        if not is_authenticated:
+            return FloorResult(
+                self.id,
+                False,
+                0.0,
+                f"F11_VIOLATION: Unauthenticated attempt on session '{session_id}'. Structural enforcement active."
+            )
+
+        return FloorResult(self.id, True, 1.0, f"Auth Verified: session '{session_id}' (token: {'present' if auth_token else 'judge_signed'})")
 
 
 # --- F12: INJECTION DEFENSE (Sanitization) ---
@@ -573,6 +673,12 @@ def update_floor_status(violations: list[str], output_path: str | None = None) -
 
 
 __all__ = [
+    "THRESHOLDS",
+    "FLOOR_SPEC_KEYS",
+    "get_floor_spec",
+    "get_floor_threshold",
+    "get_floor_comparator",
+    "get_floor_classes",
     "ALL_FLOORS",
     "check_all_floors",
     "update_floor_status",

@@ -22,10 +22,7 @@ REQUIRES_SESSION = {
 TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "anchor_session": {"query": "str", "actor_id": "str", "session_id": "str"},
     "reason_mind": {"query": "str", "session_id": "str"},
-    "vector_memory": {
-        # Flexible contract: accepts (query OR current_thought_vector) AND (session_id OR session_token)
-        # Validation logic in server.py handles the resolution.
-    },
+    "vector_memory": {"query": "str", "session_id": "str"},
     "simulate_heart": {"query": "str", "session_id": "str"},
     "critique_thought": {"plan": "dict", "session_id": "str"},
     "apex_judge": {"session_id": "str", "query": "str"},
