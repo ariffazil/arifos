@@ -1,14 +1,15 @@
 # AGENTS.md — arifOS Agent Playbook
 
 **Project:** `arifOS` — Constitutional AI Governance System  
-**Package:** `arifos` | **Version:** 2026.03.07 | **Python:** >=3.12 | **License:** AGPL-3.0-only
+**Package:** `arifos` | **Version:** 2026.03.07 | **Python:** >=3.12 | **License:** AGPL-3.0-only  
+**Motto:** *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 
-> *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
+> This file guides AI coding agents working in this repository. When sources conflict, instruction precedence is:  
+> 1) `AGENTS.md` (this file)  
+> 2) `CLAUDE.md` (repo root)  
+> 3) `.github/copilot-instructions.md` (derivative guidance)
 
-This file guides AI coding agents working in this repository. When sources conflict, instruction precedence is:  
-1) `AGENTS.md` (this file)  
-2) `CLAUDE.md` (repo root)  
-3) `.github/copilot-instructions.md` (derivative guidance)
+---
 
 ## Persistent Context Policy (Future-Agent Lock)
 
@@ -27,7 +28,7 @@ arifOS is the world's first production-grade Constitutional AI Governance System
 ### Core Concept
 - **What it is:** A constitutional decision kernel that governs tool execution for LLMs via MCP
 - **What it isn't:** Not a model, not an agent, not a chatbot
-- **What it guarantees:** A hardened L2-L5 stack with no irreversible action without explicit human approval
+- **What it guarantees:** A hardened L0-L3 stack with no irreversible action without explicit human approval
 
 ### The 13 Constitutional Floors (F1-F13)
 
@@ -35,11 +36,11 @@ arifOS is the world's first production-grade Constitutional AI Governance System
 |:---|:---|:---:|:---|:---|
 | F1 | Amanah | HARD | LOCKED | Block irreversible actions |
 | F2 | Truth | HARD | τ ≥ 0.99 | Factual fidelity |
-| F3 | Tri-Witness | MIRROR | W³ ≥ 0.95 | Human × AI × Earth consensus |
+| F3 | Quad-Witness | MIRROR | W⁴ ≥ 0.75 | Human × AI × Earth × Verifier consensus (BFT) |
 | F4 | Clarity | HARD | ΔS ≤ 0 | Entropy reduction |
 | F5 | Peace² | SOFT | P² ≥ 1.0 | Non-destructive power |
 | F6 | Empathy | SOFT | κᵣ ≥ 0.70 | Protect weakest stakeholder |
-| F7 | Humility | HARD | Ω₀ ∈ [0.03, 0.05] | Uncertainty band |
+| F7 | Humility | HARD | Ω₀ ∈ [0.03, 0.20] | Uncertainty band |
 | F8 | Genius | MIRROR | G ≥ 0.80 | Governed intelligence |
 | F9 | Anti-Hantu | SOFT | C_dark < 0.30 | No consciousness claims |
 | F10 | Ontology | WALL | BOOLEAN | Category lock |
@@ -63,6 +64,24 @@ The kernel processes decisions through three isolated engines:
 - **Ω Omega (The Heart / ASI):** Safety, Empathy, Anti-Deception (F1, F5, F6, F9)
 - **Ψ Psi (The Soul / APEX):** Final verdict, human consensus, ledger sealing
 
+### P3 Thermodynamic Hardening (Mandatory)
+
+As of version 2026.03.07, thermodynamics is **mandatory and hard-enforced**:
+
+| Aspect | Enforcement |
+|:---|:---|
+| Landauer Bound | Hard VOID on violation |
+| Entropy calculation | Shannon exact |
+| Budget tracking | Per-session Joules |
+| F4 (ΔS ≤ 0) | Hard VOID if entropy increases |
+| AGI/ASI orthogonality | Ω_ortho ≥ 0.95 required |
+| Cheap truth detection | Ratio < threshold = VOID |
+
+The physics axiom: **Truth Has a Price**
+```
+Erasing n bits requires at minimum: E ≥ n × k_B × T × ln(2)
+```
+
 ---
 
 ## Technology Stack
@@ -78,17 +97,19 @@ The kernel processes decisions through three isolated engines:
 | Category | Libraries |
 |----------|-----------|
 | ML/Embeddings | `sentence-transformers>=2.2.0`, `scikit-learn>=1.3.0` |
-| Vector DB | `chromadb>=0.5.0` |
+| Vector DB | `qdrant-client>=1.7.0` (primary), `chromadb>=0.5.0` (legacy) |
 | Database | `asyncpg>=0.29.0` (PostgreSQL) |
 | Cache | `redis>=5.0.0` |
 | Web Search | `playwright>=1.40.0`, `duckduckgo-search>=5.0.0` |
-| HTTP Client | `httpx>=0.25.0` |
+| HTTP Client | `httpx>=0.25.0`, `requests>=2.31.0` |
 | Monitoring | `prometheus-client>=0.19.0`, `psutil>=5.9.0` |
+| Crypto | `cryptography` (Ed25519 signatures) |
 
 ### Infrastructure
 - **Container:** Docker with multi-stage builds
 - **Orchestration:** Docker Compose with Traefik reverse proxy
-- **Monitoring:** Prometheus + Grafana
+- **Monitoring:** Prometheus + Grafana + OpenTelemetry
+- **Workflow:** n8n
 - **CI/CD:** GitHub Actions
 - **Deployment:** VPS (Hostinger), Cloudflare Pages for dashboard
 
@@ -99,8 +120,8 @@ The kernel processes decisions through three isolated engines:
 ### Four-Layer Architecture
 
 ```
-core/              → KERNEL: Pure decision logic, zero transport dependencies
-aclip_cai/         → INTELLIGENCE: Triad backends (Δ/Ω/Ψ) + 9-sense tools
+core/              → L0 KERNEL: Pure decision logic, zero transport dependencies
+aclip_cai/         → L1/L2 INTELLIGENCE: Triad backends (Δ/Ω/Ψ) + 9-sense tools
 aaa_mcp/           → TRANSPORT ADAPTER: FastMCP surface, protocol adapters
 arifos_aaa_mcp/    → CANONICAL PyPI PACKAGE: External entry points
 ```
@@ -110,7 +131,7 @@ arifos_aaa_mcp/    → CANONICAL PyPI PACKAGE: External entry points
 - `aaa_mcp/` has **zero** decision logic — protocol only
 - **Never** name a local module `mcp` — this shadows the external SDK
 
-### Layer Ownership Matrix (Chaos Control)
+### Layer Ownership Matrix
 
 | Layer | Owns | Must Not Own |
 |---|---|---|
@@ -118,7 +139,6 @@ arifos_aaa_mcp/    → CANONICAL PyPI PACKAGE: External entry points
 | `aclip_cai/` | Compute engines, tools, retrieval/grounding implementations | Final constitutional authority, transport registry ownership |
 | `aaa_mcp/` | MCP transport/protocol adaptation, request/response contracts | Independent floor truth source (must consume `core`) |
 | `arifos_aaa_mcp/` | Public package entrypoints and compatibility surface | Divergent governance constants from `core` |
-| `333_APPS/` | Operational guidance, skills/workflow docs, command-center assets | Canonical floor thresholds or kernel transition truth |
 
 ### Coupling Guardrails
 
@@ -126,7 +146,7 @@ arifos_aaa_mcp/    → CANONICAL PyPI PACKAGE: External entry points
 - Any fallback/visual defaults in non-core layers must be derived from `core`, not hardcoded copies.
 - Preferred dependency direction:
   - `arifos_aaa_mcp` → `aaa_mcp` → `aclip_cai` → `core`
-- Avoid reverse edges (`aclip_cai` importing `aaa_mcp`, `aaa_mcp` importing `arifos_aaa_mcp`) unless explicitly documented for compatibility and reviewed.
+- Avoid reverse edges unless explicitly documented for compatibility and reviewed.
 
 ### Key Modules
 
@@ -135,23 +155,23 @@ arifos_aaa_mcp/    → CANONICAL PyPI PACKAGE: External entry points
 | `core/governance_kernel.py` | Unified Ψ state, thermodynamics |
 | `core/shared/floors.py` | `THRESHOLDS` dict — **canonical** floor definitions |
 | `core/organs/_0_init.py` → `_4_vault.py` | 5 enforcement organs (stages 000-999) |
-| `aaa_mcp/server.py` | 13 MCP tools with `@mcp.tool()` decorators |
+| `aaa_mcp/server.py` | 13 MCP tools with `@mcp.tool()` decorators (internal) |
+| `arifos_aaa_mcp/server.py` | Canonical 13-tool MCP surface (public entry point) |
 | `aclip_cai/triad/` | Backend functions: anchor, reason, integrate, respond, validate, align, forge, audit, seal |
 | `arifos_aaa_mcp/governance.py` | 13-LAW catalog, tool-to-dial mappings |
-| `arifos_aaa_mcp/server.py` | Canonical 13-tool MCP surface (public entry point) |
 | `core/kernel/constitutional_decorator.py` | Kernel-level floor enforcement |
 
 ### Directory Layout
 
 ```
 /srv/arifOS/
-├── core/                    # Constitutional kernel (transport-agnostic)
+├── core/                    # L0 Constitutional kernel (transport-agnostic)
 │   ├── organs/              # 5-Organ stack (_0_init → _4_vault)
 │   ├── shared/              # Floors, physics, guards, types
 │   ├── kernel/              # Decorators, evaluators, constants
 │   ├── physics/             # Thermodynamics module
 │   └── tests/               # Kernel unit tests
-├── aclip_cai/               # Intelligence layer (triad backends)
+├── aclip_cai/               # L1/L2 Intelligence layer (triad backends)
 │   ├── triad/delta/         # AGI (Mind): anchor, reason, integrate
 │   ├── triad/omega/         # ASI (Heart): align, respond, validate
 │   ├── triad/psi/           # APEX (Soul): audit, forge, seal
@@ -197,21 +217,20 @@ pip install -e ".[dev]"
 ### Running the MCP Server
 
 ```bash
-# SSE mode (default, for VPS/cloud)
-python -m arifos_aaa_mcp
+# HTTP mode (default, for VPS/cloud)
+python -m arifos_aaa_mcp http
+arifos http
+
+# SSE mode
 python -m arifos_aaa_mcp sse
+arifos sse
 
 # stdio mode (for Claude Desktop, Cursor)
 python -m arifos_aaa_mcp stdio
-
-# Streamable HTTP mode
-python -m arifos_aaa_mcp http
-HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
-
-# Via canonical CLI entry point
-arifos
 arifos stdio
-arifos http
+
+# With custom host/port
+HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp http
 ```
 
 ### Docker
@@ -220,8 +239,11 @@ arifos http
 # Build and run
 docker build -t arifos . && docker run -p 8080:8080 arifos
 
-# Docker Compose (full stack with PostgreSQL, Redis, Traefik)
+# Docker Compose (full 12-service stack)
 docker compose up -d
+
+# Services: arifosmcp, postgres, redis, qdrant, grafana, n8n, traefik, 
+#           ollama, openclaw, webhook, headless_browser, prometheus
 ```
 
 ---
@@ -317,7 +339,7 @@ mypy .
 
 | Aspect | Rule |
 |--------|------|
-| Versioning | **Date-Based ONLY** (YYYY.MM.DD). Software-style semantic versioning (vX.Y / vX.Y.Z) is prohibited. arifOS is hardened with age and time. |
+| Versioning | **Date-Based ONLY** (YYYY.MM.DD). Software-style semantic versioning (vX.Y / vX.Y.Z) is prohibited. |
 | Line length | 100 characters |
 | Quote style | Double quotes |
 | Import order | stdlib → third-party → local (Ruff/isort-compatible) |
@@ -330,7 +352,7 @@ mypy .
 
 ```python
 # Correct namespace usage
-from core.shared.physics import W_3
+from core.shared.physics import W_4
 from aclip_cai.triad import anchor, reason
 import aaa_mcp.server
 
@@ -438,12 +460,14 @@ Require explicit human confirmation before:
 | `ARIFOS_GOVERNANCE_SECRET` | Recommended | auto-generated | Signs `governance_token` (HMAC-SHA256) |
 | `DATABASE_URL` | Optional | SQLite fallback | PostgreSQL for VAULT999 ledger |
 | `REDIS_URL` | Optional | — | Session persistence backend |
+| `QDRANT_URL` | Optional | — | Vector memory backend |
 | `JINA_API_KEY` | Optional | — | Clean Markdown extraction |
 | `PERPLEXITY_API_KEY` | Optional | — | Web search fallback |
 | `BRAVE_API_KEY` | Optional | — | Web search fallback |
 | `ARIFOS_ML_FLOORS` | Optional | `0` | Enable SBERT semantic scoring for F5/F6/F9 |
-| `ARIFOS_PHYSICS_DISABLED` | Optional | `0` | Disable thermodynamic calculations |
+| `ARIFOS_PHYSICS_DISABLED` | Optional | `0` | Disable thermodynamic calculations (tests only) |
 | `AAA_MCP_OUTPUT_MODE` | Optional | `user` | `user` or `debug` output verbosity |
+| `ARIFOS_PUBLIC_APPROVAL_MODE` | Optional | `true` | Enable public dev actor approvals |
 
 ---
 
@@ -459,6 +483,7 @@ Require explicit human confirmation before:
 | `live_tests.yml` | Continuous live endpoint testing |
 | `mcp-conformance.yml` | MCP protocol conformance tests |
 | `secrets-scan.yml` | Security scanning |
+| `npm-publish.yml` | Publish `@arifos/mcp` TypeScript SDK |
 
 ### Pre-commit Hooks
 
@@ -471,18 +496,19 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-Hooks include: Black, Ruff, MyPy, Bandit, detect-secrets, and custom constitutional checks.
+Hooks include: Black, Ruff, MyPy, Bandit, detect-secrets, and custom constitutional checks (F1 Amanah, F9 Anti-Hantu).
 
 ---
 
 ## Security Considerations
 
 - **F12 Injection Defense:** All inputs scanned via `InjectionGuard`
-- **F11 Command Auth:** Cryptographic identity verification
+- **F11 Command Auth:** Cryptographic identity verification (Ed25519 signatures supported)
 - **F1 Amanah:** Irreversible operations require explicit `confirm_dangerous=True`
 - **Secret Management:** Use vault in production (HashiCorp Vault, AWS Secrets Manager)
 - **Rotation:** Secrets must rotate minimum every 90 days
 - **Least Privilege:** DB user should not be superuser
+- **Non-root Containers:** Docker runs as `arifos` user (UID 1000)
 
 ---
 
@@ -494,7 +520,8 @@ Hooks include: Black, Ruff, MyPy, Bandit, detect-secrets, and custom constitutio
 4. **Two floor decorator layers exist**: `core/kernel/constitutional_decorator.py` (kernel) AND `aaa_mcp/core/constitutional_decorator.py` (transport)
 5. **`codebase/` is removed**: Deleted in v2026.2.15 — all code is in `core/`, `aclip_cai/`, `aaa_mcp/`
 6. **`tests/archive/`**: ~100 legacy files with broken imports — reference only
-7. **APEX Solver**: Uses geometric mean (not arithmetic) for 9-paradox synthesis — target GM ≥ 0.85
+7. **APEX Solver**: Uses geometric mean for 4-witness synthesis — target W⁴ ≥ 0.75
+8. **BGE-M3 embeddings**: Pre-baked in Docker image (~570MB) for multilingual support
 
 ---
 
@@ -506,11 +533,12 @@ Hooks include: Black, Ruff, MyPy, Bandit, detect-secrets, and custom constitutio
 | `CLAUDE.md` | Claude Code specific guidance |
 | `QUICKSTART.md` | 5-minute setup guide |
 | `000_THEORY/000_LAW.md` | Canonical constitutional law (F1-F13) |
-| `docs/60_REFERENCE/ARCHITECTURE.md` | Trinity Logic, 7-Organ Stack, EMD Physics |
-| `docs/60_REFERENCE/DEPLOYMENT.md` | VPS, Docker, scaling |
-| `docs/60_REFERENCE/TOOLS_CANONICAL_13.md` | 13 canonical MCP tools |
+| `000_THEORY/000_ARCHITECTURE.md` | Trinity Logic, 7-Organ Stack, EMD Physics |
+| `docs/AAA_MCP_TOOLS_REFERENCE.md` | 13 canonical MCP tools reference |
+| `docs/COMPLETE_DEPLOYMENT_GUIDE.md` | VPS, Docker, scaling |
 | `pyproject.toml` | Package metadata, dependencies, tool config |
 
 ---
 
 *Last updated: 2026-03-07*
+*Seal: QUADWITNESS-SEAL v64.1*
