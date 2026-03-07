@@ -5,6 +5,57 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.7-P3-THERMO] — 2026-03-07 — P3-THERMODYNAMIC-HARDENING-SEAL
+
+**T000:** 2026.03.07-P3-THERMO  
+**Theme:** P3 Thermodynamic Hardening — Mandatory physics enforcement, no graceful fallbacks
+
+### Added
+- **Hardened Thermodynamics Module** (`core/physics/thermodynamics_hardened.py`):
+  - **Mandatory Budget System**: Per-session thermodynamic budget (Joules) — no budget = VOID
+  - **Practical Landauer Bound**: Detects suspiciously fast compute (1000x faster than expected = VOID)
+  - **Semantic F4 Clarity**: Information density ratio instead of character entropy
+  - **Mode Collapse Detection**: AGI/ASI orthogonality check (Ω_ortho ≥ 0.95)
+  - **Hard Exceptions**: `LandauerViolation`, `EntropyIncreaseViolation`, `ThermodynamicExhaustion`
+- **Tri-Witness Grounding** (`core/shared/floors.py` — F3):
+  - Human witness: Derived from verified auth (not hardcoded)
+  - AI witness: Computed from F2 truth + F7 humility + coherence
+  - Earth witness: From grounding + thermodynamic validity
+  - **Action Gating**: Different thresholds per action class (read/write/execute/critical)
+
+### Changed
+- **5-Organ Pipeline Integration**:
+  - 000_INIT: Initializes `ThermodynamicBudget` (mandatory)
+  - 333_AGI: Consumes energy per reasoning cycle
+  - 888_APEX: Checks Landauer bound before SEAL
+  - 999_VAULT: Captures final thermodynamic state
+- **ConstitutionalTensor P3 Fields**:
+  - `thermodynamic_cost`: Joules consumed
+  - `landauer_ratio`: Compute efficiency vs expected
+  - `orthogonality`: AGI/ASI separation
+  - `budget_depletion`: Energy consumed ratio
+- **F2 Truth Floor**: Practical Landauer check with graceful fallback on missing module
+- **F4 Clarity Floor**: Semantic compression ratio (character entropy was wrong)
+
+### Fixed
+- **Landauer Calibration**: Changed from physical minimum (impossible) to expected compute
+- **Graceful Degradation**: Distinguish missing module (fallback) vs check failure (VOID)
+- **F4 Semantic Correctness**: Information density instead of character-level entropy
+
+### Constitutional Compliance
+- **F2 Truth**: PASS — Landauer bound detects cheap truth
+- **F4 Clarity**: PASS — Semantic compression enforces clarity
+- **F7 Humility**: PASS — Budget exhaustion → 888_HOLD
+- **F8 Genius**: PASS — Mode collapse detection (Ω_ortho)
+
+### Verification
+- `pytest tests/e2e_test_hardened_thermodynamics.py`: 16/16 PASSED
+- Thermodynamic budget tracking: Verified across 5-organ pipeline
+- Landauer violation detection: Tested with 1000x efficiency threshold
+- Entropy increase violation: Tested with semantic compression
+
+---
+
 ## [2026.3.7-LABORATORY] — 2026-03-07 — CONSTITUTIONAL-LABORATORY-L0-L3-REARCHITECTURE-SEAL
 
 **T000:** 2026.03.07-LABORATORY  
