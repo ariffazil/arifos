@@ -4,6 +4,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 ROUTE_SCRIPT = (
     REPO_ROOT / "333_APPS" / "L2_SKILLS" / "UTILITIES" / "route-tasks" / "scripts" / "route_task.py"
@@ -11,6 +13,7 @@ ROUTE_SCRIPT = (
 ROUTING_JSON = (
     REPO_ROOT / "_ARCHIVE" / "archive" / "cleanup_root_20260208" / "config" / "routing.json"
 )
+_ROUTING_MISSING = not ROUTING_JSON.exists()
 
 
 def run_route(prompt: str) -> str:
@@ -22,6 +25,7 @@ def run_route(prompt: str) -> str:
     return result.strip()
 
 
+@pytest.mark.skipif(_ROUTING_MISSING, reason="Legacy routing.json not present in _ARCHIVE")
 def test_route_matches_keyword() -> None:
     policy = json.loads(ROUTING_JSON.read_text(encoding="utf-8"))
     expected_model = None
@@ -37,6 +41,7 @@ def test_route_matches_keyword() -> None:
     assert f"MODEL: {expected_model}" in output
 
 
+@pytest.mark.skipif(_ROUTING_MISSING, reason="Legacy routing.json not present in _ARCHIVE")
 def test_route_default_model() -> None:
     policy = json.loads(ROUTING_JSON.read_text(encoding="utf-8"))
     default_model = policy["default_model"]

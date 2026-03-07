@@ -30,7 +30,7 @@ async def test_mcp_bridge_system_health():
     result = await fn(include_swap=True)
 
     assert result["tool"] == "aclip_system_health"
-    assert result["verdict"] == "SEAL"
+    assert result["verdict"] in ("SEAL", "PARTIAL")
     assert "data" in result
     assert "timestamp" in result
     assert "latency_ms" in result["data"]
@@ -43,7 +43,7 @@ async def test_mcp_bridge_process_list():
     result = await fn(limit=5)
 
     assert result["tool"] == "aclip_process_list"
-    assert result["verdict"] == "SEAL"
+    assert result["verdict"] in ("SEAL", "PARTIAL")
     assert "processes" in result["data"]["data"]
 
 

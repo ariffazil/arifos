@@ -47,11 +47,9 @@ def main() -> None:
     # Kept for contract tests + runtime sanity checks.
     _ = check_fastmcp_version()
 
-    from aaa_mcp.server import create_unified_mcp_server
+    import arifos_aaa_mcp.server as _pub_server
 
-    # Compatibility alias: keep external name while removing adapter back-edge.
-    create_aaa_mcp_server = create_unified_mcp_server
-    mcp = create_aaa_mcp_server()
+    mcp = _pub_server.create_aaa_mcp_server()
 
     run_kwargs = {"transport": mode}
     if args.host is not None:

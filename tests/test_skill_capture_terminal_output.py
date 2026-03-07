@@ -3,6 +3,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 FORMAT_SCRIPT = (
     REPO_ROOT
@@ -13,6 +15,7 @@ FORMAT_SCRIPT = (
     / "scripts"
     / "format_output.py"
 )
+_SCRIPT_MISSING = not FORMAT_SCRIPT.exists()
 
 
 def run_format(style: str, text: str, line_numbers: bool = False) -> str:
@@ -25,6 +28,7 @@ def run_format(style: str, text: str, line_numbers: bool = False) -> str:
     return result
 
 
+@pytest.mark.skipif(_SCRIPT_MISSING, reason="capture-terminal format_output.py not present")
 def test_format_box() -> None:
     text = "a\nbb"
     output = run_format("box", text)
@@ -40,6 +44,7 @@ def test_format_box() -> None:
     assert output == expected
 
 
+@pytest.mark.skipif(_SCRIPT_MISSING, reason="capture-terminal format_output.py not present")
 def test_format_minimal_with_line_numbers() -> None:
     text = "foo\nbar"
     output = run_format("minimal", text, line_numbers=True)

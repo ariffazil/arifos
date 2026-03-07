@@ -34,6 +34,8 @@ from typing import Any
 from fastmcp import FastMCP
 from mcp.types import Icon
 
+MANIFEST_VERSION = "2026.03.07"
+
 import aaa_mcp as legacy
 from aaa_mcp.protocol.public_surface import (
     PUBLIC_CANONICAL_TOOLS,
