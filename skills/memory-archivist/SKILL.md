@@ -104,13 +104,42 @@ F1: X sessions | F2: X sessions | ...
 
 **Carry-forward audit** → Return the open items table only.
 
-### Step 6: Log the Synthesis
+### Step 6: Seal to VAULT999
+
+After generating synthesis, seal via arifOS MCP:
+
+```bash
+arifos seal
+```
+
+Or via HTTP:
+```bash
+curl -sf -X POST http://arifosmcp_server:8080/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/call","params":{"name":"seal_vault","arguments":{"session_id":"memory-archivist","context":"weekly synthesis sealed"}}}'
+```
+
+This commits the synthesis to the immutable VAULT999 ledger. Memory is sacred — sealed memory is permanent.
+
+### Step 7: Log the Synthesis
 
 Append to `logs/audit.jsonl`:
 
 ```json
-{"ts":"<ISO>","event":"memory_synthesis","source":"memory-archivist","files_scanned":<n>,"patterns_found":<n>,"stale_items":<n>,"agent":"arifOS_bot"}
+{"ts":"<ISO>","event":"memory_synthesis","source":"memory-archivist","files_scanned":<n>,"patterns_found":<n>,"stale_items":<n>,"sealed":true,"agent":"arifOS_bot"}
 ```
+
+## Scheduling (Cron)
+
+Run the archivist nightly at 00:30 MYT (16:30 UTC), after the git-sync backup at 00:00 MYT:
+
+```bash
+# Add to host crontab (not container — container restarts clear cron)
+30 16 * * * cd /opt/arifos/data/openclaw/workspace && bash skills/memory-archivist/scripts/scan-carry-forward.sh memory/ >> logs/archivist.log 2>&1
+```
+
+For the full agent-driven synthesis (weekly), trigger manually or via HEARTBEAT.md on every 8th heartbeat (~4 hours):
+- "Run memory archivist" or "weekly review"
 
 ## Constraints
 
