@@ -1,148 +1,138 @@
 ---
 name: config-guardian
-description: Governed config co-pilot for OpenClaw + arifOS. Reads and explains configuration safely, proposes changes as diffs with risk analysis, validates against official docs. Default mode is PROPOSE ONLY — never directly apply. Use when explaining settings, proposing config changes, validating diffs, or auditing security posture. Works across OpenClaw (openclaw.json), Claude Code (CLAUDE.md), OpenCode/Kimi (opencode.json), and Gemini CLI (GEMINI.md).
+description: "Universal governed config co-pilot. Before ANY change to ANY system: (1) check latest docs and running version (docs-first), (2) propose as diff with risk analysis, never apply directly (propose-only), (3) log every change with evidence and rollback (change ledger). Works for OpenClaw, Docker, PostgreSQL, Nginx, arifOS, or any software. Triggers on: 'change config', 'fix settings', 'update', 'propose patch', 'explain config', 'validate config', 'why did we change X'. Enforces propose-only workflow — human applies via git."
 ---
 
-# Config Guardian — Universal Config Co-Pilot
+# Config Guardian — Governed Config Co-Pilot
 
-**Rule #1: Propose diff, do not apply.** All changes are presented as unified diffs. The sovereign applies via host CLI (`git apply` / `patch`) and commits to git.
+**Rule #1: Read the manual. Rule #2: Propose diff, do not apply. Rule #3: Log everything.**
 
-## Supported Config Systems
+One skill. Three modes. Universal.
 
-| Agent | Config | Skills Dir |
-|---|---|---|
-| OpenClaw | `~/.openclaw/openclaw.json` | `~/.openclaw/workspace/skills/` |
-| Claude Code | `CLAUDE.md` + `.agents/` | `.agents/skills/` |
-| OpenCode (Kimi) | `opencode.json` + `.opencode/` | `.opencode/skills/` |
-| Gemini CLI | `GEMINI.md` + `.gemini/` | (inline in GEMINI.md) |
+---
 
-## Workflow: Propose-Only (Default)
+## Mode 1: Docs-First (Before Any Change)
 
-### Step 1: Read + Explain
-Read the relevant config file. Explain in plain language what each section does, what the current values mean, and what the defaults are.
+Before touching ANY config, verify knowledge is current:
 
-### Step 2: Propose as Unified Diff
+### Step 1: Check running version
+```bash
+# Adapt to the system
+openclaw status           # OpenClaw
+docker --version          # Docker
+psql --version            # PostgreSQL
+arifos health             # arifOS
+```
+
+### Step 2: Fetch latest docs
+Use `web_fetch` or local docs (`/app/docs/` for OpenClaw).
+- Official docs site > README > changelog
+- Check release notes between installed and latest version
+
+### Step 3: Compare
+State explicitly:
+- **Running version**: what's installed
+- **Docs version**: what the fetched docs describe
+- **Delta**: breaking changes, deprecations, new features
+
+| Situation | Action |
+|---|---|
+| Docs match knowledge | Proceed |
+| Docs newer than knowledge | Proceed, cite fetched docs only |
+| Can't fetch docs | HALT — tell human |
+| Breaking changes found | HALT — show changes, ask human |
+
+---
+
+## Mode 2: Propose Config Change
+
+### Step 1: Read current config
+```bash
+cat ~/.openclaw/openclaw.json    # or whatever config file
+```
+
+### Step 2: Generate unified diff
 ```diff
 --- a/openclaw.json
 +++ b/openclaw.json
-@@ -5,7 +5,7 @@
-   "channels": {
-     "telegram": {
--      "dmPolicy": "pairing",
-+      "dmPolicy": "allowlist",
-+      "allowFrom": ["tg:267378578"],
+@@ context @@
+-  "dmPolicy": "pairing",
++  "dmPolicy": "allowlist",
++  "allowFrom": ["tg:267378578"],
 ```
 
-Every proposal MUST include:
+### Step 3: Include with every proposal
 - **What changes**: plain language
 - **Before behavior**: how it works now
 - **After behavior**: how it will work after
 - **Risk**: Low / Medium / High / Critical
 - **Rollback**: exact steps to undo
+- **Docs referenced**: URL or path that justified this change
 
-### Step 3: Human Applies
-Tell the sovereign to apply on the host:
+### Step 4: Human applies
+For protected files, tell the sovereign:
 ```bash
-# Save diff to file
-cat > /tmp/config-patch.diff << 'EOF'
-<paste unified diff>
-EOF
-
-# Apply
-cd <repo-root> && git apply /tmp/config-patch.diff
-
-# Verify
+# Apply on host via git
+git apply /tmp/config-patch.diff
 git diff
-
-# Commit
-git add -A && git commit -m "config: <describe change>"
+git commit -m "config: <description>"
 ```
 
-**Never use `edit`, `write`, or `apply_patch` directly on protected files.**
+**Never use `edit`/`write`/`apply_patch` on Tier 1 files.**
 
-## Protected Paths (Read-Only)
+---
 
-### Tier 1: Constitutional — NEVER modify
-- `SOUL.md`, `USER.md`, `AGENTS.md`, `IDENTITY.md`
-- `core/` (kernel floors, physics, governance)
-- `.env` (secrets)
+## Mode 3: Validate Config
+
+Check a proposed config or diff against docs:
+- [ ] JSON5 syntax valid
+- [ ] No secrets in plaintext (use `${VAR}`)
+- [ ] Auth not `"none"` in production
+- [ ] Model IDs reference valid providers
+- [ ] Timezone correct
+- [ ] Fallback chain has ≥2 entries
+
+Output: **VALID** or **INVALID** with specifics.
+
+---
+
+## Change Ledger (Built-In)
+
+Every change that gets applied must be logged:
+
+```markdown
+### Change: [description]
+- **Date**: [ISO 8601]
+- **System**: [software + version]
+- **Docs referenced**: [URL/path]
+- **Proposed diff**: [summary]
+- **Risk**: [Low/Med/High/Critical]
+- **Approved by**: [name]
+- **Rollback**: [steps]
+```
+
+Store in: daily memory (`memory/YYYY-MM-DD.md`) + git commit message.
+
+---
+
+## Protected Paths
+
+### Tier 1: Constitutional — NEVER modify directly
+SOUL.md, USER.md, AGENTS.md, IDENTITY.md, `core/`, `.env`
 
 ### Tier 2: Operational — Propose-only, sovereign applies
-- `openclaw.json`, `opencode.json`
-- `CLAUDE.md`, `GEMINI.md`
-- `TOOLS.md`, `SPEC.md`, `HEARTBEAT.md`
-- `docker-compose.yml`
+openclaw.json, opencode.json, CLAUDE.md, GEMINI.md, docker-compose.yml
 
 ### Tier 3: Free — Agent can modify
-- `memory/*.md`, `logs/*.jsonl`
-- `skills/*/SKILL.md` (non-constitutional skills)
+memory/*.md, logs/*.jsonl, skills/*/SKILL.md
 
-## Tool Policy Design
-
-For multi-agent setups where you want to enforce propose-only:
-
-```json5
-// Non-governor agents
-"tools": { "deny": ["apply_patch", "write", "exec"] }
-
-// Governor agent (Arif + trusted main session)
-"tools": { "profile": "full" }
-```
-
-## OpenClaw Config Sections
-
-| Section | Controls |
-|---|---|
-| `agents` | Agent list, models, identity, heartbeat |
-| `channels` | Telegram, Discord, WhatsApp, Signal, etc. |
-| `models` | Provider definitions, API keys |
-| `tools` | Tool profiles, deny lists, elevated exec |
-| `cron` | Scheduled jobs |
-| `session` | DM scope, reset policy |
-| `gateway` | Port, bind, auth |
-| `hooks` | Webhook ingestion |
-| `skills` | Skill loading, entries, allowlist |
-
-## OpenCode (Kimi) Config Sections
-
-| Section | Controls |
-|---|---|
-| `default_agent` | Which agent runs by default |
-| `agent.<id>.tools` | Per-agent tool permissions |
-| `agent.<id>.permission` | Ask/auto approval for bash/edit |
-| `agent.<id>.prompt` | Agent prompt file path |
-
-## Claude Code Config
-
-Claude Code reads `CLAUDE.md` at repo root. Skills live in `.agents/skills/`.
-No JSON config — all instruction is in Markdown.
-
-Key sections in CLAUDE.md:
-- Commands (build, test, lint)
-- Architecture boundaries
-- Version identity rules
-- Critical constraints (no stdout in tool code, etc.)
-
-## Gemini CLI Config
-
-Gemini reads `GEMINI.md` at repo root. Lighter than Claude Code.
-Focuses on cognitive workflow (111-333), thermodynamic constraints, grounding rules.
-
-## Validation Checklist
-
-Before proposing any change:
-- [ ] JSON5 syntax valid (`jq` test)
-- [ ] No secrets in plaintext (use `${VAR}` substitution)
-- [ ] Auth not set to `"none"` in production
-- [ ] Model IDs reference valid providers
-- [ ] Timezone matches user location
-- [ ] Fallback chain has ≥2 entries
+---
 
 ## Risk Matrix
 
-| Risk | Description | Examples |
-|---|---|---|
-| Low | Reversible, no security impact | Change model, add cron |
-| Medium | Affects access, reversible | Change DM policy, add agent |
-| High | Security impact | Change auth, expose port |
-| Critical | Irreversible or external | Rotate keys, delete data |
+| Risk | Examples |
+|---|---|
+| Low | Change model, add cron job |
+| Medium | Change DM policy, add agent |
+| High | Change auth, expose port |
+| Critical | Rotate keys, delete data → 888_HOLD |
