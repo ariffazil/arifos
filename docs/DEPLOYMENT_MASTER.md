@@ -75,18 +75,24 @@ All tools protected by F1-F13 constitutional floors.
 
 **Phase 4 Partial Complete — Phase 4B Next**
 
-### Live Tool Matrix (14 tools)
+### Live Tool Matrix (13 canonical tools)
 | Tool | Status | Note |
 |:---|:---|:---|
 | `anchor_session` | LIVE | Stage 000 |
 | `reason_mind` | LIVE | Stages 111-333 |
-| `recall_memory` | LIVE | Qdrant Backend Active |
+| `vector_memory` | LIVE | Canonical memory lane |
 | `simulate_heart` | LIVE | Stage 555 |
 | `critique_thought`| LIVE | Stage 666 |
 | `apex_judge` | LIVE | Stage 888 |
 | `seal_vault` | LIVE | Stage 999 |
-| `visualize_governance`| LIVE | Constitutional Visualizer UI |
-| `query_openclaw` | PENDING | Active after next rebuild |
+| `eureka_forge` | LIVE | Stage 777 |
+| `search_reality` | LIVE | Stage 111 external evidence |
+| `ingest_evidence` | LIVE | Unified URL/file ingestion |
+| `audit_rules` | LIVE | Constitutional audit checks |
+| `check_vital` | LIVE | Runtime health telemetry |
+| `metabolic_loop` | LIVE | Composite 000-999 cycle |
+
+Compatibility aliases (`fetch_content`, `inspect_file`, `system_audit`) resolve to canonical tools.
 
 ### Next Up (Phase 4B)
 - Agent Zero deployment

@@ -1,25 +1,18 @@
-"""Contract tests for core tool schema and adapter alias profile."""
+"""Contract tests for canonical tool/alias adapter profile.
+
+This file validates current canonical sources directly and avoids removed
+legacy schema paths.
+"""
 
 from __future__ import annotations
 
 import ast
 from pathlib import Path
 
-import yaml
-
-from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS
+from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS, AAA_TOOL_ALIASES, ARCHIVED_TOOLS
 
 ROOT = Path(__file__).resolve().parents[2]
-TOOLS_SCHEMA = ROOT / "core_mcp" / "schemas" / "tools.yaml"
-ALIAS_SCHEMA = ROOT / "adapters" / "openai_apps" / "alias_map.yaml"
 SERVER_FILE = ROOT / "arifos_aaa_mcp" / "server.py"
-
-
-def _load_yaml(path: Path) -> dict:
-    assert path.exists(), f"Missing schema file: {path}"
-    data = yaml.safe_load(path.read_text(encoding="utf-8"))
-    assert isinstance(data, dict), f"Schema must be object: {path}"
-    return data
 
 
 def _tool_names_in_server() -> set[str]:
@@ -51,58 +44,23 @@ def _tool_names_in_server() -> set[str]:
     return names
 
 
-def test_tools_yaml_matches_canonical_and_aux_contract() -> None:
-    payload = _load_yaml(TOOLS_SCHEMA)
-
-    canonical = payload.get("canonical_tools")
-    auxiliary = payload.get("auxiliary_tools")
-
-    assert isinstance(canonical, list)
-    assert isinstance(auxiliary, list)
-    assert len(canonical) == 13
-    assert len(auxiliary) == 2
-
-    canonical_names = {item["name"] for item in canonical}
-    auxiliary_names = {item["name"] for item in auxiliary}
-
-    assert canonical_names == set(AAA_CANONICAL_TOOLS)
-    assert auxiliary_names == {"visualize_governance", "metabolic_loop"}
-
-
-def test_schema_tools_exist_in_current_server_registration() -> None:
-    payload = _load_yaml(TOOLS_SCHEMA)
-
-    expected = {*(item["name"] for item in payload["canonical_tools"])}
-    for item in payload["auxiliary_tools"]:
-        exposure = item.get("exposure")
-        # Aux tools can be exposed via adapter resources rather than direct MCP tool registration.
-        if exposure in {"internal_preferred", "resource_preferred"}:
-            continue
-        expected.add(item["name"])
+def test_server_registration_matches_canonical_contract() -> None:
+    canonical = set(AAA_CANONICAL_TOOLS)
     registered = _tool_names_in_server()
-
-    missing = expected - registered
-    assert not missing, f"Tools in schema but not registered: {sorted(missing)}"
+    assert registered == canonical
 
 
-def test_openai_alias_public_default_maps_to_unique_canonical_tools() -> None:
-    tools_payload = _load_yaml(TOOLS_SCHEMA)
-    alias_payload = _load_yaml(ALIAS_SCHEMA)
+def test_alias_targets_resolve_to_canonical_tools() -> None:
+    canonical = set(AAA_CANONICAL_TOOLS)
+    for alias, target in AAA_TOOL_ALIASES.items():
+        assert target in canonical, f"Alias '{alias}' maps to non-canonical target '{target}'"
 
-    canonical_names = {
-        *(item["name"] for item in tools_payload["canonical_tools"]),
-        *(item["name"] for item in tools_payload["auxiliary_tools"]),
-    }
 
-    openai_to_canonical = alias_payload["openai_to_canonical"]
-    public_default = alias_payload["exposure_policy"]["public_default"]
+def test_archived_aliases_map_to_canonical_replacements() -> None:
+    assert "fetch_content" in ARCHIVED_TOOLS
+    assert "inspect_file" in ARCHIVED_TOOLS
+    assert "system_audit" in ARCHIVED_TOOLS
 
-    mapped = [openai_to_canonical[name] for name in public_default]
-    assert len(mapped) == len(set(mapped)), "public_default aliases must map 1:1"
-
-    for target in mapped:
-        assert target in canonical_names, f"Alias maps to unknown canonical tool: {target}"
-
-    assert alias_payload["openai_to_canonical"]["search"] == "search_reality"
-    assert alias_payload["openai_to_canonical"]["fetch"] == "fetch_content"
-    assert alias_payload["openai_to_canonical"]["health_check"] == "check_vital"
+    assert AAA_TOOL_ALIASES["fetch_content"] == "ingest_evidence"
+    assert AAA_TOOL_ALIASES["inspect_file"] == "ingest_evidence"
+    assert AAA_TOOL_ALIASES["system_audit"] == "audit_rules"

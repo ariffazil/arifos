@@ -88,11 +88,11 @@ docker network connect bridge arifosmcp_server
 - BGE_AVAILABLE = True
 - BGE embeddings functional (768 dims)
 - Network connectivity established
-- Server healthy (14 tools loaded)
+- Server healthy (13 canonical tools loaded; compatibility aliases mapped)
 - BGE metrics code deployed and ready
 
 **What's Blocking:**
-- Constitutional validation (F3_CONTRACT) rejects recall_memory requests
+- Constitutional validation (F3_CONTRACT) rejects legacy recall_memory alias requests
 - Tool implementation never reached due to VOID verdict
 - BGE metrics unreachable until validation passes
 

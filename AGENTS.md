@@ -508,7 +508,7 @@ Hooks include: Black, Ruff, MyPy, Bandit, detect-secrets, and custom constitutio
 | `000_THEORY/000_LAW.md` | Canonical constitutional law (F1-F13) |
 | `docs/60_REFERENCE/ARCHITECTURE.md` | Trinity Logic, 7-Organ Stack, EMD Physics |
 | `docs/60_REFERENCE/DEPLOYMENT.md` | VPS, Docker, scaling |
-| `docs/60_REFERENCE/TOOLS_CANONICAL_13.md` | 14 canonical MCP tools |
+| `docs/60_REFERENCE/TOOLS_CANONICAL_13.md` | 13 canonical MCP tools |
 | `pyproject.toml` | Package metadata, dependencies, tool config |
 
 ---

@@ -180,6 +180,9 @@ async def forge(
         "coherence": coherence,
         "solution_draft": solution,
         "session_id": session_id,
+        "entropy_reduction": agi_tensor.entropy_delta,
+        "compute_ms": agi_tensor.thermodynamic_cost * 1000,
+        "tokens": agi_tensor.witness.A * 100,
     }
 
 
@@ -391,6 +394,8 @@ async def apex(
             session_id,
             require_sovereign,
             objective_contract=objective_contract,
+            compute_time_ms=forge_res.get("compute_ms", 0.0),
+            tokens_generated=int(forge_res.get("tokens", 0)),
         )
     else:
         raise ValueError(f"Unknown action: {action}")
