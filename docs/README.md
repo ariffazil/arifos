@@ -1,55 +1,42 @@
-# docs — The Navigation Guide
+# docs/ README
 
-> **The Map of the arifOS Sovereignty**  
-> *From architecture to implementation*
-> **Motto:** DITEMPA BUKAN DIBERI — Forged, Not Given 🔥💎🧠
+`docs/` is the operational documentation layer for arifOS. Use it to understand runtime behavior, endpoint usage, deployment, and maintenance workflows without digging through source code first.
 
----
+## Where to start
 
-## I. Banner & Hook
+- Start at the root `README.md` for project orientation and install commands.
+- Use `docs/60_REFERENCE/ARCHITECTURE.md` for system boundaries and layer ownership.
+- Use `docs/60_REFERENCE/TOOLS_CANONICAL_13.md` for canonical tool behavior and contracts.
+- Use `docs/60_REFERENCE/DEPLOYMENT.md` for VPS and runtime deployment steps.
 
-The `docs/` directory is the central hub for all technical and navigational documentation of the arifOS project. It provides the master index for understanding the relationship between the 13 floors, the 4 layers, and the operational tools.
+## Endpoint surfaces
 
----
+Use one endpoint surface per session.
 
-## II. Mnemonic & Banding (Navigation)
+| Surface | Purpose | Use when |
+| --- | --- | --- |
+| `/` | Canonical 13-tool surface | Default for governed sessions and standard clients |
+| `/mcp` | Runtime MCP protocol surface | Your client expects MCP runtime protocol routing |
+| `/tools` | Full capabilities with compatibility shims | You need extended tools or legacy/client compatibility |
 
-- **META**: The constitutional and agent guidelines.
-- **ARCHITECTURE**: Structural deep dives and whitepapers.
-- **API**: Operational interface documentation.
+Recommended session order:
 
----
+1. `anchor_session`
+2. `reason_mind` and/or `simulate_heart` and/or `critique_thought`
+3. `apex_judge`
+4. `seal_vault`
 
-## III. Architecture Map (The Doc Flow)
+## Authoring rules
 
-```text
-README (Root) ➔ docs/ (This folder) ➔ Sub-module READMEs
-```
+- Use date-based labels for active architecture and seal references: `YYYY.MM.DD[-SUFFIX]`.
+- Do not reintroduce semantic version labels in active docs.
+- Treat `core/shared/floors.py` as the single canonical source for floor thresholds and definitions.
+- If docs disagree with code, update docs to match runtime behavior and source constants.
 
----
+## Quick docs maintenance checklist
 
-## IV. Operational Interface (Key Files)
-
-- **`00_META/GEMINI.md`**: The absolute policy for agentic AI within this repo.
-- **`01_ARCHITECTURE/`**: Deep dives into the kernel logic.
-- **`03_API/`**: Specifications for tool interaction.
-
----
-
-## V. Constitutional Alignment (Consistency)
-
-The documentation is audited to ensure it reflects the current state of the L0 Kernel.
-
----
-
-## VI. Quick Start & Deployment
-
-Use the file links in the Root `README.md` to navigate the system effectively.
-
----
-
-## VII. Authority & Version
-
-**Sovereign:** Muhammad Arif bin Fazil (888 Judge)  
-**Version:** 2026.03.07-FORGE-SEAL  
-**Motto:** Ditempa Bukan Diberi — Forged, Not Given 🔥💎🧠
+- Confirm endpoint descriptions match current server routes and behavior.
+- Verify tool names and call order against canonical MCP surface.
+- Check floor names/thresholds against `core/shared/floors.py`.
+- Ensure examples use current commands and valid paths.
+- Run docs site build before merging: `npm run build` in `sites/docs`.

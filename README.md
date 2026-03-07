@@ -14,7 +14,7 @@
 [![Dashboard](https://img.shields.io/badge/Dashboard-Live-FF6600?style=for-the-badge&logo=cloudflare&logoColor=white)](https://arifosmcp-truth-claim.pages.dev)
 [![Live Tests](https://img.shields.io/github/actions/workflow/status/ariffazil/arifOS/live_tests.yml?branch=main&style=for-the-badge&label=Live%20Tests&logo=github)](https://github.com/ariffazil/arifOS/actions/workflows/live_tests.yml)
 
-**[→ QUICKSTART: Run in 5 minutes](QUICKSTART.md)** | **[→ Architecture Deep Dive](docs/60_REFERENCE/ARCHITECTURE.md)** | **[→ 13 Floors Constitution](000_THEORY/000_LAW.md)**
+**[→ QUICKSTART: Run in 5 minutes](QUICKSTART.md)** | **[→ Architecture Deep Dive](000_THEORY/000_ARCHITECTURE.md)** | **[→ 13 Floors Constitution](000_THEORY/000_LAW.md)**
 
 </div>
 
@@ -26,17 +26,20 @@ Before diving into the technical depths of arifOS, it is crucial to understand t
 
 ### 👤 The Creator & Philosophy
 *   **Muhammad Arif bin Fazil (Official Site):** [https://arif-fazil.com](https://arif-fazil.com)
-*   **The APEX Theory (Core Philosophy):** [https://arifos.arif-fazil.com/apex-theory](https://arifos.arif-fazil.com/apex-theory)
-*   **Manifesto (Forged, Not Given):** [https://arifos.arif-fazil.com/manifesto](https://arifos.arif-fazil.com/manifesto)
+*   **APEX Theory (Primary Domain):** [https://apex.arif-fazil.com](https://apex.arif-fazil.com)
+*   **APEX Theory (Source Repository):** [https://github.com/ariffazil/APEX-THEORY](https://github.com/ariffazil/APEX-THEORY)
 *   **GitHub Profile:** [https://github.com/ariffazil](https://github.com/ariffazil)
+*   **Profile Repository (ariffazil/ariffazil):** [https://github.com/ariffazil/ariffazil](https://github.com/ariffazil/ariffazil)
 *   **Twitter / X:** [https://x.com/ArifFazil90](https://x.com/ArifFazil90)
 
 ### 🏛️ arifOS Canonical Documents (Source of Truth)
-*   **Architecture Deep Dive:** [https://arifos.arif-fazil.com/architecture](https://arifos.arif-fazil.com/architecture)
-*   **The 13 Constitutional Floors:** [https://arifos.arif-fazil.com/law](https://arifos.arif-fazil.com/law)
-*   **Security & Injection Defense:** [https://arifos.arif-fazil.com/security](https://arifos.arif-fazil.com/security)
-*   **14 Canonical Tools Reference:** [https://arifos.arif-fazil.com/tools](https://arifos.arif-fazil.com/tools)
-*   **VPS Deployment Guide:** [https://arifos.arif-fazil.com/deploy](https://arifos.arif-fazil.com/deploy)
+*   **Constitutional Manifesto:** [000_THEORY/MANIFESTO.md](000_THEORY/MANIFESTO.md)
+*   **Architecture Deep Dive:** [000_THEORY/000_ARCHITECTURE.md](000_THEORY/000_ARCHITECTURE.md)
+*   **The 13 Constitutional Floors:** [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md)
+*   **Security & Injection Defense:** [docs/DOCKER_SECURITY_POSTURE.md](docs/DOCKER_SECURITY_POSTURE.md)
+*   **14 Canonical Tools Reference:** [docs/AAA_MCP_TOOLS_REFERENCE.md](docs/AAA_MCP_TOOLS_REFERENCE.md)
+*   **Unified Skills Architecture:** [docs/60_REFERENCE/UNIFIED_SKILLS_ARCHITECTURE.md](docs/60_REFERENCE/UNIFIED_SKILLS_ARCHITECTURE.md)
+*   **Complete Deployment Guide:** [docs/COMPLETE_DEPLOYMENT_GUIDE.md](docs/COMPLETE_DEPLOYMENT_GUIDE.md)
 
 ### 📡 Live Infrastructure (Production)
 *   **MCP Server Health:** [https://arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)

@@ -18,6 +18,27 @@ const FLOORS = [
   { id: 'F13', name: 'Sovereignty', desc: 'Human veto preserved. No irreversible authority transfer to AI.' },
 ];
 
+const ENDPOINT_SURFACES = [
+  {
+    path: '/',
+    role: 'Canonical 13-tool surface',
+    when: 'Default entrypoint for governed agent sessions.',
+    includes: 'anchor_session, reason_mind, simulate_heart, critique_thought, apex_judge, seal_vault.',
+  },
+  {
+    path: '/mcp',
+    role: 'Runtime MCP protocol surface',
+    when: 'Use when your MCP client expects runtime protocol routing.',
+    includes: 'Same governance runtime, protocol-first transport behavior.',
+  },
+  {
+    path: '/tools',
+    role: 'Full capability surface with compatibility shims',
+    when: 'Use for broad tool coverage and legacy/client compatibility.',
+    includes: 'Extended tools plus shims for older integrations.',
+  },
+];
+
 export default function Home() {
   const [health, setHealth] = useState({ status: 'loading', version: '' });
 
@@ -94,6 +115,35 @@ export default function Home() {
         </div>
       </div>
 
+      <div className="endpoint-section">
+        <div className="container">
+          <h2 className="endpoint-heading">Endpoint Surface Contract</h2>
+          <p className="endpoint-subhead">
+            Pick one endpoint surface per session and keep all calls on that same surface.
+          </p>
+          <div className="endpoint-grid">
+            {ENDPOINT_SURFACES.map((surface) => (
+              <div key={surface.path} className="endpoint-card">
+                <div className="endpoint-path">{surface.path}</div>
+                <h3 className="endpoint-role">{surface.role}</h3>
+                <p className="endpoint-line"><strong>Use when:</strong> {surface.when}</p>
+                <p className="endpoint-line"><strong>Includes:</strong> {surface.includes}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="callflow-panel">
+            <h3 className="callflow-heading">Recommended Call Order</h3>
+            <ol className="callflow-list">
+              <li><code>anchor_session</code> to initialize and get a stable session id.</li>
+              <li><code>reason_mind</code> / <code>simulate_heart</code> / <code>critique_thought</code> for analysis passes.</li>
+              <li><code>apex_judge</code> to synthesize verdict and governance token.</li>
+              <li><code>seal_vault</code> to finalize and persist session outcomes.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
       {/* QUICK DEPLOY */}
       <div className="container">
         <div id="deploy" className="deploy-section">
@@ -108,6 +158,9 @@ export default function Home() {
             <a href="/chatgpt" className="chatgpt-link">
               &rarr; Add arifOS as a Sovereign Connector in ChatGPT
             </a>
+          </p>
+          <p className="troubleshoot-note">
+            Session terminated? Most cases come from mixing <code>/</code>, <code>/mcp</code>, and <code>/tools</code> in one run or skipping <code>anchor_session</code>. Start with <code>anchor_session</code> and keep one endpoint surface for the whole session.
           </p>
         </div>
       </div>
