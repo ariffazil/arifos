@@ -5,7 +5,7 @@
  * These types reflect the canonical Python definitions in arifos PyPI package.
  * 
  * Canonical Source: https://pypi.org/project/arifos/
- * Tested Against: arifos 2026.2.17 (PyPI) / 2026.2.28 (pending)
+ * Tested Against: arifos 2026.3.7 (PyPI)
  * 
  * NOTE: This package is a CABLE, not the KERNEL. 
  * Governance authority resides in the PyPI arifos package only.
@@ -253,23 +253,25 @@ export interface ArifOSClientConfig {
 
 /**
  * The 13 canonical MCP tools exposed by arifOS.
+ * Source of truth: arifOS health endpoint tools_loaded=13
+ * Last verified: 2026.03.07-ARCH-SEAL
  */
 export type ArifOSToolName =
-  // Governance Spine (8 tools)
-  | 'anchor_session'
-  | 'reason_mind'
-  | 'recall_memory'
-  | 'simulate_heart'
-  | 'critique_thought'
-  | 'apex_judge'
-  | 'eureka_forge'
-  | 'seal_vault'
-  // Utility Tools (5 tools, read-only)
-  | 'search_reality'
-  | 'fetch_content'
-  | 'inspect_file'
-  | 'audit_rules'
-  | 'check_vital';
+  // Metabolic spine — governance loop (000→999)
+  | 'anchor_session'    // 000: session ignition + injection defense
+  | 'reason_mind'       // 333: AGI cognition
+  | 'vector_memory'     // 444: semantic recall from VAULT999
+  | 'simulate_heart'    // 555: stakeholder empathy
+  | 'critique_thought'  // 666: bias critique
+  | 'eureka_forge'      // 777: sandboxed execution
+  | 'apex_judge'        // 888: sovereign verdict
+  | 'seal_vault'        // 999: immutable ledger commit
+  | 'metabolic_loop'    // 000-999: full cycle in one call
+  // Evidence tools (read-only)
+  | 'search_reality'    // web grounding
+  | 'ingest_evidence'   // URL/file fetch
+  | 'audit_rules'       // constitutional audit
+  | 'check_vital';      // system health
 
 /**
  * Tool metadata.
