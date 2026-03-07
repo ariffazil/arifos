@@ -2,7 +2,7 @@
 
 This guide provides the canonical instructions for deploying and operating the arifOS AAA MCP server.
 
-## 🚀 CURRENT STATUS (v65.1-ARCH-SEAL)
+## 🚀 CURRENT STATUS (2026.03.07-ARCH-SEAL)
 
 **Architecture Update:** arifOS has transitioned to a strict 4-layer taxonomy (L0-L3).
 **Metabolic Governance:** Enforced energy budgets and metabolic pressure logic (Ω) are active.

@@ -1,7 +1,7 @@
 # AGENTS.md — arifOS Agent Playbook
 
 **Project:** `arifOS` — Constitutional AI Governance System  
-**Package:** `arifos` | **Version:** 2026.3.6 | **Python:** >=3.12 | **License:** AGPL-3.0-only
+**Package:** `arifos` | **Version:** 2026.03.07 | **Python:** >=3.12 | **License:** AGPL-3.0-only
 
 > *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 
@@ -277,6 +277,7 @@ mypy .
 
 | Aspect | Rule |
 |--------|------|
+| Versioning | **Date-Based ONLY** (YYYY.MM.DD). Software-style semantic versioning (v1.0.0, v65.1) is prohibited. arifOS is hardened with age and time. |
 | Line length | 100 characters |
 | Quote style | Double quotes |
 | Import order | stdlib → third-party → local (Ruff/isort-compatible) |
@@ -472,4 +473,4 @@ Hooks include: Black, Ruff, MyPy, Bandit, detect-secrets, and custom constitutio
 
 ---
 
-*Last updated: 2026-03-06*
+*Last updated: 2026-03-07*

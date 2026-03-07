@@ -1,7 +1,9 @@
 [project]
 name = "arifos"
-version = "2026.3.6"
+version = "2026.03.07"
 # T000 Versioning: YYYY.MM.DD — see T000_VERSIONING.md and CHANGELOG.md for full history
+# 2026.03.07 — Architectural Formalization Seal
+#   Formalized 4-layer taxonomy (L0-L3), Metabolic Scheduler (Ω), Triple-Hash Merkle Vault, and Phoenix Recovery.
 # 2026.3.6 — Hardened Trinity Forge Release
 #   Consolidated Dockerfile, unified 11-service compose, strict memory limits ($15 VPS), and canonical server entrypoint.
 # 2026.3.1 — JS/npm Client Matrix Verified & Dogfooded

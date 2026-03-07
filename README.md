@@ -120,7 +120,7 @@ arifOS exposes a unified 14-tool surface through the **Model Context Protocol (M
 
 ```json
 {
-  "ai_manifest_version": "2026.3.7",
+  "ai_manifest_version": "2026.03.07",
   "system_name": "arifOS",
   "system_type": "constitutional_intelligence_kernel",
   "mcp_version": "1.0",
@@ -165,6 +165,6 @@ arifos http
 
 *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 
-**Version:** 2026.3.7-CiV-BROWSER • **License:** AGPL-3.0-only
+**Version:** 2026.03.07-CiV-BROWSER • **License:** AGPL-3.0-only
 
 </div>

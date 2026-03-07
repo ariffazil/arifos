@@ -16,7 +16,7 @@ def print_banner():
         """
 ╔══════════════════════════════════════════════════════════════════╗
 ║  🔐 arifOS SOVEREIGN FORGE — 333_APPS HARDENING PROTOCOL        ║
-║  Version: v65.1-ARCH-SEAL (T000 Standard)                       ║
+║  Version: 2026.03.07-ARCH-SEAL (T000 Standard)                       ║
 ║  Authority: 888_JUDGE                                           ║
 ╚══════════════════════════════════════════════════════════════════╝
     """
