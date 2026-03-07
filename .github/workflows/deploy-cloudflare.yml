@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'run_evals.py'
+      - 'scripts/run_evals.py'
       - 'tests/mcp_live/golden/**'
       - 'aclip_cai/core/eval/**'
       - '.github/workflows/deploy-cloudflare.yml'
@@ -47,7 +47,7 @@ jobs:
 
       - name: 🔥 Generate Constitutional Dashboard
         run: |
-          python run_evals.py
+          python scripts/run_evals.py
         env:
           ARIFOS_PHYSICS_DISABLED: 1
           ARIFOS_ALLOW_LEGACY_SPEC: 1
