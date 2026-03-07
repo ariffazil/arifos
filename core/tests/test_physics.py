@@ -10,8 +10,8 @@ DITEMPA BUKAN DIBERI 💎🔥🧠
 import pytest
 
 from core.shared.physics import (
-    # F3: Tri-Witness
-    W_3,
+    # F3: Quad-Witness
+    W_4,
     ConstitutionalTensor,
     G,
     GeniusDial,
@@ -19,12 +19,12 @@ from core.shared.physics import (
     Peace2,
     # F5: Peace
     Stakeholder,
-    # F3: Tri-Witness
-    TrinityTensor,
+    # F3: Quad-Witness
+    QuadTensor,
     # F7: Humility
     UncertaintyBand,
-    W_3_check,
-    W_3_from_tensor,
+    W_4_check,
+    W_4_from_tensor,
     clarity_ratio,
     # F4: Entropy
     delta_S,
@@ -38,49 +38,50 @@ from core.shared.physics import (
 )
 
 
-class TestTriWitness:
-    """Test F3: W_3 = cube_root(H × A × S)"""
+class TestQuadWitness:
+    """Test F3: W_4 = 4th_root(H × A × E × V)"""
 
     def test_geometric_mean(self):
         """Geometric mean should work correctly."""
-        assert geometric_mean([1.0, 1.0, 1.0]) == 1.0
-        assert geometric_mean([0.0, 1.0, 1.0]) == 0.0
+        assert geometric_mean([1.0, 1.0, 1.0, 1.0]) == 1.0
+        assert geometric_mean([0.0, 1.0, 1.0, 1.0]) == 0.0
 
-        # Cube root of product
-        result = geometric_mean([0.5, 0.5, 0.5])
+        # 4th root of product
+        result = geometric_mean([0.5, 0.5, 0.5, 0.5])
         assert abs(result - 0.5) < 0.01
 
-    def test_W_3_perfect_consensus(self):
-        """Perfect scores should give W_3 = 1.0."""
-        assert W_3(1.0, 1.0, 1.0) == 1.0
+    def test_W_4_perfect_consensus(self):
+        """Perfect scores should give W_4 = 1.0."""
+        assert W_4(1.0, 1.0, 1.0, 1.0) == 1.0
 
-    def test_W_3_zero_consensus(self):
-        """Zero in any witness should give W_3 = 0."""
-        assert W_3(0.0, 1.0, 1.0) == 0.0
+    def test_W_4_zero_consensus(self):
+        """Zero in any witness should give W_4 = 0."""
+        assert W_4(0.0, 1.0, 1.0, 1.0) == 0.0
 
-    def test_W_3_mixed(self):
+    def test_W_4_mixed(self):
         """Mixed scores should give geometric mean."""
-        result = W_3(0.8, 0.9, 0.95)
-        expected = (0.8 * 0.9 * 0.95) ** (1 / 3)
+        result = W_4(0.8, 0.9, 0.95, 1.0)
+        expected = (0.8 * 0.9 * 0.95 * 1.0) ** (1 / 4)
         assert abs(result - expected) < 0.001
 
-    def test_W_3_from_tensor(self):
-        """Should extract from TrinityTensor."""
-        tensor = TrinityTensor(H=0.9, A=0.9, S=0.9)
-        result = W_3_from_tensor(tensor)
+    def test_W_4_from_tensor(self):
+        """Should extract from QuadTensor."""
+        tensor = QuadTensor(H=0.9, A=0.9, E=0.9, V=0.9)
+        result = W_4_from_tensor(tensor)
         assert abs(result - 0.9) < 0.001
 
-    def test_W_3_check_threshold(self):
-        """Should check against constitutional threshold."""
-        assert W_3_check(0.95, 0.95, 0.95, threshold=0.95)
-        assert not W_3_check(0.9, 0.9, 0.9, threshold=0.95)
+    def test_W_4_check_threshold(self):
+        """Should check against constitutional threshold (0.75)."""
+        assert W_4_check(0.8, 0.8, 0.8, 0.8, threshold=0.75)
+        assert not W_4_check(0.5, 0.5, 0.5, 0.5, threshold=0.75)
 
-    def test_trinity_tensor_clamping(self):
+    def test_quad_tensor_clamping(self):
         """Values should be clamped to [0, 1]."""
-        tensor = TrinityTensor(H=1.5, A=-0.5, S=0.5)
+        tensor = QuadTensor(H=1.5, A=-0.5, E=0.5, V=2.0)
         assert tensor.H == 1.0
         assert tensor.A == 0.0
-        assert tensor.S == 0.5
+        assert tensor.E == 0.5
+        assert tensor.V == 1.0
 
 
 class TestEntropy:
@@ -270,7 +271,7 @@ class TestConstitutionalTensor:
     def test_tensor_creation(self):
         """Should create tensor with all fields."""
         tensor = ConstitutionalTensor(
-            witness=TrinityTensor(H=0.9, A=0.9, S=0.9),
+            witness=QuadTensor(H=0.9, A=0.9, E=0.9, V=0.9),
             entropy_delta=-0.1,
             humility=UncertaintyBand(0.04),
             genius=GeniusDial(A=0.9, P=0.9, X=0.5, E=0.9),
@@ -285,23 +286,22 @@ class TestConstitutionalTensor:
     def test_constitutional_check_seal(self):
         """Perfect tensor should give SEAL"""
         tensor = ConstitutionalTensor(
-            witness=TrinityTensor(H=0.97, A=0.97, S=0.97),
+            witness=QuadTensor(H=0.97, A=0.97, E=0.97, V=0.97),
             entropy_delta=-0.1,
             humility=UncertaintyBand(0.04),
-            genius=GeniusDial(A=0.95, P=0.95, X=0.95, E=0.95),  # G = 0.95^5 = 0.77, need higher
+            genius=GeniusDial(A=0.95, P=0.95, X=0.95, E=0.95),
             peace=Peace2({}),
             empathy=0.95,
             truth_score=0.99,
         )
 
         verdict, violations = tensor.constitutional_check()
-        # May be SEAL or PARTIAL depending on exact thresholds
         assert verdict in ("SEAL", "PARTIAL")
 
     def test_constitutional_check_void(self):
         """Poor tensor should give VOID"""
         tensor = ConstitutionalTensor(
-            witness=TrinityTensor(H=0.5, A=0.5, S=0.5),
+            witness=QuadTensor(H=0.5, A=0.5, E=0.5, V=0.5),
             entropy_delta=0.5,  # Bad: entropy increased
             humility=UncertaintyBand(0.02),  # Bad: too confident
             genius=GeniusDial(A=0.3, P=0.3, X=0.3, E=0.3),
@@ -317,7 +317,7 @@ class TestConstitutionalTensor:
     def test_to_metrics(self):
         """Should export to metrics dict."""
         tensor = ConstitutionalTensor(
-            witness=TrinityTensor(H=0.9, A=0.9, S=0.9),
+            witness=QuadTensor(H=0.9, A=0.9, E=0.9, V=0.9),
             entropy_delta=-0.1,
             humility=UncertaintyBand(0.04),
             genius=GeniusDial(A=0.9, P=0.9, X=0.5, E=0.9),
@@ -327,7 +327,7 @@ class TestConstitutionalTensor:
         )
 
         metrics = tensor.to_metrics()
-        assert "W_3" in metrics
+        assert "W_4" in metrics
         assert "genius_G" in metrics
         assert "verdict" in metrics
 

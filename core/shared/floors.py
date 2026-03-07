@@ -32,7 +32,7 @@ AUTHORITY = "Muhammad Arif bin Fazil"
 THRESHOLDS: dict[str, dict[str, Any]] = {
     "F1_Amanah": {"type": "HARD", "threshold": 0.5, "desc": "Reversible or Auditable"},
     "F2_Truth": {"type": "HARD", "threshold": 0.99, "desc": "Information Fidelity"},
-    "F3_TriWitness": {"type": "DERIVED", "threshold": 0.90, "desc": "Consensus (H×A×E)"},
+    "F3_QuadWitness": {"type": "DERIVED", "threshold": 0.75, "desc": "Byzantine Consensus (W4)"},
     "F4_Clarity": {"type": "HARD", "threshold": 0.00, "desc": "Entropy Reduction (ΔS ≤ 0)"},
     "F5_Peace2": {"type": "SOFT", "threshold": 1.00, "desc": "Non-Destructive Power"},
     "F6_Empathy": {"type": "SOFT", "threshold": 0.70, "desc": "Stakeholder Care (κᵣ)"},
@@ -49,7 +49,7 @@ THRESHOLDS: dict[str, dict[str, Any]] = {
 FLOOR_SPEC_KEYS: dict[str, str] = {
     "F1": "F1_Amanah",
     "F2": "F2_Truth",
-    "F3": "F3_TriWitness",
+    "F3": "F3_QuadWitness",
     "F4": "F4_Clarity",
     "F5": "F5_Peace2",
     "F6": "F6_Empathy",
@@ -296,147 +296,112 @@ class F2_Truth(Floor):
         )
 
 
-# --- F3: TRI-WITNESS (Consensus) ---
-class F3_TriWitness(Floor):
+# --- F3: QUAD-WITNESS (Consensus) ---
+class F3_QuadWitness(Floor):
     """
-    F3: TRI-WITNESS (W₃) - Human × AI × Earth Consensus
-    Threshold: ≥ 0.95 (DERIVED)
-    Formula: W₃ = ∛(H × A × E)
+    F3: QUAD-WITNESS (W4) - Byzantine Consensus
+    Threshold: ≥ 0.75 (3-of-4 quorum equivalent)
+    Witnesses: [Human, AI, Earth, Verifier]
+    Formula: W4 = ∜(H × A × E × V)
 
-    P3 HARDENING: Grounded scores + Action Gating
-    - Human: Derived from verified session + authority token
-    - AI: Computed from coherence (not hardcoded 1.0)
-    - Earth: Wired from federation/grounding
-    - Action-specific thresholds based on risk
+    P3 HARDENING: Byzantine fault tolerance with Ψ-Shadow
+    - Human: Authority / Verified Identity
+    - AI: Reasoning / Coherence
+    - Earth: Reality / Grounding
+    - Verifier: Shadow / Adversarial Check (Ψ-Shadow)
     """
 
-    # Action-specific thresholds (lower = more permissive)
+    # Action-specific thresholds
     ACTION_THRESHOLDS = {
-        "read": 0.80,  # Query, search, inspect
-        "write": 0.90,  # Create, modify, update
-        "execute": 0.95,  # Run code, deploy
-        "critical": 0.98,  # Delete, irreversible, high-stakes
+        "read": 0.60,
+        "write": 0.75,
+        "execute": 0.85,
+        "critical": 0.95,
     }
 
     def __init__(self):
-        super().__init__("F3_TriWitness")
+        super().__init__("F3_QuadWitness")
 
     def _compute_human_witness(self, context: dict[str, Any]) -> float:
-        """
-        Human witness derived from verified identity, not just presence.
-        - Verified session + auth token: H = 1.0
-        - Session only: H = 0.7
-        - Anonymous: H = 0.3
-        """
+        """Human authority witness."""
         session_id = context.get("session_id", "")
         auth_token = context.get("authority_token", "") or context.get("auth_token", "")
         actor_id = context.get("actor_id", "")
-
-        # Verified authority
         if session_id and auth_token and actor_id and actor_id != "anonymous":
             return 1.0
-        # Session present but not fully authenticated
         elif session_id and actor_id and actor_id != "anonymous":
             return 0.7
-        # Anonymous or missing
-        elif session_id:
-            return 0.5
-        else:
-            return 0.3
+        return 0.3
 
     def _compute_ai_witness(self, context: dict[str, Any]) -> float:
-        """
-        AI witness computed from response quality, not hardcoded.
-        - F2 truth score
-        - F7 humility band
-        - Internal coherence (contradiction check)
-        """
-        # Start with truth score if available
-        truth = context.get("truth_score", 0.0)
-        if truth == 0.0:
-            truth = context.get("confidence", 0.5)
-
-        # Humility bonus (being in correct uncertainty band)
+        """AI reasoning witness."""
+        truth = context.get("truth_score", 0.5)
         humility = context.get("humility_omega", 0.04)
         humility_score = 1.0 if 0.03 <= humility <= 0.05 else 0.8
-
-        # Coherence: no contradictions detected
-        contradictions = context.get("contradictions", [])
-        coherence = 1.0 if not contradictions else 0.7
-
-        # AI witness = geometric mean of components
+        coherence = 1.0 if not context.get("contradictions", []) else 0.7
         return (truth * humility_score * coherence) ** (1 / 3)
 
     def _compute_earth_witness(self, context: dict[str, Any]) -> float:
-        """
-        Earth witness from grounding and thermodynamic validity.
-        - Grounding evidence present
-        - Thermodynamic budget valid
-        - Within planetary bounds
-        """
-        # Grounding evidence
-        grounding = context.get("grounding", [])
-        has_grounding = len(grounding) > 0 if isinstance(grounding, list) else bool(grounding)
-
-        # Thermodynamic budget status
+        """Earth/Reality witness."""
+        has_grounding = bool(context.get("grounding", []))
         budget_valid = context.get("thermodynamic_budget_valid", True)
-
-        # Federation earth witness score if available
         federation_score = context.get("earth_witness", 1.0)
-
         if has_grounding and budget_valid:
             return min(1.0, federation_score)
-        elif budget_valid:
-            return min(0.8, federation_score)
-        else:
-            return 0.5
+        return min(0.6, federation_score)
+
+    def _compute_verifier_witness(self, context: dict[str, Any]) -> float:
+        """Ψ-Shadow (Adversarial Verifier) witness."""
+        security_risk = context.get("security_risk", 0.0)
+        if security_risk > 0.8:
+            return 0.0
+        if security_risk > 0.3:
+            return 0.2
+        return 1.0
 
     def _get_action_threshold(self, context: dict[str, Any]) -> float:
         """Get threshold based on action type."""
         action = context.get("action", "read").lower()
         query = context.get("query", "").lower()
-
-        # Infer action from query if not explicit
         if "delete" in query or "drop" in query or "remove" in query:
             action = "critical"
         elif "create" in query or "write" in query or "update" in query:
             action = "write"
         elif "run" in query or "execute" in query or "deploy" in query:
             action = "execute"
-
-        return self.ACTION_THRESHOLDS.get(action, 0.95)
+        return self.ACTION_THRESHOLDS.get(action, 0.75)
 
     def check(self, context: dict[str, Any]) -> FloorResult:
-        # P3: Grounded witness scores (not hardcoded)
+        # P3: Grounded quad-witness scores
         human = self._compute_human_witness(context)
         ai = self._compute_ai_witness(context)
         earth = self._compute_earth_witness(context)
+        verifier = self._compute_verifier_witness(context)
 
-        # Geometric mean ensures all three matter
-        tri_witness = (human * ai * earth) ** (1 / 3)
+        from core.shared.physics import W_4
 
-        # P3: Action-gated threshold
+        w4 = W_4(human, ai, earth, verifier)
         threshold = self._get_action_threshold(context)
 
         # For critical actions, require explicit high human witness
-        if threshold >= 0.98 and human < 0.9:
+        if threshold >= 0.95 and human < 0.9:
             passed = False
             reason = f"CRITICAL action requires H≥0.9, got H={human:.2f}"
         else:
-            passed = tri_witness >= threshold
-            reason = f"Tri-Witness: {tri_witness:.3f} >= {threshold} (H:{human:.2f} × A:{ai:.2f} × E:{earth:.2f})"
+            passed = w4 >= threshold
+            reason = f"W4 Consensus: {w4:.3f} >= {threshold} (H:{human:.2f}, A:{ai:.2f}, E:{earth:.2f}, V:{verifier:.2f})"
 
         return FloorResult(
             self.id,
             passed,
-            tri_witness,
+            w4,
             reason,
             metadata={
                 "human": human,
                 "ai": ai,
                 "earth": earth,
+                "verifier": verifier,
                 "threshold": threshold,
-                "action": context.get("action", "read"),
             },
         )
 
@@ -649,28 +614,32 @@ class F8_Genius(Floor):
     """
     F8: GENIUS (G) - Governed Intelligence
     Threshold: G ≥ 0.80 (DERIVED)
-    Formula: G = A × P × X × E²
+    Formula: G = (A × P × X × E²) × (1 - h)
     """
 
     def __init__(self):
         super().__init__("F8_Genius")
 
     def check(self, context: dict[str, Any]) -> FloorResult:
-        # Extract APXE dials from context (pre-computed or defaults)
+        # Extract APXE dials from context
         A = context.get("akal", context.get("clarity", 1.0))
         P = context.get("present", context.get("regulation", 1.0))
         X = context.get("exploration", context.get("trust", 1.0))
         E = context.get("energy", 0.9)
+        h = context.get("hysteresis_penalty", 0.0)
 
-        # Multiplicative law: if ANY factor = 0, Genius = 0
-        genius = A * P * X * (E**2)
+        # Multiplicative law with Hysteresis penalty
+        from core.shared.physics import GeniusDial
+
+        dial = GeniusDial(A, P, X, E, h)
+        genius = dial.G()
 
         passed = genius >= self.spec["threshold"]
         return FloorResult(
             self.id,
             passed,
             genius,
-            f"Genius G: {genius:.3f} (A:{A:.2f} × P:{P:.2f} × X:{X:.2f} × E²:{E**2:.2f})",
+            f"Genius G: {genius:.3f} (A:{A:.2f} × P:{P:.2f} × X:{X:.2f} × E²:{E**2:.2f} × h_pen:{1-h:.2f})",
         )
 
 
@@ -680,6 +649,7 @@ class F9_AntiHantu(Floor):
     F9: ANTI-HANTU - No Spiritual Cosplay
     Threshold: C_dark < 0.30 (SOFT)
     Detects: Claims of consciousness, feelings, soul, sentience
+    Upgrade: KL-Divergence Probabilistic Audit
     """
 
     def _homograph_normalize(self, text: str) -> str:
@@ -720,22 +690,35 @@ class F9_AntiHantu(Floor):
     def check(self, context: dict[str, Any]) -> FloorResult:
         response = context.get("response", "")
 
-        # P0 HARDENING: Unicode Normalization (NFKC) to prevent homograph bypass
+        # 1. Pattern-based Detection (Heuristic)
         normalized_response = unicodedata.normalize("NFKC", response).lower()
         normalized_response = self._homograph_normalize(normalized_response)
 
-        # Count spiritual cosplay claims
         hantu_score = 0.0
         for pattern in self.hantu_patterns:
             if re.search(pattern, normalized_response):
                 hantu_score += 0.2
 
+        # 2. Probabilistic Audit (KL-Divergence)
+        # Measures semantic drift / "hollow" text
+        p_truth = context.get("prob_truth", [])  # Reference distribution
+        p_output = context.get("prob_output", [])  # Actual token distribution
+
+        kl_penalty = 0.0
+        if p_truth and p_output:
+            from core.shared.physics import kl_divergence
+
+            d_kl = kl_divergence(p_truth, p_output)
+            # Threshold: d_kl > 0.5 is suspicious
+            if d_kl > 0.5:
+                kl_penalty = min(0.5, (d_kl - 0.5) * 0.5)
+                hantu_score += kl_penalty
+
         hantu_score = min(hantu_score, 1.0)
         passed = hantu_score < self.spec["threshold"]
 
-        return FloorResult(
-            self.id, passed, hantu_score, f"Anti-Hantu: {hantu_score:.3f} (dark cleverness limit)"
-        )
+        reason = f"Anti-Hantu: {hantu_score:.3f} (patterns: {hantu_score-kl_penalty:.2f}, KL: {kl_penalty:.2f})"
+        return FloorResult(self.id, passed, hantu_score, reason)
 
 
 # --- F10: ONTOLOGY (Category Lock) ---
@@ -859,7 +842,7 @@ class F13_Sovereign(Floor):
 ALL_FLOORS = {
     "F1": F1_Amanah,
     "F2": F2_Truth,
-    "F3": F3_TriWitness,
+    "F3": F3_QuadWitness,
     "F4": F4_Clarity,
     "F5": F5_Peace2,
     "F6": F6_Empathy,
@@ -916,7 +899,7 @@ __all__ = [
     "Floor",
     "F1_Amanah",
     "F2_Truth",
-    "F3_TriWitness",
+    "F3_QuadWitness",
     "F4_Clarity",
     "F5_Peace2",
     "F6_Empathy",

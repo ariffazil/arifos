@@ -487,6 +487,29 @@ class GovernanceKernel:
             },
         }
 
+    @property
+    def hysteresis_penalty(self) -> float:
+        """Accumulated session scars (h)."""
+        try:
+            from core.telemetry import get_current_hysteresis
+            return get_current_hysteresis()
+        except ImportError:
+            return 0.0
+
+    @property
+    def genius_score(self) -> float:
+        """Derived G score: G = (A×P×X×E²) × (1-h)"""
+        from core.shared.physics import GeniusDial
+        
+        # Estimate dials from current state
+        akal = round(max(0.0, 1.0 - self.safety_omega), 4)
+        present = round(self.reversibility_score, 4)
+        explore = 0.9 # Default
+        energy = self.current_energy
+        
+        dial = GeniusDial(akal, present, explore, energy, self.hysteresis_penalty)
+        return dial.G()
+
     def get_current_state(self) -> dict[str, Any]:
         """Compatibility payload for adapters expecting live governance telemetry."""
         if self.governance_state == GovernanceState.VOID:
@@ -503,16 +526,21 @@ class GovernanceKernel:
             "verdict": verdict,
             "metabolic_stage": 888 if self.escalation_required else 333,
             "qdf": round(max(0.0, 1.0 - self.safety_omega), 4),
+            "hysteresis": self.hysteresis_penalty,
+            "genius": self.genius_score,
             "floors": {
                 "F1": round(self.reversibility_score, 4),
                 "F2": round(max(0.0, 1.0 - self.safety_omega), 4),
+                "F3": self.witness.get("consensus", 0.0) if hasattr(self, "witness") else 0.0,
                 "F4": 1.0 if self.current_energy >= self.ENERGY_THRESHOLD else 0.0,
                 "F7": round(max(0.0, 1.0 - abs(self.safety_omega - 0.04)), 4),
+                "F8": self.genius_score,
             },
             "witness": {
                 "human": 1.0 if self.human_approval_status == "approved" else 0.7,
                 "ai": round(max(0.0, 1.0 - self.safety_omega), 4),
                 "earth": round(self.current_energy, 4),
+                "shadow": 1.0 - (self.safety_omega * 2.0), # Adversarial proxy
             },
             "telemetry": {
                 "dS": -0.1 if self.can_proceed() else 0.1,
@@ -520,6 +548,7 @@ class GovernanceKernel:
                 "kappa_r": round(max(0.0, 1.0 - self.safety_omega), 4),
                 "confidence": round(max(0.0, 1.0 - self.safety_omega), 4),
                 "psi_le": round(max(0.0, self.current_energy), 4),
+                "joules": self.tokens_consumed * 0.0005, # Energy proxy
             },
         }
 

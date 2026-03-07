@@ -236,6 +236,7 @@ class FloorScores(BaseModel):
     f13_sovereign: float = Field(ge=0.0, le=1.0, default=1.0)
 
     # Soft Floors
+    f3_quad_witness: float = Field(ge=0.0, le=1.0, default=0.75)
     f3_tri_witness: float = Field(ge=0.0, le=1.0, default=0.95)
     f4_clarity: float = Field(ge=0.0, le=1.0, default=1.0)  # F4: ΔS entropy reduction
     f5_peace: float = Field(ge=0.0, le=1.0, default=1.0)
@@ -306,6 +307,7 @@ class ApexMetrics(BaseModel):
     """
 
     tri_witness: float = Field(ge=0.0, le=1.0, description="F3: W₃ ≥ 0.95")
+    quad_witness: float = Field(ge=0.0, le=1.0, default=0.75, description="F3: W₄ ≥ 0.75")
     genius_g: float = Field(ge=0.0, le=1.0, description="F8: G ≥ 0.80")
     ontology_valid: bool = Field(description="F10: Category lock")
 
@@ -352,10 +354,12 @@ class InitOutput(BaseOrganOutput):
 
     @property
     def is_void(self) -> bool:
+        """Query was rejected at airlock."""
         return self.verdict == Verdict.VOID
 
     @property
     def requires_human(self) -> bool:
+        """Query requires sovereign approval (888_HOLD)."""
         return self.verdict == Verdict.HOLD_888
 
 

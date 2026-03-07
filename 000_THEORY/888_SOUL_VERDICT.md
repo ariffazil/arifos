@@ -105,16 +105,23 @@ SABAR: Needs refinement, structure unclear
 VOID: Violates physical law (impossible)
 ```
 
-### Trinity II: Human × AI × Earth (Governance)
+### Trinity II: Human × AI × Earth × Shadow (Quad-Witness Governance)
 
 ```yaml
 purpose: "Is it PERMITTED?"
-check: "Do all three witnesses agree?"
+check: "Do at least 3 of 4 witnesses agree? (BFT n=4, f=1)"
 
-SEAL: TW ≥ 0.95 (Human + AI + Earth consensus)
-SABAR: TW < 0.95 (partial consensus, need discussion)
-VOID: Any witness VETO (constitutional violation)
+SEAL: W4 ≥ 0.75 (3/4 Quorum achieved)
+SABAR: W4 < 0.75 (partial consensus, needs refinement)
+VOID: Strong Adversarial Veto or Unanimous Rejection
 ```
+
+| Witness | Role | Failure Case |
+|---------|------|--------------|
+| **Human (H)** | Authority | Sovereign Overreach |
+| **AI (A)** | Logic | Hallucination |
+| **Earth (E)** | Grounding | Data Poisoning |
+| **Shadow (V)**| Adversary | Security Blindspot |
 
 ### Trinity III: Time × Energy × Space (Constraint)
 

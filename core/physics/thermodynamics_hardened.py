@@ -245,7 +245,7 @@ class ThermodynamicBudget:
 
     def check_landauer(self, compute_ms: float, tokens: int, delta_s: float) -> dict[str, Any]:
         """
-        Check Landauer Bound for a computation.
+        Check Landauer Bound for a computation with Hardware Grounding.
 
         Returns pass/fail status. Increments violation counter.
         Raises LandauerViolation if violations exceed threshold.
@@ -253,24 +253,37 @@ class ThermodynamicBudget:
         if delta_s >= 0:
             return {"passed": True, "ratio": float("inf"), "violation": False}
 
-        bits = abs(delta_s) * 1000
-        min_cost = bits * LANDAUER_MIN
-        actual_cost = (compute_ms * 1e-3) + (tokens * 1e-6)
+        # 1. Hardware Grounding Driver
+        try:
+            from core.telemetry import get_actual_joules
+            actual_joules = get_actual_joules(compute_ms)
+        except ImportError:
+            actual_joules = None
 
-        ratio = actual_cost / (min_cost + 1e-20)
-        passed = ratio >= 0.5  # At least 50% of theoretical minimum
+        # 2. Use the hardened standalone check
+        result = check_landauer_bound(
+            compute_ms=compute_ms,
+            tokens_generated=tokens,
+            entropy_reduction=delta_s,
+            actual_joules=actual_joules
+        )
 
-        if not passed:
+        if not result["passed"]:
             self.landauer_violations += 1
             if self.landauer_violations >= self.max_violations:
-                raise LandauerViolation(ratio, delta_s, actual_cost)
+                raise LandauerViolation(
+                    result["efficiency_ratio"], 
+                    delta_s, 
+                    result["actual_joules"]
+                )
 
         return {
-            "passed": passed,
-            "ratio": ratio,
-            "min_cost": min_cost,
-            "actual_cost": actual_cost,
-            "violation": not passed,
+            "passed": result["passed"],
+            "ratio": result["efficiency_ratio"],
+            "min_cost": result["min_physical_joules"],
+            "actual_cost": result["actual_joules"],
+            "grounding_mode": result["grounding_mode"],
+            "violation": not result["passed"],
         }
 
     def to_dict(self) -> dict[str, Any]:
@@ -491,32 +504,22 @@ def check_landauer_bound(
     tokens_generated: int,
     entropy_reduction: float,
     bits_per_token: int = 16,
+    actual_joules: float | None = None,
 ) -> dict[str, Any]:
     """
     Practical Landauer-inspired check for F2 Truth enforcement.
-
-    REALITY CHECK: True Landauer minimum is ~2.87e-21 J/bit at room temp.
-    A GPU processing 100 tokens uses ~50 millijoules — 10^15x the minimum.
-
-    Instead of comparing to physical minimum, we compare to EXPECTED effort:
-    - Typical LLM: ~1-10 ms per token
-    - Suspicious: < 0.1 ms per token (cached/hallucinated)
-    - Hallucinated: < 0.01 ms per token (mathematically impossible)
 
     Args:
         compute_ms: Actual compute time in milliseconds
         tokens_generated: Number of tokens in output
         entropy_reduction: ΔS value (must be <= 0 for valid reduction)
         bits_per_token: Information content per token (default 16)
+        actual_joules: Actual measured energy in Joules (Hardware Grounding)
 
     Returns:
         Dictionary with efficiency_ratio, passed status, violation flag
-
-    Raises:
-        LandauerViolation: If violation is severe (efficiency > 100x expected)
     """
     if entropy_reduction >= 0 or tokens_generated <= 0:
-        # No entropy reduction claimed, no cost
         return {
             "passed": True,
             "efficiency_ratio": 1.0,
@@ -524,35 +527,46 @@ def check_landauer_bound(
             "ms_per_token": compute_ms / max(tokens_generated, 1),
         }
 
-    # Practical metric: milliseconds per token
-    ms_per_token = compute_ms / tokens_generated
+    # 1. Physical Minimum (Theoretical)
+    bits = abs(entropy_reduction) * bits_per_token * tokens_generated
+    min_physical_joules = bits * LANDAUER_MIN
 
-    # Expected range for real compute: 1-100 ms/token
-    # Suspiciously fast: < 0.1 ms/token (likely cached or hallucinated)
-    # Physically impossible: < 0.01 ms/token
+    # 2. Actual Energy Calculation
+    if actual_joules is not None and actual_joules > 0:
+        # HARDWARE GROUNDING: Use real sensor data if available
+        total_joules = actual_joules
+        grounding_mode = "hardware"
+    else:
+        # Proxy Calculation (Legacy / No sensor)
+        # LLM typically uses ~0.0005 J per token (500 microjoules)
+        # plus fixed overhead for compute time
+        total_joules = (compute_ms * 1e-4) + (tokens_generated * 5e-4)
+        grounding_mode = "proxy"
 
-    # Efficiency ratio: how much faster than expected
-    expected_ms_per_token = 1.0  # Baseline: 1ms per token
-    efficiency_ratio = expected_ms_per_token / (ms_per_token + 0.001)
+    # 3. Efficiency Ratio
+    # ratio = actual_joules / min_physical_joules
+    # A ratio < 1.0 is physically impossible (hallucinated result)
+    # A ratio < 100 is "suspiciously cheap" for current silicon
+    ratio = total_joules / (min_physical_joules + 1e-25)
 
-    # Ratio > 100 means 100x faster than expected (suspicious)
-    # Ratio > 1000 means 1000x faster (likely hallucinated)
-    passed = efficiency_ratio < 100.0
-    violation = efficiency_ratio >= 1000.0
+    # Threshold: At least 1.0 (Physical Law)
+    # Practical Threshold: 10.0 (Reasonable safety margin)
+    passed = ratio >= 1.0
+    violation = ratio < 0.5  # Critical violation
 
     result = {
         "passed": passed,
-        "efficiency_ratio": round(efficiency_ratio, 2),
-        "ms_per_token": round(ms_per_token, 4),
-        "expected_ms_per_token": expected_ms_per_token,
+        "efficiency_ratio": round(ratio, 2),
+        "actual_joules": round(total_joules, 6),
+        "min_physical_joules": min_physical_joules,
+        "grounding_mode": grounding_mode,
         "violation": violation,
         "tokens_generated": tokens_generated,
         "compute_ms": compute_ms,
     }
 
-    # Hard violation: 1000x faster than physically reasonable
-    if efficiency_ratio >= 1000.0:
-        raise LandauerViolation(efficiency_ratio, entropy_reduction, f"{ms_per_token:.4f}ms/token")
+    if violation:
+        raise LandauerViolation(ratio, entropy_reduction, total_joules)
 
     return result
 

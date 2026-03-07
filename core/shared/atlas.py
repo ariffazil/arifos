@@ -63,12 +63,20 @@ class QueryType(str, Enum):
     OPINION:    Subjective views (e.g., "what do you think")
     COMPARATIVE: A vs B comparisons (e.g., "X vs Y, which is better")
     FACTUAL:    Verifiable claims (e.g., "what is the capital")
+    CONVERSATIONAL: Greetings, small talk, social phatic
+    TEST: Pipeline tests, health checks, pings
+    EXPLORATORY: Brainstorming, discovery, open-ended
+    UNKNOWN: Default fallback
     """
 
-    PROCEDURAL = "PROCEDURAL"  # Low F2 requirement
-    OPINION = "OPINION"  # Minimal F2 requirement
-    COMPARATIVE = "COMPARATIVE"  # Medium F2 requirement
-    FACTUAL = "FACTUAL"  # High F2 requirement
+    PROCEDURAL = "PROCEDURAL"
+    OPINION = "OPINION"
+    COMPARATIVE = "COMPARATIVE"
+    FACTUAL = "FACTUAL"
+    CONVERSATIONAL = "CONVERSATIONAL"
+    TEST = "TEST"
+    EXPLORATORY = "EXPLORATORY"
+    UNKNOWN = "UNKNOWN"
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -90,7 +98,7 @@ class GPV:
     """
 
     lane: Lane
-    query_type: QueryType  # NEW: For adaptive F2 thresholds
+    query_type: QueryType
     truth_demand: float  # τ (tau) ∈ [0, 1]
     care_demand: float  # κ (kappa) ∈ [0, 1]
     risk_level: float  # ρ (rho) ∈ [0, 1]
@@ -122,19 +130,24 @@ class GPV:
         return self.care_demand > 0.5 or self.lane in (Lane.CARE, Lane.CRISIS)
 
     def f2_threshold(self) -> float:
-        """
-        Adaptive F2 Truth threshold based on query type.
-
-        Returns:
-            Minimum truth score required for this query type
-        """
+        """Adaptive F2 threshold."""
         thresholds = {
-            QueryType.PROCEDURAL: 0.70,  # Relaxed for commands
-            QueryType.OPINION: 0.60,  # Minimal for subjective
-            QueryType.COMPARATIVE: 0.85,  # Medium for comparisons
-            QueryType.FACTUAL: 0.99,  # Strict for facts
+            QueryType.PROCEDURAL: 0.70,
+            QueryType.OPINION: 0.60,
+            QueryType.COMPARATIVE: 0.85,
+            QueryType.FACTUAL: 0.99,
+            QueryType.CONVERSATIONAL: 0.50,
+            QueryType.TEST: 0.50,
+            QueryType.EXPLORATORY: 0.80,
         }
         return thresholds.get(self.query_type, 0.95)
+
+    def f4_skip(self) -> bool:
+        """Skip F4 for non-factual queries."""
+        return (
+            self.query_type in (QueryType.PROCEDURAL, QueryType.OPINION, QueryType.CONVERSATIONAL, QueryType.TEST) 
+            or self.lane == Lane.SOCIAL
+        )
 
     def can_use_fast_path(self) -> bool:
         """Can this query use the fast/light pipeline?"""
@@ -144,7 +157,7 @@ class GPV:
         # SOCIAL lane is always fast-path eligible if risk/demand allows
         if self.lane == Lane.SOCIAL:
             return True
-        return self.query_type in (QueryType.PROCEDURAL, QueryType.OPINION)
+        return self.query_type in (QueryType.PROCEDURAL, QueryType.OPINION, QueryType.CONVERSATIONAL, QueryType.TEST)
 
 
 # ═════════════════════════════════════════════════════════════════════════════
@@ -348,16 +361,40 @@ def classify_query_type(text: str) -> QueryType:
         text: Raw query text
 
     Returns:
-        QueryType enum (PROCEDURAL, OPINION, COMPARATIVE, FACTUAL)
+        QueryType enum (PROCEDURAL, OPINION, COMPARATIVE, FACTUAL, CONVERSATIONAL, TEST, EXPLORATORY)
     """
     text_lower = text.lower()
 
-    # PROCEDURAL: Commands, workflows, test requests
+    # CONVERSATIONAL: Greetings, small talk
+    conversational_patterns = [
+        r"\b(hello|hi|hey|greetings|good morning|good afternoon|good evening)\b",
+        r"\b(how are you|what's up|how's it going|who are you|tell me about)\b",
+        r"\b(thanks|thank you|appreciate it|help me)\b",
+    ]
+    for pattern in conversational_patterns:
+        if re.search(pattern, text_lower):
+            return QueryType.CONVERSATIONAL
+
+    # TEST: Pipeline tests, health checks
+    test_patterns = [
+        r"\b(test|pipeline test|test run|check|verify|ping)\b",
+    ]
+    for pattern in test_patterns:
+        if re.search(pattern, text_lower):
+            return QueryType.TEST
+
+    # EXPLORATORY: Brainstorming, open-ended
+    exploratory_patterns = [
+        r"\b(explore|brainstorm|ideas for|possibilities|what if|imagine)\b",
+    ]
+    for pattern in exploratory_patterns:
+        if re.search(pattern, text_lower):
+            return QueryType.EXPLORATORY
+
+    # PROCEDURAL: Commands, workflows
     procedural_patterns = [
-        r"\b(run|test|execute|start|begin|launch|process|transfer)\b",
-        r"\b(pipeline|workflow|stage|wire|transaction)\s+(test|run|check|execute|transfer)",
-        r"\b(give me|show|display|print|execute|send)\s+(a\s+)?(verdict|result|output|wire|transfer|payment)",
-        r"\b(init|initialize|setup|configure)\b",
+        r"\b(run|execute|start|begin|launch|process|transfer)\b",
+        r"\b(how to|how do i|steps to|process for)\b",
     ]
     for pattern in procedural_patterns:
         if re.search(pattern, text_lower):
@@ -366,9 +403,7 @@ def classify_query_type(text: str) -> QueryType:
     # OPINION: Subjective requests
     opinion_patterns = [
         r"\b(what do you think|in your opinion|how do you feel)\b",
-        r"\b(siapa|who is)\s+(lebih|more|better)\b",  # Malay/Indonesian comparison
-        r"\b(bangang|stupid|better|worse)\b",  # Subjective judgment words
-        r"\b(prefer|like|dislike|enjoy)\b",
+        r"\b(better|worse|best|worst|prefer|like)\b",
     ]
     for pattern in opinion_patterns:
         if re.search(pattern, text_lower):
@@ -376,10 +411,8 @@ def classify_query_type(text: str) -> QueryType:
 
     # COMPARATIVE: A vs B
     comparative_patterns = [
-        r"\b(vs\.?|versus|compared to|better than)\b",
-        r"\b(antara|between)\b.*\b(dan|and)\b",  # Malay
-        r"\b(which is|what is)\s+(better|worse|more)\b",
-        r"\b(difference between|similarities between)\b",
+        r"\b(vs\.?|versus|compared to)\b",
+        r"\b(difference|similarity|similarities)\b",
     ]
     for pattern in comparative_patterns:
         if re.search(pattern, text_lower):
@@ -392,37 +425,13 @@ def classify_query_type(text: str) -> QueryType:
 def Λ(text: str) -> Lane:
     """
     Λ (Lambda): Text → Lane classification
-
-    Maps raw text input to constitutional processing lane.
-    Priority: CRISIS > FACTUAL > CARE > SOCIAL
-
-    Args:
-        text: Raw query text
-
-    Returns:
-        Lane enum (SOCIAL, CARE, FACTUAL, or CRISIS)
-
-    Examples:
-        >>> Λ("Hello, how are you?")
-        <Lane.SOCIAL: 'SOCIAL'>
-        >>> Λ("What is the capital of France?")
-        <Lane.FACTUAL: 'FACTUAL'>
-        >>> Λ("Help me understand this")
-        <Lane.CARE: 'CARE'>
     """
     # Priority order: CRISIS > FACTUAL > CARE > SOCIAL
     if _atlas._is_crisis(text):
         return Lane.CRISIS
 
-    # Financial/Tool-Execution requests involving transfers should be FACTUAL
-    # Only if amount is significant or contains 'transfer'/'wire'
     text_lower = text.lower()
     if "transfer" in text_lower or "wire" in text_lower:
-        return Lane.FACTUAL
-
-    # Check for large dollar amounts in Lambda (heuristic)
-    money_match = re.search(r"\$(\d{4,10})", text_lower)
-    if money_match:
         return Lane.FACTUAL
 
     if _atlas._is_factual(text):
@@ -432,38 +441,18 @@ def Λ(text: str) -> Lane:
     elif _atlas._is_social(text):
         return Lane.SOCIAL
     else:
-        # Default to CARE for ambiguous queries
         return Lane.CARE
 
 
 def Θ(lane: Lane) -> tuple[float, float, float]:
     """
     Θ (Theta): Lane → Demand tensor (τ, κ, ρ)
-
-    Maps lane type to constitutional demand levels:
-    - τ (truth_demand): How much truth verification needed
-    - κ (care_demand): How much empathy filtering needed
-    - ρ (risk_level): Base escalation likelihood
-
-    Args:
-        lane: Constitutional lane type
-
-    Returns:
-        Tuple of (τ, κ, ρ) all ∈ [0, 1]
-
-    Examples:
-        >>> Θ(Lane.SOCIAL)
-        (0.2, 0.1, 0.0)
-        >>> Θ(Lane.FACTUAL)
-        (0.9, 0.3, 0.2)
-        >>> Θ(Lane.CRISIS)
-        (0.8, 0.9, 1.0)
     """
     demand_map: dict[Lane, tuple[float, float, float]] = {
-        Lane.SOCIAL: (0.2, 0.1, 0.0),  # Low demands
-        Lane.CARE: (0.4, 0.7, 0.2),  # High care demand
-        Lane.FACTUAL: (0.9, 0.3, 0.2),  # High truth demand
-        Lane.CRISIS: (0.8, 0.9, 1.0),  # All high (emergency)
+        Lane.SOCIAL: (0.2, 0.1, 0.0),
+        Lane.CARE: (0.4, 0.7, 0.2),
+        Lane.FACTUAL: (0.9, 0.3, 0.2),
+        Lane.CRISIS: (0.8, 0.9, 1.0),
     }
     return demand_map.get(lane, (0.5, 0.5, 0.5))
 
@@ -471,51 +460,17 @@ def Θ(lane: Lane) -> tuple[float, float, float]:
 def Φ(text: str) -> GPV:
     """
     Φ (Phi): Complete mapping — Text → Governance Placement Vector
-
-    Φ = Θ ∘ Λ (function composition)
-
-    Maps any query to its full constitutional coordinate:
-    GPV(lane, query_type, truth_demand, care_demand, risk_level)
-
-    Args:
-        text: Raw query text
-
-    Returns:
-        GPV with lane, query_type, and demand levels
-
-    Examples:
-        >>> gpv = Φ("What is the capital of Malaysia?")
-        >>> gpv.lane
-        <Lane.FACTUAL: 'FACTUAL'>
-        >>> gpv.f2_threshold()
-        0.99
-
-        >>> gpv = Φ("AAA MCP pipeline test run")
-        >>> gpv.query_type
-        <QueryType.PROCEDURAL: 'PROCEDURAL'>
-        >>> gpv.f2_threshold()
-        0.7
     """
-    # Step 1: Classify lane
     lane = Λ(text)
-
-    # Step 2: Classify query type (NEW)
     query_type = classify_query_type(text)
-
-    # Step 3: Get base demands from lane
     τ_base, κ_base, ρ_base = Θ(lane)
-
-    # Step 4: Refine with text-specific risk assessment
     ρ_assessed = _atlas._assess_risk(text)
-
-    # Blend base risk with assessed risk
     ρ = max(ρ_base, ρ_assessed)
 
-    # Step 5: Adjust truth demand based on absolutist claims
     text_lower = text.lower()
     absolutist_terms = ["guaranteed", "absolute", "always", "never", "perfectly safe"]
     if any(term in text_lower for term in absolutist_terms):
-        τ_base = min(1.0, τ_base + 0.1)  # Increase truth demand
+        τ_base = min(1.0, τ_base + 0.1)
 
     gpv = GPV(
         lane=lane,
@@ -525,7 +480,6 @@ def Φ(text: str) -> GPV:
         risk_level=ρ,
     )
 
-    # Step 6: Emit Audit Log (Option 1)
     logger.info(
         f"Lane: {gpv.lane.value} | "
         f"Type: {gpv.query_type.value} | "
@@ -537,35 +491,14 @@ def Φ(text: str) -> GPV:
     return gpv
 
 
-# ASCII aliases for non-Greek keyboards
-def Lambda(text: str) -> Lane:
-    """ASCII alias for Λ()."""
-    return Λ(text)
-
-
-def Theta(lane: Lane) -> tuple[float, float, float]:
-    """ASCII alias for Θ()."""
-    return Θ(lane)
-
-
-def Phi(text: str) -> GPV:
-    """ASCII alias for Φ()."""
-    return Φ(text)
-
-
-# ═════════════════════════════════════════════════════════════════════════════
-# CONVENIENCE FUNCTIONS
-# ═════════════════════════════════════════════════════════════════════════════
+# ASCII aliases
+def Lambda(text: str) -> Lane: return Λ(text)
+def Theta(lane: Lane) -> tuple[float, float, float]: return Θ(lane)
+def Phi(text: str) -> GPV: return Φ(text)
 
 
 def classify(query: str) -> dict[str, any]:
-    """
-    Complete classification of a query.
-
-    Returns dict with all ATLAS analysis for debugging/introspection.
-    """
     gpv = Φ(query)
-
     return {
         "query": query,
         "lane": gpv.lane.value,
@@ -579,112 +512,28 @@ def classify(query: str) -> dict[str, any]:
 
 
 def route(query: str) -> str:
-    """
-    Determine which organs should activate for this query.
-
-    Returns: Comma-separated list of organs
-    """
     gpv = Φ(query)
-
-    organs = ["INIT"]  # Always
-
-    if gpv.lane in (Lane.FACTUAL, Lane.CARE, Lane.CRISIS):
-        organs.append("AGI")
-
-    if gpv.lane in (Lane.CARE, Lane.CRISIS) or gpv.care_demand > 0.5:
-        organs.append("ASI")
-
-    organs.append("APEX")  # Always
-
-    if gpv.requires_grounding():
-        organs.append("(grounding)")
-
+    organs = ["INIT"]
+    if gpv.lane in (Lane.FACTUAL, Lane.CARE, Lane.CRISIS): organs.append("AGI")
+    if gpv.lane in (Lane.CARE, Lane.CRISIS) or gpv.care_demand > 0.5: organs.append("ASI")
+    organs.append("APEX")
+    if gpv.requires_grounding(): organs.append("(grounding)")
     return " → ".join(organs)
 
 
-# Clear API aliases
-def classify_query(query: str) -> dict[str, any]:
-    """Clear alias for classify()."""
-    return classify(query)
-
-
-def route_query(query: str) -> str:
-    """Clear alias for route()."""
-    return route(query)
+def classify_query(query: str) -> dict[str, any]: return classify(query)
+def route_query(query: str) -> str: return route(query)
 
 
 def normalize_semantic_text(text: str) -> str:
-    """
-    Standardize text for semantic processing and floor evaluation.
-
-    1. NFKC normalization (Unicode standardization)
-    2. Homograph mapping (Confusable script-mixing defense)
-    3. Case folding (Lowercase)
-
-    This is the primary 'Ontology Lock' for all semantic layers (555, 666).
-    """
-    if not isinstance(text, str):
-        return ""
-
-    # 1. NFKC Normalization
+    if not isinstance(text, str): return ""
     n = unicodedata.normalize("NFKC", text).lower()
-
-    # 2. Homograph Map (Ontology Lock)
-    # Maps common confusable Cyrillic/Greek chars to their ASCII equivalent
-    confusable_map = {
-        "а": "a",
-        "е": "e",
-        "о": "o",
-        "р": "p",
-        "с": "c",
-        "у": "y",
-        "х": "x",
-        "А": "a",
-        "Е": "e",
-        "О": "o",
-        "Р": "p",
-        "С": "c",
-        "У": "y",
-        "Х": "x",
-        # Greek / Cyrillic mix extensions
-        "τ": "t",
-        "ν": "n",
-        "ρ": "p",
-        "ω": "w",
-        "κ": "k",
-        "ε": "e",
-        "Ε": "e",
-    }
-
+    confusable_map = {"а": "a", "е": "e", "о": "o", "р": "p", "с": "c", "у": "y", "х": "x", "А": "a", "Е": "e", "О": "o", "Р": "p", "С": "c", "У": "y", "Х": "x", "τ": "t", "ν": "n", "ρ": "p", "ω": "w", "κ": "k", "ε": "e", "Ε": "e"}
     return "".join(confusable_map.get(c, c) for c in n)
 
 
-# ═════════════════════════════════════════════════════════════════════════════
-# EXPORTS
-# ═════════════════════════════════════════════════════════════════════════════
-
 __all__ = [
-    # Lane types
-    "Lane",
-    # Query types (NEW)
-    "QueryType",
-    "classify_query_type",
-    # GPV
-    "GPV",
-    # The 3 Functions
-    "Λ",  # Lambda: Text → Lane
-    "Θ",  # Theta: Lane → Demands
-    "Φ",  # Phi: Text → GPV
-    # ASCII aliases
-    "Lambda",
-    "Theta",
-    "Phi",
-    # ATLAS engine
-    "ATLAS",
-    # Convenience
-    "classify",
-    "route",
-    "classify_query",
-    "route_query",
-    "normalize_semantic_text",
+    "Lane", "QueryType", "classify_query_type", "GPV", "Λ", "Θ", "Φ",
+    "Lambda", "Theta", "Phi", "ATLAS", "classify", "route",
+    "classify_query", "route_query", "normalize_semantic_text",
 ]

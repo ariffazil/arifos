@@ -44,6 +44,10 @@ class Stakeholder:
     role: str = "unknown"
     vulnerability_score: float = field(default=0.5)  # 0.0 (resilient) to 1.0 (highly vulnerable)
 
+    def __post_init__(self):
+        # Clamp values to [0, 1]
+        object.__setattr__(self, "vulnerability_score", max(0.0, min(1.0, self.vulnerability_score)))
+
 
 # Distress signals for empathy calculation
 DISTRESS_SIGNALS = [
@@ -277,31 +281,33 @@ def identify_stakeholders(query: str, context: str | None = None) -> list[Stakeh
 
 
 @dataclass(frozen=True)
-class TrinityTensor:
+class QuadTensor:
     """
-    Psi = [H, A, S] — Three witnesses as immutable vector.
+    Psi = [H, A, E, V] — Quad-Witness Byzantine consensus.
 
-    H in [0,1]: Human witness (ground truth, verification)
-    A in [0,1]: AI witness (reasoning, inference)
-    S in [0,1]: System witness (evidence, axioms)
+    H in [0,1]: Human witness (Authority)
+    A in [0,1]: AI witness (Reasoning)
+    E in [0,1]: Earth/Evidence witness (Grounding/Reality)
+    V in [0,1]: Verifier witness (Ψ-Shadow/Adversary)
     """
 
-    H: float  # Human
-    A: float  # AI
-    S: float  # System
+    H: float
+    A: float
+    E: float
+    V: float
 
     def __post_init__(self):
         # Clamp values to [0, 1]
-        object.__setattr__(self, "H", max(0.0, min(1.0, self.H)))
-        object.__setattr__(self, "A", max(0.0, min(1.0, self.A)))
-        object.__setattr__(self, "S", max(0.0, min(1.0, self.S)))
+        for field_name in ["H", "A", "E", "V"]:
+            val = max(0.0, min(1.0, getattr(self, field_name)))
+            object.__setattr__(self, field_name, val)
 
 
 def geometric_mean(values: Sequence[float]) -> float:
     """
     Compute geometric mean of values.
 
-    Used in W_3 calculation.
+    Used in W_4 calculation.
 
     Returns:
         Geometric mean (nth root of product)
@@ -331,42 +337,91 @@ def std_dev(values: Sequence[float]) -> float:
     return statistics.stdev(values)
 
 
-def W_3(H: float, A: float, S: float) -> float:
+def W_4(H: float, A: float, E: float, V: float) -> float:
     """
-    F3 Tri-Witness Consensus: W_3 = cube_root(H × A × S)
+    F3 Quad-Witness Consensus: W_4 = (H × A × E × V)^(1/4)
 
-    Geometric mean ensures no single witness dominates.
-    All three must be high for W_3 >= 0.95.
+    Byzantine Fault Tolerance: n >= 3f + 1.
+    With n=4, we can tolerate f=1 malicious/faulty witness.
 
     Args:
         H: Human witness score [0, 1]
         A: AI witness score [0, 1]
-        S: System witness score [0, 1]
+        E: Earth/Evidence witness score [0, 1]
+        V: Verifier (Ψ-Shadow) witness score [0, 1]
 
     Returns:
-        W_3 consensus score [0, 1]
+        W_4 consensus score [0, 1]
     """
-    return geometric_mean([H, A, S])
+    return geometric_mean([H, A, E, V])
 
 
-def W_3_from_tensor(tensor: TrinityTensor) -> float:
-    """Compute W_3 from TrinityTensor."""
-    return W_3(tensor.H, tensor.A, tensor.S)
+def W_4_from_tensor(tensor: QuadTensor) -> float:
+    """Compute W_4 from QuadTensor."""
+    return W_4(tensor.H, tensor.A, tensor.E, tensor.V)
 
 
 # Clear API aliases
-def tri_witness(H: float, A: float, S: float) -> float:
-    """Clear alias for W_3()."""
-    return W_3(H, A, S)
+def quad_witness(H: float, A: float, E: float, V: float) -> float:
+    """Clear alias for W_4()."""
+    return W_4(H, A, E, V)
 
 
-def W_3_check(H: float, A: float, S: float, threshold: float = 0.95) -> bool:
+def W_4_check(H: float, A: float, E: float, V: float, threshold: float = 0.75) -> bool:
     """
-    F3 enforcement check: W_3 >= threshold?
+    F3 enforcement check: W_4 >= threshold?
 
     Returns True if consensus meets constitutional threshold.
     """
-    return W_3(H, A, S) >= threshold
+    return W_4(H, A, E, V) >= threshold
+
+
+# =============================================================================
+# DEPRECATED — Legacy Tri-Witness Compatibility
+# =============================================================================
+
+
+def W_3(H: float, A: float, E: float | None = None, S: float | None = None) -> float:
+    """DEPRECATED: Use W_4. Returns geometric mean of 3 witnesses."""
+    effective_e = E if E is not None else (S if S is not None else 0.0)
+    return geometric_mean([H, A, effective_e])
+
+
+def W_3_from_tensor(tensor: Any) -> float:
+    """DEPRECATED: Use W_4_from_tensor."""
+    if hasattr(tensor, "V"):
+        return W_4_from_tensor(tensor)
+    # Check for S or E
+    e_val = getattr(tensor, "E", getattr(tensor, "S", 0.0))
+    return geometric_mean([tensor.H, tensor.A, e_val])
+
+
+def W_3_check(H: float, A: float, E: float | None = None, threshold: float = 0.95, S: float | None = None) -> bool:
+    """DEPRECATED: Use W_4_check."""
+    return W_3(H, A, E=E, S=S) >= threshold
+
+
+@dataclass(frozen=True)
+class TrinityTensor:
+    """DEPRECATED: Use QuadTensor."""
+
+    H: float
+    A: float
+    S: float  # Alias for Earth/Evidence
+
+    def __post_init__(self):
+        object.__setattr__(self, "H", max(0.0, min(1.0, self.H)))
+        object.__setattr__(self, "A", max(0.0, min(1.0, self.A)))
+        object.__setattr__(self, "S", max(0.0, min(1.0, self.S)))
+
+    @property
+    def E(self) -> float:
+        return self.S
+
+
+def tri_witness(H: float, A: float, S: float) -> float:
+    """DEPRECATED: Use quad_witness."""
+    return W_3(H, A, S)
 
 
 # =============================================================================
@@ -614,12 +669,13 @@ def peace_squared(stakeholder_harms: dict[str, float]) -> float:
 @dataclass(frozen=True)
 class GeniusDial:
     """
-    F8: Genius Equation: G = A × P × X × E²
+    F8: Genius Equation: G = (A × P × X × E²) × (1 - h)
 
     A (Akal): Logical Accuracy [0, 1]
     P (Peace): Safety/Stability [0, 1]
     X (Exploration): Novelty/Creativity [0, 1]
     E (Energy): Efficiency [0, 1] (Squared power)
+    h (Hysteresis): Penalty for previous failures [0, 1]
 
     Threshold: G >= 0.80 for Genius certification.
     """
@@ -628,37 +684,80 @@ class GeniusDial:
     P: float
     X: float
     E: float
+    h: float = 0.0  # Hysteresis penalty accumulator
 
     def __post_init__(self):
         object.__setattr__(self, "A", max(0.0, min(1.0, self.A)))
         object.__setattr__(self, "P", max(0.0, min(1.0, self.P)))
         object.__setattr__(self, "X", max(0.0, min(1.0, self.X)))
         object.__setattr__(self, "E", max(0.0, min(1.0, self.E)))
+        object.__setattr__(self, "h", max(0.0, min(1.0, self.h)))
 
     def G(self) -> float:
-        """Compute Genius Score."""
-        return self.A * self.P * self.X * (self.E**2)
+        """Compute Genius Score with Hysteresis penalty."""
+        base_g = self.A * self.P * self.X * (self.E**2)
+        return base_g * (1.0 - self.h)
 
-    def is_genius(self) -> bool:
-        """F8 enforcement: G >= 0.80?"""
-        return self.G() >= 0.80
+    def is_genius(self, threshold: float = 0.80) -> bool:
+        """F8 enforcement: G >= threshold?"""
+        return self.G() >= threshold
+
+    def weakest_dial(self) -> str:
+        """Identify component with lowest score."""
+        dials = {"A": self.A, "P": self.P, "X": self.X, "E": self.E}
+        return min(dials, key=dials.get)
 
 
-def G(A: float, P: float, X: float, E: float) -> float:
+def G(A: float, P: float, X: float, E: float, h: float = 0.0) -> float:
     """
-    F8 Genius Equation: G = A × P × X × E²
+    F8 Genius Equation: G = (A × P × X × E²) × (1 - h)
     """
-    return GeniusDial(A, P, X, E).G()
+    return GeniusDial(A, P, X, E, h).G()
 
 
-def genius_score(A: float, P: float, X: float, E: float) -> float:
+def genius_score(A: float, P: float, X: float, E: float, h: float = 0.0) -> float:
     """Clear alias for G()."""
-    return G(A, P, X, E)
+    return G(A, P, X, E, h)
 
 
 def G_from_dial(dial: GeniusDial) -> float:
     """Extract G from GeniusDial object."""
     return dial.G()
+
+
+# =============================================================================
+# PROBABILISTIC PRIMITIVES — KL-Divergence & Surprise
+# =============================================================================
+
+
+def kl_divergence(p: list[float], q: list[float]) -> float:
+    """
+    Kullback-Leibler Divergence: D_KL(P || Q) = Σ P(i) ln(P(i) / Q(i))
+
+    Measures how much Q (output distribution) diverges from P (truth/reference).
+    Used in F9 (Anti-Hantu) to detect semantic drift and "hollow" text.
+
+    Args:
+        p: Reference distribution (True)
+        q: Measured distribution (Output)
+
+    Returns:
+        D_KL in [0, inf)
+    """
+    if len(p) != len(q):
+        return 1.0  # Mismatched dimensions
+
+    # Normalize to ensure they are valid distributions
+    sum_p = sum(p) or 1.0
+    sum_q = sum(q) or 1.0
+    p_norm = [max(1e-10, x / sum_p) for x in p]
+    q_norm = [max(1e-10, x / sum_q) for x in q]
+
+    kl = 0.0
+    for pi_val, qi_val in zip(p_norm, q_norm):
+        kl += pi_val * math.log(pi_val / qi_val)
+
+    return max(0.0, kl)
 
 
 # =============================================================================
@@ -681,7 +780,7 @@ class ConstitutionalTensor:
     - budget_depletion: Session energy consumed ratio
     """
 
-    witness: TrinityTensor  # F3 (H, A, S)
+    witness: QuadTensor  # F3 (H, A, E, V)
     entropy_delta: float  # F4 (<= 0)
     humility: UncertaintyBand  # F7 (0.03-0.05)
     genius: GeniusDial  # F8 (G >= 0.8)
@@ -717,37 +816,54 @@ class ConstitutionalTensor:
             return False
         return True
 
-    def constitutional_check(self) -> tuple[bool, list[str]]:
-        """
-        Verify all hard floors including P3 thermodynamics.
-        Returns (passed, list_of_violations).
-        """
-        violations = []
+    def to_metrics(self) -> dict[str, Any]:
+        """Export state as flat metrics dictionary."""
+        verdict, _ = self.constitutional_check()
+        return {
+            "truth": self.truth_score,
+            "W_4": W_4_from_tensor(self.witness),
+            "empathy": self.empathy,
+            "clarity": 1.0 - max(0, self.entropy_delta),
+            "peace": self.peace.P2(),
+            "humility": self.humility.omega_0,
+            "genius_G": self.genius.G(),
+            "verdict": verdict,
+        }
 
+    def constitutional_check(self) -> tuple[str, list[str]]:
+        """
+        Verify all hard floors and return verdict.
+        Returns (verdict, list_of_violations) where verdict is SEAL, PARTIAL, or VOID.
+        """
+        passed, violations = self._internal_check()
+
+        if not passed:
+            # Check if any violation is "HARD"
+            hard_floors = {"F2", "F4", "F7", "F10", "F11", "F12"}
+            is_void = any(any(hf in v for hf in hard_floors) for v in violations)
+            return "VOID" if is_void else "PARTIAL", violations
+
+        # All passed
+        return "SEAL", []
+
+    def _internal_check(self) -> tuple[bool, list[str]]:
+        """Internal boolean check logic."""
+        violations = []
         # F2 Truth
         if self.truth_score < 0.99:
             violations.append(f"F2: Truth score {self.truth_score} < 0.99")
-
-        # F3 Consensus (Soft/Derived)
-        if W_3_from_tensor(self.witness) < 0.95:
-            pass
-
-        # F4 Clarity (HARD in P3)
+        # F4 Clarity
         if self.entropy_delta > 0:
             violations.append(f"F4: Entropy increased by {self.entropy_delta}")
-
         # F7 Humility
         if not self.humility.is_locked():
             violations.append(f"F7: Humility {self.humility.omega_0} outside [0.03, 0.05]")
-
         # P3: Thermodynamic checks
         if self.landauer_ratio < 0.5:
-            violations.append(f"F2-Landauer: Ratio {self.landauer_ratio:.4f} < 0.5 (cheap truth)")
-
+            violations.append(f"F2-Landauer: Ratio {self.landauer_ratio:.4f} < 0.5")
         if self.orthogonality < 0.95:
-            violations.append(f"F8-Orthogonality: {self.orthogonality:.4f} < 0.95 (mode collapse)")
-
+            violations.append(f"F8-Orthogonality: {self.orthogonality:.4f} < 0.95")
         if self.budget_depletion >= 1.0:
-            violations.append(f"F7-Budget: Depleted ({self.budget_depletion:.2%})")
+            violations.append(f"F7-Budget: Depleted")
 
         return len(violations) == 0, violations

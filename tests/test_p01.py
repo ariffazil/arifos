@@ -6,7 +6,7 @@ Tests: Query Classification (P0.1), Adaptive F2 (P0.2), Circuit Breaker (P0.3)
 import asyncio
 import sys
 from core.pipeline import forge
-from core.organs._0_init import classify_query, QueryType
+from core.shared.atlas import QueryType, classify_query_type as classify_query
 
 
 def test_p01_query_classification():

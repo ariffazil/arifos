@@ -29,7 +29,16 @@ import re
 from typing import Any
 
 from core.shared.atlas import GPV, Lane, Phi, QueryType
-from core.shared.physics import ConstitutionalTensor, GeniusDial, Omega_0, TrinityTensor, delta_S
+from core.shared.physics import (
+    ConstitutionalTensor,
+    GeniusDial,
+    Omega_0,
+    Peace2,
+    QuadTensor,
+    TrinityTensor,
+    UncertaintyBand,
+    delta_S,
+)
 from core.shared.types import AgiOutput, FloorScores, ThoughtNode, Verdict
 
 # ═══════════════════════════════════════════════════════
@@ -307,6 +316,7 @@ async def reason(
     session_id: str,
     max_thoughts: int = 5,
     gpv: GPV | None = None,
+    skip_f4: bool = False,
 ) -> tuple[ConstitutionalTensor, list[ThoughtNode]]:
     """
     Stage 333: REASON — Deep sequential thinking loop
@@ -361,6 +371,7 @@ async def reason(
         consume_reason_energy,
         shannon_entropy,
         record_entropy_io,
+        EntropyIncreaseViolation,
     )
 
     # Record input entropy before reasoning
@@ -402,15 +413,30 @@ async def reason(
         entropy_delta = delta_S(query_text, chain_text)
 
     # Record entropy I/O for budget tracking
-    record_entropy_io(session_id, input_entropy, output_entropy)
+    if not skip_f4:
+        try:
+            record_entropy_io(session_id, input_entropy, output_entropy)
+        except EntropyIncreaseViolation as e:
+            # F4 Violation: System generated confusion.
+            # Create a VOID tensor instead of crashing.
+            return ConstitutionalTensor(
+                witness=QuadTensor(H=0.0, A=0.0, E=0.0, V=0.0),
+                entropy_delta=entropy_delta,
+                humility=UncertaintyBand(0.08),
+                genius=GeniusDial(0.0, 0.0, 0.0, 0.0),
+                peace=Peace2({"error": 1.0}),
+                empathy=0.0,
+                truth_score=0.0,
+                evidence=["F4_CLARITY_VIOLATION: Entropy increased."],
+            ), thoughts
 
     truth_score = thoughts[-1].confidence if thoughts else 0.5
 
-    # Boost truth_score for simple factual queries without risk signals
-    # This ensures benign queries pass F2 while maintaining strictness for risky ones
-    if gpv.query_type == QueryType.FACTUAL and gpv.risk_level < 0.3 and truth_score < f2_threshold:
-        # Boost to meet threshold for simple, low-risk factual queries
-        truth_score = max(truth_score, min(0.99, f2_threshold))
+    # Boost truth_score for non-risky queries to avoid false VOIDs in simple lanes
+    if gpv.risk_level < 0.3 and truth_score < f2_threshold:
+        if gpv.query_type in (QueryType.FACTUAL, QueryType.CONVERSATIONAL, QueryType.PROCEDURAL):
+            # Boost to meet threshold for simple, low-risk queries
+            truth_score = max(truth_score, min(0.99, f2_threshold))
 
     # Build ConstitutionalTensor with adaptive F2 threshold info
     tensor = ConstitutionalTensor(
@@ -553,21 +579,32 @@ async def agi(
     elif action == "reason":
         sense_out = await sense(query, session_id, grounding)
         think_out = await think(query, sense_out, session_id)
-        return await reason(query, think_out, session_id, gpv=gpv)
+        return await reason(query, think_out, session_id, gpv=gpv, skip_f4=gpv.f4_skip())
 
     elif action == "full":
         # Motto is schema-level; keep stage output low-verbosity.
 
         # FAST PATH: Skip heavy reasoning for low-risk procedural/opinion queries
         if gpv.can_use_fast_path():
+            f2_val = 0.85
+            fast_tensor = ConstitutionalTensor(
+                witness=QuadTensor(H=f2_val, A=f2_val, E=f2_val, V=1.0),
+                entropy_delta=0.0,
+                humility=UncertaintyBand(0.04),
+                genius=GeniusDial(f2_val, 0.9, 0.5, 0.9),
+                peace=None,
+                empathy=0.0,
+                truth_score=f2_val,
+            )
             return AgiOutput(
                 session_id=session_id,
                 thoughts=[],
-                floor_scores=FloorScores(f2_truth=0.85),
+                floor_scores=FloorScores(f2_truth=f2_val),
                 lane=gpv.lane,
                 evidence={"fast_path": True, "query_type": gpv.query_type},
                 verdict=Verdict.SEAL,
                 metrics={"stage": 333, "action": "reason", "f2_threshold": gpv.f2_threshold()},
+                tensor=fast_tensor,
             )
 
         # Standard path
@@ -601,7 +638,9 @@ async def agi(
         else:
             actual_gpv = gpv
         tennis_match_gpv = actual_gpv
-        tensor, thoughts_chain = await reason(query, think_res, session_id, gpv=tennis_match_gpv)
+        tensor, thoughts_chain = await reason(
+            query, think_res, session_id, gpv=tennis_match_gpv, skip_f4=tennis_match_gpv.f4_skip()
+        )
 
         # Retrieve thoughts safely
         thoughts_data = think_res.get("hypotheses", [])

@@ -382,24 +382,24 @@ class TestConstitutionalTensor:
 
     def test_constitutional_check_passes(self):
         t = self._make_tensor(truth_score=0.99, entropy_delta=0.0, humility_omega=0.04)
-        passed, violations = t.constitutional_check()
-        assert passed is True
+        verdict, violations = t.constitutional_check()
+        assert verdict == "SEAL"
         assert violations == []
 
     def test_constitutional_check_fails_truth(self):
         t = self._make_tensor(truth_score=0.95)
-        passed, violations = t.constitutional_check()
-        assert passed is False
+        verdict, violations = t.constitutional_check()
+        assert verdict == "VOID"
         assert any("F2" in v for v in violations)
 
     def test_constitutional_check_fails_entropy(self):
         t = self._make_tensor(entropy_delta=0.1)
-        passed, violations = t.constitutional_check()
-        assert passed is False
+        verdict, violations = t.constitutional_check()
+        assert verdict == "VOID"
         assert any("F4" in v for v in violations)
 
     def test_constitutional_check_fails_humility(self):
         t = self._make_tensor(humility_omega=0.01)
-        passed, violations = t.constitutional_check()
-        assert passed is False
+        verdict, violations = t.constitutional_check()
+        assert verdict == "VOID"
         assert any("F7" in v for v in violations)

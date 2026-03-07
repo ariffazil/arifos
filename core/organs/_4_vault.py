@@ -136,11 +136,15 @@ async def seal(
 
     # 3. Build canonical entry
     timestamp = datetime.now(timezone.utc).isoformat()
+    # Consensus score mapping
+    w_consensus = float(judge_output.get("W_4", judge_output.get("W_3", 0.0)))
+    
     entry: dict[str, Any] = {
         "session_id": session_id,
         "timestamp": timestamp,
         "verdict": str(judge_output.get("verdict", "VOID")),
-        "W_3": float(judge_output.get("W_3", 0.0)),
+        "W_4": w_consensus,
+        "W_3": w_consensus, # Legacy support
         "genius_G": float(judge_output.get("genius_G", 0.0)),
         "eureka_score": eureka,
         "floors_failed": judge_output.get("floors_failed", []),
@@ -223,14 +227,15 @@ def _compute_eureka_score(
 ) -> float:
     """Compute EUREKA score based on truth, consensus, genius, and novelty."""
     truth = agi_tensor.truth_score if agi_tensor else 0.99
-    w3 = float(judge_output.get("W_3", 0.0))
+    # Support both Quad-Witness (W4) and Tri-Witness (W3)
+    w_consensus = float(judge_output.get("W_4", judge_output.get("W_3", 0.0)))
     genius = float(judge_output.get("genius_G", 0.8))
     peace = float(asi_output.get("peace_squared", 1.0)) if asi_output else 1.0
 
     # Novelty proxy (Simplified)
     novelty = 0.8
 
-    score = (truth * w3 * genius * peace * novelty) ** 0.2
+    score = (truth * w_consensus * genius * peace * novelty) ** 0.2
     if objective_contract:
         drift = float(objective_contract.get("drift", 0.0))
         threshold = float(objective_contract.get("threshold", 0.45))

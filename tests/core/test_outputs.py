@@ -66,7 +66,7 @@ async def test_asi_output_standardization():
 async def test_apex_output_standardization():
     # Mock data
     agi_tensor = create_mock_tensor()
-    asi_output = {"peace_squared": 1.0, "kappa_r": 0.8}
+    asi_output = {"floor_scores": {"f6_empathy": 0.8, "f5_peace": 1.0}}
     res = await apex(agi_tensor, asi_output, "test-sid", action="full")
     assert isinstance(res, ApexOutput)
     assert res.status == "SUCCESS"
@@ -75,7 +75,7 @@ async def test_apex_output_standardization():
 @pytest.mark.asyncio
 async def test_vault_output_standardization():
     agi_tensor = create_mock_tensor()
-    judge_out = {"verdict": "SEAL", "W_3": 0.98, "genius_G": 0.85}
+    judge_out = {"verdict": "SEAL", "W_4": 0.98, "genius_G": 0.85}
     asi_out = {"peace_squared": 1.0}
     res = await vault("seal", judge_out, agi_tensor, asi_out, "test-sid", "test query")
     assert isinstance(res, VaultOutput)

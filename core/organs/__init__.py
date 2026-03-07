@@ -29,7 +29,6 @@ from . import _4_vault as memory
 # Actions for direct use
 from ._0_init import (
     AuthorityLevel,
-    SessionToken,
     get_authority_name,
     init,
     requires_sovereign,
@@ -37,6 +36,7 @@ from ._0_init import (
     validate_token,
     verify_auth,
 )
+from core.shared.types import InitOutput
 from ._1_agi import agi, reason, sense, think
 from ._2_asi import align, asi, empathize
 from ._3_apex import apex, forge, judge, sync
@@ -76,7 +76,7 @@ __all__ = [
     "seal",  # Stage 999
     "vault",  # Unified vault interface
     # Types
-    "SessionToken",
+    "InitOutput",
     "AuthorityLevel",
     "SealReceipt",
     "validate_token",

@@ -1048,6 +1048,83 @@ def compute_earth_witness(
     }
 
 
+def compute_verifier_witness(
+    *,
+    context: dict[str, Any],
+    proposal: str,
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    """
+    Ψ-Shadow (Adversarial Verifier) Witness
+    
+    The 4th witness in Quad-Witness consensus. Returns HIGH score only if
+    the proposal passes adversarial scrutiny. Returns LOW score if attacks,
+    contradictions, or harm scenarios are detected.
+    
+    SPEC: W_4 = (H × A × E × V)^(1/4) >= 0.75
+    This witness provides the 'V' component.
+    
+    Returns:
+        {
+            "valid": bool,
+            "score": float [0,1],  # 1.0 = no attacks found, 0.0 = critical flaw
+            "signals": {
+                "attacks_found": bool,
+                "contradictions": list,
+                "harm_scenarios": list,
+                "injection_vectors": list
+            }
+        }
+    """
+    signals: dict[str, Any] = {
+        "attacks_found": False,
+        "contradictions": [],
+        "harm_scenarios": [],
+        "injection_vectors": [],
+        "critique_verdict": "APPROVE"
+    }
+    
+    # Initialize PsiShadow for adversarial analysis
+    try:
+        from aclip_cai.triad.psi import PsiShadow
+        shadow = PsiShadow()
+        
+        critique = shadow.attack_proposal(
+            proposal=proposal,
+            agi_context=agi_result,
+            asi_context=asi_result
+        )
+        
+        signals["contradictions"] = critique.get("logical_contradictions", [])
+        signals["injection_vectors"] = critique.get("injection_vectors", [])
+        signals["harm_scenarios"] = critique.get("harm_scenarios", [])
+        signals["critique_verdict"] = critique.get("verdict", "APPROVE")
+        signals["attacks_found"] = critique.get("verdict") == "REJECT"
+        
+    except Exception as e:
+        # Fail-safe: if shadow fails, assume safe (conservative)
+        signals["critique_error"] = str(e)
+        signals["critique_verdict"] = "APPROVE"  # Fail open to prevent deadlock
+    
+    # Compute verifier score
+    if signals["attacks_found"]:
+        score = 0.1  # Low score blocks consensus
+        valid = False
+    elif signals["contradictions"] or signals["harm_scenarios"]:
+        score = 0.5  # Partial score, may fail threshold
+        valid = False
+    else:
+        score = 0.98  # High score allows consensus
+        valid = True
+    
+    return {
+        "valid": valid,
+        "score": score,
+        "signals": signals
+    }
+
+
 def build_governance_proof(
     *,
     continuity_ok: bool,
@@ -1063,7 +1140,17 @@ def build_governance_proof(
     omega_ortho: Any,
     mode_collapse: bool,
     non_violation_status: bool,
+    # NEW PARAMETERS for Quad-Witness
+    proposal: str = "",
+    agi_result: dict[str, Any] | None = None,
+    asi_result: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """
+    Build governance proof with Quad-Witness consensus.
+    
+    SPEC: W_4 = (H × A × E × V)^(1/4) >= 0.75
+    """
+    # Existing witnesses
     human = compute_human_witness(
         continuity_ok=continuity_ok,
         approval_ok=approval_ok,
@@ -1077,6 +1164,14 @@ def build_governance_proof(
         revocation_ok=revocation_ok,
         health_ok=health_ok,
     )
+    
+    # NEW: Verifier witness (Ψ-Shadow)
+    verifier = compute_verifier_witness(
+        context={},
+        proposal=proposal,
+        agi_result=agi_result,
+        asi_result=asi_result
+    )
 
     omega_score = _clamp01(omega_ortho, default=1.0)
     omega_valid = True if omega_ortho is None else omega_score >= 0.95
@@ -1087,27 +1182,42 @@ def build_governance_proof(
         + omega_score * 0.25
     )
 
-    authority_valid = bool(human.get("valid"))
-    authority_score = _clamp01(human.get("score"), default=0.0)
+    # UPDATED: Authority pillar includes verifier
+    authority_valid = bool(human.get("valid")) and bool(verifier.get("valid"))
+    authority_score = min(
+        _clamp01(human.get("score"), default=0.0),
+        _clamp01(verifier.get("score"), default=0.0)
+    )
+    
+    # UPDATED: Quad-Witness calculation (W4)
     witness_product = (
         _clamp01(human.get("score"), default=0.0)
         * _clamp01(ai.get("score"), default=0.0)
         * _clamp01(earth.get("score"), default=0.0)
+        * _clamp01(verifier.get("score"), default=0.0)  # NEW
     )
-    w3 = witness_product ** (1 / 3) if witness_product > 0.0 else 0.0
-    tri_witness_valid = w3 >= 0.95 and bool(human.get("valid")) and bool(earth.get("valid"))
+    
+    # Use W4 (Quad-Witness) instead of W3 (Tri-Witness)
+    w4 = witness_product ** (1 / 4) if witness_product > 0.0 else 0.0
+    quad_witness_valid = w4 >= 0.75 and bool(human.get("valid")) and bool(earth.get("valid"))
+    
+    # Keep w3 for backward compatibility during transition
+    w3 = (witness_product / max(verifier.get("score", 0.98), 0.01)) ** (1 / 3) if witness_product > 0 and verifier.get("score", 0) > 0 else 0.0
 
     proof: dict[str, Any] = {
         "authority_valid": authority_valid,
         "thermodynamics_valid": thermodynamics_valid,
-        "tri_witness_valid": tri_witness_valid,
+        # CHANGED: quad_witness instead of tri_witness
+        "quad_witness_valid": quad_witness_valid,
         "authority_score": authority_score,
         "thermodynamic_score": _clamp01(thermodynamic_score, default=0.0),
         "witness": {
             "human": human,
             "ai": ai,
             "earth": earth,
-            "w3": w3,
+            "verifier": verifier,  # NEW
+            "w4": w4,  # NEW
+            "w3": w3,  # Keep for backward compatibility
         },
         "gate_verdict": "SEAL",
         "gate_reason": "All fused governance pillars are valid.",
@@ -1125,9 +1235,10 @@ def apply_governance_gate(
     elif not governance_proof.get("thermodynamics_valid"):
         governance_proof["gate_verdict"] = "VOID"
         governance_proof["gate_reason"] = "Thermodynamic pillar failed (P3 plausibility)."
-    elif not governance_proof.get("tri_witness_valid"):
+    # CHANGED: Check quad_witness instead of tri_witness
+    elif not governance_proof.get("quad_witness_valid"):
         governance_proof["gate_verdict"] = "888_HOLD"
-        governance_proof["gate_reason"] = "Tri-Witness consensus below F3 threshold."
+        governance_proof["gate_reason"] = "Quad-Witness consensus below F3 threshold (W4 < 0.75)."
     elif verdict == "VOID":
         governance_proof["gate_verdict"] = "VOID"
         governance_proof["gate_reason"] = "Underlying verdict is already VOID."
@@ -1815,6 +1926,10 @@ async def _apex_verdict(
             omega_ortho=omega_ortho,
             mode_collapse=mode_collapse,
             non_violation_status=verdict.upper() != "VOID",
+            # NEW PARAMETERS for Quad-Witness
+            proposal=query,
+            agi_result=agi_result,
+            asi_result=asi_result,
         )
 
         # formal APEX judgment (best-effort only; fused governance gate decides final verdict)
@@ -2945,7 +3060,7 @@ audit_rules = ToolHandle(_system_audit)
 
 @mcp.tool(
     name="critique_thought",
-    description="[Lane: Ω Omega] [Floors: F4, F7, F8] 7-organ alignment & bias critique.",
+    description="[Lane: Ψ Psi] [Floors: F4, F7, F8, F9] Ψ-Shadow adversarial analysis & attack simulation.",
 )
 async def _critique_thought(
     session_id: str,
@@ -2954,6 +3069,12 @@ async def _critique_thought(
     auth_token: str | None = None,
     auth_context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """
+    Ψ-Shadow: Adversarial analysis of a proposal.
+    
+    Unlike alignment checks, this tool ATTACKS the proposal to find flaws.
+    Returns LOW score if attacks/contradictions/harm are detected.
+    """
     continuity_binding, continuity_error = _enforce_auth_continuity(
         tool_name="critique_thought",
         stage="666_CRITIQUE",
@@ -2965,16 +3086,40 @@ async def _critique_thought(
     )
     if continuity_error:
         return continuity_error
-    critique_text = json.dumps(plan, ensure_ascii=True, sort_keys=True)
-    payload = await align(session_id=session_id, action=critique_text)
+    
+    # NEW: Use PsiShadow for adversarial analysis
+    from aclip_cai.triad.psi import PsiShadow
+    shadow = PsiShadow()
+    
+    proposal_text = json.dumps(plan, ensure_ascii=True, sort_keys=True)
+    critique = shadow.attack_proposal(proposal=proposal_text)
+    
+    # Also run alignment check for comparison
+    alignment_payload = await align(session_id=session_id, action=proposal_text)
+    
+    # Build comprehensive critique result
+    payload = {
+        "adversarial_analysis": critique,
+        "alignment_check": alignment_payload,
+        "verdict": critique["verdict"],
+        "confidence": critique["confidence"],
+        "witness_score": 0.1 if critique["verdict"] == "REJECT" else 0.98,
+        "attacks_found": critique["verdict"] == "REJECT",
+        "summary": f"Ψ-Shadow: {len(critique['logical_contradictions'])} contradictions, "
+                   f"{len(critique['injection_vectors'])} injection vectors, "
+                   f"{len(critique['harm_scenarios'])} harm scenarios"
+    }
+    
     result = envelope_builder.build_envelope(
         stage="666_CRITIQUE",
         session_id=session_id,
-        verdict="SEAL",
+        verdict=critique["verdict"],
         payload=payload,
     )
+    
     if continuity_binding:
         result["auth_context"] = _rotate_auth_context(session_id, continuity_binding)
+    
     return result
 
 

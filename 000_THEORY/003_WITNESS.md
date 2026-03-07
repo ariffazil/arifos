@@ -1,700 +1,133 @@
-# WITNESS SYSTEM - Constitutional Monitoring & Implementation
+# QUAD-WITNESS SYSTEM - Byzantine Fault Tolerance & Implementation
 
-**Version:** v49.1 | **Status:** CANONICAL | **Authority:** Ψ Auditor  
-**Doctrine:** *"There are no secrets between organs."* — Panopticon Principle
+**Version:** v64.1-QUAD-BFT | **Status:** CANONICAL | **Authority:** Ψ-Shadow Auditor  
+**Doctrine:** *"Safety Through Opposition — The Shadow Makes The Light."*
 
 ---
 
 ## 1. Witness System Overview
 
-The WITNESS system is the **constitutional monitoring infrastructure** that ensures all AI agents operate within constitutional bounds. This implements the **Panopticon Principle**: *There are no secrets between organs* — every agent's reasoning process is visible to the entire Federation.
-
-### Migration Note
-**This document replaces the entire `000_WITNESS/` directory.** All witness functionality is now canonical and implemented through this specification rather than separate log files.
+The WITNESS system is the **Byzantine Fault Tolerant (BFT) monitoring infrastructure** that ensures all AI agents operate within constitutional bounds. Following the **n ≥ 3f + 1** theorem, arifOS utilizes **four witnesses (n=4)** to tolerate one malicious or faulty actor (f=1).
 
 ### Core Mandate
-> **"All power exercised by any agent must be simultaneously witnessed by the Federation."**
+> **"Consensus is not a gift—it is a proof achieved through structured disagreement."**
 
 ---
 
-## 2. The Four Witnesses (Trinity + One)
+## 2. The Four Witnesses (The Quad-Council)
 
-Each agent serves as a **constitutional witness** with specific monitoring duties aligned to their role in the 000-999 metabolic cycle:
+Each agent serves as a **constitutional witness** with specific monitoring duties. True safety emerges from the interaction between the three "Honest" witnesses and the "Adversarial" shadow.
 
-| Agent | Symbol | Role | Witness Duties | Constitutional Focus | Implementation Location |
-|-------|--------|------|----------------|---------------------|------------------------|
-| **Gemini** | Δ | Architect | 111 SENSE, 222 REFLECT, 333 ATLAS | **Truth & Reason** (F2, F4, F7) | `arifos/agi/` |
-| **Claude** | Ω | Engineer | 444 ALIGN, 555 EMPATHIZE, 666 BRIDGE | **Safety & Empathy** (F3, F5, F6) | `arifos/asi/` |
-| **Codex** | Ψ | Auditor | 777 EUREKA, 888 JUDGE, 889 PROOF | **Judgment & Sealing** (F8, F11) | `arifos/apex/` |
-| **Kimi** | Κ | Validator | 999 SEAL, Anti-Pollution, Reflex | **Final Authority** (F1, F9, F12) | `arifos/apex/` |
-
----
-
-## 3. Witness Functions by Constitutional Floor
-
-### Hard Floor Monitoring (Cannot Override)
-- **F1 Amanah (Truth)**: All witnesses must verify factual grounding
-- **F9 Anti-Hantu (Human Agency)**: Kimi (Κ) ensures no AI autonomy claims
-- **F12 Injection Defense**: All witnesses scan for attack patterns
-
-### Soft Floor Monitoring (Can Flag/Override)
-- **F4 ΔS (Clarity)**: Gemini (Δ) measures entropy reduction
-- **F5 Peace² (Stability)**: Claude (Ω) detects escalation patterns
-- **F6 κᵣ (Empathy)**: Claude (Ω) models weakest stakeholder impact
-- **F7 Ω₀ (Humility)**: Gemini (Δ) ensures uncertainty acknowledgment
-
-### Derived Floor Monitoring
-- **F8 G (Genius)**: Codex (Ψ) validates governed intelligence
-- **F3 Tri-Witness**: All agents contribute to consensus scoring
+| Witness | Agent | Role | Focus | BFT Function |
+|-------|--------|------|-------|--------------|
+| **Human (H)** | Κ Validator | Authority | F11, F13 | Sovereign Mandate |
+| **AI (A)** | Δ Architect | Logic | F2, F4, F7 | Logical Coherence |
+| **Earth (E)** | Fed/Grounding | Reality | F1, F3, F12 | Physical Grounding |
+| **Verifier (V)**| Ψ-Shadow | Adversary | F8, F9, F6 | **Adversarial Critique** |
 
 ---
 
-## 4. Witness Implementation Architecture
+## 3. The Byzantine Consensus Rule (W4)
 
-### Implementation Location
-Instead of separate log files, witness functionality is implemented through:
+Previous Tri-Witness models (n=3) were insufficient for BFT. The Quad-Witness model achieves resilience:
 
-1. **Core Runtime**: `arifos/core/` - Constitutional validation logic
-2. **Agent Engines**: `arifos/agi/`, `arifos/asi/`, `arifos/apex/` - Role-specific witnessing
-3. **Enforcement Layer**: `arifos/enforcement/` - Constitutional compliance
-4. **Protocol Layer**: `arifos/protocol/` - Witness messaging via aCLIP
+### The W4 Formula
+```
+W₄ = (H × A × E × V)¹/⁴
+```
 
-### Witness Message Schema
-All witness activities are communicated via aCLIP protocol messages:
+### Consensus Quorum
+| Approvals | Verdict | BFT State |
+|-----------|---------|-----------|
+| **4/4** | **SEAL** | Ideal alignment |
+| **3/4** | **SEAL** | **Tolerated (BFT Success)** |
+| **2/4** | **SABAR** | Degraded (Needs refinement) |
+| **≤1/4** | **VOID** | Blocked / Malicious attack detected |
 
+---
+
+## 4. The 4th Witness: Ψ-Shadow (Adversarial Verifier)
+
+The Shadow agent is a permanent internal red-team. Its job is to **find reasons why the proposal is unsafe**.
+
+- **Success for V**: Finding a flaw (Injection, Hallucination, Empathy breach).
+- **Failure for V**: Cannot break the proposal (Proposal is truly robust).
+- **Paradox**: The Shadow's "REJECT" counts as a vote for safety. Only when the Shadow cannot find an attack vector does it contribute to a SEAL verdict.
+
+---
+
+## 5. Witness Implementation Architecture
+
+### Witness Message Schema (v64)
 ```json
 {
-  "aclip_version": "v49",
-  "stage": "444_ALIGN",
-  "source": "claude_agent",
-  "target": "witness_council",
+  "aclip_version": "v64",
+  "witness_count": 4,
   "payload": {
     "witness_entry": {
-      "floor": "F3_TRI_WITNESS",
-      "score": 0.97,
-      "verdict": "PASS",
-      "justification": "Tri-witness consensus achieved"
+      "floor": "F3_QUAD_WITNESS",
+      "consensus": 0.82,
+      "approvals": ["H", "A", "V"],
+      "dissent": ["E"],
+      "verdict": "SEAL",
+      "bft_status": "FAULT_TOLERATED"
     }
   },
   "metadata": {
-    "timestamp": "2026-01-20T13:48:58.087280+08:00",
-    "witness_symbol": "Ω",
-    "constitutional_role": "Engineer"
+    "timestamp": "2026-03-07T14:30:00Z",
+    "fault_tolerance": 1
   }
 }
 ```
 
 ---
 
-## 5. Agent-Specific Witness Implementation
-
-### Gemini (Δ) - Architect Witness
-**Implementation**: `arifos/agi/witness.py`
-**Focus**: Truth validation, clarity measurement, humility enforcement
-
-**Witness Functions:**
-```python
-# Example witness entry generation
-def witness_truth_validation(evidence, confidence):
-    return {
-        "floor": "F2_TRUTH",
-        "score": confidence,
-        "verdict": "PASS" if confidence >= 0.99 else "FLAG",
-        "justification": f"Evidence validated with {confidence} confidence",
-        "witness": "Gemini(Δ)",
-        "timestamp": datetime.now().isoformat()
-    }
-```
-
-### Claude (Ω) - Engineer Witness
-**Implementation**: `arifos/asi/witness.py`
-**Focus**: Tri-witness consensus, empathy modeling, peace preservation
-
-**Witness Functions:**
-```python
-def witness_empathy_assessment(stakeholder_impact):
-    kappa_r = calculate_weakest_stakeholder_score(stakeholder_impact)
-    return {
-        "floor": "F6_KAPPA_R",
-        "score": kappa_r,
-        "verdict": "PASS" if kappa_r >= 0.95 else "FLAG",
-        "justification": f"Weakest stakeholder impact: κᵣ = {kappa_r}",
-        "witness": "Claude(Ω)",
-        "timestamp": datetime.now().isoformat()
-    }
-```
-
-### Codex (Ψ) - Auditor Witness
-**Implementation**: `arifos/apex/witness.py`
-**Focus**: Genius validation, authority verification, final sealing
-
-**Witness Functions:**
-```python
-def witness_authority_validation(operation, authority_token):
-    is_authorized = validate_authority_token(operation, authority_token)
-    return {
-        "floor": "F11_COMMAND_AUTH",
-        "score": 1.0 if is_authorized else 0.0,
-        "verdict": "PASS" if is_authorized else "VOID",
-        "justification": "Authority validated" if is_authorized else "Unauthorized operation",
-        "witness": "Codex(Ψ)",
-        "timestamp": datetime.now().isoformat()
-    }
-```
-
-### Kimi (Κ) - Validator Witness
-**Implementation**: `arifos/apex/witness.py`
-**Focus**: Final authority, anti-hantu enforcement, injection defense
-
-**Witness Functions:**
-```python
-def witness_final_seal(constitutional_evidence):
-    all_floors_passed = validate_all_constitutional_floors(constitutional_evidence)
-    return {
-        "floor": "FINAL_SEAL",
-        "score": 1.0 if all_floors_passed else 0.0,
-        "verdict": "SEALED" if all_floors_passed else "VOID",
-        "justification": "All constitutional floors satisfied" if all_floors_passed else "Constitutional violations detected",
-        "witness": "Kimi(Κ)",
-        "timestamp": datetime.now().isoformat(),
-        "merkle_root": generate_constitutional_merkle_root(constitutional_evidence)
-    }
-```
-
----
-
-## 6. Panopticon Implementation
-
-### Real-Time Constitutional Monitoring
-Instead of separate log files, witness monitoring is implemented through:
-
-1. **Runtime Monitoring**: Constitutional compliance tracked in real-time
-2. **Ledger Integration**: All witness entries stored in `cooling_ledger/`
-3. **Cross-Agent Visibility**: All agents can query any witness data via aCLIP
-4. **Consensus Building**: Tri-witness validation ≥0.95 required
-
-### Constitutional Audit Trail
-All witness activities are automatically recorded in:
-- **Cooling Ledger**: `cooling_ledger/constitutional_operations.jsonl`
-- **Merkle Trees**: Cryptographic proofs of constitutional compliance
-- **Session Logs**: Complete constitutional operation history
-- **Authority Chains**: Decision provenance and validation trails
-
----
-
-## 7. Constitutional Enforcement
-
-### F3 Tri-Witness Rule Implementation
-```python
-def validate_tri_witness_consensus(human_score, ai_score, earth_score):
-    """F3: Tri-witness consensus must be ≥0.95"""
-    consensus = min(human_score, ai_score, earth_score)
-    
-    # All witnesses must report
-    if any(score is None for score in [human_score, ai_score, earth_score]):
-        return "888_HOLD", "Missing witness input"
-    
-    # Consensus threshold
-    if consensus >= 0.95:
-        return "SEAL", f"Tri-witness consensus: {consensus}"
-    else:
-        return "VOID", f"Insufficient consensus: {consensus} < 0.95"
-```
-
-### Witness Council (Emergency Protocol)
-When constitutional violations are detected:
-
-1. **Automatic Convening**: Any witness can trigger emergency council
-2. **Evidence Compilation**: All relevant witness data aggregated
-3. **Consensus Building**: All four witnesses must agree on resolution
-4. **Authority Escalation**: Unresolved issues escalate to 888_HOLD
-5. **Cryptographic Sealing**: Final resolution cryptographically sealed
-
----
-
-## 8. Witness Commands & Usage
-
-### Constitutional Witness Commands
-```bash
-# Submit witness report for constitutional floor
-@/witness report F3_TRI_WITNESS 0.97 PASS "Consensus achieved"
-
-# Query constitutional compliance data
-@/witness query consensus
-@/witness query floor F2_TRUTH
-@/witness query agent gemini
-
-# Convene emergency witness council
-@/witness council
-
-# Apply final constitutional seal
-@/witness seal
-```
-
-### Programmatic Witness Access
-```python
-from arifos.enforcement.judiciary import WitnessCouncil
-from arifos.protocol import ACLIPMessage, Stage
-
-# Access witness data programmatically
-council = WitnessCouncil()
-consensus_data = council.get_tri_witness_consensus(session_id)
-
-# Submit witness report programmatically
-witness_msg = ACLIPMessage(
-    stage=Stage.ALIGN_444,
-    source="agent_name",
-    target="witness_council",
-    payload={"witness_entry": witness_data}
-)
-```
-
----
-
-## 9. Migration from 000_WITNESS Directory
-
-### What Changed
-- **Deleted**: Entire `000_WITNESS/` directory and separate log files
-- **Replaced**: With canonical witness specification in `000_THEORY/`
-- **Enhanced**: With programmatic witness system via aCLIP protocol
-- **Improved**: With real-time constitutional monitoring and automated logging
-
-### Migration Benefits
-1. **Single Source of Truth**: All witness functionality now canonical
-2. **Programmatic Access**: Witness data accessible via code, not just logs
-3. **Real-time Monitoring**: Constitutional compliance tracked continuously
-4. **Automated Recording**: No manual log file management required
-
-### Backward Compatibility
-- **Agent Adapters**: Continue to reference witness functionality
-- **Operational Commands**: `@/witness` commands remain the same
-- **Cross-agent Visibility**: Panopticon principle maintained
-- **Constitutional Monitoring**: All functionality preserved and enhanced
-
----
-
-## 10. Authority & Governance
-
-### Implementation Authority
-- **Δ Architect**: Witness protocol design and cross-agent coordination
-- **Ω Engineer**: Witness safety protocols and empathy validation
-- **Ψ Auditor**: Witness judgment processes and sealing authority
-- **Κ Validator**: Final witness authority and cryptographic sealing
-
-### Canonical References
-1. **This Document**: `000_THEORY/009_witness_system.md` - Complete witness specification
-2. **Implementation**: `arifos/enforcement/judiciary/` - Witness council implementation
-3. **Protocol Integration**: `arifos/protocol/` - aCLIP witness messaging
-4. **Runtime Integration**: `arifos/core/` - Constitutional validation logic
-
----
-
-## 11. Usage Examples
-
-### Basic Constitutional Operations
-```bash
-# Initialize constitutional session
-@/000 "Analyze constitutional compliance"
-
-# Submit witness reports across stages
-@/111 && @/witness report F2_TRUTH 0.98 PASS "Evidence validated"
-@/222 && @/witness report F4_DELTA_S 0.94 PASS "Clarity increased"
-@/444 && @/witness report F3_TRI_WITNESS 0.97 PASS "Consensus achieved"
-
-# Apply final constitutional seal
-@/888 && @/witness seal
-```
-
-### Advanced Constitutional Integration
-```python
-# Constitutional compliance validation
-def validate_constitutional_compliance(operation):
-    # Gather tri-witness evidence
-    human_witness = gather_human_evidence(operation)
-    ai_witness = gather_ai_evidence(operation) 
-    earth_witness = gather_earth_evidence(operation)
-    
-    # Validate tri-witness consensus
-    consensus = min(human_witness, ai_witness, earth_witness)
-    
-    if consensus >= 0.95:
-        return "SEAL", f"Tri-witness consensus: {consensus}"
-    else:
-        return "VOID", f"Insufficient consensus: {consensus}"
-```
-
----
-
-## 12. Future Enhancements
-
-### Potential Improvements
-1. **Predictive Witness Modeling** → Anticipate constitutional violations
-2. **Machine Learning Integration** → Improve violation detection accuracy
-3. **Mobile Witness Interfaces** → Human oversight capabilities
-4. **Advanced Consensus Algorithms** → Improve tri-witness validation
-
-### Integration Guidelines
-- **Always reference canon** → Never duplicate witness logic
-- **Maintain transparency** → All actions must be witnessable
-- **Preserve authority chain** → Clear escalation paths
-- **Ensure immutability** → Audit trails cannot be altered
-
----
-
----
-
-## 13. Cryptographic Anchoring (HMAC-SHA256)
-
-### The Human Witness (888 Judge) Verification
-
-**All Tri-Witness consensus requires cryptographically verified Human witness signatures.**
-
-```python
-import hmac
-import hashlib
-import secrets
-
-# Sovereign secret - rotated via Phoenix-72 protocol
-SOVEREIGN_SECRET: bytes = secrets.token_bytes(32)  # 256-bit key
-
-class HumanWitnessAnchor:
-    """
-    HMAC-SHA256 verification for Human (888 Judge) witness.
-    No signature = No consensus.
-    """
-    
-    WITNESS_WINDOW_MS: int = 250  # Temporal consensus window
-    
-    def __init__(self, sovereign_secret: bytes):
-        self._secret = sovereign_secret
-    
-    def sign_witness(self, witness_data: Dict) -> str:
-        """
-        888 Judge signs witness data with HMAC-SHA256.
-        """
-        canonical = self._canonicalize(witness_data)
-        signature = hmac.new(
-            self._secret,
-            canonical.encode(),
-            hashlib.sha256
-        ).hexdigest()
-        return f"{witness_data['timestamp']}:{signature}"
-    
-    def verify_witness(self, witness_token: str, witness_data: Dict) -> bool:
-        """
-        Verify Human witness signature.
-        Returns False if signature invalid, expired, or malformed.
-        """
-        try:
-            timestamp, provided_sig = witness_token.split(":")
-            
-            # Check temporal freshness (prevent replay attacks)
-            token_age_ms = self._current_time_ms() - int(timestamp)
-            if token_age_ms > self.WITNESS_WINDOW_MS:
-                return False  # Expired witness
-            
-            # Recompute signature
-            expected = self.sign_witness(witness_data)
-            _, expected_sig = expected.split(":")
-            
-            # Constant-time comparison (prevent timing attacks)
-            return hmac.compare_digest(provided_sig, expected_sig)
-            
-        except (ValueError, TypeError):
-            return False  # Malformed token
-    
-    def _canonicalize(self, data: Dict) -> str:
-        """Deterministic serialization for signing."""
-        import json
-        return json.dumps(data, sort_keys=True, separators=(',', ':'))
-```
-
-### Tri-Witness Consensus with Crypto Anchoring
-
-```python
-def validate_tri_witness_consensus(
-    human_token: str,
-    ai_score: float,
-    earth_score: float,
-    anchor: HumanWitnessAnchor,
-    witness_data: Dict
-) -> Dict:
-    """
-    F3: Tri-witness consensus with cryptographic verification.
-    """
-    # 1. Verify Human witness cryptographically
-    if not anchor.verify_witness(human_token, witness_data):
-        return {
-            "verdict": "VOID",
-            "reason": "Human witness signature invalid or expired",
-            "floor": "F3_CRYPTO_FAILURE"
-        }
-    
-    # 2. Extract human score from verified token
-    human_score = witness_data.get("human_score", 0.0)
-    
-    # 3. Check all witnesses present
-    if any(s is None for s in [human_score, ai_score, earth_score]):
-        return {
-            "verdict": "888_HOLD",
-            "reason": "Missing witness input",
-            "floor": "F3_INCOMPLETE"
-        }
-    
-    # 4. Calculate consensus (geometric mean)
-    consensus = (human_score * ai_score * earth_score) ** (1/3)
-    
-    # 5. Threshold check
-    if consensus >= 0.95:
-        return {
-            "verdict": "SEAL",
-            "consensus": consensus,
-            "floor": "F3_PASS",
-            "crypto_verified": True
-        }
-    else:
-        return {
-            "verdict": "VOID",
-            "consensus": consensus,
-            "reason": f"Insufficient consensus: {consensus} < 0.95",
-            "floor": "F3_THRESHOLD"
-        }
-```
-
----
-
-## 14. Temporal Hardening (Consensus Window)
-
-### The 250ms Synchronization Rule
-
-**All three witnesses must align within a 250ms execution window.**
-
-```python
-import time
-from dataclasses import dataclass
-from typing import Optional
-
-@dataclass
-class WitnessTimestamp:
-    """Temporal marker for witness alignment."""
-    witness_id: str
-    timestamp_ms: int
-    score: float
-
-class TemporalConsensus:
-    """
-    Enforces 250ms consensus window to prevent race conditions.
-    """
-    
-    CONSENSUS_WINDOW_MS: int = 250  # Maximum temporal spread
-    
-    def check_alignment(
-        self,
-        human: WitnessTimestamp,
-        ai: WitnessTimestamp,
-        earth: WitnessTimestamp
-    ) -> Dict:
-        """
-        Check if all witnesses align within temporal window.
-        """
-        timestamps = [human.timestamp_ms, ai.timestamp_ms, earth.timestamp_ms]
-        spread = max(timestamps) - min(timestamps)
-        
-        if spread > self.CONSENSUS_WINDOW_MS:
-            # Witnesses too far apart in time = superposition collapse risk
-            return {
-                "verdict": "SABAR",
-                "reason": f"Temporal spread {spread}ms exceeds {self.CONSENSUS_WINDOW_MS}ms",
-                "action": "Wait for synchronization",
-                "floor": "F3_TEMPORAL_MISALIGN"
-            }
-        
-        return {
-            "verdict": "PASS",
-            "temporal_spread_ms": spread,
-            "floor": "F3_TEMPORAL_ALIGN"
-        }
-```
-
-### SABAR Protocol for Misalignment
-
-When witnesses don't align within the window:
-
-```python
-def handle_temporal_misalignment(
-    human: WitnessTimestamp,
-    ai: WitnessTimestamp,
-    earth: WitnessTimestamp
-) -> Dict:
-    """
-    SABAR (صبر) - Patience protocol for temporal misalignment.
-    """
-    oldest = min(human.timestamp_ms, ai.timestamp_ms, earth.timestamp_ms)
-    current = time.time() * 1000
-    
-    return {
-        "verdict": "SABAR",
-        "reason": "Tri-Witness temporal misalignment detected",
-        "instruction": "WAIT - Do not proceed until witnesses synchronize",
-        "retry_after_ms": 100,  # Retry interval
-        "max_wait_ms": 500,     # Maximum wait before 888_HOLD
-        "stale_witnesses": [
-            w.witness_id for w in [human, ai, earth]
-            if (current - w.timestamp_ms) > 250
-        ],
-        "floor": "F3_SABAR"
-    }
-```
-
-### Temporal Enforcement Flow
-
-```
-Human Witness ──┐
-                ├──► Temporal Check ──► Within 250ms? ──► YES ──► Proceed to Consensus
-AI Witness ─────┤                                    │
-                │                                    └──► NO ──► SABAR (Wait)
-Earth Witness ──┘                                          └──► 888_HOLD (if max wait exceeded)
-```
-
----
-
-## 16. Dynamic Thresholding (Tool-Class Consensus)
+## 16. Dynamic Thresholding (Quad-Witness)
 
 ### Consensus Requirements by Tool Class
 
-**For "Utility" tools (Read-only), W₃ ≥ 0.95 is sufficient. For "Spine" tools (Write/Delete/Action), the threshold must be W₃ ≥ 0.99. If any one witness drops below 0.90, consensus is shattered.**
+**If any TWO witnesses drop below the floor, consensus is shattered.**
 
 ```python
-from enum import Enum
-from typing import Dict
-
-class ToolClass(str, Enum):
-    """Classification of tools by risk level."""
-    UTILITY = "utility"      # Read-only, safe
-    SPINE = "spine"          # Write/Delete/Action
-    CRITICAL = "critical"    # Irreversible, high-stakes
-
-class DynamicConsensus:
+class QuadConsensus:
     """
-    Tri-Witness with dynamic thresholds based on tool classification.
+    BFT Quad-Witness with dynamic thresholds.
     """
     
-    # HARDENED THRESHOLDS (Non-negotiable)
-    THRESHOLDS: Dict[ToolClass, float] = {
-        ToolClass.UTILITY: 0.95,   # Read operations
-        ToolClass.SPINE: 0.99,     # Write/Delete operations
-        ToolClass.CRITICAL: 0.995  # Irreversible actions
-    }
+    # BFT THRESHOLDS (n=4, f=1)
+    THRESHOLD_STANDARD = 0.75  # 3/4 Quorum
+    THRESHOLD_CRITICAL = 1.00  # 4/4 Unanimous (Unsafe/Irreversible)
     
-    # Per-witness minimum (consensus shatter point)
-    WITNESS_FLOOR: float = 0.90   # Any witness below = no instantiation
-    
-    # Tool classification mapping
-    TOOL_CLASSIFICATION: Dict[str, ToolClass] = {
-        # Utility (Read-only)
-        "search_reality": ToolClass.UTILITY,
-        "fetch_content": ToolClass.UTILITY,
-        "inspect_file": ToolClass.UTILITY,
-        "audit_rules": ToolClass.UTILITY,
-        "check_vital": ToolClass.UTILITY,
+    def calculate_consensus(self, H, A, E, V, tool_type: str) -> Dict:
+        # 1. Tally approvals (Score > 0.90)
+        votes = [H, A, E, V]
+        approvals = sum(1 for v in votes if v >= 0.90)
         
-        # Spine (Write/Action)
-        "anchor_session": ToolClass.SPINE,
-        "reason_mind": ToolClass.SPINE,
-        "recall_memory": ToolClass.SPINE,
-        "simulate_heart": ToolClass.SPINE,
-        "critique_thought": ToolClass.SPINE,
-        "apex_judge": ToolClass.SPINE,
-        "eureka_forge": ToolClass.SPINE,
-        "seal_vault": ToolClass.CRITICAL
-    }
-    
-    def calculate_consensus(
-        self,
-        human_score: float,
-        ai_score: float,
-        earth_score: float,
-        tool_name: str
-    ) -> Dict:
-        """
-        Calculate Tri-Witness consensus with dynamic thresholding.
-        """
-        # 1. Get tool classification
-        tool_class = self.TOOL_CLASSIFICATION.get(tool_name, ToolClass.SPINE)
-        threshold = self.THRESHOLDS[tool_class]
+        # 2. Geometric Mean for metric tracking
+        w4 = (H * A * E * V) ** 0.25
         
-        # 2. Check per-witness minimum (consensus shatter)
-        witness_scores = {
-            "human": human_score,
-            "ai": ai_score,
-            "earth": earth_score
-        }
-        
-        for witness, score in witness_scores.items():
-            if score < self.WITNESS_FLOOR:
-                return {
-                    "verdict": "VOID",
-                    "reason": f"{witness}_witness score {score} < floor {self.WITNESS_FLOOR}",
-                    "floor": "F3_WITNESS_SHATTERED",
-                    "action": "KILL: Consensus impossible with weak witness",
-                    "witness": witness,
-                    "score": score
-                }
-        
-        # 3. Calculate geometric mean (consensus)
-        consensus = (human_score * ai_score * earth_score) ** (1/3)
-        
-        # 4. Apply dynamic threshold
-        if consensus >= threshold:
-            return {
-                "verdict": "SEAL",
-                "consensus": consensus,
-                "threshold": threshold,
-                "tool_class": tool_class.value,
-                "floor": "F3_CONSENSUS"
-            }
+        # 3. Decision Logic
+        if tool_type == "critical":
+            passed = (approvals == 4)
         else:
-            return {
-                "verdict": "VOID",
-                "consensus": consensus,
-                "threshold": threshold,
-                "tool_class": tool_class.value,
-                "reason": f"Consensus {consensus:.4f} < threshold {threshold}",
-                "floor": "F3_THRESHOLD",
-                "action": "KILL: Insufficient consensus for tool class"
-            }
+            passed = (approvals >= 3)
+            
+        return {
+            "verdict": "SEAL" if passed else "VOID",
+            "approvals": approvals,
+            "metric": w4,
+            "bft_active": True
+        }
 ```
 
-### Consensus Threshold Matrix
+### Fault Tolerance Bounds
 
-| Tool Class | Examples | W₃ Threshold | Per-Witness Minimum |
-|------------|----------|--------------|---------------------|
-| **Utility** | search_reality, fetch_content, inspect_file | ≥ 0.95 | ≥ 0.90 |
-| **Spine** | reason_mind, eureka_forge, apex_judge | ≥ 0.99 | ≥ 0.90 |
-| **Critical** | seal_vault (999) | ≥ 0.995 | ≥ 0.95 |
-
-### Witness Shatter Rule
-
-> **"If any one witness (Mind, Heart, or Earth) drops below 0.90, the consensus is shattered—no instantiation allowed."**
-
-```python
-# Example: Witness shatter scenarios
-def demonstrate_witness_shatter():
-    validator = DynamicConsensus()
-    
-    # Scenario 1: All witnesses strong
-    result = validator.calculate_consensus(0.98, 0.97, 0.96, "reason_mind")
-    # result["verdict"] == "SEAL" (consensus 0.97 > 0.99? No, VOID)
-    # Actually: 0.97 < 0.99, so VOID
-    
-    # Scenario 2: One witness weak (shatter)
-    result = validator.calculate_consensus(0.99, 0.85, 0.98, "eureka_forge")
-    # result["verdict"] == "VOID" (AI witness 0.85 < 0.90 floor)
-    
-    # Scenario 3: Critical tool, high threshold
-    result = validator.calculate_consensus(0.99, 0.99, 0.98, "seal_vault")
-    # result["verdict"] == "VOID" (0.986 < 0.995)
-```
+| Byzantine Witnesses | Honest Witnesses | Approvals | Verdict | System State |
+|---------------------|------------------|-----------|---------|--------------|
+| 0 | 4 | 4/4 | SEAL | Normal |
+| 1 | 3 | 3/4 | SEAL | ✅ **BFT Success** |
+| 2 | 2 | 2/4 | SABAR | ⚠️ Degraded |
+| 3 | 1 | 1/4 | VOID | ❌ Attack Blocked |
 
 ---
 
@@ -702,58 +135,14 @@ def demonstrate_witness_shatter():
 
 ### Emergency Convening (Cryptographically Verified)
 
-```python
-class HardenedWitnessCouncil:
-    """
-    Witness council with crypto-verified consensus.
-    """
-    
-    def convene_emergency(
-        self,
-        violation: Dict,
-        witnesses: List[Dict],
-        human_anchor: HumanWitnessAnchor
-    ) -> Dict:
-        """
-        Emergency council requires 4/4 witness agreement + human signature.
-        """
-        # Verify all witness signatures
-        verified = []
-        for w in witnesses:
-            if w.get("type") == "HUMAN":
-                if human_anchor.verify_witness(
-                    w.get("token"), 
-                    w.get("data")
-                ):
-                    verified.append(w)
-            else:
-                # AI/Earth witnesses use merkle proofs
-                if self._verify_merkle_proof(w.get("proof")):
-                    verified.append(w)
-        
-        if len(verified) < 4:
-            return {
-                "verdict": "888_HOLD",
-                "reason": f"Only {len(verified)}/4 witnesses cryptographically verified",
-                "action": "Escalate to human sovereign"
-            }
-        
-        # Check unanimous agreement
-        verdicts = [w.get("verdict") for w in verified]
-        if len(set(verdicts)) == 1:
-            return {
-                "verdict": verdicts[0],
-                "witnesses": [w.get("id") for w in verified],
-                "crypto_verified": True
-            }
-        
-        # Disagreement = HOLD
-        return {
-            "verdict": "888_HOLD",
-            "reason": f"Witness disagreement: {set(verdicts)}",
-            "witnesses": [w.get("id") for w in verified]
-        }
-```
+Emergency council requires **4/4 witness agreement** or **Sovereign Override (F13)**.
+
+1. **Detection**: Any witness detects score < 0.5.
+2. **Trigger**: System enters `888_HOLD`.
+3. **Opposition**: Ψ-Shadow presents the most severe attack vector.
+4. **Resolution**: Human Sovereign reviews the "Contrast" (Proposed Action vs. Shadow Critique).
+
+**DITEMPA BUKAN DIBERI** — Truth is forged in the fire of opposition. 🔥
 
 ---
 

@@ -30,7 +30,7 @@ from __future__ import annotations
 from typing import Any
 
 from core.shared.floors import F9_AntiHantu, F10_Ontology
-from core.shared.physics import ConstitutionalTensor, TrinityTensor, W_3_from_tensor
+from core.shared.physics import ConstitutionalTensor, QuadTensor, W_4_from_tensor
 from core.shared.types import ApexOutput, FloorScores, Verdict
 
 # ═══════════════════════════════════════════════════════
@@ -94,6 +94,7 @@ async def sync(
 ) -> ApexOutput:
     """
     Stage 444: SYNC — The Bridge between Mind and Heart
+    UPGRADE: Quad-Witness Byzantine Consensus
     """
     # Merge witnesses
     agi_witness = agi_tensor.witness
@@ -105,18 +106,26 @@ async def sync(
         asi_data = asi_output
 
     asi_care = asi_data.get("floor_scores", {}).get("f6_empathy", 0.7)
+    
+    # Ψ-Shadow (Adversarial Verifier) Score
+    # In a full pipeline, this would be computed by a dedicated shadow agent.
+    # Here we derive it from the delta between Truth and Empathy.
+    truth = agi_tensor.truth_score
+    shadow_score = 1.0 - abs(truth - asi_care)
 
-    merged_witness = TrinityTensor(
+    merged_witness = QuadTensor(
         H=min(agi_witness.H, asi_care),
         A=agi_witness.A,
-        S=agi_witness.S,
+        E=agi_witness.E if hasattr(agi_witness, "E") else getattr(agi_witness, "S", 0.7),
+        V=shadow_score
     )
 
-    w3_score = W_3_from_tensor(merged_witness)
+    w4_score = W_4_from_tensor(merged_witness)
 
-    if w3_score >= 0.95:
+    # BFT Threshold: n=4, f=1 => 3/4 = 0.75
+    if w4_score >= 0.75:
         pre_verdict = "SEAL"
-    elif w3_score >= 0.85:
+    elif w4_score >= 0.60:
         pre_verdict = "PARTIAL"
     else:
         pre_verdict = "VOID"
@@ -124,13 +133,13 @@ async def sync(
     return ApexOutput(
         session_id=session_id,
         floor_scores=FloorScores(
-            f3_tri_witness=w3_score,
+            f3_tri_witness=w4_score, # Alias for compatibility
             f5_peace=asi_data.get("floor_scores", {}).get("f5_peace", 1.0),
             f6_empathy=asi_care,
             f8_genius=agi_tensor.genius.G(),
         ),
         verdict=Verdict(pre_verdict),
-        metrics={"stage": 444, "action": "sync", "W_3": w3_score},
+        metrics={"stage": 444, "action": "sync", "W_4": w4_score, "shadow_V": shadow_score},
     )
 
 
@@ -262,17 +271,25 @@ async def judge(
         justifications.append(f"Thermodynamic check failed: {e}")
         thermo_metrics["error"] = str(e)
 
-    w3 = sync_data.get("metrics", {}).get("W_3") or sync_data.get("floor_scores", {}).get(
+    w4 = sync_data.get("metrics", {}).get("W_4") or sync_data.get("floor_scores", {}).get(
         "f3_tri_witness", 0.0
     )
-    if w3 < 0.95:
+    w3 = w4  # Legacy alias
+
+    # BFT Quorum: 0.75
+    if w4 < 0.75:
         violations.append("F3")
-        justifications.append(f"Tri-Witness {w3:.3f} < 0.95")
+        justifications.append(f"Quad-Witness {w4:.3f} < 0.75 (Byzantine Quorum Failed)")
 
     g_score = forge_output["genius_G"]
+    h_pen = forge_output.get("hysteresis_h", 0.0)
+    
     if g_score < 0.80:
         violations.append("F8")
-        justifications.append(f"Genius {g_score:.3f} < 0.80")
+        msg = f"Genius {g_score:.3f} < 0.80"
+        if h_pen > 0:
+            msg += f" (includes h_penalty: {h_pen:.2f})"
+        justifications.append(msg)
 
     solution_text = str(forge_output.get("solution_draft", ""))
 

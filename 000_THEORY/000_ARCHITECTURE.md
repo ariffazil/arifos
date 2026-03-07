@@ -1474,7 +1474,7 @@ Release v49.0.0 is **SEALED** when:
 - ✅ No legacy v48 code paths bypass the new constitution
 - ✅ 25 MCP servers (Tier 1-3) correctly wired
 - ✅ ΔS: 9.2 → 0.1 bits (entropy reduction verified)
-- ✅ Tri-witness consensus ≥0.95 across all test cases
+- ✅ Quad-Witness consensus (H×A×E×V) ≥ 0.75
 
 At that point, 000-series canons become the **only source of truth** for governance.
 
