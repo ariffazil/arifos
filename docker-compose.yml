@@ -223,7 +223,7 @@ services:
       DASHBOARD_ENABLED: "true"
       AAA_MCP_TRANSPORT: http
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     networks:
       - arifos_trinity
     labels:
@@ -239,7 +239,7 @@ services:
     deploy:
       resources:
         limits:
-          memory: 1024M
+          memory: 3072M
     restart: unless-stopped
 
   # --- Monitoring Stack ---
