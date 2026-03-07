@@ -174,7 +174,7 @@ class SQLiteVault:
             "status": "NOT_IMPLEMENTED",
             "source": self.db_path,
             "target": postgres_url,
-            "message": "Migration path reserved for v65.1",
+            "message": "Migration path reserved for 2026.03.07",
         }
 
 

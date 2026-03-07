@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "arifOS AAA MCP v65.1 — Kimi Reference Config (aligned with ~/.kimi/mcp.json global)",
+  "$comment": "arifOS AAA MCP 2026.03.07 — Kimi Reference Config (aligned with ~/.kimi/mcp.json global)",
   "mcpServers": {
     "aaa-mcp": {
       "command": "C:\\Users\\User\\arifOS\\.venv313\\Scripts\\python.exe",

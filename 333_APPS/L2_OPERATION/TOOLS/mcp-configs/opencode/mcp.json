@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$comment": "arifOS AAA MCP v65.1 — OpenCode Config (Cross-Platform, aligned with global)",
+  "$comment": "arifOS AAA MCP 2026.03.07 — OpenCode Config (Cross-Platform, aligned with global)",
   "mcpServers": {
     "aaa-mcp": {
       "command": "python3",
