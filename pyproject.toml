@@ -176,6 +176,11 @@ all = [
     "pandas>=2.1.0",
 ]
 
+[project.scripts]
+arifos    = "arifos_aaa_mcp.__main__:main"
+aaa-mcp   = "aaa_mcp.__main__:main"
+aclip-cai = "aclip_cai.cli:main"
+
 [tool.setuptools]
 include-package-data = true
 

@@ -1,9 +1,19 @@
 # Build and push Docker image to Docker Hub
-# Triggers on releases or manual dispatch
+# Triggers on code changes to main, releases, or manual dispatch
 
 name: Publish Docker Image
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'Dockerfile'
+      - 'pyproject.toml'
+      - 'requirements*.txt'
+      - 'aaa_mcp/**'
+      - 'arifos_aaa_mcp/**'
+      - 'core/**'
+      - 'aclip_cai/**'
   release:
     types: [published]
   workflow_dispatch:
