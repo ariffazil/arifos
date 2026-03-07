@@ -29,8 +29,12 @@ RUN python -m pip install --upgrade pip && \
 
 # Pre-bake BGE-M3 model (~570MB) — multilingual Malay+English+Manglish support
 # HF_HOME set to /usr/src/app/models so it's copyable to runtime stage
+# Strip ONNX/ORT variants after download — only PyTorch weights needed (~570MB vs ~4GB)
 ENV HF_HOME=/usr/src/app/models
-RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3'); print('BGE-M3 baked in')"
+RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3'); print('BGE-M3 baked in')" && \
+    find /usr/src/app/models -name "*.onnx" -delete && \
+    find /usr/src/app/models -name "*.ort" -delete && \
+    find /usr/src/app/models -type d -name "onnx" -exec rm -rf {} + 2>/dev/null || true
 
 
 FROM python:3.12-slim AS runtime
