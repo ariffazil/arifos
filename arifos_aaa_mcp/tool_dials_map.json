@@ -32,7 +32,7 @@
         "E": 0.3
       }
     },
-    "recall_memory": {
+    "vector_memory": {
       "contribution": [
         "A",
         "P"

@@ -3,7 +3,7 @@ E2E verification for the canonical arifOS MCP tool surface.
 
 Covers:
 - 5-organ tools: init_session, agi_cognition, asi_empathy, apex_verdict, vault_seal
-- 4 utility tools: search, fetch, analyze, system_audit
+- 4 utility tools: search, ingest, analyze, system_audit
 """
 
 from __future__ import annotations
@@ -15,7 +15,7 @@ from aaa_mcp.server import (
     anchor_session,
     apex_judge,
     audit_rules,
-    fetch_content,
+    ingest_evidence,
     reason_mind,
     search_reality,
     seal_vault,
@@ -112,14 +112,16 @@ async def test_all_tools() -> None:
     assert "ids" in search_result
     results["search_reality"] = search_result
 
-    # 9) fetch_content
-    print("\n--- 9. fetch_content ---")
+    # 9) ingest_evidence (url)
+    print("\n--- 9. ingest_evidence(url) ---")
     fetch_id = ids[0] if ids else "https://example.invalid/not-found"
-    fetch_result = await fetch_content.fn(fetch_id)
-    print(f"  has_error={'error' in fetch_result} id={fetch_result.get('id', 'N/A')}")
-    assert isinstance(fetch_result, dict)
-    assert ("id" in fetch_result) or ("error" in fetch_result)
-    results["fetch_content"] = fetch_result
+    ingest_result = await ingest_evidence.fn(
+        source_type="url", target=fetch_id, mode="raw", max_chars=500
+    )
+    print(f"  status={ingest_result.get('status', 'N/A')} has_error={'error' in ingest_result}")
+    assert isinstance(ingest_result, dict)
+    assert "status" in ingest_result or "error" in ingest_result
+    results["ingest_evidence"] = ingest_result
 
     print("\n" + "=" * 72)
     print(f"E2E verification complete. Steps executed: {len(results)}")

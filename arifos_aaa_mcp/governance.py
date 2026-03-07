@@ -272,7 +272,6 @@ def _sovereignty_pass(tool: str, payload: dict[str, Any]) -> bool:
         return _command_authority_pass(tool, payload)
     if tool in {
         "reason_mind",
-        "recall_memory",
         "vector_memory",
         "simulate_heart",
         "critique_thought",
@@ -430,7 +429,7 @@ def _derive_tpcp_metrics(
 
     if tool == "reason_mind":
         phase = "phase_1_deltaP"
-    elif tool in {"simulate_heart", "recall_memory", "vector_memory"}:
+    elif tool in {"simulate_heart", "vector_memory"}:
         phase = "phase_2_omegaP"
     elif tool in {"critique_thought", "search_reality", "ingest_evidence"}:
         phase = "phase_3_psiP"

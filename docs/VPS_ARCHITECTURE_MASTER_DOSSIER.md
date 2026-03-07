@@ -1105,7 +1105,7 @@ Verdict: 888_HOLD → Human confirmation required
 
 ### Post-Deployment
 - [ ] External URL accessible: https://arifosmcp.arif-fazil.com/
-- [ ] All 14 tools respond
+- [ ] All 13 canonical tools respond
 - [ ] Constitutional validation active (test VOID verdict)
 - [ ] Audit logging to VAULT999
 - [ ] Monitoring dashboards accessible

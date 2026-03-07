@@ -59,8 +59,18 @@ async def test_phase5_chain_000_to_999_with_envelopes() -> None:
 async def test_phase5_auxiliary_tools_have_governed_envelope() -> None:
     tools = [
         await _fn(aaa.search_reality)(query="arifOS"),
-        await _fn(aaa.fetch_content)(id="https://example.com", max_chars=200),
-        await _fn(aaa.inspect_file)(path=".", depth=1, max_files=10),
+        await _fn(aaa.ingest_evidence)(
+            source_type="url",
+            target="https://example.com",
+            mode="raw",
+            max_chars=200,
+        ),
+        await _fn(aaa.ingest_evidence)(
+            source_type="file",
+            target=".",
+            depth=1,
+            max_files=10,
+        ),
         await _fn(aaa.audit_rules)(audit_scope="quick", verify_floors=True),
         await _fn(aaa.check_vital)(include_swap=False, include_io=False, include_temp=False),
     ]

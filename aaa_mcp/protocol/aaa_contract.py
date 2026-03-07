@@ -28,10 +28,8 @@ MANIFEST_VERSION: int = 4
 #
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# L1: Transport-layer plumbing and legacy compatibility shims
-L1_PROMPTS: frozenset[str] = frozenset(
-    {"list_prompts", "get_prompt", "fetch_content", "inspect_file", "system_audit"}
-)
+# L1: Transport-layer prompt plumbing only (PromptsAsTools).
+L1_PROMPTS: frozenset[str] = frozenset({"list_prompts", "get_prompt"})
 
 # L4: The 13 canonical constitutional tool surface
 AAA_CANONICAL_TOOLS: tuple[str, ...] = (
@@ -56,6 +54,7 @@ ARCHIVED_TOOLS: frozenset[str] = frozenset(
     {
         "fetch_content",  # → Merged into ingest_evidence(source_type="url", ...)
         "inspect_file",  # → Merged into ingest_evidence(source_type="file", ...)
+        "system_audit",  # → Alias to audit_rules (compat route only)
     }
 )
 
@@ -69,6 +68,8 @@ MCP_FULL_SURFACE: frozenset[str] = L1_PROMPTS | L4_TOOLS
 CANONICAL_TOOL_COUNT: int = 13  # Sacred count — L4 only
 assert len(AAA_CANONICAL_TOOLS) == CANONICAL_TOOL_COUNT, "Tool count must be exactly 13"
 MCP_GOVERNED_TOOLS: frozenset[str] = L4_TOOLS  # Tools with envelopes
+assert L1_PROMPTS.isdisjoint(L4_TOOLS), "L1 prompts must not overlap canonical tools"
+assert ARCHIVED_TOOLS.isdisjoint(L4_TOOLS), "Archived tools must not overlap canonical tools"
 
 AAA_TOOL_ALIASES: dict[str, str] = {
     "metabolicloop": "metabolic_loop",

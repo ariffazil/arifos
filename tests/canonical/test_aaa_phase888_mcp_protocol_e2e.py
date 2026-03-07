@@ -176,17 +176,26 @@ async def test_phase888_mcp_lists_tools_prompts_resources_and_calls_all_13(
     search = _unwrap(await client.call_tool("search_reality", arguments={"query": "arifOS"}))
     _assert_envelope(search)
 
-    fetch = _unwrap(
+    ingest_url = _unwrap(
         await client.call_tool(
-            "fetch_content", arguments={"id": "https://example.com", "max_chars": 200}
+            "ingest_evidence",
+            arguments={
+                "source_type": "url",
+                "target": "https://example.com",
+                "mode": "raw",
+                "max_chars": 200,
+            },
         )
     )
-    _assert_envelope(fetch)
+    _assert_envelope(ingest_url)
 
-    fs = _unwrap(
-        await client.call_tool("inspect_file", arguments={"path": ".", "depth": 1, "max_files": 5})
+    ingest_file = _unwrap(
+        await client.call_tool(
+            "ingest_evidence",
+            arguments={"source_type": "file", "target": ".", "depth": 1, "max_files": 5},
+        )
     )
-    _assert_envelope(fs)
+    _assert_envelope(ingest_file)
 
     audit = _unwrap(await client.call_tool("audit_rules", arguments={"audit_scope": "quick"}))
     _assert_envelope(audit)
