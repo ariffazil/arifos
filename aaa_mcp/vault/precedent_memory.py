@@ -2,8 +2,8 @@
 vault_precedent_memory — Constitutional Precedent Vector Store
 
 Dual-layer memory: Ledger (truth) + Vectors (interpretation)
-- Collection: vault_precedent_memory (384-dim, Cosine)
-- Model: BAAI/bge-small-en-v1.5 (NOT BGE-M3 - F2 Truth compliant)
+- Collection: vault_precedent_memory (768-dim, Cosine)
+- Model: BAAI/bge-m3 (multilingual — Malay, English, Manglish)
 - Purpose: Semantic retrieval of governance decisions
 
 Critical Rule: Vectors reference ledger, never replace it.
@@ -25,7 +25,7 @@ from typing import Any, Callable
 # Try to import Qdrant client
 try:
     from qdrant_client import QdrantClient
-    from qdrant_client.models import Distance, VectorParams, PointStruct
+    from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchAny
     QDRANT_AVAILABLE = True
 except ImportError:
     QDRANT_AVAILABLE = False
@@ -99,7 +99,7 @@ class VaultPrecedentMemory:
             exists = any(c.name == COLLECTION_NAME for c in collections)
             
             if not exists:
-                # F2 Truth: 384-dim for bge-small-en-v1.5 (NOT 768-dim BGE-M3)
+                # F2 Truth: 768-dim BGE-M3 (multilingual — Malay, English, Manglish)
                 self._client.create_collection(
                     collection_name=COLLECTION_NAME,
                     vectors_config=VectorParams(
@@ -154,7 +154,7 @@ class VaultPrecedentMemory:
         
         # Generate embedding
         try:
-            embedding = await self.embedding_fn(interpretive_text)
+            embedding = self.embedding_fn(interpretive_text)
             
             # Create unique vector ID
             vector_id = hashlib.sha256(
@@ -238,16 +238,16 @@ class VaultPrecedentMemory:
             
         try:
             # Embed query
-            query_embedding = await self.embedding_fn(query)
+            query_embedding = self.embedding_fn(query)
             
             # Build filter
             search_filter = None
             if verdict_filter:
-                search_filter = models.Filter(
+                search_filter = Filter(
                     must=[
-                        models.FieldCondition(
+                        FieldCondition(
                             key="verdict",
-                            match=models.MatchAny(any=verdict_filter)
+                            match=MatchAny(any=verdict_filter)
                         )
                     ]
                 )
