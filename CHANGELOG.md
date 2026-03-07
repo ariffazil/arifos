@@ -5,6 +5,53 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.7-ARCH-SEAL] — 2026-03-07 — ARCHITECTURE-INTEGRITY-NPM-REGISTRY-SEAL
+
+**T000:** 2026.03.07-ARCH-SEAL
+**Theme:** Forge broken promises — CLI entry points sealed, Docker Hub auto-publish wired, `@arifos/mcp@0.3.0` published to npm `latest`, registry accuracy restored, server import path fixed.
+
+### Added
+- **`[project.scripts]`** (`pyproject.toml`): Was documented in CLAUDE.md but never existed. Now real:
+  - `arifos` = `arifos_aaa_mcp.__main__:main` (canonical CLI)
+  - `aaa-mcp` = `aaa_mcp.__main__:main` (compat shim)
+  - `aclip-cai` = `aclip_cai.cli:main` (ACLIP infrastructure CLI)
+- **`aaa_mcp/unified_memory.py`**: Constitutional corpus + Google Drive semantic search module. Was untracked on VPS — now committed to repo.
+- **`scripts/backup-state.sh`**: Phase 5A backup script (postgres + qdrant). Was untracked — now committed.
+- **`.github/workflows/npm-publish.yml`**: New workflow with `workflow_dispatch` input (tag: `latest`/`next`), `id-token: write` permission for npm provenance, and `--provenance` flag.
+
+### Changed
+- **Docker Hub auto-publish** (`.github/workflows/docker-publish.yml`): Was release-only. Now also triggers on push to `main` for code paths: `Dockerfile`, `pyproject.toml`, `requirements*.txt`, `aaa_mcp/**`, `arifos_aaa_mcp/**`, `core/**`, `aclip_cai/**`.
+- **`.gitignore`**: Added deployment artifacts — `BROWSER_SETUP_COMPLETE.md`, `DEPLOYMENT_COMPLETE_*.md`, `FINAL_SEAL_*.md`, `Hey.*`, `docker-compose.yml.backup.*`, `333_APPS/`.
+- **`packages/npm/arifos-mcp/package.json`**: `0.2.1` → `0.3.0`, `publishConfig.tag: "next"` → `"latest"`.
+- **`packages/npm/arifos-mcp/src/index.ts`**: `VERSION = '0.3.0'`, added `'2026.3.7'` to `ARIFOS_COMPATIBILITY`.
+- **`packages/npm/arifos-mcp/src/types.ts`**: `ArifOSToolName` corrected to actual 13 tools — removed `recall_memory`, `fetch_content`, `inspect_file`; added `vector_memory`, `ingest_evidence`, `metabolic_loop`.
+- **`packages/npm/arifos-mcp/src/langchain.ts`**: `getToolNames()` hardcoded list updated to match 13 canonical tools.
+- **`packages/npm/arifos-mcp/src/client.ts`**: `'python'` → `'python3'`, client version `'0.1.0'` → `'0.3.0'`.
+- **`mcp-clients.json`**: Stale Docker image tag (`arifazil/arifosmcp:forge-777` → `ariffazil/arifos:latest`), `python` → `python3`, removed ghost env var `ARIFOS_CONSTITUTIONAL_MODE`.
+- **`MCP_CLIENT_SETUP.md`**: Tool count corrected `18 → 13`, removed fake Utility Tools section (`fetch_content`, `inspect_file`, `system_audit`, `list_prompts`, `get_prompt` — none were real `@mcp.tool()` tools).
+- **`README.md`**: Major rewrite — TCP/IP analogy as core hook, `@arifos/mcp` TypeScript section, npm/Docker badges, AI manifest enriched with package registry entries and 12-container deployment map.
+
+### Fixed
+- **`aaa_mcp/server.py` — unified_memory import**: Hardcoded `sys.path.insert(0, "/srv/arifOS/333_APPS/L2_OPERATION/INTEGRATIONS")` fails inside Docker container (path does not exist). Fixed to `from aaa_mcp.unified_memory import get_unified_memory`.
+- **`packages/npm/arifos-mcp/src/client.test.ts`**: `expect(VERSION).toBe('0.1.0')` was a hardcoded assertion blocking CI. Updated to `'0.3.0'`.
+
+### Published
+- **`@arifos/mcp@0.3.0`** — npm registry, `dist-tag: latest`. Took 3 CI runs: (1) test version assertion, (2) provenance permission, (3) success. Final dist-tags: `{latest: 0.3.0, next: 0.2.1}`.
+
+### Constitutional Compliance
+- **F4 Clarity**: PASS — CLI entry points were documented but absent (ΔS > 0). Now real.
+- **F9 Anti-Hantu**: PASS — No ghost tool names on npm public surface.
+- **F1 Amanah**: PASS — unified_memory import fix ensures container parity with VPS.
+- **F2 Truth**: PASS — mcp-clients.json and MCP_CLIENT_SETUP.md now accurately reflect 13 tools.
+
+### Verification
+- `https://arifosmcp.arif-fazil.com/health` → `{status: healthy, tools_loaded: 13}`
+- `npm info @arifos/mcp dist-tags` → `{latest: '0.3.0'}`
+- All 12 containers: healthy
+- Git: clean, pushed to `origin/main`
+
+---
+
 ## [2026.3.7-P3-THERMO] — 2026-03-07 — P3-THERMODYNAMIC-HARDENING-SEAL
 
 **T000:** 2026.03.07-P3-THERMO  

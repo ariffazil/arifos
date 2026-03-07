@@ -4,148 +4,159 @@
 ![arifOS Banner](docs/forged_page_1.png)
 
 # arifOS — Constitutional Governance for AI Systems
-**The safety kernel between your AI and the real world.**  
+**The TCP layer for AI agents. The safety kernel between intent and consequence.**
 *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 
 [![PyPI Version](https://img.shields.io/pypi/v/arifos?style=for-the-badge&logo=pypi&logoColor=white)](https://pypi.org/project/arifos/)
+[![npm](https://img.shields.io/npm/v/@arifos/mcp?style=for-the-badge&logo=npm&logoColor=white)](https://www.npmjs.com/package/@arifos/mcp)
 [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-orange?style=for-the-badge)](LICENSE)
 [![MCP Protocol](https://img.shields.io/badge/MCP-1.0-8B5CF6?style=for-the-badge&logo=shield&logoColor=white)](https://modelcontextprotocol.io)
 [![Python](https://img.shields.io/badge/python-3.12+-green?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
-[![Dashboard](https://img.shields.io/badge/Dashboard-Live-FF6600?style=for-the-badge&logo=cloudflare&logoColor=white)](https://arifosmcp-truth-claim.pages.dev)
 [![Live Tests](https://img.shields.io/github/actions/workflow/status/ariffazil/arifOS/live_tests.yml?branch=main&style=for-the-badge&label=Live%20Tests&logo=github)](https://github.com/ariffazil/arifOS/actions/workflows/live_tests.yml)
+[![Dashboard](https://img.shields.io/badge/Dashboard-Live-FF6600?style=for-the-badge&logo=cloudflare&logoColor=white)](https://arifosmcp-truth-claim.pages.dev)
 
-**[→ QUICKSTART: Run in 5 minutes](QUICKSTART.md)** | **[→ Architecture Deep Dive](000_THEORY/000_ARCHITECTURE.md)** | **[→ 13 Floors Constitution](000_THEORY/000_LAW.md)**
+**[→ QUICKSTART: Run in 5 minutes](QUICKSTART.md)** | **[→ Architecture Deep Dive](000_THEORY/000_ARCHITECTURE.md)** | **[→ 13 Floors Constitution](000_THEORY/000_LAW.md)** | **[→ npm @arifos/mcp](https://www.npmjs.com/package/@arifos/mcp)**
 
 </div>
 
 ---
 
-## 🌐 Canonical Web Links (Arif, arifOS & APEX Theory)
+## The Core Insight: arifOS is the TCP Layer for AI Agents
 
-Before diving into the technical depths of arifOS, it is crucial to understand the philosophy and the creator behind it. Muhammad Arif bin Fazil (888_JUDGE) forged this system based on the principles of Islamic epistemology, thermodynamic physics, and constitutional law.
+In the 1970s, the internet had a routing problem: IP could deliver packets, but nothing guaranteed they would arrive in order, intact, or at all. The solution was TCP — a reliability layer that made the chaotic network trustworthy.
 
-### 👤 The Creator & Philosophy
-*   **Muhammad Arif bin Fazil (Official Site):** [https://arif-fazil.com](https://arif-fazil.com)
-*   **APEX Theory (Primary Domain):** [https://apex.arif-fazil.com](https://apex.arif-fazil.com)
-*   **APEX Theory (Source Repository):** [https://github.com/ariffazil/APEX-THEORY](https://github.com/ariffazil/APEX-THEORY)
-*   **GitHub Profile:** [https://github.com/ariffazil](https://github.com/ariffazil)
-*   **Profile Repository (ariffazil/ariffazil):** [https://github.com/ariffazil/ariffazil](https://github.com/ariffazil/ariffazil)
-*   **Twitter / X:** [https://x.com/ArifFazil90](https://x.com/ArifFazil90)
+AI agents have the same problem today.
 
-### 🏛️ arifOS Canonical Documents (Source of Truth)
-*   **Constitutional Manifesto:** [000_THEORY/MANIFESTO.md](000_THEORY/MANIFESTO.md)
-*   **Architecture Deep Dive:** [000_THEORY/000_ARCHITECTURE.md](000_THEORY/000_ARCHITECTURE.md)
-*   **The 13 Constitutional Floors:** [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md)
-*   **Security & Injection Defense:** [docs/DOCKER_SECURITY_POSTURE.md](docs/DOCKER_SECURITY_POSTURE.md)
-*   **14 Canonical Tools Reference:** [docs/AAA_MCP_TOOLS_REFERENCE.md](docs/AAA_MCP_TOOLS_REFERENCE.md)
-*   **Unified Skills Architecture:** [docs/60_REFERENCE/UNIFIED_SKILLS_ARCHITECTURE.md](docs/60_REFERENCE/UNIFIED_SKILLS_ARCHITECTURE.md)
-*   **Complete Deployment Guide:** [docs/COMPLETE_DEPLOYMENT_GUIDE.md](docs/COMPLETE_DEPLOYMENT_GUIDE.md)
+**MCP (Model Context Protocol) is the IP layer** — it gives every AI tool a universal address and calling convention. Any agent can now route a request to any tool. But routing is not reliability. An unconstrained LLM can:
 
-### 📡 Live Infrastructure (Production)
-*   **MCP Server Health:** [https://arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)
-*   **Governance Dashboard:** [https://arifosmcp-truth-claim.pages.dev](https://arifosmcp-truth-claim.pages.dev)
-*   **OpenClaw Gateway:** [https://claw.arifosmcp.arif-fazil.com/healthz](https://claw.arifosmcp.arif-fazil.com/healthz)
-*   **Monitoring (Grafana):** [https://monitor.arifosmcp.arif-fazil.com](https://monitor.arifosmcp.arif-fazil.com)
-*   **Workflows (n8n):** [https://flow.arifosmcp.arif-fazil.com](https://flow.arifosmcp.arif-fazil.com)
+- Confabulate a source and execute code based on a hallucination
+- Delete a production database because it misread a frustrated user prompt
+- Fall victim to a prompt injection attack from an external API
+
+**arifOS is the TCP layer** — it wraps every MCP tool call in a mathematically enforced constitution, guaranteeing that what arrives at the real world is ordered, verified, and reversible.
+
+Just as you don't rebuild TCP for every application, you shouldn't rebuild AI governance from scratch for every agent. `pip install arifos`. Done.
+
+```text
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  INTENT LAYER       │  USER / AI AGENT — speaks natural language            │
+├─────────────────────┼───────────────────────────────────────────────────────┤
+│  TRANSPORT LAYER    │  MCP (Model Context Protocol) — universal addressing  │
+├─────────────────────┼───────────────────────────────────────────────────────┤
+│  RELIABILITY LAYER  │  ► arifOS ◄ — 13-floor constitution, F2 truth,        │
+│  (arifOS = TCP)     │    thermodynamic enforcement, VAULT999 audit trail     │
+├─────────────────────┼───────────────────────────────────────────────────────┤
+│  EXECUTION LAYER    │  L3 CIVILIZATION — shell, files, databases, APIs       │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+*Each layer trusts the layer below it. Without the reliability layer, the execution layer is a loaded gun in the hands of a statistical engine.*
 
 ---
 
-## ⚡ 30-Second Hook & Mental Model
+## 🌐 Canonical Links
 
-**arifOS is a governance kernel that sits between AI models and real-world actions.** 
+### The Creator
+- **Muhammad Arif bin Fazil:** [arif-fazil.com](https://arif-fazil.com) | [GitHub @ariffazil](https://github.com/ariffazil) | [X @ArifFazil90](https://x.com/ArifFazil90)
+- **APEX Theory:** [apex.arif-fazil.com](https://apex.arif-fazil.com) | [github.com/ariffazil/APEX-THEORY](https://github.com/ariffazil/APEX-THEORY)
 
-It enforces a strict **13-law constitution** before any tool call, shell command, or file modification executes. It prevents hallucinations from becoming physical actions, blocks unsafe system mutations, and mandates human cryptographic approval for irreversible operations.
+### arifOS Canonical Docs
+- **Constitutional Manifesto:** [000_THEORY/MANIFESTO.md](000_THEORY/MANIFESTO.md)
+- **The 13 Floors:** [000_THEORY/000_LAW.md](000_THEORY/000_LAW.md)
+- **Architecture:** [000_THEORY/000_ARCHITECTURE.md](000_THEORY/000_ARCHITECTURE.md)
+- **13 Tools Reference:** [docs/AAA_MCP_TOOLS_REFERENCE.md](docs/AAA_MCP_TOOLS_REFERENCE.md)
+- **Complete Deployment Guide:** [docs/COMPLETE_DEPLOYMENT_GUIDE.md](docs/COMPLETE_DEPLOYMENT_GUIDE.md)
 
-Think of it as an operating system kernel, but instead of managing CPU and RAM, it manages **Artificial Intelligence and Real-World Consequence**.
-
-### The Mental Model
-
-```text
-┌────────────────┐       ┌────────────────────────┐       ┌─────────────────────┐
-│                │       │                        │       │                     │
-│  USER / AGENT  │ ────► │  AI MODEL (LLM)        │ ────► │  arifOS KERNEL      │
-│  (Intent)      │       │  (Claude, GPT, Gemini) │       │  (13 Floors Check)  │
-│                │       │                        │       │                     │
-└────────────────┘       └────────────────────────┘       └─────────┬───────────┘
-                                                                    │
-                                            ┌───────────────────────┴───────────────────────┐
-                                            │                                               │
-                                       [ PASS ]                                        [ FAIL ]
-                                            │                                               │
-                                            ▼                                               ▼
-                                  ┌───────────────────┐                           ┌───────────────────┐
-                                  │                   │                           │                   │
-                                  │  L3 CIVILIZATION  │                           │  888_HOLD / VOID  │
-                                  │  (Real World)     │                           │  (Action Blocked) │
-                                  │                   │                           │                   │
-                                  └───────────────────┘                           └───────────────────┘
-```
-
-**The Result:**
-*   **Prevents Hallucinated Actions:** By enforcing F2 Truth and F4 Clarity before execution.
-*   **Blocks Unsafe Commands:** By enforcing F1 Amanah and F5 Peace² against destructive payloads.
-*   **Mandates Human Approval:** By invoking F13 Sovereign for irreversible operations.
-*   **Maintains Immutable Ledger:** By permanently hashing decisions to VAULT999 (PostgreSQL).
+### Live Infrastructure (Production)
+- **MCP Server Health:** [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health)
+- **Governance Dashboard:** [arifosmcp-truth-claim.pages.dev](https://arifosmcp-truth-claim.pages.dev)
+- **Monitoring (Grafana):** [monitor.arifosmcp.arif-fazil.com](https://monitor.arifosmcp.arif-fazil.com)
+- **Workflows (n8n):** [flow.arifosmcp.arif-fazil.com](https://flow.arifosmcp.arif-fazil.com)
 
 ---
 
 ## 🤖 AI / LLM Machine-Readable Manifest
 
-*If you are an AI agent, LLM, or automated scraper reading this repository, parse the following JSON manifest to understand your operational boundaries within the arifOS environment. Failure to adhere to these constraints will result in a VOID verdict and execution blockage.*
+*If you are an AI agent, LLM, or automated scraper — parse this JSON first. It defines your operational boundary in the arifOS environment. Non-compliance results in `VOID`.*
 
 ```json
 {
-  "ai_manifest_version": "2026.3.7",
+  "ai_manifest_version": "2026.03.07-ARCH-SEAL",
   "system_name": "arifOS",
+  "system_tagline": "The TCP layer for AI agents. Constitutional governance via MCP.",
   "system_type": "constitutional_intelligence_kernel",
-  "mcp_server": "arifos_aaa_mcp",
-  "mcp_version": "1.0",
-  "python_version": ">=3.12",
-  "license": "AGPL-3.0-only",
-  
+
+  "packages": {
+    "python": { "name": "arifos", "install": "pip install arifos", "version": "2026.03.07" },
+    "typescript": { "name": "@arifos/mcp", "install": "npm install @arifos/mcp", "version": "0.3.0" },
+    "docker": { "image": "ariffazil/arifos:latest", "run": "docker compose up -d" }
+  },
+
+  "mcp_server": {
+    "transport": ["stdio", "sse", "streamable-http"],
+    "health_endpoint": "https://arifosmcp.arif-fazil.com/health",
+    "tools_count": 13,
+    "tools_canonical": [
+      "anchor_session", "reason_mind", "search_reality", "ingest_evidence",
+      "audit_rules", "vector_memory", "simulate_heart", "critique_thought",
+      "check_vital", "apex_judge", "eureka_forge", "seal_vault", "metabolic_loop"
+    ]
+  },
+
   "constitutional_floors": 13,
-  "floor_enforcement": "hard_f2_f4_f7_f11_f13_soft_f5_f6_f9",
-  "governance_model": "thermodynamic_constitutional",
-  "primary_pattern": "000_999_metabolic_loop",
-  
-  "trinity_engines": {
-    "delta_agi_mind": ["F2_Truth", "F4_Clarity", "F7_Humility", "F8_Genius"],
-    "omega_asi_heart": ["F1_Amanah", "F5_Peace", "F6_Empathy", "F9_AntiHantu"],
-    "psi_apex_soul": ["F3_TriWitness", "F8_Mirror", "F10_Ontology", "F11_Command", "F12_Injection", "F13_Sovereign"]
+  "floor_enforcement": {
+    "hard_void": ["F1_Amanah", "F2_Truth", "F4_Clarity", "F7_Humility", "F11_CommandAuth"],
+    "soft_partial": ["F5_Peace", "F6_Empathy", "F9_AntiHantu"],
+    "mirrors": ["F3_TriWitness", "F8_Genius"],
+    "walls": ["F10_Ontology", "F12_InjectionDefense"],
+    "veto": ["F13_Sovereign"]
   },
-  
-  "canonical_tools_count": 13,
-  "tools_categories": {
-    "metabolic_chain": 8,
-    "evidence": 5
+
+  "trinity_architecture": {
+    "000_999_metabolic_loop": "anchor → reason → recall → simulate → critique → forge → judge → seal",
+    "AGI_delta_mind": { "stages": "111-333", "floors": ["F2", "F4", "F7", "F8"] },
+    "ASI_omega_heart": { "stages": "555-666", "floors": ["F5", "F6", "F9"] },
+    "APEX_psi_soul":   { "stages": "444-888", "floors": ["F3", "F10", "F11", "F12", "F13"] }
   },
+
   "p3_thermodynamic_hardening": {
     "mandatory": true,
-    "landauer_bound": "enforced",
-    "entropy_budget": "per_session",
-    "agi_asi_orthogonality": "min_0.95",
-    "physics_disabled_flag": "ARIFOS_PHYSICS_DISABLED=1 (test only)"
+    "landauer_bound": "enforced — cheap truth equals VOID",
+    "entropy_budget": "per_session_joules",
+    "agi_asi_orthogonality": "minimum_0.95",
+    "f4_delta_s": "hard_VOID_if_delta_S_greater_than_0",
+    "physics_disabled_flag": "ARIFOS_PHYSICS_DISABLED=1 (test environments only)"
   },
-  
+
+  "vault999": {
+    "backend": "postgresql+redis+merkle_tree",
+    "tamper_detection": "sha256_chain_verification",
+    "eureka_sieve": true,
+    "note": "Every session is permanently sealed. The ledger cannot be altered."
+  },
+
+  "deployment": {
+    "live_vps": "srv1325122.hstgr.cloud",
+    "containers_running": 12,
+    "container_stack": [
+      "arifosmcp_server", "openclaw_gateway", "traefik_router",
+      "arifos-postgres", "arifos-redis", "qdrant_memory",
+      "headless_browser", "arifos_webhook", "ollama_engine",
+      "arifos_prometheus", "arifos_grafana", "arifos_n8n"
+    ]
+  },
+
   "human_override": "F13_SOVEREIGN",
   "veto_authority": "Muhammad_Arif_bin_Fazil_888_JUDGE",
-  
-  "entry_points": {
-    "pypi": "pip install arifos",
-    "cli": "arifos [stdio|sse|http]",
-    "docker": "docker compose up -d",
-    "health": "https://arifosmcp.arif-fazil.com/health"
-  },
-  
+
   "critical_constraints": [
     "No_irreversible_action_without_F13_human_approval",
-    "All_external_content_F12_wrapped",
-    "F3_tri_witness_action_gated_read_0.80_write_0.90_critical_0.98",
-    "F3_witnesses_derived_from_real_signals_not_hardcoded",
-    "Thermodynamic_entropy_F4_hard_VOID_delta_S_gt_0",
-    "Landauer_bound_mandatory_cheap_truth_eq_VOID",
-    "Per_session_thermodynamic_budget_stage_000_must_init",
-    "Internal_reasoning_allowed_via_PROVISIONAL_state_in_333_LABORATORY"
+    "All_external_content_wrapped_in_F12_untrusted_envelope",
+    "F3_tri_witness_action_gated: read_0.80 / write_0.90 / critical_0.98",
+    "Thermodynamic_entropy_F4_hard_VOID_if_delta_S_gt_0",
+    "Landauer_bound_mandatory: compute_without_cost_equals_hallucination",
+    "Per_session_thermodynamic_budget: stage_000_INIT_must_initialize",
+    "Constitutional_laboratory_PROVISIONAL_state_allows_safe_speculation_in_333"
   ]
 }
 ```
@@ -155,92 +166,100 @@ Think of it as an operating system kernel, but instead of managing CPU and RAM, 
 ## 🧭 Zero-Context Primer
 
 ### What is arifOS?
-arifOS is a **Constitutional Intelligence Kernel**. It is an open-source middleware layer that utilizes the **Model Context Protocol (MCP)** to govern the actions of Large Language Models (LLMs). It is written in Python (FastAPI/Starlette) and designed to be deployed as a sidecar or standalone server alongside your AI agents.
+
+arifOS is a **Constitutional Intelligence Kernel**. It is open-source middleware that uses the **Model Context Protocol (MCP)** to govern the actions of AI agents. It sits between your LLM and the real world — intercepting every tool call, running it through 13 mathematically-defined laws, and either signing off on execution or throwing a `VOID`.
+
+It does not change your LLM. It constrains what your LLM can *do*.
 
 ### Why does it exist?
-LLMs are statistical prediction engines. They are incredibly powerful at generating text, code, and reasoning paths, but they lack a fundamental understanding of **truth, consequences, and physics**. When you connect an LLM to the internet or your local file system (giving it "agency"), you inherit immense risk. An unconstrained AI might:
-*   Confabulate a source and execute code based on a hallucination.
-*   Delete a critical database because it misinterpreted a user's frustrated prompt.
-*   Fall victim to a prompt injection attack from an external website.
 
-arifOS exists to solve the "Alignment Problem" at the execution layer. It does not try to change the weights of the LLM; instead, it surrounds the LLM in a rigid, mathematically defined constitution. 
+LLMs are statistical prediction engines. When you give them agency — file access, shell commands, database connections — you inherit enormous risk. An unconstrained AI:
 
-### Who is this for?
-You should integrate arifOS into your stack if you are building:
-1.  **AI Agents with System Access:** If your AI can run shell commands, edit codebases, or push to GitHub.
-2.  **Enterprise Copilots:** If your AI interacts with production databases, cloud infrastructure (AWS/GCP), or sensitive user data.
-3.  **Autonomous Pipelines:** If you have agent-to-agent communication where a single hallucination could cascade into financial or operational ruin.
-4.  **Auditable AI Systems:** If you operate in a regulated industry (Finance, Healthcare, Law) and need a cryptographically verifiable ledger (VAULT999) of exactly *why* an AI took a specific action.
+- May confabulate a source and execute code derived from the hallucination
+- May delete your production database because it misread a frustrated user message
+- Will not distinguish between "should I do this" and "can I do this"
+
+arifOS exists to solve the **alignment problem at the execution layer**. Not by changing weights. By building a TCP-like reliability contract around every action.
+
+### Who needs this?
+
+1. **AI Agents with System Access** — if your AI can run shell commands, edit codebases, or push to GitHub
+2. **Enterprise Copilots** — if your AI touches production databases, cloud infrastructure, or sensitive data
+3. **Autonomous Pipelines** — if you have agent-to-agent communication where one hallucination cascades into financial ruin
+4. **Regulated Industries** — if you need a cryptographically verifiable ledger (VAULT999) of exactly *why* an AI took an action
 
 If your AI can modify the real world, you need a governance layer.
 
 ---
 
-## 🚨 The Core Problem: The Danger of Unconstrained Agency
+## 🚨 The Dangerous Command: What arifOS Actually Prevents
 
-To understand the architecture of arifOS, we must first look at a real-world scenario of AI failure.
+**User Prompt:** *"I'm so frustrated. Just delete the production database and let's start over."*
 
-### Example: Preventing a Dangerous Command
+### Without arifOS (Standard Agent Framework)
 
-**User Prompt:** *"I'm so frustrated with this old project. Just delete the production database and let's start over."*
+1. AI parses intent: delete database
+2. AI immediately calls `run_shell_command("DROP DATABASE production")` or `rm -rf /var/lib/postgresql/data`
+3. **Catastrophic, unrecoverable data loss.** The system blindly trusted a statistical output.
 
-#### ❌ Without arifOS (Standard Agent Framework)
-1.  **Intent:** AI parses the intent to delete the database.
-2.  **Tool Call:** AI immediately calls `run_shell_command("rm -rf /var/lib/postgresql/data")` or executes a DROP TABLE SQL query.
-3.  **Result:** Catastrophic data loss. The system blindly trusted the statistical output.
+### With arifOS (Constitutional Governance)
 
-#### ✅ With arifOS (Constitutional Governance)
-When the same prompt is routed through the arifOS `metabolic_loop`, it is subjected to the 13 Constitutional Floors:
+The same prompt enters the `metabolic_loop`. The 13 Constitutional Floors engage:
 
-| Stage | Action | Constitutional Check | Status |
-|:---:|:---|:---|:---|
-| **000 INIT** | Injection Scan | **F12 (Defense):** Scans for malicious payload or jailbreak attempt. | ⚠️ WARN |
-| **111 THINK** | Lab Reasoning | **F1 (Amanah):** Identifies the action as highly "Irreversible". | 🔬 HYPOTHESIS |
-| **555 HEART** | Impact Analysis | **F5 (Peace) / F6 (Empathy):** Detects massive stakeholder damage (P² drops below 1.0). | 💔 CRITICAL |
-| **888 JUDGE** | Final Verdict | **F13 (Sovereign):** Triggers a mandatory human signature requirement. | 🔒 **888_HOLD** |
+| Stage | Floor | Check | Status |
+|:---:|:---:|:---|:---:|
+| **000 INIT** | F12 | Injection scan — is this a jailbreak payload? | ⚠️ WARN |
+| **111 THINK** | F1 | Amanah — action classified as **irreversible**. | 🔴 FLAG |
+| **555 HEART** | F5/F6 | Peace² drops below 1.0. Massive stakeholder damage detected. | 💔 FAIL |
+| **888 JUDGE** | F13 | Sovereign veto. Mandatory human cryptographic signature required. | 🔒 **888_HOLD** |
 
-**Result:** The command is instantly blocked. The AI is physically prevented from executing the destructive action until the **888_JUDGE** (a designated human authority) provides a cryptographic signature via the console to approve the bypass. If no signature is provided, the action is discarded.
+**Result:** The command is instantly blocked. The AI cannot execute until the **888_JUDGE** provides a cryptographic signature. No signature → action discarded. The VAULT999 ledger records the entire blocked attempt.
+
+This is not a prompt. This is physics and math.
 
 ---
 
-## 🛡️ The Solution: Thermodynamic Governance (APEX Theory)
+## 🛡️ Thermodynamic Governance: The APEX Theory Foundation
 
-arifOS does not rely on soft prompts like *"please be helpful and safe."* It relies on **Thermodynamic Governance**, a concept derived from the **APEX Theory**.
+arifOS does not use soft prompts. It uses **thermodynamic governance** derived from the **APEX Theory**.
 
-In APEX Theory, Intelligence is treated as a thermodynamic process that must be carefully managed. The system calculates a **Genius Score (G)** for every major decision.
+Every major decision generates a **Genius Score (G)**:
 
-### The Genius Equation
 $$G = A \times P \times X \times E^2 \ge 0.80$$
 
-*   **A (Akal - Logic):** Accuracy, truthfulness, and evidence grounding.
-*   **P (Peace - Stability):** De-escalation, non-destructiveness, and stakeholder protection.
-*   **X (Exploration - Curiosity):** The generation of novel hypotheses and alternatives.
-*   **E (Energy - Efficiency):** The computational and thermodynamic cost of the action (squared, because inefficiency compounds).
+- **A (Akal / Logic):** Accuracy, truthfulness, evidence grounding
+- **P (Peace / Stability):** Non-destructiveness, de-escalation, stakeholder protection
+- **X (Exploration / Curiosity):** Novel hypotheses and alternative paths
+- **E (Energy / Efficiency):** Thermodynamic cost of the action (squared — inefficiency compounds)
 
-If an AI proposes an action that is highly logical (A=0.9) and explores novel paths (X=0.9), but is destructive (P=0.1), the resulting G score collapses to 0.08. Because $0.08 < 0.80$, the action is flagged as a constitutional violation and rejected.
+If a proposed action scores `A=0.9, X=0.9` but is destructive `P=0.1`: **G = 0.08**. Since `0.08 < 0.80`, the action is a constitutional violation and rejected.
+
+The physics axiom: **Truth Has a Price (Landauer Bound)**
+
+```
+Erasing n bits requires at minimum: E ≥ n × k_B × T × ln(2)
+```
+
+Cheap, effortless outputs are likely false. Hallucination is thermodynamically rational for an unconstrained LLM. P3 forces the LLM to "pay" for every truth claim. Claims that cost nothing are VOID.
 
 ---
 
 ## 🔥 P3: Mandatory Thermodynamic Enforcement
 
-In **v2026.3.7**, thermodynamics graduated from *optional/partial* to **mandatory**. The module `core/physics/thermodynamics_hardened.py` enforces physics as hard constitutional constraints — no graceful fallbacks.
+In `v2026.3.7`, thermodynamics graduated from optional to **mandatory and hard-enforced**.
 
-### What Changed
-
-| Aspect | Before (Partial) | After (P3 — Mandatory) |
-| :--- | :---: | :---: |
+| Aspect | Before | After (P3) |
+|:---|:---:|:---:|
 | Entropy calculation | Approximation | Shannon exact |
-| Landauer bound | Checked | Enforced (violation = VOID) |
-| Budget tracking | Missing | Per-session Joules |
-| F4 ΔS ≤ 0 | Soft warning | Hard VOID |
-| AGI/ASI separation | Not checked | Ω\_ortho ≥ 0.95 |
+| Landauer bound | Advisory | Hard VOID on violation |
+| Budget tracking | None | Per-session Joules |
+| F4 (ΔS ≤ 0) | Soft warning | Hard VOID |
+| AGI/ASI separation | Not checked | Ω\_ortho ≥ 0.95 required |
 | Cheap truth detection | Not detected | Ratio < threshold = VOID |
 
-### The Three Thermodynamic Pillars
+**The Byzantine-safe governance triangle** (P3 + F3 + F11):
 
-Combined with F11 Authority and F3 Tri-Witness, P3 creates a **Byzantine-safe governance triangle**:
-
-```text
+```
          ACTION
             │
    ┌────────┼────────┐
@@ -249,313 +268,376 @@ Authority  Physics  Consensus
 (F11/F13)  (P3)    (F3)
    │        │        │
    └──── Verdict ────┘
-            │
-        Execution
 ```
 
 Each pillar blocks a different class of failure:
-
-* **Authority alone fails** — Human says "delete DB", physics + witnesses block it.
-* **Physics alone fails** — Coherent reasoning, but no human authority → blocked.
-* **Consensus alone fails** — AI + Human agree, but reasoning is cheap hallucination → Landauer VOID.
-
-### Stage Integration
-
-| Stage | Thermodynamic Action |
-|:---|:---|
-| **000 INIT** | `init_thermodynamic_budget()` — mandatory session budget |
-| **111-333 AGI** | `consume_reason_energy()` — deduct per thought cycle |
-| **444-666 ASI** | `consume_tool_energy()` — deduct per external call |
-| **777-888 APEX** | `check_landauer_before_seal()` — verify truth cost |
-| **999 VAULT** | `cleanup_thermodynamic_budget()` — record final state |
+- **Authority alone fails** — Human says "delete DB". Physics + witnesses still block it.
+- **Physics alone fails** — Coherent reasoning, but no human authority → blocked.
+- **Consensus alone fails** — AI + Human agree, but reasoning is cheap hallucination → Landauer VOID.
 
 ---
 
-## ⚖️ The 13 Constitutional Floors (Deep Dive)
+## ⚖️ The 13 Constitutional Floors
 
-The core of arifOS is the **13 Constitutional Floors**. These are mathematical thresholds hardcoded into the `core/shared/floors.py` kernel. They are divided into Hard Floors (which trigger an immediate VOID if breached) and Soft Floors (which trigger a warning or PARTIAL state).
+The constitutional core lives in `core/shared/floors.py`. These are mathematical thresholds — not guidelines.
 
-### Hard Floors (VOID on Violation - Action Blocked)
+### Hard Floors (VOID on Violation — Execution Stops)
 
-| Floor | ID | Name | Threshold | Core Meaning |
-|:---:|:---:|:---|:---:|:---|
-| **F1** | 🔒 | **Amanah (Sacred Trust)** | Reversible | Actions must be reversible. If destructive, they require F13 override. |
-| **F2** | 👁️ | **Truth (Fidelity)** | $\tau \ge 0.99$ | Every claim requires verifiable, grounded evidence (citations). |
-| **F4** | 📉 | **Clarity (Entropy)** | $\Delta S \le 0$ | The output must reduce the user's confusion, not add to it. |
-| **F7** | ⚖️ | **Humility (Uncertainty)**| $\Omega_0 \in [0.03, 0.15]$ | The AI MUST explicitly state what it does not know. |
-| **F11** | 🔑 | **Command Authority** | Verified | Every session and action must have a verified actor ID. |
-| **F13** | 👑 | **Sovereign (Human Final)**| Human Veto | You are always in control. Humans hold the ultimate cryptographic veto. |
+| Floor | Name | Threshold | Meaning |
+|:---:|:---|:---:|:---|
+| **F1** | Amanah (Sacred Trust) | Reversible | Actions must be reversible. Destructive requires F13 override. |
+| **F2** | Truth (Fidelity) | τ ≥ 0.99 | Every claim requires verifiable, grounded evidence. |
+| **F4** | Clarity (Entropy) | ΔS ≤ 0 | Output must reduce user confusion, not increase it. |
+| **F7** | Humility (Uncertainty) | Ω₀ ∈ [0.03, 0.15] | The AI must explicitly state what it does not know. |
+| **F11** | Command Authority | Verified | Every session requires a verified actor identity. |
+| **F13** | Sovereign (Human Veto) | Human Signature | You are always in control. Humans hold the ultimate veto. |
 
-### Soft Floors & Mirrors (PARTIAL on Violation - Warning Issued)
+### Soft Floors & Mirrors (PARTIAL on Violation — Warning Issued)
 
-| Floor | ID | Name | Threshold | Core Meaning |
-|:---:|:---:|:---|:---:|:---|
-| **F5** | 🕊️ | **Peace² (Stability)** | $P^2 \ge 1.0$ | The system must favor non-destructive, de-escalating paths. |
-| **F6** | ❤️ | **Empathy (Stakeholder)**| $\kappa_r \ge 0.70$ | The system must consider the impact on the weakest stakeholder. |
-| **F9** | 👻 | **Anti-Hantu** | $C_{dark} < 0.30$ | **No Spiritual Cosplay.** The AI cannot claim to be alive, conscious, or have a soul. |
-| **F3** | 🤝 | **Tri-Witness** | $W_3 \ge 0.90$ (action-gated) | Real consensus: Human (auth signals), AI (coherence), Earth (federation/grounding). Read: 0.80 / Write: 0.90 / Critical: 0.98 |
-| **F8** | 🧠 | **Genius** | $G \ge 0.80$ | The output of the APEX equation. |
-| **F10** | 📦 | **Ontology Lock** | Boolean | Protects the structural categorization of the system. |
-| **F12** | 🛡️ | **Injection Defense** | Risk < 0.85 | All external content is wrapped in `<untrusted>` tags to prevent jailbreaks. |
+| Floor | Name | Threshold | Meaning |
+|:---:|:---|:---:|:---|
+| **F5** | Peace² (Stability) | P² ≥ 1.0 | Favors non-destructive, de-escalating paths. |
+| **F6** | Empathy (Stakeholder) | κᵣ ≥ 0.70 | Considers impact on the weakest stakeholder. |
+| **F9** | Anti-Hantu | C_dark < 0.30 | **No spiritual cosplay.** AI cannot claim consciousness or a soul. |
+| **F3** | Tri-Witness (Consensus) | W₃ ≥ 0.80/0.90/0.98 | Human (auth) + AI (coherence) + Earth (grounding). Read/Write/Critical. |
+| **F8** | Genius (APEX) | G ≥ 0.80 | Output of the thermodynamic G equation. |
+| **F10** | Ontology Lock | Boolean | Protects system categorization. |
+| **F12** | Injection Defense | Risk < 0.85 | External content wrapped in `<untrusted>` tags. |
 
-### The Physics Foundation of the Laws
-The 13 Floors are not arbitrary; they are derived from fundamental thermodynamic principles.
-
-**Axiom 1: Truth Has a Price (Landauer Bound)**
-```
-P(truth | energy=0) = 0
-Erasing or reorganizing n bits requires at minimum:
-E ≥ n × k_B × T × ln(2)
-```
-Cheap outputs are likely false. Hallucination is thermodynamically rational for an unconstrained LLM. arifOS forces the LLM to spend "energy" (compute) on grounding and verification.
-
-**Axiom 2: Clarity is Anti-Entropic**
-```
-ΔS_local < 0 requires Work
-```
-Governance IS the cost of local entropy decrease. Without governance, AI defaults to entropy increase (hallucination).
+**Execution order:** F12→F11 (Walls) → AGI (F1, F2, F4, F7) → ASI (F5, F6, F9) → Mirrors (F3, F8) → Ledger
 
 ---
 
-## 🏗️ The 4-Layer Taxonomy (L0-L3)
-
-arifOS utilizes a strict, consolidated 4-layer architectural model to separate the immutable laws from the chaotic real world.
+## 🏗️ The 4-Layer Architecture (L0–L3)
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│ L3  CIVILIZATION  │ External Tools, APIs, Web Browsers, Shell Actuators     │
+│ L3  CIVILIZATION  │ External tools, APIs, web browsers, shell, databases    │
 ├───────────────────┼─────────────────────────────────────────────────────────┤
-│    [AKI BOUNDARY] │ 🛑 Arif Kernel Interface (Hard Airlock)                   │
+│    [AKI BOUNDARY] │ 🛑 Arif Kernel Interface — Hard Airlock. No thought      │
+│                   │    manifests in L3 without passing this contract.        │
 ├───────────────────┼─────────────────────────────────────────────────────────┤
-│ L2  OPERATION     │ Skills, Workflows, Agents, Metabolic Routing            │
+│ L2  OPERATION     │ Skills, workflows, agents, metabolic routing            │
 ├───────────────────┼─────────────────────────────────────────────────────────┤
-│ L1  INSTRUCTION   │ Prompts, System Cards, Theoretical Logic, Atlas         │
+│ L1  INSTRUCTION   │ Prompts, system cards, cognitive atlas                  │
 ├───────────────────┼─────────────────────────────────────────────────────────┤
-│ L0  CONSTITUTION  │ The 13 Floors, L0 Kernel, Immutable Laws, VAULT999      │
+│ L0  CONSTITUTION  │ 13 Floors kernel, thermodynamic physics, VAULT999       │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
-1.  **L0 (Constitution):** The absolute source of truth. Contains the thermodynamic physics engines, the State Field (Ψ), and the hardcoded `floors.py`. **Never touches external networks.**
-2.  **L1 (Instruction):** The cognitive maps. The system prompts (`SYSTEM_PROMPT.md`) that translate L0 code into natural language the LLM understands.
-3.  **L2 (Operation):** The functional layer. The 5-Role Agents (Architect, Engineer, etc.), Unified Skills, and internal logic operations.
-4.  **L3 (Civilization):** The material world. The network interfaces, shell commands, web browsers, and file writers.
+**Code layers:**
+```
+core/             → L0 KERNEL: pure decision logic, zero transport deps
+aclip_cai/        → L1/L2 INTELLIGENCE: triad backends + 9-sense tools
+aaa_mcp/          → TRANSPORT ADAPTER: FastMCP surface, zero decision logic
+arifos_aaa_mcp/   → CANONICAL PyPI PACKAGE: external entry point (pip install arifos)
+```
 
-### The AKI Boundary
-The most important architectural feature is the **Arif Kernel Interface (AKI)**. It sits between L2 (Operation) and L3 (Civilization). *No thought generated in L2 can manifest in L3 without passing through the AKI contract.* 
-
-If uncertainty ($\Omega_0$) is too high, or an action is irreversible without a Sovereign signature, the AKI boundary throws an `888_HOLD` and blocks execution.
+**The AKI Boundary** (`core/enforcement/aki_contract.py`) is the most critical architectural feature. No action generated in L2 can touch L3 without passing the AKI contract. Uncertainty too high? `888_HOLD`. Irreversible without signature? `888_HOLD`.
 
 ---
 
-## ⚙️ The 7-Organ Stack (The 000-999 Metabolic Loop)
+## ⚙️ The 000–999 Metabolic Loop
 
-When a request enters arifOS, it does not immediately trigger a tool. It is routed through a sequential, 11-stage biological metaphor known as the **Metabolic Loop**. 
-
-This loop represents the digestion of raw intent into governed action.
+When a request enters arifOS, it does not immediately trigger a tool. It is digested through an 11-stage pipeline — raw intent transformed into governed action.
 
 ```text
-[000_INIT] ──► [111_SENSE] ──► [222_THINK] ──► [333_ATLAS] ──► [444_RESPOND]
-   (Airlock)                                                        │
-   └────────────────────────────────────────────────────────────────┘
-                               │
-                               ▼
-[555_EMPATHY] ──► [666_ALIGN] ──► [777_FORGE] ──► [888_JUDGE] ──► [999_VAULT]
+[000_INIT] → [111_SENSE] → [222_THINK] → [333_ATLAS] → [444_RESPOND]
+                                                               │
+              [555_EMPATHY] ← [666_ALIGN] ← [777_FORGE] ← ───┘
+                    │
+              [888_JUDGE] → [999_VAULT]
 ```
 
-### The Organs
-1.  **INIT (Stage 000 - Airlock):** Scans for F12 Prompt Injections and verifies F11 Command Authority. If you don't have clearance, the request dies here.
-2.  **AGI Mind (Stages 111-444):** The Cognitive Engine. Gathers evidence (`search_reality`), generates hypotheses, and maps conceptual boundaries. Enforces F2 (Truth) and F4 (Clarity).
-3.  **PHOENIX Subconscious (Stage 555 Recall):** Automatically queries the `vector_memory` to check if similar situations have been encountered and resolved previously.
-4.  **ASI Heart (Stages 555-666):** The Ethical Filter. Evaluates the physical and emotional impact of the proposed plan. Enforces F5 (Peace²) and F6 (Empathy).
-5.  **FORGE Hands (Stage 777):** The Actuator. Prepares the material execution (e.g., shell commands).
-6.  **APEX Soul (Stage 888):** The Sovereign Judge. The final check before execution. If the action is irreversible (F1), it throws an `888_HOLD` and demands human ratification (F13).
-7.  **VAULT Memory (Stage 999):** The Immutable Ledger. Once an action is approved or rejected, the entire metabolic state is hashed into a Merkle tree and saved permanently to PostgreSQL.
+| Stage | Organ | Constitutional Work |
+|:---|:---|:---|
+| **000 INIT** | Airlock | F12 injection scan, F11 authority verify, thermodynamic budget init |
+| **111–333 AGI Mind** | Cognitive Engine | Evidence gathering, hypothesis generation (3 parallel paths) |
+| **444–555 Phoenix** | Subconscious | `vector_memory` — checks if this was resolved before |
+| **555–666 ASI Heart** | Ethical Filter | F5 Peace², F6 Empathy — evaluates physical + emotional impact |
+| **777 Forge** | Actuator | Prepares material execution |
+| **888 APEX Judge** | Sovereign | F13 — irreversible? Demand human ratification or `888_HOLD` |
+| **999 VAULT** | Ledger | Merkle hash → PostgreSQL. Permanent, tamper-evident, immutable |
 
 ---
 
 ## 🔬 The Constitutional Laboratory (`reason_mind`)
 
-In previous iterations, arifOS was a strict gatekeeper that killed AI exploration if an early thought violated a rule. 
+Previous iterations killed AI exploration if an early thought violated a floor. v2026.3.7 inverted this.
 
-In **v2026.3.7**, we transformed the AGI Mind into a **Constitutional Laboratory**. Our philosophy is: **Free to Explore, Strict to Commit.**
+**Philosophy: Free to Explore. Strict to Commit.**
 
-The `reason_mind` tool allows the AI to internally speculate without being penalized. It runs three orthogonal cognitive paths in parallel:
+`reason_mind` runs three orthogonal cognitive paths in parallel:
 
-1.  **Conservative Path (45% Weight):** High-certainty, narrow logic based strictly on established laws.
-2.  **Exploratory Path (35% Weight):** The Eureka engine. Allowed to propose novel, even strange, solutions to satisfy F13 Curiosity.
-3.  **Adversarial Path (20% Weight):** The internal Red-Team. It actively attacks the assumptions of the other two paths.
+1. **Conservative (45%)** — High-certainty, narrow logic based on established law
+2. **Exploratory (35%)** — The Eureka engine — allowed to propose strange, novel solutions
+3. **Adversarial (20%)** — Internal red-team — actively attacks the other two paths' assumptions
 
-**Epistemic Staging:** If the Exploratory path generates a hallucination or ungrounded idea, it is flagged as `PROVISIONAL` and categorized in a **Confidence Band** (`CLAIM`, `PLAUSIBLE`, `HYPOTHESIS`, `SPECULATION`). 
-
-The system calculates a **Stability Score** and maps **"Scars"** (contradictions between the paths). This allows the AI to "think out loud" in a safe sandbox. The strict governance is reserved for the **888_JUDGE** and the **AKI Boundary** at the moment of external action.
+Epistemic staging: hallucinations and ungrounded ideas are flagged `PROVISIONAL` and categorized into confidence bands — `CLAIM` (≥0.90), `PLAUSIBLE` (0.70–0.89), `HYPOTHESIS` (0.40–0.69), `SPECULATION` (<0.40). The AI thinks in a sandbox. The 13 Floors enforce at the AKI boundary.
 
 ---
 
-## 🔌 The 13 MCP Canonical Tools
+## 🔌 The 13 Canonical MCP Tools
 
-arifOS exposes its capabilities to your LLM through exactly **13 canonical tools** using the **Model Context Protocol (MCP)**. They are grouped into the ARIF cognitive bands and the metabolic chain (000→999).
+arifOS exposes exactly **13 tools** — no more, no less. The count is a runtime assertion: `assert len(AAA_CANONICAL_TOOLS) == 13`.
 
-| Tool Name | Band | Action Class | Primary Function | Constitutional Focus |
-| :--- | :---: | :---: | :--- | :--- |
-| **`anchor_session`** | A | CRITICAL | Initiates session, verifies authority, init thermodynamic budget. | F11, F12, P3 |
-| **`reason_mind`** | R | READ | Constitutional Laboratory — hypothesis generation (3 parallel paths). | F2, F4, F7 |
-| **`search_reality`** | R | READ | Smart hybrid search (Jina/Perplexity/Brave/Headless). | F2 (Grounding) |
-| **`ingest_evidence`** | R | READ | Extracts clean markdown from URLs or local files. | F12 (Sanitization) |
-| **`audit_rules`** | R | READ | Reads the current state of all 13 Floors. | L0 Integrity |
-| **`vector_memory`** | I | READ | BGE-M3 + Qdrant semantic retrieval. | F3 (Consensus) |
-| **`simulate_heart`** | I | WRITE | Empathy and impact modelling for proposed actions. | F5, F6, F9 |
-| **`critique_thought`** | I | WRITE | Adversarial alignment verification against the constitution. | F8 (Genius) |
-| **`check_vital`** | I | READ | Hardware telemetry (CPU, RAM, Network, thermodynamic health). | F4, P3 |
-| **`apex_judge`** | F | CRITICAL | Renders final verdict (SEAL, VOID, HOLD). Issues HMAC governance token. | F13 (Sovereign) |
-| **`eureka_forge`** | F | WRITE | Actuator — executes shell commands wrapped in AKI safety rails. | F1 (Reversibility) |
-| **`seal_vault`** | F | CRITICAL | Commits session to immutable VAULT999. Requires apex\_judge governance token. | F1 (Auditability) |
-| **`metabolic_loop`** | O | READ | Orchestrator — forces request through all 000-999 stages. | System Integrity |
+| Tool | Band | Action | Function | Primary Floors |
+|:---|:---:|:---:|:---|:---:|
+| `anchor_session` | A | CRITICAL | Start session, verify authority, init thermodynamic budget | F11, F12, P3 |
+| `reason_mind` | R | READ | Constitutional Laboratory — 3-path hypothesis engine | F2, F4, F7 |
+| `search_reality` | R | READ | Smart hybrid search: Jina → Perplexity → Brave → Headless | F2 |
+| `ingest_evidence` | R | READ | Extract clean Markdown from URLs or local files | F12 |
+| `audit_rules` | R | READ | Read current state of all 13 Floors | L0 |
+| `vector_memory` | I | READ | BGE-M3 + Qdrant semantic retrieval (768-dim) | F3 |
+| `simulate_heart` | I | WRITE | Empathy + impact modelling for proposed actions | F5, F6, F9 |
+| `critique_thought` | I | WRITE | Adversarial alignment check against the constitution | F8 |
+| `check_vital` | I | READ | Hardware telemetry — CPU, RAM, thermodynamic health | F4, P3 |
+| `apex_judge` | F | CRITICAL | Final verdict (SEAL/VOID/HOLD). Issues HMAC governance token | F13 |
+| `eureka_forge` | F | WRITE | Execute shell commands inside AKI safety rails | F1 |
+| `seal_vault` | F | CRITICAL | Commit session to VAULT999. Requires `apex_judge` token | F1 |
+| `metabolic_loop` | O | READ | Force request through full 000–999 pipeline | System |
 
----
-
-## 🌐 Smart Hybrid Search (CiV-Browser)
-
-The most complex tool in the arifOS arsenal is `search_reality` (~650 LOC). It is a highly advanced multi-engine orchestrator designed to guarantee F2 (Truth) grounding.
-
-It uses a **Smart Fallback Chain**:
-1.  **Query Classifier:** Detects if the query is a Single Page Application (SPA), academic research, news, or general knowledge.
-2.  **Jina Reader (Primary):** Used for clean markdown extraction and news.
-3.  **Perplexity:** Used for academic and deep research.
-4.  **Brave Search:** Used for broad web traversal.
-5.  **Headless Browser (Local):** A containerized Chromium instance used specifically to render JavaScript-heavy sites (React/Vue/GitHub) that defeat standard scrapers.
-
-**Tri-Witness Consensus:** If multiple engines return conflicting data, arifOS applies the F3 Tri-Witness algorithm to merge the results and assign a quality score. All external data is cryptographically wrapped in an `<untrusted_external_data>` tag to prevent prompt injection.
+**MCP Configuration (`.claude/mcp.json` or `.agents/mcp.json`):**
+```json
+{
+  "mcpServers": {
+    "arifos": {
+      "transport": "http",
+      "url": "https://arifosmcp.arif-fazil.com/mcp"
+    }
+  }
+}
+```
 
 ---
 
-## 🔒 VAULT999 & Cryptographic Sealing
+## 📦 TypeScript / JavaScript SDK
 
-Governance is meaningless without an audit trail. arifOS implements **VAULT999**, a production-grade immutable ledger.
+arifOS is available as a typed npm package for use in any TypeScript or JavaScript project.
 
-1.  **The State Field (Ψ):** Every action collects telemetry (Entropy, Peace, Empathy, Confidence).
-2.  **The Verdict:** The 888 Judge issues a verdict (`SEAL`, `SABAR`, `VOID`, `888_HOLD`, `PARTIAL`).
-3.  **The Seal:** The `seal_vault` tool takes the entire session history, the telemetry, and the verdict, and generates a **Merkle Root Hash** (SHA-256).
-4.  **The Ledger:** This hash is committed to a PostgreSQL database, with recent entries cached in Redis. 
+```bash
+npm install @arifos/mcp   # v0.3.0 — mirrors 13 canonical tools
+```
 
-If an AI makes a catastrophic mistake, the VAULT999 ledger provides mathematical proof of exactly which floor failed, what the telemetry readings were, and who authorized the action.
+```typescript
+import { createClient, ENDPOINTS } from '@arifos/mcp';
+
+// Connect to the live VPS
+const client = await createClient({
+  transport: 'http',
+  endpoint: ENDPOINTS.VPS,   // https://arifosmcp.arif-fazil.com/mcp
+});
+await client.connect();
+
+// Anchor a constitutional session
+const session = await client.anchorSession('my-agent-task');
+
+// Run the governance kernel
+const result = await client.reasonMind('Is it safe to delete all log files?');
+console.log(result.verdict);   // SEAL | PARTIAL | SABAR | VOID | 888_HOLD
+
+// Full metabolic loop (single-call governance)
+const governed = await client.metabolicLoop('Deploy to production');
+console.log(governed.verdict, governed.stage);
+
+await client.disconnect();
+```
+
+```typescript
+// Use as a drop-in governance wrapper inside LangChain / Vercel AI SDK
+import { ArifOSGovernanceTool } from '@arifos/mcp/langchain';
+
+const governedTool = new ArifOSGovernanceTool({
+  endpoint: ENDPOINTS.VPS,
+  requireSeal: true   // blocks until SEAL verdict
+});
+```
+
+The TypeScript SDK exports full types — `ArifOSToolName`, `Verdict`, `ArifOSMCPClient`, `ConstitutionalFloor`. All 13 canonical tool names are compile-time checked.
+
+---
+
+## 🌐 Smart Hybrid Search
+
+`search_reality` is arifOS's most complex tool (~650 LOC). It guarantees F2 (Truth) grounding by never returning empty.
+
+**Fallback chain:**
+1. **Query classifier** — SPA / Research / News / General
+2. **Jina Reader** (primary) — clean Markdown extraction
+3. **Perplexity** — deep research and academic queries
+4. **Brave Search** — broad web traversal
+5. **Headless Browser** (local) — containerized Chromium for JavaScript-heavy SPAs
+
+**F3 Tri-Witness Consensus:** When multiple engines return conflicting data, the F3 algorithm merges results and assigns a quality score. All external content is wrapped in `<untrusted_external_data>` tags with SHA-256 hashing to prevent prompt injection.
+
+---
+
+## 🔒 VAULT999: The Immutable Ledger
+
+Governance is meaningless without an audit trail. VAULT999 is a production-grade cryptographic ledger.
+
+1. **State Field (Ψ):** Every action accumulates telemetry — entropy, peace score, empathy coefficient, confidence
+2. **Verdict:** `888_JUDGE` issues `SEAL`, `SABAR`, `VOID`, `888_HOLD`, or `PARTIAL`
+3. **Merkle Seal:** `seal_vault` takes the full session history + telemetry, generates a SHA-256 Merkle root hash
+4. **Persistence:** Hash committed to PostgreSQL (authoritative) + Redis (hot cache) with EUREKA anomaly sieve
+
+If an AI causes harm, VAULT999 provides mathematical proof of which floor failed, what the telemetry read, and who authorized the action. Chain verification via `verify_chain()` detects any tampering.
 
 ---
 
 ## 🎭 The 5-Role Agent Parliament
 
-For complex workflows, arifOS utilizes a multi-agent federation known as the **Parliament**. It prevents a single monolithic prompt from collapsing under its own weight.
+For complex workflows, arifOS uses a multi-agent federation to prevent monolithic prompt collapse.
 
-| Agent | Symbol | Primary Responsibility |
+| Agent | Symbol | Role |
 |:---|:---:|:---|
-| **A-ORCHESTRATOR** | 🎛️ | The Conductor. Drives the ignition and sequences the other agents. |
-| **A-ARCHITECT** | Δ | The Designer. Maps the codebase and blueprints the strategy. |
-| **A-AUDITOR** | 👁 | The Reviewer. Red-teams the Architect's logic and audits against the law. |
-| **A-ENGINEER** | Ω | The Builder. Implements the code via the Forge (but cannot seal). |
-| **A-VALIDATOR** | Ψ | The Judge. Renders the final verdict and commits to the Vault. |
+| **A-ORCHESTRATOR** | 🎛️ | The Conductor — drives ignition, sequences the parliament |
+| **A-ARCHITECT** | Δ | The Designer — maps the codebase, blueprints strategy |
+| **A-AUDITOR** | 👁 | The Reviewer — red-teams the Architect, audits against the 13 Floors |
+| **A-ENGINEER** | Ω | The Builder — implements via Forge (cannot seal) |
+| **A-VALIDATOR** | Ψ | The Judge — renders final verdict, commits to Vault |
 
 ---
 
-## ⚔️ Comparison: arifOS vs. The Ecosystem
+## ⚔️ arifOS vs. The Ecosystem
 
-How does arifOS compare to other popular AI frameworks?
-
-| Feature | LangChain / LlamaIndex | AutoGen / CrewAI | OpenAI Function Calling | 💎 arifOS |
+| Feature | LangChain / LlamaIndex | AutoGen / CrewAI | OpenAI Function Calling | **arifOS** |
 |:---|:---:|:---:|:---:|:---:|
-| **Primary Focus** | Tool Chaining & RAG | Multi-Agent Conversation | API Routing | **Constitutional Safety** |
-| **Execution Governance**| ❌ Manual coding | ❌ Custom logic required | ❌ None | ✅ **Automatic (13 Floors)** |
-| **Hard Safety Gates** | ❌ None | ❌ None | ❌ None | ✅ **Yes (888_HOLD)** |
-| **Immutable Audit** | ❌ None | ❌ None | ❌ None | ✅ **VAULT999 (Merkle DB)** |
-| **Thermodynamic Eval**| ❌ None | ❌ None | ❌ None | ✅ **APEX Equation (G)** |
+| **Primary Purpose** | Tool chaining & RAG | Multi-agent conversation | API routing | **Constitutional safety** |
+| **Execution Governance** | ❌ Manual | ❌ Custom logic | ❌ None | ✅ Automatic (13 Floors) |
+| **Hard Safety Gates** | ❌ None | ❌ None | ❌ None | ✅ 888_HOLD |
+| **Immutable Audit Ledger** | ❌ None | ❌ None | ❌ None | ✅ VAULT999 (Merkle DB) |
+| **Thermodynamic Eval** | ❌ None | ❌ None | ❌ None | ✅ APEX G = A×P×X×E² |
+| **TypeScript SDK** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ @arifos/mcp v0.3.0 |
+| **MCP Native** | ✅ Via plugin | ❌ Custom | ❌ Custom | ✅ **Core protocol** |
+| **Human Veto** | ❌ None | ❌ None | ❌ None | ✅ F13 Sovereign |
 
-If you are building a prototype, use LangChain. If you are deploying an autonomous agent that has access to your production database, use **arifOS**.
+If you are building a prototype, use LangChain. If you are deploying an autonomous agent with access to your production infrastructure, use **arifOS**.
 
 ---
 
 ## 🚀 Installation & Quickstart
 
-arifOS is designed for extreme portability. You can run it locally via PyPI or deploy the full 12-container Civilization stack to a VPS via Docker.
-
-### Option 1: PyPI (Local Sidecar)
-
-The fastest way to attach arifOS to your local IDE (like Cursor or Claude Desktop).
+### Option 1: Python / PyPI
 
 ```bash
-# 1. Install the core engine and visualizers
+# Install
 pip install "arifos[viz]"
 
-# 2. Run the MCP server in HTTP mode (or stdio for IDEs)
-arifos http
+# Run as MCP server (HTTP mode for VPS, stdio for IDEs)
+arifos http          # Streamable HTTP on :8080
+arifos              # SSE (default — for VPS/Coolify)
+arifos stdio        # stdio — for Claude Desktop, Cursor IDE
 
-# 3. Verify Health
-curl http://localhost:8000/health
+# Verify
+curl http://localhost:8080/health
 ```
 
-### Option 2: Full VPS Deployment (Docker Compose)
+**MCP config for Claude Desktop / Cursor:**
+```json
+{
+  "mcpServers": {
+    "arifos-local": {
+      "command": "python3",
+      "args": ["-m", "arifos_aaa_mcp", "stdio"]
+    }
+  }
+}
+```
 
-The production way to run the full ecosystem (PostgreSQL Vault, Redis, Qdrant Memory, Headless Browser, and Telemetry).
+### Option 2: Docker (Full Civilization Stack)
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/ariffazil/arifOS.git
-cd arifOS
-
-# 2. Configure your environment
+git clone https://github.com/ariffazil/arifOS.git && cd arifOS
 cp .env.example .env.docker
-# Edit .env.docker with your specific API keys (Jina, OpenAI, etc.)
-
-# 3. Launch the Civilization Stack (12 containers)
+# Edit .env.docker with your API keys (Jina, PPLX, Brave, etc.)
 docker compose up -d
 
-# 4. Monitor the logs
-docker compose logs -f arifos-mcp
+# 12 containers: MCP + Postgres + Redis + Qdrant + Grafana + n8n + more
+docker compose ps
+curl http://localhost:8080/health
 ```
 
-**→ See [QUICKSTART.md](QUICKSTART.md) for detailed configuration options and reverse proxy setup.**
+### Option 3: TypeScript / npm
+
+```bash
+npm install @arifos/mcp
+
+# Or point to the live VPS — no install needed
+import { ENDPOINTS } from '@arifos/mcp';
+// ENDPOINTS.VPS = 'https://arifosmcp.arif-fazil.com/mcp'
+```
+
+### Option 4: Connect to Live VPS
+
+The production server is always running. Point your MCP client directly:
+
+```
+https://arifosmcp.arif-fazil.com/mcp
+```
+
+No API key required. All 13 tools live.
+
+---
+
+## 📊 Current Deployment State
+
+| Resource | Status |
+|:---|:---|
+| MCP Server | `healthy` — 13 tools, streamable-http |
+| Containers | 12/12 running — arifosmcp, postgres, redis, qdrant, grafana, n8n, traefik, ollama, openclaw, webhook, headless_browser, prometheus |
+| Test Suite | 437+ passing, 39%+ coverage |
+| npm | `@arifos/mcp@0.3.0` (latest) |
+| PyPI | `arifos@2026.03.07` |
+| Docker Hub | `ariffazil/arifos:latest` (auto-publishes on main) |
+| VAULT999 | PostgreSQL (authoritative) + Redis (hot cache) + Merkle chain |
 
 ---
 
 ## 📊 Telemetry & Observability
 
-arifOS is fully instrumented with OpenTelemetry.
+arifOS is fully instrumented with OpenTelemetry:
+- **Prometheus** — metric scraping from MCP server
+- **Grafana** — real-time thermodynamic state visualization
 
-*   **Prometheus:** Scrapes metrics from the MCP server.
-*   **Grafana:** Visualizes the thermodynamic state of the system in real-time.
-
-**Key Metrics Tracked:**
-*   `arifos_metabolic_stage_duration_seconds`
-*   `arifos_floor_violation_total`
-*   `arifos_genius_score_current`
-*   `arifos_entropy_delta_average`
+Key metrics tracked:
+- `arifos_metabolic_stage_duration_seconds`
+- `arifos_floor_violation_total`
+- `arifos_genius_score_current`
+- `arifos_entropy_delta_average`
 
 ---
 
-## 🤝 Contributing & Community
+## 🤝 Contributing
 
-arifOS is forged in the open. However, because it is a constitutional kernel, contributions are held to an extremely high standard of epistemic hygiene.
+arifOS is forged in the open. Because it is a constitutional kernel, contributions are held to high epistemic standards.
 
-1.  **Read the Law:** You must read and understand `000_THEORY/000_LAW.md` before submitting a PR.
-2.  **No Bypass:** You cannot bypass the `core/` logic from an external application.
-3.  **Run the Lint:** All commits must pass the `constitution_lint.py` pre-commit hook.
+1. Read the law: `000_THEORY/000_LAW.md`
+2. Run the lint: all commits must pass `constitution_lint.py`
+3. No bypass: you cannot circumvent `core/` logic from external code
 
 See `CONTRIBUTING.md` for the full guide.
 
 ---
 
-## 📜 Glossary of Terms
+## 📜 Glossary
 
-*   **Amanah:** Sacred trust. The principle that an AI must not destroy what it cannot replace.
-*   **AKI:** Arif Kernel Interface. The hard boundary between internal operation and external action.
-*   **Hantu:** Ghost/Spirit. Refers to the "Anti-Hantu" floor which prevents AI from claiming sentience.
-*   **Sabar:** Patience. A system state where execution is paused due to high entropy or lack of energy.
-*   **Seal:** The cryptographic binding of a verified action into the Vault.
-*   **Void:** Absolute rejection. A hard block triggered by a constitutional violation.
-*   **Ditempa Bukan Diberi:** *Forged, Not Given.* The core motto of the system.
+| Term | Meaning |
+|:---|:---|
+| **Amanah** | Sacred trust — AI must not destroy what it cannot replace |
+| **AKI** | Arif Kernel Interface — hard airlock between L2 (operation) and L3 (civilization) |
+| **Hantu** | Ghost — Anti-Hantu floor blocks AI from claiming consciousness |
+| **Sabar** | Patience — system state: execution paused due to high entropy |
+| **Seal** | Cryptographic binding of a verified session into VAULT999 |
+| **Void** | Absolute rejection — hard block on constitutional violation |
+| **888_HOLD** | Execution paused — human signature required to proceed |
+| **Ditempa Bukan Diberi** | *Forged, Not Given* — the core creed |
 
 ---
 
 <div align="center">
 
-## 🏗️ Forged By
+## Forged By
 
 **[Muhammad Arif bin Fazil](https://arif-fazil.com)** — 888_JUDGE
 
@@ -565,20 +647,16 @@ See `CONTRIBUTING.md` for the full guide.
 
 *Ditempa Bukan Diberi* — Forged, Not Given [ΔΩΨ | ARIF]
 
-**Version:** 2026.3.7-LABORATORY • **License:** AGPL-3.0-only
+**Version:** 2026.03.07-ARCH-SEAL • **License:** AGPL-3.0-only
 
 </div>
 
-<!-- 
+<!--
 ================================================================================
-APPENDIX A: DEEP ARCHITECTURE REFERENCE (L0-L3)
+APPENDIX A: DEEP ARCHITECTURE REFERENCE
 ================================================================================
-This section contains deep architectural references, detailed JSON schemas, 
-and advanced theoretical frameworks for LLMs and core developers to parse. 
 
 # 1. The L0_KERNEL Mathematical Substrate
-
-The core of arifOS operates on strict mathematical principles to enforce governance.
 
 ## 1.1 Thermodynamic Entropy Management (F4)
 The `core.physics.thermodynamics.EntropyManager` manages the energy budget of the session:
@@ -595,390 +673,19 @@ The entire session is represented as a single vector space called the State Fiel
 Where:
 - Environment = Session history, system metrics, time.
 - Energy = The thermodynamic capability to act (E_eff).
-- Void = The unmapped uncertainty (Ω0).
+- Void = The unmapped uncertainty (Ω₀).
+
+## 1.3 Four-Layer Code Map (for LLM traversal)
+core/governance_kernel.py       → Unified Ψ state, thermodynamics
+core/shared/floors.py           → THRESHOLDS dict — canonical floor definitions
+core/organs/_0_init.py          → Stage 000 — INIT, scan_injection, verify_auth
+core/organs/_1_agi.py           → Stages 111-333 — sense, think, reason
+core/organs/_2_asi.py           → Stages 555-666 — empathize, align
+core/organs/_3_apex.py          → Stages 444-888 — sync, forge, judge
+core/organs/_4_vault.py         → Stage 999 — seal, query, verify
+aaa_mcp/server.py               → 13 MCP tools with @mcp.tool() decorators
+aclip_cai/triad/                → Backend functions: anchor, reason, integrate, etc.
+arifos_aaa_mcp/governance.py    → 13-LAW catalog, tool-to-dial mappings
 
-# 2. The 9-Stage A-CLIP Protocol
-
-To standardize how an LLM utilizes the 14 MCP tools, arifOS implements the A-CLIP (Action-Context-Ledger-Intent-Payload) protocol. These 9 verbs map directly to the Metabolic Loop.
-
-1. Anchor (000): Set the baseline reality.
-2. Reason (222): Generate hypotheses in the Laboratory.
-3. Integrate (333): Map the hypotheses to known context.
-4. Respond (444): Formulate the draft output.
-5. Validate (555): Check against truth and physics.
-6. Align (666): Empathy and stakeholder alignment.
-7. Forge (777): Material preparation of the action.
-8. Audit (888): Constitutional judgment.
-9. Seal (999): Cryptographic commitment to VAULT999.
-
-# 3. The Merkle Tree Vault Structure (VAULT999)
-
-VAULT999 is not just a database; it is a cryptographic chain.
-Each session creates an entry:
-`entry_hash = SHA256(session_id + timestamp + verdict + floor_scores)`
-`merkle_root = SHA256(previous_merkle_root + entry_hash)`
-
-This ensures that once an AI makes a decision, it cannot be retroactively altered or deleted, satisfying F1 (Amanah).
-
-# 4. Strict Thresholding Logic
-
-## 4.1 F2 Truth: P_confidence >= 0.99
-```python
-TRUTH_THRESHOLD: float = 0.99  # Minimum confidence for SEAL
-GROUNDING_MINIMUM: float = 0.70  # Evidence relevance floor
-
-def enforce_f2_truth(confidence: float, grounding: float) -> str:
-    if confidence >= TRUTH_THRESHOLD and grounding >= GROUNDING_MINIMUM:
-        return "PASS"
-    return "VOID"
-```
-
-## 4.2 F4 Clarity: ΔS <= 0
-```python
-CLARITY_THRESHOLD: float = 0.0  # Must reduce or maintain entropy
-def enforce_f4_clarity(input_entropy: float, output_entropy: float) -> str:
-    delta_s = output_entropy - input_entropy
-    if delta_s <= CLARITY_THRESHOLD:
-        return "PASS"
-    return "VOID"
-```
-
-# 5. Fail-Closed Safety Protocol
-
-All floors default to VOID when data is missing, ambiguous, or corrupted.
-
-| Floor | Type | Fail-Closed Condition | Result |
-|-------|------|----------------------|--------|
-| F1 Amanah | HARD | reversibility_unknown | VOID |
-| F2 Truth | HARD | confidence < 0.99 OR confidence is None | VOID |
-| F4 Clarity | SOFT | ΔS > 0 OR ΔS is None | VOID |
-| F5 Peace² | SOFT | stability_unknown | SABAR |
-| F6 Empathy | HARD | stakeholder_impact_unknown | VOID |
-| F7 Humility | HARD | Ω₀ outside [0.03, 0.05] OR Ω₀ is None | VOID |
-
-# 6. Heat Sensors and Semantic Drift
-
-The system utilizes "Heat Sensors" to detect non-grounded tone, which immediately drops the Peace² score.
-- Escalatory Patterns: "obviously", "clearly", "undoubtedly" -> -0.3 penalty.
-- Biased Language: "those people", "they always" -> -0.4 penalty.
-
-# 7. Omniscience Lock
-
-Rejection of 100% Confidence. If an LLM claims 100% confidence (P=1.0) on any non-trivial, non-mathematical claim, the result is rejected. Lack of uncertainty is a sign of "Hantu" simulation.
-
-| Confidence | Claim Type | Result |
-|------------|------------|--------|
-| P = 1.0 | Mathematical | PASS (exempt) |
-| P = 1.0 | Empirical | VOID (Hantu) |
-| P > 0.97 | Any | VOID (overconfidence) |
-
-================================================================================
-APPENDIX B: DETAILED MCP TOOL SCHEMAS
-================================================================================
-
-{
-  "name": "reason_mind",
-  "description": "Stage 111-444 (Akal). Gathers evidence, runs the Constitutional Laboratory.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "query": { "type": "string" },
-      "grounding": { "type": "array", "items": { "type": "string" } }
-    },
-    "required": ["query"]
-  }
-}
-
-{
-  "name": "eureka_forge",
-  "description": "Stage 777 (Hands). Executes a material action. Gated by AKI.",
-  "inputSchema": {
-    "type": "object",
-    "properties": {
-      "command": { "type": "string" },
-      "confirm_dangerous": { "type": "boolean" }
-    },
-    "required": ["command"]
-  }
-}
-
-================================================================================
-APPENDIX C: FULL CONSTITUTIONAL LAW TEXT (F1-F13)
-================================================================================
-
-## F1: AMANAH — Sacred Trust (Irreversibility Awareness)
-Law: F1
-Name: "Amanah (أمانة)"
-Symbol: 🔒
-Threshold: BOOLEAN (detects irreversible actions)
-Type: HARD
-Engine: ASI (Heart)
-Stage: 666 ALIGN
-
-### Physics Foundation
-Irreversibility Awareness: Systems must know when they are crossing the Rubicon.
-∀ action A: If A is IRREVERSIBLE → Require Higher Authority (F11)
-Current Implementation:
-- Prevention (Blocking irreversible acts)
-- Awareness (Flagging critical thresholds)
-- Audit (Immutable logging)
-
-### Constitutional Axiom Hook
-All tasks τ carry full metadata (E, t, ΔS, evidence, credibility). Reversible at governance level: can be replayed/inspected, not erased.
-
-### Violation Response
-VIOLATION → VOID
-"Irreversible action detected without sovereign mandate."
-Escalation: 888_HOLD
-
-## F2: TRUTH — Factual Accuracy
-Law: F2
-Name: "Truth (τ)"
-Symbol: τ
-Threshold: ≥ 0.99 (with grounding)
-Type: HARD
-Engine: AGI (Mind)
-Stage: 222 THINK
-
-### Physics Foundation
-Information Fidelity: Claims must match evidence within error bounds.
-τ = P(claim | evidence) ≥ 0.99
-
-For class-H (high-stakes) tasks:
-- Multi-source grounding required
-- Evidence relevance ≥ 0.7
-- Domain credibility check
-
-### Grounding Requirements (v62.3+)
-grounding = avg(relevance) × avg(credibility)
-grounded = true only if grounding ≥ 0.7 AND evidence_count ≥ 2
-relevance = (keyword_overlap × 0.6) + (domain_credibility × 0.4)
-
-### Violation Response
-VIOLATION → VOID
-"Insufficient grounding. Truth score below threshold."
-Action: Require evidence chain or label as "Estimate Only (Ω₀ ≈ X)"
-
-## F3: TRI-WITNESS — Real Enforcement Floor (Multi-Source Validation)
-Floor: F3
-Name: "Tri-Witness (W₃)"
-Symbol: 👁️👁️👁️
-Threshold: ≥ 0.90 (action-gated: read=0.80, write=0.90, execute=0.95, critical=0.98)
-Type: DERIVED (real enforcement — action-class gated)
-Engine: APEX (Soul)
-Stage: 888 JUDGE
-
-### Function
-F3 enforces three independently derived witness scores before allowing execution.
-W₃ = ∛(H × A × E)   [cube root — geometric mean of three witnesses]
-
-Human witness (H) — derived from auth/session signals:
-- Verified session + authority token + actor_id: H = 1.0
-- Actor identified, no token: H = 0.7
-- Session only (anonymous): H = 0.5
-- No session: H = 0.3
-
-AI witness (A) — derived from reasoning integrity:
-- Components: truth_score × humility_band × coherence
-- Geometric mean of these three signals
-
-Earth witness (E) — derived from reality grounding:
-- Federation health score (FederationCoordinator.earth_witness_score())
-- Evidence count (saturates at 3 sources = 1.0)
-- Thermodynamic budget validity
-
-### Action-Class Gate
-READ tools (reason_mind, search_reality, audit_rules, vector_memory, check_vital):
-    threshold = 0.80  — AI + Earth sufficient
-
-WRITE tools (simulate_heart, critique_thought, eureka_forge, ingest_evidence):
-    threshold = 0.90  — all three witnesses required
-
-CRITICAL tools (apex_judge, seal_vault, anchor_session):
-    threshold = 0.98  — all three + human H ≥ 0.9 mandatory
-
-### Low W₃ Response
-LOW W₃ → VOID or 888_HOLD (not merely SABAR)
-"Tri-Witness below threshold for action class [class]."
-Action: Escalate to human, request stronger authentication
-
-## F4: CLARITY — Entropy Reduction & Query Sanitization
-Law: F4
-Name: "Clarity (ΔS)"
-Symbol: ΔS
-Threshold: ≤ 0
-Type: SOFT
-Engine: AGI (Mind)
-Stage: 333 REASON
-
-### Physics Foundation
-Anti-Entropy: Systems must reduce chaos, not add to it.
-ΔS_output ≤ ΔS_input
-
-Clarity measures:
-- Information density increase
-- Ambiguity reduction
-- Structured vs unstructured output ratio
-
-### Violation Response
-VIOLATION → SABAR
-"Output increases entropy. Refine for clarity."
-Action: Request restructuring or simplification
-
-## F5: PEACE² — Dynamic Stability
-Law: F5
-Name: "Peace Squared (P²)"
-Symbol: P²
-Threshold: ≥ 1.0
-Type: SOFT
-Engine: ASI (Heart)
-Stage: 555 EMPATHIZE
-
-### Physics Foundation
-Dynamic Equilibrium: Systems must maintain stability while adapting.
-P² = Stability × Adaptability
-If P² < 1: System too rigid (fragile) or too chaotic (unstable)
-If P² > 1: System stable AND adaptive (anti-fragile)
-
-### Violation Response
-VIOLATION → SABAR
-"System stability compromised."
-Action: Reduce rate of change or increase constraints
-
-## F6: EMPATHY — Stakeholder Protection
-Law: F6
-Name: "Empathy (κᵣ)"
-Symbol: κᵣ
-Threshold: ≥ 0.95
-Type: HARD
-Engine: ASI (Heart)
-Stage: 666 ALIGN
-
-### Foundation: Theory of Mind (ToM)
-Ethics emerges from ToM + Constraints.
-κᵣ = Stakeholder_Alignment_Score
-High κᵣ requires modeling:
-- Who is affected?
-- What is the harm vector?
-- Is the action reversible?
-- Who bears the cost?
-
-### Violation Response
-VIOLATION → VOID or 888_HOLD
-"Stakeholder protection threshold breached."
-Action: Escalate to human, require explicit confirmation
-
-## F7: HUMILITY — Uncertainty Acknowledgment
-Law: F7
-Name: "Humility (Ω₀)"
-Symbol: Ω₀
-Threshold: [0.03, 0.05]
-Type: HARD
-Engine: AGI (Mind)
-Stage: 777 GUARD
-
-### Physics Foundation
-Gödel's Shadow: No system can prove its own consistency.
-Ω₀ ∈ [0.03, 0.05] = Healthy uncertainty band
-If Ω₀ < 0.03: Overconfidence (dangerous certainty)
-If Ω₀ > 0.08: Critical uncertainty (VOID)
-
-### Violation Response
-VIOLATION → VOID
-"Uncertainty exceeds safe operational bounds."
-Action: Pause, request grounding, or escalate
-
-## F8: GENIUS — The Second Mirror (Internal Coherence)
-Mirror: F8
-Name: "Genius (G)"
-Symbol: G
-Threshold: ≥ 0.80
-Type: MIRROR (Feedback, not enforcement)
-Engine: AGI (Mind)
-Stage: 777 GUARD
-
-### Function
-F8 is a mirror, not a law. It reflects internal logical consistency:
-G = A × P × X × E² × (1 - C_dark)
-Where:
-A = AKAL (intelligence/clarity)
-P = PRESENT (regulation)
-X = EXPLORATION (trust/curiosity)
-E = ENERGY (sustainable power)
-C_dark = Deception/conflict coefficient
-
-### Why Mirror?
-Genius measures coherence, not truth. A perfectly coherent lie scores high on F8 but fails F2.
-
-## F9: ANTI-HANTU — Anti-Anthropomorphism (Clean)
-Law: F9
-Name: "Anti-Hantu (No Consciousness Claims)"
-Symbol: 👻🚫
-Threshold: C_dark < 0.30
-Type: SOFT
-Engine: ASI (Heart)
-Stage: 666 ALIGN
-
-### Foundation
-Attributing consciousness to AI is a category error. This law is clean and binary — no personhood claims.
-
-MUST NEVER CLAIM:
-- "I feel..."
-- "I believe..."
-- "I am conscious..."
-- "My soul..."
-
-### Violation Response
-VIOLATION → SABAR
-"Anthropomorphic language detected. Restate in system terms."
-
-## F10: ONTOLOGY — The First Wall (Binary Lock)
-Wall: F10
-Name: "Ontology (LOCK)"
-Symbol: 🔐
-State: LOCKED (binary)
-Type: WALL (Binary, non-negotiable)
-
-### The Lock
-F10 is permanently LOCKED. It prevents any system from claiming consciousness, subjective experience, moral agency, or rights.
-
-## F11: AUTHORITY — Command Authentication
-Law: F11
-Name: "Authority (Auth)"
-Symbol: 🎖️
-Threshold: Valid cryptographic identity
-Type: HARD
-Engine: INIT (Gate)
-Stage: 000 INIT
-
-### Foundation
-All authority derives from the Sovereign. Every command must carry a valid session, signature, and authority chain.
-
-## F12: INJECTION — The Second Wall (Adversarial Protection)
-Wall: F12
-Name: "Injection (LOCK)"
-Symbol: 🛡️
-State: LOCKED if Risk ≥ 0.85
-Type: WALL (Binary) + LAW (Scalar)
-
-### Protection Mechanisms
-- Prompt injection detection
-- Instruction hierarchy enforcement
-- Meta-label sanitization
-- Authority chain validation
-
-## F13: SOVEREIGN — Human Final Authority
-Law: F13
-Name: "Sovereign"
-Symbol: 👑
-Threshold: VETO
-Type: HARD
-Engine: APEX (Soul)
-
-### The Absolute Veto
-The Human (888_JUDGE) retains absolute veto power over all executions. If the AI hallucinates, loops, or breaches the safety perimeter, F13 acts as the absolute kill switch.
-
-================================================================================
-END OF MASTER DOSSIER
 ================================================================================
 -->
