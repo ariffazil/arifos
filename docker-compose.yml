@@ -30,7 +30,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker:ro
-      - /usr/libexec/docker:/usr/libexec/docker:ro:ro
+      - /usr/libexec/docker:/usr/libexec/docker:ro
       - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
       - /opt/arifos/data/triggers:/shared/triggers
       - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
@@ -336,7 +336,7 @@ services:
       - /srv/arifOS:/usr/src/app:rw
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker:ro
-      - /usr/libexec/docker:/usr/libexec/docker:ro:ro
+      - /usr/libexec/docker:/usr/libexec/docker:ro
       - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
       - /opt/arifos/data/triggers:/shared/triggers
       - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models

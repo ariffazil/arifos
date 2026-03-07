@@ -10,6 +10,22 @@
 
   "mcpServers": {
 
+    "context7": {
+      "_comment": "Context7 — Up-to-date library docs for LLMs. Remote HTTP, no API key needed.",
+      "_use_when": "Agent needs current docs for any library (fastmcp, pydantic, playwright, etc.). Call resolve-library-id first, then get-library-docs.",
+      "transport": "streamable-http",
+      "url": "https://mcp.context7.com/mcp"
+    },
+
+    "codegraphcontext": {
+      "_comment": "CodeGraphContext — Codebase graph analysis. Local stdio via pip cgc.",
+      "_use_when": "Agent needs to understand call chains, class hierarchies, cross-module relationships in arifOS code.",
+      "_install": "pip install codegraphcontext && cgc index /path/to/repo",
+      "command": "cgc",
+      "args": ["mcp", "start"],
+      "transport": "stdio"
+    },
+
     "arifos-remote": {
       "_comment": "RECOMMENDED — Zero install. Connects to live arifOS MCP over HTTPS. 13 tools, always latest.",
       "_use_when": "You want to use arifOS without installing anything. Just add this entry.",
