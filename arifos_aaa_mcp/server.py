@@ -1972,11 +1972,15 @@ async def apex_judge(
         )
 
 
+# F1 Amanah: Safe workspace configuration
+# Uses runtime env var, not import-time (Python pitfall avoidance)
+DEFAULT_WORKDIR = os.environ.get("ARIFOS_WORKDIR", "/usr/src/app")
+
 @mcp.tool(name="eureka_forge")
 async def eureka_forge(
     session_id: str,
     command: str,
-    working_dir: str = "/root",
+    working_dir: str | None = None,
     timeout: int = 60,
     confirm_dangerous: bool = False,
     agent_id: str = "unknown",
@@ -1988,13 +1992,44 @@ async def eureka_forge(
 ) -> dict[str, Any]:
     """777 EUREKA FORGE: execute shell commands with audit logging and confirmation for dangerous operations.
 
-    F5: Safe defaults (validates working_dir)
+    F1: Workspace boundary enforcement (cannot escape ARIFOS_WORKDIR)
+    F5: Safe defaults (validates working_dir at runtime)
     F6: Comprehensive error handling
     F7: Risk classification (LOW/MODERATE/CRITICAL)
     F9: Transparent logging with agent_id and purpose
+    F11: Command authority through session continuity
+    F12: Input validation and dangerous pattern detection
 
     Dangerous commands (rm -rf, mkfs, dd, etc.) require confirm_dangerous=True
     """
+    # Resolve working_dir with runtime evaluation (not import-time)
+    if working_dir is None:
+        working_dir = DEFAULT_WORKDIR
+    
+    # F1 Amanah + F12 Defense: Workspace boundary enforcement
+    from pathlib import Path
+    base_dir = Path(DEFAULT_WORKDIR).resolve()
+    requested = Path(working_dir).resolve()
+    
+    if not str(requested).startswith(str(base_dir)):
+        return wrap_tool_output(
+            "eureka_forge",
+            _attach_rotated_auth_context(
+                {
+                    "verdict": "VOID",
+                    "stage": "777_EUREKA_FORGE",
+                    "session_id": session_id,
+                    "error": f"Working directory outside allowed workspace: {requested}",
+                    "allowed_root": str(base_dir),
+                    "violation": "F1_Amanah_WORKSPACE_ESCAPE",
+                },
+                session_id,
+                None,
+            ),
+        )
+    
+    working_dir = str(requested)
+    
     blocked = validate_input(
         "eureka_forge",
         {"session_id": session_id, "command": command, "agent_id": agent_id},

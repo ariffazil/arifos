@@ -212,6 +212,8 @@ services:
     environment:
       PYTHONUNBUFFERED: 1
       PYTHONDONTWRITEBYTECODE: 1
+      # F1 Amanah: Safe workspace for EUREKA FORGE
+      ARIFOS_WORKDIR: /usr/src/app
       DATABASE_URL: postgresql://${POSTGRES_USER:-arifos_admin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-arifos_vault}
       REDIS_URL: redis://redis:6379/0
       QDRANT_URL: http://qdrant:6333
