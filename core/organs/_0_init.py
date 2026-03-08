@@ -182,6 +182,7 @@ async def init(
     actor_id: str | GovernanceMetadata = "anonymous",
     auth_token: str | None = None,
     math_dials: MathDials | dict[str, float] | None = None,
+    **kwargs,
 ) -> InitOutput:
     """
     Stage 000: CONSTITUTIONAL AIRLOCK (APEX-G compliant)
@@ -225,6 +226,7 @@ async def init(
     injection = scan_injection(intent.query)
     if injection.level >= InjectionRisk.HIGH:
         floors["F12"] = "fail"
+        failed = [f for f, s in floors.items() if s == "fail"]
         session_id = "VOID-" + secrets.token_hex(8)
         return InitOutput(
             session_id=session_id,
@@ -236,6 +238,7 @@ async def init(
             code=CodeState(session_id=session_id, verdict="VOID", stage="000"),
             governance=governance,
             floors=floors,
+            floors_failed=failed,
             error_message="F12 injection detected",
             injection_score=injection.score,
         )
@@ -244,6 +247,7 @@ async def init(
     is_auth, authority = verify_auth(governance.actor_id, auth_token)
     if not is_auth:
         floors["F11"] = "fail"
+        failed = [f for f, s in floors.items() if s == "fail"]
         session_id = "VOID-" + secrets.token_hex(8)
         return InitOutput(
             session_id=session_id,
@@ -255,6 +259,7 @@ async def init(
             code=CodeState(session_id=session_id, verdict="VOID", stage="000"),
             governance=governance,
             floors=floors,
+            floors_failed=failed,
             error_message="F11 invalid actor",
             auth_verified=False,
         )
@@ -268,6 +273,7 @@ async def init(
         governance.stakes_class = "A"
         if authority != AuthorityLevel.SOVEREIGN:
             floors["F13"] = "fail"
+            failed = [f for f, s in floors.items() if s == "fail"]
             session_id = "HOLD-" + secrets.token_hex(8)
             return InitOutput(
                 session_id=session_id,
@@ -279,6 +285,7 @@ async def init(
                 code=CodeState(session_id=session_id, verdict="HOLD-888", stage="000"),
                 governance=governance,
                 floors=floors,
+                floors_failed=failed,
                 error_message="F13: Sovereign approval required for high-stakes action",
             )
 
