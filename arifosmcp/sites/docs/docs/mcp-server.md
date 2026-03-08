@@ -10,7 +10,7 @@ description: Technical reference for the canonical arifOS AAA MCP runtime.
 > Registry ID: `io.github.ariffazil/arifos-mcp`
 > Live base URL: `https://arifosmcp.arif-fazil.com`
 > Runtime module: `arifosmcp.runtime`
-> Version: `2026.2.27`
+> Version: `2026.03.08`
 
 If you're wondering what an "MCP Server" is: **It's the bridge that connects an AI (like Claude or Cursor) to arifOS.** 
 
@@ -20,7 +20,7 @@ The Model Context Protocol (MCP) is a standard that lets AI models securely use 
 
 - **Production transport:** Streamable HTTP (`/mcp`) — Current MCP standard
 - **Local transport:** stdio — For Claude Desktop, Cursor IDE
-- **Constitutional envelope:** 333 axioms + 13 laws + APEX dials
+- **Constitutional envelope:** 333 axioms + 13 laws + APEX-G 5-layer stack
 - **Port:** 8080 (default)
 - **Current protocol version:** `2025-11-25`
 - **Supported protocol versions:** `2025-11-25`, `2025-03-26`
@@ -42,57 +42,65 @@ python -m arifosmcp.runtime stdio
 HOST=0.0.0.0 PORT=8080 python -m arifosmcp.runtime http
 ```
 
-**Why streamable HTTP for production?**
-Instead of complicated two-way communication channels, streamable HTTP means the AI and the server can talk securely over a standard web connection, which is much easier to scale in the cloud and protects against firewall blocks.
+## Canonical 10-Tool APEX-G Stack
 
-## Canonical MCP surface
+The core constitutional assembly line. Every tool returns a `RuntimeEnvelope`.
 
-### Tools (13)
+| Stage | Tool | Role |
+|-------|------|------|
+| 000 | `init_anchor_state` | Governed session bootstrap. Mints auth chain. |
+| 111 | `integrate_analyze_reflect` | Problem framing and integrative analysis. |
+| 333 | `reason_mind_synthesis` | Multi-step reasoning with Eureka synthesis slot. |
+| 444 | `metabolic_loop_router` | Full 000→999 pipeline orchestrator. |
+| 555 | `vector_memory_store` | BBB associative vector memory (store/recall/search/forget). |
+| 666A | `assess_heart_impact` | Empathy and ethical safety engine. |
+| 666B | `critique_thought_audit` | Adversarial internal thought audit. |
+| 777 | `quantum_eureka_forge` | Sandboxed discovery actuator. Proposes, never executes. |
+| 888 | `apex_judge_verdict` | Constitutional judgment. Produces governance token. |
+| 999 | `seal_vault_commit` | Immutable VAULT999 ledger sealing. Append-only. |
 
-| Tool | Purpose |
-|:--|:--|
-| `anchor_session` | 000 INIT: Start governed session |
-| `reason_mind` | 333 REASON: AGI cognition |
-| `recall_memory` | 444 EVIDENCE: Memory retrieval |
-| `simulate_heart` | 555 EMPATHY: Impact analysis |
-| `critique_thought` | 666 ALIGN: 7-model critique |
-| `apex_judge` | 777/888 APEX: Constitutional verdict |
-| `eureka_forge` | 888 FORGE: Execute with gates |
-| `seal_vault` | 999 SEAL: Commit to ledger |
-| `search_reality` | Web evidence discovery |
-| `fetch_content` | Fetch raw content |
-| `inspect_file` | Filesystem inspection |
-| `audit_rules` | Rule compliance check |
-| `check_vital` | System health metrics |
+### Additional Tool
 
-**Test live:** `curl https://arifosmcp.arif-fazil.com/health`
+| Tool | Role |
+|------|------|
+| `open_apex_dashboard` | Opens the APEX Sovereign Dashboard iframe in compatible MCP clients (MCP App). |
 
-### Resources (2)
+## Interactive Resources
 
-- `arifos://aaa/schemas`
-- `arifos://aaa/full-context-pack`
+The server exposes read-only resources for LLM and human inspection:
 
-### Prompt (1)
+| URI | Content |
+|-----|---------|
+| `canon://index` | High-level canon map |
+| `canon://tools` | APEX-G 10-tool table |
+| `canon://floors` | All 13 constitutional floors |
+| `governance://law` | Constitutional law summary |
+| `schema://tools/output` | RuntimeEnvelope output schema |
+| `vault://latest` | Last 5 sealed VAULT999 entries |
+| `telemetry://summary` | Live telemetry shape |
+| `ui://apex-dashboard/view.html` | APEX Sovereign Dashboard HTML (MCP App) |
 
-- `arifos.prompt.aaa_chain`
+## APEX Sovereign Dashboard
+
+The APEX Sovereign Dashboard visualises the **APEX Theorem** ($G^\dagger = A \cdot P \cdot X \cdot E^2 \cdot \frac{\Delta S}{C}$) in real time.
+
+**Live:** [arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/)
 
 ## Deployment files to keep aligned
 
 - `Dockerfile`
-- `start-trinity.sh`
 - `docker-compose.yml`
-- `deployment/docker-compose.vps.yml`
-- `.github/workflows/deploy.yml`
+- `.github/workflows/deploy-cloudflare.yml`
 - `server.json`
 
 ## Required secrets (minimum)
 
-- `ARIF_SECRET` or `ARIF_JWT_SECRET`
-- `DATABASE_URL`
-- `REDIS_URL`
+- `ARIF_SECRET` (For auth chain signing)
+- `DATABASE_URL` (For VAULT999 ledger)
+- `REDIS_URL` (For session persistence)
 
 Optional web grounding:
 
-- `PPLX_API_KEY` (preferred) or `PERPLEXITY_API_KEY`
-- `PPLX_MODEL` (default `sonar-pro`)
-- `BRAVE_API_KEY` (fallback)
+- `PPLX_API_KEY` (Perplexity)
+- `BRAVE_API_KEY` (Brave Search)
+- `JINA_API_KEY` (Jina Reader)

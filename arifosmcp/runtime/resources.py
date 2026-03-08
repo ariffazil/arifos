@@ -55,63 +55,117 @@ _TOOLS = [
         "stage": "000",
         "name": "init_anchor_state",
         "canonical": "anchor_session",
+        "lane": "Delta",
+        "label": "000 INIT - Session anchor",
         "role": "Governed session bootstrap",
     },
     {
         "stage": "111",
         "name": "integrate_analyze_reflect",
         "canonical": "reason_mind",
+        "lane": "Delta",
+        "label": "111 FRAME - Integrate, analyze, reflect",
         "role": "Problem framing & integrative analysis",
     },
     {
         "stage": "333",
         "name": "reason_mind_synthesis",
         "canonical": "reason_mind",
+        "lane": "Delta",
+        "label": "333 REASON - Mind synthesis",
         "role": "Multi-step reasoning + Eureka synthesis",
     },
     {
         "stage": "444",
         "name": "metabolic_loop_router",
         "canonical": "metabolic_loop",
+        "lane": "ALL",
+        "label": "444 ROUTE - Metabolic loop router",
         "role": "Full 000-999 pipeline orchestrator",
     },
     {
         "stage": "555",
         "name": "vector_memory_store",
         "canonical": "vector_memory",
+        "lane": "Omega",
+        "label": "555 MEMORY - Vector memory store",
         "role": "BBB associative vector memory",
     },
     {
         "stage": "666A",
         "name": "assess_heart_impact",
         "canonical": "simulate_heart",
+        "lane": "Omega",
+        "label": "666A HEART - Impact assessment",
         "role": "Empathy & ethical safety engine",
     },
     {
         "stage": "666B",
         "name": "critique_thought_audit",
         "canonical": "critique_thought",
-        "role": "Critical internal thought audit",
+        "lane": "Omega",
+        "label": "666B CRITIQUE - Thought audit",
+        "role": "Adversarial internal thought audit",
     },
     {
         "stage": "777",
         "name": "quantum_eureka_forge",
         "canonical": "eureka_forge",
+        "lane": "Psi",
+        "label": "777 FORGE - Eureka proposal",
         "role": "Sandboxed discovery actuator",
     },
     {
         "stage": "888",
         "name": "apex_judge_verdict",
         "canonical": "apex_judge",
+        "lane": "Psi",
+        "label": "888 JUDGE - APEX verdict",
         "role": "Constitutional judgment verdict",
     },
     {
         "stage": "999",
         "name": "seal_vault_commit",
         "canonical": "seal_vault",
+        "lane": "Psi",
+        "label": "999 SEAL - Vault commit",
         "role": "Immutable VAULT999 ledger sealing",
     },
 ]
+
+APEX_CORE_TOOLS: tuple[dict[str, str], ...] = tuple(_TOOLS)
+
+
+def apex_tools_html_rows() -> str:
+    """Return HTML table rows for the canonical 10-tool APEX-G stack."""
+    rows: list[str] = []
+    for tool in APEX_CORE_TOOLS:
+        rows.append(
+            (
+                f'<tr><td><span class="stage">{tool["stage"]}</span></td>'
+                f'<td class="name">{tool["name"]}</td>'
+                f'<td class="name">{tool["canonical"]}</td>'
+                f'<td class="role">{tool["label"]}</td>'
+                f'<td class="role">{tool["role"]}</td></tr>'
+            )
+        )
+    return "\n".join(rows)
+
+
+def apex_tools_markdown_table() -> str:
+    """Return the canonical 10-tool APEX-G stack as a Markdown table."""
+    header = (
+        "| Stage | Runtime Tool | Canonical Handle | Label | Role |\n"
+        "|-------|--------------|------------------|-------|------|"
+    )
+    rows = [
+        (
+            f'| {tool["stage"]} | {tool["name"]} | {tool["canonical"]} | '
+            f'{tool["label"]} | {tool["role"]} |'
+        )
+        for tool in APEX_CORE_TOOLS
+    ]
+    return "\n".join([header, *rows])
 
 _FLOORS = [
     {
@@ -286,18 +340,7 @@ def register_resources(mcp: FastMCP) -> None:
         return (
             "# arifOS Metabolic Loop\n\n"
             "The loop is a ten-stage constitutional pipeline:\n\n"
-            "| Stage | Tool                    | Function                          |\n"
-            "|-------|-------------------------|-----------------------------------|\n"
-            "| 000   | init_anchor_state       | Governed session bootstrap        |\n"
-            "| 111   | integrate_analyze_reflect | Problem framing                 |\n"
-            "| 333   | reason_mind_synthesis   | Multi-step reasoning + Eureka     |\n"
-            "| 444   | metabolic_loop_router   | Full-loop orchestrator            |\n"
-            "| 555   | vector_memory_store     | Associative memory                |\n"
-            "| 666A  | assess_heart_impact     | Empathy & ethical safety          |\n"
-            "| 666B  | critique_thought_audit  | Critical thought audit            |\n"
-            "| 777   | quantum_eureka_forge    | Sandboxed discovery               |\n"
-            "| 888   | apex_judge_verdict      | Constitutional judgment           |\n"
-            "| 999   | seal_vault_commit       | Immutable VAULT999 sealing        |\n\n"
+            f"{apex_tools_markdown_table()}\n\n"
             "Every action passes F12 then F11 guards first, then AGI floors "
             "(F1,F2,F4,F7), then ASI floors (F5,F6,F9,F13), then Mirrors (F3,F8). "
             "Hard-floor failure: VOID. Soft-floor failure: PARTIAL (warn, proceed).\n\n"
