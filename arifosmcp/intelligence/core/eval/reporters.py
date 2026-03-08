@@ -392,7 +392,7 @@ def generate_html_report(results: list[dict], output_path: str):
         </div>
 
         <div class="dashboard-link-container">
-            <a href="/dashboard/" class="btn-dashboard">
+            <a href="dashboard/index.html" class="btn-dashboard">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="12" y1="2" x2="12" y2="22"></line>
