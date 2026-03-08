@@ -39,6 +39,17 @@ class ThermoSnapshot:
     genius: float  # G = A × peace2 × exploration × energy²
     genius_pass: bool  # G ≥ 0.80
 
+    # --- APEX Metrics (G† = G* · η) ---
+    effort: float = 0.0  # E: accumulated tool calls + reasoning steps
+    token_cost: int = 0  # C: cumulative tokens this session
+    architecture: float = 1.0  # A: static model quality index
+    parameters: float = 1.0  # P: normalized param count
+    data_quality: float = 0.95  # X: context/data quality ∈ [0,1]
+    eta: float = 0.0  # η = |ΔS| / C  (insight per token)
+    G_star: float = 0.0  # A·P·X·E²
+    G_dagger: float = 0.0  # G* · η  (governed intelligence score)
+    G_dagger_pass: bool = False  # G† ≥ 0.80
+
     @classmethod
     def compute(
         cls,
@@ -49,8 +60,19 @@ class ThermoSnapshot:
         akal: float = 0.95,
         exploration: float = 0.90,
         energy: float = 0.92,
+        # APEX parameters
+        effort: float = 0.0,
+        token_cost: int = 0,
+        architecture: float = 1.0,
+        parameters: float = 1.0,
+        data_quality: float = 0.95,
     ) -> ThermoSnapshot:
         genius = akal * peace2 * exploration * (energy**2)
+        # ΔS is reduction: magnitude of negative delta_s (clarity gain)
+        delta_s_reduction = abs(min(0.0, delta_s))
+        eta = delta_s_reduction / token_cost if token_cost > 0 else 0.0
+        G_star = architecture * parameters * data_quality * (effort**2)
+        G_dagger = G_star * eta
         return cls(
             session_id=session_id,
             timestamp=datetime.now(tz=timezone.utc).isoformat(),
@@ -62,6 +84,15 @@ class ThermoSnapshot:
             energy=energy,
             genius=genius,
             genius_pass=genius >= 0.80,
+            effort=effort,
+            token_cost=token_cost,
+            architecture=architecture,
+            parameters=parameters,
+            data_quality=data_quality,
+            eta=round(eta, 6),
+            G_star=round(G_star, 6),
+            G_dagger=round(G_dagger, 6),
+            G_dagger_pass=G_dagger >= 0.80,
         )
 
 
@@ -84,6 +115,7 @@ class ThermoBudget:
 
     # Constitutional thresholds
     GENIUS_THRESHOLD = 0.80  # G ≥ 0.80 required
+    G_DAGGER_THRESHOLD = 0.80  # G† ≥ 0.80 required
     PEACE2_MINIMUM = 1.00  # Peace² ≥ 1.0
     OMEGA0_LOW = 0.03  # Humility lower bound
     OMEGA0_HIGH = 0.15  # Humility upper bound (v64.1 relaxed)
@@ -98,6 +130,10 @@ class ThermoBudget:
         initial_akal: float = 0.98,
         initial_energy: float = 0.95,
         initial_exploration: float = 0.95,
+        # APEX static factors
+        architecture: float = 1.0,
+        parameters: float = 1.0,
+        data_quality: float = 0.95,
     ) -> None:
         """Register a new session with default thermodynamic state."""
         self._sessions[session_id] = {
@@ -109,6 +145,12 @@ class ThermoBudget:
             "energy": initial_energy,
             "step_count": 0,
             "history": [],
+            # APEX
+            "effort": 0.0,
+            "token_cost": 0,
+            "architecture": architecture,
+            "parameters": parameters,
+            "data_quality": data_quality,
         }
 
     def record_step(
@@ -120,6 +162,10 @@ class ThermoBudget:
         akal: float | None = None,
         exploration: float | None = None,
         energy: float | None = None,
+        # APEX additions
+        tool_calls: int = 0,
+        tokens: int = 0,
+        data_quality: float | None = None,
     ) -> ThermoSnapshot:
         """
         Record a metabolic step for the session and return a snapshot.
@@ -142,6 +188,12 @@ class ThermoBudget:
         state["energy"] = max(0.01, e * 0.995)  # 0.5% decay per step
         state["step_count"] += 1
 
+        # APEX: accumulate effort and token cost
+        state["effort"] += 1.0 + 0.5 * tool_calls
+        state["token_cost"] += tokens
+        if data_quality is not None:
+            state["data_quality"] = data_quality
+
         snap = ThermoSnapshot.compute(
             session_id=session_id,
             delta_s=state["delta_s"],
@@ -150,6 +202,12 @@ class ThermoBudget:
             akal=state["akal"],
             exploration=state["exploration"],
             energy=state["energy"],
+            # APEX fields
+            effort=state["effort"],
+            token_cost=state["token_cost"],
+            architecture=state["architecture"],
+            parameters=state["parameters"],
+            data_quality=state["data_quality"],
         )
 
         state["history"].append(
@@ -157,6 +215,8 @@ class ThermoBudget:
                 "step": state["step_count"],
                 "genius": snap.genius,
                 "delta_s": snap.delta_s,
+                "G_dagger": snap.G_dagger,
+                "effort": snap.effort,
             }
         )
         return snap
@@ -171,6 +231,9 @@ class ThermoBudget:
         akal: float | None = None,
         exploration: float | None = None,
         energy: float | None = None,
+        tool_calls: int = 0,
+        tokens: int = 0,
+        data_quality: float | None = None,
     ) -> ThermoSnapshot:
         """
         Backwards-compatible alias for legacy triad modules.
@@ -185,6 +248,9 @@ class ThermoBudget:
             akal=akal,
             exploration=exploration,
             energy=energy,
+            tool_calls=tool_calls,
+            tokens=tokens,
+            data_quality=data_quality,
         )
 
     def snapshot(self, session_id: str) -> ThermoSnapshot | None:
@@ -200,6 +266,12 @@ class ThermoBudget:
             akal=state["akal"],
             exploration=state["exploration"],
             energy=state["energy"],
+            # APEX fields
+            effort=state.get("effort", 0.0),
+            token_cost=state.get("token_cost", 0),
+            architecture=state.get("architecture", 1.0),
+            parameters=state.get("parameters", 1.0),
+            data_quality=state.get("data_quality", 0.95),
         )
 
     def omega_in_band(self, session_id: str) -> bool:
@@ -213,6 +285,11 @@ class ThermoBudget:
         """Return True if current G ≥ 0.80."""
         snap = self.snapshot(session_id)
         return snap.genius_pass if snap else False
+
+    def is_G_dagger_pass(self, session_id: str) -> bool:
+        """Return True if current G† ≥ 0.80."""
+        snap = self.snapshot(session_id)
+        return snap.G_dagger_pass if snap else False
 
     def budget_summary(self, session_id: str) -> dict:
         """Return a telemetry-friendly summary dict."""
@@ -228,6 +305,16 @@ class ThermoBudget:
             "omega0": round(snap.omega0, 4),
             "omega_in_band": self.omega_in_band(session_id),
             "step_count": self._sessions[session_id]["step_count"],
+            # APEX metrics
+            "effort": round(snap.effort, 3),
+            "token_cost": snap.token_cost,
+            "architecture": snap.architecture,
+            "parameters": snap.parameters,
+            "data_quality": round(snap.data_quality, 4),
+            "eta": round(snap.eta, 6),
+            "G_star": round(snap.G_star, 4),
+            "G_dagger": round(snap.G_dagger, 4),
+            "G_dagger_pass": snap.G_dagger_pass,
         }
 
     def all_sessions_summary(self) -> list[dict]:
