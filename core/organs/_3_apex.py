@@ -93,8 +93,10 @@ async def judge(
     Stage 888: APEX JUDGE (Final Judgment)
 
     Rule: MONOTONE-SAFE. Cannot upgrade a weaker candidate.
+    Discipline: APEX Theorem Gate (G† = G* · η)
     """
     from core.physics.thermodynamics_hardened import check_landauer_before_seal, consume_tool_energy
+    from core.shared.physics import GeniusDial
 
     consume_tool_energy(session_id, n_calls=1)
 
@@ -105,13 +107,36 @@ async def judge(
         candidate = Verdict.VOID
 
     # 2. Monotone Safety Check
-    # (In a real run, we'd check the aggregate verdict of Mind/Heart)
-    # We simulate this by checking if there are known violations in kwargs
     violations = kwargs.get("violations", [])
     if violations and candidate == Verdict.SEAL:
         candidate = Verdict.PARTIAL
 
-    # 3. Landauer Physics Check (Mandatory before SEAL)
+    # 3. APEX Theorem Calculation (The Discipline Layer)
+    # Extract factors from context or use defaults
+    dial = GeniusDial(
+        A=kwargs.get("akal", 0.95),
+        P=kwargs.get("peace2", 1.0),
+        X=kwargs.get("exploration", 0.9),
+        E=kwargs.get("energy", 0.9),
+        architecture=kwargs.get("architecture", 1.0),
+        parameters=kwargs.get("parameters", 1.0),
+        data_quality=kwargs.get("data_quality", 0.95),
+        effort=kwargs.get("effort", 1.0),
+        compute_cost=kwargs.get("tokens", 1.0),
+        entropy_reduction=abs(min(0.0, kwargs.get("delta_s", -0.2))),
+    )
+
+    g_star = dial.G_star()
+    eta = dial.eta()
+    g_dagger = dial.G_dagger()
+
+    # 4. G† Sovereignty Gate
+    if candidate == Verdict.SEAL and g_dagger < 0.80:
+        logger.info(f"APEX Discipline Check: G† ({g_dagger:.4f}) < 0.80. Downgrading to PARTIAL.")
+        candidate = Verdict.PARTIAL
+        reason_summary = (reason_summary or "") + f" [APEX Gate: G†={g_dagger:.4f} < 0.80]"
+
+    # 5. Landauer Physics Check (Mandatory before SEAL)
     if candidate == Verdict.SEAL:
         try:
             check_landauer_before_seal(
@@ -125,7 +150,7 @@ async def judge(
             candidate = Verdict.SABAR
             reason_summary = f"Physics Law Violation: {str(e)}"
 
-    # 4. Build Rationale
+    # 6. Build Rationale
     rationale = JudgmentRationale(
         summary=reason_summary or f"Judgment finalized for session {session_id}.",
         tri_witness={"human": 1.0, "ai": 1.0, "earth": 1.0},
@@ -133,14 +158,23 @@ async def judge(
     )
 
     floors = {"F3": "pass", "F8": "pass", "F9": "pass", "F11": "pass", "F13": "pass"}
+    if g_dagger < 0.80:
+        floors["F8"] = "partial"
 
-    # 5. Construct Output
+    # 7. Construct Output
     return ApexOutput(
         session_id=session_id,
         verdict=candidate,
         final_verdict=candidate,
         reasoning=rationale,
         floors=floors,
+        metrics={
+            "G_star": round(g_star, 4),
+            "eta": round(eta, 6),
+            "G_dagger": round(g_dagger, 4),
+            "akal": dial.A,
+            "effort": dial.effort,
+        },
         human_witness=1.0,
         ai_witness=1.0,
         earth_witness=1.0,
