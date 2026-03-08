@@ -1,0 +1,28 @@
+# Development/Optimization overrides for arifOS MCP
+# This file is automatically picked up by docker-compose
+
+services:
+  arifosmcp:
+    # Use the optimized Dockerfile
+    build:
+      context: .
+      dockerfile: Dockerfile.optimized
+      args:
+        - BUILDKIT_INLINE_CACHE=1
+    
+    # Mount code for development (instant changes without rebuild)
+    # Comment out for production
+    volumes:
+      - ./arifosmcp:/usr/src/app/arifosmcp:ro
+      - ./core:/usr/src/app/core:ro
+      - ./static:/usr/src/app/static:ro
+    
+    # Faster restart policy
+    restart: unless-stopped
+    
+    # Optimize health check intervals for faster startup detection
+    healthcheck:
+      interval: 10s
+      timeout: 3s
+      start_period: 10s
+      retries: 5
