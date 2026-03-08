@@ -329,7 +329,11 @@ def _build_uvicorn_config() -> dict[str, Any]:
 
 
 class _HealthEndpointMiddleware:
-    """ASGI middleware that adds health and landing endpoints."""
+    """ASGI middleware that adds health endpoint only.
+    
+    Root / is handled by FastMCP custom routes (WELCOME_HTML).
+    This middleware only handles /health for Traefik compatibility.
+    """
 
     def __init__(self, app: ASGIApp) -> None:
         self.app = app
@@ -342,7 +346,7 @@ class _HealthEndpointMiddleware:
         path = scope.get("path", "")
         method = scope.get("method", "GET")
 
-        # Handle health check endpoint
+        # Only handle /health - let all other routes pass through to FastMCP custom routes
         if path == "/health" and method == "GET":
             response = JSONResponse(
                 {
@@ -355,22 +359,7 @@ class _HealthEndpointMiddleware:
             await response(scope, receive, send)
             return
 
-        # Handle root landing endpoint
-        if path == "/" and method == "GET":
-            from pathlib import Path
-
-            landing = Path("/usr/src/app/static/landing.html")
-            if landing.exists():
-                response = FileResponse(landing)
-            else:
-                response = JSONResponse(
-                    {"status": "online", "service": "arifOS", "version": "2026.03.08"},
-                    status_code=200,
-                )
-            await response(scope, receive, send)
-            return
-
-        # All other requests go to the MCP app
+        # All other requests go to the MCP app (including custom routes)
         await self.app(scope, receive, send)
 
 
