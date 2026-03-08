@@ -3532,3 +3532,6 @@ __all__ = [
 ]
 
 # DEPLOY_TRIGGER: 2026-03-06T19:40:00+00:00
+
+if __name__ == "__main__":
+    mcp.run()

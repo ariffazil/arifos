@@ -276,6 +276,9 @@ pytest-out*.txt
 pytest-auth-out*.txt
 pytest_*.txt
 fastmcp_dir.txt
+# FastMCP
+.fastmcp/
+*.fastmcp.lock
 embedding_finetune_data.jsonl
 vps_status.txt
 ping_test.txt

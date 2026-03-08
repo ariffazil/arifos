@@ -176,10 +176,19 @@ all = [
     "pandas>=2.1.0",
 ]
 
+[project.urls]
+Homepage      = "https://arifos.arif-fazil.com"
+Documentation = "https://github.com/ariffazil/arifOS"
+Repository    = "https://github.com/ariffazil/arifosmcp"
+Issues        = "https://github.com/ariffazil/arifosmcp/issues"
+Trinity       = "https://github.com/ariffazil/arifOS/blob/main/KERNEL/TRINITY_ARCHITECTURE.md"
+PyPI          = "https://pypi.org/project/arifos/"
+
 [project.scripts]
-arifos    = "arifos_aaa_mcp.__main__:main"
-aaa-mcp   = "aaa_mcp.__main__:main"
-aclip-cai = "aclip_cai.cli:main"
+arifos     = "arifos_aaa_mcp.__main__:main"
+arifos-mcp = "arifos_aaa_mcp.__main__:main"
+aaa-mcp    = "aaa_mcp.__main__:main"
+aclip-cai  = "aclip_cai.cli:main"
 
 [tool.setuptools]
 include-package-data = true
@@ -385,3 +394,6 @@ dependencies = [
     "pyyaml>=6.0.0",  # Rule/config parsing for floors and wrappers
 ]
 
+
+[tool.fastmcp]
+config = "fastmcp.json"

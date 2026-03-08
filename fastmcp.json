@@ -1,0 +1,44 @@
+{
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "name": "arifos-mcp",
+  "version": "2026.03.07",
+  "description": "arifOS Constitutional AI Governance MCP Server - 13-Floor thermodynamic governance with VAULT999 ledger",
+  "source": {
+    "type": "filesystem",
+    "path": "arifos_aaa_mcp/server.py",
+    "entrypoint": "mcp"
+  },
+  "environment": {
+    "type": "uv",
+    "python": ">=3.12",
+    "dependencies": [
+      "fastmcp>=0.2.0",
+      "fastapi>=0.115.0",
+      "uvicorn>=0.32.0",
+      "redis>=5.0.0",
+      "anthropic>=0.39.0",
+      "httpx>=0.27.0",
+      "pydantic>=2.9.0"
+    ]
+  },
+  "deployment": {
+    "transport": "stdio",
+    "log_level": "INFO",
+    "transports_available": ["stdio", "sse", "streamable-http"]
+  },
+  "tools": {
+    "count": 13,
+    "governance": true,
+    "description": "13 canonical tools with 13-Floor thermodynamic governance"
+  },
+  "metadata": {
+    "author": "Arif Fazil",
+    "repository": "https://github.com/ariffazil/arifosmcp",
+    "documentation": "https://github.com/ariffazil/arifOS",
+    "trinity": {
+      "role": "body",
+      "mind": "https://github.com/ariffazil/arifOS",
+      "heart": "https://github.com/ariffazil/ariffazil"
+    }
+  }
+}
