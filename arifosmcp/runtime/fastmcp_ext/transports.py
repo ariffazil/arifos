@@ -328,6 +328,46 @@ def _build_uvicorn_config() -> dict[str, Any]:
     return config
 
 
+def _build_health_app(mcp_app: ASGIApp) -> ASGIApp:
+    """Wrap MCP app with health and landing endpoints."""
+    from starlette.routing import Route, Mount
+    from starlette.applications import Starlette
+    from starlette.responses import FileResponse, JSONResponse
+    from pathlib import Path
+    import os
+
+    async def root_page(request):
+        """Constitutional landing page."""
+        landing = Path("/usr/src/app/static/landing.html")
+        if landing.exists():
+            return FileResponse(landing)
+        return JSONResponse(
+            {"status": "online", "service": "arifOS", "version": "2026.03.08"},
+            status_code=200,
+        )
+
+    async def health_check(request):
+        """Health endpoint for Traefik/Docker."""
+        return JSONResponse(
+            {
+                "status": "healthy",
+                "service": "arifos-mcp",
+                "version": os.getenv("ARIFOS_VERSION", "2026.03.08"),
+            },
+            status_code=200,
+        )
+
+    # Create a new Starlette app with health endpoints and MCP mounted
+    routes = [
+        Route("/", root_page),
+        Route("/health", health_check),
+        Mount("/mcp", app=mcp_app),
+    ]
+    
+    app = Starlette(routes=routes)
+    return app
+
+
 def run_server(mcp: Any, mode: str, host: str, port: int) -> None:
     """Run FastMCP server by transport mode."""
     normalized = (mode or "sse").strip().lower()
@@ -350,13 +390,17 @@ def run_server(mcp: Any, mode: str, host: str, port: int) -> None:
         return
     if normalized in ("http", "streamable-http"):
         mcp_path = _normalize_path(os.getenv("ARIFOS_MCP_PATH"), "/mcp")
-        mcp.run(
-            transport="http",
+        # Get the MCP app and wrap it with health endpoints
+        mcp.setup_http()
+        wrapped_app = _build_health_app(mcp._http_app)
+        
+        import uvicorn
+        uvicorn.run(
+            wrapped_app,
             host=host,
             port=port,
-            path=mcp_path,
             middleware=middleware,
-            uvicorn_config=uvicorn_config,
+            **uvicorn_config,
         )
         return
     raise ValueError(f"Unknown mode '{mode}'. Use stdio|sse|http")
