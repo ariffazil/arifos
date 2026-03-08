@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from fastmcp import FastMCP
+from fastmcp.server.apps import AppConfig, ResourceCSP
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -701,3 +702,46 @@ def register_resources(mcp: FastMCP) -> None:
             },
             ensure_ascii=False,
         )
+
+    # ------------------------------------------------------------------
+    # APEX Dashboard — MCP App (HTML iframe embedded in host client)
+    # ------------------------------------------------------------------
+
+    _DASHBOARD_HTML = (
+        Path(__file__).resolve().parent.parent / "sites" / "apex-dashboard" / "dashboard.html"
+    )
+
+    @mcp.tool(app=AppConfig(resource_uri="ui://apex/dashboard.html"))
+    def open_apex_dashboard(session_id: str = "global") -> str:
+        """Open the APEX Sovereign Dashboard showing live governed-intelligence metrics.
+
+        Opens the dashboard iframe in compatible MCP clients. The dashboard supports
+        three modes: Static Demo (instant), Live Fetch (poll your MCP endpoint), and
+        MCP Mode (receives pushed apex_output from tool calls via ext-apps SDK).
+
+        To feed live data, enable Live Fetch in the dashboard and point it at your
+        MCP server's /health or /mcp/ endpoint, or wire apex_judge to push results.
+        """
+        return json.dumps({
+            "session_id": session_id,
+            "dashboard": "ui://apex/dashboard.html",
+            "note": "Dashboard open. Use Live Fetch mode or call apex_judge to push metrics.",
+        })
+
+    @mcp.resource(
+        "ui://apex/dashboard.html",
+        app=AppConfig(
+            csp=ResourceCSP(
+                resource_domains=[
+                    "https://unpkg.com",
+                    "https://fonts.googleapis.com",
+                    "https://fonts.gstatic.com",
+                ]
+            )
+        ),
+    )
+    def apex_dashboard_html() -> str:
+        """APEX Sovereign Dashboard — self-contained HTML with React + Recharts."""
+        if _DASHBOARD_HTML.exists():
+            return _DASHBOARD_HTML.read_text(encoding="utf-8")
+        return "<html><body>Dashboard not found.</body></html>"

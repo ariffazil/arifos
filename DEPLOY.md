@@ -87,5 +87,59 @@ fastmcp run fastmcp.json --transport http --host 0.0.0.0 --port 8080
 uvicorn arifosmcp.runtime.server:app --host 0.0.0.0 --port 8080
 ```
 
+## 🧩 7. APEX Dashboard Runtime Split
+
+The repository currently has **two different HTTP surfaces** that operators should not confuse:
+
+- **Canonical public server:** `arifosmcp.runtime.server:app`
+  - deploy this to the VPS
+  - public MCP endpoint: `/mcp`
+  - health endpoint: `/health`
+  - this is the production arifosmcp server
+- **Internal-only intelligence bridge:** `arifosmcp.intelligence.core.mcp_server:app`
+  - only needed if you want the standalone APEX dashboard live polling path
+  - exposes legacy diagnostic routes like `POST /mcp/anchor` and `POST /mcp/reason`
+  - do **not** document or expose this as the public transport surface
+
+If you need the standalone APEX dashboard to poll live data, run the bridge on loopback only:
+
+```bash
+uvicorn arifosmcp.intelligence.core.mcp_server:app --host 127.0.0.1 --port 8889
+```
+
+### Live Poll Contract
+
+The APEX dashboard live mode no longer works with a bare `GET`. It now sends a `POST` body matching the bridge `SystemCall` model:
+
+```json
+{
+  "name": "anchor",
+  "session_id": "apex-dashboard-live",
+  "arguments": {
+    "user_id": "apex-dashboard",
+    "jurisdiction": "MY",
+    "context": "APEX dashboard live poll"
+  }
+}
+```
+
+You can verify the bridge manually before wiring the dashboard:
+
+```bash
+curl -fsS http://127.0.0.1:8889/mcp/anchor \
+  -H "Content-Type: application/json" \
+  -d '{"name":"anchor","session_id":"apex-dashboard-live","arguments":{"user_id":"apex-dashboard","jurisdiction":"MY","context":"APEX dashboard live poll"}}'
+
+curl -fsS http://127.0.0.1:8889/mcp/reason \
+  -H "Content-Type: application/json" \
+  -d '{"name":"reason","session_id":"apex-dashboard-live","arguments":{"query":"APEX dashboard live poll"}}'
+```
+
+### Operator Note
+
+- Public reverse proxy / firewall rules should point users to the canonical runtime server only.
+- If the bridge is enabled for operator diagnostics, bind it to `127.0.0.1` or an internal interface.
+- The dashboard now tolerates both canonical `apex_output` envelopes and legacy `telemetry` envelopes, but the transport split remains intentional.
+
 **Ditempa Bukan Diberi — Forged, Not Given.**
 *Status: [SEAL CANDIDATE]*

@@ -4,7 +4,8 @@
 > Truth must cool before it rules.
 
 **Live:** [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com)
-**Protocol:** MCP 2025-11-05 over SSE+JSON-RPC at `/mcp`
+**Dashboard:** [arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/)
+**Protocol:** MCP 2025-11-25 over Streamable HTTP + JSON-RPC at `/mcp`
 **License:** AGPL-3.0-only
 **Sovereign:** Muhammad Arif bin Fazil
 
@@ -309,10 +310,19 @@ Eight prompt templates guide LLMs to call the correct tool with valid parameters
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/` | Human-readable landing page |
-| `GET` | `/health` | Health check (`{"status": "ok"}`) |
+| `GET` | `/health` | Health check (`{"status": "healthy", ...}`) |
+| `GET` | `/version` | Build info (version, commit, date) |
+| `GET/POST` | `/mcp` | MCP 2025-11-25 Streamable HTTP + JSON-RPC endpoint |
+| `GET` | `/tools` | List all registered tools (REST) |
+| `POST` | `/tools/{name}` | Call any tool over HTTP (ChatGPT Actions adapter) |
+| `POST` | `/checkpoint` | Single-call constitutional evaluation (000→888 pipeline) |
+| `GET` | `/dashboard/` | APEX Sovereign Dashboard (self-contained React UI) |
+| `GET` | `/api/governance-status` | Live governance telemetry (floors, witness, telemetry, QDF) |
+| `GET` | `/api/governance-history` | Recent VAULT999 session history |
+| `GET` | `/openapi.json` | OpenAPI 3.1 schema |
+| `GET` | `/.well-known/mcp/server.json` | MCP registry discovery |
 | `GET` | `/robots.txt` | Crawler policy |
 | `GET` | `/llms.txt` | LLM-readable documentation (llmstxt.org) |
-| `GET/POST` | `/mcp` | MCP 2025-11-05 SSE + JSON-RPC endpoint |
 
 ---
 

@@ -894,12 +894,11 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
     async def llms_txt(_request: Request) -> Response:
         return Response(LLMS_TXT, media_type="text/plain")
 
-    # Serve the standalone dashboard static files
+    # Serve the APEX Sovereign Dashboard at /dashboard/
     dashboard_dir = os.path.join(
         os.path.dirname(os.path.dirname(__file__)),
-        "333_APPS",
-        "constitutional-visualizer",
-        "dist-web",
+        "sites",
+        "apex-dashboard",
     )
     if os.path.exists(dashboard_dir) and hasattr(mcp, "_app"):
         mcp._app.mount(
