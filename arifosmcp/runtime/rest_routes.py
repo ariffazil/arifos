@@ -29,6 +29,7 @@ from starlette.requests import Request
 from starlette.responses import HTMLResponse, JSONResponse, Response
 from starlette.staticfiles import StaticFiles
 
+from arifosmcp.runtime.resources import apex_tools_html_rows, apex_tools_markdown_table
 from arifosmcp.transport.build_info import get_build_info
 from arifosmcp.transport.protocol.aaa_contract import AAA_TOOL_STAGE_MAP, TRINITY_BY_TOOL
 from arifosmcp.transport.protocol.public_surface import PUBLIC_TOOL_ALIASES
@@ -144,17 +145,8 @@ WELCOME_HTML = """\
   <section>
     <h3>10-Tool APEX-G Stack (Phase 1 Core)</h3>
     <table>
-      <tr><th>Stage</th><th>Tool</th><th>Role</th></tr>
-      <tr><td><span class="stage">000</span></td><td class="name">init_anchor_state</td><td class="role">Governed session bootstrap</td></tr>
-      <tr><td><span class="stage">111</span></td><td class="name">integrate_analyze_reflect</td><td class="role">Problem framing &amp; integrative analysis</td></tr>
-      <tr><td><span class="stage">333</span></td><td class="name">reason_mind_synthesis</td><td class="role">Multi-step reasoning + Eureka synthesis</td></tr>
-      <tr><td><span class="stage">444</span></td><td class="name">metabolic_loop_router</td><td class="role">Full 000-999 pipeline orchestrator</td></tr>
-      <tr><td><span class="stage">555</span></td><td class="name">vector_memory_store</td><td class="role">BBB associative vector memory</td></tr>
-      <tr><td><span class="stage">666A</span></td><td class="name">assess_heart_impact</td><td class="role">Empathy &amp; ethical safety engine</td></tr>
-      <tr><td><span class="stage">666B</span></td><td class="name">critique_thought_audit</td><td class="role">Adversarial internal thought audit</td></tr>
-      <tr><td><span class="stage">777</span></td><td class="name">quantum_eureka_forge</td><td class="role">Sandboxed discovery actuator</td></tr>
-      <tr><td><span class="stage">888</span></td><td class="name">apex_judge_verdict</td><td class="role">Constitutional judgment verdict</td></tr>
-      <tr><td><span class="stage">999</span></td><td class="name">seal_vault_commit</td><td class="role">Immutable VAULT999 ledger sealing</td></tr>
+      <tr><th>Stage</th><th>Runtime Tool</th><th>Canonical Handle</th><th>Label</th><th>Role</th></tr>
+      __APEX_HTML_ROWS__
     </table>
   </section>
 
@@ -221,18 +213,7 @@ a structured RuntimeEnvelope with verdict, telemetry, and Tri-Witness scores.
 
 ## The 10-tool APEX-G stack
 
-| Stage | Tool name                  | Role                                 |
-|-------|---------------------------|--------------------------------------|
-| 000   | init_anchor_state          | Governed session bootstrap           |
-| 111   | integrate_analyze_reflect  | Problem framing & integrative analysis |
-| 333   | reason_mind_synthesis      | Multi-step reasoning + Eureka        |
-| 444   | metabolic_loop_router      | Full 000-999 pipeline orchestrator   |
-| 555   | vector_memory_store        | BBB associative vector memory        |
-| 666A  | assess_heart_impact        | Empathy & ethical safety engine      |
-| 666B  | critique_thought_audit     | Adversarial internal thought audit   |
-| 777   | quantum_eureka_forge       | Sandboxed discovery actuator         |
-| 888   | apex_judge_verdict         | Constitutional judgment verdict      |
-| 999   | seal_vault_commit          | Immutable VAULT999 ledger sealing    |
+__APEX_MD_TABLE__
 
 ## Common RuntimeEnvelope (returned by every tool)
 
@@ -278,6 +259,9 @@ Content-Type: application/json
 - Docs: https://arifos.arif-fazil.com
 - Protocol: https://modelcontextprotocol.io
 """
+
+WELCOME_HTML = WELCOME_HTML.replace("__APEX_HTML_ROWS__", apex_tools_html_rows())
+LLMS_TXT = LLMS_TXT.replace("__APEX_MD_TABLE__", apex_tools_markdown_table())
 
 CHECKPOINT_MODES = {"quick", "full", "audit_only"}
 RISK_TIER_BY_MODE = {

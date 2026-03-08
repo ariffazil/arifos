@@ -100,6 +100,7 @@ async def init_anchor_state(
     auth_token: str | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
+    """000 INIT - Session anchor. Bootstrap a governed session and mint continuity context."""
     payload = {
         "intent": intent,
         "math": math,
@@ -116,6 +117,7 @@ async def integrate_analyze_reflect(
     max_subquestions: int = 3,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
+    """111 FRAME - Integrate, analyze, reflect. Frame the problem before deep reasoning."""
     payload = {
         "query": query,
         "auth_context": auth_context,
@@ -132,6 +134,7 @@ async def reason_mind_synthesis(
     max_steps: int = 7,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
+    """333 REASON - Mind synthesis. Run multi-step governed reasoning for the active session."""
     payload = {
         "query": query,
         "auth_context": auth_context,
@@ -153,6 +156,7 @@ async def metabolic_loop_router(
     debug: bool = False,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
+    """444 ROUTE - Metabolic loop router. Orchestrate the full 000-999 APEX-G pipeline."""
     payload = {
         "query": query,
         "context": context,
@@ -176,6 +180,7 @@ async def vector_memory_store(
     top_k: int = 5,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
+    """555 MEMORY - Vector memory store. Store, recall, search, or forget BBB memory."""
     payload = {
         "operation": operation,
         "content": content,
@@ -193,6 +198,7 @@ async def assess_heart_impact(
     heart_mode: str = "general",
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
+    """666A HEART - Impact assessment. Evaluate empathy, care, and stakeholder harm."""
     payload = {"scenario": scenario, "focus": heart_mode, "auth_context": auth_context}
     return await _wrap_call("assess_heart_impact", Stage.HEART, session_id, payload, ctx)
 
@@ -204,6 +210,7 @@ async def critique_thought_audit(
     critique_mode: str = "overall",
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
+    """666B CRITIQUE - Thought audit. Run adversarial critique against a prior reasoning artifact."""
     payload = {
         "thought_id": thought_id,
         "critique_focus": critique_mode,
@@ -220,6 +227,7 @@ async def quantum_eureka_forge(
     materiality: str = "idea_only",
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
+    """777 FORGE - Eureka proposal. Forge a sandboxed discovery or implementation proposal."""
     payload = {
         "intent": intent,
         "eureka_type": eureka_type,
@@ -236,6 +244,7 @@ async def apex_judge_verdict(
     reason_summary: str | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
+    """888 JUDGE - APEX verdict. Render the sovereign constitutional judgment for a session."""
     payload = {
         "verdict_candidate": verdict_candidate,
         "reason_summary": reason_summary,
@@ -252,6 +261,7 @@ async def seal_vault_commit(
     payload_hash: str | None = None,
     ctx: Context | None = None,
 ) -> RuntimeEnvelope:
+    """999 SEAL - Vault commit. Append an immutable session verdict to VAULT999."""
     payload = {
         "summary": f"Commit for session {session_id}",
         "verdict": verdict,
