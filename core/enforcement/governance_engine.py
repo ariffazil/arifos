@@ -15,7 +15,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from aaa_mcp.protocol.aaa_contract import (
+from arifosmcp.transport.protocol.aaa_contract import (
     AAA_TOOL_LAW_BINDINGS,
     AAA_TOOL_STAGE_MAP,
     AXIOMS_333,
