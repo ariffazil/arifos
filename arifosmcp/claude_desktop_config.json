@@ -1,0 +1,19 @@
+{
+  "$comment": "arifOS MCP Configuration for Claude Desktop — T000: 2026.02.17-FORGE-VPS-SEAL",
+  "mcpServers": {
+    "arifos-local": {
+      "command": "python",
+      "args": ["-m", "aaa_mcp"],
+      "cwd": "C:/Users/User/arifOS",
+      "env": {
+        "PYTHONPATH": "C:/Users/User/arifOS",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONUNBUFFERED": "1"
+      }
+    },
+    "arifos-vps": {
+      "transport": "sse",
+      "url": "https://arifosmcp.arif-fazil.com/sse"
+    }
+  }
+}
