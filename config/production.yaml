@@ -1,0 +1,13 @@
+# arifOS Runtime Configuration — Production
+server:
+  transport: "http"
+  log_level: "WARNING"
+
+governance:
+  physics_disabled: false
+  hold_threshold: 0.85
+
+security:
+  bearer_auth_required: true
+  rate_limit_rpm: 60
+  body_size_limit_mb: 10

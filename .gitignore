@@ -319,3 +319,10 @@ docker-compose.yml.backup.*
 
 # Local app directories not in scope
 333_APPS/
+
+# FastMCP profile configs included in repo
+# (dev.fastmcp.json and prod.fastmcp.json are tracked)
+
+# dist/ generated artifacts
+/dist/*.tar.gz
+/dist/*.whl

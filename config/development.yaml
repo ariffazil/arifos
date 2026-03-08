@@ -1,0 +1,10 @@
+# arifOS Runtime Configuration — Development
+server:
+  transport: "stdio"
+  log_level: "DEBUG"
+
+governance:
+  physics_disabled: false
+
+security:
+  bearer_auth_required: false

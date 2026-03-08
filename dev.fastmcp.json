@@ -1,0 +1,28 @@
+{
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "name": "arifos-constitutional-kernel-dev",
+  "version": "2026.03.08",
+  "description": "arifOS development profile — stdio transport, debug logging",
+
+  "source": {
+    "type": "filesystem",
+    "path": "core/server.py",
+    "entrypoint": "mcp"
+  },
+
+  "environment": {
+    "type": "uv",
+    "python": ">=3.12",
+    "dependencies": ["fastmcp==3.0.2", "arifos"],
+    "editable": ["."]
+  },
+
+  "deployment": {
+    "transport": "stdio",
+    "log_level": "DEBUG",
+    "env": {
+      "ARIFOS_PHYSICS_DISABLED": "0",
+      "ARIFOS_DEV_MODE": "1"
+    }
+  }
+}
