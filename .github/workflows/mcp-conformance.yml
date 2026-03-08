@@ -27,6 +27,9 @@ jobs:
           pip install -e . || pip install -r requirements.txt
           pip install redis
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+
       - name: FastMCP version gate (>= 3.0.0)
         run: |
           python - <<'PY'
