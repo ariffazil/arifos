@@ -52,9 +52,9 @@ class TestMCPDeploymentBasics:
                 "metabolic_loop",
             ]
             for tool in expected_tools:
-                assert tool in tools or any(
-                    t.startswith(tool) for t in tools
-                ), f"Missing tool: {tool}"
+                assert tool in tools or any(t.startswith(tool) for t in tools), (
+                    f"Missing tool: {tool}"
+                )
         except ImportError:
             pytest.skip("arifosmcp.transport not available")
 
@@ -285,6 +285,7 @@ class TestThermodynamicsHardeningInMCP:
                 compute_ms=1,
                 tokens_generated=10,
                 entropy_reduction=-10.0,  # Claims massive clarity
+                actual_joules=1e-30,  # Force physically impossible energy ratio
             )
 
         assert "Landauer" in str(exc_info.value) or "cheap truth" in str(exc_info.value).lower()

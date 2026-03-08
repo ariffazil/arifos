@@ -2,9 +2,9 @@ import json
 import uuid
 from pathlib import Path
 
-from arifosmcp.intelligence.triad import anchor as _triad_anchor
-from arifosmcp.intelligence.triad import audit as _triad_audit
-from arifosmcp.intelligence.triad import reason as _triad_reason
+from arifosmcp.intelligence.triad.delta.anchor import anchor as _triad_anchor
+from arifosmcp.intelligence.triad.delta.reason import reason as _triad_reason
+from arifosmcp.intelligence.triad.psi.audit import audit as _triad_audit
 
 from .datasets import load_golden_dataset
 from .evaluators import llm_as_judge

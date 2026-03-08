@@ -1425,8 +1425,26 @@ async def _init_anchor_state(
         return _fracture_response("000_INIT", e)
 
 
+@mcp.tool(
+    name="anchor_session",
+    description="[Compat] Stage 000 session bootstrap with query/actor_id inputs.",
+)
+async def _init_session(
+    query: str,
+    actor_id: str = "anonymous",
+    session_id: str | None = None,
+    auth_token: str | None = None,
+) -> dict[str, Any]:
+    return await _init_anchor_state(
+        intent={"query": query},
+        governance={"actor_id": actor_id},
+        auth_token=auth_token,
+        session_id=session_id,
+    )
+
+
 init_anchor_state = ToolHandle(_init_anchor_state)
-anchor_session = init_anchor_state
+anchor_session = ToolHandle(_init_session)
 
 
 @mcp.tool(
@@ -1668,7 +1686,7 @@ integrate_analyze_reflect = ToolHandle(_integrate_analyze_reflect)
 async def _reason_mind_synthesis(
     session_id: str,
     query: str,
-    auth_context: dict[str, Any],
+    auth_context: dict[str, Any] | None = None,
     reason_mode: str = "default",
     max_steps: int = 7,
 ) -> dict[str, Any]:
@@ -1839,6 +1857,8 @@ async def _asi_empathy(
         return _fracture_response("555-666", e, session_id)
 
 
+# Backward-compat alias used by older e2e/tool names
+_assess_heart_impact = _asi_empathy
 assess_heart_impact = ToolHandle(_assess_heart_impact)
 simulate_heart = assess_heart_impact
 
@@ -3461,6 +3481,26 @@ def _ensure_rag() -> Any:
 
     _rag_instance = ConstitutionalRAG()
     return _rag_instance
+
+
+# Backward-compat mirror for legacy tests expecting `mcp._tools`.
+# FastMCP no longer exposes this private field in newer versions.
+if not hasattr(mcp, "_tools"):
+    mcp._tools = {
+        "anchor_session": anchor_session,
+        "reason_mind": reason_mind,
+        "vector_memory": vector_memory,
+        "simulate_heart": simulate_heart,
+        "critique_thought": critique_thought,
+        "apex_judge": apex_judge,
+        "eureka_forge": eureka_forge,
+        "seal_vault": seal_vault,
+        "search_reality": search_reality,
+        "ingest_evidence": ingest_evidence,
+        "audit_rules": audit_rules,
+        "check_vital": check_vital,
+        "metabolic_loop": metabolic_loop,
+    }
 
 
 __all__ = [
