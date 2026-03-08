@@ -358,6 +358,7 @@ class _HealthEndpointMiddleware:
         # Handle root landing endpoint
         if path == "/" and method == "GET":
             from pathlib import Path
+
             landing = Path("/usr/src/app/static/landing.html")
             if landing.exists():
                 response = FileResponse(landing)
@@ -398,7 +399,7 @@ def run_server(mcp: Any, mode: str, host: str, port: int) -> None:
         # Add health endpoint middleware at the start of middleware chain
         health_middleware = Middleware(_HealthEndpointMiddleware)
         middleware.insert(0, health_middleware)
-        
+
         mcp.run(
             transport="http",
             host=host,
