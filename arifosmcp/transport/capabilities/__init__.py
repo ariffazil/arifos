@@ -1,0 +1,1 @@
+# arifosmcp.transport capabilities package

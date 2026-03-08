@@ -106,7 +106,7 @@ This guide provides **copy-paste ready deployment configurations** for AAA MCP a
 pip install arifos
 
 # 2. Verify installation
-python -m aaa_mcp --version
+python -m arifosmcp.transport --version
 
 # 3. Set environment variables (optional)
 export BRAVE_API_KEY="your_key_here"  # For reality_search tool
@@ -205,7 +205,7 @@ export AAA_CLIENT_ID="your-client-id"
 export AAA_CLIENT_SECRET="your-secret"
 
 # Start with OAuth
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 ```
 
 **Required Environment Variables:**
@@ -223,7 +223,7 @@ AAA_SCOPES="mcp:read mcp:execute"
 # Skip OAuth for local testing (NOT for production)
 export AAA_AUTH_MODE="dev"
 export AAA_DEV_TOKEN="test-token-$(date +%s)"
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 ```
 
 **ChatGPT Configuration (Development):**
@@ -284,7 +284,7 @@ Create or edit `claude_desktop_config.json`:
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "env": {
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         "GOVERNANCE_MODE": "HARD",
@@ -356,7 +356,7 @@ Create `.vscode/mcp.json` in your project:
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "env": {
         "ARIFOS_MODE": "PROD",
         "GOVERNANCE_MODE": "HARD"
@@ -391,7 +391,7 @@ Open Copilot Chat and type:
 npm install -g @google/gemini-cli
 
 # Configure MCP
-gemini config set mcp.servers.aaa-mcp.command "python -m aaa_mcp"
+gemini config set mcp.servers.aaa-mcp.command "python -m arifosmcp.transport"
 gemini config set mcp.servers.aaa-mcp.env.ARIFOS_MODE "PROD"
 ```
 
@@ -455,7 +455,7 @@ print(result.verdict)  # SEAL, VOID, PARTIAL, or SABAR
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "env": {
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         "GOVERNANCE_MODE": "HARD"
@@ -504,7 +504,7 @@ Open Cursor Composer (`Cmd/Ctrl + I`) and type:
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "disabled": false,
       "alwaysAllow": []
     }
@@ -550,7 +550,7 @@ Use aaa-mcp to verify: "Should we merge this PR with 200 changed files?"
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "env": {
         "ARIFOS_MODE": "PROD"
       }
@@ -580,7 +580,7 @@ response = client.chat.completions.create(
         "type": "mcp",
         "server": {
             "command": "python",
-            "args": ["-m", "aaa_mcp"]
+            "args": ["-m", "arifosmcp.transport"]
         }
     }]
 )
@@ -618,7 +618,7 @@ response = client.chat.completions.create(
     }],
     tools=[{
         "type": "mcp",
-        "server": {"command": "python", "args": ["-m", "aaa_mcp"]}
+        "server": {"command": "python", "args": ["-m", "arifosmcp.transport"]}
     }]
 )
 ```
@@ -628,7 +628,7 @@ response = client.chat.completions.create(
 {
   "name": "AAA Constitutional AI",
   "command": "python",
-  "args": ["-m", "aaa_mcp"],
+  "args": ["-m", "arifosmcp.transport"],
   "env": {
     "ARIFOS_MODE": "PROD"
   }
@@ -668,7 +668,7 @@ Create `~/.continue/config.json`:
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "env": {
         "ARIFOS_MODE": "PROD"
       },
@@ -717,7 +717,7 @@ Create `.cline/cline_mcp_settings.json`:
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "env": {
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         "GOVERNANCE_MODE": "HARD"
@@ -738,7 +738,7 @@ Create `.roo/roo_mcp_settings.json`:
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "disabled": false
     }
   }
@@ -783,7 +783,7 @@ npx @smithery/cli install aaa-mcp --output ./mcp-config.json
 
 ```bash
 # Run AAA MCP in interactive playground
-npx @smithery/cli playground --command "python -m aaa_mcp"
+npx @smithery/cli playground --command "python -m arifosmcp.transport"
 
 # Test specific tool
 npx @smithery/cli call init_gate \
@@ -794,7 +794,7 @@ npx @smithery/cli call init_gate \
 
 ```bash
 # List available tools
-npx @smithery/cli inspect --command "python -m aaa_mcp"
+npx @smithery/cli inspect --command "python -m arifosmcp.transport"
 
 # Output: 13 tools with schemas
 ```
@@ -817,7 +817,7 @@ npm install -g @f/mcptools
 
 ```bash
 # Start interactive shell
-mcptools shell --command "python -m aaa_mcp"
+mcptools shell --command "python -m arifosmcp.transport"
 
 # List all tools
 > tools
@@ -836,7 +836,7 @@ mcptools shell --command "python -m aaa_mcp"
 
 ```bash
 # Start HTTP server
-python -m aaa_mcp http --port 8080
+python -m arifosmcp.transport http --port 8080
 
 # Call via mcptools
 mcptools call --url http://localhost:8080 \
@@ -874,7 +874,7 @@ Create `qwen_mcp_config.json`:
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "env": {
         "ARIFOS_MODE": "PROD",
         "GOVERNANCE_MODE": "HARD"
@@ -925,7 +925,7 @@ Create `.kimi/mcp.json`:
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "env": {
         "PYTHONPATH": ".",
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA"
@@ -960,7 +960,7 @@ Create `~/.codex/mcp.json`:
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "env": {
         "ARIFOS_MODE": "PROD"
       }
@@ -1155,7 +1155,7 @@ python scripts/deploy_production.py --platform validate
 
 ```bash
 # Test with mcptools
-mcptools shell --command "python -m aaa_mcp"
+mcptools shell --command "python -m arifosmcp.transport"
 
 > call init_gate '{"query": "Test query", "actor_id": "test"}'
 > call agi_reason '{"query": "What is 2+2?", "session_id": "test-001"}'
@@ -1171,7 +1171,7 @@ mcptools shell --command "python -m aaa_mcp"
 **Cause:** Platform doesn't support the configured transport.  
 **Fix:** Check the Transport Compatibility Matrix above.
 
-### "Module not found: aaa_mcp"
+### "Module not found: arifosmcp.transport"
 
 **Cause:** Python package not installed or not in PATH.  
 **Fix:**

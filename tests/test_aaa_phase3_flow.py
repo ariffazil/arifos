@@ -11,7 +11,7 @@ import ast
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SERVER_FILE = ROOT / "arifos_aaa_mcp" / "server.py"
+SERVER_FILE = ROOT / "arifosmcp.runtime" / "server.py"
 
 
 def test_phase3_server_references_session_guard() -> None:

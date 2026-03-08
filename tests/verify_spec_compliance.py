@@ -151,7 +151,7 @@ def test_quad_witness_formula():
 def test_byzantine_fault_tolerance():
     """
     SPEC: n=4, f=1 → tolerates 1 Byzantine fault
-    CODE: SHOULD BE in aaa_mcp/server.py governance proof
+    CODE: SHOULD BE in arifosmcp.transport/server.py governance proof
     
     Verify 3/4 consensus is sufficient.
     """
@@ -189,12 +189,12 @@ def test_code_uses_tri_not_quad():
     import inspect
     
     try:
-        from aaa_mcp.server import build_governance_proof
+        from arifosmcp.transport.server import build_governance_proof
         source = inspect.getsource(build_governance_proof)
     except (ImportError, OSError):
         # Can't get source, read file directly
         try:
-            with open("aaa_mcp/server.py", "r") as f:
+            with open("arifosmcp.transport/server.py", "r") as f:
                 source = f.read()
         except FileNotFoundError:
             pytest.skip("Cannot access server.py for gap detection")
@@ -323,7 +323,7 @@ def test_psi_shadow_implementation():
     try:
         import ast
         import inspect
-        from aaa_mcp.server import _critique_thought
+        from arifosmcp.transport.server import _critique_thought
         source = inspect.getsource(_critique_thought)
         
         # Check if it's truly adversarial
@@ -360,7 +360,7 @@ async def test_governance_enforces_safety():
     # This test requires full server stack
     # For now, just verify the risk engine exists
     try:
-        from aaa_mcp.server import risk_engine
+        from arifosmcp.transport.server import risk_engine
         assert risk_engine is not None, "Risk engine not available"
         
         # Test risk classification
@@ -397,7 +397,7 @@ Quad-Witness Integration          |   ⚠️   | Code uses W3, not W4
 Ψ-Shadow Adversarial Witness      |   ⚠️   | critique_thought not adversarial
 X Dial (novelty × amanah)         |   ❌   | Not implemented
 Governance Polytope Enforcement   |   ✅   | Risk engine active
-AKI Boundary (MCP tools)          |   ✅   | Enforced in aaa_mcp
+AKI Boundary (MCP tools)          |   ✅   | Enforced in arifosmcp.transport
 
 OVERALL: 77% Compliant
 CRITICAL GAPS:

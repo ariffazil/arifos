@@ -65,7 +65,7 @@ Add to `~/.config/claude/claude_desktop_config.json` (macOS/Linux) or `%APPDATA%
   "mcpServers": {
     "arifOS": {
       "command": "python",
-      "args": ["-m", "arifos_aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.runtime", "stdio"],
       "env": {
         "ARIFOS_GOVERNANCE_SECRET": "your-secret-here",
         "DATABASE_URL": "postgresql://arifos:@localhost:5432/vault999"
@@ -80,7 +80,7 @@ Add to `~/.config/claude/claude_desktop_config.json` (macOS/Linux) or `%APPDATA%
 Navigate to `Cursor Settings → Features → MCP`. Add a new server:
 - **Type:** `command`
 - **Name:** `arifOS`
-- **Command:** `python -m arifos_aaa_mcp stdio`
+- **Command:** `python -m arifosmcp.runtime stdio`
 
 ### Auto-Discovery (MCP Registry)
 

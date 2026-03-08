@@ -4,9 +4,9 @@
 
 **Goal:** Replace three hardcoded witness constants (ai=1.0, earth=1.0, human=0.8) with independently-derived scores from real signals, switch consensus formula to `min()`, and wire `FederationCoordinator.earth_witness_score()` into F3.
 
-**Architecture:** Four PRs in sequence — PR1 (independence) must land before PR2-4. All changes confined to `core/shared/floors.py`, `core/kernel/evaluator.py`, `core/shared/physics.py`, `aaa_mcp/server.py`. Zero new files.
+**Architecture:** Four PRs in sequence — PR1 (independence) must land before PR2-4. All changes confined to `core/shared/floors.py`, `core/kernel/evaluator.py`, `core/shared/physics.py`, `arifosmcp.transport/server.py`. Zero new files.
 
-**Tech Stack:** Python 3.12, pytest (async auto mode), existing `FederationCoordinator` in `aclip_cai/core/federation.py`, `FloorResult` in `core/shared/floors.py`
+**Tech Stack:** Python 3.12, pytest (async auto mode), existing `FederationCoordinator` in `arifosmcp.intelligence/core/federation.py`, `FloorResult` in `core/shared/floors.py`
 
 ---
 
@@ -16,7 +16,7 @@
 - F3 implementation: `core/shared/floors.py:286-311` — `F3_TriWitness.check()`
 - Hardcoded scores: `core/kernel/evaluator.py:183-214` — the `ctx` dict build
 - Physics formula: `core/shared/physics.py:334-349` — `W_3()` and `W_3_check()`
-- Earth witness (unwired): `aclip_cai/core/federation.py:117-130` — `earth_witness_score()`
+- Earth witness (unwired): `arifosmcp.intelligence/core/federation.py:117-130` — `earth_witness_score()`
 - Existing tests: `core/tests/test_physics.py`, `core/workflow/tests/test_governance.py`
 
 **Run before starting:**
@@ -475,7 +475,7 @@ Replace the block with:
 # Attempt to get real earth witness from FederationCoordinator
 _earth_fed_score = None
 try:
-    from aclip_cai.core.federation import FederationCoordinator
+    from arifosmcp.intelligence.core.federation import FederationCoordinator
     _coordinator = FederationCoordinator()
     _earth_fed_score = _coordinator.earth_witness_score()
 except Exception:
@@ -638,7 +638,7 @@ Expected output shows all three status keys and conflict bool.
 
 ## PR4 — Tool-Class Gating
 
-**Touches:** `core/kernel/evaluator.py`, `aaa_mcp/server.py`
+**Touches:** `core/kernel/evaluator.py`, `arifosmcp.transport/server.py`
 
 ---
 
@@ -809,16 +809,16 @@ All tests should pass.
 
 ---
 
-### Task 4.3: Inject action_class into aaa_mcp server tool contexts
+### Task 4.3: Inject action_class into arifosmcp.transport server tool contexts
 
-**File:** `aaa_mcp/server.py`
+**File:** `arifosmcp.transport/server.py`
 
 **Step 1: Find where tools build their eval context**
 
 Search for where `apex_judge`, `seal_vault`, and `reason_mind` call the evaluator or build context dicts.
 
 ```bash
-grep -n "action_class\|evaluate\|_build_context\|evaluator" aaa_mcp/server.py | head -20
+grep -n "action_class\|evaluate\|_build_context\|evaluator" arifosmcp.transport/server.py | head -20
 ```
 
 **Step 2: Add action_class injection**
@@ -830,7 +830,7 @@ For each tool, inject `action_class` based on `TOOL_CLASS_MAP`. Pattern:
 ctx["action_class"] = TOOL_CLASS_MAP.get(tool_name, "write")
 ```
 
-The exact location depends on how `aaa_mcp/server.py` builds its tool contexts. Read the file to find the pattern, then inject at the right point.
+The exact location depends on how `arifosmcp.transport/server.py` builds its tool contexts. Read the file to find the pattern, then inject at the right point.
 
 **Step 3: Run full test suite**
 
@@ -841,14 +841,14 @@ pytest tests/ -v -x --ignore=tests/archive -q 2>&1 | tail -30
 **Step 4: Commit**
 
 ```bash
-git add core/kernel/evaluator.py aaa_mcp/server.py core/tests/test_triwitness_hardening.py
+git add core/kernel/evaluator.py arifosmcp.transport/server.py core/tests/test_triwitness_hardening.py
 git commit -m "feat(F3): add action-class gating — read/write/critical thresholds
 
 - Add WITNESS_REQUIREMENTS dict with thresholds per action class
 - Add TOOL_CLASS_MAP mapping 13 MCP tools to action classes
 - Add check_f3_for_action_class() function in evaluator.py
 - CRITICAL tools require approval_signature (not just actor presence)
-- Inject action_class into aaa_mcp tool contexts"
+- Inject action_class into arifosmcp.transport tool contexts"
 ```
 
 ---
@@ -894,7 +894,7 @@ print('All checks passed. Tri-Witness hardening is operational.')
 | `core/shared/floors.py` | PR1 | +~80 lines | Witness helpers + F3 check rewrite |
 | `core/kernel/evaluator.py` | PR1+PR4 | ~20 lines changed | Remove hardcoded; add gating |
 | `core/shared/physics.py` | PR2 | ~5 lines | Threshold + formula docs |
-| `aaa_mcp/server.py` | PR4 | ~13 injections | action_class per tool |
+| `arifosmcp.transport/server.py` | PR4 | ~13 injections | action_class per tool |
 | `core/tests/test_triwitness_hardening.py` | PR1+PR4 | ~150 lines | New test file |
 
 **Total: 4 existing files modified, 1 new test file. Zero new production files.**

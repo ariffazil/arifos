@@ -17,8 +17,8 @@ Its purpose is to govern AI cognition and agency, ensuring that all outputs and 
 The system is composed of three primary components, ensuring a strict separation of concerns:
 
 1.  **The Kernel (`core/`):** The heart of arifOS, containing all pure, transport-agnostic decision-making logic. It enforces the 13 Floors and contains the 7-Organ Sovereign Stack.
-2.  **The Brain (`aaa_mcp/`):** The primary transport adapter, exposing the Kernel's functions via the Model Context Protocol (MCP). It handles incoming requests and formats the Kernel's verdicts, but contains **no decision logic** itself.
-3.  **The Senses (`aclip_cai/`):** A console and MCP Federation Hub for server intelligence kernel management, providing real-world context and constitutional observability.
+2.  **The Brain (`arifosmcp.transport/`):** The primary transport adapter, exposing the Kernel's functions via the Model Context Protocol (MCP). It handles incoming requests and formats the Kernel's verdicts, but contains **no decision logic** itself.
+3.  **The Senses (`arifosmcp.intelligence/`):** A console and MCP Federation Hub for server intelligence kernel management, providing real-world context and constitutional observability.
 
 This architecture is built on the **7-Organ Sovereign Stack**:
 - **INIT (000 - Airlock):** Session ignition and defense.
@@ -100,13 +100,13 @@ The main application is the `aaa-mcp` server. It can be run in several modes for
 
 ```bash
 # Run in STDIO mode (for local IDE integrations like Cursor)
-python -m aaa_mcp stdio
+python -m arifosmcp.transport stdio
 
 # Run in SSE mode (for remote clients, used in cloud deployments)
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 
 # Run in HTTP mode (for streamable HTTP)
-python -m aaa_mcp http
+python -m arifosmcp.transport http
 ```
 
 ---
@@ -140,7 +140,7 @@ You **MUST** trigger an `888_HOLD` and await human confirmation for any high-sta
 - Handling of secrets or credentials
 
 ### Public MCP Surface (Sovereign Federation Hub)
-The **Federation Hub (`aaa_mcp` / `aclip_cai`)** exposes the arifOS Intelligence Kernel through 13 canonical system calls:
+The **Federation Hub (`arifosmcp.transport` / `arifosmcp.intelligence`)** exposes the arifOS Intelligence Kernel through 13 canonical system calls:
 - `anchor_session` (000 - Airlock)
 - `reason_mind` (111-444 - Mind)
 - `vector_memory` (555 - Subconscious)
@@ -156,7 +156,7 @@ The core organ actions are mapped to these federation calls.
 
 ### Core Principle: Separation of Concerns
 - **`core/`** is for pure logic only. Do not add any transport-layer (HTTP, MCP) code here.
-- **`aaa_mcp/`** is for transport only. Do not add any decision-making logic here; it must call the `core` kernel.
+- **`arifosmcp.transport/`** is for transport only. Do not add any decision-making logic here; it must call the `core` kernel.
 
 ### ⚠️ Critical Rule: Logging
 For STDIO transport, NEVER write to `stdout` (e.g., via `print()`). This corrupts the JSON-RPC messages and breaks the MCP connection. Use `sys.stderr` or a logging library configured for `stderr`.
@@ -170,8 +170,8 @@ For STDIO transport, NEVER write to `stdout` (e.g., via `print()`). This corrupt
 - **`README.md`**: High-level project overview.
 - **`000_THEORY/000_LAW.md`**: The definitive specification for the 13 Constitutional Floors.
 - **`core/`**: The stateless, transport-agnostic governance kernel.
-- **`aaa_mcp/`**: The main MCP server (The Brain).
-- **`aclip_cai/`**: The sensory tools for grounding (The Senses).
+- **`arifosmcp.transport/`**: The main MCP server (The Brain).
+- **`arifosmcp.intelligence/`**: The sensory tools for grounding (The Senses).
 - **`tests/`**: The test suite. All new code requires corresponding tests.
 - **`VAULT999/`**: The immutable ledger for audit trails.
 

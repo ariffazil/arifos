@@ -25,7 +25,7 @@ os.environ["ARIFOS_PUBLIC_APPROVAL_MODE"] = "true"
 test_workspace = Path.cwd() / "test_workspace"
 test_workspace.mkdir(exist_ok=True)
 
-from arifos_aaa_mcp.server import (
+from arifosmcp.runtime.server import (
     eureka_forge, 
     anchor_session,
     DEFAULT_WORKDIR

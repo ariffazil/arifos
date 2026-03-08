@@ -12,16 +12,16 @@ resources, or prompts must be applied to **both** or the two entrypoints will di
 
 | | Internal Layer | Public Layer |
 |---|---|---|
-| **Module** | `aaa_mcp/server.py` | `arifos_aaa_mcp/server.py` |
+| **Module** | `arifosmcp.transport/server.py` | `arifosmcp.runtime/server.py` |
 | **Constructor** | `create_unified_mcp_server()` | `create_aaa_mcp_server()` |
-| **Entrypoint** | internal module only | `python -m aaa_mcp` or `python -m arifos_aaa_mcp` |
-| **Tool source** | `@mcp.tool()` decorators (13 tools, direct) | Wrapper functions calling `legacy.*` from `aaa_mcp` |
+| **Entrypoint** | internal module only | `python -m arifosmcp.transport` or `python -m arifosmcp.runtime` |
+| **Tool source** | `@mcp.tool()` decorators (13 tools, direct) | Wrapper functions calling `legacy.*` from `arifosmcp.transport` |
 | **Governance** | None (raw FastMCP) | `validate_input()` + `require_session()` contracts |
 | **Resource URIs** | `arifos://info`, `arifos://templates/*`, `arifos://schemas/tooling` | `arifos://aaa/schemas`, `arifos://aaa/full-context-pack` |
 | **Prompt names** | `arifos.prompt.governance_brief` | `arifos.prompt.aaa_chain` |
 | **ABI guard** | `MANIFEST_VERSION` constant (read-only) | `MANIFEST_VERSION` + check in `create_aaa_mcp_server()` |
 
-**Rule**: Any tool name or signature change → touch both `aaa_mcp/server.py` AND `arifos_aaa_mcp/server.py`.
+**Rule**: Any tool name or signature change → touch both `arifosmcp.transport/server.py` AND `arifosmcp.runtime/server.py`.
 
 ---
 
@@ -56,7 +56,7 @@ Client call: "apex_verdict"  (gen-1 or gen-2)
      ↓
 REST TOOL_ALIASES (rest_routes.py):  apex_verdict → apex_judge
      ↓
-_TOOL_REGISTRY (arifos_aaa_mcp/server.py): apex_judge → apex_judge callable
+_TOOL_REGISTRY (arifosmcp.runtime/server.py): apex_judge → apex_judge callable
      ↓
 FastMCP dispatcher: name="apex_judge" → _apex_verdict() handler
 
@@ -75,7 +75,7 @@ FastMCP dispatcher: name="apex_judge" → _apex_verdict() handler ✅
 
 Two URI namespaces exist. `arifos://aaa/*` is the client-facing canon.
 
-| Resource | Internal URI (`aaa_mcp`) | Public URI (`arifos_aaa_mcp`) | Status |
+| Resource | Internal URI (`arifosmcp.transport`) | Public URI (`arifosmcp.runtime`) | Status |
 |----------|--------------------------|-------------------------------|--------|
 | Static server info | `arifos://info` | *(not exposed publicly)* | Internal only |
 | Tool schemas | `arifos://schemas/tooling` | `arifos://aaa/schemas` | **Split → Phase 2** |
@@ -83,7 +83,7 @@ Two URI namespaces exist. `arifos://aaa/*` is the client-facing canon.
 | Constitutional floors | `arifos://floors/{floor_id}` | *(not exposed publicly)* | Internal only |
 
 **Phase 2 fix (Option A — non-breaking)**: Mirror `arifos://aaa/schemas` and
-`arifos://aaa/full-context-pack` into `aaa_mcp/server.py` so `server.py` (root)
+`arifos://aaa/full-context-pack` into `arifosmcp.transport/server.py` so `server.py` (root)
 serves the same URIs as the canonical path.
 
 ---
@@ -92,19 +92,19 @@ serves the same URIs as the canonical path.
 
 | Tool | Backend | Notes |
 |------|---------|-------|
-| `anchor_session` | `aclip_cai.triad.anchor()` | Full triad path |
-| `reason_mind` | `aclip_cai.triad.reason()` | Full triad path |
-| `recall_memory` | `aclip_cai.triad.integrate()` | Full triad path |
-| `simulate_heart` | `aclip_cai.triad.align()` | Full triad path |
-| `critique_thought` | `aclip_cai.triad.align()` + heuristic lens fallback | Triad-backed verdict path with mental-model metadata |
-| `apex_judge` | `aclip_cai.triad.forge()` + `audit()` | Full triad path |
-| `eureka_forge` | `aclip_cai.triad.forge()` | Full triad path |
-| `seal_vault` | `aclip_cai.triad.seal()` | Full triad path |
-| `search_reality` | `aaa_mcp.external_gateways` (Perplexity/Brave) | External APIs |
+| `anchor_session` | `arifosmcp.intelligence.triad.anchor()` | Full triad path |
+| `reason_mind` | `arifosmcp.intelligence.triad.reason()` | Full triad path |
+| `recall_memory` | `arifosmcp.intelligence.triad.integrate()` | Full triad path |
+| `simulate_heart` | `arifosmcp.intelligence.triad.align()` | Full triad path |
+| `critique_thought` | `arifosmcp.intelligence.triad.align()` + heuristic lens fallback | Triad-backed verdict path with mental-model metadata |
+| `apex_judge` | `arifosmcp.intelligence.triad.forge()` + `audit()` | Full triad path |
+| `eureka_forge` | `arifosmcp.intelligence.triad.forge()` | Full triad path |
+| `seal_vault` | `arifosmcp.intelligence.triad.seal()` | Full triad path |
+| `search_reality` | `arifosmcp.transport.external_gateways` (Perplexity/Brave) | External APIs |
 | `fetch_content` | HTTP fetch | Direct HTTP |
-| `inspect_file` | `aclip_cai.tools.fs_inspector` | Local filesystem |
+| `inspect_file` | `arifosmcp.intelligence.tools.fs_inspector` | Local filesystem |
 | `audit_rules` | Constitution audit logic | Internal |
-| `check_vital` | `aclip_cai.tools.system_monitor` | System health |
+| `check_vital` | `arifosmcp.intelligence.tools.system_monitor` | System health |
 
 ---
 
@@ -121,26 +121,26 @@ serves the same URIs as the canonical path.
 - Alias chain traced end-to-end
 
 ### Phase 2 — Normalize resource/prompt URIs
-**Goal**: `server.py` (root) serves the same resource URIs as `aaa_mcp/__main__.py`.
+**Goal**: `server.py` (root) serves the same resource URIs as `arifosmcp.transport/__main__.py`.
 **Action**: Add `arifos://aaa/schemas` and `arifos://aaa/full-context-pack` resource
-decorators to `aaa_mcp/server.py` (alias to existing handlers).
+decorators to `arifosmcp.transport/server.py` (alias to existing handlers).
 Do NOT touch `server.py` root entrypoint yet.
 
 ### Phase 3 — Consolidate shared contracts
 Single source of truth for:
-- Tool manifest → already in `aaa_mcp/protocol/tool_registry.py` (use it everywhere)
-- Stage map → `arifos_aaa_mcp/governance.py:TOOL_STAGE_MAP`
-- Alias map → `arifos_aaa_mcp/rest_routes.py:TOOL_ALIASES`
-- Resource URIs → add URI constants to `aaa_mcp/protocol/`
+- Tool manifest → already in `arifosmcp.transport/protocol/tool_registry.py` (use it everywhere)
+- Stage map → `arifosmcp.runtime/governance.py:TOOL_STAGE_MAP`
+- Alias map → `arifosmcp.runtime/rest_routes.py:TOOL_ALIASES`
+- Resource URIs → add URI constants to `arifosmcp.transport/protocol/`
 
 ### Phase 4 — Wire critique_thought to triad ✅ DONE
-- `critique_thought` now uses `aclip_cai.triad.align()` as the primary backend
+- `critique_thought` now uses `arifosmcp.intelligence.triad.align()` as the primary backend
 - Mental-model heuristics remain as explanatory metadata and fallback behavior
 
 ### Phase 5 — Test lane cleanup
 ```
 tests/
-  canonical/   ← arifos_aaa_mcp public surface
+  canonical/   ← arifosmcp.runtime public surface
   compat/      ← backward-compat alias tests
   integration/ ← e2e pipeline tests
   archive/     ← historical (already filtered by conftest.py)
@@ -152,11 +152,11 @@ tests/
 
 | Task | Files |
 |------|-------|
-| **Rename a tool** | `aaa_mcp/server.py` · `arifos_aaa_mcp/server.py` · `arifos_aaa_mcp/rest_routes.py` · `aaa_mcp/protocol/tool_naming.py` · `arifos_aaa_mcp/governance.py` · `aaa_mcp/selftest.py` |
-| **Add a tool** | Above + `aaa_mcp/protocol/tool_registry.py` + `aaa_mcp/protocol/tool_graph.py` + new test |
-| **Change a resource URI** | `aaa_mcp/server.py` (internal) + `arifos_aaa_mcp/server.py` (public) + affected tests |
-| **Bump MANIFEST_VERSION** | `aaa_mcp/server.py` + `arifos_aaa_mcp/server.py` (both must match) |
-| **Add a constitutional floor** | `core/shared/floors.py` · `core/kernel/evaluator.py` · `arifos_aaa_mcp/governance.py` |
+| **Rename a tool** | `arifosmcp.transport/server.py` · `arifosmcp.runtime/server.py` · `arifosmcp.runtime/rest_routes.py` · `arifosmcp.transport/protocol/tool_naming.py` · `arifosmcp.runtime/governance.py` · `arifosmcp.transport/selftest.py` |
+| **Add a tool** | Above + `arifosmcp.transport/protocol/tool_registry.py` + `arifosmcp.transport/protocol/tool_graph.py` + new test |
+| **Change a resource URI** | `arifosmcp.transport/server.py` (internal) + `arifosmcp.runtime/server.py` (public) + affected tests |
+| **Bump MANIFEST_VERSION** | `arifosmcp.transport/server.py` + `arifosmcp.runtime/server.py` (both must match) |
+| **Add a constitutional floor** | `core/shared/floors.py` · `core/kernel/evaluator.py` · `arifosmcp.runtime/governance.py` |
 
 ---
 

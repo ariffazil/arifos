@@ -5,7 +5,7 @@ Branch: `forge/aaa-mcp-v13-safe`
 
 ## Outcome
 
-Phase 5 verification is complete for `arifos_aaa_mcp`.
+Phase 5 verification is complete for `arifosmcp.runtime`.
 
 ## Verification Matrix
 

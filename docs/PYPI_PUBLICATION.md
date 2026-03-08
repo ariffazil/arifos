@@ -27,9 +27,9 @@ unzip -l dist/arifos-2026.3.7-py3-none-any.whl | head -50
 
 **Required packages in wheel:**
 - ✅ `core/` - Constitutional kernel
-- ✅ `aaa_mcp/` - FastMCP transport adapter
-- ✅ `arifos_aaa_mcp/` - Canonical PyPI entry point
-- ✅ `aclip_cai/` - Intelligence layer
+- ✅ `arifosmcp.transport/` - FastMCP transport adapter
+- ✅ `arifosmcp.runtime/` - Canonical PyPI entry point
+- ✅ `arifosmcp.intelligence/` - Intelligence layer
 
 ### ✅ Test Installation
 
@@ -42,10 +42,10 @@ source /tmp/test_arifos/bin/activate  # Windows: .\tmp\test_arifos\Scripts\activ
 pip install dist/arifos-2026.3.7-py3-none-any.whl
 
 # Verify imports
-python -c "from arifos_aaa_mcp import create_aaa_mcp_server; print('✓ arifos_aaa_mcp')"
+python -c "from arifosmcp.runtime import create_aaa_mcp_server; print('✓ arifosmcp.runtime')"
 python -c "from core.governance_kernel import GovernanceKernel; print('✓ core')"
-python -c "from aaa_mcp.server import mcp; print('✓ aaa_mcp')"
-python -c "from aclip_cai.triad import anchor; print('✓ aclip_cai')"
+python -c "from arifosmcp.transport.server import mcp; print('✓ arifosmcp.transport')"
+python -c "from arifosmcp.intelligence.triad import anchor; print('✓ arifosmcp.intelligence')"
 
 # Test CLI entry point
 arifos --help
@@ -55,7 +55,7 @@ arifos --help
 
 ```bash
 # Check version
-python -c "import arifos_aaa_mcp; print(arifos_aaa_mcp.__version__)"
+python -c "import arifosmcp.runtime; print(arifosmcp.runtime.__version__)"
 # Expected: 2026.03.07
 ```
 
@@ -103,7 +103,7 @@ source /tmp/test_arifos_testpypi/bin/activate
 pip install --index-url https://test.pypi.org/simple/ arifos==2026.3.7
 
 # Run smoke tests
-python -c "from arifos_aaa_mcp import create_aaa_mcp_server; print('✓ Import successful')"
+python -c "from arifosmcp.runtime import create_aaa_mcp_server; print('✓ Import successful')"
 arifos --help
 ```
 
@@ -129,7 +129,7 @@ pip install arifos==2026.3.7
 
 # Verify installation
 python -c "
-from arifos_aaa_mcp import create_aaa_mcp_server
+from arifosmcp.runtime import create_aaa_mcp_server
 from core.governance_kernel import GovernanceKernel
 from core.physics.thermodynamics_hardened import ThermodynamicBudget
 print('✓ arifOS 2026.03.07 (P3 Thermodynamic Hardening) installed successfully')
@@ -170,11 +170,11 @@ arifos stdio --help 2>&1 | head -5
 ```python
 # CLI
 [project.scripts]
-arifos = "arifos_aaa_mcp.__main__:main"
+arifos = "arifosmcp.runtime.__main__:main"
 
 # MCP Server
 [project.entry-points."mcp.server"]
-arifos = "arifos_aaa_mcp.server:create_aaa_mcp_server"
+arifos = "arifosmcp.runtime.server:create_aaa_mcp_server"
 ```
 
 ---
@@ -182,7 +182,7 @@ arifos = "arifos_aaa_mcp.server:create_aaa_mcp_server"
 ## Known Issues & Notes
 
 ### Session Archives in Wheel
-The wheel includes `aaa_mcp/sessions/archive/` with JSON session logs. This is intentional for:
+The wheel includes `arifosmcp.transport/sessions/archive/` with JSON session logs. This is intentional for:
 - Demonstration purposes
 - Testing the VAULT999 ledger system
 - Documentation of real constitutional decisions
@@ -190,7 +190,7 @@ The wheel includes `aaa_mcp/sessions/archive/` with JSON session logs. This is i
 Size impact: ~500 KB (acceptable for a governance system with provenance requirements).
 
 ### Node Modules Exclusion
-`aclip_cai/dashboard/node_modules/` is NOT included in the wheel (excluded via `exclude_package_data` in `pyproject.toml`).
+`arifosmcp.intelligence/dashboard/node_modules/` is NOT included in the wheel (excluded via `exclude_package_data` in `pyproject.toml`).
 
 ### MANIFEST.in Warnings
 Some warnings during build are expected (non-existent directories like `spec/`, `arifos/`, `codebase/` referenced in legacy patterns). These do not affect the build.
@@ -231,7 +231,7 @@ twine check dist/*
 python -m venv /tmp/verify_arifos
 source /tmp/verify_arifos/bin/activate
 pip install dist/arifos-2026.3.7-py3-none-any.whl
-python -c "from arifos_aaa_mcp import create_aaa_mcp_server; print('✓ Import OK')"
+python -c "from arifosmcp.runtime import create_aaa_mcp_server; print('✓ Import OK')"
 arifos --help
 ```
 

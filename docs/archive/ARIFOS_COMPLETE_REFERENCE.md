@@ -371,7 +371,7 @@ Kimi 🔨 → Gemini Δ → Claude Ω → Codex Ψ → OpenCode ⚡ → Human (8
 ```json
 {
   "command": "python",
-  "args": ["-m", "aaa_mcp", "stdio"],
+  "args": ["-m", "arifosmcp.transport", "stdio"],
   "env": {
     "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
     "BRAVE_API_KEY": "${BRAVE_API_KEY}"
@@ -389,7 +389,7 @@ Kimi 🔨 → Gemini Δ → Claude Ω → Codex Ψ → OpenCode ⚡ → Human (8
 ```json
 {
   "command": "python",
-  "args": ["-m", "aclip_cai", "stdio"],
+  "args": ["-m", "arifosmcp.intelligence", "stdio"],
   "env": {
     "ARIFOS_CHROMA_PATH": "C:/Users/User/chroma_memory"
   },
@@ -1059,7 +1059,7 @@ Amendment cooldown period of 72 hours before constitutional changes take effect.
 
 ```
 arifOS/
-├── aaa_mcp/                        # MCP Server (PRIMARY)
+├── arifosmcp.transport/                        # MCP Server (PRIMARY)
 │   ├── server.py                   # 25 canonical tools + FastMCP
 │   ├── core/
 │   │   ├── constitutional_decorator.py   # @constitutional_floor
@@ -1080,7 +1080,7 @@ arifOS/
 │       ├── k8s_wrapper.py          # Kubernetes
 │       └── opa_policy.py           # OPA/Conftest
 │
-├── aclip_cai/                      # Console for AI
+├── arifosmcp.intelligence/                      # Console for AI
 │   └── server.py                   # 8 console tools
 │
 ├── core/                           # Canonical truth
@@ -1169,10 +1169,10 @@ arifOS/
 
 | File | Purpose |
 |:-----|:--------|
-| `aaa_mcp/server.py` | Main MCP server (25 tools) |
-| `aaa_mcp/core/constitutional_decorator.py` | @constitutional_floor |
-| `aaa_mcp/core/engine_adapters.py` | AGI/ASI/APEX adapters |
-| `aaa_mcp/core/stage_adapter.py` | Pipeline stages |
+| `arifosmcp.transport/server.py` | Main MCP server (25 tools) |
+| `arifosmcp.transport/core/constitutional_decorator.py` | @constitutional_floor |
+| `arifosmcp.transport/core/engine_adapters.py` | AGI/ASI/APEX adapters |
+| `arifosmcp.transport/core/stage_adapter.py` | Pipeline stages |
 | `core/pipeline.py` | Unified 000-999 pipeline |
 | `core/shared/floors.py` | 13 floor implementations |
 | `core/shared/physics.py` | Thermodynamic primitives |
@@ -1227,14 +1227,14 @@ pip install -e ".[all]"
 
 ```bash
 # stdio mode (default, for Claude Desktop)
-python -m aaa_mcp
+python -m arifosmcp.transport
 # or: aaa-mcp
 
 # SSE mode (for remote deployment)
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 
 # HTTP mode (experimental)
-python -m aaa_mcp http
+python -m arifosmcp.transport http
 
 # Production server
 python scripts/start_server.py
@@ -1253,7 +1253,7 @@ pytest tests/test_e2e_core_to_aaa_mcp.py -v
 pytest tests/constitutional/ -v
 
 # With coverage
-pytest --cov=aaa_mcp --cov=core tests/ -v
+pytest --cov=arifosmcp.transport --cov=core tests/ -v
 
 # Run only non-slow tests
 pytest -m "not slow" -v
@@ -1266,16 +1266,16 @@ pytest tests/mcp_tests/test_session_ledger.py::test_append_entry -vv --maxfail=1
 
 ```bash
 # Format
-black --line-length 100 aaa_mcp/ core/
+black --line-length 100 arifosmcp.transport/ core/
 
 # Lint
-ruff check aaa_mcp/ core/
+ruff check arifosmcp.transport/ core/
 
 # Type check
-mypy aaa_mcp/ core/ --ignore-missing-imports
+mypy arifosmcp.transport/ core/ --ignore-missing-imports
 
 # Security scan
-bandit -q -r aaa_mcp/ core/
+bandit -q -r arifosmcp.transport/ core/
 ```
 
 ## Docker

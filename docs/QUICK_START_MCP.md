@@ -4,7 +4,7 @@
 
 ```bash
 pip install -e ".[dev]"
-python -m arifos_aaa_mcp stdio
+python -m arifosmcp.runtime stdio
 ```
 
 Claude Desktop config snippet:
@@ -14,7 +14,7 @@ Claude Desktop config snippet:
   "mcpServers": {
     "arifOS": {
       "command": "python",
-      "args": ["-m", "arifos_aaa_mcp", "stdio"]
+      "args": ["-m", "arifosmcp.runtime", "stdio"]
     }
   }
 }
@@ -23,8 +23,8 @@ Claude Desktop config snippet:
 ## Remote (SSE + HTTP fallback)
 
 ```bash
-HOST=0.0.0.0 PORT=8080 python -m arifos_aaa_mcp sse
-PORT=8089 python -m arifos_aaa_mcp http
+HOST=0.0.0.0 PORT=8080 python -m arifosmcp.runtime sse
+PORT=8089 python -m arifosmcp.runtime http
 ```
 
 Test endpoints:

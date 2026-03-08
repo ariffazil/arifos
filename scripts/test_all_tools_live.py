@@ -106,8 +106,8 @@ def main():
     if args.coverage:
         pytest_args.extend(
             [
-                "--cov=aaa_mcp",
-                "--cov=aclip_cai",
+                "--cov=arifosmcp.transport",
+                "--cov=arifosmcp.intelligence",
                 "--cov-report=html",
                 "--cov-report=term",
             ]

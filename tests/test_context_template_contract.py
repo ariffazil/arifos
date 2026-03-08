@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from aaa_mcp.protocol import export_full_context_pack, get_input_schema
-from aaa_mcp.server import (
+from arifosmcp.transport.protocol import export_full_context_pack, get_input_schema
+from arifosmcp.transport.server import (
     _prompt_anchor_reason,
     _prompt_audit_then_seal,
     _prompt_trinity_forge,

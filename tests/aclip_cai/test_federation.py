@@ -1,9 +1,9 @@
 """
-tests/aclip_cai/test_federation.py
+tests/arifosmcp.intelligence/test_federation.py
 """
 
 import pytest
-from aclip_cai.core.federation import FederationCoordinator, AgentStatus, AgentHealth
+from arifosmcp.intelligence.core.federation import FederationCoordinator, AgentStatus, AgentHealth
 
 
 def test_federation_registration():

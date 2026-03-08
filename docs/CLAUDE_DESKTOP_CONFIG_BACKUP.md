@@ -88,8 +88,8 @@
 **Lives at:** `C:\Users\User\.claude\mcp.json` — **DO NOT DELETE, survives reinstall automatically**
 
 Key arifOS entries:
-- `aaa-mcp` → local Python MCP via `.venv/Scripts/python.exe -m aaa_mcp stdio`
-- `aclip-cai` → local ACLIP CAI via `.venv/Scripts/python.exe -m aclip_cai stdio`
+- `aaa-mcp` → local Python MCP via `.venv/Scripts/python.exe -m arifosmcp.transport stdio`
+- `aclip-cai` → local ACLIP CAI via `.venv/Scripts/python.exe -m arifosmcp.intelligence stdio`
 - `memory` → MCP memory → `C:/Users/User/VAULT999/mcp-memory.json`
 - `qdrant` → local Qdrant vector store → `C:\Users\User\.qdrant\local-db`
 - `code-sandbox` → `C:\Users\User\AppData\Local\code-sandbox-mcp\code-sandbox-mcp.exe`

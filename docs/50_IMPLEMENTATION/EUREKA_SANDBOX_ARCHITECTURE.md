@@ -81,7 +81,7 @@ docker run --rm \
 ### Runner Module
 
 ```python
-# aaa_mcp/services/sandbox_runner.py
+# arifosmcp.transport/services/sandbox_runner.py
 import subprocess
 import tempfile
 from pathlib import Path
@@ -153,7 +153,7 @@ class SandboxRunner:
 
 ```python
 # In eureka_forge implementation
-from aaa_mcp.services.sandbox_runner import SandboxRunner
+from arifosmcp.transport.services.sandbox_runner import SandboxRunner
 
 # Initialize sandbox runner (singleton)
 _sandbox_runner = SandboxRunner()
@@ -258,7 +258,7 @@ networks:
 - ✅ Implemented: Path validation in `eureka_forge`
 
 ### Phase 2: Sandbox Runner (Next)
-1. Create `aaa_mcp/services/sandbox_runner.py`
+1. Create `arifosmcp.transport/services/sandbox_runner.py`
 2. Update `eureka_forge` to use sandbox by default
 3. Add Docker socket mount to compose
 4. Test with benign commands

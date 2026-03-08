@@ -382,7 +382,7 @@ Run before any significant operation:
   "mcpServers": {
     "arifos-vps": {
       "command": "python",
-      "args": ["-m", "arifos_aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.runtime", "stdio"],
       "env": {
         "ARIFOS_GOVERNANCE_SECRET": "${ARIFOS_SECRET}",
         "VPS_HOST": "srv1325122.hstgr.cloud",
@@ -474,7 +474,7 @@ GOVERNANCE_CONSTANTS = {
 arifOS/
 ├── docs/60_REFERENCE/
 │   └── UNIFIED_SKILLS_ARCHITECTURE.md    [THIS FILE]
-├── arifos_aaa_mcp/
+├── arifosmcp.runtime/
 │   └── server.py                         [MCP tools]
 ├── .kimi/skills/                         [Kimi skills]
 │   ├── arifos-trinity-refactor/SKILL.md
@@ -499,7 +499,7 @@ docker compose up -d arifosmcp
 
 # 2. Configure Kimi Code
 kimi mcp add arifos-vps \
-  --command "ssh root@srv1325122.hstgr.cloud 'cd /srv/arifOS && python -m arifos_aaa_mcp stdio'"
+  --command "ssh root@srv1325122.hstgr.cloud 'cd /srv/arifOS && python -m arifosmcp.runtime stdio'"
 
 # 3. Use master skill
 kimi skill use arifos-trinity-refactor

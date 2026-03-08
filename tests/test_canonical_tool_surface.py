@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import inspect
 
-from aaa_mcp.server import mcp
+from arifosmcp.transport.server import mcp
 
 CANONICAL_EXPOSED_TOOLS = {
     "anchor_session",

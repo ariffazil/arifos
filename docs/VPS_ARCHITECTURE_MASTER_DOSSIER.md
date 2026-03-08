@@ -315,7 +315,7 @@ services:
   arifosmcp:
     volumes:
       # Mount live code over container code
-      - /root/arifOS/aaa_mcp/server.py:/usr/src/app/aaa_mcp/server.py:ro
+      - /root/arifOS/arifosmcp.transport/server.py:/usr/src/app/arifosmcp.transport/server.py:ro
 ```
 
 **Solution - Image Rebuild (Proper Fix):**
@@ -350,7 +350,7 @@ docker compose up -d
 │   └─────────────────────────────────────────────────────────┘      │
 │          ↓                                                          │
 │   ┌─────────────────────────────────────────────────────────┐      │
-│   │  BGE Embedding (aclip_cai/embeddings/__init__.py)       │      │
+│   │  BGE Embedding (arifosmcp.intelligence/embeddings/__init__.py)       │      │
 │   │  Model: BAAI/bge-small-en-v1.5                          │      │
 │   │  Output: 384-dimensional float vector                   │      │
 │   └─────────────────────────────────────────────────────────┘      │
@@ -381,7 +381,7 @@ docker compose up -d
 
 **Code Integration Points:**
 ```python
-# 1. Embedding Generation (aclip_cai/embeddings/__init__.py)
+# 1. Embedding Generation (arifosmcp.intelligence/embeddings/__init__.py)
 from sentence_transformers import SentenceTransformer
 _model = None  # Singleton
 
@@ -404,7 +404,7 @@ class ConstitutionalRAG:
             limit=top_k
         )
 
-# 3. MCP Tool (arifos_aaa_mcp/server.py)
+# 3. MCP Tool (arifosmcp.runtime/server.py)
 @mcp.tool(name="recall_memory")
 async def recall_memory(query: str, session_id: str):
     rag = _ensure_rag()  # Loads ConstitutionalRAG
@@ -548,7 +548,7 @@ docker exec headless_browser curl -s http://localhost:3000/pressure | jq
 # Test direct fetch
 docker exec arifosmcp_server python3 << 'EOF'
 import asyncio
-from aaa_mcp.external_gateways import HeadlessBrowserClient
+from arifosmcp.transport.external_gateways import HeadlessBrowserClient
 async def test():
     client = HeadlessBrowserClient()
     result = await client.fetch_url('https://example.com', wait_ms=3000)
@@ -663,7 +663,7 @@ arifos seal            # seal_vault (999 SEAL)
 OpenClaw (kimi-k2)
     → arifos CLI bridge
     → arifosmcp_server:8080 (streamable-http)
-    → aaa_mcp/server.py
+    → arifosmcp.transport/server.py
     → 13 constitutional tools
     → F1-F13 floor enforcement
     → SEAL / VOID / PARTIAL
@@ -784,13 +784,13 @@ test-reports/                               ← P3 test reports (HTML)
 
 ### Unstaged Local Work (not yet in GitHub)
 ```
-M  aaa_mcp/server.py                        ← GDrive search in vector_memory
+M  arifosmcp.transport/server.py                        ← GDrive search in vector_memory
 ?? 333_APPS/L2_OPERATION/INTEGRATIONS/      ← GDrive modules:
      gdrive_memory_tool.py
      gdrive_vector_sync.py
      unified_memory.py
      GDRIVE_VECTOR_SETUP.md
-?? aaa_mcp/unified_memory.py                ← Unified memory module
+?? arifosmcp.transport/unified_memory.py                ← Unified memory module
 ?? OPENCLAW_ARIFOS_BRIDGE.md                ← Bridge documentation
 ?? TAILSCALE.md                             ← Tailscale config notes
 ?? docker-compose.yml.backup.*              ← 3 stale backup files (delete)
@@ -800,9 +800,9 @@ M  aaa_mcp/server.py                        ← GDrive search in vector_memory
 ### Four-Layer Stack State
 ```
 core/              KERNEL       — floors.py, physics, organs, judgment
-aclip_cai/         INTELLIGENCE — triad, embeddings, tools, mcp_bridge
-aaa_mcp/           TRANSPORT    — server.py (13 tools), sessions, protocol
-arifos_aaa_mcp/    PACKAGE      — PyPI entry point, canonical external surface
+arifosmcp.intelligence/         INTELLIGENCE — triad, embeddings, tools, mcp_bridge
+arifosmcp.transport/           TRANSPORT    — server.py (13 tools), sessions, protocol
+arifosmcp.runtime/    PACKAGE      — PyPI entry point, canonical external surface
 ```
 
 ### Test Coverage (last measured: 2026-03-05 → P3 suite added)
@@ -882,9 +882,9 @@ docker image prune -f --filter "dangling=true"
 
 **2. Never commit large model files to git**
 ```bash
-# aclip_cai/embeddings/*.safetensors (128MB+)
+# arifosmcp.intelligence/embeddings/*.safetensors (128MB+)
 # These are in .gitignore for a reason
-git add aclip_cai/embeddings/model.safetensors  # ❌ DON'T
+git add arifosmcp.intelligence/embeddings/model.safetensors  # ❌ DON'T
 
 # ✅ Instead: Mount as volume or download at runtime
 ```
@@ -995,7 +995,7 @@ curl -s http://localhost:8080/health | jq '{status: .status, tools: .tools_loade
 # BGE status
 docker exec arifosmcp_server python3 -c '
 import sys; sys.path.insert(0, "/usr/src/app")
-from aaa_mcp.server import BGE_AVAILABLE
+from arifosmcp.transport.server import BGE_AVAILABLE
 print(f"  BGE: {'✓ Available' if BGE_AVAILABLE else '✗ Not Available'}")
 '
 ```
@@ -1030,14 +1030,14 @@ docker compose up -d
 **Scenario: BGE not loading**
 ```bash
 # Check if model file exists
-docker exec arifosmcp_server ls -lh /usr/src/app/aclip_cai/embeddings/
+docker exec arifosmcp_server ls -lh /usr/src/app/arifosmcp.intelligence/embeddings/
 
 # Check logs
 docker logs arifosmcp_server | grep -i "BGE\|embed"
 
 # Test manually
 docker exec arifosmcp_server python3 -c '
-from aclip_cai.embeddings import embed
+from arifosmcp.intelligence.embeddings import embed
 print(len(embed("test")))
 '
 ```

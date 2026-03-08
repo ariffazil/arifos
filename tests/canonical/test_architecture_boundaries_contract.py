@@ -5,7 +5,7 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from aaa_mcp.protocol.aaa_contract import L5_COMPOSITE
+from arifosmcp.transport.protocol.aaa_contract import L5_COMPOSITE
 
 ROOT = Path(__file__).resolve().parents[2]
 CORE_ROOT = ROOT / "core"
@@ -14,8 +14,8 @@ FORBIDDEN_CORE_IMPORT_ROOTS = {
     "fastmcp",
     "fastapi",
     "starlette",
-    "aaa_mcp",
-    "arifos_aaa_mcp",
+    "arifosmcp.transport",
+    "arifosmcp.runtime",
 }
 
 

@@ -5,7 +5,7 @@ Branch: `forge/aaa-mcp-v13-safe`
 
 ## Objective
 
-Begin runtime and contract verification for `arifos_aaa_mcp` before deprecation/final seal.
+Begin runtime and contract verification for `arifosmcp.runtime` before deprecation/final seal.
 
 ## Executed Checks
 
@@ -25,7 +25,7 @@ Begin runtime and contract verification for `arifos_aaa_mcp` before deprecation/
 
 ## Notes
 
-- Phase 4 bridge remains active (`python -m aaa_mcp` forwards to `arifos_aaa_mcp`).
+- Phase 4 bridge remains active (`python -m arifosmcp.transport` forwards to `arifosmcp.runtime`).
 - 13-law catalog + 333 axioms + APEX dials are present in wrapped outputs.
 
 ## Next Verification Slice

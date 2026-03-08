@@ -24,7 +24,7 @@ from fastmcp import Client
 @pytest.fixture
 def arifos_server():
     """Return the live mcp instance without opening a client (avoids event loop issues)."""
-    from aaa_mcp.server import mcp
+    from arifosmcp.transport.server import mcp
 
     return mcp
 
@@ -485,7 +485,7 @@ def _build_hmac_approval_bundle(
 
 class TestApprovalHardening:
     async def test_approval_replay_blocked(self, monkeypatch):
-        import aaa_mcp.server as server
+        import arifosmcp.transport.server as server
 
         monkeypatch.delenv("ARIFOS_REVOKED_ACTORS", raising=False)
         monkeypatch.delenv("ARIFOS_REVOKED_SESSIONS", raising=False)
@@ -532,7 +532,7 @@ class TestApprovalHardening:
         assert second_error.get("reason_code") == "AUTH_APPROVAL_REPLAY"
 
     async def test_approval_scope_mismatch_blocked(self, monkeypatch):
-        import aaa_mcp.server as server
+        import arifosmcp.transport.server as server
 
         monkeypatch.delenv("ARIFOS_REVOKED_ACTORS", raising=False)
         monkeypatch.delenv("ARIFOS_REVOKED_SESSIONS", raising=False)
@@ -568,7 +568,7 @@ class TestApprovalHardening:
         assert error.get("reason_code") == "AUTH_APPROVAL_SCOPE_MISMATCH"
 
     async def test_approval_expired_blocked(self, monkeypatch):
-        import aaa_mcp.server as server
+        import arifosmcp.transport.server as server
 
         monkeypatch.delenv("ARIFOS_REVOKED_ACTORS", raising=False)
         monkeypatch.delenv("ARIFOS_REVOKED_SESSIONS", raising=False)
@@ -617,7 +617,7 @@ class TestApprovalHardening:
         env_value,
         expected_reason,
     ):
-        import aaa_mcp.server as server
+        import arifosmcp.transport.server as server
 
         monkeypatch.delenv("ARIFOS_REVOKED_ACTORS", raising=False)
         monkeypatch.delenv("ARIFOS_REVOKED_SESSIONS", raising=False)
@@ -659,7 +659,7 @@ class TestApprovalHardening:
         assert error.get("reason_code") == expected_reason
 
     async def test_critical_tool_path_revoked_actor_blocked(self, monkeypatch):
-        import aaa_mcp.server as server
+        import arifosmcp.transport.server as server
 
         monkeypatch.setenv("ARIFOS_REVOKED_ACTORS", "blocked-anchor-actor")
         result = await server._init_session(
@@ -712,7 +712,7 @@ class TestFusedGovernanceGate:
         monkeypatch.setattr(server, "_ensure_rag", lambda: _Rag())
 
     async def test_apex_judge_includes_governance_proof(self, monkeypatch):
-        import aaa_mcp.server as server
+        import arifosmcp.transport.server as server
 
         self._install_apex_stubs(
             monkeypatch,
@@ -728,7 +728,7 @@ class TestFusedGovernanceGate:
         assert "governance_proof" in result.get("payload", {})
 
     async def test_apex_judge_tri_witness_low_sets_hold(self, monkeypatch):
-        import aaa_mcp.server as server
+        import arifosmcp.transport.server as server
 
         self._install_apex_stubs(
             monkeypatch,
@@ -744,7 +744,7 @@ class TestFusedGovernanceGate:
         assert result.get("verdict") == "888_HOLD"
 
     async def test_apex_judge_authority_failure_sets_void(self, monkeypatch):
-        import aaa_mcp.server as server
+        import arifosmcp.transport.server as server
 
         self._install_apex_stubs(
             monkeypatch,
@@ -762,7 +762,7 @@ class TestFusedGovernanceGate:
 
 class TestF11ServerContinuityMode:
     async def test_critical_tool_requires_server_chain_when_missing(self, monkeypatch):
-        import arifos_aaa_mcp.server as server
+        import arifosmcp.runtime.server as server
 
         monkeypatch.setattr(server, "_CONTINUITY_STRICT", False)
         server._SESSION_CONTINUITY_STATE.clear()
@@ -784,7 +784,7 @@ class TestF11ServerContinuityMode:
         assert "missing server continuity state" in str(error.get("error", ""))
 
     async def test_critical_tool_accepts_server_chain_without_client_context(self, monkeypatch):
-        import arifos_aaa_mcp.server as server
+        import arifosmcp.runtime.server as server
 
         monkeypatch.setattr(server, "_CONTINUITY_STRICT", False)
         server._SESSION_CONTINUITY_STATE.clear()

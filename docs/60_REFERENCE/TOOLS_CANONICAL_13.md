@@ -1,6 +1,6 @@
 # Canonical 13-Tool Surface (Baseline @ 62cffa2)
 
-Source basis: `aaa_mcp/server.py`, `arifos_aaa_mcp/server.py`, `arifos_aaa_mcp/contracts.py`, `aaa_mcp/protocol/schemas.py`, `aaa_mcp/protocol/tool_naming.py`.
+Source basis: `arifosmcp.transport/server.py`, `arifosmcp.runtime/server.py`, `arifosmcp.runtime/contracts.py`, `arifosmcp.transport/protocol/schemas.py`, `arifosmcp.transport/protocol/tool_naming.py`.
 
 ## Canonical Tool Table
 
@@ -10,7 +10,7 @@ Source basis: `aaa_mcp/server.py`, `arifos_aaa_mcp/server.py`, `arifos_aaa_mcp/c
 | `reason_mind` | active | `111-444` (collapsed) | `query, session_id` | `verdict, stage, session_id` | `{"name":"reason_mind","arguments":{"query":"analyze","session_id":"S1"}}` |
 | `vector_memory` | active | `555_RECALL` | `query, session_id` | `verdict, stage, session_id` | `{"name":"vector_memory","arguments":{"query":"x","session_id":"S1"}}` |
 | `simulate_heart` | active | `555-666` (merged) | `query, session_id` | `verdict, stage, session_id` | `{"name":"simulate_heart","arguments":{"query":"impact","session_id":"S1"}}` |
-| `critique_thought` | active (native in `arifos_aaa_mcp`) | `666_ALIGN` | `plan, session_id` | `verdict, stage, session_id` | `{"name":"critique_thought","arguments":{"plan":{"step":"a"},"session_id":"S1"}}` |
+| `critique_thought` | active (native in `arifosmcp.runtime`) | `666_ALIGN` | `plan, session_id` | `verdict, stage, session_id` | `{"name":"critique_thought","arguments":{"plan":{"step":"a"},"session_id":"S1"}}` |
 | `apex_judge` | active (needs stage relabel) | `888_APEX_JUDGE` (target canon) | `session_id, query` | `verdict, stage, session_id` | `{"name":"apex_judge","arguments":{"session_id":"S1","query":"decide"}}` |
 | `eureka_forge` | active (hold-gated, needs stage relabel) | `777_EUREKA_FORGE` (target canon) | `action_payload, session_id, signature` | `verdict, stage, session_id` | `{"name":"eureka_forge","arguments":{"action_payload":{},"session_id":"S1","signature":"sig"}}` |
 | `seal_vault` | active | `999_VAULT` | `session_id, summary` | `verdict, stage, session_id` | `{"name":"seal_vault","arguments":{"session_id":"S1","summary":"done"}}` |
@@ -46,7 +46,7 @@ Missing-2 request tracking (from AGENTS baseline):
 
 ## Alias and Deprecation Hints (baseline only)
 
-From `aaa_mcp/protocol/tool_naming.py`:
+From `arifosmcp.transport/protocol/tool_naming.py`:
 - canonical -> legacy examples:
   - `anchor_session -> init_gate`
   - `reason_mind -> agi_reason`

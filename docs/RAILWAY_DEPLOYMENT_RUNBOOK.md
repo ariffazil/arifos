@@ -434,7 +434,7 @@ The MCP server exposes constitutional metrics at runtime. Access via:
 
 ```python
 # From within the service
-from aaa_mcp.services.constitutional_metrics import get_flight_recorder
+from arifosmcp.transport.services.constitutional_metrics import get_flight_recorder
 
 recorder = get_flight_recorder()
 metrics = recorder.get_metrics()
@@ -546,7 +546,7 @@ railway status
 # Look for "Registered 10 tools" in logs
 
 # Test locally first
-python -m aaa_mcp stdio
+python -m arifosmcp.transport stdio
 ```
 
 ### Diagnostic Commands
@@ -605,9 +605,9 @@ python scripts/railway_migration.py
 | `scripts/start_server.py` | Production entry point |
 | `scripts/railway_migration.py` | Database migration tool |
 | `scripts/railway_verify.py` | Post-migration verification |
-| `aaa_mcp/server.py` | MCP server with 10 tools |
-| `aaa_mcp/sessions/session_ledger.py` | VAULT999 persistence |
-| `aaa_mcp/services/redis_client.py` | MindVault cache |
+| `arifosmcp.transport/server.py` | MCP server with 10 tools |
+| `arifosmcp.transport/sessions/session_ledger.py` | VAULT999 persistence |
+| `arifosmcp.transport/services/redis_client.py` | MindVault cache |
 
 ## Appendix B: Constitutional Compliance
 

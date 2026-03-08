@@ -25,38 +25,38 @@ BGE embeddings code exists but **NOT FUNCTIONAL**.
 ### Evidence:
 ```bash
 # TEST COMMAND:
-docker exec arifosmcp_server python3 -c 'import sys; sys.path.insert(0, "/usr/src/app"); from aclip_cai.embeddings import BGE_AVAILABLE; print(BGE_AVAILABLE)'
+docker exec arifosmcp_server python3 -c 'import sys; sys.path.insert(0, "/usr/src/app"); from arifosmcp.intelligence.embeddings import BGE_AVAILABLE; print(BGE_AVAILABLE)'
 
 # RESULT:
-ImportError: cannot import name 'BGE_AVAILABLE' from 'aclip_cai.embeddings'
+ImportError: cannot import name 'BGE_AVAILABLE' from 'arifosmcp.intelligence.embeddings'
 ```
 
 ### Root Cause:
-**File**: `/root/arifOS/aaa_mcp/server.py` (lines 28-42)
+**File**: `/root/arifOS/arifosmcp.transport/server.py` (lines 28-42)
 
 **Current (BROKEN)**:
 ```python
 try:
-    from aclip_cai.embeddings import embed, BGE_AVAILABLE  # ❌ BGE_AVAILABLE not in module!
+    from arifosmcp.intelligence.embeddings import embed, BGE_AVAILABLE  # ❌ BGE_AVAILABLE not in module!
     BGE_AVAILABLE = True
 except ImportError as e:
     BGE_AVAILABLE = False
 ```
 
-**Issue**: `BGE_AVAILABLE` is defined IN server.py, not in `aclip_cai/embeddings/__init__.py`
+**Issue**: `BGE_AVAILABLE` is defined IN server.py, not in `arifosmcp.intelligence/embeddings/__init__.py`
 
 ### FIX REQUIRED:
 
-**Step 1**: Edit `/root/arifOS/aaa_mcp/server.py`
+**Step 1**: Edit `/root/arifOS/arifosmcp.transport/server.py`
 
 **Replace lines 28-42** with:
 ```python
-# BGE Embeddings Integration from aclip_cai (Senses Layer - STATIC)
+# BGE Embeddings Integration from arifosmcp.intelligence (Senses Layer - STATIC)
 import sys
 sys.path.insert(0, '/usr/src/app')  # Container path
 
 try:
-    from aclip_cai.embeddings import embed, get_embedder
+    from arifosmcp.intelligence.embeddings import embed, get_embedder
     # Test if BGE actually works
     _test_vec = embed("test")
     if len(_test_vec) == 768:
@@ -73,7 +73,7 @@ except Exception as e:
 **Step 2**: Verify BGE model exists in container
 ```bash
 # Should show 133MB model.safetensors
-docker exec arifosmcp_server ls -lh /usr/src/app/aclip_cai/embeddings/bge-arifOS/
+docker exec arifosmcp_server ls -lh /usr/src/app/arifosmcp.intelligence/embeddings/bge-arifOS/
 ```
 
 **Step 3**: Rebuild and test
@@ -264,7 +264,7 @@ curl -s -X POST http://localhost:8080/tools/recall_memory \
 
 ### BGE Integration:
 - [ ] `docker logs arifosmcp_server | grep "BGE embeddings loaded"` shows success
-- [ ] `docker exec arifosmcp_server python3 -c "from aclip_cai.embeddings import embed; print(len(embed('test')))"` returns 768
+- [ ] `docker exec arifosmcp_server python3 -c "from arifosmcp.intelligence.embeddings import embed; print(len(embed('test')))"` returns 768
 - [ ] recall_memory response contains `"bge_available": true`
 - [ ] recall_memory response contains `"embedding_dims": 768`
 

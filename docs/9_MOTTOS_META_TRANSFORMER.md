@@ -78,7 +78,7 @@ Each tool now outputs:
 1. **`core/shared/mottos.py`** (NEW) — Central motto registry
 2. **`core/organs/_0_init.py`** — SessionToken includes motto
 3. **`core/pipeline.py`** — Stage motto tracking
-4. **`aaa_mcp/server.py`** — All 13 tools output stage-specific mottos
+4. **`arifosmcp.transport/server.py`** — All 13 tools output stage-specific mottos
 
 ---
 

@@ -8,7 +8,7 @@ Scope: arifOS node at `/root/arifOS`
 - Canonical repo path: `/root/arifOS`
 - GitHub origin: `https://github.com/ariffazil/arifos.git`
 - OpenCode project config: `opencode.json`
-- AAA MCP mode: local stdio (`/root/arifOS/.venv/bin/python -m arifos_aaa_mcp stdio`)
+- AAA MCP mode: local stdio (`/root/arifOS/.venv/bin/python -m arifosmcp.runtime stdio`)
 - MCP enabled: `true`
 - Skills detected: `aaa-governance`, `thermo-ops`
 - Agents detected: `arif-architect`, `devops-builder`, `recon-researcher`, `arifos-forge-agent.prompt`
@@ -37,7 +37,7 @@ Scope: arifOS node at `/root/arifOS`
 
 3. Keep L4 docs synced to runtime truth
    - Tool counts and naming differ across docs.
-   - Source-of-truth should be `aaa_mcp/server.py` tool registrations.
+   - Source-of-truth should be `arifosmcp.transport/server.py` tool registrations.
 
 ## Drift Check Commands
 

@@ -7,7 +7,7 @@ arifOS has been transformed from a **structural constitutional validator** into 
 ## Architecture Changes
 
 ### 1. New Constitutional Sampling Module
-**File:** `aclip_cai/core/constitutional_sampling.py`
+**File:** `arifosmcp.intelligence/core/constitutional_sampling.py`
 
 Provides governed LLM reasoning via `ctx.sample()`:
 - `CONSTITUTIONAL_SYSTEM_PROMPT` - Embeds F1-F13 into every LLM call

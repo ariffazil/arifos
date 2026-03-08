@@ -6,7 +6,7 @@ from typing import Any, Dict
 
 import pytest
 
-from aaa_mcp.external_gateways.perplexity_client import PerplexitySearchClient
+from arifosmcp.transport.external_gateways.perplexity_client import PerplexitySearchClient
 
 
 async def test_perplexity_client_no_api_key_returns_no_api_key(
@@ -56,7 +56,7 @@ async def test_perplexity_client_uses_citations_when_available(
         "choices": [{"message": {"content": "ignored when citations present"}}],
     }
 
-    import aaa_mcp.external_gateways.perplexity_client as mod
+    import arifosmcp.transport.external_gateways.perplexity_client as mod
 
     monkeypatch.setattr(
         mod.httpx, "AsyncClient", lambda **kwargs: _FakeAsyncClient(payload, **kwargs)
@@ -76,7 +76,7 @@ async def test_perplexity_client_bad_json_content(monkeypatch: pytest.MonkeyPatc
         "choices": [{"message": {"content": "not-json"}}],
     }
 
-    import aaa_mcp.external_gateways.perplexity_client as mod
+    import arifosmcp.transport.external_gateways.perplexity_client as mod
 
     monkeypatch.setattr(
         mod.httpx, "AsyncClient", lambda **kwargs: _FakeAsyncClient(payload, **kwargs)

@@ -1,7 +1,7 @@
 """Static contract checks for legacy REST bridge schemas.
 
 These checks prevent schema drift where REST advertises stricter inputs
-than the canonical callable signatures exposed by `arifos_aaa_mcp.server`.
+than the canonical callable signatures exposed by `arifosmcp.runtime.server`.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ import ast
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-REST_FILE = ROOT / "aaa_mcp" / "rest.py"
+REST_FILE = ROOT / "arifosmcp.transport" / "rest.py"
 
 
 def _load_tool_schemas() -> dict[str, dict]:
@@ -21,7 +21,7 @@ def _load_tool_schemas() -> dict[str, dict]:
         for target in node.targets:
             if isinstance(target, ast.Name) and target.id == "TOOL_SCHEMAS":
                 return ast.literal_eval(node.value)
-    raise AssertionError("TOOL_SCHEMAS not found in aaa_mcp/rest.py")
+    raise AssertionError("TOOL_SCHEMAS not found in arifosmcp.transport/rest.py")
 
 
 def test_rest_schema_inspect_file_matches_public_signature() -> None:

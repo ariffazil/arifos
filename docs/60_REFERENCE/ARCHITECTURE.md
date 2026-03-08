@@ -31,13 +31,13 @@ L0 is implemented across four packages with strict architectural boundaries:
 ```
  Layer           Package             Role                       Rule
 ---------------------------------------------------------------------------
- Surface         arifos_aaa_mcp/     Canonical PyPI entry       Public contracts & REST
- Transport       aaa_mcp/            MCP adapter (stdio/SSE/HTTP)   ZERO decision logic
- Intelligence    aclip_cai/          Triad backend & 9-Sense    Federation & sensing
+ Surface         arifosmcp.runtime/     Canonical PyPI entry       Public contracts & REST
+ Transport       arifosmcp.transport/            MCP adapter (stdio/SSE/HTTP)   ZERO decision logic
+ Intelligence    arifosmcp.intelligence/          Triad backend & 9-Sense    Federation & sensing
  Kernel          core/               Pure decision logic        ZERO transport imports
 ```
 
-**Boundary violations are hard errors.** `core/` must never import transport or intelligence providers. `aaa_mcp/` must never contain decision logic.
+**Boundary violations are hard errors.** `core/` must never import transport or intelligence providers. `arifosmcp.transport/` must never contain decision logic.
 
 ### Data Flow: Request to Verdict
 
@@ -46,16 +46,16 @@ Client (Claude Desktop / Cursor / ChatGPT / n8n)
   |
   |  stdio / SSE / HTTP
   v
-arifos_aaa_mcp/server.py       @mcp.tool() wrappers + governance envelope
+arifosmcp.runtime/server.py       @mcp.tool() wrappers + governance envelope
   |
   v
-aaa_mcp/server.py              FastMCP 3.0 internal 13-tool surface
+arifosmcp.transport/server.py              FastMCP 3.0 internal 13-tool surface
   |
   v
-aclip_cai/triad/*              Backend logic (anchor, reason, forge, seal, ...)
+arifosmcp.intelligence/triad/*              Backend logic (anchor, reason, forge, seal, ...)
   |
   v
-aclip_cai/core/kernel.py       ConstitutionalKernel singleton (audit, thermo, vault)
+arifosmcp.intelligence/core/kernel.py       ConstitutionalKernel singleton (audit, thermo, vault)
   |
   v
 core/organs/*                   7-Organ pipeline (000-999)
@@ -154,7 +154,7 @@ Stage 222 (THINK) runs internally inside `reason_mind` -- three parallel paths (
 
 ## 13 Canonical MCP Tools
 
-All defined in `aaa_mcp/server.py` with `@mcp.tool()` decorators. Backend logic in `aclip_cai/triad/`.
+All defined in `arifosmcp.transport/server.py` with `@mcp.tool()` decorators. Backend logic in `arifosmcp.intelligence/triad/`.
 
 ### Governance Spine (8 tools)
 
@@ -249,12 +249,12 @@ core/
  `-- scheduler/manager.py          Stage dependency tracking
 ```
 
-### aclip_cai/ -- Intelligence Layer
+### arifosmcp.intelligence/ -- Intelligence Layer
 
 Backend logic for MCP tools + 9-Sense sensory tools.
 
 ```
-aclip_cai/
+arifosmcp.intelligence/
  |-- __init__.py                   v1.0.0, "ACLIP -- Console for AI on arifOS"
  |-- mcp_server.py                 FastMCP tool registry (9 triad + sensory tools)
  |-- mcp_bridge.py                 Legacy bridge (Ed25519 + Shannon entropy)
@@ -299,14 +299,14 @@ aclip_cai/
      `-- log_reader.py             Streaming log access
 ```
 
-### aaa_mcp/ -- Transport Adapter
+### arifosmcp.transport/ -- Transport Adapter
 
 MCP transport layer. Zero decision logic.
 
 ```
-aaa_mcp/
+arifosmcp.transport/
  |-- server.py                     INTERNAL 13-tool FastMCP surface
- |-- __main__.py                   CLI dispatcher (delegates to arifos_aaa_mcp)
+ |-- __main__.py                   CLI dispatcher (delegates to arifosmcp.runtime)
  |-- rest.py                       REST API bridge (legacy)
  |-- streamable_http_server.py     HTTP streaming transport
  |-- vault_sqlite.py               SQLite vault fallback
@@ -345,12 +345,12 @@ aaa_mcp/
  `-- wrappers/                     K8s, OPA policy integration
 ```
 
-### arifos_aaa_mcp/ -- Canonical PyPI Surface
+### arifosmcp.runtime/ -- Canonical PyPI Surface
 
-The external-facing package. Wraps `aaa_mcp` with governance envelope.
+The external-facing package. Wraps `arifosmcp.transport` with governance envelope.
 
 ```
-arifos_aaa_mcp/
+arifosmcp.runtime/
  |-- __main__.py                   CLI: default SSE, reads HOST/PORT env vars
  |-- server.py                     create_aaa_mcp_server() -- 13 @mcp.tool() with governance
  |-- governance.py                 LAW_13_CATALOG, TOOL_DIALS_MAP, wrap_tool_output()
@@ -385,13 +385,13 @@ arifos_aaa_mcp/
 ```
 External Client
        |
-  arifos_aaa_mcp.server         PUBLIC (wraps with governance envelope)
+  arifosmcp.runtime.server         PUBLIC (wraps with governance envelope)
        |
-  aaa_mcp.server                INTERNAL (FastMCP instance)
+  arifosmcp.transport.server                INTERNAL (FastMCP instance)
        |
-  aclip_cai.triad.*             INTELLIGENCE (anchor, reason, forge, seal, ...)
+  arifosmcp.intelligence.triad.*             INTELLIGENCE (anchor, reason, forge, seal, ...)
        |
-  aclip_cai.core.kernel         SINGLETON (audit, thermo, vault, lifecycle)
+  arifosmcp.intelligence.core.kernel         SINGLETON (audit, thermo, vault, lifecycle)
        |
   core.organs.*                  KERNEL (sense, think, reason, empathize, judge, seal)
        |
@@ -401,11 +401,11 @@ External Client
   core.shared.crypto             CRYPTO (Ed25519, SHA-256, Merkle)
 ```
 
-### Critical Imports in aaa_mcp/server.py
+### Critical Imports in arifosmcp.transport/server.py
 
 ```python
 from fastmcp import FastMCP
-from aclip_cai.triad import align, anchor, audit, forge, integrate, reason, respond, seal, think, validate
+from arifosmcp.intelligence.triad import align, anchor, audit, forge, integrate, reason, respond, seal, think, validate
 ```
 
 ### Decorator Order (Critical)
@@ -456,10 +456,10 @@ Novelty measured by: Jaccard n-gram similarity, fingerprint dedup, entropy reduc
 
 | Transport | Command | Use Case |
 |-----------|---------|----------|
-| **stdio** | `python -m arifos_aaa_mcp stdio` | Claude Desktop, Cursor IDE |
-| **SSE** (default) | `python -m arifos_aaa_mcp` | VPS deployment (Coolify/Hostinger) |
-| **HTTP** | `python -m arifos_aaa_mcp http` | Streamable HTTP, ChatGPT, cloud |
-| **REST** | `python -m aaa_mcp rest` | FastAPI bridge with OpenAPI |
+| **stdio** | `python -m arifosmcp.runtime stdio` | Claude Desktop, Cursor IDE |
+| **SSE** (default) | `python -m arifosmcp.runtime` | VPS deployment (Coolify/Hostinger) |
+| **HTTP** | `python -m arifosmcp.runtime http` | Streamable HTTP, ChatGPT, cloud |
+| **REST** | `python -m arifosmcp.transport rest` | FastAPI bridge with OpenAPI |
 
 ### Live Endpoints
 
@@ -505,11 +505,11 @@ docker-compose up -d                               # Traefik + Coolify routing
 | `core/organs/` | 5 | ~2,300 | 7-organ pipeline |
 | `core/shared/` | 12 | ~4,100 | Physics, floors, types, crypto |
 | `core/kernel/` | 9 | ~2,600 | Evaluator, decorator, orchestrator |
-| `aclip_cai/triad/` | 10 | ~2,500 | Trinity backend |
-| `aclip_cai/core/` | 8 | ~2,000 | Constitutional singletons |
-| `aclip_cai/tools/` | 11 | ~1,500 | 9-Sense sensory tools |
-| `aaa_mcp/` | ~70 | ~5,000 | Transport adapter |
-| `arifos_aaa_mcp/` | 10 | ~2,500 | PyPI surface + governance |
+| `arifosmcp.intelligence/triad/` | 10 | ~2,500 | Trinity backend |
+| `arifosmcp.intelligence/core/` | 8 | ~2,000 | Constitutional singletons |
+| `arifosmcp.intelligence/tools/` | 11 | ~1,500 | 9-Sense sensory tools |
+| `arifosmcp.transport/` | ~70 | ~5,000 | Transport adapter |
+| `arifosmcp.runtime/` | 10 | ~2,500 | PyPI surface + governance |
 | `333_APPS/` | 50+ | ~3,000 | L1-L7 application stack |
 | `tests/` | 154 | ~8,000 | Test suite (25 categories) |
 | **Total** | **~380** | **~45,000** | |

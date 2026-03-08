@@ -64,7 +64,7 @@ identical English precedents.
 | Semantic quality | High | Adequate |
 | arifOS verdict | **CANONICAL** | RETIRED |
 
-BGE-M3 is loaded at container startup via `aclip_cai/embeddings/__init__.py`.
+BGE-M3 is loaded at container startup via `arifosmcp.intelligence/embeddings/__init__.py`.
 
 ---
 

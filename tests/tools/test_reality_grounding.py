@@ -14,10 +14,10 @@ sys.modules["playwright"] = MagicMock()
 sys.modules["playwright.async_api"] = MagicMock()
 sys.modules["bs4"] = MagicMock()
 
-from aaa_mcp.tools import reality_grounding
+from arifosmcp.transport.tools import reality_grounding
 
 # Now, we can import the module
-from aaa_mcp.tools.reality_grounding import (
+from arifosmcp.transport.tools.reality_grounding import (
     BraveSearchEngine,
     DDGSEngine,
     PlaywrightDDGEngine,
@@ -111,7 +111,7 @@ async def test_throttle_governor_waits_correctly():
     assert (end_time - start_time) >= interval
 
 
-@patch("aaa_mcp.tools.reality_grounding.DDGS_AVAILABLE", True)
+@patch("arifosmcp.transport.tools.reality_grounding.DDGS_AVAILABLE", True)
 def test_ddgs_engine_asean_bias_query_build():
     """
     Given: The DDGSEngine.
@@ -158,10 +158,10 @@ def test_should_reality_check_scenarios(query, expected_result, reason):
 
 
 @patch.dict(os.environ, {"BRAVE_API_KEY": "test-key"}, clear=True)
-@patch("aaa_mcp.tools.reality_grounding.PlaywrightGoogleEngine")
-@patch("aaa_mcp.tools.reality_grounding.PlaywrightDDGEngine")
-@patch("aaa_mcp.tools.reality_grounding.DDGSEngine")
-@patch("aaa_mcp.tools.reality_grounding.BraveSearchEngine")
+@patch("arifosmcp.transport.tools.reality_grounding.PlaywrightGoogleEngine")
+@patch("arifosmcp.transport.tools.reality_grounding.PlaywrightDDGEngine")
+@patch("arifosmcp.transport.tools.reality_grounding.DDGSEngine")
+@patch("arifosmcp.transport.tools.reality_grounding.BraveSearchEngine")
 def test_cascade_initializes_engines_with_brave_key(
     mock_brave, mock_ddgs, mock_playwright_ddg, mock_playwright_google
 ):
@@ -179,13 +179,13 @@ def test_cascade_initializes_engines_with_brave_key(
     assert cascade.engines[0] == mock_brave.return_value
 
 
-@patch("aaa_mcp.tools.reality_grounding.DDGS_AVAILABLE", True)
-@patch("aaa_mcp.tools.reality_grounding.PLAYWRIGHT_AVAILABLE", True)
+@patch("arifosmcp.transport.tools.reality_grounding.DDGS_AVAILABLE", True)
+@patch("arifosmcp.transport.tools.reality_grounding.PLAYWRIGHT_AVAILABLE", True)
 @patch.dict(os.environ, {}, clear=True)
-@patch("aaa_mcp.tools.reality_grounding.PlaywrightGoogleEngine")
-@patch("aaa_mcp.tools.reality_grounding.PlaywrightDDGEngine")
-@patch("aaa_mcp.tools.reality_grounding.DDGSEngine")
-@patch("aaa_mcp.tools.reality_grounding.BraveSearchEngine")
+@patch("arifosmcp.transport.tools.reality_grounding.PlaywrightGoogleEngine")
+@patch("arifosmcp.transport.tools.reality_grounding.PlaywrightDDGEngine")
+@patch("arifosmcp.transport.tools.reality_grounding.DDGSEngine")
+@patch("arifosmcp.transport.tools.reality_grounding.BraveSearchEngine")
 def test_cascade_skips_brave_without_key(
     mock_brave, mock_ddgs, mock_playwright_ddg, mock_playwright_google
 ):
@@ -274,10 +274,10 @@ async def test_cascade_search_stops_after_success():
 
 
 @pytest.mark.asyncio
-@patch("aaa_mcp.tools.reality_grounding.get_cascade")
-@patch("aaa_mcp.tools.reality_grounding.get_browser")
-@patch("aaa_mcp.tools.reality_grounding.route_refuse")
-@patch("aaa_mcp.tools.reality_grounding.should_reality_check")
+@patch("arifosmcp.transport.tools.reality_grounding.get_cascade")
+@patch("arifosmcp.transport.tools.reality_grounding.get_browser")
+@patch("arifosmcp.transport.tools.reality_grounding.route_refuse")
+@patch("arifosmcp.transport.tools.reality_grounding.should_reality_check")
 async def test_reality_check_fetches_sources_when_requested(
     mock_should_check, mock_refuse, mock_get_browser, mock_get_cascade
 ):

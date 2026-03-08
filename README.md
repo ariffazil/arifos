@@ -32,7 +32,7 @@ fastmcp run dev.fastmcp.json    # Development: stdio transport (Claude Desktop, 
 fastmcp run prod.fastmcp.json   # Production: HTTP transport at /mcp/
 
 # Or directly with Python
-python -m arifos_aaa_mcp
+python -m arifosmcp.runtime
 ```
 
 ### Available Transports
@@ -68,7 +68,7 @@ pytest tests/
 
 ```bash
 # Run with uvicorn (HTTP mode)
-uvicorn arifos_aaa_mcp.server:app --reload
+uvicorn arifosmcp.runtime.server:app --reload
 
 # Or with fastmcp
 fastmcp dev
@@ -81,7 +81,7 @@ fastmcp dev
 ```
 arifosmcp/
 ├── core/                    # Constitutional kernel
-├── arifos_aaa_mcp/          # MCP server implementation
+├── arifosmcp.runtime/          # MCP server implementation
 │   ├── server.py            # Main FastMCP server
 │   ├── governance.py        # 13-Floor governance engine
 │   ├── contracts.py         # Constitutional contracts
@@ -147,7 +147,7 @@ Add to Cline MCP settings:
 {
   "arifos": {
     "command": "python",
-    "args": ["-m", "arifos_aaa_mcp"]
+    "args": ["-m", "arifosmcp.runtime"]
   }
 }
 ```

@@ -21,7 +21,7 @@ Root directory complexity was reduced by relocating 38+ secondary artifacts into
 
 The root directory now contains ONLY the core active organism and infrastructure:
 
-- **Organism Core:** `aaa_mcp`, `aclip_cai`, `arifos_aaa_mcp`, `core`
+- **Organism Core:** `arifosmcp.transport`, `arifosmcp.intelligence`, `arifosmcp.runtime`, `core`
 - **Infrastructure:** `config`, `data`, `deployment`, `metadata`, `packages`, `scripts`, `vps`
 - **Canonical Files:** `pyproject.toml`, `README.md`, `LICENSE`, `CHANGELOG.md`, `GITIGNORE`, `uv.lock`.
 

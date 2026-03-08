@@ -110,16 +110,16 @@ curl -N https://arifosmcp.arif-fazil.com/sse
 
 | File | Change |
 |------|--------|
-| `aaa_mcp/rest.py` | **Full MCP JSON-RPC protocol** in `messages_endpoint()` — supports `initialize`, `notifications/initialized`, `ping`, `tools/list`, `tools/call` |
-| `aaa_mcp/rest.py` | **Route ordering fixed** — catch-all `/{tool_name}` moved to END of routes list |
-| `aaa_mcp/rest.py` | **POST /sse returns 405** — Added POST to `/sse` route methods, function checks request.method |
-| `aaa_mcp/rest.py` | **FunctionTool calling fixed** — Uses `.fn` attribute to access underlying function (FastMCP FunctionTool objects are not callable) |
+| `arifosmcp.transport/rest.py` | **Full MCP JSON-RPC protocol** in `messages_endpoint()` — supports `initialize`, `notifications/initialized`, `ping`, `tools/list`, `tools/call` |
+| `arifosmcp.transport/rest.py` | **Route ordering fixed** — catch-all `/{tool_name}` moved to END of routes list |
+| `arifosmcp.transport/rest.py` | **POST /sse returns 405** — Added POST to `/sse` route methods, function checks request.method |
+| `arifosmcp.transport/rest.py` | **FunctionTool calling fixed** — Uses `.fn` attribute to access underlying function (FastMCP FunctionTool objects are not callable) |
 
 ### Architecture Notes
 
 - **Route Ordering Critical:** Starlette matches routes in order. The catch-all `/{tool_name}`
   was intercepting `/sse` and `/messages` POST requests, causing 404 errors.
-- **FastMCP FunctionTool:** When importing tools from `aaa_mcp.server`, they are `FunctionTool`
+- **FastMCP FunctionTool:** When importing tools from `arifosmcp.transport.server`, they are `FunctionTool`
   wrapper objects, not plain functions. Must use `tool.fn(**args)` to call.
 - **JSON-RPC 2.0 Compliance:** All responses include `jsonrpc: "2.0"`, proper `id` echoing,
   and standard error codes (`-32601` for method not found, `-32603` for internal error).
@@ -230,14 +230,14 @@ curl https://arifosmcp.arif-fazil.com/health
 
 | File | Change |
 |------|--------|
-| `aaa_mcp/infrastructure/monitoring.py` | `check_all` now merges dict results; `self.status` correctly reflects `{"status": False}`; `PipelineMetrics.entropy_delta` field added; `Callable`/`Any` type hints fixed |
-| `aaa_mcp/infrastructure/monitoring.py` | `check_postgres` → `{"status": "connected", "lag_ms": N}` |
-| `aaa_mcp/infrastructure/monitoring.py` | `check_redis` → full `health_check()` dict (version, mode) |
-| `aaa_mcp/infrastructure/monitoring.py` | `check_core_pipeline` → `{"verdict": …, "session_id": …}` |
-| `aaa_mcp/infrastructure/monitoring.py` | Critical tool list uses MCP verbs (`anchor`, `reason`, …) |
-| `aaa_mcp/rest.py` | Starlette `lifespan` context — health checks register on app startup |
-| `aaa_mcp/rest.py` | Restored missing imports (`datetime`, `asyncio`, `uvicorn`) |
-| `aaa_mcp/services/redis_client.py` | `redis.from_url` replaces 35-line manual URL parser |
+| `arifosmcp.transport/infrastructure/monitoring.py` | `check_all` now merges dict results; `self.status` correctly reflects `{"status": False}`; `PipelineMetrics.entropy_delta` field added; `Callable`/`Any` type hints fixed |
+| `arifosmcp.transport/infrastructure/monitoring.py` | `check_postgres` → `{"status": "connected", "lag_ms": N}` |
+| `arifosmcp.transport/infrastructure/monitoring.py` | `check_redis` → full `health_check()` dict (version, mode) |
+| `arifosmcp.transport/infrastructure/monitoring.py` | `check_core_pipeline` → `{"verdict": …, "session_id": …}` |
+| `arifosmcp.transport/infrastructure/monitoring.py` | Critical tool list uses MCP verbs (`anchor`, `reason`, …) |
+| `arifosmcp.transport/rest.py` | Starlette `lifespan` context — health checks register on app startup |
+| `arifosmcp.transport/rest.py` | Restored missing imports (`datetime`, `asyncio`, `uvicorn`) |
+| `arifosmcp.transport/services/redis_client.py` | `redis.from_url` replaces 35-line manual URL parser |
 
 ### Codebase Consolidation (2026.02.15)
 

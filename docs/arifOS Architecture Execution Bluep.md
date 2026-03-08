@@ -92,7 +92,7 @@ Stage	Function	Thermodynamic Checkpoint	Output State
 999_SEAL	Memory persistence and audit finalization	VAULT999 hash chain	Permanent record
 Each stage verifies three invariants: ΔS measurement (entropy decrease/stable), Peace² verification (non-destructive stability), and Ω₀ checking (uncertainty acknowledged, 3–5% band) (PyPI) . The Amanah principle maintains reversibility—cognitive acts can be undone if subsequent stages identify concerns.
 1.1.2.5 L4: Tools — MCP Ecosystem Integration
-Layer 4 provides constitutional mediation of external capabilities through the Model Context Protocol (MCP) (PyPI) . The aaa_mcp adapter exposes arifOS governance to any MCP-compatible client (Claude Desktop, Cline, Zed, OpenClaw) with strict adapter/kernel separation: adapter handles transport formatting with zero decision logic; kernel contains all governance enforcement with zero transport dependencies (PyPI) .
+Layer 4 provides constitutional mediation of external capabilities through the Model Context Protocol (MCP) (PyPI) . The arifosmcp.transport adapter exposes arifOS governance to any MCP-compatible client (Claude Desktop, Cline, Zed, OpenClaw) with strict adapter/kernel separation: adapter handles transport formatting with zero decision logic; kernel contains all governance enforcement with zero transport dependencies (PyPI) .
 Current tool inventory (railway.com) : | Tool | Function | |——|———-| | INIT_000 | Session initialization and constitutional binding | | AGI_GENIUS | General intelligence task execution with governance | | ASI_ACT | Advanced system interaction with heightened scrutiny | | APEX_JUDGE | Final constitutional verdict authority | | VAULT_999 | Audit logging and cryptographic sealing | | Trinity Loop | Multi-agent consensus orchestration |
 1.1.2.6 L5: Agents — Multi-Agent Federation with Specialized Roles
 Layer 5 hosts the ΔΩΨΚ federation protocol coordinating four specialized agents through constitutional handoff procedures (PyPI) . Agent configuration via config/agents.yaml specifies LLM assignments, inference parameters, and role prompts while enforcing session isolation guarantees (same LLM cannot occupy multiple roles simultaneously).
@@ -142,7 +142,7 @@ Docker provides process-level isolation complementing cognitive isolation guaran
 Standard installation: pip install arifos retrieves current stable release (2026.2.17-FORGE-VPS-SEAL as of February 2026) with complete kernel and MCP adapter (PyPI) . Package contents:
 Component	Size	Function
 core/	~2.3 MB	Governance kernel with 13 floors
-aaa_mcp/	~890 KB	MCP transport adapter
+arifosmcp.transport/	~890 KB	MCP transport adapter
 L1_THEORY/canon/	~340 KB	Constitutional rule specifications
 333_APPS/	~1.1 MB	Certified skill library
 VAULT999/	~560 KB	Audit logging infrastructure
@@ -171,13 +171,13 @@ python -c "from arifos_core.validation import validate_full; print(validate_full
 
 # Start MCP server (choose transport)
 
-python -m aaa_mcp          # Standard I/O for Claude Desktop
-python -m aaa_mcp sse      # Server-Sent Events for web apps
-python -m aaa_mcp http     # HTTP REST for microservices
-3.1.2 Post-Installation Verification: python -m aaa_mcp --version
+python -m arifosmcp.transport          # Standard I/O for Claude Desktop
+python -m arifosmcp.transport sse      # Server-Sent Events for web apps
+python -m arifosmcp.transport http     # HTTP REST for microservices
+3.1.2 Post-Installation Verification: python -m arifosmcp.transport --version
 Version verification displays T000 version stamp (Libraries.io) :
 
-$ python -m aaa_mcp --version
+$ python -m arifosmcp.transport --version
 arifOS 2026.02.17-FORGE-VPS-SEAL
 L0_KERNEL: DEFINED
 8_LAYER_STACK: L0-L7 COMPLETE
@@ -192,7 +192,7 @@ git clone https://github.com/ariffazil/arifOS.git
 cd arifOS
 git checkout v2026.2.17  # Pin to specific release
 git verify-tag v2026.2.17  # Cryptographic verification if signed
-Repository structure follows constitutional layering with core/, aaa_mcp/, L1_THEORY/, 333_APPS/, VAULT999/, config/, deployment/, and tests/ directories (PyPI) .
+Repository structure follows constitutional layering with core/, arifosmcp.transport/, L1_THEORY/, 333_APPS/, VAULT999/, config/, deployment/, and tests/ directories (PyPI) .
 3.2.2 Bootstrap Script Execution: Platform-Specific Initialization
 3.2.2.1 Unix/Linux/macOS: ./bootstrap.sh
 
@@ -212,7 +212,7 @@ pip install --upgrade pip uv
 uv pip install -e ".[dev,postgres]"
 
 python -m pytest tests/ -v --tb=short
-echo "Bootstrap complete. Run: python -m aaa_mcp"
+echo "Bootstrap complete. Run: python -m arifosmcp.transport"
 3.2.2.2 Windows: bootstrap.bat
 
 @echo off
@@ -228,7 +228,7 @@ pip install --upgrade pip
 pip install -e ".[dev,postgres]"
 
 python -m pytest tests\ -v --tb=short
-echo Bootstrap complete. Run: python -m aaa_mcp
+echo Bootstrap complete. Run: python -m arifosmcp.transport
 3.2.3 Development Environment Configuration: Local venv or conda
 Tool	Command	Best For
 venv	python -m venv .venv	Standard Python workflows
@@ -239,9 +239,9 @@ ________________________________________
 4.1 Standard I/O Mode
 4.1.1 Terminal-Based Interactive Operation
 Stdio mode uses stdin/stdout JSON-RPC for direct process communication—minimal overhead, immediate feedback, ideal for development and debugging (PyPI) .
-4.1.2 Command Invocation: python -m aaa_mcp
+4.1.2 Command Invocation: python -m arifosmcp.transport
 
-python -m aaa_mcp
+python -m arifosmcp.transport
 
 # Server initializes, reads JSON-RPC from stdin, writes responses to stdout
 4.1.3 Use Case: Local Development and Debugging
@@ -249,9 +249,9 @@ Optimal for: interactive development, Claude Desktop integration, debugging with
 4.2 Server-Sent Events (SSE) Mode
 4.2.1 Real-Time Bidirectional Streaming
 SSE provides persistent HTTP connections with server-push for real-time updates, reducing latency versus polling (PyPI) .
-4.2.2 Command Invocation: python -m aaa_mcp sse
+4.2.2 Command Invocation: python -m arifosmcp.transport sse
 
-python -m aaa_mcp sse --host 0.0.0.0 --port 3000
+python -m arifosmcp.transport sse --host 0.0.0.0 --port 3000
 Parameter	Default	Description
 --host	127.0.0.1	Bind address (0.0.0.0 for all interfaces)
 --port	3000	TCP port for SSE endpoint
@@ -261,9 +261,9 @@ Enables: real-time dashboards with live Ω_ortho telemetry, progressive web apps
 4.3 HTTP REST API Mode
 4.3.1 Stateless Remote Access Interface
 HTTP mode provides stateless request/response semantics for microservice integration, maximizing interoperability with standard web infrastructure (PyPI) .
-4.3.2 Command Invocation: python -m aaa_mcp http
+4.3.2 Command Invocation: python -m arifosmcp.transport http
 
-python -m aaa_mcp http --host 0.0.0.0 --port 8080
+python -m arifosmcp.transport http --host 0.0.0.0 --port 8080
 Method	Path	Function
 POST	/mcp	Main MCP JSON-RPC endpoint
 GET	/health	Service health verification
@@ -407,7 +407,7 @@ ________________________________________
 Simplest deployment for rapid iteration:
 
 pip install arifos
-python -m aaa_mcp
+python -m arifosmcp.transport
 Suitable for: individual developers, initial prototyping, educational exploration (PyPI) .
 6.1.2 Environment Isolation: venv, conda, or pyenv
 Tool	Command	Best For
@@ -417,7 +417,7 @@ pyenv	pyenv virtualenv 3.12.0 arifos	Multiple Python versions
 6.1.3 Hot-Reload Configuration for Iterative Development
 
 pip install watchdog
-watchmedo auto-restart --directory=./config --pattern="*.yaml" -- python -m aaa_mcp
+watchmedo auto-restart --directory=./config --pattern="*.yaml" -- python -m arifosmcp.transport
 6.2 Virtual Private Server (VPS) Deployment
 6.2.1 Cloud Provider Selection: AWS, DigitalOcean, Linode, Azure, GCP
 Production deployment at arifosmcp.arif-fazil.com uses Hostinger VPS (72.62.71.199) with PostgreSQL + Redis + Systemd + SSL (Libraries.io) . Selection criteria:
@@ -460,7 +460,7 @@ User=arifos
 Group=arifos
 WorkingDirectory=/opt/arifos
 Environment=DATABASE_URL=postgresql://localhost/arifos
-ExecStart=/opt/arifos/.venv/bin/python -m aaa_mcp http --host 0.0.0.0 --port 8080
+ExecStart=/opt/arifos/.venv/bin/python -m arifosmcp.transport http --host 0.0.0.0 --port 8080
 Restart=always
 RestartSec=5
 
@@ -505,7 +505,7 @@ WORKDIR /app
 COPY --from=builder /usr/local/lib/python3.12/site-packages /usr/local/lib/python3.12/site-packages
 COPY . .
 EXPOSE 8080
-CMD ["python", "-m", "aaa_mcp", "http", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["python", "-m", "arifosmcp.transport", "http", "--host", "0.0.0.0", "--port", "8080"]
 6.3.2 Container Runtime: docker run -p 80:8080 arifos
 
 docker run -d \

@@ -1,7 +1,7 @@
 import pytest
-from aaa_mcp.rest import app as rest_app
-from aaa_mcp.streamable_http_server import app as streamable_app
-from aaa_mcp.infrastructure.monitoring import init_monitoring
+from arifosmcp.transport.rest import app as rest_app
+from arifosmcp.transport.streamable_http_server import app as streamable_app
+from arifosmcp.transport.infrastructure.monitoring import init_monitoring
 from starlette.testclient import TestClient
 
 

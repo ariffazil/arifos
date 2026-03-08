@@ -1,6 +1,6 @@
 import re
 
-filepath = r"C:\Users\User\arifOS\aaa_mcp\server.py"
+filepath = r"C:\Users\User\arifOS\arifosmcp.transport\server.py"
 with open(filepath, encoding="utf-8") as f:
     content = f.read()
 

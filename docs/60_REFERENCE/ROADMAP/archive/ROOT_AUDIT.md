@@ -48,7 +48,7 @@
 | 15 | `333_APPS/` | **Application Layer** | **PROTECTED** |
 | 16 | `ROADMAP/` | **Planning** | **PROTECTED** |
 | 17 | `VAULT999/` | **Immutable Ledger** | **PROTECTED** |
-| 18 | `aaa_mcp/` | MCP Server | API Layer |
+| 18 | `arifosmcp.transport/` | MCP Server | API Layer |
 | 19 | `arifos.egg-info/` | Python package | Gitignored |
 | 20 | `archive/` | Entropy sink | Essential |
 | 21 | `codebase/` | **Python Engine** | **PROTECTED** |

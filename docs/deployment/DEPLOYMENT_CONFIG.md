@@ -16,7 +16,7 @@ These are the ONLY files that matter for deployment:
 ├── start_server.py       ← Entry point (called by railway.toml)
 ├── requirements.txt      ← Python dependencies
 ├── pyproject.toml        ← Package metadata
-└── aaa_mcp/           ← Main application code
+└── arifosmcp.transport/           ← Main application code
     ├── core/             ← Tool registry, session context
     ├── transports/       ← SSE, stdio transports
     ├── tools/            ← 9 canonical MCP tools
@@ -51,7 +51,7 @@ git ls-files | grep railway
 # Should show: ./Dockerfile
 git ls-files | grep "^Dockerfile$"
 
-# Should NOT show: mcp/ (should be aaa_mcp/)
+# Should NOT show: mcp/ (should be arifosmcp.transport/)
 ls -d mcp 2>/dev/null && echo "WRONG: mcp/ exists" || echo "OK: mcp/ removed"
 ```
 
@@ -63,8 +63,8 @@ Before pushing to GitHub:
 
 - [ ] Only `railway.toml` exists (no `railway.json`)
 - [ ] Only `Dockerfile` exists at root (no `Dockerfile.old`)
-- [ ] `aaa_mcp/` exists (not `mcp/`)
-- [ ] `start_server.py` uses `aaa_mcp.*` imports
+- [ ] `arifosmcp.transport/` exists (not `mcp/`)
+- [ ] `start_server.py` uses `arifosmcp.transport.*` imports
 - [ ] Cache-bust comment updated in Dockerfile (if build changes)
 
 ### Pre-Deployment Verification Commands
@@ -74,7 +74,7 @@ Before pushing to GitHub:
 rm railway.json nixpacks.toml 2>/dev/null
 
 # 2. No bad relative imports
-grep -r "from \.\.\." --include="*.py" aaa_mcp/
+grep -r "from \.\.\." --include="*.py" arifosmcp.transport/
 
 # 3. Test imports locally
 docker run --rm -v $(pwd):/app -w /app python:3.12-slim \
@@ -87,7 +87,7 @@ docker run --rm -v $(pwd):/app -w /app python:3.12-slim \
 
 | Error | Cause | Fix |
 |-------|-------|-----|
-| `No module named mcp.X` | Local `mcp/` folder shadows PyPI | Rename to `aaa_mcp/` |
+| `No module named mcp.X` | Local `mcp/` folder shadows PyPI | Rename to `arifosmcp.transport/` |
 | `attempted relative import beyond top-level` | `...` import in mcp_server | Use absolute import from `codebase.X` |
 | Wrong start command | `railway.json` overriding | Delete `railway.json` |
 | Old code running | Docker cache | Update cache-bust timestamp |
@@ -111,7 +111,7 @@ Railway configuration. Tells Railway to:
 ### `Dockerfile`
 Builds the container:
 - Installs Python dependencies
-- Copies `aaa_mcp/` (not `mcp/`)
+- Copies `arifosmcp.transport/` (not `mcp/`)
 - Sets up health check
 - Runs `start_server.py`
 
@@ -121,7 +121,7 @@ Entry point:
 - Initializes 9 tools
 - Starts SSE transport on port 8080
 
-### `aaa_mcp/`
+### `arifosmcp.transport/`
 Main application (renamed from `mcp/` to avoid PyPI collision):
 - `core/` — Tool registry, validators
 - `transports/` — SSE, stdio

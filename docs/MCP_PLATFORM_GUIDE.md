@@ -51,7 +51,7 @@ pip install -e .
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "env": {
         "PYTHONPATH": "/path/to/arifOS",
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA"
@@ -74,7 +74,7 @@ Or use the simplified version:
   "mcp": {
     "aaa-mcp": {
       "type": "local",
-      "command": ["python", "-m", "aaa_mcp", "stdio"],
+      "command": ["python", "-m", "arifosmcp.transport", "stdio"],
       "cwd": ".",
       "enabled": true
     }
@@ -87,7 +87,7 @@ Or use the simplified version:
 # ~/.codex/config.toml
 [mcp.servers.aaa-mcp]
 command = "python"
-args = ["-m", "aaa_mcp", "stdio"]
+args = ["-m", "arifosmcp.transport", "stdio"]
 cwd = "/path/to/arifOS"
 ```
 
@@ -95,7 +95,7 @@ cwd = "/path/to/arifOS"
 
 ```bash
 # Start server manually to test
-python -m aaa_mcp stdio
+python -m arifosmcp.transport stdio
 
 # Expected output should show FastMCP banner and "✅ Container tools registered"
 ```
@@ -204,18 +204,18 @@ result = await forge(
 
 1. **STDIO** (Default): For desktop clients
    ```bash
-   python -m aaa_mcp stdio
+   python -m arifosmcp.transport stdio
    ```
 
 2. **SSE**: For web clients
    ```bash
-   python -m aaa_mcp sse
+   python -m arifosmcp.transport sse
    # Endpoint: /mcp/sse
    ```
 
 3. **Streamable HTTP**: For REST APIs
    ```bash
-   python -m aaa_mcp http
+   python -m arifosmcp.transport http
    # Endpoint: /mcp
    ```
 
@@ -267,7 +267,7 @@ Structured JSON logs available when `ARIFOS_LOGGING=structured`:
 {
   "timestamp": "2026-02-15T08:48:00Z",
   "level": "INFO",
-  "logger": "aaa_mcp.server",
+  "logger": "arifosmcp.transport.server",
   "message": "anchor tool invoked",
   "correlation_id": "SESS-ABC123DEF456",
   "tool": "anchor",
@@ -283,7 +283,7 @@ Structured JSON logs available when `ARIFOS_LOGGING=structured`:
 | Issue | Solution |
 |:------|:---------|
 | **"python: command not found"** | Use `python3` in MCP config |
-| **Connection refused** | Server not running; check `python -m aaa_mcp stdio` |
+| **Connection refused** | Server not running; check `python -m arifosmcp.transport stdio` |
 | **"F11_FAIL: No actor identity"** | Provide `actor_id` parameter |
 | **Tool returns placeholder** | Tool not fully implemented; use core pipeline instead |
 | **SSE timeout** | Use HTTP transport or check firewall |
@@ -325,7 +325,7 @@ Structured JSON logs available when `ARIFOS_LOGGING=structured`:
 
 **For configuration issues:**
 1. Check `333_APPS/L4_TOOLS/mcp-configs/` for platform examples
-2. Test with `python -m aaa_mcp stdio` first
+2. Test with `python -m arifosmcp.transport stdio` first
 3. Review logs for constitutional floor violations
 
 **For feature requests:**

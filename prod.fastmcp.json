@@ -5,7 +5,7 @@
   "description": "arifOS Constitutional AI Governance MCP Server — prod profile (HTTP, /mcp/ path)",
   "source": {
     "type": "filesystem",
-    "path": "arifos_aaa_mcp/server.py",
+    "path": "arifosmcp.runtime/server.py",
     "entrypoint": "mcp"
   },
   "environment": {

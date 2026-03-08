@@ -13,7 +13,7 @@
 | **Deploy to production** | [`MCP_DEPLOYMENT_GUIDE_V60.md`](MCP_DEPLOYMENT_GUIDE_V60.md) |
 | **Connect an AI client** | [`MCP_CLIENT_CONFIGURATIONS.md`](MCP_CLIENT_CONFIGURATIONS.md) |
 | **Deploy to Railway** | [`RAILWAY_DEPLOYMENT.md`](RAILWAY_DEPLOYMENT.md) |
-| **Quick reference** | [`../aaa_mcp/README.md`](../aaa_mcp/README.md) |
+| **Quick reference** | [`../arifosmcp.transport/README.md`](../arifosmcp.transport/README.md) |
 | **Architecture details** | [`V60_ARCHITECTURE.md`](V60_ARCHITECTURE.md) |
 
 ---
@@ -54,7 +54,7 @@
 | `core/organs/_2_asi.py` | Heart (F1/F5/F6/F9) |
 | `core/organs/_3_apex.py` | Soul (F3/F8/F9/F10/F13) |
 | `core/organs/_4_vault.py` | Memory (F1/F13) |
-| `aaa_mcp/server.py` | MCP tool definitions (13 tools) |
+| `arifosmcp.transport/server.py` | MCP tool definitions (13 tools) |
 | `scripts/start_server.py` | Production entry point |
 
 ---
@@ -105,10 +105,10 @@ docker run -p 8080:8080 \
 pip install -e .
 
 # Run stdio mode
-python -m aaa_mcp
+python -m arifosmcp.transport
 
 # Run SSE mode
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 
 # Validate
 python scripts/deploy_mcp.py --mode validate
@@ -127,7 +127,7 @@ python scripts/deploy_mcp.py --mode validate
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS",
       "env": {"ARIFOS_CONSTITUTIONAL_MODE": "AAA"},
       "alwaysAllow": ["init_gate", "trinity_forge", "agi_reason", "apex_verdict"]
@@ -145,7 +145,7 @@ python scripts/deploy_mcp.py --mode validate
   "mcpServers": {
     "arifos-local": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS"
     },
     "arifos-cloud": {
@@ -234,7 +234,7 @@ Before declaring deployment complete:
 | Issue | Fix |
 |-------|-----|
 | "Module not found: core" | `pip install -e .` |
-| "Port already in use" | `PORT=8000 python -m aaa_mcp` |
+| "Port already in use" | `PORT=8000 python -m arifosmcp.transport` |
 | "Core organs not available" | Check `core/` exists; reinstall |
 | "Connection refused" | Check server is running |
 | "Injection detected" | Check env vars for suspicious patterns |
@@ -265,7 +265,7 @@ Before declaring deployment complete:
 
 ```
 arifOS/
-├── aaa_mcp/                  # MCP server package
+├── arifosmcp.transport/                  # MCP server package
 │   ├── server.py             # 13 tool definitions
 │   ├── core/                 # Engine adapters
 │   │   ├── engine_adapters.py
@@ -307,10 +307,10 @@ arifOS/
 python scripts/deploy_mcp.py --mode validate
 
 # Run locally (stdio)
-python -m aaa_mcp
+python -m arifosmcp.transport
 
 # Run locally (SSE)
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 
 # Test health
 curl http://localhost:8080/health

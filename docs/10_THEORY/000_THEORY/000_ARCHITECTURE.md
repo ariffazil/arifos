@@ -123,8 +123,8 @@ The architecture reflects an organic **Artificial Organism** comprising:
 | Era Phase | Historical Pressure | New Subsystem | Repository Path | Role |
 |-----------|--------------------|---------------|-----------------|------|
 | **1. AAA (The Mind)** | Chatbot/Text Reasoning | Trinity Governance | `core/` | Sovereign logic, the 13 Floors, and constitutional judgment. |
-| **2. aclip (The Hands)** | AI Coding Operations | Internal Ops Protocol | `aclip_cai/` | C0-C9 Sensory infrastructure. File logic, read/write ops, perception. |
-| **3. arifOS MCP (Bridge)** | Tool Interoperability | External Tool Contract | `aaa_mcp/` & `arifos_aaa_mcp` | Transport standard. Escorts governed MCP tool calls across the wire. |
+| **2. aclip (The Hands)** | AI Coding Operations | Internal Ops Protocol | `arifosmcp.intelligence/` | C0-C9 Sensory infrastructure. File logic, read/write ops, perception. |
+| **3. arifOS MCP (Bridge)** | Tool Interoperability | External Tool Contract | `arifosmcp.transport/` & `arifosmcp.runtime` | Transport standard. Escorts governed MCP tool calls across the wire. |
 | **4. CIV VPS (Runtime)** | Agentic Deployment | Infra/Hosting Env | `vps/` | Persistent server ops, execution environment, civilization runtime. |
 
 ### 5.2 Canonical Memory Layout
@@ -135,11 +135,11 @@ The physical codebase precisely mirrors this evolutionary stack.
 arifOS/
 ├── core/                  # Phase 1: The Law & The Mind (L0 Kernel)
 │   ├── ...                # 13 Floors, Triad Definitions, Law Enforcement
-├── aclip_cai/             # Phase 2: The Senses (L2 Internal Ops)
+├── arifosmcp.intelligence/             # Phase 2: The Senses (L2 Internal Ops)
 │   ├── ...                # C0-C9 Reality Grounding, Internal logic
-├── aaa_mcp/               # Phase 3: The Transport Bridge (L2 Gateway)
+├── arifosmcp.transport/               # Phase 3: The Transport Bridge (L2 Gateway)
 │   └── mcp_server.py      # Governed FastMCP tool endpoints
-├── arifos_aaa_mcp/        # Phase 3: Public package entrypoint
+├── arifosmcp.runtime/        # Phase 3: Public package entrypoint
 ├── vps/                   # Phase 4: Deployments (Civilization Infra)
 ├── docs/10_THEORY/        # The Canon (Foundations, Laws, Architecture)
 ├── tests/                 # VALIDATION (Adversarial & Flow)

@@ -2,14 +2,14 @@
 
 ## Implemented
 
-- Canonical L5 composite naming is now `metabolic_loop` in `aaa_mcp/server.py`.
+- Canonical L5 composite naming is now `metabolic_loop` in `arifosmcp.transport/server.py`.
 - Legacy compatibility is preserved with a non-canonical Python alias:
   `metabolicloop -> metabolic_loop`.
-- Contract alias mapping added in `aaa_mcp/protocol/aaa_contract.py`:
+- Contract alias mapping added in `arifosmcp.transport/protocol/aaa_contract.py`:
   `"metabolicloop": "metabolic_loop"`.
 - New boundary guardrail tests added in `tests/canonical/test_architecture_boundaries_contract.py`:
   - AST-only import checks enforce that `core/` does not import transport/surface roots
-    (`fastmcp`, `fastapi`, `starlette`, `aaa_mcp`, `arifos_aaa_mcp`).
+    (`fastmcp`, `fastapi`, `starlette`, `arifosmcp.transport`, `arifosmcp.runtime`).
   - L5 composite contract is pinned to exactly `{"metabolic_loop"}` to prevent naming drift.
 
 ## Phase 2 Remaining

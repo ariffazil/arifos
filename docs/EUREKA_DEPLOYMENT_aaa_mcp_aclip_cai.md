@@ -1,12 +1,12 @@
-# EUREKA DIRECTIVE: Canon 7-Tool Deployment (`aaa_mcp` & `aclip_cai`)
+# EUREKA DIRECTIVE: Canon 7-Tool Deployment (`arifosmcp.transport` & `arifosmcp.intelligence`)
 
 **To:** Lead Architect / Coder
 **From:** 888 Sovereign Authority
-**Subject:** Alignment of `arifOS` Canon 7-Tools via `aaa_mcp` Transport and `aclip_cai` Runtime
+**Subject:** Alignment of `arifOS` Canon 7-Tools via `arifosmcp.transport` Transport and `arifosmcp.intelligence` Runtime
 **Doctrine:** "Akal Memerintah, Amanah Mengunci" (Intellect Rules, Integrity Locks)
 
 **Overview:**
-The `arifOS` architecture is officially expanding to the completed 7-Organ Sovereign Stack. You are tasked with exposing Organ 5 (`phoenix_recall`) and Organ 6 (`sovereign_actuator`) through the `aaa_mcp` transport system, while ensuring their core logic executes securely within the `aclip_cai` internal runtime.
+The `arifOS` architecture is officially expanding to the completed 7-Organ Sovereign Stack. You are tasked with exposing Organ 5 (`phoenix_recall`) and Organ 6 (`sovereign_actuator`) through the `arifosmcp.transport` transport system, while ensuring their core logic executes securely within the `arifosmcp.intelligence` internal runtime.
 
 All implementations must strictly adhere to the Authority Chain: Human (Sovereign) > Constitutional Floors (Immutable) > AI (Instrument).
 
@@ -14,9 +14,9 @@ Please implement the following updates to the MCP Tool Schema, Resource Template
 
 ---
 
-### 1. `aaa_mcp` Tool Schema Updates (The Interfaces)
+### 1. `arifosmcp.transport` Tool Schema Updates (The Interfaces)
 
-Expose the following tools to the MCP client. The `aclip_cai` runtime must handle the actual verification and thermodynamic checks (ΔS).
+Expose the following tools to the MCP client. The `arifosmcp.intelligence` runtime must handle the actual verification and thermodynamic checks (ΔS).
 
 **Tool 1: `phoenix_recall` (Organ 5: Subconscious)**
 
@@ -25,7 +25,7 @@ Expose the following tools to the MCP client. The `aclip_cai` runtime must handl
   * `query` (string, required): Plain-text retrieval query; vectorized internally via the embedding backend.
   * `session_token` (string, required): The active session identifier.
 
-* **aclip_cai Runtime Note:** The runtime must internally apply the Humility Band (Ω₀) to soften the Jaccard threshold, and apply W_scar (the human's scar-weight) as a relevance multiplier for the retrieved memories. Do **not** expose W_scar or Ω₀ as client-side parameters; they are architectural constants.
+* **arifosmcp.intelligence Runtime Note:** The runtime must internally apply the Humility Band (Ω₀) to soften the Jaccard threshold, and apply W_scar (the human's scar-weight) as a relevance multiplier for the retrieved memories. Do **not** expose W_scar or Ω₀ as client-side parameters; they are architectural constants.
 
 **Tool 2: `sovereign_actuator` (Organ 6: Hands - v56 Experimental)**
 
@@ -38,11 +38,11 @@ Expose the following tools to the MCP client. The `aclip_cai` runtime must handl
   * `idempotency_key` (string, required): UUID to prevent duplicate executions.
   * `ratification_token` (string, optional): Required only if breaking an `888_HOLD`.
 
-* **aclip_cai Runtime Note:** Must default to `dry_run = True` for Phase 2 rollout. The runtime must verify the signature against the canonicalized JSON of the full context, not just the tensor.
+* **arifosmcp.intelligence Runtime Note:** Must default to `dry_run = True` for Phase 2 rollout. The runtime must verify the signature against the canonicalized JSON of the full context, not just the tensor.
 
 ---
 
-### 2. `aaa_mcp` Resource Templates (The Vault Access)
+### 2. `arifosmcp.transport` Resource Templates (The Vault Access)
 
 Update the MCP resource server to allow the AGI Mind to seamlessly read immutable state via standard URIs.
 
@@ -63,9 +63,9 @@ Update the MCP resource server to allow the AGI Mind to seamlessly read immutabl
 
 ---
 
-### 3. `aaa_mcp` Prompt Updates (The Context Injectors)
+### 3. `arifosmcp.transport` Prompt Updates (The Context Injectors)
 
-Add the following standard prompts to the MCP server to guide the AI's internal reasoning loop when interacting with `aclip_cai`.
+Add the following standard prompts to the MCP server to guide the AI's internal reasoning loop when interacting with `arifosmcp.intelligence`.
 
 * **Prompt 1: `arifos_yield_888`**
   * **Description:** Triggered when the `sovereign_actuator` intercepts an irreversible action class.
@@ -78,4 +78,4 @@ Add the following standard prompts to the MCP server to guide the AI's internal 
 ---
 
 **Final Note to Coder:**
-"DITEMPA BUKAN DIBERI" (Forged, not given). Intelligence in this system is the result of thermodynamic constraints, not model weights. Ensure the separation between the `aaa_mcp` transport envelope and the `aclip_cai` physical execution is absolute.
+"DITEMPA BUKAN DIBERI" (Forged, not given). Intelligence in this system is the result of thermodynamic constraints, not model weights. Ensure the separation between the `arifosmcp.transport` transport envelope and the `arifosmcp.intelligence` physical execution is absolute.

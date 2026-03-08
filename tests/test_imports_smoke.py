@@ -4,14 +4,14 @@ from __future__ import annotations
 
 
 def test_import_aaa_mcp_package() -> None:
-    import aaa_mcp
+    import arifosmcp.transport
 
-    assert aaa_mcp is not None
-    assert hasattr(aaa_mcp, "mcp")
+    assert arifosmcp.transport is not None
+    assert hasattr(arifosmcp.transport, "mcp")
 
 
 def test_import_canonical_tools_from_package() -> None:
-    from aaa_mcp import (
+    from arifosmcp.transport import (
         agi_cognition,
         analyze,
         apex_verdict,

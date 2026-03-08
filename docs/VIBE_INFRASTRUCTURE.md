@@ -241,7 +241,7 @@ def simplify_response(gateway_result):
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "env": {
         "ARIFOS_GATEWAY_URL": "https://aaamcp.arif-fazil.com"
       }

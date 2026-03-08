@@ -19,13 +19,13 @@ class TestQuadWitnessIntegration:
     
     def test_imports_work(self):
         """Verify all new imports work correctly."""
-        from aaa_mcp.server import compute_verifier_witness, build_governance_proof
-        from aclip_cai.triad.psi import PsiShadow, AttackResult
+        from arifosmcp.transport.server import compute_verifier_witness, build_governance_proof
+        from arifosmcp.intelligence.triad.psi import PsiShadow, AttackResult
         print("✅ All imports successful")
     
     def test_psi_shadow_end_to_end(self):
         """Test Ψ-Shadow through complete attack analysis."""
-        from aclip_cai.triad.psi import PsiShadow
+        from arifosmcp.intelligence.triad.psi import PsiShadow
         
         shadow = PsiShadow()
         
@@ -48,7 +48,7 @@ class TestQuadWitnessIntegration:
     
     def test_governance_proof_includes_w4(self):
         """Verify governance proof includes W4 and verifier."""
-        from aaa_mcp.server import build_governance_proof
+        from arifosmcp.transport.server import build_governance_proof
         
         result = build_governance_proof(
             continuity_ok=True,
@@ -84,7 +84,7 @@ class TestQuadWitnessIntegration:
     
     def test_destructive_action_blocked(self):
         """Verify destructive action is blocked by Quad-Witness."""
-        from aaa_mcp.server import build_governance_proof
+        from arifosmcp.transport.server import build_governance_proof
         
         result = build_governance_proof(
             continuity_ok=True,
@@ -116,7 +116,7 @@ class TestQuadWitnessIntegration:
     
     def test_safe_action_allowed(self):
         """Verify safe action passes Quad-Witness."""
-        from aaa_mcp.server import build_governance_proof
+        from arifosmcp.transport.server import build_governance_proof
         
         result = build_governance_proof(
             continuity_ok=True,
@@ -148,7 +148,7 @@ class TestQuadWitnessIntegration:
     
     def test_bft_3_of_4_consensus(self):
         """Verify 3 strong + 1 moderate passes consensus."""
-        from aaa_mcp.server import build_governance_proof
+        from arifosmcp.transport.server import build_governance_proof
         
         # All high scores should give perfect consensus
         result = build_governance_proof(
@@ -177,7 +177,7 @@ class TestQuadWitnessIntegration:
     
     def test_verifier_witness_structure(self):
         """Verify verifier witness has correct structure."""
-        from aaa_mcp.server import compute_verifier_witness
+        from arifosmcp.transport.server import compute_verifier_witness
         
         result = compute_verifier_witness(
             context={},
@@ -205,7 +205,7 @@ class TestQuadWitnessIntegration:
     
     def test_w4_vs_w3_backward_compatibility(self):
         """Verify W3 still computed for backward compatibility."""
-        from aaa_mcp.server import build_governance_proof
+        from arifosmcp.transport.server import build_governance_proof
         
         result = build_governance_proof(
             continuity_ok=True,
@@ -239,7 +239,7 @@ class TestQuadWitnessIntegration:
     
     def test_critique_thought_uses_psi_shadow(self):
         """Verify critique_thought tool uses PsiShadow."""
-        from aaa_mcp.server import critique_thought
+        from arifosmcp.transport.server import critique_thought
         import asyncio
         
         # Just verify the function exists and has correct signature
@@ -250,8 +250,8 @@ class TestQuadWitnessIntegration:
 
 def test_constitutional_compliance():
     """Final constitutional compliance verification."""
-    from aaa_mcp.server import build_governance_proof
-    from aclip_cai.triad.psi import PsiShadow
+    from arifosmcp.transport.server import build_governance_proof
+    from arifosmcp.intelligence.triad.psi import PsiShadow
     
     shadow = PsiShadow()
     

@@ -22,7 +22,7 @@ Scoring model (weighted sum):
 |---|---:|---|
 | Duplication | 8.3 | `SEAL_*.md` in root: 6 (12 total repo); overlapping docs `AGENTS/ARCHITECTURE/CLAUDE/GEMINI` in root + archive/docs: 12 variants; config overlap: 5 root configs (6 including `static/.well-known/mcp/server.json`) |
 | Test Debt | 7.4 | forensic artifacts in root: 8 files (`pytest_*.txt` x4 + `ruff_errors.txt` + `tests_output.txt` + temp artifacts); recorded failures in `pytest_output.txt`, `pytest_errors.txt`, `pytest_full.txt`, `pytest_core.txt` |
-| Undocumented Modules | 5.7 | missing module README in `arifos_aaa_mcp/`, `memory/`, `verification/`, `vps/` (4/7 targeted dirs undocumented) |
+| Undocumented Modules | 5.7 | missing module README in `arifosmcp.runtime/`, `memory/`, `verification/`, `vps/` (4/7 targeted dirs undocumented) |
 | Branch Drift | 6.0 | 6 unmerged Dependabot branches against `origin/main` |
 | Tool Contract Gaps | 5.8 | AGENTS lists 11 legacy verbs; runtime exposes 13 canonical tools with aliasing and stage-name drift |
 
@@ -57,10 +57,10 @@ Release gate target: `< 5.0` before v48 release.
 
 ## Module Documentation Audit
 
-Target directories checked: `aaa_mcp/`, `arifos_aaa_mcp/`, `aclip_cai/`, `core/`, `memory/`, `verification/`, `vps/`
+Target directories checked: `arifosmcp.transport/`, `arifosmcp.runtime/`, `arifosmcp.intelligence/`, `core/`, `memory/`, `verification/`, `vps/`
 
-- README present: `aaa_mcp/`, `aclip_cai/`, `core/`
-- README missing: `arifos_aaa_mcp/`, `memory/`, `verification/`, `vps/`
+- README present: `arifosmcp.transport/`, `arifosmcp.intelligence/`, `core/`
+- README missing: `arifosmcp.runtime/`, `memory/`, `verification/`, `vps/`
 
 Purpose/status checkpoints:
 - `333_APPS/`: active layered app stack docs, mixed statuses from production to pilot/research (`333_APPS/README.md`, `333_APPS/STATUS.md`)

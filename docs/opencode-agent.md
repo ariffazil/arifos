@@ -39,7 +39,7 @@ Edit `~/.config/opencode/opencode.json` to keep only essential servers (OpenCode
   "mcp": {
     "aaa-mcp": {
       "type": "local",
-      "command": ["python", "-m", "aaa_mcp", "stdio"],
+      "command": ["python", "-m", "arifosmcp.transport", "stdio"],
       "cwd": ".",
       "enabled": true,
       "timeout": 15000,
@@ -91,11 +91,11 @@ The `mcp.json` file is located at `333_APPS/L4_TOOLS/mcp-configs/opencode/mcp.js
 
 ### 5. Conditional Container Tools
 
-The `aaa_mcp/server.py` now imports container tools conditionally:
+The `arifosmcp.transport/server.py` now imports container tools conditionally:
 
 ```python
 try:
-    from aaa_mcp.integrations.mcp_container_tools import register_container_tools
+    from arifosmcp.transport.integrations.mcp_container_tools import register_container_tools
     register_container_tools(mcp)
     print("✅ Container tools registered (Docker available)")
 except Exception as e:
@@ -110,7 +110,7 @@ The `333_APPS/L4_TOOLS/mcp-configs/opencode/mcp.json` file has been updated to u
 
 ```json
 "command": "python3",
-"args": ["-m", "aaa_mcp", "stdio"],
+"args": ["-m", "arifosmcp.transport", "stdio"],
 "cwd": "../../../../",
 "env": {
   "PYTHONPATH": ".",

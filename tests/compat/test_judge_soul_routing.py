@@ -21,7 +21,7 @@ def _tool_fn(tool):
 
 
 # ---------------------------------------------------------------------------
-# Layer 1: internal transport adapter (aaa_mcp)
+# Layer 1: internal transport adapter (arifosmcp.transport)
 # ---------------------------------------------------------------------------
 
 
@@ -30,7 +30,7 @@ async def test_aaa_mcp_registers_apex_judge() -> None:
     """FastMCP must have 'apex_judge' in its internal tool registry."""
     from fastmcp import Client
 
-    from aaa_mcp.server import create_unified_mcp_server
+    from arifosmcp.transport.server import create_unified_mcp_server
 
     async with Client(create_unified_mcp_server()) as client:
         tools = await client.list_tools()
@@ -44,20 +44,20 @@ async def test_aaa_mcp_registers_apex_judge() -> None:
 
 def test_aaa_mcp_apex_judge_compat_alias_exists() -> None:
     """apex_judge is canonical and judge_soul remains a compat alias."""
-    from aaa_mcp import server as s
+    from arifosmcp.transport import server as s
 
     assert hasattr(s, "apex_judge"), "apex_judge ToolHandle removed — breaks existing clients"
     assert hasattr(s, "judge_soul"), "judge_soul ToolHandle missing"
 
 
 # ---------------------------------------------------------------------------
-# Layer 2: canonical external surface (arifos_aaa_mcp)
+# Layer 2: canonical external surface (arifosmcp.runtime)
 # ---------------------------------------------------------------------------
 
 
 def test_arifos_aaa_tool_list_contains_apex_judge() -> None:
     """AAA_TOOLS manifest must declare apex_judge as canonical."""
-    from arifos_aaa_mcp.server import AAA_TOOLS
+    from arifosmcp.runtime.server import AAA_TOOLS
 
     assert (
         "apex_judge" in AAA_TOOLS
@@ -66,7 +66,7 @@ def test_arifos_aaa_tool_list_contains_apex_judge() -> None:
 
 def test_tool_registry_has_only_canonical_apex_judge() -> None:
     """_TOOL_REGISTRY must expose only the canonical public tool name."""
-    from arifos_aaa_mcp.server import _TOOL_REGISTRY
+    from arifosmcp.runtime.server import _TOOL_REGISTRY
 
     assert (
         "apex_judge" in _TOOL_REGISTRY
@@ -78,7 +78,7 @@ def test_tool_registry_has_only_canonical_apex_judge() -> None:
 
 def test_rest_aliases_route_legacy_names_to_apex_judge() -> None:
     """REST TOOL_ALIASES must route legacy names to apex_judge canon."""
-    from arifos_aaa_mcp.rest_routes import TOOL_ALIASES
+    from arifosmcp.runtime.rest_routes import TOOL_ALIASES
 
     assert (
         TOOL_ALIASES.get("judge_soul") == "apex_judge"
@@ -93,7 +93,7 @@ async def test_public_tool_listing_hides_judge_soul_alias() -> None:
     """FastMCP public discovery must list only the canonical apex_judge name."""
     from fastmcp import Client
 
-    from arifos_aaa_mcp.server import create_aaa_mcp_server
+    from arifosmcp.runtime.server import create_aaa_mcp_server
 
     async with Client(create_aaa_mcp_server()) as client:
         tools = await client.list_tools()
@@ -110,7 +110,7 @@ async def test_public_tool_listing_hides_judge_soul_alias() -> None:
 
 def test_governance_maps_include_apex_judge() -> None:
     """TRINITY_BY_TOOL, TOOL_LAW_BINDINGS, TOOL_STAGE_MAP must all have apex_judge."""
-    from arifos_aaa_mcp.governance import TOOL_LAW_BINDINGS, TOOL_STAGE_MAP, TRINITY_BY_TOOL
+    from arifosmcp.runtime.governance import TOOL_LAW_BINDINGS, TOOL_STAGE_MAP, TRINITY_BY_TOOL
 
     assert TRINITY_BY_TOOL.get("apex_judge") == "Psi", "apex_judge lane must be Psi"
     assert TOOL_STAGE_MAP.get("apex_judge") == "888_JUDGE", "apex_judge stage must be 888_JUDGE"
@@ -126,7 +126,7 @@ def test_governance_maps_include_apex_judge() -> None:
 
 def test_protocol_naming_resolves_apex_and_judge_soul() -> None:
     """resolve_protocol_tool_name() must route both apex_judge and judge_soul."""
-    from aaa_mcp.protocol.tool_naming import resolve_protocol_tool_name
+    from arifosmcp.transport.protocol.tool_naming import resolve_protocol_tool_name
 
     assert resolve_protocol_tool_name("apex_judge") == "apex_verdict"
     assert resolve_protocol_tool_name("judge_soul") == "apex_verdict"  # compat still works
@@ -139,11 +139,11 @@ def test_protocol_naming_resolves_apex_and_judge_soul() -> None:
 
 def test_manifest_version_parity() -> None:
     """Both layers must declare the same MANIFEST_VERSION."""
-    from aaa_mcp.server import MANIFEST_VERSION as inner
-    from arifos_aaa_mcp.server import MANIFEST_VERSION as outer
+    from arifosmcp.transport.server import MANIFEST_VERSION as inner
+    from arifosmcp.runtime.server import MANIFEST_VERSION as outer
 
     assert inner == outer, (
-        f"MANIFEST_VERSION mismatch: aaa_mcp={inner}, arifos_aaa_mcp={outer}. "
+        f"MANIFEST_VERSION mismatch: arifosmcp.transport={inner}, arifosmcp.runtime={outer}. "
         "Restart the server — half-upgrade detected."
     )
 
@@ -156,7 +156,7 @@ def test_manifest_version_parity() -> None:
 @pytest.mark.anyio
 async def test_apex_judge_callable_returns_verdict() -> None:
     """apex_judge must return a structured verdict dict, not an error."""
-    from arifos_aaa_mcp.server import apex_judge
+    from arifosmcp.runtime.server import apex_judge
 
     result = await _tool_fn(apex_judge)(
         session_id="arif-5c6623cb",

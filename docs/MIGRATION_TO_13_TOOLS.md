@@ -212,7 +212,7 @@ These tools are **no longer available** in the public MCP surface:
 | `get_prompt` | Internal | Use MCP `prompts/get` endpoint |
 | `query_openclaw` | Internal | Dev-only (not in public API) |
 
-The internal implementations remain in `aaa_mcp/server.py` as **non-decorated** helper
+The internal implementations remain in `arifosmcp.transport/server.py` as **non-decorated** helper
 functions (`_fetch` / `_inspect_file`) and will not appear in `/tools/list`.
 
 See `ARCHIVED_TOOLS/README.md` for full migration reference.
@@ -274,11 +274,11 @@ arifOS now implements the full MCP specification:
 pytest tests/test_13_tools_compliance.py -v
 
 # Verify canonical count
-python -c "from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS; print(len(AAA_CANONICAL_TOOLS))"
+python -c "from arifosmcp.transport.protocol.aaa_contract import AAA_CANONICAL_TOOLS; print(len(AAA_CANONICAL_TOOLS))"
 # Expected: 13
 
 # Verify no ghost imports
-grep -n "fetch_content\|inspect_file" aaa_mcp/server.py | grep "@mcp.tool"
+grep -n "fetch_content\|inspect_file" arifosmcp.transport/server.py | grep "@mcp.tool"
 # Expected: (no output)
 
 # Check tools/list returns 13 tools
@@ -303,8 +303,8 @@ If you need to rollback:
 
 2. **Restore old tools from ARCHIVED_TOOLS/:**
    ```bash
-   cp ARCHIVED_TOOLS/fetch_content.py.archived aaa_mcp/tools/fetch_content.py
-   cp ARCHIVED_TOOLS/inspect_file.py.archived aaa_mcp/tools/inspect_file.py
+   cp ARCHIVED_TOOLS/fetch_content.py.archived arifosmcp.transport/tools/fetch_content.py
+   cp ARCHIVED_TOOLS/inspect_file.py.archived arifosmcp.transport/tools/inspect_file.py
    ```
 
 3. **Update `aaa_contract.py`** to include old tools
@@ -329,7 +329,7 @@ Merging them creates a cleaner mental model:
 **A:** The old tools are **no longer registered** on the public MCP surface — they will not
 appear in `/tools/list` and any attempt to call them via `tools/call` will be rejected by
 the F12 (Injection Defense) gate. The internal implementations still exist as non-decorated
-helper functions (`_fetch` / `_inspect_file`) in `aaa_mcp/server.py` for rollback purposes,
+helper functions (`_fetch` / `_inspect_file`) in `arifosmcp.transport/server.py` for rollback purposes,
 but they are not reachable through the public API.
 
 ### Q: Are the 13 tools final?
@@ -348,7 +348,7 @@ but not part of the public API.
 
 - `ARCHIVED_TOOLS/README.md` for full migration reference
 - `tests/test_13_tools_compliance.py` for usage examples
-- `aaa_mcp/tools/ingest_evidence.py` for implementation details
+- `arifosmcp.transport/tools/ingest_evidence.py` for implementation details
 - MCP spec: https://modelcontextprotocol.io/specification/2025-11-25/
 
 ---

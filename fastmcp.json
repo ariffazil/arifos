@@ -5,7 +5,7 @@
   "description": "arifOS Constitutional AI Governance MCP Server - 13-Floor thermodynamic governance with VAULT999 ledger",
   "source": {
     "type": "filesystem",
-    "path": "arifos_aaa_mcp/server.py",
+    "path": "arifosmcp.runtime/server.py",
     "entrypoint": "mcp"
   },
   "environment": {

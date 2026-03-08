@@ -41,7 +41,7 @@ These items are constitutionally protected and MUST remain at root:
 - [x] `VAULT999/` — Immutable Ledger
 - [x] `ROADMAP/` — Planning
 - [x] `codebase/` — Python Engine
-- [x] `aaa_mcp/` — MCP Server
+- [x] `arifosmcp.transport/` — MCP Server
 - [x] `tests/` — Test Suite
 - [x] `docs/` — Documentation
 - [x] `scripts/` — Operations
@@ -229,7 +229,7 @@ Test-Path "pyproject.toml"
 pytest tests/ -v --tb=short
 
 # Verify MCP server starts
-python -m aaa_mcp --help
+python -m arifosmcp.transport --help
 ```
 
 ---

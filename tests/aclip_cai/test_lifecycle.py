@@ -1,14 +1,14 @@
 """
-tests/aclip_cai/test_lifecycle.py
+tests/arifosmcp.intelligence/test_lifecycle.py
 ===================================
 
-Unit tests for aclip_cai.core.lifecycle — Kernel Lifecycle State Machine.
+Unit tests for arifosmcp.intelligence.core.lifecycle — Kernel Lifecycle State Machine.
 
 Floors under test: F1 (Amanah), F11 (Authority), F12 (Defense/Injection).
 """
 
 import pytest
-from aclip_cai.core.lifecycle import KernelState, LifecycleManager
+from arifosmcp.intelligence.core.lifecycle import KernelState, LifecycleManager
 
 
 @pytest.fixture

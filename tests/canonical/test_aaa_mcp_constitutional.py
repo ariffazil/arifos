@@ -41,14 +41,14 @@ def test_all_13_floors_registered():
 
 
 def test_mcp_instance_exists_and_named():
-    from arifos_aaa_mcp.server import mcp
+    from arifosmcp.runtime.server import mcp
 
     assert mcp is not None
     assert mcp.name == "arifOS_AAA_MCP"
 
 
 def test_canonical_13_tools_importable():
-    from arifos_aaa_mcp.server import (
+    from arifosmcp.runtime.server import (
         anchor_session,
         apex_judge,
         audit_rules,
@@ -83,7 +83,7 @@ def test_canonical_13_tools_importable():
 
 
 async def test_anchor_reason_flow_preserves_session_and_entropy_contract():
-    from arifos_aaa_mcp.server import anchor_session, reason_mind
+    from arifosmcp.runtime.server import anchor_session, reason_mind
 
     anchor = await _get_tool_fn(anchor_session)(
         query="What is constitutional governance?",
@@ -112,7 +112,7 @@ async def test_anchor_reason_flow_preserves_session_and_entropy_contract():
 
 
 async def test_heart_critique_judge_seal_flow():
-    from arifos_aaa_mcp.server import (
+    from arifosmcp.runtime.server import (
         anchor_session,
         apex_judge,
         critique_thought,
@@ -164,7 +164,7 @@ async def test_heart_critique_judge_seal_flow():
 
 
 async def test_forge_returns_guarded_status_for_irreversible_gate():
-    from arifos_aaa_mcp.server import anchor_session, eureka_forge
+    from arifosmcp.runtime.server import anchor_session, eureka_forge
 
     anchor = await _get_tool_fn(anchor_session)(query="Execute risky action", actor_id="user")
     session_id = _payload(anchor)["session_id"]
@@ -178,7 +178,7 @@ async def test_forge_returns_guarded_status_for_irreversible_gate():
 
 
 async def test_read_only_utility_tools_execute():
-    from arifos_aaa_mcp.server import (
+    from arifosmcp.runtime.server import (
         audit_rules,
         check_vital,
         ingest_evidence,
@@ -214,8 +214,8 @@ async def test_read_only_utility_tools_execute():
 
 
 async def test_law_enforcement_matrix_13_tools() -> None:
-    from arifos_aaa_mcp import server as api
-    from arifos_aaa_mcp.governance import TOOL_LAW_BINDINGS
+    from arifosmcp.runtime import server as api
+    from arifosmcp.runtime.governance import TOOL_LAW_BINDINGS
 
     anchor = await _get_tool_fn(api.anchor_session)(query="matrix", actor_id="qa")
     session_id = _payload(anchor)["session_id"]

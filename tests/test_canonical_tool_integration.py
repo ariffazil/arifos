@@ -2,7 +2,7 @@ import pytest
 
 # Skip tests if core modules unavailable
 try:
-    from aaa_mcp.protocol.response import (
+    from arifosmcp.transport.protocol.response import (
         build_align_response,
         build_empathize_response,
         build_init_response,
@@ -12,13 +12,13 @@ try:
         build_think_response,
         build_verdict_response,
     )
-    from aaa_mcp.protocol.tool_graph import TOOL_GRAPH
+    from arifosmcp.transport.protocol.tool_graph import TOOL_GRAPH
 
     CORE_AVAILABLE = True
 except ImportError:
     CORE_AVAILABLE = False
 
-pytestmark = pytest.mark.skipif(not CORE_AVAILABLE, reason="Core aaa_mcp modules not available")
+pytestmark = pytest.mark.skipif(not CORE_AVAILABLE, reason="Core arifosmcp.transport modules not available")
 
 
 def test_init_session_integration():

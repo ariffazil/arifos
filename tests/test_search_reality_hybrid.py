@@ -20,7 +20,7 @@ from datetime import datetime, timezone
 
 sys.path.insert(0, "/srv/arifOS")
 
-from aaa_mcp.external_gateways import (
+from arifosmcp.transport.external_gateways import (
     HeadlessBrowserClient,
 )
 
@@ -161,7 +161,7 @@ async def test_search_reality_api():
     print("=" * 60)
 
     # Import the actual function
-    from aaa_mcp.server import _search
+    from arifosmcp.transport.server import _search
 
     test_queries = [
         ("python programming best practices", "general"),

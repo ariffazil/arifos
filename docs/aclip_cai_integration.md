@@ -65,8 +65,8 @@ ACLIP_CAI (arifOS Console Intelligence & Perception Console) is the **9-Sense Ne
 ACLIP_CAI tools are automatically registered with the aaa-mcp server:
 
 ```python
-# In aaa_mcp/server.py
-from aclip_cai.mcp_bridge import register_aclip_tools
+# In arifosmcp.transport/server.py
+from arifosmcp.intelligence.mcp_bridge import register_aclip_tools
 
 # Register all 9 tools
 register_aclip_tools(mcp)
@@ -96,7 +96,7 @@ aclip-cai guard --action deploy --target /app --risk medium
 ### Python API
 
 ```python
-from aclip_cai import system_health, forge_guard
+from arifosmcp.intelligence import system_health, forge_guard
 
 # Health check
 health = await system_health()
@@ -197,19 +197,19 @@ if gate.data['verdict'] != 'SEAL':
 
 ```bash
 # Run all ACLIP_CAI tests
-pytest tests/aclip_cai/ -v
+pytest tests/arifosmcp.intelligence/ -v
 
 # Specific tool tests
-pytest tests/aclip_cai/test_console_tools.py::test_system_health_basic -v
+pytest tests/arifosmcp.intelligence/test_console_tools.py::test_system_health_basic -v
 
 # MCP bridge tests
-pytest tests/aclip_cai/test_mcp_bridge.py -v
+pytest tests/arifosmcp.intelligence/test_mcp_bridge.py -v
 ```
 
 ## Directory Structure
 
 ```
-aclip_cai/
+arifosmcp.intelligence/
 ├── __init__.py          # Package exports
 ├── __main__.py          # Module entry point
 ├── cli.py               # Command-line interface
@@ -220,6 +220,6 @@ aclip_cai/
 
 ## References
 
-- [ACLIP_CAI README](/root/arifOS/aclip_cai/README.md)
-- [aaa-mcp Server](/root/arifOS/aaa_mcp/server.py)
+- [ACLIP_CAI README](/root/arifOS/arifosmcp.intelligence/README.md)
+- [aaa-mcp Server](/root/arifOS/arifosmcp.transport/server.py)
 - [Constitutional Floors](/root/arifOS/000_THEORY/CONSTITUTION.md)

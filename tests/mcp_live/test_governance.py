@@ -1,5 +1,5 @@
 import pytest
-from aaa_mcp.server import (
+from arifosmcp.transport.server import (
     _init_session,
     _agi_cognition,
     _asi_empathy,

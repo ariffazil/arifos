@@ -666,7 +666,7 @@ curl -X POST https://arifosmcp.arif-fazil.com/mcp \
 **For Verification:**
 - WebMCP: `verify_canon_hashes()` on apex.arif-fazil.com
 - SHA-256: Compare against canonical index
-- Source Code: [arifos_aaa_mcp/server.py](https://github.com/ariffazil/arifOS/blob/main/arifos_aaa_mcp/server.py)
+- Source Code: [arifosmcp.runtime/server.py](https://github.com/ariffazil/arifOS/blob/main/arifosmcp.runtime/server.py)
 
 ---
 
