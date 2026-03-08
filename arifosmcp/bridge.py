@@ -11,6 +11,7 @@ import logging
 from typing import Any
 
 from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
+from arifosmcp.runtime.contracts import REQUIRES_SESSION
 from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context
 from core.enforcement.governance_engine import wrap_tool_output
 from core.organs import Verdict, agi, apex, asi, init, vault
@@ -27,9 +28,9 @@ async def call_kernel(
     Route a tool call through the 7-Organ Sovereign Stack.
     """
 
-    # 1. Verification of Continuity (F11)
+    # 1. Verification of Continuity (F11) — only session-bound tools require auth_context
     auth_ctx = payload.get("auth_context")
-    if tool_name != "anchor_session":
+    if tool_name in REQUIRES_SESSION:
         if not auth_ctx:
             return wrap_tool_output(
                 tool_name,
