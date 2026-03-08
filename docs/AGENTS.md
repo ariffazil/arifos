@@ -460,9 +460,10 @@ docker compose ps                 # Verify all running
 7. `docs/10_THEORY/000_THEORY/999_SOVEREIGN_VAULT.md` — Immutable Ledger
 
 ### Technical Reference
-- `docs/AAA_MCP_TOOLS_REFERENCE.md` — 13 Tools Reference
-- `arifosmcp.transport/README.md` — MCP Implementation
-- `docs/COMPLETE_DEPLOYMENT_GUIDE.md` — Deployment Guide
+- `TOOLS.md` — Canonical 13 tools (inputs, outputs, functionality)
+- `docs/AAA_MCP_TOOLS_REFERENCE.md` — Redirect to canonical tools reference
+- `arifosmcp/transport/README.md` — MCP implementation
+- `docs/COMPLETE_DEPLOYMENT_GUIDE.md` — Deployment guide
 
 ---
 

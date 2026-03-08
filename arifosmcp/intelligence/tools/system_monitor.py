@@ -29,7 +29,7 @@ def get_resource_usage(
             data: dict[str, Any] = {}
 
             # 1. CPU
-            cpu_percent = psutil.cpu_percent(interval=0.1)
+            cpu_percent = psutil.cpu_percent(interval=0.01)
             try:
                 cpu_load = psutil.getloadavg()
             except AttributeError:
@@ -162,7 +162,7 @@ def list_processes(
 
                 procs.append(proc_data)
 
-            except (psutil.NoSuchProcess, psutil.AccessDenied):
+            except (psutil.NoSuchProcess, psutil.AccessDenied, MemoryError):
                 continue
 
         # Sort by RAM by default

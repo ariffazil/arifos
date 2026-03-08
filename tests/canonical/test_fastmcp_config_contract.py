@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import importlib.util
 from pathlib import Path
 
 
@@ -22,7 +23,7 @@ def test_fastmcp_json_has_required_sections() -> None:
 
     source = config.get("source", {})
     assert source.get("type") == "filesystem"
-    assert source.get("path") == "arifosmcp.runtime/server.py"
+    assert source.get("path") == "arifosmcp/runtime/server.py"
     assert source.get("entrypoint") == "mcp"
 
     deployment = config.get("deployment", {})
@@ -32,6 +33,10 @@ def test_fastmcp_json_has_required_sections() -> None:
 
 
 def test_fastmcp_source_entrypoint_is_importable() -> None:
-    from arifosmcp.runtime.server import mcp
-
-    assert hasattr(mcp, "run")
+    server_path = Path("arifosmcp/runtime/server.py")
+    spec = importlib.util.spec_from_file_location("arifosmcp_runtime_server", server_path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert hasattr(module, "mcp")
+    assert hasattr(module.mcp, "run")
