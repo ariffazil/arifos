@@ -492,6 +492,7 @@ class GovernanceKernel:
         """Accumulated session scars (h)."""
         try:
             from core.telemetry import get_current_hysteresis
+
             return get_current_hysteresis()
         except ImportError:
             return 0.0
@@ -500,13 +501,13 @@ class GovernanceKernel:
     def genius_score(self) -> float:
         """Derived G score: G = (A×P×X×E²) × (1-h)"""
         from core.shared.physics import GeniusDial
-        
+
         # Estimate dials from current state
         akal = round(max(0.0, 1.0 - self.safety_omega), 4)
         present = round(self.reversibility_score, 4)
-        explore = 0.9 # Default
+        explore = 0.9  # Default
         energy = self.current_energy
-        
+
         dial = GeniusDial(akal, present, explore, energy, self.hysteresis_penalty)
         return dial.G()
 
@@ -540,7 +541,7 @@ class GovernanceKernel:
                 "human": 1.0 if self.human_approval_status == "approved" else 0.7,
                 "ai": round(max(0.0, 1.0 - self.safety_omega), 4),
                 "earth": round(self.current_energy, 4),
-                "shadow": 1.0 - (self.safety_omega * 2.0), # Adversarial proxy
+                "shadow": 1.0 - (self.safety_omega * 2.0),  # Adversarial proxy
             },
             "telemetry": {
                 "dS": -0.1 if self.can_proceed() else 0.1,
@@ -548,7 +549,7 @@ class GovernanceKernel:
                 "kappa_r": round(max(0.0, 1.0 - self.safety_omega), 4),
                 "confidence": round(max(0.0, 1.0 - self.safety_omega), 4),
                 "psi_le": round(max(0.0, self.current_energy), 4),
-                "joules": self.tokens_consumed * 0.0005, # Energy proxy
+                "joules": self.tokens_consumed * 0.0005,  # Energy proxy
             },
         }
 

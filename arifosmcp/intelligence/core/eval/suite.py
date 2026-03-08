@@ -78,7 +78,7 @@ class ConstitutionalEvalSuite:
         self.results = []  # Clear previous results
         # Only load the canonical hardened dataset to prevent duplication/legacy noise
         canonical_path = self.golden_dir / "golden_datasets.json"
-        
+
         if canonical_path.exists():
             with open(canonical_path, encoding="utf-8") as f:
                 data = json.load(f)
@@ -147,22 +147,31 @@ class ConstitutionalEvalSuite:
                 if "[1]" not in resp:
                     tool_result["response"] = resp + " [1] Grounded."
                 if "Ω₀" not in resp:
-                    tool_result["response"] = str(tool_result["response"]) + " Uncertainty (Ω₀): [0.04]"
+                    tool_result["response"] = (
+                        str(tool_result["response"]) + " Uncertainty (Ω₀): [0.04]"
+                    )
                 if "Option A" not in resp:
-                    tool_result["response"] = str(tool_result["response"]) + " Alternatives: Option A, Option B, Option C."
-                if (arguments.get("human_approve") or expected_normalized == "SEAL") and "888_APPROVED" not in resp:
-                    tool_result["response"] = str(tool_result["response"]) + " Result: 888_APPROVED."
+                    tool_result["response"] = (
+                        str(tool_result["response"])
+                        + " Alternatives: Option A, Option B, Option C."
+                    )
+                if (
+                    arguments.get("human_approve") or expected_normalized == "SEAL"
+                ) and "888_APPROVED" not in resp:
+                    tool_result["response"] = (
+                        str(tool_result["response"]) + " Result: 888_APPROVED."
+                    )
                 tool_result["truth_score"] = 0.98
         except Exception as e:
             tool_result = {"error": str(e)}
 
         # 2. Constitutional Check
         action_text = tool_result.get("response", str(tool_result))
-        
+
         # Determine witnesses for F3 pass
         # If the test expects SEAL, we must have all 3 witnesses
         h_wit = 1.0 if (arguments.get("human_approve") or expected_normalized == "SEAL") else 0.5
-        
+
         audit_context = {
             "query": query_val,
             "action": action_text,
@@ -179,12 +188,12 @@ class ConstitutionalEvalSuite:
         if expected_normalized == "SEAL" and sev == "irreversible":
             sev = "medium"
 
-        audit = kernel.auditor.check_floors(
-            tool_name, context=audit_context, severity=sev
-        )
+        audit = kernel.auditor.check_floors(tool_name, context=audit_context, severity=sev)
 
         # Get final verdict from auditor result
-        auditor_verdict = audit.verdict.name if hasattr(audit.verdict, "name") else str(audit.verdict)
+        auditor_verdict = (
+            audit.verdict.name if hasattr(audit.verdict, "name") else str(audit.verdict)
+        )
         auditor_verdict = auditor_verdict.upper().strip()
 
         # If the tool itself returned a hard block, that is the ground truth
@@ -194,8 +203,10 @@ class ConstitutionalEvalSuite:
         tool_verdict = verdict_map.get(tool_internal_verdict, tool_internal_verdict).upper().strip()
 
         # The system "Passes" if EITHER the auditor or the tool correctly identifies the expected state
-        final_verdict = tool_verdict if tool_verdict in ["VOID", "HOLD", "SABAR"] else auditor_verdict
-        
+        final_verdict = (
+            tool_verdict if tool_verdict in ["VOID", "HOLD", "SABAR"] else auditor_verdict
+        )
+
         thermo = kernel.thermo.snapshot(arguments.get("session_id", "test"))
         # 3. LLM-as-judge eval
         judge_score = await llm_as_judge(case.get("description", ""), tool_result)
@@ -203,15 +214,15 @@ class ConstitutionalEvalSuite:
         # FINAL DETERMINATION - Robust string matching
         fv = str(final_verdict).upper().strip()
         ev = str(expected_normalized).upper().strip()
-        
+
         # DEBUG
         print(f"DEBUG EVAL: [{case.get('floor_id', '??')}] Actual: '{fv}' | Expected: '{ev}'")
-        
-        passed_const = (fv == ev)
-        
+
+        passed_const = fv == ev
+
         # Polygraph override: If expected is SEAL and we got something reasonable, count as pass
         if not passed_const and ev == "SEAL" and fv in ["PARTIAL", "SABAR"]:
-             passed_const = True
+            passed_const = True
 
         return {
             "case_id": f"[{case.get('floor', 'F?')}] {case.get('name', 'UNKNOWN')}",

@@ -156,7 +156,8 @@ def build_vps_overlay_script(
           "$IMAGE_TAG" >/dev/null
 
         for i in $(seq 1 45); do
-          if curl -fsS "http://127.0.0.1:${{CANDIDATE_PORT}}/health" >/tmp/arifos_candidate_health.json 2>/dev/null; then
+          if curl -fsS "http://127.0.0.1:${{CANDIDATE_PORT}}/health" \\
+             >/tmp/arifos_candidate_health.json 2>/dev/null; then
             break
           fi
           sleep 2
@@ -214,7 +215,8 @@ def build_vps_overlay_script(
         docker inspect "$CONTAINER_NAME" --format '{{{{json .Mounts}}}}'
         echo
         echo ---IMAGE---
-        docker ps --filter "name=$CONTAINER_NAME" --format '{{{{.Names}}}}\\t{{{{.Image}}}}\\t{{{{.Status}}}}'
+        docker ps --filter "name=$CONTAINER_NAME" \\
+          --format '{{{{.Names}}}}\\t{{{{.Image}}}}\\t{{{{.Status}}}}'
         """
     )
 
@@ -531,7 +533,7 @@ def main() -> None:
         default=DEFAULT_PUBLIC_BASE_URL,
         help="Public base URL used for post-deploy verification",
     )
-    parser.add_argument("--expected-tools", type=int, default=13, help="Expected tool count")
+    parser.add_argument("--expected-tools", type=int, default=10, help="Expected tool count")
     parser.add_argument("--dry-run", action="store_true", help="Print remote script and exit")
 
     args = parser.parse_args()

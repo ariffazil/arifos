@@ -258,7 +258,8 @@ async def call_kernel(
             result.setdefault("actor_id", actor_id or auth_ctx.get("actor_id", "anonymous"))
             if canonical_name != "anchor_session":
                 has_grounding = any(
-                    key in result for key in ("evidence", "grounding", "results", "citations", "ids")
+                    key in result
+                    for key in ("evidence", "grounding", "results", "citations", "ids")
                 )
                 if not has_grounding:
                     result["grounding"] = 1.0

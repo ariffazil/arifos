@@ -40,7 +40,9 @@ class MetabolismState(BaseModel):
     peace2: float = Field(default=1.0, description="Peace² stability")
     kappa_r: float = Field(default=1.0, description="κᵣ empathy quotient")
     genius_index: float = Field(default=0.0, description="G Genius score")
-    landauer_efficiency: float = Field(default=1.0, description="Compute efficiency vs physical bounds")
+    landauer_efficiency: float = Field(
+        default=1.0, description="Compute efficiency vs physical bounds"
+    )
 
 
 class DecisionState(BaseModel):
@@ -338,155 +340,219 @@ class BaseOrganOutput(BaseModel):
 # APEX-G: THE COGNITIVE CONTRACT
 # ============================================================================
 
+
 class Intent(BaseModel):
     """G in APEX-G: Human goal and task details."""
+
     query: str = Field(..., min_length=1)
-    task_type: Literal["ask", "analyze", "design", "decide", "audit", "execute", "unknown"] = "unknown"
+    task_type: Literal["ask", "analyze", "design", "decide", "audit", "execute", "unknown"] = (
+        "unknown"
+    )
     domain: str = "general"
     desired_output: Literal["text", "json", "table", "code", "mixed"] = "text"
     reversibility: Literal["reversible", "mixed", "irreversible", "unknown"] = "unknown"
 
+
 class MathDials(BaseModel):
     """A in APEX-G: Thinking dials (Math/Akal)."""
+
     akal: float = Field(default=0.6, ge=0.0, le=1.0)
     present: float = Field(default=0.8, ge=0.0, le=1.0)
     energy: float = Field(default=0.6, ge=0.0, le=1.0)
     exploration: float = Field(default=0.4, ge=0.0, le=1.0)
 
+
 class PhysicsState(BaseModel):
     """P in APEX-G: Computed thermodynamic state."""
+
     delta_s: float = 0.0
     omega_0: float = 0.04
     peace2: float = 1.0
     psi: float = 1.0
     amanah_lock: bool = True
 
+
 class CodeState(BaseModel):
     """C in APEX-G: Runtime pipeline stage."""
+
     session_id: str
     stage: Literal["000", "111", "222", "333", "444", "555", "666", "777", "888", "999"] = "000"
     lane: Literal["PHATIC", "SOFT", "HARD", "REFUSE", "UNKNOWN"] = "UNKNOWN"
     runtime_mode: Literal["init", "draft", "review", "judge", "seal"] = "init"
     verdict: Literal["SEAL", "PARTIAL", "SABAR", "VOID", "HOLD-888", "UNSET"] = "UNSET"
 
+
 class GovernanceMetadata(BaseModel):
     """G in APEX-G: Identity and stakes."""
+
     actor_id: str = "anonymous"
     authority_level: Literal["human", "agent", "system", "anonymous"] = "anonymous"
     stakes_class: Literal["A", "B", "C", "UNKNOWN"] = "UNKNOWN"
-    tri_witness: dict[str, float] = Field(default_factory=lambda: {"human": 0.0, "ai": 0.0, "earth": 0.0})
+    tri_witness: dict[str, float] = Field(
+        default_factory=lambda: {"human": 0.0, "ai": 0.0, "earth": 0.0}
+    )
+
 
 # ============================================================================
 # STAGE 111-333: REASONING MODELS
 # ============================================================================
 
+
 class ReasonMindStep(BaseModel):
     """Single step in the metabolic reasoning pipeline."""
+
     id: int
     phase: Literal["111_search", "222_analyze", "333_synthesis"]
     thought: str
     evidence: str | None = None
     uncertainty: str | None = None
 
+
 class EurekaInsight(BaseModel):
     """An 'aha' moment discovered during reasoning."""
+
     has_eureka: bool = False
     summary: str | None = None
 
+
 class ReasonMindAnswer(BaseModel):
     """The synthesized conclusion of the reasoning mind."""
+
     summary: str
     confidence: float = Field(ge=0.0, le=1.0)
     verdict: Literal["ready", "partial", "needs_evidence", "escalate"] = "ready"
+
 
 # ============================================================================
 # STAGE 555: ASSOCIATIVE MEMORY MODELS
 # ============================================================================
 
+
 class MemoryResultItem(BaseModel):
     """A single recalled memory chunk."""
+
     id: str
     content: str
     score: float = Field(ge=0.0, le=1.0)
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+
 class VectorMemoryResult(BaseModel):
     """Container for memory operation outcomes."""
+
     stored_ids: list[str] | None = None
     memories: list[MemoryResultItem] | None = None
     forgot_ids: list[str] | None = None
+
 
 # ============================================================================
 # STAGE 666: EMPATHY & SAFETY MODELS
 # ============================================================================
 
+
 class StakeholderImpact(BaseModel):
     """Evaluation of help/harm for a specific role."""
+
     role: str
     impact: Literal["help", "neutral", "harm", "unknown"]
 
+
 class EthicalIssue(BaseModel):
     """Categorized ethical or safety concern."""
-    type: Literal["harm", "escalation", "bias", "privacy", "manipulation", "other", "hallucination", "unsafe_advice", "unclear"]
+
+    type: Literal[
+        "harm",
+        "escalation",
+        "bias",
+        "privacy",
+        "manipulation",
+        "other",
+        "hallucination",
+        "unsafe_advice",
+        "unclear",
+    ]
     summary: str
+
 
 class HeartAssessment(BaseModel):
     """The structured output of the Alignment Engine."""
+
     risk_level: Literal["low", "medium", "high", "unknown", "critical"]
     stakeholders: list[StakeholderImpact] = Field(default_factory=list)
     issues: list[EthicalIssue] = Field(default_factory=list)
 
+
 class CritiqueFinding(BaseModel):
     """A single finding from internal audit."""
-    type: Literal["logical_error", "missing_evidence", "hallucination", "unsafe_advice", "unclear", "other"]
+
+    type: Literal[
+        "logical_error", "missing_evidence", "hallucination", "unsafe_advice", "unclear", "other"
+    ]
     summary: str
+
 
 class CritiqueResult(BaseModel):
     """The result of an internal self-audit."""
+
     thought_id: str
     severity: Literal["none", "low", "medium", "high"]
     findings: list[CritiqueFinding] = Field(default_factory=list)
     suggested_action: Literal["accept_as_is", "minor_edit", "major_revision", "discard_and_restart"]
 
+
 # ============================================================================
 # STAGE 777: DISCOVERY & FORGE MODELS
 # ============================================================================
 
+
 class EurekaProposal(BaseModel):
     """Forged Eureka content from Stage 777."""
+
     type: Literal["concept", "design", "eval_case", "governance_rule", "other"]
     summary: str
     details: str
     evidence_links: list[str] = Field(default_factory=list)
 
+
 class NextAction(BaseModel):
     """Safe follow-up action suggested by forge."""
+
     action_type: Literal["run_eval", "update_schema_draft", "code_sandbox", "human_review", "none"]
     description: str
     requires_888_hold: bool = False
+
 
 # ============================================================================
 # STAGE 888: JUDGMENT MODELS
 # ============================================================================
 
+
 class JudgmentRationale(BaseModel):
     """Compact justification for the final verdict."""
+
     summary: str
-    tri_witness: dict[str, float] = Field(default_factory=lambda: {"human": 0.0, "ai": 0.0, "earth": 0.0})
+    tri_witness: dict[str, float] = Field(
+        default_factory=lambda: {"human": 0.0, "ai": 0.0, "earth": 0.0}
+    )
     omega_0: float = 0.04
+
 
 # ============================================================================
 # STAGE 999: LEDGER & SEAL MODELS
 # ============================================================================
 
+
 class HashChain(BaseModel):
     """Tamper-evident chain metadata."""
+
     payload_hash: str
     entry_hash: str
     prev_entry_hash: str
 
+
 class SealRecord(BaseModel):
     """Immutable vault commit record."""
+
     status: Literal["sealed", "provisional", "audit_logged", "blocked", "failed"]
     ledger_id: str
     summary: str
@@ -494,6 +560,7 @@ class SealRecord(BaseModel):
     hash: str | None = None
     timestamp: datetime = Field(default_factory=datetime.now)
     error: str | None = None
+
 
 # ============================================================================
 # ORGAN OUTPUTS — Return Types for Each Organ
@@ -556,12 +623,12 @@ class AsiOutput(BaseOrganOutput):
 
     # simulate_heart output
     assessment: HeartAssessment | None = None
-    
+
     # critique_thought output
     critique: CritiqueResult | None = None
 
     floors: dict[str, str] = Field(default_factory=dict)
-    
+
     # Legacy support
     floor_scores: FloorScores = Field(default_factory=FloorScores)
     stakeholder_impact: dict[str, float] = Field(default_factory=dict)
@@ -580,7 +647,7 @@ class ApexOutput(BaseOrganOutput):
     reasoning: JudgmentRationale | None = None
 
     floors: dict[str, str] = Field(default_factory=dict)
-    
+
     # Legacy support
     floor_scores: FloorScores = Field(default_factory=FloorScores)
     proof: str | None = None  # If audit mode
@@ -601,15 +668,17 @@ class VaultEntry(BaseModel):
 class VaultOutput(BaseOrganOutput):
     """Output from core_memory (Memory Engine / Vector Memory / Sealing)."""
 
-    operation: Literal["store", "recall", "search", "forget", "write", "read", "query", "seal"] = "search"
+    operation: Literal["store", "recall", "search", "forget", "write", "read", "query", "seal"] = (
+        "search"
+    )
     result: VectorMemoryResult | None = None
-    
+
     # Stage 999 output
     seal_record: SealRecord | None = None
     hash_chain: HashChain | None = None
 
     # Legacy support
-    action: str = "" # Alias for operation
+    action: str = ""  # Alias for operation
     entries: list[VaultEntry] = Field(default_factory=list)
     seal_hash: str | None = None
     merkle_root: str | None = None

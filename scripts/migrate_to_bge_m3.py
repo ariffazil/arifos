@@ -63,21 +63,20 @@ def load_bge_m3() -> SentenceTransformer:
 def recreate_collection(client: QdrantClient, name: str, dim: int) -> bool:
     """Delete and recreate collection at new dimension."""
     print(f"\nRecreating collection: {name}")
-    
+
     # Check if exists
     collections = client.get_collections().collections
     exists = any(c.name == name for c in collections)
-    
+
     if exists:
         print(f"  Deleting old {name} ({OLD_DIM}-dim)...")
         client.delete_collection(name)
         print("  ✓ Deleted")
-    
+
     # Create new
     print(f"  Creating {name} ({dim}-dim, Cosine)...")
     client.create_collection(
-        collection_name=name,
-        vectors_config=VectorParams(size=dim, distance=Distance.COSINE)
+        collection_name=name, vectors_config=VectorParams(size=dim, distance=Distance.COSINE)
     )
     print("  ✓ Created")
     return True
@@ -87,45 +86,45 @@ def chunk_text(text: str, chunk_size: int = 512, overlap: int = 50) -> list[str]
     """Split text into overlapping chunks."""
     words = text.split()
     chunks = []
-    
+
     for i in range(0, len(words), chunk_size - overlap):
-        chunk = " ".join(words[i:i + chunk_size])
+        chunk = " ".join(words[i : i + chunk_size])
         chunks.append(chunk)
-    
+
     return chunks
 
 
 def load_constitutional_docs() -> list[dict[str, Any]]:
     """Load all markdown files from 000_THEORY."""
     print(f"\nScanning {DOCS_PATH}...")
-    
+
     docs = []
     if not DOCS_PATH.exists():
         print(f"  Warning: {DOCS_PATH} not found")
         return docs
-    
+
     for md_file in DOCS_PATH.rglob("*.md"):
         try:
             content = md_file.read_text(encoding="utf-8")
-            
+
             # Chunk large files
             chunks = chunk_text(content, chunk_size=512, overlap=50)
-            
+
             for i, chunk in enumerate(chunks):
-                doc_id = hashlib.sha256(
-                    f"{md_file}:{i}".encode()
-                ).hexdigest()[:16]
-                
-                docs.append({
-                    "id": doc_id,
-                    "file": str(md_file),
-                    "chunk_index": i,
-                    "content": chunk,
-                    "title": md_file.stem,
-                })
+                doc_id = hashlib.sha256(f"{md_file}:{i}".encode()).hexdigest()[:16]
+
+                docs.append(
+                    {
+                        "id": doc_id,
+                        "file": str(md_file),
+                        "chunk_index": i,
+                        "content": chunk,
+                        "title": md_file.stem,
+                    }
+                )
         except Exception as e:
             print(f"  Error reading {md_file}: {e}")
-    
+
     print(f"  ✓ Found {len(docs)} chunks from markdown files")
     return docs
 
@@ -135,43 +134,45 @@ def embed_and_upsert(
     model: SentenceTransformer,
     collection: str,
     docs: list[dict],
-    batch_size: int = 32
+    batch_size: int = 32,
 ) -> int:
     """Embed documents and upsert to Qdrant."""
     print(f"\nEmbedding {len(docs)} documents...")
-    
+
     total = 0
     for i in range(0, len(docs), batch_size):
-        batch = docs[i:i + batch_size]
-        
+        batch = docs[i : i + batch_size]
+
         # Embed
         texts = [d["content"] for d in batch]
         embeddings = model.encode(texts, show_progress_bar=False)
-        
+
         # Create points
         points = []
         for doc, embedding in zip(batch, embeddings):
-            points.append(PointStruct(
-                id=doc["id"],
-                vector=embedding.tolist(),
-                payload={
-                    "file": doc["file"],
-                    "title": doc["title"],
-                    "chunk_index": doc["chunk_index"],
-                    "content_preview": doc["content"][:500],
-                    "embedding_model": NEW_MODEL,
-                    "vector_dim": NEW_DIM,
-                    "embedded_at": datetime.utcnow().isoformat(),
-                }
-            ))
-        
+            points.append(
+                PointStruct(
+                    id=doc["id"],
+                    vector=embedding.tolist(),
+                    payload={
+                        "file": doc["file"],
+                        "title": doc["title"],
+                        "chunk_index": doc["chunk_index"],
+                        "content_preview": doc["content"][:500],
+                        "embedding_model": NEW_MODEL,
+                        "vector_dim": NEW_DIM,
+                        "embedded_at": datetime.utcnow().isoformat(),
+                    },
+                )
+            )
+
         # Upsert
         client.upsert(collection_name=collection, points=points)
-        
+
         total += len(batch)
         if (i // batch_size + 1) % 10 == 0:
             print(f"  Progress: {total}/{len(docs)} documents")
-    
+
     print(f"  ✓ Embedded {total} documents")
     return total
 
@@ -179,9 +180,9 @@ def embed_and_upsert(
 def verify_migration(client: QdrantClient) -> dict[str, Any]:
     """Verify both collections are correct."""
     print("\nVerifying migration...")
-    
+
     results = {}
-    
+
     for collection in [CONSTITUTIONAL_COLLECTION, PRECEDENT_COLLECTION]:
         try:
             info = client.get_collection(collection)
@@ -189,11 +190,11 @@ def verify_migration(client: QdrantClient) -> dict[str, Any]:
                 "exists": True,
                 "vector_size": info.config.params.vectors.size,
                 "points_count": info.points_count,
-                "status": "OK" if info.config.params.vectors.size == NEW_DIM else "WRONG_DIM"
+                "status": "OK" if info.config.params.vectors.size == NEW_DIM else "WRONG_DIM",
             }
         except Exception as e:
             results[collection] = {"exists": False, "error": str(e)}
-    
+
     return results
 
 
@@ -203,33 +204,33 @@ def main():
     print("arifOS BGE-M3 Migration Script")
     print("F2 Truth + F6 Empathy: Multilingual constitutional memory")
     print("=" * 60)
-    
+
     # Connect to Qdrant
     print(f"\nConnecting to Qdrant at {QDRANT_URL}...")
     client = QdrantClient(QDRANT_URL)
     print("  ✓ Connected")
-    
+
     # Load BGE-M3
     model = load_bge_m3()
-    
+
     # Step 1: Recreate arifos_constitutional
     recreate_collection(client, CONSTITUTIONAL_COLLECTION, NEW_DIM)
-    
+
     # Step 2: Load and embed constitutional docs
     docs = load_constitutional_docs()
     if docs:
         embed_and_upsert(client, model, CONSTITUTIONAL_COLLECTION, docs)
-    
+
     # Step 3: Create vault_precedent_memory (empty, ready for seals)
     recreate_collection(client, PRECEDENT_COLLECTION, NEW_DIM)
-    
+
     # Step 4: Verify
     results = verify_migration(client)
-    
+
     print("\n" + "=" * 60)
     print("Migration Summary")
     print("=" * 60)
-    
+
     all_ok = True
     for collection, status in results.items():
         print(f"\n{collection}:")
@@ -237,12 +238,12 @@ def main():
             print(f"  Status: {status['status']}")
             print(f"  Dimensions: {status['vector_size']}")
             print(f"  Points: {status['points_count']}")
-            if status['status'] != "OK":
+            if status["status"] != "OK":
                 all_ok = False
         else:
             print(f"  Status: FAILED - {status.get('error')}")
             all_ok = False
-    
+
     print("\n" + "=" * 60)
     if all_ok:
         print("✓ Migration complete!")
@@ -255,7 +256,7 @@ def main():
     else:
         print("✗ Migration had issues. Check logs above.")
         return 1
-    
+
     return 0
 
 

@@ -20,7 +20,7 @@ def _bootstrap_environment() -> None:
 def main() -> None:
     _bootstrap_environment()
 
-    mode = (sys.argv[1] if len(sys.argv) > 1 else os.getenv("AAA_MCP_TRANSPORT", "http")).lower()
+    mode = (sys.argv[1] if len(sys.argv) > 1 else os.getenv("AAA_MCP_TRANSPORT", "stdio")).lower()
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8080"))
 

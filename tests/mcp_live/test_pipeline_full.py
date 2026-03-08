@@ -1,5 +1,11 @@
 import pytest
-from arifosmcp.transport.server import anchor_session, apex_judge, reason_mind, seal_vault, simulate_heart
+from arifosmcp.transport.server import (
+    anchor_session,
+    apex_judge,
+    reason_mind,
+    seal_vault,
+    simulate_heart,
+)
 
 
 @pytest.mark.asyncio

@@ -10,13 +10,11 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import logging
-import secrets
 from typing import Any, Literal
 
 from core.shared.types import (
     ApexOutput,
     EurekaProposal,
-    FloorScores,
     JudgmentRationale,
     NextAction,
     Verdict,

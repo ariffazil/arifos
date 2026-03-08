@@ -177,10 +177,12 @@ class JudgmentKernel:
                 records.append(
                     EvidenceRecord(
                         claim=g.get("claim", query),
-                        evidence_hash=hashlib.sha256(str(g.get("content", "")).encode()).hexdigest(),
+                        evidence_hash=hashlib.sha256(
+                            str(g.get("content", "")).encode()
+                        ).hexdigest(),
                         source_uri=g.get("source", "unknown"),
                         confidence=g.get("relevance", 0.9),
-                        witness_type="AI"
+                        witness_type="AI",
                     )
                 )
 
@@ -300,8 +302,9 @@ class JudgmentKernel:
             shadow_score = 0.0
 
         from core.shared.physics import W_4
+
         w4 = W_4(human_score, ai_score, earth_score, shadow_score)
-        
+
         w4_threshold = {"UTILITY": 0.65, "SPINE": 0.75, "CRITICAL": 0.95}.get(tool_class, 0.75)
         w3 = w4  # Legacy Alias
 
@@ -310,13 +313,18 @@ class JudgmentKernel:
         omega_p = abs(agi_result.humility_omega - 0.04) / 0.04
         psi_p = (peace2 / 1.2 + kappa_r) / 2.0
         failure_drag = 0.2 if agi_result.verdict == "VOID" else 0.0
-        phi_p = _calculate_paradox_conductance(delta_p, omega_p, psi_p, kappa_r, amanah, failure_drag)
+        phi_p = _calculate_paradox_conductance(
+            delta_p, omega_p, psi_p, kappa_r, amanah, failure_drag
+        )
 
         violations = []
         justifications = []
 
-        requires_human = (irreversibility_index > 0.8 or agi_result.verdict == "VOID" or 
-                         (asi_result and asi_result.verdict == "888_HOLD"))
+        requires_human = (
+            irreversibility_index > 0.8
+            or agi_result.verdict == "VOID"
+            or (asi_result and asi_result.verdict == "888_HOLD")
+        )
 
         if requires_human:
             verdict = "888_HOLD"
@@ -339,7 +347,10 @@ class JudgmentKernel:
             confidence=combined_confidence,
             reasoning=reasoning,
             requires_human_approval=requires_human,
-            floor_scores={**agi_result.floor_scores, **(asi_result.floor_scores if asi_result else {})},
+            floor_scores={
+                **agi_result.floor_scores,
+                **(asi_result.floor_scores if asi_result else {}),
+            },
             vitality_index=round(psi, 4),
             tri_witness=round(w3, 4),
             paradox_conductance=round(phi_p, 4),
@@ -348,17 +359,21 @@ class JudgmentKernel:
 
 _judgment_kernel: JudgmentKernel | None = None
 
+
 def get_judgment_kernel() -> JudgmentKernel:
     global _judgment_kernel
     if _judgment_kernel is None:
         _judgment_kernel = JudgmentKernel()
     return _judgment_kernel
 
+
 def judge_cognition(**kwargs) -> CognitionResult:
     return get_judgment_kernel().judge_cognition(**kwargs)
 
+
 def judge_empathy(**kwargs) -> EmpathyResult:
     return get_judgment_kernel().judge_empathy(**kwargs)
+
 
 def judge_apex(**kwargs) -> VerdictResult:
     return get_judgment_kernel().judge_apex(**kwargs)

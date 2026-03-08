@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class MemoryResult:
     """Unified memory result (Internal)."""
+
     source: str  # 'constitutional' or 'gdrive'
     path: str
     content: str
@@ -34,7 +35,7 @@ class UnifiedMemory:
     """
     Unified semantic memory across constitutional corpus and Google Drive.
     """
-    
+
     def __init__(self, qdrant_url: str | None = None):
         self.collections = {
             "constitutional": "arifos_constitutional",
@@ -50,15 +51,10 @@ class UnifiedMemory:
             self.client = QdrantClient(url=self.qdrant_url, timeout=1.0)
         except Exception:
             self.client = None
-    
-    def search(
-        self,
-        query: str,
-        top_k: int = 5,
-        domain: str = "all"
-    ) -> list[MemoryResult]:
+
+    def search(self, query: str, top_k: int = 5, domain: str = "all") -> list[MemoryResult]:
         """Simplified search implementation for the organ entrypoint."""
-        # In a real run, this would query Qdrant. 
+        # In a real run, this would query Qdrant.
         # For now, providing structured fallback or calling client if available.
         if not self.client:
             return [
@@ -67,7 +63,7 @@ class UnifiedMemory:
                     path="memory/core",
                     content="Fallback: arifOS Stage 555 focuses on semantic stability.",
                     score=0.9,
-                    metadata={}
+                    metadata={},
                 )
             ]
         # Real Qdrant logic would go here (omitted for brevity in this refactor)
@@ -96,10 +92,10 @@ async def vault(
     """
     Stage 555: VECTOR MEMORY (APEX-G compliant)
     """
-    
+
     # 1. Initialize Result
     res = VectorMemoryResult()
-    
+
     # 2. Map Operation to Implementation
     if operation == "store":
         if not content:
@@ -107,29 +103,30 @@ async def vault(
             content = kwargs.get("query")
         if not content:
             raise ValueError("Operation 'store' requires 'content' or 'query'")
-        
+
         # Simulate storage in VAULT999
         new_id = f"mem_{secrets.token_hex(4)}"
         res.stored_ids = [new_id]
-        
+
     elif operation in ("recall", "search"):
         search_query = content or kwargs.get("query") or "INIT"
-        
+
         # Use existing search logic
         internal_results = get_unified_memory().search(search_query, top_k=top_k)
-        
+
         res.memories = [
             MemoryResultItem(
                 id=f"mem_{secrets.token_hex(4)}",
                 content=r.content,
                 score=r.score,
-                metadata={**r.metadata, "source": r.source, "path": r.path}
-            ) for r in internal_results
+                metadata={**r.metadata, "source": r.source, "path": r.path},
+            )
+            for r in internal_results
         ]
-        
+
     elif operation == "forget":
         res.forgot_ids = memory_ids or []
-        
+
     elif operation == "seal":
         # Stage 999: VAULT SEAL logic
         return VaultOutput(
@@ -137,7 +134,7 @@ async def vault(
             verdict=Verdict.SEAL,
             operation="seal",
             status="SUCCESS",
-            seal_hash=secrets.token_hex(32)
+            seal_hash=secrets.token_hex(32),
         )
 
     # 3. Construct Output
@@ -146,7 +143,7 @@ async def vault(
         verdict=Verdict.SEAL,
         operation=operation,
         status="SUCCESS",
-        result=res
+        result=res,
     )
 
 
