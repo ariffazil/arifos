@@ -233,11 +233,16 @@
             apex_output: {
                 capacity_layer: { A: 0.95, P: 0.92, X: 0.85, capacity_product: 0.7429 },
                 effort_layer: { E: 0.88, effort_amplifier: 0.7744, reasoning_steps: 12, tool_calls: 3 },
-                entropy_layer: { H_before: 2.4, H_after: 1.8, delta_S: -0.6 },
-                efficiency_layer: { compute_cost: 120.5, entropy_removed: 0.6, intelligence_efficiency: 0.004979 },
-                governed_intelligence: { G_star: 0.5753, efficiency: 0.004979, governed_score: 0.002864 },
-                governance_layer: { vitality_index: 1.42, truth_floor: "pass", authority_status: "pass", sovereignty_status: "pass", tri_witness_status: "pass" },
-                diagnostics: { logA: -0.051, logP: -0.083, logX: -0.162, "2logE": -0.255, logDeltaS: -0.51, logC: 4.79 }
+                entropy_layer: { H_before: 2.4, H_after: 1.8, delta_S: 0.6 },
+                efficiency_layer: { C: 120, entropy_removed: 0.6, eta: 0.004979 },
+                governed_intelligence: { G_star: 0.5753, G_dagger: 0.002864 },
+                governance_layer: { amanah_score: 0.75, truth_floor: "pass", authority_status: "pass", sovereignty_status: "pass", tri_witness_status: "Cannot Compute" },
+                diagnostics: {
+                    log_decomposition: { logA: -0.051, logP: -0.083, logX: -0.162, "2logE": -0.255, logDeltaS: -0.51, logC: 4.79 },
+                    primary_constraint: "none",
+                    equation: "log G\u2020 = logA + logP + logX + 2logE + log\u0394S - logC",
+                    runtime_story: "Capacity is high, effort is engaged, entropy is clarifying, efficiency is workable, governance is provisional; realized governed intelligence is 0.002864."
+                }
             }
         };
 
@@ -293,17 +298,20 @@
                 { subject: 'Peace (P)', A: data.apex_output.capacity_layer.P, fullMark: 1 },
                 { subject: 'Exploration (X)', A: data.apex_output.capacity_layer.X, fullMark: 1 },
                 { subject: 'Effort (E)', A: data.apex_output.effort_layer.E, fullMark: 1 },
-                { subject: 'Efficiency (η)', A: Math.min(1, data.apex_output.efficiency_layer.intelligence_efficiency * 100), fullMark: 1 },
+                { subject: 'Efficiency (η)', A: Math.min(1, data.apex_output.efficiency_layer.eta * 100), fullMark: 1 },
             ], [data]);
 
-            const logData = useMemo(() => [
-                { name: 'logA', val: data.apex_output.diagnostics.logA },
-                { name: 'logP', val: data.apex_output.diagnostics.logP },
-                { name: 'logX', val: data.apex_output.diagnostics.logX },
-                { name: '2logE', val: data.apex_output.diagnostics["2logE"] },
-                { name: 'logΔS', val: data.apex_output.diagnostics.logDeltaS },
-                { name: '-logC', val: -data.apex_output.diagnostics.logC },
-            ], [data]);
+            const logData = useMemo(() => {
+                const ld = data.apex_output.diagnostics.log_decomposition;
+                return [
+                    { name: 'logA', val: ld.logA },
+                    { name: 'logP', val: ld.logP },
+                    { name: 'logX', val: ld.logX },
+                    { name: '2logE', val: ld["2logE"] },
+                    { name: 'logΔS', val: ld.logDeltaS },
+                    { name: '-logC', val: -ld.logC },
+                ];
+            }, [data]);
 
             const apex = data.apex_output;
 
@@ -334,11 +342,11 @@
                         <div className="card">
                             <h3>Governed Intelligence Realized (G†)</h3>
                             <div style={{display: 'flex', alignItems: 'center', justifyContent: 'center', height: '300px', flexDirection: 'column'}}>
-                                <div className="main-score pulse">{apex.governed_intelligence.governed_score.toFixed(6)}</div>
-                                <div style={{color: var('--dim'), fontSize: '0.8rem'}}>G† = G* · η</div>
+                                <div className="main-score pulse">{apex.governed_intelligence.G_dagger.toFixed(6)}</div>
+                                <div style={{color: 'var(--dim)', fontSize: '0.8rem'}}>G† = G* · η</div>
                                 <div style={{marginTop: '20px'}}>
-                                    <span className={`badge ${apex.governed_intelligence.governed_score >= 0.001 ? 'badge-success' : 'badge-danger'}`}>
-                                        {apex.governed_intelligence.governed_score >= 0.001 ? 'Governed Seal' : 'Insufficient realization'}
+                                    <span className={`badge ${apex.governed_intelligence.G_dagger >= 0.001 ? 'badge-success' : 'badge-danger'}`}>
+                                        {apex.governed_intelligence.G_dagger >= 0.001 ? 'Governed Seal' : 'Insufficient realization'}
                                     </span>
                                 </div>
                             </div>
@@ -376,7 +384,7 @@
                                 </div>
                                 <div className="metric-box">
                                     <div className="metric-label">Efficiency (η)</div>
-                                    <div className="metric-value">{apex.efficiency_layer.intelligence_efficiency.toFixed(6)}</div>
+                                    <div className="metric-value">{apex.efficiency_layer.eta.toFixed(6)}</div>
                                 </div>
                                 <div className="metric-box">
                                     <div className="metric-label">Potential (G*)</div>
@@ -409,9 +417,9 @@
                             <h3>Governance Integrity</h3>
                             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
                                 <div className="log-line">
-                                    <span>Vitality Index (Ψ)</span>
-                                    <span style={{color: apex.governance_layer.vitality_index >= 1.0 ? 'var(--success)' : 'var(--danger)'}}>
-                                        {apex.governance_layer.vitality_index.toFixed(2)}
+                                    <span>Amanah Score (F1)</span>
+                                    <span style={{color: apex.governance_layer.amanah_score >= 0.75 ? 'var(--success)' : 'var(--danger)'}}>
+                                        {apex.governance_layer.amanah_score.toFixed(2)}
                                     </span>
                                 </div>
                                 <div className="log-line">
