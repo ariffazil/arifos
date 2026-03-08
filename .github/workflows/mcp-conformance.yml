@@ -62,8 +62,8 @@ jobs:
 
       - name: FastMCP CLI smoke (inspect/list)
         run: |
-          fastmcp inspect fastmcp.json --format mcp > /tmp/fastmcp_inspect.json
-          fastmcp list arifosmcp.transport/server.py:mcp --json > /tmp/fastmcp_list.json
+          PYTHONPATH="$PWD" fastmcp inspect fastmcp.json --format mcp > /tmp/fastmcp_inspect.json
+          PYTHONPATH="$PWD" fastmcp list arifosmcp/transport/server.py:mcp --json > /tmp/fastmcp_list.json
           test -s /tmp/fastmcp_inspect.json
           test -s /tmp/fastmcp_list.json
           echo "fastmcp inspect/list smoke passed"
