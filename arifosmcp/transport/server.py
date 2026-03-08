@@ -1316,6 +1316,9 @@ def apply_governance_gate(
     return governance_proof
 
 
+import math
+from core.shared.physics import GeniusDial
+
 class EnvelopeBuilder:
     def __init__(self):
         pass
@@ -1383,6 +1386,81 @@ class EnvelopeBuilder:
             actions.append("Restore session/auth continuity and retry.")
         if not actions:
             actions.append("Continue to next constitutional stage.")
+
+        # APEX 5-Layer Stack Calculation
+        tokens = payload.get("tokens", payload.get("token_count", 50))
+        compute_ms = payload.get("compute_ms", 100)
+        compute_cost = float(tokens) + compute_ms / 10.0
+        
+        delta_s = float(payload.get("dS", payload.get("delta_s", -0.1)))
+        delta_s_reduction = abs(min(0.0, delta_s))
+        eta = delta_s_reduction / compute_cost if compute_cost > 0 else 0.0
+
+        # Create GeniusDial for math consistency
+        dial = GeniusDial(
+            A=float(payload.get("A", 0.95)),
+            P=float(payload.get("P", payload.get("peace2", 1.0))),
+            X=float(payload.get("X", 0.9)),
+            E=float(payload.get("E", 0.9)),
+            architecture=float(payload.get("architecture", 1.0)),
+            parameters=float(payload.get("parameters", 1.0)),
+            data_quality=float(payload.get("data_quality", 0.95)),
+            effort=float(payload.get("effort", 1.0)),
+            compute_cost=compute_cost,
+            entropy_reduction=delta_s_reduction
+        )
+
+        g_star = dial.G_star()
+        g_dagger = dial.G_dagger()
+        
+        h_before = float(payload.get("H_before", 1.0))
+        h_after = float(payload.get("H_after", max(0.0, h_before + delta_s)))
+
+        apex_output = {
+            "capacity_layer": {
+                "A": dial.A,
+                "P": dial.P,
+                "X": dial.X,
+                "capacity_product": round(dial.A * dial.P * dial.X, 4),
+            },
+            "effort_layer": {
+                "E": dial.E,
+                "effort_amplifier": round(dial.E ** 2, 4),
+                "reasoning_steps": payload.get("steps", 1),
+                "tool_calls": 1
+            },
+            "entropy_layer": {
+                "H_before": round(h_before, 4),
+                "H_after": round(h_after, 4),
+                "delta_S": round(delta_s, 4),
+            },
+            "efficiency_layer": {
+                "compute_cost": round(compute_cost, 4),
+                "entropy_removed": round(delta_s_reduction, 4),
+                "intelligence_efficiency": round(eta, 6),
+            },
+            "governed_intelligence": {
+                "G_star": round(g_star, 4),
+                "efficiency": round(eta, 6),
+                "governed_score": round(g_dagger, 6),
+            },
+            "governance_layer": {
+                "truth_floor": "fail" if "F2" in floors_failed else "pass",
+                "authority_status": "fail" if "F11" in floors_failed else "pass",
+                "sovereignty_status": "fail" if "F13" in floors_failed else "pass",
+                "tri_witness_status": "pass", # Default for utilities
+            },
+            "diagnostics": {
+                "logA": round(math.log(dial.A) if dial.A > 0 else 0, 4),
+                "logP": round(math.log(dial.P) if dial.P > 0 else 0, 4),
+                "logX": round(math.log(dial.X) if dial.X > 0 else 0, 4),
+                "2logE": round(2 * math.log(dial.E) if dial.E > 0 else 0, 4),
+                "logDeltaS": round(math.log(delta_s_reduction) if delta_s_reduction > 0 else 0, 4),
+                "logC": round(math.log(compute_cost) if compute_cost > 0 else 0, 4),
+                "failed_floors": floors_failed,
+            }
+        }
+
         return {
             "verdict": verdict,
             "stage": stage,
@@ -1392,6 +1470,7 @@ class EnvelopeBuilder:
             "next_actions": actions,
             "sabar_requirements": self._generate_sabar_requirements(verdict, payload),
             "payload": payload,
+            "apex_output": apex_output,
         }
 
 
