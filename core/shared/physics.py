@@ -680,6 +680,11 @@ class GeniusDial:
     E (Energy): Efficiency [0, 1] (Squared power)
     h (Hysteresis): Penalty for previous failures [0, 1]
 
+    APEX Theorem Extension (G† = G* · η):
+    G* (Potential): A × P × X × E²
+    η (Efficiency): ΔS / C (Clarity per compute unit)
+    G† (Realized): G* × η
+
     Threshold: G >= 0.80 for Genius certification.
     """
 
@@ -689,6 +694,14 @@ class GeniusDial:
     E: float
     h: float = 0.0  # Hysteresis penalty accumulator
 
+    # APEX metadata (for G†)
+    architecture: float = 1.0
+    parameters: float = 1.0
+    data_quality: float = 0.95
+    effort: float = 0.0
+    compute_cost: float = 1.0
+    entropy_reduction: float = 0.0
+
     def __post_init__(self):
         object.__setattr__(self, "A", max(0.0, min(1.0, self.A)))
         object.__setattr__(self, "P", max(0.0, min(1.0, self.P)))
@@ -697,9 +710,23 @@ class GeniusDial:
         object.__setattr__(self, "h", max(0.0, min(1.0, self.h)))
 
     def G(self) -> float:
-        """Compute Genius Score with Hysteresis penalty."""
+        """Compute legacy Genius Score with Hysteresis penalty."""
         base_g = self.A * self.P * self.X * (self.E**2)
         return base_g * (1.0 - self.h)
+
+    def G_star(self) -> float:
+        """APEX Potential: Capacity * Effort."""
+        # If effort is not provided, use legacy Energy^2 as proxy
+        eff = self.effort if self.effort > 0 else (self.E**2)
+        return self.architecture * self.parameters * self.data_quality * (eff**2)
+
+    def eta(self) -> float:
+        """Intelligence Efficiency (η = ΔS / C)."""
+        return self.entropy_reduction / self.compute_cost if self.compute_cost > 0 else 0.0
+
+    def G_dagger(self) -> float:
+        """Governed Intelligence Realized (G† = G* · η)."""
+        return self.G_star() * self.eta() * (1.0 - self.h)
 
     def is_genius(self, threshold: float = 0.80) -> bool:
         """F8 enforcement: G >= threshold?"""
@@ -716,6 +743,16 @@ def G(A: float, P: float, X: float, E: float, h: float = 0.0) -> float:
     F8 Genius Equation: G = (A × P × X × E²) × (1 - h)
     """
     return GeniusDial(A, P, X, E, h).G()
+
+
+def G_dagger(
+    G_star: float, entropy_reduction: float, compute_cost: float, h: float = 0.0
+) -> float:
+    """
+    Compute realized governed intelligence (G†).
+    """
+    eta = entropy_reduction / compute_cost if compute_cost > 0 else 0.0
+    return G_star * eta * (1.0 - h)
 
 
 def genius_score(A: float, P: float, X: float, E: float, h: float = 0.0) -> float:
@@ -830,6 +867,10 @@ class ConstitutionalTensor:
             "peace": self.peace.P2(),
             "humility": self.humility.omega_0,
             "genius_G": self.genius.G(),
+            # APEX Layers
+            "G_star": self.genius.G_star(),
+            "eta": self.genius.eta(),
+            "G_dagger": self.genius.G_dagger(),
             "verdict": verdict,
         }
 
@@ -1117,6 +1158,7 @@ __all__ = [
     "peace_squared",
     "GeniusDial",
     "G",
+    "G_dagger",
     "genius_score",
     "G_from_dial",
     "kl_divergence",

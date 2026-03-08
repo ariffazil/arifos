@@ -43,6 +43,10 @@ class MetabolismState(BaseModel):
     landauer_efficiency: float = Field(
         default=1.0, description="Compute efficiency vs physical bounds"
     )
+    # APEX Theorem Extension
+    G_star: float = Field(default=0.0, description="APEX Potential (G*)")
+    G_dagger: float = Field(default=0.0, description="Governed Intelligence Realized (G†)")
+    eta: float = Field(default=0.0, description="Intelligence Efficiency (η)")
 
 
 class DecisionState(BaseModel):
@@ -312,6 +316,10 @@ class ApexMetrics(BaseModel):
     quad_witness: float = Field(ge=0.0, le=1.0, default=0.75, description="F3: W₄ ≥ 0.75")
     genius_g: float = Field(ge=0.0, le=1.0, description="F8: G ≥ 0.80")
     ontology_valid: bool = Field(description="F10: Category lock")
+    # APEX Theorem Extension
+    G_star: float = Field(default=0.0, description="APEX Potential (G*)")
+    G_dagger: float = Field(default=0.0, description="Governed Intelligence Realized (G†)")
+    eta: float = Field(default=0.0, description="Intelligence Efficiency (η)")
 
 
 # ============================================================================
