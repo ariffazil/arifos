@@ -18,8 +18,9 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 import math
 import statistics
+from collections.abc import Sequence
 from dataclasses import dataclass, field
-from typing import Any, Optional, Sequence, Union
+from typing import Any
 
 # =============================================================================
 # CONSTANTS — Thermodynamic Environment

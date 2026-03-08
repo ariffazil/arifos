@@ -205,8 +205,7 @@ async def init(
         math = math_dials
 
     # 2. Query Analysis (ATLAS)
-    gpv = Phi(intent.query)
-    query_type = gpv.query_type
+    _ = Phi(intent.query)
 
     # 3. Initialize Physics State
     physics = PhysicsState(

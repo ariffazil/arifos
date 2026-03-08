@@ -33,6 +33,18 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 ROOT = Path(__file__).parent.parent
 DEFAULT_VPS_HOST = "root@72.62.71.199"
 DEFAULT_PUBLIC_BASE_URL = "https://arifosmcp.arif-fazil.com"
+CORE_CONSTITUTIONAL_TOOLS = (
+    "init_anchor_state",
+    "integrate_analyze_reflect",
+    "reason_mind_synthesis",
+    "metabolic_loop_router",
+    "vector_memory_store",
+    "assess_heart_impact",
+    "critique_thought_audit",
+    "quantum_eureka_forge",
+    "apex_judge_verdict",
+    "seal_vault_commit",
+)
 
 
 class Colors:
@@ -110,7 +122,7 @@ def build_vps_overlay_script(
     env_file: str,
     prod_bind: str,
     public_base_url: str,
-    expected_tools: int = 13,
+    expected_tools: int = 10,
 ) -> str:
     """Render the remote bash script for immutable VPS image deployment."""
     public_health_url = f"{public_base_url.rstrip('/')}/health"
@@ -170,9 +182,13 @@ def build_vps_overlay_script(
         from pathlib import Path
 
         data = json.loads(Path("/tmp/arifos_candidate_tools.json").read_text())
-        count = len(data["tools"])
-        if count != {expected_tools}:
-            raise SystemExit(f"candidate tool count mismatch: {{count}} != {expected_tools}")
+        names = {{tool["name"] for tool in data["tools"] if "name" in tool}}
+        count = len(names)
+        missing = sorted(set({CORE_CONSTITUTIONAL_TOOLS!r}) - names)
+        if count < {expected_tools}:
+            raise SystemExit(f"candidate tool count too low: {{count}} < {expected_tools}")
+        if missing:
+            raise SystemExit(f"candidate missing core tools: {{', '.join(missing)}}")
         print(f"candidate_tools={{count}}")
         PY
 
@@ -199,9 +215,13 @@ def build_vps_overlay_script(
         from pathlib import Path
 
         public_tools = json.loads(Path("/tmp/arifos_public_tools.json").read_text())
-        count = len(public_tools["tools"])
-        if count != {expected_tools}:
-            raise SystemExit(f"public tool count mismatch: {{count}} != {expected_tools}")
+        names = {{tool["name"] for tool in public_tools["tools"] if "name" in tool}}
+        count = len(names)
+        missing = sorted(set({CORE_CONSTITUTIONAL_TOOLS!r}) - names)
+        if count < {expected_tools}:
+            raise SystemExit(f"public tool count too low: {{count}} < {expected_tools}")
+        if missing:
+            raise SystemExit(f"public missing core tools: {{', '.join(missing)}}")
         print(f"public_tools={{count}}")
         PY
 
@@ -258,12 +278,13 @@ async def validate_environment() -> bool:
         checks_failed += 1
 
     try:
-        import arifosmcp.transport  # noqa: F401
+        from arifosmcp.runtime.server import create_aaa_mcp_server
 
-        log_ok("AAA MCP server importable")
+        create_aaa_mcp_server()
+        log_ok("AAA runtime hub importable")
         checks_passed += 1
     except Exception as e:
-        log_err(f"AAA MCP import failed: {e}")
+        log_err(f"AAA runtime import failed: {e}")
         checks_failed += 1
 
     try:
@@ -274,12 +295,12 @@ async def validate_environment() -> bool:
         log_err(f"Pipeline execution failed: {e}")
         checks_failed += 1
 
-    env_prod = ROOT / ".env.production"
+    env_prod = ROOT / ".env.docker"
     if env_prod.exists():
-        log_ok("Production env template exists")
+        log_ok("Docker env template exists")
         checks_passed += 1
     else:
-        log_warn("No .env.production template")
+        log_warn("No .env.docker template")
 
     dockerfile = ROOT / "Dockerfile"
     if dockerfile.exists():
@@ -352,7 +373,7 @@ def deploy_railway() -> bool:
     env_vars = {
         "PORT": "8080",
         "HOST": "0.0.0.0",
-        "AAA_MCP_TRANSPORT": "sse",
+        "AAA_MCP_TRANSPORT": "http",
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
     }
 
@@ -425,7 +446,7 @@ def deploy_docker() -> bool:
             "-e",
             "HOST=0.0.0.0",
             "-e",
-            "AAA_MCP_TRANSPORT=sse",
+            "AAA_MCP_TRANSPORT=http",
             "--name",
             "arifos-mcp",
             "arifos-mcp:latest",
@@ -479,7 +500,7 @@ def generate_railway_template() -> None:
         "$schema": "https://railway.app/railway.schema.json",
         "build": {"builder": "DOCKERFILE", "dockerfilePath": "Dockerfile"},
         "deploy": {
-            "startCommand": "python scripts/start_server.py",
+            "startCommand": "uvicorn arifosmcp.runtime.server:app --host 0.0.0.0 --port $PORT",
             "healthcheckPath": "/health",
             "healthcheckTimeout": 30,
             "restartPolicyType": "on_failure",
@@ -488,7 +509,7 @@ def generate_railway_template() -> None:
         "variables": {
             "PORT": "8080",
             "HOST": "0.0.0.0",
-            "AAA_MCP_TRANSPORT": "sse",
+            "AAA_MCP_TRANSPORT": "http",
             "ARIFOS_CONSTITUTIONAL_MODE": "AAA",
         },
     }
@@ -533,7 +554,12 @@ def main() -> None:
         default=DEFAULT_PUBLIC_BASE_URL,
         help="Public base URL used for post-deploy verification",
     )
-    parser.add_argument("--expected-tools", type=int, default=10, help="Expected tool count")
+    parser.add_argument(
+        "--expected-tools",
+        type=int,
+        default=10,
+        help="Minimum public tool count; core stack presence is also enforced",
+    )
     parser.add_argument("--dry-run", action="store_true", help="Print remote script and exit")
 
     args = parser.parse_args()

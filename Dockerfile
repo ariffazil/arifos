@@ -97,4 +97,4 @@ LABEL io.modelcontextprotocol.server.version="2026.03.08-SEAL"
 LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with a 10-tool APEX-G core stack plus legacy Phase 2 capability tools."
 
 # Execute consolidated entrypoint
-CMD ["python", "-m", "arifosmcp.runtime", "http"]
+CMD ["uvicorn", "arifosmcp.runtime.server:app", "--host", "0.0.0.0", "--port", "8080"]
