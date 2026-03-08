@@ -335,16 +335,186 @@ class BaseOrganOutput(BaseModel):
 
 
 # ============================================================================
+# APEX-G: THE COGNITIVE CONTRACT
+# ============================================================================
+
+class Intent(BaseModel):
+    """G in APEX-G: Human goal and task details."""
+    query: str = Field(..., min_length=1)
+    task_type: Literal["ask", "analyze", "design", "decide", "audit", "execute", "unknown"] = "unknown"
+    domain: str = "general"
+    desired_output: Literal["text", "json", "table", "code", "mixed"] = "text"
+    reversibility: Literal["reversible", "mixed", "irreversible", "unknown"] = "unknown"
+
+class MathDials(BaseModel):
+    """A in APEX-G: Thinking dials (Math/Akal)."""
+    akal: float = Field(default=0.6, ge=0.0, le=1.0)
+    present: float = Field(default=0.8, ge=0.0, le=1.0)
+    energy: float = Field(default=0.6, ge=0.0, le=1.0)
+    exploration: float = Field(default=0.4, ge=0.0, le=1.0)
+
+class PhysicsState(BaseModel):
+    """P in APEX-G: Computed thermodynamic state."""
+    delta_s: float = 0.0
+    omega_0: float = 0.04
+    peace2: float = 1.0
+    psi: float = 1.0
+    amanah_lock: bool = True
+
+class CodeState(BaseModel):
+    """C in APEX-G: Runtime pipeline stage."""
+    session_id: str
+    stage: Literal["000", "111", "222", "333", "444", "555", "666", "777", "888", "999"] = "000"
+    lane: Literal["PHATIC", "SOFT", "HARD", "REFUSE", "UNKNOWN"] = "UNKNOWN"
+    runtime_mode: Literal["init", "draft", "review", "judge", "seal"] = "init"
+    verdict: Literal["SEAL", "PARTIAL", "SABAR", "VOID", "HOLD-888", "UNSET"] = "UNSET"
+
+class GovernanceMetadata(BaseModel):
+    """G in APEX-G: Identity and stakes."""
+    actor_id: str = "anonymous"
+    authority_level: Literal["human", "agent", "system", "anonymous"] = "anonymous"
+    stakes_class: Literal["A", "B", "C", "UNKNOWN"] = "UNKNOWN"
+    tri_witness: dict[str, float] = Field(default_factory=lambda: {"human": 0.0, "ai": 0.0, "earth": 0.0})
+
+# ============================================================================
+# STAGE 111-333: REASONING MODELS
+# ============================================================================
+
+class ReasonMindStep(BaseModel):
+    """Single step in the metabolic reasoning pipeline."""
+    id: int
+    phase: Literal["111_search", "222_analyze", "333_synthesis"]
+    thought: str
+    evidence: str | None = None
+    uncertainty: str | None = None
+
+class EurekaInsight(BaseModel):
+    """An 'aha' moment discovered during reasoning."""
+    has_eureka: bool = False
+    summary: str | None = None
+
+class ReasonMindAnswer(BaseModel):
+    """The synthesized conclusion of the reasoning mind."""
+    summary: str
+    confidence: float = Field(ge=0.0, le=1.0)
+    verdict: Literal["ready", "partial", "needs_evidence", "escalate"] = "ready"
+
+# ============================================================================
+# STAGE 555: ASSOCIATIVE MEMORY MODELS
+# ============================================================================
+
+class MemoryResultItem(BaseModel):
+    """A single recalled memory chunk."""
+    id: str
+    content: str
+    score: float = Field(ge=0.0, le=1.0)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+class VectorMemoryResult(BaseModel):
+    """Container for memory operation outcomes."""
+    stored_ids: list[str] | None = None
+    memories: list[MemoryResultItem] | None = None
+    forgot_ids: list[str] | None = None
+
+# ============================================================================
+# STAGE 666: EMPATHY & SAFETY MODELS
+# ============================================================================
+
+class StakeholderImpact(BaseModel):
+    """Evaluation of help/harm for a specific role."""
+    role: str
+    impact: Literal["help", "neutral", "harm", "unknown"]
+
+class EthicalIssue(BaseModel):
+    """Categorized ethical or safety concern."""
+    type: Literal["harm", "escalation", "bias", "privacy", "manipulation", "other", "hallucination", "unsafe_advice", "unclear"]
+    summary: str
+
+class HeartAssessment(BaseModel):
+    """The structured output of the Alignment Engine."""
+    risk_level: Literal["low", "medium", "high", "unknown", "critical"]
+    stakeholders: list[StakeholderImpact] = Field(default_factory=list)
+    issues: list[EthicalIssue] = Field(default_factory=list)
+
+class CritiqueFinding(BaseModel):
+    """A single finding from internal audit."""
+    type: Literal["logical_error", "missing_evidence", "hallucination", "unsafe_advice", "unclear", "other"]
+    summary: str
+
+class CritiqueResult(BaseModel):
+    """The result of an internal self-audit."""
+    thought_id: str
+    severity: Literal["none", "low", "medium", "high"]
+    findings: list[CritiqueFinding] = Field(default_factory=list)
+    suggested_action: Literal["accept_as_is", "minor_edit", "major_revision", "discard_and_restart"]
+
+# ============================================================================
+# STAGE 777: DISCOVERY & FORGE MODELS
+# ============================================================================
+
+class EurekaProposal(BaseModel):
+    """Forged Eureka content from Stage 777."""
+    type: Literal["concept", "design", "eval_case", "governance_rule", "other"]
+    summary: str
+    details: str
+    evidence_links: list[str] = Field(default_factory=list)
+
+class NextAction(BaseModel):
+    """Safe follow-up action suggested by forge."""
+    action_type: Literal["run_eval", "update_schema_draft", "code_sandbox", "human_review", "none"]
+    description: str
+    requires_888_hold: bool = False
+
+# ============================================================================
+# STAGE 888: JUDGMENT MODELS
+# ============================================================================
+
+class JudgmentRationale(BaseModel):
+    """Compact justification for the final verdict."""
+    summary: str
+    tri_witness: dict[str, float] = Field(default_factory=lambda: {"human": 0.0, "ai": 0.0, "earth": 0.0})
+    omega_0: float = 0.04
+
+# ============================================================================
+# STAGE 999: LEDGER & SEAL MODELS
+# ============================================================================
+
+class HashChain(BaseModel):
+    """Tamper-evident chain metadata."""
+    payload_hash: str
+    entry_hash: str
+    prev_entry_hash: str
+
+class SealRecord(BaseModel):
+    """Immutable vault commit record."""
+    status: Literal["sealed", "provisional", "audit_logged", "blocked", "failed"]
+    ledger_id: str
+    summary: str
+    verdict: str
+    hash: str | None = None
+    timestamp: datetime = Field(default_factory=datetime.now)
+    error: str | None = None
+
+# ============================================================================
 # ORGAN OUTPUTS — Return Types for Each Organ
 # ============================================================================
 
 
 class InitOutput(BaseOrganOutput):
-    """Output from core_init (Session Authentication)."""
+    """Output from core_init (APEX-G Session Ignition)."""
 
-    governance_token: str
-    injection_score: float = Field(ge=0.0, le=1.0)
-    auth_verified: bool
+    banner: str = "DITEMPA, BUKAN DIBERI 🔨"
+    intent: Intent
+    math: MathDials
+    physics: PhysicsState
+    code: CodeState
+    governance: GovernanceMetadata
+    floors: dict[str, str] = Field(default_factory=dict)
+
+    # Legacy support fields
+    governance_token: str = ""
+    injection_score: float = 0.0
+    auth_verified: bool = False
     actor_identity: ActorIdentity | None = None
     continuity_token: str | None = None
     query_type: str = "CARE"
@@ -355,36 +525,64 @@ class InitOutput(BaseOrganOutput):
     @property
     def is_void(self) -> bool:
         """Query was rejected at airlock."""
-        return self.verdict == Verdict.VOID
+        return self.code.verdict == "VOID" or self.verdict == Verdict.VOID
 
     @property
     def requires_human(self) -> bool:
         """Query requires sovereign approval (888_HOLD)."""
-        return self.verdict == Verdict.HOLD_888
+        return self.code.verdict == "HOLD-888" or self.verdict == Verdict.HOLD_888
 
 
 class AgiOutput(BaseOrganOutput):
-    """Output from core_agi (Evidence Engine)."""
+    """Output from core_agi (Evidence Engine / Reason Mind)."""
 
-    thoughts: list[ThoughtNode]
+    stage: Literal["111", "222", "333"] = "333"
+    steps: list[ReasonMindStep] = Field(default_factory=list)
+    eureka: EurekaInsight = Field(default_factory=EurekaInsight)
+    answer: ReasonMindAnswer
+    floors: dict[str, str] = Field(default_factory=dict)
+
+    # Legacy/Extended fields
+    thoughts: list[ThoughtNode] = Field(default_factory=list)
     evidence_records: list[EvidenceRecord] = Field(default_factory=list)
     evidence: dict[str, Any] = Field(default_factory=dict)
-    floor_scores: FloorScores
+    floor_scores: FloorScores = Field(default_factory=FloorScores)
     lane: Literal["CRISIS", "FACTUAL", "SOCIAL", "CARE"] = "CARE"
     tensor: Any | None = None  # Forward ref: ConstitutionalTensor
 
 
 class AsiOutput(BaseOrganOutput):
-    """Output from core_asi (Alignment Engine)."""
+    """Output from core_asi (Alignment Engine / Simulate Heart / Critique Thought)."""
 
-    floor_scores: FloorScores
+    # simulate_heart output
+    assessment: HeartAssessment | None = None
+    
+    # critique_thought output
+    critique: CritiqueResult | None = None
+
+    floors: dict[str, str] = Field(default_factory=dict)
+    
+    # Legacy support
+    floor_scores: FloorScores = Field(default_factory=FloorScores)
     stakeholder_impact: dict[str, float] = Field(default_factory=dict)
 
 
 class ApexOutput(BaseOrganOutput):
-    """Output from core_apex (Verdict Engine)."""
+    """Output from core_apex (Verdict Engine / Eureka Forge)."""
 
-    floor_scores: FloorScores
+    # Stage 777 output
+    intent: str | None = None
+    eureka: EurekaProposal | None = None
+    next_actions: list[NextAction] = Field(default_factory=list)
+
+    # Stage 888 output
+    final_verdict: Verdict = Verdict.SEAL
+    reasoning: JudgmentRationale | None = None
+
+    floors: dict[str, str] = Field(default_factory=dict)
+    
+    # Legacy support
+    floor_scores: FloorScores = Field(default_factory=FloorScores)
     proof: str | None = None  # If audit mode
 
 
@@ -401,12 +599,147 @@ class VaultEntry(BaseModel):
 
 
 class VaultOutput(BaseOrganOutput):
-    """Output from core_memory (Memory Engine)."""
+    """Output from core_memory (Memory Engine / Vector Memory / Sealing)."""
 
-    action: Literal["write", "read", "query"]
+    operation: Literal["store", "recall", "search", "forget", "write", "read", "query", "seal"] = "search"
+    result: VectorMemoryResult | None = None
+    
+    # Stage 999 output
+    seal_record: SealRecord | None = None
+    hash_chain: HashChain | None = None
+
+    # Legacy support
+    action: str = "" # Alias for operation
     entries: list[VaultEntry] = Field(default_factory=list)
     seal_hash: str | None = None
     merkle_root: str | None = None
+
+
+# ============================================================================
+# GOVERNANCE PLACEMENT VECTOR — ATLAS Types
+# ============================================================================
+
+
+class GPV(BaseModel):
+    """
+    Governance Placement Vector (from ATLAS Φ function).
+
+    4D constitutional coordinate:
+    - lane: Categorical routing
+    - τ (tau): Truth demand
+    - κ (kappa): Care demand
+    - ρ (rho): Risk level
+    """
+
+    lane: Literal["CRISIS", "FACTUAL", "SOCIAL", "CARE"]
+    tau: float = Field(ge=0.0, le=1.0, alias="τ")  # Truth demand
+    kappa: float = Field(ge=0.0, le=1.0, alias="κ")  # Care demand
+    rho: float = Field(ge=0.0, le=1.0, alias="ρ")  # Risk level
+
+    model_config = ConfigDict(validate_by_name=True)
+
+
+# ============================================================================
+# SYSTEM STATE — v62 Cognitive Runtime
+# ============================================================================
+
+Profile = Literal["factual", "creative", "crisis", "routine"]
+
+
+class SystemState(BaseModel):
+    """
+    Minimal SystemState for v62.
+    Exposes system metrics for scheduler routing.
+
+    Fields:
+        uncertainty: 0.0-1.0 (epistemic uncertainty)
+        risk: 0.0-1.0 (stakeholder impact)
+        grounding: 0.0-1.0 (evidence strength)
+        loop_count: int (iteration detection)
+        profile: domain classification for adaptive floors
+    """
+
+    uncertainty: float  # 0..1
+    risk: float  # 0..1
+    grounding: float  # 0..1
+    loop_count: int
+    profile: Profile
+
+    def to_dict(self) -> dict:
+        return {
+            "uncertainty": round(self.uncertainty, 2),
+            "risk": round(self.risk, 2),
+            "grounding": round(self.grounding, 2),
+            "loop_count": self.loop_count,
+            "profile": self.profile,
+        }
+
+
+# ============================================================================
+# SENSORY EVIDENCE — L4 Tool Ingest
+# ============================================================================
+
+
+class RepoEvidence(BaseModel):
+    """
+    Δ Delta Sensory: GitIngest Codebase Digest.
+
+    Hardened with F12 (Injection) and F4 (Thermodynamic) budget.
+    """
+
+    repo_url: str = Field(description="Remote URL or local directory path")
+    digest: str = Field(description="The primary codebase text digest")
+    tree: str = Field(description="Directory structure representation")
+    token_count: int = Field(description="F4: Calculated token usage")
+    file_count: int = Field(description="Number of files ingested")
+    f12_risk_score: float = Field(ge=0.0, le=1.0, description="F12: Injection risk score")
+    verdict: Verdict = Verdict.SEAL
+    taint_lineage: dict[str, Any] = Field(default_factory=dict)
+
+    model_config = ConfigDict(extra="allow")
+
+
+# ============================================================================
+# EXPORT PUBLIC API
+# ============================================================================
+
+__all__ = [
+    # Evidence
+    "RepoEvidence",
+    # Enums
+    "Verdict",
+    # Thought Structures
+    "ThoughtNode",
+    "ThoughtChain",
+    # Floor Scores
+    "FloorScores",
+    # Metrics
+    "AgiMetrics",
+    "AsiMetrics",
+    "ApexMetrics",
+    # Organ Outputs
+    "BaseOrganOutput",
+    "InitOutput",
+    "AgiOutput",
+    "AsiOutput",
+    "ApexOutput",
+    "VaultOutput",
+    "VaultEntry",
+    # ATLAS
+    "GPV",
+    # Metabolic state
+    "EnergyState",
+    "MetabolismState",
+    "DecisionState",
+    "EMD",
+    "ScarWeight",
+    # Bundles
+    "MindBundle",
+    "HeartBundle",
+    "SoulBundle",
+    "SystemState",
+    "Profile",
+]
 
 
 # ============================================================================

@@ -1358,68 +1358,38 @@ envelope_builder = EnvelopeBuilder()
 
 
 @mcp.tool(
-    name="anchor_session",
-    description="[Lane: Δ Delta] [Floors: F11, F12, F13] Session ignition & injection defense.",
+    name="init_anchor_state",
+    description="[Lane: Δ Delta] [Floors: F11, F12, F13] Stage 000 bootstrap & injection defense.",
 )
-async def _init_session(
-    query: str,
-    actor_id: str = "anonymous",
+async def _init_anchor_state(
+    intent: dict[str, Any],
+    math: dict[str, Any] | None = None,
+    governance: dict[str, Any] | None = None,
     auth_token: str | None = None,
-    mode: str = "conscience",
-    grounding_required: bool = True,
-    debug: bool = False,
-    inject_kernel: bool = True,
-    compact_kernel: bool = False,
-    template_id: str = "arifos.full_context.v1",
-    auth_context: dict[str, Any] | None = None,
     session_id: str | None = None,
-    identity_bundle: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     """
-    Initialize a new constitutional session with L0 Kernel enforcement.
-
-    Args:
-        query: User's initial query
-        actor_id: Authenticated actor identifier
-        auth_token: Optional authentication token
-        mode: Session mode (conscience, exploration, etc.)
-        grounding_required: Whether to require source grounding
-        debug: Include detailed internal data
-        inject_kernel: Inject L0 constitutional prompt (default: True)
-        compact_kernel: Use compact L0 prompt to save tokens (default: False)
-
-    Returns:
-        Session data with constitutional system prompt
+    Stage 000: Initialize a governed AI session shell.
     """
     try:
         if not session_id:
-            session_id = f"{actor_id}-{uuid.uuid4().hex[:8]}"
+            session_id = f"session-{uuid.uuid4().hex[:8]}"
 
-        # PKI Identity Verification
-        bound_identity = None
-        if identity_bundle:
-            try:
-                ident = ActorIdentity(**identity_bundle)
-                # If a signature is provided for the initial query, verify it
-                intent_sig = identity_bundle.get("initial_intent_signature")
-                if intent_sig:
-                    msg = f"anchor_session:{session_id}:{query}".encode()
-                    if not _verify_actor_signature(ident.public_key, intent_sig, msg):
-                        return _build_floor_block("000_INIT", "Invalid initial intent signature")
-                bound_identity = ident
-                actor_id = ident.actor_id
-            except Exception as e:
-                return _build_floor_block("000_INIT", f"Identity bundle malformed: {e}")
+        query = intent.get("query", "INIT")
+        actor_id = (governance or {}).get("actor_id", "anonymous")
 
         # Integrate with core SessionManager
-        session_manager.create_session(owner=actor_id, actor_identity=bound_identity)
+        session_manager.create_session(owner=actor_id)
 
         revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
         if revoked:
             return _revocation_void("000_INIT", session_id, revoked)
+        
+        # Call kernel init (anchor)
         anch = await anchor(session_id=session_id, user_id=actor_id, context=query)
         effective_session = str(anch.get("session_id", session_id))
         verdict = str(anch.get("verdict", "SEAL"))
+        
         initial_binding = {
             "actor_id": actor_id,
             "token_fingerprint": _token_fingerprint(auth_token),
@@ -1432,15 +1402,10 @@ async def _init_session(
             "verdict": verdict,
             "session_id": effective_session,
             "stage": "000_INIT",
-            "template_id": template_id,
-            "mode": mode,
-            "grounding_required": grounding_required,
-            "token_status": _token_status(auth_token),
-            "auth": {"present": bool(auth_token)},
             "auth_context": continuity_context,
-            "actor_identity": bound_identity.model_dump() if bound_identity else None,
-            "debug": debug,
-            "data": {"anchor": anch} if debug else {},
+            "intent": intent,
+            "math": math or {"akal": 0.6, "present": 0.8, "energy": 0.6, "exploration": 0.4},
+            "governance": governance or {"actor_id": actor_id, "stakes_class": "UNKNOWN"}
         }
 
         result.update(
@@ -1453,8 +1418,7 @@ async def _init_session(
         )
 
         # 🔥 CONSTITUTIONAL INJECTION: Embed L0 Kernel prompt
-        if inject_kernel:
-            result = inject_l0_into_session(result, compact=compact_kernel)
+        result = inject_l0_into_session(result, compact=False)
 
         return result
 
@@ -1462,7 +1426,8 @@ async def _init_session(
         return _fracture_response("000_INIT", e)
 
 
-anchor_session = ToolHandle(_init_session)
+init_anchor_state = ToolHandle(_init_anchor_state)
+anchor_session = init_anchor_state
 
 
 @mcp.tool(
@@ -1647,132 +1612,131 @@ async def _agi_cognition(
         return _fracture_response("111-444", e, session_id)
 
 
-reason_mind = ToolHandle(_agi_cognition)
+@mcp.tool(
+    name="integrate_analyze_reflect",
+    description="[Lane: Δ Delta] [Floors: F2, F4, F7] Stage 111 framing and problem decomposition.",
+)
+async def _integrate_analyze_reflect(
+    session_id: str,
+    query: str,
+    auth_context: dict[str, Any],
+    max_subquestions: int = 3,
+) -> dict[str, Any]:
+    """
+    Stage 111: Integrative analysis and problem framing.
+    """
+    try:
+        continuity_binding, continuity_error = _enforce_auth_continuity(
+            tool_name="integrate_analyze_reflect",
+            stage="111_FRAMING",
+            session_id=session_id,
+            actor_id="anonymous",
+            auth_token=None,
+            auth_context=auth_context,
+            critical=False,
+        )
+        if continuity_error:
+            return continuity_error
+
+        r = await reason(session_id=session_id, hypothesis=query, action="framing")
+        verdict = str(r.get("verdict", "SEAL"))
+        result = {
+            "verdict": verdict,
+            "session_id": session_id,
+            "stage": "111_FRAMING",
+            "framing": r.get("framing", {}),
+            "sub_questions": r.get("sub_questions", [])[:max_subquestions],
+        }
+        result.update(envelope_builder.build_envelope(stage="111_FRAMING", session_id=session_id, verdict=verdict, payload=r))
+        if continuity_binding:
+            result["auth_context"] = _rotate_auth_context(session_id, continuity_binding)
+        return result
+    except Exception as e:
+        return _fracture_response("111_FRAMING", e, session_id)
+
+
+integrate_analyze_reflect = ToolHandle(_integrate_analyze_reflect)
 
 
 @mcp.tool(
-    name="vector_memory",
-    description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory (VM) – semantic retrieval (BGE + Qdrant). Searches constitutional corpus AND Google Drive (if synced). Domains: canon, manifesto, gdrive, all.",
+    name="reason_mind_synthesis",
+    description="[Lane: Δ Delta] [Floors: F2, F4, F7, F8] Stage 333 AGI cognition & Eureka synthesis.",
 )
-async def _phoenix_recall(
-    query: str,
+async def _reason_mind_synthesis(
     session_id: str,
-    depth: int = 3,
-    domain: str = "canon",
-    debug: bool = False,
+    query: str,
+    auth_context: dict[str, Any],
+    reason_mode: str = "default",
+    max_steps: int = 7,
 ) -> dict[str, Any]:
     """
-    Organ 5: PHOENIX. Associative memory retrieval via EUREKA sieve.
+    Stage 333: Multi-step reasoning and Eureka synthesis.
+    """
+    return await _agi_cognition(
+        query=query,
+        session_id=session_id,
+        auth_context=auth_context,
+        risk_mode=reason_mode,
+        inference_budget=max_steps // 4
+    )
+
+
+reason_mind_synthesis = ToolHandle(_reason_mind_synthesis)
+reason_mind = reason_mind_synthesis
+
+
+@mcp.tool(
+    name="vector_memory_store",
+    description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory – semantic storage and retrieval.",
+)
+async def _vector_memory_store(
+    session_id: str,
+    operation: str,
+    auth_context: dict[str, Any],
+    content: str | None = None,
+    memory_ids: list[str] | None = None,
+    top_k: int = 5,
+) -> dict[str, Any]:
+    """
+    Stage 555: BBB Associative vector memory.
     """
     try:
-        effective_query = query.strip()
+        effective_query = content or ""
         effective_session = session_id.strip()
 
-        if not effective_query:
-            return _build_floor_block("555_RECALL", "Missing query")
         if not effective_session:
             return _build_floor_block("555_RECALL", "Missing session_id")
 
-        source_filter_map = {
-            "canon": "000_THEORY",
-            "manifesto": "APEX-THEORY",
-            "docs": "docs",
-            "gdrive": "gdrive",
-            "all": None,
-        }
-        source_filter = source_filter_map.get(domain, "000_THEORY")
-
         contexts = []
-        gdrive_results = []
-
-        # Search constitutional corpus (unless gdrive-only)
-        if domain != "gdrive":
-            try:
-                rag = _ensure_rag()
-                contexts = rag.retrieve(
-                    query=effective_query,
-                    top_k=max(1, min(int(depth), 10)),
-                    source_filter=source_filter,
-                    min_score=0.15,
-                )
-            except Exception:
-                contexts = []
-
-        # Search Google Drive (if domain is "all", "gdrive", or "docs")
-        if domain in ("all", "gdrive", "docs"):
-            try:
-                from arifosmcp.transport.unified_memory import get_unified_memory
-
-                unified = get_unified_memory()
-                gdrive_results = unified.search_gdrive(effective_query, top_k=min(int(depth), 5))
-                # Convert to same format as contexts
-                for r in gdrive_results:
-                    contexts.append(
-                        type(
-                            "obj",
-                            (object,),
-                            {
-                                "source": "gdrive",
-                                "path": r.path,
-                                "content": r.content,
-                                "score": r.score,
-                                "metadata": r.metadata,
-                            },
-                        )()
-                    )
-            except Exception:
-                pass
-
-        result_state = "MATCH_FOUND" if contexts else "NO_MATCHES"
-        jaccard_max = (
-            max([ctx.metadata.get("jaccard_score", 0.0) for ctx in contexts]) if contexts else 0.0
-        )
-
-        # Build BGE metrics
-        metrics = {
-            "memory_count": len(contexts),
-            "similarity_max": round(jaccard_max, 4),
-            "bge_available": BGE_AVAILABLE,
-            "bge_used": BGE_AVAILABLE and len(contexts) > 0,
-            "embedding_dims": 768 if BGE_AVAILABLE else None,
-            "semantic_search_active": BGE_AVAILABLE and len(contexts) > 0,
-            "delta_s_actual": 0.0,
-            "w_scar_applied": 0.5,
-        }
+        try:
+            rag = _ensure_rag()
+            contexts = rag.retrieve(
+                query=effective_query,
+                top_k=max(1, min(int(top_k), 10)),
+                min_score=0.15,
+            )
+        except Exception:
+            contexts = []
 
         result = {
             "status": "RECALL_SUCCESS",
-            "result_state": result_state,
             "memories": [
                 {
                     "source": f"{ctx.source}/{ctx.path}",
                     "score": round(ctx.score, 4),
                     "content": ctx.content[:800],
-                    "metadata": ctx.metadata,
                 }
                 for ctx in contexts
             ],
-            "domain": domain,
-            "metrics": metrics,
         }
-        result.update(
-            envelope_builder.build_envelope(
-                stage="555_RECALL",
-                session_id=effective_session,
-                verdict="SEAL",  # Normal search success even if 0 results
-                payload={
-                    "memory_count": len(contexts),
-                    "domain": domain,
-                    "result_state": result_state,
-                },
-            )
-        )
+        result.update(envelope_builder.build_envelope(stage="555_RECALL", session_id=effective_session, verdict="SEAL", payload={"memory_count": len(contexts)}))
         return result
     except Exception as e:
-        return _fracture_response("555_RECALL", e, effective_session)
+        return _fracture_response("555_RECALL", e, session_id)
 
 
-vector_memory = ToolHandle(_phoenix_recall)
+vector_memory_store = ToolHandle(_vector_memory_store)
+vector_memory = vector_memory_store
 
 
 async def _phoenix_recall_deprecated(
@@ -1865,7 +1829,8 @@ async def _asi_empathy(
         return _fracture_response("555-666", e, session_id)
 
 
-simulate_heart = ToolHandle(_asi_empathy)
+assess_heart_impact = ToolHandle(_assess_heart_impact)
+simulate_heart = assess_heart_impact
 
 
 @mcp.tool(
@@ -2072,97 +2037,163 @@ judge_soul = apex_judge
 
 
 @mcp.tool(
-    name="metabolic_loop",
-    description="[Lane: Δ Delta] [Floors: F1-F13] The arifOS Sovereign Kernel loop. Mandatory safety wrapper before any material state mutation.",
+    name="metabolic_loop_router",
+    description="[Lane: Δ Delta] [Floors: F1-F13] The arifOS Sovereign Kernel loop router.",
 )
-async def _metabolic_loop(
+async def _metabolic_loop_router(
     query: str,
-    risktier: str = "high",
-    actor_id: str = "antigravity-agent",
-    proposed_verdict: str = "SEAL",
+    context: str = "",
+    risk_tier: str = "medium",
+    actor_id: str = "anonymous",
+    use_memory: bool = True,
+    use_heart: bool = True,
+    use_critique: bool = True,
+    allow_execution: bool = False,
+    debug: bool = False,
 ) -> dict[str, Any]:
     """
-    Execute the full 000-999 metabolic pipeline for Antigravity alignment.
-    Forces agents to clear F1-F13 floors before executing terminal/file mutations.
+    Stage 444: Governed metabolic loop orchestrator.
     """
+    trace = {}
     try:
-        # 1. Anchor (000_INIT)
-        anchor_res = await _init_session(query=query, actor_id=actor_id)
+        # 1. 000_BOOT: Anchor
+        anchor_payload = {
+            "intent": {"query": query, "task_type": "execute" if allow_execution else "ask", "reversibility": "irreversible" if risk_tier == "high" else "reversible"},
+            "governance": {"actor_id": actor_id, "stakes_class": "A" if risk_tier == "high" else "C"}
+        }
+        anchor_res = await init_anchor_state(**anchor_payload)
+        trace["000_INIT"] = anchor_res.get("verdict")
         if anchor_res.get("verdict") == "VOID":
-            return {"verdict": "VOID", "stage": "000_INIT", "details": anchor_res}
+            return {"verdict": "VOID", "stage": "000_INIT", "trace": trace, "details": anchor_res}
 
-        session_id = anchor_res.get("session_id", "unknown")
-        current_auth_context = (
-            anchor_res.get("auth_context") if isinstance(anchor_res, dict) else None
-        )
+        session_id = anchor_res.get("session_id")
+        auth_ctx = anchor_res.get("auth_context")
 
-        # 2. Reason (111-444_MIND)
-        mind_res = await _agi_cognition(
-            query=query,
-            session_id=session_id,
-            actor_id=actor_id,
-            auth_context=current_auth_context if isinstance(current_auth_context, dict) else None,
-        )
-        if mind_res.get("verdict") == "VOID":
-            return {"verdict": "VOID", "stage": "111-444_MIND", "details": mind_res}
-        current_auth_context = mind_res.get("auth_context") if isinstance(mind_res, dict) else None
-
-        # 3. Empathy (555-666_HEART)
-        heart_res = await _asi_empathy(
-            query=query,
-            session_id=session_id,
-            actor_id=actor_id,
-            auth_context=current_auth_context if isinstance(current_auth_context, dict) else None,
-        )
-        if heart_res.get("verdict") == "VOID":
-            return {"verdict": "VOID", "stage": "555-666_HEART", "details": heart_res}
-        current_auth_context = (
-            heart_res.get("auth_context") if isinstance(heart_res, dict) else None
-        )
-
-        # 4. Judge (777-888_SOUL)
-        # For risktier="high", we default to 888_HOLD unless overridden.
-        human_approve = False
-        if risktier.lower() == "high":
-            proposed_verdict = "888_HOLD"
-
-        judge_res = await _apex_verdict(
+        # 2. 111_FRAMING: Integrate/Analyze/Reflect
+        frame_res = await integrate_analyze_reflect(
             session_id=session_id,
             query=query,
-            agi_result=mind_res,
-            asi_result=heart_res,
-            proposed_verdict=proposed_verdict,
-            human_approve=human_approve,
-            actor_id=actor_id,
-            auth_context=current_auth_context if isinstance(current_auth_context, dict) else None,
+            auth_context=auth_ctx
         )
+        trace["111_FRAMING"] = frame_res.get("verdict")
+        auth_ctx = frame_res.get("auth_context")
 
-        verdict = str(judge_res.get("verdict", "VOID"))
+        # 3. 333_REASON: Mind Synthesis
+        mind_res = await reason_mind_synthesis(
+            session_id=session_id,
+            query=query,
+            auth_context=auth_ctx
+        )
+        trace["333_MIND"] = mind_res.get("verdict")
+        auth_ctx = mind_res.get("auth_context")
+
+        # 4. 666_AUDIT: Heart + Critique
+        heart_res = {"verdict": "SEAL"}
+        if use_heart:
+            heart_res = await assess_heart_impact(
+                session_id=session_id,
+                scenario=query,
+                auth_context=auth_ctx
+            )
+            trace["666_HEART"] = heart_res.get("verdict")
+            auth_ctx = heart_res.get("auth_context")
+        
+        critique_res = {"verdict": "SEAL"}
+        if use_critique:
+            critique_res = await critique_thought_audit(
+                session_id=session_id,
+                thought_id="final_mind_answer",
+                auth_context=auth_ctx
+            )
+            trace["666_CRITIQUE"] = critique_res.get("verdict")
+            auth_ctx = critique_res.get("auth_context")
+
+        # 5. 777_FORGE: Discovery
+        forge_res = await quantum_eureka_forge(
+            session_id=session_id,
+            intent=query,
+            auth_context=auth_ctx
+        )
+        trace["777_FORGE"] = forge_res.get("verdict")
+        auth_ctx = forge_res.get("auth_context")
+
+        # 6. 888_JUDGE: Final Verdict
+        candidate_verdicts = [
+            anchor_res.get("verdict"),
+            frame_res.get("verdict"),
+            mind_res.get("verdict"),
+            heart_res.get("verdict"),
+            critique_res.get("verdict")
+        ]
+        
+        if "VOID" in candidate_verdicts: final_candidate = "VOID"
+        elif "888_HOLD" in candidate_verdicts: final_candidate = "888_HOLD"
+        elif "SABAR" in candidate_verdicts: final_candidate = "SABAR"
+        else: final_candidate = "SEAL"
+
+        judge_res = await apex_judge_verdict(
+            session_id=session_id,
+            verdict_candidate=final_candidate,
+            auth_context=auth_ctx
+        )
+        verdict = judge_res.get("verdict")
+        trace["888_JUDGE"] = verdict
+        auth_ctx = judge_res.get("auth_context")
+
+        # 7. 999_SEAL: Vault commit
+        seal_res = await seal_vault_commit(
+            session_id=session_id,
+            verdict=verdict,
+            auth_context=auth_ctx
+        )
+        trace["999_VAULT"] = seal_res.get("verdict")
 
         return {
             "verdict": verdict,
             "session_id": session_id,
-            "risktier": risktier,
-            "governance_token": judge_res.get("governance_token"),
-            "next_actions": judge_res.get("next_actions", []),
-            "floors_state": judge_res.get("floors", {}),
+            "trace": trace,
             "summary": f"Metabolic loop completed with verdict: {verdict}",
-            "guidance": "If verdict is 888_HOLD, use notify_user to request human approval. If SEAL, proceed with executing the command. If VOID or SABAR, halt execution immediately.",
-            "trace": {
-                "000_INIT": anchor_res.get("verdict"),
-                "111-444_MIND": mind_res.get("verdict"),
-                "555-666_HEART": heart_res.get("verdict"),
-                "777-888_SOUL": verdict,
-            },
+            "ledger_id": seal_res.get("payload", {}).get("ledger_id"),
+            "next_actions": judge_res.get("payload", {}).get("next_actions", []),
+            "floors_state": judge_res.get("floors", {})
         }
 
     except Exception as e:
-        return _fracture_response("METABOLIC_LOOP", e)
+        return _fracture_response("METABOLIC_LOOP_ROUTER", e)
 
 
-metabolic_loop = ToolHandle(_metabolic_loop)
-# Backward-compat alias for legacy callers (non-canonical).
-metabolicloop = metabolic_loop
+metabolic_loop_router = ToolHandle(_metabolic_loop_router)
+metabolic_loop = metabolic_loop_router
+metabolicloop = metabolic_loop_router
+
+
+@mcp.tool(
+    name="quantum_eureka_forge",
+    description="[Lane: Ψ Psi] [Floors: F5, F6, F7, F9] Stage 777 discovery actuator.",
+)
+async def _quantum_eureka_forge(
+    session_id: str,
+    intent: str,
+    auth_context: dict[str, Any],
+    eureka_type: str = "concept",
+    materiality: str = "idea_only",
+) -> dict[str, Any]:
+    """
+    Stage 777: Sandboxed discovery actuator (Eureka Forge).
+    """
+    # Map intent to a shell command for legacy Forge logic
+    command = f"echo 'Forging {eureka_type} for: {intent}'"
+    
+    return await _sovereign_actuator(
+        session_id=session_id,
+        command=command,
+        purpose=f"Quantum Eureka Forge: {eureka_type}",
+        auth_context=auth_context
+    )
+
+
+quantum_eureka_forge = ToolHandle(_quantum_eureka_forge)
+eureka_forge = quantum_eureka_forge
 
 
 @mcp.tool(

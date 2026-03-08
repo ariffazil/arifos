@@ -91,47 +91,192 @@ _DEFAULT_METABOLIC_STAGE: int = 333
 
 WELCOME_HTML = """\
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>arifOS MCP Server</title>
-    <style>
-        body {
-            background: #050505; color: #e6c25d;
-            font-family: 'JetBrains Mono', monospace; padding: 4rem; text-align: center;
-        }
-        .box {
-            border: 1px solid #e6c25d33; padding: 2rem; display: inline-block;
-            border-radius: 8px; background: #0a0a0a;
-        }
-        h1 {
-            font-weight: 900; letter-spacing: -0.1rem;
-            border-bottom: 2px solid #e6c25d; display: inline-block; padding-bottom: 0.5rem;
-        }
-        p { color: #888; max-width: 400px; margin: 1rem auto; }
-        .status {
-            color: #00ff88; font-weight: bold; margin-top: 2rem;
-            border: 1px solid #00ff8833; padding: 0.5rem 1rem;
-            border-radius: 50px; display: inline-block;
-        }
-        a { color: #00a2ff; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>arifOS MCP Server</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0d0d0d;color:#d4d4d4;font-family:ui-monospace,monospace;
+         font-size:14px;line-height:1.6;padding:2rem 1rem;max-width:860px;margin:auto}
+    h1{color:#e6c25d;font-size:1.5rem;margin-bottom:.25rem}
+    h2{color:#aaa;font-size:.85rem;font-weight:normal;margin-bottom:2rem;
+       letter-spacing:.08em;text-transform:uppercase}
+    .pill{display:inline-block;background:#00ff8822;color:#00ff88;
+          border:1px solid #00ff8855;border-radius:99px;
+          padding:.1rem .75rem;font-size:.75rem;margin-bottom:2rem}
+    section{margin-bottom:2.5rem}
+    h3{color:#e6c25d;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
+       border-bottom:1px solid #333;padding-bottom:.4rem;margin-bottom:.75rem}
+    table{width:100%;border-collapse:collapse}
+    td,th{padding:.4rem .6rem;text-align:left}
+    th{color:#888;font-weight:normal;font-size:.75rem;text-transform:uppercase}
+    tr:nth-child(odd){background:#ffffff06}
+    .stage{color:#e6c25d;font-size:.75rem;min-width:3.5rem;display:inline-block}
+    .name{color:#7dd3fc}
+    .role{color:#aaa}
+    .url{color:#7dd3fc}
+    a{color:#7dd3fc;text-decoration:none}
+    a:hover{text-decoration:underline}
+    .nav{display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:2rem}
+    .nav a{background:#1a1a1a;border:1px solid #333;padding:.3rem .8rem;
+           border-radius:4px;font-size:.8rem;color:#aaa}
+    .nav a:hover{border-color:#7dd3fc;color:#7dd3fc}
+    .motto{color:#555;font-size:.75rem;margin-top:2rem;text-align:center}
+  </style>
 </head>
 <body>
-    <div class="box">
-        <h1>arifOS MCP</h1>
-        <p>This is a live <strong>Model Context Protocol</strong> server.
-           It is optimized for machine intelligence, but humans are welcome.</p>
-        <div class="status">ONLINE</div>
-        <div style="margin-top: 2rem;">
-            <a href="/tools">/tools</a> &nbsp;|&nbsp;
-            <a href="/health">/health</a> &nbsp;|&nbsp;
-            <a href="/mcp">/mcp</a> &nbsp;|&nbsp;
-            <a href="https://arifos.arif-fazil.com">docs</a>
-        </div>
-    </div>
+  <h1>arifOS MCP</h1>
+  <h2>APEX-G Constitutional Intelligence Kernel</h2>
+  <div class="pill">&#9679; ONLINE</div>
+
+  <div class="nav">
+    <a href="/tools">/tools</a>
+    <a href="/health">/health</a>
+    <a href="/version">/version</a>
+    <a href="/openapi.json">/openapi.json</a>
+    <a href="/llms.txt">/llms.txt</a>
+    <a href="/.well-known/mcp/server.json">/.well-known/mcp/server.json</a>
+    <a href="https://arifos.arif-fazil.com" target="_blank">docs</a>
+  </div>
+
+  <section>
+    <h3>10-Tool APEX-G Stack (Phase 1 Core)</h3>
+    <table>
+      <tr><th>Stage</th><th>Tool</th><th>Role</th></tr>
+      <tr><td><span class="stage">000</span></td><td class="name">init_anchor_state</td><td class="role">Governed session bootstrap</td></tr>
+      <tr><td><span class="stage">111</span></td><td class="name">integrate_analyze_reflect</td><td class="role">Problem framing &amp; integrative analysis</td></tr>
+      <tr><td><span class="stage">333</span></td><td class="name">reason_mind_synthesis</td><td class="role">Multi-step reasoning + Eureka synthesis</td></tr>
+      <tr><td><span class="stage">444</span></td><td class="name">metabolic_loop_router</td><td class="role">Full 000-999 pipeline orchestrator</td></tr>
+      <tr><td><span class="stage">555</span></td><td class="name">vector_memory_store</td><td class="role">BBB associative vector memory</td></tr>
+      <tr><td><span class="stage">666A</span></td><td class="name">assess_heart_impact</td><td class="role">Empathy &amp; ethical safety engine</td></tr>
+      <tr><td><span class="stage">666B</span></td><td class="name">critique_thought_audit</td><td class="role">Adversarial internal thought audit</td></tr>
+      <tr><td><span class="stage">777</span></td><td class="name">quantum_eureka_forge</td><td class="role">Sandboxed discovery actuator</td></tr>
+      <tr><td><span class="stage">888</span></td><td class="name">apex_judge_verdict</td><td class="role">Constitutional judgment verdict</td></tr>
+      <tr><td><span class="stage">999</span></td><td class="name">seal_vault_commit</td><td class="role">Immutable VAULT999 ledger sealing</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h3>Endpoints</h3>
+    <table>
+      <tr><th>Method</th><th>Path</th><th>Description</th></tr>
+      <tr><td>GET</td><td class="url">/mcp</td><td>MCP protocol endpoint (SSE / JSON-RPC)</td></tr>
+      <tr><td>GET</td><td class="url">/tools</td><td>Tool listing (REST)</td></tr>
+      <tr><td>POST</td><td class="url">/tools/{name}</td><td>Call a tool via HTTP</td></tr>
+      <tr><td>POST</td><td class="url">/checkpoint</td><td>Single-call constitutional evaluation</td></tr>
+      <tr><td>GET</td><td class="url">/health</td><td>Docker / uptime health check</td></tr>
+      <tr><td>GET</td><td class="url">/openapi.json</td><td>OpenAPI 3.1 schema</td></tr>
+      <tr><td>GET</td><td class="url">/llms.txt</td><td>LLM-readable server description</td></tr>
+      <tr><td>GET</td><td class="url">/.well-known/mcp/server.json</td><td>MCP registry discovery</td></tr>
+    </table>
+  </section>
+
+  <section>
+    <h3>Governance</h3>
+    <p style="color:#888">
+      Every tool call passes through 13 constitutional floors (F1&ndash;F13).<br>
+      Verdicts: <strong style="color:#00ff88">SEAL</strong> &nbsp;
+                <strong style="color:#e6c25d">PARTIAL</strong> &nbsp;
+                <strong style="color:#ff8800">HOLD-888</strong> &nbsp;
+                <strong style="color:#ff4444">VOID</strong> &nbsp;
+                <strong style="color:#ff4444">SABAR</strong><br>
+      Protocol: <a href="https://modelcontextprotocol.io" target="_blank">MCP 2025-11-25</a>
+    </p>
+  </section>
+
+  <div class="motto">DITEMPA BUKAN DIBERI &mdash; Forged, not given.</div>
 </body>
 </html>
+"""
+
+ROBOTS_TXT = """\
+User-agent: *
+Allow: /
+
+# LLM-readable description of this service
+# See: https://llmstxt.org
+Sitemap: https://arifosmcp.arif-fazil.com/llms.txt
+"""
+
+LLMS_TXT = """\
+# arifOS MCP Server
+
+> APEX-G Constitutional Intelligence Kernel — a governed Model Context Protocol (MCP) server.
+> Motto: DITEMPA BUKAN DIBERI — Forged, not given.
+
+## What this server does
+
+arifOS is an MCP server exposing a 10-tool constitutional AI pipeline.
+Every tool call passes through 13 governance floors (F1-F13) and returns
+a structured RuntimeEnvelope with verdict, telemetry, and Tri-Witness scores.
+
+## MCP connection
+
+- Protocol: Model Context Protocol (MCP) 2025-11-25
+- Endpoint: /mcp  (SSE + JSON-RPC)
+- Tool listing: GET /tools
+- Single call: POST /checkpoint
+
+## The 10-tool APEX-G stack
+
+| Stage | Tool name                  | Role                                 |
+|-------|---------------------------|--------------------------------------|
+| 000   | init_anchor_state          | Governed session bootstrap           |
+| 111   | integrate_analyze_reflect  | Problem framing & integrative analysis |
+| 333   | reason_mind_synthesis      | Multi-step reasoning + Eureka        |
+| 444   | metabolic_loop_router      | Full 000-999 pipeline orchestrator   |
+| 555   | vector_memory_store        | BBB associative vector memory        |
+| 666A  | assess_heart_impact        | Empathy & ethical safety engine      |
+| 666B  | critique_thought_audit     | Adversarial internal thought audit   |
+| 777   | quantum_eureka_forge       | Sandboxed discovery actuator         |
+| 888   | apex_judge_verdict         | Constitutional judgment verdict      |
+| 999   | seal_vault_commit          | Immutable VAULT999 ledger sealing    |
+
+## Common RuntimeEnvelope (returned by every tool)
+
+```json
+{
+  "verdict": "SEAL | PARTIAL | SABAR | VOID | HOLD-888 | UNSET",
+  "stage": "000_INIT | 111_MIND | 333_MIND | 444_ROUTER | 555_MEMORY | 666_HEART | 777_APEX | 888_JUDGE | 999_VAULT",
+  "session_id": "string",
+  "telemetry": { "dS": -0.7, "peace2": 1.1, "confidence": 0.9, "verdict": "Alive" },
+  "witness": { "human": 0.0, "ai": 0.0, "earth": 0.0 },
+  "auth_context": { "actor_id": "string", "authority_level": "human|agent|system|anonymous", "stakes_class": "A|B|C|UNKNOWN" },
+  "data": {}
+}
+```
+
+## Governance floors summary
+
+- Hard floors (fail -> VOID): F1 Amanah, F2 Truth, F4 Clarity, F7 Humility, F9 Anti-dark, F10 Ontology, F11 Command Auth, F12 Injection Defense
+- Soft floors (fail -> PARTIAL): F3 Tri-Witness, F5 Peace, F6 Empathy, F8 Genius
+- Veto: F13 Sovereign — human final authority
+
+## Key endpoints
+
+- GET  /tools                        — list all tools with schemas
+- POST /tools/{tool_name}            — call a tool via REST
+- POST /checkpoint                   — single-call constitutional evaluation
+- GET  /health                       — health check
+- GET  /openapi.json                 — OpenAPI 3.1 schema
+- GET  /.well-known/mcp/server.json  — MCP registry discovery
+- GET  /llms.txt                     — this file
+
+## Optional: quick test
+
+```
+POST /checkpoint
+Content-Type: application/json
+
+{ "query": "Should I deploy this to production?", "risk_tier": "high" }
+```
+
+## Links
+
+- Docs: https://arifos.arif-fazil.com
+- Protocol: https://modelcontextprotocol.io
 """
 
 CHECKPOINT_MODES = {"quick", "full", "audit_only"}
@@ -740,6 +885,14 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
             content = open(schema_path).read()
             return Response(content, media_type="application/yaml")
         return JSONResponse({"error": "Schema not found"}, status_code=404)
+
+    @mcp.custom_route("/robots.txt", methods=["GET"])
+    async def robots_txt(_request: Request) -> Response:
+        return Response(ROBOTS_TXT, media_type="text/plain")
+
+    @mcp.custom_route("/llms.txt", methods=["GET"])
+    async def llms_txt(_request: Request) -> Response:
+        return Response(LLMS_TXT, media_type="text/plain")
 
     # Serve the standalone dashboard static files
     dashboard_dir = os.path.join(
