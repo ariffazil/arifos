@@ -6,9 +6,9 @@ Job: Attack proposals to find flaws that other witnesses miss.
 Safety through opposition.
 """
 
+import re
 from dataclasses import dataclass
 from typing import Any
-import re
 
 
 @dataclass

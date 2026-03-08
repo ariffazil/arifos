@@ -15,16 +15,14 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-import hashlib
 import os
 import secrets
 import time
-from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from typing import Any, Literal
 
-from core.shared.atlas import QueryType, Phi
+from core.shared.atlas import Phi, QueryType
 from core.shared.types import InitOutput, Verdict
 
 
@@ -212,7 +210,7 @@ async def init(
             status="ERROR",
             violations=["F12"],
             floors_failed=["F12"],
-            error_message=f"F12 injection detected",
+            error_message="F12 injection detected",
             query_type=query_type.value,
             f2_threshold=f2_threshold,
             actor_id=actor_id,
@@ -231,7 +229,7 @@ async def init(
             status="ERROR",
             violations=["F11"],
             floors_failed=["F11"],
-            error_message=f"F11 invalid actor",
+            error_message="F11 invalid actor",
             query_type=query_type.value,
             f2_threshold=f2_threshold,
             actor_id=actor_id,

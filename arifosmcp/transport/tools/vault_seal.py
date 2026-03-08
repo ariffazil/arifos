@@ -3,7 +3,10 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any
 
-from arifosmcp.transport.services.constitutional_metrics import get_last_seal_hash, store_stage_result
+from arifosmcp.transport.services.constitutional_metrics import (
+    get_last_seal_hash,
+    store_stage_result,
+)
 
 # Import precedent memory (F8 Genius - institutional memory)
 try:

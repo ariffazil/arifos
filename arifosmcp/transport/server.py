@@ -27,12 +27,14 @@ import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Literal
-from cryptography.hazmat.primitives.asymmetric import ed25519
+from typing import Any
+
 from cryptography.exceptions import InvalidSignature
-from core.shared.types import ActorIdentity, SignedIntentEnvelope, EvidenceRecord, ActionClass
-from core.judgment import judge_cognition, judge_empathy, judge_apex, CognitionResult, EmpathyResult
+from cryptography.hazmat.primitives.asymmetric import ed25519
+
+from core.judgment import CognitionResult, EmpathyResult, judge_apex, judge_cognition
 from core.risk_engine import risk_engine
+from core.shared.types import ActorIdentity
 
 MANIFEST_VERSION = "2026.03.07"
 
@@ -42,6 +44,7 @@ logger = logging.getLogger(__name__)
 # BGE Embeddings Integration from arifosmcp.intelligence (Senses Layer - STATIC)
 
 from core.state.session_manager import session_manager
+
 sys.path.insert(0, "/root/arifOS")
 try:
     from arifosmcp.intelligence.embeddings import embed, get_embedder

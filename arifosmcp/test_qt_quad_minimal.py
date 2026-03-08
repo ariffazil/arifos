@@ -3,6 +3,7 @@ Minimal QT Quad Physics Test (No Imports from organs)
 """
 
 import sys
+
 sys.path.insert(0, '.')
 
 def test_calculate_w_ai_quad():

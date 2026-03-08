@@ -19,6 +19,8 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 # Canonical modules (no legacy underscore names in public surface)
+from core.shared.types import InitOutput, Verdict
+
 from . import _0_init as init_module
 from . import _1_agi as mind
 from . import _2_asi as heart
@@ -36,7 +38,6 @@ from ._0_init import (
     validate_token,
     verify_auth,
 )
-from core.shared.types import InitOutput, Verdict
 from ._1_agi import agi, reason, sense, think
 from ._2_asi import align, asi, empathize
 from ._3_apex import apex, forge, judge, sync

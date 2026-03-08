@@ -747,7 +747,10 @@ async def mcp_endpoint(request: Request) -> Response:
 
 async def health(request: Request) -> JSONResponse:
     """Health check with governance metrics — reports exactly 13 canonical tools."""
-    from arifosmcp.transport.infrastructure.monitoring import get_health_monitor, get_metrics_collector
+    from arifosmcp.transport.infrastructure.monitoring import (
+        get_health_monitor,
+        get_metrics_collector,
+    )
     from arifosmcp.transport.protocol.aaa_contract import ARCHIVED_TOOLS
 
     monitor = get_health_monitor()

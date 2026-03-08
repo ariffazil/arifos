@@ -9,13 +9,13 @@ This module extends vector_memory to search across both sources.
 
 import os
 import sys
-from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
+from typing import Any
 
 sys.path.insert(0, '/srv/arifOS')
 
-from qdrant_client import QdrantClient
 from aclip_cai.embeddings import embed
+from qdrant_client import QdrantClient
 
 
 @dataclass
@@ -25,7 +25,7 @@ class MemoryResult:
     path: str
     content: str
     score: float
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
 
 
 class UnifiedMemory:
@@ -59,7 +59,7 @@ class UnifiedMemory:
         query: str, 
         top_k: int = 5,
         source_filter: str = None
-    ) -> List[MemoryResult]:
+    ) -> list[MemoryResult]:
         """Search constitutional corpus."""
         collection = self.collections['constitutional']
         
@@ -105,7 +105,7 @@ class UnifiedMemory:
         self, 
         query: str, 
         top_k: int = 5
-    ) -> List[MemoryResult]:
+    ) -> list[MemoryResult]:
         """Search Google Drive documents."""
         collection = self.collections['gdrive']
         
@@ -152,7 +152,7 @@ class UnifiedMemory:
         query: str,
         top_k: int = 5,
         domain: str = "all"
-    ) -> List[MemoryResult]:
+    ) -> list[MemoryResult]:
         """
         Unified search across all memory sources.
         
@@ -190,7 +190,7 @@ class UnifiedMemory:
         # Return top results
         return all_results[:top_k]
     
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get memory system statistics."""
         stats = {
             'sources': {}

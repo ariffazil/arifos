@@ -11,7 +11,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 from datetime import datetime
 
 from state import VaultConfig
-
 from vault import SEAL999, VaultEntry
 
 

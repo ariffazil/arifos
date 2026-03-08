@@ -12,8 +12,8 @@ Tests the complete QT Quad pipeline:
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
-import sys
 import asyncio
+import sys
 
 sys.path.insert(0, '.')
 
@@ -25,10 +25,10 @@ def test_qt_quad_physics():
     print("=" * 60)
     
     from core.shared.physics import (
-        calculate_w_ai_quad,
+        build_qt_quad_proof,
         calculate_w_adversarial,
+        calculate_w_ai_quad,
         extract_stakeholders_from_tags,
-        build_qt_quad_proof
     )
 
     # Test thought chain with all 5 stages + adversarial branches
@@ -142,8 +142,11 @@ async def test_asi_stakeholders():
     
     from core.organs._2_asi import empathize
     from core.shared.physics import (
-        ConstitutionalTensor, QuadTensor, GeniusDial, 
-        UncertaintyBand, Peace2
+        ConstitutionalTensor,
+        GeniusDial,
+        Peace2,
+        QuadTensor,
+        UncertaintyBand,
     )
 
     # Build a chain with stakeholders
@@ -197,8 +200,11 @@ async def test_apex_qt_quad():
     
     from core.organs._3_apex import sync
     from core.shared.physics import (
-        ConstitutionalTensor, QuadTensor, GeniusDial, 
-        UncertaintyBand, Peace2
+        ConstitutionalTensor,
+        GeniusDial,
+        Peace2,
+        QuadTensor,
+        UncertaintyBand,
     )
 
     # Create QT Quad proof
@@ -270,7 +276,7 @@ async def test_sabar_quantum_instead_of_void():
     print("=" * 60)
     
     from core.organs._1_agi import build_st_thought_chain, cheap_truth_detected
-    from core.shared.physics import calculate_w_ai_quad, calculate_w_adversarial
+    from core.shared.physics import calculate_w_adversarial, calculate_w_ai_quad
 
     # Short chain (should trigger cheap_truth)
     short_chain = [

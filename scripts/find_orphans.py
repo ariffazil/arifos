@@ -2,6 +2,7 @@ import os
 import re
 import sys
 
+
 def find_orphans(root_dir):
     py_files = []
     for root, dirs, files in os.walk(root_dir):
@@ -22,7 +23,7 @@ def find_orphans(root_dir):
             if file.endswith(".py"):
                 file_path = os.path.join(root, file)
                 try:
-                    with open(file_path, "r", encoding="utf-8") as f:
+                    with open(file_path, encoding="utf-8") as f:
                         for line in f:
                             matches = module_pattern.findall(line)
                             for match in matches:

@@ -221,8 +221,8 @@ class GovernanceKernel:
         # P3: Check hardened thermodynamic budget
         try:
             from core.physics.thermodynamics_hardened import (
-                get_thermodynamic_budget,
                 ThermodynamicExhaustion,
+                get_thermodynamic_budget,
             )
 
             budget = get_thermodynamic_budget(self.session_id)

@@ -2,8 +2,8 @@
 Fast E2E Test: QT Quad Integration (No Heavy Models)
 """
 
-import sys
 import asyncio
+import sys
 
 sys.path.insert(0, '.')
 
@@ -13,9 +13,9 @@ def test_qt_quad_physics():
     print("TEST 1: QT Quad Physics Functions")
     
     from core.shared.physics import (
-        calculate_w_ai_quad,
+        build_qt_quad_proof,
         calculate_w_adversarial,
-        build_qt_quad_proof
+        calculate_w_ai_quad,
     )
 
     # Test thought chain

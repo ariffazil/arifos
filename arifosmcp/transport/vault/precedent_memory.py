@@ -14,18 +14,23 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
-import json
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
-from typing import Any, Callable
+from typing import Any
 
 # Try to import Qdrant client
 try:
     from qdrant_client import QdrantClient
-    from qdrant_client.models import Distance, VectorParams, PointStruct, Filter, FieldCondition, MatchAny
+    from qdrant_client.models import (
+        Distance,
+        FieldCondition,
+        Filter,
+        MatchAny,
+        PointStruct,
+        VectorParams,
+    )
     QDRANT_AVAILABLE = True
 except ImportError:
     QDRANT_AVAILABLE = False
@@ -205,7 +210,7 @@ class VaultPrecedentMemory:
         elif verdict == "VOID":
             explanations.append(f"Hard floor VOID: {', '.join(floors_failed)}")
         elif verdict == "SABAR":
-            explanations.append(f"Cooling period SABAR: potential risk detected")
+            explanations.append("Cooling period SABAR: potential risk detected")
         elif verdict == "888_HOLD":
             explanations.append("Human sovereign approval required (888_HOLD)")
         

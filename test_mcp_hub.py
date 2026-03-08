@@ -1,5 +1,5 @@
 import sys
-import os
+
 sys.path.append(r"c:\arifosmcp")
 
 try:
@@ -12,6 +12,6 @@ try:
     # mcp.list_resources is not exactly how fastmcp works.
     # fastmcp uses decorator for resources too.
     # Let's see if we have them.
-except Exception as e:
+except Exception:
     import traceback
     traceback.print_exc()

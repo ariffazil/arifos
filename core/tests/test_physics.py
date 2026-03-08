@@ -17,10 +17,10 @@ from core.shared.physics import (
     GeniusDial,
     Omega_0,
     Peace2,
-    # F5: Peace
-    Stakeholder,
     # F3: Quad-Witness
     QuadTensor,
+    # F5: Peace
+    Stakeholder,
     # F7: Humility
     UncertaintyBand,
     W_4_check,

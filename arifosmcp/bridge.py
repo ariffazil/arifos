@@ -8,18 +8,12 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
 import logging
-from typing import Any, Dict, Optional, List
-from core.organs import (
-    init,
-    agi,
-    asi,
-    apex,
-    vault,
-    InitOutput,
-    Verdict,
-)
+from typing import Any
+
+from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
+from core.enforcement.auth_continuity import mint_auth_context, verify_auth_context
 from core.enforcement.governance_engine import wrap_tool_output
-from core.enforcement.auth_continuity import verify_auth_context, mint_auth_context
+from core.organs import Verdict, agi, apex, asi, init, vault
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +21,8 @@ logger = logging.getLogger(__name__)
 async def call_kernel(
     tool_name: str,
     session_id: str,
-    payload: Dict[str, Any],
-) -> Dict[str, Any]:
+    payload: dict[str, Any],
+) -> dict[str, Any]:
     """
     Route a tool call through the 7-Organ Sovereign Stack.
     """
@@ -56,6 +50,14 @@ async def call_kernel(
                     "stage": "INIT",
                 },
             )
+
+    # 1.5. Early Exit for Grounding Utilities (Not requiring full session chain)
+    if tool_name == "search_reality":
+        query = payload.get("query", "")
+        return await reality_check(query, **payload)
+    elif tool_name == "ingest_evidence":
+        url = payload.get("source_url", "")
+        return await open_web_page(url, **payload)
 
     # 2. Kernel Execution Logic
     try:

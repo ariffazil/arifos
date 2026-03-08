@@ -475,7 +475,10 @@ async def route_info(request: Request):
 
 
 async def health(request: Request):
-    from arifosmcp.transport.infrastructure.monitoring import get_health_monitor, get_metrics_collector
+    from arifosmcp.transport.infrastructure.monitoring import (
+        get_health_monitor,
+        get_metrics_collector,
+    )
     from arifosmcp.transport.protocol.aaa_contract import (
         AAA_CANONICAL_TOOLS,
         ARCHIVED_TOOLS,

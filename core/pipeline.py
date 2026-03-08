@@ -20,7 +20,6 @@ from pydantic import BaseModel, Field
 from core.organs import agi, apex, asi, init, vault
 from core.shared.atlas import QueryType
 from core.shared.floors import update_floor_status
-from core.shared.formatter import OutputFormatter, OutputMode
 from core.shared.mottos import get_motto_for_stage
 from core.shared.types import EMD, Verdict
 from core.state.session_manager import session_manager
