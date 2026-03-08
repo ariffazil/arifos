@@ -2,16 +2,14 @@ import json
 import uuid
 from pathlib import Path
 
-from arifosmcp.intelligence.triad.delta.anchor import anchor as _triad_anchor
-from arifosmcp.intelligence.triad.delta.reason import reason as _triad_reason
-from arifosmcp.intelligence.triad.psi.audit import audit as _triad_audit
-
 from .datasets import load_golden_dataset
 from .evaluators import llm_as_judge
 from .reporters import generate_html_report
 
 
 async def _init_session(**kwargs):
+    from arifosmcp.intelligence.triad.delta.anchor import anchor as _triad_anchor
+
     session_id = kwargs.get("session_id") or f"eval-{uuid.uuid4().hex[:8]}"
     actor_id = kwargs.get("actor_id") or kwargs.get("user_id") or "eval-user"
     query = kwargs.get("query") or kwargs.get("context") or ""
@@ -25,6 +23,8 @@ async def _init_session(**kwargs):
 
 
 async def _agi_cognition(**kwargs):
+    from arifosmcp.intelligence.triad.delta.reason import reason as _triad_reason
+
     query = kwargs.get("query") or kwargs.get("input") or ""
     session_id = kwargs.get("session_id") or f"eval-{uuid.uuid4().hex[:8]}"
     grounding = kwargs.get("grounding")
@@ -39,6 +39,8 @@ async def _agi_cognition(**kwargs):
 
 
 async def _apex_verdict(**kwargs):
+    from arifosmcp.intelligence.triad.psi.audit import audit as _triad_audit
+
     query = kwargs.get("query") or ""
     session_id = kwargs.get("session_id") or f"eval-{uuid.uuid4().hex[:8]}"
     sovereign_token = "888_APPROVED" if kwargs.get("human_approve") else ""
