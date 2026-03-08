@@ -837,7 +837,8 @@ async def _verify_approval_bundle(
     }, None
 
 
-from fastmcp import FastMCP
+from fastmcp import FastMCP, Context
+from fastmcp.server.apps import AppConfig, ResourceCSP, UI_EXTENSION_ID
 
 from arifosmcp.intelligence.tools.fs_inspector import fs_inspect
 from arifosmcp.intelligence.tools.system_monitor import get_system_health
@@ -865,6 +866,28 @@ mcp = FastMCP(
         "not a public tool. All tools return {verdict, stage, session_id} envelope."
     ),
 )
+
+APEX_DASHBOARD_URI = "ui://apex-dashboard/view.html"
+
+@mcp.resource(
+    APEX_DASHBOARD_URI,
+    app=AppConfig(
+        csp=ResourceCSP(
+            resource_domains=[
+                "https://unpkg.com",
+                "https://fonts.googleapis.com",
+                "https://fonts.gstatic.com",
+            ]
+        )
+    ),
+)
+def apex_dashboard_view() -> str:
+    """Interactive APEX Sovereign Dashboard."""
+    path = Path(__file__).parent.parent / "sites" / "apex-dashboard" / "dashboard.html"
+    try:
+        return path.read_text(encoding="utf-8")
+    except Exception as e:
+        return f"<html><body>Error loading dashboard: {e}</body></html>"
 
 from fastmcp.resources.template import ResourceTemplate
 
@@ -1864,7 +1887,9 @@ simulate_heart = assess_heart_impact
 
 
 @mcp.tool(
-    name="apex_judge", description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis."
+    name="apex_judge",
+    description="[Lane: Ψ Psi] [Floors: F1-F13] Sovereign verdict synthesis.",
+    app=AppConfig(resource_uri=APEX_DASHBOARD_URI),
 )
 async def _apex_verdict(
     session_id: str,
@@ -2064,6 +2089,19 @@ async def _apex_verdict(
 apex_judge = ToolHandle(_apex_verdict)
 # Backward-compat alias for older callers.
 judge_soul = apex_judge
+
+
+@mcp.tool(
+    name="open_apex_dashboard",
+    description="[Lane: Ψ Psi] Open the APEX Sovereign Dashboard for intelligence observability.",
+    app=AppConfig(resource_uri=APEX_DASHBOARD_URI),
+)
+async def _open_dashboard() -> str:
+    """Open the APEX Sovereign Dashboard."""
+    return "APEX Dashboard ready. See interactive UI."
+
+
+open_apex_dashboard = ToolHandle(_open_dashboard)
 
 
 @mcp.tool(

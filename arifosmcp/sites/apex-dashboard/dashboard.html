@@ -216,6 +216,19 @@
         const { useState, useEffect, useMemo } = React;
         const { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } = Recharts;
 
+        // MCP Apps SDK Integration
+        let mcpApp = null;
+        try {
+            import("https://unpkg.com/@modelcontextprotocol/ext-apps@0.4.0/app-with-deps")
+                .then(module => {
+                    const { App } = module;
+                    mcpApp = new App({ name: "APEX Sovereign", version: "1.0.0" });
+                    mcpApp.connect().then(() => console.log("MCP Host Connected"));
+                });
+        } catch (e) {
+            console.warn("MCP SDK Load failed, running in standalone mode", e);
+        }
+
         const DEMO_DATA = {
             apex_output: {
                 capacity_layer: { A: 0.95, P: 0.92, X: 0.85, capacity_product: 0.7429 },
@@ -229,11 +242,31 @@
         };
 
         function Dashboard() {
-            const [mode, setMode] = useState('demo'); // 'demo' or 'live'
+            const [mode, setMode] = useState('mcp'); // 'demo', 'live', or 'mcp'
             const [endpoint, setEndpoint] = useState('http://localhost:8000/mcp/anchor');
             const [data, setData] = useState(DEMO_DATA);
-            const [history, setHistory] = useState([]);
             const [isPolling, setIsPolling] = useState(false);
+
+            useEffect(() => {
+                // Listen for pushed results from MCP Host
+                if (mcpApp) {
+                    mcpApp.ontoolresult = ({ content }) => {
+                        console.log("Result received from host", content);
+                        const textContent = content?.find(c => c.type === 'text');
+                        if (textContent) {
+                            try {
+                                const parsed = JSON.parse(textContent.text);
+                                if (parsed.apex_output) {
+                                    setData(parsed);
+                                    setMode('mcp');
+                                }
+                            } catch (e) {
+                                console.error("Failed to parse tool result as APEX JSON", e);
+                            }
+                        }
+                    };
+                }
+            }, []);
 
             useEffect(() => {
                 let interval;
@@ -249,7 +282,6 @@
                     const json = await res.json();
                     if (json.apex_output) {
                         setData(json);
-                        setHistory(prev => [...prev.slice(-19), json.apex_output.governed_intelligence.governed_score]);
                     }
                 } catch (e) {
                     console.error("Fetch failed", e);
