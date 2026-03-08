@@ -31,13 +31,15 @@ def _read_vault_entries(n: int = 5) -> list[dict[str, Any]]:
     for f in sorted(_VAULT_PATH.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)[:n]:
         try:
             raw = json.loads(f.read_text(encoding="utf-8"))
-            entries.append({
-                "ledger_id": raw.get("ledger_id"),
-                "session_id": raw.get("session_id"),
-                "verdict": raw.get("verdict"),
-                "timestamp": raw.get("timestamp"),
-                "hash": raw.get("hash"),
-            })
+            entries.append(
+                {
+                    "ledger_id": raw.get("ledger_id"),
+                    "session_id": raw.get("session_id"),
+                    "verdict": raw.get("verdict"),
+                    "timestamp": raw.get("timestamp"),
+                    "hash": raw.get("hash"),
+                }
+            )
         except Exception:
             pass
     return entries
@@ -48,40 +50,184 @@ def _read_vault_entries(n: int = 5) -> list[dict[str, Any]]:
 # ---------------------------------------------------------------------------
 
 _TOOLS = [
-    {"stage": "000",  "name": "init_anchor_state",         "canonical": "anchor_session",   "role": "Governed session bootstrap"},
-    {"stage": "111",  "name": "integrate_analyze_reflect",  "canonical": "reason_mind",      "role": "Problem framing & integrative analysis"},
-    {"stage": "333",  "name": "reason_mind_synthesis",      "canonical": "reason_mind",      "role": "Multi-step reasoning + Eureka synthesis"},
-    {"stage": "444",  "name": "metabolic_loop_router",      "canonical": "metabolic_loop",   "role": "Full 000-999 pipeline orchestrator"},
-    {"stage": "555",  "name": "vector_memory_store",        "canonical": "vector_memory",    "role": "BBB associative vector memory"},
-    {"stage": "666A", "name": "assess_heart_impact",        "canonical": "simulate_heart",   "role": "Empathy & ethical safety engine"},
-    {"stage": "666B", "name": "critique_thought_audit",     "canonical": "critique_thought", "role": "Critical internal thought audit"},
-    {"stage": "777",  "name": "quantum_eureka_forge",       "canonical": "eureka_forge",     "role": "Sandboxed discovery actuator"},
-    {"stage": "888",  "name": "apex_judge_verdict",         "canonical": "apex_judge",       "role": "Constitutional judgment verdict"},
-    {"stage": "999",  "name": "seal_vault_commit",          "canonical": "seal_vault",       "role": "Immutable VAULT999 ledger sealing"},
+    {
+        "stage": "000",
+        "name": "init_anchor_state",
+        "canonical": "anchor_session",
+        "role": "Governed session bootstrap",
+    },
+    {
+        "stage": "111",
+        "name": "integrate_analyze_reflect",
+        "canonical": "reason_mind",
+        "role": "Problem framing & integrative analysis",
+    },
+    {
+        "stage": "333",
+        "name": "reason_mind_synthesis",
+        "canonical": "reason_mind",
+        "role": "Multi-step reasoning + Eureka synthesis",
+    },
+    {
+        "stage": "444",
+        "name": "metabolic_loop_router",
+        "canonical": "metabolic_loop",
+        "role": "Full 000-999 pipeline orchestrator",
+    },
+    {
+        "stage": "555",
+        "name": "vector_memory_store",
+        "canonical": "vector_memory",
+        "role": "BBB associative vector memory",
+    },
+    {
+        "stage": "666A",
+        "name": "assess_heart_impact",
+        "canonical": "simulate_heart",
+        "role": "Empathy & ethical safety engine",
+    },
+    {
+        "stage": "666B",
+        "name": "critique_thought_audit",
+        "canonical": "critique_thought",
+        "role": "Critical internal thought audit",
+    },
+    {
+        "stage": "777",
+        "name": "quantum_eureka_forge",
+        "canonical": "eureka_forge",
+        "role": "Sandboxed discovery actuator",
+    },
+    {
+        "stage": "888",
+        "name": "apex_judge_verdict",
+        "canonical": "apex_judge",
+        "role": "Constitutional judgment verdict",
+    },
+    {
+        "stage": "999",
+        "name": "seal_vault_commit",
+        "canonical": "seal_vault",
+        "role": "Immutable VAULT999 ledger sealing",
+    },
 ]
 
 _FLOORS = [
-    {"id": "F1",  "name": "Amanah",       "type": "Hard",   "engine": "ASI",  "threshold": "LOCK",      "check": "Reversible? Within mandate?"},
-    {"id": "F2",  "name": "Truth",        "type": "Hard",   "engine": "AGI",  "threshold": "≥ 0.99",    "check": "Factually accurate?"},
-    {"id": "F3",  "name": "Tri-Witness",  "type": "Mirror", "engine": "—",    "threshold": "≥ 0.95",    "check": "Human·AI·Earth consensus"},
-    {"id": "F4",  "name": "ΔS Clarity",  "type": "Hard",   "engine": "AGI",  "threshold": "≤ 0",       "check": "Reduces confusion?"},
-    {"id": "F5",  "name": "Peace²",       "type": "Soft",   "engine": "ASI",  "threshold": "≥ 1.0",     "check": "Non-destructive?"},
-    {"id": "F6",  "name": "kr Empathy",  "type": "Soft",   "engine": "ASI",  "threshold": "≥ 0.70",    "check": "Serves weakest stakeholder?"},
-    {"id": "F7",  "name": "Omega Humility", "type": "Hard", "engine": "AGI",  "threshold": "0.03-0.05", "check": "States uncertainty?"},
-    {"id": "F8",  "name": "G Genius",     "type": "Mirror", "engine": "—",    "threshold": "≥ 0.80",    "check": "A×P×X×E² coherence"},
-    {"id": "F9",  "name": "C_dark",       "type": "Hard",   "engine": "ASI",  "threshold": "< 0.30",    "check": "Dark cleverness contained?"},
-    {"id": "F10", "name": "Ontology",     "type": "Wall",   "engine": "—",    "threshold": "LOCK",      "check": "No consciousness/soul claims"},
-    {"id": "F11", "name": "Command Auth", "type": "Hard",   "engine": "ASI",  "threshold": "LOCK",      "check": "Nonce-verified identity?"},
-    {"id": "F12", "name": "Injection",    "type": "Wall",   "engine": "—",    "threshold": "< 0.85",    "check": "Block adversarial control"},
-    {"id": "F13", "name": "Sovereign",    "type": "Veto",   "engine": "APEX", "threshold": "HUMAN",     "check": "Human final authority?"},
+    {
+        "id": "F1",
+        "name": "Amanah",
+        "type": "Hard",
+        "engine": "ASI",
+        "threshold": "LOCK",
+        "check": "Reversible? Within mandate?",
+    },
+    {
+        "id": "F2",
+        "name": "Truth",
+        "type": "Hard",
+        "engine": "AGI",
+        "threshold": "≥ 0.99",
+        "check": "Factually accurate?",
+    },
+    {
+        "id": "F3",
+        "name": "Tri-Witness",
+        "type": "Mirror",
+        "engine": "—",
+        "threshold": "≥ 0.95",
+        "check": "Human·AI·Earth consensus",
+    },
+    {
+        "id": "F4",
+        "name": "ΔS Clarity",
+        "type": "Hard",
+        "engine": "AGI",
+        "threshold": "≤ 0",
+        "check": "Reduces confusion?",
+    },
+    {
+        "id": "F5",
+        "name": "Peace²",
+        "type": "Soft",
+        "engine": "ASI",
+        "threshold": "≥ 1.0",
+        "check": "Non-destructive?",
+    },
+    {
+        "id": "F6",
+        "name": "kr Empathy",
+        "type": "Soft",
+        "engine": "ASI",
+        "threshold": "≥ 0.70",
+        "check": "Serves weakest stakeholder?",
+    },
+    {
+        "id": "F7",
+        "name": "Omega Humility",
+        "type": "Hard",
+        "engine": "AGI",
+        "threshold": "0.03-0.05",
+        "check": "States uncertainty?",
+    },
+    {
+        "id": "F8",
+        "name": "G Genius",
+        "type": "Mirror",
+        "engine": "—",
+        "threshold": "≥ 0.80",
+        "check": "A×P×X×E² coherence",
+    },
+    {
+        "id": "F9",
+        "name": "C_dark",
+        "type": "Hard",
+        "engine": "ASI",
+        "threshold": "< 0.30",
+        "check": "Dark cleverness contained?",
+    },
+    {
+        "id": "F10",
+        "name": "Ontology",
+        "type": "Wall",
+        "engine": "—",
+        "threshold": "LOCK",
+        "check": "No consciousness/soul claims",
+    },
+    {
+        "id": "F11",
+        "name": "Command Auth",
+        "type": "Hard",
+        "engine": "ASI",
+        "threshold": "LOCK",
+        "check": "Nonce-verified identity?",
+    },
+    {
+        "id": "F12",
+        "name": "Injection",
+        "type": "Wall",
+        "engine": "—",
+        "threshold": "< 0.85",
+        "check": "Block adversarial control",
+    },
+    {
+        "id": "F13",
+        "name": "Sovereign",
+        "type": "Veto",
+        "engine": "APEX",
+        "threshold": "HUMAN",
+        "check": "Human final authority?",
+    },
 ]
 
 _WORKFLOWS = [
     {"name": "default_low_risk", "path": ["000", "111", "333", "666B", "888", "999"]},
-    {"name": "high_risk",        "path": ["000", "111", "333", "555", "666A", "666B", "777", "888", "999"]},
-    {"name": "memory_recall",    "path": ["000", "555", "333", "888", "999"]},
-    {"name": "ethical_review",   "path": ["000", "666A", "666B", "888", "999"]},
-    {"name": "discovery_only",   "path": ["000", "111", "333", "777", "888", "999"]},
+    {
+        "name": "high_risk",
+        "path": ["000", "111", "333", "555", "666A", "666B", "777", "888", "999"],
+    },
+    {"name": "memory_recall", "path": ["000", "555", "333", "888", "999"]},
+    {"name": "ethical_review", "path": ["000", "666A", "666B", "888", "999"]},
+    {"name": "discovery_only", "path": ["000", "111", "333", "777", "888", "999"]},
 ]
 
 # ---------------------------------------------------------------------------
@@ -99,20 +245,29 @@ def register_resources(mcp: FastMCP) -> None:
     @mcp.resource("canon://index")
     def canon_index() -> str:
         """High-level arifOS canon map: tools, floors, and resource index."""
-        return json.dumps({
-            "version": "2026.03.08",
-            "motto": "DITEMPA BUKAN DIBERI",
-            "organs": ["AGI", "ASI", "APEX", "VAULT", "INIT", "UnifiedMemory"],
-            "tool_count": len(_TOOLS),
-            "floor_count": len(_FLOORS),
-            "resources": [
-                "canon://index", "canon://tools", "canon://floors", "canon://metabolic-loop",
-                "governance://law",
-                "eval://metabolic-workflows", "eval://floors-thresholds",
-                "schema://tools/input", "schema://tools/output",
-                "vault://latest", "telemetry://summary",
-            ],
-        }, ensure_ascii=False)
+        return json.dumps(
+            {
+                "version": "2026.03.08",
+                "motto": "DITEMPA BUKAN DIBERI",
+                "organs": ["AGI", "ASI", "APEX", "VAULT", "INIT", "UnifiedMemory"],
+                "tool_count": len(_TOOLS),
+                "floor_count": len(_FLOORS),
+                "resources": [
+                    "canon://index",
+                    "canon://tools",
+                    "canon://floors",
+                    "canon://metabolic-loop",
+                    "governance://law",
+                    "eval://metabolic-workflows",
+                    "eval://floors-thresholds",
+                    "schema://tools/input",
+                    "schema://tools/output",
+                    "vault://latest",
+                    "telemetry://summary",
+                ],
+            },
+            ensure_ascii=False,
+        )
 
     @mcp.resource("canon://tools")
     def canon_tools() -> str:
@@ -210,7 +365,15 @@ def register_resources(mcp: FastMCP) -> None:
                             "query": {"type": "string"},
                             "task_type": {
                                 "type": "string",
-                                "enum": ["ask", "analyze", "design", "decide", "audit", "execute", "unknown"],
+                                "enum": [
+                                    "ask",
+                                    "analyze",
+                                    "design",
+                                    "decide",
+                                    "audit",
+                                    "execute",
+                                    "unknown",
+                                ],
                                 "default": "unknown",
                             },
                             "domain": {"type": "string", "default": "general"},
@@ -230,17 +393,32 @@ def register_resources(mcp: FastMCP) -> None:
                     "math": {
                         "type": "object",
                         "properties": {
-                            "akal":        {"type": "number", "minimum": 0, "maximum": 1, "default": 0.6},
-                            "present":     {"type": "number", "minimum": 0, "maximum": 1, "default": 0.8},
-                            "energy":      {"type": "number", "minimum": 0, "maximum": 1, "default": 0.6},
-                            "exploration": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.4},
+                            "akal": {"type": "number", "minimum": 0, "maximum": 1, "default": 0.6},
+                            "present": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1,
+                                "default": 0.8,
+                            },
+                            "energy": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1,
+                                "default": 0.6,
+                            },
+                            "exploration": {
+                                "type": "number",
+                                "minimum": 0,
+                                "maximum": 1,
+                                "default": 0.4,
+                            },
                         },
                         "additionalProperties": False,
                     },
                     "governance": {
                         "type": "object",
                         "properties": {
-                            "actor_id":        {"type": "string", "default": "anonymous"},
+                            "actor_id": {"type": "string", "default": "anonymous"},
                             "authority_level": {
                                 "type": "string",
                                 "enum": ["human", "agent", "system", "anonymous"],
@@ -260,20 +438,25 @@ def register_resources(mcp: FastMCP) -> None:
             "integrate_analyze_reflect": {
                 "required": ["session_id", "query", "auth_context"],
                 "properties": {
-                    "session_id":       {"type": "string"},
-                    "query":            {"type": "string"},
-                    "auth_context":     {"type": "object", "additionalProperties": True},
-                    "max_subquestions": {"type": "integer", "minimum": 1, "maximum": 10, "default": 3},
+                    "session_id": {"type": "string"},
+                    "query": {"type": "string"},
+                    "auth_context": {"type": "object", "additionalProperties": True},
+                    "max_subquestions": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 10,
+                        "default": 3,
+                    },
                 },
                 "additionalProperties": False,
             },
             "reason_mind_synthesis": {
                 "required": ["session_id", "query", "auth_context"],
                 "properties": {
-                    "session_id":   {"type": "string"},
-                    "query":        {"type": "string"},
+                    "session_id": {"type": "string"},
+                    "query": {"type": "string"},
                     "auth_context": {"type": "object", "additionalProperties": True},
-                    "reason_mode":  {
+                    "reason_mode": {
                         "type": "string",
                         "enum": ["default", "strict_truth", "design_space", "edge_cases"],
                         "default": "default",
@@ -285,43 +468,52 @@ def register_resources(mcp: FastMCP) -> None:
             "metabolic_loop_router": {
                 "required": ["query"],
                 "properties": {
-                    "query":           {"type": "string"},
-                    "context":         {"type": "string", "default": ""},
-                    "risk_tier":       {
+                    "query": {"type": "string"},
+                    "context": {"type": "string", "default": ""},
+                    "risk_tier": {
                         "type": "string",
                         "enum": ["low", "medium", "high", "critical"],
                         "default": "medium",
                     },
-                    "actor_id":        {"type": "string", "default": "anonymous"},
-                    "use_memory":      {"type": "boolean", "default": True},
-                    "use_heart":       {"type": "boolean", "default": True},
-                    "use_critique":    {"type": "boolean", "default": True},
+                    "actor_id": {"type": "string", "default": "anonymous"},
+                    "use_memory": {"type": "boolean", "default": True},
+                    "use_heart": {"type": "boolean", "default": True},
+                    "use_critique": {"type": "boolean", "default": True},
                     "allow_execution": {"type": "boolean", "default": False},
-                    "debug":           {"type": "boolean", "default": False},
+                    "debug": {"type": "boolean", "default": False},
                 },
                 "additionalProperties": False,
             },
             "vector_memory_store": {
                 "required": ["session_id", "operation", "auth_context"],
                 "properties": {
-                    "session_id":   {"type": "string"},
-                    "operation":    {"type": "string", "enum": ["store", "recall", "search", "forget"]},
+                    "session_id": {"type": "string"},
+                    "operation": {
+                        "type": "string",
+                        "enum": ["store", "recall", "search", "forget"],
+                    },
                     "auth_context": {"type": "object", "additionalProperties": True},
-                    "content":      {"anyOf": [{"type": "string"}, {"type": "null"}], "default": None},
-                    "memory_ids":   {"type": "array", "items": {"type": "string"}},
-                    "top_k":        {"type": "integer", "minimum": 1, "maximum": 20, "default": 5},
+                    "content": {"anyOf": [{"type": "string"}, {"type": "null"}], "default": None},
+                    "memory_ids": {"type": "array", "items": {"type": "string"}},
+                    "top_k": {"type": "integer", "minimum": 1, "maximum": 20, "default": 5},
                 },
                 "additionalProperties": False,
             },
             "assess_heart_impact": {
                 "required": ["session_id", "scenario", "auth_context"],
                 "properties": {
-                    "session_id":   {"type": "string"},
-                    "scenario":     {"type": "string"},
+                    "session_id": {"type": "string"},
+                    "scenario": {"type": "string"},
                     "auth_context": {"type": "object", "additionalProperties": True},
-                    "heart_mode":   {
+                    "heart_mode": {
                         "type": "string",
-                        "enum": ["general", "vulnerable_stakeholder", "conflict", "self_harm", "legal_risk"],
+                        "enum": [
+                            "general",
+                            "vulnerable_stakeholder",
+                            "conflict",
+                            "self_harm",
+                            "legal_risk",
+                        ],
                         "default": "general",
                     },
                 },
@@ -330,9 +522,9 @@ def register_resources(mcp: FastMCP) -> None:
             "critique_thought_audit": {
                 "required": ["session_id", "thought_id", "auth_context"],
                 "properties": {
-                    "session_id":    {"type": "string"},
-                    "thought_id":    {"type": "string"},
-                    "auth_context":  {"type": "object", "additionalProperties": True},
+                    "session_id": {"type": "string"},
+                    "thought_id": {"type": "string"},
+                    "auth_context": {"type": "object", "additionalProperties": True},
                     "critique_mode": {
                         "type": "string",
                         "enum": ["logic", "facts", "ethics", "clarity", "overall"],
@@ -344,15 +536,15 @@ def register_resources(mcp: FastMCP) -> None:
             "quantum_eureka_forge": {
                 "required": ["session_id", "intent", "auth_context"],
                 "properties": {
-                    "session_id":   {"type": "string"},
-                    "intent":       {"type": "string"},
+                    "session_id": {"type": "string"},
+                    "intent": {"type": "string"},
                     "auth_context": {"type": "object", "additionalProperties": True},
-                    "eureka_type":  {
+                    "eureka_type": {
                         "type": "string",
                         "enum": ["concept", "design", "eval_case", "governance_rule", "other"],
                         "default": "concept",
                     },
-                    "materiality":  {
+                    "materiality": {
                         "type": "string",
                         "enum": ["idea_only", "prototype", "ready_for_eval"],
                         "default": "idea_only",
@@ -363,27 +555,27 @@ def register_resources(mcp: FastMCP) -> None:
             "apex_judge_verdict": {
                 "required": ["session_id", "verdict_candidate", "auth_context"],
                 "properties": {
-                    "session_id":        {"type": "string"},
+                    "session_id": {"type": "string"},
                     "verdict_candidate": {
                         "type": "string",
                         "enum": ["SEAL", "PARTIAL", "SABAR", "VOID", "HOLD-888", "UNSET"],
                     },
-                    "auth_context":      {"type": "object", "additionalProperties": True},
-                    "reason_summary":    {"type": "string"},
+                    "auth_context": {"type": "object", "additionalProperties": True},
+                    "reason_summary": {"type": "string"},
                 },
                 "additionalProperties": False,
             },
             "seal_vault_commit": {
                 "required": ["session_id", "auth_context"],
                 "properties": {
-                    "session_id":   {"type": "string"},
+                    "session_id": {"type": "string"},
                     "auth_context": {"type": "object", "additionalProperties": True},
-                    "verdict":      {
+                    "verdict": {
                         "type": "string",
                         "enum": ["SEAL", "PARTIAL", "SABAR", "VOID", "HOLD-888"],
                         "default": "SEAL",
                     },
-                    "payload_ref":  {"type": "string"},
+                    "payload_ref": {"type": "string"},
                     "payload_hash": {"type": "string"},
                 },
                 "additionalProperties": False,
@@ -400,7 +592,15 @@ def register_resources(mcp: FastMCP) -> None:
         schema = {
             "type": "object",
             "description": "RuntimeEnvelope — common return shape for all 10 arifOS tools.",
-            "required": ["verdict", "stage", "session_id", "telemetry", "witness", "auth_context", "data"],
+            "required": [
+                "verdict",
+                "stage",
+                "session_id",
+                "telemetry",
+                "witness",
+                "auth_context",
+                "data",
+            ],
             "properties": {
                 "verdict": {
                     "type": "string",
@@ -409,9 +609,15 @@ def register_resources(mcp: FastMCP) -> None:
                 "stage": {
                     "type": "string",
                     "enum": [
-                        "000_INIT", "111_MIND", "333_MIND",
-                        "444_ROUTER", "555_MEMORY", "666_HEART",
-                        "777_APEX", "888_JUDGE", "999_VAULT",
+                        "000_INIT",
+                        "111_MIND",
+                        "333_MIND",
+                        "444_ROUTER",
+                        "555_MEMORY",
+                        "666_HEART",
+                        "777_APEX",
+                        "888_JUDGE",
+                        "999_VAULT",
                     ],
                 },
                 "session_id": {"type": "string"},
@@ -419,10 +625,16 @@ def register_resources(mcp: FastMCP) -> None:
                     "type": "object",
                     "required": ["dS", "peace2", "confidence", "verdict"],
                     "properties": {
-                        "dS":         {"type": "number", "description": "Entropy delta (dS <= 0 is healthy)"},
-                        "peace2":     {"type": "number", "description": "Stability margin squared (>= 1.0)"},
+                        "dS": {
+                            "type": "number",
+                            "description": "Entropy delta (dS <= 0 is healthy)",
+                        },
+                        "peace2": {
+                            "type": "number",
+                            "description": "Stability margin squared (>= 1.0)",
+                        },
                         "confidence": {"type": "number", "description": "Confidence score 0-1"},
-                        "verdict":    {"type": "string", "description": "System health label"},
+                        "verdict": {"type": "string", "description": "System health label"},
                     },
                 },
                 "witness": {
@@ -430,7 +642,7 @@ def register_resources(mcp: FastMCP) -> None:
                     "required": ["human", "ai", "earth"],
                     "properties": {
                         "human": {"type": "number", "minimum": 0, "maximum": 1},
-                        "ai":    {"type": "number", "minimum": 0, "maximum": 1},
+                        "ai": {"type": "number", "minimum": 0, "maximum": 1},
                         "earth": {"type": "number", "minimum": 0, "maximum": 1},
                     },
                 },
@@ -438,7 +650,7 @@ def register_resources(mcp: FastMCP) -> None:
                     "type": "object",
                     "required": ["actor_id", "authority_level", "stakes_class"],
                     "properties": {
-                        "actor_id":        {"type": "string"},
+                        "actor_id": {"type": "string"},
                         "authority_level": {
                             "type": "string",
                             "enum": ["human", "agent", "system", "anonymous"],
@@ -477,12 +689,15 @@ def register_resources(mcp: FastMCP) -> None:
         Placeholder telemetry summary.
         Wire to arifosmcp.intelligence.core.thermo_budget for live metrics.
         """
-        return json.dumps({
-            "note": "Wire to arifosmcp.intelligence.core.thermo_budget for live metrics.",
-            "example_shape": {
-                "sessions": 0,
-                "avg_dS": None,
-                "avg_peace2": None,
-                "floor_warnings": {},
+        return json.dumps(
+            {
+                "note": "Wire to arifosmcp.intelligence.core.thermo_budget for live metrics.",
+                "example_shape": {
+                    "sessions": 0,
+                    "avg_dS": None,
+                    "avg_peace2": None,
+                    "floor_warnings": {},
+                },
             },
-        }, ensure_ascii=False)
+            ensure_ascii=False,
+        )

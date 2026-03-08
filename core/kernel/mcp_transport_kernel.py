@@ -50,10 +50,10 @@ def build_reason_output(session_id: str, think_result: dict[str, Any]) -> dict[s
     hypotheses_list = think_result.get("hypotheses", [])
     confidence_range = think_result.get("confidence_range", (0.8, 0.9))
     truth_score = confidence_range[0] if isinstance(confidence_range, (list, tuple)) else 0.8
-    
+
     # FIX 1: Preserve QT Quad proof from organ output (no longer discarded)
     qt_proof = think_result.get("qt_proof", {})
-    
+
     result = {
         "stage": "222_REASON",
         "session_id": session_id,
@@ -64,7 +64,7 @@ def build_reason_output(session_id: str, think_result: dict[str, Any]) -> dict[s
         "confidence_range": confidence_range,
         "recommended_path": think_result.get("recommended_path"),
     }
-    
+
     # FIX 1: Pass through qt_proof if present and complete
     if qt_proof:
         result["qt_proof"] = qt_proof
@@ -73,7 +73,7 @@ def build_reason_output(session_id: str, think_result: dict[str, Any]) -> dict[s
             w_ai = qt_proof["witnesses"].get("w_ai", 0.0)
             if w_ai > 0:
                 result["truth_score"] = max(truth_score, w_ai * 0.95)
-    
+
     return result
 
 

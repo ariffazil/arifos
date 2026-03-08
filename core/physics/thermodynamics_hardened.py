@@ -256,6 +256,7 @@ class ThermodynamicBudget:
         # 1. Hardware Grounding Driver
         try:
             from core.telemetry import get_actual_joules
+
             actual_joules = get_actual_joules(compute_ms)
         except ImportError:
             actual_joules = None
@@ -265,16 +266,14 @@ class ThermodynamicBudget:
             compute_ms=compute_ms,
             tokens_generated=tokens,
             entropy_reduction=delta_s,
-            actual_joules=actual_joules
+            actual_joules=actual_joules,
         )
 
         if not result["passed"]:
             self.landauer_violations += 1
             if self.landauer_violations >= self.max_violations:
                 raise LandauerViolation(
-                    result["efficiency_ratio"], 
-                    delta_s, 
-                    result["actual_joules"]
+                    result["efficiency_ratio"], delta_s, result["actual_joules"]
                 )
 
         return {

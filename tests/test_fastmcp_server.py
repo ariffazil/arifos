@@ -624,7 +624,11 @@ class TestApprovalHardening:
         monkeypatch.delenv("ARIFOS_REVOKED_APPROVAL_IDS", raising=False)
         monkeypatch.setenv(env_name, env_value)
 
-        session_id = "sess-revoked" if env_name == "ARIFOS_REVOKED_SESSIONS" else f"sess-{uuid.uuid4().hex[:6]}"
+        session_id = (
+            "sess-revoked"
+            if env_name == "ARIFOS_REVOKED_SESSIONS"
+            else f"sess-{uuid.uuid4().hex[:6]}"
+        )
         actor_id = "actor-revoked" if env_name == "ARIFOS_REVOKED_ACTORS" else "actor-ok"
         approval_id = (
             "approval-revoked"
@@ -674,7 +678,9 @@ class TestApprovalHardening:
 
 class TestFusedGovernanceGate:
     @staticmethod
-    def _install_apex_stubs(monkeypatch, server, *, truth_score, truth_threshold, continuity_binding):
+    def _install_apex_stubs(
+        monkeypatch, server, *, truth_score, truth_threshold, continuity_binding
+    ):
         class _Ctx:
             source = "tests"
             path = "precedent"
@@ -705,7 +711,9 @@ class TestFusedGovernanceGate:
             }
 
         monkeypatch.setattr(server, "_revocation_reason", lambda **kwargs: "")
-        monkeypatch.setattr(server, "_enforce_auth_continuity", lambda **kwargs: (continuity_binding, None))
+        monkeypatch.setattr(
+            server, "_enforce_auth_continuity", lambda **kwargs: (continuity_binding, None)
+        )
         monkeypatch.setattr(server, "_verify_approval_bundle", _stub_verify)
         monkeypatch.setattr(server, "forge", _stub_forge)
         monkeypatch.setattr(server, "audit", _stub_audit)

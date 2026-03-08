@@ -32,8 +32,12 @@ async def test_scheduler_priority(scheduler, test_session_id):
         return name
 
     # Submit standard first, then critical
-    await scheduler.submit("standard_1", test_session_id, "ARCHITECT", mock_workload, priority=1, name="standard_1")
-    await scheduler.submit("critical_1", test_session_id, "AUDITOR", mock_workload, priority=0, name="critical_1")
+    await scheduler.submit(
+        "standard_1", test_session_id, "ARCHITECT", mock_workload, priority=1, name="standard_1"
+    )
+    await scheduler.submit(
+        "critical_1", test_session_id, "AUDITOR", mock_workload, priority=0, name="critical_1"
+    )
 
     # Run loop manually for two cycles to avoid hanging tests
     await scheduler._execute_quantum(await scheduler._get_next_process())

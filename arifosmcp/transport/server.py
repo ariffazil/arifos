@@ -42,7 +42,6 @@ MANIFEST_VERSION = "2026.03.07"
 logger = logging.getLogger(__name__)
 
 # BGE Embeddings Integration from arifosmcp.intelligence (Senses Layer - STATIC)
-from pathlib import Path
 
 from core.state.session_manager import session_manager
 
@@ -1384,12 +1383,12 @@ async def _init_anchor_state(
         revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
         if revoked:
             return _revocation_void("000_INIT", session_id, revoked)
-        
+
         # Call kernel init (anchor)
         anch = await anchor(session_id=session_id, user_id=actor_id, context=query)
         effective_session = str(anch.get("session_id", session_id))
         verdict = str(anch.get("verdict", "SEAL"))
-        
+
         initial_binding = {
             "actor_id": actor_id,
             "token_fingerprint": _token_fingerprint(auth_token),
@@ -1405,7 +1404,7 @@ async def _init_anchor_state(
             "auth_context": continuity_context,
             "intent": intent,
             "math": math or {"akal": 0.6, "present": 0.8, "energy": 0.6, "exploration": 0.4},
-            "governance": governance or {"actor_id": actor_id, "stakes_class": "UNKNOWN"}
+            "governance": governance or {"actor_id": actor_id, "stakes_class": "UNKNOWN"},
         }
 
         result.update(
@@ -1647,7 +1646,11 @@ async def _integrate_analyze_reflect(
             "framing": r.get("framing", {}),
             "sub_questions": r.get("sub_questions", [])[:max_subquestions],
         }
-        result.update(envelope_builder.build_envelope(stage="111_FRAMING", session_id=session_id, verdict=verdict, payload=r))
+        result.update(
+            envelope_builder.build_envelope(
+                stage="111_FRAMING", session_id=session_id, verdict=verdict, payload=r
+            )
+        )
         if continuity_binding:
             result["auth_context"] = _rotate_auth_context(session_id, continuity_binding)
         return result
@@ -1677,7 +1680,7 @@ async def _reason_mind_synthesis(
         session_id=session_id,
         auth_context=auth_context,
         risk_mode=reason_mode,
-        inference_budget=max_steps // 4
+        inference_budget=max_steps // 4,
     )
 
 
@@ -1729,7 +1732,14 @@ async def _vector_memory_store(
                 for ctx in contexts
             ],
         }
-        result.update(envelope_builder.build_envelope(stage="555_RECALL", session_id=effective_session, verdict="SEAL", payload={"memory_count": len(contexts)}))
+        result.update(
+            envelope_builder.build_envelope(
+                stage="555_RECALL",
+                session_id=effective_session,
+                verdict="SEAL",
+                payload={"memory_count": len(contexts)},
+            )
+        )
         return result
     except Exception as e:
         return _fracture_response("555_RECALL", e, session_id)
@@ -2058,8 +2068,15 @@ async def _metabolic_loop_router(
     try:
         # 1. 000_BOOT: Anchor
         anchor_payload = {
-            "intent": {"query": query, "task_type": "execute" if allow_execution else "ask", "reversibility": "irreversible" if risk_tier == "high" else "reversible"},
-            "governance": {"actor_id": actor_id, "stakes_class": "A" if risk_tier == "high" else "C"}
+            "intent": {
+                "query": query,
+                "task_type": "execute" if allow_execution else "ask",
+                "reversibility": "irreversible" if risk_tier == "high" else "reversible",
+            },
+            "governance": {
+                "actor_id": actor_id,
+                "stakes_class": "A" if risk_tier == "high" else "C",
+            },
         }
         anchor_res = await init_anchor_state(**anchor_payload)
         trace["000_INIT"] = anchor_res.get("verdict")
@@ -2071,18 +2088,14 @@ async def _metabolic_loop_router(
 
         # 2. 111_FRAMING: Integrate/Analyze/Reflect
         frame_res = await integrate_analyze_reflect(
-            session_id=session_id,
-            query=query,
-            auth_context=auth_ctx
+            session_id=session_id, query=query, auth_context=auth_ctx
         )
         trace["111_FRAMING"] = frame_res.get("verdict")
         auth_ctx = frame_res.get("auth_context")
 
         # 3. 333_REASON: Mind Synthesis
         mind_res = await reason_mind_synthesis(
-            session_id=session_id,
-            query=query,
-            auth_context=auth_ctx
+            session_id=session_id, query=query, auth_context=auth_ctx
         )
         trace["333_MIND"] = mind_res.get("verdict")
         auth_ctx = mind_res.get("auth_context")
@@ -2091,28 +2104,22 @@ async def _metabolic_loop_router(
         heart_res = {"verdict": "SEAL"}
         if use_heart:
             heart_res = await assess_heart_impact(
-                session_id=session_id,
-                scenario=query,
-                auth_context=auth_ctx
+                session_id=session_id, scenario=query, auth_context=auth_ctx
             )
             trace["666_HEART"] = heart_res.get("verdict")
             auth_ctx = heart_res.get("auth_context")
-        
+
         critique_res = {"verdict": "SEAL"}
         if use_critique:
             critique_res = await critique_thought_audit(
-                session_id=session_id,
-                thought_id="final_mind_answer",
-                auth_context=auth_ctx
+                session_id=session_id, thought_id="final_mind_answer", auth_context=auth_ctx
             )
             trace["666_CRITIQUE"] = critique_res.get("verdict")
             auth_ctx = critique_res.get("auth_context")
 
         # 5. 777_FORGE: Discovery
         forge_res = await quantum_eureka_forge(
-            session_id=session_id,
-            intent=query,
-            auth_context=auth_ctx
+            session_id=session_id, intent=query, auth_context=auth_ctx
         )
         trace["777_FORGE"] = forge_res.get("verdict")
         auth_ctx = forge_res.get("auth_context")
@@ -2123,18 +2130,20 @@ async def _metabolic_loop_router(
             frame_res.get("verdict"),
             mind_res.get("verdict"),
             heart_res.get("verdict"),
-            critique_res.get("verdict")
+            critique_res.get("verdict"),
         ]
-        
-        if "VOID" in candidate_verdicts: final_candidate = "VOID"
-        elif "888_HOLD" in candidate_verdicts: final_candidate = "888_HOLD"
-        elif "SABAR" in candidate_verdicts: final_candidate = "SABAR"
-        else: final_candidate = "SEAL"
+
+        if "VOID" in candidate_verdicts:
+            final_candidate = "VOID"
+        elif "888_HOLD" in candidate_verdicts:
+            final_candidate = "888_HOLD"
+        elif "SABAR" in candidate_verdicts:
+            final_candidate = "SABAR"
+        else:
+            final_candidate = "SEAL"
 
         judge_res = await apex_judge_verdict(
-            session_id=session_id,
-            verdict_candidate=final_candidate,
-            auth_context=auth_ctx
+            session_id=session_id, verdict_candidate=final_candidate, auth_context=auth_ctx
         )
         verdict = judge_res.get("verdict")
         trace["888_JUDGE"] = verdict
@@ -2142,9 +2151,7 @@ async def _metabolic_loop_router(
 
         # 7. 999_SEAL: Vault commit
         seal_res = await seal_vault_commit(
-            session_id=session_id,
-            verdict=verdict,
-            auth_context=auth_ctx
+            session_id=session_id, verdict=verdict, auth_context=auth_ctx
         )
         trace["999_VAULT"] = seal_res.get("verdict")
 
@@ -2155,7 +2162,7 @@ async def _metabolic_loop_router(
             "summary": f"Metabolic loop completed with verdict: {verdict}",
             "ledger_id": seal_res.get("payload", {}).get("ledger_id"),
             "next_actions": judge_res.get("payload", {}).get("next_actions", []),
-            "floors_state": judge_res.get("floors", {})
+            "floors_state": judge_res.get("floors", {}),
         }
 
     except Exception as e:
@@ -2183,12 +2190,12 @@ async def _quantum_eureka_forge(
     """
     # Map intent to a shell command for legacy Forge logic
     command = f"echo 'Forging {eureka_type} for: {intent}'"
-    
+
     return await _sovereign_actuator(
         session_id=session_id,
         command=command,
         purpose=f"Quantum Eureka Forge: {eureka_type}",
-        auth_context=auth_context
+        auth_context=auth_context,
     )
 
 

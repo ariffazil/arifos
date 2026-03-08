@@ -36,7 +36,7 @@ def find_orphans(root_dir):
         "arifosmcp.transport.__main__",
         "arifosmcp.runtime.__main__",
         "arifosmcp.intelligence.cli",
-        "arifosmcp.intelligence.__main__"
+        "arifosmcp.intelligence.__main__",
     ]
     for ep in entrypoints:
         referenced_modules.add(ep)
@@ -44,22 +44,29 @@ def find_orphans(root_dir):
     orphans = []
     for rel_path in py_files:
         module_name = rel_path.replace(os.sep, ".").replace(".py", "")
-        
+
         # Check if the module name or any prefix is referenced
         is_referenced = False
         for ref in referenced_modules:
-            if ref == module_name or ref.startswith(module_name + ".") or module_name.startswith(ref + "."):
+            if (
+                ref == module_name
+                or ref.startswith(module_name + ".")
+                or module_name.startswith(ref + ".")
+            ):
                 is_referenced = True
                 break
-        
+
         if not is_referenced:
             orphans.append(rel_path)
 
     return orphans
 
+
 if __name__ == "__main__":
     root = sys.argv[1] if len(sys.argv) > 1 else "."
     orphans = find_orphans(root)
-    print("Potential Orphans (not imported by any non-test file, excluding __init__.py and common entrypoints):")
+    print(
+        "Potential Orphans (not imported by any non-test file, excluding __init__.py and common entrypoints):"
+    )
     for o in orphans:
         print(o)

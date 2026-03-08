@@ -23,7 +23,6 @@ from arifosmcp.transport.protocol.aaa_contract import (
     READ_ONLY_TOOLS,
     TRINITY_BY_TOOL,
 )
-
 from core.shared.guards.injection_guard import scan_for_injection
 from core.shared.guards.ontology_guard import detect_literalism
 from core.shared.mottos import (
