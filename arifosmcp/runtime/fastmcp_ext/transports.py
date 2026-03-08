@@ -328,44 +328,49 @@ def _build_uvicorn_config() -> dict[str, Any]:
     return config
 
 
-def _build_health_app(mcp_app: ASGIApp) -> ASGIApp:
-    """Wrap MCP app with health and landing endpoints."""
-    from starlette.routing import Route, Mount
-    from starlette.applications import Starlette
-    from starlette.responses import FileResponse, JSONResponse
-    from pathlib import Path
-    import os
+class _HealthEndpointMiddleware:
+    """ASGI middleware that adds health and landing endpoints."""
 
-    async def root_page(request):
-        """Constitutional landing page."""
-        landing = Path("/usr/src/app/static/landing.html")
-        if landing.exists():
-            return FileResponse(landing)
-        return JSONResponse(
-            {"status": "online", "service": "arifOS", "version": "2026.03.08"},
-            status_code=200,
-        )
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
 
-    async def health_check(request):
-        """Health endpoint for Traefik/Docker."""
-        return JSONResponse(
-            {
-                "status": "healthy",
-                "service": "arifos-mcp",
-                "version": os.getenv("ARIFOS_VERSION", "2026.03.08"),
-            },
-            status_code=200,
-        )
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope.get("type") != "http":
+            await self.app(scope, receive, send)
+            return
 
-    # Create a new Starlette app with health endpoints and MCP mounted
-    routes = [
-        Route("/", root_page),
-        Route("/health", health_check),
-        Mount("/mcp", app=mcp_app),
-    ]
-    
-    app = Starlette(routes=routes)
-    return app
+        path = scope.get("path", "")
+        method = scope.get("method", "GET")
+
+        # Handle health check endpoint
+        if path == "/health" and method == "GET":
+            response = JSONResponse(
+                {
+                    "status": "healthy",
+                    "service": "arifos-mcp",
+                    "version": os.getenv("ARIFOS_VERSION", "2026.03.08"),
+                },
+                status_code=200,
+            )
+            await response(scope, receive, send)
+            return
+
+        # Handle root landing endpoint
+        if path == "/" and method == "GET":
+            from pathlib import Path
+            landing = Path("/usr/src/app/static/landing.html")
+            if landing.exists():
+                response = FileResponse(landing)
+            else:
+                response = JSONResponse(
+                    {"status": "online", "service": "arifOS", "version": "2026.03.08"},
+                    status_code=200,
+                )
+            await response(scope, receive, send)
+            return
+
+        # All other requests go to the MCP app
+        await self.app(scope, receive, send)
 
 
 def run_server(mcp: Any, mode: str, host: str, port: int) -> None:
@@ -390,17 +395,17 @@ def run_server(mcp: Any, mode: str, host: str, port: int) -> None:
         return
     if normalized in ("http", "streamable-http"):
         mcp_path = _normalize_path(os.getenv("ARIFOS_MCP_PATH"), "/mcp")
-        # Get the MCP app and wrap it with health endpoints
-        mcp.setup_http()
-        wrapped_app = _build_health_app(mcp._http_app)
+        # Add health endpoint middleware at the start of middleware chain
+        health_middleware = Middleware(_HealthEndpointMiddleware)
+        middleware.insert(0, health_middleware)
         
-        import uvicorn
-        uvicorn.run(
-            wrapped_app,
+        mcp.run(
+            transport="http",
             host=host,
             port=port,
+            path=mcp_path,
             middleware=middleware,
-            **uvicorn_config,
+            uvicorn_config=uvicorn_config,
         )
         return
     raise ValueError(f"Unknown mode '{mode}'. Use stdio|sse|http")

@@ -24,41 +24,7 @@ mcp = FastMCP("arifOS")
 register_aclip_tools(mcp)
 
 
-# --- HTTP Routes (Health & Landing) ---
-# Access underlying Starlette app via mcp._app
 
-def setup_http_routes():
-    """Configure HTTP routes for health and landing."""
-    if hasattr(mcp, '_app'):
-        from starlette.routing import Route
-        
-        async def root_page(request):
-            """Constitutional landing page."""
-            landing = Path("/usr/src/app/static/landing.html")
-            if landing.exists():
-                return FileResponse(landing)
-            return JSONResponse(
-                {"status": "online", "service": "arifOS", "version": "2026.03.08"},
-                status_code=200,
-            )
-        
-        async def health_check(request):
-            """Health endpoint for Traefik/Docker."""
-            return JSONResponse(
-                {
-                    "status": "healthy",
-                    "service": "arifos-mcp",
-                    "version": os.getenv("ARIFOS_VERSION", "2026.03.08"),
-                },
-                status_code=200,
-            )
-        
-        # Add routes to the underlying app
-        mcp._app.routes.insert(0, Route("/", root_page))
-        mcp._app.routes.insert(0, Route("/health", health_check))
-
-# Setup routes (will be called after app startup)
-setup_http_routes()
 
 
 def create_aaa_mcp_server() -> FastMCP:
