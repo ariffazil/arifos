@@ -168,8 +168,8 @@ wheels = [
 
 [[package]]
 name = "arifos"
-version = "2026.3.7"
-source = { virtual = "." }
+version = "2026.3.8"
+source = { editable = "." }
 dependencies = [
     { name = "anyio" },
     { name = "asyncpg" },
