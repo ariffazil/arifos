@@ -70,9 +70,9 @@ Upgraded from 5 types to **9 layers of moral agency** (~150 keywords):
 **Impact:** "How to help refugees" is now detected as **INSAN** layer (High Vulnerability).
 
 ### Infrastructure Fixes
-- **Namespace Collision Fix:** Renamed local `mcp/` to `aaa_mcp/` to avoid conflict with PyPI `mcp` package.
+- **Namespace Collision Fix:** Renamed local `mcp/` to `arifosmcp.transport/` to avoid conflict with PyPI `mcp` package.
 - **Session Ledger:** Reconnected to `VAULT999`.
-- **Docker:** Fixed build paths for `aaa_mcp`.
+- **Docker:** Fixed build paths for `arifosmcp.transport`.
 
 ---
 

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from arifos_aaa_mcp.fastmcp_ext.transports import _build_http_middleware
-from arifos_aaa_mcp.rest_routes import _openapi_schema
-from arifos_aaa_mcp.server import create_aaa_mcp_server
+from arifosmcp.runtime.fastmcp_ext.transports import _build_http_middleware
+from arifosmcp.runtime.rest_routes import _openapi_schema
+from arifosmcp.runtime.server import create_aaa_mcp_server
 
 
 def test_actions_routes_are_registered() -> None:

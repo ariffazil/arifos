@@ -59,7 +59,7 @@ This supports infra and code forging while reducing brick risk.
 Configured server:
 
 - `arifos-aaa` (local)
-  - command: `bash -lc cd /srv/arifOS && /srv/arifOS/.venv/bin/python -m aaa_mcp stdio`
+  - command: `bash -lc cd /srv/arifOS && /srv/arifOS/.venv/bin/python -m arifosmcp.transport stdio`
   - timeout: `20000`
   - env: `PYTHONPATH`, `ARIFOS_CONSTITUTIONAL_MODE=AAA`
 

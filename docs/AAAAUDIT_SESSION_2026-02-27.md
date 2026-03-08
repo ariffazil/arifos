@@ -210,7 +210,7 @@ Found 353 matches (showing first 100)
 /root/arifOS/docker-compose.yml
 /root/openclaw/docker-compose.yml
 /root/arifOS/deployment/docker-compose.vps.yml
-/root/arifOS/aclip_cai/docker-compose.yml
+/root/arifOS/arifosmcp.intelligence/docker-compose.yml
 /root/arifOS/_ARCHIVE/SDK_concept_v55/mcp/docker-mcp/docker-compose.mcp.yml
 ```
 
@@ -1625,8 +1625,8 @@ Merged. Main is now at 11a84897. Local synced. Branch cleaned.
 
 What landed on main
 File	What changed
-aaa_mcp/server.py	RAG-backed recall_memory + reason_mind + apex_judge; resource/prompt surface fixed; _ensure_rag now gracefully falls back
-aaa_mcp/streamable_http_server.py	Explicit capabilities, version negotiation, completion/complete, subscribe → method-not-found
+arifosmcp.transport/server.py	RAG-backed recall_memory + reason_mind + apex_judge; resource/prompt surface fixed; _ensure_rag now gracefully falls back
+arifosmcp.transport/streamable_http_server.py	Explicit capabilities, version negotiation, completion/complete, subscribe → method-not-found
 tests/canonical/test_aaa_phase888_mcp_protocol_e2e.py	81-line E2E protocol suite
 .github/workflows/constitutional_alignment.yaml	F3 checks 13 current canonical names, gitleaks respects gitignore, F2 marker in README
 README.md	MCP ownership marker added
@@ -1635,7 +1635,7 @@ Classification: transport/syscall layer improvement. core/kernel/, core/pipeline
 Ollama on VPS — what it actually gives arifOS
 Regarding your qwen2.5:7b on 72.62.71.199:
 
-Current architecture gap it fills: Right now aclip_cai/triad/ calls external APIs (Perplexity, Brave). aaa_mcp/server.py has _ensure_rag() calling ConstitutionalRAG which just merged but has no backing model. Ollama fills that exact slot — a private, zero-cost LLM that lives in Ring 3 (user-space) above the constitutional kernel.
+Current architecture gap it fills: Right now arifosmcp.intelligence/triad/ calls external APIs (Perplexity, Brave). arifosmcp.transport/server.py has _ensure_rag() calling ConstitutionalRAG which just merged but has no backing model. Ollama fills that exact slot — a private, zero-cost LLM that lives in Ring 3 (user-space) above the constitutional kernel.
 
 Concrete benefits:
 
@@ -2133,7 +2133,7 @@ These are all from their arifOS MCP server at http://127.0.0.1:8088.
 |------|-------|
 | **Tools** | Your VPS — `http://127.0.0.1:8088` |
 | **Server** | `arifosmcp_server` container |
-| **Code** | `/root/arifOS/aaa_mcp/` |
+| **Code** | `/root/arifOS/arifosmcp.transport/` |
 
 **I don't have built-in skills for this.** I'm calling your MCP tools:
 

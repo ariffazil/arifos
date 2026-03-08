@@ -376,7 +376,7 @@ class CompatibilityProbe:
                 "Python 3.12+",
                 "Direct subprocess spawn of arifOS MCP server",
                 "stdin/stdout communication (no HTTP)",
-                "Requires 'python -m arifos_aaa_mcp stdio'",
+                "Requires 'python -m arifosmcp.runtime stdio'",
             ],
             "test_coverage": "Not automated - requires subprocess orchestration",
             "notes": [

@@ -7,7 +7,7 @@ import json
 import pytest
 from fastmcp import Client
 
-from aaa_mcp.protocol.public_surface import (
+from arifosmcp.transport.protocol.public_surface import (
     PUBLIC_PROMPT_NAMES,
     PUBLIC_RESOURCE_URIS,
     PUBLIC_TOOL_ALIASES,
@@ -15,7 +15,7 @@ from aaa_mcp.protocol.public_surface import (
 
 
 def test_public_rest_aliases_use_shared_source() -> None:
-    from arifos_aaa_mcp.rest_routes import TOOL_ALIASES
+    from arifosmcp.runtime.rest_routes import TOOL_ALIASES
 
     assert TOOL_ALIASES == PUBLIC_TOOL_ALIASES
     assert TOOL_ALIASES["apex_verdict"] == "apex_judge"
@@ -23,7 +23,7 @@ def test_public_rest_aliases_use_shared_source() -> None:
 
 
 def test_streamable_aliases_use_shared_source() -> None:
-    from aaa_mcp.streamable_http_server import TOOL_ALIASES
+    from arifosmcp.transport.streamable_http_server import TOOL_ALIASES
 
     assert TOOL_ALIASES == PUBLIC_TOOL_ALIASES
     assert TOOL_ALIASES["audit"] == "apex_judge"
@@ -31,7 +31,7 @@ def test_streamable_aliases_use_shared_source() -> None:
 
 
 def test_legacy_rest_aliases_use_shared_source() -> None:
-    from aaa_mcp.rest import TOOL_ALIASES
+    from arifosmcp.transport.rest import TOOL_ALIASES
 
     assert TOOL_ALIASES == PUBLIC_TOOL_ALIASES
     assert TOOL_ALIASES["apex_verdict"] == "apex_judge"
@@ -40,7 +40,7 @@ def test_legacy_rest_aliases_use_shared_source() -> None:
 
 @pytest.mark.anyio
 async def test_internal_server_mirrors_public_resources_and_prompt() -> None:
-    from aaa_mcp.server import create_unified_mcp_server
+    from arifosmcp.transport.server import create_unified_mcp_server
 
     async with Client(create_unified_mcp_server()) as client:
         resources = await client.list_resources()

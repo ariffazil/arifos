@@ -154,10 +154,10 @@ Tool-class mapping:
 
 ### PR4 — Tool-Class Gating (0 new files, 2 files modified)
 
-**Files:** `core/kernel/evaluator.py`, `aaa_mcp/server.py`
+**Files:** `core/kernel/evaluator.py`, `arifosmcp.transport/server.py`
 
 1. Add `WITNESS_REQUIREMENTS` dict and `TOOL_CLASS_MAP` in `evaluator.py`
-2. In `aaa_mcp/server.py`, inject `action_class` into eval context per tool
+2. In `arifosmcp.transport/server.py`, inject `action_class` into eval context per tool
 
 ---
 
@@ -180,7 +180,7 @@ Tool-class mapping:
 | `core/shared/floors.py` | PR1, PR3 | Witness derivation + failure modes |
 | `core/kernel/evaluator.py` | PR1, PR4 | Remove hardcoded scores + action gating |
 | `core/shared/physics.py` | PR2 | W_3_check() threshold alignment |
-| `aaa_mcp/server.py` | PR4 | Inject action_class per tool |
+| `arifosmcp.transport/server.py` | PR4 | Inject action_class per tool |
 
 **Total: 4 files, 0 new files.**
 

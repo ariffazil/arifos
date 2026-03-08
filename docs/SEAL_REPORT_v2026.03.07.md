@@ -166,7 +166,7 @@ arifos sse      # For web clients
 arifos http     # For HTTP streaming
 
 # Python API
-from arifos_aaa_mcp import create_aaa_mcp_server
+from arifosmcp.runtime import create_aaa_mcp_server
 ```
 
 ---

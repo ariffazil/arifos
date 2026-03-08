@@ -30,7 +30,7 @@
   "mcpServers": {
     "aaa-mcp": {
       "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "C:/Users/User/arifOS",
       "env": {
         "PYTHONPATH": "C:/Users/User/arifOS",
@@ -65,7 +65,7 @@
   "mcpServers": {
     "aaa-mcp": {
       "command": "/path/to/arifOS/.venv/bin/python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS",
       "env": {
         "PYTHONPATH": "/path/to/arifOS",
@@ -104,7 +104,7 @@
   "mcpServers": {
     "arifos-local": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "C:\\Users\\User\\arifOS",
       "env": {
         "PYTHONPATH": "C:\\Users\\User\\arifOS",
@@ -125,7 +125,7 @@
   "mcpServers": {
     "arifos-local": {
       "command": "/path/to/arifOS/.venv/bin/python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS",
       "env": {
         "PYTHONPATH": "/path/to/arifOS",
@@ -143,7 +143,7 @@
   "mcpServers": {
     "arifos-local": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS"
     },
     "arifos-cloud": {
@@ -175,7 +175,7 @@
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": ".",
       "env": {
         "PYTHONPATH": ".",
@@ -204,7 +204,7 @@
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS",
       "env": {
         "PYTHONPATH": "/path/to/arifOS",
@@ -233,7 +233,7 @@
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS",
       "env": {
         "PYTHONPATH": "/path/to/arifOS",
@@ -345,7 +345,7 @@ which python
 "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe"
 ```
 
-### Issue: "Module not found: aaa_mcp"
+### Issue: "Module not found: arifosmcp.transport"
 
 **Fix:** Install package
 ```bash
@@ -380,7 +380,7 @@ chmod +x /path/to/arifOS/.venv/bin/python
   "mcpServers": {
     "arifos-full": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS",
       "env": {
         "PYTHONPATH": "/path/to/arifOS",
@@ -400,7 +400,7 @@ chmod +x /path/to/arifOS/.venv/bin/python
   "mcpServers": {
     "arifos-prod": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS",
       "env": {
         "PYTHONPATH": "/path/to/arifOS",

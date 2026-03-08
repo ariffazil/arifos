@@ -86,7 +86,7 @@
 2026-Feb-22 19:27:44.873849 [DEBUG] LABEL io.modelcontextprotocol.server.url="https://arifosmcp.arif-fazil.com/sse"
 2026-Feb-22 19:27:44.873849 [DEBUG] LABEL io.modelcontextprotocol.server.license="AGPL-3.0-only"
 2026-Feb-22 19:27:44.873849 [DEBUG] 
-2026-Feb-22 19:27:44.873849 [DEBUG] CMD ["python", "-m", "aaa_mcp", "rest"]
+2026-Feb-22 19:27:44.873849 [DEBUG] CMD ["python", "-m", "arifosmcp.transport", "rest"]
 2026-Feb-22 19:27:45.478806 Added 8 ARG declarations to Dockerfile for service arifosmcp (multi-stage build, added to 2 stages).
 2026-Feb-22 19:27:45.492754 Pulling & building required images.
 2026-Feb-22 19:27:45.515446 [DEBUG] Creating build-time .env file in /artifacts (outside Docker context).
@@ -189,7 +189,27 @@
 2026-Feb-22 19:27:57.179842 [DEBUG] #9 8.797 Fetched 5833 kB in 2s (2854 kB/s)
 2026-Feb-22 19:27:57.179842 [DEBUG] #9 8.829 Selecting previously unselected package libproc2-0:amd64.
 2026-Feb-22 19:27:57.179842 [DEBUG] #9 8.829 (Reading database ...
-2026-Feb-22 19:27:57.374740 [DEBUG] (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 5645 files and directories currently installed.)
+2026-Feb-22 19:27:57.374740 [DEBUG] (Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 5645 files and directories currently installed.)
 2026-Feb-22 19:27:57.374740 [DEBUG] #9 8.861 Preparing to unpack .../00-libproc2-0_2%3a4.0.4-9_amd64.deb ...
 2026-Feb-22 19:27:57.374740 [DEBUG] #9 8.865 Unpacking libproc2-0:amd64 (2:4.0.4-9) ...
 2026-Feb-22 19:27:57.374740 [DEBUG] #9 8.913 Selecting previously unselected package procps.
@@ -399,7 +419,28 @@
 2026-Feb-22 19:27:59.816611 [DEBUG] #10 11.31 debconf: falling back to frontend: Noninteractive
 2026-Feb-22 19:28:01.047678 [DEBUG] #10 12.70 Fetched 82.4 MB in 5s (15.9 MB/s)
 2026-Feb-22 19:28:01.178145 [DEBUG] #10 12.72 Selecting previously unselected package bzip2.
-2026-Feb-22 19:28:01.178145 [DEBUG] #10 12.72 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 5645 files and directories currently installed.)
+2026-Feb-22 19:28:01.178145 [DEBUG] #10 12.72 (Reading database ... 
+(Reading database ... 5%
+(Reading database ... 10%
+(Reading database ... 15%
+(Reading database ... 20%
+(Reading database ... 25%
+(Reading database ... 30%
+(Reading database ... 35%
+(Reading database ... 40%
+(Reading database ... 45%
+(Reading database ... 50%
+(Reading database ... 55%
+(Reading database ... 60%
+(Reading database ... 65%
+(Reading database ... 70%
+(Reading database ... 75%
+(Reading database ... 80%
+(Reading database ... 85%
+(Reading database ... 90%
+(Reading database ... 95%
+(Reading database ... 100%
+(Reading database ... 5645 files and directories currently installed.)
 2026-Feb-22 19:28:01.178145 [DEBUG] #10 12.76 Preparing to unpack .../00-bzip2_1.0.8-6_amd64.deb ...
 2026-Feb-22 19:28:01.178145 [DEBUG] #10 12.77 Unpacking bzip2 (1.0.8-6) ...
 2026-Feb-22 19:28:01.178145 [DEBUG] #10 12.83 Selecting previously unselected package perl-modules-5.40.

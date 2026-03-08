@@ -53,14 +53,14 @@ jobs:
 
       - name: Import smoke
         run: |
-          python -c "import aaa_mcp.__main__"
-          python -c "import aaa_mcp.rest"
-          python -c "import aaa_mcp.streamable_http_server"
+          python -c "import arifosmcp.transport.__main__"
+          python -c "import arifosmcp.transport.rest"
+          python -c "import arifosmcp.transport.streamable_http_server"
 
       - name: FastMCP CLI smoke (inspect/list)
         run: |
           fastmcp inspect fastmcp.json --format mcp > /tmp/fastmcp_inspect.json
-          fastmcp list aaa_mcp/server.py:mcp --json > /tmp/fastmcp_list.json
+          fastmcp list arifosmcp.transport/server.py:mcp --json > /tmp/fastmcp_list.json
           test -s /tmp/fastmcp_inspect.json
           test -s /tmp/fastmcp_list.json
           echo "fastmcp inspect/list smoke passed"

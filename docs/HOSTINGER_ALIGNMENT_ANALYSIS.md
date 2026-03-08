@@ -55,8 +55,8 @@
 
 **arifOS Actual Ports:**
 - 8080: SSE endpoint (arifos_router.py) - **ALIGNED with guide's port**
-- 8090: Health/metrics (aaa_mcp internal)
-- 8091: HTTP MCP endpoint (aaa_mcp) - **NOT EXPOSED EXTERNALLY**
+- 8090: Health/metrics (arifosmcp.transport internal)
+- 8091: HTTP MCP endpoint (arifosmcp.transport) - **NOT EXPOSED EXTERNALLY**
 - 8001: Embeddings server
 - 3000: OpenClaw gateway (conflicts with nothing, but not in guide)
 
@@ -106,7 +106,7 @@ The `/mcp` endpoint requires HTTPS via nginx, not direct HTTP on 8080.
   "mcpServers": {
     "arifos-aaa": {
       "command": "/root/arifOS/.venv/bin/python",
-      "args": ["-m", "aaa_mcp", "stdio"]
+      "args": ["-m", "arifosmcp.transport", "stdio"]
     }
   }
 }
@@ -172,10 +172,10 @@ $ curl http://localhost:8080/sse
 
 **arifOS VPS:** Native Python processes
 ```
-PID 839: arifos_aaa_mcp sse
+PID 839: arifosmcp.runtime sse
 PID 840: embeddings server
 PID 842: arifos_router.py --sse --host 0.0.0.0 --port 8080
-PID 4123445: aaa_mcp http --host 127.0.0.1 --port 8091
+PID 4123445: arifosmcp.transport http --host 127.0.0.1 --port 8091
 ```
 
 **Trade-offs:**
@@ -247,7 +247,7 @@ PID 4123445: aaa_mcp http --host 127.0.0.1 --port 8091
 
 1. **Fix Health Endpoint**
    ```python
-   # In arifos_router.py or aaa_mcp
+   # In arifos_router.py or arifosmcp.transport
    @app.get("/health")
    async def health():
        return {"status": "healthy", "version": "2026.3.1"}

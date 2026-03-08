@@ -21,7 +21,7 @@ This document is the single source of truth for arifOS deployment, architecture,
 | Surface | Public URL | Platform | Source Path | Workflow Owner |
 |:--|:--|:--|:--|:--|
 | Docs site (APPS) | `https://arifos.arif-fazil.com` | GitHub Pages | `sites/docs/**` | `.github/workflows/deploy-sites.yml` |
-| MCP runtime | `https://arifosmcp.arif-fazil.com` | VPS (Coolify) | `aaa_mcp/**`, `arifos_aaa_mcp/**`, `core/**`, `aclip_cai/**` | `.github/workflows/deploy.yml` |
+| MCP runtime | `https://arifosmcp.arif-fazil.com` | VPS (Coolify) | `arifosmcp.transport/**`, `arifosmcp.runtime/**`, `core/**`, `arifosmcp.intelligence/**` | `.github/workflows/deploy.yml` |
 | Dashboard | `https://arifosmcp-truth-claim.pages.dev` | Cloudflare Pages | `run_evals.py` | `.github/workflows/deploy-cloudflare.yml` |
 | OpenClaw | `https://claw.arifosmcp.arif-fazil.com` | VPS | OpenClaw Workspace | Traefik Routing |
 | Monitoring | `https://monitor.arifosmcp.arif-fazil.com` | VPS | Grafana/Prometheus | Docker Compose |

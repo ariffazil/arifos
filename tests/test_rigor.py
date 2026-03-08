@@ -1,7 +1,7 @@
 """
 Phase 4 Rigor & Hardening Tests
 
-Targets: arifos_aaa_mcp canonical surface.
+Targets: arifosmcp.runtime canonical surface.
 Focus:
 - Unicode Bypass Resistance (NFKC)
 - Structural Authority Enforcement (F11)

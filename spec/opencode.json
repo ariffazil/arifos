@@ -73,7 +73,7 @@
   "mcp": {
     "arifos": {
       "type": "local",
-      "command": ["python", "-m", "arifos_aaa_mcp", "stdio"],
+      "command": ["python", "-m", "arifosmcp.runtime", "stdio"],
       "environment": {
         "ARIFOS_MODE": "strict"
       }

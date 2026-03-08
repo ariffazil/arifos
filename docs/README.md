@@ -1,42 +1,210 @@
-# docs/ README
+# arifosmcp — arifOS Runtime (Body)
 
-`docs/` is the operational documentation layer for arifOS. Use it to understand runtime behavior, endpoint usage, deployment, and maintenance workflows without digging through source code first.
+**Part of the [arifOS Trinity](https://github.com/ariffazil/arifOS)**
 
-## Where to start
+This repository contains the **executable runtime** for arifOS: the Python kernel, MCP server, and tool implementations with 13-Floor thermodynamic governance.
 
-- Start at the root `README.md` for project orientation and install commands.
-- Use `docs/60_REFERENCE/ARCHITECTURE.md` for system boundaries and layer ownership.
-- Use `docs/60_REFERENCE/TOOLS_CANONICAL_13.md` for canonical tool behavior and contracts.
-- Use `docs/60_REFERENCE/DEPLOYMENT.md` for VPS and runtime deployment steps.
+## 🔺 Trinity Architecture
 
-## Endpoint surfaces
+| Role | Repo | Description |
+|------|------|-------------|
+| 🧠 **Mind** | [arifOS](https://github.com/ariffazil/arifOS) | Constitutional theory, agent repository, governance patterns |
+| 🦾 **Body** | [arifosmcp](https://github.com/ariffazil/arifosmcp) | Python kernel, MCP runtime, tools (you are here) |
+| ❤️ **Heart** | [ariffazil](https://github.com/ariffazil/ariffazil) | Human narrative & coordination |
 
-Use one endpoint surface per session.
+📖 [Full Trinity Spec](https://github.com/ariffazil/arifOS/blob/main/KERNEL/TRINITY_ARCHITECTURE.md)
 
-| Surface | Purpose | Use when |
-| --- | --- | --- |
-| `/` | Canonical 13-tool surface | Default for governed sessions and standard clients |
-| `/mcp` | Runtime MCP protocol surface | Your client expects MCP runtime protocol routing |
-| `/tools` | Full capabilities with compatibility shims | You need extended tools or legacy/client compatibility |
+---
 
-Recommended session order:
+## 🚀 Quick Start
 
-1. `anchor_session`
-2. `reason_mind` and/or `simulate_heart` and/or `critique_thought`
-3. `apex_judge`
-4. `seal_vault`
+### Installation
 
-## Authoring rules
+```bash
+pip install arifos
+```
 
-- Use date-based labels for active architecture and seal references: `YYYY.MM.DD[-SUFFIX]`.
-- Do not reintroduce semantic version labels in active docs.
-- Treat `core/shared/floors.py` as the single canonical source for floor thresholds and definitions.
-- If docs disagree with code, update docs to match runtime behavior and source constants.
+### Run MCP Server (FastMCP)
 
-## Quick docs maintenance checklist
+```bash
+# Using profile configs
+fastmcp run dev.fastmcp.json    # Development: stdio transport (Claude Desktop, Cline)
+fastmcp run prod.fastmcp.json   # Production: HTTP transport at /mcp/
 
-- Confirm endpoint descriptions match current server routes and behavior.
-- Verify tool names and call order against canonical MCP surface.
-- Check floor names/thresholds against `core/shared/floors.py`.
-- Ensure examples use current commands and valid paths.
-- Run docs site build before merging: `npm run build` in `sites/docs`.
+# Or directly with Python
+python -m arifosmcp.runtime
+```
+
+### Available Transports
+- **stdio** — Local MCP clients (Claude Desktop, Cline, etc.)
+- **SSE** — Server-sent events
+- **HTTP** — Streamable HTTP (production deployments)
+
+---
+
+## 🛠️ Development
+
+### Setup
+
+```bash
+# Clone repository
+git clone https://github.com/ariffazil/arifosmcp.git
+cd arifosmcp
+
+# Install with uv (recommended)
+uv pip install -e .
+
+# Or with pip
+pip install -e .
+```
+
+### Run Tests
+
+```bash
+pytest tests/
+```
+
+### Local Development Server
+
+```bash
+# Run with uvicorn (HTTP mode)
+uvicorn arifosmcp.runtime.server:app --reload
+
+# Or with fastmcp
+fastmcp dev
+```
+
+---
+
+## 📦 Package Structure
+
+```
+arifosmcp/
+├── core/                    # Constitutional kernel
+├── arifosmcp.runtime/          # MCP server implementation
+│   ├── server.py            # Main FastMCP server
+│   ├── governance.py        # 13-Floor governance engine
+│   ├── contracts.py         # Constitutional contracts
+│   ├── rest_routes.py       # REST API routes
+│   └── fastmcp_ext/         # FastMCP extensions
+├── tests/                   # Test suite
+├── fastmcp.json             # FastMCP base configuration (HTTP/production default)
+├── dev.fastmcp.json         # Dev profile — stdio transport, DEBUG logging
+├── prod.fastmcp.json        # Prod profile — HTTP transport at /mcp/
+├── server.json              # MCP registry manifest
+└── pyproject.toml           # Python package config
+```
+
+---
+
+## 🔧 Configuration
+
+### FastMCP Profiles
+Three FastMCP configuration files are provided:
+- **`fastmcp.json`** — Base/default configuration (HTTP transport). See [gofastmcp.com](https://gofastmcp.com).
+- **`dev.fastmcp.json`** — Development profile: stdio transport, DEBUG log level (for Claude Desktop, Cline).
+- **`prod.fastmcp.json`** — Production profile: HTTP transport at `/mcp/`.
+
+### Environment Variables
+- `REDIS_URL` — Redis connection (default: `redis://localhost:6379`)
+- `ANTHROPIC_API_KEY` — Claude API key (optional)
+- `LOG_LEVEL` — Logging level (default: `INFO`)
+
+---
+
+## 📖 Documentation
+
+All governance documentation lives in the [arifOS Mind repo](https://github.com/ariffazil/arifOS):
+
+- **[Constitutional Law](https://github.com/ariffazil/arifOS/tree/main/KERNEL)** — 13-Floor governance, Trinity architecture
+- **[Agent Patterns](https://github.com/ariffazil/arifOS/tree/main/AGENTS)** — Skills, workflows, prompts
+- **[Deployment Guides](https://github.com/ariffazil/arifOS/tree/main/OPERATION)** — Docker, VPS, Kubernetes configs
+
+---
+
+## 🔌 Integration
+
+### Claude Desktop
+
+Add to your Claude Desktop config (`claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "arifos": {
+      "command": "fastmcp",
+      "args": ["run", "/path/to/arifosmcp/dev.fastmcp.json"]
+    }
+  }
+}
+```
+
+### Cline (VS Code)
+
+Add to Cline MCP settings:
+
+```json
+{
+  "arifos": {
+    "command": "python",
+    "args": ["-m", "arifosmcp.runtime"]
+  }
+}
+```
+
+---
+
+## 🧪 13-Floor Governance
+
+This server implements **thermodynamic AI governance** with 13 constitutional floors:
+
+- **F1-F3:** Truth, Entropy, Peace² (thermodynamic foundation)
+- **F4-F6:** SABAR, Ω₀, Amanah (human sovereignty)
+- **F7-F9:** Witness, ψₗₑ, MARUAH (governance enforcement)
+- **F10-F13:** Extended governance (future expansion)
+
+All tool executions are validated against these floors before execution.
+
+---
+
+## 📦 PyPI Package
+
+Published as `arifos`:
+
+```bash
+pip install arifos
+```
+
+- **Version:** 2026.03.07
+- **License:** AGPL-3.0
+- **Python:** >=3.12
+
+---
+
+## 🤝 Contributing
+
+This is the **runtime implementation** of arifOS constitutional law.
+
+**For governance proposals:** Open issues in [arifOS Mind repo](https://github.com/ariffazil/arifOS/issues)  
+**For bug fixes:** Open PRs in this repo  
+**For new tools:** Document in [arifOS/AGENTS/skills/](https://github.com/ariffazil/arifOS/tree/main/AGENTS/skills) first
+
+---
+
+## 📜 License
+
+AGPL-3.0 — See [LICENSE](./LICENSE)
+
+---
+
+## 🔗 Links
+
+- **Documentation:** [arifOS Mind](https://github.com/ariffazil/arifOS)
+- **PyPI:** [pypi.org/project/arifos](https://pypi.org/project/arifos/)
+- **Website:** [arifos.arif-fazil.com](https://arifos.arif-fazil.com)
+- **Human:** [arif-fazil.com](https://arif-fazil.com)
+
+---
+
+**Trinity Status:** SEAL  
+**Authority:** Arif Fazil (H-SOURCE)

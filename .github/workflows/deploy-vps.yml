@@ -35,7 +35,7 @@ jobs:
           pip install -e ".[dev]" || pip install -r requirements.txt
 
       - name: Run self-test
-        run: python -m aaa_mcp.selftest
+        run: python -m arifosmcp.transport.selftest
         env:
           GOVERNANCE_MODE: HARD
           ARIFOS_PHYSICS_DISABLED: "1"

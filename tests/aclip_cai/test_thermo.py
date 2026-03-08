@@ -1,12 +1,12 @@
 """
-tests/aclip_cai/test_thermo.py
+tests/arifosmcp.intelligence/test_thermo.py
 ================================
 
-Unit tests for aclip_cai.core.thermo_budget — thermodynamic session tracking.
+Unit tests for arifosmcp.intelligence.core.thermo_budget — thermodynamic session tracking.
 """
 
 import pytest
-from aclip_cai.core.thermo_budget import ThermoBudget, ThermoSnapshot
+from arifosmcp.intelligence.core.thermo_budget import ThermoBudget, ThermoSnapshot
 
 
 @pytest.fixture

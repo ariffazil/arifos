@@ -1,12 +1,12 @@
 """
-tests/aclip_cai/test_floors.py
+tests/arifosmcp.intelligence/test_floors.py
 ================================
 
-Unit tests for aclip_cai.core.floor_audit — F1-F13 runtime auditor.
+Unit tests for arifosmcp.intelligence.core.floor_audit — F1-F13 runtime auditor.
 """
 
 import pytest
-from aclip_cai.core.floor_audit import FloorAuditor, Verdict
+from arifosmcp.intelligence.core.floor_audit import FloorAuditor, Verdict
 
 
 @pytest.fixture

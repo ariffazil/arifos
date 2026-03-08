@@ -4,7 +4,7 @@ This script uses Python's AST to verify the architectural integrity of the
 5-Organ Trinity refactor. It ensures:
 
 1. core/ has ZERO transport dependencies (F2 Truth: τ ≥ 0.99)
-2. aaa_mcp/ has ZERO decision logic (F4 Clarity: ΔS ≤ 0)
+2. arifosmcp.transport/ has ZERO decision logic (F4 Clarity: ΔS ≤ 0)
 3. No thermodynamic leaks between the constitutional kernel and edge adapter
 
 Usage: python audit_topology.py
@@ -29,13 +29,13 @@ FORBIDDEN_CORE_IMPORTS: set[str] = {
     "starlette",
     "httpx",
     "requests",
-    "aaa_mcp",
+    "arifosmcp.transport",
     "uvicorn",
     "sse",
     "sse_starlette",
 }
 
-# aaa_mcp/ is just a router. It should not implement core logic.
+# arifosmcp.transport/ is just a router. It should not implement core logic.
 # Note: Importing constants from core/ is ALLOWED (bridge pattern)
 # Implementing NEW constitutional logic is FORBIDDEN
 FORBIDDEN_MCP_PATTERNS: set[str] = {
@@ -85,11 +85,11 @@ def scan_file(filepath: Path, role: str) -> list[str]:
                         )
 
         # ───────────────────────────────────────────────────────────────────
-        # 2. Check aaa_mcp/ for decision logic leaks (Zero Logic Rule)
+        # 2. Check arifosmcp.transport/ for decision logic leaks (Zero Logic Rule)
         # Note: Importing from core/ is ALLOWED - that's the bridge pattern
         # Only flag if implementing NEW logic classes or functions
         # ───────────────────────────────────────────────────────────────────
-        elif role == "aaa_mcp":
+        elif role == "arifosmcp.transport":
             # Check for class definitions that implement constitutional logic
             if isinstance(node, ast.ClassDef):
                 # Check if class inherits from forbidden base classes
@@ -99,7 +99,7 @@ def scan_file(filepath: Path, role: str) -> list[str]:
                         violations.append(
                             f"[Line {node.lineno}] Logic leak in adapter: "
                             f"Class '{node.name}' inherits from '{base_name}'. "
-                            f"aaa_mcp/ must not implement constitutional engines."
+                            f"arifosmcp.transport/ must not implement constitutional engines."
                         )
 
             # Check for function definitions that implement constitutional math
@@ -146,7 +146,7 @@ def run_audit():
     """Execute the full thermodynamic boundary audit."""
     root_dir = Path(__file__).parent
     core_dir = root_dir / "core"
-    mcp_dir = root_dir / "aaa_mcp"
+    mcp_dir = root_dir / "arifosmcp.transport"
 
     all_violations: list[str] = []
     tool_counts: dict = {}
@@ -172,15 +172,15 @@ def run_audit():
     print()
 
     # ───────────────────────────────────────────────────────────────────────
-    # Scan aaa_mcp/ — The Transport Adapter (Zero Logic)
+    # Scan arifosmcp.transport/ — The Transport Adapter (Zero Logic)
     # ───────────────────────────────────────────────────────────────────────
-    print("🔌 Scanning aaa_mcp/ — Transport Adapter...")
+    print("🔌 Scanning arifosmcp.transport/ — Transport Adapter...")
     if mcp_dir.exists():
         mcp_files = list(mcp_dir.rglob("*.py"))
         print(f"   Found {len(mcp_files)} Python files")
 
         for py_file in mcp_files:
-            violations = scan_file(py_file, "aaa_mcp")
+            violations = scan_file(py_file, "arifosmcp.transport")
             all_violations.extend(violations)
 
             # Count @mcp.tool decorators in server.py
@@ -220,7 +220,7 @@ def run_audit():
         print()
         print("   Thermodynamic boundaries are holding:")
         print("   • core/ has zero transport dependencies")
-        print("   • aaa_mcp/ has zero decision logic")
+        print("   • arifosmcp.transport/ has zero decision logic")
         print("   • 5-Organ Trinity properly encapsulated")
         print()
         print("   ΔS ≤ 0 (Entropy reduced, clarity achieved)")

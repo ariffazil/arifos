@@ -99,7 +99,7 @@ echo ""
 
 # 7. MCP stdio Test
 echo "## 7. MCP stdio Mode"
-result=$(cd /root/arifOS && PYTHONPATH=/root/arifOS timeout 5 /root/arifOS/.venv/bin/python -m aaa_mcp stdio 2>/dev/null << 'EOF'
+result=$(cd /root/arifOS && PYTHONPATH=/root/arifOS timeout 5 /root/arifOS/.venv/bin/python -m arifosmcp.transport stdio 2>/dev/null << 'EOF'
 {"jsonrpc":"2.0","method":"initialize","id":1,"params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"health-check","version":"1.0"}}}
 EOF
 )

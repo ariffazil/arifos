@@ -20,7 +20,7 @@
     },
     {
       "type": "stdio",
-      "command": "python3 -m arifos_aaa_mcp stdio"
+      "command": "python3 -m arifosmcp.runtime stdio"
     }
   ],
   "capabilities": {

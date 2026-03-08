@@ -12,7 +12,7 @@ Validates:
 
 from __future__ import annotations
 
-from aaa_mcp.protocol.aaa_contract import (
+from arifosmcp.transport.protocol.aaa_contract import (
     AAA_CANONICAL_TOOLS,
     ARCHIVED_TOOLS,
     CANONICAL_TOOL_COUNT,
@@ -153,19 +153,19 @@ class TestIngestEvidenceCallable:
     """Verify ingest_evidence can be imported and called."""
 
     async def test_ingest_evidence_bad_source_type(self):
-        from aaa_mcp.tools.ingest_evidence import ingest_evidence
+        from arifosmcp.transport.tools.ingest_evidence import ingest_evidence
 
         result = await ingest_evidence(source_type="ftp", target="ftp://test")
         assert result["status"] == "BAD_SOURCE_TYPE"
 
     async def test_ingest_evidence_url_bad_target(self):
-        from aaa_mcp.tools.ingest_evidence import ingest_evidence
+        from arifosmcp.transport.tools.ingest_evidence import ingest_evidence
 
         result = await ingest_evidence(source_type="url", target="not-a-url")
         assert result["status"] == "BAD_ID"
 
     async def test_ingest_evidence_file_mode_nonexistent(self):
-        from aaa_mcp.tools.ingest_evidence import ingest_evidence
+        from arifosmcp.transport.tools.ingest_evidence import ingest_evidence
 
         result = await ingest_evidence(source_type="file", target="/nonexistent_path_arifos_test")
         # Should return an error envelope, not raise

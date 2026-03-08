@@ -73,10 +73,10 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 - `AGENTS.md` updated with current runtime truth and transport guidance.
 - `server.json` and `static/.well-known/mcp/server.json` updated to 2026.2.23 metadata and discovery links.
 - `pyproject.toml` package version updated to `2026.2.23`; project URLs aligned to current endpoints.
-- Requirements reconciled for FastMCP v3 parity (`aaa_mcp/requirements.txt` now matches runtime line).
+- Requirements reconciled for FastMCP v3 parity (`arifosmcp.transport/requirements.txt` now matches runtime line).
 
 ### Hardened
-- Unified tool handlers in `aaa_mcp/server.py` now include stronger session/auth continuity semantics:
+- Unified tool handlers in `arifosmcp.transport/server.py` now include stronger session/auth continuity semantics:
   - deterministic F11 block envelope when `session_id` is missing downstream,
   - standardized envelope fields (`floors`, `truth`, `next_actions`) for recovery-oriented clients,
   - continuity context fields (`actor_id`, `auth_token`, `parent_session_id`, `auth_context`) on major stages.
@@ -104,7 +104,7 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
   - `Dockerfile`: `LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"`
 
 ### Changed
-- **docker-compose.vps.yml** — Changed from FastMCP HTTP to REST bridge (`python -m aaa_mcp rest`)
+- **docker-compose.vps.yml** — Changed from FastMCP HTTP to REST bridge (`python -m arifosmcp.transport rest`)
 - **nginx_config/arifosmcp** — All REST endpoints now route to port 8889 (was 8080)
 - **Health endpoint** — `/health` now served on port 8889 via REST bridge
 
@@ -117,10 +117,10 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 ## [2026.2.22] — 2026-02-22 — FORGE-INTELLIGENCE-KERNEL-UPGRADE-SEAL
 
 **T000:** 2026.02.22-FORGE-INTELLIGENCE-KERNEL-UPGRADE-SEAL  
-**Theme:** aclip_cai re-architecture to 9-Sense Federation Hub
+**Theme:** arifosmcp.intelligence re-architecture to 9-Sense Federation Hub
 
 ### Added
-- **9-Sense Infrastructure Console** — `aclip_cai` re-architected into a sensory kernel:
+- **9-Sense Infrastructure Console** — `arifosmcp.intelligence` re-architected into a sensory kernel:
   - `core/lifecycle.py` — INIT/SABAR/HOLD/VOID state machine
   - `core/floor_audit.py` — F1-F13 runtime validation
   - `core/mcp_server.py` — 9 canonical system calls federation
@@ -198,7 +198,7 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
   - `core_pipeline.verdict` — Live constitutional pipeline verdict on health check
   - `mcp_tools.tool_count` — Count of registered MCP tools
   - `memory.percent` / `memory.available` — Host memory pressure
-- **Starlette lifespan context** in `aaa_mcp/rest.py` — health checks now register on
+- **Starlette lifespan context** in `arifosmcp.transport/rest.py` — health checks now register on
   application startup instead of requiring `main()` to be called
 - `EnvironmentFile=/opt/arifos/.env` in systemd unit — secrets loaded securely from disk,
   not baked into service file
@@ -240,16 +240,16 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 ### Added
 - `core/shared/sbert_floors.py` — SBERT-based semantic floor classifier for F5/F6/F9
   replacing keyword heuristics (H1.2 foundation); lazy-loads `all-MiniLM-L6-v2`
-- `aaa_mcp/config/capability_modules.yaml` — migrated from `arifos/config/`
-- `MCP_NAME_TO_REGISTRY` dict and `get_tool_by_mcp_name()` in `aaa_mcp/protocol/tool_registry.py`
-- `MCP_TO_GRAPH` dict in `aaa_mcp/protocol/tool_graph.py`
+- `arifosmcp.transport/config/capability_modules.yaml` — migrated from `arifos/config/`
+- `MCP_NAME_TO_REGISTRY` dict and `get_tool_by_mcp_name()` in `arifosmcp.transport/protocol/tool_registry.py`
+- `MCP_TO_GRAPH` dict in `arifosmcp.transport/protocol/tool_graph.py`
 - `trinity_forge` added to `server.json` (was implemented but missing from schema)
 - `AGENTS.md` rewritten as focused 150-line agent guide for coding agents
 
 ### Removed
 - `arifos/` — entire pre-v52 legacy package (no `__init__.py`, not importable, 3 dead files)
 - `codebase/` — 82 files / 21,047 lines of dead code (agi/, asi/, apex/, init/, shared/, vault/)
-  Runtime (`aaa_mcp/server.py`) was already importing 100% from `core/`
+  Runtime (`arifosmcp.transport/server.py`) was already importing 100% from `core/`
 - `core/asi/` — single-file subdirectory; `sbert_floors.py` moved to `core/shared/`
 - `build/` — stale setuptools artifact directory
 - `railway.toml`, `docker-compose.railway-local.yml` (renamed)
@@ -265,7 +265,7 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ### Changed
 - `core/organs/_2_asi.py` import: `from core.asi.sbert_floors` → `from core.shared.sbert_floors`
-- `aaa_mcp/server.py` capability YAML path: `../arifos/config/…` → `config/…` (local)
+- `arifosmcp.transport/server.py` capability YAML path: `../arifos/config/…` → `config/…` (local)
 
 ---
 
@@ -289,7 +289,7 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 **Theme:** AAA_MCP unified, pure bridge architecture
 
 ### Changed
-- `aaa_mcp/` becomes pure transport adapter — all decision logic moved to `core/`
+- `arifosmcp.transport/` becomes pure transport adapter — all decision logic moved to `core/`
 - `core/` established as the single decision kernel with no transport imports
 
 ---

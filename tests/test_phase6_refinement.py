@@ -2,14 +2,14 @@ import asyncio
 import pytest
 from core.pipeline import forge
 from core.state.session_manager import session_manager
-from aaa_mcp.services.constitutional_metrics import get_flight_recorder
-from aaa_mcp.server import _audit_vital, _init_session
+from arifosmcp.transport.services.constitutional_metrics import get_flight_recorder
+from arifosmcp.transport.server import _audit_vital, _init_session
 
 
 @pytest.mark.asyncio
 async def test_reality_consensus_and_arbitration():
     """Verify that multiple results are arbitrated correctly."""
-    from aclip_cai.tools.reality_grounding import RealityGroundingCascade
+    from arifosmcp.intelligence.tools.reality_grounding import RealityGroundingCascade
 
     cascade = RealityGroundingCascade()
     assert hasattr(cascade, "arbitrator")
@@ -34,7 +34,7 @@ async def test_merkle_chaining():
     """Verify that events are chained via hashes."""
     session_id = "test-merkle-session"
     # Seed some events
-    from aaa_mcp.services.constitutional_metrics import store_stage_result
+    from arifosmcp.transport.services.constitutional_metrics import store_stage_result
 
     store_stage_result(session_id, "000_INIT", {"verdict": "SEAL"})
     store_stage_result(session_id, "111_MIND", {"verdict": "SEAL"})

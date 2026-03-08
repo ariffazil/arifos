@@ -34,7 +34,7 @@ The awareness extends to **multimodal input processing**, including screenshot-t
 
 Anthropic Claude achieves the **highest SWE-bench Verified score of 72.7%** among major AI coding tools, with exceptional strength in "complex architecture understanding and multi-file refactoring" . This capability is essential for arifOS's distributed constitutional architecture, where the 9 Laws must be consistently applied across the Intelligence Kernel's 5 Organs, 13 Constitutional Floors, and MCP server infrastructure without architectural drift. Claude's **agentic search automatically understands entire codebases** without manual context selection, enabling navigation of large projects with coherent modification across dozens of interconnected files .
 
-The multi-file coherence extends to **constitutional constraint traceability**, ensuring that modifications to theoretical principles in `000_THEORY` propagate correctly to operational implementations in `aaa_mcp` and `aclip_cai` directories . For the experimental SABAR components (L5 Agents, ACLIP_CAI) where calibration needs are explicitly noted, Claude's ability to maintain reasoning context across extended interactions enables tracking of how implementation decisions affect global uncertainty metrics—flagging when proposed changes would violate the Ω₀ ∈ [0.03, 0.05] target band .
+The multi-file coherence extends to **constitutional constraint traceability**, ensuring that modifications to theoretical principles in `000_THEORY` propagate correctly to operational implementations in `arifosmcp.transport` and `arifosmcp.intelligence` directories . For the experimental SABAR components (L5 Agents, ACLIP_CAI) where calibration needs are explicitly noted, Claude's ability to maintain reasoning context across extended interactions enables tracking of how implementation decisions affect global uncertainty metrics—flagging when proposed changes would violate the Ω₀ ∈ [0.03, 0.05] target band .
 
 #### 1.2.2 Extended context windows for large system comprehension
 
@@ -228,7 +228,7 @@ n8n's **trigger-action architecture enables event-driven constitutional enforcem
 
 ##### 3.1.1.1 9 Laws of constitutional governance enforcement
 
-The **AAA-MCP Constitutional Spine** implements arifOS's foundational governance through **9 Laws of thermodynamic constitutionalism** that constrain all AI agent behavior . These Laws—documented in `000_THEORY` and operationalized in `aaa_mcp`—establish:
+The **AAA-MCP Constitutional Spine** implements arifOS's foundational governance through **9 Laws of thermodynamic constitutionalism** that constrain all AI agent behavior . These Laws—documented in `000_THEORY` and operationalized in `arifosmcp.transport`—establish:
 
 | Law | Principle | Constitutional Floor | MCP Tool Implementation |
 |-----|-----------|---------------------|------------------------|
@@ -262,7 +262,7 @@ The engine calculates **Ω₀ "temperature" metrics** targeting the band [0.03, 
 
 ##### 3.1.1.4 Zero decision logic in adapter (protocol-agnostic)
 
-AAA-MCP's **strict architectural separation** centralizes all constitutional logic in the `core/` kernel while `aaa_mcp/` adapters contain **zero decision logic**—only protocol-specific serialization and connection management . This ensures:
+AAA-MCP's **strict architectural separation** centralizes all constitutional logic in the `core/` kernel while `arifosmcp.transport/` adapters contain **zero decision logic**—only protocol-specific serialization and connection management . This ensures:
 
 - **Transport protocol evolution without safety regression**: STDIO (Claude Desktop), SSE (remote clients), HTTP (MCP 2025-11-25 spec) all invoke identical constitutional evaluation
 - **Formal verification focus**: kernel logic analyzable independently of protocol complexity
@@ -465,7 +465,7 @@ For non-coders with some technical exposure, generated code serves as **educatio
 
 ##### 3.3.1.1 Python SDK for server development
 
-The **official Python SDK** provides reference implementation for arifOS's `aaa_mcp` and `aclip_cai` servers :
+The **official Python SDK** provides reference implementation for arifOS's `arifosmcp.transport` and `arifosmcp.intelligence` servers :
 
 | Feature | Implementation | arifOS Relevance |
 |---------|---------------|----------------|

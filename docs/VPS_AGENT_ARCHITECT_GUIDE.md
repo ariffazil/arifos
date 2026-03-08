@@ -107,18 +107,18 @@ Problem: DNS resolution fails across networks
 ### Phase 1: Complete BGE Integration (Priority: CRITICAL)
 
 #### Step 1.1: Verify Code Changes
-**File**: `/root/arifOS/aaa_mcp/server.py`
+**File**: `/root/arifOS/arifosmcp.transport/server.py`
 
 **Checklist**:
 - [ ] Line ~28: BGE import added
 - [ ] Line ~483: recall_memory has BGE metrics
-- [ ] BGE model exists: `aclip_cai/embeddings/bge-arifOS/`
+- [ ] BGE model exists: `arifosmcp.intelligence/embeddings/bge-arifOS/`
 
 **Verify**:
 ```bash
-grep -n "BGE_AVAILABLE" /root/arifOS/aaa_mcp/server.py | head -5
-grep -n "bge_available\|bge_used\|embedding_dims" /root/arifOS/aaa_mcp/server.py | head -10
-ls -lh /root/arifOS/aclip_cai/embeddings/bge-arifOS/model.safetensors
+grep -n "BGE_AVAILABLE" /root/arifOS/arifosmcp.transport/server.py | head -5
+grep -n "bge_available\|bge_used\|embedding_dims" /root/arifOS/arifosmcp.transport/server.py | head -10
+ls -lh /root/arifOS/arifosmcp.intelligence/embeddings/bge-arifOS/model.safetensors
 ```
 
 #### Step 1.2: Rebuild Container with BGE
@@ -301,8 +301,8 @@ services:
 
 | Check | Command | Expected Result |
 |-------|---------|----------------|
-| BGE Import | `grep "BGE_AVAILABLE" /root/arifOS/aaa_mcp/server.py` | ✅ Found |
-| BGE Model | `ls /root/arifOS/aclip_cai/embeddings/bge-arifOS/` | ✅ Files present |
+| BGE Import | `grep "BGE_AVAILABLE" /root/arifOS/arifosmcp.transport/server.py` | ✅ Found |
+| BGE Model | `ls /root/arifOS/arifosmcp.intelligence/embeddings/bge-arifOS/` | ✅ Files present |
 | Container Built | `docker images | grep arifos` | ✅ Image exists |
 | Service Running | `docker ps | grep arifosmcp` | ✅ Up (healthy) |
 | BGE Loaded | `docker logs arifosmcp_server 2>&1 \| grep BGE` | ✅ "BGE embeddings loaded" |
@@ -350,7 +350,7 @@ curl -s http://localhost:8080/health | jq '.status'
 
 ### 1. Trinity Architecture (ΔΩΨ)
 ```
-CORE (Brain)          aaa_mcp (Mouth)          aclip_cai (Senses)
+CORE (Brain)          arifosmcp.transport (Mouth)          arifosmcp.intelligence (Senses)
     │                        │                         │
     ├─ 000_INIT              ├─ /mcp                  ├─ BGE Embeddings
     ├─ 333_REASON            ├─ /tools                ├─ Vector Search
@@ -416,11 +416,11 @@ echo ""
 # Phase 1: Verify Code
 echo "🔍 Phase 1: Verifying BGE Code Integration..."
 cd /root/arifOS
-if ! grep -q "BGE_AVAILABLE" aaa_mcp/server.py; then
+if ! grep -q "BGE_AVAILABLE" arifosmcp.transport/server.py; then
     echo "❌ BGE import not found. Aborting."
     exit 1
 fi
-if [ ! -f "aclip_cai/embeddings/bge-arifOS/model.safetensors" ]; then
+if [ ! -f "arifosmcp.intelligence/embeddings/bge-arifOS/model.safetensors" ]; then
     echo "❌ BGE model not found. Aborting."
     exit 1
 fi
@@ -534,7 +534,7 @@ echo "DITEMPA BUKAN DIBERI"
 
 ## 🔒 AUDIT CERTIFICATION
 
-**Architect Review**: ✅ Architecture sound (BGE in aclip_cai)  
+**Architect Review**: ✅ Architecture sound (BGE in arifosmcp.intelligence)  
 **Auditor Review**: ✅ Low risk (additive changes)  
 **Security Review**: ✅ No injection vectors, proper error handling  
 **Performance Review**: ✅ 10x improvement expected
@@ -555,7 +555,7 @@ echo "DITEMPA BUKAN DIBERI"
 **Fix**: Check `docker logs arifosmcp_server --tail 50`
 
 **Issue**: BGE not loading  
-**Fix**: Verify `aclip_cai/embeddings/bge-arifOS/model.safetensors` exists (133MB)
+**Fix**: Verify `arifosmcp.intelligence/embeddings/bge-arifOS/model.safetensors` exists (133MB)
 
 **Issue**: Services not reachable  
 **Fix**: Run network connect commands, verify IPs with `docker inspect <container>`

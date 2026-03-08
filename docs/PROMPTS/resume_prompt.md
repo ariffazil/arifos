@@ -10,7 +10,7 @@ The primary goal is to "seal" the recent architectural updates. This involves tw
 
 ## Current Status
 
-*   **✅ [COMPLETED] Forged 10 Senses for `ACLIP_CAI`**: All senses from `C0` to `C9` (including the mock `financial_cost`) have been created in the `aclip_cai/tools/` directory and registered in `aclip_cai/server.py`.
+*   **✅ [COMPLETED] Forged 10 Senses for `ACLIP_CAI`**: All senses from `C0` to `C9` (including the mock `financial_cost`) have been created in the `arifosmcp.intelligence/tools/` directory and registered in `arifosmcp.intelligence/server.py`.
 *   **✅ [COMPLETED] Refined `README.md`**: The main `README.md` has been updated with the "Pyramid, Spine, and Nerves" architecture, and the tool lists for `aaa-mcp` (9 Laws) and `ACLIP_CAI` (10 Senses) are now accurate.
 *   **"IN PROGRESS" Constitutional Verification**: We were about to run the code quality toolchain.
 

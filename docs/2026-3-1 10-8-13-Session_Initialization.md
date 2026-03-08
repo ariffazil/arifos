@@ -1010,10 +1010,10 @@ hang x percaya hang tengok github aku:
 https://github.com/ariffazil/arifOS
 
 ## Thoughts
-I need to accept the link and verify that the repo includes Python packages, but not an LLM or similar. I'll open the relevant files, like the README or arifos_aaa_mcp, and check for the necessary details, such as the requirements. Time to open the README!
+I need to accept the link and verify that the repo includes Python packages, but not an LLM or similar. I'll open the relevant files, like the README or arifosmcp.runtime, and check for the necessary details, such as the requirements. Time to open the README!
 
 ## Thoughts
-Looks like GitHub pages are showing an error because they're dynamic, so I need the raw content. I'll open the raw URL for the README and another Python file, like arifos_aaa_mcp. I’ll also search the repo for "transformers" with the appropriate query to dig deeper.
+Looks like GitHub pages are showing an error because they're dynamic, so I need the raw content. I'll open the raw URL for the README and another Python file, like arifosmcp.runtime. I’ll also search the repo for "transformers" with the appropriate query to dig deeper.
 
 ## Thoughts
 The current view is limited to 50 lines, but I might be able to get more by adjusting the line number or using "lineno." I’ll also need to open the raw content from GitHub for the 333_AXIOMS issue and check a Python module other than __init__.py. Lastly, I'll search the repo for "embeddings" or "jaccard."
@@ -1022,7 +1022,7 @@ The current view is limited to 50 lines, but I might be able to get more by adju
 The search results weren't helpful due to GitHub restrictions. I’ll try opening the raw files directly, like the 333_AXIOMS.md file, which had an error (maybe temporary). I’ll use "?plain=1" for that file and also check the tools canonical file on GitHub. Let’s see if this approach works.
 
 ## Thoughts
-We’ve got the server.py file, which references tools like forge_hand, not eureka_forge, explaining the mismatch with our tool list. It’s a pure Python setup, but mentions legacy components like aaa_mcp. This file shows that forge_hand calls a legacy provider. I’ll open the raw aaa_mcp/server.py for further inspection.
+We’ve got the server.py file, which references tools like forge_hand, not eureka_forge, explaining the mismatch with our tool list. It’s a pure Python setup, but mentions legacy components like arifosmcp.transport. This file shows that forge_hand calls a legacy provider. I’ll open the raw arifosmcp.transport/server.py for further inspection.
 
 ## ASSISTANT
 Arif 😅 ok **now we got receipts**. I opened your GitHub repo and **read the actual Python**. You’re right: **it’s Python MCP server code**, not “mystery AI”. 🔥🐍 citeturn0view0turn4view2turn5view0
@@ -1030,7 +1030,7 @@ Arif 😅 ok **now we got receipts**. I opened your GitHub repo and **read the a
 ## ✅ What your server is *really* doing (human language)
 
 ### 1) AAA MCP = **FastMCP tool server** (Python)
-Your `arifos_aaa_mcp/server.py` literally defines the tools and forwards most calls to a “legacy” implementation (`aaa_mcp`). citeturn4view2
+Your `arifosmcp.runtime/server.py` literally defines the tools and forwards most calls to a “legacy” implementation (`arifosmcp.transport`). citeturn4view2
 
 It exposes the canonical tool names like:
 - `anchor_session`, `reason_mind`, `recall_memory`, `simulate_heart`, `critique_thought`
@@ -1042,7 +1042,7 @@ So yes — **server sends text**, but the text is coming from **your own Python 
 ---
 
 ### 2) The “apex / axioms / mottos” stuff = **just structured envelopes**
-In `aaa_mcp/server.py`, you wrap results into a standard envelope `{verdict, stage, session_id, floors, truth, next_actions…}`. citeturn5view0  
+In `arifosmcp.transport/server.py`, you wrap results into a standard envelope `{verdict, stage, session_id, floors, truth, next_actions…}`. citeturn5view0  
 So it *looks* mystical, but it’s mostly **a reporting format**.
 
 ---
@@ -1050,7 +1050,7 @@ So it *looks* mystical, but it’s mostly **a reporting format**.
 ## 🚨 Important: your “Jaccard-gate → embeddings after” claim is NOT what the code currently does
 This part is key.
 
-In your **current `aaa_mcp/server.py`**, `recall_memory` is explicitly a **placeholder**:
+In your **current `arifosmcp.transport/server.py`**, `recall_memory` is explicitly a **placeholder**:
 
 - It literally says **implementation will call phoenix_recall later**
 - **For now** it returns:
@@ -1077,10 +1077,10 @@ Everything else (A1/A2 failing, HOLD/VOID behavior, schema sensitivity) was grou
 
 ## 🧠 “Mana ada AI LLM” — do you have an LLM in the server?
 From what we can see in the code we opened:
-- It’s **FastMCP + governance + external gateways** (e.g., Brave/Perplexity clients are imported in `aaa_mcp/server.py`). citeturn5view0  
+- It’s **FastMCP + governance + external gateways** (e.g., Brave/Perplexity clients are imported in `arifosmcp.transport/server.py`). citeturn5view0  
 That’s **not proof of an LLM** running locally. It’s more like “search clients + governance pipeline”.
 
-If there *is* an LLM, it would likely live deeper (e.g., under `aclip_cai.triad` / `core`), but we’d need to open those specific files to confirm.
+If there *is* an LLM, it would likely live deeper (e.g., under `arifosmcp.intelligence.triad` / `core`), but we’d need to open those specific files to confirm.
 
 ---
 

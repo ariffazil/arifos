@@ -45,7 +45,7 @@ curl http://localhost:8080/health
 
 ## 3. Logging (journald)
 
-All output (both `stdout` and `stderr`) from the `arifos-router` and its backend subprocesses (`aaa_mcp`, `aclip_cai`) is captured by `journald`.
+All output (both `stdout` and `stderr`) from the `arifos-router` and its backend subprocesses (`arifosmcp.transport`, `arifosmcp.intelligence`) is captured by `journald`.
 
 ### Viewing Logs
 

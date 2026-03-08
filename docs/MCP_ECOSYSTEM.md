@@ -120,7 +120,7 @@ kimi mcp list
 read_file(path: "spec/constitutional_floors.json")
 
 # Edit with audit trail
-edit_file(path: "aaa_mcp/server.py", edits: [...])
+edit_file(path: "arifosmcp.transport/server.py", edits: [...])
 ```
 
 ---
@@ -280,7 +280,7 @@ convert_time(
 
 ## 🔗 Alignment Matrix: 9 Tools × 6 MCPs
 
-| aaa_mcp Tool | Primary MCP | Constitutional Flow |
+| arifosmcp.transport Tool | Primary MCP | Constitutional Flow |
 |--------------|-------------|---------------------|
 | `init_gate` | `filesystem` | Read constitutional spec → Validate F11/F12 |
 | `agi_sense` | `memory` | Query patterns → Classify intent |
@@ -343,10 +343,10 @@ F3/F5/F8      F1/F3 (Ledger)   F2 (History)
 init_gate(query: "Review PR for F7 compliance")
 
 # 2. Read code
-filesystem.read_file(path: "aaa_mcp/core/constitutional_decorator.py")
+filesystem.read_file(path: "arifosmcp.transport/core/constitutional_decorator.py")
 
 # 3. Check git history
-git_log(max_count: 5, path: "aaa_mcp/core/constitutional_decorator.py")
+git_log(max_count: 5, path: "arifosmcp.transport/core/constitutional_decorator.py")
 
 # 4. Multi-step reasoning
 sequentialthinking(thought: "Analyzing F7 implementation...", ...)

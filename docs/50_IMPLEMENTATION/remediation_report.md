@@ -10,12 +10,12 @@
 **Issue:** The empathy floor (F6) applied a strict "Human" threshold (0.95) to all tasks, blocking low-stakes operational commands.
 **Fix:**
 - **Scope Awareness**: Updated `floors.py` to detect `scope="ops"` or `scope="code"` and use a technical threshold (0.10).
-- **Context Injection**: Updated `aaa_mcp/server.py` to expose `scope` parameter in `respond` and `validate` tools, allowing callers to specify the context.
+- **Context Injection**: Updated `arifosmcp.transport/server.py` to expose `scope` parameter in `respond` and `validate` tools, allowing callers to specify the context.
 
 ## 3. Sovereign Health (Missing Windows Path)
 **Issue:** `system_monitor.py` relied on hardcoded Linux paths or commands (`cat /proc/cpuinfo`), failing on Windows.
 **Fix:**
-- **OS Agnostic Patch**: Updated `aclip_cai/tools/system_monitor.py` to use `psutil` (cross-platform) and `platform` module.
+- **OS Agnostic Patch**: Updated `arifosmcp.intelligence/tools/system_monitor.py` to use `psutil` (cross-platform) and `platform` module.
 - **WMI Fallback**: Added robust PowerShell fallback for Windows metrics if `psutil` is missing/broken.
 
 ## Verification Status

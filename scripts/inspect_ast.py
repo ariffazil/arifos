@@ -45,43 +45,43 @@ def extract_tools_ast(filepath):
 
 manifest = {"servers": {}}
 
-# aaa_mcp
-aaa_tools = extract_tools_ast(r"C:\Users\User\arifOS\aaa_mcp\server.py")
-manifest["servers"]["aaa_mcp"] = {"tools": {}}
+# arifosmcp.transport
+aaa_tools = extract_tools_ast(r"C:\Users\User\arifOS\arifosmcp.transport\server.py")
+manifest["servers"]["arifosmcp.transport"] = {"tools": {}}
 for name, desc in aaa_tools.items():
     tier = "UNKNOWN"
     if "[Lane:" in desc:
         tier = desc.split("[Lane:")[1].split("]")[0].strip()
 
-    manifest["servers"]["aaa_mcp"]["tools"][name] = {
-        "source_file": "aaa_mcp/server.py",
+    manifest["servers"]["arifosmcp.transport"]["tools"][name] = {
+        "source_file": "arifosmcp.transport/server.py",
         "governance_tier": tier,
         "description": desc,
     }
-manifest["servers"]["aaa_mcp"]["total_tools"] = len(aaa_tools)
+manifest["servers"]["arifosmcp.transport"]["total_tools"] = len(aaa_tools)
 
 
-# aclip_cai
+# arifosmcp.intelligence
 aclip_tools = {}
-for root_dir, _, files in os.walk(r"C:\Users\User\arifOS\aclip_cai"):
+for root_dir, _, files in os.walk(r"C:\Users\User\arifOS\arifosmcp.intelligence"):
     for file in files:
         if file.endswith(".py"):
             fpath = os.path.join(root_dir, file)
             file_tools = extract_tools_ast(fpath)
             for name, desc in file_tools.items():
-                short_path = "aclip_cai/" + os.path.relpath(
-                    fpath, r"C:\Users\User\arifOS\aclip_cai"
+                short_path = "arifosmcp.intelligence/" + os.path.relpath(
+                    fpath, r"C:\Users\User\arifOS\arifosmcp.intelligence"
                 ).replace("\\", "/")
                 aclip_tools[name] = (short_path, desc)
 
-manifest["servers"]["aclip_cai"] = {"tools": {}}
+manifest["servers"]["arifosmcp.intelligence"] = {"tools": {}}
 for name, (src, desc) in aclip_tools.items():
-    manifest["servers"]["aclip_cai"]["tools"][name] = {
+    manifest["servers"]["arifosmcp.intelligence"]["tools"][name] = {
         "source_file": src,
         "governance_tier": "SENSORY (Read-Only Grounding)",
         "description": desc.split("\n")[0] if desc else "None",
     }
-manifest["servers"]["aclip_cai"]["total_tools"] = len(aclip_tools)
+manifest["servers"]["arifosmcp.intelligence"]["total_tools"] = len(aclip_tools)
 
 manifest_path = r"C:\Users\User\.gemini\antigravity\brain\6b6f58e2-6482-4bda-906e-a7d52f8eb0e2\mcp-manifest.json"
 with open(manifest_path, "w", encoding="utf-8") as f:

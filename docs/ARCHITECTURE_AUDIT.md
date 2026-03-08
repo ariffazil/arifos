@@ -173,7 +173,7 @@ except (
 ## 3. Sampling Integration (NEW)
 
 ### 3.1 Constitutional Sampling Module ✅
-**File**: `aclip_cai/core/constitutional_sampling.py`
+**File**: `arifosmcp.intelligence/core/constitutional_sampling.py`
 
 Provides:
 - `CONSTITUTIONAL_SYSTEM_PROMPT` - Embeds F1-F13 into LLM calls
@@ -211,8 +211,8 @@ L0 KERNEL ✅ - core/ constitutional cage
 
 **Boundary Violations**: None detected ✓
 - `core/` has NO transport imports ✓
-- `aaa_mcp/` is transport-only ✓
-- `aclip_cai/` provides intelligence layer ✓
+- `arifosmcp.transport/` is transport-only ✓
+- `arifosmcp.intelligence/` provides intelligence layer ✓
 
 ---
 
@@ -297,7 +297,7 @@ The arifOS AAA MCP server is correctly implemented according to:
 ## Appendix: File Structure
 
 ```
-arifos_aaa_mcp/
+arifosmcp.runtime/
 ├── __init__.py
 ├── __main__.py          # CLI entrypoint
 ├── server.py            # Main FastMCP server (13 tools, 2 resources, 5 prompts)
@@ -309,7 +309,7 @@ arifos_aaa_mcp/
     ├── discovery.py     # Surface discovery
     └── transports.py    # Transport routing
 
-aclip_cai/
+arifosmcp.intelligence/
 ├── core/
 │   ├── constitutional_sampling.py  # NEW: Sampling integration
 │   └── kernel.py

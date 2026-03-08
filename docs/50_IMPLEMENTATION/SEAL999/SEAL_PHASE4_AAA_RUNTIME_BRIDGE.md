@@ -6,9 +6,9 @@ Branch: `forge/aaa-mcp-v13-safe`
 ## Delivered
 
 1. **Default external runtime bridge**
-   - `python -m aaa_mcp` now forwards to `arifos_aaa_mcp` entrypoint.
+   - `python -m arifosmcp.transport` now forwards to `arifosmcp.runtime` entrypoint.
 2. **13-law embedding in canonical tools**
-   - Added `LAW_13_CATALOG` (9 floors + 2 mirrors + 2 walls) in `arifos_aaa_mcp/governance.py`.
+   - Added `LAW_13_CATALOG` (9 floors + 2 mirrors + 2 walls) in `arifosmcp.runtime/governance.py`.
    - Added per-tool `TOOL_LAW_BINDINGS` for all 13 canonical tools.
    - Every wrapped tool response now includes:
      - `laws_13.catalog`
@@ -21,10 +21,10 @@ Branch: `forge/aaa-mcp-v13-safe`
 ## Verification
 
 - Python syntax compile passed for:
-  - `aaa_mcp/__main__.py`
-  - `arifos_aaa_mcp/governance.py`
-  - `arifos_aaa_mcp/server.py`
-  - `arifos_aaa_mcp/__main__.py`
+  - `arifosmcp.transport/__main__.py`
+  - `arifosmcp.runtime/governance.py`
+  - `arifosmcp.runtime/server.py`
+  - `arifosmcp.runtime/__main__.py`
   - `tests/test_aaa_mcp_contract.py`
   - `tests/test_aaa_phase3_flow.py`
 

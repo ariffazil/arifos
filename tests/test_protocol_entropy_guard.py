@@ -2,14 +2,14 @@
 
 from __future__ import annotations
 
-from aaa_mcp.protocol.schemas import get_input_schema, get_output_schema
-from aaa_mcp.protocol.tool_graph import validate_sequence
-from aaa_mcp.protocol.tool_naming import (
+from arifosmcp.transport.protocol.schemas import get_input_schema, get_output_schema
+from arifosmcp.transport.protocol.tool_graph import validate_sequence
+from arifosmcp.transport.protocol.tool_naming import (
     CANONICAL_PUBLIC_TO_LEGACY,
     MCP_VERB_TO_LEGACY,
     resolve_protocol_tool_name,
 )
-from aaa_mcp.protocol.tool_registry import get_tool_by_mcp_name, get_tool_spec
+from arifosmcp.transport.protocol.tool_registry import get_tool_by_mcp_name, get_tool_spec
 
 
 def test_canonical_public_names_resolve_to_protocol_keys() -> None:

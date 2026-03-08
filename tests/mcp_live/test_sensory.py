@@ -1,7 +1,7 @@
 import pytest
-from aaa_mcp.server import _analyze, audit_rules, fetch_content, search_reality
-from aclip_cai.tools.system_monitor import get_system_health
-from aclip_cai.tools.fs_inspector import fs_inspect
+from arifosmcp.transport.server import _analyze, audit_rules, fetch_content, search_reality
+from arifosmcp.intelligence.tools.system_monitor import get_system_health
+from arifosmcp.intelligence.tools.fs_inspector import fs_inspect
 from tests.mcp_live.utils.validators import validate_constitutionally
 
 

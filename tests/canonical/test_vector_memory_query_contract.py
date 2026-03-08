@@ -6,12 +6,12 @@ import ast
 import inspect
 from pathlib import Path
 
-from aaa_mcp.protocol.schemas import get_input_schema
-from arifos_aaa_mcp.server import vector_memory
+from arifosmcp.transport.protocol.schemas import get_input_schema
+from arifosmcp.runtime.server import vector_memory
 
 
 ROOT = Path(__file__).resolve().parents[2]
-REST_FILE = ROOT / "aaa_mcp" / "rest.py"
+REST_FILE = ROOT / "arifosmcp.transport" / "rest.py"
 
 
 def _load_rest_tool_schemas() -> dict[str, dict]:
@@ -22,7 +22,7 @@ def _load_rest_tool_schemas() -> dict[str, dict]:
         for target in node.targets:
             if isinstance(target, ast.Name) and target.id == "TOOL_SCHEMAS":
                 return ast.literal_eval(node.value)
-    raise AssertionError("TOOL_SCHEMAS not found in aaa_mcp/rest.py")
+    raise AssertionError("TOOL_SCHEMAS not found in arifosmcp.transport/rest.py")
 
 
 def test_runtime_signature_uses_query_only() -> None:

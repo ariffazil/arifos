@@ -48,7 +48,7 @@ arifOS is a **Constitutional AI Governance System** — the world's first produc
 - ✅ **Organ 6: FORGE** (`sovereign_actuator`) — Implemented cryptographically locked execution engine with ΔS external monitoring.
 - ✅ **888_HOLD Ratification** — Implemented Signed Intent Envelopes and cryptographic challenge-response for human-in-the-loop authorization.
 - ✅ **888_signer Utility** — Forged offline Sovereign Key utility for secure local ratification.
-- ✅ **Transport Alignment** — Updated `aaa_mcp` (SSE/HTTP) and `aclip_cai` (REST) to expose the full 11-tool surface.
+- ✅ **Transport Alignment** — Updated `arifosmcp.transport` (SSE/HTTP) and `arifosmcp.intelligence` (REST) to expose the full 11-tool surface.
 - ✅ **Doc-Repo Sync** — Fully synchronized README, 333_APPS, and architecture docs with the v66 spec.
 
 ---
@@ -61,7 +61,7 @@ Based on arXiv deep research (Feb-Mar 2026), the following architectural enhance
 
 **1. Full-Stack Alignment (FSA) Framework** [Wa Nkongolo et al., 2026]
 - **Insight**: Technical alignment insufficient without institutional and societal alignment
-- **arifOS Implementation**: 7-Organ stack already implements FSA across technical (core/), organizational (aaa_mcp/), and institutional (societal values via F1-F13) layers
+- **arifOS Implementation**: 7-Organ stack already implements FSA across technical (core/), organizational (arifosmcp.transport/), and institutional (societal values via F1-F13) layers
 - **Status**: ✅ Native alignment
 
 **2. AI Safety Benchmarking Best Practices** [Yu et al., 2026]
@@ -483,14 +483,14 @@ Every request runs through nine tools in sequence:
 
 ### ✅ PostgreSQL (Persistent Ledger)
 - **Status**: OPERATIONAL
-- **Implementation**: `aaa_mcp/sessions/session_ledger.py` (asyncpg)
+- **Implementation**: `arifosmcp.transport/sessions/session_ledger.py` (asyncpg)
 - **Schema**: VAULT999 v3 with Merkle chaining
 - **Connection**: `DATABASE_URL` from `~/.arifos/env`
 - **Fallback**: Memory-only if PostgreSQL unavailable
 
 ### ✅ Redis (Session Cache)
 - **Status**: OPERATIONAL
-- **Implementation**: `aaa_mcp/services/redis_client.py`
+- **Implementation**: `arifosmcp.transport/services/redis_client.py`
 - **Purpose**: Session state persistence across ephemeral calls
 - **Connection**: `REDIS_URL` from `~/.arifos/env` (Railway format)
 - **Fallback**: Local dict if Redis unavailable

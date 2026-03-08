@@ -132,7 +132,7 @@ The current README (153 lines) has **significant content regression** compared t
 {
   "ai_manifest_version": "2026.1",
   "system_name": "arifOS",
-  "mcp_server": "arifos_aaa_mcp",
+  "mcp_server": "arifosmcp.runtime",
   "constitutional_floors": 13,
   "primary_tools": ["anchor_session", "reason_mind", ...],
   "governance_model": "thermodynamic_constitutional",

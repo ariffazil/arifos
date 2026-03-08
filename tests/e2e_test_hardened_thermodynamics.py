@@ -285,9 +285,9 @@ class TestToolsToKernelIntegration:
     async def test_anchor_session_creates_kernel_state(self):
         """Test anchor_session tool creates governance kernel state."""
         try:
-            from aaa_mcp.server import _init_session
+            from arifosmcp.transport.server import _init_session
         except ImportError:
-            from arifos_aaa_mcp.server import anchor_session as _init_session
+            from arifosmcp.runtime.server import anchor_session as _init_session
 
         result = await _init_session(
             query="Test anchor",
@@ -303,11 +303,11 @@ class TestToolsToKernelIntegration:
     async def test_reason_mind_consumes_budget(self):
         """Test reason_mind tool consumes thermodynamic budget."""
         try:
-            from aaa_mcp.server import _agi_cognition
+            from arifosmcp.transport.server import _agi_cognition
             from core.physics.thermodynamics_hardened import get_thermodynamic_budget
 
             # First anchor
-            from aaa_mcp.server import _init_session
+            from arifosmcp.transport.server import _init_session
 
             anchor_result = await _init_session(
                 query="Test reasoning",

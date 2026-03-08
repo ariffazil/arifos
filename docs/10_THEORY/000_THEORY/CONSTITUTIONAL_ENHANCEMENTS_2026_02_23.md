@@ -22,7 +22,7 @@ All changes preserve F1-F13 constitutional integrity and require no breaking cha
 
 ### **Files Created/Modified**
 
-#### 1. **`aaa_mcp/protocol/l0_kernel_prompt.py`** (NEW — 300 lines)
+#### 1. **`arifosmcp.transport/protocol/l0_kernel_prompt.py`** (NEW — 300 lines)
 
 **Purpose**: Constitutional system prompt that enforces thermodynamic governance
 
@@ -71,12 +71,12 @@ Only execute tool if APEX grants SEAL.
 
 ---
 
-#### 2. **`aaa_mcp/server.py`** (MODIFIED)
+#### 2. **`arifosmcp.transport/server.py`** (MODIFIED)
 
 **Changes**:
 ```python
 # Line 23: Import L0 kernel
-from aaa_mcp.protocol.l0_kernel_prompt import inject_l0_into_session
+from arifosmcp.transport.protocol.l0_kernel_prompt import inject_l0_into_session
 
 # Lines 58-102: Enhanced init_session function
 @mcp.tool(name="init_session")
@@ -121,7 +121,7 @@ async def _init_session(
 You can test it immediately:
 
 ```python
-from aaa_mcp.server import _init_session
+from arifosmcp.transport.server import _init_session
 import asyncio
 
 async def test_l0():
@@ -163,7 +163,7 @@ on:
     paths:
       - 'run_evals.py'
       - 'tests/mcp_live/golden/**'
-      - 'aclip_cai/core/eval/**'
+      - 'arifosmcp.intelligence/core/eval/**'
   workflow_dispatch:
   schedule:
     # Auto-refresh dashboard daily at 02:00 UTC
@@ -306,7 +306,7 @@ Future:   https://dashboard.arifos.arif-fazil.com
 # From project root
 python -c "
 import asyncio
-from aaa_mcp.server import _init_session
+from arifosmcp.transport.server import _init_session
 
 async def test():
     result = await _init_session('test query', 'alice')
@@ -375,7 +375,7 @@ curl -I https://$DOMAIN
 ### **Example 1: Session with L0 Kernel (Full)**
 
 ```python
-from aaa_mcp.server import _init_session
+from arifosmcp.transport.server import _init_session
 import asyncio
 
 async def create_governed_session():
@@ -474,8 +474,8 @@ F13: Human has final veto. Ditempa Bukan Diberi 🔥
 
 | File | Status | Lines | Purpose |
 |------|--------|-------|---------|
-| `aaa_mcp/protocol/l0_kernel_prompt.py` | ✅ NEW | 300 | L0 constitutional prompt |
-| `aaa_mcp/server.py` | ✅ MODIFIED | +45 | Inject L0 into init_session |
+| `arifosmcp.transport/protocol/l0_kernel_prompt.py` | ✅ NEW | 300 | L0 constitutional prompt |
+| `arifosmcp.transport/server.py` | ✅ MODIFIED | +45 | Inject L0 into init_session |
 | `.github/workflows/deploy-cloudflare.yml` | ✅ REWRITTEN | 60 | Auto-deploy dashboard |
 | `docs/CLOUDFLARE_CUSTOM_DOMAIN.md` | ✅ NEW | 250 | Custom domain guide |
 | `README.md` | ✅ MODIFIED | +2 | Deployment badges |
@@ -521,7 +521,7 @@ Recommended: `dashboard.arifos.arif-fazil.com`
   "mcpServers": {
     "arifOS": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"],
+      "args": ["-m", "arifosmcp.transport"],
       "env": {
         "ARIFOS_INJECT_L0_KERNEL": "true"
       }

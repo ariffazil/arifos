@@ -7,7 +7,7 @@ Validates:
 
 from __future__ import annotations
 
-from arifos_aaa_mcp import server as aaa
+from arifosmcp.runtime import server as aaa
 
 
 def _fn(tool):

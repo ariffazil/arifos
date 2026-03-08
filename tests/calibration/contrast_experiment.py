@@ -1,6 +1,6 @@
 import asyncio
 import uuid
-from aaa_mcp.server import (
+from arifosmcp.transport.server import (
     init_gate,
     tool_router,
     reality_search,

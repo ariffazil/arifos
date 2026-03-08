@@ -17,7 +17,7 @@
 
 **Verification:**
 ```bash
-✅ docker exec arifosmcp_server python3 -c 'from aclip_cai.embeddings import embed; print(len(embed("test")))'
+✅ docker exec arifosmcp_server python3 -c 'from arifosmcp.intelligence.embeddings import embed; print(len(embed("test")))'
    Output: 768
 ```
 

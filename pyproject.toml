@@ -13,16 +13,16 @@ version = "2026.03.07"
 # 2026.2.25 — v60.1 Chaos Reduction + VPS Alignment + Agent Capability Spec
 #   Gitignore hardening (5388→0 untracked), CLAUDE.md accuracy audit, version convergence
 # 2026.2.23 — Context Forge & Registry Release
-#   Unified aaa_mcp server with full-context templates, ASGI entrypoints, and Cloudflare Pages workflows
-# 2026.2.22 — Intelligence Kernel Upgrade (aclip_cai 9-Sense Console)
-#   Re-architected aclip_cai to 9-Sense Federation Hub; 9 canonical system calls
+#   Unified arifosmcp.transport server with full-context templates, ASGI entrypoints, and Cloudflare Pages workflows
+# 2026.2.22 — Intelligence Kernel Upgrade (arifosmcp.intelligence 9-Sense Console)
+#   Re-architected arifosmcp.intelligence to 9-Sense Federation Hub; 9 canonical system calls
 # 2026.2.19 — ChatGPT integration + tool annotations (readOnlyHint)
 #   Added search/fetch tools for ChatGPT Deep Research; annotated read-only tools
 # 2026.2.17 — H1.1 Observability + VPS migration (Railway → Hostinger)
 #   /health now returns granular governance metrics; redis.from_url; lifespan init
 # 2026.2.15 — Codebase consolidation: removed arifos/ and codebase/ (21K lines dead code)
 # 2026.1.26 — Live constitutional metrics; 13/13 floors passing
-# 2026.1.24 — Unified core: aaa_mcp pure transport, all logic in core/
+# 2026.1.24 — Unified core: arifosmcp.transport pure transport, all logic in core/
 # 2026.1.18 — Constitutional Forge: 13 floors F1-F13, Trinity ΔΩΨ, VAULT999, 9-tool MCP
 description = "arifOS - The World's First Production-Grade Constitutional AI Governance System. Mathematical enforcement of ethical constraints with 13 stationary floors (F1-F13), Axiom Engine for physics-grounded truth, and immutable VAULT999 ledger. Trinity architecture (ΔΩΨ): AGI Mind, ASI Heart, APEX Soul. MCP-compatible. Install: pip install arifos. https://arifos.arif-fazil.com/"
 readme = "README.md"
@@ -185,10 +185,10 @@ Trinity       = "https://github.com/ariffazil/arifOS/blob/main/KERNEL/TRINITY_AR
 PyPI          = "https://pypi.org/project/arifos/"
 
 [project.scripts]
-arifos     = "arifos_aaa_mcp.__main__:main"
-arifos-mcp = "arifos_aaa_mcp.__main__:main"
-aaa-mcp    = "aaa_mcp.__main__:main"
-aclip-cai  = "aclip_cai.cli:main"
+arifos     = "arifosmcp.runtime.__main__:main"
+arifos-mcp = "arifosmcp.runtime.__main__:main"
+aaa-mcp    = "arifosmcp.transport.__main__:main"
+aclip-cai  = "arifosmcp.intelligence.cli:main"
 
 [tool.setuptools]
 include-package-data = true
@@ -196,11 +196,11 @@ include-package-data = true
 [tool.setuptools.packages.find]
 include = [
     "scripts*",
-    "aaa_mcp*",
-    "arifos_aaa_mcp*",
+    "arifosmcp.transport*",
+    "arifosmcp.runtime*",
     "mcp_server*",
     "core*",
-    "aclip_cai*",
+    "arifosmcp.intelligence*",
 ]
 exclude = [
     "*.tests",
@@ -344,7 +344,7 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 # Bridge files have optional imports - suppress unused-ignore warnings
-module = ["aaa_mcp.core.*"]
+module = ["arifosmcp.transport.core.*"]
 warn_unused_ignores = false
 
 [tool.coverage.run]

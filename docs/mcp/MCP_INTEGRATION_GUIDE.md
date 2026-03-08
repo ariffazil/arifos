@@ -13,7 +13,7 @@ Model Context Protocol (MCP) is an open standard by Anthropic that enables AI as
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"]
+      "args": ["-m", "arifosmcp.transport", "stdio"]
     }
   }
 }
@@ -24,7 +24,7 @@ Model Context Protocol (MCP) is an open standard by Anthropic that enables AI as
 **Platforms:** Railway, Heroku, Cloudflare
 ```bash
 # Start SSE server for remote access
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 # Endpoint: https://your-domain.com/sse
 ```
 
@@ -36,7 +36,7 @@ python -m aaa_mcp sse
   "mcpServers": {
     "aaa-mcp": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"]
+      "args": ["-m", "arifosmcp.transport", "stdio"]
     }
   }
 }
@@ -47,7 +47,7 @@ python -m aaa_mcp sse
 **Configuration:** Through SSE-compatible client
 ```bash
 # Start SSE server for cloud deployment
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 # Endpoint: http://localhost:8080/sse
 ```
 
@@ -55,13 +55,13 @@ python -m aaa_mcp sse
 
 ### stdio (Standard Input/Output)
 - **Best for:** Local development, desktop applications
-- **Usage:** `python -m aaa_mcp`
+- **Usage:** `python -m arifosmcp.transport`
 - **Platforms:** Claude Code, Claude Desktop, Cursor IDE
 - **Security:** Local-only, no network exposure
 
 ### SSE (Server-Sent Events)
 - **Best for:** Cloud deployment, remote access
-- **Usage:** `python -m aaa_mcp sse`
+- **Usage:** `python -m arifosmcp.transport sse`
 - **Platforms:** Railway, Fly.io, AWS, GCP, Azure, ChatGPT (via SSE)
 - **Endpoint:** `http://your-domain.com/sse`
 - **Security:** Supports HTTPS, authentication
@@ -74,10 +74,10 @@ python -m aaa_mcp sse
 pip install arifos
 
 # Start stdio server (for local agents)
-python -m aaa_mcp
+python -m arifosmcp.transport
 
 # Start SSE server (for cloud simulation)
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 ```
 
 ### Cloud Deployment (Railway)
@@ -87,7 +87,7 @@ python -m aaa_mcp sse
 builder = "heroku/buildpacks:20"
 
 [run]
-command = "python -m aaa_mcp sse"
+command = "python -m arifosmcp.transport sse"
 port = 8080
 
 # Health check endpoint
@@ -107,7 +107,7 @@ COPY . .
 RUN pip install arifos
 
 EXPOSE 8080
-CMD ["python", "-m", "aaa_mcp", "sse"]
+CMD ["python", "-m", "arifosmcp.transport", "sse"]
 ```
 
 ## System Architecture

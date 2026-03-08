@@ -6,7 +6,7 @@ Mode: Stabilization (Phase 000)
 ## Session Intent
 
 Forge `arifOS AAA MCP` with a canonical 13-tool public surface while moving legacy
-`aaa_mcp` + `aclip_cai` internals behind non-public intelligence boundaries.
+`arifosmcp.transport` + `arifosmcp.intelligence` internals behind non-public intelligence boundaries.
 
 ## Baseline Findings
 

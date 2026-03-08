@@ -22,7 +22,7 @@ Use this mode for local testing or integration with Claude Desktop.
 uv pip install -e .
 
 # Run the server in stdio mode
-python -m arifos_aaa_mcp stdio
+python -m arifosmcp.runtime stdio
 ```
 
 ### FastMCP Mode
@@ -31,7 +31,7 @@ Use the FastMCP CLI for hot-reloading and automatic UI discovery.
 
 ```bash
 # Run with FastMCP
-fastmcp run arifos_aaa_mcp/server.py:mcp
+fastmcp run arifosmcp.runtime/server.py:mcp
 ```
 
 ---

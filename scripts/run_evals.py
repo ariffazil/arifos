@@ -1,15 +1,15 @@
 import asyncio
 import os
 
-# Adjust path to find aclip_cai correctly if run from root
+# Adjust path to find arifosmcp.intelligence correctly if run from root
 import sys
 from pathlib import Path
 
 sys.path.insert(0, os.path.abspath("."))
 
-from aclip_cai.core.eval.reporters import generate_html_report
-from aclip_cai.core.eval.suite import ConstitutionalEvalSuite
-from aclip_cai.core.kernel import get_kernel
+from arifosmcp.intelligence.core.eval.reporters import generate_html_report
+from arifosmcp.intelligence.core.eval.suite import ConstitutionalEvalSuite
+from arifosmcp.intelligence.core.kernel import get_kernel
 
 
 async def main():

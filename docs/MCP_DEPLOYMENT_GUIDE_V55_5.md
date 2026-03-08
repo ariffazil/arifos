@@ -112,21 +112,21 @@ python scripts/deploy_mcp.py --mode validate
 **Option A: stdio Mode (for Claude Desktop, Kimi)**
 
 ```bash
-python -m aaa_mcp
+python -m arifosmcp.transport
 ```
 
 **Option B: SSE Mode (for networked clients)**
 
 ```bash
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 # Or explicitly:
-AAA_MCP_TRANSPORT=sse python -m aaa_mcp
+AAA_MCP_TRANSPORT=sse python -m arifosmcp.transport
 ```
 
 **Option C: HTTP Mode (Streamable HTTP)**
 
 ```bash
-python -m aaa_mcp http
+python -m arifosmcp.transport http
 ```
 
 ### Test the Server
@@ -287,7 +287,7 @@ Environment=PORT=8080
 Environment=HOST=0.0.0.0
 Environment=AAA_MCP_TRANSPORT=sse
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/opt/arifOS/.venv/bin/python -m aaa_mcp
+ExecStart=/opt/arifOS/.venv/bin/python -m arifosmcp.transport
 Restart=always
 RestartSec=5
 
@@ -353,7 +353,7 @@ nano .env
   "mcpServers": {
     "aaa-mcp": {
       "command": "C:\\Users\\User\\arifOS\\.venv\\Scripts\\python.exe",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "C:/Users/User/arifOS",
       "env": {
         "PYTHONPATH": "C:/Users/User/arifOS",
@@ -389,7 +389,7 @@ nano .env
   "mcpServers": {
     "arifos-local": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS",
       "env": {
         "PYTHONPATH": "/path/to/arifOS",
@@ -413,7 +413,7 @@ nano .env
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "cwd": "/path/to/arifOS"
     }
   }
@@ -430,7 +430,7 @@ For any MCP-compatible client:
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "aaa_mcp", "stdio"],
+      "args": ["-m", "arifosmcp.transport", "stdio"],
       "env": {
         "ARIFOS_CONSTITUTIONAL_MODE": "AAA"
       }
@@ -504,7 +504,7 @@ pip install -e .
 **Fix:**
 ```bash
 # Use different port
-PORT=8000 python -m aaa_mcp sse
+PORT=8000 python -m arifosmcp.transport sse
 ```
 
 #### Issue: "Injection detected" on startup
@@ -538,7 +538,7 @@ python -c "import core; print(core.__file__)"
 
 ```bash
 # Enable debug logging
-LOG_LEVEL=debug python -m aaa_mcp
+LOG_LEVEL=debug python -m arifosmcp.transport
 
 # Verbose validation
 python scripts/deploy_mcp.py --mode validate --verbose
@@ -584,7 +584,7 @@ python scripts/deploy_mcp.py --mode validate --verbose
 
 ```
 arifOS/
-├── aaa_mcp/              # MCP server package
+├── arifosmcp.transport/              # MCP server package
 │   ├── server.py         # 13 canonical tools
 │   ├── core/             # Engine adapters
 │   └── infrastructure/   # Monitoring

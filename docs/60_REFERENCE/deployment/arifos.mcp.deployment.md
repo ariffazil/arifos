@@ -74,7 +74,7 @@ Your complete request lifecycle traverses **four infrastructure layers**, each c
 │  │  TRINITY PROTOCOL — start-trinity.sh                            │    │
 │  │  ┌─────────────────┐      ┌─────────────────┐                   │    │
 │  │  │  SSE Server     │      │  HTTP Server    │                   │    │
-│  │  │  python -m aaa_mcp    │      │  python -m aaa_mcp    │                   │    │
+│  │  │  python -m arifosmcp.transport    │      │  python -m arifosmcp.transport    │                   │    │
 │  │  │  Port 8080      │      │  Port 8089      │                   │    │
 │  │  │  FastMCP 2.14.5 │      │  FastMCP 2.14.5 │                   │    │
 │  │  └─────────────────┘      └─────────────────┘                   │    │
@@ -187,7 +187,7 @@ git clone https://github.com/ariffazil/arifOS.git
 cd arifOS
 ```
 
-The **`/root/arifOS`** path follows convention for system-level service deployments, with root ownership eliminating permission complications during Docker operations. Repository contents include the **`aaa_mcp/`** Python package implementing constitutional AI governance, **Dockerfile** for container construction, infrastructure templates, and operational scripts.
+The **`/root/arifOS`** path follows convention for system-level service deployments, with root ownership eliminating permission complications during Docker operations. Repository contents include the **`arifosmcp.transport/`** Python package implementing constitutional AI governance, **Dockerfile** for container construction, infrastructure templates, and operational scripts.
 
 #### 3.1.2 Environment Configuration
 
@@ -247,7 +247,7 @@ services:
     command: ["./start-trinity.sh"]  # Trinity Protocol orchestration
     restart: unless-stopped          # Automatic recovery, manual override respect
     healthcheck:
-      test: ["CMD", "pgrep", "-f", "python -m aaa_mcp"]
+      test: ["CMD", "pgrep", "-f", "python -m arifosmcp.transport"]
       interval: 15s                  # Check frequency
       timeout: 5s                    # Maximum check duration
       retries: 3                     # Failure threshold before unhealthy

@@ -3,7 +3,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
-from arifos_aaa_mcp.server import mcp
+from arifosmcp.runtime.server import mcp
 
 
 def get_tools_json():

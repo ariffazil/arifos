@@ -8,7 +8,7 @@ Tests for MCP integration with aaa-mcp server.
 import pytest
 from unittest.mock import Mock, AsyncMock, patch
 
-from aclip_cai.mcp_bridge import (
+from arifosmcp.intelligence.mcp_bridge import (
     aclip_system_health,
     aclip_process_list,
     aclip_forge_guard,

@@ -69,13 +69,13 @@ cd arifOS
 pip install -e .
 
 # Run SSE server
-python -m aaa_mcp sse
+python -m arifosmcp.transport sse
 ```
 
 **Or for stdio transport (Claude Desktop):**
 
 ```bash
-python -m aaa_mcp
+python -m arifosmcp.transport
 ```
 
 ---
@@ -212,8 +212,8 @@ curl -X POST "https://aaamcp.arif-fazil.com/messages/?session_id=$SESSION_ID" \
 Ensure server is running and port is correct:
 
 ```bash
-python -m aaa_mcp sse  # Starts on port 8080
-PORT=3000 python -m aaa_mcp sse  # Custom port
+python -m arifosmcp.transport sse  # Starts on port 8080
+PORT=3000 python -m arifosmcp.transport sse  # Custom port
 ```
 
 ---

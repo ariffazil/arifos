@@ -5,8 +5,8 @@
 
 ### THE SIMPLE RULE
 
-**Use `arifos_aaa_mcp`**  
-**Ignore `aaa_mcp`**
+**Use `arifosmcp.runtime`**  
+**Ignore `arifosmcp.transport`**
 
 That is it. That is the whole guide.
 
@@ -18,13 +18,13 @@ Think of it like a restaurant:
 
 ```
 FRONT OF HOUSE (Customers see)
-  arifos_aaa_mcp
+  arifosmcp.runtime
   - Waiters, menu, dining room
   - This is what you interact with
         |
         v
 BACK OF HOUSE (Kitchen)
-  aaa_mcp
+  arifosmcp.transport
   - Chefs, ovens, recipes  
   - Works behind the scenes
 ```
@@ -35,10 +35,10 @@ BACK OF HOUSE (Kitchen)
 
 | If you want to... | Use this | Example |
 |-------------------|----------|---------|
-| Start the server | arifos_aaa_mcp | python -m arifos_aaa_mcp http |
-| Connect from GitHub | arifos_aaa_mcp | Already configured |
-| Check health | arifos_aaa_mcp | curl localhost:8080/health |
-| Fix something inside | aaa_mcp | Only if AGI tells you to |
+| Start the server | arifosmcp.runtime | python -m arifosmcp.runtime http |
+| Connect from GitHub | arifosmcp.runtime | Already configured |
+| Check health | arifosmcp.runtime | curl localhost:8080/health |
+| Fix something inside | arifosmcp.transport | Only if AGI tells you to |
 
 ---
 
@@ -47,7 +47,7 @@ BACK OF HOUSE (Kitchen)
 Your server runs this command:
 ```yaml
 # In docker-compose.arifos.yml
-CMD: ["python", "-m", "arifos_aaa_mcp", "http"]
+CMD: ["python", "-m", "arifosmcp.runtime", "http"]
           ↑
           USE THIS ONE
 ```
@@ -58,12 +58,12 @@ CMD: ["python", "-m", "arifos_aaa_mcp", "http"]
 
 WRONG:
 ```
-python -m aaa_mcp        ← Old way, do not use
+python -m arifosmcp.transport        ← Old way, do not use
 ```
 
 RIGHT:
 ```
-python -m arifos_aaa_mcp ← New way, use this
+python -m arifosmcp.runtime ← New way, use this
 ```
 
 ---
@@ -72,16 +72,16 @@ python -m arifos_aaa_mcp ← New way, use this
 
 | Path | Purpose |
 |------|---------|
-| /srv/arifOS/arifos_aaa_mcp/ | **Public API** ← You care about this |
-| /srv/arifOS/aaa_mcp/ | **Internal code** ← Ignore this |
+| /srv/arifOS/arifosmcp.runtime/ | **Public API** ← You care about this |
+| /srv/arifOS/arifosmcp.transport/ | **Internal code** ← Ignore this |
 
 ---
 
 ### WHAT IF I SEE BOTH?
 
 **Example:** You see two files:
-- arifos_aaa_mcp/server.py ✅
-- aaa_mcp/server.py ⚠️
+- arifosmcp.runtime/server.py ✅
+- arifosmcp.transport/server.py ⚠️
 
 **What to do:**  
 Use the one with **arifos_** prefix. Ignore the shorter one.
@@ -92,8 +92,8 @@ Use the one with **arifos_** prefix. Ignore the shorter one.
 
 Before running any command:
 
-- [ ] Does it say arifos_aaa_mcp? → ✅ Good to go
-- [ ] Does it only say aaa_mcp? → ❌ Stop, ask first
+- [ ] Does it say arifosmcp.runtime? → ✅ Good to go
+- [ ] Does it only say arifosmcp.transport? → ❌ Stop, ask first
 - [ ] Are you unsure? → ❌ Ask AGI-Opencode
 
 ---
@@ -103,7 +103,7 @@ Before running any command:
 If an AI agent (like me) is working on your VPS:
 
 **Tell them:**
-> Use arifos_aaa_mcp as the canonical surface. aaa_mcp is legacy internal.
+> Use arifosmcp.runtime as the canonical surface. arifosmcp.transport is legacy internal.
 
 ---
 
@@ -111,8 +111,8 @@ If an AI agent (like me) is working on your VPS:
 
 | Name | Role | Use? |
 |------|------|------|
-| arifos_aaa_mcp | Public interface | ✅ YES |
-| aaa_mcp | Internal implementation | ❌ NO |
+| arifosmcp.runtime | Public interface | ✅ YES |
+| arifosmcp.transport | Internal implementation | ❌ NO |
 
 ---
 

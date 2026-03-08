@@ -16,7 +16,7 @@
   },
   "runtime": {
     "python": ">=3.12",
-    "entrypoint": "python -m arifos_aaa_mcp",
+    "entrypoint": "python -m arifosmcp.runtime",
     "dependencies": ["fastmcp==3.0.2"]
   },
   "deployment": {

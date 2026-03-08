@@ -8,7 +8,7 @@
   "license": "AGPL-3.0-only",
   "runtime": {
     "python": ">=3.12",
-    "entrypoint": "arifos_aaa_mcp.__main__:main",
+    "entrypoint": "arifosmcp.runtime.__main__:main",
     "transport_default": "http",
     "path": "/mcp/"
   },

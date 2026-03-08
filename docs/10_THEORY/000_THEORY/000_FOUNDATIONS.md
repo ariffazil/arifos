@@ -247,7 +247,7 @@ The architecture reflects an organic **Artificial Organism** that emerged throug
 
 | Component | Repository | Role |
 |-----------|------------|------|
-| **aclip_cai/** | Sensory infrastructure | C0-C9 senses, file operations |
+| **arifosmcp.intelligence/** | Sensory infrastructure | C0-C9 senses, file operations |
 | **9-Sense Model** | Reality grounding | System health, memory, knowledge |
 
 **Problem solved:** How do I operate on codebases, files, and internal systems?
@@ -262,8 +262,8 @@ The architecture reflects an organic **Artificial Organism** that emerged throug
 
 | Component | Repository | Role |
 |-----------|------------|------|
-| **aaa_mcp/** | Governed transport | Session management, protocol |
-| **arifos_aaa_mcp/** | Public interface | MCP tool exposure |
+| **arifosmcp.transport/** | Governed transport | Session management, protocol |
+| **arifosmcp.runtime/** | Public interface | MCP tool exposure |
 
 **Problem solved:** How do external agents invoke arifOS capabilities safely?
 
@@ -294,12 +294,12 @@ The architecture reflects an organic **Artificial Organism** that emerged throug
                           │
         ┌─────────────────▼───────────────────┐
         │  Phase 3: arifOS MCP (Bridge)       │  Transport/Protocol
-        │    aaa_mcp/, arifos_aaa_mcp/        │  Tool interoperability
+        │    arifosmcp.transport/, arifosmcp.runtime/        │  Tool interoperability
         └─────────────────┬───────────────────┘
                           │
         ┌─────────────────▼───────────────────┐
         │   Phase 2: aclip (Internal Ops)     │  Sensory/Execution
-        │         aclip_cai/                  │  C0-C9 senses
+        │         arifosmcp.intelligence/                  │  C0-C9 senses
         └─────────────────┬───────────────────┘
                           │
         ┌─────────────────▼───────────────────┐

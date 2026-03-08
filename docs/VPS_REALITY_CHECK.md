@@ -116,7 +116,7 @@ curl -s --max-time 3 http://host.docker.internal:8080/sse | head -c 20 && echo "
 
 ```bash
 echo "=== MCP TOOL CALL TEST ==="
-cd /root/arifOS && PYTHONPATH=/root/arifOS timeout 10 /root/arifOS/.venv/bin/python -m aaa_mcp stdio 2>/dev/null << 'EOF' | head -c 200
+cd /root/arifOS && PYTHONPATH=/root/arifOS timeout 10 /root/arifOS/.venv/bin/python -m arifosmcp.transport stdio 2>/dev/null << 'EOF' | head -c 200
 {"jsonrpc":"2.0","method":"initialize","id":1,"params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"health-check","version":"1.0"}}}
 EOF
 echo ""

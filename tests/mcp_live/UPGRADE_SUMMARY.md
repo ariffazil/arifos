@@ -434,7 +434,7 @@ pytest tests/mcp_live/test_performance.py -v
 pip install mutmut
 
 # Run mutation tests
-mutmut run --paths-to-mutate=aaa_mcp/,aclip_cai/
+mutmut run --paths-to-mutate=arifosmcp.transport/,arifosmcp.intelligence/
 ```
 
 ### 3. Chaos Engineering (Production)

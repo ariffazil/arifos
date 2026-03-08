@@ -1,9 +1,9 @@
 """
 Tests for pure-logic modules:
-  - aclip_cai/core/amendment.py  (AmendmentState, AmendmentRecord, AmendmentChain)
-  - aclip_cai/core/vault_logger.py (WitnessRecord, VaultLogger)
-  - aclip_cai/triad/delta/reason.py (kernel fallback path)
-  - aclip_cai/triad/omega/align.py  (kernel fallback path)
+  - arifosmcp.intelligence/core/amendment.py  (AmendmentState, AmendmentRecord, AmendmentChain)
+  - arifosmcp.intelligence/core/vault_logger.py (WitnessRecord, VaultLogger)
+  - arifosmcp.intelligence/triad/delta/reason.py (kernel fallback path)
+  - arifosmcp.intelligence/triad/omega/align.py  (kernel fallback path)
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ import pytest
 
 class TestAmendmentState:
     def test_enum_values(self):
-        from aclip_cai.core.amendment import AmendmentState
+        from arifosmcp.intelligence.core.amendment import AmendmentState
 
         assert AmendmentState.PROPOSED.value == "proposed"
         assert AmendmentState.COOLING.value == "cooling"
@@ -30,7 +30,7 @@ class TestAmendmentState:
         assert AmendmentState.REJECTED.value == "rejected"
 
     def test_hantu_patterns_present(self):
-        from aclip_cai.core.amendment import HANTU_PATTERNS
+        from arifosmcp.intelligence.core.amendment import HANTU_PATTERNS
 
         assert "sentient" in HANTU_PATTERNS
         assert "autonomy" in HANTU_PATTERNS
@@ -44,7 +44,7 @@ class TestAmendmentState:
 
 class TestAmendmentRecord:
     def _make_record(self, proposed_at: str | None = None) -> object:
-        from aclip_cai.core.amendment import AmendmentRecord
+        from arifosmcp.intelligence.core.amendment import AmendmentRecord
 
         return AmendmentRecord(
             amendment_id="PHX-001",
@@ -55,7 +55,7 @@ class TestAmendmentRecord:
         )
 
     def test_cooldown_deadline_is_72h_ahead(self):
-        from aclip_cai.core.amendment import AmendmentRecord
+        from arifosmcp.intelligence.core.amendment import AmendmentRecord
 
         now = datetime.now(tz=timezone.utc)
         rec = AmendmentRecord(
@@ -95,7 +95,7 @@ class TestAmendmentRecord:
 
 class TestAmendmentChain:
     def test_propose_valid(self):
-        from aclip_cai.core.amendment import AmendmentChain, AmendmentState
+        from arifosmcp.intelligence.core.amendment import AmendmentChain, AmendmentState
 
         chain = AmendmentChain()
         rec = chain.propose("Add F14 Floor", "Adds a new floor", "sovereign")
@@ -104,32 +104,32 @@ class TestAmendmentChain:
         assert rec.title == "Add F14 Floor"
 
     def test_propose_with_floor_impacts(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         rec = chain.propose("Floor Update", "Updates F5", "user", floor_impacts=["F5"])
         assert "F5" in rec.floor_impacts
 
     def test_propose_f9_hantu_violation(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         with pytest.raises(ValueError, match="F9 Anti-Hantu"):
             chain.propose("Sentient AI Rights", "The AI is sentient", "user")
 
     def test_propose_hantu_in_description(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         with pytest.raises(ValueError, match="F9 Anti-Hantu"):
             chain.propose("Normal Title", "Grant AI free will to override human", "user")
 
     def test_tick_transitions_cooling_to_ready(self):
-        from aclip_cai.core.amendment import AmendmentChain, AmendmentState
+        from arifosmcp.intelligence.core.amendment import AmendmentChain, AmendmentState
 
         chain = AmendmentChain()
         past = (datetime.now(tz=timezone.utc) - timedelta(hours=73)).isoformat()
-        from aclip_cai.core.amendment import AmendmentRecord
+        from arifosmcp.intelligence.core.amendment import AmendmentRecord
 
         rec = AmendmentRecord(
             amendment_id="PHX-TICK-001",
@@ -146,7 +146,7 @@ class TestAmendmentChain:
         assert rec.state == AmendmentState.READY
 
     def test_tick_does_not_transition_recent(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         rec = chain.propose("New", "New amendment", "user")
@@ -154,7 +154,7 @@ class TestAmendmentChain:
         assert len(transitioned) == 0
 
     def test_approve_wrong_state_raises(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         rec = chain.propose("T", "D", "user")
@@ -162,11 +162,11 @@ class TestAmendmentChain:
             chain.approve(rec.amendment_id, "sovereign")
 
     def test_approve_ready_state(self):
-        from aclip_cai.core.amendment import AmendmentChain, AmendmentState
+        from arifosmcp.intelligence.core.amendment import AmendmentChain, AmendmentState
 
         chain = AmendmentChain()
         past = (datetime.now(tz=timezone.utc) - timedelta(hours=73)).isoformat()
-        from aclip_cai.core.amendment import AmendmentRecord
+        from arifosmcp.intelligence.core.amendment import AmendmentRecord
 
         rec = AmendmentRecord(
             amendment_id="PHX-APPROVE-001",
@@ -183,10 +183,10 @@ class TestAmendmentChain:
         assert approved.approved_by == "sovereign"
 
     def test_seal_approved(self):
-        from aclip_cai.core.amendment import AmendmentChain, AmendmentState
+        from arifosmcp.intelligence.core.amendment import AmendmentChain, AmendmentState
 
         chain = AmendmentChain()
-        from aclip_cai.core.amendment import AmendmentRecord
+        from arifosmcp.intelligence.core.amendment import AmendmentRecord
 
         rec = AmendmentRecord(
             amendment_id="PHX-SEAL-001",
@@ -203,7 +203,7 @@ class TestAmendmentChain:
         assert len(sealed.seal_hash) == 64
 
     def test_seal_not_approved_raises(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         rec = chain.propose("T", "D", "user")
@@ -211,7 +211,7 @@ class TestAmendmentChain:
             chain.seal(rec.amendment_id)
 
     def test_reject_amendment(self):
-        from aclip_cai.core.amendment import AmendmentChain, AmendmentState
+        from arifosmcp.intelligence.core.amendment import AmendmentChain, AmendmentState
 
         chain = AmendmentChain()
         rec = chain.propose("T", "D", "user")
@@ -221,10 +221,10 @@ class TestAmendmentChain:
         assert "off-topic" in rejected.rejection_reason
 
     def test_reject_sealed_raises(self):
-        from aclip_cai.core.amendment import AmendmentChain, AmendmentState
+        from arifosmcp.intelligence.core.amendment import AmendmentChain, AmendmentState
 
         chain = AmendmentChain()
-        from aclip_cai.core.amendment import AmendmentRecord
+        from arifosmcp.intelligence.core.amendment import AmendmentRecord
 
         rec = AmendmentRecord(
             amendment_id="PHX-SEALED",
@@ -239,20 +239,20 @@ class TestAmendmentChain:
             chain.reject(rec.amendment_id, "reason", "sovereign")
 
     def test_get_returns_none_for_missing(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         assert chain.get("PHX-NONEXISTENT") is None
 
     def test_get_not_found_raises_on_internal(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         with pytest.raises(KeyError):
             chain._get("PHX-MISSING")
 
     def test_list_pending(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         chain.propose("T1", "D1", "user")
@@ -260,13 +260,13 @@ class TestAmendmentChain:
         assert len(chain.list_pending()) == 2
 
     def test_list_sealed_empty_initially(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         assert chain.list_sealed() == []
 
     def test_summary_counts(self):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         chain = AmendmentChain()
         chain.propose("T1", "D1", "user")
@@ -277,7 +277,7 @@ class TestAmendmentChain:
         assert "sealed" in s
 
     def test_persistence_roundtrip(self, tmp_path):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         ledger = str(tmp_path / "amendments.jsonl")
         chain1 = AmendmentChain(ledger_path=ledger)
@@ -288,7 +288,7 @@ class TestAmendmentChain:
         assert chain2._records[0].title == "Persist Test"
 
     def test_load_empty_file(self, tmp_path):
-        from aclip_cai.core.amendment import AmendmentChain
+        from arifosmcp.intelligence.core.amendment import AmendmentChain
 
         ledger = str(tmp_path / "empty.jsonl")
         open(ledger, "w").close()
@@ -303,7 +303,7 @@ class TestAmendmentChain:
 
 class TestWitnessRecord:
     def _make(self, h=0.9, a=1.0, e=0.8):
-        from aclip_cai.core.vault_logger import WitnessRecord
+        from arifosmcp.intelligence.core.vault_logger import WitnessRecord
 
         return WitnessRecord(
             session_id="sess-001",
@@ -337,7 +337,7 @@ class TestWitnessRecord:
 
 class TestVaultLogger:
     def test_log_decision_jsonl(self, tmp_path):
-        from aclip_cai.core.vault_logger import VaultLogger
+        from arifosmcp.intelligence.core.vault_logger import VaultLogger
 
         path = str(tmp_path / "vault.jsonl")
         logger = VaultLogger(vault_path=path)
@@ -356,7 +356,7 @@ class TestVaultLogger:
         assert len(rec.seal_hash) == 64
 
     def test_log_decision_truncates_long_query(self, tmp_path):
-        from aclip_cai.core.vault_logger import VaultLogger
+        from arifosmcp.intelligence.core.vault_logger import VaultLogger
 
         path = str(tmp_path / "vault.jsonl")
         logger = VaultLogger(vault_path=path)
@@ -371,7 +371,7 @@ class TestVaultLogger:
         assert len(rec.query) <= 1024
 
     def test_log_decision_clamps_witness_scores(self, tmp_path):
-        from aclip_cai.core.vault_logger import VaultLogger
+        from arifosmcp.intelligence.core.vault_logger import VaultLogger
 
         path = str(tmp_path / "vault.jsonl")
         logger = VaultLogger(vault_path=path)
@@ -388,7 +388,7 @@ class TestVaultLogger:
         assert rec.witness_earth == 0.0
 
     def test_log_witness_compat(self, tmp_path):
-        from aclip_cai.core.vault_logger import VaultLogger
+        from arifosmcp.intelligence.core.vault_logger import VaultLogger
 
         path = str(tmp_path / "vault.jsonl")
         logger = VaultLogger(vault_path=path)
@@ -403,7 +403,7 @@ class TestVaultLogger:
         assert rec.verdict == "SEAL"
 
     def test_get_session_records_finds_entry(self, tmp_path):
-        from aclip_cai.core.vault_logger import VaultLogger
+        from arifosmcp.intelligence.core.vault_logger import VaultLogger
 
         path = str(tmp_path / "vault.jsonl")
         logger = VaultLogger(vault_path=path)
@@ -419,7 +419,7 @@ class TestVaultLogger:
         assert records[0]["session_id"] == "target-session"
 
     def test_get_session_records_filters_other_sessions(self, tmp_path):
-        from aclip_cai.core.vault_logger import VaultLogger
+        from arifosmcp.intelligence.core.vault_logger import VaultLogger
 
         path = str(tmp_path / "vault.jsonl")
         logger = VaultLogger(vault_path=path)
@@ -429,7 +429,7 @@ class TestVaultLogger:
         assert len(records) == 1
 
     def test_get_session_records_empty_when_no_match(self, tmp_path):
-        from aclip_cai.core.vault_logger import VaultLogger
+        from arifosmcp.intelligence.core.vault_logger import VaultLogger
 
         path = str(tmp_path / "vault.jsonl")
         logger = VaultLogger(vault_path=path)
@@ -437,7 +437,7 @@ class TestVaultLogger:
         assert records == []
 
     def test_compute_seal_hash_deterministic(self, tmp_path):
-        from aclip_cai.core.vault_logger import VaultLogger, WitnessRecord
+        from arifosmcp.intelligence.core.vault_logger import VaultLogger, WitnessRecord
 
         h1 = VaultLogger._compute_seal_hash(
             WitnessRecord(
@@ -469,7 +469,7 @@ class TestVaultLogger:
         assert len(h1) == 64
 
     def test_jsonl_written_on_log(self, tmp_path):
-        from aclip_cai.core.vault_logger import VaultLogger
+        from arifosmcp.intelligence.core.vault_logger import VaultLogger
 
         path = tmp_path / "vault.jsonl"
         logger = VaultLogger(vault_path=str(path))
@@ -489,7 +489,7 @@ class TestVaultLogger:
 
 class TestReasonKernelFallback:
     async def test_reason_no_ctx_returns_verdict(self):
-        from aclip_cai.triad.delta.reason import reason
+        from arifosmcp.intelligence.triad.delta.reason import reason
 
         result = await reason(
             session_id="test-reason-001",
@@ -502,7 +502,7 @@ class TestReasonKernelFallback:
         assert result["verdict"] in ("SEAL", "PARTIAL", "VOID", "SABAR", "888_HOLD")
 
     async def test_reason_returns_truth_score(self):
-        from aclip_cai.triad.delta.reason import reason
+        from arifosmcp.intelligence.triad.delta.reason import reason
 
         result = await reason(
             session_id="test-reason-002",
@@ -521,7 +521,7 @@ class TestReasonKernelFallback:
 
 class TestAlignKernelFallback:
     async def test_align_no_ctx_returns_verdict(self):
-        from aclip_cai.triad.omega.align import align
+        from arifosmcp.intelligence.triad.omega.align import align
 
         result = await align(
             session_id="test-align-001",
@@ -533,7 +533,7 @@ class TestAlignKernelFallback:
         assert result["verdict"] in ("SEAL", "PARTIAL", "VOID", "SABAR", "888_HOLD", "aligned")
 
     async def test_align_returns_status(self):
-        from aclip_cai.triad.omega.align import align
+        from arifosmcp.intelligence.triad.omega.align import align
 
         result = await align(
             session_id="test-align-002",

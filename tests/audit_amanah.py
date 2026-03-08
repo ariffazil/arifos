@@ -1,6 +1,6 @@
 import asyncio
 import json
-from arifos_aaa_mcp.server import anchor_session, vector_memory, seal_vault, apex_judge
+from arifosmcp.runtime.server import anchor_session, vector_memory, seal_vault, apex_judge
 
 
 async def audit_amanah():

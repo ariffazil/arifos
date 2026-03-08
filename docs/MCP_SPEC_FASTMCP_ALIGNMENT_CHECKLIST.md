@@ -1,7 +1,7 @@
 # MCP + FastMCP Alignment Checklist (arifOS)
 
 Last updated: 2026-02-22  
-Scope: `aaa_mcp/*`, runtime entrypoints, REST adapter, container entrypoint
+Scope: `arifosmcp.transport/*`, runtime entrypoints, REST adapter, container entrypoint
 
 Pinned FastMCP runtime baseline: `3.0.1`
 
@@ -31,13 +31,13 @@ Pinned FastMCP runtime baseline: `3.0.1`
 
 ## arifOS Current Status
 
-- [x] Canonical constructor exists: `aaa_mcp/server.py` → `create_unified_mcp_server()`
-- [x] CLI uses canonical constructor: `aaa_mcp/__main__.py`
-- [x] REST mode supported in CLI: `python -m aaa_mcp rest`
+- [x] Canonical constructor exists: `arifosmcp.transport/server.py` → `create_unified_mcp_server()`
+- [x] CLI uses canonical constructor: `arifosmcp.transport/__main__.py`
+- [x] REST mode supported in CLI: `python -m arifosmcp.transport rest`
 - [x] REST adapter calls canonical 5-organ tools internally
 - [x] Legacy 9-verb names kept as HTTP aliases only
 - [x] Streamable HTTP server aligned to canonical 5-organ tools + aliases
-- [x] Docker entrypoint aligned to HTTP REST bridge (`python -m aaa_mcp rest`)
+- [x] Docker entrypoint aligned to HTTP REST bridge (`python -m arifosmcp.transport rest`)
 - [x] Contract tests added for entrypoint/alias drift prevention
 - [x] Declarative FastMCP config exists: `fastmcp.json` (source/environment/deployment)
 
@@ -65,7 +65,7 @@ Run:
 - HTTP transport path remains primary for deployment
 - SSE remains available only for compatibility (legacy clients)
 - Keep tool registration deterministic; avoid duplicate registration paths
-- Do not auto-start server on import; only start from explicit entrypoint (`python -m aaa_mcp ...`)
+- Do not auto-start server on import; only start from explicit entrypoint (`python -m arifosmcp.transport ...`)
 - For async contexts, use `run_async()` in dedicated async wrappers only
 
 ## Transport Policy (Aligned to FastMCP Running Guide)
@@ -76,10 +76,10 @@ Run:
 
 Current arifOS entrypoints:
 
-- `python -m aaa_mcp stdio`
-- `python -m aaa_mcp http`
-- `python -m aaa_mcp rest` (REST bridge for external HTTP adapter usage)
-- `python -m aaa_mcp sse` (legacy compatibility)
+- `python -m arifosmcp.transport stdio`
+- `python -m arifosmcp.transport http`
+- `python -m arifosmcp.transport rest` (REST bridge for external HTTP adapter usage)
+- `python -m arifosmcp.transport sse` (legacy compatibility)
 - `fastmcp run fastmcp.json` (declarative FastMCP project config)
 
 ## Client Transport Policy (Aligned to FastMCP Client Transports)
@@ -102,7 +102,7 @@ Current arifOS entrypoints:
 Local stdio:
 
 ```bash
-npx -y @modelcontextprotocol/inspector .venv/Scripts/python.exe -m aaa_mcp stdio
+npx -y @modelcontextprotocol/inspector .venv/Scripts/python.exe -m arifosmcp.transport stdio
 ```
 
 Verify:

@@ -17,7 +17,7 @@
 
 ---
 
-**Note:** The primary MCP server entry point is now the unified server at `server.py` (root), combining AAA-MCP and ACLIP-CAI tools. The standalone `aaa_mcp/server.py` and `aclip_cai/server.py` are deprecated but remain for backward compatibility.
+**Note:** The primary MCP server entry point is now the unified server at `server.py` (root), combining AAA-MCP and ACLIP-CAI tools. The standalone `arifosmcp.transport/server.py` and `arifosmcp.intelligence/server.py` are deprecated but remain for backward compatibility.
 
 ---
 
@@ -44,16 +44,16 @@ cat 333_APPS/L1_PROMPT/SYSTEM_PROMPT.md | xclip    # Linux
 pip install arifos
 
 # Run MCP server (SSE primary)
-python -m aaa_mcp
+python -m arifosmcp.transport
 
 # For local desktop clients that require stdio
-python -m aaa_mcp stdio
+python -m arifosmcp.transport stdio
 
 # Test
-python -m aaa_mcp.selftest
+python -m arifosmcp.transport.selftest
 ```
 
-**Default transport:** `sse` (use `python -m aaa_mcp stdio` for Claude Desktop/Cursor local mode)
+**Default transport:** `sse` (use `python -m arifosmcp.transport stdio` for Claude Desktop/Cursor local mode)
 
 ---
 
@@ -271,7 +271,7 @@ After=network.target
 [Service]
 User=arifos
 WorkingDirectory=/home/arifos/arifOS
-ExecStart=/home/arifos/arifOS/.venv/bin/python -m aaa_mcp sse
+ExecStart=/home/arifos/arifOS/.venv/bin/python -m arifosmcp.transport sse
 Restart=always
 
 [Install]

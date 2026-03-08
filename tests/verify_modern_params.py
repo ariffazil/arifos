@@ -1,6 +1,6 @@
 import asyncio
 import json
-from arifos_aaa_mcp.server import vector_memory, search_reality, anchor_session
+from arifosmcp.runtime.server import vector_memory, search_reality, anchor_session
 
 
 async def test_modern_params():

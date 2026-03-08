@@ -9,16 +9,16 @@ echo "================================"
 sudo systemctl stop arifos 2>/dev/null || echo "arifOS service not running (OK)"
 
 # Kill any Python MCP processes
-pkill -f "aaa_mcp" 2>/dev/null && echo "✓ MCP processes killed"
+pkill -f "arifosmcp.transport" 2>/dev/null && echo "✓ MCP processes killed"
 
 # Close firewall ports
 sudo ufw deny 8000 2>/dev/null && echo "✓ Port 8000 closed"
 sudo ufw deny 8080 2>/dev/null && echo "✓ Port 8080 closed"
 
 # Verify
-if pgrep -f "aaa_mcp" > /dev/null; then
+if pgrep -f "arifosmcp.transport" > /dev/null; then
     echo "⚠️  WARNING: Some processes still running"
-    pgrep -af "aaa_mcp"
+    pgrep -af "arifosmcp.transport"
 else
     echo "✓ arifOS DEAD — System safe"
 fi

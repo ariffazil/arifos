@@ -20,8 +20,8 @@ Goal: safe, reversible, test-backed changes that respect architecture and govern
 ## Repository Layout
 ```
 core/           Pure governance/kernel logic (7-Organ Sovereign Stack) — NO transport imports
-aaa_mcp/        Transport and MCP adapter layer — NO decision logic
-aclip_cai/      Console / 9-Sense Federation Hub
+arifosmcp.transport/        Transport and MCP adapter layer — NO decision logic
+arifosmcp.intelligence/      Console / 9-Sense Federation Hub
 tests/          Unit, integration, and constitutional tests
 spec/           Canonical governance specs (v46 floors, stages, traceability)
 VAULT999/       Immutable sealed receipts (append-only)
@@ -70,10 +70,10 @@ pytest tests/test_mcp_quick.py -v                             # Quick MCP smoke 
 
 ## Run the Server
 ```bash
-python -m aaa_mcp              # stdio (default)
-python -m aaa_mcp sse          # SSE transport
-python -m aaa_mcp http         # Streamable HTTP
-python -m aaa_mcp.selftest     # Self-test
+python -m arifosmcp.transport              # stdio (default)
+python -m arifosmcp.transport sse          # SSE transport
+python -m arifosmcp.transport http         # Streamable HTTP
+python -m arifosmcp.transport.selftest     # Self-test
 arifos serve --profile strict --metrics
 arifos deploy --target docker --stack trinity2
 arifos health --endpoint http://localhost:8888/health
@@ -101,7 +101,7 @@ Copy `.env.docker.example` to `.env.docker` and fill in keys before deploying.
 ### Import Order
 1. Standard library (`os`, `hashlib`, `typing`, etc.)
 2. Third-party (`pydantic`, `fastmcp`, `numpy`, etc.)
-3. Local packages (`core.*`, `aaa_mcp.*`, `aclip_cai.*`)
+3. Local packages (`core.*`, `arifosmcp.transport.*`, `arifosmcp.intelligence.*`)
 
 Do not shadow the external SDK name `mcp` with any local module.
 Use `try/except ImportError` for optional dependencies (lazy imports).
@@ -150,7 +150,7 @@ async def reason(query: str) -> dict: ...
 
 ## Architecture Constraints
 1. **`core/` is pure:** No imports from `fastmcp`, `starlette`, `fastapi`, `uvicorn`, or any transport/HTTP library.
-2. **`aaa_mcp/` is transport only:** No governance decision logic. Calls `core/` functions.
+2. **`arifosmcp.transport/` is transport only:** No governance decision logic. Calls `core/` functions.
 3. **Do NOT shadow `mcp`:** External SDK is `mcp`. No local module may use that name.
 4. **SessionState is copy-on-write:** Never mutate session state in place.
 5. **Separation of powers:** Architect (Δ) ≠ Engineer (Ω) ≠ Auditor (Ψ) ≠ KIMI (Κ).
@@ -167,7 +167,7 @@ async def reason(query: str) -> dict: ...
 ## MCP Tools Reference
 9 governance tools: `anchor` (000), `reason` (222), `integrate` (333), `respond` (444),
 `validate` (555), `align` (666), `forge` (777), `audit` (888), `seal` (999).
-Additional: `search`, `fetch`. Confirm current list in `aaa_mcp/server.py` before edits.
+Additional: `search`, `fetch`. Confirm current list in `arifosmcp.transport/server.py` before edits.
 
 ---
 

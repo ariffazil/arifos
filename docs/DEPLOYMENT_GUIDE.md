@@ -4,7 +4,7 @@ This guide is the canonical deployment path for the latest arifOS AAA MCP runtim
 
 ## Runtime Target
 
-- Module: `arifos_aaa_mcp`
+- Module: `arifosmcp.runtime`
 - Primary transport: `sse` on port `8080`
 - Fallback transport: `http` on port `8089` (mapped to `/mcp` externally)
 - Canonical MCP surface: 13 tools, 2 resources, 1 prompt
@@ -53,8 +53,8 @@ Search grounding (optional but recommended):
 ## CI/CD Notes
 
 - Workflow: `.github/workflows/deploy.yml`
-- Deploy path includes `arifos_aaa_mcp/**`
-- VPS smoke check validates `python -m arifos_aaa_mcp sse`
+- Deploy path includes `arifosmcp.runtime/**`
+- VPS smoke check validates `python -m arifosmcp.runtime sse`
 
 ## Registry Metadata
 

@@ -32,7 +32,7 @@ Organized the monorepo "chaos" into navigable value:
 
 | Entry Point | Audience | Purpose |
 |-------------|----------|---------|
-| **[`aaa_mcp/`](aaa_mcp/)** | MCP Users | Clean, focused MCP server quickstart |
+| **[`arifosmcp.transport/`](arifosmcp.transport/)** | MCP Users | Clean, focused MCP server quickstart |
 | **[`docs/architecture.md`](docs/architecture.md)** | Developers | Visual ASCII architecture diagrams |
 | **Root README** | Everyone | Clear repository structure table |
 
@@ -111,7 +111,7 @@ Every query now flows through the hardened constitutional pipeline:
 
 ```
 arifOS/
-├── 📦 aaa_mcp/              # MCP Server entry point
+├── 📦 arifosmcp.transport/              # MCP Server entry point
 ├── 🧠 core/                 # 5-Organ Kernel
 ├── 🌐 arif-fazil-sites/     # Website & docs
 ├── 🛠️ 333_APPS/             # Skills, tools, workflows
@@ -138,7 +138,7 @@ arifOS/
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"]
+      "args": ["-m", "arifosmcp.transport"]
     }
   }
 }
@@ -151,7 +151,7 @@ arifOS/
   "mcpServers": {
     "arifos": {
       "command": "python",
-      "args": ["-m", "aaa_mcp"]
+      "args": ["-m", "arifosmcp.transport"]
     }
   }
 }

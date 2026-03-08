@@ -1,0 +1,393 @@
+# ── arifOS AI-First Unified Trinity Stack ──────────────────────────
+# Replaces fragmented networks and deprecated GUI abstractions.
+# All components run on the 'arifos_trinity' network.
+# Traefik acts as the dynamic edge router.
+# Hardened for v62.5-STEEL Production ($15 VPS / 4GB RAM)
+# ─────────────────────────────────────────────────────────────────
+
+services:
+  # --- Edge Router ---
+  traefik:
+    image: traefik:v3.6.9
+    container_name: traefik_router
+    init: true
+    command:
+      - "--api.insecure=false"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.letsencrypt.acme.tlschallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.email=ariffazil@gmail.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+    environment:
+      - DOCKER_API_VERSION=1.44
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - /usr/libexec/docker:/usr/libexec/docker:ro
+      - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
+      - /opt/arifos/data/triggers:/shared/triggers
+      - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
+      - /opt/arifos/traefik/acme.json:/letsencrypt/acme.json
+    networks:
+      - arifos_trinity
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    restart: unless-stopped
+
+  # --- Persistence Layers ---
+  postgres:
+    image: postgres:16-alpine
+    container_name: arifos_postgres
+    init: true
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-arifos_vault}
+      POSTGRES_USER: ${POSTGRES_USER:-arifos_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - /opt/arifos/data/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - arifos_trinity
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-arifos_admin} -d ${POSTGRES_DB:-arifos_vault}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: arifos_redis
+    init: true
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - /opt/arifos/data/redis:/data
+    ports:
+      - "6379:6379"
+    networks:
+      - arifos_trinity
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    restart: unless-stopped
+
+  # --- Internal Memory Layers ---
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant_memory
+    init: true
+    volumes:
+      - /opt/arifos/data/qdrant:/qdrant/storage
+    networks:
+      - arifos_trinity
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    restart: unless-stopped
+
+  # --- LLM Engine ---
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_engine
+    init: true
+    volumes:
+      - /opt/arifos/data/ollama:/root/.ollama
+    networks:
+      - arifos_trinity
+    deploy:
+      resources:
+        limits:
+          memory: 1536M
+    restart: unless-stopped
+
+  # --- Gateways & Reasoning ---
+  openclaw:
+    image: ghcr.io/openclaw/openclaw:latest
+    container_name: openclaw_gateway
+    init: true
+    user: root  # AGI-level executive power
+    volumes:
+      - /opt/arifos/data/openclaw:/home/node/.openclaw
+      - /opt/arifos/data/openclaw/bin:/home/node/.local/bin
+      - /opt/arifos/data/openclaw/npm-global:/home/node/.npm-global
+      - /srv/arifOS:/mnt/arifos:rw
+      - /opt/arifos/APEX-THEORY:/mnt/apex:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - /usr/libexec/docker:/usr/libexec/docker:ro
+      - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
+      # Host CLI tools for coding-agent skill
+      - /home/ariffazil/.local/bin:/host/bin:ro
+      - /home/ariffazil/.local/share:/host/share:ro
+      - /home/ariffazil/.local/lib:/host/lib:ro
+      - /usr/local/bin/opencode:/usr/local/bin/opencode:ro
+      - /usr/local/lib/node_modules/opencode-ai:/usr/local/lib/node_modules/opencode-ai:ro
+      - /opt/arifos/data/openclaw/bin-wrappers:/host/clis:ro
+    environment:
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN:-8eb24ba06e138bf7affe6f128fdecc2e80a9290d107d83585540ae6ba541ae54}
+      - OLLAMA_URL=http://ollama:11434
+      - REDIS_URL=redis://redis:6379
+      - KIMI_API_KEY=${KIMI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - VENICE_API_KEY=${VENICE_API_KEY:-}
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - NODE_OPTIONS=--max-old-space-size=1536
+      # PATH includes custom CLI tools: gh, op, mcporter
+      - PATH=/home/node/.local/bin:/home/node/.npm-global/bin:/host/clis:/host/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - GH_TOKEN=${GITHUB_TOKEN:-}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
+      - X_BEARER_TOKEN=${X_BEARER_TOKEN:-}
+      - APIFY_API_TOKEN=${APIFY_API_TOKEN:-}
+      - BROWSERLESS_URL=http://headless_browser:3000
+    networks:
+      - arifos_trinity
+    ports:
+      - "18789:18789"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.openclaw.rule=Host(`claw.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.openclaw.entrypoints=websecure"
+      - "traefik.http.routers.openclaw.tls.certresolver=letsencrypt"
+      - "traefik.http.services.openclaw.loadbalancer.server.port=18789"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:18789/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 2048M
+    restart: unless-stopped
+
+  agent-zero:
+    image: agent0ai/agent-zero:latest
+    container_name: agent_zero_reasoner
+    init: true
+    volumes:
+      - /opt/arifos/data/agent_zero:/app/work_dir
+      - /srv/arifOS:/mnt/arifos:rw
+      - /opt/arifos/APEX-THEORY:/mnt/apex:rw
+    environment:
+      - OPENCLAW_URL=http://openclaw:18789
+    networks:
+      - arifos_trinity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.agent-zero.rule=Host(`brain.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.agent-zero.entrypoints=websecure"
+      - "traefik.http.routers.agent-zero.tls.certresolver=letsencrypt"
+      - "traefik.http.services.agent-zero.loadbalancer.server.port=80"
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    restart: unless-stopped
+
+  # --- Constitutional Kernel ---
+  arifosmcp:
+    build: .
+    image: arifos/arifosmcp:latest
+    container_name: arifosmcp_server
+    init: true
+    env_file:
+      - path: .env.docker
+        required: false
+    volumes:
+      - /opt/arifos/data/core:/usr/src/app/data
+      - /srv/arifOS/333_APPS/L2_OPERATION/TOOLS/constitutional-visualizer/dist:/usr/src/app/static/dashboard:ro
+      - /srv/arifOS/arifosmcp.transport:/usr/src/app/arifosmcp.transport:ro
+    environment:
+      PYTHONUNBUFFERED: 1
+      PYTHONDONTWRITEBYTECODE: 1
+      # F1 Amanah: Safe workspace for EUREKA FORGE
+      ARIFOS_WORKDIR: /usr/src/app
+      DATABASE_URL: postgresql://${POSTGRES_USER:-arifos_admin}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-arifos_vault}
+      REDIS_URL: redis://redis:6379/0
+      QDRANT_URL: http://qdrant:6333
+      OLLAMA_URL: http://ollama:11434
+      OPENCLAW_URL: http://openclaw:18789
+      AGENT_ZERO_URL: http://agent-zero:80
+      DASHBOARD_ENABLED: "true"
+      AAA_MCP_TRANSPORT: http
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks:
+      - arifos_trinity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.arifosmcp.rule=Host(`arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.arifosmcp.entrypoints=websecure"
+      - "traefik.http.routers.arifosmcp.tls.certresolver=letsencrypt"
+      - "traefik.http.services.arifosmcp.loadbalancer.server.port=8080"
+      - "traefik.http.routers.dashboard.rule=Host(`dashboard.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.dashboard.entrypoints=websecure"
+      - "traefik.http.routers.dashboard.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.dashboard.service=arifosmcp"
+    deploy:
+      resources:
+        limits:
+          memory: 3072M
+    restart: unless-stopped
+
+  # --- Monitoring Stack ---
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: arifos_prometheus
+    init: true
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=30d'
+    volumes:
+      - /srv/arifOS/deployment/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - /opt/arifos/data/prometheus:/prometheus
+    networks:
+      - arifos_trinity
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: arifos_grafana
+    init: true
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD:-arifos_grafana}
+      GF_SERVER_ROOT_URL: https://monitor.arifosmcp.arif-fazil.com
+      GF_SERVER_DOMAIN: monitor.arifosmcp.arif-fazil.com
+    volumes:
+      - /opt/arifos/data/grafana:/var/lib/grafana
+      - /srv/arifOS/deployment/grafana/datasources/prometheus.yml:/etc/grafana/provisioning/datasources/prometheus.yml:ro
+      - /srv/arifOS/deployment/grafana/dashboards/arifos.yaml:/etc/grafana/provisioning/dashboards/arifos.yaml:ro
+    networks:
+      - arifos_trinity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.rule=Host(`monitor.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.grafana.entrypoints=websecure"
+      - "traefik.http.routers.grafana.tls.certresolver=letsencrypt"
+      - "traefik.http.services.grafana.loadbalancer.server.port=3000"
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    restart: unless-stopped
+
+  # --- Workflow Automation ---
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: arifos_n8n
+    init: true
+    environment:
+      N8N_HOST: flow.arifosmcp.arif-fazil.com
+      N8N_PORT: "5678"
+      N8N_PROTOCOL: https
+      WEBHOOK_URL: https://flow.arifosmcp.arif-fazil.com/
+      N8N_EDITOR_BASE_URL: https://flow.arifosmcp.arif-fazil.com/
+      GENERIC_TIMEZONE: Asia/Kuala_Lumpur
+    volumes:
+      - /opt/arifos/data/n8n:/home/node/.n8n
+    networks:
+      - arifos_trinity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`flow.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.routers.n8n.tls.certresolver=letsencrypt"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+    restart: unless-stopped
+
+  # --- Webhook Auto-Deploy ---
+  webhook:
+    image: almir/webhook:latest
+    container_name: arifos_webhook
+    init: true
+    command: ["-verbose", "-hooks=/etc/webhook/hooks.json", "-hotreload"]
+    volumes:
+      - /srv/arifOS/deployment/hooks.json:/etc/webhook/hooks.json:ro
+      - /srv/arifOS/deployment/deploy_from_git.sh:/var/scripts/deploy_from_git.sh:ro
+      - /srv/arifOS:/usr/src/app:rw
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - /usr/libexec/docker:/usr/libexec/docker:ro
+      - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
+      - /opt/arifos/data/triggers:/shared/triggers
+      - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
+    environment:
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-changeme}
+      - OPENCLAW_RESTART_TOKEN=${OPENCLAW_RESTART_TOKEN:-openclaw-restart-888}
+    networks:
+      - arifos_trinity
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.webhook.rule=Host(`hook.arifosmcp.arif-fazil.com`)"
+      - "traefik.http.routers.webhook.entrypoints=websecure"
+      - "traefik.http.routers.webhook.tls.certresolver=letsencrypt"
+      - "traefik.http.services.webhook.loadbalancer.server.port=9000"
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+    restart: unless-stopped
+
+  # --- Headless Browser (DOM Reality) ---
+  headless_browser:
+    image: ghcr.io/browserless/chromium:latest
+    container_name: headless_browser
+    init: true
+    environment:
+      - MAX_CONCURRENT_SESSIONS=2
+      - CONNECTION_TIMEOUT=20000
+      - PREBOOT_CHROME=true
+      - TOKEN=${BROWSERLESS_TOKEN:-}
+      - DEBUG=browserless:*
+      - ENABLE_CORS=true
+      - DEFAULT_BLOCK_ADS=true
+      - DEFAULT_IGNORE_HTTPS_ERRORS=true
+    networks:
+      - arifos_trinity
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1024M
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:3000/pressure || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+networks:
+  arifos_trinity:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.10.0/24
