@@ -27,8 +27,9 @@ pip install arifos
 ### Run MCP Server (FastMCP)
 
 ```bash
-# Using fastmcp.json config
-fastmcp run
+# Using profile configs
+fastmcp run dev.fastmcp.json    # Development: stdio transport (Claude Desktop, Cline)
+fastmcp run prod.fastmcp.json   # Production: HTTP transport at /mcp/
 
 # Or directly with Python
 python -m arifos_aaa_mcp
@@ -87,7 +88,10 @@ arifosmcp/
 │   ├── rest_routes.py       # REST API routes
 │   └── fastmcp_ext/         # FastMCP extensions
 ├── tests/                   # Test suite
-├── fastmcp.json             # FastMCP configuration
+├── fastmcp.json             # FastMCP base configuration (HTTP/production default)
+├── dev.fastmcp.json         # Dev profile — stdio transport, DEBUG logging
+├── prod.fastmcp.json        # Prod profile — HTTP transport at /mcp/
+├── server.json              # MCP registry manifest
 └── pyproject.toml           # Python package config
 ```
 
@@ -95,8 +99,11 @@ arifosmcp/
 
 ## 🔧 Configuration
 
-### fastmcp.json
-Primary configuration file for FastMCP deployment. See [gofastmcp.com](https://gofastmcp.com) for schema details.
+### FastMCP Profiles
+Three FastMCP configuration files are provided:
+- **`fastmcp.json`** — Base/default configuration (HTTP transport). See [gofastmcp.com](https://gofastmcp.com).
+- **`dev.fastmcp.json`** — Development profile: stdio transport, DEBUG log level (for Claude Desktop, Cline).
+- **`prod.fastmcp.json`** — Production profile: HTTP transport at `/mcp/`.
 
 ### Environment Variables
 - `REDIS_URL` — Redis connection (default: `redis://localhost:6379`)
@@ -126,7 +133,7 @@ Add to your Claude Desktop config (`claude_desktop_config.json`):
   "mcpServers": {
     "arifos": {
       "command": "fastmcp",
-      "args": ["run", "/path/to/arifosmcp/fastmcp.json"]
+      "args": ["run", "/path/to/arifosmcp/dev.fastmcp.json"]
     }
   }
 }

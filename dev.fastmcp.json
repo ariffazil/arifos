@@ -2,7 +2,7 @@
   "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
   "name": "arifos-mcp",
   "version": "2026.03.07",
-  "description": "arifOS Constitutional AI Governance MCP Server - 13-Floor thermodynamic governance with VAULT999 ledger",
+  "description": "arifOS Constitutional AI Governance MCP Server — dev profile (stdio, DEBUG logging)",
   "source": {
     "type": "filesystem",
     "path": "arifos_aaa_mcp/server.py",
@@ -22,10 +22,8 @@
     ]
   },
   "deployment": {
-    "transport": "http",
-    "path": "/mcp/",
-    "log_level": "INFO",
-    "transports_available": ["stdio", "sse", "streamable-http"]
+    "transport": "stdio",
+    "log_level": "DEBUG"
   },
   "tools": {
     "count": 13,
