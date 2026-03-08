@@ -12,13 +12,16 @@ Changes: apex_verdict output updated tri_witness -> quad_witness (W4).
 
 from typing import Any
 
-from .tool_naming import CANONICAL_PUBLIC_TO_LEGACY, resolve_protocol_tool_name
+from .tool_naming import resolve_protocol_tool_name
 
 # ═════════════════════════════════════════════════════════════════════════════
 # COMMON DEFINITIONS
 # ═════════════════════════════════════════════════════════════════════════════
 
-VERDICT_ENUM = {"type": "string", "enum": ["SEAL", "PARTIAL", "VOID", "888_HOLD"]}
+VERDICT_ENUM = {
+    "type": "string",
+    "enum": ["SEAL", "PARTIAL", "VOID", "SABAR", "PROVISIONAL", "888_HOLD"],
+}
 STAGE_ENUM = {
     "type": "string",
     "enum": ["000", "111", "222", "333", "444", "555", "666", "777", "888", "999"],
@@ -278,7 +281,7 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
             "depth": {"type": "integer", "minimum": 1, "maximum": 10, "default": 3},
             "domain": {
                 "type": "string",
-                "enum": ["canon", "manifesto", "docs", "all"],
+                "enum": ["canon", "manifesto", "docs", "gdrive", "all"],
                 "default": "canon",
             },
             "debug": {"type": "boolean", "default": False},
@@ -293,7 +296,7 @@ TOOL_INPUT_SCHEMAS: dict[str, dict[str, Any]] = {
             "depth": {"type": "integer", "minimum": 1, "maximum": 10, "default": 3},
             "domain": {
                 "type": "string",
-                "enum": ["canon", "manifesto", "docs", "all"],
+                "enum": ["canon", "manifesto", "docs", "gdrive", "all"],
                 "default": "canon",
             },
             "debug": {"type": "boolean", "default": False},
@@ -528,10 +531,18 @@ TOOL_OUTPUT_SCHEMAS: dict[str, dict[str, Any]] = {
             "witness": {
                 "type": "object",
                 "properties": {
-                    "w4": {"type": "number", "minimum": 0, "maximum": 1,
-                           "description": "Quad-Witness geometric mean (H*A*E*V)^(1/4) >= 0.75"},
-                    "w3": {"type": "number", "minimum": 0, "maximum": 1,
-                           "description": "Tri-Witness (backward compat, deprecated)"},
+                    "w4": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Quad-Witness geometric mean (H*A*E*V)^(1/4) >= 0.75",
+                    },
+                    "w3": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 1,
+                        "description": "Tri-Witness (backward compat, deprecated)",
+                    },
                     "human": {
                         "type": "object",
                         "properties": {
@@ -566,7 +577,10 @@ TOOL_OUTPUT_SCHEMAS: dict[str, dict[str, Any]] = {
                                     "contradictions": {"type": "array"},
                                     "harm_scenarios": {"type": "array"},
                                     "injection_vectors": {"type": "array"},
-                                    "critique_verdict": {"type": "string", "enum": ["APPROVE", "REJECT"]},
+                                    "critique_verdict": {
+                                        "type": "string",
+                                        "enum": ["APPROVE", "REJECT"],
+                                    },
                                 },
                             },
                         },
@@ -782,16 +796,206 @@ TOOL_SCHEMAS = {
     "outputs": TOOL_OUTPUT_SCHEMAS,
 }
 
-# Canonical public view (5-organs + search alias to reality_search)
+# Canonical public view (13-tool surface)
+# NOTE: Do not derive these strictly from legacy mappings. Canonical runtime
+# signatures in arifosmcp.transport.server include additional parameters and
+# contracts that must remain explicitly represented here.
 CANONICAL_TOOL_INPUT_SCHEMAS = {
-    canonical_name: TOOL_INPUT_SCHEMAS[legacy_name]
-    for canonical_name, legacy_name in CANONICAL_PUBLIC_TO_LEGACY.items()
-    if legacy_name in TOOL_INPUT_SCHEMAS
+    "anchor_session": {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string", "minLength": 1},
+            "actor_id": {"type": "string", "default": "anonymous"},
+            "auth_token": {"type": ["string", "null"], "default": None},
+            "mode": {
+                "type": "string",
+                "enum": ["fluid", "strict", "conscience", "ghost"],
+                "default": "conscience",
+            },
+            "grounding_required": {"type": "boolean", "default": True},
+            "debug": {"type": "boolean", "default": False},
+            "inject_kernel": {"type": "boolean", "default": True},
+            "compact_kernel": {"type": "boolean", "default": False},
+            "template_id": {"type": "string", "default": "arifos.full_context.v1"},
+            "auth_context": {"type": ["object", "null"], "default": None},
+            "session_id": {"type": ["string", "null"], "default": None},
+            "identity_bundle": {"type": ["object", "null"], "default": None},
+        },
+        "required": ["query"],
+    },
+    "reason_mind": {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string", "minLength": 1},
+            "session_id": {"type": "string", "minLength": 1},
+            "grounding": {"type": ["array", "null"], "items": {"type": "object"}},
+            "capability_modules": {"type": ["array", "null"], "items": {"type": "string"}},
+            "debug": {"type": "boolean", "default": False},
+            "actor_id": {"type": "string", "default": "anonymous"},
+            "auth_token": {"type": ["string", "null"], "default": None},
+            "parent_session_id": {"type": ["string", "null"], "default": None},
+            "auth_context": {"type": ["object", "null"], "default": None},
+            "inference_budget": {"type": "integer", "default": 1},
+            "risk_mode": {"type": "string", "default": "medium"},
+        },
+        "required": ["query", "session_id"],
+    },
+    "vector_memory": TOOL_INPUT_SCHEMAS["phoenix_recall"],
+    "simulate_heart": {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string", "minLength": 1},
+            "session_id": {"type": "string", "minLength": 1},
+            "stakeholders": {"type": ["array", "null"], "items": {"type": "string"}},
+            "capability_modules": {"type": ["array", "null"], "items": {"type": "string"}},
+            "debug": {"type": "boolean", "default": False},
+            "actor_id": {"type": "string", "default": "anonymous"},
+            "auth_token": {"type": ["string", "null"], "default": None},
+            "parent_session_id": {"type": ["string", "null"], "default": None},
+            "auth_context": {"type": ["object", "null"], "default": None},
+            "risk_mode": {"type": "string", "default": "medium"},
+        },
+        "required": ["query", "session_id"],
+    },
+    "critique_thought": {
+        "type": "object",
+        "properties": {
+            "session_id": {"type": "string", "minLength": 1},
+            "plan": {"type": "object"},
+            "actor_id": {"type": "string", "default": "anonymous"},
+            "auth_token": {"type": ["string", "null"], "default": None},
+            "auth_context": {"type": ["object", "null"], "default": None},
+        },
+        "required": ["session_id", "plan"],
+    },
+    "apex_judge": {
+        "type": "object",
+        "properties": {
+            "session_id": {"type": "string", "minLength": 1},
+            "query": {"type": "string", "minLength": 1},
+            "agi_result": {"type": ["object", "null"], "default": None},
+            "asi_result": {"type": ["object", "null"], "default": None},
+            "capability_modules": {"type": ["array", "null"], "items": {"type": "string"}},
+            "implementation_details": {"type": ["object", "null"], "default": None},
+            "proposed_verdict": {"type": "string", "default": "VOID"},
+            "human_approve": {"type": "boolean", "default": False},
+            "debug": {"type": "boolean", "default": False},
+            "actor_id": {"type": "string", "default": "anonymous"},
+            "auth_token": {"type": ["string", "null"], "default": None},
+            "parent_session_id": {"type": ["string", "null"], "default": None},
+            "auth_context": {"type": ["object", "null"], "default": None},
+            "risk_mode": {"type": "string", "default": "medium"},
+            "approval_bundle": {"type": ["object", "null"], "default": None},
+        },
+        "required": ["session_id", "query"],
+    },
+    "eureka_forge": {
+        "type": "object",
+        "properties": {
+            "session_id": {"type": "string", "minLength": 1},
+            "command": {"type": "string", "minLength": 1},
+            "working_dir": {"type": "string", "default": "/root"},
+            "timeout": {"type": "integer", "minimum": 1, "default": 60},
+            "confirm_dangerous": {"type": "boolean", "default": False},
+            "agent_id": {"type": "string", "default": "unknown"},
+            "purpose": {"type": "string", "default": ""},
+            "actor_id": {"type": "string", "default": "anonymous"},
+            "auth_token": {"type": ["string", "null"], "default": None},
+            "auth_context": {"type": ["object", "null"], "default": None},
+            "approval_bundle": {"type": ["object", "null"], "default": None},
+        },
+        "required": ["session_id", "command"],
+    },
+    "seal_vault": {
+        "type": "object",
+        "properties": {
+            "session_id": {"type": "string", "minLength": 1},
+            "summary": {"type": "string", "minLength": 1},
+            "governance_token": {"type": "string", "minLength": 1},
+            "thermodynamic_statement": {"type": ["object", "null"], "default": None},
+            "actor_id": {"type": "string", "default": "anonymous"},
+            "auth_token": {"type": ["string", "null"], "default": None},
+            "auth_context": {"type": ["object", "null"], "default": None},
+            "verdict": {"type": "string", "default": "SEAL"},
+            "approval_bundle": {"type": ["object", "null"], "default": None},
+        },
+        "required": ["session_id", "summary", "governance_token"],
+    },
+    "search_reality": {
+        "type": "object",
+        "properties": {
+            "query": {"type": "string", "minLength": 1},
+            "intent": {"type": "string", "default": "general"},
+            "session_id": {"type": "string", "default": ""},
+            "force_source": {
+                "type": "string",
+                "enum": ["auto", "headless", "jina", "perplexity", "brave", "all"],
+                "default": "auto",
+            },
+            "min_content_quality": {
+                "type": "number",
+                "minimum": 0.0,
+                "maximum": 1.0,
+                "default": 0.5,
+            },
+        },
+        "required": ["query"],
+    },
+    "ingest_evidence": TOOL_INPUT_SCHEMAS["ingest_evidence"],
+    "audit_rules": {
+        "type": "object",
+        "properties": {
+            "audit_scope": {"type": "string", "default": "quick"},
+            "verify_floors": {"type": "boolean", "default": True},
+            "session_id": {"type": ["string", "null"], "default": None},
+        },
+    },
+    "check_vital": {
+        "type": "object",
+        "properties": {
+            "session_id": {"type": "string", "minLength": 1},
+            "include_swap": {"type": "boolean", "default": True},
+            "include_io": {"type": "boolean", "default": False},
+            "include_temp": {"type": "boolean", "default": False},
+        },
+        "required": ["session_id"],
+    },
+    "metabolic_loop": TOOL_INPUT_SCHEMAS["metabolic_loop"],
 }
+
 CANONICAL_TOOL_OUTPUT_SCHEMAS = {
-    canonical_name: TOOL_OUTPUT_SCHEMAS[legacy_name]
-    for canonical_name, legacy_name in CANONICAL_PUBLIC_TO_LEGACY.items()
-    if legacy_name in TOOL_OUTPUT_SCHEMAS
+    "anchor_session": TOOL_OUTPUT_SCHEMAS["init_gate"],
+    "reason_mind": TOOL_OUTPUT_SCHEMAS["agi_reason"],
+    "vector_memory": TOOL_OUTPUT_SCHEMAS["phoenix_recall"],
+    "simulate_heart": TOOL_OUTPUT_SCHEMAS["asi_empathize"],
+    "critique_thought": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "stage": {"type": "string", "const": "666_CRITIQUE"},
+            "session_id": {"type": "string"},
+            "payload": {"type": "object"},
+            "auth_context": {"type": ["object", "null"]},
+        },
+        "required": ["verdict", "stage", "session_id"],
+    },
+    "apex_judge": TOOL_OUTPUT_SCHEMAS["apex_verdict"],
+    "eureka_forge": TOOL_OUTPUT_SCHEMAS["sovereign_actuator"],
+    "seal_vault": TOOL_OUTPUT_SCHEMAS["vault_seal"],
+    "search_reality": TOOL_OUTPUT_SCHEMAS["reality_search"],
+    "ingest_evidence": TOOL_OUTPUT_SCHEMAS["ingest_evidence"],
+    "audit_rules": TOOL_OUTPUT_SCHEMAS["system_audit"],
+    "check_vital": {
+        "type": "object",
+        "properties": {
+            "verdict": VERDICT_ENUM,
+            "stage": {"type": "string", "const": "555_HEALTH"},
+            "session_id": {"type": "string"},
+            "payload": {"type": "object"},
+        },
+        "required": ["verdict", "stage", "session_id"],
+    },
+    "metabolic_loop": TOOL_OUTPUT_SCHEMAS["metabolic_loop"],
 }
 
 
