@@ -1,7 +1,7 @@
 # ── arifOS AAA MCP Server ──────────────────────────────────────────────
-# Single process, single port.  Runs FastMCP streamable-HTTP transport
+# Single process, single port. Runs FastMCP streamable-HTTP transport
 # with REST endpoints (/health, /tools, /version) as custom routes.
-# Hardened for Production (v62.5-STEEL)
+# Hardened for Production (v2026.03.08-SEAL)
 # ───────────────────────────────────────────────────────────────────────
 
 FROM python:3.12-slim AS build
@@ -16,6 +16,7 @@ WORKDIR /usr/src/app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     gcc \
+    git \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy project files
@@ -27,9 +28,7 @@ RUN python -m pip install --upgrade pip && \
     if [ -f requirements.txt ]; then pip install --no-cache-dir -r requirements.txt; fi && \
     pip install --no-cache-dir .
 
-# Pre-bake BGE-M3 model (~570MB) — multilingual Malay+English+Manglish support
-# HF_HOME set to /usr/src/app/models so it's copyable to runtime stage
-# Strip ONNX/ORT variants after download — only PyTorch weights needed (~570MB vs ~4GB)
+# Pre-bake BGE-M3 model (~570MB) and strip unused ONNX/ORT artifacts
 ENV HF_HOME=/usr/src/app/models
 RUN python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-m3'); print('BGE-M3 baked in')" && \
     find /usr/src/app/models -name "*.onnx" -delete && \
@@ -46,7 +45,7 @@ RUN groupadd -g 1000 arifos && \
 WORKDIR /usr/src/app
 
 # Build arguments for metadata
-ARG ARIFOS_VERSION=2026.03.07-ARCH-SEAL
+ARG ARIFOS_VERSION=2026.03.08-SEAL
 ARG GIT_SHA=unknown
 ARG BUILD_TIME=unknown
 
@@ -56,6 +55,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PORT=8080
 ENV HOST=0.0.0.0
+ENV AAA_MCP_TRANSPORT=http
 ENV ARIFOS_VERSION=${ARIFOS_VERSION}
 ENV GIT_SHA=${GIT_SHA}
 ENV BUILD_TIME=${BUILD_TIME}
@@ -93,7 +93,7 @@ HEALTHCHECK --interval=20s --timeout=5s --start-period=30s --retries=3 \
 
 # Metadata Labels
 LABEL io.modelcontextprotocol.server.name="io.github.ariffazil/arifos-mcp"
-LABEL io.modelcontextprotocol.server.version="2026.03.07-ARCH-SEAL"
+LABEL io.modelcontextprotocol.server.version="2026.03.08-SEAL"
 LABEL io.modelcontextprotocol.server.description="Constitutional AI governance server with 13-tool surface and F1-F13 floor enforcement."
 
 # Execute consolidated entrypoint

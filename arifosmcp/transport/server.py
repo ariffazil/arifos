@@ -42,10 +42,14 @@ MANIFEST_VERSION = "2026.03.07"
 logger = logging.getLogger(__name__)
 
 # BGE Embeddings Integration from arifosmcp.intelligence (Senses Layer - STATIC)
+from pathlib import Path
 
 from core.state.session_manager import session_manager
 
-sys.path.insert(0, "/root/arifOS")
+# Set portable root path (3 levels up from transport/server.py)
+root_path = str(Path(__file__).resolve().parent.parent.parent)
+if root_path not in sys.path:
+    sys.path.insert(0, root_path)
 try:
     from arifosmcp.intelligence.embeddings import embed, get_embedder
 
@@ -108,14 +112,10 @@ _ACTOR_IDENTITIES: dict[str, ActorIdentity] = {}
 _ACTOR_SESSION_MAP: dict[str, str] = {}  # session_id -> actor_id
 
 
-def _verify_actor_signature(
-    public_key_hex: str, signature_hex: str, message: bytes
-) -> bool:
+def _verify_actor_signature(public_key_hex: str, signature_hex: str, message: bytes) -> bool:
     """Verify an Ed25519 signature."""
     try:
-        public_key = ed25519.Ed25519PublicKey.from_public_bytes(
-            bytes.fromhex(public_key_hex)
-        )
+        public_key = ed25519.Ed25519PublicKey.from_public_bytes(bytes.fromhex(public_key_hex))
         public_key.verify(bytes.fromhex(signature_hex), message)
         return True
     except (InvalidSignature, ValueError, TypeError):
@@ -1062,14 +1062,14 @@ def compute_verifier_witness(
 ) -> dict[str, Any]:
     """
     Ψ-Shadow (Adversarial Verifier) Witness
-    
+
     The 4th witness in Quad-Witness consensus. Returns HIGH score only if
     the proposal passes adversarial scrutiny. Returns LOW score if attacks,
     contradictions, or harm scenarios are detected.
-    
+
     SPEC: W_4 = (H × A × E × V)^(1/4) >= 0.75
     This witness provides the 'V' component.
-    
+
     Returns:
         {
             "valid": bool,
@@ -1087,31 +1087,30 @@ def compute_verifier_witness(
         "contradictions": [],
         "harm_scenarios": [],
         "injection_vectors": [],
-        "critique_verdict": "APPROVE"
+        "critique_verdict": "APPROVE",
     }
-    
+
     # Initialize PsiShadow for adversarial analysis
     try:
         from arifosmcp.intelligence.triad.psi import PsiShadow
+
         shadow = PsiShadow()
-        
+
         critique = shadow.attack_proposal(
-            proposal=proposal,
-            agi_context=agi_result,
-            asi_context=asi_result
+            proposal=proposal, agi_context=agi_result, asi_context=asi_result
         )
-        
+
         signals["contradictions"] = critique.get("logical_contradictions", [])
         signals["injection_vectors"] = critique.get("injection_vectors", [])
         signals["harm_scenarios"] = critique.get("harm_scenarios", [])
         signals["critique_verdict"] = critique.get("verdict", "APPROVE")
         signals["attacks_found"] = critique.get("verdict") == "REJECT"
-        
+
     except Exception as e:
         # Fail-safe: if shadow fails, assume safe (conservative)
         signals["critique_error"] = str(e)
         signals["critique_verdict"] = "APPROVE"  # Fail open to prevent deadlock
-    
+
     # Compute verifier score
     if signals["attacks_found"]:
         score = 0.1  # Low score blocks consensus
@@ -1122,12 +1121,8 @@ def compute_verifier_witness(
     else:
         score = 0.98  # High score allows consensus
         valid = True
-    
-    return {
-        "valid": valid,
-        "score": score,
-        "signals": signals
-    }
+
+    return {"valid": valid, "score": score, "signals": signals}
 
 
 def build_governance_proof(
@@ -1152,7 +1147,7 @@ def build_governance_proof(
 ) -> dict[str, Any]:
     """
     Build governance proof with Quad-Witness consensus.
-    
+
     SPEC: W_4 = (H × A × E × V)^(1/4) >= 0.75
     """
     # Existing witnesses
@@ -1167,7 +1162,7 @@ def build_governance_proof(
     if not _qt_proof:
         # Also check nested in data.reason.qt_proof
         _qt_proof = (agi_result or {}).get("data", {}).get("reason", {}).get("qt_proof", {})
-    
+
     if _qt_proof.get("complete") and _qt_proof.get("witnesses", {}).get("w_ai", 0) > 0:
         # QT Quad completed — use real w_ai from Sequential Thinking chain
         _qt_w_ai = _qt_proof["witnesses"]["w_ai"]
@@ -1185,20 +1180,17 @@ def build_governance_proof(
     else:
         # Fallback: old formula (truth_score / f2_threshold)
         ai = compute_ai_witness(truth_score=truth_score, truth_threshold=truth_threshold)
-    
+
     earth = compute_earth_witness(
         precedent_count=precedent_count,
         grounding_present=grounding_present,
         revocation_ok=revocation_ok,
         health_ok=health_ok,
     )
-    
+
     # NEW: Verifier witness (Ψ-Shadow)
     verifier = compute_verifier_witness(
-        context={},
-        proposal=proposal,
-        agi_result=agi_result,
-        asi_result=asi_result
+        context={}, proposal=proposal, agi_result=agi_result, asi_result=asi_result
     )
 
     omega_score = _clamp01(omega_ortho, default=1.0)
@@ -1213,10 +1205,9 @@ def build_governance_proof(
     # UPDATED: Authority pillar includes verifier
     authority_valid = bool(human.get("valid")) and bool(verifier.get("valid"))
     authority_score = min(
-        _clamp01(human.get("score"), default=0.0),
-        _clamp01(verifier.get("score"), default=0.0)
+        _clamp01(human.get("score"), default=0.0), _clamp01(verifier.get("score"), default=0.0)
     )
-    
+
     # UPDATED: Quad-Witness calculation (W4)
     witness_product = (
         _clamp01(human.get("score"), default=0.0)
@@ -1224,13 +1215,17 @@ def build_governance_proof(
         * _clamp01(earth.get("score"), default=0.0)
         * _clamp01(verifier.get("score"), default=0.0)  # NEW
     )
-    
+
     # Use W4 (Quad-Witness) instead of W3 (Tri-Witness)
     w4 = witness_product ** (1 / 4) if witness_product > 0.0 else 0.0
     quad_witness_valid = w4 >= 0.75 and bool(human.get("valid")) and bool(earth.get("valid"))
-    
+
     # Keep w3 for backward compatibility during transition
-    w3 = (witness_product / max(verifier.get("score", 0.98), 0.01)) ** (1 / 3) if witness_product > 0 and verifier.get("score", 0) > 0 else 0.0
+    w3 = (
+        (witness_product / max(verifier.get("score", 0.98), 0.01)) ** (1 / 3)
+        if witness_product > 0 and verifier.get("score", 0) > 0
+        else 0.0
+    )
 
     proof: dict[str, Any] = {
         "authority_valid": authority_valid,
@@ -1560,18 +1555,20 @@ async def _agi_cognition(
             evidence_relevance=float(r.get("truth_score", 0.5)),
             reasoning_consistency=float(i.get("delta_draft_confidence", 0.5)),
             knowledge_gaps=[],
-            model_logits_confidence=float(think_draft.get("delta_draft", {}).get("confidence", 0.8)),
+            model_logits_confidence=float(
+                think_draft.get("delta_draft", {}).get("confidence", 0.8)
+            ),
             grounding=grounding,
             compute_ms=actual_ms,
-            expected_ms=expected_ms
+            expected_ms=expected_ms,
         )
 
         tree = think_draft.get("reasoning_tree", {})
-        
+
         # Landauer & Constitutional hard-gating
         if formal_cognition.verdict == "VOID":
             verdict = "VOID"
-            
+
         merged = {
             "verdict": verdict,
             "reasoning_status": "exploratory",
@@ -1596,20 +1593,27 @@ async def _agi_cognition(
             "needs_grounding": (r.get("truth_score", 1.0) < 0.90),
             "next_stage": "666_CRITIQUE",
             "f2_threshold": r.get("f2_threshold"),
-            "floors_failed": list(formal_cognition.floor_scores.keys()) 
-            if formal_cognition.verdict == "VOID" else [],
+            "floors_failed": (
+                list(formal_cognition.floor_scores.keys())
+                if formal_cognition.verdict == "VOID"
+                else []
+            ),
             "retrieved_contexts": rag_contexts,
             "evidence_records": [rec.model_dump() for rec in formal_cognition.evidence_records],
             "p3_metrics": {
                 "compute_ms": actual_ms,
                 "expected_ms": expected_ms,
-                "landauer_efficiency": expected_ms / max(0.1, actual_ms)
+                "landauer_efficiency": expected_ms / max(0.1, actual_ms),
             },
             # QT Quad Integration — FIX 1: also pass qt_proof from organ via reason result
             "qt_proof": r.get("qt_proof", getattr(formal_cognition, "qt_proof", {})),
             "qt_quad": r.get("qt_proof", getattr(formal_cognition, "qt_proof", {})),
-            "W_four": (r.get("qt_proof") or getattr(formal_cognition, "qt_proof", {}) or {}).get("W_four"),
-            "witnesses": (r.get("qt_proof") or getattr(formal_cognition, "qt_proof", {}) or {}).get("witnesses"),
+            "W_four": (r.get("qt_proof") or getattr(formal_cognition, "qt_proof", {}) or {}).get(
+                "W_four"
+            ),
+            "witnesses": (r.get("qt_proof") or getattr(formal_cognition, "qt_proof", {}) or {}).get(
+                "witnesses"
+            ),
         }
         result = {
             "capability_modules": capability_modules or [],
@@ -1677,10 +1681,10 @@ async def _phoenix_recall(
             "all": None,
         }
         source_filter = source_filter_map.get(domain, "000_THEORY")
-        
+
         contexts = []
         gdrive_results = []
-        
+
         # Search constitutional corpus (unless gdrive-only)
         if domain != "gdrive":
             try:
@@ -1693,22 +1697,29 @@ async def _phoenix_recall(
                 )
             except Exception:
                 contexts = []
-        
+
         # Search Google Drive (if domain is "all", "gdrive", or "docs")
         if domain in ("all", "gdrive", "docs"):
             try:
                 from arifosmcp.transport.unified_memory import get_unified_memory
+
                 unified = get_unified_memory()
                 gdrive_results = unified.search_gdrive(effective_query, top_k=min(int(depth), 5))
                 # Convert to same format as contexts
                 for r in gdrive_results:
-                    contexts.append(type('obj', (object,), {
-                        'source': 'gdrive',
-                        'path': r.path,
-                        'content': r.content,
-                        'score': r.score,
-                        'metadata': r.metadata
-                    })())
+                    contexts.append(
+                        type(
+                            "obj",
+                            (object,),
+                            {
+                                "source": "gdrive",
+                                "path": r.path,
+                                "content": r.content,
+                                "score": r.score,
+                                "metadata": r.metadata,
+                            },
+                        )()
+                    )
             except Exception:
                 pass
 
@@ -1823,14 +1834,14 @@ async def _asi_empathy(
             # QT Quad: Include stakeholder count
             "stakeholder_count": len(stakeholders) if stakeholders else 0,
         }
-        
+
         # QT Quad: Ensure stakeholders are populated
         effective_stakeholders = stakeholders or []
         if not effective_stakeholders:
             # Fallback stakeholders from ASI output
             asi_impact = a.get("stakeholder_impact", {})
             effective_stakeholders = list(asi_impact.keys()) if asi_impact else ["User", "System"]
-        
+
         result = {
             "stakeholders": effective_stakeholders,
             "capability_modules": capability_modules or [],
@@ -1979,32 +1990,36 @@ async def _apex_verdict(
         if agi_result or asi_result:
             try:
                 judge_apex(
-                    agi_result=CognitionResult(
-                        verdict=agi_result.get("verdict", "VOID"),
-                        truth_score=float(agi_result.get("truth_score", 0.5)),
-                        clarity_delta=float(
-                            agi_result.get("p3_metrics", {}).get("landauer_efficiency", 1.0)
-                        ),
-                        humility_omega=0.04,
-                        safety_omega=0.04,
-                        genius_score=0.9,
-                        grounded=True,
-                        reasoning={},
-                        evidence_sources=[],
-                        floor_scores={},
-                    )
-                    if agi_result
-                    else None,
-                    asi_result=EmpathyResult(
-                        verdict=asi_result.get("verdict", "VOID"),
-                        stakeholder_impact={},
-                        reversibility_score=0.5,
-                        peace_squared=float(asi_result.get("peace_squared", 1.0)),
-                        empathy_score=float(asi_result.get("empathy_score", 0.9)),
-                        floor_scores={},
-                    )
-                    if asi_result
-                    else None,
+                    agi_result=(
+                        CognitionResult(
+                            verdict=agi_result.get("verdict", "VOID"),
+                            truth_score=float(agi_result.get("truth_score", 0.5)),
+                            clarity_delta=float(
+                                agi_result.get("p3_metrics", {}).get("landauer_efficiency", 1.0)
+                            ),
+                            humility_omega=0.04,
+                            safety_omega=0.04,
+                            genius_score=0.9,
+                            grounded=True,
+                            reasoning={},
+                            evidence_sources=[],
+                            floor_scores={},
+                        )
+                        if agi_result
+                        else None
+                    ),
+                    asi_result=(
+                        EmpathyResult(
+                            verdict=asi_result.get("verdict", "VOID"),
+                            stakeholder_impact={},
+                            reversibility_score=0.5,
+                            peace_squared=float(asi_result.get("peace_squared", 1.0)),
+                            empathy_score=float(asi_result.get("empathy_score", 0.9)),
+                            floor_scores={},
+                        )
+                        if asi_result
+                        else None
+                    ),
                     session_id=session_id,
                     tool_class="CRITICAL" if human_approve else "SPINE",
                 )
@@ -2212,7 +2227,7 @@ async def _sovereign_actuator(
 
     # Risk Engine Gating (P3 Hardening)
     action_class = risk_engine.classify_action(command)
-    
+
     # Retrieve last w3 and verdict from session or continuity bundle
     # For now, we simulate by checking if the approval_bundle or a previous tool call
     # has provided a high enough w3. In a full pipeline, we'd check the VAULT or
@@ -2220,12 +2235,12 @@ async def _sovereign_actuator(
     # Placeholder: assume 0.96 for normal flows, 0.99 for approved ones.
     w3_score = 0.99 if approval_bundle else 0.96
     verdict = "SEAL"
-    
+
     permitted, reason = risk_engine.evaluate_gate(
         action_class=action_class,
         w3_score=w3_score,
         verdict=verdict,
-        human_ratified=(approval_bundle is not None)
+        human_ratified=(approval_bundle is not None),
     )
 
     if not permitted:
@@ -3114,7 +3129,7 @@ async def _critique_thought(
 ) -> dict[str, Any]:
     """
     Ψ-Shadow: Adversarial analysis of a proposal.
-    
+
     Unlike alignment checks, this tool ATTACKS the proposal to find flaws.
     Returns LOW score if attacks/contradictions/harm are detected.
     """
@@ -3129,17 +3144,18 @@ async def _critique_thought(
     )
     if continuity_error:
         return continuity_error
-    
+
     # NEW: Use PsiShadow for adversarial analysis
     from arifosmcp.intelligence.triad.psi import PsiShadow
+
     shadow = PsiShadow()
-    
+
     proposal_text = json.dumps(plan, ensure_ascii=True, sort_keys=True)
     critique = shadow.attack_proposal(proposal=proposal_text)
-    
+
     # Also run alignment check for comparison
     alignment_payload = await align(session_id=session_id, action=proposal_text)
-    
+
     # Build comprehensive critique result
     payload = {
         "adversarial_analysis": critique,
@@ -3149,20 +3165,20 @@ async def _critique_thought(
         "witness_score": 0.1 if critique["verdict"] == "REJECT" else 0.98,
         "attacks_found": critique["verdict"] == "REJECT",
         "summary": f"Ψ-Shadow: {len(critique['logical_contradictions'])} contradictions, "
-                   f"{len(critique['injection_vectors'])} injection vectors, "
-                   f"{len(critique['harm_scenarios'])} harm scenarios"
+        f"{len(critique['injection_vectors'])} injection vectors, "
+        f"{len(critique['harm_scenarios'])} harm scenarios",
     }
-    
+
     result = envelope_builder.build_envelope(
         stage="666_CRITIQUE",
         session_id=session_id,
         verdict=critique["verdict"],
         payload=payload,
     )
-    
+
     if continuity_binding:
         result["auth_context"] = _rotate_auth_context(session_id, continuity_binding)
-    
+
     return result
 
 
