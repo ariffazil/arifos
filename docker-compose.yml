@@ -148,7 +148,7 @@ services:
       - REDIS_URL=redis://redis:6379
       - KIMI_API_KEY=${KIMI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - VENICE_API_KEY=${VENICE_API_KEY:-dummy_key_placeholder}
+      - VENICE_API_KEY=${VENICE_API_KEY:-VENICE-ADMIN-KEY-XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - NODE_OPTIONS=--max-old-space-size=1536
       # PATH includes custom CLI tools: gh, op, mcporter
