@@ -20,7 +20,7 @@ def _bootstrap_environment() -> None:
 def main() -> None:
     _bootstrap_environment()
 
-    mode = (sys.argv[1] if len(sys.argv) > 1 else os.getenv("AAA_MCP_TRANSPORT", "sse")).lower()
+    mode = (sys.argv[1] if len(sys.argv) > 1 else os.getenv("AAA_MCP_TRANSPORT", "http")).lower()
     host = os.getenv("HOST", "0.0.0.0")
     port = int(os.getenv("PORT", "8080"))
 
@@ -31,7 +31,7 @@ def main() -> None:
     try:
         run_server(mcp, mode=mode, host=host, port=port)
     except ValueError as exc:
-        raise SystemExit(str(exc))
+        raise SystemExit(str(exc)) from None
 
 
 if __name__ == "__main__":
