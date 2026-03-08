@@ -33,7 +33,7 @@ services:
       - /usr/libexec/docker:/usr/libexec/docker:ro
       - /var/scripts/restart_openclaw.sh:/var/scripts/restart_openclaw.sh:ro
       - /opt/arifos/data/triggers:/shared/triggers
-      - /opt/arifos/data/openclaw/models:/home/node/.node-llama-cpp/models
+      - /opt/arifos/data/openclaw/models:/root/.node-llama-cpp/models
       - /opt/arifos/traefik/acme.json:/letsencrypt/acme.json
     networks:
       - arifos_trinity
@@ -126,9 +126,9 @@ services:
     init: true
     user: root  # AGI-level executive power
     volumes:
-      - /opt/arifos/data/openclaw:/home/node/.openclaw
-      - /opt/arifos/data/openclaw/bin:/home/node/.local/bin
-      - /opt/arifos/data/openclaw/npm-global:/home/node/.npm-global
+      - /opt/arifos/data/openclaw:/root/.openclaw
+      - /opt/arifos/data/openclaw/bin:/root/.local/bin
+      - /opt/arifos/data/openclaw/npm-global:/root/.npm-global
       - /srv/arifOS:/mnt/arifos:rw
       - /opt/arifos/APEX-THEORY:/mnt/apex:rw
       - /var/run/docker.sock:/var/run/docker.sock
@@ -148,11 +148,11 @@ services:
       - REDIS_URL=redis://redis:6379
       - KIMI_API_KEY=${KIMI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-      - VENICE_API_KEY=${VENICE_API_KEY:-}
+      - VENICE_API_KEY=${VENICE_API_KEY:-dummy_key_placeholder}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
       - NODE_OPTIONS=--max-old-space-size=1536
       # PATH includes custom CLI tools: gh, op, mcporter
-      - PATH=/home/node/.local/bin:/home/node/.npm-global/bin:/host/clis:/host/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - PATH=/root/.local/bin:/root/.npm-global/bin:/host/clis:/host/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       - GH_TOKEN=${GITHUB_TOKEN:-}
       - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
       - X_BEARER_TOKEN=${X_BEARER_TOKEN:-}
