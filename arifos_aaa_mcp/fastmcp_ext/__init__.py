@@ -1,12 +1,3 @@
-"""FastMCP extension layer for arifOS AAA MCP.
-
-This package isolates FastMCP-specific integration concerns outside `core/`.
-"""
-
-from .discovery import build_surface_discovery
-from .transports import run_server
-
-__all__ = [
-    "run_server",
-    "build_surface_discovery",
-]
+"""Compatibility shim — re-exports from core.transport."""
+from core.transport import *  # noqa: F401, F403
+from core.transport import run_server, build_surface_discovery  # noqa: F401

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
+  "name": "arifos-constitutional-kernel",
+  "version": "2026.03.08",
+  "description": "Trinity Body: Constitutional AI governance runtime with 13-Floor thermodynamics",
+
+  "source": {
+    "type": "filesystem",
+    "path": "core/server.py",
+    "entrypoint": "mcp"
+  },
+
+  "environment": {
+    "type": "uv",
+    "python": ">=3.12",
+    "dependencies": ["fastmcp==3.0.2", "arifos"],
+    "editable": ["."]
+  },
+
+  "deployment": {
+    "transport": "stdio",
+    "log_level": "INFO",
+    "transports_available": ["stdio", "sse", "streamable-http"],
+    "config": {
+      "http_host": "${HOST:-0.0.0.0}",
+      "http_port": "${PORT:-8080}",
+      "http_path": "/mcp/",
+      "redis_url": "${REDIS_URL:-redis://localhost:6379}"
+    },
+    "env": {
+      "HOST": "${HOST:-0.0.0.0}",
+      "PORT": "${PORT:-8080}",
+      "ARIFOS_GOVERNANCE_SECRET": "${ARIFOS_GOVERNANCE_SECRET}"
+    }
+  },
+
+  "tools": {
+    "count": 13,
+    "governance": true,
+    "tags": ["production", "governance", "constitutional"],
+    "filtering": {
+      "production": ["tool-*"],
+      "lab": ["tool-*", "admin-*"]
+    }
+  },
+
+  "metadata": {
+    "author": "Arif Fazil",
+    "license": "AGPL-3.0",
+    "repository": "https://github.com/ariffazil/arifosmcp",
+    "documentation": "https://github.com/ariffazil/arifOS",
+    "trinity": {
+      "role": "body",
+      "description": "Runtime execution layer",
+      "mind": "https://github.com/ariffazil/arifOS",
+      "heart": "https://github.com/ariffazil/ariffazil"
+    },
+    "floors": {
+      "count": 13,
+      "validation": "real-time",
+      "enforcement": "thermodynamic"
+    }
+  }
+}

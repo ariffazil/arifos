@@ -177,7 +177,8 @@ all = [
 ]
 
 [project.scripts]
-arifos    = "arifos_aaa_mcp.__main__:main"
+arifos     = "arifos_aaa_mcp.__main__:main"
+arifos-mcp = "core.server:main"
 aaa-mcp   = "aaa_mcp.__main__:main"
 aclip-cai = "aclip_cai.cli:main"
 

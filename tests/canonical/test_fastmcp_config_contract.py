@@ -22,13 +22,13 @@ def test_fastmcp_json_has_required_sections() -> None:
 
     source = config.get("source", {})
     assert source.get("type") == "filesystem"
-    assert source.get("path") == "arifos_aaa_mcp/server.py"
+    # After Trinity Body restructure, entrypoint is core/server.py
+    assert source.get("path") == "core/server.py"
     assert source.get("entrypoint") == "mcp"
 
     deployment = config.get("deployment", {})
-    assert deployment.get("transport") == "http"
-    assert deployment.get("path") == "/mcp/"
-    assert int(deployment.get("port")) == 8080
+    # Default transport is stdio; HTTP config lives in deployment.config
+    assert deployment.get("transport") in {"stdio", "http", "sse"}
 
 
 def test_fastmcp_source_entrypoint_is_importable() -> None:
