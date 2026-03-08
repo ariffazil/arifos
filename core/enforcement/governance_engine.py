@@ -713,62 +713,74 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     elif (failed_axioms or failed_laws) and verdict == "SEAL":
         verdict = "PARTIAL"
 
+    # APEX 5-Layer Stack Variables
+    C = payload.get("tokens", 50) + payload.get("compute_ms", 100) / 10.0
+    delta_s = _safe_float(payload, "dS", -0.1)
+    delta_s_reduction = abs(min(0.0, delta_s))
+    eta = delta_s_reduction / C if C > 0 else 0.0
+
+    a_val = apex_dials.get("A", 1.0)
+    p_val = apex_dials.get("P", 1.0)
+    x_val = apex_dials.get("X", 1.0)
+    e_val = apex_dials.get("E", 1.0)
+    capacity_product = a_val * p_val * x_val
+    effort_amplifier = e_val ** 2
+    
+    g_star = apex_dials.get("G_star", capacity_product * effort_amplifier)
+    g_dagger = g_star * eta
+
     return {
         "verdict": verdict,
         "tool": tool,
         "session_id": payload.get("session_id", ""),
-        "trinity": TRINITY_BY_TOOL.get(tool, "Delta"),
-        "technical_aliases": {
-            "governance_rules": "laws_13",
-            "reasoning_constraints": "axioms_333",
-            "decision_parameters": "apex_dials",
-        },
-        "axioms_333": {
-            "catalog": AXIOMS_333,
-            "checks": checks,
-            "failed": failed_axioms,
-        },
-        "laws_13": {
-            "catalog": LAW_13_CATALOG,
-            "required": TOOL_LAW_BINDINGS.get(tool, []),
-            "checks": law_checks,
-            "failed_required": failed_laws,
-        },
-        "telemetry": {
-            "timestamp": time.time(),
-            "dS": payload.get("dS", -0.1),
-            "peace2": payload.get("peace2", 1.0),
-            "kappa_r": payload.get("kappa_r", 0.95),
-        },
-        "apex_dials": apex_dials,
-        "contrast_engine": {
-            "tac": tac,
-            "tpcp": tpcp,
-            "scarpacket": {
-                "eligible": bool(tpcp.get("converged")),
-                "requires_hold": bool(tpcp.get("dark_paradox"))
-                and verdict in {"VOID", "SABAR", "HOLD"},
-                "vault_ref": payload.get("vault_id") or payload.get("data", {}).get("vault_id"),
+        "apex_output": {
+            "capacity_layer": {
+                "A": a_val,
+                "P": p_val,
+                "X": x_val,
+                "capacity_product": round(capacity_product, 4),
             },
-        },
-        # P0 HARDENING: Vitality Index (Ψ) - Master Equation for constitutional homeostasis
-        "vitality_index": vitality,
-        # P1 HARDENING: Tri-Witness consensus with geometric mean
-        "tri_witness": tri_witness,
-        # P1 HARDENING: Paradox resolution status
-        "paradox_resolution": {
-            "phi_p": phi_p,
-            "resolved": paradox_resolved,
-            "threshold": 1.0,
-        },
-        # P2 HARDENING: Thermodynamic Physics - Orthogonality + Landauer Bound
-        "p2_physics": {
-            "omega_ortho": round(omega_ortho, 4),
-            "ortho_pass": ortho_pass,
-            "ortho_threshold": 0.95,
-            "landauer": landauer_data,
-            "mode_collapse_detected": not ortho_pass,
-            "cheap_truth_detected": landauer_data["violation"],
+            "effort_layer": {
+                "E": e_val,
+                "effort_amplifier": round(effort_amplifier, 4),
+                "reasoning_steps": payload.get("steps", 1),
+                "tool_calls": 1
+            },
+            "entropy_layer": {
+                "H_before": payload.get("H_before", 1.0),
+                "H_after": payload.get("H_after", max(0.0, 1.0 + delta_s)),
+                "delta_S": delta_s,
+            },
+            "efficiency_layer": {
+                "compute_cost": round(C, 4),
+                "entropy_removed": round(delta_s_reduction, 4),
+                "intelligence_efficiency": round(eta, 6),
+            },
+            "governed_intelligence": {
+                "G_star": round(g_star, 4),
+                "efficiency": round(eta, 6),
+                "governed_score": round(g_dagger, 6),
+            },
+            "governance_layer": {
+                "vitality_index": vitality.get("psi", 0.0),
+                "truth_floor": "pass" if law_checks.get("F2_TRUTH", {}).get("pass", True) else "fail",
+                "authority_status": "pass" if law_checks.get("F11_AUTHORITY", {}).get("pass", True) else "fail",
+                "sovereignty_status": "pass" if law_checks.get("F13_SOVEREIGNTY", {}).get("pass", True) else "fail",
+                "tri_witness_status": "pass" if tri_witness.get("pass", False) else "fail",
+            },
+            "diagnostics": {
+                "logA": round(math.log(a_val) if a_val > 0 else 0, 4),
+                "logP": round(math.log(p_val) if p_val > 0 else 0, 4),
+                "logX": round(math.log(x_val) if x_val > 0 else 0, 4),
+                "2logE": round(2 * math.log(e_val) if e_val > 0 else 0, 4),
+                "logDeltaS": round(math.log(delta_s_reduction) if delta_s_reduction > 0 else 0, 4),
+                "logC": round(math.log(C) if C > 0 else 0, 4),
+                "failed_axioms": failed_axioms,
+                "failed_laws": failed_laws,
+                "paradox_resolved": paradox_resolved,
+                "landauer_violation": landauer_data["violation"],
+                "mode_collapse": not ortho_pass
+            }
         },
         "motto": motto,
         "data": payload,

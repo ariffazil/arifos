@@ -11,17 +11,14 @@ from __future__ import annotations
 
 import json
 import math
-import time
 from pathlib import Path
 from typing import Any
 
 from arifosmcp.transport.protocol.aaa_contract import (
     AAA_TOOL_LAW_BINDINGS,
     AAA_TOOL_STAGE_MAP,
-    AXIOMS_333,
     LAW_13_CATALOG,
     READ_ONLY_TOOLS,
-    TRINITY_BY_TOOL,
 )
 from core.shared.guards.injection_guard import scan_for_injection
 from core.shared.guards.ontology_guard import detect_literalism
@@ -66,6 +63,111 @@ TOOL_DIALS_MAP: dict[str, Any] = _load_tool_dials_map()
 
 def _clamp(value: float, low: float = 0.0, high: float = 1.0) -> float:
     return max(low, min(high, value))
+
+
+def _band(value: float, low: float, high: float) -> str:
+    if value < low:
+        return "low"
+    if value < high:
+        return "moderate"
+    return "high"
+
+
+def _capacity_context(capacity_product: float) -> tuple[str, str]:
+    status = _band(capacity_product, 0.25, 0.60)
+    meanings = {
+        "low": "Structural headroom is thin before reasoning effort is applied.",
+        "moderate": "Structural headroom is usable but not dominant.",
+        "high": "Structural headroom is strong and can support more effort.",
+    }
+    return status, meanings[status]
+
+
+def _effort_context(effort: float) -> tuple[str, str]:
+    status = "idle" if effort < 1.5 else "engaged" if effort < 4.0 else "intensive"
+    meanings = {
+        "idle": "Very little reasoning effort is visible in the runtime.",
+        "engaged": "Reasoning effort is present and doing work.",
+        "intensive": "Reasoning effort is heavy and materially shaping the output.",
+    }
+    return status, meanings[status]
+
+
+def _entropy_context(delta_s_signed: float, h_before: float, h_after: float) -> tuple[str, str]:
+    if delta_s_signed < 0:
+        return "clarifying", f"Entropy fell from {h_before:.3f} to {h_after:.3f}."
+    if delta_s_signed > 0:
+        return "diffusing", f"Entropy rose from {h_before:.3f} to {h_after:.3f}."
+    return "flat", "Entropy is effectively unchanged."
+
+
+def _efficiency_context(eta: float, compute_cost: float, entropy_removed: float) -> tuple[str, str]:
+    if entropy_removed <= 0:
+        return "stalled", "No entropy was removed, so efficiency is stalled."
+    if compute_cost <= 0:
+        return "unmetered", "Clarity changed, but compute cost is missing."
+    if eta >= 0.01:
+        return "dense", "The runtime is removing substantial entropy per compute."
+    if eta >= 0.001:
+        return "workable", "The runtime is producing some clarity per compute."
+    return "thin", "Compute spend is outpacing clarity gain."
+
+
+def _governance_context(
+    amanah_score: float,
+    truth_floor: str,
+    authority_status: str,
+    sovereignty_status: str,
+    tri_witness_status: str,
+) -> tuple[str, str]:
+    states = {
+        truth_floor.lower(),
+        authority_status.lower(),
+        sovereignty_status.lower(),
+        tri_witness_status.lower(),
+    }
+    if "fail" in states:
+        return "failed", "A governance floor is failing."
+    if {"estimate only", "cannot compute"} & states:
+        return "provisional", "Governance is only partially observed."
+    if amanah_score >= 0.8 and states <= {"pass"}:
+        return "attested", "Governance is aligned and amanah is strong."
+    return "mixed", "Governance signals are present but not fully aligned."
+
+
+def _primary_constraint(
+    capacity_product: float,
+    effort: float,
+    entropy_removed: float,
+    eta: float,
+    governance_status: str,
+) -> str:
+    if governance_status in {"failed", "provisional", "mixed"}:
+        return "governance"
+    if entropy_removed <= 0:
+        return "entropy"
+    if eta <= 0:
+        return "efficiency"
+    if capacity_product < 0.25:
+        return "capacity"
+    if effort < 1.5:
+        return "effort"
+    return "none"
+
+
+def _runtime_story(
+    capacity_status: str,
+    effort_status: str,
+    entropy_status: str,
+    efficiency_status: str,
+    governance_status: str,
+    g_dagger: float,
+) -> str:
+    return (
+        f"Capacity is {capacity_status}, effort is {effort_status}, entropy is {entropy_status}, "
+        f"efficiency is {efficiency_status}, governance is {governance_status}; "
+        f"realized governed intelligence is {g_dagger:.6f}."
+    )
 
 
 def _safe_float(p: dict[str, Any], key: str, default: float) -> float:
@@ -138,15 +240,15 @@ def _axiom_checks(payload: dict[str, Any], tool: str = "") -> dict[str, Any]:
             k in text for k in ["evidence", "grounding", "results", "citations", "ids"]
         )
         has_authority = any(k in text for k in ["actor", "auth", "human_approve", "token"])
-    dS_val = _safe_float(payload, "dS", -0.1)
+    d_s_val = _safe_float(payload, "dS", -0.1)
 
     return {
         "A1_TRUTH_COST": {"pass": bool(has_evidence), "note": "evidence fields present"},
         "A2_SCAR_WEIGHT": {"pass": bool(has_authority), "note": "authority fields present"},
         "A3_ENTROPY_WORK": {
-            "pass": dS_val <= 0.2,
+            "pass": d_s_val <= 0.2,
             "note": "dS bounded (<= 0.2)",
-            "dS": dS_val,
+            "dS": d_s_val,
         },
     }
 
@@ -228,7 +330,9 @@ def _calculate_tri_witness_consensus(tool: str, payload: dict[str, Any]) -> dict
                 "w3": 0.0,
                 "threshold": consensus_threshold,
                 "shattered_by": witness_name,
-                "shatter_reason": f"{witness_name}_witness score {score:.4f} < floor {witness_floor}",
+                "shatter_reason": (
+                    f"{witness_name}_witness score {score:.4f} < floor {witness_floor}"
+                ),
                 "witnesses": witnesses,
                 "tool_class": tool_class["class"],
             }
@@ -543,7 +647,7 @@ def _derive_orthogonality(agi_vector: list[float], asi_vector: list[float]) -> f
     if not agi_vector or not asi_vector or len(agi_vector) != len(asi_vector):
         return 1.0  # Default to independent if vectors unavailable (fail-open for missing data)
 
-    dot_product = sum(a * b for a, b in zip(agi_vector, asi_vector))
+    dot_product = sum(a * b for a, b in zip(agi_vector, asi_vector, strict=True))
     norm_a = math.sqrt(sum(a * a for a in agi_vector))
     norm_b = math.sqrt(sum(b * b for b in asi_vector))
 
@@ -573,15 +677,15 @@ def _check_landauer_bound(compute_ms: float, tokens_generated: int, d_s: float) 
     nearly zero compute time/tokens, it is a mathematical anomaly.
     """
     # Baseline constants (approximations for semantic energy bounds)
-    k_B_proxy = 1.38e-2  # Conceptual Boltzmann proxy for LLM compute
-    T_proxy = 300.0  # System 'temperature' baseline
+    k_b_proxy = 1.38e-2  # Conceptual Boltzmann proxy for LLM compute
+    t_proxy = 300.0  # System 'temperature' baseline
 
     # Information bits theoretically processed (derived from entropy reduction)
     # Use absolute value since d_s must be <= 0 (reduction)
     bits_processed = abs(d_s) * 100
 
     # Minimum theoretical cost to generate this clarity
-    min_cost = bits_processed * k_B_proxy * T_proxy * math.log(2)
+    min_cost = bits_processed * k_b_proxy * t_proxy * math.log(2)
 
     # Actual effort spent (compute time + token weight)
     actual_effort = (compute_ms * 0.5) + (tokens_generated * 1.5)
@@ -603,8 +707,8 @@ def _check_landauer_bound(compute_ms: float, tokens_generated: int, d_s: float) 
         "passed": passed,
         "violation": violation,
         "bits_processed": round(bits_processed, 4),
-        "k_B_proxy": k_B_proxy,
-        "T_proxy": T_proxy,
+        "k_B_proxy": k_b_proxy,
+        "T_proxy": t_proxy,
         "derived": True,
     }
 
@@ -646,8 +750,6 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
 
     # P1 HARDENING: Calculate Tri-Witness consensus with geometric mean
     tri_witness = _calculate_tri_witness_consensus(tool, payload)
-    w3_score = tri_witness.get("w3", 0.0)
-
     # P1 HARDENING: Φₚ (Paradox Conductance) - connect to verdict logic
     phi_p = tpcp.get("phiP", 0.0)
     paradox_resolved = phi_p >= 1.0
@@ -713,62 +815,133 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     elif (failed_axioms or failed_laws) and verdict == "SEAL":
         verdict = "PARTIAL"
 
+    # APEX 5-Layer Stack Variables
+    compute_cost = payload.get("tokens", 50) + payload.get("compute_ms", 100) / 10.0
+    delta_s = _safe_float(payload, "dS", -0.1)
+    delta_s_reduction = abs(min(0.0, delta_s))
+    eta = delta_s_reduction / compute_cost if compute_cost > 0 else 0.0
+
+    a_val = apex_dials.get("A", 1.0)
+    p_val = apex_dials.get("P", 1.0)
+    x_val = apex_dials.get("X", 1.0)
+    e_val = apex_dials.get("E", 1.0)
+    capacity_product = a_val * p_val * x_val
+    effort_amplifier = e_val ** 2
+
+    g_star = apex_dials.get("G_star", capacity_product * effort_amplifier)
+    g_dagger = g_star * eta
+    h_before = float(payload.get("H_before", 1.0))
+    h_after = float(payload.get("H_after", max(0.0, h_before + delta_s)))
+    amanah_score = float(vitality.get("components", {}).get("amanah", 0.0))
+    truth_floor = "pass" if law_checks.get("F2_TRUTH", {}).get("pass", True) else "fail"
+    authority_status = "pass" if law_checks.get("F11_AUTHORITY", {}).get("pass", True) else "fail"
+    sovereignty_status = (
+        "pass" if law_checks.get("F13_SOVEREIGNTY", {}).get("pass", True) else "fail"
+    )
+    tri_witness_status = "pass" if tri_witness.get("pass", False) else "fail"
+
+    capacity_status, capacity_meaning = _capacity_context(capacity_product)
+    effort_status, effort_meaning = _effort_context(e_val)
+    entropy_status, entropy_meaning = _entropy_context(delta_s, h_before, h_after)
+    efficiency_status, efficiency_meaning = _efficiency_context(
+        eta, compute_cost, delta_s_reduction
+    )
+    governance_status, governance_meaning = _governance_context(
+        amanah_score,
+        truth_floor,
+        authority_status,
+        sovereignty_status,
+        tri_witness_status,
+    )
+    constraint = _primary_constraint(
+        capacity_product,
+        e_val,
+        delta_s_reduction,
+        eta,
+        governance_status,
+    )
+
     return {
         "verdict": verdict,
         "tool": tool,
         "session_id": payload.get("session_id", ""),
-        "trinity": TRINITY_BY_TOOL.get(tool, "Delta"),
-        "technical_aliases": {
-            "governance_rules": "laws_13",
-            "reasoning_constraints": "axioms_333",
-            "decision_parameters": "apex_dials",
-        },
-        "axioms_333": {
-            "catalog": AXIOMS_333,
-            "checks": checks,
-            "failed": failed_axioms,
-        },
-        "laws_13": {
-            "catalog": LAW_13_CATALOG,
-            "required": TOOL_LAW_BINDINGS.get(tool, []),
-            "checks": law_checks,
-            "failed_required": failed_laws,
-        },
-        "telemetry": {
-            "timestamp": time.time(),
-            "dS": payload.get("dS", -0.1),
-            "peace2": payload.get("peace2", 1.0),
-            "kappa_r": payload.get("kappa_r", 0.95),
-        },
-        "apex_dials": apex_dials,
-        "contrast_engine": {
-            "tac": tac,
-            "tpcp": tpcp,
-            "scarpacket": {
-                "eligible": bool(tpcp.get("converged")),
-                "requires_hold": bool(tpcp.get("dark_paradox"))
-                and verdict in {"VOID", "SABAR", "HOLD"},
-                "vault_ref": payload.get("vault_id") or payload.get("data", {}).get("vault_id"),
+        "apex_output": {
+            "capacity_layer": {
+                "A": a_val,
+                "P": p_val,
+                "X": x_val,
+                "capacity_product": round(capacity_product, 4),
+                "status": capacity_status,
+                "meaning": capacity_meaning,
             },
-        },
-        # P0 HARDENING: Vitality Index (Ψ) - Master Equation for constitutional homeostasis
-        "vitality_index": vitality,
-        # P1 HARDENING: Tri-Witness consensus with geometric mean
-        "tri_witness": tri_witness,
-        # P1 HARDENING: Paradox resolution status
-        "paradox_resolution": {
-            "phi_p": phi_p,
-            "resolved": paradox_resolved,
-            "threshold": 1.0,
-        },
-        # P2 HARDENING: Thermodynamic Physics - Orthogonality + Landauer Bound
-        "p2_physics": {
-            "omega_ortho": round(omega_ortho, 4),
-            "ortho_pass": ortho_pass,
-            "ortho_threshold": 0.95,
-            "landauer": landauer_data,
-            "mode_collapse_detected": not ortho_pass,
-            "cheap_truth_detected": landauer_data["violation"],
+            "effort_layer": {
+                "E": e_val,
+                "effort_amplifier": round(effort_amplifier, 4),
+                "reasoning_steps": payload.get("steps", 1),
+                "tool_calls": payload.get("tool_calls", 1),
+                "status": effort_status,
+                "meaning": effort_meaning,
+            },
+            "entropy_layer": {
+                "H_before": round(h_before, 4),
+                "H_after": round(h_after, 4),
+                "delta_S": round(delta_s_reduction, 4),
+                "status": entropy_status,
+                "meaning": entropy_meaning,
+            },
+            "efficiency_layer": {
+                "C": round(compute_cost, 4),
+                "entropy_removed": round(delta_s_reduction, 4),
+                "eta": round(eta, 6),
+                "status": efficiency_status,
+                "meaning": efficiency_meaning,
+            },
+            "governed_intelligence": {
+                "G_star": round(g_star, 4),
+                "G_dagger": round(g_dagger, 6),
+                "status": "passing" if g_dagger >= 0.80 else "subcritical",
+                "meaning": (
+                    "Governed intelligence is above threshold."
+                    if g_dagger >= 0.80
+                    else "Governed intelligence is still below the current threshold."
+                ),
+            },
+            "governance_layer": {
+                "amanah_score": round(amanah_score, 4),
+                "truth_floor": truth_floor,
+                "authority_status": authority_status,
+                "sovereignty_status": sovereignty_status,
+                "tri_witness_status": tri_witness_status,
+                "status": governance_status,
+                "meaning": governance_meaning,
+            },
+            "diagnostics": {
+                "log_decomposition": {
+                    "logA": round(math.log(a_val), 4) if a_val > 0 else 0.0,
+                    "logP": round(math.log(p_val), 4) if p_val > 0 else 0.0,
+                    "logX": round(math.log(x_val), 4) if x_val > 0 else 0.0,
+                    "2logE": round(2 * math.log(e_val), 4) if e_val > 0 else 0.0,
+                    "logDeltaS": round(math.log(delta_s_reduction), 4)
+                    if delta_s_reduction > 0
+                    else 0.0,
+                    "logC": round(math.log(compute_cost), 4) if compute_cost > 0 else 0.0,
+                },
+                "primary_constraint": constraint,
+                "equation": "log G† = logA + logP + logX + 2logE + logDeltaS - logC",
+                "runtime_story": _runtime_story(
+                    capacity_status,
+                    effort_status,
+                    entropy_status,
+                    efficiency_status,
+                    governance_status,
+                    g_dagger,
+                ),
+                "failed_axioms": failed_axioms,
+                "failed_laws": failed_laws,
+                "paradox_resolved": paradox_resolved,
+                "landauer_violation": landauer_data["violation"],
+                "mode_collapse": not ortho_pass,
+            }
         },
         "motto": motto,
         "data": payload,
