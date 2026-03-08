@@ -1159,7 +1159,30 @@ def build_governance_proof(
         human_approve=human_approve,
         public_approval_mode=public_approval_mode,
     )
-    ai = compute_ai_witness(truth_score=truth_score, truth_threshold=truth_threshold)
+    # FIX 1: Use QT Quad w_ai if available and complete, else fallback to old formula
+    _qt_proof = (agi_result or {}).get("qt_proof", {}) if agi_result else {}
+    if not _qt_proof:
+        # Also check nested in data.reason.qt_proof
+        _qt_proof = (agi_result or {}).get("data", {}).get("reason", {}).get("qt_proof", {})
+    
+    if _qt_proof.get("complete") and _qt_proof.get("witnesses", {}).get("w_ai", 0) > 0:
+        # QT Quad completed — use real w_ai from Sequential Thinking chain
+        _qt_w_ai = _qt_proof["witnesses"]["w_ai"]
+        ai = {
+            "valid": _qt_w_ai >= 0.85,
+            "score": _qt_w_ai,
+            "signals": {
+                "source": "qt_quad",
+                "truth_score": truth_score,
+                "truth_threshold": truth_threshold,
+                "qt_w_ai": _qt_w_ai,
+                "qt_complete": True,
+            },
+        }
+    else:
+        # Fallback: old formula (truth_score / f2_threshold)
+        ai = compute_ai_witness(truth_score=truth_score, truth_threshold=truth_threshold)
+    
     earth = compute_earth_witness(
         precedent_count=precedent_count,
         grounding_present=grounding_present,
@@ -1579,10 +1602,11 @@ async def _agi_cognition(
                 "expected_ms": expected_ms,
                 "landauer_efficiency": expected_ms / max(0.1, actual_ms)
             },
-            # QT Quad Integration
-            "qt_quad": getattr(formal_cognition, "qt_proof", {}),
-            "W_four": getattr(formal_cognition, "qt_proof", {}).get("W_four") if hasattr(formal_cognition, "qt_proof") else None,
-            "witnesses": getattr(formal_cognition, "qt_proof", {}).get("witnesses") if hasattr(formal_cognition, "qt_proof") else None,
+            # QT Quad Integration — FIX 1: also pass qt_proof from organ via reason result
+            "qt_proof": r.get("qt_proof", getattr(formal_cognition, "qt_proof", {})),
+            "qt_quad": r.get("qt_proof", getattr(formal_cognition, "qt_proof", {})),
+            "W_four": (r.get("qt_proof") or getattr(formal_cognition, "qt_proof", {}) or {}).get("W_four"),
+            "witnesses": (r.get("qt_proof") or getattr(formal_cognition, "qt_proof", {}) or {}).get("witnesses"),
         }
         result = {
             "capability_modules": capability_modules or [],
