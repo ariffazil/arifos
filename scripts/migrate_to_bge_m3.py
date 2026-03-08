@@ -19,9 +19,7 @@ Requires:
 
 from __future__ import annotations
 
-import asyncio
 import hashlib
-import json
 import os
 import sys
 from datetime import datetime
@@ -31,7 +29,7 @@ from typing import Any
 # Try to import required packages
 try:
     from qdrant_client import QdrantClient
-    from qdrant_client.models import Distance, VectorParams, PointStruct
+    from qdrant_client.models import Distance, PointStruct, VectorParams
     from sentence_transformers import SentenceTransformer
 except ImportError as e:
     print(f"Error: Missing dependency {e}")
@@ -73,7 +71,7 @@ def recreate_collection(client: QdrantClient, name: str, dim: int) -> bool:
     if exists:
         print(f"  Deleting old {name} ({OLD_DIM}-dim)...")
         client.delete_collection(name)
-        print(f"  ✓ Deleted")
+        print("  ✓ Deleted")
     
     # Create new
     print(f"  Creating {name} ({dim}-dim, Cosine)...")
@@ -81,7 +79,7 @@ def recreate_collection(client: QdrantClient, name: str, dim: int) -> bool:
         collection_name=name,
         vectors_config=VectorParams(size=dim, distance=Distance.COSINE)
     )
-    print(f"  ✓ Created")
+    print("  ✓ Created")
     return True
 
 

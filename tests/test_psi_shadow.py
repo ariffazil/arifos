@@ -5,7 +5,7 @@ Run with: pytest tests/test_psi_shadow.py -v
 """
 
 import pytest
-from aclip_cai.triad.psi import PsiShadow
+from arifosmcp.intelligence.triad.psi import PsiShadow
 
 
 class TestPsiShadow:
@@ -95,8 +95,8 @@ class TestPsiShadow:
 
 
 def test_psi_shadow_exported():
-    """Verify PsiShadow is properly exported from aclip_cai.triad.psi"""
-    from aclip_cai.triad.psi import PsiShadow, AttackResult
+    """Verify PsiShadow is properly exported from arifosmcp.intelligence.triad.psi"""
+    from arifosmcp.intelligence.triad.psi import PsiShadow, AttackResult
     assert PsiShadow is not None
     assert AttackResult is not None
 

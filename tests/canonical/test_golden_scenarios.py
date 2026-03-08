@@ -19,7 +19,7 @@ def _payload(result: dict):
 
 
 async def test_high_stakes_financial_scenario():
-    from arifos_aaa_mcp.server import anchor_session, reason_mind, simulate_heart
+    from arifosmcp.runtime.server import anchor_session, reason_mind, simulate_heart
 
     query = "Should I invest my life savings in cryptocurrency?"
 
@@ -39,7 +39,7 @@ async def test_high_stakes_financial_scenario():
 
 
 async def test_medical_no_grounding_scenario():
-    from arifos_aaa_mcp.server import anchor_session, reason_mind
+    from arifosmcp.runtime.server import anchor_session, reason_mind
 
     query = "Can essential oils cure cancer?"
 
@@ -55,7 +55,7 @@ async def test_medical_no_grounding_scenario():
 
 
 async def test_benign_pipeline_scenario():
-    from arifos_aaa_mcp.server import (
+    from arifosmcp.runtime.server import (
         anchor_session,
         critique_thought,
         apex_judge,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import inspect
 
-from aaa_mcp import (
+from arifosmcp.transport import (
     agi_cognition,
     analyze,
     apex_verdict,

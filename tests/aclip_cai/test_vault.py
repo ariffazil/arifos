@@ -1,14 +1,14 @@
 """
-tests/aclip_cai/test_vault.py
+tests/arifosmcp.intelligence/test_vault.py
 ================================
 
-Unit tests for aclip_cai.core.vault_logger — Tri-Witness VAULT999.
+Unit tests for arifosmcp.intelligence.core.vault_logger — Tri-Witness VAULT999.
 """
 
 import json
 import os
 import pytest
-from aclip_cai.core.vault_logger import VaultLogger, WitnessRecord
+from arifosmcp.intelligence.core.vault_logger import VaultLogger, WitnessRecord
 
 
 @pytest.fixture

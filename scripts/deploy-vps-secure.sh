@@ -32,7 +32,7 @@ pip install uvicorn --quiet
 
 # Run constitutional health check before deployment
 echo "🏥 Running pre-deploy health check..."
-if ! $VENV_PATH/bin/python -c "import aaa_mcp; print('✅ MCP module OK')" 2>/dev/null; then
+if ! $VENV_PATH/bin/python -c "import arifosmcp.transport; print('✅ MCP module OK')" 2>/dev/null; then
     echo "❌ Pre-deploy check failed! Aborting."
     exit 1
 fi
@@ -63,7 +63,7 @@ NoNewPrivileges=true
 ProtectSystem=strict
 ProtectHome=true
 ReadWritePaths=$ARIFOS_PATH /var/log
-ExecStart=$VENV_PATH/bin/python -m aaa_mcp $MCP_TRANSPORT --host $MCP_HOST --port $MCP_PORT
+ExecStart=$VENV_PATH/bin/python -m arifosmcp.transport $MCP_TRANSPORT --host $MCP_HOST --port $MCP_PORT
 Restart=always
 RestartSec=5
 StartLimitInterval=60s

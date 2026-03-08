@@ -1,6 +1,6 @@
 #!/bin/bash
 # kernel-wrapper-boundary-check.sh
-# Enforces: aaa_mcp/ must NEVER contain decision logic
+# Enforces: arifosmcp.transport/ must NEVER contain decision logic
 # Run: ./kernel-wrapper-boundary-check.sh
 
 set -e
@@ -11,8 +11,8 @@ echo ""
 VIOLATIONS=0
 
 # Check 1: Uncertainty computation in wrapper
-echo "🔍 Checking for uncertainty computation in aaa_mcp/..."
-if grep -r "calculate_uncertainty" aaa_mcp/ --include="*.py" 2>/dev/null | grep -v "from core" | grep -v "^#"; then
+echo "🔍 Checking for uncertainty computation in arifosmcp.transport/..."
+if grep -r "calculate_uncertainty" arifosmcp.transport/ --include="*.py" 2>/dev/null | grep -v "from core" | grep -v "^#"; then
     echo "   ❌ VIOLATION: calculate_uncertainty called in wrapper"
     VIOLATIONS=$((VIOLATIONS + 1))
 else
@@ -21,8 +21,8 @@ fi
 
 # Check 2: UncertaintyEngine instantiation in wrapper
 echo ""
-echo "🔍 Checking for UncertaintyEngine in aaa_mcp/..."
-if grep -r "UncertaintyEngine()" aaa_mcp/ --include="*.py" 2>/dev/null | grep -v "from core"; then
+echo "🔍 Checking for UncertaintyEngine in arifosmcp.transport/..."
+if grep -r "UncertaintyEngine()" arifosmcp.transport/ --include="*.py" 2>/dev/null | grep -v "from core"; then
     echo "   ❌ VIOLATION: UncertaintyEngine instantiated in wrapper"
     VIOLATIONS=$((VIOLATIONS + 1))
 else
@@ -31,8 +31,8 @@ fi
 
 # Check 3: Governance state modification
 echo ""
-echo "🔍 Checking for governance state modification in aaa_mcp/..."
-if grep -r "governance_state\s*=" aaa_mcp/ --include="*.py" 2>/dev/null | grep -v "from core\|import"; then
+echo "🔍 Checking for governance state modification in arifosmcp.transport/..."
+if grep -r "governance_state\s*=" arifosmcp.transport/ --include="*.py" 2>/dev/null | grep -v "from core\|import"; then
     echo "   ❌ VIOLATION: governance_state modified in wrapper"
     VIOLATIONS=$((VIOLATIONS + 1))
 else
@@ -41,8 +41,8 @@ fi
 
 # Check 4: Verdict logic in wrapper (basic check)
 echo ""
-echo "🔍 Checking for verdict logic in aaa_mcp/..."
-VERDICT_LINES=$(grep -r 'verdict.*=.*"SEAL"\|verdict.*=.*"VOID"\|verdict.*=.*"SABAR"' aaa_mcp/ --include="*.py" 2>/dev/null | wc -l)
+echo "🔍 Checking for verdict logic in arifosmcp.transport/..."
+VERDICT_LINES=$(grep -r 'verdict.*=.*"SEAL"\|verdict.*=.*"VOID"\|verdict.*=.*"SABAR"' arifosmcp.transport/ --include="*.py" 2>/dev/null | wc -l)
 if [ "$VERDICT_LINES" -gt 5 ]; then
     echo "   ⚠️  WARNING: $VERDICT_LINES lines with verdict assignments (review needed)"
 else
@@ -52,8 +52,8 @@ fi
 # Check 5: Import sanity
 echo ""
 echo "🔍 Checking imports..."
-if grep -r "from aaa_mcp" aaa_mcp/ --include="*.py" 2>/dev/null; then
-    echo "   ⚠️  Internal aaa_mcp imports (may indicate coupling)"
+if grep -r "from arifosmcp.transport" arifosmcp.transport/ --include="*.py" 2>/dev/null; then
+    echo "   ⚠️  Internal arifosmcp.transport imports (may indicate coupling)"
 fi
 
 echo ""

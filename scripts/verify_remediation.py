@@ -5,7 +5,7 @@ import sys
 # Ensure we can import core modules
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from aclip_cai.tools.system_monitor import get_system_health
+from arifosmcp.intelligence.tools.system_monitor import get_system_health
 from core.shared.floors import F2_Truth, F6_Empathy
 
 

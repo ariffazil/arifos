@@ -5,7 +5,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 try:
-    from arifos_aaa_mcp.server import mcp
+    from arifosmcp.runtime.server import mcp
 
     print(f"Type of mcp: {type(mcp)}")
     print(f"Has 'tool' attribute: {hasattr(mcp, 'tool')}")

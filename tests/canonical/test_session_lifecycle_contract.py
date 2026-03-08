@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from aaa_mcp.sessions.lifecycle import KernelState, LifecycleManager
+from arifosmcp.transport.sessions.lifecycle import KernelState, LifecycleManager
 
 
 @pytest.fixture

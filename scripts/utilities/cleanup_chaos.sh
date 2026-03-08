@@ -40,7 +40,7 @@ rmdir _ARCHIVE/scripts/essential 2>/dev/null || true
 echo "✅ Cleanup complete!"
 echo ""
 echo "📊 Summary:"
-echo "  Live code: aaa_mcp/, railway.toml, Dockerfile"
+echo "  Live code: arifosmcp.transport/, railway.toml, Dockerfile"
 echo "  Archived: _ARCHIVE/"
 echo ""
 echo "To finalize: git add -A && git commit -m 'chore: Archive old chaos'"

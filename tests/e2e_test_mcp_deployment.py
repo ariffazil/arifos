@@ -23,15 +23,15 @@ class TestMCPDeploymentBasics:
     def test_mcp_server_importable(self):
         """Test that MCP server modules are importable."""
         try:
-            from arifos_aaa_mcp.server import create_aaa_mcp_server
+            from arifosmcp.runtime.server import create_aaa_mcp_server
             assert callable(create_aaa_mcp_server)
         except ImportError as e:
-            pytest.skip(f"arifos_aaa_mcp not available: {e}")
+            pytest.skip(f"arifosmcp.runtime not available: {e}")
 
     def test_mcp_server_has_13_tools(self):
         """Test that MCP server exposes exactly 13 canonical tools."""
         try:
-            from aaa_mcp.server import mcp
+            from arifosmcp.transport.server import mcp
             tools = list(mcp._tools.keys()) if hasattr(mcp, "_tools") else []
             # Should have at least the 13 canonical tools
             expected_tools = [
@@ -52,7 +52,7 @@ class TestMCPDeploymentBasics:
             for tool in expected_tools:
                 assert tool in tools or any(t.startswith(tool) for t in tools), f"Missing tool: {tool}"
         except ImportError:
-            pytest.skip("aaa_mcp not available")
+            pytest.skip("arifosmcp.transport not available")
 
 
 class TestKernelToToolsIntegration:
@@ -137,10 +137,10 @@ class TestToolsToKernelIntegration:
     async def test_anchor_session_tool_creates_kernel_budget(self):
         """Test anchor_session MCP tool initializes kernel thermodynamic budget."""
         try:
-            from aaa_mcp.server import _init_session
+            from arifosmcp.transport.server import _init_session
         except ImportError:
             try:
-                from arifos_aaa_mcp.server import anchor_session as _init_session
+                from arifosmcp.runtime.server import anchor_session as _init_session
             except ImportError:
                 pytest.skip("MCP server not available")
 
@@ -165,7 +165,7 @@ class TestToolsToKernelIntegration:
     async def test_mcp_tools_consumes_thermodynamic_budget(self):
         """Test that MCP tool calls consume thermodynamic energy."""
         try:
-            from aaa_mcp.server import _init_session, _agi_cognition
+            from arifosmcp.transport.server import _init_session, _agi_cognition
         except ImportError:
             pytest.skip("MCP server tools not available")
 
@@ -233,7 +233,7 @@ class TestBidirectionalIntegration:
         including thermodynamic budget.
         """
         try:
-            from aaa_mcp.server import _init_session
+            from arifosmcp.transport.server import _init_session
         except ImportError:
             pytest.skip("MCP server not available")
 

@@ -1,7 +1,7 @@
 import pytest
 from pathlib import Path
 from rich.console import Console
-from aclip_cai.core.kernel import get_kernel
+from arifosmcp.intelligence.core.kernel import get_kernel
 
 console = Console()
 

@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from aaa_mcp.selftest import check_environment, check_floors
+from arifosmcp.transport.selftest import check_environment, check_floors
 
 
 def test_selftest_environment_defaults_without_warnings(monkeypatch) -> None:

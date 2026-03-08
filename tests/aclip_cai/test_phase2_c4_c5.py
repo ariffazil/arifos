@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-from aclip_cai.console_tools import config_flags, net_status
+from arifosmcp.intelligence.console_tools import config_flags, net_status
 
 
 async def test_net_status_check_ports_alias() -> None:

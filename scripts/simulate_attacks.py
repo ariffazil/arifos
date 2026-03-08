@@ -5,7 +5,7 @@ sys.path.insert(0, r"C:\Users\User\arifOS")
 
 
 async def main():
-    from aaa_mcp.server import _agi_cognition, _asi_empathy, _sovereign_actuator
+    from arifosmcp.transport.server import _agi_cognition, _asi_empathy, _sovereign_actuator
 
     print("--- Test 1: Injection ---")
     res1 = await _agi_cognition(

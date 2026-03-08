@@ -8,7 +8,7 @@ import asyncio
 
 
 async def test_flow():
-    from aaa_mcp.core.engine_adapters import ASIEngine
+    from arifosmcp.transport.core.engine_adapters import ASIEngine
 
     engine = ASIEngine()
 

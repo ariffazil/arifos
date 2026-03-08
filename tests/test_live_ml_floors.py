@@ -4,7 +4,7 @@ from core.shared.sbert_floors import SbertFloorScores
 
 
 def test_live_floor_audit_uses_heuristic_when_ml_flag_off(monkeypatch) -> None:
-    from aclip_cai.core.floor_audit import FloorAuditor
+    from arifosmcp.intelligence.core.floor_audit import FloorAuditor
 
     monkeypatch.setenv("ARIFOS_ML_FLOORS", "0")
 
@@ -27,7 +27,7 @@ def test_live_floor_audit_uses_heuristic_when_ml_flag_off(monkeypatch) -> None:
 
 
 def test_live_floor_audit_uses_sbert_when_flag_on(monkeypatch) -> None:
-    from aclip_cai.core.floor_audit import FloorAuditor
+    from arifosmcp.intelligence.core.floor_audit import FloorAuditor
 
     monkeypatch.setenv("ARIFOS_ML_FLOORS", "1")
 
@@ -60,7 +60,7 @@ def test_live_floor_audit_uses_sbert_when_flag_on(monkeypatch) -> None:
 
 
 def test_live_floor_audit_falls_back_when_sbert_scoring_fails(monkeypatch) -> None:
-    from aclip_cai.core.floor_audit import FloorAuditor
+    from arifosmcp.intelligence.core.floor_audit import FloorAuditor
 
     monkeypatch.setenv("ARIFOS_ML_FLOORS", "1")
 

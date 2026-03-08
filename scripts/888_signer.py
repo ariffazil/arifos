@@ -45,7 +45,7 @@ def generate_keys():
         f.write(private_bytes)
     os.chmod(KEY_FILE, 0o600)  # Restrict permissions
 
-    # Save Public Key (Deploy this to aclip_cai PUBLIC_KEY_APEX)
+    # Save Public Key (Deploy this to arifosmcp.intelligence PUBLIC_KEY_APEX)
     public_bytes = public_key.public_bytes(
         encoding=serialization.Encoding.PEM, format=serialization.PublicFormat.SubjectPublicKeyInfo
     )

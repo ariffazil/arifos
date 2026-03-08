@@ -864,7 +864,7 @@ class ConstitutionalTensor:
         if self.orthogonality < 0.95:
             violations.append(f"F8-Orthogonality: {self.orthogonality:.4f} < 0.95")
         if self.budget_depletion >= 1.0:
-            violations.append(f"F7-Budget: Depleted")
+            violations.append("F7-Budget: Depleted")
 
         return len(violations) == 0, violations
 

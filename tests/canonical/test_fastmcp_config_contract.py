@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import importlib.util
 from pathlib import Path
 
 
@@ -22,16 +23,20 @@ def test_fastmcp_json_has_required_sections() -> None:
 
     source = config.get("source", {})
     assert source.get("type") == "filesystem"
-    # After Trinity Body restructure, entrypoint is core/server.py
-    assert source.get("path") == "core/server.py"
+    assert source.get("path") == "arifosmcp/runtime/server.py"
     assert source.get("entrypoint") == "mcp"
 
     deployment = config.get("deployment", {})
-    # Default transport is stdio; HTTP config lives in deployment.config
-    assert deployment.get("transport") in {"stdio", "http", "sse"}
+    assert deployment.get("transport") == "http"
+    assert deployment.get("path") == "/mcp/"
+    assert int(deployment.get("port")) == 8080
 
 
 def test_fastmcp_source_entrypoint_is_importable() -> None:
-    from arifos_aaa_mcp.server import mcp
-
-    assert hasattr(mcp, "run")
+    server_path = Path("arifosmcp/runtime/server.py")
+    spec = importlib.util.spec_from_file_location("arifosmcp_runtime_server", server_path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert hasattr(module, "mcp")
+    assert hasattr(module.mcp, "run")

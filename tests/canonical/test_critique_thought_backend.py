@@ -8,7 +8,7 @@ def _fn(tool):
 
 
 async def test_critique_thought_prefers_triad_align_and_keeps_heuristics() -> None:
-    from arifos_aaa_mcp import server as aaa
+    from arifosmcp.runtime import server as aaa
 
     anchored = await _fn(aaa.anchor_session)(query="Assess impact of config change", actor_id="ops")
     session_id = anchored["data"]["session_id"]

@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 from starlette.testclient import TestClient
 
-from arifos_aaa_mcp.server import create_aaa_mcp_server
+from arifosmcp.runtime.server import create_aaa_mcp_server
 
 
 def test_rest_bridge_requires_bearer_when_configured(monkeypatch) -> None:

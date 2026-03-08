@@ -1,0 +1,12 @@
+Potential Orphans (not imported by any non-test file, excluding __init__.py and common entrypoints):
+test_mcp_hub.py
+arifosmcp\main.py
+arifosmcp\test_qt_quad_fast.py
+arifosmcp\test_qt_quad_integration.py
+arifosmcp\test_qt_quad_minimal.py
+arifosmcp\auth\auth.py
+arifosmcp\sessions\lifecycle.py
+arifosmcp\sessions\session_dependency.py
+arifosmcp\sessions\session_ledger.py
+arifosmcp\sites\docs\cleanup_unicode.py
+arifosmcp\sites\docs\fix_lt.py

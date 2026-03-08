@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from aaa_mcp.build_info import get_build_info
+from arifosmcp.transport.build_info import get_build_info
 
 
 def test_build_info_prefers_environment(monkeypatch) -> None:

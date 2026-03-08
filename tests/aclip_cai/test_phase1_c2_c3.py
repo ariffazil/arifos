@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-from aclip_cai.console_tools import fs_inspect, log_tail
+from arifosmcp.intelligence.console_tools import fs_inspect, log_tail
 
 
 async def test_fs_inspect_depth_and_hidden(tmp_path: Path) -> None:

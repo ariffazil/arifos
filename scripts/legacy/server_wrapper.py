@@ -2,7 +2,7 @@ from __future__ import annotations
 
 """arifOS Unified Server (root entrypoint).
 
-LEGACY WRAPPER around `python -m arifos_aaa_mcp`.
+LEGACY WRAPPER around `python -m arifosmcp.runtime`.
 This file is kept for backward compatibility with existing documentation.
 New deployments should prefer calling the module directly.
 
@@ -84,7 +84,7 @@ def main(argv: list[str] | None = None) -> None:
     _validate_network_args(mode, host, port)
 
     if mode == "rest":
-        from aaa_mcp.rest import main as rest_main
+        from arifosmcp.transport.rest import main as rest_main
 
         os.environ["HOST"] = host
         os.environ["PORT"] = str(port)
@@ -92,7 +92,7 @@ def main(argv: list[str] | None = None) -> None:
         rest_main()
         return
 
-    from aaa_mcp.server import create_unified_mcp_server
+    from arifosmcp.transport.server import create_unified_mcp_server
 
     mcp = create_unified_mcp_server()
 

@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, '/usr/src/app')
 import asyncio
 import json
-from arifos_aaa_mcp.server import vector_memory
+from arifosmcp.runtime.server import vector_memory
 
 async def test():
     result = await vector_memory(

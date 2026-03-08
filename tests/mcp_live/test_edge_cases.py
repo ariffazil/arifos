@@ -8,7 +8,7 @@ multi-session concurrency safety.
 
 import pytest
 import asyncio
-from aaa_mcp.server import _agi_cognition, _apex_verdict, _init_session, _vault_seal
+from arifosmcp.transport.server import _agi_cognition, _apex_verdict, _init_session, _vault_seal
 from tests.mcp_live.utils.validators import (
     validate_constitutionally,
     validate_void_expected,
