@@ -1,5 +1,5 @@
 import pytest
-from aclip_cai.triad import (
+from arifosmcp.intelligence.triad import (
     anchor,
     reason,
     integrate,

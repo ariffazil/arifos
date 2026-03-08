@@ -256,7 +256,7 @@ async def validate_environment() -> bool:
         checks_failed += 1
 
     try:
-        import aaa_mcp  # noqa: F401
+        import arifosmcp.transport  # noqa: F401
 
         log_ok("AAA MCP server importable")
         checks_passed += 1

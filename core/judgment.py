@@ -17,7 +17,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from core.governance_kernel import get_governance_kernel
-from core.shared.types import EvidenceRecord, Verdict
+from core.shared.types import EvidenceRecord
 from core.uncertainty_engine import UncertaintyEngine, calculate_uncertainty
 
 

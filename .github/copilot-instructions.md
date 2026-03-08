@@ -2,29 +2,29 @@
 
 ## Code Style
 - Python 3.10+; format with Black (100 char lines) and lint with Ruff (see pyproject.toml).
-- Prefer `aaa_mcp` imports for local code; `mcp` is the external SDK (see CLAUDE.md).
+- Prefer `arifosmcp.transport` imports for local code; `mcp` is the external SDK (see CLAUDE.md).
 - Use MyPy with `--ignore-missing-imports` for local modules (see CLAUDE.md).
 
 ## Architecture
-- Trinity engines live in `codebase/agi`, `codebase/asi`, `codebase/apex`; MCP server is in `aaa_mcp/`.
+- Trinity engines live in `codebase/agi`, `codebase/asi`, `codebase/apex`; MCP server is in `arifosmcp.transport/`.
 - SessionState is immutable copy-on-write (see `codebase/state.py`); avoid in-place mutation.
 - AGI/ASI bundle isolation holds until stage 444 (see `codebase/bundles.py`).
 
 ## Build and Test
 - Install dev deps: `pip install -e ".[dev]"`.
-- Run MCP server: `python -m aaa_mcp` (stdio) or `python -m aaa_mcp sse`.
+- Run MCP server: `python -m arifosmcp.transport` (stdio) or `python -m arifosmcp.transport sse`.
 - Run tests: `pytest tests/ -v`; async mode is `auto` (no `@pytest.mark.asyncio`).
 - Quick MCP smoke test: `pytest tests/test_mcp_quick.py -v`.
 
 ## Project Conventions
-- Tool decorators: `@mcp.tool()` outer, `@constitutional_floor()` inner (see `aaa_mcp/server.py`).
+- Tool decorators: `@mcp.tool()` outer, `@constitutional_floor()` inner (see `arifosmcp.transport/server.py`).
 - Use lazy imports for optional deps (try/except ImportError).
-- Tool sets differ across docs; confirm current tool list in `aaa_mcp/server.py` or `codebase/mcp/core/tool_registry.py` before edits.
+- Tool sets differ across docs; confirm current tool list in `arifosmcp.transport/server.py` or `codebase/mcp/core/tool_registry.py` before edits.
 
 ## Integration Points
 - External MCP SDK is `mcp` (do not shadow with local modules).
-- Brave Search client in `aaa_mcp/external_gateways/brave_client.py`.
-- Optional Redis session persistence in `aaa_mcp/services/redis_client.py`.
+- Brave Search client in `arifosmcp.transport/external_gateways/brave_client.py`.
+- Optional Redis session persistence in `arifosmcp.transport/services/redis_client.py`.
 
 ## Security
 - Injection defense: `codebase/guards/injection_guard.py`.

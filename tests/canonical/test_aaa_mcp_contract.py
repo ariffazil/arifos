@@ -13,13 +13,11 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from aaa_mcp.protocol.aaa_contract import L4_TOOLS, L5_COMPOSITE
+from arifosmcp.transport.protocol.aaa_contract import L4_TOOLS, L5_COMPOSITE
 
 ROOT = Path(__file__).resolve().parents[2]
-SERVER_FILE = ROOT / "arifos_aaa_mcp" / "server.py"
-# Governance implementation now lives in core/governance.py (canonical location).
-# arifos_aaa_mcp/governance.py is a compat re-export wrapper pointing there.
-GOV_FILE = ROOT / "core" / "governance.py"
+SERVER_FILE = ROOT / "arifosmcp.runtime" / "server.py"
+GOV_FILE = ROOT / "arifosmcp.runtime" / "governance.py"
 
 # All @mcp.tool-decorated functions in server.py = L4 + L5
 EXPECTED_MCP_TOOLS = L4_TOOLS | L5_COMPOSITE

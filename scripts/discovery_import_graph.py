@@ -2,9 +2,9 @@ import os
 import re
 
 TARGETS = [
-    "aaa_mcp/streamable_http_server.py",
-    "aaa_mcp/rest.py",
-    "aaa_mcp/server.py",
+    "arifosmcp.transport/streamable_http_server.py",
+    "arifosmcp.transport/rest.py",
+    "arifosmcp.transport/server.py",
     "core/shared/floors.py",
 ]
 
@@ -34,12 +34,12 @@ def check_existence():
 def find_imports():
     print("=== IMPORT GRAPH ===")
     # Extremely basic grep for import statements related to our targets
-    # e.g., "import aaa_mcp.server", "from aaa_mcp.rest import"
+    # e.g., "import arifosmcp.transport.server", "from arifosmcp.transport.rest import"
 
     patterns = {
-        "aaa_mcp/streamable_http_server.py": [r"aaa_mcp\.streamable_http_server"],
-        "aaa_mcp/rest.py": [r"aaa_mcp\.rest"],
-        "aaa_mcp/server.py": [r"aaa_mcp\.server"],
+        "arifosmcp.transport/streamable_http_server.py": [r"arifosmcp.transport\.streamable_http_server"],
+        "arifosmcp.transport/rest.py": [r"arifosmcp.transport\.rest"],
+        "arifosmcp.transport/server.py": [r"arifosmcp.transport\.server"],
         "core/shared/floors.py": [r"core\.shared\.floors"],
         "core/enforcement/": [r"core\.enforcement"],
     }

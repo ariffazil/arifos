@@ -16,9 +16,9 @@ from typing import Any
 from fastmcp.client.client import Client as FastMCPClient
 from starlette.testclient import TestClient
 
-from aaa_mcp.protocol.aaa_contract import L1_PROMPTS, L4_TOOLS, L5_COMPOSITE
-from aaa_mcp.streamable_http_server import PROTOCOL_HEADER, SESSION_HEADER
-from aaa_mcp.streamable_http_server import app as streamable_app
+from arifosmcp.transport.protocol.aaa_contract import L1_PROMPTS, L4_TOOLS, L5_COMPOSITE
+from arifosmcp.transport.streamable_http_server import PROTOCOL_HEADER, SESSION_HEADER
+from arifosmcp.transport.streamable_http_server import app as streamable_app
 
 # L4 + L5 = tools with governance envelopes
 EXPECTED_GOVERNED_TOOLS = L4_TOOLS | L5_COMPOSITE

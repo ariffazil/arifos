@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import pytest
 
-from aaa_mcp.server import (
+from arifosmcp.transport.server import (
     _analyze,
     anchor_session,
     apex_judge,

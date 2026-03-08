@@ -139,7 +139,7 @@ else
   "mcp": {
     "aaa-mcp": {
       "type": "local",
-      "command": ["python", "-m", "aaa_mcp", "stdio"],
+      "command": ["python", "-m", "arifosmcp.transport", "stdio"],
       "cwd": ".",
       "enabled": true,
       "timeout": 15000,

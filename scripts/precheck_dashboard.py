@@ -6,6 +6,7 @@ Ensures test-reports/index.html is valid before Cloudflare deployment.
 import sys
 from pathlib import Path
 
+
 def verify_dashboard():
     report_dir = Path("test-reports")
     report_file = report_dir / "index.html"

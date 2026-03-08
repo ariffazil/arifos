@@ -40,13 +40,12 @@ from core.shared.physics import (
     Omega_0,
     Peace2,
     QuadTensor,
-    TrinityTensor,
     UncertaintyBand,
-    delta_S,
+    build_qt_quad_proof,
+    calculate_w_adversarial,
     # QT Quad Integration (NEW)
     calculate_w_ai_quad,
-    calculate_w_adversarial,
-    build_qt_quad_proof,
+    delta_S,
 )
 from core.shared.types import AgiOutput, FloorScores, ThoughtNode, Verdict
 
@@ -540,10 +539,10 @@ async def reason(
 
     # P3: Initialize thermodynamic tracking
     from core.physics.thermodynamics_hardened import (
-        consume_reason_energy,
-        shannon_entropy,
-        record_entropy_io,
         EntropyIncreaseViolation,
+        consume_reason_energy,
+        record_entropy_io,
+        shannon_entropy,
     )
 
     # Record input entropy before reasoning
@@ -656,7 +655,7 @@ async def reason(
     if not skip_f4:
         try:
             record_entropy_io(session_id, input_entropy, output_entropy)
-        except EntropyIncreaseViolation as e:
+        except EntropyIncreaseViolation:
             # F4 Violation: System generated confusion.
             # Create a VOID tensor but with QT Quad guidance.
             tensor = ConstitutionalTensor(

@@ -7,10 +7,10 @@ from pathlib import Path
 
 def test_required_entrypoint_files_exist() -> None:
     for path in (
-        "aaa_mcp/__main__.py",
-        "aaa_mcp/server.py",
-        "aaa_mcp/rest.py",
-        "aaa_mcp/streamable_http_server.py",
+        "arifosmcp.transport/__main__.py",
+        "arifosmcp.transport/server.py",
+        "arifosmcp.transport/rest.py",
+        "arifosmcp.transport/streamable_http_server.py",
         "Dockerfile",
         "fastmcp.json",
         "server.json",
@@ -34,19 +34,19 @@ def test_server_json_version_matches_pyproject() -> None:
 def test_aaa_mcp_main_importable() -> None:
     import importlib
 
-    importlib.import_module("aaa_mcp.__main__")
+    importlib.import_module("arifosmcp.transport.__main__")
 
 
 def test_aaa_mcp_rest_importable() -> None:
     import importlib
 
-    importlib.import_module("aaa_mcp.rest")
+    importlib.import_module("arifosmcp.transport.rest")
 
 
 def test_aaa_mcp_streamable_http_importable() -> None:
     import importlib
 
-    importlib.import_module("aaa_mcp.streamable_http_server")
+    importlib.import_module("arifosmcp.transport.streamable_http_server")
 
 
 def test_dockerfile_has_oci_label() -> None:

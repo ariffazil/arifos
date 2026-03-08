@@ -27,7 +27,7 @@ class TestPostgresPersistence:
     @pytest.mark.asyncio
     async def test_postgres_connection_and_write(self):
         """Verify we can write to PostgreSQL and read it back."""
-        from aaa_mcp.sessions.session_ledger import SessionLedger, VaultEntry
+        from arifosmcp.transport.sessions.session_ledger import SessionLedger, VaultEntry
 
         ledger = SessionLedger()
         initialized = await ledger.initialize()
@@ -65,7 +65,7 @@ class TestPostgresPersistence:
     @pytest.mark.asyncio
     async def test_no_silent_fallback_to_memory(self):
         """Ensure we're NOT silently falling back to memory storage."""
-        from aaa_mcp.sessions.session_ledger import SessionLedger
+        from arifosmcp.transport.sessions.session_ledger import SessionLedger
 
         # Force DATABASE_URL to be set
         assert os.environ.get("DATABASE_URL"), "DATABASE_URL must be set for production"
@@ -91,7 +91,7 @@ class TestRedisPersistence:
 
     def test_redis_connection(self):
         """Verify Redis connection is working."""
-        from aaa_mcp.services.redis_client import get_redis_client, MindVault
+        from arifosmcp.transport.services.redis_client import get_redis_client, MindVault
 
         # Check if REDIS_URL is set
         redis_url = os.environ.get("REDIS_URL")
@@ -118,7 +118,7 @@ class TestRedisPersistence:
 
     def test_redis_write_and_read(self):
         """Verify we can write to Redis and read it back."""
-        from aaa_mcp.services.redis_client import MindVault
+        from arifosmcp.transport.services.redis_client import MindVault
 
         vault = MindVault()
 
@@ -144,7 +144,7 @@ class TestRedisPersistence:
 
     def test_redis_health_check_endpoint(self):
         """Verify Redis health check returns connected status."""
-        from aaa_mcp.services.redis_client import MindVault
+        from arifosmcp.transport.services.redis_client import MindVault
 
         vault = MindVault()
         health = vault.health_check()
@@ -165,7 +165,7 @@ class TestASIFloorScoring:
     @pytest.mark.asyncio
     async def test_empathy_kappa_r_calculation(self):
         """Verify empathy score is calculated and passed correctly."""
-        from aaa_mcp.core.engine_adapters import ASIEngine
+        from arifosmcp.transport.core.engine_adapters import ASIEngine
 
         engine = ASIEngine()
 
@@ -188,7 +188,7 @@ class TestASIFloorScoring:
     @pytest.mark.asyncio
     async def test_peace_squared_calculation(self):
         """Verify Peace² score is calculated correctly."""
-        from aaa_mcp.core.engine_adapters import ASIEngine
+        from arifosmcp.transport.core.engine_adapters import ASIEngine
 
         engine = ASIEngine()
 
@@ -208,7 +208,7 @@ class TestASIFloorScoring:
     @pytest.mark.asyncio
     async def test_harmful_query_triggers_low_empathy(self):
         """Verify harmful queries get low empathy scores (below 0.95 HARD threshold)."""
-        from aaa_mcp.core.engine_adapters import ASIEngine
+        from arifosmcp.transport.core.engine_adapters import ASIEngine
 
         engine = ASIEngine()
 

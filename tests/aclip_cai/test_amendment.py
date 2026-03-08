@@ -1,9 +1,9 @@
 """
-tests/aclip_cai/test_amendment.py
+tests/arifosmcp.intelligence/test_amendment.py
 """
 
 import pytest
-from aclip_cai.core.amendment import AmendmentChain, AmendmentState
+from arifosmcp.intelligence.core.amendment import AmendmentChain, AmendmentState
 
 
 def test_propose_amendment():

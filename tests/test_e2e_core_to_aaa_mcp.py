@@ -17,9 +17,9 @@ from typing import Dict, Any
 
 # Skip tests if core modules unavailable
 try:
-    from aaa_mcp.protocol.tool_graph import WORKFLOW_SEQUENCES, validate_sequence
-    from aaa_mcp.protocol.capabilities import TOOL_CAPABILITIES
-    from aaa_mcp.protocol.response import (
+    from arifosmcp.transport.protocol.tool_graph import WORKFLOW_SEQUENCES, validate_sequence
+    from arifosmcp.transport.protocol.capabilities import TOOL_CAPABILITIES
+    from arifosmcp.transport.protocol.response import (
         build_init_response,
         build_seal_response,
         build_verdict_response,
@@ -119,7 +119,7 @@ class TestConstitutionalPipeline:
 
     def test_all_tools_have_capability_descriptions(self):
         """Every tool in graph must have capability description."""
-        from aaa_mcp.protocol.tool_graph import TOOL_GRAPH
+        from arifosmcp.transport.protocol.tool_graph import TOOL_GRAPH
 
         for tool_name in TOOL_GRAPH.keys():
             assert (
@@ -134,7 +134,7 @@ class TestConstitutionalPipeline:
 
     def test_apex_verdict_path_has_unified_entrypoint(self):
         """trinity_forge must remain available as unified entrypoint for apex path."""
-        from aaa_mcp.protocol.tool_graph import TOOL_GRAPH
+        from arifosmcp.transport.protocol.tool_graph import TOOL_GRAPH
 
         assert "trinity_forge" in TOOL_GRAPH, "trinity_forge must exist in tool graph"
 
@@ -151,7 +151,7 @@ class TestConstitutionalPipeline:
 
     def test_schema_versions_are_current(self):
         """Tool/resource schema versions should match current deployment date."""
-        from aaa_mcp.core.motto_schema import get_mottos_resource
+        from arifosmcp.transport.core.motto_schema import get_mottos_resource
 
         init_response = build_init_response(session_id="test-session-001", verdict="SEAL")
         debug_payload = init_response.to_dict(debug=True)
@@ -168,7 +168,7 @@ class TestAuthenticationRelaxed:
 
     def test_auth_token_is_optional(self):
         """auth_token parameter must be optional for all tools."""
-        from aaa_mcp.protocol.schemas import TOOL_INPUT_SCHEMAS
+        from arifosmcp.transport.protocol.schemas import TOOL_INPUT_SCHEMAS
 
         # Check trinity_forge schema
         forge_schema = TOOL_INPUT_SCHEMAS.get("trinity_forge", {})
@@ -190,7 +190,7 @@ class TestAuthenticationRelaxed:
     def test_init_session_no_strict_auth(self):
         """init_session should not require strict authentication."""
         try:
-            from aaa_mcp.core.constitutional_decorator import _build_pre_context
+            from arifosmcp.transport.core.constitutional_decorator import _build_pre_context
         except ImportError:
             pytest.skip(
                 "_build_pre_context is private/optional; auth optionality is covered by schema test"

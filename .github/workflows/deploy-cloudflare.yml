@@ -7,7 +7,7 @@ on:
     paths:
       - 'scripts/run_evals.py'
       - 'tests/mcp_live/golden/**'
-      - 'aclip_cai/core/eval/**'
+      - 'arifosmcp.intelligence/core/eval/**'
       - '.github/workflows/deploy-cloudflare.yml'
   workflow_dispatch:
   schedule:

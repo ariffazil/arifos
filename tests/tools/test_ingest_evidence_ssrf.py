@@ -19,7 +19,7 @@ from unittest.mock import patch
 
 import pytest
 
-from aaa_mcp.tools.ingest_evidence import _validate_url_ssrf
+from arifosmcp.transport.tools.ingest_evidence import _validate_url_ssrf
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Scheme enforcement
@@ -172,7 +172,7 @@ def test_unresolvable_hostname_blocked() -> None:
 
 @pytest.mark.asyncio
 async def test_ingest_evidence_returns_blocked_ssrf_for_http() -> None:
-    from aaa_mcp.tools.ingest_evidence import ingest_evidence
+    from arifosmcp.transport.tools.ingest_evidence import ingest_evidence
 
     result = await ingest_evidence(source_type="url", target="http://example.com")
     assert result["status"] == "BLOCKED_SSRF"
@@ -181,7 +181,7 @@ async def test_ingest_evidence_returns_blocked_ssrf_for_http() -> None:
 
 @pytest.mark.asyncio
 async def test_ingest_evidence_returns_blocked_ssrf_for_localhost() -> None:
-    from aaa_mcp.tools.ingest_evidence import ingest_evidence
+    from arifosmcp.transport.tools.ingest_evidence import ingest_evidence
 
     loopback = [(2, 1, 6, "", ("127.0.0.1", 0))]
     with patch("socket.getaddrinfo", return_value=loopback):

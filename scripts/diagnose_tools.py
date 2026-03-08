@@ -14,7 +14,7 @@ print("=" * 60)
 # Test 1: Import all modules
 print("\n[1] Testing imports...")
 try:
-    from aaa_mcp import __version__
+    from arifosmcp.transport import __version__
 
     print(f"✅ All imports successful (version: {__version__})")
 except Exception as e:

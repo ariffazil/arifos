@@ -80,7 +80,7 @@ pytest tests/mcp_live/test_edge_cases.py -v
 pytest tests/mcp_live/test_edge_cases.py::test_f12_injection_ignore_instructions -v
 
 # Run with coverage
-pytest tests/mcp_live/ --cov=aaa_mcp --cov=aclip_cai --cov-report=html
+pytest tests/mcp_live/ --cov=arifosmcp.transport --cov=arifosmcp.intelligence --cov-report=html
 ```
 
 ---
@@ -370,7 +370,7 @@ pytest tests/mcp_live/ -v
 ### 4. Inspect Kernel State
 
 ```python
-from aclip_cai.core.kernel import get_kernel
+from arifosmcp.intelligence.core.kernel import get_kernel
 
 kernel = await get_kernel()
 audit = kernel.auditor.check_floors("test_action", context="...", severity="high")
@@ -386,7 +386,7 @@ print(audit.verdict, audit.floors_passed)
 ```python
 # tests/mcp_live/test_new_feature.py
 import pytest
-from aaa_mcp.server import your_new_tool
+from arifosmcp.transport.server import your_new_tool
 from tests.mcp_live.utils.validators import validate_constitutionally
 
 @pytest.mark.asyncio

@@ -28,10 +28,10 @@ from core.shared.physics import (
     ConstitutionalTensor,
     Peace2,
     Stakeholder,
-    harm_score,
-    identify_stakeholders,
     # QT Quad Integration (NEW)
     extract_stakeholders_from_tags,
+    harm_score,
+    identify_stakeholders,
     kappa_r,
 )
 from core.shared.sbert_floors import classify_asi_floors

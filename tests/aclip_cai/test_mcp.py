@@ -1,10 +1,10 @@
 """
-tests/aclip_cai/test_mcp.py — Integration Tests for 9 System Calls
+tests/arifosmcp.intelligence/test_mcp.py — Integration Tests for 9 System Calls
 """
 
 import pytest
 from fastapi.testclient import TestClient
-from aclip_cai.core.mcp_server import app
+from arifosmcp.intelligence.core.mcp_server import app
 
 client = TestClient(app)
 

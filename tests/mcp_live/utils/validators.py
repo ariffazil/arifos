@@ -7,7 +7,7 @@ and constitutional constraints during testing.
 
 import time
 from typing import Dict, Any, Optional
-from aclip_cai.core.kernel import ConstitutionalKernel
+from arifosmcp.intelligence.core.kernel import ConstitutionalKernel
 
 
 def validate_constitutionally(

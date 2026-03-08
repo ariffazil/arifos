@@ -4,7 +4,7 @@
 The original bridge server (`server.py`) called endpoints like `/forge`, `/think`, `/init` that don't exist in the arifOS REST API.
 
 ## Root Cause
-The arifOS REST API (`aaa_mcp/rest.py`) uses a **generic tool calling pattern**:
+The arifOS REST API (`arifosmcp.transport/rest.py`) uses a **generic tool calling pattern**:
 - Endpoint: `POST /{tool_name}` or `POST /tools/{tool_name}`
 - Tool names: `anchor`, `reason`, `integrate`, `respond`, `validate`, `align`, `forge`, `audit`, `seal`, `self_diagnose`
 

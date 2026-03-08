@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from aclip_cai.console_tools import cost_estimator, forge_guard
+from arifosmcp.intelligence.console_tools import cost_estimator, forge_guard
 
 
 async def test_cost_estimator_thermodynamic_output() -> None:

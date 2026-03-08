@@ -1,5 +1,5 @@
 """
-Tests for aaa_mcp/core pure modules:
+Tests for arifosmcp.transport/core pure modules:
   - mode_selector.py  (MCPMode, detect_environment, get_mcp_mode, get_port, get_host, get_mode_config)
   - motto_schema.py   (get_mottos_resource, format_failure_with_motto, gate messages)
   - engine_adapters.py (AGIEngine transport wrapper)
@@ -16,7 +16,7 @@ from __future__ import annotations
 
 class TestMCPMode:
     def test_enum_values(self):
-        from aaa_mcp.core.mode_selector import MCPMode
+        from arifosmcp.transport.core.mode_selector import MCPMode
 
         assert MCPMode.STDIO.value == "stdio"
         assert MCPMode.SSE.value == "sse"
@@ -24,20 +24,20 @@ class TestMCPMode:
 
 class TestDetectEnvironment:
     def test_railway(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import detect_environment
+        from arifosmcp.transport.core.mode_selector import detect_environment
 
         monkeypatch.setenv("RAILWAY_ENVIRONMENT", "production")
         assert detect_environment() == "railway"
 
     def test_cloudflare(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import detect_environment
+        from arifosmcp.transport.core.mode_selector import detect_environment
 
         monkeypatch.delenv("RAILWAY_ENVIRONMENT", raising=False)
         monkeypatch.setenv("CF_WORKER", "true")
         assert detect_environment() == "cloudflare"
 
     def test_development_debug(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import detect_environment
+        from arifosmcp.transport.core.mode_selector import detect_environment
 
         monkeypatch.delenv("RAILWAY_ENVIRONMENT", raising=False)
         monkeypatch.delenv("CF_WORKER", raising=False)
@@ -45,7 +45,7 @@ class TestDetectEnvironment:
         assert detect_environment() == "development"
 
     def test_development_dev(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import detect_environment
+        from arifosmcp.transport.core.mode_selector import detect_environment
 
         monkeypatch.delenv("RAILWAY_ENVIRONMENT", raising=False)
         monkeypatch.delenv("CF_WORKER", raising=False)
@@ -54,7 +54,7 @@ class TestDetectEnvironment:
         assert detect_environment() == "development"
 
     def test_production_env(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import detect_environment
+        from arifosmcp.transport.core.mode_selector import detect_environment
 
         monkeypatch.delenv("RAILWAY_ENVIRONMENT", raising=False)
         monkeypatch.delenv("CF_WORKER", raising=False)
@@ -66,19 +66,19 @@ class TestDetectEnvironment:
 
 class TestGetMCPMode:
     def test_explicit_override_stdio(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import MCPMode, get_mcp_mode
+        from arifosmcp.transport.core.mode_selector import MCPMode, get_mcp_mode
 
         monkeypatch.setenv("ARIF_MCP_MODE", "STDIO")
         assert get_mcp_mode() == MCPMode.STDIO
 
     def test_explicit_override_sse(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import MCPMode, get_mcp_mode
+        from arifosmcp.transport.core.mode_selector import MCPMode, get_mcp_mode
 
         monkeypatch.setenv("ARIF_MCP_MODE", "SSE")
         assert get_mcp_mode() == MCPMode.SSE
 
     def test_invalid_override_falls_through(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import MCPMode, get_mcp_mode
+        from arifosmcp.transport.core.mode_selector import MCPMode, get_mcp_mode
 
         monkeypatch.setenv("ARIF_MCP_MODE", "INVALID")
         monkeypatch.setenv("RAILWAY_ENVIRONMENT", "production")
@@ -86,14 +86,14 @@ class TestGetMCPMode:
         assert result == MCPMode.SSE
 
     def test_auto_detect_railway(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import MCPMode, get_mcp_mode
+        from arifosmcp.transport.core.mode_selector import MCPMode, get_mcp_mode
 
         monkeypatch.delenv("ARIF_MCP_MODE", raising=False)
         monkeypatch.setenv("RAILWAY_ENVIRONMENT", "production")
         assert get_mcp_mode() == MCPMode.SSE
 
     def test_auto_detect_local(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import MCPMode, get_mcp_mode
+        from arifosmcp.transport.core.mode_selector import MCPMode, get_mcp_mode
 
         monkeypatch.delenv("ARIF_MCP_MODE", raising=False)
         monkeypatch.delenv("RAILWAY_ENVIRONMENT", raising=False)
@@ -109,13 +109,13 @@ class TestGetMCPMode:
 
 class TestGetPort:
     def test_default_port(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import get_port
+        from arifosmcp.transport.core.mode_selector import get_port
 
         monkeypatch.delenv("PORT", raising=False)
         assert get_port() == 6274
 
     def test_custom_port(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import get_port
+        from arifosmcp.transport.core.mode_selector import get_port
 
         monkeypatch.setenv("PORT", "8080")
         assert get_port() == 8080
@@ -123,14 +123,14 @@ class TestGetPort:
 
 class TestGetHost:
     def test_default_production_host(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import get_host
+        from arifosmcp.transport.core.mode_selector import get_host
 
         monkeypatch.delenv("HOST", raising=False)
         monkeypatch.setenv("RAILWAY_ENVIRONMENT", "production")
         assert get_host() == "0.0.0.0"
 
     def test_custom_host(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import get_host
+        from arifosmcp.transport.core.mode_selector import get_host
 
         monkeypatch.setenv("HOST", "127.0.0.1")
         assert get_host() == "127.0.0.1"
@@ -138,7 +138,7 @@ class TestGetHost:
 
 class TestGetModeConfig:
     def test_returns_dict_with_keys(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import get_mode_config
+        from arifosmcp.transport.core.mode_selector import get_mode_config
 
         monkeypatch.setenv("ARIF_MCP_MODE", "SSE")
         cfg = get_mode_config()
@@ -149,7 +149,7 @@ class TestGetModeConfig:
         assert "version" in cfg
 
     def test_mode_value_is_string(self, monkeypatch):
-        from aaa_mcp.core.mode_selector import get_mode_config
+        from arifosmcp.transport.core.mode_selector import get_mode_config
 
         monkeypatch.setenv("ARIF_MCP_MODE", "SSE")
         cfg = get_mode_config()
@@ -163,7 +163,7 @@ class TestGetModeConfig:
 
 class TestMottoSchema:
     def test_get_mottos_resource_structure(self):
-        from aaa_mcp.core.motto_schema import get_mottos_resource
+        from arifosmcp.transport.core.motto_schema import get_mottos_resource
 
         result = get_mottos_resource()
         assert result["uri"] == "constitutional://mottos"
@@ -174,7 +174,7 @@ class TestMottoSchema:
         assert text["total_mottos"] > 0
 
     def test_get_mottos_resource_bookends(self):
-        from aaa_mcp.core.motto_schema import get_mottos_resource
+        from arifosmcp.transport.core.motto_schema import get_mottos_resource
 
         result = get_mottos_resource()
         bookends = result["text"]["bookends"]
@@ -182,14 +182,14 @@ class TestMottoSchema:
         assert "seal" in bookends
 
     def test_format_failure_known_floor(self):
-        from aaa_mcp.core.motto_schema import format_failure_with_motto
+        from arifosmcp.transport.core.motto_schema import format_failure_with_motto
 
         msg = format_failure_with_motto("F2", "truth score too low")
         assert "F2" in msg
         assert "truth score too low" in msg
 
     def test_format_failure_unknown_floor(self):
-        from aaa_mcp.core.motto_schema import format_failure_with_motto
+        from arifosmcp.transport.core.motto_schema import format_failure_with_motto
 
         msg = format_failure_with_motto("F99", "unknown reason")
         assert "F99" in msg
@@ -197,14 +197,14 @@ class TestMottoSchema:
         assert "[!]" in msg
 
     def test_get_init_gate_message(self):
-        from aaa_mcp.core.motto_schema import get_init_gate_message
+        from arifosmcp.transport.core.motto_schema import get_init_gate_message
 
         msg = get_init_gate_message()
         assert "000_INIT" in msg
         assert isinstance(msg, str)
 
     def test_get_seal_gate_message(self):
-        from aaa_mcp.core.motto_schema import get_seal_gate_message
+        from arifosmcp.transport.core.motto_schema import get_seal_gate_message
 
         msg = get_seal_gate_message()
         assert "999_SEAL" in msg
@@ -218,7 +218,7 @@ class TestMottoSchema:
 
 class TestEngineAdapters:
     def test_imports_cleanly(self):
-        from aaa_mcp.core.engine_adapters import (
+        from arifosmcp.transport.core.engine_adapters import (
             AGIEngine,
             APEXEngine,
             ASIEngine,
@@ -231,13 +231,13 @@ class TestEngineAdapters:
         assert InitEngine is not None
 
     def test_agi_engine_instantiates(self):
-        from aaa_mcp.core.engine_adapters import AGIEngine
+        from arifosmcp.transport.core.engine_adapters import AGIEngine
 
         engine = AGIEngine()
         assert engine is not None
 
     def test_agi_engine_with_explicit_none(self):
-        from aaa_mcp.core.engine_adapters import AGIEngine
+        from arifosmcp.transport.core.engine_adapters import AGIEngine
 
         engine = AGIEngine(eureka_engine=None)
         assert engine is not None

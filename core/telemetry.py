@@ -284,9 +284,6 @@ def check_adaptation_status() -> dict:
     return telemetry_store.can_adapt()
 
 
-import math
-import sys
-import time
 
 # ... (rest of imports)
 

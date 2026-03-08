@@ -6,8 +6,8 @@ Maps intent to ActionClass and verifies thermodynamic/sovereign thresholds.
 """
 
 import re
-from typing import Any
-from core.shared.types import ActionClass, Verdict
+
+from core.shared.types import ActionClass
 
 # P3 Validated Thresholds
 RISK_THRESHOLDS = {

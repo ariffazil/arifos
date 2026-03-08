@@ -14,10 +14,10 @@ from unittest.mock import patch, MagicMock
 import sys
 from pathlib import Path
 
-# Add project root to sys.path to resolve 'aclip_cai'
+# Add project root to sys.path to resolve 'arifosmcp.intelligence'
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from aclip_cai.console_tools import (
+from arifosmcp.intelligence.console_tools import (
     system_health,
     process_list,
     fs_inspect,
@@ -307,7 +307,7 @@ async def test_cost_estimator_compute():
 @pytest.mark.asyncio
 async def test_forge_guard_low_risk():
     """Test forge guard with low risk."""
-    with patch("aclip_cai.tools.safety_guard.get_system_health") as mock_health:
+    with patch("arifosmcp.intelligence.tools.safety_guard.get_system_health") as mock_health:
         mock_health.return_value = {
             "status": "SEAL",
             "cpu": {"percent": 10.0},

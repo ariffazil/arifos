@@ -11,7 +11,7 @@ import os
 # Ensure project root is in path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from aaa_mcp.server import (
+from arifosmcp.transport.server import (
     compute_verifier_witness,
     compute_human_witness,
     compute_ai_witness,

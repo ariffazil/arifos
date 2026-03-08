@@ -164,7 +164,7 @@ async def aaa_client():
 
     from fastmcp import Client
 
-    from arifos_aaa_mcp.server import create_aaa_mcp_server
+    from arifosmcp.runtime.server import create_aaa_mcp_server
 
     async with Client(create_aaa_mcp_server()) as client:
         yield client

@@ -1,28 +1,43 @@
 {
   "$schema": "https://gofastmcp.com/public/schemas/fastmcp.json/v1.json",
-  "name": "arifos-constitutional-kernel-dev",
-  "version": "2026.03.08",
-  "description": "arifOS development profile — stdio transport, debug logging",
-
+  "name": "arifos-mcp",
+  "version": "2026.03.07",
+  "description": "arifOS Constitutional AI Governance MCP Server — dev profile (stdio, DEBUG logging)",
   "source": {
     "type": "filesystem",
-    "path": "core/server.py",
+    "path": "arifosmcp/runtime/server.py",
     "entrypoint": "mcp"
   },
-
   "environment": {
     "type": "uv",
     "python": ">=3.12",
-    "dependencies": ["fastmcp==3.0.2", "arifos"],
-    "editable": ["."]
+    "dependencies": [
+      "fastmcp==3.0.2",
+      "fastapi>=0.115.0",
+      "uvicorn>=0.32.0",
+      "redis>=5.0.0",
+      "anthropic>=0.39.0",
+      "httpx>=0.27.0",
+      "pydantic>=2.9.0"
+    ]
   },
-
   "deployment": {
     "transport": "stdio",
-    "log_level": "DEBUG",
-    "env": {
-      "ARIFOS_PHYSICS_DISABLED": "0",
-      "ARIFOS_DEV_MODE": "1"
+    "log_level": "DEBUG"
+  },
+  "tools": {
+    "count": 13,
+    "governance": true,
+    "description": "13 canonical tools with 13-Floor thermodynamic governance"
+  },
+  "metadata": {
+    "author": "Arif Fazil",
+    "repository": "https://github.com/ariffazil/arifosmcp",
+    "documentation": "https://github.com/ariffazil/arifOS",
+    "trinity": {
+      "role": "body",
+      "mind": "https://github.com/ariffazil/arifOS",
+      "heart": "https://github.com/ariffazil/ariffazil"
     }
   }
 }

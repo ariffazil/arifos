@@ -219,8 +219,8 @@ class F2_Truth(Floor):
         landauer_available = False
         try:
             from core.physics.thermodynamics_hardened import (
-                check_landauer_bound,
                 LandauerViolation,
+                check_landauer_bound,
             )
 
             landauer_available = True
@@ -427,8 +427,8 @@ class F4_Clarity(Floor):
         # P3: Try hardened entropy calculation if input/output text available
         try:
             from core.physics.thermodynamics_hardened import (
-                shannon_entropy,
                 EntropyIncreaseViolation,
+                shannon_entropy,
             )
 
             input_text = context.get("query", "")

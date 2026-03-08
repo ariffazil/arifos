@@ -9,10 +9,10 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
-from aaa_mcp.protocol.aaa_contract import AAA_CANONICAL_TOOLS, AAA_TOOL_ALIASES, ARCHIVED_TOOLS
+from arifosmcp.transport.protocol.aaa_contract import AAA_CANONICAL_TOOLS, AAA_TOOL_ALIASES, ARCHIVED_TOOLS
 
 ROOT = Path(__file__).resolve().parents[2]
-SERVER_FILE = ROOT / "arifos_aaa_mcp" / "server.py"
+SERVER_FILE = ROOT / "arifosmcp.runtime" / "server.py"
 
 
 def _tool_names_in_server() -> set[str]:
