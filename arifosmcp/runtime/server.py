@@ -22,23 +22,23 @@ def create_aaa_mcp_server() -> FastMCP:
 
 @mcp.tool()
 async def anchor_session(
-    query: str, actor_id: Optional[str] = "anonymous", auth_token: Optional[str] = None, **kwargs
+    query: str, actor_id: Optional[str] = "anonymous", auth_token: Optional[str] = None
 ) -> Dict[str, Any]:
     """Init Stage 000: Authenticate and ignition for a session."""
     return await call_kernel(
         "anchor_session",
         "global",
-        {"query": query, "actor_id": actor_id, "auth_token": auth_token, **kwargs},
+        {"query": query, "actor_id": actor_id, "auth_token": auth_token},
     )
 
 
 @mcp.tool()
 async def reason_mind(
-    session_id: str, query: str, auth_context: Dict[str, Any], **kwargs
+    session_id: str, query: str, auth_context: Dict[str, Any]
 ) -> Dict[str, Any]:
     """Stage 111-333: Logical analysis and truth-seeking."""
     return await call_kernel(
-        "reason_mind", session_id, {"query": query, "auth_context": auth_context, **kwargs}
+        "reason_mind", session_id, {"query": query, "auth_context": auth_context}
     )
 
 
@@ -48,97 +48,96 @@ async def vector_memory(
     operation: str,
     auth_context: Dict[str, Any],
     content: Optional[str] = None,
-    **kwargs,
 ) -> Dict[str, Any]:
     """Stage 555: Associative memory retrieval and storage."""
     return await call_kernel(
         "vector_memory",
         session_id,
-        {"operation": operation, "content": content, "auth_context": auth_context, **kwargs},
+        {"operation": operation, "content": content, "auth_context": auth_context},
     )
 
 
 @mcp.tool()
 async def simulate_heart(
-    session_id: str, scenario: str, auth_context: Dict[str, Any], **kwargs
+    session_id: str, scenario: str, auth_context: Dict[str, Any]
 ) -> Dict[str, Any]:
     """Stage 666: Empathy and ethical safety checks."""
     return await call_kernel(
-        "simulate_heart", session_id, {"scenario": scenario, "auth_context": auth_context, **kwargs}
+        "simulate_heart", session_id, {"scenario": scenario, "auth_context": auth_context}
     )
 
 
 @mcp.tool()
 async def critique_thought(
-    session_id: str, thought_id: str, auth_context: Dict[str, Any], **kwargs
+    session_id: str, thought_id: str, auth_context: Dict[str, Any]
 ) -> Dict[str, Any]:
     """Stage 666: Critical internal audit."""
     return await call_kernel(
         "critique_thought",
         session_id,
-        {"thought_id": thought_id, "auth_context": auth_context, **kwargs},
+        {"thought_id": thought_id, "auth_context": auth_context},
     )
 
 
 @mcp.tool()
 async def eureka_forge(
-    session_id: str, intent: str, auth_context: Dict[str, Any], **kwargs
+    session_id: str, intent: str, auth_context: Dict[str, Any]
 ) -> Dict[str, Any]:
     """Stage 777: Sandboxed material execution (Actuator)."""
     return await call_kernel(
-        "eureka_forge", session_id, {"intent": intent, "auth_context": auth_context, **kwargs}
+        "eureka_forge", session_id, {"intent": intent, "auth_context": auth_context}
     )
 
 
 @mcp.tool()
 async def apex_judge(
-    session_id: str, verdict_candidate: str, auth_context: Dict[str, Any], **kwargs
+    session_id: str, verdict_candidate: str, auth_context: Dict[str, Any]
 ) -> Dict[str, Any]:
     """Stage 888: Final judgment and consensus."""
     return await call_kernel(
         "apex_judge",
         session_id,
-        {"verdict_candidate": verdict_candidate, "auth_context": auth_context, **kwargs},
+        {"verdict_candidate": verdict_candidate, "auth_context": auth_context},
     )
 
 
 @mcp.tool()
-async def seal_vault(session_id: str, auth_context: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+async def seal_vault(session_id: str, auth_context: Dict[str, Any]) -> Dict[str, Any]:
     """Stage 999: Immutable ledger sealing."""
-    return await call_kernel("seal_vault", session_id, {"auth_context": auth_context, **kwargs})
+    return await call_kernel("seal_vault", session_id, {"auth_context": auth_context})
 
 
 # --- Utilities ---
 
 
 @mcp.tool()
-async def search_reality(query: str, **kwargs) -> Dict[str, Any]:
+async def search_reality(query: str) -> Dict[str, Any]:
     """Utility: Web grounding."""
-    return await call_kernel("search_reality", "global", {"query": query, **kwargs})
+    return await call_kernel("search_reality", "global", {"query": query})
 
 
 @mcp.tool()
-async def ingest_evidence(source_url: str, **kwargs) -> Dict[str, Any]:
+async def ingest_evidence(source_url: str) -> Dict[str, Any]:
     """Utility: Extract evidence."""
-    return await call_kernel("ingest_evidence", "global", {"source_url": source_url, **kwargs})
+    return await call_kernel("ingest_evidence", "global", {"source_url": source_url})
 
 
 @mcp.tool()
-async def audit_rules(**kwargs) -> Dict[str, Any]:
+async def audit_rules(query: str = "") -> Dict[str, Any]:
     """Utility: Verify current state against 13 Floors."""
-    return await call_kernel("audit_rules", "global", kwargs)
+    return await call_kernel("audit_rules", "global", {"query": query})
 
 
 @mcp.tool()
-async def check_vital(**kwargs) -> Dict[str, Any]:
+async def check_vital(query: str = "") -> Dict[str, Any]:
     """Utility: System health check."""
-    return await call_kernel("check_vital", "global", kwargs)
+    return await call_kernel("check_vital", "global", {"query": query})
 
 
 @mcp.tool()
-async def metabolic_loop(**kwargs) -> Dict[str, Any]:
+async def metabolic_loop(query: str = "") -> Dict[str, Any]:
     """Orchestration: Advance metabolic stages."""
-    return await call_kernel("metabolic_loop", "global", kwargs)
+    return await call_kernel("metabolic_loop", "global", {"query": query})
 
 
 if __name__ == "__main__":

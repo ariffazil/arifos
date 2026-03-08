@@ -1,11 +1,11 @@
-\"\"\"
+"""
 core/enforcement/auth_continuity.py — F11 Amanah Handshake
 
 Strict session continuity through cryptographic chaining.
 Ensures that a session cannot be hijacked or forged between tool calls.
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
-\"\"\"
+"""
 
 import base64
 import hashlib
