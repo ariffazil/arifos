@@ -550,7 +550,47 @@ async def reason(
     input_entropy = shannon_entropy(query)
 
     # ═══════════════════════════════════════════════════════════════════
-    # QT QUAD: Build Sequential Thinking thought chain FIRST
+    # FIX 2: EARLY-EXIT GATE — Skip QT Quad when F3 will VOID
+    # Check the same witnesses["human"] value that F3 actually evaluates.
+    # If no human witness exists, F3 guarantees VOID — skip expensive ST chain.
+    # ═══════════════════════════════════════════════════════════════════
+    from core.state.session_manager import session_manager as _sm
+    _session_data = _sm.get(session_id) if session_id else None
+    _human_witness = (
+        _session_data.get("witnesses", {}).get("human", 0.0)
+        if isinstance(_session_data, dict) else 0.0
+    )
+    # Also check: if actor authenticated via F11 continuity, treat as human-witnessed
+    _has_human = _human_witness > 0.0 or (
+        isinstance(_session_data, dict) and
+        _session_data.get("auth_continuity", {}).get("verified", False)
+    )
+
+    if not _has_human:
+        # Fast-VOID: F3 Tri-Witness will reject regardless — skip QT Quad
+        fast_tensor = ConstitutionalTensor(
+            witness=QuadTensor(H=0.0, A=0.5, E=0.0, V=0.0),
+            entropy_delta=delta_S(query, ""),
+            humility=Omega_0(0.5),
+            genius=GeniusDial(0.0, 0.0, 0.0, 0.0),
+            peace=None,
+            empathy=0.0,
+            truth_score=0.0,
+            evidence=["F3_FAST_VOID: No human witness — QT Quad skipped"],
+        )
+        fast_qt_proof = {
+            "complete": False,
+            "verdict": "VOID",
+            "fast_void": True,
+            "reason": "F3_TRI_WITNESS: w_human=0, QT Quad skipped for efficiency",
+            "W_four": 0.0,
+            "witnesses": {"w_human": 0.0, "w_ai": 0.5, "w_earth": 0.0, "w_adversarial": 0.0},
+        }
+        return fast_tensor, [], fast_qt_proof
+
+    # ═══════════════════════════════════════════════════════════════════
+    # QT QUAD: Build Sequential Thinking thought chain
+    # (Only reached when human witness exists — ST is fully preserved)
     # ═══════════════════════════════════════════════════════════════════
     
     # Build structured thought chain for witness calculation
@@ -674,6 +714,7 @@ async def reason(
     qt_proof["verdict"] = qt_verdict
     qt_proof["is_cheap_truth"] = is_cheap
     qt_proof["f2_threshold"] = f2_threshold
+    qt_proof["complete"] = True  # FIX 1: Signal that QT Quad chain ran fully
 
     # Build ConstitutionalTensor with QT Quad witness
     tensor = ConstitutionalTensor(
@@ -687,9 +728,9 @@ async def reason(
         humility=Omega_0(truth_score),
         genius=GeniusDial(
             A=truth_score,
-            P=0.9,  # Present (high for reasoning)
-            X=len(hypotheses) / 3.0,  # Exploration
-            E=min(1.0, len(st_chain) / 5.0),  # Energy from ST depth
+            P=min(1.0, Peace2({}).score if hasattr(Peace2({}), 'score') else 0.9),  # Present — from peace² or default
+            X=min(1.0, len(set(t.get("branchId") for t in st_chain if t.get("branchId"))) / 3.0),  # FIX 3: Branch diversity, capped at 1.0, expected=3
+            E=min(1.0, len(st_chain) / max(1, max_thoughts)),  # FIX 3: Energy efficiency capped at 1.0 — prevents E² overflow
         ),
         peace=None,  # ASI computes this
         empathy=0.0,  # ASI computes this
