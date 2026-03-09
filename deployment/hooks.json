@@ -1,0 +1,40 @@
+[
+  {
+    "id": "deploy-from-git",
+    "execute-command": "/var/scripts/deploy_from_git.sh",
+    "command-working-directory": "/usr/src/app",
+    "response-message": "Deploying from git...",
+    "trigger-rule": {
+      "match": {
+        "type": "payload-hash-sha256",
+        "secret": "{{ getenv \"WEBHOOK_SECRET\" }}",
+        "parameter": {
+          "source": "header",
+          "name": "X-Hub-Signature-256"
+        }
+      }
+    }
+  },
+  {
+    "id": "restart-openclaw",
+    "execute-command": "/var/scripts/restart_openclaw.sh",
+    "command-working-directory": "/tmp",
+    "response-message": "Restarting OpenClaw gateway...",
+    "pass-arguments-to-command": [
+      {
+        "source": "header",
+        "name": "X-Restart-Token"
+      }
+    ],
+    "trigger-rule": {
+      "match": {
+        "type": "value",
+        "value": "{{ getenv \"OPENCLAW_RESTART_TOKEN\" }}",
+        "parameter": {
+          "source": "header",
+          "name": "X-Restart-Token"
+        }
+      }
+    }
+  }
+]
