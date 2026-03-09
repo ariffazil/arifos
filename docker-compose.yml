@@ -99,6 +99,11 @@ services:
       - /opt/arifos/data/qdrant:/qdrant/storage
     networks:
       - arifos_trinity
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:6333/healthz || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     deploy:
       resources:
         limits:
@@ -204,6 +209,22 @@ services:
           memory: 1024M
     restart: unless-stopped
 
+  # --- Semantic Wisdom Embedder (one-time init) ---
+  wisdom_embedder:
+    image: arifos/arifosmcp:latest
+    container_name: arifos_wisdom_embedder
+    command: python scripts/embed_wisdom_quotes.py
+    depends_on:
+      qdrant:
+        condition: service_healthy
+    environment:
+      QDRANT_URL: http://qdrant:6333
+    volumes:
+      - /opt/arifos/data/core:/usr/src/app/data:ro
+    networks:
+      - arifos_trinity
+    restart: "no"
+
   # --- Constitutional Kernel ---
   arifosmcp:
     build:
@@ -212,6 +233,8 @@ services:
     image: arifos/arifosmcp:latest
     container_name: arifosmcp_server
     init: true
+    depends_on:
+      - wisdom_embedder
     env_file:
       - path: .env.docker
         required: false
