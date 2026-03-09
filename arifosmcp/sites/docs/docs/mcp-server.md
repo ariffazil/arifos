@@ -94,7 +94,7 @@ The server exposes read-only resources for LLM and human inspection:
 
 ## APEX Sovereign Dashboard
 
-The APEX Sovereign Dashboard visualises the **APEX Theorem** ($G^\dagger = A \cdot P \cdot X \cdot E^2 \cdot \frac{\Delta S}{C}$) in real time.
+The APEX Sovereign Dashboard visualises the **APEX Theorem** (`G^dagger = A * P * X * E^2 * (Delta S / C)`) in real time.
 
 **Live:** [arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/)
 

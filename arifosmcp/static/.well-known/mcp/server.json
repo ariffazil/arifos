@@ -49,12 +49,28 @@
   ],
   "resources": [
     {
+      "uri": "arifos://aaa/schemas"
+    },
+    {
+      "uri": "arifos://aaa/full-context-pack"
+    },
+    {
+      "uri": "arifos://aaa/mcp-transport-profile"
+    },
+    {
+      "uri": "arifos://aaa/tool-operating-manual"
+    },
+    {
+      "uri": "arifos://aaa/governance-gate-profile"
+    },
+    {
       "uri": "ui://apex/dashboard-v2.html"
     }
   ],
   "prompts": [
-    "arifOS.kernel",
-    "search_reality",
-    "open_apex_dashboard"
+    "arifos.prompt.aaa_chain",
+    "arifos.prompt.mcp_transport_bootstrap",
+    "arifos.prompt.tool_routing_policy",
+    "arifos.prompt.chatgpt_connector_bootstrap"
   ]
 }

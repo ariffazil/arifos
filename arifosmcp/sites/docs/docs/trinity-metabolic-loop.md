@@ -143,7 +143,7 @@ Output
 
 - [MCP Server Reference](../mcp-server) - Connection details and launch commands
 - [Governance & Floors](../governance) - Constitutional floors reference
-- [APEX Sovereign Dashboard](/dashboard/) - Real-time intelligence visualization
+- [APEX Sovereign Dashboard](https://arifosmcp.arif-fazil.com/dashboard/) - Real-time intelligence visualization
 
 ---
 
