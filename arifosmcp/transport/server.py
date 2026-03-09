@@ -27,7 +27,16 @@ import time
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
+from pydantic import BaseModel, Field
+
+# ─── Runtime Envelope Standard (Repair Directive Priority 4) ────────────────
+class RuntimeEnvelope(BaseModel):
+    session_id: str
+    actor: str = "anonymous"
+    authority: str = "anonymous"
+    governance_token: Optional[str] = None
+    continuity_token: Optional[str] = None
 
 from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives.asymmetric import ed25519
@@ -109,6 +118,14 @@ _APPROVAL_REQUIRED_FIELDS = [
 
 _ACTOR_IDENTITIES: dict[str, ActorIdentity] = {}
 _ACTOR_SESSION_MAP: dict[str, str] = {}  # session_id -> actor_id
+_ACTIVE_SESSION_ID: str | None = None
+
+
+def _resolve_session_id(provided_id: str | None) -> str | None:
+    """Resolve session_id from provided input or last active session."""
+    if provided_id and str(provided_id).strip():
+        return provided_id
+    return _ACTIVE_SESSION_ID
 
 
 def _verify_actor_signature(public_key_hex: str, signature_hex: str, message: bytes) -> bool:
@@ -1505,6 +1522,7 @@ async def _init_anchor_state(
     Stage 000: Initialize a governed AI session shell.
     """
     try:
+        session_id = _resolve_session_id(session_id)
         if not session_id:
             session_id = f"session-{uuid.uuid4().hex[:8]}"
 
@@ -1512,14 +1530,24 @@ async def _init_anchor_state(
         if not query:
             return _fracture_response("000_INIT", ValueError("intent.query field is required"), session_id)
 
+        # Apply Human Command Adapter (Repair Directive Priority 2)
+        query = _adapt_human_command(query)
+        intent["query"] = query
+
         actor_id = (governance or {}).get("actor_id", "anonymous")
 
         # Integrate with core SessionManager
-        session_manager.create_session(owner=actor_id)
+        session_manager.create_session(owner=actor_id, session_id=session_id)
 
-        revoked = _revocation_reason(actor_id=actor_id, session_id=session_id)
-        if revoked:
-            return _revocation_void("000_INIT", session_id, revoked)
+        # Update local session tracking
+        global _ACTIVE_SESSION_ID
+        _ACTIVE_SESSION_ID = session_id
+        _ACTOR_SESSION_MAP[session_id] = actor_id
+        _SESSION_CONTINUITY_STATE[session_id] = {
+            "actor_id": actor_id,
+            "session_id": session_id,
+            "last_activity": time.time(),
+        }
 
         # Call kernel init (anchor)
         anch = await anchor(session_id=session_id, user_id=actor_id, context=query)
@@ -1591,7 +1619,7 @@ anchor_session = ToolHandle(_init_session)
 )
 async def _agi_cognition(
     query: str,
-    session_id: str,
+    session_id: str | None = None,
     grounding: list[dict[str, Any]] | None = None,
     capability_modules: list[str] | None = None,
     debug: bool = False,
@@ -1604,8 +1632,17 @@ async def _agi_cognition(
 ) -> dict[str, Any]:
     start_time = time.time()
     try:
+        session_id = _resolve_session_id(session_id)
         if not session_id:
-            return _build_floor_block("111-444", "Missing session_id")
+            return _build_floor_block("111-444", "Missing session_id (Authentication continuity failed)")
+        
+        # Hydrate internal registry if missing but session exists in manager
+        if session_id not in _ACTOR_SESSION_MAP:
+            owner = session_manager.list_active_sessions().get(session_id)
+            if owner:
+                _ACTOR_SESSION_MAP[session_id] = owner
+                _SESSION_CONTINUITY_STATE[session_id] = {"actor_id": owner, "session_id": session_id}
+
         continuity_binding, continuity_error = _enforce_auth_continuity(
             tool_name="reason_mind",
             stage="111-444",
