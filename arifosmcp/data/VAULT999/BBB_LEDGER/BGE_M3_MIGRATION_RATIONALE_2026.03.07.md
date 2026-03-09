@@ -7,7 +7,7 @@
 
 ## Executive Summary
 
-**Decision:** Migrate arifOS from BGE-small (384-dim, English-only) to **BGE-M3 (768-dim, multilingual)**.
+**Decision:** Migrate arifOS from BGE-small (384-dim, English-only) to **BGE-M3 (1024-dim, multilingual)**.
 
 **Rationale:** arifOS governance decisions naturally mix Malay, English, and Manglish. BGE-small cannot understand Malay, making precedent retrieval fail for ~30% of constitutional reasoning.
 
@@ -50,7 +50,7 @@ The system must accumulate wisdom. This requires understanding ALL precedents, n
 |--------|-----------|--------|--------|
 | **Model Size** | 30MB | 570MB | +540MB (acceptable) |
 | **RAM (loaded)** | ~300MB | ~1.2GB | +900MB (15.6GB total available) |
-| **Dimensions** | 384 | 768 | 2x vectors |
+| **Dimensions** | 384  1024 | 2x vectors |
 | **Languages** | English only | 100+ including BM | **Critical** |
 | **Embedding Speed** | Fast | Medium | Acceptable |
 | **Quality (EN)** | Good | Better | Improvement |
@@ -69,8 +69,8 @@ The system must accumulate wisdom. This requires understanding ALL precedents, n
 
 Files updated:
 - `arifosmcp.intelligence/embeddings/__init__.py` → BAAI/bge-m3
-- `arifosmcp.transport/vault/precedent_memory.py` → 768-dim, multilingual
-- `arifosmcp.runtime/server.py` → 768-dim
+- `arifosmcp.transport/vault/precedent_memory.py` → 1024-dim, multilingual
+- `arifosmcp.runtime/server.py` → 1024-dim
 - `scripts/*` → BAAI/bge-m3
 - Documentation → BGE-M3 references
 
@@ -91,8 +91,8 @@ docker-compose up -d
 
 | Collection | Old Dim | New Dim | Action |
 |------------|---------|---------|--------|
-| arifos_constitutional | 384 | 768 | Re-embed 7,706 docs (~5-10 min) |
-| vault_precedent_memory | N/A | 768 | Create fresh (no migration needed) |
+| arifos_constitutional | 384  1024 | Re-embed 7,706 docs (~5-10 min) |
+| vault_precedent_memory | N/A  1024 | Create fresh (no migration needed) |
 
 ---
 
@@ -103,10 +103,10 @@ VAULT999/
 ├── Ledger (PostgreSQL/SQLite)
 │   └── Exact constitutional records
 ├── arifos_constitutional (Qdrant)
-│   └── 7,706 constitutional doc chunks @ 768-dim
+│   └── 7,706 constitutional doc chunks @ 1024-dim
 │   └── Supports: BM, EN, Manglish search
 └── vault_precedent_memory (Qdrant) [NEW]
-    └── Governance precedents @ 768-dim
+    └── Governance precedents @ 1024-dim
     └── Auto-populated by seal_vault
     └── Multilingual semantic retrieval
 ```

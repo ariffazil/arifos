@@ -414,7 +414,7 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 **Theme:** Phoenix retirement, three-layer schema alignment, ARIF Bands documentation, tool surface sealed at exactly 13
 
 ### Archived (Removed from Public Surface)
-- **`recall_memory` (Phoenix)**: Retired → replaced by `vector_memory` (BGE-M3 768-dim multilingual embeddings + Qdrant + EUREKA sieve). F9 Anti-Hantu compliance — no ghost names on public surface.
+- **`recall_memory` (Phoenix)**: Retired → replaced by `vector_memory` (BGE-M3 1024-dim multilingual embeddings + Qdrant + EUREKA sieve). F9 Anti-Hantu compliance — no ghost names on public surface.
 - **`fetch_content`** + **`inspect_file`**: Consolidated → `ingest_evidence(source_type="url"|"file")`. Reduces surface entropy.
 - **`trinity_forge`**: Demoted to internal orchestration alias. `metabolic_loop` is the canonical Band O tool.
 - **`query_openclaw`**: Archived — internal diagnostic only, never part of 13-tool canon.
