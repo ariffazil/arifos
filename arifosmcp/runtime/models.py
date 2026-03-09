@@ -32,6 +32,8 @@ class AuthorityLevel(str, Enum):
     AGENT = "agent"
     SYSTEM = "system"
     ANONYMOUS = "anonymous"
+    OPERATOR = "operator"
+    SOVEREIGN = "sovereign"
 
 
 class StakesClass(str, Enum):
