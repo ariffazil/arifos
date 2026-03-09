@@ -33,6 +33,7 @@ TOOL_MAP = {
     "quantum_eureka_forge": "eureka_forge",
     "apex_judge_verdict": "apex_judge",
     "seal_vault_commit": "seal_vault",
+    "session_memory": "session_memory",
 }
 
 
@@ -191,6 +192,25 @@ async def call_kernel(
         elif canonical_name == "vector_memory":
             result = await vault(
                 operation=payload.get("operation", "search"),
+                session_id=session_id,
+                content=payload.get("content") or payload.get("query"),
+                memory_ids=payload.get("memory_ids"),
+                top_k=payload.get("top_k", 5),
+                auth_context=auth_ctx,
+            )
+
+        elif canonical_name == "session_memory":
+            requested_operation = str(payload.get("operation", "retrieve")).strip().lower()
+            operation_map = {
+                "retrieve": "search",
+                "recall": "recall",
+                "search": "search",
+                "store": "store",
+                "forget": "forget",
+            }
+            memory_operation = operation_map.get(requested_operation, "search")
+            result = await vault(
+                operation=memory_operation,
                 session_id=session_id,
                 content=payload.get("content") or payload.get("query"),
                 memory_ids=payload.get("memory_ids"),

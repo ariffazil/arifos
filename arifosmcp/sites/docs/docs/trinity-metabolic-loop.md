@@ -20,10 +20,10 @@ The Trinity Metabolic Loop is the complete 000→999 constitutional pipeline tha
 ### The Metabolic Cycle
 
 ```
-Raw Query → 000 INIT → 111-333 MIND → 444 ROUTER → 555 MEMORY → 666 HEART → 777 FORGE → 888 APEX → 999 VAULT → Governed Output
-     ↓           ↓           ↓            ↓              ↓            ↓           ↓          ↓           ↓
-  Entropy    Defense    Reasoning    Orchestration  Context      Empathy      Action      Judgment    Immutable
-   High       Scan       & Truth      & Flow         Recall       & Safety     Execution   & Seal      Record
+Raw Query → 000 INIT → 111 MIND → 333 MIND → 222 REALITY → 444 ROUTER → 555 MEMORY → 666 HEART → 777 FORGE → 888 APEX → 999 VAULT → Governed Output
+     ↓           ↓          ↓          ↓           ↓             ↓              ↓            ↓           ↓          ↓           ↓
+  Entropy    Defense    Framing     Reasoning   Grounding    Orchestration    Context      Empathy      Action    Judgment    Immutable
+   High       Scan      & Scope      & Truth    & Evidence     & Flow          Recall       & Safety    Execution   & Seal      Record
 ```
 
 ---
@@ -57,6 +57,11 @@ The three engines run in thermodynamic isolation until constitutional merge poin
 ### 333 MIND REASON — `reason_mind_synthesis`
 **Purpose:** Multi-step reasoning with Eureka synthesis slot.
 **Floors:** F7 (Humility), F8 (Genius).
+
+### 222 REALITY VERIFY — internal router stage
+**Purpose:** Mandatory grounding gate for configured risk tiers before HEART/JUDGE.
+**Function:** Uses external reality evidence and uncertainty signals to produce a grounding score and gate verdict.
+**Trace key:** `222_REALITY` (sealed into vault telemetry).
 
 ### 444 PHOENIX ROUTER — `metabolic_loop_router`
 **Purpose:** The constitutional orchestrator. Manages the 000→999 flow.
@@ -114,6 +119,8 @@ Query
 000_INIT → VOID? → Return
   ↓
 111-333_MIND → SABAR? → Refine
+  ↓
+222_REALITY → PARTIAL? → Ground more evidence
   ↓
 444_ROUTER
   ↓

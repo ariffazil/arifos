@@ -91,3 +91,12 @@
 - SEAL-6 (Reality Verification + Replay Hardening): COMPLETE
   - Scope: 222 grounding stage, F2 evidence flow into judge summary, and vault-backed trace replay.
   - Status: Complete and regression-tested.
+
+- 33 PATCH: Added `session_memory` public facade tool in `arifosmcp/runtime/phase2_tools.py`.
+- 34 PATCH: Added bridge routing for `session_memory` operations (`store/retrieve/recall/forget`) in `arifosmcp/bridge.py`.
+- 35 PATCH: Updated layered tool docs to final 7-tool interface model across README/DEPLOY/site docs/TOOLS.
+- 36 PATCH: Updated runtime and package version markers to `2026.03.10` / `2026.03.10-SEAL` and npm `0.3.2`.
+
+- SEAL-7 (Final Interface Alignment + Version Date Roll): COMPLETE
+  - Scope: final 7-tool interface alignment and date-version normalization.
+  - Status: Complete; ready for final verification and push.

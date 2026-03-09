@@ -4,12 +4,11 @@ arifosmcp/runtime/server.py — arifOS APEX-G MCP Hub
 CANONICAL EXTERNAL ENTRYPOINT for the arifOS MCP surface.
 
 Phase split:
-  - Core constitutional stack (10 tools): the only tools used by the new
+  - Core constitutional stack (7 tools): the only tools used by the new
     APEX-G metabolic loop and deploy validation.
   - External capability tools (Phase 2 integration): legacy capability
-    tools such as ACLIP sensors, reality search, evidence ingest, and the
-    old metabolic loop. They stay enabled for compatibility, but are not
-    wired into the new orchestrated path.
+    tools such as ACLIP sensors, reality search, evidence ingest.
+    They stay enabled for compatibility.
 
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
@@ -42,14 +41,14 @@ from arifosmcp.runtime.tools import (
     reason_mind_synthesis,
     register_tools,
     seal_vault_commit,
-    vector_memory_store,
+    session_memory,
 )
 
 # ---------------------------------------------------------------------------
 # Phase 1 — Core Constitutional Stack (10 tools)
 # ---------------------------------------------------------------------------
 
-mcp = FastMCP("arifOS-APEX-G", version="2026.03.09-SEAL")
+mcp = FastMCP("arifOS-APEX-G", version="2026.03.10-SEAL")
 PUBLIC_TOOL_PROFILE = os.getenv("ARIFOS_PUBLIC_TOOL_PROFILE", "full").strip().lower() or "full"
 VALID_TRANSPORT_MODES = {"stdio", "http", "sse", "streamable-http"}
 
@@ -79,7 +78,7 @@ CORE_TOOL_REGISTRY = {
     "integrate_analyze_reflect": integrate_analyze_reflect,
     "reason_mind_synthesis": reason_mind_synthesis,
     "metabolic_loop_router": metabolic_loop_router,
-    "vector_memory_store": vector_memory_store,
+    "session_memory": session_memory,
     "assess_heart_impact": assess_heart_impact,
     "critique_thought_audit": critique_thought_audit,
     "quantum_eureka_forge": quantum_eureka_forge,
@@ -137,7 +136,7 @@ __all__ = [
     "quantum_eureka_forge",
     "reason_mind_synthesis",
     "seal_vault_commit",
-    "vector_memory_store",
+    "session_memory",
 ]
 
 

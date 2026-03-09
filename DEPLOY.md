@@ -109,6 +109,17 @@ Remote HTTP example:
 - URL: https://your-domain/mcp
 - Transport: http
 
+Public profile tools (ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt):
+- metabolic_loop_router
+- search_reality
+- ingest_evidence
+- session_memory
+- audit_rules
+- check_vital
+- open_apex_dashboard
+
+Internal full profile keeps the full 10-tool APEX-G staged surface and diagnostics such as trace_replay.
+
 ## 7) Operational Verification Checklist
 
 - Health endpoint returns success at /health

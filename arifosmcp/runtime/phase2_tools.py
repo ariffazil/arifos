@@ -38,6 +38,26 @@ async def check_vital(session_id: str = "global") -> dict[str, Any]:
     return await call_kernel("check_vital", session_id, {})
 
 
+async def session_memory(
+    session_id: str = "global",
+    operation: str = "retrieve",
+    content: str | None = None,
+    top_k: int = 5,
+    memory_ids: list[str] | None = None,
+) -> dict[str, Any]:
+    """Session memory facade for store/retrieve/forget operations."""
+    return await call_kernel(
+        "session_memory",
+        session_id,
+        {
+            "operation": operation,
+            "content": content,
+            "top_k": top_k,
+            "memory_ids": memory_ids,
+        },
+    )
+
+
 async def trace_replay(session_id: str = "global", limit: int = 20) -> dict[str, Any]:
     """Read-only replay of sealed trace history for a session."""
     return await call_kernel("trace_replay", session_id, {"limit": limit})
@@ -79,12 +99,19 @@ def _register_local_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:
     )(check_vital)
     mcp.tool(
         description=(
-            "Use this when you need to replay sealed stage traces for a given session_id "
-            "from VAULT999 for explainability or audit. This tool is read-only."
+            "Use this to store, retrieve, or forget session memory artifacts. "
+            "This may mutate memory state."
         ),
-        annotations={"readOnlyHint": True},
-    )(trace_replay)
+    )(session_memory)
+
     if normalized_profile != "chatgpt":
+        mcp.tool(
+            description=(
+                "Use this when you need to replay sealed stage traces for a given session_id "
+                "from VAULT999 for explainability or audit. This tool is read-only."
+            ),
+            annotations={"readOnlyHint": True},
+        )(trace_replay)
         mcp.tool(
             description=(
                 "Use this only for legacy compatibility. For ChatGPT and remote MCP clients, "
@@ -117,5 +144,6 @@ __all__ = [
     "metabolic_loop",
     "register_phase2_tools",
     "search_reality",
+    "session_memory",
     "trace_replay",
 ]

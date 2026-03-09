@@ -55,7 +55,7 @@ G --> H[999: Commit - Seal VAULT999]
 - Python: `>=3.12`
 - Module: `arifosmcp.runtime`
 - Transports: `stdio`, `http`
-- MCP surface: 10 metabolic tools, 8 resources, 8 prompts
+- MCP surface: layered runtime (7 public tools in `chatgpt` profile, 10 core tools in `full` profile)
 - MCP protocol (current): `2025-11-25`
 - Supported protocol versions: `2025-11-25`, `2025-03-26`
 
@@ -77,7 +77,17 @@ Live endpoints:
 - Dashboard: `https://arifosmcp.arif-fazil.com/dashboard/`
 - Health: `https://arifosmcp.arif-fazil.com/health`
 
-## The 10 Metabolic Tools
+## Public Runtime Tools (`ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt`)
+
+1. `metabolic_loop_router`
+2. `search_reality`
+3. `ingest_evidence`
+4. `session_memory`
+5. `audit_rules`
+6. `check_vital`
+7. `open_apex_dashboard`
+
+## Internal 10-Tool Metabolic Stack (`ARIFOS_PUBLIC_TOOL_PROFILE=full`)
 
 1. `init_anchor_state` (000)
 2. `integrate_analyze_reflect` (111)

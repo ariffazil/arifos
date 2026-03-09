@@ -125,6 +125,13 @@ Point any MCP client to our streamable HTTP endpoint:
 *   **URL:** `https://arifosmcp.arif-fazil.com/mcp`
 *   **Transport:** `http`
 
+### 3. Tool Surface (Layered)
+
+- Public profile (`ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt`):
+  `metabolic_loop_router`, `search_reality`, `ingest_evidence`, `session_memory`, `audit_rules`, `check_vital`, `open_apex_dashboard`
+- Full profile (`ARIFOS_PUBLIC_TOOL_PROFILE=full`): full 10-tool APEX-G metabolic stack plus diagnostics like `trace_replay`.
+- Router includes an internal `222_REALITY` verification stage before heart/judge synthesis.
+
 ---
 
 ## 🧱 The 13 Constitutional Floors
@@ -166,7 +173,7 @@ core/                               # The Governance Kernel (Pure Logic)
 
 ```
 Sovereign:   Muhammad Arif bin Fazil
-Version:     2026.03.08-APEX-SEAL
+Version:     2026.03.10-SEAL
 Status:      STATIONARY & ENFORCED
 Motto:       DITEMPA BUKAN DIBERI — Forged, Not Given
 ```

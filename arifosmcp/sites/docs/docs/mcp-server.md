@@ -10,7 +10,7 @@ description: Technical reference for the canonical arifOS AAA MCP runtime.
 > Registry ID: `io.github.ariffazil/arifos-mcp`
 > Live base URL: `https://arifosmcp.arif-fazil.com`
 > Runtime module: `arifosmcp.runtime`
-> Version: `2026.03.09-SEAL`
+> Version: `2026.03.10-SEAL`
 
 If you're wondering what an "MCP Server" is: **It's the bridge that connects an AI (like Claude or Cursor) to arifOS.** 
 
@@ -20,7 +20,7 @@ The Model Context Protocol (MCP) is a standard that lets AI models securely use 
 
 - **Primary Entrypoint:** `python -m arifosmcp.runtime`
 - **Session Registry:** `arifosmcp.runtime.sessions` (Centralized state)
-- **Tool Surface:** `arifosmcp.runtime.tools` (APEX-G 10-tool stack)
+- **Tool Surface:** Layered (`chatgpt` public interface + `full` APEX-G internal stack)
 - **Production transport:** Streamable HTTP (`/mcp`) — Current MCP standard
 - **Local transport:** stdio — For Claude Desktop, Cursor IDE
 - **Constitutional envelope:** 333 axioms + 13 laws + APEX-G 5-layer stack
@@ -38,7 +38,19 @@ python -m arifosmcp.runtime stdio
 HOST=0.0.0.0 PORT=8080 python -m arifosmcp.runtime http
 ```
 
-## Canonical 10-Tool APEX-G Stack
+## Public Interface (`ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt`)
+
+| Tool | Role |
+|------|------|
+| `metabolic_loop_router` | One-call governed 000->999 execution entrypoint. |
+| `search_reality` | External grounding and source discovery. |
+| `ingest_evidence` | Read-only evidence fetch/intake. |
+| `session_memory` | Session memory store/retrieve/forget facade. |
+| `audit_rules` | Read-only constitutional rule audit. |
+| `check_vital` | Read-only system health snapshot. |
+| `open_apex_dashboard` | Opens the APEX dashboard iframe in MCP-compatible clients. |
+
+## Canonical 10-Tool APEX-G Stack (`full` profile)
 
 The core constitutional assembly line. Every tool returns a `RuntimeEnvelope`.
 
@@ -55,11 +67,13 @@ The core constitutional assembly line. Every tool returns a `RuntimeEnvelope`.
 | 888 | `apex_judge_verdict` | Constitutional judgment. Produces governance token. |
 | 999 | `seal_vault_commit` | Immutable VAULT999 ledger sealing. Append-only. |
 
-### Additional Tool
+### Stage 222 (Reality Verification)
 
-| Tool | Role |
-|------|------|
-| `open_apex_dashboard` | Opens the APEX Sovereign Dashboard iframe in compatible MCP clients (MCP App). |
+The router path now contains a `222_REALITY` verification stage between `333_MIND` and `666_HEART`. Grounding status/score are included in judge synthesis and sealed telemetry for replay.
+
+### Contrast Analytics Status
+
+The runtime currently returns per-call deltas and telemetry, but not a dedicated turn-to-turn contrast score. Historical analysis is available in `full` profile through `trace_replay` over sealed vault telemetry; explicit semantic contrast fields are a future enhancement.
 
 ## Interactive Resources
 

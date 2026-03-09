@@ -35,7 +35,24 @@ Unlike a normal API where tools just execute blindly, arifOS exposes a **"govern
 }
 ```
 
-## Canonical 10-Tool Metabolic Stack
+## Tool Surface Is Layered
+
+- Public profile (`ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt`): small, stable operator interface.
+- Full profile (`ARIFOS_PUBLIC_TOOL_PROFILE=full`): internal 10-tool constitutional assembly line.
+
+### Public Tool Interface (`chatgpt` profile)
+
+| Tool | Role |
+|------|------|
+| `metabolic_loop_router` | One-call governed 000->999 execution entrypoint. |
+| `search_reality` | External grounding and source discovery. |
+| `ingest_evidence` | Fetch/read evidence from URL sources. |
+| `session_memory` | Session memory store/retrieve/forget facade. |
+| `audit_rules` | Read-only constitutional audit surface. |
+| `check_vital` | Read-only runtime health surface. |
+| `open_apex_dashboard` | Opens the APEX Sovereign Dashboard (MCP App). |
+
+## Canonical 10-Tool Metabolic Stack (`full` profile)
 
 The core governance assembly line. These tools must be called in sequence (000→999) to reach a sealed action.
 
@@ -52,11 +69,9 @@ The core governance assembly line. These tools must be called in sequence (000�
 | 888 | `apex_judge_verdict` | Constitutional judgment. Produces governance token. |
 | 999 | `seal_vault_commit` | Immutable VAULT999 ledger sealing. Append-only. |
 
-### Additional Utility Tool
+### Stage 222 Reality Verification (inside router)
 
-| Tool | Role |
-|------|------|
-| `open_apex_dashboard` | Opens the APEX Sovereign Dashboard (MCP App). |
+`metabolic_loop_router` now executes an explicit `222_REALITY` policy stage between `333_MIND` and `666_HEART` for configured risk tiers, then forwards grounding status into `888_JUDGE` synthesis.
 
 ## Resources and prompts
 
@@ -102,3 +117,7 @@ Every tool returns a structured JSON contract containing the **APEX 5-Layer Stac
 - **⚠️ `SABAR`** -> Hold/Refine. Blocked temporarily; AI must refine reasoning.
 - **❌ `VOID`** -> Blocked entirely. Hard floor violation (Truth, Auth, Injection).
 - **🛑 `HOLD-888`** -> Blocked. Requires explicit cryptographic signature from human.
+
+## Session Contrast Note
+
+Current router outputs expose per-call governance deltas (`score_delta`), telemetry, and stage traces. They do **not** yet expose a first-class turn-to-turn contrast metric (for example semantic drift vs previous turn). For now, use `trace_replay` for sealed historical traces and treat contrast analytics as a planned capability.
