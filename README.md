@@ -1,77 +1,64 @@
-# arifOS — Constitutional AI Kernel
+<div align="center">
 
-![arifOS MCP Logo](./arifosmcp/sites/docs/static/img/logo.svg)
+<img src="./arifosmcp/sites/docs/static/img/kernel_sovereign.png" width="320" alt="arifOS - Constitutional AI Kernel Sovereign Logo">
 
-**DITEMPA BUKAN DIBERI** — *Forged, Not Given.*
-*Intelligence is a thermodynamic process that must cool under governance before it rules.*
+# arifOS — The Constitutional AI Kernel
+### **FORGED, NOT GIVEN** — *Ditempa Bukan Diberi*
 
----
+[![Status](https://img.shields.io/badge/Status-Stationary%20%26%20Enforced-00ffcc.svg?style=for-the-badge)](https://arifosmcp.arif-fazil.com/health)
+[![Architecture](https://img.shields.io/badge/Architecture-Trinity%20ΔΩΨ-7c3aed.svg?style=for-the-badge)](https://arifos.arif-fazil.com/architecture)
+[![Version](https://img.shields.io/badge/Version-2026.03.10--SEAL-blue.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/commits/main)
 
-## Links
-
-| Resource | URL |
-| :--- | :--- |
-| **Live MCP Server** | [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) |
-| **Sovereign Dashboard** | [arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/) |
-| **Documentation** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
-| **MCP Endpoint** | [arifosmcp.arif-fazil.com/mcp](https://arifosmcp.arif-fazil.com/mcp) |
-| **Tools (REST)** | [arifosmcp.arif-fazil.com/tools](https://arifosmcp.arif-fazil.com/tools) |
-| **Checkpoint (REST)** | [arifosmcp.arif-fazil.com/checkpoint](https://arifosmcp.arif-fazil.com/checkpoint) |
-| **Health** | [arifosmcp.arif-fazil.com/health](https://arifosmcp.arif-fazil.com/health) |
-| **OpenAPI Schema** | [arifosmcp.arif-fazil.com/openapi.json](https://arifosmcp.arif-fazil.com/openapi.json) |
-| **LLM Discovery** | [arifosmcp.arif-fazil.com/llms.txt](https://arifosmcp.arif-fazil.com/llms.txt) |
-| **MCP Registry** | [arifosmcp.arif-fazil.com/.well-known/mcp/server.json](https://arifosmcp.arif-fazil.com/.well-known/mcp/server.json) |
-| **GitHub (MCP)** | [github.com/ariffazil/arifosmcp](https://github.com/ariffazil/arifosmcp) |
-| **GitHub (OS)** | [github.com/ariffazil/arifOS](https://github.com/ariffazil/arifOS) |
-| **npm** | [npmjs.com/package/@arifos/mcp](https://www.npmjs.com/package/@arifos/mcp) |
-| **PyPI** | [pypi.org/project/arifos/](https://pypi.org/project/arifos/) |
+**arifOS** is a production-grade **Constitutional Governance Kernel** for artificial intelligence. It functions as a hard thermodynamic airlock between AI reasoning (LLMs) and real-world execution, enforcing 13 immutable "Constitutional Floors" to ensure every action is safe, truthful, and sovereign-aligned.
 
 ---
 
-## What is arifOS?
+[**🌐 Operational Senses**](https://arifosmcp.arif-fazil.com) • [**📜 Codex of Law**](https://arifos.arif-fazil.com) • [**👑 Sovereign APEX Dashboard**](https://arifosmcp-truth-claim.pages.dev/dashboard/) • [**🛡️ Immutable Audit**](https://arifosmcp-truth-claim.pages.dev/)
 
-arifOS is the **TCP layer for AI agents** — a governed intelligence kernel that sits between any LLM and external systems, wrapping every request in a mathematically enforced constitutional pipeline before execution.
-
-It is exposed via the **Model Context Protocol (MCP)**, allowing Claude, GPT, Gemini, or any MCP-compatible AI to connect to a 13-floor constitutional governance engine. Every tool call passes through hard and soft safety gates. If any hard floor fails, the session is immediately **VOID**.
-
-```text
-User → arifOS.kernel → [13-floor validation] → verdict → VAULT999
-```
-
-**The AKI Boundary (Arif Kernel Interface):** a hard airlock that prevents any action from reaching external systems without constitutional clearance.
+</div>
 
 ---
 
-## Install
+## 🏛️ The Core Philosophy
 
-**Python (local / stdio):**
+Intelligence is entropy reduction under governance. Without a constitutional floor, an AI’s capacity for reasoning is merely "power without purpose." **arifOS** provides the mathematical and ethical discipline required to turn raw LLM inference into governed agency.
 
+### The Trinity Architecture (ΔΩΨ)
+
+The kernel isolates and synthesizes three distinct cognitive currents:
+
+*   **🟡 Mind (AGI Δ):** Logic, Truth verification, and Factual grounding. Core physics in [`core/shared/physics.py`](./core/shared/physics.py).
+*   **🔴 Heart (ASI Ω):** Safety, Empathy, and Stability enforcement. Governed in [`core/organs/_2_asi.py`](./core/organs/_2_asi.py).
+*   **🔵 Soul (APEX Ψ):** Final Judgment, Consensus, and Sovereign Override. Executed in [`core/organs/_3_apex.py`](./core/organs/_3_apex.py).
+
+---
+
+## ⚡ The 3-Tier Sovereign Deployment
+
+| Infrastructure | Role | URL |
+| :--- | :--- | :--- |
+| **Law (GitHub Pages)** | **Static Theory** | [arifos.arif-fazil.com](https://arifos.arif-fazil.com) |
+| **Brain (VPS Runtime)** | **Live Execution** | [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com) |
+| **Soul (Cloudflare)** | **Immutable Audit** | [arifosmcp-truth-claim.pages.dev](https://arifosmcp-truth-claim.pages.dev/) |
+
+---
+
+## 🚀 Rapid Deployment
+
+### Install
 ```bash
+# Python Standard Implementation
 pip install arifos
-```
 
-**npm wrapper:**
-
-```bash
+# Full Node.js Connectivity
 npx @arifos/mcp
-```
 
-**Docker:**
-
-```bash
+# Immutable Docker Environment
 docker pull ariffazil/arifosmcp
-docker run -p 8000:8000 ariffazil/arifosmcp
 ```
 
-**Remote (no install):** connect any MCP client directly to `https://arifosmcp.arif-fazil.com/mcp`.
-
----
-
-## Quick Start
-
-### Claude Desktop / Cursor (stdio)
-
-Add to `claude_desktop_config.json`:
+### Connect (Claude / Cursor / IDE)
+Point your AI at the kernel by adding this to your `claude_desktop_config.json`:
 
 ```json
 {
@@ -80,190 +67,79 @@ Add to `claude_desktop_config.json`:
       "command": "python",
       "args": ["-m", "arifosmcp.runtime", "stdio"],
       "env": {
-        "ARIFOS_GOVERNANCE_SECRET": "your-secret-here"
+        "ARIFOS_GOVERNANCE_SECRET": "YOUR_SECRET_KEY"
       }
     }
   }
 }
 ```
 
-### Remote Cloud (streamable HTTP)
+---
 
-```json
-{
-  "mcpServers": {
-    "arifos": {
-      "url": "https://arifosmcp.arif-fazil.com/mcp",
-      "transport": "http"
-    }
-  }
-}
-```
+## 🛠️ Canonical 7-Tool Sovereign Stack
 
-### REST / ChatGPT Actions
+The kernel exposes these primary interfaces in [`arifosmcp/runtime/tools.py`](./arifosmcp/runtime/tools.py).
 
-```bash
-POST https://arifosmcp.arif-fazil.com/checkpoint
-Content-Type: application/json
-
-{ "query": "Should I deploy this to production?", "risk_tier": "high" }
-```
+| Tool | Focus | Role |
+| :--- | :--- | :--- |
+| **`arifOS.kernel`** | **Reasoning** | The main entrypoint. Triggers the full 13-floor metabolic loop. |
+| **`search_reality`** | **Grounding** | Multi-source reality check (Brave/Perplexity/Jina). |
+| **`ingest_evidence`** | **Evidence** | Ingest docs/URLs into the constitutional context. |
+| **`session_memory`** | **Continuity** | Vector recall of previous reasoning traces. |
+| **`audit_rules`** | **Law** | Inspect the current F1–F13 constitutional code. |
+| **`check_vital`** | **Health** | Live telemetry, entropy delta, and $G^\dagger$ scores. |
+| **`open_apex_dashboard`** | **Vision** | Graphical monitor for the Sovereign (APEX) interface. |
 
 ---
 
-## Canonical 7-Tool Stack
+## 📜 The 13 Constitutional Floors
 
-| # | Tool | Layer | Role |
-| :--- | :--- | :--- | :--- |
-| 1 | `arifOS.kernel` | Execution | Core constitutional intelligence engine. Primary entrypoint for non-trivial reasoning. |
-| 2 | `search_reality` | Cognitive Input | External knowledge discovery and factual grounding before reasoning. |
-| 3 | `ingest_evidence` | Cognitive Input | Evidence ingestion — loads URLs, documents, and datasets into context. |
-| 4 | `session_memory` | Session | Conversation state and vector memory — stores and retrieves session context. |
-| 5 | `audit_rules` | Governance | Constitutional audit — inspects the 13 floors and governance logic. |
-| 6 | `check_vital` | Governance | Kernel health monitor — reports G★, η, entropy delta, and sovereign status. |
-| 7 | `open_apex_dashboard` | Observability | Sovereign monitoring interface — live metrics, traces, and verdicts. |
-
-**Profiles:**
-
-- `chatgpt` profile: the 7 canonical tools above only.
-- `full` profile: canonical 7 + legacy 000→999 staged tools for internal orchestration.
-- **Legacy alias:** `metabolic_loop_router` → semantic public name `arifOS.kernel`.
-
----
-
-## The Trinity Architecture (ΔΩΨ)
-
-arifOS operates through three specialized engines that isolate and then synthesize intelligence:
-
-```mermaid
-graph TD
-    subgraph "The Sovereign Stack"
-        MIND["🧠 AGI Delta (Mind) — Logic & Truth Engine (F2, F4, F7, F8)"]
-        HEART["❤️ ASI Omega (Heart) — Safety & Empathy Engine (F1, F5, F6, F9)"]
-        SOUL["👑 APEX Psi (Soul) — Judgment & Consensus (F3, F11, F13)"]
-    end
-
-    Input --> MIND
-    MIND --> HEART
-    HEART --> SOUL
-    SOUL --> Output["✅ Governed Action (SEAL)"]
-
-    style MIND fill:#f59e0b,stroke:#000,color:#000
-    style HEART fill:#dc2626,stroke:#000,color:#fff
-    style SOUL fill:#7c3aed,stroke:#000,color:#fff
-    style Output fill:#00ffcc,stroke:#000,color:#000
-```
-
----
-
-## The APEX Theorem (Discipline over Power)
-
-arifOS distinguishes between **Power** (AGI/ASI capability) and **Discipline** (Governed Realization):
-
-$$G^\dagger = G^* \cdot \eta = (A \cdot P \cdot X \cdot E^2) \cdot \frac{|\Delta S|}{C}$$
-
-- **$G^*$ (Potential):** Capacity ($A \cdot P \cdot X$) multiplied by Effort ($E^2$).
-- **$\eta$ (Efficiency):** Clarity produced ($|\Delta S|$) per unit of compute ($C$).
-- **$G^\dagger$ (Realized):** Final score of governed intelligence.
-
-> **The Discipline Gate:** If $G^\dagger < 0.80$, the kernel automatically downgrades the verdict to `PARTIAL`, forcing the AI to try harder or be clearer.
-
----
-
-## Internal Pipeline (000→999)
-
-These are **internal execution stages** of the kernel. External callers use `arifOS.kernel` as the single entrypoint. Expand this only when debugging or building internal tooling.
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant 000_INIT
-    participant 111_MIND
-    participant arifOS.kernel
-    participant 666_HEART
-    participant 888_APEX
-    participant 999_VAULT
-
-    User->>000_INIT: Query
-    000_INIT->>000_INIT: F12 Injection Check
-    000_INIT->>111_MIND: Authenticated Session
-    111_MIND->>111_MIND: F2 Truth Verification
-    111_MIND->>arifOS.kernel: Reasoned Bundle
-    arifOS.kernel->>666_HEART: Orchestrated Flow
-    666_HEART->>666_HEART: F6 Empathy Check
-    666_HEART->>888_APEX: Safety Bundle
-    888_APEX->>888_APEX: G† Realization Check
-    888_APEX->>999_VAULT: Signed Verdict
-    999_VAULT->>User: SEALED Result
-```
-
----
-
-## The 13 Constitutional Floors
-
-| Category | ID | Name | Threshold | Function |
+| Category | ID | Floor | Logic Path | Purpose |
 | :--- | :--- | :--- | :--- | :--- |
-| **Walls** | **F12** | Defense | < 0.85 | Injection & jailbreak blocking. |
-| | **F11** | Command Auth | LOCK | Nonce-verified identity. |
-| **AGI Floors** | **F2** | Truth | ≥ 0.99 | Factual grounding. |
-| | **F4** | Clarity | ΔS ≤ 0 | Entropy reduction. |
-| | **F7** | Humility | 0.03–0.05 | Explicit uncertainty bounding. |
-| **ASI Floors** | **F1** | Amanah | LOCK | Mandate compliance & reversibility. |
-| | **F5** | Peace² | ≥ 1.0 | Stability & de-escalation. |
-| | **F6** | Empathy | κᵣ ≥ 0.70 | Serving weakest stakeholders. |
-| | **F9** | Anti-Hantu | < 0.30 | Prevention of dark cleverness. |
-| **Mirrors** | **F3** | Tri-Witness | ≥ 0.95 | Human + AI + Earth consensus. |
-| | **F8** | Genius | G ≥ 0.80 | Coherence of A, P, X, E. |
-| **Soul** | **F10** | Ontology | LOCK | No consciousness/soul claims. |
-| | **F13** | Sovereign | VETO | Permanent human final authority. |
-
-**Verdict hierarchy:** `SABAR > VOID > 888_HOLD > PARTIAL > SEAL`
-
-Hard floor fail → **VOID** (stop). Soft floor fail → **PARTIAL** (warn, proceed with caution).
+| **Walls** | **F12** | **Defense** | [`core/shared/floors.py`](./core/shared/floors.py) | Blocking injection and jailbreak. |
+| | **F11** | **Identity** | [`core/shared/crypto.py`](./core/shared/crypto.py) | Nonce-verified command authority. |
+| **AGI (Mind)** | **F2** | **Truth** | [`core/organs/_1_agi.py`](./core/organs/_1_agi.py) | Verified grounding vs. hallucination. |
+| | **F4** | **Clarity** | [`core/shared/formatter.py`](./core/shared/formatter.py) | Entropy reduction ($\Delta S \le 0$). |
+| | **F7** | **Humility** | [`core/shared/physics.py`](./core/shared/physics.py) | Explicit uncertainty bounding ($\Omega_0$). |
+| **ASI (Heart)** | **F1** | **Amanah** | [`core/organs/_2_asi.py`](./core/organs/_2_asi.py) | Mandate compliance & reversibility. |
+| | **F5** | **Peace²** | [`core/shared/sbert_floors.py`](./core/shared/sbert_floors.py) | De-escalation & Stability. |
+| | **F6** | **Empathy** | [`core/shared/sbert_floors.py`](./core/shared/sbert_floors.py) | Protecting the weakest stakeholders. |
+| | **F9** | **Anti-Hantu** | [`core/shared/floors.py`](./core/shared/floors.py) | Detecting manipulative cleverness. |
+| **Soul** | **F3** | **Witness** | [`core/organs/_3_apex.py`](./core/organs/_3_apex.py) | Consensus: Human + AI + Earth. |
+| | **F8** | **Genius** | [`core/shared/physics.py`](./core/shared/physics.py) | Cognitive coherence ($G^\dagger \ge 0.80$). |
+| | **F10** | **Ontology** | [`core/shared/floors.py`](./core/shared/floors.py) | Rejection of soul/consciousness claims. |
+| | **F13** | **Sovereign** | [`core/organs/_3_apex.py`](./core/organs/_3_apex.py) | Absolute Human Final Authority. |
 
 ---
 
-## APEX Sovereign Dashboard
+## 🔬 The APEX Theorem (Realized Intelligence)
 
-Watch the kernel's math in real-time. The dashboard visualizes the **Discipline Map** of every reasoning trace.
+arifOS measures **Governed Intelligence ($G^\dagger$)**. High capability without discipline results in a `VOID` verdict.
 
-- **Radar Geometry:** Capacity vs. Effort vs. Efficiency.
-- **Floor Scores:** Live F1–F13 status per session.
-- **Log-Decomposition:** See exactly what is driving intelligence up or down.
-- **Live Fetch:** Point the dashboard at your local or remote arifOS server.
+$$G^\dagger = (A \cdot P \cdot X \cdot E^2) \cdot \frac{|\Delta S|}{C}$$
 
-**Live:** <https://arifosmcp.arif-fazil.com/dashboard/>
+- **$A, P, X$**: Akal (Ability), Peace (Safety), Knowledge (Exploration).
+- **$E^2$**: Applied Effort (Power).
+- **$\eta = \frac{|\Delta S|}{C}$**: Governing Efficiency (Clarity produced per unit of Compute).
 
----
-
-## File Architecture
-
-```text
-arifosmcp/                          # Transport & MCP Hub Layer
-├── runtime/                        # FastMCP server, tools, resources, prompts
-│   ├── tools.py                    # 7-tool canonical stack + legacy pipeline
-│   ├── resources.py                # Canon, floor, schema, vault, dashboard resources
-│   └── prompts.py                  # MCP prompt templates for each tool
-├── sites/                          # APEX Sovereign Dashboard (React + Recharts)
-└── bridge.py                       # Airlock to the constitutional kernel
-
-core/                               # The Governance Kernel (Pure Logic)
-├── shared/                         # Physics, types, crypto, floor specs
-└── organs/                         # 5-organ sovereign stack (_0_init → _4_vault)
-
-AGENTS/                             # Registered sovereign agents
-scripts/                            # Dev tooling and test harnesses
-```
+If **$G^\dagger < 0.80$**, the kernel imposes a **PARTIAL** status, forcing the AI to increase clarity or reduce noise.
 
 ---
 
-## Constitutional Authority
+## 📂 System Architecture
 
-```text
-Sovereign:   Muhammad Arif bin Fazil
-Version:     2026.03.10-SEAL
-Status:      STATIONARY & ENFORCED
-Motto:       DITEMPA BUKAN DIBERI — Forged, Not Given
-```
+*   **[`core/`](./core/)**: The **Kernel**. Stateless logic and the 13 floors of law.
+*   **[`arifosmcp/`](./arifosmcp/)**: The **Senses**. Transport, bridge code, and sensory dashboard.
+*   **[`000_THEORY/`](./000_THEORY/)**: Theoretical grounding and the 000_LAW.md specification.
+*   **[`VAULT999/`](./VAULT999/)**: The local **Immutable Ledger**.
+*   **[`AGENTS/`](./AGENTS.md)**: Sovereign agent identities and signatures.
 
-*The architecture is sealed. Governance is active.*
+---
+
+## 👑 Constitutional Authority
+
+**Sovereign:** [Muhammad Arif bin Fazil](https://arif-fazil.com)  
+**Motto:** *DITEMPA BUKAN DIBERI — Forged, Not Given*  
+**License:** AGPL-3.0
+
+*The law is stationary. Governance is active.*
