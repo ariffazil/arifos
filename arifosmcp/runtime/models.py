@@ -177,8 +177,28 @@ class RuntimeEnvelope(BaseModel):
     verdict: Verdict = Verdict.UNSET
     stage: Stage
     session_id: str
+    
+    # P1 Unified Semantics
+    final_verdict: str | None = None
+    status: str = "SUCCESS"
     failure_origin: str | None = None
+    failure_stage: str | None = None
+    auth_state: str = "anonymous"
+    
+    # P3/P4 Explainability & Causality
+    score_delta: dict[str, float] = Field(default_factory=dict)
+    primary_blocker: str | None = None
+    secondary_blockers: list[str] = Field(default_factory=list)
+    next_best_action: str | None = None
+    counterfactual: str | None = None
     remediation_notes: list[str] = Field(default_factory=list)
+    
+    # P4 Dry-run structured explanation
+    blocked_because: str | None = None
+    block_class: str | None = None  # e.g. "auth_only", "constitutional", "safety"
+    safe_alternative: str | None = None
+    minimum_upgrade_condition: str | None = None
+
     telemetry: Telemetry = Field(default_factory=Telemetry)
     witness: Witness = Field(default_factory=Witness)
     auth_context: AuthContext = Field(default_factory=AuthContext)

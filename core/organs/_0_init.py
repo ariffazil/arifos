@@ -131,6 +131,61 @@ class AuthorityLevel(Enum):
     OPERATOR = "operator"
     SOVEREIGN = "sovereign"
     SYSTEM = "system"
+    AGENT = "agent"
+    ANONYMOUS = "anonymous"
+
+
+def coerce_authority_level(level: str | None) -> dict[str, Any]:
+    """Coerce or suggest valid authority levels."""
+    valid = [l.value for l in AuthorityLevel if l != AuthorityLevel.NONE]
+    if not level:
+        return {"value": "anonymous", "coerced": True}
+    
+    clean = str(level).lower().strip()
+    if clean in valid:
+        return {"value": clean, "coerced": False}
+    
+    # Coercion layer
+    aliases = {
+        "human": "user",
+        "admin": "sovereign",
+        "root": "system",
+        "bot": "agent",
+        "guest": "anonymous"
+    }
+    if clean in aliases:
+        return {"value": aliases[clean], "coerced": True}
+        
+    return {
+        "value": "anonymous",
+        "coerced": True,
+        "error": f"Invalid authority_level: '{level}'",
+        "allowed_values": valid,
+        "suggested_value": "user"
+    }
+
+
+def coerce_stakes_class(stakes: str | None) -> dict[str, Any]:
+    """Coerce or suggest valid stakes classes."""
+    valid = ["A", "B", "C"]
+    if not stakes:
+        return {"value": "C", "coerced": True}
+    
+    clean = str(stakes).upper().strip()
+    if clean in valid:
+        return {"value": clean, "coerced": False}
+        
+    aliases = {"high": "A", "medium": "B", "low": "C", "test": "C", "unknown": "C"}
+    if clean.lower() in aliases:
+        return {"value": aliases[clean.lower()], "coerced": True}
+        
+    return {
+        "value": "C",
+        "coerced": True,
+        "error": f"Invalid stakes_class: '{stakes}'",
+        "allowed_values": valid,
+        "suggested_value": "C"
+    }
 
 
 VALID_ACTORS: set[str] = {

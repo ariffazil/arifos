@@ -20,6 +20,7 @@ async def metabolic_loop(
     actor_id: str = "anonymous",
     session_id: str | None = None,
     allow_execution: bool = False,
+    dry_run: bool = False,
 ) -> dict[str, Any]:
     """
     Orchestrate the 10-tool constitutional loop (000-999).
@@ -50,26 +51,34 @@ async def metabolic_loop(
     # Resolve/Mint Session (Repair Directive Priority 1 & 3)
     effective_session_id = _normalize_session_id(session_id)
 
+    # P5: Improved Ergonomics (Coercion)
+    from core.organs._0_init import coerce_authority_level, coerce_stakes_class
+    auth_coerced = coerce_authority_level(actor_id)
+    stakes_coerced = coerce_stakes_class(risk_tier)
+    
+    actor_id = auth_coerced["value"]
+    effective_risk_tier = stakes_coerced["value"]
+
     # 1. Stage 000: INIT (Auto-Anchor for low-risk)
     init_res: RuntimeEnvelope = await init_anchor_state(
         intent={"query": query, "task_type": "ask"},
         governance={
             "actor_id": actor_id,
-            "authority_level": "human",  # Schema alignment
-            "stakes_class": "C",         # Low stakes default
+            "authority_level": actor_id,  # Schema alignment
+            "stakes_class": effective_risk_tier,
         },
         session_id=effective_session_id,
     )
     trace["000_INIT"] = init_res.verdict.value
     
-    # SHADOW EVALUATION & AUTO-ANCHOR:
-    # If INIT failed (e.g. F11 Auth), we check if we can auto-anchor for low-risk read-only.
+    # SHADOW EVALUATION & AUTO-ANCHOR (P0):
     init_failed = init_res.verdict == Verdict.VOID
-    
     auth_ctx = init_res.auth_context.model_dump(exclude_none=True)
     
-    if init_failed and risk_tier == "low" and not allow_execution:
-        # F11 Auto-Anchor Bypass for low-risk reads
+    auth_state = init_res.auth_state
+    
+    if init_failed and effective_risk_tier == "C" and not allow_execution:
+        # F11 Auto-Anchor Bypass for low-risk reads (P0)
         from core.enforcement.auth_continuity import mint_auth_context
         logger.info(f"[arifOS] Auto-anchoring low-risk read-only session: {effective_session_id}")
         
@@ -78,18 +87,14 @@ async def metabolic_loop(
             session_id=effective_session_id,
             actor_id="anonymous",
             token_fingerprint="guest-auto-anchor",
-            approval_scope=["reason_mind", "simulate_heart"],
+            approval_scope=["reason_mind", "simulate_heart", "critique_thought"],
             parent_signature="AUTO_ANCHOR_BYPASS"
         )
         auth_ctx = guest_ctx
-        # We don't change init_failed = True here because we still want the final 
-        # JUDGE verdict to be VOID (or PARTIAL) to reflect that the session was not 
-        # formally authorized, but the loop can now RUN.
+        auth_state = "bootstrap_readonly"
         trace["000_INIT"] = "AUTO_ANCHOR"
     
-    # Invariant: effective_session_id must match init_res.session_id
-    # If init failed but we auto-anchored, we MUST keep effective_session_id 
-    # to maintain continuity with the guest_ctx we just minted.
+    # Invariant: Maintain consistency for shadow evaluation
     if not (init_failed and trace["000_INIT"] == "AUTO_ANCHOR"):
         session_id = init_res.session_id
     else:
@@ -138,6 +143,19 @@ async def metabolic_loop(
         critique_res.verdict,
     ]
     
+    if dry_run:
+        # P4: Dry-run support. Return state without judgment or commit.
+        return {
+            "status": "DRY_RUN",
+            "verdict": "DRY_RUN",
+            "final_verdict": "DRY_RUN",
+            "auth_state": auth_state,
+            "session_id": session_id,
+            "trace": trace,
+            "remediation_notes": ["Constitutional dry-run completed. No judgment or vault commit performed."],
+            "next_best_action": "Set dry_run=False to execute formal governance judgment.",
+        }
+    
     # Final Verdict Gating
     if init_failed:
         # Auth failed, loop continues for visibility, but JUDGE must BLOCK.
@@ -168,9 +186,19 @@ async def metabolic_loop(
 
     # Final result construction
     final_output = judge_res.model_dump(mode="json")
-    final_output["status"] = "SUCCESS" if judge_res.verdict != Verdict.VOID else "ERROR"
+    
+    # P1/P2 Unification
+    final_output["final_verdict"] = "AUTH_FAIL" if init_failed else judge_res.verdict.value
+    final_output["status"] = "SUCCESS" if judge_res.verdict not in (Verdict.VOID, Verdict.SABAR) else "ERROR"
+    final_output["auth_state"] = auth_state
+    
     if init_failed:
         final_output["failure_origin"] = "AUTH"
+        final_output["failure_stage"] = "000_INIT"
+        final_output["blocked_because"] = "F11: Command Authority failure during session bootstrap"
+        final_output["block_class"] = "auth_only"
+        final_output["safe_alternative"] = "Use allow_execution=False and risk_tier=low for auto-anchor"
+        final_output["next_best_action"] = "Anchor session with valid actor_id and auth_token"
         
     final_output["trace"] = trace
     final_output["session_id"] = session_id

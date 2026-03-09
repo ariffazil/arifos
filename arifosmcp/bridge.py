@@ -247,7 +247,8 @@ async def call_kernel(
                 risk_tier=payload.get("risk_tier", "medium"), 
                 actor_id=actor_id,
                 session_id=session_id,
-                allow_execution=bool(payload.get("allow_execution", False))
+                allow_execution=bool(payload.get("allow_execution", False)),
+                dry_run=bool(payload.get("dry_run", False))
             )
 
         else:

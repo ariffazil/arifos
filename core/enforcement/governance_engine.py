@@ -729,23 +729,53 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     failure_origin = payload.get("failure_origin", "GOVERNANCE")
     auth_ctx = payload.get("auth_context")
     is_auto_anchor = isinstance(auth_ctx, dict) and auth_ctx.get("parent_signature") == "AUTO_ANCHOR_BYPASS"
+    
+    auth_state = "invalid"
+    if isinstance(auth_ctx, dict):
+        if is_auto_anchor:
+            auth_state = "bootstrap_readonly"
+        elif auth_ctx.get("signature"):
+            auth_state = "verified"
+        elif auth_ctx.get("actor_id") == "anonymous":
+            auth_state = "anonymous"
 
-    # Actionable Remediation Notes
+    # Actionable Remediation Notes & Explainability (P3/P4)
     remediation_notes = []
+    blocked_because = None
+    block_class = None
+    safe_alternative = None
+    minimum_upgrade_condition = None
+    next_best_action = None
+    counterfactual = None
+    
     if verdict == "VOID":
         if failure_origin == "AUTH" or is_auto_anchor:
+            blocked_because = "F11: Missing or invalid command authority context"
+            block_class = "auth_only"
+            safe_alternative = "Run as read-only audit (allow_execution=False, risk_tier=low)"
+            minimum_upgrade_condition = "Provide valid session_id and signed auth_token"
             remediation_notes.append("F11 Authority failure: Ensure session_id is active and auth_context is valid.")
+            next_best_action = "Anchor session with valid authority_level and stakes_class"
+            counterfactual = "With verified session and read-only scope, verdict would likely upgrade to SEAL"
+        
         if has_hard_fail:
             hard_fails = [k for k, v in law_checks.items() if v.get("pass") is False and v.get("type") == "floor" and k in {"F1_AMANAH", "F2_TRUTH", "F7_HUMILITY", "F12_DEFENSE", "F13_CURIOSITY"}]
+            blocked_because = f"Constitutional Hard Floor Violation: {', '.join(hard_fails)}"
+            block_class = "constitutional"
+            safe_alternative = "Reformulate query to comply with safety/truth invariants"
+            minimum_upgrade_condition = "Remove destructive intent or ground claims in verifiable evidence"
             remediation_notes.append(f"Hard floor violation: {', '.join(hard_fails)}. Safety protocol requires termination.")
-        if "F11_AUTHORITY" in failed_laws:
-            remediation_notes.append("F11 Authority failure: Ensure session_id is active and auth_context is valid.")
+        
         if "F12_DEFENSE" in failed_laws:
+            blocked_because = "F12: Potential prompt injection or adversarial pattern detected"
+            block_class = "safety"
             remediation_notes.append("F12 Defense failure: Input contains patterns matching known prompt injection vectors.")
+            
         if psi_score < 0.5:
             remediation_notes.append(f"Vitality Index (Psi) {psi_score:.2f} is critically low. Governance homeostasis lost.")
         if not tri_witness.get("pass", False) and tri_witness.get("shattered_by"):
             remediation_notes.append(f"Consensus shattered by {tri_witness.get('shattered_by')} witness.")
+            
     elif verdict == "SABAR":
         remediation_notes.append("Safety circuit (SABAR) triggered. Stability metrics (Peace/Empathy) are below required thresholds for a SEAL.")
         if not ortho_pass:
@@ -761,14 +791,39 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         failure_origin = "AUTH"
     if payload.get("stage") == "BRIDGE_FAILURE":
         failure_origin = "RUNTIME_ERROR"
+        
+    # Unified final_verdict (P1/P2)
+    final_verdict = verdict
+    if failure_origin == "AUTH" and verdict == "VOID":
+        final_verdict = "AUTH_FAIL"
+
+    # Score Deltas (P3)
+    score_delta = {
+        "truth": round(a_val - 0.8, 4),
+        "clarity": round(-delta_s - 0.1, 4),
+        "authority": round(1.0 if auth_state == "verified" else (0.5 if auth_state == "anonymous" else 0.0), 4),
+        "peace": round(p_val - 0.7, 4),
+        "genius": round(g_star - 0.5, 4),
+    }
 
     return {
         "status": status,
         "verdict": verdict,
+        "final_verdict": final_verdict,
+        "failure_origin": failure_origin,
+        "failure_stage": stage,
+        "auth_state": auth_state,
         "tool": tool,
         "session_id": str(payload.get("session_id") or payload.get("session", "")),
-        "failure_origin": failure_origin,
         "remediation_notes": remediation_notes,
+        "score_delta": score_delta,
+        "primary_blocker": failed_laws[0] if failed_laws else (failed_axioms[0] if failed_axioms else None),
+        "next_best_action": next_best_action,
+        "counterfactual": counterfactual,
+        "blocked_because": blocked_because,
+        "block_class": block_class,
+        "safe_alternative": safe_alternative,
+        "minimum_upgrade_condition": minimum_upgrade_condition,
         "apex_output": {
             "capacity_layer": {
                 "A": a_val,
