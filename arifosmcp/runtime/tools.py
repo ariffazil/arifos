@@ -171,11 +171,9 @@ async def _wrap_call(
         except ValueError:
             verdict = Verdict.UNSET
 
-        returned_auth_ctx = kernel_res.get("auth_context", input_auth_ctx)
-        auth_context = AuthContext(**_normalize_auth_context(returned_auth_ctx))
+        auth_context = AuthContext(**input_auth_ctx)
 
-        # Flatten nested data if bridge wrapped it
-        extracted_data = kernel_res.get("data")
+        extracted_data = kernel_res.get("data", {})
         if not extracted_data:
             extracted_data = kernel_res.get("payload", kernel_res)
 
@@ -183,6 +181,21 @@ async def _wrap_call(
             kernel_res.get("session_id")
             or (extracted_data.get("session_id") if isinstance(extracted_data, dict) else None)
             or session_id
+        )
+
+        # Inject Philosophy Anchor
+        from arifosmcp.runtime.philosophy import get_philosophical_anchor
+
+        g_score = kernel_res.get("telemetry", {}).get("confidence", 0.9)
+        failed_floors = []
+        if verdict_str in ["VOID", "HOLD-888"]:
+            failed_floors.append("F2")  # simulate floor failure for void states to trigger Sagan
+
+        anchor = get_philosophical_anchor(
+            stage=stage.value,
+            g_score=g_score,
+            failed_floors=failed_floors,
+            session_id=effective_session_id,
         )
 
         envelope = RuntimeEnvelope(
@@ -207,7 +220,7 @@ async def _wrap_call(
             telemetry=Telemetry(
                 dS=kernel_res.get("telemetry", {}).get("dS", -0.7),
                 peace2=kernel_res.get("telemetry", {}).get("peace2", 1.1),
-                confidence=kernel_res.get("telemetry", {}).get("confidence", 0.9),
+                confidence=g_score,
                 verdict=kernel_res.get("telemetry", {}).get("verdict", "Alive"),
             ),
             witness=Witness(
@@ -216,6 +229,12 @@ async def _wrap_call(
                 earth=kernel_res.get("witness", {}).get("earth", 0.0),
             ),
             auth_context=auth_context,
+            philosophy={
+                "quote_id": anchor["id"],
+                "quote": anchor["text"],
+                "author": anchor["author"],
+                "category": anchor["category"],
+            },
             data=extracted_data if isinstance(extracted_data, dict) else {"raw": extracted_data},
         )
 
@@ -480,8 +499,7 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     mcp.tool(
         name="metabolic_loop_router",
         description=(
-            "[Legacy Alias] Use arifOS.kernel instead. "
-            "Governed metabolic loop orchestrator."
+            "[Legacy Alias] Use arifOS.kernel instead. Governed metabolic loop orchestrator."
         ),
     )(metabolic_loop_router)
 
