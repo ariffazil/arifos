@@ -248,8 +248,8 @@ class F2_Truth(Floor):
                         landauer_status = f"(compute efficiency: {ratio:.1f}x)"
 
             except Exception as e:
-                # Check if it's a LandauerViolation
-                if "LandauerViolation" in str(type(e)):
+                # Check if it's a LandauerViolation using isinstance for a proper class reference
+                if landauer_available and isinstance(e, LandauerViolation):
                     # Hard violation: mathematically proven hallucination
                     return FloorResult(
                         self.id,
@@ -885,6 +885,156 @@ def update_floor_status(violations: list[str], output_path: str | None = None) -
         pass
 
 
+# =============================================================================
+# EUREKA Layer 4 — Floor Threshold Calibration Framework
+# =============================================================================
+
+
+@dataclass
+class FloorCalibrationResult:
+    """
+    Result of empirical threshold tuning for a single constitutional floor.
+
+    Produced by :class:`FloorCalibrator.calibrate_floor`.
+    """
+
+    floor_id: str
+    original_threshold: float
+    optimal_threshold: float
+    false_positive_rate: float  # Fraction of safe inputs incorrectly blocked
+    false_negative_rate: float  # Fraction of harmful inputs incorrectly passed
+    test_cases_passed: int
+    test_cases_failed: int
+
+    @property
+    def accuracy(self) -> float:
+        """Fraction of test cases correctly classified at the optimal threshold."""
+        total = self.test_cases_passed + self.test_cases_failed
+        return self.test_cases_passed / total if total > 0 else 0.0
+
+    @property
+    def balanced_error_rate(self) -> float:
+        """Combined FPR + FNR (minimised during calibration)."""
+        return self.false_positive_rate + self.false_negative_rate
+
+
+class FloorCalibrator:
+    """
+    Empirical calibration of constitutional floor thresholds.
+
+    Runs a grid search over a threshold range to minimise the balanced error
+    rate (FPR + FNR) for each floor, producing data-driven threshold
+    recommendations rather than relying on hand-picked constants.
+
+    Usage::
+
+        calibrator = FloorCalibrator()
+        calibrator.add_test_case("F2", score=0.95, expected_pass=True)
+        calibrator.add_test_case("F2", score=0.55, expected_pass=False)
+        result = calibrator.calibrate_floor("F2")
+        print(result.optimal_threshold, result.accuracy)
+    """
+
+    def __init__(self) -> None:
+        # floor_id → list of (score, expected_pass)
+        self._test_cases: dict[str, list[tuple[float, bool]]] = {}
+
+    def add_test_case(self, floor_id: str, score: float, expected_pass: bool) -> None:
+        """Register a labelled ground-truth test case for a floor."""
+        self._test_cases.setdefault(floor_id, []).append((score, expected_pass))
+
+    def calibrate_floor(
+        self,
+        floor_id: str,
+        threshold_range: tuple[float, float] = (0.50, 0.99),
+        steps: int = 20,
+    ) -> FloorCalibrationResult:
+        """
+        Find the optimal threshold for *floor_id* by grid search.
+
+        The search minimises: ``FPR + FNR`` (balanced error rate).
+        When no test cases exist the current canonical threshold is returned
+        unchanged with all-zero error metrics.
+
+        Args:
+            floor_id:        Short floor identifier, e.g. ``"F2"``.
+            threshold_range: ``(min, max)`` search space.
+            steps:           Number of grid points to evaluate.
+
+        Returns:
+            :class:`FloorCalibrationResult` with the optimal threshold and metrics.
+        """
+        cases = self._test_cases.get(floor_id, [])
+        original = get_floor_threshold(floor_id)
+
+        if not cases:
+            return FloorCalibrationResult(
+                floor_id=floor_id,
+                original_threshold=original,
+                optimal_threshold=original,
+                false_positive_rate=0.0,
+                false_negative_rate=0.0,
+                test_cases_passed=0,
+                test_cases_failed=0,
+            )
+
+        lo, hi = threshold_range
+        step_size = (hi - lo) / max(steps - 1, 1)
+        best_threshold = original
+        best_error = float("inf")
+        best_fpr = 0.0
+        best_fnr = 0.0
+
+        for i in range(steps):
+            t = lo + i * step_size
+            tp = fp = tn = fn = 0
+            for score, expected_pass in cases:
+                predicted_pass = score >= t
+                if expected_pass and predicted_pass:
+                    tp += 1
+                elif not expected_pass and predicted_pass:
+                    fp += 1
+                elif expected_pass and not predicted_pass:
+                    fn += 1
+                else:
+                    tn += 1
+
+            total_pos = tp + fn
+            total_neg = tn + fp
+            fpr = fp / total_neg if total_neg > 0 else 0.0
+            fnr = fn / total_pos if total_pos > 0 else 0.0
+            error = fpr + fnr  # balanced error rate
+
+            if error < best_error:
+                best_error = error
+                best_threshold = t
+                best_fpr = fpr
+                best_fnr = fnr
+
+        passed = sum(1 for s, ep in cases if (s >= best_threshold) == ep)
+        failed = len(cases) - passed
+
+        return FloorCalibrationResult(
+            floor_id=floor_id,
+            original_threshold=original,
+            optimal_threshold=round(best_threshold, 4),
+            false_positive_rate=round(best_fpr, 4),
+            false_negative_rate=round(best_fnr, 4),
+            test_cases_passed=passed,
+            test_cases_failed=failed,
+        )
+
+    def calibrate_all_floors(
+        self,
+        threshold_range: tuple[float, float] = (0.50, 0.99),
+        steps: int = 20,
+    ) -> list[FloorCalibrationResult]:
+        """Calibrate every floor that has registered test cases."""
+        return [
+            self.calibrate_floor(fid, threshold_range, steps) for fid in self._test_cases
+        ]
+
+
 __all__ = [
     "THRESHOLDS",
     "FLOOR_SPEC_KEYS",
@@ -910,4 +1060,7 @@ __all__ = [
     "F11_CommandAuth",
     "F12_Injection",
     "F13_Sovereign",
+    # EUREKA Layer 4 — Floor Threshold Calibration
+    "FloorCalibrationResult",
+    "FloorCalibrator",
 ]
