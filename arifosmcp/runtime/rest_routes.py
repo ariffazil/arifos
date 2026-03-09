@@ -623,9 +623,16 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
     @mcp.custom_route("/.well-known/mcp/server.json", methods=["GET"])
     async def well_known(request: Request) -> Response:
-        static_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "server.json")
-        if os.path.exists(static_path):
-            with open(static_path) as f:
+        package_root = os.path.dirname(os.path.dirname(__file__))
+        repo_root = os.path.dirname(package_root)
+        manifest_candidates = [
+            os.path.join(repo_root, "spec", "server.json"),
+            os.path.join(package_root, "static", ".well-known", "mcp", "server.json"),
+        ]
+        for manifest_path in manifest_candidates:
+            if not os.path.exists(manifest_path):
+                continue
+            with open(manifest_path, encoding="utf-8") as f:
                 payload = json.load(f)
                 payload.setdefault("protocolVersion", MCP_PROTOCOL_VERSION)
                 payload.setdefault("supportedProtocolVersions", MCP_SUPPORTED_PROTOCOL_VERSIONS)

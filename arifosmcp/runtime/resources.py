@@ -12,6 +12,7 @@ DITEMPA BUKAN DIBERI — Forged, Not Given
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -48,13 +49,22 @@ _DASHBOARD_HTML = (
     Path(__file__).resolve().parent.parent / "sites" / "apex-dashboard" / "dashboard.html"
 )
 
-APEX_DASHBOARD_URI = "ui://apex/dashboard.html"
+APEX_DASHBOARD_URI = "ui://apex/dashboard-v2.html"
+APEX_DASHBOARD_WIDGET_DOMAIN = os.getenv(
+    "ARIFOS_WIDGET_DOMAIN",
+    "https://arifosmcp.arif-fazil.com",
+).rstrip("/")
+APEX_DASHBOARD_CONNECT_DOMAINS = [
+    os.getenv("ARIFOS_PUBLIC_BASE_URL", "https://arifosmcp.arif-fazil.com").rstrip("/"),
+]
 APEX_DASHBOARD_RESOURCE_DOMAINS = [
     "https://unpkg.com",
     "https://fonts.googleapis.com",
     "https://fonts.gstatic.com",
 ]
-APEX_DASHBOARD_DEFAULT_ENDPOINT = "https://arifosmcp.arif-fazil.com/api/governance-status"
+APEX_DASHBOARD_DEFAULT_ENDPOINT = (
+    f"{APEX_DASHBOARD_CONNECT_DOMAINS[0]}/api/governance-status"
+)
 
 
 def _read_vault_entries(n: int = 5) -> list[dict[str, Any]]:
@@ -1037,7 +1047,10 @@ def register_resources(mcp: FastMCP) -> None:
     @mcp.resource(
         APEX_DASHBOARD_URI,
         app=AppConfig(
+            domain=APEX_DASHBOARD_WIDGET_DOMAIN,
+            prefers_border=True,
             csp=ResourceCSP(
+                connect_domains=APEX_DASHBOARD_CONNECT_DOMAINS,
                 resource_domains=APEX_DASHBOARD_RESOURCE_DOMAINS,
             )
         ),
