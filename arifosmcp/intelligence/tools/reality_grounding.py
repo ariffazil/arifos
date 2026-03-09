@@ -513,6 +513,8 @@ class RealityGroundingCascade:
 
         all_results: list[SearchResult] = []
         engines_used_map = {}
+        engines_failed: list[str] = []
+        engines_used: list[str] = []
 
         for engine in self.engines:
             try:
