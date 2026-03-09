@@ -77,9 +77,13 @@ docs/
 *.log
 logs/
 
-# Temporary files
+# Temporary and artifact files
 tmp/
 temp/
+*SQLITE*
+*test_results*
+report.txt
+sqlite_check.txt
 
 # Large directories not needed for build
 VAULT999/
