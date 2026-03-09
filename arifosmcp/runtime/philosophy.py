@@ -1,33 +1,9 @@
 """
 arifosmcp/runtime/philosophy.py — The arifOS Philosophical Lattice
 
-Architecture: AGI ↔ ASI ↔ APEX Trinity
-
-  AGI Layer — Constitutional Symbols (PHILOSOPHY_REGISTRY / 33 quotes)
-    Discrete, interpretable, human-readable, constitutionally curated.
-    Each quote is a compact reasoning primitive about reality, suffering,
-    power, truth, limits, love, order, and meaning.
-    Answers: "What principle can be stated?"
-    Used for: floor-failure overrides, stage-based deterministic anchoring.
-
-  ASI Layer — Geometric Intelligence (Qdrant / BGE-M3 / 99-quote manifold)
-    Continuous, relational, high-dimensional, geometry-based.
-    The embedding manifold organises meaning through proximity, curvature,
-    clustering, analogy, and hidden structure — navigating unnamed relations
-    across the full corpus without explicit symbolic chains.
-    Answers: "What manifold of meaning is closest?"
-    Used for: context-aware semantic retrieval from the 99-quote corpus.
-
-  APEX Arbitration — get_wisdom_for_context()
-    Governed arbitration between the AGI and ASI layers.
-    Floor failures (constitutional overrides) always resolve via the AGI
-    layer; semantic context navigates the ASI manifold when available;
-    deterministic stage-selection serves as the final fallback.
-    Human judge remains sovereign over all verdicts.
-
-    AGI selects from named truths.
-    ASI navigates unnamed relations.
-    APEX governs which layer speaks.
+Unified wisdom system:
+- 33 deterministic quotes for floor failures and stage alignment
+- 99 semantic quotes for context-aware retrieval (Qdrant + BGE-M3)
 
 DITEMPA, BUKAN DIBERI.
 """
@@ -35,6 +11,7 @@ DITEMPA, BUKAN DIBERI.
 from __future__ import annotations
 
 import hashlib
+import os
 from typing import Literal, TypedDict
 
 try:
@@ -52,12 +29,6 @@ class Quote(TypedDict):
     text: str
 
 
-
-# =============================================================================
-# AGI LAYER — Constitutional Symbols
-# 33 discrete, interpretable quotes curated per constitutional floor.
-# These are the explicit anchors: the library of named truths.
-# =============================================================================
 PHILOSOPHY_REGISTRY: list[Quote] = [
     # 1-10: WISDOM (Humility / Knowledge)
     {
@@ -264,9 +235,7 @@ def get_philosophical_anchor(
     stage: str, g_score: float, failed_floors: list[str], session_id: str = "global"
 ) -> Quote:
     """
-    AGI Layer — deterministic anchor from the 33-quote constitutional registry.
-
-    Selects a named truth based on:
+    Selects a philosophical anchor from the 33-quote registry based on:
     1. Metabolic Stage (000-999)
     2. G-Score (Vitality level)
     3. Failed Floors (Constitutional relation)
@@ -317,13 +286,9 @@ def get_semantic_wisdom(
     n_results: int = 3,
 ) -> list[Quote]:
     """
-    ASI Layer — geometric intelligence over the 99-quote embedding manifold.
+    Retrieve semantically relevant quotes from the 99-quote corpus.
 
-    Navigates unnamed relations through vector proximity in the BGE-M3
-    latent space.  Answers "what manifold of meaning is closest?" rather
-    than selecting from a named list.
-
-    Uses BGE-M3 embeddings for multilingual support (Malay, English, Manglish).
+    Uses BGE-M3 embeddings for multilingual support.
     Falls back to PHILOSOPHY_REGISTRY if Qdrant unavailable.
 
     Args:
@@ -332,7 +297,7 @@ def get_semantic_wisdom(
         n_results: Number of quotes to return
 
     Returns:
-        List of Quote objects ranked by semantic resonance
+        List of Quote objects with semantic scores
     """
     if not SEMANTIC_WISDOM_AVAILABLE:
         return _fallback_to_registry(category, n_results)
@@ -370,24 +335,19 @@ def get_wisdom_for_context(
     use_semantic: bool = True,
 ) -> Quote:
     """
-    APEX Arbitration — governed arbitration between the AGI and ASI layers.
+    Unified wisdom retrieval combining deterministic and semantic approaches.
 
-    Resolves which wisdom layer speaks for the current system state:
-
-      1. Constitutional override (AGI): floor failures always resolve via the
-         33-quote registry — explicit doctrine cannot be bypassed by geometry.
-      2. Semantic navigation (ASI): when context is provided and Qdrant is
-         available, the BGE-M3 manifold selects the resonant quote.
-      3. Deterministic fallback (AGI): stage and g-score select from named truths.
-
-    Human judge remains sovereign over all verdicts.
+    Priority:
+    1. Floor failures → deterministic quote (PHILOSOPHY_REGISTRY)
+    2. Semantic match → 99-quote corpus (if available)
+    3. Stage-based → deterministic quote (PHILOSOPHY_REGISTRY)
 
     Args:
-        context: Current situation/query for semantic matching (ASI input)
+        context: Current situation/query for semantic matching
         stage: Metabolic stage (000-999)
         g_score: Vitality score
         failed_floors: List of failed constitutional floors
-        use_semantic: Whether to attempt ASI layer retrieval
+        use_semantic: Whether to use semantic retrieval
 
     Returns:
         Single most relevant Quote
