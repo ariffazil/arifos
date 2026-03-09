@@ -21,6 +21,13 @@ def verify_dashboard():
         print(f"❌ ERROR: '{report_file}' not found. Dashboard generation failed.")
         return False
 
+    # Verify APEX Dashboard Sub-route
+    apex_file = report_dir / "dashboard" / "index.html"
+    print(f"🔍 Validating APEX artifact: {apex_file}")
+    if not apex_file.exists():
+        print(f"❌ ERROR: '{apex_file}' not found. APEX Sub-dashboard copy failed.")
+        return False
+
     size = report_file.stat().st_size
     if size < 1024:  # Minimum 1KB for a valid dashboard
         print(f"❌ ERROR: '{report_file}' is too small ({size} bytes). Likely corrupted.")

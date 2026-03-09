@@ -216,264 +216,62 @@
         const { useState, useEffect, useMemo } = React;
         const { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } = Recharts;
 
-        const DEFAULT_SESSION_ID = "apex-dashboard-live";
+        // MCP Apps SDK Integration
+        let mcpApp = null;
+        try {
+            import("https://unpkg.com/@modelcontextprotocol/ext-apps@0.4.0/app-with-deps")
+                .then(module => {
+                    const { App } = module;
+                    mcpApp = new App({ name: "APEX Sovereign", version: "1.0.0" });
+                    mcpApp.connect().then(() => console.log("MCP Host Connected"));
+                });
+        } catch (e) {
+            console.warn("MCP SDK Load failed, running in standalone mode", e);
+        }
 
-        const toNumber = (value, fallback = 0) => {
-            const numeric = Number(value);
-            return Number.isFinite(numeric) ? numeric : fallback;
-        };
-
-        const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
-
-        const buildSystemCallRequest = (endpointUrl) => {
-            let pathname = endpointUrl;
-            try {
-                pathname = new URL(endpointUrl, window.location.href).pathname;
-            } catch (_error) {
-                pathname = endpointUrl;
-            }
-
-            const lowerPath = pathname.toLowerCase();
-
-            if (lowerPath.endsWith("/anchor")) {
-                return {
-                    name: "anchor",
-                    session_id: DEFAULT_SESSION_ID,
-                    arguments: {
-                        user_id: "apex-dashboard",
-                        jurisdiction: "MY",
-                        context: "APEX dashboard live poll",
-                    },
-                };
-            }
-
-            if (lowerPath.endsWith("/reason")) {
-                return {
-                    name: "reason",
-                    session_id: DEFAULT_SESSION_ID,
-                    arguments: {
-                        query: "APEX dashboard live poll",
-                    },
-                };
-            }
-
-            return {
-                name: "dashboard_probe",
-                session_id: DEFAULT_SESSION_ID,
-                arguments: {},
-            };
-        };
-
-        const normalizeApexEnvelope = (payload) => {
-            const apex = payload?.apex_output;
-            if (!apex) {
-                return null;
-            }
-
-            const diagnosticsSource = apex.diagnostics?.log_decomposition || apex.diagnostics || {};
-            const capacity = apex.capacity_layer || {};
-            const effort = apex.effort_layer || {};
-            const entropy = apex.entropy_layer || {};
-            const efficiency = apex.efficiency_layer || {};
-            const governed = apex.governed_intelligence || {};
-            const governance = apex.governance_layer || {};
-
-            const capacityA = toNumber(capacity.A, 0);
-            const capacityP = toNumber(capacity.P, 0);
-            const capacityX = toNumber(capacity.X, 0);
-            const capacityProduct = toNumber(
-                capacity.capacity_product,
-                capacityA * capacityP * capacityX
-            );
-            const effortE = toNumber(effort.E, 0);
-            const effortAmplifier = toNumber(effort.effort_amplifier, effortE ** 2);
-            const hBefore = toNumber(entropy.H_before, 1);
-            const hAfter = toNumber(entropy.H_after, Math.max(0, hBefore));
-            const entropyRemoved = toNumber(
-                entropy.delta_S ?? efficiency.entropy_removed,
-                Math.max(0, hBefore - hAfter)
-            );
-            const computeCost = toNumber(efficiency.C ?? efficiency.compute_cost, 0);
-            const eta = toNumber(
-                efficiency.eta ?? efficiency.intelligence_efficiency,
-                computeCost > 0 ? entropyRemoved / computeCost : 0
-            );
-            const gStar = toNumber(governed.G_star, 0);
-            const gDagger = toNumber(governed.G_dagger ?? governed.governed_score, 0);
-            const vitalityIndex = toNumber(
-                governance.vitality_index ?? governance.amanah_score,
-                0
-            );
-
-            return {
-                apex_output: {
-                    capacity_layer: {
-                        A: capacityA,
-                        P: capacityP,
-                        X: capacityX,
-                        capacity_product: capacityProduct,
-                        status: capacity.status || "unknown",
-                        meaning: capacity.meaning || "",
-                    },
-                    effort_layer: {
-                        E: effortE,
-                        effort_amplifier: effortAmplifier,
-                        reasoning_steps: toNumber(effort.reasoning_steps, 0),
-                        tool_calls: toNumber(effort.tool_calls, 0),
-                        status: effort.status || "unknown",
-                        meaning: effort.meaning || "",
-                    },
-                    entropy_layer: {
-                        H_before: hBefore,
-                        H_after: hAfter,
-                        delta_S: entropyRemoved,
-                        status: entropy.status || "unknown",
-                        meaning: entropy.meaning || "",
-                    },
-                    efficiency_layer: {
-                        C: computeCost,
-                        entropy_removed: entropyRemoved,
-                        eta,
-                        status: efficiency.status || "unknown",
-                        meaning: efficiency.meaning || "",
-                    },
-                    governed_intelligence: {
-                        G_star: gStar,
-                        G_dagger: gDagger,
-                        status: governed.status || "unknown",
-                        meaning: governed.meaning || "",
-                    },
-                    governance_layer: {
-                        vitality_index: vitalityIndex,
-                        amanah_score: toNumber(governance.amanah_score, vitalityIndex),
-                        truth_floor: governance.truth_floor || "Estimate Only",
-                        authority_status: governance.authority_status || "Estimate Only",
-                        sovereignty_status: governance.sovereignty_status || "Estimate Only",
-                        tri_witness_status: governance.tri_witness_status || "Cannot Compute",
-                        status: governance.status || "unknown",
-                        meaning: governance.meaning || "",
-                    },
-                    diagnostics: {
-                        logA: toNumber(diagnosticsSource.logA ?? diagnosticsSource.log_A, 0),
-                        logP: toNumber(diagnosticsSource.logP ?? diagnosticsSource.log_P, 0),
-                        logX: toNumber(diagnosticsSource.logX ?? diagnosticsSource.log_X, 0),
-                        "2logE": toNumber(diagnosticsSource["2logE"] ?? diagnosticsSource["2log_E"], 0),
-                        logDeltaS: toNumber(
-                            diagnosticsSource.logDeltaS ?? diagnosticsSource.log_delta_S,
-                            0
-                        ),
-                        logC: toNumber(diagnosticsSource.logC ?? diagnosticsSource.neg_log_C, 0),
-                    },
-                },
-            };
-        };
-
-        const deriveApexEnvelopeFromTelemetry = (payload) => {
-            const telemetry = payload?.telemetry || {};
-            const dS = toNumber(telemetry.dS, 0);
-            const peace2 = toNumber(telemetry.peace2, 1);
-            const confidence = clamp(toNumber(telemetry.confidence, 0.85), 0, 1);
-            const entropyRemoved = Math.max(0, -dS);
-            const computeCost = Math.max(1, toNumber(telemetry.tokens, 0) || 100);
-            const eta = entropyRemoved / computeCost;
-            const capacityP = clamp(peace2 / 1.2, 0, 1);
-            const capacityX = 0.75;
-            const effortE = 1.0;
-            const gStar = confidence * capacityP * capacityX * (effortE ** 2);
-            const gDagger = gStar * eta;
-            const truthFloor = dS <= 0 ? "pass" : "warn";
-            const authorityStatus = payload?.result?.session_id ? "pass" : "Estimate Only";
-            const sovereigntyStatus = authorityStatus;
-            const triWitnessStatus = "Estimate Only";
-            const amanahScore = clamp((confidence + capacityP + (dS <= 0 ? 1 : 0)) / 3, 0, 1);
-
-            return normalizeApexEnvelope({
-                apex_output: {
-                    capacity_layer: {
-                        A: confidence,
-                        P: capacityP,
-                        X: capacityX,
-                        capacity_product: confidence * capacityP * capacityX,
-                    },
-                    effort_layer: {
-                        E: effortE,
-                        effort_amplifier: effortE ** 2,
-                        reasoning_steps: 1,
-                        tool_calls: 1,
-                    },
-                    entropy_layer: {
-                        H_before: 1.0,
-                        H_after: Math.max(0, 1.0 + dS),
-                        delta_S: entropyRemoved,
-                    },
-                    efficiency_layer: {
-                        C: computeCost,
-                        entropy_removed: entropyRemoved,
-                        eta,
-                    },
-                    governed_intelligence: {
-                        G_star: gStar,
-                        G_dagger: gDagger,
-                    },
-                    governance_layer: {
-                        vitality_index: amanahScore,
-                        amanah_score: amanahScore,
-                        truth_floor: truthFloor,
-                        authority_status: authorityStatus,
-                        sovereignty_status: sovereigntyStatus,
-                        tri_witness_status: triWitnessStatus,
-                    },
-                    diagnostics: {
-                        log_decomposition: {
-                            logA: confidence > 0 ? Math.log(confidence) : 0,
-                            logP: capacityP > 0 ? Math.log(capacityP) : 0,
-                            logX: Math.log(capacityX),
-                            "2logE": 0,
-                            logDeltaS: entropyRemoved > 0 ? Math.log(entropyRemoved) : 0,
-                            logC: Math.log(computeCost),
-                        },
-                    },
-                },
-            });
-        };
-
-        const normalizePayload = (payload) =>
-            normalizeApexEnvelope(payload) || deriveApexEnvelopeFromTelemetry(payload);
-
-        const DEMO_DATA = normalizeApexEnvelope({
+        const DEMO_DATA = {
             apex_output: {
                 capacity_layer: { A: 0.95, P: 0.92, X: 0.85, capacity_product: 0.7429 },
                 effort_layer: { E: 0.88, effort_amplifier: 0.7744, reasoning_steps: 12, tool_calls: 3 },
                 entropy_layer: { H_before: 2.4, H_after: 1.8, delta_S: 0.6 },
-                efficiency_layer: { C: 120.5, entropy_removed: 0.6, eta: 0.004979 },
+                efficiency_layer: { C: 120, entropy_removed: 0.6, eta: 0.004979 },
                 governed_intelligence: { G_star: 0.5753, G_dagger: 0.002864 },
-                governance_layer: {
-                    vitality_index: 1.42,
-                    amanah_score: 1.42,
-                    truth_floor: "pass",
-                    authority_status: "pass",
-                    sovereignty_status: "pass",
-                    tri_witness_status: "pass",
-                },
+                governance_layer: { amanah_score: 0.75, truth_floor: "pass", authority_status: "pass", sovereignty_status: "pass", tri_witness_status: "Cannot Compute" },
                 diagnostics: {
-                    log_decomposition: {
-                        logA: -0.051,
-                        logP: -0.083,
-                        logX: -0.162,
-                        "2logE": -0.255,
-                        logDeltaS: -0.51,
-                        logC: 4.79,
-                    },
-                },
+                    log_decomposition: { logA: -0.051, logP: -0.083, logX: -0.162, "2logE": -0.255, logDeltaS: -0.51, logC: 4.79 },
+                    primary_constraint: "none",
+                    equation: "log G\u2020 = logA + logP + logX + 2logE + log\u0394S - logC",
+                    runtime_story: "Capacity is high, effort is engaged, entropy is clarifying, efficiency is workable, governance is provisional; realized governed intelligence is 0.002864."
+                }
             }
-        });
+        };
 
         function Dashboard() {
-            const [mode, setMode] = useState('demo'); // 'demo' or 'live'
+            const [mode, setMode] = useState('mcp'); // 'demo', 'live', or 'mcp'
             const [endpoint, setEndpoint] = useState('http://localhost:8000/mcp/anchor');
             const [data, setData] = useState(DEMO_DATA);
-            const [history, setHistory] = useState([]);
             const [isPolling, setIsPolling] = useState(false);
+
+            useEffect(() => {
+                // Listen for pushed results from MCP Host
+                if (mcpApp) {
+                    mcpApp.ontoolresult = ({ content }) => {
+                        console.log("Result received from host", content);
+                        const textContent = content?.find(c => c.type === 'text');
+                        if (textContent) {
+                            try {
+                                const parsed = JSON.parse(textContent.text);
+                                if (parsed.apex_output) {
+                                    setData(parsed);
+                                    setMode('mcp');
+                                }
+                            } catch (e) {
+                                console.error("Failed to parse tool result as APEX JSON", e);
+                            }
+                        }
+                    };
+                }
+            }, []);
 
             useEffect(() => {
                 let interval;
@@ -485,24 +283,10 @@
 
             const fetchData = async () => {
                 try {
-                    const res = await fetch(endpoint, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(buildSystemCallRequest(endpoint)),
-                    });
-                    if (!res.ok) {
-                        throw new Error(`HTTP ${res.status}`);
-                    }
+                    const res = await fetch(endpoint);
                     const json = await res.json();
-                    const normalized = normalizePayload(json);
-                    if (normalized) {
-                        setData(normalized);
-                        setHistory(prev => [
-                            ...prev.slice(-19),
-                            normalized.apex_output.governed_intelligence.G_dagger,
-                        ]);
+                    if (json.apex_output) {
+                        setData(json);
                     }
                 } catch (e) {
                     console.error("Fetch failed", e);
@@ -517,14 +301,17 @@
                 { subject: 'Efficiency (η)', A: Math.min(1, data.apex_output.efficiency_layer.eta * 100), fullMark: 1 },
             ], [data]);
 
-            const logData = useMemo(() => [
-                { name: 'logA', val: data.apex_output.diagnostics.logA },
-                { name: 'logP', val: data.apex_output.diagnostics.logP },
-                { name: 'logX', val: data.apex_output.diagnostics.logX },
-                { name: '2logE', val: data.apex_output.diagnostics["2logE"] },
-                { name: 'logΔS', val: data.apex_output.diagnostics.logDeltaS },
-                { name: '-logC', val: -data.apex_output.diagnostics.logC },
-            ], [data]);
+            const logData = useMemo(() => {
+                const ld = data.apex_output.diagnostics.log_decomposition;
+                return [
+                    { name: 'logA', val: ld.logA },
+                    { name: 'logP', val: ld.logP },
+                    { name: 'logX', val: ld.logX },
+                    { name: '2logE', val: ld["2logE"] },
+                    { name: 'logΔS', val: ld.logDeltaS },
+                    { name: '-logC', val: -ld.logC },
+                ];
+            }, [data]);
 
             const apex = data.apex_output;
 
@@ -630,9 +417,9 @@
                             <h3>Governance Integrity</h3>
                             <div style={{display: 'flex', flexDirection: 'column', gap: '10px'}}>
                                 <div className="log-line">
-                                    <span>Vitality Index (Ψ)</span>
-                                    <span style={{color: apex.governance_layer.vitality_index >= 1.0 ? 'var(--success)' : 'var(--danger)'}}>
-                                        {apex.governance_layer.vitality_index.toFixed(2)}
+                                    <span>Amanah Score (F1)</span>
+                                    <span style={{color: apex.governance_layer.amanah_score >= 0.75 ? 'var(--success)' : 'var(--danger)'}}>
+                                        {apex.governance_layer.amanah_score.toFixed(2)}
                                     </span>
                                 </div>
                                 <div className="log-line">

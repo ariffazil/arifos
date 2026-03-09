@@ -4,7 +4,8 @@
 > Truth must cool before it rules.
 
 **Live:** [arifosmcp.arif-fazil.com](https://arifosmcp.arif-fazil.com)
-**Protocol:** MCP 2025-11-05 over SSE+JSON-RPC at `/mcp`
+**Dashboard:** [arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/)
+**Protocol:** MCP 2025-11-25 over Streamable HTTP + JSON-RPC at `/mcp`
 **License:** AGPL-3.0-only
 **Sovereign:** Muhammad Arif bin Fazil
 
@@ -92,6 +93,12 @@ Every tool returns a `RuntimeEnvelope` — a common JSON contract carrying verdi
 | 777 | `quantum_eureka_forge` | `eureka_forge` | Sandboxed discovery actuator. Proposes, never executes. |
 | 888 | `apex_judge_verdict` | `apex_judge` | Constitutional judgment. Produces governance token. |
 | 999 | `seal_vault_commit` | `seal_vault` | Immutable VAULT999 ledger sealing. Append-only. |
+
+### Additional Tool
+
+| Tool | Role |
+|------|------|
+| `open_apex_dashboard` | Opens the APEX Sovereign Dashboard iframe in compatible MCP clients (MCP App). |
 
 ### RuntimeEnvelope (common return shape)
 
@@ -269,7 +276,7 @@ The full pipeline is called by `metabolic_loop_router` (Stage 444). It is a cons
 
 ## MCP Resources
 
-The server exposes 12 read-only resources for LLM and human inspection:
+The server exposes read-only resources for LLM and human inspection:
 
 | URI | Content |
 |-----|---------|
@@ -284,6 +291,7 @@ The server exposes 12 read-only resources for LLM and human inspection:
 | `schema://tools/output` | RuntimeEnvelope output schema |
 | `vault://latest` | Last 5 sealed VAULT999 entries (metadata only) |
 | `telemetry://summary` | Live telemetry shape (wire to thermo_budget for metrics) |
+| `ui://apex/dashboard.html` | APEX Sovereign Dashboard HTML (MCP App, served to compatible clients) |
 
 ---
 
@@ -309,10 +317,19 @@ Eight prompt templates guide LLMs to call the correct tool with valid parameters
 | Method | Path | Description |
 |--------|------|-------------|
 | `GET` | `/` | Human-readable landing page |
-| `GET` | `/health` | Health check (`{"status": "ok"}`) |
+| `GET` | `/health` | Health check (`{"status": "healthy", ...}`) |
+| `GET` | `/version` | Build info (version, commit, date) |
+| `GET/POST` | `/mcp` | MCP 2025-11-25 Streamable HTTP + JSON-RPC endpoint |
+| `GET` | `/tools` | List all registered tools (REST) |
+| `POST` | `/tools/{name}` | Call any tool over HTTP (ChatGPT Actions adapter) |
+| `POST` | `/checkpoint` | Single-call constitutional evaluation (000→888 pipeline) |
+| `GET` | `/dashboard/` | APEX Sovereign Dashboard (self-contained React UI) |
+| `GET` | `/api/governance-status` | Live governance telemetry (floors, witness, telemetry, QDF) |
+| `GET` | `/api/governance-history` | Recent VAULT999 session history |
+| `GET` | `/openapi.json` | OpenAPI 3.1 schema |
+| `GET` | `/.well-known/mcp/server.json` | MCP registry discovery |
 | `GET` | `/robots.txt` | Crawler policy |
 | `GET` | `/llms.txt` | LLM-readable documentation (llmstxt.org) |
-| `GET/POST` | `/mcp` | MCP 2025-11-05 SSE + JSON-RPC endpoint |
 
 ---
 
@@ -339,6 +356,29 @@ N. Call seal_vault_commit (session_id, auth_context, governance_token)
 ```
 
 Without a valid `auth_context` chain, session-bound tools return `VOID: F11 authentication continuity failed`.
+
+---
+
+## APEX Sovereign Dashboard
+
+The APEX Sovereign Dashboard visualises the **APEX Theorem** (G† = A·P·X·E²·ΔS/C) in real time. It is a self-contained React + Recharts application served at `/dashboard/` on the live server.
+
+Three data modes:
+
+| Mode | How it works |
+|------|-------------|
+| **Static Demo** | Instant — no server required. Renders hardcoded APEX output. |
+| **Live Fetch** | Polls a user-supplied endpoint every 3 s and updates on `apex_output` payloads. |
+| **MCP Mode** | Receives pushed `apex_output` from `open_apex_dashboard` tool via the `@modelcontextprotocol/ext-apps` SDK (compatible MCP clients only). |
+
+The dashboard displays:
+- G† (Governed Intelligence Realized) with pass/fail seal badge
+- 5-layer intelligence stack (capacity, effort, clarity, efficiency, potential)
+- APX/E/η discipline geometry radar chart
+- Log-decomposition waterfall (contribution of each APEX term)
+- Governance integrity status (F1 Amanah, F2 Truth, F11 Authority, F13 Sovereignty, F3 Tri-Witness)
+
+**Live:** [arifosmcp.arif-fazil.com/dashboard/](https://arifosmcp.arif-fazil.com/dashboard/)
 
 ---
 
@@ -370,15 +410,19 @@ arifosmcp/                          # MCP transport layer
 ├── bridge.py                       # Harden Bridge — sole entry point to core/
 ├── intelligence/                   # External capability tools (Phase 2)
 │   └── mcp_bridge.py               # aclip_* sensory tools registration
+├── sites/
+│   └── apex-dashboard/             # APEX Sovereign Dashboard (static UI)
+│       ├── index.html              # Served at /dashboard/
+│       └── dashboard.html          # MCP App resource (ui://apex/dashboard.html)
 └── runtime/
     ├── server.py                   # FastMCP hub — registers all components
     ├── tools.py                    # 10 APEX-G tool functions
     ├── models.py                   # RuntimeEnvelope, Verdict, Stage, AuthContext
-    ├── resources.py                # 12 MCP resources
+    ├── resources.py                # MCP resources + open_apex_dashboard MCP App tool
     ├── prompts.py                  # 8 MCP prompt templates
     ├── orchestrator.py             # metabolic_loop implementation
     ├── contracts.py                # REQUIRES_SESSION tool list
-    └── rest_routes.py              # /health, /robots.txt, /llms.txt, /
+    └── rest_routes.py              # REST endpoints + /dashboard/ StaticFiles mount
 
 core/                               # Constitutional kernel (transport-agnostic)
 ├── shared/
@@ -411,7 +455,7 @@ Add to your MCP client config:
   "mcpServers": {
     "arifosmcp": {
       "url": "https://arifosmcp.arif-fazil.com/mcp",
-      "transport": "sse"
+      "transport": "http"
     }
   }
 }
@@ -486,8 +530,8 @@ if judge["verdict"] in ("SEAL", "PARTIAL"):
 
 ```bash
 pip install -e .
-python server.py
-# or
+uvicorn arifosmcp.runtime.server:app --host 0.0.0.0 --port 8080
+# or for development
 fastmcp dev server.py
 ```
 

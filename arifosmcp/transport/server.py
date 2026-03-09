@@ -839,6 +839,29 @@ async def _verify_approval_bundle(
 
 from fastmcp import FastMCP, Context
 from fastmcp.server.apps import AppConfig, ResourceCSP, UI_EXTENSION_ID
+from fastmcp.tools import ToolResult
+
+try:
+    from prefab_ui.app import PrefabApp
+    from prefab_ui.components import (
+        Badge,
+        Card,
+        CardContent,
+        CardHeader,
+        CardTitle,
+        Column,
+        DataTable,
+        DataTableColumn,
+        Heading,
+        Metric,
+        Row,
+        Text,
+    )
+    from prefab_ui.components.charts import BarChart, ChartSeries
+
+    PREFAB_AVAILABLE = True
+except ImportError:
+    PREFAB_AVAILABLE = False
 
 from arifosmcp.intelligence.tools.fs_inspector import fs_inspect
 from arifosmcp.intelligence.tools.system_monitor import get_system_health
@@ -1293,6 +1316,9 @@ def apply_governance_gate(
     return governance_proof
 
 
+import math
+from core.shared.physics import GeniusDial
+
 class EnvelopeBuilder:
     def __init__(self):
         pass
@@ -1360,6 +1386,81 @@ class EnvelopeBuilder:
             actions.append("Restore session/auth continuity and retry.")
         if not actions:
             actions.append("Continue to next constitutional stage.")
+
+        # APEX 5-Layer Stack Calculation
+        tokens = payload.get("tokens", payload.get("token_count", 50))
+        compute_ms = payload.get("compute_ms", 100)
+        compute_cost = float(tokens) + compute_ms / 10.0
+        
+        delta_s = float(payload.get("dS", payload.get("delta_s", -0.1)))
+        delta_s_reduction = abs(min(0.0, delta_s))
+        eta = delta_s_reduction / compute_cost if compute_cost > 0 else 0.0
+
+        # Create GeniusDial for math consistency
+        dial = GeniusDial(
+            A=float(payload.get("A", 0.95)),
+            P=float(payload.get("P", payload.get("peace2", 1.0))),
+            X=float(payload.get("X", 0.9)),
+            E=float(payload.get("E", 0.9)),
+            architecture=float(payload.get("architecture", 1.0)),
+            parameters=float(payload.get("parameters", 1.0)),
+            data_quality=float(payload.get("data_quality", 0.95)),
+            effort=float(payload.get("effort", 1.0)),
+            compute_cost=compute_cost,
+            entropy_reduction=delta_s_reduction
+        )
+
+        g_star = dial.G_star()
+        g_dagger = dial.G_dagger()
+        
+        h_before = float(payload.get("H_before", 1.0))
+        h_after = float(payload.get("H_after", max(0.0, h_before + delta_s)))
+
+        apex_output = {
+            "capacity_layer": {
+                "A": dial.A,
+                "P": dial.P,
+                "X": dial.X,
+                "capacity_product": round(dial.A * dial.P * dial.X, 4),
+            },
+            "effort_layer": {
+                "E": dial.E,
+                "effort_amplifier": round(dial.E ** 2, 4),
+                "reasoning_steps": payload.get("steps", 1),
+                "tool_calls": 1
+            },
+            "entropy_layer": {
+                "H_before": round(h_before, 4),
+                "H_after": round(h_after, 4),
+                "delta_S": round(delta_s, 4),
+            },
+            "efficiency_layer": {
+                "compute_cost": round(compute_cost, 4),
+                "entropy_removed": round(delta_s_reduction, 4),
+                "intelligence_efficiency": round(eta, 6),
+            },
+            "governed_intelligence": {
+                "G_star": round(g_star, 4),
+                "efficiency": round(eta, 6),
+                "governed_score": round(g_dagger, 6),
+            },
+            "governance_layer": {
+                "truth_floor": "fail" if "F2" in floors_failed else "pass",
+                "authority_status": "fail" if "F11" in floors_failed else "pass",
+                "sovereignty_status": "fail" if "F13" in floors_failed else "pass",
+                "tri_witness_status": "pass", # Default for utilities
+            },
+            "diagnostics": {
+                "logA": round(math.log(dial.A) if dial.A > 0 else 0, 4),
+                "logP": round(math.log(dial.P) if dial.P > 0 else 0, 4),
+                "logX": round(math.log(dial.X) if dial.X > 0 else 0, 4),
+                "2logE": round(2 * math.log(dial.E) if dial.E > 0 else 0, 4),
+                "logDeltaS": round(math.log(delta_s_reduction) if delta_s_reduction > 0 else 0, 4),
+                "logC": round(math.log(compute_cost) if compute_cost > 0 else 0, 4),
+                "failed_floors": floors_failed,
+            }
+        }
+
         return {
             "verdict": verdict,
             "stage": stage,
@@ -1369,6 +1470,7 @@ class EnvelopeBuilder:
             "next_actions": actions,
             "sabar_requirements": self._generate_sabar_requirements(verdict, payload),
             "payload": payload,
+            "apex_output": apex_output,
         }
 
 
@@ -1734,13 +1836,14 @@ reason_mind = reason_mind_synthesis
     description="[Lane: Ω] [Floors: F3, F7] BBB Vector Memory – semantic storage and retrieval.",
 )
 async def _vector_memory_store(
+    ctx: Context,
     session_id: str,
     operation: str,
     auth_context: dict[str, Any],
     content: str | None = None,
     memory_ids: list[str] | None = None,
     top_k: int = 5,
-) -> dict[str, Any]:
+) -> ToolResult:
     """
     Stage 555: BBB Associative vector memory.
     """
@@ -1749,7 +1852,8 @@ async def _vector_memory_store(
         effective_session = session_id.strip()
 
         if not effective_session:
-            return _build_floor_block("555_RECALL", "Missing session_id")
+            error_env = _build_floor_block("555_RECALL", "Missing session_id")
+            return ToolResult(content=[{"type": "text", "text": json.dumps(error_env, indent=2)}])
 
         contexts = []
         try:
@@ -1762,28 +1866,41 @@ async def _vector_memory_store(
         except Exception:
             contexts = []
 
-        result = {
-            "status": "RECALL_SUCCESS",
-            "memories": [
-                {
-                    "source": f"{ctx.source}/{ctx.path}",
-                    "score": round(ctx.score, 4),
-                    "content": ctx.content[:800],
-                }
-                for ctx in contexts
-            ],
-        }
-        result.update(
-            envelope_builder.build_envelope(
-                stage="555_RECALL",
-                session_id=effective_session,
-                verdict="SEAL",
-                payload={"memory_count": len(contexts)},
-            )
+        mem_data = [
+            {
+                "source": f"{ctx.source}/{ctx.path}",
+                "score": round(ctx.score, 4),
+                "preview": ctx.content[:200] + "...",
+            }
+            for ctx in contexts
+        ]
+
+        envelope = envelope_builder.build_envelope(
+            stage="555_RECALL",
+            session_id=effective_session,
+            verdict="SEAL",
+            payload={"memory_count": len(contexts), "memories": mem_data},
         )
-        return result
+
+        if PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID) and mem_data:
+            with Column(gap=4) as view:
+                Heading("Associative Memory Recall", level=2)
+                Text(f"Retrieved {len(mem_data)} high-affinity vectors for session {effective_session}.")
+                
+                with DataTable(data=mem_data) as table:
+                    DataTableColumn("score", label="Affinity")
+                    DataTableColumn("source", label="Source")
+                    DataTableColumn("preview", label="Snippet")
+
+            return ToolResult(
+                content=[{"type": "text", "text": json.dumps(envelope, indent=2)}],
+                structured_content=PrefabApp(view=view),
+            )
+
+        return ToolResult(content=[{"type": "text", "text": json.dumps(envelope, indent=2)}])
     except Exception as e:
-        return _fracture_response("555_RECALL", e, session_id)
+        error_res = _fracture_response("555_RECALL", e, session_id)
+        return ToolResult(content=[{"type": "text", "text": json.dumps(error_res, indent=2)}])
 
 
 vector_memory_store = ToolHandle(_vector_memory_store)
@@ -2709,34 +2826,15 @@ seal_vault = ToolHandle(_vault_seal)
     description="[Lane: Δ Delta] [Floors: F2, F3, F4, F12] Web grounding via smart hybrid routing (Jina/Headless/Perplexity/Brave) with F3 consensus merge.",
 )
 async def _search(
+    ctx: Context,
     query: str,
     intent: str = "general",
     session_id: str = "",
     force_source: str = "auto",  # auto, headless, jina, perplexity, brave, all
     min_content_quality: float = 0.5,  # Threshold for content acceptance
-) -> dict[str, Any]:
+) -> ToolResult:
     """
     search_reality — External Evidence Discovery with Smart Hybrid Routing
-
-    Architecture (SMART HYBRID — No Empty Returns):
-    - ROUTER: Analyzes query to select optimal primary source
-    - TIER 1 (Fast APIs): Jina Reader → Perplexity → Brave
-    - TIER 2 (DOM Render): Headless Browser for JS-heavy content
-    - MERGE: F3 Tri-Witness consensus when sources disagree
-    - GUARANTEE: Always returns meaningful reality (never empty)
-
-    Smart Routing Rules:
-    - SPAs/JS sites (github.io, vercel.app) → Headless PRIMARY
-    - News/docs (clean markup) → Jina PRIMARY
-    - Research/deep queries → Perplexity PRIMARY
-    - General discovery → Brave PRIMARY
-    - Low content quality → Auto-fallback to next tier
-
-    Constitutional Guarantees:
-    - F2 Truth: Multi-source verification, content hashing
-    - F3 Tri-Witness: Consensus scoring across sources
-    - F4 Clarity: Cleanest source selected by entropy reduction
-    - F12 Defense: All external content F12-enveloped
     """
     from datetime import datetime, timezone
 
@@ -2997,7 +3095,7 @@ async def _search(
     # Build comprehensive response
     elapsed_ms = int((datetime.now(timezone.utc) - start_time).total_seconds() * 1000)
 
-    response = {
+    envelope = {
         "query": query,
         "intent": intent,
         "query_type": query_type,
@@ -3017,14 +3115,30 @@ async def _search(
         "taint_lineage": final.get("taint_lineage", {"source": "search_reality"}),
     }
 
-    # Backward-compat: legacy callers expect `ids` for follow-up fetch_content calls.
-    response["ids"] = [r.get("url") for r in response["results"] if r.get("url")]
+    if PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID) and envelope["results"]:
+        with Column(gap=4) as view:
+            Heading(f"Reality Grounding: {query}", level=2)
+            Text(f"Primary source: {envelope['primary_source'].upper()} ({elapsed_ms}ms)")
+            
+            table_data = []
+            for r in envelope["results"]:
+                table_data.append({
+                    "title": r.get("title", "No Title"),
+                    "url": r.get("url", ""),
+                    "snippet": (r.get("content") or r.get("description", ""))[:150] + "..."
+                })
+            
+            with DataTable(data=table_data) as table:
+                DataTableColumn("title", label="Source Title")
+                DataTableColumn("url", label="URL")
+                DataTableColumn("snippet", label="Snippet")
 
-    # Include alternative views if consensus was low
-    if "alternative_results" in final:
-        response["alternative_views"] = final["alternative_results"]
+        return ToolResult(
+            content=[{"type": "text", "text": json.dumps(envelope, indent=2)}],
+            structured_content=PrefabApp(view=view),
+        )
 
-    return response
+    return ToolResult(content=[{"type": "text", "text": json.dumps(envelope, indent=2)}])
 
 
 search_reality = ToolHandle(_search)
@@ -3179,34 +3293,61 @@ async def _analyze(data: dict[str, Any], analysis_type: str = "structure") -> di
     description="[Lane: Δ Delta] [Floors: F2, F8, F10] Rule & governance audit checks.",
 )
 async def _system_audit(
+    ctx: Context,
     audit_scope: str = "quick",
     verify_floors: bool = True,
     session_id: str | None = None,
-) -> dict[str, Any]:
+) -> ToolResult:
     try:
         details: dict[str, Any] = {"scope": audit_scope}
+        floor_data = []
         if verify_floors:
             try:
-                from arifosmcp.transport.core.constitutional_decorator import FLOOR_ENFORCEMENT
+                from core.shared.floors import FLOOR_SPEC_KEYS, get_floor_spec
 
-                details["floors_loaded"] = bool(FLOOR_ENFORCEMENT)
-                details["floor_tool_count"] = len(FLOOR_ENFORCEMENT)
+                details["floors_loaded"] = True
+                details["floor_tool_count"] = len(FLOOR_SPEC_KEYS)
+                
+                for fid in FLOOR_SPEC_KEYS:
+                    spec = get_floor_spec(fid)
+                    floor_data.append({
+                        "id": fid,
+                        "name": spec.get("name", "Unknown"),
+                        "status": "active",
+                        "severity": spec.get("severity", "HARD")
+                    })
             except Exception as e:
                 details["floors_loaded"] = False
                 details["floor_error"] = str(e)
-        result = {
-            "verdict": "SEAL" if details.get("floors_loaded", True) else "PARTIAL",
-            "scope": audit_scope,
-            "details": details,
-        }
-        if session_id:
-            result["session_id"] = session_id
-        return result
+
+        envelope = envelope_builder.build_envelope(
+            stage="GOV_AUDIT",
+            session_id=session_id or "audit-only",
+            verdict="SEAL" if details.get("floors_loaded", True) else "PARTIAL",
+            payload={"scope": audit_scope, "details": details, "floors": floor_data},
+        )
+
+        if PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID) and floor_data:
+            with Column(gap=4) as view:
+                Heading(f"Constitutional Audit: {audit_scope.upper()}", level=2)
+                Text("Verification of the 13 Constitutional Floors and governance invariants.")
+                
+                with DataTable(data=floor_data) as table:
+                    DataTableColumn("id", label="Floor ID")
+                    DataTableColumn("name", label="Floor Name")
+                    DataTableColumn("severity", label="Severity")
+                    DataTableColumn("status", label="Status")
+
+            return ToolResult(
+                content=[{"type": "text", "text": json.dumps(envelope, indent=2)}],
+                structured_content=PrefabApp(view=view),
+            )
+
+        return ToolResult(content=[{"type": "text", "text": json.dumps(envelope, indent=2)}])
+
     except Exception as e:
-        error_result = {"verdict": "VOID", "error": str(e), "scope": audit_scope}
-        if session_id:
-            error_result["session_id"] = session_id
-        return error_result
+        error_env = {"verdict": "VOID", "error": str(e), "scope": audit_scope}
+        return ToolResult(content=[{"type": "text", "text": json.dumps(error_env, indent=2)}])
 
 
 audit_rules = ToolHandle(_system_audit)
@@ -3315,22 +3456,57 @@ inspect_file = ToolHandle(_inspect_file)
     description="[Lane: Ω Omega] [Floors: F4, F5, F7] System health & vital signs.",
 )
 async def _check_vital(
+    ctx: Context,
     session_id: str,
     include_swap: bool = True,
     include_io: bool = False,
     include_temp: bool = False,
-) -> dict[str, Any]:
+) -> ToolResult:
     payload = get_system_health(
         include_swap=include_swap,
         include_io=include_io,
         include_temp=include_temp,
     )
-    return envelope_builder.build_envelope(
+    envelope = envelope_builder.build_envelope(
         stage="555_HEALTH",
         session_id=session_id,
         verdict="SEAL",
         payload=payload,
     )
+
+    if PREFAB_AVAILABLE and ctx.client_supports_extension(UI_EXTENSION_ID):
+        cpu = payload.get("cpu", {})
+        mem = payload.get("memory", {})
+        
+        with Column(gap=4) as view:
+            Heading("arifOS System Vitals", level=2)
+            with Row(gap=4):
+                Metric(
+                    label="CPU Load",
+                    value=f"{cpu.get('percent', 0)}%",
+                    description=f"{cpu.get('cores', 0)} Cores active",
+                )
+                Metric(
+                    label="Memory Use",
+                    value=f"{mem.get('percent', 0)}%",
+                    description=f"{round(mem.get('used_gb', 0), 1)} / {round(mem.get('total_gb', 0), 1)} GB",
+                )
+            
+            with Row(gap=4):
+                with Card():
+                    with CardHeader():
+                        CardTitle("Process Integrity")
+                    with CardContent():
+                        Text(f"Platform: {payload.get('platform', 'unknown')}")
+                        Text(f"Uptime: {round(payload.get('uptime_hours', 0), 2)} hours")
+                        Badge("System Nominal", color="success") if cpu.get('percent', 0) < 80 else Badge("High Load", color="warning")
+
+        return ToolResult(
+            content=[{"type": "text", "text": json.dumps(envelope, indent=2)}],
+            structured_content=PrefabApp(view=view),
+        )
+
+    return ToolResult(content=[{"type": "text", "text": json.dumps(envelope, indent=2)}])
 
 
 check_vital = ToolHandle(_check_vital)

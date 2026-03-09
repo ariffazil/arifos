@@ -186,6 +186,43 @@ def generate_html_report(results: list[dict], output_path: str):
             letter-spacing: 1.5px;
             color: var(--text-muted);
         }
+
+        .dashboard-link-container {
+            margin: 2.5rem 0;
+            text-align: center;
+        }
+
+        .btn-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: linear-gradient(135deg, var(--bg-card) 0%, #1e293b 100%);
+            color: var(--accent-gold);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border: 1px solid var(--accent-gold);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+            transition: all 0.3s ease;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+        }
+
+        .btn-dashboard:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2);
+            background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+            border-color: #fff;
+            color: #fff;
+        }
+
+        .btn-dashboard svg {
+            width: 24px;
+            height: 24px;
+        }
         
         .cases-container {
             display: grid;
@@ -352,6 +389,21 @@ def generate_html_report(results: list[dict], output_path: str):
             <div class="chart-container">
                 <canvas id="floorRadarChart"></canvas>
             </div>
+        </div>
+
+        <div class="dashboard-link-container">
+            <a href="dashboard/index.html" class="btn-dashboard">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="2" x2="12" y2="22"></line>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 12l4.5 4.5"></path>
+                    <path d="M12 12l4.5-4.5"></path>
+                    <path d="M12 12l-4.5 4.5"></path>
+                    <path d="M12 12l-4.5-4.5"></path>
+                </svg>
+                Enter APEX Sovereign Dashboard
+            </a>
         </div>
 
         <div class="cases-container">

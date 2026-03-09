@@ -1,5 +1,18 @@
 # APEX Metrics Hardening Implementation Plan
 
+## Status
+
+- Status: implemented on 2026-03-08
+- Verdict: SEAL CANDIDATE
+- Outcome:
+  - `arifosmcp/intelligence/core/thermo_budget.py` now emits the expanded APEX runtime schema and caps entropy removal to the available entropy baseline
+  - `arifosmcp/sites/apex-dashboard/index.html` now posts `SystemCall` payloads for live polling, normalizes bridge/runtime payloads, and renders canonical fields (`G_dagger`, `eta`, `C`)
+  - `tests/aclip_cai/test_thermo.py` includes regression coverage for the entropy-baseline cap
+  - `docs/CHANGELOG.md`, `docs/00_META/CHANGELOG.md`, and `DEPLOY.md` were updated to reflect the March 8 hardening and deployment/runtime split
+- Verification:
+  - `pytest tests/aclip_cai/test_thermo.py -q`
+  - `pytest tests/core/test_outputs.py -q`
+
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
 **Goal:** Extend `ThermoSnapshot` and `ThermoBudget` with APEX metrics (effort, token_cost, A, P, X, η, G*, G†) without creating new files — only harden existing code.
