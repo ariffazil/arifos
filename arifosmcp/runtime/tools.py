@@ -8,6 +8,7 @@ from fastmcp.tools import ToolResult
 
 from arifosmcp.bridge import call_kernel
 from arifosmcp.runtime.models import (
+
     APEXBundle,
     AuthContext,
     OPEXBundle,
@@ -482,6 +483,52 @@ async def open_apex_dashboard(
     return await _wrap_call("open_apex_dashboard", Stage.VAULT, session_id, {}, ctx)
 
 
+def select_wisdom_manifold(
+    stage: str = "444",
+    delta_s: float = 0.0,
+    p2: float = 1.0,
+    g_score: float = 0.85,
+    psi: float = 0.5,
+    kappa_r: float = 0.5,
+    active_floors: str = "",
+) -> dict[str, Any]:
+    """
+    APEX-G Wisdom Manifold. Selects a constitutional wisdom quote by geometric
+    proximity in 6D APEX-G space (τ, ΔS, P², G, Ψ, κᵣ).
+
+    Args:
+        stage:         AClip stage (e.g. "666_HEART" or "999").
+        delta_s:       Entropy delta ΔS ∈ [-1, 1].
+        p2:            Peace squared P² ∈ [0, 2].
+        g_score:       Governance score G = A×P×X×E² ∈ [0, 1].
+        psi:           Epistemic depth Ψ ∈ [0, 1].
+        kappa_r:       Empathy coefficient κᵣ ∈ [0, 1].
+        active_floors: Comma-separated active floors (e.g. "F6,F7,F1").
+
+    Returns:
+        Dict with the selected quote, its APEX-G coordinates, score, and provenance.
+    """
+    try:
+        from core.philosophy.manifold import select_wisdom
+
+        floors = [f.strip() for f in active_floors.split(",") if f.strip()]
+        result = select_wisdom(
+            stage=stage,
+            delta_s=delta_s,
+            p2=p2,
+            g_score=g_score,
+            psi=psi,
+            kappa_r=kappa_r,
+            active_floors=floors,
+        )
+        return result.to_dict()
+    except Exception as exc:  # pragma: no cover
+        return {
+            "error": f"Manifold selection failed: {exc}",
+            "fallback_text": "The only true wisdom is in knowing you know nothing. — Socrates",
+        }
+
+
 def register_tools(mcp: FastMCP, profile: str = "full") -> None:
     """Register the core runtime tools; the dashboard app tool is added in resources."""
 
@@ -534,6 +581,16 @@ def register_tools(mcp: FastMCP, profile: str = "full") -> None:
         description="Read-only system health snapshot, reporting diagnostics and vitality signals.",
     )(check_vital)
 
+    # 7. select_wisdom_manifold — Philosophy
+    mcp.tool(
+        name="select_wisdom_manifold",
+        description=(
+            "APEX-G Wisdom Manifold. Selects a constitutional wisdom quote by geometric "
+            "proximity in 6D space (τ, ΔS, P², G, Ψ, κᵣ). Provide current session state "
+            "to receive the most resonant wisdom from the 99-quote corpus."
+        ),
+    )(select_wisdom_manifold)
+
     # Legacy tools preserved for internal orchestration
     if normalized_profile != "chatgpt":
         mcp.tool(description="000 INIT - Session anchor.")(init_anchor_state)
@@ -557,5 +614,6 @@ __all__ = [
     "register_tools",
     "seal_vault_commit",
     "search_reality",
+    "select_wisdom_manifold",
     "session_memory",
 ]
