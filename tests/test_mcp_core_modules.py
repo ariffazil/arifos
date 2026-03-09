@@ -163,7 +163,7 @@ class TestGetModeConfig:
 
 class TestMottoSchema:
     def test_get_mottos_resource_structure(self):
-        from arifosmcp.transport.core.motto_schema import get_mottos_resource
+        from core.schema.output import get_mottos_resource
 
         result = get_mottos_resource()
         assert result["uri"] == "constitutional://mottos"
@@ -174,7 +174,7 @@ class TestMottoSchema:
         assert text["total_mottos"] > 0
 
     def test_get_mottos_resource_bookends(self):
-        from arifosmcp.transport.core.motto_schema import get_mottos_resource
+        from core.schema.output import get_mottos_resource
 
         result = get_mottos_resource()
         bookends = result["text"]["bookends"]
@@ -182,14 +182,14 @@ class TestMottoSchema:
         assert "seal" in bookends
 
     def test_format_failure_known_floor(self):
-        from arifosmcp.transport.core.motto_schema import format_failure_with_motto
+        from core.schema.output import format_failure_with_motto
 
         msg = format_failure_with_motto("F2", "truth score too low")
         assert "F2" in msg
         assert "truth score too low" in msg
 
     def test_format_failure_unknown_floor(self):
-        from arifosmcp.transport.core.motto_schema import format_failure_with_motto
+        from core.schema.output import format_failure_with_motto
 
         msg = format_failure_with_motto("F99", "unknown reason")
         assert "F99" in msg
@@ -197,14 +197,14 @@ class TestMottoSchema:
         assert "[!]" in msg
 
     def test_get_init_gate_message(self):
-        from arifosmcp.transport.core.motto_schema import get_init_gate_message
+        from core.schema.output import get_init_gate_message
 
         msg = get_init_gate_message()
         assert "000_INIT" in msg
         assert isinstance(msg, str)
 
     def test_get_seal_gate_message(self):
-        from arifosmcp.transport.core.motto_schema import get_seal_gate_message
+        from core.schema.output import get_seal_gate_message
 
         msg = get_seal_gate_message()
         assert "999_SEAL" in msg

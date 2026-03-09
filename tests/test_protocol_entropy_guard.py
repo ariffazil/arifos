@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from arifosmcp.transport.protocol.schemas import get_input_schema, get_output_schema
+from core.schema import get_input_schema, get_output_schema
 from arifosmcp.transport.protocol.tool_graph import validate_sequence
 from arifosmcp.transport.protocol.tool_naming import (
     CANONICAL_PUBLIC_TO_LEGACY,
