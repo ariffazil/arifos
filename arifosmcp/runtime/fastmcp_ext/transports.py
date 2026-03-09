@@ -82,7 +82,7 @@ class SecurityHeadersMiddleware:
                 headers.setdefault("X-Frame-Options", "DENY")
                 headers.setdefault(
                     "Content-Security-Policy",
-                    "default-src 'none'; frame-ancestors 'none'; base-uri 'none'",
+                    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' wss: https:; frame-ancestors 'none'; base-uri 'self'",
                 )
             await send(message)
 

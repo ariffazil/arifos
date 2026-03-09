@@ -7,7 +7,8 @@
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/recharts/umd/Recharts.js"></script>
+    <script src="https://unpkg.com/prop-types/prop-types.min.js"></script>
+    <script src="https://unpkg.com/recharts@2.1.9/umd/Recharts.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@300;500;800&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -219,12 +220,13 @@
         // MCP Apps SDK Integration
         let mcpApp = null;
         try {
-            import("https://unpkg.com/@modelcontextprotocol/ext-apps@0.4.0/app-with-deps")
+            const dynamicImport = new Function('url', 'return import(url)');
+            dynamicImport("https://unpkg.com/@modelcontextprotocol/ext-apps@0.4.0/app-with-deps")
                 .then(module => {
                     const { App } = module;
                     mcpApp = new App({ name: "APEX Sovereign", version: "1.0.0" });
-                    mcpApp.connect().then(() => console.log("MCP Host Connected"));
-                });
+                    mcpApp.connect().then(() => console.log("MCP Host Connected")).catch(e => console.warn("MCP Connect Error", e));
+                }).catch(e => console.warn("Dynamic import failed", e));
         } catch (e) {
             console.warn("MCP SDK Load failed, running in standalone mode", e);
         }
