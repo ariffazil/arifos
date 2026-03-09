@@ -563,7 +563,7 @@ async def apex_judge_wrapper(request: Request):
     if auth_error:
         return auth_error
     request_id = generate_request_id()
-    start_time = time.time()
+    time.time()
     try:
         body = await request.json()
     except:

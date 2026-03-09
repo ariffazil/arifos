@@ -700,7 +700,7 @@ def get_full_pipeline_chant() -> str:
     unique_pos = []
     unique_neg = []
 
-    for p, n in zip(positives, negatives):
+    for p, n in zip(positives, negatives, strict=False):
         if p not in seen_pos:
             seen_pos.add(p)
             unique_pos.append(p)

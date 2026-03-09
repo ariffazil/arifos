@@ -187,7 +187,6 @@ def build_init_response(
     debug: bool = False,
 ) -> UnifiedResponse:
     """Build response for init_gate (stage 000)."""
-    status: StatusType = "OK" if verdict == "SEAL" else "BLOCKED"
     next_tool = get_next_tool("init_gate") if verdict == "SEAL" else None
 
     # Phase A: Only APEX has verdict authority

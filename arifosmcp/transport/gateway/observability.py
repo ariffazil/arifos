@@ -234,7 +234,7 @@ class PostDeployMonitor:
         """Internal monitoring loop."""
         start_time = datetime.now(timezone.utc)
 
-        for attempt in range(self.config.timeout // self.config.interval):
+        for _attempt in range(self.config.timeout // self.config.interval):
             await asyncio.sleep(self.config.interval)
 
             # Get current metrics

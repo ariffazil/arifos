@@ -231,7 +231,6 @@ def run_selftest(strict: bool = False) -> bool:
     print("=" * 60)
     print()
 
-    all_passed = True
     all_issues = []
 
     checks = [
@@ -270,7 +269,7 @@ def run_selftest(strict: bool = False) -> bool:
     for passed, issues in check_results:
         all_issues.extend(issues)
         if not passed:
-            all_passed = False
+            pass
 
     # Summary
     print("\n" + "=" * 60)

@@ -784,7 +784,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
         # Support both 'query' and 'task' parameters for compatibility
         query = body.get("query") or body.get("task", "")
-        stakeholders = body.get("stakeholders", ["user"])
+        body.get("stakeholders", ["user"])
         actor_id = body.get("actor_id", "chatgpt")
         mode = body.get("mode", "full")
 
@@ -818,7 +818,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
             # 111-444_AGI
             reason_fn = getattr(reason_tool, "fn", reason_tool)
-            reason_res = await reason_fn(
+            await reason_fn(
                 query=query, 
                 session_id=cid,
                 auth_context={"actor_id": actor_id, "authority_level": "agent"}
@@ -826,7 +826,7 @@ def register_rest_routes(mcp: Any, tool_registry: dict[str, Callable]) -> None:
 
             # 555-666_ASI
             heart_fn = getattr(heart_tool, "fn", heart_tool)
-            heart_res = await heart_fn(
+            await heart_fn(
                 scenario=query, 
                 session_id=cid,
                 auth_context={"actor_id": actor_id, "authority_level": "agent"}
