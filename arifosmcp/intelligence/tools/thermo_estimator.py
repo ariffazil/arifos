@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from arifosmcp.intelligence.tools.aclip_base import PSUTIL_OK, ok, psutil
+from arifosmcp.intelligence.tools.aclip_base import PSUTIL_OK, psutil
 
 
 def cost_estimator(
@@ -25,22 +25,9 @@ def cost_estimator(
     """
     Predicts the thermodynamic and financial cost of a proposed action.
     Serves as a proxy for entropy change (ΔS).
-
-    Args:
-        action_description: Intent description
-        estimated_cpu_percent: 0-100 per core
-        estimated_ram_mb: RAM usage in MB
-        estimated_io_mb: I/O usage in MB
-        operation_type: compute, llm, embedding, storage
-        token_count: Input+Output tokens
-        compute_seconds: Clock time
-        storage_gb: Permanent storage size
-        api_calls: External request count
-        provider: e.g., 'openai'
-        model: e.g., 'gpt-4'
     """
     # ---------------------------------------------------------------------------
-    # 1. Financial Costs (USD) — Mirrored from console_tools.py
+    # 1. Financial Costs (USD)
     # ---------------------------------------------------------------------------
     pricing = {
         "openai": {
@@ -119,30 +106,22 @@ def cost_estimator(
 
     cost_score = round((0.5 * norm_cpu) + (0.3 * norm_ram) + (0.2 * norm_io), 4)
 
-    if cost_score >= 0.8:
-        risk_band = "red"
-    elif cost_score >= 0.5:
-        risk_band = "amber"
-    else:
-        risk_band = "green"
-
-    return ok(
-        {
-            "action_description": action_description,
-            "operation_type": operation_type,
-            "costs": costs,
-            "hardware_context": {
-                "cores": logical_cores,
-                "max_cpu_percent": max_cpu_pct,
-                "total_ram_mb": round(max_ram_mb, 0),
-            },
-            "thermodynamic": {
-                "cost_score": cost_score,
-                "risk_band": risk_band,
-            },
-            "apex_input": {
-                "tokens": token_count or 0,
-                "tool_calls": api_calls or 0,
-            },
-        }
-    )
+    return {
+        "status": "ok",
+        "action_description": action_description,
+        "operation_type": operation_type,
+        "costs": costs,
+        "hardware_context": {
+            "cores": logical_cores,
+            "max_cpu_percent": max_cpu_pct,
+            "total_ram_mb": round(max_ram_mb, 0),
+        },
+        "thermodynamic": {
+            "cost_score": cost_score,
+            "risk_band": "red" if cost_score >= 0.8 else ("amber" if cost_score >= 0.5 else "green"),
+        },
+        "apex_input": {
+            "tokens": token_count or 0,
+            "tool_calls": api_calls or 0,
+        },
+    }

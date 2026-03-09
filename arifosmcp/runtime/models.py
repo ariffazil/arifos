@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
@@ -29,7 +31,8 @@ class Stage(str, Enum):
     MIND_333 = "333_MIND"
     ROUTER_444 = "444_ROUTER"
     MEMORY_555 = "555_MEMORY"
-    HEART_666 = "666_HEART"
+    HEART_555 = "555_HEART"
+    CRITIQUE_666 = "666_CRITIQUE"
     FORGE_777 = "777_FORGE"
     JUDGE_888 = "888_JUDGE"
     VAULT_999 = "999_VAULT"
@@ -90,6 +93,7 @@ class RuntimeEnvelope(BaseModel):
     payload: dict[str, Any] = Field(default_factory=dict)
     errors: list[CanonicalError] = Field(default_factory=list)
     meta: CanonicalMeta = Field(default_factory=CanonicalMeta)
+    auth_context: dict[str, Any] | None = Field(default=None, exclude=True)
 
     # Optional Debug layer (only if meta.debug is True)
     debug: dict[str, Any] | None = None

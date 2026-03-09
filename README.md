@@ -7,7 +7,7 @@
 
 [![Status](https://img.shields.io/badge/Status-Stationary%20%26%20Enforced-00ffcc.svg?style=for-the-badge)](https://arifosmcp.arif-fazil.com/health)
 [![Architecture](https://img.shields.io/badge/Architecture-Trinity%20ΔΩΨ-7c3aed.svg?style=for-the-badge)](https://arifos.arif-fazil.com/architecture)
-[![Version](https://img.shields.io/badge/Version-2026.03.10--SEAL-blue.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/commits/main)
+[![Version](https://img.shields.io/badge/Version-2026.03.10--ROUTER--SEAL-blue.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/commits/main)
 [![License: AGPL 3.0](https://img.shields.io/badge/License-AGPL%203.0-lightgrey.svg?style=for-the-badge)](https://github.com/ariffazil/arifosmcp/blob/main/LICENSE)
 
 **arifOS** is a production-grade **Constitutional Governance Kernel** for artificial intelligence. It functions as a hard thermodynamic airlock between AI reasoning (LLMs) and real-world execution, enforcing 13 immutable "Constitutional Floors" to ensure every action is safe, truthful, and sovereign-aligned.
@@ -134,7 +134,7 @@ The kernel exposes these primary interfaces in [`arifosmcp/runtime/tools.py`](./
 
 | Tool | Entrypoint | Focus | Description |
 | :--- | :--- | :--- | :--- |
-| **`arifOS.kernel`** | `core/organs/` | **Reasoning** | Triggers the full 13-floor metabolic loop. |
+| **`arifOS.kernel`** | `arifosmcp/runtime/` | **Reasoning** | Unified entry point for dynamic metabolic routing (000→999). |
 | **`search_reality`** | `arifosmcp/transport/` | **Grounding** | Multi-source reality check (Brave/Perplexity/Jina). |
 | **`ingest_evidence`** | `arifosmcp/intelligence/` | **Evidence** | Ingest docs/URLs into the constitutional context. |
 | **`session_memory`** | `arifosmcp/data/` | **Continuity** | Vector recall of previous reasoning traces. |

@@ -675,7 +675,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     has_hard_fail = any(
         v.get("pass") is False and v.get("type") == "floor"
         for k, v in law_checks.items()
-        if k in {"F1_AMANAH", "F2_TRUTH", "F7_HUMILITY", "F12_DEFENSE", "F13_CURIOSITY"}
+        if k in {"F1_AMANAH", "F2_TRUTH", "F7_HUMILITY", "F12_DEFENSE"}
     )
 
     tri_witness = _calculate_tri_witness_consensus(tool, payload)
@@ -692,7 +692,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
         d_s=_safe_float(payload, "dS", -0.1),
     )
 
-    stage = TOOL_STAGE_MAP.get(tool, "000_INIT")
+    stage = str(payload.get("stage") or TOOL_STAGE_MAP.get(tool, "000_INIT"))
     stage_num = _parse_stage_num(stage)
 
     # Verdict Logic
@@ -764,7 +764,7 @@ def wrap_tool_output(tool: str, payload: dict[str, Any]) -> dict[str, Any]:
     authority = {
         "actor_id": auth_ctx.get("actor_id", "anonymous"),
         "level": auth_ctx.get("authority_level", "anonymous"),
-        "human_required": verdict in ["HOLD", "VOID"],
+        "human_required": verdict in ["HOLD", "HOLD_888", "VOID"],
         "approval_scope": auth_ctx.get("approval_scope", []),
         "auth_state": auth_state,
     }

@@ -45,9 +45,9 @@ async def test_trace_replay_reads_trace_from_vault_telemetry(tmp_path, monkeypat
     result = await bridge.call_kernel("trace_replay", "s-1", {"limit": 5})
 
     assert result["status"] == "SUCCESS"
-    assert result["trace_count"] == 1
-    assert result["entries"][0]["trace"]["111_MIND"] == "SEAL"
-    assert result["entries"][0]["reality"]["score"] == 0.88
+    assert result["payload"]["trace_count"] == 1
+    assert result["payload"]["entries"][0]["trace"]["111_MIND"] == "SEAL"
+    assert result["payload"]["entries"][0]["reality"]["score"] == 0.88
 
 
 @pytest.mark.asyncio
@@ -57,4 +57,4 @@ async def test_trace_replay_returns_no_data_when_vault_missing(tmp_path, monkeyp
     result = await bridge.call_kernel("trace_replay", "s-404", {"limit": 5})
 
     assert result["status"] == "NO_DATA"
-    assert result["trace_count"] == 0
+    assert result["payload"]["trace_count"] == 0

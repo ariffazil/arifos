@@ -285,6 +285,23 @@ async def call_kernel(
                 dry_run=bool(payload.get("dry_run", False)),
             )
 
+            canonical_envelope_keys = {
+                "ok",
+                "tool",
+                "session_id",
+                "stage",
+                "verdict",
+                "status",
+                "metrics",
+                "trace",
+                "authority",
+                "payload",
+                "errors",
+                "meta",
+            }
+            if isinstance(result, dict) and canonical_envelope_keys.issubset(result):
+                return result
+
         else:
             result = {"status": "SUCCESS", "message": f"Utility {tool_name} executed."}
 
@@ -298,6 +315,7 @@ async def call_kernel(
                 result["verdict"] = verdict_value.value
 
             result.setdefault("session_id", session_id)
+            result.setdefault("stage", payload.get("stage") or "")
             result.setdefault(
                 "actor_id", actor_id or (auth_ctx.get("actor_id") if auth_ctx else "anonymous")
             )

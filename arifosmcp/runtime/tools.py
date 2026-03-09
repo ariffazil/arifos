@@ -50,6 +50,7 @@ async def _wrap_call(
     # Ensure payload has session_id and routing metadata
     payload["session_id"] = session_id
     payload["tool"] = tool_name
+    payload["stage"] = stage.value
 
     try:
         # call_kernel now returns a dictionary matching the Canonical Schema
@@ -213,7 +214,7 @@ async def assess_heart_impact(
 ) -> RuntimeEnvelope:
     """666A HEART - Impact assessment. Evaluate empathy, care, and stakeholder harm."""
     payload = {"scenario": scenario, "focus": heart_mode, "auth_context": auth_context}
-    return await _wrap_call("assess_heart_impact", Stage.HEART_666, session_id, payload, ctx)
+    return await _wrap_call("assess_heart_impact", Stage.HEART_555, session_id, payload, ctx)
 
 
 async def critique_thought_audit(
@@ -229,7 +230,7 @@ async def critique_thought_audit(
         "critique_focus": critique_mode,
         "auth_context": auth_context,
     }
-    return await _wrap_call("critique_thought_audit", Stage.HEART_666, session_id, payload, ctx)
+    return await _wrap_call("critique_thought_audit", Stage.CRITIQUE_666, session_id, payload, ctx)
 
 
 async def quantum_eureka_forge(

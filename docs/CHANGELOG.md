@@ -5,6 +5,41 @@ All changes follow [T000 versioning](T000_VERSIONING.md): `YYYY.MM.DD-PHASE-STAT
 
 ---
 
+## [2026.3.10-METABOLIC-ROUTER-SEAL] — 2026-03-10 — METABOLIC-ROUTER-SEAL
+
+**T000:** 2026.03.10-METABOLIC-ROUTER-SEAL  
+**Theme:** Dynamic Metabolic Routing (Stage 444), unified lifecycle hardening, and 000→999 sequential state machine.
+
+### Added
+- **Dynamic Metabolic Router** (`core/governance_kernel.py`):
+  - Intelligent stage planning based on query intent (reality, safety, forge, judge).
+  - Enforced guardrail: **Stage 777 (Forge) always implies Stage 888 (Judge)**.
+  - Context-aware routing supports `force_grounding` and `human_required` overrides.
+- **Sequential State Machine** (`arifosmcp/runtime/orchestrator.py`):
+  - Completely refactored `metabolic_loop` into a clean, sequential execution pipeline.
+  - **Constitutional Normalization:** All exploration stages (111-666) failing via `VOID` are normalized to `SABAR` to prevent early idea termination.
+  - Terminal breaks for `SEAL`, `HOLD`, `HOLD_888`, and `VOID` status.
+- **`HOLD_888` Verdict** (`core/shared/types.py`): New canonical verdict for specific human gating.
+
+### Changed
+- **Unified Runtime Path:**
+  - `arifosmcp.transport` now acts as a stable compatibility shim.
+  - All core coordination logic moved into `arifosmcp.runtime` for agnostic MCP clients.
+- **Final Output Schema Consistency:**
+  - Standardized the `RuntimeEnvelope` top-level fields for all tool returns.
+  - Unified telemetry and trace data structure across all organs.
+
+### Fixed
+- **Circular dependencies** and duplications in the orchestrator.
+- **Initialization timing** for session state and auth context.
+
+### Verification
+- **Router Logic:** Tested across 12 diverse query scenarios (grounding, execute, safety).
+- **Hardness Test:** Verified that `777_FORGE` is inaccessible without `888_JUDGE` plan insertion.
+- **Schema Compliance:** All returns from `arifOS.kernel` now pass the v1.0.0 envelope test.
+
+---
+
 ## [2026.3.8-APEX-SOVEREIGN-SEAL] — 2026-03-08 — APEX-SOVEREIGN-SEAL
 
 **T000:** 2026.03.08-APEX-SOVEREIGN-SEAL  

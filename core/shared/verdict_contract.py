@@ -68,7 +68,7 @@ def _build_contracts() -> dict[int, frozenset]:
         555: frozenset({Verdict.SEAL, Verdict.HOLD, Verdict.SABAR}),
         666: frozenset({Verdict.SEAL, Verdict.PARTIAL, Verdict.HOLD}),
         777: frozenset({Verdict.SEAL, Verdict.HOLD, Verdict.SABAR}),
-        888: frozenset({Verdict.SEAL, Verdict.HOLD, Verdict.VOID}),
+        888: frozenset({Verdict.SEAL, Verdict.HOLD_888, Verdict.VOID}),
         999: frozenset({Verdict.SEAL, Verdict.VOID}),
     }
 
@@ -88,10 +88,10 @@ def _get_contracts() -> dict[int, frozenset]:
 # ---------------------------------------------------------------------------
 
 _LEGACY_STRING_MAP: dict[str, str] = {
-    "888_HOLD": "HOLD",
-    "HOLD-888": "HOLD",
-    "HOLD_888": "HOLD",
-    "888_hold": "HOLD",
+    "888_HOLD": "HOLD_888",
+    "HOLD-888": "HOLD_888",
+    "HOLD_888": "HOLD_888",
+    "888_hold": "HOLD_888",
     "seal": "SEAL",
     "void": "VOID",
     "partial": "PARTIAL",
@@ -143,6 +143,12 @@ def normalize_verdict(stage: int, verdict: Any) -> Verdict:
     # Coerce string → Verdict
     if isinstance(verdict, str):
         verdict = _coerce_verdict(verdict)
+
+    if stage < 888 and verdict == Verdict.HOLD_888:
+        return Verdict.HOLD
+
+    if stage == 888 and verdict == Verdict.HOLD:
+        return Verdict.HOLD_888
 
     # Core normalization rule: only stage 0 (000 INIT) and 888+ may emit VOID
     if stage != 0 and stage < 888 and verdict == Verdict.VOID:

@@ -821,12 +821,17 @@ def route_pipeline(query: str, context: dict | None = None) -> list[str]:
     plan = ["111_SENSE", "333_MIND", "666_CRITIQUE"]
 
     grounding = ("search", "evidence", "source", "verify", "ground", "data")
+    memory = ("recall", "remember", "memory", "vault", "history")
     safety = ("risk", "harm", "danger", "safe", "ethic", "impact")
     execute = ("run", "execute", "command", "shell", "delete", "write", "deploy")
     govern = ("law", "constitution", "authority", "approve", "judge")
 
     if any(k in q for k in grounding):
         plan.insert(1, "222_REALITY")
+
+    if any(k in q for k in memory):
+        if "555_MEMORY" not in plan:
+            plan.insert(-1, "555_MEMORY")
 
     if any(k in q for k in safety):
         if "555_HEART" not in plan:
