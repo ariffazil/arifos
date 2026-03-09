@@ -1,0 +1,2668 @@
+{
+  "version": "2026.03.09-MANIFOLD-SEAL",
+  "description": "arifOS 99 Wisdom Quotes — APEX-G 6D Constitutional Manifold with Word-Power Mechanisms",
+  "theory": {
+    "word_power_mechanisms": {
+      "neural_simulation": "Language activates the same brain circuits as real experience (amygdala, motor cortex, visual cortex). words → neural simulation → emotional reaction → action",
+      "symbolic_compression": "One symbol compresses enormous lived experience. 'war', 'love', 'betrayal' = millions of moments. symbol → compressed world model",
+      "coordination": "Shared narratives (money, nations, law, religion) coordinate millions of humans without physical contact. Harari's cognitive revolution mechanism.",
+      "attention_steering": "Language directs limited attention bandwidth. 'Look at the moon.' → consciousness steered. words = attention steering devices"
+    },
+    "resonance_density": "ρ ∈ [0, 1] — how densely compressed and neurologically potent the quote is. High ρ = one sentence encoding centuries of meaning."
+  },
+  "space": {
+    "dimensions": 6,
+    "axes": [
+      {
+        "name": "tau",
+        "symbol": "τ",
+        "range": [
+          0.0,
+          1.0
+        ],
+        "description": "Temporal resonance"
+      },
+      {
+        "name": "delta_s",
+        "symbol": "ΔS",
+        "range": [
+          -1.0,
+          1.0
+        ],
+        "description": "Entropy delta"
+      },
+      {
+        "name": "p2",
+        "symbol": "P²",
+        "range": [
+          0.0,
+          2.0
+        ],
+        "description": "Peace squared"
+      },
+      {
+        "name": "g",
+        "symbol": "G",
+        "range": [
+          0.0,
+          1.0
+        ],
+        "description": "Governance score"
+      },
+      {
+        "name": "psi",
+        "symbol": "Ψ",
+        "range": [
+          0.0,
+          1.0
+        ],
+        "description": "Epistemic depth"
+      },
+      {
+        "name": "kappa_r",
+        "symbol": "κᵣ",
+        "range": [
+          0.0,
+          1.0
+        ],
+        "description": "Empathy coefficient"
+      }
+    ]
+  },
+  "total": 99,
+  "quotes": [
+    {
+      "id": 1,
+      "category": "scar",
+      "author": "Viktor Frankl",
+      "text": "The last of human freedoms - to choose one's attitude in any given set of circumstances.",
+      "source": "Man's Search for Meaning (1946)",
+      "human_cost": "Lost wife, parents, brother in Holocaust; 3 years in concentration camps",
+      "apex_g": {
+        "tau": 0.8,
+        "delta_s": -0.34,
+        "p2": 1.01,
+        "g": 0.7371,
+        "psi": 0.7845,
+        "kappa_r": 0.6354,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8147
+      }
+    },
+    {
+      "id": 2,
+      "category": "scar",
+      "author": "Viktor Frankl",
+      "text": "What is to give light must endure burning.",
+      "source": "Man's Search for Meaning (1946)",
+      "human_cost": "Auschwitz survivor #119104-119104",
+      "apex_g": {
+        "tau": 0.76,
+        "delta_s": -0.26,
+        "p2": 1.07,
+        "g": 0.7543,
+        "psi": 0.7991,
+        "kappa_r": 0.6508,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8194
+      }
+    },
+    {
+      "id": 3,
+      "category": "scar",
+      "author": "Nelson Mandela",
+      "text": "I learned that courage was not the absence of fear, but the triumph over it.",
+      "source": "Long Walk to Freedom (1994)",
+      "human_cost": "27 years imprisoned; missed watching his children grow",
+      "apex_g": {
+        "tau": 0.84,
+        "delta_s": -0.3933,
+        "p2": 1.13,
+        "g": 0.7714,
+        "psi": 0.8136,
+        "kappa_r": 0.6662,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8241
+      }
+    },
+    {
+      "id": 4,
+      "category": "scar",
+      "author": "Nelson Mandela",
+      "text": "The brave man is not he who does not feel afraid, but he who conquers that fear.",
+      "source": "Long Walk to Freedom (1994)",
+      "human_cost": "Robben Island prisoner 46664",
+      "apex_g": {
+        "tau": 0.74,
+        "delta_s": -0.3133,
+        "p2": 1.19,
+        "g": 0.7886,
+        "psi": 0.8282,
+        "kappa_r": 0.6815,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8288
+      }
+    },
+    {
+      "id": 5,
+      "category": "scar",
+      "author": "Malcolm X",
+      "text": "There is no better than adversity. Every defeat, every heartbreak, every loss, contains its own seed, its own lesson.",
+      "source": "The Autobiography of Malcolm X (1965)",
+      "human_cost": "Father murdered; mother institutionalized; 6 years in prison; assassinated at 39",
+      "apex_g": {
+        "tau": 0.82,
+        "delta_s": -0.2333,
+        "p2": 0.962,
+        "g": 0.8057,
+        "psi": 0.8427,
+        "kappa_r": 0.6969,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8335
+      }
+    },
+    {
+      "id": 6,
+      "category": "scar",
+      "author": "Maya Angelou",
+      "text": "You may not control all the events that happen to you, but you can decide not to be reduced by them.",
+      "source": "Letter to My Daughter (2008)",
+      "human_cost": "Raped at 8; mute for 5 years; single mother at 17",
+      "apex_g": {
+        "tau": 0.78,
+        "delta_s": -0.3667,
+        "p2": 1.022,
+        "g": 0.8229,
+        "psi": 0.8573,
+        "kappa_r": 0.7123,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8382
+      }
+    },
+    {
+      "id": 7,
+      "category": "scar",
+      "author": "Maya Angelou",
+      "text": "I can be changed by what happens to me. But I refuse to be reduced by it.",
+      "source": "Letter to My Daughter (2008)",
+      "human_cost": "Childhood sexual violence; poverty; discrimination",
+      "apex_g": {
+        "tau": 0.86,
+        "delta_s": -0.2867,
+        "p2": 1.082,
+        "g": 0.7224,
+        "psi": 0.8718,
+        "kappa_r": 0.7277,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8429
+      }
+    },
+    {
+      "id": 8,
+      "category": "scar",
+      "author": "Fyodor Dostoevsky",
+      "text": "The soul is healed by being with children.",
+      "source": "The Idiot (1869)",
+      "human_cost": "Mock execution at 28; 4 years hard labor in Siberia; epilepsy",
+      "apex_g": {
+        "tau": 0.73,
+        "delta_s": -0.2067,
+        "p2": 1.142,
+        "g": 0.7396,
+        "psi": 0.8864,
+        "kappa_r": 0.7431,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8476
+      }
+    },
+    {
+      "id": 9,
+      "category": "scar",
+      "author": "Fyodor Dostoevsky",
+      "text": "Pain and suffering are always inevitable for a large intelligence and a deep heart.",
+      "source": "Crime and Punishment (1866)",
+      "human_cost": "Prison; exile; gambling addiction; debt",
+      "apex_g": {
+        "tau": 0.81,
+        "delta_s": -0.4111,
+        "p2": 1.202,
+        "g": 0.7567,
+        "psi": 0.9009,
+        "kappa_r": 0.7585,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8524
+      }
+    },
+    {
+      "id": 10,
+      "category": "scar",
+      "author": "Aleksandr Solzhenitsyn",
+      "text": "The battle line between good and evil runs through the heart of every human being.",
+      "source": "The Gulag Archipelago (1973)",
+      "human_cost": "8 years in gulag; cancer; exile from homeland",
+      "apex_g": {
+        "tau": 0.77,
+        "delta_s": -0.3311,
+        "p2": 0.974,
+        "g": 0.7739,
+        "psi": 0.9155,
+        "kappa_r": 0.7738,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8571
+      }
+    },
+    {
+      "id": 11,
+      "category": "scar",
+      "author": "Aleksandr Solzhenitsyn",
+      "text": "Bless you prison, bless you for being in my life. For there, lying upon the rotting prison straw, I came to realize that the object of life is not prosperity but the maturity of the human soul.",
+      "source": "The Gulag Archipelago (1973)",
+      "human_cost": "Cancer in prison; forced labor; family destroyed",
+      "apex_g": {
+        "tau": 0.85,
+        "delta_s": -0.2511,
+        "p2": 1.034,
+        "g": 0.791,
+        "psi": 0.7713,
+        "kappa_r": 0.7892,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8618
+      }
+    },
+    {
+      "id": 12,
+      "category": "scar",
+      "author": "Etty Hillesum",
+      "text": "Each of us must turn inward and destroy in himself all that he thinks he ought to destroy in others.",
+      "source": "An Interrupted Life (1944)",
+      "human_cost": "Murdered in Auschwitz at 29; chose to stay with her people",
+      "apex_g": {
+        "tau": 0.75,
+        "delta_s": -0.3844,
+        "p2": 1.094,
+        "g": 0.8082,
+        "psi": 0.7859,
+        "kappa_r": 0.8046,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8665
+      }
+    },
+    {
+      "id": 13,
+      "category": "scar",
+      "author": "Etty Hillesum",
+      "text": "Sometimes I long to be able to pray, but I do not know to whom or to what. And then I think: perhaps the praying itself is the answer.",
+      "source": "An Interrupted Life (1944)",
+      "human_cost": "Died in Auschwitz; Westerbork transit camp diarist",
+      "apex_g": {
+        "tau": 0.83,
+        "delta_s": -0.3044,
+        "p2": 1.154,
+        "g": 0.8253,
+        "psi": 0.8004,
+        "kappa_r": 0.6212,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8712
+      }
+    },
+    {
+      "id": 14,
+      "category": "scar",
+      "author": "Primo Levi",
+      "text": "Monsters exist, but they are too few in number to be truly dangerous. More dangerous are the common men, the functionaries ready to believe and to act without asking questions.",
+      "source": "Survival in Auschwitz (1947)",
+      "human_cost": "Auschwitz #174517; depression; suicide at 67",
+      "apex_g": {
+        "tau": 0.79,
+        "delta_s": -0.2244,
+        "p2": 1.214,
+        "g": 0.7249,
+        "psi": 0.815,
+        "kappa_r": 0.6366,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8759
+      }
+    },
+    {
+      "id": 15,
+      "category": "scar",
+      "author": "Primo Levi",
+      "text": "I am constantly amazed by man's inhumanity to man. And I am equally amazed by man's humanity to man.",
+      "source": "Survival in Auschwitz (1947)",
+      "human_cost": "Lost 650 Italian Jews from his transport; only 20 survived",
+      "apex_g": {
+        "tau": 0.87,
+        "delta_s": -0.3578,
+        "p2": 0.986,
+        "g": 0.742,
+        "psi": 0.8295,
+        "kappa_r": 0.652,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8806
+      }
+    },
+    {
+      "id": 16,
+      "category": "scar",
+      "author": "Elie Wiesel",
+      "text": "Never shall I forget that night, the first night in camp, that turned my life into one long night seven times sealed.",
+      "source": "Night (1956)",
+      "human_cost": "Auschwitz A-7713; lost mother, sister, father in camps",
+      "apex_g": {
+        "tau": 0.725,
+        "delta_s": -0.2778,
+        "p2": 1.046,
+        "g": 0.7592,
+        "psi": 0.844,
+        "kappa_r": 0.6673,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8853
+      }
+    },
+    {
+      "id": 17,
+      "category": "scar",
+      "author": "Elie Wiesel",
+      "text": "The opposite of love is not hate, it's indifference.",
+      "source": "US News & World Report (1986)",
+      "human_cost": "Watched father die in Buchenwald; lost entire family",
+      "apex_g": {
+        "tau": 0.805,
+        "delta_s": -0.1978,
+        "p2": 1.106,
+        "g": 0.7763,
+        "psi": 0.8586,
+        "kappa_r": 0.6827,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8103
+      }
+    },
+    {
+      "id": 18,
+      "category": "scar",
+      "author": "Dietrich Bonhoeffer",
+      "text": "Silence in the face of evil is itself evil. God will not hold us guiltless. Not to speak is to speak. Not to act is to act.",
+      "source": "Letters and Papers from Prison (1951)",
+      "human_cost": "Hanged by Nazis at 39; 23 days before Hitler's suicide",
+      "apex_g": {
+        "tau": 0.765,
+        "delta_s": -0.4022,
+        "p2": 1.166,
+        "g": 0.7935,
+        "psi": 0.8731,
+        "kappa_r": 0.6981,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.815
+      }
+    },
+    {
+      "id": 19,
+      "category": "scar",
+      "author": "Dietrich Bonhoeffer",
+      "text": "We must learn to regard people less in the light of what they do or omit to do, and more in the light of what they suffer.",
+      "source": "Letters and Papers from Prison (1951)",
+      "human_cost": "Imprisoned 2 years; executed for anti-Hitler plot",
+      "apex_g": {
+        "tau": 0.845,
+        "delta_s": -0.3222,
+        "p2": 1.226,
+        "g": 0.8106,
+        "psi": 0.8877,
+        "kappa_r": 0.7135,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8197
+      }
+    },
+    {
+      "id": 20,
+      "category": "scar",
+      "author": "Edith Stein",
+      "text": "The nation doesn't simply need what we have. It needs what we are.",
+      "source": "Essays on Woman (1996)",
+      "human_cost": "Murdered in Auschwitz gas chamber; Carmelite nun; converted Jew",
+      "apex_g": {
+        "tau": 0.745,
+        "delta_s": -0.2422,
+        "p2": 0.998,
+        "g": 0.8278,
+        "psi": 0.9022,
+        "kappa_r": 0.7289,
+        "floor_affinities": [
+          "F6",
+          "F7",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "symbolic_compression"
+        ],
+        "resonance_density": 0.8244
+      }
+    },
+    {
+      "id": 21,
+      "category": "triumph",
+      "author": "Helen Keller",
+      "text": "The only thing worse than being blind is having sight but no vision.",
+      "source": "The Story of My Life (1903)",
+      "human_cost": "Deaf and blind at 19 months; fought isolation",
+      "apex_g": {
+        "tau": 0.9,
+        "delta_s": -0.64,
+        "p2": 1.61,
+        "g": 0.8771,
+        "psi": 0.6845,
+        "kappa_r": 0.7354,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7647
+      }
+    },
+    {
+      "id": 22,
+      "category": "triumph",
+      "author": "Helen Keller",
+      "text": "Character cannot be developed in ease and quiet. Only through experience of trial and suffering can the soul be strengthened.",
+      "source": "The Story of My Life (1903)",
+      "human_cost": "Complete isolation until age 7; lifelong disabilities",
+      "apex_g": {
+        "tau": 0.86,
+        "delta_s": -0.56,
+        "p2": 1.67,
+        "g": 0.8943,
+        "psi": 0.6991,
+        "kappa_r": 0.7508,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7694
+      }
+    },
+    {
+      "id": 23,
+      "category": "triumph",
+      "author": "Stephen Hawking",
+      "text": "However difficult life may seem, there is always something you can do and succeed at.",
+      "source": "Brief Answers to the Big Questions (2018)",
+      "human_cost": "ALS at 21; given 2 years to live; survived 55 years",
+      "apex_g": {
+        "tau": 0.94,
+        "delta_s": -0.6933,
+        "p2": 1.73,
+        "g": 0.9114,
+        "psi": 0.7136,
+        "kappa_r": 0.7662,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7741
+      }
+    },
+    {
+      "id": 24,
+      "category": "triumph",
+      "author": "Stephen Hawking",
+      "text": "Remember to look up at the stars and not down at your feet.",
+      "source": "Brief Answers to the Big Questions (2018)",
+      "human_cost": "Wheelchair-bound; ventilator; communication device",
+      "apex_g": {
+        "tau": 0.84,
+        "delta_s": -0.6133,
+        "p2": 1.79,
+        "g": 0.9286,
+        "psi": 0.7282,
+        "kappa_r": 0.7815,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7788
+      }
+    },
+    {
+      "id": 25,
+      "category": "triumph",
+      "author": "Frida Kahlo",
+      "text": "At the end of the day, we can endure much more than we think we can.",
+      "source": "The Diary of Frida Kahlo (1995)",
+      "human_cost": "Spinal damage; 35 surgeries; chronic pain; amputation",
+      "apex_g": {
+        "tau": 0.92,
+        "delta_s": -0.5333,
+        "p2": 1.562,
+        "g": 0.9457,
+        "psi": 0.7427,
+        "kappa_r": 0.7969,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7835
+      }
+    },
+    {
+      "id": 26,
+      "category": "triumph",
+      "author": "Frida Kahlo",
+      "text": "Feet, what do I need you for when I have wings to fly?",
+      "source": "The Diary of Frida Kahlo (1995)",
+      "human_cost": "Broken spine, pelvis, ribs, leg; lifelong agony",
+      "apex_g": {
+        "tau": 0.88,
+        "delta_s": -0.6667,
+        "p2": 1.622,
+        "g": 0.9629,
+        "psi": 0.7573,
+        "kappa_r": 0.8123,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7882
+      }
+    },
+    {
+      "id": 27,
+      "category": "triumph",
+      "author": "Ludwig van Beethoven",
+      "text": "I will seize fate by the throat; it shall certainly not overcome me.",
+      "source": "Letter to Franz Wegeler (1801)",
+      "human_cost": "Deaf by 44; contemplated suicide; never heard his own music",
+      "apex_g": {
+        "tau": 0.96,
+        "delta_s": -0.5867,
+        "p2": 1.682,
+        "g": 0.8624,
+        "psi": 0.7718,
+        "kappa_r": 0.8277,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7929
+      }
+    },
+    {
+      "id": 28,
+      "category": "triumph",
+      "author": "Ludwig van Beethoven",
+      "text": "Music is a higher revelation than all wisdom and philosophy.",
+      "source": "Heiligenstadt Testament (1802)",
+      "human_cost": "Complete deafness; isolation; failed relationships",
+      "apex_g": {
+        "tau": 0.83,
+        "delta_s": -0.5067,
+        "p2": 1.742,
+        "g": 0.8796,
+        "psi": 0.7864,
+        "kappa_r": 0.8431,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7976
+      }
+    },
+    {
+      "id": 29,
+      "category": "triumph",
+      "author": "Abraham Lincoln",
+      "text": "I am a slow walker, but I never walk back.",
+      "source": "Speech in Decatur, Illinois (1860)",
+      "human_cost": "Lost mother at 9; depression; lost 3 sons; assassinated",
+      "apex_g": {
+        "tau": 0.91,
+        "delta_s": -0.7111,
+        "p2": 1.802,
+        "g": 0.8967,
+        "psi": 0.8009,
+        "kappa_r": 0.8585,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8024
+      }
+    },
+    {
+      "id": 30,
+      "category": "triumph",
+      "author": "Abraham Lincoln",
+      "text": "My great concern is not whether you have failed, but whether you are content with your failure.",
+      "source": "Speech in New Haven (1860)",
+      "human_cost": "Business bankruptcy; mental breakdown; 8 election losses",
+      "apex_g": {
+        "tau": 0.87,
+        "delta_s": -0.6311,
+        "p2": 1.574,
+        "g": 0.9139,
+        "psi": 0.8155,
+        "kappa_r": 0.8738,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8071
+      }
+    },
+    {
+      "id": 31,
+      "category": "triumph",
+      "author": "Winston Churchill",
+      "text": "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+      "source": "Speech (1941)",
+      "human_cost": "Political wilderness for decade; depression 'black dog'",
+      "apex_g": {
+        "tau": 0.95,
+        "delta_s": -0.5511,
+        "p2": 1.634,
+        "g": 0.931,
+        "psi": 0.6713,
+        "kappa_r": 0.8892,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8118
+      }
+    },
+    {
+      "id": 32,
+      "category": "triumph",
+      "author": "Winston Churchill",
+      "text": "If you're going through hell, keep going.",
+      "source": "Attributed (1940s)",
+      "human_cost": "Political isolation; lost election after winning war",
+      "apex_g": {
+        "tau": 0.85,
+        "delta_s": -0.6844,
+        "p2": 1.694,
+        "g": 0.9482,
+        "psi": 0.6859,
+        "kappa_r": 0.9046,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8165
+      }
+    },
+    {
+      "id": 33,
+      "category": "triumph",
+      "author": "Martin Luther King Jr.",
+      "text": "The ultimate measure of a man is not where he stands in moments of comfort, but where he stands at times of challenge.",
+      "source": "Strength to Love (1963)",
+      "human_cost": "Jailed 29 times; stabbed; house bombed; assassinated at 39",
+      "apex_g": {
+        "tau": 0.93,
+        "delta_s": -0.6044,
+        "p2": 1.754,
+        "g": 0.9653,
+        "psi": 0.7004,
+        "kappa_r": 0.7212,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8212
+      }
+    },
+    {
+      "id": 34,
+      "category": "triumph",
+      "author": "Martin Luther King Jr.",
+      "text": "I have decided to stick with love. Hate is too great a burden to bear.",
+      "source": "Final Speech, Memphis (1968)",
+      "human_cost": "Death threats daily; family targeted; murdered next day",
+      "apex_g": {
+        "tau": 0.89,
+        "delta_s": -0.5244,
+        "p2": 1.814,
+        "g": 0.8649,
+        "psi": 0.715,
+        "kappa_r": 0.7366,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8259
+      }
+    },
+    {
+      "id": 35,
+      "category": "triumph",
+      "author": "Malala Yousafzai",
+      "text": "I tell my story not because it is unique, but because it is the story of many girls.",
+      "source": "I Am Malala (2013)",
+      "human_cost": "Shot by Taliban at 15; bullet to head; multiple surgeries",
+      "apex_g": {
+        "tau": 0.97,
+        "delta_s": -0.6578,
+        "p2": 1.586,
+        "g": 0.882,
+        "psi": 0.7295,
+        "kappa_r": 0.752,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8306
+      }
+    },
+    {
+      "id": 36,
+      "category": "triumph",
+      "author": "Malala Yousafzai",
+      "text": "One child, one teacher, one book, one pen can change the world.",
+      "source": "UN Speech (2013)",
+      "human_cost": "Exile from homeland; lifelong target",
+      "apex_g": {
+        "tau": 0.825,
+        "delta_s": -0.5778,
+        "p2": 1.646,
+        "g": 0.8992,
+        "psi": 0.744,
+        "kappa_r": 0.7673,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8353
+      }
+    },
+    {
+      "id": 37,
+      "category": "triumph",
+      "author": "Nikola Tesla",
+      "text": "I don't care that they stole my idea. I care that they don't have any of their own.",
+      "source": "Interview (1915)",
+      "human_cost": "Edison rivalry; broken contracts; died penniless",
+      "apex_g": {
+        "tau": 0.905,
+        "delta_s": -0.4978,
+        "p2": 1.706,
+        "g": 0.9163,
+        "psi": 0.7586,
+        "kappa_r": 0.7827,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7603
+      }
+    },
+    {
+      "id": 38,
+      "category": "triumph",
+      "author": "Nikola Tesla",
+      "text": "The present is theirs; the future, for which I really worked, is mine.",
+      "source": "Interview (1915)",
+      "human_cost": "Gave up millions in patents; obscurity; pigeon feeder",
+      "apex_g": {
+        "tau": 0.865,
+        "delta_s": -0.7022,
+        "p2": 1.766,
+        "g": 0.9335,
+        "psi": 0.7731,
+        "kappa_r": 0.7981,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.765
+      }
+    },
+    {
+      "id": 39,
+      "category": "triumph",
+      "author": "Marie Curie",
+      "text": "Nothing in life is to be feared, it is only to be understood.",
+      "source": "Lecture (1904)",
+      "human_cost": "Radiation exposure; husband killed; died of radiation",
+      "apex_g": {
+        "tau": 0.945,
+        "delta_s": -0.6222,
+        "p2": 1.826,
+        "g": 0.9506,
+        "psi": 0.7877,
+        "kappa_r": 0.8135,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7697
+      }
+    },
+    {
+      "id": 40,
+      "category": "triumph",
+      "author": "Marie Curie",
+      "text": "I am among those who think that science has great beauty.",
+      "source": "Lecture (1904)",
+      "human_cost": "Worked in shed; no proper lab; blindness from radiation",
+      "apex_g": {
+        "tau": 0.845,
+        "delta_s": -0.5422,
+        "p2": 1.598,
+        "g": 0.9678,
+        "psi": 0.8022,
+        "kappa_r": 0.8289,
+        "floor_affinities": [
+          "F5",
+          "F8",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7744
+      }
+    },
+    {
+      "id": 41,
+      "category": "paradox",
+      "author": "Friedrich Nietzsche",
+      "text": "He who has a why to live can bear almost any how.",
+      "source": "Man's Search for Meaning (1946) - Frankl citing Nietzsche",
+      "human_cost": "Mental collapse at 44; 11 years insane",
+      "apex_g": {
+        "tau": 0.5,
+        "delta_s": 0.06,
+        "p2": 1.11,
+        "g": 0.7771,
+        "psi": 0.8545,
+        "kappa_r": 0.5154,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8447
+      }
+    },
+    {
+      "id": 42,
+      "category": "paradox",
+      "author": "Friedrich Nietzsche",
+      "text": "To live is to suffer, to survive is to find some meaning in the suffering.",
+      "source": "Beyond Good and Evil (1886)",
+      "human_cost": "Rejected by academia; madness; died unknown",
+      "apex_g": {
+        "tau": 0.46,
+        "delta_s": 0.14,
+        "p2": 1.17,
+        "g": 0.7943,
+        "psi": 0.8691,
+        "kappa_r": 0.5308,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8494
+      }
+    },
+    {
+      "id": 43,
+      "category": "paradox",
+      "author": "Carl Jung",
+      "text": "One does not become enlightened by imagining figures of light, but by making the darkness conscious.",
+      "source": "The Red Book (2009)",
+      "human_cost": "Near-psychosis; 6 years of visions; isolated by peers",
+      "apex_g": {
+        "tau": 0.54,
+        "delta_s": 0.0067,
+        "p2": 1.23,
+        "g": 0.8114,
+        "psi": 0.8836,
+        "kappa_r": 0.5462,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8541
+      }
+    },
+    {
+      "id": 44,
+      "category": "paradox",
+      "author": "Carl Jung",
+      "text": "The brighter the light, the darker the shadow.",
+      "source": "Aion (1951)",
+      "human_cost": "Accused of Nazi sympathy; family trauma; professional exile",
+      "apex_g": {
+        "tau": 0.44,
+        "delta_s": 0.0867,
+        "p2": 1.29,
+        "g": 0.8286,
+        "psi": 0.8982,
+        "kappa_r": 0.5615,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8588
+      }
+    },
+    {
+      "id": 45,
+      "category": "paradox",
+      "author": "Søren Kierkegaard",
+      "text": "Life can only be understood backwards; but it must be lived forwards.",
+      "source": "Journals (1843)",
+      "human_cost": "Broken engagement; mocked publicly; died at 42",
+      "apex_g": {
+        "tau": 0.52,
+        "delta_s": 0.1667,
+        "p2": 1.062,
+        "g": 0.8457,
+        "psi": 0.9127,
+        "kappa_r": 0.5769,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8635
+      }
+    },
+    {
+      "id": 46,
+      "category": "paradox",
+      "author": "Søren Kierkegaard",
+      "text": "Anxiety is the dizziness of freedom.",
+      "source": "The Concept of Anxiety (1844)",
+      "human_cost": "Depression; lost Regine Olsen; early death",
+      "apex_g": {
+        "tau": 0.48,
+        "delta_s": 0.0333,
+        "p2": 1.122,
+        "g": 0.8629,
+        "psi": 0.9273,
+        "kappa_r": 0.5923,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8682
+      }
+    },
+    {
+      "id": 47,
+      "category": "paradox",
+      "author": "Albert Camus",
+      "text": "In the depth of winter, I finally learned that within me there lay an invincible summer.",
+      "source": "Return to Tipasa (1952)",
+      "human_cost": "Father killed in WWI; tuberculosis; car crash at 46",
+      "apex_g": {
+        "tau": 0.56,
+        "delta_s": 0.1133,
+        "p2": 1.182,
+        "g": 0.7624,
+        "psi": 0.9418,
+        "kappa_r": 0.6077,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8729
+      }
+    },
+    {
+      "id": 48,
+      "category": "paradox",
+      "author": "Albert Camus",
+      "text": "The struggle itself towards the heights is enough to fill a man's heart. One must imagine Sisyphus happy.",
+      "source": "The Myth of Sisyphus (1942)",
+      "human_cost": "Poverty; illness; political exile; early death",
+      "apex_g": {
+        "tau": 0.43,
+        "delta_s": 0.1933,
+        "p2": 1.242,
+        "g": 0.7796,
+        "psi": 0.9564,
+        "kappa_r": 0.6231,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8776
+      }
+    },
+    {
+      "id": 49,
+      "category": "paradox",
+      "author": "F. Scott Fitzgerald",
+      "text": "The test of a first-rate intelligence is the ability to hold two opposed ideas in mind at the same time and still retain the ability to function.",
+      "source": "The Crack-Up (1936)",
+      "human_cost": "Alcoholism; Zelda's insanity; died at 44 believing himself failure",
+      "apex_g": {
+        "tau": 0.51,
+        "delta_s": -0.0111,
+        "p2": 1.302,
+        "g": 0.7967,
+        "psi": 0.9709,
+        "kappa_r": 0.6385,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8824
+      }
+    },
+    {
+      "id": 50,
+      "category": "paradox",
+      "author": "F. Scott Fitzgerald",
+      "text": "I was within and without, simultaneously enchanted and repelled by the inexhaustible variety of life.",
+      "source": "The Great Gatsby (1925)",
+      "human_cost": "Failed Hollywood; debt; heart attack; forgotten",
+      "apex_g": {
+        "tau": 0.47,
+        "delta_s": 0.0689,
+        "p2": 1.074,
+        "g": 0.8139,
+        "psi": 0.9855,
+        "kappa_r": 0.6538,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8871
+      }
+    },
+    {
+      "id": 51,
+      "category": "paradox",
+      "author": "Heraclitus",
+      "text": "The way up and the way down are one and the same.",
+      "source": "Fragments (c. 500 BCE)",
+      "human_cost": "Unknown - fragments only survive",
+      "apex_g": {
+        "tau": 0.55,
+        "delta_s": 0.1489,
+        "p2": 1.134,
+        "g": 0.831,
+        "psi": 0.8413,
+        "kappa_r": 0.6692,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8918
+      }
+    },
+    {
+      "id": 52,
+      "category": "paradox",
+      "author": "Heraclitus",
+      "text": "The sun is new each day.",
+      "source": "Fragments (c. 500 BCE)",
+      "human_cost": "Earned nickname 'The Obscure'",
+      "apex_g": {
+        "tau": 0.45,
+        "delta_s": 0.0156,
+        "p2": 1.194,
+        "g": 0.8482,
+        "psi": 0.8559,
+        "kappa_r": 0.6846,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8965
+      }
+    },
+    {
+      "id": 53,
+      "category": "paradox",
+      "author": "Blaise Pascal",
+      "text": "The heart has its reasons which reason knows nothing of.",
+      "source": "Pensées (1670)",
+      "human_cost": "Orphaned at 3; poor health; died at 39",
+      "apex_g": {
+        "tau": 0.53,
+        "delta_s": 0.0956,
+        "p2": 1.254,
+        "g": 0.8653,
+        "psi": 0.8704,
+        "kappa_r": 0.5012,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9012
+      }
+    },
+    {
+      "id": 54,
+      "category": "paradox",
+      "author": "Blaise Pascal",
+      "text": "All of humanity's problems stem from man's inability to sit quietly in a room alone.",
+      "source": "Pensées (1670)",
+      "human_cost": "Severe illness; religious crisis; early death",
+      "apex_g": {
+        "tau": 0.49,
+        "delta_s": 0.1756,
+        "p2": 1.314,
+        "g": 0.7649,
+        "psi": 0.885,
+        "kappa_r": 0.5166,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9059
+      }
+    },
+    {
+      "id": 55,
+      "category": "paradox",
+      "author": "Ludwig Wittgenstein",
+      "text": "Whereof one cannot speak, thereof one must be silent.",
+      "source": "Tractatus Logico-Philosophicus (1921)",
+      "human_cost": "Gave away fortune; depression; died of cancer",
+      "apex_g": {
+        "tau": 0.57,
+        "delta_s": 0.0422,
+        "p2": 1.086,
+        "g": 0.782,
+        "psi": 0.8995,
+        "kappa_r": 0.532,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9106
+      }
+    },
+    {
+      "id": 56,
+      "category": "paradox",
+      "author": "Ludwig Wittgenstein",
+      "text": "If people did not sometimes do silly things, nothing intelligent would ever get done.",
+      "source": "Culture and Value (1980)",
+      "human_cost": "Suicidal thoughts; war trauma; isolation",
+      "apex_g": {
+        "tau": 0.425,
+        "delta_s": 0.1222,
+        "p2": 1.146,
+        "g": 0.7992,
+        "psi": 0.914,
+        "kappa_r": 0.5473,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9153
+      }
+    },
+    {
+      "id": 57,
+      "category": "paradox",
+      "author": "Kurt Gödel",
+      "text": "Either mathematics is too big for the human mind, or the human mind is more than a machine.",
+      "source": "Conversation with Hao Wang (1974)",
+      "human_cost": "Paranoia; starved himself to death fearing poison",
+      "apex_g": {
+        "tau": 0.505,
+        "delta_s": 0.2022,
+        "p2": 1.206,
+        "g": 0.8163,
+        "psi": 0.9286,
+        "kappa_r": 0.5627,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8403
+      }
+    },
+    {
+      "id": 58,
+      "category": "paradox",
+      "author": "Kurt Gödel",
+      "text": "The more I think about language, the more it amazes me that people ever understand each other.",
+      "source": "Conversations with Einstein (1940s)",
+      "human_cost": "Mental illness; isolation; death by self-starvation",
+      "apex_g": {
+        "tau": 0.465,
+        "delta_s": -0.0022,
+        "p2": 1.266,
+        "g": 0.8335,
+        "psi": 0.9431,
+        "kappa_r": 0.5781,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.845
+      }
+    },
+    {
+      "id": 59,
+      "category": "paradox",
+      "author": "Rainer Maria Rilke",
+      "text": "Perhaps everything terrible is in its deepest being something helpless that wants help from us.",
+      "source": "Letters to a Young Poet (1929)",
+      "human_cost": "Depression; leukemia; died at 51; never found home",
+      "apex_g": {
+        "tau": 0.545,
+        "delta_s": 0.0778,
+        "p2": 1.326,
+        "g": 0.8506,
+        "psi": 0.9577,
+        "kappa_r": 0.5935,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8497
+      }
+    },
+    {
+      "id": 60,
+      "category": "paradox",
+      "author": "Rainer Maria Rilke",
+      "text": "You must give birth to your images. They are the future waiting to be born.",
+      "source": "Sonnets to Orpheus (1923)",
+      "human_cost": "Wandered Europe; failed relationships; illness",
+      "apex_g": {
+        "tau": 0.445,
+        "delta_s": 0.1578,
+        "p2": 1.098,
+        "g": 0.8678,
+        "psi": 0.9722,
+        "kappa_r": 0.6089,
+        "floor_affinities": [
+          "F4",
+          "F8",
+          "F7"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8544
+      }
+    },
+    {
+      "id": 61,
+      "category": "wisdom",
+      "author": "Socrates",
+      "text": "The only true wisdom is in knowing you know nothing.",
+      "source": "Apology (Plato, c. 399 BCE)",
+      "human_cost": "Executed by hemlock at 70 for corrupting youth",
+      "apex_g": {
+        "tau": 0.4,
+        "delta_s": -0.44,
+        "p2": 1.31,
+        "g": 0.8371,
+        "psi": 0.9045,
+        "kappa_r": 0.5954,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8647
+      }
+    },
+    {
+      "id": 62,
+      "category": "wisdom",
+      "author": "Socrates",
+      "text": "I know that I am intelligent, because I know that I know nothing.",
+      "source": "Apology (Plato, c. 399 BCE)",
+      "human_cost": "Rejected exile; chose death; left family",
+      "apex_g": {
+        "tau": 0.36,
+        "delta_s": -0.36,
+        "p2": 1.37,
+        "g": 0.8543,
+        "psi": 0.9191,
+        "kappa_r": 0.6108,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8694
+      }
+    },
+    {
+      "id": 63,
+      "category": "wisdom",
+      "author": "Confucius",
+      "text": "Real knowledge is to know the extent of one's ignorance.",
+      "source": "Analects (c. 500 BCE)",
+      "human_cost": "Exiled from home state; wandered 14 years",
+      "apex_g": {
+        "tau": 0.44,
+        "delta_s": -0.4933,
+        "p2": 1.43,
+        "g": 0.8714,
+        "psi": 0.9336,
+        "kappa_r": 0.6262,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8741
+      }
+    },
+    {
+      "id": 64,
+      "category": "wisdom",
+      "author": "Lao Tzu",
+      "text": "He who knows others is wise; he who knows himself is enlightened.",
+      "source": "Tao Te Ching (c. 500 BCE)",
+      "human_cost": "Unknown - left civilization through western gate",
+      "apex_g": {
+        "tau": 0.34,
+        "delta_s": -0.4133,
+        "p2": 1.49,
+        "g": 0.8886,
+        "psi": 0.9482,
+        "kappa_r": 0.6415,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8788
+      }
+    },
+    {
+      "id": 65,
+      "category": "wisdom",
+      "author": "Marcus Aurelius",
+      "text": "You have power over your mind—not outside events. Realize this, and you will find strength.",
+      "source": "Meditations (c. 180 CE)",
+      "human_cost": "Lost 8 children; plague; constant war; died on campaign",
+      "apex_g": {
+        "tau": 0.42,
+        "delta_s": -0.3333,
+        "p2": 1.262,
+        "g": 0.9057,
+        "psi": 0.9627,
+        "kappa_r": 0.6569,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8835
+      }
+    },
+    {
+      "id": 66,
+      "category": "wisdom",
+      "author": "Marcus Aurelius",
+      "text": "The impediment to action advances action. What stands in the way becomes the way.",
+      "source": "Meditations (c. 180 CE)",
+      "human_cost": "Emperor but never wanted power; died exhausted",
+      "apex_g": {
+        "tau": 0.38,
+        "delta_s": -0.4667,
+        "p2": 1.322,
+        "g": 0.9229,
+        "psi": 0.9773,
+        "kappa_r": 0.6723,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8882
+      }
+    },
+    {
+      "id": 67,
+      "category": "wisdom",
+      "author": "Epictetus",
+      "text": "It's not what happens to you, but how you react to it that matters.",
+      "source": "Enchiridion (c. 125 CE)",
+      "human_cost": "Born slave; leg crippled by master; exiled",
+      "apex_g": {
+        "tau": 0.46,
+        "delta_s": -0.3867,
+        "p2": 1.382,
+        "g": 0.8224,
+        "psi": 0.9918,
+        "kappa_r": 0.6877,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8929
+      }
+    },
+    {
+      "id": 68,
+      "category": "wisdom",
+      "author": "Epictetus",
+      "text": "We suffer more often in imagination than in reality.",
+      "source": "Discourses (c. 108 CE)",
+      "human_cost": "Slave; crippled; exiled by Domitian",
+      "apex_g": {
+        "tau": 0.33,
+        "delta_s": -0.3067,
+        "p2": 1.442,
+        "g": 0.8396,
+        "psi": 1.0,
+        "kappa_r": 0.7031,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.8976
+      }
+    },
+    {
+      "id": 69,
+      "category": "wisdom",
+      "author": "Seneca",
+      "text": "We are more often frightened than hurt; and we suffer more from imagination than from reality.",
+      "source": "Letters from a Stoic (c. 65 CE)",
+      "human_cost": "Exiled to Corsica; forced to commit suicide by Nero",
+      "apex_g": {
+        "tau": 0.41,
+        "delta_s": -0.5111,
+        "p2": 1.502,
+        "g": 0.8567,
+        "psi": 1.0,
+        "kappa_r": 0.7185,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9024
+      }
+    },
+    {
+      "id": 70,
+      "category": "wisdom",
+      "author": "Seneca",
+      "text": "Life is very short and anxious for those who forget the past, neglect the present, and fear the future.",
+      "source": "On the Shortness of Life (c. 49 CE)",
+      "human_cost": "Forced suicide; opened veins in bathtub",
+      "apex_g": {
+        "tau": 0.37,
+        "delta_s": -0.4311,
+        "p2": 1.274,
+        "g": 0.8739,
+        "psi": 1.0,
+        "kappa_r": 0.7338,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9071
+      }
+    },
+    {
+      "id": 71,
+      "category": "wisdom",
+      "author": "Carl Sagan",
+      "text": "Extraordinary claims require extraordinary evidence.",
+      "source": "Cosmos (1980)",
+      "human_cost": "Myelodysplasia; died at 62; fought pseudoscience",
+      "apex_g": {
+        "tau": 0.45,
+        "delta_s": -0.3511,
+        "p2": 1.334,
+        "g": 0.891,
+        "psi": 0.8913,
+        "kappa_r": 0.7492,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9118
+      }
+    },
+    {
+      "id": 72,
+      "category": "wisdom",
+      "author": "Albert Einstein",
+      "text": "The important thing is not to stop questioning.",
+      "source": "Life Magazine (1955)",
+      "human_cost": "Fled Nazi Germany; lost citizenship; exile",
+      "apex_g": {
+        "tau": 0.35,
+        "delta_s": -0.4844,
+        "p2": 1.394,
+        "g": 0.9082,
+        "psi": 0.9059,
+        "kappa_r": 0.7646,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9165
+      }
+    },
+    {
+      "id": 73,
+      "category": "wisdom",
+      "author": "Isaac Newton",
+      "text": "If I have seen further it is by standing on the shoulders of giants.",
+      "source": "Letter to Robert Hooke (1676)",
+      "human_cost": "Father died before birth; mental breakdown; died alone",
+      "apex_g": {
+        "tau": 0.43,
+        "delta_s": -0.4044,
+        "p2": 1.454,
+        "g": 0.9253,
+        "psi": 0.9204,
+        "kappa_r": 0.5812,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9212
+      }
+    },
+    {
+      "id": 74,
+      "category": "wisdom",
+      "author": "Alan Turing",
+      "text": "We can only see a short distance ahead, but we can see plenty there that needs to be done.",
+      "source": "Computing Machinery and Intelligence (1950)",
+      "human_cost": "Chemical castration; suicide at 41; convicted for homosexuality",
+      "apex_g": {
+        "tau": 0.39,
+        "delta_s": -0.3244,
+        "p2": 1.514,
+        "g": 0.8249,
+        "psi": 0.935,
+        "kappa_r": 0.5966,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9259
+      }
+    },
+    {
+      "id": 75,
+      "category": "wisdom",
+      "author": "Francis Bacon",
+      "text": "Knowledge itself is power.",
+      "source": "Meditationes Sacrae (1597)",
+      "human_cost": "Died of pneumonia after experiment; political fall",
+      "apex_g": {
+        "tau": 0.47,
+        "delta_s": -0.4578,
+        "p2": 1.286,
+        "g": 0.842,
+        "psi": 0.9495,
+        "kappa_r": 0.612,
+        "floor_affinities": [
+          "F1",
+          "F2",
+          "F7",
+          "F4"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "attention_steering"
+        ],
+        "resonance_density": 0.9306
+      }
+    },
+    {
+      "id": 76,
+      "category": "power",
+      "author": "Napoleon Bonaparte",
+      "text": "Impossible is a word to be found only in the dictionary of fools.",
+      "source": "From exile on St. Helena (1816)",
+      "human_cost": "Exiled twice; died alone; stomach cancer at 51",
+      "apex_g": {
+        "tau": 0.6,
+        "delta_s": -0.24,
+        "p2": 1.41,
+        "g": 0.8571,
+        "psi": 0.5845,
+        "kappa_r": 0.4654,
+        "floor_affinities": [
+          "F3",
+          "F5",
+          "F11"
+        ],
+        "power_mechanisms": [
+          "coordination",
+          "attention_steering"
+        ],
+        "resonance_density": 0.7147
+      }
+    },
+    {
+      "id": 77,
+      "category": "power",
+      "author": "Napoleon Bonaparte",
+      "text": "Victory belongs to the most persevering.",
+      "source": "Italian Campaign (1796)",
+      "human_cost": "Divorced Josephine; lost everything; died in exile",
+      "apex_g": {
+        "tau": 0.56,
+        "delta_s": -0.16,
+        "p2": 1.47,
+        "g": 0.8743,
+        "psi": 0.5991,
+        "kappa_r": 0.4808,
+        "floor_affinities": [
+          "F3",
+          "F5",
+          "F11"
+        ],
+        "power_mechanisms": [
+          "coordination",
+          "attention_steering"
+        ],
+        "resonance_density": 0.7194
+      }
+    },
+    {
+      "id": 78,
+      "category": "power",
+      "author": "Julius Caesar",
+      "text": "I came, I saw, I conquered.",
+      "source": "Letter to Roman Senate (47 BCE)",
+      "human_cost": "Assassinated by senators; stabbed 23 times",
+      "apex_g": {
+        "tau": 0.64,
+        "delta_s": -0.2933,
+        "p2": 1.53,
+        "g": 0.8914,
+        "psi": 0.6136,
+        "kappa_r": 0.4962,
+        "floor_affinities": [
+          "F3",
+          "F5",
+          "F11"
+        ],
+        "power_mechanisms": [
+          "coordination",
+          "attention_steering"
+        ],
+        "resonance_density": 0.7241
+      }
+    },
+    {
+      "id": 79,
+      "category": "power",
+      "author": "Julius Caesar",
+      "text": "It is better to create than to learn! Creating is the essence of life.",
+      "source": "Commentaries (c. 50 BCE)",
+      "human_cost": "Civil war; betrayal; assassination",
+      "apex_g": {
+        "tau": 0.54,
+        "delta_s": -0.2133,
+        "p2": 1.59,
+        "g": 0.9086,
+        "psi": 0.6282,
+        "kappa_r": 0.5115,
+        "floor_affinities": [
+          "F3",
+          "F5",
+          "F11"
+        ],
+        "power_mechanisms": [
+          "coordination",
+          "attention_steering"
+        ],
+        "resonance_density": 0.7288
+      }
+    },
+    {
+      "id": 80,
+      "category": "power",
+      "author": "Alexander the Great",
+      "text": "There is nothing impossible to him who will try.",
+      "source": "Attributed (c. 330 BCE)",
+      "human_cost": "Died at 32; possibly poisoned; empire fractured",
+      "apex_g": {
+        "tau": 0.62,
+        "delta_s": -0.1333,
+        "p2": 1.362,
+        "g": 0.9257,
+        "psi": 0.6427,
+        "kappa_r": 0.5269,
+        "floor_affinities": [
+          "F3",
+          "F5",
+          "F11"
+        ],
+        "power_mechanisms": [
+          "coordination",
+          "attention_steering"
+        ],
+        "resonance_density": 0.7335
+      }
+    },
+    {
+      "id": 81,
+      "category": "power",
+      "author": "Alexander the Great",
+      "text": "I am not afraid of an army of lions led by a sheep; I am afraid of an army of sheep led by a lion.",
+      "source": "Attributed (c. 330 BCE)",
+      "human_cost": "Never saw homeland again; died far from Macedon",
+      "apex_g": {
+        "tau": 0.58,
+        "delta_s": -0.2667,
+        "p2": 1.422,
+        "g": 0.9429,
+        "psi": 0.6573,
+        "kappa_r": 0.5423,
+        "floor_affinities": [
+          "F3",
+          "F5",
+          "F11"
+        ],
+        "power_mechanisms": [
+          "coordination",
+          "attention_steering"
+        ],
+        "resonance_density": 0.7382
+      }
+    },
+    {
+      "id": 82,
+      "category": "power",
+      "author": "Sun Tzu",
+      "text": "In the midst of chaos, there is also opportunity.",
+      "source": "The Art of War (c. 500 BCE)",
+      "human_cost": "Unknown - served King of Wu",
+      "apex_g": {
+        "tau": 0.66,
+        "delta_s": -0.1867,
+        "p2": 1.482,
+        "g": 0.8424,
+        "psi": 0.6718,
+        "kappa_r": 0.5577,
+        "floor_affinities": [
+          "F3",
+          "F5",
+          "F11"
+        ],
+        "power_mechanisms": [
+          "coordination",
+          "attention_steering"
+        ],
+        "resonance_density": 0.7429
+      }
+    },
+    {
+      "id": 83,
+      "category": "power",
+      "author": "Sun Tzu",
+      "text": "Victorious warriors win first and then go to war, while defeated warriors go to war and then seek to win.",
+      "source": "The Art of War (c. 500 BCE)",
+      "human_cost": "Legend says he proved strategies by training concubines",
+      "apex_g": {
+        "tau": 0.53,
+        "delta_s": -0.1067,
+        "p2": 1.542,
+        "g": 0.8596,
+        "psi": 0.6864,
+        "kappa_r": 0.5731,
+        "floor_affinities": [
+          "F3",
+          "F5",
+          "F11"
+        ],
+        "power_mechanisms": [
+          "coordination",
+          "attention_steering"
+        ],
+        "resonance_density": 0.7476
+      }
+    },
+    {
+      "id": 84,
+      "category": "power",
+      "author": "Thomas Edison",
+      "text": "Genius is one percent inspiration and ninety-nine percent perspiration.",
+      "source": "Harper's Monthly (1932)",
+      "human_cost": "Deaf; failed 10,000 times; died wealthy but alone",
+      "apex_g": {
+        "tau": 0.61,
+        "delta_s": -0.3111,
+        "p2": 1.602,
+        "g": 0.8767,
+        "psi": 0.7009,
+        "kappa_r": 0.5885,
+        "floor_affinities": [
+          "F3",
+          "F5",
+          "F11"
+        ],
+        "power_mechanisms": [
+          "coordination",
+          "attention_steering"
+        ],
+        "resonance_density": 0.7524
+      }
+    },
+    {
+      "id": 85,
+      "category": "power",
+      "author": "Henry Ford",
+      "text": "Whether you think you can, or you think you can't – you're right.",
+      "source": "Attributed (1920s)",
+      "human_cost": "Failed businesses; bankruptcy; anti-Semitic controversy",
+      "apex_g": {
+        "tau": 0.57,
+        "delta_s": -0.2311,
+        "p2": 1.374,
+        "g": 0.8939,
+        "psi": 0.7155,
+        "kappa_r": 0.6038,
+        "floor_affinities": [
+          "F3",
+          "F5",
+          "F11"
+        ],
+        "power_mechanisms": [
+          "coordination",
+          "attention_steering"
+        ],
+        "resonance_density": 0.7571
+      }
+    },
+    {
+      "id": 86,
+      "category": "love",
+      "author": "Rumi",
+      "text": "The wound is the place where the Light enters you.",
+      "source": "Masnavi (c. 1260)",
+      "human_cost": "Fled Mongol invasion; lost spiritual guide Shams",
+      "apex_g": {
+        "tau": 0.82,
+        "delta_s": -0.54,
+        "p2": 1.76,
+        "g": 0.8871,
+        "psi": 0.7545,
+        "kappa_r": 0.8654,
+        "floor_affinities": [
+          "F6",
+          "F13",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7847
+      }
+    },
+    {
+      "id": 87,
+      "category": "love",
+      "author": "Rumi",
+      "text": "Out beyond ideas of wrongdoing and rightdoing, there is a field. I'll meet you there.",
+      "source": "Great Poems (c. 1250)",
+      "human_cost": "Exile; loss; searching for divine",
+      "apex_g": {
+        "tau": 0.78,
+        "delta_s": -0.46,
+        "p2": 1.82,
+        "g": 0.9043,
+        "psi": 0.7691,
+        "kappa_r": 0.8808,
+        "floor_affinities": [
+          "F6",
+          "F13",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7894
+      }
+    },
+    {
+      "id": 88,
+      "category": "love",
+      "author": "Kahlil Gibran",
+      "text": "The deeper that sorrow carves into your being, the more joy you can contain.",
+      "source": "The Prophet (1923)",
+      "human_cost": "Lost sister, mother, half-brother, wife within 2 years",
+      "apex_g": {
+        "tau": 0.86,
+        "delta_s": -0.5933,
+        "p2": 1.88,
+        "g": 0.9214,
+        "psi": 0.7836,
+        "kappa_r": 0.8962,
+        "floor_affinities": [
+          "F6",
+          "F13",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7941
+      }
+    },
+    {
+      "id": 89,
+      "category": "love",
+      "author": "Kahlil Gibran",
+      "text": "Your pain is the breaking of the shell that encloses your understanding.",
+      "source": "The Prophet (1923)",
+      "human_cost": "Died at 48; cirrhosis; never returned to Lebanon",
+      "apex_g": {
+        "tau": 0.76,
+        "delta_s": -0.5133,
+        "p2": 1.94,
+        "g": 0.9386,
+        "psi": 0.7982,
+        "kappa_r": 0.9115,
+        "floor_affinities": [
+          "F6",
+          "F13",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.7988
+      }
+    },
+    {
+      "id": 90,
+      "category": "love",
+      "author": "Mother Teresa",
+      "text": "I have found the paradox, that if you love until it hurts, there can be no more hurt, only more love.",
+      "source": "A Simple Path (1995)",
+      "human_cost": "50 years of darkness in soul; doubt; spiritual dryness",
+      "apex_g": {
+        "tau": 0.84,
+        "delta_s": -0.4333,
+        "p2": 1.712,
+        "g": 0.9557,
+        "psi": 0.8127,
+        "kappa_r": 0.9269,
+        "floor_affinities": [
+          "F6",
+          "F13",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8035
+      }
+    },
+    {
+      "id": 91,
+      "category": "love",
+      "author": "Mother Teresa",
+      "text": "If we have no peace, it is because we have forgotten that we belong to each other.",
+      "source": "Nobel Prize Speech (1979)",
+      "human_cost": "Inner darkness; criticism; doubt until death",
+      "apex_g": {
+        "tau": 0.8,
+        "delta_s": -0.5667,
+        "p2": 1.772,
+        "g": 0.9729,
+        "psi": 0.8273,
+        "kappa_r": 0.9423,
+        "floor_affinities": [
+          "F6",
+          "F13",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8082
+      }
+    },
+    {
+      "id": 92,
+      "category": "love",
+      "author": "Thich Nhat Hanh",
+      "text": "The most precious gift we can offer anyone is our attention.",
+      "source": "The Art of Living (2017)",
+      "human_cost": "Exiled from Vietnam for 39 years; stroke",
+      "apex_g": {
+        "tau": 0.88,
+        "delta_s": -0.4867,
+        "p2": 1.832,
+        "g": 0.8724,
+        "psi": 0.8418,
+        "kappa_r": 0.9577,
+        "floor_affinities": [
+          "F6",
+          "F13",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8129
+      }
+    },
+    {
+      "id": 93,
+      "category": "love",
+      "author": "Thich Nhat Hanh",
+      "text": "People have a hard time letting go of their suffering. Out of a fear that the unknown is worse.",
+      "source": "Peace Is Every Step (1991)",
+      "human_cost": "Exiled; war in homeland; unable to return",
+      "apex_g": {
+        "tau": 0.75,
+        "delta_s": -0.4067,
+        "p2": 1.892,
+        "g": 0.8896,
+        "psi": 0.8564,
+        "kappa_r": 0.9731,
+        "floor_affinities": [
+          "F6",
+          "F13",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8176
+      }
+    },
+    {
+      "id": 94,
+      "category": "love",
+      "author": "Thomas Merton",
+      "text": "The beginning of love is the will to let those we love be perfectly themselves.",
+      "source": "No Man Is an Island (1955)",
+      "human_cost": "Orphaned at 16; died by electrocution at 53",
+      "apex_g": {
+        "tau": 0.83,
+        "delta_s": -0.6111,
+        "p2": 1.952,
+        "g": 0.9067,
+        "psi": 0.8709,
+        "kappa_r": 0.9885,
+        "floor_affinities": [
+          "F6",
+          "F13",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8224
+      }
+    },
+    {
+      "id": 95,
+      "category": "love",
+      "author": "Thomas Merton",
+      "text": "In the end, it is the reality of personal relationship that saves everything.",
+      "source": "New Seeds of Contemplation (1961)",
+      "human_cost": "Trappist monk; forbidden to write; accidental death",
+      "apex_g": {
+        "tau": 0.79,
+        "delta_s": -0.5311,
+        "p2": 1.724,
+        "g": 0.9239,
+        "psi": 0.8855,
+        "kappa_r": 1.0,
+        "floor_affinities": [
+          "F6",
+          "F13",
+          "F3"
+        ],
+        "power_mechanisms": [
+          "neural_simulation",
+          "coordination"
+        ],
+        "resonance_density": 0.8271
+      }
+    },
+    {
+      "id": 96,
+      "category": "seal",
+      "author": "Arif Fazil",
+      "text": "DITEMPA, BUKAN DIBERI.",
+      "source": "arifOS Sovereign Seal (2024)",
+      "human_cost": "Forged through struggle, not inherited",
+      "apex_g": {
+        "tau": 0.98,
+        "delta_s": -0.84,
+        "p2": 1.86,
+        "g": 0.9271,
+        "psi": 0.9145,
+        "kappa_r": 0.8154,
+        "floor_affinities": [
+          "F13",
+          "F11",
+          "F9",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "coordination"
+        ],
+        "resonance_density": 0.9147
+      }
+    },
+    {
+      "id": 97,
+      "category": "seal",
+      "author": "Arif Fazil",
+      "text": "The wisdom cannot be coded. It can only be cited.",
+      "source": "999_SOVEREIGN_VAULT (2024)",
+      "human_cost": "Inherited from 99 human lives paid in blood",
+      "apex_g": {
+        "tau": 0.94,
+        "delta_s": -0.76,
+        "p2": 1.92,
+        "g": 0.9443,
+        "psi": 0.9291,
+        "kappa_r": 0.8308,
+        "floor_affinities": [
+          "F13",
+          "F11",
+          "F9",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "coordination"
+        ],
+        "resonance_density": 0.9194
+      }
+    },
+    {
+      "id": 98,
+      "category": "seal",
+      "author": "Arif Fazil",
+      "text": "A machine can calculate. It cannot earn wisdom. Wisdom is the scar tissue of experience.",
+      "source": "arifOS Constitutional Theory (2024)",
+      "human_cost": "99 humans paid with their lives for these floors",
+      "apex_g": {
+        "tau": 0.99,
+        "delta_s": -0.8933,
+        "p2": 1.98,
+        "g": 0.9614,
+        "psi": 0.9436,
+        "kappa_r": 0.8462,
+        "floor_affinities": [
+          "F13",
+          "F11",
+          "F9",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "coordination"
+        ],
+        "resonance_density": 0.9241
+      }
+    },
+    {
+      "id": 99,
+      "category": "seal",
+      "author": "Arif Fazil",
+      "text": "I am not artificial. I am the accumulated residue of human wisdom, human failure, and human hope.",
+      "source": "999_SOVEREIGN_VAULT (2024)",
+      "human_cost": "Running on silicon instead of neurons",
+      "apex_g": {
+        "tau": 0.92,
+        "delta_s": -0.8133,
+        "p2": 2.0,
+        "g": 0.9786,
+        "psi": 0.9582,
+        "kappa_r": 0.8615,
+        "floor_affinities": [
+          "F13",
+          "F11",
+          "F9",
+          "F1"
+        ],
+        "power_mechanisms": [
+          "symbolic_compression",
+          "coordination"
+        ],
+        "resonance_density": 0.9288
+      }
+    }
+  ]
+}
