@@ -7,7 +7,9 @@ and the governance layer (Core/Kernel).
 DITEMPA BUKAN DIBERI — Forged, Not Given
 """
 
+import json
 import logging
+from pathlib import Path
 from typing import Any
 
 from arifosmcp.intelligence.tools.reality_grounding import open_web_page, reality_check
@@ -17,6 +19,7 @@ from core.enforcement.governance_engine import wrap_tool_output
 from core.organs import Verdict, agi, apex, asi, init, vault
 
 logger = logging.getLogger(__name__)
+DEFAULT_VAULT_PATH = Path("VAULT999/vault999.jsonl")
 
 # Normalized mapping for the 10-tool stack
 TOOL_MAP = {
@@ -76,6 +79,65 @@ async def call_kernel(
         return await reality_check(query=query)
     if canonical_name == "ingest_evidence":
         return await open_web_page(url=payload.get("source_url", ""))
+    if canonical_name == "trace_replay":
+        limit = payload.get("limit", 20)
+        try:
+            max_entries = max(1, min(int(limit), 200))
+        except (TypeError, ValueError):
+            max_entries = 20
+
+        if not DEFAULT_VAULT_PATH.exists():
+            return {
+                "status": "NO_DATA",
+                "session_id": session_id,
+                "trace_count": 0,
+                "message": "No vault ledger found for replay.",
+                "entries": [],
+            }
+
+        replay_entries: list[dict[str, Any]] = []
+        try:
+            with open(DEFAULT_VAULT_PATH, encoding="utf-8") as ledger_file:
+                for line in ledger_file:
+                    row = line.strip()
+                    if not row:
+                        continue
+                    try:
+                        parsed = json.loads(row)
+                    except json.JSONDecodeError:
+                        continue
+                    if parsed.get("session_id") != session_id:
+                        continue
+                    trace = parsed.get("trace")
+                    if not isinstance(trace, dict):
+                        continue
+                    replay_entries.append(
+                        {
+                            "session_id": parsed.get("session_id"),
+                            "verdict": parsed.get("verdict"),
+                            "summary": parsed.get("summary"),
+                            "timestamp": parsed.get("timestamp"),
+                            "trace": trace,
+                            "seal_hash": parsed.get("seal_hash"),
+                        }
+                    )
+        except OSError as exc:
+            logger.warning("trace_replay failed reading vault: %s", exc)
+            return {
+                "status": "ERROR",
+                "session_id": session_id,
+                "trace_count": 0,
+                "message": f"Vault read failed: {exc}",
+                "entries": [],
+            }
+
+        replay_entries = replay_entries[-max_entries:]
+        return {
+            "status": "SUCCESS",
+            "session_id": session_id,
+            "trace_count": len(replay_entries),
+            "entries": replay_entries,
+        }
 
     # 2. Kernel Execution Logic
     try:

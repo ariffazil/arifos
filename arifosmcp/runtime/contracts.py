@@ -37,6 +37,7 @@ TOOL_INPUT_CONTRACTS: dict[str, dict[str, str]] = {
     "ingest_evidence": {"source_type": "str", "target": "str"},
     "audit_rules": {"audit_scope": "str", "session_id": "str"},
     "check_vital": {},
+    "trace_replay": {},
     "metabolic_loop": {"query": "str", "allow_execution": "bool", "dry_run": "bool"},
 }
 

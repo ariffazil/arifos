@@ -38,6 +38,11 @@ async def check_vital(session_id: str = "global") -> dict[str, Any]:
     return await call_kernel("check_vital", session_id, {})
 
 
+async def trace_replay(session_id: str = "global", limit: int = 20) -> dict[str, Any]:
+    """Read-only replay of sealed trace history for a session."""
+    return await call_kernel("trace_replay", session_id, {"limit": limit})
+
+
 async def metabolic_loop(session_id: str = "global") -> dict[str, Any]:
     """Legacy orchestration tool preserved for compatibility only."""
     return await call_kernel("metabolic_loop", session_id, {})
@@ -62,18 +67,23 @@ def _register_local_phase2_tools(mcp: FastMCP, profile: str = "full") -> None:
     )(ingest_evidence)
     mcp.tool(
         description=(
-            "Use this when you need a read-only governance or floor audit. This tool is "
-            "read-only."
+            "Use this when you need a read-only governance or floor audit. This tool is read-only."
         ),
         annotations={"readOnlyHint": True},
     )(audit_rules)
     mcp.tool(
         description=(
-            "Use this when you need a read-only system health snapshot. This tool is "
-            "read-only."
+            "Use this when you need a read-only system health snapshot. This tool is read-only."
         ),
         annotations={"readOnlyHint": True},
     )(check_vital)
+    mcp.tool(
+        description=(
+            "Use this when you need to replay sealed stage traces for a given session_id "
+            "from VAULT999 for explainability or audit. This tool is read-only."
+        ),
+        annotations={"readOnlyHint": True},
+    )(trace_replay)
     if normalized_profile != "chatgpt":
         mcp.tool(
             description=(
@@ -107,4 +117,5 @@ __all__ = [
     "metabolic_loop",
     "register_phase2_tools",
     "search_reality",
+    "trace_replay",
 ]
