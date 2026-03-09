@@ -67,6 +67,37 @@ class SecurityHeadersMiddleware:
         await self.app(scope, receive, send_with_headers)
 
 
+class DefaultAcceptMiddleware:
+    """Add default Accept header for ChatGPT MCP compatibility.
+
+    ChatGPT MCP client doesn't send Accept header, causing 406 errors.
+    This middleware adds 'application/json' as default Accept.
+    """
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope.get("type") != "http":
+            await self.app(scope, receive, send)
+            return
+
+        # Check if Accept header is missing
+        headers = scope.get("headers", [])
+        accept_found = False
+        for name, value in headers:
+            if name.lower() == b"accept":
+                accept_found = True
+                break
+
+        if not accept_found:
+            # Add default Accept header
+            headers.append((b"accept", b"application/json"))
+            scope["headers"] = headers
+
+        await self.app(scope, receive, send)
+
+
 class BearerAuthMiddleware:
     """Optional Bearer-token gate for MCP HTTP surfaces."""
 
@@ -268,6 +299,9 @@ class InMemoryRateLimitMiddleware:
 def _build_http_middleware() -> list[Middleware]:
     middleware: list[Middleware] = []
 
+    # Add default Accept header for ChatGPT compatibility (must be first)
+    middleware.append(Middleware(DefaultAcceptMiddleware))
+
     allowed_hosts = _split_csv("ARIFOS_ALLOWED_HOSTS", "*")
     if allowed_hosts != ["*"]:
         middleware.append(Middleware(TrustedHostMiddleware, allowed_hosts=allowed_hosts))
@@ -330,7 +364,7 @@ def _build_uvicorn_config() -> dict[str, Any]:
 
 class _HealthEndpointMiddleware:
     """ASGI middleware that adds health endpoint only.
-    
+
     Root / is handled by FastMCP custom routes (WELCOME_HTML).
     This middleware only handles /health for Traefik compatibility.
     """
