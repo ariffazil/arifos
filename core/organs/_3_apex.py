@@ -132,7 +132,7 @@ async def judge(
 
     # 4. G† Sovereignty Gate
     if candidate == Verdict.SEAL and g_dagger < 0.80:
-        logger.info(f"APEX Discipline Check: G† ({g_dagger:.4f}) < 0.80. Downgrading to PARTIAL.")
+        logger.info(f"arifOS APEX Discipline Check: G† ({g_dagger:.4f}) < 0.80. Downgrading to PARTIAL.")
         candidate = Verdict.PARTIAL
         reason_summary = (reason_summary or "") + f" [APEX Gate: G†={g_dagger:.4f} < 0.80]"
 
