@@ -1574,3 +1574,202 @@ docker compose restart openclaw
 
 *Last Updated: 2026.03.08-SEAL by Kimi Code (ΔΩΨ Trinity)*
 *DITEMPA BUKAN DIBERI — Forged, Not Given*
+---
+
+## 🧠 OPENCLAW MEMORY ARCHITECTURE (NEW - 2026.03.09)
+
+### Memory Philosophy: File-First + Local Embeddings
+
+Following the OpenClaw runbook principles, memory is **explicit, not automatic**:
+- Three-layer memory: Short-term (context) → Medium-term (daily logs) → Long-term (MEMORY.md)
+- Local embeddings via Ollama (bge-m3) — no API costs
+- Hybrid search (BM25 + Vector) via QMD
+
+### Memory Stack Components
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│              OPENCLAW MEMORY ARCHITECTURE                           │
+├─────────────────────────────────────────────────────────────────────┤
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ Layer 3: Long-Term (MEMORY.md)                               │   │
+│  │ • Curated facts, preferences, project status                 │   │
+│  │ • Human-maintained, loaded at every session start            │   │
+│  │ • Only in private DM sessions (security boundary)            │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                              ↓                                      │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ Layer 2: Medium-Term (memory/YYYY-MM-DD.md)                  │   │
+│  │ • Daily append-only logs                                     │   │
+│  │ • Auto-generated via session-memory hook                     │   │
+│  │ • Today + yesterday loaded at session start                  │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                              ↓                                      │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ Layer 1: Short-Term (Conversation Context)                   │   │
+│  │ • Active conversation in context window                      │   │
+│  │ • Compacted when hitting token limits                        │   │
+│  │ • Lost when session ends (unless flushed to daily log)       │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+│  ┌─────────────────────────────────────────────────────────────┐   │
+│  │ Hybrid Search (QMD)                                          │   │
+│  │ • 70% Vector (semantic meaning)                              │   │
+│  │ • 30% BM25 (keyword matching)                                │   │
+│  │ • Local embeddings: bge-m3 (1.2GB, multilingual)             │   │
+│  │ • Reranking: Qwen3 0.6B                                     │   │
+│  │ • Cost: $0 (local CPU inference)                            │   │
+│  └─────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+### VPS Memory Architecture Alignment
+
+**Ollama Embeddings (Local):**
+```
+Model: bge-m3:latest (1.2 GB)
+  • 1024-dimensional embeddings
+  • Multilingual support
+  • No API costs
+  • Running on CPU (no GPU required)
+
+Model: nomic-embed-text:latest (274 MB)
+  • Text-optimized embeddings
+  • Faster for English-only content
+  • Fallback option
+```
+
+**QMD (Quarto Markdown Database):**
+```
+Version: 1.1.5 (installed via npm @tobilu/qmd)
+Backend: qmd (hybrid BM25 + vector)
+Index: ~/.openclaw/agents/main/qmd/xdg-cache/qmd/index.sqlite
+Citations: auto (shows source paths in results)
+
+Collections:
+  • memory-root: ./MEMORY.md
+  • memory-dir: ./memory/**/*.md
+```
+
+**Integration with arifOS Stack:**
+```
+OpenClaw Memory (file-based)
+         ↓
+    QMD Hybrid Search
+         ↓
+  Ollama Embeddings (local)
+         ↓
+  bge-m3 / nomic-embed-text
+         ↓
+  arifOS Constitutional RAG (arifosmcp)
+         ↓
+    Qdrant Vectors
+         ↓
+  BAAI/bge-small-en-v1.5
+```
+
+### OpenClaw Configuration (2026.03.09)
+
+**Model Chain (Cost Optimized):**
+```json
+{
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "kimi-coding/k2p5",
+        "fallbacks": [
+          "google/gemini-2.5-flash",
+          "anthropic/claude-sonnet-4-5",
+          "google/gemini-3-flash-preview"
+        ]
+      }
+    }
+  }
+}
+```
+
+**Memory Configuration:**
+```json
+{
+  "memory": {
+    "backend": "qmd",
+    "citations": "auto"
+  },
+  "agents": {
+    "defaults": {
+      "compaction": {
+        "memoryFlush": {
+          "enabled": true,
+          "softThresholdTokens": 4000
+        }
+      }
+    }
+  }
+}
+```
+
+**Boot Files (loaded at every session start):**
+```
+~/.openclaw/workspace/
+├── AGENTS.md          # Operating instructions
+├── SOUL.md            # Personality & tone
+├── USER.md            # Human preferences
+├── MEMORY.md          # Curated long-term memory
+├── CONTEXT.md         # Active threads
+├── LESSONS.md         # Learned patterns
+└── memory/
+    └── YYYY-MM-DD.md  # Daily logs
+```
+
+### Cost Analysis (Per Runbook)
+
+| Component | Cost | Notes |
+|-----------|------|-------|
+| KIMI k2p5 (primary) | ~$0.02/1K tokens | Coding-optimized |
+| Gemini Flash (fallback) | ~$0.001/1K tokens | Ultra-cheap |
+| Claude Sonnet 4.5 | ~$0.015/1K tokens | Medium cost |
+| QMD Embeddings | $0 | Local bge-m3 |
+| arifOS RAG | $0 | Local BGE + Qdrant |
+| **Monthly Estimate** | **$5-10** | With QMD cost savings |
+
+### Memory Maintenance Workflow
+
+**Weekly Review (Sundays):**
+1. Scan daily logs from past week
+2. Extract patterns worth keeping → MEMORY.md
+3. Update active projects
+4. Remove stale entries (>3 months)
+5. Keep MEMORY.md under 200 lines
+
+**Commands:**
+```bash
+# Check memory status
+openclaw memory status
+
+# Search memory
+openclaw memory search "deployment strategy"
+
+# Trigger manual compaction
+/new  # Starts fresh session, flushes old context
+```
+
+---
+
+## 🔧 UPDATED SERVICE MATRIX (2026.03.09)
+
+| Container | Port | Network | Status | Role |
+|-----------|------|---------|--------|------|
+| arifosmcp_server | 8080 | arifos_trinity | healthy | Constitutional Kernel |
+| openclaw_gateway | 18789 | arifos_trinity | healthy | AGI Gateway + QMD Memory |
+| traefik_router | 80/443 | arifos-internal | up | Edge Proxy |
+| qdrant_memory | 6333 | arifos_trinity | up | Vector Store (arifOS RAG) |
+| ollama_engine | 11434 | arifos_trinity | up | LLM + Embeddings |
+| arifos-postgres | 5432* | arifos-internal | healthy | Database |
+| arifos-redis | 6379* | arifos-internal | healthy | Cache + CIV Bus |
+| arifos_grafana | 3000 | arifos_trinity | up | Monitoring |
+| arifos_webhook | 9000 | arifos_trinity | up | CI/CD Hooks |
+
+* = localhost-only
+
