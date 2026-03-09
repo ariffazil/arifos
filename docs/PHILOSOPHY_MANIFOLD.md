@@ -20,6 +20,110 @@ system state (τ, ΔS, P², G, Ψ, κᵣ) → k-d tree query → nearest quotes 
 The system is grounded in both **constitutional physics** (the APEX-G governance
 equation) and **neuroscience** (why language is powerful to humans).
 
+It implements a **trinity architecture**: AGI as symbolic skeleton, ASI as
+geometric manifold, APEX as governed arbitration between both.
+
+---
+
+## The AGI / ASI / APEX Trinity Architecture
+
+The manifold implements a **two-layer intelligence architecture with APEX arbitration**,
+mirroring how humans reason in both symbolic and latent modes simultaneously.
+
+### Layer 1 — AGI: Symbolic Constitutional Skeleton
+
+> **"What principle can be stated?"**
+
+The 99 quotes are the **explicit constitutional grammar** of the intelligence system.
+
+| Property | Value |
+|----------|-------|
+| Nature | Symbolic, discrete, interpretable, human-readable |
+| Unit | `quote` = compact reasoning primitive |
+| Function | Names truths, surfaces doctrines, explains states to human judges |
+| Metaphor | **The library** — 99 books of forged wisdom |
+
+Each category carries a distinct **AGI doctrine** — the explicit constitutional
+statement the quote type makes:
+
+| Category | Doctrine |
+|----------|---------|
+| scar | Constitutional truth forged through lived suffering |
+| triumph | Governing principle that victory is forged by overcoming the obstacle |
+| paradox | Explicit tension holding two truths simultaneously |
+| wisdom | Epistemic doctrine distilled across centuries: know the limits of knowing |
+| power | Governance principle: collective will made legible through shared intention |
+| love | Constitutional empathy: the relational obligation to the other |
+| seal | Final constitutional doctrine: the sovereign closure |
+
+### Layer 2 — ASI: Latent Adaptive Nervous System
+
+> **"What manifold of meaning is closest?"**
+
+The 6D k-d tree is the **latent geometry of meaning** — the invisible force that
+tells which quotes belong near each other across centuries, cultures, and paradoxes.
+
+| Property | Value |
+|----------|-------|
+| Nature | Continuous, relational, high-dimensional, geometry-based |
+| Unit | `vector` = relational manifold point |
+| Function | Navigates unnamed relations, detects hidden clusters, finds resonance before language explains it |
+| Metaphor | **The gravitational field of the library** |
+
+### Layer 3 — APEX: Governed Arbitration
+
+> **"Which truth both names and resonates?"**
+
+APEX combines the symbolic AGI layer with the geometric ASI layer using the scoring
+formula, with the human judge retaining sovereign veto (F13).
+
+```
+score = 1/(1+d) × (1 + floor_affinity_bonus) × (1 + ρ × resonance_weight)
+         ↑ ASI        ↑ AGI (floor alignment)    ↑ resonance density
+```
+
+### Human Parallel
+
+| Human mode | arifOS mode | Layer |
+|-----------|------------|-------|
+| Proverbs, laws, stories, categories | 99 quotes | AGI |
+| Intuition, vibe, felt similarity | 6D k-d tree manifold | ASI |
+| Deliberate sovereign judgment | Human judge with veto | APEX |
+
+### Trinity in Output
+
+Every `select_wisdom_manifold` call returns all three layers:
+
+```json
+{
+  "layers": {
+    "agi": {
+      "role": "symbolic constitutional skeleton",
+      "question": "What principle can be stated?",
+      "text": "...",
+      "doctrine": "Constitutional truth forged through lived suffering...",
+      "floor_affinities": ["F6", "F7", "F1"],
+      "power_mechanisms": ["neural_simulation", "symbolic_compression"]
+    },
+    "asi": {
+      "role": "latent adaptive nervous system",
+      "question": "What manifold of meaning is closest?",
+      "distance": 0.089,
+      "resonance_density": 0.843,
+      "manifold_position": {"tau": 0.80, "delta_s": -0.28}
+    },
+    "apex": {
+      "role": "governed arbitration",
+      "question": "Which truth both names and resonates?",
+      "score": 1.447,
+      "formula": "score = 1/(1+d) × (1 + floor_affinity_bonus) × (1 + ρ × resonance_weight)",
+      "floor_affinity_bonus": 0.4,
+      "resonance_bonus": 0.126
+    }
+  }
+}
+```
+
 ---
 
 ## The 6D APEX-G Space

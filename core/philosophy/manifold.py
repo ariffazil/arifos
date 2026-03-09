@@ -40,10 +40,13 @@ except ImportError:  # pragma: no cover
     _SCIPY_AVAILABLE = False
 
 from core.philosophy.coordinates import (
-    APEXGCoordinate,
+    CATEGORY_AGI_DOCTRINE,
     CATEGORY_FLOOR_AFFINITIES,
     CATEGORY_POWER_MECHANISMS,
     DIM,
+    LAYER_DESCRIPTIONS,
+    APEXGCoordinate,
+    WisdomLayer,
     session_state_to_coordinate,
 )
 
@@ -98,6 +101,7 @@ class QuoteSelection:
     provenance: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
+        agi_doctrine = CATEGORY_AGI_DOCTRINE.get(self.category, "")
         return {
             "quote_id": self.quote_id,
             "category": self.category,
@@ -106,6 +110,42 @@ class QuoteSelection:
             "source": self.source,
             "human_cost": self.human_cost,
             "apex_g": self.apex_g,
+            # ── AGI / ASI / APEX trinity layer output ──────────────────────
+            "layers": {
+                WisdomLayer.AGI: {
+                    "role": LAYER_DESCRIPTIONS[WisdomLayer.AGI]["role"],
+                    "question": LAYER_DESCRIPTIONS[WisdomLayer.AGI]["question"],
+                    "quote_id": self.quote_id,
+                    "category": self.category,
+                    "text": self.text,
+                    "author": self.author,
+                    "doctrine": agi_doctrine,
+                    "floor_affinities": self.apex_g.get("floor_affinities", []),
+                    "power_mechanisms": self.power_mechanisms,
+                },
+                WisdomLayer.ASI: {
+                    "role": LAYER_DESCRIPTIONS[WisdomLayer.ASI]["role"],
+                    "question": LAYER_DESCRIPTIONS[WisdomLayer.ASI]["question"],
+                    "distance": round(self.distance, 6),
+                    "resonance_density": self.resonance_density,
+                    "query_vector": [round(v, 4) for v in self.query_vector],
+                    "manifold_position": {
+                        k: v for k, v in self.apex_g.items()
+                        if k not in ("floor_affinities", "power_mechanisms",
+                                     "resonance_density")
+                    },
+                },
+                WisdomLayer.APEX: {
+                    "role": LAYER_DESCRIPTIONS[WisdomLayer.APEX]["role"],
+                    "question": LAYER_DESCRIPTIONS[WisdomLayer.APEX]["question"],
+                    "score": round(self.score, 6),
+                    "formula": self.provenance.get("formula", ""),
+                    "floor_affinity_bonus": round(self.floor_affinity_bonus, 4),
+                    "active_floors_matched": self.active_floors_matched,
+                    "resonance_bonus": round(self.resonance_bonus, 4),
+                },
+            },
+            # ── Backward-compatible flat fields ────────────────────────────
             "word_power": {
                 "power_mechanisms": self.power_mechanisms,
                 "resonance_density": self.resonance_density,
@@ -139,7 +179,7 @@ class QuoteManifold:
     The manifold is built once on first instantiation and cached.
     """
 
-    _instance: "QuoteManifold | None" = None
+    _instance: QuoteManifold | None = None
 
     def __init__(self, manifold_path: Path | str | None = None) -> None:
         path = Path(manifold_path) if manifold_path else _MANIFOLD_PATH
@@ -207,7 +247,7 @@ class QuoteManifold:
         best_rho = 0.0
         best_rho_bonus = 0.0
 
-        for dist, idx in zip(distances, indices):
+        for dist, idx in zip(distances, indices, strict=False):
             d = float(dist)
             i = int(idx)
             quote = self._quotes[i]

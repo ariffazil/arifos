@@ -415,23 +415,35 @@ def test_provenance_formula_includes_rho():
 
 
 def test_all_quotes_have_power_mechanisms():
-    """Every quote in the manifold has at least one power mechanism."""
+    """Every quote in the manifold JSON has at least one valid power mechanism."""
+    import json
+    from pathlib import Path
+
     from core.philosophy.coordinates import ALL_MECHANISMS
 
-    m = get_manifold()
-    # Check first 20 quotes via selection at varied state vectors
-    test_taus = [i / 20.0 for i in range(20)]
-    seen_no_mechanism: list[int] = []
-    for tau in test_taus:
-        result = m.select(tau=tau, delta_s=-0.2, p2=1.0, g=0.85, psi=0.6, kappa_r=0.5)
-        if not result.power_mechanisms:
-            seen_no_mechanism.append(result.quote_id)
-        else:
-            for mech in result.power_mechanisms:
-                assert mech in ALL_MECHANISMS
+    manifold_path = (
+        Path(__file__).parent.parent.parent / "data" / "wisdom_quotes_manifold.json"
+    )
+    data = json.loads(manifold_path.read_text(encoding="utf-8"))
+    quotes = data["quotes"]
+    assert len(quotes) == 99, f"Expected 99 quotes, got {len(quotes)}"
 
-    assert len(seen_no_mechanism) == 0, (
-        f"Quotes missing power_mechanisms: {seen_no_mechanism}"
+    missing_mechanism: list[int] = []
+    invalid_mechanism: list[tuple[int, str]] = []
+
+    for q in quotes:
+        mechanisms = q.get("apex_g", {}).get("power_mechanisms", [])
+        if not mechanisms:
+            missing_mechanism.append(q["id"])
+        for mech in mechanisms:
+            if mech not in ALL_MECHANISMS:
+                invalid_mechanism.append((q["id"], mech))
+
+    assert len(missing_mechanism) == 0, (
+        f"Quotes missing power_mechanisms: {missing_mechanism}"
+    )
+    assert len(invalid_mechanism) == 0, (
+        f"Quotes with unknown mechanism: {invalid_mechanism}"
     )
 
 
@@ -445,3 +457,160 @@ def test_runtime_tool_returns_word_power():
     assert "power_mechanisms" in wp
     assert "resonance_density" in wp
     assert 0.0 <= wp["resonance_density"] <= 1.0
+
+
+# ── AGI / ASI / APEX Trinity Layer Tests ─────────────────────────────────────
+
+
+def test_to_dict_has_layers_key():
+    """to_dict() includes a top-level 'layers' key."""
+    from core.philosophy.coordinates import WisdomLayer
+
+    m = get_manifold()
+    d = m.select().to_dict()
+    assert "layers" in d
+    assert WisdomLayer.AGI in d["layers"]
+    assert WisdomLayer.ASI in d["layers"]
+    assert WisdomLayer.APEX in d["layers"]
+
+
+def test_agi_layer_has_doctrine():
+    """AGI layer includes 'doctrine' — the explicit constitutional statement."""
+    m = get_manifold()
+    d = m.select(tau=0.40, delta_s=-0.40, p2=1.40, g=0.88, psi=0.97, kappa_r=0.68).to_dict()
+    agi = d["layers"]["agi"]
+    assert "doctrine" in agi
+    assert len(agi["doctrine"]) > 10
+
+
+def test_agi_layer_has_quote_fields():
+    """AGI layer includes quote_id, category, text, author, floor_affinities."""
+    m = get_manifold()
+    agi = m.select().to_dict()["layers"]["agi"]
+    assert "quote_id" in agi
+    assert "category" in agi
+    assert "text" in agi
+    assert "author" in agi
+    assert "floor_affinities" in agi
+    assert "power_mechanisms" in agi
+
+
+def test_asi_layer_has_geometric_fields():
+    """ASI layer includes distance, resonance_density, query_vector, manifold_position."""
+    m = get_manifold()
+    asi = m.select().to_dict()["layers"]["asi"]
+    assert "distance" in asi
+    assert "resonance_density" in asi
+    assert "query_vector" in asi
+    assert "manifold_position" in asi
+
+
+def test_asi_layer_distance_matches_telemetry():
+    """ASI layer distance matches selection_telemetry distance."""
+    m = get_manifold()
+    d = m.select(tau=0.5, delta_s=0.0, p2=1.2, g=0.85, psi=0.7, kappa_r=0.6).to_dict()
+    assert d["layers"]["asi"]["distance"] == d["selection_telemetry"]["distance"]
+
+
+def test_apex_layer_has_arbitration_fields():
+    """APEX layer includes score, formula, floor_affinity_bonus, resonance_bonus."""
+    m = get_manifold()
+    apex = m.select().to_dict()["layers"]["apex"]
+    assert "score" in apex
+    assert "formula" in apex
+    assert "floor_affinity_bonus" in apex
+    assert "resonance_bonus" in apex
+    assert "active_floors_matched" in apex
+
+
+def test_apex_layer_score_matches_telemetry():
+    """APEX layer score matches selection_telemetry score."""
+    m = get_manifold()
+    d = m.select().to_dict()
+    assert d["layers"]["apex"]["score"] == d["selection_telemetry"]["score"]
+
+
+def test_layer_roles_are_distinct():
+    """AGI, ASI, APEX layers each have unique 'role' strings."""
+    m = get_manifold()
+    layers = m.select().to_dict()["layers"]
+    roles = [layers[k]["role"] for k in ("agi", "asi", "apex")]
+    assert len(set(roles)) == 3, f"Expected 3 distinct roles, got: {roles}"
+
+
+def test_layer_questions_are_distinct():
+    """Each layer has a distinct 'question' it answers."""
+    m = get_manifold()
+    layers = m.select().to_dict()["layers"]
+    questions = [layers[k]["question"] for k in ("agi", "asi", "apex")]
+    assert len(set(questions)) == 3
+
+
+def test_all_categories_have_agi_doctrine():
+    """Every quote category produces a non-empty AGI doctrine string."""
+    from core.philosophy.coordinates import CATEGORY_AGI_DOCTRINE
+
+    for cat in ("scar", "triumph", "paradox", "wisdom", "power", "love", "seal"):
+        assert cat in CATEGORY_AGI_DOCTRINE
+        assert len(CATEGORY_AGI_DOCTRINE[cat]) > 20, (
+            f"AGI doctrine for '{cat}' is too short"
+        )
+
+
+def test_layer_descriptions_all_three_layers():
+    """LAYER_DESCRIPTIONS covers all three WisdomLayer constants."""
+    from core.philosophy.coordinates import LAYER_DESCRIPTIONS, WisdomLayer
+
+    assert WisdomLayer.AGI in LAYER_DESCRIPTIONS
+    assert WisdomLayer.ASI in LAYER_DESCRIPTIONS
+    assert WisdomLayer.APEX in LAYER_DESCRIPTIONS
+
+
+def test_runtime_tool_returns_layers():
+    """select_wisdom_manifold() MCP tool output includes the 'layers' structure."""
+    from arifosmcp.runtime.tools import select_wisdom_manifold
+
+    result = select_wisdom_manifold(stage="444", g_score=0.88, active_floors="F4,F7")
+    assert "layers" in result
+    assert "agi" in result["layers"]
+    assert "asi" in result["layers"]
+    assert "apex" in result["layers"]
+
+
+def test_agi_layer_doctrine_matches_scar_category():
+    """Selecting near scar centroid surfaces the scar AGI doctrine."""
+    from core.philosophy.coordinates import CATEGORY_AGI_DOCTRINE
+
+    m = get_manifold()
+    d = m.select(tau=0.80, delta_s=-0.30, p2=1.10, g=0.78, psi=0.85, kappa_r=0.72).to_dict()
+    agi = d["layers"]["agi"]
+    assert agi["category"] == "scar"
+    assert agi["doctrine"] == CATEGORY_AGI_DOCTRINE["scar"]
+
+
+def test_agi_layer_doctrine_matches_seal_category():
+    """Selecting near seal centroid surfaces the seal AGI doctrine."""
+    from core.philosophy.coordinates import CATEGORY_AGI_DOCTRINE
+
+    m = get_manifold()
+    d = m.select(tau=0.98, delta_s=-0.80, p2=1.95, g=0.97, psi=0.98, kappa_r=0.90).to_dict()
+    agi = d["layers"]["agi"]
+    assert agi["category"] == "seal"
+    assert agi["doctrine"] == CATEGORY_AGI_DOCTRINE["seal"]
+
+
+def test_all_quotes_tau_strictly_below_one():
+    """All 99 quotes have tau < 1.0 (interior of manifold, not boundary)."""
+    import json
+    from pathlib import Path
+
+    manifold_path = (
+        Path(__file__).parent.parent.parent / "data" / "wisdom_quotes_manifold.json"
+    )
+    data = json.loads(manifold_path.read_text(encoding="utf-8"))
+    boundary = [
+        (q["id"], q["apex_g"]["tau"])
+        for q in data["quotes"]
+        if q["apex_g"]["tau"] >= 1.0
+    ]
+    assert boundary == [], f"Quotes with tau >= 1.0: {boundary}"

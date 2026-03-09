@@ -256,3 +256,66 @@ def test_seal_has_highest_resonance_density():
             assert seal_rho >= rho, (
                 f"seal rho={seal_rho} should be >= {cat} rho={rho}"
             )
+
+
+# ── AGI / ASI / APEX WisdomLayer constants ───────────────────────────────────
+
+
+def test_wisdom_layer_constants():
+    """WisdomLayer class exposes agi, asi, apex string constants."""
+    from core.philosophy.coordinates import WisdomLayer
+
+    assert WisdomLayer.AGI == "agi"
+    assert WisdomLayer.ASI == "asi"
+    assert WisdomLayer.APEX == "apex"
+
+
+def test_layer_descriptions_have_required_keys():
+    """Each LAYER_DESCRIPTIONS entry has role, question, nature, metaphor."""
+    from core.philosophy.coordinates import LAYER_DESCRIPTIONS
+
+    for layer, desc in LAYER_DESCRIPTIONS.items():
+        for key in ("role", "question", "nature", "metaphor"):
+            assert key in desc, f"Layer '{layer}' missing key '{key}'"
+
+
+def test_category_agi_doctrine_all_categories():
+    """CATEGORY_AGI_DOCTRINE covers all seven categories."""
+    from core.philosophy.coordinates import CATEGORY_AGI_DOCTRINE
+
+    expected = {"scar", "triumph", "paradox", "wisdom", "power", "love", "seal"}
+    assert expected == set(CATEGORY_AGI_DOCTRINE.keys())
+
+
+def test_category_agi_doctrine_non_empty():
+    """All AGI doctrine strings are non-empty."""
+    from core.philosophy.coordinates import CATEGORY_AGI_DOCTRINE
+
+    for cat, doctrine in CATEGORY_AGI_DOCTRINE.items():
+        assert len(doctrine.strip()) > 0, f"Category '{cat}' has empty doctrine"
+
+
+def test_agi_layer_is_symbolic_skeleton():
+    """AGI layer description correctly identifies symbolic nature."""
+    from core.philosophy.coordinates import LAYER_DESCRIPTIONS, WisdomLayer
+
+    agi = LAYER_DESCRIPTIONS[WisdomLayer.AGI]
+    assert "symbolic" in agi["nature"].lower()
+    assert "discrete" in agi["nature"].lower()
+
+
+def test_asi_layer_is_continuous():
+    """ASI layer description correctly identifies continuous/geometric nature."""
+    from core.philosophy.coordinates import LAYER_DESCRIPTIONS, WisdomLayer
+
+    asi = LAYER_DESCRIPTIONS[WisdomLayer.ASI]
+    assert "continuous" in asi["nature"].lower()
+    assert "geometry" in asi["nature"].lower() or "relational" in asi["nature"].lower()
+
+
+def test_apex_layer_includes_arbitration():
+    """APEX layer description references arbitration / scoring."""
+    from core.philosophy.coordinates import LAYER_DESCRIPTIONS, WisdomLayer
+
+    apex = LAYER_DESCRIPTIONS[WisdomLayer.APEX]
+    assert "arbitration" in apex["role"].lower() or "scoring" in apex["nature"].lower()
