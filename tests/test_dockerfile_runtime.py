@@ -29,3 +29,5 @@ def test_canonical_vps_env_template_declares_public_profile_and_governance_secre
     assert "ARIFOS_GOVERNANCE_SECRET=CHANGE_ME_TO_A_LONG_RANDOM_SECRET" in env_template
     assert "ARIFOS_PUBLIC_TOOL_PROFILE=chatgpt" in env_template
     assert "ARIFOS_MCP_PATH=/mcp" in env_template
+    assert "ARIFOS_PUBLIC_BASE_URL=https://arifosmcp.arif-fazil.com" in env_template
+    assert "ARIFOS_WIDGET_DOMAIN=https://arifosmcp.arif-fazil.com" in env_template
