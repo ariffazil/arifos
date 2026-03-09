@@ -96,7 +96,7 @@ dependencies = [
     "anyio>=4.0.0",
     "starlette>=0.30.0",
     "fastmcp==3.0.2",
-    "prefab-ui==0.8.0",
+    "prefab-ui==0.11.0",
     "openapi-pydantic>=0.5.1",
     "fastapi>=0.104.1",
     "uvicorn[standard]>=0.24.0",
